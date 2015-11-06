@@ -303,7 +303,7 @@ int32_t		tmp;
 	for (i = 0; i < num_aus; i ++) {
 	   int16_t	aac_frame_length;
 	   au_count ++;
-	   uint8_t theAU [960 + 10];	// sure, large enough
+	   uint8_t theAU [2 * 960 + 10];	// sure, large enough
 	   memset (theAU, 0, sizeof (theAU));
 //
 	   if (au_start [i + 1] < au_start [i]) {
@@ -312,7 +312,7 @@ int32_t		tmp;
 	   }
 //	The crc takes the two last bytes from the au vector
 	   aac_frame_length = au_start [i + 1] - au_start [i] - 2;
-	   if ((aac_frame_length >= 960) || (aac_frame_length < 0)) {
+	   if ((aac_frame_length >= 2 * 960) || (aac_frame_length < 0)) {
 	      fprintf (errorLog, "serious error in frame 6 (%d) (%d) frame_length = %d\n",
 	                                        ++au_errors,
 	                                        au_count, aac_frame_length);
