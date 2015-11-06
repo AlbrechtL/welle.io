@@ -33,7 +33,6 @@
 #include	"dab-constants.h"
 #include	"gui.h"
 
-#define		DISPLAY_SIZE	256
 void	fullPathfor (const char *v, char *out) {
 int16_t	i;
 QString	homeDir;
