@@ -14,10 +14,10 @@ that can be used to map these PCI samples to a soundcard.
 
 Building:
 
-Libraries that are needed are
+Libraries -and their development files - that are needed are
 
 qt		(4.8 or more)	tested with both Qt4 and Qt5
-usbx		(1.0.14 used)
+usbx	use a recent version
 portaudio	0.19		some distros support by default an older version
 fftw3f
 faad
@@ -35,4 +35,5 @@ A similar facility exists for the CMakeLists.txt file
 Note that selecting a device requires installing the library and the
 development files.
 
-
+Tested on RPI with arch linux, and RPI with Raspbian Jessie, as well as under fedora 22 and Ubuntu 14.04
+Cross compiled for W7/W10
