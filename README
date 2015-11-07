@@ -1,12 +1,16 @@
 PLEASE READ
 
 This directory contains the implementation of a simple
-dab/dab+ receiver.
+dab/dab+ receiver that will run on an RPI 2.
 The receiver supports terrestrial DAB reception with as input either
 the stream from a n AIRSPY, a SDRplay, a dabstick (direct
 or through the rtl_tcp server) or a (prerecorded) file,
 and it will output through the selected soundcard.
 
+If configured - see ".pro" file or the CMakeLists.txt file -
+the program will send its auio output to a tcp port.
+A simple client is included - to be compiled and installed separately -
+that can be used to map these PCI samples to a soundcard.
 
 Building:
 
