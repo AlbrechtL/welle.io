@@ -38,18 +38,18 @@
 
 class	RadioInterface;
 class	common_fft;
-class	ofdm_decoder;
+class	ofdmDecoder;
 
-class ofdm_processor: public QThread {
+class ofdmProcessor: public QThread {
 Q_OBJECT
 public:
-		ofdm_processor  	(virtualInput *,
-	                                 DabParams	*,
-	                                 RadioInterface *,
-	                                 mscHandler *,
-	                                 ficHandler *,
-	                                 int16_t);
-		~ofdm_processor		(void);
+		ofdmProcessor  	(virtualInput *,
+	                         DabParams	*,
+	                         RadioInterface *,
+	                         mscHandler *,
+	                         ficHandler *,
+	                         int16_t);
+		~ofdmProcessor	(void);
 	void	reset			(void);
 	void	stop		(void);
 	void	setOffset	(int32_t);
@@ -75,14 +75,14 @@ protected:
 	int32_t		localPhase;
 	int16_t		fineCorrector;
 	int32_t		coarseCorrector;
-volatile
+
 	bool		f2Correction;
 	int32_t		tokenCount;
 	DSPCOMPLEX	*ofdmBuffer;
 	uint32_t	ofdmBufferIndex;
 	uint32_t	ofdmSymbolCount;
 	phaseReference	*phaseSynchronizer;
-	ofdm_decoder	*ofdmDecoder;
+	ofdmDecoder	*my_ofdmDecoder;
 	DSPFLOAT	avgCorr;
 	ficHandler	*my_ficHandler;
 	mscHandler	*my_mscHandler;

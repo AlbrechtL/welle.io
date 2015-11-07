@@ -42,14 +42,14 @@ class	RadioInterface;
 class	ficHandler;
 class	mscHandler;
 
-class	ofdm_decoder: public QThread {
+class	ofdmDecoder: public QThread {
 Q_OBJECT
 public:
-		ofdm_decoder		(DabParams *,
+		ofdmDecoder		(DabParams *,
 	                                 RadioInterface *,
 	                                 ficHandler	*,
 	                                 mscHandler	*);
-		~ofdm_decoder		(void);
+		~ofdmDecoder		(void);
 	void	initTables		(void);
 	void	processBlock_0		(DSPCOMPLEX *);
 	void	decodeFICblock		(DSPCOMPLEX *, int32_t n);

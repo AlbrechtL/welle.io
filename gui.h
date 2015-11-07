@@ -58,7 +58,7 @@ class	streamerServer;
  *	QDialog and the generated form
  */
 class RadioInterface: public QDialog,
-		      private Ui_elektorSDR {
+		      private Ui_dabframe {
 Q_OBJECT
 public:
 		RadioInterface		(QSettings	*,
@@ -113,9 +113,9 @@ private:
 	void		resetSelector		(void);
 	int32_t		sampleCount;
 	bool		spectrumWaterfall;
-	ofdm_processor	*the_ofdmProcessor;
-	ficHandler	*the_ficHandler;
-	mscHandler	*the_mscHandler;
+	ofdmProcessor	*my_ofdmProcessor;
+	ficHandler	*my_ficHandler;
+	mscHandler	*my_mscHandler;
 	audioSink	*our_audioSink;
 	int32_t		FreqIncrement;
 	int32_t		TunedFrequency;

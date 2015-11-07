@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <author>jan</author>
- <class>elektorSDR</class>
- <widget class="QDialog" name="elektorSDR">
+ <class>dabframe</class>
+ <widget class="QDialog" name="dabframe">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -741,9 +741,9 @@
   <widget class="QLabel" name="versionName">
    <property name="geometry">
     <rect>
-     <x>290</x>
+     <x>270</x>
      <y>50</y>
-     <width>151</width>
+     <width>171</width>
      <height>21</height>
     </rect>
    </property>

@@ -36,18 +36,13 @@
 #include	<QDialog>
 
 #define	NIX		0100
-#define	MIRICS_STICK	0101
-#define	DAB_STICK	0102
-#define	GENERATOR	0104
-#define	FILEREADER	0110
-#define	AIRSPY		0111
-#define	ELAD		0114
-//
-//	in some cases we anly want to differentiate between sticks
-//	and non-sticks
+#define	FILEREADER	0200
+#define	DAB_STICK	0101
+#define	AIRSPY		0102
+#define	ELAD		0104
+#define	SDRPLAY		0110
 
-#define	someStick(x)	((x) & 03)
-
+#define	someStick(x)	(x & 017)
 class	virtualInput: public QObject {
 public:
 			virtualInput 	(void);

@@ -30,7 +30,7 @@
 #include	"fic-handler.h"
 #include	"msc-handler.h"
 
-	ofdm_decoder::ofdm_decoder	(DabParams	*p,
+	ofdmDecoder::ofdmDecoder	(DabParams	*p,
 	                                 RadioInterface *mr,
 	                                 ficHandler	*my_ficHandler,
 	                                 mscHandler	*my_mscHandler) {
@@ -68,7 +68,7 @@
 #endif
 }
 
-	ofdm_decoder::~ofdm_decoder	(void) {
+	ofdmDecoder::~ofdmDecoder	(void) {
 #ifdef	MULTI_CORE
 int16_t	i;
 	running	= false;
@@ -89,7 +89,7 @@ int16_t	i;
 //
 //
 #ifdef	MULTI_CORE
-void	ofdm_decoder::run	(void) {
+void	ofdmDecoder::run	(void) {
 int16_t	currentBlock	= 0;
 
 	running		= true;
@@ -114,7 +114,7 @@ int16_t	currentBlock	= 0;
 	}
 }
 //
-void	ofdm_decoder::processBlock_0 (DSPCOMPLEX *vi) {
+void	ofdmDecoder::processBlock_0 (DSPCOMPLEX *vi) {
 	memcpy (command [0], vi, sizeof (DSPCOMPLEX) * T_u);
 	helper. lock ();
 	amount ++;
@@ -122,7 +122,7 @@ void	ofdm_decoder::processBlock_0 (DSPCOMPLEX *vi) {
 	helper. unlock ();
 }
 
-void	ofdm_decoder::decodeFICblock (DSPCOMPLEX *vi, int32_t blkno) {
+void	ofdmDecoder::decodeFICblock (DSPCOMPLEX *vi, int32_t blkno) {
 	memcpy (command [blkno], &vi [T_g], sizeof (DSPCOMPLEX) * T_u);
 	helper. lock ();
 	amount ++;
@@ -130,7 +130,7 @@ void	ofdm_decoder::decodeFICblock (DSPCOMPLEX *vi, int32_t blkno) {
 	helper. unlock ();
 }
 
-void	ofdm_decoder::decodeMscblock (DSPCOMPLEX *vi, int32_t blkno) {
+void	ofdmDecoder::decodeMscblock (DSPCOMPLEX *vi, int32_t blkno) {
 	memcpy (command [blkno], &vi [T_g], sizeof (DSPCOMPLEX) * T_u);
 	helper. lock ();
 	amount ++;
@@ -142,10 +142,10 @@ void	ofdm_decoder::decodeMscblock (DSPCOMPLEX *vi, int32_t blkno) {
 //	in practice, we use the "incoming" block
 //	and use its data to generate the prs
 #ifndef	MULTI_CORE
-void	ofdm_decoder::processBlock_0 (DSPCOMPLEX *vi) {
+void	ofdmDecoder::processBlock_0 (DSPCOMPLEX *vi) {
 	memcpy (fft_buffer, vi, T_u * sizeof (DSPCOMPLEX));
 #else
-void	ofdm_decoder::processBlock_0 (void) {
+void	ofdmDecoder::processBlock_0 (void) {
 	memcpy (fft_buffer, command [0], T_u * sizeof (DSPCOMPLEX));
 #endif
 DSPCOMPLEX	*v = (DSPCOMPLEX *)alloca (T_u * sizeof (DSPCOMPLEX));
@@ -172,11 +172,11 @@ DSPCOMPLEX	*v = (DSPCOMPLEX *)alloca (T_u * sizeof (DSPCOMPLEX));
 //	we distinguish between FIC blocks and other blocks,
 //	just to save a test, the mapping code is the same
 #ifndef	MULTI_CORE
-void	ofdm_decoder::decodeFICblock (DSPCOMPLEX *vi, int32_t blkno) {
+void	ofdmDecoder::decodeFICblock (DSPCOMPLEX *vi, int32_t blkno) {
 int16_t	i;
 	memcpy (fft_buffer, &vi [T_g], T_u * sizeof (DSPCOMPLEX));
 #else
-void	ofdm_decoder::decodeFICblock (int32_t blkno) {
+void	ofdmDecoder::decodeFICblock (int32_t blkno) {
 int16_t	i;
 	memcpy (fft_buffer, command [blkno], T_u * sizeof (DSPCOMPLEX));
 #endif
@@ -200,11 +200,11 @@ int16_t	i;
 	my_ficHandler -> process_ficBlock (ibits, blkno);
 }
 #ifndef	MULTI_CORE
-void	ofdm_decoder::decodeMscblock (DSPCOMPLEX *vi, int32_t blkno) {
+void	ofdmDecoder::decodeMscblock (DSPCOMPLEX *vi, int32_t blkno) {
 int16_t	i;
 	memcpy (fft_buffer, &vi [T_g], T_u * sizeof (DSPCOMPLEX));
 #else
-void	ofdm_decoder::decodeMscblock (int32_t blkno) {
+void	ofdmDecoder::decodeMscblock (int32_t blkno) {
 int16_t	i;
 	memcpy (fft_buffer, command [blkno], T_u * sizeof (DSPCOMPLEX));
 #endif
@@ -229,11 +229,11 @@ int16_t	i;
 	my_mscHandler -> process_mscBlock (ibits, blkno);
 }
 
-int16_t	ofdm_decoder::coarseCorrector (void) {
+int16_t	ofdmDecoder::coarseCorrector (void) {
 	return coarseOffset;
 }
 
-int16_t	ofdm_decoder::getMiddle (DSPCOMPLEX *v) {
+int16_t	ofdmDecoder::getMiddle (DSPCOMPLEX *v) {
 int16_t		i;
 DSPFLOAT	sum = 0;
 int16_t		maxIndex = 0;
@@ -263,7 +263,7 @@ DSPFLOAT	oldMax	= 0;
 //
 //	for the snr we have a full T_u wide vector, with in the middle
 //	K carriers
-int16_t	ofdm_decoder::get_snr (DSPCOMPLEX *v) {
+int16_t	ofdmDecoder::get_snr (DSPCOMPLEX *v) {
 int16_t	i;
 DSPFLOAT	noise 	= 0;
 DSPFLOAT	signal	= 0;
@@ -283,7 +283,7 @@ int16_t	high	= low + carriers;
 	return get_db (signal / (carriers / 2)) - get_db (noise);
 }
 
-int16_t	ofdm_decoder::newStrength (DSPCOMPLEX *v) {
+int16_t	ofdmDecoder::newStrength (DSPCOMPLEX *v) {
 int16_t	i;
 DSPFLOAT	signal	= 0;
 
@@ -292,7 +292,7 @@ DSPFLOAT	signal	= 0;
 	return get_db (signal / (carriers / 2));
 }
 
-int16_t	ofdm_decoder::getStrength (void) {
+int16_t	ofdmDecoder::getStrength (void) {
 	return strength;
 }
 

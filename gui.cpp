@@ -167,20 +167,20 @@ int16_t	i, k;
 	setupChannels	(channelSelector, dabBand);
 //
 	setModeParameters (1);
-	the_mscHandler		= new mscHandler	(this,
+	my_mscHandler		= new mscHandler	(this,
 	                                                 our_audioSink,
 	                                                 errorLog,
 	                                                 Concurrent);
-	the_ficHandler		= new ficHandler	(this,
-	                                                 the_mscHandler);
+	my_ficHandler		= new ficHandler	(this,
+	                                                 my_mscHandler);
 //
 //	the default is:
-	the_ofdmProcessor = new ofdm_processor   (myRig,
-	                                          &dabModeParameters,
-	                                          this,
-	                                          the_mscHandler,
-	                                          the_ficHandler,
-	                                          threshold);
+	my_ofdmProcessor = new ofdmProcessor   (myRig,
+	                                        &dabModeParameters,
+	                                        this,
+	                                        my_mscHandler,
+	                                        my_ficHandler,
+	                                        threshold);
 //
 //	The connects of the GUI to the handlers
 	connect (ensembleDisplay, SIGNAL (clicked (QModelIndex)),
@@ -287,7 +287,7 @@ bool	r = 0;
 void	RadioInterface::TerminateProcess (void) {
 	displayTimer	-> stop ();
 	if (sourceDumping) {
-	   the_ofdmProcessor	-> stopDumping ();
+	   my_ofdmProcessor	-> stopDumping ();
 	   sf_close (dumpfilePointer);
 	}
 
@@ -297,24 +297,24 @@ void	RadioInterface::TerminateProcess (void) {
 	}
 
 	if (mp2File != NULL) {
-	   the_mscHandler	-> setFiles (NULL, NULL);
+	   my_mscHandler	-> setFiles (NULL, NULL);
 	   fclose (mp2File);
 	}
 
 	if (mp4File != NULL) {
-	   the_mscHandler	-> setFiles (NULL, NULL);
+	   my_mscHandler	-> setFiles (NULL, NULL);
 	   fclose (mp4File);
 	}
 
-	while (the_ofdmProcessor -> isRunning ()) {
-	   the_ofdmProcessor -> stop ();
+	while (my_ofdmProcessor -> isRunning ()) {
+	   my_ofdmProcessor -> stop ();
 	   usleep (100);
 	}
 	
 	dumpControlState (dabSettings);
-	delete		the_ofdmProcessor;
-	delete		the_ficHandler;
-	delete		the_mscHandler;
+	delete		my_ofdmProcessor;
+	delete		my_ficHandler;
+	delete		my_mscHandler;
 	delete		myRig;
 	delete		displayTimer;
 #ifdef	HAVE_STREAMER
@@ -465,7 +465,7 @@ bool	localRunning	= running;
 	Services = QStringList ();
 	ensemble. setStringList (Services);
 	ensembleDisplay		-> setModel (&ensemble);
-	the_ficHandler		-> clearEnsemble ();
+	my_ficHandler		-> clearEnsemble ();
 
 	ensembleLabel		= QString ();
 	ensembleName		-> setText (ensembleLabel);
@@ -498,7 +498,7 @@ bool	localRunning	= running;
 	if (localRunning) {
 	   our_audioSink -> restart ();
 	   myRig	 -> restartReader ();
-	   the_ofdmProcessor	-> reset ();
+	   my_ofdmProcessor	-> reset ();
 	   running	 = true;
 	}
 	
@@ -512,10 +512,10 @@ void	RadioInterface::clearEnsemble	(void) {
 	Services = QStringList ();
 	ensemble. setStringList (Services);
 	ensembleDisplay		-> setModel (&ensemble);
-	the_ficHandler		-> clearEnsemble ();
+	my_ficHandler		-> clearEnsemble ();
 	if (autoCorrector)
-	   the_ofdmProcessor	-> coarseCorrectorOn ();
-	the_ofdmProcessor	-> reset ();
+	   my_ofdmProcessor	-> coarseCorrectorOn ();
+	my_ofdmProcessor	-> reset ();
 
 	ensembleLabel		= QString ();
 	ensembleName		-> setText (ensembleLabel);
@@ -545,7 +545,7 @@ QString s;
 	(void)v;
 	ensembleId		-> display (id);
 	ensembleName		-> setText (v);
-	the_ofdmProcessor	-> coarseCorrectorOff ();
+	my_ofdmProcessor	-> coarseCorrectorOff ();
 }
 
 static 
@@ -651,7 +651,7 @@ const char *RadioInterface::get_programm_language_string (uint8_t language) {
 
 void	RadioInterface::selectService (QModelIndex s) {
 QString a = ensemble. data (s, Qt::DisplayRole). toString ();
-	the_ficHandler -> setSelectedService (a);
+	my_ficHandler -> setSelectedService (a);
 }
 
 void	RadioInterface::set_dumping (void) {
@@ -661,7 +661,7 @@ SF_INFO *sf_info	= (SF_INFO *)alloca (sizeof (SF_INFO));
 	   return;
 
 	if (sourceDumping) {
-	   the_ofdmProcessor	-> stopDumping ();
+	   my_ofdmProcessor	-> stopDumping ();
 	   sf_close (dumpfilePointer);
 	   sourceDumping = false;
 	   dumpButton	-> setText ("dump");
@@ -685,13 +685,13 @@ SF_INFO *sf_info	= (SF_INFO *)alloca (sizeof (SF_INFO));
 	}
 	dumpButton	-> setText ("writing");
 	sourceDumping		= true;
-	the_ofdmProcessor	-> startDumping (dumpfilePointer);
+	my_ofdmProcessor	-> startDumping (dumpfilePointer);
 }
 
 void	RadioInterface::set_mp2File (void) {
 
 	if (mp2File != NULL) {
-	   the_mscHandler	-> setFiles (NULL, mp4File);
+	   my_mscHandler	-> setFiles (NULL, mp4File);
 	   fclose (mp2File);
 	   mp2File	= NULL;
 	   mp2fileButton	-> setText ("MP2");
@@ -716,14 +716,14 @@ void	RadioInterface::set_mp2File (void) {
 	   qDebug () << "cannot open " << file. toLatin1 (). data ();
 	   return;
 	}
-	the_mscHandler	-> setFiles (mp2File, mp4File);
+	my_mscHandler	-> setFiles (mp2File, mp4File);
 	mp2fileButton	-> setText ("writing");
 }
 
 void	RadioInterface::set_mp4File (void) {
 
 	if (mp4File != NULL) {
-	   the_mscHandler	-> setFiles (mp2File, NULL);
+	   my_mscHandler	-> setFiles (mp2File, NULL);
 	   fclose (mp4File);
 	   mp4File	= NULL;
 	   aacfileButton	-> setText ("MP4");
@@ -749,14 +749,12 @@ void	RadioInterface::set_mp4File (void) {
 	   return;
 	}
 
-	the_mscHandler	-> setFiles (mp2File, mp4File);
+	my_mscHandler	-> setFiles (mp2File, mp4File);
 	aacfileButton	-> setText ("writing");
 }
 
 void	RadioInterface::set_audioDump (void) {
 SF_INFO	*sf_info	= (SF_INFO *)alloca (sizeof (SF_INFO));
-	if (!someStick (myRig -> myIdentity ()))
-	   return;
 
 	if (!audioDumping && (mp2File != NULL || mp4File != NULL))
 	   return;
@@ -814,7 +812,7 @@ QString	file;
 //
 //	first stop dumping
 	if (sourceDumping) {
-	   the_ofdmProcessor -> stopDumping ();
+	   my_ofdmProcessor -> stopDumping ();
 	   sf_close (dumpfilePointer);
 	   sourceDumping = false;
 	   dumpButton	-> setText ("dump");
@@ -833,7 +831,7 @@ QString	file;
 //
 //	select. For all it holds that:
 	myRig	-> stopReader ();
-	delete	the_ofdmProcessor;
+	delete	my_ofdmProcessor;
 	delete	myRig;
 	dynamicLabel	-> setText ("");
 //
@@ -975,12 +973,12 @@ QString	file;
 	   myRig	= new virtualInput ();
 	}
 
-	the_ofdmProcessor	= new ofdm_processor   (myRig,
-	                                                &dabModeParameters,
-	                                                this,
-	                                                the_mscHandler,
-	                                                the_ficHandler,
-	                                                threshold);
+	my_ofdmProcessor	= new ofdmProcessor   (myRig,
+	                                               &dabModeParameters,
+	                                               this,
+	                                               my_mscHandler,
+	                                               my_ficHandler,
+	                                               threshold);
 }
 //
 //
@@ -1057,9 +1055,9 @@ void	RadioInterface::autoCorrector_on (void) {
 	Services		= QStringList ();
 	ensemble. setStringList (Services);
 	ensembleDisplay		-> setModel (&ensemble);
-	the_ficHandler		-> clearEnsemble ();
-	the_ofdmProcessor	-> coarseCorrectorOn ();
-	the_ofdmProcessor	-> reset ();
+	my_ficHandler		-> clearEnsemble ();
+	my_ofdmProcessor	-> coarseCorrectorOn ();
+	my_ofdmProcessor	-> reset ();
 //
 //	Then the various displayed items
 	ensembleName		-> setText ("   ");
@@ -1074,7 +1072,7 @@ void	RadioInterface::selectMode (const QString &s) {
 uint8_t	Mode	= s. toInt ();
 
 	if (sourceDumping) {
-	   the_ofdmProcessor -> stopDumping ();
+	   my_ofdmProcessor -> stopDumping ();
 	   sf_close (dumpfilePointer);
 	   sourceDumping = false;
 	   dumpButton	-> setText ("dump");
@@ -1090,20 +1088,20 @@ uint8_t	Mode	= s. toInt ();
 	running	= false;
 	our_audioSink		-> stop ();
 	myRig			-> stopReader ();
-	the_ofdmProcessor	-> stop ();
+	my_ofdmProcessor	-> stop ();
 //
 //	we have to create a new ofdmprocessor with the correct
 //	settings of the parameters.
-	delete 	the_ofdmProcessor;
+	delete 	my_ofdmProcessor;
 	setModeParameters (Mode);
-	the_ficHandler		-> setBitsperBlock	(2 * dabModeParameters. K);
-	the_mscHandler		-> setMode		(&dabModeParameters);
-	the_ofdmProcessor	= new ofdm_processor   (myRig,
-	                                                &dabModeParameters,
-	                                                this,
-	                                                the_mscHandler,
-	                                                the_ficHandler,
-	                                                threshold);
+	my_ficHandler		-> setBitsperBlock	(2 * dabModeParameters. K);
+	my_mscHandler		-> setMode		(&dabModeParameters);
+	my_ofdmProcessor	= new ofdmProcessor   (myRig,
+	                                               &dabModeParameters,
+	                                               this,
+	                                               my_mscHandler,
+	                                               my_ficHandler,
+	                                               threshold);
 //	and wait for setStart
 }
 //
@@ -1186,7 +1184,7 @@ void	RadioInterface::changeinConfiguration	(void) {
 	Services = QStringList ();
 	ensemble. setStringList (Services);
 	ensembleDisplay		-> setModel (&ensemble);
-	the_ficHandler		-> clearEnsemble ();
+	my_ficHandler		-> clearEnsemble ();
 
 	ensembleLabel		= QString ();
 	ensembleName		-> setText (ensembleLabel);
