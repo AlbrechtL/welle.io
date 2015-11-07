@@ -180,10 +180,12 @@ void	ofdmDecoder::decodeFICblock (int32_t blkno) {
 int16_t	i;
 	memcpy (fft_buffer, command [blkno], T_u * sizeof (DSPCOMPLEX));
 #endif
+fftlabel:
 	fft_handler -> do_FFT ();
 //
 //	Note that "mapIn" maps to -carriers / 2 .. carriers / 2
 //	we did not set the fft output to low .. high
+toBitsLabel:
 	for (i = 0; i < carriers; i ++) {
 	   int16_t	index	= myMapper -> mapIn (i);
 	   if (index < 0) 
@@ -196,7 +198,7 @@ int16_t	i;
 	   ibits [i]		= real (r1) / ab1 * 255.0;
 	   ibits [carriers + i] = imag (r1) / ab1 * 255.0;
 	}
-
+handlerLabel:
 	my_ficHandler -> process_ficBlock (ibits, blkno);
 }
 #ifndef	MULTI_CORE
@@ -208,10 +210,12 @@ void	ofdmDecoder::decodeMscblock (int32_t blkno) {
 int16_t	i;
 	memcpy (fft_buffer, command [blkno], T_u * sizeof (DSPCOMPLEX));
 #endif
+fftLabel:
 	fft_handler -> do_FFT ();
 //
 //	Note that "mapIn" maps to -carriers / 2 .. carriers / 2
 //	we did not set the fft output to low .. high
+toBitsLabel:
 	for (i = 0; i < carriers; i ++) {
 	   int16_t	index	= myMapper -> mapIn (i);
 	   if (index < 0) 
@@ -225,7 +229,7 @@ int16_t	i;
 	   ibits [i]		= real (r1) / ab1 * 255.0;
 	   ibits [carriers + i] = imag (r1) / ab1 * 255.0;
 	}
-
+handlerLabel:
 	my_mscHandler -> process_mscBlock (ibits, blkno);
 }
 

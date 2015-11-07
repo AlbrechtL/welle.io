@@ -193,7 +193,7 @@ float		signalLevel;
 	sLevel		= 0;
 	try {
 //	first, we initialize to get the buffers filled
-initing:
+Initing:
 	   syncBufferIndex	= 0;
 	   signalLevel		= 0;
 	   currentStrength	= 0;
@@ -280,7 +280,7 @@ SyncOnPhase:
 	                  (params -> T_u - startIndex) * sizeof (DSPCOMPLEX));
 	   ofdmBufferIndex	= params -> T_u - startIndex;
 
-OFDM_PRS:
+Block_0:
 //	read the missing samples in the ofdm buffer
 	   setSynced (true);
 	   getSamples (&ofdmBuffer [ofdmBufferIndex],
@@ -291,7 +291,7 @@ OFDM_PRS:
 	   my_ofdmDecoder  -> processBlock_0 (ofdmBuffer);
 //
 //	after block 0, we will just read in the other (params -> L - 1) blocks
-OFDM_SYMBOLS:
+Data_blocks:
 //	The first ones are the FIC blocks
 
 	   FreqCorr		= DSPCOMPLEX (0, 0);
@@ -315,6 +315,7 @@ OFDM_SYMBOLS:
 	      my_ofdmDecoder -> decodeMscblock (ofdmBuffer, ofdmSymbolCount);
 	   }
 
+NewOffset:
 //	We integrate the offset measured
 	   fineCorrector += 0.1 * arg (FreqCorr) / M_PI *
 	                        (params -> carrierDiff / 2);
@@ -355,7 +356,7 @@ static int waar = 0;
 	      fineCorrector += params -> carrierDiff;
 	      coarseCorrector -= params -> carrierDiff;
 	   }
-	
+ReadyForNewFrame:
 //	and off we go, up to the next frame
 	   goto SyncOnPhase;
 	}
