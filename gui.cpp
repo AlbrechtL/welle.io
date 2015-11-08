@@ -64,12 +64,12 @@
 
 #define		BAND_III	0100
 #define		L_BAND		0101
-/*
- *	We use the creation function merely to set up the
- *	user interface and make the connections between the
- *	gui elements and the handling agents. All real action
- *	is embedded in actions, initiated by gui buttons
- */
+/**
+  *	We use the creation function merely to set up the
+  *	user interface and make the connections between the
+  *	gui elements and the handling agents. All real action
+  *	is embedded in actions, initiated by gui buttons
+  */
 	RadioInterface::RadioInterface (QSettings	*Si,
 	                                QWidget		*parent): QDialog (parent) {
 int16_t	i, k;
@@ -80,29 +80,36 @@ int16_t	i, k;
 //
 //	Before printing anything, we set
 	setlocale (LC_ALL, "");
-//	The default:
+///	The default, most likely to be overruled
 	myRig			= new virtualInput ();
 	running			= false;
 	
 	autoCorrector =
 	           dabSettings -> value ("autoCorrector", 1). toInt () == 1;
+/**	threshold is used in the phaseReference class 
+  *	as threshold for checking the validity of the correlation result
+  */
 	threshold	=
 	           dabSettings -> value ("threshold", 3). toInt ();
-//	Note that the generation of values to be displayed
-//	is in a separate thread, we need a buffer for communication
-//	and a signal/slot combination for triggering
 
 	isSynced		= UNSYNCED;
 	syncedLabel		->
 	               setStyleSheet ("QLabel {background-color : red}");
-//
-//	'Concurrent' indicates whether the mp4/mp2 processing part
-//	will be in a separate thread or not
+
+/**	'Concurrent' indicates whether the mp4/mp2 processing part
+  *	will be in a separate thread or not
+  *	for DAB-RPI it is a must to have it in a separate thread
+  *	so we do not look at dabSettings here
+  */
 	Concurrent		= true;
 
-//	Maybe we should move the outTable to the audioSink?
 	TunedFrequency		= MHz (200);	// any value will do
 	outRate			= 48000;
+/**
+  *	The streamer is optional, may be we should not output to the
+  *	soundcard when the streamer is "in", do not know yet
+  *	audioSink will handle the output to the soundcard.
+  */
 #ifdef	HAVE_STREAMER
 	our_streamer		= new streamerServer	();
 	our_audioSink		= new audioSink		(outRate, our_streamer);
@@ -111,6 +118,11 @@ int16_t	i, k;
 #endif
 	outTable		= new int16_t
 	                             [our_audioSink -> numberofDevices ()];
+/**
+  *	Maybe we should move the whole output handling, i.e. building 
+  *	a table with the devices, to the audioSink class
+  *	Anyway, we start - if devices are found - with a default device.
+  */
 	for (i = 0; i < our_audioSink -> numberofDevices (); i ++)
 	   outTable [i] = -1;
 
@@ -119,25 +131,29 @@ int16_t	i, k;
 	   fprintf (stderr, "Cannot open any output device\n");
 	   exit (22);
 	}
-
+	our_audioSink	-> selectDefaultDevice ();
+/**
+  *	The mp4Processor checks on errors, in particular to see if
+  *	tables in the data to be processed, are viable.
+  *	If the errorFile is set, the errors are reported there
+  */
 	QString	errorFile	=  
 	                      dabSettings -> value ("errorFile", "").toString ();
 	FILE	*errorLog	= fopen (errorFile == "" ? "/dev/null":
 	                                 errorFile. toLatin1 (). data (), "w");
 	if (errorLog == NULL)
 	   errorLog = fopen ("/dev/null", "w");
-	
 
-//	We will not bore our users with entries for which there is
-//	no device
+/**
+  *	Devices can be included or excluded, setting is in the configuration
+  *	files. Inclusion is reflected in the selector on the GUI.
+  *	Note that HAVE_EXTIO is only for Windows
+  */
 #ifdef	HAVE_SDRPLAY
 	deviceSelector	-> addItem ("sdrplay");
 #endif
 #ifdef	HAVE_DABSTICK
 	deviceSelector	-> addItem ("dabstick");
-#endif
-#ifdef	HAVE_DONGLE
-	deviceSelector	-> addItem ("dongle");
 #endif
 #ifdef	HAVE_AIRSPY
 	deviceSelector	-> addItem ("airspy");
@@ -151,22 +167,35 @@ int16_t	i, k;
 #ifdef	HAVE_RTL_TCP
 	deviceSelector	-> addItem ("rtl_tcp");
 #endif
-	our_audioSink	-> selectDefaultDevice ();
+	
 //	Thanks to David Malone, who discovered while porting to OSX that
 //	these initializations should NOT be forgotten.
 	mp2File		= NULL;
 	mp4File		= NULL;
-
+//
+/**	
+  *	Happily, Qt is very capable of handling the representation
+  *	of the ensemble and selecting an item
+  */
 	ensemble.setStringList (Services);
 	ensembleDisplay	-> setModel (&ensemble);
 	Services << " ";
 	ensemble. setStringList (Services);
 	ensembleDisplay	-> setModel (&ensemble);
-
+/**
+  *	By default we select Band III and Mode 1
+  */
 	dabBand		= BAND_III;
 	setupChannels	(channelSelector, dabBand);
 //
 	setModeParameters (1);
+/**
+  *	The actual work is done elsewhere: in ofdmProcessor
+  *	and ofdmDecoder for the ofdm related part, ficHandler
+  *	for the FIC's and mscHandler for the MSC.
+  *	The ficHandler shares information with the mscHandler
+  *	but the handlers do not change for others modes.
+  */
 	my_mscHandler		= new mscHandler	(this,
 	                                                 our_audioSink,
 	                                                 errorLog,
@@ -174,7 +203,11 @@ int16_t	i, k;
 	my_ficHandler		= new ficHandler	(this,
 	                                                 my_mscHandler);
 //
-//	the default is:
+/**
+  *	The default for the ofdmProcessor depends on
+  *	the input device, so changing the selection for an input device
+  *	requires changing the ofdmProcessor.
+  */
 	my_ofdmProcessor = new ofdmProcessor   (myRig,
 	                                        &dabModeParameters,
 	                                        this,
@@ -182,7 +215,7 @@ int16_t	i, k;
 	                                        my_ficHandler,
 	                                        threshold);
 //
-//	The connects of the GUI to the handlers
+///	The connects of the GUI to the handlers
 	connect (ensembleDisplay, SIGNAL (clicked (QModelIndex)),
 	              this, SLOT (selectService (QModelIndex)));
 	connect	(modeSelector, SIGNAL (activated (const QString &)),
@@ -210,7 +243,11 @@ int16_t	i, k;
 	connect (correctorReset, SIGNAL (clicked (void)),
 	              this, SLOT (autoCorrector_on (void)));
 //
-//	Timers
+/**
+  *	The only timer we use is for displaying the running time.
+  *	The number of seconds passed is kept in numberofSeconds
+  */	
+	numberofSeconds		= 0;
 	displayTimer		= new QTimer ();
 	displayTimer		-> setInterval (1000);
 	connect (displayTimer,
@@ -218,13 +255,14 @@ int16_t	i, k;
 	         this,
 	         SLOT (updateTimeDisplay (void)));
 //
-	FreqIncrement		= 0;
 	sourceDumping		= false;
 	dumpfilePointer		= NULL;
 	audioDumping		= false;
 	audiofilePointer	= NULL;
 //
-//	some settings may be influenced by the ini file
+/**
+  *	we now handle the settings as saved by previous incarnations.
+  */
 	setDevice 		(deviceSelector 	-> currentText ());
 	QString h		=
 	           dabSettings -> value ("device", "no device"). toString ();
@@ -233,6 +271,7 @@ int16_t	i, k;
 	   deviceSelector	-> setCurrentIndex (k);
 	   setDevice 		(deviceSelector 	-> currentText ());
 	}
+
 	h		= dabSettings -> value ("channel", "12C"). toString ();
 	k		= channelSelector -> findText (h);
 	if (k != -1) {
@@ -251,7 +290,11 @@ int16_t	i, k;
 	RadioInterface::~RadioInterface () {
 }
 //
-//	at the end, save the values used
+/**
+  *	\brief At the end, we save some GUI values
+  *	The QSettings could have been the class variable as well
+  *	as the parameter
+  */
 void	RadioInterface::dumpControlState (QSettings *s) {
 	if (s == NULL)	// cannot happen
 	   return;
@@ -262,8 +305,11 @@ void	RadioInterface::dumpControlState (QSettings *s) {
 	s	-> setValue ("device", deviceSelector -> currentText ());
 }
 //
-//	On start, we ensure that the streams are stopped so
-//	that they can be restarted again.
+/**
+  *	\brief setStart is a function that is called after pushing
+  *	the start button
+  *	The variable running tells whether we were active or not
+  */
 void	RadioInterface::setStart	(void) {
 bool	r = 0;
 	if (running)		// only listen when not running yet
@@ -279,11 +325,15 @@ bool	r = 0;
 
 	clearEnsemble ();		// the display
 //
-//	This does not hurt
+///	this does not hurt
 	our_audioSink	-> restart ();
 	running = true;
 }
 
+/**
+  *	\brief TerminateProcess
+  *	Pretty critical, since there are many threads involved
+  */
 void	RadioInterface::TerminateProcess (void) {
 	displayTimer	-> stop ();
 	if (sourceDumping) {
@@ -330,16 +380,32 @@ void	RadioInterface::abortSystem (int d) {
 	qDebug ("aborting for reason %d\n", d);
 	accept ();
 }
-//
+
+/**
+  *	\brief setTuner 
+  */
 void	RadioInterface::setTuner (int32_t n) {
 	myRig		-> setVFOFrequency (n);
 	vfoFrequency	= n;
 }
 
+/**
+  *	\brief updateTimeDisplay
+  *	The running time is displayed
+  */
 void	RadioInterface::updateTimeDisplay (void) {
-QDateTime	currentTime = QDateTime::currentDateTime ();
-	timeDisplay	-> setText (currentTime.
-	                            toString (QString ("dd.MM.yy:hh:mm:ss")));
+//QDateTime	currentTime = QDateTime::currentDateTime ();
+//	timeDisplay	-> setText (currentTime.
+//	                            toString (QString ("dd.MM.yy:hh:mm:ss")));
+	numberofSeconds ++;
+	int16_t	numberHours	= numberofSeconds / 3600;
+	int16_t	numberMinutes	= numberofSeconds / 60;
+	QString text = QString ("runtime ");
+	text. append (QString::number (numberHours));
+	text. append (" hr, ");
+	text. append (QString::number (numberMinutes));
+	text. append (" min");
+	timeDisplay	-> setText (text);
 }
 //
 void	RadioInterface::set_fineCorrectorDisplay (int v) {
@@ -418,6 +484,10 @@ struct dabFrequencies Lband_frequencies [] = {
 {NULL, 0}
 };
 
+/**
+  *	\brief setupChannels
+  *	sets the entries in the GUI
+  */
 void	RadioInterface::setupChannels (QComboBox *s, uint8_t band) {
 struct dabFrequencies *t;
 int16_t	i;
@@ -434,7 +504,12 @@ int16_t	c	= s -> count ();
 	for (i = 0; t [i]. key != NULL; i ++)
 	   s -> insertItem (i, t [i]. key, QVariant (i));
 }
-//
+
+/**
+  *	\brief set_bandSelect
+  *	selecting a band requires changing the selecting for
+  *	the channels.
+  */
 void	RadioInterface::set_bandSelect (QString s) {
 	if (running) {
 	   running	= false;
@@ -452,6 +527,15 @@ void	RadioInterface::set_bandSelect (QString s) {
 	setupChannels (channelSelector, dabBand);
 }
 
+/**
+  *	\brief set_channelSelect
+  *	selecting a channel requires
+  *	stopping the current selection
+  *	cleaning up all elements in the GUI displaying things from that selection
+  *	locating the frequency from the appropriate table
+  *	setting the tuner to that frequency
+  *	and - if we were running - restarting the process
+  */
 void	RadioInterface::set_channelSelect (QString s) {
 int16_t	i;
 struct dabFrequencies *finger;
@@ -504,8 +588,11 @@ bool	localRunning	= running;
 	
 }
 //
-//	on changing settings, we clear all things in the gui
-//	related to the ensemble
+/**
+  *	clearEnsemble
+  *	on changing settings, we clear all things in the gui
+  *	related to the ensemble
+  */
 void	RadioInterface::clearEnsemble	(void) {
 //
 //	first the real stuff
@@ -527,6 +614,13 @@ void	RadioInterface::clearEnsemble	(void) {
 	snrDisplay		-> display (0);
 }
 
+/**
+  *	\brief addtoEnsemble
+  *	each time the FIC/FIB handling finds the name of a
+  *	program, it hands it over.
+  *	Names are found many times, once they are already in
+  *	we do not need to add them
+  */
 void	RadioInterface::addtoEnsemble (const QString &s) {
 	Services << s;
 	Services. removeDuplicates ();
@@ -534,11 +628,12 @@ void	RadioInterface::addtoEnsemble (const QString &s) {
 	ensembleDisplay	-> setModel (&ensemble);
 }
 //
-//	a slot, called by the fib processor
+///	a slot, called by the fib processor
 void	RadioInterface::addEnsembleChar (char v, int i) {
 	ensembleLabel. insert(i, QChar (v));
 }
 
+///	a slot, called by the fib processor
 void	RadioInterface::nameofEnsemble (int id, const QString &v) {
 QString s;
 
@@ -649,11 +744,18 @@ const char *RadioInterface::get_programm_language_string (uint8_t language) {
 	return table9 [language];
 }
 
+/**
+  *	Once the user selects a service name,
+  *	the ficHandler is informed
+  *	Note: I do not understand why we do the cleaning
+  *	of all the fields in the GUI not right away?
+  */
 void	RadioInterface::selectService (QModelIndex s) {
 QString a = ensemble. data (s, Qt::DisplayRole). toString ();
 	my_ficHandler -> setSelectedService (a);
 }
 
+///	switch for dmping on/off
 void	RadioInterface::set_dumping (void) {
 SF_INFO *sf_info	= (SF_INFO *)alloca (sizeof (SF_INFO));
 
@@ -688,6 +790,7 @@ SF_INFO *sf_info	= (SF_INFO *)alloca (sizeof (SF_INFO));
 	my_ofdmProcessor	-> startDumping (dumpfilePointer);
 }
 
+///	similar for the mp2files
 void	RadioInterface::set_mp2File (void) {
 
 	if (mp2File != NULL) {
@@ -720,6 +823,7 @@ void	RadioInterface::set_mp2File (void) {
 	mp2fileButton	-> setText ("writing");
 }
 
+///	and the mp4 files. This btw does not work
 void	RadioInterface::set_mp4File (void) {
 
 	if (mp4File != NULL) {
@@ -753,6 +857,7 @@ void	RadioInterface::set_mp4File (void) {
 	aacfileButton	-> setText ("writing");
 }
 
+///	audiodumping is similar
 void	RadioInterface::set_audioDump (void) {
 SF_INFO	*sf_info	= (SF_INFO *)alloca (sizeof (SF_INFO));
 
@@ -788,29 +893,38 @@ SF_INFO	*sf_info	= (SF_INFO *)alloca (sizeof (SF_INFO));
 	our_audioSink		-> startDumping (audiofilePointer);
 }
 
-
+/**
+  *	\brief show_successRate
+  *	a slot, called by the MSC handler to show the
+  *	percentage of frames that could be handled
+  */
 void	RadioInterface::show_successRate (int s) {
 	errorDisplay	-> display (s);
 }
 
+///	... and the same for the FIC blocks
 void	RadioInterface::show_ficRatio (int s) {
 	ficRatioDisplay	-> display (s);
 }
 
+///	called from the ofdmDecoder, which computed this for each frame
 void	RadioInterface::show_snr (int s) {
 	snrDisplay	-> display (s);
 }
 //
-//	setDevice is called trough a signal from the gui
-//	Operation is in three steps: 
-//	- first dumping of any kind is stopped
-//	- second the previously loaded device is stopped
-//	- third, the new device is initiated
+/**
+  *	\brief setDevice
+  *	setDevice is called trough a signal from the gui
+  *	Operation is in three steps: 
+  *	   first dumping of any kind is stopped
+  *	   second the previously loaded device is stopped
+  *	   third, the new device is initiated
+  */
 void	RadioInterface::setDevice (QString s) {
 bool	success;
 QString	file;
 //
-//	first stop dumping
+///	first stop dumping
 	if (sourceDumping) {
 	   my_ofdmProcessor -> stopDumping ();
 	   sf_close (dumpfilePointer);
@@ -824,17 +938,17 @@ QString	file;
 	   audioDumping	= false;
 	   audioDump -> setText ("audioDump");
 	}
-
+///	indicate that we are not running anymore
 	running	= false;
 	our_audioSink	-> stop ();
 //
 //
-//	select. For all it holds that:
+///	select. For all it holds that:
 	myRig	-> stopReader ();
 	delete	my_ofdmProcessor;
 	delete	myRig;
 	dynamicLabel	-> setText ("");
-//
+///	OK, everything quiet, now looking what to do
 #ifdef	HAVE_AIRSPY
 	if (s == "airspy") {
 	   myRig	= new airspyHandler (dabSettings, &success);
@@ -850,9 +964,8 @@ QString	file;
 	}
 	else
 #endif
-//
-//	UHD is - at least in its current setting - for Linux
 #ifdef HAVE_UHD
+//	UHD is - at least in its current setting - for Linux
 	if (s == "UHD") {
 	   myRig = new uhdInput (dabSettings, &success );
 	   if (!success) {
@@ -866,9 +979,9 @@ QString	file;
 	}
 	else
 #endif
+#ifdef HAVE_EXTIO
 //	extio is - in its current settings - for Windows, it is a
 //	wrap around the dll
-#ifdef HAVE_EXTIO
 	if (s == "extio") {
 	   myRig = new extioHandler (dabSettings, &success );
 	   if (!success) {
@@ -882,8 +995,8 @@ QString	file;
 	}
 	else
 #endif
-//	RTL_TCP might be working
 #ifdef HAVE_RTL_TCP
+//	RTL_TCP might be working
 	if (s == "rtl_tcp") {
 	   myRig = new rtl_tcp_client (dabSettings, &success );
 	   if (!success) {
@@ -903,7 +1016,7 @@ QString	file;
 	   if (!success) {
 	      delete myRig;
 	      QMessageBox::warning (this, tr ("sdr"),
-	                               tr ("Mirics device: no library\n"));
+	                               tr ("SDRplay: no library\n"));
 	      myRig = new virtualInput ();
 	      resetSelector ();
 	   }
@@ -919,21 +1032,6 @@ QString	file;
 	      delete myRig;
 	      QMessageBox::warning (this, tr ("sdr"),
 	                               tr ("Dabstick: no luck\n"));
-	      myRig = new virtualInput ();
-	      resetSelector ();
-	   }
-	   else 
-	      set_channelSelect	(channelSelector -> currentText ());
-	}
-	else
-#endif
-#ifdef	HAVE_DONGLE
-	if (s == "dongle") {
-	   myRig	= new miricsDongle (dabSettings, &success);
-	   if (!success) {
-	      delete myRig;
-	      QMessageBox::warning (this, tr ("sdr"),
-	                               tr ("miricsDongle: no luck\n"));
 	      myRig = new virtualInput ();
 	      resetSelector ();
 	   }
@@ -972,7 +1070,7 @@ QString	file;
 	else {	// s == "no device" 
 	   myRig	= new virtualInput ();
 	}
-
+///	we have a new device, so we can re-create the ofdmProcessor
 	my_ofdmProcessor	= new ofdmProcessor   (myRig,
 	                                               &dabModeParameters,
 	                                               this,
@@ -980,16 +1078,16 @@ QString	file;
 	                                               my_ficHandler,
 	                                               threshold);
 }
-//
-//
-//	In case selection of a device did not work out for whatever
-//	reason, the device selector is reset to "no device"
-//	Qt will trigger on the chgange of value in the deviceSelector
-//	which will cause selectdevice to be called again (while we
-//	are in the middle, so we first disconnect the selector
-//	from the slot. Obviously, after setting the index of
-//	the device selector, we connect again
 
+
+/**	In case selection of a device did not work out for whatever
+  *	reason, the device selector is reset to "no device"
+  *	Qt will trigger on the chgange of value in the deviceSelector
+  *	which will cause selectdevice to be called again (while we
+  *	are in the middle, so we first disconnect the selector
+  *	from the slot. Obviously, after setting the index of
+  *	the device selector, we connect again
+  */
 void	RadioInterface::resetSelector (void) {
 	disconnect (deviceSelector, SIGNAL (activated (const QString &)),
 	            this, SLOT (setDevice (const QString &)));
@@ -1001,9 +1099,14 @@ int	k	= deviceSelector -> findText (QString ("no device"));
 	         this, SLOT (setDevice (const QString &)));
 }
 
-//
-//	do not forget that ocnt starts with 1, due
-//	to Qt list conventions
+
+/**
+  *	brief setupSoundOut
+  *	do not forget that ocnt starts with 1, due
+  *	to Qt list conventions
+  *	We could consider moving the "out" routines
+  *	to the class audioSink
+  */
 bool	RadioInterface::setupSoundOut (QComboBox	*streamOutSelector,
 	                               audioSink	*our_audioSink,
 	                               int32_t		cardRate,
@@ -1065,9 +1168,11 @@ void	RadioInterface::autoCorrector_on (void) {
 	ficRatioDisplay		-> display (0);
 	snrDisplay		-> display (0);
 }
-//
-//	When selecting another mode, first ensure that all kinds
-//	of dumping are stopped, or just stop them
+
+/**
+  *	When selecting another mode, first ensure that all kinds
+  *	of dumping are stopped, or just stop them
+  */
 void	RadioInterface::selectMode (const QString &s) {
 uint8_t	Mode	= s. toInt ();
 
@@ -1105,7 +1210,7 @@ uint8_t	Mode	= s. toInt ();
 //	and wait for setStart
 }
 //
-//	the values for the different Modes:
+///	the values for the different Modes:
 void	RadioInterface::setModeParameters (int16_t Mode) {
 	if (Mode == 2) {
 	   dabModeParameters. dabMode	= 2;
@@ -1152,6 +1257,7 @@ void	RadioInterface::setModeParameters (int16_t Mode) {
 	}
 }
 
+///	just switch a color
 void	RadioInterface::setSynced	(char b) {
 	if (isSynced == b)
 	   return;
@@ -1174,6 +1280,12 @@ void	RadioInterface::showLabel	(QString s) {
 	dynamicLabel	-> setText (s);
 }
 
+/**
+  *	\brief changeinConfiguration
+  *	No idea yet what to do, so just give up
+  *	with what we were doing. The user will -eventually -
+  *	see the new configuration from which he can select
+  */
 void	RadioInterface::changeinConfiguration	(void) {
 	if (running) {
 	   our_audioSink	-> stop ();

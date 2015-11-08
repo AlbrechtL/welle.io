@@ -100,24 +100,19 @@ private:
 	int16_t		numberofDevices;
 
 	void		setTuner		(int32_t);
-	QTimer		*sampleTimer;
 
-	void		stop_lcdTimer		(void);
-	int32_t		Panel;
-	int16_t		CurrentRig;
 	QTimer		*displayTimer;
-	void		IncrementFrequency	(int32_t);
+	int32_t		numberofSeconds;
 
 	bool		setupSoundOut		(QComboBox *, audioSink *,
 	                                         int32_t, int16_t *);
 	void		resetSelector		(void);
 	int32_t		sampleCount;
-	bool		spectrumWaterfall;
 	ofdmProcessor	*my_ofdmProcessor;
 	ficHandler	*my_ficHandler;
 	mscHandler	*my_mscHandler;
 	audioSink	*our_audioSink;
-	int32_t		FreqIncrement;
+
 	int32_t		TunedFrequency;
 	bool		autoCorrector;
 	FILE		*mp2File;
