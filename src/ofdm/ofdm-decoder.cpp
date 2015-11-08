@@ -30,6 +30,13 @@
 #include	"fic-handler.h"
 #include	"msc-handler.h"
 
+/**
+  *	\brief ofdmDecoder
+  *	The class ofdmDecoder is - when implemented in a separate thread -
+  *	taking the data from the ofdmProcessor class in, and
+  *	will extract the Tu samples, do an FFT and extract the
+  *	carriers and map them on (soft) bits
+  */
 	ofdmDecoder::ofdmDecoder	(DabParams	*p,
 	                                 RadioInterface *mr,
 	                                 ficHandler	*my_ficHandler,
@@ -54,11 +61,15 @@
 	         mr, SLOT (show_snr (int)));
 	snrCount		= 0;
 	snr			= 0;	
-	strength		= 0;
 
 #ifdef	MULTI_CORE
-//	a command is a combination <blockno, blockdata>
-//	daar kunnen we dus ook een matrix van makena
+/**
+  *	When implemented in a thread, the thread controls the
+  *	reading in of the data and processing the data through
+  *	functions for handling block 0, FIC blocks and MSC blocks.
+  *
+  *	We just create a large buffer where index i refers to block i.
+  */
 	command			= new DSPCOMPLEX * [params -> L + 1];
 	int16_t	i;
 	for (i = 0; i < params -> L + 1; i ++)
@@ -89,6 +100,13 @@ int16_t	i;
 //
 //
 #ifdef	MULTI_CORE
+/**
+  *	The code in the thread exectes a simple loop,
+  *	waiting for the next block and executing the interpretation
+  *	operation for that block.
+  *	In our original code the block count was 1 higher than
+  *	our count here.
+  */
 void	ofdmDecoder::run	(void) {
 int16_t	currentBlock	= 0;
 
@@ -113,7 +131,10 @@ int16_t	currentBlock	= 0;
 	   }
 	}
 }
-//
+/**
+  *	We need some functions to enter the ofdmProcessor data
+  *	in the buffer.
+  */
 void	ofdmDecoder::processBlock_0 (DSPCOMPLEX *vi) {
 	memcpy (command [0], vi, sizeof (DSPCOMPLEX) * T_u);
 	helper. lock ();
@@ -137,40 +158,67 @@ void	ofdmDecoder::decodeMscblock (DSPCOMPLEX *vi, int32_t blkno) {
 	commandHandler. wakeOne ();
 	helper. unlock ();
 }
+/**
+  *	Note that the distinction, made in the ofdmProcessor class
+  *	does not add much here, iff we decide to choose the multi core
+  *	option definitely, then code may be simplified there.
+  */
 #endif
 
-//	in practice, we use the "incoming" block
-//	and use its data to generate the prs
 #ifndef	MULTI_CORE
+/**
+  *	handle block 0 as handed over by the ofdmProcessor
+  */
 void	ofdmDecoder::processBlock_0 (DSPCOMPLEX *vi) {
 	memcpy (fft_buffer, vi, T_u * sizeof (DSPCOMPLEX));
 #else
+/**
+  *	handle block 0 as collected from the buffer
+  */
 void	ofdmDecoder::processBlock_0 (void) {
 	memcpy (fft_buffer, command [0], T_u * sizeof (DSPCOMPLEX));
 #endif
 DSPCOMPLEX	*v = (DSPCOMPLEX *)alloca (T_u * sizeof (DSPCOMPLEX));
 	fft_handler	-> do_FFT ();
-//	The + and - frequencies are still to be switched, for simple
-//	strength and middle computation:
+/**
+  *	Note the the result of the FFT has the negative and the positive
+  *	frequencies are interchanged.
+  *	While, for the actual decoding we can handle that, we switch them
+  *	here for easier computation of the middle and the SNR.
+  */
 	memcpy (v, &fft_buffer [T_u / 2], T_u / 2 * sizeof (DSPCOMPLEX));
 	memcpy (&v [T_u / 2], fft_buffer, T_u / 2 * sizeof (DSPCOMPLEX));
+/**
+  *	The coarse offset is taken to be the offset of the middle here
+  *	It is sloppy, and should be replaced by an average over a larger
+  *	number
+  */
 	coarseOffset 	= getMiddle	(v);
+/**
+  *	The SNR is determined y looking at a segment of bins
+  *	within the signal region and bits outside.
+  *	It is just an indication
+  */
 	snr		= 0.7 * snr + 0.3 * get_snr (v);
-	strength	= 0.7 * strength + 0.3 * newStrength (v);
 	if (++snrCount > 10) {
 	   show_snr (snr);
 	   snrCount = 0;
 	}
-//	we are now in the frequency domain, and we keep the carriers
-//	from -Tu / 2 .. Tu / 2 \ {0} in the phaseReference 
+/**
+  *	we are now in the frequency domain, and we keep the carriers
+  *	as coming from the FFT as phase reference.
+  */
 	memcpy (phaseReference, fft_buffer, T_u * sizeof (DSPCOMPLEX));
-//	memcpy (phaseReference, v, T_u * sizeof (DSPCOMPLEX));
 }
-//	for the other blocks of data, the first step is to go from
-//	time to frequency domain, to get the carriers.
-//
-//	we distinguish between FIC blocks and other blocks,
-//	just to save a test, the mapping code is the same
+/**
+  *	for the other blocks of data, the first step is to go from
+  *	time to frequency domain, to get the carriers.
+  *	we distinguish between FIC blocks and other blocks,
+  *	only to spare a test. Tthe mapping code is the same
+  *
+  *	\brief decodeFICblock
+  *	do the transforms and hand over the reslt to the fichandler
+  */
 #ifndef	MULTI_CORE
 void	ofdmDecoder::decodeFICblock (DSPCOMPLEX *vi, int32_t blkno) {
 int16_t	i;
@@ -181,26 +229,43 @@ int16_t	i;
 	memcpy (fft_buffer, command [blkno], T_u * sizeof (DSPCOMPLEX));
 #endif
 fftlabel:
+/**
+  *	first step: do the FFT
+  */
 	fft_handler -> do_FFT ();
-//
-//	Note that "mapIn" maps to -carriers / 2 .. carriers / 2
-//	we did not set the fft output to low .. high
+/**
+  *	a little optimization: we do not interchange the
+  *	positive/negative frequencies to their right positions.
+  *	The de-interleaving understands this
+  */
 toBitsLabel:
+/**
+  *	Note that from here on, we are only interested in the
+  *	"carriers" useful carriers of the FFT output
+  */
 	for (i = 0; i < carriers; i ++) {
 	   int16_t	index	= myMapper -> mapIn (i);
 	   if (index < 0) 
 	      index += T_u;
-	      
+/**
+  *	decoding is computing the phase difference between
+  *	carriers with the same index in subsequent blocks.
+  *	The carrier of a block is the reference for the carrier
+  *	on the same position in the next block
+  */
 	   DSPCOMPLEX	r1 = fft_buffer [index] * conj (phaseReference [index]);
 	   phaseReference [index] = fft_buffer [index];
 	   DSPFLOAT ab1	= jan_abs (r1);
-//	Recall:  positive = 0, negative = 1
+///	split the real and the imaginary part and scale it
 	   ibits [i]		= real (r1) / ab1 * 255.0;
 	   ibits [carriers + i] = imag (r1) / ab1 * 255.0;
 	}
 handlerLabel:
 	my_ficHandler -> process_ficBlock (ibits, blkno);
 }
+/**
+  *	Msc block decoding is equal to FIC block decoding,
+  */
 #ifndef	MULTI_CORE
 void	ofdmDecoder::decodeMscblock (DSPCOMPLEX *vi, int32_t blkno) {
 int16_t	i;
@@ -237,6 +302,10 @@ int16_t	ofdmDecoder::coarseCorrector (void) {
 	return coarseOffset;
 }
 
+/**
+  *	sloppy code to estimate the offset in the "middle"
+  *	We just look at the "balance of power".
+  */
 int16_t	ofdmDecoder::getMiddle (DSPCOMPLEX *v) {
 int16_t		i;
 DSPFLOAT	sum = 0;
@@ -265,8 +334,12 @@ DSPFLOAT	oldMax	= 0;
 }
 //
 //
-//	for the snr we have a full T_u wide vector, with in the middle
-//	K carriers
+/**
+  *	for the snr we have a full T_u wide vector, with in the middle
+  *	K carriers.
+  *	Just get the strength from the selected carriers compared
+  *	to the strength of the carriers outside that region
+  */
 int16_t	ofdmDecoder::get_snr (DSPCOMPLEX *v) {
 int16_t	i;
 DSPFLOAT	noise 	= 0;
@@ -285,18 +358,5 @@ int16_t	high	= low + carriers;
 	   signal += abs (v [i]);
 
 	return get_db (signal / (carriers / 2)) - get_db (noise);
-}
-
-int16_t	ofdmDecoder::newStrength (DSPCOMPLEX *v) {
-int16_t	i;
-DSPFLOAT	signal	= 0;
-
-	for (i = T_u / 2 - carriers / 4; i < T_u / 2 + carriers / 4; i ++)
-	   signal += abs (v [i]);
-	return get_db (signal / (carriers / 2));
-}
-
-int16_t	ofdmDecoder::getStrength (void) {
-	return strength;
 }
 

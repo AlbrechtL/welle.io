@@ -24,7 +24,17 @@
 #include	"gui.h"
 //
 #define	syncBufferMask	(32768 - 1)
-//
+/**
+  *	\brief ofdmProcessor
+  *	The ofdmProcessor class is the driver of the processing
+  *	of the samplestream.
+  *	It takes as parameter (a.o) the handler for the
+  *	input device as well as the interpreters for
+  *	FIC blocks and for MSC blocks.
+  *	Local is a class ofdmDecoder that will - as the name suggests -
+  *	map samples to bits and that will pass on the bits
+  *	to the interpreters for FIC and MSC
+  */
 	ofdmProcessor::ofdmProcessor	(virtualInput	*theRig,
 	                                 DabParams	*p,
 	                                 RadioInterface *mr,
@@ -46,7 +56,19 @@ int32_t	i;
 	ofdmBufferIndex			= 0;
 	ofdmSymbolCount			= 0;
 	tokenCount			= 0;
+/**
+  *	the class phaseReference will take a number of samples
+  *	and indicate - using some threshold - whether there is
+  *	a strong correlation or not.
+  *	It is used to decide on the first non-null sample
+  *	of the frame
+  */
 	phaseSynchronizer	= new phaseReference (params, threshold);
+/**
+  *	the ofdmDecoder takes time domain samples, will do an FFT,
+  *	map the result on (soft) bits and hand over control for handling
+  *	the decoded blocks
+  */
 	my_ofdmDecoder		= new ofdmDecoder (params,
 	                                           myRadioInterface,
 	                                           my_ficHandler,
@@ -91,10 +113,19 @@ int32_t	i;
 	            myRadioInterface, SLOT (set_coarseCorrectorDisplay (int)));
 }
 
+
+/**
+  *	\brief getSample
+  *	Profiling shows that gettting a sample, together
+  *	with the frequency shift, is a real performance killer.
+  *	we therefore distinguish between getting a single sample
+  *	and getting a vector full of samples
+  */
 DSPCOMPLEX ofdmProcessor::getSample (int32_t phase) {
 DSPCOMPLEX temp;
 	if (!running)
 	   throw 21;
+/// bufferContent is a cache for the value of ... -> Samples ()
 	if (bufferContent == 0) {
 	   bufferContent = theRig -> Samples ();
 	   while ((bufferContent == 0) && running) {
@@ -175,8 +206,14 @@ int32_t		i;
 	   sampleCnt = 0;
 	}
 }
-//	The main thread, reading sample and trying to identify
-//	the ofdm frames
+/***
+   *	\brief run
+   *	The main thread, reading samples,
+   *	time synchronization and frequency synchronization
+   *	Identifying blocks in the DAB frame
+   *	and sending them to the ofdmDecoder who will transfer the results
+   *	Finally, estimating the small freqency error
+   */
 void	ofdmProcessor::run	(void) {
 int32_t		startIndex;
 int32_t		i, j;
@@ -192,18 +229,18 @@ float		signalLevel;
 	fineCorrector	= 0;
 	sLevel		= 0;
 	try {
-//	first, we initialize to get the buffers filled
+
 Initing:
 	   syncBufferIndex	= 0;
 	   signalLevel		= 0;
 	   currentStrength	= 0;
-//
-//	first, we build up a reasonable initial value for the signalLevel
+///	first, we need samples to get a reasonable sLevel
 	   sLevel	= 0;
 	   for (i = 0; i < 10 * T_s; i ++) {
-	      sLevel		+=jan_abs (getSample (0));
+	      sLevel		+= jan_abs (getSample (0));
 	   }
 
+///	when really out of sync we will be here
 notSynced:
 //	read in T_s samples for a next attempt;
 	   for (i = 0; i < T_s; i ++) {
@@ -216,10 +253,14 @@ notSynced:
 	   for (i = syncBufferIndex - 50; i < syncBufferIndex; i ++)
 	      currentStrength += envBuffer [i];
 
-
-//	we now have initial values for currentStrength and signalLevel
-//	Then we look for a "dip" in the datastream
+/**
+  *	We now have initial values for currentStrength (i.e. the average
+  *	over the last 50 samples) and sLevel, the long term average.
+  */
 SyncOnNull:
+/**
+  *	here we start looking for the null level, i.e. a dip
+  */
 	   counter	= 0;
 	   setSynced (false);
 	   while (currentStrength / 50  > 0.35 * sLevel) {
@@ -236,7 +277,10 @@ SyncOnNull:
 	         goto notSynced;
 	   }
 
-//	Now it is waiting for the end of the dip
+/**
+  *	It seemed we found the dip that started app 65/100 * 50 samples earlier.
+  *	We now start looking for the end of the null period.
+  */
 SyncOnEndNull:
 	   while (currentStrength / 50 < 0.85 * sLevel) {
 	      DSPCOMPLEX sample = getSample (coarseCorrector + fineCorrector);
@@ -249,51 +293,76 @@ SyncOnEndNull:
 	      if (counter > 4 * T_s)	// hopeless
 	         goto notSynced;
 	   }
-
-
+/**
+  *	The end of thenull period is identified, probably about 40
+  *	samples earlier.
+  */
 SyncOnPhase:
-//
-//	here we also enter after having processed a full frame
-//	now read in Tu samples
+/**
+  *	We now have to find the exact first sample of the non-null period.
+  *	We use a correlation that will find the first sample after the
+  *	cyclic prefix.
+  *	When in "sync", i.e. pretty sure that we know were we are,
+  *	we skip the "dip" identification and come here right away.
+  *
+  *	now read in Tu samples. The precise number is not really important
+  *	as long as we can be sure that the first sample to be identified
+  *	is part of the samples read.
+  */
 	   for (i = 0; i <  params -> T_u; i ++) {
 	      ofdmBuffer [i] = getSample (coarseCorrector + fineCorrector);
 	      envBuffer [syncBufferIndex] = jan_abs (ofdmBuffer [i]);
-//	update the levels
+
 	      currentStrength += envBuffer [syncBufferIndex] -
 	                              envBuffer [(syncBufferIndex  + syncBufferSize - 50) & syncBufferMask];
 	      syncBufferIndex = (syncBufferIndex + 1) & syncBufferMask;
 	      counter ++;
 	   }
 //
-//	and then, call upon the phase synchronizer to verify/compute
-//	the real "first" sample of the stream
+///	and then, call upon the phase synchronizer to verify/compute
+///	the real "first" sample
 	   startIndex = phaseSynchronizer ->
 	                        findIndex (ofdmBuffer, params -> T_u);
 	   if (startIndex < 0) { // no sync, try again
+/**
+  *	In case we do not have a correlation value larger than
+  *	a given threshold, we start all over again.
+  */
 //	      fprintf (stderr, "startIndex = %d\n", startIndex);
 	      goto notSynced;
 	   }
 
-//	Once here, we are synchronized, we need to copy the data we
-//	used for synchronization for block 0
+/**
+  *	Once here, we are synchronized, we need to copy the data we
+  *	used for synchronization for block 0
+  */
 	   memmove (ofdmBuffer, &ofdmBuffer [startIndex],
 	                  (params -> T_u - startIndex) * sizeof (DSPCOMPLEX));
 	   ofdmBufferIndex	= params -> T_u - startIndex;
 
 Block_0:
-//	read the missing samples in the ofdm buffer
+/**
+  *	Block 0 is special in that it is used for fine time synchronization
+  *	and its content is used as a reference for decoding the
+  *	first datablock.
+  *	We read the missing samples in the ofdm buffer
+  */
 	   setSynced (true);
 	   getSamples (&ofdmBuffer [ofdmBufferIndex],
 	               T_u - ofdmBufferIndex,
 	               coarseCorrector + fineCorrector);
-//
-//	block0 will set the phase reference for further decoding
 	   my_ofdmDecoder  -> processBlock_0 (ofdmBuffer);
-//
-//	after block 0, we will just read in the other (params -> L - 1) blocks
-Data_blocks:
-//	The first ones are the FIC blocks
 
+/**
+  *	after block 0, we will just read in the other (params -> L - 1) blocks
+  */
+Data_blocks:
+/**
+  *	The first ones are the FIC blocks. We immediately
+  *	start with building up an average of the phase difference
+  *	between the samples in the cyclic prefix and the
+  *	corresponding samples in the datapart.
+  */
 	   FreqCorr		= DSPCOMPLEX (0, 0);
 	   for (ofdmSymbolCount = 2;
 	        ofdmSymbolCount <= 4; ofdmSymbolCount ++) {
@@ -304,24 +373,27 @@ Data_blocks:
 	      my_ofdmDecoder -> decodeFICblock (ofdmBuffer, ofdmSymbolCount);
 	   }
 
-//	and similar for the (params -> L - 4) MSC blocks
+///	and similar for the (params -> L - 4) MSC blocks
 	   for (ofdmSymbolCount = 5;
 	        ofdmSymbolCount <= (int16_t)(params -> L);
 	        ofdmSymbolCount ++) {
 	      getSamples (ofdmBuffer, T_s, coarseCorrector + fineCorrector);
 	      for (i = (int32_t)T_u; i < (int32_t)T_s; i ++) 
 	         FreqCorr += ofdmBuffer [i] * conj (ofdmBuffer [i - T_u]);
-//	OK, at the end of a block
+
 	      my_ofdmDecoder -> decodeMscblock (ofdmBuffer, ofdmSymbolCount);
 	   }
 
 NewOffset:
-//	We integrate the offset measured
+///	we integrate the newly found frequency error with the
+///	existing frequency error.
 	   fineCorrector += 0.1 * arg (FreqCorr) / M_PI *
 	                        (params -> carrierDiff / 2);
 //
-//	OK, at the end of the frame
-//	assume everything went well and skip T_null - 50 samples
+/**
+  *	OK,  here we are at the end of the frame
+  *	Assume everything went well and skip T_null - 50 samples
+  */
 	   syncBufferIndex	= 0;
 	   currentStrength	= 0;
 	   for (i = 0; i < T_null - 50; i ++) {
@@ -329,15 +401,19 @@ NewOffset:
 	      envBuffer [syncBufferIndex ++] = jan_abs (sample);
 	   }
 //
-//	and  we read 50 samples for a new  currentStrength
+/**
+  *	and  we read 50 samples for a new currentStrength
+  */
 	   for (i = T_null - 50; i < T_null; i ++) {
 	      DSPCOMPLEX sample	= getSample (coarseCorrector + fineCorrector);
 	      envBuffer [syncBufferIndex] = jan_abs (sample);
 	      currentStrength 	+= envBuffer [syncBufferIndex ++];
 	   }
-//
-//	so, we processed Tnull samples, so the real start should be T_g
-//	samples away
+/**
+  *	so, we processed Tnull samples, so the first
+  *	sample to be found for the next frame should be T_g
+  *	samples away
+  */
 	   counter	= 0;
 //
 static int waar = 0;
@@ -357,7 +433,7 @@ static int waar = 0;
 	      coarseCorrector -= params -> carrierDiff;
 	   }
 ReadyForNewFrame:
-//	and off we go, up to the next frame
+///	and off we go, up to the next frame
 	   goto SyncOnPhase;
 	}
 	catch (int e) {

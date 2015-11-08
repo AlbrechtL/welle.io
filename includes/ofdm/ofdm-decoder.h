@@ -56,7 +56,6 @@ public:
 	void	decodeMscblock		(DSPCOMPLEX *, int32_t n);
 	int16_t	get_snr			(DSPCOMPLEX *);
 	int16_t	coarseCorrector		(void);
-	int16_t	getStrength		(void);
 private:
 	DabParams	*params;
 	RadioInterface	*myRadioInterface;
@@ -89,8 +88,6 @@ private:
 	int16_t		coarseOffset;
 	int16_t		snrCount;
 	int16_t		snr;
-	int16_t		strength;
-	int16_t		newStrength	(DSPCOMPLEX *);
 signals:
 	void		show_snr	(int);
 };
