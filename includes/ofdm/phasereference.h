@@ -34,11 +34,12 @@
 
 class phaseReference : public phaseTable {
 public:
-		phaseReference (DabParams *, int16_t);
+		phaseReference (DabParams *, int16_t, int16_t);
 		~phaseReference	(void);
 	int32_t	findIndex	(DSPCOMPLEX *, uint32_t);
 private:
 	int32_t		Tu;
+	int16_t		blockSize;
 	int16_t		threshold;
 
 	DSPCOMPLEX	*refTable;

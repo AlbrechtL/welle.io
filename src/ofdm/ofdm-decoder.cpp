@@ -29,6 +29,7 @@
 #include	"phasetable.h"
 #include	"fic-handler.h"
 #include	"msc-handler.h"
+#include	"freq-interleaver.h"
 
 /**
   *	\brief ofdmDecoder
@@ -54,7 +55,7 @@
 	fft_handler			= new common_fft (T_u);
 	fft_buffer			= fft_handler -> getVector ();
 	phaseReference			= new DSPCOMPLEX [T_u];
-	myMapper			= new permVector (params);
+	myMapper			= new interLeaver (params);
 	coarseOffset			= 0;
 //
 	connect (this, SIGNAL (show_snr (int)),

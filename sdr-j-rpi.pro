@@ -46,7 +46,7 @@ HEADERS += ./gui.h \
 	   ./includes/ofdm/ofdm-decoder.h \
 	   ./includes/ofdm/phasereference.h \
 	   ./includes/ofdm/phasetable.h \
-	   ./includes/ofdm/mapper.h \
+	   ./includes/ofdm/freq-interleaver.h \
 	   ./includes/backend/viterbi.h \
 #	   ./includes/backend/viterbi-2.h \
 #	   ./backend/mm_alloc.h \
@@ -81,7 +81,7 @@ SOURCES += ./main.cpp \
 	   ./src/ofdm/ofdm-decoder.cpp \
 	   ./src/ofdm/phasereference.cpp \
 	   ./src/ofdm/phasetable.cpp \
-	   ./src/ofdm/mapper.cpp \
+	   ./src/ofdm/freq-interleaver.cpp \
 	   ./src/backend/viterbi.cpp \
 #	   ./src/backend/viterbi-2.cpp \
 	   ./src/backend/fic-handler.cpp \

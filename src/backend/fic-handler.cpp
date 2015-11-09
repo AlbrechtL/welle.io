@@ -19,12 +19,6 @@
  *    along with SDR-J; if not, write to the Free Software
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * 	An ofdm block generator for FIC blocks
- * 	We get in - through get_ficBlock - the FIC data
- * 	in units of 768 bits.
- * 	We follow the standard and apply conv coding and
- * 	puncturing.
- *	The data is sent through to the fic processor
  */
 
 #include	"fic-handler.h"
@@ -47,6 +41,14 @@ uint8_t PI_X [24] = {
 	1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0
 };
 
+/**
+  *	\class ficHandler
+  * 	We get in - through get_ficBlock - the FIC data
+  * 	in units of 768 bits.
+  * 	We follow the standard and apply conv coding and
+  * 	puncturing.
+  *	The data is sent through to the fic processor
+  */
 		ficHandler::ficHandler (RadioInterface *mr,
 	                                mscHandler *f):viterbi (768) {
 int16_t	i, j;
@@ -58,7 +60,6 @@ int16_t	i, j;
 	ficBlocks	= 0;
 	ficMissed	= 0;
 	ficRatio	= 0;
-	convState	= 0;
 	PI_15		= get_PCodes (15 - 1);
 	PI_16		= get_PCodes (16 - 1);
 	fibProcessor	= new fib_processor	(mr, f);
@@ -83,15 +84,18 @@ int16_t	i, j;
 }
 
 	
-//
-//	The number of bits to be processed per incoming block
-//	is 2 * p -> K, which still depends on the Mode.
-//	for Mode I it is 2 * 1536, for Mode II, it is 2 * 384,
-//	for Mode III it is 192, Mode IV gives 2 * 768.
-//	for Mode II we will get the 2304 bits after having read
-//	the 3 FIC blocks,
-//	for Mode IV we will get 3 * 2 * 768 = 4608, i.e. two resulting blocks
-//	Note that Mode III is NOT supported
+/**
+  *	\brief setBitsperBlock
+  *	The number of bits to be processed per incoming block
+  *	is 2 * p -> K, which still depends on the Mode.
+  *	for Mode I it is 2 * 1536, for Mode II, it is 2 * 384,
+  *	for Mode III it is 192, Mode IV gives 2 * 768.
+  *	for Mode II we will get the 2304 bits after having read
+  *	the 3 FIC blocks,
+  *	for Mode IV we will get 3 * 2 * 768 = 4608, i.e. two resulting blocks
+  *	Note that Mode III is NOT supported
+  */
+
 void	ficHandler::setBitsperBlock	(int16_t b) {
 	if ((b == 2 * 384) ||
 	    (b == 2 * 768) ||
@@ -101,6 +105,20 @@ void	ficHandler::setBitsperBlock	(int16_t b) {
 	ficno		= 0;
 }
 
+/**
+  *	\brief process_ficBlock
+  *	The number of bits to be processed per incoming block
+  *	is 2 * p -> K, which still depends on the Mode.
+  *	for Mode I it is 2 * 1536, for Mode II, it is 2 * 384,
+  *	for Mode III it is 192, Mode IV gives 2 * 768.
+  *	for Mode II we will get the 2304 bits after having read
+  *	the 3 FIC blocks, each with 768 bits.
+  *	for Mode IV we will get 3 * 2 * 768 = 4608, i.e. two resulting blocks
+  *	Note that Mode III is NOT supported
+  *	
+  *	The function is called with a blkno. This should be 2, 3 or 4
+  *	for each time 2304 bits are in, we call process_ficInput
+  */
 void	ficHandler::process_ficBlock (int16_t *data,
 	                              int16_t blkno) {
 int32_t	i;
@@ -110,14 +128,6 @@ int32_t	i;
 	   ficno = 0;
 	}
 //
-//	The number of bits to be processed per incoming block
-//	is 2 * p -> K, which still depends on the Mode.
-//	for Mode I it is 2 * 1536, for Mode II, it is 2 * 384,
-//	for Mode III it is 192, Mode IV gives 2 * 768.
-//	for Mode II we will get the 2304 bits after having read
-//	the 3 FIC blocks, each with 768 bits.
-//	for Mode IV we will get 3 * 2 * 768 = 4608, i.e. two resulting blocks
-//	Note that Mode III is NOT supported
 	if ((2 <= blkno) && (blkno <= 4)) {
 	   for (i = 0; i < BitsperBlock; i ++) {
 	      ofdm_input [index ++] = data [i];
@@ -133,13 +143,16 @@ int32_t	i;
 //	we are pretty sure now that after block 4, we end up
 //	with index = 0
 }
-//
-//	we have a vector of 2304 (0 .. 2303) soft bits that has
-//	to be de-punctured and de-conv-ed into a block of 768 bits
-//	In this approach we first create the full 3072 block (i.e.
-//	depuncturing, and thenwe apply the deconvolution
-//	In the next coding step, we will combine this function with the
-//	one above
+
+/**
+  *	\brief process_ficInput
+  *	we have a vector of 2304 (0 .. 2303) soft bits that has
+  *	to be de-punctured and de-conv-ed into a block of 768 bits
+  *	In this approach we first create the full 3072 block (i.e.
+  *	we first depuncture, and then we apply the deconvolution
+  *	In the next coding step, we will combine this function with the
+  *	one above
+  */
 void	ficHandler::process_ficInput (int16_t *ficblock,
 	                              int16_t ficno) {
 int16_t	input_counter	= 0;
@@ -147,10 +160,12 @@ int16_t	i, k;
 int32_t	local		= 0;
 int16_t	viterbiBlock [3072 + 24];
 
-//	a block of 2304 bits is considered to be a codeword
-//	a. First we have 21 blocks with punctured according to PI_16
-//	each 128 bit block contains 4 subblocks of 32 bits
-//	on which the given puncturing is applied
+/**
+  *	a block of 2304 bits is considered to be a codeword
+  *	In the first step we have 21 blocks with puncturing according to PI_16
+  *	each 128 bit block contains 4 subblocks of 32 bits
+  *	on which the given puncturing is applied
+  */
 	for (i = 0; i < 21; i ++) {
 	   for (k = 0; k < 32 * 4; k ++) {
 	      if (PI_16 [k % 32] == 1)  
@@ -160,9 +175,12 @@ int16_t	viterbiBlock [3072 + 24];
 	      local ++;
 	   }
 	}
-//	b Second, we have 3 blocks with puncturing according to PI_15
-//	each 128 bit block contains 4 subblocks of 32 bits
-//	on which the given puncturing is applied
+/**
+  *	In the second step
+  *	we have 3 blocks with puncturing according to PI_15
+  *	each 128 bit block contains 4 subblocks of 32 bits
+  *	on which the given puncturing is applied
+  */
 	for (i = 0; i < 3; i ++) {
 	   for (k = 0; k < 32 * 4; k ++) {
 	      if (PI_15 [k % 32] == 1)  
@@ -172,8 +190,10 @@ int16_t	viterbiBlock [3072 + 24];
 	      }
 	}
 
-//	we had a final block of 24 bits  with puncturing according to PI_X
-//	This block constitues the 6 * 4 bits of the register itself.
+/**
+  *	we have a final block of 24 bits  with puncturing according to PI_X
+  *	This block constitues the 6 * 4 bits of the register itself.
+  */
 	for (k = 0; k < 24; k ++) {
 	   if (PI_X [k] == 1) {
 	      viterbiBlock [local ++] = ficblock [input_counter ++];
@@ -181,17 +201,27 @@ int16_t	viterbiBlock [3072 + 24];
 	   else
 	      viterbiBlock [local ++] = 0;
 	}
-//
-//	It is all in, apply:
+/**
+  *	Now we have the full word ready for deconvolution
+  *	deconvolution is according to DAB standard section 11.2
+  */
 	deconvolve (viterbiBlock, bitBuffer_out);
-//
-//	if everything worked as planned, we now have a
-//	768 bit vector containing three FIB's
-//	first step: prbs handling
+/**
+  *	if everything worked as planned, we now have a
+  *	768 bit vector containing three FIB's
+  *
+  *	first step: energy dispersal according to the DAB standard
+  *	We use a predefined vector PRBS
+  */
 	for (i = 0; i < 768; i ++)
 	   bitBuffer_out [i] ^= PRBS [i];
-
-	for (i = ficno * 3; i < (ficno + 1) * 3; i ++) {
+/**
+  *	each of the fib blocks is protected by a crc
+  *	(we know that there are three fib blocks each time we are here
+  *	we keep track of the successrate
+  *	and show that per 100 fic blocks
+  */
+	for (i = ficno * 3; i < ficno * 3 + 3; i ++) {
 	   if (++ficBlocks >= 100) {
 	      ficRatio = 100 - ficMissed;
 	      show_ficRatio (100 - ficMissed);

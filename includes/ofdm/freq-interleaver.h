@@ -21,18 +21,19 @@
  *
  */
 #
-#ifndef	__MAPPER
-#define	__MAPPER
+#ifndef	__FREQ_INTERLEAVER__
+#define	__FREQ_INTERLEAVER__
 #include	<stdint.h>
 #include	"dab-constants.h"
-/*
- *
- * 	Simple mapper/demapper for dab mode-I
- */
-class	permVector {
+/**
+  *	\class interLeaver
+  *	Implements frequency interleaving according to section 14.6
+  *	of the DAB standard
+  */
+class	interLeaver {
 public:
-	permVector	(DabParams *);
-	~permVector	(void);
+	interLeaver	(DabParams *);
+	~interLeaver	(void);
 int16_t	mapIn		(int16_t);
 private:
 

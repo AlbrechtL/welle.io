@@ -24,11 +24,14 @@
 #
 #include	<stdint.h>
 #include	<stdio.h>
-#include	"mapper.h"
-/*
- *
- * 	Simple mapper/demapper for dab modes I .. IV
- */
+#include	"freq-interleaver.h"
+
+/**
+  *	\brief createMapper
+  *	create the mapping table  for the (de-)interleaver
+  *	formulas according to section 14.6 (Frequency interleaving)
+  *	of the DAB standard
+  */
 
 int16_t	*createMapper (int16_t T_u, int16_t V1, 
 	               int16_t lwb, int16_t upb, int16_t *v) {
@@ -54,30 +57,8 @@ int16_t	i;
 	return v;
 }
 
-	permVector::permVector (DabParams *p) {
-//int16_t	i;
-//int16_t	index	= 0;
-//int16_t	*tmp	= (int16_t *)alloca (p -> T_u * sizeof (int16_t));
-//	
-//	permTable	= new int16_t [p -> K];
-//	index = 0;
-////	step 1: generate the permutation
-//	   tmp [0] = 0;
-//	   for (i = 1; i < p -> T_u; i ++) 
-//	      tmp [i] = (13 * tmp [i - 1] + 511) % (p -> T_u);
-////	step 2: make it into a map of p -> K elements
-//
-//	for (i = 0; i < p -> T_u; i ++) {
-//	   if (tmp [i] == p -> T_u / 2)
-//	      continue;
-//	   if ((tmp [i] < 256) ||
-//	       (tmp [i] > 1792)) 
-//	      continue;
-////	we now have a table with values from 256 .. 1792
-////
-//	   permTable [index ++] = tmp [i] - p -> T_u / 2;
-////	we now have a table with values from -768 .. 768
-//	}
+	interLeaver::interLeaver (DabParams *p) {
+
 	switch (p -> dabMode) {
 	   case 1:
 	   default:		// shouldn't happen
@@ -106,15 +87,14 @@ int16_t	i;
 }
 //
 //
-	permVector::~permVector (void) {
+	interLeaver::~interLeaver (void) {
 	delete	permTable;
 }
 //
 //	according to the standard, the map is a function from
 //	0 .. 1535 -> -768 .. 768 (with exclusion of {0})
-int16_t	permVector::mapIn (int16_t n) {
+int16_t	interLeaver::mapIn (int16_t n) {
 	return permTable [n];
 }
-
 
 

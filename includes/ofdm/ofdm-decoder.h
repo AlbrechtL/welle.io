@@ -34,13 +34,13 @@
 #include	<QObject>
 #endif
 #include	"fft.h"
-#include	"mapper.h"
 #include	"phasetable.h"
 #include	<stdint.h>
 
 class	RadioInterface;
 class	ficHandler;
 class	mscHandler;
+class	interLeaver;
 
 class	ofdmDecoder: public QThread {
 Q_OBJECT
@@ -81,7 +81,7 @@ private:
 	DSPCOMPLEX	*phaseReference;
 	common_fft	*fft_handler;
 	DSPCOMPLEX	*fft_buffer;
-	permVector	*myMapper;
+	interLeaver	*myMapper;
 	phaseTable	*phasetable;
 	int32_t		blockIndex;
 	int16_t		*ibits;

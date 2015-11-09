@@ -21,13 +21,24 @@
  */
 #include	"phasereference.h" 
 #include	"string.h"
-
-	phaseReference::phaseReference (DabParams *p, int16_t threshold):
+/**
+  *	\class phaseReference
+  *	Implements the correlation that is used to identify
+  *	the "first" element (following the cyclic prefix) of
+  *	the first non-null block of a frame
+  *	The class inherits from the phaseTable.
+  */
+	phaseReference::phaseReference (DabParams	*p,
+	                                int16_t		blockSize,
+	                                int16_t threshold):
 	                                     phaseTable (p -> dabMode) {
 int32_t	i;
 DSPFLOAT	Phi_k;
 
 	this	-> Tu		= p -> T_u;
+	this	-> blockSize	= blockSize;
+	if (blockSize > Tu)
+	   blockSize = Tu;
 	this	-> threshold	= threshold;
 
 	Max			= 0.0;
@@ -53,14 +64,25 @@ DSPFLOAT	Phi_k;
 	delete	fft_processor;
 }
 
-int32_t	phaseReference::findIndex (DSPCOMPLEX *v, uint32_t amount) {
+/**
+  *	\brief findIndex
+  *	the vector v contains "amount" samples that are believed to
+  *	belong to the first non-null block of a DAB frame.
+  *	We correlate the data in this verctor with the predefined
+  *	data, and if the maximum exceeds a threshold value,
+  *	we believe that that indicates the first sample we were
+  *	looking for.
+  */
+int32_t	phaseReference::findIndex (DSPCOMPLEX *v) {
 int32_t	i;
 int32_t	maxIndex	= -1;
 float	sum		= 0;
 
 	Max	= 1.0;
-	memcpy (fft_buffer, v, amount * sizeof (DSPCOMPLEX));
-	memset (&fft_buffer [amount], 0, (Tu - amount) * sizeof (DSPCOMPLEX));
+	memcpy (fft_buffer, v, blockSize * sizeof (DSPCOMPLEX));
+	if (blockSize < Tu)
+	   memset (&fft_buffer [amount], 0,
+	           (Tu - amount) * sizeof (DSPCOMPLEX));
 
 	fft_processor -> do_FFT ();
 //
@@ -69,19 +91,23 @@ float	sum		= 0;
 	   res_buffer [i] = fft_buffer [i] * conj (refTable [i]);
 //	and, again, back into the time domain
 	res_processor	-> do_IFFT ();
-//
+/**
+  *	We compute the average signal value ...
+  */
 	for (i = 0; i < Tu; i ++)
 	   sum	+= abs (res_buffer [i]);
 	Max	= -10000;
-	for (i = 0; i < (int)amount; i ++)
+	for (i = 0; i < blockSize; i ++)
 	   if (abs (res_buffer [i]) > Max) {
 	      maxIndex = i;
 	      Max = abs (res_buffer [i]);
 	   }
-
-	if (Max < 5 * sum / Tu)
-	   return  - abs (Max / (sum / Tu)) - 1;
+/**
+  *	that gives us a basis for defining the threshold
+  */
+	if (Max < threshold * sum / blockSize)
+	   return  - abs (Max * blockSize / sum) - 1;
 	else
-	   return maxIndex;	// if not found, it will be -1
+	   return maxIndex;	
 }
 //

@@ -61,9 +61,13 @@ int32_t	i;
   *	and indicate - using some threshold - whether there is
   *	a strong correlation or not.
   *	It is used to decide on the first non-null sample
-  *	of the frame
+  *	of the frame.
+  *	The size of the blocks handed over for inspection
+  *	is T_u
   */
-	phaseSynchronizer	= new phaseReference (params, threshold);
+	phaseSynchronizer	= new phaseReference (params,
+	                                              T_u,
+	                                              threshold);
 /**
   *	the ofdmDecoder takes time domain samples, will do an FFT,
   *	map the result on (soft) bits and hand over control for handling
@@ -322,7 +326,7 @@ SyncOnPhase:
 ///	and then, call upon the phase synchronizer to verify/compute
 ///	the real "first" sample
 	   startIndex = phaseSynchronizer ->
-	                        findIndex (ofdmBuffer, params -> T_u);
+	                        findIndex (ofdmBuffer);
 	   if (startIndex < 0) { // no sync, try again
 /**
   *	In case we do not have a correlation value larger than
