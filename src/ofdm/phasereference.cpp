@@ -66,7 +66,7 @@ DSPFLOAT	Phi_k;
 
 /**
   *	\brief findIndex
-  *	the vector v contains "amount" samples that are believed to
+  *	the vector v contains "blockSize" samples that are believed to
   *	belong to the first non-null block of a DAB frame.
   *	We correlate the data in this verctor with the predefined
   *	data, and if the maximum exceeds a threshold value,
@@ -81,8 +81,8 @@ float	sum		= 0;
 	Max	= 1.0;
 	memcpy (fft_buffer, v, blockSize * sizeof (DSPCOMPLEX));
 	if (blockSize < Tu)
-	   memset (&fft_buffer [amount], 0,
-	           (Tu - amount) * sizeof (DSPCOMPLEX));
+	   memset (&fft_buffer [blockSize], 0,
+	           (Tu - blockSize) * sizeof (DSPCOMPLEX));
 
 	fft_processor -> do_FFT ();
 //
