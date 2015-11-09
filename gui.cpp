@@ -399,7 +399,7 @@ void	RadioInterface::updateTimeDisplay (void) {
 //	                            toString (QString ("dd.MM.yy:hh:mm:ss")));
 	numberofSeconds ++;
 	int16_t	numberHours	= numberofSeconds / 3600;
-	int16_t	numberMinutes	= numberofSeconds / 60;
+	int16_t	numberMinutes	= numberofSeconds % 60;
 	QString text = QString ("runtime ");
 	text. append (QString::number (numberHours));
 	text. append (" hr, ");
