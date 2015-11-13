@@ -127,6 +127,10 @@ int32_t	i;
       }
 }
 
+/**
+  *	\class viterbi
+  *	Implementation is borrowed from spiral
+  */
 	viterbi::viterbi		(int16_t wordlength) {
 int polys [RATE] = POLYS;
 
@@ -156,6 +160,7 @@ uint32_t	size;
 	   printf("Allocation of symbols array failed\n");
 	}
 #endif
+
 	for (state = 0; state < NUMSTATES / 2; state++) {
 	   for (i = 0; i < RATE; i++)
 	      Branchtab [i * NUMSTATES / 2 + state] =
@@ -294,7 +299,11 @@ int32_t  s, i;
 	   vp -> new_metrics = (metric_t *)tmp;
 	}
 }
-
+/**
+  *	The "fast" implementation uses SSE instructions
+  *	The configuration file lets you define (or undefine)
+  *	that
+  */
 extern "C" {
 #ifndef	SSE_AVAILABLE
 void FULL_SPIRAL_no_sse (int, 

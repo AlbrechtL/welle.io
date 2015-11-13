@@ -371,18 +371,22 @@ int32_t		tmp;
 ///	but first the crc check
 	   if (dabPlus_crc (&outVector [au_start [i]],
 	                    aac_frame_length)) {
-//
-//	create a real aac vector, starting with the newly created
-//	header
+/**
+  *	create a real aac vector, starting with the newly created
+  *	header
+  */
 	      memcpy (theAU,
 	              &outVector [au_start [i]],
 	              aac_frame_length * sizeof (uint8_t));
-
+/**
+  *	see if we have a PAD
+  */
 	      if (((theAU [0] >> 5) & 07) == 4)
 	         processPAD (theAU);
-//
-//	just a few bytes extra, such that the decoder can look
-//	beyond the last byte
+/**
+  *	just a few bytes extra, such that the decoder can look
+  *	beyond the last byte
+  */
 	      for (j = aac_frame_length;
 	           j < aac_frame_length + 10; j ++)
 	         theAU [j] = 0;
@@ -409,10 +413,11 @@ int32_t		tmp;
 	return true;
 }
 
-//
-//	Temp code. This code should not be here at all
-//	for the time being, i.e. until we figured out
-//	how to deal with PAD's in general, it remains here
+/**
+  *	The code below really shod not be here at all.
+  *	It will be handled as soon as we nderstand
+  *	how to deal with PAD's in general
+  */
 void	mp4Processor::processPAD (uint8_t *theAU) {
 uint8_t buffer [255];
 int16_t	i;
