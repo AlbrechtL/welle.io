@@ -34,8 +34,9 @@
 #include	"charsets.h"
 #include	"faad-decoder.h"
 
-//	simple, inline coded, crc checker
-//
+/**
+  *	\brief simple, inline coded, crc checker
+  */
 bool	dabPlus_crc (uint8_t *msg, int16_t len) {
 int i, j;
 uint16_t	accumulator	= 0xFFFF;
@@ -58,18 +59,30 @@ uint16_t	genpoly		= 0x1021;
 	crc	= ~((msg [len] << 8) | msg [len + 1]) & 0xFFFF;
 	return (crc ^ accumulator) == 0;
 }
-//
-//	and some simple "bit-setter" functions
+
+/**
+  *	\brief simple bitSetter function
+  */
+static uint8_t bitTable [] = {0x1 << 7, 0x1 << 6, 0x1 << 5, 0x1 << 4,
+                              0x1 << 3, 0x1 << 2, 0x1 << 1, 0x1 << 0};
 static inline
 void	setBit (uint8_t x [], uint8_t bit, int32_t pos) {
 int16_t	iByte;
 int16_t	iBit;
-
 	iByte	= pos / 8;
 	iBit	= pos % 8;
-	x [iByte] = (x [iByte] & (~(1 << (7 - iBit)))) |
-	            (bit << (7 - iBit));
+	x [iByte] = (x [iByte] & (~bitTable [iBit])) | bitTable [iBit];
 }
+
+//static inline
+//void	setBit (uint8_t x [], uint8_t bit, int32_t pos) {
+//int16_t	iByte;
+//int16_t	iBit;
+//	iByte	= pos / 8;
+//	iBit	= pos % 8;
+//	x [iByte] = (x [iByte] & (~(1 << (7 - iBit)))) |
+//	            (bit << (7 - iBit));
+//}
 
 static inline
 void	setBits (uint8_t x[], uint32_t bits,
@@ -83,8 +96,11 @@ uint8_t	bit;
 	}
 }
 
-//
-//	Now for real
+/**
+  *	\class mp4Processor is the main handler for the aac frames
+  *	the class proper processes input and extracts the aac frames
+  *	that are processed by the "faadDecoder" class
+  */
 	mp4Processor::mp4Processor (RadioInterface	*mr,
 	                            audioSink	*as,
 	                            FILE	*errorLog,
@@ -120,15 +136,21 @@ uint8_t	bit;
 	delete[]	frameBytes;
 	delete[]	outVector;
 }
-//
-//	we add vector for vector to the superframe. Once we have
-//	5 lengths of "old" frames, we check
+
+/**
+  *	\brief addtoFrame
+  *
+  *	a DAB+ superframe consists of 5 consecutive DAB frames 
+  *	we add vector for vector to the superframe. Once we have
+  *	5 lengths of "old" frames, we check
+  *	Note that the packing in the entry vector is still one bit
+  *	per Byte, nbits is the number of Bits (i.e. containing bytes)
+  *	the function adds nbits bits, packed in bytes, to the frame
+  */
 void	mp4Processor::addtoFrame (uint8_t *V, int16_t nbits) {
 int16_t	i, j;
 uint8_t	temp	= 0;
-//
-//	Note that the packing in the entry vector is still one bit
-//	per Byte, nbits is the number of Bits (i.e. containing bytes)
+
 	for (i = 0; i < nbits / 8; i ++) {	// in bytes
 	   temp = 0;
 	   for (j = 0; j < 8; j ++)
@@ -139,15 +161,22 @@ uint8_t	temp	= 0;
 	blocksInBuffer ++;
 	blockFillIndex = (blockFillIndex + 1) % 5;
 //
-//	we take the last five blocks to look at
+/**
+  *	we take the last five blocks to look at
+  */
 	if (blocksInBuffer >= 5) {
+///	first, we show the "successrate"
 	   if (++frameCount >= 25) {
 	      frameCount = 0;
 	      show_successRate (4 * (25 - frameErrors));
 	      frameErrors = 0;
 	   }
 
-//	OK, we give it a try, check the fire code
+/**
+  *	starting for real: check the fire code
+  *	if the firecode is OK, we handle the frame
+  *	and adjust the buffer here for the next round
+  */
 	   if (fc. check (&frameBytes [blockFillIndex * nbits / 8]) &&
 	       (processSuperframe (frameBytes,
 	                           blockFillIndex * nbits / 8))) {
@@ -155,13 +184,26 @@ uint8_t	temp	= 0;
 //	new sequence, beginning with block blockFillIndex
 	      blocksInBuffer	= 0;
 	   }
-	   else {	// virtual shift to left in block sizes
+	   else {
+/**
+  *	we were wrong, virtual shift to left in block sizes
+  */
 	      blocksInBuffer  = 4;
 	      frameErrors ++;
 	   }
 	}
 }
-//
+
+/**
+  *	\brief processSuperframe
+  *
+  *	First, we we that the firecode checker gace green light
+  *	However, that does not mean that the values defining the
+  *	the sizes and positions of the aac frames are correct
+  *	When we see an obvious incorrect value, we let the
+  *	function fail and report that in the errorLog file
+  *	(which is usually /dev/null).
+  */
 bool	mp4Processor::processSuperframe (uint8_t frameBytes [], int16_t bo) {
 uint8_t		num_aus;
 int16_t		i, j, k;
@@ -189,6 +231,7 @@ int32_t		tmp;
 	      fprintf (errorLog, "serious error in frame 1 (%d) (%d)\n",
 	                                          ++au_errors, au_count);
 	      return false;
+
 	   case 0:
 	      num_aus = 4;
 	      au_start [0] = 8;
@@ -284,11 +327,12 @@ int32_t		tmp;
               }
 	      break;
 	}
-//
-//	apply reed-solomon error repar
-//	OK, what we now have is a vector with RSDims * 120 uint8_t's
-//	the superframe, containing parity bytes for error repair
-//	take into account the interleaving that is applied.
+/**
+  *	apply reed-solomon error repar
+  *	OK, what we now have is a vector with RSDims * 120 uint8_t's
+  *	the superframe, containing parity bytes for error repair
+  *	take into account the interleaving that is applied.
+  */
 	for (j = 0; j < RSDims; j ++) {
 	   for (k = 0; k < 120; k ++) 
 	      rsIn [k] = frameBytes [(bo + j + k * RSDims) % (RSDims * 120)];
@@ -296,21 +340,27 @@ int32_t		tmp;
 	   for (k = 0; k < 110; k ++)
 	      outVector [j + k * RSDims] = rsOut [k];
 	}
-//
-//	OK, the result is N * 110 * 8 bits (still single bit per byte!!!)
-//	extract the AU's, and prepare a buffer, sufficiently
-//	long for conversion to PCM samples
+/**
+  *	OK, the result is N * 110 * 8 bits (still single bit per byte!!!)
+  *	extract the AU's, and prepare a buffer,  with the sufficient
+  *	lengthy for conversion to PCM samples
+  */
 	for (i = 0; i < num_aus; i ++) {
 	   int16_t	aac_frame_length;
 	   au_count ++;
 	   uint8_t theAU [2 * 960 + 10];	// sure, large enough
 	   memset (theAU, 0, sizeof (theAU));
-//
+
+///	sanity check 1
 	   if (au_start [i + 1] < au_start [i]) {
 	      fprintf (errorLog, "%d %d\n", au_start [i + 1], au_start [i]);
 	      return false;
 	   }
-//	The crc takes the two last bytes from the au vector
+
+/**
+  *	Note that the length can be erroneous, so we check
+  *	its sanity
+  */
 	   aac_frame_length = au_start [i + 1] - au_start [i] - 2;
 	   if ((aac_frame_length >= 2 * 960) || (aac_frame_length < 0)) {
 	      fprintf (errorLog, "serious error in frame 6 (%d) (%d) frame_length = %d\n",
@@ -318,7 +368,7 @@ int32_t		tmp;
 	                                        au_count, aac_frame_length);
 	      return false;
 	   }
-//	but first the crc check
+///	but first the crc check
 	   if (dabPlus_crc (&outVector [au_start [i]],
 	                    aac_frame_length)) {
 //
