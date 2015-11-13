@@ -59,7 +59,6 @@ private:
 	void		handle_variablePAD (uint8_t *, int16_t, uint8_t);
 	void		dynamicLabel	  (uint8_t *, int16_t, uint8_t);
 	void		addSegment	  (uint16_t, QString);
-	FILE		*mp4File;
 	int16_t		superFramesize;
 	int16_t		blockFillIndex;
 	int16_t		blocksInBuffer;

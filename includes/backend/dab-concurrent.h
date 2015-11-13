@@ -47,13 +47,10 @@ public:
 	                 int16_t protLevel,
 	                 RadioInterface *mr,
 	                 FILE	*,
-	                 FILE	*,
-	                 FILE	*,
 	                 audioSink *as);
 	~dabConcurrent	(void);
 int32_t	process		(int16_t *, int16_t);
 void	stopRunning	(void);
-void	setFiles	(FILE *, FILE *);
 private:
 void	run		(void);
 	volatile bool	running;
@@ -63,8 +60,6 @@ void	run		(void);
 	int16_t	uepFlag;
 	int16_t	protLevel;
 	RadioInterface	*myRadioInterface;
-	FILE		*mp2File;
-	FILE		*mp4File;
 	audioSink	*myAudioSink;
 
 	uint8_t		*outV;

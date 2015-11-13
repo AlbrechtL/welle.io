@@ -42,14 +42,11 @@ public:
 	                 int16_t uepFlag,
 	                 int16_t protLevel,
 	                 RadioInterface *mr,
-	                 FILE	*,		// mp2file
-	                 FILE	*,		// mp4 file
 	                 FILE	*,		// errorlog
 	                 audioSink *as);
 	~dabSerial	(void);
 int32_t	process		(int16_t *, int16_t);
 void	stopRunning	(void);
-void	setFiles	(FILE *, FILE *);
 private:
 	uint8_t	dabModus;
 	int16_t	fragmentSize;
@@ -63,8 +60,6 @@ private:
 	int16_t		**interleaveData;
 	int16_t		*Data;
 
-	FILE		*mp2File;
-	FILE		*mp4File;
 	uep_deconvolve	*uepProcessor;
 	eep_deconvolve	*eepProcessor;
 	dabProcessor	*our_dabProcessor;

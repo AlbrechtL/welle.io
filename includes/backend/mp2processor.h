@@ -53,7 +53,6 @@ Q_OBJECT
 public:
 			mp2Processor	(RadioInterface *,
 	                                 audioSink *,
-	                                 FILE *,
 	                                 int16_t);
 			~mp2Processor	(void);
 	void		addtoFrame	(uint8_t *, int16_t);
@@ -61,7 +60,6 @@ public:
 
 private:
 	audioSink	*ourSink;
-	FILE		*mp2File;
 	int32_t		mp2sampleRate	(uint8_t *);
 	int32_t		mp2decodeFrame	(uint8_t *, int16_t *);
 	RadioInterface	*myRadioInterface;

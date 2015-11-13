@@ -168,11 +168,6 @@ int16_t	i, k;
 	deviceSelector	-> addItem ("rtl_tcp");
 #endif
 	
-//	Thanks to David Malone, who discovered while porting to OSX that
-//	these initializations should NOT be forgotten.
-	mp2File		= NULL;
-	mp4File		= NULL;
-//
 /**	
   *	Happily, Qt is very capable of handling the representation
   *	of the ensemble and selecting an item
@@ -234,10 +229,6 @@ int16_t	i, k;
 	              this, SLOT (set_bandSelect (const QString &)));
 	connect (dumpButton, SIGNAL (clicked (void)),
 	              this, SLOT (set_dumping (void)));
-	connect (mp2fileButton, SIGNAL (clicked (void)),
-	              this, SLOT (set_mp2File (void)));
-	connect (aacfileButton, SIGNAL (clicked (void)),
-	              this, SLOT (set_mp4File (void)));
 	connect (audioDump, SIGNAL (clicked (void)),
 	              this, SLOT (set_audioDump (void)));
 	connect (correctorReset, SIGNAL (clicked (void)),
@@ -344,16 +335,6 @@ void	RadioInterface::TerminateProcess (void) {
 	if (audioDumping) {
 	   our_audioSink	-> stopDumping ();
 	   sf_close (audiofilePointer);
-	}
-
-	if (mp2File != NULL) {
-	   my_mscHandler	-> setFiles (NULL, NULL);
-	   fclose (mp2File);
-	}
-
-	if (mp4File != NULL) {
-	   my_mscHandler	-> setFiles (NULL, NULL);
-	   fclose (mp4File);
 	}
 
 	while (my_ofdmProcessor -> isRunning ()) {
@@ -790,80 +771,10 @@ SF_INFO *sf_info	= (SF_INFO *)alloca (sizeof (SF_INFO));
 	my_ofdmProcessor	-> startDumping (dumpfilePointer);
 }
 
-///	similar for the mp2files
-void	RadioInterface::set_mp2File (void) {
-
-	if (mp2File != NULL) {
-	   my_mscHandler	-> setFiles (NULL, mp4File);
-	   fclose (mp2File);
-	   mp2File	= NULL;
-	   mp2fileButton	-> setText ("MP2");
-	   return;
-	}
-
-	if (audioDumping) {
-	   our_audioSink	-> stopDumping ();
-	   sf_close (audiofilePointer);
-	   audioDumping = false;
-	   audioDump	-> setText ("audioDump");
-	   return;
-	}
-
-	QString file = QFileDialog::getSaveFileName (this,
-	                                     tr ("open file ..."),
-	                                     QDir::homePath (),
-	                                     tr ("mp2 data (*.mp2)"));
-	file	= QDir::toNativeSeparators (file);
-	mp2File	= fopen (file. toLatin1 (). data (), "w");
-	if (mp2File == NULL) {
-	   qDebug () << "cannot open " << file. toLatin1 (). data ();
-	   return;
-	}
-	my_mscHandler	-> setFiles (mp2File, mp4File);
-	mp2fileButton	-> setText ("writing");
-}
-
-///	and the mp4 files. This btw does not work
-void	RadioInterface::set_mp4File (void) {
-
-	if (mp4File != NULL) {
-	   my_mscHandler	-> setFiles (mp2File, NULL);
-	   fclose (mp4File);
-	   mp4File	= NULL;
-	   aacfileButton	-> setText ("MP4");
-	   return;
-	}
-
-	if (audioDumping) {
-	   our_audioSink	-> stopDumping ();
-	   sf_close (audiofilePointer);
-	   audioDumping = false;
-	   audioDump	-> setText ("audioDump");
-	   return;
-	}
-
-	QString file = QFileDialog::getSaveFileName (this,
-	                                     tr ("open file ..."),
-	                                     QDir::homePath (),
-	                                     tr ("aac data (*.aac)"));
-	file	= QDir::toNativeSeparators (file);
-	mp4File	= fopen (file. toLatin1 (). data (), "w");
-	if (mp4File == NULL) {
-	   qDebug () << "cannot open " << file. toLatin1 (). data ();
-	   return;
-	}
-
-	my_mscHandler	-> setFiles (mp2File, mp4File);
-	aacfileButton	-> setText ("writing");
-}
-
 ///	audiodumping is similar
 void	RadioInterface::set_audioDump (void) {
 SF_INFO	*sf_info	= (SF_INFO *)alloca (sizeof (SF_INFO));
 
-	if (!audioDumping && (mp2File != NULL || mp4File != NULL))
-	   return;
-	
 	if (audioDumping) {
 	   our_audioSink	-> stopDumping ();
 	   sf_close (audiofilePointer);

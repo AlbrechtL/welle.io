@@ -45,7 +45,3 @@ int32_t	dabVirtual::process	(int16_t *v, int16_t c) {
 void	dabVirtual::stopRunning	(void) {
 }
 
-void	dabVirtual::setFiles (FILE *f1, FILE *f2) {
-	(void)f1;
-	(void)f2;
-}

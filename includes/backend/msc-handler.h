@@ -85,8 +85,6 @@ private:
 	int16_t		numberofblocksperCIF;
 	int16_t		blockCount;
 	audioSink	*our_audioSink;
-	FILE		*mp2File;
-	FILE		*mp4File;
 };
 
 #endif

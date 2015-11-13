@@ -39,10 +39,7 @@ public:
 virtual		~dabVirtual	(void);
 virtual int32_t	process		(int16_t *, int16_t);
 virtual void	stopRunning	(void);
-virtual	void	setFiles	(FILE *, FILE *);
 protected:
-	FILE	*mp2File;
-	FILE	*mp4File;
 };
 #endif
 

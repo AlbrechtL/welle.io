@@ -436,7 +436,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>210</y>
+     <y>200</y>
      <width>101</width>
      <height>31</height>
     </rect>
@@ -463,8 +463,17 @@
      <x>190</x>
      <y>80</y>
      <width>171</width>
-     <height>171</height>
+     <height>151</height>
     </rect>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::Box</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
+   </property>
+   <property name="lineWidth">
+    <number>2</number>
    </property>
   </widget>
   <widget class="QLabel" name="ensembleName">
@@ -511,7 +520,7 @@
    <property name="geometry">
     <rect>
      <x>100</x>
-     <y>130</y>
+     <y>120</y>
      <width>81</width>
      <height>31</height>
     </rect>
@@ -620,7 +629,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>160</y>
+     <y>150</y>
      <width>161</width>
      <height>21</height>
     </rect>
@@ -637,7 +646,7 @@
      <x>370</x>
      <y>200</y>
      <width>71</width>
-     <height>51</height>
+     <height>41</height>
     </rect>
    </property>
    <property name="palette">
@@ -765,7 +774,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>130</y>
+     <y>120</y>
      <width>81</width>
      <height>31</height>
     </rect>
@@ -779,37 +788,11 @@
     <string>audioDump</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="mp2fileButton">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>110</y>
-     <width>81</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>MP2</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="aacfileButton">
-   <property name="geometry">
-    <rect>
-     <x>100</x>
-     <y>110</y>
-     <width>81</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>AAC</string>
-   </property>
-  </widget>
   <widget class="QComboBox" name="bandSelector">
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>180</y>
+     <y>170</y>
      <width>91</width>
      <height>31</height>
     </rect>
@@ -829,7 +812,7 @@
    <property name="geometry">
     <rect>
      <x>120</x>
-     <y>210</y>
+     <y>200</y>
      <width>61</width>
      <height>31</height>
     </rect>
@@ -839,7 +822,7 @@
    <property name="geometry">
     <rect>
      <x>110</x>
-     <y>180</y>
+     <y>170</y>
      <width>71</width>
      <height>31</height>
     </rect>
@@ -946,8 +929,8 @@
   <widget class="QLabel" name="dynamicLabel">
    <property name="geometry">
     <rect>
-     <x>30</x>
-     <y>260</y>
+     <x>10</x>
+     <y>250</y>
      <width>411</width>
      <height>31</height>
     </rect>

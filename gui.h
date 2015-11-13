@@ -135,8 +135,6 @@ private slots:
 	void	setDevice		(QString);
 	void	selectService		(QModelIndex);
 	void	set_dumping		(void);
-	void	set_mp2File		(void);
-	void	set_mp4File		(void);
 	void	set_audioDump		(void);
 public slots:
 	void	set_fineCorrectorDisplay	(int);

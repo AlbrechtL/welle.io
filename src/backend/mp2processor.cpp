@@ -220,7 +220,6 @@ struct quantizer_spec quantizer_table [17] = {
 
 	mp2Processor::mp2Processor (RadioInterface *mr,
 	                            audioSink *theSink,
-	                            FILE *mp2file,
 	                            int16_t bitRate) {
 int16_t	i, j;
 int16_t *nPtr = &N [0][0];
@@ -239,7 +238,6 @@ int16_t *nPtr = &N [0][0];
 
 	myRadioInterface	= mr;
 	ourSink		= theSink;
-	mp2File		= mp2file;
 	connect (this, SIGNAL (show_successRate (int)),
 	         mr, SLOT (show_successRate (int)));
 	Voffs		= 0;
@@ -578,9 +576,6 @@ int16_t	lf	= baudRate == 48000 ? MP2framesize : 2 * MP2framesize;
 	      addbittoMP2 (MP2frame, v [i], MP2bitCount ++);
 	      if (MP2bitCount >= lf) {
 	         int16_t sample_buf [KJMP2_SAMPLES_PER_FRAME * 2];
-	         if (mp2File != NULL) 
-	            (void)fwrite (MP2frame, sizeof (uint8_t), lf, mp2File);
-	         else
 	         if (mp2decodeFrame (MP2frame, sample_buf)) 
 	            ourSink -> audioOut (sample_buf,
 	                                 KJMP2_SAMPLES_PER_FRAME,
@@ -626,9 +621,5 @@ uint8_t	newbyte = (01 << bitnr);
 	else
 	   byte |= newbyte;
 	v [nm / 8] = byte;
-}
-
-void	mp2Processor::setFile (FILE *f) {
-	mp2File	= f;
 }
 

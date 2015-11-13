@@ -35,9 +35,5 @@ void	dabProcessor::addtoFrame	(uint8_t *v, int16_t cnt) {
 	(void)cnt;
 }
 
-void	dabProcessor::setFile		(FILE *f) {
-	(void)f;
-}
-
 
 

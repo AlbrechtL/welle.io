@@ -56,8 +56,6 @@
 	        currentChannel		= -1;
 	        dabModus		= 0;
 	        our_audioSink		= sink;
-	        mp2File			= NULL;	
-	        mp4File			= NULL;
 	        this -> errorLog	= errorLog;
 //	assume default Mode I
 		BitsperBlock		= 2 * 1536;
@@ -131,8 +129,6 @@ int16_t	*myBegin;
 	                                      new_uepFlag,
 	                                      new_protLevel,
 	                                      myRadioInterface,
-	                                      mp2File,
-	                                      mp4File,
 	                                      errorLog,
 	                                      our_audioSink);
 	   else
@@ -142,8 +138,6 @@ int16_t	*myBegin;
 	                                  new_uepFlag,
 	                                  new_protLevel,
 	                                  myRadioInterface,
-	                                  mp2File,
-	                                  mp4File,
 	                                  errorLog,
 	                                  our_audioSink);
 	                                  
@@ -191,11 +185,5 @@ int16_t	mscHandler::getType (void) {
 
 void	mscHandler::stopProcessing (void) {
 	currentChannel = -1;
-}
-
-void	mscHandler::setFiles (FILE *f1, FILE *f2) {
-	mp2File		= f1;
-	mp4File		= f2;
-	dabHandler	-> setFiles (f1, f2);
 }
 

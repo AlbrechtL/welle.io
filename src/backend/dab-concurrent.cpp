@@ -50,8 +50,6 @@ int8_t	interleaveDelays [] = {
 	                                 int16_t uepFlag,
 	                                 int16_t protLevel,
 	                                 RadioInterface *mr,
-	                                 FILE	*mp2file,
-	                                 FILE	*mp4file,
 	                                 FILE	*errorLog,
 	                                 audioSink *as) {
 int32_t i, j;
@@ -61,8 +59,6 @@ int32_t i, j;
 	this	-> uepFlag		= uepFlag;
 	this	-> protLevel		= protLevel;
 	this	-> myRadioInterface	= mr;
-	this	-> mp2File		= mp2file;
-	this	-> mp4File		= mp4file;
 	this	-> myAudioSink		= as;
 
 	outV			= new uint8_t [bitRate * 24];
@@ -87,7 +83,6 @@ int32_t i, j;
 	if (dabModus == DAB) 
 	   our_dabProcessor = new mp2Processor (myRadioInterface,
 	                                        myAudioSink,
-	                                        mp2File,
 	                                        bitRate);
 	else
 	if (dabModus == DAB_PLUS) 
@@ -194,12 +189,5 @@ void	dabConcurrent::stopRunning (void) {
 	while (this -> isRunning ())
 	   usleep (1);
 //	myAudioSink	-> stop ();
-}
-
-void	dabConcurrent::setFiles (FILE *f1, FILE *f2) {
-	mp2File		= f1;
-	if (dabModus == DAB)
-	   our_dabProcessor	-> setFile (f1);
-	(void)f2;
 }
 
