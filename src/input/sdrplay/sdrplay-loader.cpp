@@ -66,7 +66,7 @@ ULONG APIkeyValue_length = 255;
 //	Ǹote that under Ubuntu, the Mirics shared object does not seem to be
 //	able to find the libusb. That is why we explicity load it here
 	Handle		= dlopen ("libusb-1.0.so", RTLD_NOW | RTLD_GLOBAL);
-#ifdef	SDRPLAY_API_NEW
+#ifdef	SDRPLAY_LIBRARY_NEW
 	Handle		= dlopen ("libmirsdrapi-rsp.so", RTLD_NOW);
 #else
 	Handle		= dlopen ("libmir_sdr.so", RTLD_NOW);
