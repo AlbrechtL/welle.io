@@ -37,3 +37,7 @@ development files.
 
 Tested on RPI with arch linux, and RPI with Raspbian Jessie, as well as under fedora 22 and Ubuntu 14.04
 Cross compiled for W7/W10
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Note that the CMakeLists.txt file assumes Qt5
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

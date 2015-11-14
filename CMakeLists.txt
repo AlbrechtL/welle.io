@@ -12,8 +12,9 @@ add_definitions ( -Wall)
 #
 #	if you want support for any of these devices, uncomment the line
 	set(SDRPLAY true)
+	set(AIRSPY true)
 	set(DABSTICK true)
-#	set(DONGLE true)
+	set(DONGLE true)
 #	set(RTLTCP true)
 
 ########################################################################
@@ -242,6 +243,49 @@ add_definitions ( -Wall)
 
 	   add_definitions (-DHAVE_SDRPLAY)
 	endif (SDRPLAY)
+ 
+
+	if (AIRSPY)
+           find_library (AIRSPY_LIB airspy)
+           if (NOT(AIRSPY_LIB))
+              message (FATAL_ERROR "please install airspy library")
+           else (NOT(AIRSPY_LIB))
+              set (extraLibs ${extraLibs} ${AIRSPY_LIB})
+           endif()
+           find_path (AIRSPYLIB_INCLUDE_DIR
+                      NAMES airspy.h
+                      PATHS
+                      /usr/local/include/
+                      /usr/local/include/libairspy
+           )
+           include_directories (${AIRSPYLIB_INCLUDE_DIR})
+
+           set (${objectName}_UIS
+                ${${objectName}_UIS}
+                ./src/input/airspy/airspy-widget.ui
+           )
+	   set (${objectName}_MOCS
+                ${${objectName}_MOCS}
+                ./src/input/airspy/airspy-handler.h
+           )
+
+           include_directories (
+             ./src/input/airspy
+           )
+
+           set ($(objectName)_HDRS
+                ${${objectName}_HDRS}
+                ./src/input/airspy/airspy-handler.h
+           )
+
+           set (${objectName}_SRCS
+                ${${objectName}_SRCS}
+                ./src/input/airspy/airspy-handler.cpp
+           )
+
+           add_definitions (-DHAVE_AIRSPY)
+        endif (AIRSPY)
+
 
 	if (DABSTICK)
 	   find_library (RTLSDR rtlsdr)
