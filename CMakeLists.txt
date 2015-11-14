@@ -14,7 +14,6 @@ add_definitions ( -Wall)
 	set(SDRPLAY true)
 	set(AIRSPY true)
 	set(DABSTICK true)
-	set(DONGLE true)
 #	set(RTLTCP true)
 
 ########################################################################
@@ -144,7 +143,7 @@ add_definitions ( -Wall)
 	     ./includes/ofdm/ofdm-processor.h
 	     ./includes/ofdm/phasereference.h
 	     ./includes/ofdm/phasetable.h
-	     ./includes/ofdm/mapper.h
+	     ./includes/ofdm/freq-interleaver.h
 	     ./includes/backend/viterbi.h
 	     ./includes/backend/msc-handler.h
 	     ./includes/backend/rscodec.h
@@ -175,7 +174,7 @@ add_definitions ( -Wall)
 	     ./src/ofdm/ofdm-decoder.cpp
 	     ./src/ofdm/phasereference.cpp
 	     ./src/ofdm/phasetable.cpp
-	     ./src/ofdm/mapper.cpp
+	     ./src/ofdm/freq-interleaver.cpp
 	     ./src/backend/viterbi.cpp
 	     ./src/backend/fic-handler.cpp
 	     ./src/backend/msc-handler.cpp
