@@ -1,0 +1,6 @@
+
+Note that construction using Qt4 is possible, however,
+the CMakeLists.txt file assumes Qt5
+
+SO: use the qmake/make route
+

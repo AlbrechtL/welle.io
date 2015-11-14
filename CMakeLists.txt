@@ -422,4 +422,4 @@ add_definitions ( -Wall)
 	                       ${QWT_LIBRARIES}
 	)
 
-	INSTALL (TARGETS ${objectName} DESTINATION ../linux-bin)
+	INSTALL (TARGETS ${objectName} DESTINATION ./linux-bin)
