@@ -1,0 +1,11 @@
+
+Note that a new installer program for the sdrplay libraries is
+on the site sdrplay.com
+
+By default it is assumed that the "old" api is in place
+If not, then there will be a problem with loading the library
+unless you define
+#define	SDRPLAY_API_NEW 
+in the file
+sdrplay/sdrplay-loader.cpp
+

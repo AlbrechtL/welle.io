@@ -77,8 +77,8 @@ int	err;
 	   return;
 	}
 
-	err			= functions -> my_mir_sdr_SetDcMode (4, 1);
-	err			= functions -> my_mir_sdr_SetDcTrackTime (63);
+	err			= functions -> my_mir_sdr_SetDcMode (1, 1);
+//	err			= functions -> my_mir_sdr_SetDcTrackTime (63);
 //
 //	some defaults:
 	lastFrequency		= defaultFreq;	// the parameter!!!!
