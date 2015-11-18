@@ -1,0 +1,11 @@
+
+There has been quite some developments on the code for supporting dabsticks.
+This software assumes that there is a library "rtlsdr.." available.
+The easiest is to take the library from the osmocom site, however,
+there are other versions as well.
+You might want to try the version from Leif Albrink
+http://www.sm5bsz.com/linuxdsp/hware/rtlsdr/rtlsdr.htm
+
+A good alternative (for me) was the one from
+http://www.rtl-sdr.com/new-experimental-r820t-rtl-sdr-driver-tunes-13-mhz-lower/
+

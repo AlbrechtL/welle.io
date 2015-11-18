@@ -50,7 +50,6 @@ typedef	int (*  pfnrtlsdr_get_tuner_gains) (rtlsdr_dev_t *, int *);
 typedef	int (*  pfnrtlsdr_set_tuner_gain_mode) (rtlsdr_dev_t *, int);
 typedef	int (*  pfnrtlsdr_set_sample_rate) (rtlsdr_dev_t *, uint32_t);
 typedef	int (*  pfnrtlsdr_get_sample_rate) (rtlsdr_dev_t *);
-typedef	int (*  pfnrtlsdr_set_agc_mode) (rtlsdr_dev_t *, int);
 typedef	int (*  pfnrtlsdr_set_tuner_gain) (rtlsdr_dev_t *, int);
 typedef	int (*  pfnrtlsdr_get_tuner_gain) (rtlsdr_dev_t *);
 typedef int (*  pfnrtlsdr_reset_buffer) (rtlsdr_dev_t *);
@@ -116,7 +115,6 @@ private:
 	pfnrtlsdr_set_tuner_gain_mode rtlsdr_set_tuner_gain_mode;
 	pfnrtlsdr_set_sample_rate rtlsdr_set_sample_rate;
 	pfnrtlsdr_get_sample_rate rtlsdr_get_sample_rate;
-	pfnrtlsdr_set_agc_mode rtlsdr_set_agc_mode;
 	pfnrtlsdr_set_tuner_gain rtlsdr_set_tuner_gain;
 	pfnrtlsdr_get_tuner_gain rtlsdr_get_tuner_gain;
 	pfnrtlsdr_reset_buffer rtlsdr_reset_buffer;
@@ -129,8 +127,6 @@ private slots:
 	void		setExternalGain		(int);
 	void		set_fCorrection		(int);
 	void		set_KhzOffset		(int);
-	void		adjustRate		(int);
-	void		setAgc			(int);
 
 };
 #endif

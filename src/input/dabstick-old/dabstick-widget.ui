@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>204</width>
+    <width>159</width>
     <height>226</height>
    </rect>
   </property>
@@ -18,7 +18,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>191</width>
+     <width>151</width>
      <height>191</height>
     </rect>
    </property>
@@ -41,11 +41,27 @@
      <string>dabstick</string>
     </property>
    </widget>
+   <widget class="QSpinBox" name="externalGain">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>91</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="maximum">
+     <number>103</number>
+    </property>
+    <property name="value">
+     <number>10</number>
+    </property>
+   </widget>
    <widget class="QSpinBox" name="f_correction">
     <property name="geometry">
      <rect>
-      <x>70</x>
-      <y>40</y>
+      <x>0</x>
+      <y>20</y>
       <width>91</width>
       <height>21</height>
      </rect>
@@ -60,8 +76,8 @@
    <widget class="QSpinBox" name="KhzOffset">
     <property name="geometry">
      <rect>
-      <x>70</x>
-      <y>60</y>
+      <x>0</x>
+      <y>40</y>
       <width>91</width>
       <height>21</height>
      </rect>
@@ -76,8 +92,8 @@
    <widget class="QLabel" name="label_3">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>60</y>
+      <x>100</x>
+      <y>40</y>
       <width>41</width>
       <height>21</height>
      </rect>
@@ -89,8 +105,8 @@
    <widget class="QLabel" name="label_4">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>40</y>
+      <x>100</x>
+      <y>20</y>
       <width>51</width>
       <height>21</height>
      </rect>
@@ -99,56 +115,17 @@
      <string>ppm</string>
     </property>
    </widget>
-   <widget class="QSlider" name="gainSlider">
+   <widget class="QLabel" name="label_5">
     <property name="geometry">
      <rect>
-      <x>160</x>
-      <y>10</y>
-      <width>18</width>
-      <height>131</height>
-     </rect>
-    </property>
-    <property name="orientation">
-     <enum>Qt::Vertical</enum>
-    </property>
-   </widget>
-   <widget class="QLCDNumber" name="showGain">
-    <property name="geometry">
-     <rect>
-      <x>70</x>
-      <y>10</y>
-      <width>64</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="lineWidth">
-     <number>2</number>
-    </property>
-    <property name="segmentStyle">
-     <enum>QLCDNumber::Flat</enum>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkAgc">
-    <property name="geometry">
-     <rect>
-      <x>134</x>
-      <y>160</y>
-      <width>51</width>
-      <height>26</height>
+      <x>100</x>
+      <y>0</y>
+      <width>41</width>
+      <height>21</height>
      </rect>
     </property>
     <property name="text">
-     <string>agc</string>
-    </property>
-   </widget>
-   <widget class="QSpinBox" name="rateAdjustment">
-    <property name="geometry">
-     <rect>
-      <x>70</x>
-      <y>80</y>
-      <width>91</width>
-      <height>21</height>
-     </rect>
+     <string>gain</string>
     </property>
    </widget>
   </widget>
