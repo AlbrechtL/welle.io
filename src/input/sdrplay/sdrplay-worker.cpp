@@ -77,8 +77,8 @@ int	err;
 	   return;
 	}
 
-	err			= functions -> my_mir_sdr_SetDcMode (1, 1);
-//	err			= functions -> my_mir_sdr_SetDcTrackTime (63);
+	err			= functions -> my_mir_sdr_SetDcMode (4, 1);
+	err			= functions -> my_mir_sdr_SetDcTrackTime (63);
 //
 //	some defaults:
 	lastFrequency		= defaultFreq;	// the parameter!!!!
@@ -107,7 +107,8 @@ void	sdrplayWorker::stop	(void) {
 //	and passing the values on
 //
 void	sdrplayWorker:: run (void) {
-int16_t		*localBuf 	= (int16_t *)alloca (2 * sps * sizeof (int16_t));
+int16_t		*localBuf 	=
+	                      (int16_t *)alloca (2 * sps * sizeof (int16_t));
 int16_t		*xi		= (int16_t *)alloca (sps * sizeof (int16_t));
 int16_t		*xq		= (int16_t *)alloca (sps * sizeof (int16_t));
 uint32_t	fs;
@@ -129,9 +130,9 @@ int	err;
 	   }
 	   _I_Buffer	-> putDataIntoBuffer (localBuf, 2 * sps);
 
-	if (fsc != 0 || rfc != 0 ||grc != 0)
-	   fprintf (stderr, "fsc = %d, rfc = %d, grc = %d\n",
-	                     fsc, rfc, grc);
+	   if (fsc != 0 || rfc != 0 ||grc != 0)
+	      fprintf (stderr, "fsc = %d, rfc = %d, grc = %d\n",
+	                                        fsc, rfc, grc);
 //	OK, data is now stored, now checking for updates
 	   while (anyChange != NO_CHANGE) {
 	      if (anyChange & FREQ_CHANGE) {

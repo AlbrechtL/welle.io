@@ -54,6 +54,7 @@ float	ver;
 	*success		= false;
 	_I_Buffer	= NULL;
 	theLoader	= NULL;
+	theWorker	= NULL;
 
 	theLoader	= new sdrplayLoader (success);
 	if (!(*success)) {
@@ -69,15 +70,14 @@ float	ver;
 	   statusLabel	-> setText ("mirics error");
 	}
 
-	fprintf (stderr, "API Version = %f\n", ver);
+	api_version	-> display (ver);
 	_I_Buffer	= new RingBuffer<int16_t>(2 * 1024 * 1024);
 	vfoFrequency	= Khz (94700);
 	currentGain	= DEFAULT_GAIN;
 	vfoOffset	= 0;
-	theWorker	= NULL;
 
 	sdrplaySettings		-> beginGroup ("sdrplaySettings");
-	externalGain 		-> setValue (
+	gainSlider 		-> setValue (
 	            sdrplaySettings -> value ("externalGain", 10). toInt ());
 	f_correction		-> setValue (
 	            sdrplaySettings -> value ("f_correction", 0). toInt ());
@@ -85,9 +85,9 @@ float	ver;
 	            sdrplaySettings -> value ("KhzOffset", 0). toInt ());
 	sdrplaySettings	-> endGroup ();
 
-	setExternalGain	(externalGain	-> value ());
+	setExternalGain	(gainSlider	-> value ());
 	set_KhzOffset	(KhzOffset	-> value ());
-	connect (externalGain, SIGNAL (valueChanged (int)),
+	connect (gainSlider, SIGNAL (valueChanged (int)),
 	         this, SLOT (setExternalGain (int)));
 	connect (KhzOffset, SIGNAL (valueChanged (int)),
 	         this, SLOT (set_KhzOffset (int)));
@@ -96,7 +96,7 @@ float	ver;
 
 	sdrplay::~sdrplay	(void) {
 	sdrplaySettings	-> beginGroup ("sdrplaySettings");
-	sdrplaySettings	-> setValue ("externalGain", externalGain -> value ());
+	sdrplaySettings	-> setValue ("externalGain", gainSlider -> value ());
 	sdrplaySettings -> setValue ("f_correction", f_correction -> value ());
 	sdrplaySettings -> setValue ("KhzOffset", KhzOffset -> value ());
 	sdrplaySettings	-> endGroup ();
@@ -140,10 +140,8 @@ int16_t	bankFor_sdr (int32_t freq) {
 	   return 4;
 	if (freq < 250 * MHz (1))
 	   return 5;
-	if (freq < 380 * MHz (1))
-	   return 6;
 	if (freq < 420 * MHz (1))
-	   return -1;
+	   return 6;
 	if (freq < 1000 * MHz (1))
 	   return 7;
 	if (freq < 2000 * MHz (1))
@@ -192,6 +190,7 @@ void	sdrplay::setExternalGain	(int newGain) {
 	if (theWorker != NULL)
 	   theWorker -> setExternalGain (newGain);
 	currentGain = newGain;
+	gainDisplay	-> display (currentGain);
 	return;
 }
 
@@ -254,7 +253,7 @@ int32_t	sdrplay::Samples	(void) {
 }
 
 uint8_t	sdrplay::myIdentity	(void) {
-	return SDRPLAY;
+	return MIRICS_STICK;
 }
 
 void	sdrplay::resetBuffer	(void) {

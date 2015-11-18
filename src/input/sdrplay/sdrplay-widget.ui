@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>256</width>
-    <height>133</height>
+    <height>188</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -32,29 +32,13 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>100</y>
+      <y>140</y>
       <width>101</width>
       <height>21</height>
      </rect>
     </property>
     <property name="text">
-     <string>mirics-sdrPlay</string>
-    </property>
-   </widget>
-   <widget class="QSpinBox" name="externalGain">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>0</y>
-      <width>91</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="maximum">
-     <number>103</number>
-    </property>
-    <property name="value">
-     <number>55</number>
+     <string>mirics-SDRplay</string>
     </property>
    </widget>
    <widget class="QSpinBox" name="f_correction">
@@ -112,19 +96,6 @@
      <string>ppm</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_5">
-    <property name="geometry">
-     <rect>
-      <x>100</x>
-      <y>0</y>
-      <width>101</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>gain reductiom</string>
-    </property>
-   </widget>
    <widget class="QLabel" name="statusLabel">
     <property name="geometry">
      <rect>
@@ -136,6 +107,51 @@
     </property>
     <property name="text">
      <string/>
+    </property>
+   </widget>
+   <widget class="QLCDNumber" name="api_version">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>60</y>
+      <width>91</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="lineWidth">
+     <number>0</number>
+    </property>
+    <property name="segmentStyle">
+     <enum>QLCDNumber::Flat</enum>
+    </property>
+   </widget>
+   <widget class="QSlider" name="gainSlider">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>39</y>
+      <width>20</width>
+      <height>131</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Vertical</enum>
+    </property>
+   </widget>
+   <widget class="QLCDNumber" name="gainDisplay">
+    <property name="geometry">
+     <rect>
+      <x>163</x>
+      <y>0</y>
+      <width>41</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="digitCount">
+     <number>3</number>
+    </property>
+    <property name="segmentStyle">
+     <enum>QLCDNumber::Flat</enum>
     </property>
    </widget>
   </widget>
