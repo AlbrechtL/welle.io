@@ -125,7 +125,7 @@ LIBS		+= -lfaad
 #
 # an attempt to have it run under W32
 win32 {
-DESTDIR	= ./windows-bin-dab
+DESTDIR	= ../../windows-bin-dab
 # includes in mingw differ from the includes in fedora linux
 INCLUDEPATH += /usr/i686-w64-mingw32/sys-root/mingw/include
 LIBS		+= -L/usr/i686-w64-mingw32/sys-root/mingw/lib
