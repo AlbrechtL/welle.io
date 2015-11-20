@@ -508,6 +508,6 @@ void	dabStick::setAgc	(int state) {
 	if (checkAgc -> isChecked ())
 	   (void)rtlsdr_set_agc_mode (device, 1);
 	else
-	   (void)rtlsdr_set_agc_mode (device, 1);
+	   (void)rtlsdr_set_agc_mode (device, 0);
 }
 

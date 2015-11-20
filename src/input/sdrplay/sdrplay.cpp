@@ -253,7 +253,7 @@ int32_t	sdrplay::Samples	(void) {
 }
 
 uint8_t	sdrplay::myIdentity	(void) {
-	return MIRICS_STICK;
+	return SDRPLAY;
 }
 
 void	sdrplay::resetBuffer	(void) {
