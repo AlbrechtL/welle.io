@@ -5,7 +5,7 @@
 ######################################################################
 
 TEMPLATE	= app
-TARGET		= sdr-j-rpi-0.99
+TARGET		= sdr-j-rpi-0.991
 QT		+= widgets
 CONFIG		+= console
 QMAKE_CFLAGS	+=  -flto -ffast-math 
