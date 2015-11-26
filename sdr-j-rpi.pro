@@ -5,7 +5,7 @@
 ######################################################################
 
 TEMPLATE	= app
-TARGET		= sdr-j-rpi-0.991
+TARGET		= sdr-j-rpi-0.992
 QT		+= widgets
 CONFIG		+= console
 QMAKE_CFLAGS	+=  -flto -ffast-math 
@@ -57,6 +57,7 @@ HEADERS += ./gui.h \
 	   ./includes/backend/mp2processor.h \
 	   ./includes/backend/charsets.h \
 	   ./includes/backend/mp4processor.h \
+	   ./includes/backend/pad-handler.h \
 	   ./includes/backend/deconvolve.h \
 	   ./includes/backend/firecode-checker.h \
 	   ./includes/backend/dab-serial.h \
@@ -92,6 +93,7 @@ SOURCES += ./main.cpp \
 	   ./src/backend/mp2processor.cpp \
 	   ./src/backend/charsets.cpp \
 	   ./src/backend/mp4processor.cpp \
+	   ./src/backend/pad-handler.cpp \
 	   ./src/backend/firecode-checker.cpp \
 	   ./src/backend/dab-virtual.cpp \
 	   ./src/backend/dab-serial.cpp \

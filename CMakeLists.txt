@@ -1,6 +1,6 @@
 cmake_minimum_required( VERSION 2.8.11 )
 set (CMAKE_BUILD_TYPE Release )
-set (objectName sdr-j-rpi-0.991)
+set (objectName sdr-j-rpi-0.992)
 set ( CMAKE_INSTALL_PREFIX ../ )
 add_definitions ( -Wall)
 ######################################################################
@@ -154,6 +154,8 @@ add_definitions ( -Wall)
 	     ./includes/backend/dab-processor.h
 	     ./includes/backend/dab-virtual.h
 	     ./includes/backend/mp2processor.h
+	     ./includes/backend/mp4processor.h
+	     ./includes/backend/pad-handler.h
 	     ./includes/backend/faad_decoder.h
 	     ./includes/backend/charsets.h
 	     ./src/input/virtual-input.h
@@ -183,6 +185,7 @@ add_definitions ( -Wall)
 	     ./src/backend/rscodec.cpp
 	     ./src/backend/mp2processor.cpp
 	     ./src/backend/mp4processor.cpp
+	     ./src/backend/pad-handler.cpp
 	     ./src/backend/firecode-checker.cpp
 	     ./src/backend/dab-serial.cpp
 	     ./src/backend/dab-concurrent.cpp
@@ -207,6 +210,7 @@ add_definitions ( -Wall)
 	     ./includes/backend/fib-processor.h
 	     ./includes/backend/mp2processor.h
 	     ./includes/backend/mp4processor.h
+	     ./includes/backend/pad-handler.h
 	     ./src/input/rawfiles/rawfiles.h
 	     ./src/input/wavfiles/wavfiles.h
 	)
