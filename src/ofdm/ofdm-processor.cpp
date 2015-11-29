@@ -56,6 +56,7 @@ int32_t	i;
 	ofdmBufferIndex			= 0;
 	ofdmSymbolCount			= 0;
 	tokenCount			= 0;
+	sampleCnt			= 0;
 /**
   *	the class phaseReference will take a number of samples
   *	and indicate - using some threshold - whether there is
