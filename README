@@ -49,5 +49,9 @@ READ THE README.DABSTICK
 Note on SDRplay software
 READ THE README.SDRPLAY
 ###########################################################################
-
-
+Note on MOT handling
+Comment or uncomment the line
+DEFINE	+= MOT_BASICS__
+for excluding or including a preliminary handling of slides in DAB
+Default is: commented out
+##########################################################################

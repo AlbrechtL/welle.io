@@ -25,7 +25,6 @@
 #define	__MOT_HANDLER__
 #include	"dab-constants.h"
 #include	<QObject>
-#include	<QPixmap>
 #include	<QImage>
 #include	<QLabel>
 
@@ -34,14 +33,13 @@ class	RadioInterface;
 typedef struct  {
 	int32_t ordernumber;
 	uint16_t transportId;
-	uint8_t *body;
+	QByteArray body;
 	int32_t	bodySize;
 	uint16_t contentType;
 	uint16_t contentsubType;
 	int16_t  segmentSize;
 	int16_t  numofSegments;
 	bool	marked	[100];
-	QPixmap	thePixmap;
 } motElement;
 
 class	motHandler: public QObject {
@@ -73,6 +71,6 @@ private:
 	bool	isComplete	(motElement *);
 	void	handleComplete	(motElement *);
 signals:
-	void	pictureReady	(QPixmap);
+	void	pictureReady	(QByteArray);
 };
 #endif

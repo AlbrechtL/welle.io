@@ -149,7 +149,7 @@ public slots:
 	void	show_snr		(int);
 	void	setSynced		(char);
 	void	showLabel		(QString);
-	void	showMOT			(QPixmap);
+	void	showMOT			(QByteArray);
 	void	changeinConfiguration	(void);
 };
 

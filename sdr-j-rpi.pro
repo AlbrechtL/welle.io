@@ -119,7 +119,7 @@ CONFIG		+= sdrplay
 CONFIG		+= rtl_tcp
 CONFIG		+= airspy
 CONFIG		+= streamer
-DEFINES		+= MOT_BASICS__
+#DEFINES		+= MOT_BASICS__
 DESTDIR		= ./linux-bin
 INCLUDEPATH	+= /usr/local/include
 LIBS		+= -lfftw3f  -lusb-1.0 -ldl  #
@@ -185,7 +185,7 @@ sdrplay {
 	                   ./src/input/sdrplay/sdrplay-loader.cpp \
 	                   ./src/input/sdrplay/sdrplay-worker.cpp 
 	FORMS		+= ./src/input/sdrplay/sdrplay-widget.ui
-	DEFINES		+= SDRPLAY_LIBRARY_NEW
+#	DEFINES		+= SDRPLAY_LIBRARY_NEW
 }
 #
 #

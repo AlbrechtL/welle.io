@@ -32,8 +32,8 @@ int16_t	i, j;
 	      table [i]. marked [j] = false;
 	}
 	ordernumber	= 1;
-	connect (this, SIGNAL (pictureReady (QPixmap)),
-	         mr, SLOT (showMOT (QPixmap)));
+	connect (this, SIGNAL (pictureReady (QByteArray)),
+	         mr, SLOT (showMOT (QByteArray)));
 }
 
 	 	motHandler::~motHandler (void) {
@@ -128,6 +128,7 @@ void		motHandler::processSegment	(int16_t	transportId,
 	                                 int16_t	segmentNumber,
 	                                 int16_t	segmentSize,
 	                                 bool		lastFlag) {
+int16_t	i;
 //	   fprintf (stderr, "transportId %d segment number %d (size %d) (flags = %d)\n",
 //	                     transportId,
 //	                     segmentNumber,
@@ -146,18 +147,18 @@ void		motHandler::processSegment	(int16_t	transportId,
 	   if (segmentNumber * handle -> segmentSize + segmentSize >
 	                                handle -> bodySize)
 	      return;
-	   memcpy (&handle -> body [segmentNumber *
-	                                  handle -> segmentSize],
-	           segment,
-	           segmentSize);
+	   for (i = 0; i < segmentSize; i ++)
+	      handle -> body [segmentNumber *
+	                                  handle -> segmentSize + i] =
+	           segment [i];
 	   handle -> marked [segmentNumber] = true;
-//	   fprintf (stderr, "%d -> segment %d set\n", transportId, segmentNumber);
+	   fprintf (stderr, "%d -> segment %d set\n", transportId, segmentNumber);
 	   if (lastFlag) {
 	      handle -> numofSegments = segmentNumber;
-//	      fprintf (stderr, "aantal segmenten = %d\n", segmentNumber);
+	      fprintf (stderr, "aantal segmenten = %d\n", segmentNumber);
 	   }
 	   if (isComplete (handle)) {
-//	      fprintf (stderr, "slide %d is complete\n", transportId);
+	      fprintf (stderr, "slide %d is complete\n", transportId);
 	      handleComplete (handle);
 	   }
 	}
@@ -166,10 +167,7 @@ void		motHandler::processSegment	(int16_t	transportId,
 void	motHandler::handleComplete (motElement *p) {
 	if (p -> contentType != 2)
 	   return;
-bool res = (p -> thePixmap).loadFromData (p -> body, p -> bodySize);
-	if (res) {
-	   emit pictureReady (p -> thePixmap);
-	}
+	pictureReady (p -> body);
 }
 
 bool	motHandler::isComplete (motElement *p) {
@@ -188,7 +186,7 @@ motElement	*motHandler::getHandle (uint16_t transportId) {
 int16_t	i;
 
 	for (i = 0; i < 16; i ++)
-	   if (table [i]. ordernumber != -1 && table [i]. transportId)
+	   if (table [i]. ordernumber != -1 && table [i]. transportId == transportId)
 	      return &table [i];
 	return NULL;
 }
@@ -205,7 +203,7 @@ int16_t		lowIndex;
 	   if (table [i]. ordernumber == -1) {
 	      table [i]. ordernumber	= ordernumber ++;
 	      table [i]. transportId	= transportId;
-	      table [i]. body		= new uint8_t [size];
+	      table [i]. body. resize (size);
 	      table [i]. bodySize	= size;
 	      table [i]. contentType	= contentType;
 	      table [i]. contentsubType	= contentsubType;
@@ -226,10 +224,9 @@ int16_t		lowIndex;
 	   }
 	}
 	
-	delete [] table [lowIndex]. body;
 	table [i]. ordernumber	= ordernumber ++;
 	table [i]. transportId	= transportId;
-	table [i]. body		= new uint8_t [size];
+	table [i]. body. resize (size);
 	table [i]. bodySize	= size;
 	table [i]. contentType	= contentType;
 	table [i]. contentsubType	= contentsubType;
