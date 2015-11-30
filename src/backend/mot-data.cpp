@@ -152,13 +152,13 @@ int16_t	i;
 	                                  handle -> segmentSize + i] =
 	           segment [i];
 	   handle -> marked [segmentNumber] = true;
-	   fprintf (stderr, "%d -> segment %d set\n", transportId, segmentNumber);
+//	   fprintf (stderr, "%d -> segment %d set\n", transportId, segmentNumber);
 	   if (lastFlag) {
 	      handle -> numofSegments = segmentNumber;
-	      fprintf (stderr, "aantal segmenten = %d\n", segmentNumber);
+//	      fprintf (stderr, "aantal segmenten = %d\n", segmentNumber);
 	   }
 	   if (isComplete (handle)) {
-	      fprintf (stderr, "slide %d is complete\n", transportId);
+//	      fprintf (stderr, "slide %d is complete\n", transportId);
 	      handleComplete (handle);
 	   }
 	}
