@@ -120,6 +120,7 @@ private:
 	int16_t		currentGain;
 const	char		*get_programm_type_string (uint8_t);
 const	char		*get_programm_language_string (uint8_t);
+	QLabel		*pictureLabel;
 private slots:
 	void	setStart		(void);
 	void	updateTimeDisplay	(void);
@@ -148,6 +149,7 @@ public slots:
 	void	show_snr		(int);
 	void	setSynced		(char);
 	void	showLabel		(QString);
+	void	showMOT			(QPixmap);
 	void	changeinConfiguration	(void);
 };
 

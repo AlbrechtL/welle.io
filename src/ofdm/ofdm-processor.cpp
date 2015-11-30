@@ -51,6 +51,7 @@ int32_t	i;
 	this	-> my_mscHandler	= msc;
 	this	-> my_ficHandler	= fic;
 	dumping				= false;
+	dumpIndex			= 0;
 //
 	ofdmBuffer			= new DSPCOMPLEX [76 * T_s];
 	ofdmBufferIndex			= 0;
@@ -145,11 +146,14 @@ DSPCOMPLEX temp;
 	theRig -> getSamples (&temp, 1);
 	bufferContent --;
 	if (dumping) {
-	   float f [2];
-	   f [0] = real (temp);
-	   f [1] = imag (temp);
-	   sf_writef_float (dumpFile, f, 1);
-	}
+           dumpBuffer [2 * dumpIndex] = real (temp);
+           dumpBuffer [2 * dumpIndex + 1] = imag (temp);
+           if ( ++dumpIndex >= DUMPSIZE / 2) {
+              sf_writef_float (dumpFile, dumpBuffer, dumpIndex);
+              dumpIndex = 0;
+           }
+        }
+
 //
 //	OK, we have a sample!!
 //	first: adjust frequency. We need Hz accuracy
@@ -187,14 +191,16 @@ int32_t		i;
 	n	= theRig -> getSamples (v, n);
 	bufferContent -= n;
 	if (dumping) {
-	   float f [2];
-	   for (i = 0; i < n; i ++) {
-	      f [0] = real (v [i]);
-	      f [1] = imag (v [i]);
-	      sf_writef_float (dumpFile, f, 1);
-	   }
-	}
-//
+           for (i = 0; i < n; i ++) {
+              dumpBuffer [2 * dumpIndex] = real (v [i]);
+              dumpBuffer [2 * dumpIndex + 1] = imag (v [i]);
+              if (++dumpIndex >= DUMPSIZE / 2) {
+                 sf_writef_float (dumpFile, dumpBuffer, dumpIndex);
+                 dumpIndex = 0;
+              }
+           }
+        }
+
 //	OK, we have samples!!
 //	first: adjust frequency. We need Hz accuracy
 	for (i = 0; i < n; i ++) {
@@ -268,7 +274,7 @@ SyncOnNull:
   */
 	   counter	= 0;
 	   setSynced (false);
-	   while (currentStrength / 50  > 0.35 * sLevel) {
+	   while (currentStrength / 50  > 0.40 * sLevel) {
 	      DSPCOMPLEX sample	=
 	                      getSample (coarseCorrector + fineCorrector);
 	      envBuffer [syncBufferIndex] = jan_abs (sample);
@@ -287,7 +293,7 @@ SyncOnNull:
   *	We now start looking for the end of the null period.
   */
 SyncOnEndNull:
-	   while (currentStrength / 50 < 0.85 * sLevel) {
+	   while (currentStrength / 50 < 0.75 * sLevel) {
 	      DSPCOMPLEX sample = getSample (coarseCorrector + fineCorrector);
 	      envBuffer [syncBufferIndex] = abs (sample);
 //	update the levels
@@ -295,11 +301,11 @@ SyncOnEndNull:
 	                        envBuffer [(syncBufferIndex + syncBufferSize - 50) & syncBufferMask];
 	      syncBufferIndex = (syncBufferIndex + 1) & syncBufferMask;
 	      counter	++;
-	      if (counter > 4 * T_s)	// hopeless
+	      if (counter > 3 * T_s)	// hopeless
 	         goto notSynced;
 	   }
 /**
-  *	The end of thenull period is identified, probably about 40
+  *	The end of the null period is identified, probably about 40
   *	samples earlier.
   */
 SyncOnPhase:
@@ -461,6 +467,7 @@ void	ofdmProcessor::startDumping	(SNDFILE *f) {
 //	do not change the order here.
 	dumpFile 	= f;
 	dumping		= true;
+	dumpIndex	= 0;
 }
 
 void	ofdmProcessor::stopDumping	(void) {

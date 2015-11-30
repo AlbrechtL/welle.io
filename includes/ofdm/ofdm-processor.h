@@ -36,6 +36,7 @@
 #include	"fic-handler.h"
 #include	"msc-handler.h"
 
+#define	DUMPSIZE		8192
 class	RadioInterface;
 class	common_fft;
 class	ofdmDecoder;
@@ -61,6 +62,8 @@ protected:
 	bool		running;
 	int16_t		gain;
 	bool		dumping;
+	int16_t		dumpIndex;
+	float		dumpBuffer [DUMPSIZE];
 	SNDFILE		*dumpFile;
 	virtualInput	*theRig;
 	DabParams	*params;

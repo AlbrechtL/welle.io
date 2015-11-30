@@ -172,6 +172,7 @@ int16_t	i, k;
   *	Happily, Qt is very capable of handling the representation
   *	of the ensemble and selecting an item
   */
+	pictureLabel	= NULL;
 	ensemble.setStringList (Services);
 	ensembleDisplay	-> setModel (&ensemble);
 	Services << " ";
@@ -352,7 +353,11 @@ void	RadioInterface::TerminateProcess (void) {
 	delete		our_streamer;
 #endif
 	delete		our_audioSink;
-	
+
+	if (pictureLabel != NULL)
+	   delete pictureLabel;
+	pictureLabel = NULL;
+
 	accept ();
 	qDebug () <<  "Termination started";
 }
@@ -541,6 +546,9 @@ bool	localRunning	= running;
 	errorDisplay		-> display (0);
 	ficRatioDisplay		-> display (0);
 	snrDisplay		-> display (0);
+	if (pictureLabel != NULL)
+	   delete pictureLabel;
+	pictureLabel = NULL;
 
 	TunedFrequency		= 0;
 	if (dabBand == BAND_III)
@@ -593,6 +601,10 @@ void	RadioInterface::clearEnsemble	(void) {
 	errorDisplay		-> display (0);
 	ficRatioDisplay		-> display (0);
 	snrDisplay		-> display (0);
+	dynamicLabel		-> setText (" ");
+	if (pictureLabel != NULL)
+	   delete pictureLabel;
+	pictureLabel	= NULL;
 }
 
 /**
@@ -734,9 +746,13 @@ const char *RadioInterface::get_programm_language_string (uint8_t language) {
 void	RadioInterface::selectService (QModelIndex s) {
 QString a = ensemble. data (s, Qt::DisplayRole). toString ();
 	my_ficHandler -> setSelectedService (a);
+	dynamicLabel	-> setText (" ");
+	if (pictureLabel != NULL)
+	   delete pictureLabel;
+	pictureLabel = NULL;
 }
 
-///	switch for dmping on/off
+///	switch for dumping on/off
 void	RadioInterface::set_dumping (void) {
 SF_INFO *sf_info	= (SF_INFO *)alloca (sizeof (SF_INFO));
 
@@ -836,6 +852,11 @@ bool	success;
 QString	file;
 //
 ///	first stop dumping
+	dynamicLabel    -> setText (" ");
+        if (pictureLabel != NULL)
+           delete pictureLabel;
+        pictureLabel    = NULL;
+
 	if (sourceDumping) {
 	   my_ofdmProcessor -> stopDumping ();
 	   sf_close (dumpfilePointer);
@@ -1190,6 +1211,14 @@ void	RadioInterface::setSynced	(char b) {
 void	RadioInterface::showLabel	(QString s) {
 	dynamicLabel	-> setText (s);
 }
+
+void    RadioInterface::showMOT         (QPixmap p) {
+           if (pictureLabel == NULL)
+              pictureLabel      = new QLabel (NULL);
+           pictureLabel ->  setPixmap (p);
+           pictureLabel ->  show ();
+}
+
 
 /**
   *	\brief changeinConfiguration

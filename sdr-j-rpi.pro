@@ -58,6 +58,7 @@ HEADERS += ./gui.h \
 	   ./includes/backend/charsets.h \
 	   ./includes/backend/mp4processor.h \
 	   ./includes/backend/pad-handler.h \
+	   ./includes/backend/mot-data.h \
 	   ./includes/backend/deconvolve.h \
 	   ./includes/backend/firecode-checker.h \
 	   ./includes/backend/dab-serial.h \
@@ -94,6 +95,7 @@ SOURCES += ./main.cpp \
 	   ./src/backend/charsets.cpp \
 	   ./src/backend/mp4processor.cpp \
 	   ./src/backend/pad-handler.cpp \
+	   ./src/backend/mot-data.cpp \
 	   ./src/backend/firecode-checker.cpp \
 	   ./src/backend/dab-virtual.cpp \
 	   ./src/backend/dab-serial.cpp \
@@ -117,6 +119,7 @@ CONFIG		+= sdrplay
 CONFIG		+= rtl_tcp
 CONFIG		+= airspy
 CONFIG		+= streamer
+DEFINES		+= MOT_BASICS__
 DESTDIR		= ./linux-bin
 INCLUDEPATH	+= /usr/local/include
 LIBS		+= -lfftw3f  -lusb-1.0 -ldl  #

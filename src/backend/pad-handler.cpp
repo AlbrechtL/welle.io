@@ -24,6 +24,7 @@
 #include	<cstring>
 #include	"gui.h"
 #include	"charsets.h"
+#include	"mot-data.h"
 /**
   *	\class padHandler
   *	Handles the pad sectors passed on from mp4Processor
@@ -32,12 +33,11 @@
 	myRadioInterface	= mr;
 	connect (this, SIGNAL (showLabel (QString)),
 	         mr, SLOT (showLabel (QString)));
-	motObject	= NULL;
+	my_motHandler	= new motHandler (mr);
 }
 
 	padHandler::~padHandler	(void) {
-	if (motObject != NULL)
-	   delete motObject;
+	delete my_motHandler;
 }
 
 /**
@@ -249,7 +249,7 @@ static int lastSegment = 0;
 void	padHandler::add_MSC_element	(uint8_t *data, int16_t length) {
 int16_t	i;
 
-#ifndef	XPAD_SUPPORT
+#ifndef	MOT_BASICS__
 	return;
 #endif
 	if (xpad_bufferIndex < 0)
@@ -344,74 +344,19 @@ int16_t segmentSize		= ((segment [0] & 0x1F) << 8) | segment [1];
 	   int16_t headerSize	= ((segment [5] & 0xF) <<  9) |
 	                          ( segment [6]        <<  1) |
 	                          ((segment [7] >> 7) & 0x01);
-	   uint8_t contentType	= ((segment [7] >> 1) & 0x3F);
-	   uint8_t contentSubt	= ((segment [7] & 0x01) << 8) |
-	                           segment [8];
-	fprintf (stderr, " groupT %d transportId %d, segS %d bodyS %d header %d type %d subt %d\n",
-	                 groupType,
-	                 transportId,
-	                 segmentSize,
-	                 bodySize,
-	                 headerSize,
-	                 contentType,
-	                 contentSubt);
-	int16_t	pointer	= 8;
-	while (pointer < headerSize + 2) {
-	   uint8_t PLI = (segment [pointer] & 0300) >> 6;
-	   uint8_t paramId = (segment [pointer] & 077);
-	   uint16_t	length;
-	   fprintf (stderr, "PLI = %d, paramId = %d\n", PLI, paramId);
-	   switch (PLI) {
-	      case 00:
-	         pointer += 1;
-	         break;
-	      case 01:
-	         if (paramId == 10)
-	            fprintf (stderr, "priority = %d\n",
-	                              segment [pointer + 1]);
-	         pointer += 2;
-	         break;
-	      case 02:
-	         if (paramId == 5) 
-	            fprintf (stderr, "triggertime = %d\n",
-	                             segment [pointer + 1] << 24 |
-	                             segment [pointer + 2] << 16 |
-	                             segment [pointer + 3] <<  8 |
-	                             segment [pointer + 4]);
-	         pointer += 5;
-	         break;
-	      case 03:
-	         if ((segment [pointer + 1] & 0200) != 0) {
-	            length = (segment [pointer + 1] & 0177) << 8 |
-	                      segment [pointer + 2];
-	            pointer += 3;
-	         }
-	         else {
-	            length = segment [pointer + 1] & 0177;
-	            pointer += 2;
-	         }
-	         if (paramId == 12) {
-	            char temp [length];
-	            int16_t i;
-	            fprintf (stderr, "charset = %d\n",
-	                                (segment [pointer] & 0xFF00) >> 8);
-	            for (i = 0; i < length - 1; i ++) 
-	               temp [i] = segment [pointer + i + 1];
-	            temp [length - 1] = '\0';
-	            fprintf (stderr, "Name is %s\n", temp);
-	         }
-	         pointer += length;
-	   } 
-	}
-	                  
-	                         
-	         
+	   my_motHandler -> processHeader (transportId,
+	                                &segment [2],
+	                                segmentSize,
+	                                headerSize,
+	                                bodySize,
+	                                lastFlag);
 	}
 	else
-	   fprintf (stderr, "transportId %d segment number %d (size %d)\n",
-	                     transportId,
-	                     segmentNumber,
-	                     segmentSize);
+	   my_motHandler -> processSegment (transportId,
+	                                    &segment [2],
+	                                    segmentNumber,
+	                                    segmentSize,
+	                                    lastFlag);
 }
 
 bool	padHandler::pad_crc (uint8_t *msg, int16_t len) {

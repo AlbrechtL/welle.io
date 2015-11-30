@@ -156,6 +156,7 @@ add_definitions ( -Wall)
 	     ./includes/backend/mp2processor.h
 	     ./includes/backend/mp4processor.h
 	     ./includes/backend/pad-handler.h
+	     ./includes/backend/mot-data.h
 	     ./includes/backend/faad_decoder.h
 	     ./includes/backend/charsets.h
 	     ./src/input/virtual-input.h
@@ -186,6 +187,7 @@ add_definitions ( -Wall)
 	     ./src/backend/mp2processor.cpp
 	     ./src/backend/mp4processor.cpp
 	     ./src/backend/pad-handler.cpp
+	     ./src/backend/mot-data.cpp
 	     ./src/backend/firecode-checker.cpp
 	     ./src/backend/dab-serial.cpp
 	     ./src/backend/dab-concurrent.cpp

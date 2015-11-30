@@ -30,12 +30,8 @@
 #include	<stdint.h>
 
 class	RadioInterface;
-class	motData;
+class	motHandler;
 
-struct mot_element {
-	int16_t	key;
-	motData	*mot;
-};
 class	padHandler: public QObject {
 Q_OBJECT
 public:
@@ -55,7 +51,7 @@ private:
 	bool	pad_crc			(uint8_t *, int16_t);
 	QString	dynamicLabelText;
 	int16_t	charSet;
-	motData	*motObject;
+	motHandler	*my_motHandler;
 	int16_t	xpad_length;
 	int16_t xpad_bufferIndex;
 	uint8_t	xpad_buffer	[8192];
