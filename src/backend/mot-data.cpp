@@ -32,8 +32,8 @@ int16_t	i, j;
 	      table [i]. marked [j] = false;
 	}
 	ordernumber	= 1;
-	connect (this, SIGNAL (pictureReady (QByteArray)),
-	         mr, SLOT (showMOT (QByteArray)));
+	connect (this, SIGNAL (the_picture (QByteArray, int)),
+	         mr, SLOT (showMOT (QByteArray, int)));
 }
 
 	 	motHandler::~motHandler (void) {
@@ -112,8 +112,9 @@ int16_t	pointer	= 7;
 	   return;
 	}
 //	header segment contains header + segment data
+	fprintf (stderr, "combined %d\n", bodySize);
 	newEntry (transportId,
-	          bodySize - headerSize,
+	          bodySize,
 	          contentType,
 	          contentsubType);
 	processSegment (transportId, 
@@ -147,14 +148,18 @@ int16_t	i;
 	   if (segmentNumber * handle -> segmentSize + segmentSize >
 	                                handle -> bodySize)
 	      return;
+
+	   if (lastFlag) 
+	      fprintf (stderr, "last element is at location %d (%d)\n",
+	       segmentNumber * handle -> segmentSize + segmentSize, 
+	                       handle -> bodySize);
 	   for (i = 0; i < segmentSize; i ++)
 	      handle -> body [segmentNumber *
-	                                  handle -> segmentSize + i] =
-	           segment [i];
+	                         handle -> segmentSize + i] = segment [i];
 	   handle -> marked [segmentNumber] = true;
 //	   fprintf (stderr, "%d -> segment %d set\n", transportId, segmentNumber);
 	   if (lastFlag) {
-	      handle -> numofSegments = segmentNumber;
+	      handle -> numofSegments = segmentNumber + 1;
 //	      fprintf (stderr, "aantal segmenten = %d\n", segmentNumber);
 	   }
 	   if (isComplete (handle)) {
@@ -167,7 +172,7 @@ int16_t	i;
 void	motHandler::handleComplete (motElement *p) {
 	if (p -> contentType != 2)
 	   return;
-	pictureReady (p -> body);
+	the_picture (p -> body, p -> contentsubType);
 }
 
 bool	motHandler::isComplete (motElement *p) {
@@ -186,7 +191,7 @@ motElement	*motHandler::getHandle (uint16_t transportId) {
 int16_t	i;
 
 	for (i = 0; i < 16; i ++)
-	   if (table [i]. ordernumber != -1 && table [i]. transportId == transportId)
+	   if (table [i]. ordernumber != -1 && table [i]. transportId)
 	      return &table [i];
 	return NULL;
 }

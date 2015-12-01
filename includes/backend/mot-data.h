@@ -59,6 +59,7 @@ void		processSegment	(int16_t	transportId,
 	                         int16_t	segmentNumber,
 	                         int16_t	segmentSize,
 	                         bool		lastFlag);
+	void	my_help		(void);
 private:
 	motElement table [16];
 	int16_t	ordernumber;
@@ -71,6 +72,6 @@ private:
 	bool	isComplete	(motElement *);
 	void	handleComplete	(motElement *);
 signals:
-	void	pictureReady	(QByteArray);
+	void	the_picture	(QByteArray, int);
 };
 #endif

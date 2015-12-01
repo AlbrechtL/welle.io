@@ -1212,13 +1212,16 @@ void	RadioInterface::showLabel	(QString s) {
 	dynamicLabel	-> setText (s);
 }
 
-void    RadioInterface::showMOT         (QByteArray data) {
-        if (pictureLabel == NULL)
-           pictureLabel      = new QLabel (NULL);
+void	RadioInterface::showMOT		(QByteArray data, int subtype) {
+	if (pictureLabel == NULL)
+	   pictureLabel	= new QLabel (NULL);
+
 	QPixmap p;
-	p. loadFromData (data);
-        pictureLabel ->  setPixmap (p);
-        pictureLabel ->  show ();
+	p. loadFromData (data, subtype == 0 ? "GIF" :
+	                       subtype == 1 ? "JPEG" :
+	                       subtype == 2 ? "BMP" : "PNG");
+	pictureLabel ->  setPixmap (p);
+	pictureLabel ->  show ();
 }
 
 
