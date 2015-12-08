@@ -242,10 +242,6 @@ void	ficHandler::setSelectedService (QString &s) {
 	fibProcessor -> setSelectedService (s);
 }
 
-void	ficHandler::unnamedService (int n) {
-	fibProcessor -> setunnamedService (n);
-}
-
 void	ficHandler::clearEnsemble (void) {
 	fibProcessor	-> clearEnsemble ();
 }

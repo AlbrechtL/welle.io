@@ -67,15 +67,15 @@
 	delete	dabHandler;
 }
 
-void	mscHandler::setChannel (int16_t subchId,
-	                        int16_t uepFlag,
-	                        int16_t	startAddr,
-	                        int16_t	Length,
-	                        int16_t	protLevel,
-	                        int16_t	bitRate,
-	                        int16_t	ASCTy,
-	                        int16_t	language,
-	                        int16_t	type) {
+void	mscHandler::set_audioChannel (int16_t subchId,
+	                              int16_t uepFlag,
+	                              int16_t	startAddr,
+	                              int16_t	Length,
+	                              int16_t	protLevel,
+	                              int16_t	bitRate,
+	                              int16_t	ASCTy,
+	                              int16_t	language,
+	                              int16_t	type) {
 	newChannel	= true;
 	currentChannel	= subchId;
 	new_uepFlag	= uepFlag;

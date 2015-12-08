@@ -48,7 +48,7 @@ public:
 		~mscHandler		(void);
 	void	process_mscBlock	(int16_t *, int16_t);
 	void	setMode			(DabParams *);
-	void	setChannel		(int16_t, int16_t, int16_t,
+	void	set_audioChannel	(int16_t, int16_t, int16_t,
 	                                 int16_t, int16_t, int16_t, int16_t,
 	                                 int16_t, int16_t);
 	uint8_t	getMode			(void);

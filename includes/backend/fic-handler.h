@@ -48,7 +48,6 @@ public:
 	void	process_ficBlock	(int16_t *, int16_t);
 	void	setBitsperBlock		(int16_t);
 	void	setSelectedService	(QString &);
-	void	unnamedService		(int);
 	void	clearEnsemble		(void);
 	int16_t	get_ficRatio		(void);
 private:
