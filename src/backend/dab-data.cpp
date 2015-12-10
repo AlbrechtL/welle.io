@@ -190,12 +190,12 @@ int16_t	usefulLength	= getBits (data, 17, 7);
 
 	if (!check_mscCRC (data, packetLength * 8))
 	   return;
-	fprintf (stderr, "packet = %d, CI = %d, firstLast = %d, address = %d, ULength = %d\n",
-	packetLength,
-	continuityIndex,
-	firstLast,
-	address,
-	usefulLength);
+//	fprintf (stderr, "packet = %d, CI = %d, firstLast = %d, address = %d, ULength = %d\n",
+//	packetLength,
+//	continuityIndex,
+//	firstLast,
+//	address,
+//	usefulLength);
 }
 
 static
