@@ -81,6 +81,7 @@
 	   int32_t	protLevel;
 	   int32_t	BitRate;
 	   int16_t	language;
+	   int16_t	FEC_scheme;
 	};
 
 class	RadioInterface;

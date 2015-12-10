@@ -239,8 +239,8 @@ int16_t		i;
 	         myRadioInterface, SLOT (addtoEnsemble (const QString &)));
 	connect (this, SIGNAL (nameofEnsemble (int, const QString &)),
 	         myRadioInterface, SLOT (nameofEnsemble (int, const QString &)));
-	connect (this, SIGNAL (addEnsembleChar (char, int)),
-	         myRadioInterface, SLOT (addEnsembleChar (char, int)));
+//	connect (this, SIGNAL (addEnsembleChar (char, int)),
+//	         myRadioInterface, SLOT (addEnsembleChar (char, int)));
 //	connect (this, SIGNAL (setTime (int, int, int, int, int, int)),
 //	         myRadioInterface,
 //	         SLOT (showTime (int, int, int, int, int, int)));
@@ -541,7 +541,7 @@ int16_t		numberofComponents;
 	      bind_packetService (TMid, SId, i, SCId, PS_flag, CA_flag);
            }
 	   else
-	      ;		// for now
+	      {;}		// for now
 	   lOffset += 16;
 	}
 	return lOffset / 8;		// in Bytes
@@ -769,14 +769,19 @@ int16_t		i;
 void	fib_processor::FIG0Extension14 (uint8_t *d) {
 int16_t	Length	= getBits_5 (d, 3);	// in Bytes
 int16_t	used	= 2;			// in Bytes
+int16_t	i;
+
 	while (used < Length) {
 	   int16_t SubChId	= getBits_6 (d, used * 8);
-	   uint8_t FEC_Scheme	= getBits_2 (d, used * 8 + 6);
+	   uint8_t FEC_scheme	= getBits_2 (d, used * 8 + 6);
 	   used = used + 1;
-//	   fprintf (stderr, "FEC subchannel %d has scheme %d\n",
-//	                           SubChId, FEC_Scheme);
-	   (void)SubChId;
-	   (void)FEC_Scheme;
+
+	   for (i = 0; i < 64; i ++) {
+              if (ficList [i]. SubChId == SubChId) {
+                 ficList [i]. FEC_scheme = FEC_scheme;
+              }
+           }
+
 	}
 }
 
@@ -954,7 +959,7 @@ char		label [17];
 	      if ((charSet <= 16)) { // EBU Latin based repertoire
 	         for (i = 0; i < 16; i ++) {
 	            label [i] = getBits_8 (d, offset + 8 * i);
-	            addEnsembleChar (label [i], i);
+//	            addEnsembleChar (label [i], i);
 	         }
 //	         fprintf (stderr, "Ensemblename: %16s\n", label);
 	         if (!oe) {
@@ -1262,7 +1267,18 @@ bool	equal;
 	         fprintf (stderr,
 	               "protLevel = %d ", ficList [subchId]. protLevel);
 	         fprintf (stderr, "BitRate = %d\n", ficList [subchId]. BitRate);
-	         fprintf (stderr, "NOT SUPPORTED YET\n");
+	         myDecoder -> set_dataChannel (subchId,
+                                               ficList [subchId]. uepFlag,
+                                               ficList [subchId]. StartAddr,
+                                               ficList [subchId]. Length,
+                                               ficList [subchId]. protLevel,
+                                               ficList [subchId]. BitRate,
+                                               ficList [subchId]. FEC_scheme,
+                                               components [j]. DSCTy,
+                                               components [j]. packetAddress);
+                 fprintf (stderr, "NOT SUPPORTED YET\n");
+                 return;
+
 	         return;
 	      }
 

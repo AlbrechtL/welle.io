@@ -24,8 +24,8 @@
 #include	"msc-handler.h"
 #include	"gui.h"
 #include	"dab-virtual.h"
-#include	"dab-serial.h"
 #include	"dab-concurrent.h"
+#include	"dab-data.h"
 //
 //	Driver program for processing the MSC.
 //	Three operations here (apart from selecting
@@ -60,6 +60,7 @@
 //	assume default Mode I
 		BitsperBlock		= 2 * 1536;
 	   	numberofblocksperCIF	= 18;
+	        audioService		= true;
 }
 
 		mscHandler::~mscHandler	(void) {
@@ -76,6 +77,7 @@ void	mscHandler::set_audioChannel (int16_t subchId,
 	                              int16_t	ASCTy,
 	                              int16_t	language,
 	                              int16_t	type) {
+	audioService	= true;
 	newChannel	= true;
 	currentChannel	= subchId;
 	new_uepFlag	= uepFlag;
@@ -89,6 +91,27 @@ void	mscHandler::set_audioChannel (int16_t subchId,
 //	fprintf (stderr, "Preparations for channel select\n");
 }
 //
+void	mscHandler::set_dataChannel (int16_t	subchId,
+	                             int16_t	uepFlag,
+	                             int16_t	startAddr,
+	                             int16_t	Length,
+	                             int16_t	protLevel,
+	                             int16_t	bitRate,
+	                             int16_t	FEC_scheme,
+	                             int16_t	DSCTy,
+	                             int16_t	packetAddress) {
+	audioService	= false;
+	newChannel	= true;
+	currentChannel	= subchId;
+	new_uepFlag	= uepFlag;
+	new_startAddr	= startAddr;
+	new_Length	= Length;
+	new_protLevel	= protLevel;
+	new_bitRate	= bitRate;
+	new_FEC_scheme	= FEC_scheme;
+	new_DSCTy	= DSCTy;
+	new_packetAddress = packetAddress;
+}
 void	mscHandler::setMode	(DabParams *p) {
 	BitsperBlock	= 2 * p -> K;
 	if (p -> dabMode == 4)	// 2 CIFS per 76 blocks
@@ -122,7 +145,7 @@ int16_t	*myBegin;
 	   dabHandler -> stopRunning ();
 	   delete dabHandler;
 
-	   if (concurrencyOn)
+	   if (audioService)
 	      dabHandler = new dabConcurrent (new_dabModus,
 	                                      new_Length * CUSize,
 	                                      new_bitRate,
@@ -131,15 +154,21 @@ int16_t	*myBegin;
 	                                      myRadioInterface,
 	                                      errorLog,
 	                                      our_audioSink);
-	   else
-	      dabHandler = new dabSerial (new_dabModus,
-	                                  new_Length * CUSize,
-	                                  new_bitRate,
-	                                  new_uepFlag,
-	                                  new_protLevel,
-	                                  myRadioInterface,
-	                                  errorLog,
-	                                  our_audioSink);
+
+	   else	 {	// dealing with data
+	      dabHandler = new dabData (myRadioInterface,
+	                                new_DSCTy,
+	                                new_packetAddress,
+	                                new_Length * CUSize,
+	                                new_bitRate,
+	                                new_uepFlag,
+	                                new_protLevel,
+	                                new_FEC_scheme);
+	      DSCTy		= new_DSCTy;
+	      packetAddress	= new_packetAddress;
+	      FEC_scheme	= new_FEC_scheme;
+	   }
+	          
 	                                  
 	   startAddr	= new_startAddr;
 	   Length	= new_Length;

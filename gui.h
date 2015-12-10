@@ -143,7 +143,6 @@ public slots:
 	void	clearEnsemble		(void);
 	void	addtoEnsemble		(const QString &);
 	void	nameofEnsemble		(int, const QString &);
-	void	addEnsembleChar		(char, int);
 	void	show_successRate	(int);
 	void	show_ficRatio		(int);
 	void	show_snr		(int);

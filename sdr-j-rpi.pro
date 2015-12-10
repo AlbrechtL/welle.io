@@ -61,8 +61,8 @@ HEADERS += ./gui.h \
 	   ./includes/backend/mot-data.h \
 	   ./includes/backend/deconvolve.h \
 	   ./includes/backend/firecode-checker.h \
-	   ./includes/backend/dab-serial.h \
 	   ./includes/backend/dab-concurrent.h \
+	   ./includes/backend/dab-data.h \
 	   ./includes/backend/dab-processor.h \
 	   ./includes/backend/dab-virtual.h \
 	   ./includes/output/audiosink.h \
@@ -98,8 +98,8 @@ SOURCES += ./main.cpp \
 	   ./src/backend/mot-data.cpp \
 	   ./src/backend/firecode-checker.cpp \
 	   ./src/backend/dab-virtual.cpp \
-	   ./src/backend/dab-serial.cpp \
 	   ./src/backend/dab-concurrent.cpp \
+	   ./src/backend/dab-data.cpp \
 	   ./src/backend/dab-processor.cpp \
 	   ./src/backend/protTables.cpp \
 	   ./src/output/fir-filters.cpp \

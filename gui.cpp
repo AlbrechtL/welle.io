@@ -622,16 +622,12 @@ void	RadioInterface::addtoEnsemble (const QString &s) {
 }
 //
 ///	a slot, called by the fib processor
-void	RadioInterface::addEnsembleChar (char v, int i) {
-	ensembleLabel. insert(i, QChar (v));
-}
-
-///	a slot, called by the fib processor
 void	RadioInterface::nameofEnsemble (int id, const QString &v) {
 QString s;
 
 	(void)v;
 	ensembleId		-> display (id);
+	ensembleLabel		= v;
 	ensembleName		-> setText (v);
 	my_ofdmProcessor	-> coarseCorrectorOff ();
 }
