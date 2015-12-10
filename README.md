@@ -1,16 +1,19 @@
-PLEASE READ
+
+		DAB-RPI
 
 This directory contains the implementation of a simple
 dab/dab+ receiver that will run on an RPI 2.
 The receiver supports terrestrial DAB reception with as input either
-the stream from a n AIRSPY, a SDRplay, a dabstick (direct
+the stream from an AIRSPY, a SDRplay, a dabstick (direct
 or through the rtl_tcp server) or a (prerecorded) file,
 and it will output through the selected soundcard.
 
-If configured - see ".pro" file or the CMakeLists.txt file -
-the program will send its auio output to a tcp port.
+If configured for it - see ".pro" file or the CMakeLists.txt file -
+the program will send its audio output to a tcp port.
 A simple client is included - to be compiled and installed separately -
 that can be used to map these PCI samples to a soundcard.
+The client is available as a windows program in the windows-bin-dab folder
+to be found on the website
 
 Building:
 
@@ -39,17 +42,11 @@ Tested on RPI with arch linux, and RPI with Raspbian Jessie, as well as under fe
 Cross compiled for W7/W10
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-Note that the CMakeLists.txt file assumes Qt5
+Note that the CMakeLists.txt file assumes Qt5, the sdr-j-pro works
+fine with both Qt4 and Qt5
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-#######################################################################
-Note on DABstick software
-READ THE README.DABSTICK
-###########################################################################
-Note on SDRplay software
-READ THE README.SDRPLAY
-###########################################################################
-Note on MOT handling
+Note on NOT handling
 Comment or uncomment the line
 DEFINE	+= MOT_BASICS__
 for excluding or including a preliminary handling of slides in DAB
