@@ -25,7 +25,7 @@
 #include	"gui.h"
 #include	"dab-virtual.h"
 #include	"dab-concurrent.h"
-#include	"dab-data.h"
+#include	"msc-datagroup.h"
 //
 //	Driver program for processing the MSC.
 //	Three operations here (apart from selecting
@@ -98,7 +98,8 @@ void	mscHandler::set_dataChannel (int16_t	subchId,
 	                             int16_t	protLevel,
 	                             int16_t	bitRate,
 	                             int16_t	FEC_scheme,
-	                             int16_t	DSCTy,
+	                             uint8_t	DGflag,
+	                             uint8_t	DSCTy,
 	                             int16_t	packetAddress) {
 	audioService	= false;
 	newChannel	= true;
@@ -107,6 +108,7 @@ void	mscHandler::set_dataChannel (int16_t	subchId,
 	new_startAddr	= startAddr;
 	new_Length	= Length;
 	new_protLevel	= protLevel;
+	new_DGflag	= DGflag;
 	new_bitRate	= bitRate;
 	new_FEC_scheme	= FEC_scheme;
 	new_DSCTy	= DSCTy;
@@ -156,16 +158,18 @@ int16_t	*myBegin;
 	                                      our_audioSink);
 
 	   else	 {	// dealing with data
-	      dabHandler = new dabData (myRadioInterface,
-	                                new_DSCTy,
-	                                new_packetAddress,
-	                                new_Length * CUSize,
-	                                new_bitRate,
-	                                new_uepFlag,
-	                                new_protLevel,
-	                                new_FEC_scheme);
+	      dabHandler = new mscDatagroup (myRadioInterface,
+	                                     new_DSCTy,
+	                                     new_packetAddress,
+	                                     new_Length * CUSize,
+	                                     new_bitRate,
+	                                     new_uepFlag,
+	                                     new_protLevel,
+	                                     new_DGflag,
+	                                     new_FEC_scheme);
 	      DSCTy		= new_DSCTy;
 	      packetAddress	= new_packetAddress;
+	      DGflag		= new_DGflag;
 	      FEC_scheme	= new_FEC_scheme;
 	   }
 	          

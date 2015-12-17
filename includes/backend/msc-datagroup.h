@@ -1,7 +1,6 @@
 #
 /*
- *
- *    Copyright (C) 2013
+ *    Copyright (C) 2015
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
  *    Lazy Chair Programming
  *
@@ -22,8 +21,8 @@
  *
  */
 #
-#ifndef	__DAB_DATA
-#define	__DAB_DATA
+#ifndef	__MSC_DATAGROUP
+#define	__MSC_DATAGROUP
 
 #include	"dab-virtual.h"
 #include	<QThread>
@@ -36,17 +35,18 @@ class	RadioInterface;
 class	uep_deconvolve;
 class	eep_deconvolve;
 
-class	dabData:public QThread, public dabVirtual {
+class	mscDatagroup:public QThread, public dabVirtual {
 public:
-	dabData	(RadioInterface *mr,
-	         int16_t	DSCTy,
+	mscDatagroup	(RadioInterface *mr,
+	                 uint8_t	DSCTy,
 	         int16_t	packetAddress,
 	         int16_t	fragmentSize,
 	         int16_t	bitRate,
 	         int16_t	uepFlag,
 	         int16_t	protLevel,
+	         uint8_t	DGflag,
 	         int16_t	FEC_scheme);
-	~dabData	(void);
+	~mscDatagroup	(void);
 int32_t	process		(int16_t *, int16_t);
 void	stopRunning	(void);
 private:
@@ -56,11 +56,12 @@ void	run		(void);
 	QWaitCondition	Locker;
 	QMutex		ourMutex;
 
-	int16_t		DSCTy;
+	uint8_t		DSCTy;
 	int16_t		fragmentSize;
 	int16_t		bitRate;
 	int16_t		uepFlag;
 	int16_t		protLevel;
+	uint8_t		DGflag;
 	int16_t		FEC_scheme;
 	int32_t		countforInterleaver;
 	uint8_t		*outV;
@@ -75,11 +76,13 @@ void	run		(void);
 //
 //	result handlers
 	bool		check_mscCRC		(uint8_t *, int16_t);
+	void		handleTDCAsyncstream	(uint8_t *, int16_t);
 	void		handlePacket		(uint8_t *, int16_t);
-	void		handleMSCdatagroup	(QByteArray);
-	void		processMSCdatagroup	(uint8_t	*,
+	void		buildMSCdatagroup	(QByteArray);
+	void		processMOT		(uint8_t	*,
 	                              		int16_t,
 	                                        uint8_t,
+	                                        bool,
 	                              		int16_t,
 	                              		bool,
 	                              	        uint16_t);

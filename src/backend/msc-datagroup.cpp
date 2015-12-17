@@ -21,33 +21,36 @@
  */
 #
 #include	"dab-constants.h"
-#include	"dab-data.h"
+#include	"msc-datagroup.h"
 #include	"deconvolve.h"
 #include	"gui.h"
 //
 //
 //	Interleaving is - for reasons of simplicity - done
 //	inline rather than through a special class-object
+//
 static
 int8_t	interleaveDelays [] = {
 	     15, 7, 11, 3, 13, 5, 9, 1, 14, 6, 10, 2, 12, 4, 8, 0};
 //
 //
 //	fragmentsize == Length * CUSize
-	dabData::dabData	(RadioInterface *,
-	                         int16_t DSCTy,
-	                         int16_t packetAddress,
-	                         int16_t fragmentSize,
-	                         int16_t bitRate,
-	                         int16_t uepFlag,
-	                         int16_t protLevel,
-	                         int16_t FEC_scheme) {
+	mscDatagroup::mscDatagroup	(RadioInterface *,
+	                         	 uint8_t DSCTy,
+	                         	 int16_t packetAddress,
+	                         	 int16_t fragmentSize,
+	                         	 int16_t bitRate,
+	                         	 int16_t uepFlag,
+	                         	 int16_t protLevel,
+	                                 uint8_t DGflag,
+	                         	 int16_t FEC_scheme) {
 int32_t i, j;
 	this	-> DSCTy	= DSCTy;
 	this	-> fragmentSize	= fragmentSize;
 	this	-> bitRate	= bitRate;
 	this	-> uepFlag	= uepFlag;
 	this	-> protLevel	= protLevel;
+	this	-> DGflag	= DGflag;
 	this	-> FEC_scheme	= FEC_scheme;
 
 	outV			= new uint8_t [2 * bitRate * 24];
@@ -73,7 +76,7 @@ int32_t i, j;
 	start ();
 }
 
-	dabData::~dabData	(void) {
+	mscDatagroup::~mscDatagroup	(void) {
 int16_t	i;
 	running = false;
 	while (this -> isRunning ())
@@ -89,7 +92,7 @@ int16_t	i;
 	delete[]	interleaveData;
 }
 
-int32_t	dabData::process	(int16_t *v, int16_t cnt) {
+int32_t	mscDatagroup::process	(int16_t *v, int16_t cnt) {
 int32_t	fr;
 	   while ((fr = Buffer -> GetRingBufferWriteAvailable ()) < cnt) {
 	      if (!running)
@@ -102,7 +105,7 @@ int32_t	fr;
 	   return fr;
 }
 
-void	dabData::run	(void) {
+void	mscDatagroup::run	(void) {
 int32_t	countforInterleaver	= 0;
 uint8_t	shiftRegister [9];
 int16_t	Data [fragmentSize];
@@ -155,54 +158,41 @@ int16_t	i, j;
 //	What we get here is a long sequence of bits, not packed
 //	Now we should have a packet
 //	we hand it over to make an MSC data group
-	
-	   handlePacket (outV, 24 * bitRate);
+	   if ((this -> DSCTy == 5) &&
+               (this -> DGflag))        // no datagroups, straight packets
+              handleTDCAsyncstream (outV, 24 * bitRate);
+           else
+              handlePacket (outV, 24 * bitRate);
+
 	}
 }
 //
 //	It might take a msec for the task to stop
-void	dabData::stopRunning (void) {
+void	mscDatagroup::stopRunning (void) {
 	running = false;
 	while (this -> isRunning ())
 	   usleep (100);
 }
 
-static inline
-uint16_t	getBits (uint8_t *d, int16_t offset, int16_t size) {
-int16_t	i;
-uint16_t	res	= 0;
+void    mscDatagroup::handleTDCAsyncstream (uint8_t *data, int16_t length) {
+int16_t packetLength    = (getBits_2 (data, 0) + 1) * 24;
+int16_t continuityIndex = getBits_2 (data, 2);
+int16_t firstLast       = getBits_2 (data, 4);
+int16_t address         = getBits   (data, 6, 10);
+uint16_t command        = getBits_1 (data, 16);
+int16_t usefulLength    = getBits_7 (data, 17);
 
-	for (i = 0; i < size; i ++) {
-	   res <<= 1;
-	   res |= d [offset + i];
-	}
-	return res;
+        if (!check_mscCRC (data, packetLength * 8))
+           return;
 }
 
-static inline
-uint8_t		getBit (uint8_t *d, int16_t offset) {
-	return d [offset] != 0 ? 1 : 0;
-}
-static inline
-uint32_t	getLBits	(uint8_t *d,
-	                         int16_t offset, int16_t amount) {
-uint32_t	res	= 0;
-int16_t		i;
-
-	for (i = 0; i < amount; i ++) {
-	   res <<= 1;
-	   res |= (d [offset + i] & 01);
-	}
-	return res;
-}
-
-void	dabData::handlePacket (uint8_t *data, int16_t length) {
-int16_t	packetLength	= (getBits (data, 0, 2) + 1) * 24;
-int16_t	continuityIndex	= getBits (data, 2, 2);
-int16_t	firstLast	= getBits (data, 4, 2);
-int16_t	address		= getBits (data, 6, 10);
-uint16_t command	= getBits (data, 16, 1);
-int16_t	usefulLength	= getBits (data, 17, 7);
+void	mscDatagroup::handlePacket (uint8_t *data, int16_t length) {
+int16_t	packetLength	= (getBits_2 (data, 0) + 1) * 24;
+int16_t	continuityIndex	= getBits_2 (data, 2);
+int16_t	firstLast	= getBits_2 (data, 4);
+int16_t	address		= getBits   (data, 6, 10);
+uint16_t command	= getBits_1 (data, 16);
+int16_t	usefulLength	= getBits_7 (data, 17);
 int16_t	i;
 
 	if (!check_mscCRC (data, packetLength * 8))
@@ -221,7 +211,7 @@ int16_t	i;
 	      series. resize (usefulLength * 8);
 	      for (i = 0; i < series. size (); i ++)
 	         series [i] = data [24 + i];
-	      handleMSCdatagroup (series);
+	      buildMSCdatagroup (series);
 	   }
 	   else 
 	      series. resize (0);
@@ -240,7 +230,7 @@ int16_t	i;
 	      series. resize (currentLength + 8 * usefulLength);
 	      for (i = 0; i < 8 * usefulLength; i ++)
 	         series [currentLength + i] = data [24 + i];
-	      handleMSCdatagroup (series);
+	      buildMSCdatagroup (series);
 	      packetState = 0;
 	   }
 	   else {
@@ -250,34 +240,36 @@ int16_t	i;
 	}
 }
 
-void	dabData::handleMSCdatagroup (QByteArray msc) {
+void	mscDatagroup::buildMSCdatagroup (QByteArray msc) {
 uint8_t *data		= (uint8_t *)(msc. data ());
-bool	extensionFlag	= getBits (data, 0, 1) != 0;
-bool	crcFlag		= getBits (data, 1, 1) != 0;
-bool	segmentFlag	= getBits (data, 2, 1) != 0;
-bool	userAccessFlag	= getBits (data, 3, 1) != 0;
-uint8_t	groupType	= getBits (data, 4, 4);
-uint8_t	CI		= getBits (data, 8, 4);
+bool	extensionFlag	= getBits_1 (data, 0) != 0;
+bool	crcFlag		= getBits_1 (data, 1) != 0;
+bool	segmentFlag	= getBits_1 (data, 2) != 0;
+bool	userAccessFlag	= getBits_1 (data, 3) != 0;
+uint8_t	groupType	= getBits_4 (data, 4);
+uint8_t	CI		= getBits_4 (data, 8);
 int16_t	next		= 16;
+bool	lastSegment	= false;
 uint16_t segmentNumber	= 0;
 bool transportIdFlag	= false;
 uint16_t transportId	= 0;
 uint8_t	lengthInd;
 
-//	if (crcFlag && !check_mscCRC (data, msc.size ()))
-//	   return;
+	if (crcFlag && !check_mscCRC (data, msc.size ()))
+	   return;
 //
 	if (extensionFlag)
 	   next += 16;
 
 	if (segmentFlag) {
+	   lastSegment	= getBits_1 (data, next) != 0;
 	   segmentNumber = getLBits (data, next + 1, 15);
 	   next += 16;
 	}
 
 	if (userAccessFlag) {
-	   transportIdFlag	= getBits (data, next + 3, 1);
-	   lengthInd		= getBits (data, next + 4, 4);
+	   transportIdFlag	= getBits_1 (data, next + 3);
+	   lengthInd		= getBits_4 (data, next + 4);
 	   next	+= 8;
 	   if (transportIdFlag) {
 	      transportId = getLBits (data, next, 16);
@@ -287,36 +279,38 @@ uint8_t	lengthInd;
 	}
 	switch (DSCTy) {
 	   case 5:		// TPEG channel
-	      fprintf (stderr, "mode 5, groupType = %d\n", groupType);
 	      break;
 	   case 59:		// embedded IP
+	      fprintf (stderr, "IP packet met lengte %d\n", msc. size ());
 	      break;
 	   case 60:		// MOT
-	      processMSCdatagroup (&data [next], 
-	                           msc. size () - next - (crcFlag != 0 ? 16 : 0),
-	                           groupType,
-	                           segmentNumber,
-	                           transportIdFlag,
-	                           transportId);
+	      processMOT (&data [next], 
+	                        msc. size () - next - (crcFlag != 0 ? 16 : 0),
+	                        groupType,
+	                        lastSegment,
+	                        segmentNumber,
+	                        transportIdFlag,
+	                        transportId);
 	}
 }
 
-void	dabData::processMSCdatagroup (uint8_t	*data,
-	                              int16_t	length,
-	                              uint8_t	groupType,
-	                              int16_t	segmentNumber,
-	                              bool	transportIdFlag,
-	                              uint16_t	transportId) {
-uint16_t segmentSize;
+void	mscDatagroup::processMOT (uint8_t	*data,
+	                          int16_t	length,
+	                          uint8_t	groupType,
+	                          bool		lastSegment,
+	                          int16_t	segmentNumber,
+	                          bool		transportIdFlag,
+	                          uint16_t	transportId) {
 	if (!transportIdFlag)
 	   return;		// sorry
-	segmentSize	= getBits (data, 3, 13);
-uint8_t repetitionCount	= getBits (data, 0, 3);
+
+uint16_t	segmentSize	= getBits (data, 3, 13);
+uint8_t repetitionCount	= getBits_3 (data, 0);
 
 	if ((segmentNumber == 0) && (groupType == 3)) { // header
 	   uint32_t bodySize = getLBits (data, 16, 28);
 	   uint32_t headerSize	= getBits (data, 16 + 28, 13);
-	   uint8_t  contentType	= getBits (data, 16 + 41,  6);
+	   uint8_t  contentType	= getBits_6 (data, 16 + 41);
 	   uint16_t subType	= getBits (data, 16 + 47,  9);
 	   fprintf (stderr, "new MOT %d (sizes %d %d), segment %d, content %d (%d)\n", 
 	         transportId, bodySize, headerSize,
@@ -324,8 +318,10 @@ uint8_t repetitionCount	= getBits (data, 0, 3);
 	}
 	else
 	if (groupType == 4) {
-	   fprintf (stderr, "Ti = %d, segmentNumber %d, segmentSize %d\n",
-	            transportId, segmentNumber, segmentSize);
+	   fprintf (stderr, "Ti = %d, segmentNumber %d, segmentSize %d last %s\n",
+	            transportId,
+	            segmentNumber,
+	            segmentSize, lastSegment ? "true" : "false");
 	}
 	else
 	   fprintf (stderr, "grouptype = %d, Ti = %d, sn = %d, ss = %d\n",
@@ -336,7 +332,7 @@ static
 const uint8_t crcPolynome [] =
 	{0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0};	// MSB .. LSB
 
-bool	dabData::check_mscCRC (uint8_t *in, int16_t size) {
+bool	mscDatagroup::check_mscCRC (uint8_t *in, int16_t size) {
 int16_t	i, f;
 uint8_t	b [16];
 int16_t	Sum	= 0;

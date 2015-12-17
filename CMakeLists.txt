@@ -150,7 +150,7 @@ add_definitions ( -Wall)
 	     ./includes/backend/deconvolve.h
 	     ./includes/backend/firecode-checker.h
 	     ./includes/backend/dab-concurrent.h
-	     ./includes/backend/dab-data.h
+	     ./includes/backend/msc-datagroup.h
 	     ./includes/backend/dab-processor.h
 	     ./includes/backend/dab-virtual.h
 	     ./includes/backend/mp2processor.h
@@ -190,7 +190,7 @@ add_definitions ( -Wall)
 	     ./src/backend/mot-data.cpp
 	     ./src/backend/firecode-checker.cpp
 	     ./src/backend/dab-concurrent.cpp
-	     ./src/backend/dab-data.cpp
+	     ./src/backend/msc-datagroup.cpp
 	     ./src/backend/dab-virtual.cpp
 	     ./src/backend/dab-processor.cpp
 	     ./src/backend/protTables.cpp

@@ -11,6 +11,9 @@ CONFIG		+= console
 QMAKE_CFLAGS	+=  -flto -ffast-math 
 QMAKE_CXXFLAGS	+=  -flto -ffast-math 
 QMAKE_LFLAGS	+=  -flto 
+#QMAKE_CFLAGS	+=  -pg
+#QMAKE_CXXFLAGS	+=  -pg
+#QMAKE_LFLAGS	+=  -pg
 CONFIG		+= NO_SSE_SUPPORT 
 DEPENDPATH += . \
 	      ./src \
@@ -62,7 +65,7 @@ HEADERS += ./gui.h \
 	   ./includes/backend/deconvolve.h \
 	   ./includes/backend/firecode-checker.h \
 	   ./includes/backend/dab-concurrent.h \
-	   ./includes/backend/dab-data.h \
+	   ./includes/backend/msc-datagroup.h \
 	   ./includes/backend/dab-processor.h \
 	   ./includes/backend/dab-virtual.h \
 	   ./includes/output/audiosink.h \
@@ -99,7 +102,7 @@ SOURCES += ./main.cpp \
 	   ./src/backend/firecode-checker.cpp \
 	   ./src/backend/dab-virtual.cpp \
 	   ./src/backend/dab-concurrent.cpp \
-	   ./src/backend/dab-data.cpp \
+	   ./src/backend/msc-datagroup.cpp \
 	   ./src/backend/dab-processor.cpp \
 	   ./src/backend/protTables.cpp \
 	   ./src/output/fir-filters.cpp \
@@ -119,7 +122,8 @@ CONFIG		+= sdrplay
 CONFIG		+= rtl_tcp
 CONFIG		+= airspy
 CONFIG		+= streamer
-DEFINES		+= MOT_BASICS__
+#DEFINES		+= MOT_BASICS__		# use at your own risk
+#DEFINES		+= MSC_DATA__		# use at your own risk
 DESTDIR		= ./linux-bin
 INCLUDEPATH	+= /usr/local/include
 LIBS		+= -lfftw3f  -lusb-1.0 -ldl  #
@@ -195,7 +199,8 @@ airspy {
 	DEFINES		+= HAVE_AIRSPY
 	INCLUDEPATH	+= ./src/input/airspy \
 	                   /usr/local/include/libairspy
-	HEADERS		+= ./src/input/airspy/airspy-handler.h 
+	HEADERS		+= ./src/input/airspy/airspy-handler.h \
+	                   /usr/local/include/libairspy/airspy.h
 	SOURCES		+= ./src/input/airspy/airspy-handler.cpp 
 	FORMS		+= ./src/input/airspy/airspy-widget.ui
 }

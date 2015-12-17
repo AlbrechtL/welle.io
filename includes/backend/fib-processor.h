@@ -68,6 +68,7 @@
            uint16_t     SCId;           // used in packet
            uint8_t      CAflag;         // used in packet (or not at all)
            int16_t      DSCTy;          // used in packet
+	   uint8_t	DGflag;		// used for TDC
            int16_t      packetAddress;  // used in packet
         };
 

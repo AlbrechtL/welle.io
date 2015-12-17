@@ -52,8 +52,9 @@ public:
 	                                 int16_t, int16_t, int16_t, int16_t,
 	                                 int16_t, int16_t);
 	void    set_dataChannel         (int16_t, int16_t, int16_t,
-                                         int16_t, int16_t, int16_t, int16_t,
-                                         int16_t, int16_t);
+                                         int16_t, int16_t, int16_t,
+	                                 int16_t, uint8_t,
+                                         uint8_t, int16_t);
 	uint8_t	getMode			(void);
 	int16_t	getChannel		(void);
 	int16_t	getLanguage		(void);
@@ -77,16 +78,18 @@ private:
 	int16_t		new_Length;
 	int16_t		new_uepFlag;
 	int16_t		new_protLevel;
+	uint8_t		new_DGflag;
 	int16_t		new_bitRate;
 	int16_t		new_language;
 	int16_t		new_type;
 	int16_t		new_FEC_scheme;
 	int16_t		packetAddress;
-	int16_t		DSCTy;
+	uint8_t		DSCTy;
 	int16_t		startAddr;
 	int16_t		Length;
 	int16_t		uepFlag;
 	int16_t		protLevel;
+	uint8_t		DGflag;
 	int16_t		bitRate;
 	int16_t		FEC_scheme;
 	int8_t		dabModus;

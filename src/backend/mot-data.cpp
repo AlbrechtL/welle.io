@@ -150,9 +150,9 @@ int16_t	i;
 	      return;
 
 	   if (lastFlag) 
-	      fprintf (stderr, "last element is at location %d (%d)\n",
-	       segmentNumber * handle -> segmentSize + segmentSize, 
-	                       handle -> bodySize);
+//	      fprintf (stderr, "last element is at location %d (%d)\n",
+//	       segmentNumber * handle -> segmentSize + segmentSize, 
+//	                       handle -> bodySize);
 	   for (i = 0; i < segmentSize; i ++)
 	      handle -> body [segmentNumber *
 	                         handle -> segmentSize + i] = segment [i];
@@ -221,21 +221,21 @@ int16_t		lowIndex;
 //	table full, delete the oldest one
 //
 	lowest		= 65377;
-	lowIndex	= -1;
+	lowIndex	= 0;
 	for (i = 0; i < 16; i ++) {
 	   if (table [i]. ordernumber < lowest) {
 	      lowIndex = i;
 	      lowest = table [i]. ordernumber;
 	   }
 	}
-	
-	table [i]. ordernumber	= ordernumber ++;
-	table [i]. transportId	= transportId;
-	table [i]. body. resize (size);
-	table [i]. bodySize	= size;
-	table [i]. contentType	= contentType;
-	table [i]. contentsubType	= contentsubType;
-	table [i]. segmentSize	= -1;
-	table [i]. numofSegments	= -1;
+
+	table [lowIndex]. ordernumber	= ordernumber ++;
+	table [lowIndex]. transportId	= transportId;
+	table [lowIndex]. body. resize (size);
+	table [lowIndex]. bodySize	= size;
+	table [lowIndex]. contentType	= contentType;
+	table [lowIndex]. contentsubType	= contentsubType;
+	table [lowIndex]. segmentSize	= -1;
+	table [lowIndex]. numofSegments	= -1;
 }
 
