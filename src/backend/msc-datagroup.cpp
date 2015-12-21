@@ -25,7 +25,7 @@
 #include	"gui.h"
 
 #define	SERVER	"127.0.0.1"
-#define	PORT	8888
+#define	PORT	100241
 #define	BUFLEN	512
 //
 //	Interleaving is - for reasons of simplicity - done
@@ -89,7 +89,9 @@ int32_t i, j;
 	   si_other. sin_family	= AF_INET;
 	   si_other. sin_port	= htons (PORT);
 	   socketAddr		= socket (AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-	   if (socketAddr != -1)
+	   if (socketAddr == -1)
+	      fprintf (stderr, "cannot open socket\n");
+	   else
 	      if (inet_aton (SERVER, &si_other. sin_addr) == 0) {
 	         fprintf (stderr, "inet_aton () failed\n");
 	   }

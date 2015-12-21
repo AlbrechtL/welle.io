@@ -149,7 +149,7 @@ int16_t	i;
 	                                handle -> bodySize)
 	      return;
 
-	   if (lastFlag) 
+//	   if (lastFlag) 
 //	      fprintf (stderr, "last element is at location %d (%d)\n",
 //	       segmentNumber * handle -> segmentSize + segmentSize, 
 //	                       handle -> bodySize);
@@ -173,6 +173,9 @@ void	motHandler::handleComplete (motElement *p) {
 	if (p -> contentType != 2)
 	   return;
 	the_picture (p -> body, p -> contentsubType);
+	fprintf (stderr, "showing picture (subtype %d, size %d) now\n",
+	                                 p -> contentsubType,
+	                                 (p -> body). size ());
 }
 
 bool	motHandler::isComplete (motElement *p) {
