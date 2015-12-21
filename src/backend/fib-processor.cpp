@@ -511,9 +511,9 @@ uint8_t		extensionFlag;
         if (lsFlag == 1) {
            SCid = getBits (d, lOffset + 4, 12);
            lOffset += 16;
-           if (find_packetComponent ((SCIds << 4) | SCid) != NULL) {
-              fprintf (stderr, "packet component bestaat !!\n");
-           }
+//           if (find_packetComponent ((SCIds << 4) | SCid) != NULL) {
+//              fprintf (stderr, "packet component bestaat !!\n");
+//           }
         }
 	else {
 	   MSCflag	= getBits_1 (d, lOffset + 1);
@@ -1124,22 +1124,22 @@ bool	equal;
 	         continue;
 
 	      if (components [j]. TMid == 03) {	// packet service
-	         fprintf (stderr, " packet service %8x\n",
-	                               components [j]. service -> serviceId);
-	         fprintf (stderr, "Comp %d SubChId = %d ",
-	                                j,  components [j]. subchannelId);
+//	         fprintf (stderr, " packet service %8x\n",
+//	                               components [j]. service -> serviceId);
+//	         fprintf (stderr, "Comp %d SubChId = %d ",
+//	                                j,  components [j]. subchannelId);
 	         subchId	= components [j]. subchannelId;
 
-	         fprintf (stderr, "DSCTy = %d ", components [j]. DSCTy);
-	         fprintf (stderr, "packaddr = %d ", components [j]. packetAddress);
-	         fprintf (stderr, "subchannelId = %d\n", components [j]. subchannelId);
-	         fprintf (stderr,
-	             "StartAdd = %d ", ficList [subchId]. StartAddr);
-	         fprintf (stderr, "Length = %d ", ficList [subchId]. Length);
-	         fprintf (stderr, "uepFlag = %d ", ficList [subchId]. uepFlag);
-	         fprintf (stderr,
-	               "protLevel = %d ", ficList [subchId]. protLevel);
-	         fprintf (stderr, "BitRate = %d\n", ficList [subchId]. BitRate);
+//	         fprintf (stderr, "DSCTy = %d ", components [j]. DSCTy);
+//	         fprintf (stderr, "packaddr = %d ", components [j]. packetAddress);
+//	         fprintf (stderr, "subchannelId = %d\n", components [j]. subchannelId);
+//	         fprintf (stderr,
+//	             "StartAdd = %d ", ficList [subchId]. StartAddr);
+//	         fprintf (stderr, "Length = %d ", ficList [subchId]. Length);
+//	         fprintf (stderr, "uepFlag = %d ", ficList [subchId]. uepFlag);
+//	         fprintf (stderr,
+//	               "protLevel = %d ", ficList [subchId]. protLevel);
+//	         fprintf (stderr, "BitRate = %d\n", ficList [subchId]. BitRate);
 	         if ((components [j]. DSCTy == 0) ||
 	             (ficList [subchId]. BitRate == 0))
 	         return;

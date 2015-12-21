@@ -274,7 +274,7 @@ SyncOnNull:
   */
 	   counter	= 0;
 	   setSynced (false);
-	   while (currentStrength / 50  > 0.40 * sLevel) {
+	   while (currentStrength / 50  > 0.50 * sLevel) {
 	      DSPCOMPLEX sample	=
 	                      getSample (coarseCorrector + fineCorrector);
 	      envBuffer [syncBufferIndex] = jan_abs (sample);
