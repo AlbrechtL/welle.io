@@ -27,12 +27,8 @@
 #define	MULTI_CORE
 #include	"dab-constants.h"
 #include	<QThread>
-#ifdef	MULTI_CORE
 #include	<QWaitCondition>
 #include	<QMutex>
-#else
-#include	<QObject>
-#endif
 #include	"fft.h"
 #include	"phasetable.h"
 #include	<stdint.h>
@@ -50,21 +46,21 @@ public:
 	                                 ficHandler	*,
 	                                 mscHandler	*);
 		~ofdmDecoder		(void);
-	void	initTables		(void);
 	void	processBlock_0		(DSPCOMPLEX *);
 	void	decodeFICblock		(DSPCOMPLEX *, int32_t n);
 	void	decodeMscblock		(DSPCOMPLEX *, int32_t n);
 	int16_t	get_snr			(DSPCOMPLEX *);
 	int16_t	coarseCorrector		(void);
+	void	stop			(void);
 private:
 	DabParams	*params;
 	RadioInterface	*myRadioInterface;
 	ficHandler	*my_ficHandler;
 	mscHandler	*my_mscHandler;
-#ifdef	MULTI_CORE
 	void		run		(void);
 	bool		running;
 	DSPCOMPLEX	**command;
+	DSPCOMPLEX	**syncBuffer;
 	int16_t		amount;
 	int16_t		currentBlock;
 	void		processBlock_0		(void);
@@ -72,12 +68,11 @@ private:
 	void		decodeMscblock		(int32_t n);
 	QWaitCondition	commandHandler;
 	QMutex		helper;
-#endif
 	int32_t		T_s;
 	int32_t		T_u;
 	int32_t		T_g;
 	int32_t		carriers;
-	int16_t		getMiddle	(DSPCOMPLEX *);
+	int16_t		getMiddle	(void);
 	DSPCOMPLEX	*phaseReference;
 	common_fft	*fft_handler;
 	DSPCOMPLEX	*fft_buffer;

@@ -31,14 +31,22 @@
 #include	"ringbuffer.h"
 #include	<stdio.h>
 #include	<string.h>
+#ifdef	__MINGW32__
+#include	<winsock2.h>
+#include	<windows.h>
+#else
 #include	<arpa/inet.h>
 #include	<sys/socket.h>
+#endif
+
 
 class	RadioInterface;
 class	uep_deconvolve;
 class	eep_deconvolve;
+class	motHandler;
 
 class	mscDatagroup:public QThread, public dabVirtual {
+Q_OBJECT
 public:
 	mscDatagroup	(RadioInterface *mr,
 	                 uint8_t	DSCTy,
@@ -49,17 +57,11 @@ public:
 	         int16_t	protLevel,
 	         uint8_t	DGflag,
 	         int16_t	FEC_scheme);
-	~mscDatagroup		(void);
-int32_t	process			(int16_t *, int16_t);
-void	stopRunning		(void);
+	~mscDatagroup	(void);
+int32_t	process		(int16_t *, int16_t);
+void	stopRunning	(void);
 private:
-void	run			(void);
-volatile
-bool	running;
 	RadioInterface	*myRadioInterface;
-	QWaitCondition	Locker;
-	QMutex		ourMutex;
-	FILE		*tstFile;
 	uint8_t		DSCTy;
 	int16_t		packetAddress;
 	int16_t		fragmentSize;
@@ -68,37 +70,41 @@ bool	running;
 	int16_t		protLevel;
 	uint8_t		DGflag;
 	int16_t		FEC_scheme;
+void	run		(void);
+	volatile bool	running;
+	QWaitCondition	Locker;
+	QMutex		ourMutex;
+	FILE		*tstFile;
 	int32_t		countforInterleaver;
 	uint8_t		*outV;
 	int16_t		**interleaveData;
 	int16_t		*Data;
 	QByteArray	series;
 	uint8_t		packetState;
-	uint32_t	streamAddress;
-
+	int32_t		streamAddress;		// int since we init with -1
+	motHandler	*opt_motHandler;
 	uep_deconvolve	*uepProcessor;
 	eep_deconvolve	*eepProcessor;
 	RingBuffer<int16_t>	*Buffer;
 //
 //	result handlers
-	bool		check_mscCRC		(uint8_t *, int16_t);
 	void		handleTDCAsyncstream 	(uint8_t *, int16_t);
 	void		handlePackets		(uint8_t *, int16_t);
-	void		handlePacket		(uint8_t *, int16_t);
+	void		handlePacket		(uint8_t *);
 	void		handleMSCdatagroup	(QByteArray);
 	void		storeMSCdatagroup	(QByteArray);
-	void		processMOT		(uint8_t	*,
-	                              		int16_t,
-	                                        uint8_t,
-	                                        bool,
-	                              		int16_t,
-	                              		bool,
-	                              	        uint16_t);
+	void		processMOT		(QByteArray,
+	                                         uint8_t,
+	                                         bool,
+	                              		 int16_t,
+	                              	         uint16_t);
 	void		process_ipVector	(QByteArray);
 	void		process_udpVector	(uint8_t *, int16_t);
 
 	struct sockaddr_in si_other;
 	int	socketAddr;
+signals:	
+	void		showLabel		(const QString &);
 };
 
 #endif

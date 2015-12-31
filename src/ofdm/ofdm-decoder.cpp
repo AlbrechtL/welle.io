@@ -31,6 +31,7 @@
 #include	"msc-handler.h"
 #include	"freq-interleaver.h"
 
+#define	SYNCLENGTH	10
 /**
   *	\brief ofdmDecoder
   *	The class ofdmDecoder is - when implemented in a separate thread -
@@ -42,6 +43,7 @@
 	                                 RadioInterface *mr,
 	                                 ficHandler	*my_ficHandler,
 	                                 mscHandler	*my_mscHandler) {
+int16_t	i;
 	this	-> params		= p;
 	this	-> myRadioInterface	= mr;
 	this	-> my_ficHandler	= my_ficHandler;
@@ -49,6 +51,7 @@
 	this	-> T_s			= params	-> T_s;
 	this	-> T_u			= params	-> T_u;
 	this	-> carriers		= params	-> K;
+
 	ibits				= new int16_t [2 * this -> carriers];
 
 	this	-> T_g			= T_s - T_u;
@@ -63,7 +66,6 @@
 	snrCount		= 0;
 	snr			= 0;	
 
-#ifdef	MULTI_CORE
 /**
   *	When implemented in a thread, the thread controls the
   *	reading in of the data and processing the data through
@@ -72,35 +74,42 @@
   *	We just create a large buffer where index i refers to block i.
   */
 	command			= new DSPCOMPLEX * [params -> L + 1];
-	int16_t	i;
 	for (i = 0; i < params -> L + 1; i ++)
 	   command [i] = new DSPCOMPLEX [T_u];
+	syncBuffer		= new DSPCOMPLEX *[SYNCLENGTH];
+	for (i = 0; i < SYNCLENGTH; i ++)
+	   syncBuffer [i] = new DSPCOMPLEX [T_u];
 	amount		= 0;
 	start ();
-#endif
 }
 
 	ofdmDecoder::~ofdmDecoder	(void) {
-#ifdef	MULTI_CORE
 int16_t	i;
 	running	= false;
 	commandHandler. wakeAll ();
 	usleep (1000);
 	while (!isFinished () && isRunning ());
 	   usleep (100);
-#endif
 	delete	fft_handler;
-	delete	phaseReference;
+	delete[]	phaseReference;
 	delete	myMapper;
-#ifdef	MULTI_CORE
 	for (i = 0; i < params -> L + 1; i ++)
 	   delete[] command [i];
 	delete[] command;
-#endif
+	for (i = 0; i < SYNCLENGTH; i ++)
+	   delete[] syncBuffer [i];
+	delete[] syncBuffer;
 }
+
+void	ofdmDecoder::stop		(void) {
+	running = false;
+	commandHandler. wakeAll ();
+	while (isRunning ())
+	   usleep (100);
+}
+
 //
 //
-#ifdef	MULTI_CORE
 /**
   *	The code in the thread exectes a simple loop,
   *	waiting for the next block and executing the interpretation
@@ -117,7 +126,6 @@ int16_t	currentBlock	= 0;
 	   commandHandler. wait (&helper, 100);
 	   helper. unlock ();
 	   while ((amount > 0) && running) {
-	      memcpy (fft_buffer, command [currentBlock], T_u * sizeof (DSPCOMPLEX));
 	      if (currentBlock == 0)
 	         processBlock_0 ();
 	      else
@@ -164,43 +172,20 @@ void	ofdmDecoder::decodeMscblock (DSPCOMPLEX *vi, int32_t blkno) {
   *	does not add much here, iff we decide to choose the multi core
   *	option definitely, then code may be simplified there.
   */
-#endif
 
-#ifndef	MULTI_CORE
-/**
-  *	handle block 0 as handed over by the ofdmProcessor
-  */
-void	ofdmDecoder::processBlock_0 (DSPCOMPLEX *vi) {
-	memcpy (fft_buffer, vi, T_u * sizeof (DSPCOMPLEX));
-#else
 /**
   *	handle block 0 as collected from the buffer
   */
 void	ofdmDecoder::processBlock_0 (void) {
 	memcpy (fft_buffer, command [0], T_u * sizeof (DSPCOMPLEX));
-#endif
-DSPCOMPLEX	*v = (DSPCOMPLEX *)alloca (T_u * sizeof (DSPCOMPLEX));
 	fft_handler	-> do_FFT ();
-/**
-  *	Note the the result of the FFT has the negative and the positive
-  *	frequencies are interchanged.
-  *	While, for the actual decoding we can handle that, we switch them
-  *	here for easier computation of the middle and the SNR.
-  */
-	memcpy (v, &fft_buffer [T_u / 2], T_u / 2 * sizeof (DSPCOMPLEX));
-	memcpy (&v [T_u / 2], fft_buffer, T_u / 2 * sizeof (DSPCOMPLEX));
-/**
-  *	The coarse offset is taken to be the offset of the middle here
-  *	It is sloppy, and should be replaced by an average over a larger
-  *	number
-  */
-	coarseOffset 	= getMiddle	(v);
+	memcpy (syncBuffer [1], fft_buffer, T_u * sizeof (DSPCOMPLEX));
 /**
   *	The SNR is determined y looking at a segment of bins
   *	within the signal region and bits outside.
   *	It is just an indication
   */
-	snr		= 0.7 * snr + 0.3 * get_snr (v);
+	snr		= 0.7 * snr + 0.3 * get_snr (fft_buffer);
 	if (++snrCount > 10) {
 	   show_snr (snr);
 	   snrCount = 0;
@@ -220,20 +205,16 @@ DSPCOMPLEX	*v = (DSPCOMPLEX *)alloca (T_u * sizeof (DSPCOMPLEX));
   *	\brief decodeFICblock
   *	do the transforms and hand over the reslt to the fichandler
   */
-#ifndef	MULTI_CORE
-void	ofdmDecoder::decodeFICblock (DSPCOMPLEX *vi, int32_t blkno) {
-int16_t	i;
-	memcpy (fft_buffer, &vi [T_g], T_u * sizeof (DSPCOMPLEX));
-#else
 void	ofdmDecoder::decodeFICblock (int32_t blkno) {
 int16_t	i;
+
 	memcpy (fft_buffer, command [blkno], T_u * sizeof (DSPCOMPLEX));
-#endif
 fftlabel:
 /**
   *	first step: do the FFT
   */
 	fft_handler -> do_FFT ();
+	memcpy (syncBuffer [blkno], fft_buffer, T_u * sizeof (DSPCOMPLEX));
 /**
   *	a little optimization: we do not interchange the
   *	positive/negative frequencies to their right positions.
@@ -267,17 +248,14 @@ handlerLabel:
 /**
   *	Msc block decoding is equal to FIC block decoding,
   */
-#ifndef	MULTI_CORE
-void	ofdmDecoder::decodeMscblock (DSPCOMPLEX *vi, int32_t blkno) {
-int16_t	i;
-	memcpy (fft_buffer, &vi [T_g], T_u * sizeof (DSPCOMPLEX));
-#else
 void	ofdmDecoder::decodeMscblock (int32_t blkno) {
 int16_t	i;
+
 	memcpy (fft_buffer, command [blkno], T_u * sizeof (DSPCOMPLEX));
-#endif
 fftLabel:
 	fft_handler -> do_FFT ();
+	if (blkno < SYNCLENGTH)
+	   memcpy (syncBuffer [blkno], fft_buffer, T_u * sizeof (DSPCOMPLEX));
 //
 //	Note that "mapIn" maps to -carriers / 2 .. carriers / 2
 //	we did not set the fft output to low .. high
@@ -300,6 +278,7 @@ handlerLabel:
 }
 
 int16_t	ofdmDecoder::coarseCorrector (void) {
+	coarseOffset	= getMiddle ();
 	return coarseOffset;
 }
 
@@ -307,25 +286,34 @@ int16_t	ofdmDecoder::coarseCorrector (void) {
   *	sloppy code to estimate the offset in the "middle"
   *	We just look at the "balance of power".
   */
-int16_t	ofdmDecoder::getMiddle (DSPCOMPLEX *v) {
-int16_t		i;
+int16_t	ofdmDecoder::getMiddle (void) {
+int16_t		i, j;
 DSPFLOAT	sum = 0;
 int16_t		maxIndex = 0;
 DSPFLOAT	oldMax	= 0;
-//
+float	*v	= (float *)alloca (T_u * sizeof (float));
+	
+	memset (v, 0, T_u * sizeof (float));
+	for (i = 0; i < T_u; i ++)
+	   for (j = 1; j < 2; j ++)
+//	   for (j = 1; j < SYNCLENGTH; j ++)
+	      v [i] +=  jan_abs (syncBuffer [j][i]);
+
 //	basic sum over K carriers that are - most likely -
-//	in the range
+//	in or near the range
 //	The range in which the carrier should be is
 //	T_u / 2 - K / 2 .. T_u / 2 + K / 2
 //	We first determine an initial sum
-	for (i = 10; i < carriers + 10; i ++)
-	   sum += abs (v [i]);
+	for (i = (T_u - carriers) / 2 - 50;
+	              i <= (T_u + carriers) / 2 - 50; i ++)
+	   sum += v [(T_u / 2 + i) % T_u];
 //
 //	Now a moving sum, look for a maximum within a reasonable
 //	range (around (T_u - K) / 2, the start of the useful frequencies)
-	for (i = 10; i < T_u - carriers - 10; i ++) {
-	   sum -= abs (v [i]);
-	   sum += abs (v [i + carriers]);
+	for (i = (T_u - carriers) / 2 - 50;
+	          i < (T_u - carriers) / 2 + 50; i ++) {
+	   sum -= v [(T_u / 2 + i) % T_u];
+	   sum += v [(T_u / 2 + i + carriers) % T_u];
 	   if (sum > oldMax) {
 	      sum = oldMax;
 	      maxIndex = i;
@@ -349,14 +337,14 @@ int16_t	low	= T_u / 2 -  carriers / 2;
 int16_t	high	= low + carriers;
 
 	for (i = 10; i < low - 20; i ++)
-	   noise += abs (v [i]);
+	   noise += abs (v [(T_u / 2 + i) % T_u]);
 
 	for (i = high + 20; i < T_u - 10; i ++)
-	   noise += abs (v [i]);
+	   noise += abs (v [(T_u / 2 + i) % T_u]);
 
 	noise	/= (low - 30 + T_u - high - 30);
 	for (i = T_u / 2 - carriers / 4;  i < T_u / 2 + carriers / 4; i ++)
-	   signal += abs (v [i]);
+	   signal += abs (v [(T_u / 2 + i) % T_u]);
 
 	return get_db (signal / (carriers / 2)) - get_db (noise);
 }

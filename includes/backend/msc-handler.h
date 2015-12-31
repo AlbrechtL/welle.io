@@ -43,8 +43,7 @@ class mscHandler {
 public:
 		mscHandler		(RadioInterface *,
 	                                 audioSink *,
-	                                 FILE	*,
-	                                 bool);
+	                                 FILE	*);
 		~mscHandler		(void);
 	void	process_mscBlock	(int16_t *, int16_t);
 	void	setMode			(DabParams *);
@@ -60,12 +59,12 @@ public:
 	int16_t	getLanguage		(void);
 	int16_t	getType			(void);
 	void	stopProcessing		(void);
+	void	stop			(void);
 	void	setFiles		(FILE *, FILE *);
 private:
 	bool		audioService;
 	RadioInterface	*myRadioInterface;
 	FILE		*errorLog;
-	bool		concurrencyOn;
 	dabVirtual	*dabHandler;
 	int16_t		*cifVector;
 	int16_t		cifCount;

@@ -44,10 +44,8 @@
 //
 		mscHandler::mscHandler	(RadioInterface *mr,
 	                                 audioSink	*sink,
-	                                 FILE		*errorLog,
-	                                 bool	concurrent) {
+	                                 FILE		*errorLog) {
 		myRadioInterface	= mr;
-	        concurrencyOn 		= concurrent;
 	        cifVector		= new int16_t [55296];
 	        cifCount		= 0;	// msc blocks in CIF
 	        blkCount		= 0;
@@ -66,6 +64,11 @@
 		mscHandler::~mscHandler	(void) {
 	delete[]  cifVector;
 	delete	dabHandler;
+}
+
+void	mscHandler::stop	(void) {
+	currentChannel	= -1;
+	dabHandler	-> stop ();
 }
 
 void	mscHandler::set_audioChannel (int16_t subchId,
@@ -114,6 +117,7 @@ void	mscHandler::set_dataChannel (int16_t	subchId,
 	new_DSCTy	= DSCTy;
 	new_packetAddress = packetAddress;
 }
+
 void	mscHandler::setMode	(DabParams *p) {
 	BitsperBlock	= 2 * p -> K;
 	if (p -> dabMode == 4)	// 2 CIFS per 76 blocks
@@ -140,7 +144,7 @@ int16_t	*myBegin;
 
 	currentblk	= (blkno - 5) % numberofblocksperCIF;
 //
-//	we only change channel at the start of a new frame!!!
+//	we only change handlers at the start of a new frame!!!
 	if (newChannel) {
 //	if ((blkno - 5 == 0) && newChannel) {
 	   newChannel	= false;

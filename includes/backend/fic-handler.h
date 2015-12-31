@@ -52,7 +52,6 @@ public:
 	int16_t	get_ficRatio		(void);
 private:
 	void		process_ficInput	(int16_t *, int16_t);
-	bool		check_ficCRC		(uint8_t *, int16_t);
 	int8_t		*PI_15;
 	int8_t		*PI_16;
 	uint8_t		*bitBuffer_in;

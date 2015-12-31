@@ -1185,7 +1185,7 @@ bool	equal;
 	   }
 	}
 	selectedService = -1;
-	fprintf (stderr, "We did not find %s\n", s. toLatin1 (). data ());
+	fprintf (stderr, "service %s insuffiently defined\n", s. toLatin1 (). data ());
 }
 //
 //

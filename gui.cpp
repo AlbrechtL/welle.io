@@ -96,13 +96,6 @@ int16_t	i, k;
 	syncedLabel		->
 	               setStyleSheet ("QLabel {background-color : red}");
 
-/**	'Concurrent' indicates whether the mp4/mp2 processing part
-  *	will be in a separate thread or not
-  *	for DAB-RPI it is a must to have it in a separate thread
-  *	so we do not look at dabSettings here
-  */
-	Concurrent		= true;
-
 	TunedFrequency		= MHz (200);	// any value will do
 	outRate			= 48000;
 /**
@@ -194,8 +187,7 @@ int16_t	i, k;
   */
 	my_mscHandler		= new mscHandler	(this,
 	                                                 our_audioSink,
-	                                                 errorLog,
-	                                                 Concurrent);
+	                                                 errorLog);
 	my_ficHandler		= new ficHandler	(this,
 	                                                 my_mscHandler);
 //
@@ -337,11 +329,9 @@ void	RadioInterface::TerminateProcess (void) {
 	   our_audioSink	-> stopDumping ();
 	   sf_close (audiofilePointer);
 	}
-
-	while (my_ofdmProcessor -> isRunning ()) {
-	   my_ofdmProcessor -> stop ();
-	   usleep (100);
-	}
+	myRig			-> stopReader ();
+	my_mscHandler		-> stop ();	// might be concurrent
+	my_ofdmProcessor	-> stop ();	// definitely concurrent
 	
 	dumpControlState (dabSettings);
 	delete		my_ofdmProcessor;
@@ -359,7 +349,7 @@ void	RadioInterface::TerminateProcess (void) {
 	pictureLabel = NULL;
 
 	accept ();
-	qDebug () <<  "Termination started";
+	fprintf (stderr, "Termination started");
 }
 
 void	RadioInterface::abortSystem (int d) {
@@ -1209,6 +1199,7 @@ void	RadioInterface::showLabel	(QString s) {
 }
 
 void	RadioInterface::showMOT		(QByteArray data, int subtype) {
+
 	if (pictureLabel == NULL)
 	   pictureLabel	= new QLabel (NULL);
 
