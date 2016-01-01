@@ -84,8 +84,6 @@ int16_t	i, k;
 	myRig			= new virtualInput ();
 	running			= false;
 	
-	autoCorrector =
-	           dabSettings -> value ("autoCorrector", 1). toInt () == 1;
 /**	threshold is used in the phaseReference class 
   *	as threshold for checking the validity of the correlation result
   */
@@ -329,10 +327,10 @@ void	RadioInterface::TerminateProcess (void) {
 	   our_audioSink	-> stopDumping ();
 	   sf_close (audiofilePointer);
 	}
-	myRig			-> stopReader ();
+	myRig			-> stopReader ();	// might be concurrent
 	my_mscHandler		-> stop ();	// might be concurrent
 	my_ofdmProcessor	-> stop ();	// definitely concurrent
-	
+	our_audioSink		-> stop ();
 	dumpControlState (dabSettings);
 	delete		my_ofdmProcessor;
 	delete		my_ficHandler;
@@ -579,8 +577,7 @@ void	RadioInterface::clearEnsemble	(void) {
 	ensemble. setStringList (Services);
 	ensembleDisplay		-> setModel (&ensemble);
 	my_ficHandler		-> clearEnsemble ();
-	if (autoCorrector)
-	   my_ofdmProcessor	-> coarseCorrectorOn ();
+	my_ofdmProcessor	-> coarseCorrectorOn ();
 	my_ofdmProcessor	-> reset ();
 
 	ensembleLabel		= QString ();
@@ -1119,6 +1116,7 @@ uint8_t	Mode	= s. toInt ();
 	setModeParameters (Mode);
 	my_ficHandler		-> setBitsperBlock	(2 * dabModeParameters. K);
 	my_mscHandler		-> setMode		(&dabModeParameters);
+	delete my_ofdmProcessor;
 	my_ofdmProcessor	= new ofdmProcessor   (myRig,
 	                                               &dabModeParameters,
 	                                               this,

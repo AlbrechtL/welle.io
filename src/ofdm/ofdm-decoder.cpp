@@ -90,7 +90,7 @@ int16_t	i;
 	usleep (1000);
 	while (!isFinished () && isRunning ());
 	   usleep (100);
-	delete	fft_handler;
+	delete		fft_handler;
 	delete[]	phaseReference;
 	delete	myMapper;
 	for (i = 0; i < params -> L + 1; i ++)
@@ -139,6 +139,7 @@ int16_t	currentBlock	= 0;
 	      helper. unlock ();
 	   }
 	}
+	fprintf (stderr, "ofdm decoder is closing down now\n");
 }
 /**
   *	We need some functions to enter the ofdmProcessor data

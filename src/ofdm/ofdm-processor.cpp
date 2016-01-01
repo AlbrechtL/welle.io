@@ -363,7 +363,6 @@ Block_0:
 	               T_u - ofdmBufferIndex,
 	               coarseCorrector + fineCorrector);
 	   my_ofdmDecoder  -> processBlock_0 (ofdmBuffer);
-
 /**
   *	after block 0, we will just read in the other (params -> L - 1) blocks
   */
@@ -428,7 +427,7 @@ NewOffset:
 	   counter	= 0;
 //
 static int waar = 0;
-           if ((waar++ >= 3) && f2Correction) {
+           if ((++waar > 6) && f2Correction) {
               float correction  = my_ofdmDecoder -> coarseCorrector ();
               coarseCorrector   += correction * params -> carrierDiff;
               waar = 0;
@@ -448,8 +447,9 @@ ReadyForNewFrame:
 	   goto SyncOnPhase;
 	}
 	catch (int e) {
-	   fprintf (stderr, "ofdmProcessor will halt\n");
+	   ;
 	}
+	fprintf (stderr, "ofdmProcessor is closing down\n");
 }
 
 void	ofdmProcessor:: reset	(void) {
