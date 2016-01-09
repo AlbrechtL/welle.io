@@ -426,21 +426,29 @@ NewOffset:
   */
 	   counter	= 0;
 //
-static int waar = 0;
-           if ((++waar > 6) && f2Correction) {
-              float correction  = my_ofdmDecoder -> coarseCorrector ();
-              coarseCorrector   += correction * params -> carrierDiff;
-              waar = 0;
-           }
+static int waar	= 0;
+static	int	corrector	= 1;
+static	int	oldCorrection	= 0;
+
+	   if ((++ waar > 6) && f2Correction) {
+	      int correction	= my_ofdmDecoder -> coarseCorrector ();
+	      if (oldCorrection == correction) {
+	         correction += corrector;
+	         corrector = -corrector;
+	      }
+	      oldCorrection = correction;
+	      coarseCorrector	+= correction * params -> carrierDiff;
+	      waar = 0;
+	   }
 
 	   if (fineCorrector > params -> carrierDiff / 2) {
-	      fineCorrector -= params -> carrierDiff;
 	      coarseCorrector += params -> carrierDiff;
+	      fineCorrector -= params -> carrierDiff;
 	   }
 	   else
-	   if (fineCorrector < - params -> carrierDiff / 2) {
-	      fineCorrector += params -> carrierDiff;
+	   if (fineCorrector < -params -> carrierDiff / 2) {
 	      coarseCorrector -= params -> carrierDiff;
+	      fineCorrector += params -> carrierDiff;
 	   }
 ReadyForNewFrame:
 ///	and off we go, up to the next frame

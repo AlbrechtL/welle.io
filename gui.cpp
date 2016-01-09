@@ -727,9 +727,29 @@ const char *RadioInterface::get_programm_language_string (uint8_t language) {
   *	of all the fields in the GUI not right away?
   */
 void	RadioInterface::selectService (QModelIndex s) {
+uint8_t	coding;
+bool	is_audio;
 QString a = ensemble. data (s, Qt::DisplayRole). toString ();
 	my_ficHandler -> setSelectedService (a);
-	dynamicLabel	-> setText (" ");
+	my_mscHandler	-> getMode (&is_audio, &coding);
+	if (!is_audio) {
+	   switch (coding) {
+	      default:
+	         showLabel (QString ("unimplemented Data"));
+	         break;
+	      case 5:
+	         showLabel (QString ("Transparent Channel not implemented"));
+	         break;
+	      case 60:
+	         showLabel (QString ("MOT partially implemented"));
+	         break;
+	      case 59:
+	         showLabel (QString ("Embedded IP: UDP data sent to 8888"));
+	         break;
+	   }
+	}
+	else
+	   dynamicLabel	-> setText (" ");
 	if (pictureLabel != NULL)
 	   delete pictureLabel;
 	pictureLabel = NULL;

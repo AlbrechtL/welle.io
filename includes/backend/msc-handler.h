@@ -54,7 +54,7 @@ public:
                                          int16_t, int16_t, int16_t,
 	                                 int16_t, uint8_t,
                                          uint8_t, int16_t);
-	uint8_t	getMode			(void);
+	void	getMode			(bool *, uint8_t *);
 	int16_t	getChannel		(void);
 	int16_t	getLanguage		(void);
 	int16_t	getType			(void);
@@ -72,6 +72,7 @@ private:
 	int16_t		currentChannel;
 	bool		newChannel;
 	int16_t		new_packetAddress;
+	int16_t		new_ASCTy;
 	int16_t		new_DSCTy;
 	int16_t		new_startAddr;
 	int16_t		new_Length;

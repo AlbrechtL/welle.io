@@ -9,3 +9,22 @@ http://www.sm5bsz.com/linuxdsp/hware/rtlsdr/rtlsdr.htm
 A good alternative (for me) was the one from
 http://www.rtl-sdr.com/new-experimental-r820t-rtl-sdr-driver-tunes-13-mhz-lower/
 
+Note that the versions mentioned provide more functions than the
+original osmocom version. Therefore, one may choose between
+two versions of the interface software.
+
+Choose dabstick_osmo if you want/have the original versions,
+choose dabstick_new if you want/have the version from Leif Albrink
+or the other special version.
+
+Note: if you choose the "dabstick_osmo" version, you can use any of these libraries.
+
+Selecting in the ".pro" file is by commenting or uncommenting lines
+CONFIG+=dabstick_xxx
+
+It is ill-advised to uncomment both lines CONFIG+=dabstick_xxx
+
+Similarly, comment or uncomment the definition lines in the top of the
+CMakeLists.txt file if you use cmake.
+
+

@@ -90,6 +90,7 @@ void	mscHandler::set_audioChannel (int16_t subchId,
 	new_bitRate	= bitRate;
 	new_language	= language;
 	new_type	= type;
+	new_ASCTy	= ASCTy;
 	new_dabModus	= ASCTy == 077 ? DAB_PLUS : DAB;
 //	fprintf (stderr, "Preparations for channel select\n");
 }
@@ -177,7 +178,6 @@ int16_t	*myBegin;
 	      FEC_scheme	= new_FEC_scheme;
 	   }
 	          
-	                                  
 	   startAddr	= new_startAddr;
 	   Length	= new_Length;
 	   protLevel	= new_protLevel;
@@ -204,8 +204,15 @@ int16_t	*myBegin;
 }
 //
 //
-uint8_t	mscHandler::getMode	(void) {
-	return new_dabModus;
+void	mscHandler::getMode	(bool *is_audio, uint8_t *coding) {
+	if (audioService) {
+	   *is_audio	= true;
+	   *coding	= new_ASCTy;
+	}
+	else {
+	   *is_audio	= false;
+	   *coding	= new_DSCTy;
+	}
 }
 
 int16_t	mscHandler::getChannel	(void) {

@@ -24,8 +24,10 @@
 #include	"deconvolve.h"
 #include	"mot-data.h"
 #include	"gui.h"
-#include	<QUdpSocket>
 
+#ifdef	__MINGW32__
+#include	<ws2tcpip.h>
+#endif
 #define	SERVER	"127.0.0.1"
 #define	PORT	8888
 #define	BUFLEN	512
@@ -41,54 +43,6 @@
 static
 int8_t	interleaveDelays [] = {
 	     15, 7, 11, 3, 13, 5, 9, 1, 14, 6, 10, 2, 12, 4, 8, 0};
-
-
-#ifdef	__MINGW32__
-//
-//      It sems that the function inet_aton is not
-//      available under Windows.
-//      Author: Paul Vixie, 1996.
-#define NS_INADDRSZ  4
-bool inet_aton (const char *src, struct in_addr *x) {
-char	*dst	= (char *)x;
-uint8_t tmp[NS_INADDRSZ], *tp;
-int saw_digit = 0;
-int octets = 0;
-
-	*(tp = tmp) = 0;
-	int ch;
-	while ((ch = *src++) != '\0') {
-           if (ch >= '0' && ch <= '9') {
-              uint32_t n = *tp * 10 + (ch - '0');
-	      if (saw_digit && *tp == 0)
-	         return 0;
-	      if (n > 255)
-	         return false;
-
-	      *tp = n;
-	      if (!saw_digit) {
-	         if (++octets > 4)
-	            return false;
-	         saw_digit = 1;
-	      }
-	   }
-	   else
-	   if (ch == '.' && saw_digit) {
-	      if (octets == 4)
-	         return false;
-	      *++tp = 0;
-	      saw_digit = 0;
-	   }
-	   else
-	      return 0;
-	}
-	if (octets < 4)
-	   return false;
-
-	memcpy(dst, tmp, NS_INADDRSZ);
-	return true;
-}
-#endif
 //
 //	fragmentsize == Length * CUSize
 	mscDatagroup::mscDatagroup	(RadioInterface *mr,
@@ -111,7 +65,7 @@ int32_t i, j;
 	this	-> DGflag	= DGflag;
 	this	-> FEC_scheme	= FEC_scheme;
 
-	outV			= new uint8_t [2 * bitRate * 24];
+	outV			= new uint8_t [bitRate * 24];
 	interleaveData		= new int16_t *[fragmentSize]; // the size
 	for (i = 0; i < fragmentSize; i ++) {
 	   interleaveData [i] = new int16_t [16];
@@ -136,31 +90,44 @@ int32_t i, j;
 	connect (this, SIGNAL (showLabel (const QString &)),
 	         mr, SLOT (showLabel (const QString &)));
 
-	switch (DSCTy) {
-	   default:
-	   case 5:
-	      showLabel (QString ("Transparent Channel not implemented"));
-	      break;
-	   case 60:
-	      showLabel (QString ("MOT partially implemented"));
-	      break;
-	   case 59:
-	      showLabel (QString ("Embedded IP: UDP data sent to 8888"));
-	      break;
-	}
 	opt_motHandler	= NULL;
 
 //	todo: we should make a class for each of the
 //	recognized DSCTy values
 	if (DSCTy == 59) {	// embedded IP
+#ifdef	__MINGW32__
+	   WSADATA wsaData;
+	   int iResult	= WSAStartup (MAKEWORD (2, 2), &wsaData);
+	   if (iResult != NO_ERROR) {
+	      wprintf(L"WSAStartup failed with error: %d\n", iResult);
+	      socketAddr = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+	      if (socketAddr == INVALID_SOCKET) {
+                 wprintf(L"socket failed with error: %ld\n",
+	                                WSAGetLastError());
+                 WSACleanup();
+	      }
+	   }
+	   else {
+	      si_other. sin_family	= AF_INET;
+	      si_other. sin_port	= htons (PORT);
+	      si_other. sin_addr. s_addr = inet_addr (SERVER);
+	      fprintf (stderr, "establishing server succeeded\n");
+	   }
+#else		// back in Linux country
 	   memset ((char *)(&si_other), 0, sizeof (si_other));
-	   si_other. sin_family	= AF_INET;
-	   si_other. sin_port	= htons (PORT);
 	   socketAddr		= socket (AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-	   if (socketAddr != -1)
+	   if (socketAddr != -1) {
+	      si_other. sin_family	= AF_INET;
+	      si_other. sin_port	= htons (PORT);
 	      if (inet_aton (SERVER, &si_other. sin_addr) == 0) {
 	         fprintf (stderr, "inet_aton () failed\n");
+	      }
+	      else
+	         fprintf (stderr, "establishing server succeeded\n");
 	   }
+	   else
+	      fprintf (stderr, "could not get socketAddress\n");
+#endif
 	}
 	else
 	if (DSCTy == 60) 	// MOT
@@ -273,11 +240,14 @@ void	mscDatagroup::stopRunning (void) {
 //	data compartment, for an empty mix, there may be many more
 void	mscDatagroup::handlePackets (uint8_t *data, int16_t length) {
 	while (true) {
-	   if (length < (getBits_2 (data, 0) + 1) * 24 * 8)
+	   int16_t pLength = (getBits_2 (data, 0) + 1) * 24 * 8;
+	   if (length < pLength)
 	      return;
 	   handlePacket (data);
-	   length -= (getBits_2 (data, 0) + 1) * 24 * 8;
-	   data	= &(data [(getBits_2 (data, 0) + 1) * 24 * 8]);
+	   length -= pLength;
+	   if (length < 2)
+	      return;
+	   data	= &(data [pLength]);
 	}
 }
 //
@@ -467,6 +437,7 @@ int16_t	i;
 //	udp packet to port 8888
 void	mscDatagroup::process_udpVector (uint8_t *data, int16_t length) {
 char *message = (char *)(&(data [8]));
+#ifndef __MINGW32__
 	if (socketAddr != -1)
 	   if (sendto (socketAddr,
 	               message,
@@ -474,7 +445,22 @@ char *message = (char *)(&(data [8]));
 	               0,
 	               (struct sockaddr *)&si_other,
 	               sizeof (si_other)) == -1)
-	   fprintf (stderr, "sorry, send did not work\n");
+	      fprintf (stderr, "sorry, send did not work\n");
+#else
+	if (socketAddr != -1) {
+	   int16_t amount = sendto (socketAddr,
+	                            message,
+	                            length - 8,
+	                            0,
+	                            (struct sockaddr *)&si_other,
+	                            sizeof (si_other));
+	   if (amount == SOCKET_ERROR) {
+	      int errorCode = WSAGetLastError ();
+	      fprintf (stderr, "send return errorcode %d\n", errorCode);
+	   }
+	}
+#endif
+	   
 }
 //
 //	MOT should be handled in a separate object (todo)

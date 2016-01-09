@@ -114,16 +114,15 @@ SOURCES += ./main.cpp \
 #	and locating libraries. If you do not need a device as
 #	listed, just comment the line out.
 unix {
-CONFIG		+= dabstick
-CONFIG		+= sdrplay
-CONFIG		+= rtl_tcp
-CONFIG		+= airspy
+CONFIG		+= dabstick_osmo
+#CONFIG		+= dabstick_new
+#CONFIG		+= sdrplay
+#CONFIG		+= rtl_tcp
+#CONFIG		+= airspy
 CONFIG		+= streamer		# use for remote listening
 #DEFINES	+= MOT_BASICS__		# use at your own risk
 #DEFINES	+= MSC_DATA__		# use at your own risk
 CONFIG		+= streamer
-DEFINES		+= MOT_BASICS__		# use at your own risk
-DEFINES		+= MSC_DATA__		# use at your own risk
 DESTDIR		= ./linux-bin
 INCLUDEPATH	+= /usr/local/include
 LIBS		+= -lfftw3f  -lusb-1.0 -ldl  #
@@ -151,11 +150,12 @@ LIBS		+= -lusb-1.0
 DEFINES		+= MOT_BASICS__		# use at your own risk
 DEFINES		+= MSC_DATA__		# use at your own risk
 CONFIG		+= NO_SSE_SUPPORT 
-CONFIG		+= extio
-CONFIG		+= airspy
-CONFIG		+= rtl_tcp
-CONFIG		+= dabstick
-CONFIG		+= sdrplay
+#CONFIG		+= extio
+#CONFIG		+= airspy
+#CONFIG		+= rtl_tcp
+CONFIG		+= dabstick_osmo
+#CONFIG		+= dabstick_new
+#CONFIG		+= sdrplay
 CONFIG		+= streamer
 }
 
@@ -169,15 +169,27 @@ NO_SSE_SUPPORT {
 #	devices
 #
 #	dabstick
-dabstick {
+dabstick_osmo {
 	DEFINES		+= HAVE_DABSTICK
 	INCLUDEPATH	+= /home/jan/rtl-sdr/include
-	INCLUDEPATH	+= ./src/input/dabstick
-	HEADERS		+= ./src/input/dabstick/dabstick.h \
-	                   ./src/input/dabstick/dongleselect.h
-	SOURCES		+= ./src/input/dabstick/dabstick.cpp \
-	                   ./src/input/dabstick/dongleselect.cpp
-	FORMS		+= ./src/input/dabstick/dabstick-widget.ui
+	INCLUDEPATH	+= ./src/input/dabstick-osmo
+	HEADERS		+= ./src/input/dabstick-osmo/dabstick.h \
+	                   ./src/input/dabstick-osmo/dongleselect.h
+	SOURCES		+= ./src/input/dabstick-osmo/dabstick.cpp \
+	                   ./src/input/dabstick-osmo/dongleselect.cpp
+	FORMS		+= ./src/input/dabstick-osmo/dabstick-widget.ui
+}
+#
+#	dabstick
+dabstick_new {
+	DEFINES		+= HAVE_DABSTICK
+	INCLUDEPATH	+= /home/jan/rtl-sdr/include
+	INCLUDEPATH	+= ./src/input/dabstick-new
+	HEADERS		+= ./src/input/dabstick-new/dabstick.h \
+	                   ./src/input/dabstick-new/dongleselect.h
+	SOURCES		+= ./src/input/dabstick-new/dabstick.cpp \
+	                   ./src/input/dabstick-new/dongleselect.cpp
+	FORMS		+= ./src/input/dabstick-new/dabstick-widget.ui
 }
 #
 #	the SDRplay
@@ -223,6 +235,7 @@ uhd {
 
 streamer	{
 	DEFINES		+= HAVE_STREAMER
+	QT		+= network
 	HEADERS		+= ./includes/output/streamer.h
 	SOURCES		+= ./src/output/streamer.cpp
 }

@@ -1,6 +1,6 @@
 cmake_minimum_required( VERSION 2.8.11 )
 set (CMAKE_BUILD_TYPE Release )
-set (objectName sdr-j-rpi-0.992)
+set (objectName dab-rpi-0.992)
 set ( CMAKE_INSTALL_PREFIX ../ )
 add_definitions ( -Wall)
 ######################################################################
@@ -13,7 +13,8 @@ add_definitions ( -Wall)
 #	if you want support for any of these devices, uncomment the line
 	set(SDRPLAY true)
 	set(AIRSPY true)
-	set(DABSTICK true)
+	set(DABSTICK_OSMO true)
+#	set(DABSTICK_NEW true)
 #	set(RTLTCP true)
 
 ########################################################################
@@ -291,8 +292,7 @@ add_definitions ( -Wall)
            add_definitions (-DHAVE_AIRSPY)
         endif (AIRSPY)
 
-
-	if (DABSTICK)
+	if (DABSTICK_OSMO)
 	   find_library (RTLSDR rtlsdr)
 	   if (NOT(RTLSDR))
 	      message (FATAL_ERROR "please install librtlsdr")
@@ -302,29 +302,67 @@ add_definitions ( -Wall)
 #we know now that rtl-sdr.so is available
 	   set (${objectName}_UIS
 	        ${${objectName}_UIS}
-	        ./src/input/dabstick/dabstick-widget.ui
+	        ./src/input/dabstick-osmo/dabstick-widget.ui
 	   )
 
 	   set (${objectName}_MOCS
 	        ${${objectName}_MOCS}
-	        ./src/input/dabstick/dongleselect.h
-	        ./src/input/dabstick/dabstick.h
+	        ./src/input/dabstick-osmo/dongleselect.h
+	        ./src/input/dabstick-osmo/dabstick.h
 	   )
 
 	   include_directories (
-	        ./src/input/dabstick/
+	        ./src/input/dabstick-osmo/
 	   )
 
 	   set (${objectName}_HDRS
 	        ${${objectName}_HDRS}
-	        ./src/input/dabstick/dabstick.h 
-	        ./src/input/dabstick/dongleselect.h
+	        ./src/input/dabstick-osmo/dabstick.h 
+	        ./src/input/dabstick-osmo/dongleselect.h
 	   )
 
 	   set (${objectName}_SRCS
 	        ${${objectName}_SRCS}
-	        ./src/input/dabstick/dabstick.cpp
-	        ./src/input/dabstick/dongleselect.cpp
+	        ./src/input/dabstick-osmo/dabstick.cpp
+	        ./src/input/dabstick-osmo/dongleselect.cpp
+	   )
+
+	   add_definitions (-DHAVE_DABSTICK)
+	endif()
+
+	if (DABSTICK_NEW)
+	   find_library (RTLSDR rtlsdr)
+	   if (NOT(RTLSDR))
+	      message (FATAL_ERROR "please install librtlsdr")
+	   else (NOT(RTLSDR))
+	      set (extraLibs ${extraLibs} ${RTLSDR})
+	   endif()
+#we know now that rtl-sdr.so is available
+	   set (${objectName}_UIS
+	        ${${objectName}_UIS}
+	        ./src/input/dabstick-new/dabstick-widget.ui
+	   )
+
+	   set (${objectName}_MOCS
+	        ${${objectName}_MOCS}
+	        ./src/input/dabstick-new/dongleselect.h
+	        ./src/input/dabstick-new/dabstick.h
+	   )
+
+	   include_directories (
+	        ./src/input/dabstick-new/
+	   )
+
+	   set (${objectName}_HDRS
+	        ${${objectName}_HDRS}
+	        ./src/input/dabstick-new/dabstick.h 
+	        ./src/input/dabstick-new/dongleselect.h
+	   )
+
+	   set (${objectName}_SRCS
+	        ${${objectName}_SRCS}
+	        ./src/input/dabstick-new/dabstick.cpp
+	        ./src/input/dabstick-new/dongleselect.cpp
 	   )
 
 	   add_definitions (-DHAVE_DABSTICK)
