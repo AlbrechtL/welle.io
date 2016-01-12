@@ -34,6 +34,7 @@
 #include	<sndfile.h>
 #include	<QStringList>
 #include	<QStringListModel>
+#include	<QUdpSocket>
 #include	"ofdm-processor.h"
 #include	"ringbuffer.h"
 
@@ -121,6 +122,7 @@ private:
 const	char		*get_programm_type_string (uint8_t);
 const	char		*get_programm_language_string (uint8_t);
 	QLabel		*pictureLabel;
+	QUdpSocket	DSCTy_59_socket;
 private slots:
 	void	setStart		(void);
 	void	updateTimeDisplay	(void);
@@ -149,6 +151,7 @@ public slots:
 	void	setSynced		(char);
 	void	showLabel		(QString);
 	void	showMOT			(QByteArray, int);
+	void	send_datagram		(char *, int);
 	void	changeinConfiguration	(void);
 };
 

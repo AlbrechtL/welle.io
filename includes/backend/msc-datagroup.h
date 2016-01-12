@@ -31,13 +31,6 @@
 #include	"ringbuffer.h"
 #include	<stdio.h>
 #include	<string.h>
-#ifdef	__MINGW32__
-#include	<winsock2.h>
-#include	<windows.h>
-#else
-#include	<arpa/inet.h>
-#include	<sys/socket.h>
-#endif
 
 
 class	RadioInterface;
@@ -101,10 +94,9 @@ void	run		(void);
 	void		process_ipVector	(QByteArray);
 	void		process_udpVector	(uint8_t *, int16_t);
 
-	struct sockaddr_in si_other;
-	int	socketAddr;
 signals:	
 	void		showLabel		(const QString &);
+	void		writeDatagram		(char *, int);
 };
 
 #endif

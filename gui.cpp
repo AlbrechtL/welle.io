@@ -73,6 +73,7 @@
 	RadioInterface::RadioInterface (QSettings	*Si,
 	                                QWidget		*parent): QDialog (parent) {
 int16_t	i, k;
+int16_t	latency;
 
 // 	the setup for the generated part of the ui
 	setupUi (this);
@@ -96,6 +97,11 @@ int16_t	i, k;
 
 	TunedFrequency		= MHz (200);	// any value will do
 	outRate			= 48000;
+//
+//	latency is used to allow different settings for different
+//	situations
+	latency			=
+	           dabSettings -> value ("latency", 1). toInt ();
 /**
   *	The streamer is optional, may be we should not output to the
   *	soundcard when the streamer is "in", do not know yet
@@ -103,9 +109,11 @@ int16_t	i, k;
   */
 #ifdef	HAVE_STREAMER
 	our_streamer		= new streamerServer	();
-	our_audioSink		= new audioSink		(outRate, our_streamer);
+	our_audioSink		= new audioSink		(outRate,
+	                                                 latency,
+	                                                 our_streamer);
 #else
-	our_audioSink		= new audioSink		(outRate);
+	our_audioSink		= new audioSink		(outRate, latency);
 #endif
 	outTable		= new int16_t
 	                             [our_audioSink -> numberofDevices ()];
@@ -1227,6 +1235,12 @@ void	RadioInterface::showMOT		(QByteArray data, int subtype) {
 	                       subtype == 2 ? "BMP" : "PNG");
 	pictureLabel ->  setPixmap (p);
 	pictureLabel ->  show ();
+}
+
+void	RadioInterface::send_datagram	(char *data, int length) {
+	DSCTy_59_socket. writeDatagram (data, length,
+	                                QHostAddress ("127.0.0.1"),
+	                                8888);
 }
 
 

@@ -6,7 +6,7 @@
 
 TEMPLATE	= app
 TARGET		= dab-rpi-0.992
-QT		+= widgets
+QT		+= widgets network
 CONFIG		+= console
 QMAKE_CFLAGS	+=  -flto -ffast-math 
 QMAKE_CXXFLAGS	+=  -flto -ffast-math 
@@ -114,15 +114,14 @@ SOURCES += ./main.cpp \
 #	and locating libraries. If you do not need a device as
 #	listed, just comment the line out.
 unix {
-CONFIG		+= dabstick_osmo
-#CONFIG		+= dabstick_new
-#CONFIG		+= sdrplay
-#CONFIG		+= rtl_tcp
-#CONFIG		+= airspy
+#CONFIG		+= dabstick_osmo
+CONFIG		+= dabstick_new
+CONFIG		+= sdrplay
+CONFIG		+= rtl_tcp
+CONFIG		+= airspy
 CONFIG		+= streamer		# use for remote listening
-#DEFINES	+= MOT_BASICS__		# use at your own risk
-#DEFINES	+= MSC_DATA__		# use at your own risk
-CONFIG		+= streamer
+DEFINES	+= MOT_BASICS__		# use at your own risk
+DEFINES	+= MSC_DATA__		# use at your own risk
 DESTDIR		= ./linux-bin
 INCLUDEPATH	+= /usr/local/include
 LIBS		+= -lfftw3f  -lusb-1.0 -ldl  #
@@ -150,10 +149,10 @@ LIBS		+= -lusb-1.0
 DEFINES		+= MOT_BASICS__		# use at your own risk
 DEFINES		+= MSC_DATA__		# use at your own risk
 CONFIG		+= NO_SSE_SUPPORT 
-#CONFIG		+= extio
+CONFIG		+= extio
 #CONFIG		+= airspy
 #CONFIG		+= rtl_tcp
-CONFIG		+= dabstick_osmo
+#CONFIG		+= dabstick_osmo
 #CONFIG		+= dabstick_new
 #CONFIG		+= sdrplay
 CONFIG		+= streamer

@@ -37,14 +37,16 @@
  *	should make a single generic class of it.
  */
 #ifdef	HAVE_STREAMER
-	audioSink::audioSink	(int32_t rate, streamerServer *str) {
+	audioSink::audioSink	(int32_t rate, int16_t latency,
+	                         streamerServer *str) {
 	theStreamer		= str;
 #else
-	audioSink::audioSink	(int32_t rate) {
+	audioSink::audioSink	(int32_t rate, int16_t latency) {
 #endif
 int32_t	i;
 
 	this	-> CardRate	= rate;
+	this	-> latency	= latency;
 	_O_Buffer		= new RingBuffer<float>(2 * 32768);
 	portAudio		= false;
 	writerRunning		= false;
@@ -110,7 +112,7 @@ PaError err;
 	                          Pa_GetDeviceInfo (odev) ->
 	                                      defaultHighOutputLatency * 4;
 //	bufSize	= (int)((float)outputParameters. suggestedLatency);
-	bufSize	= 20 * 256;
+	bufSize	= latency * 10 * 256;
 
 //	if (bufSize < 0 || bufSize > 17300)
 //	   bufSize = 16384;

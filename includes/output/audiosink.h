@@ -46,9 +46,10 @@ class	streamerServer;
 class	audioSink  {
 public:
 #ifdef	HAVE_STREAMER
-			audioSink		(int32_t, streamerServer *);
+			audioSink		(int32_t,
+	                                         int16_t, streamerServer *);
 #else
-			audioSink		(int32_t);
+			audioSink		(int32_t, int16_t);
 #endif
 			~audioSink		(void);
 	int16_t		numberofDevices		(void);
@@ -71,6 +72,8 @@ private:
 #ifdef	HAVE_STREAMER
 	streamerServer	*theStreamer;
 #endif
+	int32_t		CardRate;
+	int16_t		latency;
 	bool		OutputrateIsSupported	(int16_t, int32_t);
 	void		audioOut_16000		(int16_t *, int32_t);
 	void		audioOut_24000		(int16_t *, int32_t);
@@ -79,7 +82,6 @@ private:
 	LowPassFIR	*f_16000;
 	LowPassFIR	*f_24000;
 	LowPassFIR	*f_32000;
-	int32_t		CardRate;
 	int32_t		size;
 	bool		portAudio;
 	bool		writerRunning;

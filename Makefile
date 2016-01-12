@@ -12,10 +12,10 @@ MAKEFILE      = Makefile
 
 CC            = gcc
 CXX           = g++
-DEFINES       = -DHAVE_DABSTICK -DHAVE_STREAMER -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB
+DEFINES       = -DMOT_BASICS__ -DMSC_DATA__ -DHAVE_DABSTICK -DHAVE_SDRPLAY -DHAVE_AIRSPY -DHAVE_STREAMER -DHAVE_RTL_TCP -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB
 CFLAGS        = -pipe -flto -ffast-math -O2 -g -pipe -Wall -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 -fstack-protector-strong --param=ssp-buffer-size=4 -grecord-gcc-switches -m64 -mtune=generic -O2 -Wall -W -D_REENTRANT -fPIC $(DEFINES)
 CXXFLAGS      = -pipe -flto -ffast-math -O2 -g -pipe -Wall -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 -fstack-protector-strong --param=ssp-buffer-size=4 -grecord-gcc-switches -m64 -mtune=generic -O2 -Wall -W -D_REENTRANT -fPIC $(DEFINES)
-INCPATH       = -I. -I. -I. -Isrc -Iincludes -Iincludes/ofdm -Iincludes/backend -Iincludes/output -Iincludes/various -Isrc/input -Isrc/input/rawfiles -Isrc/input/wavfiles -I../../../../local/include -I/home/jan/rtl-sdr/include -Isrc/input/dabstick-osmo -I../../../../include/qt5 -I../../../../include/qt5/QtWidgets -I../../../../include/qt5/QtGui -I../../../../include/qt5/QtNetwork -I../../../../include/qt5/QtCore -I. -I. -I../../../../lib64/qt5/mkspecs/linux-g++
+INCPATH       = -I. -I. -I. -Isrc -Iincludes -Iincludes/ofdm -Iincludes/backend -Iincludes/output -Iincludes/various -Isrc/input -Isrc/input/rawfiles -Isrc/input/wavfiles -I../../../../local/include -I/home/jan/rtl-sdr/include -Isrc/input/dabstick-new -Isrc/input/sdrplay -Isrc/input/airspy -I../../../../local/include/libairspy -Isrc/input/rtl_tcp -I../../../../include/qt5 -I../../../../include/qt5/QtWidgets -I../../../../include/qt5/QtGui -I../../../../include/qt5/QtNetwork -I../../../../include/qt5/QtCore -I. -I. -I../../../../lib64/qt5/mkspecs/linux-g++
 QMAKE         = /usr/bin/qmake-qt5
 DEL_FILE      = rm -f
 CHK_DIR_EXISTS= test -d
@@ -80,9 +80,14 @@ SOURCES       = main.cpp \
 		src/input/rawfiles/rawfiles.cpp \
 		src/input/wavfiles/wavfiles.cpp \
 		src/backend/spiral-code/spiral-no-sse.c \
-		src/input/dabstick-osmo/dabstick.cpp \
-		src/input/dabstick-osmo/dongleselect.cpp \
-		src/output/streamer.cpp moc_gui.cpp \
+		src/input/dabstick-new/dabstick.cpp \
+		src/input/dabstick-new/dongleselect.cpp \
+		src/input/sdrplay/sdrplay.cpp \
+		src/input/sdrplay/sdrplay-loader.cpp \
+		src/input/sdrplay/sdrplay-worker.cpp \
+		src/input/airspy/airspy-handler.cpp \
+		src/output/streamer.cpp \
+		src/input/rtl_tcp/rtl_tcp_client.cpp moc_gui.cpp \
 		moc_ofdm-processor.cpp \
 		moc_ofdm-decoder.cpp \
 		moc_fic-handler.cpp \
@@ -94,7 +99,10 @@ SOURCES       = main.cpp \
 		moc_msc-datagroup.cpp \
 		moc_dabstick.cpp \
 		moc_dongleselect.cpp \
-		moc_streamer.cpp
+		moc_sdrplay.cpp \
+		moc_airspy-handler.cpp \
+		moc_streamer.cpp \
+		moc_rtl_tcp_client.cpp
 OBJECTS       = main.o \
 		gui.o \
 		ofdm-processor.o \
@@ -129,7 +137,12 @@ OBJECTS       = main.o \
 		spiral-no-sse.o \
 		dabstick.o \
 		dongleselect.o \
+		sdrplay.o \
+		sdrplay-loader.o \
+		sdrplay-worker.o \
+		airspy-handler.o \
 		streamer.o \
+		rtl_tcp_client.o \
 		moc_gui.o \
 		moc_ofdm-processor.o \
 		moc_ofdm-decoder.o \
@@ -142,7 +155,10 @@ OBJECTS       = main.o \
 		moc_msc-datagroup.o \
 		moc_dabstick.o \
 		moc_dongleselect.o \
-		moc_streamer.o
+		moc_sdrplay.o \
+		moc_airspy-handler.o \
+		moc_streamer.o \
+		moc_rtl_tcp_client.o
 DIST          = ../../../../lib64/qt5/mkspecs/features/spec_pre.prf \
 		../../../../lib64/qt5/mkspecs/common/unix.conf \
 		../../../../lib64/qt5/mkspecs/common/linux.conf \
@@ -247,9 +263,15 @@ DIST          = ../../../../lib64/qt5/mkspecs/features/spec_pre.prf \
 		src/input/virtual-input.h \
 		src/input/rawfiles/rawfiles.h \
 		src/input/wavfiles/wavfiles.h \
-		src/input/dabstick-osmo/dabstick.h \
-		src/input/dabstick-osmo/dongleselect.h \
-		includes/output/streamer.h main.cpp \
+		src/input/dabstick-new/dabstick.h \
+		src/input/dabstick-new/dongleselect.h \
+		src/input/sdrplay/sdrplay.h \
+		src/input/sdrplay/sdrplay-loader.h \
+		src/input/sdrplay/sdrplay-worker.h \
+		src/input/airspy/airspy-handler.h \
+		../../../../local/include/libairspy/airspy.h \
+		includes/output/streamer.h \
+		src/input/rtl_tcp/rtl_tcp_client.h main.cpp \
 		gui.cpp \
 		src/ofdm/ofdm-processor.cpp \
 		src/ofdm/ofdm-decoder.cpp \
@@ -281,9 +303,14 @@ DIST          = ../../../../lib64/qt5/mkspecs/features/spec_pre.prf \
 		src/input/rawfiles/rawfiles.cpp \
 		src/input/wavfiles/wavfiles.cpp \
 		src/backend/spiral-code/spiral-no-sse.c \
-		src/input/dabstick-osmo/dabstick.cpp \
-		src/input/dabstick-osmo/dongleselect.cpp \
-		src/output/streamer.cpp
+		src/input/dabstick-new/dabstick.cpp \
+		src/input/dabstick-new/dongleselect.cpp \
+		src/input/sdrplay/sdrplay.cpp \
+		src/input/sdrplay/sdrplay-loader.cpp \
+		src/input/sdrplay/sdrplay-worker.cpp \
+		src/input/airspy/airspy-handler.cpp \
+		src/output/streamer.cpp \
+		src/input/rtl_tcp/rtl_tcp_client.cpp
 QMAKE_TARGET  = dab-rpi-0.992
 DESTDIR       = linux-bin/#avoid trailing-slash linebreak
 TARGET        = linux-bin/dab-rpi-0.992
@@ -311,7 +338,7 @@ first: all
 
 ####### Build rules
 
-$(TARGET): ui_sdrgui.h ui_filereader-widget.h ui_dabstick-widget.h $(OBJECTS)  
+$(TARGET): ui_sdrgui.h ui_filereader-widget.h ui_dabstick-widget.h ui_sdrplay-widget.h ui_airspy-widget.h ui_rtl_tcp-widget.h $(OBJECTS)  
 	@test -d linux-bin/ || mkdir -p linux-bin/
 	$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJCOMP) $(LIBS)
 
@@ -486,9 +513,9 @@ dist: distdir FORCE
 distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
-	$(COPY_FILE) --parents gui.h includes/dab-constants.h includes/ofdm/ofdm-processor.h includes/ofdm/ofdm-decoder.h includes/ofdm/phasereference.h includes/ofdm/phasetable.h includes/ofdm/freq-interleaver.h includes/backend/viterbi.h includes/backend/fic-handler.h includes/backend/msc-handler.h includes/backend/fib-processor.h includes/backend/rscodec.h includes/backend/mp2processor.h includes/backend/charsets.h includes/backend/mp4processor.h includes/backend/pad-handler.h includes/backend/mot-data.h includes/backend/deconvolve.h includes/backend/firecode-checker.h includes/backend/dab-concurrent.h includes/backend/msc-datagroup.h includes/backend/dab-processor.h includes/backend/dab-virtual.h includes/output/audiosink.h includes/output/fir-filters.h includes/various/fft.h includes/various/ringbuffer.h includes/various/Xtan2.h src/input/virtual-input.h src/input/rawfiles/rawfiles.h src/input/wavfiles/wavfiles.h src/input/dabstick-osmo/dabstick.h src/input/dabstick-osmo/dongleselect.h includes/output/streamer.h $(DISTDIR)/
-	$(COPY_FILE) --parents main.cpp gui.cpp src/ofdm/ofdm-processor.cpp src/ofdm/ofdm-decoder.cpp src/ofdm/phasereference.cpp src/ofdm/phasetable.cpp src/ofdm/freq-interleaver.cpp src/backend/viterbi.cpp src/backend/fic-handler.cpp src/backend/msc-handler.cpp src/backend/deconvolve.cpp src/backend/fib-processor.cpp src/backend/rscodec.cpp src/backend/mp2processor.cpp src/backend/charsets.cpp src/backend/mp4processor.cpp src/backend/pad-handler.cpp src/backend/mot-data.cpp src/backend/firecode-checker.cpp src/backend/dab-virtual.cpp src/backend/dab-concurrent.cpp src/backend/msc-datagroup.cpp src/backend/dab-processor.cpp src/backend/protTables.cpp src/output/fir-filters.cpp src/output/audiosink.cpp src/various/fft.cpp src/various/Xtan2.cpp src/input/virtual-input.cpp src/input/rawfiles/rawfiles.cpp src/input/wavfiles/wavfiles.cpp src/backend/spiral-code/spiral-no-sse.c src/input/dabstick-osmo/dabstick.cpp src/input/dabstick-osmo/dongleselect.cpp src/output/streamer.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents sdrgui.ui src/input/filereader-widget.ui src/input/dabstick-osmo/dabstick-widget.ui $(DISTDIR)/
+	$(COPY_FILE) --parents gui.h includes/dab-constants.h includes/ofdm/ofdm-processor.h includes/ofdm/ofdm-decoder.h includes/ofdm/phasereference.h includes/ofdm/phasetable.h includes/ofdm/freq-interleaver.h includes/backend/viterbi.h includes/backend/fic-handler.h includes/backend/msc-handler.h includes/backend/fib-processor.h includes/backend/rscodec.h includes/backend/mp2processor.h includes/backend/charsets.h includes/backend/mp4processor.h includes/backend/pad-handler.h includes/backend/mot-data.h includes/backend/deconvolve.h includes/backend/firecode-checker.h includes/backend/dab-concurrent.h includes/backend/msc-datagroup.h includes/backend/dab-processor.h includes/backend/dab-virtual.h includes/output/audiosink.h includes/output/fir-filters.h includes/various/fft.h includes/various/ringbuffer.h includes/various/Xtan2.h src/input/virtual-input.h src/input/rawfiles/rawfiles.h src/input/wavfiles/wavfiles.h src/input/dabstick-new/dabstick.h src/input/dabstick-new/dongleselect.h src/input/sdrplay/sdrplay.h src/input/sdrplay/sdrplay-loader.h src/input/sdrplay/sdrplay-worker.h src/input/airspy/airspy-handler.h ../../../../local/include/libairspy/airspy.h includes/output/streamer.h src/input/rtl_tcp/rtl_tcp_client.h $(DISTDIR)/
+	$(COPY_FILE) --parents main.cpp gui.cpp src/ofdm/ofdm-processor.cpp src/ofdm/ofdm-decoder.cpp src/ofdm/phasereference.cpp src/ofdm/phasetable.cpp src/ofdm/freq-interleaver.cpp src/backend/viterbi.cpp src/backend/fic-handler.cpp src/backend/msc-handler.cpp src/backend/deconvolve.cpp src/backend/fib-processor.cpp src/backend/rscodec.cpp src/backend/mp2processor.cpp src/backend/charsets.cpp src/backend/mp4processor.cpp src/backend/pad-handler.cpp src/backend/mot-data.cpp src/backend/firecode-checker.cpp src/backend/dab-virtual.cpp src/backend/dab-concurrent.cpp src/backend/msc-datagroup.cpp src/backend/dab-processor.cpp src/backend/protTables.cpp src/output/fir-filters.cpp src/output/audiosink.cpp src/various/fft.cpp src/various/Xtan2.cpp src/input/virtual-input.cpp src/input/rawfiles/rawfiles.cpp src/input/wavfiles/wavfiles.cpp src/backend/spiral-code/spiral-no-sse.c src/input/dabstick-new/dabstick.cpp src/input/dabstick-new/dongleselect.cpp src/input/sdrplay/sdrplay.cpp src/input/sdrplay/sdrplay-loader.cpp src/input/sdrplay/sdrplay-worker.cpp src/input/airspy/airspy-handler.cpp src/output/streamer.cpp src/input/rtl_tcp/rtl_tcp_client.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents sdrgui.ui src/input/filereader-widget.ui src/input/dabstick-new/dabstick-widget.ui src/input/sdrplay/sdrplay-widget.ui src/input/airspy/airspy-widget.ui src/input/rtl_tcp/rtl_tcp-widget.ui $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -511,9 +538,9 @@ check: first
 
 compiler_rcc_make_all:
 compiler_rcc_clean:
-compiler_moc_header_make_all: moc_gui.cpp moc_ofdm-processor.cpp moc_ofdm-decoder.cpp moc_fic-handler.cpp moc_fib-processor.cpp moc_mp2processor.cpp moc_mp4processor.cpp moc_pad-handler.cpp moc_mot-data.cpp moc_msc-datagroup.cpp moc_dabstick.cpp moc_dongleselect.cpp moc_streamer.cpp
+compiler_moc_header_make_all: moc_gui.cpp moc_ofdm-processor.cpp moc_ofdm-decoder.cpp moc_fic-handler.cpp moc_fib-processor.cpp moc_mp2processor.cpp moc_mp4processor.cpp moc_pad-handler.cpp moc_mot-data.cpp moc_msc-datagroup.cpp moc_dabstick.cpp moc_dongleselect.cpp moc_sdrplay.cpp moc_airspy-handler.cpp moc_streamer.cpp moc_rtl_tcp_client.cpp
 compiler_moc_header_clean:
-	-$(DEL_FILE) moc_gui.cpp moc_ofdm-processor.cpp moc_ofdm-decoder.cpp moc_fic-handler.cpp moc_fib-processor.cpp moc_mp2processor.cpp moc_mp4processor.cpp moc_pad-handler.cpp moc_mot-data.cpp moc_msc-datagroup.cpp moc_dabstick.cpp moc_dongleselect.cpp moc_streamer.cpp
+	-$(DEL_FILE) moc_gui.cpp moc_ofdm-processor.cpp moc_ofdm-decoder.cpp moc_fic-handler.cpp moc_fib-processor.cpp moc_mp2processor.cpp moc_mp4processor.cpp moc_pad-handler.cpp moc_mot-data.cpp moc_msc-datagroup.cpp moc_dabstick.cpp moc_dongleselect.cpp moc_sdrplay.cpp moc_airspy-handler.cpp moc_streamer.cpp moc_rtl_tcp_client.cpp
 moc_gui.cpp: includes/dab-constants.h \
 		../../../../include/qt5/QtWidgets/QDialog \
 		../../../../include/qt5/QtWidgets/qdialog.h \
@@ -620,7 +647,6 @@ moc_gui.cpp: includes/dab-constants.h \
 		../../../../include/qt5/QtGui/qvector2d.h \
 		../../../../include/qt5/QtGui/qtouchdevice.h \
 		ui_sdrgui.h \
-		../../../../include/qt5/QtCore/QVariant \
 		../../../../include/qt5/QtCore/QTimer \
 		../../../../include/qt5/QtCore/qtimer.h \
 		../../../../include/qt5/QtCore/qbasictimer.h \
@@ -628,6 +654,10 @@ moc_gui.cpp: includes/dab-constants.h \
 		../../../../include/qt5/QtCore/QStringListModel \
 		../../../../include/qt5/QtCore/qstringlistmodel.h \
 		../../../../include/qt5/QtCore/qabstractitemmodel.h \
+		../../../../include/qt5/QtNetwork/QUdpSocket \
+		../../../../include/qt5/QtNetwork/qudpsocket.h \
+		../../../../include/qt5/QtNetwork/qabstractsocket.h \
+		../../../../include/qt5/QtNetwork/qhostaddress.h \
 		includes/ofdm/ofdm-processor.h \
 		../../../../include/qt5/QtCore/QThread \
 		../../../../include/qt5/QtCore/qthread.h \
@@ -646,7 +676,7 @@ moc_gui.cpp: includes/dab-constants.h \
 		includes/output/fir-filters.h \
 		includes/backend/deconvolve.h \
 		gui.h
-	/usr/lib64/qt5/bin/moc $(DEFINES) -I/usr/lib64/qt5/mkspecs/linux-g++ -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi/src -I/usr/shared/sdr-j-development/systems/dab-rpi/includes -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/ofdm -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/backend -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/output -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/various -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rawfiles -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/wavfiles -I/usr/local/include -I/home/jan/rtl-sdr/include -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/dabstick-osmo -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/5.1.1 -I/usr/include/c++/5.1.1/x86_64-redhat-linux -I/usr/include/c++/5.1.1/backward -I/usr/lib/gcc/x86_64-redhat-linux/5.1.1/include -I/usr/local/include -I/usr/include gui.h -o moc_gui.cpp
+	/usr/lib64/qt5/bin/moc $(DEFINES) -I/usr/lib64/qt5/mkspecs/linux-g++ -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi/src -I/usr/shared/sdr-j-development/systems/dab-rpi/includes -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/ofdm -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/backend -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/output -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/various -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rawfiles -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/wavfiles -I/usr/local/include -I/home/jan/rtl-sdr/include -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/dabstick-new -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/sdrplay -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/airspy -I/usr/local/include/libairspy -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rtl_tcp -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/5.1.1 -I/usr/include/c++/5.1.1/x86_64-redhat-linux -I/usr/include/c++/5.1.1/backward -I/usr/lib/gcc/x86_64-redhat-linux/5.1.1/include -I/usr/local/include -I/usr/include gui.h -o moc_gui.cpp
 
 moc_ofdm-processor.cpp: includes/dab-constants.h \
 		../../../../include/qt5/QtCore/QThread \
@@ -770,7 +800,7 @@ moc_ofdm-processor.cpp: includes/dab-constants.h \
 		includes/output/fir-filters.h \
 		includes/backend/deconvolve.h \
 		includes/ofdm/ofdm-processor.h
-	/usr/lib64/qt5/bin/moc $(DEFINES) -I/usr/lib64/qt5/mkspecs/linux-g++ -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi/src -I/usr/shared/sdr-j-development/systems/dab-rpi/includes -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/ofdm -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/backend -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/output -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/various -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rawfiles -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/wavfiles -I/usr/local/include -I/home/jan/rtl-sdr/include -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/dabstick-osmo -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/5.1.1 -I/usr/include/c++/5.1.1/x86_64-redhat-linux -I/usr/include/c++/5.1.1/backward -I/usr/lib/gcc/x86_64-redhat-linux/5.1.1/include -I/usr/local/include -I/usr/include includes/ofdm/ofdm-processor.h -o moc_ofdm-processor.cpp
+	/usr/lib64/qt5/bin/moc $(DEFINES) -I/usr/lib64/qt5/mkspecs/linux-g++ -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi/src -I/usr/shared/sdr-j-development/systems/dab-rpi/includes -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/ofdm -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/backend -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/output -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/various -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rawfiles -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/wavfiles -I/usr/local/include -I/home/jan/rtl-sdr/include -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/dabstick-new -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/sdrplay -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/airspy -I/usr/local/include/libairspy -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rtl_tcp -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/5.1.1 -I/usr/include/c++/5.1.1/x86_64-redhat-linux -I/usr/include/c++/5.1.1/backward -I/usr/lib/gcc/x86_64-redhat-linux/5.1.1/include -I/usr/local/include -I/usr/include includes/ofdm/ofdm-processor.h -o moc_ofdm-processor.cpp
 
 moc_ofdm-decoder.cpp: includes/dab-constants.h \
 		../../../../include/qt5/QtCore/QThread \
@@ -834,7 +864,7 @@ moc_ofdm-decoder.cpp: includes/dab-constants.h \
 		includes/various/fft.h \
 		includes/ofdm/phasetable.h \
 		includes/ofdm/ofdm-decoder.h
-	/usr/lib64/qt5/bin/moc $(DEFINES) -I/usr/lib64/qt5/mkspecs/linux-g++ -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi/src -I/usr/shared/sdr-j-development/systems/dab-rpi/includes -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/ofdm -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/backend -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/output -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/various -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rawfiles -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/wavfiles -I/usr/local/include -I/home/jan/rtl-sdr/include -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/dabstick-osmo -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/5.1.1 -I/usr/include/c++/5.1.1/x86_64-redhat-linux -I/usr/include/c++/5.1.1/backward -I/usr/lib/gcc/x86_64-redhat-linux/5.1.1/include -I/usr/local/include -I/usr/include includes/ofdm/ofdm-decoder.h -o moc_ofdm-decoder.cpp
+	/usr/lib64/qt5/bin/moc $(DEFINES) -I/usr/lib64/qt5/mkspecs/linux-g++ -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi/src -I/usr/shared/sdr-j-development/systems/dab-rpi/includes -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/ofdm -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/backend -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/output -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/various -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rawfiles -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/wavfiles -I/usr/local/include -I/home/jan/rtl-sdr/include -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/dabstick-new -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/sdrplay -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/airspy -I/usr/local/include/libairspy -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rtl_tcp -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/5.1.1 -I/usr/include/c++/5.1.1/x86_64-redhat-linux -I/usr/include/c++/5.1.1/backward -I/usr/lib/gcc/x86_64-redhat-linux/5.1.1/include -I/usr/local/include -I/usr/include includes/ofdm/ofdm-decoder.h -o moc_ofdm-decoder.cpp
 
 moc_fic-handler.cpp: includes/backend/viterbi.h \
 		includes/dab-constants.h \
@@ -894,7 +924,7 @@ moc_fic-handler.cpp: includes/backend/viterbi.h \
 		../../../../include/qt5/QtCore/qisenum.h \
 		../../../../include/qt5/QtCore/qobject_impl.h \
 		includes/backend/fic-handler.h
-	/usr/lib64/qt5/bin/moc $(DEFINES) -I/usr/lib64/qt5/mkspecs/linux-g++ -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi/src -I/usr/shared/sdr-j-development/systems/dab-rpi/includes -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/ofdm -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/backend -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/output -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/various -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rawfiles -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/wavfiles -I/usr/local/include -I/home/jan/rtl-sdr/include -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/dabstick-osmo -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/5.1.1 -I/usr/include/c++/5.1.1/x86_64-redhat-linux -I/usr/include/c++/5.1.1/backward -I/usr/lib/gcc/x86_64-redhat-linux/5.1.1/include -I/usr/local/include -I/usr/include includes/backend/fic-handler.h -o moc_fic-handler.cpp
+	/usr/lib64/qt5/bin/moc $(DEFINES) -I/usr/lib64/qt5/mkspecs/linux-g++ -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi/src -I/usr/shared/sdr-j-development/systems/dab-rpi/includes -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/ofdm -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/backend -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/output -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/various -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rawfiles -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/wavfiles -I/usr/local/include -I/home/jan/rtl-sdr/include -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/dabstick-new -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/sdrplay -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/airspy -I/usr/local/include/libairspy -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rtl_tcp -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/5.1.1 -I/usr/include/c++/5.1.1/x86_64-redhat-linux -I/usr/include/c++/5.1.1/backward -I/usr/lib/gcc/x86_64-redhat-linux/5.1.1/include -I/usr/local/include -I/usr/include includes/backend/fic-handler.h -o moc_fic-handler.cpp
 
 moc_fib-processor.cpp: ../../../../include/qt5/QtCore/QObject \
 		../../../../include/qt5/QtCore/qobject.h \
@@ -959,7 +989,7 @@ moc_fib-processor.cpp: ../../../../include/qt5/QtCore/QObject \
 		includes/backend/deconvolve.h \
 		includes/backend/viterbi.h \
 		includes/backend/fib-processor.h
-	/usr/lib64/qt5/bin/moc $(DEFINES) -I/usr/lib64/qt5/mkspecs/linux-g++ -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi/src -I/usr/shared/sdr-j-development/systems/dab-rpi/includes -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/ofdm -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/backend -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/output -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/various -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rawfiles -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/wavfiles -I/usr/local/include -I/home/jan/rtl-sdr/include -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/dabstick-osmo -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/5.1.1 -I/usr/include/c++/5.1.1/x86_64-redhat-linux -I/usr/include/c++/5.1.1/backward -I/usr/lib/gcc/x86_64-redhat-linux/5.1.1/include -I/usr/local/include -I/usr/include includes/backend/fib-processor.h -o moc_fib-processor.cpp
+	/usr/lib64/qt5/bin/moc $(DEFINES) -I/usr/lib64/qt5/mkspecs/linux-g++ -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi/src -I/usr/shared/sdr-j-development/systems/dab-rpi/includes -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/ofdm -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/backend -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/output -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/various -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rawfiles -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/wavfiles -I/usr/local/include -I/home/jan/rtl-sdr/include -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/dabstick-new -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/sdrplay -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/airspy -I/usr/local/include/libairspy -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rtl_tcp -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/5.1.1 -I/usr/include/c++/5.1.1/x86_64-redhat-linux -I/usr/include/c++/5.1.1/backward -I/usr/lib/gcc/x86_64-redhat-linux/5.1.1/include -I/usr/local/include -I/usr/include includes/backend/fib-processor.h -o moc_fib-processor.cpp
 
 moc_mp2processor.cpp: includes/backend/dab-processor.h \
 		includes/output/audiosink.h \
@@ -1022,7 +1052,7 @@ moc_mp2processor.cpp: includes/backend/dab-processor.h \
 		../../../../include/qt5/QtCore/qisenum.h \
 		../../../../include/qt5/QtCore/qobject_impl.h \
 		includes/backend/mp2processor.h
-	/usr/lib64/qt5/bin/moc $(DEFINES) -I/usr/lib64/qt5/mkspecs/linux-g++ -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi/src -I/usr/shared/sdr-j-development/systems/dab-rpi/includes -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/ofdm -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/backend -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/output -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/various -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rawfiles -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/wavfiles -I/usr/local/include -I/home/jan/rtl-sdr/include -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/dabstick-osmo -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/5.1.1 -I/usr/include/c++/5.1.1/x86_64-redhat-linux -I/usr/include/c++/5.1.1/backward -I/usr/lib/gcc/x86_64-redhat-linux/5.1.1/include -I/usr/local/include -I/usr/include includes/backend/mp2processor.h -o moc_mp2processor.cpp
+	/usr/lib64/qt5/bin/moc $(DEFINES) -I/usr/lib64/qt5/mkspecs/linux-g++ -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi/src -I/usr/shared/sdr-j-development/systems/dab-rpi/includes -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/ofdm -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/backend -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/output -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/various -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rawfiles -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/wavfiles -I/usr/local/include -I/home/jan/rtl-sdr/include -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/dabstick-new -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/sdrplay -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/airspy -I/usr/local/include/libairspy -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rtl_tcp -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/5.1.1 -I/usr/include/c++/5.1.1/x86_64-redhat-linux -I/usr/include/c++/5.1.1/backward -I/usr/lib/gcc/x86_64-redhat-linux/5.1.1/include -I/usr/local/include -I/usr/include includes/backend/mp2processor.h -o moc_mp2processor.cpp
 
 moc_mp4processor.cpp: includes/dab-constants.h \
 		includes/output/audiosink.h \
@@ -1140,7 +1170,6 @@ moc_mp4processor.cpp: includes/dab-constants.h \
 		../../../../include/qt5/QtGui/qvector2d.h \
 		../../../../include/qt5/QtGui/qtouchdevice.h \
 		ui_sdrgui.h \
-		../../../../include/qt5/QtCore/QVariant \
 		../../../../include/qt5/QtCore/QTimer \
 		../../../../include/qt5/QtCore/qtimer.h \
 		../../../../include/qt5/QtCore/qbasictimer.h \
@@ -1148,6 +1177,10 @@ moc_mp4processor.cpp: includes/dab-constants.h \
 		../../../../include/qt5/QtCore/QStringListModel \
 		../../../../include/qt5/QtCore/qstringlistmodel.h \
 		../../../../include/qt5/QtCore/qabstractitemmodel.h \
+		../../../../include/qt5/QtNetwork/QUdpSocket \
+		../../../../include/qt5/QtNetwork/qudpsocket.h \
+		../../../../include/qt5/QtNetwork/qabstractsocket.h \
+		../../../../include/qt5/QtNetwork/qhostaddress.h \
 		includes/ofdm/ofdm-processor.h \
 		../../../../include/qt5/QtCore/QThread \
 		../../../../include/qt5/QtCore/qthread.h \
@@ -1161,7 +1194,7 @@ moc_mp4processor.cpp: includes/dab-constants.h \
 		includes/backend/msc-handler.h \
 		includes/backend/deconvolve.h \
 		includes/backend/mp4processor.h
-	/usr/lib64/qt5/bin/moc $(DEFINES) -I/usr/lib64/qt5/mkspecs/linux-g++ -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi/src -I/usr/shared/sdr-j-development/systems/dab-rpi/includes -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/ofdm -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/backend -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/output -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/various -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rawfiles -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/wavfiles -I/usr/local/include -I/home/jan/rtl-sdr/include -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/dabstick-osmo -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/5.1.1 -I/usr/include/c++/5.1.1/x86_64-redhat-linux -I/usr/include/c++/5.1.1/backward -I/usr/lib/gcc/x86_64-redhat-linux/5.1.1/include -I/usr/local/include -I/usr/include includes/backend/mp4processor.h -o moc_mp4processor.cpp
+	/usr/lib64/qt5/bin/moc $(DEFINES) -I/usr/lib64/qt5/mkspecs/linux-g++ -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi/src -I/usr/shared/sdr-j-development/systems/dab-rpi/includes -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/ofdm -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/backend -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/output -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/various -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rawfiles -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/wavfiles -I/usr/local/include -I/home/jan/rtl-sdr/include -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/dabstick-new -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/sdrplay -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/airspy -I/usr/local/include/libairspy -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rtl_tcp -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/5.1.1 -I/usr/include/c++/5.1.1/x86_64-redhat-linux -I/usr/include/c++/5.1.1/backward -I/usr/lib/gcc/x86_64-redhat-linux/5.1.1/include -I/usr/local/include -I/usr/include includes/backend/mp4processor.h -o moc_mp4processor.cpp
 
 moc_pad-handler.cpp: ../../../../include/qt5/QtCore/QObject \
 		../../../../include/qt5/QtCore/qobject.h \
@@ -1271,7 +1304,6 @@ moc_pad-handler.cpp: ../../../../include/qt5/QtCore/QObject \
 		../../../../include/qt5/QtGui/qvector2d.h \
 		../../../../include/qt5/QtGui/qtouchdevice.h \
 		ui_sdrgui.h \
-		../../../../include/qt5/QtCore/QVariant \
 		../../../../include/qt5/QtCore/QTimer \
 		../../../../include/qt5/QtCore/qtimer.h \
 		../../../../include/qt5/QtCore/qbasictimer.h \
@@ -1279,6 +1311,10 @@ moc_pad-handler.cpp: ../../../../include/qt5/QtCore/QObject \
 		../../../../include/qt5/QtCore/QStringListModel \
 		../../../../include/qt5/QtCore/qstringlistmodel.h \
 		../../../../include/qt5/QtCore/qabstractitemmodel.h \
+		../../../../include/qt5/QtNetwork/QUdpSocket \
+		../../../../include/qt5/QtNetwork/qudpsocket.h \
+		../../../../include/qt5/QtNetwork/qabstractsocket.h \
+		../../../../include/qt5/QtNetwork/qhostaddress.h \
 		includes/ofdm/ofdm-processor.h \
 		../../../../include/qt5/QtCore/QThread \
 		../../../../include/qt5/QtCore/qthread.h \
@@ -1296,7 +1332,7 @@ moc_pad-handler.cpp: ../../../../include/qt5/QtCore/QObject \
 		includes/output/fir-filters.h \
 		includes/backend/deconvolve.h \
 		includes/backend/pad-handler.h
-	/usr/lib64/qt5/bin/moc $(DEFINES) -I/usr/lib64/qt5/mkspecs/linux-g++ -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi/src -I/usr/shared/sdr-j-development/systems/dab-rpi/includes -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/ofdm -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/backend -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/output -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/various -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rawfiles -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/wavfiles -I/usr/local/include -I/home/jan/rtl-sdr/include -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/dabstick-osmo -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/5.1.1 -I/usr/include/c++/5.1.1/x86_64-redhat-linux -I/usr/include/c++/5.1.1/backward -I/usr/lib/gcc/x86_64-redhat-linux/5.1.1/include -I/usr/local/include -I/usr/include includes/backend/pad-handler.h -o moc_pad-handler.cpp
+	/usr/lib64/qt5/bin/moc $(DEFINES) -I/usr/lib64/qt5/mkspecs/linux-g++ -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi/src -I/usr/shared/sdr-j-development/systems/dab-rpi/includes -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/ofdm -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/backend -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/output -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/various -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rawfiles -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/wavfiles -I/usr/local/include -I/home/jan/rtl-sdr/include -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/dabstick-new -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/sdrplay -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/airspy -I/usr/local/include/libairspy -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rtl_tcp -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/5.1.1 -I/usr/include/c++/5.1.1/x86_64-redhat-linux -I/usr/include/c++/5.1.1/backward -I/usr/lib/gcc/x86_64-redhat-linux/5.1.1/include -I/usr/local/include -I/usr/include includes/backend/pad-handler.h -o moc_pad-handler.cpp
 
 moc_mot-data.cpp: includes/dab-constants.h \
 		../../../../include/qt5/QtCore/QObject \
@@ -1407,7 +1443,7 @@ moc_mot-data.cpp: includes/dab-constants.h \
 		../../../../include/qt5/QtGui/qvector2d.h \
 		../../../../include/qt5/QtGui/qtouchdevice.h \
 		includes/backend/mot-data.h
-	/usr/lib64/qt5/bin/moc $(DEFINES) -I/usr/lib64/qt5/mkspecs/linux-g++ -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi/src -I/usr/shared/sdr-j-development/systems/dab-rpi/includes -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/ofdm -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/backend -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/output -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/various -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rawfiles -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/wavfiles -I/usr/local/include -I/home/jan/rtl-sdr/include -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/dabstick-osmo -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/5.1.1 -I/usr/include/c++/5.1.1/x86_64-redhat-linux -I/usr/include/c++/5.1.1/backward -I/usr/lib/gcc/x86_64-redhat-linux/5.1.1/include -I/usr/local/include -I/usr/include includes/backend/mot-data.h -o moc_mot-data.cpp
+	/usr/lib64/qt5/bin/moc $(DEFINES) -I/usr/lib64/qt5/mkspecs/linux-g++ -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi/src -I/usr/shared/sdr-j-development/systems/dab-rpi/includes -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/ofdm -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/backend -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/output -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/various -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rawfiles -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/wavfiles -I/usr/local/include -I/home/jan/rtl-sdr/include -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/dabstick-new -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/sdrplay -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/airspy -I/usr/local/include/libairspy -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rtl_tcp -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/5.1.1 -I/usr/include/c++/5.1.1/x86_64-redhat-linux -I/usr/include/c++/5.1.1/backward -I/usr/lib/gcc/x86_64-redhat-linux/5.1.1/include -I/usr/local/include -I/usr/include includes/backend/mot-data.h -o moc_mot-data.cpp
 
 moc_msc-datagroup.cpp: includes/backend/dab-virtual.h \
 		../../../../include/qt5/QtCore/QThread \
@@ -1470,7 +1506,7 @@ moc_msc-datagroup.cpp: includes/backend/dab-virtual.h \
 		../../../../include/qt5/QtCore/qwaitcondition.h \
 		includes/various/ringbuffer.h \
 		includes/backend/msc-datagroup.h
-	/usr/lib64/qt5/bin/moc $(DEFINES) -I/usr/lib64/qt5/mkspecs/linux-g++ -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi/src -I/usr/shared/sdr-j-development/systems/dab-rpi/includes -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/ofdm -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/backend -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/output -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/various -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rawfiles -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/wavfiles -I/usr/local/include -I/home/jan/rtl-sdr/include -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/dabstick-osmo -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/5.1.1 -I/usr/include/c++/5.1.1/x86_64-redhat-linux -I/usr/include/c++/5.1.1/backward -I/usr/lib/gcc/x86_64-redhat-linux/5.1.1/include -I/usr/local/include -I/usr/include includes/backend/msc-datagroup.h -o moc_msc-datagroup.cpp
+	/usr/lib64/qt5/bin/moc $(DEFINES) -I/usr/lib64/qt5/mkspecs/linux-g++ -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi/src -I/usr/shared/sdr-j-development/systems/dab-rpi/includes -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/ofdm -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/backend -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/output -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/various -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rawfiles -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/wavfiles -I/usr/local/include -I/home/jan/rtl-sdr/include -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/dabstick-new -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/sdrplay -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/airspy -I/usr/local/include/libairspy -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rtl_tcp -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/5.1.1 -I/usr/include/c++/5.1.1/x86_64-redhat-linux -I/usr/include/c++/5.1.1/backward -I/usr/lib/gcc/x86_64-redhat-linux/5.1.1/include -I/usr/local/include -I/usr/include includes/backend/msc-datagroup.h -o moc_msc-datagroup.cpp
 
 moc_dabstick.cpp: ../../../../include/qt5/QtCore/QObject \
 		../../../../include/qt5/QtCore/qobject.h \
@@ -1583,7 +1619,7 @@ moc_dabstick.cpp: ../../../../include/qt5/QtCore/QObject \
 		../../../../include/qt5/QtCore/qfiledevice.h \
 		../../../../include/qt5/QtGui/qvector2d.h \
 		../../../../include/qt5/QtGui/qtouchdevice.h \
-		src/input/dabstick-osmo/dongleselect.h \
+		src/input/dabstick-new/dongleselect.h \
 		../../../../include/qt5/QtWidgets/QLabel \
 		../../../../include/qt5/QtWidgets/qlabel.h \
 		../../../../include/qt5/QtWidgets/qframe.h \
@@ -1609,9 +1645,8 @@ moc_dabstick.cpp: ../../../../include/qt5/QtCore/QObject \
 		../../../../include/qt5/QtCore/qstringlistmodel.h \
 		../../../../include/qt5/QtCore/QStringList \
 		ui_dabstick-widget.h \
-		../../../../include/qt5/QtCore/QVariant \
-		src/input/dabstick-osmo/dabstick.h
-	/usr/lib64/qt5/bin/moc $(DEFINES) -I/usr/lib64/qt5/mkspecs/linux-g++ -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi/src -I/usr/shared/sdr-j-development/systems/dab-rpi/includes -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/ofdm -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/backend -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/output -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/various -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rawfiles -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/wavfiles -I/usr/local/include -I/home/jan/rtl-sdr/include -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/dabstick-osmo -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/5.1.1 -I/usr/include/c++/5.1.1/x86_64-redhat-linux -I/usr/include/c++/5.1.1/backward -I/usr/lib/gcc/x86_64-redhat-linux/5.1.1/include -I/usr/local/include -I/usr/include src/input/dabstick-osmo/dabstick.h -o moc_dabstick.cpp
+		src/input/dabstick-new/dabstick.h
+	/usr/lib64/qt5/bin/moc $(DEFINES) -I/usr/lib64/qt5/mkspecs/linux-g++ -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi/src -I/usr/shared/sdr-j-development/systems/dab-rpi/includes -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/ofdm -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/backend -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/output -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/various -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rawfiles -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/wavfiles -I/usr/local/include -I/home/jan/rtl-sdr/include -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/dabstick-new -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/sdrplay -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/airspy -I/usr/local/include/libairspy -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rtl_tcp -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/5.1.1 -I/usr/include/c++/5.1.1/x86_64-redhat-linux -I/usr/include/c++/5.1.1/backward -I/usr/lib/gcc/x86_64-redhat-linux/5.1.1/include -I/usr/local/include -I/usr/include src/input/dabstick-new/dabstick.h -o moc_dabstick.cpp
 
 moc_dongleselect.cpp: ../../../../include/qt5/QtWidgets/QDialog \
 		../../../../include/qt5/QtWidgets/qdialog.h \
@@ -1741,8 +1776,242 @@ moc_dongleselect.cpp: ../../../../include/qt5/QtWidgets/QDialog \
 		../../../../include/qt5/QtCore/QStringListModel \
 		../../../../include/qt5/QtCore/qstringlistmodel.h \
 		../../../../include/qt5/QtCore/QStringList \
-		src/input/dabstick-osmo/dongleselect.h
-	/usr/lib64/qt5/bin/moc $(DEFINES) -I/usr/lib64/qt5/mkspecs/linux-g++ -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi/src -I/usr/shared/sdr-j-development/systems/dab-rpi/includes -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/ofdm -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/backend -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/output -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/various -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rawfiles -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/wavfiles -I/usr/local/include -I/home/jan/rtl-sdr/include -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/dabstick-osmo -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/5.1.1 -I/usr/include/c++/5.1.1/x86_64-redhat-linux -I/usr/include/c++/5.1.1/backward -I/usr/lib/gcc/x86_64-redhat-linux/5.1.1/include -I/usr/local/include -I/usr/include src/input/dabstick-osmo/dongleselect.h -o moc_dongleselect.cpp
+		src/input/dabstick-new/dongleselect.h
+	/usr/lib64/qt5/bin/moc $(DEFINES) -I/usr/lib64/qt5/mkspecs/linux-g++ -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi/src -I/usr/shared/sdr-j-development/systems/dab-rpi/includes -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/ofdm -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/backend -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/output -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/various -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rawfiles -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/wavfiles -I/usr/local/include -I/home/jan/rtl-sdr/include -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/dabstick-new -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/sdrplay -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/airspy -I/usr/local/include/libairspy -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rtl_tcp -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/5.1.1 -I/usr/include/c++/5.1.1/x86_64-redhat-linux -I/usr/include/c++/5.1.1/backward -I/usr/lib/gcc/x86_64-redhat-linux/5.1.1/include -I/usr/local/include -I/usr/include src/input/dabstick-new/dongleselect.h -o moc_dongleselect.cpp
+
+moc_sdrplay.cpp: ../../../../include/qt5/QtCore/QObject \
+		../../../../include/qt5/QtCore/qobject.h \
+		../../../../include/qt5/QtCore/qobjectdefs.h \
+		../../../../include/qt5/QtCore/qnamespace.h \
+		../../../../include/qt5/QtCore/qglobal.h \
+		../../../../include/qt5/QtCore/qconfig.h \
+		../../../../include/qt5/QtCore/qconfig-64.h \
+		../../../../include/qt5/QtCore/qfeatures.h \
+		../../../../include/qt5/QtCore/qsystemdetection.h \
+		../../../../include/qt5/QtCore/qprocessordetection.h \
+		../../../../include/qt5/QtCore/qcompilerdetection.h \
+		../../../../include/qt5/QtCore/qtypeinfo.h \
+		../../../../include/qt5/QtCore/qtypetraits.h \
+		../../../../include/qt5/QtCore/qsysinfo.h \
+		../../../../include/qt5/QtCore/qlogging.h \
+		../../../../include/qt5/QtCore/qflags.h \
+		../../../../include/qt5/QtCore/qatomic.h \
+		../../../../include/qt5/QtCore/qbasicatomic.h \
+		../../../../include/qt5/QtCore/qatomic_bootstrap.h \
+		../../../../include/qt5/QtCore/qgenericatomic.h \
+		../../../../include/qt5/QtCore/qatomic_cxx11.h \
+		../../../../include/qt5/QtCore/qatomic_gcc.h \
+		../../../../include/qt5/QtCore/qatomic_msvc.h \
+		../../../../include/qt5/QtCore/qatomic_armv7.h \
+		../../../../include/qt5/QtCore/qatomic_armv6.h \
+		../../../../include/qt5/QtCore/qatomic_armv5.h \
+		../../../../include/qt5/QtCore/qatomic_ia64.h \
+		../../../../include/qt5/QtCore/qatomic_mips.h \
+		../../../../include/qt5/QtCore/qatomic_x86.h \
+		../../../../include/qt5/QtCore/qatomic_unix.h \
+		../../../../include/qt5/QtCore/qglobalstatic.h \
+		../../../../include/qt5/QtCore/qmutex.h \
+		../../../../include/qt5/QtCore/qnumeric.h \
+		../../../../include/qt5/QtCore/qobjectdefs_impl.h \
+		../../../../include/qt5/QtCore/qstring.h \
+		../../../../include/qt5/QtCore/qchar.h \
+		../../../../include/qt5/QtCore/qbytearray.h \
+		../../../../include/qt5/QtCore/qrefcount.h \
+		../../../../include/qt5/QtCore/qarraydata.h \
+		../../../../include/qt5/QtCore/qstringbuilder.h \
+		../../../../include/qt5/QtCore/qlist.h \
+		../../../../include/qt5/QtCore/qalgorithms.h \
+		../../../../include/qt5/QtCore/qiterator.h \
+		../../../../include/qt5/QtCore/qbytearraylist.h \
+		../../../../include/qt5/QtCore/qstringlist.h \
+		../../../../include/qt5/QtCore/qregexp.h \
+		../../../../include/qt5/QtCore/qstringmatcher.h \
+		../../../../include/qt5/QtCore/qcoreevent.h \
+		../../../../include/qt5/QtCore/qscopedpointer.h \
+		../../../../include/qt5/QtCore/qmetatype.h \
+		../../../../include/qt5/QtCore/qvarlengtharray.h \
+		../../../../include/qt5/QtCore/qcontainerfwd.h \
+		../../../../include/qt5/QtCore/qisenum.h \
+		../../../../include/qt5/QtCore/qobject_impl.h \
+		../../../../include/qt5/QtWidgets/QFrame \
+		../../../../include/qt5/QtWidgets/qframe.h \
+		../../../../include/qt5/QtWidgets/qwidget.h \
+		../../../../include/qt5/QtGui/qwindowdefs.h \
+		../../../../include/qt5/QtGui/qwindowdefs_win.h \
+		../../../../include/qt5/QtCore/qmargins.h \
+		../../../../include/qt5/QtGui/qpaintdevice.h \
+		../../../../include/qt5/QtCore/qrect.h \
+		../../../../include/qt5/QtCore/qsize.h \
+		../../../../include/qt5/QtCore/qpoint.h \
+		../../../../include/qt5/QtGui/qpalette.h \
+		../../../../include/qt5/QtGui/qcolor.h \
+		../../../../include/qt5/QtGui/qrgb.h \
+		../../../../include/qt5/QtGui/qbrush.h \
+		../../../../include/qt5/QtCore/qpair.h \
+		../../../../include/qt5/QtCore/qvector.h \
+		../../../../include/qt5/QtGui/qmatrix.h \
+		../../../../include/qt5/QtGui/qpolygon.h \
+		../../../../include/qt5/QtGui/qregion.h \
+		../../../../include/qt5/QtCore/qdatastream.h \
+		../../../../include/qt5/QtCore/qiodevice.h \
+		../../../../include/qt5/QtCore/qline.h \
+		../../../../include/qt5/QtGui/qtransform.h \
+		../../../../include/qt5/QtGui/qpainterpath.h \
+		../../../../include/qt5/QtGui/qimage.h \
+		../../../../include/qt5/QtGui/qpixelformat.h \
+		../../../../include/qt5/QtGui/qpixmap.h \
+		../../../../include/qt5/QtCore/qsharedpointer.h \
+		../../../../include/qt5/QtCore/qshareddata.h \
+		../../../../include/qt5/QtCore/qhash.h \
+		../../../../include/qt5/QtCore/qsharedpointer_impl.h \
+		../../../../include/qt5/QtGui/qfont.h \
+		../../../../include/qt5/QtGui/qfontmetrics.h \
+		../../../../include/qt5/QtGui/qfontinfo.h \
+		../../../../include/qt5/QtWidgets/qsizepolicy.h \
+		../../../../include/qt5/QtGui/qcursor.h \
+		../../../../include/qt5/QtGui/qkeysequence.h \
+		../../../../include/qt5/QtGui/qevent.h \
+		../../../../include/qt5/QtCore/qvariant.h \
+		../../../../include/qt5/QtCore/qmap.h \
+		../../../../include/qt5/QtCore/qdebug.h \
+		../../../../include/qt5/QtCore/qtextstream.h \
+		../../../../include/qt5/QtCore/qlocale.h \
+		../../../../include/qt5/QtCore/qset.h \
+		../../../../include/qt5/QtCore/qcontiguouscache.h \
+		../../../../include/qt5/QtCore/qurl.h \
+		../../../../include/qt5/QtCore/qurlquery.h \
+		../../../../include/qt5/QtCore/qfile.h \
+		../../../../include/qt5/QtCore/qfiledevice.h \
+		../../../../include/qt5/QtGui/qvector2d.h \
+		../../../../include/qt5/QtGui/qtouchdevice.h \
+		../../../../include/qt5/QtCore/QSettings \
+		../../../../include/qt5/QtCore/qsettings.h \
+		includes/dab-constants.h \
+		includes/various/ringbuffer.h \
+		src/input/virtual-input.h \
+		../../../../include/qt5/QtWidgets/QDialog \
+		../../../../include/qt5/QtWidgets/qdialog.h \
+		ui_sdrplay-widget.h \
+		src/input/sdrplay/sdrplay.h
+	/usr/lib64/qt5/bin/moc $(DEFINES) -I/usr/lib64/qt5/mkspecs/linux-g++ -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi/src -I/usr/shared/sdr-j-development/systems/dab-rpi/includes -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/ofdm -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/backend -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/output -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/various -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rawfiles -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/wavfiles -I/usr/local/include -I/home/jan/rtl-sdr/include -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/dabstick-new -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/sdrplay -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/airspy -I/usr/local/include/libairspy -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rtl_tcp -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/5.1.1 -I/usr/include/c++/5.1.1/x86_64-redhat-linux -I/usr/include/c++/5.1.1/backward -I/usr/lib/gcc/x86_64-redhat-linux/5.1.1/include -I/usr/local/include -I/usr/include src/input/sdrplay/sdrplay.h -o moc_sdrplay.cpp
+
+moc_airspy-handler.cpp: ../../../../include/qt5/QtCore/QObject \
+		../../../../include/qt5/QtCore/qobject.h \
+		../../../../include/qt5/QtCore/qobjectdefs.h \
+		../../../../include/qt5/QtCore/qnamespace.h \
+		../../../../include/qt5/QtCore/qglobal.h \
+		../../../../include/qt5/QtCore/qconfig.h \
+		../../../../include/qt5/QtCore/qconfig-64.h \
+		../../../../include/qt5/QtCore/qfeatures.h \
+		../../../../include/qt5/QtCore/qsystemdetection.h \
+		../../../../include/qt5/QtCore/qprocessordetection.h \
+		../../../../include/qt5/QtCore/qcompilerdetection.h \
+		../../../../include/qt5/QtCore/qtypeinfo.h \
+		../../../../include/qt5/QtCore/qtypetraits.h \
+		../../../../include/qt5/QtCore/qsysinfo.h \
+		../../../../include/qt5/QtCore/qlogging.h \
+		../../../../include/qt5/QtCore/qflags.h \
+		../../../../include/qt5/QtCore/qatomic.h \
+		../../../../include/qt5/QtCore/qbasicatomic.h \
+		../../../../include/qt5/QtCore/qatomic_bootstrap.h \
+		../../../../include/qt5/QtCore/qgenericatomic.h \
+		../../../../include/qt5/QtCore/qatomic_cxx11.h \
+		../../../../include/qt5/QtCore/qatomic_gcc.h \
+		../../../../include/qt5/QtCore/qatomic_msvc.h \
+		../../../../include/qt5/QtCore/qatomic_armv7.h \
+		../../../../include/qt5/QtCore/qatomic_armv6.h \
+		../../../../include/qt5/QtCore/qatomic_armv5.h \
+		../../../../include/qt5/QtCore/qatomic_ia64.h \
+		../../../../include/qt5/QtCore/qatomic_mips.h \
+		../../../../include/qt5/QtCore/qatomic_x86.h \
+		../../../../include/qt5/QtCore/qatomic_unix.h \
+		../../../../include/qt5/QtCore/qglobalstatic.h \
+		../../../../include/qt5/QtCore/qmutex.h \
+		../../../../include/qt5/QtCore/qnumeric.h \
+		../../../../include/qt5/QtCore/qobjectdefs_impl.h \
+		../../../../include/qt5/QtCore/qstring.h \
+		../../../../include/qt5/QtCore/qchar.h \
+		../../../../include/qt5/QtCore/qbytearray.h \
+		../../../../include/qt5/QtCore/qrefcount.h \
+		../../../../include/qt5/QtCore/qarraydata.h \
+		../../../../include/qt5/QtCore/qstringbuilder.h \
+		../../../../include/qt5/QtCore/qlist.h \
+		../../../../include/qt5/QtCore/qalgorithms.h \
+		../../../../include/qt5/QtCore/qiterator.h \
+		../../../../include/qt5/QtCore/qbytearraylist.h \
+		../../../../include/qt5/QtCore/qstringlist.h \
+		../../../../include/qt5/QtCore/qregexp.h \
+		../../../../include/qt5/QtCore/qstringmatcher.h \
+		../../../../include/qt5/QtCore/qcoreevent.h \
+		../../../../include/qt5/QtCore/qscopedpointer.h \
+		../../../../include/qt5/QtCore/qmetatype.h \
+		../../../../include/qt5/QtCore/qvarlengtharray.h \
+		../../../../include/qt5/QtCore/qcontainerfwd.h \
+		../../../../include/qt5/QtCore/qisenum.h \
+		../../../../include/qt5/QtCore/qobject_impl.h \
+		../../../../include/qt5/QtCore/QSettings \
+		../../../../include/qt5/QtCore/qsettings.h \
+		../../../../include/qt5/QtCore/qvariant.h \
+		../../../../include/qt5/QtCore/qmap.h \
+		../../../../include/qt5/QtCore/qpair.h \
+		../../../../include/qt5/QtCore/qdebug.h \
+		../../../../include/qt5/QtCore/qhash.h \
+		../../../../include/qt5/QtCore/qtextstream.h \
+		../../../../include/qt5/QtCore/qiodevice.h \
+		../../../../include/qt5/QtCore/qlocale.h \
+		../../../../include/qt5/QtCore/qshareddata.h \
+		../../../../include/qt5/QtCore/qvector.h \
+		../../../../include/qt5/QtCore/qpoint.h \
+		../../../../include/qt5/QtCore/qset.h \
+		../../../../include/qt5/QtCore/qcontiguouscache.h \
+		../../../../include/qt5/QtWidgets/QFrame \
+		../../../../include/qt5/QtWidgets/qframe.h \
+		../../../../include/qt5/QtWidgets/qwidget.h \
+		../../../../include/qt5/QtGui/qwindowdefs.h \
+		../../../../include/qt5/QtGui/qwindowdefs_win.h \
+		../../../../include/qt5/QtCore/qmargins.h \
+		../../../../include/qt5/QtGui/qpaintdevice.h \
+		../../../../include/qt5/QtCore/qrect.h \
+		../../../../include/qt5/QtCore/qsize.h \
+		../../../../include/qt5/QtGui/qpalette.h \
+		../../../../include/qt5/QtGui/qcolor.h \
+		../../../../include/qt5/QtGui/qrgb.h \
+		../../../../include/qt5/QtGui/qbrush.h \
+		../../../../include/qt5/QtGui/qmatrix.h \
+		../../../../include/qt5/QtGui/qpolygon.h \
+		../../../../include/qt5/QtGui/qregion.h \
+		../../../../include/qt5/QtCore/qdatastream.h \
+		../../../../include/qt5/QtCore/qline.h \
+		../../../../include/qt5/QtGui/qtransform.h \
+		../../../../include/qt5/QtGui/qpainterpath.h \
+		../../../../include/qt5/QtGui/qimage.h \
+		../../../../include/qt5/QtGui/qpixelformat.h \
+		../../../../include/qt5/QtGui/qpixmap.h \
+		../../../../include/qt5/QtCore/qsharedpointer.h \
+		../../../../include/qt5/QtCore/qsharedpointer_impl.h \
+		../../../../include/qt5/QtGui/qfont.h \
+		../../../../include/qt5/QtGui/qfontmetrics.h \
+		../../../../include/qt5/QtGui/qfontinfo.h \
+		../../../../include/qt5/QtWidgets/qsizepolicy.h \
+		../../../../include/qt5/QtGui/qcursor.h \
+		../../../../include/qt5/QtGui/qkeysequence.h \
+		../../../../include/qt5/QtGui/qevent.h \
+		../../../../include/qt5/QtCore/qurl.h \
+		../../../../include/qt5/QtCore/qurlquery.h \
+		../../../../include/qt5/QtCore/qfile.h \
+		../../../../include/qt5/QtCore/qfiledevice.h \
+		../../../../include/qt5/QtGui/qvector2d.h \
+		../../../../include/qt5/QtGui/qtouchdevice.h \
+		includes/dab-constants.h \
+		includes/various/ringbuffer.h \
+		src/input/virtual-input.h \
+		../../../../include/qt5/QtWidgets/QDialog \
+		../../../../include/qt5/QtWidgets/qdialog.h \
+		ui_airspy-widget.h \
+		../../../../local/include/libairspy/airspy.h \
+		../../../../local/include/libairspy/airspy_commands.h \
+		src/input/airspy/airspy-handler.h
+	/usr/lib64/qt5/bin/moc $(DEFINES) -I/usr/lib64/qt5/mkspecs/linux-g++ -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi/src -I/usr/shared/sdr-j-development/systems/dab-rpi/includes -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/ofdm -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/backend -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/output -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/various -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rawfiles -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/wavfiles -I/usr/local/include -I/home/jan/rtl-sdr/include -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/dabstick-new -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/sdrplay -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/airspy -I/usr/local/include/libairspy -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rtl_tcp -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/5.1.1 -I/usr/include/c++/5.1.1/x86_64-redhat-linux -I/usr/include/c++/5.1.1/backward -I/usr/lib/gcc/x86_64-redhat-linux/5.1.1/include -I/usr/local/include -I/usr/include src/input/airspy/airspy-handler.h -o moc_airspy-handler.cpp
 
 moc_streamer.cpp: ../../../../include/qt5/QtCore/QObject \
 		../../../../include/qt5/QtCore/qobject.h \
@@ -1988,21 +2257,329 @@ moc_streamer.cpp: ../../../../include/qt5/QtCore/QObject \
 		../../../../include/qt5/QtNetwork/QTcpSocket \
 		../../../../include/qt5/QtCore/QTimer \
 		includes/output/streamer.h
-	/usr/lib64/qt5/bin/moc $(DEFINES) -I/usr/lib64/qt5/mkspecs/linux-g++ -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi/src -I/usr/shared/sdr-j-development/systems/dab-rpi/includes -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/ofdm -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/backend -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/output -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/various -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rawfiles -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/wavfiles -I/usr/local/include -I/home/jan/rtl-sdr/include -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/dabstick-osmo -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/5.1.1 -I/usr/include/c++/5.1.1/x86_64-redhat-linux -I/usr/include/c++/5.1.1/backward -I/usr/lib/gcc/x86_64-redhat-linux/5.1.1/include -I/usr/local/include -I/usr/include includes/output/streamer.h -o moc_streamer.cpp
+	/usr/lib64/qt5/bin/moc $(DEFINES) -I/usr/lib64/qt5/mkspecs/linux-g++ -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi/src -I/usr/shared/sdr-j-development/systems/dab-rpi/includes -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/ofdm -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/backend -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/output -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/various -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rawfiles -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/wavfiles -I/usr/local/include -I/home/jan/rtl-sdr/include -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/dabstick-new -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/sdrplay -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/airspy -I/usr/local/include/libairspy -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rtl_tcp -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/5.1.1 -I/usr/include/c++/5.1.1/x86_64-redhat-linux -I/usr/include/c++/5.1.1/backward -I/usr/lib/gcc/x86_64-redhat-linux/5.1.1/include -I/usr/local/include -I/usr/include includes/output/streamer.h -o moc_streamer.cpp
+
+moc_rtl_tcp_client.cpp: ../../../../include/qt5/QtNetwork/QtNetwork \
+		../../../../include/qt5/QtNetwork/QtNetworkDepends \
+		../../../../include/qt5/QtCore/QtCore \
+		../../../../include/qt5/QtCore/QtCoreDepends \
+		../../../../include/qt5/QtCore/qabstractanimation.h \
+		../../../../include/qt5/QtCore/qobject.h \
+		../../../../include/qt5/QtCore/qobjectdefs.h \
+		../../../../include/qt5/QtCore/qnamespace.h \
+		../../../../include/qt5/QtCore/qglobal.h \
+		../../../../include/qt5/QtCore/qconfig.h \
+		../../../../include/qt5/QtCore/qconfig-64.h \
+		../../../../include/qt5/QtCore/qfeatures.h \
+		../../../../include/qt5/QtCore/qsystemdetection.h \
+		../../../../include/qt5/QtCore/qprocessordetection.h \
+		../../../../include/qt5/QtCore/qcompilerdetection.h \
+		../../../../include/qt5/QtCore/qtypeinfo.h \
+		../../../../include/qt5/QtCore/qtypetraits.h \
+		../../../../include/qt5/QtCore/qsysinfo.h \
+		../../../../include/qt5/QtCore/qlogging.h \
+		../../../../include/qt5/QtCore/qflags.h \
+		../../../../include/qt5/QtCore/qatomic.h \
+		../../../../include/qt5/QtCore/qbasicatomic.h \
+		../../../../include/qt5/QtCore/qatomic_bootstrap.h \
+		../../../../include/qt5/QtCore/qgenericatomic.h \
+		../../../../include/qt5/QtCore/qatomic_cxx11.h \
+		../../../../include/qt5/QtCore/qatomic_gcc.h \
+		../../../../include/qt5/QtCore/qatomic_msvc.h \
+		../../../../include/qt5/QtCore/qatomic_armv7.h \
+		../../../../include/qt5/QtCore/qatomic_armv6.h \
+		../../../../include/qt5/QtCore/qatomic_armv5.h \
+		../../../../include/qt5/QtCore/qatomic_ia64.h \
+		../../../../include/qt5/QtCore/qatomic_mips.h \
+		../../../../include/qt5/QtCore/qatomic_x86.h \
+		../../../../include/qt5/QtCore/qatomic_unix.h \
+		../../../../include/qt5/QtCore/qglobalstatic.h \
+		../../../../include/qt5/QtCore/qmutex.h \
+		../../../../include/qt5/QtCore/qnumeric.h \
+		../../../../include/qt5/QtCore/qobjectdefs_impl.h \
+		../../../../include/qt5/QtCore/qstring.h \
+		../../../../include/qt5/QtCore/qchar.h \
+		../../../../include/qt5/QtCore/qbytearray.h \
+		../../../../include/qt5/QtCore/qrefcount.h \
+		../../../../include/qt5/QtCore/qarraydata.h \
+		../../../../include/qt5/QtCore/qstringbuilder.h \
+		../../../../include/qt5/QtCore/qlist.h \
+		../../../../include/qt5/QtCore/qalgorithms.h \
+		../../../../include/qt5/QtCore/qiterator.h \
+		../../../../include/qt5/QtCore/qbytearraylist.h \
+		../../../../include/qt5/QtCore/qstringlist.h \
+		../../../../include/qt5/QtCore/qregexp.h \
+		../../../../include/qt5/QtCore/qstringmatcher.h \
+		../../../../include/qt5/QtCore/qcoreevent.h \
+		../../../../include/qt5/QtCore/qscopedpointer.h \
+		../../../../include/qt5/QtCore/qmetatype.h \
+		../../../../include/qt5/QtCore/qvarlengtharray.h \
+		../../../../include/qt5/QtCore/qcontainerfwd.h \
+		../../../../include/qt5/QtCore/qisenum.h \
+		../../../../include/qt5/QtCore/qobject_impl.h \
+		../../../../include/qt5/QtCore/qanimationgroup.h \
+		../../../../include/qt5/QtCore/qparallelanimationgroup.h \
+		../../../../include/qt5/QtCore/qpauseanimation.h \
+		../../../../include/qt5/QtCore/qpropertyanimation.h \
+		../../../../include/qt5/QtCore/qvariantanimation.h \
+		../../../../include/qt5/QtCore/qeasingcurve.h \
+		../../../../include/qt5/QtCore/qvector.h \
+		../../../../include/qt5/QtCore/qpoint.h \
+		../../../../include/qt5/QtCore/qvariant.h \
+		../../../../include/qt5/QtCore/qmap.h \
+		../../../../include/qt5/QtCore/qpair.h \
+		../../../../include/qt5/QtCore/qdebug.h \
+		../../../../include/qt5/QtCore/qhash.h \
+		../../../../include/qt5/QtCore/qtextstream.h \
+		../../../../include/qt5/QtCore/qiodevice.h \
+		../../../../include/qt5/QtCore/qlocale.h \
+		../../../../include/qt5/QtCore/qshareddata.h \
+		../../../../include/qt5/QtCore/qset.h \
+		../../../../include/qt5/QtCore/qcontiguouscache.h \
+		../../../../include/qt5/QtCore/qsequentialanimationgroup.h \
+		../../../../include/qt5/QtCore/qtextcodec.h \
+		../../../../include/qt5/QtCore/qendian.h \
+		../../../../include/qt5/QtCore/qlibraryinfo.h \
+		../../../../include/qt5/QtCore/qdatetime.h \
+		../../../../include/qt5/QtCore/qbuffer.h \
+		../../../../include/qt5/QtCore/qdatastream.h \
+		../../../../include/qt5/QtCore/qdir.h \
+		../../../../include/qt5/QtCore/qfileinfo.h \
+		../../../../include/qt5/QtCore/qfile.h \
+		../../../../include/qt5/QtCore/qfiledevice.h \
+		../../../../include/qt5/QtCore/qdiriterator.h \
+		../../../../include/qt5/QtCore/qfileselector.h \
+		../../../../include/qt5/QtCore/QObject \
+		../../../../include/qt5/QtCore/QStringList \
+		../../../../include/qt5/QtCore/qfilesystemwatcher.h \
+		../../../../include/qt5/QtCore/qlockfile.h \
+		../../../../include/qt5/QtCore/qloggingcategory.h \
+		../../../../include/qt5/QtCore/qprocess.h \
+		../../../../include/qt5/QtCore/qresource.h \
+		../../../../include/qt5/QtCore/qsavefile.h \
+		../../../../include/qt5/QtCore/qsettings.h \
+		../../../../include/qt5/QtCore/qstandardpaths.h \
+		../../../../include/qt5/QtCore/qstorageinfo.h \
+		../../../../include/qt5/QtCore/qtemporarydir.h \
+		../../../../include/qt5/QtCore/QScopedPointer \
+		../../../../include/qt5/QtCore/qtemporaryfile.h \
+		../../../../include/qt5/QtCore/qurl.h \
+		../../../../include/qt5/QtCore/qurlquery.h \
+		../../../../include/qt5/QtCore/qabstractitemmodel.h \
+		../../../../include/qt5/QtCore/qabstractproxymodel.h \
+		../../../../include/qt5/QtCore/qidentityproxymodel.h \
+		../../../../include/qt5/QtCore/qitemselectionmodel.h \
+		../../../../include/qt5/QtCore/qsortfilterproxymodel.h \
+		../../../../include/qt5/QtCore/qstringlistmodel.h \
+		../../../../include/qt5/QtCore/qjsonarray.h \
+		../../../../include/qt5/QtCore/qjsonvalue.h \
+		../../../../include/qt5/QtCore/qjsondocument.h \
+		../../../../include/qt5/QtCore/qjsonobject.h \
+		../../../../include/qt5/QtCore/qabstracteventdispatcher.h \
+		../../../../include/qt5/QtCore/qeventloop.h \
+		../../../../include/qt5/QtCore/qabstractnativeeventfilter.h \
+		../../../../include/qt5/QtCore/qbasictimer.h \
+		../../../../include/qt5/QtCore/qcoreapplication.h \
+		../../../../include/qt5/QtCore/qmath.h \
+		../../../../include/qt5/QtCore/qmetaobject.h \
+		../../../../include/qt5/QtCore/qmimedata.h \
+		../../../../include/qt5/QtCore/qobjectcleanuphandler.h \
+		../../../../include/qt5/QtCore/qpointer.h \
+		../../../../include/qt5/QtCore/qsharedpointer.h \
+		../../../../include/qt5/QtCore/qsharedpointer_impl.h \
+		../../../../include/qt5/QtCore/qsharedmemory.h \
+		../../../../include/qt5/QtCore/qsignalmapper.h \
+		../../../../include/qt5/QtCore/qsocketnotifier.h \
+		../../../../include/qt5/QtCore/qsystemsemaphore.h \
+		../../../../include/qt5/QtCore/qtimer.h \
+		../../../../include/qt5/QtCore/qtranslator.h \
+		../../../../include/qt5/QtCore/qwineventnotifier.h \
+		../../../../include/qt5/QtCore/qmimedatabase.h \
+		../../../../include/qt5/QtCore/qmimetype.h \
+		../../../../include/qt5/QtCore/qfactoryinterface.h \
+		../../../../include/qt5/QtCore/qlibrary.h \
+		../../../../include/qt5/QtCore/qplugin.h \
+		../../../../include/qt5/QtCore/qpluginloader.h \
+		../../../../include/qt5/QtCore/quuid.h \
+		../../../../include/qt5/QtCore/qabstractstate.h \
+		../../../../include/qt5/QtCore/qabstracttransition.h \
+		../../../../include/qt5/QtCore/qeventtransition.h \
+		../../../../include/qt5/QtCore/qfinalstate.h \
+		../../../../include/qt5/QtCore/qhistorystate.h \
+		../../../../include/qt5/QtCore/qsignaltransition.h \
+		../../../../include/qt5/QtCore/qstate.h \
+		../../../../include/qt5/QtCore/qstatemachine.h \
+		../../../../include/qt5/QtCore/qexception.h \
+		../../../../include/qt5/QtCore/qfuture.h \
+		../../../../include/qt5/QtCore/qfutureinterface.h \
+		../../../../include/qt5/QtCore/qrunnable.h \
+		../../../../include/qt5/QtCore/qresultstore.h \
+		../../../../include/qt5/QtCore/qfuturesynchronizer.h \
+		../../../../include/qt5/QtCore/qfuturewatcher.h \
+		../../../../include/qt5/QtCore/qreadwritelock.h \
+		../../../../include/qt5/QtCore/qsemaphore.h \
+		../../../../include/qt5/QtCore/qthread.h \
+		../../../../include/qt5/QtCore/qthreadpool.h \
+		../../../../include/qt5/QtCore/qthreadstorage.h \
+		../../../../include/qt5/QtCore/qwaitcondition.h \
+		../../../../include/qt5/QtCore/qarraydataops.h \
+		../../../../include/qt5/QtCore/qarraydatapointer.h \
+		../../../../include/qt5/QtCore/qbitarray.h \
+		../../../../include/qt5/QtCore/qbytearraymatcher.h \
+		../../../../include/qt5/QtCore/qcache.h \
+		../../../../include/qt5/QtCore/qcollator.h \
+		../../../../include/qt5/QtCore/qcommandlineoption.h \
+		../../../../include/qt5/QtCore/qcommandlineparser.h \
+		../../../../include/qt5/QtCore/qcryptographichash.h \
+		../../../../include/qt5/QtCore/qelapsedtimer.h \
+		../../../../include/qt5/QtCore/qline.h \
+		../../../../include/qt5/QtCore/qlinkedlist.h \
+		../../../../include/qt5/QtCore/qmargins.h \
+		../../../../include/qt5/QtCore/qmessageauthenticationcode.h \
+		../../../../include/qt5/QtCore/qqueue.h \
+		../../../../include/qt5/QtCore/qrect.h \
+		../../../../include/qt5/QtCore/qsize.h \
+		../../../../include/qt5/QtCore/qregularexpression.h \
+		../../../../include/qt5/QtCore/qscopedvaluerollback.h \
+		../../../../include/qt5/QtCore/qstack.h \
+		../../../../include/qt5/QtCore/qtextboundaryfinder.h \
+		../../../../include/qt5/QtCore/qtimeline.h \
+		../../../../include/qt5/QtCore/qtimezone.h \
+		../../../../include/qt5/QtCore/qxmlstream.h \
+		../../../../include/qt5/QtCore/qtcoreversion.h \
+		../../../../include/qt5/QtNetwork/qabstractnetworkcache.h \
+		../../../../include/qt5/QtNetwork/qnetworkrequest.h \
+		../../../../include/qt5/QtCore/QSharedDataPointer \
+		../../../../include/qt5/QtCore/QString \
+		../../../../include/qt5/QtCore/QUrl \
+		../../../../include/qt5/QtCore/QVariant \
+		../../../../include/qt5/QtNetwork/qhttpmultipart.h \
+		../../../../include/qt5/QtCore/QByteArray \
+		../../../../include/qt5/QtCore/QIODevice \
+		../../../../include/qt5/QtNetwork/QNetworkRequest \
+		../../../../include/qt5/QtNetwork/qnetworkaccessmanager.h \
+		../../../../include/qt5/QtNetwork/QSslConfiguration \
+		../../../../include/qt5/QtNetwork/qsslconfiguration.h \
+		../../../../include/qt5/QtNetwork/qsslsocket.h \
+		../../../../include/qt5/QtNetwork/qtcpsocket.h \
+		../../../../include/qt5/QtNetwork/qabstractsocket.h \
+		../../../../include/qt5/QtNetwork/qsslerror.h \
+		../../../../include/qt5/QtNetwork/qsslcertificate.h \
+		../../../../include/qt5/QtNetwork/qssl.h \
+		../../../../include/qt5/QtCore/QFlags \
+		../../../../include/qt5/QtNetwork/QSslPreSharedKeyAuthenticator \
+		../../../../include/qt5/QtNetwork/qsslpresharedkeyauthenticator.h \
+		../../../../include/qt5/QtCore/QtGlobal \
+		../../../../include/qt5/QtCore/QMetaType \
+		../../../../include/qt5/QtNetwork/qnetworkcookie.h \
+		../../../../include/qt5/QtCore/QList \
+		../../../../include/qt5/QtNetwork/qnetworkcookiejar.h \
+		../../../../include/qt5/QtNetwork/qnetworkdiskcache.h \
+		../../../../include/qt5/QtNetwork/qnetworkreply.h \
+		../../../../include/qt5/QtNetwork/QNetworkAccessManager \
+		../../../../include/qt5/QtNetwork/qnetworkconfigmanager.h \
+		../../../../include/qt5/QtNetwork/qnetworkconfiguration.h \
+		../../../../include/qt5/QtNetwork/qnetworksession.h \
+		../../../../include/qt5/QtNetwork/qnetworkinterface.h \
+		../../../../include/qt5/QtNetwork/qhostaddress.h \
+		../../../../include/qt5/QtNetwork/qauthenticator.h \
+		../../../../include/qt5/QtNetwork/qdnslookup.h \
+		../../../../include/qt5/QtNetwork/qhostinfo.h \
+		../../../../include/qt5/QtNetwork/qnetworkproxy.h \
+		../../../../include/qt5/QtNetwork/qlocalserver.h \
+		../../../../include/qt5/QtNetwork/qlocalsocket.h \
+		../../../../include/qt5/QtNetwork/qtcpserver.h \
+		../../../../include/qt5/QtNetwork/qudpsocket.h \
+		../../../../include/qt5/QtNetwork/qsslcertificateextension.h \
+		../../../../include/qt5/QtNetwork/qsslcipher.h \
+		../../../../include/qt5/QtNetwork/qsslellipticcurve.h \
+		../../../../include/qt5/QtCore/QHash \
+		../../../../include/qt5/QtNetwork/qsslkey.h \
+		../../../../include/qt5/QtNetwork/qtnetworkversion.h \
+		../../../../include/qt5/QtCore/QSettings \
+		../../../../include/qt5/QtWidgets/QLabel \
+		../../../../include/qt5/QtWidgets/qlabel.h \
+		../../../../include/qt5/QtWidgets/qframe.h \
+		../../../../include/qt5/QtWidgets/qwidget.h \
+		../../../../include/qt5/QtGui/qwindowdefs.h \
+		../../../../include/qt5/QtGui/qwindowdefs_win.h \
+		../../../../include/qt5/QtGui/qpaintdevice.h \
+		../../../../include/qt5/QtGui/qpalette.h \
+		../../../../include/qt5/QtGui/qcolor.h \
+		../../../../include/qt5/QtGui/qrgb.h \
+		../../../../include/qt5/QtGui/qbrush.h \
+		../../../../include/qt5/QtGui/qmatrix.h \
+		../../../../include/qt5/QtGui/qpolygon.h \
+		../../../../include/qt5/QtGui/qregion.h \
+		../../../../include/qt5/QtGui/qtransform.h \
+		../../../../include/qt5/QtGui/qpainterpath.h \
+		../../../../include/qt5/QtGui/qimage.h \
+		../../../../include/qt5/QtGui/qpixelformat.h \
+		../../../../include/qt5/QtGui/qpixmap.h \
+		../../../../include/qt5/QtGui/qfont.h \
+		../../../../include/qt5/QtGui/qfontmetrics.h \
+		../../../../include/qt5/QtGui/qfontinfo.h \
+		../../../../include/qt5/QtWidgets/qsizepolicy.h \
+		../../../../include/qt5/QtGui/qcursor.h \
+		../../../../include/qt5/QtGui/qkeysequence.h \
+		../../../../include/qt5/QtGui/qevent.h \
+		../../../../include/qt5/QtGui/qvector2d.h \
+		../../../../include/qt5/QtGui/qtouchdevice.h \
+		../../../../include/qt5/QtWidgets/QMessageBox \
+		../../../../include/qt5/QtWidgets/qmessagebox.h \
+		../../../../include/qt5/QtWidgets/qdialog.h \
+		../../../../include/qt5/QtWidgets/QLineEdit \
+		../../../../include/qt5/QtWidgets/qlineedit.h \
+		../../../../include/qt5/QtGui/qtextcursor.h \
+		../../../../include/qt5/QtGui/qtextformat.h \
+		../../../../include/qt5/QtGui/qpen.h \
+		../../../../include/qt5/QtGui/qtextoption.h \
+		../../../../include/qt5/QtNetwork/QHostAddress \
+		../../../../include/qt5/QtNetwork/QTcpSocket \
+		../../../../include/qt5/QtCore/QTimer \
+		../../../../include/qt5/QtWidgets/QComboBox \
+		../../../../include/qt5/QtWidgets/qcombobox.h \
+		../../../../include/qt5/QtWidgets/qabstractitemdelegate.h \
+		../../../../include/qt5/QtWidgets/qstyleoption.h \
+		../../../../include/qt5/QtWidgets/qabstractspinbox.h \
+		../../../../include/qt5/QtGui/qvalidator.h \
+		../../../../include/qt5/QtGui/qicon.h \
+		../../../../include/qt5/QtWidgets/qslider.h \
+		../../../../include/qt5/QtWidgets/qabstractslider.h \
+		../../../../include/qt5/QtWidgets/qstyle.h \
+		../../../../include/qt5/QtWidgets/qtabbar.h \
+		../../../../include/qt5/QtWidgets/qtabwidget.h \
+		../../../../include/qt5/QtWidgets/qrubberband.h \
+		includes/dab-constants.h \
+		src/input/virtual-input.h \
+		../../../../include/qt5/QtWidgets/QDialog \
+		includes/various/ringbuffer.h \
+		ui_rtl_tcp-widget.h \
+		src/input/rtl_tcp/rtl_tcp_client.h
+	/usr/lib64/qt5/bin/moc $(DEFINES) -I/usr/lib64/qt5/mkspecs/linux-g++ -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi/src -I/usr/shared/sdr-j-development/systems/dab-rpi/includes -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/ofdm -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/backend -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/output -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/various -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rawfiles -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/wavfiles -I/usr/local/include -I/home/jan/rtl-sdr/include -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/dabstick-new -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/sdrplay -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/airspy -I/usr/local/include/libairspy -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rtl_tcp -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/5.1.1 -I/usr/include/c++/5.1.1/x86_64-redhat-linux -I/usr/include/c++/5.1.1/backward -I/usr/lib/gcc/x86_64-redhat-linux/5.1.1/include -I/usr/local/include -I/usr/include src/input/rtl_tcp/rtl_tcp_client.h -o moc_rtl_tcp_client.cpp
 
 compiler_moc_source_make_all:
 compiler_moc_source_clean:
-compiler_uic_make_all: ui_sdrgui.h ui_filereader-widget.h ui_dabstick-widget.h
+compiler_uic_make_all: ui_sdrgui.h ui_filereader-widget.h ui_dabstick-widget.h ui_sdrplay-widget.h ui_airspy-widget.h ui_rtl_tcp-widget.h
 compiler_uic_clean:
-	-$(DEL_FILE) ui_sdrgui.h ui_filereader-widget.h ui_dabstick-widget.h
+	-$(DEL_FILE) ui_sdrgui.h ui_filereader-widget.h ui_dabstick-widget.h ui_sdrplay-widget.h ui_airspy-widget.h ui_rtl_tcp-widget.h
 ui_sdrgui.h: sdrgui.ui
 	/usr/lib64/qt5/bin/uic sdrgui.ui -o ui_sdrgui.h
 
 ui_filereader-widget.h: src/input/filereader-widget.ui
 	/usr/lib64/qt5/bin/uic src/input/filereader-widget.ui -o ui_filereader-widget.h
 
-ui_dabstick-widget.h: src/input/dabstick-osmo/dabstick-widget.ui
-	/usr/lib64/qt5/bin/uic src/input/dabstick-osmo/dabstick-widget.ui -o ui_dabstick-widget.h
+ui_dabstick-widget.h: src/input/dabstick-new/dabstick-widget.ui
+	/usr/lib64/qt5/bin/uic src/input/dabstick-new/dabstick-widget.ui -o ui_dabstick-widget.h
+
+ui_sdrplay-widget.h: src/input/sdrplay/sdrplay-widget.ui
+	/usr/lib64/qt5/bin/uic src/input/sdrplay/sdrplay-widget.ui -o ui_sdrplay-widget.h
+
+ui_airspy-widget.h: src/input/airspy/airspy-widget.ui
+	/usr/lib64/qt5/bin/uic src/input/airspy/airspy-widget.ui -o ui_airspy-widget.h
+
+ui_rtl_tcp-widget.h: src/input/rtl_tcp/rtl_tcp-widget.ui
+	/usr/lib64/qt5/bin/uic src/input/rtl_tcp/rtl_tcp-widget.ui -o ui_rtl_tcp-widget.h
 
 compiler_yacc_decl_make_all:
 compiler_yacc_decl_clean:
@@ -2133,7 +2710,6 @@ main.o: main.cpp ../../../../include/qt5/QtWidgets/QApplication \
 		../../../../include/qt5/QtWidgets/QDialog \
 		../../../../include/qt5/QtWidgets/qdialog.h \
 		ui_sdrgui.h \
-		../../../../include/qt5/QtCore/QVariant \
 		../../../../include/qt5/QtCore/QTimer \
 		../../../../include/qt5/QtCore/qtimer.h \
 		../../../../include/qt5/QtCore/qbasictimer.h \
@@ -2141,6 +2717,10 @@ main.o: main.cpp ../../../../include/qt5/QtWidgets/QApplication \
 		../../../../include/qt5/QtCore/QStringListModel \
 		../../../../include/qt5/QtCore/qstringlistmodel.h \
 		../../../../include/qt5/QtCore/qabstractitemmodel.h \
+		../../../../include/qt5/QtNetwork/QUdpSocket \
+		../../../../include/qt5/QtNetwork/qudpsocket.h \
+		../../../../include/qt5/QtNetwork/qabstractsocket.h \
+		../../../../include/qt5/QtNetwork/qhostaddress.h \
 		includes/ofdm/ofdm-processor.h \
 		../../../../include/qt5/QtCore/QThread \
 		../../../../include/qt5/QtCore/qthread.h \
@@ -2283,10 +2863,13 @@ gui.o: gui.cpp ../../../../include/qt5/QtCore/QSettings \
 		gui.h \
 		../../../../include/qt5/QtWidgets/QDialog \
 		ui_sdrgui.h \
-		../../../../include/qt5/QtCore/QVariant \
 		../../../../include/qt5/QtCore/QTimer \
 		../../../../include/qt5/QtCore/qtimer.h \
 		../../../../include/qt5/QtCore/qbasictimer.h \
+		../../../../include/qt5/QtNetwork/QUdpSocket \
+		../../../../include/qt5/QtNetwork/qudpsocket.h \
+		../../../../include/qt5/QtNetwork/qabstractsocket.h \
+		../../../../include/qt5/QtNetwork/qhostaddress.h \
 		includes/ofdm/ofdm-processor.h \
 		../../../../include/qt5/QtCore/QThread \
 		../../../../include/qt5/QtCore/qthread.h \
@@ -2307,8 +2890,6 @@ gui.o: gui.cpp ../../../../include/qt5/QtCore/QSettings \
 		includes/output/streamer.h \
 		../../../../include/qt5/QtCore/QByteArray \
 		../../../../include/qt5/QtNetwork/QHostAddress \
-		../../../../include/qt5/QtNetwork/qhostaddress.h \
-		../../../../include/qt5/QtNetwork/qabstractsocket.h \
 		../../../../include/qt5/QtNetwork/QtNetwork \
 		../../../../include/qt5/QtNetwork/QtNetworkDepends \
 		../../../../include/qt5/QtCore/QtCore \
@@ -2413,6 +2994,7 @@ gui.o: gui.cpp ../../../../include/qt5/QtCore/QSettings \
 		../../../../include/qt5/QtNetwork/qnetworkrequest.h \
 		../../../../include/qt5/QtCore/QSharedDataPointer \
 		../../../../include/qt5/QtCore/QUrl \
+		../../../../include/qt5/QtCore/QVariant \
 		../../../../include/qt5/QtNetwork/qhttpmultipart.h \
 		../../../../include/qt5/QtCore/QIODevice \
 		../../../../include/qt5/QtNetwork/QNetworkRequest \
@@ -2446,7 +3028,6 @@ gui.o: gui.cpp ../../../../include/qt5/QtCore/QSettings \
 		../../../../include/qt5/QtNetwork/qlocalserver.h \
 		../../../../include/qt5/QtNetwork/qlocalsocket.h \
 		../../../../include/qt5/QtNetwork/qtcpserver.h \
-		../../../../include/qt5/QtNetwork/qudpsocket.h \
 		../../../../include/qt5/QtNetwork/qsslcertificateextension.h \
 		../../../../include/qt5/QtNetwork/qsslcipher.h \
 		../../../../include/qt5/QtNetwork/qsslellipticcurve.h \
@@ -2460,8 +3041,8 @@ gui.o: gui.cpp ../../../../include/qt5/QtCore/QSettings \
 		../../../../include/qt5/QtWidgets/qframe.h \
 		ui_filereader-widget.h \
 		src/input/wavfiles/wavfiles.h \
-		src/input/dabstick-osmo/dabstick.h \
-		src/input/dabstick-osmo/dongleselect.h \
+		src/input/dabstick-new/dabstick.h \
+		src/input/dabstick-new/dongleselect.h \
 		../../../../include/qt5/QtWidgets/QLabel \
 		../../../../include/qt5/QtWidgets/qlabel.h \
 		../../../../include/qt5/QtWidgets/QListView \
@@ -2479,7 +3060,23 @@ gui.o: gui.cpp ../../../../include/qt5/QtCore/QSettings \
 		../../../../include/qt5/QtWidgets/qtabbar.h \
 		../../../../include/qt5/QtWidgets/qtabwidget.h \
 		../../../../include/qt5/QtWidgets/qrubberband.h \
-		ui_dabstick-widget.h
+		ui_dabstick-widget.h \
+		src/input/sdrplay/sdrplay.h \
+		ui_sdrplay-widget.h \
+		src/input/rtl_tcp/rtl_tcp_client.h \
+		../../../../include/qt5/QtWidgets/QLineEdit \
+		../../../../include/qt5/QtWidgets/qlineedit.h \
+		../../../../include/qt5/QtGui/qtextcursor.h \
+		../../../../include/qt5/QtGui/qtextformat.h \
+		../../../../include/qt5/QtGui/qpen.h \
+		../../../../include/qt5/QtGui/qtextoption.h \
+		../../../../include/qt5/QtWidgets/QComboBox \
+		../../../../include/qt5/QtWidgets/qcombobox.h \
+		ui_rtl_tcp-widget.h \
+		src/input/airspy/airspy-handler.h \
+		ui_airspy-widget.h \
+		../../../../local/include/libairspy/airspy.h \
+		../../../../local/include/libairspy/airspy_commands.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o gui.o gui.cpp
 
 ofdm-processor.o: src/ofdm/ofdm-processor.cpp includes/ofdm/ofdm-processor.h \
@@ -2610,14 +3207,17 @@ ofdm-processor.o: src/ofdm/ofdm-processor.cpp includes/ofdm/ofdm-processor.h \
 		../../../../include/qt5/QtCore/QMutex \
 		gui.h \
 		ui_sdrgui.h \
-		../../../../include/qt5/QtCore/QVariant \
 		../../../../include/qt5/QtCore/QTimer \
 		../../../../include/qt5/QtCore/qtimer.h \
 		../../../../include/qt5/QtCore/qbasictimer.h \
 		../../../../include/qt5/QtCore/QStringList \
 		../../../../include/qt5/QtCore/QStringListModel \
 		../../../../include/qt5/QtCore/qstringlistmodel.h \
-		../../../../include/qt5/QtCore/qabstractitemmodel.h
+		../../../../include/qt5/QtCore/qabstractitemmodel.h \
+		../../../../include/qt5/QtNetwork/QUdpSocket \
+		../../../../include/qt5/QtNetwork/qudpsocket.h \
+		../../../../include/qt5/QtNetwork/qabstractsocket.h \
+		../../../../include/qt5/QtNetwork/qhostaddress.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ofdm-processor.o src/ofdm/ofdm-processor.cpp
 
 ofdm-decoder.o: src/ofdm/ofdm-decoder.cpp includes/ofdm/ofdm-decoder.h \
@@ -2735,7 +3335,6 @@ ofdm-decoder.o: src/ofdm/ofdm-decoder.cpp includes/ofdm/ofdm-decoder.h \
 		../../../../include/qt5/QtGui/qvector2d.h \
 		../../../../include/qt5/QtGui/qtouchdevice.h \
 		ui_sdrgui.h \
-		../../../../include/qt5/QtCore/QVariant \
 		../../../../include/qt5/QtCore/QTimer \
 		../../../../include/qt5/QtCore/qtimer.h \
 		../../../../include/qt5/QtCore/qbasictimer.h \
@@ -2743,6 +3342,10 @@ ofdm-decoder.o: src/ofdm/ofdm-decoder.cpp includes/ofdm/ofdm-decoder.h \
 		../../../../include/qt5/QtCore/QStringListModel \
 		../../../../include/qt5/QtCore/qstringlistmodel.h \
 		../../../../include/qt5/QtCore/qabstractitemmodel.h \
+		../../../../include/qt5/QtNetwork/QUdpSocket \
+		../../../../include/qt5/QtNetwork/qudpsocket.h \
+		../../../../include/qt5/QtNetwork/qabstractsocket.h \
+		../../../../include/qt5/QtNetwork/qhostaddress.h \
 		includes/ofdm/ofdm-processor.h \
 		../../../../include/qt5/QtCore/QObject \
 		includes/ofdm/phasereference.h \
@@ -2889,7 +3492,6 @@ fic-handler.o: src/backend/fic-handler.cpp includes/backend/fic-handler.h \
 		../../../../include/qt5/QtGui/qvector2d.h \
 		../../../../include/qt5/QtGui/qtouchdevice.h \
 		ui_sdrgui.h \
-		../../../../include/qt5/QtCore/QVariant \
 		../../../../include/qt5/QtCore/QTimer \
 		../../../../include/qt5/QtCore/qtimer.h \
 		../../../../include/qt5/QtCore/qbasictimer.h \
@@ -2897,6 +3499,10 @@ fic-handler.o: src/backend/fic-handler.cpp includes/backend/fic-handler.h \
 		../../../../include/qt5/QtCore/QStringListModel \
 		../../../../include/qt5/QtCore/qstringlistmodel.h \
 		../../../../include/qt5/QtCore/qabstractitemmodel.h \
+		../../../../include/qt5/QtNetwork/QUdpSocket \
+		../../../../include/qt5/QtNetwork/qudpsocket.h \
+		../../../../include/qt5/QtNetwork/qabstractsocket.h \
+		../../../../include/qt5/QtNetwork/qhostaddress.h \
 		includes/ofdm/ofdm-processor.h \
 		../../../../include/qt5/QtCore/QThread \
 		../../../../include/qt5/QtCore/qthread.h \
@@ -3028,7 +3634,6 @@ msc-handler.o: src/backend/msc-handler.cpp includes/dab-constants.h \
 		../../../../include/qt5/QtGui/qvector2d.h \
 		../../../../include/qt5/QtGui/qtouchdevice.h \
 		ui_sdrgui.h \
-		../../../../include/qt5/QtCore/QVariant \
 		../../../../include/qt5/QtCore/QTimer \
 		../../../../include/qt5/QtCore/qtimer.h \
 		../../../../include/qt5/QtCore/qbasictimer.h \
@@ -3036,6 +3641,10 @@ msc-handler.o: src/backend/msc-handler.cpp includes/dab-constants.h \
 		../../../../include/qt5/QtCore/QStringListModel \
 		../../../../include/qt5/QtCore/qstringlistmodel.h \
 		../../../../include/qt5/QtCore/qabstractitemmodel.h \
+		../../../../include/qt5/QtNetwork/QUdpSocket \
+		../../../../include/qt5/QtNetwork/qudpsocket.h \
+		../../../../include/qt5/QtNetwork/qabstractsocket.h \
+		../../../../include/qt5/QtNetwork/qhostaddress.h \
 		includes/ofdm/ofdm-processor.h \
 		../../../../include/qt5/QtCore/QThread \
 		../../../../include/qt5/QtCore/qthread.h \
@@ -3176,7 +3785,6 @@ fib-processor.o: src/backend/fib-processor.cpp includes/backend/fib-processor.h 
 		../../../../include/qt5/QtGui/qvector2d.h \
 		../../../../include/qt5/QtGui/qtouchdevice.h \
 		ui_sdrgui.h \
-		../../../../include/qt5/QtCore/QVariant \
 		../../../../include/qt5/QtCore/QTimer \
 		../../../../include/qt5/QtCore/qtimer.h \
 		../../../../include/qt5/QtCore/qbasictimer.h \
@@ -3184,6 +3792,10 @@ fib-processor.o: src/backend/fib-processor.cpp includes/backend/fib-processor.h 
 		../../../../include/qt5/QtCore/QStringListModel \
 		../../../../include/qt5/QtCore/qstringlistmodel.h \
 		../../../../include/qt5/QtCore/qabstractitemmodel.h \
+		../../../../include/qt5/QtNetwork/QUdpSocket \
+		../../../../include/qt5/QtNetwork/qudpsocket.h \
+		../../../../include/qt5/QtNetwork/qabstractsocket.h \
+		../../../../include/qt5/QtNetwork/qhostaddress.h \
 		includes/ofdm/ofdm-processor.h \
 		../../../../include/qt5/QtCore/QThread \
 		../../../../include/qt5/QtCore/qthread.h \
@@ -3313,7 +3925,6 @@ mp2processor.o: src/backend/mp2processor.cpp includes/backend/mp2processor.h \
 		../../../../include/qt5/QtGui/qvector2d.h \
 		../../../../include/qt5/QtGui/qtouchdevice.h \
 		ui_sdrgui.h \
-		../../../../include/qt5/QtCore/QVariant \
 		../../../../include/qt5/QtCore/QTimer \
 		../../../../include/qt5/QtCore/qtimer.h \
 		../../../../include/qt5/QtCore/qbasictimer.h \
@@ -3321,6 +3932,10 @@ mp2processor.o: src/backend/mp2processor.cpp includes/backend/mp2processor.h \
 		../../../../include/qt5/QtCore/QStringListModel \
 		../../../../include/qt5/QtCore/qstringlistmodel.h \
 		../../../../include/qt5/QtCore/qabstractitemmodel.h \
+		../../../../include/qt5/QtNetwork/QUdpSocket \
+		../../../../include/qt5/QtNetwork/qudpsocket.h \
+		../../../../include/qt5/QtNetwork/qabstractsocket.h \
+		../../../../include/qt5/QtNetwork/qhostaddress.h \
 		includes/ofdm/ofdm-processor.h \
 		../../../../include/qt5/QtCore/QThread \
 		../../../../include/qt5/QtCore/qthread.h \
@@ -3492,7 +4107,6 @@ mp4processor.o: src/backend/mp4processor.cpp includes/backend/mp4processor.h \
 		../../../../include/qt5/QtGui/qvector2d.h \
 		../../../../include/qt5/QtGui/qtouchdevice.h \
 		ui_sdrgui.h \
-		../../../../include/qt5/QtCore/QVariant \
 		../../../../include/qt5/QtCore/QTimer \
 		../../../../include/qt5/QtCore/qtimer.h \
 		../../../../include/qt5/QtCore/qbasictimer.h \
@@ -3500,6 +4114,10 @@ mp4processor.o: src/backend/mp4processor.cpp includes/backend/mp4processor.h \
 		../../../../include/qt5/QtCore/QStringListModel \
 		../../../../include/qt5/QtCore/qstringlistmodel.h \
 		../../../../include/qt5/QtCore/qabstractitemmodel.h \
+		../../../../include/qt5/QtNetwork/QUdpSocket \
+		../../../../include/qt5/QtNetwork/qudpsocket.h \
+		../../../../include/qt5/QtNetwork/qabstractsocket.h \
+		../../../../include/qt5/QtNetwork/qhostaddress.h \
 		includes/ofdm/ofdm-processor.h \
 		../../../../include/qt5/QtCore/QThread \
 		../../../../include/qt5/QtCore/qthread.h \
@@ -3626,7 +4244,6 @@ pad-handler.o: src/backend/pad-handler.cpp includes/backend/pad-handler.h \
 		../../../../include/qt5/QtGui/qvector2d.h \
 		../../../../include/qt5/QtGui/qtouchdevice.h \
 		ui_sdrgui.h \
-		../../../../include/qt5/QtCore/QVariant \
 		../../../../include/qt5/QtCore/QTimer \
 		../../../../include/qt5/QtCore/qtimer.h \
 		../../../../include/qt5/QtCore/qbasictimer.h \
@@ -3634,6 +4251,10 @@ pad-handler.o: src/backend/pad-handler.cpp includes/backend/pad-handler.h \
 		../../../../include/qt5/QtCore/QStringListModel \
 		../../../../include/qt5/QtCore/qstringlistmodel.h \
 		../../../../include/qt5/QtCore/qabstractitemmodel.h \
+		../../../../include/qt5/QtNetwork/QUdpSocket \
+		../../../../include/qt5/QtNetwork/qudpsocket.h \
+		../../../../include/qt5/QtNetwork/qabstractsocket.h \
+		../../../../include/qt5/QtNetwork/qhostaddress.h \
 		includes/ofdm/ofdm-processor.h \
 		../../../../include/qt5/QtCore/QThread \
 		../../../../include/qt5/QtCore/qthread.h \
@@ -3771,7 +4392,6 @@ mot-data.o: src/backend/mot-data.cpp includes/backend/mot-data.h \
 		../../../../include/qt5/QtWidgets/QDialog \
 		../../../../include/qt5/QtWidgets/qdialog.h \
 		ui_sdrgui.h \
-		../../../../include/qt5/QtCore/QVariant \
 		../../../../include/qt5/QtCore/QTimer \
 		../../../../include/qt5/QtCore/qtimer.h \
 		../../../../include/qt5/QtCore/qbasictimer.h \
@@ -3779,6 +4399,10 @@ mot-data.o: src/backend/mot-data.cpp includes/backend/mot-data.h \
 		../../../../include/qt5/QtCore/QStringListModel \
 		../../../../include/qt5/QtCore/qstringlistmodel.h \
 		../../../../include/qt5/QtCore/qabstractitemmodel.h \
+		../../../../include/qt5/QtNetwork/QUdpSocket \
+		../../../../include/qt5/QtNetwork/qudpsocket.h \
+		../../../../include/qt5/QtNetwork/qabstractsocket.h \
+		../../../../include/qt5/QtNetwork/qhostaddress.h \
 		includes/ofdm/ofdm-processor.h \
 		../../../../include/qt5/QtCore/QThread \
 		../../../../include/qt5/QtCore/qthread.h \
@@ -3911,7 +4535,6 @@ dab-virtual.o: src/backend/dab-virtual.cpp includes/dab-constants.h \
 		../../../../include/qt5/QtGui/qvector2d.h \
 		../../../../include/qt5/QtGui/qtouchdevice.h \
 		ui_sdrgui.h \
-		../../../../include/qt5/QtCore/QVariant \
 		../../../../include/qt5/QtCore/QTimer \
 		../../../../include/qt5/QtCore/qtimer.h \
 		../../../../include/qt5/QtCore/qbasictimer.h \
@@ -3919,6 +4542,10 @@ dab-virtual.o: src/backend/dab-virtual.cpp includes/dab-constants.h \
 		../../../../include/qt5/QtCore/QStringListModel \
 		../../../../include/qt5/QtCore/qstringlistmodel.h \
 		../../../../include/qt5/QtCore/qabstractitemmodel.h \
+		../../../../include/qt5/QtNetwork/QUdpSocket \
+		../../../../include/qt5/QtNetwork/qudpsocket.h \
+		../../../../include/qt5/QtNetwork/qabstractsocket.h \
+		../../../../include/qt5/QtNetwork/qhostaddress.h \
 		includes/ofdm/ofdm-processor.h \
 		../../../../include/qt5/QtCore/QThread \
 		../../../../include/qt5/QtCore/qthread.h \
@@ -4063,7 +4690,6 @@ dab-concurrent.o: src/backend/dab-concurrent.cpp includes/dab-constants.h \
 		../../../../include/qt5/QtGui/qvector2d.h \
 		../../../../include/qt5/QtGui/qtouchdevice.h \
 		ui_sdrgui.h \
-		../../../../include/qt5/QtCore/QVariant \
 		../../../../include/qt5/QtCore/QTimer \
 		../../../../include/qt5/QtCore/qtimer.h \
 		../../../../include/qt5/QtCore/qbasictimer.h \
@@ -4071,6 +4697,10 @@ dab-concurrent.o: src/backend/dab-concurrent.cpp includes/dab-constants.h \
 		../../../../include/qt5/QtCore/QStringListModel \
 		../../../../include/qt5/QtCore/qstringlistmodel.h \
 		../../../../include/qt5/QtCore/qabstractitemmodel.h \
+		../../../../include/qt5/QtNetwork/QUdpSocket \
+		../../../../include/qt5/QtNetwork/qudpsocket.h \
+		../../../../include/qt5/QtNetwork/qabstractsocket.h \
+		../../../../include/qt5/QtNetwork/qhostaddress.h \
 		includes/ofdm/ofdm-processor.h \
 		includes/ofdm/phasereference.h \
 		includes/various/fft.h \
@@ -4206,7 +4836,6 @@ msc-datagroup.o: src/backend/msc-datagroup.cpp includes/dab-constants.h \
 		../../../../include/qt5/QtWidgets/QDialog \
 		../../../../include/qt5/QtWidgets/qdialog.h \
 		ui_sdrgui.h \
-		../../../../include/qt5/QtCore/QVariant \
 		../../../../include/qt5/QtCore/QTimer \
 		../../../../include/qt5/QtCore/qtimer.h \
 		../../../../include/qt5/QtCore/qbasictimer.h \
@@ -4214,6 +4843,10 @@ msc-datagroup.o: src/backend/msc-datagroup.cpp includes/dab-constants.h \
 		../../../../include/qt5/QtCore/QStringListModel \
 		../../../../include/qt5/QtCore/qstringlistmodel.h \
 		../../../../include/qt5/QtCore/qabstractitemmodel.h \
+		../../../../include/qt5/QtNetwork/QUdpSocket \
+		../../../../include/qt5/QtNetwork/qudpsocket.h \
+		../../../../include/qt5/QtNetwork/qabstractsocket.h \
+		../../../../include/qt5/QtNetwork/qhostaddress.h \
 		includes/ofdm/ofdm-processor.h \
 		includes/ofdm/phasereference.h \
 		includes/various/fft.h \
@@ -4717,8 +5350,7 @@ rawfiles.o: src/input/rawfiles/rawfiles.cpp src/input/rawfiles/rawfiles.h \
 		../../../../include/qt5/QtWidgets/QDialog \
 		../../../../include/qt5/QtWidgets/qdialog.h \
 		includes/various/ringbuffer.h \
-		ui_filereader-widget.h \
-		../../../../include/qt5/QtCore/QVariant
+		ui_filereader-widget.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o rawfiles.o src/input/rawfiles/rawfiles.cpp
 
 wavfiles.o: src/input/wavfiles/wavfiles.cpp ../../../../include/qt5/QtCore/QString \
@@ -4835,14 +5467,13 @@ wavfiles.o: src/input/wavfiles/wavfiles.cpp ../../../../include/qt5/QtCore/QStri
 		../../../../include/qt5/QtWidgets/QDialog \
 		../../../../include/qt5/QtWidgets/qdialog.h \
 		includes/various/ringbuffer.h \
-		ui_filereader-widget.h \
-		../../../../include/qt5/QtCore/QVariant
+		ui_filereader-widget.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o wavfiles.o src/input/wavfiles/wavfiles.cpp
 
 spiral-no-sse.o: src/backend/spiral-code/spiral-no-sse.c src/backend/spiral-code/spiral-no-sse.h
 	$(CC) -c $(CFLAGS) $(INCPATH) -o spiral-no-sse.o src/backend/spiral-code/spiral-no-sse.c
 
-dabstick.o: src/input/dabstick-osmo/dabstick.cpp ../../../../include/qt5/QtCore/QThread \
+dabstick.o: src/input/dabstick-new/dabstick.cpp ../../../../include/qt5/QtCore/QThread \
 		../../../../include/qt5/QtCore/qthread.h \
 		../../../../include/qt5/QtCore/qobject.h \
 		../../../../include/qt5/QtCore/qobjectdefs.h \
@@ -4899,7 +5530,7 @@ dabstick.o: src/input/dabstick-osmo/dabstick.cpp ../../../../include/qt5/QtCore/
 		../../../../include/qt5/QtCore/qobject_impl.h \
 		../../../../local/include/rtl-sdr.h \
 		../../../../local/include/rtl-sdr_export.h \
-		src/input/dabstick-osmo/dabstick.h \
+		src/input/dabstick-new/dabstick.h \
 		../../../../include/qt5/QtCore/QObject \
 		../../../../include/qt5/QtCore/QSettings \
 		../../../../include/qt5/QtCore/qsettings.h \
@@ -4958,7 +5589,7 @@ dabstick.o: src/input/dabstick-osmo/dabstick.cpp ../../../../include/qt5/QtCore/
 		../../../../include/qt5/QtCore/qfiledevice.h \
 		../../../../include/qt5/QtGui/qvector2d.h \
 		../../../../include/qt5/QtGui/qtouchdevice.h \
-		src/input/dabstick-osmo/dongleselect.h \
+		src/input/dabstick-new/dongleselect.h \
 		../../../../include/qt5/QtWidgets/QLabel \
 		../../../../include/qt5/QtWidgets/qlabel.h \
 		../../../../include/qt5/QtWidgets/qframe.h \
@@ -4983,11 +5614,10 @@ dabstick.o: src/input/dabstick-osmo/dabstick.cpp ../../../../include/qt5/QtCore/
 		../../../../include/qt5/QtCore/QStringListModel \
 		../../../../include/qt5/QtCore/qstringlistmodel.h \
 		../../../../include/qt5/QtCore/QStringList \
-		ui_dabstick-widget.h \
-		../../../../include/qt5/QtCore/QVariant
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o dabstick.o src/input/dabstick-osmo/dabstick.cpp
+		ui_dabstick-widget.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o dabstick.o src/input/dabstick-new/dabstick.cpp
 
-dongleselect.o: src/input/dabstick-osmo/dongleselect.cpp src/input/dabstick-osmo/dongleselect.h \
+dongleselect.o: src/input/dabstick-new/dongleselect.cpp src/input/dabstick-new/dongleselect.h \
 		../../../../include/qt5/QtWidgets/QDialog \
 		../../../../include/qt5/QtWidgets/qdialog.h \
 		../../../../include/qt5/QtWidgets/qwidget.h \
@@ -5121,7 +5751,323 @@ dongleselect.o: src/input/dabstick-osmo/dongleselect.cpp src/input/dabstick-osmo
 		../../../../include/qt5/QtWidgets/qlayout.h \
 		../../../../include/qt5/QtWidgets/qlayoutitem.h \
 		../../../../include/qt5/QtWidgets/qgridlayout.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o dongleselect.o src/input/dabstick-osmo/dongleselect.cpp
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o dongleselect.o src/input/dabstick-new/dongleselect.cpp
+
+sdrplay.o: src/input/sdrplay/sdrplay.cpp ../../../../include/qt5/QtCore/QThread \
+		../../../../include/qt5/QtCore/qthread.h \
+		../../../../include/qt5/QtCore/qobject.h \
+		../../../../include/qt5/QtCore/qobjectdefs.h \
+		../../../../include/qt5/QtCore/qnamespace.h \
+		../../../../include/qt5/QtCore/qglobal.h \
+		../../../../include/qt5/QtCore/qconfig.h \
+		../../../../include/qt5/QtCore/qconfig-64.h \
+		../../../../include/qt5/QtCore/qfeatures.h \
+		../../../../include/qt5/QtCore/qsystemdetection.h \
+		../../../../include/qt5/QtCore/qprocessordetection.h \
+		../../../../include/qt5/QtCore/qcompilerdetection.h \
+		../../../../include/qt5/QtCore/qtypeinfo.h \
+		../../../../include/qt5/QtCore/qtypetraits.h \
+		../../../../include/qt5/QtCore/qsysinfo.h \
+		../../../../include/qt5/QtCore/qlogging.h \
+		../../../../include/qt5/QtCore/qflags.h \
+		../../../../include/qt5/QtCore/qatomic.h \
+		../../../../include/qt5/QtCore/qbasicatomic.h \
+		../../../../include/qt5/QtCore/qatomic_bootstrap.h \
+		../../../../include/qt5/QtCore/qgenericatomic.h \
+		../../../../include/qt5/QtCore/qatomic_cxx11.h \
+		../../../../include/qt5/QtCore/qatomic_gcc.h \
+		../../../../include/qt5/QtCore/qatomic_msvc.h \
+		../../../../include/qt5/QtCore/qatomic_armv7.h \
+		../../../../include/qt5/QtCore/qatomic_armv6.h \
+		../../../../include/qt5/QtCore/qatomic_armv5.h \
+		../../../../include/qt5/QtCore/qatomic_ia64.h \
+		../../../../include/qt5/QtCore/qatomic_mips.h \
+		../../../../include/qt5/QtCore/qatomic_x86.h \
+		../../../../include/qt5/QtCore/qatomic_unix.h \
+		../../../../include/qt5/QtCore/qglobalstatic.h \
+		../../../../include/qt5/QtCore/qmutex.h \
+		../../../../include/qt5/QtCore/qnumeric.h \
+		../../../../include/qt5/QtCore/qobjectdefs_impl.h \
+		../../../../include/qt5/QtCore/qstring.h \
+		../../../../include/qt5/QtCore/qchar.h \
+		../../../../include/qt5/QtCore/qbytearray.h \
+		../../../../include/qt5/QtCore/qrefcount.h \
+		../../../../include/qt5/QtCore/qarraydata.h \
+		../../../../include/qt5/QtCore/qstringbuilder.h \
+		../../../../include/qt5/QtCore/qlist.h \
+		../../../../include/qt5/QtCore/qalgorithms.h \
+		../../../../include/qt5/QtCore/qiterator.h \
+		../../../../include/qt5/QtCore/qbytearraylist.h \
+		../../../../include/qt5/QtCore/qstringlist.h \
+		../../../../include/qt5/QtCore/qregexp.h \
+		../../../../include/qt5/QtCore/qstringmatcher.h \
+		../../../../include/qt5/QtCore/qcoreevent.h \
+		../../../../include/qt5/QtCore/qscopedpointer.h \
+		../../../../include/qt5/QtCore/qmetatype.h \
+		../../../../include/qt5/QtCore/qvarlengtharray.h \
+		../../../../include/qt5/QtCore/qcontainerfwd.h \
+		../../../../include/qt5/QtCore/qisenum.h \
+		../../../../include/qt5/QtCore/qobject_impl.h \
+		../../../../include/qt5/QtCore/QSettings \
+		../../../../include/qt5/QtCore/qsettings.h \
+		../../../../include/qt5/QtCore/qvariant.h \
+		../../../../include/qt5/QtCore/qmap.h \
+		../../../../include/qt5/QtCore/qpair.h \
+		../../../../include/qt5/QtCore/qdebug.h \
+		../../../../include/qt5/QtCore/qhash.h \
+		../../../../include/qt5/QtCore/qtextstream.h \
+		../../../../include/qt5/QtCore/qiodevice.h \
+		../../../../include/qt5/QtCore/qlocale.h \
+		../../../../include/qt5/QtCore/qshareddata.h \
+		../../../../include/qt5/QtCore/qvector.h \
+		../../../../include/qt5/QtCore/qpoint.h \
+		../../../../include/qt5/QtCore/qset.h \
+		../../../../include/qt5/QtCore/qcontiguouscache.h \
+		../../../../include/qt5/QtWidgets/QHBoxLayout \
+		../../../../include/qt5/QtWidgets/qboxlayout.h \
+		../../../../include/qt5/QtWidgets/qlayout.h \
+		../../../../include/qt5/QtWidgets/qlayoutitem.h \
+		../../../../include/qt5/QtWidgets/qsizepolicy.h \
+		../../../../include/qt5/QtCore/qrect.h \
+		../../../../include/qt5/QtCore/qmargins.h \
+		../../../../include/qt5/QtCore/qsize.h \
+		../../../../include/qt5/QtWidgets/qgridlayout.h \
+		../../../../include/qt5/QtWidgets/qwidget.h \
+		../../../../include/qt5/QtGui/qwindowdefs.h \
+		../../../../include/qt5/QtGui/qwindowdefs_win.h \
+		../../../../include/qt5/QtGui/qpaintdevice.h \
+		../../../../include/qt5/QtGui/qpalette.h \
+		../../../../include/qt5/QtGui/qcolor.h \
+		../../../../include/qt5/QtGui/qrgb.h \
+		../../../../include/qt5/QtGui/qbrush.h \
+		../../../../include/qt5/QtGui/qmatrix.h \
+		../../../../include/qt5/QtGui/qpolygon.h \
+		../../../../include/qt5/QtGui/qregion.h \
+		../../../../include/qt5/QtCore/qdatastream.h \
+		../../../../include/qt5/QtCore/qline.h \
+		../../../../include/qt5/QtGui/qtransform.h \
+		../../../../include/qt5/QtGui/qpainterpath.h \
+		../../../../include/qt5/QtGui/qimage.h \
+		../../../../include/qt5/QtGui/qpixelformat.h \
+		../../../../include/qt5/QtGui/qpixmap.h \
+		../../../../include/qt5/QtCore/qsharedpointer.h \
+		../../../../include/qt5/QtCore/qsharedpointer_impl.h \
+		../../../../include/qt5/QtGui/qfont.h \
+		../../../../include/qt5/QtGui/qfontmetrics.h \
+		../../../../include/qt5/QtGui/qfontinfo.h \
+		../../../../include/qt5/QtGui/qcursor.h \
+		../../../../include/qt5/QtGui/qkeysequence.h \
+		../../../../include/qt5/QtGui/qevent.h \
+		../../../../include/qt5/QtCore/qurl.h \
+		../../../../include/qt5/QtCore/qurlquery.h \
+		../../../../include/qt5/QtCore/qfile.h \
+		../../../../include/qt5/QtCore/qfiledevice.h \
+		../../../../include/qt5/QtGui/qvector2d.h \
+		../../../../include/qt5/QtGui/qtouchdevice.h \
+		../../../../include/qt5/QtWidgets/QLabel \
+		../../../../include/qt5/QtWidgets/qlabel.h \
+		../../../../include/qt5/QtWidgets/qframe.h \
+		../../../../local/include/mirsdrapi-rsp.h \
+		mir_sdr-windows.h \
+		src/input/sdrplay/sdrplay.h \
+		../../../../include/qt5/QtCore/QObject \
+		../../../../include/qt5/QtWidgets/QFrame \
+		includes/dab-constants.h \
+		includes/various/ringbuffer.h \
+		src/input/virtual-input.h \
+		../../../../include/qt5/QtWidgets/QDialog \
+		../../../../include/qt5/QtWidgets/qdialog.h \
+		ui_sdrplay-widget.h \
+		src/input/sdrplay/sdrplay-worker.h \
+		src/input/sdrplay/sdrplay-loader.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o sdrplay.o src/input/sdrplay/sdrplay.cpp
+
+sdrplay-loader.o: src/input/sdrplay/sdrplay-loader.cpp src/input/sdrplay/sdrplay-loader.h \
+		includes/dab-constants.h \
+		../../../../local/include/mirsdrapi-rsp.h \
+		mir_sdr-windows.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o sdrplay-loader.o src/input/sdrplay/sdrplay-loader.cpp
+
+sdrplay-worker.o: src/input/sdrplay/sdrplay-worker.cpp includes/dab-constants.h \
+		src/input/sdrplay/sdrplay-worker.h \
+		../../../../include/qt5/QtCore/QThread \
+		../../../../include/qt5/QtCore/qthread.h \
+		../../../../include/qt5/QtCore/qobject.h \
+		../../../../include/qt5/QtCore/qobjectdefs.h \
+		../../../../include/qt5/QtCore/qnamespace.h \
+		../../../../include/qt5/QtCore/qglobal.h \
+		../../../../include/qt5/QtCore/qconfig.h \
+		../../../../include/qt5/QtCore/qconfig-64.h \
+		../../../../include/qt5/QtCore/qfeatures.h \
+		../../../../include/qt5/QtCore/qsystemdetection.h \
+		../../../../include/qt5/QtCore/qprocessordetection.h \
+		../../../../include/qt5/QtCore/qcompilerdetection.h \
+		../../../../include/qt5/QtCore/qtypeinfo.h \
+		../../../../include/qt5/QtCore/qtypetraits.h \
+		../../../../include/qt5/QtCore/qsysinfo.h \
+		../../../../include/qt5/QtCore/qlogging.h \
+		../../../../include/qt5/QtCore/qflags.h \
+		../../../../include/qt5/QtCore/qatomic.h \
+		../../../../include/qt5/QtCore/qbasicatomic.h \
+		../../../../include/qt5/QtCore/qatomic_bootstrap.h \
+		../../../../include/qt5/QtCore/qgenericatomic.h \
+		../../../../include/qt5/QtCore/qatomic_cxx11.h \
+		../../../../include/qt5/QtCore/qatomic_gcc.h \
+		../../../../include/qt5/QtCore/qatomic_msvc.h \
+		../../../../include/qt5/QtCore/qatomic_armv7.h \
+		../../../../include/qt5/QtCore/qatomic_armv6.h \
+		../../../../include/qt5/QtCore/qatomic_armv5.h \
+		../../../../include/qt5/QtCore/qatomic_ia64.h \
+		../../../../include/qt5/QtCore/qatomic_mips.h \
+		../../../../include/qt5/QtCore/qatomic_x86.h \
+		../../../../include/qt5/QtCore/qatomic_unix.h \
+		../../../../include/qt5/QtCore/qglobalstatic.h \
+		../../../../include/qt5/QtCore/qmutex.h \
+		../../../../include/qt5/QtCore/qnumeric.h \
+		../../../../include/qt5/QtCore/qobjectdefs_impl.h \
+		../../../../include/qt5/QtCore/qstring.h \
+		../../../../include/qt5/QtCore/qchar.h \
+		../../../../include/qt5/QtCore/qbytearray.h \
+		../../../../include/qt5/QtCore/qrefcount.h \
+		../../../../include/qt5/QtCore/qarraydata.h \
+		../../../../include/qt5/QtCore/qstringbuilder.h \
+		../../../../include/qt5/QtCore/qlist.h \
+		../../../../include/qt5/QtCore/qalgorithms.h \
+		../../../../include/qt5/QtCore/qiterator.h \
+		../../../../include/qt5/QtCore/qbytearraylist.h \
+		../../../../include/qt5/QtCore/qstringlist.h \
+		../../../../include/qt5/QtCore/qregexp.h \
+		../../../../include/qt5/QtCore/qstringmatcher.h \
+		../../../../include/qt5/QtCore/qcoreevent.h \
+		../../../../include/qt5/QtCore/qscopedpointer.h \
+		../../../../include/qt5/QtCore/qmetatype.h \
+		../../../../include/qt5/QtCore/qvarlengtharray.h \
+		../../../../include/qt5/QtCore/qcontainerfwd.h \
+		../../../../include/qt5/QtCore/qisenum.h \
+		../../../../include/qt5/QtCore/qobject_impl.h \
+		includes/various/ringbuffer.h \
+		src/input/sdrplay/sdrplay-loader.h \
+		../../../../local/include/mirsdrapi-rsp.h \
+		mir_sdr-windows.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o sdrplay-worker.o src/input/sdrplay/sdrplay-worker.cpp
+
+airspy-handler.o: src/input/airspy/airspy-handler.cpp src/input/airspy/airspy-handler.h \
+		../../../../include/qt5/QtCore/QObject \
+		../../../../include/qt5/QtCore/qobject.h \
+		../../../../include/qt5/QtCore/qobjectdefs.h \
+		../../../../include/qt5/QtCore/qnamespace.h \
+		../../../../include/qt5/QtCore/qglobal.h \
+		../../../../include/qt5/QtCore/qconfig.h \
+		../../../../include/qt5/QtCore/qconfig-64.h \
+		../../../../include/qt5/QtCore/qfeatures.h \
+		../../../../include/qt5/QtCore/qsystemdetection.h \
+		../../../../include/qt5/QtCore/qprocessordetection.h \
+		../../../../include/qt5/QtCore/qcompilerdetection.h \
+		../../../../include/qt5/QtCore/qtypeinfo.h \
+		../../../../include/qt5/QtCore/qtypetraits.h \
+		../../../../include/qt5/QtCore/qsysinfo.h \
+		../../../../include/qt5/QtCore/qlogging.h \
+		../../../../include/qt5/QtCore/qflags.h \
+		../../../../include/qt5/QtCore/qatomic.h \
+		../../../../include/qt5/QtCore/qbasicatomic.h \
+		../../../../include/qt5/QtCore/qatomic_bootstrap.h \
+		../../../../include/qt5/QtCore/qgenericatomic.h \
+		../../../../include/qt5/QtCore/qatomic_cxx11.h \
+		../../../../include/qt5/QtCore/qatomic_gcc.h \
+		../../../../include/qt5/QtCore/qatomic_msvc.h \
+		../../../../include/qt5/QtCore/qatomic_armv7.h \
+		../../../../include/qt5/QtCore/qatomic_armv6.h \
+		../../../../include/qt5/QtCore/qatomic_armv5.h \
+		../../../../include/qt5/QtCore/qatomic_ia64.h \
+		../../../../include/qt5/QtCore/qatomic_mips.h \
+		../../../../include/qt5/QtCore/qatomic_x86.h \
+		../../../../include/qt5/QtCore/qatomic_unix.h \
+		../../../../include/qt5/QtCore/qglobalstatic.h \
+		../../../../include/qt5/QtCore/qmutex.h \
+		../../../../include/qt5/QtCore/qnumeric.h \
+		../../../../include/qt5/QtCore/qobjectdefs_impl.h \
+		../../../../include/qt5/QtCore/qstring.h \
+		../../../../include/qt5/QtCore/qchar.h \
+		../../../../include/qt5/QtCore/qbytearray.h \
+		../../../../include/qt5/QtCore/qrefcount.h \
+		../../../../include/qt5/QtCore/qarraydata.h \
+		../../../../include/qt5/QtCore/qstringbuilder.h \
+		../../../../include/qt5/QtCore/qlist.h \
+		../../../../include/qt5/QtCore/qalgorithms.h \
+		../../../../include/qt5/QtCore/qiterator.h \
+		../../../../include/qt5/QtCore/qbytearraylist.h \
+		../../../../include/qt5/QtCore/qstringlist.h \
+		../../../../include/qt5/QtCore/qregexp.h \
+		../../../../include/qt5/QtCore/qstringmatcher.h \
+		../../../../include/qt5/QtCore/qcoreevent.h \
+		../../../../include/qt5/QtCore/qscopedpointer.h \
+		../../../../include/qt5/QtCore/qmetatype.h \
+		../../../../include/qt5/QtCore/qvarlengtharray.h \
+		../../../../include/qt5/QtCore/qcontainerfwd.h \
+		../../../../include/qt5/QtCore/qisenum.h \
+		../../../../include/qt5/QtCore/qobject_impl.h \
+		../../../../include/qt5/QtCore/QSettings \
+		../../../../include/qt5/QtCore/qsettings.h \
+		../../../../include/qt5/QtCore/qvariant.h \
+		../../../../include/qt5/QtCore/qmap.h \
+		../../../../include/qt5/QtCore/qpair.h \
+		../../../../include/qt5/QtCore/qdebug.h \
+		../../../../include/qt5/QtCore/qhash.h \
+		../../../../include/qt5/QtCore/qtextstream.h \
+		../../../../include/qt5/QtCore/qiodevice.h \
+		../../../../include/qt5/QtCore/qlocale.h \
+		../../../../include/qt5/QtCore/qshareddata.h \
+		../../../../include/qt5/QtCore/qvector.h \
+		../../../../include/qt5/QtCore/qpoint.h \
+		../../../../include/qt5/QtCore/qset.h \
+		../../../../include/qt5/QtCore/qcontiguouscache.h \
+		../../../../include/qt5/QtWidgets/QFrame \
+		../../../../include/qt5/QtWidgets/qframe.h \
+		../../../../include/qt5/QtWidgets/qwidget.h \
+		../../../../include/qt5/QtGui/qwindowdefs.h \
+		../../../../include/qt5/QtGui/qwindowdefs_win.h \
+		../../../../include/qt5/QtCore/qmargins.h \
+		../../../../include/qt5/QtGui/qpaintdevice.h \
+		../../../../include/qt5/QtCore/qrect.h \
+		../../../../include/qt5/QtCore/qsize.h \
+		../../../../include/qt5/QtGui/qpalette.h \
+		../../../../include/qt5/QtGui/qcolor.h \
+		../../../../include/qt5/QtGui/qrgb.h \
+		../../../../include/qt5/QtGui/qbrush.h \
+		../../../../include/qt5/QtGui/qmatrix.h \
+		../../../../include/qt5/QtGui/qpolygon.h \
+		../../../../include/qt5/QtGui/qregion.h \
+		../../../../include/qt5/QtCore/qdatastream.h \
+		../../../../include/qt5/QtCore/qline.h \
+		../../../../include/qt5/QtGui/qtransform.h \
+		../../../../include/qt5/QtGui/qpainterpath.h \
+		../../../../include/qt5/QtGui/qimage.h \
+		../../../../include/qt5/QtGui/qpixelformat.h \
+		../../../../include/qt5/QtGui/qpixmap.h \
+		../../../../include/qt5/QtCore/qsharedpointer.h \
+		../../../../include/qt5/QtCore/qsharedpointer_impl.h \
+		../../../../include/qt5/QtGui/qfont.h \
+		../../../../include/qt5/QtGui/qfontmetrics.h \
+		../../../../include/qt5/QtGui/qfontinfo.h \
+		../../../../include/qt5/QtWidgets/qsizepolicy.h \
+		../../../../include/qt5/QtGui/qcursor.h \
+		../../../../include/qt5/QtGui/qkeysequence.h \
+		../../../../include/qt5/QtGui/qevent.h \
+		../../../../include/qt5/QtCore/qurl.h \
+		../../../../include/qt5/QtCore/qurlquery.h \
+		../../../../include/qt5/QtCore/qfile.h \
+		../../../../include/qt5/QtCore/qfiledevice.h \
+		../../../../include/qt5/QtGui/qvector2d.h \
+		../../../../include/qt5/QtGui/qtouchdevice.h \
+		includes/dab-constants.h \
+		includes/various/ringbuffer.h \
+		src/input/virtual-input.h \
+		../../../../include/qt5/QtWidgets/QDialog \
+		../../../../include/qt5/QtWidgets/qdialog.h \
+		ui_airspy-widget.h \
+		../../../../local/include/libairspy/airspy.h \
+		../../../../local/include/libairspy/airspy_commands.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o airspy-handler.o src/input/airspy/airspy-handler.cpp
 
 streamer.o: src/output/streamer.cpp includes/output/streamer.h \
 		../../../../include/qt5/QtCore/QObject \
@@ -5369,6 +6315,305 @@ streamer.o: src/output/streamer.cpp includes/output/streamer.h \
 		../../../../include/qt5/QtCore/QTimer
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o streamer.o src/output/streamer.cpp
 
+rtl_tcp_client.o: src/input/rtl_tcp/rtl_tcp_client.cpp ../../../../include/qt5/QtCore/QSettings \
+		../../../../include/qt5/QtCore/qsettings.h \
+		../../../../include/qt5/QtCore/qobject.h \
+		../../../../include/qt5/QtCore/qobjectdefs.h \
+		../../../../include/qt5/QtCore/qnamespace.h \
+		../../../../include/qt5/QtCore/qglobal.h \
+		../../../../include/qt5/QtCore/qconfig.h \
+		../../../../include/qt5/QtCore/qconfig-64.h \
+		../../../../include/qt5/QtCore/qfeatures.h \
+		../../../../include/qt5/QtCore/qsystemdetection.h \
+		../../../../include/qt5/QtCore/qprocessordetection.h \
+		../../../../include/qt5/QtCore/qcompilerdetection.h \
+		../../../../include/qt5/QtCore/qtypeinfo.h \
+		../../../../include/qt5/QtCore/qtypetraits.h \
+		../../../../include/qt5/QtCore/qsysinfo.h \
+		../../../../include/qt5/QtCore/qlogging.h \
+		../../../../include/qt5/QtCore/qflags.h \
+		../../../../include/qt5/QtCore/qatomic.h \
+		../../../../include/qt5/QtCore/qbasicatomic.h \
+		../../../../include/qt5/QtCore/qatomic_bootstrap.h \
+		../../../../include/qt5/QtCore/qgenericatomic.h \
+		../../../../include/qt5/QtCore/qatomic_cxx11.h \
+		../../../../include/qt5/QtCore/qatomic_gcc.h \
+		../../../../include/qt5/QtCore/qatomic_msvc.h \
+		../../../../include/qt5/QtCore/qatomic_armv7.h \
+		../../../../include/qt5/QtCore/qatomic_armv6.h \
+		../../../../include/qt5/QtCore/qatomic_armv5.h \
+		../../../../include/qt5/QtCore/qatomic_ia64.h \
+		../../../../include/qt5/QtCore/qatomic_mips.h \
+		../../../../include/qt5/QtCore/qatomic_x86.h \
+		../../../../include/qt5/QtCore/qatomic_unix.h \
+		../../../../include/qt5/QtCore/qglobalstatic.h \
+		../../../../include/qt5/QtCore/qmutex.h \
+		../../../../include/qt5/QtCore/qnumeric.h \
+		../../../../include/qt5/QtCore/qobjectdefs_impl.h \
+		../../../../include/qt5/QtCore/qstring.h \
+		../../../../include/qt5/QtCore/qchar.h \
+		../../../../include/qt5/QtCore/qbytearray.h \
+		../../../../include/qt5/QtCore/qrefcount.h \
+		../../../../include/qt5/QtCore/qarraydata.h \
+		../../../../include/qt5/QtCore/qstringbuilder.h \
+		../../../../include/qt5/QtCore/qlist.h \
+		../../../../include/qt5/QtCore/qalgorithms.h \
+		../../../../include/qt5/QtCore/qiterator.h \
+		../../../../include/qt5/QtCore/qbytearraylist.h \
+		../../../../include/qt5/QtCore/qstringlist.h \
+		../../../../include/qt5/QtCore/qregexp.h \
+		../../../../include/qt5/QtCore/qstringmatcher.h \
+		../../../../include/qt5/QtCore/qcoreevent.h \
+		../../../../include/qt5/QtCore/qscopedpointer.h \
+		../../../../include/qt5/QtCore/qmetatype.h \
+		../../../../include/qt5/QtCore/qvarlengtharray.h \
+		../../../../include/qt5/QtCore/qcontainerfwd.h \
+		../../../../include/qt5/QtCore/qisenum.h \
+		../../../../include/qt5/QtCore/qobject_impl.h \
+		../../../../include/qt5/QtCore/qvariant.h \
+		../../../../include/qt5/QtCore/qmap.h \
+		../../../../include/qt5/QtCore/qpair.h \
+		../../../../include/qt5/QtCore/qdebug.h \
+		../../../../include/qt5/QtCore/qhash.h \
+		../../../../include/qt5/QtCore/qtextstream.h \
+		../../../../include/qt5/QtCore/qiodevice.h \
+		../../../../include/qt5/QtCore/qlocale.h \
+		../../../../include/qt5/QtCore/qshareddata.h \
+		../../../../include/qt5/QtCore/qvector.h \
+		../../../../include/qt5/QtCore/qpoint.h \
+		../../../../include/qt5/QtCore/qset.h \
+		../../../../include/qt5/QtCore/qcontiguouscache.h \
+		../../../../include/qt5/QtWidgets/QLabel \
+		../../../../include/qt5/QtWidgets/qlabel.h \
+		../../../../include/qt5/QtWidgets/qframe.h \
+		../../../../include/qt5/QtWidgets/qwidget.h \
+		../../../../include/qt5/QtGui/qwindowdefs.h \
+		../../../../include/qt5/QtGui/qwindowdefs_win.h \
+		../../../../include/qt5/QtCore/qmargins.h \
+		../../../../include/qt5/QtGui/qpaintdevice.h \
+		../../../../include/qt5/QtCore/qrect.h \
+		../../../../include/qt5/QtCore/qsize.h \
+		../../../../include/qt5/QtGui/qpalette.h \
+		../../../../include/qt5/QtGui/qcolor.h \
+		../../../../include/qt5/QtGui/qrgb.h \
+		../../../../include/qt5/QtGui/qbrush.h \
+		../../../../include/qt5/QtGui/qmatrix.h \
+		../../../../include/qt5/QtGui/qpolygon.h \
+		../../../../include/qt5/QtGui/qregion.h \
+		../../../../include/qt5/QtCore/qdatastream.h \
+		../../../../include/qt5/QtCore/qline.h \
+		../../../../include/qt5/QtGui/qtransform.h \
+		../../../../include/qt5/QtGui/qpainterpath.h \
+		../../../../include/qt5/QtGui/qimage.h \
+		../../../../include/qt5/QtGui/qpixelformat.h \
+		../../../../include/qt5/QtGui/qpixmap.h \
+		../../../../include/qt5/QtCore/qsharedpointer.h \
+		../../../../include/qt5/QtCore/qsharedpointer_impl.h \
+		../../../../include/qt5/QtGui/qfont.h \
+		../../../../include/qt5/QtGui/qfontmetrics.h \
+		../../../../include/qt5/QtGui/qfontinfo.h \
+		../../../../include/qt5/QtWidgets/qsizepolicy.h \
+		../../../../include/qt5/QtGui/qcursor.h \
+		../../../../include/qt5/QtGui/qkeysequence.h \
+		../../../../include/qt5/QtGui/qevent.h \
+		../../../../include/qt5/QtCore/qurl.h \
+		../../../../include/qt5/QtCore/qurlquery.h \
+		../../../../include/qt5/QtCore/qfile.h \
+		../../../../include/qt5/QtCore/qfiledevice.h \
+		../../../../include/qt5/QtGui/qvector2d.h \
+		../../../../include/qt5/QtGui/qtouchdevice.h \
+		../../../../include/qt5/QtWidgets/QMessageBox \
+		../../../../include/qt5/QtWidgets/qmessagebox.h \
+		../../../../include/qt5/QtWidgets/qdialog.h \
+		../../../../include/qt5/QtNetwork/QHostAddress \
+		../../../../include/qt5/QtNetwork/qhostaddress.h \
+		../../../../include/qt5/QtNetwork/qabstractsocket.h \
+		../../../../include/qt5/QtNetwork/QTcpSocket \
+		../../../../include/qt5/QtNetwork/qtcpsocket.h \
+		src/input/rtl_tcp/rtl_tcp_client.h \
+		../../../../include/qt5/QtNetwork/QtNetwork \
+		../../../../include/qt5/QtNetwork/QtNetworkDepends \
+		../../../../include/qt5/QtCore/QtCore \
+		../../../../include/qt5/QtCore/QtCoreDepends \
+		../../../../include/qt5/QtCore/qabstractanimation.h \
+		../../../../include/qt5/QtCore/qanimationgroup.h \
+		../../../../include/qt5/QtCore/qparallelanimationgroup.h \
+		../../../../include/qt5/QtCore/qpauseanimation.h \
+		../../../../include/qt5/QtCore/qpropertyanimation.h \
+		../../../../include/qt5/QtCore/qvariantanimation.h \
+		../../../../include/qt5/QtCore/qeasingcurve.h \
+		../../../../include/qt5/QtCore/qsequentialanimationgroup.h \
+		../../../../include/qt5/QtCore/qtextcodec.h \
+		../../../../include/qt5/QtCore/qendian.h \
+		../../../../include/qt5/QtCore/qlibraryinfo.h \
+		../../../../include/qt5/QtCore/qdatetime.h \
+		../../../../include/qt5/QtCore/qbuffer.h \
+		../../../../include/qt5/QtCore/qdir.h \
+		../../../../include/qt5/QtCore/qfileinfo.h \
+		../../../../include/qt5/QtCore/qdiriterator.h \
+		../../../../include/qt5/QtCore/qfileselector.h \
+		../../../../include/qt5/QtCore/QObject \
+		../../../../include/qt5/QtCore/QStringList \
+		../../../../include/qt5/QtCore/qfilesystemwatcher.h \
+		../../../../include/qt5/QtCore/qlockfile.h \
+		../../../../include/qt5/QtCore/qloggingcategory.h \
+		../../../../include/qt5/QtCore/qprocess.h \
+		../../../../include/qt5/QtCore/qresource.h \
+		../../../../include/qt5/QtCore/qsavefile.h \
+		../../../../include/qt5/QtCore/qstandardpaths.h \
+		../../../../include/qt5/QtCore/qstorageinfo.h \
+		../../../../include/qt5/QtCore/qtemporarydir.h \
+		../../../../include/qt5/QtCore/QScopedPointer \
+		../../../../include/qt5/QtCore/qtemporaryfile.h \
+		../../../../include/qt5/QtCore/qabstractitemmodel.h \
+		../../../../include/qt5/QtCore/qabstractproxymodel.h \
+		../../../../include/qt5/QtCore/qidentityproxymodel.h \
+		../../../../include/qt5/QtCore/qitemselectionmodel.h \
+		../../../../include/qt5/QtCore/qsortfilterproxymodel.h \
+		../../../../include/qt5/QtCore/qstringlistmodel.h \
+		../../../../include/qt5/QtCore/qjsonarray.h \
+		../../../../include/qt5/QtCore/qjsonvalue.h \
+		../../../../include/qt5/QtCore/qjsondocument.h \
+		../../../../include/qt5/QtCore/qjsonobject.h \
+		../../../../include/qt5/QtCore/qabstracteventdispatcher.h \
+		../../../../include/qt5/QtCore/qeventloop.h \
+		../../../../include/qt5/QtCore/qabstractnativeeventfilter.h \
+		../../../../include/qt5/QtCore/qbasictimer.h \
+		../../../../include/qt5/QtCore/qcoreapplication.h \
+		../../../../include/qt5/QtCore/qmath.h \
+		../../../../include/qt5/QtCore/qmetaobject.h \
+		../../../../include/qt5/QtCore/qmimedata.h \
+		../../../../include/qt5/QtCore/qobjectcleanuphandler.h \
+		../../../../include/qt5/QtCore/qpointer.h \
+		../../../../include/qt5/QtCore/qsharedmemory.h \
+		../../../../include/qt5/QtCore/qsignalmapper.h \
+		../../../../include/qt5/QtCore/qsocketnotifier.h \
+		../../../../include/qt5/QtCore/qsystemsemaphore.h \
+		../../../../include/qt5/QtCore/qtimer.h \
+		../../../../include/qt5/QtCore/qtranslator.h \
+		../../../../include/qt5/QtCore/qwineventnotifier.h \
+		../../../../include/qt5/QtCore/qmimedatabase.h \
+		../../../../include/qt5/QtCore/qmimetype.h \
+		../../../../include/qt5/QtCore/qfactoryinterface.h \
+		../../../../include/qt5/QtCore/qlibrary.h \
+		../../../../include/qt5/QtCore/qplugin.h \
+		../../../../include/qt5/QtCore/qpluginloader.h \
+		../../../../include/qt5/QtCore/quuid.h \
+		../../../../include/qt5/QtCore/qabstractstate.h \
+		../../../../include/qt5/QtCore/qabstracttransition.h \
+		../../../../include/qt5/QtCore/qeventtransition.h \
+		../../../../include/qt5/QtCore/qfinalstate.h \
+		../../../../include/qt5/QtCore/qhistorystate.h \
+		../../../../include/qt5/QtCore/qsignaltransition.h \
+		../../../../include/qt5/QtCore/qstate.h \
+		../../../../include/qt5/QtCore/qstatemachine.h \
+		../../../../include/qt5/QtCore/qexception.h \
+		../../../../include/qt5/QtCore/qfuture.h \
+		../../../../include/qt5/QtCore/qfutureinterface.h \
+		../../../../include/qt5/QtCore/qrunnable.h \
+		../../../../include/qt5/QtCore/qresultstore.h \
+		../../../../include/qt5/QtCore/qfuturesynchronizer.h \
+		../../../../include/qt5/QtCore/qfuturewatcher.h \
+		../../../../include/qt5/QtCore/qreadwritelock.h \
+		../../../../include/qt5/QtCore/qsemaphore.h \
+		../../../../include/qt5/QtCore/qthread.h \
+		../../../../include/qt5/QtCore/qthreadpool.h \
+		../../../../include/qt5/QtCore/qthreadstorage.h \
+		../../../../include/qt5/QtCore/qwaitcondition.h \
+		../../../../include/qt5/QtCore/qarraydataops.h \
+		../../../../include/qt5/QtCore/qarraydatapointer.h \
+		../../../../include/qt5/QtCore/qbitarray.h \
+		../../../../include/qt5/QtCore/qbytearraymatcher.h \
+		../../../../include/qt5/QtCore/qcache.h \
+		../../../../include/qt5/QtCore/qcollator.h \
+		../../../../include/qt5/QtCore/qcommandlineoption.h \
+		../../../../include/qt5/QtCore/qcommandlineparser.h \
+		../../../../include/qt5/QtCore/qcryptographichash.h \
+		../../../../include/qt5/QtCore/qelapsedtimer.h \
+		../../../../include/qt5/QtCore/qlinkedlist.h \
+		../../../../include/qt5/QtCore/qmessageauthenticationcode.h \
+		../../../../include/qt5/QtCore/qqueue.h \
+		../../../../include/qt5/QtCore/qregularexpression.h \
+		../../../../include/qt5/QtCore/qscopedvaluerollback.h \
+		../../../../include/qt5/QtCore/qstack.h \
+		../../../../include/qt5/QtCore/qtextboundaryfinder.h \
+		../../../../include/qt5/QtCore/qtimeline.h \
+		../../../../include/qt5/QtCore/qtimezone.h \
+		../../../../include/qt5/QtCore/qxmlstream.h \
+		../../../../include/qt5/QtCore/qtcoreversion.h \
+		../../../../include/qt5/QtNetwork/qabstractnetworkcache.h \
+		../../../../include/qt5/QtNetwork/qnetworkrequest.h \
+		../../../../include/qt5/QtCore/QSharedDataPointer \
+		../../../../include/qt5/QtCore/QString \
+		../../../../include/qt5/QtCore/QUrl \
+		../../../../include/qt5/QtCore/QVariant \
+		../../../../include/qt5/QtNetwork/qhttpmultipart.h \
+		../../../../include/qt5/QtCore/QByteArray \
+		../../../../include/qt5/QtCore/QIODevice \
+		../../../../include/qt5/QtNetwork/QNetworkRequest \
+		../../../../include/qt5/QtNetwork/qnetworkaccessmanager.h \
+		../../../../include/qt5/QtNetwork/QSslConfiguration \
+		../../../../include/qt5/QtNetwork/qsslconfiguration.h \
+		../../../../include/qt5/QtNetwork/qsslsocket.h \
+		../../../../include/qt5/QtNetwork/qsslerror.h \
+		../../../../include/qt5/QtNetwork/qsslcertificate.h \
+		../../../../include/qt5/QtNetwork/qssl.h \
+		../../../../include/qt5/QtCore/QFlags \
+		../../../../include/qt5/QtNetwork/QSslPreSharedKeyAuthenticator \
+		../../../../include/qt5/QtNetwork/qsslpresharedkeyauthenticator.h \
+		../../../../include/qt5/QtCore/QtGlobal \
+		../../../../include/qt5/QtCore/QMetaType \
+		../../../../include/qt5/QtNetwork/qnetworkcookie.h \
+		../../../../include/qt5/QtCore/QList \
+		../../../../include/qt5/QtNetwork/qnetworkcookiejar.h \
+		../../../../include/qt5/QtNetwork/qnetworkdiskcache.h \
+		../../../../include/qt5/QtNetwork/qnetworkreply.h \
+		../../../../include/qt5/QtNetwork/QNetworkAccessManager \
+		../../../../include/qt5/QtNetwork/qnetworkconfigmanager.h \
+		../../../../include/qt5/QtNetwork/qnetworkconfiguration.h \
+		../../../../include/qt5/QtNetwork/qnetworksession.h \
+		../../../../include/qt5/QtNetwork/qnetworkinterface.h \
+		../../../../include/qt5/QtNetwork/qauthenticator.h \
+		../../../../include/qt5/QtNetwork/qdnslookup.h \
+		../../../../include/qt5/QtNetwork/qhostinfo.h \
+		../../../../include/qt5/QtNetwork/qnetworkproxy.h \
+		../../../../include/qt5/QtNetwork/qlocalserver.h \
+		../../../../include/qt5/QtNetwork/qlocalsocket.h \
+		../../../../include/qt5/QtNetwork/qtcpserver.h \
+		../../../../include/qt5/QtNetwork/qudpsocket.h \
+		../../../../include/qt5/QtNetwork/qsslcertificateextension.h \
+		../../../../include/qt5/QtNetwork/qsslcipher.h \
+		../../../../include/qt5/QtNetwork/qsslellipticcurve.h \
+		../../../../include/qt5/QtCore/QHash \
+		../../../../include/qt5/QtNetwork/qsslkey.h \
+		../../../../include/qt5/QtNetwork/qtnetworkversion.h \
+		../../../../include/qt5/QtWidgets/QLineEdit \
+		../../../../include/qt5/QtWidgets/qlineedit.h \
+		../../../../include/qt5/QtGui/qtextcursor.h \
+		../../../../include/qt5/QtGui/qtextformat.h \
+		../../../../include/qt5/QtGui/qpen.h \
+		../../../../include/qt5/QtGui/qtextoption.h \
+		../../../../include/qt5/QtCore/QTimer \
+		../../../../include/qt5/QtWidgets/QComboBox \
+		../../../../include/qt5/QtWidgets/qcombobox.h \
+		../../../../include/qt5/QtWidgets/qabstractitemdelegate.h \
+		../../../../include/qt5/QtWidgets/qstyleoption.h \
+		../../../../include/qt5/QtWidgets/qabstractspinbox.h \
+		../../../../include/qt5/QtGui/qvalidator.h \
+		../../../../include/qt5/QtGui/qicon.h \
+		../../../../include/qt5/QtWidgets/qslider.h \
+		../../../../include/qt5/QtWidgets/qabstractslider.h \
+		../../../../include/qt5/QtWidgets/qstyle.h \
+		../../../../include/qt5/QtWidgets/qtabbar.h \
+		../../../../include/qt5/QtWidgets/qtabwidget.h \
+		../../../../include/qt5/QtWidgets/qrubberband.h \
+		includes/dab-constants.h \
+		src/input/virtual-input.h \
+		../../../../include/qt5/QtWidgets/QDialog \
+		includes/various/ringbuffer.h \
+		ui_rtl_tcp-widget.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o rtl_tcp_client.o src/input/rtl_tcp/rtl_tcp_client.cpp
+
 moc_gui.o: moc_gui.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_gui.o moc_gui.cpp
 
@@ -5405,8 +6650,17 @@ moc_dabstick.o: moc_dabstick.cpp
 moc_dongleselect.o: moc_dongleselect.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_dongleselect.o moc_dongleselect.cpp
 
+moc_sdrplay.o: moc_sdrplay.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_sdrplay.o moc_sdrplay.cpp
+
+moc_airspy-handler.o: moc_airspy-handler.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_airspy-handler.o moc_airspy-handler.cpp
+
 moc_streamer.o: moc_streamer.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_streamer.o moc_streamer.cpp
+
+moc_rtl_tcp_client.o: moc_rtl_tcp_client.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_rtl_tcp_client.o moc_rtl_tcp_client.cpp
 
 ####### Install
 

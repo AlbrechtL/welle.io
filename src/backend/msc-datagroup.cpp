@@ -25,13 +25,6 @@
 #include	"mot-data.h"
 #include	"gui.h"
 
-#ifdef	__MINGW32__
-#include	<ws2tcpip.h>
-#endif
-#define	SERVER	"127.0.0.1"
-#define	PORT	8888
-#define	BUFLEN	512
-//
 //	Interleaving is - for reasons of simplicity - done
 //	inline rather than through a special class-object
 //	We could make a single handler for interleaving
@@ -89,47 +82,12 @@ int32_t i, j;
 
 	connect (this, SIGNAL (showLabel (const QString &)),
 	         mr, SLOT (showLabel (const QString &)));
-
+	connect (this, SIGNAL (writeDatagram (char *, int)),
+	         mr, SLOT (send_datagram (char *, int)));
 	opt_motHandler	= NULL;
 
 //	todo: we should make a class for each of the
 //	recognized DSCTy values
-	if (DSCTy == 59) {	// embedded IP
-#ifdef	__MINGW32__
-	   WSADATA wsaData;
-	   int iResult	= WSAStartup (MAKEWORD (2, 2), &wsaData);
-	   if (iResult != NO_ERROR) {
-	      wprintf(L"WSAStartup failed with error: %d\n", iResult);
-	      socketAddr = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-	      if (socketAddr == INVALID_SOCKET) {
-                 wprintf(L"socket failed with error: %ld\n",
-	                                WSAGetLastError());
-                 WSACleanup();
-	      }
-	   }
-	   else {
-	      si_other. sin_family	= AF_INET;
-	      si_other. sin_port	= htons (PORT);
-	      si_other. sin_addr. s_addr = inet_addr (SERVER);
-	      fprintf (stderr, "establishing server succeeded\n");
-	   }
-#else		// back in Linux country
-	   memset ((char *)(&si_other), 0, sizeof (si_other));
-	   socketAddr		= socket (AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-	   if (socketAddr != -1) {
-	      si_other. sin_family	= AF_INET;
-	      si_other. sin_port	= htons (PORT);
-	      if (inet_aton (SERVER, &si_other. sin_addr) == 0) {
-	         fprintf (stderr, "inet_aton () failed\n");
-	      }
-	      else
-	         fprintf (stderr, "establishing server succeeded\n");
-	   }
-	   else
-	      fprintf (stderr, "could not get socketAddress\n");
-#endif
-	}
-	else
 	if (DSCTy == 60) 	// MOT
 	   opt_motHandler	= new motHandler (mr);
 	start ();
@@ -437,30 +395,7 @@ int16_t	i;
 //	udp packet to port 8888
 void	mscDatagroup::process_udpVector (uint8_t *data, int16_t length) {
 char *message = (char *)(&(data [8]));
-#ifndef __MINGW32__
-	if (socketAddr != -1)
-	   if (sendto (socketAddr,
-	               message,
-	               length - 8,
-	               0,
-	               (struct sockaddr *)&si_other,
-	               sizeof (si_other)) == -1)
-	      fprintf (stderr, "sorry, send did not work\n");
-#else
-	if (socketAddr != -1) {
-	   int16_t amount = sendto (socketAddr,
-	                            message,
-	                            length - 8,
-	                            0,
-	                            (struct sockaddr *)&si_other,
-	                            sizeof (si_other));
-	   if (amount == SOCKET_ERROR) {
-	      int errorCode = WSAGetLastError ();
-	      fprintf (stderr, "send return errorcode %d\n", errorCode);
-	   }
-	}
-#endif
-	   
+	   writeDatagram ((char *)message, length - 8);
 }
 //
 //	MOT should be handled in a separate object (todo)
