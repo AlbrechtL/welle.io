@@ -5,7 +5,7 @@
 ######################################################################
 
 TEMPLATE	= app
-TARGET		= dab-rpi-0.992
+TARGET		= dab-rpi-0.993
 QT		+= widgets network
 CONFIG		+= console
 QMAKE_CFLAGS	+=  -flto -ffast-math 
@@ -114,8 +114,8 @@ SOURCES += ./main.cpp \
 #	and locating libraries. If you do not need a device as
 #	listed, just comment the line out.
 unix {
-#CONFIG		+= dabstick_osmo
-CONFIG		+= dabstick_new
+CONFIG		+= dabstick_osmo
+#CONFIG		+= dabstick_new
 CONFIG		+= sdrplay
 CONFIG		+= rtl_tcp
 CONFIG		+= airspy

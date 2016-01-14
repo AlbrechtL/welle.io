@@ -97,7 +97,7 @@ int i,cnt,ti;
 	      if (ti & 1) cnt++;
 	      ti >>= 1;
 	   }
-	   Partab[i] = cnt & 1;
+	   Partab [i] = cnt & 1;
 	}
 }
 
@@ -233,9 +233,9 @@ uint32_t	i;
 
 	init_viterbi (&vp, 0);
 	for (i = 0; i < (uint16_t)(frameBits + (K - 1)) * RATE; i ++) {
-	   int16_t temp = (- input [i] + 255) / 2 ;
+	   int16_t temp = (- input [i] + 256) / 2 ;
 	   if (temp < 0) temp = 0;
-	   if (temp > 255) temp = 255;
+	   if (temp > 256) temp = 256;
 	   symbols [i] = temp;
 	}
 //	update_viterbi_blk_GENERIC (&vp, symbols, frameBits + (K - 1));

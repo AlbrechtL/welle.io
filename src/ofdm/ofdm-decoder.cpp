@@ -240,8 +240,8 @@ toBitsLabel:
 	   phaseReference [index] = fft_buffer [index];
 	   DSPFLOAT ab1	= jan_abs (r1);
 ///	split the real and the imaginary part and scale it
-	   ibits [i]		= real (r1) / ab1 * 255.0;
-	   ibits [carriers + i] = imag (r1) / ab1 * 255.0;
+	   ibits [i]		= real (r1) / ab1 * 256.0;
+	   ibits [carriers + i] = imag (r1) / ab1 * 256.0;
 	}
 handlerLabel:
 	my_ficHandler -> process_ficBlock (ibits, blkno);
@@ -271,8 +271,8 @@ toBitsLabel:
 	   DSPFLOAT ab1	= jan_abs (r1);
 //	Recall:  positive = 0, negative = 1
 //	we make the bits into softbits in the range -255 .. 255
-	   ibits [i]		= real (r1) / ab1 * 255.0;
-	   ibits [carriers + i] = imag (r1) / ab1 * 255.0;
+	   ibits [i]		= real (r1) / ab1 * 256.0;
+	   ibits [carriers + i] = imag (r1) / ab1 * 256.0;
 	}
 handlerLabel:
 	my_mscHandler -> process_mscBlock (ibits, blkno);

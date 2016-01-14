@@ -278,6 +278,7 @@ int16_t	latency;
 }
 
 	RadioInterface::~RadioInterface () {
+	fprintf (stderr, "deleting radioInterface\n");
 }
 //
 /**
@@ -350,11 +351,11 @@ void	RadioInterface::TerminateProcess (void) {
 #endif
 	delete		our_audioSink;
 
+	accept ();
 	if (pictureLabel != NULL)
 	   delete pictureLabel;
 	pictureLabel = NULL;
 
-	accept ();
 	fprintf (stderr, "Termination started");
 }
 
