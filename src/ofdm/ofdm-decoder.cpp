@@ -296,8 +296,7 @@ float	*v	= (float *)alloca (T_u * sizeof (float));
 	
 	memset (v, 0, T_u * sizeof (float));
 	for (i = 0; i < T_u; i ++)
-	   for (j = 1; j < 2; j ++)
-//	   for (j = 1; j < SYNCLENGTH; j ++)
+	   for (j = 1; j < SYNCLENGTH; j ++)
 	      v [i] +=  jan_abs (syncBuffer [j][i]);
 
 //	basic sum over K carriers that are - most likely -

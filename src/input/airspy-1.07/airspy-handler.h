@@ -97,11 +97,8 @@ public:
 	                         int32_t size, uint8_t M);
 
 private slots:
-//	void		set_linearity (int value);
-//	void		set_sensitivity (int value);
-	void		set_lna_gain (int value);
-	void		set_mixer_gain (int value);
-	void		set_vga_gain (int value);
+	void		set_linearity (int value);
+	void		set_sensitivity (int value);
 	void		set_lna_agc (void);
 	void		set_mixer_agc (void);
 	void		set_rf_bias (void);
@@ -142,9 +139,6 @@ private:
 	bool		rf_bias;
 const	char*		board_id_name (void);
 
-	int16_t		vgaGain;
-	int16_t		mixerGain;
-	int16_t		lnaGain;
 	DSPCOMPLEX	convBuffer [2 * 625 + 1];
 	int16_t		convIndex;
 	int16_t		mapTable_int   [2 * 512];

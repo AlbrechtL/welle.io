@@ -356,7 +356,7 @@ void	RadioInterface::TerminateProcess (void) {
 	   delete pictureLabel;
 	pictureLabel = NULL;
 
-	fprintf (stderr, "Termination started");
+	fprintf (stderr, "Termination started\n");
 }
 
 void	RadioInterface::abortSystem (int d) {
