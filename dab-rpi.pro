@@ -119,6 +119,7 @@ CONFIG		+= dabstick_osmo
 CONFIG		+= sdrplay
 CONFIG		+= rtl_tcp
 CONFIG		+= airspy
+#CONFIG		+= airspy-exp
 CONFIG		+= streamer		# use for remote listening
 DEFINES	+= MOT_BASICS__		# use at your own risk
 #DEFINES	+= MSC_DATA__		# use at your own risk
@@ -151,6 +152,7 @@ DEFINES		+= MOT_BASICS__		# use at your own risk
 CONFIG		+= NO_SSE_SUPPORT 
 CONFIG		+= extio
 CONFIG		+= airspy
+#CONFIG		+= airspy-exp
 CONFIG		+= rtl_tcp
 CONFIG		+= dabstick_osmo
 #CONFIG		+= dabstick_new
@@ -217,6 +219,18 @@ airspy {
 	                   /usr/local/include/libairspy/airspy.h
 	SOURCES		+= ./src/input/airspy/airspy-handler.cpp 
 	FORMS		+= ./src/input/airspy/airspy-widget.ui
+}
+
+# airspy support (still struggling with the sliders)
+#
+airspy-exp {
+	DEFINES		+= HAVE_AIRSPY
+	INCLUDEPATH	+= ./src/input/airspy-exp \
+	                   /usr/local/include/libairspy
+	HEADERS		+= ./src/input/airspy-exp/airspy-handler.h \
+	                   /usr/local/include/libairspy/airspy.h
+	SOURCES		+= ./src/input/airspy-exp/airspy-handler.cpp 
+	FORMS		+= ./src/input/airspy-exp/airspy-widget.ui
 }
 
 #

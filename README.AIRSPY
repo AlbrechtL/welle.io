@@ -1,0 +1,7 @@
+
+The software has ben tested wih the host-1.07 software containing the
+airspy library.
+
+Under Windows, this library was installed and the
+ExtIO_airspy_cmake_mgw_1.0.7.dll was used for testing the extIO interface.
+

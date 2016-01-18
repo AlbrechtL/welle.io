@@ -275,11 +275,11 @@ bool	extioHandler::loadFunctions (void) {
 	   return false;
 	}
 
-	GetHWLO		= (pfnGetHWLO)GETPROCADDRESS (Handle, "GetHWLO");
-	if (GetHWLO == NULL) {
-	   fprintf (stderr, "Failed to load GetHWLO\n");
-	   return false;
-	}
+//	GetHWLO		= (pfnGetHWLO)GETPROCADDRESS (Handle, "GetHWLO");
+//	if (GetHWLO == NULL) {
+//	   fprintf (stderr, "Failed to load GetHWLO\n");
+//	   return false;
+//	}
 
 	SetHWLO		= (pfnSetHWLO)GETPROCADDRESS (Handle, "SetHWLO");
 	if (SetHWLO == NULL) {
@@ -307,6 +307,7 @@ bool	extioHandler::loadFunctions (void) {
 	L_GetFilters	= (pfnGetFilters)GETPROCADDRESS (Handle, "GetFilters");
 	L_GetTune	= (pfnGetTune)GETPROCADDRESS (Handle, "GetTune");
 	L_GetMode	= (pfnGetMode)GETPROCADDRESS (Handle, "GetMode");
+	L_GetHWLO	= (pfnGetHWLO)GETPROCADDRESS (Handle, "GetHWLO");
 //
 	return true;
 }
@@ -342,6 +343,11 @@ void	extioHandler::HideGUI		(void) {
 long	extioHandler::GetHWSR		(void) {
 	return L_GetHWSR != NULL ? (*L_GetHWSR) () : 192000;
 }
+
+long	extioHandler::GetHWLO		(void) {
+	return L_GetHWLO != NULL ? (*L_GetHWLO)() : Mhz (200);
+}
+
 //
 //
 //	Handling the data

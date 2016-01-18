@@ -187,7 +187,7 @@ public:
 	int32_t		Samples			(void);
 	int32_t		getSamples		(DSPCOMPLEX *, int32_t);
 	int16_t		bitDepth		(void);
-	pfnGetHWLO	GetHWLO;	// should be available
+	long		GetHWLO		(void);	// should be available
 	long		GetHWSR		(void); // may be a noop
 
 //
@@ -204,10 +204,10 @@ private:
 //	functions to be extracted from the dll
 	pfnInitHW	InitHW;		// should be available
 	pfnOpenHW	OpenHW;		// should be available
+	pfnSetHWLO	SetHWLO;	// should be available
 	pfnStartHW	StartHW;	// should be available
 	pfnStopHW	StopHW;		// should be available
 	pfnCloseHW	CloseHW;	// should be available
-	pfnSetHWLO	SetHWLO;	// should be available
 	pfnGetStatus	GetStatus;	// should be available
 	pfnSetCallback	SetCallback;	// should be available
 //
@@ -218,6 +218,7 @@ private:
 	pfnGetFilters	L_GetFilters;
 	pfnGetTune	L_GetTune;	
 	pfnGetMode	L_GetMode;
+	pfnGetHWLO	L_GetHWLO;	// should be available
 	void		ShowGUI		(void);
 	void		HideGUI		(void);
 
