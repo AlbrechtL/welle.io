@@ -22,6 +22,7 @@
 #include	"ofdm-processor.h"
 #include	"ofdm-decoder.h"
 #include	"gui.h"
+#include	"fft.h"
 //
 #define	syncBufferMask	(32768 - 1)
 /**
@@ -50,6 +51,8 @@ int32_t	i;
 	this	-> myRadioInterface	= mr;
 	this	-> my_mscHandler	= msc;
 	this	-> my_ficHandler	= fic;
+	fft_handler			= new common_fft (T_u);
+	fft_buffer			= fft_handler -> getVector ();
 	dumping				= false;
 	dumpIndex			= 0;
 //
@@ -77,6 +80,7 @@ int32_t	i;
   */
 	my_ofdmDecoder		= new ofdmDecoder (params,
 	                                           myRadioInterface,
+	                                           phaseSynchronizer -> refTable,
 	                                           my_ficHandler,
 	                                           my_mscHandler);
 	fineCorrector		= 0;	
@@ -113,6 +117,7 @@ int32_t	i;
 	delete	ofdmBuffer;
 	delete	phaseSynchronizer;
 	delete	oscillatorTable;
+	delete	fft_handler;
 	disconnect (this, SIGNAL (show_fineCorrector (int)),
 	            myRadioInterface, SLOT (set_fineCorrectorDisplay (int)));
 	disconnect (this, SIGNAL (show_coarseCorrector (int)),
@@ -352,6 +357,7 @@ SyncOnPhase:
 	   ofdmBufferIndex	= params -> T_u - startIndex;
 
 Block_0:
+static int waar = 10;
 /**
   *	Block 0 is special in that it is used for fine time synchronization
   *	and its content is used as a reference for decoding the
@@ -363,6 +369,17 @@ Block_0:
 	               T_u - ofdmBufferIndex,
 	               coarseCorrector + fineCorrector);
 	   my_ofdmDecoder  -> processBlock_0 (ofdmBuffer);
+//
+//	Here we look only at the block_0 when we need a coare
+//	frequency synchronization.
+//	The width is limited to 2 * 30 Khz (i.e. positive and negative)
+	   if (f2Correction && ++waar >= 3) {
+	      int correction		= processBlock_0 (ofdmBuffer);
+	      coarseCorrector		+= correction * params -> carrierDiff;
+	      if (abs (coarseCorrector) > Khz (30))
+	         coarseCorrector = 0;
+	      waar = 0;
+	   }
 /**
   *	after block 0, we will just read in the other (params -> L - 1) blocks
   */
@@ -426,20 +443,6 @@ NewOffset:
   */
 	   counter	= 0;
 //
-static int waar	= 0;
-static	int	corrector	= 1;
-static	int	oldCorrection	= 0;
-
-	   if ((++ waar > 6) && f2Correction) {
-	      int correction	= my_ofdmDecoder -> coarseCorrector ();
-	      if (oldCorrection == correction) {
-	         correction += corrector;
-	         corrector = -corrector;
-	      }
-	      oldCorrection = correction;
-	      coarseCorrector	+= correction * params -> carrierDiff;
-	      waar = 0;
-	   }
 
 	   if (fineCorrector > params -> carrierDiff / 2) {
 	      coarseCorrector += params -> carrierDiff;
@@ -490,5 +493,32 @@ void	ofdmProcessor::coarseCorrectorOn (void) {
 
 void	ofdmProcessor::coarseCorrectorOff (void) {
 	f2Correction	= false;
+}
+
+#define	RANGE	32
+int16_t	ofdmProcessor::processBlock_0 (DSPCOMPLEX *v) {
+int16_t	i, index = 0;
+float	Min	= 1000;
+
+	memcpy (fft_buffer, v, T_u * sizeof (DSPCOMPLEX));
+	fft_handler	-> do_FFT ();
+//
+//	first we look at the negative frequencies close to zero
+	for (i = T_u - RANGE; i < T_u; i ++) {
+	   if (abs (fft_buffer [i]) < Min) {
+	      index	= i;
+	      Min	= abs (fft_buffer [i]);
+	   }
+	}
+//
+//	then at the positive frequencies close to zero
+	for (i = 0; i < RANGE;  i ++) {
+	   if (abs (fft_buffer [i]) < Min) {
+	      index	= i;
+	      Min	= abs (fft_buffer [i]);
+	   }
+	}
+	
+	return index <= RANGE ? index : index - T_u;
 }
 

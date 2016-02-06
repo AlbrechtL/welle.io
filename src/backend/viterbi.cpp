@@ -226,16 +226,16 @@ uint8_t	mask	= 1 << (7 - o);
 
 //	Note that our DAB environment maps the softbits to -255 .. 255
 //	we have to map that onto 0 .. 255
-//	Note that our generator delivers -255 = 1  +255 = 0
 
 void	viterbi::deconvolve	(int16_t *input, uint8_t *output) {
 uint32_t	i;
 
 	init_viterbi (&vp, 0);
 	for (i = 0; i < (uint16_t)(frameBits + (K - 1)) * RATE; i ++) {
-	   int16_t temp = (- input [i] + 256) / 2 ;
+//	   int16_t temp = - input [i] + 127 ;
+	   int16_t temp = input [i] + 127;
 	   if (temp < 0) temp = 0;
-	   if (temp > 256) temp = 256;
+	   if (temp > 255) temp = 255;
 	   symbols [i] = temp;
 	}
 //	update_viterbi_blk_GENERIC (&vp, symbols, frameBits + (K - 1));

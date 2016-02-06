@@ -1,6 +1,6 @@
 cmake_minimum_required( VERSION 2.8.11 )
 set (CMAKE_BUILD_TYPE Release )
-set (objectName dab-rpi-0.992)
+set (objectName dab-rpi-0.994)
 set ( CMAKE_INSTALL_PREFIX ../ )
 add_definitions ( -Wall)
 ######################################################################

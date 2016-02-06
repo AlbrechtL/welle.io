@@ -97,6 +97,9 @@ private:
 	void		getSamples	(DSPCOMPLEX *, int16_t, int32_t);
 virtual	void		run		(void);
 	int32_t		bufferContent;
+	int16_t		processBlock_0	(DSPCOMPLEX *);
+	common_fft	*fft_handler;
+	DSPCOMPLEX	*fft_buffer;
 signals:
 	void		show_fineCorrector	(int);
 	void		show_coarseCorrector	(int);

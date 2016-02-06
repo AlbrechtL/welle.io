@@ -37,12 +37,12 @@ public:
 		phaseReference (DabParams *, int16_t, int16_t);
 		~phaseReference	(void);
 	int32_t	findIndex	(DSPCOMPLEX *);
+	DSPCOMPLEX	*refTable;
 private:
 	int32_t		Tu;
 	int16_t		blockSize;
 	int16_t		threshold;
 
-	DSPCOMPLEX	*refTable;
 	common_fft	*fft_processor;
 	DSPCOMPLEX	*fft_buffer;
 	common_ifft	*res_processor;

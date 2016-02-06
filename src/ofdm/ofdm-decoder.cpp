@@ -41,11 +41,13 @@
   */
 	ofdmDecoder::ofdmDecoder	(DabParams	*p,
 	                                 RadioInterface *mr,
+	                                 DSPCOMPLEX	*refTable,
 	                                 ficHandler	*my_ficHandler,
 	                                 mscHandler	*my_mscHandler) {
 int16_t	i;
 	this	-> params		= p;
 	this	-> myRadioInterface	= mr;
+	this	-> refTable		= refTable;
 	this	-> my_ficHandler	= my_ficHandler;
 	this	-> my_mscHandler	= my_mscHandler;
 	this	-> T_s			= params	-> T_s;
@@ -59,7 +61,6 @@ int16_t	i;
 	fft_buffer			= fft_handler -> getVector ();
 	phaseReference			= new DSPCOMPLEX [T_u];
 	myMapper			= new interLeaver (params);
-	coarseOffset			= 0;
 //
 	connect (this, SIGNAL (show_snr (int)),
 	         mr, SLOT (show_snr (int)));
@@ -76,9 +77,6 @@ int16_t	i;
 	command			= new DSPCOMPLEX * [params -> L + 1];
 	for (i = 0; i < params -> L + 1; i ++)
 	   command [i] = new DSPCOMPLEX [T_u];
-	syncBuffer		= new DSPCOMPLEX *[SYNCLENGTH];
-	for (i = 0; i < SYNCLENGTH; i ++)
-	   syncBuffer [i] = new DSPCOMPLEX [T_u];
 	amount		= 0;
 	start ();
 }
@@ -96,9 +94,6 @@ int16_t	i;
 	for (i = 0; i < params -> L + 1; i ++)
 	   delete[] command [i];
 	delete[] command;
-	for (i = 0; i < SYNCLENGTH; i ++)
-	   delete[] syncBuffer [i];
-	delete[] syncBuffer;
 }
 
 void	ofdmDecoder::stop		(void) {
@@ -178,9 +173,12 @@ void	ofdmDecoder::decodeMscblock (DSPCOMPLEX *vi, int32_t blkno) {
   *	handle block 0 as collected from the buffer
   */
 void	ofdmDecoder::processBlock_0 (void) {
+int16_t	i, index = 0;
+DSPCOMPLEX	*w = (DSPCOMPLEX *)alloca (64 * sizeof (DSPCOMPLEX));
+float	Min	= 1000;
+
 	memcpy (fft_buffer, command [0], T_u * sizeof (DSPCOMPLEX));
 	fft_handler	-> do_FFT ();
-	memcpy (syncBuffer [1], fft_buffer, T_u * sizeof (DSPCOMPLEX));
 /**
   *	The SNR is determined y looking at a segment of bins
   *	within the signal region and bits outside.
@@ -215,7 +213,6 @@ fftlabel:
   *	first step: do the FFT
   */
 	fft_handler -> do_FFT ();
-	memcpy (syncBuffer [blkno], fft_buffer, T_u * sizeof (DSPCOMPLEX));
 /**
   *	a little optimization: we do not interchange the
   *	positive/negative frequencies to their right positions.
@@ -240,8 +237,12 @@ toBitsLabel:
 	   phaseReference [index] = fft_buffer [index];
 	   DSPFLOAT ab1	= jan_abs (r1);
 ///	split the real and the imaginary part and scale it
-	   ibits [i]		= real (r1) / ab1 * 256.0;
-	   ibits [carriers + i] = imag (r1) / ab1 * 256.0;
+//	Note that the de-puncturing adds '0' as do not know.
+//	If we decide to map the values onto the range 0 .. 255,
+//	as requested by the viterbi decoder, we also should change
+//	the added '0' values in the depuncturing
+	   ibits [i]		= - real (r1) / ab1 * 127.0;
+	   ibits [carriers + i] = - imag (r1) / ab1 * 127.0;
 	}
 handlerLabel:
 	my_ficHandler -> process_ficBlock (ibits, blkno);
@@ -255,8 +256,6 @@ int16_t	i;
 	memcpy (fft_buffer, command [blkno], T_u * sizeof (DSPCOMPLEX));
 fftLabel:
 	fft_handler -> do_FFT ();
-	if (blkno < SYNCLENGTH)
-	   memcpy (syncBuffer [blkno], fft_buffer, T_u * sizeof (DSPCOMPLEX));
 //
 //	Note that "mapIn" maps to -carriers / 2 .. carriers / 2
 //	we did not set the fft output to low .. high
@@ -269,58 +268,15 @@ toBitsLabel:
 	   DSPCOMPLEX	r1 = fft_buffer [index] * conj (phaseReference [index]);
 	   phaseReference [index] = fft_buffer [index];
 	   DSPFLOAT ab1	= jan_abs (r1);
-//	Recall:  positive = 0, negative = 1
-//	we make the bits into softbits in the range -255 .. 255
-	   ibits [i]		= real (r1) / ab1 * 256.0;
-	   ibits [carriers + i] = imag (r1) / ab1 * 256.0;
+//	Recall:  the viterbi decoder wants 127 max pos, - 127 max neg
+//	we make the bits into softbits in the range -127 .. 127
+	   ibits [i]		= - real (r1) / ab1 * 127.0;
+	   ibits [carriers + i] = - imag (r1) / ab1 * 127.0;
 	}
 handlerLabel:
 	my_mscHandler -> process_mscBlock (ibits, blkno);
 }
 
-int16_t	ofdmDecoder::coarseCorrector (void) {
-	coarseOffset	= getMiddle ();
-	return coarseOffset;
-}
-
-/**
-  *	sloppy code to estimate the offset in the "middle"
-  *	We just look at the "balance of power".
-  */
-int16_t	ofdmDecoder::getMiddle (void) {
-int16_t		i, j;
-DSPFLOAT	sum = 0;
-int16_t		maxIndex = 0;
-DSPFLOAT	oldMax	= 0;
-float	*v	= (float *)alloca (T_u * sizeof (float));
-	
-	memset (v, 0, T_u * sizeof (float));
-	for (i = 0; i < T_u; i ++)
-	   for (j = 1; j < SYNCLENGTH; j ++)
-	      v [i] +=  jan_abs (syncBuffer [j][i]);
-
-//	basic sum over K carriers that are - most likely -
-//	in or near the range
-//	The range in which the carrier should be is
-//	T_u / 2 - K / 2 .. T_u / 2 + K / 2
-//	We first determine an initial sum
-	for (i = (T_u - carriers) / 2 - 50;
-	              i <= (T_u + carriers) / 2 - 50; i ++)
-	   sum += v [(T_u / 2 + i) % T_u];
-//
-//	Now a moving sum, look for a maximum within a reasonable
-//	range (around (T_u - K) / 2, the start of the useful frequencies)
-	for (i = (T_u - carriers) / 2 - 50;
-	          i < (T_u - carriers) / 2 + 50; i ++) {
-	   sum -= v [(T_u / 2 + i) % T_u];
-	   sum += v [(T_u / 2 + i + carriers) % T_u];
-	   if (sum > oldMax) {
-	      sum = oldMax;
-	      maxIndex = i;
-	   }
-	}
-	return maxIndex - (T_u - carriers) / 2;
-}
 //
 //
 /**

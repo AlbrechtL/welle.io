@@ -43,6 +43,7 @@ Q_OBJECT
 public:
 		ofdmDecoder		(DabParams *,
 	                                 RadioInterface *,
+	                                 DSPCOMPLEX	*,
 	                                 ficHandler	*,
 	                                 mscHandler	*);
 		~ofdmDecoder		(void);
@@ -50,17 +51,16 @@ public:
 	void	decodeFICblock		(DSPCOMPLEX *, int32_t n);
 	void	decodeMscblock		(DSPCOMPLEX *, int32_t n);
 	int16_t	get_snr			(DSPCOMPLEX *);
-	int16_t	coarseCorrector		(void);
 	void	stop			(void);
 private:
 	DabParams	*params;
 	RadioInterface	*myRadioInterface;
+	DSPCOMPLEX	*refTable;
 	ficHandler	*my_ficHandler;
 	mscHandler	*my_mscHandler;
 	void		run		(void);
 	bool		running;
 	DSPCOMPLEX	**command;
-	DSPCOMPLEX	**syncBuffer;
 	int16_t		amount;
 	int16_t		currentBlock;
 	void		processBlock_0		(void);
@@ -80,7 +80,6 @@ private:
 	phaseTable	*phasetable;
 	int32_t		blockIndex;
 	int16_t		*ibits;
-	int16_t		coarseOffset;
 	int16_t		snrCount;
 	int16_t		snr;
 signals:
