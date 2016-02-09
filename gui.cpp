@@ -138,11 +138,6 @@ int16_t	latency;
   */
 	QString	errorFile	=  
 	                      dabSettings -> value ("errorFile", "").toString ();
-	FILE	*errorLog	= fopen (errorFile == "" ? "/dev/null":
-	                                 errorFile. toLatin1 (). data (), "w");
-	if (errorLog == NULL)
-	   errorLog = fopen ("/dev/null", "w");
-
 /**
   *	Devices can be included or excluded, setting is in the configuration
   *	files. Inclusion is reflected in the selector on the GUI.
@@ -192,8 +187,7 @@ int16_t	latency;
   *	but the handlers do not change for others modes.
   */
 	my_mscHandler		= new mscHandler	(this,
-	                                                 our_audioSink,
-	                                                 errorLog);
+	                                                 our_audioSink);
 	my_ficHandler		= new ficHandler	(this,
 	                                                 my_mscHandler);
 //

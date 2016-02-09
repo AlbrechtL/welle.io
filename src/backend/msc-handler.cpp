@@ -43,8 +43,7 @@
 //	Note CIF counts from 0 .. 3
 //
 		mscHandler::mscHandler	(RadioInterface *mr,
-	                                 audioSink	*sink,
-	                                 FILE		*errorLog) {
+	                                 audioSink	*sink) {
 		myRadioInterface	= mr;
 	        cifVector		= new int16_t [55296];
 	        cifCount		= 0;	// msc blocks in CIF
@@ -54,11 +53,10 @@
 	        currentChannel		= -1;
 	        dabModus		= 0;
 	        our_audioSink		= sink;
-	        this -> errorLog	= errorLog;
 //	assume default Mode I
 		BitsperBlock		= 2 * 1536;
 	   	numberofblocksperCIF	= 18;
-	        audioService		= true;
+	        audioService		= true;		// default
 }
 
 		mscHandler::~mscHandler	(void) {
@@ -159,7 +157,6 @@ int16_t	*myBegin;
 	                                      new_uepFlag,
 	                                      new_protLevel,
 	                                      myRadioInterface,
-	                                      errorLog,
 	                                      our_audioSink);
 
 	   else	 {	// dealing with data

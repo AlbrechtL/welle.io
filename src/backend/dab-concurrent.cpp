@@ -50,7 +50,6 @@ int8_t	interleaveDelays [] = {
 	                                 int16_t uepFlag,
 	                                 int16_t protLevel,
 	                                 RadioInterface *mr,
-	                                 FILE	*errorLog,
 	                                 audioSink *as) {
 int32_t i, j;
 	this	-> dabModus		= dabModus;
@@ -88,7 +87,6 @@ int32_t i, j;
 	if (dabModus == DAB_PLUS) 
 	   our_dabProcessor = new mp4Processor (myRadioInterface,
 	                                        myAudioSink,
-	                                        errorLog,
 	                                        bitRate);
 	else		// cannot happen
 	   our_dabProcessor = new dabProcessor ();

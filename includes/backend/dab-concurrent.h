@@ -46,7 +46,6 @@ public:
 	                 int16_t uepFlag,
 	                 int16_t protLevel,
 	                 RadioInterface *mr,
-	                 FILE	*,
 	                 audioSink *as);
 	~dabConcurrent	(void);
 int32_t	process		(int16_t *, int16_t);

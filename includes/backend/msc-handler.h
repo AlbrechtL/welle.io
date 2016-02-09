@@ -26,8 +26,8 @@
  * 	MSC data
  */
 #
-#ifndef	MSC_DECODER
-#define	MSC_DECODER
+#ifndef	MSC_HANDLER
+#define	MSC_HANDLER
 
 #include	<stdio.h>
 #include	<stdint.h>
@@ -42,8 +42,7 @@ class	dabVirtual;
 class mscHandler {
 public:
 		mscHandler		(RadioInterface *,
-	                                 audioSink *,
-	                                 FILE	*);
+	                                 audioSink *);
 		~mscHandler		(void);
 	void	process_mscBlock	(int16_t *, int16_t);
 	void	setMode			(DabParams *);
@@ -64,7 +63,6 @@ public:
 private:
 	bool		audioService;
 	RadioInterface	*myRadioInterface;
-	FILE		*errorLog;
 	dabVirtual	*dabHandler;
 	int16_t		*cifVector;
 	int16_t		cifCount;

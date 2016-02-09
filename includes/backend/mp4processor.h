@@ -46,7 +46,6 @@ Q_OBJECT
 public:
 			mp4Processor	(RadioInterface *,
 	                                 audioSink *,
-	                                 FILE	*,
 	                                 int16_t);
 			~mp4Processor	(void);
 	void		addtoFrame	(uint8_t *, int16_t);
@@ -54,7 +53,6 @@ private:
 	RadioInterface	*myRadioInterface;
 	audioSink	*ourSink;
 	padHandler	my_padhandler;
-	FILE		*errorLog;
 	bool		processSuperframe (uint8_t [], int16_t);
 	int16_t		superFramesize;
 	int16_t		blockFillIndex;

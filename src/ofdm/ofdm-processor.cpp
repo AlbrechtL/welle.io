@@ -372,11 +372,11 @@ static int waar = 10;
 //
 //	Here we look only at the block_0 when we need a coare
 //	frequency synchronization.
-//	The width is limited to 2 * 30 Khz (i.e. positive and negative)
+//	The width is limited to 2 * 45 Khz (i.e. positive and negative)
 	   if (f2Correction && ++waar >= 3) {
 	      int correction		= processBlock_0 (ofdmBuffer);
 	      coarseCorrector		+= correction * params -> carrierDiff;
-	      if (abs (coarseCorrector) > Khz (30))
+	      if (abs (coarseCorrector) > Khz (45))
 	         coarseCorrector = 0;
 	      waar = 0;
 	   }
