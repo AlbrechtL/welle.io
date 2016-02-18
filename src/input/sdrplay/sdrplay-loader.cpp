@@ -66,11 +66,9 @@ ULONG APIkeyValue_length = 255;
 //	Ǹote that under Ubuntu, the Mirics shared object does not seem to be
 //	able to find the libusb. That is why we explicity load it here
 	Handle		= dlopen ("libusb-1.0.so", RTLD_NOW | RTLD_GLOBAL);
-#ifdef	SDRPLAY_LIBRARY_NEW
 	Handle		= dlopen ("libmirsdrapi-rsp.so", RTLD_NOW);
-#else
-	Handle		= dlopen ("libmir_sdr.so", RTLD_NOW);
-#endif
+	if (Handle == NULL)
+	   Handle	= dlopen ("libmir_sdr.so", RTLD_NOW);
 	if (Handle == NULL) {
 	   fprintf (stderr, "error report %s\n", dlerror ());
 	   return;
@@ -157,6 +155,9 @@ ULONG APIkeyValue_length = 255;
 //	   return;
 //	}
 
+	xx_mir_sdr_SetParam	= (pfn_mir_sdr_SetParam)
+	                GETPROCADDRESS (Handle, "mir_sdr_SetParam");
+
 	fprintf (stderr, "Functions seem to be loaded\n");
 	*success	= true;
 //
@@ -190,5 +191,11 @@ ULONG APIkeyValue_length = 255;
 #else
 	dlclose (Handle);
 #endif
+}
+
+void	sdrplayLoader::my_mir_sdr_SetParam (int p, int v) {
+	if (xx_mir_sdr_SetParam == 0)
+	   return;
+	(void)xx_mir_sdr_SetParam (p, v);
 }
 

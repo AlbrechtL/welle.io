@@ -28,7 +28,8 @@
 //	Interleaving is - for reasons of simplicity - done
 //	inline rather than through a special class-object
 //	We could make a single handler for interleaving
-//	and deconvolution
+//	and deconvolution, bt it is a pretty simple operation
+//	so for now keep it in-line
 //
 //	\class mscDatagroup
 //	The main function of this class is to assemble the 
@@ -66,7 +67,9 @@ int32_t i, j;
 	      interleaveData [i][j] = 0;
 	}
 	countforInterleaver	= 0;
-
+//
+//	The handling of the depuncturing and deconvolution is
+//	shared with that of the audio
 	uepProcessor		= NULL;
 	eepProcessor		= NULL;
 	if (uepFlag == 0)
@@ -76,6 +79,8 @@ int32_t i, j;
 	   eepProcessor	= new eep_deconvolve (bitRate,
 	                                      protLevel);
 //
+//	any reasonable (i.e. large) size will do here,
+//	as long as the parameter is a power of 2
 	Buffer		= new RingBuffer<int16_t>(64 * 32768);
 	packetState	= 0;
 	streamAddress	= -1;
@@ -87,7 +92,7 @@ int32_t i, j;
 	opt_motHandler	= NULL;
 
 //	todo: we should make a class for each of the
-//	recognized DSCTy values
+//	recognized DSCTy values, not just for MOT
 	if (DSCTy == 60) 	// MOT
 	   opt_motHandler	= new motHandler (mr);
 	start ();
@@ -194,12 +199,12 @@ void	mscDatagroup::stopRunning (void) {
 	   usleep (100);
 }
 //
-//	While for a full mix there will be a single packet in a
+//	While for a full mix data and audio there will be a single packet in a
 //	data compartment, for an empty mix, there may be many more
 void	mscDatagroup::handlePackets (uint8_t *data, int16_t length) {
 	while (true) {
 	   int16_t pLength = (getBits_2 (data, 0) + 1) * 24 * 8;
-	   if (length < pLength)
+	   if (length < pLength)	// be on the safe side
 	      return;
 	   handlePacket (data);
 	   length -= pLength;
@@ -210,7 +215,7 @@ void	mscDatagroup::handlePackets (uint8_t *data, int16_t length) {
 }
 //
 //	Handle a single DAB packet:
-//	Note, although nit yet encountered, the standard says that
+//	Note, although not yet encountered, the standard says that
 //	there may be multiple streams, to be identified by
 //	the address. For the time being we only handle a single
 //	stream!!!!
@@ -287,6 +292,8 @@ int16_t	i;
 }
 //
 ///	It took a while but at last, we have a MSCdatagroup
+//	handling it is really boring, i.e. get a bit from here, get
+//	a bit from there ...
 void	mscDatagroup::handleMSCdatagroup (QByteArray msc) {
 uint8_t *data		= (uint8_t *)(msc. data ());
 bool	extensionFlag	= getBits_1 (data, 0) != 0;
@@ -332,7 +339,8 @@ int16_t	i;
 	int16_t		sizeinBits	=
 	              msc. size () - next - (crcFlag != 0 ? 16 : 0);
 	switch (DSCTy) {
-	   case 5:		// TPEG channel
+	   case 5:		// TPEG channel, no idea how
+	                        // to handle that
 //	      fprintf (stderr, "mode 5, groupType = %d\n", groupType);
 	      break;
 
@@ -363,11 +371,13 @@ int16_t	i;
 	                     transportId);
 	      }
 	      break;
+
 	   default:
 	      fprintf (stderr, "MSCdatagroup met groupType %d\n", groupType);
 	}
 }
-
+//
+//
 void	mscDatagroup::process_ipVector (QByteArray v) {
 uint8_t	*data		= (uint8_t *)(v. data ());
 int16_t	headerSize	= data [0] & 0x0F;	// in 32 bits words

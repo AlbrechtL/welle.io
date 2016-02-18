@@ -23,7 +23,9 @@
 #include	"mot-data.h"
 #include	"gui.h"
 #include	<QDir>
-
+//
+//	First attempt to do "something" with the MOT data
+//
 		motHandler::motHandler (RadioInterface *mr) {
 int16_t	i, j;
 
@@ -131,8 +133,9 @@ int16_t segSize		= ((segment [9] & 0x1F) << 8) | segment [10];
 
 	if ((theDirectory != NULL) &&
 	                (theDirectory -> transportId == transportId)) 
-	   return;
-	if (theDirectory != NULL)
+	   return;		// already in!!
+
+	if (theDirectory != NULL)	// other directory now
 	   delete theDirectory;
 
 	theDirectory = new MOT_directory (transportId, segmentSize,

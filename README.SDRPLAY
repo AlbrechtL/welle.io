@@ -2,10 +2,8 @@
 Note that a new installer program for the sdrplay libraries is
 on the site sdrplay.com
 
-By default it is assumed that the "old" api is in place
-If not, then there will be a problem with loading the library
-unless you define
-#define	SDRPLAY__LIBRARY_NEW
-in the file
-sdrplay/sdrplay-loader.cpp
+Current version assumes library version 1.7 to be available.
+
+Note that the naming of the libraries on PC Linux and on RPI differs
+
 

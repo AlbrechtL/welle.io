@@ -240,6 +240,8 @@ int32_t		syncBufferIndex;
 int32_t		syncBufferSize;
 float		envBuffer	[syncBufferMask + 1];
 float		signalLevel;
+int		previous_1	= 1000;
+int		previous_2	= 1000;
 
 	running		= true;
 	fineCorrector	= 0;
@@ -357,7 +359,6 @@ SyncOnPhase:
 	   ofdmBufferIndex	= params -> T_u - startIndex;
 
 Block_0:
-static int waar = 10;
 /**
   *	Block 0 is special in that it is used for fine time synchronization
   *	and its content is used as a reference for decoding the
@@ -372,13 +373,20 @@ static int waar = 10;
 //
 //	Here we look only at the block_0 when we need a coare
 //	frequency synchronization.
-//	The width is limited to 2 * 45 Khz (i.e. positive and negative)
-	   if (f2Correction && ++waar >= 3) {
+//	The width is limited to 2 * 35 Khz (i.e. positive and negative)
+	   if (f2Correction) {
 	      int correction		= processBlock_0 (ofdmBuffer);
-	      coarseCorrector		+= correction * params -> carrierDiff;
-	      if (abs (coarseCorrector) > Khz (45))
-	         coarseCorrector = 0;
-	      waar = 0;
+	      if ((correction == 0) && (previous_1 == 0) &&
+	          (previous_1 == previous_2))
+	         f2Correction = false;
+	      else
+	      if (correction != 100) {
+	         coarseCorrector	+= correction * params -> carrierDiff;
+	         if (abs (coarseCorrector) > Khz (35))
+	            coarseCorrector = 0;
+	         previous_2	= previous_1;
+	         previous_1	= correction;
+	      }
 	   }
 /**
   *	after block 0, we will just read in the other (params -> L - 1) blocks
@@ -495,30 +503,58 @@ void	ofdmProcessor::coarseCorrectorOff (void) {
 	f2Correction	= false;
 }
 
-#define	RANGE	32
+#define	RANGE	36
 int16_t	ofdmProcessor::processBlock_0 (DSPCOMPLEX *v) {
-int16_t	i, index = 0;
-float	Min	= 1000;
+int16_t	i, index = 100;
+float	Min	= 10000;
 
 	memcpy (fft_buffer, v, T_u * sizeof (DSPCOMPLEX));
 	fft_handler	-> do_FFT ();
-//
-//	first we look at the negative frequencies close to zero
-	for (i = T_u - RANGE; i < T_u; i ++) {
-	   if (abs (fft_buffer [i]) < Min) {
-	      index	= i;
-	      Min	= abs (fft_buffer [i]);
-	   }
-	}
-//
-//	then at the positive frequencies close to zero
-	for (i = 0; i < RANGE;  i ++) {
-	   if (abs (fft_buffer [i]) < Min) {
-	      index	= i;
-	      Min	= abs (fft_buffer [i]);
-	   }
-	}
+
+	for (i = T_u - RANGE; i < T_u + RANGE; i ++) {
+	   if (abs (fft_buffer [i % T_u]) < Min) {
+	      float a1	= arg (fft_buffer [(i + 1) % T_u] *
+	                       conj (fft_buffer [(i + 2) % T_u]));
+	      if (abs (abs (a1 / M_PI) - 1) < 0.15) {
+	         float a2	= arg (fft_buffer [(i + 1) % T_u] *
+	                       conj (fft_buffer [(i + 3) % T_u]));
+	         float a3	= arg (fft_buffer [(i + 3) % T_u] *
+	                       conj (fft_buffer [(i + 4) % T_u]));
+	         float a4	= arg (fft_buffer [(i + 4) % T_u] *
+	                       conj (fft_buffer [(i + 5) % T_u]));
+	         float a5	= arg (fft_buffer [(i + 5) % T_u] *
+	                       conj (fft_buffer [(i + 6) % T_u]));
 	
-	return index <= RANGE ? index : index - T_u;
+	         if ((abs (a2) < 0.4) && (abs (a3) < 0.4) &&
+	             (abs (a4) < 0.4) && (abs (a5) < 0.4)) {
+	            index	= i;
+	            Min	= abs (fft_buffer [i % T_u]);
+	         }
+	      }
+	   }
+	}
+
+//	if (index != 100) {	// check on reasonability
+//	   float a1	= arg (fft_buffer [(index + 1) % T_u]);
+//	   float a2	= arg (fft_buffer [(index + 2) % T_u]);
+//	   float a3	= arg (fft_buffer [(index + 3) % T_u]);
+//	   float a4	= arg (fft_buffer [(index + 4) % T_u]);
+//	   float a5	= arg (fft_buffer [(index + 5) % T_u]);
+//	   float a6	= arg (fft_buffer [(index + 6) % T_u]);
+//	   fprintf (stderr, "index = %d\t%f\t%f\t%f\t%f (%f, %f)\n",
+//	                    index > RANGE ? index - T_u : index,
+//	                    abs (a1 - a3) / M_PI,
+//	                    abs (a3 - a4) / M_PI,
+//	                    abs (a4 - a5) / M_PI,
+//	                    abs (a5 - a6) / M_PI,
+//	                    arg (fft_buffer [(index + 1) % T_u] *
+//	                         conj (fft_buffer [(index + 2) % T_u])) / M_PI,
+//	                    arg (fft_buffer [(index +16+ 1) % T_u] *
+//	                         conj (fft_buffer [(index + 16+ 2) % T_u])) / M_PI);
+//	}
+	if (index != 100)
+	   return index - T_u;
+	else
+	   return 100;
 }
 

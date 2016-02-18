@@ -53,7 +53,7 @@ DSPFLOAT	Phi_k;
 
 	for (i = 1; i <= p -> K / 2; i ++) {
 	   Phi_k =  get_Phi (i);
-	   refTable [i - 1] = DSPCOMPLEX (cos (Phi_k), sin (Phi_k));
+	   refTable [i] = DSPCOMPLEX (cos (Phi_k), sin (Phi_k));
 	   Phi_k = get_Phi (-i);
 	   refTable [Tu - i] = DSPCOMPLEX (cos (Phi_k), sin (Phi_k));
 	}

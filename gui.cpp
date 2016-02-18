@@ -46,9 +46,6 @@
 #ifdef	HAVE_SDRPLAY
 #include	"sdrplay.h"
 #endif
-#ifdef	HAVE_DONGLE
-#include	"mirics-dongle.h"
-#endif
 #ifdef	HAVE_UHD
 #include	"uhd-input.h"
 #endif
@@ -851,7 +848,7 @@ void	RadioInterface::show_snr (int s) {
   *	Operation is in three steps: 
   *	   first dumping of any kind is stopped
   *	   second the previously loaded device is stopped
-  *	   third, the new device is initiated
+  *	   third, the new device is initiated, but not started
   */
 void	RadioInterface::setDevice (QString s) {
 bool	success;
@@ -904,6 +901,7 @@ QString	file;
 #endif
 #ifdef HAVE_UHD
 //	UHD is - at least in its current setting - for Linux
+//	and not tested by me
 	if (s == "UHD") {
 	   myRig = new uhdInput (dabSettings, &success );
 	   if (!success) {
@@ -921,7 +919,7 @@ QString	file;
 //	extio is - in its current settings - for Windows, it is a
 //	wrap around the dll
 	if (s == "extio") {
-	   myRig = new extioHandler (dabSettings, &success );
+	   myRig = new extioHandler (dabSettings, &success);
 	   if (!success) {
 	      delete myRig;
 	      QMessageBox::warning( this, tr ("sdr"), tr ("extio: no luck\n") );
@@ -934,9 +932,9 @@ QString	file;
 	else
 #endif
 #ifdef HAVE_RTL_TCP
-//	RTL_TCP might be working
+//	RTL_TCP might be working. 
 	if (s == "rtl_tcp") {
-	   myRig = new rtl_tcp_client (dabSettings, &success );
+	   myRig = new rtl_tcp_client (dabSettings, &success);
 	   if (!success) {
 	      delete myRig;
 	      QMessageBox::warning( this, tr ("sdr"), tr ("UHD: no luck\n") );
@@ -978,6 +976,8 @@ QString	file;
 	}
 	else
 #endif
+//
+//	We always have fileinput!!
 	if (s == "file input (.raw)") {
 	   file		= QFileDialog::getOpenFileName (this,
 	                                                tr ("open file ..."),
@@ -1006,6 +1006,7 @@ QString	file;
 	   }
 	}
 	else {	// s == "no device" 
+//	and as default option, we have a "no device"
 	   myRig	= new virtualInput ();
 	}
 ///	we have a new device, so we can re-create the ofdmProcessor
@@ -1020,7 +1021,7 @@ QString	file;
 
 /**	In case selection of a device did not work out for whatever
   *	reason, the device selector is reset to "no device"
-  *	Qt will trigger on the chgange of value in the deviceSelector
+  *	Qt will trigger on the change of value in the deviceSelector
   *	which will cause selectdevice to be called again (while we
   *	are in the middle, so we first disconnect the selector
   *	from the slot. Obviously, after setting the index of
