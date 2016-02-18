@@ -119,7 +119,7 @@ int	err;
 	functions -> my_mir_sdr_SetSyncUpdatePeriod ((int)(deviceRate * MHz (1) / 2));
 	functions -> my_mir_sdr_SetSyncUpdateSampleNum (sps);
 	functions	-> my_mir_sdr_SetParam (102, 1);
-//	functions	-> my_mir_sdr_SetParam (105, 1);
+	functions	-> my_mir_sdr_SetParam (105, 0);
 
 	while (runnable) {
 	   err =  functions ->
