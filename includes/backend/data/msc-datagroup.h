@@ -91,6 +91,11 @@ void	run		(void);
 	                                         bool,
 	                              		 int16_t,
 	                              	         uint16_t);
+	void		processJournaline	(QByteArray,
+	                                         uint8_t,
+	                                         bool,
+	                              		 int16_t,
+	                              	         uint16_t);
 	void		process_ipVector	(QByteArray);
 	void		process_udpVector	(uint8_t *, int16_t);
 

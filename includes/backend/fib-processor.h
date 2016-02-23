@@ -90,7 +90,7 @@ class	RadioInterface;
 class	fib_processor: public QObject {
 Q_OBJECT
 public:
-		fib_processor		(RadioInterface *,  mscHandler *);
+		fib_processor		(RadioInterface *);
 		~fib_processor		(void);
 	void	process_FIB		(uint8_t *, uint16_t);
 
@@ -99,9 +99,11 @@ public:
 	void	printActions		(int16_t);
 	void	setCIFparameters	(int16_t);
 	void	setSelectedService	(QString &);
+	uint8_t	kindofService		(QString &);
+	void	dataforAudioService	(QString &, audiodata *);
+	void	dataforDataService	(QString &, packetdata *);
 private:
 	RadioInterface	*myRadioInterface;
-	mscHandler	*myDecoder;
 	serviceId	*findServiceId (int32_t);
 	serviceComponent *find_packetComponent (int16_t);
         void            bind_audioService (int8_t,

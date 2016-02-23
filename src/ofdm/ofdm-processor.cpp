@@ -49,8 +49,6 @@ int32_t	i;
 	this	-> T_s			= p 	-> T_s;
 	this	-> T_u			= p	-> T_u;
 	this	-> myRadioInterface	= mr;
-	this	-> my_mscHandler	= msc;
-	this	-> my_ficHandler	= fic;
 	fft_handler			= new common_fft (T_u);
 	fft_buffer			= fft_handler -> getVector ();
 	dumping				= false;
@@ -81,8 +79,8 @@ int32_t	i;
 	my_ofdmDecoder		= new ofdmDecoder (params,
 	                                           myRadioInterface,
 	                                           phaseSynchronizer -> refTable,
-	                                           my_ficHandler,
-	                                           my_mscHandler);
+	                                           fic,
+	                                           msc);
 	fineCorrector		= 0;	
 	coarseCorrector		= 0;
 	f2Correction		= false;
@@ -534,24 +532,24 @@ float	Min	= 10000;
 	   }
 	}
 
-//	if (index != 100) {	// check on reasonability
-//	   float a1	= arg (fft_buffer [(index + 1) % T_u]);
-//	   float a2	= arg (fft_buffer [(index + 2) % T_u]);
-//	   float a3	= arg (fft_buffer [(index + 3) % T_u]);
-//	   float a4	= arg (fft_buffer [(index + 4) % T_u]);
-//	   float a5	= arg (fft_buffer [(index + 5) % T_u]);
-//	   float a6	= arg (fft_buffer [(index + 6) % T_u]);
-//	   fprintf (stderr, "index = %d\t%f\t%f\t%f\t%f (%f, %f)\n",
-//	                    index > RANGE ? index - T_u : index,
-//	                    abs (a1 - a3) / M_PI,
-//	                    abs (a3 - a4) / M_PI,
-//	                    abs (a4 - a5) / M_PI,
-//	                    abs (a5 - a6) / M_PI,
-//	                    arg (fft_buffer [(index + 1) % T_u] *
-//	                         conj (fft_buffer [(index + 2) % T_u])) / M_PI,
-//	                    arg (fft_buffer [(index +16+ 1) % T_u] *
-//	                         conj (fft_buffer [(index + 16+ 2) % T_u])) / M_PI);
-//	}
+	if (index != 100) {	// check on reasonability
+	   float a1	= arg (fft_buffer [(index + 1) % T_u]);
+	   float a2	= arg (fft_buffer [(index + 2) % T_u]);
+	   float a3	= arg (fft_buffer [(index + 3) % T_u]);
+	   float a4	= arg (fft_buffer [(index + 4) % T_u]);
+	   float a5	= arg (fft_buffer [(index + 5) % T_u]);
+	   float a6	= arg (fft_buffer [(index + 6) % T_u]);
+	   fprintf (stderr, "index = %d\t%f\t%f\t%f\t%f (%f, %f)\n",
+	                    index > RANGE ? index - T_u : index,
+	                    abs (a1 - a3) / M_PI,
+	                    abs (a3 - a4) / M_PI,
+	                    abs (a4 - a5) / M_PI,
+	                    abs (a5 - a6) / M_PI,
+	                    arg (fft_buffer [(index + 1) % T_u] *
+	                         conj (fft_buffer [(index + 2) % T_u])) / M_PI,
+	                    arg (fft_buffer [(index + 16 + 1) % T_u] *
+	                         conj (fft_buffer [(index + 16 + 2) % T_u])) / M_PI);
+	}
 	if (index != 100)
 	   return index - T_u;
 	else

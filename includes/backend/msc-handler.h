@@ -29,6 +29,7 @@
 #ifndef	MSC_HANDLER
 #define	MSC_HANDLER
 
+#include	<QMutex>
 #include	<stdio.h>
 #include	<stdint.h>
 #include	"audiosink.h"
@@ -42,32 +43,23 @@ class	dabVirtual;
 class mscHandler {
 public:
 		mscHandler		(RadioInterface *,
-	                                 audioSink *);
+	                                 DabParams	*,
+	                                 audioSink	*);
 		~mscHandler		(void);
 	void	process_mscBlock	(int16_t *, int16_t);
-	void	setMode			(DabParams *);
-	void	set_audioChannel	(int16_t, int16_t, int16_t,
-	                                 int16_t, int16_t, int16_t, int16_t,
-	                                 int16_t, int16_t);
-	void    set_dataChannel         (int16_t, int16_t, int16_t,
-                                         int16_t, int16_t, int16_t,
-	                                 int16_t, uint8_t,
-                                         uint8_t, int16_t);
-	void	getMode			(bool *, uint8_t *);
-	int16_t	getChannel		(void);
-	int16_t	getLanguage		(void);
-	int16_t	getType			(void);
+	void	set_audioChannel	(audiodata	*);
+	void    set_dataChannel         (packetdata	*);
 	void	stopProcessing		(void);
-	void	stop			(void);
-	void	setFiles		(FILE *, FILE *);
+	void	stopHandler		(void);
 private:
+	QMutex		locker;
 	bool		audioService;
 	RadioInterface	*myRadioInterface;
 	dabVirtual	*dabHandler;
 	int16_t		*cifVector;
 	int16_t		cifCount;
 	int16_t		blkCount;
-	int16_t		currentChannel;
+	bool		work_to_be_done;
 	bool		newChannel;
 	int16_t		new_packetAddress;
 	int16_t		new_ASCTy;
@@ -81,15 +73,8 @@ private:
 	int16_t		new_language;
 	int16_t		new_type;
 	int16_t		new_FEC_scheme;
-	int16_t		packetAddress;
-	uint8_t		DSCTy;
 	int16_t		startAddr;
 	int16_t		Length;
-	int16_t		uepFlag;
-	int16_t		protLevel;
-	uint8_t		DGflag;
-	int16_t		bitRate;
-	int16_t		FEC_scheme;
 	int8_t		dabModus;
 	int8_t		new_dabModus;
 	int16_t		BitsperBlock;

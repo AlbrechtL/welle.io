@@ -181,12 +181,12 @@ int16_t	latency;
   *	and ofdmDecoder for the ofdm related part, ficHandler
   *	for the FIC's and mscHandler for the MSC.
   *	The ficHandler shares information with the mscHandler
-  *	but the handlers do not change for others modes.
+  *	but the handlers do not change each others modes.
   */
 	my_mscHandler		= new mscHandler	(this,
+	                                                 &dabModeParameters,
 	                                                 our_audioSink);
-	my_ficHandler		= new ficHandler	(this,
-	                                                 my_mscHandler);
+	my_ficHandler		= new ficHandler	(this);
 //
 /**
   *	The default for the ofdmProcessor depends on
@@ -328,7 +328,7 @@ void	RadioInterface::TerminateProcess (void) {
 	   sf_close (audiofilePointer);
 	}
 	myRig			-> stopReader ();	// might be concurrent
-	my_mscHandler		-> stop ();	// might be concurrent
+	my_mscHandler		-> stopHandler ();	// might be concurrent
 	my_ofdmProcessor	-> stop ();	// definitely concurrent
 	our_audioSink		-> stop ();
 	dumpControlState (dabSettings);
@@ -572,6 +572,8 @@ bool	localRunning	= running;
   */
 void	RadioInterface::clearEnsemble	(void) {
 //
+//	it obviosuly means: stop processing
+	my_mscHandler	-> stopProcessing ();
 //	first the real stuff
 	Services = QStringList ();
 	ensemble. setStringList (Services);
@@ -730,26 +732,43 @@ void	RadioInterface::selectService (QModelIndex s) {
 uint8_t	coding;
 bool	is_audio;
 QString a = ensemble. data (s, Qt::DisplayRole). toString ();
-	my_ficHandler -> setSelectedService (a);
-	my_mscHandler	-> getMode (&is_audio, &coding);
-	if (!is_audio) {
-	   switch (coding) {
-	      default:
-	         showLabel (QString ("unimplemented Data"));
-	         break;
-	      case 5:
-	         showLabel (QString ("Transparent Channel not implemented"));
-	         break;
-	      case 60:
-	         showLabel (QString ("MOT partially implemented"));
-	         break;
-	      case 59:
-	         showLabel (QString ("Embedded IP: UDP data sent to 8888"));
-	         break;
-	   }
+
+	switch (my_ficHandler -> kindofService (a)) {
+	   case AUDIO_SERVICE:
+	      { audiodata d;
+	        my_ficHandler	-> dataforAudioService (a, &d);
+	        my_mscHandler	-> set_audioChannel (&d);
+	        showLabel (QString (" "));
+	        break;
+	      }
+	   case PACKET_SERVICE:
+	      {  packetdata d;
+	          my_ficHandler	-> dataforDataService (a, &d);
+	         if ((d.  DSCTy == 0) || (d. bitRate == 0))
+	            return;
+	         my_mscHandler	-> set_dataChannel (&d);
+	         switch (d. DSCTy) {
+	            default:
+	               showLabel (QString ("unimplemented Data"));
+	               break;
+	            case 5:
+	               showLabel (QString ("Transp. Channel not implemented"));
+	               break;
+	            case 60:
+	               showLabel (QString ("MOT partially implemented"));
+	               break;
+	            case 59:
+	               showLabel (QString ("Embedded IP: UDP data to 8888"));
+	               break;
+	            case 44:
+	               showLabel (QString ("Journaline"));
+	               break;
+	         }
+	        break;
+	      }
+	   default:
+	      return;
 	}
-	else
-	   dynamicLabel	-> setText (" ");
 	if (pictureLabel != NULL)
 	   delete pictureLabel;
 	pictureLabel = NULL;
@@ -1010,6 +1029,7 @@ QString	file;
 	   myRig	= new virtualInput ();
 	}
 ///	we have a new device, so we can re-create the ofdmProcessor
+///	Note: the fichandler and mscHandler remain unchanged
 	my_ofdmProcessor	= new ofdmProcessor   (myRig,
 	                                               &dabModeParameters,
 	                                               this,
@@ -1137,9 +1157,12 @@ uint8_t	Mode	= s. toInt ();
 //	we have to create a new ofdmprocessor with the correct
 //	settings of the parameters.
 	delete 	my_ofdmProcessor;
+	delete	my_mscHandler;
 	setModeParameters (Mode);
 	my_ficHandler		-> setBitsperBlock	(2 * dabModeParameters. K);
-	my_mscHandler		-> setMode		(&dabModeParameters);
+	my_mscHandler		= new mscHandler	(this,
+	                                                 &dabModeParameters,
+	                                                 our_audioSink);
 	delete my_ofdmProcessor;
 	my_ofdmProcessor	= new ofdmProcessor   (myRig,
 	                                               &dabModeParameters,

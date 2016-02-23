@@ -79,21 +79,6 @@ int16_t	i;
 	if ((CI & 037)  == 02 || (CI & 037) == 03)
 	   dynamicLabel (data, 3, CI);
 }
-
-static inline
-bool	isOK (uint8_t c) {
-	return c == ' ' ||
-	       ('0' <= c && c <= '9') ||
-	       ('a' <= c && c <= 'z') ||
-	       ('A' <= c && c <= 'Z') ||
-	       c == '.';
-}
-
-static inline
-uint8_t theChar (uint8_t c) {
-	return c;
-	return isOK (c) ? c : ' ';
-}
 //
 //
 //	Here we end up when F_PAD type = 00 and X-PAD Ind = 02

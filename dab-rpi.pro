@@ -5,7 +5,7 @@
 ######################################################################
 
 TEMPLATE	= app
-TARGET		= dab-rpi-0.994
+TARGET		= dab-rpi-0.995
 QT		+= widgets network
 CONFIG		+= console
 QMAKE_CFLAGS	+=  -flto -ffast-math 
@@ -20,6 +20,8 @@ DEPENDPATH += . \
 	      ./includes \
 	      ./src/ofdm \
 	      ./src/backend \
+	      ./src/backend/audio \
+	      ./src/backend/data \
 	      ./src/output \
 	      ./src/various \
 	      ./src/input \
@@ -27,6 +29,8 @@ DEPENDPATH += . \
 	      ./src/input/wavfiles \
 	      ./includes/ofdm \
 	      ./includes/backend \
+	      ./includes/backend/audio \
+	      ./includes/backend/data \
 	      ./includes/output \
 	      ./includes/various 
 
@@ -36,6 +40,8 @@ INCLUDEPATH += . \
 	      ./includes \
 	      ./includes/ofdm \
 	      ./includes/backend \
+	      ./includes/backend/audio \
+	      ./includes/backend/data \
 	      ./includes/output \
 	      ./includes/various \
 	      ./src/input \
@@ -55,17 +61,18 @@ HEADERS += ./gui.h \
 	   ./includes/backend/msc-handler.h \
 	   ./includes/backend/fib-processor.h  \
 	   ./includes/backend/rscodec.h \
-	   ./includes/backend/mp2processor.h \
 	   ./includes/backend/charsets.h \
-	   ./includes/backend/mp4processor.h \
-	   ./includes/backend/pad-handler.h \
-	   ./includes/backend/mot-data.h \
-	   ./includes/backend/deconvolve.h \
 	   ./includes/backend/firecode-checker.h \
-	   ./includes/backend/dab-concurrent.h \
-	   ./includes/backend/msc-datagroup.h \
+	   ./includes/backend/data/msc-datagroup.h \
 	   ./includes/backend/dab-processor.h \
 	   ./includes/backend/dab-virtual.h \
+	   ./includes/backend/audio/dab-audio.h \
+	   ./includes/backend/audio/mp2processor.h \
+	   ./includes/backend/audio/mp4processor.h \
+	   ./includes/backend/audio/faad-decoder.h \
+	   ./includes/backend/data/pad-handler.h \
+	   ./includes/backend/data/mot-data.h \
+	   ./includes/backend/deconvolve.h \
 	   ./includes/output/audiosink.h \
 	   ./includes/output/fir-filters.h \
            ./includes/various/fft.h \
@@ -91,17 +98,17 @@ SOURCES += ./main.cpp \
 	   ./src/backend/deconvolve.cpp \
 	   ./src/backend/fib-processor.cpp  \
 	   ./src/backend/rscodec.cpp \
-	   ./src/backend/mp2processor.cpp \
 	   ./src/backend/charsets.cpp \
-	   ./src/backend/mp4processor.cpp \
-	   ./src/backend/pad-handler.cpp \
-	   ./src/backend/mot-data.cpp \
 	   ./src/backend/firecode-checker.cpp \
 	   ./src/backend/dab-virtual.cpp \
-	   ./src/backend/dab-concurrent.cpp \
-	   ./src/backend/msc-datagroup.cpp \
 	   ./src/backend/dab-processor.cpp \
 	   ./src/backend/protTables.cpp \
+	   ./src/backend/audio/dab-audio.cpp \
+	   ./src/backend/audio/mp2processor.cpp \
+	   ./src/backend/audio/mp4processor.cpp \
+	   ./src/backend/data/pad-handler.cpp \
+	   ./src/backend/data/msc-datagroup.cpp \
+	   ./src/backend/data/mot-data.cpp \
 	   ./src/output/fir-filters.cpp \
 	   ./src/output/audiosink.cpp \
            ./src/various/fft.cpp \
@@ -122,7 +129,7 @@ CONFIG		+= airspy
 #CONFIG		+= airspy-exp
 CONFIG		+= streamer		# use for remote listening
 DEFINES		+= MOT_BASICS__		# use at your own risk
-#DEFINES	+= MSC_DATA__		# use at your own risk
+DEFINES	+= MSC_DATA__		# use at your own risk
 DESTDIR		= ./linux-bin
 INCLUDEPATH	+= /usr/local/include
 LIBS		+= -lfftw3f  -lusb-1.0 -ldl  #

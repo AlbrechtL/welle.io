@@ -115,13 +115,13 @@ private:
 	                         int16_t	size,
 	                         int16_t	contentType,
 	                         int16_t	contentsubType,
-	                         char		*name);
+	                         QString	name);
 	void	newEntry	(int16_t	index,
 	                         uint16_t	transportId,
 	                         int16_t	size,
 	                         int16_t	contentType,
 	                         int16_t	contentsubType,
-	                         char		*name);
+	                         QString	name);
 	bool	isComplete	(motElement *);
 	void	handleComplete	(motElement *);
 	void	checkDir	(QString &);

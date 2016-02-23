@@ -42,14 +42,16 @@ class	fib_processor;
 class ficHandler: public QObject, public viterbi {
 Q_OBJECT
 public:
-		ficHandler		(RadioInterface *,
-	                                 mscHandler *);
+		ficHandler		(RadioInterface *);
 		~ficHandler		(void);
 	void	process_ficBlock	(int16_t *, int16_t);
 	void	setBitsperBlock		(int16_t);
 	void	setSelectedService	(QString &);
+	uint8_t	kindofService		(QString &);
 	void	clearEnsemble		(void);
 	int16_t	get_ficRatio		(void);
+	void	dataforDataService	(QString &, packetdata *);
+	void	dataforAudioService	(QString &, audiodata *);
 private:
 	void		process_ficInput	(int16_t *, int16_t);
 	int8_t		*PI_15;

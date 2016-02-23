@@ -65,10 +65,14 @@ using namespace std;
 #define	Mhz(x)		(Khz (x) * 1000)
 #define	MHz(x)		(KHz (x) * 1000)
 
-#define	CURRENT_VERSION	"0.994"
+#define	CURRENT_VERSION	"0.995"
 
 #define		DAB		0100
 #define		DAB_PLUS	0101
+
+#define		AUDIO_SERVICE	0101
+#define		PACKET_SERVICE	0102
+#define		UNKNOWN_SERVICE	0100
 
 #define		INPUT_RATE	2048000
 #define		BANDWIDTH	1536000
@@ -141,7 +145,32 @@ struct P {
 };
 
 typedef	struct P DabParams;
+//
+//	for service handling we define
+typedef struct {
+	int16_t subchId;
+	int16_t	startAddr;
+	uint8_t	uepFlag;
+	int16_t	protLevel;
+	int16_t DSCTy;
+	int16_t	length;
+	int16_t	bitRate;
+	int16_t	FEC_scheme;
+	int16_t	DGflag;
+	int16_t	packetAddress;
+} packetdata;
 
+typedef	struct {
+	int16_t	subchId;
+	int16_t	startAddr;
+	uint8_t	uepFlag;
+	int16_t	protLevel;
+	int16_t	length;
+	int16_t	bitRate;
+	int16_t	ASCTy;
+	int16_t	language;
+	int16_t	programType;
+} audiodata;
 
 //	just some locals
 //

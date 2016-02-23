@@ -49,8 +49,7 @@ uint8_t PI_X [24] = {
   * 	puncturing.
   *	The data is sent through to the fic processor
   */
-		ficHandler::ficHandler (RadioInterface *mr,
-	                                mscHandler *f):viterbi (768) {
+		ficHandler::ficHandler (RadioInterface *mr):viterbi (768) {
 int16_t	i, j;
 	bitBuffer_out	= new uint8_t [768];
 	ofdm_input 	= new int16_t [2304];
@@ -62,7 +61,7 @@ int16_t	i, j;
 	ficRatio	= 0;
 	PI_15		= get_PCodes (15 - 1);
 	PI_16		= get_PCodes (16 - 1);
-	fibProcessor	= new fib_processor	(mr, f);
+	fibProcessor	= new fib_processor	(mr);
 	memset (shiftRegister, 1, 9);
 
 	for (i = 0; i < 768; i ++) {
@@ -244,6 +243,18 @@ void	ficHandler::setSelectedService (QString &s) {
 
 void	ficHandler::clearEnsemble (void) {
 	fibProcessor	-> clearEnsemble ();
+}
+
+uint8_t	ficHandler::kindofService	(QString &s) {
+	return fibProcessor	-> kindofService (s);
+}
+
+void	ficHandler::dataforAudioService	(QString &s, audiodata *d) {
+	fibProcessor	-> dataforAudioService (s, d);
+}
+
+void	ficHandler::dataforDataService	(QString &s, packetdata *d) {
+	fibProcessor	-> dataforDataService (s, d);
 }
 
 int16_t	ficHandler::get_ficRatio (void) {

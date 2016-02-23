@@ -95,6 +95,9 @@ int32_t i, j;
 //	recognized DSCTy values, not just for MOT
 	if (DSCTy == 60) 	// MOT
 	   opt_motHandler	= new motHandler (mr);
+//	else
+//	if (DSCTy == 44)	// Journaline
+//	   opt_journalineHandler	= new journalineHandler (mr);
 	start ();
 }
 
@@ -372,6 +375,21 @@ int16_t	i;
 	      }
 	      break;
 
+	   case 44:		// journaline
+	      if (transportIdFlag) {
+	         QByteArray journalineVector;
+	         journalineVector. resize (sizeinBits / 8);
+	         for (i = 0; i < sizeinBits / 8; i ++)
+	            journalineVector [i] = getBits_8 (data, next + 8 * i);
+
+	         processJournaline (journalineVector,
+	                            groupType,
+	                            lastSegment,
+	                            segmentNumber,
+	                            transportId);
+	      }
+	      break;
+
 	   default:
 	      fprintf (stderr, "MSCdatagroup met groupType %d\n", groupType);
 	}
@@ -408,7 +426,8 @@ char *message = (char *)(&(data [8]));
 	   writeDatagram ((char *)message, length - 8);
 }
 //
-//	MOT should be handled in a separate object (todo)
+//	MOT is handled in a separate class, here we
+//	collect the MOT segments
 void	mscDatagroup::processMOT (QByteArray	d,
 	                          uint8_t	groupType,
 	                          bool		lastSegment,
@@ -461,6 +480,16 @@ uint16_t segmentSize	= ((data [0] & 0x1F) << 8) | data [1];
 //	   fprintf (stderr, "grouptype = %d, Ti = %d, sn = %d, ss = %d\n",
 //	                     groupType, transportId, segmentNumber, segmentSize);
 }
+//
+//	Journaline is handled in a separate class, here
+//	we merely collect the data
+void	mscDatagroup::processJournaline (QByteArray	d,
+	                                 uint8_t	groupType,
+	                                 bool		lastSegment,
+	                                 int16_t	segmentNumber,
+	                                 uint16_t	transportId)  {
+}
+
 //
 //	Really no idea what to do here
 void	mscDatagroup::handleTDCAsyncstream (uint8_t *data, int16_t length) {

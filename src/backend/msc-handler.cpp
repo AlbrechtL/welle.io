@@ -24,101 +24,32 @@
 #include	"msc-handler.h"
 #include	"gui.h"
 #include	"dab-virtual.h"
-#include	"dab-concurrent.h"
+#include	"dab-audio.h"
 #include	"msc-datagroup.h"
 //
-//	Driver program for processing the MSC.
-//	Three operations here (apart from selecting
-//	the local frame in the MSC vector)
-//	1. deinterleaving
-//	2. deconvolution (including depuncturing)
-//	3. energy dispersal
-//	4. in case of DAB: creating MP2 packets
-//	5. in case of DAB+: assembling superframes and creating MP4 packets
+//	Interface program for processing the MSC.
+//	Merely a dispatcher for the selected service
 //
-//	The selected service(s) is (are) to be found in the
-//	ficParameters.
+//	The ofdm processor assumes the existence of an msc-handler, whether
+//	a service is selected or not. 
 
 #define	CUSize	(4 * 16)
 //	Note CIF counts from 0 .. 3
 //
 		mscHandler::mscHandler	(RadioInterface *mr,
+	                                 DabParams	*p,
 	                                 audioSink	*sink) {
-		myRadioInterface	= mr;
-	        cifVector		= new int16_t [55296];
-	        cifCount		= 0;	// msc blocks in CIF
-	        blkCount		= 0;
-	        dabHandler		= new dabVirtual;
-	        newChannel		= false;
-	        currentChannel		= -1;
-	        dabModus		= 0;
-	        our_audioSink		= sink;
-//	assume default Mode I
-		BitsperBlock		= 2 * 1536;
-	   	numberofblocksperCIF	= 18;
-	        audioService		= true;		// default
-}
+	myRadioInterface	= mr;
+	our_audioSink		= sink;
 
-		mscHandler::~mscHandler	(void) {
-	delete[]  cifVector;
-	delete	dabHandler;
-}
-
-void	mscHandler::stop	(void) {
-	currentChannel	= -1;
-	dabHandler	-> stop ();
-}
-
-void	mscHandler::set_audioChannel (int16_t subchId,
-	                              int16_t uepFlag,
-	                              int16_t	startAddr,
-	                              int16_t	Length,
-	                              int16_t	protLevel,
-	                              int16_t	bitRate,
-	                              int16_t	ASCTy,
-	                              int16_t	language,
-	                              int16_t	type) {
-	audioService	= true;
-	newChannel	= true;
-	currentChannel	= subchId;
-	new_uepFlag	= uepFlag;
-	new_startAddr	= startAddr;
-	new_Length	= Length;
-	new_protLevel	= protLevel;
-	new_bitRate	= bitRate;
-	new_language	= language;
-	new_type	= type;
-	new_ASCTy	= ASCTy;
-	new_dabModus	= ASCTy == 077 ? DAB_PLUS : DAB;
-//	fprintf (stderr, "Preparations for channel select\n");
-}
-//
-void	mscHandler::set_dataChannel (int16_t	subchId,
-	                             int16_t	uepFlag,
-	                             int16_t	startAddr,
-	                             int16_t	Length,
-	                             int16_t	protLevel,
-	                             int16_t	bitRate,
-	                             int16_t	FEC_scheme,
-	                             uint8_t	DGflag,
-	                             uint8_t	DSCTy,
-	                             int16_t	packetAddress) {
-	audioService	= false;
-	newChannel	= true;
-	currentChannel	= subchId;
-	new_uepFlag	= uepFlag;
-	new_startAddr	= startAddr;
-	new_Length	= Length;
-	new_protLevel	= protLevel;
-	new_DGflag	= DGflag;
-	new_bitRate	= bitRate;
-	new_FEC_scheme	= FEC_scheme;
-	new_DSCTy	= DSCTy;
-	new_packetAddress = packetAddress;
-}
-
-void	mscHandler::setMode	(DabParams *p) {
-	BitsperBlock	= 2 * p -> K;
+	cifVector		= new int16_t [55296];
+	cifCount		= 0;	// msc blocks in CIF
+	blkCount		= 0;
+	dabHandler		= new dabVirtual;
+	newChannel		= false;
+	work_to_be_done		= false;
+	dabModus		= 0;
+	BitsperBlock		= 2 * p -> K;
 	if (p -> dabMode == 4)	// 2 CIFS per 76 blocks
 	   numberofblocksperCIF	= 36;
 	else
@@ -129,35 +60,86 @@ void	mscHandler::setMode	(DabParams *p) {
 	   numberofblocksperCIF	= 72;
 	else			// shouldnot/cannot happen
 	   numberofblocksperCIF	= 18;
+
+	audioService		= true;		// default
+}
+
+		mscHandler::~mscHandler	(void) {
+	delete[]  cifVector;
+	dabHandler	-> stopRunning ();
+	delete	dabHandler;
+}
+
+//
+//	Note, the set_xxx functions are called from within a
+//	different thread than the process_mscBlock method,
+//	so, a little bit of locking seems wise while
+//	the actual changing of the settings is done in the
+//	thread executing process_mscBlock
+void	mscHandler::set_audioChannel (audiodata *d) {
+	locker. lock ();
+	audioService	= true;
+	new_uepFlag	= d	-> uepFlag;
+	new_startAddr	= d	-> startAddr;
+	new_Length	= d	-> length;
+	new_protLevel	= d	-> protLevel;
+	new_bitRate	= d	-> bitRate;
+	new_language	= d	-> language;
+	new_type	= d	-> programType;
+	new_ASCTy	= d	-> ASCTy;
+	new_dabModus	= new_ASCTy == 077 ? DAB_PLUS : DAB;
+	newChannel	= true;
+	locker. unlock ();
+}
+//
+void	mscHandler::set_dataChannel (packetdata	*d) {
+	locker. lock ();
+	audioService	= false;
+	new_uepFlag	= d	-> uepFlag;
+	new_startAddr	= d	-> startAddr;
+	new_Length	= d	-> length;
+	new_protLevel	= d	-> protLevel;
+	new_DGflag	= d	-> DGflag;
+	new_bitRate	= d	-> bitRate;
+	new_FEC_scheme	= d	-> FEC_scheme;
+	new_DSCTy	= d	-> DSCTy;
+	new_packetAddress = d	-> packetAddress;
+	newChannel	= true;
+	locker. unlock ();
 }
 
 //
 //	add blocks. First is (should be) block 5, last is (should be) 76
+//	Note that this method is called from within the ofdm-processor thread
+//	while the set_xxx methods are called from within the 
+//	gui thread
+//
+//	Any change in the selected service will only be active
+//	during te next process_mscBlock call.
 void	mscHandler::process_mscBlock	(int16_t *fbits,
 	                                 int16_t blkno) { 
 int16_t	currentblk;
 int16_t	*myBegin;
 
-	if (currentChannel == -1)
+	if (!work_to_be_done && !newChannel)
 	   return;
 
 	currentblk	= (blkno - 5) % numberofblocksperCIF;
 //
-//	we only change handlers at the start of a new frame!!!
 	if (newChannel) {
-//	if ((blkno - 5 == 0) && newChannel) {
+	   locker. lock ();
 	   newChannel	= false;
 	   dabHandler -> stopRunning ();
 	   delete dabHandler;
 
 	   if (audioService)
-	      dabHandler = new dabConcurrent (new_dabModus,
-	                                      new_Length * CUSize,
-	                                      new_bitRate,
-	                                      new_uepFlag,
-	                                      new_protLevel,
-	                                      myRadioInterface,
-	                                      our_audioSink);
+	      dabHandler = new dabAudio (new_dabModus,
+	                                 new_Length * CUSize,
+	                                 new_bitRate,
+	                                 new_uepFlag,
+	                                 new_protLevel,
+	                                 myRadioInterface,
+	                                 our_audioSink);
 
 	   else	 {	// dealing with data
 	      dabHandler = new mscDatagroup (myRadioInterface,
@@ -169,21 +151,17 @@ int16_t	*myBegin;
 	                                     new_protLevel,
 	                                     new_DGflag,
 	                                     new_FEC_scheme);
-	      DSCTy		= new_DSCTy;
-	      packetAddress	= new_packetAddress;
-	      DGflag		= new_DGflag;
-	      FEC_scheme	= new_FEC_scheme;
 	   }
-	          
+//
+//	these we need for actual processing
 	   startAddr	= new_startAddr;
 	   Length	= new_Length;
-	   protLevel	= new_protLevel;
-	   bitRate	= new_bitRate;
+//	and this one to get started
+	   work_to_be_done	= true;
+	   locker. unlock ();
 	}
 //
 //	and the normal operation is:
-//	We might optimize this by realizing that the exact segment
-//	we take from the CIF is known.
 	memcpy (&cifVector [currentblk * BitsperBlock],
 	                    fbits, BitsperBlock * sizeof (int16_t));
 	if (currentblk < numberofblocksperCIF - 1) 
@@ -200,31 +178,13 @@ int16_t	*myBegin;
 	(void) dabHandler -> process (myBegin, Length * CUSize);
 }
 //
-//
-void	mscHandler::getMode	(bool *is_audio, uint8_t *coding) {
-	if (audioService) {
-	   *is_audio	= true;
-	   *coding	= new_ASCTy;
-	}
-	else {
-	   *is_audio	= false;
-	   *coding	= new_DSCTy;
-	}
-}
-
-int16_t	mscHandler::getChannel	(void) {
-	return currentChannel;
-}
-
-int16_t	mscHandler::getLanguage (void) {
-	return new_language;
-}
-
-int16_t	mscHandler::getType (void) {
-	return new_type;
-}
 
 void	mscHandler::stopProcessing (void) {
-	currentChannel = -1;
+	work_to_be_done	= false;
+}
+
+void	mscHandler::stopHandler	(void) {
+	work_to_be_done	= false;
+	dabHandler	-> stopRunning ();
 }
 

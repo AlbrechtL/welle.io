@@ -22,8 +22,8 @@
  *
  */
 #
-#ifndef	DAB_CONCURRENT
-#define	DAB_CONCURRENT
+#ifndef	DAB_AUDIO
+#define	DAB_AUDIO
 
 #include	"dab-virtual.h"
 #include	<QThread>
@@ -38,16 +38,16 @@ class	eep_deconvolve;
 class	audioSink;
 class	RadioInterface;
 
-class	dabConcurrent:public QThread, public dabVirtual {
+class	dabAudio:public QThread, public dabVirtual {
 public:
-	dabConcurrent	(uint8_t dabModus,
+	dabAudio	(uint8_t dabModus,
 	                 int16_t fragmentSize,
 	                 int16_t bitRate,
 	                 int16_t uepFlag,
 	                 int16_t protLevel,
 	                 RadioInterface *mr,
 	                 audioSink *as);
-	~dabConcurrent	(void);
+	~dabAudio	(void);
 int32_t	process		(int16_t *, int16_t);
 void	stopRunning	(void);
 private:

@@ -95,13 +95,12 @@
                                    {416,1,384}};
 
 //
-	fib_processor::fib_processor (RadioInterface *mr,
-	                              mscHandler *f) {
+	fib_processor::fib_processor (RadioInterface *mr) {
+	myRadioInterface	= mr;
+
 	listofServices	= new serviceId [64];
 	memset (dateTime, 0, 8);
 	dateFlag	= false;
-	myRadioInterface	= mr;
-	myDecoder		= f;
 	selectedService		= -1;
 	clearEnsemble	();
 	connect (this, SIGNAL (addtoEnsemble (const QString &)),
@@ -1060,7 +1059,6 @@ int16_t i;
 	   components [i]. inUse = false;
 	}
 	selectedService	= -1;
-	myDecoder	-> stopProcessing ();
 }
 
 void	fib_processor::printActions (int16_t ficno) {
@@ -1094,12 +1092,9 @@ uint16_t	subchId;
 	}
 	(void)subchId;
 }
-//
-//	for now we assume that selecting a service means
-//	selecting a named music stream
-void	fib_processor::setSelectedService (QString &s) {
+
+uint8_t	fib_processor::kindofService (QString &s) {
 int16_t	i, j;
-bool	equal;
 
 //	first we locate the serviceId
 	for (i = 0; i < 64; i ++) {
@@ -1110,11 +1105,9 @@ bool	equal;
 	      continue;
 	   if (listofServices [i]. serviceLabel. label != s)
 	      continue;
-	   equal = true;
-	   (void)equal;
 
-//	   fprintf (stderr, "we found for %s serviceId %d\n", s, 
-//	                      listofServices [i]. serviceId);
+	   fprintf (stderr, "we found for %s serviceId %d\n", s. toLatin1 (). data (), 
+	                      listofServices [i]. serviceId);
 	   selectedService = listofServices [i]. serviceId;
 	   for (j = 0; j < 64; j ++) {
 	      int16_t subchId;
@@ -1123,69 +1116,100 @@ bool	equal;
 	      if (selectedService != components [j]. service -> serviceId)
 	         continue;
 
-	      if (components [j]. TMid == 03) {	// packet service
-//	         fprintf (stderr, " packet service %8x\n",
-//	                               components [j]. service -> serviceId);
-//	         fprintf (stderr, "Comp %d SubChId = %d ",
-//	                                j,  components [j]. subchannelId);
-	         subchId	= components [j]. subchannelId;
+	      if (components [j]. TMid == 03) 
+	         return PACKET_SERVICE;
 
-//	         fprintf (stderr, "DSCTy = %d ", components [j]. DSCTy);
-//	         fprintf (stderr, "packaddr = %d ", components [j]. packetAddress);
-//	         fprintf (stderr, "subchannelId = %d\n", components [j]. subchannelId);
-//	         fprintf (stderr,
-//	             "StartAdd = %d ", ficList [subchId]. StartAddr);
-//	         fprintf (stderr, "Length = %d ", ficList [subchId]. Length);
-//	         fprintf (stderr, "uepFlag = %d ", ficList [subchId]. uepFlag);
-//	         fprintf (stderr,
-//	               "protLevel = %d ", ficList [subchId]. protLevel);
-//	         fprintf (stderr, "BitRate = %d\n", ficList [subchId]. BitRate);
-	         if ((components [j]. DSCTy == 0) ||
-	             (ficList [subchId]. BitRate == 0))
-	         return;
-	         myDecoder -> set_dataChannel (subchId,
-                                               ficList [subchId]. uepFlag,
-                                               ficList [subchId]. StartAddr,
-                                               ficList [subchId]. Length,
-                                               ficList [subchId]. protLevel,
-                                               ficList [subchId]. BitRate,
-                                               ficList [subchId]. FEC_scheme,
-	                                       components [j]. DGflag,
-                                               components [j]. DSCTy,
-                                               components [j]. packetAddress);
-                 fprintf (stderr, "NOT SUPPORTED YET\n");
-                 return;
-	      }
-
-	      if (components [j]. TMid == 00) { // audio service
-	         subchId	= components [j]. subchannelId;
-//	         fprintf (stderr, "audio channel selected\n");
-//	         fprintf (stderr, "Comp %d SubChId = %d ",
-//	                                j,  components [j]. subchannelId);
-//
-//	         fprintf (stderr,
-//	             "StartAdd = %d ", ficList [subchId]. StartAddr);
-//	         fprintf (stderr, "Length = %d ", ficList [subchId]. Length);
-//	         fprintf (stderr, "uepFlag = %d ", ficList [subchId]. uepFlag);
-//	         fprintf (stderr,
-//	               "protLevel = %d ", ficList [subchId]. protLevel);
-//	         fprintf (stderr, "ASCTy = %d ", components [j]. ASCTy);
-//	         fprintf (stderr, "BitRate = %d\n", ficList [subchId]. BitRate);
-	         myDecoder -> set_audioChannel (subchId, 
-	                                        ficList [subchId]. uepFlag,
-	                                        ficList [subchId]. StartAddr,
-	                                        ficList [subchId]. Length,
-	                                        ficList [subchId]. protLevel,
-	                                        ficList [subchId]. BitRate,
-	                                        components [j]. ASCTy,
-	                                        listofServices [i]. language,
-	                                        listofServices [i]. programType);
-	         return;
-	      }
+	      if (components [j]. TMid == 00) 
+	         return AUDIO_SERVICE;
+	      fprintf (stderr, "TMid == %d\n", components [j]. TMid);
 	   }
 	}
-	selectedService = -1;
+	return UNKNOWN_SERVICE;
+}
+
+void	fib_processor::dataforDataService (QString &s, packetdata *d) {
+int16_t	i, j;
+int32_t	selectedService;
+
+//	first we locate the serviceId
+	for (i = 0; i < 64; i ++) {
+	   if (!listofServices [i]. inUse)
+	      continue;
+
+	   if (!listofServices [i]. serviceLabel. hasName)
+	      continue;
+	   if (listofServices [i]. serviceLabel. label != s)
+	      continue;
+
+	   selectedService = listofServices [i]. serviceId;
+	   for (j = 0; j < 64; j ++) {
+	      int16_t subchId;
+	      if (!components [j]. inUse)
+	         continue;
+	      if (selectedService != components [j]. service -> serviceId)
+	         continue;
+
+	      if (components [j]. TMid != 03) {
+	         fprintf (stderr, "fatal error, expected data service\n");
+	         return;
+	      }
+
+	     subchId	= components [j]. subchannelId;
+	      d	-> subchId	= subchId;
+	      d	-> startAddr	= ficList [subchId]. StartAddr;
+	      d	-> uepFlag	= ficList [subchId]. uepFlag;
+	      d	-> protLevel	= ficList [subchId]. protLevel;
+	      d	-> DSCTy	= components [j]. DSCTy;
+	      d	-> length	= ficList [subchId]. Length;
+	      d	-> bitRate	= ficList [subchId]. BitRate;
+	      d	-> FEC_scheme	= ficList [subchId]. FEC_scheme;
+	      d	-> DGflag	= components [j]. DGflag;
+	      d	-> packetAddress = components [j]. packetAddress;
+	      return;
+	   }
+	}
 	fprintf (stderr, "service %s insuffiently defined\n", s. toLatin1 (). data ());
 }
-//
-//
+
+void	fib_processor::dataforAudioService (QString &s, audiodata *d) {
+int16_t	i, j;
+
+//	first we locate the serviceId
+	for (i = 0; i < 64; i ++) {
+	   if (!listofServices [i]. inUse)
+	      continue;
+
+	   if (!listofServices [i]. serviceLabel. hasName)
+	      continue;
+	   if (listofServices [i]. serviceLabel. label != s)
+	      continue;
+
+	   selectedService = listofServices [i]. serviceId;
+	   for (j = 0; j < 64; j ++) {
+	      int16_t subchId;
+	      if (!components [j]. inUse)
+	         continue;
+	      if (selectedService != components [j]. service -> serviceId)
+	         continue;
+
+	      if (components [j]. TMid != 00) {
+	         fprintf (stderr, "fatal error, expected audio service\n");
+	         return;
+	      }
+
+	      subchId	= components [j]. subchannelId;
+	      d	-> subchId	= subchId;
+	      d	-> startAddr	= ficList [subchId]. StartAddr;
+	      d	-> uepFlag	= ficList [subchId]. uepFlag;
+	      d	-> protLevel	= ficList [subchId]. protLevel;
+	      d	-> length	= ficList [subchId]. Length;
+	      d	-> bitRate	= ficList [subchId]. BitRate;
+	      d	-> ASCTy	= components [j]. ASCTy;
+	      d	-> language	= listofServices [i]. language;
+	      d	-> programType	= listofServices [i]. programType;
+	      return;
+	   }
+	}
+	fprintf (stderr, "service %s insuffiently defined\n", s. toLatin1 (). data ());
+}
+

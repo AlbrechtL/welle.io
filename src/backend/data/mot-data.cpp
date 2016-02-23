@@ -50,9 +50,9 @@ void	motHandler::processHeader (int16_t	transportId,
 	                           int32_t	bodySize,
 	                           bool		lastFlag) {
 uint8_t contentType	= ((segment [5] >> 1) & 0x3F);
-uint8_t contentsubType = ((segment [5] & 0x01) << 8) | segment [6];
+uint16_t contentsubType = ((segment [5] & 0x01) << 8) | segment [6];
 int16_t	pointer	= 7;
-char	name [128];
+QString	name 	= QString ("");;
 
 	while (pointer < headerSize) {
 	   uint8_t PLI = (segment [pointer] & 0300) >> 6;
@@ -92,8 +92,7 @@ char	name [128];
 	         if (paramId == 12) {
 	            int16_t i;
 	            for (i = 0; i < length - 1; i ++) 
-	               name [i] = segment [pointer + i + 1];
-	            name [length - 1] = '\0';
+	               name. append (segment [pointer + i + 1]);
 	         }
 	         pointer += length;
 	   } 
@@ -149,7 +148,6 @@ void	motHandler::directorySegment (uint16_t transportId,
                                       int16_t	segmentNumber,
                                       int16_t	segmentSize,
                                       bool	lastSegment) {
-bool	complete	= false;
 int16_t	i;
 
 	if (theDirectory == NULL)
@@ -164,15 +162,16 @@ int16_t	i;
 	uint8_t	*address = &theDirectory -> dir_segments [segmentNumber *
 	                                    theDirectory -> dir_segmentSize];
 	memcpy (address, segment, segmentSize);
+//
+//	we are "complete" if we know the number of segments and
+//	all segments are "in"
 	if (theDirectory -> num_dirSegments != -1) {
-	   complete	= true;
 	   for (i = 0; i < theDirectory -> num_dirSegments; i ++)
 	      if (!theDirectory -> marked [i])
-	         complete = false;
+	         return;
 	}
-
-	if (!complete)
-	   return;
+//
+//	yes we have all data to build up the directory
 	analyse_theDirectory ();
 }
 //
@@ -193,28 +192,21 @@ int16_t	i;
 int16_t	motHandler::get_dirEntry	(int16_t	index,
 	                                 uint8_t	*data,
 	                                 uint16_t	currentBase) {
-uint16_t	transportId;
-uint32_t	bodySize;
-uint16_t	headerSize;
-uint8_t		contentType;
-uint16_t	subType;
-char		name [128];
-int16_t		theEnd;
+QString		name ("");
 
-	transportId	=  (data [currentBase] << 8) | data [currentBase + 1];
-	bodySize	=  (data [currentBase + 2] << 20) |
+uint16_t transportId	=  (data [currentBase] << 8) | data [currentBase + 1];
+uint32_t bodySize	=  (data [currentBase + 2] << 20) |
 	                   (data [currentBase + 3] << 12) |
 	                   (data [currentBase + 4] <<  4) |
 	                  ((data [currentBase + 5] & 0xF0) >> 4);
-	headerSize	= ((data [currentBase + 5] & 0x0F) << 9) |
+uint16_t headerSize	= ((data [currentBase + 5] & 0x0F) << 9) |
 	                   (data [currentBase + 6] << 1) |
 	                  ((data [currentBase + 7] >> 7) & 0x01);
-	contentType	=  (data [currentBase + 7] >> 1) & 0x3F;
-	subType		= ((data [currentBase + 7] & 0x1) << 8) |
+uint8_t  contentType	=  (data [currentBase + 7] >> 1) & 0x3F;
+uint16_t subType	= ((data [currentBase + 7] & 0x1) << 8) |
 	                    data [currentBase + 8];
+uint16_t theEnd		= currentBase + 2 + headerSize;
 
-
-	theEnd		= currentBase + 2 + headerSize;
 	currentBase	+= 7 + 2;
 	while (currentBase < theEnd) {
 	   uint8_t PLI = (data [currentBase] & 0300) >> 6;
@@ -254,13 +246,14 @@ int16_t		theEnd;
 	         if (paramId == 12) {
 	            int16_t i;
 	            for (i = 0; i < length - 1; i ++) 
-	               name [i] = data [currentBase + i + 1];
-	            name [length - 1] = '\0';
+	               name. append (data [currentBase + i + 1]);
 	         }
 	         currentBase += length;
 	   } 
 	}
-
+//
+//	creating an entry for an object mentioned in the directory
+//	strongly resembles creating a standalone entry, some differences though
 	newEntry (index, transportId, bodySize,
 	          contentType, subType, name);
 	return currentBase;
@@ -301,7 +294,8 @@ int16_t	i;
 	if (isComplete (handle)) 
 	   handleComplete (handle);
 }
-
+//
+//	we have data for all directory entries
 void	motHandler::handleComplete (motElement *p) {
 //	if (p -> contentType != 2) {
 	if (true) {
@@ -370,12 +364,13 @@ int16_t	i;
 	}
 	return NULL;
 }
-
+//
+//	Handling a plain header is by:
 void	motHandler::newEntry (uint16_t	transportId,
 	                      int16_t	size,
 	                      int16_t	contentType,
 	                      int16_t	contentsubType,
-	                      char	*name) {
+	                      QString	name) {
 int16_t		i;
 uint16_t	lowest;
 int16_t		lowIndex;
@@ -414,17 +409,16 @@ int16_t		lowIndex;
 	table [lowIndex]. contentsubType	= contentsubType;
 	table [lowIndex]. segmentSize	= -1;
 	table [lowIndex]. numofSegments	= -1;
-	table [lowIndex]. name		= QString (name);
+	table [lowIndex]. name		= name;
 }
 //
-//	for the entries in the carrousel
-//
+//	handling an entry in a directory is
 void	motHandler::newEntry (int16_t	index,
 	                      uint16_t	transportId,
 	                      int16_t	size,
 	                      int16_t	contentType,
 	                      int16_t	contentsubType,
-	                      char	*name) {
+	                      QString	name) {
 motElement	*currEntry = &(theDirectory -> dir_proper [index]);
 
 	currEntry -> ordernumber	= ordernumber ++;

@@ -22,7 +22,7 @@
  */
 #
 #include	"dab-constants.h"
-#include	"dab-concurrent.h"
+#include	"dab-audio.h"
 #include	<QThread>
 #include	<QMutex>
 #include	<QWaitCondition>
@@ -44,13 +44,13 @@ int8_t	interleaveDelays [] = {
 //
 //
 //	fragmentsize == Length * CUSize
-	dabConcurrent::dabConcurrent	(uint8_t dabModus,
-	                                 int16_t fragmentSize,
-	                                 int16_t bitRate,
-	                                 int16_t uepFlag,
-	                                 int16_t protLevel,
-	                                 RadioInterface *mr,
-	                                 audioSink *as) {
+	dabAudio::dabAudio	(uint8_t dabModus,
+	                         int16_t fragmentSize,
+	                         int16_t bitRate,
+	                         int16_t uepFlag,
+	                         int16_t protLevel,
+	                         RadioInterface *mr,
+	                         audioSink *as) {
 int32_t i, j;
 	this	-> dabModus		= dabModus;
 	this	-> fragmentSize		= fragmentSize;
@@ -97,7 +97,7 @@ int32_t i, j;
 	start ();
 }
 
-	dabConcurrent::~dabConcurrent	(void) {
+	dabAudio::~dabAudio	(void) {
 int16_t	i;
 	running = false;
 	while (this -> isRunning ())
@@ -115,7 +115,7 @@ int16_t	i;
 	delete [] Data;
 }
 
-int32_t	dabConcurrent::process	(int16_t *v, int16_t cnt) {
+int32_t	dabAudio::process	(int16_t *v, int16_t cnt) {
 int32_t	fr;
 	   if (Buffer -> GetRingBufferWriteAvailable () < cnt)
 	      fprintf (stderr, "dab-concurrent: buffer full\n");
@@ -130,7 +130,7 @@ int32_t	fr;
 	   return fr;
 }
 
-void	dabConcurrent::run	(void) {
+void	dabAudio::run	(void) {
 int16_t	i, j;
 int32_t	countforInterleaver	= 0;
 uint8_t	shiftRegister [9];
@@ -182,7 +182,7 @@ uint8_t	shiftRegister [9];
 }
 //
 //	It might take a msec for the task to stop
-void	dabConcurrent::stopRunning (void) {
+void	dabAudio::stopRunning (void) {
 	running = false;
 	while (this -> isRunning ())
 	   usleep (1);

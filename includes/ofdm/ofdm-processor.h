@@ -88,7 +88,7 @@ protected:
 	ofdmDecoder	*my_ofdmDecoder;
 	DSPFLOAT	avgCorr;
 	ficHandler	*my_ficHandler;
-	mscHandler	*my_mscHandler;
+	mscHandler	*my_mscBuffer;
 private:
 	int32_t		sampleCnt;
 	int32_t		inputSize;
