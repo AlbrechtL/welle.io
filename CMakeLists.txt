@@ -17,9 +17,16 @@ add_definitions ( -Wall)
 #	set(DABSTICK_NEW true)
 #	set(RTLTCP true)
 
+#	add_definitions (-DSIMPLE_SYNCHRONIZATION)
 ########################################################################
+	find_package (Qt5Core REQUIRED)
 	find_package (Qt5Widgets REQUIRED)
+	find_package (Qt5Network REQUIRED)
 	find_package (Qt5Declarative REQUIRED)
+
+	include_directories (
+	      ${Qt5Network_INCLUDE_DIRS}
+	)
 
 	find_library (DYNAMIC_LOAD dl)
 	if(NOT(DYNAMIC_LOAD))
@@ -130,6 +137,8 @@ add_definitions ( -Wall)
 	           ./includes
 	           ./includes/ofdm
 	           ./includes/backend
+	           ./includes/backend/audio
+	           ./includes/backend/data
 	           ./includes/various
 	           ./includes/output
 	           ./src/input
@@ -147,19 +156,22 @@ add_definitions ( -Wall)
 	     ./includes/ofdm/freq-interleaver.h
 	     ./includes/backend/viterbi.h
 	     ./includes/backend/msc-handler.h
-	     ./includes/backend/rscodec.h
 	     ./includes/backend/deconvolve.h
 	     ./includes/backend/firecode-checker.h
-	     ./includes/backend/dab-concurrent.h
 	     ./includes/backend/dab-processor.h
 	     ./includes/backend/dab-virtual.h
 	     ./includes/backend/charsets.h
-	     ./includes/backend/audio/mp2processor.h
-	     ./includes/backend/audio/mp4processor.h
-	     ./includes/backend/audio/faad_decoder.h
-	     ./includes/backend/data/pad-handler.h
-	     ./includes/backend/data/msc-datagroup.h
-	     ./includes/backend/data/mot-data.h
+	     ./includes/backend/rscodec.h 
+	     ./includes/backend/audio/dab-audio.h
+	     ./includes/backend/audio/mp4processor.h 
+	     ./includes/backend/audio/mp2processor.h 
+	     ./includes/backend/data/ip-datahandler.h 
+	     ./includes/backend/data/journaline-datahandler.h 
+	     ./includes/backend/data/mot-databuilder.h 
+	     ./includes/backend/data/virtual-datahandler.h 
+	     ./includes/backend/data/pad-handler.h 
+	     ./includes/backend/data/mot-data.h 
+	     ./includes/backend/data/msc-datagroup.h 
 	     ./src/input/virtual-input.h
 	     ./src/input/rawfiles/rawfiles.h
 	     ./src/input/wavfiles/wavfiles.h
@@ -184,18 +196,23 @@ add_definitions ( -Wall)
 	     ./src/backend/msc-handler.cpp
 	     ./src/backend/deconvolve.cpp
 	     ./src/backend/fib-processor.cpp
-	     ./src/backend/rscodec.cpp
 	     ./src/backend/firecode-checker.cpp
-	     ./src/backend/dab-concurrent.cpp
 	     ./src/backend/dab-virtual.cpp
 	     ./src/backend/dab-processor.cpp
 	     ./src/backend/protTables.cpp
 	     ./src/backend/charsets.cpp
-	     ./src/backend/audio/mp2processor.cpp
-	     ./src/backend/audio/mp4processor.cpp
-	     ./src/backend/data/pad-handler.cpp
-	     ./src/backend/data/msc-datagroup.cpp
-	     ./src/backend/data/mot-data.cpp
+	     ./src/backend/dab-virtual.cpp 
+	     ./src/backend/rscodec.cpp 
+	     ./src/backend/audio/dab-audio.cpp
+	     ./src/backend/audio/mp4processor.cpp 
+	     ./src/backend/audio/mp2processor.cpp 
+	     ./src/backend/data/ip-datahandler.cpp 
+	     ./src/backend/data/journaline-datahandler.cpp 
+	     ./src/backend/data/mot-databuilder.cpp 
+	     ./src/backend/data/virtual-datahandler.cpp 
+	     ./src/backend/data/pad-handler.cpp 
+	     ./src/backend/data/mot-data.cpp 
+	     ./src/backend/data/msc-datagroup.cpp 
 	     ./src/input/virtual-input.cpp
 	     ./src/input/rawfiles/rawfiles.cpp
 	     ./src/input/wavfiles/wavfiles.cpp
@@ -211,9 +228,15 @@ add_definitions ( -Wall)
 	     ./includes/ofdm/ofdm-decoder.h
 	     ./includes/backend/fic-handler.h
 	     ./includes/backend/fib-processor.h
-	     ./includes/backend/mp2processor.h
-	     ./includes/backend/mp4processor.h
-	     ./includes/backend/pad-handler.h
+	     ./includes/backend/audio/mp2processor.h
+	     ./includes/backend/audio/mp4processor.h
+	     ./includes/backend/data/virtual-datahandler.h
+	     ./includes/backend/data/pad-handler.h
+	     ./includes/backend/data/mot-data.h
+	     ./includes/backend/data/ip-datahandler.h
+	     ./includes/backend/data/journaline-datahandler.h
+	     ./includes/backend/data/mot-databuilder.h
+	     ./includes/backend/data/msc-datagroup.h
 	     ./src/input/rawfiles/rawfiles.h
 	     ./src/input/wavfiles/wavfiles.h
 	)
@@ -459,6 +482,7 @@ add_definitions ( -Wall)
 
 	target_link_libraries (${objectName}
 	                       Qt5::Widgets
+	                       Qt5::Network
 	                       ${RTLTCP_lib}
 	                       ${FFTW_LIBRARIES}
 	                       ${extraLibs}

@@ -46,9 +46,9 @@ public:
 		~ficHandler		(void);
 	void	process_ficBlock	(int16_t *, int16_t);
 	void	setBitsperBlock		(int16_t);
-	uint8_t	kindofService		(QString &);
 	void	clearEnsemble		(void);
 	int16_t	get_ficRatio		(void);
+	uint8_t	kindofService		(QString &);
 	void	dataforDataService	(QString &, packetdata *);
 	void	dataforAudioService	(QString &, audiodata *);
 private:
