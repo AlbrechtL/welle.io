@@ -508,7 +508,12 @@ float	Min	= 10000;
 
 	memcpy (fft_buffer, v, T_u * sizeof (DSPCOMPLEX));
 	fft_handler	-> do_FFT ();
-
+#ifdef	SIMPLE_SYNCHRONIZATION
+	return getMiddle (fft_buffer);
+#endif
+//
+//	This looks strange, we since we did not move the negative frequencies
+//	to the front, they are at the end, so T_u is the middle
 	for (i = T_u - RANGE; i < T_u + RANGE; i ++) {
 	   if (abs (fft_buffer [i % T_u]) < Min) {
 	      float a1	= arg (fft_buffer [(i + 1) % T_u] *
@@ -556,3 +561,29 @@ float	Min	= 10000;
 	   return 100;
 }
 
+int16_t	ofdmProcessor::getMiddle (DSPCOMPLEX *v) {
+int16_t		i;
+DSPFLOAT	sum = 0;
+int16_t		maxIndex = 0;
+DSPFLOAT	oldMax	= 0;
+//
+//	basic sum over K carriers that are - most likely -
+//	in the range
+//	The range in which the carrier should be is
+//	T_u / 2 - K / 2 .. T_u / 2 + K / 2
+//	We first determine an initial sum over 1536 carriers
+	for (i = 40; i < 1536 + 40; i ++)
+	   sum += abs (v [(T_u / 2 + i) % T_u]);
+//
+//	Now a moving sum, look for a maximum within a reasonable
+//	range (around (T_u - K) / 2, the start of the useful frequencies)
+	for (i = 40; i < T_u - (1536 - 40); i ++) {
+	   sum -= abs (v [(T_u / 2 + i) % T_u]);
+	   sum += abs (v [(T_u / 2 + i + 1536) % T_u]);
+	   if (sum > oldMax) {
+	      sum = oldMax;
+	      maxIndex = i;
+	   }
+	}
+	return maxIndex - (T_u - 1536) / 2;
+}

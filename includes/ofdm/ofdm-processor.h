@@ -98,6 +98,7 @@ private:
 virtual	void		run		(void);
 	int32_t		bufferContent;
 	int16_t		processBlock_0	(DSPCOMPLEX *);
+	int16_t		getMiddle	(DSPCOMPLEX *);
 	common_fft	*fft_handler;
 	DSPCOMPLEX	*fft_buffer;
 signals:

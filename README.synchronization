@@ -1,0 +1,16 @@
+I am puzzling about the best way to synchronize.
+Two "algorithms" are implemented, one very simple
+and straightforward based on the fact that for block 0 all amplitudes are
+the same (well, at least on the transmission side), the other using
+a particular pattern of phases in the first few carriers in block 0.
+
+
+By default the second approach is selected, since in most cases this
+outperforms the other by miles.
+It turns out however that in some other cases the second approach does not
+find a decent match and the first, simple, one gives results
+
+Selection by commenting/uncommenting the line
+DEFINES	+= SIMPLE_SYNCHRONIZATION
+is the ".pro" file
+

@@ -15,6 +15,7 @@ QMAKE_LFLAGS	+=  -flto
 #QMAKE_CXXFLAGS	+=  -pg
 #QMAKE_LFLAGS	+=  -pg
 CONFIG		+= NO_SSE_SUPPORT 
+#DEFINES	+= SIMPLE_SYNCHRONIZATION
 DEPENDPATH += . \
 	      ./src \
 	      ./includes \
@@ -137,7 +138,7 @@ CONFIG		+= airspy
 #CONFIG		+= airspy-exp
 CONFIG		+= streamer		# use for remote listening
 DEFINES		+= MOT_BASICS__		# use at your own risk
-DEFINES	+= MSC_DATA__		# use at your own risk
+#DEFINES	+= MSC_DATA__		# use at your own risk
 DESTDIR		= ./linux-bin
 INCLUDEPATH	+= /usr/local/include
 LIBS		+= -lfftw3f  -lusb-1.0 -ldl  #
