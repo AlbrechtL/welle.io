@@ -307,42 +307,14 @@ void	padHandler::build_MSC_segment (uint8_t *mscdataGroup, int16_t length) {
 	   index += (lengthIndicator - 2);
 	}
 //
-	process_MSC_segment (&mscdataGroup [index], groupType,
-	                     segmentNumber, lastFlag, transportId);
+//	the segment is handled by the mot handler
+	my_motHandler	-> process_mscGroup (&mscdataGroup [index],
+	                                     groupType,
+	                                     lastFlag,
+	                                     segmentNumber,
+	                                     transportId);
 }
-
-void	padHandler::process_MSC_segment (uint8_t	*segment,
-	                                 uint8_t	groupType,
-	                                 int16_t	segmentNumber,
-	                                 bool		lastFlag,
-	                                 int16_t	transportId) {
-//	index now "points" to the first byte of the segment
-//	Now extract segmentsize and the repetition count
-uint8_t repetitionCount		= (segment [0] & 0xE0) >> 5;
-int16_t segmentSize		= ((segment [0] & 0x1F) << 8) | segment [1];
-
-	if ((segmentNumber == 0) && (groupType == 3)) {	// we have a header
-	   int32_t bodySize	= (segment [2] << 20) |
-	                          (segment [3] << 12) |
-	                          (segment [4] <<  4) |
-	                          ((segment [5] >> 4) & 0x0F);
-	   int16_t headerSize	= ((segment [5] & 0xF) <<  9) |
-	                          ( segment [6]        <<  1) |
-	                          ((segment [7] >> 7) & 0x01);
-	   my_motHandler -> processHeader (transportId,
-	                                &segment [2],
-	                                segmentSize,
-	                                headerSize,
-	                                bodySize,
-	                                lastFlag);
-	}
-	else
-	   my_motHandler -> processSegment (transportId,
-	                                    &segment [2],
-	                                    segmentNumber,
-	                                    segmentSize,
-	                                    lastFlag);
-}
+//
 
 bool	padHandler::pad_crc (uint8_t *msg, int16_t len) {
 int i, j;

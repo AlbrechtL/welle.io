@@ -26,6 +26,12 @@
 //
 //	First attempt to do "something" with the MOT data
 //
+//	Two cases
+//	The "single item" case, where an item is made up of an
+//	header together with a body
+//	The "directory" case, where a directory of files is maintained
+//	to form together a slideshow or a website
+//
 		motHandler::motHandler (RadioInterface *mr) {
 int16_t	i, j;
 
@@ -42,7 +48,10 @@ int16_t	i, j;
 
 	 	motHandler::~motHandler (void) {
 }
-
+//
+//	Process a regular header, i.e. a type 3
+//	This strongly resembles the newEntry method that
+//	creates a header for an item in a directory
 void	motHandler::processHeader (int16_t	transportId,
 	                           uint8_t	*segment,
 	                           int16_t	segmentSize,
@@ -70,6 +79,7 @@ QString	name 	= QString ("");;
 	      
 	         pointer += 2;
 	         break;
+
 	      case 02:
 //	         if (paramId == 5) 
 //	            fprintf (stderr, "triggertime = %d\n",
@@ -79,6 +89,7 @@ QString	name 	= QString ("");;
 //	                             segment [pointer + 4]);
 	         pointer += 5;
 	         break;
+
 	      case 03:
 	         if ((segment [pointer + 1] & 0200) != 0) {
 	            length = (segment [pointer + 1] & 0177) << 8 |
@@ -143,7 +154,7 @@ int16_t segSize		= ((segment [9] & 0x1F) << 8) | segment [10];
 	theDirectory -> marked [0] = true;
 }
 
-void	motHandler::directorySegment (uint16_t transportId,
+void	motHandler::directorySegment (uint16_t	transportId,
                                       uint8_t	*segment,
                                       int16_t	segmentNumber,
                                       int16_t	segmentSize,
@@ -224,6 +235,7 @@ uint16_t theEnd		= currentBase + 2 + headerSize;
 	      
 	         currentBase += 2;
 	         break;
+
 	      case 02:
 //	         if (paramId == 5) 
 //	            fprintf (stderr, "triggertime = %d\n",
@@ -233,6 +245,7 @@ uint16_t theEnd		= currentBase + 2 + headerSize;
 //	                             data [currentBase + 4]);
 	         currentBase += 5;
 	         break;
+
 	      case 03:
 	         if ((data [currentBase + 1] & 0200) != 0) {
 	            length = (data [currentBase + 1] & 0177) << 8 |
@@ -430,5 +443,56 @@ motElement	*currEntry = &(theDirectory -> dir_proper [index]);
 	currEntry -> segmentSize	= -1;
 	currEntry -> numofSegments	= -1;
 	currEntry -> name		= QString (name);
+}
+
+void	motHandler::process_mscGroup (uint8_t	*data,
+	                              uint8_t	groupType,
+	                              bool	lastSegment,
+	                              int16_t	segmentNumber,
+	                              uint16_t	transportId) {
+uint16_t segmentSize	= ((data [0] & 0x1F) << 8) | data [1];
+
+	if ((segmentNumber == 0) && (groupType == 3)) { // header
+	   uint32_t headerSize	= ((data [5] & 0x0F) << 9) |
+	                           (data [6])              |
+	                           (data [7] >> 7);
+	   uint32_t bodySize	= (data [2] << 20) |
+	                          (data [3] << 12) |
+	                          (data [4] << 4 ) |
+	                          ((data [5] & 0xF0) >> 4);
+	   processHeader (transportId,
+	                  &data [2],
+	                  segmentSize,
+	                  headerSize,
+	                  bodySize,
+	                  lastSegment);
+	}
+	else
+	if ((segmentNumber == 0) && (groupType == 6)) 	// MOT directory
+	    processDirectory (transportId,
+	                      &data [2],
+	                      segmentSize,
+	                      lastSegment);
+	else
+	if (groupType == 6) 	// fields for MOT directory
+	   directorySegment (transportId,
+	                     &data [2],
+	                     segmentNumber,
+	                     segmentSize,
+	                     lastSegment);
+	else
+	if (groupType == 4) {
+//	   fprintf (stderr, "grouptype = %d, Ti = %d, sn = %d, ss = %d\n",
+//	                     groupType, transportId, segmentNumber, segmentSize);
+
+	   processSegment  (transportId,
+	                    &data [2],
+	                    segmentNumber,
+	                    segmentSize,
+	                    lastSegment);
+	}
+//	else
+//	   fprintf (stderr, "grouptype = %d, Ti = %d, sn = %d, ss = %d\n",
+//	                     groupType, transportId, segmentNumber, segmentSize);
 }
 

@@ -63,15 +63,19 @@ HEADERS += ./gui.h \
 	   ./includes/backend/rscodec.h \
 	   ./includes/backend/charsets.h \
 	   ./includes/backend/firecode-checker.h \
-	   ./includes/backend/data/msc-datagroup.h \
 	   ./includes/backend/dab-processor.h \
 	   ./includes/backend/dab-virtual.h \
 	   ./includes/backend/audio/dab-audio.h \
 	   ./includes/backend/audio/mp2processor.h \
 	   ./includes/backend/audio/mp4processor.h \
 	   ./includes/backend/audio/faad-decoder.h \
+	   ./includes/backend/data/msc-datagroup.h \
 	   ./includes/backend/data/pad-handler.h \
+	   ./includes/backend/data/virtual-datahandler.h \
+	   ./includes/backend/data/ip-datahandler.h \
+	   ./includes/backend/data/mot-databuilder.h \
 	   ./includes/backend/data/mot-data.h \
+	   ./includes/backend/data/journaline-datahandler.h \
 	   ./includes/backend/deconvolve.h \
 	   ./includes/output/audiosink.h \
 	   ./includes/output/fir-filters.h \
@@ -108,7 +112,11 @@ SOURCES += ./main.cpp \
 	   ./src/backend/audio/mp4processor.cpp \
 	   ./src/backend/data/pad-handler.cpp \
 	   ./src/backend/data/msc-datagroup.cpp \
+	   ./src/backend/data/virtual-datahandler.cpp \
+	   ./src/backend/data/ip-datahandler.cpp \
+	   ./src/backend/data/mot-databuilder.cpp \
 	   ./src/backend/data/mot-data.cpp \
+	   ./src/backend/data/journaline-datahandler.cpp \
 	   ./src/output/fir-filters.cpp \
 	   ./src/output/audiosink.cpp \
            ./src/various/fft.cpp \

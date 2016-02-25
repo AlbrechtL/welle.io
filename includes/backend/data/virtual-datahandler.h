@@ -1,6 +1,6 @@
 #
 /*
- *    Copyright (C) 2013
+ *    Copyright (C) 2015
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
  *    Lazy Chair Computing
  *
@@ -20,42 +20,22 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-
-#ifndef	__PAD_HANDLER__
-#define	__PAD_HANDLER__
-
+#ifndef	VIRTUAL_DATAHANDLER
+#define	VIRTUAL_DATAHANDLER
+#include	"dab-constants.h"
 #include	<QObject>
-#include	<cstring>
-#include	"gui.h"
-#include	<stdint.h>
+#include	<QByteArray>
 
-class	RadioInterface;
-class	motHandler;
 
-class	padHandler: public QObject {
+class	virtual_dataHandler:public QObject {
 Q_OBJECT
 public:
-		padHandler	(RadioInterface *);
-		~padHandler	(void);
-	void	processPAD	(uint8_t *);
-private:
-		RadioInterface	*myRadioInterface;
-	void	handle_variablePAD	(uint8_t *, int16_t, uint8_t);
-	void	handle_shortPAD		(uint8_t *, int16_t);
-	void	dynamicLabel		(uint8_t *, int16_t, uint8_t);
-	void	addSegment		(uint16_t, QString);
-	void	add_MSC_element		(uint8_t *, int16_t);
-	void	build_MSC_segment	(uint8_t *, int16_t);
-	bool	pad_crc			(uint8_t *, int16_t);
-	QString	dynamicLabelText;
-	int16_t	charSet;
-	motHandler	*my_motHandler;
-	int16_t	xpad_length;
-	int16_t xpad_bufferIndex;
-	uint8_t	xpad_buffer	[8192];
-	uint8_t	last_appType;
-signals:
-	void		showLabel			(QString);
+		virtual_dataHandler	(void);
+virtual		~virtual_dataHandler	(void);
+virtual
+	void	add_mscDatagroup	(QByteArray &);
 };
-
 #endif
+
+
+

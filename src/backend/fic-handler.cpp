@@ -237,10 +237,6 @@ int16_t	viterbiBlock [3072 + 24];
 //	fibProcessor	-> printActions (ficno);
 }
 
-void	ficHandler::setSelectedService (QString &s) {
-	fibProcessor -> setSelectedService (s);
-}
-
 void	ficHandler::clearEnsemble (void) {
 	fibProcessor	-> clearEnsemble ();
 }

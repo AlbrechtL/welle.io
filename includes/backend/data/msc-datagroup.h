@@ -36,7 +36,7 @@
 class	RadioInterface;
 class	uep_deconvolve;
 class	eep_deconvolve;
-class	motHandler;
+class	virtual_dataHandler;
 
 class	mscDatagroup:public QThread, public dabVirtual {
 Q_OBJECT
@@ -75,7 +75,6 @@ void	run		(void);
 	QByteArray	series;
 	uint8_t		packetState;
 	int32_t		streamAddress;		// int since we init with -1
-	motHandler	*opt_motHandler;
 	uep_deconvolve	*uepProcessor;
 	eep_deconvolve	*eepProcessor;
 	RingBuffer<int16_t>	*Buffer;
@@ -84,24 +83,7 @@ void	run		(void);
 	void		handleTDCAsyncstream 	(uint8_t *, int16_t);
 	void		handlePackets		(uint8_t *, int16_t);
 	void		handlePacket		(uint8_t *);
-	void		handleMSCdatagroup	(QByteArray);
-	void		storeMSCdatagroup	(QByteArray);
-	void		processMOT		(QByteArray,
-	                                         uint8_t,
-	                                         bool,
-	                              		 int16_t,
-	                              	         uint16_t);
-	void		processJournaline	(QByteArray,
-	                                         uint8_t,
-	                                         bool,
-	                              		 int16_t,
-	                              	         uint16_t);
-	void		process_ipVector	(QByteArray);
-	void		process_udpVector	(uint8_t *, int16_t);
-
-signals:	
-	void		showLabel		(const QString &);
-	void		writeDatagram		(char *, int);
+	virtual_dataHandler *my_dataHandler;
 };
 
 #endif
