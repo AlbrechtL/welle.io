@@ -26,9 +26,12 @@
  */
 
 #include	"audiosink.h"
+#include	<stdio.h>
+#include	<sys/stat.h>
 #include	<QDebug>
-#ifdef	HAVE_STREAMER
-#include	"streamer.h"
+
+#ifdef	WE_STREAM
+#include	"gui.h"
 #endif
 /*
  *	The class is the sink for the data generated
@@ -36,21 +39,23 @@
  *	different data types (complex/float32 vs int16). We really
  *	should make a single generic class of it.
  */
-#ifdef	HAVE_STREAMER
-	audioSink::audioSink	(int32_t rate, int16_t latency,
-	                         streamerServer *str) {
-	theStreamer		= str;
+#ifdef	WE_STREAM
+	audioSink::audioSink	(int16_t latency,
+	                         RadioInterface	*mr,
+	                         RingBuffer<float>	*streamerBuffer) {
+	connect (this, SIGNAL (samplesforStreamer (int)),
+	         mr, SLOT (samplesforStreamer (int)));
+	this	-> streamerBuffer	= streamerBuffer;
 #else
-	audioSink::audioSink	(int32_t rate, int16_t latency) {
+	audioSink::audioSink	(int16_t latency) {
 #endif
 int32_t	i;
 
-	this	-> CardRate	= rate;
+	this	-> CardRate	= 48000;
 	this	-> latency	= latency;
 	_O_Buffer		= new RingBuffer<float>(2 * 32768);
 	portAudio		= false;
 	writerRunning		= false;
-
 	if (Pa_Initialize () != paNoError) {
 	   fprintf (stderr, "Initializing Pa for output failed\n");
 	   return;
@@ -86,6 +91,10 @@ int32_t	i;
 	   Pa_Terminate ();
 
 	delete	_O_Buffer;
+}
+
+int32_t	audioSink::cardRate	(void) {
+	return CardRate;
 }
 //
 bool	audioSink::selectDevice (int16_t odev) {
@@ -212,17 +221,6 @@ uint32_t	i;
 
 	return ud -> paCallbackReturn;
 }
-
-static inline
-int32_t	minimum (int32_t a, int32_t b) {
-	return a > b ? b : a;
-}
-//
-//	Just for my own curiosity I want to know to what degree
-//	the buffer is filled
-int32_t	audioSink::capacity	(void) {
-	return _O_Buffer -> GetRingBufferWriteAvailable () / 2;
-}
 //
 //	This one is a hack for handling different baudrates coming from
 //	the aac decoder
@@ -271,9 +269,11 @@ int32_t	available = _O_Buffer -> GetRingBufferWriteAvailable ();
 	if (dumpFile != NULL)
 	   sf_writef_float (dumpFile, buffer, amount);
 
+#ifdef	WE_STREAM
+	streamerBuffer	-> putDataIntoBuffer (buffer, 2 * amount);
+	samplesforStreamer (2 * amount);
+#else
 	_O_Buffer	-> putDataIntoBuffer (buffer, 2 * amount);
-#ifdef	HAVE_STREAMER
-	theStreamer	-> addSamples (buffer, 2 * amount);
 #endif
 }
 
@@ -299,9 +299,11 @@ int32_t	available = _O_Buffer -> GetRingBufferWriteAvailable ();
 	if (dumpFile != NULL)
 	   sf_writef_float (dumpFile, buffer, 2 * amount);
 
+#ifdef	WE_STREAM
+	streamerBuffer	-> putDataIntoBuffer (buffer, 4 * amount);
+	samplesforStreamer (4 * amount);
+#else
 	_O_Buffer	-> putDataIntoBuffer (buffer, 4 * amount);
-#ifdef	HAVE_STREAMER
-	theStreamer	-> addSamples (buffer, 4 * amount);
 #endif
 }
 //
@@ -330,9 +332,11 @@ int32_t	i;
 	if (dumpFile != NULL)
 	   sf_writef_float (dumpFile, buffer, 3 * amount / 2);
 
+#ifdef	WE_STREAM
+	streamerBuffer	-> putDataIntoBuffer (buffer, 3 * amount);
+	samplesforStreamer (3 * amount);
+#else
 	_O_Buffer	-> putDataIntoBuffer (buffer, 3 * amount);
-#ifdef	HAVE_STREAMER
-	theStreamer	-> addSamples (buffer, 3 * amount);
 #endif
 }
 
@@ -352,13 +356,14 @@ int32_t	available = _O_Buffer -> GetRingBufferWriteAvailable ();
 
 	if (dumpFile != NULL)
 	   sf_writef_float (dumpFile, buffer, amount);
-
 //
 //	O_Buffer contains floats, so a double "amount" (which was the
 //	count of IQ samples
+#ifdef	WE_STREAM
+	streamerBuffer	-> putDataIntoBuffer (buffer, 2 * amount);
+	samplesforStreamer (2 * amount);
+#else
 	_O_Buffer	-> putDataIntoBuffer (buffer, 2 * amount);
-#ifdef	HAVE_STREAMER
-	theStreamer	-> addSamples (buffer, 2 * amount);
 #endif
 }
 //

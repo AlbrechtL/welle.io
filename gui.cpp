@@ -34,8 +34,10 @@
 #include	"dab-constants.h"
 #include	"gui.h"
 #include	"audiosink.h"
-#ifdef	HAVE_STREAMER
-#include	"streamer.h"
+#ifdef	TCP_STREAMER
+#include	"tcp-streamer.h"
+#elif	RTP_STREAMER
+#include	"rtp-streamer.h"
 #endif
 #include	"fft.h"
 #include	"rawfiles.h"
@@ -93,7 +95,6 @@ int16_t	latency;
 	               setStyleSheet ("QLabel {background-color : red}");
 
 	TunedFrequency		= MHz (200);	// any value will do
-	outRate			= 48000;
 //
 //	latency is used to allow different settings for different
 //	situations
@@ -104,13 +105,19 @@ int16_t	latency;
   *	soundcard when the streamer is "in", do not know yet
   *	audioSink will handle the output to the soundcard.
   */
-#ifdef	HAVE_STREAMER
-	our_streamer		= new streamerServer	();
-	our_audioSink		= new audioSink		(outRate,
-	                                                 latency,
-	                                                 our_streamer);
+#ifdef	TCP_STREAMER
+	streamBuffer		= new RingBuffer<float> (2 * 32768);
+	my_tcpStreamer		= new tcpStreamer	(streamBuffer);
+	our_audioSink		= new audioSink		(latency, this,
+	                                                 streamBuffer);
+#elif	RTP_STREAMER
+	streamBuffer		= new RingBuffer<float> (2 * 32768);
+	my_rtpStreamer		= new rtpStreamer (QString ("127.0.0.255"),
+	                                           22222, streamBuffer);
+	our_audioSink		= new audioSink		(latency, this,
+	                                                 streamBuffer);
 #else
-	our_audioSink		= new audioSink		(outRate, latency);
+	our_audioSink		= new audioSink		(latency);
 #endif
 	outTable		= new int16_t
 	                             [our_audioSink -> numberofDevices ()];
@@ -123,7 +130,7 @@ int16_t	latency;
 	   outTable [i] = -1;
 
 	if (!setupSoundOut (streamOutSelector,
-	                    our_audioSink, outRate, outTable)) {
+	                    our_audioSink, outTable)) {
 	   fprintf (stderr, "Cannot open any output device\n");
 	   exit (22);
 	}
@@ -337,8 +344,12 @@ void	RadioInterface::TerminateProcess (void) {
 	delete		my_mscHandler;
 	delete		myRig;
 	delete		displayTimer;
-#ifdef	HAVE_STREAMER
-	delete		our_streamer;
+#ifdef	TCP_STREAMER
+	delete		my_tcpStreamer;
+	delete		streamBuffer;
+#elif	RTP_STREAMER
+	delete		my_rtpStreamer;
+	delete		streamBuffer;
 #endif
 	delete		our_audioSink;
 
@@ -562,7 +573,6 @@ bool	localRunning	= running;
 	   my_ofdmProcessor	-> reset ();
 	   running	 = true;
 	}
-	
 }
 //
 /**
@@ -729,8 +739,6 @@ const char *RadioInterface::get_programm_language_string (uint8_t language) {
   *	of all the fields in the GUI not right away?
   */
 void	RadioInterface::selectService (QModelIndex s) {
-uint8_t	coding;
-bool	is_audio;
 QString a = ensemble. data (s, Qt::DisplayRole). toString ();
 
 	switch (my_ficHandler -> kindofService (a)) {
@@ -1068,10 +1076,10 @@ int	k	= deviceSelector -> findText (QString ("no device"));
   */
 bool	RadioInterface::setupSoundOut (QComboBox	*streamOutSelector,
 	                               audioSink	*our_audioSink,
-	                               int32_t		cardRate,
 	                               int16_t		*table) {
 uint16_t	ocnt	= 1;
 uint16_t	i;
+int32_t		cardRate	= our_audioSink -> cardRate ();
 
 	for (i = 0; i < our_audioSink -> numberofDevices (); i ++) {
 	   const QString so = 
@@ -1290,4 +1298,13 @@ void	RadioInterface::changeinConfiguration	(void) {
 	ficRatioDisplay		-> display (0);
 	snrDisplay		-> display (0);
 }
+#ifdef	RTP_STREAMER
+void	RadioInterface::samplesforStreamer (int n) {
+	my_rtpStreamer	-> putSamples (n);
+}
+#elif	TCP_STREAMER
+void	RadioInterface::samplesforStreamer (int n) {
+	my_tcpStreamer	-> putSamples (n);
+}
+#endif
 

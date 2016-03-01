@@ -24,8 +24,8 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __SOUND_STREAMER__
-#define	__SOUND_STREAMER__
+#ifndef __TCP_STREAMER__
+#define	__TCP_STREAMER__
 
 #include	<QObject>
 #include	"dab-constants.h"
@@ -37,12 +37,12 @@
 #include	<QTcpSocket>
 #include	<QTimer>
 
-class	streamerServer: public QObject {
+class	tcpStreamer: public QObject {
 Q_OBJECT
 public:
-		streamerServer	(void);
-		~streamerServer	(void);
-	void	addSamples	(float *, int);
+		tcpStreamer	(RingBuffer<float> *);
+		~tcpStreamer	(void);
+	void	putSamples	(int);
 private:
 	RingBuffer<float>	*buffer;
 	QTcpServer	streamer;

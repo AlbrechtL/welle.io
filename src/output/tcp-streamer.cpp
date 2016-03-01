@@ -24,11 +24,11 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include	"streamer.h"
+#include	"tcp-streamer.h"
 
-		streamerServer::streamerServer	(void) {
-	buffer		= new RingBuffer<float> (32768);
-	connected	= false;
+		tcpStreamer::tcpStreamer	(RingBuffer<float> *buffer) {
+	this	-> buffer	= buffer;
+	connected		= false;
 //	Now for the communication
 	connect (&streamer, SIGNAL (newConnection (void)),
 	                this, SLOT (acceptConnection (void)));
@@ -38,11 +38,11 @@
 	         this, SLOT (processSamples (void)));
 }
 
-		streamerServer::~streamerServer	(void) {
+		tcpStreamer::~tcpStreamer	(void) {
 	delete buffer;
 }
 
-void	streamerServer::acceptConnection (void) {
+void	tcpStreamer::acceptConnection (void) {
 	if (connected) {
 	   fprintf (stderr, "attempt to bind, but already occuppied\n");
 	   return;
@@ -61,17 +61,16 @@ void	streamerServer::acceptConnection (void) {
 #define	bufferSize	(2 * 4096)
 //
 //	
-void	streamerServer::addSamples (float *b, int32_t a) {
+void	tcpStreamer::putSamples (int32_t a) {
 	if (!connected)
 	   return;
 
-	buffer -> putDataIntoBuffer (b, a);
 	if (buffer -> GetRingBufferReadAvailable () > bufferSize)
 	   emit handleSamples ();
 }
 
 
-void	streamerServer::processSamples (void) {
+void	tcpStreamer::processSamples (void) {
 QByteArray	datagram;
 float		localBuffer [bufferSize];
 int16_t	i;

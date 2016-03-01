@@ -14,8 +14,8 @@ QMAKE_LFLAGS	+=  -flto
 #QMAKE_CFLAGS	+=  -pg
 #QMAKE_CXXFLAGS	+=  -pg
 #QMAKE_LFLAGS	+=  -pg
-#CONFIG		+= NO_SSE_SUPPORT 
-DEFINES	+= SIMPLE_SYNCHRONIZATION
+CONFIG		+= NO_SSE_SUPPORT 
+#DEFINES	+= SIMPLE_SYNCHRONIZATION
 DEPENDPATH += . \
 	      ./src \
 	      ./includes \
@@ -136,9 +136,10 @@ CONFIG		+= sdrplay
 CONFIG		+= rtl_tcp
 CONFIG		+= airspy
 #CONFIG		+= airspy-exp
-CONFIG		+= streamer		# use for remote listening
+CONFIG		+= tcp-streamer		# use for remote listening
+#CONFIG		+= rtp-streamer		# remote using rtp
 DEFINES		+= MOT_BASICS__		# use at your own risk
-DEFINES	+= MSC_DATA__		# use at your own risk
+DEFINES		+= MSC_DATA__		# use at your own risk
 DESTDIR		= ./linux-bin
 INCLUDEPATH	+= /usr/local/include
 LIBS		+= -lfftw3f  -lusb-1.0 -ldl  #
@@ -170,10 +171,10 @@ CONFIG		+= extio
 CONFIG		+= airspy
 #CONFIG		+= airspy-exp
 CONFIG		+= rtl_tcp
-#CONFIG		+= dabstick_osmo
-CONFIG		+= dabstick_new
+CONFIG		+= dabstick_osmo
+#CONFIG		+= dabstick_new
 CONFIG		+= sdrplay
-CONFIG		+= streamer
+#CONFIG		+= streamer
 }
 
 NO_SSE_SUPPORT {
@@ -262,13 +263,24 @@ uhd {
 	LIBS		+= -lboost_system
 }
 
-streamer	{
-	DEFINES		+= HAVE_STREAMER
+tcp-streamer	{
+	DEFINES		+= TCP_STREAMER
 	QT		+= network
-	HEADERS		+= ./includes/output/streamer.h
-	SOURCES		+= ./src/output/streamer.cpp
+	HEADERS		+= ./includes/output/tcp-streamer.h
+	SOURCES		+= ./src/output/tcp-streamer.cpp
 }
 
+rtp-streamer	{
+	DEFINES		+= RTP_STREAMER
+	QT		+= network
+	INCLUDEPATH	+= /usr/local/include/jrtplib3
+	HEADERS		+= ./includes/output/rtp-streamer.h
+	SOURCES		+= ./src/output/rtp-streamer.cpp
+	LIBS		+=
+	LIBS		+= -ljrtp
+}
+
+	
 #
 #	extio dependencies, windows only
 #

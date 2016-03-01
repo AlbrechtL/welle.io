@@ -48,12 +48,11 @@ class	ficHandler;
 
 class	common_fft;
 
-#ifdef	HAVE_STREAMER
-class	streamerServer;
+#ifdef	TCP_STREAMER
+class	tcpStreamer;
+#elif	RTP_STREAMER
+class	rtpStreamer;
 #endif
-
-#define	HFSPECTRUM	0200
-#define	LFSPECTRUM	0201
 /*
  *	GThe main gui object. It inherits from
  *	QDialog and the generated form
@@ -67,8 +66,12 @@ public:
 		~RadioInterface		();
 
 private:
-#ifdef	HAVE_STREAMER
-	streamerServer	*our_streamer;
+#ifdef	TCP_STREAMER
+	tcpStreamer	*my_tcpStreamer;
+	RingBuffer<float> *streamBuffer;
+#elif	RTP_STREAMER
+	rtpStreamer	*my_rtpStreamer;
+	RingBuffer<float> *streamBuffer;
 #endif
 	int16_t		threshold;
 	int16_t		outputDevice;
@@ -106,14 +109,13 @@ private:
 	int32_t		numberofSeconds;
 
 	bool		setupSoundOut		(QComboBox *, audioSink *,
-	                                         int32_t, int16_t *);
+	                                         int16_t *);
 	void		resetSelector		(void);
 	int32_t		sampleCount;
 	ofdmProcessor	*my_ofdmProcessor;
 	ficHandler	*my_ficHandler;
 	mscHandler	*my_mscHandler;
 	audioSink	*our_audioSink;
-
 	int32_t		TunedFrequency;
 	bool		autoCorrector;
 	FILE		*mp2File;
@@ -153,6 +155,11 @@ public slots:
 	void	showMOT			(QByteArray, int);
 	void	send_datagram		(char *, int);
 	void	changeinConfiguration	(void);
+#ifdef	RTP_STREAMER
+	void	samplesforStreamer	(int);
+#elif	TCP_STREAMER
+	void	samplesforStreamer	(int);
+#endif
 };
 
 #endif

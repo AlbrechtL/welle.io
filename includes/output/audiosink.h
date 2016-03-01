@@ -34,22 +34,28 @@
 #include	"ringbuffer.h"
 #include	"fir-filters.h"
 #include	<sndfile.h>
-
+#include	<QObject>
 #define		LOWLATENCY	0100
 #define		HIGHLATENCY	0200
 #define		VERYHIGHLATENCY	0300
 
-#ifdef	HAVE_STREAMER
-class	streamerServer;
+#ifdef	TCP_STREAMER
+#define		WE_STREAM
+class	RadioInterface;
+#elif	RTP_STREAMER
+#define		WE_STREAM
+class	RadioInterface;
 #endif
 
-class	audioSink  {
+class	audioSink  : public QObject{
+Q_OBJECT
 public:
-#ifdef	HAVE_STREAMER
-			audioSink		(int32_t,
-	                                         int16_t, streamerServer *);
+#ifdef	WE_STREAM
+			audioSink		(int16_t,
+	                                         RadioInterface *,
+	                                         RingBuffer<float> *);
 #else
-			audioSink		(int32_t, int16_t);
+	                audioSink		(int16_t);
 #endif
 			~audioSink		(void);
 	int16_t		numberofDevices		(void);
@@ -61,16 +67,15 @@ public:
 	int32_t		putSamples		(DSPCOMPLEX *, int32_t);
 	int16_t		invalidDevice		(void);
 	bool		isValidDevice		(int16_t);
-
-	int32_t		capacity		(void);
+	int32_t		cardRate		(void);
 	bool		selectDefaultDevice	(void);
 	bool		selectDevice		(int16_t);
 	void		startDumping		(SNDFILE *);
 	void		stopDumping		(void);
 	int32_t		getSelectedRate		(void);
 private:
-#ifdef	HAVE_STREAMER
-	streamerServer	*theStreamer;
+#ifdef	WE_STREAM
+	RingBuffer<float>	*streamerBuffer;
 #endif
 	int32_t		CardRate;
 	int16_t		latency;
@@ -92,6 +97,10 @@ private:
 	SNDFILE		*dumpFile;
 	RingBuffer<float>	*_O_Buffer;
 	PaStreamParameters	outputParameters;
+#ifdef	WE_STREAM
+signals:
+	void		samplesforStreamer	(int);
+#endif
 protected:
 static	int		paCallback_o	(const void	*input,
 	                                 void		*output,
