@@ -39,7 +39,6 @@
 }
 
 		tcpStreamer::~tcpStreamer	(void) {
-	delete buffer;
 }
 
 void	tcpStreamer::acceptConnection (void) {

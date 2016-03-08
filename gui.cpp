@@ -344,14 +344,16 @@ void	RadioInterface::TerminateProcess (void) {
 	delete		my_mscHandler;
 	delete		myRig;
 	delete		displayTimer;
+	delete		our_audioSink;
 #ifdef	TCP_STREAMER
 	delete		my_tcpStreamer;
 	delete		streamBuffer;
+	my_tcpStreamer	= NULL;
 #elif	RTP_STREAMER
 	delete		my_rtpStreamer;
 	delete		streamBuffer;
+	my_rtpStreamer	= NULL;
 #endif
-	delete		our_audioSink;
 
 	accept ();
 	if (pictureLabel != NULL)
