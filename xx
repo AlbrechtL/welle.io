@@ -1,0 +1,35 @@
+g++ -c -pipe -flto -ffast-math -O2 -g -pipe -Wall -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 -fstack-protector-strong --param=ssp-buffer-size=4 -grecord-gcc-switches -m64 -mtune=generic -O2 -Wall -W -D_REENTRANT -fPIC -DMOT_BASICS__ -DMSC_DATA__ -DHAVE_DABSTICK -DHAVE_SDRPLAY -DSDRPLAY_LIBRARY_NEW -DHAVE_AIRSPY -DTCP_STREAMER -DHAVE_RTL_TCP -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -I. -I. -I. -Isrc -Iincludes -Iincludes/ofdm -Iincludes/backend -Iincludes/backend/audio -Iincludes/backend/data -Iincludes/output -Iincludes/various -Isrc/input -Isrc/input/rawfiles -Isrc/input/wavfiles -I../../../../local/include -I/home/jan/rtl-sdr/include -Isrc/input/dabstick-new -Isrc/input/sdrplay -Isrc/input/airspy -I../../../../local/include/libairspy -Isrc/input/rtl_tcp -I../../../../include/qt5 -I../../../../include/qt5/QtWidgets -I../../../../include/qt5/QtGui -I../../../../include/qt5/QtNetwork -I../../../../include/qt5/QtCore -I. -I. -I../../../../lib64/qt5/mkspecs/linux-g++ -o ofdm-processor.o src/ofdm/ofdm-processor.cpp
+src/ofdm/ofdm-processor.cpp: In constructor ‘ofdmProcessor::ofdmProcessor(virtualInput*, DabParams*, RadioInterface*, mscHandler*, ficHandler*, int16_t)’:
+src/ofdm/ofdm-processor.cpp:111:23: error: ‘refTable’ was not declared in this scope
+     refArg [i] = arg (refTable [(T_u + i) % T_u] *
+                       ^
+src/ofdm/ofdm-processor.cpp: In member function ‘virtual void ofdmProcessor::run()’:
+src/ofdm/ofdm-processor.cpp:423:26: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+          ofdmSymbolCount <= (int16_t)(params -> L);
+                          ^
+src/ofdm/ofdm-processor.cpp:245:13: warning: unused variable ‘j’ [-Wunused-variable]
+ int32_t  i, j;
+             ^
+src/ofdm/ofdm-processor.cpp:474:1: warning: label ‘ReadyForNewFrame’ defined but not used [-Wunused-label]
+ ReadyForNewFrame:
+ ^
+src/ofdm/ofdm-processor.cpp:288:1: warning: label ‘SyncOnNull’ defined but not used [-Wunused-label]
+ SyncOnNull:
+ ^
+src/ofdm/ofdm-processor.cpp:404:1: warning: label ‘Data_blocks’ defined but not used [-Wunused-label]
+ Data_blocks:
+ ^
+src/ofdm/ofdm-processor.cpp:432:1: warning: label ‘NewOffset’ defined but not used [-Wunused-label]
+ NewOffset:
+ ^
+src/ofdm/ofdm-processor.cpp:312:1: warning: label ‘SyncOnEndNull’ defined but not used [-Wunused-label]
+ SyncOnEndNull:
+ ^
+src/ofdm/ofdm-processor.cpp:371:1: warning: label ‘Block_0’ defined but not used [-Wunused-label]
+ Block_0:
+ ^
+src/ofdm/ofdm-processor.cpp:261:1: warning: label ‘Initing’ defined but not used [-Wunused-label]
+ Initing:
+ ^
+Makefile:3432: recipe for target 'ofdm-processor.o' failed
+make: *** [ofdm-processor.o] Error 1

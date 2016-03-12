@@ -24,6 +24,9 @@
 #include	"gui.h"
 #include	"fft.h"
 //
+#define	SEARCH_RANGE		36
+#define	CORRELATION_LENGTH	24
+
 #define	syncBufferMask	(32768 - 1)
 /**
   *	\brief ofdmProcessor
@@ -101,6 +104,13 @@ int32_t	i;
 	gain		= 30;
 	bufferContent	= 0;
 //
+//	and for the correlation:
+	refArg			= new float [CORRELATION_LENGTH];
+	correlationVector	= new float [2 * SEARCH_RANGE + CORRELATION_LENGTH];
+	for (i = 0; i < CORRELATION_LENGTH; i ++)  {
+	   refArg [i] = arg (phaseSynchronizer -> refTable [(T_u + i) % T_u] *
+	              conj (phaseSynchronizer -> refTable [(T_u + i + 1) % T_u]));
+	}
 	start ();
 }
 
@@ -111,11 +121,13 @@ int32_t	i;
 	msleep (100);
 	terminate ();
 	wait ();
-	delete	my_ofdmDecoder;
-	delete	ofdmBuffer;
-	delete	phaseSynchronizer;
-	delete	oscillatorTable;
-	delete	fft_handler;
+	delete		my_ofdmDecoder;
+	delete		ofdmBuffer;
+	delete		phaseSynchronizer;
+	delete		oscillatorTable;
+	delete		fft_handler;
+	delete[] 	correlationVector;
+	delete[]	refArg;
 	disconnect (this, SIGNAL (show_fineCorrector (int)),
 	            myRadioInterface, SLOT (set_fineCorrectorDisplay (int)));
 	disconnect (this, SIGNAL (show_coarseCorrector (int)),
@@ -503,8 +515,7 @@ void	ofdmProcessor::coarseCorrectorOff (void) {
 
 #define	RANGE	36
 int16_t	ofdmProcessor::processBlock_0 (DSPCOMPLEX *v) {
-int16_t	i, index = 100;
-float	Min	= 10000;
+int16_t	i, j, index = 100;
 
 	memcpy (fft_buffer, v, T_u * sizeof (DSPCOMPLEX));
 	fft_handler	-> do_FFT ();
@@ -512,53 +523,37 @@ float	Min	= 10000;
 	return getMiddle (fft_buffer);
 #endif
 //
-//	This looks strange, we since we did not move the negative frequencies
-//	to the front, they are at the end, so T_u is the middle
-	for (i = T_u - RANGE; i < T_u + RANGE; i ++) {
-	   if (abs (fft_buffer [i % T_u]) < Min) {
-	      float a1	= arg (fft_buffer [(i + 1) % T_u] *
-	                       conj (fft_buffer [(i + 2) % T_u]));
-	      if (abs (abs (a1 / M_PI) - 1) < 0.15) {
-	         float a2	= arg (fft_buffer [(i + 1) % T_u] *
-	                       conj (fft_buffer [(i + 3) % T_u]));
-	         float a3	= arg (fft_buffer [(i + 3) % T_u] *
-	                       conj (fft_buffer [(i + 4) % T_u]));
-	         float a4	= arg (fft_buffer [(i + 4) % T_u] *
-	                       conj (fft_buffer [(i + 5) % T_u]));
-	         float a5	= arg (fft_buffer [(i + 5) % T_u] *
-	                       conj (fft_buffer [(i + 6) % T_u]));
-	
-	         if ((abs (a2) < 0.4) && (abs (a3) < 0.4) &&
-	             (abs (a4) < 0.4) && (abs (a5) < 0.4)) {
-	            index	= i;
-	            Min	= abs (fft_buffer [i % T_u]);
-	         }
+//	The "best" approach so far is to correlate the segment of the refTable
+//	"in the middle"  with the block 0. However, since there might be 
+//	a pretty large phase difference between the two, we correlate
+//	the phase differences between the subsequent carriers.
+
+//
+//	The phase differences are computed once
+	for (i = 0; i < 2 * SEARCH_RANGE + CORRELATION_LENGTH; i ++) {
+	   int16_t baseIndex = T_u - SEARCH_RANGE + i;
+	   correlationVector [i] =
+	                   arg (fft_buffer [baseIndex % T_u] *
+	                    conj (fft_buffer [(baseIndex + 1) % T_u]));
+	}
+	float	MMax	= 0;
+	float	oldMMax	= 0;
+	for (i = 0; i < 2 * SEARCH_RANGE; i ++) {
+	   float sum	= 0;
+	   for (j = 1; j < CORRELATION_LENGTH; j ++) {
+	      sum += abs (refArg [j] * correlationVector [i + j]);
+	      if (sum > MMax) {
+	         oldMMax	= MMax;
+	         MMax = sum;
+	         index = i;
 	      }
 	   }
 	}
-
-	if (index != 100) {	// check on reasonability
-	   float a1	= arg (fft_buffer [(index + 1) % T_u]);
-	   float a2	= arg (fft_buffer [(index + 2) % T_u]);
-	   float a3	= arg (fft_buffer [(index + 3) % T_u]);
-	   float a4	= arg (fft_buffer [(index + 4) % T_u]);
-	   float a5	= arg (fft_buffer [(index + 5) % T_u]);
-	   float a6	= arg (fft_buffer [(index + 6) % T_u]);
-	   fprintf (stderr, "index = %d\t%f\t%f\t%f\t%f (%f, %f)\n",
-	                    index > RANGE ? index - T_u : index,
-	                    abs (a1 - a3) / M_PI,
-	                    abs (a3 - a4) / M_PI,
-	                    abs (a4 - a5) / M_PI,
-	                    abs (a5 - a6) / M_PI,
-	                    arg (fft_buffer [(index + 1) % T_u] *
-	                         conj (fft_buffer [(index + 2) % T_u])) / M_PI,
-	                    arg (fft_buffer [(index + 16 + 1) % T_u] *
-	                         conj (fft_buffer [(index + 16 + 2) % T_u])) / M_PI);
-	}
-	if (index != 100)
-	   return index - T_u;
-	else
-	   return 100;
+//
+//	Now map the index back to the right carrier
+//	fprintf (stderr, "index = %d (%f %f)\n",
+//	             T_u - SEARCH_RANGE + index - T_u, MMax, oldMMax);
+	return T_u - SEARCH_RANGE + index - T_u;
 }
 
 int16_t	ofdmProcessor::getMiddle (DSPCOMPLEX *v) {

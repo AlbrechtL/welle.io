@@ -90,6 +90,8 @@ protected:
 	ficHandler	*my_ficHandler;
 	mscHandler	*my_mscBuffer;
 private:
+	float		*correlationVector;
+	float		*refArg;
 	int32_t		sampleCnt;
 	int32_t		inputSize;
 	int32_t		inputPointer;
