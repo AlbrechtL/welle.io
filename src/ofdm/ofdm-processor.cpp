@@ -24,7 +24,7 @@
 #include	"gui.h"
 #include	"fft.h"
 //
-#define	SEARCH_RANGE		36
+#define	SEARCH_RANGE		(2 * 36)
 #define	CORRELATION_LENGTH	24
 
 #define	syncBufferMask	(32768 - 1)
@@ -104,9 +104,9 @@ int32_t	i;
 	gain		= 30;
 	bufferContent	= 0;
 //
-//	and for the correlation:
+//	and for the correlation 
 	refArg			= new float [CORRELATION_LENGTH];
-	correlationVector	= new float [2 * SEARCH_RANGE + CORRELATION_LENGTH];
+	correlationVector	= new float [SEARCH_RANGE + CORRELATION_LENGTH];
 	for (i = 0; i < CORRELATION_LENGTH; i ++)  {
 	   refArg [i] = arg (phaseSynchronizer -> refTable [(T_u + i) % T_u] *
 	              conj (phaseSynchronizer -> refTable [(T_u + i + 1) % T_u]));
@@ -522,38 +522,77 @@ int16_t	i, j, index = 100;
 #ifdef	SIMPLE_SYNCHRONIZATION
 	return getMiddle (fft_buffer);
 #endif
-//
-//	The "best" approach so far is to correlate the segment of the refTable
-//	"in the middle"  with the block 0. However, since there might be 
-//	a pretty large phase difference between the two, we correlate
-//	the phase differences between the subsequent carriers.
 
+#ifdef	FULL_CORRELATION
+//	The "best" approach for computing the coarse frequency
+//	offset is to look at the spectrum of block 0 and relate that
+//	with the spectrum as it should be, i.e. the refTable
+//	However, since there might be 
+//	a pretty large phase offset of the incoming data, compared to
+//	the reference table data, we look at the
+//	phase differences between the subsequent carriers rather
+//	than the values in the segments themselves.
+//	It seems to work pretty well
 //
 //	The phase differences are computed once
-	for (i = 0; i < 2 * SEARCH_RANGE + CORRELATION_LENGTH; i ++) {
-	   int16_t baseIndex = T_u - SEARCH_RANGE + i;
+	for (i = 0; i < SEARCH_RANGE + CORRELATION_LENGTH; i ++) {
+	   int16_t baseIndex = T_u - SEARCH_RANGE / 2 + i;
 	   correlationVector [i] =
 	                   arg (fft_buffer [baseIndex % T_u] *
 	                    conj (fft_buffer [(baseIndex + 1) % T_u]));
 	}
+
 	float	MMax	= 0;
 	float	oldMMax	= 0;
-	for (i = 0; i < 2 * SEARCH_RANGE; i ++) {
+	for (i = 0; i < SEARCH_RANGE; i ++) {
 	   float sum	= 0;
-	   for (j = 1; j < CORRELATION_LENGTH; j ++) {
+	   for (j = 0; j < CORRELATION_LENGTH; j ++) {
 	      sum += abs (refArg [j] * correlationVector [i + j]);
 	      if (sum > MMax) {
 	         oldMMax	= MMax;
-	         MMax = sum;
-	         index = i;
+	         MMax 		= sum;
+	         index 		= i;
 	      }
 	   }
 	}
 //
 //	Now map the index back to the right carrier
 //	fprintf (stderr, "index = %d (%f %f)\n",
-//	             T_u - SEARCH_RANGE + index - T_u, MMax, oldMMax);
-	return T_u - SEARCH_RANGE + index - T_u;
+//	             T_u - SEARCH_RANGE / 2 + index - T_u, MMax, oldMMax);
+	return T_u - SEARCH_RANGE / 2 + index - T_u;
+#else
+//	An alternative way is to look at a special pattern consisting
+//	of zeros in the row of args between successive carriers.
+	float Mmin	= 1000;
+	float OMmin	= 1000;
+	for (i = T_u - SEARCH_RANGE / 2; i < T_u + SEARCH_RANGE / 2; i ++) {
+              float a1  =  abs (abs (arg (fft_buffer [(i + 1) % T_u] *
+                                conj (fft_buffer [(i + 2) % T_u])) / M_PI) - 1);
+	      float a2	= abs (arg (fft_buffer [(i + 1) % T_u] *
+	      	                    conj (fft_buffer [(i + 3) % T_u])));
+	      float a3	= abs (arg (fft_buffer [(i + 3) % T_u] *
+	      	                    conj (fft_buffer [(i + 4) % T_u])));
+	      float a4	= abs (arg (fft_buffer [(i + 4) % T_u] *
+	      	                    conj (fft_buffer [(i + 5) % T_u])));
+	      float a5	= abs (arg (fft_buffer [(i + 5) % T_u] *
+	      	                    conj (fft_buffer [(i + 6) % T_u])));
+	      float b1	= abs (abs (arg (fft_buffer [(i + 16 + 1) % T_u] *
+	      	                    conj (fft_buffer [(i + 16 + 3) % T_u])) / M_PI) - 1);
+	      float b2	= abs (arg (fft_buffer [(i + 16 + 3) % T_u] *
+	      	                    conj (fft_buffer [(i + 16 + 4) % T_u])));
+	      float b3	= abs (arg (fft_buffer [(i + 16 + 4) % T_u] *
+	      	                    conj (fft_buffer [(i + 16 + 5) % T_u])));
+	      float b4	= abs (arg (fft_buffer [(i + 16 + 5) % T_u] *
+	      	                    conj (fft_buffer [(i + 16 + 6) % T_u])));
+	      float sum = a1 + a2 + a3 + a4 + a5 + b1 + b2 + b3 + b4;
+	      if (sum < Mmin) {
+	        OMmin = Mmin;
+	         Mmin = sum;
+	         index = i;
+	      }
+	}
+	return index - T_u;
+#endif
 }
 
 int16_t	ofdmProcessor::getMiddle (DSPCOMPLEX *v) {
@@ -566,19 +605,19 @@ DSPFLOAT	oldMax	= 0;
 //	in the range
 //	The range in which the carrier should be is
 //	T_u / 2 - K / 2 .. T_u / 2 + K / 2
-//	We first determine an initial sum over 1536 carriers
-	for (i = 40; i < 1536 + 40; i ++)
+//	We first determine an initial sum over params -> K carriers
+	for (i = 40; i < params -> K + 40; i ++)
 	   sum += abs (v [(T_u / 2 + i) % T_u]);
 //
 //	Now a moving sum, look for a maximum within a reasonable
 //	range (around (T_u - K) / 2, the start of the useful frequencies)
-	for (i = 40; i < T_u - (1536 - 40); i ++) {
+	for (i = 40; i < T_u - (params -> K - 40); i ++) {
 	   sum -= abs (v [(T_u / 2 + i) % T_u]);
-	   sum += abs (v [(T_u / 2 + i + 1536) % T_u]);
+	   sum += abs (v [(T_u / 2 + i + params -> K) % T_u]);
 	   if (sum > oldMax) {
 	      sum = oldMax;
 	      maxIndex = i;
 	   }
 	}
-	return maxIndex - (T_u - 1536) / 2;
+	return maxIndex - (T_u - params -> K) / 2;
 }
