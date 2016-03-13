@@ -522,7 +522,6 @@ int16_t	i, j, index = 100;
 #ifdef	SIMPLE_SYNCHRONIZATION
 	return getMiddle (fft_buffer);
 #endif
-
 #ifdef	FULL_CORRELATION
 //	The "best" approach for computing the coarse frequency
 //	offset is to look at the spectrum of block 0 and relate that

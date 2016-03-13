@@ -1302,10 +1302,14 @@ void	RadioInterface::changeinConfiguration	(void) {
 }
 #ifdef	RTP_STREAMER
 void	RadioInterface::samplesforStreamer (int n) {
+	if (my_rtpStreamer == NULL)
+	   return;
 	my_rtpStreamer	-> putSamples (n);
 }
 #elif	TCP_STREAMER
 void	RadioInterface::samplesforStreamer (int n) {
+	if (my_tcpStreamer == NULL)
+	   return;
 	my_tcpStreamer	-> putSamples (n);
 }
 #endif

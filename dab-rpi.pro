@@ -16,6 +16,7 @@ QMAKE_LFLAGS	+=  -flto
 #QMAKE_LFLAGS	+=  -pg
 CONFIG		+= NO_SSE_SUPPORT 
 #DEFINES	+= SIMPLE_SYNCHRONIZATION
+#DEFINES	+= FULL_CORRELATION
 DEPENDPATH += . \
 	      ./src \
 	      ./includes \
@@ -276,11 +277,10 @@ rtp-streamer	{
 	INCLUDEPATH	+= /usr/local/include/jrtplib3
 	HEADERS		+= ./includes/output/rtp-streamer.h
 	SOURCES		+= ./src/output/rtp-streamer.cpp
-	LIBS		+=
+	LIBS		+= -lsamplerate
 	LIBS		+= -ljrtp
 }
 
-	
 #
 #	extio dependencies, windows only
 #
