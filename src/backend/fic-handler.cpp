@@ -72,8 +72,8 @@ int16_t	i, j;
 	   shiftRegister [0] = PRBS [i];
 	}
 
-	connect (this, SIGNAL (show_ficRatio (int)),
-	         mr, SLOT (show_ficRatio (int)));
+	connect (this, SIGNAL (show_ficCRC (bool)),
+	         mr, SLOT (show_ficCRC (bool)));
 }
 
 		ficHandler::~ficHandler (void) {
@@ -221,17 +221,12 @@ int16_t	viterbiBlock [3072 + 24];
   *	and show that per 100 fic blocks
   */
 	for (i = ficno * 3; i < ficno * 3 + 3; i ++) {
-	   if (++ficBlocks >= 100) {
-	      ficRatio = 100 - ficMissed;
-	      show_ficRatio (100 - ficMissed);
-	      ficBlocks = ficMissed = 0;
-	   }
 	   uint8_t *p = &bitBuffer_out [(i % 3) * 256];
 	   if (!check_CRC_bits (p, 256)) {
-	      ficMissed ++;
+	      show_ficCRC (false);
 	      continue;
 	   }
-
+	   show_ficCRC (true);
 	   fibProcessor	-> process_FIB (p, ficno);
 	}
 //	fibProcessor	-> printActions (ficno);

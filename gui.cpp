@@ -194,6 +194,8 @@ int16_t	latency;
 	                                                 &dabModeParameters,
 	                                                 our_audioSink);
 	my_ficHandler		= new ficHandler	(this);
+	ficBlocks		= 0;
+	ficSuccess		= 0;
 //
 /**
   *	The default for the ofdmProcessor depends on
@@ -862,8 +864,14 @@ void	RadioInterface::show_successRate (int s) {
 }
 
 ///	... and the same for the FIC blocks
-void	RadioInterface::show_ficRatio (int s) {
-	ficRatioDisplay	-> display (s);
+void	RadioInterface::show_ficCRC (bool b) {
+	if (b)
+	   ficSuccess ++;
+	if (++ficBlocks >= 100) {
+	   ficRatioDisplay	-> display (ficSuccess);
+	   ficSuccess	= 0;
+	   ficBlocks	= 0;
+	}
 }
 
 ///	called from the ofdmDecoder, which computed this for each frame

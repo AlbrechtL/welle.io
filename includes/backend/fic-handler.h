@@ -69,7 +69,7 @@ private:
 	uint8_t		PRBS [768];
 	uint8_t		shiftRegister [9];
 signals:
-	void		show_ficRatio	(int);
+	void		show_ficCRC	(bool);
 };
 
 #endif

@@ -125,6 +125,8 @@ const	char		*get_programm_type_string (uint8_t);
 const	char		*get_programm_language_string (uint8_t);
 	QLabel		*pictureLabel;
 	QUdpSocket	DSCTy_59_socket;
+	int16_t		ficBlocks;
+	int16_t		ficSuccess;
 private slots:
 	void	setStart		(void);
 	void	updateTimeDisplay	(void);
@@ -148,7 +150,7 @@ public slots:
 	void	addtoEnsemble		(const QString &);
 	void	nameofEnsemble		(int, const QString &);
 	void	show_successRate	(int);
-	void	show_ficRatio		(int);
+	void	show_ficCRC		(bool);
 	void	show_snr		(int);
 	void	setSynced		(char);
 	void	showLabel		(QString);
