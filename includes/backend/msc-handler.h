@@ -32,10 +32,10 @@
 #include	<QMutex>
 #include	<stdio.h>
 #include	<stdint.h>
-#include	"audiosink.h"
 #include	"deconvolve.h"
 #include	<stdio.h>
 #include	"dab-constants.h"
+#include	"ringbuffer.h"
 
 class	RadioInterface;
 class	dabVirtual;
@@ -44,7 +44,7 @@ class mscHandler {
 public:
 		mscHandler		(RadioInterface *,
 	                                 DabParams	*,
-	                                 audioSink	*);
+	                                 RingBuffer<int16_t> *);
 		~mscHandler		(void);
 	void	process_mscBlock	(int16_t *, int16_t);
 	void	set_audioChannel	(audiodata	*);
@@ -55,6 +55,7 @@ private:
 	QMutex		locker;
 	bool		audioService;
 	RadioInterface	*myRadioInterface;
+	RingBuffer<int16_t>	*buffer;
 	dabVirtual	*dabHandler;
 	int16_t		*cifVector;
 	int16_t		cifCount;
@@ -80,7 +81,6 @@ private:
 	int16_t		BitsperBlock;
 	int16_t		numberofblocksperCIF;
 	int16_t		blockCount;
-	audioSink	*our_audioSink;
 };
 
 #endif

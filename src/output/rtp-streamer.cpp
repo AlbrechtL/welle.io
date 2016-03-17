@@ -31,11 +31,11 @@
 #include	<iostream>
 
 	rtpStreamer::rtpStreamer (QString name, int32_t port,
-	                          RingBuffer<float> *buffer) {
+	                          RingBuffer<int16_t> *b):audioBase (b){
 int16_t	i;
 	theName		= name;
 	thePort		= port;
-	inBuffer	= buffer;
+	inBuffer	= new RingBuffer<float> (2 * 32768);
 	theBuffer	= new RingBuffer<float> (8 * 32768);
 
 	sessionparams. SetOwnTimestampUnit (1.0 / (44100 * 4));
@@ -80,11 +80,12 @@ int16_t	i;
 //	mapping them onto 2 * 441 output values
 //
 
-void	rtpStreamer::putSamples (int n) {
+void	rtpStreamer::audioOutput (float *b, int n) {
 int16_t	i, j;
 int	status;
 	(void)n;
 
+	inBuffer	-> putDataIntoBuffer (b, 2 * n);
 	while (inBuffer -> GetRingBufferReadAvailable () > 960) {
 	   float v [960];
 	   inBuffer	-> getDataFromBuffer (v, 960);

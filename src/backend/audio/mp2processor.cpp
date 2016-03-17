@@ -219,8 +219,8 @@ struct quantizer_spec quantizer_table [17] = {
 ////////////////////////////////////////////////////////////////////////////////
 
 	mp2Processor::mp2Processor (RadioInterface *mr,
-	                            audioSink *theSink,
-	                            int16_t bitRate) {
+	                            int16_t bitRate,
+	                            RingBuffer<int16_t> *buffer) {
 int16_t	i, j;
 int16_t *nPtr = &N [0][0];
 
@@ -237,9 +237,11 @@ int16_t *nPtr = &N [0][0];
 	      V [i][j] = 0;
 
 	myRadioInterface	= mr;
-	ourSink		= theSink;
+	this	-> buffer	= buffer;
 	connect (this, SIGNAL (show_successRate (int)),
 	         mr, SLOT (show_successRate (int)));
+	connect (this, SIGNAL (newAudio (int)),
+	         mr, SLOT (newAudio (int)));
 	Voffs		= 0;
 	baudRate	= 48000;	// default for DAB
 	MP2framesize	= 24 * bitRate;	// may be changed
@@ -576,11 +578,11 @@ int16_t	lf	= baudRate == 48000 ? MP2framesize : 2 * MP2framesize;
 	      addbittoMP2 (MP2frame, v [i], MP2bitCount ++);
 	      if (MP2bitCount >= lf) {
 	         int16_t sample_buf [KJMP2_SAMPLES_PER_FRAME * 2];
-	         if (mp2decodeFrame (MP2frame, sample_buf)) 
-	            ourSink -> audioOut (sample_buf,
-	                                 KJMP2_SAMPLES_PER_FRAME,
-	                                 baudRate
-	                                );
+	         if (mp2decodeFrame (MP2frame, sample_buf)) {
+	            buffer -> putDataIntoBuffer (sample_buf, 
+	                                 (int32_t)KJMP2_SAMPLES_PER_FRAME);
+	            newAudio (baudRate);
+	         }
 
 	         MP2Header_OK = 0;
 	         MP2headerCount = 0;

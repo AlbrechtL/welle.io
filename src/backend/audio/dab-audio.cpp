@@ -29,7 +29,6 @@
 #include	"mp2processor.h"
 #include	"mp4processor.h"
 #include	"deconvolve.h"
-#include	"audiosink.h"
 #include	"gui.h"
 //
 //	As an experiment a version of the backend is created
@@ -50,7 +49,7 @@ int8_t	interleaveDelays [] = {
 	                         int16_t uepFlag,
 	                         int16_t protLevel,
 	                         RadioInterface *mr,
-	                         audioSink *as) {
+	                         RingBuffer<int16_t> *buffer) {
 int32_t i, j;
 	this	-> dabModus		= dabModus;
 	this	-> fragmentSize		= fragmentSize;
@@ -58,7 +57,7 @@ int32_t i, j;
 	this	-> uepFlag		= uepFlag;
 	this	-> protLevel		= protLevel;
 	this	-> myRadioInterface	= mr;
-	this	-> myAudioSink		= as;
+	this	-> audioBuffer		= buffer;
 
 	outV			= new uint8_t [bitRate * 24];
 	interleaveData		= new int16_t *[fragmentSize]; // max size
@@ -81,17 +80,16 @@ int32_t i, j;
 	
 	if (dabModus == DAB) 
 	   our_dabProcessor = new mp2Processor (myRadioInterface,
-	                                        myAudioSink,
-	                                        bitRate);
+	                                        bitRate,
+	                                        audioBuffer);
 	else
 	if (dabModus == DAB_PLUS) 
 	   our_dabProcessor = new mp4Processor (myRadioInterface,
-	                                        myAudioSink,
-	                                        bitRate);
+	                                        bitRate,
+	                                        audioBuffer);
 	else		// cannot happen
 	   our_dabProcessor = new dabProcessor ();
 
-	myAudioSink	-> restart	();
 	Buffer		= new RingBuffer<int16_t>(64 * 32768);
 	running		= true;
 	start ();

@@ -66,15 +66,15 @@ uint16_t	genpoly		= 0x1021;
   *	that are processed by the "faadDecoder" class
   */
 	mp4Processor::mp4Processor (RadioInterface	*mr,
-	                            audioSink	*as,
-	                            int16_t	bitRate):my_padhandler (mr) {
+	                            int16_t	bitRate,
+	                            RingBuffer<int16_t> *b)
+	                            :my_padhandler (mr) {
 
 	myRadioInterface	= mr;
 	connect (this, SIGNAL (show_successRate (int)),
 	         mr, SLOT (show_successRate (int)));
 	connect (this, SIGNAL (showLabel (QString)),
 	         mr, SLOT (showLabel (QString)));
-	ourSink			= as;
 	this	-> bitRate	= bitRate;	// input rate
 
 	superFramesize		= 110 * (bitRate / 8);
@@ -84,7 +84,7 @@ uint16_t	genpoly		= 0x1021;
 	blockFillIndex	= 0;
 	blocksInBuffer	= 0;
 //
-	aacDecoder		= new faadDecoder (ourSink);
+	aacDecoder		= new faadDecoder (mr, b);
 	frameCount	= 0;
 	frameErrors	= 0;
 //

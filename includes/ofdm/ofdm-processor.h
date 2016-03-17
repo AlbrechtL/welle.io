@@ -30,6 +30,7 @@
 #include	<QThread>
 #include	<QObject>
 #include	"stdint.h"
+#include	<sndfile.h>
 #include	"phasereference.h"
 #include	"virtual-input.h"
 #include	"ringbuffer.h"

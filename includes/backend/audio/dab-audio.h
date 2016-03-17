@@ -35,7 +35,6 @@
 class	dabProcessor;
 class	uep_deconvolve;
 class	eep_deconvolve;
-class	audioSink;
 class	RadioInterface;
 
 class	dabAudio:public QThread, public dabVirtual {
@@ -46,10 +45,13 @@ public:
 	                 int16_t uepFlag,
 	                 int16_t protLevel,
 	                 RadioInterface *mr,
-	                 audioSink *as);
+	                 RingBuffer<int16_t> *);
 	~dabAudio	(void);
 int32_t	process		(int16_t *, int16_t);
 void	stopRunning	(void);
+protected:
+	RadioInterface	*myRadioInterface;
+	RingBuffer<int16_t>	*audioBuffer;
 private:
 void	run		(void);
 	volatile bool	running;
@@ -58,8 +60,6 @@ void	run		(void);
 	int16_t	bitRate;
 	int16_t	uepFlag;
 	int16_t	protLevel;
-	RadioInterface	*myRadioInterface;
-	audioSink	*myAudioSink;
 
 	uint8_t		*outV;
 	int16_t		**interleaveData;

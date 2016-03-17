@@ -38,10 +38,9 @@
 //
 		mscHandler::mscHandler	(RadioInterface *mr,
 	                                 DabParams	*p,
-	                                 audioSink	*sink) {
+	                                 RingBuffer<int16_t> *buffer) {
 	myRadioInterface	= mr;
-	our_audioSink		= sink;
-
+	this	-> buffer	= buffer;
 	cifVector		= new int16_t [55296];
 	cifCount		= 0;	// msc blocks in CIF
 	blkCount		= 0;
@@ -139,7 +138,7 @@ int16_t	*myBegin;
 	                                 new_uepFlag,
 	                                 new_protLevel,
 	                                 myRadioInterface,
-	                                 our_audioSink);
+	                                 buffer);
 
 	   else	 {	// dealing with data
 	      dabHandler = new mscDatagroup (myRadioInterface,

@@ -27,16 +27,29 @@
 
 #include	"audiosink.h"
 #include	<stdio.h>
+#include	<sys/stat.h>
 #include	<QDebug>
-#include	<QMessageBox>
+
+#ifdef	WE_STREAM
+#include	"gui.h"
+#endif
 /*
+ *	The class is the sink for the data generated
+ *	It resembles the older paWriter class, however, we have
+ *	different data types (complex/float32 vs int16). We really
+ *	should make a single generic class of it.
  */
+#ifdef	WE_STREAM
 	audioSink::audioSink	(int16_t latency,
-	                         QComboBox *s,
-	                         RingBuffer<int16_t> *b): audioBase (b) {
+	                         RadioInterface	*mr,
+	                         RingBuffer<float>	*streamerBuffer) {
+	connect (this, SIGNAL (samplesforStreamer (int)),
+	         mr, SLOT (samplesforStreamer (int)));
+	this	-> streamerBuffer	= streamerBuffer;
+#else
+	audioSink::audioSink	(int16_t latency) {
+#endif
 int32_t	i;
-	this	-> latency	= latency;
-	this	-> streamSelector	= s;
 
 	this	-> CardRate	= 48000;
 	this	-> latency	= latency;
@@ -54,16 +67,12 @@ int32_t	i;
 	for (i = 0; i < Pa_GetHostApiCount (); i ++)
 	   qDebug ("Api %d is %s\n", i, Pa_GetHostApiInfo (i) -> name);
 
-	
 	numofDevices	= Pa_GetDeviceCount ();
-	outTable	= new int16_t [numofDevices + 1];
-	for (i = 0; i < numofDevices; i ++)
-	   outTable [i] = -1;
 	ostream		= NULL;
-	setupChannels (streamSelector);
-	connect (streamSelector, SIGNAL (activated (int)),
-	         this,  SLOT (set_streamSelector (int)));
-	streamSelector	-> show ();
+	dumpFile	= NULL;
+	f_16000		= new LowPassFIR (5, 16000, 48000);
+	f_24000		= new LowPassFIR (5, 24000, 48000);
+	f_32000		= new LowPassFIR (5, 32000, 96000);
 }
 
 	audioSink::~audioSink	(void) {
@@ -82,10 +91,11 @@ int32_t	i;
 	   Pa_Terminate ();
 
 	delete	_O_Buffer;
-	delete[] outTable;
-	streamSelector	-> hide ();
 }
 
+int32_t	audioSink::cardRate	(void) {
+	return CardRate;
+}
 //
 bool	audioSink::selectDevice (int16_t odev) {
 PaError err;
@@ -211,9 +221,178 @@ uint32_t	i;
 
 	return ud -> paCallbackReturn;
 }
+//
+//	This one is a hack for handling different baudrates coming from
+//	the aac decoder
+void	audioSink::audioOut	(int16_t *V, int32_t amount, int32_t rate) {
+	switch (rate) {
+	   case 16000:	
+	      audioOut_16000 (V, amount);
+	      return;
+	   case 24000:
+	      audioOut_24000 (V, amount);
+	      return;
+	   case 32000:
+	      audioOut_32000 (V, amount);
+	      return;
+	   default:
+	   case 48000:
+	      audioOut_48000 (V, amount);
+	      return;
+	}
+}
+//
+//	scale up from 16 -> 48
+void	audioSink::audioOut_16000	(int16_t *V, int32_t amount) {
+float	*buffer = (float *)alloca (6 * amount * sizeof (float));
+int32_t	i;
+int32_t	available = _O_Buffer -> GetRingBufferWriteAvailable ();
 
-void	audioSink::audioOutput	(float *b, int32_t amount) {
-	_O_Buffer	-> putDataIntoBuffer (b, 2 * amount);
+	amount	=  3 * amount;
+	if (2 * amount > available)
+	   amount = (available / 2) & ~01;
+	for (i = 0; i < amount / 3; i ++) {
+	   DSPCOMPLEX help = DSPCOMPLEX (0, 0);
+	   help = DSPCOMPLEX (float (V [2 * i]) / 32767.0,
+	                      float (V [2 * i + 1]) / 32767.0);
+	   help	= f_16000 -> Pass (help);
+	   buffer [6 * i] = real (help);
+	   buffer [6 * i + 1] = imag (help);
+	   help = f_16000 -> Pass (DSPCOMPLEX (0, 0));
+	   buffer [6 * i + 2] = real (help);
+	   buffer [6 * i + 3] = imag (help);
+	   help = f_16000 -> Pass (DSPCOMPLEX (0, 0));
+	   buffer [6 * i + 4] = real (help);
+	   buffer [6 * i + 5] = imag (help);
+	}
+
+	if (dumpFile != NULL)
+	   sf_writef_float (dumpFile, buffer, amount);
+
+#ifdef	WE_STREAM
+	streamerBuffer	-> putDataIntoBuffer (buffer, 2 * amount);
+	samplesforStreamer (2 * amount);
+#else
+	_O_Buffer	-> putDataIntoBuffer (buffer, 2 * amount);
+#endif
+}
+
+void	audioSink::audioOut_24000	(int16_t *V, int32_t amount) {
+float	*buffer = (float *)alloca (4 * amount * sizeof (float));
+int32_t	i;
+int32_t	available = _O_Buffer -> GetRingBufferWriteAvailable ();
+
+	amount	= 2 * amount;
+	if (2 * amount > available)
+	   amount = (available / 2) & ~01;
+	for (i = 0; i < amount / 2; i ++) {
+	   DSPCOMPLEX help = DSPCOMPLEX (float (V [2 * i]) / 32767.0,
+	                                 float (V [2 * i + 1]) / 32767.0);
+	   help = f_24000 -> Pass (help);
+	   buffer [4 * i] = real (help);
+	   buffer [4 * i + 1] = imag (help);
+	   help = f_24000 -> Pass (DSPCOMPLEX (0, 0));
+	   buffer [4 * i + 2] = real (help);
+	   buffer [4 * i + 3] = imag (help);
+	}
+
+	if (dumpFile != NULL)
+	   sf_writef_float (dumpFile, buffer, 2 * amount);
+
+#ifdef	WE_STREAM
+	streamerBuffer	-> putDataIntoBuffer (buffer, 4 * amount);
+	samplesforStreamer (4 * amount);
+#else
+	_O_Buffer	-> putDataIntoBuffer (buffer, 4 * amount);
+#endif
+}
+//
+//	Conversion from 32 -> 48 is by first converting to 96000
+//	and then back to 48000
+void	audioSink::audioOut_32000	(int16_t *V, int32_t amount) {
+DSPCOMPLEX *buffer_1 = (DSPCOMPLEX *)alloca (3 * amount * sizeof (DSPCOMPLEX));
+float	*buffer = (float *)alloca (2 * 3 * amount / 2 * sizeof (float));
+int32_t	i;
+
+	for (i = 0; i < amount; i ++) {
+	   DSPCOMPLEX help = DSPCOMPLEX (float (V [2 * i]) / 32767.0,
+	                                 float (V [2 * i + 1]) / 32767.0);
+	   buffer_1 [3 * i + 0] = f_32000 -> Pass (help);
+	   buffer_1 [3 * i + 1] = f_32000 -> Pass (DSPCOMPLEX (0, 0));
+	   buffer_1 [3 * i + 2] = f_32000 -> Pass (DSPCOMPLEX (0, 0));
+	}
+//
+//	Note that although we use "2 * i" for index left and right
+//	they mean different things
+	for (i = 0; i < 3 * amount / 2; i ++) {
+	   buffer [2 * i]	= real (buffer_1 [2 * i]);
+	   buffer [2 * i + 1]	= imag (buffer_1 [2 * i]);
+	}
+	   
+	if (dumpFile != NULL)
+	   sf_writef_float (dumpFile, buffer, 3 * amount / 2);
+
+#ifdef	WE_STREAM
+	streamerBuffer	-> putDataIntoBuffer (buffer, 3 * amount);
+	samplesforStreamer (3 * amount);
+#else
+	_O_Buffer	-> putDataIntoBuffer (buffer, 3 * amount);
+#endif
+}
+
+void	audioSink::audioOut_48000	(int16_t *V, int32_t amount) {
+float	*buffer = (float *)alloca (2 * amount * sizeof (float));
+int32_t	i, n;
+int32_t	available = _O_Buffer -> GetRingBufferWriteAvailable ();
+
+	n	=  amount;
+	if (2 * n > available)
+	   n = (available / 2) & ~01;
+
+	for (i = 0; i < amount; i ++) {
+	   buffer [2 * i] = float (V [2 * i]) / 32767.0;
+	   buffer [2 * i + 1] = float (V [2 * i + 1]) / 32767.0;
+	}
+
+	if (dumpFile != NULL)
+	   sf_writef_float (dumpFile, buffer, amount);
+//
+//	O_Buffer contains floats, so a double "amount" (which was the
+//	count of IQ samples
+#ifdef	WE_STREAM
+	streamerBuffer	-> putDataIntoBuffer (buffer, 2 * amount);
+	samplesforStreamer (2 * amount);
+#else
+	_O_Buffer	-> putDataIntoBuffer (buffer, 2 * amount);
+#endif
+}
+//
+//	putSample output comes from the FM receiver
+
+int32_t	audioSink::putSample	(DSPCOMPLEX v) {
+	return putSamples (&v, 1);
+}
+
+int32_t	audioSink::putSamples		(DSPCOMPLEX *V, int32_t n) {
+float	*buffer = (float *)alloca (2 * n * sizeof (float));
+int32_t	i;
+int32_t	available = _O_Buffer -> GetRingBufferWriteAvailable ();
+
+	if (2 * n > available)
+	   n = (available / 2) & ~01;
+	for (i = 0; i < n; i ++) {
+	   buffer [2 * i] = real (V [i]);
+	   buffer [2 * i + 1] = imag (V [i]);
+	}
+
+	if (dumpFile != NULL)
+	   sf_writef_float (dumpFile, buffer, n);
+	_O_Buffer	-> putDataIntoBuffer (buffer, 2 * n);
+	return n;
+}
+
+int16_t	audioSink::numberofDevices	(void) {
+	return numofDevices;
 }
 
 QString audioSink::outputChannelwithRate (int16_t ch, int32_t rate) {
@@ -246,55 +425,15 @@ bool	audioSink::selectDefaultDevice (void) {
 	return selectDevice (Pa_GetDefaultOutputDevice ());
 }
 
-int32_t	audioSink::cardRate	(void) {
-	return 48000;
+void	audioSink::startDumping	(SNDFILE *f) {
+	dumpFile	= f;
 }
 
-bool	audioSink::setupChannels (QComboBox *streamOutSelector) {
-uint16_t	ocnt	= 1;
-uint16_t	i;
-
-	for (i = 0; i <  numofDevices; i ++) {
-	   const QString so = 
-	             outputChannelwithRate (i, CardRate);
-	   qDebug ("Investigating Device %d\n", i);
-
-	   if (so != QString ("")) {
-	      streamOutSelector -> insertItem (ocnt, so, QVariant (i));
-	      outTable [ocnt] = i;
-	      qDebug (" (output):item %d wordt stream %d (%s)\n", ocnt , i,
-	                      so. toLatin1 ().data ());
-	      ocnt ++;
-	   }
-	}
-
-	qDebug () << "added items to combobox";
-	return ocnt > 1;
+void	audioSink::stopDumping	(void) {
+	dumpFile	= NULL;
 }
 
-bool	audioSink::set_streamSelector (int idx) {
-int16_t	outputDevice;
-
-	if (idx == 0)
-	   return false;
-
-	outputDevice = outTable [idx];
-	if (!isValidDevice (outputDevice)) {
-	   return false;
-	}
-
-	stop	();
-	if (!selectDevice (outputDevice)) {
-	   fprintf (stderr, "error selecting device\n");
-	   selectDefaultDevice ();
-	   return false;
-	}
-
-	qWarning () << "selected output device " << idx << outputDevice;
-	return true;
-}
-//
-int16_t	audioSink::numberofDevices	(void) {
-	return numofDevices;
+int32_t	audioSink::getSelectedRate	(void) {
+	return CardRate;
 }
 

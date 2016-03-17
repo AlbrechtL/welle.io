@@ -31,7 +31,7 @@
 #include	"dab-constants.h"
 #include	<stdio.h>
 #include	<stdint.h>
-#include	"audiosink.h"
+#include	"audio-base.h"
 #include	"dab-processor.h"
 #include	"firecode-checker.h"
 #include	"rscodec.h"
@@ -45,13 +45,12 @@ class	mp4Processor : public QObject, public dabProcessor {
 Q_OBJECT
 public:
 			mp4Processor	(RadioInterface *,
-	                                 audioSink *,
-	                                 int16_t);
+	                                 int16_t,
+	                                 RingBuffer<int16_t> *);
 			~mp4Processor	(void);
 	void		addtoFrame	(uint8_t *, int16_t);
 private:
 	RadioInterface	*myRadioInterface;
-	audioSink	*ourSink;
 	padHandler	my_padhandler;
 	bool		processSuperframe (uint8_t [], int16_t);
 	int16_t		superFramesize;

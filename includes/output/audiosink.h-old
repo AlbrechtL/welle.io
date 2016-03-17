@@ -31,35 +31,62 @@
 #include	"dab-constants.h"
 #include	<portaudio.h>
 #include	<stdio.h>
-#include	"audio-base.h"
 #include	"ringbuffer.h"
-#include	<QComboBox>
+#include	"fir-filters.h"
+#include	<sndfile.h>
+#include	<QObject>
+#define		LOWLATENCY	0100
+#define		HIGHLATENCY	0200
+#define		VERYHIGHLATENCY	0300
 
-class	audioSink  : public audioBase {
+#ifdef	TCP_STREAMER
+#define		WE_STREAM
+class	RadioInterface;
+#elif	RTP_STREAMER
+#define		WE_STREAM
+class	RadioInterface;
+#endif
+
+class	audioSink  : public QObject{
 Q_OBJECT
 public:
-	                audioSink		(int16_t,
-	                                         QComboBox *,
-	                                         RingBuffer<int16_t> *);
+#ifdef	WE_STREAM
+			audioSink		(int16_t,
+	                                         RadioInterface *,
+	                                         RingBuffer<float> *);
+#else
+	                audioSink		(int16_t);
+#endif
 			~audioSink		(void);
-	void		stop			(void);
-	void		restart			(void);
-public slots:
-	bool		set_streamSelector	(int);
-private:
 	int16_t		numberofDevices		(void);
 	QString		outputChannelwithRate	(int16_t, int32_t);
+	void		stop			(void);
+	void		restart			(void);
+	void		audioOut		(int16_t *, int32_t, int32_t);
+	int32_t		putSample		(DSPCOMPLEX);
+	int32_t		putSamples		(DSPCOMPLEX *, int32_t);
 	int16_t		invalidDevice		(void);
 	bool		isValidDevice		(int16_t);
+	int32_t		cardRate		(void);
 	bool		selectDefaultDevice	(void);
 	bool		selectDevice		(int16_t);
-	int32_t		cardRate		(void);
-
-	bool		OutputrateIsSupported	(int16_t, int32_t);
-	void		audioOutput		(float *, int32_t);
-	bool		setupChannels		(QComboBox *);
+	void		startDumping		(SNDFILE *);
+	void		stopDumping		(void);
+	int32_t		getSelectedRate		(void);
+private:
+#ifdef	WE_STREAM
+	RingBuffer<float>	*streamerBuffer;
+#endif
 	int32_t		CardRate;
 	int16_t		latency;
+	bool		OutputrateIsSupported	(int16_t, int32_t);
+	void		audioOut_16000		(int16_t *, int32_t);
+	void		audioOut_24000		(int16_t *, int32_t);
+	void		audioOut_32000		(int16_t *, int32_t);
+	void		audioOut_48000		(int16_t *, int32_t);
+	LowPassFIR	*f_16000;
+	LowPassFIR	*f_24000;
+	LowPassFIR	*f_32000;
 	int32_t		size;
 	bool		portAudio;
 	bool		writerRunning;
@@ -70,9 +97,10 @@ private:
 	SNDFILE		*dumpFile;
 	RingBuffer<float>	*_O_Buffer;
 	PaStreamParameters	outputParameters;
-
-	int16_t		*outTable;
-	QComboBox	*streamSelector;
+#ifdef	WE_STREAM
+signals:
+	void		samplesforStreamer	(int);
+#endif
 protected:
 static	int		paCallback_o	(const void	*input,
 	                                 void		*output,

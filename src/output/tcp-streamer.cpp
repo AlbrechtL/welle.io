@@ -26,14 +26,17 @@
 
 #include	"tcp-streamer.h"
 
-		tcpStreamer::tcpStreamer	(RingBuffer<float> *buffer) {
-	this	-> buffer	= buffer;
+		tcpStreamer::tcpStreamer	(RingBuffer<int16_t> *b,
+	                                         int32_t port):
+	                                             audioBase (b) {
+	buffer			= new RingBuffer<float> (2 * 32768);
+	this	-> port		= port;
 	connected		= false;
 //	Now for the communication
 	connect (&streamer, SIGNAL (newConnection (void)),
 	                this, SLOT (acceptConnection (void)));
-	streamer. listen (QHostAddress::Any, 20040);
-	fprintf (stderr, "listering on port 20040\n");
+	streamer. listen (QHostAddress::Any, port);
+	fprintf (stderr, "listering on port %d\n", port);
 	connect (this, SIGNAL (handleSamples (void)),
 	         this, SLOT (processSamples (void)));
 }
@@ -60,10 +63,10 @@ void	tcpStreamer::acceptConnection (void) {
 #define	bufferSize	(2 * 4096)
 //
 //	
-void	tcpStreamer::putSamples (int32_t a) {
+void	tcpStreamer::audioOutput (float *b, int32_t amount) {
 	if (!connected)
 	   return;
-
+	buffer -> putDataIntoBuffer (b, 2 * amount);
 	if (buffer -> GetRingBufferReadAvailable () > bufferSize)
 	   emit handleSamples ();
 }
@@ -97,7 +100,7 @@ int32_t		amount;
 	                   QAbstractSocket::UnconnectedState) {
 	      fprintf (stderr, "unconnected state\n");
 	      streamer. close ();
-	      streamer. listen (QHostAddress::Any, 20040);
+	      streamer. listen (QHostAddress::Any, port);
 	      connected	= false;
 	      return;
 	   }
@@ -105,4 +108,5 @@ int32_t		amount;
 	   streamerAddress -> write (datagram. data (), datagram. size ());
 	}
 }
+
 

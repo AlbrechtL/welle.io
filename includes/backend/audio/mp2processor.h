@@ -32,9 +32,9 @@
 #include	<stdint.h>
 #include	<math.h>
 #include	"dab-processor.h"
-#include	"audiosink.h"
 #include	<QObject>
 #include	<stdio.h>
+#include	"ringbuffer.h"
 
 #define KJMP2_MAX_FRAME_SIZE    1440  // the maximum size of a frame
 #define KJMP2_SAMPLES_PER_FRAME 1152  // the number of samples per frame
@@ -52,17 +52,17 @@ class	mp2Processor: public QObject, public dabProcessor {
 Q_OBJECT
 public:
 			mp2Processor	(RadioInterface *,
-	                                 audioSink *,
-	                                 int16_t);
+	                                 int16_t,
+	                                 RingBuffer<int16_t> *);
 			~mp2Processor	(void);
 	void		addtoFrame	(uint8_t *, int16_t);
 	void		setFile		(FILE *);
 
 private:
-	audioSink	*ourSink;
 	int32_t		mp2sampleRate	(uint8_t *);
 	int32_t		mp2decodeFrame	(uint8_t *, int16_t *);
 	RadioInterface	*myRadioInterface;
+	RingBuffer<int16_t>	*buffer;
 	int32_t		baudRate;
 	void		setSamplerate		(int32_t);
 	struct quantizer_spec *read_allocation (int, int);
@@ -90,6 +90,7 @@ private:
 	int16_t		errorFrames;
 signals:
 	void		show_successRate	(int);
+	void		newAudio		(int);
 };
 #endif
 

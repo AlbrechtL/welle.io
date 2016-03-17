@@ -41,7 +41,7 @@
 class	QSettings;
 class	Scope;
 class	virtualInput;
-class	audioSink;
+class	audioBase;
 
 class	mscHandler;
 class	ficHandler;
@@ -66,13 +66,6 @@ public:
 		~RadioInterface		();
 
 private:
-#ifdef	TCP_STREAMER
-	tcpStreamer	*my_tcpStreamer;
-	RingBuffer<float> *streamBuffer;
-#elif	RTP_STREAMER
-	rtpStreamer	*my_rtpStreamer;
-	RingBuffer<float> *streamBuffer;
-#endif
 	int16_t		threshold;
 	int16_t		outputDevice;
 	void		dumpControlState	(QSettings *);
@@ -80,46 +73,36 @@ private:
 	SNDFILE		*dumpfilePointer;
 	bool		audioDumping;
 	SNDFILE		*audiofilePointer;
-	bool		Concurrent;
 	DabParams	dabModeParameters;
 	void		setModeParameters	(int16_t);
 	int32_t		vfoFrequency;
-	int32_t		vfoOffset;
 	QSettings	*dabSettings;
 	QStringListModel	ensemble;
 	QStringList	Services;
+	void		setupChannels (QComboBox *s, uint8_t band);
 
 	char		isSynced;
-	int32_t		outRate;
 
-	void		setupChannels	(QComboBox *, uint8_t);
 	uint8_t		dabBand;
 	uint8_t		theProcessor;
-	int32_t		ringbufferSize;
 	bool		running;
 
 	QString		ensembleLabel;
 	virtualInput	*myRig;
-	int16_t		*outTable;
-	int16_t		numberofDevices;
 
 	void		setTuner		(int32_t);
 
 	QTimer		*displayTimer;
 	int32_t		numberofSeconds;
 
-	bool		setupSoundOut		(QComboBox *, audioSink *,
-	                                         int16_t *);
 	void		resetSelector		(void);
-	int32_t		sampleCount;
 	ofdmProcessor	*my_ofdmProcessor;
 	ficHandler	*my_ficHandler;
 	mscHandler	*my_mscHandler;
-	audioSink	*our_audioSink;
+	audioBase	*soundOut;
+	RingBuffer<int16_t>	*audioBuffer;
 	int32_t		TunedFrequency;
 	bool		autoCorrector;
-	FILE		*mp2File;
-	FILE		*mp4File;
 	int16_t		currentGain;
 const	char		*get_programm_type_string (uint8_t);
 const	char		*get_programm_language_string (uint8_t);
@@ -127,22 +110,6 @@ const	char		*get_programm_language_string (uint8_t);
 	QUdpSocket	DSCTy_59_socket;
 	int16_t		ficBlocks;
 	int16_t		ficSuccess;
-private slots:
-	void	setStart		(void);
-	void	updateTimeDisplay	(void);
-	void	setStreamOutSelector	(int);
-
-	void	selectMode		(const QString &);
-	void	autoCorrector_on	(void);
-
-	void	abortSystem		(int);
-	void	TerminateProcess	(void);
-	void	set_bandSelect		(QString);
-	void	set_channelSelect	(QString);
-	void	setDevice		(QString);
-	void	selectService		(QModelIndex);
-	void	set_dumping		(void);
-	void	set_audioDump		(void);
 public slots:
 	void	set_fineCorrectorDisplay	(int);
 	void	set_coarseCorrectorDisplay	(int);
@@ -157,11 +124,22 @@ public slots:
 	void	showMOT			(QByteArray, int);
 	void	send_datagram		(char *, int);
 	void	changeinConfiguration	(void);
-#ifdef	RTP_STREAMER
-	void	samplesforStreamer	(int);
-#elif	TCP_STREAMER
-	void	samplesforStreamer	(int);
-#endif
+	void	newAudio		(int);
+private slots:
+	void	setStart		(void);
+	void	updateTimeDisplay	(void);
+
+	void	selectMode		(const QString &);
+	void	autoCorrector_on	(void);
+
+	void	abortSystem		(int);
+	void	TerminateProcess	(void);
+	void	set_bandSelect		(QString);
+	void	set_channelSelect	(QString);
+	void	setDevice		(QString);
+	void	selectService		(QModelIndex);
+	void	set_dumping		(void);
+	void	set_audioDump		(void);
 };
 
 #endif

@@ -23,9 +23,13 @@
 */
 #
 #include	"neaacdec.h"
-#include	"audiosink.h"
+#include	<QObject>
+#include	"gui.h"
+#include	"ringbuffer.h"
 
-class	faadDecoder {
+
+class	faadDecoder: public QObject{
+Q_OBJECT
 private:
 	bool			processorOK;
 	bool			aacInitialized;
@@ -33,17 +37,23 @@ private:
 	NeAACDecHandle		aacHandle;
 	NeAACDecConfigurationPtr	aacConf;
 	NeAACDecFrameInfo	hInfo;
-	audioSink		*ourSink;
+	audioBase		*ourSink;
 	int32_t			baudRate;
+	RingBuffer<int16_t>	*audioBuffer;
+signals:
+	void			newAudio (int);
 //
 public:
-	faadDecoder	(audioSink *as) {
-	ourSink		= as;
+	faadDecoder	(RadioInterface *mr,
+	                 RingBuffer<int16_t> *buffer) {
+	this	-> audioBuffer	= buffer;
 	aacCap		= NeAACDecGetCapabilities	();
 	aacHandle	= NeAACDecOpen			();
 	aacConf		= NeAACDecGetCurrentConfiguration (aacHandle);
 	aacInitialized	= false;
 	baudRate	= 48000;
+	connect (this, SIGNAL (newAudio (int)),
+	         mr, SLOT (newAudio (int)));
 }
 
 	~faadDecoder	(void) {
@@ -144,8 +154,10 @@ NeAACDecFrameInfo	hInfo;
 	   return 0;
 	}
 	   
-	if (channels == 2) 
-	   ourSink -> audioOut (outBuffer, samples / 2, sample_rate);
+	if (channels == 2) {
+	   audioBuffer	-> putDataIntoBuffer (outBuffer, samples);
+	   newAudio (sample_rate);
+	}
 	else
 	if (channels == 1) {
 	   int16_t *buffer = (int16_t *)alloca (2 * samples);
@@ -154,7 +166,8 @@ NeAACDecFrameInfo	hInfo;
 	      buffer [2 * i]	= ((int16_t *)outBuffer) [i];
 	      buffer [2 * i + 1] = buffer [2 * i];
 	   }
-	   ourSink -> audioOut (buffer, samples, sample_rate);
+	   audioBuffer	-> putDataIntoBuffer (buffer, 2 * samples);
+	   newAudio (sample_rate);
 	}
 	else
 	   fprintf (stderr, "Cannot handle these channels\n");

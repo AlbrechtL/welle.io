@@ -27,7 +27,6 @@
 #ifndef __TCP_STREAMER__
 #define	__TCP_STREAMER__
 
-#include	<QObject>
 #include	"dab-constants.h"
 #include	"ringbuffer.h"
 #include	<QByteArray>
@@ -36,25 +35,27 @@
 #include	<QTcpServer>
 #include	<QTcpSocket>
 #include	<QTimer>
+#include	"audio-base.h"
 
-class	tcpStreamer: public QObject {
+class	tcpStreamer: public audioBase {
 Q_OBJECT
 public:
-		tcpStreamer	(RingBuffer<float> *);
+		tcpStreamer	(RingBuffer<int16_t> *, int32_t);
 		~tcpStreamer	(void);
-	void	putSamples	(int);
+	void	audioOutput	(float *, int32_t);
 private:
 	RingBuffer<float>	*buffer;
-	QTcpServer	streamer;
-	QTcpSocket	*client;
-	QTcpSocket	*streamerAddress;
-	QTimer		watchTimer;
-	bool		connected;
+	int32_t			port;
+	QTcpServer		streamer;
+	QTcpSocket		*client;
+	QTcpSocket		*streamerAddress;
+	QTimer			watchTimer;
+	bool			connected;
 public slots:
-	void	acceptConnection	(void);
-	void	processSamples		(void);
+	void			acceptConnection	(void);
+	void			processSamples		(void);
 signals:
-	void	handleSamples		(void);
+	void			handleSamples		(void);
 };
 #endif
 

@@ -97,55 +97,30 @@ int16_t	latency;
 	TunedFrequency		= MHz (200);	// any value will do
 //
 //	latency is used to allow different settings for different
-//	situations
+//	situations wrt the output buffering
 	latency			=
 	           dabSettings -> value ("latency", 1). toInt ();
 /**
-  *	The streamer is optional, may be we should not output to the
-  *	soundcard when the streamer is "in", do not know yet
-  *	audioSink will handle the output to the soundcard.
+  *	The current setup of the audio output is that
+  *	you have a choice, take one of (soundcard, tcp streamer or rtp streamer)
   */
-#ifdef	TCP_STREAMER
-	streamBuffer		= new RingBuffer<float> (2 * 32768);
-	my_tcpStreamer		= new tcpStreamer	(streamBuffer);
-	our_audioSink		= new audioSink		(latency, this,
-	                                                 streamBuffer);
-#elif	RTP_STREAMER
-	streamBuffer		= new RingBuffer<float> (2 * 32768);
-	my_rtpStreamer		= new rtpStreamer (QString ("127.0.0.255"),
-	                                           22222, streamBuffer);
-	our_audioSink		= new audioSink		(latency, this,
-	                                                 streamBuffer);
-#else
-	our_audioSink		= new audioSink		(latency);
+	streamOutSelector	-> hide ();
+	audioBuffer		= new RingBuffer<int16_t>(2 * 32768);
+#ifdef	RTP_STREAMER
+	soundOut		= new rtpStreamer	("127.0.0.1",
+	                                                  20040, audioBuffer);
+#elif	TCP_STREAMER
+	soundOut		= new tcpStreamer	(audioBuffer,
+	                                                 20040);
+#else			// just sound out
+	soundOut		= new audioSink		(latency,
+	                                                 streamOutSelector,
+	                                                 audioBuffer);
 #endif
-	outTable		= new int16_t
-	                             [our_audioSink -> numberofDevices ()];
-/**
-  *	Maybe we should move the whole output handling, i.e. building 
-  *	a table with the devices, to the audioSink class
-  *	Anyway, we start - if devices are found - with a default device.
-  */
-	for (i = 0; i < our_audioSink -> numberofDevices (); i ++)
-	   outTable [i] = -1;
-
-	if (!setupSoundOut (streamOutSelector,
-	                    our_audioSink, outTable)) {
-	   fprintf (stderr, "Cannot open any output device\n");
-	   exit (22);
-	}
-	our_audioSink	-> selectDefaultDevice ();
-/**
-  *	The mp4Processor checks on errors, in particular to see if
-  *	tables in the data to be processed, are viable.
-  *	If the errorFile is set, the errors are reported there
-  */
-	QString	errorFile	=  
-	                      dabSettings -> value ("errorFile", "").toString ();
 /**
   *	Devices can be included or excluded, setting is in the configuration
   *	files. Inclusion is reflected in the selector on the GUI.
-  *	Note that HAVE_EXTIO is only for Windows
+  *	Note that HAVE_EXTIO is only useful for Windows
   */
 #ifdef	HAVE_SDRPLAY
 	deviceSelector	-> addItem ("sdrplay");
@@ -192,7 +167,7 @@ int16_t	latency;
   */
 	my_mscHandler		= new mscHandler	(this,
 	                                                 &dabModeParameters,
-	                                                 our_audioSink);
+	                                                 audioBuffer);
 	my_ficHandler		= new ficHandler	(this);
 	ficBlocks		= 0;
 	ficSuccess		= 0;
@@ -220,8 +195,6 @@ int16_t	latency;
 	              this, SLOT (TerminateProcess (void)));
 	connect (deviceSelector, SIGNAL (activated (const QString &)),
 	              this, SLOT (setDevice (const QString &)));
-	connect (streamOutSelector, SIGNAL (activated (int)),
-	              this, SLOT (setStreamOutSelector (int)));
 	connect (channelSelector, SIGNAL (activated (const QString &)),
 	              this, SLOT (set_channelSelect (const QString &)));
 	connect (bandSelector, SIGNAL (activated (const QString &)),
@@ -232,7 +205,7 @@ int16_t	latency;
 	              this, SLOT (set_audioDump (void)));
 	connect (correctorReset, SIGNAL (clicked (void)),
 	              this, SLOT (autoCorrector_on (void)));
-//
+
 /**
   *	The only timer we use is for displaying the running time.
   *	The number of seconds passed is kept in numberofSeconds
@@ -317,7 +290,7 @@ bool	r = 0;
 	clearEnsemble ();		// the display
 //
 ///	this does not hurt
-	our_audioSink	-> restart ();
+	soundOut	-> restart ();
 	running = true;
 }
 
@@ -333,29 +306,20 @@ void	RadioInterface::TerminateProcess (void) {
 	}
 
 	if (audioDumping) {
-	   our_audioSink	-> stopDumping ();
+	   soundOut	-> stopDumping ();
 	   sf_close (audiofilePointer);
 	}
 	myRig			-> stopReader ();	// might be concurrent
 	my_mscHandler		-> stopHandler ();	// might be concurrent
 	my_ofdmProcessor	-> stop ();	// definitely concurrent
-	our_audioSink		-> stop ();
+	soundOut		-> stop ();
 	dumpControlState (dabSettings);
 	delete		my_ofdmProcessor;
 	delete		my_ficHandler;
 	delete		my_mscHandler;
 	delete		myRig;
 	delete		displayTimer;
-	delete		our_audioSink;
-#ifdef	TCP_STREAMER
-	delete		my_tcpStreamer;
-	delete		streamBuffer;
-	my_tcpStreamer	= NULL;
-#elif	RTP_STREAMER
-	delete		my_rtpStreamer;
-	delete		streamBuffer;
-	my_rtpStreamer	= NULL;
-#endif
+	delete		soundOut;
 
 	accept ();
 	if (pictureLabel != NULL)
@@ -504,7 +468,7 @@ void	RadioInterface::set_bandSelect (QString s) {
 	   running	= false;
 	   myRig	-> stopReader ();
 	   myRig	-> resetBuffer ();
-	   our_audioSink	-> stop ();
+	   soundOut	-> stop ();
 	   usleep (100);
 	   clearEnsemble ();
 	}
@@ -531,7 +495,7 @@ struct dabFrequencies *finger;
 bool	localRunning	= running;
 
 	if (localRunning) {
-	   our_audioSink	-> stop ();
+	   soundOut	-> stop ();
 	   myRig		-> stopReader ();
 	   myRig		-> resetBuffer ();
 	}
@@ -572,7 +536,7 @@ bool	localRunning	= running;
 
 	setTuner (TunedFrequency);
 	if (localRunning) {
-	   our_audioSink -> restart ();
+	   soundOut -> restart ();
 	   myRig	 -> restartReader ();
 	   my_ofdmProcessor	-> reset ();
 	   running	 = true;
@@ -818,7 +782,7 @@ SF_INFO *sf_info	= (SF_INFO *)alloca (sizeof (SF_INFO));
 	}
 	dumpButton	-> setText ("writing");
 	sourceDumping		= true;
-	my_ofdmProcessor	-> startDumping (dumpfilePointer);
+	my_ofdmProcessor -> startDumping (dumpfilePointer);
 }
 
 ///	audiodumping is similar
@@ -826,7 +790,7 @@ void	RadioInterface::set_audioDump (void) {
 SF_INFO	*sf_info	= (SF_INFO *)alloca (sizeof (SF_INFO));
 
 	if (audioDumping) {
-	   our_audioSink	-> stopDumping ();
+	   soundOut	-> stopDumping ();
 	   sf_close (audiofilePointer);
 	   audioDumping = false;
 	   audioDump	-> setText ("audioDump");
@@ -851,7 +815,7 @@ SF_INFO	*sf_info	= (SF_INFO *)alloca (sizeof (SF_INFO));
 
 	audioDump		-> setText ("WRITING");
 	audioDumping		= true;
-	our_audioSink		-> startDumping (audiofilePointer);
+	soundOut		-> startDumping (audiofilePointer);
 }
 
 /**
@@ -905,14 +869,14 @@ QString	file;
 	}
 
 	if (audioDumping) {
-	   our_audioSink	-> stopDumping ();
+	   soundOut	-> stopDumping ();
 	   sf_close (audiofilePointer);
 	   audioDumping	= false;
 	   audioDump -> setText ("audioDump");
 	}
 ///	indicate that we are not running anymore
 	running	= false;
-	our_audioSink	-> stop ();
+	soundOut	-> stop ();
 //
 //
 ///	select. For all it holds that:
@@ -1077,56 +1041,6 @@ int	k	= deviceSelector -> findText (QString ("no device"));
 }
 
 
-/**
-  *	brief setupSoundOut
-  *	do not forget that ocnt starts with 1, due
-  *	to Qt list conventions
-  *	We could consider moving the "out" routines
-  *	to the class audioSink
-  */
-bool	RadioInterface::setupSoundOut (QComboBox	*streamOutSelector,
-	                               audioSink	*our_audioSink,
-	                               int16_t		*table) {
-uint16_t	ocnt	= 1;
-uint16_t	i;
-int32_t		cardRate	= our_audioSink -> cardRate ();
-
-	for (i = 0; i < our_audioSink -> numberofDevices (); i ++) {
-	   const QString so = 
-	             our_audioSink -> outputChannelwithRate (i, cardRate);
-	   qDebug ("Investigating Device %d\n", i);
-
-	   if (so != QString ("")) {
-	      streamOutSelector -> insertItem (ocnt, so, QVariant (i));
-	      table [ocnt] = i;
-	      qDebug (" (output):item %d wordt stream %d (%s)\n", ocnt , i,
-	                      so. toLatin1 ().data ());
-	      ocnt ++;
-	   }
-	}
-
-	qDebug () << "added items to combobox";
-	return ocnt > 1;
-}
-
-void	RadioInterface::setStreamOutSelector (int idx) {
-	if (idx == 0)
-	   return;
-
-	outputDevice = outTable [idx];
-	if (!our_audioSink -> isValidDevice (outputDevice)) 
-	   return;
-
-	our_audioSink	-> stop	();
-	if (!our_audioSink -> selectDevice (outputDevice)) {
-	   QMessageBox::warning (this, tr ("sdr"),
-	                               tr ("Selecting  output stream failed\n"));
-	   our_audioSink -> selectDefaultDevice ();
-	   return;
-	}
-
-	qWarning () << "selected output device " << idx << outputDevice;
-}
 //
 //	This is a copy of the clearEnsemble, with as difference
 //	that the autoCorrector is ON. We then need clean settings
@@ -1161,14 +1075,14 @@ uint8_t	Mode	= s. toInt ();
 	}
 
 	if (audioDumping) {
-	   our_audioSink	-> stopDumping ();
+	   soundOut	-> stopDumping ();
 	   sf_close (audiofilePointer);
 	   audioDumping	= false;
 	   audioDump -> setText ("audioDump");
 	}
 
 	running	= false;
-	our_audioSink		-> stop ();
+	soundOut		-> stop ();
 	myRig			-> stopReader ();
 	my_ofdmProcessor	-> stop ();
 //
@@ -1180,7 +1094,7 @@ uint8_t	Mode	= s. toInt ();
 	my_ficHandler		-> setBitsperBlock	(2 * dabModeParameters. K);
 	my_mscHandler		= new mscHandler	(this,
 	                                                 &dabModeParameters,
-	                                                 our_audioSink);
+	                                                 audioBuffer);
 	delete my_ofdmProcessor;
 	my_ofdmProcessor	= new ofdmProcessor   (myRig,
 	                                               &dabModeParameters,
@@ -1289,7 +1203,7 @@ void	RadioInterface::send_datagram	(char *data, int length) {
   */
 void	RadioInterface::changeinConfiguration	(void) {
 	if (running) {
-	   our_audioSink	-> stop ();
+	   soundOut	-> stop ();
 	   myRig		-> stopReader ();
 	   myRig		-> resetBuffer ();
 	   running		= false;
@@ -1308,17 +1222,9 @@ void	RadioInterface::changeinConfiguration	(void) {
 	ficRatioDisplay		-> display (0);
 	snrDisplay		-> display (0);
 }
-#ifdef	RTP_STREAMER
-void	RadioInterface::samplesforStreamer (int n) {
-	if (my_rtpStreamer == NULL)
-	   return;
-	my_rtpStreamer	-> putSamples (n);
+
+
+void	RadioInterface::newAudio	(int rate) {
+	soundOut	-> audioOut (rate);
 }
-#elif	TCP_STREAMER
-void	RadioInterface::samplesforStreamer (int n) {
-	if (my_tcpStreamer == NULL)
-	   return;
-	my_tcpStreamer	-> putSamples (n);
-}
-#endif
 

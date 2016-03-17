@@ -79,6 +79,7 @@ HEADERS += ./gui.h \
 	   ./includes/backend/data/mot-data.h \
 	   ./includes/backend/data/journaline-datahandler.h \
 	   ./includes/backend/deconvolve.h \
+	   ./includes/output/audio-base.h \
 	   ./includes/output/audiosink.h \
 	   ./includes/output/fir-filters.h \
            ./includes/various/fft.h \
@@ -119,8 +120,9 @@ SOURCES += ./main.cpp \
 	   ./src/backend/data/mot-databuilder.cpp \
 	   ./src/backend/data/mot-data.cpp \
 	   ./src/backend/data/journaline-datahandler.cpp \
-	   ./src/output/fir-filters.cpp \
+	   ./src/output/audio-base.cpp \
 	   ./src/output/audiosink.cpp \
+	   ./src/output/fir-filters.cpp \
            ./src/various/fft.cpp \
 	   ./src/various/Xtan2.cpp \
 	   ./src/input/virtual-input.cpp \
@@ -138,7 +140,7 @@ CONFIG		+= rtl_tcp
 CONFIG		+= airspy
 #CONFIG		+= airspy-exp
 #CONFIG		+= tcp-streamer		# use for remote listening
-#CONFIG		+= rtp-streamer		# remote using rtp
+#CONFIG		+= rtp-streamer		# remote using rtp (very immature)
 DEFINES		+= MOT_BASICS__		# use at your own risk
 DEFINES		+= MSC_DATA__		# use at your own risk
 DESTDIR		= ./linux-bin

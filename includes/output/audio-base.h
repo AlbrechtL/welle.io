@@ -1,11 +1,11 @@
 #
 /*
- *    Copyright (C) 2011, 2012, 2013
+ *    Copyright (C)  2009, 2010, 2011
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
  *    Lazy Chair Programming
  *
  *    This file is part of the SDR-J.
- *    Many of the ideas as implemented in SDR-J are derived from
+ *    Many of the ideas as implemented in ESDR are derived from
  *    other work, made available through the GNU general Public License. 
  *    All copyrights of the original authors are recognized.
  *
@@ -24,45 +24,41 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-#ifndef	__RTP_STREAMER
-#define	__RTP_STREAMER
 
-#include	<dab-constants.h>
-#include	<QString>
-#include	<ringbuffer.h>
-#include	"rtpsession.h"
-#include	"rtpsessionparams.h"
-#include	"rtpudpv4transmitter.h"
-#include	"rtpipv4address.h"
-#include	"rtptimeutilities.h"
-#include	"rtppacket.h"
-#include	"audio-base.h"
+#ifndef __AUDIO_BASE__
+#define	__AUDIO_BASE__
+#include	"dab-constants.h"
+#include	<stdio.h>
+#include	"fir-filters.h"
+#include	<sndfile.h>
+#include	<QMutex>
+#include	<QObject>
+#include	"ringbuffer.h"
 
-using namespace jrtplib;
 
-class rtpStreamer : public audioBase {
+class	audioBase: public QObject{
 Q_OBJECT
 public:
-			rtpStreamer (QString name, int32_t port,
-	                             RingBuffer<int16_t> *);
-			~rtpStreamer (void);
-	void		audioOutput (float *, int);
+			audioBase		(RingBuffer<int16_t> *);
+virtual			~audioBase		(void);
+virtual	void		stop			(void);
+virtual	void		restart			(void);
+	void		audioOut		(int);
+	void		startDumping		(SNDFILE *);
+	void		stopDumping		(void);
 private:
-	QString		theName;
-	int32_t		thePort;
-RingBuffer<float>	*theBuffer;
-RingBuffer<float>	*inBuffer;
-	RTPSession	session;
-	RTPSessionParams sessionparams;
-	RTPUDPv4TransmissionParams transparams;
-	void		sendBuffer	(uint8_t *, int16_t);
-	float		left [481];
-	float		right [481];
-	uint8_t		buffer [1024];
-	int16_t		fillP;
-	int16_t		convIndex;
-	int		mapTable_int [481];
-	float		mapTable_float [481];
+	RingBuffer<int16_t>	*buffer;
+	void		audioOut_16000		(int16_t *, int32_t);
+	void		audioOut_24000		(int16_t *, int32_t);
+	void		audioOut_32000		(int16_t *, int32_t);
+	void		audioOut_48000		(int16_t *, int32_t);
+	LowPassFIR	*f_16000;
+	LowPassFIR	*f_24000;
+	LowPassFIR	*f_32000;
+	SNDFILE		*dumpFile;
+	QMutex		myLocker;
+protected:
+virtual	void		audioOutput		(float *, int32_t);
 };
 #endif
 
