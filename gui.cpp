@@ -314,14 +314,14 @@ void	RadioInterface::TerminateProcess (void) {
 	my_ofdmProcessor	-> stop ();	// definitely concurrent
 	soundOut		-> stop ();
 	dumpControlState (dabSettings);
+	accept ();
 	delete		my_ofdmProcessor;
 	delete		my_ficHandler;
 	delete		my_mscHandler;
 	delete		myRig;
 	delete		displayTimer;
 	delete		soundOut;
-
-	accept ();
+	soundOut	= NULL;		// pending signals??
 	if (pictureLabel != NULL)
 	   delete pictureLabel;
 	pictureLabel = NULL;
@@ -1225,6 +1225,7 @@ void	RadioInterface::changeinConfiguration	(void) {
 
 
 void	RadioInterface::newAudio	(int rate) {
-	soundOut	-> audioOut (rate);
+	if (soundOut != NULL)
+	   soundOut	-> audioOut (rate);
 }
 

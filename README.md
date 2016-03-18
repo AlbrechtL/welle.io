@@ -49,6 +49,20 @@ fine with both Qt4 and Qt5
 Note on NOT handling
 Comment or uncomment the line
 DEFINE	+= MOT_BASICS__
+DEFINE	+= MOT_DATA__
 for excluding or including a preliminary handling of slides in DAB
 Default is: commented out
 ##########################################################################
+
+Extensions:
+
+Depending on the settings in the dab-rpi.pro file, the output is
+sent to the local "soundcard" or to a TCP port.
+Add
+CONFIG+=tcp-streamer
+for having the output sent to port 20040. Note that in that
+case there will be no sound output locally. I am using that feature
+to have the RPI on a location different from where I am normally sitting.
+
+A local "listener" program is available to catch the data and transfer it
+to the soundcard. 
