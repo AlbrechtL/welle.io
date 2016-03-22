@@ -199,7 +199,7 @@ dabstick_osmo {
 	                   ./src/input/dabstick-osmo/dongleselect.h
 	SOURCES		+= ./src/input/dabstick-osmo/dabstick.cpp \
 	                   ./src/input/dabstick-osmo/dongleselect.cpp
-	FORMS		+= ./src/input/dabstick-osmo/dabstick-widget.ui
+	FORMS		+= ./src/input/dabstick-osmo/dabstick-widget-osmo.ui
 }
 #
 #	dabstick

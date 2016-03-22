@@ -1,14 +1,31 @@
 cmake_minimum_required( VERSION 2.8.11 )
-set (CMAKE_BUILD_TYPE Release )
 set (objectName dab-rpi-0.995)
-set ( CMAKE_INSTALL_PREFIX ../ )
 add_definitions ( -Wall)
+#	modify if you want
+set (CMAKE_INSTALL_PREFIX ../)
+
+if(MINGW)
+    add_definitions ( -municode)
+endif()
+
+########################################################################
+# select the release build type by default to get optimization flags
+########################################################################
+if(NOT CMAKE_BUILD_TYPE)
+   set(CMAKE_BUILD_TYPE "Release")
+   message(STATUS "Build type not specified: defaulting to release.")
+endif(NOT CMAKE_BUILD_TYPE)
+set(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "")
+
+### make sure our local CMake Modules path comes first
+list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
+
 ######################################################################
 #       R E A D T H I S
 #####################################################################
 #	adjust to your likings
 #	if you want to use the SSE support on your machine, uncomment
-#	set(NO_SSE_SUPPORT true)
+	set(NO_SSE_SUPPORT true)
 #
 #	if you want support for any of these devices, uncomment the line
 	set(SDRPLAY true)
@@ -17,8 +34,18 @@ add_definitions ( -Wall)
 #	set(DABSTICK_NEW true)
 #	set(RTLTCP true)
 
+
 #	add_definitions (-DSIMPLE_SYNCHRONIZATION)
+	add_definitions (-DFULL_CORRELATION)
+	add_definitions (-DMOT_BASICS__) 	# use at your own risk
+	add_definitions (-DMSC_DATA__)		# use at your own risk
+#
+#	If you want a tcp stream of the audio rather than
+#	audio being sent to the soundcard, uncomment
+	set(TCP_STREAMER true)
 ########################################################################
+	find_package (PkgConfig)
+
 	find_package (Qt5Core REQUIRED)
 	find_package (Qt5Widgets REQUIRED)
 	find_package (Qt5Network REQUIRED)
@@ -28,82 +55,28 @@ add_definitions ( -Wall)
 	      ${Qt5Network_INCLUDE_DIRS}
 	)
 
-	find_library (DYNAMIC_LOAD dl)
-	if(NOT(DYNAMIC_LOAD))
-	   message(FATAL_ERROR "please install -ldl")
-	else(NOT(DYNAMIC_LOAD))
-	   set(extraLibs ${DYNAMIC_LOAD})
-	endif(NOT(DYNAMIC_LOAD))
-#
-#	all listed variables are TRUE
-#	Find_Package(PkgConfig)
-#	pkg_check_modules(FFTW fftw3f REQUIRED)
-#	link_directories(${FFTW_INCLUDE_DIRS})
-#	Find the native FFTW includes and library
-#
-#	FFTW_INCLUDES    - where to find fftw3f.h
-#	FFTW_LIBRARIES   - List of libraries when using FFTW.
-#	FFTW_FOUND       - True if FFTW found.
+        find_package(FFTW3f)
+        if (NOT FFTW3F_FOUND)
+            message(FATAL_ERROR "please install FFTW3")
+        endif ()
 
-	if (FFTW_INCLUDE_DIRS)
-#	Already in cache, be silent
-	   set (FFTW_FIND_QUIETLY TRUE)
-	endif (FFTW_INCLUDE_DIRS)
+        find_package(Portaudio)
+        if (NOT PORTAUDIO_FOUND)
+            message(FATAL_ERROR "please install portaudio V19")
+        endif ()
+        list(APPEND extraLibs ${PORTAUDIO_LIBRARIES})
 
-	find_path (FFTW_INCLUDE_DIR fftw3.h
-	           HINTS
-                   ENV FFTW_ROOT
-                   PATHS 
-	           PATH_SUFFIXES
-	           include
-	           Include
-	)
+        find_package(Faad)
+        if (NOT FAAD_FOUND )
+            message(FATAL_ERROR "please install libfaad")
+        endif ()
 
-	list (APPEND FFTW_INCLUDE_DIRS ${FFTW_INCLUDE_DIR})
-	find_library (FFTW_LIBRARIES NAMES fftw3f
-                      HINTS ENV FFTW_ROOT
-                      PATHS
-                      PATH_SUFFIXES lib64 Lib64 lib Lib)
+        find_package(LibSndFile)
+        if (NOT LIBSNDFILE_FOUND)
+            message(FATAL_ERROR "please install libsndfile")
+        endif ()
+        list(APPEND extraLibs ${LIBSNDFILE_LIBRARY})
 
-	message (STATUS ${FFTW_LIBRARIES} ${FFTW_INCLUDE_DIRS})
-#	handle the QUIETLY and REQUIRED arguments and set FFTW_FOUND to TRUE if
-#	all listed variables are TRUE
-
-	include (FindPackageHandleStandardArgs)
-	find_package_handle_standard_args (
-	                  FFTW DEFAULT_MSG FFTW_LIBRARIES FFTW_INCLUDE_DIRS)
-	mark_as_advanced (FFTW_LIBRARIES FFTW_INCLUDE_DIRS)
-
-	Find_Package (PkgConfig)
-	find_library (FAAD faad)
-	if (NOT(FAAD))
-	   message(FATAL_ERROR "please install libfaad")
-	else (NOT(FAAD))
-	set (extraLibs  ${extraLibs} ${FAAD})
-	endif(NOT(FAAD))
-
-	find_library (PORTAUDIO portaudio)
-	if (NOT(PORTAUDIO))
-	   message(FATAL_ERROR "please install portaudio V19")
-	else(NOT(PORTAUDIO))
-	   set (extraLibs  ${extraLibs} ${PORTAUDIO})
-	endif(NOT(PORTAUDIO))
-
-	SET (CMAKE_FIND_LIBRARY_SUFFIXES .so .a)
-
-	find_library (USB1 usb-1.0 HINTS /usr/lib)
-	if (NOT(USB1))
-	   message (FATAL_ERROR "please install libusb-1.0")
-	else(NOT(USB1))
-	   set(extraLibs ${extraLibs} ${USB1})
-	endif(NOT(USB1))
-
-	find_library (SNDFILE sndfile)
-	if (NOT(SNDFILE))
-	   message (FATAL_ERROR "please install libsndfile")
-	else (NOT(SNDFILE))
-	   set (extraLibs ${extraLibs} ${SNDFILE})
-	endif (NOT(SNDFILE))
 
 	find_library (PTHREADS pthread)
 	if (NOT(PTHREADS))
@@ -163,6 +136,7 @@ add_definitions ( -Wall)
 	     ./includes/backend/charsets.h
 	     ./includes/backend/rscodec.h 
 	     ./includes/backend/audio/dab-audio.h
+	     ./includes/backend/audio/faad-decoder.h
 	     ./includes/backend/audio/mp4processor.h 
 	     ./includes/backend/audio/mp2processor.h 
 	     ./includes/backend/data/ip-datahandler.h 
@@ -176,6 +150,7 @@ add_definitions ( -Wall)
 	     ./src/input/rawfiles/rawfiles.h
 	     ./src/input/wavfiles/wavfiles.h
 	     ./includes/output/fir-filters.h
+	     ./includes/output/audio-base.h
 	     ./includes/output/audiosink.h
 	     ./includes/various/fft.h
 	     ./includes/various/ringbuffer.h
@@ -216,6 +191,7 @@ add_definitions ( -Wall)
 	     ./src/input/virtual-input.cpp
 	     ./src/input/rawfiles/rawfiles.cpp
 	     ./src/input/wavfiles/wavfiles.cpp
+	     ./src/output/audio-base.cpp
 	     ./src/output/audiosink.cpp
 	     ./src/output/fir-filters.cpp
 	     ./src/various/fft.cpp
@@ -224,10 +200,13 @@ add_definitions ( -Wall)
 
 	set (${objectName}_MOCS
 	     ./gui.h
+	     ./includes/output/audio-base.h
+	     ./includes/output/audiosink.h
 	     ./includes/ofdm/ofdm-processor.h
 	     ./includes/ofdm/ofdm-decoder.h
 	     ./includes/backend/fic-handler.h
 	     ./includes/backend/fib-processor.h
+	     ./includes/backend/audio/faad-decoder.h
 	     ./includes/backend/audio/mp2processor.h
 	     ./includes/backend/audio/mp4processor.h
 	     ./includes/backend/data/virtual-datahandler.h
@@ -273,94 +252,47 @@ add_definitions ( -Wall)
 	   add_definitions (-DHAVE_SDRPLAY)
 	endif (SDRPLAY)
  
-
 	if (AIRSPY)
-           find_library (AIRSPY_LIB airspy)
-           if (NOT(AIRSPY_LIB))
-              message (FATAL_ERROR "please install airspy library")
-           else (NOT(AIRSPY_LIB))
-              set (extraLibs ${extraLibs} ${AIRSPY_LIB})
-           endif()
-           find_path (AIRSPYLIB_INCLUDE_DIR
-                      NAMES airspy.h
-                      PATHS
-                      /usr/local/include/
-                      /usr/local/include/libairspy
-           )
-           include_directories (${AIRSPYLIB_INCLUDE_DIR})
+           find_package(LibAIRSPY)
+           if (NOT LIBAIRSPY_FOUND)
+               message(FATAL_ERROR "please install airspy library")
+           endif ()
+	   ### include_directories (${AIRSPYLIB_INCLUDE_DIR})
 
-           set (${objectName}_UIS
-                ${${objectName}_UIS}
-                ./src/input/airspy/airspy-widget.ui
-           )
-	   set (${objectName}_MOCS
-                ${${objectName}_MOCS}
-                ./src/input/airspy/airspy-handler.h
-           )
-
-           include_directories (
-             ./src/input/airspy
-           )
-
-           set ($(objectName)_HDRS
-                ${${objectName}_HDRS}
-                ./src/input/airspy/airspy-handler.h
-           )
-
-           set (${objectName}_SRCS
-                ${${objectName}_SRCS}
-                ./src/input/airspy/airspy-handler.cpp
-           )
-
-           add_definitions (-DHAVE_AIRSPY)
-        endif (AIRSPY)
-
-	if (DABSTICK_OSMO)
-	   find_library (RTLSDR rtlsdr)
-	   if (NOT(RTLSDR))
-	      message (FATAL_ERROR "please install librtlsdr")
-	   else (NOT(RTLSDR))
-	      set (extraLibs ${extraLibs} ${RTLSDR})
-	   endif()
-#we know now that rtl-sdr.so is available
 	   set (${objectName}_UIS
 	        ${${objectName}_UIS}
-	        ./src/input/dabstick-osmo/dabstick-widget.ui
+	        ./src/input/airspy/airspy-widget.ui 
 	   )
 
 	   set (${objectName}_MOCS
 	        ${${objectName}_MOCS}
-	        ./src/input/dabstick-osmo/dongleselect.h
-	        ./src/input/dabstick-osmo/dabstick.h
+	        ./src/input/airspy/airspy-handler.h
 	   )
 
 	   include_directories (
-	        ./src/input/dabstick-osmo/
+	     ./src/input/airspy
 	   )
 
-	   set (${objectName}_HDRS
+	   set ($(objectName)_HDRS
 	        ${${objectName}_HDRS}
-	        ./src/input/dabstick-osmo/dabstick.h 
-	        ./src/input/dabstick-osmo/dongleselect.h
+	        ./src/input/airspy/airspy-handler.h
 	   )
 
 	   set (${objectName}_SRCS
 	        ${${objectName}_SRCS}
-	        ./src/input/dabstick-osmo/dabstick.cpp
-	        ./src/input/dabstick-osmo/dongleselect.cpp
+	        ./src/input/airspy/airspy-handler.cpp
 	   )
 
-	   add_definitions (-DHAVE_DABSTICK)
-	endif()
+	   add_definitions (-DHAVE_AIRSPY)
+	endif (AIRSPY)
 
 	if (DABSTICK_NEW)
-	   find_library (RTLSDR rtlsdr)
-	   if (NOT(RTLSDR))
-	      message (FATAL_ERROR "please install librtlsdr")
-	   else (NOT(RTLSDR))
-	      set (extraLibs ${extraLibs} ${RTLSDR})
-	   endif()
-#we know now that rtl-sdr.so is available
+           find_package(LibRTLSDR)
+           if (NOT LIBRTLSDR_FOUND)
+               message(FATAL_ERROR "please install librtlsdr")
+           endif ()
+	   ###include_directories (${RTLSDR_INCLUDE_DIR})
+
 	   set (${objectName}_UIS
 	        ${${objectName}_UIS}
 	        ./src/input/dabstick-new/dabstick-widget.ui
@@ -390,40 +322,62 @@ add_definitions ( -Wall)
 
 	   add_definitions (-DHAVE_DABSTICK)
 	endif()
+#
+	if (DABSTICK_OSMO)
+           find_package(LibRTLSDR)
+           if (NOT LIBRTLSDR_FOUND)
+               message(FATAL_ERROR "please install librtlsdr")
+           endif ()
+	   ###include_directories (${RTLSDR_INCLUDE_DIR})
 
-	if (DONGLE)
 	   set (${objectName}_UIS
 	        ${${objectName}_UIS}
-	        ./src/input/mirics-dongle/dongle-widget.ui 
+	        ./src/input/dabstick-osmo/dabstick-widget-osmo.ui
 	   )
 
 	   set (${objectName}_MOCS
 	        ${${objectName}_MOCS}
-	        ./src/input/mirics-dongle/mirics-dongle.h
+	        ./src/input/dabstick-osmo/dongleselect.h
+	        ./src/input/dabstick-osmo/dabstick.h
 	   )
 
 	   include_directories (
-	      ./src/input/mirics-dongle
+	        ./src/input/dabstick-osmo/
 	   )
 
-	   set ($(objectName)_HDRS
-	      ${${objectName}_HDRS}
-	      ./src/input/mirics-dongle/mirics-dongle.h
-	      ./src/input/mirics-dongle/mirics-worker.h
-	      ./src/input/mirics-dongle/mirics-loader.h
+	   set (${objectName}_HDRS
+	        ${${objectName}_HDRS}
+	        ./src/input/dabstick-osmo/dabstick.h 
+	        ./src/input/dabstick-osmo/dongleselect.h
 	   )
 
 	   set (${objectName}_SRCS
-	      ${${objectName}_SRCS}
-	      ./src/input/mirics-dongle/mirics-dongle.cpp
-	      ./src/input/mirics-dongle/mirics-worker.cpp
-	      ./src/input/mirics-dongle/mirics-loader.cpp
+	        ${${objectName}_SRCS}
+	        ./src/input/dabstick-osmo/dabstick.cpp
+	        ./src/input/dabstick-osmo/dongleselect.cpp
 	   )
 
-	   add_definitions (-DHAVE_DONGLE)
-	endif (DONGLE)
+	   add_definitions (-DHAVE_DABSTICK)
+	endif()
 #
-#
+	if (TCP_STREAMER)
+	   add_definitions (-DTCP_STREAMER)
+	   find_package (Qt5Network REQUIRED)
+	   set (${objectName}_MOCS
+	        ${${objectName}_MOCS}
+	        ./includes/output/tcp-streamer.h
+	   )
+	   set (${objectName}_HDRS
+	        ${${objectName}_HDRS}
+	        ./includes/output/tcp-streamer.h
+	   )
+
+	   set (${objectName}_SRCS
+	        ${${objectName}_SRCS}
+	        ./src/output/tcp-streamer.cpp
+	   )
+	endif (TCP_STREAMER)
+
 	if (RTLTCP)
 	   find_package (Qt5Network REQUIRED)
 	   set (${objectName}_UIS
@@ -484,10 +438,25 @@ add_definitions ( -Wall)
 	                       Qt5::Widgets
 	                       Qt5::Network
 	                       ${RTLTCP_lib}
-	                       ${FFTW_LIBRARIES}
+	                       ${FFTW3F_LIBRARIES}
 	                       ${extraLibs}
 	                       ${FAAD_LIBRARIES}
 	                       ${QWT_LIBRARIES}
+	                       ${CMAKE_DL_LIBS}
 	)
 
 	INSTALL (TARGETS ${objectName} DESTINATION ./linux-bin)
+
+########################################################################
+# Create uninstall target
+########################################################################
+
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+    IMMEDIATE @ONLY)
+
+add_custom_target(uninstall
+    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+
+
