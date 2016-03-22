@@ -315,6 +315,7 @@ void	RadioInterface::TerminateProcess (void) {
 	   soundOut	-> stopDumping ();
 	   sf_close (audiofilePointer);
 	}
+
 	myRig			-> stopReader ();	// might be concurrent
 	my_mscHandler		-> stopHandler ();	// might be concurrent
 	my_ofdmProcessor	-> stop ();	// definitely concurrent
@@ -324,7 +325,6 @@ void	RadioInterface::TerminateProcess (void) {
 	delete		my_ofdmProcessor;
 	delete		my_ficHandler;
 	delete		my_mscHandler;
-	delete		myRig;
 	delete		displayTimer;
 	delete		soundOut;
 	soundOut	= NULL;		// pending signals??
@@ -333,6 +333,7 @@ void	RadioInterface::TerminateProcess (void) {
 	pictureLabel = NULL;
 
 	fprintf (stderr, "Termination started\n");
+	delete		myRig;
 }
 
 void	RadioInterface::abortSystem (int d) {
