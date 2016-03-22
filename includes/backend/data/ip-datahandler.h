@@ -31,14 +31,17 @@ class	RadioInterface;
 class	ip_dataHandler:public virtual_dataHandler {
 Q_OBJECT
 public:
-	ip_dataHandler		(RadioInterface *);
-	~ip_dataHandler		(void);
-void	add_mscDatagroup	(QByteArray &);
+		ip_dataHandler		(RadioInterface *, bool);
+		~ip_dataHandler		(void);
+	void	add_mscDatagroup	(QByteArray &);
 private:
-void	process_ipVector	(QByteArray &);
-void	process_udpVector	(uint8_t *, int16_t);
+	void	process_ipVector	(QByteArray &);
+	void	process_udpVector	(uint8_t *, int16_t);
+	bool	show_crcErrors;
+	int16_t	handledPackets;
+	int16_t	crcErrors;
 signals:
-void	writeDatagram		(char *, int);
+	void	writeDatagram		(char *, int);
 };
 
 #endif

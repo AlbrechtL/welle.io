@@ -38,9 +38,11 @@
 //
 		mscHandler::mscHandler	(RadioInterface *mr,
 	                                 DabParams	*p,
-	                                 RingBuffer<int16_t> *buffer) {
+	                                 RingBuffer<int16_t> *buffer,
+	                                 bool	show_crcErrors) {
 	myRadioInterface	= mr;
 	this	-> buffer	= buffer;
+	this	-> show_crcErrors	= show_crcErrors;
 	cifVector		= new int16_t [55296];
 	cifCount		= 0;	// msc blocks in CIF
 	blkCount		= 0;
@@ -149,7 +151,8 @@ int16_t	*myBegin;
 	                                     new_uepFlag,
 	                                     new_protLevel,
 	                                     new_DGflag,
-	                                     new_FEC_scheme);
+	                                     new_FEC_scheme,
+	                                     show_crcErrors);
 	   }
 //
 //	these we need for actual processing

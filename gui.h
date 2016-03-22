@@ -110,6 +110,10 @@ const	char		*get_programm_language_string (uint8_t);
 	QUdpSocket	DSCTy_59_socket;
 	int16_t		ficBlocks;
 	int16_t		ficSuccess;
+
+	QString		ipAddress;
+	int32_t		port;
+	bool		show_crcErrors;
 public slots:
 	void	set_fineCorrectorDisplay	(int);
 	void	set_coarseCorrectorDisplay	(int);
@@ -122,7 +126,7 @@ public slots:
 	void	setSynced		(char);
 	void	showLabel		(QString);
 	void	showMOT			(QByteArray, int);
-	void	send_datagram		(char *, int);
+	void	sendDatagram		(char *, int);
 	void	changeinConfiguration	(void);
 	void	newAudio		(int);
 private slots:

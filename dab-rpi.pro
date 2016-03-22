@@ -176,8 +176,9 @@ CONFIG		+= airspy
 CONFIG		+= rtl_tcp
 CONFIG		+= dabstick_osmo
 #CONFIG		+= dabstick_new
-CONFIG		+= sdrplay
-#CONFIG		+= streamer
+#CONFIG		+= sdrplay
+#CONFIG		+= tcp-streamer
+#CONFIG		+= rtp-streamer
 }
 
 NO_SSE_SUPPORT {

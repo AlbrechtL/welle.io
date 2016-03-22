@@ -106,6 +106,10 @@ int16_t	latency;
   */
 	streamOutSelector	-> hide ();
 	audioBuffer		= new RingBuffer<int16_t>(2 * 32768);
+	ipAddress		= dabSettings -> value ("ipAddress", "127.0.0.1"). toString ();
+	port			= dabSettings -> value ("port", 8888). toInt ();
+	show_crcErrors		= dabSettings -> value ("show_crcErrors", 0). toInt () != 0;
+
 #ifdef	RTP_STREAMER
 	soundOut		= new rtpStreamer	("127.0.0.1",
 	                                                  20040, audioBuffer);
@@ -113,6 +117,7 @@ int16_t	latency;
 	soundOut		= new tcpStreamer	(audioBuffer,
 	                                                 20040);
 #else			// just sound out
+
 	soundOut		= new audioSink		(latency,
 	                                                 streamOutSelector,
 	                                                 audioBuffer);
@@ -167,7 +172,8 @@ int16_t	latency;
   */
 	my_mscHandler		= new mscHandler	(this,
 	                                                 &dabModeParameters,
-	                                                 audioBuffer);
+	                                                 audioBuffer,
+	                                                 show_crcErrors);
 	my_ficHandler		= new ficHandler	(this);
 	ficBlocks		= 0;
 	ficSuccess		= 0;
@@ -733,8 +739,14 @@ QString a = ensemble. data (s, Qt::DisplayRole). toString ();
 	            case 60:
 	               showLabel (QString ("MOT partially implemented"));
 	               break;
-	            case 59:
-	               showLabel (QString ("Embedded IP: UDP data to 8888"));
+	            case 59: {
+	                  QString text = QString ("Embedded IP: UDP data to ");
+	                  text. append (ipAddress);
+	                  text. append (" ");
+	                  QString n = QString::number (port);
+	                  text. append (n);
+	                  showLabel (text);
+	               }
 	               break;
 	            case 44:
 	               showLabel (QString ("Journaline"));
@@ -1094,7 +1106,8 @@ uint8_t	Mode	= s. toInt ();
 	my_ficHandler		-> setBitsperBlock	(2 * dabModeParameters. K);
 	my_mscHandler		= new mscHandler	(this,
 	                                                 &dabModeParameters,
-	                                                 audioBuffer);
+	                                                 audioBuffer,
+	                                                 show_crcErrors);
 	delete my_ofdmProcessor;
 	my_ofdmProcessor	= new ofdmProcessor   (myRig,
 	                                               &dabModeParameters,
@@ -1188,10 +1201,10 @@ void	RadioInterface::showMOT		(QByteArray data, int subtype) {
 	pictureLabel ->  show ();
 }
 
-void	RadioInterface::send_datagram	(char *data, int length) {
+void	RadioInterface::sendDatagram	(char *data, int length) {
 	DSCTy_59_socket. writeDatagram (data, length,
-	                                QHostAddress ("127.0.0.1"),
-	                                8888);
+	                                QHostAddress (ipAddress),
+	                                port);
 }
 
 

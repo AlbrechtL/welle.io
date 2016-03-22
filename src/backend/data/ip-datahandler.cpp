@@ -23,9 +23,13 @@
 #include	"ip-datahandler.h"
 #include	"gui.h"
 
-	ip_dataHandler::ip_dataHandler (RadioInterface *mr) {
+	ip_dataHandler::ip_dataHandler (RadioInterface *mr,
+	                                bool	show_crcErrors) {
 	connect (this, SIGNAL (writeDatagram (char *, int)),
 	         mr, SLOT (sendDatagram (char *, int)));
+	this	-> show_crcErrors	= show_crcErrors;
+	this	-> crcErrors		= 0;
+	this	-> handledPackets	= 0;
 }
 
 	ip_dataHandler::~ip_dataHandler (void) {
@@ -91,11 +95,20 @@ uint8_t	protocol	= data [9];
 uint32_t checkSum	= 0;
 int16_t	i;
 
+	if (show_crcErrors && ( ++handledPackets >= 100)) {
+	   fprintf (stderr, "%d of %d ip packets failed crc test\n",
+	                     crcErrors, handledPackets);
+	   crcErrors	= 0;
+	   handledPackets	= 0;
+	}
 	for (i = 0; i < 2 * headerSize; i ++)
-	   if (i != 5)
-	      checkSum +=  ((data [2 * i] << 8) | data [2 * i + 1]);
+	   checkSum +=  ((data [2 * i] << 8) | data [2 * i + 1]);
 	checkSum = (checkSum >> 16) + (checkSum & 0xFFFF);
-
+	if ((~checkSum & 0xFFFF) != 0) {
+	   crcErrors ++;
+	   return;
+	}
+	   
 	switch (protocol) {
 	   case 17:			// UDP protocol
 	      process_udpVector (&data [4 * headerSize], ipSize - 4 * headerSize);

@@ -44,7 +44,8 @@ class mscHandler {
 public:
 		mscHandler		(RadioInterface *,
 	                                 DabParams	*,
-	                                 RingBuffer<int16_t> *);
+	                                 RingBuffer<int16_t> *,
+	                                 bool);
 		~mscHandler		(void);
 	void	process_mscBlock	(int16_t *, int16_t);
 	void	set_audioChannel	(audiodata	*);
@@ -52,10 +53,11 @@ public:
 	void	stopProcessing		(void);
 	void	stopHandler		(void);
 private:
-	QMutex		locker;
-	bool		audioService;
 	RadioInterface	*myRadioInterface;
 	RingBuffer<int16_t>	*buffer;
+	bool	show_crcErrors;
+	QMutex		locker;
+	bool		audioService;
 	dabVirtual	*dabHandler;
 	int16_t		*cifVector;
 	int16_t		cifCount;
