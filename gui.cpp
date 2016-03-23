@@ -109,6 +109,7 @@ int16_t	latency;
 	ipAddress		= dabSettings -> value ("ipAddress", "127.0.0.1"). toString ();
 	port			= dabSettings -> value ("port", 8888). toInt ();
 	show_crcErrors		= dabSettings -> value ("show_crcErrors", 0). toInt () != 0;
+	autoStart		= dabSettings -> value ("autoStart", 0). toInt () != 0;
 
 #ifdef	RTP_STREAMER
 	soundOut		= new rtpStreamer	("127.0.0.1",
@@ -235,6 +236,8 @@ int16_t	latency;
 	setDevice 		(deviceSelector 	-> currentText ());
 	QString h		=
 	           dabSettings -> value ("device", "no device"). toString ();
+	if (h == "no device")	// no autostart here
+	   autoStart = false;
 	k		= deviceSelector -> findText (h);
 	if (k != -1) {
 	   deviceSelector	-> setCurrentIndex (k);
@@ -247,6 +250,8 @@ int16_t	latency;
 	   channelSelector -> setCurrentIndex (k);
 	   set_channelSelect (h);
 	}
+	else
+	   autoStart	= false;
 	
 //	display the version
 	QString v = "sdr-j DAB-rpi(+)  " ;
@@ -254,6 +259,27 @@ int16_t	latency;
 	versionName	-> setText (v);
 //	and start the timer
 	displayTimer		-> start (1000);
+	crcErrors_File		= NULL;
+	crcErrors_1	-> hide ();
+	crcErrors_2	-> hide ();
+	if (show_crcErrors) {
+	   QString file = QFileDialog::getSaveFileName (this,
+	                                        tr ("open file .."),
+	                                        QDir::homePath (),
+	                                        tr ("Text (*.txt)"));
+	   file		= QDir::toNativeSeparators (file);
+	   crcErrors_File	= fopen (file. toLatin1 (). data (), "w");
+
+	   if (crcErrors_File == NULL) {
+	      qDebug () << "Cannot open " << file. toLatin1 (). data ();
+	   }
+	   else {
+	      crcErrors_1	-> show ();
+	      crcErrors_2	-> show ();
+	   }
+	}
+	if (autoStart)
+	   setStart ();
 }
 
 	RadioInterface::~RadioInterface () {
@@ -315,6 +341,9 @@ void	RadioInterface::TerminateProcess (void) {
 	   soundOut	-> stopDumping ();
 	   sf_close (audiofilePointer);
 	}
+
+	if (crcErrors_File != NULL)
+	   fclose (crcErrors_File);
 
 	myRig			-> stopReader ();	// might be concurrent
 	my_mscHandler		-> stopHandler ();	// might be concurrent
@@ -1242,4 +1271,19 @@ void	RadioInterface::newAudio	(int rate) {
 	if (soundOut != NULL)
 	   soundOut	-> audioOut (rate);
 }
+
+void	RadioInterface::show_mscErrors	(int er) {
+	crcErrors_1	-> display (er);
+	if (crcErrors_File != 0) 
+	   fprintf (crcErrors_File, "%d %% of MSC packets passed crc test\n",
+	                                                        er);
+}
+
+void	RadioInterface::show_ipErrors	(int er) {
+	crcErrors_2	-> display (er);
+	if (crcErrors_File != 0) 
+	   fprintf (crcErrors_File, "%d %% of ip packets passed crc test\n",
+	                                                        er);
+}
+
 

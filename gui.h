@@ -66,6 +66,8 @@ public:
 		~RadioInterface		();
 
 private:
+	FILE		*crcErrors_File;
+	bool		autoStart;
 	int16_t		threshold;
 	int16_t		outputDevice;
 	void		dumpControlState	(QSettings *);
@@ -129,6 +131,9 @@ public slots:
 	void	sendDatagram		(char *, int);
 	void	changeinConfiguration	(void);
 	void	newAudio		(int);
+//
+	void	show_mscErrors		(int);
+	void	show_ipErrors		(int);
 private slots:
 	void	setStart		(void);
 	void	updateTimeDisplay	(void);

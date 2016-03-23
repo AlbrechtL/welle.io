@@ -87,6 +87,9 @@ void	run		(void);
 	void		handlePackets		(uint8_t *, int16_t);
 	void		handlePacket		(uint8_t *);
 	virtual_dataHandler *my_dataHandler;
+//
+signals:
+	void		show_mscErrors		(int);
 };
 
 #endif

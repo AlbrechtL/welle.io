@@ -63,6 +63,8 @@ int32_t i, j;
 	this	-> DGflag	= DGflag;
 	this	-> FEC_scheme	= FEC_scheme;
 	this	-> show_crcErrors	= show_crcErrors;
+	connect (this, SIGNAL (show_mscErrors (int)),
+	         mr, SLOT (show_mscErrors (int)));
 	switch (DSCTy) {
 	   default:
 	   case 5:			// do know yet
@@ -244,8 +246,7 @@ int16_t	usefulLength	= getBits_7 (data, 17);
 int16_t	i;
 
 	if (show_crcErrors && (++handledPackets >= 500)) {
-	   fprintf (stderr, "%d of %d mscpackets did not pass crc check\n",
-	                     crcErrors, handledPackets);
+	   show_mscErrors (100 - crcErrors / 5);
 	   crcErrors	= 0;
 	   handledPackets = 0;
 	}

@@ -30,6 +30,8 @@
 	this	-> show_crcErrors	= show_crcErrors;
 	this	-> crcErrors		= 0;
 	this	-> handledPackets	= 0;
+	connect (this, SIGNAL (show_ipErrors (int)),
+	         mr, SLOT (show_ipErrors (int)));
 }
 
 	ip_dataHandler::~ip_dataHandler (void) {
@@ -96,8 +98,7 @@ uint32_t checkSum	= 0;
 int16_t	i;
 
 	if (show_crcErrors && ( ++handledPackets >= 100)) {
-	   fprintf (stderr, "%d of %d ip packets failed crc test\n",
-	                     crcErrors, handledPackets);
+	   show_ipErrors (100 - crcErrors);
 	   crcErrors	= 0;
 	   handledPackets	= 0;
 	}

@@ -42,6 +42,7 @@ private:
 	int16_t	crcErrors;
 signals:
 	void	writeDatagram		(char *, int);
+	void	show_ipErrors		(int);
 };
 
 #endif

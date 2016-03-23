@@ -8,7 +8,7 @@
     <x>0</x>
     <y>0</y>
     <width>447</width>
-    <height>301</height>
+    <height>322</height>
    </rect>
   </property>
   <property name="palette">
@@ -931,12 +931,53 @@
     <rect>
      <x>10</x>
      <y>250</y>
-     <width>411</width>
+     <width>341</width>
      <height>31</height>
     </rect>
    </property>
    <property name="text">
     <string/>
+   </property>
+  </widget>
+  <widget class="QLCDNumber" name="crcErrors_1">
+   <property name="geometry">
+    <rect>
+     <x>370</x>
+     <y>250</y>
+     <width>64</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::NoFrame</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Plain</enum>
+   </property>
+   <property name="digitCount">
+    <number>3</number>
+   </property>
+   <property name="segmentStyle">
+    <enum>QLCDNumber::Flat</enum>
+   </property>
+  </widget>
+  <widget class="QLCDNumber" name="crcErrors_2">
+   <property name="geometry">
+    <rect>
+     <x>370</x>
+     <y>280</y>
+     <width>64</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::NoFrame</enum>
+   </property>
+   <property name="digitCount">
+    <number>3</number>
+   </property>
+   <property name="segmentStyle">
+    <enum>QLCDNumber::Flat</enum>
    </property>
   </widget>
  </widget>
