@@ -1,5 +1,5 @@
 cmake_minimum_required( VERSION 2.8.11 )
-set (objectName dab-rpi-0.995)
+set (objectName dab-rpi-0.996)
 add_definitions ( -Wall)
 #	modify if you want
 set (CMAKE_INSTALL_PREFIX ../)
@@ -26,7 +26,10 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
 #	adjust to your likings
 #	if you want to use the SSE support on your machine, uncomment
 	set(NO_SSE_SUPPORT true)
-#
+
+#	select the GUI you want
+	set(GUI_1 true)
+
 #	if you want support for any of these devices, uncomment the line
 	set(SDRPLAY true)
 	set(AIRSPY true)
@@ -42,7 +45,8 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
 #
 #	If you want a tcp stream of the audio rather than
 #	audio being sent to the soundcard, uncomment
-	set(TCP_STREAMER true)
+#	set(TCP_STREAMER true)
+#	set(RTP_STREAMER true)
 ########################################################################
 	find_package (PkgConfig)
 
@@ -87,7 +91,6 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
 #######################################################################
 #
 #	Here we really start
-	set ( ${objectName}_UIS ./sdrgui.ui)
 
 	if (NO_SSE_SUPPORT) 
 	   set (${objectName}_SRCS
@@ -121,7 +124,6 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
 	)
 
 	set (${objectName}_HDRS
-	     ./gui.h
 	     ./includes/dab-constants.h
 	     ./includes/ofdm/ofdm-processor.h
 	     ./includes/ofdm/phasereference.h
@@ -160,7 +162,6 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
 	set (${objectName}_SRCS
 	     ${${objectName}_SRCS}
 	     ./main.cpp
-	     ./gui.cpp
 	     ./src/ofdm/ofdm-processor.cpp
 	     ./src/ofdm/ofdm-decoder.cpp
 	     ./src/ofdm/phasereference.cpp
@@ -199,7 +200,6 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
 	)
 
 	set (${objectName}_MOCS
-	     ./gui.h
 	     ./includes/output/audio-base.h
 	     ./includes/output/audiosink.h
 	     ./includes/ofdm/ofdm-processor.h
@@ -219,6 +219,24 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
 	     ./src/input/rawfiles/rawfiles.h
 	     ./src/input/wavfiles/wavfiles.h
 	)
+
+	if (GUI_1)
+	   include_directories ( ./gui_1)
+
+	   set (${objectName}_UIS
+	        ${${objectName}_UIS} ./gui_1/gui_1.ui)
+
+	   set (${objectName}_MOCS
+	        ${${objectName}_MOCS} ./gui_1/gui.h)
+
+	   set ($(objectName)_HDRS
+	        ${${objectName}_HDRS} ./gui_1/gui.h)
+
+	   set (${objectName}_SRCS
+	        ${${objectName}_SRCS} ./gui_1/gui.cpp)
+	
+	   add_definitions (-DGUI_1)
+	endif (GUI_1)
 
 	if (SDRPLAY)
 	   set (${objectName}_UIS

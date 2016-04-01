@@ -5,7 +5,7 @@
 ######################################################################
 
 TEMPLATE	= app
-TARGET		= dab-rpi-0.995
+TARGET		= dab-rpi-0.996
 QT		+= widgets network
 CONFIG		+= console
 QMAKE_CFLAGS	+=  -flto -ffast-math 
@@ -16,7 +16,7 @@ QMAKE_LFLAGS	+=  -flto
 #QMAKE_LFLAGS	+=  -pg
 CONFIG		+= NO_SSE_SUPPORT 
 #DEFINES	+= SIMPLE_SYNCHRONIZATION
-#DEFINES	+= FULL_CORRELATION
+DEFINES	+= FULL_CORRELATION
 DEPENDPATH += . \
 	      ./src \
 	      ./includes \
@@ -51,8 +51,7 @@ INCLUDEPATH += . \
 	      ./src/input/wavfiles 
 
 # Input
-HEADERS += ./gui.h \
-	   ./includes/dab-constants.h \
+HEADERS += ./includes/dab-constants.h \
 	   ./includes/ofdm/ofdm-processor.h \
 	   ./includes/ofdm/ofdm-decoder.h \
 	   ./includes/ofdm/phasereference.h \
@@ -89,11 +88,9 @@ HEADERS += ./gui.h \
 	   ./src/input/rawfiles/rawfiles.h \
 	   ./src/input/wavfiles/wavfiles.h 
 
-FORMS +=   ./sdrgui.ui \
-	   ./src/input/filereader-widget.ui 
+FORMS += ./src/input/filereader-widget.ui 
 
 SOURCES += ./main.cpp \
-           ./gui.cpp \
 	   ./src/ofdm/ofdm-processor.cpp \
 	   ./src/ofdm/ofdm-decoder.cpp \
 	   ./src/ofdm/phasereference.cpp \
@@ -141,6 +138,7 @@ CONFIG		+= airspy
 #CONFIG		+= airspy-exp
 #CONFIG		+= tcp-streamer		# use for remote listening
 #CONFIG		+= rtp-streamer		# remote using rtp (very immature)
+CONFIG		+= gui_1
 DEFINES		+= MOT_BASICS__		# use at your own risk
 DEFINES		+= MSC_DATA__		# use at your own risk
 DESTDIR		= ./linux-bin
@@ -179,6 +177,7 @@ CONFIG		+= dabstick_osmo
 #CONFIG		+= sdrplay
 #CONFIG		+= tcp-streamer
 #CONFIG		+= rtp-streamer
+CONFIG		+= gui_1
 }
 
 NO_SSE_SUPPORT {
@@ -188,6 +187,18 @@ NO_SSE_SUPPORT {
 	SOURCES		+= ./src/backend/spiral-code/spiral-sse.c 
 }
 
+#######################################
+#
+#	selecting a GUI
+gui_1	{
+	DEFINES		+= GUI_1
+	INCLUDEPATH	+= ./gui_1
+	DEPENDPATH	+= ./gui_1
+	FORMS 		+= ./gui_1/gui_1.ui 
+	HEADERS		+= ./gui_1/gui.h
+	SOURCES		+= ./gui_1/gui.cpp
+}
+	
 #	devices
 #
 #	dabstick

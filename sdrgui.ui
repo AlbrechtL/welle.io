@@ -195,7 +195,7 @@
     <string>TextLabel</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="QuitButton">
+  <widget class="QPushButton" name="quitButton">
    <property name="geometry">
     <rect>
      <x>370</x>
@@ -640,7 +640,7 @@
     </property>
    </item>
   </widget>
-  <widget class="QPushButton" name="correctorReset">
+  <widget class="QPushButton" name="resetButton">
    <property name="geometry">
     <rect>
      <x>370</x>
@@ -770,7 +770,7 @@
     <string/>
    </property>
   </widget>
-  <widget class="QPushButton" name="audioDump">
+  <widget class="QPushButton" name="audioDumpButton">
    <property name="geometry">
     <rect>
      <x>20</x>

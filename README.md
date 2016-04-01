@@ -41,6 +41,13 @@ development files.
 Tested on RPI with arch linux, and RPI with Raspbian Jessie, as well as under fedora 22 and Ubuntu 14.04
 Cross compiled for W7/W10
 
+Options:
+Since an RPI is often run headless, an option is included to
+configure such that the PCM output is sent to a simple TCP server, listening
+at port 20040. 
+uncommenting CONFIG+=TCP_STREAMER
+will do here.
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 Note that the CMakeLists.txt file assumes Qt5, the sdr-j-pro works
 fine with both Qt4 and Qt5

@@ -64,6 +64,8 @@ int32_t	i;
 	connect (streamSelector, SIGNAL (activated (int)),
 	         this,  SLOT (set_streamSelector (int)));
 	streamSelector	-> show ();
+	selectDefaultDevice ();
+	
 }
 
 	audioSink::~audioSink	(void) {
