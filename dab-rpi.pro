@@ -16,7 +16,7 @@ QMAKE_LFLAGS	+=  -flto
 #QMAKE_LFLAGS	+=  -pg
 CONFIG		+= NO_SSE_SUPPORT 
 #DEFINES	+= SIMPLE_SYNCHRONIZATION
-DEFINES	+= FULL_CORRELATION
+#DEFINES	+= FULL_CORRELATION
 DEPENDPATH += . \
 	      ./src \
 	      ./includes \
@@ -62,6 +62,7 @@ HEADERS += ./includes/dab-constants.h \
 	   ./includes/backend/msc-handler.h \
 	   ./includes/backend/fib-processor.h  \
 	   ./includes/backend/rscodec.h \
+	   ./includes/backend/rs-decoder.h \
 	   ./includes/backend/charsets.h \
 	   ./includes/backend/firecode-checker.h \
 	   ./includes/backend/dab-processor.h \
@@ -102,6 +103,7 @@ SOURCES += ./main.cpp \
 	   ./src/backend/deconvolve.cpp \
 	   ./src/backend/fib-processor.cpp  \
 	   ./src/backend/rscodec.cpp \
+	   ./src/backend/rs-decoder.cpp \
 	   ./src/backend/charsets.cpp \
 	   ./src/backend/firecode-checker.cpp \
 	   ./src/backend/dab-virtual.cpp \
@@ -138,7 +140,7 @@ CONFIG		+= airspy
 #CONFIG		+= airspy-exp
 #CONFIG		+= tcp-streamer		# use for remote listening
 #CONFIG		+= rtp-streamer		# remote using rtp (very immature)
-CONFIG		+= gui_1
+CONFIG		+= gui_2
 DEFINES		+= MOT_BASICS__		# use at your own risk
 DEFINES		+= MSC_DATA__		# use at your own risk
 DESTDIR		= ./linux-bin
@@ -197,6 +199,14 @@ gui_1	{
 	FORMS 		+= ./gui_1/gui_1.ui 
 	HEADERS		+= ./gui_1/gui.h
 	SOURCES		+= ./gui_1/gui.cpp
+}
+	
+gui_2	{
+	DEFINES		+= GUI_2
+	INCLUDEPATH	+= ./gui_2
+	DEPENDPATH	+= ./gui_2
+	HEADERS		+= ./gui_2/gui.h
+	SOURCES		+= ./gui_2/gui.cpp
 }
 	
 #	devices

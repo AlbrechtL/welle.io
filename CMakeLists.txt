@@ -137,6 +137,7 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
 	     ./includes/backend/dab-virtual.h
 	     ./includes/backend/charsets.h
 	     ./includes/backend/rscodec.h 
+	     ./includes/backend/rscodec.h 
 	     ./includes/backend/audio/dab-audio.h
 	     ./includes/backend/audio/faad-decoder.h
 	     ./includes/backend/audio/mp4processor.h 

@@ -134,7 +134,7 @@ int16_t	ret;
 
 	memset (rf, 0, cutlen * sizeof (uint16_t));
 	for (i = cutlen; i < CODE_LENGTH; i++)
-	   rf [i] = (int16_t) r[i - cutlen];
+	   rf [i] = (uint16_t) r[i - cutlen];
 
 	ret = dec_poly (rf, df);
 	for (i = cutlen; i < MESSAGE_LENGTH; i++)
@@ -207,18 +207,19 @@ int16_t i,j;
 	      }
 	   }
 // step 2.d
-//	d_euc[!top].shift_left(0);
+//	d_euc [!top].shift_left(0);
 	   memmove (d_euc [!top], d_euc[!top] + 1,
 	            (NUM_PARITY + 1) * sizeof (d_euc[0][0]));
 	   d_euc [!top][NUM_PARITY + 1] = 0;
 	   deg [!top]--;
 	}
-// step 3: output, evaluator=d_euc[!top][0..deg[!top]],
+
+// step 3: output, evaluator = d_euc [!top][0..deg[!top]],
 //	locator=d_euc[top][2t+1..deg[top]+1],
 //	highest degree coefficient first
 //	if deg [top] > deg [!top], then error correctable;
 //	otherwise uncorrectable error pattern
-	if (deg [top] <= deg[!top]){
+	if (deg [top] <= deg [!top]){
 	   // d = r.left (MESSAGE_LRNGTH);	// no correction attempt if
 	   // uncorrectable error pattern
 	   memcpy (d, r, MESSAGE_LENGTH * sizeof (r [0]));
@@ -233,18 +234,18 @@ int16_t i,j;
 
 // Chien's Search
 	int16_t x, x2, y;
-	int16_t sig_high, sig_low; // sigma_high, sigma_low (temporary)
-	int16_t sig_even, sig_odd; // sigma_even, sigma_odd: error locator value
+	int16_t sig_high, sig_low;	// sigma_high, sigma_low (temporary)
+	int16_t sig_even, sig_odd;	// sigma_even, sigma_odd: error locator value
 	int16_t omega; 			// error evaluator value
 	int16_t err_cnt	= 0;		// error symbol counter
 //	for each information symbol position i, i.e.
 //	alpha ^ (-i). i represents the exponent of the received polynomial
 	for (i = CODE_LENGTH - 1; i >= NUM_PARITY; i--){
-	   x  = inverse_power (i + 1); // alpha^(-i). can be optimized
+	   x  = inverse_power (i + 1); // alpha ^ (-i). can be optimized
 	   x2 = power2poly (multiply_power (x, x)); // x^2
 	   x  = power2poly (x);
-// calculate locator_even(x^2)
-// calculate locator_odd(x^2)
+//	calculate locator_even (x^2)
+//	calculate locator_odd  (x^2)
 	   sig_high = d_euc [top][NUM_PARITY + 1];
 	   sig_low  = d_euc [top][NUM_PARITY];
 	   for (j = NUM_PARITY - 1; j > deg [top]; j -= 2)
@@ -255,7 +256,7 @@ int16_t i,j;
 	      sig_low = add_poly (multiply_poly (sig_low, x2),
 	                          d_euc [top][j]);
 
-// the last j is deg[top]+2, then sig_low is sig_odd
+// the last j is deg [top] + 2, then sig_low is sig_odd
 	   if (j == deg [top]){
 	      sig_odd = sig_low;
 	      sig_even = sig_high;

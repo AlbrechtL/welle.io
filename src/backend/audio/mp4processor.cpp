@@ -34,6 +34,7 @@
 #include	"charsets.h"
 #include	"faad-decoder.h"
 #include	"pad-handler.h"
+#include	"rs1.h"
 /**
   *	\brief simple, inline coded, crc checker
   */
@@ -68,7 +69,8 @@ uint16_t	genpoly		= 0x1021;
 	mp4Processor::mp4Processor (RadioInterface	*mr,
 	                            int16_t	bitRate,
 	                            RingBuffer<int16_t> *b)
-	                            :my_padhandler (mr) {
+	                            :my_padhandler (mr),
+	                             new_rsDecoder (8, 0435, 0, 1, 10) {
 
 	myRadioInterface	= mr;
 	connect (this, SIGNAL (show_successRate (int)),
@@ -186,9 +188,9 @@ int32_t		tmp;
 	   int16_t ler	= 0;
 	   for (k = 0; k < 120; k ++) 
 	      rsIn [k] = frameBytes [(base + j + k * RSDims) % (RSDims * 120)];
-	   ler = rsDecoder. dec (rsIn, rsOut, 135);
-	   if (ler > 0) {
-//	      fprintf (stderr, "corrected %d errors\n", ler);
+//	   ler = my_rsDecoder. dec (rsIn, rsOut, 135);
+	   ler = new_rsDecoder. dec (rsIn, rsOut, 135);
+	   if (ler > 0) {		// corrected errors
 	      nErrors += ler;
 	   }
 	   else
@@ -263,7 +265,7 @@ int32_t		tmp;
 ///	sanity check 1
 	   if (au_start [i + 1] < au_start [i]) {
 //	cannot happen, all errors were corrected
-//	      fprintf (stderr, "%d %d\n", au_start [i + 1], au_start [i]);
+	      fprintf (stderr, "%d %d\n", au_start [i + 1], au_start [i]);
 	      return false;
 	   }
 
@@ -271,9 +273,9 @@ int32_t		tmp;
 	   if ((aac_frame_length >= 2 * 960) || (aac_frame_length < 0)) {
 //
 //	cannot happen, all errors were corrected
-//	      fprintf (stderr, "serious error in frame 6 (%d) (%d) frame_length = %d\n",
-//	                                        ++au_errors,
-//	                                        au_count, aac_frame_length);
+	      fprintf (stderr, "serious error in frame 6 (%d) (%d) frame_length = %d\n",
+	                                        ++au_errors,
+	                                        au_count, aac_frame_length);
 	      return false;
 	   }
 ///	but first the crc check
@@ -307,8 +309,8 @@ int32_t		tmp;
 	   }
 	   else {
 	      au_errors ++;
-//	      fprintf (stderr, "CRC failure with dab+ frame (error %d)\n",
-//	                                          au_errors);
+	      fprintf (stderr, "CRC failure with dab+ frame (error %d) %d (%d)\n",
+	                                          au_errors, i, num_aus);
 	   }
 	}
 //	fprintf (stderr, "%d samples good for %d nsec of music\n",

@@ -221,8 +221,8 @@ void	padHandler::addSegment (uint16_t segmentno, QString s) {
 static int lastSegment = 0;
 	if (segmentno == 1)
 	   s. prepend (' ');
-	if (dynamicLabelText. length () + s. length () > 60)
-	   dynamicLabelText. remove (1, dynamicLabelText. length () + s. length () - 60);
+	if (dynamicLabelText. length () + s. length () > 50)
+	   dynamicLabelText. remove (1, dynamicLabelText. length () + s. length () - 50);
 	dynamicLabelText. append (s);
 	showLabel (dynamicLabelText);
 	lastSegment = segmentno;

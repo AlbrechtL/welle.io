@@ -289,9 +289,9 @@
    <widget class="QLabel" name="syncedLabel">
     <property name="geometry">
      <rect>
-      <x>435</x>
+      <x>445</x>
       <y>10</y>
-      <width>41</width>
+      <width>31</width>
       <height>21</height>
      </rect>
     </property>
@@ -305,7 +305,7 @@
    <widget class="QLCDNumber" name="errorDisplay">
     <property name="geometry">
      <rect>
-      <x>360</x>
+      <x>320</x>
       <y>10</y>
       <width>64</width>
       <height>23</height>
@@ -324,7 +324,7 @@
    <widget class="QLCDNumber" name="ficRatioDisplay">
     <property name="geometry">
      <rect>
-      <x>303</x>
+      <x>270</x>
       <y>10</y>
       <width>51</width>
       <height>23</height>
@@ -343,7 +343,7 @@
    <widget class="QLCDNumber" name="snrDisplay">
     <property name="geometry">
      <rect>
-      <x>260</x>
+      <x>230</x>
       <y>10</y>
       <width>41</width>
       <height>23</height>
@@ -362,9 +362,9 @@
    <widget class="QLCDNumber" name="ensembleId">
     <property name="geometry">
      <rect>
-      <x>180</x>
+      <x>170</x>
       <y>10</y>
-      <width>81</width>
+      <width>61</width>
       <height>23</height>
      </rect>
     </property>
@@ -384,7 +384,7 @@
    <widget class="QLabel" name="ensembleName">
     <property name="geometry">
      <rect>
-      <x>40</x>
+      <x>10</x>
       <y>10</y>
       <width>141</width>
       <height>21</height>
@@ -392,6 +392,25 @@
     </property>
     <property name="text">
      <string/>
+    </property>
+   </widget>
+   <widget class="QLCDNumber" name="rateDisplay">
+    <property name="geometry">
+     <rect>
+      <x>383</x>
+      <y>10</y>
+      <width>51</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::NoFrame</enum>
+    </property>
+    <property name="digitCount">
+     <number>3</number>
+    </property>
+    <property name="segmentStyle">
+     <enum>QLCDNumber::Flat</enum>
     </property>
    </widget>
   </widget>
