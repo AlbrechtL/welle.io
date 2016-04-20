@@ -24,7 +24,11 @@
 #include	"ringbuffer.h"
 #include	"virtual-input.h"
 #include	"ui_airspy-widget.h"
+#ifndef	__MINGW32__
 #include	"libairspy/airspy.h"
+#else
+#include	"airspy.h"
+#endif
 
 extern "C"  {
 typedef	int (*pfn_airspy_init) (void);

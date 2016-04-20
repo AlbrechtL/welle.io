@@ -36,9 +36,9 @@
 int32_t	i;
 
 	buffer			= b;
-	f_16000			= new LowPassFIR (5, 16000, 48000);
-	f_24000			= new LowPassFIR (5, 24000, 48000);
-	f_32000			= new LowPassFIR (5, 32000, 96000);
+	f_16000			= new LowPassFIR (5, 8000, 48000);
+	f_24000			= new LowPassFIR (5, 12000, 48000);
+	f_32000			= new LowPassFIR (5, 16000, 96000);
 	dumpFile		= NULL;
 }
 
@@ -106,19 +106,21 @@ int32_t	i;
 	audioOutput (buffer, 3 * amount);
 }
 
+//
+//	amount gives number of pairs
 void	audioBase::audioOut_24000	(int16_t *V, int32_t amount) {
-float *buffer = (float *)alloca (2 * amount * sizeof (float));
+float *buffer = (float *)alloca (4 * amount * sizeof (float));
 int32_t	i;
 
 	for (i = 0; i < amount; i ++) {
 	   DSPCOMPLEX help = DSPCOMPLEX (float (V [2 * i]) / 32767.0,
 	                                 float (V [2 * i + 1]) / 32767.0);
 	   help = f_24000 -> Pass (help);
-	   buffer [4 * i] = real (help);
-	   buffer [4 * i + 1] = imag (help);
+	   buffer [4 * i]	= real (help);
+	   buffer [4 * i + 1]	= imag (help);
 	   help = f_24000 -> Pass (DSPCOMPLEX (0, 0));
-	   buffer [4 * i + 2] = real (help);
-	   buffer [4 * i + 3] = imag (help);
+	   buffer [4 * i + 2]	= real (help);
+	   buffer [4 * i + 3]	= imag (help);
 	}
 
 	myLocker. lock ();

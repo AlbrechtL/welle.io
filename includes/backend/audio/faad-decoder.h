@@ -166,6 +166,7 @@ NeAACDecFrameInfo	hInfo;
 	      buffer [2 * i]	= ((int16_t *)outBuffer) [i];
 	      buffer [2 * i + 1] = buffer [2 * i];
 	   }
+
 	   audioBuffer	-> putDataIntoBuffer (buffer, 2 * samples);
 	   newAudio (sample_rate);
 	}

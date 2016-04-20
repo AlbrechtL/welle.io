@@ -34,7 +34,6 @@
 #include	"audio-base.h"
 #include	"dab-processor.h"
 #include	"firecode-checker.h"
-#include	"rscodec.h"
 #include	"rs-decoder.h"
 #include	<QObject>
 #include	"pad-handler.h"
@@ -69,8 +68,7 @@ private:
 	int16_t		au_errors;
 	int16_t		errorRate;
 	firecode_checker	fc;
-	rscodec		my_rsDecoder;
-	rsDecoder	new_rsDecoder;
+	rsDecoder	the_rsDecoder;
 	uint8_t		*outVector;
 //	and for the aac decoder
 	faadDecoder	*aacDecoder;

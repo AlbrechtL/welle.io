@@ -36,6 +36,10 @@ int	modnn (struct rs *rs, int x){
 class	rsDecoder {
 private:
 	rsType	*rsHandle;
+	bool	computeSyndromes	(DTYPE *, DTYPE *);
+	uint16_t computeLambda		(DTYPE *, DTYPE *);
+	uint16_t computeChien		(DTYPE *, int16_t, DTYPE *, DTYPE *);
+	uint16_t computeOmega		(DTYPE *, DTYPE *, uint16_t, DTYPE *);
 public:
 		rsDecoder (uint16_t symsize,
 	                   uint16_t gfpoly,
@@ -45,6 +49,8 @@ public:
 		~rsDecoder (void);
 int16_t		decode_rs (DTYPE *data);
 int16_t		dec	  (const DTYPE *data_in, DTYPE *data_out, int16_t cutlen);
+void		enc	  (const DTYPE *data_in, DTYPE *data_out, int16_t cutlen);
+void		encode	  (const DTYPE *data_in, DTYPE *roots);
 };
 #endif
 

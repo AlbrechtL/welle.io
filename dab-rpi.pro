@@ -61,7 +61,6 @@ HEADERS += ./includes/dab-constants.h \
 	   ./includes/backend/fic-handler.h \
 	   ./includes/backend/msc-handler.h \
 	   ./includes/backend/fib-processor.h  \
-	   ./includes/backend/rscodec.h \
 	   ./includes/backend/rs-decoder.h \
 	   ./includes/backend/charsets.h \
 	   ./includes/backend/firecode-checker.h \
@@ -102,7 +101,6 @@ SOURCES += ./main.cpp \
 	   ./src/backend/msc-handler.cpp \
 	   ./src/backend/deconvolve.cpp \
 	   ./src/backend/fib-processor.cpp  \
-	   ./src/backend/rscodec.cpp \
 	   ./src/backend/rs-decoder.cpp \
 	   ./src/backend/charsets.cpp \
 	   ./src/backend/firecode-checker.cpp \
@@ -140,7 +138,7 @@ CONFIG		+= airspy
 #CONFIG		+= airspy-exp
 #CONFIG		+= tcp-streamer		# use for remote listening
 #CONFIG		+= rtp-streamer		# remote using rtp (very immature)
-CONFIG		+= gui_2
+CONFIG		+= gui_1
 DEFINES		+= MOT_BASICS__		# use at your own risk
 DEFINES		+= MSC_DATA__		# use at your own risk
 DESTDIR		= ./linux-bin
@@ -256,9 +254,9 @@ sdrplay {
 airspy {
 	DEFINES		+= HAVE_AIRSPY
 	INCLUDEPATH	+= ./src/input/airspy \
-	                   /usr/local/include/libairspy
+	                    /usr/local/include/libairspy
 	HEADERS		+= ./src/input/airspy/airspy-handler.h \
-	                   /usr/local/include/libairspy/airspy.h
+	                    /usr/local/include/libairspy/airspy.h
 	SOURCES		+= ./src/input/airspy/airspy-handler.cpp 
 	FORMS		+= ./src/input/airspy/airspy-widget.ui
 }

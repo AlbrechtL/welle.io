@@ -70,7 +70,7 @@ uint16_t	genpoly		= 0x1021;
 	                            int16_t	bitRate,
 	                            RingBuffer<int16_t> *b)
 	                            :my_padhandler (mr),
-	                             new_rsDecoder (8, 0435, 0, 1, 10) {
+	                             the_rsDecoder (8, 0435, 0, 1, 10) {
 
 	myRadioInterface	= mr;
 	connect (this, SIGNAL (show_successRate (int)),
@@ -188,14 +188,12 @@ int32_t		tmp;
 	   int16_t ler	= 0;
 	   for (k = 0; k < 120; k ++) 
 	      rsIn [k] = frameBytes [(base + j + k * RSDims) % (RSDims * 120)];
-//	   ler = my_rsDecoder. dec (rsIn, rsOut, 135);
-	   ler = new_rsDecoder. dec (rsIn, rsOut, 135);
+	   ler = the_rsDecoder. dec (rsIn, rsOut, 135);
 	   if (ler > 0) {		// corrected errors
 	      nErrors += ler;
 	   }
 	   else
 	   if (ler < 0) {
-//	      fprintf (stderr, "unrecoverable errors\n");
 	      return false;
 	   }
 
