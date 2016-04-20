@@ -580,7 +580,7 @@ int16_t	lf	= baudRate == 48000 ? MP2framesize : 2 * MP2framesize;
 	         int16_t sample_buf [KJMP2_SAMPLES_PER_FRAME * 2];
 	         if (mp2decodeFrame (MP2frame, sample_buf)) {
 	            buffer -> putDataIntoBuffer (sample_buf, 
-	                                 (int32_t)KJMP2_SAMPLES_PER_FRAME);
+	                                 2 * (int32_t)KJMP2_SAMPLES_PER_FRAME);
 	            newAudio (baudRate);
 	         }
 

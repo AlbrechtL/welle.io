@@ -136,8 +136,7 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
 	     ./includes/backend/dab-processor.h
 	     ./includes/backend/dab-virtual.h
 	     ./includes/backend/charsets.h
-	     ./includes/backend/rscodec.h 
-	     ./includes/backend/rscodec.h 
+	     ./includes/backend/rs-decoder.h
 	     ./includes/backend/audio/dab-audio.h
 	     ./includes/backend/audio/faad-decoder.h
 	     ./includes/backend/audio/mp4processor.h 
@@ -179,7 +178,7 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
 	     ./src/backend/protTables.cpp
 	     ./src/backend/charsets.cpp
 	     ./src/backend/dab-virtual.cpp 
-	     ./src/backend/rscodec.cpp 
+	     ./src/backend/rs-decoder.cpp
 	     ./src/backend/audio/dab-audio.cpp
 	     ./src/backend/audio/mp4processor.cpp 
 	     ./src/backend/audio/mp2processor.cpp 
