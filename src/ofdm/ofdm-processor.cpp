@@ -381,7 +381,7 @@ Block_0:
 	               coarseCorrector + fineCorrector);
 	   my_ofdmDecoder  -> processBlock_0 (ofdmBuffer);
 //
-//	Here we look only at the block_0 when we need a coare
+//	Here we look only at the block_0 when we need a coarse
 //	frequency synchronization.
 //	The width is limited to 2 * 35 Khz (i.e. positive and negative)
 	   if (f2Correction) {
