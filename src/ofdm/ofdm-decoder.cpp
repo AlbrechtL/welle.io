@@ -30,7 +30,6 @@
 #include	"fic-handler.h"
 #include	"msc-handler.h"
 #include	"freq-interleaver.h"
-
 #define	SYNCLENGTH	10
 /**
   *	\brief ofdmDecoder
@@ -53,7 +52,6 @@ int16_t	i;
 	this	-> T_s			= params	-> T_s;
 	this	-> T_u			= params	-> T_u;
 	this	-> carriers		= params	-> K;
-
 	ibits				= new int16_t [2 * this -> carriers];
 
 	this	-> T_g			= T_s - T_u;
@@ -77,6 +75,9 @@ int16_t	i;
 	command			= new DSPCOMPLEX * [params -> L + 1];
 	for (i = 0; i < params -> L + 1; i ++)
 	   command [i] = new DSPCOMPLEX [T_u];
+#ifdef	__BETTER_LOCK
+	bufferResources		= new QSemaphore (params -> L + 1);
+#endif
 	amount		= 0;
 	start ();
 }
@@ -94,6 +95,9 @@ int16_t	i;
 	for (i = 0; i < params -> L + 1; i ++)
 	   delete[] command [i];
 	delete[] command;
+#ifdef	__BETTER_LOCK
+	delete	bufferResources;
+#endif
 }
 
 void	ofdmDecoder::stop		(void) {
@@ -128,6 +132,9 @@ int16_t	currentBlock	= 0;
 	         decodeFICblock (currentBlock + 1);
 	      else
 	         decodeMscblock (currentBlock + 1);
+#ifdef	__BETTER_LOCK
+	      bufferResources -> release (1);
+#endif
 	      helper. lock ();
 	      currentBlock = (currentBlock + 1) % (params -> L);
 	      amount -= 1;
@@ -141,6 +148,9 @@ int16_t	currentBlock	= 0;
   *	in the buffer.
   */
 void	ofdmDecoder::processBlock_0 (DSPCOMPLEX *vi) {
+#ifdef	__BETTER_LOCK
+	bufferResources -> acquire (1);
+#endif
 	memcpy (command [0], vi, sizeof (DSPCOMPLEX) * T_u);
 	helper. lock ();
 	amount ++;
@@ -149,6 +159,9 @@ void	ofdmDecoder::processBlock_0 (DSPCOMPLEX *vi) {
 }
 
 void	ofdmDecoder::decodeFICblock (DSPCOMPLEX *vi, int32_t blkno) {
+#ifdef	__BETTER_LOCK
+	bufferResources -> acquire (1);
+#endif
 	memcpy (command [blkno], &vi [T_g], sizeof (DSPCOMPLEX) * T_u);
 	helper. lock ();
 	amount ++;
@@ -157,6 +170,9 @@ void	ofdmDecoder::decodeFICblock (DSPCOMPLEX *vi, int32_t blkno) {
 }
 
 void	ofdmDecoder::decodeMscblock (DSPCOMPLEX *vi, int32_t blkno) {
+#ifdef	__BETTER_LOCK
+	bufferResources -> acquire (1);
+#endif
 	memcpy (command [blkno], &vi [T_g], sizeof (DSPCOMPLEX) * T_u);
 	helper. lock ();
 	amount ++;

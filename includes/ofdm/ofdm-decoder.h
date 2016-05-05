@@ -29,6 +29,9 @@
 #include	<QThread>
 #include	<QWaitCondition>
 #include	<QMutex>
+#ifdef	__BETTER_LOCK
+#include	<QSemaphore>
+#endif
 #include	"fft.h"
 #include	"phasetable.h"
 #include	<stdint.h>
@@ -58,6 +61,9 @@ private:
 	DSPCOMPLEX	*refTable;
 	ficHandler	*my_ficHandler;
 	mscHandler	*my_mscHandler;
+#ifdef	__BETTER_LOCK
+	QSemaphore	*bufferResources;
+#endif
 	void		run		(void);
 	bool		running;
 	DSPCOMPLEX	**command;
