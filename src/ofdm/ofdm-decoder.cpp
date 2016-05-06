@@ -71,12 +71,13 @@ int16_t	i;
   *	functions for handling block 0, FIC blocks and MSC blocks.
   *
   *	We just create a large buffer where index i refers to block i.
+  *
   */
-	command			= new DSPCOMPLEX * [params -> L + 1];
-	for (i = 0; i < params -> L + 1; i ++)
+	command			= new DSPCOMPLEX * [params -> L];
+	for (i = 0; i < params -> L; i ++)
 	   command [i] = new DSPCOMPLEX [T_u];
 #ifdef	__BETTER_LOCK
-	bufferResources		= new QSemaphore (params -> L + 1);
+	bufferResources		= new QSemaphore (params -> L);
 #endif
 	amount		= 0;
 	start ();
@@ -92,7 +93,7 @@ int16_t	i;
 	delete		fft_handler;
 	delete[]	phaseReference;
 	delete	myMapper;
-	for (i = 0; i < params -> L + 1; i ++)
+	for (i = 0; i < params -> L; i ++)
 	   delete[] command [i];
 	delete[] command;
 #ifdef	__BETTER_LOCK
@@ -110,7 +111,7 @@ void	ofdmDecoder::stop		(void) {
 //
 //
 /**
-  *	The code in the thread exectes a simple loop,
+  *	The code in the thread executes a simple loop,
   *	waiting for the next block and executing the interpretation
   *	operation for that block.
   *	In our original code the block count was 1 higher than
@@ -129,9 +130,9 @@ int16_t	currentBlock	= 0;
 	         processBlock_0 ();
 	      else
 	      if (currentBlock < 4)
-	         decodeFICblock (currentBlock + 1);
+	         decodeFICblock (currentBlock);
 	      else
-	         decodeMscblock (currentBlock + 1);
+	         decodeMscblock (currentBlock);
 #ifdef	__BETTER_LOCK
 	      bufferResources -> release (1);
 #endif
@@ -196,7 +197,7 @@ float	Min	= 1000;
 	memcpy (fft_buffer, command [0], T_u * sizeof (DSPCOMPLEX));
 	fft_handler	-> do_FFT ();
 /**
-  *	The SNR is determined y looking at a segment of bins
+  *	The SNR is determined by looking at a segment of bins
   *	within the signal region and bits outside.
   *	It is just an indication
   */
@@ -218,7 +219,7 @@ float	Min	= 1000;
   *	only to spare a test. Tthe mapping code is the same
   *
   *	\brief decodeFICblock
-  *	do the transforms and hand over the reslt to the fichandler
+  *	do the transforms and hand over the result to the fichandler
   */
 void	ofdmDecoder::decodeFICblock (int32_t blkno) {
 int16_t	i;

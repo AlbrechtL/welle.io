@@ -37,11 +37,25 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
 #	set(DABSTICK_NEW true)
 #	set(RTLTCP true)
 
-
+#	initial coarse frequency synchronization is always a mess
+#	SIMPLE_SYNCHRONIZATION just looks at the balance between the
+#	energy in the positive and the negative frequencies in block_0
+#	FULL_CORRELATION computes a correlation over a number of
+#	phasedifferences in subsequent frequencies in block_0
+#	with the predefined set
+#	default is just a manual approach, looking at a minimum
+#	of phasedifferences in subsequent "bin"'s that are supposed to be
+#	zero.
 #	add_definitions (-DSIMPLE_SYNCHRONIZATION)
-	add_definitions (-DFULL_CORRELATION)
+#	add_definitions (-DFULL_CORRELATION)
 	add_definitions (-DMOT_BASICS__) 	# use at your own risk
 	add_definitions (-DMSC_DATA__)		# use at your own risk
+#	The optimistic assumption is that the buffer - between the
+#	ofdmProcessor and the ofdmDecoder - is never overwritten.
+#	On the raspberry, with its 4 cores, this is indeed unlikely to
+#	happen. Uncommenting the following line adds an extra lock
+#	to prevent overwriting
+#	add_definitions	(-DBETTER_LOCK)
 #
 #	If you want a tcp stream of the audio rather than
 #	audio being sent to the soundcard, uncomment

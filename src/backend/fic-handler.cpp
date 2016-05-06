@@ -115,19 +115,19 @@ void	ficHandler::setBitsperBlock	(int16_t b) {
   *	for Mode IV we will get 3 * 2 * 768 = 4608, i.e. two resulting blocks
   *	Note that Mode III is NOT supported
   *	
-  *	The function is called with a blkno. This should be 2, 3 or 4
+  *	The function is called with a blkno. This should be 1, 2 or 3
   *	for each time 2304 bits are in, we call process_ficInput
   */
 void	ficHandler::process_ficBlock (int16_t *data,
 	                              int16_t blkno) {
 int32_t	i;
 
-	if (blkno == 2) {
+	if (blkno == 1) {
 	   index = 0;
 	   ficno = 0;
 	}
 //
-	if ((2 <= blkno) && (blkno <= 4)) {
+	if ((1 <= blkno) && (blkno <= 3)) {
 	   for (i = 0; i < BitsperBlock; i ++) {
 	      ofdm_input [index ++] = data [i];
 	      if (index >= 2304) {

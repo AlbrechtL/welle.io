@@ -125,7 +125,7 @@ int16_t	*myBegin;
 	if (!work_to_be_done && !newChannel)
 	   return;
 
-	currentblk	= (blkno - 5) % numberofblocksperCIF;
+	currentblk	= (blkno - 4) % numberofblocksperCIF;
 //
 	if (newChannel) {
 	   locker. lock ();

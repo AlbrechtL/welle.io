@@ -409,8 +409,8 @@ Data_blocks:
   *	corresponding samples in the datapart.
   */
 	   FreqCorr		= DSPCOMPLEX (0, 0);
-	   for (ofdmSymbolCount = 2;
-	        ofdmSymbolCount <= 4; ofdmSymbolCount ++) {
+	   for (ofdmSymbolCount = 1;
+	        ofdmSymbolCount < 4; ofdmSymbolCount ++) {
 	      getSamples (ofdmBuffer, T_s, coarseCorrector + fineCorrector);
 	      for (i = (int)T_u; i < (int)T_s; i ++) 
 	         FreqCorr += ofdmBuffer [i] * conj (ofdmBuffer [i - T_u]);
@@ -419,8 +419,8 @@ Data_blocks:
 	   }
 
 ///	and similar for the (params -> L - 4) MSC blocks
-	   for (ofdmSymbolCount = 5;
-	        ofdmSymbolCount <= (int16_t)(params -> L);
+	   for (ofdmSymbolCount = 4;
+	        ofdmSymbolCount < (int16_t)(params -> L);
 	        ofdmSymbolCount ++) {
 	      getSamples (ofdmBuffer, T_s, coarseCorrector + fineCorrector);
 	      for (i = (int32_t)T_u; i < (int32_t)T_s; i ++) 
