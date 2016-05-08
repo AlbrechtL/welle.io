@@ -364,7 +364,8 @@ int16_t	i;
 //	we first look for the "free" MOT slides, then
 //	for the carrousel
 	for (i = 0; i < 16; i ++)
-	   if (table [i]. ordernumber != -1 && table [i]. transportId)
+	   if (table [i]. ordernumber != -1 &&
+	                  table [i]. transportId == transportId)
 	      return &table [i];
 	if (theDirectory == NULL)
 	   return NULL;
