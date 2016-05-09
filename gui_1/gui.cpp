@@ -690,8 +690,11 @@ void	RadioInterface::showLabel	(QString s) {
 //	since data is only sent whenever a data channel is selected
 void	RadioInterface::showMOT		(QByteArray data, int subtype) {
 #ifdef	GUI_1
-	if (running)
-	   pictureLabel	= new QLabel (NULL);
+	if (!running)
+	   return;
+	if (pictureLabel != NULL)
+	   delete pictureLabel;
+	pictureLabel	= new QLabel (NULL);
 
 	QPixmap p;
 	p. loadFromData (data, subtype == 0 ? "GIF" :

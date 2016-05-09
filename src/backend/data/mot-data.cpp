@@ -42,6 +42,7 @@ int16_t	i, j;
 	}
 	ordernumber	= 1;
 	theDirectory	= NULL;
+	old_slide	= NULL;
 	connect (this, SIGNAL (the_picture (QByteArray, int)),
 	         mr, SLOT (showMOT (QByteArray, int)));
 }
@@ -310,6 +311,7 @@ int16_t	i;
 //
 //	we have data for all directory entries
 void	motHandler::handleComplete (motElement *p) {
+int16_t i;
 //	if (p -> contentType != 2) {
 	if (true) {
 	   fprintf (stderr, "going to write file %s\n", (p ->  name). toLatin1 (). data ());
@@ -325,9 +327,13 @@ void	motHandler::handleComplete (motElement *p) {
 	   if (p -> contentType != 2)
 	      return;
 	}
+	if (old_slide != NULL)
+	   for (i = 0; i < p ->  numofSegments; i ++)
+	      p -> marked [i] = false;
 	fprintf (stderr, "going to show picture %s\n",
 	                                   (p -> name). toLatin1 (). data ());
 	the_picture (p -> body, p -> contentsubType);
+	old_slide	= p;
 }
 
 void	motHandler::checkDir (QString &s) {

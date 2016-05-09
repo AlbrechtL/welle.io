@@ -111,23 +111,24 @@ void		processSegment	(int16_t	transportId,
 	                         bool		lastFlag);
 	void	my_help		(void);
 private:
-	motElement table [16];
-	int16_t	ordernumber;
+	motElement	table [16];
+	motElement	*old_slide;
+	int16_t		ordernumber;
 	MOT_directory	*theDirectory;
 	
 	motElement	*getHandle	(uint16_t transportId);
-	void	newEntry	(uint16_t	transportId,
-	                         int16_t	size,
-	                         int16_t	contentType,
-	                         int16_t	contentsubType,
-	                         QString	name);
-	void	newEntry	(int16_t	index,
-	                         uint16_t	transportId,
-	                         int16_t	size,
-	                         int16_t	contentType,
-	                         int16_t	contentsubType,
-	                         QString	name);
-	bool	isComplete	(motElement *);
+	void		newEntry	(uint16_t	transportId,
+	                                 int16_t	size,
+	                                 int16_t	contentType,
+	                                 int16_t	contentsubType,
+	                                 QString	name);
+	void		newEntry	(int16_t	index,
+	                                 uint16_t	transportId,
+	                                 int16_t	size,
+	                                 int16_t	contentType,
+	                                 int16_t	contentsubType,
+	                                 QString	name);
+	bool		isComplete	(motElement *);
 	void	handleComplete	(motElement *);
 	void	checkDir	(QString &);
 signals:
