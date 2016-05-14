@@ -1,0 +1,16 @@
+The dab-rpi software assumes that the rpi will use all 4 cores
+in processing the software. To increase efficiency a lock
+on the buffer between the ofdmProcessor - mapping the input samples
+onto ofdm symbols - and the ofdmDecoder - mapping the ofdmSymbols
+onto (soft) bits was not implemented (after all, for DAB Mode 1
+we are talking about a buffer with 76 ofdm symbols, it is assumed that
+the buffer size is sufficiently large, such that symbol-i is processed by the
+ofdmDecoder when the i-th symbol of the next frame arrives).
+
+When running this software on a machine with a CPU with fewer cores it might
+be safer to add some locking:
+Uncommenting the line
+#DEFINES	+= __BETTER_LOCK
+
+will add locking to this buffer
+

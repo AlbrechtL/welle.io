@@ -25,6 +25,7 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
 #####################################################################
 #	adjust to your likings
 #	if you want to use the SSE support on your machine, uncomment
+#	but recall that MINGW does not support it (yet)
 	set(NO_SSE_SUPPORT true)
 
 #	select the GUI you want
@@ -55,7 +56,7 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
 #	On the raspberry, with its 4 cores, this is indeed unlikely to
 #	happen. Uncommenting the following line adds an extra lock
 #	to prevent overwriting
-#	add_definitions	(-DBETTER_LOCK)
+	add_definitions	(-DBETTER_LOCK)
 #
 #	If you want a tcp stream of the audio rather than
 #	audio being sent to the soundcard, uncomment
