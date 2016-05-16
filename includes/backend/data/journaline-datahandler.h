@@ -25,6 +25,7 @@
 #include	"dab-constants.h"
 #include	"virtual-datahandler.h"
 #include	<QByteArray>
+#include	"dabdatagroupdecoder.h"
 
 
 class	journaline_dataHandler:public virtual_dataHandler {
@@ -33,11 +34,8 @@ public:
 	~journaline_dataHandler	(void);
 void	add_mscDatagroup	(QByteArray &);
 private:
-void	processJournaline	(QByteArray &,
-	                         uint8_t,
-	                         bool,
-	                         int16_t,
-	                         uint16_t);
+	DAB_DATAGROUP_DECODER_t theDecoder;
+	DAB_DATAGROUP_DECODER_data	myCallBack;
 };
 
 #endif

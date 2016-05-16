@@ -32,20 +32,15 @@
  *	The class is the abstract sink for the data generated
  *	It will handle the "dumping" though
  */
-	audioBase::audioBase	(RingBuffer<int16_t> *b) {
-int32_t	i;
-
+	audioBase::audioBase	(RingBuffer<int16_t> *b):
+	                            f_16000 (5,  8000, 48000),
+	                            f_24000 (5, 12000, 48000),
+	                            f_32000 (5, 16000, 96000) {
 	buffer			= b;
-	f_16000			= new LowPassFIR (5, 8000, 48000);
-	f_24000			= new LowPassFIR (5, 12000, 48000);
-	f_32000			= new LowPassFIR (5, 16000, 96000);
 	dumpFile		= NULL;
 }
 
 	audioBase::~audioBase	(void) {
-	delete	f_16000;
-	delete	f_24000;
-	delete	f_32000;
 }
 
 void	audioBase::restart	(void) {
@@ -87,13 +82,13 @@ int32_t	i;
 	for (i = 0; i < amount; i ++) {
 	   DSPCOMPLEX help = DSPCOMPLEX (float (V [2 * i]) / 32767.0,
 	                      float (V [2 * i + 1]) / 32767.0);
-	   help	= f_16000 -> Pass (help);
+	   help	= f_16000. Pass (help);
 	   buffer [6 * i] = real (help);
 	   buffer [6 * i + 1] = imag (help);
-	   help = f_16000 -> Pass (DSPCOMPLEX (0, 0));
+	   help = f_16000. Pass (DSPCOMPLEX (0, 0));
 	   buffer [6 * i + 2] = real (help);
 	   buffer [6 * i + 3] = imag (help);
-	   help = f_16000 -> Pass (DSPCOMPLEX (0, 0));
+	   help = f_16000. Pass (DSPCOMPLEX (0, 0));
 	   buffer [6 * i + 4] = real (help);
 	   buffer [6 * i + 5] = imag (help);
 	}
@@ -115,10 +110,10 @@ int32_t	i;
 	for (i = 0; i < amount; i ++) {
 	   DSPCOMPLEX help = DSPCOMPLEX (float (V [2 * i]) / 32767.0,
 	                                 float (V [2 * i + 1]) / 32767.0);
-	   help = f_24000 -> Pass (help);
+	   help = f_24000. Pass (help);
 	   buffer [4 * i]	= real (help);
 	   buffer [4 * i + 1]	= imag (help);
-	   help = f_24000 -> Pass (DSPCOMPLEX (0, 0));
+	   help = f_24000. Pass (DSPCOMPLEX (0, 0));
 	   buffer [4 * i + 2]	= real (help);
 	   buffer [4 * i + 3]	= imag (help);
 	}
@@ -141,9 +136,9 @@ int32_t	i;
 	for (i = 0; i < amount; i ++) {
 	   DSPCOMPLEX help = DSPCOMPLEX (float (V [2 * i]) / 32767.0,
 	                                 float (V [2 * i + 1]) / 32767.0);
-	   buffer_1 [3 * i + 0] = f_32000 -> Pass (help);
-	   buffer_1 [3 * i + 1] = f_32000 -> Pass (DSPCOMPLEX (0, 0));
-	   buffer_1 [3 * i + 2] = f_32000 -> Pass (DSPCOMPLEX (0, 0));
+	   buffer_1 [3 * i + 0] = f_32000. Pass (help);
+	   buffer_1 [3 * i + 1] = f_32000. Pass (DSPCOMPLEX (0, 0));
+	   buffer_1 [3 * i + 2] = f_32000. Pass (DSPCOMPLEX (0, 0));
 	}
 //
 //	Note that although we use "2 * i" for index left and right

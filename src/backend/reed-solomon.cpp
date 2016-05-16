@@ -33,7 +33,8 @@
 	                          uint16_t gfpoly,
 	                          uint16_t fcr,
 	                          uint16_t prim,
-	                          uint16_t nroots):myGalois (symsize, gfpoly) {
+	                          uint16_t nroots):
+	                            myGalois (symsize, gfpoly) {
 int i, j, root, iprim;
 
 	this	-> symsize 	= symsize;		// in bits

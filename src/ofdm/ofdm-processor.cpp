@@ -271,16 +271,19 @@ Initing:
 ///	when really out of sync we will be here
 notSynced:
 //	read in T_s samples for a next attempt;
-	   for (i = 0; i < T_s; i ++) {
+	   for (i = 0; i < T_s - 50; i ++) {
 	      DSPCOMPLEX sample			= getSample (0);
 	      envBuffer [syncBufferIndex]	= jan_abs (sample);
 	      syncBufferIndex = (syncBufferIndex + 1) & syncBufferMask;
 	   }
 
 	   currentStrength	= 0;
-	   for (i = syncBufferIndex - 50; i < syncBufferIndex; i ++)
-	      currentStrength += envBuffer [i];
-
+	   for (i = 0; i < 50; i ++) {
+	      DSPCOMPLEX sample			= getSample (0);
+	      envBuffer [syncBufferIndex]	= jan_abs (sample);
+	      currentStrength 			+= envBuffer [syncBufferIndex];
+	      syncBufferIndex = (syncBufferIndex + 1) & syncBufferMask;
+	   }
 /**
   *	We now have initial values for currentStrength (i.e. the average
   *	over the last 50 samples) and sLevel, the long term average.

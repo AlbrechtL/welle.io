@@ -127,7 +127,6 @@ int16_t	i;
 	   if ((profileTable [i]. bitRate == bitRate) &&
 	       (profileTable [i]. protLevel == protLevel))
 	      return i;
-
 	return -1;
 }
 
@@ -140,7 +139,8 @@ int16_t	i;
   *	depuncturing scheme.
   */
 	uep_deconvolve::uep_deconvolve (int16_t bitRate,
-	                                int16_t protLevel):viterbi (24 * bitRate) {
+	                                int16_t protLevel):
+	                                  viterbi (24 * bitRate) {
 int16_t	index;
 
 	this	-> bitRate		= bitRate;
@@ -149,6 +149,7 @@ int16_t	index;
 	   fprintf (stderr, "%d (%d) has a problem\n", bitRate, protLevel);
 	   index = 1;
 	}
+
 	outSize		= 24 * bitRate;
 	viterbiBlock	= new int16_t [outSize * 4 + 24];
 	L1	= profileTable [index]. L1;
@@ -360,7 +361,6 @@ int32_t	viterbiCounter	= 0;
 	   }
 	   viterbiCounter ++;
 	}
-
 	viterbi::deconvolve (viterbiBlock, outBuffer);
 	return true;
 }

@@ -23,7 +23,6 @@
  */
 #include	"dab-processor.h"
 
-
 	dabProcessor::dabProcessor (void) {
 }
 

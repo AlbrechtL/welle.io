@@ -54,7 +54,6 @@ int32_t	i;
 	for (i = 0; i < Pa_GetHostApiCount (); i ++)
 	   qDebug ("Api %d is %s\n", i, Pa_GetHostApiInfo (i) -> name);
 
-	
 	numofDevices	= Pa_GetDeviceCount ();
 	outTable	= new int16_t [numofDevices + 1];
 	for (i = 0; i < numofDevices; i ++)

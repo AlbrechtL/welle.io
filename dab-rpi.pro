@@ -25,6 +25,7 @@ DEPENDPATH += . \
 	      ./src/backend \
 	      ./src/backend/audio \
 	      ./src/backend/data \
+	      ./src/backend/data/journaline \
 	      ./src/output \
 	      ./src/various \
 	      ./src/input \
@@ -34,6 +35,7 @@ DEPENDPATH += . \
 	      ./includes/backend \
 	      ./includes/backend/audio \
 	      ./includes/backend/data \
+	      ./includes/backend/data/journaline \
 	      ./includes/output \
 	      ./includes/various 
 
@@ -45,6 +47,7 @@ INCLUDEPATH += . \
 	      ./includes/backend \
 	      ./includes/backend/audio \
 	      ./includes/backend/data \
+	      ./includes/backend/data/journaline \
 	      ./includes/output \
 	      ./includes/various \
 	      ./src/input \
@@ -79,6 +82,14 @@ HEADERS += ./includes/dab-constants.h \
 	   ./includes/backend/data/mot-databuilder.h \
 	   ./includes/backend/data/mot-data.h \
 	   ./includes/backend/data/journaline-datahandler.h \
+	   ./includes/backend/data/journaline/dabdatagroupdecoder.h \
+	   ./includes/backend/data/journaline/crc_8_16.h \
+	   ./includes/backend/data/journaline/log.h \
+	   ./includes/backend/data/journaline/newssvcdec_impl.h \
+	   ./includes/backend/data/journaline/Splitter.h \
+	   ./includes/backend/data/journaline/dabdgdec_impl.h \
+	   ./includes/backend/data/journaline/newsobject.h \
+	   ./includes/backend/data/journaline/NML.h \
 	   ./includes/backend/deconvolve.h \
 	   ./includes/output/audio-base.h \
 	   ./includes/output/audiosink.h \
@@ -120,6 +131,13 @@ SOURCES += ./main.cpp \
 	   ./src/backend/data/mot-databuilder.cpp \
 	   ./src/backend/data/mot-data.cpp \
 	   ./src/backend/data/journaline-datahandler.cpp \
+	   ./src/backend/data/journaline/crc_8_16.c \
+	   ./src/backend/data/journaline/log.c \
+	   ./src/backend/data/journaline/newssvcdec_impl.cpp \
+	   ./src/backend/data/journaline/Splitter.cpp \
+	   ./src/backend/data/journaline/dabdgdec_impl.c \
+	   ./src/backend/data/journaline/newsobject.cpp \
+	   ./src/backend/data/journaline/NML.cpp \
 	   ./src/output/audio-base.cpp \
 	   ./src/output/audiosink.cpp \
 	   ./src/output/fir-filters.cpp \
@@ -139,7 +157,7 @@ CONFIG		+= sdrplay
 CONFIG		+= rtl_tcp
 CONFIG		+= airspy
 #CONFIG		+= airspy-exp
-CONFIG		+= tcp-streamer		# use for remote listening
+#CONFIG		+= tcp-streamer		# use for remote listening
 #CONFIG		+= rtp-streamer		# remote using rtp (very immature)
 CONFIG		+= gui_1
 DEFINES		+= MOT_BASICS__		# use at your own risk

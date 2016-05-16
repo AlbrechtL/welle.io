@@ -24,7 +24,6 @@
 #include	"fic-handler.h"
 #include	"gui.h"
 #include	"msc-handler.h"
-#include	"fib-processor.h"
 #include	"protTables.h"
 //
 //	The 3072 bits of the serial motherword shall be split into
@@ -49,7 +48,9 @@ uint8_t PI_X [24] = {
   * 	puncturing.
   *	The data is sent through to the fic processor
   */
-		ficHandler::ficHandler (RadioInterface *mr):viterbi (768) {
+		ficHandler::ficHandler (RadioInterface *mr):
+	                                             viterbi (768),
+	                                             fibProcessor (mr) {
 int16_t	i, j;
 	bitBuffer_out	= new uint8_t [768];
 	ofdm_input 	= new int16_t [2304];
@@ -61,7 +62,6 @@ int16_t	i, j;
 	ficRatio	= 0;
 	PI_15		= get_PCodes (15 - 1);
 	PI_16		= get_PCodes (16 - 1);
-	fibProcessor	= new fib_processor	(mr);
 	memset (shiftRegister, 1, 9);
 
 	for (i = 0; i < 768; i ++) {
@@ -79,7 +79,6 @@ int16_t	i, j;
 		ficHandler::~ficHandler (void) {
 	        delete	bitBuffer_out;
 	        delete	ofdm_input;
-	        delete	fibProcessor;
 }
 
 	
@@ -227,25 +226,25 @@ int16_t	viterbiBlock [3072 + 24];
 	      continue;
 	   }
 	   show_ficCRC (true);
-	   fibProcessor	-> process_FIB (p, ficno);
+	   fibProcessor. process_FIB (p, ficno);
 	}
-//	fibProcessor	-> printActions (ficno);
+//	fibProcessor. printActions (ficno);
 }
 
 void	ficHandler::clearEnsemble (void) {
-	fibProcessor	-> clearEnsemble ();
+	fibProcessor. clearEnsemble ();
 }
 
 uint8_t	ficHandler::kindofService	(QString &s) {
-	return fibProcessor	-> kindofService (s);
+	return fibProcessor. kindofService (s);
 }
 
 void	ficHandler::dataforAudioService	(QString &s, audiodata *d) {
-	fibProcessor	-> dataforAudioService (s, d);
+	fibProcessor. dataforAudioService (s, d);
 }
 
 void	ficHandler::dataforDataService	(QString &s, packetdata *d) {
-	fibProcessor	-> dataforDataService (s, d);
+	fibProcessor. dataforDataService (s, d);
 }
 
 int16_t	ficHandler::get_ficRatio (void) {

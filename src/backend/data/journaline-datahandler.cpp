@@ -21,80 +21,37 @@
  *
  */
 #include	"journaline-datahandler.h"
+#include	"dabdatagroupdecoder.h"
+
+
+static
+void my_callBack (
+    const DAB_DATAGROUP_DECODER_msc_datagroup_header_t *header,
+    const unsigned long len,
+    const unsigned char *buf,
+    void *arg) {
+}
 
 	journaline_dataHandler::journaline_dataHandler (void) {
+	theDecoder	= DAB_DATAGROUP_DECODER_createDec (my_callBack, this);
 }
 
 	journaline_dataHandler::~journaline_dataHandler (void) {
+	DAB_DATAGROUP_DECODER_deleteDec (theDecoder);
 }
 
 void	journaline_dataHandler::add_mscDatagroup (QByteArray &msc) {
-uint8_t *data		= (uint8_t *)(msc. data ());
-bool	extensionFlag	= getBits_1 (data, 0) != 0;
-bool	crcFlag		= getBits_1 (data, 1) != 0;
-bool	segmentFlag	= getBits_1 (data, 2) != 0;
-bool	userAccessFlag	= getBits_1 (data, 3) != 0;
-uint8_t	groupType	= getBits_4 (data, 4);
-uint8_t	CI		= getBits_4 (data, 8);
-int16_t	next		= 16;		// bits
-bool	lastSegment	= false;
-uint16_t segmentNumber	= 0;
-bool transportIdFlag	= false;
-uint16_t transportId	= 0;
-uint8_t	lengthInd;
+int16_t	len	= msc. length ();
+uint8_t	*data	= (uint8_t *)(msc. data ());
+uint8_t buffer [len / 8];
 int16_t	i;
+int32_t	res;
+	for (i = 0; i < len / 8; i ++)
+	   buffer [i] = getBits (data, 8 * i, 8);
 
-	(void)CI;
-	if (msc. size () == 0)
+	res = DAB_DATAGROUP_DECODER_putData (theDecoder, len / 8, buffer);
+	if (res < 0)
 	   return;
-
-	if (crcFlag && !check_CRC_bits (data, msc.size ())) 
-	   return;
-
-	if (extensionFlag)
-	   next += 16;
-
-	if (segmentFlag) {
-	   lastSegment	= getBits_1 (data, next) != 0;
-	   segmentNumber = getBits (data, next + 1, 15);
-	   next += 16;
-	}
-
-	if (userAccessFlag) {
-	   transportIdFlag	= getBits_1 (data, next + 3);
-	   lengthInd		= getBits_4 (data, next + 4);
-	   next	+= 8;
-	   if (transportIdFlag) {
-	      transportId = getBits (data, next, 16);
-	   }
-	   next	+= lengthInd * 8;
-	}
-
-	uint16_t	ipLength	= 0;
-	int16_t		sizeinBits	=
-	              msc. size () - next - (crcFlag != 0 ? 16 : 0);
-
-	if (transportIdFlag) {
-	   QByteArray journalineVector;
-	   journalineVector. resize (sizeinBits / 8);
-	   for (i = 0; i < sizeinBits / 8; i ++)
-	      journalineVector [i] = getBits_8 (data, next + 8 * i);
-
-	   processJournaline (journalineVector,
-	                      groupType,
-	                      lastSegment,
-	                      segmentNumber,
-	                      transportId);
-	}
 }
 
-//
-//	Journaline is handled in a separate class, here
-//	we merely collect the data
-void	journaline_dataHandler::processJournaline (QByteArray	&d,
-	                                           uint8_t	groupType,
-	                                           bool		lastSegment,
-	                                           int16_t	segmentNumber,
-	                                           uint16_t	transportId)  {
-}
 

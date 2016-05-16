@@ -33,11 +33,10 @@
 #include	"viterbi.h"
 #include	"viterbi-2.h"
 #include	<QObject>
-
+#include	"fib-processor.h"
 
 class	RadioInterface;
 class	mscHandler;
-class	fib_processor;
 
 class ficHandler: public QObject, public viterbi {
 Q_OBJECT
@@ -65,7 +64,7 @@ private:
 	int16_t		ficMissed;
 	int16_t		ficRatio;
 	uint16_t	convState;
-	fib_processor	*fibProcessor;
+	fib_processor	fibProcessor;
 	uint8_t		PRBS [768];
 	uint8_t		shiftRegister [9];
 signals:
