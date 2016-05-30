@@ -244,12 +244,15 @@ int16_t	address		= getBits   (data, 6, 10);
 uint16_t command	= getBits_1 (data, 16);
 int16_t	usefulLength	= getBits_7 (data, 17);
 int16_t	i;
-
+	if (usefulLength > 0)
+	fprintf (stderr, "CI = %d, address = %d, usefulLength = %d\n",
+	                 continuityIndex, address, usefulLength);
 	if (show_crcErrors && (++handledPackets >= 500)) {
 	   show_mscErrors (100 - crcErrors / 5);
 	   crcErrors	= 0;
 	   handledPackets = 0;
 	}
+
 	(void)continuityIndex;
 	(void)command;
 	if (!check_CRC_bits (data, packetLength * 8)) {
@@ -265,7 +268,7 @@ int16_t	i;
 	   streamAddress = address;
 	if (streamAddress != address)	// sorry
 	   return;
-
+	
 //	assemble the full MSC datagroup
 	if (packetState == 0) {	// waiting for a start
 	   if (firstLast == 02) {	// first packet

@@ -30,7 +30,6 @@
 #include	"fic-handler.h"
 #include	"msc-handler.h"
 #include	"freq-interleaver.h"
-#define	SYNCLENGTH	10
 /**
   *	\brief ofdmDecoder
   *	The class ofdmDecoder is - when implemented in a separate thread -

@@ -33,13 +33,13 @@
 #include	<stdint.h>
 #include	"audio-base.h"
 #include	"dab-processor.h"
+#include	"faad-decoder.h"
 #include	"firecode-checker.h"
 #include	"reed-solomon.h"
 #include	<QObject>
 #include	"pad-handler.h"
 
 class	RadioInterface;
-class	faadDecoder;
 
 class	mp4Processor : public QObject, public dabProcessor {
 Q_OBJECT
@@ -71,7 +71,7 @@ private:
 	reedSolomon	the_rsDecoder;
 	uint8_t		*outVector;
 //	and for the aac decoder
-	faadDecoder	*aacDecoder;
+	faadDecoder	aacDecoder;
 	int16_t		frameCount;
 	int16_t		frameErrors;
 	int16_t		charSet;

@@ -90,6 +90,7 @@ int32_t i, j;
 	else		// cannot happen
 	   our_dabProcessor = new dabProcessor ();
 
+	fprintf (stderr, "we have now %s\n", dabModus == DAB_PLUS ? "DAB+" : "DAB");
 	Buffer		= new RingBuffer<int16_t>(64 * 32768);
 	running		= true;
 	start ();

@@ -166,6 +166,7 @@ DESTDIR		= ./linux-bin
 INCLUDEPATH	+= /usr/local/include
 LIBS		+= -lfftw3f  -lusb-1.0 -ldl  #
 LIBS		+= -lportaudio
+LIBS		+= -lz
 LIBS		+= -lsndfile
 LIBS		+= -lfaad
 }

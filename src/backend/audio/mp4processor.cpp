@@ -32,7 +32,6 @@
 #include	"gui.h"
 //
 #include	"charsets.h"
-#include	"faad-decoder.h"
 #include	"pad-handler.h"
 #include	"rs1.h"
 /**
@@ -70,7 +69,8 @@ uint16_t	genpoly		= 0x1021;
 	                            int16_t	bitRate,
 	                            RingBuffer<int16_t> *b)
 	                            :my_padhandler (mr),
-	                             the_rsDecoder (8, 0435, 0, 1, 10) {
+	                             the_rsDecoder (8, 0435, 0, 1, 10),
+	                             aacDecoder (mr, b) {
 
 	myRadioInterface	= mr;
 	connect (this, SIGNAL (show_successRate (int)),
@@ -85,8 +85,6 @@ uint16_t	genpoly		= 0x1021;
 	outVector		= new uint8_t [RSDims * 110];
 	blockFillIndex	= 0;
 	blocksInBuffer	= 0;
-//
-	aacDecoder		= new faadDecoder (mr, b);
 	frameCount	= 0;
 	frameErrors	= 0;
 //
@@ -96,7 +94,6 @@ uint16_t	genpoly		= 0x1021;
 }
 
 	mp4Processor::~mp4Processor (void) {
-	delete		aacDecoder;
 	delete[]	frameBytes;
 	delete[]	outVector;
 }
@@ -294,12 +291,12 @@ int32_t		tmp;
 	      for (j = aac_frame_length;
 	           j < aac_frame_length + 10; j ++)
 	         theAU [j] = 0;
-	      tmp = aacDecoder -> MP42PCM (dacRate,
-	                                   sbrFlag,
-	                                   mpegSurround,
-	                                   aacChannelMode,
-	                                   theAU,
-	                                   aac_frame_length);
+	      tmp = aacDecoder. MP42PCM (dacRate,
+	                                 sbrFlag,
+	                                 mpegSurround,
+	                                 aacChannelMode,
+	                                 theAU,
+	                                 aac_frame_length);
 	      if (tmp == 0)
 	         frameErrors ++;
 	      else

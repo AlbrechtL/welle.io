@@ -24,8 +24,8 @@
 #define	JOURNALINE_DATAHANDLER
 #include	"dab-constants.h"
 #include	"virtual-datahandler.h"
-#include	<QByteArray>
 #include	"dabdatagroupdecoder.h"
+#include	<QByteArray>
 
 
 class	journaline_dataHandler:public virtual_dataHandler {

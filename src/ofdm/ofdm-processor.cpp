@@ -285,7 +285,7 @@ notSynced:
 	      syncBufferIndex = (syncBufferIndex + 1) & syncBufferMask;
 	   }
 /**
-  *	We now have initial values for currentStrength (i.e. the average
+  *	We now have initial values for currentStrength (i.e. the sum
   *	over the last 50 samples) and sLevel, the long term average.
   */
 SyncOnNull:

@@ -78,7 +78,6 @@ int16_t	i;
 
 	int16_t		sizeinBits	=
 	              msc. size () - next - (crcFlag != 0 ? 16 : 0);
-
 	if (transportIdFlag) {
 	   QByteArray motVector;
 	   motVector. resize (sizeinBits / 8);
