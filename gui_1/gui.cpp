@@ -180,12 +180,10 @@ void	RadioInterface::dumpControlState (QSettings *s) {
 	if (s == NULL)	// cannot happen
 	   return;
 
-#ifdef	GUI_1
 	s	-> setValue ("band", bandSelector -> currentText ());
 	s	-> setValue ("channel",
 	                      channelSelector -> currentText ());
 	s	-> setValue ("device", deviceSelector -> currentText ());
-#endif
 }
 //
 ///	the values for the different Modes:
@@ -434,7 +432,6 @@ const char *RadioInterface::get_programm_language_string (uint8_t language) {
 //
 //	Most GUI specific things for the initialization are here
 void	RadioInterface::init_your_gui (void) {
-#ifdef	GUI_1
 	ficBlocks		= 0;
 	ficSuccess		= 0;
 	syncedLabel		->
@@ -559,7 +556,6 @@ void	RadioInterface::init_your_gui (void) {
 	      crcErrors_2	-> show ();
 	   }
 	}
-#endif
 }
 //////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -569,16 +565,12 @@ void	RadioInterface::init_your_gui (void) {
 //
 //	a slot called by the ofdmprocessor
 void	RadioInterface::set_fineCorrectorDisplay (int v) {
-#ifdef	GUI_1
 	finecorrectorDisplay	-> display (v);
-#endif
 }
 
 //	a slot called by the ofdmprocessor
 void	RadioInterface::set_coarseCorrectorDisplay (int v) {
-#ifdef	GUI_1
 	coarsecorrectorDisplay	-> display (v);
-#endif
 }
 /**
   *	clearEnsemble
@@ -602,24 +594,20 @@ void	RadioInterface::clearEnsemble	(void) {
 //
 //	a slot, called by the fic/fib handlers
 void	RadioInterface::addtoEnsemble (const QString &s) {
-#ifdef	GUI_1
 	Services << s;
 	Services. removeDuplicates ();
 	ensemble. setStringList (Services);
 	ensembleDisplay	-> setModel (&ensemble);
-#endif
 }
 
 //
 ///	a slot, called by the fib processor
 void	RadioInterface::nameofEnsemble (int id, const QString &v) {
 QString s;
-#ifdef	GUI_1
 	(void)v;
 	ensembleId		-> display (id);
 	ensembleLabel		= v;
 	ensembleName		-> setText (v);
-#endif
 	my_ofdmProcessor	-> coarseCorrectorOff ();
 }
 
@@ -629,14 +617,11 @@ QString s;
   *	percentage of frames that could be handled
   */
 void	RadioInterface::show_successRate (int s) {
-#ifdef	GUI_1
 	errorDisplay	-> display (s);
-#endif
 }
 
 ///	... and the same for the FIC blocks
 void	RadioInterface::show_ficCRC (bool b) {
-#ifdef	GUI_1
 	if (b)
 	   ficSuccess ++;
 	if (++ficBlocks >= 100) {
@@ -644,20 +629,16 @@ void	RadioInterface::show_ficCRC (bool b) {
 	   ficSuccess	= 0;
 	   ficBlocks	= 0;
 	}
-#endif
 }
 
 ///	called from the ofdmDecoder, which computed this for each frame
 void	RadioInterface::show_snr (int s) {
-#ifdef	GUI_1
 	snrDisplay	-> display (s);
-#endif
 }
 
 ///	just switch a color, obviously GUI dependent, but called
 //	from the ofdmprocessor
 void	RadioInterface::setSynced	(char b) {
-#ifdef	GUI_1
 	if (isSynced == b)
 	   return;
 
@@ -673,23 +654,19 @@ void	RadioInterface::setSynced	(char b) {
 	               setStyleSheet ("QLabel {background-color : red}");
 	      break;
 	}
-#endif
 }
 
 //	showLabel is triggered by the message handler
 //	the GUI may decide to ignore this
 void	RadioInterface::showLabel	(QString s) {
-#ifdef	GUI_1
 	if (running)
 	   dynamicLabel	-> setText (s);
-#endif
 }
 //
 //	showMOT is triggered by the MOT handler,
 //	the GUI may decide to ignore the data sent
 //	since data is only sent whenever a data channel is selected
 void	RadioInterface::showMOT		(QByteArray data, int subtype) {
-#ifdef	GUI_1
 	if (!running)
 	   return;
 	if (pictureLabel != NULL)
@@ -702,7 +679,6 @@ void	RadioInterface::showMOT		(QByteArray data, int subtype) {
 	                       subtype == 2 ? "BMP" : "PNG");
 	pictureLabel ->  setPixmap (p);
 	pictureLabel ->  show ();
-#endif
 }
 
 //
@@ -739,28 +715,23 @@ void	RadioInterface::newAudio	(int rate) {
 //	from the message decoding software. The GUI
 //	might decide to ignore the data sent
 void	RadioInterface::show_mscErrors	(int er) {
-#ifdef	GUI_1
 	crcErrors_1	-> display (er);
 	if (crcErrors_File != 0) 
 	   fprintf (crcErrors_File, "%d %% of MSC packets passed crc test\n",
 	                                                        er);
-#endif
 }
 //
 //	a slot, called by the iphandler
 void	RadioInterface::show_ipErrors	(int er) {
-#ifdef	GUI_1
 	crcErrors_2	-> display (er);
 	if (crcErrors_File != 0) 
 	   fprintf (crcErrors_File, "%d %% of ip packets passed crc test\n",
 	                                                        er);
-#endif
 }
 //
 //	This function is only used in the Gui to clear
 //	the details of a selection
 void	RadioInterface::clear_showElements (void) {
-#ifdef	GUI_1
 	Services = QStringList ();
 	ensemble. setStringList (Services);
 	ensembleDisplay		-> setModel (&ensemble);
@@ -778,7 +749,6 @@ void	RadioInterface::clear_showElements (void) {
 	if (pictureLabel != NULL)
 	   delete pictureLabel;
 	pictureLabel = NULL;
-#endif
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -821,7 +791,6 @@ bool	r = 0;
   */
 void	RadioInterface::TerminateProcess (void) {
 	running		= false;
-#ifdef	GUI_1
 	displayTimer	-> stop ();
 	if (sourceDumping) {
 	   my_ofdmProcessor	-> stopDumping ();
@@ -835,7 +804,6 @@ void	RadioInterface::TerminateProcess (void) {
 
 	if (crcErrors_File != NULL)
 	   fclose (crcErrors_File);
-#endif
 	inputDevice		-> stopReader ();	// might be concurrent
 	my_mscHandler		-> stopHandler ();	// might be concurrent
 	my_ofdmProcessor	-> stop ();	// definitely concurrent
@@ -848,12 +816,10 @@ void	RadioInterface::TerminateProcess (void) {
 	delete		my_mscHandler;
 	delete		soundOut;
 	soundOut	= NULL;		// signals may be pending, so careful
-#ifdef	GUI_1
 	delete		displayTimer;
 	if (pictureLabel != NULL)
 	   delete pictureLabel;
 	pictureLabel = NULL;		// signals may be pending, so careful
-#endif
 	fprintf (stderr, "Termination started\n");
 	delete		inputDevice;
 	close ();
@@ -905,7 +871,6 @@ int32_t	tunedFrequency;
 	}
 }
 
-#ifdef	GUI_1
 void	RadioInterface::updateTimeDisplay (void) {
 //QDateTime	currentTime = QDateTime::currentDateTime ();
 //	timeDisplay	-> setText (currentTime.
@@ -920,9 +885,7 @@ void	RadioInterface::updateTimeDisplay (void) {
 	text. append (" min");
 	timeDisplay	-> setText (text);
 }
-#endif
 
-#ifdef	GUI_1
 void	RadioInterface::autoCorrector_on (void) {
 //	first the real stuff
 	clear_showElements	();
@@ -930,9 +893,7 @@ void	RadioInterface::autoCorrector_on (void) {
 	my_ofdmProcessor	-> coarseCorrectorOn ();
 	my_ofdmProcessor	-> reset ();
 }
-#endif
 
-#ifdef	GUI_1
 //
 //	One can imagine that the mode of operation is just selected
 //	by the "ini" file, it is pretty unlikely that one changes
@@ -978,9 +939,7 @@ uint8_t	Mode	= s. toInt ();
 	                                               threshold);
 //	and wait for someone push the setStart
 }
-#endif
 //
-#ifdef	GUI_1
 //	One can imagine that the band of operation is just selected
 //	by the "ini" file, it is pretty unlikely that one changes
 //	the band during operation
@@ -1001,7 +960,6 @@ void	RadioInterface::set_bandSelect (QString s) {
 	   dabBand	= L_BAND;
 	setupChannels (channelSelector, dabBand);
 }
-#endif
 /**
   *	\brief setDevice
   *	setDevice is called trough a signal from the gui
@@ -1014,7 +972,6 @@ void	RadioInterface::set_bandSelect (QString s) {
 //	setDevice is called from the GUI. Other GUI's might have a preselected
 //	single device to go with, then if suffices to extract some
 //	code specific to that device
-#ifdef GUI_1
 void	RadioInterface::setDevice (QString s) {
 bool	success;
 QString	file;
@@ -1183,14 +1140,12 @@ QString	file;
 	                                               my_ficHandler,
 	                                               threshold);
 }
-#endif
 
 //	Selecting a service. The interface is GUI dependent,
 //	most of the actions are not
 //
 //	Note that the audiodata or the packetdata contains quite some
 //	info on the service (i.e. rate, address, etc)
-#ifdef	GUI_1
 void	RadioInterface::selectService (QModelIndex s) {
 QString a = ensemble. data (s, Qt::DisplayRole). toString ();
 
@@ -1262,10 +1217,8 @@ int	k	= deviceSelector -> findText (QString ("no device"));
 	         this, SLOT (setDevice (const QString &)));
 }
 
-#endif
 
 //	Dumping is GUI dependent and may be ignored
-#ifdef	GUI_1
 ///	switch for dumping on/off
 void	RadioInterface::set_dumping (void) {
 SF_INFO *sf_info	= (SF_INFO *)alloca (sizeof (SF_INFO));
@@ -1300,8 +1253,6 @@ SF_INFO *sf_info	= (SF_INFO *)alloca (sizeof (SF_INFO));
 	sourceDumping		= true;
 	my_ofdmProcessor -> startDumping (dumpfilePointer);
 }
-#endif
-#ifdef	GUI_1
 ///	audiodumping is similar
 void	RadioInterface::set_audioDump (void) {
 SF_INFO	*sf_info	= (SF_INFO *)alloca (sizeof (SF_INFO));
@@ -1335,4 +1286,3 @@ SF_INFO	*sf_info	= (SF_INFO *)alloca (sizeof (SF_INFO));
 	soundOut		-> startDumping (audiofilePointer);
 }
 
-#endif

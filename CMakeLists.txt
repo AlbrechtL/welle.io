@@ -48,15 +48,15 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
 #	of phasedifferences in subsequent "bin"'s that are supposed to be
 #	zero.
 #	add_definitions (-DSIMPLE_SYNCHRONIZATION)
-#	add_definitions (-DFULL_CORRELATION)
-	add_definitions (-DMOT_BASICS__) 	# use at your own risk
-	add_definitions (-DMSC_DATA__)		# use at your own risk
+	add_definitions (-DFULL_CORRELATION)
+#	add_definitions (-DMOT_BASICS__) 	# use at your own risk
+#	add_definitions (-DMSC_DATA__)		# use at your own risk
 #	The optimistic assumption is that the buffer - between the
 #	ofdmProcessor and the ofdmDecoder - is never overwritten.
 #	On the raspberry, with its 4 cores, this is indeed unlikely to
 #	happen. Uncommenting the following line adds an extra lock
 #	to prevent overwriting
-	add_definitions	(-DBETTER_LOCK)
+#	add_definitions	(-DBETTER_LOCK)
 #
 #	If you want a tcp stream of the audio rather than
 #	audio being sent to the soundcard, uncomment
@@ -94,7 +94,7 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
 	if (NOT ZLIB_FOUND)
             message(FATAL_ERROR "please install libz")
         endif ()
-	list(APPEND extraLibs ${ZLIBFILE_LIBRARY})
+	list(APPEND extraLibs ${ZLIB_LIBRARY})
 
         find_package(LibSndFile)
         if (NOT LIBSNDFILE_FOUND)
