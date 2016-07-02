@@ -27,7 +27,6 @@
 #define	SEARCH_RANGE		(2 * 36)
 #define	CORRELATION_LENGTH	24
 
-#define	syncBufferMask	(32768 - 1)
 /**
   *	\brief ofdmProcessor
   *	The ofdmProcessor class is the driver of the processing
@@ -246,9 +245,9 @@ int32_t		i, j;
 DSPCOMPLEX	FreqCorr;
 int32_t		counter;
 float		currentStrength;
-int32_t		syncBufferIndex;
-int32_t		syncBufferSize;
-float		envBuffer	[syncBufferMask + 1];
+int32_t		syncBufferIndex	= 0;
+int32_t		syncBufferSize	= 10 * T_s;
+float		envBuffer	[syncBufferSize];
 float		signalLevel;
 int		previous_1	= 1000;
 int		previous_2	= 1000;
@@ -271,18 +270,13 @@ Initing:
 ///	when really out of sync we will be here
 notSynced:
 //	read in T_s samples for a next attempt;
-	   for (i = 0; i < T_s - 50; i ++) {
-	      DSPCOMPLEX sample			= getSample (0);
-	      envBuffer [syncBufferIndex]	= jan_abs (sample);
-	      syncBufferIndex = (syncBufferIndex + 1) & syncBufferMask;
-	   }
-
+	   syncBufferIndex = 0;
 	   currentStrength	= 0;
 	   for (i = 0; i < 50; i ++) {
 	      DSPCOMPLEX sample			= getSample (0);
 	      envBuffer [syncBufferIndex]	= jan_abs (sample);
 	      currentStrength 			+= envBuffer [syncBufferIndex];
-	      syncBufferIndex = (syncBufferIndex + 1) & syncBufferMask;
+	      syncBufferIndex ++;
 	   }
 /**
   *	We now have initial values for currentStrength (i.e. the sum
@@ -299,15 +293,14 @@ SyncOnNull:
 	                      getSample (coarseCorrector + fineCorrector);
 	      envBuffer [syncBufferIndex] = jan_abs (sample);
 //	update the levels
+//	we know that syncBufferIndex > 50
 	      currentStrength += envBuffer [syncBufferIndex] -
-	                      envBuffer [(syncBufferIndex + syncBufferSize - 50) & syncBufferMask];
-	      syncBufferIndex =
-	                      (syncBufferIndex + 1) & syncBufferMask;
+	                         envBuffer [syncBufferIndex - 50];
+	      syncBufferIndex ++;
 	      counter ++;
 	      if (counter > 2 * T_s)	// hopeless
 	         goto notSynced;
 	   }
-
 /**
   *	It seemed we found the dip that started app 65/100 * 50 samples earlier.
   *	We now start looking for the end of the null period.
@@ -315,13 +308,18 @@ SyncOnNull:
 SyncOnEndNull:
 	   while (currentStrength / 50 < 0.75 * sLevel) {
 	      DSPCOMPLEX sample = getSample (coarseCorrector + fineCorrector);
-	      envBuffer [syncBufferIndex] = abs (sample);
+	      envBuffer [syncBufferIndex] = jan_abs (sample);
 //	update the levels
+//	We constrain syncBufferIndex here to
+//	a value smaller than 2 * T_s but larger than 50, to a value
+//	smaller than 2 * T_s + T_null, which by itself is
+//	smaller than the bufferSize;
 	      currentStrength += envBuffer [syncBufferIndex] -
-	                        envBuffer [(syncBufferIndex + syncBufferSize - 50) & syncBufferMask];
-	      syncBufferIndex = (syncBufferIndex + 1) & syncBufferMask;
+	                         envBuffer [syncBufferIndex - 50];
+	      syncBufferIndex ++;
 	      counter	++;
-	      if (counter > 3 * T_s)	// hopeless
+//
+	      if (syncBufferIndex > 2 * T_s + T_null) // hopeless
 	         goto notSynced;
 	   }
 /**
@@ -340,15 +338,8 @@ SyncOnPhase:
   *	as long as we can be sure that the first sample to be identified
   *	is part of the samples read.
   */
-	   for (i = 0; i <  params -> T_u; i ++) {
+	   for (i = 0; i <  params -> T_u; i ++) 
 	      ofdmBuffer [i] = getSample (coarseCorrector + fineCorrector);
-	      envBuffer [syncBufferIndex] = jan_abs (ofdmBuffer [i]);
-
-	      currentStrength += envBuffer [syncBufferIndex] -
-	                              envBuffer [(syncBufferIndex  + syncBufferSize - 50) & syncBufferMask];
-	      syncBufferIndex = (syncBufferIndex + 1) & syncBufferMask;
-	      counter ++;
-	   }
 //
 ///	and then, call upon the phase synchronizer to verify/compute
 ///	the real "first" sample
@@ -440,27 +431,15 @@ NewOffset:
 //
 /**
   *	OK,  here we are at the end of the frame
-  *	Assume everything went well and skip T_null - 50 samples
+  *	Assume everything went well and skip T_null samples
   */
 	   syncBufferIndex	= 0;
 	   currentStrength	= 0;
-	   for (i = 0; i < T_null - 50; i ++) {
-	      DSPCOMPLEX sample	= getSample (coarseCorrector + fineCorrector);
-	      envBuffer [syncBufferIndex ++] = jan_abs (sample);
-	   }
-//
+	   getSamples (ofdmBuffer, T_null, coarseCorrector + fineCorrector);
 /**
-  *	and  we read 50 samples for a new currentStrength
-  */
-	   for (i = T_null - 50; i < T_null; i ++) {
-	      DSPCOMPLEX sample	= getSample (coarseCorrector + fineCorrector);
-	      envBuffer [syncBufferIndex] = jan_abs (sample);
-	      currentStrength 	+= envBuffer [syncBufferIndex ++];
-	   }
-/**
-  *	so, we processed Tnull samples, so the first
-  *	sample to be found for the next frame should be T_g
-  *	samples away
+  *	The first sample to be found for the next frame should be T_g
+  *	samples ahead
+  *	Here we just check the fineCorrector
   */
 	   counter	= 0;
 //
@@ -530,8 +509,8 @@ int16_t	i, j, index = 100;
 //	offset is to look at the spectrum of block 0 and relate that
 //	with the spectrum as it should be, i.e. the refTable
 //	However, since there might be 
-//	a pretty large phase offset of the incoming data, compared to
-//	the reference table data, we look at the
+//	a pretty large phase offset between the incoming data and
+//	the reference table data, we correlate the
 //	phase differences between the subsequent carriers rather
 //	than the values in the segments themselves.
 //	It seems to work pretty well
@@ -557,6 +536,8 @@ int16_t	i, j, index = 100;
 	      }
 	   }
 	}
+//	to avoid a compiler warning
+	(void)oldMMax;
 //
 //	Now map the index back to the right carrier
 //	fprintf (stderr, "index = %d (%f %f)\n",

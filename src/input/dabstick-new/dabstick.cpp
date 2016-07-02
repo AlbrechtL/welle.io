@@ -326,22 +326,6 @@ uint8_t	*tempBuffer = (uint8_t *)alloca (2 * size * sizeof (uint8_t));
 	return amount / 2;
 }
 
-//	and especially for our beloved spectrum viewer we provide
-int32_t	dabStick::getSamples 	(DSPCOMPLEX  *V,
-	                         int32_t size, int32_t segmentSize) {
-int32_t	amount, i;
-uint8_t	*tempBuffer = (uint8_t *)alloca (2 * size * sizeof (uint8_t));
-//
-	amount = _I_Buffer	-> getDataFromBuffer (tempBuffer, 2 * size);
-	for (i = 0; i < amount / 2; i ++)
-	    V [i] = DSPCOMPLEX ((float (tempBuffer [2 * i] - 128)) / 128.0,
-	                        (float (tempBuffer [2 * i + 1] - 128)) / 128.0);
-
-	_I_Buffer	-> skipDataInBuffer (2 * (segmentSize - size));
-
-	return amount / 2;
-}
-
 int32_t	dabStick::Samples	(void) {
 	return _I_Buffer	-> GetRingBufferReadAvailable () / 2;
 }
