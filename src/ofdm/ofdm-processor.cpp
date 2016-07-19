@@ -536,6 +536,7 @@ int16_t	i, j, index = 100;
 	      }
 	   }
 	}
+
 //	to avoid a compiler warning
 	(void)oldMMax;
 //

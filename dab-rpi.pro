@@ -16,7 +16,7 @@ QMAKE_LFLAGS	+=  -flto
 #QMAKE_LFLAGS	+=  -pg
 CONFIG		+= NO_SSE_SUPPORT 
 #DEFINES	+= SIMPLE_SYNCHRONIZATION
-DEFINES	+= FULL_CORRELATION
+DEFINES		+= FULL_CORRELATION
 #DEFINES	+= __BETTER_LOCK
 DEPENDPATH += . \
 	      ./src \
@@ -151,15 +151,15 @@ SOURCES += ./main.cpp \
 #	and locating libraries. If you do not need a device as
 #	listed, just comment the line out.
 unix {
-#CONFIG		+= dabstick_osmo
-CONFIG		+= dabstick_new
+CONFIG		+= dabstick_osmo
+#CONFIG		+= dabstick_new
 CONFIG		+= sdrplay
 #CONFIG		+= rtl_tcp
 CONFIG		+= airspy
 #CONFIG		+= airspy-exp
 #CONFIG		+= tcp-streamer		# use for remote listening
 #CONFIG		+= rtp-streamer		# remote using rtp (very immature)
-CONFIG		+= gui_1
+CONFIG		+= gui_2
 DEFINES		+= MOT_BASICS__		# use at your own risk
 DEFINES		+= MSC_DATA__		# use at your own risk
 DESTDIR		= ./linux-bin

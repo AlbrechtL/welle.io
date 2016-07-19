@@ -124,8 +124,7 @@ private:
 	pfnrtlsdr_set_freq_correction rtlsdr_set_freq_correction;
 	pfnrtlsdr_get_device_name rtlsdr_get_device_name;
 private slots:
-	void		setExternalGain		(const QString &);
-	void		set_autogain		(const QString &);
+	void		setExternalGain		(int);
 	void		set_fCorrection		(int);
 	void		set_KhzOffset		(int);
 

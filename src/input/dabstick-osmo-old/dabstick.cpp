@@ -93,8 +93,7 @@ int16_t	deviceCount;
 int32_t	r;
 int16_t	deviceIndex;
 int16_t	i;
-QString	temp;
-int	k;
+
 	dabstickSettings	= s;
 	*success		= false;	// just the default
 	this	-> myFrame	= new QFrame (NULL);
@@ -168,35 +167,23 @@ int	k;
 	fprintf(stderr, "Supported gain values (%d): ", gainsCount);
 	gains		= new int [gainsCount];
 	gainsCount = rtlsdr_get_tuner_gains (device, gains);
-	for (i = gainsCount; i > 0; i--) {
+	for (i = gainsCount; i > 0; i--)
 		fprintf(stderr, "%.1f ", gains [i - 1] / 10.0);
-	        combo_gain -> addItem (QString::number (gains [i - 1]));
-	}
-
 	rtlsdr_set_tuner_gain_mode (device, 1);
 	rtlsdr_set_tuner_gain (device, gains [gainsCount / 2]);
 
 	_I_Buffer		= new RingBuffer<uint8_t>(1024 * 1024);
 	dabstickSettings	-> beginGroup ("dabstickSettings");
-	temp = dabstickSettings -> value ("externalGain", "10"). toString ();
-	k	= combo_gain -> findText (temp);
-	if (k != -1) {
-	   combo_gain	-> setCurrentIndex (k);
-	   rtlsdr_set_tuner_gain (device, temp. toInt ());
-	}
-
-	temp	= dabstickSettings -> value ("autogain", "autogain off"). toString ();
-	rtlsdr_set_tuner_gain_mode (device, temp == "autogain off" ? 0 : 1);
-	
+	externalGain	-> setMaximum (gainsCount);
+	externalGain -> setValue (dabstickSettings -> value ("externalGain", 10). toInt ());
 	f_correction -> setValue (dabstickSettings -> value ("f_correction", 0). toInt ());
 	KhzOffset	-> setValue (dabstickSettings -> value ("KhzOffset", 0). toInt ());
 	dabstickSettings	-> endGroup ();
 	set_fCorrection	(f_correction -> value ());
+	setExternalGain (externalGain -> value ());
 	set_KhzOffset	(KhzOffset -> value ());
-	connect (combo_gain, SIGNAL (activated (const QString &)),
-	         this, SLOT (setExternalGain (const QString &)));
-	connect (combo_autogain, SIGNAL (activated (const QString &)),
-	         this, SLOT (set_autogain (const QString &)));
+	connect (externalGain, SIGNAL (valueChanged (int)),
+	         this, SLOT (setExternalGain (int)));
 	connect (f_correction, SIGNAL (valueChanged (int)),
 	         this, SLOT (set_fCorrection  (int)));
 	connect (KhzOffset, SIGNAL (valueChanged (int)),
@@ -222,9 +209,7 @@ err:
 	dabStick::~dabStick	(void) {
 	dabstickSettings	-> beginGroup ("dabstickSettings");
 	dabstickSettings	-> setValue ("externalGain", 
-	                                      combo_gain -> currentText ());
-	dabstickSettings	-> setValue ("autogain",
-	                                      combo_autogain -> currentText ());
+	                                      externalGain -> value ());
 	dabstickSettings	-> setValue ("f_correction",
 	                                      f_correction -> value ());
 	dabstickSettings	-> setValue ("KhzOffset",
@@ -296,14 +281,16 @@ void	dabStick::stopReader		(void) {
 	workerHandle	= NULL;
 }
 //
-void	dabStick::setExternalGain	(const QString &gain) {
-	rtlsdr_set_tuner_gain (device, gain. toInt ());
-}
+void	dabStick::setExternalGain	(int gain) {
+static int	oldGain	= 0;
+	if (gain == oldGain)
+	   return;
+	if ((gain < 0) || (gain >= gainsCount))
+	   return;
 
-void	dabStick::set_autogain		(const QString &autogain) {
-	rtlsdr_set_tuner_gain_mode (device, autogain == "autogain off" ? 0 : 1);
+	oldGain	= gain;
+	rtlsdr_set_tuner_gain (device, gains [gainsCount - gain]);
 }
-
 //
 //	correction is in Hz
 void	dabStick::set_fCorrection	(int32_t ppm) {
