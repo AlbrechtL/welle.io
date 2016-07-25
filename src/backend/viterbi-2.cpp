@@ -65,9 +65,11 @@ int16_t	i, j;
 //	These tables give a mapping from (state * bit * Poly -> outputbit)
 	poly1_table	= new uint8_t [2 * NumofStates];
 	for (i = 0; i < 2; i ++)
-	   for (j = 0; j < NumofStates; j ++)
+	   for (j = 0; j < NumofStates; j ++) 
 	      poly1_table [i * NumofStates + j] = bitFor (j, Poly1, i);
 
+	for (i = 0; i < 2 * NumofStates - 1; i ++)
+	   fprintf (stderr, "%d %d\n", i, poly1_table (i);
 	poly2_table	= new uint8_t [2 * NumofStates];
 	for (i = 0; i < 2; i ++)
 	   for (j = 0; j < NumofStates; j ++)
