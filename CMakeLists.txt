@@ -342,42 +342,6 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
 	   add_definitions (-DHAVE_AIRSPY)
 	endif (AIRSPY)
 
-	if (DABSTICK_NEW)
-           find_package(LibRTLSDR)
-           if (NOT LIBRTLSDR_FOUND)
-               message(FATAL_ERROR "please install librtlsdr")
-           endif ()
-	   ###include_directories (${RTLSDR_INCLUDE_DIR})
-
-	   set (${objectName}_UIS
-	        ${${objectName}_UIS}
-	        ./src/input/dabstick-new/dabstick-widget.ui
-	   )
-
-	   set (${objectName}_MOCS
-	        ${${objectName}_MOCS}
-	        ./src/input/dabstick-new/dongleselect.h
-	        ./src/input/dabstick-new/dabstick.h
-	   )
-
-	   include_directories (
-	        ./src/input/dabstick-new/
-	   )
-
-	   set (${objectName}_HDRS
-	        ${${objectName}_HDRS}
-	        ./src/input/dabstick-new/dabstick.h 
-	        ./src/input/dabstick-new/dongleselect.h
-	   )
-
-	   set (${objectName}_SRCS
-	        ${${objectName}_SRCS}
-	        ./src/input/dabstick-new/dabstick.cpp
-	        ./src/input/dabstick-new/dongleselect.cpp
-	   )
-
-	   add_definitions (-DHAVE_DABSTICK)
-	endif()
 #
 	if (DABSTICK_OSMO)
            find_package(LibRTLSDR)

@@ -194,7 +194,6 @@ CONFIG		+= airspy
 #CONFIG		+= airspy-exp
 CONFIG		+= rtl_tcp
 CONFIG		+= dabstick_osmo
-#CONFIG		+= dabstick_new
 #CONFIG		+= sdrplay
 #CONFIG		+= tcp-streamer
 #CONFIG		+= rtp-streamer
@@ -240,18 +239,6 @@ dabstick_osmo {
 	SOURCES		+= ./src/input/dabstick-osmo/dabstick.cpp \
 	                   ./src/input/dabstick-osmo/dongleselect.cpp
 	FORMS		+= ./src/input/dabstick-osmo/dabstick-widget-osmo.ui
-}
-#
-#	dabstick
-dabstick_new {
-	DEFINES		+= HAVE_DABSTICK
-	INCLUDEPATH	+= /home/jan/rtl-sdr/include
-	INCLUDEPATH	+= ./src/input/dabstick-new
-	HEADERS		+= ./src/input/dabstick-new/dabstick.h \
-	                   ./src/input/dabstick-new/dongleselect.h
-	SOURCES		+= ./src/input/dabstick-new/dabstick.cpp \
-	                   ./src/input/dabstick-new/dongleselect.cpp
-	FORMS		+= ./src/input/dabstick-new/dabstick-widget.ui
 }
 #
 #	the SDRplay
