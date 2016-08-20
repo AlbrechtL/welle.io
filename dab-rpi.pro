@@ -16,7 +16,7 @@ QMAKE_LFLAGS	+=  -flto
 #QMAKE_LFLAGS	+=  -pg
 CONFIG		+= NO_SSE_SUPPORT 
 #DEFINES	+= SIMPLE_SYNCHRONIZATION
-#DEFINES	+= FULL_CORRELATION
+DEFINES	+= FULL_CORRELATION
 #DEFINES	+= __BETTER_LOCK
 DEPENDPATH += . \
 	      ./src \
@@ -156,7 +156,6 @@ CONFIG		+= sdrplay
 CONFIG		+= rtl_tcp
 CONFIG		+= airspy
 #CONFIG		+= tcp-streamer		# use for remote listening
-#CONFIG		+= rtp-streamer		# remote using rtp (very immature)
 CONFIG		+= gui_1
 DEFINES		+= MOT_BASICS__		# use at your own risk
 DEFINES		+= MSC_DATA__		# use at your own risk
@@ -191,12 +190,10 @@ DEFINES		+= MSC_DATA__		# use at your own risk
 CONFIG		+= NO_SSE_SUPPORT 
 CONFIG		+= extio
 CONFIG		+= airspy
-#CONFIG		+= airspy-exp
-CONFIG		+= rtl_tcp
+#CONFIG		+= rtl_tcp
 CONFIG		+= dabstick_osmo
-#CONFIG		+= sdrplay
+CONFIG		+= sdrplay
 #CONFIG		+= tcp-streamer
-#CONFIG		+= rtp-streamer
 CONFIG		+= gui_1
 }
 

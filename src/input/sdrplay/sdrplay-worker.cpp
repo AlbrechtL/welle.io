@@ -64,7 +64,7 @@ int	err;
 	        bandWidth <= 7000 * KHz (1) ? mir_sdr_BW_7_000 :
 	        bandWidth <= 8000 * KHz (1) ? mir_sdr_BW_8_000 :
 	              mir_sdr_BW_8_000;
-	        
+	fprintf (stderr, "sizeof (aa) = %d\n", sizeof (aa));
 //	Note: the "API check" has been done by the owner of this thread
 	err			= functions -> my_mir_sdr_Init (40,
 	                                            this -> deviceRate,
@@ -140,6 +140,7 @@ int	err;
 	   while (anyChange != NO_CHANGE) {
 	      if (anyChange & FREQ_CHANGE) {
 	         functions -> my_mir_sdr_SetRf (lastFrequency, 1, 0);
+	         fprintf (stderr, "the freq is %lf\n", lastFrequency);
 	         anyChange &= ~FREQ_CHANGE;
 	      }
 	      if (anyChange & GAIN_CHANGE) {
