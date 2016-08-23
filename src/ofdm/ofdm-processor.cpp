@@ -118,7 +118,8 @@ int32_t	i;
 	                                // exception to be raised
 	                        	// through the getNextSampleReady
 	msleep (100);
-	terminate ();
+	if (isRunning ())
+	   terminate ();
 	wait ();
 	delete		my_ofdmDecoder;
 	delete		ofdmBuffer;
@@ -380,10 +381,10 @@ Block_0:
 //	The width is limited to 2 * 35 Khz (i.e. positive and negative)
 	   if (f2Correction) {
 	      int correction		= processBlock_0 (ofdmBuffer);
-	      if ((correction == 0) && (previous_1 == 0) &&
-	          (previous_1 == previous_2))
-	         f2Correction = false;
-	      else
+//	      if ((correction == 0) && (previous_1 == 0) &&
+//	          (previous_1 == previous_2))
+//	         f2Correction = false;
+//	      else
 	      if (correction != 100) {
 	         coarseCorrector	+= correction * params -> carrierDiff;
 	         if (abs (coarseCorrector) > Khz (35))

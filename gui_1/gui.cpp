@@ -1002,8 +1002,11 @@ QString	file;
 //
 ///	select. For all it holds that:
 	inputDevice	-> stopReader ();
+fprintf (stderr, "input device stopped\n");
 	delete	my_ofdmProcessor;
+fprintf (stderr, "ofdmprocessor deleted\n");
 	delete	inputDevice;
+fprintf (stderr, "inputDevice deleted\n");
 	dynamicLabel	-> setText ("");
 ///	OK, everything quiet, now looking what to do
 #ifdef	HAVE_AIRSPY
