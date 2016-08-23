@@ -32,68 +32,13 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>140</y>
+      <y>80</y>
       <width>101</width>
       <height>21</height>
      </rect>
     </property>
     <property name="text">
      <string>mirics-SDRplay</string>
-    </property>
-   </widget>
-   <widget class="QSpinBox" name="f_correction">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>20</y>
-      <width>91</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="minimum">
-     <number>-100</number>
-    </property>
-    <property name="maximum">
-     <number>100</number>
-    </property>
-   </widget>
-   <widget class="QSpinBox" name="KhzOffset">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>40</y>
-      <width>91</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="maximum">
-     <number>1000000</number>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_3">
-    <property name="geometry">
-     <rect>
-      <x>100</x>
-      <y>40</y>
-      <width>41</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>KHz</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_4">
-    <property name="geometry">
-     <rect>
-      <x>100</x>
-      <y>20</y>
-      <width>51</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>ppm</string>
     </property>
    </widget>
    <widget class="QLabel" name="statusLabel">
@@ -112,8 +57,8 @@
    <widget class="QLCDNumber" name="api_version">
     <property name="geometry">
      <rect>
-      <x>0</x>
-      <y>60</y>
+      <x>10</x>
+      <y>20</y>
       <width>91</width>
       <height>21</height>
      </rect>
@@ -129,9 +74,9 @@
     <property name="geometry">
      <rect>
       <x>170</x>
-      <y>39</y>
+      <y>29</y>
       <width>20</width>
-      <height>131</height>
+      <height>141</height>
      </rect>
     </property>
     <property name="orientation">
@@ -141,7 +86,7 @@
    <widget class="QLCDNumber" name="gainDisplay">
     <property name="geometry">
      <rect>
-      <x>163</x>
+      <x>160</x>
       <y>0</y>
       <width>41</width>
       <height>23</height>
@@ -152,6 +97,19 @@
     </property>
     <property name="segmentStyle">
      <enum>QLCDNumber::Flat</enum>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="agcControl">
+    <property name="geometry">
+     <rect>
+      <x>100</x>
+      <y>140</y>
+      <width>51</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>agc</string>
     </property>
    </widget>
   </widget>

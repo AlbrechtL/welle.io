@@ -294,15 +294,11 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
 	   set ($(objectName)_HDRS
 	        ${${objectName}_HDRS}
 	        ./src/input/sdrplay/sdrplay.h
-	        ./src/input/sdrplay/sdrplay-worker.h
-	        ./src/input/sdrplay/sdrplay-loader.h
 	   )
 
 	   set (${objectName}_SRCS
 	        ${${objectName}_SRCS}
 	        ./src/input/sdrplay/sdrplay.cpp
-	        ./src/input/sdrplay/sdrplay-worker.cpp
-	        ./src/input/sdrplay/sdrplay-loader.cpp
 	   )
 
 	   add_definitions (-DHAVE_SDRPLAY)

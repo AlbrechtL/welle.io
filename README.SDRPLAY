@@ -2,8 +2,6 @@
 Note that a new installer program for the sdrplay libraries is
 on the site sdrplay.com
 
-Current version assumes library version 1.7 to be available.
-
-Note that the naming of the libraries on PC Linux and on RPI differs
-
+Current version assumes library version 1.94 to be available.
+Incompatible with older libraries.
 
