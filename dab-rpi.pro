@@ -154,7 +154,7 @@ CONFIG		+= sdrplay
 CONFIG		+= rtl_tcp
 CONFIG		+= airspy
 #CONFIG		+= tcp-streamer		# use for remote listening
-CONFIG		+= gui_1
+CONFIG		+= gui_2
 DEFINES		+= MOT_BASICS__		# use at your own risk
 DEFINES		+= MSC_DATA__		# use at your own risk
 DESTDIR		= ./linux-bin
@@ -212,6 +212,15 @@ gui_1	{
 	FORMS 		+= ./gui_1/gui_1.ui 
 	HEADERS		+= ./gui_1/gui.h
 	SOURCES		+= ./gui_1/gui.cpp
+}
+	
+gui_2	{
+	DEFINES		+= GUI_2
+	INCLUDEPATH	+= ./gui_2
+	DEPENDPATH	+= ./gui_2
+	FORMS 		+= ./gui_2/gui_2.ui 
+	HEADERS		+= ./gui_2/gui.h
+	SOURCES		+= ./gui_2/gui.cpp
 }
 	
 #	devices

@@ -30,6 +30,7 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
 
 #	select the GUI you want
 	set(GUI_1 true)
+#	set(GUI_2 true)
 
 #	if you want support for any of these devices, uncomment the line
 	set(SDRPLAY true)
@@ -274,6 +275,24 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
 	
 	   add_definitions (-DGUI_1)
 	endif (GUI_1)
+
+	if (GUI_2)
+	   include_directories ( ./gui_2)
+
+	   set (${objectName}_UIS
+	        ${${objectName}_UIS} ./gui_2/gui_2.ui)
+
+	   set (${objectName}_MOCS
+	        ${${objectName}_MOCS} ./gui_2/gui.h)
+
+	   set ($(objectName)_HDRS
+	        ${${objectName}_HDRS} ./gui_2/gui.h)
+
+	   set (${objectName}_SRCS
+	        ${${objectName}_SRCS} ./gui_2/gui.cpp)
+	
+	   add_definitions (-DGUI_2)
+	endif (GUI_2)
 
 	if (SDRPLAY)
 	   set (${objectName}_UIS
