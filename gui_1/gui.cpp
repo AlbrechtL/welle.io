@@ -70,6 +70,7 @@
   *	is embedded in actions, initiated by gui buttons
   */
 	RadioInterface::RadioInterface (QSettings	*Si,
+	                                uint8_t		freqsyncMethod,
 	                                QWidget		*parent): QMainWindow (parent) {
 int16_t	latency;
 
@@ -115,12 +116,9 @@ int16_t	latency;
 	autoStart		= dabSettings -> value ("autoStart", 0). toInt () != 0;
 //
 //	In this version, the default is sending the resulting PCM samples to the
-//	soundcard. However, defining either TCP_STREAMER or RTP_STREAMER will
+//	soundcard. However, defining TCP_STREAMER  will
 //	cause the PCM samples to be send through a different medium
-#ifdef	RTP_STREAMER
-	soundOut		= new rtpStreamer	("127.0.0.1",
-	                                                  20040, audioBuffer);
-#elif	TCP_STREAMER
+#ifdef	TCP_STREAMER
 	soundOut		= new tcpStreamer	(audioBuffer,
 	                                                 20040);
 #else			// just sound out
@@ -144,6 +142,7 @@ int16_t	latency;
   *	The ficHandler shares information with the mscHandler
   *	but the handlers do not change each others modes.
   */
+	this	-> freqsyncMethod	= freqsyncMethod;
 	my_mscHandler		= new mscHandler	(this,
 	                                                 &dabModeParameters,
 	                                                 audioBuffer,
@@ -160,7 +159,8 @@ int16_t	latency;
 	                                        this,
 	                                        my_mscHandler,
 	                                        my_ficHandler,
-	                                        threshold);
+	                                        threshold,
+	                                        freqsyncMethod);
 	init_your_gui ();		// gui specific stuff
 
 	if (autoStart)
@@ -936,7 +936,8 @@ uint8_t	Mode	= s. toInt ();
 	                                               this,
 	                                               my_mscHandler,
 	                                               my_ficHandler,
-	                                               threshold);
+	                                               threshold,
+	                                               freqsyncMethod);
 //	and wait for someone push the setStart
 }
 //
@@ -1141,7 +1142,8 @@ fprintf (stderr, "inputDevice deleted\n");
 	                                               this,
 	                                               my_mscHandler,
 	                                               my_ficHandler,
-	                                               threshold);
+	                                               threshold,
+	                                               freqsyncMethod);
 }
 
 //	Selecting a service. The interface is GUI dependent,

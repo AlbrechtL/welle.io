@@ -226,25 +226,37 @@ int16_t	viterbiBlock [3072 + 24];
 	      continue;
 	   }
 	   show_ficCRC (true);
+	   fibProtector. lock ();
 	   fibProcessor. process_FIB (p, ficno);
+	   fibProtector. unlock ();
 	}
 //	fibProcessor. printActions (ficno);
 }
 
 void	ficHandler::clearEnsemble (void) {
+	fibProtector. lock ();
 	fibProcessor. clearEnsemble ();
+	fibProtector. unlock ();
 }
 
 uint8_t	ficHandler::kindofService	(QString &s) {
-	return fibProcessor. kindofService (s);
+uint8_t	result;
+	fibProtector. lock ();
+	result	= fibProcessor. kindofService (s);
+	fibProtector. unlock ();
+	return result;
 }
 
 void	ficHandler::dataforAudioService	(QString &s, audiodata *d) {
+	fibProtector. lock ();
 	fibProcessor. dataforAudioService (s, d);
+	fibProtector. unlock ();
 }
 
 void	ficHandler::dataforDataService	(QString &s, packetdata *d) {
+	fibProtector. lock ();
 	fibProcessor. dataforDataService (s, d);
+	fibProtector. unlock ();
 }
 
 int16_t	ficHandler::get_ficRatio (void) {

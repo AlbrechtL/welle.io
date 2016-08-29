@@ -65,6 +65,7 @@ class RadioInterface: public QMainWindow,
 Q_OBJECT
 public:
 		RadioInterface		(QSettings	*,
+	                                 uint8_t	freqsyncMethod,
 	                                 QWidget *parent = NULL);
 		~RadioInterface		();
 
@@ -72,6 +73,7 @@ private:
 	QSettings	*dabSettings;
 	bool		autoStart;
 	int16_t		threshold;
+	uint8_t		freqsyncMethod;
 	int32_t		vfoFrequency;
 	void		setupChannels		(QComboBox *s, uint8_t band);
 	void		setModeParameters	(uint8_t);

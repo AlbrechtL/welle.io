@@ -35,7 +35,6 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
 	set(SDRPLAY true)
 	set(AIRSPY true)
 	set(DABSTICK_OSMO true)
-#	set(DABSTICK_NEW true)
 #	set(RTLTCP true)
 
 #	initial coarse frequency synchronization is always a mess

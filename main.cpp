@@ -1,27 +1,26 @@
 #
 /*
- *
  *    Copyright (C) 2010, 2011, 2012
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
  *    Lazy Chair Programming
  *
- *    This file is part of the JSDR.
- *    Many of the ideas as implemented in JSDR are derived from
+ *    This file is part of the SDR-J.
+ *    Many of the ideas as implemented in SDR-J are derived from
  *    other work, made available through the GNU general Public License. 
  *    All copyrights of the original authors are recognized.
  *
- *    JSDR is free software; you can redistribute it and/or modify
+ *    SDR-J is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
  *    the Free Software Foundation; either version 2 of the License, or
  *    (at your option) any later version.
  *
- *    JSDR is distributed in the hope that it will be useful,
+ *    SDR-J is distributed in the hope that it will be useful,
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
  *
  *    You should have received a copy of the GNU General Public License
- *    along with ESDR; if not, write to the Free Software
+ *    along with SDR-J; if not, write to the Free Software
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *	Main program
@@ -87,12 +86,17 @@ QSettings	*ISettings;		// ini file
 char		*defaultInit		= (char *)alloca (512 * sizeof (char));
 RadioInterface	*MyRadioInterface;
 int32_t		opt;
+uint8_t		syncMethod	= 2;
 
 	fullPathfor (DEFAULT_INI, defaultInit);
-	while ((opt = getopt (argc, argv, "LABCi:")) != -1) {
+	while ((opt = getopt (argc, argv, "LABCi:M:")) != -1) {
 	   switch (opt) {
 	      case 'i':
 	         fullPathfor (optarg, defaultInit);
+	         break;
+
+	      case 'M':
+	         syncMethod	= atoi (optarg);
 	         break;
 
 	      default:
@@ -106,7 +110,7 @@ int32_t		opt;
  *	instantiate
  */
 	QApplication a (argc, argv);
-	MyRadioInterface = new RadioInterface (ISettings);
+	MyRadioInterface = new RadioInterface (ISettings, syncMethod);
 	MyRadioInterface -> show ();
 	a. exec ();
 /*

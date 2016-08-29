@@ -190,8 +190,6 @@ void	ofdmDecoder::decodeMscblock (DSPCOMPLEX *vi, int32_t blkno) {
   */
 void	ofdmDecoder::processBlock_0 (void) {
 int16_t	i, index = 0;
-DSPCOMPLEX	*w = (DSPCOMPLEX *)alloca (64 * sizeof (DSPCOMPLEX));
-float	Min	= 1000;
 
 	memcpy (fft_buffer, command [0], T_u * sizeof (DSPCOMPLEX));
 	fft_handler	-> do_FFT ();

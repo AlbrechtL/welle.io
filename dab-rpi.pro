@@ -15,9 +15,7 @@ QMAKE_LFLAGS	+=  -flto
 #QMAKE_CXXFLAGS	+=  -pg
 #QMAKE_LFLAGS	+=  -pg
 CONFIG		+= NO_SSE_SUPPORT 
-#DEFINES	+= SIMPLE_SYNCHRONIZATION
-DEFINES	+= FULL_CORRELATION
-#DEFINES	+= __BETTER_LOCK
+DEFINES		+= __BETTER_LOCK
 DEPENDPATH += . \
 	      ./src \
 	      ./includes \
@@ -214,14 +212,6 @@ gui_1	{
 	FORMS 		+= ./gui_1/gui_1.ui 
 	HEADERS		+= ./gui_1/gui.h
 	SOURCES		+= ./gui_1/gui.cpp
-}
-	
-gui_2	{
-	DEFINES		+= GUI_2
-	INCLUDEPATH	+= ./gui_2
-	DEPENDPATH	+= ./gui_2
-	HEADERS		+= ./gui_2/gui.h
-	SOURCES		+= ./gui_2/gui.cpp
 }
 	
 #	devices

@@ -34,6 +34,7 @@
 #include	"viterbi-2.h"
 #include	<QObject>
 #include	"fib-processor.h"
+#include	<QMutex>
 
 class	RadioInterface;
 class	mscHandler;
@@ -64,6 +65,7 @@ private:
 	int16_t		ficMissed;
 	int16_t		ficRatio;
 	uint16_t	convState;
+	QMutex		fibProtector;
 	fib_processor	fibProcessor;
 	uint8_t		PRBS [768];
 	uint8_t		shiftRegister [9];

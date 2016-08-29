@@ -50,7 +50,8 @@ public:
 	                         RadioInterface *,
 	                         mscHandler *,
 	                         ficHandler *,
-	                         int16_t);
+	                         int16_t,
+	                         uint8_t);
 		~ofdmProcessor	(void);
 	void	reset			(void);
 	void	stop		(void);
@@ -80,6 +81,7 @@ protected:
 	int16_t		fineCorrector;
 	int32_t		coarseCorrector;
 
+	uint8_t		freqsyncMethod;
 	bool		f2Correction;
 	int32_t		tokenCount;
 	DSPCOMPLEX	*ofdmBuffer;
