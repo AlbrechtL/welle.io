@@ -312,8 +312,7 @@ int16_t	i;
 //	we have data for all directory entries
 void	motHandler::handleComplete (motElement *p) {
 int16_t i;
-//	if (p -> contentType != 2) {
-	if (true) {
+	if (p -> contentType != 2) {
 	   fprintf (stderr, "going to write file %s\n", (p ->  name). toLatin1 (). data ());
 	   checkDir (p -> name);
 	   FILE *x = fopen (((p -> name). toLatin1 (). data ()), "w");

@@ -36,8 +36,11 @@
 #include	"ringbuffer.h"
 #include	"fic-handler.h"
 #include	"msc-handler.h"
-
-#define	DUMPSIZE		8192
+//
+//	Note:
+//	It was found that enlarging the buffersize to e.g. 8192
+//	cannot be handled properly by the underlying system.
+#define	DUMPSIZE		4096
 class	RadioInterface;
 class	common_fft;
 class	ofdmDecoder;
@@ -65,7 +68,8 @@ protected:
 	int16_t		gain;
 	bool		dumping;
 	int16_t		dumpIndex;
-	float		dumpBuffer [DUMPSIZE];
+	int16_t		dumpScale;
+	int16_t		dumpBuffer [DUMPSIZE];
 	SNDFILE		*dumpFile;
 	virtualInput	*theRig;
 	DabParams	*params;

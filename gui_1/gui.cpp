@@ -1246,7 +1246,7 @@ SF_INFO *sf_info	= (SF_INFO *)alloca (sizeof (SF_INFO));
 	file	= QDir::toNativeSeparators (file);
 	sf_info	-> samplerate	= INPUT_RATE;
 	sf_info	-> channels	= 2;
-	sf_info	-> format	= SF_FORMAT_WAV | SF_FORMAT_PCM_24;
+	sf_info	-> format	= SF_FORMAT_WAV | SF_FORMAT_PCM_16;
 
 	dumpfilePointer	= sf_open (file. toLatin1 (). data (),
 	                                   SFM_WRITE, sf_info);

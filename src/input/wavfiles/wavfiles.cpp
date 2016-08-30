@@ -175,7 +175,7 @@ float	temp [2 * length];
 	   fprintf (stderr, "End of file, restarting\n");
 	}
 	for (i = 0; i < n; i ++)
-	   data [i] = DSPCOMPLEX (4 * temp [2 * i], 4 * temp [2 * i + 1]);
+	   data [i] = DSPCOMPLEX (temp [2 * i], temp [2 * i + 1]);
 	return	n & ~01;
 }
 
