@@ -299,7 +299,8 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
                       NAMES mirsdrapi-rsp.h
                       PATHS
                       /usr/local/include/
-           include_directories (${SDRPLAYLIB_INCLUDE_DI
+	   )
+           include_directories (${SDRPLAYLIB_INCLUDE_DIR})
 	   set (${objectName}_UIS
 	        ${${objectName}_UIS}
 	        ./src/input/sdrplay/sdrplay-widget.ui 
@@ -329,7 +330,7 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
                 ./src/input/sdrplay/sdrplay-loader.cpp
 	   )
 
-	   add_definitions (-DHAVE_SDRPLAY)
+	 add_definitions (-DHAVE_SDRPLAY)
 	endif (SDRPLAY)
  
 	if (AIRSPY)
@@ -502,5 +503,4 @@ configure_file(
 
 add_custom_target(uninstall
     COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
-
 
