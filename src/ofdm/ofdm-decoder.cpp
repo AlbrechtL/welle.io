@@ -75,9 +75,7 @@ int16_t	i;
 	command			= new DSPCOMPLEX * [params -> L];
 	for (i = 0; i < params -> L; i ++)
 	   command [i] = new DSPCOMPLEX [T_u];
-#ifdef	__BETTER_LOCK
 	bufferResources		= new QSemaphore (params -> L);
-#endif
 	amount		= 0;
 	start ();
 }
@@ -95,9 +93,7 @@ int16_t	i;
 	for (i = 0; i < params -> L; i ++)
 	   delete[] command [i];
 	delete[] command;
-#ifdef	__BETTER_LOCK
 	delete	bufferResources;
-#endif
 }
 
 void	ofdmDecoder::stop		(void) {
@@ -132,9 +128,7 @@ int16_t	currentBlock	= 0;
 	         decodeFICblock (currentBlock);
 	      else
 	         decodeMscblock (currentBlock);
-#ifdef	__BETTER_LOCK
 	      bufferResources -> release (1);
-#endif
 	      helper. lock ();
 	      currentBlock = (currentBlock + 1) % (params -> L);
 	      amount -= 1;
@@ -148,9 +142,7 @@ int16_t	currentBlock	= 0;
   *	in the buffer.
   */
 void	ofdmDecoder::processBlock_0 (DSPCOMPLEX *vi) {
-#ifdef	__BETTER_LOCK
 	bufferResources -> acquire (1);
-#endif
 	memcpy (command [0], vi, sizeof (DSPCOMPLEX) * T_u);
 	helper. lock ();
 	amount ++;
@@ -159,9 +151,7 @@ void	ofdmDecoder::processBlock_0 (DSPCOMPLEX *vi) {
 }
 
 void	ofdmDecoder::decodeFICblock (DSPCOMPLEX *vi, int32_t blkno) {
-#ifdef	__BETTER_LOCK
 	bufferResources -> acquire (1);
-#endif
 	memcpy (command [blkno], &vi [T_g], sizeof (DSPCOMPLEX) * T_u);
 	helper. lock ();
 	amount ++;
@@ -170,9 +160,7 @@ void	ofdmDecoder::decodeFICblock (DSPCOMPLEX *vi, int32_t blkno) {
 }
 
 void	ofdmDecoder::decodeMscblock (DSPCOMPLEX *vi, int32_t blkno) {
-#ifdef	__BETTER_LOCK
 	bufferResources -> acquire (1);
-#endif
 	memcpy (command [blkno], &vi [T_g], sizeof (DSPCOMPLEX) * T_u);
 	helper. lock ();
 	amount ++;

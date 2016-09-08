@@ -14,8 +14,8 @@ QMAKE_LFLAGS	+=  -flto
 #QMAKE_CFLAGS	+=  -pg
 #QMAKE_CXXFLAGS	+=  -pg
 #QMAKE_LFLAGS	+=  -pg
+#	Uncomment this when compiling on/for a machine with sse support
 CONFIG		+= NO_SSE_SUPPORT 
-DEFINES		+= __BETTER_LOCK
 DEPENDPATH += . \
 	      ./src \
 	      ./includes \

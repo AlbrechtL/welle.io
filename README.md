@@ -15,6 +15,10 @@ that can be used to map these PCI samples to a soundcard.
 The client is available as a windows program in the windows-bin-dab folder
 to be found on the website
 
+Note:
+The "latest" version is the version I am working on, it might be wise
+to use the latest "stable" version.
+
 Building:
 
 Libraries -and their development files - that are needed are
@@ -25,6 +29,7 @@ portaudio	0.19		some distros support by default an older version
 fftw3f
 faad
 sndfile
+zlib
 
 Two possibilities for building the software are there: the Qt qmake tools
 or the CMake tools.
