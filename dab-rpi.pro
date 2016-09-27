@@ -150,6 +150,7 @@ SOURCES += ./main.cpp \
 #	listed, just comment the line out.
 unix {
 CONFIG		+= dabstick_osmo
+#CONFIG		+= sdrplay-exp
 CONFIG		+= sdrplay
 CONFIG		+= rtl_tcp
 CONFIG		+= airspy
@@ -249,6 +250,15 @@ sdrplay {
 	                   ./src/input/sdrplay/sdrplay-loader.cpp \
 	                   ./src/input/sdrplay/sdrplay-worker.cpp 
 	FORMS		+= ./src/input/sdrplay/sdrplay-widget.ui
+}
+#
+#
+sdrplay-exp {
+	DEFINES		+= HAVE_SDRPLAY
+	INCLUDEPATH	+= ./src/input/sdrplay-exp
+	HEADERS		+= ./src/input/sdrplay-exp/sdrplay.h 
+	SOURCES		+= ./src/input/sdrplay-exp/sdrplay.cpp 
+	FORMS		+= ./src/input/sdrplay-exp/sdrplay-widget.ui
 }
 #
 #

@@ -38,10 +38,13 @@
 #define	FREQ_CHANGE	0001
 #define	GAIN_CHANGE	0002
 #define	RATE_CHANGE	0004
+#define	AGC_CHANGE	0010
 
 	sdrplayWorker::sdrplayWorker (int32_t	deviceRate,
 	                              int32_t	bandWidth,
 	                              int32_t	defaultFreq,
+	                              int32_t	currentGain,
+	                              int32_t	agcMode,
 	                              sdrplayLoader	*f,
 	                              RingBuffer<int16_t> *buf,
 	                              bool	*OK) {
@@ -50,6 +53,8 @@ int	err;
 	this	-> deviceRate	= float(deviceRate) / MHz (1);
 	this	-> bandWidth	= bandWidth / MHz (1);
 	this	-> defaultFreq	= float(defaultFreq) / MHz (1);
+	this	-> currentGain	= currentGain;
+	this	-> agcMode	= agcMode;
 	this	-> functions	= f;
 	_I_Buffer		= buf;
 	*OK			= false;	// just the default
@@ -66,7 +71,7 @@ int	err;
 	              mir_sdr_BW_8_000;
 	        
 //	Note: the "API check" has been done by the owner of this thread
-	err			= functions -> my_mir_sdr_Init (40,
+	err			= functions -> my_mir_sdr_Init (currentGain,
 	                                            this -> deviceRate,
 	                                            this -> defaultFreq,
 	                                            aa,
@@ -77,12 +82,13 @@ int	err;
 	   return;
 	}
 
+	err			= functions -> my_mir_sdr_AgcControl (agcMode,
+	                                                 30, 0, 0, 0, 1, 0);
 	err			= functions -> my_mir_sdr_SetDcMode (4, 1);
 	err			= functions -> my_mir_sdr_SetDcTrackTime (63);
 //
 //	some defaults:
 	lastFrequency		= defaultFreq;	// the parameter!!!!
-	lastGain		= 25;		// dummy
 	runnable		= true;
 	anyChange		= 0;
 	start ();
@@ -140,8 +146,14 @@ int	err;
 	         anyChange &= ~FREQ_CHANGE;
 	      }
 	      if (anyChange & GAIN_CHANGE) {
-	         functions -> my_mir_sdr_SetGr (lastGain, 1, 0);
+	         functions -> my_mir_sdr_SetGr (currentGain, 1, 0);
 	         anyChange &= ~GAIN_CHANGE;
+	      }
+	      if (anyChange & AGC_CHANGE) {
+	         functions -> my_mir_sdr_AgcControl (agcMode, 30, 0, 0, 0, 1, 0);
+	         if (agcMode == 0)
+	            functions -> my_mir_sdr_SetGr (currentGain, 1, 0);
+	         anyChange &= ~AGC_CHANGE;
 	      }
 	      if (anyChange & RATE_CHANGE) {
 	        int r =  functions -> my_mir_sdr_SetFs (deltaRate, 1, 1, 0);
@@ -162,7 +174,7 @@ void	sdrplayWorker::setVFOFrequency	(int32_t f) {
 void	sdrplayWorker::setExternalGain	(int16_t gain) {
 	if (gain < 0 || gain > 102)	// should not happen
 	   return;
-	lastGain	= gain;
+	currentGain	= gain;
 	anyChange 	|= GAIN_CHANGE;
 }
 //
@@ -171,5 +183,10 @@ void	sdrplayWorker::setExternalGain	(int16_t gain) {
 void	sdrplayWorker::setExternalRate	(int32_t newRate) {
 	deltaRate	= double (newRate);
 	anyChange	|= RATE_CHANGE;
+}
+
+void	sdrplayWorker::set_agcControl (int32_t agcMode) {
+	this	-> agcMode	= agcMode;
+	anyChange		|= AGC_CHANGE;
 }
 

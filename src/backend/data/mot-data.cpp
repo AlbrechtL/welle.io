@@ -336,7 +336,7 @@ int16_t i;
 }
 
 void	motHandler::checkDir (QString &s) {
-int16_t	ind	= s. indexOf (QChar ('/'));
+int16_t	ind	= s. lastIndexOf (QChar ('/'));
 int16_t	i;
 QString	dir;
 	if (ind == -1)		// no slash, no directory
@@ -347,7 +347,7 @@ QString	dir;
 
 	if (QDir (dir). exists ())
 	   return;
-	QDir (). mkdir (dir);
+	QDir (). mkpath (dir);
 }
 
 	

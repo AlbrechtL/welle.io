@@ -58,6 +58,8 @@ typedef mir_sdr_ErrT (*pfn_mir_sdr_SetSyncUpdateSampleNum)(unsigned int sampleNu
 typedef mir_sdr_ErrT (*pfn_mir_sdr_SetSyncUpdatePeriod)(unsigned int period);
 typedef mir_sdr_ErrT (*pfn_mir_sdr_ApiVersion)(float *version);   
 typedef mir_sdr_ErrT (*pfn_mir_sdr_ResetUpdateFlags)(int resetGainUpdate, int resetRfUpdate, int resetFsUpdate);   
+typedef mir_sdr_ErrT (*pfn_mir_sdr_AgcControl)(uint32_t, int, int, uint32_t,
+	                                       uint32_t, int, int);
 
 class	sdrplayLoader {
 public:
@@ -79,6 +81,7 @@ public:
 	pfn_mir_sdr_ApiVersion	my_mir_sdr_ApiVersion;
 	pfn_mir_sdr_ResetUpdateFlags
 	                        my_mir_sdr_ResetUpdateFlags;
+	pfn_mir_sdr_AgcControl	my_mir_sdr_AgcControl;
 private:
 	HINSTANCE	Handle;
 	bool		libraryLoaded;

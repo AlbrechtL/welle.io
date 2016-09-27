@@ -57,8 +57,8 @@
    <widget class="QLCDNumber" name="api_version">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>20</y>
+      <x>20</x>
+      <y>40</y>
       <width>91</width>
       <height>21</height>
      </rect>
@@ -110,6 +110,22 @@
     </property>
     <property name="text">
      <string>agc</string>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="ppmControl">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>15</y>
+      <width>81</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="minimum">
+     <number>-200</number>
+    </property>
+    <property name="maximum">
+     <number>200</number>
     </property>
    </widget>
   </widget>

@@ -79,6 +79,9 @@ typedef mir_sdr_ErrT (*pfn_mir_sdr_ResetUpdateFlags)(int resetGainUpdate, int re
 typedef mir_sdr_ErrT (*pfn_mir_sdr_AgcControl)(uint32_t, int, int, uint32_t,
 	                                       uint32_t, int, int);
 typedef mir_sdr_ErrT (*pfn_mir_sdr_DCoffsetIQimbalanceControl) (uint32_t, uint32_t);
+typedef mir_sdr_ErrT (*pfn_mir_sdr_SetPpm)(double);   
+typedef mir_sdr_ErrT (*pfn_mir_sdr_DebugEnable)(uint32_t);   
+
 
 
 ///////////////////////////////////////////////////////////////////////////
@@ -121,6 +124,8 @@ private:
 	pfn_mir_sdr_AgcControl	my_mir_sdr_AgcControl;
 	pfn_mir_sdr_DCoffsetIQimbalanceControl
 	                        my_mir_sdr_DCoffsetIQimbalanceControl;
+	pfn_mir_sdr_SetPpm	my_mir_sdr_SetPpm;
+	pfn_mir_sdr_DebugEnable	my_mir_sdr_DebugEnable;
 	bool		loadFunctions	(void);
 	QSettings	*sdrplaySettings;
 	QFrame		*myFrame;
@@ -134,6 +139,7 @@ private:
 private slots:
 	void		setExternalGain	(int);
 	void		agcControl_toggled	(int);
+	void		set_ppmControl		(int);
 };
 #endif
 

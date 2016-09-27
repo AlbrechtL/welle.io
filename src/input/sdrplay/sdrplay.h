@@ -67,8 +67,10 @@ private:
 	int32_t		bandWidth;
 	int32_t		vfoFrequency;
 	int16_t		currentGain;
+	int32_t		agcMode;
 private slots:
 	void		setExternalGain	(int);
+	void		set_agcControl	(int);
 };
 #endif
 

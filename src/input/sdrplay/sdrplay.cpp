@@ -80,6 +80,8 @@ float	ver;
 	setExternalGain	(gainSlider	-> value ());
 	connect (gainSlider, SIGNAL (valueChanged (int)),
 	         this, SLOT (setExternalGain (int)));
+	connect (agcControl, SIGNAL (stateChanged (int)),
+	         this, SLOT (set_agcControl (int)));
 	*success	= true;
 }
 
@@ -193,12 +195,12 @@ bool	success;
 	theWorker = new sdrplayWorker (inputRate,
 	                               bandWidth,
 	                               vfoFrequency,
+	                               currentGain,
+	                               agcMode,
 	                               theLoader,
 	                               _I_Buffer,
 	                               &success);
 	_I_Buffer	-> FlushRingBuffer ();
-	if (success)
-	   theWorker -> setExternalGain (currentGain);
 	return success;
 }
 
@@ -240,5 +242,12 @@ void	sdrplay::resetBuffer	(void) {
 
 int16_t	sdrplay::bitDepth	(void) {
 	return 14;
+}
+
+void	sdrplay::set_agcControl	(int acgMode) {
+	this	-> agcMode	= agcControl -> isChecked ();
+	if (theWorker == NULL)
+	   return;
+	theWorker	-> set_agcControl (this -> agcMode);
 }
 

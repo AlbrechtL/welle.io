@@ -42,6 +42,8 @@ public:
 			sdrplayWorker	(int32_t,
 	                                 int32_t,
 	                                 int32_t,
+	                                 int32_t,	
+	                                 int32_t,
 	                                 sdrplayLoader *,
 	                                 RingBuffer<int16_t> *,
 	                                 bool *);
@@ -50,6 +52,7 @@ public:
 	void		setExternalGain	(int16_t);
 	void		stop		(void);
 	void		setExternalRate	(int32_t);
+	void		set_agcControl	(int32_t);
 private:
 	void			run	(void);
 	sdrplayLoader		*functions;	// 
@@ -59,7 +62,8 @@ private:
 	double			deltaRate;
 	int32_t			bandWidth;
 	double			lastFrequency;
-	int16_t			lastGain;
+	int32_t			currentGain;
+	int32_t			agcMode;
 	bool			runnable;
 	int32_t			sps;
 	int32_t			anyChange;

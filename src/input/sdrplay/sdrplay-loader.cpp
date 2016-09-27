@@ -146,6 +146,14 @@ ULONG APIkeyValue_length = 255;
 	   fprintf (stderr, "Could not find mir_sdr_Uninit\n");
 	   return;
 	}
+
+	my_mir_sdr_AgcControl	= (pfn_mir_sdr_AgcControl)
+	                GETPROCADDRESS (Handle, "mir_sdr_AgcControl");
+	if (my_mir_sdr_AgcControl == NULL) {
+	   fprintf (stderr, "Could not find mir_sdr_AgcControl\n");
+	   return;
+	}
+
 //	my_mir_sdr_ResetUpdateFlags	= (pfn_mir_sdr_ResetUpdateFlags)
 //	                GETPROCADDRESS (Handle, "mir_sdr_ResetUpdateFlags");
 //	if (my_mir_sdr_ResetUpdateFlags == NULL) {
