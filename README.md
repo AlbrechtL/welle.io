@@ -54,8 +54,9 @@ uncommenting CONFIG+=TCP_STREAMER
 will do here.
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-Note that the CMakeLists.txt file assumes Qt5, the sdr-j-pro works
-fine with both Qt4 and Qt5
+Note that the CMakeLists.txt file assumes Qt5, the sdr-j-dab.pro  file
+(i.e. the qmake/make route) works fine with both Qt4 and Qt5 but
+the names and locations of the libraries.
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 Note on NOT handling
@@ -80,4 +81,10 @@ A local "listener" program is available to catch the data and transfer it
 to the soundcard. 
 
 ##########################################################################
+
+Using the Windows executable is - obviously - only possible when the
+required dll's are available. These dll's are not included here.
+
+The executable is meant to replace the executable(s) in the distribution
+(to me found in the website of the project).
 

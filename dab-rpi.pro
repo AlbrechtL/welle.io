@@ -236,6 +236,7 @@ dabstick_osmo {
 	SOURCES		+= ./src/input/dabstick-osmo/dabstick.cpp \
 	                   ./src/input/dabstick-osmo/dongleselect.cpp
 	FORMS		+= ./src/input/dabstick-osmo/dabstick-widget-osmo.ui
+	LIBS		+= -lrtlsdr
 }
 #
 #	the SDRplay
