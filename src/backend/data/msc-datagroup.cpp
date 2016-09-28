@@ -290,14 +290,14 @@ int16_t	i;
 	else
 	if (packetState == 01) {	// within a series
 	   if (firstLast == 0) {	// intermediate packet
-	      int16_t currentLength = series. size ();
+	      int32_t currentLength = series. size ();
 	      series. resize (currentLength + 8 * usefulLength);
 	      for (i = 0; i < 8 * usefulLength; i ++)
 	         series [currentLength + i] = data [24 + i];
 	   }
 	   else
 	   if (firstLast == 01) {	// last packet
-	      int16_t currentLength = series. size ();
+	      int32_t currentLength = series. size ();
 	      series. resize (currentLength + 8 * usefulLength);
 	      for (i = 0; i < 8 * usefulLength; i ++)
 	         series [currentLength + i] = data [24 + i];
