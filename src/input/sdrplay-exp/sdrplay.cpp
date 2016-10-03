@@ -303,7 +303,7 @@ void	sdrplay::stopReader	(void) {
 	if (!running)
 	   return;
 
-	my_mir_sdr_Uninit	();
+	my_mir_sdr_StreamUninit	();
 	running		= false;
 }
 
@@ -342,11 +342,11 @@ bool	sdrplay::loadFunctions	(void) {
 	   return false;
 	}
 
-	my_mir_sdr_Uninit	= (pfn_mir_sdr_Uninit)
+	my_mir_sdr_StreamUninit	= (pfn_mir_sdr_StreamUninit)
 	                    GETPROCADDRESS (this -> Handle,
-	                                    "mir_sdr_Uninit");
-	if (my_mir_sdr_Uninit == NULL) {
-	   fprintf (stderr, "Could not find mir_sdr_Uninit\n");
+	                                    "mir_sdr_StreamUninit");
+	if (my_mir_sdr_StreamUninit == NULL) {
+	   fprintf (stderr, "Could not find mir_sdr_StreamUninit\n");
 	   return false;
 	}
 
@@ -460,7 +460,7 @@ bool	sdrplay::loadFunctions	(void) {
 
 void	sdrplay::agcControl_toggled (int agcMode) {
 	this	-> agcMode	= agcControl -> isChecked ();
-	my_mir_sdr_AgcControl (this -> agcMode, 30, 0, 0, 0, 1, 0);
+	my_mir_sdr_AgcControl (this -> agcMode, -currentGain, 0, 0, 0, 1, 0);
 	if (agcMode == 0)
 	   my_mir_sdr_SetGr (gainSlider -> value (), 1, 0);
 }
