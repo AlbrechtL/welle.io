@@ -1,6 +1,5 @@
 #
 /*
- *
  *    Copyright (C) 2013
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
  *    Lazy Chair Programming
@@ -45,7 +44,7 @@ typedef enum {
  * @param charset   character set used in buffer
  * @return converted QString
  */
-QString toQStringUsingCharset(const char* buffer, CharacterSet charset);
+QString toQStringUsingCharset(const char* buffer, CharacterSet charset, int size = -1);
 
 #endif // CHARSETS_H
 

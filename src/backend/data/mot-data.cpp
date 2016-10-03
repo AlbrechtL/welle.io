@@ -337,9 +337,9 @@ int16_t i;
 	   (void)fwrite ((p -> body). data (), 1, p -> bodySize, x);
 	   fclose (x);
 	}
-	   if (p -> contentType != 2)
+
+	if (p -> contentType != 2)
 	      return;
-	}
 
 	if (old_slide != NULL)
 	   for (i = 0; i < p ->  numofSegments; i ++)
