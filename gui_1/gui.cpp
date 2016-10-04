@@ -922,7 +922,6 @@ uint8_t	Mode	= s. toInt ();
 //
 //	we have to create a new ofdmprocessor with the correct
 //	settings of the parameters.
-	delete 	my_ofdmProcessor;
 	delete	my_mscHandler;
 	setModeParameters (Mode);
 	my_ficHandler		-> setBitsperBlock	(2 * dabModeParameters. K);
