@@ -313,9 +313,9 @@ void	RadioInterface::setupChannels (QComboBox *s, uint8_t band) {
 struct dabFrequencies *t;
 int16_t	i;
 int16_t	c	= s -> count ();
-//
+
 //	clear the fields in the conboBox
-	for (i = 0; i < c; i ++)
+	for (i = 0; i < c; i ++) 
 	   s	-> removeItem (c - (i + 1));
 
 	if (band == BAND_III)
@@ -323,7 +323,7 @@ int16_t	c	= s -> count ();
 	else
 	   t = Lband_frequencies;
 
-	for (i = 0; t [i]. key != NULL; i ++)
+	for (i = 0; t [i]. key != NULL; i ++) 
 	   s -> insertItem (i, t [i]. key, QVariant (i));
 }
 
@@ -945,6 +945,8 @@ uint8_t	Mode	= s. toInt ();
 //	the band during operation
 void	RadioInterface::set_bandSelect (QString s) {
 
+	fprintf (stderr, "selecting band %s\n", 
+	                          s. toLatin1 (). data ());
 	if (running) {
 	   running	= false;
 	   inputDevice	-> stopReader ();
@@ -954,7 +956,7 @@ void	RadioInterface::set_bandSelect (QString s) {
 	   clearEnsemble ();
 	}
 
-	if (s == "BAND III")
+	if (s == "Band III")
 	   dabBand	= BAND_III;
 	else
 	   dabBand	= L_BAND;
