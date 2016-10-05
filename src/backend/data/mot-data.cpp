@@ -327,15 +327,18 @@ int16_t i;
 //	      return;
 //	}
 
-	fprintf (stderr, "going to write file %s\n", (p ->  name). toLatin1 (). data ());
-	checkDir (p -> name);
-	FILE *x = fopen (((p -> name). toLatin1 (). data ()), "w");
-	if (x == NULL)
-	   fprintf (stderr, "cannot write file %s\n",
-	                                     (p -> name). toLatin1 (). data ());
-	else {
-	   (void)fwrite ((p -> body). data (), 1, p -> bodySize, x);
-	   fclose (x);
+	if (p -> name != QString ("")) {
+	   fprintf (stderr, "going to write file %s\n",
+	                           (p ->  name). toLatin1 (). data ());
+	   checkDir (p -> name);
+	   FILE *x = fopen (((p -> name). toLatin1 (). data ()), "w");
+	   if (x == NULL)
+	      fprintf (stderr, "cannot write file %s\n",
+	                            (p -> name). toLatin1 (). data ());
+	   else {
+	      (void)fwrite ((p -> body). data (), 1, p -> bodySize, x);
+	      fclose (x);
+	   }
 	}
 
 	if (p -> contentType != 2)
