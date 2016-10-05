@@ -59,8 +59,6 @@
 #include	"airspy-handler.h"
 #endif
 
-#define		BAND_III	0100
-#define		L_BAND		0101
 /**
   *	We use the creation function merely to set up the
   *	user interface and make the connections between the
@@ -522,8 +520,8 @@ void	RadioInterface::init_your_gui (void) {
 //	and start the timer
 	displayTimer		-> start (1000);
 }
-//////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 //	
 //	The public slots are called from other places within the dab software
 //	so please provide some implementation, perhaps an empty one
@@ -841,6 +839,10 @@ void	RadioInterface::autoCorrector_on (void) {
 	my_ficHandler		-> clearEnsemble ();
 	my_ofdmProcessor	-> coarseCorrectorOn ();
 	my_ofdmProcessor	-> reset ();
+}
+
+void	RadioInterface::setStereo (bool s) {
+	(void)s;
 }
 
 /**

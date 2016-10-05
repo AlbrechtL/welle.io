@@ -99,7 +99,7 @@ HEADERS += ./includes/dab-constants.h \
 	   ./src/input/rawfiles/rawfiles.h \
 	   ./src/input/wavfiles/wavfiles.h 
 
-FORMS += ./src/input/filereader-widget.ui 
+FORMS +=	./src/input/filereader-widget.ui 
 
 SOURCES += ./main.cpp \
 	   ./src/ofdm/ofdm-processor.cpp \
@@ -150,8 +150,8 @@ SOURCES += ./main.cpp \
 #	listed, just comment the line out.
 unix {
 CONFIG		+= dabstick_osmo
-#CONFIG		+= sdrplay-exp
-CONFIG		+= sdrplay
+CONFIG		+= sdrplay-exp
+#CONFIG		+= sdrplay
 CONFIG		+= rtl_tcp
 CONFIG		+= airspy
 #CONFIG		+= tcp-streamer		# use for remote listening
@@ -223,6 +223,23 @@ gui_2	{
 	HEADERS		+= ./gui_2/gui.h
 	SOURCES		+= ./gui_2/gui.cpp
 }
+
+gui_3	{
+        DEFINES		+= GUI_3
+	QT		+= qml quick
+#	QT		+= qml quick charts
+        INCLUDEPATH	+= ./gui_3
+        DEPENDPATH	+= ./gui_3
+        HEADERS		+= ./gui_3/gui.h \
+                           ./gui_3/stationlist.h \
+	                   ./includes/ofdm/find_ofdm_spectrum.h 
+        SOURCES		+= ./gui_3/gui.cpp \
+                           ./gui_3/stationlist.cpp \
+	                   ./src/ofdm/find_ofdm_spectrum.cpp
+
+        RESOURCES += \
+            gui_3/touch_gui_resource.qrc
+}
 	
 #	devices
 #
@@ -287,19 +304,6 @@ airspy-exp {
 	FORMS		+= ./src/input/airspy-exp/airspy-widget.ui
 }
 
-#
-# UHD library (Ettus Research USRP devices) + dependencies
-#
-uhd {
-	DEFINES		+= HAVE_UHD
-	INCLUDEPATH	+= ./src/input/uhd
-	HEADERS		+= ./src/input/uhd/uhd-input.h
-	SOURCES		+= ./src/input/uhd/uhd-input.cpp
-	FORMS		+= ./src/input/uhd/uhd-widget.ui
-	LIBS		+= -luhd
-	LIBS		+= -lboost_system
-}
-
 tcp-streamer	{
 	DEFINES		+= TCP_STREAMER
 	QT		+= network
@@ -307,30 +311,7 @@ tcp-streamer	{
 	SOURCES		+= ./src/output/tcp-streamer.cpp
 }
 
-rtp-streamer	{
-	DEFINES		+= RTP_STREAMER
-	QT		+= network
-	INCLUDEPATH	+= /usr/local/include/jrtplib3
-	HEADERS		+= ./includes/output/rtp-streamer.h
-	SOURCES		+= ./src/output/rtp-streamer.cpp
-	LIBS		+= -lsamplerate
-	LIBS		+= -ljrtp
-}
-
 #
-#	extio dependencies, windows only
-#
-extio {
-	DEFINES		+= HAVE_EXTIO
-	INCLUDEPATH	+= ./src/input/extio-handler
-	HEADERS		+= ./src/input/extio-handler/extio-handler.h \
-	                   ./src/input/extio-handler/common-readers.h \
-	                   ./src/input/extio-handler/virtual-reader.h
-	SOURCES		+= ./src/input/extio-handler/extio-handler.cpp \
-	                   ./src/input/extio-handler/common-readers.cpp \
-	                   ./src/input/extio-handler/virtual-reader.cpp
-}
-
 rtl_tcp {
 	DEFINES		+= HAVE_RTL_TCP
 	QT		+= network

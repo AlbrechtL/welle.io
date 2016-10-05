@@ -77,6 +77,8 @@ uint16_t	genpoly		= 0x1021;
 	         mr, SLOT (show_successRate (int)));
 	connect (this, SIGNAL (showLabel (QString)),
 	         mr, SLOT (showLabel (QString)));
+	connect (this, SIGNAL (isStereo (bool)),
+	         mr, SLOT (setStereo (bool)));
 	this	-> bitRate	= bitRate;	// input rate
 
 	superFramesize		= 110 * (bitRate / 8);
@@ -282,8 +284,11 @@ int32_t		tmp;
 /**
   *	see if we have a PAD
   */
+#ifndef	GUI_3
 	      if (((theAU [0] >> 5) & 07) == 4)
 	         my_padhandler. processPAD (theAU);
+#endif
+	      emit isStereo (aacChannelMode);
 /**
   *	just a few bytes extra, such that the decoder can look
   *	beyond the last byte

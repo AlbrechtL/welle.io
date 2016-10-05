@@ -21,6 +21,9 @@
  */
 #include	"ofdm-processor.h"
 #include	"ofdm-decoder.h"
+#ifdef	GUI_3
+#include	"find_ofdm_spectrum.h"
+#endif
 #include	"gui.h"
 #include	"fft.h"
 //
@@ -111,6 +114,10 @@ int32_t	i;
 	         myRadioInterface, SLOT (set_coarseCorrectorDisplay (int)));
 	connect (this, SIGNAL (setSynced (char)),
 	         myRadioInterface, SLOT (setSynced (char)));
+#ifdef	GUI_3
+	connect (this, SIGNAL (setSignalPresent (bool)),
+	         myRadioInterface, SLOT (setSignalPresent (bool)));
+#endif
 
 	gain		= 30;
 	bufferContent	= 0;
@@ -140,10 +147,6 @@ int32_t	i;
 	delete		fft_handler;
 	delete[] 	correlationVector;
 	delete[]	refArg;
-	disconnect (this, SIGNAL (show_fineCorrector (int)),
-	            myRadioInterface, SLOT (set_fineCorrectorDisplay (int)));
-	disconnect (this, SIGNAL (show_coarseCorrector (int)),
-	            myRadioInterface, SLOT (set_coarseCorrectorDisplay (int)));
 }
 
 
@@ -264,6 +267,7 @@ float		envBuffer	[syncBufferSize];
 float		signalLevel;
 int		previous_1	= 1000;
 int		previous_2	= 1000;
+DSPCOMPLEX	nullBuffer [T_null];
 
 	running		= true;
 	fineCorrector	= 0;
@@ -277,10 +281,26 @@ Initing:
 ///	first, we need samples to get a reasonable sLevel
 	   sLevel	= 0;
 	   for (i = 0; i < 10 * T_s; i ++) {
-	      sLevel		+= jan_abs (getSample (0));
+	      sLevel	+= jan_abs (getSample (0));
 	   }
 
 ///	when really out of sync we will be here
+#ifdef	GUI_3
+	find_ofdm_spectrum FindOFDMSpectrum (T_u, params -> K);
+checkSignal:
+//	put samples into the signal checker
+	getSamples (*FindOFDMSpectrum. GetBuffer (),
+	             FindOFDMSpectrum. GetBufferSize (), 0);
+	float SNR	= FindOFDMSpectrum. FindSpectrum ();
+	fprintf (stderr, "Signal SNR = %f\n", SNR);
+//	check the SNR
+	if (SNR < 5)
+	   goto checkSignal;
+
+	isReset		= false;
+	emit setSignalPresent (true);
+
+#endif
 notSynced:
 //	read in T_s samples for a next attempt;
 	   syncBufferIndex = 0;

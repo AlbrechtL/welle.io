@@ -78,6 +78,7 @@ private:
 signals:
 	void		show_successRate		(int);
 	void		showLabel			(QString);
+	void		isStereo			(bool);
 };
 
 #endif

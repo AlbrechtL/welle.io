@@ -91,6 +91,7 @@ private:
 signals:
 	void		show_successRate	(int);
 	void		newAudio		(int);
+	void		isStereo		(bool);
 };
 #endif
 

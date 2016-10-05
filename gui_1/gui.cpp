@@ -36,8 +36,6 @@
 #include	"audiosink.h"
 #ifdef	TCP_STREAMER
 #include	"tcp-streamer.h"
-#elif	RTP_STREAMER
-#include	"rtp-streamer.h"
 #endif
 #include	"fft.h"
 #include	"rawfiles.h"
@@ -60,9 +58,6 @@
 #ifdef	HAVE_AIRSPY
 #include	"airspy-handler.h"
 #endif
-
-#define		BAND_III	0100
-#define		L_BAND		0101
 /**
   *	We use the creation function merely to set up the
   *	user interface and make the connections between the
@@ -709,6 +704,10 @@ void	RadioInterface::changeinConfiguration	(void) {
 void	RadioInterface::newAudio	(int rate) {
 	if (running)
 	   soundOut	-> audioOut (rate);
+}
+
+void	RadioInterface::setStereo	(bool s) {
+	(void)s;
 }
 
 //	if so configured, the function might be triggered

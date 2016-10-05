@@ -39,7 +39,11 @@ class	audioSink  : public audioBase {
 Q_OBJECT
 public:
 	                audioSink		(int16_t,
+#ifdef	GUI_3
+	                                         QStringList *,
+#else
 	                                         QComboBox *,
+#endif
 	                                         RingBuffer<int16_t> *);
 			~audioSink		(void);
 	void		stop			(void);
@@ -57,7 +61,11 @@ private:
 
 	bool		OutputrateIsSupported	(int16_t, int32_t);
 	void		audioOutput		(float *, int32_t);
+#ifdef	GUI_3
+	bool		setupChannels		(QStringList *);
+#else
 	bool		setupChannels		(QComboBox *);
+#endif
 	int32_t		CardRate;
 	int16_t		latency;
 	int32_t		size;
@@ -72,7 +80,11 @@ private:
 	PaStreamParameters	outputParameters;
 
 	int16_t		*outTable;
+#ifdef	GUI_3
+	QStringList	*InterfaceList;
+#else
 	QComboBox	*streamSelector;
+#endif
 protected:
 static	int		paCallback_o	(const void	*input,
 	                                 void		*output,

@@ -35,10 +35,8 @@
 #include	<QComboBox>
 #include	<QLabel>
 #include	<sndfile.h>
-#ifdef	GUI_1
 #include	"ui_gui_1.h"
 #include	<QTimer>
-#endif
 #include	"ofdm-processor.h"
 #include	"ringbuffer.h"
 
@@ -98,7 +96,6 @@ const	char		*get_programm_language_string (uint8_t);
 	bool		show_crcErrors;
 	void		init_your_gui		(void);
 	void		dumpControlState	(QSettings *);
-#ifdef	GUI_1
 	FILE		*crcErrors_File;
 	bool		sourceDumping;
 	SNDFILE		*dumpfilePointer;
@@ -112,7 +109,6 @@ const	char		*get_programm_language_string (uint8_t);
 	void		resetSelector		(void);
 	int16_t		ficBlocks;
 	int16_t		ficSuccess;
-#endif
 public slots:
 	void	set_fineCorrectorDisplay	(int);
 	void	set_coarseCorrectorDisplay	(int);
@@ -131,6 +127,7 @@ public slots:
 //
 	void	show_mscErrors		(int);
 	void	show_ipErrors		(int);
+	void	setStereo		(bool);
 private slots:
 //
 //	Somehow, these must be connected to the GUI
@@ -138,7 +135,6 @@ private slots:
 	void	setStart		(void);
 	void	TerminateProcess	(void);
 	void	set_channelSelect	(QString);
-#ifdef	GUI_1
 	void	updateTimeDisplay	(void);
 
 	void	autoCorrector_on	(void);
@@ -149,7 +145,6 @@ private slots:
 	void	selectService		(QModelIndex);
 	void	set_dumping		(void);
 	void	set_audioDump		(void);
-#endif
 };
 
 #endif

@@ -127,6 +127,7 @@ public slots:
 //
 	void	show_mscErrors		(int);
 	void	show_ipErrors		(int);
+	void	setStereo		(bool);
 private slots:
 //
 //	Somehow, these must be connected to the GUI

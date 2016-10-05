@@ -107,14 +107,13 @@
 	         myRadioInterface, SLOT (addtoEnsemble (const QString &)));
 	connect (this, SIGNAL (nameofEnsemble (int, const QString &)),
 	         myRadioInterface, SLOT (nameofEnsemble (int, const QString &)));
-//	connect (this, SIGNAL (addEnsembleChar (char, int)),
-//	         myRadioInterface, SLOT (addEnsembleChar (char, int)));
-//	connect (this, SIGNAL (setTime (int, int, int, int, int, int)),
-//	         myRadioInterface,
-//	         SLOT (showTime (int, int, int, int, int, int)));
 	connect (this, SIGNAL (changeinConfiguration (void)),
 	         myRadioInterface,
 	         SLOT (changeinConfiguration (void)));
+#ifdef	GUI_3
+	connect (this, SIGNAL (newDateTime (int *)),
+	         myRadioInterface, SLOT (displayDateTime (int *)));
+#endif
 }
 	
 	fib_processor::~fib_processor (void) {
@@ -565,17 +564,16 @@ int32_t D	= d + 1;
 	dateTime [1] = M;	// Monat
 	dateTime [2] = D;	// Tag
 	dateTime [3] = getBits_5 (fig, offset + 21);	// Stunden
-	if (getBits_6 (fig, offset + 26) != dateTime [4]) {
+	if (getBits_6 (fig, offset + 26) != dateTime [4]) 
 	   dateTime [5] =  0;	// Sekunden (Uebergang abfangen)
-	}
+
 	dateTime [4] = getBits_6 (fig, offset + 26);	// Minuten
 	if (fig [offset + 20] == 1)
-	   dateTime [5]= getBits_6 (fig, offset + 32);	// Sekunden
-
-//	fprintf (stderr, "%d %d %d %d %d %d\n",
-//	                  dateTime [0], dateTime [1], dateTime [2],
-//	                  dateTime [3], dateTime [4], dateTime [5]);
+	   dateTime [5] = getBits_6 (fig, offset + 32);	// Sekunden
 	dateFlag	= true;
+#ifdef	GUI_3
+	emit newDateTime (dateTime);
+#endif
 }
 
 void	fib_processor::FIG0Extension13 (uint8_t *d) {
@@ -1106,7 +1104,7 @@ int16_t	i, j;
 	   if (listofServices [i]. serviceLabel. label != s)
 	      continue;
 
-	   fprintf (stderr, "we found for %s serviceId %d\n", s. toLatin1 (). data (), 
+	   fprintf (stderr, "we found for %s serviceId %x\n", s. toLatin1 (). data (), 
 	                      listofServices [i]. serviceId);
 	   selectedService = listofServices [i]. serviceId;
 	   for (j = 0; j < 64; j ++) {

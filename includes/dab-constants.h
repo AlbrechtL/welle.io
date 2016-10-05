@@ -132,6 +132,9 @@ float	im	= imag (z);
 }
 
 
+#define		BAND_III	0100
+#define		L_BAND		0101
+
 struct P {
 	uint8_t	dabMode;
 	int16_t	L;

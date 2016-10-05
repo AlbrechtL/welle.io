@@ -82,36 +82,71 @@ int	main (int argc, char **argv) {
 /*
  *	The default values
  */
-QSettings	*ISettings;		// ini file
 char		*defaultInit		= (char *)alloca (512 * sizeof (char));
 RadioInterface	*MyRadioInterface;
 int32_t		opt;
 uint8_t		syncMethod	= 2;
+QSettings	*ISettings =		// ini file
+	               new QSettings (defaultInit, QSettings::IniFormat);
+#ifdef	GUI_3
+//	Since we do not have the possibility in GUI_3 to select
+//	Mode, Band or Device, we create the possibility for
+//	passing appropriate parameters to the command
+//	Selections - if any - will be default for the next session
+
+uint8_t		dabMode		= ISettings -> value ("dabMode", 1). toInt ();
+QString		device		= ISettings -> value ("device", "dabstick"). toString ();
+QString		dabBand		= ISettings -> value ("band", "BAND III"). toString ();
+#endif 
 
 	fullPathfor (DEFAULT_INI, defaultInit);
-	while ((opt = getopt (argc, argv, "LABCi:M:")) != -1) {
+	while ((opt = getopt (argc, argv, "i:D:S:M:B:")) != -1) {
 	   switch (opt) {
 	      case 'i':
 	         fullPathfor (optarg, defaultInit);
 	         break;
 
-	      case 'M':
+	      case 'S':
 	         syncMethod	= atoi (optarg);
 	         break;
+#ifdef GUI_3
+	      case 'D':
+	         device = optarg;
+	         break;
 
+	      case 'M':
+	         dabMode	= atoi (optarg);
+	         if (!(dabMode == 1) || (dabMode == 2) || (dabMode == 4))
+	            dabMode = 1; 
+	         break;
+
+	      case 'B':
+	         dabBand 	= optarg;
+	         break;
+#endif
 	      default:
 	         break;
 	   }
 	}
-
-	ISettings	= new QSettings (defaultInit, QSettings::IniFormat);
+//
 /*
  *	Before we connect control to the gui, we have to
  *	instantiate
  */
 	QApplication a (argc, argv);
+//	save the values for the new defaults
+#ifdef	GUI_3
+	ISettings -> setValue ("dabMode", dabMode);
+	ISettings -> setValue ("device", device);
+	ISettings -> setValue ("band", dabBand);
+	QQmlApplicationEngine engine(QUrl("qrc:/QML/main.qml"));
+	MyRadioInterface = new RadioInterface (ISettings, &engine,
+	                                       device, dabMode, dabBand);
+#else
 	MyRadioInterface = new RadioInterface (ISettings, syncMethod);
 	MyRadioInterface -> show ();
+#endif
+
 	a. exec ();
 /*
  *	done:

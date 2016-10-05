@@ -242,6 +242,9 @@ int16_t *nPtr = &N [0][0];
 	         mr, SLOT (show_successRate (int)));
 	connect (this, SIGNAL (newAudio (int)),
 	         mr, SLOT (newAudio (int)));
+	connect (this, SIGNAL (isStereo (bool)),
+	         mr, SLOT (setStereo (bool)));
+
 	Voffs		= 0;
 	baudRate	= 48000;	// default for DAB
 	MP2framesize	= 24 * bitRate;	// may be changed
@@ -417,6 +420,7 @@ int32_t table_idx;
 	   get_bits(2);
 	   bound = (mode == MONO) ? 0 : 32;
 	}
+	emit isStereo (mode == JOINT_STEREO);
 
 // discard the last 4 bits of the header and the CRC value, if present
 	get_bits(4);
