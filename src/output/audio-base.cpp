@@ -169,7 +169,6 @@ int32_t	i, n;
 	if (dumpFile != NULL)
 	   sf_writef_float (dumpFile, (float *)buffer, amount);
 	myLocker. unlock ();
-
 	audioOutput (buffer, amount);
 }
 //

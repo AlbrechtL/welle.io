@@ -15,7 +15,7 @@ QMAKE_LFLAGS	+=  -flto
 #QMAKE_CXXFLAGS	+=  -pg
 #QMAKE_LFLAGS	+=  -pg
 #	Uncomment this when compiling on/for a machine with sse support
-CONFIG		+= NO_SSE_SUPPORT 
+#CONFIG		+= NO_SSE_SUPPORT 
 DEPENDPATH += . \
 	      ./src \
 	      ./includes \
@@ -189,9 +189,9 @@ DEFINES		+= MSC_DATA__		# use at your own risk
 CONFIG		+= NO_SSE_SUPPORT 
 CONFIG		+= extio
 CONFIG		+= airspy
-#CONFIG		+= rtl_tcp
+CONFIG		+= rtl_tcp
 CONFIG		+= dabstick_osmo
-CONFIG		+= sdrplay
+CONFIG		+= sdrplay-exp
 #CONFIG		+= tcp-streamer
 CONFIG		+= gui_1
 }
@@ -253,7 +253,6 @@ dabstick_osmo {
 	SOURCES		+= ./src/input/dabstick-osmo/dabstick.cpp \
 	                   ./src/input/dabstick-osmo/dongleselect.cpp
 	FORMS		+= ./src/input/dabstick-osmo/dabstick-widget-osmo.ui
-	LIBS		+= -lrtlsdr
 }
 #
 #	the SDRplay

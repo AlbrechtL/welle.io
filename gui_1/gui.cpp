@@ -101,7 +101,7 @@ int16_t	latency;
   *	The current setup of the audio output is that
   *	you have a choice, take one of (soundcard, tcp streamer or rtp streamer)
   */
-	audioBuffer		= new RingBuffer<int16_t>(2 * 32768);
+	audioBuffer		= new RingBuffer<int16_t>(8 * 32768);
 	ipAddress		= dabSettings -> value ("ipAddress", "127.0.0.1"). toString ();
 	port			= dabSettings -> value ("port", 8888). toInt ();
 //
@@ -120,7 +120,6 @@ int16_t	latency;
 	soundOut		= new audioSink		(latency,
 	                                                 streamoutSelector,
 	                                                 audioBuffer);
-	audioBuffer		= new RingBuffer<int16_t>(2 * 32768);
 #endif
 /**
   *	By default we select Band III and Mode 1 or whatever the use
@@ -703,8 +702,9 @@ void	RadioInterface::changeinConfiguration	(void) {
 }
 
 void	RadioInterface::newAudio	(int rate) {
-	if (running)
+	if (running) {
 	   soundOut	-> audioOut (rate);
+	}
 }
 
 void	RadioInterface::setStereo	(bool s) {
