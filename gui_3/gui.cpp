@@ -92,7 +92,6 @@ int16_t	latency;
 	                                         &AudioInterfaces,
 	                                         audioBuffer);
 //
-//
 	autoStart		= dabSettings -> value ("autoStart", 0). toInt () != 0;
 //
 	this -> dabBand		= dabBand == "BAND III" ? BAND_III : L_BAND;

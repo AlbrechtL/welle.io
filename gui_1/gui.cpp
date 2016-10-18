@@ -112,7 +112,7 @@ int16_t	latency;
 //
 //	In this version, the default is sending the resulting PCM samples to the
 //	soundcard. However, defining TCP_STREAMER  will
-//	cause the PCM samples to be send through a different medium
+//	cause the PCM samples to be send to port 20040.
 #ifdef	TCP_STREAMER
 	soundOut		= new tcpStreamer	(audioBuffer,
 	                                                 20040);
@@ -120,6 +120,7 @@ int16_t	latency;
 	soundOut		= new audioSink		(latency,
 	                                                 streamoutSelector,
 	                                                 audioBuffer);
+	audioBuffer		= new RingBuffer<int16_t>(2 * 32768);
 #endif
 /**
   *	By default we select Band III and Mode 1 or whatever the use

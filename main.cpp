@@ -143,6 +143,9 @@ QString		dabBand		= ISettings -> value ("band", "BAND III"). toString ();
 	MyRadioInterface = new RadioInterface (ISettings, &engine,
 	                                       device, dabMode, dabBand);
 #else
+#if QT_VERSION >= 0x050600
+	QGuiApplication::setAttribute (Qt::AA_EnableHighDpiScaling);
+#endif
 	MyRadioInterface = new RadioInterface (ISettings, syncMethod);
 	MyRadioInterface -> show ();
 #endif

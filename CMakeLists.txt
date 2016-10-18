@@ -44,7 +44,6 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
 #	If you want a tcp stream of the audio rather than
 #	audio being sent to the soundcard, uncomment
 #	set(TCP_STREAMER true)
-#	set(RTP_STREAMER true)
 ########################################################################
 	find_package (PkgConfig)
 
