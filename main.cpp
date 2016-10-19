@@ -86,20 +86,13 @@ char		*defaultInit		= (char *)alloca (512 * sizeof (char));
 RadioInterface	*MyRadioInterface;
 int32_t		opt;
 uint8_t		syncMethod	= 2;
-QSettings	*ISettings =		// ini file
-	               new QSettings (defaultInit, QSettings::IniFormat);
-#ifdef	GUI_3
-//	Since we do not have the possibility in GUI_3 to select
-//	Mode, Band or Device, we create the possibility for
-//	passing appropriate parameters to the command
-//	Selections - if any - will be default for the next session
-
-uint8_t		dabMode		= ISettings -> value ("dabMode", 1). toInt ();
-QString		device		= ISettings -> value ("device", "dabstick"). toString ();
-QString		dabBand		= ISettings -> value ("band", "BAND III"). toString ();
-#endif 
+QSettings	*dabSettings;		// ini file
+uint8_t		dabMode		= 127;	// illegal value
+QString		device		= QString ("");
+QString		band		= QString ("");
 
 	fullPathfor (DEFAULT_INI, defaultInit);
+
 	while ((opt = getopt (argc, argv, "i:D:S:M:B:")) != -1) {
 	   switch (opt) {
 	      case 'i':
@@ -128,7 +121,21 @@ QString		dabBand		= ISettings -> value ("band", "BAND III"). toString ();
 	         break;
 	   }
 	}
-//
+	dabSettings =  new QSettings (defaultInit, QSettings::IniFormat);
+
+#ifdef	GUI_3
+//	Since we do not have the possibility in GUI_3 to select
+//	Mode, Band or Device, we create the possibility for
+//	passing appropriate parameters to the command
+//	Selections - if any - will be default for the next session
+
+	if (dabMode == 127)
+	   dabMode = dabSettings -> value ("dabMode", 1). toInt ();
+	if (device == QString (""))
+	   dabMode = dabSettings -> value ("device", "dabstick"). toString ();
+	if (dabBand == QString (""))
+	   dabMode = dabSettings -> value ("band", "BAND III"). toString ();
+#endif 
 /*
  *	Before we connect control to the gui, we have to
  *	instantiate
@@ -136,17 +143,17 @@ QString		dabBand		= ISettings -> value ("band", "BAND III"). toString ();
 	QApplication a (argc, argv);
 //	save the values for the new defaults
 #ifdef	GUI_3
-	ISettings -> setValue ("dabMode", dabMode);
-	ISettings -> setValue ("device", device);
-	ISettings -> setValue ("band", dabBand);
+	dabSettings -> setValue ("dabMode", dabMode);
+	dabSettings -> setValue ("device",  device);
+	dabSettings -> setValue ("band",    dabBand);
 	QQmlApplicationEngine engine(QUrl("qrc:/QML/main.qml"));
-	MyRadioInterface = new RadioInterface (ISettings, &engine,
+	MyRadioInterface = new RadioInterface (dabSettings, &engine,
 	                                       device, dabMode, dabBand);
 #else
 #if QT_VERSION >= 0x050600
 	QGuiApplication::setAttribute (Qt::AA_EnableHighDpiScaling);
 #endif
-	MyRadioInterface = new RadioInterface (ISettings, syncMethod);
+	MyRadioInterface = new RadioInterface (dabSettings, syncMethod);
 	MyRadioInterface -> show ();
 #endif
 
@@ -158,7 +165,7 @@ QString		dabBand		= ISettings -> value ("band", "BAND III"). toString ();
 	fflush (stderr);
 	qDebug ("It is done\n");
 	MyRadioInterface	-> ~RadioInterface ();
-	ISettings		-> ~QSettings ();
+	dabSettings		-> ~QSettings ();
 	exit (1);
 }
 

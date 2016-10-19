@@ -822,7 +822,9 @@ void	RadioInterface::TerminateProcess (void) {
 	pictureLabel = NULL;		// signals may be pending, so careful
 	fprintf (stderr, "Termination started\n");
 	delete		inputDevice;
+	fprintf (stderr, "input device deleted\n");
 	close ();
+	fprintf (stderr, "closed\n");
 }
 
 //
