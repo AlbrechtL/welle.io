@@ -869,6 +869,7 @@ int32_t	tunedFrequency;
 	   soundOut -> restart ();
 	   inputDevice	 -> restartReader ();
 	   my_ofdmProcessor	-> reset ();
+	   my_mscHandler	-> stopProcessing ();
 	   running	 = true;
 	}
 }
@@ -894,6 +895,7 @@ void	RadioInterface::autoCorrector_on (void) {
 	my_ficHandler		-> clearEnsemble ();
 	my_ofdmProcessor	-> coarseCorrectorOn ();
 	my_ofdmProcessor	-> reset ();
+	my_mscHandler		-> stopProcessing ();
 }
 
 //
