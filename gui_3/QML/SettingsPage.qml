@@ -9,7 +9,7 @@ import "style"
 Item {
     id: settingsPage
 
-    property alias showChannelState : showChannel.checked
+    property alias showChannelState      : showChannel.checked
     property alias enableFullScreenState : enableFullScreen.checked
     property alias enableExpertModeState : enableExpertMode.checked
 
