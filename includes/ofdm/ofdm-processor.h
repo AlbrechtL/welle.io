@@ -61,6 +61,7 @@ public:
 	void	setOffset	(int32_t);
 	void	coarseCorrectorOn	(void);
 	void	coarseCorrectorOff	(void);
+	void	set_scanMode		(bool, QString);
 	void	startDumping	(SNDFILE *);
 	void	stopDumping	(void);
 protected:
@@ -76,6 +77,9 @@ protected:
 	int32_t		T_null;
 	int32_t		T_u;
 	int32_t		T_s;
+	int32_t		T_g;
+	int32_t		T_F;
+	bool		scanMode;
 	float		sLevel;
 	RadioInterface	*myRadioInterface;
 	DSPCOMPLEX	*dataBuffer;
@@ -115,7 +119,7 @@ signals:
 	void		show_fineCorrector	(int);
 	void		show_coarseCorrector	(int);
 	void		setSynced		(char);
-	void		setSignalPresent	(bool);
+	void		setSignalPresent	(bool, QString);
 };
 #endif
 

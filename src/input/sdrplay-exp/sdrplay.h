@@ -88,7 +88,7 @@ typedef mir_sdr_ErrT (*pfn_mir_sdr_DebugEnable)(uint32_t);
 class	sdrplay: public virtualInput, public Ui_sdrplayWidget {
 Q_OBJECT
 public:
-		sdrplay		(QSettings *, bool *);
+		sdrplay		(QSettings *, bool *, bool show = true);
 		~sdrplay	(void);
 	void	setVFOFrequency	(int32_t);
 	int32_t	getVFOFrequency		(void);
@@ -104,6 +104,8 @@ public:
 	int16_t	maxGain			(void);
 	int16_t	bitDepth		(void);
 	RingBuffer<DSPCOMPLEX>	*_I_Buffer;
+	void	setGain			(int32_t);
+	void	setAgc			(bool);
 private:
 	pfn_mir_sdr_StreamInit	my_mir_sdr_StreamInit;
 	pfn_mir_sdr_Reinit	my_mir_sdr_Reinit;

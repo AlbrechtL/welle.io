@@ -49,10 +49,10 @@
   *	gui elements and the handling agents. All real action
   *	is embedded in actions, initiated by gui buttons
   */
-	RadioInterface::RadioInterface (QSettings *Si,
+	RadioInterface::RadioInterface (QSettings	*Si,
 	                                QQmlApplicationEngine *engine,
-	                                QString	    device,
-	                                uint8_t     dabMode,
+	                                QString		device,
+	                                uint8_t		dabMode,
 	                                QString     dabBand,
                                         QObject    *parent): QObject (parent) {
 int16_t	latency;
@@ -69,6 +69,7 @@ int16_t	latency;
 	   exit (1);
 	}
 	running			= false;
+	scanMode		= false;
 	
 /**	threshold is used in the phaseReference class 
   *	as threshold for checking the validity of the correlation result
@@ -94,7 +95,7 @@ int16_t	latency;
 //
 	autoStart		= dabSettings -> value ("autoStart", 0). toInt () != 0;
 //
-	this -> dabBand		= dabBand == "BAND III" ? BAND_III : L_BAND;
+	this -> dabBand		= dabBand == "Band III" ? BAND_III : L_BAND;
 	setModeParameters (dabMode);
 /**
   *	The actual work is done elsewhere: in ofdmProcessor
@@ -120,10 +121,6 @@ int16_t	latency;
 	                                        my_ficHandler,
 	                                        threshold,
 	                                        3);
-
-/**
-  *	we now handle the settings as saved by previous incarnations.
-  */
 //	display the version
 //	QString v = "sdr-j DAB-rpi(+)  " ;
 //	v. append (CURRENT_VERSION);
@@ -135,24 +132,21 @@ int16_t	latency;
 	dabSettings -> beginGroup ("channels");
 	int channelcount = dabSettings ->value ("channelcout", 0).toInt();
 
-	for(int i = 1; i <= channelcount; i++) {
+	for (int i = 1; i <= channelcount; i++) {
            QStringList SaveChannel = dabSettings -> value ("channel/"+QString::number(i)).toStringList();
-	   stationList. append (SaveChannel.first (), SaveChannel.last ());
+	   stationList. append (SaveChannel. first (), SaveChannel. last ());
 	}
 
 	dabSettings -> endGroup ();
 
 //	Sort stations
-	stationList.sort();
+	stationList. sort();
 
 //	Set timer
 	connect (&CheckFICTimer, SIGNAL (timeout (void)),
 	         this, SLOT (CheckFICTimerTimeout (void)));
-	connect (&ScanChannelTimer, SIGNAL (timeout (void)),
-	         this, SLOT (scanChannelTimerTimeout (void)));
 
 //	Reset
-	isSignalPresent = false;
 	isFICCRC	= false;
 
 //	Main entry to the QML GUI
@@ -164,8 +158,8 @@ int16_t	latency;
 	rootContext -> setContextProperty ("cppGUI", this);
 
 //	Set working directory
-	QString workingDir = QDir::currentPath() + "/";
-	rootContext->setContextProperty ("workingDir", workingDir);
+	QString workingDir = QDir::currentPath () + "/";
+	rootContext -> setContextProperty ("workingDir", workingDir);
 
 //	Take the root object
 	QObject *rootObject = engine -> rootObjects ().first ();
@@ -181,9 +175,9 @@ int16_t	latency;
 
 //	Restore the full screen property
 	bool isFullscreen = dabSettings	->
-	               value ("StartInFullScreen", false).toBool();
+	               value ("StartInFullScreen", false). toBool ();
 	QObject *enableFullScreenObject =
-	               rootObject -> findChild<QObject*>("enableFullScreen");
+	               rootObject -> findChild<QObject*> ("enableFullScreen");
 
 	if (enableFullScreenObject != NULL)
            enableFullScreenObject -> setProperty ("checked", isFullscreen);
@@ -198,7 +192,7 @@ int16_t	latency;
 
 //	Restore expert mode
 	bool isExpertMode =
-	           dabSettings-> value ("EnableExpertMode", false).toBool();
+	           dabSettings-> value ("EnableExpertMode", false). toBool ();
 	QObject *expertModeObject =
 	           rootObject -> findChild<QObject*> ("enableExpertMode");
 	if (expertModeObject)
@@ -514,12 +508,14 @@ const char *RadioInterface::get_programm_language_string (uint8_t language) {
 //
 //	a slot called by the ofdmprocessor
 void	RadioInterface::set_fineCorrectorDisplay (int v) {
-    emit displayFreqCorr (coarseCorrector + v);
+	fineCorrector = v;
+	emit displayFreqCorr (coarseCorrector + v);
 }
 
 //	a slot called by the ofdmprocessor
 void	RadioInterface::set_coarseCorrectorDisplay (int v) {
-    coarseCorrector = v * 1000;
+	coarseCorrector = v * kHz (1);
+	emit displayFreqCorr (coarseCorrector + fineCorrector);
 }
 /**
   *	clearEnsemble
@@ -536,7 +532,6 @@ void	RadioInterface::clearEnsemble	(void) {
 	my_ficHandler		-> clearEnsemble ();
 	my_ofdmProcessor	-> coarseCorrectorOn ();
 	my_ofdmProcessor	-> reset ();
-
 }
 
 //
@@ -544,7 +539,7 @@ void	RadioInterface::clearEnsemble	(void) {
 void	RadioInterface::addtoEnsemble (const QString &s) {
 //	Add new station into list
 	if (!s.contains ("data") && !stationList.contains (s)) {
-	   stationList.append (s, CurrentChannel);
+	   stationList.append (s, currentChannel);
 
 	   fprintf (stderr,"Found station %s\n", s.toStdString().c_str());
 	   emit foundChannelCount (stationList. count ());
@@ -565,13 +560,7 @@ void	RadioInterface::nameofEnsemble (int id, const QString &v) {
   *	percentage of frames that could be handled
   */
 void	RadioInterface::show_successRate (int s) {
-    emit displaySuccessRate (s);
-}
-
-///	... and the same for the FIC blocks
-void	RadioInterface::show_ficCRC (bool b) {
-	emit ficFlag (b);
-	isFICCRC = b;
+	emit displaySuccessRate (s);
 }
 
 ///	called from the ofdmDecoder, which computes this for each frame
@@ -601,7 +590,8 @@ void	RadioInterface::setSynced	(char b) {
 //	the GUI may decide to ignore this
 void	RadioInterface::showLabel	(QString s) {
 	emit stationText ("");
-// The horizontal text alignment is not working if the text is not reseted. Maybe this is a bug in QT
+//	The horizontal text alignment is not working if
+//	the text is not reset. Maybe this is a bug in QT
 	emit stationText (s);
 }
 //
@@ -656,15 +646,109 @@ void	RadioInterface::show_ipErrors	(int er) {
 //
 //	These are signals, not appearing in the other GUI's
 void    RadioInterface::setStereo (bool isStereo) {
-	emit audioType (isStereo);
+	if (isStereo)
+	   emit audioType ("Stereo");
+	else
+	   emit audioType ("Mono");
 }
-
-void    RadioInterface::setSignalPresent (bool isSignal) {
-	isSignalPresent = isSignal;
-	emit signalFlag (isSignal);
-}
-
 //
+//
+void	RadioInterface::startChannelScanClick (void) {
+//
+//	if running: stop the input
+	inputDevice	-> stopReader ();
+//	Clear old channels
+	stationList. reset ();
+//	start the radio
+	currentChannel = dabBand == BAND_III ?
+	                 bandIII_frequencies [0]. key :
+	                 Lband_frequencies [0]. key;
+	set_channelSelect (currentChannel);
+	emit currentStation (currentChannel);
+	emit foundChannelCount (0);
+	setStart ();
+	my_ofdmProcessor	-> reset ();
+	my_ofdmProcessor	-> set_scanMode (true, currentChannel);
+	scanMode		= true;
+}
+
+void	RadioInterface::stopChannelScanClick (void) {
+//	Stop channel scan
+	my_ofdmProcessor	-> set_scanMode (false, currentChannel);
+	ScanChannelTimer. stop ();
+	scanMode	= false;
+}
+
+QString	RadioInterface::nextChannel (QString currentChannel) {
+int16_t	i;
+struct dabFrequencies *finger;
+	if (dabBand == BAND_III)
+	   finger = bandIII_frequencies;
+	else
+	   finger = Lband_frequencies;
+
+	for (i = 1; finger [i]. key != NULL; i ++) 
+	   if (finger [i - 1]. key == currentChannel)
+	      return QString (finger [i]. key);
+	return QString ("");
+}
+//
+//	The ofdm processor is "conditioned" to send one signal
+//	per "scanning tour". This signal is either "false"
+//	if we are pretty certain that the channel does not contain
+//	a signal, or "true" if there is a fair chance that the
+//	channel contains useful data
+void    RadioInterface::setSignalPresent (bool isSignal, QString channel) {
+	emit signalFlag (isSignal);
+	if (isSignal) {		// may be a channel, give it time
+	   connect (&ScanChannelTimer, SIGNAL (timeout (void)),
+	            this, SLOT (end_of_waiting_for_stations (void)));
+	   ScanChannelTimer. start (10000);
+	   return;
+	}
+	currentChannel = nextChannel (currentChannel);
+	if (currentChannel == QString ("")) {
+	   emit channelScanStopped ();
+	   emit currentStation ("No Station");
+//	Sort stations
+	   stationList. sort ();
+	   QQmlContext *rootContext = engine -> rootContext ();
+	   rootContext -> setContextProperty ("stationModel",
+	                       QVariant::fromValue (stationList. getList ()));
+	   return;
+	}
+	set_channelSelect (currentChannel);
+	emit currentStation (currentChannel);
+	my_ofdmProcessor	-> reset ();
+	my_ofdmProcessor	-> set_scanMode (true, currentChannel);
+}
+
+void	RadioInterface::show_ficCRC (bool b) {
+	isFICCRC = b;
+	emit ficFlag (b);
+}
+
+void	RadioInterface::end_of_waiting_for_stations (void) {
+	disconnect (&ScanChannelTimer, SIGNAL (timeout (void)),
+	            this, SLOT (end_of_waiting_for_stations (void)));
+	ScanChannelTimer. stop ();
+	currentChannel = nextChannel (currentChannel);
+	if (currentChannel == QString ("")) {
+	   emit channelScanStopped ();
+	   emit currentStation ("No Station");
+//	Sort stations
+	   stationList. sort ();
+	   QQmlContext *rootContext = engine -> rootContext ();
+	   rootContext -> setContextProperty ("stationModel",
+	                       QVariant::fromValue (stationList. getList ()));
+	   return;
+	}
+	set_channelSelect (currentChannel);
+	emit currentStation (currentChannel);
+	my_ofdmProcessor	-> reset ();
+	my_ofdmProcessor	-> set_scanMode (true, currentChannel);
+}
+
 void    RadioInterface::displayDateTime (int *DateTime) {
 int Year	= DateTime [0];
 int Month	= DateTime [1];
@@ -697,10 +781,10 @@ bool	r = 0;
 //
 	r = inputDevice		-> restartReader ();
 	qDebug ("Starting %d\n", r);
-    if (!r) {
-       qDebug ("Opening  input stream failed\n");
+	if (!r) {
+	   qDebug ("Opening  input stream failed\n");
 	   return;
-    }
+	}
 //
 //	Of course, starting the machine will generate a new instance
 //	of the ensemble, so the listing - if any - should be cleared
@@ -717,9 +801,7 @@ bool	r = 0;
   *	A clean termination is what is needed, regardless of the GUI
   */
 void	RadioInterface::TerminateProcess (void) {
-	running		= false;
-#ifdef	GUI_3
-#endif
+	running			= false;
 	inputDevice		-> stopReader ();	// might be concurrent
 	my_mscHandler		-> stopHandler ();	// might be concurrent
 	my_ofdmProcessor	-> stop ();	// definitely concurrent
@@ -732,12 +814,9 @@ void	RadioInterface::TerminateProcess (void) {
 	delete		my_mscHandler;
 	delete		soundOut;
 	soundOut	= NULL;		// signals may be pending, so careful
-#ifdef	GUI_3
-
-#endif
 	fprintf (stderr, "Termination started\n");
 	delete		inputDevice;
-    QApplication::quit();
+	QApplication::quit();
 }
 
 //
@@ -782,8 +861,8 @@ int32_t	tunedFrequency;
 	   my_ofdmProcessor	-> reset ();
 	   running	 = true;
 	}
-
-    emit displayCurrentChannel(s, tunedFrequency);
+	fprintf (stderr, "%s -> %d\n", s. toLatin1 (). data (), tunedFrequency);
+	emit displayCurrentChannel(s, tunedFrequency);
 }
 
 void	RadioInterface::updateTimeDisplay (void) {
@@ -798,18 +877,15 @@ void	RadioInterface::autoCorrector_on (void) {
 
 /**
   *	\brief setDevice
-  *	setDevice is called trough a signal from the gui
-  *	Operation is in three steps: 
-  *	   first dumping of any kind is stopped
-  *	   second the previously loaded device is stopped
-  *	   third, the new device is initiated, but not started
+  *	In this version, a device is specified in the command line
+  *	or a default is taken. I.e., no dynamic switching of devices
   */
 //
 bool	RadioInterface::setDevice (QString s) {
 bool	success;
 #ifdef AIRSPY
 	if (s == "airspy") {
-	   inputDevice	= new airspyHandler (dabSettings, &success);
+	   inputDevice	= new airspyHandler (dabSettings, &success, false);
 	   if (!success) {
 	      delete inputDevice;
 	      inputDevice = new virtualInput ();
@@ -836,7 +912,7 @@ bool	success;
 #endif
 #ifdef	HAVE_SDRPLAY
 	if (s == "sdrplay") {
-	   inputDevice	= new sdrplay (dabSettings, &success);
+	   inputDevice	= new sdrplay (dabSettings, &success, false);
 	   if (!success) {
 	      delete inputDevice;
 	      inputDevice = new virtualInput ();
@@ -849,7 +925,7 @@ bool	success;
 #endif
 #ifdef	HAVE_DABSTICK
 	if (s == "dabstick") {
-	   inputDevice	= new dabStick (dabSettings, &success);
+	   inputDevice	= new dabStick (dabSettings, &success, false);
 	   if (!success) {
 	      delete inputDevice;
 	      inputDevice = new virtualInput ();
@@ -864,36 +940,40 @@ bool	success;
 //	and as default option, we have a "no device"
 	   inputDevice	= new virtualInput ();
 	}
+	return true;
 }
 
 void    RadioInterface::CheckFICTimerTimeout (void) {
-	if (isFICCRC) {
+	if (!isFICCRC) 
+	   return;
+//
+//	for now: we handle only audio services
+	if (my_ficHandler -> kindofService (CurrentStation) !=
+	                                                  AUDIO_SERVICE) 
+	   return;
+	
 //	Tune to station
-           if (my_ficHandler -> kindofService (CurrentStation) ==
-	                                                  AUDIO_SERVICE) {
-	      audiodata d;
-	      CheckFICTimer. stop ();  // stop timer
-	      emit currentStation (CurrentStation. simplified ());
-	      my_ficHandler -> dataforAudioService (CurrentStation, &d);
-	      my_mscHandler -> set_audioChannel (&d);
-	      showLabel (QString (" "));
-	      stationType (get_programm_type_string (d.programType));
-	      languageType (get_programm_language_string (d.language));
-	      bitrate (d. bitRate);
-	      if (d.ASCTy == 077)
-              emit dabType ("DAB+");
-	      else
-	         emit dabType ("DAB");
-	   }
-	}
+	audiodata d;
+	CheckFICTimer. stop ();  // stop timer
+	emit currentStation (CurrentStation. simplified ());
+	my_ficHandler -> dataforAudioService (CurrentStation, &d);
+	my_mscHandler -> set_audioChannel (&d);
+	showLabel (QString (" "));
+	stationType (get_programm_type_string (d.programType));
+	languageType (get_programm_language_string (d.language));
+	bitrate (d. bitRate);
+	if (d.ASCTy == 077)
+           emit dabType ("DAB+");
+	else
+	   emit dabType ("DAB");
 }
 
 void	RadioInterface::channelClick (QString StationName,
 	                                          QString ChannelName) {
 	setStart ();
-	if (ChannelName != CurrentChannel) {
+	if (ChannelName != currentChannel) {
 	   set_channelSelect (ChannelName);
-	   CurrentChannel = ChannelName;
+	   currentChannel = ChannelName;
 	}
 
 	CurrentStation = StationName;
@@ -902,156 +982,6 @@ void	RadioInterface::channelClick (QString StationName,
 //	If the FIC CRC is ok we can tune to the channel
 	CheckFICTimer. start (1000);
 	emit currentStation ("Tuning ...");
-}
-
-void	RadioInterface::startChannelScanClick (void) {
-	BandIIIChannelIt	= 0;
-	LBandChannelIt		= 0;
-
-//	Clear old channels
-	stationList. reset ();
-	emit foundChannelCount (0);
-
-//	Set first state
-	ScanChannelState	= ScanStart;
-
-//	Start channel scan
-	ScanChannelTimer. start (1000);
-}
-
-void	RadioInterface::stopChannelScanClick (void) {
-//	Stop channel scan
-//	ScanChannelTimer. stop ();
-	ScanChannelState = ScanDone;
-}
-
-void	RadioInterface::scanChannelTimerTimeout (void) {
-static int Timeout = 0;
-
-// **** The channel scan is done by a simple state machine ***
-// State ScanStart
-	if (ScanChannelState == ScanStart) {
-//	   fprintf (stderr,"State: ScanStart\n");
-
-//	   Open and start the radio
-	   setStart ();
-//	   and reset the station list
-	   stationList. reset ();
-
-	   ScanChannelState = ScanTunetoChannel;
-	}
-
-//	State ScanTunetoChannel
-	if (ScanChannelState == ScanTunetoChannel) {
-//	   fprintf (stderr,"State: ScanTunetoChannel\n");
-
-	   if (dabBand == L_BAND) {
-//	Select channel
-	      if (Lband_frequencies [LBandChannelIt]. key != NULL) {
-	         CurrentChannel = Lband_frequencies [LBandChannelIt]. key;
-	         fprintf (stderr, "Scan channel: %s, %d kHz\n",
-	                    Lband_frequencies [LBandChannelIt]. key,
-	                    Lband_frequencies [LBandChannelIt]. fKHz);
-	         emit channelScanProgress (LBandChannelIt + 1);
-
-//	Tune to channel
-	         set_channelSelect (CurrentChannel);
-	         LBandChannelIt ++;
-	         Timeout = 0;
-	         ScanChannelState = ScanCheckSignal;
-	      }
-              else {
-	         ScanChannelState = ScanDone;
-              }
-
-	      emit currentStation ("Scanning " + CurrentChannel + " ...");
-	   }
-	   else
-	   if (dabBand == BAND_III) {
-//	Select channel
-	      if (bandIII_frequencies [BandIIIChannelIt]. key != NULL) {
-	         CurrentChannel = bandIII_frequencies [BandIIIChannelIt]. key;
-	         fprintf (stderr, "Scan channel: %s, %d kHz\n",
-	                    bandIII_frequencies [BandIIIChannelIt]. key,
-	                    bandIII_frequencies [BandIIIChannelIt]. fKHz);
-	         emit channelScanProgress (BandIIIChannelIt + 1);
-
-//	Tune to channel
-	         set_channelSelect (CurrentChannel);
-	         BandIIIChannelIt ++;
-	         Timeout = 0;
-	         ScanChannelState = ScanCheckSignal;
-	      }
-              else {
-	         ScanChannelState = ScanDone;
-              }
-
-	      emit currentStation ("Scanning " + CurrentChannel + " ...");
-	   }
-	}
-
-//	State ScanCheckSignal
-	if (ScanChannelState == ScanCheckSignal) {
-//	fprintf(stderr,"State: ScanCheckSignal\n");
-	   if (isSignalPresent) {
-	      Timeout = 0;
-	      ScanChannelState = ScanWaitForFIC;
-	   }
-	   else 
-	      Timeout++;
-
-//	2 s timeout
-	   if (Timeout >= 2) {
-//	      fprintf (stderr,"ScanCheckSignal Timeout\n");
-	      ScanChannelState = ScanTunetoChannel;
-	   }
-	}
-
-//	State ScanWaitForFIC
-	if (ScanChannelState == ScanWaitForFIC) {
-//	   fprintf(stderr,"State: ScanWaitForFIC\n");
-
-	   if (isFICCRC) {
-	      fprintf (stderr, "Found channel %s\n",
-	                   CurrentChannel. toStdString (). c_str ());
-
-	      Timeout = 0;
-	      ScanChannelState = ScanWaitForChannelNames;
-	   }
-	   else 
-	      Timeout ++;
-
-//	30 s timeout
-	   if (Timeout >= 30) {
-//	      fprintf (stderr, "ScanWaitForFIC Timeout\n");
-	      ScanChannelState = ScanTunetoChannel;
-	   }
-	}
-
-//	State ScanWaitForChannelNames
-	if (ScanChannelState == ScanWaitForChannelNames) {
-	   Timeout ++;
-
-//	30 s timeout
-	   if (Timeout >= 30)
-	      ScanChannelState = ScanTunetoChannel;
-	}
-
-//	State ScanDone
-	if (ScanChannelState == ScanDone) {
-//	   fprintf (stderr,"Stop channel scan\n");
-	   ScanChannelTimer. stop();
-	   emit channelScanStopped ();
-	   emit currentStation ("No Station");
-
-//	Sort stations
-	   stationList. sort ();
-
-//	Load stations into GUI
-	   QQmlContext *rootContext = engine -> rootContext ();
-	   rootContext -> setContextProperty ("stationModel",
-	                       QVariant::fromValue (stationList. getList ()));
-	}
 }
 
 void RadioInterface::saveSettings (void) {

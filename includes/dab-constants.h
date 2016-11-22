@@ -62,8 +62,10 @@ using namespace std;
 #define	Hz(x)		(x)
 #define	Khz(x)		(x * 1000)
 #define	KHz(x)		(x * 1000)
+#define	kHz(x)		(x * 1000)
 #define	Mhz(x)		(Khz (x) * 1000)
 #define	MHz(x)		(KHz (x) * 1000)
+#define	mHz(x)		(kHz (x) * 1000)
 
 #define	CURRENT_VERSION	"0.997"
 

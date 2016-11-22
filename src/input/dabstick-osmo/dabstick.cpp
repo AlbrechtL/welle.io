@@ -88,7 +88,7 @@ virtual void	run (void) {
 };
 //
 //	Our wrapper is a simple classs
-	dabStick::dabStick (QSettings *s, bool *success) {
+	dabStick::dabStick (QSettings *s, bool *success, bool show) {
 int16_t	deviceCount;
 int32_t	r;
 int16_t	deviceIndex;
@@ -99,7 +99,8 @@ int	k;
 	*success		= false;	// just the default
 	this	-> myFrame	= new QFrame (NULL);
 	setupUi (this -> myFrame);
-	this	-> myFrame	-> show ();
+	if (show)
+	   this	-> myFrame	-> show ();
 	inputRate		= 2048000;
 	libraryLoaded		= false;
 	open			= false;
@@ -194,7 +195,7 @@ int	k;
 	set_fCorrection	(f_correction -> value ());
 	set_KhzOffset	(KhzOffset -> value ());
 	connect (combo_gain, SIGNAL (activated (const QString &)),
-	         this, SLOT (setExternalGain (const QString &)));
+	         this, SLOT (setGain (const QString &)));
 	connect (combo_autogain, SIGNAL (activated (const QString &)),
 	         this, SLOT (set_autogain (const QString &)));
 	connect (f_correction, SIGNAL (valueChanged (int)),
@@ -296,12 +297,21 @@ void	dabStick::stopReader		(void) {
 	workerHandle	= NULL;
 }
 //
-void	dabStick::setExternalGain	(const QString &gain) {
+void	dabStick::setGain	(const QString &gain) {
 	rtlsdr_set_tuner_gain (device, gain. toInt ());
 }
 
+void	dabStick::setGain	(int32_t g) {
+int	gainValue = g * gainsCount / 100;
+	rtlsdr_set_tuner_gain (device, gainValue);
+}
+	
 void	dabStick::set_autogain		(const QString &autogain) {
 	rtlsdr_set_tuner_gain_mode (device, autogain == "autogain off" ? 0 : 1);
+}
+
+void	dabStick::setAgc		(bool b) {
+	rtlsdr_set_tuner_gain_mode (device, b);
 }
 
 //
@@ -318,7 +328,7 @@ void	dabStick::set_KhzOffset	(int32_t o) {
 
 //
 //	The brave old getSamples. For the dab stick, we get
-//	size: still in I/Q pairs, but we have to convert the data from
+//	size samples: still in I/Q pairs, but we have to convert the data from
 //	uint8_t to DSPCOMPLEX *
 int32_t	dabStick::getSamples (DSPCOMPLEX *V, int32_t size) { 
 int32_t	amount, i;

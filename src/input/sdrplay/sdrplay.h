@@ -42,7 +42,7 @@ class	sdrplayLoader;
 class	sdrplay: public virtualInput, public Ui_sdrplayWidget {
 Q_OBJECT
 public:
-		sdrplay		(QSettings *, bool *);
+		sdrplay		(QSettings *, bool *, bool show = true);
 		~sdrplay	(void);
 	void	setVFOFrequency	(int32_t);
 	int32_t	getVFOFrequency		(void);
@@ -57,6 +57,8 @@ public:
 	void	resetBuffer		(void);
 	int16_t	maxGain			(void);
 	int16_t	bitDepth		(void);
+	void	setGain			(int32_t);
+	void	setAgc			(bool);
 private:
 	QSettings	*sdrplaySettings;
 	QFrame		*myFrame;
@@ -69,8 +71,8 @@ private:
 	int16_t		currentGain;
 	int32_t		agcMode;
 private slots:
-	void		setExternalGain	(int);
-	void		set_agcControl	(int);
+	void		setGain_slider	(int);
+	void		set_autoGain	(bool);
 };
 #endif
 

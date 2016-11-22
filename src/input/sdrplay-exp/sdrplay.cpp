@@ -32,14 +32,15 @@
 
 #define	DEFAULT_GAIN	40
 
-	sdrplay::sdrplay  (QSettings *s, bool *success) {
+	sdrplay::sdrplay  (QSettings *s, bool *success, bool show) {
 int	err;
 float	ver;
 
 	sdrplaySettings			= s;
 	this	-> myFrame		= new QFrame (NULL);
 	setupUi (this -> myFrame);
-	this	-> myFrame	-> show ();
+	if (show)
+	   this	-> myFrame	-> show ();
 	this	-> inputRate		= Khz (2048);
 
 	*success		= false;
@@ -229,15 +230,25 @@ int16_t	sdrplay::maxGain	(void) {
 	return 101;
 }
 
+void	sdrplay::setGain		(int32_t g) {
+	setExternalGain ((g * maxGain ()) / 100);
+}
+
+void	sdrplay::setAgc			(bool b) {
+	my_mir_sdr_AgcControl (b, -currentGain, 0, 0, 0, 0, 0);
+	if (!b)
+	   my_mir_sdr_SetGr (currentGain, 1, 0);
+}
+
 static
 void myStreamCallback (int16_t		*xi,
 	               int16_t		*xq,
-	               uint32_t	firstSampleNum, 
+	               uint32_t		firstSampleNum, 
 	               int32_t		grChanged,
 	               int32_t		rfChanged,
 	               int32_t		fsChanged,
-	               uint32_t	numSamples,
-	               uint32_t	reset,
+	               uint32_t		numSamples,
+	               uint32_t		reset,
 	               void		*cbContext) {
 int16_t	i;
 sdrplay	*p	= static_cast<sdrplay *> (cbContext);

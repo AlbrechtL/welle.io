@@ -77,5 +77,12 @@ int32_t	virtualInput::defaultFrequency	(void) {
 void	virtualInput::resetBuffer	(void) {
 }
 
+void	virtualInput::setGain		(int32_t x) {
+	(void)x;
+}
+
+void	virtualInput::setAgc		(bool b) {
+	(void)b;
+}
 
 

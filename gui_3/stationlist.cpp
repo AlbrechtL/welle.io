@@ -28,88 +28,73 @@
 
 #include "stationlist.h"
 
-StationElement::StationElement(QString const stationName, QString const channelName, QObject *parent) : QObject(parent)
-{
-    setProperty("stationName",stationName);
-    setProperty("channelName",channelName);
+	StationElement::StationElement (QString const stationName,
+	                                QString const channelName,
+	                                QObject *parent) : QObject(parent) {
+	setProperty("stationName",stationName);
+	setProperty("channelName",channelName);
 }
 
-QString StationElement::getStationName(void)
-{
-    return m_stationName;
+QString StationElement::getStationName (void) {
+	return m_stationName;
 }
 
-QString StationElement::getChannelName(void)
-{
-    return m_channelName;
+QString StationElement::getChannelName (void) {
+	return m_channelName;
 }
 
-StationList::StationList(void)
-{
-    stationList.clear();
+	StationList::StationList (void) {
+	stationList. clear ();
 }
 
-StationList::~StationList(void)
-{
+	StationList::~StationList (void) {
 }
 
-void StationList::reset(void)
-{
-    stationList.clear();
+void	StationList::reset (void) {
+	stationList. clear ();
 }
 
-bool variantLessThan(const QObject* v1, const QObject* v2)
- {
-     return ((StationElement*) v1)->getStationName() < ((StationElement*) v2)->getStationName();
- }
-
-void StationList::sort(void)
-{
-    qSort(stationList.begin(), stationList.end(), variantLessThan);
+bool	variantLessThan (const QObject* v1, const QObject* v2) {
+	return ((StationElement*) v1) -> getStationName () <
+	                ((StationElement*) v2) -> getStationName ();
 }
 
-int StationList::count(void)
-{
-    return stationList.count();
+void	StationList::sort (void) {
+	qSort (stationList. begin (), stationList. end (), variantLessThan);
 }
 
-StationElement* StationList::at(int i)
-{
-    return (StationElement*) stationList.at(i);
+int	StationList::count (void) {
+	return stationList. count ();
 }
 
-QStringList StationList::getStationAt(int i)
-{
-    QString StationName = at(i)->getStationName();
-    QString ChannelName = at(i)->getChannelName();
-
-    QStringList StationElement;
-
-    StationElement.append(StationName);
-    StationElement.append(ChannelName);
-
-    return StationElement;
+StationElement* StationList::at (int i) {
+	return (StationElement*) stationList. at (i);
 }
 
-bool StationList::contains(QString value)
-{
-    bool result = false;
+QStringList StationList::getStationAt (int i) {
+QString StationName = at(i) -> getStationName ();
+QString ChannelName = at(i) -> getChannelName ();
+QStringList StationElement;
 
-    for(int i=0;i<count();i++)
-    {
-        if(at(i)->getStationName() == value)
-            result = true;
-    }
-
-    return result;
+	StationElement. append (StationName);
+	StationElement. append (ChannelName);
+	return StationElement;
 }
 
-void StationList::append(QString StationName, QString ChannelName)
-{
-    stationList.append(new StationElement(StationName, ChannelName));
+bool	StationList::contains (QString value) {
+
+	for (int i = 0; i < count (); i++) {
+	   if (at (i) -> getStationName () == value)
+	      return true;
+	}
+
+	return false;
 }
 
-QList<QObject*>  StationList::getList(void)
-{
-    return  stationList;
+void	StationList::append (QString StationName, QString ChannelName) {
+	stationList. append (new StationElement (StationName, ChannelName));
+}
+
+QList<QObject*>  StationList::getList (void) {
+	return  stationList;
 }

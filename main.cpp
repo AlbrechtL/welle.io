@@ -131,7 +131,7 @@ QString		dabBand		= QString ("");
 	if (dabMode == 127)
 	   dabMode = dabSettings -> value ("dabMode", 1). toInt ();
 	if (dabDevice == QString (""))
-	   dabDevice = dabSettings -> value ("device", "dabstick"). toString ();
+	   dabDevice = dabSettings -> value ("dabDevice", "dabstick"). toString ();
 	if (dabBand == QString (""))
 	   dabBand = dabSettings -> value ("band", "BAND III"). toString ();
 #endif 

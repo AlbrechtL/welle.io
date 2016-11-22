@@ -17,7 +17,7 @@ Item{
         width: parent.width
 
         RowLayout{
-            Layout.fillWidth : true
+            Layout. fillWidth : true
             Layout.fillHeight: true
             anchors.left: parent.left
             anchors.leftMargin: Units.dp(5)
@@ -155,7 +155,7 @@ Item{
         }
 
         onBitrate: {
-            bitrateText.text = bitrate +  " kbps"
+            bitrateText.text = bitrate + " kbps"
         }
 
         onDabType: {
@@ -163,10 +163,7 @@ Item{
         }
 
         onAudioType: {
-            if(isStereo)
-                audioTypeText.text = "Stereo"
-            else
-                audioTypeText.text = "Mono"
+            audioTypeText.text = text
         }
 
         onStationType: {
@@ -208,5 +205,4 @@ Item{
         }
 
     }
-
 }

@@ -106,22 +106,25 @@ const	char		*get_programm_language_string (uint8_t);
 
 	QTimer		CheckFICTimer;
 	QTimer		ScanChannelTimer;
-	QString		CurrentChannel;
+	QString		currentChannel;
 	QString		CurrentStation;
 	QString		CurrentDevice;
 
 	bool		isFICCRC;
 	bool		isSignalPresent;
-
+	bool		scanMode;
 	int		BandIIIChannelIt;
 	int		LBandChannelIt;
 	tScanChannelState ScanChannelState;
 	StationList	stationList;
 	QVector<QPointF> spectrum_data;
 	int		coarseCorrector;
+	int		fineCorrector;
 	bool		setDevice		(QString);
+	QString		nextChannel		(QString currentChannel);
 
 public slots:
+	void		end_of_waiting_for_stations	(void);
 	void		set_fineCorrectorDisplay	(int);
 	void		set_coarseCorrectorDisplay	(int);
 	void		clearEnsemble		(void);
@@ -140,7 +143,7 @@ public slots:
 	void		show_mscErrors		(int);
 	void		show_ipErrors		(int);
 	void		setStereo		(bool isStereo);
-	void		setSignalPresent	(bool isSignal);
+	void		setSignalPresent	(bool isSignal, QString);
 	void		displayDateTime		(int *DateTime);
 #ifdef	qt_charts
 	void		updateSpectrum		(QAbstractSeries *series);
@@ -159,7 +162,6 @@ private slots:
 	void		channelClick		(QString, QString);
 	void		startChannelScanClick	(void);
 	void		stopChannelScanClick	(void);
-	void		scanChannelTimerTimeout	(void);
 	void		saveSettings		(void);
 	void		showCorrectedErrors 	(int);
 signals:
@@ -169,8 +171,8 @@ signals:
     	void		syncFlag		(bool active);
     	void		ficFlag			(bool active);
 	void		dabType			(QString text);
+	void		audioType		(QString text);
 	void		bitrate			(int bitrate);
-	void		audioType		(bool);
 	void		stationType		(QString text);
 	void		languageType		(QString text);
 	void		signalPower		(int power);

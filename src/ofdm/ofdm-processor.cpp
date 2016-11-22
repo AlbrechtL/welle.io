@@ -21,9 +21,6 @@
  */
 #include	"ofdm-processor.h"
 #include	"ofdm-decoder.h"
-#ifdef	GUI_3
-#include	"find_ofdm_spectrum.h"
-#endif
 #include	"gui.h"
 #include	"fft.h"
 //
@@ -50,6 +47,9 @@ int16_t	res	= 1;
 	return res;
 }
 
+static
+QString	currentChannel;
+
 	ofdmProcessor::ofdmProcessor	(virtualInput	*theRig,
 	                                 DabParams	*p,
 	                                 RadioInterface *mr,
@@ -64,6 +64,8 @@ int32_t	i;
 	this	-> T_null		= p	-> T_null;
 	this	-> T_s			= p 	-> T_s;
 	this	-> T_u			= p	-> T_u;
+	this	-> T_g			= T_s - T_u;
+	this	-> T_F			= p	-> T_F;
 	this	-> myRadioInterface	= mr;
 	fft_handler			= new common_fft (T_u);
 	fft_buffer			= fft_handler -> getVector ();
@@ -76,6 +78,7 @@ int32_t	i;
 	ofdmSymbolCount			= 0;
 	tokenCount			= 0;
 	sampleCnt			= 0;
+	scanMode			= false;
 /**
   *	the class phaseReference will take a number of samples
   *	and indicate - using some threshold - whether there is
@@ -115,11 +118,10 @@ int32_t	i;
 	connect (this, SIGNAL (setSynced (char)),
 	         myRadioInterface, SLOT (setSynced (char)));
 #ifdef	GUI_3
-	connect (this, SIGNAL (setSignalPresent (bool)),
-	         myRadioInterface, SLOT (setSignalPresent (bool)));
+	connect (this, SIGNAL (setSignalPresent (bool, QString)),
+	         myRadioInterface, SLOT (setSignalPresent (bool, QString)));
 #endif
 
-	gain		= 30;
 	bufferContent	= 0;
 //
 //	and for the correlation 
@@ -161,7 +163,7 @@ DSPCOMPLEX ofdmProcessor::getSample (int32_t phase) {
 DSPCOMPLEX temp;
 	if (!running)
 	   throw 21;
-/// bufferContent is a cache for the value of ... -> Samples ()
+///	bufferContent is an indicator for the value of ... -> Samples ()
 	if (bufferContent == 0) {
 	   bufferContent = theRig -> Samples ();
 	   while ((bufferContent == 0) && running) {
@@ -169,6 +171,7 @@ DSPCOMPLEX temp;
 	      bufferContent = theRig -> Samples (); 
 	   }
 	}
+
 	if (!running)	
 	   throw 20;
 //
@@ -247,6 +250,10 @@ int32_t		i;
 	   sampleCnt = 0;
 	}
 }
+static
+int32_t		syncBufferIndex	= 0;
+static
+int		attempts	= 0;
 /***
    *	\brief run
    *	The main thread, reading samples,
@@ -261,47 +268,33 @@ int32_t		i, j;
 DSPCOMPLEX	FreqCorr;
 int32_t		counter;
 float		currentStrength;
-int32_t		syncBufferIndex	= 0;
-int32_t		syncBufferSize	= 10 * T_s;
+int32_t		syncBufferSize	= 32768;
+int32_t		syncBufferMask	= syncBufferSize - 1;
 float		envBuffer	[syncBufferSize];
-float		signalLevel;
 int		previous_1	= 1000;
 int		previous_2	= 1000;
-DSPCOMPLEX	nullBuffer [T_null];
-
 	running		= true;
 	fineCorrector	= 0;
 	sLevel		= 0;
 	try {
 
 Initing:
+notSynced:
+#ifdef	GUI_3
+	   if (scanMode && ++attempts > 5) {
+	      emit (setSignalPresent (false, currentChannel));
+	      scanMode	= false;
+	      attempts	= 0;
+	   }
+#endif
 	   syncBufferIndex	= 0;
-	   signalLevel		= 0;
 	   currentStrength	= 0;
 ///	first, we need samples to get a reasonable sLevel
 	   sLevel	= 0;
-	   for (i = 0; i < 10 * T_s; i ++) {
-	      sLevel	+= jan_abs (getSample (0));
+	   for (i = 0; i < T_F; i ++) {
+	      jan_abs (getSample (0));
 	   }
 
-///	when really out of sync we will be here
-#ifdef	GUI_3
-	find_ofdm_spectrum FindOFDMSpectrum (T_u, params -> K);
-checkSignal:
-//	put samples into the signal checker
-	getSamples (*FindOFDMSpectrum. GetBuffer (),
-	             FindOFDMSpectrum. GetBufferSize (), 0);
-	float SNR	= FindOFDMSpectrum. FindSpectrum ();
-	fprintf (stderr, "Signal SNR = %f\n", SNR);
-//	check the SNR
-	if (SNR < 5)
-	   goto checkSignal;
-
-	isReset		= false;
-	emit setSignalPresent (true);
-
-#endif
-notSynced:
 //	read in T_s samples for a next attempt;
 	   syncBufferIndex = 0;
 	   currentStrength	= 0;
@@ -326,34 +319,31 @@ SyncOnNull:
 	                      getSample (coarseCorrector + fineCorrector);
 	      envBuffer [syncBufferIndex] = jan_abs (sample);
 //	update the levels
-//	we know that syncBufferIndex > 50
 	      currentStrength += envBuffer [syncBufferIndex] -
-	                         envBuffer [syncBufferIndex - 50];
-	      syncBufferIndex ++;
+	                         envBuffer [(syncBufferIndex - 50) & syncBufferMask];
+	      syncBufferIndex = (syncBufferIndex + 1) & syncBufferMask;
 	      counter ++;
-	      if (counter > 2 * T_s)	// hopeless
+	      if (counter > T_F) 	// hopeless
 	         goto notSynced;
 	   }
 /**
-  *	It seemed we found the dip that started app 65/100 * 50 samples earlier.
+  *	It seemed we found a dip that started app 65/100 * 50 samples earlier.
   *	We now start looking for the end of the null period.
   */
+	   counter	= 0;
 SyncOnEndNull:
 	   while (currentStrength / 50 < 0.75 * sLevel) {
 	      DSPCOMPLEX sample = getSample (coarseCorrector + fineCorrector);
 	      envBuffer [syncBufferIndex] = jan_abs (sample);
 //	update the levels
-//	We constrain syncBufferIndex here to
-//	a value smaller than 2 * T_s but larger than 50, to a value
-//	smaller than 2 * T_s + T_null, which by itself is
-//	smaller than the bufferSize;
 	      currentStrength += envBuffer [syncBufferIndex] -
-	                         envBuffer [syncBufferIndex - 50];
-	      syncBufferIndex ++;
+	                         envBuffer [(syncBufferIndex - 50) & syncBufferMask];
+	      syncBufferIndex = (syncBufferIndex + 1) & syncBufferMask;
 	      counter	++;
 //
-	      if (syncBufferIndex > 2 * T_s + T_null) // hopeless
+	      if (counter > T_null + 50) { // hopeless
 	         goto notSynced;
+	      }
 	   }
 /**
   *	The end of the null period is identified, probably about 40
@@ -386,7 +376,14 @@ SyncOnPhase:
 //	      fprintf (stderr, "startIndex = %d\n", startIndex);
 	      goto notSynced;
 	   }
+#ifdef GUI_3
+	   if (scanMode) {
+	      emit (setSignalPresent (true, currentChannel));
+	      scanMode	= false;
+              attempts	= 0;
+	   }
 
+#endif GUI_3
 /**
   *	Once here, we are synchronized, we need to copy the data we
   *	used for synchronization for block 0
@@ -497,8 +494,17 @@ ReadyForNewFrame:
 }
 
 void	ofdmProcessor:: reset	(void) {
-	fineCorrector = coarseCorrector = 0;
+	if (isRunning ())
+	   terminate ();
+	wait ();
+	fineCorrector	= coarseCorrector = 0;
 	f2Correction	= true;
+	scanMode	= false;
+	syncBufferIndex	= 0;
+	attempts	= 0;
+	theRig	-> resetBuffer ();
+	running = false;
+	start ();
 }
 
 void	ofdmProcessor::stop	(void) {
@@ -526,6 +532,13 @@ void	ofdmProcessor::coarseCorrectorOn (void) {
 
 void	ofdmProcessor::coarseCorrectorOff (void) {
 	f2Correction	= false;
+}
+
+void	ofdmProcessor::set_scanMode	(bool b, QString channel) {
+	if (b) 
+	   reset ();
+	scanMode	= b;
+	currentChannel	= channel;
 }
 
 #define	RANGE	36

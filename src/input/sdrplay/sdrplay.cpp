@@ -36,14 +36,15 @@
 //
 #define	DEFAULT_GAIN	25
 
-	sdrplay::sdrplay  (QSettings *s, bool *success) {
+	sdrplay::sdrplay  (QSettings *s, bool *success, bool show) {
 int	err;
 float	ver;
 
 	sdrplaySettings		= s;
 	this	-> myFrame	= new QFrame (NULL);
 	setupUi (this -> myFrame);
-	this	-> myFrame	-> show ();
+	if (show)
+	   this	-> myFrame	-> show ();
 	this	-> inputRate	= Khz (2048);
 	this	-> bandWidth	= Khz (1536);
 
@@ -79,9 +80,9 @@ float	ver;
 
 	setExternalGain	(gainSlider	-> value ());
 	connect (gainSlider, SIGNAL (valueChanged (int)),
-	         this, SLOT (setExternalGain (int)));
+	         this, SLOT (setGain_slider (int)));
 	connect (agcControl, SIGNAL (stateChanged (int)),
-	         this, SLOT (set_agcControl (int)));
+	         this, SLOT (set_autoGain (int)));
 	*success	= true;
 }
 
@@ -172,7 +173,7 @@ int32_t	sdrplay::getVFOFrequency	(void) {
 	return vfoFrequency - vfoOffset;
 }
 
-void	sdrplay::setExternalGain	(int newGain) {
+void	sdrplay::setGain_slider	(int newGain) {
 	if (newGain < 0 || newGain > 102)
 	   return;
 
@@ -181,6 +182,26 @@ void	sdrplay::setExternalGain	(int newGain) {
 	currentGain = newGain;
 	return;
 }
+
+void	sdrplay::setGain	(int newgain) {
+	setGain_slider (newgain * maxGain () / 100);
+}
+
+void	sdrplay::set_autoGain	(bool b) {
+	this	-> agcMode	= agcControl -> isChecked ();
+	if (theWorker == NULL)
+	   return;
+	theWorker	-> set_agcControl (this -> agcMode);
+}
+
+void	sdrplay::setAgc		(bool b) {
+	this	-> agcMode	= b;
+	if (theWorker == NULL)
+	   return;
+	theWorker	-> set_agcControl (this -> agcMode);
+}
+
+	
 
 int16_t	sdrplay::maxGain	(void) {
 	return 101;
@@ -242,12 +263,5 @@ void	sdrplay::resetBuffer	(void) {
 
 int16_t	sdrplay::bitDepth	(void) {
 	return 14;
-}
-
-void	sdrplay::set_agcControl	(int acgMode) {
-	this	-> agcMode	= agcControl -> isChecked ();
-	if (theWorker == NULL)
-	   return;
-	theWorker	-> set_agcControl (this -> agcMode);
 }
 

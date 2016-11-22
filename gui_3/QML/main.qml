@@ -46,90 +46,95 @@ import QtQuick.Layouts 1.1
 import "style"
 
 ApplicationWindow {
-    signal stationClicked(string statio, string channel)
-    signal startChannelScanClicked
-    signal stopChannelScanClicked
-    signal exitApplicationClicked
-    signal exitSettingsClicked
+	signal stationClicked (string station, string channel)
+	signal startChannelScanClicked
+	signal stopChannelScanClicked
+	signal exitApplicationClicked
+	signal exitSettingsClicked
 
-    id: mainWindow
-    visible: true
-    width: Units.dp(700)
-    height: Units.dp(465)
-    visibility: settingsPageLoader.settingsPage.enableFullScreenState ? "FullScreen" : "Windowed"
+	id: mainWindow
+	visible: true
+	width: Units.dp (700)
+	height: Units.dp (465)
+	visibility: settingsPageLoader.
+	                settingsPage.enableFullScreenState ? "FullScreen" :
+	                                                     "Windowed"
 
-    Loader {
-        id: settingsPageLoader
-        anchors.topMargin: Units.dp(10)
-        readonly property SettingsPage settingsPage: item
-        source: Qt.resolvedUrl("SettingsPage.qml")
-    }
+	Loader {
+	   id                : settingsPageLoader
+	   anchors.topMargin : Units.dp (10)
+	   readonly property SettingsPage settingsPage: item
+	   source: Qt. resolvedUrl ("SettingsPage.qml")
+	}
 
-    Rectangle {
-        x: 0
-        color: "#212126"
-        anchors.rightMargin: 0
-        anchors.bottomMargin: 0
-        anchors.leftMargin: 0
-        anchors.topMargin: 0
-        anchors.fill: parent
-    }
+	Rectangle {
+	   x         : 0
+	   color     : "#212126"
+	   anchors. rightMargin: 0
+	   anchors. bottomMargin: 0
+	   anchors. leftMargin: 0
+	   anchors. topMargin: 0
+	   anchors. fill: parent
+	}
 
-    toolBar: BorderImage {
-        border.bottom: Units.dp(10)
-        source: "images/toolbar.png"
-        width: parent.width
-        height: Units.dp(40)
+	toolBar: BorderImage {
+	   border. bottom: Units.dp(10)
+	   source  : "images/toolbar.png"
+	   width   : parent.width
+	   height  : Units. dp(40)
 
-        Rectangle {
-            id: backButton
-            width: opacity ? Units.dp(60) : 0
-            anchors.left: parent.left
-            anchors.leftMargin: Units.dp(20)
-            anchors.verticalCenter: parent.verticalCenter
-            antialiasing: true
-            radius: Units.dp(4)
-            color: backmouse.pressed ? "#222" : "transparent"
-            Behavior on opacity { NumberAnimation{} }
-            Image {
-                anchors.verticalCenter: parent.verticalCenter
-                source: stackView.depth > 1 ? "images/navigation_previous_item.png" : "images/icon-settings.png"
-                height: stackView.depth > 1 ? Units.dp(20) : Units.dp(23)
-                fillMode: Image.PreserveAspectFit
-            }
-            MouseArea {
-                id: backmouse
-                scale: 1
-                anchors.fill: parent
-                anchors.margins: Units.dp(-20)
-                onClicked: {
-                    if(stackView.depth > 1) {
-                        stackView.pop();
-                        exitSettingsClicked();
-                    }
-                    else
-                        stackView.push(settingsPageLoader)
-                }
-            }
-        }
+	   Rectangle {
+	      id           : backButton
+	      width        : opacity ? Units.dp(60) : 0
+	      anchors.left : parent.left
+	      anchors.leftMargin: Units.dp(20)
+	      anchors.verticalCenter: parent.verticalCenter
+	      antialiasing : true
+	      radius       : Units.dp (4)
+	      color        : backmouse.pressed ? "#222" : "transparent"
+	      Behavior on opacity { NumberAnimation {} }
+	      Image {
+	         anchors. verticalCenter: parent. verticalCenter
+	         source:  stackView.depth > 1 ?
+	                        "images/navigation_previous_item.png" :
+	                        "images/icon-settings.png"
+	         height: stackView.depth > 1 ? Units. dp (20) : Units. dp (23)
+	         fillMode: Image. PreserveAspectFit
+              }
 
-        TextTitle {
-            Behavior on x { NumberAnimation{ easing.type: Easing.OutCubic} }
-            x: backButton.x + backButton.width + Units.dp(20)
-            anchors.verticalCenter: parent.verticalCenter
-            text: "dab-rpi"
-        }
+              MouseArea {
+	         id           : backmouse
+	         scale        : 1
+	         anchors.fill : parent
+	         anchors.margins: Units. dp (-20)
+	         onClicked: {
+	            if (stackView.depth > 1) {
+	               stackView. pop ();
+	               exitSettingsClicked ();
+	            }
+	            else
+	               stackView. push (settingsPageLoader)
+	         }
+              }
+	   }
 
-        TextStandart {
-            Behavior on x { NumberAnimation{ easing.type: Easing.OutCubic} }
-            anchors.right: parent.right
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.rightMargin: Units.dp(5)
-            text: "01.01.2016 00:00"
-            id: dateTimeDisplay
-        }
+	   TextTitle {
+	      Behavior on x { NumberAnimation{ easing.type: Easing.OutCubic} }
+              x: backButton.x + backButton.width + Units.dp(20)
+              anchors.verticalCenter: parent.verticalCenter
+              text: "dab-rpi"
+	   }
 
-        /*Rectangle {
+	   TextStandart {
+	      id                      : dateTimeDisplay
+	      Behavior on x { NumberAnimation{ easing.type: Easing.OutCubic} }
+	      anchors. right          : parent.right
+	      anchors. verticalCenter : parent.verticalCenter
+	      anchors. rightMargin    : Units.dp (5)
+	      text: "01.01.2016 00:00"
+	   }
+
+/*	Rectangle {
             id: exitButton
             width: opacity ? Units.dp(40) : 0
             anchors.right: parent.right
@@ -151,28 +156,29 @@ ApplicationWindow {
                 onClicked: stackView.depth > 1 ? mainWindow.exitApplicationClicked() : {}
             }
         }*/
-    }
+	}
 
-    SplitView {
-        anchors.fill: parent
-        orientation: Qt.Horizontal
+	SplitView {
+	   anchors.fill : parent
+	   orientation  : Qt.Horizontal
 
-        StackView {
-            id: stackView
-            clip: true
-            width: Units.dp(350)
+	   StackView {
+	      id    : stackView
+	      clip  : true
+	      width : Units.dp (350)
 
-            // Implements back key navigation
-            focus: true
-            Keys.onReleased: if (event.key === Qt.Key_Back && stackView.depth > 1) {
-                                 stackView.pop();
+// Implements back key navigation
+	      focus: true
+	      Keys.onReleased: if (event.key === Qt.Key_Back &&
+	                                stackView.depth > 1) {
+                                 stackView. pop ();
                                  event.accepted = true;
-                             }
+	                       }
 
-            initialItem: Item {
-                width: parent.width
-                height: parent.height
-                ListView {
+	      initialItem: Item {
+	         width: parent.width
+	         height: parent.height
+	         ListView {
                     property bool showChannelState: settingsPageLoader.settingsPage.showChannelState
                     anchors.rightMargin: 0
                     anchors.bottomMargin: 0

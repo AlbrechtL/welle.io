@@ -70,7 +70,7 @@ typedef	char *(* pfnrtlsdr_get_device_name)(int);
 class	dabStick: public virtualInput, public Ui_dabstickWidget_osmo {
 Q_OBJECT
 public:
-			dabStick	(QSettings *, bool *);
+			dabStick	(QSettings *, bool *, bool show = true);
 			~dabStick	(void);
 	void		setVFOFrequency	(int32_t);
 	void		getVFOFrequency	(int32_t *);
@@ -85,6 +85,9 @@ public:
 	void		resetBuffer	(void);
 	int16_t		maxGain		(void);
 	int16_t		bitDepth	(void);
+//
+	void		setGain		(int32_t);
+	void		setAgc		(bool);
 //
 //	These need to be visible for the separate usb handling thread
 	RingBuffer<uint8_t>	*_I_Buffer;
@@ -124,7 +127,7 @@ private:
 	pfnrtlsdr_set_freq_correction rtlsdr_set_freq_correction;
 	pfnrtlsdr_get_device_name rtlsdr_get_device_name;
 private slots:
-	void		setExternalGain		(const QString &);
+	void		setGain			(const QString &);
 	void		set_autogain		(const QString &);
 	void		set_fCorrection		(int);
 	void		set_KhzOffset		(int);
