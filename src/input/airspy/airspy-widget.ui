@@ -23,7 +23,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>2</number>
+    <number>1</number>
    </property>
    <widget class="QWidget" name="tab_1">
     <attribute name="title">
@@ -39,7 +39,7 @@
       </rect>
      </property>
      <property name="maximum">
-      <number>15</number>
+      <number>21</number>
      </property>
      <property name="value">
       <number>10</number>
@@ -82,7 +82,7 @@
       </rect>
      </property>
      <property name="maximum">
-      <number>15</number>
+      <number>21</number>
      </property>
      <property name="value">
       <number>10</number>
