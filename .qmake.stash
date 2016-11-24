@@ -1,0 +1,13 @@
+QMAKE_DEFAULT_INCDIRS = \
+    /usr/include/c++/6.2.1 \
+    /usr/include/c++/6.2.1/x86_64-redhat-linux \
+    /usr/include/c++/6.2.1/backward \
+    /usr/lib/gcc/x86_64-redhat-linux/6.2.1/include \
+    /usr/local/include \
+    /usr/include
+QMAKE_DEFAULT_LIBDIRS = \
+    /usr/lib/gcc/x86_64-redhat-linux/6.2.1 \
+    /usr/lib64 \
+    /lib64 \
+    /usr/lib \
+    /lib

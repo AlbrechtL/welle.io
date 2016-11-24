@@ -80,8 +80,7 @@ typedef int (*pfn_airspy_set_sensitivity_gain)(struct airspy_device* device, uin
 class airspyHandler: public virtualInput, public Ui_airspyWidget {
 Q_OBJECT
 public:
-			airspyHandler		(QSettings *,
-	                                         bool *, bool show = true);
+			airspyHandler		(QSettings *, bool *);
 			~airspyHandler		(void);
 	void		setVFOFrequency		(int32_t nf);
 	int32_t		getVFOFrequency		(void);
@@ -100,7 +99,7 @@ public:
 	int32_t		getSamples		(DSPCOMPLEX  *V,
 	                         		 int32_t size, uint8_t M);
 	void		setGain			(int32_t);
-
+	int16_t		currentTab;
 private slots:
 	void		set_linearity		(int value);
 	void		set_sensitivity		(int value);
