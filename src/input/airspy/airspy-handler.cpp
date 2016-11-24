@@ -465,7 +465,7 @@ int	temp;
 }
 
 void	airspyHandler::set_sensitivity (int value) {
-int	result = my_airspy_set_mixer_gain (device, value);
+int	result = my_airspy_set_sensitivity_gain (device, value);
 int	temp;
 	if (result != AIRSPY_SUCCESS) {
 	   printf ("airspy_set_mixer_gain() failed: %s (%d)\n",
