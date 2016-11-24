@@ -263,10 +263,10 @@ int32_t	bufSize	= EXTIO_NS * EXTIO_BASE_TYPE_SIZE * 2;
 	}
 
 	if (currentTab == 0)
-	   set_linearity	(linearitySlider -> value ());
+	   set_sensitivity	(sensitivitySlider -> value ());
 	else 
 	if (currentTab	== 1)
-	   set_sensitivity	(sensitivitySlider -> value ());
+	   set_linearity	(linearitySlider -> value ());
 	else {
 	   set_vga_gain		(vgaGain);
 	   set_mixer_gain	(mixerGain);
