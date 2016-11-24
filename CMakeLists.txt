@@ -285,31 +285,26 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
            include_directories (${SDRPLAYLIB_INCLUDE_DIR})
 	   set (${objectName}_UIS
 	        ${${objectName}_UIS}
-	        ./src/input/sdrplay/sdrplay-widget.ui 
+	        ./src/input/sdrplay-exp/sdrplay-widget.ui 
 	   )
 
 	   set (${objectName}_MOCS
 	        ${${objectName}_MOCS}
-	        ./src/input/sdrplay/sdrplay.h
-	        ./src/input/sdrplay/sdrplay-worker.h
+	        ./src/input/sdrplay-exp/sdrplay.h
 	   )
 
 	   include_directories (
-	     ./src/input/sdrplay
+	     ./src/input/sdrplay-exp
 	   )
 
 	   set ($(objectName)_HDRS
 	        ${${objectName}_HDRS}
-	        ./src/input/sdrplay/sdrplay.h
-	        ./src/input/sdrplay/sdrplay-loader.h
-                ./src/input/sdrplay/sdrplay-worker.h
+	        ./src/input/sdrplay-exp/sdrplay.h
            )
 
 	   set (${objectName}_SRCS
 	        ${${objectName}_SRCS}
-	        ./src/input/sdrplay/sdrplay.cpp
-	        ./src/input/sdrplay/sdrplay-worker.cpp
-                ./src/input/sdrplay/sdrplay-loader.cpp
+	        ./src/input/sdrplay-exp/sdrplay.cpp
 	   )
 
 	 add_definitions (-DHAVE_SDRPLAY)
