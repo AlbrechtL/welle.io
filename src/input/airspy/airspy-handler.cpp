@@ -152,6 +152,7 @@ uint32_t samplerate_count;
 	convBuffer		= new DSPCOMPLEX [convBufferSize + 1];
 
 	theBuffer		= new RingBuffer<DSPCOMPLEX> (256 *1024);
+	tabWidget	-> setCurrentIndex (0);
 	connect (linearitySlider, SIGNAL (valueChanged (int)),
 	         this, SLOT (set_linearity (int)));
 	connect (sensitivitySlider, SIGNAL (valueChanged (int)),
