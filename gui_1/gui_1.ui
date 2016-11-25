@@ -23,6 +23,9 @@
       <height>29</height>
      </rect>
     </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a device (channel) for the audio output. On program start up a default is chosen.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
     <item>
      <property name="text">
       <string>select device</string>
@@ -37,6 +40,9 @@
       <width>111</width>
       <height>29</height>
      </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a DAB band. The default is Band III, the old Band III terrestrial TV band. Alternatively the L Band may be selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <item>
      <property name="text">
@@ -58,6 +64,9 @@
       <height>31</height>
      </rect>
     </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Push this button for saving the audio output into a file. First push will show a menu for file selection. Once saving, push again for closing the file.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
     <property name="text">
      <string>audio</string>
     </property>
@@ -71,6 +80,9 @@
       <height>31</height>
      </rect>
     </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Push this button for saving the raw input. Pushing will cause a menu to appear where a filename can be selected. Once dumping, pushing the button will cause the file to be closed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
     <property name="text">
      <string>dump</string>
     </property>
@@ -83,6 +95,9 @@
       <width>101</width>
       <height>29</height>
      </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select the DAB mode. By default mode 1 is selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <item>
      <property name="text">
@@ -114,6 +129,9 @@
       <height>29</height>
      </rect>
     </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select the input device. The devices shown are configured. After selecting a device, one has to push the start button to activate the program.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
     <item>
      <property name="text">
       <string>no device</string>
@@ -138,6 +156,9 @@
       <width>83</width>
       <height>29</height>
      </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select the channel. The table presented - obviously - depends on the band chosen.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
    <widget class="QLabel" name="timeDisplay">
@@ -295,6 +316,9 @@
       <height>21</height>
      </rect>
     </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Indicator for time synchronization. Green means that the software recognizes that there are DAB frames, not necessarily that the software is able to decode the DAB stream.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
     <property name="frameShape">
      <enum>QFrame::Box</enum>
     </property>
@@ -310,6 +334,9 @@
       <width>64</width>
       <height>23</height>
      </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Quality of the MP2/4 stream. 100 is good, lower means that there are (unrecoverable) errors, leading to hick ups in the resulting audio stream.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="frameShape">
      <enum>QFrame::NoFrame</enum>
@@ -330,6 +357,9 @@
       <height>23</height>
      </rect>
     </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Quality indicator of the FIC data stream. 100 is good, less means that there are unrecoverable&lt;/p&gt;&lt;p&gt;errors, which usually means that the other quality indicator also shows a number less than 100.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
     <property name="frameShape">
      <enum>QFrame::NoFrame</enum>
     </property>
@@ -349,6 +379,9 @@
       <height>23</height>
      </rect>
     </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A signal Noise indicator. In general: higher is better, through strongly depending on the device. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
     <property name="frameShape">
      <enum>QFrame::NoFrame</enum>
     </property>
@@ -367,6 +400,9 @@
       <width>61</width>
       <height>23</height>
      </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The hecadecimal number indicated the ensemble being received.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="frameShape">
      <enum>QFrame::NoFrame</enum>
@@ -402,6 +438,9 @@
       <width>51</width>
       <height>23</height>
      </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The rate with which the encoded audio is coming. In general: higher is better.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="frameShape">
      <enum>QFrame::NoFrame</enum>
