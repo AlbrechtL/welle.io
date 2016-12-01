@@ -885,7 +885,7 @@ bool	RadioInterface::setDevice (QString s) {
 bool	success;
 #ifdef AIRSPY
 	if (s == "airspy") {
-	   inputDevice	= new airspyHandler (dabSettings, &success, false);
+	   inputDevice	= new airspyHandler (dabSettings, &success, true);
 	   if (!success) {
 	      delete inputDevice;
 	      inputDevice = new virtualInput ();
@@ -912,7 +912,7 @@ bool	success;
 #endif
 #ifdef	HAVE_SDRPLAY
 	if (s == "sdrplay") {
-	   inputDevice	= new sdrplay (dabSettings, &success, false);
+	   inputDevice	= new sdrplay (dabSettings, &success, true);
 	   if (!success) {
 	      delete inputDevice;
 	      inputDevice = new virtualInput ();
@@ -925,7 +925,7 @@ bool	success;
 #endif
 #ifdef	HAVE_DABSTICK
 	if (s == "dabstick") {
-	   inputDevice	= new dabStick (dabSettings, &success, false);
+	   inputDevice	= new dabStick (dabSettings, &success, true);
 	   if (!success) {
 	      delete inputDevice;
 	      inputDevice = new virtualInput ();
