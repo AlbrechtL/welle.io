@@ -1249,6 +1249,8 @@ SF_INFO *sf_info	= (SF_INFO *)alloca (sizeof (SF_INFO));
 	                                     QDir::homePath (),
 	                                     tr ("raw data (*.sdr)"));
 	file	= QDir::toNativeSeparators (file);
+	if (!file. endsWith (".wav", Qt::CaseInsensitive))
+	   file. append (".sdr");
 	sf_info	-> samplerate	= INPUT_RATE;
 	sf_info	-> channels	= 2;
 	sf_info	-> format	= SF_FORMAT_WAV | SF_FORMAT_PCM_16;
@@ -1280,6 +1282,8 @@ SF_INFO	*sf_info	= (SF_INFO *)alloca (sizeof (SF_INFO));
 	                                        QDir::homePath (),
 	                                        tr ("Sound (*.wav)"));
 	file		= QDir::toNativeSeparators (file);
+	if (!file. endsWith (".wav", Qt::CaseInsensitive))
+	   file. append (".wav");
 	sf_info		-> samplerate	= 48000;
 	sf_info		-> channels	= 2;
 	sf_info		-> format	= SF_FORMAT_WAV | SF_FORMAT_PCM_16;
