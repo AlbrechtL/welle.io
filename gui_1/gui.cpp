@@ -1249,7 +1249,7 @@ SF_INFO *sf_info	= (SF_INFO *)alloca (sizeof (SF_INFO));
 	                                     QDir::homePath (),
 	                                     tr ("raw data (*.sdr)"));
 	file	= QDir::toNativeSeparators (file);
-	if (!file. endsWith (".wav", Qt::CaseInsensitive))
+	if (!file. endsWith (".sdr", Qt::CaseInsensitive))
 	   file. append (".sdr");
 	sf_info	-> samplerate	= INPUT_RATE;
 	sf_info	-> channels	= 2;
