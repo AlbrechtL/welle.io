@@ -677,7 +677,7 @@ bool	success;
 #endif
 #ifdef	HAVE_SDRPLAY
 	if (s == "sdrplay") {
-	   inputDevice	= new sdrplay (dabSettings, &success, true);
+	   inputDevice	= new sdrplay (dabSettings, &success, false);
 	   if (!success) {
 	      delete inputDevice;
 	      inputDevice = new virtualInput ();
@@ -690,7 +690,7 @@ bool	success;
 #endif
 #ifdef	HAVE_DABSTICK
 	if (s == "dabstick") {
-	   inputDevice	= new dabStick (dabSettings, &success, true);
+	   inputDevice	= new dabStick (dabSettings, &success, false);
 	   if (!success) {
 	      delete inputDevice;
 	      inputDevice = new virtualInput ();
@@ -705,7 +705,7 @@ bool	success;
 //	and as default option, we have a "no device"
 	   inputDevice	= new virtualInput ();
 	}
-	return true;
+	return false;
 }
 
 void RadioInterface::showCorrectedErrors (int Errors) {

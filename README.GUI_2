@@ -1,0 +1,44 @@
+
+In gui_2 it is assumed that the dab program itself does not have a GUI.
+It is controlled remotely.
+
+
+The interface is simple:
+commands to the dab-rpi program are transmitted through port 20020,
+and there are only a few.
+
+PCM samples, i.. the resulting sound is sent through port 20040.
+
+commands are passed as packets
+1 byte for the command
+1 byte for the length of the message
+if needed bytes for parameters
+commands are
+
+    0170 : no parameters, call setStart
+    0171 : no parameters, call terminate process
+    0172 : one parameter, a sequence of characters forming the name of 
+           the channel to be selected
+    0173 : one parameter, a sequence of characters forming the name of
+           the program in the current ensemble to be selected.
+    0174 : one (byte) parameter, the value for the gain (attenuation) to be used.
+
+The dab-rpi, when configured with the gui_2, will send messages
+to the same port out, for the remore control to be interpreter.
+
+The format of the messages is
+	first byte	0266
+	second byte	message type
+	third byte	length of the message
+Rge messages themselves are
+	COARSE_CORRECTOR	= 1,	// parameter is an int
+	CLEAR_ENSEMBLE		= 2,	// no parameter
+	ENSEMBLE_NAME		= 3,	// parameter is a QString
+	PROGRAM_NAME		= 4,	// parameter is a QString
+	SUCCESS_RATE		= 5,	// parameter is an int
+	SIGNAL_POWER		= 6,	// parameter is an int
+	SYNC_FLAG		= 7,	// parameter is an int
+	STATION_TEXT		= 8,	// parameter is unknown
+	FIC_FLAG		= 9,	// parameter is an int
+	STEREO_FLAG		= 10	// parameter is an int
+
