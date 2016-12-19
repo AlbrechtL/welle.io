@@ -101,7 +101,7 @@ QString		dabBand		= QString ("");
 	      case 'S':
 	         syncMethod	= atoi (optarg);
 	         break;
-#ifdef GUI_3
+#if defined(GUI_3) | defined (GUI_2)
 	      case 'D':
 	         dabDevice = optarg;
 	         break;
@@ -122,7 +122,7 @@ QString		dabBand		= QString ("");
 	}
 	dabSettings =  new QSettings (defaultInit, QSettings::IniFormat);
 
-#ifdef	GUI_3
+#if defined (GUI_3) | defined (GUI_2)
 //	Since we do not have the possibility in GUI_3 to select
 //	Mode, Band or Device, we create the possibility for
 //	passing appropriate parameters to the command
@@ -131,7 +131,7 @@ QString		dabBand		= QString ("");
 	if (dabMode == 127)
 	   dabMode = dabSettings -> value ("dabMode", 1). toInt ();
 	if (dabDevice == QString (""))
-	   dabDevice = dabSettings -> value ("dabDevice", "dabstick"). toString ();
+	   dabDevice = dabSettings -> value ("device", "dabstick"). toString ();
 	if (dabBand == QString (""))
 	   dabBand = dabSettings -> value ("band", "BAND III"). toString ();
 #endif 
@@ -140,22 +140,28 @@ QString		dabBand		= QString ("");
  *	instantiate
  */
 	QApplication a (argc, argv);
+#if QT_VERSION >= 0x050600
+	QGuiApplication::setAttribute (Qt::AA_EnableHighDpiScaling);
 //	save the values for the new defaults
+#endif
 #ifdef	GUI_3
-	dabSettings -> setValue ("dabMode", dabMode);
-	dabSettings -> setValue ("dabDevice",  dabDevice);
-	dabSettings -> setValue ("band",    dabBand);
+	dabSettings -> setValue ("dabMode",	dabMode);
+	dabSettings -> setValue ("device",	dabDevice);
+	dabSettings -> setValue ("band",	dabBand);
 	QQmlApplicationEngine engine(QUrl("qrc:/QML/main.qml"));
 	MyRadioInterface = new RadioInterface (dabSettings, &engine,
 	                                       dabDevice, dabMode, dabBand);
+#elif defined (GUI_2)
+	dabSettings -> setValue ("dabMode",	dabMode);
+	dabSettings -> setValue ("device",	dabDevice);
+	dabSettings -> setValue ("band",	dabBand);
+	MyRadioInterface = new RadioInterface (dabSettings, 
+	                                       dabDevice, dabMode, dabBand);
 #else
-#if QT_VERSION >= 0x050600
-	QGuiApplication::setAttribute (Qt::AA_EnableHighDpiScaling);
-#endif
 	MyRadioInterface = new RadioInterface (dabSettings, syncMethod);
 	MyRadioInterface -> show ();
 #endif
-
+	dabSettings	-> sync ();
 	a. exec ();
 /*
  *	done:

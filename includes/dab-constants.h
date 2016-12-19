@@ -67,7 +67,7 @@ using namespace std;
 #define	MHz(x)		(KHz (x) * 1000)
 #define	mHz(x)		(kHz (x) * 1000)
 
-#define	CURRENT_VERSION	"0.997"
+#define	CURRENT_VERSION	"0.9975"
 
 #define		DAB		0100
 #define		DAB_PLUS	0101
@@ -121,6 +121,7 @@ DSPFLOAT	PI_Constrain (DSPFLOAT val) {
 }
 /*
  */
+
 #define	MINIMUM(x, y)	((x) < (y) ? x : y)
 #define	MAXIMUM(x, y)	((x) > (y) ? x : y)
 

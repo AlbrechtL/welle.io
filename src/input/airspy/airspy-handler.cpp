@@ -28,7 +28,7 @@ const	int	EXTIO_NS	=  8192;
 static
 const	int	EXTIO_BASE_TYPE_SIZE = sizeof (float);
 
-	airspyHandler::airspyHandler (QSettings *s, bool *success) {
+	airspyHandler::airspyHandler (QSettings *s, bool *success, bool show) {
 int	result, i;
 int	distance	= 10000000;
 uint32_t myBuffer [20];
@@ -37,8 +37,8 @@ uint32_t samplerate_count;
 	this	-> airspySettings	= s;
 	this	-> myFrame		= new QFrame (NULL);
 	setupUi (this -> myFrame);
-	
-	this	-> myFrame	-> show ();
+	if (show)
+	   this	-> myFrame	-> show ();
 	*success		= false;
 	airspySettings	-> beginGroup ("airspyHandler");
 	int16_t temp 		= airspySettings -> value ("linearity", 10).

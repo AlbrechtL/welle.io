@@ -159,6 +159,7 @@ int32_t	i;
   *	we therefore distinguish between getting a single sample
   *	and getting a vector full of samples
   */
+
 DSPCOMPLEX ofdmProcessor::getSample (int32_t phase) {
 DSPCOMPLEX temp;
 	if (!running)

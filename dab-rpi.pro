@@ -148,6 +148,12 @@ SOURCES += ./main.cpp \
 #	for unix systems this is about it. Adapt when needed for naming
 #	and locating libraries. If you do not need a device as
 #	listed, just comment the line out.
+#
+#	Note
+#	Select "gui_1" for (more or less) normal use, with or without
+#	a tcp streamer
+#	Select "gui_3" for a fancy interface, using qml 
+#	Select "gui_2" for a dab-rpi without GUI, i.e. one with remote control
 unix {
 CONFIG		+= dabstick_osmo
 CONFIG		+= sdrplay-exp
@@ -155,9 +161,7 @@ CONFIG		+= sdrplay-exp
 CONFIG		+= rtl_tcp
 CONFIG		+= airspy
 #CONFIG		+= tcp-streamer		# use for remote listening
-CONFIG		+= gui_1
-DEFINES		+= MOT_BASICS__		# use at your own risk
-DEFINES		+= MSC_DATA__		# use at your own risk
+CONFIG		+= gui_2
 DESTDIR		= ./linux-bin
 INCLUDEPATH	+= /usr/local/include
 LIBS		+= -lfftw3f  -lusb-1.0 -ldl  #
@@ -213,17 +217,10 @@ gui_1	{
 	FORMS 		+= ./gui_1/gui_1.ui 
 	HEADERS		+= ./gui_1/gui.h
 	SOURCES		+= ./gui_1/gui.cpp
+	DEFINES		+= MOT_BASICS__		# use at your own risk
+	DEFINES		+= MSC_DATA__		# use at your own risk
 }
 	
-gui_2	{
-	DEFINES		+= GUI_2
-	INCLUDEPATH	+= ./gui_2
-	DEPENDPATH	+= ./gui_2
-	FORMS 		+= ./gui_2/gui_2.ui 
-	HEADERS		+= ./gui_2/gui.h
-	SOURCES		+= ./gui_2/gui.cpp
-}
-
 gui_3	{
         DEFINES		+= GUI_3
 	QT		+= qml quick
@@ -241,6 +238,16 @@ gui_3	{
             gui_3/touch_gui_resource.qrc
 }
 	
+gui_2	{
+	DEFINES		+= GUI_2
+	INCLUDEPATH	+= ./gui_2
+	DEPENDPATH	+= ./gui_2
+	HEADERS		+= ./gui_2/gui.h
+	SOURCES		+= ./gui_2/gui_2.cpp
+	CONFIG		+= tcp-streamer		# use for remote listening
+}
+
+
 #	devices
 #
 #	dabstick

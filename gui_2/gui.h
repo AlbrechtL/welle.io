@@ -22,21 +22,24 @@
  *    You should have received a copy of the GNU General Public License
  *    along with SDR-J; if not, write to the Free Software
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ *	Gui design and implementation in gui_3:
+ *	(c) Albrecht Lohoefener
  */
 
 #ifndef _GUI
 #define _GUI
 
 #include	"dab-constants.h"
-#include	<QMainWindow>
-#include	<QStringList>
-#include	<QStringListModel>
-#include	<QUdpSocket>
-#include	<QComboBox>
-#include	<QLabel>
 #include	<sndfile.h>
-#include	"ui_gui_2.h"
-#include	<QTimer>
+
+#include        <QByteArray>
+#include        <QHostAddress>
+#include        <QtNetwork>
+#include        <QTcpServer>
+#include        <QTcpSocket>
+#include        <QTimer>
+
 #include	"ofdm-processor.h"
 #include	"ringbuffer.h"
 
@@ -49,99 +52,109 @@ class	ficHandler;
 
 class	common_fft;
 
-#ifdef	TCP_STREAMER
-class	tcpStreamer;
-#endif
 /*
- *	GThe main gui object. It inherits from
- *	QDialog and the generated form
+ *	The interface for a remote GUI
  */
-class RadioInterface: public QMainWindow,
-		      private Ui_dab_rpi {
+
+enum messages {
+	COARSE_CORRECTOR	=  1,
+	CLEAR_ENSEMBLE		=  2,
+	ENSEMBLE_NAME		=  3,
+	PROGRAM_NAME		=  4,
+	SUCCESS_RATE		=  5,
+	SIGNAL_POWER		=  6,
+	SYNC_FLAG		=  7,
+	STATION_TEXT		=  8,
+	FIC_FLAG		=  9,
+	STEREO_FLAG		= 10
+};
+
+class RadioInterface: public QObject{
 Q_OBJECT
 public:
-		RadioInterface		(QSettings	*,
-	                                 uint8_t	freqsyncMethod,
-	                                 QWidget *parent = NULL);
-		~RadioInterface		();
+        	RadioInterface		(QSettings *,
+	                                 QString,
+	                                 uint8_t,
+	                                 QString,
+                                         QObject *parent = NULL);
+		~RadioInterface		(void);
 
 private:
 	QSettings	*dabSettings;
-	bool		autoStart;
 	int16_t		threshold;
-	uint8_t		freqsyncMethod;
-	int32_t		vfoFrequency;
-	void		setupChannels		(QComboBox *s, uint8_t band);
 	void		setModeParameters	(uint8_t);
-	void		clear_showElements	(void);
 	DabParams	dabModeParameters;
 	uint8_t		isSynced;
 	uint8_t		dabBand;
 	bool		running;
-	int16_t		coarseOffset;
-	int16_t		fineOffset;
 	virtualInput	*inputDevice;
 	ofdmProcessor	*my_ofdmProcessor;
 	ficHandler	*my_ficHandler;
 	mscHandler	*my_mscHandler;
 	audioBase	*soundOut;
 	RingBuffer<int16_t>	*audioBuffer;
+	DSPCOMPLEX	*spectrumBuffer;
 	bool		autoCorrector;
 const	char		*get_programm_type_string (uint8_t);
 const	char		*get_programm_language_string (uint8_t);
-	QLabel		*pictureLabel;
-	QUdpSocket	DSCTy_59_socket;
-	QString		ipAddress;
-	int32_t		port;
-	bool		show_crcErrors;
-	void		init_your_gui		(void);
 	void		dumpControlState	(QSettings *);
-	FILE		*crcErrors_File;
-	bool		sourceDumping;
-	SNDFILE		*dumpfilePointer;
-	bool		audioDumping;
-	SNDFILE		*audiofilePointer;
-	QStringListModel	ensemble;
-	QStringList	Services;
-	QString		ensembleLabel;
-	QTimer		*displayTimer;
-	int32_t		numberofSeconds;
-	void		resetSelector		(void);
-	int16_t		ficBlocks;
+
+	QString		currentChannel;
+	QString		CurrentDevice;
+	QString		ensemble;
+	bool		isFICCRC;
+	bool		isSignalPresent;
+	int		coarseCorrector;
+	int		fineCorrector;
+	bool		setDevice		(QString);
+	void		showMessage		(int m);
+	void		showMessage		(int m, int v);
+	void		showMessage		(int m, QString s);
+	QString		stringFrom		(QByteArray);
+	void		setStart		(void);
+	void		TerminateProcess	(void);
+	void		setChannel		(QString);
+	void		setService		(QString);
+	QTcpServer	server;
+	QTcpServer	streamer;
+	QTcpSocket	*client;
+	QTcpSocket	*streamerAddress;
+	QTimer		watchTimer;
+	bool		notConnected;
+	QStringList	stationList;
+
 	int16_t		ficSuccess;
+	int16_t		ficBlocks;
+	bool		haveStereo;
 public slots:
-	void	set_fineCorrectorDisplay	(int);
-	void	set_coarseCorrectorDisplay	(int);
-	void	clearEnsemble		(void);
-	void	addtoEnsemble		(const QString &);
-	void	nameofEnsemble		(int, const QString &);
-	void	show_successRate	(int);
-	void	show_ficCRC		(bool);
-	void	show_snr		(int);
-	void	setSynced		(char);
-	void	showLabel		(QString);
-	void	showMOT			(QByteArray, int);
-	void	sendDatagram		(char *, int);
-	void	changeinConfiguration	(void);
-	void	newAudio		(int);
+	void		set_fineCorrectorDisplay	(int);
+	void		set_coarseCorrectorDisplay	(int);
+	void		clearEnsemble		(void);
+	void		addtoEnsemble		(const QString &);
+	void		nameofEnsemble		(int, const QString &);
+	void		show_successRate	(int);
+	void		show_ficCRC		(bool);
+	void		show_snr		(int);
+	void		setSynced		(char);
+	void		showLabel		(QString);
+	void		showMOT			(QByteArray, int);
+	void		sendDatagram		(char *, int);
+	void		changeinConfiguration	(void);
+	void		newAudio		(int);
 //
-	void	show_mscErrors		(int);
-	void	show_ipErrors		(int);
-	void	setStereo		(bool);
+	void		show_mscErrors		(int);
+	void		show_ipErrors		(int);
+	void		setStereo		(bool isStereo);
+	void		processCommand          (void);
+        void		acceptConnection        (void);
+
 private slots:
 //
 //	Somehow, these must be connected to the GUI
 //	We assume that any GUI will need these three:
-	void	setStart		(void);
-	void	TerminateProcess	(void);
-	void	set_channelSelect	(QString);
-	void	updateTimeDisplay	(void);
-
-	void	autoCorrector_on	(void);
-
-	void	setDevice		(QString);
-	void	selectService		(QModelIndex);
+	void		updateTimeDisplay	(void);
+	void		autoCorrector_on	(void);
+	void		showCorrectedErrors 	(int);
 };
 
 #endif
-

@@ -97,7 +97,8 @@ int32_t	i;
 	delete	_O_Buffer;
 	delete[] outTable;
 #ifndef	GUI_3
-	streamSelector	-> hide ();
+	if (streamSelector != NULL)
+	   streamSelector	-> hide ();
 #endif
 }
 

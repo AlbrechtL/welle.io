@@ -36,7 +36,6 @@
 	connect (&streamer, SIGNAL (newConnection (void)),
 	                this, SLOT (acceptConnection (void)));
 	streamer. listen (QHostAddress::Any, port);
-	fprintf (stderr, "listering on port %d\n", port);
 	connect (this, SIGNAL (handleSamples (void)),
 	         this, SLOT (processSamples (void)));
 }
