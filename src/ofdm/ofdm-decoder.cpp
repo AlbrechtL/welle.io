@@ -85,7 +85,7 @@ int16_t	i;
 	running	= false;
 	commandHandler. wakeAll ();
 	usleep (1000);
-	while (!isFinished () && isRunning ());
+	while (!isFinished () && isRunning ())
 	   usleep (100);
 	delete		fft_handler;
 	delete[]	phaseReference;
@@ -177,7 +177,6 @@ void	ofdmDecoder::decodeMscblock (DSPCOMPLEX *vi, int32_t blkno) {
   *	handle block 0 as collected from the buffer
   */
 void	ofdmDecoder::processBlock_0 (void) {
-int16_t	i, index = 0;
 
 	memcpy (fft_buffer, command [0], T_u * sizeof (DSPCOMPLEX));
 	fft_handler	-> do_FFT ();

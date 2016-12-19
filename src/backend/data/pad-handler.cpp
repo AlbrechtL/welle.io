@@ -46,7 +46,6 @@
   */
 void	padHandler::processPAD (uint8_t *theAU) {
 uint8_t buffer [255];
-int16_t	i;
 int16_t	count	= theAU [1];
 ///	first we copy the data into a local buffer
 	memcpy (buffer, &theAU[2], theAU [1]);
@@ -64,7 +63,7 @@ int16_t	count	= theAU [1];
 	}
 
 	if (x_padInd == 02) {
-	   uint8_t Z_bit		= (buffer [count - 1] & 01);
+//	   uint8_t Z_bit		= (buffer [count - 1] & 01);
 	   uint8_t CI_flag		= (buffer [count - 1] >> 1) & 01;
 	   handle_variablePAD (buffer, count, CI_flag);
 	}
@@ -100,7 +99,6 @@ int16_t	CI_index = 0;
 uint8_t CI_table [16];
 int16_t	i, j;
 int16_t	base	= count - 2 - 1;	// for the F-pad
-int16_t	length	= 0;
 
 	if (CI_flag == 0)	// I do not understand
 	   return;
@@ -126,7 +124,7 @@ int16_t	length	= 0;
 	      uint8_t	byte_1	= b [base - 1];
 //
 //	still not very clear what the crc is referring to
-	      uint16_t	crc	= (b [base - 2] << 8) | b [base - 3];
+//	      uint16_t	crc	= (b [base - 2] << 8) | b [base - 3];
 	      msc_dataGroupLength	= ((byte_0 & 077) << 8) | byte_1;
 //	      fprintf (stderr, "msc_dataGroupLength = %d\n",
 //	                                    msc_dataGroupLength);

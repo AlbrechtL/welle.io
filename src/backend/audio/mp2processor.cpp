@@ -495,76 +495,76 @@ int32_t table_idx;
 	         }
 	      }
 
-	      if (mode == MONO)
-	         for (part = 0;  part < 3;  ++part)
-	            scalefactor[1][sb][part] = scalefactor[0][sb][part];
-	   }
+	   if (mode == MONO)
+	      for (part = 0;  part < 3;  ++part)
+	         scalefactor[1][sb][part] = scalefactor[0][sb][part];
+	}
 
 // coefficient input and reconstruction
-	   for (part = 0;  part < 3;  ++part)
-	      for (gr = 0;  gr < 4;  ++gr) {
+	for (part = 0;  part < 3;  ++part)
+	   for (gr = 0;  gr < 4;  ++gr) {
 // read the samples
-	         for (sb = 0;  sb < bound;  ++sb)
-	            for (ch = 0;  ch < 2;  ++ch)
-	               read_samples (allocation[ch][sb],
+	      for (sb = 0;  sb < bound;  ++sb)
+	         for (ch = 0;  ch < 2;  ++ch)
+	            read_samples (allocation[ch][sb],
 	                             scalefactor[ch][sb][part],
 	                             &sample[ch][sb][0]);
-	            for (sb = bound;  sb < sblimit;  ++sb) {
-	               read_samples (allocation[0][sb],
+	         for (sb = bound;  sb < sblimit;  ++sb) {
+	            read_samples (allocation[0][sb],
 	                             scalefactor[0][sb][part],
 	                             &sample[0][sb][0]);
-	               for (idx = 0;  idx < 3;  ++idx)
-	                  sample[1][sb][idx] = sample[0][sb][idx];
-	            }
+	            for (idx = 0;  idx < 3;  ++idx)
+	               sample[1][sb][idx] = sample[0][sb][idx];
+	         }
 
-	            for (ch = 0;  ch < 2;  ++ch)
-	               for (sb = sblimit;  sb < 32;  ++sb)
-	                  for (idx = 0;  idx < 3;  ++idx)
-	                     sample[ch][sb][idx] = 0;
+	         for (ch = 0;  ch < 2;  ++ch)
+	            for (sb = sblimit;  sb < 32;  ++sb)
+	               for (idx = 0;  idx < 3;  ++idx)
+	                  sample[ch][sb][idx] = 0;
 
 // synthesis loop
-	            for (idx = 0;  idx < 3;  ++idx) {
+	         for (idx = 0;  idx < 3;  ++idx) {
 // shifting step
-	               Voffs = table_idx = (Voffs - 64) & 1023;
+	            Voffs = table_idx = (Voffs - 64) & 1023;
 
-	               for (ch = 0;  ch < 2;  ++ch) {
+	            for (ch = 0;  ch < 2;  ++ch) {
 // matrixing
-	                  for (i = 0;  i < 64;  ++i) {
-	                     sum = 0;
-	                     for (j = 0;  j < 32;  ++j) // 8b*15b=23b
-	                        sum += N[i][j] * sample[ch][j][idx];
+	               for (i = 0;  i < 64;  ++i) {
+	                  sum = 0;
+	                  for (j = 0;  j < 32;  ++j) // 8b*15b=23b
+	                     sum += N[i][j] * sample[ch][j][idx];
 // intermediate value is 28 bit (23 + 5), clamp to 14b
 //
-	                     V [ch][table_idx + i] = (sum + 8192) >> 14;
-	                  }
+	                  V [ch][table_idx + i] = (sum + 8192) >> 14;
+	               }
 
 // construction of U
-	                  for (i = 0;  i < 8;  ++i)
-	                     for (j = 0;  j < 32;  ++j) {
-	                        U [(i << 6) + j]
+	               for (i = 0;  i < 8;  ++i)
+	                  for (j = 0;  j < 32;  ++j) {
+	                     U [(i << 6) + j]
 	                           = V [ch][(table_idx + (i << 7) + j) & 1023];
-	                        U [(i << 6) + j + 32] =
+	                     U [(i << 6) + j + 32] =
 	                            V [ch][(table_idx + (i << 7) + j + 96) & 1023];
-	                     }
+	                  }
 
 // apply window
-	                  for (i = 0;  i < 512;  ++i)
-	                     U [i] = (U [i] * D [i] + 32) >> 6;
+	               for (i = 0;  i < 512;  ++i)
+	                  U [i] = (U [i] * D [i] + 32) >> 6;
 
 // output samples
-	                  for (j = 0;  j < 32;  ++j) {
-	                     sum = 0;
-	                     for (i = 0;  i < 16;  ++i)
-	                        sum -= U [(i << 5) + j];
-	                     sum = (sum + 8) >> 4;
-	                     if (sum < -32768)
-	                        sum = -32768;
-	                     if (sum > 32767)
-	                        sum = 32767;
-	                     pcm[(idx << 6) | (j << 1) | ch] = (uint16_t) sum;
-	                  }
-	               } // end of synthesis channel loop
-	            } // end of synthesis sub-block loop
+	               for (j = 0;  j < 32;  ++j) {
+	                  sum = 0;
+	                  for (i = 0;  i < 16;  ++i)
+	                     sum -= U [(i << 5) + j];
+	                  sum = (sum + 8) >> 4;
+	                  if (sum < -32768)
+	                     sum = -32768;
+	                  if (sum > 32767)
+	                     sum = 32767;
+	                  pcm[(idx << 6) | (j << 1) | ch] = (uint16_t) sum;
+	               }
+	            } // end of synthesis channel loop
+	         } // end of synthesis sub-block loop
 // adjust PCM output pointer: decoded 3 * 32 = 96 stereo samples
 	      pcm += 192;
 	   } // decoding of the granule finished

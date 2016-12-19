@@ -265,15 +265,14 @@ int		attempts	= 0;
    */
 void	ofdmProcessor::run	(void) {
 int32_t		startIndex;
-int32_t		i, j;
+int32_t		i;
 DSPCOMPLEX	FreqCorr;
 int32_t		counter;
 float		currentStrength;
 int32_t		syncBufferSize	= 32768;
 int32_t		syncBufferMask	= syncBufferSize - 1;
 float		envBuffer	[syncBufferSize];
-int		previous_1	= 1000;
-int		previous_2	= 1000;
+
 	running		= true;
 	fineCorrector	= 0;
 	sLevel		= 0;
@@ -384,7 +383,7 @@ SyncOnPhase:
               attempts	= 0;
 	   }
 
-#endif GUI_3
+#endif
 /**
   *	Once here, we are synchronized, we need to copy the data we
   *	used for synchronization for block 0
@@ -411,16 +410,10 @@ Block_0:
 //	The width is limited to 2 * 35 Khz (i.e. positive and negative)
 	   if (f2Correction) {
 	      int correction		= processBlock_0 (ofdmBuffer);
-//	      if ((correction == 0) && (previous_1 == 0) &&
-//	          (previous_1 == previous_2))
-//	         f2Correction = false;
-//	      else
 	      if (correction != 100) {
 	         coarseCorrector	+= correction * params -> carrierDiff;
 	         if (abs (coarseCorrector) > Khz (35))
 	            coarseCorrector = 0;
-	         previous_2	= previous_1;
-	         previous_1	= correction;
 	      }
 	   }
 /**
@@ -445,7 +438,7 @@ Data_blocks:
 
 ///	and similar for the (params -> L - 4) MSC blocks
 	   for (ofdmSymbolCount = 4;
-	        ofdmSymbolCount < (int16_t)(params -> L);
+	        ofdmSymbolCount <  (uint16_t)params -> L;
 	        ofdmSymbolCount ++) {
 	      getSamples (ofdmBuffer, T_s, coarseCorrector + fineCorrector);
 	      for (i = (int32_t)T_u; i < (int32_t)T_s; i ++) 
@@ -596,7 +589,6 @@ int16_t	i, j, index = 100;
 //	An alternative way is to look at a special pattern consisting
 //	of zeros in the row of args between successive carriers.
 	   float Mmin	= 1000;
-	   float OMmin	= 1000;
 	   for (i = T_u - SEARCH_RANGE / 2; i < T_u + SEARCH_RANGE / 2; i ++) {
                  float a1  =  abs (abs (arg (fft_buffer [(i + 1) % T_u] *
                                 conj (fft_buffer [(i + 2) % T_u])) / M_PI) - 1);
@@ -618,7 +610,6 @@ int16_t	i, j, index = 100;
 	         	                    conj (fft_buffer [(i + 16 + 6) % T_u])));
 	         float sum = a1 + a2 + a3 + a4 + a5 + b1 + b2 + b3 + b4;
 	         if (sum < Mmin) {
-	           OMmin = Mmin;
 	            Mmin = sum;
 	            index = i;
 	         }

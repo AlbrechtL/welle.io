@@ -606,14 +606,15 @@ int32_t	tunedFrequency;
 
 	if (localRunning) {
 	   soundOut -> restart ();
-	   inputDevice	 -> restartReader ();
 	   my_ofdmProcessor	-> reset ();
+	   inputDevice	 -> restartReader ();
 	   running	 = true;
 	}
 }
 
 //	Note that the audiodata or the packetdata contains quite some
 //	info on the service (i.e. rate, address, etc)
+//	Here we only support audio services.
 void	RadioInterface::setService (QString a) {
 
 	switch (my_ficHandler -> kindofService (a)) {
@@ -628,9 +629,6 @@ void	RadioInterface::setService (QString a) {
 	   default:
 	      return;
 	}
-}
-
-void	RadioInterface::updateTimeDisplay (void) {
 }
 
 void	RadioInterface::autoCorrector_on (void) {

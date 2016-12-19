@@ -101,6 +101,7 @@ QString		dabBand		= QString ("");
 	      case 'S':
 	         syncMethod	= atoi (optarg);
 	         break;
+
 #if defined(GUI_3) | defined (GUI_2)
 	      case 'D':
 	         dabDevice = optarg;
@@ -145,6 +146,7 @@ QString		dabBand		= QString ("");
 //	save the values for the new defaults
 #endif
 #ifdef	GUI_3
+	(void)syncMethod;
 	dabSettings -> setValue ("dabMode",	dabMode);
 	dabSettings -> setValue ("device",	dabDevice);
 	dabSettings -> setValue ("band",	dabBand);
@@ -152,6 +154,7 @@ QString		dabBand		= QString ("");
 	MyRadioInterface = new RadioInterface (dabSettings, &engine,
 	                                       dabDevice, dabMode, dabBand);
 #elif defined (GUI_2)
+	(void)syncMethod;
 	dabSettings -> setValue ("dabMode",	dabMode);
 	dabSettings -> setValue ("device",	dabDevice);
 	dabSettings -> setValue ("band",	dabBand);

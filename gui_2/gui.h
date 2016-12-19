@@ -152,7 +152,6 @@ private slots:
 //
 //	Somehow, these must be connected to the GUI
 //	We assume that any GUI will need these three:
-	void		updateTimeDisplay	(void);
 	void		autoCorrector_on	(void);
 	void		showCorrectedErrors 	(int);
 };

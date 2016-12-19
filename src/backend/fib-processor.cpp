@@ -374,6 +374,7 @@ uint8_t		cId;
 uint32_t	SId;
 int16_t		numberofComponents;
 
+	(void)cn;
 	if (pd == 1) {		// long Sid
 	   ecc	= getBits_8 (d, lOffset);	(void)ecc;
 	   cId	= getBits_4 (d, lOffset + 1);
@@ -437,6 +438,7 @@ uint16_t        CAOrg   = getBits (d, used * 8 + 40, 16);
 
 serviceComponent *packetComp = find_packetComponent (SCId);
 
+	(void)CAOrgflag;
         used += 56 / 8;
         if (packetComp == NULL)		// no serviceComponent yet
            return used;
@@ -859,6 +861,7 @@ char		label [17];
 	   case 3:
 	      // region label
 	      region_id = getBits_6 (d, 16 + 2);
+	      (void)region_id;
 	      offset = 24;
 	      for (i = 0; i < 16; i ++) 
 	         label [i] = getBits_8 (d, offset + 8 * i);
@@ -946,7 +949,7 @@ int16_t	i;
 
 	for (i = 0; i < 64; i ++)
 	   if ((listofServices [i]. inUse) &&
-	        (listofServices [i]. serviceId == serviceId))
+	        ((uint16_t)(listofServices [i]. serviceId) == serviceId))
 	      return &listofServices [i];
 
 	for (i = 0; i < 64; i ++)
@@ -1068,7 +1071,8 @@ uint16_t	subchId;
 	   if (!components [i]. inUse)
 	      continue;
 
-	   if (selectedService != components [i]. service -> serviceId)
+	   if ((uint16_t)(selectedService) !=
+	                        components [i]. service -> serviceId)
 	      continue;
 
 //	   fprintf (stderr, "%d >>> (component = %d) ", ficno, 
@@ -1108,10 +1112,10 @@ int16_t	i, j;
 	                      listofServices [i]. serviceId);
 	   selectedService = listofServices [i]. serviceId;
 	   for (j = 0; j < 64; j ++) {
-	      int16_t subchId;
 	      if (!components [j]. inUse)
 	         continue;
-	      if (selectedService != components [j]. service -> serviceId)
+	      if ((uint16_t)(selectedService) !=
+	                         components [j]. service -> serviceId)
 	         continue;
 
 	      if (components [j]. TMid == 03) 
@@ -1144,7 +1148,8 @@ int32_t	selectedService;
 	      int16_t subchId;
 	      if (!components [j]. inUse)
 	         continue;
-	      if (selectedService != components [j]. service -> serviceId)
+	      if ((uint32_t)(selectedService) !=
+	                      components [j]. service -> serviceId)
 	         continue;
 
 	      if (components [j]. TMid != 03) {
