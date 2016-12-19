@@ -1,0 +1,5 @@
+A simple dab client for use with the "gui_2" gui for the dab-rpi program.
+Currently only possible to use the qmake/make route.
+
+Still very experimental!!!!
+

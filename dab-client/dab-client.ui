@@ -1,0 +1,565 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>remote_control_dab_rpi</class>
+ <widget class="QWidget" name="remote_control_dab_rpi">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>489</width>
+    <height>289</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>remote control dab rpi</string>
+  </property>
+  <widget class="QFrame" name="frame">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>461</width>
+     <height>271</height>
+    </rect>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
+   </property>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>190</y>
+      <width>111</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>dab client</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="state">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>230</y>
+      <width>101</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;status of the connection.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="connectButton">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>40</y>
+      <width>151</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The connect button indicates that you are willing to give an IP address. Note that the connection will only be made after terminating the IP address with a return.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="text">
+     <string>connect</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="disconnectButton">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>80</y>
+      <width>151</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pushing the Disconnect button will - not surprising - terminate the connection.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="text">
+     <string>disconnect</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="connectedLabel">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>120</y>
+      <width>91</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="hostLineEdit">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>60</y>
+      <width>151</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+     </font>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The IP address of the server. Note that the connection will only be made after terminating the IP address with a return.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="channelSelector">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>120</y>
+      <width>151</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Channel selector, note that in this preliminary version we only support band III channels.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <item>
+     <property name="text">
+      <string>5A</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>5B</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>5C</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>5D</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>6A</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>6B</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>6C</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>6D</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>7A</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>7B</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>7C</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>7D</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>8A</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>8B</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>8C</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>8D</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>9A</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>9B</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>9C</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>9D</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>10A</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>10B</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>10C</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>10D</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>11A</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>11B</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>11C</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>11D</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>12A</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>12B</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>12C</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>12D</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>13A</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>13B</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>13C</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>13D</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QListView" name="ensembleDisplay">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>71</y>
+      <width>181</width>
+      <height>181</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Program list. When an ensemble is decoded, the names of the services appear here. Click&lt;/p&gt;&lt;p&gt;on a name for selecting the service.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="startButton">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>140</y>
+      <width>151</width>
+      <height>32</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Start button.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="text">
+     <string>start</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="ensembleName">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>50</y>
+      <width>171</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Name of the ensemble will appear here.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLCDNumber" name="gainDisplay">
+    <property name="geometry">
+     <rect>
+      <x>400</x>
+      <y>200</y>
+      <width>64</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::NoFrame</enum>
+    </property>
+    <property name="digitCount">
+     <number>3</number>
+    </property>
+    <property name="segmentStyle">
+     <enum>QLCDNumber::Flat</enum>
+    </property>
+   </widget>
+   <widget class="QSlider" name="attenuationSlider">
+    <property name="geometry">
+     <rect>
+      <x>430</x>
+      <y>10</y>
+      <width>20</width>
+      <height>181</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Gain (attenuation) slider. Range is from 0 .. 99, the value will be mapped onto&lt;/p&gt;&lt;p&gt;the range of values applicable for the device.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="value">
+     <number>50</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Vertical</enum>
+    </property>
+   </widget>
+   <widget class="QLabel" name="syncFlag">
+    <property name="geometry">
+     <rect>
+      <x>370</x>
+      <y>10</y>
+      <width>31</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;synchronization flag. Green means that time synchronization seems OK.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLCDNumber" name="ficDisplay">
+    <property name="geometry">
+     <rect>
+      <x>-10</x>
+      <y>10</y>
+      <width>64</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Quality of the FIC decoding.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::NoFrame</enum>
+    </property>
+    <property name="digitCount">
+     <number>3</number>
+    </property>
+    <property name="segmentStyle">
+     <enum>QLCDNumber::Flat</enum>
+    </property>
+   </widget>
+   <widget class="QLCDNumber" name="mscDisplay">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>10</y>
+      <width>64</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Quality index of the decoded audio signal.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::NoFrame</enum>
+    </property>
+    <property name="digitCount">
+     <number>3</number>
+    </property>
+    <property name="segmentStyle">
+     <enum>QLCDNumber::Flat</enum>
+    </property>
+   </widget>
+   <widget class="QLCDNumber" name="snrDisplay">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>10</y>
+      <width>64</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;SNR. A guess of the signal/noise ratio. Note that in case there is filtering applied in the device (i.e. the sdrPlay), the SNR shows much higher than it is in reality.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::NoFrame</enum>
+    </property>
+    <property name="digitCount">
+     <number>3</number>
+    </property>
+    <property name="segmentStyle">
+     <enum>QLCDNumber::Flat</enum>
+    </property>
+   </widget>
+   <widget class="QLCDNumber" name="correctorDisplay">
+    <property name="geometry">
+     <rect>
+      <x>190</x>
+      <y>10</y>
+      <width>64</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;frequency offset as measured and corrected. If the value changes fast, there is no synchronization.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::NoFrame</enum>
+    </property>
+    <property name="digitCount">
+     <number>3</number>
+    </property>
+    <property name="segmentStyle">
+     <enum>QLCDNumber::Flat</enum>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="quitButton">
+    <property name="geometry">
+     <rect>
+      <x>110</x>
+      <y>220</y>
+      <width>71</width>
+      <height>32</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>quit</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="stereoFlag">
+    <property name="geometry">
+     <rect>
+      <x>322</x>
+      <y>10</y>
+      <width>41</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stereo flag, green means the decoded signal is in stereo.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="streamOutSelector">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>100</y>
+      <width>151</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Selector for a channel on the soundcard. On start up a &amp;quot;default&amp;quot; channel is selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>382</x>
+      <y>240</y>
+      <width>81</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt; DAB-client, to be used in conjuction with the DAB-rpi (remote) version.&lt;/p&gt;&lt;p&gt;Copyright Jan van Katwijk (Lazy Chair Computing), 2016&lt;/p&gt;&lt;p&gt;DAB-client is free software; you can redistribute it and/or modify  it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="text">
+     <string>dab-client</string>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
