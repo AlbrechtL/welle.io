@@ -506,7 +506,7 @@ void	RadioInterface::init_your_gui (void) {
 /**
   *	we now handle the settings as saved by previous incarnations.
   */
-	setDevice 		(deviceSelector 	-> currentText ());
+//	setDevice 		(deviceSelector 	-> currentText ());
 	QString h		=
 	           dabSettings -> value ("device", "no device"). toString ();
 	if (h == "no device")	// no autostart here
@@ -1008,9 +1008,7 @@ QString	file;
 //
 ///	select. For all it holds that:
 	inputDevice	-> stopReader ();
-fprintf (stderr, "input device stopped\n");
 	delete	my_ofdmProcessor;
-fprintf (stderr, "ofdmprocessor deleted\n");
 	delete	inputDevice;
 fprintf (stderr, "inputDevice deleted\n");
 	dynamicLabel	-> setText ("");
@@ -1124,6 +1122,7 @@ fprintf (stderr, "inputDevice deleted\n");
 	}
 	else
 	if (s == "file input (.sdr)") {
+	   fprintf (stderr, "before dialog\n");
 	   file		= QFileDialog::getOpenFileName (this,
 	                                                tr ("open file ..."),
 	                                                QDir::homePath (),

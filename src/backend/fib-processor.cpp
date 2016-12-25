@@ -96,9 +96,11 @@
 
 //
 	fib_processor::fib_processor (RadioInterface *mr) {
+int16_t	i;
 	myRadioInterface	= mr;
 
 	listofServices	= new serviceId [64];
+
 	memset (dateTime, 0, 8);
 	dateFlag	= false;
 	selectedService		= -1;
@@ -246,15 +248,13 @@ uint8_t	CN	= getBits_1 (d, 8 + 0);
 
 	(void)CN;
 	changeflag	= getBits_2 (d, 16 + 16);
-	if (changeflag == 0)
-	   return;
-
 	EId			= getBits (d, 16, 16);
 	(void)EId;
 	highpart		= getBits_5 (d, 16 + 19) % 20;
-	(void)highpart;
 	lowpart			= getBits_8 (d, 16 + 24) % 250;
-	(void)lowpart;
+	if (changeflag == 0)
+           return;
+
 	occurrenceChange	= getBits_8 (d, 16 + 32);
 	(void)occurrenceChange;
 
@@ -297,6 +297,7 @@ int16_t	tabelIndex;
 int16_t	option, protLevel, subChanSize;
 	(void)pd;		// not used right now, maybe later
 	ficList [SubChId]. StartAddr = StartAdr;
+	ficList [SubChId]. inUse	= true;
 	if (getBits_1 (d, bitOffset + 16) == 0) {	// short form
 	   tabelIndex = getBits_6 (d, bitOffset + 18);
 	   ficList [SubChId]. Length  	= ProtLevel [tabelIndex][0];
@@ -1058,6 +1059,7 @@ int16_t i;
 	   listofServices [i]. serviceId = -1;
 	   listofServices [i]. serviceLabel. label = QString ();
 	   components [i]. inUse = false;
+	   ficList    [i]. inUse = false;
 	}
 	selectedService	= -1;
 }
@@ -1184,9 +1186,12 @@ int16_t	i, j;
 
 	   if (!listofServices [i]. serviceLabel. hasName)
 	      continue;
+
+	   selectedService  = listofServices [i]. serviceId;
+
 	   if (listofServices [i]. serviceLabel. label != s)
 	      continue;
-
+	   
 	   selectedService = listofServices [i]. serviceId;
 	   for (j = 0; j < 64; j ++) {
 	      int16_t subchId;

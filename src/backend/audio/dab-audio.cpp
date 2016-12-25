@@ -37,9 +37,9 @@
 //
 //	Interleaving is - for reasons of simplicity - done
 //	inline rather than through a special class-object
-static
-int8_t	interleaveDelays [] = {
-	     15, 7, 11, 3, 13, 5, 9, 1, 14, 6, 10, 2, 12, 4, 8, 0};
+//static
+//int8_t	interleaveDelays [] = {
+//	     15, 7, 11, 3, 13, 5, 9, 1, 14, 6, 10, 2, 12, 4, 8, 0};
 //
 //
 //	fragmentsize == Length * CUSize
@@ -60,12 +60,10 @@ int32_t i, j;
 	this	-> audioBuffer		= buffer;
 
 	outV			= new uint8_t [bitRate * 24];
-	interleaveData		= new int16_t *[fragmentSize]; // max size
-	Data			= new int16_t [fragmentSize];
-	for (i = 0; i < fragmentSize; i ++) {
-	   interleaveData [i] = new int16_t [16];
-	   for (j = 0; j < 16; j ++)
-	      interleaveData [i][j] = 0;
+	interleaveData		= new int16_t *[16]; // max size
+	for (i = 0; i < 16; i ++) {
+	   interleaveData [i] = new int16_t [fragmentSize];
+	   memset (interleaveData [i], 0, fragmentSize * sizeof (int16_t));
 	}
 
 	uepProcessor		= NULL;
@@ -108,10 +106,9 @@ int16_t	i;
 	delete our_dabProcessor;
 	delete	Buffer;
 	delete[]	outV;
-	for (i = 0; i < fragmentSize; i ++) 
+	for (i = 0; i < 16; i ++) 
 	   delete[]  interleaveData [i];
 	delete [] interleaveData;
-	delete [] Data;
 }
 
 int32_t	dabAudio::process	(int16_t *v, int16_t cnt) {
@@ -129,11 +126,13 @@ int32_t	fr;
 	   return fr;
 }
 
+const	int16_t interleaveMap[] = {0,8,4,12,2,10,6,14,1,9,5,13,3,11,7,15};
 void	dabAudio::run	(void) {
 int16_t	i, j;
-int32_t	countforInterleaver	= 0;
+int16_t	countforInterleaver	= 0;
+int16_t	interleaverIndex	= 0;
 uint8_t	shiftRegister [9];
-
+int16_t	Data [fragmentSize];
 	while (running) {
 	   while (Buffer -> GetRingBufferReadAvailable () <= fragmentSize) {
 	      ourMutex. lock ();
@@ -147,15 +146,13 @@ uint8_t	shiftRegister [9];
 	      break;
 
 	   Buffer	-> getDataFromBuffer (Data, fragmentSize);
+
 	   for (i = 0; i < fragmentSize; i ++) {
-	      interleaveData [i][interleaveDelays [i & 017]] = Data [i];
-	      Data [i] = interleaveData [i] [0];
-//	and shift
-	      memmove (&interleaveData [i][0],
-	               &interleaveData [i][1],
-	               interleaveDelays [i & 017] * sizeof (int16_t));
+	      interleaveData [interleaverIndex][i] = Data [i];
+	      Data [i] = interleaveData [(interleaverIndex + 
+	                                 interleaveMap [i & 017]) & 017][i];
 	   }
-//
+	   interleaverIndex = (interleaverIndex + 1) & 0x0F;
 //	only continue when de-interleaver is filled
 	   if (countforInterleaver <= 15) {
 	      countforInterleaver ++;

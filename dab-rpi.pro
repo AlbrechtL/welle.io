@@ -152,8 +152,10 @@ SOURCES += ./main.cpp \
 #	Note
 #	Select "gui_1" for (more or less) normal use, with or without
 #	a tcp streamer
-#	Select "gui_3" for a fancy interface, using qml 
+#	Select "gui_3" for a fancy interface, using qml, tcp streamer is
+#	               not supported
 #	Select "gui_2" for a dab-rpi without GUI, i.e. one with remote control
+#	               which automatically includes sound through tcp streamer
 unix {
 CONFIG		+= dabstick_osmo
 CONFIG		+= sdrplay-exp
@@ -161,7 +163,7 @@ CONFIG		+= sdrplay-exp
 CONFIG		+= rtl_tcp
 CONFIG		+= airspy
 #CONFIG		+= tcp-streamer		# use for remote listening
-CONFIG		+= gui_2
+CONFIG		+= gui_1
 DESTDIR		= ./linux-bin
 INCLUDEPATH	+= /usr/local/include
 LIBS		+= -lfftw3f  -lusb-1.0 -ldl  #
@@ -188,8 +190,6 @@ LIBS		+= -lws2_32
 LIBS		+= -lfaad
 LIBS		+= -lusb-1.0
 LIBS		+= -lz
-DEFINES		+= MOT_BASICS__		# use at your own risk
-DEFINES		+= MSC_DATA__		# use at your own risk
 CONFIG		+= NO_SSE_SUPPORT 
 CONFIG		+= extio
 CONFIG		+= airspy

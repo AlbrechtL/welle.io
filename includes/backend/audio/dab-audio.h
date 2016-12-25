@@ -54,16 +54,14 @@ protected:
 	RingBuffer<int16_t>	*audioBuffer;
 private:
 void	run		(void);
-	volatile bool	running;
-	uint8_t	dabModus;
-	int16_t	fragmentSize;
-	int16_t	bitRate;
-	int16_t	uepFlag;
-	int16_t	protLevel;
-
+volatile bool		running;
+	uint8_t		dabModus;
+	int16_t		fragmentSize;
+	int16_t		bitRate;
+	int16_t		uepFlag;
+	int16_t		protLevel;
 	uint8_t		*outV;
 	int16_t		**interleaveData;
-	int16_t		*Data;
 
 	QWaitCondition	Locker;
 	QMutex		ourMutex;

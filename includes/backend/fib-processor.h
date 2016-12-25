@@ -75,6 +75,7 @@
         typedef struct servicecomponents serviceComponent;
 
 	struct subchannelmap {
+	   bool		inUse;
 	   int32_t	SubChId;
 	   int32_t	StartAddr;
 	   int32_t	Length;
