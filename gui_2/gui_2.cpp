@@ -646,7 +646,7 @@ void	RadioInterface::autoCorrector_on (void) {
 //
 bool	RadioInterface::setDevice (QString s) {
 bool	success;
-#ifdef AIRSPY
+#ifdef HAVE_AIRSPY
 	if (s == "airspy") {
 	   inputDevice	= new airspyHandler (dabSettings, &success, false);
 	   if (!success) {
