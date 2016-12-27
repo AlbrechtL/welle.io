@@ -209,6 +209,10 @@ int16_t	latency;
 	         this, SLOT (TerminateProcess (void)));
 	connect (rootObject, SIGNAL (exitSettingsClicked (void)),
 	         this, SLOT (saveSettings (void)));
+    connect(rootObject, SIGNAL(inputEnableAGCChanged(bool)),
+             this, SLOT(inputEnableAGCChange(bool)));
+    connect(rootObject, SIGNAL(inputGainChanged(double)),
+             this, SLOT(inputGainChange(double)));
 }
 
 	RadioInterface::~RadioInterface () {
@@ -990,6 +994,19 @@ void RadioInterface::saveSettings (void) {
 
 void RadioInterface::showCorrectedErrors (int Errors) {
 	emit displayCorrectedErrors (Errors);
+}
+
+void RadioInterface::inputEnableAGCChange(bool checked)
+{
+    if(checked)
+        fprintf(stderr, "AGC on\n");
+    else
+        fprintf(stderr, "AGC off\n");
+}
+
+void RadioInterface::inputGainChange(double gain)
+{
+    fprintf(stderr, "Gain: %f\n", gain);
 }
 
 #ifdef qt_charts

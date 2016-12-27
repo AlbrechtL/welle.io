@@ -1,6 +1,6 @@
 import QtQuick 2.2
-import QtQuick.Controls 1.2
-import QtQuick.Controls.Styles 1.2
+//import QtQuick.Controls 2.0 - QT 5.7
+import QtQuick.Controls.Styles 1.2 // QT 5.6
 import QtQuick.Layouts 1.1
 
 // Import custom styles
@@ -9,7 +9,7 @@ import "style"
 Item {
     id: settingsPage
 
-    property alias showChannelState      : showChannel.checked
+    property alias showChannelState : showChannel.checked
     property alias enableFullScreenState : enableFullScreen.checked
     property alias enableExpertModeState : enableExpertMode.checked
 
@@ -30,83 +30,139 @@ Item {
     }
 
     ColumnLayout {
-        anchors.top: parent.top
-        anchors.horizontalCenter: parent.horizontalCenter
-        height: parent.height
+        anchors.fill: parent
+        anchors.margins: Units.dp(20)
+        spacing: Units.dp(30)
 
         ColumnLayout{
-            spacing: Units.dp(30)
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.right: parent.right
+            spacing: Units.dp(20)
 
-            ColumnLayout{
-                spacing: Units.dp(10)
-                RowLayout {
+            SettingsFrame{
+                ColumnLayout{
+                    anchors.top: parent.top
+                    anchors.left: parent.left
+                    anchors.right: parent.right
                     spacing: Units.dp(20)
-                    TextStandart {
-                        Behavior on x { NumberAnimation{ easing.type: Easing.OutCubic} }
-                        text: "Channel scan"
-                    }
 
-                    TouchButton {
-                        id: startChannelScanButton
-                        text: "Start"
-                        implicitWidth: Units.dp(80)
-                        onClicked: {
-                            startChannelScanButton.enabled = false
-                            stopChannelScanButton.enabled = true
-                            mainWindow.startChannelScanClicked()
+                    ColumnLayout{
+                        Layout.preferredWidth: parent.width
+                        spacing: parent.spacing / 2
+
+                        RowLayout {
+                            Layout.preferredWidth: parent.width
+
+                            TextStandart {
+                                text: "Channel scan"
+                                Layout.alignment: Qt.AlignLeft
+                            }
+
+                            TouchButton {
+                                id: startChannelScanButton
+                                text: "Start"
+                                Layout.preferredWidth: Units.dp(80)
+                                Layout.alignment: Qt.AlignCenter
+                                onClicked: {
+                                    startChannelScanButton.enabled = false
+                                    stopChannelScanButton.enabled = true
+                                    mainWindow.startChannelScanClicked()
+                                }
+                            }
+
+                            TouchButton {
+                                id: stopChannelScanButton
+                                text: "Stop"
+                                Layout.alignment: Qt.AlignRight
+                                Layout.preferredWidth: Units.dp(80)
+                                enabled: false
+                                onClicked: {
+                                    startChannelScanButton.enabled = true
+                                    stopChannelScanButton.enabled = false
+                                    mainWindow.stopChannelScanClicked()
+                                }
+                            }
+                        }
+
+                        TouchProgressBar{
+                            id: channelScanProgressBar
+                            minimumValue: 0
+                            maximumValue: 38
+                            width: parent.width
+                            text: "Found channels: 0"
                         }
                     }
 
-                    TouchButton {
-                        id: stopChannelScanButton
-                        text: "Stop"
-                        implicitWidth: Units.dp(80)
-                        enabled: false
-                        onClicked: {
-                            startChannelScanButton.enabled = true
-                            stopChannelScanButton.enabled = false
-                            mainWindow.stopChannelScanClicked()
-                        }
+                    TouchSwitch {
+                        id: showChannel
+                        name: "Show channel in station list"
+                        objectName: "showChannel"
+                        checked: false
                     }
                 }
+            }
 
-                TouchProgressBar{
-                    id: channelScanProgressBar
-                    minimumValue: 0
-                    maximumValue: 38
-                    text: "Found channels: 0"
+            SettingsFrame {
+                ColumnLayout{
+                    anchors.top: parent.top
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    spacing: Units.dp(20)
+
+                    TouchSwitch {
+                        id: enableAGC
+                        name: "Enable AGC"
+                        objectName: "enableAGC"
+                        checked: false
+                        onChanged: mainWindow.inputEnableAGCChanged(valueChecked)
+                    }
+
+                    TouchSlider {
+                        id: gain
+                        enabled: !enableAGC.checked
+                        name: "Manual gain"
+                        onValueChanged: mainWindow.inputGainChanged(valueGain)
+                    }
                 }
             }
 
-            TouchSwitch {
-                id: showChannel
-                name: "Show channel in station list"
-                objectName: "showChannel"
-                checked: false
+            SettingsFrame {
+                ColumnLayout{
+                    anchors.top: parent.top
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    spacing: Units.dp(20)
+
+                    TouchSwitch {
+                        id: enableFullScreen
+                        name: "Enable full screen mode"
+                        objectName: "enableFullScreen"
+                        checked: false
+                    }
+
+                    TouchSwitch {
+                        id: enableExpertMode
+                        name: "Enable expert mode"
+                        objectName: "enableExpertMode"
+                        checked: false
+                    }
+                }
             }
 
-            TouchSwitch {
-                id: enableFullScreen
-                name: "Enable full screen mode"
-                objectName: "enableFullScreen"
-                checked: false
-            }
-
-            TouchSwitch {
-                id: enableExpertMode
-                name: "Enable expert mode"
-                objectName: "enableExpertMode"
-                checked: false
-            }
+            /*TouchButton {
+                id: inputSettingsButton
+                text: "Input settings"
+                width: parent.width
+            }*/
         }
 
         TouchButton {
             id: exitAppButton
             text: "Exit dab-rpi"
-            implicitWidth: parent.width
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: Units.dp(10)
             onClicked:  mainWindow.exitApplicationClicked()
+            Layout.preferredWidth: parent.width
+            Layout.alignment: Qt.AlignBottom
         }
     }
 }

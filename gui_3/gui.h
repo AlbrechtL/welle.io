@@ -164,6 +164,8 @@ private slots:
 	void		stopChannelScanClick	(void);
 	void		saveSettings		(void);
 	void		showCorrectedErrors 	(int);
+    void		inputEnableAGCChange    (bool checked);
+    void		inputGainChange (double gain);
 signals:
 	void		currentStation 		(QString text);
 	void		stationText		(QString text);

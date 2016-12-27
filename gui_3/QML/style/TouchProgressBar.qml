@@ -6,7 +6,7 @@ import QtQuick.Controls.Styles 1.2
 import "."
 
 ProgressBar{
-    property alias text: textView.text
+    property alias text: textView.text 
 
     style: progressBarStyle
     implicitWidth: parent.width

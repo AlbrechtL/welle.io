@@ -14,7 +14,7 @@ Button {
         ButtonStyle {
             panel: Item {
                 implicitHeight: Units.dp(25)
-                implicitWidth: Units.dp(160)
+                //implicitWidth: Units.dp(160)
                 BorderImage {
                     anchors.fill: parent
                     antialiasing: true

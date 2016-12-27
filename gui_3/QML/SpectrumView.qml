@@ -58,14 +58,12 @@ ChartView {
         repeat: true
 //        onTriggered: {
 //           cppGUI.updateSpectrum(spectrumView.series(0));
-//            //console.log("test\n")
 //        }
     }
 
     Timer {
         id: yAxisMaxTimer
         interval: 10 * 1000 // 10 s
-        //running: true
         repeat: false
         onTriggered: {
            axisY1.max = maxYAxis

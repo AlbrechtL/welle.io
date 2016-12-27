@@ -17,7 +17,7 @@ Item{
         width: parent.width
 
         RowLayout{
-            Layout. fillWidth : true
+            Layout.fillWidth : true
             Layout.fillHeight: true
             anchors.left: parent.left
             anchors.leftMargin: Units.dp(5)

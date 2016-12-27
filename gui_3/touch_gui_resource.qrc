@@ -29,5 +29,6 @@
         <file>QML/style/TouchSwitch.qml</file>
         <file>QML/style/TouchProgressBar.qml</file>
         <file>QML/style/TextExpert.qml</file>
+        <file>QML/style/SettingsFrame.qml</file>
     </qresource>
 </RCC>
