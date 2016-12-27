@@ -228,12 +228,9 @@ gui_3	{
         INCLUDEPATH	+= ./gui_3
         DEPENDPATH	+= ./gui_3
         HEADERS		+= ./gui_3/gui.h \
-                           ./gui_3/stationlist.h \
-	                   ./includes/ofdm/find_ofdm_spectrum.h 
+                           ./gui_3/stationlist.h
         SOURCES		+= ./gui_3/gui.cpp \
-                           ./gui_3/stationlist.cpp \
-	                   ./src/ofdm/find_ofdm_spectrum.cpp
-
+                           ./gui_3/stationlist.cpp
         RESOURCES += \
             gui_3/touch_gui_resource.qrc
 }
