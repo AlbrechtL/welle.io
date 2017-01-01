@@ -1,6 +1,6 @@
 import QtQuick 2.2
-//import QtQuick.Controls 2.0 - QT 5.7
-import QtQuick.Controls.Styles 1.2 // QT 5.6
+import QtQuick.Controls 2.0 // QT 5.7
+//import QtQuick.Controls.Styles 1.2 // QT 5.6
 import QtQuick.Layouts 1.1
 
 // Import custom styles

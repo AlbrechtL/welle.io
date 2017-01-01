@@ -708,7 +708,13 @@ void	RadioInterface::newAudio	(int rate) {
 }
 
 void	RadioInterface::setStereo	(bool s) {
-	(void)s;
+	if (s) 
+	   stereoLabel -> 
+	               setStyleSheet ("QLabel {background-color : green}");
+
+	else
+	   stereoLabel ->
+	               setStyleSheet ("QLabel {background-color : red}");
 }
 
 //	if so configured, the function might be triggered
@@ -839,6 +845,7 @@ struct dabFrequencies *finger;
 bool	localRunning	= running;
 int32_t	tunedFrequency;
 
+	setStereo (false);
 	if (localRunning) {
 	   soundOut	-> stop ();
 	   inputDevice		-> stopReader ();
@@ -1158,6 +1165,7 @@ fprintf (stderr, "inputDevice deleted\n");
 void	RadioInterface::selectService (QModelIndex s) {
 QString a = ensemble. data (s, Qt::DisplayRole). toString ();
 
+	setStereo (false);
 	switch (my_ficHandler -> kindofService (a)) {
 	   case AUDIO_SERVICE:
 	      { audiodata d;
