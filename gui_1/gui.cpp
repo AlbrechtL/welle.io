@@ -101,7 +101,7 @@ int16_t	latency;
   *	The current setup of the audio output is that
   *	you have a choice, take one of (soundcard, tcp streamer or rtp streamer)
   */
-	audioBuffer		= new RingBuffer<int16_t>(8 * 32768);
+	audioBuffer		= new RingBuffer<int16_t>(16 * 32768);
 	ipAddress		= dabSettings -> value ("ipAddress", "127.0.0.1"). toString ();
 	port			= dabSettings -> value ("port", 8888). toInt ();
 //

@@ -52,10 +52,10 @@ void	audioBase::stop	(void) {
 //	This one is a hack for handling different baudrates coming from
 //	the aac decoder
 void	audioBase::audioOut	(int32_t rate) {
-int16_t V [4800];
+int16_t V [rate / 8];
 
-	while (buffer -> GetRingBufferReadAvailable () > rate / 10) {
-	   int16_t amount = buffer -> getDataFromBuffer (V, rate / 10);
+	while (buffer -> GetRingBufferReadAvailable () > rate / 8) {
+	   int16_t amount = buffer -> getDataFromBuffer (V, rate / 8);
 	   switch (rate) {
 	      case 16000:	
 	         audioOut_16000 (V, amount / 2);
