@@ -25,7 +25,7 @@
 #include	"gui.h"
 #include	"dab-virtual.h"
 #include	"dab-audio.h"
-#include	"msc-datagroup.h"
+#include	"dab-data.h"
 //
 //	Interface program for processing the MSC.
 //	Merely a dispatcher for the selected service
@@ -143,16 +143,16 @@ int16_t	*myBegin;
 	                                 buffer);
 
 	   else	 {	// dealing with data
-	      dabHandler = new mscDatagroup (myRadioInterface,
-	                                     new_DSCTy,
-	                                     new_packetAddress,
-	                                     new_Length * CUSize,
-	                                     new_bitRate,
-	                                     new_uepFlag,
-	                                     new_protLevel,
-	                                     new_DGflag,
-	                                     new_FEC_scheme,
-	                                     show_crcErrors);
+	      dabHandler = new dabData (myRadioInterface,
+	                                new_DSCTy,
+	                                new_packetAddress,
+	                                new_Length * CUSize,
+	                                new_bitRate,
+	                                new_uepFlag,
+	                                new_protLevel,
+	                                new_DGflag,
+	                                new_FEC_scheme,
+	                                show_crcErrors);
 	   }
 //
 //	these we need for actual processing
@@ -173,7 +173,6 @@ int16_t	*myBegin;
 	blkCount	= 0;
 	cifCount	= (cifCount + 1) & 03;
 	myBegin		= &cifVector [startAddr * CUSize];
-//
 //	Here we move the vector to be processed to a
 //	separate task or separate function, depending on
 //	the settings in the ini file, we might take advantage of multi cores

@@ -59,7 +59,7 @@ Note that the CMakeLists.txt file assumes Qt5, the sdr-j-dab.pro  file
 the names and locations of the libraries.
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-Note on NOT handling
+Note on MOT handling
 Comment or uncomment the line
 DEFINE	+= MOT_BASICS__
 DEFINE	+= MOT_DATA__

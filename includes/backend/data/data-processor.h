@@ -20,67 +20,43 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #
-#ifndef	__MSC_DATAGROUP
-#define	__MSC_DATAGROUP
+#ifndef	__DATA_PROCESSOR
+#define	__DATA_PROCESSOR
 
+#include	"dab-processor.h"
 #include	"dab-virtual.h"
-#include	<QThread>
-#include	<QMutex>
-#include	<QWaitCondition>
-#include	"ringbuffer.h"
 #include	<stdio.h>
 #include	<string.h>
-
+#include	<QObject>
 
 class	RadioInterface;
 class	uep_deconvolve;
 class	eep_deconvolve;
 class	virtual_dataHandler;
 
-class	mscDatagroup:public QThread, public dabVirtual {
+class	dataProcessor:public QObject, public dabProcessor {
 Q_OBJECT
 public:
-	mscDatagroup	(RadioInterface *mr,
-	                 uint8_t	DSCTy,
-	                 int16_t	packetAddress,
-	                 int16_t	fragmentSize,
+	dataProcessor	(RadioInterface *mr,
 	                 int16_t	bitRate,
-	                 int16_t	uepFlag,
-	                 int16_t	protLevel,
+	                 uint8_t	DSCTy,
 	                 uint8_t	DGflag,
 	                 int16_t	FEC_scheme,
 	                 bool		show_crcErrors);
-	~mscDatagroup	(void);
-int32_t	process		(int16_t *, int16_t);
-void	stopRunning	(void);
+	~dataProcessor	(void);
+void	addtoFrame	(uint8_t *);
 private:
 	RadioInterface	*myRadioInterface;
-	uint8_t		DSCTy;
-	int16_t		packetAddress;
-	int16_t		fragmentSize;
 	int16_t		bitRate;
-	int16_t		uepFlag;
-	int16_t		protLevel;
+	uint8_t		DSCTy;
 	uint8_t		DGflag;
 	int16_t		FEC_scheme;
 	bool		show_crcErrors;
 	int16_t		crcErrors;
 	int16_t		handledPackets;
-void	run		(void);
-	volatile bool	running;
-	QWaitCondition	Locker;
-	QMutex		ourMutex;
-	FILE		*tstFile;
-	int32_t		countforInterleaver;
-	uint8_t		*outV;
-	int16_t		**interleaveData;
-	int16_t		*Data;
 	QByteArray	series;
 	uint8_t		packetState;
 	int32_t		streamAddress;		// int since we init with -1
-	uep_deconvolve	*uepProcessor;
-	eep_deconvolve	*eepProcessor;
-	RingBuffer<int16_t>	*Buffer;
 //
 //	result handlers
 	void		handleTDCAsyncstream 	(uint8_t *, int16_t);

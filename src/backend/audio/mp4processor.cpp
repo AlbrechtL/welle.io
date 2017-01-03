@@ -110,9 +110,10 @@ uint16_t	genpoly		= 0x1021;
   *	per Byte, nbits is the number of Bits (i.e. containing bytes)
   *	the function adds nbits bits, packed in bytes, to the frame
   */
-void	mp4Processor::addtoFrame (uint8_t *V, int16_t nbits) {
+void	mp4Processor::addtoFrame (uint8_t *V) {
 int16_t	i, j;
 uint8_t	temp	= 0;
+int16_t	nbits	= 24 * bitRate;
 
 	for (i = 0; i < nbits / 8; i ++) {	// in bytes
 	   temp = 0;

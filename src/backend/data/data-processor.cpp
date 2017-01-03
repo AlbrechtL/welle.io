@@ -20,7 +20,7 @@
  */
 #
 #include	"dab-constants.h"
-#include	"msc-datagroup.h"
+#include	"data-processor.h"
 #include	"deconvolve.h"
 #include	"virtual-datahandler.h"
 #include	"ip-datahandler.h"
@@ -28,40 +28,23 @@
 #include	"journaline-datahandler.h"
 #include	"gui.h"
 
-//	Interleaving is - for reasons of simplicity - done
-//	inline rather than through a special class-object
-//	We could make a single handler for interleaving
-//	and deconvolution, bt it is a pretty simple operation
-//	so for now keep it in-line
-//
-//	\class mscDatagroup
+//	\class dataProcessor
 //	The main function of this class is to assemble the 
 //	MSCdatagroups and dispatch to the appropriate handler
-//static
-//int8_t	interleaveDelays [] = {
-//	     15, 7, 11, 3, 13, 5, 9, 1, 14, 6, 10, 2, 12, 4, 8, 0};
 //
 //	fragmentsize == Length * CUSize
-	mscDatagroup::mscDatagroup	(RadioInterface *mr,
-	                         	 uint8_t DSCTy,
-	                         	 int16_t packetAddress,
-	                         	 int16_t fragmentSize,
-	                         	 int16_t bitRate,
-	                         	 int16_t uepFlag,
-	                         	 int16_t protLevel,
-	                                 uint8_t DGflag,
-	                         	 int16_t FEC_scheme,
-	                                 bool	show_crcErrors) {
+	dataProcessor::dataProcessor	(RadioInterface *mr,
+	                                 int16_t	bitRate,
+	                         	 uint8_t	DSCTy,
+	                                 uint8_t	DGflag,
+	                         	 int16_t	FEC_scheme,
+	                                 bool		show_crcErrors) {
 int32_t i, j;
 	this	-> myRadioInterface	= mr;
+	this	-> bitRate		= bitRate;
 	this	-> DSCTy		= DSCTy;
-	this	-> packetAddress	= packetAddress;
-	this	-> fragmentSize	= fragmentSize;
-	this	-> bitRate	= bitRate;
-	this	-> uepFlag	= uepFlag;
-	this	-> protLevel	= protLevel;
-	this	-> DGflag	= DGflag;
-	this	-> FEC_scheme	= FEC_scheme;
+	this	-> DGflag		= DGflag;
+	this	-> FEC_scheme		= FEC_scheme;
 	this	-> show_crcErrors	= show_crcErrors;
 	connect (this, SIGNAL (show_mscErrors (int)),
 	         mr, SLOT (show_mscErrors (int)));
@@ -84,121 +67,20 @@ int32_t i, j;
 	      break;
 	}
 
-
-	outV			= new uint8_t [bitRate * 24];
-	interleaveData		= new int16_t *[16]; // the size
-	for (i = 0; i < 16; i ++) {
-	   interleaveData [i] = new int16_t [fragmentSize];
-	   memset (interleaveData [i], 0, fragmentSize * sizeof (int16_t));
-	}
-	countforInterleaver	= 0;
-//
-//	The handling of the depuncturing and deconvolution is
-//	shared with that of the audio
-	uepProcessor		= NULL;
-	eepProcessor		= NULL;
-	if (uepFlag == 0)
-	   uepProcessor	= new uep_deconvolve (bitRate,
-	                                      protLevel);
-	else
-	   eepProcessor	= new eep_deconvolve (bitRate,
-	                                      protLevel);
-//
-//	any reasonable (i.e. large) size will do here,
-//	as long as the parameter is a power of 2
-	Buffer		= new RingBuffer<int16_t>(64 * 32768);
 	packetState	= 0;
 	streamAddress	= -1;
 //
 	handledPackets	= 0;
 	crcErrors	= 0;
-	start ();
 }
 
-	mscDatagroup::~mscDatagroup	(void) {
+	dataProcessor::~dataProcessor	(void) {
 int16_t	i;
-	running = false;
-	while (this -> isRunning ())
-	   usleep (1);
-	delete Buffer;
-	if (uepFlag == 0)
-	   delete uepProcessor;
-	else
-	   delete eepProcessor;
-	delete[]	outV;
-	for (i = 0; i < 16; i ++)
-	   delete[] interleaveData [i];
-	delete[]	interleaveData;
 	delete		my_dataHandler;
 }
 
-int32_t	mscDatagroup::process	(int16_t *v, int16_t cnt) {
-int32_t	fr;
-	   while ((fr = Buffer -> GetRingBufferWriteAvailable ()) < cnt) {
-	      if (!running)
-	         return 0;
-	      usleep (10);
-	   }
 
-	   Buffer	-> putDataIntoBuffer (v, cnt);
-	   Locker. wakeAll ();
-	   return fr;
-}
-
-const   int16_t interleaveMap[] = {0,8,4,12,2,10,6,14,1,9,5,13,3,11,7,15};
-
-void	mscDatagroup::run	(void) {
-int16_t	countforInterleaver	= 0;
-int16_t interleaverIndex	= 0;
-uint8_t	shiftRegister [9];
-int16_t	Data [fragmentSize];
-int16_t	i, j;
-
-	running	= true;
-	while (running) {
-	   while (Buffer -> GetRingBufferReadAvailable () < fragmentSize) {
-	      ourMutex. lock ();
-	      Locker. wait (&ourMutex, 1);	// 1 msec waiting time
-	      ourMutex. unlock ();
-	      if (!running)
-	         break;
-	   }
-
-	   if (!running) 
-	      break;
-
-	   Buffer	-> getDataFromBuffer (Data, fragmentSize);
-//
-	   for (i = 0; i < fragmentSize; i ++) {
-	      interleaveData [interleaverIndex][i] = Data [i];
-	      Data [i] = interleaveData [(interleaverIndex + 
-	                                 interleaveMap [i & 017]) & 017][i];
-	   }
-	   interleaverIndex = (interleaverIndex + 1) & 0x0F;
-
-//	only continue when de-interleaver is filled
-	   if (countforInterleaver <= 15) {
-	      countforInterleaver ++;
-	      continue;
-	   }
-//
-	   if (uepFlag == 0)
-	      uepProcessor -> deconvolve (Data, fragmentSize, outV);
-	   else
-	      eepProcessor -> deconvolve (Data, fragmentSize, outV);
-//
-//	and the inline energy dispersal
-	   memset (shiftRegister, 1, 9);
-	   for (i = 0; i < bitRate * 24; i ++) {
-	      uint8_t b = shiftRegister [8] ^ shiftRegister [4];
-	      for (j = 8; j > 0; j--)
-	         shiftRegister [j] = shiftRegister [j - 1];
-	      shiftRegister [0] = b;
-	      outV [i] ^= b;
-	   }
-//	What we get here is a long sequence of bits, not packed
-//	but forming a DAB packet
-//	we hand it over to make an MSC data group
+void	dataProcessor::addtoFrame (uint8_t *outV) {
 //	There is - obviously - some exception, that is
 //	when the DG flag is on and there are no datagroups for DSCTy5
 	   if ((this -> DSCTy == 5) &&
@@ -206,19 +88,11 @@ int16_t	i, j;
 	      handleTDCAsyncstream (outV, 24 * bitRate);
 	   else
 	      handlePackets (outV, 24 * bitRate);
-	}
-}
-//
-//	It might take a msec for the task to stop
-void	mscDatagroup::stopRunning (void) {
-	running = false;
-	while (this -> isRunning ())
-	   usleep (100);
 }
 //
 //	While for a full mix data and audio there will be a single packet in a
 //	data compartment, for an empty mix, there may be many more
-void	mscDatagroup::handlePackets (uint8_t *data, int16_t length) {
+void	dataProcessor::handlePackets (uint8_t *data, int16_t length) {
 	while (true) {
 	   int16_t pLength = (getBits_2 (data, 0) + 1) * 24 * 8;
 	   if (length < pLength)	// be on the safe side
@@ -236,7 +110,7 @@ void	mscDatagroup::handlePackets (uint8_t *data, int16_t length) {
 //	there may be multiple streams, to be identified by
 //	the address. For the time being we only handle a single
 //	stream!!!!
-void	mscDatagroup::handlePacket (uint8_t *data) {
+void	dataProcessor::handlePacket (uint8_t *data) {
 int16_t	packetLength	= (getBits_2 (data, 0) + 1) * 24;
 int16_t	continuityIndex	= getBits_2 (data, 2);
 int16_t	firstLast	= getBits_2 (data, 4);
@@ -320,7 +194,7 @@ int16_t	i;
 //
 //
 //	Really no idea what to do here
-void	mscDatagroup::handleTDCAsyncstream (uint8_t *data, int16_t length) {
+void	dataProcessor::handleTDCAsyncstream (uint8_t *data, int16_t length) {
 int16_t	packetLength	= (getBits_2 (data, 0) + 1) * 24;
 int16_t	continuityIndex	= getBits_2 (data, 2);
 int16_t	firstLast	= getBits_2 (data, 4);

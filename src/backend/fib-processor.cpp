@@ -989,25 +989,15 @@ void	fib_processor::bind_audioService (int8_t TMid,
 serviceId *s	= findServiceId	(SId);
 int16_t	i;
 int16_t	firstFree	= -1;
-
-	for (i = 0; i < 64; i ++) {
-	   if (!components [i]. inUse) {
-	      if (firstFree == -1)
-	         firstFree = i;
-	      continue;
-	   }
-	   if ((components [i]. service == s) &&
-               (components [i]. componentNr == compnr))
-	      return;
-	}
-	components [firstFree]. inUse = true;
-	components [firstFree]. TMid	= TMid;
-	components [firstFree]. componentNr = compnr;
-	components [firstFree]. service = s;
-	components [firstFree]. subchannelId = subChId;
-	components [firstFree]. PS_flag = ps_flag;
-	components [firstFree]. ASCTy = ASCTy;
-//	fprintf (stderr, "service %8x (comp %d) is audio\n", SId, compnr);
+	if (components [subChId]. inUse)
+	   return;
+	components [subChId]. inUse	= true;
+	components [subChId]. TMid	= TMid;
+	components [subChId]. componentNr = compnr;
+	components [subChId]. service	= s;
+	components [subChId]. subchannelId = subChId;
+	components [subChId]. PS_flag	= ps_flag;
+	components [subChId]. ASCTy	= ASCTy;
 }
 //      bind_packetService is the main processor for - what the name suggests -
 //      connecting the service component defining the service to the SId,
@@ -1015,31 +1005,23 @@ int16_t	firstFree	= -1;
 void    fib_processor::bind_packetService (int8_t TMid,
                                            uint32_t SId,
                                            int16_t compnr,
-                                           int16_t SCId,
+                                           int16_t subChId,
                                            int16_t ps_flag,
                                            int16_t CAflag) {
 serviceId *s    = findServiceId (SId);
 int16_t i;
 int16_t	firstFree	= -1;
 
-       for (i = 0; i < 64; i ++) {
-	   if (!components [i]. inUse) {
-	      if (firstFree == -1)
-	         firstFree = i;
-	      continue;
-	   }
-	   if ((components [i]. service == s) && 
-	       (components [i]. componentNr == compnr))
-	      return;
-	}
-	components [firstFree]. inUse  = true;
-	components [firstFree]. TMid   = TMid;
-	components [firstFree]. service = s;
-	components [firstFree]. componentNr = compnr;
-	components [firstFree]. SCId   = SCId;
-	components [firstFree]. PS_flag = ps_flag;
-	components [firstFree]. CAflag = CAflag;
-//	fprintf (stderr, "service %8x (comp %d) is packet\n", SId, compnr);
+	if (components [subChId]. inUse)
+	   return;
+	
+	components [subChId]. inUse  = true;
+	components [subChId]. TMid   = TMid;
+	components [subChId]. service = s;
+	components [subChId]. componentNr = compnr;
+	components [subChId]. SCId   = subChId;
+	components [subChId]. PS_flag = ps_flag;
+	components [subChId]. CAflag = CAflag;
 }
 
 void	fib_processor::setupforNewFrame (void) {
@@ -1110,13 +1092,13 @@ int16_t	i, j;
 	   if (listofServices [i]. serviceLabel. label != s)
 	      continue;
 
-	   fprintf (stderr, "we found for %s serviceId %x\n", s. toLatin1 (). data (), 
-	                      listofServices [i]. serviceId);
+//	   fprintf (stderr, "we found for %s serviceId %x\n", s. toLatin1 (). data (), 
+//	                      listofServices [i]. serviceId);
 	   selectedService = listofServices [i]. serviceId;
 	   for (j = 0; j < 64; j ++) {
 	      if (!components [j]. inUse)
 	         continue;
-	      if ((uint16_t)(selectedService) !=
+	      if ((uint32_t)(selectedService) !=
 	                         components [j]. service -> serviceId)
 	         continue;
 
@@ -1125,7 +1107,7 @@ int16_t	i, j;
 
 	      if (components [j]. TMid == 00) 
 	         return AUDIO_SERVICE;
-	      fprintf (stderr, "TMid == %d\n", components [j]. TMid);
+//	      fprintf (stderr, "TMid == %d\n", components [j]. TMid);
 	   }
 	}
 	return UNKNOWN_SERVICE;

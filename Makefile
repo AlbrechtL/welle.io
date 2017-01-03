@@ -70,7 +70,8 @@ SOURCES       = main.cpp \
 		src/backend/audio/mp2processor.cpp \
 		src/backend/audio/mp4processor.cpp \
 		src/backend/data/pad-handler.cpp \
-		src/backend/data/msc-datagroup.cpp \
+		src/backend/data/dab-data.cpp \
+		src/backend/data/data-processor.cpp \
 		src/backend/data/virtual-datahandler.cpp \
 		src/backend/data/ip-datahandler.cpp \
 		src/backend/data/mot-databuilder.cpp \
@@ -104,7 +105,8 @@ SOURCES       = main.cpp \
 		moc_mp2processor.cpp \
 		moc_mp4processor.cpp \
 		moc_faad-decoder.cpp \
-		moc_msc-datagroup.cpp \
+		moc_dab-data.cpp \
+		moc_data-processor.cpp \
 		moc_pad-handler.cpp \
 		moc_virtual-datahandler.cpp \
 		moc_ip-datahandler.cpp \
@@ -139,7 +141,8 @@ OBJECTS       = main.o \
 		mp2processor.o \
 		mp4processor.o \
 		pad-handler.o \
-		msc-datagroup.o \
+		dab-data.o \
+		data-processor.o \
 		virtual-datahandler.o \
 		ip-datahandler.o \
 		mot-databuilder.o \
@@ -174,7 +177,8 @@ OBJECTS       = main.o \
 		moc_mp2processor.o \
 		moc_mp4processor.o \
 		moc_faad-decoder.o \
-		moc_msc-datagroup.o \
+		moc_dab-data.o \
+		moc_data-processor.o \
 		moc_pad-handler.o \
 		moc_virtual-datahandler.o \
 		moc_ip-datahandler.o \
@@ -357,7 +361,8 @@ DIST          = ../../../../lib64/qt5/mkspecs/features/spec_pre.prf \
 		includes/backend/audio/mp2processor.h \
 		includes/backend/audio/mp4processor.h \
 		includes/backend/audio/faad-decoder.h \
-		includes/backend/data/msc-datagroup.h \
+		includes/backend/data/dab-data.h \
+		includes/backend/data/data-processor.h \
 		includes/backend/data/pad-handler.h \
 		includes/backend/data/virtual-datahandler.h \
 		includes/backend/data/ip-datahandler.h \
@@ -410,7 +415,8 @@ DIST          = ../../../../lib64/qt5/mkspecs/features/spec_pre.prf \
 		src/backend/audio/mp2processor.cpp \
 		src/backend/audio/mp4processor.cpp \
 		src/backend/data/pad-handler.cpp \
-		src/backend/data/msc-datagroup.cpp \
+		src/backend/data/dab-data.cpp \
+		src/backend/data/data-processor.cpp \
 		src/backend/data/virtual-datahandler.cpp \
 		src/backend/data/ip-datahandler.cpp \
 		src/backend/data/mot-databuilder.cpp \
@@ -776,8 +782,8 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents ../../../../lib64/qt5/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents includes/dab-constants.h includes/ofdm/ofdm-processor.h includes/ofdm/ofdm-decoder.h includes/ofdm/phasereference.h includes/ofdm/phasetable.h includes/ofdm/freq-interleaver.h includes/backend/viterbi.h includes/backend/fic-handler.h includes/backend/msc-handler.h includes/backend/fib-processor.h includes/backend/galois.h includes/backend/reed-solomon.h includes/backend/charsets.h includes/backend/firecode-checker.h includes/backend/dab-processor.h includes/backend/dab-virtual.h includes/backend/audio/dab-audio.h includes/backend/audio/mp2processor.h includes/backend/audio/mp4processor.h includes/backend/audio/faad-decoder.h includes/backend/data/msc-datagroup.h includes/backend/data/pad-handler.h includes/backend/data/virtual-datahandler.h includes/backend/data/ip-datahandler.h includes/backend/data/mot-databuilder.h includes/backend/data/mot-data.h includes/backend/data/journaline-datahandler.h includes/backend/data/journaline/dabdatagroupdecoder.h includes/backend/data/journaline/crc_8_16.h includes/backend/data/journaline/log.h includes/backend/data/journaline/newssvcdec_impl.h includes/backend/data/journaline/Splitter.h includes/backend/data/journaline/dabdgdec_impl.h includes/backend/data/journaline/newsobject.h includes/backend/data/journaline/NML.h includes/backend/deconvolve.h includes/output/audio-base.h includes/output/audiosink.h includes/output/fir-filters.h includes/various/fft.h includes/various/ringbuffer.h includes/various/Xtan2.h src/input/virtual-input.h src/input/rawfiles/rawfiles.h src/input/wavfiles/wavfiles.h gui_1/gui.h src/input/dabstick-osmo/dabstick.h src/input/dabstick-osmo/dongleselect.h src/input/sdrplay-exp/sdrplay.h src/input/airspy/airspy-handler.h ../../../../local/include/libairspy/airspy.h src/input/rtl_tcp/rtl_tcp_client.h $(DISTDIR)/
-	$(COPY_FILE) --parents main.cpp src/ofdm/ofdm-processor.cpp src/ofdm/ofdm-decoder.cpp src/ofdm/phasereference.cpp src/ofdm/phasetable.cpp src/ofdm/freq-interleaver.cpp src/backend/viterbi.cpp src/backend/fic-handler.cpp src/backend/msc-handler.cpp src/backend/deconvolve.cpp src/backend/fib-processor.cpp src/backend/galois.cpp src/backend/reed-solomon.cpp src/backend/charsets.cpp src/backend/firecode-checker.cpp src/backend/dab-virtual.cpp src/backend/dab-processor.cpp src/backend/protTables.cpp src/backend/audio/dab-audio.cpp src/backend/audio/mp2processor.cpp src/backend/audio/mp4processor.cpp src/backend/data/pad-handler.cpp src/backend/data/msc-datagroup.cpp src/backend/data/virtual-datahandler.cpp src/backend/data/ip-datahandler.cpp src/backend/data/mot-databuilder.cpp src/backend/data/mot-data.cpp src/backend/data/journaline-datahandler.cpp src/backend/data/journaline/crc_8_16.c src/backend/data/journaline/log.c src/backend/data/journaline/newssvcdec_impl.cpp src/backend/data/journaline/Splitter.cpp src/backend/data/journaline/dabdgdec_impl.c src/backend/data/journaline/newsobject.cpp src/backend/data/journaline/NML.cpp src/output/audio-base.cpp src/output/audiosink.cpp src/output/fir-filters.cpp src/various/fft.cpp src/various/Xtan2.cpp src/input/virtual-input.cpp src/input/rawfiles/rawfiles.cpp src/input/wavfiles/wavfiles.cpp src/backend/spiral-code/spiral-sse.c gui_1/gui.cpp src/input/dabstick-osmo/dabstick.cpp src/input/dabstick-osmo/dongleselect.cpp src/input/sdrplay-exp/sdrplay.cpp src/input/airspy/airspy-handler.cpp src/input/rtl_tcp/rtl_tcp_client.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents includes/dab-constants.h includes/ofdm/ofdm-processor.h includes/ofdm/ofdm-decoder.h includes/ofdm/phasereference.h includes/ofdm/phasetable.h includes/ofdm/freq-interleaver.h includes/backend/viterbi.h includes/backend/fic-handler.h includes/backend/msc-handler.h includes/backend/fib-processor.h includes/backend/galois.h includes/backend/reed-solomon.h includes/backend/charsets.h includes/backend/firecode-checker.h includes/backend/dab-processor.h includes/backend/dab-virtual.h includes/backend/audio/dab-audio.h includes/backend/audio/mp2processor.h includes/backend/audio/mp4processor.h includes/backend/audio/faad-decoder.h includes/backend/data/dab-data.h includes/backend/data/data-processor.h includes/backend/data/pad-handler.h includes/backend/data/virtual-datahandler.h includes/backend/data/ip-datahandler.h includes/backend/data/mot-databuilder.h includes/backend/data/mot-data.h includes/backend/data/journaline-datahandler.h includes/backend/data/journaline/dabdatagroupdecoder.h includes/backend/data/journaline/crc_8_16.h includes/backend/data/journaline/log.h includes/backend/data/journaline/newssvcdec_impl.h includes/backend/data/journaline/Splitter.h includes/backend/data/journaline/dabdgdec_impl.h includes/backend/data/journaline/newsobject.h includes/backend/data/journaline/NML.h includes/backend/deconvolve.h includes/output/audio-base.h includes/output/audiosink.h includes/output/fir-filters.h includes/various/fft.h includes/various/ringbuffer.h includes/various/Xtan2.h src/input/virtual-input.h src/input/rawfiles/rawfiles.h src/input/wavfiles/wavfiles.h gui_1/gui.h src/input/dabstick-osmo/dabstick.h src/input/dabstick-osmo/dongleselect.h src/input/sdrplay-exp/sdrplay.h src/input/airspy/airspy-handler.h ../../../../local/include/libairspy/airspy.h src/input/rtl_tcp/rtl_tcp_client.h $(DISTDIR)/
+	$(COPY_FILE) --parents main.cpp src/ofdm/ofdm-processor.cpp src/ofdm/ofdm-decoder.cpp src/ofdm/phasereference.cpp src/ofdm/phasetable.cpp src/ofdm/freq-interleaver.cpp src/backend/viterbi.cpp src/backend/fic-handler.cpp src/backend/msc-handler.cpp src/backend/deconvolve.cpp src/backend/fib-processor.cpp src/backend/galois.cpp src/backend/reed-solomon.cpp src/backend/charsets.cpp src/backend/firecode-checker.cpp src/backend/dab-virtual.cpp src/backend/dab-processor.cpp src/backend/protTables.cpp src/backend/audio/dab-audio.cpp src/backend/audio/mp2processor.cpp src/backend/audio/mp4processor.cpp src/backend/data/pad-handler.cpp src/backend/data/dab-data.cpp src/backend/data/data-processor.cpp src/backend/data/virtual-datahandler.cpp src/backend/data/ip-datahandler.cpp src/backend/data/mot-databuilder.cpp src/backend/data/mot-data.cpp src/backend/data/journaline-datahandler.cpp src/backend/data/journaline/crc_8_16.c src/backend/data/journaline/log.c src/backend/data/journaline/newssvcdec_impl.cpp src/backend/data/journaline/Splitter.cpp src/backend/data/journaline/dabdgdec_impl.c src/backend/data/journaline/newsobject.cpp src/backend/data/journaline/NML.cpp src/output/audio-base.cpp src/output/audiosink.cpp src/output/fir-filters.cpp src/various/fft.cpp src/various/Xtan2.cpp src/input/virtual-input.cpp src/input/rawfiles/rawfiles.cpp src/input/wavfiles/wavfiles.cpp src/backend/spiral-code/spiral-sse.c gui_1/gui.cpp src/input/dabstick-osmo/dabstick.cpp src/input/dabstick-osmo/dongleselect.cpp src/input/sdrplay-exp/sdrplay.cpp src/input/airspy/airspy-handler.cpp src/input/rtl_tcp/rtl_tcp_client.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents src/input/filereader-widget.ui gui_1/gui_1.ui src/input/dabstick-osmo/dabstick-widget-osmo.ui src/input/sdrplay-exp/sdrplay-widget.ui src/input/airspy/airspy-widget.ui src/input/rtl_tcp/rtl_tcp-widget.ui $(DISTDIR)/
 
 
@@ -810,9 +816,9 @@ compiler_moc_predefs_clean:
 moc_predefs.h: ../../../../lib64/qt5/mkspecs/features/data/dummy.cpp
 	g++ -pipe -flto -ffast-math -O2 -Wall -W -dM -E -o moc_predefs.h ../../../../lib64/qt5/mkspecs/features/data/dummy.cpp
 
-compiler_moc_header_make_all: moc_ofdm-processor.cpp moc_ofdm-decoder.cpp moc_fic-handler.cpp moc_fib-processor.cpp moc_mp2processor.cpp moc_mp4processor.cpp moc_faad-decoder.cpp moc_msc-datagroup.cpp moc_pad-handler.cpp moc_virtual-datahandler.cpp moc_ip-datahandler.cpp moc_mot-data.cpp moc_audio-base.cpp moc_audiosink.cpp moc_gui.cpp moc_dabstick.cpp moc_dongleselect.cpp moc_sdrplay.cpp moc_airspy-handler.cpp moc_rtl_tcp_client.cpp
+compiler_moc_header_make_all: moc_ofdm-processor.cpp moc_ofdm-decoder.cpp moc_fic-handler.cpp moc_fib-processor.cpp moc_mp2processor.cpp moc_mp4processor.cpp moc_faad-decoder.cpp moc_dab-data.cpp moc_data-processor.cpp moc_pad-handler.cpp moc_virtual-datahandler.cpp moc_ip-datahandler.cpp moc_mot-data.cpp moc_audio-base.cpp moc_audiosink.cpp moc_gui.cpp moc_dabstick.cpp moc_dongleselect.cpp moc_sdrplay.cpp moc_airspy-handler.cpp moc_rtl_tcp_client.cpp
 compiler_moc_header_clean:
-	-$(DEL_FILE) moc_ofdm-processor.cpp moc_ofdm-decoder.cpp moc_fic-handler.cpp moc_fib-processor.cpp moc_mp2processor.cpp moc_mp4processor.cpp moc_faad-decoder.cpp moc_msc-datagroup.cpp moc_pad-handler.cpp moc_virtual-datahandler.cpp moc_ip-datahandler.cpp moc_mot-data.cpp moc_audio-base.cpp moc_audiosink.cpp moc_gui.cpp moc_dabstick.cpp moc_dongleselect.cpp moc_sdrplay.cpp moc_airspy-handler.cpp moc_rtl_tcp_client.cpp
+	-$(DEL_FILE) moc_ofdm-processor.cpp moc_ofdm-decoder.cpp moc_fic-handler.cpp moc_fib-processor.cpp moc_mp2processor.cpp moc_mp4processor.cpp moc_faad-decoder.cpp moc_dab-data.cpp moc_data-processor.cpp moc_pad-handler.cpp moc_virtual-datahandler.cpp moc_ip-datahandler.cpp moc_mot-data.cpp moc_audio-base.cpp moc_audiosink.cpp moc_gui.cpp moc_dabstick.cpp moc_dongleselect.cpp moc_sdrplay.cpp moc_airspy-handler.cpp moc_rtl_tcp_client.cpp
 moc_ofdm-processor.cpp: includes/dab-constants.h \
 		../../../../include/qt5/QtCore/QThread \
 		../../../../include/qt5/QtCore/qthread.h \
@@ -1490,7 +1496,7 @@ moc_faad-decoder.cpp: includes/backend/audio/neaacdec.h \
 		../../../../lib64/qt5/bin/moc
 	/usr/lib64/qt5/bin/moc $(DEFINES) --include ./moc_predefs.h -I/usr/lib64/qt5/mkspecs/linux-g++ -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi/src -I/usr/shared/sdr-j-development/systems/dab-rpi/includes -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/ofdm -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/backend -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/backend/audio -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/backend/data -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/backend/data/journaline -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/output -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/various -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rawfiles -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/wavfiles -I/usr/local/include -I/usr/shared/sdr-j-development/systems/dab-rpi/gui_1 -I/home/jan/rtl-sdr/include -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/dabstick-osmo -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/sdrplay-exp -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/airspy -I/usr/local/include/libairspy -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rtl_tcp -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/6.2.1 -I/usr/include/c++/6.2.1/x86_64-redhat-linux -I/usr/include/c++/6.2.1/backward -I/usr/lib/gcc/x86_64-redhat-linux/6.2.1/include -I/usr/local/include -I/usr/include includes/backend/audio/faad-decoder.h -o moc_faad-decoder.cpp
 
-moc_msc-datagroup.cpp: includes/backend/dab-virtual.h \
+moc_dab-data.cpp: includes/backend/dab-virtual.h \
 		../../../../include/qt5/QtCore/QThread \
 		../../../../include/qt5/QtCore/qthread.h \
 		../../../../include/qt5/QtCore/qobject.h \
@@ -1545,10 +1551,66 @@ moc_msc-datagroup.cpp: includes/backend/dab-virtual.h \
 		../../../../include/qt5/QtCore/QWaitCondition \
 		../../../../include/qt5/QtCore/qwaitcondition.h \
 		includes/various/ringbuffer.h \
-		includes/backend/data/msc-datagroup.h \
+		includes/backend/data/dab-data.h \
 		moc_predefs.h \
 		../../../../lib64/qt5/bin/moc
-	/usr/lib64/qt5/bin/moc $(DEFINES) --include ./moc_predefs.h -I/usr/lib64/qt5/mkspecs/linux-g++ -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi/src -I/usr/shared/sdr-j-development/systems/dab-rpi/includes -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/ofdm -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/backend -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/backend/audio -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/backend/data -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/backend/data/journaline -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/output -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/various -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rawfiles -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/wavfiles -I/usr/local/include -I/usr/shared/sdr-j-development/systems/dab-rpi/gui_1 -I/home/jan/rtl-sdr/include -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/dabstick-osmo -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/sdrplay-exp -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/airspy -I/usr/local/include/libairspy -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rtl_tcp -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/6.2.1 -I/usr/include/c++/6.2.1/x86_64-redhat-linux -I/usr/include/c++/6.2.1/backward -I/usr/lib/gcc/x86_64-redhat-linux/6.2.1/include -I/usr/local/include -I/usr/include includes/backend/data/msc-datagroup.h -o moc_msc-datagroup.cpp
+	/usr/lib64/qt5/bin/moc $(DEFINES) --include ./moc_predefs.h -I/usr/lib64/qt5/mkspecs/linux-g++ -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi/src -I/usr/shared/sdr-j-development/systems/dab-rpi/includes -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/ofdm -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/backend -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/backend/audio -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/backend/data -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/backend/data/journaline -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/output -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/various -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rawfiles -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/wavfiles -I/usr/local/include -I/usr/shared/sdr-j-development/systems/dab-rpi/gui_1 -I/home/jan/rtl-sdr/include -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/dabstick-osmo -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/sdrplay-exp -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/airspy -I/usr/local/include/libairspy -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rtl_tcp -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/6.2.1 -I/usr/include/c++/6.2.1/x86_64-redhat-linux -I/usr/include/c++/6.2.1/backward -I/usr/lib/gcc/x86_64-redhat-linux/6.2.1/include -I/usr/local/include -I/usr/include includes/backend/data/dab-data.h -o moc_dab-data.cpp
+
+moc_data-processor.cpp: includes/backend/dab-processor.h \
+		includes/backend/dab-virtual.h \
+		../../../../include/qt5/QtCore/QObject \
+		../../../../include/qt5/QtCore/qobject.h \
+		../../../../include/qt5/QtCore/qobjectdefs.h \
+		../../../../include/qt5/QtCore/qnamespace.h \
+		../../../../include/qt5/QtCore/qglobal.h \
+		../../../../include/qt5/QtCore/qconfig.h \
+		../../../../include/qt5/QtCore/qconfig-64.h \
+		../../../../include/qt5/QtCore/qfeatures.h \
+		../../../../include/qt5/QtCore/qsystemdetection.h \
+		../../../../include/qt5/QtCore/qprocessordetection.h \
+		../../../../include/qt5/QtCore/qcompilerdetection.h \
+		../../../../include/qt5/QtCore/qtypeinfo.h \
+		../../../../include/qt5/QtCore/qtypetraits.h \
+		../../../../include/qt5/QtCore/qisenum.h \
+		../../../../include/qt5/QtCore/qsysinfo.h \
+		../../../../include/qt5/QtCore/qlogging.h \
+		../../../../include/qt5/QtCore/qflags.h \
+		../../../../include/qt5/QtCore/qatomic.h \
+		../../../../include/qt5/QtCore/qbasicatomic.h \
+		../../../../include/qt5/QtCore/qatomic_bootstrap.h \
+		../../../../include/qt5/QtCore/qgenericatomic.h \
+		../../../../include/qt5/QtCore/qatomic_cxx11.h \
+		../../../../include/qt5/QtCore/qatomic_msvc.h \
+		../../../../include/qt5/QtCore/qglobalstatic.h \
+		../../../../include/qt5/QtCore/qmutex.h \
+		../../../../include/qt5/QtCore/qnumeric.h \
+		../../../../include/qt5/QtCore/qversiontagging.h \
+		../../../../include/qt5/QtCore/qobjectdefs_impl.h \
+		../../../../include/qt5/QtCore/qstring.h \
+		../../../../include/qt5/QtCore/qchar.h \
+		../../../../include/qt5/QtCore/qbytearray.h \
+		../../../../include/qt5/QtCore/qrefcount.h \
+		../../../../include/qt5/QtCore/qarraydata.h \
+		../../../../include/qt5/QtCore/qstringbuilder.h \
+		../../../../include/qt5/QtCore/qlist.h \
+		../../../../include/qt5/QtCore/qalgorithms.h \
+		../../../../include/qt5/QtCore/qiterator.h \
+		../../../../include/qt5/QtCore/qhashfunctions.h \
+		../../../../include/qt5/QtCore/qpair.h \
+		../../../../include/qt5/QtCore/qbytearraylist.h \
+		../../../../include/qt5/QtCore/qstringlist.h \
+		../../../../include/qt5/QtCore/qregexp.h \
+		../../../../include/qt5/QtCore/qstringmatcher.h \
+		../../../../include/qt5/QtCore/qcoreevent.h \
+		../../../../include/qt5/QtCore/qscopedpointer.h \
+		../../../../include/qt5/QtCore/qmetatype.h \
+		../../../../include/qt5/QtCore/qvarlengtharray.h \
+		../../../../include/qt5/QtCore/qcontainerfwd.h \
+		../../../../include/qt5/QtCore/qobject_impl.h \
+		includes/backend/data/data-processor.h \
+		moc_predefs.h \
+		../../../../lib64/qt5/bin/moc
+	/usr/lib64/qt5/bin/moc $(DEFINES) --include ./moc_predefs.h -I/usr/lib64/qt5/mkspecs/linux-g++ -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi -I/usr/shared/sdr-j-development/systems/dab-rpi/src -I/usr/shared/sdr-j-development/systems/dab-rpi/includes -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/ofdm -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/backend -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/backend/audio -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/backend/data -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/backend/data/journaline -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/output -I/usr/shared/sdr-j-development/systems/dab-rpi/includes/various -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rawfiles -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/wavfiles -I/usr/local/include -I/usr/shared/sdr-j-development/systems/dab-rpi/gui_1 -I/home/jan/rtl-sdr/include -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/dabstick-osmo -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/sdrplay-exp -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/airspy -I/usr/local/include/libairspy -I/usr/shared/sdr-j-development/systems/dab-rpi/src/input/rtl_tcp -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtNetwork -I/usr/include/qt5/QtCore -I/usr/include/c++/6.2.1 -I/usr/include/c++/6.2.1/x86_64-redhat-linux -I/usr/include/c++/6.2.1/backward -I/usr/lib/gcc/x86_64-redhat-linux/6.2.1/include -I/usr/local/include -I/usr/include includes/backend/data/data-processor.h -o moc_data-processor.cpp
 
 moc_pad-handler.cpp: ../../../../include/qt5/QtCore/QObject \
 		../../../../include/qt5/QtCore/qobject.h \
@@ -3884,7 +3946,7 @@ msc-handler.o: src/backend/msc-handler.cpp includes/dab-constants.h \
 		includes/backend/audio/dab-audio.h \
 		../../../../include/qt5/QtCore/QWaitCondition \
 		../../../../include/qt5/QtCore/qwaitcondition.h \
-		includes/backend/data/msc-datagroup.h
+		includes/backend/data/dab-data.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o msc-handler.o src/backend/msc-handler.cpp
 
 deconvolve.o: src/backend/deconvolve.cpp includes/dab-constants.h \
@@ -4885,8 +4947,9 @@ pad-handler.o: src/backend/data/pad-handler.cpp includes/backend/data/pad-handle
 		../../../../include/qt5/QtGui/QImage
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o pad-handler.o src/backend/data/pad-handler.cpp
 
-msc-datagroup.o: src/backend/data/msc-datagroup.cpp includes/dab-constants.h \
-		includes/backend/data/msc-datagroup.h \
+dab-data.o: src/backend/data/dab-data.cpp includes/dab-constants.h \
+		includes/backend/dab-processor.h \
+		includes/backend/data/dab-data.h \
 		includes/backend/dab-virtual.h \
 		../../../../include/qt5/QtCore/QThread \
 		../../../../include/qt5/QtCore/qthread.h \
@@ -4944,8 +5007,158 @@ msc-datagroup.o: src/backend/data/msc-datagroup.cpp includes/dab-constants.h \
 		includes/various/ringbuffer.h \
 		includes/backend/deconvolve.h \
 		includes/backend/viterbi.h \
-		includes/backend/data/virtual-datahandler.h \
+		gui_1/gui.h \
+		../../../../include/qt5/QtWidgets/QMainWindow \
+		../../../../include/qt5/QtWidgets/qmainwindow.h \
+		../../../../include/qt5/QtWidgets/qwidget.h \
+		../../../../include/qt5/QtGui/qwindowdefs.h \
+		../../../../include/qt5/QtGui/qwindowdefs_win.h \
+		../../../../include/qt5/QtCore/qmargins.h \
+		../../../../include/qt5/QtGui/qpaintdevice.h \
+		../../../../include/qt5/QtCore/qrect.h \
+		../../../../include/qt5/QtCore/qsize.h \
+		../../../../include/qt5/QtCore/qpoint.h \
+		../../../../include/qt5/QtGui/qpalette.h \
+		../../../../include/qt5/QtGui/qcolor.h \
+		../../../../include/qt5/QtGui/qrgb.h \
+		../../../../include/qt5/QtGui/qrgba64.h \
+		../../../../include/qt5/QtGui/qbrush.h \
+		../../../../include/qt5/QtCore/qvector.h \
+		../../../../include/qt5/QtGui/qmatrix.h \
+		../../../../include/qt5/QtGui/qpolygon.h \
+		../../../../include/qt5/QtGui/qregion.h \
+		../../../../include/qt5/QtCore/qdatastream.h \
+		../../../../include/qt5/QtCore/qiodevice.h \
+		../../../../include/qt5/QtCore/qline.h \
+		../../../../include/qt5/QtGui/qtransform.h \
+		../../../../include/qt5/QtGui/qpainterpath.h \
+		../../../../include/qt5/QtGui/qimage.h \
+		../../../../include/qt5/QtGui/qpixelformat.h \
+		../../../../include/qt5/QtGui/qpixmap.h \
+		../../../../include/qt5/QtCore/qsharedpointer.h \
+		../../../../include/qt5/QtCore/qshareddata.h \
+		../../../../include/qt5/QtCore/qhash.h \
+		../../../../include/qt5/QtCore/qsharedpointer_impl.h \
+		../../../../include/qt5/QtGui/qfont.h \
+		../../../../include/qt5/QtGui/qfontmetrics.h \
+		../../../../include/qt5/QtGui/qfontinfo.h \
+		../../../../include/qt5/QtWidgets/qsizepolicy.h \
+		../../../../include/qt5/QtGui/qcursor.h \
+		../../../../include/qt5/QtGui/qkeysequence.h \
+		../../../../include/qt5/QtGui/qevent.h \
+		../../../../include/qt5/QtCore/qvariant.h \
+		../../../../include/qt5/QtCore/qmap.h \
+		../../../../include/qt5/QtCore/qdebug.h \
+		../../../../include/qt5/QtCore/qtextstream.h \
+		../../../../include/qt5/QtCore/qlocale.h \
+		../../../../include/qt5/QtCore/qset.h \
+		../../../../include/qt5/QtCore/qcontiguouscache.h \
+		../../../../include/qt5/QtCore/qurl.h \
+		../../../../include/qt5/QtCore/qurlquery.h \
+		../../../../include/qt5/QtCore/qfile.h \
+		../../../../include/qt5/QtCore/qfiledevice.h \
+		../../../../include/qt5/QtGui/qvector2d.h \
+		../../../../include/qt5/QtGui/qtouchdevice.h \
+		../../../../include/qt5/QtWidgets/qtabwidget.h \
+		../../../../include/qt5/QtGui/qicon.h \
+		../../../../include/qt5/QtCore/QStringList \
+		../../../../include/qt5/QtCore/QStringListModel \
+		../../../../include/qt5/QtCore/qstringlistmodel.h \
+		../../../../include/qt5/QtCore/qabstractitemmodel.h \
+		../../../../include/qt5/QtNetwork/QUdpSocket \
+		../../../../include/qt5/QtNetwork/qudpsocket.h \
+		../../../../include/qt5/QtNetwork/qabstractsocket.h \
+		../../../../include/qt5/QtNetwork/qhostaddress.h \
+		../../../../include/qt5/QtWidgets/QComboBox \
+		../../../../include/qt5/QtWidgets/qcombobox.h \
+		../../../../include/qt5/QtWidgets/qabstractitemdelegate.h \
+		../../../../include/qt5/QtWidgets/qstyleoption.h \
+		../../../../include/qt5/QtWidgets/qabstractspinbox.h \
+		../../../../include/qt5/QtGui/qvalidator.h \
+		../../../../include/qt5/QtCore/qregularexpression.h \
+		../../../../include/qt5/QtWidgets/qslider.h \
+		../../../../include/qt5/QtWidgets/qabstractslider.h \
+		../../../../include/qt5/QtWidgets/qstyle.h \
+		../../../../include/qt5/QtWidgets/qtabbar.h \
+		../../../../include/qt5/QtWidgets/qrubberband.h \
+		../../../../include/qt5/QtWidgets/qframe.h \
+		../../../../include/qt5/QtWidgets/QLabel \
+		../../../../include/qt5/QtWidgets/qlabel.h \
+		ui_gui_1.h \
+		../../../../include/qt5/QtCore/QTimer \
+		../../../../include/qt5/QtCore/qtimer.h \
+		../../../../include/qt5/QtCore/qbasictimer.h \
+		includes/ofdm/ofdm-processor.h \
 		../../../../include/qt5/QtCore/QObject \
+		includes/ofdm/phasereference.h \
+		includes/various/fft.h \
+		includes/ofdm/phasetable.h \
+		src/input/virtual-input.h \
+		../../../../include/qt5/QtWidgets/QDialog \
+		../../../../include/qt5/QtWidgets/qdialog.h \
+		includes/backend/fic-handler.h \
+		includes/backend/viterbi-2.h \
+		includes/backend/fib-processor.h \
+		includes/backend/msc-handler.h \
+		includes/backend/data/data-processor.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o dab-data.o src/backend/data/dab-data.cpp
+
+data-processor.o: src/backend/data/data-processor.cpp includes/dab-constants.h \
+		includes/backend/data/data-processor.h \
+		includes/backend/dab-processor.h \
+		includes/backend/dab-virtual.h \
+		../../../../include/qt5/QtCore/QObject \
+		../../../../include/qt5/QtCore/qobject.h \
+		../../../../include/qt5/QtCore/qobjectdefs.h \
+		../../../../include/qt5/QtCore/qnamespace.h \
+		../../../../include/qt5/QtCore/qglobal.h \
+		../../../../include/qt5/QtCore/qconfig.h \
+		../../../../include/qt5/QtCore/qconfig-64.h \
+		../../../../include/qt5/QtCore/qfeatures.h \
+		../../../../include/qt5/QtCore/qsystemdetection.h \
+		../../../../include/qt5/QtCore/qprocessordetection.h \
+		../../../../include/qt5/QtCore/qcompilerdetection.h \
+		../../../../include/qt5/QtCore/qtypeinfo.h \
+		../../../../include/qt5/QtCore/qtypetraits.h \
+		../../../../include/qt5/QtCore/qisenum.h \
+		../../../../include/qt5/QtCore/qsysinfo.h \
+		../../../../include/qt5/QtCore/qlogging.h \
+		../../../../include/qt5/QtCore/qflags.h \
+		../../../../include/qt5/QtCore/qatomic.h \
+		../../../../include/qt5/QtCore/qbasicatomic.h \
+		../../../../include/qt5/QtCore/qatomic_bootstrap.h \
+		../../../../include/qt5/QtCore/qgenericatomic.h \
+		../../../../include/qt5/QtCore/qatomic_cxx11.h \
+		../../../../include/qt5/QtCore/qatomic_msvc.h \
+		../../../../include/qt5/QtCore/qglobalstatic.h \
+		../../../../include/qt5/QtCore/qmutex.h \
+		../../../../include/qt5/QtCore/qnumeric.h \
+		../../../../include/qt5/QtCore/qversiontagging.h \
+		../../../../include/qt5/QtCore/qobjectdefs_impl.h \
+		../../../../include/qt5/QtCore/qstring.h \
+		../../../../include/qt5/QtCore/qchar.h \
+		../../../../include/qt5/QtCore/qbytearray.h \
+		../../../../include/qt5/QtCore/qrefcount.h \
+		../../../../include/qt5/QtCore/qarraydata.h \
+		../../../../include/qt5/QtCore/qstringbuilder.h \
+		../../../../include/qt5/QtCore/qlist.h \
+		../../../../include/qt5/QtCore/qalgorithms.h \
+		../../../../include/qt5/QtCore/qiterator.h \
+		../../../../include/qt5/QtCore/qhashfunctions.h \
+		../../../../include/qt5/QtCore/qpair.h \
+		../../../../include/qt5/QtCore/qbytearraylist.h \
+		../../../../include/qt5/QtCore/qstringlist.h \
+		../../../../include/qt5/QtCore/qregexp.h \
+		../../../../include/qt5/QtCore/qstringmatcher.h \
+		../../../../include/qt5/QtCore/qcoreevent.h \
+		../../../../include/qt5/QtCore/qscopedpointer.h \
+		../../../../include/qt5/QtCore/qmetatype.h \
+		../../../../include/qt5/QtCore/qvarlengtharray.h \
+		../../../../include/qt5/QtCore/qcontainerfwd.h \
+		../../../../include/qt5/QtCore/qobject_impl.h \
+		includes/backend/deconvolve.h \
+		includes/backend/viterbi.h \
+		includes/backend/data/virtual-datahandler.h \
 		../../../../include/qt5/QtCore/QByteArray \
 		includes/backend/data/ip-datahandler.h \
 		includes/backend/data/mot-databuilder.h \
@@ -5033,17 +5246,21 @@ msc-datagroup.o: src/backend/data/msc-datagroup.cpp includes/dab-constants.h \
 		../../../../include/qt5/QtCore/qtimer.h \
 		../../../../include/qt5/QtCore/qbasictimer.h \
 		includes/ofdm/ofdm-processor.h \
+		../../../../include/qt5/QtCore/QThread \
+		../../../../include/qt5/QtCore/qthread.h \
 		includes/ofdm/phasereference.h \
 		includes/various/fft.h \
 		includes/ofdm/phasetable.h \
 		src/input/virtual-input.h \
 		../../../../include/qt5/QtWidgets/QDialog \
 		../../../../include/qt5/QtWidgets/qdialog.h \
+		includes/various/ringbuffer.h \
 		includes/backend/fic-handler.h \
 		includes/backend/viterbi-2.h \
 		includes/backend/fib-processor.h \
-		includes/backend/msc-handler.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o msc-datagroup.o src/backend/data/msc-datagroup.cpp
+		includes/backend/msc-handler.h \
+		../../../../include/qt5/QtCore/QMutex
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o data-processor.o src/backend/data/data-processor.cpp
 
 virtual-datahandler.o: src/backend/data/virtual-datahandler.cpp includes/backend/data/virtual-datahandler.h \
 		includes/dab-constants.h \
@@ -7336,8 +7553,11 @@ moc_mp4processor.o: moc_mp4processor.cpp
 moc_faad-decoder.o: moc_faad-decoder.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_faad-decoder.o moc_faad-decoder.cpp
 
-moc_msc-datagroup.o: moc_msc-datagroup.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_msc-datagroup.o moc_msc-datagroup.cpp
+moc_dab-data.o: moc_dab-data.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_dab-data.o moc_dab-data.cpp
+
+moc_data-processor.o: moc_data-processor.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_data-processor.o moc_data-processor.cpp
 
 moc_pad-handler.o: moc_pad-handler.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_pad-handler.o moc_pad-handler.cpp

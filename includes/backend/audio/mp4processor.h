@@ -48,7 +48,7 @@ public:
 	                                 int16_t,
 	                                 RingBuffer<int16_t> *);
 			~mp4Processor	(void);
-	void		addtoFrame	(uint8_t *, int16_t);
+	void		addtoFrame	(uint8_t *);
 private:
 	RadioInterface	*myRadioInterface;
 	padHandler	my_padhandler;

@@ -29,9 +29,8 @@
 	dabProcessor::~dabProcessor	(void) {
 }
 
-void	dabProcessor::addtoFrame	(uint8_t *v, int16_t cnt) {
+void	dabProcessor::addtoFrame	(uint8_t *v) {
 	(void)v;
-	(void)cnt;
 }
 
 

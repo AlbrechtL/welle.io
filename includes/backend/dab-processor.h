@@ -36,7 +36,7 @@ class	dabProcessor {
 public:
 		dabProcessor	(void);
 virtual		~dabProcessor	(void);
-virtual	void	addtoFrame	(uint8_t *, int16_t);
+virtual	void	addtoFrame	(uint8_t *);
 };
 #endif
 

@@ -55,7 +55,7 @@ public:
 	                                 int16_t,
 	                                 RingBuffer<int16_t> *);
 			~mp2Processor	(void);
-	void		addtoFrame	(uint8_t *, int16_t);
+	void		addtoFrame	(uint8_t *);
 	void		setFile		(FILE *);
 
 private:

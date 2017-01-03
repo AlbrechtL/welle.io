@@ -1177,7 +1177,8 @@ QString a = ensemble. data (s, Qt::DisplayRole). toString ();
 	      }
 	   case PACKET_SERVICE:
 	      {  packetdata d;
-	          my_ficHandler	-> dataforDataService (a, &d);
+	         my_ficHandler	-> dataforDataService (a, &d);
+	fprintf (stderr, "data, %d %d\n", d. DSCTy, d. bitRate);
 	         if ((d.  DSCTy == 0) || (d. bitRate == 0))
 	            return;
 	         my_mscHandler	-> set_dataChannel (&d);
@@ -1206,7 +1207,7 @@ QString a = ensemble. data (s, Qt::DisplayRole). toString ();
 	         }
 	        break;
 	      }
-	   default:
+	   default: fprintf (stderr, "wat maak je me nou?\n");
 	      return;
 	}
 	if (pictureLabel != NULL)

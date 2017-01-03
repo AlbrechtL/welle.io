@@ -73,7 +73,8 @@ HEADERS += ./includes/dab-constants.h \
 	   ./includes/backend/audio/mp2processor.h \
 	   ./includes/backend/audio/mp4processor.h \
 	   ./includes/backend/audio/faad-decoder.h \
-	   ./includes/backend/data/msc-datagroup.h \
+	   ./includes/backend/data/dab-data.h \
+	   ./includes/backend/data/data-processor.h \
 	   ./includes/backend/data/pad-handler.h \
 	   ./includes/backend/data/virtual-datahandler.h \
 	   ./includes/backend/data/ip-datahandler.h \
@@ -123,7 +124,8 @@ SOURCES += ./main.cpp \
 	   ./src/backend/audio/mp2processor.cpp \
 	   ./src/backend/audio/mp4processor.cpp \
 	   ./src/backend/data/pad-handler.cpp \
-	   ./src/backend/data/msc-datagroup.cpp \
+	   ./src/backend/data/dab-data.cpp \
+	   ./src/backend/data/data-processor.cpp \
 	   ./src/backend/data/virtual-datahandler.cpp \
 	   ./src/backend/data/ip-datahandler.cpp \
 	   ./src/backend/data/mot-databuilder.cpp \

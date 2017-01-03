@@ -133,13 +133,13 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
 	     ./includes/ofdm/phasetable.h
 	     ./includes/ofdm/freq-interleaver.h
 	     ./includes/backend/viterbi.h
-	     ./includes/backend/msc-handler.h
 	     ./includes/backend/deconvolve.h
 	     ./includes/backend/firecode-checker.h
 	     ./includes/backend/dab-processor.h
 	     ./includes/backend/dab-virtual.h
 	     ./includes/backend/charsets.h
 	     ./includes/backend/galois.h
+	     ./includes/backend/msc-handler.h
 	     ./incluces/backend/reed-solomon.h
 	     ./includes/backend/audio/dab-audio.h
 	     ./includes/backend/audio/faad-decoder.h
@@ -159,7 +159,8 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
 	     ./includes/backend/data/virtual-datahandler.h 
 	     ./includes/backend/data/pad-handler.h 
 	     ./includes/backend/data/mot-data.h 
-	     ./includes/backend/data/msc-datagroup.h 
+	     ./includes/backend/data/dab-data.h
+	     ./includes/backend/data/data-processor.h
 	     ./src/input/virtual-input.h
 	     ./src/input/rawfiles/rawfiles.h
 	     ./src/input/wavfiles/wavfiles.h
@@ -208,7 +209,8 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
 	     ./src/backend/data/virtual-datahandler.cpp 
 	     ./src/backend/data/pad-handler.cpp 
 	     ./src/backend/data/mot-data.cpp 
-	     ./src/backend/data/msc-datagroup.cpp 
+	     ./src/backend/data/dab-data.cpp
+	     ./src/backend/data/data-processor.cpp
 	     ./src/input/virtual-input.cpp
 	     ./src/input/rawfiles/rawfiles.cpp
 	     ./src/input/wavfiles/wavfiles.cpp
@@ -235,7 +237,8 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
 	     ./includes/backend/data/ip-datahandler.h
 	     ./includes/backend/data/journaline-datahandler.h
 	     ./includes/backend/data/mot-databuilder.h
-	     ./includes/backend/data/msc-datagroup.h
+	     ./includes/backend/data/dab-data.h
+	     ./includes/backend/data/data-processor.h
 	     ./src/input/rawfiles/rawfiles.h
 	     ./src/input/wavfiles/wavfiles.h
 	)
