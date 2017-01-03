@@ -1009,7 +1009,6 @@ void RadioInterface::inputGainChange(double gain)
     fprintf(stderr, "Gain: %f\n", gain);
 }
 
-#ifdef qt_charts
 // This function is called by the QML GUI
 void RadioInterface::updateSpectrum (QAbstractSeries *series) {
 //	TODO: At the moment the spectrumBuffer is not thread safe.
@@ -1054,4 +1053,3 @@ void RadioInterface::updateSpectrum (QAbstractSeries *series) {
 //	Set new data
 	xySeries->replace (spectrum_data);
 }
-#endif

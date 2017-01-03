@@ -39,10 +39,9 @@
 #include	<QtQml/QQmlApplicationEngine>
 #include	<QQmlContext>
 
-#ifdef	qt_charts
 #include	<QtCharts>
 using namespace QtCharts;
-#endif
+
 #include	"stationlist.h"
 
 #include	"ofdm-processor.h"
@@ -145,9 +144,8 @@ public slots:
 	void		setStereo		(bool isStereo);
 	void		setSignalPresent	(bool isSignal, QString);
 	void		displayDateTime		(int *DateTime);
-#ifdef	qt_charts
 	void		updateSpectrum		(QAbstractSeries *series);
-#endif
+
 private slots:
 //
 //	Somehow, these must be connected to the GUI

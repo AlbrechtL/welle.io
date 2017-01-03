@@ -225,8 +225,7 @@ gui_1	{
 	
 gui_3	{
         DEFINES		+= GUI_3
-	QT		+= qml quick
-#	QT		+= qml quick charts
+        QT		+= qml quick charts
         INCLUDEPATH	+= ./gui_3
         DEPENDPATH	+= ./gui_3
         HEADERS		+= ./gui_3/gui.h \

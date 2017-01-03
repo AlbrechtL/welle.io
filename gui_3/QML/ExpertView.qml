@@ -11,10 +11,7 @@ Item {
     Layout.fillHeight: true
 
     ColumnLayout {
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: parent.top
-
+        anchors.fill: parent
         anchors.topMargin: Units.dp(5)
         anchors.leftMargin: Units.dp(5)
 
@@ -43,12 +40,12 @@ Item {
             name: "Frame success rate:"
         }
 
-//        SpectrumView {
-//            width: parent.width
-//            Layout.fillWidth: true
-//            Layout.fillHeight: true
-//            height: parent.height
-//        }
+        SpectrumView {
+            Layout.preferredWidth: Units.dp(200)
+            Layout.preferredHeight: Units.dp(200)
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+        }
     }
 
     Connections{

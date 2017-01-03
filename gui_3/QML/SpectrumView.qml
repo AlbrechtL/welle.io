@@ -53,12 +53,12 @@ ChartView {
 
     Timer {
         id: refreshTimer
-        interval: 1 / 25 * 1000 // 25 Hz
+        interval: 1 / 10 * 1000 // 10 Hz
         running: parent.visible ? true : false // Trigger new data only if spectrum is showed
         repeat: true
-//        onTriggered: {
-//           cppGUI.updateSpectrum(spectrumView.series(0));
-//        }
+        onTriggered: {
+           cppGUI.updateSpectrum(spectrumView.series(0));
+        }
     }
 
     Timer {
