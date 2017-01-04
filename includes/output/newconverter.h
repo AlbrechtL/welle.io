@@ -1,11 +1,11 @@
 #
 /*
- *    Copyright (C)  2009, 2010, 2011
+ *    Copyright (C) 2011, 2012, 2013
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
  *    Lazy Chair Programming
  *
- *    This file is part of the SDR-J.
- *    Many of the ideas as implemented in ESDR are derived from
+ *    This file is part of the SDR-J
+ *    Many of the ideas as implemented in SDR-J are derived from
  *    other work, made available through the GNU general Public License. 
  *    All copyrights of the original authors are recognized.
  *
@@ -24,42 +24,40 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
+#ifndef	__NEW_CONVERTER
+#define	__NEW_CONVERTER
 
-#ifndef __AUDIO_BASE__
-#define	__AUDIO_BASE__
-#include	"dab-constants.h"
-#include	<stdio.h>
+#include	<math.h>
+#include	<complex>
+#include	<stdint.h>
+#include	<unistd.h>
+#include	<limits>
 #include	<samplerate.h>
-#include	<sndfile.h>
-#include	<QMutex>
-#include	<QObject>
-#include	"newconverter.h"
-#include	"ringbuffer.h"
+#include	"dab-constants.h"
 
-
-class	audioBase: public QObject{
-Q_OBJECT
-public:
-			audioBase		(RingBuffer<int16_t> *);
-virtual			~audioBase		(void);
-virtual	void		stop			(void);
-virtual	void		restart			(void);
-	void		audioOut		(int);
-	void		startDumping		(SNDFILE *);
-	void		stopDumping		(void);
+class	newConverter {
 private:
-	RingBuffer<int16_t>	*buffer;
-	void		audioOut_16000		(int16_t *, int32_t);
-	void		audioOut_24000		(int16_t *, int32_t);
-	void		audioOut_32000		(int16_t *, int32_t);
-	void		audioOut_48000		(int16_t *, int32_t);
-	newConverter	converter_16;
-	newConverter	converter_24;
-	newConverter	converter_32;
-	SNDFILE		*dumpFile;
-	QMutex		myLocker;
-protected:
-virtual	void		audioOutput		(float *, int32_t);
+	int32_t		inRate;
+	int32_t		outRate;
+	double		ratio;
+	int32_t		outputLimit;
+	int32_t		inputLimit;
+	SRC_STATE	*converter;
+	SRC_DATA	*src_data;
+	float		*inBuffer;
+	float		*outBuffer;
+	int32_t		inp;
+public:
+		newConverter (int32_t inRate, int32_t outRate, 
+	                      int32_t inSize);
+
+		~newConverter (void);
+
+bool	convert (DSPCOMPLEX v,
+	                       DSPCOMPLEX *out, int32_t *amount);
+
+int32_t	getOutputsize (void);
 };
+
 #endif
 

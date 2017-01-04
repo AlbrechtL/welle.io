@@ -127,7 +127,7 @@ PaError err;
 	                          Pa_GetDeviceInfo (odev) ->
 	                                      defaultHighOutputLatency * 4;
 //	bufSize	= (int)((float)outputParameters. suggestedLatency);
-	bufSize	= latency * 10 * 256;
+	bufSize	= latency * 20 * 256;
 
 //	if (bufSize < 0 || bufSize > 17300)
 //	   bufSize = 16384;

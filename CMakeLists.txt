@@ -84,6 +84,12 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
         endif ()
         list(APPEND extraLibs ${LIBSNDFILE_LIBRARY})
 
+        find_package(LibSampleRate)
+        if (NOT LIBSAMPLERATE_FOUND)
+            message(FATAL_ERROR "please install libsamplerate")
+        endif ()
+        list(APPEND extraLibs ${LIBSAMPLERATE_LIBRARY})
+
 	find_library (PTHREADS pthread)
 	if (NOT(PTHREADS))
 	   message (FATAL_ERROR "please install libpthread")
@@ -167,6 +173,7 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
 	     ./includes/output/fir-filters.h
 	     ./includes/output/audio-base.h
 	     ./includes/output/audiosink.h
+	     ./includes/output/newconverter.h
 	     ./includes/various/fft.h
 	     ./includes/various/ringbuffer.h
 	     ./includes/various/Xtan2.h
@@ -216,6 +223,7 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
 	     ./src/input/wavfiles/wavfiles.cpp
 	     ./src/output/audio-base.cpp
 	     ./src/output/audiosink.cpp
+	     ./src/output/newconverter.cpp
 	     ./src/output/fir-filters.cpp
 	     ./src/various/fft.cpp
 	     ./src/various/Xtan2.cpp

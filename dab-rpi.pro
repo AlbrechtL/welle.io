@@ -91,6 +91,7 @@ HEADERS += ./includes/dab-constants.h \
 	   ./includes/backend/data/journaline/NML.h \
 	   ./includes/backend/deconvolve.h \
 	   ./includes/output/audio-base.h \
+	   ./includes/output/newconverter.h \
 	   ./includes/output/audiosink.h \
 	   ./includes/output/fir-filters.h \
            ./includes/various/fft.h \
@@ -139,6 +140,7 @@ SOURCES += ./main.cpp \
 	   ./src/backend/data/journaline/newsobject.cpp \
 	   ./src/backend/data/journaline/NML.cpp \
 	   ./src/output/audio-base.cpp \
+	   ./src/output/newconverter.cpp \
 	   ./src/output/audiosink.cpp \
 	   ./src/output/fir-filters.cpp \
            ./src/various/fft.cpp \
@@ -172,6 +174,7 @@ LIBS		+= -lfftw3f  -lusb-1.0 -ldl  #
 LIBS		+= -lportaudio
 LIBS		+= -lz
 LIBS		+= -lsndfile
+LIBS		+= -lsamplerate
 LIBS		+= -lfaad
 }
 #
