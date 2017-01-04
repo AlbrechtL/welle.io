@@ -1176,7 +1176,7 @@ int16_t	i, j;
 	   
 	   selectedService = listofServices [i]. serviceId;
 	   for (j = 0; j < 64; j ++) {
-	      int16_t subchId;
+	      int16_t subChId;
 	      if (!components [j]. inUse)
 	         continue;
 	      if (selectedService != components [j]. service -> serviceId)
@@ -1187,15 +1187,18 @@ int16_t	i, j;
 	         return;
 	      }
 
-	      subchId	= components [j]. subchannelId;
-	      d	-> subchId	= subchId;
-	      d	-> startAddr	= ficList [subchId]. StartAddr;
-	      d	-> uepFlag	= ficList [subchId]. uepFlag;
-	      d	-> protLevel	= ficList [subchId]. protLevel;
-	      d	-> length	= ficList [subchId]. Length;
-	      d	-> bitRate	= ficList [subchId]. BitRate;
+	      subChId	= components [j]. subchannelId;
+	      d	-> subchId	= subChId;
+	      d	-> startAddr	= ficList [subChId]. StartAddr;
+	      d	-> uepFlag	= ficList [subChId]. uepFlag;
+	      d	-> protLevel	= ficList [subChId]. protLevel;
+	      d	-> length	= ficList [subChId]. Length;
+	      d	-> bitRate	= ficList [subChId]. BitRate;
 	      d	-> ASCTy	= components [j]. ASCTy;
-	      d	-> language	= listofServices [i]. language;
+	      if (listofServices [i]. hasLanguage)
+	         d -> language	= listofServices [i]. language;
+	      else
+	         d -> language	= 0;
 	      d	-> programType	= listofServices [i]. programType;
 	      return;
 	   }

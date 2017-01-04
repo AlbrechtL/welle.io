@@ -1170,6 +1170,12 @@ QString a = ensemble. data (s, Qt::DisplayRole). toString ();
 	   case AUDIO_SERVICE:
 	      { audiodata d;
 	        my_ficHandler	-> dataforAudioService (a, &d);
+	        if ((d. bitRate == 0) || (d. protLevel == 0)) {
+ 	           QMessageBox::warning (this, tr ("sdr"),
+ 	                               tr ("still insufficient data for this program\n"));
+ 	           return;
+ 	        }
+
 	        my_mscHandler	-> set_audioChannel (&d);
 	        showLabel (QString (" "));
 	        rateDisplay -> display (d. bitRate);
@@ -1178,9 +1184,12 @@ QString a = ensemble. data (s, Qt::DisplayRole). toString ();
 	   case PACKET_SERVICE:
 	      {  packetdata d;
 	         my_ficHandler	-> dataforDataService (a, &d);
-	fprintf (stderr, "data, %d %d\n", d. DSCTy, d. bitRate);
-	         if ((d.  DSCTy == 0) || (d. bitRate == 0))
+	         if ((d.  DSCTy == 0) || (d. bitRate == 0)) {
+	            QMessageBox::warning (this, tr ("sdr"),
+ 	                               tr ("still insufficient data for this service\n"));
+
 	            return;
+	         }
 	         my_mscHandler	-> set_dataChannel (&d);
 	         switch (d. DSCTy) {
 	            default:
