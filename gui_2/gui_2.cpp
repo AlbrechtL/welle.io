@@ -662,7 +662,7 @@ bool	success;
 #ifdef HAVE_RTL_TCP
 //	RTL_TCP might be working. 
 	if (s == "rtl_tcp") {
-	   inputDevice = new rtl_tcp_client (dabSettings, &success);
+	   inputDevice = new rtl_tcp_client (dabSettings, &success, true);
 	   if (!success) {
 	      delete inputDevice;
 	      inputDevice = new virtualInput();

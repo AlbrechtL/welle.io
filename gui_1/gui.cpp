@@ -1070,15 +1070,15 @@ fprintf (stderr, "inputDevice deleted\n");
 #ifdef HAVE_RTL_TCP
 //	RTL_TCP might be working. 
 	if (s == "rtl_tcp") {
-	   inputDevice = new rtl_tcp_client (dabSettings, &success);
+	   inputDevice = new rtl_tcp_client (dabSettings, &success, true);
 	   if (!success) {
 	      delete inputDevice;
-	      QMessageBox::warning( this, tr ("sdr"), tr ("UHD: no luck\n") );
+	      QMessageBox::warning( this, tr ("sdr"), tr ("rtl_tcp: no luck\n") );
 	      inputDevice = new virtualInput();
 	      resetSelector ();
 	   }
 	   else 
-	      set_channelSelect (channelSelector->currentText() );
+	      set_channelSelect (channelSelector -> currentText() );
 	}
 	else
 #endif

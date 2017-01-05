@@ -45,7 +45,7 @@
 class	rtl_tcp_client: public virtualInput, Ui_rtl_tcp_widget {
 Q_OBJECT
 public:
-			rtl_tcp_client (QSettings *, bool *);
+			rtl_tcp_client (QSettings *, bool *, bool);
 			~rtl_tcp_client	(void);
 	int32_t		getRate		(void);
 	bool		legalFrequency	(int32_t);
@@ -58,6 +58,9 @@ public:
 	int32_t		Samples		(void);
 	int16_t		bitDepth	(void);
 	uint8_t		myIdentity	(void);
+//
+	void		setGain		(int32_t);
+	void		setAgc		(bool);
 //
 private slots:
 	void		sendGain	(int);

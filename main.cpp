@@ -90,6 +90,8 @@ QSettings	*dabSettings;		// ini file
 uint8_t		dabMode		= 127;	// illegal value
 QString		dabDevice	= QString ("");
 QString		dabBand		= QString ("");
+QString		ipAddress	= QString ("");
+
 	fullPathfor (DEFAULT_INI, defaultInit);
 
 	while ((opt = getopt (argc, argv, "i:D:S:M:B:")) != -1) {
@@ -115,6 +117,10 @@ QString		dabBand		= QString ("");
 
 	      case 'B':
 	         dabBand 	= optarg;
+	         break;
+
+	      case 'I':
+	         ipAddress	= optarg;
 	         break;
 #endif
 	      default:
@@ -150,9 +156,15 @@ QString		dabBand		= QString ("");
 	dabSettings -> setValue ("dabMode",	dabMode);
 	dabSettings -> setValue ("device",	dabDevice);
 	dabSettings -> setValue ("band",	dabBand);
+	if (ipAddress != QString (""))
+	   dabSettings -> setValue ("rtl_tcp_address", ipAddress);
+	dabSettings	-> sync ();
 	QQmlApplicationEngine engine(QUrl("qrc:/QML/main.qml"));
-	MyRadioInterface = new RadioInterface (dabSettings, &engine,
-	                                       dabDevice, dabMode, dabBand);
+	MyRadioInterface = new RadioInterface (dabSettings,
+	                                       &engine,
+	                                       dabDevice,
+	                                       dabMode,
+	                                       dabBand);
 #elif defined (GUI_2)
 	(void)syncMethod;
 	dabSettings -> setValue ("dabMode",	dabMode);

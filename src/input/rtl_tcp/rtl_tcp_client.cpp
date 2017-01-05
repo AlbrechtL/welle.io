@@ -35,13 +35,15 @@
 //
 #define	DEFAULT_FREQUENCY	(Khz (220000))
 
-	rtl_tcp_client::rtl_tcp_client	(QSettings *s, bool *success) {
+	rtl_tcp_client::rtl_tcp_client	(QSettings *s,
+	                                 bool *success, bool visible) {
 	remoteSettings		= s;
 	*success		= false;
 
 	theFrame		= new QFrame;
 	setupUi (theFrame);
-	this	-> theFrame	-> show ();
+	if (visible)
+	   this	-> theFrame	-> show ();
 
     //	setting the defaults and constants
 	theRate		= 2048000;
@@ -59,18 +61,44 @@
 	theBuffer	= new RingBuffer<uint8_t>(32 * 32768);
 	connected	= false;
 	hostLineEdit 	= new QLineEdit (NULL);
+
+	if (visible) {
+	   connect (tcp_connect, SIGNAL (clicked (void)),
+	            this, SLOT (wantConnect (void)));
+	   connect (tcp_disconnect, SIGNAL (clicked (void)),
+	            this, SLOT (setDisconnect (void)));
+	   connect (tcp_gain, SIGNAL (valueChanged (int)),
+	            this, SLOT (sendGain (int)));
+	   connect (tcp_ppm, SIGNAL (valueChanged (int)),
+	            this, SLOT (set_fCorrection (int)));
+	   connect (khzOffset, SIGNAL (valueChanged (int)),
+	            this, SLOT (set_Offset (int)));
+	   state	-> setText ("waiting to start");
+	   *success	= true;
+	   return;
+	}
 //
-	connect (tcp_connect, SIGNAL (clicked (void)),
-	         this, SLOT (wantConnect (void)));
-	connect (tcp_disconnect, SIGNAL (clicked (void)),
-	         this, SLOT (setDisconnect (void)));
-	connect (tcp_gain, SIGNAL (valueChanged (int)),
-	         this, SLOT (sendGain (int)));
-	connect (tcp_ppm, SIGNAL (valueChanged (int)),
-	         this, SLOT (set_fCorrection (int)));
-	connect (khzOffset, SIGNAL (valueChanged (int)),
-	         this, SLOT (set_Offset (int)));
-	state	-> setText ("waiting to start");
+//	If we do not make the widget visible, we assume there is an
+//	ipAddress in the remoteSettings, and we connect (try to connect)
+//	to that
+
+	remoteSettings -> beginGroup ("rtl_tcp_client");
+	QString ipAddress = remoteSettings ->
+	                value ("rtl_tcp_address", "127.0.0.1"). toString ();
+	remoteSettings -> endGroup ();
+	serverAddress	= QHostAddress (ipAddress);
+	basePort	= 1234;
+	toServer. connectToHost (serverAddress, basePort);
+	if (!toServer. waitForConnected (2000)) {
+	   *success	= false;
+	   return;
+	}
+
+	sendGain (theGain);
+	sendRate (theRate);
+	sendVFO	(DEFAULT_FREQUENCY);
+	toServer. waitForBytesWritten ();
+	connected	= true;
 	*success	= true;
 }
 
@@ -83,8 +111,8 @@
 	                               toServer. peerAddress (). toString ());
 	   QByteArray datagram;
 	}
-	remoteSettings -> setValue ("rtl_tcp_client-gain", theGain);
-	remoteSettings -> setValue ("rtl_tcp_client-ppm", thePpm);
+	remoteSettings -> setValue ("rtl_tcp_client-gain",   theGain);
+	remoteSettings -> setValue ("rtl_tcp_client-ppm",    thePpm);
 	remoteSettings -> setValue ("rtl_tcp_client-offset", vfoOffset);
 	remoteSettings -> endGroup ();
 	toServer. close ();
@@ -144,16 +172,6 @@ QHostAddress theAddress	= QHostAddress (s);
 	   return;
 	}
 
-//
-//	The streamer will provide us with the raw data
-//	streamer. connectToHost (serverAddress, basePort);
-//	if (!streamer. waitForConnected (2000)) {
-//	   QMessageBox::warning (theFrame, tr ("sdr"),
-//	                                   tr ("setting up stream failed\n"));
-//	   toServer. disconnectFromHost ();
-//	   return;
-//	}
-
 	sendGain (theGain);
 	sendRate (theRate);
 	sendVFO	(DEFAULT_FREQUENCY - theRate / 4);
@@ -166,21 +184,6 @@ int32_t	rtl_tcp_client::getRate	(void) {
 	return theRate;
 }
 
-//void	rtl_tcp_client::setRate	(const QString &s) {
-//int32_t	localRate	= s. toInt ();
-//
-//	if (localRate == theRate)
-//	   return;
-//
-////	communicate change in rate to the device
-//	theRate	= localRate;
-//	rateDisplay -> display (theRate);
-//    	set_changeRate (theRate);	// signal the main program
-//	                                // to alter some settings
-//	if (connected)
-//	   sendRate (theRate);
-//}
-//
 bool	rtl_tcp_client::legalFrequency (int32_t f) {
 	(void)f;
 	return true;
@@ -290,6 +293,16 @@ void	rtl_tcp_client::sendRate (int32_t theRate) {
 void	rtl_tcp_client::sendGain (int gain) {
 	sendCommand (0x04, 10 * gain);
 	theGain		= gain;
+}
+
+//
+//	the "setGain" function is to accomodate gui_3.
+void	rtl_tcp_client::setGain		(int32_t g) {
+	sendGain (g);
+}
+
+void	rtl_tcp_client::setAgc		(bool b) {
+	(void)b;
 }
 
 //	correction is in ppm
