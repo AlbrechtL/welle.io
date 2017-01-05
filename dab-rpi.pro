@@ -68,7 +68,7 @@ HEADERS += ./includes/dab-constants.h \
 	   ./includes/backend/charsets.h \
 	   ./includes/backend/firecode-checker.h \
 	   ./includes/backend/dab-processor.h \
-	   ./includes/backend/dab-virtual.h \
+#	   ./includes/backend/dab-virtual.h \
 	   ./includes/backend/audio/dab-audio.h \
 	   ./includes/backend/audio/mp2processor.h \
 	   ./includes/backend/audio/mp4processor.h \
@@ -118,7 +118,7 @@ SOURCES += ./main.cpp \
 	   ./src/backend/reed-solomon.cpp \
 	   ./src/backend/charsets.cpp \
 	   ./src/backend/firecode-checker.cpp \
-	   ./src/backend/dab-virtual.cpp \
+#	   ./src/backend/dab-virtual.cpp \
 	   ./src/backend/dab-processor.cpp \
 	   ./src/backend/protTables.cpp \
 	   ./src/backend/audio/dab-audio.cpp \

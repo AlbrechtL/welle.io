@@ -36,7 +36,6 @@ class	dabProcessor;
 class	RadioInterface;
 class	uep_deconvolve;
 class	eep_deconvolve;
-class	virtual_dataHandler;
 
 class	dabData:public QThread, public dabVirtual {
 Q_OBJECT

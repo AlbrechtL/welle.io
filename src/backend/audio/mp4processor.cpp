@@ -75,8 +75,6 @@ uint16_t	genpoly		= 0x1021;
 	myRadioInterface	= mr;
 	connect (this, SIGNAL (show_successRate (int)),
 	         mr, SLOT (show_successRate (int)));
-	connect (this, SIGNAL (showLabel (QString)),
-	         mr, SLOT (showLabel (QString)));
 	connect (this, SIGNAL (isStereo (bool)),
 	         mr, SLOT (setStereo (bool)));
 	this	-> bitRate	= bitRate;	// input rate
