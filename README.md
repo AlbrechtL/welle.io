@@ -25,7 +25,7 @@ GUIs
 GUI | Description 
 ------ | ----------
 GUI_1 | Is a GUI by using QT widgets.
-GUI_2 | Is assumed that dab-rpi itself does not have a GUI. It is controlled remotely. More information can be found in the file [README.GUI_2](README.GUI_2]).
+GUI_2 | Is assumed that dab-rpi itself does not have a GUI. It is controlled remotely. More information can be found in the file [README.GUI_2](README.GUI_2).
 GUI_3 | Is a touch and high DPI display optimized GUI based in QT QML. But it runs also well on regular PCs.
 
 Command Line Parameters
