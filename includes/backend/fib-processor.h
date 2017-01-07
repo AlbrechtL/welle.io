@@ -105,7 +105,7 @@ public:
 	void	dataforDataService	(QString &, packetdata *);
 private:
 	RadioInterface	*myRadioInterface;
-	serviceId	*findServiceId (int32_t);
+    serviceId	*findServiceId (uint32_t);
 	serviceComponent *find_packetComponent (int16_t);
         void            bind_audioService (int8_t,
                                            uint32_t, int16_t,
@@ -145,8 +145,8 @@ private:
 	                                         int16_t, uint8_t);
 	int16_t		HandleFIG0Extension22	(uint8_t *, int16_t);
 	int32_t		dateTime	[8];
-	channelMap	ficList [64];
-	serviceComponent	components [64];
+    channelMap	ficList [64];
+    serviceComponent	components [64];
 	serviceId	*listofServices;
 	bool	dateFlag;
 signals:

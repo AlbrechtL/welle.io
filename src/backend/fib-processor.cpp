@@ -945,12 +945,12 @@ char		label [17];
 //
 //	locate - and create if needed - a reference to the entry
 //	for the serviceId serviceId
-serviceId	*fib_processor::findServiceId (int32_t serviceId) {
+serviceId	*fib_processor::findServiceId (uint32_t serviceId) {
 int16_t	i;
 
 	for (i = 0; i < 64; i ++)
 	   if ((listofServices [i]. inUse) &&
-	        ((uint16_t)(listofServices [i]. serviceId) == serviceId))
+            (listofServices [i]. serviceId) == serviceId)
 	      return &listofServices [i];
 
 	for (i = 0; i < 64; i ++)
