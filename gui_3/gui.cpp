@@ -1004,6 +1004,9 @@ void RadioInterface::inputEnableAGCChange(bool checked)
         fprintf(stderr, "AGC on\n");
     else
         fprintf(stderr, "AGC off\n");
+
+    if(inputDevice)
+        inputDevice->setAgc(checked);
 }
 
 void RadioInterface::inputGainChange(double gain)

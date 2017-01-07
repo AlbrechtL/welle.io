@@ -96,7 +96,7 @@
 	   return;
 	}
 
-	sendGain (theGain);
+    setAgc(true);
 	sendRate (theRate);
 	sendVFO	(DEFAULT_FREQUENCY);
 	toServer. waitForBytesWritten ();

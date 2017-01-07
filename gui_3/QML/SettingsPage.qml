@@ -113,7 +113,7 @@ Item {
                         id: enableAGC
                         name: "Enable AGC"
                         objectName: "enableAGC"
-                        checked: false
+                        checked: true
                         onChanged: mainWindow.inputEnableAGCChanged(valueChecked)
                     }
 
