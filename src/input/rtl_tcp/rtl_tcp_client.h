@@ -74,6 +74,7 @@ private slots:
 private:
 	void		sendVFO		(int32_t);
 	void		sendRate	(int32_t);
+    void        setGainMode (int32_t gainMode);
 	void		sendCommand	(uint8_t, int32_t);
 	QLineEdit	*hostLineEdit;
 	bool		isvalidRate	(int32_t);

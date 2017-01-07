@@ -303,7 +303,10 @@ void	rtl_tcp_client::sendRate (int32_t theRate) {
 	sendCommand (0x02, theRate);
 }
 
-//
+void	rtl_tcp_client::setGainMode (int32_t gainMode) {
+    sendCommand (0x03, gainMode);
+}
+
 void	rtl_tcp_client::sendGain (int gain) {
 	sendCommand (0x04, 10 * gain);
 	theGain		= gain;
@@ -316,7 +319,10 @@ void	rtl_tcp_client::setGain		(int32_t g) {
 }
 
 void	rtl_tcp_client::setAgc		(bool b) {
-	(void)b;
+    if(b)
+        setGainMode(0);
+    else
+        setGainMode(1);
 }
 
 //	correction is in ppm
