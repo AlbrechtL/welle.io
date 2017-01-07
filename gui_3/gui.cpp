@@ -905,7 +905,7 @@ bool	success;
 #ifdef HAVE_RTL_TCP
 //	RTL_TCP might be working. 
 	if (s == "rtl_tcp") {
-       inputDevice = new rtl_tcp_client (dabSettings, &success, true);
+       inputDevice = new rtl_tcp_client (dabSettings, &success, false);
 	   if (!success) {
 	      delete inputDevice;
 	      inputDevice = new virtualInput();
@@ -1062,7 +1062,7 @@ void RadioInterface::updateSpectrum (QAbstractSeries *series)
     }
 
     //	Set maximum of y-axis
-	y_max = round (y_max) + 1;
+    y_max = round (y_max) + 1;
 	if (y_max > 0.0001)
 	   emit maxYAxisChanged (y_max);
 

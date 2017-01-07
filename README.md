@@ -39,11 +39,12 @@ D | Input device. Possible are: airspy, rtl_tcp, sdrplay, dabstick | GUI_2, GUI_
 M | DAB mode. Possible are: 1,2 or 4, Default: 1 | GUI_2, GUI_3
 B | DAB band | GUI_2, GUI_3
 I | rtl_tcp server IP address. Only valid for input rtl_tcp | GUI_2, GUI_3
+P | rtl_tcp server IP port. Only valid for input rtl_tcp | GUI_2, GUI_3
 
 Example usage:
   
   ```
-# dab-rpi -D rtl_tcp -I 192.168.1.1
+# dab-rpi -D rtl_tcp -I 192.168.1.1 -P 1000
   ```
   
 Settings INI-File

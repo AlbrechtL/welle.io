@@ -54,6 +54,8 @@
 	                          value ("rtl_tcp_client-ppm", 0). toInt ();
 	vfoOffset	= remoteSettings ->
 	                          value ("rtl_tcp_client-offset", 0). toInt ();
+    basePort = remoteSettings ->
+                    value ("rtl_tcp_port", 1234).toInt();
 	remoteSettings	-> endGroup ();
 	tcp_gain	-> setValue (theGain);
 	tcp_ppm		-> setValue (thePpm);
@@ -88,7 +90,6 @@
 	                value ("rtl_tcp_address", "127.0.0.1"). toString ();
 	remoteSettings -> endGroup ();
 	serverAddress	= QHostAddress (ipAddress);
-    basePort	= 1234;
 	toServer. connectToHost (serverAddress, basePort);
 	if (!toServer. waitForConnected (2000)) {
 	   *success	= false;
@@ -164,7 +165,6 @@ QString s	= hostLineEdit -> text ();
 QHostAddress theAddress	= QHostAddress (s);
 
 	serverAddress	= QHostAddress (s);
-    basePort	= 1234;
 	disconnect (hostLineEdit, SIGNAL (returnPressed (void)),
 	            this, SLOT (setConnection (void)));
 	toServer. connectToHost (serverAddress, basePort);
