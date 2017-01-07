@@ -97,7 +97,8 @@ private:
 	mscHandler	*my_mscHandler;
 	audioBase	*soundOut;
 	RingBuffer<int16_t>	*audioBuffer;
-	DSPCOMPLEX	*spectrumBuffer;
+    //DSPCOMPLEX	*spectrumBuffer;
+    common_fft *spectrum_fft_handler;
 	bool		autoCorrector;
 const	char		*get_programm_type_string (uint8_t);
 const	char		*get_programm_language_string (uint8_t);
@@ -121,6 +122,7 @@ const	char		*get_programm_language_string (uint8_t);
 	int		fineCorrector;
 	bool		setDevice		(QString);
 	QString		nextChannel		(QString currentChannel);
+    QString input_device;
 
 public slots:
 	void		end_of_waiting_for_stations	(void);

@@ -55,6 +55,7 @@ public:
 	bool		restartReader	(void);
 	void		stopReader	(void);
 	int32_t		getSamples	(DSPCOMPLEX *V, int32_t size);
+    int32_t     getSamplesFromShadowBuffer (DSPCOMPLEX *V, int32_t size);
 	int32_t		Samples		(void);
 	int16_t		bitDepth	(void);
 	uint8_t		myIdentity	(void);
@@ -81,6 +82,7 @@ private:
 	int32_t		theRate;
 	int32_t		vfoFrequency;
 	RingBuffer<uint8_t>	*theBuffer;
+    RingBuffer<uint8_t>	*theShadowBuffer;
 	bool		connected;
 	int16_t		theGain;
 	int16_t		thePpm;

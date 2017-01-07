@@ -59,6 +59,7 @@ int16_t	latency;
 
 	dabSettings		= Si;
 	this  -> engine 	= engine;
+    input_device = device;
 //
 //	Before printing anything, we set
 	setlocale (LC_ALL, "");
@@ -331,9 +332,10 @@ void	RadioInterface::setModeParameters (uint8_t Mode) {
 	   dabModeParameters. carrierDiff	= 1000;
 	}
 
-	spectrumBuffer = new DSPCOMPLEX [dabModeParameters. T_u];
+    /*spectrumBuffer = new DSPCOMPLEX [dabModeParameters. T_u];
         memset (spectrumBuffer, 0,
-	                  dabModeParameters.T_u * sizeof (DSPCOMPLEX));
+                      dabModeParameters.T_u * sizeof (DSPCOMPLEX));*/
+    spectrum_fft_handler = new common_fft (dabModeParameters. T_u);
 }
 
 struct dabFrequencies {
@@ -903,7 +905,7 @@ bool	success;
 #ifdef HAVE_RTL_TCP
 //	RTL_TCP might be working. 
 	if (s == "rtl_tcp") {
-	   inputDevice = new rtl_tcp_client (dabSettings, &success, false);
+       inputDevice = new rtl_tcp_client (dabSettings, &success, true);
 	   if (!success) {
 	      delete inputDevice;
 	      inputDevice = new virtualInput();
@@ -1010,46 +1012,60 @@ void RadioInterface::inputGainChange(double gain)
 }
 
 // This function is called by the QML GUI
-void RadioInterface::updateSpectrum (QAbstractSeries *series) {
-//	TODO: At the moment the spectrumBuffer is not thread safe.
-//	It might happen that new data and old data can be mixed.
-//	However, since it is only for visualisation it's not a big deal
+void RadioInterface::updateSpectrum (QAbstractSeries *series)
+{
+    int Samples = 0;
 
 	if (series == NULL) 
 	   return;
 
 	QXYSeries *xySeries = static_cast<QXYSeries *> (series);
 
-//	Delete old data
-	   spectrum_data. clear ();
+    //	Delete old data
+    spectrum_data. clear ();
 
 	qreal x(0);
-        qreal y(0);
-        qreal y_max(0);
+    qreal y(0);
+    qreal y_max(0);
 
-//	Process samples one by one
-	for (int i = 0; i < dabModeParameters. T_u; i++) {
+    // Get FFT buffer
+    DSPCOMPLEX *spectrumBuffer = spectrum_fft_handler->getVector();
+
+    // Get samples,  at the moment only rtl_tcp is supported
+    if(inputDevice && input_device == "rtl_tcp")
+        Samples = ((rtl_tcp_client*) inputDevice)->getSamplesFromShadowBuffer(spectrumBuffer, dabModeParameters.T_u);
+
+    // Continue only if we got data
+    if(Samples <= 0)
+        return;
+
+    // Do FFT to get the spectrum
+    spectrum_fft_handler->do_FFT();
+
+    //	Process samples one by one
+    for (int i = 0; i < dabModeParameters. T_u; i++)
+    {
 	   int half_Tu = dabModeParameters. T_u / 2;
 
-//	Shift FFT samples
+       //	Shift FFT samples
 	   if (i < half_Tu)
 	      y = abs (spectrumBuffer [i + half_Tu]);
 	   else
 	      y = abs (spectrumBuffer[i - half_Tu]);
 
-//	Find maximum value to scale the plotter
+       //	Find maximum value to scale the plotter
 	   if (y > y_max)
 	      y_max = y;
 
 	   x = i;
-	   spectrum_data.append(QPointF (x, y));
-        }
+       spectrum_data.append(QPointF (x, y));
+    }
 
-//	Set maximum of y-axis
+    //	Set maximum of y-axis
 	y_max = round (y_max) + 1;
 	if (y_max > 0.0001)
 	   emit maxYAxisChanged (y_max);
 
-//	Set new data
+    //	Set new data
 	xySeries->replace (spectrum_data);
 }

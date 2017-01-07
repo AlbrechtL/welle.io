@@ -59,6 +59,7 @@
 	tcp_ppm		-> setValue (thePpm);
 	vfoFrequency	= DEFAULT_FREQUENCY;
 	theBuffer	= new RingBuffer<uint8_t>(32 * 32768);
+    theShadowBuffer	= new RingBuffer<uint8_t>(8192);
 	connected	= false;
 	hostLineEdit 	= new QLineEdit (NULL);
 
@@ -87,7 +88,7 @@
 	                value ("rtl_tcp_address", "127.0.0.1"). toString ();
 	remoteSettings -> endGroup ();
 	serverAddress	= QHostAddress (ipAddress);
-	basePort	= 1234;
+    basePort	= 1234;
 	toServer. connectToHost (serverAddress, basePort);
 	if (!toServer. waitForConnected (2000)) {
 	   *success	= false;
@@ -117,6 +118,7 @@
 	remoteSettings -> endGroup ();
 	toServer. close ();
 	delete	theBuffer;
+    delete 	theShadowBuffer;
 	delete	hostLineEdit;
 	delete	theFrame;
 }
@@ -162,7 +164,7 @@ QString s	= hostLineEdit -> text ();
 QHostAddress theAddress	= QHostAddress (s);
 
 	serverAddress	= QHostAddress (s);
-	basePort	= 1234;
+    basePort	= 1234;
 	disconnect (hostLineEdit, SIGNAL (returnPressed (void)),
 	            this, SLOT (setConnection (void)));
 	toServer. connectToHost (serverAddress, basePort);
@@ -234,6 +236,17 @@ uint8_t	*tempBuffer = (uint8_t *)alloca (2 * size * sizeof (uint8_t));
 	return amount / 2;
 }
 
+int32_t	rtl_tcp_client::getSamplesFromShadowBuffer (DSPCOMPLEX *V, int32_t size) {
+int32_t	amount, i;
+uint8_t	*tempBuffer = (uint8_t *)alloca (2 * size * sizeof (uint8_t));
+//
+    amount = theShadowBuffer	-> getDataFromBuffer(tempBuffer, 2 * size);
+    for (i = 0; i < amount / 2; i ++)
+        V [i] = DSPCOMPLEX ((float (tempBuffer [2 * i] - 128)) / 128.0,
+                            (float (tempBuffer [2 * i + 1] - 128)) / 128.0);
+    return amount / 2;
+}
+
 int32_t	rtl_tcp_client::Samples	(void) {
 	return  theBuffer	-> GetRingBufferReadAvailable () / 2;
 }
@@ -256,6 +269,7 @@ uint8_t	buffer [8192];
 	while (toServer. bytesAvailable () > 8192) {
 	   toServer. read ((char *)buffer, 8192);
 	   theBuffer -> putDataIntoBuffer (buffer, 8192);
+       theShadowBuffer -> putDataIntoBuffer (buffer, 8192);
 	}
 }
 //
