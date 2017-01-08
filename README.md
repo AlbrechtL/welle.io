@@ -33,7 +33,9 @@ Command Line Parameters
 
 Parameter | Description | Valid for GUI
 ------ | ---------- | ----
-i | TBD | GUI_1, GUI_2, GUI_3
+h | Show help | GUI_1, GUI_2, GUI_3
+v | Show version | GUI_1, GUI_2, GUI_3
+i | INI-file path | GUI_1, GUI_2, GUI_3
 S | Sync method. Default: 2 | GUI_1, GUI_2, GUI_3
 D | Input device. Possible are: airspy, rtl_tcp, sdrplay, dabstick | GUI_2, GUI_3
 M | DAB mode. Possible are: 1,2 or 4, Default: 1 | GUI_2, GUI_3

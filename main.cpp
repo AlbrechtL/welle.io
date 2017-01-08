@@ -84,7 +84,8 @@ int	main (int argc, char **argv) {
  */
 char		*defaultInit		= (char *)alloca (512 * sizeof (char));
 RadioInterface	*MyRadioInterface;
-int32_t		opt;
+
+// Default values
 uint8_t		syncMethod	= 2;
 QSettings	*dabSettings;		// ini file
 uint8_t		dabMode		= 127;	// illegal value
@@ -93,49 +94,90 @@ QString		dabBand		= QString ("");
 QString		ipAddress	= QString ("");
 uint16_t    ipPort      = 1234;
 
-	fullPathfor (DEFAULT_INI, defaultInit);
+/*
+ *	Before we connect control to the gui, we have to
+ *	instantiate
+ */
+    QApplication a (argc, argv);
+    QCoreApplication::setApplicationName("dab-rpi");
+    QCoreApplication::setApplicationVersion(CURRENT_VERSION);
 
-    while ((opt = getopt (argc, argv, "i:D:S:M:B:I:P:")) != -1) {
-	   switch (opt) {
-	      case 'i':
-	         fullPathfor (optarg, defaultInit);
-	         break;
+    QCommandLineParser optionParser;
+    optionParser.setApplicationDescription("dab-rpi Help");
+    optionParser.addHelpOption();
+    optionParser.addVersionOption();
 
-	      case 'S':
-	         syncMethod	= atoi (optarg);
-	         break;
+    QCommandLineOption INIFileOption("i", QCoreApplication::translate("main", "Settings INI-file path"), QCoreApplication::translate("main", "Path"));
+    optionParser.addOption(INIFileOption);
+
+    QCommandLineOption SYNCOption("S", QCoreApplication::translate("main", "Sync method"), QCoreApplication::translate("main", "Number"));
+    optionParser.addOption(SYNCOption);
 
 #if defined(GUI_3) | defined (GUI_2)
-	      case 'D':
-	         dabDevice = optarg;
-	         break;
+    QCommandLineOption InputOption("D", QCoreApplication::translate("main", "Input device"), QCoreApplication::translate("main", "Name"));
+    optionParser.addOption(InputOption);
 
-	      case 'M':
-	         dabMode	= atoi (optarg);
-	         if (!(dabMode == 1) || (dabMode == 2) || (dabMode == 4))
-	            dabMode = 1; 
-	         break;
+    QCommandLineOption DABModeOption("M", QCoreApplication::translate("main", "DAB mode, possible are: 1,2 or 4, default: 1"), QCoreApplication::translate("main", "Mode"));
+    optionParser.addOption(DABModeOption);
 
-	      case 'B':
-	         dabBand 	= optarg;
-	         break;
+    QCommandLineOption DABBandOption("B", QCoreApplication::translate("main", "DAB band"), QCoreApplication::translate("main", "Band"));
+    optionParser.addOption(DABBandOption);
 
-	      case 'I':
-	         ipAddress	= optarg;
-	         break;
+    QCommandLineOption RTL_TCPServerIPOption("I", QCoreApplication::translate("main", "rtl_tcp server IP address. Only valid for input rtl_tcp."), QCoreApplication::translate("main", "IP Address"));
+    optionParser.addOption(RTL_TCPServerIPOption);
 
-          case 'P':
-             ipPort	    = atoi (optarg);
-             break;
+    QCommandLineOption RTL_TCPServerIPPort("P", QCoreApplication::translate("main", "rtl_tcp server IP port. Only valid for input rtl_tcp."), QCoreApplication::translate("main", "Port"));
+    optionParser.addOption(RTL_TCPServerIPPort);
 #endif
-	      default:
-	         break;
-	   }
-	}
-	dabSettings =  new QSettings (defaultInit, QSettings::IniFormat);
 
-#if defined (GUI_3) | defined (GUI_2)
-//	Since we do not have the possibility in GUI_3 to select
+    // Process the actual command line arguments given by the user
+    optionParser.process(a);
+
+    // Process INI file option
+    QString INIFileValue = optionParser.value(INIFileOption);
+    if(INIFileValue != "")
+        fullPathfor(INIFileValue.toStdString().c_str(),defaultInit);
+    else
+        fullPathfor (DEFAULT_INI, defaultInit);
+
+    dabSettings =  new QSettings (defaultInit, QSettings::IniFormat);
+
+    // Process Sync method option
+    QString SYNCOptionValue = optionParser.value(SYNCOption);
+    if(SYNCOptionValue != "")
+        syncMethod = SYNCOptionValue.toInt();
+
+ #if defined(GUI_3) | defined (GUI_2)
+    // Process input device option
+    QString InputValue = optionParser.value(InputOption);
+    if(InputValue != "")
+        dabDevice = InputValue;
+
+    // Process DAB mode option
+    QString DABModValue = optionParser.value(DABModeOption);
+    if(DABModValue != "")
+    {
+        dabMode	= DABModValue.toInt();
+        if (!(dabMode == 1) || (dabMode == 2) || (dabMode == 4))
+           dabMode = 1;
+    }
+
+    // Process DAB band option
+    QString DABBandValue = optionParser.value(DABBandOption);
+    if(DABBandValue != "")
+        dabBand = DABBandValue;
+
+    // Process rtl_tcp server IP address option
+    QString RTL_TCPServerIPValue = optionParser.value(RTL_TCPServerIPOption);
+    if(RTL_TCPServerIPValue != "")
+        ipAddress = RTL_TCPServerIPValue;
+
+    // Process rtl_tcp server IP portoption
+    QString RTL_TCPServerPortValue = optionParser.value(RTL_TCPServerIPPort);
+    if(RTL_TCPServerPortValue != "")
+        ipPort = RTL_TCPServerPortValue.toInt();
+
+//	Since we do not have the possibility in GUI_2 and GUI_3 to select
 //	Mode, Band or Device, we create the possibility for
 //	passing appropriate parameters to the command
 //	Selections - if any - will be default for the next session
@@ -147,11 +189,7 @@ uint16_t    ipPort      = 1234;
 	if (dabBand == QString (""))
 	   dabBand = dabSettings -> value ("band", "BAND III"). toString ();
 #endif 
-/*
- *	Before we connect control to the gui, we have to
- *	instantiate
- */
-	QApplication a (argc, argv);
+
 #if QT_VERSION >= 0x050600
 	QGuiApplication::setAttribute (Qt::AA_EnableHighDpiScaling);
 //	save the values for the new defaults
