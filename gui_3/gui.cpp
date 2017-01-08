@@ -547,7 +547,7 @@ void	RadioInterface::addtoEnsemble (const QString &s) {
 	if (!s.contains ("data") && !stationList.contains (s)) {
 	   stationList.append (s, currentChannel);
 
-	   fprintf (stderr,"Found station %s\n", s.toStdString().c_str());
+       //fprintf (stderr,"Found station %s\n", s.toStdString().c_str());
 	   emit foundChannelCount (stationList. count ());
 	}
 }
@@ -838,6 +838,7 @@ bool	localRunning	= running;
 int32_t	tunedFrequency;
 
 	if (localRunning) {
+       clearEnsemble();
 	   soundOut	-> stop ();
 	   inputDevice		-> stopReader ();
 	   inputDevice		-> resetBuffer ();
