@@ -2,7 +2,7 @@ dab-rpi
 =====================
 This repository contains the implementation of a simple DAB/DAB+ receiver. It is optimized for embedded systems like Raspberry Pi 2 and Raspberry Pi 3 but it runs on regulars PC as well.
 
-The receiver supports terrestrial DAB and DAB+ reception with as input either the stream from an AIRSPY, a SDRplay, a dabstick (rtl_sdr), a rtl_tcp server or a (prerecorded) file, and it will output through the selected soundcard.
+The receiver supports terrestrial DAB and DAB+ reception with as input either the stream from an AIRSPY, a SDRplay, a dabstick (rtl_sdr), a rtl_tcp server or a (prerecorded) file, and it will output through the selected soundcard 0r - if configured - through a TCP connection.
 
 Table of contents
 ====
