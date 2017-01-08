@@ -186,7 +186,6 @@ uint16_t	ipPort		= 1234;
 
 #if QT_VERSION >= 0x050600
 	QGuiApplication::setAttribute (Qt::AA_EnableHighDpiScaling);
-//	save the values for the new defaults
 #endif
 #ifdef	GUI_3
 	(void)syncMethod;
@@ -218,7 +217,7 @@ uint16_t	ipPort		= 1234;
 #endif
 #else	
 //	May be for Qt 4 lovers
-
+	int	opt;
 	while ((opt = getopt (argc, argv, "i:D:S:M:B:")) != -1) {
 	   switch (opt) {
 	      case 'i':
@@ -252,7 +251,7 @@ uint16_t	ipPort		= 1234;
 	         break;
 	   }
 	}
-	if (initFileName == QString ("")
+	if (initFileName == QString (""))
 	   initFileName	= fullPathfor (QString (DEFAULT_INI));
 	dabSettings =  new QSettings (initFileName, QSettings::IniFormat);
 
