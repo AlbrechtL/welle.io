@@ -283,10 +283,9 @@ int32_t		tmp;
 /**
   *	see if we have a PAD
   */
-#ifndef	GUI_3
 	      if (((theAU [0] >> 5) & 07) == 4)
 	         my_padhandler. processPAD (theAU);
-#endif
+
 	      emit isStereo (aacChannelMode);
 /**
   *	just a few bytes extra, such that the decoder can look
