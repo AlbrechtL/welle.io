@@ -2,6 +2,11 @@
 In gui_2 it is assumed that the dab program itself does not have a GUI.
 It is controlled remotely.
 
+Parameters can be set through the command line
+-D device, selects the device (one of the configured ones)
+-B Band, selects the DAB band (default Band III)
+-M Mode, selects the DAB Mode (default Mode 1)
+-I Ip address, only useful when selecting rtl_tcp as input device
 
 The interface is simple:
 commands to the dab-rpi program are transmitted through port 20020,
@@ -41,4 +46,6 @@ Rge messages themselves are
 	STATION_TEXT		= 8,	// parameter is unknown
 	FIC_FLAG		= 9,	// parameter is an int
 	STEREO_FLAG		= 10	// parameter is an int
+
+For building GUI_2, see GUI_1
 

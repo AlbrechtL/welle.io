@@ -161,12 +161,11 @@ SOURCES += ./main.cpp \
 #	Select "gui_2" for a dab-rpi without GUI, i.e. one with remote control
 #	               which automatically includes sound through tcp streamer
 unix {
-CONFIG		+= dabstick_osmo
+CONFIG		+= dabstick
 CONFIG		+= sdrplay-exp
 #CONFIG		+= sdrplay
 CONFIG		+= rtl_tcp
 CONFIG		+= airspy
-#CONFIG		+= tcp-streamer		# use for remote listening
 CONFIG		+= gui_1
 DESTDIR		= ./linux-bin
 INCLUDEPATH	+= /usr/local/include
@@ -199,7 +198,7 @@ CONFIG		+= NO_SSE_SUPPORT
 CONFIG		+= extio
 CONFIG		+= airspy
 CONFIG		+= rtl_tcp
-CONFIG		+= dabstick_osmo
+CONFIG		+= dabstick
 CONFIG		+= sdrplay-exp
 #CONFIG		+= tcp-streamer
 CONFIG		+= gui_1
@@ -222,6 +221,7 @@ gui_1	{
 	FORMS 		+= ./gui_1/gui_1.ui 
 	HEADERS		+= ./gui_1/gui.h
 	SOURCES		+= ./gui_1/gui.cpp
+	#CONFIG		+= tcp-streamer		# use for remote listening
 	DEFINES		+= MOT_BASICS__		# use at your own risk
 	DEFINES		+= MSC_DATA__		# use at your own risk
 }
@@ -252,15 +252,15 @@ gui_2	{
 #	devices
 #
 #	dabstick
-dabstick_osmo {
+dabstick {
 	DEFINES		+= HAVE_DABSTICK
 	INCLUDEPATH	+= /home/jan/rtl-sdr/include
-	INCLUDEPATH	+= ./src/input/dabstick-osmo
-	HEADERS		+= ./src/input/dabstick-osmo/dabstick.h \
-	                   ./src/input/dabstick-osmo/dongleselect.h
-	SOURCES		+= ./src/input/dabstick-osmo/dabstick.cpp \
-	                   ./src/input/dabstick-osmo/dongleselect.cpp
-	FORMS		+= ./src/input/dabstick-osmo/dabstick-widget-osmo.ui
+	INCLUDEPATH	+= ./src/input/dabstick
+	HEADERS		+= ./src/input/dabstick/dabstick.h \
+	                   ./src/input/dabstick/dongleselect.h
+	SOURCES		+= ./src/input/dabstick/dabstick.cpp \
+	                   ./src/input/dabstick/dongleselect.cpp
+	FORMS		+= ./src/input/dabstick/dabstick-widget-osmo.ui
 }
 #
 #	the SDRplay
@@ -299,18 +299,6 @@ airspy {
 	FORMS		+= ./src/input/airspy/airspy-widget.ui
 }
 
-# airspy support (still struggling with the sliders)
-#
-airspy-exp {
-	DEFINES		+= HAVE_AIRSPY
-	INCLUDEPATH	+= ./src/input/airspy-exp \
-	                   /usr/local/include/libairspy
-	HEADERS		+= ./src/input/airspy-exp/airspy-handler.h \
-	                   /usr/local/include/libairspy/airspy.h
-	SOURCES		+= ./src/input/airspy-exp/airspy-handler.cpp 
-	FORMS		+= ./src/input/airspy-exp/airspy-widget.ui
-}
-
 tcp-streamer	{
 	DEFINES		+= TCP_STREAMER
 	QT		+= network
@@ -327,21 +315,4 @@ rtl_tcp {
 	SOURCES		+= ./src/input/rtl_tcp/rtl_tcp_client.cpp
 	FORMS		+= ./src/input/rtl_tcp/rtl_tcp-widget.ui
 }
-
-
-##for FreeBSD use the third set (Thanks to Juergen Lock)
-#unix {
-#DESTDIR	= ../../linux-bin
-#	QMAKE_CXXFLAGS += -D__FREEBSD__
-#	INCLUDEPATH += ${LOCALBASE}/include/qwt
-#	INCLUDEPATH += ${LOCALBASE}/include/portaudio2
-#	INCLUDEPATH += ${LOCALBASE}/include/ffmpeg1
-#	INCLUDEPATH += ${LOCALBASE}/include
-#	INCLUDEPATH += /usr/include/
-#	QMAKE_LIBDIR = ${LOCALBASE}/lib/portaudio2
-#	QMAKE_LIBDIR += ${LOCALBASE}/lib/ffmpeg${FFMPEG_SUFFIX}
-#	QMAKE_LIBDIR += ${LOCALBASE}/lib
-#	LIBS+=  -lqwt -lusb -lrt -lportaudio  -lsndfile -lfftw3  -lrtlsdr -lz
-#	LIBS += -lfaad
-#}
 
