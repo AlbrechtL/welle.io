@@ -6,9 +6,8 @@ systems like Raspberry Pi 2 and Raspberry Pi 3 but it runs on regulars PC as wel
 
 The receiver supports terrestrial DAB and DAB+ reception with as input either the  samplestream from an AIRSPY, a SDRplay, a dabstick (rtl_sdr), a rtl_tcp server or a (prerecorded) file, and it will output through the selected soundcard 0r - if configured - through a TCP connection.
 
-There are three versions of the dab-rpi software, they share most of the program
-logic but differ in GUI.
----
+There are three versions of the dab-rpi software. 
+
 1. GUI_1  is a GUI by using regular QT widgets, it can be build with Qt4 and Qt5;
 2. GUI_2  is not a GUI at all, the program is controlled remotely, 
 it can be build using Qt4 and Qt5.
