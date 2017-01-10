@@ -1,24 +1,25 @@
 
-In gui_2 it is assumed that the dab program itself does not have a GUI.
+When configuring and building with selected gui_2, the dab program itself does not have a GUI.
 It is controlled remotely.
 
-Parameters can be set through the command line
--D device, selects the device (one of the configured ones)
--B Band, selects the DAB band (default Band III)
--M Mode, selects the DAB Mode (default Mode 1)
+Some parameters can be set through the command line on starting the program
+-D device, selects the device (one of the configured ones, default a dabstick);
+-B Band, selects the DAB band (default Band III);
+-M Mode, selects the DAB Mode (default Mode 1);
 -I Ip address, only useful when selecting rtl_tcp as input device
 
 The interface is simple:
-commands to the dab-rpi program are transmitted through port 20020,
-and there are only a few.
+commands to the dab-rpi program are transmitted through port 20020,and there are only a few.
 
-PCM samples, i.. the resulting sound is sent through port 20040.
+The output, i.e the stream of PCM samples, is sent through port 20040. The "demo" controller for which the sources are available 
+listens to that port and will send the samples to the selected soundcard on the controlling computer.
 
-commands are passed as packets
+Commands are passed as packets with a very simple structure
 1 byte for the command
 1 byte for the length of the message
-if needed bytes for parameters
-commands are
+if needed N bytes for parameters
+
+Commands are
 
     0170 : no parameters, call setStart
     0171 : no parameters, call terminate process
@@ -28,8 +29,8 @@ commands are
            the program in the current ensemble to be selected.
     0174 : one (byte) parameter, the value for the gain (attenuation) to be used.
 
-The dab-rpi, when configured with the gui_2, will send messages
-to the same port out, for the remore control to be interpreter.
+The dab-rpi, when configured with the gui_2, will send messages back to the same port out,
+for the remore control to be interpreted.
 
 The format of the messages is
 	first byte	0266
@@ -47,5 +48,5 @@ Rge messages themselves are
 	FIC_FLAG		= 9,	// parameter is an int
 	STEREO_FLAG		= 10	// parameter is an int
 
-For building GUI_2, see GUI_1
+For building GUI_2 using qmake/make, see GUI_1
 
