@@ -1,11 +1,10 @@
 
-GUI_1  Is a GUI by using QT widgets.
+GUI_1  denotes a version with a GUI made by using QT widgets.
 
 In the ".pro" file one may select (or deselect) input devices by uncommenting (commenting) the appropriate "CONFIG = XXX" lines.
 A similar facility exists for the CMakeLists.txt file
 
-In the script given below it is assumed that the only device supported
-is the dabstick. (Note that selecting a device requires installing the
+In the script given below it is assumed that the only device supported is the dabstick. (Note that selecting a device requires installing the
 library and the development files.)
 
 unix {
@@ -25,22 +24,19 @@ LIBS		+= -lsamplerate
 LIBS		+= -lfaad
 }
 
-Since an RPI is often run headless, an option is included to configure
-such that the PCM output is sent to a simple TCP server,
+Since an RPI is often run headless, an option is included to configure such that the PCM output is sent to a simple TCP server,
 listening at port 20040. Uncomment the following line.
 
   ```
 CONFIG += TCP_STREAMER will do here.
   ```
 
-Note that the sourcetree contains a directory "sound-client", that
-contains sources to generate a simple "listener".
+The sourcetree contains a directory "sound-client", that contains sources to generate a simple "listener". 
 
-Note further that, whever you want to install the software on a non-intel box,
-your CPU might not support sse instrctions.
+Note further that, whever you want to install the software on a non-intel box, your CPU might not support sse instructions.
 In that case uncomment the line in the ".pro" file.
-#CONFIG		+= NO_SSE_SUPPORT 
 
+#CONFIG		+= NO_SSE_SUPPORT 
 
 Ubuntu Linux
 ---
