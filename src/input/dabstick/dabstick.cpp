@@ -170,12 +170,11 @@ int	k;
 	gains		= new int [gainsCount];
 	gainsCount = rtlsdr_get_tuner_gains (device, gains);
 	for (i = gainsCount; i > 0; i--) {
-		fprintf(stderr, "%.1f ", gains [i - 1] / 10.0);
-	        combo_gain -> addItem (QString::number (gains [i - 1]));
+	   fprintf(stderr, "%.1f ", gains [i - 1] / 10.0);
+	   combo_gain -> addItem (QString::number (gains [i - 1]));
 	}
 
 	rtlsdr_set_tuner_gain_mode (device, 1);
-	rtlsdr_set_tuner_gain (device, gains [gainsCount / 2]);
 
 	_I_Buffer		= new RingBuffer<uint8_t>(1024 * 1024);
 	dabstickSettings	-> beginGroup ("dabstickSettings");
@@ -185,6 +184,8 @@ int	k;
 	   combo_gain	-> setCurrentIndex (k);
 	   rtlsdr_set_tuner_gain (device, temp. toInt ());
 	}
+	else
+	   rtlsdr_set_tuner_gain (device, gains [gainsCount / 2]);
 
 	temp	= dabstickSettings -> value ("autogain", "autogain off"). toString ();
 	rtlsdr_set_tuner_gain_mode (device, temp == "autogain off" ? 0 : 1);
@@ -279,6 +280,9 @@ int32_t	r;
 
 	this -> rtlsdr_set_center_freq (device, lastFrequency + vfoOffset);
 	workerHandle	= new dll_driver (this);
+	rtlsdr_set_tuner_gain (device, combo_gain -> currentText (). toInt ());
+	rtlsdr_set_tuner_gain_mode (device,
+                combo_autogain -> currentText () == "autogain off" ? 0 : 1);
 	return true;
 }
 
