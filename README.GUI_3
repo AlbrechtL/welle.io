@@ -1,13 +1,11 @@
 
 
-GUI_3 is a fancy interface. Since the interface does not
-have buttons and selectors for mode, channel etc, a number of
-parameters can be given as command line parameter.
-Most of the settings, passed on through the command line are 
-maintained between program invocations, i.e. when you select
-the airspy as input device, for Band IV and Mode IV, you only need
-to do it once.
+GUI_3 is a fancy interface. Since the interface does not have buttons and selectors for mode, channel etc, some
+parameters can be given as command line parameter on program start-up.
+Most of the settings, passed on through the command line are maintained between program invocations, i.e. when you select
+the airspy as input device, for Band IV and Mode IV, you only need to do it once.
 
+The command line parameter are
 Parameter | Description
 ------ | ---------- | ----
 h | Show help 
@@ -46,7 +44,6 @@ For building
 Use for building qmake.
 
 In the ".pro" file one may select (or deselect) input devices by uncommenting (commenting) the appropriate "CONFIG = XXX" lines.
-
 Note that selecting a device requires installing the library and the development files.
 
 Ubuntu Linux 16.04 LTS
