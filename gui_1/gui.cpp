@@ -31,6 +31,7 @@
 #include	<QFile>
 #include	<QStringList>
 #include	<QStringListModel>
+#include	<QDir>
 #include	"dab-constants.h"
 #include	"gui.h"
 #include	"audiosink.h"
@@ -477,6 +478,7 @@ void	RadioInterface::init_your_gui (void) {
   *	of the ensemble and selecting an item
   */
 	pictureLabel	= NULL;
+	saveSlide	= dabSettings -> value ("saveSlides", 1). toInt ();
 	ensemble.setStringList (Services);
 	ensembleDisplay	-> setModel (&ensemble);
 	Services << " ";
@@ -658,7 +660,9 @@ void	RadioInterface::showLabel	(QString s) {
 //	showMOT is triggered by the MOT handler,
 //	the GUI may decide to ignore the data sent
 //	since data is only sent whenever a data channel is selected
-void	RadioInterface::showMOT		(QByteArray data, int subtype) {
+void	RadioInterface::showMOT		(QByteArray data,
+	                                 int subtype, QString pictureName) {
+	const char *type;
 	if (!running)
 	   return;
 	if (pictureLabel != NULL)
@@ -666,10 +670,16 @@ void	RadioInterface::showMOT		(QByteArray data, int subtype) {
 	pictureLabel	= new QLabel (NULL);
 
 	QPixmap p;
-	p. loadFromData (data, subtype == 0 ? "GIF" :
-	                       subtype == 1 ? "JPEG" :
-	                       subtype == 2 ? "BMP" : "PNG");
-	pictureLabel ->  setPixmap (p);
+	type = subtype == 0 ? "GIF" :
+	       subtype == 1 ? "JPG" :
+//	       subtype == 1 ? "JPEG" :
+	       subtype == 2 ? "BMP" : "PNG";
+	p. loadFromData (data, type);
+	QImage q	= p. toImage ();
+	
+	q. save (pictureName, type);
+
+	pictureLabel ->  setPixmap (QPixmap::fromImage (q));
 	pictureLabel ->  show ();
 }
 

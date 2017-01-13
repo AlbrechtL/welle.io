@@ -90,6 +90,7 @@ private:
 const	char		*get_programm_type_string (uint8_t);
 const	char		*get_programm_language_string (uint8_t);
 	QLabel		*pictureLabel;
+	bool		saveSlide;
 	QUdpSocket	DSCTy_59_socket;
 	QString		ipAddress;
 	int32_t		port;
@@ -120,7 +121,7 @@ public slots:
 	void	show_snr		(int);
 	void	setSynced		(char);
 	void	showLabel		(QString);
-	void	showMOT			(QByteArray, int);
+	void	showMOT			(QByteArray, int, QString);
 	void	sendDatagram		(char *, int);
 	void	changeinConfiguration	(void);
 	void	newAudio		(int);

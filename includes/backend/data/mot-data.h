@@ -132,6 +132,6 @@ private:
 	void	handleComplete	(motElement *);
 	void	checkDir	(QString &);
 signals:
-	void	the_picture	(QByteArray, int);
+	void	the_picture	(QByteArray, int, QString);
 };
 #endif

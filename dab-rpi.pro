@@ -186,6 +186,7 @@ LIBS		+= -L/usr/i686-w64-mingw32/sys-root/mingw/lib
 LIBS		+= -lfftw3f
 LIBS		+= -lportaudio
 LIBS		+= -lsndfile
+LIBS		+= -lsamplerate
 LIBS		+= -lole32
 LIBS		+= -lwinpthread
 LIBS		+= -lwinmm

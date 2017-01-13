@@ -602,8 +602,8 @@ void	RadioInterface::showLabel	(QString s) {
 }
 //
 //	showMOT is triggered by the MOT handler,
-void	RadioInterface::showMOT  (QByteArray data, int subtype) {
-	(void)data; (void)subtype;
+void	RadioInterface::showMOT  (QByteArray data, int subtype, QString s) {
+	(void)data; (void)subtype; (void)s;
 }
 
 //

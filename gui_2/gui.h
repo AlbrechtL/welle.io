@@ -137,7 +137,7 @@ public slots:
 	void		show_snr		(int);
 	void		setSynced		(char);
 	void		showLabel		(QString);
-	void		showMOT			(QByteArray, int);
+	void		showMOT			(QByteArray, int, QString);
 	void		sendDatagram		(char *, int);
 	void		changeinConfiguration	(void);
 	void		newAudio		(int);
