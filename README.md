@@ -34,5 +34,5 @@ For a detailed description of how to build the "GUI_1" version, see "README.GUI_
 
 For a description of how to build the "GUI_2" version, see "README.GUI_2.
 
-For a detailed description of how to build the "GUI_3" version, see "README.GUI_3.
+For a detailed description of how to build the "GUI_3" version, see "README.GUI_3.md.
 

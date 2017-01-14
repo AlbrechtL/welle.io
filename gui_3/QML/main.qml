@@ -57,7 +57,7 @@ ApplicationWindow {
     id: mainWindow
     visible: true
     width: Units.dp(700)
-    height: Units.dp(465)
+    height: Units.dp(500)
     visibility: settingsPageLoader.settingsPage.enableFullScreenState ? "FullScreen" : "Windowed"
 
     Loader {
