@@ -32,6 +32,7 @@
 #include	<QStringList>
 #include	<QStringListModel>
 #include	<QDir>
+#include	<QImageWriter>
 #include	"dab-constants.h"
 #include	"gui.h"
 #include	"audiosink.h"
@@ -662,6 +663,7 @@ void	RadioInterface::showLabel	(QString s) {
 //	since data is only sent whenever a data channel is selected
 void	RadioInterface::showMOT		(QByteArray data,
 	                                 int subtype, QString pictureName) {
+int i;
 	const char *type;
 	if (!running)
 	   return;
@@ -669,17 +671,25 @@ void	RadioInterface::showMOT		(QByteArray data,
 	   delete pictureLabel;
 	pictureLabel	= new QLabel (NULL);
 
-	QPixmap p;
 	type = subtype == 0 ? "GIF" :
 	       subtype == 1 ? "JPG" :
 //	       subtype == 1 ? "JPEG" :
 	       subtype == 2 ? "BMP" : "PNG";
+	QPixmap p;
 	p. loadFromData (data, type);
-	QImage q	= p. toImage ();
 	
-	q. save (pictureName, type);
-
-	pictureLabel ->  setPixmap (QPixmap::fromImage (q));
+	if (saveSlide) {
+	   FILE *x = fopen ((pictureName. toLatin1 (). data ()), "w+b");
+	   if (x == NULL)
+	      fprintf (stderr, "cannot write file %s\n",
+	                            pictureName. toLatin1 (). data ());
+	   else {
+	      (void)fwrite (data. data (), 1, data.length (), x);
+	      fclose (x);
+	   }
+	}
+	
+	pictureLabel ->  setPixmap (p);
 	pictureLabel ->  show ();
 }
 
