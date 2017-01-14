@@ -716,8 +716,7 @@ struct dabFrequencies *finger;
 //	if we are pretty certain that the channel does not contain
 //	a signal, or "true" if there is a fair chance that the
 //	channel contains useful data
-void    RadioInterface::setSignalPresent (bool isSignal, QString channel) {
-	emit signalFlag (isSignal);
+void    RadioInterface::setSignalPresent (bool isSignal) {
 	if (isSignal) {		// may be a channel, give it time
 	   connect (&ScanChannelTimer, SIGNAL (timeout (void)),
 	            this, SLOT (end_of_waiting_for_stations (void)));

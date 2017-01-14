@@ -146,7 +146,7 @@ public slots:
 	void		show_mscErrors		(int);
 	void		show_ipErrors		(int);
 	void		setStereo		(bool isStereo);
-	void		setSignalPresent	(bool isSignal, QString);
+    void		setSignalPresent	(bool isSignal);
 	void		displayDateTime		(int *DateTime);
 	void		updateSpectrum		(QAbstractSeries *series);
 
@@ -171,9 +171,8 @@ private slots:
 signals:
 	void		currentStation 		(QString text);
 	void		stationText		(QString text);
-    	void		signalFlag		(bool active);
-    	void		syncFlag		(bool active);
-    	void		ficFlag			(bool active);
+    void		syncFlag		(bool active);
+    void		ficFlag			(bool active);
 	void		dabType			(QString text);
 	void		audioType		(QString text);
 	void		bitrate			(int bitrate);

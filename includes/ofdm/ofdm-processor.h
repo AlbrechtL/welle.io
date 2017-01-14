@@ -119,7 +119,7 @@ signals:
 	void		show_fineCorrector	(int);
 	void		show_coarseCorrector	(int);
 	void		setSynced		(char);
-	void		setSignalPresent	(bool, QString);
+    void		setSignalPresent	(bool);
 };
 #endif
 

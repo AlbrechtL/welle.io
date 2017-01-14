@@ -81,12 +81,6 @@ Item{
             spacing: 2
 
             Rectangle{
-                id: signal
-                height: Units.dp(16)
-                width: Units.dp(16)
-                color: "red"
-            }
-            Rectangle{
                 id: sync
                 height: Units.dp(16)
                 width: Units.dp(16)
@@ -131,13 +125,6 @@ Item{
 
         onStationText:{
             stationText.text = text
-        }
-
-        onSignalFlag:{
-            if(active)
-                signal.color = "green"
-            else
-                signal.color = "red"
         }
 
         onSyncFlag:{
