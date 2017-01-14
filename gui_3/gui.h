@@ -125,6 +125,7 @@ const	char		*get_programm_language_string (uint8_t);
 	QString		nextChannel		(QString currentChannel);
     QString input_device;
     MOTImageProvider *MOTImage;
+    int32_t	tunedFrequency;
 
 public slots:
 	void		end_of_waiting_for_stations	(void);
@@ -184,7 +185,8 @@ signals:
 	void		foundChannelCount	(int channelCount);
 	void		newDateTime		(int Year, int Month,
 	                                         int Day, int Hour, int Minute);
-	void		maxYAxisChanged		(qreal max);
+    void		setYAxisMax         (qreal max);
+    void		setXAxisMinMax		(qreal min, qreal max);
 	void		displayFreqCorr		(int Freq);
 	void		displayMSCErrors	(int Errors);
 	void		displayCurrentChannel	(QString Channel,

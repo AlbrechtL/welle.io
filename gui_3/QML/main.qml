@@ -196,6 +196,7 @@ ApplicationWindow {
         }
 
         SplitView {
+            id: radioInformationView
             orientation: Qt.Vertical
             Layout.alignment: Qt.AlignRight
             Layout.maximumWidth: Units.dp(320)
@@ -221,6 +222,7 @@ ApplicationWindow {
         }
 
         ExpertView{
+            id: expertView
             Layout.fillWidth: settingsPageLoader.settingsPage.enableExpertModeState ? true : false
             visible: settingsPageLoader.settingsPage.enableExpertModeState ? true : false
         }

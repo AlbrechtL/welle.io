@@ -854,7 +854,6 @@ void	RadioInterface::set_channelSelect (QString s) {
 int16_t	i;
 struct dabFrequencies *finger;
 bool	localRunning	= running;
-int32_t	tunedFrequency;
 
 	if (localRunning) {
        clearEnsemble();
@@ -1054,6 +1053,10 @@ void RadioInterface::updateSpectrum (QAbstractSeries *series)
     //	Delete old data
     spectrum_data. clear ();
 
+    qreal tunedFrequency_MHz = tunedFrequency / 1e6;
+    qreal sampleFrequency_MHz = 2048000 / 1e6;
+    qreal dip_MHz = sampleFrequency_MHz / dabModeParameters. T_u;
+
 	qreal x(0);
     qreal y(0);
     qreal y_max(0);
@@ -1089,14 +1092,17 @@ void RadioInterface::updateSpectrum (QAbstractSeries *series)
 	   if (y > y_max)
 	      y_max = y;
 
-	   x = i;
+       x = (i * dip_MHz) + (tunedFrequency_MHz - (sampleFrequency_MHz / 2));
        spectrum_data.append(QPointF (x, y));
     }
 
     //	Set maximum of y-axis
     y_max = round (y_max) + 1;
 	if (y_max > 0.0001)
-	   emit maxYAxisChanged (y_max);
+       emit setYAxisMax(y_max);
+
+    // Set x-axis min and max
+    emit setXAxisMinMax(tunedFrequency_MHz - (sampleFrequency_MHz / 2), tunedFrequency_MHz + (sampleFrequency_MHz / 2));
 
     //	Set new data
 	xySeries->replace (spectrum_data);
