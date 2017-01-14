@@ -993,6 +993,7 @@ void	RadioInterface::channelClick (QString StationName,
 	if (ChannelName != currentChannel) {
 	   set_channelSelect (ChannelName);
 	   currentChannel = ChannelName;
+       emit syncFlag(false); // Clear flags
 	}
 
 	CurrentStation = StationName;
@@ -1007,6 +1008,10 @@ void	RadioInterface::channelClick (QString StationName,
     p.fill(Qt::transparent);
     MOTImage->setPixmap(p);
     emit motChanged();
+
+    // Clear flags
+    emit displaySuccessRate(0);
+    emit ficFlag(false);
 }
 
 void RadioInterface::saveSettings (void) {

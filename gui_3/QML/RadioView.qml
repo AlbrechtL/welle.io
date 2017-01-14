@@ -92,6 +92,12 @@ Item{
                 width: Units.dp(16)
                 color: "red"
             }
+            Rectangle{
+                id: frameSucess
+                height: Units.dp(16)
+                width: Units.dp(16)
+                color: "red"
+            }
         }
     }
 
@@ -139,6 +145,13 @@ Item{
                 fic.color = "green"
             else
                 fic.color = "red"
+        }
+
+        onDisplaySuccessRate:{
+            if(Rate == 100)
+                frameSucess.color = "green"
+            else
+                frameSucess.color = "red"
         }
 
         onBitrate: {

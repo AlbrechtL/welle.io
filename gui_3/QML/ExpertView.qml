@@ -35,6 +35,16 @@ Item {
             name: "Frame success rate:"
         }
 
+        TextExpert {
+            id: displaySync
+            name: "Frame synchronization:"
+        }
+
+        TextExpert {
+            id: displayFIC_CRC
+            name: "FIC CRC:"
+        }
+
         SpectrumView {
             Layout.preferredWidth: Units.dp(200)
             Layout.preferredHeight: Units.dp(200)
@@ -59,6 +69,20 @@ Item {
 
         onDisplaySuccessRate:{
             displaySuccessRate.text = Rate + " %"
+        }
+
+        onSyncFlag:{
+            if(active)
+                displaySync.text = "OK"
+            else
+                displaySync.text = "Not synced"
+        }
+
+        onFicFlag:{
+            if(active)
+                displayFIC_CRC.text = "OK"
+            else
+                displayFIC_CRC.text = "Error"
         }
     }
 }
