@@ -80,6 +80,7 @@ public:
 	void		stopReader	(void);
 	int32_t		getSamples	(DSPCOMPLEX *, int32_t);
 	int32_t		getSamples	(DSPCOMPLEX *, int32_t, int32_t);
+    int32_t     getSamplesFromShadowBuffer (DSPCOMPLEX *V, int32_t size);
 	int32_t		Samples		(void);
 	int32_t		getSamplesMissed	(void);
 	void		resetBuffer	(void);
@@ -91,6 +92,7 @@ public:
 //
 //	These need to be visible for the separate usb handling thread
 	RingBuffer<uint8_t>	*_I_Buffer;
+    RingBuffer<uint8_t>	*_I_ShadowBuffer;
 	pfnrtlsdr_read_async	rtlsdr_read_async;
 	struct rtlsdr_dev	*device;
 	int32_t		sampleCounter;

@@ -96,7 +96,7 @@ int16_t	latency;
 //
 	autoStart		= dabSettings -> value ("autoStart", 0). toInt () != 0;
 //
-	this -> dabBand		= dabBand == "Band III" ? BAND_III : L_BAND;
+    this -> dabBand		= dabBand == "BAND III" ? BAND_III : L_BAND;
 	setModeParameters (dabMode);
 /**
   *	The actual work is done elsewhere: in ofdmProcessor
@@ -944,7 +944,7 @@ bool	success;
 #endif
 #ifdef	HAVE_DABSTICK
 	if (s == "dabstick") {
-	   inputDevice	= new dabStick (dabSettings, &success, true);
+       inputDevice	= new dabStick (dabSettings, &success, false);
 	   if (!success) {
 	      delete inputDevice;
 	      inputDevice = new virtualInput ();
@@ -1057,6 +1057,8 @@ void RadioInterface::updateSpectrum (QAbstractSeries *series)
     // Get samples,  at the moment only rtl_tcp is supported
     if(inputDevice && input_device == "rtl_tcp")
         Samples = ((rtl_tcp_client*) inputDevice)->getSamplesFromShadowBuffer(spectrumBuffer, dabModeParameters.T_u);
+    if(inputDevice && input_device == "dabstick")
+        Samples = ((dabStick*) inputDevice)->getSamplesFromShadowBuffer(spectrumBuffer, dabModeParameters.T_u);
 
     // Continue only if we got data
     if(Samples <= 0)
