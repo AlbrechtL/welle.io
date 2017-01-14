@@ -43,6 +43,7 @@
 using namespace QtCharts;
 
 #include	"stationlist.h"
+#include    "motimageprovider.h"
 
 #include	"ofdm-processor.h"
 #include	"ringbuffer.h"
@@ -123,6 +124,7 @@ const	char		*get_programm_language_string (uint8_t);
 	bool		setDevice		(QString);
 	QString		nextChannel		(QString currentChannel);
     QString input_device;
+    MOTImageProvider *MOTImage;
 
 public slots:
 	void		end_of_waiting_for_stations	(void);

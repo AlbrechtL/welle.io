@@ -150,6 +150,10 @@ int16_t	latency;
 //	Reset
 	isFICCRC	= false;
 
+    // Add image provider for the MOT slide show
+    MOTImage = new MOTImageProvider;
+    engine->addImageProvider(QLatin1String("motslideshow"), MOTImage);
+
 //	Main entry to the QML GUI
 	QQmlContext *rootContext = engine -> rootContext ();
 
@@ -604,6 +608,16 @@ void	RadioInterface::showLabel	(QString s) {
 //	showMOT is triggered by the MOT handler,
 void	RadioInterface::showMOT  (QByteArray data, int subtype, QString s) {
 	(void)data; (void)subtype; (void)s;
+
+    QPixmap p(320,240);
+    p. loadFromData (data, subtype == 0 ? "GIF" :
+                           subtype == 1 ? "JPEG" :
+                           subtype == 2 ? "BMP" : "PNG");
+  /*  pictureLabel ->  setPixmap (p);
+    pictureLabel ->  show ();*/
+
+    MOTImage->setPixmap(p);
+    emit motChanged("");
 }
 
 //
