@@ -312,28 +312,13 @@ int16_t	i;
 //	we have data for all directory entries
 void	motHandler::handleComplete (motElement *p) {
 int16_t i;
-//	if (p -> contentType != 2) {
-//	   fprintf (stderr, "going to write file %s\n", (p ->  name). toLatin1 (). data ());
-//	   checkDir (p -> name);
-//	   FILE *x = fopen (((p -> name). toLatin1 (). data ()), "w");
-//	   if (x == NULL)
-//	      fprintf (stderr, "cannot write file %s\n",
-//	                                     (p -> name). toLatin1 (). data ());
-//	   else {
-//	      (void)fwrite ((p -> body). data (), 1, p -> bodySize, x);
-//	      fclose (x);
-//	   }
-//	   if (p -> contentType != 2)
-//	      return;
-//	}
-
 	
 	if (p -> contentType != 2) {
 	   if (p -> name != QString ("")) {
 	      fprintf (stderr, "going to write file %s\n",
 	                           (p ->  name). toLatin1 (). data ());
 	      checkDir (p -> name);
-	      FILE *x = fopen (((p -> name). toLatin1 (). data ()), "w");
+	      FILE *x = fopen (((p -> name). toLatin1 (). data ()), "w+b");
 	      if (x == NULL)
 	         fprintf (stderr, "cannot write file %s\n",
 	                            (p -> name). toLatin1 (). data ());
