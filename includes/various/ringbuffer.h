@@ -72,7 +72,6 @@
 #include	<stdio.h>
 #include	<string.h>
 #include	<stdint.h>
-#include    <ctime>
 /*
  *	a simple ringbuffer, lockfree, however only for a
  *	single reader and a single writer.
@@ -272,20 +271,6 @@ int32_t	putDataIntoBuffer (const void *data, int32_t elementCount) {
 int32_t size1, size2, numWritten;
 void	*data1;
 void	*data2;
-int32_t BufferSize = WriteSpace();
-static int Overflows=0;
-static std::clock_t begin_time = std::clock();
-
-    if((float( std::clock () - begin_time ) /  CLOCKS_PER_SEC) > 10)
-    {
-        if(Overflows)
-            fprintf(stderr,"Input buffer overflows: %d  (within 10 s), CPU to slow?\n", Overflows);
-
-        begin_time = std::clock();
-        Overflows=0;
-    }
-
-    if(!BufferSize) Overflows++;
 
 	numWritten = GetRingBufferWriteRegions (elementCount,
 	                                        &data1, &size1,
