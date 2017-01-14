@@ -149,12 +149,8 @@ int16_t	latency;
 //	Reset
 	isFICCRC	= false;
 
-    // Create new QML application
+// Create new QML application
     engine 	= new QQmlApplicationEngine;
-
-    // Add image provider for the MOT slide show
-    MOTImage = new MOTImageProvider;
-    engine->addImageProvider(QLatin1String("motslideshow"), MOTImage);
 
 //	Main entry to the QML GUI
 	QQmlContext *rootContext = engine -> rootContext ();
@@ -170,6 +166,10 @@ int16_t	latency;
 
 // Open main QML file
     engine->load(QUrl ("qrc:/QML/main.qml"));
+
+// Add image provider for the MOT slide show
+    MOTImage = new MOTImageProvider;
+    engine->addImageProvider(QLatin1String("motslideshow"), MOTImage);
 
 //	Take the root object
 	QObject *rootObject = engine -> rootObjects ().first ();
