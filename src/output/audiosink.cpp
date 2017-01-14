@@ -57,10 +57,12 @@ int32_t	i;
 	}
 
 	portAudio	= true;
-	qDebug ("Hostapis: %d\n", Pa_GetHostApiCount ());
+#ifndef	GUI_3
+    qDebug ("Hostapis: %d\n", Pa_GetHostApiCount ());
 
-	for (i = 0; i < Pa_GetHostApiCount (); i ++)
-	   qDebug ("Api %d is %s\n", i, Pa_GetHostApiInfo (i) -> name);
+    for (i = 0; i < Pa_GetHostApiCount (); i ++)
+       qDebug ("Api %d is %s\n", i, Pa_GetHostApiInfo (i) -> name);
+#endif
 
 	numofDevices	= Pa_GetDeviceCount ();
 	outTable	= new int16_t [numofDevices + 1];
@@ -296,18 +298,12 @@ uint16_t	i;
 	for (i = 0; i <  numofDevices; i ++) {
 	   const QString so = 
 	             outputChannelwithRate (i, CardRate);
-	   qDebug ("Investigating Device %d\n", i);
-
 	   if (so != QString ("")) {
 	      streamOutSelector -> append (so);
 	      outTable [ocnt] = i;
-	      qDebug (" (output):item %d wordt stream %d (%s)\n", ocnt , i,
-	                      so. toLatin1 ().data ());
 	      ocnt ++;
 	   }
 	}
-
-	qDebug () << "added items to combobox";
 	return ocnt > 1;
 }
 #endif
