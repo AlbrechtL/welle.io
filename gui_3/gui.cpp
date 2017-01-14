@@ -696,6 +696,13 @@ void	RadioInterface::stopChannelScanClick (void) {
 	my_ofdmProcessor	-> set_scanMode (false, currentChannel);
 	ScanChannelTimer. stop ();
 	scanMode	= false;
+
+    emit currentStation ("No Station");
+//	Sort stations
+    stationList. sort ();
+    QQmlContext *rootContext = engine -> rootContext ();
+    rootContext -> setContextProperty ("stationModel",
+                        QVariant::fromValue (stationList. getList ()));
 }
 
 QString	RadioInterface::nextChannel (QString currentChannel) {
