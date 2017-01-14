@@ -175,6 +175,7 @@ int	k;
 	   fprintf(stderr, "%.1f ", gains [i - 1] / 10.0);
 	   combo_gain -> addItem (QString::number (gains [i - 1]));
 	}
+    fprintf(stderr, "\n");
 
 	rtlsdr_set_tuner_gain_mode (device, 1);
 
