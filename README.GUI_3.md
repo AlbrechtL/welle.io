@@ -1,11 +1,25 @@
-
+GUI_3
+=====
 
 GUI_3 is a fancy interface. Since the interface does not have buttons and selectors for mode, channel etc, some
 parameters can be given as command line parameter on program start-up.
 Most of the settings, passed on through the command line are maintained between program invocations, i.e. when you select
 the airspy as input device, for Band IV and Mode IV, you only need to do it once.
 
-The command line parameter are
+Table of contents
+====
+
+  * [Usage](#usage)
+  * [Building](#building)
+    * [General Information](#general-information)
+    * [Ubuntu Linux 16.04 LTS](#ubuntu-linux-1604-lts)
+    * [Windows 10](#windows-10)
+    * [Raspberry Pi 2 and 3](#raspberry-pi-2-and-3)
+
+Usage
+=====
+The command line parameter are:
+
 Parameter | Description
 ------ | ---------- | ----
 h | Show help 
