@@ -240,6 +240,7 @@ gui_3	{
                            ./gui_3/stationlist.cpp
         RESOURCES += \
             gui_3/touch_gui_resource.qrc
+        DEFINES		+= MOT_BASICS__		# use at your own risk
 }
 	
 gui_2	{

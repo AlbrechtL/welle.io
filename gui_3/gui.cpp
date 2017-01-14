@@ -610,14 +610,12 @@ void	RadioInterface::showMOT  (QByteArray data, int subtype, QString s) {
 	(void)data; (void)subtype; (void)s;
 
     QPixmap p(320,240);
-    p. loadFromData (data, subtype == 0 ? "GIF" :
+    p.loadFromData (data, subtype == 0 ? "GIF" :
                            subtype == 1 ? "JPEG" :
                            subtype == 2 ? "BMP" : "PNG");
-  /*  pictureLabel ->  setPixmap (p);
-    pictureLabel ->  show ();*/
 
     MOTImage->setPixmap(p);
-    emit motChanged("");
+    emit motChanged();
 }
 
 //
@@ -1003,6 +1001,12 @@ void	RadioInterface::channelClick (QString StationName,
 //	If the FIC CRC is ok we can tune to the channel
 	CheckFICTimer. start (1000);
 	emit currentStation ("Tuning ...");
+
+    // Clear MOT slide show
+    QPixmap p(320,240);
+    p.fill(Qt::transparent);
+    MOTImage->setPixmap(p);
+    emit motChanged();
 }
 
 void RadioInterface::saveSettings (void) {

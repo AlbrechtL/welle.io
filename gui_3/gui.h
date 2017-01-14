@@ -180,7 +180,7 @@ signals:
 	void		stationType		(QString text);
 	void		languageType		(QString text);
 	void		signalPower		(int power);
-	void		motChanged		(QString name);
+    void		motChanged		(void);
 	void		channelScanStopped	(void);
 	void		channelScanProgress	(int progress);
 	void		foundChannelCount	(int channelCount);

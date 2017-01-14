@@ -229,7 +229,6 @@ ApplicationWindow {
     Connections{
         target: cppGUI
         onMotChanged:{
-            //motImage.source = "file://" + encodeURIComponent(workingDir) + name
             motImage.source = "image://motslideshow/image_" + Math.random()
         }
 
