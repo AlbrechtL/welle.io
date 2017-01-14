@@ -655,6 +655,7 @@ void	RadioInterface::newAudio	(int rate) {
 //	might decide to ignore the data sent
 void	RadioInterface::show_mscErrors	(int er) {
 	emit displayMSCErrors (er);
+    fprintf(stderr, "displayMSCErrors: %i\n", er);
 }
 //
 //	a slot, called by the iphandler
@@ -1010,10 +1011,6 @@ void	RadioInterface::channelClick (QString StationName,
 
 void RadioInterface::saveSettings (void) {
 	dumpControlState (dabSettings);
-}
-
-void RadioInterface::showCorrectedErrors (int Errors) {
-	emit displayCorrectedErrors (Errors);
 }
 
 void RadioInterface::inputEnableAGCChange(bool checked)

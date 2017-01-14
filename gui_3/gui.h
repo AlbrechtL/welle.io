@@ -165,7 +165,6 @@ private slots:
 	void		startChannelScanClick	(void);
 	void		stopChannelScanClick	(void);
 	void		saveSettings		(void);
-	void		showCorrectedErrors 	(int);
     void		inputEnableAGCChange    (bool checked);
     void		inputGainChange (double gain);
 signals:
@@ -190,7 +189,6 @@ signals:
 	void		displayMSCErrors	(int Errors);
 	void		displayCurrentChannel	(QString Channel,
 	                                             int Frequency);
-	void		displayCorrectedErrors	(int Errors);
 	void		displaySuccessRate	(int Rate);
 };
 

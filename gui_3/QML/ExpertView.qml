@@ -31,11 +31,6 @@ Item {
         }
 
         TextExpert {
-            id: displayCorrectedErrors
-            name: "Corrected errors:"
-        }
-
-        TextExpert {
             id: displaySuccessRate
             name: "Frame success rate:"
         }
@@ -60,10 +55,6 @@ Item {
 
         onDisplayFreqCorr:{
             displayFreqCorr.text = Freq + " Hz"
-        }
-
-        onDisplayCorrectedErrors:{
-            displayCorrectedErrors.text = Errors
         }
 
         onDisplaySuccessRate:{
