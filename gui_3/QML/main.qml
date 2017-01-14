@@ -214,7 +214,6 @@ ApplicationWindow {
                 color: "#212126"
                 Image {
                     id: motImage
-                    source: "image://motslideshow"
                     width: parent.width
                     height: parent.width * (sourceSize.height/sourceSize.width) // Scale MOT image with the correct aspect
                 }

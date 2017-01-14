@@ -44,8 +44,6 @@ ChartView {
 
     ValueAxis {
         id: axisX
-        /*min: 0
-        max: (2048000) / 1e6*/
         titleText: "Frequency [MHz]"
     }
 

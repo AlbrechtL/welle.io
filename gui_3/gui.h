@@ -74,11 +74,10 @@ class RadioInterface: public QObject{
 Q_OBJECT
 
 public:
-        	RadioInterface		(QSettings *,
-	                                 QQmlApplicationEngine *,
-	                                 QString,
-	                                 uint8_t,
-	                                 QString,
+            RadioInterface		(QSettings *,
+                                     QString,
+                                     uint8_t,
+                                     QString,
                                          QObject *parent = NULL);
 		~RadioInterface		();
 

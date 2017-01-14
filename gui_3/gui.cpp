@@ -49,17 +49,16 @@
   *	gui elements and the handling agents. All real action
   *	is embedded in actions, initiated by gui buttons
   */
-	RadioInterface::RadioInterface (QSettings	*Si,
-	                                QQmlApplicationEngine *engine,
+    RadioInterface::RadioInterface (QSettings	*Si,
 	                                QString		device,
 	                                uint8_t		dabMode,
 	                                QString     dabBand,
                                         QObject    *parent): QObject (parent) {
 int16_t	latency;
 
-	dabSettings		= Si;
-	this  -> engine 	= engine;
+	dabSettings		= Si;	
     input_device = device;
+
 //
 //	Before printing anything, we set
 	setlocale (LC_ALL, "");
@@ -150,6 +149,9 @@ int16_t	latency;
 //	Reset
 	isFICCRC	= false;
 
+    // Create new QML application
+    engine 	= new QQmlApplicationEngine;
+
     // Add image provider for the MOT slide show
     MOTImage = new MOTImageProvider;
     engine->addImageProvider(QLatin1String("motslideshow"), MOTImage);
@@ -165,6 +167,9 @@ int16_t	latency;
 //	Set working directory
 	QString workingDir = QDir::currentPath () + "/";
 	rootContext -> setContextProperty ("workingDir", workingDir);
+
+// Open main QML file
+    engine->load(QUrl ("qrc:/QML/main.qml"));
 
 //	Take the root object
 	QObject *rootObject = engine -> rootObjects ().first ();

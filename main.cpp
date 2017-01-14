@@ -198,9 +198,7 @@ uint16_t	ipPort		= 1234;
 	   dabSettings -> setValue ("rtl_tcp_port", ipPort);
 	   dabSettings -> endGroup ();
 	   dabSettings	-> sync ();
-	   QQmlApplicationEngine engine(QUrl ("qrc:/QML/main.qml"));
-	   MyRadioInterface = new RadioInterface (dabSettings,
-	                                          &engine,
+       MyRadioInterface = new RadioInterface (dabSettings,
 	                                          dabDevice,
 	                                          dabMode,
 	                                          dabBand);
