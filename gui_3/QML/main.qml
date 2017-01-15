@@ -87,7 +87,7 @@ ApplicationWindow {
 
         Rectangle {
             id: backButton
-            width: opacity ? Units.dp(60) : 0
+            width: Units.dp(60)
             anchors.left: parent.left
             anchors.leftMargin: Units.dp(20)
             anchors.verticalCenter: parent.verticalCenter
@@ -120,25 +120,22 @@ ApplicationWindow {
         }
 
         TextTitle {
-            Behavior on x { NumberAnimation{ easing.type: Easing.OutCubic} }
             x: backButton.x + backButton.width + Units.dp(20)
             anchors.verticalCenter: parent.verticalCenter
-            text: mainWindow.height
-            //text: "dab-rpi"
+            text: "dab-rpi"
         }
 
         TextStandart {
-            Behavior on x { NumberAnimation{ easing.type: Easing.OutCubic} }
-            anchors.right: parent.right
+            x: mainWindow.width - width - Units.dp(5) - infoButton.width
             anchors.verticalCenter: parent.verticalCenter
             anchors.rightMargin: Units.dp(5)
             text: "01.01.2016 00:00"
             id: dateTimeDisplay
         }
 
-        /*Rectangle {
-            id: exitButton
-            width: opacity ? Units.dp(40) : 0
+        Rectangle {
+            id: infoButton
+            width: stackView.depth > 1 ? Units.dp(40) : 0
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
             antialiasing: true
@@ -146,7 +143,9 @@ ApplicationWindow {
             color: backmouse.pressed ? "#222" : "transparent"
             Image {
                 anchors.verticalCenter: parent.verticalCenter
-                source: stackView.depth > 1 ? "images/icon-exit.png" : ""
+                anchors.horizontalCenter: parent.horizontalCenter
+                source: stackView.depth > 1 ? "images/icon-info.png" : ""
+                anchors.rightMargin: Units.dp(20)
                 height: Units.dp(23)
                 fillMode: Image.PreserveAspectFit
             }
@@ -155,9 +154,9 @@ ApplicationWindow {
                 scale: 1
                 anchors.fill: parent
                 anchors.margins: Units.dp(-20)
-                onClicked: stackView.depth > 1 ? mainWindow.exitApplicationClicked() : {}
+                //onClicked: stackView.depth > 1 ? mainWindow.exitApplicationClicked() : {}
             }
-        }*/
+        }
     }
 
     SplitView {

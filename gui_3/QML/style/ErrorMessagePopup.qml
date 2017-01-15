@@ -12,8 +12,8 @@ Popup {
     y: mainWindow.height  - toolBar.height - height
     width: textView.width + Units.dp(65)
     height: Units.dp(50)
-    modal: true
-    focus: true
+    //modal: true
+    //focus: true
     closePolicy: Popup.NoAutoClose
     enter:  Transition {
             NumberAnimation { property: "y"; from: mainWindow.height ; to: mainWindow.height - toolBar.height - popup.height;}

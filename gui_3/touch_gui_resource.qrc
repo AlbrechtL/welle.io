@@ -13,8 +13,9 @@
         <file>QML/images/tabs_standard.png</file>
         <file>QML/images/textinput.png</file>
         <file>QML/images/toolbar.png</file>
+	<file>QML/images/icon-exit.png</file>
+	<file>QML/images/icon-info.png</file>
         <file>QML/style/Units.qml</file>
-        <file>QML/images/icon-exit.png</file>
         <file>QML/SpectrumView.qml</file>
         <file>QML/ExpertView.qml</file>
         <file>QML/style/Style.qml</file>
