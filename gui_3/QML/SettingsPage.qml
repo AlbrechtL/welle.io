@@ -120,7 +120,7 @@ Item {
                     TouchSlider {
                         id: gain
                         enabled: !enableAGC.checked
-                        name: "Manual gain"
+                        name: "Manual gain (not impl.)"
                         onValueChanged: mainWindow.inputGainChanged(valueGain)
                     }
                 }
@@ -145,6 +145,10 @@ Item {
                         name: "Enable expert mode"
                         objectName: "enableExpertMode"
                         checked: false
+                        onChanged: {
+                            if(valueChecked == false)
+                                mainWindow.width = Units.dp(350) + radioInformationView.width
+                        }
                     }
                 }
             }

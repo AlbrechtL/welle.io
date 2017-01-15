@@ -118,8 +118,8 @@ int32_t	i;
 	connect (this, SIGNAL (setSynced (char)),
 	         myRadioInterface, SLOT (setSynced (char)));
 #ifdef	GUI_3
-	connect (this, SIGNAL (setSignalPresent (bool, QString)),
-	         myRadioInterface, SLOT (setSignalPresent (bool, QString)));
+    connect (this, SIGNAL (setSignalPresent (bool)),
+             myRadioInterface, SLOT (setSignalPresent (bool)));
 #endif
 
 	bufferContent	= 0;
@@ -282,7 +282,7 @@ Initing:
 notSynced:
 #ifdef	GUI_3
 	   if (scanMode && ++attempts > 5) {
-	      emit (setSignalPresent (false, currentChannel));
+          emit (setSignalPresent (false));
 	      scanMode	= false;
 	      attempts	= 0;
 	   }
@@ -378,7 +378,7 @@ SyncOnPhase:
 	   }
 #ifdef GUI_3
 	   if (scanMode) {
-	      emit (setSignalPresent (true, currentChannel));
+          emit (setSignalPresent (true));
 	      scanMode	= false;
               attempts	= 0;
 	   }

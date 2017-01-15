@@ -233,11 +233,14 @@ gui_3	{
         INCLUDEPATH	+= ./gui_3
         DEPENDPATH	+= ./gui_3
         HEADERS		+= ./gui_3/gui.h \
+                           ./gui_3/motimageprovider.h \
                            ./gui_3/stationlist.h
         SOURCES		+= ./gui_3/gui.cpp \
+                           ./gui_3/motimageprovider.cpp \
                            ./gui_3/stationlist.cpp
         RESOURCES += \
             gui_3/touch_gui_resource.qrc
+        DEFINES		+= MOT_BASICS__		# use at your own risk
 }
 	
 gui_2	{

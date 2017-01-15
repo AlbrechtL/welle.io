@@ -314,7 +314,8 @@ void	motHandler::handleComplete (motElement *p) {
 int16_t i;
 	
 	if (p -> contentType != 2) {
-	   if (p -> name != QString ("")) {
+#ifndef GUI_3
+       if (p -> name != QString ("")) {
 	      fprintf (stderr, "going to write file %s\n",
 	                           (p ->  name). toLatin1 (). data ());
 	      checkDir (p -> name);
@@ -326,17 +327,19 @@ int16_t i;
 	         (void)fwrite ((p -> body). data (), 1, p -> bodySize, x);
 	         fclose (x);
 	      }
-	   }
-
+       }
+#endif
 	   return;
 	}
 
 	if (old_slide != NULL)
 	   for (i = 0; i < p ->  numofSegments; i ++)
 	      p -> marked [i] = false;
+#ifndef GUI_3
 	fprintf (stderr, "going to show picture %s\n",
 	                                   (p -> name). toLatin1 (). data ());
 	checkDir (p -> name);
+#endif
 	the_picture (p -> body, p -> contentsubType, p -> name);
 	old_slide	= p;
 }

@@ -57,7 +57,7 @@ ApplicationWindow {
     id: mainWindow
     visible: true
     width: Units.dp(700)
-    height: Units.dp(465)
+    height: Units.dp(500)
     visibility: settingsPageLoader.settingsPage.enableFullScreenState ? "FullScreen" : "Windowed"
 
     Loader {
@@ -196,6 +196,7 @@ ApplicationWindow {
         }
 
         SplitView {
+            id: radioInformationView
             orientation: Qt.Vertical
             Layout.alignment: Qt.AlignRight
             Layout.maximumWidth: Units.dp(320)
@@ -220,6 +221,7 @@ ApplicationWindow {
         }
 
         ExpertView{
+            id: expertView
             Layout.fillWidth: settingsPageLoader.settingsPage.enableExpertModeState ? true : false
             visible: settingsPageLoader.settingsPage.enableExpertModeState ? true : false
         }
@@ -228,7 +230,7 @@ ApplicationWindow {
     Connections{
         target: cppGUI
         onMotChanged:{
-            motImage.source = "file://" + encodeURIComponent(workingDir) + name
+            motImage.source = "image://motslideshow/image_" + Math.random()
         }
 
         onNewDateTime:{

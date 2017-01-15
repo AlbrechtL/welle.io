@@ -59,6 +59,7 @@ int32_t	tmp;
 	tmp = theStick -> _I_Buffer -> putDataIntoBuffer (buf, len);
 	if ((len - tmp) > 0)
 	   theStick	-> sampleCounter += len - tmp;
+    theStick -> _I_ShadowBuffer -> putDataIntoBuffer (buf, len); // Shadow buffer needed for the spectrum viewer in GUI_3
 }
 //
 //	for handling the events in libusb, we need a controlthread
@@ -105,6 +106,7 @@ int	k;
 	libraryLoaded		= false;
 	open			= false;
 	_I_Buffer		= NULL;
+    _I_ShadowBuffer	= NULL;
 	workerHandle		= NULL;
 	lastFrequency		= KHz (94700);	// just a dummy
 	this	-> sampleCounter= 0;
@@ -173,10 +175,12 @@ int	k;
 	   fprintf(stderr, "%.1f ", gains [i - 1] / 10.0);
 	   combo_gain -> addItem (QString::number (gains [i - 1]));
 	}
+    fprintf(stderr, "\n");
 
 	rtlsdr_set_tuner_gain_mode (device, 1);
 
 	_I_Buffer		= new RingBuffer<uint8_t>(1024 * 1024);
+    _I_ShadowBuffer	= new RingBuffer<uint8_t>(8192);
 	dabstickSettings	-> beginGroup ("dabstickSettings");
 	temp = dabstickSettings -> value ("externalGain", "10"). toString ();
 	k	= combo_gain -> findText (temp);
@@ -251,6 +255,8 @@ err:
 #endif
 	if (_I_Buffer != NULL)
 	   delete _I_Buffer;
+    if (_I_ShadowBuffer != NULL)
+       delete _I_ShadowBuffer;
 	if (gains != NULL)
 	   delete[] gains;
 	open = false;
@@ -274,6 +280,7 @@ int32_t	r;
 	   return true;
 
 	_I_Buffer	-> FlushRingBuffer ();
+    _I_ShadowBuffer -> FlushRingBuffer ();
 	r = this -> rtlsdr_reset_buffer (device);
 	if (r < 0)
 	   return false;
@@ -359,6 +366,17 @@ uint8_t	*tempBuffer = (uint8_t *)alloca (2 * size * sizeof (uint8_t));
 	_I_Buffer	-> skipDataInBuffer (2 * (segmentSize - size));
 
 	return amount / 2;
+}
+
+int32_t	dabStick::getSamplesFromShadowBuffer (DSPCOMPLEX *V, int32_t size) {
+int32_t	amount, i;
+uint8_t	*tempBuffer = (uint8_t *)alloca (2 * size * sizeof (uint8_t));
+//
+    amount = _I_ShadowBuffer -> getDataFromBuffer(tempBuffer, 2 * size);
+    for (i = 0; i < amount / 2; i ++)
+        V [i] = DSPCOMPLEX ((float (tempBuffer [2 * i] - 128)) / 128.0,
+                            (float (tempBuffer [2 * i + 1] - 128)) / 128.0);
+    return amount / 2;
 }
 
 int32_t	dabStick::Samples	(void) {

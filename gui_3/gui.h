@@ -43,6 +43,7 @@
 using namespace QtCharts;
 
 #include	"stationlist.h"
+#include    "motimageprovider.h"
 
 #include	"ofdm-processor.h"
 #include	"ringbuffer.h"
@@ -73,11 +74,10 @@ class RadioInterface: public QObject{
 Q_OBJECT
 
 public:
-        	RadioInterface		(QSettings *,
-	                                 QQmlApplicationEngine *,
-	                                 QString,
-	                                 uint8_t,
-	                                 QString,
+            RadioInterface		(QSettings *,
+                                     QString,
+                                     uint8_t,
+                                     QString,
                                          QObject *parent = NULL);
 		~RadioInterface		();
 
@@ -123,6 +123,8 @@ const	char		*get_programm_language_string (uint8_t);
 	bool		setDevice		(QString);
 	QString		nextChannel		(QString currentChannel);
     QString input_device;
+    MOTImageProvider *MOTImage;
+    int32_t	tunedFrequency;
 
 public slots:
 	void		end_of_waiting_for_stations	(void);
@@ -144,7 +146,7 @@ public slots:
 	void		show_mscErrors		(int);
 	void		show_ipErrors		(int);
 	void		setStereo		(bool isStereo);
-	void		setSignalPresent	(bool isSignal, QString);
+    void		setSignalPresent	(bool isSignal);
 	void		displayDateTime		(int *DateTime);
 	void		updateSpectrum		(QAbstractSeries *series);
 
@@ -163,33 +165,31 @@ private slots:
 	void		startChannelScanClick	(void);
 	void		stopChannelScanClick	(void);
 	void		saveSettings		(void);
-	void		showCorrectedErrors 	(int);
     void		inputEnableAGCChange    (bool checked);
     void		inputGainChange (double gain);
 signals:
 	void		currentStation 		(QString text);
 	void		stationText		(QString text);
-    	void		signalFlag		(bool active);
-    	void		syncFlag		(bool active);
-    	void		ficFlag			(bool active);
+    void		syncFlag		(bool active);
+    void		ficFlag			(bool active);
 	void		dabType			(QString text);
 	void		audioType		(QString text);
 	void		bitrate			(int bitrate);
 	void		stationType		(QString text);
 	void		languageType		(QString text);
 	void		signalPower		(int power);
-	void		motChanged		(QString name);
+    void		motChanged		(void);
 	void		channelScanStopped	(void);
 	void		channelScanProgress	(int progress);
 	void		foundChannelCount	(int channelCount);
 	void		newDateTime		(int Year, int Month,
 	                                         int Day, int Hour, int Minute);
-	void		maxYAxisChanged		(qreal max);
+    void		setYAxisMax         (qreal max);
+    void		setXAxisMinMax		(qreal min, qreal max);
 	void		displayFreqCorr		(int Freq);
 	void		displayMSCErrors	(int Errors);
 	void		displayCurrentChannel	(QString Channel,
 	                                             int Frequency);
-	void		displayCorrectedErrors	(int Errors);
 	void		displaySuccessRate	(int Rate);
 };
 

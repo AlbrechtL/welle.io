@@ -31,13 +31,18 @@ Item {
         }
 
         TextExpert {
-            id: displayCorrectedErrors
-            name: "Corrected errors:"
+            id: displaySuccessRate
+            name: "Frame success rate:"
         }
 
         TextExpert {
-            id: displaySuccessRate
-            name: "Frame success rate:"
+            id: displaySync
+            name: "Frame synchronization:"
+        }
+
+        TextExpert {
+            id: displayFIC_CRC
+            name: "FIC CRC:"
         }
 
         SpectrumView {
@@ -62,12 +67,22 @@ Item {
             displayFreqCorr.text = Freq + " Hz"
         }
 
-        onDisplayCorrectedErrors:{
-            displayCorrectedErrors.text = Errors
-        }
-
         onDisplaySuccessRate:{
             displaySuccessRate.text = Rate + " %"
+        }
+
+        onSyncFlag:{
+            if(active)
+                displaySync.text = "OK"
+            else
+                displaySync.text = "Not synced"
+        }
+
+        onFicFlag:{
+            if(active)
+                displayFIC_CRC.text = "OK"
+            else
+                displayFIC_CRC.text = "Error"
         }
     }
 }

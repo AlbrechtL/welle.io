@@ -17,8 +17,7 @@ ChartView {
 
     Connections{
         target: cppGUI
-        onMaxYAxisChanged:{
-
+        onSetYAxisMax:{
             if(axisY1.max < max) // Up scale y axis emidetly if y should be bigger
             {
                 axisY1.max = max
@@ -28,6 +27,11 @@ ChartView {
                 yAxisMaxTimer.running = true
                 maxYAxis = max
             }
+        }
+
+        onSetXAxisMinMax:{
+            axisX.min = min
+            axisX.max = max
         }
     }
 
@@ -40,9 +44,7 @@ ChartView {
 
     ValueAxis {
         id: axisX
-        min: 0
-        max: 2048
-        titleText: "Dips"
+        titleText: "Frequency [MHz]"
     }
 
     LineSeries {

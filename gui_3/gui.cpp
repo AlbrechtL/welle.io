@@ -49,17 +49,16 @@
   *	gui elements and the handling agents. All real action
   *	is embedded in actions, initiated by gui buttons
   */
-	RadioInterface::RadioInterface (QSettings	*Si,
-	                                QQmlApplicationEngine *engine,
+    RadioInterface::RadioInterface (QSettings	*Si,
 	                                QString		device,
 	                                uint8_t		dabMode,
 	                                QString     dabBand,
                                         QObject    *parent): QObject (parent) {
 int16_t	latency;
 
-	dabSettings		= Si;
-	this  -> engine 	= engine;
+	dabSettings		= Si;	
     input_device = device;
+
 //
 //	Before printing anything, we set
 	setlocale (LC_ALL, "");
@@ -96,7 +95,7 @@ int16_t	latency;
 //
 	autoStart		= dabSettings -> value ("autoStart", 0). toInt () != 0;
 //
-	this -> dabBand		= dabBand == "Band III" ? BAND_III : L_BAND;
+    this -> dabBand		= dabBand == "BAND III" ? BAND_III : L_BAND;
 	setModeParameters (dabMode);
 /**
   *	The actual work is done elsewhere: in ofdmProcessor
@@ -150,6 +149,9 @@ int16_t	latency;
 //	Reset
 	isFICCRC	= false;
 
+// Create new QML application
+    engine 	= new QQmlApplicationEngine;
+
 //	Main entry to the QML GUI
 	QQmlContext *rootContext = engine -> rootContext ();
 
@@ -161,6 +163,13 @@ int16_t	latency;
 //	Set working directory
 	QString workingDir = QDir::currentPath () + "/";
 	rootContext -> setContextProperty ("workingDir", workingDir);
+
+// Open main QML file
+    engine->load(QUrl ("qrc:/QML/main.qml"));
+
+// Add image provider for the MOT slide show
+    MOTImage = new MOTImageProvider;
+    engine->addImageProvider(QLatin1String("motslideshow"), MOTImage);
 
 //	Take the root object
 	QObject *rootObject = engine -> rootObjects ().first ();
@@ -604,6 +613,14 @@ void	RadioInterface::showLabel	(QString s) {
 //	showMOT is triggered by the MOT handler,
 void	RadioInterface::showMOT  (QByteArray data, int subtype, QString s) {
 	(void)data; (void)subtype; (void)s;
+
+    QPixmap p(320,240);
+    p.loadFromData (data, subtype == 0 ? "GIF" :
+                           subtype == 1 ? "JPEG" :
+                           subtype == 2 ? "BMP" : "PNG");
+
+    MOTImage->setPixmap(p);
+    emit motChanged();
 }
 
 //
@@ -643,6 +660,7 @@ void	RadioInterface::newAudio	(int rate) {
 //	might decide to ignore the data sent
 void	RadioInterface::show_mscErrors	(int er) {
 	emit displayMSCErrors (er);
+    fprintf(stderr, "displayMSCErrors: %i\n", er);
 }
 //
 //	a slot, called by the iphandler
@@ -683,6 +701,13 @@ void	RadioInterface::stopChannelScanClick (void) {
 	my_ofdmProcessor	-> set_scanMode (false, currentChannel);
 	ScanChannelTimer. stop ();
 	scanMode	= false;
+
+    emit currentStation ("No Station");
+//	Sort stations
+    stationList. sort ();
+    QQmlContext *rootContext = engine -> rootContext ();
+    rootContext -> setContextProperty ("stationModel",
+                        QVariant::fromValue (stationList. getList ()));
 }
 
 QString	RadioInterface::nextChannel (QString currentChannel) {
@@ -704,8 +729,7 @@ struct dabFrequencies *finger;
 //	if we are pretty certain that the channel does not contain
 //	a signal, or "true" if there is a fair chance that the
 //	channel contains useful data
-void    RadioInterface::setSignalPresent (bool isSignal, QString channel) {
-	emit signalFlag (isSignal);
+void    RadioInterface::setSignalPresent (bool isSignal) {
 	if (isSignal) {		// may be a channel, give it time
 	   connect (&ScanChannelTimer, SIGNAL (timeout (void)),
 	            this, SLOT (end_of_waiting_for_stations (void)));
@@ -835,7 +859,6 @@ void	RadioInterface::set_channelSelect (QString s) {
 int16_t	i;
 struct dabFrequencies *finger;
 bool	localRunning	= running;
-int32_t	tunedFrequency;
 
 	if (localRunning) {
        clearEnsemble();
@@ -932,7 +955,7 @@ bool	success;
 #endif
 #ifdef	HAVE_DABSTICK
 	if (s == "dabstick") {
-	   inputDevice	= new dabStick (dabSettings, &success, true);
+       inputDevice	= new dabStick (dabSettings, &success, false);
 	   if (!success) {
 	      delete inputDevice;
 	      inputDevice = new virtualInput ();
@@ -981,6 +1004,7 @@ void	RadioInterface::channelClick (QString StationName,
 	if (ChannelName != currentChannel) {
 	   set_channelSelect (ChannelName);
 	   currentChannel = ChannelName;
+       emit syncFlag(false); // Clear flags
 	}
 
 	CurrentStation = StationName;
@@ -989,14 +1013,20 @@ void	RadioInterface::channelClick (QString StationName,
 //	If the FIC CRC is ok we can tune to the channel
 	CheckFICTimer. start (1000);
 	emit currentStation ("Tuning ...");
+
+    // Clear MOT slide show
+    QPixmap p(320,240);
+    p.fill(Qt::transparent);
+    MOTImage->setPixmap(p);
+    emit motChanged();
+
+    // Clear flags
+    emit displaySuccessRate(0);
+    emit ficFlag(false);
 }
 
 void RadioInterface::saveSettings (void) {
 	dumpControlState (dabSettings);
-}
-
-void RadioInterface::showCorrectedErrors (int Errors) {
-	emit displayCorrectedErrors (Errors);
 }
 
 void RadioInterface::inputEnableAGCChange(bool checked)
@@ -1028,6 +1058,10 @@ void RadioInterface::updateSpectrum (QAbstractSeries *series)
     //	Delete old data
     spectrum_data. clear ();
 
+    qreal tunedFrequency_MHz = tunedFrequency / 1e6;
+    qreal sampleFrequency_MHz = 2048000 / 1e6;
+    qreal dip_MHz = sampleFrequency_MHz / dabModeParameters. T_u;
+
 	qreal x(0);
     qreal y(0);
     qreal y_max(0);
@@ -1038,6 +1072,8 @@ void RadioInterface::updateSpectrum (QAbstractSeries *series)
     // Get samples,  at the moment only rtl_tcp is supported
     if(inputDevice && input_device == "rtl_tcp")
         Samples = ((rtl_tcp_client*) inputDevice)->getSamplesFromShadowBuffer(spectrumBuffer, dabModeParameters.T_u);
+    if(inputDevice && input_device == "dabstick")
+        Samples = ((dabStick*) inputDevice)->getSamplesFromShadowBuffer(spectrumBuffer, dabModeParameters.T_u);
 
     // Continue only if we got data
     if(Samples <= 0)
@@ -1061,14 +1097,17 @@ void RadioInterface::updateSpectrum (QAbstractSeries *series)
 	   if (y > y_max)
 	      y_max = y;
 
-	   x = i;
+       x = (i * dip_MHz) + (tunedFrequency_MHz - (sampleFrequency_MHz / 2));
        spectrum_data.append(QPointF (x, y));
     }
 
     //	Set maximum of y-axis
     y_max = round (y_max) + 1;
 	if (y_max > 0.0001)
-	   emit maxYAxisChanged (y_max);
+       emit setYAxisMax(y_max);
+
+    // Set x-axis min and max
+    emit setXAxisMinMax(tunedFrequency_MHz - (sampleFrequency_MHz / 2), tunedFrequency_MHz + (sampleFrequency_MHz / 2));
 
     //	Set new data
 	xySeries->replace (spectrum_data);
