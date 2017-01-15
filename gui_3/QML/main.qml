@@ -39,7 +39,8 @@
 ****************************************************************************/
 
 import QtQuick 2.2
-import QtQuick.Controls 1.2
+import QtQuick.Controls 2.0
+import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.1
 
 // Import custom styles
@@ -78,6 +79,7 @@ ApplicationWindow {
     }
 
     toolBar: BorderImage {
+        id: toolBar_
         border.bottom: Units.dp(10)
         source: "images/toolbar.png"
         width: parent.width
@@ -121,7 +123,8 @@ ApplicationWindow {
             Behavior on x { NumberAnimation{ easing.type: Easing.OutCubic} }
             x: backButton.x + backButton.width + Units.dp(20)
             anchors.verticalCenter: parent.verticalCenter
-            text: "dab-rpi"
+            text: mainWindow.height
+            //text: "dab-rpi"
         }
 
         TextStandart {
@@ -227,6 +230,10 @@ ApplicationWindow {
         }
     }
 
+    ErrorMessagePopup {
+      id: errorMessagePopup
+    }
+
     Connections{
         target: cppGUI
         onMotChanged:{
@@ -235,6 +242,11 @@ ApplicationWindow {
 
         onNewDateTime:{
             dateTimeDisplay.text = Units.pad(Day,2) + "." + Units.pad(Month,2) + "." + Year + " " + Units.pad(Hour,2) + ":" + Units.pad(Minute,2)
+        }
+
+        onShowErrorMessage:{
+            errorMessagePopup.text = Text;
+            errorMessagePopup.open();
         }
     }
 }

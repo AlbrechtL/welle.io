@@ -59,15 +59,31 @@ int16_t	latency;
 	dabSettings		= Si;	
     input_device = device;
 
-//
+// Create new QML application
+    engine 	= new QQmlApplicationEngine;
+
+//	Main entry to the QML GUI
+    QQmlContext *rootContext = engine -> rootContext ();
+
+//	Set the stations
+    rootContext -> setContextProperty ("stationModel",
+                          QVariant::fromValue (stationList. getList ()));
+    rootContext -> setContextProperty ("cppGUI", this);
+
+//	Set working directory
+    QString workingDir = QDir::currentPath () + "/";
+    rootContext -> setContextProperty ("workingDir", workingDir);
+
+// Open main QML file
+    engine->load(QUrl ("qrc:/QML/main.qml"));
+
+    //	the name of the device is passed on from the main program
+    if (!setDevice (input_device))
+        emit showErrorMessage("Error while opening input device \"" + device + "\"");
+
 //	Before printing anything, we set
 	setlocale (LC_ALL, "");
 //	
-//	the name of the device is passed on from the main program
-	if (!setDevice (device)) {
-	   fprintf (stderr, "NO VALID DEVICE, GIVING UP\n");
-	   exit (1);
-	}
 	running			= false;
 	scanMode		= false;
 	
@@ -114,19 +130,14 @@ int16_t	latency;
   *	the input device, note that in this setup the
   *	device is selected on start up and cannot be changed.
   */
-	my_ofdmProcessor = new ofdmProcessor   (inputDevice,
-	                                        &dabModeParameters,
-	                                        this,
-	                                        my_mscHandler,
-	                                        my_ficHandler,
-	                                        threshold,
-	                                        3);
-//	display the version
-//	QString v = "sdr-j DAB-rpi(+)  " ;
-//	v. append (CURRENT_VERSION);
 
-	if (autoStart)
-	   setStart ();
+    my_ofdmProcessor = new ofdmProcessor   (inputDevice,
+                                            &dabModeParameters,
+                                            this,
+                                            my_mscHandler,
+                                            my_ficHandler,
+                                            threshold,
+                                            3);
 
 // Read channels from the settings
 	dabSettings -> beginGroup ("channels");
@@ -148,24 +159,6 @@ int16_t	latency;
 
 //	Reset
 	isFICCRC	= false;
-
-// Create new QML application
-    engine 	= new QQmlApplicationEngine;
-
-//	Main entry to the QML GUI
-	QQmlContext *rootContext = engine -> rootContext ();
-
-//	Set the stations
-	rootContext -> setContextProperty ("stationModel",
-	                      QVariant::fromValue (stationList. getList ()));
-	rootContext -> setContextProperty ("cppGUI", this);
-
-//	Set working directory
-	QString workingDir = QDir::currentPath () + "/";
-	rootContext -> setContextProperty ("workingDir", workingDir);
-
-// Open main QML file
-    engine->load(QUrl ("qrc:/QML/main.qml"));
 
 // Add image provider for the MOT slide show
     MOTImage = new MOTImageProvider;
@@ -969,6 +962,7 @@ bool	success;
     {	// s == "no device"
 //	and as default option, we have a "no device"
 	   inputDevice	= new virtualInput ();
+       return false;
 	}
 	return true;
 }

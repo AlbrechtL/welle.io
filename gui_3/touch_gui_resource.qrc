@@ -30,5 +30,6 @@
         <file>QML/style/TouchProgressBar.qml</file>
         <file>QML/style/TextExpert.qml</file>
         <file>QML/style/SettingsFrame.qml</file>
+        <file>QML/style/ErrorMessagePopup.qml</file>
     </qresource>
 </RCC>

@@ -182,15 +182,14 @@ signals:
 	void		channelScanStopped	(void);
 	void		channelScanProgress	(int progress);
 	void		foundChannelCount	(int channelCount);
-	void		newDateTime		(int Year, int Month,
-	                                         int Day, int Hour, int Minute);
+    void		newDateTime		(int Year, int Month, int Day, int Hour, int Minute);
     void		setYAxisMax         (qreal max);
     void		setXAxisMinMax		(qreal min, qreal max);
 	void		displayFreqCorr		(int Freq);
 	void		displayMSCErrors	(int Errors);
-	void		displayCurrentChannel	(QString Channel,
-	                                             int Frequency);
+    void		displayCurrentChannel	(QString Channel, int Frequency);
 	void		displaySuccessRate	(int Rate);
+    void        showErrorMessage    (QString Text);
 };
 
 #endif
