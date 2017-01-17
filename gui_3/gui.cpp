@@ -125,8 +125,8 @@ RadioInterface::RadioInterface(QSettings	*Si,
     if(showVersionTextObject != NULL)
     {
         QString InfoText;
-        InfoText += "rpi version: " + QString(CURRENT_VERSION) + "\n";
-        InfoText += "Build on: " + QString(__TIMESTAMP__) + "\n";
+        InfoText += "dab-rpi version: " + QString(CURRENT_VERSION) + "\n";
+        InfoText += "Build on: " + QString(__TIMESTAMP__);
         showVersionTextObject -> setProperty("text", InfoText);
     }
 
@@ -196,7 +196,7 @@ RadioInterface::RadioInterface(QSettings	*Si,
                                          threshold,
                                          3);
 
-    //	Set timer
+    //	Set timer to check the FIC CRC
     connect(&CheckFICTimer, SIGNAL(timeout(void)), this, SLOT(CheckFICTimerTimeout(void)));
 }
 
@@ -204,7 +204,7 @@ RadioInterface::~RadioInterface()
 {
     fprintf(stderr, "deleting radioInterface\n");
 }
-//
+
 /**
   *	\brief At the end, we might save some GUI values
   *	The QSettings could have been the class variable as well

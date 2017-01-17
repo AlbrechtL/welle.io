@@ -68,6 +68,13 @@ ApplicationWindow {
         source: Qt.resolvedUrl("SettingsPage.qml")
     }
 
+    Loader {
+        id: infoPageLoader
+        anchors.topMargin: Units.dp(10)
+        readonly property InfoPage infoPage: item
+        source: Qt.resolvedUrl("InfoPage.qml")
+    }
+
     Rectangle {
         x: 0
         color: "#212126"
@@ -154,7 +161,11 @@ ApplicationWindow {
                 scale: 1
                 anchors.fill: parent
                 anchors.margins: Units.dp(-20)
-                //onClicked: stackView.depth > 1 ? mainWindow.exitApplicationClicked() : {}
+                onClicked:
+                    if(stackView.depth > 2)
+                      stackView.pop();
+                    else
+                      stackView.push(infoPageLoader);
             }
         }
     }

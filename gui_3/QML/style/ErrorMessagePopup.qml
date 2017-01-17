@@ -8,10 +8,10 @@ Popup {
     property alias text: textView.text
 
     id: popup
-    x: mainWindow.width/2 - width/2
-    y: mainWindow.height  - toolBar.height - height
     width: textView.width + Units.dp(65)
     height: Units.dp(50)
+    x: mainWindow.width/2 - width/2
+    y: mainWindow.height  - toolBar.height - height
     //modal: true
     //focus: true
     closePolicy: Popup.NoAutoClose
