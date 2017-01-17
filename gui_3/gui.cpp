@@ -1179,5 +1179,7 @@ void RadioInterface::updateSpectrum(QAbstractSeries *series)
 
 void RadioInterface::setErrorMessage(QString ErrorMessage)
 {
-    emit showErrorMessage(ErrorMessage);
+    // Print only if we tune into a channel
+    if(currentChannel != QString(""))
+        emit showErrorMessage(ErrorMessage);
 }
