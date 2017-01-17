@@ -1177,3 +1177,7 @@ void RadioInterface::updateSpectrum(QAbstractSeries *series)
     xySeries->replace(spectrum_data);
 }
 
+void RadioInterface::setErrorMessage(QString ErrorMessage)
+{
+    emit showErrorMessage(ErrorMessage);
+}

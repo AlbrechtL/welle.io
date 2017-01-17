@@ -79,6 +79,7 @@ int32_t	i;
 	tokenCount			= 0;
 	sampleCnt			= 0;
 	scanMode			= false;
+    NoReadCounter       = 0;
 /**
   *	the class phaseReference will take a number of samples
   *	and indicate - using some threshold - whether there is
@@ -120,6 +121,8 @@ int32_t	i;
 #ifdef	GUI_3
     connect (this, SIGNAL (setSignalPresent (bool)),
              myRadioInterface, SLOT (setSignalPresent (bool)));
+    connect (this, SIGNAL (setErrorMessage (QString)),
+             myRadioInterface, SLOT (setErrorMessage (QString)));
 #endif
 
 	bufferContent	= 0;
@@ -170,7 +173,20 @@ DSPCOMPLEX temp;
 	   while ((bufferContent == 0) && running) {
 	      usleep (10);
 	      bufferContent = theRig -> Samples (); 
-	   }
+#ifdef	GUI_3
+          NoReadCounter ++;
+
+          if(NoReadCounter > 100000) // 1 s
+          {
+              emit setErrorMessage("Error while reading from input device");
+              NoReadCounter = 0;
+          }
+       }
+       NoReadCounter = 0;
+#else
+       }
+#endif
+
 	}
 
 	if (!running)	
@@ -215,8 +231,20 @@ int32_t		i;
 	   bufferContent = theRig -> Samples ();
 	   while ((bufferContent < n) && running) {
 	      usleep (10);
-	      bufferContent = theRig -> Samples (); 
-	   }
+          bufferContent = theRig -> Samples ();
+#ifdef	GUI_3
+          NoReadCounter ++;
+
+          if(NoReadCounter > 100000) // 1 s
+          {
+              emit setErrorMessage("Error while reading from input device");
+              NoReadCounter = 0;
+          }
+       }
+       NoReadCounter = 0;
+#else
+       }
+#endif
 	}
 	if (!running)	
 	   throw 20;

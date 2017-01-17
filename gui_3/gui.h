@@ -149,6 +149,7 @@ public slots:
     void		setSignalPresent	(bool isSignal);
 	void		displayDateTime		(int *DateTime);
 	void		updateSpectrum		(QAbstractSeries *series);
+    void        setErrorMessage     (QString ErrorMessage);
 
 private slots:
 //
