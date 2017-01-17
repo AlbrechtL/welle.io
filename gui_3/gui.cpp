@@ -130,6 +130,19 @@ RadioInterface::RadioInterface(QSettings	*Si,
         showVersionTextObject -> setProperty("text", InfoText);
     }
 
+    // Set graph license
+    QObject *showGraphLicenseObject = rootObject -> findChild<QObject*> ("showGraphLicense");
+    if(showGraphLicenseObject != NULL)
+    {
+        // Read license
+        QFile File(":/QML/images/NOTICE.txt");
+        File.open(QFile::ReadOnly);
+        QByteArray FileContent = File.readAll();
+
+        // Set license content
+        showGraphLicenseObject -> setProperty("text", FileContent);
+    }
+
     // Set license
     QObject *showLicenseTextObject = rootObject -> findChild<QObject*> ("showLicenseText");
     if(showLicenseTextObject != NULL)

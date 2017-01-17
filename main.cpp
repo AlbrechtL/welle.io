@@ -188,6 +188,7 @@ uint16_t	ipPort		= 1234;
 	QGuiApplication::setAttribute (Qt::AA_EnableHighDpiScaling);
 #endif
 #ifdef	GUI_3
+    a.setWindowIcon(QIcon(":/QML/images/icon.png"));
 	(void)syncMethod;
 	dabSettings -> setValue ("dabMode",	dabMode);
 	dabSettings -> setValue ("device",	dabDevice);
@@ -195,13 +196,13 @@ uint16_t	ipPort		= 1234;
 	dabSettings -> beginGroup ("rtl_tcp_client");
 	if (ipAddress != QString (""))
 	   dabSettings -> setValue ("rtl_tcp_address", ipAddress);
-	   dabSettings -> setValue ("rtl_tcp_port", ipPort);
-	   dabSettings -> endGroup ();
-	   dabSettings	-> sync ();
-       MyRadioInterface = new RadioInterface (dabSettings,
-	                                          dabDevice,
-	                                          dabMode,
-	                                          dabBand);
+   dabSettings -> setValue ("rtl_tcp_port", ipPort);
+   dabSettings -> endGroup ();
+   dabSettings	-> sync ();
+   MyRadioInterface = new RadioInterface (dabSettings,
+                                          dabDevice,
+                                          dabMode,
+                                          dabBand);
 #elif defined (GUI_2)
 	(void)syncMethod;
 	dabSettings -> setValue ("dabMode",	dabMode);

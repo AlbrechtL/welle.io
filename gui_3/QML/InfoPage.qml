@@ -33,9 +33,19 @@ Item {
             }
 
             TextStandart {
-                text: "License"
+                text: "Licenses"
                 Layout.alignment: Qt.AlignLeft
                 font.pixelSize: Style.textHeadingSize
+            }
+
+            TextStandart {
+                id: showGraphLicense
+                text: "showGraphLicense"
+                Layout.alignment: Qt.AlignLeft
+                objectName: "showGraphLicense"
+                wrapMode: Text.Wrap
+                width: infoPage.width
+                textFormat: Text.PlainText
             }
 
             TextStandart {
