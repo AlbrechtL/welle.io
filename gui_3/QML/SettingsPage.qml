@@ -120,7 +120,7 @@ Item {
                     TouchSlider {
                         id: gain
                         enabled: !enableAGC.checked
-                        name: "Manual gain (not impl.)"
+                        name: "Manual gain"
                         onValueChanged: mainWindow.inputGainChanged(valueGain)
                     }
                 }

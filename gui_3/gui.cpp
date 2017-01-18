@@ -62,6 +62,7 @@ RadioInterface::RadioInterface(QSettings	*Si,
     scanMode = false;
     isSynced = UNSYNCED;
     isFICCRC = false;
+    LastCurrentManualGain = 0;
 
     dabSettings = Si;
     input_device = device;
@@ -1095,18 +1096,21 @@ void RadioInterface::saveSettings(void)
 
 void RadioInterface::inputEnableAGCChange(bool checked)
 {
-    if(checked)
-        fprintf(stderr, "AGC on\n");
-    else
-        fprintf(stderr, "AGC off\n");
-
     if(inputDevice)
+    {
         inputDevice->setAgc(checked);
+        if(!checked)
+            inputDevice->setGain(LastCurrentManualGain);
+    }
 }
 
 void RadioInterface::inputGainChange(double gain)
 {
-    fprintf(stderr, "Gain: %f\n", gain);
+    if(inputDevice)
+    {
+        LastCurrentManualGain = (int) gain;
+        inputDevice->setGain(LastCurrentManualGain);
+    }
 }
 
 // This function is called by the QML GUI

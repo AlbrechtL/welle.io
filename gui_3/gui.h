@@ -125,6 +125,7 @@ const	char		*get_programm_language_string (uint8_t);
     QString input_device;
     MOTImageProvider *MOTImage;
     int32_t	tunedFrequency;
+    int LastCurrentManualGain;
 
 public slots:
 	void		end_of_waiting_for_stations	(void);

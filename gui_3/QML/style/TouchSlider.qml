@@ -30,7 +30,7 @@ ColumnLayout {
 
         Text {
             id: valueView
-            text: "Value: " + slider.value.toFixed(2) + " dB"
+            text: "Value: " + slider.value.toFixed(2)
             font.pixelSize: Style.textStandartSize
             font.family: Style.textFont
             color: Style.textColor
@@ -41,7 +41,7 @@ ColumnLayout {
     Slider {
         id: slider
         style: sliderStyle
-        maximumValue: 50
+        maximumValue: 100
         minimumValue: 0
 
         Layout.preferredWidth: parent.width
