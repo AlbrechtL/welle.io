@@ -8,9 +8,9 @@ TEMPLATE	= app
 TARGET		= dab-rpi-0.997
 QT		+= widgets network
 CONFIG		+= console
-QMAKE_CFLAGS	+=  -flto -ffast-math 
-QMAKE_CXXFLAGS	+=  -flto -ffast-math 
-QMAKE_LFLAGS	+=  -flto 
+QMAKE_CFLAGS	+=  -flto -ffast-math
+QMAKE_CXXFLAGS	+=  -flto -ffast-math
+QMAKE_LFLAGS	+=  -flto
 #QMAKE_CFLAGS	+=  -pg
 #QMAKE_CXXFLAGS	+=  -pg
 #QMAKE_LFLAGS	+=  -pg
@@ -240,6 +240,7 @@ gui_3	{
                            ./gui_3/stationlist.cpp
         RESOURCES += \
             gui_3/touch_gui_resource.qrc
+        RC_ICONS = ./gui_3/QML/images/icon.ico
         DEFINES		+= MOT_BASICS__		# use at your own risk
 }
 	
