@@ -187,34 +187,32 @@ uint16_t	ipPort		= 1234;
 #if QT_VERSION >= 0x050600
 	QGuiApplication::setAttribute (Qt::AA_EnableHighDpiScaling);
 #endif
+//
+//	For gui_3 the data of a possible rtl_tcp should be saved
 #ifdef	GUI_3
-	(void)syncMethod;
-	dabSettings -> setValue ("dabMode",	dabMode);
-	dabSettings -> setValue ("device",	dabDevice);
-	dabSettings -> setValue ("band",	dabBand);
 	dabSettings -> beginGroup ("rtl_tcp_client");
-	if (ipAddress != QString (""))
+	if (ipAddress != QString ("")) {
 	   dabSettings -> setValue ("rtl_tcp_address", ipAddress);
 	   dabSettings -> setValue ("rtl_tcp_port", ipPort);
-	   dabSettings -> endGroup ();
-	   dabSettings	-> sync ();
-       MyRadioInterface = new RadioInterface (dabSettings,
-	                                          dabDevice,
-	                                          dabMode,
-	                                          dabBand);
-#elif defined (GUI_2)
+	}
+	dabSettings -> endGroup ();
+#endif
+#if defined (GUI_3) | defined (GUI_2)
 	(void)syncMethod;
 	dabSettings -> setValue ("dabMode",	dabMode);
 	dabSettings -> setValue ("device",	dabDevice);
 	dabSettings -> setValue ("band",	dabBand);
-	MyRadioInterface = new RadioInterface (dabSettings, 
-	                                       dabDevice, dabMode, dabBand);
+	dabSettings	-> sync ();
+       MyRadioInterface = new RadioInterface (dabSettings,
+	                                      dabDevice,
+	                                      dabMode,
+	                                      dabBand);
 #else
 	MyRadioInterface = new RadioInterface (dabSettings, syncMethod);
 	MyRadioInterface -> show ();
 #endif
 #else	
-//	May be for Qt 4 lovers
+//	For Qt 4 lovers
 	int	opt;
 	while ((opt = getopt (argc, argv, "i:D:S:M:B:")) != -1) {
 	   switch (opt) {
@@ -249,6 +247,7 @@ uint16_t	ipPort		= 1234;
 	         break;
 	   }
 	}
+
 	if (initFileName == QString (""))
 	   initFileName	= fullPathfor (QString (DEFAULT_INI));
 	dabSettings =  new QSettings (initFileName, QSettings::IniFormat);

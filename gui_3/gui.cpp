@@ -95,7 +95,7 @@ int16_t	latency;
 //
 	autoStart		= dabSettings -> value ("autoStart", 0). toInt () != 0;
 //
-    this -> dabBand		= dabBand == "BAND III" ? BAND_III : L_BAND;
+	this -> dabBand		= dabBand == "BAND III" ? BAND_III : L_BAND;
 	setModeParameters (dabMode);
 /**
   *	The actual work is done elsewhere: in ofdmProcessor
@@ -150,7 +150,7 @@ int16_t	latency;
 	isFICCRC	= false;
 
 // Create new QML application
-    engine 	= new QQmlApplicationEngine;
+	engine		= new QQmlApplicationEngine;
 
 //	Main entry to the QML GUI
 	QQmlContext *rootContext = engine -> rootContext ();
@@ -165,11 +165,11 @@ int16_t	latency;
 	rootContext -> setContextProperty ("workingDir", workingDir);
 
 // Open main QML file
-    engine->load(QUrl ("qrc:/QML/main.qml"));
+	engine->load(QUrl ("qrc:/QML/main.qml"));
 
 // Add image provider for the MOT slide show
-    MOTImage = new MOTImageProvider;
-    engine->addImageProvider(QLatin1String("motslideshow"), MOTImage);
+	MOTImage = new MOTImageProvider;
+	engine->addImageProvider(QLatin1String("motslideshow"), MOTImage);
 
 //	Take the root object
 	QObject *rootObject = engine -> rootObjects ().first ();
@@ -219,10 +219,10 @@ int16_t	latency;
 	         this, SLOT (TerminateProcess (void)));
 	connect (rootObject, SIGNAL (exitSettingsClicked (void)),
 	         this, SLOT (saveSettings (void)));
-    connect(rootObject, SIGNAL(inputEnableAGCChanged(bool)),
-             this, SLOT(inputEnableAGCChange(bool)));
-    connect(rootObject, SIGNAL(inputGainChanged(double)),
-             this, SLOT(inputGainChange(double)));
+	connect (rootObject, SIGNAL(inputEnableAGCChanged(bool)),
+                 this, SLOT(inputEnableAGCChange(bool)));
+	connect (rootObject, SIGNAL(inputGainChanged(double)),
+	         this, SLOT(inputGainChange(double)));
 }
 
 	RadioInterface::~RadioInterface () {
@@ -1029,26 +1029,25 @@ void RadioInterface::saveSettings (void) {
 	dumpControlState (dabSettings);
 }
 
-void RadioInterface::inputEnableAGCChange(bool checked)
-{
-    if(checked)
-        fprintf(stderr, "AGC on\n");
-    else
-        fprintf(stderr, "AGC off\n");
+void RadioInterface::inputEnableAGCChange (bool checked) {
+	if (checked)
+	   fprintf(stderr, "AGC on\n");
+	else
+	   fprintf(stderr, "AGC off\n");
 
-    if(inputDevice)
-        inputDevice->setAgc(checked);
+	if (inputDevice)
+	   inputDevice -> setAgc (checked);
 }
 
-void RadioInterface::inputGainChange(double gain)
-{
-    fprintf(stderr, "Gain: %f\n", gain);
+void RadioInterface::inputGainChange (double gain) {
+	fprintf(stderr, "Gain: %f\n", gain);
+	if (inputDevice)
+	   inputDevice -> setGain ((int)gain);
 }
 
 // This function is called by the QML GUI
-void RadioInterface::updateSpectrum (QAbstractSeries *series)
-{
-    int Samples = 0;
+void RadioInterface::updateSpectrum (QAbstractSeries *series) {
+	int Samples = 0;
 
 	if (series == NULL) 
 	   return;
