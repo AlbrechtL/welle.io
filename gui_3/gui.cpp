@@ -97,9 +97,9 @@ RadioInterface::RadioInterface(QSettings	*Si,
     QObject *rootObject = engine -> rootObjects().first();
 
     // Set some properties
-    rootContext -> setContextProperty("stationModel", QVariant::fromValue(stationList.getList()));
-    rootObject -> setProperty ("height", WindowHeight);
-    rootObject -> setProperty ("width", WindowWidth);
+    rootContext -> setContextProperty("stationModel", QVariant::fromValue(stationList.getList()));    
+    if(WindowHeight != 0) rootObject -> setProperty ("height", WindowHeight);
+    if(WindowWidth != 0)rootObject -> setProperty ("width", WindowWidth);
 
     // Add image provider for the MOT slide show
     MOTImage = new MOTImageProvider;
