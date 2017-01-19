@@ -33,7 +33,6 @@
 //
 #include	"charsets.h"
 #include	"pad-handler.h"
-#include	"rs1.h"
 /**
   *	\brief simple, inline coded, crc checker
   */

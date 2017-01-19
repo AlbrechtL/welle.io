@@ -231,7 +231,7 @@ int16_t	sdrplay::maxGain	(void) {
 }
 
 void	sdrplay::setGain		(int32_t g) {
-	setExternalGain ((g * maxGain ()) / 100);
+	setExternalGain (maxGain () - (g * maxGain ()) / 100);
 }
 
 void	sdrplay::setAgc			(bool b) {

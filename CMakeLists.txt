@@ -365,29 +365,29 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
 
 	   set (${objectName}_UIS
 	        ${${objectName}_UIS}
-	        ./src/input/dabstick-osmo/dabstick-widget-osmo.ui
+	        ./src/input/dabstick/dabstick-widget-osmo.ui
 	   )
 
 	   set (${objectName}_MOCS
 	        ${${objectName}_MOCS}
-	        ./src/input/dabstick-osmo/dongleselect.h
-	        ./src/input/dabstick-osmo/dabstick.h
+	        ./src/input/dabstick/dongleselect.h
+	        ./src/input/dabstick/dabstick.h
 	   )
 
 	   include_directories (
-	        ./src/input/dabstick-osmo/
+	        ./src/input/dabstick/
 	   )
 
 	   set (${objectName}_HDRS
 	        ${${objectName}_HDRS}
-	        ./src/input/dabstick-osmo/dabstick.h 
-	        ./src/input/dabstick-osmo/dongleselect.h
+	        ./src/input/dabstick/dabstick.h 
+	        ./src/input/dabstick/dongleselect.h
 	   )
 
 	   set (${objectName}_SRCS
 	        ${${objectName}_SRCS}
-	        ./src/input/dabstick-osmo/dabstick.cpp
-	        ./src/input/dabstick-osmo/dongleselect.cpp
+	        ./src/input/dabstick/dabstick.cpp
+	        ./src/input/dabstick/dongleselect.cpp
 	   )
 
 	   add_definitions (-DHAVE_DABSTICK)
