@@ -190,42 +190,24 @@ uint16_t	ipPort		= 1234;
 //
 //	For gui_3 the data of a possible rtl_tcp should be saved
 #ifdef	GUI_3
-<<<<<<< HEAD
     a.setWindowIcon(QIcon(":/QML/images/icon.png"));
-	(void)syncMethod;
-	dabSettings -> setValue ("dabMode",	dabMode);
-	dabSettings -> setValue ("device",	dabDevice);
-	dabSettings -> setValue ("band",	dabBand);
-=======
->>>>>>> upstream/master
-	dabSettings -> beginGroup ("rtl_tcp_client");
-	if (ipAddress != QString ("")) {
-	   dabSettings -> setValue ("rtl_tcp_address", ipAddress);
-<<<<<<< HEAD
-   dabSettings -> setValue ("rtl_tcp_port", ipPort);
-   dabSettings -> endGroup ();
-   dabSettings	-> sync ();
-   MyRadioInterface = new RadioInterface (dabSettings,
-                                          dabDevice,
-                                          dabMode,
-                                          dabBand);
-#elif defined (GUI_2)
-=======
-	   dabSettings -> setValue ("rtl_tcp_port", ipPort);
-	}
-	dabSettings -> endGroup ();
+    dabSettings -> beginGroup ("rtl_tcp_client");
+    if (ipAddress != QString ("")) {
+       dabSettings -> setValue ("rtl_tcp_address", ipAddress);
+       dabSettings -> setValue ("rtl_tcp_port", ipPort);
+    }
+    dabSettings -> endGroup ();
 #endif
 #if defined (GUI_3) | defined (GUI_2)
->>>>>>> upstream/master
-	(void)syncMethod;
-	dabSettings -> setValue ("dabMode",	dabMode);
-	dabSettings -> setValue ("device",	dabDevice);
-	dabSettings -> setValue ("band",	dabBand);
-	dabSettings	-> sync ();
-       MyRadioInterface = new RadioInterface (dabSettings,
-	                                      dabDevice,
-	                                      dabMode,
-	                                      dabBand);
+    (void)syncMethod;
+    dabSettings -> setValue ("dabMode",	dabMode);
+    dabSettings -> setValue ("device",	dabDevice);
+    dabSettings -> setValue ("band",	dabBand);
+    dabSettings	-> sync ();
+    MyRadioInterface = new RadioInterface (dabSettings,
+                                      dabDevice,
+                                      dabMode,
+                                      dabBand);
 #else
 	MyRadioInterface = new RadioInterface (dabSettings, syncMethod);
 	MyRadioInterface -> show ();
