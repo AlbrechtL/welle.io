@@ -93,11 +93,11 @@ RadioInterface::RadioInterface(QSettings	*Si,
     engine 	= new QQmlApplicationEngine;
     QQmlContext *rootContext = engine -> rootContext();
     rootContext -> setContextProperty("cppGUI", this);
+    rootContext -> setContextProperty("stationModel", QVariant::fromValue(stationList.getList()));
     engine->load(QUrl("qrc:/QML/main.qml"));
     QObject *rootObject = engine -> rootObjects().first();
 
     // Set some properties
-    rootContext -> setContextProperty("stationModel", QVariant::fromValue(stationList.getList()));    
     if(WindowHeight != 0) rootObject -> setProperty ("height", WindowHeight);
     if(WindowWidth != 0)rootObject -> setProperty ("width", WindowWidth);
 
