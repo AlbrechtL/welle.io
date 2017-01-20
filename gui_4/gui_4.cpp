@@ -89,7 +89,7 @@ int16_t	latency;
 	audioBuffer		= new RingBuffer<int16_t>(2 * 32768);
 	soundOut		= new tcpStreamer (audioBuffer, 20040);
 //
-	this -> dabBand		= dabBand == "Band III" ? BAND_III : L_BAND;
+    this -> dabBand		= dabBand == "BAND III" ? BAND_III : L_BAND;
 	setModeParameters (dabMode);
 /**
   *	The actual work is done elsewhere: in ofdmProcessor

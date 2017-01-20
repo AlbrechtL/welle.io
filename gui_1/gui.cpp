@@ -984,7 +984,7 @@ void	RadioInterface::set_bandSelect (QString s) {
 	   clearEnsemble ();
 	}
 
-	if (s == "Band III")
+    if (s == "BAND III")
 	   dabBand	= BAND_III;
 	else
 	   dabBand	= L_BAND;

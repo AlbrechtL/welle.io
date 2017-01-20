@@ -104,7 +104,7 @@ int16_t	latency;
 	                                                 audioBuffer);
 #endif
 //
-	this	-> dabBand		= dabBand == "Band III" ?
+    this	-> dabBand		= dabBand == "BAND III" ?
 	                                        BAND_III : L_BAND;
 	setModeParameters (dabMode);
 	this	-> requestedChannel	= channel;
