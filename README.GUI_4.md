@@ -1,5 +1,5 @@
 
-When configuring and building with selected gui_2, the dab program itself does not have a GUI.
+When configuring and building with selected gui_4, the dab program itself does not have a GUI.
 It is controlled remotely.
 
 Some parameters can be set through the command line on starting the program
@@ -48,5 +48,5 @@ Rge messages themselves are
 	FIC_FLAG		= 9,	// parameter is an int
 	STEREO_FLAG		= 10	// parameter is an int
 
-For building GUI_2 using qmake/make, see GUI_1
+For building gui_4 using qmake/make, see GUI_1
 

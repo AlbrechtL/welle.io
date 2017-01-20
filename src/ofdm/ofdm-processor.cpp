@@ -119,10 +119,10 @@ int32_t	i;
 	connect (this, SIGNAL (setSynced (char)),
 	         myRadioInterface, SLOT (setSynced (char)));
 #ifdef	GUI_3
-    connect (this, SIGNAL (setSignalPresent (bool)),
-             myRadioInterface, SLOT (setSignalPresent (bool)));
-    connect (this, SIGNAL (setErrorMessage (QString)),
-             myRadioInterface, SLOT (setErrorMessage (QString)));
+	connect (this, SIGNAL (setSignalPresent (bool)),
+                 myRadioInterface, SLOT (setSignalPresent (bool)));
+	connect (this, SIGNAL (setErrorMessage (QString)),
+	         myRadioInterface, SLOT (setErrorMessage (QString)));
 #endif
 
 	bufferContent	= 0;
@@ -174,17 +174,15 @@ DSPCOMPLEX temp;
 	      usleep (10);
 	      bufferContent = theRig -> Samples (); 
 #ifdef	GUI_3
-          NoReadCounter ++;
-
-          if(NoReadCounter > 100000) // 1 s
-          {
-              emit setErrorMessage("Error while reading from input device");
-              NoReadCounter = 0;
-          }
-       }
-       NoReadCounter = 0;
+	      NoReadCounter ++;
+	      if(NoReadCounter > 100000)  { // 1 s
+	         emit setErrorMessage("Error while reading from input device");
+	         NoReadCounter = 0;
+	      }
+	   }
+	   NoReadCounter = 0;
 #else
-       }
+	   }
 #endif
 
 	}
@@ -231,19 +229,17 @@ int32_t		i;
 	   bufferContent = theRig -> Samples ();
 	   while ((bufferContent < n) && running) {
 	      usleep (10);
-          bufferContent = theRig -> Samples ();
+	      bufferContent = theRig -> Samples ();
 #ifdef	GUI_3
-          NoReadCounter ++;
-
-          if(NoReadCounter > 100000) // 1 s
-          {
-              emit setErrorMessage("Error while reading from input device");
-              NoReadCounter = 0;
-          }
-       }
-       NoReadCounter = 0;
+	      NoReadCounter ++;
+	      if (NoReadCounter > 100000) { // 1 s
+                 emit setErrorMessage("Error while reading from input device");
+	         NoReadCounter = 0;
+	      }
+	   }
+	   NoReadCounter = 0;
 #else
-       }
+	   }
 #endif
 	}
 	if (!running)	
@@ -310,7 +306,7 @@ Initing:
 notSynced:
 #ifdef	GUI_3
 	   if (scanMode && ++attempts > 5) {
-          emit (setSignalPresent (false));
+	      emit (setSignalPresent (false));
 	      scanMode	= false;
 	      attempts	= 0;
 	   }
@@ -406,7 +402,7 @@ SyncOnPhase:
 	   }
 #ifdef GUI_3
 	   if (scanMode) {
-          emit (setSignalPresent (true));
+	      emit (setSignalPresent (true));
 	      scanMode	= false;
               attempts	= 0;
 	   }

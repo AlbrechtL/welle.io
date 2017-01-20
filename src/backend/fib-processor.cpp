@@ -1092,8 +1092,8 @@ int16_t	i, j;
 	   if (listofServices [i]. serviceLabel. label != s)
 	      continue;
 
-//	   fprintf (stderr, "we found for %s serviceId %x\n", s. toLatin1 (). data (), 
-//	                      listofServices [i]. serviceId);
+	   fprintf (stderr, "we found for %s serviceId %x\n", s. toLatin1 (). data (), 
+	                      listofServices [i]. serviceId);
 	   selectedService = listofServices [i]. serviceId;
 	   for (j = 0; j < 64; j ++) {
 	      if (!components [j]. inUse)
@@ -1161,6 +1161,7 @@ int32_t	selectedService;
 void	fib_processor::dataforAudioService (QString &s, audiodata *d) {
 int16_t	i, j;
 
+	d -> defined	= false;
 //	first we locate the serviceId
 	for (i = 0; i < 64; i ++) {
 	   if (!listofServices [i]. inUse)
@@ -1200,9 +1201,11 @@ int16_t	i, j;
 	      else
 	         d -> language	= 0;
 	      d	-> programType	= listofServices [i]. programType;
+	      d -> defined	= true;
 	      return;
 	   }
 	}
-	fprintf (stderr, "service %s insuffiently defined\n", s. toLatin1 (). data ());
+	fprintf (stderr,
+	       "service %s insuffiently defined\n", s. toLatin1 (). data ());
 }
 

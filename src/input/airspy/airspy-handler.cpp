@@ -761,6 +761,6 @@ void	airspyHandler::show_tab (int t) {
 //
 //	a special for compatibility with the dab-rpi software
 void	airspyHandler::setGain		(int value) {
-	set_sensitivity ((value * 15) / 100);
+	set_sensitivity ((value * 21) / 100);
 }
 

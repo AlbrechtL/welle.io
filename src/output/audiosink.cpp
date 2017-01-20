@@ -30,20 +30,21 @@
 #include	<QDebug>
 #include	<QMessageBox>
 /*
+ *	Note that gui_4 does not se the audiosink at all
  */
 	audioSink::audioSink	(int16_t latency,
-#ifdef	GUI_3
-	                         QStringList *s,
-#else
+#ifdef	GUI_1
 	                         QComboBox *s,
+#else
+	                         QStringList *s,
 #endif
 	                         RingBuffer<int16_t> *b): audioBase (b) {
 int32_t	i;
 	this	-> latency	= latency;
-#ifdef	GUI_3
-	this	-> InterfaceList	= s;
-#else
+#ifdef	GUI_1
 	this	-> streamSelector	= s;
+#else
+	this	-> InterfaceList	= s;
 #endif
 
 	this	-> CardRate	= 48000;
@@ -57,11 +58,11 @@ int32_t	i;
 	}
 
 	portAudio	= true;
-#ifndef	GUI_3
-    qDebug ("Hostapis: %d\n", Pa_GetHostApiCount ());
+#ifdef	GUI_1
+	qDebug ("Hostapis: %d\n", Pa_GetHostApiCount ());
 
-    for (i = 0; i < Pa_GetHostApiCount (); i ++)
-       qDebug ("Api %d is %s\n", i, Pa_GetHostApiInfo (i) -> name);
+	for (i = 0; i < Pa_GetHostApiCount (); i ++)
+	   qDebug ("Api %d is %s\n", i, Pa_GetHostApiInfo (i) -> name);
 #endif
 
 	numofDevices	= Pa_GetDeviceCount ();
@@ -69,13 +70,13 @@ int32_t	i;
 	for (i = 0; i < numofDevices; i ++)
 	   outTable [i] = -1;
 	ostream		= NULL;
-#ifdef	GUI_3
-	setupChannels (InterfaceList);
-#else
+#ifdef	GUI_1
 	setupChannels (streamSelector);
 	connect (streamSelector, SIGNAL (activated (int)),
 	         this,  SLOT (set_streamSelector (int)));
 	streamSelector	-> show ();
+#else
+	setupChannels (InterfaceList);
 #endif
 	selectDefaultDevice ();
 	
@@ -98,7 +99,7 @@ int32_t	i;
 
 	delete	_O_Buffer;
 	delete[] outTable;
-#ifndef	GUI_3
+#ifdef	GUI_1
 	if (streamSelector != NULL)
 	   streamSelector	-> hide ();
 #endif
@@ -268,7 +269,7 @@ int32_t	audioSink::cardRate	(void) {
 	return 48000;
 }
 
-#ifndef	GUI_3
+#ifdef	GUI_1
 bool	audioSink::setupChannels (QComboBox *streamOutSelector) {
 uint16_t	ocnt	= 1;
 uint16_t	i;

@@ -28,7 +28,7 @@
 #include	<QApplication>
 #include	<QSettings>
 #include	<QDir>
-#if QT_VERSION >= 0x050200
+#ifdef	GUI_3
 #include	<QCommandLineParser>
 #endif
 #include	<unistd.h>
@@ -49,7 +49,6 @@ QString	fileName;
 	fileName. append ("/");
 	fileName. append (v);
 	fileName = QDir::toNativeSeparators (fileName);
-	fprintf (stderr, "ini file = %s\n", fileName. toLatin1 (). data ());
 
 	if (!fileName. endsWith (".ini"))
 	   fileName. append (".ini");
@@ -75,8 +74,7 @@ uint16_t	ipPort		= 1234;
 //	Newer versions of Qt provide all kinds of nice mechanisms,
 //	unfortunately, there are quite some people (including me (jvk))
 //	who also work with older versions of Qt,
-//	so we have two paths
-#if QT_VERSION >= 0x050200
+#if GUI_3
 	QApplication a (argc, argv);
 	QCoreApplication::setApplicationName("dab-rpi");
 	QCoreApplication::setApplicationVersion(CURRENT_VERSION);
@@ -95,8 +93,6 @@ uint16_t	ipPort		= 1234;
 	          QCoreApplication::translate("main", "Sync method"),
 	          QCoreApplication::translate("main", "Number"));
 	optionParser.addOption(SYNCOption);
-
-#if defined(GUI_3) | defined (GUI_2)
 	QCommandLineOption InputOption ("D",
 	          QCoreApplication::translate("main", "Input device"),
 	          QCoreApplication::translate("main", "Name"));
@@ -121,7 +117,6 @@ uint16_t	ipPort		= 1234;
 	          QCoreApplication::translate("main", "rtl_tcp server IP port. Only valid for input rtl_tcp."),
 	          QCoreApplication::translate ("main", "Port"));
 	optionParser.addOption(RTL_TCPServerIPPort);
-#endif
 
 //	Process the actual command line arguments given by the user
 	optionParser.process(a);
@@ -140,7 +135,6 @@ uint16_t	ipPort		= 1234;
 	if (SYNCOptionValue != "")
 	   syncMethod = SYNCOptionValue. toInt ();
 
-#if defined(GUI_3) | defined (GUI_2)
 //	Process input device option
 	QString InputValue = optionParser. value (InputOption);
 	if (InputValue != "")
@@ -148,7 +142,7 @@ uint16_t	ipPort		= 1234;
 
 //	Process DAB mode option
 	QString DABModValue = optionParser.value(DABModeOption);
-	if(DABModValue != "") {
+	if (DABModValue != "") {
 	   dabMode	= DABModValue. toInt();
 	   if (!(dabMode == 1) || (dabMode == 2) || (dabMode == 4))
 	      dabMode = 1;
@@ -182,40 +176,35 @@ uint16_t	ipPort		= 1234;
 	   dabDevice = dabSettings -> value ("device", "dabstick"). toString ();
 	if (dabBand == QString (""))
 	   dabBand = dabSettings -> value ("band", "BAND III"). toString ();
-#endif 
-
-#if QT_VERSION >= 0x050600
-	QGuiApplication::setAttribute (Qt::AA_EnableHighDpiScaling);
-#endif
 //
 //	For gui_3 the data of a possible rtl_tcp should be saved
-#ifdef	GUI_3
-    a.setWindowIcon(QIcon(":/QML/images/icon.png"));
-    dabSettings -> beginGroup ("rtl_tcp_client");
-    if (ipAddress != QString ("")) {
-       dabSettings -> setValue ("rtl_tcp_address", ipAddress);
-       dabSettings -> setValue ("rtl_tcp_port", ipPort);
-    }
-    dabSettings -> endGroup ();
-#endif
-#if defined (GUI_3) | defined (GUI_2)
-    (void)syncMethod;
-    dabSettings -> setValue ("dabMode",	dabMode);
-    dabSettings -> setValue ("device",	dabDevice);
-    dabSettings -> setValue ("band",	dabBand);
-    dabSettings	-> sync ();
-    MyRadioInterface = new RadioInterface (dabSettings,
-                                      dabDevice,
-                                      dabMode,
-                                      dabBand);
-#else
-	MyRadioInterface = new RadioInterface (dabSettings, syncMethod);
-	MyRadioInterface -> show ();
-#endif
+	a.setWindowIcon(QIcon(":/QML/images/icon.png"));
+	dabSettings -> beginGroup ("rtl_tcp_client");
+	if (ipAddress != QString ("")) {
+	   dabSettings -> setValue ("rtl_tcp_address", ipAddress);
+	   dabSettings -> setValue ("rtl_tcp_port", ipPort);
+	}
+	dabSettings -> endGroup ();
+
+	(void)syncMethod;
+	dabSettings -> setValue ("dabMode",	dabMode);
+	dabSettings -> setValue ("device",	dabDevice);
+	dabSettings -> setValue ("band",	dabBand);
+	dabSettings	-> sync ();
+	MyRadioInterface = new RadioInterface (dabSettings,
+                                               dabDevice,
+                                               dabMode,
+                                               dabBand);
 #else	
-//	For Qt 4 lovers
+//	For Qt 4 lovers and other simple people 
 	int	opt;
-	while ((opt = getopt (argc, argv, "i:D:S:M:B:")) != -1) {
+	QString	channel		= "11C";
+	QString	programName	= "Classic FM";
+	int	gain		= 20;
+	QString	dabChannel	= QString ("");
+	QString	dabProgramName	= QString ("");
+	int	dabGain		= -1;
+	while ((opt = getopt (argc, argv, "i:D:S:M:B:C:P:G:")) != -1) {
 	   switch (opt) {
 	      case 'i':
 	         initFileName = fullPathfor (QString (optarg));
@@ -225,7 +214,7 @@ uint16_t	ipPort		= 1234;
 	         syncMethod	= atoi (optarg);
 	         break;
 
-#ifdef GUI_2
+#if defined (GUI_2) | defined (GUI_4)
 	      case 'D':
 	         dabDevice = optarg;
 	         break;
@@ -244,6 +233,19 @@ uint16_t	ipPort		= 1234;
 	         ipAddress	= optarg;
 	         break;
 #endif
+#ifdef	GUI_2
+	      case 'C':
+	         dabChannel	= QString (optarg);
+	         break;
+
+	      case 'P':
+	         dabProgramName	= QString (optarg);
+	         break;
+
+	      case 'G':
+	         dabGain	= atoi (optarg);
+	         break;
+#endif
 	      default:
 	         break;
 	   }
@@ -253,7 +255,7 @@ uint16_t	ipPort		= 1234;
 	   initFileName	= fullPathfor (QString (DEFAULT_INI));
 	dabSettings =  new QSettings (initFileName, QSettings::IniFormat);
 
-#ifdef GUI_2
+#if defined (GUI_2) | defined (GUI_4)
 //	Since we do not have the possibility in GUI_2 to select
 //	Mode, Band or Device, we create the possibility for
 //	passing appropriate parameters to the command
@@ -266,24 +268,63 @@ uint16_t	ipPort		= 1234;
 	if (dabBand == QString (""))
 	   dabBand = dabSettings -> value ("band", "BAND III"). toString ();
 #endif 
+#ifdef GUI_2
+    	dabSettings -> beginGroup ("gui_2");
+	if (dabChannel == QString (""))
+	   channel = dabSettings -> value ("channel", channel). toString ();
+	else
+	   channel = dabChannel;
+	if (dabProgramName == QString (""))
+	   programName = dabSettings -> value ("programName",
+	                                        programName). toString ();
+	else
+	   programName = dabProgramName;
+	if (dabGain == -1)
+	   gain	= dabSettings	-> value ("deviceGain", gain). toInt ();
+	else
+	   gain = dabGain;
+	dabSettings	-> endGroup ();
+#endif
 /*
  *	Before we connect control to the gui, we have to
  *	instantiate
  */
 	QApplication a (argc, argv);
-#ifdef GUI_2
+#ifdef GUI_4
 	(void)syncMethod;
 	dabSettings -> setValue ("dabMode",	dabMode);
 	dabSettings -> setValue ("device",	dabDevice);
 	dabSettings -> setValue ("band",	dabBand);
 	MyRadioInterface = new RadioInterface (dabSettings, 
 	                                       dabDevice, dabMode, dabBand);
-#else
+	dabSettings	-> sync ();
+#elif GUI_2
+	(void)syncMethod;
+	dabSettings -> setValue ("dabMode",	dabMode);
+	dabSettings -> setValue ("device",	dabDevice);
+	dabSettings -> setValue ("band",	dabBand);
+	dabSettings	-> beginGroup ("gui_2");
+	dabSettings -> setValue ("channel",	channel);
+	dabSettings -> setValue ("programName",   programName);
+	dabSettings -> setValue ("deviceGain",  gain);
+	dabSettings	-> endGroup ();
+	MyRadioInterface = new RadioInterface (dabSettings, 
+	                                       dabDevice,
+	                                       dabMode,
+	                                       dabBand,
+	                                       channel,
+	                                       programName,
+	                                       gain);
+	dabSettings	-> sync ();
+#elif GUI_1
 	MyRadioInterface = new RadioInterface (dabSettings, syncMethod);
 	MyRadioInterface -> show ();
 #endif
 #endif
-	dabSettings	-> sync ();
+
+#if QT_VERSION >= 0x050200
+	QGuiApplication::setAttribute (Qt::AA_EnableHighDpiScaling);
+#endif
 	a. exec ();
 /*
  *	done:

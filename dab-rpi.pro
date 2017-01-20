@@ -8,12 +8,12 @@ TEMPLATE	= app
 TARGET		= dab-rpi-0.997
 QT		+= widgets network
 CONFIG		+= console
-QMAKE_CFLAGS	+=  -flto -ffast-math
-QMAKE_CXXFLAGS	+=  -flto -ffast-math
-QMAKE_LFLAGS	+=  -flto
-#QMAKE_CFLAGS	+=  -pg
-#QMAKE_CXXFLAGS	+=  -pg
-#QMAKE_LFLAGS	+=  -pg
+#QMAKE_CFLAGS	+=  -flto -ffast-math
+#QMAKE_CXXFLAGS	+=  -flto -ffast-math
+#QMAKE_LFLAGS	+=  -flto
+QMAKE_CFLAGS	+=  -g
+QMAKE_CXXFLAGS	+=  -g
+QMAKE_LFLAGS	+=  -g
 #	Uncomment this when compiling on/for a machine withOUT sse support
 #CONFIG		+= NO_SSE_SUPPORT 
 DEPENDPATH += . \
@@ -155,10 +155,12 @@ SOURCES += ./main.cpp \
 #
 #	Note
 #	Select "gui_1" for (more or less) normal use, with or without
-#	a tcp streamer
+#	               a tcp streamer
+#	Select "gui_2" for a command line program, i.e. without any GUI.
+#	               with or without tcp streamer
 #	Select "gui_3" for a fancy interface, using qml, tcp streamer is
 #	               not supported
-#	Select "gui_2" for a dab-rpi without GUI, i.e. one with remote control
+#	Select "gui_4" for a dab-rpi without GUI, i.e. one with remote control
 #	               which automatically includes sound through tcp streamer
 unix {
 CONFIG		+= dabstick
@@ -226,7 +228,16 @@ gui_1	{
 	DEFINES		+= MOT_BASICS__		# use at your own risk
 	DEFINES		+= MSC_DATA__		# use at your own risk
 }
-	
+
+gui_2	{
+	DEFINES		+= GUI_2
+	INCLUDEPATH	+= ./gui_2
+	DEPENDPATH	+= ./gui_2
+	HEADERS		+= ./gui_2/gui.h
+	SOURCES		+= ./gui_2/gui_2.cpp
+	#CONFIG		+= tcp-streamer		# use for remote listening
+}
+
 gui_3	{
         DEFINES		+= GUI_3
         QT		+= qml quick charts
@@ -244,14 +255,15 @@ gui_3	{
         DEFINES		+= MOT_BASICS__		# use at your own risk
 }
 	
-gui_2	{
-	DEFINES		+= GUI_2
-	INCLUDEPATH	+= ./gui_2
-	DEPENDPATH	+= ./gui_2
-	HEADERS		+= ./gui_2/gui.h
-	SOURCES		+= ./gui_2/gui_2.cpp
+gui_4	{
+	DEFINES		+= GUI_4
+	INCLUDEPATH	+= ./gui_4
+	DEPENDPATH	+= ./gui_4
+	HEADERS		+= ./gui_4/gui.h
+	SOURCES		+= ./gui_4/gui_4.cpp
 	CONFIG		+= tcp-streamer		# use for remote listening
 }
+
 
 
 #	devices

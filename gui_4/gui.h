@@ -36,6 +36,7 @@
 #include        <QByteArray>
 #include        <QHostAddress>
 #include        <QtNetwork>
+#include        <QTcpServer>
 #include        <QTcpSocket>
 #include        <QTimer>
 
@@ -51,6 +52,23 @@ class	ficHandler;
 
 class	common_fft;
 
+/*
+ *	The interface for a remote GUI
+ */
+
+enum messages {
+	COARSE_CORRECTOR	=  1,
+	CLEAR_ENSEMBLE		=  2,
+	ENSEMBLE_NAME		=  3,
+	PROGRAM_NAME		=  4,
+	SUCCESS_RATE		=  5,
+	SIGNAL_POWER		=  6,
+	SYNC_FLAG		=  7,
+	STATION_TEXT		=  8,
+	FIC_FLAG		=  9,
+	STEREO_FLAG		= 10
+};
+
 class RadioInterface: public QObject{
 Q_OBJECT
 public:
@@ -58,9 +76,6 @@ public:
 	                                 QString,
 	                                 uint8_t,
 	                                 QString,
-	                                 QString,	// channel
-	                                 QString,	// program
-	                                 int,		// gain
                                          QObject *parent = NULL);
 		~RadioInterface		(void);
 
@@ -68,7 +83,6 @@ private:
 	QSettings	*dabSettings;
 	int16_t		threshold;
 	void		setModeParameters	(uint8_t);
-
 	DabParams	dabModeParameters;
 	uint8_t		isSynced;
 	uint8_t		dabBand;
@@ -85,25 +99,33 @@ const	char		*get_programm_type_string (uint8_t);
 const	char		*get_programm_language_string (uint8_t);
 	void		dumpControlState	(QSettings *);
 
-	QString		requestedProgram;
-	QString		requestedChannel;
-	QTimer		*successTimer;
+	QString		currentChannel;
+	QString		CurrentDevice;
 	QString		ensemble;
 	bool		isFICCRC;
 	bool		isSignalPresent;
 	int		coarseCorrector;
 	int		fineCorrector;
 	bool		setDevice		(QString);
+	void		showMessage		(int m);
+	void		showMessage		(int m, int v);
+	void		showMessage		(int m, QString s);
 	QString		stringFrom		(QByteArray);
 	void		setStart		(void);
 	void		TerminateProcess	(void);
 	void		setChannel		(QString);
 	void		setService		(QString);
+	QTcpServer	server;
+	QTcpServer	streamer;
+	QTcpSocket	*client;
+	QTcpSocket	*streamerAddress;
+	QTimer		watchTimer;
+	bool		notConnected;
 	QStringList	stationList;
 
 	int16_t		ficSuccess;
 	int16_t		ficBlocks;
-	
+	bool		haveStereo;
 public slots:
 	void		set_fineCorrectorDisplay	(int);
 	void		set_coarseCorrectorDisplay	(int);
@@ -123,11 +145,15 @@ public slots:
 	void		show_mscErrors		(int);
 	void		show_ipErrors		(int);
 	void		setStereo		(bool isStereo);
+	void		processCommand          (void);
+        void		acceptConnection        (void);
 
+private slots:
+//
+//	Somehow, these must be connected to the GUI
+//	We assume that any GUI will need these three:
 	void		autoCorrector_on	(void);
 	void		showCorrectedErrors 	(int);
-private slots:
-	void		noSignalFound		(void);
 };
 
 #endif

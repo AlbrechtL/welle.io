@@ -29,8 +29,6 @@
 #include	"gui.h"
 #ifdef  TCP_STREAMER
 #include        "tcp-streamer.h"
-#else
-#include	"audiosink.h"
 #endif
 #ifdef	HAVE_DABSTICK
 #include	"dabstick.h"
@@ -56,9 +54,6 @@
 	                                QString		device,
 	                                uint8_t		dabMode,
 	                                QString		dabBand,
-	                                QString		channel,
-	                                QString		programName,
-	                                int		gain,
                                         QObject		*parent):
 	                                     QObject (parent) {
 int16_t	latency;
@@ -73,8 +68,6 @@ int16_t	latency;
 	   fprintf (stderr, "NO VALID DEVICE, GIVING UP\n");
 	   exit (1);
 	}
-
-	inputDevice	-> setGain (gain);
 	running			= false;
 	
 /**	threshold is used in the phaseReference class 
@@ -94,21 +87,10 @@ int16_t	latency;
   *	It is the tcp streamer, since we work on a different machine
   */
 	audioBuffer		= new RingBuffer<int16_t>(2 * 32768);
-#ifdef	TCP_STREAMER
-	soundOut		= new tcpStreamer	(audioBuffer,
-	                                                 20040);
-#else			// just sound out
-	QStringList dumm;
-	soundOut		= new audioSink		(latency,
-	                                                 &dumm,
-	                                                 audioBuffer);
-#endif
+	soundOut		= new tcpStreamer (audioBuffer, 20040);
 //
-	this	-> dabBand		= dabBand == "Band III" ?
-	                                        BAND_III : L_BAND;
+	this -> dabBand		= dabBand == "Band III" ? BAND_III : L_BAND;
 	setModeParameters (dabMode);
-	this	-> requestedChannel	= channel;
-	this	-> requestedProgram	= programName;
 /**
   *	The actual work is done elsewhere: in ofdmProcessor
   *	and ofdmDecoder for the ofdm related part, ficHandler
@@ -134,25 +116,19 @@ int16_t	latency;
 	                                        threshold,
 	                                        3);
 //	display the version
-	QString v = "sdr-j DAB-rpi(+)  " ;
-	v. append (CURRENT_VERSION);
-	fprintf (stderr, "running %s\n", v. toLatin1 (). data ());
+//	QString v = "sdr-j DAB-rpi(+)  " ;
+//	v. append (CURRENT_VERSION);
+	notConnected	= true;
+	connect (&server, SIGNAL (newConnection (void)),
+	         this, SLOT (acceptConnection (void)));
+	server. listen (QHostAddress::Any, 20020);
 	ficBlocks	= 0;
 	ficSuccess	= 0;
-	successTimer	= new QTimer ();
-	successTimer	-> setSingleShot (true);
-	successTimer	-> setInterval (15000);
-	connect (successTimer, SIGNAL (timeout (void)),
-	         this, SLOT (noSignalFound (void)));
-	successTimer	-> start ();
-	setChannel (channel);
-	setStart ();
-	
+	haveStereo	= false;
 }
 
 	RadioInterface::~RadioInterface () {
 }
-
 //
 /**
   *	\brief At the end, we might save some GUI values
@@ -393,11 +369,13 @@ const char *RadioInterface::get_programm_language_string (uint8_t language) {
 //	a slot called by the ofdmprocessor
 void	RadioInterface::set_fineCorrectorDisplay (int v) {
 	fineCorrector = v;
+	showMessage (COARSE_CORRECTOR, coarseCorrector + v);
 }
 
 //	a slot called by the ofdmprocessor
 void	RadioInterface::set_coarseCorrectorDisplay (int v) {
 	coarseCorrector = v * kHz (1);
+	showMessage (COARSE_CORRECTOR, coarseCorrector + fineCorrector);
 }
 /**
   *	clearEnsemble
@@ -414,6 +392,7 @@ void	RadioInterface::clearEnsemble	(void) {
 	my_ficHandler		-> clearEnsemble ();
 	my_ofdmProcessor	-> coarseCorrectorOn ();
 	my_ofdmProcessor	-> reset ();
+	showMessage (CLEAR_ENSEMBLE);
 }
 
 //
@@ -422,33 +401,18 @@ void	RadioInterface::addtoEnsemble (const QString &s) {
 //	Add new station into list
 	if (!s.contains ("data") && !stationList.contains (s)) {
 	   stationList.append (s);
-	   fprintf (stderr, "program: %s in the list\n",
-	                              s. toLatin1 (). data ());
+	   showMessage (PROGRAM_NAME, s);
 	}
 }
 
-bool	ensembleFound	= false;
+//
 ///	a slot, called by the fib processor
 void	RadioInterface::nameofEnsemble (int id, const QString &s) {
 	if (ensemble != s) {
+	   showMessage (ENSEMBLE_NAME, s);
 	   ensemble = s;
 	}
 	my_ofdmProcessor	-> coarseCorrectorOff ();
-	ensembleFound	= true;
-}
-
-void	RadioInterface::noSignalFound (void) {
-	successTimer -> stop ();
-	if (ensembleFound) {
-	   fprintf (stderr, "trying to open program %s\n",
-	                               requestedProgram. toLatin1 (). data ()); 
-	   setService (requestedProgram);
-	}
-	else {
-	   fprintf (stderr, "could not find useful data in channel %s",
-	                               requestedChannel. toLatin1 (). data ());
-	   TerminateProcess ();
-	}
 }
 
 /**
@@ -457,10 +421,12 @@ void	RadioInterface::noSignalFound (void) {
   *	percentage of frames that could be handled
   */
 void	RadioInterface::show_successRate (int s) {
+	showMessage (SUCCESS_RATE, s);
 }
 
 ///	called from the ofdmDecoder, which computes this for each frame
 void	RadioInterface::show_snr (int s) {
+	showMessage (SIGNAL_POWER, s);
 }
 
 ///	just switch a color, obviously GUI dependent, but called
@@ -472,9 +438,11 @@ void	RadioInterface::setSynced	(char b) {
 	isSynced = b;
 	switch (isSynced) {
            case SYNCED:
+	      showMessage (SYNC_FLAG, 1);
 	      break;
 
 	   default:
+	      showMessage (SYNC_FLAG, 0);
               break;
 	}
 }
@@ -482,7 +450,8 @@ void	RadioInterface::setSynced	(char b) {
 //	showLabel is triggered by the message handler
 //	the GUI may decide to ignore this
 void	RadioInterface::showLabel	(QString s) {
-	(void)s;
+	showMessage (STATION_TEXT, "");
+	showMessage (STATION_TEXT, s);
 }
 //
 //	showMOT is triggered by the MOT handler,
@@ -507,7 +476,7 @@ void	RadioInterface::changeinConfiguration	(void) {
 	   soundOut		-> stop ();
 	   inputDevice		-> stopReader ();
 	   inputDevice		-> resetBuffer ();
-	   my_ofdmProcessor	-> coarseCorrectorOn ();
+	   running		= false;
 	}
 }
 //
@@ -534,12 +503,21 @@ void	RadioInterface::show_ipErrors	(int er) {
 }
 //
 void    RadioInterface::setStereo (bool isStereo) {
-	(void)isStereo;
+	if (haveStereo == isStereo)
+	   return;
+	haveStereo	= isStereo;
+	showMessage (STEREO_FLAG, isStereo);
 }
 //
 //
 void	RadioInterface::show_ficCRC (bool b) {
-	(void)b;
+        if (b)
+           ficSuccess ++;
+        if (++ficBlocks >= 100) {
+	   showMessage (FIC_FLAG, ficSuccess);
+           ficSuccess   = 0;
+           ficBlocks    = 0;
+        }
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -588,8 +566,9 @@ void	RadioInterface::TerminateProcess (void) {
 	delete		my_mscHandler;
 	delete		soundOut;
 	soundOut	= NULL;		// signals may be pending, so careful
-//	delete		inputDevice;
+	delete		inputDevice;
 	QApplication::quit();
+
 }
 
 /**
@@ -637,46 +616,17 @@ int32_t	tunedFrequency;
 //	info on the service (i.e. rate, address, etc)
 //	Here we only support audio services.
 void	RadioInterface::setService (QString a) {
-int16_t	i;
-QString	name	= QString ("");
 
-	fprintf (stderr, "calling for %s\n", a. toLatin1 (). data ());
-	for (i = 0; i < stationList. size (); i ++) {
-	   QString lname = stationList. at (i);
-	   if (lname. startsWith (a, Qt::CaseInsensitive)) {
-	      name = lname;
-	      break;
-	   }
-	}
-	if (name == QString ("")) {
-	   fprintf (stderr, "could not find %s\n", a. toLatin1 (). data ());
-	   TerminateProcess ();
-	}
-	else
-	   fprintf (stderr, "now opening %s\n", name. toLatin1 (). data ());
-
-	switch (my_ficHandler -> kindofService (name)) {
+	switch (my_ficHandler -> kindofService (a)) {
 	   case AUDIO_SERVICE:
 	      { audiodata d;
-	        my_ficHandler	-> dataforAudioService (name, &d);
-	        if (d. defined) {
-	           my_mscHandler	-> set_audioChannel (&d);
-	           fprintf (stderr, "valid audio service\n");
-	        }
-	        else {
-	           fprintf (stderr, "Insufficient data to execute the service");
-	           TerminateProcess ();
-	        }
+	        my_ficHandler	-> dataforAudioService (a, &d);
+	        my_mscHandler	-> set_audioChannel (&d);
 	        break;
 	      }
 //
-//	For the command line version, we do not have a data service
-	   case PACKET_SERVICE:
-	      fprintf (stderr, "Data services not supported in this version\n");
-	      return;
-
+//	For the remorely controlled device, we do not have a data service
 	   default:
-	      fprintf (stderr, "insufficient information to execute the service\n");
 	      return;
 	}
 }
@@ -758,5 +708,116 @@ bool	success;
 
 void RadioInterface::showCorrectedErrors (int Errors) {
 	(void)Errors;
+}
+
+////////////////////////////////////////////////////////////////////////////
+//
+//	Server stuff
+//
+
+void	RadioInterface::acceptConnection (void) {
+	if (!notConnected)
+	   return;
+
+	client = server. nextPendingConnection ();
+	QHostAddress s = client -> peerAddress ();
+	fprintf (stderr, "Accepted a client %s\n",
+	                     s.toString (). toLatin1 (). data ());
+	QByteArray a;
+	a. resize (client -> bytesAvailable ());
+	if (a. size () > 0) {
+	   client -> read (a. data (), a. size ());
+	}
+
+	connect (client, SIGNAL (readyRead (void)),
+	         this, SLOT (processCommand (void)));
+}
+
+//	We actually only have a handful of commands.
+void	RadioInterface::processCommand (void) {
+QByteArray a;
+char	command;
+int16_t	length;
+char	x;
+
+	while (client -> bytesAvailable () >= 2) {
+	   client -> read (&command, 1);
+	   client -> read (&x,  1);
+	   length	=  (uint8_t)(x);
+	   a. resize (length - 2);
+	   client -> read (a. data (), length - 2);
+	   switch (command) {
+	      case 0170:		// start
+	         setStart ();
+	         break;
+	      case 0171:		// terminate;
+	         notConnected	 = true;
+	         TerminateProcess	();
+	         break;
+	      case 0172:		// set Channel
+	         setChannel (stringFrom (a));
+	         break;
+	      case 0173:		// set program
+	         setService (stringFrom (a));
+	         break;
+	      case 0174:		// set attenuation
+	         inputDevice	-> setGain (a [0]);
+	         break;
+	      default:
+	         fprintf (stderr, "sorry %o not implemented\n", 
+	                                           int32_t (command & 0xFF));
+	         break;
+	   }
+	}
+}
+
+QString	RadioInterface::stringFrom (QByteArray a) {
+QString Result;
+int16_t	i;
+
+	for (i = 0; i < a. size (); i ++) {
+	   if (a [i] == '\0')
+	      return Result;
+	   Result. append (char (a [i]));
+	}
+	return Result;
+}
+
+void	RadioInterface::showMessage	(int m) {
+QByteArray Message;
+	Message. resize (3);
+	Message [0] = 0266;	// start of message
+	Message [1] = 03;	// length of Message
+	Message [2] = m;
+	client	-> write (Message. data (), Message. size ());
+}
+
+void	RadioInterface::showMessage	(int m, int v) {
+QByteArray Message;
+	Message. resize (7);	
+	Message [0]	= 0266;	// start of message
+	Message [1]	= 07;	// length of Message
+	Message [2]	= m;
+	Message [3]	= (v >> 24) & 0xFF;
+	Message [4]	= (v >> 16) & 0xFF;
+	Message [5]	= (v >>  8) & 0xFF;
+	Message [6]	=         v & 0xFF;
+	client	-> write (Message. data (), Message. size ());
+}
+
+void	RadioInterface::showMessage	(int m, QString s) {
+int16_t	l	= s. length ();
+QByteArray Message;
+int16_t	i;
+
+	Message. resize (l + 1 + 3);
+	for (i = 0; i < l; i ++)
+	   Message [i + 3] = s. toLatin1 (). data () [i];
+	Message [l + 3] = '\0';
+
+	Message [0]	= 0266;		// new message
+	Message [1]	= l + 1 + 3;	// length
+	Message [2]	= m;
+	client	-> write (Message. data (), Message. size ());
 }
 

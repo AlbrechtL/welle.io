@@ -176,6 +176,7 @@ typedef	struct {
 	int16_t	ASCTy;
 	int16_t	language;
 	int16_t	programType;
+	bool	defined;
 } audiodata;
 
 //	just some locals
