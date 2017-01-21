@@ -17,13 +17,19 @@ Some parameters can be set through the command line on starting the program
 -C the channel,
 -P the program name, a prefix suffices. For e.g. "Classic FM" it suffices
 to give "classic". However, when passing on a non-unique prefix (e.g. "radio" for "Radio Maria" and "Radio Veronica") the software will select one arbitrarily. Note that letter case is unimportant.
+If no program names are found, or if no match can be made between the
+program name and the list of program names, the program will halt.
 
 -G the gain to be applied on the device, in the range from 1 .. 100.
 
--A the output channel, again as with the program name, a prefix of the name suffices.
+-A the output channel, again as with the program name,
+a prefix of the name suffices. Note, however, that not all names appearing
+on the namelist can be used, some of them just do  not work, a well known
+issue with the combination portaudio/alsa under Linux.
 
 Important:
 _________
+
 For each of the parameters there is a default. Any setting of a parameter
 in the command line will be remembered for a next time.
 I.e., if the command
