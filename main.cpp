@@ -322,7 +322,7 @@ uint16_t	ipPort		= 1234;
 #endif
 #endif
 
-#if QT_VERSION >= 0x050200
+#if QT_VERSION >= 0x050600
 	QGuiApplication::setAttribute (Qt::AA_EnableHighDpiScaling);
 #endif
 	a. exec ();
