@@ -61,6 +61,9 @@ public:
 	                                 QString,	// channel
 	                                 QString,	// program
 	                                 int,		// gain
+#ifndef	TCP_STREAMER
+	                                 QString,	// sound channel
+#endif
                                          QObject *parent = NULL);
 		~RadioInterface		(void);
 
@@ -79,7 +82,6 @@ private:
 	mscHandler	*my_mscHandler;
 	audioBase	*soundOut;
 	RingBuffer<int16_t>	*audioBuffer;
-	DSPCOMPLEX	*spectrumBuffer;
 	bool		autoCorrector;
 const	char		*get_programm_type_string (uint8_t);
 const	char		*get_programm_language_string (uint8_t);

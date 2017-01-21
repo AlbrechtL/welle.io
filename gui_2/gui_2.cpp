@@ -1,6 +1,6 @@
 #
 /*
- *    Copyright (C) 2013, 2014, 2015
+ *    Copyright (C) 2015, 2016, 2017
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
  *    Lazy Chair Programming
  *
@@ -51,7 +51,6 @@
   *	gui elements and the handling agents. All real action
   *	is embedded in actions, initiated by gui buttons
   */
-#define	BASE_PORT	20020
 	RadioInterface::RadioInterface (QSettings	*Si,
 	                                QString		device,
 	                                uint8_t		dabMode,
@@ -59,6 +58,9 @@
 	                                QString		channel,
 	                                QString		programName,
 	                                int		gain,
+#ifndef	TCP_STREAMER
+	                                QString		soundChannel,
+#endif
                                         QObject		*parent):
 	                                     QObject (parent) {
 int16_t	latency;
@@ -89,19 +91,25 @@ int16_t	latency;
 //	situations wrt the output buffering
 	latency			=
 	           dabSettings -> value ("latency", 1). toInt ();
-/**
-  *	With this GUI there is no choice for the output channel,
-  *	It is the tcp streamer, since we work on a different machine
-  */
+//
+//	depending on TCP_STREAMER being defined or not, the
+//	output is sent to the tcp_streamer or the local soundcard
 	audioBuffer		= new RingBuffer<int16_t>(2 * 32768);
 #ifdef	TCP_STREAMER
 	soundOut		= new tcpStreamer	(audioBuffer,
 	                                                 20040);
 #else			// just sound out
-	QStringList dumm;
+
+	QStringList soundChannels;
 	soundOut		= new audioSink		(latency,
-	                                                 &dumm,
+	                                                 &soundChannels,
 	                                                 audioBuffer);
+	
+	if (!((audioSink *)(soundOut)) -> selectDevice (soundChannel)) {
+	   fprintf (stderr, "Opening device %s failed, giving up\n",
+	                                  soundChannel. toLatin1 (). data ());
+	   exit (23);
+	}
 #endif
 //
     this	-> dabBand		= dabBand == "BAND III" ?
@@ -210,10 +218,6 @@ void	RadioInterface::setModeParameters (uint8_t Mode) {
 	   dabModeParameters. guardLength	= 504;
 	   dabModeParameters. carrierDiff	= 1000;
 	}
-
-	spectrumBuffer = new DSPCOMPLEX [dabModeParameters. T_u];
-        memset (spectrumBuffer, 0,
-	                  dabModeParameters.T_u * sizeof (DSPCOMPLEX));
 }
 
 struct dabFrequencies {
@@ -466,17 +470,7 @@ void	RadioInterface::show_snr (int s) {
 ///	just switch a color, obviously GUI dependent, but called
 //	from the ofdmprocessor
 void	RadioInterface::setSynced	(char b) {
-	if (isSynced == b)
-	   return;
-
-	isSynced = b;
-	switch (isSynced) {
-           case SYNCED:
-	      break;
-
-	   default:
-              break;
-	}
+	(void)b;
 }
 
 //	showLabel is triggered by the message handler
@@ -553,7 +547,6 @@ void	RadioInterface::setStart	(void) {
 bool	r = 0;
 	if (running)		// only listen when not running yet
 	   return;
-//
 	r = inputDevice		-> restartReader ();
 	qDebug ("Starting %d\n", r);
 	if (!r) {
@@ -565,7 +558,7 @@ bool	r = 0;
 	clearEnsemble ();		// the display
 //
 ///	this does not hurt
-	soundOut	-> restart ();
+//	soundOut	-> restart ();
 	running = true;
 }
 
@@ -640,7 +633,6 @@ void	RadioInterface::setService (QString a) {
 int16_t	i;
 QString	name	= QString ("");
 
-	fprintf (stderr, "calling for %s\n", a. toLatin1 (). data ());
 	for (i = 0; i < stationList. size (); i ++) {
 	   QString lname = stationList. at (i);
 	   if (lname. startsWith (a, Qt::CaseInsensitive)) {

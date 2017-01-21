@@ -70,6 +70,7 @@
 	                                uint8_t		freqsyncMethod,
 	                                QWidget		*parent): QMainWindow (parent) {
 int16_t	latency;
+int16_t	i;
 
 // 	the setup for the generated part of the ui
 	setupUi (this);
@@ -117,8 +118,20 @@ int16_t	latency;
 	                                                 20040);
 #else			// just sound out
 	soundOut		= new audioSink		(latency,
-	                                                 streamoutSelector,
+//	                                                 streamoutSelector,
+	                                                 &soundChannels,
 	                                                 audioBuffer);
+	int ocnt	= 1;
+	for (i = 0; i < soundChannels. size (); i ++) {
+	   QString name = soundChannels. at (i);
+	   if (name != QString ("")) {
+	      streamoutSelector -> insertItem (ocnt, name, QVariant (i));
+	      ocnt ++;
+	   }
+	}
+	connect (streamoutSelector, SIGNAL (activated (int)),
+	         this,  SLOT (set_streamSelector (int)));
+	streamoutSelector	-> show ();
 #endif
 /**
   *	By default we select Band III and Mode 1 or whatever the use
@@ -1334,3 +1347,10 @@ SF_INFO	*sf_info	= (SF_INFO *)alloca (sizeof (SF_INFO));
 	soundOut		-> startDumping (audiofilePointer);
 }
 
+void	RadioInterface:: set_streamSelector (int k) {
+#ifndef	TCP_STREAMER
+	((audioSink *)(soundOut)) -> set_streamSelector (k);
+#else
+	(void)k;
+#endif
+}

@@ -20,6 +20,8 @@ to give "classic". However, when passing on a non-unique prefix (e.g. "radio" fo
 
 -G the gain to be applied on the device, in the range from 1 .. 100.
 
+-A the output channel, again as with the program name, a prefix of the name suffices.
+
 Important:
 _________
 For each of the parameters there is a default. Any setting of a parameter

@@ -102,6 +102,7 @@ const	char		*get_programm_language_string (uint8_t);
 	SNDFILE		*dumpfilePointer;
 	bool		audioDumping;
 	SNDFILE		*audiofilePointer;
+	QStringList	soundChannels;
 	QStringListModel	ensemble;
 	QStringList	Services;
 	QString		ensembleLabel;
@@ -129,6 +130,7 @@ public slots:
 	void	show_mscErrors		(int);
 	void	show_ipErrors		(int);
 	void	setStereo		(bool);
+	void	set_streamSelector	(int);
 private slots:
 //
 //	Somehow, these must be connected to the GUI

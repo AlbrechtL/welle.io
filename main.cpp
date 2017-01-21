@@ -203,8 +203,14 @@ uint16_t	ipPort		= 1234;
 	int	gain		= 20;
 	QString	dabChannel	= QString ("");
 	QString	dabProgramName	= QString ("");
+#ifdef	GUI_2
+#ifndef	TCP_STREAMER
+	QString	soundChannel	= "default";
+	QString	dabSoundchannel	= QString ("");
+#endif
+#endif
 	int	dabGain		= -1;
-	while ((opt = getopt (argc, argv, "i:D:S:M:B:C:P:G:")) != -1) {
+	while ((opt = getopt (argc, argv, "i:D:S:M:B:C:P:G:A:")) != -1) {
 	   switch (opt) {
 	      case 'i':
 	         initFileName = fullPathfor (QString (optarg));
@@ -245,6 +251,11 @@ uint16_t	ipPort		= 1234;
 	      case 'G':
 	         dabGain	= atoi (optarg);
 	         break;
+#ifndef	TCP_STREAMER
+	      case 'A':
+	         dabSoundchannel	= QString (optarg);
+	         break;
+#endif
 #endif
 	      default:
 	         break;
@@ -283,6 +294,13 @@ uint16_t	ipPort		= 1234;
 	   gain	= dabSettings	-> value ("deviceGain", gain). toInt ();
 	else
 	   gain = dabGain;
+#ifndef	TCP_STREAMER
+	if (dabSoundchannel == QString (""))
+	   soundChannel	=
+	         dabSettings -> value ("soundChannel", soundChannel). toString ();
+	else
+	   soundChannel = dabSoundchannel;
+#endif
 	dabSettings	-> endGroup ();
 #endif
 /*
@@ -300,22 +318,29 @@ uint16_t	ipPort		= 1234;
 	dabSettings	-> sync ();
 #elif GUI_2
 	(void)syncMethod;
-	dabSettings -> setValue ("dabMode",	dabMode);
-	dabSettings -> setValue ("device",	dabDevice);
-	dabSettings -> setValue ("band",	dabBand);
+	dabSettings	-> setValue ("dabMode",	dabMode);
+	dabSettings	-> setValue ("device",	dabDevice);
+	dabSettings	-> setValue ("band",	dabBand);
 	dabSettings	-> beginGroup ("gui_2");
-	dabSettings -> setValue ("channel",	channel);
-	dabSettings -> setValue ("programName",   programName);
-	dabSettings -> setValue ("deviceGain",  gain);
+	dabSettings	-> setValue ("channel",	channel);
+	dabSettings	-> setValue ("programName",   programName);
+	dabSettings	-> setValue ("deviceGain",  gain);
+#ifndef	TCP_STREAMER
+	dabSettings	-> setValue ("soundChannel", soundChannel);
+#endif
 	dabSettings	-> endGroup ();
+	dabSettings	-> sync ();
 	MyRadioInterface = new RadioInterface (dabSettings, 
 	                                       dabDevice,
 	                                       dabMode,
 	                                       dabBand,
 	                                       channel,
 	                                       programName,
-	                                       gain);
-	dabSettings	-> sync ();
+	                                       gain
+#ifndef	TCP_STREAMER
+	                                       , soundChannel
+#endif
+	                                       );
 #elif GUI_1
 	MyRadioInterface = new RadioInterface (dabSettings, syncMethod);
 	MyRadioInterface -> show ();
