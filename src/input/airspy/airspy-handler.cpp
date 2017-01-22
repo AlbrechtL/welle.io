@@ -759,8 +759,14 @@ void	airspyHandler::show_tab (int t) {
 }
 
 //
+//	a silly hack. When the widget is nof shown, as is the case
+//	with ALL gui's except gui_1, we set the slider anyhow since
+//	at some points the slider value is read and used to set
+//	the gain
 //	a special for compatibility with the dab-rpi software
 void	airspyHandler::setGain		(int value) {
-	set_sensitivity ((value * 21) / 100);
+	theGain	= value * 21 / 100;
+	sensitivitySlider	-> setValue (theGain);
+	set_sensitivity (theGain);
 }
 

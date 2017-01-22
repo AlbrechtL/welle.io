@@ -303,6 +303,11 @@ float		envBuffer	[syncBufferSize];
 	try {
 
 Initing:
+///	first, we need samples to get a reasonable sLevel
+	   sLevel	= 0;
+	   for (i = 0; i < T_F / 2; i ++) {
+	      jan_abs (getSample (0));
+	   }
 notSynced:
 #ifdef	GUI_3
 	   if (scanMode && ++attempts > 5) {
@@ -313,11 +318,6 @@ notSynced:
 #endif
 	   syncBufferIndex	= 0;
 	   currentStrength	= 0;
-///	first, we need samples to get a reasonable sLevel
-	   sLevel	= 0;
-	   for (i = 0; i < T_F; i ++) {
-	      jan_abs (getSample (0));
-	   }
 
 //	read in T_s samples for a next attempt;
 	   syncBufferIndex = 0;
@@ -347,8 +347,10 @@ SyncOnNull:
 	                         envBuffer [(syncBufferIndex - 50) & syncBufferMask];
 	      syncBufferIndex = (syncBufferIndex + 1) & syncBufferMask;
 	      counter ++;
-	      if (counter > T_F) 	// hopeless
+	      if (counter > T_F) { // hopeless
+//	         fprintf (stderr, "%f %f\n", currentStrength / 50, sLevel);
 	         goto notSynced;
+	      }
 	   }
 /**
   *	It seemed we found a dip that started app 65/100 * 50 samples earlier.
@@ -397,7 +399,6 @@ SyncOnPhase:
   *	In case we do not have a correlation value larger than
   *	a given threshold, we start all over again.
   */
-//	      fprintf (stderr, "startIndex = %d\n", startIndex);
 	      goto notSynced;
 	   }
 #ifdef GUI_3

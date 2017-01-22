@@ -61,7 +61,9 @@
 	tcp_ppm		-> setValue (thePpm);
 	vfoFrequency	= DEFAULT_FREQUENCY;
 	theBuffer	= new RingBuffer<uint8_t>(32 * 32768);
-    theShadowBuffer	= new RingBuffer<uint8_t>(8192);
+#ifdef	GUI_3
+	theShadowBuffer	= new RingBuffer<uint8_t>(8192);
+#endif
 	connected	= false;
 	hostLineEdit 	= new QLineEdit (NULL);
 
@@ -96,7 +98,7 @@
 	   return;
 	}
 
-    setAgc(true);
+	setAgc (true);
 	sendRate (theRate);
 	sendVFO	(DEFAULT_FREQUENCY);
 	toServer. waitForBytesWritten ();
@@ -119,7 +121,9 @@
 	remoteSettings -> endGroup ();
 	toServer. close ();
 	delete	theBuffer;
-    delete 	theShadowBuffer;
+#ifdef	GUI_3
+	delete 	theShadowBuffer;
+#endif
 	delete	hostLineEdit;
 	delete	theFrame;
 }
@@ -236,16 +240,19 @@ uint8_t	*tempBuffer = (uint8_t *)alloca (2 * size * sizeof (uint8_t));
 	return amount / 2;
 }
 
-int32_t	rtl_tcp_client::getSamplesFromShadowBuffer (DSPCOMPLEX *V, int32_t size) {
+#ifdef	GUI_3
+int32_t	rtl_tcp_client::getSamplesFromShadowBuffer (DSPCOMPLEX *V,
+	                                            int32_t size) {
 int32_t	amount, i;
 uint8_t	*tempBuffer = (uint8_t *)alloca (2 * size * sizeof (uint8_t));
 //
-    amount = theShadowBuffer	-> getDataFromBuffer(tempBuffer, 2 * size);
-    for (i = 0; i < amount / 2; i ++)
-        V [i] = DSPCOMPLEX ((float (tempBuffer [2 * i] - 128)) / 128.0,
-                            (float (tempBuffer [2 * i + 1] - 128)) / 128.0);
-    return amount / 2;
+	amount = theShadowBuffer -> getDataFromBuffer(tempBuffer, 2 * size);
+	for (i = 0; i < amount / 2; i ++)
+	   V [i] = DSPCOMPLEX ((float (tempBuffer [2 * i] - 128)) / 128.0,
+	                       (float (tempBuffer [2 * i + 1] - 128)) / 128.0);
+	return amount / 2;
 }
+#endif
 
 int32_t	rtl_tcp_client::Samples	(void) {
 	return  theBuffer	-> GetRingBufferReadAvailable () / 2;
@@ -314,15 +321,15 @@ void	rtl_tcp_client::sendGain (int gain) {
 
 //
 //	the "setGain" function is to accomodate gui_3.
-void	rtl_tcp_client::setGain		(int32_t g) {
+void	rtl_tcp_client::setGain	(int32_t g) {
 	sendGain (g);
 }
 
 void	rtl_tcp_client::setAgc		(bool b) {
-    if(b)
-        setGainMode(0);
-    else
-        setGainMode(1);
+	if (b)
+	   setGainMode(0);
+	else
+	   setGainMode(1);
 }
 
 //	correction is in ppm

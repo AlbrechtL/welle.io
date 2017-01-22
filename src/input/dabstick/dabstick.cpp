@@ -59,7 +59,10 @@ int32_t	tmp;
 	tmp = theStick -> _I_Buffer -> putDataIntoBuffer (buf, len);
 	if ((len - tmp) > 0)
 	   theStick	-> sampleCounter += len - tmp;
-    theStick -> _I_ShadowBuffer -> putDataIntoBuffer (buf, len); // Shadow buffer needed for the spectrum viewer in GUI_3
+#ifdef	GUI_3
+	   theStick -> _I_ShadowBuffer -> putDataIntoBuffer (buf, len);
+	// Shadow buffer needed for the spectrum viewer in GUI_3
+#endif
 }
 //
 //	for handling the events in libusb, we need a controlthread
@@ -106,7 +109,9 @@ int	k;
 	libraryLoaded		= false;
 	open			= false;
 	_I_Buffer		= NULL;
-    _I_ShadowBuffer	= NULL;
+#ifdef	GUI_3
+	_I_ShadowBuffer	= NULL;
+#endif
 	workerHandle		= NULL;
 	lastFrequency		= KHz (94700);	// just a dummy
 	this	-> sampleCounter= 0;
@@ -175,22 +180,27 @@ int	k;
 	   fprintf(stderr, "%.1f ", gains [i - 1] / 10.0);
 	   combo_gain -> addItem (QString::number (gains [i - 1]));
 	}
-    fprintf(stderr, "\n");
+	fprintf(stderr, "\n");
 
 	rtlsdr_set_tuner_gain_mode (device, 1);
 
 	_I_Buffer		= new RingBuffer<uint8_t>(1024 * 1024);
-    _I_ShadowBuffer	= new RingBuffer<uint8_t>(8192);
+#ifdef	GUI_3
+	_I_ShadowBuffer	= new RingBuffer<uint8_t>(8192);
+#endif
+
+	theGain		= gains [gainsCount / 2];	// default
 	dabstickSettings	-> beginGroup ("dabstickSettings");
 	temp = dabstickSettings -> value ("externalGain", "10"). toString ();
 	k	= combo_gain -> findText (temp);
 	if (k != -1) {
 	   combo_gain	-> setCurrentIndex (k);
-	   rtlsdr_set_tuner_gain (device, temp. toInt ());
+	   theGain	= temp. toInt ();
+	   rtlsdr_set_tuner_gain (device, theGain);
 	}
 	else
 	   rtlsdr_set_tuner_gain (device, gains [gainsCount / 2]);
-
+	
 	temp	= dabstickSettings -> value ("autogain", "autogain off"). toString ();
 	rtlsdr_set_tuner_gain_mode (device, temp == "autogain off" ? 0 : 1);
 	
@@ -255,8 +265,10 @@ err:
 #endif
 	if (_I_Buffer != NULL)
 	   delete _I_Buffer;
-    if (_I_ShadowBuffer != NULL)
-       delete _I_ShadowBuffer;
+#ifdef	GUI_3
+	if (_I_ShadowBuffer != NULL)
+	   delete _I_ShadowBuffer;
+#endif
 	if (gains != NULL)
 	   delete[] gains;
 	open = false;
@@ -280,14 +292,16 @@ int32_t	r;
 	   return true;
 
 	_I_Buffer	-> FlushRingBuffer ();
-    _I_ShadowBuffer -> FlushRingBuffer ();
+#ifdef	GUI_3
+	_I_ShadowBuffer -> FlushRingBuffer ();
+#endif
 	r = this -> rtlsdr_reset_buffer (device);
 	if (r < 0)
 	   return false;
 
 	this -> rtlsdr_set_center_freq (device, lastFrequency + vfoOffset);
 	workerHandle	= new dll_driver (this);
-	rtlsdr_set_tuner_gain (device, combo_gain -> currentText (). toInt ());
+	rtlsdr_set_tuner_gain (device, theGain);
 	rtlsdr_set_tuner_gain_mode (device,
                 combo_autogain -> currentText () == "autogain off" ? 0 : 1);
 	return true;
@@ -308,13 +322,17 @@ void	dabStick::stopReader		(void) {
 	workerHandle	= NULL;
 }
 //
+//	when selecting  the gain from a table, use the table value
 void	dabStick::setGain	(const QString &gain) {
+	theGain		= gain. toInt ();
 	rtlsdr_set_tuner_gain (device, gain. toInt ());
 }
-
+//
+//	when selecting with an integer in the range 0 .. 100
+//	first find the table value
 void	dabStick::setGain	(int32_t g) {
-int	gainValue = g * gainsCount / 100;
-	rtlsdr_set_tuner_gain (device, gainValue);
+	theGain	= gains [g * gainsCount / 100];
+	rtlsdr_set_tuner_gain (device, theGain);
 }
 	
 void	dabStick::set_autogain		(const QString &autogain) {
@@ -335,7 +353,6 @@ void	dabStick::set_KhzOffset	(int32_t o) {
 	vfoOffset	= Khz (o);
 	(void)(this -> rtlsdr_set_center_freq (device, lastFrequency + vfoOffset));
 }
-
 
 //
 //	The brave old getSamples. For the dab stick, we get
@@ -368,16 +385,18 @@ uint8_t	*tempBuffer = (uint8_t *)alloca (2 * size * sizeof (uint8_t));
 	return amount / 2;
 }
 
+#ifdef	GUI_3
 int32_t	dabStick::getSamplesFromShadowBuffer (DSPCOMPLEX *V, int32_t size) {
 int32_t	amount, i;
 uint8_t	*tempBuffer = (uint8_t *)alloca (2 * size * sizeof (uint8_t));
 //
-    amount = _I_ShadowBuffer -> getDataFromBuffer(tempBuffer, 2 * size);
-    for (i = 0; i < amount / 2; i ++)
-        V [i] = DSPCOMPLEX ((float (tempBuffer [2 * i] - 128)) / 128.0,
-                            (float (tempBuffer [2 * i + 1] - 128)) / 128.0);
-    return amount / 2;
+	amount = _I_ShadowBuffer -> getDataFromBuffer(tempBuffer, 2 * size);
+	for (i = 0; i < amount / 2; i ++)
+	   V [i] = DSPCOMPLEX ((float (tempBuffer [2 * i] - 128)) / 128.0,
+                              (float (tempBuffer [2 * i + 1] - 128)) / 128.0);
+	return amount / 2;
 }
+#endif
 
 int32_t	dabStick::Samples	(void) {
 	return _I_Buffer	-> GetRingBufferReadAvailable () / 2;

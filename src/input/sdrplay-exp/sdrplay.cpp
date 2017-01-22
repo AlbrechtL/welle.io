@@ -1,6 +1,6 @@
 #
 /*
- *    Copyright (C) 2014
+ *    Copyright (C) 2014 .. 2017
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
  *    Lazy Chair Programming
  *
@@ -110,16 +110,19 @@ ULONG APIkeyValue_length = 255;
 	_I_Buffer	= new RingBuffer<DSPCOMPLEX>(2 * 1024 * 1024);
 	vfoFrequency	= Khz (94700);
 	currentGain	= DEFAULT_GAIN;
-
+//
+//	See if there are settings from previos incarnations
 	sdrplaySettings		-> beginGroup ("sdrplaySettings");
 	gainSlider 		-> setValue (
-	            sdrplaySettings -> value ("externalGain", 10). toInt ());
+	            sdrplaySettings -> value ("externalGain", currentGain). toInt ());
 	ppmControl		-> setValue (
 	            sdrplaySettings -> value ("externalPPM", 0). toInt ());
 	sdrplaySettings	-> endGroup ();
 
 	setExternalGain	(gainSlider	-> value ());
 	set_ppmControl  (ppmControl	-> value ());
+//
+//	and be prepared for changes in the settings
 	connect (gainSlider, SIGNAL (valueChanged (int)),
 	         this, SLOT (setExternalGain (int)));
 	connect (agcControl, SIGNAL (stateChanged (int)),
@@ -221,7 +224,8 @@ void	sdrplay::setExternalGain	(int newGain) {
 	if (newGain < 0 || newGain > 102)
 	   return;
 
-	currentGain = newGain;
+	currentGain = maxGain () - newGain;
+	fprintf (stderr, "gain is now %d\n", currentGain);
 	my_mir_sdr_SetGr (currentGain, 1, 0);
 	gainDisplay	-> display (currentGain);
 }
@@ -229,9 +233,11 @@ void	sdrplay::setExternalGain	(int newGain) {
 int16_t	sdrplay::maxGain	(void) {
 	return 101;
 }
-
+//
+//	For the setting of gain, not using a widget, we map the
+//	gain value upon an attenation value and set setexternal Gain
 void	sdrplay::setGain		(int32_t g) {
-	setExternalGain (maxGain () - (g * maxGain ()) / 100);
+	setExternalGain ((g * maxGain ()) / 100);
 }
 
 void	sdrplay::setAgc			(bool b) {

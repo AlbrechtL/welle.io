@@ -112,8 +112,8 @@ int16_t	latency;
 	}
 #endif
 //
-    this	-> dabBand		= dabBand == "BAND III" ?
-	                                        BAND_III : L_BAND;
+	this	-> dabBand		= dabBand == "BAND III" ?
+	                                         BAND_III : L_BAND;
 	setModeParameters (dabMode);
 	this	-> requestedChannel	= channel;
 	this	-> requestedProgram	= programName;
@@ -144,7 +144,6 @@ int16_t	latency;
 //	display the version
 	QString v = "sdr-j DAB-rpi(+)  " ;
 	v. append (CURRENT_VERSION);
-	fprintf (stderr, "running %s\n", v. toLatin1 (). data ());
 	ficBlocks	= 0;
 	ficSuccess	= 0;
 	successTimer	= new QTimer ();
@@ -617,7 +616,6 @@ int32_t	tunedFrequency;
 	   return;
 
 	inputDevice		-> setVFOFrequency (tunedFrequency);
-
 	if (localRunning) {
 	   soundOut -> restart ();
 	   my_ofdmProcessor	-> reset ();

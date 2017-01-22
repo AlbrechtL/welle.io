@@ -46,12 +46,12 @@
     </property>
     <item>
      <property name="text">
-      <string>Band III</string>
+      <string>BAND III</string>
      </property>
     </item>
     <item>
      <property name="text">
-      <string>L Band</string>
+      <string>L BAND</string>
      </property>
     </item>
    </widget>

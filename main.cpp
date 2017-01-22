@@ -321,8 +321,8 @@ uint16_t	ipPort		= 1234;
 	dabSettings	-> setValue ("dabMode",	dabMode);
 	dabSettings	-> setValue ("device",	dabDevice);
 	dabSettings	-> setValue ("band",	dabBand);
-	dabSettings	-> beginGroup ("gui_2");
 	dabSettings	-> setValue ("channel",	channel);
+	dabSettings	-> beginGroup ("gui_2");
 	dabSettings	-> setValue ("programName",   programName);
 	dabSettings	-> setValue ("deviceGain",  gain);
 #ifndef	TCP_STREAMER

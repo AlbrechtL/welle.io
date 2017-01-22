@@ -55,7 +55,10 @@ public:
 	bool		restartReader	(void);
 	void		stopReader	(void);
 	int32_t		getSamples	(DSPCOMPLEX *V, int32_t size);
-    int32_t     getSamplesFromShadowBuffer (DSPCOMPLEX *V, int32_t size);
+#ifdef	GUI_3
+	int32_t		getSamplesFromShadowBuffer (DSPCOMPLEX *V,
+	                                            int32_t size);
+#endif
 	int32_t		Samples		(void);
 	int16_t		bitDepth	(void);
 	uint8_t		myIdentity	(void);

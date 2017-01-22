@@ -137,7 +137,8 @@ int16_t	i;
   *	By default we select Band III and Mode 1 or whatever the use
   *	has specified
   */
-	dabBand		= dabSettings	-> value ("dabBand", BAND_III). toInt ();
+	QString t	= dabSettings	-> value ("dabBand", "BAND III"). toString ();
+	dabBand		= t == "BAND III" ? BAND_III : L_BAND;
 	setupChannels	(channelSelector, dabBand);
 
 	uint8_t dabMode	= dabSettings	-> value ("dabMode", 1). toInt ();

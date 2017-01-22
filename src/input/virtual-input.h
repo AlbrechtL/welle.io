@@ -66,6 +66,7 @@ virtual		void	setAgc		(bool);
 protected:
 		int32_t	lastFrequency;
 	        int32_t	vfoOffset;
+	        int	theGain;
 };
 #endif
 
