@@ -200,7 +200,9 @@ uint32_t	size;
 }
 
 uint8_t getbit (uint8_t v, int32_t o) {
+static int maskTable [] = {128, 64, 32, 16, 8, 4, 2, 1};
 uint8_t	mask	= 1 << (7 - o);
+	return  (v & maskTable [o]) ? 1 : 0;
 	return  (v & mask) ? 1 : 0;
 }
 	
@@ -228,7 +230,7 @@ uint8_t	mask	= 1 << (7 - o);
 //	we have to map that onto 0 .. 255
 
 void	viterbi::deconvolve	(int16_t *input, uint8_t *output) {
-uint32_t	i;
+uint16_t	i;
 
 	init_viterbi (&vp, 0);
 	for (i = 0; i < (uint16_t)(frameBits + (K - 1)) * RATE; i ++) {

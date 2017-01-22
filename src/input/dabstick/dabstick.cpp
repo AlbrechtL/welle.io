@@ -237,8 +237,7 @@ err:
 
 	dabStick::~dabStick	(void) {
 	dabstickSettings	-> beginGroup ("dabstickSettings");
-	dabstickSettings	-> setValue ("externalGain", 
-	                                      combo_gain -> currentText ());
+	dabstickSettings	-> setValue ("externalGain", theGain);
 	dabstickSettings	-> setValue ("autogain",
 	                                      combo_autogain -> currentText ());
 	dabstickSettings	-> setValue ("f_correction",
@@ -301,9 +300,10 @@ int32_t	r;
 
 	this -> rtlsdr_set_center_freq (device, lastFrequency + vfoOffset);
 	workerHandle	= new dll_driver (this);
-	rtlsdr_set_tuner_gain (device, theGain);
 	rtlsdr_set_tuner_gain_mode (device,
-                combo_autogain -> currentText () == "autogain off" ? 0 : 1);
+                combo_autogain -> currentText () == "autogain on" ? 1 : 0);
+	rtlsdr_set_tuner_gain (device, theGain);
+	fprintf (stderr, "the gain is set to %d\n", theGain);
 	return true;
 }
 
