@@ -23,7 +23,11 @@ Parameters can be set through the command line on starting the program:
 Important: If no program names are found, or if no match can be made between the
 program name and the list of program names, the program has no other choice than halt.
 
--G the gain to be applied on the device, in the range from 1 .. 100.
+-G the gain to be applied on the device, in the range from 1 .. 100. The value
+will be translated to an acceptable value for the device. In case the gain is
+table driven, as in the case of a dabstick, a value of e.g. 75 is translated
+into the element on three quarters of the table (basic assumption is that the
+table elements are more or less linear). For e.g. the airspy the values are mapped upon the range 0 .. 21 of the sensitivity slider.
 
 -A the output channel, again as with the program name, a prefix of the name suffices. As with the programs, the names of the sound channels identified will be printed. Note, however, that not all names appearing on the namelist are useful,
 some of them will just not work, a well known  issue with the combination portaudio/alsa under Linux. 
