@@ -276,7 +276,9 @@ uint8_t	buffer [8192];
 	while (toServer. bytesAvailable () > 8192) {
 	   toServer. read ((char *)buffer, 8192);
 	   theBuffer -> putDataIntoBuffer (buffer, 8192);
+#ifdef	GUI_3
        theShadowBuffer -> putDataIntoBuffer (buffer, 8192);
+#endif
 	}
 }
 //
