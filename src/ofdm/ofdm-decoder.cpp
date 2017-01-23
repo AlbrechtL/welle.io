@@ -238,12 +238,9 @@ toBitsLabel:
 	   phaseReference [index] = fft_buffer [index];
 	   DSPFLOAT ab1	= jan_abs (r1);
 ///	split the real and the imaginary part and scale it
-//	Note that the de-puncturing adds '0' as do not know.
-//	If we decide to map the values onto the range 0 .. 255,
-//	as requested by the viterbi decoder, we also should change
-//	the added '0' values in the depuncturing
-	   ibits [i]		= - real (r1) / ab1 * 127.0;
-	   ibits [carriers + i] = - imag (r1) / ab1 * 127.0;
+//	Note that the de-puncturing adds 128 as do not know.
+	   ibits [i]		= - real (r1) / ab1 * 127.0 + 128;
+	   ibits [carriers + i] = - imag (r1) / ab1 * 127.0 + 128;
 	}
 handlerLabel:
 	my_ficHandler -> process_ficBlock (ibits, blkno);
@@ -271,8 +268,8 @@ toBitsLabel:
 	   DSPFLOAT ab1	= jan_abs (r1);
 //	Recall:  the viterbi decoder wants 127 max pos, - 127 max neg
 //	we make the bits into softbits in the range -127 .. 127
-	   ibits [i]		= - real (r1) / ab1 * 127.0;
-	   ibits [carriers + i] = - imag (r1) / ab1 * 127.0;
+	   ibits [i]		= - real (r1) / ab1 * 127.0 + 128;
+	   ibits [carriers + i] = - imag (r1) / ab1 * 127.0 + 128;
 	}
 handlerLabel:
 	my_mscHandler -> process_mscBlock (ibits, blkno);

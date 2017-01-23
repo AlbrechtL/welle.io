@@ -5,7 +5,7 @@
 ######################################################################
 
 TEMPLATE	= app
-TARGET		= dab-rpi-0.997
+TARGET		= dab-rpi-0.9978
 QT		+= widgets network
 CONFIG		+= console
 QMAKE_CFLAGS	+=  -flto -ffast-math
@@ -14,8 +14,6 @@ QMAKE_LFLAGS	+=  -flto
 #QMAKE_CFLAGS	+=  -g
 #QMAKE_CXXFLAGS	+=  -g
 #QMAKE_LFLAGS	+=  -g
-#	Uncomment this when compiling on/for a machine withOUT sse support
-#CONFIG		+= NO_SSE_SUPPORT 
 DEPENDPATH += . \
 	      ./src \
 	      ./includes \
@@ -168,7 +166,7 @@ CONFIG		+= sdrplay-exp
 #CONFIG		+= sdrplay
 CONFIG		+= rtl_tcp
 CONFIG		+= airspy
-CONFIG		+= gui_2
+CONFIG		+= gui_1
 DESTDIR		= ./linux-bin
 INCLUDEPATH	+= /usr/local/include
 LIBS		+= -lfftw3f  -lusb-1.0 -ldl  #
@@ -197,7 +195,6 @@ LIBS		+= -lws2_32
 LIBS		+= -lfaad
 LIBS		+= -lusb-1.0
 LIBS		+= -lz
-CONFIG		+= NO_SSE_SUPPORT 
 CONFIG		+= extio
 CONFIG		+= airspy
 CONFIG		+= rtl_tcp
@@ -205,13 +202,6 @@ CONFIG		+= dabstick
 CONFIG		+= sdrplay-exp
 #CONFIG		+= tcp-streamer
 CONFIG		+= gui_1
-}
-
-NO_SSE_SUPPORT {
-	SOURCES		+= ./src/backend/spiral-code/spiral-no-sse.c 
-} else {
-	DEFINES		+= SSE_AVAILABLE
-	SOURCES		+= ./src/backend/spiral-code/spiral-sse.c 
 }
 
 #######################################
@@ -230,6 +220,7 @@ gui_1	{
 }
 
 gui_2	{
+	TARGET		= dab-rpi-cmd
 	DEFINES		+= GUI_2
 	INCLUDEPATH	+= ./gui_2
 	DEPENDPATH	+= ./gui_2
@@ -256,6 +247,7 @@ gui_3	{
 }
 	
 gui_4	{
+	TARGET		= dab-rpi-remote
 	DEFINES		+= GUI_4
 	INCLUDEPATH	+= ./gui_4
 	DEPENDPATH	+= ./gui_4
@@ -277,7 +269,7 @@ dabstick {
 	                   ./src/input/dabstick/dongleselect.h
 	SOURCES		+= ./src/input/dabstick/dabstick.cpp \
 	                   ./src/input/dabstick/dongleselect.cpp
-	FORMS		+= ./src/input/dabstick/dabstick-widget-osmo.ui
+	FORMS		+= ./src/input/dabstick/dabstick-widget.ui
 }
 #
 #	the SDRplay

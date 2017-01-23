@@ -7,25 +7,24 @@
 #include	"dab-constants.h"
 
 //	For our particular viterbi decoder, we have
-#define	RATE	4
-#define NUMSTATES 64
-#define DECISIONTYPE uint8_t
-#define DECISIONTYPE_BITSIZE 8
-#define COMPUTETYPE uint32_t
+#define	RATE		4
+#define NUMSTATES	64
+#define BITS_PER_BYTE	8
 
-//decision_t is a BIT vector
+//	decision_t is a BIT vector
 typedef union {
-	DECISIONTYPE t[NUMSTATES/DECISIONTYPE_BITSIZE];
-	uint32_t w[NUMSTATES/32];
-	uint16_t s[NUMSTATES/16];
-	uint8_t c[NUMSTATES/8];
+	uint8_t t  [NUMSTATES / BITS_PER_BYTE];
+	uint32_t w [NUMSTATES / 32];
+	uint16_t s [NUMSTATES / 16];
+	uint8_t c  [NUMSTATES / 8];
 } decision_t __attribute__ ((aligned (16)));
 
 typedef union {
-	COMPUTETYPE t[NUMSTATES];
+	int16_t t[NUMSTATES];
 } metric_t __attribute__ ((aligned (16)));
 
-/* State info for instance of Viterbi decoder
+/*
+ *	 State info for instance of Viterbi decoder
  */
 
 struct v {
@@ -46,23 +45,16 @@ public:
 private:
 
 	struct v	vp;
-	COMPUTETYPE Branchtab	[NUMSTATES / 2 * RATE] __attribute__ ((aligned (16)));
-//	int	parityb		(uint8_t);
-	int	parity		(int);
-	void	partab_init	(void);
-	uint8_t	Partab	[256];
+	int16_t Branchtab	[NUMSTATES / 2 * RATE] __attribute__ ((aligned (16)));
+	int16_t	parity		(int16_t);
 	void	init_viterbi	(struct v *, int16_t);
-	void	update_viterbi_blk_GENERIC	(struct v *, COMPUTETYPE *,
-	                                         int16_t);
-	void	update_viterbi_blk_SPIRAL	(struct v *, COMPUTETYPE *,
+	void	update_viterbi_blk_GENERIC	(struct v *, int16_t *,
 	                                         int16_t);
 	void	chainback_viterbi (struct v *, uint8_t *, int16_t, uint16_t);
-	struct v *viterbi_alloc (int32_t);
-	void	BFLY		(int32_t, int, COMPUTETYPE *,
+	void	BFLY		(int32_t, int, int16_t *,
 	                         struct v *, decision_t *);
-//	uint8_t *bits;
 	uint8_t *data;
-	COMPUTETYPE *symbols;
+	int16_t *symbols;
 	int16_t	frameBits;
 };
 

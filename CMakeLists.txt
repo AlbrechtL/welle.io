@@ -1,5 +1,5 @@
 cmake_minimum_required( VERSION 2.8.11 )
-set (objectName dab-rpi-0.9975)
+set (objectName dab-rpi-0.9978)
 add_definitions ( -Wall)
 #	modify if you want
 set (CMAKE_INSTALL_PREFIX ../)
@@ -24,18 +24,14 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
 #       R E A D T H I S
 #####################################################################
 #	adjust to your likings
-#	if you want to use the SSE support on your machine, uncomment
-#	but recall that MINGW does not support it (yet)
-	set(NO_SSE_SUPPORT true)
 
-#	select the GUI you want
+#	Currently we only support building GUI_1 with Cmake
 	set(GUI_1 true)
-#	set(GUI_2 true)
 
 #	if you want support for any of these devices, uncomment the line
 	set(SDRPLAY true)
 	set(AIRSPY true)
-	set(DABSTICK_OSMO true)
+	set(DABSTICK true)
 #	set(RTLTCP true)
 
 #	add_definitions (-DMOT_BASICS__) 	# use at your own risk
@@ -99,17 +95,6 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
 #######################################################################
 #
 #	Here we really start
-
-	if (NO_SSE_SUPPORT) 
-	   set (${objectName}_SRCS
-	        ${${objectName}_SRCS}
-	        ./src/backend/spiral-code/spiral-no-sse.c )
-	else ()
-	   add_definitions (-DSSE_AVAILABLE)
-	   set (${objectName}_SRCS
-	        ${${objectName}_SRCS}
-	        ./src/backend/spiral-code/spiral-sse.c )
-	endif()
 
 	include_directories (
 	           ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}
@@ -356,7 +341,7 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
 	endif (AIRSPY)
 
 #
-	if (DABSTICK_OSMO)
+	if (DABSTICK)
            find_package(LibRTLSDR)
            if (NOT LIBRTLSDR_FOUND)
                message(FATAL_ERROR "please install librtlsdr")
@@ -365,7 +350,7 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
 
 	   set (${objectName}_UIS
 	        ${${objectName}_UIS}
-	        ./src/input/dabstick/dabstick-widget-osmo.ui
+	        ./src/input/dabstick/dabstick-widget.ui
 	   )
 
 	   set (${objectName}_MOCS

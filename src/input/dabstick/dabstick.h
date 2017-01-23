@@ -35,7 +35,7 @@
 #include	"fir-filters.h"
 #include	"virtual-input.h"
 #include	"dongleselect.h"
-#include	"ui_dabstick-widget-osmo.h"
+#include	"ui_dabstick-widget.h"
 class	dll_driver;
 //
 //	create typedefs for the library functions
@@ -67,7 +67,7 @@ typedef	char *(* pfnrtlsdr_get_device_name)(int);
 //	This class is a simple wrapper around the
 //	rtlsdr library that is read is as dll
 //	It does not do any processing
-class	dabStick: public virtualInput, public Ui_dabstickWidget_osmo {
+class	dabStick: public virtualInput, public Ui_dabstickWidget {
 Q_OBJECT
 public:
 			dabStick	(QSettings *, bool *, bool show = true);

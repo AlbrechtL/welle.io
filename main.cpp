@@ -198,12 +198,12 @@ uint16_t	ipPort		= 1234;
 #else	
 //	For Qt 4 lovers and other simple people 
 	int	opt;
+#ifdef	GUI_2
 	QString	channel		= "11C";
 	QString	programName	= "Classic FM";
 	int	gain		= 20;
 	QString	dabChannel	= QString ("");
 	QString	dabProgramName	= QString ("");
-#ifdef	GUI_2
 #ifndef	TCP_STREAMER
 	QString	soundChannel	= "default";
 	QString	dabSoundchannel	= QString ("");

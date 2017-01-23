@@ -169,7 +169,7 @@ int16_t	viterbiBlock [3072 + 24];
 	      if (PI_16 [k % 32] == 1)  
 	         viterbiBlock [local] = ficblock [input_counter ++];
 	      else
-	         viterbiBlock [local] = 0;	// a real "do not know"
+	         viterbiBlock [local] = 128;	// a real "do not know"
 	      local ++;
 	   }
 	}
@@ -184,7 +184,7 @@ int16_t	viterbiBlock [3072 + 24];
 	      if (PI_15 [k % 32] == 1)  
 	         viterbiBlock [local ++] = ficblock [input_counter ++];
 	      else
-	         viterbiBlock [local ++] = 0;	// a real "do not know"
+	         viterbiBlock [local ++] = 128;	// a real "do not know"
 	      }
 	}
 
@@ -197,7 +197,7 @@ int16_t	viterbiBlock [3072 + 24];
 	      viterbiBlock [local ++] = ficblock [input_counter ++];
 	   }
 	   else
-	      viterbiBlock [local ++] = 0;
+	      viterbiBlock [local ++] = 128;
 	}
 /**
   *	Now we have the full word ready for deconvolution
