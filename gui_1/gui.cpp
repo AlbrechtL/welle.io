@@ -1160,7 +1160,6 @@ fprintf (stderr, "inputDevice deleted\n");
 	}
 	else
 	if (s == "file input (.sdr)") {
-	   fprintf (stderr, "before dialog\n");
 	   file		= QFileDialog::getOpenFileName (this,
 	                                                tr ("open file ..."),
 	                                                QDir::homePath (),
