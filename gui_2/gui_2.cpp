@@ -104,7 +104,11 @@ int16_t	latency;
 	soundOut		= new audioSink		(latency,
 	                                                 &soundChannels,
 	                                                 audioBuffer);
-	
+	fprintf (stderr, "%d potential soundchannels found\n", 
+	                                   soundChannels. size ());
+	int i;
+	for (i = 0; i < soundChannels. size (); i ++)
+	   fprintf (stderr, "%s\n", soundChannels. at (i). toLatin1 (). data ());
 	if (!((audioSink *)(soundOut)) -> selectDevice (soundChannel)) {
 	   fprintf (stderr, "Opening device %s failed, giving up\n",
 	                                  soundChannel. toLatin1 (). data ());
