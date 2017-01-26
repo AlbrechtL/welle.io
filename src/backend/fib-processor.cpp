@@ -1172,6 +1172,7 @@ int32_t	selectedService;
 void	fib_processor::dataforAudioService (QString &s, audiodata *d) {
 int16_t	i, j;
 
+	d	-> defined	= false;
 //	first we locate the serviceId
 	for (i = 0; i < 64; i ++) {
 	   if (!listofServices [i]. inUse)
@@ -1194,7 +1195,7 @@ int16_t	i, j;
 	         fprintf (stderr, "fatal error, expected audio service\n");
 	         return;
 	      }
-
+	      d	-> defined	= true;
 	      subchId	= components [j]. subchannelId;
 	      d	-> subchId	= subchId;
 	      d	-> startAddr	= ficList [subchId]. StartAddr;
