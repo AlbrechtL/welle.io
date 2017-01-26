@@ -106,8 +106,10 @@ int16_t	i;
 bool	audioSink::selectDevice (int16_t odev) {
 PaError err;
 	fprintf (stderr, "select device with %d\n", odev);
-	if (!isValidDevice (odev))
+	if (!isValidDevice (odev)) {
+	   fprintf (stderr, "invalid device (%d) selected\n", odev);
 	   return false;
+	}
 
 	if ((ostream != NULL) && !Pa_IsStreamStopped (ostream)) {
 	   paCallbackReturn = paAbort;
