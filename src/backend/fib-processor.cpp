@@ -954,6 +954,7 @@ int16_t	i;
 	      listofServices [i]. inUse = true;
 	      listofServices [i]. serviceLabel. hasName = false;
 	      listofServices [i]. serviceId = serviceId;
+	      listofServices [i]. language = -1;
 	      return &listofServices [i];
 	   }
 

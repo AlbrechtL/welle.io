@@ -60,6 +60,9 @@
 #ifdef	HAVE_AIRSPY
 #include	"airspy-handler.h"
 #endif
+#ifdef	TECHNICAL_DATA
+#include	"ui_technical_data.h"
+#endif
 /**
   *	We use the creation function merely to set up the
   *	user interface and make the connections between the
@@ -74,6 +77,14 @@ int16_t	i;
 
 // 	the setup for the generated part of the ui
 	setupUi (this);
+#ifdef	TECHNICAL_DATA
+	techData. setupUi (&dataDisplay);
+	show_data		= false;
+	connect (showProgramData, SIGNAL (clicked (void)),
+	         this, SLOT (toggle_show_data (void)));
+#else
+	showProgramData	-> hide ();
+#endif
 	dabSettings		= Si;
 //
 //	Before printing anything, we set
@@ -171,6 +182,10 @@ int16_t	i;
 	                                        freqsyncMethod);
 	init_your_gui ();		// gui specific stuff
 
+	QPalette p = ficRatioDisplay -> palette ();
+	p. setColor (QPalette::Highlight, Qt::red);
+	ficRatioDisplay	-> setPalette (p);
+	errorDisplay	-> setPalette (p);
 	if (autoStart)
 	   setStart ();
 }
@@ -371,18 +386,20 @@ const char *table12 [] = {
 "entry 31 not used"
 };
 
-const char *RadioInterface::get_programm_type_string (uint8_t type) {
+const char *RadioInterface::get_programm_type_string (int16_t type) {
 	if (type > 0x40) {
 	   fprintf (stderr, "GUI: programmtype wrong (%d)\n", type);
 	   return (table12 [0]);
 	}
+	if (type < 0)
+	   return " ";
 
 	return table12 [type];
 }
 
 static
 const char *table9 [] = {
-"unknown",
+"unknown language",
 "Albanian",
 "Breton",
 "Catalan",
@@ -428,7 +445,7 @@ const char *table9 [] = {
 "Walloon"
 };
 
-const char *RadioInterface::get_programm_language_string (uint8_t language) {
+const char *RadioInterface::get_programm_language_string (int16_t language) {
 	if (language > 43) {
 	   fprintf (stderr, "GUI: wrong language (%d)\n", language);
 	   return table9 [0];
@@ -626,7 +643,8 @@ QString s;
   *	percentage of frames that could be handled
   */
 void	RadioInterface::show_successRate (int s) {
-	errorDisplay	-> display (s);
+	errorDisplay	-> setValue (s);
+//	errorDisplay	-> display (s);
 }
 
 ///	... and the same for the FIC blocks
@@ -634,7 +652,8 @@ void	RadioInterface::show_ficCRC (bool b) {
 	if (b)
 	   ficSuccess ++;
 	if (++ficBlocks >= 100) {
-	   ficRatioDisplay	-> display (ficSuccess);
+	   ficRatioDisplay	-> setValue (ficSuccess);
+//	   ficRatioDisplay	-> display (ficSuccess);
 	   ficSuccess	= 0;
 	   ficBlocks	= 0;
 	}
@@ -780,8 +799,10 @@ void	RadioInterface::clear_showElements (void) {
 	
 //	Then the various displayed items
 	ensembleName		-> setText ("   ");
-	errorDisplay		-> display (0);
-	ficRatioDisplay		-> display (0);
+	errorDisplay		-> setValue (0);
+//	errorDisplay		-> display (0);
+	ficRatioDisplay		-> setValue (0);
+//	ficRatioDisplay		-> display (0);
 	snrDisplay		-> display (0);
 	if (pictureLabel != NULL)
 	   delete pictureLabel;
@@ -845,6 +866,9 @@ void	RadioInterface::TerminateProcess (void) {
 	my_mscHandler		-> stopHandler ();	// might be concurrent
 	my_ofdmProcessor	-> stop ();	// definitely concurrent
 	soundOut		-> stop ();
+#ifdef	TECHNICAL_DATA
+	dataDisplay. hide ();
+#endif
 //
 //	everything should be halted by now
 	dumpControlState (dabSettings);
@@ -870,11 +894,12 @@ void	RadioInterface::TerminateProcess (void) {
   *	Depending on the GUI the user might select a channel
   *	or some magic will cause a channel to be selected
   */
+
+static int32_t	tunedFrequency	= 0;
 void	RadioInterface::set_channelSelect (QString s) {
 int16_t	i;
 struct dabFrequencies *finger;
 bool	localRunning	= running;
-int32_t	tunedFrequency;
 
 	setStereo (false);
 	if (localRunning) {
@@ -1197,6 +1222,9 @@ QString a = ensemble. data (s, Qt::DisplayRole). toString ();
 
 	setStereo (false);
 	switch (my_ficHandler -> kindofService (a)) {
+#ifdef	TECHNICAL_DATA
+	   dataDisplay. hide ();
+#endif
 	   case AUDIO_SERVICE:
 	      { audiodata d;
 	        my_ficHandler	-> dataforAudioService (a, &d);
@@ -1205,10 +1233,38 @@ QString a = ensemble. data (s, Qt::DisplayRole). toString ();
  	                               tr ("still insufficient data for this program\n"));
  	           return;
  	        }
-
+#ifdef	TECHNICAL_DATA
+	        techData. ensemble -> setText (ensembleLabel);
+	        techData. frequency	-> display (inputDevice -> getVFOFrequency () / 1000000.0);
+	        techData. bitrateDisplay -> display (d. bitRate);
+	        techData. startAddressDisplay -> display (d. startAddr);
+	        techData. lengthDisplay -> display (d. length);
+	        techData. subChIdDisplay -> display (d. subchId);
+	        techData. protectionlevelDisplay -> display (d. protLevel);
+	        uint16_t h = d. protLevel;
+	        QChar prot;
+	        if (h & 0100) {
+	           prot = 'A';
+	           h -= 0100;
+	        }
+	        else {
+	           prot = 'B';
+	           h -= 0200;
+	        }
+	        QString protL = d. uepFlag == 0 ? "UEP" : "EEP";
+	        protL. append (" ");
+	        protL. append (QString::number (h));
+	        protL. append (" ");
+	        protL. append (prot);
+	        techData. uepField -> setText (protL);
+	        techData. ASCTy -> setText (d. ASCTy == 077 ? "HeAAC" : "MP2");
+	        techData. language -> setText (get_programm_language_string (d. language));
+	        techData. programType -> setText (get_programm_type_string (d. programType));
+	         if (show_data)
+	            dataDisplay. show ();
+#endif
 	        my_mscHandler	-> set_audioChannel (&d);
 	        showLabel (QString (" "));
-	        rateDisplay -> display (d. bitRate);
 	        break;
 	      }
 	   case PACKET_SERVICE:
@@ -1354,3 +1410,14 @@ void	RadioInterface:: set_streamSelector (int k) {
 	(void)k;
 #endif
 }
+
+#ifdef	TECHNICAL_DATA
+void	RadioInterface::toggle_show_data (void) {
+	show_data	= !show_data;
+	if (show_data)
+	   dataDisplay. show ();
+	else
+	   dataDisplay. hide ();
+}
+#endif
+	   

@@ -166,7 +166,7 @@ CONFIG		+= sdrplay-exp
 #CONFIG		+= sdrplay
 CONFIG		+= rtl_tcp
 CONFIG		+= airspy
-CONFIG		+= gui_2
+CONFIG		+= gui_1
 DESTDIR		= ./linux-bin
 INCLUDEPATH	+= /usr/local/include
 LIBS		+= -lfftw3f  -lusb-1.0 -ldl  #
@@ -212,6 +212,8 @@ gui_1	{
 	INCLUDEPATH	+= ./gui_1
 	DEPENDPATH	+= ./gui_1
 	FORMS 		+= ./gui_1/gui_1.ui 
+	FORMS		+= ./gui_1/technical_data.ui
+	DEFINES	+= TECHNICAL_DATA
 	HEADERS		+= ./gui_1/gui.h
 	SOURCES		+= ./gui_1/gui.cpp
 	#CONFIG		+= tcp-streamer		# use for remote listening

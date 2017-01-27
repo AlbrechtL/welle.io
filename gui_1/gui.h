@@ -54,6 +54,10 @@ class	tcpStreamer;
 #elif	RTP_STREAMER
 class	rtpStreamer;
 #endif
+
+#ifdef	TECHNICAL_DATA
+#include	"ui_technical_data.h";
+#endif
 /*
  *	GThe main gui object. It inherits from
  *	QDialog and the generated form
@@ -68,6 +72,14 @@ public:
 		~RadioInterface		();
 
 private:
+#ifdef	TECHNICAL_DATA
+	Ui_technical_data	techData;
+	QFrame		dataDisplay;
+	bool		show_data;
+private slots:
+	void		toggle_show_data	(void);
+private:
+#endif;
 	QSettings	*dabSettings;
 	bool		autoStart;
 	int16_t		threshold;
@@ -87,8 +99,8 @@ private:
 	audioBase	*soundOut;
 	RingBuffer<int16_t>	*audioBuffer;
 	bool		autoCorrector;
-const	char		*get_programm_type_string (uint8_t);
-const	char		*get_programm_language_string (uint8_t);
+const	char		*get_programm_type_string (int16_t);
+const	char		*get_programm_language_string (int16_t);
 	QLabel		*pictureLabel;
 	bool		saveSlide;
 	QUdpSocket	DSCTy_59_socket;

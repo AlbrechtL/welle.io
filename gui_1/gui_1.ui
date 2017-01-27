@@ -7,18 +7,18 @@
     <x>0</x>
     <y>0</y>
     <width>491</width>
-    <height>300</height>
+    <height>318</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>DAB-RPI</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QComboBox" name="streamoutSelector">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>150</y>
+      <x>8</x>
+      <y>170</y>
       <width>211</width>
       <height>29</height>
      </rect>
@@ -35,8 +35,8 @@
    <widget class="QComboBox" name="bandSelector">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>180</y>
+      <x>8</x>
+      <y>200</y>
       <width>111</width>
       <height>29</height>
      </rect>
@@ -58,8 +58,8 @@
    <widget class="QPushButton" name="audioDumpButton">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>120</y>
+      <x>8</x>
+      <y>140</y>
       <width>111</width>
       <height>31</height>
      </rect>
@@ -74,8 +74,8 @@
    <widget class="QPushButton" name="dumpButton">
     <property name="geometry">
      <rect>
-      <x>120</x>
-      <y>120</y>
+      <x>118</x>
+      <y>140</y>
       <width>101</width>
       <height>31</height>
      </rect>
@@ -90,8 +90,8 @@
    <widget class="QComboBox" name="modeSelector">
     <property name="geometry">
      <rect>
-      <x>120</x>
-      <y>180</y>
+      <x>118</x>
+      <y>200</y>
       <width>101</width>
       <height>29</height>
      </rect>
@@ -123,8 +123,8 @@
    <widget class="QComboBox" name="deviceSelector">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>210</y>
+      <x>8</x>
+      <y>230</y>
       <width>131</width>
       <height>29</height>
      </rect>
@@ -151,8 +151,8 @@
    <widget class="QComboBox" name="channelSelector">
     <property name="geometry">
      <rect>
-      <x>140</x>
-      <y>210</y>
+      <x>138</x>
+      <y>230</y>
       <width>83</width>
       <height>29</height>
      </rect>
@@ -164,8 +164,8 @@
    <widget class="QLabel" name="timeDisplay">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>50</y>
+      <x>18</x>
+      <y>70</y>
       <width>201</width>
       <height>21</height>
      </rect>
@@ -177,8 +177,8 @@
    <widget class="QLCDNumber" name="finecorrectorDisplay">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>80</y>
+      <x>18</x>
+      <y>100</y>
       <width>101</width>
       <height>31</height>
      </rect>
@@ -199,8 +199,8 @@
    <widget class="QLCDNumber" name="coarsecorrectorDisplay">
     <property name="geometry">
      <rect>
-      <x>130</x>
-      <y>80</y>
+      <x>128</x>
+      <y>100</y>
       <width>81</width>
       <height>31</height>
      </rect>
@@ -221,8 +221,8 @@
    <widget class="QLabel" name="dynamicLabel">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>250</y>
+      <x>8</x>
+      <y>270</y>
       <width>401</width>
       <height>21</height>
      </rect>
@@ -237,8 +237,8 @@
    <widget class="QLCDNumber" name="crcErrors_1">
     <property name="geometry">
      <rect>
-      <x>420</x>
-      <y>240</y>
+      <x>418</x>
+      <y>260</y>
       <width>64</width>
       <height>23</height>
      </rect>
@@ -247,8 +247,8 @@
    <widget class="QLCDNumber" name="crcErrors_2">
     <property name="geometry">
      <rect>
-      <x>420</x>
-      <y>260</y>
+      <x>418</x>
+      <y>280</y>
       <width>64</width>
       <height>23</height>
      </rect>
@@ -257,8 +257,8 @@
    <widget class="QPushButton" name="startButton">
     <property name="geometry">
      <rect>
-      <x>390</x>
-      <y>80</y>
+      <x>388</x>
+      <y>100</y>
       <width>96</width>
       <height>61</height>
      </rect>
@@ -270,8 +270,8 @@
    <widget class="QPushButton" name="quitButton">
     <property name="geometry">
      <rect>
-      <x>390</x>
-      <y>150</y>
+      <x>388</x>
+      <y>170</y>
       <width>96</width>
       <height>51</height>
      </rect>
@@ -283,8 +283,8 @@
    <widget class="QPushButton" name="resetButton">
     <property name="geometry">
      <rect>
-      <x>390</x>
-      <y>200</y>
+      <x>388</x>
+      <y>220</y>
       <width>96</width>
       <height>41</height>
      </rect>
@@ -296,8 +296,8 @@
    <widget class="QListView" name="ensembleDisplay">
     <property name="geometry">
      <rect>
-      <x>220</x>
-      <y>81</y>
+      <x>218</x>
+      <y>101</y>
       <width>171</width>
       <height>161</height>
      </rect>
@@ -306,10 +306,10 @@
    <widget class="QLabel" name="versionName">
     <property name="geometry">
      <rect>
-      <x>220</x>
-      <y>50</y>
-      <width>231</width>
-      <height>21</height>
+      <x>170</x>
+      <y>70</y>
+      <width>251</width>
+      <height>20</height>
      </rect>
     </property>
     <property name="toolTip">
@@ -322,9 +322,9 @@
    <widget class="QLabel" name="syncedLabel">
     <property name="geometry">
      <rect>
-      <x>445</x>
+      <x>300</x>
       <y>10</y>
-      <width>31</width>
+      <width>51</width>
       <height>21</height>
      </rect>
     </property>
@@ -338,54 +338,10 @@
      <string/>
     </property>
    </widget>
-   <widget class="QLCDNumber" name="errorDisplay">
-    <property name="geometry">
-     <rect>
-      <x>320</x>
-      <y>10</y>
-      <width>64</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Quality of the MP2/4 stream. 100 is good, lower means that there are (unrecoverable) errors, leading to hick ups in the resulting audio stream.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
-    <property name="frameShape">
-     <enum>QFrame::NoFrame</enum>
-    </property>
-    <property name="digitCount">
-     <number>3</number>
-    </property>
-    <property name="segmentStyle">
-     <enum>QLCDNumber::Flat</enum>
-    </property>
-   </widget>
-   <widget class="QLCDNumber" name="ficRatioDisplay">
-    <property name="geometry">
-     <rect>
-      <x>270</x>
-      <y>10</y>
-      <width>51</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Quality indicator of the FIC data stream. 100 is good, less means that there are unrecoverable errors, which usually means that the other quality indicator also shows a number less than 100.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
-    <property name="frameShape">
-     <enum>QFrame::NoFrame</enum>
-    </property>
-    <property name="digitCount">
-     <number>3</number>
-    </property>
-    <property name="segmentStyle">
-     <enum>QLCDNumber::Flat</enum>
-    </property>
-   </widget>
    <widget class="QLCDNumber" name="snrDisplay">
     <property name="geometry">
      <rect>
-      <x>230</x>
+      <x>250</x>
       <y>10</y>
       <width>41</width>
       <height>23</height>
@@ -445,42 +401,65 @@
      <string/>
     </property>
    </widget>
-   <widget class="QLCDNumber" name="rateDisplay">
-    <property name="geometry">
-     <rect>
-      <x>383</x>
-      <y>10</y>
-      <width>51</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The rate with which the encoded audio is coming, in general the higher the better the quality of the resulting sound.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
-    <property name="frameShape">
-     <enum>QFrame::NoFrame</enum>
-    </property>
-    <property name="digitCount">
-     <number>3</number>
-    </property>
-    <property name="segmentStyle">
-     <enum>QLCDNumber::Flat</enum>
-    </property>
-   </widget>
    <widget class="QLabel" name="stereoLabel">
     <property name="geometry">
      <rect>
-      <x>442</x>
-      <y>50</y>
-      <width>31</width>
+      <x>370</x>
+      <y>10</y>
+      <width>51</width>
       <height>20</height>
      </rect>
     </property>
     <property name="toolTip">
      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stereo label, green means that the program currently giving sound is in stereo.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
+    <property name="frameShape">
+     <enum>QFrame::NoFrame</enum>
+    </property>
     <property name="text">
      <string/>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="showProgramData">
+    <property name="geometry">
+     <rect>
+      <x>430</x>
+      <y>10</y>
+      <width>51</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pushing this button will show a window with some technical information on the selected program.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="text">
+     <string>PD</string>
+    </property>
+   </widget>
+   <widget class="QProgressBar" name="ficRatioDisplay">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>40</y>
+      <width>141</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="value">
+     <number>24</number>
+    </property>
+   </widget>
+   <widget class="QProgressBar" name="errorDisplay">
+    <property name="geometry">
+     <rect>
+      <x>320</x>
+      <y>40</y>
+      <width>141</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="value">
+     <number>24</number>
     </property>
    </widget>
   </widget>
