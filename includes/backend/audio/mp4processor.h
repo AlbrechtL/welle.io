@@ -39,6 +39,10 @@
 #include	<QObject>
 #include	"pad-handler.h"
 
+#ifdef GUI_3
+#include    "pad_decoder_adapter.h"
+#endif
+
 class	RadioInterface;
 
 class	mp4Processor : public QObject, public dabProcessor {
@@ -75,6 +79,9 @@ private:
 	int16_t		frameCount;
 	int16_t		frameErrors;
 	int16_t		charSet;
+#ifdef GUI_3
+    PADDecoderAdapter  *padDecoderAdapter;
+#endif
 signals:
 	void		show_successRate		(int);
 	void		showLabel			(QString);

@@ -90,6 +90,9 @@ uint16_t	genpoly		= 0x1021;
 //	error display
 	au_count	= 0;
 	au_errors	= 0;
+#ifdef GUI_3
+    padDecoderAdapter = new PADDecoderAdapter(mr);
+#endif
 }
 
 	mp4Processor::~mp4Processor (void) {
@@ -283,7 +286,13 @@ int32_t		tmp;
   *	see if we have a PAD
   */
 	      if (((theAU [0] >> 5) & 07) == 4)
-	         my_padhandler. processPAD (theAU);
+          {
+#ifndef GUI_3
+             my_padhandler. processPAD (theAU);
+#else
+             padDecoderAdapter-> processPAD (theAU);
+#endif
+          }
 
 	      emit isStereo (aacChannelMode);
 /**
