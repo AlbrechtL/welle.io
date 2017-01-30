@@ -213,6 +213,7 @@ RadioInterface::RadioInterface(QSettings	*Si,
     //	Set timer to check the FIC CRC
     connect(&CheckFICTimer, SIGNAL(timeout(void)), this, SLOT(CheckFICTimerTimeout(void)));
     connect(&StationTimer, SIGNAL(timeout(void)), this, SLOT(StationTimerTimeout(void)));
+    CurrentSuccessRate = 0;
 }
 
 RadioInterface::~RadioInterface()
@@ -1084,8 +1085,8 @@ void    RadioInterface::StationTimerTimeout(void)
 {
     StationTimer.stop();
 
-    // Check false FIC CRC counter10
-    if(CurrentSuccessRate < 100)
+    // Reset if frame success rate is below 50 %
+    if(CurrentSuccessRate < 50)
     {
         fprintf(stderr, "Resetting tuner ...\n");
 
@@ -1116,6 +1117,7 @@ void	RadioInterface::channelClick(QString StationName,
     //	If the FIC CRC is ok we can tune to the channel
     CheckFICTimer. start(1000);
     emit currentStation("Tuning ...");
+    emit stationText("");
 
     // Clear MOT slide show
     QPixmap p(320, 240);
