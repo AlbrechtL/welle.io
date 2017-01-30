@@ -97,7 +97,6 @@ private:
 	mscHandler	*my_mscHandler;
 	audioBase	*soundOut;
 	RingBuffer<int16_t>	*audioBuffer;
-    //DSPCOMPLEX	*spectrumBuffer;
     common_fft *spectrum_fft_handler;
 	bool		autoCorrector;
 const	char		*get_programm_type_string (uint8_t);
@@ -106,6 +105,7 @@ const	char		*get_programm_language_string (uint8_t);
 
 	QTimer		CheckFICTimer;
 	QTimer		ScanChannelTimer;
+    QTimer      StationTimer;
 	QString		currentChannel;
 	QString		CurrentStation;
 	QString		CurrentDevice;
@@ -122,10 +122,12 @@ const	char		*get_programm_language_string (uint8_t);
 	int		fineCorrector;
 	bool		setDevice		(QString);
 	QString		nextChannel		(QString currentChannel);
+    void StartStationTimeout(void);
     QString input_device;
     MOTImageProvider *MOTImage;
     int32_t	tunedFrequency;
     int LastCurrentManualGain;
+    int CurrentSuccessRate;
 
 public slots:
 	void		end_of_waiting_for_stations	(void);
@@ -163,6 +165,7 @@ private slots:
 	void		autoCorrector_on	(void);
 
 	void		CheckFICTimerTimeout    (void);
+    void        StationTimerTimeout  (void);
 	void		channelClick		(QString, QString);
 	void		startChannelScanClick	(void);
 	void		stopChannelScanClick	(void);

@@ -212,6 +212,7 @@ RadioInterface::RadioInterface(QSettings	*Si,
 
     //	Set timer to check the FIC CRC
     connect(&CheckFICTimer, SIGNAL(timeout(void)), this, SLOT(CheckFICTimerTimeout(void)));
+    connect(&StationTimer, SIGNAL(timeout(void)), this, SLOT(StationTimerTimeout(void)));
 }
 
 RadioInterface::~RadioInterface()
@@ -591,6 +592,10 @@ void	RadioInterface::nameofEnsemble(int id, const QString &v)
   */
 void	RadioInterface::show_successRate(int s)
 {
+    CurrentSuccessRate = s;
+
+    StartStationTimeout();
+
     emit displaySuccessRate(s);
 }
 
@@ -616,6 +621,7 @@ void	RadioInterface::setSynced(char b)
 
     default:
         emit syncFlag(false);
+        StartStationTimeout();
         break;
     }
 }
@@ -756,6 +762,14 @@ QString	RadioInterface::nextChannel(QString currentChannel)
             return QString(finger [i]. key);
     return QString("");
 }
+
+void RadioInterface::StartStationTimeout(void)
+{
+    // Activate a timer to reset the frequency sychronisation if the FIC CRC is constant false
+    if((CurrentSuccessRate < 100) && (!StationTimer.isActive()))
+        StationTimer.start(10000); // 10 s
+}
+
 //
 //	The ofdm processor is "conditioned" to send one signal
 //	per "scanning tour". This signal is either "false"
@@ -792,6 +806,7 @@ void    RadioInterface::setSignalPresent(bool isSignal)
 void	RadioInterface::show_ficCRC(bool b)
 {
     isFICCRC = b;
+
     emit ficFlag(b);
 }
 
@@ -1063,6 +1078,25 @@ void    RadioInterface::CheckFICTimerTimeout(void)
         emit dabType("DAB+");
     else
         emit dabType("DAB");
+}
+
+void    RadioInterface::StationTimerTimeout(void)
+{
+    StationTimer.stop();
+
+    // Check false FIC CRC counter10
+    if(CurrentSuccessRate < 100)
+    {
+        fprintf(stderr, "Resetting tuner ...\n");
+
+        // Reset current channel to force channelClick to do a new turn
+        // This is very ugly but its working
+        QString tmpCurrentChannel = currentChannel;
+        currentChannel = "";
+
+        // Tune to channel
+        channelClick(CurrentStation, tmpCurrentChannel);
+    }
 }
 
 void	RadioInterface::channelClick(QString StationName,
