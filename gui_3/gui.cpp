@@ -75,7 +75,6 @@ RadioInterface::RadioInterface(QSettings	*Si,
     int WindowHeight = dabSettings -> value("WindowHeight", 0). toInt();
     int WindowWidth = dabSettings -> value("WindowWidth", 0). toInt();
     bool isFullscreen = dabSettings	-> value("StartInFullScreen", false). toBool();
-    bool isShowChannelNames = dabSettings -> value("ShowChannelNames", false).toBool();
     bool isExpertMode = dabSettings-> value("EnableExpertMode", false). toBool();
 
     // Read channels from the settings
@@ -110,11 +109,6 @@ RadioInterface::RadioInterface(QSettings	*Si,
     QObject *enableFullScreenObject =  rootObject -> findChild<QObject*> ("enableFullScreen");
     if(enableFullScreenObject != NULL)
         enableFullScreenObject -> setProperty("checked", isFullscreen);
-
-    //	Restore the show channel names property
-    QObject *showChannelObject = rootObject -> findChild<QObject*> ("showChannel");
-    if(showChannelObject != NULL)
-        showChannelObject -> setProperty("checked", isShowChannelNames);
 
     //	Restore expert mode
     QObject *expertModeObject = rootObject -> findChild<QObject*> ("enableExpertMode");
@@ -265,17 +259,6 @@ void	RadioInterface::dumpControlState(QSettings *s)
             enableFullScreenObject -> property("checked").toBool();
         //	Save the setting
         s -> setValue("StartInFullScreen", isFullScreen);
-    }
-
-    //	Access the visible channel names
-    QObject *showChannelObject =
-        rootObject -> findChild<QObject*> ("showChannel");
-    if(showChannelObject != NULL)
-    {
-        bool isShowChannel =
-            showChannelObject -> property("checked").toBool();
-        //	Save the setting
-        s -> setValue("ShowChannelNames", isShowChannel);
     }
 
     //	Access to the enable expert mode switch

@@ -8,7 +8,7 @@ import "style"
 Item {
     id: settingsPage
 
-    property alias showChannelState : showChannel.checked
+    property alias showChannelState : enableExpertMode.checked
     property alias enableFullScreenState : enableFullScreen.checked
     property alias enableExpertModeState : enableExpertMode.checked
 
@@ -91,13 +91,6 @@ Item {
                             width: parent.width
                             text: "Found channels: 0"
                         }
-                    }
-
-                    TouchSwitch {
-                        id: showChannel
-                        name: "Show channel in station list"
-                        objectName: "showChannel"
-                        checked: false
                     }
                 }
             }
