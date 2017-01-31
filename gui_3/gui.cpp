@@ -595,7 +595,9 @@ void	RadioInterface::show_successRate(int s)
 {
     CurrentSuccessRate = s;
 
-    StartStationTimeout();
+    // Activate a timer to reset the frequency sychronisation if the FIC CRC is constant false
+    if((CurrentSuccessRate < 100) && (!StationTimer.isActive()))
+        StationTimer.start(10000); // 10 s
 
     emit displaySuccessRate(s);
 }
@@ -610,9 +612,6 @@ void	RadioInterface::show_snr(int s)
 //	from the ofdmprocessor
 void	RadioInterface::setSynced(char b)
 {
-    if(isSynced == b)
-        return;
-
     isSynced = b;
     switch(isSynced)
     {
@@ -622,7 +621,6 @@ void	RadioInterface::setSynced(char b)
 
     default:
         emit syncFlag(false);
-        StartStationTimeout();
         break;
     }
 }
@@ -762,13 +760,6 @@ QString	RadioInterface::nextChannel(QString currentChannel)
         if(finger [i - 1]. key == currentChannel)
             return QString(finger [i]. key);
     return QString("");
-}
-
-void RadioInterface::StartStationTimeout(void)
-{
-    // Activate a timer to reset the frequency sychronisation if the FIC CRC is constant false
-    if((CurrentSuccessRate < 100) && (!StationTimer.isActive()))
-        StationTimer.start(10000); // 10 s
 }
 
 //
@@ -919,6 +910,10 @@ void	RadioInterface::set_channelSelect(QString s)
     int16_t	i;
     struct dabFrequencies *finger;
     bool	localRunning	= running;
+
+    // Reset timeout to reset the tuner
+    StationTimer.start(10000);
+    CurrentSuccessRate = 0;
 
     if(localRunning)
     {

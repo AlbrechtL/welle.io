@@ -122,7 +122,6 @@ const	char		*get_programm_language_string (uint8_t);
 	int		fineCorrector;
 	bool		setDevice		(QString);
 	QString		nextChannel		(QString currentChannel);
-    void StartStationTimeout(void);
     QString input_device;
     MOTImageProvider *MOTImage;
     int32_t	tunedFrequency;
