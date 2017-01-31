@@ -232,6 +232,7 @@ gui_2	{
 }
 
 gui_3	{
+        TARGET		= dab-rpi-touch
         DEFINES		+= GUI_3
         QT		+= qml quick charts
         INCLUDEPATH	+= ./gui_3
