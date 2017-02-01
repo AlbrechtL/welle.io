@@ -9,7 +9,6 @@ The receiver supports terrestrial DAB and DAB+ reception with as input the  samp
 There are now FOUR versions of the dab-rpi software, the set is extended with a "command line only" version.
 
 1. GUI_1  is a version with a GUI using regular QT widgets, it can be build with Qt4 and Qt5;
-2. GUI_2 is a "command line" version. i.e.  no widgets at all, no flexibility, just pass the channel, the program next to Band, Mode and Device (of course there are defaults).
 3. GUI_3  is a touch and high DPI display optimized GUI based in QT QML. It can be build using Qt5.7 and higher.
 2. GUI_4  is a version without a GUI, the program is controlled remotely using a TCP connection. A simple remote controller is included in the sources;  The dab-rpi version - the simple remote controller as well - can be build using Qt4 and Qt5;
 
@@ -21,7 +20,7 @@ CONFIG		+= dabstick
 
  ......
  
-CONFIG		+= gui_1 (or gui_2, gui_3 or gui_4)
+CONFIG		+= gui_1 (or gui_3 or gui_4)
 
 DESTDIR		= ./linux-bin
 
@@ -33,7 +32,6 @@ LIBS		+= -lfaad
 
 For a detailed description of how to build the "gui_1" version, see "README.GUI_1.md.
 
-For a description of the "gui_2" version, see "README.GUI_2.md.
 
 For a detailed description of how to build the "GUI_3" version, see "README.GUI_3.md.
 

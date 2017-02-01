@@ -158,8 +158,6 @@ SOURCES += ./main.cpp \
 #	Note
 #	Select "gui_1" for (more or less) normal use, with or without
 #	               a tcp streamer
-#	Select "gui_2" for a command line program, i.e. without any GUI.
-#	               with or without tcp streamer
 #	Select "gui_3" for a fancy interface, using qml, tcp streamer is
 #	               not supported
 #	Select "gui_4" for a dab-rpi without GUI, i.e. one with remote control
@@ -223,16 +221,6 @@ gui_1	{
 	#CONFIG		+= tcp-streamer		# use for remote listening
 	DEFINES		+= MOT_BASICS__		# use at your own risk
 	DEFINES		+= MSC_DATA__		# use at your own risk
-}
-
-gui_2	{
-	TARGET		= dab-rpi-cmd
-	DEFINES		+= GUI_2
-	INCLUDEPATH	+= ./gui_2
-	DEPENDPATH	+= ./gui_2
-	HEADERS		+= ./gui_2/gui.h
-	SOURCES		+= ./gui_2/gui_2.cpp
-	#CONFIG		+= tcp-streamer		# use for remote listening
 }
 
 gui_3	{
