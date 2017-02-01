@@ -158,17 +158,17 @@ SOURCES += ./main.cpp \
 #	Note
 #	Select "gui_1" for (more or less) normal use, with or without
 #	               a tcp streamer
+#	Select "gui_2" for a dab-rpi without GUI, i.e. one with remote control
+#	               which automatically includes sound through tcp streamer
 #	Select "gui_3" for a fancy interface, using qml, tcp streamer is
 #	               not supported
-#	Select "gui_4" for a dab-rpi without GUI, i.e. one with remote control
-#	               which automatically includes sound through tcp streamer
 unix {
 CONFIG		+= dabstick
 CONFIG		+= sdrplay-exp
 #CONFIG		+= sdrplay
 CONFIG		+= rtl_tcp
 CONFIG		+= airspy
-CONFIG		+= gui_1
+CONFIG		+= gui_2
 DESTDIR		= ./linux-bin
 INCLUDEPATH	+= /usr/local/include
 LIBS		+= -lfftw3f  -lusb-1.0 -ldl  #
@@ -223,6 +223,17 @@ gui_1	{
 	DEFINES		+= MSC_DATA__		# use at your own risk
 }
 
+gui_2	{
+	TARGET		= dab-rpi-remote
+	DEFINES		+= GUI_2
+	INCLUDEPATH	+= ./gui_2
+	DEPENDPATH	+= ./gui_2
+	HEADERS		+= ./gui_2/gui.h
+	SOURCES		+= ./gui_2/gui.cpp
+	CONFIG		+= tcp-streamer		# use for remote listening
+}
+
+
 gui_3	{
         TARGET		= dab-rpi-touch
         DEFINES		+= GUI_3
@@ -251,16 +262,6 @@ gui_3	{
         DEFINES		+= MOT_BASICS__		# use at your own risk
 }
 	
-gui_4	{
-	TARGET		= dab-rpi-remote
-	DEFINES		+= GUI_4
-	INCLUDEPATH	+= ./gui_4
-	DEPENDPATH	+= ./gui_4
-	HEADERS		+= ./gui_4/gui.h
-	SOURCES		+= ./gui_4/gui_4.cpp
-	CONFIG		+= tcp-streamer		# use for remote listening
-}
-
 
 
 #	devices

@@ -1,6 +1,6 @@
 
-When configuring and building with selected gui_4, the dab program itself does not have a GUI.
-It is controlled remotely.
+When configuring and building with selected gui_2,
+the dab program itself does not have a GUI, but is is controlled remotely.
 
 Some parameters can be set through the command line on starting the program
 -D device, selects the device (one of the configured ones, default a dabstick);
@@ -48,5 +48,7 @@ Rge messages themselves are
 	FIC_FLAG		= 9,	// parameter is an int
 	STEREO_FLAG		= 10	// parameter is an int
 
-For building gui_4 using qmake/make, see GUI_1
+For building gui_2 using qmake/make. Note that this version
+still strongly depends on Qt, so although there are no visual signs,
+the Qt libraries need to be installed.
 
