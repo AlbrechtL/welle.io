@@ -92,6 +92,25 @@ Item {
                             text: "Found channels: 0"
                         }
                     }
+
+
+                    /*RowLayout {
+                        Layout.preferredWidth: parent.width
+
+                        ComboBox {
+                            id: styleBox
+                            model: ["5A", "5B", "5C"]
+                            Component.onCompleted: { }
+                        }
+
+                        TouchButton {
+                            id: resetChannelListButton
+                            text: "Reset station list"
+                            Layout.alignment: Qt.AlignRight
+                            Layout.preferredWidth: Units.dp(110)
+                            onClicked: { }
+                        }
+                    }*/
                 }
             }
 

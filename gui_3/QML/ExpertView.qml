@@ -10,9 +10,6 @@ Item {
     Layout.fillWidth: true
     Layout.fillHeight: true
 
-    property int ficErrorsPerMinutTenSeconds: 0
-    property string ficErrorsPerMinutTenSecondsText: ""
-
     ColumnLayout {
         anchors.fill: parent
         anchors.topMargin: Units.dp(5)
@@ -34,8 +31,18 @@ Item {
         }
 
         TextExpert {
-            id: displaySuccessRate
-            name: "Frame success rate:"
+            id: displayFrameErrors
+            name: "Frame errors:"
+        }
+
+        TextExpert {
+            id: displayRSErrors
+            name: "RS errors:"
+        }
+
+        TextExpert {
+            id: displayAACErrors
+            name: "AAC errors:"
         }
 
         TextExpert {
@@ -56,16 +63,6 @@ Item {
         }
     }
 
-    Timer {
-        interval: 10 * 1000 // 10 s
-        running: true
-        repeat: true
-        onTriggered: {
-           ficErrorsPerMinutTenSecondsText = " (" + ficErrorsPerMinutTenSeconds +" Errors / 10 s)"
-           ficErrorsPerMinutTenSeconds = 0
-        }
-    }
-
     Connections{
         target: cppGUI
         onDisplayCurrentChannel:{
@@ -80,8 +77,16 @@ Item {
             displayFreqCorr.text = Freq + " Hz"
         }
 
-        onDisplaySuccessRate:{
-            displaySuccessRate.text = Rate + " %"
+        onDisplayFrameErrors:{
+            displayFrameErrors.text = Errors
+        }
+
+        onDisplayRSErrors:{
+            displayRSErrors.text = Errors
+        }
+
+        onDisplayAACErrors:{
+            displayAACErrors.text = Errors
         }
 
         onSyncFlag:{
@@ -96,10 +101,8 @@ Item {
                 displayFIC_CRC.text = "OK"
             else
             {
-                ficErrorsPerMinutTenSeconds++
                 displayFIC_CRC.text = "Error"
             }
-            displayFIC_CRC.text = displayFIC_CRC.text + ficErrorsPerMinutTenSecondsText
         }
     }
 }

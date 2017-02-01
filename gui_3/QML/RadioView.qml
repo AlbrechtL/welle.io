@@ -141,14 +141,14 @@ Item{
         }
 
         onFicFlag:{
-            if(active)
+            if(active && sync.color == "#008000")
                 fic.color = "green"
             else
                 fic.color = "red"
         }
 
-        onDisplaySuccessRate:{
-            if(Rate == 100)
+        onDisplayFrameErrors:{
+            if(Errors == 0 && fic.color == "#008000")
                 frameSucess.color = "green"
             else
                 frameSucess.color = "red"

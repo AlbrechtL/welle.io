@@ -128,7 +128,7 @@ const	char		*get_programm_language_string (uint8_t);
     MOTImageProvider *MOTImage;
     int32_t	tunedFrequency;
     int LastCurrentManualGain;
-    int CurrentSuccessRate;
+    int CurrentFrameErrors;
 
 public slots:
 	void		end_of_waiting_for_stations	(void);
@@ -137,8 +137,10 @@ public slots:
 	void		clearEnsemble		(void);
 	void		addtoEnsemble		(const QString &);
 	void		nameofEnsemble		(int, const QString &);
-	void		show_successRate	(int);
-	void		show_ficCRC		(bool);
+    void		show_frameErrors	(int);
+    void		show_rsErrors       (int);
+    void		show_aacErrors      (int);
+    void		show_ficSuccess		(bool);
 	void		show_snr		(int);
 	void		setSynced		(char);
 	void		showLabel		(QString);
@@ -194,7 +196,9 @@ signals:
 	void		displayFreqCorr		(int Freq);
 	void		displayMSCErrors	(int Errors);
     void		displayCurrentChannel	(QString Channel, int Frequency);
-	void		displaySuccessRate	(int Rate);
+    void		displayFrameErrors	(int Errors);
+    void		displayRSErrors	(int Errors);
+    void		displayAACErrors	(int Errors);
     void        showErrorMessage    (QString Text);
 };
 

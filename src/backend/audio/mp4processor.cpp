@@ -298,7 +298,7 @@ uint8_t theAudioUnit [2 * 960 + 10];	// sure, large enough
 #ifndef GUI_3
 	   my_padhandler. processPAD (theAudioUnit);
 #else
-	   padDecoderAdapter-> processPAD (theAU);
+       padDecoderAdapter-> processPAD (theAudioUnit);
 #endif
 
 	int tmp = aacDecoder. MP42PCM (dacRate,

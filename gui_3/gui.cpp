@@ -207,7 +207,7 @@ RadioInterface::RadioInterface(QSettings	*Si,
     //	Set timer to check the FIC CRC
     connect(&CheckFICTimer, SIGNAL(timeout(void)), this, SLOT(CheckFICTimerTimeout(void)));
     connect(&StationTimer, SIGNAL(timeout(void)), this, SLOT(StationTimerTimeout(void)));
-    CurrentSuccessRate = 0;
+    CurrentFrameErrors = -1;
 }
 
 RadioInterface::~RadioInterface()
@@ -569,20 +569,25 @@ void	RadioInterface::nameofEnsemble(int id, const QString &v)
     my_ofdmProcessor	-> coarseCorrectorOff();
 }
 
-/**
-  *	\brief show_successRate
-  *	a slot, called by the MSC handler to show the
-  *	percentage of frames that could be handled
-  */
-void	RadioInterface::show_successRate(int s)
+void	RadioInterface::show_frameErrors(int s)
 {
-    CurrentSuccessRate = s;
+    CurrentFrameErrors = s;
 
     // Activate a timer to reset the frequency sychronisation if the FIC CRC is constant false
-    if((CurrentSuccessRate < 100) && (!StationTimer.isActive()))
+    if((CurrentFrameErrors =! 0) && (!StationTimer.isActive()))
         StationTimer.start(10000); // 10 s
 
-    emit displaySuccessRate(s);
+    emit displayFrameErrors(s);
+}
+
+void	RadioInterface::show_rsErrors (int s)
+{
+    emit displayRSErrors(s);
+}
+
+void	RadioInterface::show_aacErrors (int s)
+{
+    emit displayAACErrors(s);
 }
 
 ///	called from the ofdmDecoder, which computes this for each frame
@@ -778,7 +783,7 @@ void    RadioInterface::setSignalPresent(bool isSignal)
     my_ofdmProcessor	-> set_scanMode(true, currentChannel);
 }
 
-void	RadioInterface::show_ficCRC(bool b)
+void	RadioInterface::show_ficSuccess(bool b)
 {
     isFICCRC = b;
 
@@ -896,7 +901,7 @@ void	RadioInterface::set_channelSelect(QString s)
 
     // Reset timeout to reset the tuner
     StationTimer.start(10000);
-    CurrentSuccessRate = 0;
+    CurrentFrameErrors = -1;
 
     if(localRunning)
     {
@@ -1064,7 +1069,7 @@ void    RadioInterface::StationTimerTimeout(void)
     StationTimer.stop();
 
     // Reset if frame success rate is below 50 %
-    if(CurrentSuccessRate < 50)
+    if(CurrentFrameErrors > 3)
     {
         fprintf(stderr, "Resetting tuner ...\n");
 
@@ -1104,7 +1109,7 @@ void	RadioInterface::channelClick(QString StationName,
     emit motChanged();
 
     // Clear flags
-    emit displaySuccessRate(0);
+    emit displayFrameErrors(0);
     emit ficFlag(false);
 }
 
