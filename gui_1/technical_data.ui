@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>259</width>
-    <height>340</height>
+    <height>483</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -271,6 +271,70 @@
    </property>
    <property name="text">
     <string>MHz</string>
+   </property>
+  </widget>
+  <widget class="QProgressBar" name="ficError_display">
+   <property name="geometry">
+    <rect>
+     <x>40</x>
+     <y>340</y>
+     <width>201</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Quality of FIC decoding, 100 is good&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+   <property name="value">
+    <number>24</number>
+   </property>
+  </widget>
+  <widget class="QProgressBar" name="frameError_display">
+   <property name="geometry">
+    <rect>
+     <x>40</x>
+     <y>370</y>
+     <width>201</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Frame errors. Indication of the quality of the DAB+ frame detection. 100 is good.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+   <property name="value">
+    <number>24</number>
+   </property>
+  </widget>
+  <widget class="QProgressBar" name="rsError_display">
+   <property name="geometry">
+    <rect>
+     <x>40</x>
+     <y>400</y>
+     <width>201</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Quality of the DAB+ frames. Indicator for the amount of times that the frames contain&lt;/p&gt;&lt;p&gt;more errors than the Reed Solomon correction can correct. 100 is good.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+   <property name="value">
+    <number>24</number>
+   </property>
+  </widget>
+  <widget class="QProgressBar" name="aacError_display">
+   <property name="geometry">
+    <rect>
+     <x>40</x>
+     <y>440</y>
+     <width>201</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Indicator of the successrate of handling the aac frames in the DAB+ transmissions.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+   <property name="value">
+    <number>24</number>
    </property>
   </widget>
  </widget>

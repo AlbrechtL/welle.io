@@ -27,6 +27,8 @@
 #include	<QSettings>
 #include	"dab-constants.h"
 #include	"gui.h"
+#include	"fic-handler.h"
+#include	"msc-handler.h"
 #ifdef  TCP_STREAMER
 #include        "tcp-streamer.h"
 #endif
@@ -415,20 +417,6 @@ void	RadioInterface::nameofEnsemble (int id, const QString &s) {
 	my_ofdmProcessor	-> coarseCorrectorOff ();
 }
 
-/**
-  *	\brief show_successRate
-  *	a slot, called by the MSC handler to show the
-  *	percentage of frames that could be handled
-  */
-void	RadioInterface::show_successRate (int s) {
-	showMessage (SUCCESS_RATE, s);
-}
-
-///	called from the ofdmDecoder, which computes this for each frame
-void	RadioInterface::show_snr (int s) {
-	showMessage (SIGNAL_POWER, s);
-}
-
 ///	just switch a color, obviously GUI dependent, but called
 //	from the ofdmprocessor
 void	RadioInterface::setSynced	(char b) {
@@ -490,13 +478,35 @@ void	RadioInterface::newAudio	(int rate) {
 	   soundOut	-> audioOut (rate);
 }
 
+/**
+  *	\brief show_successRate
+  *	a slot, called by the MSC handler to show the
+  *	percentage of frames that could be handled
+  */
+void	RadioInterface::show_frameErrors (int s) {
+	showMessage (SUCCESS_RATE, s);
+}
+
+void	RadioInterface::show_rsErrors (int s) {
+	(void)s;
+}
+
+void	RadioInterface::show_aacErrors (int s) {
+	(void)s;
+}
+
+///	called from the ofdmDecoder, which computes this for each frame
+void	RadioInterface::show_snr (int s) {
+	showMessage (SIGNAL_POWER, s);
+}
+
 //	if so configured, the function might be triggered
 //	from the message decoding software. The GUI
 //	might decide to ignore the data sent
-void	RadioInterface::show_mscErrors	(int er) {
-	(void)er;
+void	RadioInterface::show_mscErrors          (int err) {
+	(void)err;
 }
-//
+
 //	a slot, called by the iphandler
 void	RadioInterface::show_ipErrors	(int er) {
 	(void)er;
@@ -510,7 +520,7 @@ void    RadioInterface::setStereo (bool isStereo) {
 }
 //
 //
-void	RadioInterface::show_ficCRC (bool b) {
+void	RadioInterface::show_ficSuccess (bool b) {
         if (b)
            ficSuccess ++;
         if (++ficBlocks >= 100) {

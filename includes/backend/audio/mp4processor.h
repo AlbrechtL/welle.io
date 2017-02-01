@@ -57,6 +57,13 @@ private:
 	RadioInterface	*myRadioInterface;
 	padHandler	my_padhandler;
 	bool		processSuperframe (uint8_t [], int16_t);
+	void		handle_aacFrame (uint8_t *,
+	                                 int16_t,
+	                                 uint8_t,
+	                                 uint8_t,
+	                                 uint8_t,
+	                                 uint8_t,
+	                                 bool*);
 	int16_t		superFramesize;
 	int16_t		blockFillIndex;
 	int16_t		blocksInBuffer;
@@ -77,13 +84,19 @@ private:
 //	and for the aac decoder
 	faadDecoder	aacDecoder;
 	int16_t		frameCount;
+	int16_t		successFrames;
 	int16_t		frameErrors;
+	int16_t		rsErrors;
+	int16_t		aacErrors;
+	int16_t		aacFrames;
 	int16_t		charSet;
 #ifdef GUI_3
-    PADDecoderAdapter  *padDecoderAdapter;
+	PADDecoderAdapter  *padDecoderAdapter;
 #endif
 signals:
-	void		show_successRate		(int);
+	void		show_frameErrors		(int);
+	void		show_rsErrors			(int);
+	void		show_aacErrors			(int);
 	void		showLabel			(QString);
 	void		isStereo			(bool);
 };

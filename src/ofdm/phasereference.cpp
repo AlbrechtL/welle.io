@@ -29,16 +29,12 @@
   *	The class inherits from the phaseTable.
   */
 	phaseReference::phaseReference (DabParams	*p,
-	                                int16_t		blockSize,
 	                                int16_t threshold):
 	                                     phaseTable (p -> dabMode) {
 int32_t	i;
 DSPFLOAT	Phi_k;
 
 	this	-> Tu		= p -> T_u;
-	this	-> blockSize	= blockSize;
-	if (blockSize > Tu)
-	   blockSize = Tu;
 	this	-> threshold	= threshold;
 
 	Max			= 0.0;
@@ -66,7 +62,7 @@ DSPFLOAT	Phi_k;
 
 /**
   *	\brief findIndex
-  *	the vector v contains "blockSize" samples that are believed to
+  *	the vector v contains "Tu" samples that are believed to
   *	belong to the first non-null block of a DAB frame.
   *	We correlate the data in this verctor with the predefined
   *	data, and if the maximum exceeds a threshold value,
@@ -79,10 +75,7 @@ int32_t	maxIndex	= -1;
 float	sum		= 0;
 
 	Max	= 1.0;
-	memcpy (fft_buffer, v, blockSize * sizeof (DSPCOMPLEX));
-	if (blockSize < Tu)
-	   memset (&fft_buffer [blockSize], 0,
-	           (Tu - blockSize) * sizeof (DSPCOMPLEX));
+	memcpy (fft_buffer, v, Tu * sizeof (DSPCOMPLEX));
 
 	fft_processor -> do_FFT ();
 //
@@ -97,7 +90,7 @@ float	sum		= 0;
 	for (i = 0; i < Tu; i ++)
 	   sum	+= abs (res_buffer [i]);
 	Max	= -10000;
-	for (i = 0; i < blockSize; i ++)
+	for (i = 0; i < Tu; i ++)
 	   if (abs (res_buffer [i]) > Max) {
 	      maxIndex = i;
 	      Max = abs (res_buffer [i]);
@@ -105,8 +98,8 @@ float	sum		= 0;
 /**
   *	that gives us a basis for defining the threshold
   */
-	if (Max < threshold * sum / blockSize)
-	   return  - abs (Max * blockSize / sum) - 1;
+	if (Max < threshold * sum / Tu)
+	   return  - abs (Max * Tu / sum) - 1;
 	else
 	   return maxIndex;	
 }

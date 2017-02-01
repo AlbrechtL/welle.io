@@ -1,6 +1,5 @@
 #
 /*
- *
  *    Copyright (C) 2013
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
  *    Lazy Chair Programming
@@ -19,12 +18,10 @@
  *    You should have received a copy of the GNU General Public License
  *    along with SDR-J; if not, write to the Free Software
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
  */
 #ifndef	__OFDM_DECODER
 #define	__OFDM_DECODER
 
-#define	MULTI_CORE
 #include	"dab-constants.h"
 #include	<QThread>
 #include	<QWaitCondition>
@@ -33,18 +30,17 @@
 #include	"fft.h"
 #include	"phasetable.h"
 #include	<stdint.h>
+#include	"freq-interleaver.h"
 
 class	RadioInterface;
 class	ficHandler;
 class	mscHandler;
-class	interLeaver;
 
 class	ofdmDecoder: public QThread {
 Q_OBJECT
 public:
 		ofdmDecoder		(DabParams *,
 	                                 RadioInterface *,
-	                                 DSPCOMPLEX	*,
 	                                 ficHandler	*,
 	                                 mscHandler	*);
 		~ofdmDecoder		(void);
@@ -56,10 +52,8 @@ public:
 private:
 	DabParams	*params;
 	RadioInterface	*myRadioInterface;
-	DSPCOMPLEX	*refTable;
 	ficHandler	*my_ficHandler;
 	mscHandler	*my_mscHandler;
-	QSemaphore	*bufferResources;
 	void		run		(void);
 	bool		running;
 	DSPCOMPLEX	**command;
@@ -68,6 +62,7 @@ private:
 	void		processBlock_0		(void);
 	void		decodeFICblock		(int32_t n);
 	void		decodeMscblock		(int32_t n);
+	QSemaphore	bufferSpace;
 	QWaitCondition	commandHandler;
 	QMutex		helper;
 	int32_t		T_s;
@@ -78,7 +73,7 @@ private:
 	DSPCOMPLEX	*phaseReference;
 	common_fft	*fft_handler;
 	DSPCOMPLEX	*fft_buffer;
-	interLeaver	*myMapper;
+	interLeaver	myMapper;
 	phaseTable	*phasetable;
 	int32_t		blockIndex;
 	int16_t		*ibits;

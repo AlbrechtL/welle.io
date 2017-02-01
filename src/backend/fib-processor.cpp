@@ -101,7 +101,6 @@
 	listofServices	= new serviceId [64];
 	memset (dateTime, 0, 8);
 	dateFlag	= false;
-	selectedService		= -1;
 	clearEnsemble	();
 	connect (this, SIGNAL (addtoEnsemble (const QString &)),
 	         myRadioInterface, SLOT (addtoEnsemble (const QString &)));
@@ -538,6 +537,7 @@ int16_t	offset	= 16;
 	                     getBits_4 (d, offset + 3);
 	dateTime [7] = (getBits_1 (d, offset + 7) == 1)? 30 : 0;
 }
+
 //
 void fib_processor::FIG0Extension10 (uint8_t *fig) {
 int16_t		offset = 16;
@@ -824,14 +824,16 @@ char		label [17];
 	      if ((charSet <= 16)) { // EBU Latin based repertoire
 	         for (i = 0; i < 16; i ++) {
 	            label [i] = getBits_8 (d, offset + 8 * i);
-//	            addEnsembleChar (label [i], i);
 	         }
 //	         fprintf (stderr, "Ensemblename: %16s\n", label);
 	         if (!oe) {
 	            const QString name = toQStringUsingCharset (
 	                                      (const char *) label,
 	                                      (CharacterSet) charSet);
-	            nameofEnsemble (SId, name);
+	            if (firstTime)
+	               nameofEnsemble (SId, name);
+	            firstTime	= false;
+	            isSynced	= true;
 	         }
 	      }
 //	      fprintf (stderr,
@@ -1057,43 +1059,15 @@ int16_t i;
 	   listofServices [i]. serviceLabel. label = QString ();
 	   components [i]. inUse = false;
 	}
-	selectedService	= -1;
+
+	firstTime	= true;
+	isSynced	= false;
 }
 
-void	fib_processor::printActions (int16_t ficno) {
-int16_t	i;
-uint16_t	subchId;
-
-	(void)ficno;
-	for (i = 0; i < 64; i ++) {
-	   if (!components [i]. inUse)
-	      continue;
-
-	   if (selectedService != components [i]. service -> serviceId)
-	      continue;
-
-//	   fprintf (stderr, "%d >>> (component = %d) ", ficno, 
-//	                                 components [i]. componentNr);
-//	   for (j = 0; j < 16; j ++)
-//	      fprintf (stderr, "%1c", p [j]);
-//	   fprintf (stderr, "with SId = %d requests ", 
-//	                                       components [i]. service -> serviceId);
-//
-//	   fprintf (stderr, "SubChId = %d ", components [i]. subchannelId);
-	   subchId	= components [i]. subchannelId;
-
-//	   fprintf (stderr, "StartAdd = %d ", ficList [subchId]. StartAddr);
-//	   fprintf (stderr, "Length = %d ", ficList [subchId]. Length);
-//	   fprintf (stderr, "uepFlag = %d ", ficList [subchId]. uepFlag);
-//	   fprintf (stderr, "protLevel = %d ", ficList [subchId]. protLevel);
-//	   fprintf (stderr, "ASCTy = %d ", components [i]. ASCTy);
-//	   fprintf (stderr, "BitRate = %d\n", ficList [subchId]. BitRate);
-	}
-	(void)subchId;
-}
 
 uint8_t	fib_processor::kindofService (QString &s) {
 int16_t	i, j;
+int32_t	selectedService;
 
 //	first we locate the serviceId
 	for (i = 0; i < 64; i ++) {
@@ -1172,6 +1146,7 @@ int32_t	selectedService;
 
 void	fib_processor::dataforAudioService (QString &s, audiodata *d) {
 int16_t	i, j;
+int32_t	selectedService;
 
 	d	-> defined	= false;
 //	first we locate the serviceId
@@ -1211,5 +1186,9 @@ int16_t	i, j;
 	   }
 	}
 	fprintf (stderr, "service %s insuffiently defined\n", s. toLatin1 (). data ());
+}
+
+bool    fib_processor::syncReached (void) {
+        return isSynced;
 }
 

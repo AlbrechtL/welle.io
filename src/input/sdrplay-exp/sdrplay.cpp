@@ -226,7 +226,7 @@ void	sdrplay::setExternalGain	(int newGain) {
 
 	currentGain = maxGain () - newGain;
 	my_mir_sdr_SetGr (currentGain, 1, 0);
-	gainDisplay	-> display (currentGain);
+	gainDisplay	-> display (maxGain () - currentGain);
 }
 
 int16_t	sdrplay::maxGain	(void) {

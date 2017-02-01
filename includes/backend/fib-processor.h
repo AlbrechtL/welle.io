@@ -96,8 +96,7 @@ public:
 
 	void	setupforNewFrame	(void);
 	void	clearEnsemble		(void);
-	void	printActions		(int16_t);
-	void	setCIFparameters	(int16_t);
+	bool	syncReached		(void);
 	void	setSelectedService	(QString &);
 	uint8_t	kindofService		(QString &);
 	void	dataforAudioService	(QString &, audiodata *);
@@ -112,7 +111,6 @@ private:
         void            bind_packetService (int8_t,
                                             uint32_t, int16_t,
                                             int16_t, int16_t, int16_t);
-	int32_t		selectedService;
 	void		process_FIG0		(uint8_t *);
 	void		process_FIG1		(uint8_t *);
 	void		FIG0Extension0		(uint8_t *);
@@ -147,9 +145,10 @@ private:
 	channelMap	ficList [64];
 	serviceComponent	components [64];
 	serviceId	*listofServices;
-	bool	dateFlag;
+	bool		dateFlag;
+	bool		firstTime;
+	bool		isSynced;
 signals:
-	void		addEnsembleChar	(char, int);
 	void		addtoEnsemble	(const QString &);
 	void		nameofEnsemble  (int, const QString &);
 	void		changeinConfiguration (void);

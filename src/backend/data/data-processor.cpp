@@ -21,7 +21,6 @@
 #
 #include	"dab-constants.h"
 #include	"data-processor.h"
-#include	"deconvolve.h"
 #include	"virtual-datahandler.h"
 #include	"ip-datahandler.h"
 #include	"mot-databuilder.h"

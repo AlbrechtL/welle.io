@@ -1,7 +1,6 @@
 #
 /*
- *
- *    Copyright (C) 2013
+ *    Copyright (C) 2017
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
  *    Lazy Chair Programming
  *
@@ -20,34 +19,14 @@
  *    along with SDR-J; if not, write to the Free Software
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
+ *
+ *	Simple base class for combining uep and eep deconvolvers
  */
-#
-#ifndef	__PHASEREFERENCE
-#define	__PHASEREFERENCE
+#include	"protection.h"
 
-#include	"fft.h"
-#include	<stdio.h>
-#include	<stdint.h>
-#include	"phasetable.h"
-#include	"dab-constants.h"
-
-
-class phaseReference : public phaseTable {
-public:
-		phaseReference (DabParams *, int16_t);
-		~phaseReference	(void);
-	int32_t	findIndex	(DSPCOMPLEX *);
-	DSPCOMPLEX	*refTable;
-private:
-	int32_t		Tu;
-	int16_t		threshold;
-
-	common_fft	*fft_processor;
-	DSPCOMPLEX	*fft_buffer;
-	common_ifft	*res_processor;
-	DSPCOMPLEX	*res_buffer;
-	int32_t		fft_counter;
-	DSPFLOAT	Max;
-};
-#endif
+	protection::protection 	(void) {}
+	protection::~protection	(void) {}
+bool	protection::deconvolve	(int16_t *a, int32_t b, uint8_t *c) {
+	   (void)a; (void)b; (void)c;
+}
 

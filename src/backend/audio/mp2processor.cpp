@@ -238,8 +238,8 @@ int16_t *nPtr = &N [0][0];
 
 	myRadioInterface	= mr;
 	this	-> buffer	= buffer;
-	connect (this, SIGNAL (show_successRate (int)),
-	         mr, SLOT (show_successRate (int)));
+	connect (this, SIGNAL (show_frameErrors (int)),
+	         mr, SLOT (show_frameErrors (int)));
 	connect (this, SIGNAL (newAudio (int)),
 	         mr, SLOT (newAudio (int)));
 	connect (this, SIGNAL (isStereo (bool)),
@@ -376,8 +376,8 @@ int32_t sb, ch, gr, part, idx, nch, i, j, sum;
 int32_t table_idx;
 
 	numberofFrames ++;
-	if (numberofFrames >= 50) {
-	   show_successRate (100 - 2 * errorFrames);
+	if (numberofFrames >= 25) {
+	   show_frameErrors (errorFrames);
 	   numberofFrames	= 0;
 	   errorFrames		= 0;
 	}

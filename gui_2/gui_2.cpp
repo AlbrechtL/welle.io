@@ -27,6 +27,8 @@
 #include	<QSettings>
 #include	"dab-constants.h"
 #include	"gui.h"
+#include	"fic-handler.h"
+#include	"msc-handler.h"
 #ifdef  TCP_STREAMER
 #include        "tcp-streamer.h"
 #else
@@ -158,7 +160,7 @@ int16_t	latency;
 	successTimer	-> start ();
 	setChannel (channel);
 	setStart ();
-	
+	inputDevice	-> setGain (gain);
 }
 
 	RadioInterface::~RadioInterface () {
@@ -458,12 +460,20 @@ void	RadioInterface::noSignalFound (void) {
 	}
 }
 
-/**
-  *	\brief show_successRate
-  *	a slot, called by the MSC handler to show the
-  *	percentage of frames that could be handled
-  */
-void	RadioInterface::show_successRate (int s) {
+void	RadioInterface::show_ficSuccess (bool s) {
+	(void)s;
+}
+
+void	RadioInterface::show_frameErrors (int s) {
+	(void)s;
+}
+
+void	RadioInterface::show_rsErrors (int s) {
+	(void)s;
+}
+
+void	RadioInterface::show_aacErrors (int s) {
+	(void)s;
 }
 
 ///	called from the ofdmDecoder, which computes this for each frame
@@ -535,10 +545,6 @@ void    RadioInterface::setStereo (bool isStereo) {
 }
 //
 //
-void	RadioInterface::show_ficCRC (bool b) {
-	(void)b;
-}
-
 /////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////
 //	
@@ -596,6 +602,7 @@ struct dabFrequencies *finger;
 bool	localRunning	= running;
 int32_t	tunedFrequency;
 
+	fprintf (stderr, "selecting channel %s\n", s. toLatin1 (). data ());
 	clearEnsemble ();
 	if (localRunning) {
 	   soundOut	-> stop ();
@@ -612,6 +619,7 @@ int32_t	tunedFrequency;
 	for (i = 0; finger [i]. key != NULL; i ++) {
 	   if (finger [i]. key == s) {
 	      tunedFrequency	= KHz (finger [i]. fKHz);
+	      fprintf (stderr, "fingering %d\n", tunedFrequency);
 	      break;
 	   }
 	}
@@ -619,6 +627,7 @@ int32_t	tunedFrequency;
 	if (tunedFrequency == 0)
 	   return;
 
+	fprintf (stderr, "frequency = %d\n", tunedFrequency);
 	inputDevice		-> setVFOFrequency (tunedFrequency);
 	if (localRunning) {
 	   soundOut -> restart ();

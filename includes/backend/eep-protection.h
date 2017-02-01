@@ -1,6 +1,5 @@
 #
 /*
- *
  *    Copyright (C) 2013
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
  *    Lazy Chair Programming
@@ -22,32 +21,29 @@
  *
  */
 #
-#ifndef	__PHASEREFERENCE
-#define	__PHASEREFERENCE
+#ifndef	EEP_PROTECTION
+#define	EEP_PROTECTION
 
-#include	"fft.h"
 #include	<stdio.h>
 #include	<stdint.h>
-#include	"phasetable.h"
-#include	"dab-constants.h"
+#include	"protection.h"
+#include	"viterbi.h"
 
 
-class phaseReference : public phaseTable {
+	class eep_protection: public protection, public viterbi {
 public:
-		phaseReference (DabParams *, int16_t);
-		~phaseReference	(void);
-	int32_t	findIndex	(DSPCOMPLEX *);
-	DSPCOMPLEX	*refTable;
+		eep_protection		(int16_t, int16_t);
+		~eep_protection		(void);
+bool		deconvolve		(int16_t *, int32_t, uint8_t *);
 private:
-	int32_t		Tu;
-	int16_t		threshold;
-
-	common_fft	*fft_processor;
-	DSPCOMPLEX	*fft_buffer;
-	common_ifft	*res_processor;
-	DSPCOMPLEX	*res_buffer;
-	int32_t		fft_counter;
-	DSPFLOAT	Max;
+	int16_t		L1;
+	int16_t		L2;
+	int8_t		*PI1;
+	int8_t		*PI2;
+	int16_t		bitRate;
+	int32_t		outSize;
+	int16_t		*viterbiBlock;
 };
+
 #endif
 

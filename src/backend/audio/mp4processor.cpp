@@ -33,31 +33,6 @@
 //
 #include	"charsets.h"
 #include	"pad-handler.h"
-/**
-  *	\brief simple, inline coded, crc checker
-  */
-bool	dabPlus_crc (uint8_t *msg, int16_t len) {
-int i, j;
-uint16_t	accumulator	= 0xFFFF;
-uint16_t	crc;
-uint16_t	genpoly		= 0x1021;
-
-	for (i = 0; i < len; i ++) {
-	   int16_t data = msg [i] << 8;
-	   for (j = 8; j > 0; j--) {
-	      if ((data ^ accumulator) & 0x8000)
-	         accumulator = ((accumulator << 1) ^ genpoly) & 0xFFFF;
-	      else
-	         accumulator = (accumulator << 1) & 0xFFFF;
-	      data = (data << 1) & 0xFFFF;
-	   }
-	}
-//
-//	ok, now check with the crc that is contained
-//	in the au
-	crc	= ~((msg [len] << 8) | msg [len + 1]) & 0xFFFF;
-	return (crc ^ accumulator) == 0;
-}
 
 /**
   *	\class mp4Processor is the main handler for the aac frames
@@ -72,8 +47,12 @@ uint16_t	genpoly		= 0x1021;
 	                             aacDecoder (mr, b) {
 
 	myRadioInterface	= mr;
-	connect (this, SIGNAL (show_successRate (int)),
-	         mr, SLOT (show_successRate (int)));
+	connect (this, SIGNAL (show_frameErrors (int)),
+	         mr, SLOT (show_frameErrors (int)));
+	connect (this, SIGNAL (show_rsErrors (int)),
+	         mr, SLOT (show_rsErrors (int)));
+	connect (this, SIGNAL (show_aacErrors (int)),
+	         mr, SLOT (show_aacErrors (int)));
 	connect (this, SIGNAL (isStereo (bool)),
 	         mr, SLOT (setStereo (bool)));
 	this	-> bitRate	= bitRate;	// input rate
@@ -86,12 +65,16 @@ uint16_t	genpoly		= 0x1021;
 	blocksInBuffer	= 0;
 	frameCount	= 0;
 	frameErrors	= 0;
+	aacErrors	= 0;
+	aacFrames	= 0;
+	successFrames	= 0;
+	rsErrors	= 0;
 //
 //	error display
 	au_count	= 0;
 	au_errors	= 0;
 #ifdef GUI_3
-    padDecoderAdapter = new PADDecoderAdapter(mr);
+	padDecoderAdapter = new PADDecoderAdapter(mr);
 #endif
 }
 
@@ -132,7 +115,7 @@ int16_t	nbits	= 24 * bitRate;
 ///	first, we show the "successrate"
 	   if (++frameCount >= 25) {
 	      frameCount = 0;
-	      show_successRate (4 * (25 - frameErrors));
+	      show_frameErrors (frameErrors);
 	      frameErrors = 0;
 	   }
 
@@ -147,6 +130,11 @@ int16_t	nbits	= 24 * bitRate;
 //	since we processed a full cycle of 5 blocks, we just start a
 //	new sequence, beginning with block blockFillIndex
 	      blocksInBuffer	= 0;
+	      if (++successFrames > 25) {
+	         show_rsErrors (rsErrors);
+	         successFrames	= 0;
+	         rsErrors	= 0;
+	      }
 	   }
 	   else {
 /**
@@ -167,7 +155,6 @@ int16_t	nbits	= 24 * bitRate;
 bool	mp4Processor::processSuperframe (uint8_t frameBytes [], int16_t base) {
 uint8_t		num_aus;
 int16_t		i, j, k;
-int16_t		nErrors	= 0;
 uint8_t		rsIn	[120];
 uint8_t		rsOut	[110];
 uint8_t		dacRate;
@@ -175,7 +162,6 @@ uint8_t		sbrFlag;
 uint8_t		aacChannelMode;
 uint8_t		psFlag;
 uint16_t	mpegSurround;
-int32_t		outSamples	= 0;
 int32_t		tmp;
 
 /**
@@ -189,11 +175,8 @@ int32_t		tmp;
 	   for (k = 0; k < 120; k ++) 
 	      rsIn [k] = frameBytes [(base + j + k * RSDims) % (RSDims * 120)];
 	   ler = the_rsDecoder. dec (rsIn, rsOut, 135);
-	   if (ler > 0) {		// corrected errors
-	      nErrors += ler;
-	   }
-	   else
 	   if (ler < 0) {
+	      rsErrors ++;
 	      return false;
 	   }
 
@@ -257,71 +240,73 @@ int32_t		tmp;
 	for (i = 0; i < num_aus; i ++) {
 	   int16_t	aac_frame_length;
 	   au_count ++;
-	   uint8_t theAU [2 * 960 + 10];	// sure, large enough
-	   memset (theAU, 0, sizeof (theAU));
 
 ///	sanity check 1
 	   if (au_start [i + 1] < au_start [i]) {
-//	cannot happen, all errors were corrected
+//	should not happen, all errors were corrected
 	      fprintf (stderr, "%d %d\n", au_start [i + 1], au_start [i]);
 	      return false;
 	   }
 
 	   aac_frame_length = au_start [i + 1] - au_start [i] - 2;
-	   if ((aac_frame_length >= 2 * 960) || (aac_frame_length < 0)) {
-//
-//	cannot happen, all errors were corrected
-	      fprintf (stderr, "serious error in frame 6 (%d) (%d) frame_length = %d\n",
-	                                        ++au_errors,
-	                                        au_count, aac_frame_length);
+//	just a sanity check
+	   if ((aac_frame_length >=  960) || (aac_frame_length < 0)) {
 	      return false;
 	   }
-///	but first the crc check
-	   if (dabPlus_crc (&outVector [au_start [i]],
-	                    aac_frame_length)) {
-	      memcpy (theAU,
-	              &outVector [au_start [i]],
-	              aac_frame_length * sizeof (uint8_t));
-/**
-  *	see if we have a PAD
-  */
-	      if (((theAU [0] >> 5) & 07) == 4)
-          {
-#ifndef GUI_3
-             my_padhandler. processPAD (theAU);
-#else
-             padDecoderAdapter-> processPAD (theAU);
-#endif
-          }
 
+//	but first the crc check
+	   if (check_crc_bytes (&outVector [au_start [i]],
+	                    aac_frame_length)) {
+	      bool err;
+	      handle_aacFrame (&outVector [au_start [i]],
+	                                   aac_frame_length,
+	                                   dacRate,
+	                                   sbrFlag,
+	                                   mpegSurround,
+	                                   aacChannelMode,
+	                                   &err);
 	      emit isStereo (aacChannelMode);
-/**
-  *	just a few bytes extra, such that the decoder can look
-  *	beyond the last byte
-  */
-	      for (j = aac_frame_length;
-	           j < aac_frame_length + 10; j ++)
-	         theAU [j] = 0;
-	      tmp = aacDecoder. MP42PCM (dacRate,
-	                                 sbrFlag,
-	                                 mpegSurround,
-	                                 aacChannelMode,
-	                                 theAU,
-	                                 aac_frame_length);
-	      if (tmp == 0)
-	         frameErrors ++;
-	      else
-	         outSamples += tmp;
+	      if (err) 
+	         aacErrors ++;
+	      if (++aacFrames > 25) {
+	         show_aacErrors (aacErrors);
+	         aacErrors	= 0;
+	         aacFrames	= 0;
+	      }
 	   }
 	   else {
-	      au_errors ++;
-	      fprintf (stderr, "CRC failure with dab+ frame (error %d) %d (%d)\n",
-	                                          au_errors, i, num_aus);
+	      fprintf (stderr, "CRC failure with dab+ frame %d (%d)\n",
+	                                          i, num_aus);
 	   }
 	}
-//	fprintf (stderr, "%d samples good for %d nsec of music\n",
-//	                 outSamples, outSamples * 1000 / 48);
-//
 	return true;
+}
+
+void	mp4Processor::handle_aacFrame (uint8_t *v,
+	                               int16_t frame_length,
+	                               uint8_t	dacRate,
+	                               uint8_t	sbrFlag,
+	                               uint8_t	mpegSurround,
+	                               uint8_t	aacChannelMode,
+	                               bool	*error) {
+uint8_t theAudioUnit [2 * 960 + 10];	// sure, large enough
+
+	memcpy (theAudioUnit, v, frame_length);
+	memset (&theAudioUnit [frame_length], 0, 10);
+
+	if (((theAudioUnit [0] >> 5) & 07) == 4)
+#ifndef GUI_3
+	   my_padhandler. processPAD (theAudioUnit);
+#else
+	   padDecoderAdapter-> processPAD (theAU);
+#endif
+
+	int tmp = aacDecoder. MP42PCM (dacRate,
+	                               sbrFlag,
+	                               mpegSurround,
+	                               aacChannelMode,
+	                               theAudioUnit,
+	                               frame_length);
+	*error	= tmp == 0;
 }
 

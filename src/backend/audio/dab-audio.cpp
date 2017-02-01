@@ -18,7 +18,6 @@
  *    You should have received a copy of the GNU General Public License
  *    along with SDR-J; if not, write to the Free Software
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
  */
 #
 #include	"dab-constants.h"
@@ -28,7 +27,8 @@
 #include	<QWaitCondition>
 #include	"mp2processor.h"
 #include	"mp4processor.h"
-#include	"deconvolve.h"
+#include	"eep-protection.h"
+#include	"uep-protection.h"
 #include	"gui.h"
 //
 //	As an experiment a version of the backend is created
@@ -66,14 +66,12 @@ int32_t i, j;
 	   memset (interleaveData [i], 0, fragmentSize * sizeof (int16_t));
 	}
 
-	uepProcessor		= NULL;
-	eepProcessor		= NULL;
 	if (uepFlag == 0)
-	   uepProcessor	= new uep_deconvolve (bitRate,
-	                                      protLevel);
+	   protectionHandler	= new uep_protection (bitRate,
+	                                              protLevel);
 	else
-	   eepProcessor	= new eep_deconvolve (bitRate,
-	                                      protLevel);
+	   protectionHandler	= new eep_protection (bitRate,
+	                                              protLevel);
 //
 	
 	if (dabModus == DAB) 
@@ -99,10 +97,7 @@ int16_t	i;
 	running = false;
 	while (this -> isRunning ())
 	   usleep (1);
-	if (uepProcessor != NULL)
-	   delete uepProcessor;
-	if (eepProcessor != NULL)
-	   delete eepProcessor;
+	delete protectionHandler;
 	delete our_dabProcessor;
 	delete	Buffer;
 	delete[]	outV;
@@ -159,10 +154,7 @@ int16_t	Data [fragmentSize];
 	      continue;
 	   }
 //
-	   if (uepFlag == 0)
-	      uepProcessor -> deconvolve (Data, fragmentSize, outV);
-	   else
-	      eepProcessor -> deconvolve (Data, fragmentSize, outV);
+	   protectionHandler -> deconvolve (Data, fragmentSize, outV);
 //
 //	and the inline energy dispersal
 	   memset (shiftRegister, 1, 9);

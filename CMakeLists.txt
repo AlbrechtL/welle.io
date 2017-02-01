@@ -34,6 +34,7 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
 	set(DABSTICK true)
 #	set(RTLTCP true)
 
+#	add_definitions (-DTECHNICAL_DATA)	# to show some additional data
 #	add_definitions (-DMOT_BASICS__) 	# use at your own risk
 #	add_definitions (-DMSC_DATA__)		# use at your own risk
 #
@@ -124,7 +125,9 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
 	     ./includes/ofdm/phasetable.h
 	     ./includes/ofdm/freq-interleaver.h
 	     ./includes/backend/viterbi.h
-	     ./includes/backend/deconvolve.h
+	     ./includes/backend/protection.h
+	     ./includes/backend/uep-protection.h
+	     ./includes/backend/eep-protection.h
 	     ./includes/backend/firecode-checker.h
 	     ./includes/backend/dab-processor.h
 	     ./includes/backend/dab-virtual.h
@@ -175,7 +178,9 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
 	     ./src/backend/viterbi.cpp
 	     ./src/backend/fic-handler.cpp
 	     ./src/backend/msc-handler.cpp
-	     ./src/backend/deconvolve.cpp
+	     ./src/backend/protection.cpp
+	     ./src/backend/eep-protection.cpp
+	     ./src/backend/uep-protection.cpp
 	     ./src/backend/fib-processor.cpp
 	     ./src/backend/firecode-checker.cpp
 	     ./src/backend/dab-virtual.cpp

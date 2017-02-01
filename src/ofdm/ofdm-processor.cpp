@@ -20,7 +20,8 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #include	"ofdm-processor.h"
-#include	"ofdm-decoder.h"
+#include	"fic-handler.h"
+#include	"msc-handler.h"
 #include	"gui.h"
 #include	"fft.h"
 //
@@ -51,21 +52,28 @@ static
 QString	currentChannel;
 
 	ofdmProcessor::ofdmProcessor	(virtualInput	*theRig,
-	                                 DabParams	*p,
+	                                 DabParams	*params,
 	                                 RadioInterface *mr,
 	                                 mscHandler 	*msc,
 	                                 ficHandler 	*fic,
 	                                 int16_t	threshold,
-	                                 uint8_t	freqsyncMethod){
+	                                 uint8_t	freqsyncMethod):
+	                                   phaseSynchronizer (params, 
+                                                             threshold),
+	                                   my_ofdmDecoder (params,
+	                                                   mr,
+	                                                   fic,
+	                                                   msc) {
 int32_t	i;
 	this	-> theRig		= theRig;
-	this	-> params		= p;
+	this	-> params		= params;
+	this	-> my_ficHandler	= fic;
 	this	-> freqsyncMethod	= freqsyncMethod;
-	this	-> T_null		= p	-> T_null;
-	this	-> T_s			= p 	-> T_s;
-	this	-> T_u			= p	-> T_u;
+	this	-> T_null		= params	-> T_null;
+	this	-> T_s			= params	-> T_s;
+	this	-> T_u			= params	-> T_u;
 	this	-> T_g			= T_s - T_u;
-	this	-> T_F			= p	-> T_F;
+	this	-> T_F			= params	-> T_F;
 	this	-> myRadioInterface	= mr;
 	fft_handler			= new common_fft (T_u);
 	fft_buffer			= fft_handler -> getVector ();
@@ -78,8 +86,10 @@ int32_t	i;
 	ofdmSymbolCount			= 0;
 	tokenCount			= 0;
 	sampleCnt			= 0;
+#ifdef	GUI_3
 	scanMode			= false;
-    NoReadCounter       = 0;
+	NoReadCounter			= 0;
+#endif
 /**
   *	the class phaseReference will take a number of samples
   *	and indicate - using some threshold - whether there is
@@ -89,22 +99,14 @@ int32_t	i;
   *	The size of the blocks handed over for inspection
   *	is T_u
   */
-	phaseSynchronizer	= new phaseReference (params,
-	                                              T_u,
-	                                              threshold);
 /**
   *	the ofdmDecoder takes time domain samples, will do an FFT,
   *	map the result on (soft) bits and hand over control for handling
   *	the decoded blocks
   */
-	my_ofdmDecoder		= new ofdmDecoder (params,
-	                                           myRadioInterface,
-	                                           phaseSynchronizer -> refTable,
-	                                           fic,
-	                                           msc);
 	fineCorrector		= 0;	
 	coarseCorrector		= 0;
-	f2Correction		= false;
+	f2Correction		= true;
 	oscillatorTable		= new DSPCOMPLEX [INPUT_RATE];
 	localPhase		= 0;
 
@@ -131,8 +133,8 @@ int32_t	i;
 	refArg			= new float [CORRELATION_LENGTH];
 	correlationVector	= new float [SEARCH_RANGE + CORRELATION_LENGTH];
 	for (i = 0; i < CORRELATION_LENGTH; i ++)  {
-	   refArg [i] = arg (phaseSynchronizer -> refTable [(T_u + i) % T_u] *
-	              conj (phaseSynchronizer -> refTable [(T_u + i + 1) % T_u]));
+	   refArg [i] = arg (phaseSynchronizer. refTable [(T_u + i) % T_u] *
+	              conj (phaseSynchronizer. refTable [(T_u + i + 1) % T_u]));
 	}
 	start ();
 }
@@ -145,9 +147,7 @@ int32_t	i;
 	if (isRunning ())
 	   terminate ();
 	wait ();
-	delete		my_ofdmDecoder;
 	delete		ofdmBuffer;
-	delete		phaseSynchronizer;
 	delete		oscillatorTable;
 	delete		fft_handler;
 	delete[] 	correlationVector;
@@ -392,8 +392,7 @@ SyncOnPhase:
 //
 ///	and then, call upon the phase synchronizer to verify/compute
 ///	the real "first" sample
-	   startIndex = phaseSynchronizer ->
-	                        findIndex (ofdmBuffer);
+	   startIndex = phaseSynchronizer. findIndex (ofdmBuffer);
 	   if (startIndex < 0) { // no sync, try again
 /**
   *	In case we do not have a correlation value larger than
@@ -407,7 +406,6 @@ SyncOnPhase:
 	      scanMode	= false;
               attempts	= 0;
 	   }
-
 #endif
 /**
   *	Once here, we are synchronized, we need to copy the data we
@@ -428,11 +426,12 @@ Block_0:
 	   getSamples (&ofdmBuffer [ofdmBufferIndex],
 	               T_u - ofdmBufferIndex,
 	               coarseCorrector + fineCorrector);
-	   my_ofdmDecoder  -> processBlock_0 (ofdmBuffer);
+	   my_ofdmDecoder. processBlock_0 (ofdmBuffer);
 //
 //	Here we look only at the block_0 when we need a coarse
 //	frequency synchronization.
 //	The width is limited to 2 * 35 Khz (i.e. positive and negative)
+	   f2Correction	= !my_ficHandler -> syncReached ();
 	   if (f2Correction) {
 	      int correction		= processBlock_0 (ofdmBuffer);
 	      if (correction != 100) {
@@ -458,7 +457,7 @@ Data_blocks:
 	      for (i = (int)T_u; i < (int)T_s; i ++) 
 	         FreqCorr += ofdmBuffer [i] * conj (ofdmBuffer [i - T_u]);
 	
-	      my_ofdmDecoder -> decodeFICblock (ofdmBuffer, ofdmSymbolCount);
+	      my_ofdmDecoder. decodeFICblock (ofdmBuffer, ofdmSymbolCount);
 	   }
 
 ///	and similar for the (params -> L - 4) MSC blocks
@@ -469,7 +468,7 @@ Data_blocks:
 	      for (i = (int32_t)T_u; i < (int32_t)T_s; i ++) 
 	         FreqCorr += ofdmBuffer [i] * conj (ofdmBuffer [i - T_u]);
 
-	      my_ofdmDecoder -> decodeMscblock (ofdmBuffer, ofdmSymbolCount);
+	      my_ofdmDecoder. decodeMscblock (ofdmBuffer, ofdmSymbolCount);
 	   }
 
 NewOffset:
@@ -518,11 +517,13 @@ void	ofdmProcessor:: reset	(void) {
 	wait ();
 	fineCorrector	= coarseCorrector = 0;
 	f2Correction	= true;
-	scanMode	= false;
 	syncBufferIndex	= 0;
 	attempts	= 0;
 	theRig	-> resetBuffer ();
 	running = false;
+#ifdef	GUI_3
+	scanMode	= false;
+#endif
 	start ();
 }
 
@@ -553,12 +554,14 @@ void	ofdmProcessor::coarseCorrectorOff (void) {
 	f2Correction	= false;
 }
 
+#ifdef	GUI_3
 void	ofdmProcessor::set_scanMode	(bool b, QString channel) {
 	if (b) 
 	   reset ();
 	scanMode	= b;
 	currentChannel	= channel;
 }
+#endif
 
 #define	RANGE	36
 int16_t	ofdmProcessor::processBlock_0 (DSPCOMPLEX *v) {

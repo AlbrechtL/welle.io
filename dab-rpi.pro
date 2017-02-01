@@ -87,7 +87,9 @@ HEADERS += ./includes/dab-constants.h \
 	   ./includes/backend/data/journaline/dabdgdec_impl.h \
 	   ./includes/backend/data/journaline/newsobject.h \
 	   ./includes/backend/data/journaline/NML.h \
-	   ./includes/backend/deconvolve.h \
+	   ./includes/backend/protection.h \
+	   ./includes/backend/eep-protection.h \
+	   ./includes/backend/uep-protection.h \
 	   ./includes/output/audio-base.h \
 	   ./includes/output/newconverter.h \
 	   ./includes/output/audiosink.h \
@@ -110,7 +112,9 @@ SOURCES += ./main.cpp \
 	   ./src/backend/viterbi.cpp \
 	   ./src/backend/fic-handler.cpp \
 	   ./src/backend/msc-handler.cpp \
-	   ./src/backend/deconvolve.cpp \
+	   ./src/backend/protection.cpp \
+	   ./src/backend/eep-protection.cpp \
+	   ./src/backend/uep-protection.cpp \
 	   ./src/backend/fib-processor.cpp  \
 	   ./src/backend/galois.cpp \
 	   ./src/backend/reed-solomon.cpp \

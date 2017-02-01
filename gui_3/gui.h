@@ -34,6 +34,8 @@
 #include	<sndfile.h>
 #include	<QComboBox>
 #include	<QLabel>
+#include	"msc-handler.h"
+#include	"fic-handler.h"
 
 #include	<QTimer>
 #include	<QtQml/QQmlApplicationEngine>

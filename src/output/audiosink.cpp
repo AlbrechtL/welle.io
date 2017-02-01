@@ -39,7 +39,6 @@ int32_t	i;
 	this	-> latency	= latency;
 	this	-> InterfaceList	= s;
 	this	-> CardRate	= 48000;
-	this	-> latency	= latency;
 	_O_Buffer		= new RingBuffer<float>(2 * 32768);
 	portAudio		= false;
 	writerRunning		= false;
@@ -127,8 +126,8 @@ PaError err;
 	outputParameters. sampleFormat		= paFloat32;
 	outputParameters. suggestedLatency	= 
 	                          Pa_GetDeviceInfo (odev) ->
-	                                      defaultHighOutputLatency * 4;
-//	bufSize	= (int)((float)outputParameters. suggestedLatency);
+	                                      defaultLowOutputLatency;
+//	bufSize	= (int)((float)outputParameters. suggestedLatency * latency);
 	bufSize	= latency * 20 * 256;
 
 //	if (bufSize < 0 || bufSize > 17300)

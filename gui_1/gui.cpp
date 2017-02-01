@@ -32,9 +32,10 @@
 #include	<QStringList>
 #include	<QStringListModel>
 #include	<QDir>
-#include	<QImageWriter>
 #include	"dab-constants.h"
 #include	"gui.h"
+#include	"fic-handler.h"
+#include	"msc-handler.h"
 #include	"audiosink.h"
 #ifdef	TCP_STREAMER
 #include	"tcp-streamer.h"
@@ -91,9 +92,6 @@ int16_t	i;
 	setlocale (LC_ALL, "");
 ///	The default, most likely to be overruled
 //
-//	One can imagine that a particular version is created
-//	for a specific device. In that case the class
-//	handling the device can be instantiated here
 	inputDevice		= new virtualInput ();
 	running			= false;
 	
@@ -181,11 +179,16 @@ int16_t	i;
 	                                        threshold,
 	                                        freqsyncMethod);
 	init_your_gui ();		// gui specific stuff
-
-	QPalette p = ficRatioDisplay -> palette ();
+#ifdef	TECHNICAL_DATA
+	QPalette p	= techData. ficError_display -> palette ();
 	p. setColor (QPalette::Highlight, Qt::red);
-	ficRatioDisplay	-> setPalette (p);
-	errorDisplay	-> setPalette (p);
+	techData. ficError_display	-> setPalette (p);
+	techData. frameError_display	-> setPalette (p);
+	techData. rsError_display	-> setPalette (p);
+	techData. aacError_display	-> setPalette (p);
+	techData. rsError_display	-> hide ();
+	techData. aacError_display	-> hide ();
+#endif
 	if (autoStart)
 	   setStart ();
 }
@@ -450,6 +453,8 @@ const char *RadioInterface::get_programm_language_string (int16_t language) {
 	   fprintf (stderr, "GUI: wrong language (%d)\n", language);
 	   return table9 [0];
 	}
+	if (language < 0)
+	   return " ";
 	return table9 [language];
 }
 
@@ -642,21 +647,34 @@ QString s;
   *	a slot, called by the MSC handler to show the
   *	percentage of frames that could be handled
   */
-void	RadioInterface::show_successRate (int s) {
-	errorDisplay	-> setValue (s);
-//	errorDisplay	-> display (s);
+void	RadioInterface::show_frameErrors (int s) {
+#ifdef	TECHNICAL_DATA
+	techData. frameError_display	-> setValue (100 - 4 * s);
+#endif
 }
 
-///	... and the same for the FIC blocks
-void	RadioInterface::show_ficCRC (bool b) {
+void	RadioInterface::show_rsErrors (int s) {
+#ifdef	TECHNICAL_DATA
+	techData. rsError_display	-> setValue (100 - 4 * s);
+#endif
+}
+	
+void	RadioInterface::show_aacErrors (int s) {
+#ifdef	TECHNICAL_DATA
+	techData. aacError_display	-> setValue (100 - 4 * s);
+#endif
+}
+	
+void	RadioInterface::show_ficSuccess (bool b) {
+#ifdef	TECHNICAL_DATA
 	if (b)
 	   ficSuccess ++;
 	if (++ficBlocks >= 100) {
-	   ficRatioDisplay	-> setValue (ficSuccess);
-//	   ficRatioDisplay	-> display (ficSuccess);
+	   techData. ficError_display	-> setValue (ficSuccess);
 	   ficSuccess	= 0;
 	   ficBlocks	= 0;
 	}
+#endif
 }
 
 ///	called from the ofdmDecoder, which computed this for each frame
@@ -725,14 +743,13 @@ int i;
 	pictureLabel ->  setPixmap (p);
 	pictureLabel ->  show ();
 }
-
 //
 //	sendDatagram is triggered by the ip handler,
 void	RadioInterface::sendDatagram	(char *data, int length) {
 	if (running)
-	DSCTy_59_socket. writeDatagram (data, length,
-	                                QHostAddress (ipAddress),
-	                                port);
+	   DSCTy_59_socket. writeDatagram (data, length,
+	                                   QHostAddress (ipAddress),
+	                                   port);
 }
 
 /**
@@ -799,18 +816,20 @@ void	RadioInterface::clear_showElements (void) {
 	
 //	Then the various displayed items
 	ensembleName		-> setText ("   ");
-	errorDisplay		-> setValue (0);
-//	errorDisplay		-> display (0);
-	ficRatioDisplay		-> setValue (0);
-//	ficRatioDisplay		-> display (0);
+#ifdef TECHNICAL_DATA
+	techData. frameError_display	-> setValue (0);
+	techData. rsError_display	-> setValue (0);
+	techData. aacError_display	-> setValue (0);
+	techData. ficError_display	-> setValue (0);
+#endif
 	snrDisplay		-> display (0);
 	if (pictureLabel != NULL)
 	   delete pictureLabel;
 	pictureLabel = NULL;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 //	
 //	Private slots relate to the modeling of the GUI
 //
@@ -1219,12 +1238,13 @@ fprintf (stderr, "inputDevice deleted\n");
 //	info on the service (i.e. rate, address, etc)
 void	RadioInterface::selectService (QModelIndex s) {
 QString a = ensemble. data (s, Qt::DisplayRole). toString ();
-
 	setStereo (false);
-	switch (my_ficHandler -> kindofService (a)) {
 #ifdef	TECHNICAL_DATA
-	   dataDisplay. hide ();
+	dataDisplay. hide ();
+	techData. rsError_display	-> hide ();
+	techData. aacError_display	-> hide ();
 #endif
+	switch (my_ficHandler -> kindofService (a)) {
 	   case AUDIO_SERVICE:
 	      { audiodata d;
 	        my_ficHandler	-> dataforAudioService (a, &d);
@@ -1247,10 +1267,13 @@ QString a = ensemble. data (s, Qt::DisplayRole). toString ();
 	           prot = 'A';
 	           h -= 0100;
 	        }
-	        else {
+	        else 
+	        if (h & 0200) {
 	           prot = 'B';
 	           h -= 0200;
 	        }
+	        else 
+	           prot = ' ';
 	        QString protL = d. uepFlag == 0 ? "UEP" : "EEP";
 	        protL. append (" ");
 	        protL. append (QString::number (h));
@@ -1258,6 +1281,10 @@ QString a = ensemble. data (s, Qt::DisplayRole). toString ();
 	        protL. append (prot);
 	        techData. uepField -> setText (protL);
 	        techData. ASCTy -> setText (d. ASCTy == 077 ? "HeAAC" : "MP2");
+	        if (d. ASCTy == 077) {
+	           techData. rsError_display -> show ();
+	           techData. aacError_display -> show ();
+	        }
 	        techData. language -> setText (get_programm_language_string (d. language));
 	        techData. programType -> setText (get_programm_type_string (d. programType));
 	         if (show_data)
@@ -1267,6 +1294,7 @@ QString a = ensemble. data (s, Qt::DisplayRole). toString ();
 	        showLabel (QString (" "));
 	        break;
 	      }
+
 	   case PACKET_SERVICE:
 	      {  packetdata d;
 	         my_ficHandler	-> dataforDataService (a, &d);

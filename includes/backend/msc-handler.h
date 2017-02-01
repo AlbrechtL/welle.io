@@ -32,7 +32,6 @@
 #include	<QMutex>
 #include	<stdio.h>
 #include	<stdint.h>
-#include	"deconvolve.h"
 #include	<stdio.h>
 #include	"dab-constants.h"
 #include	"ringbuffer.h"

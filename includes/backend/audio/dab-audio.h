@@ -1,6 +1,5 @@
 #
 /*
- *
  *    Copyright (C) 2013
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
  *    Lazy Chair Programming
@@ -22,8 +21,8 @@
  *
  */
 #
-#ifndef	DAB_AUDIO
-#define	DAB_AUDIO
+#ifndef	__DAB_AUDIO
+#define	__DAB_AUDIO
 
 #include	"dab-virtual.h"
 #include	<QThread>
@@ -33,8 +32,7 @@
 #include	<stdio.h>
 
 class	dabProcessor;
-class	uep_deconvolve;
-class	eep_deconvolve;
+class	protection;
 class	RadioInterface;
 
 class	dabAudio:public QThread, public dabVirtual {
@@ -66,8 +64,7 @@ volatile bool		running;
 	QWaitCondition	Locker;
 	QMutex		ourMutex;
 
-	uep_deconvolve	*uepProcessor;
-	eep_deconvolve	*eepProcessor;
+	protection	*protectionHandler;
 	dabProcessor	*our_dabProcessor;
 	RingBuffer<int16_t>	*Buffer;
 };

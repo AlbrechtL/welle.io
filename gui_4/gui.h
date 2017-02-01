@@ -132,8 +132,10 @@ public slots:
 	void		clearEnsemble		(void);
 	void		addtoEnsemble		(const QString &);
 	void		nameofEnsemble		(int, const QString &);
-	void		show_successRate	(int);
-	void		show_ficCRC		(bool);
+	void		show_rsErrors		(int);
+	void		show_frameErrors	(int);
+	void		show_ficSuccess		(bool);
+	void		show_aacErrors		(int);
 	void		show_snr		(int);
 	void		setSynced		(char);
 	void		showLabel		(QString);

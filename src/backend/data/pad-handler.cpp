@@ -41,7 +41,7 @@
 }
 
 /**
-  *	processPas takes the AU's from the mp4processor and
+  *	processPad takes the AU's from the mp4processor and
   *	dispatches the kind of PAD info
   */
 void	padHandler::processPAD (uint8_t *theAU) {
@@ -51,21 +51,25 @@ int16_t	count	= theAU [1];
 	memcpy (buffer, &theAU[2], theAU [1]);
 //
 //	for now we only handle f_padType 0
-	uint8_t	f_padType	= (buffer [count - 2] >> 6) & 03;
-	if (f_padType != 00) 
+	uint8_t	fpadType	= (buffer [count - 2] >> 6) & 03;
+	if (fpadType != 00) 
 	   return;
 //
 //	OK, we'll try
 	uint8_t x_padInd = (buffer [count - 2] >> 4) & 03;
-	if (x_padInd == 01) {
-	   handle_shortPAD (buffer, count);
-	   return;
-	}
+	switch (x_padInd) {
+	   case  01 :
+	      handle_shortPAD (buffer, count);
+	      break;
 
-	if (x_padInd == 02) {
-//	   uint8_t Z_bit		= (buffer [count - 1] & 01);
-	   uint8_t CI_flag		= (buffer [count - 1] >> 1) & 01;
-	   handle_variablePAD (buffer, count, CI_flag);
+	   case  02:
+//	      uint8_t Z_bit		= (buffer [count - 1] & 01);
+//	      uint8_t CI_flag		= (buffer [count - 1] >> 1) & 01;
+	      handle_variablePAD (buffer, count,
+	                                    (buffer [count - 1] >> 1) & 01);
+	      break;
+
+	   default:;
 	}
 }
 
@@ -73,25 +77,19 @@ void	padHandler::handle_shortPAD (uint8_t *b, int16_t count) {
 uint8_t CI	= b [count - 3];
 uint8_t data [4];
 int16_t	i;
+
 	for (i = 0; i < 3; i ++)
 	   data [i] = b [count - 4 - i];
 	data [3] = 0;
 	if ((CI & 037)  == 02 || (CI & 037) == 03)
 	   dynamicLabel (data, 3, CI);
 }
+///////////////////////////////////////////////////////////////////////
 //
 //
 //	Here we end up when F_PAD type = 00 and X-PAD Ind = 02
 static
-int16_t	mapLength (int16_t ind) {
-	return ind == 0 ? 4 :
-	       ind == 1 ? 6 :
-	       ind == 2 ? 8 :
-	       ind == 3 ? 12 :
-	       ind == 4 ? 16 :
-	       ind == 5 ? 24 :
-	       ind == 6 ? 32 : 48;
-}
+int16_t	lengthTable [] = {4, 6, 8, 12, 16, 24, 32, 48};
 
 void	padHandler::handle_variablePAD (uint8_t *b,
 	                                int16_t count, uint8_t CI_flag) {
@@ -110,57 +108,49 @@ int16_t	base	= count - 2 - 1;	// for the F-pad
 	   CI_table [CI_index ++] = b [base];
 	   base -= 1;
 	}
+
 	if (CI_index < 4)	// we have a "0" indicator, adjust base
 	   base -= 1;
 //
-//
 	for (i = 0; i < CI_index; i ++) {
-	   uint8_t appType = CI_table [i] & 037;
-	   int16_t length =  mapLength (CI_table [i] >> 5);
+	   uint8_t appType	= CI_table [i] & 037;
+	   int16_t length	= lengthTable [CI_table [i] >> 5];
+	   uint8_t *data	= (uint8_t *)alloca (length + 1);
 
-//	with appType == 1 we have a new start, 
-	   if (appType == 1) {		// length 4 bytes
-	      uint8_t	byte_0	= b [base];
-	      uint8_t	byte_1	= b [base - 1];
-//
-//	still not very clear what the crc is referring to
-//	      uint16_t	crc	= (b [base - 2] << 8) | b [base - 3];
-	      msc_dataGroupLength	= ((byte_0 & 077) << 8) | byte_1;
-//	      fprintf (stderr, "msc_dataGroupLength = %d\n",
-//	                                    msc_dataGroupLength);
-	      msc_dataGroupIndex	= 0;
+	   if (appType == 1) {
+	      msc_dataGroupLength = ((b [base] & 077) << 8) | b [base - 1];
+	      msc_dataGroupIndex  = 0;
 	      base -= 4;
 	      last_appType = 1;
 	      continue;
 	   }
-//
-//	first a check to see whether we are ready to handle
-//	the xpad
-	   if ((appType != 02) && (appType != 03) &&
-	       (appType != 12) && (appType != 13)) {
-	      last_appType = appType;
-	      return;	// sorry, we do not handle this
-	   }
 
-	   uint8_t *data = (uint8_t *)alloca (length + 1);
-	   for (j = 0; j < length; j ++)  {
+	   for (j = 0; j < length; j ++)  
 	      data [j] = b [base - j];
-	   }
 	   data [length] = 0;
 
-	   if ((appType == 02) || (appType == 03)) {
-	      dynamicLabel (data, length, CI_table [i]);
+	   switch (appType) {
+//	with these apptypes we need further study
+	      default:
+	         last_appType = appType;
+	         return;	// sorry, we do not handle this
+
+	      case 2:
+	      case 3:
+	         dynamicLabel (data, length, CI_table [i]);
+	         break;
+
+	      case 12:
+	         if (last_appType == 01)
+	            add_MSC_element (data, length);
+	         break;
+
+ 	      case 13:
+	         if ((last_appType == 12) || (last_appType == 13)) 
+	            add_MSC_element (data, length);
+	         break;
 	   }
-	   else
-	   if ((appType == 12) && (last_appType == 01)) {
-	      add_MSC_element (data, length);
-	   }
-	   else
-	   if ((appType == 13) &&
-	      ((last_appType == 12) || (last_appType == 13))) {
-	      add_MSC_element (data, length);
-	   }
-	  
+
 	   last_appType = appType;
 	   base -= length;
 	   if (base < 0 && i < CI_index - 1) {
@@ -185,7 +175,7 @@ int16_t  dataLength                = 0;
 	   uint8_t Cflag   = (prefix >> 12) & 01;
 	   uint8_t first   = (prefix >> 14) & 01;
 	   uint8_t last    = (prefix >> 13) & 01;
-	   dataLength = length - 2; // The length is with header removed
+	   dataLength	   = length - 2; // The length with header removed
 
 	   if (first) { 
 	      segmentno = 1;
@@ -254,7 +244,7 @@ int16_t  dataLength                = 0;
 	   }
 	}
 }
-//
+
 //
 //	building an MSC segment by integrating the elements sent per XPAD
 //
@@ -269,10 +259,8 @@ int16_t	i;
 	if (length < 0)
 	   return;
 	
-	if (msc_dataGroupIndex + length >= 8192) {
-	   fprintf (stderr, "bagger length = %d (%d)\n", length, msc_dataGroupIndex);
+	if (msc_dataGroupIndex + length >= 8192) // just ignore
 	   return;
-	}
 
 	for (i = 0; i < length; i ++)
 	   msc_dataGroupBuffer [msc_dataGroupIndex ++] = data [i];
@@ -296,7 +284,7 @@ void	padHandler::build_MSC_segment (uint8_t *mscdataGroup, int16_t length) {
 	uint16_t	index;
 
 	if ((mscdataGroup [0] & 0x40) != 0) {
-	   bool res	= pad_crc (mscdataGroup, length - 2);
+	   bool res	= check_crc_bytes (mscdataGroup, length - 2);
 	   if (!res) {
 //	      fprintf (stderr, "crc failed\n");
 	      return;
@@ -343,27 +331,4 @@ void	padHandler::build_MSC_segment (uint8_t *mscdataGroup, int16_t length) {
 	                                     transportId);
 }
 //
-
-bool	padHandler::pad_crc (uint8_t *msg, int16_t len) {
-int i, j;
-uint16_t	accumulator	= 0xFFFF;
-uint16_t	crc;
-uint16_t	genpoly		= 0x1021;
-
-	for (i = 0; i < len; i ++) {
-	   int16_t data = msg [i] << 8;
-	   for (j = 8; j > 0; j--) {
-	      if ((data ^ accumulator) & 0x8000)
-	         accumulator = ((accumulator << 1) ^ genpoly) & 0xFFFF;
-	      else
-	         accumulator = (accumulator << 1) & 0xFFFF;
-	      data = (data << 1) & 0xFFFF;
-	   }
-	}
-//
-//	ok, now check with the crc that is contained
-//	in the au
-	crc	= ~((msg [len] << 8) | msg [len + 1]) & 0xFFFF;
-	return (crc ^ accumulator) == 0;
-}
 

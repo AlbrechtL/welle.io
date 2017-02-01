@@ -1,6 +1,5 @@
 #
 /*
- *
  *    Copyright (C) 2013
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
  *    Lazy Chair Programming
@@ -19,20 +18,20 @@
  *    You should have received a copy of the GNU General Public License
  *    along with SDR-J; if not, write to the Free Software
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
  */
 #
-#ifndef	UEP_DECONVOLVE
-#define	UEP_DECONVOLVE
+#ifndef	UEP_PROTECTION
+#define	UEP_PROTECTION
 
 #include	<stdio.h>
 #include	<stdint.h>
-#include	<viterbi.h>
+#include	"protection.h"
+#include	"viterbi.h"
 
-	class uep_deconvolve: public viterbi {
+	class uep_protection: public protection, public viterbi {
 public:
-		uep_deconvolve (int16_t, int16_t);
-		~uep_deconvolve	(void);
+		uep_protection (int16_t, int16_t);
+		~uep_protection	(void);
 bool		deconvolve	(int16_t *, int32_t, uint8_t *);
 private:
 	int16_t		L1;
@@ -43,21 +42,6 @@ private:
 	int8_t		*PI2;
 	int8_t		*PI3;
 	int8_t		*PI4;
-	int16_t		bitRate;
-	int32_t		outSize;
-	int16_t		*viterbiBlock;
-};
-
-	class eep_deconvolve: public viterbi {
-public:
-		eep_deconvolve		(int16_t, int16_t);
-		~eep_deconvolve		(void);
-bool		deconvolve		(int16_t *, int32_t, uint8_t *);
-private:
-	int16_t		L1;
-	int16_t		L2;
-	int8_t		*PI1;
-	int8_t		*PI2;
 	int16_t		bitRate;
 	int32_t		outSize;
 	int16_t		*viterbiBlock;

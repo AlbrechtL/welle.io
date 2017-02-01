@@ -47,6 +47,7 @@ public:
 	void	process_ficBlock	(int16_t *, int16_t);
 	void	setBitsperBlock		(int16_t);
 	void	clearEnsemble		(void);
+	bool	syncReached		(void);
 	int16_t	get_ficRatio		(void);
 	uint8_t	kindofService		(QString &);
 	void	dataforDataService	(QString &, packetdata *);
@@ -70,7 +71,7 @@ private:
 	uint8_t		PRBS [768];
 	uint8_t		shiftRegister [9];
 signals:
-	void		show_ficCRC	(bool);
+	void		show_ficSuccess	(bool);
 };
 
 #endif

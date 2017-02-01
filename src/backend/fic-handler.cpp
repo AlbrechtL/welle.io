@@ -72,8 +72,8 @@ int16_t	i, j;
 	   shiftRegister [0] = PRBS [i];
 	}
 
-	connect (this, SIGNAL (show_ficCRC (bool)),
-	         mr, SLOT (show_ficCRC (bool)));
+	connect (this, SIGNAL (show_ficSuccess (bool)),
+	         mr, SLOT (show_ficSuccess (bool)));
 }
 
 		ficHandler::~ficHandler (void) {
@@ -222,10 +222,10 @@ int16_t	viterbiBlock [3072 + 24];
 	for (i = ficno * 3; i < ficno * 3 + 3; i ++) {
 	   uint8_t *p = &bitBuffer_out [(i % 3) * 256];
 	   if (!check_CRC_bits (p, 256)) {
-	      show_ficCRC (false);
+	      show_ficSuccess (false);
 	      continue;
 	   }
-	   show_ficCRC (true);
+	   show_ficSuccess (true);
 	   fibProtector. lock ();
 	   fibProcessor. process_FIB (p, ficno);
 	   fibProtector. unlock ();
@@ -262,3 +262,13 @@ void	ficHandler::dataforDataService	(QString &s, packetdata *d) {
 int16_t	ficHandler::get_ficRatio (void) {
 	return ficRatio;
 }
+
+bool	ficHandler::syncReached	(void) {
+bool	result;
+	fibProtector. lock ();
+        result = fibProcessor. syncReached ();
+        fibProtector. unlock ();
+	return result;
+}
+
+

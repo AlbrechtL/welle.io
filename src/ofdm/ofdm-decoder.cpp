@@ -39,13 +39,13 @@
   */
 	ofdmDecoder::ofdmDecoder	(DabParams	*p,
 	                                 RadioInterface *mr,
-	                                 DSPCOMPLEX	*refTable,
 	                                 ficHandler	*my_ficHandler,
-	                                 mscHandler	*my_mscHandler) {
+	                                 mscHandler	*my_mscHandler):
+	                                 bufferSpace (p -> L),
+	                                 myMapper (p) {
 int16_t	i;
 	this	-> params		= p;
 	this	-> myRadioInterface	= mr;
-	this	-> refTable		= refTable;
 	this	-> my_ficHandler	= my_ficHandler;
 	this	-> my_mscHandler	= my_mscHandler;
 	this	-> T_s			= params	-> T_s;
@@ -57,7 +57,6 @@ int16_t	i;
 	fft_handler			= new common_fft (T_u);
 	fft_buffer			= fft_handler -> getVector ();
 	phaseReference			= new DSPCOMPLEX [T_u];
-	myMapper			= new interLeaver (params);
 //
 	connect (this, SIGNAL (show_snr (int)),
 	         mr, SLOT (show_snr (int)));
@@ -75,7 +74,6 @@ int16_t	i;
 	command			= new DSPCOMPLEX * [params -> L];
 	for (i = 0; i < params -> L; i ++)
 	   command [i] = new DSPCOMPLEX [T_u];
-	bufferResources		= new QSemaphore (params -> L);
 	amount		= 0;
 	start ();
 }
@@ -89,11 +87,9 @@ int16_t	i;
 	   usleep (100);
 	delete		fft_handler;
 	delete[]	phaseReference;
-	delete	myMapper;
 	for (i = 0; i < params -> L; i ++)
 	   delete[] command [i];
 	delete[] command;
-	delete	bufferResources;
 }
 
 void	ofdmDecoder::stop		(void) {
@@ -128,7 +124,7 @@ int16_t	currentBlock	= 0;
 	         decodeFICblock (currentBlock);
 	      else
 	         decodeMscblock (currentBlock);
-	      bufferResources -> release (1);
+	      bufferSpace. release (1);
 	      helper. lock ();
 	      currentBlock = (currentBlock + 1) % (params -> L);
 	      amount -= 1;
@@ -142,7 +138,7 @@ int16_t	currentBlock	= 0;
   *	in the buffer.
   */
 void	ofdmDecoder::processBlock_0 (DSPCOMPLEX *vi) {
-	bufferResources -> acquire (1);
+	bufferSpace. acquire (1);
 	memcpy (command [0], vi, sizeof (DSPCOMPLEX) * T_u);
 	helper. lock ();
 	amount ++;
@@ -151,7 +147,7 @@ void	ofdmDecoder::processBlock_0 (DSPCOMPLEX *vi) {
 }
 
 void	ofdmDecoder::decodeFICblock (DSPCOMPLEX *vi, int32_t blkno) {
-	bufferResources -> acquire (1);
+	bufferSpace. acquire (1);
 	memcpy (command [blkno], &vi [T_g], sizeof (DSPCOMPLEX) * T_u);
 	helper. lock ();
 	amount ++;
@@ -160,7 +156,7 @@ void	ofdmDecoder::decodeFICblock (DSPCOMPLEX *vi, int32_t blkno) {
 }
 
 void	ofdmDecoder::decodeMscblock (DSPCOMPLEX *vi, int32_t blkno) {
-	bufferResources -> acquire (1);
+	bufferSpace. acquire (1);
 	memcpy (command [blkno], &vi [T_g], sizeof (DSPCOMPLEX) * T_u);
 	helper. lock ();
 	amount ++;
@@ -225,7 +221,7 @@ toBitsLabel:
   *	"carriers" useful carriers of the FFT output
   */
 	for (i = 0; i < carriers; i ++) {
-	   int16_t	index	= myMapper -> mapIn (i);
+	   int16_t	index	= myMapper.  mapIn (i);
 	   if (index < 0) 
 	      index += T_u;
 /**
@@ -259,7 +255,7 @@ fftLabel:
 //	we did not set the fft output to low .. high
 toBitsLabel:
 	for (i = 0; i < carriers; i ++) {
-	   int16_t	index	= myMapper -> mapIn (i);
+	   int16_t	index	= myMapper. mapIn (i);
 	   if (index < 0) 
 	      index += T_u;
 	      

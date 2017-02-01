@@ -32,10 +32,9 @@
 #include	"stdint.h"
 #include	<sndfile.h>
 #include	"phasereference.h"
+#include	"ofdm-decoder.h"
 #include	"virtual-input.h"
 #include	"ringbuffer.h"
-#include	"fic-handler.h"
-#include	"msc-handler.h"
 //
 //	Note:
 //	It was found that enlarging the buffersize to e.g. 8192
@@ -44,6 +43,8 @@
 class	RadioInterface;
 class	common_fft;
 class	ofdmDecoder;
+class	ficHandler;
+class	mscHandler;
 
 class ofdmProcessor: public QThread {
 Q_OBJECT
@@ -61,10 +62,17 @@ public:
 	void	setOffset	(int32_t);
 	void	coarseCorrectorOn	(void);
 	void	coarseCorrectorOff	(void);
-	void	set_scanMode		(bool, QString);
 	void	startDumping	(SNDFILE *);
 	void	stopDumping	(void);
-protected:
+#ifdef	GUI_3
+	void	set_scanMode		(bool, QString);
+#endif
+private:
+	virtualInput	*theRig;
+	DabParams	*params;
+	RadioInterface	*myRadioInterface;
+	ficHandler	*my_ficHandler;
+
 	bool		running;
 	int16_t		gain;
 	bool		dumping;
@@ -72,16 +80,12 @@ protected:
 	int16_t		dumpScale;
 	int16_t		dumpBuffer [DUMPSIZE];
 	SNDFILE		*dumpFile;
-	virtualInput	*theRig;
-	DabParams	*params;
 	int32_t		T_null;
 	int32_t		T_u;
 	int32_t		T_s;
 	int32_t		T_g;
 	int32_t		T_F;
-	bool		scanMode;
 	float		sLevel;
-	RadioInterface	*myRadioInterface;
 	DSPCOMPLEX	*dataBuffer;
 	int32_t		FreqOffset;
 	DSPCOMPLEX	*oscillatorTable;
@@ -95,12 +99,9 @@ protected:
 	DSPCOMPLEX	*ofdmBuffer;
 	uint32_t	ofdmBufferIndex;
 	uint32_t	ofdmSymbolCount;
-	phaseReference	*phaseSynchronizer;
-	ofdmDecoder	*my_ofdmDecoder;
+	phaseReference	phaseSynchronizer;
+	ofdmDecoder	my_ofdmDecoder;
 	DSPFLOAT	avgCorr;
-	ficHandler	*my_ficHandler;
-	mscHandler	*my_mscBuffer;
-private:
 	float		*correlationVector;
 	float		*refArg;
 	int32_t		sampleCnt;
@@ -108,7 +109,10 @@ private:
 	int32_t		inputPointer;
 	DSPCOMPLEX	getSample	(int32_t);
 	void		getSamples	(DSPCOMPLEX *, int16_t, int32_t);
-    int32_t     NoReadCounter;
+#ifdef	GUI_3
+	bool		scanMode;
+	int32_t		NoReadCounter;
+#endif
 virtual	void		run		(void);
 	int32_t		bufferContent;
 	bool		isReset;

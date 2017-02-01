@@ -34,8 +34,7 @@
 
 class	dabProcessor;
 class	RadioInterface;
-class	uep_deconvolve;
-class	eep_deconvolve;
+class	protection;
 
 class	dabData:public QThread, public dabVirtual {
 Q_OBJECT
@@ -74,8 +73,7 @@ void	run		(void);
 	uint8_t		*outV;
 	int16_t		**interleaveData;
 	int16_t		*Data;
-	uep_deconvolve	*uepProcessor;
-	eep_deconvolve	*eepProcessor;
+	protection	*protectionHandler;
 	RingBuffer<int16_t>	*Buffer;
 	dabProcessor	*our_dabProcessor;
 //

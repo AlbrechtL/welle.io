@@ -22,7 +22,8 @@
 #include	"dab-constants.h"
 #include	"dab-processor.h"
 #include	"dab-data.h"
-#include	"deconvolve.h"
+#include	"eep-protection.h"
+#include	"uep-protection.h"
 #include	"gui.h"
 #include	"data-processor.h"
 
@@ -77,14 +78,12 @@ int32_t i, j;
 //
 //	The handling of the depuncturing and deconvolution is
 //	shared with that of the audio
-	uepProcessor		= NULL;
-	eepProcessor		= NULL;
 	if (uepFlag == 0)
-	   uepProcessor	= new uep_deconvolve (bitRate,
-	                                      protLevel);
+	   protectionHandler	= new uep_protection (bitRate,
+	                                              protLevel);
 	else
-	   eepProcessor	= new eep_deconvolve (bitRate,
-	                                      protLevel);
+	   protectionHandler	= new eep_protection (bitRate,
+	                                              protLevel);
 //
 //	any reasonable (i.e. large) size will do here,
 //	as long as the parameter is a power of 2
@@ -98,10 +97,7 @@ int16_t	i;
 	while (this -> isRunning ())
 	   usleep (1);
 	delete Buffer;
-	if (uepFlag == 0)
-	   delete uepProcessor;
-	else
-	   delete eepProcessor;
+	delete protectionHandler;
 	delete[]	outV;
 	for (i = 0; i < 16; i ++)
 	   delete[] interleaveData [i];
@@ -157,10 +153,7 @@ int16_t	i, j;
 	      continue;
 	   }
 //
-	   if (uepFlag == 0)
-	      uepProcessor -> deconvolve (Data, fragmentSize, outV);
-	   else
-	      eepProcessor -> deconvolve (Data, fragmentSize, outV);
+	   protectionHandler -> deconvolve (Data, fragmentSize, outV);
 //
 //	and the inline energy dispersal
 	   memset (shiftRegister, 1, 9);

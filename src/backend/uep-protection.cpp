@@ -22,7 +22,7 @@
  * 	The deconvolution for both uep and eep
  */
 #include	"dab-constants.h"
-#include	"deconvolve.h"
+#include	"uep-protection.h"
 #include	"protTables.h"
 
 struct protectionProfile {
@@ -114,12 +114,6 @@ struct protectionProfile {
 };
 
 static
-uint8_t	PI_X [24] = {
-	1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0,
-	1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0
-};
-
-static
 int16_t	findIndex (int16_t bitRate, int16_t protLevel) {
 int16_t	i;
 
@@ -127,6 +121,7 @@ int16_t	i;
 	   if ((profileTable [i]. bitRate == bitRate) &&
 	       (profileTable [i]. protLevel == protLevel))
 	      return i;
+
 	return -1;
 }
 
@@ -138,9 +133,8 @@ int16_t	i;
   *	The bitRate and the protectionLevel determine the 
   *	depuncturing scheme.
   */
-	uep_deconvolve::uep_deconvolve (int16_t bitRate,
-	                                int16_t protLevel):
-	                                  viterbi (24 * bitRate) {
+	uep_protection::uep_protection (int16_t bitRate,
+	                                int16_t protLevel):viterbi (24 * bitRate) {
 int16_t	index;
 
 	this	-> bitRate		= bitRate;
@@ -149,7 +143,6 @@ int16_t	index;
 	   fprintf (stderr, "%d (%d) has a problem\n", bitRate, protLevel);
 	   index = 1;
 	}
-
 	outSize		= 24 * bitRate;
 	viterbiBlock	= new int16_t [outSize * 4 + 24];
 	L1	= profileTable [index]. L1;
@@ -166,11 +159,11 @@ int16_t	index;
 	   PI4	= NULL;
 }
 
-	uep_deconvolve::~uep_deconvolve (void) {
+	uep_protection::~uep_protection (void) {
 	delete[]	viterbiBlock;
 }
 
-bool	uep_deconvolve::deconvolve (int16_t *v,
+bool	uep_protection::deconvolve (int16_t *v,
 	                            int32_t size, uint8_t *outBuffer) {
 int16_t	i, j;
 int16_t	inputCounter	= 0;
@@ -181,6 +174,9 @@ int32_t	viterbiCounter	= 0;
 //	with a pair of tuples
 //	(L1, PI1), (L2, PI2), (L3, PI3), (L4, PI4)
 
+///	clear the bits in the viterbiBlock,
+///	only the non-punctured ones are set
+	memset (viterbiBlock, 0, (outSize * 4 + 24) * sizeof (int16_t)); 
 	for (i = 0; i < L1; i ++) {
 	   for (j = 0; j < 128; j ++) {
 	      if (PI1 [j % 32] == 1) 
@@ -238,134 +234,3 @@ int32_t	viterbiCounter	= 0;
 	viterbi::deconvolve (viterbiBlock, outBuffer);
 	return true;
 }
-
-/**
-  *	\brief eep_deconvolve
-  *	equal error protection, bitRate and protLevel
-  *	define the puncturing table
-  */
-	eep_deconvolve::eep_deconvolve (int16_t bitRate,
-	                                int16_t protLevel):viterbi (24 * bitRate) {
-	this	-> bitRate = bitRate;
-	outSize		= 24 * bitRate;
-	viterbiBlock	= new int16_t [outSize * 4 + 24];
-	if (protLevel & 0100) {	// set A profiles
-	   switch (protLevel & 07) {
-	      case 1:
-	         L1	= 6 * bitRate / 8 - 3;
-	         L2	= 3;
-	         PI1	= get_PCodes (24 - 1);
-	         PI2	= get_PCodes (23 - 1);
-	         break;
-
-	      case 2:
-	         if (bitRate == 8) {
-	            L1	= 5;
-	            L2	= 1;
-	            PI1	= get_PCodes (13 - 1);
-	            PI2	= get_PCodes (12 - 1);
-	         } else {
-	            L1	= 2 * bitRate / 8 - 3;
-	            L2	= 4 * bitRate / 8 + 3;
-	            PI1	= get_PCodes (14 - 1);
-	            PI2	= get_PCodes (13 - 1);
-	         }
-	         break;
-
-	      case 3:
-	         L1	= 6 * bitRate / 8 - 3;
-	         L2	= 3;
-	         PI1	= get_PCodes (8 - 1);
-	         PI2	= get_PCodes (7 - 1);
-	         break;
-
-	      case 4:
-	         L1	= 4 * bitRate / 8 - 3;
-	         L2	= 2 * bitRate / 8 + 3;
-	         PI1	= get_PCodes (3 - 1);
-	         PI2	= get_PCodes (2 - 1);
-	         break;
-	   }
-	}
-	else
-	if (protLevel & 0200) {		// B series
-	   switch ((protLevel & 07)) {
-	      case 4:
-	         L1	= 24 * bitRate / 32 - 3;
-	         L2	= 3;
-	         PI1	= get_PCodes (2 - 1);
-	         PI2	= get_PCodes (1 - 1);
-	         break;
-
-	      case 3:
-	         L1	= 24 * bitRate / 32 - 3;
-	         L2	= 3;
-	         PI1	= get_PCodes (4 - 1);
-	         PI2	= get_PCodes (3 - 1);
-	         break;
-
-	      case 2:
-	         L1	= 24 * bitRate / 32 - 3;
-	         L2	= 3;
-	         PI1	= get_PCodes (6 - 1);
-	         PI2	= get_PCodes (5 - 1);
-	         break;
-
-	      case 1:
-	         L1	= 24 * bitRate / 32 - 3;
-	         L2	= 3;
-	         PI1	= get_PCodes (10 - 1);
-	         PI2	= get_PCodes (9 - 1);
-	         break;
-	   }
-	}
-}
-
-	eep_deconvolve::~eep_deconvolve (void) {
-	delete[]	viterbiBlock;
-}
-
-bool	eep_deconvolve::deconvolve (int16_t *v,
-	                            int32_t size, uint8_t *outBuffer) {
-
-int16_t	i, j;
-int32_t	inputCounter	= 0;
-int32_t	viterbiCounter	= 0;
-	(void)size;			// currently unused
-//
-//	according to the standard we process the logical frame
-//	with a pair of tuples
-//	(L1, PI1), (L2, PI2), (L3, PI3), (L4, PI4)
-//
-	for (i = 0; i < L1; i ++) {
-	   for (j = 0; j < 128; j ++) {
-	      if (PI1 [j % 32] == 1) 
-	         viterbiBlock [viterbiCounter] = v [inputCounter ++];
-	      else
-	         viterbiBlock [viterbiCounter] = 128;
-	      viterbiCounter ++;	
-	   }
-	}
-
-	for (i = 0; i < L2; i ++) {
-	   for (j = 0; j < 128; j ++) {
-	      if (PI2 [j % 32] == 1) 
-	         viterbiBlock [viterbiCounter] = v [inputCounter ++];
-	      else
-	         viterbiBlock [viterbiCounter] = 128;
-	      viterbiCounter ++;	
-	   }
-	}
-//	we had a final block of 24 bits  with puncturing according to PI_X
-//	This block constitues the 6 * 4 bits of the register itself.
-	for (i = 0; i < 24; i ++) {
-	   if (PI_X [i] == 1) 
-	      viterbiBlock [viterbiCounter] = v [inputCounter ++];
-	   else
-	      viterbiBlock [viterbiCounter] = 128;
-	   viterbiCounter ++;
-	}
-	viterbi::deconvolve (viterbiBlock, outBuffer);
-	return true;
-}
-
