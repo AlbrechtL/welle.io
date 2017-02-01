@@ -75,7 +75,6 @@ RadioInterface::RadioInterface(QSettings	*Si,
     int WindowHeight = dabSettings -> value("WindowHeight", 0). toInt();
     int WindowWidth = dabSettings -> value("WindowWidth", 0). toInt();
     bool isFullscreen = dabSettings	-> value("StartInFullScreen", false). toBool();
-    bool isShowChannelNames = dabSettings -> value("ShowChannelNames", false).toBool();
     bool isExpertMode = dabSettings-> value("EnableExpertMode", false). toBool();
 
     // Read channels from the settings
@@ -110,11 +109,6 @@ RadioInterface::RadioInterface(QSettings	*Si,
     QObject *enableFullScreenObject =  rootObject -> findChild<QObject*> ("enableFullScreen");
     if(enableFullScreenObject != NULL)
         enableFullScreenObject -> setProperty("checked", isFullscreen);
-
-    //	Restore the show channel names property
-    QObject *showChannelObject = rootObject -> findChild<QObject*> ("showChannel");
-    if(showChannelObject != NULL)
-        showChannelObject -> setProperty("checked", isShowChannelNames);
 
     //	Restore expert mode
     QObject *expertModeObject = rootObject -> findChild<QObject*> ("enableExpertMode");
@@ -212,6 +206,8 @@ RadioInterface::RadioInterface(QSettings	*Si,
 
     //	Set timer to check the FIC CRC
     connect(&CheckFICTimer, SIGNAL(timeout(void)), this, SLOT(CheckFICTimerTimeout(void)));
+    connect(&StationTimer, SIGNAL(timeout(void)), this, SLOT(StationTimerTimeout(void)));
+    CurrentSuccessRate = 0;
 }
 
 RadioInterface::~RadioInterface()
@@ -263,17 +259,6 @@ void	RadioInterface::dumpControlState(QSettings *s)
             enableFullScreenObject -> property("checked").toBool();
         //	Save the setting
         s -> setValue("StartInFullScreen", isFullScreen);
-    }
-
-    //	Access the visible channel names
-    QObject *showChannelObject =
-        rootObject -> findChild<QObject*> ("showChannel");
-    if(showChannelObject != NULL)
-    {
-        bool isShowChannel =
-            showChannelObject -> property("checked").toBool();
-        //	Save the setting
-        s -> setValue("ShowChannelNames", isShowChannel);
     }
 
     //	Access to the enable expert mode switch
@@ -591,6 +576,12 @@ void	RadioInterface::nameofEnsemble(int id, const QString &v)
   */
 void	RadioInterface::show_successRate(int s)
 {
+    CurrentSuccessRate = s;
+
+    // Activate a timer to reset the frequency sychronisation if the FIC CRC is constant false
+    if((CurrentSuccessRate < 100) && (!StationTimer.isActive()))
+        StationTimer.start(10000); // 10 s
+
     emit displaySuccessRate(s);
 }
 
@@ -604,9 +595,6 @@ void	RadioInterface::show_snr(int s)
 //	from the ofdmprocessor
 void	RadioInterface::setSynced(char b)
 {
-    if(isSynced == b)
-        return;
-
     isSynced = b;
     switch(isSynced)
     {
@@ -756,6 +744,7 @@ QString	RadioInterface::nextChannel(QString currentChannel)
             return QString(finger [i]. key);
     return QString("");
 }
+
 //
 //	The ofdm processor is "conditioned" to send one signal
 //	per "scanning tour". This signal is either "false"
@@ -792,6 +781,7 @@ void    RadioInterface::setSignalPresent(bool isSignal)
 void	RadioInterface::show_ficCRC(bool b)
 {
     isFICCRC = b;
+
     emit ficFlag(b);
 }
 
@@ -903,6 +893,10 @@ void	RadioInterface::set_channelSelect(QString s)
     int16_t	i;
     struct dabFrequencies *finger;
     bool	localRunning	= running;
+
+    // Reset timeout to reset the tuner
+    StationTimer.start(10000);
+    CurrentSuccessRate = 0;
 
     if(localRunning)
     {
@@ -1065,6 +1059,25 @@ void    RadioInterface::CheckFICTimerTimeout(void)
         emit dabType("DAB");
 }
 
+void    RadioInterface::StationTimerTimeout(void)
+{
+    StationTimer.stop();
+
+    // Reset if frame success rate is below 50 %
+    if(CurrentSuccessRate < 50)
+    {
+        fprintf(stderr, "Resetting tuner ...\n");
+
+        // Reset current channel to force channelClick to do a new turn
+        // This is very ugly but its working
+        QString tmpCurrentChannel = currentChannel;
+        currentChannel = "";
+
+        // Tune to channel
+        channelClick(CurrentStation, tmpCurrentChannel);
+    }
+}
+
 void	RadioInterface::channelClick(QString StationName,
                                      QString ChannelName)
 {
@@ -1082,6 +1095,7 @@ void	RadioInterface::channelClick(QString StationName,
     //	If the FIC CRC is ok we can tune to the channel
     CheckFICTimer. start(1000);
     emit currentStation("Tuning ...");
+    emit stationText("");
 
     // Clear MOT slide show
     QPixmap p(320, 240);
