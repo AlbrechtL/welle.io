@@ -62,6 +62,8 @@ int	main (int argc, char **argv) {
 QString	initFileName;
 RadioInterface	*MyRadioInterface;
 
+QApplication a (argc, argv);
+
 // Default values
 uint8_t		syncMethod	= 2;
 QSettings	*dabSettings;		// ini file
@@ -75,7 +77,6 @@ uint16_t	ipPort		= 1234;
 //	unfortunately, there are quite some people (including me (jvk))
 //	who also work with older versions of Qt,
 #if GUI_3
-	QApplication a (argc, argv);
 	QCoreApplication::setApplicationName("dab-rpi");
 	QCoreApplication::setApplicationVersion(CURRENT_VERSION);
 
@@ -285,7 +286,6 @@ uint16_t	ipPort		= 1234;
  *	Before we connect control to the gui, we have to
  *	instantiate
  */
-	QApplication a (argc, argv);
 #ifdef GUI_2
 	(void)syncMethod;
 	dabSettings -> setValue ("dabMode",	dabMode);
