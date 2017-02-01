@@ -266,7 +266,7 @@ uint16_t	ipPort		= 1234;
 	   initFileName	= fullPathfor (QString (DEFAULT_INI));
 	dabSettings =  new QSettings (initFileName, QSettings::IniFormat);
 
-#if defined (GUI_2) | defined (GUI_4)
+#if defined (GUI_2) 
 //	Since we do not have the possibility in GUI_2 to select
 //	Mode, Band or Device, we create the possibility for
 //	passing appropriate parameters to the command
@@ -279,36 +279,14 @@ uint16_t	ipPort		= 1234;
 	if (dabBand == QString (""))
 	   dabBand = dabSettings -> value ("band", "BAND III"). toString ();
 #endif 
-#ifdef GUI_2
-    	dabSettings -> beginGroup ("gui_2");
-	if (dabChannel == QString (""))
-	   channel = dabSettings -> value ("channel", channel). toString ();
-	else
-	   channel = dabChannel;
-	if (dabProgramName == QString (""))
-	   programName = dabSettings -> value ("programName",
-	                                        programName). toString ();
-	else
-	   programName = dabProgramName;
-	if (dabGain == -1)
-	   gain	= dabSettings	-> value ("deviceGain", gain). toInt ();
-	else
-	   gain = dabGain;
-#ifndef	TCP_STREAMER
-	if (dabSoundchannel == QString (""))
-	   soundChannel	=
-	         dabSettings -> value ("soundChannel", soundChannel). toString ();
-	else
-	   soundChannel = dabSoundchannel;
 #endif
 	dabSettings	-> endGroup ();
-#endif
 /*
  *	Before we connect control to the gui, we have to
  *	instantiate
  */
 	QApplication a (argc, argv);
-#ifdef GUI_4
+#ifdef GUI_2
 	(void)syncMethod;
 	dabSettings -> setValue ("dabMode",	dabMode);
 	dabSettings -> setValue ("device",	dabDevice);
@@ -316,35 +294,9 @@ uint16_t	ipPort		= 1234;
 	MyRadioInterface = new RadioInterface (dabSettings, 
 	                                       dabDevice, dabMode, dabBand);
 	dabSettings	-> sync ();
-#elif GUI_2
-	(void)syncMethod;
-	dabSettings	-> setValue ("dabMode",	dabMode);
-	dabSettings	-> setValue ("device",	dabDevice);
-	dabSettings	-> setValue ("band",	dabBand);
-	dabSettings	-> setValue ("channel",	channel);
-	dabSettings	-> beginGroup ("gui_2");
-	dabSettings	-> setValue ("programName",   programName);
-	dabSettings	-> setValue ("deviceGain",  gain);
-#ifndef	TCP_STREAMER
-	dabSettings	-> setValue ("soundChannel", soundChannel);
-#endif
-	dabSettings	-> endGroup ();
-	dabSettings	-> sync ();
-	MyRadioInterface = new RadioInterface (dabSettings, 
-	                                       dabDevice,
-	                                       dabMode,
-	                                       dabBand,
-	                                       channel,
-	                                       programName,
-	                                       gain
-#ifndef	TCP_STREAMER
-	                                       , soundChannel
-#endif
-	                                       );
 #elif GUI_1
 	MyRadioInterface = new RadioInterface (dabSettings, syncMethod);
 	MyRadioInterface -> show ();
-#endif
 #endif
 
 #if QT_VERSION >= 0x050600
