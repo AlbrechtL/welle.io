@@ -5,7 +5,7 @@
 ######################################################################
 
 TEMPLATE	= app
-TARGET		= dab-rpi-0.9978
+TARGET		= welle.io
 QT		+= widgets network
 CONFIG		+= console
 QMAKE_CFLAGS	+=  -flto -ffast-math
@@ -164,11 +164,11 @@ SOURCES += ./main.cpp \
 #	               not supported
 unix {
 CONFIG		+= dabstick
-CONFIG		+= sdrplay-exp
+#CONFIG		+= sdrplay-exp
 #CONFIG		+= sdrplay
 CONFIG		+= rtl_tcp
-CONFIG		+= airspy
-CONFIG		+= gui_2
+#CONFIG		+= airspy
+CONFIG		+= gui_3
 DESTDIR		= ./linux-bin
 INCLUDEPATH	+= /usr/local/include
 LIBS		+= -lfftw3f  -lusb-1.0 -ldl  #

@@ -129,7 +129,7 @@ ApplicationWindow {
         TextTitle {
             x: backButton.x + backButton.width + Units.dp(20)
             anchors.verticalCenter: parent.verticalCenter
-            text: "dab-rpi"
+            text: "welle.io"
         }
 
         TextStandart {

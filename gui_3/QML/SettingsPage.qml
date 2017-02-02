@@ -174,7 +174,7 @@ Item {
 
         TouchButton {
             id: exitAppButton
-            text: "Exit dab-rpi"
+            text: "Exit welle.io"
             onClicked:  mainWindow.exitApplicationClicked()
             Layout.preferredWidth: parent.width
             Layout.alignment: Qt.AlignBottom

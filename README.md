@@ -1,40 +1,156 @@
-dab-rpi
+wello.io
 =====================
 This repository contains the implementation of a simple DAB/DAB+ receiver. 
-It is  derived from the sdr-j-dab software, optimized for embedded
-systems like Raspberry Pi 2 and Raspberry Pi 3 but it runs on regular PC's  as well.
+It is fork from dab-rpi (https://github.com/JvanKatwijk/dab-rpi) and from the sdr-j-dab (https://github.com/JvanKatwijk/sdr-j-dab).
 
-The receiver supports terrestrial DAB and DAB+ reception with as input the  samplestream from either an AIRSPY, a SDRplay, a dabstick (rtl_sdr), a rtl_tcp server or a (prerecorded) file. It will give sound output through the selected soundcard or - if configured - through a TCP connection.
+The receiver supports terrestrial DAB and DAB+ reception with as input the sample stream from a dabstick (rtl_sdr) or a rtl_tcp server
 
-There are now FOUR versions of the dab-rpi software, the set is extended with a "command line only" version.
 
-1. GUI_1  is a version with a GUI using regular QT widgets, it can be build with Qt4 and Qt5;
-3. GUI_3  is a touch and high DPI display optimized GUI based in QT QML. It can be build using Qt5.7 and higher.
-2. GUI_4  is a version without a GUI, the program is controlled remotely using a TCP connection. A simple remote controller is included in the sources;  The dab-rpi version - the simple remote controller as well - can be build using Qt4 and Qt5;
+Table of contents
+====
 
-The version is selected by selecting a "gui_xxx" in the configuration file. the "dab-rpi.pro" file, see below. (Note that the CMakeLists.txt file currently only supports creating an executable with the GUI_1 profile.)
+  * [Usage](#usage)
+  * [Building](#building)
+    * [General Information](#general-information)
+    * [Ubuntu Linux 16.04 LTS](#ubuntu-linux-1604-lts)
+    * [Windows 10](#windows-10)
+    * [Raspberry Pi 2 and 3](#raspberry-pi-2-and-3)
 
+Usage
+=====
+The command line parameter are:
+
+Parameter | Description
+------ | ---------- | ----
+h | Show help 
+v | Show version 
+i | INI-file path. Do not use unless you know what you want.
+S | Sync method. Do not use unless you know what you want.
+D | Input device. Possible are: airspy, rtl_tcp, sdrplay, dabstick 
+M | DAB mode. Possible are: 1,2 or 4, Default: 1 
+B | DAB band. Default Band III
+I | rtl_tcp server IP address. Only valid for input rtl_tcp 
+P | rtl_tcp server IP port. Only valid for input rtl_tcp
+
+Example usage:
+  
+  ```
+# dab-rpi -D rtl_tcp -I 192.168.1.1 -P 1000
+  ```
+  
+Building
+====================
+
+General Information
+---
+The following libraries and their development files are needed:
+* QT 5.7 and above GUI_3
+* portaudio 0.19
+* FFTW3f
+* libfaad
+* libsndfile
+* libsamplerate
+* zlib
+* librtlsdr (for dabstick),
+* libusb
+
+For building 
+Use for building qmake.
+
+In the ".pro" file one may select (or deselect) input devices by uncommenting (commenting) the appropriate "CONFIG = XXX" lines.
+Note that selecting a device requires installing the library and the development files.
+
+Ubuntu Linux 16.04 LTS
+---
+This sections shows how to compile dab-rpi with GUI_3 on Ubuntu 16.04 LTS. 
+
+1. Install QT 5.7 including the QT Charts module by using the the "Qt Online Installer for Linux" https://www.qt.io/download-open-source/
+
+2. Install the following packages
+
+  ```
+# sudo apt install libfaad-dev libfftw3-dev portaudio19-dev librtlsdr-dev libusb-1.0-0-dev  libsndfile1-dev libsamplerate0-dev mesa-common-dev libglu1-mesa-dev zlib1g-dev git
+  ```
+3. Clone dab-rpi
+
+  ```
+# git clone https://github.com/JvanKatwijk/dab-rpi.git
+  ```
+
+4. Start QT Creator and open the project file "dab-rpi.pro" inside the folder "dab-rpi".
+5. Edit "dab-rpi.pro" and adapt it to your needs. This example is tested with the following settings:
+
+  ```
 unix {
-
 CONFIG		+= dabstick
-
- ......
- 
-CONFIG		+= gui_1 (or gui_3 or gui_4)
-
+#CONFIG		+= sdrplay-exp
+#CONFIG		+= sdrplay
+CONFIG		+= rtl_tcp
+#CONFIG		+= airspy
+#CONFIG		+= tcp-streamer		# use for remote listening
+CONFIG		+= gui_3
 DESTDIR		= ./linux-bin
-
- ....
- 
+INCLUDEPATH	+= /usr/local/include
+LIBS		+= -lfftw3f  -lusb-1.0 -ldl  #
+LIBS		+= -lportaudio
+LIBS		+= -lz
+LIBS		+= -lsndfile
+LIBS		+= -lsamplerate
 LIBS		+= -lfaad
-
 }
+  ```
 
-For a detailed description of how to build the "gui_1" version, see "README.GUI_1.md.
+6. Build dab-rpi
+7. Run dab-rpi and enjoy it
+
+Windows 10
+---
+This sections shows how to compile dab-rpi with GUI_3 on Windows 10. Windows 7 should also be possible but is not tested. 
+
+1. Install QT 5.7 including the QT Charts and mingw modules by using the the "Qt Online Installer for Windows" https://www.qt.io/download-open-source/
+2. Clone dab-rpi https://github.com/JvanKatwijk/dab-rpi.git e.g. by using [TortoiseGit](https://tortoisegit.org).
+3. Clone the dab-rpi Windows libraries https://github.com/AlbrechtL/dab-rpi_win_libs.git.
+4. Start QT Creator and open the project file "dab-rpi.pro" inside the folder "dab-rpi".
+5. Edit "dab-rpi.pro" and adapt it to your needs. This example is tested with the following settings:
+
+  ```
+win32 {
+DESTDIR	= ../windows-bin-dab
+# includes in mingw differ from the includes in fedora linux
+#INCLUDEPATH += /usr/i686-w64-mingw32/sys-root/mingw/include
+INCLUDEPATH += ../dab-rpi_win_libs/include
+LIBS		+= -L/usr/i686-w64-mingw32/sys-root/mingw/lib
+LIBS		+= -L../dab-rpi_win_libs/x86
+LIBS		+= -lfftw3f-3
+LIBS		+= -lportaudio_x86
+LIBS		+= -llibsndfile-1
+LIBS		+= -lole32
+LIBS		+= -lwinpthread
+LIBS		+= -lwinmm
+LIBS 		+= -lstdc++
+LIBS		+= -lws2_32
+LIBS		+= -llibfaad
+LIBS		+= -lusb-1.0
+LIBS		+= -llibsamplerate
+LIBS		+= -lzlib
+CONFIG		+= NO_SSE_SUPPORT 
+#CONFIG		+= extio
+#CONFIG		+= airspy
+#CONFIG		+= airspy-exp
+CONFIG		+= rtl_tcp
+CONFIG		+= dabstick
+#CONFIG		+= sdrplay
+#CONFIG		+= tcp-streamer
+#CONFIG		+= rtp-streamer
+CONFIG		+= gui_3
+}
+  ```
+
+6. Build dab-rpi
+7. Run dab-rpi and enjoy it
+
+Raspberry Pi 2 and 3
+---
+To build and run dap-rpi with GUI_3 on a Raspberry Pi 2 and 3 with GPU acceleration, please visit this repository: https://github.com/AlbrechtL/dab-rpi_raspbian_image
 
 
-For a detailed description of how to build the "GUI_3" version, see "README.GUI_3.md.
-
-For a description of the "gui_4" version, see "README.GUI_4.md.
-
-Note that while the "gui_1" and the "gui_3" version are pretty well tested, the "gui_2" and "gui_4" version have a more experimental character.

@@ -77,7 +77,7 @@ uint16_t	ipPort		= 1234;
 //	unfortunately, there are quite some people (including me (jvk))
 //	who also work with older versions of Qt,
 #if GUI_3
-	QCoreApplication::setApplicationName("dab-rpi");
+    QCoreApplication::setApplicationName("welle.io");
 	QCoreApplication::setApplicationVersion(CURRENT_VERSION);
 
 	QCommandLineParser optionParser;
