@@ -120,7 +120,7 @@ RadioInterface::RadioInterface(QSettings	*Si,
     if(showVersionTextObject != NULL)
     {
         QString InfoText;
-        InfoText += "dab-rpi version: " + QString(CURRENT_VERSION) + "\n";
+        InfoText += "welle.io version: " + QString(CURRENT_VERSION) + "\n";
         InfoText += "Build on: " + QString(__TIMESTAMP__);
         showVersionTextObject -> setProperty("text", InfoText);
     }

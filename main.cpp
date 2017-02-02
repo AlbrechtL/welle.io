@@ -56,7 +56,7 @@ QString	fileName;
 	return fileName;
 }
 
-#define	DEFAULT_INI	".dab-rpi.ini"
+#define	DEFAULT_INI	".welle.io.ini"
 
 int	main (int argc, char **argv) {
 QString	initFileName;
@@ -81,7 +81,7 @@ uint16_t	ipPort		= 1234;
 	QCoreApplication::setApplicationVersion(CURRENT_VERSION);
 
 	QCommandLineParser optionParser;
-	optionParser.setApplicationDescription("dab-rpi Help");
+    optionParser.setApplicationDescription("welle.io Help");
 	optionParser.addHelpOption();
 	optionParser.addVersionOption();
 

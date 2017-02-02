@@ -27,7 +27,7 @@ Item {
 
             TextStandart {
                 id: showVersionText
-                text: "dab-rpi version"
+                text: "welle.io version"
                 Layout.alignment: Qt.AlignLeft
                 objectName: "showVersionText"
             }
