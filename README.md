@@ -1,4 +1,4 @@
-wello.io
+welle.io
 =====================
 This repository contains the implementation of a simple DAB/DAB+ receiver. 
 It is fork from dab-rpi (https://github.com/JvanKatwijk/dab-rpi) and from sdr-j-dab (https://github.com/JvanKatwijk/sdr-j-dab).
@@ -74,7 +74,7 @@ This sections shows how to compile welle.io with GUI_3 on Ubuntu 16.04 LTS.
 3. Clone welle.io
 
   ```
-# git clone https://github.com/AlbrechtL/wello.io.git
+# git clone https://github.com/AlbrechtL/welle.io.git
   ```
 
 4. Start QT Creator and open the project file "welle.io.pro" inside the folder "welle.io".
@@ -108,7 +108,7 @@ Windows 10
 This sections shows how to compile welle.io with GUI_3 on Windows 10. Windows 7 should also be possible but is not tested. 
 
 1. Install QT 5.7 including the QT Charts and mingw modules by using the the "Qt Online Installer for Windows" https://www.qt.io/download-open-source/
-2. Clone welle.io https://github.com/AlbrechtL/wello.io.git e.g. by using [TortoiseGit](https://tortoisegit.org).
+2. Clone welle.io https://github.com/AlbrechtL/welle.io.git e.g. by using [TortoiseGit](https://tortoisegit.org).
 3. Clone the welle.io Windows libraries https://github.com/AlbrechtL/dab-rpi_win_libs.git.
 4. Start QT Creator and open the project file "welle.io.pro" inside the folder "welle.io".
 5. Edit "welle.io.pro" and adapt it to your needs. This example is tested with the following settings:
