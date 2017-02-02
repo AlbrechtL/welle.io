@@ -1,7 +1,7 @@
 wello.io
 =====================
 This repository contains the implementation of a simple DAB/DAB+ receiver. 
-It is fork from dab-rpi (https://github.com/JvanKatwijk/dab-rpi) and from the sdr-j-dab (https://github.com/JvanKatwijk/sdr-j-dab).
+It is fork from dab-rpi (https://github.com/JvanKatwijk/dab-rpi) and from sdr-j-dab (https://github.com/JvanKatwijk/sdr-j-dab).
 
 The receiver supports terrestrial DAB and DAB+ reception with as input the sample stream from a dabstick (rtl_sdr) or a rtl_tcp server
 
@@ -35,7 +35,7 @@ P | rtl_tcp server IP port. Only valid for input rtl_tcp
 Example usage:
   
   ```
-# dab-rpi -D rtl_tcp -I 192.168.1.1 -P 1000
+# welle.io -D rtl_tcp -I 192.168.1.1 -P 1000
   ```
   
 Building
@@ -62,7 +62,7 @@ Note that selecting a device requires installing the library and the development
 
 Ubuntu Linux 16.04 LTS
 ---
-This sections shows how to compile dab-rpi with GUI_3 on Ubuntu 16.04 LTS. 
+This sections shows how to compile welle.io with GUI_3 on Ubuntu 16.04 LTS. 
 
 1. Install QT 5.7 including the QT Charts module by using the the "Qt Online Installer for Linux" https://www.qt.io/download-open-source/
 
@@ -71,14 +71,14 @@ This sections shows how to compile dab-rpi with GUI_3 on Ubuntu 16.04 LTS.
   ```
 # sudo apt install libfaad-dev libfftw3-dev portaudio19-dev librtlsdr-dev libusb-1.0-0-dev  libsndfile1-dev libsamplerate0-dev mesa-common-dev libglu1-mesa-dev zlib1g-dev git
   ```
-3. Clone dab-rpi
+3. Clone welle.io
 
   ```
-# git clone https://github.com/JvanKatwijk/dab-rpi.git
+# git clone https://github.com/AlbrechtL/wello.io.git
   ```
 
-4. Start QT Creator and open the project file "dab-rpi.pro" inside the folder "dab-rpi".
-5. Edit "dab-rpi.pro" and adapt it to your needs. This example is tested with the following settings:
+4. Start QT Creator and open the project file "welle.io.pro" inside the folder "welle.io".
+5. Edit "welle.io.pro" and adapt it to your needs. This example is tested with the following settings:
 
   ```
 unix {
@@ -100,18 +100,18 @@ LIBS		+= -lfaad
 }
   ```
 
-6. Build dab-rpi
-7. Run dab-rpi and enjoy it
+6. Build welle.io
+7. Run welle.io and enjoy it
 
 Windows 10
 ---
-This sections shows how to compile dab-rpi with GUI_3 on Windows 10. Windows 7 should also be possible but is not tested. 
+This sections shows how to compile welle.io with GUI_3 on Windows 10. Windows 7 should also be possible but is not tested. 
 
 1. Install QT 5.7 including the QT Charts and mingw modules by using the the "Qt Online Installer for Windows" https://www.qt.io/download-open-source/
-2. Clone dab-rpi https://github.com/JvanKatwijk/dab-rpi.git e.g. by using [TortoiseGit](https://tortoisegit.org).
-3. Clone the dab-rpi Windows libraries https://github.com/AlbrechtL/dab-rpi_win_libs.git.
-4. Start QT Creator and open the project file "dab-rpi.pro" inside the folder "dab-rpi".
-5. Edit "dab-rpi.pro" and adapt it to your needs. This example is tested with the following settings:
+2. Clone welle.io https://github.com/AlbrechtL/wello.io.git e.g. by using [TortoiseGit](https://tortoisegit.org).
+3. Clone the welle.io Windows libraries https://github.com/AlbrechtL/dab-rpi_win_libs.git.
+4. Start QT Creator and open the project file "welle.io.pro" inside the folder "welle.io".
+5. Edit "welle.io.pro" and adapt it to your needs. This example is tested with the following settings:
 
   ```
 win32 {
@@ -146,8 +146,8 @@ CONFIG		+= gui_3
 }
   ```
 
-6. Build dab-rpi
-7. Run dab-rpi and enjoy it
+6. Build welle.io
+7. Run welle.io and enjoy it
 
 Raspberry Pi 2 and 3
 ---
