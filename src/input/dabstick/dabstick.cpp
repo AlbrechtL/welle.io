@@ -217,6 +217,9 @@ int	k;
 	         this, SLOT (set_fCorrection  (int)));
 	connect (KhzOffset, SIGNAL (valueChanged (int)),
 	         this, SLOT (set_KhzOffset (int)));
+
+    // Enable AGC
+    setAgc(true);
 	
 	*success 		= true;
 	return;
@@ -300,10 +303,10 @@ int32_t	r;
 
 	this -> rtlsdr_set_center_freq (device, lastFrequency + vfoOffset);
 	workerHandle	= new dll_driver (this);
-	rtlsdr_set_tuner_gain_mode (device,
-                combo_autogain -> currentText () == "autogain on" ? 1 : 0);
-	rtlsdr_set_tuner_gain (device, theGain);
-	fprintf (stderr, "the gain is set to %d\n", theGain);
+//	rtlsdr_set_tuner_gain_mode (device,
+//                combo_autogain -> currentText () == "autogain on" ? 1 : 0);
+//	rtlsdr_set_tuner_gain (device, theGain);
+//	fprintf (stderr, "the gain is set to %d\n", theGain);
 	return true;
 }
 
@@ -340,7 +343,16 @@ void	dabStick::set_autogain		(const QString &autogain) {
 }
 
 void	dabStick::setAgc		(bool b) {
-	rtlsdr_set_tuner_gain_mode (device, b);
+    if(b == true)
+    {
+        rtlsdr_set_tuner_gain_mode (device, 0);
+        fprintf(stderr, "AGC is on\n");
+    }
+    else
+    {
+        rtlsdr_set_tuner_gain_mode (device, 1);
+        fprintf(stderr, "AGC is off\n");
+    }
 }
 
 //
