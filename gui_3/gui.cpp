@@ -1069,7 +1069,7 @@ void    RadioInterface::StationTimerTimeout(void)
     StationTimer.stop();
 
     // Reset if frame success rate is below 50 %
-    if(CurrentFrameErrors > 3)
+    if(CurrentFrameErrors > 3 && !scanMode)
     {
         fprintf(stderr, "Resetting tuner ...\n");
 
