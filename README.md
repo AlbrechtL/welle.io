@@ -15,6 +15,7 @@ Table of contents
     * [Ubuntu Linux 16.04 LTS](#ubuntu-linux-1604-lts)
     * [Windows 10](#windows-10)
     * [Raspberry Pi 2 and 3](#raspberry-pi-2-and-3)
+  * [Limitations](#limitations)
 
 Usage
 =====
@@ -109,43 +110,8 @@ This sections shows how to compile welle.io with GUI_3 on Windows 10. Windows 7 
 
 1. Install QT 5.7 including the QT Charts and mingw modules by using the the "Qt Online Installer for Windows" https://www.qt.io/download-open-source/
 2. Clone welle.io https://github.com/AlbrechtL/welle.io.git e.g. by using [TortoiseGit](https://tortoisegit.org).
-3. Clone the welle.io Windows libraries https://github.com/AlbrechtL/dab-rpi_win_libs.git.
+3. Clone the welle.io Windows libraries https://github.com/AlbrechtL/welle.io-win-libs.git.
 4. Start QT Creator and open the project file "welle.io.pro" inside the folder "welle.io".
-5. Edit "welle.io.pro" and adapt it to your needs. This example is tested with the following settings:
-
-  ```
-win32 {
-DESTDIR	= ../windows-bin-dab
-# includes in mingw differ from the includes in fedora linux
-#INCLUDEPATH += /usr/i686-w64-mingw32/sys-root/mingw/include
-INCLUDEPATH += ../dab-rpi_win_libs/include
-LIBS		+= -L/usr/i686-w64-mingw32/sys-root/mingw/lib
-LIBS		+= -L../dab-rpi_win_libs/x86
-LIBS		+= -lfftw3f-3
-LIBS		+= -lportaudio_x86
-LIBS		+= -llibsndfile-1
-LIBS		+= -lole32
-LIBS		+= -lwinpthread
-LIBS		+= -lwinmm
-LIBS 		+= -lstdc++
-LIBS		+= -lws2_32
-LIBS		+= -llibfaad
-LIBS		+= -lusb-1.0
-LIBS		+= -llibsamplerate
-LIBS		+= -lzlib
-CONFIG		+= NO_SSE_SUPPORT 
-#CONFIG		+= extio
-#CONFIG		+= airspy
-#CONFIG		+= airspy-exp
-CONFIG		+= rtl_tcp
-CONFIG		+= dabstick
-#CONFIG		+= sdrplay
-#CONFIG		+= tcp-streamer
-#CONFIG		+= rtp-streamer
-CONFIG		+= gui_3
-}
-  ```
-
 6. Build welle.io
 7. Run welle.io and enjoy it
 
@@ -153,4 +119,8 @@ Raspberry Pi 2 and 3
 ---
 To build and run dap-rpi with GUI_3 on a Raspberry Pi 2 and 3 with GPU acceleration, please visit this repository: https://github.com/AlbrechtL/dab-rpi_raspbian_image
 
-
+Limitation
+===
+* CMake is not tested
+* DAB is not tested (only DAB+ is tested)
+* sdrplay and airspy SDR devices are not tested 

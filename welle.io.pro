@@ -8,12 +8,12 @@ TEMPLATE	= app
 TARGET		= welle.io
 QT		+= widgets network
 CONFIG		+= console
-QMAKE_CFLAGS	+=  -flto -ffast-math
-QMAKE_CXXFLAGS	+=  -flto -ffast-math
-QMAKE_LFLAGS	+=  -flto
-#QMAKE_CFLAGS	+=  -g
-#QMAKE_CXXFLAGS	+=  -g
-#QMAKE_LFLAGS	+=  -g
+Relase: QMAKE_CFLAGS	+=  -flto -ffast-math -O3
+Relase: QMAKE_CXXFLAGS	+=  -flto -ffast-math -O3
+Relase: QMAKE_LFLAGS	+=  -flto -O3
+#Debug: QMAKE_CFLAGS	+=  -g
+#Debug: QMAKE_CXXFLAGS	+=  -g
+#Debug: QMAKE_LFLAGS	+=  -g
 DEPENDPATH += . \
 	      ./src \
 	      ./includes \
@@ -181,29 +181,27 @@ LIBS		+= -lfaad
 #
 # an attempt to have it run under W32
 win32 {
-DESTDIR	= ../../windows-bin
-# includes in mingw differ from the includes in fedora linux
-INCLUDEPATH += /usr/i686-w64-mingw32/sys-root/mingw/include
-LIBS		+= -L/usr/i686-w64-mingw32/sys-root/mingw/lib
-LIBS		+= -lfftw3f
-LIBS		+= -lportaudio
-LIBS		+= -lsndfile
-LIBS		+= -lsamplerate
+INCLUDEPATH += ../welle.io-win-libs/include
+LIBS		+= -L../welle.io-win-libs/x86
+LIBS		+= -lfftw3f-3
+LIBS		+= -lportaudio_x86
+LIBS		+= -llibsndfile-1
 LIBS		+= -lole32
 LIBS		+= -lwinpthread
 LIBS		+= -lwinmm
 LIBS 		+= -lstdc++
 LIBS		+= -lws2_32
-LIBS		+= -lfaad
+LIBS		+= -llibfaad
 LIBS		+= -lusb-1.0
-LIBS		+= -lz
+LIBS		+= -llibsamplerate
+LIBS		+= -lzlib
 CONFIG		+= extio
 CONFIG		+= airspy
 CONFIG		+= rtl_tcp
 CONFIG		+= dabstick
 CONFIG		+= sdrplay-exp
 #CONFIG		+= tcp-streamer
-CONFIG		+= gui_1
+CONFIG		+= gui_3
 }
 
 #######################################
@@ -235,7 +233,7 @@ gui_2	{
 
 
 gui_3	{
-        TARGET		= dab-rpi-touch
+        TARGET		= welle-io
         DEFINES		+= GUI_3
         QT		+= qml quick charts
         INCLUDEPATH	+= ./gui_3
