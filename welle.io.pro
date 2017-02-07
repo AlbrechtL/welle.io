@@ -7,9 +7,6 @@ RC_ICONS = ./gui/QML/images/icon.ico
 Release: QMAKE_CFLAGS	+=  -flto -ffast-math -O3
 Release: QMAKE_CXXFLAGS	+=  -flto -ffast-math -O3
 Release: QMAKE_LFLAGS	+=  -flto -O3
-#Debug: QMAKE_CFLAGS	+=  -g
-#Debug: QMAKE_CXXFLAGS	+=  -g
-#Debug: QMAKE_LFLAGS	+=  -g
 
 DEFINES	 += GUI_3 # Not necessary after code clean up
 DEFINES	 += MOT_BASICS__ # Not necessary after code clean up
@@ -101,8 +98,6 @@ HEADERS += ./includes/dab-constants.h \
             ./gui/mot_manager.h \
             ./gui/pad_decoder_adapter.h
 
-FORMS +=	./src/input/filereader-widget.ui 
-
 SOURCES += ./main.cpp \
             ./src/ofdm/ofdm-processor.cpp \
             ./src/ofdm/ofdm-decoder.cpp \
@@ -152,10 +147,7 @@ SOURCES += ./main.cpp \
 
 unix {
 CONFIG		+= dabstick
-#CONFIG		+= sdrplay-exp
-#CONFIG		+= sdrplay
 CONFIG		+= rtl_tcp
-#CONFIG		+= airspy
 DESTDIR		= ./linux-bin
 INCLUDEPATH	+= /usr/local/include
 LIBS		+= -lfftw3f
@@ -180,62 +172,20 @@ LIBS		+= -lws2_32
 LIBS		+= -llibfaad
 LIBS		+= -lusb-1.0
 LIBS		+= -llibsamplerate
-CONFIG		+= extio
-CONFIG		+= airspy
 CONFIG		+= rtl_tcp
 CONFIG		+= dabstick
-CONFIG		+= sdrplay-exp
-#CONFIG		+= tcp-streamer
 }
 
 
 #### Devices ####
 dabstick {
 	DEFINES		+= HAVE_DABSTICK
-	INCLUDEPATH	+= /home/jan/rtl-sdr/include
 	INCLUDEPATH	+= ./src/input/dabstick
 	HEADERS		+= ./src/input/dabstick/dabstick.h \
 	                   ./src/input/dabstick/dongleselect.h
 	SOURCES		+= ./src/input/dabstick/dabstick.cpp \
 	                   ./src/input/dabstick/dongleselect.cpp
 	FORMS		+= ./src/input/dabstick/dabstick-widget.ui
-}
-
-sdrplay {
-	DEFINES		+= HAVE_SDRPLAY
-	INCLUDEPATH	+= ./src/input/sdrplay
-	HEADERS		+= ./src/input/sdrplay/sdrplay.h \
-	                   ./src/input/sdrplay/sdrplay-loader.h \
-	                   ./src/input/sdrplay/sdrplay-worker.h 
-	SOURCES		+= ./src/input/sdrplay/sdrplay.cpp \
-	                   ./src/input/sdrplay/sdrplay-loader.cpp \
-	                   ./src/input/sdrplay/sdrplay-worker.cpp 
-	FORMS		+= ./src/input/sdrplay/sdrplay-widget.ui
-}
-
-sdrplay-exp {
-	DEFINES		+= HAVE_SDRPLAY
-	INCLUDEPATH	+= ./src/input/sdrplay-exp
-	HEADERS		+= ./src/input/sdrplay-exp/sdrplay.h 
-	SOURCES		+= ./src/input/sdrplay-exp/sdrplay.cpp 
-	FORMS		+= ./src/input/sdrplay-exp/sdrplay-widget.ui
-}
-
-airspy {
-	DEFINES		+= HAVE_AIRSPY
-	INCLUDEPATH	+= ./src/input/airspy \
-	                    /usr/local/include/libairspy
-	HEADERS		+= ./src/input/airspy/airspy-handler.h \
-	                    /usr/local/include/libairspy/airspy.h
-	SOURCES		+= ./src/input/airspy/airspy-handler.cpp 
-	FORMS		+= ./src/input/airspy/airspy-widget.ui
-}
-
-tcp-streamer	{
-	DEFINES		+= TCP_STREAMER
-	QT		+= network
-	HEADERS		+= ./includes/output/tcp-streamer.h
-	SOURCES		+= ./src/output/tcp-streamer.cpp
 }
 
 rtl_tcp {
