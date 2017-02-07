@@ -182,7 +182,6 @@ INCLUDEPATH	+= /usr/local/include
 LIBS		+= -lfftw3f  -lusb-1.0 -ldl  #
 LIBS		+= -lportaudio
 LIBS		+= -lz
-LIBS		+= -lsndfile
 LIBS		+= -lsamplerate
 LIBS		+= -lfaad
 }
@@ -193,7 +192,6 @@ INCLUDEPATH += ../welle.io-win-libs/include
 LIBS		+= -L../welle.io-win-libs/x86
 LIBS		+= -lfftw3f-3
 LIBS		+= -lportaudio_x86
-LIBS		+= -llibsndfile-1
 LIBS		+= -lole32
 LIBS		+= -lwinpthread
 LIBS		+= -lwinmm

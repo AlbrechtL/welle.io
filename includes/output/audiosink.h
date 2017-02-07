@@ -68,7 +68,6 @@ private:
 	int		paCallbackReturn;
 	int16_t		bufSize;
 	PaStream	*ostream;
-	SNDFILE		*dumpFile;
 	RingBuffer<float>	*_O_Buffer;
 	PaStreamParameters	outputParameters;
 

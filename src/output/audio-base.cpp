@@ -37,7 +37,6 @@
 	                              converter_24 (24000, 48000, 2 * 2400),
 	                              converter_32 (32000, 48000, 4 * 3200) {
 	buffer			= b;
-	dumpFile		= NULL;
 }
 
 	audioBase::~audioBase	(void) {
@@ -92,11 +91,6 @@ int32_t	result;
 	         buffer [2 * i + 1] = imag (outputBuffer [i]);
 	      }
 	   
-	      myLocker. lock ();
-	      if (dumpFile != NULL)
-	         sf_writef_float (dumpFile, (float *)buffer, result);
-	      myLocker. unlock ();
-
 	      audioOutput (buffer, result);
 	   }
 }
@@ -117,11 +111,6 @@ int32_t	result;
 	         buffer [2 * i    ] = real (outputBuffer [i]);
 	         buffer [2 * i + 1] = imag (outputBuffer [i]);
 	      }
-	   
-	      myLocker. lock ();
-	      if (dumpFile != NULL)
-	         sf_writef_float (dumpFile, (float *)buffer, result);
-	      myLocker. unlock ();
 
 	      audioOutput (buffer, result);
 	   }
@@ -144,11 +133,6 @@ int32_t	result;
 	         buffer [2 * i + 1] = imag (outputBuffer [i]);
 	      }
 	   
-	      myLocker. lock ();
-	      if (dumpFile != NULL)
-	         sf_writef_float (dumpFile, (float *)buffer, result);
-	      myLocker. unlock ();
-//	      fprintf (stderr, "result %d\n", result);
 	      audioOutput (buffer, result);
 	   }
 	}
@@ -163,25 +147,7 @@ int32_t	i;
 	   buffer [2 * i + 1]	= V [2 * i + 1] / 32767.0;
 	}
 
-	myLocker. lock ();
-	if (dumpFile != NULL)
-	   sf_writef_float (dumpFile, (float *)buffer, amount);
-	myLocker. unlock ();
 	audioOutput (buffer, amount);
-}
-//
-//	we ensure that no one is fiddling with the dumpfile
-//	while we are writing
-void	audioBase::startDumping	(SNDFILE *f) {
-	myLocker. lock ();
-	dumpFile	= f;
-	myLocker. unlock ();
-}
-
-void	audioBase::stopDumping	(void) {
-	myLocker. lock ();
-	dumpFile	= NULL;
-	myLocker. unlock ();
 }
 
 //

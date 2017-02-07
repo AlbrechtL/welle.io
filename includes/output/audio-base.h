@@ -30,7 +30,6 @@
 #include	"dab-constants.h"
 #include	<stdio.h>
 #include	<samplerate.h>
-#include	<sndfile.h>
 #include	<QMutex>
 #include	<QObject>
 #include	"newconverter.h"
@@ -45,7 +44,6 @@ virtual			~audioBase		(void);
 virtual	void		stop			(void);
 virtual	void		restart			(void);
 	void		audioOut		(int);
-	void		startDumping		(SNDFILE *);
 	void		stopDumping		(void);
 private:
 	RingBuffer<int16_t>	*buffer;
@@ -56,7 +54,6 @@ private:
 	newConverter	converter_16;
 	newConverter	converter_24;
 	newConverter	converter_32;
-	SNDFILE		*dumpFile;
 	QMutex		myLocker;
 protected:
 virtual	void		audioOutput		(float *, int32_t);
