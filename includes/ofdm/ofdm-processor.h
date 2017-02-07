@@ -30,7 +30,6 @@
 #include	<QThread>
 #include	<QObject>
 #include	"stdint.h"
-#include	<sndfile.h>
 #include	"phasereference.h"
 #include	"ofdm-decoder.h"
 #include	"virtual-input.h"
@@ -62,8 +61,6 @@ public:
 	void	setOffset	(int32_t);
 	void	coarseCorrectorOn	(void);
 	void	coarseCorrectorOff	(void);
-	void	startDumping	(SNDFILE *);
-	void	stopDumping	(void);
 #ifdef	GUI_3
 	void	set_scanMode		(bool, QString);
 #endif
@@ -75,11 +72,6 @@ private:
 
 	bool		running;
 	int16_t		gain;
-	bool		dumping;
-	int16_t		dumpIndex;
-	int16_t		dumpScale;
-	int16_t		dumpBuffer [DUMPSIZE];
-	SNDFILE		*dumpFile;
 	int32_t		T_null;
 	int32_t		T_u;
 	int32_t		T_s;

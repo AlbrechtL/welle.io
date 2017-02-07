@@ -77,10 +77,6 @@ int32_t	i;
 	this	-> myRadioInterface	= mr;
 	fft_handler			= new common_fft (T_u);
 	fft_buffer			= fft_handler -> getVector ();
-	dumping				= false;
-	dumpIndex			= 0;
-	dumpScale			= valueFor (theRig -> bitDepth ());
-//
 	ofdmBuffer			= new DSPCOMPLEX [76 * T_s];
 	ofdmBufferIndex			= 0;
 	ofdmSymbolCount			= 0;
@@ -193,14 +189,6 @@ DSPCOMPLEX temp;
 //	so here, bufferContent > 0
 	theRig -> getSamples (&temp, 1);
 	bufferContent --;
-	if (dumping) {
-           dumpBuffer [2 * dumpIndex] = real (temp) * dumpScale;
-           dumpBuffer [2 * dumpIndex + 1] = imag (temp) * dumpScale;
-           if ( ++dumpIndex >= DUMPSIZE / 2) {
-              sf_writef_short (dumpFile, dumpBuffer, dumpIndex);
-              dumpIndex = 0;
-           }
-        }
 
 //
 //	OK, we have a sample!!
@@ -248,16 +236,6 @@ int32_t		i;
 //	so here, bufferContent >= n
 	n	= theRig -> getSamples (v, n);
 	bufferContent -= n;
-	if (dumping) {
-           for (i = 0; i < n; i ++) {
-              dumpBuffer [2 * dumpIndex] = real (v [i]) * dumpScale;
-              dumpBuffer [2 * dumpIndex + 1] = imag (v [i]) * dumpScale;
-              if (++dumpIndex >= DUMPSIZE / 2) {
-                 sf_writef_short (dumpFile, dumpBuffer, dumpIndex);
-                 dumpIndex = 0;
-              }
-           }
-        }
 
 //	OK, we have samples!!
 //	first: adjust frequency. We need Hz accuracy
@@ -530,20 +508,6 @@ void	ofdmProcessor:: reset	(void) {
 void	ofdmProcessor::stop	(void) {
 	running	= false;
 }
-
-void	ofdmProcessor::startDumping	(SNDFILE *f) {
-	if (dumping)
-	   return;
-//	do not change the order here.
-	dumpFile 	= f;
-	dumping		= true;
-	dumpIndex	= 0;
-}
-
-void	ofdmProcessor::stopDumping	(void) {
-	dumping = false;
-}
-//
 
 void	ofdmProcessor::coarseCorrectorOn (void) {
 	f2Correction 	= true;

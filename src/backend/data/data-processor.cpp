@@ -24,7 +24,6 @@
 #include	"virtual-datahandler.h"
 #include	"ip-datahandler.h"
 #include	"mot-databuilder.h"
-#include	"journaline-datahandler.h"
 #include	"gui.h"
 
 //	\class dataProcessor
@@ -54,7 +53,7 @@ int32_t i, j;
 	      break;
 
 	   case 44:
-	      my_dataHandler	= new journaline_dataHandler ();
+          // journaline
 	      break;
 
 	   case 59:

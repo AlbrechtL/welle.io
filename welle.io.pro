@@ -23,7 +23,6 @@ DEPENDPATH += . \
 	      ./src/backend \
 	      ./src/backend/audio \
 	      ./src/backend/data \
-	      ./src/backend/data/journaline \
 	      ./src/output \
 	      ./src/various \
 	      ./src/input \
@@ -33,7 +32,6 @@ DEPENDPATH += . \
 	      ./includes/backend \
 	      ./includes/backend/audio \
 	      ./includes/backend/data \
-	      ./includes/backend/data/journaline \
 	      ./includes/output \
               ./includes/various \
               ./gui
@@ -82,15 +80,6 @@ HEADERS += ./includes/dab-constants.h \
             ./includes/backend/data/ip-datahandler.h \
             ./includes/backend/data/mot-databuilder.h \
             ./includes/backend/data/mot-data.h \
-            ./includes/backend/data/journaline-datahandler.h \
-            ./includes/backend/data/journaline/dabdatagroupdecoder.h \
-            ./includes/backend/data/journaline/crc_8_16.h \
-            ./includes/backend/data/journaline/log.h \
-            ./includes/backend/data/journaline/newssvcdec_impl.h \
-            ./includes/backend/data/journaline/Splitter.h \
-            ./includes/backend/data/journaline/dabdgdec_impl.h \
-            ./includes/backend/data/journaline/newsobject.h \
-            ./includes/backend/data/journaline/NML.h \
             ./includes/backend/protection.h \
             ./includes/backend/eep-protection.h \
             ./includes/backend/uep-protection.h \
@@ -103,7 +92,6 @@ HEADERS += ./includes/dab-constants.h \
             ./includes/various/Xtan2.h \
             ./src/input/virtual-input.h \
             ./src/input/rawfiles/rawfiles.h \
-            ./src/input/wavfiles/wavfiles.h \
             ./gui/gui.h \
             ./gui/motimageprovider.h \
             ./gui/stationlist.h \
@@ -145,14 +133,6 @@ SOURCES += ./main.cpp \
             ./src/backend/data/ip-datahandler.cpp \
             ./src/backend/data/mot-databuilder.cpp \
             ./src/backend/data/mot-data.cpp \
-            ./src/backend/data/journaline-datahandler.cpp \
-            ./src/backend/data/journaline/crc_8_16.c \
-            ./src/backend/data/journaline/log.c \
-            ./src/backend/data/journaline/newssvcdec_impl.cpp \
-            ./src/backend/data/journaline/Splitter.cpp \
-            ./src/backend/data/journaline/dabdgdec_impl.c \
-            ./src/backend/data/journaline/newsobject.cpp \
-            ./src/backend/data/journaline/NML.cpp \
             ./src/output/audio-base.cpp \
             ./src/output/newconverter.cpp \
             ./src/output/audiosink.cpp \
@@ -161,7 +141,6 @@ SOURCES += ./main.cpp \
             ./src/various/Xtan2.cpp \
             ./src/input/virtual-input.cpp \
             ./src/input/rawfiles/rawfiles.cpp \
-            ./src/input/wavfiles/wavfiles.cpp \
             ./gui/gui.cpp \
             ./gui/motimageprovider.cpp \
             ./gui/stationlist.cpp \
@@ -179,9 +158,10 @@ CONFIG		+= rtl_tcp
 #CONFIG		+= airspy
 DESTDIR		= ./linux-bin
 INCLUDEPATH	+= /usr/local/include
-LIBS		+= -lfftw3f  -lusb-1.0 -ldl  #
+LIBS		+= -lfftw3f
+LIBS		+= -lusb-1.0
+LIBS		+= -ldl
 LIBS		+= -lportaudio
-LIBS		+= -lz
 LIBS		+= -lsamplerate
 LIBS		+= -lfaad
 }
@@ -200,7 +180,6 @@ LIBS		+= -lws2_32
 LIBS		+= -llibfaad
 LIBS		+= -lusb-1.0
 LIBS		+= -llibsamplerate
-LIBS		+= -lzlib
 CONFIG		+= extio
 CONFIG		+= airspy
 CONFIG		+= rtl_tcp
