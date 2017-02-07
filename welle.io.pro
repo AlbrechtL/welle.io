@@ -148,7 +148,6 @@ SOURCES += ./main.cpp \
 unix {
 CONFIG		+= dabstick
 CONFIG		+= rtl_tcp
-DESTDIR		= ./linux-bin
 INCLUDEPATH	+= /usr/local/include
 LIBS		+= -lfftw3f
 LIBS		+= -lusb-1.0

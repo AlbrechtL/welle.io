@@ -27,7 +27,7 @@ h | Show help
 v | Show version 
 i | INI-file path. Do not use unless you know what you want.
 S | Sync method. Do not use unless you know what you want.
-D | Input device. Possible are: airspy, rtl_tcp, sdrplay, dabstick 
+D | Input device. Possible are: rtl_tcp, dabstick 
 M | DAB mode. Possible are: 1,2 or 4, Default: 1 
 B | DAB band. Default Band III
 I | rtl_tcp server IP address. Only valid for input rtl_tcp 
@@ -79,30 +79,8 @@ This sections shows how to compile welle.io with GUI_3 on Ubuntu 16.04 LTS.
   ```
 
 4. Start QT Creator and open the project file "welle.io.pro" inside the folder "welle.io".
-5. Edit "welle.io.pro" and adapt it to your needs. This example is tested with the following settings:
-
-  ```
-unix {
-CONFIG		+= dabstick
-#CONFIG		+= sdrplay-exp
-#CONFIG		+= sdrplay
-CONFIG		+= rtl_tcp
-#CONFIG		+= airspy
-#CONFIG		+= tcp-streamer		# use for remote listening
-CONFIG		+= gui_3
-DESTDIR		= ./linux-bin
-INCLUDEPATH	+= /usr/local/include
-LIBS		+= -lfftw3f  -lusb-1.0 -ldl  #
-LIBS		+= -lportaudio
-LIBS		+= -lz
-LIBS		+= -lsndfile
-LIBS		+= -lsamplerate
-LIBS		+= -lfaad
-}
-  ```
-
-6. Build welle.io
-7. Run welle.io and enjoy it
+5. Build welle.io
+6. Run welle.io and enjoy it
 
 Windows 10
 ---
@@ -112,8 +90,8 @@ This sections shows how to compile welle.io with GUI_3 on Windows 10. Windows 7 
 2. Clone welle.io https://github.com/AlbrechtL/welle.io.git e.g. by using [TortoiseGit](https://tortoisegit.org).
 3. Clone the welle.io Windows libraries https://github.com/AlbrechtL/welle.io-win-libs.git.
 4. Start QT Creator and open the project file "welle.io.pro" inside the folder "welle.io".
-6. Build welle.io
-7. Run welle.io and enjoy it
+5. Build welle.io
+6. Run welle.io and enjoy it
 
 Raspberry Pi 2 and 3
 ---
