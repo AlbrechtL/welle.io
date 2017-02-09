@@ -89,7 +89,7 @@ Raspberry Pi 2 and 3
 ---
 To build and run welle.io on a Raspberry Pi 2 and 3 with GPU acceleration, please visit this repository: https://github.com/AlbrechtL/dab-rpi_raspbian_image
 
-Limitation
+Limitations
 ===
 * CMake is not tested
 * DAB is not tested (only DAB+ is tested)
