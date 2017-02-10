@@ -61,17 +61,15 @@ int32_t	virtualInput::getSamples	(DSPCOMPLEX *v, int32_t amount) {
 	return 0;
 }
 
+int32_t	virtualInput::getSamplesFromShadowBuffer (DSPCOMPLEX *V, int32_t size)
+{
+    (void)V;
+    (void)size;
+    return 0;
+}
+
 int32_t	virtualInput::Samples		(void) {
 	return 0;
-}
-
-bool	virtualInput::legalFrequency	(int32_t f) {
-	(void)f;
-	return true;
-}
-
-int32_t	virtualInput::defaultFrequency	(void) {
-	return Khz (220000);
 }
 
 void	virtualInput::resetBuffer	(void) {

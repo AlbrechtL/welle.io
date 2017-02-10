@@ -32,207 +32,95 @@
 #include	<QHostAddress>
 #include	<QTcpSocket>
 #include	"rtl_tcp_client.h"
-//
-#define	DEFAULT_FREQUENCY	(Khz (220000))
 
-	rtl_tcp_client::rtl_tcp_client	(QSettings *s,
-	                                 bool *success, bool visible) {
-	remoteSettings		= s;
-	*success		= false;
+//	commands are packed in 5 bytes, one "command byte"
+//	and an integer parameter
+struct command
+{
+    unsigned char cmd;
+    unsigned int param;
+}__attribute__((packed));
 
-	theFrame		= new QFrame;
-	setupUi (theFrame);
-	if (visible)
-	   this	-> theFrame	-> show ();
+#define	ONE_BYTE	8
 
-    //	setting the defaults and constants
-	theRate		= 2048000;
-	remoteSettings	-> beginGroup ("rtl_tcp_client");
-	theGain		= remoteSettings ->
-	                          value ("rtl_tcp_client-gain", 20). toInt ();
-	thePpm		= remoteSettings ->
-	                          value ("rtl_tcp_client-ppm", 0). toInt ();
-	vfoOffset	= remoteSettings ->
-	                          value ("rtl_tcp_client-offset", 0). toInt ();
-    basePort = remoteSettings ->
-                    value ("rtl_tcp_port", 1234).toInt();
-	remoteSettings	-> endGroup ();
-	tcp_gain	-> setValue (theGain);
-	tcp_ppm		-> setValue (thePpm);
-	vfoFrequency	= DEFAULT_FREQUENCY;
-	theBuffer	= new RingBuffer<uint8_t>(32 * 32768);
-#ifdef	GUI_3
-	theShadowBuffer	= new RingBuffer<uint8_t>(8192);
-#endif
-	connected	= false;
-	hostLineEdit 	= new QLineEdit (NULL);
+rtl_tcp_client::rtl_tcp_client	(QSettings *settings, bool *success)
+{
+    theBuffer	= new RingBuffer<uint8_t>(32 * 32768);
+    theShadowBuffer	= new RingBuffer<uint8_t>(8192);
 
-	if (visible) {
-	   connect (tcp_connect, SIGNAL (clicked (void)),
-	            this, SLOT (wantConnect (void)));
-	   connect (tcp_disconnect, SIGNAL (clicked (void)),
-	            this, SLOT (setDisconnect (void)));
-	   connect (tcp_gain, SIGNAL (valueChanged (int)),
-	            this, SLOT (sendGain (int)));
-	   connect (tcp_ppm, SIGNAL (valueChanged (int)),
-	            this, SLOT (set_fCorrection (int)));
-	   connect (khzOffset, SIGNAL (valueChanged (int)),
-	            this, SLOT (set_Offset (int)));
-	   state	-> setText ("waiting to start");
-	   *success	= true;
-	   return;
-	}
-//
-//	If we do not make the widget visible, we assume there is an
-//	ipAddress in the remoteSettings, and we connect (try to connect)
-//	to that
+    connected = false;
+    remoteSettings = settings;
+    theRate	= 2048000;
+    vfoFrequency = Khz (220000);
 
-	remoteSettings -> beginGroup ("rtl_tcp_client");
-	QString ipAddress = remoteSettings ->
-	                value ("rtl_tcp_address", "127.0.0.1"). toString ();
-	remoteSettings -> endGroup ();
-	serverAddress	= QHostAddress (ipAddress);
-	toServer. connectToHost (serverAddress, basePort);
-	if (!toServer. waitForConnected (2000)) {
-	   *success	= false;
-	   return;
-	}
+    // Read settings, if not exist, use default values
+    remoteSettings	-> beginGroup("rtl_tcp_client");
+    theGain	= remoteSettings -> value("rtl_tcp_client-gain", 20).toInt();
+    thePpm = remoteSettings -> value("rtl_tcp_client-ppm", 0).toInt();
+    vfoOffset = remoteSettings -> value("rtl_tcp_client-offset", 0).toInt();
+    basePort = remoteSettings -> value("rtl_tcp_port", 1234).toInt();
+    serverAddress = QHostAddress(remoteSettings -> value ("rtl_tcp_address", "127.0.0.1").toString());
+    remoteSettings -> endGroup();
 
-	setAgc (true);
-	sendRate (theRate);
-	sendVFO	(DEFAULT_FREQUENCY);
-	toServer. waitForBytesWritten ();
-	connected	= true;
+    connect(&TCPConnectionWatchDog, SIGNAL(timeout()), this, SLOT(TCPConnectionWatchDogTimeout()));
+    connect(&TCPSocket, SIGNAL (readyRead (void)), this, SLOT (readData (void)));
+
 	*success	= true;
 }
 
-	rtl_tcp_client::~rtl_tcp_client	(void) {
-	remoteSettings ->  beginGroup ("rtl_tcp_client");
-	if (connected) {		// close previous connection
+rtl_tcp_client::~rtl_tcp_client	(void)
+{
+    remoteSettings -> beginGroup ("rtl_tcp_client");
+    if (connected)
+    {		// close previous connection
 	   stopReader	();
 //	   streamer. close ();
-	   remoteSettings -> setValue ("remote-server",
-	                               toServer. peerAddress (). toString ());
-	   QByteArray datagram;
+       remoteSettings -> setValue ("remote-server", TCPSocket. peerAddress (). toString ());
 	}
 	remoteSettings -> setValue ("rtl_tcp_client-gain",   theGain);
 	remoteSettings -> setValue ("rtl_tcp_client-ppm",    thePpm);
 	remoteSettings -> setValue ("rtl_tcp_client-offset", vfoOffset);
 	remoteSettings -> endGroup ();
-	toServer. close ();
+    TCPSocket. close ();
 	delete	theBuffer;
-#ifdef	GUI_3
 	delete 	theShadowBuffer;
-#endif
-	delete	hostLineEdit;
-	delete	theFrame;
-}
-//
-void	rtl_tcp_client::wantConnect (void) {
-QString ipAddress;
-int16_t	i;
-QList<QHostAddress> ipAddressesList = QNetworkInterface::allAddresses();
-
-	if (connected)
-	   return;
-	// use the first non-localhost IPv4 address
-	for (i = 0; i < ipAddressesList.size(); ++i) {
-	   if (ipAddressesList.at (i) != QHostAddress::LocalHost &&
-	      ipAddressesList. at (i). toIPv4Address ()) {
-	      ipAddress = ipAddressesList. at(i). toString();
-	      break;
-	   }
-	}
-	// if we did not find one, use IPv4 localhost
-	if (ipAddress. isEmpty())
-	   ipAddress = QHostAddress (QHostAddress::LocalHost).toString ();
-	remoteSettings -> beginGroup ("rtl_tcp_client");
-	ipAddress = remoteSettings ->
-	                value ("remote-server", ipAddress). toString ();
-	remoteSettings -> endGroup ();
-	hostLineEdit -> setText (ipAddress);
-
-	hostLineEdit	-> setInputMask ("000.000.000.000");
-//	Setting default IP address
-	hostLineEdit	-> show ();
-	state	-> setText ("Give IP address, return");
-	connect (hostLineEdit, SIGNAL (returnPressed (void)),
-	         this, SLOT (setConnection (void)));
 }
 
-//	if/when a return is pressed in the line edit,
-//	a signal appears and we are able to collect the
-//	inserted text. The format is the IP-V4 format.
-//	Using this text, we try to connect,
-void	rtl_tcp_client::setConnection (void) {
-QString s	= hostLineEdit -> text ();
-QHostAddress theAddress	= QHostAddress (s);
-
-	serverAddress	= QHostAddress (s);
-	disconnect (hostLineEdit, SIGNAL (returnPressed (void)),
-	            this, SLOT (setConnection (void)));
-	toServer. connectToHost (serverAddress, basePort);
-	if (!toServer. waitForConnected (2000)) {
-	   QMessageBox::warning (theFrame, tr ("sdr"),
-	                                   tr ("connection failed\n"));
-	   return;
-	}
-
-	sendGain (theGain);
-	sendRate (theRate);
-	sendVFO	(DEFAULT_FREQUENCY - theRate / 4);
-	toServer. waitForBytesWritten ();
-	state -> setText ("Connected");
-	connected	= true;
-}
-
-int32_t	rtl_tcp_client::getRate	(void) {
-	return theRate;
-}
-
-bool	rtl_tcp_client::legalFrequency (int32_t f) {
-	(void)f;
-	return true;
-}
-
-int32_t	rtl_tcp_client::defaultFrequency (void) {
-	return DEFAULT_FREQUENCY;	// choose any legal frequency here
-}
-
-void	rtl_tcp_client::setVFOFrequency	(int32_t newFrequency) {
-	if (!connected)
-	   return;
+void rtl_tcp_client::setVFOFrequency(int32_t newFrequency)
+{
 	vfoFrequency	= newFrequency;
-//	here the command to set the frequency
-	sendVFO (newFrequency);
+    sendVFO (newFrequency);
 }
 
-int32_t	rtl_tcp_client::getVFOFrequency	(void) {
+int32_t	rtl_tcp_client::getVFOFrequency(void)
+{
 	return vfoFrequency;
 }
 
-bool	rtl_tcp_client::restartReader	(void) {
+bool rtl_tcp_client::restartReader(void)
+{
+    TCPConnectionWatchDog.start(5000);
+    TCPConnectionWatchDogTimeout(); // Call timout onces to start the connection
+
 	if (!connected)
 	   return false;
-	connect (&toServer, SIGNAL (readyRead (void)),
-	         this, SLOT (readData (void)));
-	return true;
+    else
+        return true;
 }
 
-void	rtl_tcp_client::stopReader	(void) {
-	if (connected)
-	   disconnect (&toServer, SIGNAL (readyRead (void)),
-	               this, SLOT (readData (void)));
+void rtl_tcp_client::stopReader	(void)
+{
 }
-//
-//
+
 //	The brave old getSamples. For the dab stick, we get
 //	size: still in I/Q pairs, but we have to convert the data from
 //	uint8_t to DSPCOMPLEX *
-int32_t	rtl_tcp_client::getSamples (DSPCOMPLEX *V, int32_t size) { 
-int32_t	amount, i;
-uint8_t	*tempBuffer = (uint8_t *)alloca (2 * size * sizeof (uint8_t));
-//
+int32_t	rtl_tcp_client::getSamples (DSPCOMPLEX *V, int32_t size)
+{
+    int32_t	amount, i;
+    uint8_t	*tempBuffer = (uint8_t *)alloca (2 * size * sizeof (uint8_t));
+
+    // Get data from the ring buffer
 	amount = theBuffer	-> getDataFromBuffer (tempBuffer, 2 * size);
 	for (i = 0; i < amount / 2; i ++)
 	    V [i] = DSPCOMPLEX ((float (tempBuffer [2 * i] - 128)) / 128.0,
@@ -240,60 +128,48 @@ uint8_t	*tempBuffer = (uint8_t *)alloca (2 * size * sizeof (uint8_t));
 	return amount / 2;
 }
 
-#ifdef	GUI_3
-int32_t	rtl_tcp_client::getSamplesFromShadowBuffer (DSPCOMPLEX *V,
-	                                            int32_t size) {
-int32_t	amount, i;
-uint8_t	*tempBuffer = (uint8_t *)alloca (2 * size * sizeof (uint8_t));
-//
+int32_t	rtl_tcp_client::getSamplesFromShadowBuffer (DSPCOMPLEX *V, int32_t size)
+{
+    int32_t	amount, i;
+    uint8_t	*tempBuffer = (uint8_t *)alloca (2 * size * sizeof (uint8_t));
+
+    // Get data from the ring buffer
 	amount = theShadowBuffer -> getDataFromBuffer(tempBuffer, 2 * size);
 	for (i = 0; i < amount / 2; i ++)
 	   V [i] = DSPCOMPLEX ((float (tempBuffer [2 * i] - 128)) / 128.0,
 	                       (float (tempBuffer [2 * i + 1] - 128)) / 128.0);
 	return amount / 2;
 }
-#endif
 
-int32_t	rtl_tcp_client::Samples	(void) {
-	return  theBuffer	-> GetRingBufferReadAvailable () / 2;
+int32_t	rtl_tcp_client::Samples	(void)
+{
+    return theBuffer->GetRingBufferReadAvailable () / 2;
 }
-//
-uint8_t	rtl_tcp_client::myIdentity	(void) {
+
+uint8_t	rtl_tcp_client::myIdentity	(void)
+{
 	return DAB_STICK;
 }
 
-//
-//	bitDepth is required in the forthcoming 6.1 release
-//	In 6.0 it is not called
-//	It is used to set the scale for the spectrum
-int16_t	rtl_tcp_client::bitDepth	(void) {
-	return 8;
-}
-
 //	These functions are typical for network use
-void	rtl_tcp_client::readData	(void) {
-uint8_t	buffer [8192];
-	while (toServer. bytesAvailable () > 8192) {
-	   toServer. read ((char *)buffer, 8192);
+void rtl_tcp_client::readData(void)
+{
+    uint8_t	buffer[8192];
+
+    while (TCPSocket. bytesAvailable () > 8192)
+    {
+       TCPSocket.read ((char *)buffer, 8192);
 	   theBuffer -> putDataIntoBuffer (buffer, 8192);
-#ifdef	GUI_3
        theShadowBuffer -> putDataIntoBuffer (buffer, 8192);
-#endif
 	}
 }
-//
-//
-//	commands are packed in 5 bytes, one "command byte" 
-//	and an integer parameter
-struct command {
-	unsigned char cmd;
-	unsigned int param;
-}__attribute__((packed));
 
-#define	ONE_BYTE	8
+void rtl_tcp_client::sendCommand (uint8_t cmd, int32_t param)
+{
+    if(!connected)
+        return;
 
-void	rtl_tcp_client::sendCommand (uint8_t cmd, int32_t param) {
-QByteArray datagram;
+    QByteArray datagram;
 
 	datagram. resize (5);
 	datagram [0] = cmd;		// command to set rate
@@ -301,63 +177,87 @@ QByteArray datagram;
 	datagram [3] = (param >> ONE_BYTE) & 0xFF;
 	datagram [2] = (param >> (2 * ONE_BYTE)) & 0xFF;
 	datagram [1] = (param >> (3 * ONE_BYTE)) & 0xFF;
-	toServer. write (datagram. data (), datagram. size ());
+    TCPSocket. write (datagram. data (), datagram. size ());
 }
 
-void rtl_tcp_client::sendVFO (int32_t frequency) {
+void rtl_tcp_client::sendVFO(int32_t frequency)
+{
 	sendCommand (0x01, frequency);
 }
 
-void	rtl_tcp_client::sendRate (int32_t theRate) {
+void rtl_tcp_client::sendRate(int32_t theRate)
+{
 	sendCommand (0x02, theRate);
 }
 
-void	rtl_tcp_client::setGainMode (int32_t gainMode) {
+void rtl_tcp_client::setGainMode(int32_t gainMode)
+{
     sendCommand (0x03, gainMode);
 }
 
-void	rtl_tcp_client::sendGain (int gain) {
+void rtl_tcp_client::sendGain(int gain)
+{
 	sendCommand (0x04, 10 * gain);
 	theGain		= gain;
 }
 
-//
-//	the "setGain" function is to accomodate gui_3.
-void	rtl_tcp_client::setGain	(int32_t g) {
+void rtl_tcp_client::set_fCorrection(int32_t ppm)
+{
+    sendCommand (0x05, ppm);
+    thePpm		= ppm;
+}
+
+void rtl_tcp_client::set_Offset(int32_t o)
+{
+    sendCommand (0x0a, Khz (o));
+    vfoOffset	= o;
+}
+
+void rtl_tcp_client::setGain(int32_t g)
+{
 	sendGain (g);
 }
 
-void	rtl_tcp_client::setAgc		(bool b) {
+void rtl_tcp_client::setAgc(bool b)
+{
 	if (b)
 	   setGainMode(0);
 	else
 	   setGainMode(1);
 }
 
-//	correction is in ppm
-void	rtl_tcp_client::set_fCorrection	(int32_t ppm) {
-	sendCommand (0x05, ppm);
-	thePpm		= ppm;
+void rtl_tcp_client::TCPConnectionWatchDogTimeout()
+{
+    // Check the connection to the server
+    if(!connected)
+    {
+        fprintf(stderr, "Try to connect to server %s:%u\n", serverAddress.toString().toStdString().c_str(), basePort);
+
+        // Try to connect
+        TCPSocket.connectToHost(serverAddress, basePort);
+
+        if(TCPSocket.waitForConnected(2000)) // Timeout 2 s
+        {
+            fprintf(stderr, "Successful connected to server\n");
+            connected	= true;
+
+            setAgc(true);
+            sendRate(theRate);
+            sendVFO(vfoFrequency);
+            TCPSocket.waitForBytesWritten();
+        }
+        else
+        {
+            fprintf(stderr, "Timeout while connecting to server\n");
+            connected	= false;
+        }
+    }
+
+    if(TCPSocket.state() != QTcpSocket::ConnectedState)
+    {
+        fprintf(stderr, "Connection failed to server %s:%u\n", serverAddress.toString().toStdString().c_str(), basePort);
+        connected	= false;
+    }
 }
 
-void	rtl_tcp_client::setDisconnect (void) {
-	if (connected) {		// close previous connection
-	   stopReader	();
-	   remoteSettings -> beginGroup ("rtl_tcp_client");
-	   remoteSettings -> setValue ("remote-server",
-	                               toServer. peerAddress (). toString ());
-	   remoteSettings -> setValue ("rtl_tcp_client-gain", theGain);
-	   remoteSettings -> setValue ("rtl_tcp_client-ppm", thePpm);
-	   remoteSettings -> endGroup ();
-	   toServer. close ();
-	}
-	connected	= false;
-	connectedLabel	-> setText (" ");
-	state		-> setText ("disconnected");
-}
-
-void	rtl_tcp_client::set_Offset	(int32_t o) {
-	sendCommand (0x0a, Khz (o));
-	vfoOffset	= o;
-}
 

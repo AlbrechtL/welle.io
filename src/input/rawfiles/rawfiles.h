@@ -40,8 +40,6 @@
 #include	"virtual-input.h"
 #include	"ringbuffer.h"
 
-#include	"ui_filereader-widget.h"
-
 class	QLabel;
 class	QSettings;
 class	fileHulp;

@@ -50,11 +50,10 @@ virtual			~virtualInput 	(void);
 virtual		void	setVFOFrequency	(int32_t);
 virtual		int32_t	getVFOFrequency	(void);
 virtual		uint8_t	myIdentity	(void);
-virtual		bool	legalFrequency	(int32_t);
-virtual		int32_t	defaultFrequency	(void);
 virtual		bool	restartReader	(void);
 virtual		void	stopReader	(void);
 virtual		int32_t	getSamples	(DSPCOMPLEX *, int32_t);
+virtual		int32_t	getSamplesFromShadowBuffer (DSPCOMPLEX *V, int32_t size);
 virtual		int32_t	Samples		(void);
 virtual		void	resetBuffer	(void);
 virtual		int16_t	bitDepth	(void) { return 10;}

@@ -574,7 +574,7 @@ void	RadioInterface::show_frameErrors(int s)
     CurrentFrameErrors = s;
 
     // Activate a timer to reset the frequency sychronisation if the FIC CRC is constant false
-    if((CurrentFrameErrors =! 0) && (!StationTimer.isActive()))
+    if((CurrentFrameErrors != 0) && (!StationTimer.isActive()))
         StationTimer.start(10000); // 10 s
 
     emit displayFrameErrors(s);
@@ -983,7 +983,7 @@ bool	RadioInterface::setDevice(QString s)
         //	RTL_TCP might be working.
         if(s == "rtl_tcp")
         {
-            inputDevice = new rtl_tcp_client(dabSettings, &success, false);
+            inputDevice = new rtl_tcp_client(dabSettings, &success);
             if(!success)
             {
                 delete inputDevice;

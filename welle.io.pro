@@ -1,6 +1,6 @@
 TEMPLATE = app
 TARGET = welle-io
-QT += widgets network qml quick charts
+QT += network qml quick charts
 CONFIG  += console
 RC_ICONS = ./gui/QML/images/icon.ico
 
@@ -23,8 +23,6 @@ DEPENDPATH += . \
 	      ./src/output \
 	      ./src/various \
 	      ./src/input \
-	      ./src/input/rawfiles \
-	      ./src/input/wavfiles \
 	      ./includes/ofdm \
 	      ./includes/backend \
 	      ./includes/backend/audio \
@@ -45,8 +43,6 @@ INCLUDEPATH += . \
 	      ./includes/output \
 	      ./includes/various \
 	      ./src/input \
-	      ./src/input/rawfiles \
-              ./src/input/wavfiles \
               ./gui
 
 # Input
@@ -88,7 +84,6 @@ HEADERS += ./includes/dab-constants.h \
             ./includes/various/ringbuffer.h \
             ./includes/various/Xtan2.h \
             ./src/input/virtual-input.h \
-            ./src/input/rawfiles/rawfiles.h \
             ./gui/gui.h \
             ./gui/motimageprovider.h \
             ./gui/stationlist.h \
@@ -135,7 +130,6 @@ SOURCES += ./main.cpp \
             ./src/various/fft.cpp \
             ./src/various/Xtan2.cpp \
             ./src/input/virtual-input.cpp \
-            ./src/input/rawfiles/rawfiles.cpp \
             ./gui/gui.cpp \
             ./gui/motimageprovider.cpp \
             ./gui/stationlist.cpp \
@@ -146,8 +140,6 @@ SOURCES += ./main.cpp \
             ./gui/pad_decoder_adapter.cpp
 
 unix {
-CONFIG		+= dabstick
-CONFIG		+= rtl_tcp
 INCLUDEPATH	+= /usr/local/include
 LIBS		+= -lfftw3f
 LIBS		+= -lusb-1.0
@@ -155,6 +147,9 @@ LIBS		+= -ldl
 LIBS		+= -lportaudio
 LIBS		+= -lsamplerate
 LIBS		+= -lfaad
+CONFIG		+= dabstick
+CONFIG		+= rtl_tcp
+#CONFIG          += rawfiles
 }
 
 
@@ -172,7 +167,8 @@ LIBS		+= -llibfaad
 LIBS		+= -lusb-1.0
 LIBS		+= -llibsamplerate
 CONFIG		+= rtl_tcp
-CONFIG		+= dabstick
+#CONFIG		+= dabstick
+#CONFIG          += rawfiles
 }
 
 
@@ -193,5 +189,11 @@ rtl_tcp {
 	INCLUDEPATH	+= ./src/input/rtl_tcp
 	HEADERS		+= ./src/input/rtl_tcp/rtl_tcp_client.h
 	SOURCES		+= ./src/input/rtl_tcp/rtl_tcp_client.cpp
-	FORMS		+= ./src/input/rtl_tcp/rtl_tcp-widget.ui
+}
+
+rawfiles {
+        DEFINES		+= HAVE_RAWFILES
+        INCLUDEPATH	+= ./src/input/rawfiles
+        HEADERS		+= ./src/input/rawfiles/rawfiles.h \
+        SOURCES		+= ./src/input/rawfiles/rawfiles.cpp
 }
