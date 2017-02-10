@@ -76,6 +76,8 @@ This sections shows how to compile welle.io on Ubuntu 16.04 LTS.
 
 Windows 10
 ---
+A compiled version can be found at https://github.com/AlbrechtL/welle.io/releases
+
 This sections shows how to compile welle.io on Windows 10. Windows 7 should also be possible but is not tested. 
 
 1. Install QT 5.7 including the QT Charts and mingw modules by using the the "Qt Online Installer for Windows" https://www.qt.io/download-open-source/
