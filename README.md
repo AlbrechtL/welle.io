@@ -16,6 +16,7 @@ Table of contents
     * [Windows 10](#windows-10)
     * [Raspberry Pi 2 and 3](#raspberry-pi-2-and-3)
   * [Limitations](#limitations)
+  * [Development](#development)
 
 Usage
 =====
@@ -95,3 +96,7 @@ Limitations
 ===
 * CMake is not tested
 * DAB is not tested (only DAB+ is tested)
+
+Development
+===
+You can join the welle.io development. Please visit the [wiki](https://github.com/AlbrechtL/welle.io/wiki) to find more information.
