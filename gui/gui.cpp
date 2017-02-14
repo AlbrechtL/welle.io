@@ -1162,10 +1162,14 @@ void RadioInterface::updateSpectrum(QAbstractSeries *series)
     DSPCOMPLEX *spectrumBuffer = spectrum_fft_handler->getVector();
 
     // Get samples,  at the moment only rtl_tcp is supported
+#ifdef HAVE_RTL_TCP
     if(inputDevice && input_device == "rtl_tcp")
         Samples = ((rtl_tcp_client*) inputDevice)->getSamplesFromShadowBuffer(spectrumBuffer, dabModeParameters.T_u);
+#endif
+#ifdef HAVE_DABSTICK
     if(inputDevice && input_device == "dabstick")
         Samples = ((dabStick*) inputDevice)->getSamplesFromShadowBuffer(spectrumBuffer, dabModeParameters.T_u);
+#endif
 
     // Continue only if we got data
     if(Samples <= 0)
