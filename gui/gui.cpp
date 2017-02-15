@@ -72,10 +72,6 @@ RadioInterface::RadioInterface(QSettings	*Si,
     int16_t latency = dabSettings -> value("latency", 1). toInt(); // latency is used to allow different settings for different situations wrt the output buffering
     threshold = dabSettings -> value("threshold", 3). toInt(); // threshold is used in the phaseReference class as threshold for checking the validity of the correlation result
     autoStart = dabSettings -> value("autoStart", 0). toInt() != 0;
-    int WindowHeight = dabSettings -> value("WindowHeight", 0). toInt();
-    int WindowWidth = dabSettings -> value("WindowWidth", 0). toInt();
-    bool isFullscreen = dabSettings	-> value("StartInFullScreen", false). toBool();
-    bool isExpertMode = dabSettings-> value("EnableExpertMode", false). toBool();
 
     // Read channels from the settings
     dabSettings -> beginGroup("channels");
@@ -88,77 +84,11 @@ RadioInterface::RadioInterface(QSettings	*Si,
     dabSettings -> endGroup();
     stationList. sort();
 
-    // Create new QML application, set some requried options and load the QML file
-    engine 	= new QQmlApplicationEngine;
-    QQmlContext *rootContext = engine -> rootContext();
-    rootContext -> setContextProperty("cppGUI", this);
-    rootContext -> setContextProperty("stationModel", QVariant::fromValue(stationList.getList()));
-    engine->load(QUrl("qrc:/QML/main.qml"));
-    QObject *rootObject = engine -> rootObjects().first();
-
-    // Set some properties
-    if(WindowHeight != 0) rootObject -> setProperty ("height", WindowHeight);
-    if(WindowWidth != 0)rootObject -> setProperty ("width", WindowWidth);
+    p_stationModel = QVariant::fromValue(stationList.getList());
+    emit stationModelChanged();
 
     // Add image provider for the MOT slide show
     MOTImage = new MOTImageProvider;
-    engine->addImageProvider(QLatin1String("motslideshow"), MOTImage);
-
-
-    //	Restore the full screen property
-    QObject *enableFullScreenObject =  rootObject -> findChild<QObject*> ("enableFullScreen");
-    if(enableFullScreenObject != NULL)
-        enableFullScreenObject -> setProperty("checked", isFullscreen);
-
-    //	Restore expert mode
-    QObject *expertModeObject = rootObject -> findChild<QObject*> ("enableExpertMode");
-    if(expertModeObject != NULL)
-        expertModeObject -> setProperty("checked", isExpertMode);
-
-    // Set application version
-    QObject *showVersionTextObject =  rootObject -> findChild<QObject*> ("showVersionText");
-    if(showVersionTextObject != NULL)
-    {
-        QString InfoText;
-        InfoText += "welle.io version: " + QString(CURRENT_VERSION) + "\n";
-        InfoText += "Build on: " + QString(__TIMESTAMP__);
-        showVersionTextObject -> setProperty("text", InfoText);
-    }
-
-    // Set graph license
-    QObject *showGraphLicenseObject = rootObject -> findChild<QObject*> ("showGraphLicense");
-    if(showGraphLicenseObject != NULL)
-    {
-        // Read license
-        QFile File(":/QML/images/NOTICE.txt");
-        File.open(QFile::ReadOnly);
-        QByteArray FileContent = File.readAll();
-
-        // Set license content
-        showGraphLicenseObject -> setProperty("text", FileContent);
-    }
-
-    // Set license
-    QObject *showLicenseTextObject = rootObject -> findChild<QObject*> ("showLicenseText");
-    if(showLicenseTextObject != NULL)
-    {
-        // Read license
-        QFile File(":/license");
-        File.open(QFile::ReadOnly);
-        QByteArray FileContent = File.readAll();
-
-        // Set license content
-        showLicenseTextObject -> setProperty("text", FileContent);
-    }
-
-    //	Connect signals
-    connect(rootObject, SIGNAL(stationClicked(QString, QString)), this, SLOT(channelClick(QString, QString)));
-    connect(rootObject, SIGNAL(startChannelScanClicked(void)), this, SLOT(startChannelScanClick(void)));
-    connect(rootObject, SIGNAL(stopChannelScanClicked(void)), this, SLOT(stopChannelScanClick(void)));
-    connect(rootObject, SIGNAL(exitApplicationClicked(void)),  this, SLOT(TerminateProcess(void)));
-    connect(rootObject, SIGNAL(exitSettingsClicked(void)), this, SLOT(saveSettings(void)));
-    connect(rootObject, SIGNAL(inputEnableAGCChanged(bool)), this, SLOT(inputEnableAGCChange(bool)));
-    connect(rootObject, SIGNAL(inputGainChanged(double)),  this, SLOT(inputGainChange(double)));
 
     //	the name of the device is passed on from the main program
     if(!setDevice(input_device))
@@ -214,6 +144,34 @@ RadioInterface::~RadioInterface()
 {
     fprintf(stderr, "deleting radioInterface\n");
 }
+/**
+ * \brief returns the licenses for all the relative libraries plus application version information
+ */
+const QVariantMap RadioInterface::licenses(){
+    QVariantMap ret;
+    // Set application version
+    QString InfoText;
+    InfoText += "welle.io version: " + QString(CURRENT_VERSION) + "\n";
+    InfoText += "Build on: " + QString(__TIMESTAMP__);
+    ret.insert("version", InfoText);
+
+    // Read graph license
+    QFile File(":/QML/images/NOTICE.txt");
+    File.open(QFile::ReadOnly);
+    QByteArray FileContent = File.readAll();
+
+    // Set graph license content
+    ret.insert("graphLicense", FileContent);
+
+    // Read license
+    QFile File2(":/license");
+    File2.open(QFile::ReadOnly);
+    QByteArray FileContent2 = File2.readAll();
+
+    // Set license content
+    ret.insert("license", FileContent2);
+    return ret;
+}
 
 /**
   *	\brief At the end, we might save some GUI values
@@ -240,37 +198,6 @@ void	RadioInterface::dumpControlState(QSettings *s)
         s -> setValue("channel/" + QString::number(i),
                       stationList. getStationAt(i - 1));
     dabSettings -> endGroup();
-
-    //	Read settings from GUI
-    //	Take the root object
-    QObject *rootObject	= engine -> rootObjects(). first();
-
-    //	Save the windows properties
-    int WindowWidth		= rootObject -> property("width"). toInt();
-    s -> setValue("WindowWidth", WindowWidth);
-    int WindowHeight	= rootObject -> property("height"). toInt();
-    s -> setValue("WindowHeight", WindowHeight);
-    //	Access the full screen mode switch
-    QObject *enableFullScreenObject =
-        rootObject -> findChild<QObject*>("enableFullScreen");
-    if(enableFullScreenObject != NULL)
-    {
-        bool isFullScreen =
-            enableFullScreenObject -> property("checked").toBool();
-        //	Save the setting
-        s -> setValue("StartInFullScreen", isFullScreen);
-    }
-
-    //	Access to the enable expert mode switch
-    QObject *expertModeObject =
-        rootObject -> findChild<QObject*> ("enableExpertMode");
-    if(expertModeObject != NULL)
-    {
-        bool isExpertMode =
-            expertModeObject->property("checked"). toBool();
-        //	Save the setting
-        s -> setValue("EnableExpertMode", isExpertMode);
-    }
 }
 //
 ///	the values for the different Modes:
@@ -728,11 +655,11 @@ void	RadioInterface::stopChannelScanClick(void)
     scanMode	= false;
 
     emit currentStation("No Station");
+
     //	Sort stations
     stationList. sort();
-    QQmlContext *rootContext = engine -> rootContext();
-    rootContext -> setContextProperty("stationModel",
-                                      QVariant::fromValue(stationList. getList()));
+    p_stationModel = QVariant::fromValue(stationList.getList());
+    emit stationModelChanged();
 }
 
 QString	RadioInterface::nextChannel(QString currentChannel)
@@ -772,9 +699,9 @@ void    RadioInterface::setSignalPresent(bool isSignal)
         emit currentStation("No Station");
         //	Sort stations
         stationList. sort();
-        QQmlContext *rootContext = engine -> rootContext();
-        rootContext -> setContextProperty("stationModel",
-                                          QVariant::fromValue(stationList. getList()));
+
+        p_stationModel = QVariant::fromValue(stationList.getList());
+        emit stationModelChanged();
         return;
     }
     set_channelSelect(currentChannel);
@@ -802,9 +729,8 @@ void	RadioInterface::end_of_waiting_for_stations(void)
         emit currentStation("No Station");
         //	Sort stations
         stationList. sort();
-        QQmlContext *rootContext = engine -> rootContext();
-        rootContext -> setContextProperty("stationModel",
-                                          QVariant::fromValue(stationList. getList()));
+        p_stationModel = QVariant::fromValue(stationList.getList());
+        emit stationModelChanged();
         return;
     }
     set_channelSelect(currentChannel);
@@ -863,11 +789,11 @@ void	RadioInterface::setStart(void)
 }
 
 /**
-  *	\brief TerminateProcess
+  *	\brief terminateProcess
   *	Pretty critical, since there are many threads involved
   *	A clean termination is what is needed, regardless of the GUI
   */
-void	RadioInterface::TerminateProcess(void)
+void	RadioInterface::terminateProcess(void)
 {
     running			= false;
     inputDevice		-> stopReader();	// might be concurrent

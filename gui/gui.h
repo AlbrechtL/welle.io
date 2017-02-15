@@ -6,7 +6,7 @@
  *
  *    This file is part of the SDR-J.
  *    Many of the ideas as implemented in SDR-J are derived from
- *    other work, made available through the GNU general Public License. 
+ *    other work, made available through the GNU general Public License.
  *    All copyrights of the original authors are recognized.
  *
  *    SDR-J is free software; you can redistribute it and/or modify
@@ -42,6 +42,7 @@
 #include	<QQmlContext>
 
 #include	<QtCharts>
+#include	<QList>
 using namespace QtCharts;
 
 #include	"stationlist.h"
@@ -60,12 +61,12 @@ class	ficHandler;
 class	common_fft;
 
 typedef enum {
-	ScanStart,
-	ScanTunetoChannel,
-	ScanCheckSignal,
-	ScanWaitForFIC,
-	ScanWaitForChannelNames,
-	ScanDone
+    ScanStart,
+    ScanTunetoChannel,
+    ScanCheckSignal,
+    ScanWaitForFIC,
+    ScanWaitForChannelNames,
+    ScanDone
 } tScanChannelState;
 
 /*
@@ -73,133 +74,140 @@ typedef enum {
  *	QDialog and the generated form
  */
 class RadioInterface: public QObject{
-Q_OBJECT
+    Q_OBJECT
+    Q_PROPERTY(QVariant stationModel READ stationModel NOTIFY stationModelChanged)
+    Q_PROPERTY(QVariant licenses READ licenses CONSTANT)
 
 public:
-            RadioInterface		(QSettings *,
-                                     QString,
-                                     uint8_t,
-                                     QString,
-                                         QObject *parent = NULL);
-		~RadioInterface		();
+    RadioInterface		(QSettings *,
+                         QString,
+                         uint8_t,
+                         QString,
+                         QObject *parent = NULL);
+    ~RadioInterface		();
+    Q_INVOKABLE void	channelClick		(QString, QString);
+    Q_INVOKABLE void	startChannelScanClick	(void);
+    Q_INVOKABLE void	stopChannelScanClick	(void);
+    Q_INVOKABLE void	saveSettings		(void);
+    Q_INVOKABLE void	inputEnableAGCChange    (bool checked);
+    Q_INVOKABLE void	inputGainChange (double gain);
+    Q_INVOKABLE void	terminateProcess	(void);
+    QVariant stationModel() const {
+        return p_stationModel;
+    }
+    MOTImageProvider *MOTImage;
 
 private:
-	QSettings	*dabSettings;
-	QQmlApplicationEngine *engine;
-	bool		autoStart;
-	int16_t		threshold;
-	void		setModeParameters	(uint8_t);
-	DabParams	dabModeParameters;
-	uint8_t		isSynced;
-	uint8_t		dabBand;
-	bool		running;
-	virtualInput	*inputDevice;
-	ofdmProcessor	*my_ofdmProcessor;
-	ficHandler	*my_ficHandler;
-	mscHandler	*my_mscHandler;
-	audioBase	*soundOut;
-	RingBuffer<int16_t>	*audioBuffer;
+    QSettings	*dabSettings;
+    bool		autoStart;
+    int16_t		threshold;
+    void		setModeParameters	(uint8_t);
+    DabParams	dabModeParameters;
+    uint8_t		isSynced;
+    uint8_t		dabBand;
+    bool		running;
+    virtualInput	*inputDevice;
+    ofdmProcessor	*my_ofdmProcessor;
+    ficHandler	*my_ficHandler;
+    mscHandler	*my_mscHandler;
+    audioBase	*soundOut;
+    RingBuffer<int16_t>	*audioBuffer;
     common_fft *spectrum_fft_handler;
-	bool		autoCorrector;
+    bool		autoCorrector;
+    const QVariantMap licenses();
 const	char		*get_programm_type_string (uint8_t);
 const	char		*get_programm_language_string (uint8_t);
-	void		dumpControlState	(QSettings *);
+    void		dumpControlState	(QSettings *);
 
-	QTimer		CheckFICTimer;
-	QTimer		ScanChannelTimer;
+    QTimer		CheckFICTimer;
+    QTimer		ScanChannelTimer;
     QTimer      StationTimer;
-	QString		currentChannel;
-	QString		CurrentStation;
-	QString		CurrentDevice;
+    QString		currentChannel;
+    QString		CurrentStation;
+    QString		CurrentDevice;
 
-	bool		isFICCRC;
-	bool		isSignalPresent;
-	bool		scanMode;
-	int		BandIIIChannelIt;
-	int		LBandChannelIt;
-	tScanChannelState ScanChannelState;
-	StationList	stationList;
-	QVector<QPointF> spectrum_data;
-	int		coarseCorrector;
-	int		fineCorrector;
-	bool		setDevice		(QString);
-	QString		nextChannel		(QString currentChannel);
+    bool		isFICCRC;
+    bool		isSignalPresent;
+    bool		scanMode;
+    int		BandIIIChannelIt;
+    int		LBandChannelIt;
+    tScanChannelState ScanChannelState;
+    StationList	stationList;
+    QVector<QPointF> spectrum_data;
+    int		coarseCorrector;
+    int		fineCorrector;
+    bool		setDevice		(QString);
+    QString		nextChannel		(QString currentChannel);
     QString input_device;
-    MOTImageProvider *MOTImage;
     int32_t	tunedFrequency;
     int LastCurrentManualGain;
     int CurrentFrameErrors;
+    QVariant p_stationModel;
 
 public slots:
-	void		end_of_waiting_for_stations	(void);
-	void		set_fineCorrectorDisplay	(int);
-	void		set_coarseCorrectorDisplay	(int);
-	void		clearEnsemble		(void);
-	void		addtoEnsemble		(const QString &);
-	void		nameofEnsemble		(int, const QString &);
+    void		end_of_waiting_for_stations	(void);
+    void		set_fineCorrectorDisplay	(int);
+    void		set_coarseCorrectorDisplay	(int);
+    void		clearEnsemble		(void);
+    void		addtoEnsemble		(const QString &);
+    void		nameofEnsemble		(int, const QString &);
     void		show_frameErrors	(int);
     void		show_rsErrors       (int);
     void		show_aacErrors      (int);
     void		show_ficSuccess		(bool);
-	void		show_snr		(int);
-	void		setSynced		(char);
-	void		showLabel		(QString);
-	void		showMOT			(QByteArray, int, QString);
-	void		sendDatagram		(char *, int);
-	void		changeinConfiguration	(void);
-	void		newAudio		(int);
+    void		show_snr		(int);
+    void		setSynced		(char);
+    void		showLabel		(QString);
+    void		showMOT			(QByteArray, int, QString);
+    void		sendDatagram		(char *, int);
+    void		changeinConfiguration	(void);
+    void		newAudio		(int);
 //
-	void		show_mscErrors		(int);
-	void		show_ipErrors		(int);
-	void		setStereo		(bool isStereo);
+    void		show_mscErrors		(int);
+    void		show_ipErrors		(int);
+    void		setStereo		(bool isStereo);
     void		setSignalPresent	(bool isSignal);
-	void		displayDateTime		(int *DateTime);
-	void		updateSpectrum		(QAbstractSeries *series);
+    void		displayDateTime		(int *DateTime);
+    void		updateSpectrum		(QAbstractSeries *series);
     void        setErrorMessage     (QString ErrorMessage);
 
 private slots:
 //
 //	Somehow, these must be connected to the GUI
 //	We assume that any GUI will need these three:
-	void		setStart		(void);
-	void		TerminateProcess	(void);
-	void		set_channelSelect	(QString);
-	void		updateTimeDisplay	(void);
-	void		autoCorrector_on	(void);
+    void		setStart		(void);
+    void		set_channelSelect	(QString);
+    void		updateTimeDisplay	(void);
+    void		autoCorrector_on	(void);
 
-	void		CheckFICTimerTimeout    (void);
+    void		CheckFICTimerTimeout    (void);
     void        StationTimerTimeout  (void);
-	void		channelClick		(QString, QString);
-	void		startChannelScanClick	(void);
-	void		stopChannelScanClick	(void);
-	void		saveSettings		(void);
-    void		inputEnableAGCChange    (bool checked);
-    void		inputGainChange (double gain);
 signals:
-	void		currentStation 		(QString text);
-	void		stationText		(QString text);
+    void		currentStation 		(QString text);
+    void		stationText		(QString text);
     void		syncFlag		(bool active);
     void		ficFlag			(bool active);
-	void		dabType			(QString text);
-	void		audioType		(QString text);
-	void		bitrate			(int bitrate);
-	void		stationType		(QString text);
-	void		languageType		(QString text);
-	void		signalPower		(int power);
+    void		dabType			(QString text);
+    void		audioType		(QString text);
+    void		bitrate			(int bitrate);
+    void		stationType		(QString text);
+    void		languageType		(QString text);
+    void		signalPower		(int power);
     void		motChanged		(void);
-	void		channelScanStopped	(void);
-	void		channelScanProgress	(int progress);
-	void		foundChannelCount	(int channelCount);
+    void		channelScanStopped	(void);
+    void		channelScanProgress	(int progress);
+    void		foundChannelCount	(int channelCount);
     void		newDateTime		(int Year, int Month, int Day, int Hour, int Minute);
     void		setYAxisMax         (qreal max);
     void		setXAxisMinMax		(qreal min, qreal max);
-	void		displayFreqCorr		(int Freq);
-	void		displayMSCErrors	(int Errors);
+    void		displayFreqCorr		(int Freq);
+    void		displayMSCErrors	(int Errors);
     void		displayCurrentChannel	(QString Channel, int Frequency);
     void		displayFrameErrors	(int Errors);
     void		displayRSErrors	(int Errors);
     void		displayAACErrors	(int Errors);
     void        showErrorMessage    (QString Text);
+    void        stationModelChanged ();
 };
 
 #endif

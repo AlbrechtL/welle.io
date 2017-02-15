@@ -27,7 +27,7 @@ Item {
 
             TextStandart {
                 id: showVersionText
-                text: "welle.io version"
+                text: cppGUI.licenses.version
                 Layout.alignment: Qt.AlignLeft
                 objectName: "showVersionText"
             }
@@ -40,7 +40,7 @@ Item {
 
             TextStandart {
                 id: showGraphLicense
-                text: "showGraphLicense"
+                text: cppGUI.licenses.graphLicense
                 Layout.alignment: Qt.AlignLeft
                 objectName: "showGraphLicense"
                 wrapMode: Text.Wrap
@@ -50,7 +50,7 @@ Item {
 
             TextStandart {
                 id: showLicenseText
-                text: "showLicenseText"
+                text: cppGUI.licenses.license
                 Layout.alignment: Qt.AlignLeft
                 objectName: "showLicenseText"
                 wrapMode: Text.WrapAnywhere
