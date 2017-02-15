@@ -1,16 +1,21 @@
 import QtQuick 2.2
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.1
+import Qt.labs.settings 1.0
 
 // Import custom styles
 import "style"
 
 Item {
     id: settingsPage
-
     property alias showChannelState : enableExpertMode.checked
     property alias enableFullScreenState : enableFullScreen.checked
     property alias enableExpertModeState : enableExpertMode.checked
+
+    Settings {
+        property alias enableFullScreenState : settingsPage.enableFullScreenState
+        property alias enableExpertModeState : settingsPage.enableExpertModeState
+    }
 
     Connections{
         target: cppGUI

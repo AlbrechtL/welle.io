@@ -42,6 +42,7 @@
 #include	<QQmlContext>
 
 #include	<QtCharts>
+#include	<QList>
 using namespace QtCharts;
 
 #include	"stationlist.h"
@@ -73,7 +74,9 @@ typedef enum {
  *	QDialog and the generated form
  */
 class RadioInterface: public QObject{
-Q_OBJECT
+    Q_OBJECT
+    Q_PROPERTY(QVariant stationModel READ stationModel NOTIFY stationModelChanged)
+    Q_PROPERTY(QVariant licenses READ licenses CONSTANT)
 
 public:
     RadioInterface		(QSettings *,
@@ -89,10 +92,13 @@ public:
     Q_INVOKABLE void	inputEnableAGCChange    (bool checked);
     Q_INVOKABLE void	inputGainChange (double gain);
     Q_INVOKABLE void	terminateProcess	(void);
+    QVariant stationModel() const {
+        return p_stationModel;
+    }
+    MOTImageProvider *MOTImage;
 
 private:
     QSettings	*dabSettings;
-    QQmlApplicationEngine *engine;
     bool		autoStart;
     int16_t		threshold;
     void		setModeParameters	(uint8_t);
@@ -108,6 +114,7 @@ private:
     RingBuffer<int16_t>	*audioBuffer;
     common_fft *spectrum_fft_handler;
     bool		autoCorrector;
+    const QVariantMap licenses();
 const	char		*get_programm_type_string (uint8_t);
 const	char		*get_programm_language_string (uint8_t);
     void		dumpControlState	(QSettings *);
@@ -132,10 +139,10 @@ const	char		*get_programm_language_string (uint8_t);
     bool		setDevice		(QString);
     QString		nextChannel		(QString currentChannel);
     QString input_device;
-    MOTImageProvider *MOTImage;
     int32_t	tunedFrequency;
     int LastCurrentManualGain;
     int CurrentFrameErrors;
+    QVariant p_stationModel;
 
 public slots:
     void		end_of_waiting_for_stations	(void);
@@ -200,6 +207,7 @@ signals:
     void		displayRSErrors	(int Errors);
     void		displayAACErrors	(int Errors);
     void        showErrorMessage    (QString Text);
+    void        stationModelChanged ();
 };
 
 #endif

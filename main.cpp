@@ -301,7 +301,17 @@ uint16_t	ipPort		= 1234;
 
 #if QT_VERSION >= 0x050600
 	QGuiApplication::setAttribute (Qt::AA_EnableHighDpiScaling);
-#endif
+#endif    
+
+    QQmlApplicationEngine *engine;
+
+    // Create new QML application, set some requried options and load the QML file
+    engine 	= new QQmlApplicationEngine;
+    QQmlContext *rootContext = engine -> rootContext();
+    rootContext -> setContextProperty("cppGUI", MyRadioInterface);
+    engine->load(QUrl("qrc:/QML/main.qml"));
+    engine->addImageProvider(QLatin1String("motslideshow"), MyRadioInterface->MOTImage);
+
 	a. exec ();
 /*
  *	done:

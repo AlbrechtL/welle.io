@@ -42,6 +42,7 @@ import QtQuick 2.2
 import QtQuick.Controls 2.0
 import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.1
+import Qt.labs.settings 1.0
 
 // Import custom styles
 import "style"
@@ -53,6 +54,10 @@ ApplicationWindow {
     height: Units.dp(500)
     visibility: settingsPageLoader.settingsPage.enableFullScreenState ? "FullScreen" : "Windowed"
 
+    Settings {
+        property alias width : mainWindow.width
+        property alias height : mainWindow.height
+    }
     Loader {
         id: settingsPageLoader
         anchors.topMargin: Units.dp(10)
@@ -189,12 +194,12 @@ ApplicationWindow {
                     anchors.bottomMargin: 0
                     anchors.leftMargin: 0
                     anchors.topMargin: 0
-                    model: stationModel
+                    model: cppGUI.stationModel
                     anchors.fill: parent
                     delegate: StationDelegate {
-                        stationNameText: stationName
-                        channelNameText: channelName
-                        onClicked: cppGUI.channelClick(stationName, channelName)
+                        stationNameText: modelData.stationName
+                        channelNameText: modelData.channelName
+                        onClicked: cppGUI.channelClick(modelData.stationName, modelData.channelName)
                     }
                 }
             }
