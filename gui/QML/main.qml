@@ -47,14 +47,6 @@ import QtQuick.Layouts 1.1
 import "style"
 
 ApplicationWindow {
-    signal stationClicked(string statio, string channel)
-    signal startChannelScanClicked
-    signal stopChannelScanClicked
-    signal exitApplicationClicked
-    signal exitSettingsClicked
-    signal inputEnableAGCChanged(bool valueChecked)
-    signal inputGainChanged(double valueGain)
-
     id: mainWindow
     visible: true
     width: Units.dp(700)
@@ -116,7 +108,7 @@ ApplicationWindow {
                 onClicked: {
                     if(stackView.depth > 1) {
                         stackView.pop();
-                        exitSettingsClicked();
+                        cppGUI.saveSettings();
                     }
                     else
                     {
@@ -202,7 +194,7 @@ ApplicationWindow {
                     delegate: StationDelegate {
                         stationNameText: stationName
                         channelNameText: channelName
-                        onClicked: mainWindow.stationClicked(stationName, channelName)
+                        onClicked: cppGUI.channelClick(stationName, channelName)
                     }
                 }
             }

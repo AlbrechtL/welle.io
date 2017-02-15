@@ -151,15 +151,6 @@ RadioInterface::RadioInterface(QSettings	*Si,
         showLicenseTextObject -> setProperty("text", FileContent);
     }
 
-    //	Connect signals
-    connect(rootObject, SIGNAL(stationClicked(QString, QString)), this, SLOT(channelClick(QString, QString)));
-    connect(rootObject, SIGNAL(startChannelScanClicked(void)), this, SLOT(startChannelScanClick(void)));
-    connect(rootObject, SIGNAL(stopChannelScanClicked(void)), this, SLOT(stopChannelScanClick(void)));
-    connect(rootObject, SIGNAL(exitApplicationClicked(void)),  this, SLOT(TerminateProcess(void)));
-    connect(rootObject, SIGNAL(exitSettingsClicked(void)), this, SLOT(saveSettings(void)));
-    connect(rootObject, SIGNAL(inputEnableAGCChanged(bool)), this, SLOT(inputEnableAGCChange(bool)));
-    connect(rootObject, SIGNAL(inputGainChanged(double)),  this, SLOT(inputGainChange(double)));
-
     //	the name of the device is passed on from the main program
     if(!setDevice(input_device))
         emit showErrorMessage("Error while opening input device \"" + device + "\"");
@@ -863,11 +854,11 @@ void	RadioInterface::setStart(void)
 }
 
 /**
-  *	\brief TerminateProcess
+  *	\brief terminateProcess
   *	Pretty critical, since there are many threads involved
   *	A clean termination is what is needed, regardless of the GUI
   */
-void	RadioInterface::TerminateProcess(void)
+void	RadioInterface::terminateProcess(void)
 {
     running			= false;
     inputDevice		-> stopReader();	// might be concurrent

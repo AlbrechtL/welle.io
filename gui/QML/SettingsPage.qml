@@ -66,7 +66,7 @@ Item {
                                 onClicked: {
                                     startChannelScanButton.enabled = false
                                     stopChannelScanButton.enabled = true
-                                    mainWindow.startChannelScanClicked()
+                                    cppGUI.startChannelScanClick()
                                 }
                             }
 
@@ -79,7 +79,7 @@ Item {
                                 onClicked: {
                                     startChannelScanButton.enabled = true
                                     stopChannelScanButton.enabled = false
-                                    mainWindow.stopChannelScanClicked()
+                                    cppGUI.stopChannelScanClick()
                                 }
                             }
                         }
@@ -126,14 +126,14 @@ Item {
                         name: "Enable AGC"
                         objectName: "enableAGC"
                         checked: true
-                        onChanged: mainWindow.inputEnableAGCChanged(valueChecked)
+                        onChanged: cppGUI.inputEnableAGCChanged(valueChecked)
                     }
 
                     TouchSlider {
                         id: gain
                         enabled: !enableAGC.checked
                         name: "Manual gain"
-                        onValueChanged: mainWindow.inputGainChanged(valueGain)
+                        onValueChanged: cppGUI.inputGainChanged(valueGain)
                     }
                 }
             }
@@ -175,7 +175,7 @@ Item {
         TouchButton {
             id: exitAppButton
             text: "Exit welle.io"
-            onClicked:  mainWindow.exitApplicationClicked()
+            onClicked:  cppGUI.terminateProcess()
             Layout.preferredWidth: parent.width
             Layout.alignment: Qt.AlignBottom
         }
