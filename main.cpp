@@ -28,15 +28,12 @@
 #include	<QApplication>
 #include	<QSettings>
 #include	<QDir>
-#ifdef	GUI_3
 #include	<QCommandLineParser>
-#endif
 #include	<unistd.h>
 #include	"dab-constants.h"
 #include	"gui.h"
 
 QString	fullPathfor (QString v) {
-int16_t	i;
 QString	fileName;
 
 	if (v == QString ("")) 
@@ -76,7 +73,6 @@ uint16_t	ipPort		= 1234;
 //	Newer versions of Qt provide all kinds of nice mechanisms,
 //	unfortunately, there are quite some people (including me (jvk))
 //	who also work with older versions of Qt,
-#if GUI_3
     QCoreApplication::setApplicationName("welle.io");
 	QCoreApplication::setApplicationVersion(CURRENT_VERSION);
 
@@ -196,109 +192,12 @@ uint16_t	ipPort		= 1234;
                                                dabDevice,
                                                dabMode,
                                                dabBand);
-#else	
-//	For Qt 4 lovers and other simple people 
-	int	opt;
-#ifdef	GUI_2
-	QString	channel		= "11C";
-	QString	programName	= "Classic FM";
-	int	gain		= 20;
-	QString	dabChannel	= QString ("");
-	QString	dabProgramName	= QString ("");
-#ifndef	TCP_STREAMER
-	QString	soundChannel	= "default";
-	QString	dabSoundchannel	= QString ("");
-#endif
-#endif
-	int	dabGain		= -1;
-	while ((opt = getopt (argc, argv, "i:D:S:M:B:C:P:G:A:")) != -1) {
-	   switch (opt) {
-	      case 'i':
-	         initFileName = fullPathfor (QString (optarg));
-	         break;
 
-	      case 'S':
-	         syncMethod	= atoi (optarg);
-	         break;
-
-#if defined (GUI_2) | defined (GUI_4)
-	      case 'D':
-	         dabDevice = optarg;
-	         break;
-
-	      case 'M':
-	         dabMode	= atoi (optarg);
-	         if (!(dabMode == 1) || (dabMode == 2) || (dabMode == 4))
-	            dabMode = 1; 
-	         break;
-
-	      case 'B':
-	         dabBand 	= optarg;
-	         break;
-
-	      case 'I':
-	         ipAddress	= optarg;
-	         break;
-#endif
-#ifdef	GUI_2
-	      case 'C':
-	         dabChannel	= QString (optarg);
-	         break;
-
-	      case 'P':
-	         dabProgramName	= QString (optarg);
-	         break;
-
-	      case 'G':
-	         dabGain	= atoi (optarg);
-	         break;
-#ifndef	TCP_STREAMER
-	      case 'A':
-	         dabSoundchannel	= QString (optarg);
-	         break;
-#endif
-#endif
-	      default:
-	         break;
-	   }
-	}
-
-	if (initFileName == QString (""))
-	   initFileName	= fullPathfor (QString (DEFAULT_INI));
-	dabSettings =  new QSettings (initFileName, QSettings::IniFormat);
-
-#if defined (GUI_2) 
-//	Since we do not have the possibility in GUI_2 to select
-//	Mode, Band or Device, we create the possibility for
-//	passing appropriate parameters to the command
-//	Selections - if any - will be default for the next session
-
-	if (dabMode == 127)
-	   dabMode = dabSettings -> value ("dabMode", 1). toInt ();
-	if (dabDevice == QString (""))
-	   dabDevice = dabSettings -> value ("device", "dabstick"). toString ();
-	if (dabBand == QString (""))
-	   dabBand = dabSettings -> value ("band", "BAND III"). toString ();
-#endif 
-#endif
 	dabSettings	-> endGroup ();
 /*
  *	Before we connect control to the gui, we have to
  *	instantiate
  */
-#ifdef GUI_2
-	(void)syncMethod;
-	dabSettings -> setValue ("dabMode",	dabMode);
-	dabSettings -> setValue ("device",	dabDevice);
-	dabSettings -> setValue ("band",	dabBand);
-	MyRadioInterface = new RadioInterface (dabSettings, 
-	                                       dabDevice, dabMode, dabBand);
-	dabSettings	-> sync ();
-#elif GUI_1
-	MyRadioInterface = new RadioInterface (dabSettings, syncMethod);
-	MyRadioInterface -> show ();
-#endif
-
 #if QT_VERSION >= 0x050600
 	QGuiApplication::setAttribute (Qt::AA_EnableHighDpiScaling);
 #endif    
