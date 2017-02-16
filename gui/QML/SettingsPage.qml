@@ -168,10 +168,6 @@ Item {
                         Layout.fillHeight: true
                         objectName: "enableExpertMode"
                         checked: false
-                        onChanged: {
-                            if(valueChecked == false)
-                                mainWindow.width = Units.dp(350) + radioInformationView.width
-                        }
                     }
                 }
             }
