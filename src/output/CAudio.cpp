@@ -67,7 +67,7 @@ void CAudio::restart(void)
 void CAudio::audioOut(int SampleRate)
 {
     this->CardRate = SampleRate;
-    //AudioFormat.setSampleRate(CardRate);
+    AudioFormat.setSampleRate(CardRate);
 }
 
 void CAudio::stop(void)
