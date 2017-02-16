@@ -29,6 +29,7 @@
 #include	"dab-constants.h"
 #include	<QThread>
 #include	<QObject>
+#include	<thread>
 #include	"stdint.h"
 #include	"phasereference.h"
 #include	"ofdm-decoder.h"
@@ -62,7 +63,10 @@ public:
 	void	coarseCorrectorOn	(void);
 	void	coarseCorrectorOff	(void);
 	void	set_scanMode		(bool, QString);
+    void	start	(void);
 private:
+    std::thread threadHandle;
+    int32_t	syncBufferIndex;
 	virtualInput	*theRig;
 	DabParams	*params;
 	RadioInterface	*myRadioInterface;
