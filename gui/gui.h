@@ -53,7 +53,7 @@ using namespace QtCharts;
 
 class	QSettings;
 class	virtualInput;
-class	audioBase;
+class	CAudio;
 
 class	mscHandler;
 class	ficHandler;
@@ -110,8 +110,8 @@ private:
     ofdmProcessor	*my_ofdmProcessor;
     ficHandler	*my_ficHandler;
     mscHandler	*my_mscHandler;
-    audioBase	*soundOut;
-    RingBuffer<int16_t>	*audioBuffer;
+    CAudio	*Audio;
+    RingBuffer<int16_t>	*AudioBuffer;
     common_fft *spectrum_fft_handler;
     bool		autoCorrector;
     const QVariantMap licenses();

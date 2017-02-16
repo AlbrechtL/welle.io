@@ -47,10 +47,8 @@ General Information
 ---
 The following libraries and their development files are needed:
 * QT 5.7 and above
-* portaudio 0.19
 * FFTW3f
 * libfaad
-* libsamplerate
 * librtlsdr (for dabstick),
 * libusb
 
@@ -63,7 +61,7 @@ This sections shows how to compile welle.io on Ubuntu 16.04 LTS.
 2. Install the following packages
 
   ```
-# sudo apt install libfaad-dev libfftw3-dev portaudio19-dev librtlsdr-dev libusb-1.0-0-dev libsamplerate0-dev mesa-common-dev libglu1-mesa-dev zlib1g-dev git
+# sudo apt install libfaad-dev libfftw3-dev librtlsdr-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev zlib1g-dev git
   ```
 3. Clone welle.io
 

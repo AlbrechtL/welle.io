@@ -37,7 +37,7 @@ private:
 	NeAACDecHandle		aacHandle;
 	NeAACDecConfigurationPtr	aacConf;
 	NeAACDecFrameInfo	hInfo;
-	audioBase		*ourSink;
+    CAudio		*ourSink;
 	int32_t			baudRate;
 	RingBuffer<int16_t>	*audioBuffer;
 signals:

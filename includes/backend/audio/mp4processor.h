@@ -31,7 +31,7 @@
 #include	"dab-constants.h"
 #include	<stdio.h>
 #include	<stdint.h>
-#include	"audio-base.h"
+#include	"CAudio.h"
 #include	"dab-processor.h"
 #include	"faad-decoder.h"
 #include	"firecode-checker.h"

@@ -28,7 +28,7 @@
 #include	<QSettings>
 #include	"dab-constants.h"
 #include	"gui.h"
-#include	"audiosink.h"
+#include	"CAudio.h"
 
 #ifdef	HAVE_DABSTICK
 #include	"dabstick.h"
@@ -98,12 +98,8 @@ RadioInterface::RadioInterface(QSettings	*Si,
     *	With this GUI there is no choice for the output channel,
     *	It is the soundcard, so just allocate it
     */
-    audioBuffer		= new RingBuffer<int16_t>(2 * 32768);
-    QStringList AudioInterfaces;
-    soundOut		= new audioSink(latency,
-                                    &AudioInterfaces,
-                                    audioBuffer);
-
+    AudioBuffer		= new RingBuffer<int16_t>(2 * 32768);
+    Audio		= new CAudio(AudioBuffer, latency);
 
     setModeParameters(dabMode);
 
@@ -116,7 +112,7 @@ RadioInterface::RadioInterface(QSettings	*Si,
     */
     my_mscHandler	= new mscHandler(this,
                                      &dabModeParameters,
-                                     audioBuffer,
+                                     AudioBuffer,
                                      false);
     my_ficHandler	= new ficHandler(this);
 
@@ -584,7 +580,7 @@ void	RadioInterface::changeinConfiguration(void)
 {
     if(running)
     {
-        soundOut		-> stop();
+        Audio		-> stop();
         inputDevice		-> stopReader();
         inputDevice		-> resetBuffer();
         running		= false;
@@ -599,7 +595,7 @@ void	RadioInterface::changeinConfiguration(void)
 void	RadioInterface::newAudio(int rate)
 {
     if(running)
-        soundOut	-> audioOut(rate);
+        Audio	-> audioOut(rate);
 }
 
 //	if so configured, the function might be triggered
@@ -784,7 +780,7 @@ void	RadioInterface::setStart(void)
     clearEnsemble();		// the display
     //
     ///	this does not hurt
-    soundOut	-> restart();
+    Audio	-> restart();
     running = true;
 }
 
@@ -799,15 +795,15 @@ void	RadioInterface::terminateProcess(void)
     inputDevice		-> stopReader();	// might be concurrent
     my_mscHandler		-> stopHandler();	// might be concurrent
     my_ofdmProcessor	-> stop();	// definitely concurrent
-    soundOut		-> stop();
+    Audio		-> stop();
     //
     //	everything should be halted by now
     dumpControlState(dabSettings);
     delete		my_ofdmProcessor;
     delete		my_ficHandler;
     delete		my_mscHandler;
-    delete		soundOut;
-    soundOut	= NULL;		// signals may be pending, so careful
+    delete		Audio;
+    Audio	= NULL;		// signals may be pending, so careful
     fprintf(stderr, "Termination started\n");
     delete		inputDevice;
     QApplication::quit();
@@ -832,7 +828,7 @@ void	RadioInterface::set_channelSelect(QString s)
     if(localRunning)
     {
         clearEnsemble();
-        soundOut	-> stop();
+        Audio	-> stop();
         inputDevice		-> stopReader();
         inputDevice		-> resetBuffer();
     }
@@ -859,7 +855,7 @@ void	RadioInterface::set_channelSelect(QString s)
 
     if(localRunning)
     {
-        soundOut -> restart();
+        Audio -> restart();
         inputDevice	 -> restartReader();
         my_ofdmProcessor	-> reset();
         running	 = true;

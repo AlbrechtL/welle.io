@@ -32,7 +32,6 @@
 #include	<QSettings>
 #include	"dab-constants.h"
 #include	"ringbuffer.h"
-#include	"fir-filters.h"
 #include	"virtual-input.h"
 #include	"dongleselect.h"
 #include	"ui_dabstick-widget.h"
