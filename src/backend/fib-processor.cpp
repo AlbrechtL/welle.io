@@ -109,10 +109,8 @@
 	connect (this, SIGNAL (changeinConfiguration (void)),
 	         myRadioInterface,
 	         SLOT (changeinConfiguration (void)));
-#ifdef	GUI_3
 	connect (this, SIGNAL (newDateTime (int *)),
 	         myRadioInterface, SLOT (displayDateTime (int *)));
-#endif
 }
 	
 	fib_processor::~fib_processor (void) {
@@ -571,9 +569,7 @@ int32_t D	= d + 1;
 	if (fig [offset + 20] == 1)
 	   dateTime [5] = getBits_6 (fig, offset + 32);	// Sekunden
 	dateFlag	= true;
-#ifdef	GUI_3
 	emit newDateTime (dateTime);
-#endif
 }
 
 void	fib_processor::FIG0Extension13 (uint8_t *d) {

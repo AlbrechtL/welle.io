@@ -61,9 +61,7 @@ public:
 	void	setOffset	(int32_t);
 	void	coarseCorrectorOn	(void);
 	void	coarseCorrectorOff	(void);
-#ifdef	GUI_3
 	void	set_scanMode		(bool, QString);
-#endif
 private:
 	virtualInput	*theRig;
 	DabParams	*params;
@@ -101,10 +99,8 @@ private:
 	int32_t		inputPointer;
 	DSPCOMPLEX	getSample	(int32_t);
 	void		getSamples	(DSPCOMPLEX *, int16_t, int32_t);
-#ifdef	GUI_3
 	bool		scanMode;
 	int32_t		NoReadCounter;
-#endif
 virtual	void		run		(void);
 	int32_t		bufferContent;
 	bool		isReset;

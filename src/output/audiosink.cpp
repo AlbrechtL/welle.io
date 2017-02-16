@@ -48,12 +48,6 @@ int32_t	i;
 	}
 
 	portAudio	= true;
-#ifdef	GUI_1
-	qDebug ("Hostapis: %d\n", Pa_GetHostApiCount ());
-
-	for (i = 0; i < Pa_GetHostApiCount (); i ++)
-	   qDebug ("Api %d is %s\n", i, Pa_GetHostApiInfo (i) -> name);
-#endif
 
 	numofDevices	= Pa_GetDeviceCount ();
 	outTable	= new int16_t [numofDevices + 1];
@@ -61,9 +55,7 @@ int32_t	i;
 	   outTable [i] = -1;
 	ostream		= NULL;
 	setupChannels (InterfaceList);
-#ifndef	GUI_2
-	selectDefaultDevice ();
-#endif
+    selectDefaultDevice ();
 }
 
 	audioSink::~audioSink	(void) {
@@ -87,18 +79,7 @@ int32_t	i;
 
 bool	audioSink::selectDevice (QString s) {
 int16_t	i;
-#ifdef	GUI_2
-	for (i = 0; i < InterfaceList -> size (); i ++) {
-	   QString lname = InterfaceList -> at (i);
-	   if (lname. startsWith (s, Qt::CaseInsensitive)) {
-	      fprintf (stderr, "found %s\n",
-	                          lname. toLatin1 (). data ());
-	      return selectDevice (i + 1);
-	   }
-	}
-#else
 	fprintf (stderr, "you are making a mistake by calling this function\n");
-#endif
 	return false;
 }
 

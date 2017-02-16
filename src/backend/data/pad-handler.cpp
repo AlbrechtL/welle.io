@@ -251,9 +251,6 @@ int16_t  dataLength                = 0;
 void	padHandler::add_MSC_element	(uint8_t *data, int16_t length) {
 int16_t	i;
 
-#ifndef	MOT_BASICS__
-	return;
-#endif
 	if (msc_dataGroupIndex < 0)
 	   return;
 	if (length < 0)

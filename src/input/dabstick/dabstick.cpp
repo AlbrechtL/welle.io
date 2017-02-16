@@ -59,10 +59,8 @@ int32_t	tmp;
 	tmp = theStick -> _I_Buffer -> putDataIntoBuffer (buf, len);
 	if ((len - tmp) > 0)
 	   theStick	-> sampleCounter += len - tmp;
-#ifdef	GUI_3
 	   theStick -> _I_ShadowBuffer -> putDataIntoBuffer (buf, len);
-	// Shadow buffer needed for the spectrum viewer in GUI_3
-#endif
+    // Shadow buffer needed for the spectrum viewer
 }
 //
 //	for handling the events in libusb, we need a controlthread
@@ -109,9 +107,7 @@ int	k;
 	libraryLoaded		= false;
 	open			= false;
 	_I_Buffer		= NULL;
-#ifdef	GUI_3
 	_I_ShadowBuffer	= NULL;
-#endif
 	workerHandle		= NULL;
 	lastFrequency		= KHz (94700);	// just a dummy
 	this	-> sampleCounter= 0;
@@ -185,9 +181,7 @@ int	k;
 	rtlsdr_set_tuner_gain_mode (device, 1);
 
 	_I_Buffer		= new RingBuffer<uint8_t>(1024 * 1024);
-#ifdef	GUI_3
 	_I_ShadowBuffer	= new RingBuffer<uint8_t>(8192);
-#endif
 
 	theGain		= gains [gainsCount / 2];	// default
 	dabstickSettings	-> beginGroup ("dabstickSettings");
@@ -267,10 +261,8 @@ err:
 #endif
 	if (_I_Buffer != NULL)
 	   delete _I_Buffer;
-#ifdef	GUI_3
 	if (_I_ShadowBuffer != NULL)
 	   delete _I_ShadowBuffer;
-#endif
 	if (gains != NULL)
 	   delete[] gains;
 	open = false;
@@ -294,9 +286,7 @@ int32_t	r;
 	   return true;
 
 	_I_Buffer	-> FlushRingBuffer ();
-#ifdef	GUI_3
 	_I_ShadowBuffer -> FlushRingBuffer ();
-#endif
 	r = this -> rtlsdr_reset_buffer (device);
 	if (r < 0)
 	   return false;
@@ -397,7 +387,6 @@ uint8_t	*tempBuffer = (uint8_t *)alloca (2 * size * sizeof (uint8_t));
 	return amount / 2;
 }
 
-#ifdef	GUI_3
 int32_t	dabStick::getSamplesFromShadowBuffer (DSPCOMPLEX *V, int32_t size) {
 int32_t	amount, i;
 uint8_t	*tempBuffer = (uint8_t *)alloca (2 * size * sizeof (uint8_t));
@@ -408,7 +397,6 @@ uint8_t	*tempBuffer = (uint8_t *)alloca (2 * size * sizeof (uint8_t));
                               (float (tempBuffer [2 * i + 1] - 128)) / 128.0);
 	return amount / 2;
 }
-#endif
 
 int32_t	dabStick::Samples	(void) {
 	return _I_Buffer	-> GetRingBufferReadAvailable () / 2;

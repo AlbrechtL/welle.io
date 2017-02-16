@@ -8,9 +8,6 @@ Release: QMAKE_CFLAGS	+=  -flto -ffast-math -O3
 Release: QMAKE_CXXFLAGS	+=  -flto -ffast-math -O3
 Release: QMAKE_LFLAGS	+=  -flto -O3
 
-DEFINES	 += GUI_3 # Not necessary after code clean up
-DEFINES	 += MOT_BASICS__ # Not necessary after code clean up
-
 RESOURCES += gui/touch_gui_resource.qrc
 
 DEPENDPATH += . \
