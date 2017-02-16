@@ -60,20 +60,22 @@ int	main (int argc, char **argv) {
 QString	initFileName;
 RadioInterface	*MyRadioInterface;
 
-QApplication a (argc, argv);
-
-// Default values
-uint8_t		syncMethod	= 2;
-QSettings	*dabSettings;		// ini file
-uint8_t		dabMode		= 127;	// illegal value
-QString		dabDevice	= QString ("");
-QString		dabBand		= QString ("");
-QString		ipAddress	= QString ("");
-uint16_t	ipPort		= 1234;
-//
-//	Newer versions of Qt provide all kinds of nice mechanisms,
-//	unfortunately, there are quite some people (including me (jvk))
-//	who also work with older versions of Qt,
+    QApplication a (argc, argv);
+    a.setOrganizationName("AlbrechtL");
+    a.setOrganizationDomain("welle.io");
+    a.setApplicationName("welle.io");
+    // Default values
+    uint8_t		syncMethod	= 2;
+    QSettings	*dabSettings;		// ini file
+    uint8_t		dabMode		= 127;	// illegal value
+    QString		dabDevice	= QString ("");
+    QString		dabBand		= QString ("");
+    QString		ipAddress	= QString ("");
+    uint16_t	ipPort		= 1234;
+    //
+    //	Newer versions of Qt provide all kinds of nice mechanisms,
+    //	unfortunately, there are quite some people (including me (jvk))
+    //	who also work with older versions of Qt,
     QCoreApplication::setApplicationName("welle.io");
 	QCoreApplication::setApplicationVersion(CURRENT_VERSION);
 

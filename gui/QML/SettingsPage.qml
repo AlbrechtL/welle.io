@@ -8,13 +8,14 @@ import "style"
 
 Item {
     id: settingsPage
-    property alias showChannelState : enableExpertMode.checked
-    property alias enableFullScreenState : enableFullScreen.checked
-    property alias enableExpertModeState : enableExpertMode.checked
+    property alias showChannelState : settings.enableExpertModeState
+    property alias enableFullScreenState : settings.enableFullScreenState
+    property alias enableExpertModeState : settings.enableExpertModeState
 
     Settings {
-        property alias enableFullScreenState : settingsPage.enableFullScreenState
-        property alias enableExpertModeState : settingsPage.enableExpertModeState
+        id: settings
+        property alias enableFullScreenState : enableFullScreen.checked
+        property alias enableExpertModeState : enableExpertMode.checked
     }
 
     Connections{
