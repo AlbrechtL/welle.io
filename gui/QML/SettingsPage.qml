@@ -120,39 +120,43 @@ Item {
             }
 
             SettingsFrame {
+                Layout.fillWidth: true
                 ColumnLayout{
-                    anchors.top: parent.top
-                    anchors.left: parent.left
-                    anchors.right: parent.right
+                    anchors.fill: parent
                     spacing: Units.dp(20)
 
                     TouchSwitch {
                         id: enableAGC
                         name: "Enable AGC"
+                        height: 24
+                        Layout.fillHeight: true
                         objectName: "enableAGC"
                         checked: true
-                        onChanged: cppGUI.inputEnableAGCChanged(valueChecked)
+                        onChanged: cppGUI.inputEnableAGCChange(valueChecked)
                     }
 
                     TouchSlider {
                         id: gain
                         enabled: !enableAGC.checked
                         name: "Manual gain"
-                        onValueChanged: cppGUI.inputGainChanged(valueGain)
+                        Layout.fillHeight: true
+                        onValueChanged: cppGUI.inputGainChange(valueGain)
                     }
                 }
             }
 
             SettingsFrame {
+                id: settingsFrame
+                Layout.fillWidth: true
                 ColumnLayout{
-                    anchors.top: parent.top
-                    anchors.left: parent.left
-                    anchors.right: parent.right
+                    anchors.fill: parent
                     spacing: Units.dp(20)
 
                     TouchSwitch {
                         id: enableFullScreen
                         name: "Enable full screen mode"
+                        height: 24
+                        Layout.fillHeight: true
                         objectName: "enableFullScreen"
                         checked: false
                     }
@@ -160,6 +164,8 @@ Item {
                     TouchSwitch {
                         id: enableExpertMode
                         name: "Enable expert mode"
+                        height: 24
+                        Layout.fillHeight: true
                         objectName: "enableExpertMode"
                         checked: false
                         onChanged: {

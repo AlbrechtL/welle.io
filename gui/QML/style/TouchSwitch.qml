@@ -6,7 +6,7 @@ import QtQuick.Layouts 1.1
 // Import custom styles
 import "."
 
-RowLayout {
+Item {
     id: masterLayout
     signal changed(bool valueChecked)
 
@@ -15,7 +15,6 @@ RowLayout {
     property alias checked: switchView.checked
 
     Layout.preferredWidth: parent.width
-    spacing: Units.dp(20)
 
     Text {
         id: nameView
