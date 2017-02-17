@@ -1,6 +1,6 @@
 TEMPLATE = app
 TARGET = welle-io
-QT += network qml quick charts
+QT += network qml quick charts multimedia
 CONFIG  += console
 RC_ICONS = ./gui/QML/images/icon.ico
 
@@ -76,10 +76,7 @@ HEADERS += ./includes/dab-constants.h \
             ./includes/backend/protection.h \
             ./includes/backend/eep-protection.h \
             ./includes/backend/uep-protection.h \
-            ./includes/output/audio-base.h \
-            ./includes/output/newconverter.h \
-            ./includes/output/audiosink.h \
-            ./includes/output/fir-filters.h \
+            ./includes/output/CAudio.h \
             ./includes/various/fft.h \
             ./includes/various/ringbuffer.h \
             ./includes/various/Xtan2.h \
@@ -123,10 +120,7 @@ SOURCES += ./main.cpp \
             ./src/backend/data/ip-datahandler.cpp \
             ./src/backend/data/mot-databuilder.cpp \
             ./src/backend/data/mot-data.cpp \
-            ./src/output/audio-base.cpp \
-            ./src/output/newconverter.cpp \
-            ./src/output/audiosink.cpp \
-            ./src/output/fir-filters.cpp \
+            ./src/output/CAudio.cpp \
             ./src/various/fft.cpp \
             ./src/various/Xtan2.cpp \
             ./src/input/virtual-input.cpp \
@@ -144,8 +138,6 @@ INCLUDEPATH	+= /usr/local/include
 LIBS		+= -lfftw3f
 LIBS		+= -lusb-1.0
 LIBS		+= -ldl
-LIBS		+= -lportaudio
-LIBS		+= -lsamplerate
 LIBS		+= -lfaad
 CONFIG		+= dabstick
 CONFIG		+= rtl_tcp
@@ -157,7 +149,6 @@ win32 {
 INCLUDEPATH += ../welle.io-win-libs/include
 LIBS		+= -L../welle.io-win-libs/x86
 LIBS		+= -lfftw3f-3
-LIBS		+= -lportaudio_x86
 LIBS		+= -lole32
 LIBS		+= -lwinpthread
 LIBS		+= -lwinmm
@@ -165,9 +156,8 @@ LIBS 		+= -lstdc++
 LIBS		+= -lws2_32
 LIBS		+= -llibfaad
 LIBS		+= -lusb-1.0
-LIBS		+= -llibsamplerate
 CONFIG		+= rtl_tcp
-#CONFIG		+= dabstick
+CONFIG		+= dabstick
 #CONFIG          += rawfiles
 }
 
