@@ -55,21 +55,23 @@ QString	fileName;
 
 #define	DEFAULT_INI	".welle.io.ini"
 
-int	main (int argc, char **argv) {
-QString	initFileName;
-RadioInterface	*MyRadioInterface;
+int	main (int argc, char **argv)
+{
+    QString	initFileName;
+    RadioInterface	*MyRadioInterface;
 
-QApplication a (argc, argv);
+    QApplication a (argc, argv);
 
-// Default values
-uint8_t		syncMethod	= 2;
-QSettings	*dabSettings;		// ini file
-uint8_t		dabMode		= 127;	// illegal value
-QString		dabDevice	= QString ("");
-QString		dabBand		= QString ("");
-QString		ipAddress	= QString ("");
-uint16_t	ipPort		= 1234;
-//
+    // Default values
+    uint8_t		syncMethod	= 2;
+    QSettings	*dabSettings;		// ini file
+    uint8_t		dabMode		= 127;	// illegal value
+    QString		dabDevice	= QString ("");
+    QString		dabBand		= QString ("");
+    QString		ipAddress	= QString ("");
+    uint16_t	ipPort		= 1234;
+    QString     rawFile     = "";
+
 //	Newer versions of Qt provide all kinds of nice mechanisms,
 //	unfortunately, there are quite some people (including me (jvk))
 //	who also work with older versions of Qt,
@@ -107,13 +109,18 @@ uint16_t	ipPort		= 1234;
 
 	QCommandLineOption RTL_TCPServerIPOption ("I",
 	          QCoreApplication::translate ("main", "rtl_tcp server IP address. Only valid for input rtl_tcp."),
-	          QCoreApplication::translate ("main", "IP Address"));
+              QCoreApplication::translate ("main", "IP address"));
 	optionParser.addOption(RTL_TCPServerIPOption);
 
 	QCommandLineOption RTL_TCPServerIPPort ("P",
 	          QCoreApplication::translate("main", "rtl_tcp server IP port. Only valid for input rtl_tcp."),
 	          QCoreApplication::translate ("main", "Port"));
 	optionParser.addOption(RTL_TCPServerIPPort);
+
+    QCommandLineOption RAWFILE ("F",
+              QCoreApplication::translate("main", "I/Q RAW file. Only valid for input rawfile."),
+              QCoreApplication::translate ("main", "I/Q RAW file"));
+    optionParser.addOption(RAWFILE);
 
 //	Process the actual command line arguments given by the user
 	optionParser.process(a);
@@ -156,11 +163,17 @@ uint16_t	ipPort		= 1234;
 	if (RTL_TCPServerIPValue != "")
 	   ipAddress = RTL_TCPServerIPValue;
 
-//	Process rtl_tcp server IP portoption
+//	Process rtl_tcp server IP port option
 	QString RTL_TCPServerPortValue =
 	                    optionParser. value(RTL_TCPServerIPPort);
 	if (RTL_TCPServerPortValue != "")
-	   ipPort = RTL_TCPServerPortValue. toInt ();
+       ipPort = RTL_TCPServerPortValue.toInt ();
+
+//	Process raw file
+    QString RAWFileValue = optionParser.value(RAWFILE);
+    if (RAWFileValue != "")
+       rawFile = RAWFileValue;
+
 
 //	Since we do not have the possibility in GUI_2 and GUI_3 to select
 //	Mode, Band or Device, we create the possibility for
@@ -182,6 +195,12 @@ uint16_t	ipPort		= 1234;
 	   dabSettings -> setValue ("rtl_tcp_port", ipPort);
 	}
 	dabSettings -> endGroup ();
+
+    dabSettings -> beginGroup ("rawfile");
+    if (rawFile != QString ("")) {
+       dabSettings -> setValue ("RAW_file", rawFile);
+    }
+    dabSettings -> endGroup ();
 
 	(void)syncMethod;
 	dabSettings -> setValue ("dabMode",	dabMode);

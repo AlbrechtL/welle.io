@@ -231,7 +231,7 @@ void rtl_tcp_client::TCPConnectionWatchDogTimeout()
     // Check the connection to the server
     if(!connected)
     {
-        fprintf(stderr, "Try to connect to server %s:%u\n", serverAddress.toString().toStdString().c_str(), basePort);
+        fprintf(stderr, "Try to connect to server %s:%lli\n", serverAddress.toString().toStdString().c_str(), basePort);
 
         // Try to connect
         TCPSocket.connectToHost(serverAddress, basePort);
@@ -255,7 +255,7 @@ void rtl_tcp_client::TCPConnectionWatchDogTimeout()
 
     if(TCPSocket.state() != QTcpSocket::ConnectedState)
     {
-        fprintf(stderr, "Connection failed to server %s:%u\n", serverAddress.toString().toStdString().c_str(), basePort);
+        fprintf(stderr, "Connection failed to server %s:%lli\n", serverAddress.toString().toStdString().c_str(), basePort);
         connected	= false;
     }
 }

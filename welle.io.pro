@@ -141,7 +141,7 @@ LIBS		+= -ldl
 LIBS		+= -lfaad
 CONFIG		+= dabstick
 CONFIG		+= rtl_tcp
-#CONFIG          += rawfiles
+CONFIG          += rawfile
 }
 
 
@@ -158,7 +158,7 @@ LIBS		+= -llibfaad
 LIBS		+= -lusb-1.0
 CONFIG		+= rtl_tcp
 CONFIG		+= dabstick
-#CONFIG          += rawfiles
+CONFIG          += rawfile
 }
 
 
@@ -175,15 +175,14 @@ dabstick {
 
 rtl_tcp {
 	DEFINES		+= HAVE_RTL_TCP
-	QT		+= network
 	INCLUDEPATH	+= ./src/input/rtl_tcp
 	HEADERS		+= ./src/input/rtl_tcp/rtl_tcp_client.h
 	SOURCES		+= ./src/input/rtl_tcp/rtl_tcp_client.cpp
 }
 
-rawfiles {
-        DEFINES		+= HAVE_RAWFILES
-        INCLUDEPATH	+= ./src/input/rawfiles
-        HEADERS		+= ./src/input/rawfiles/rawfiles.h \
-        SOURCES		+= ./src/input/rawfiles/rawfiles.cpp
+rawfile {
+        DEFINES		+= HAVE_RAWFILE
+        INCLUDEPATH	+= ./src/input/rawfile
+        HEADERS		+= ./src/input/rawfile/rawfile.h
+        SOURCES		+= ./src/input/rawfile/rawfile.cpp
 }

@@ -28,11 +28,12 @@ h | Show help
 v | Show version 
 i | INI-file path. Do not use unless you know what you want.
 S | Sync method. Do not use unless you know what you want.
-D | Input device. Possible are: rtl_tcp, dabstick 
+D | Input device. Possible are: rtl_tcp, dabstick, rawfile
 M | DAB mode. Possible are: 1,2 or 4, Default: 1 
 B | DAB band. Default Band III
 I | rtl_tcp server IP address. Only valid for input rtl_tcp 
 P | rtl_tcp server IP port. Only valid for input rtl_tcp
+F | I/Q RAW file. Only valid for input rawfile.
 
 Example usage:
   

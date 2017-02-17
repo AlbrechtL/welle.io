@@ -42,7 +42,9 @@
 #ifdef	HAVE_AIRSPY
 #include	"airspy-handler.h"
 #endif
-
+#if HAVE_RAWFILE
+#include	"rawfile.h"
+#endif
 /**
   *	We use the creation function merely to set up the
   *	user interface and make the connections between the
@@ -950,9 +952,26 @@ bool	RadioInterface::setDevice(QString s)
                 }
                 else
 #endif
+#ifdef	HAVE_RAWFILE
+                if(s == "rawfile")
+                {
+                    inputDevice	= new rawFile(dabSettings, &success);
+                    if(!success)
+                    {
+                        delete inputDevice;
+                        inputDevice = new virtualInput();
+                        input_device = "no device";
+                        return false;
+                    }
+                    else
+                        return true;
+                }
+                else
+#endif
                 {
                     // s == "no device"
                     //	and as default option, we have a "no device"
+                    fprintf(stderr, "Unknown input device \"%s\". \n", s.toStdString().c_str());
                     inputDevice	= new virtualInput();
                     input_device = "no device";
                     return false;
@@ -1083,15 +1102,9 @@ void RadioInterface::updateSpectrum(QAbstractSeries *series)
     // Get FFT buffer
     DSPCOMPLEX *spectrumBuffer = spectrum_fft_handler->getVector();
 
-    // Get samples,  at the moment only rtl_tcp is supported
-#ifdef HAVE_RTL_TCP
-    if(inputDevice && input_device == "rtl_tcp")
-        Samples = ((rtl_tcp_client*) inputDevice)->getSamplesFromShadowBuffer(spectrumBuffer, dabModeParameters.T_u);
-#endif
-#ifdef HAVE_DABSTICK
-    if(inputDevice && input_device == "dabstick")
-        Samples = ((dabStick*) inputDevice)->getSamplesFromShadowBuffer(spectrumBuffer, dabModeParameters.T_u);
-#endif
+    // Get samples
+    if(inputDevice)
+        Samples = inputDevice->getSamplesFromShadowBuffer(spectrumBuffer, dabModeParameters.T_u);
 
     // Continue only if we got data
     if(Samples <= 0)
