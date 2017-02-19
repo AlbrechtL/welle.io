@@ -2,7 +2,7 @@
  *    Copyright (C) 2017
  *    Albrecht Lohofener (albrechtloh@gmx.de)
  *
- *    Bases on SDR-J
+ *    This file is based on SDR-J
  *    Copyright (C) 2010, 2011, 2012
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
  *
@@ -36,7 +36,7 @@
 
 
 #include	"dab-constants.h"
-#include	"virtual-input.h"
+#include	"CVirtualInput.h"
 #include	"ringbuffer.h"
 
 class	QLabel;
@@ -44,11 +44,11 @@ class	QSettings;
 class	fileHulp;
 /*
  */
-class	rawFile: public virtualInput, QThread
+class	CRAWFile: public virtualInput, QThread
 {
 public:
-    rawFile	(QSettings *settings, bool *);
-	       		~rawFile	(void);
+    CRAWFile	(QSettings *settings, bool *);
+                ~CRAWFile	(void);
 	int32_t		getSamples	(DSPCOMPLEX *, int32_t);
     int32_t     getSamplesFromShadowBuffer (DSPCOMPLEX *V, int32_t size);
 	uint8_t		myIdentity	(void);

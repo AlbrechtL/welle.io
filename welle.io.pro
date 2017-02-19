@@ -80,7 +80,7 @@ HEADERS += ./includes/dab-constants.h \
             ./includes/various/fft.h \
             ./includes/various/ringbuffer.h \
             ./includes/various/Xtan2.h \
-            ./src/input/virtual-input.h \
+            ./src/input/CVirtualInput.h \
             ./gui/gui.h \
             ./gui/motimageprovider.h \
             ./gui/stationlist.h \
@@ -123,7 +123,7 @@ SOURCES += ./main.cpp \
             ./src/output/CAudio.cpp \
             ./src/various/fft.cpp \
             ./src/various/Xtan2.cpp \
-            ./src/input/virtual-input.cpp \
+            ./src/input/CVirtualInput.cpp \
             ./gui/gui.cpp \
             ./gui/motimageprovider.cpp \
             ./gui/stationlist.cpp \
@@ -165,21 +165,18 @@ CONFIG          += rawfile
 #### Devices ####
 rtl-sdr {
         DEFINES		+= HAVE_RTLSDR
-        INCLUDEPATH	+= ./src/input/rtl-sdr
-        HEADERS		+= ./src/input/rtl-sdr/CRTL_SDR.h
-        SOURCES		+= ./src/input/rtl-sdr/CRTL_SDR.cpp
+        HEADERS		+= ./src/input/CRTL_SDR.h
+        SOURCES		+= ./src/input/CRTL_SDR.cpp
 }
 
 rtl_tcp {
-	DEFINES		+= HAVE_RTL_TCP
-	INCLUDEPATH	+= ./src/input/rtl_tcp
-	HEADERS		+= ./src/input/rtl_tcp/rtl_tcp_client.h
-	SOURCES		+= ./src/input/rtl_tcp/rtl_tcp_client.cpp
+        DEFINES		+= HAVE_RTL_TCP
+        HEADERS		+= ./src/input/CRTL_TCP_Client.h
+        SOURCES		+= ./src/input/CRTL_TCP_Client.cpp
 }
 
 rawfile {
         DEFINES		+= HAVE_RAWFILE
-        INCLUDEPATH	+= ./src/input/rawfile
-        HEADERS		+= ./src/input/rawfile/rawfile.h
-        SOURCES		+= ./src/input/rawfile/rawfile.cpp
+        HEADERS		+= ./src/input/CRAWFile.h
+        SOURCES		+= ./src/input/CRAWFile.cpp
 }

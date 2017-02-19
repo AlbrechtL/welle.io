@@ -2,7 +2,7 @@
  *    Copyright (C) 2017
  *    Albrecht Lohofener (albrechtloh@gmx.de)
  *
- *    Bases on SDR-J
+ *    This file is based on SDR-J
  *    Copyright (C) 2010, 2011, 2012, 2013
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
  *

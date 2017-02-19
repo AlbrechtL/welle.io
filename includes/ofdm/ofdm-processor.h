@@ -32,7 +32,7 @@
 #include	"stdint.h"
 #include	"phasereference.h"
 #include	"ofdm-decoder.h"
-#include	"virtual-input.h"
+#include	"CVirtualInput.h"
 #include	"ringbuffer.h"
 //
 //	Note:

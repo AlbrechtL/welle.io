@@ -2,7 +2,7 @@
  *    Copyright (C) 2017
  *    Albrecht Lohofener (albrechtloh@gmx.de)
  *
- *    Bases on SDR-J
+ *    This file is based on SDR-J
  *    Copyright (C) 2010, 2011, 2012, 2013
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
  *
@@ -36,14 +36,14 @@
 #include	<QTcpSocket>
 #include	<QTimer>
 #include	"dab-constants.h"
-#include	"virtual-input.h"
+#include	"CVirtualInput.h"
 #include	"ringbuffer.h"
 
-class	rtl_tcp_client: public virtualInput{
+class	CRTL_TCP_Client: public virtualInput{
 Q_OBJECT
 public:
-    rtl_tcp_client (QSettings *settings, bool *success);
-    ~rtl_tcp_client	(void);
+    CRTL_TCP_Client (QSettings *settings, bool *success);
+    ~CRTL_TCP_Client	(void);
     void		setVFOFrequency	(int32_t);
     int32_t		getVFOFrequency	(void);
     bool		restartReader	(void);

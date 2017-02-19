@@ -37,13 +37,13 @@
 #include	"sdrplay.h"
 #endif
 #ifdef	HAVE_RTL_TCP
-#include	"rtl_tcp_client.h"
+#include	"CRTL_TCP_Client.h"
 #endif
 #ifdef	HAVE_AIRSPY
 #include	"airspy-handler.h"
 #endif
 #if HAVE_RAWFILE
-#include	"rawfile.h"
+#include	"CRAWFile.h"
 #endif
 /**
   *	We use the creation function merely to set up the
@@ -907,7 +907,7 @@ bool	RadioInterface::setDevice(QString s)
         //	RTL_TCP might be working.
         if(s == "rtl_tcp")
         {
-            inputDevice = new rtl_tcp_client(dabSettings, &success);
+            inputDevice = new CRTL_TCP_Client(dabSettings, &success);
             if(!success)
             {
                 delete inputDevice;
@@ -955,7 +955,7 @@ bool	RadioInterface::setDevice(QString s)
 #ifdef	HAVE_RAWFILE
                 if(s == "rawfile")
                 {
-                    inputDevice	= new rawFile(dabSettings, &success);
+                    inputDevice	= new CRAWFile(dabSettings, &success);
                     if(!success)
                     {
                         delete inputDevice;

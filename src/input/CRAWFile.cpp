@@ -2,7 +2,7 @@
  *    Copyright (C) 2017
  *    Albrecht Lohofener (albrechtloh@gmx.de)
  *
- *    Bases on SDR-J
+ *    This file is based on SDR-J
  *    Copyright (C) 2010, 2011, 2012
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
  *
@@ -27,7 +27,7 @@
  *
  */
 
-#include	"rawfile.h"
+#include	"CRAWFile.h"
 #include	<stdio.h>
 #include	<unistd.h>
 #include	<stdlib.h>
@@ -46,7 +46,7 @@ static inline int64_t getMyTime(void)
 
 #define	INPUT_FRAMEBUFFERSIZE	8 * 32768
 
-rawFile::rawFile(QSettings *settings, bool *success)
+CRAWFile::CRAWFile(QSettings *settings, bool *success)
 {
     settings	-> beginGroup("rawfile");
     fileName = settings -> value ("RAW_file", "").toString();
@@ -73,7 +73,7 @@ rawFile::rawFile(QSettings *settings, bool *success)
 	start	();
 }
 
-rawFile::~rawFile(void)
+CRAWFile::~CRAWFile(void)
 {
 	ExitCondition = true;
     if (readerOK)
@@ -86,26 +86,26 @@ rawFile::~rawFile(void)
 	}
 }
 
-bool rawFile::restartReader(void)
+bool CRAWFile::restartReader(void)
 {
 	if (readerOK)
 	   readerPausing = false;
 	return readerOK;
 }
 
-void rawFile::stopReader(void)
+void CRAWFile::stopReader(void)
 {
 	if (readerOK)
 	   readerPausing = true;
 }
 
-uint8_t	rawFile::myIdentity(void)
+uint8_t	CRAWFile::myIdentity(void)
 {
 	return FILEREADER;
 }
 
 //	size is in I/Q pairs, file contains 8 bits values
-int32_t	rawFile::getSamples(DSPCOMPLEX *V, int32_t size)
+int32_t	CRAWFile::getSamples(DSPCOMPLEX *V, int32_t size)
 {
     int32_t	amount, i;
     uint8_t	*temp = (uint8_t *)alloca (2 * size * sizeof (uint8_t));
@@ -126,7 +126,7 @@ int32_t	rawFile::getSamples(DSPCOMPLEX *V, int32_t size)
 	return amount / 2;
 }
 
-int32_t	rawFile::getSamplesFromShadowBuffer (DSPCOMPLEX *V, int32_t size)
+int32_t	CRAWFile::getSamplesFromShadowBuffer (DSPCOMPLEX *V, int32_t size)
 {
     int32_t	amount, i;
     uint8_t	*temp = (uint8_t *)alloca (2 * size * sizeof (uint8_t));
@@ -138,12 +138,12 @@ int32_t	rawFile::getSamplesFromShadowBuffer (DSPCOMPLEX *V, int32_t size)
     return amount / 2;
 }
 
-int32_t	rawFile::Samples(void)
+int32_t	CRAWFile::Samples(void)
 {
     return SampleBuffer -> GetRingBufferReadAvailable () / 2;
 }
 
-void rawFile::run(void)
+void CRAWFile::run(void)
 {
     int32_t	t, i;
     uint8_t	*bi;
@@ -195,7 +195,7 @@ void rawFile::run(void)
 /*
  *	length is number of uints that we read.
  */
-int32_t	rawFile::readBuffer (uint8_t *data, int32_t length)
+int32_t	CRAWFile::readBuffer (uint8_t *data, int32_t length)
 {
     int32_t	n;
 

@@ -2,7 +2,7 @@
  *    Copyright (C) 2017
  *    Albrecht Lohofener (albrechtloh@gmx.de)
  *
- *    Bases on SDR-J
+ *    This file is based on SDR-J
  *    Copyright (C) 2010, 2011, 2012, 2013
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
  *
@@ -32,7 +32,7 @@
 #include	<QMessageBox>
 #include	<QHostAddress>
 #include	<QTcpSocket>
-#include	"rtl_tcp_client.h"
+#include	"CRTL_TCP_Client.h"
 
 //	commands are packed in 5 bytes, one "command byte"
 //	and an integer parameter
@@ -44,7 +44,7 @@ struct command
 
 #define	ONE_BYTE	8
 
-rtl_tcp_client::rtl_tcp_client	(QSettings *settings, bool *success)
+CRTL_TCP_Client::CRTL_TCP_Client	(QSettings *settings, bool *success)
 {
     theBuffer	= new RingBuffer<uint8_t>(32 * 32768);
     theShadowBuffer	= new RingBuffer<uint8_t>(8192);
@@ -69,7 +69,7 @@ rtl_tcp_client::rtl_tcp_client	(QSettings *settings, bool *success)
 	*success	= true;
 }
 
-rtl_tcp_client::~rtl_tcp_client	(void)
+CRTL_TCP_Client::~CRTL_TCP_Client	(void)
 {
     remoteSettings -> beginGroup ("rtl_tcp_client");
     if (connected)
@@ -87,18 +87,18 @@ rtl_tcp_client::~rtl_tcp_client	(void)
 	delete 	theShadowBuffer;
 }
 
-void rtl_tcp_client::setVFOFrequency(int32_t newFrequency)
+void CRTL_TCP_Client::setVFOFrequency(int32_t newFrequency)
 {
 	vfoFrequency	= newFrequency;
     sendVFO (newFrequency);
 }
 
-int32_t	rtl_tcp_client::getVFOFrequency(void)
+int32_t	CRTL_TCP_Client::getVFOFrequency(void)
 {
 	return vfoFrequency;
 }
 
-bool rtl_tcp_client::restartReader(void)
+bool CRTL_TCP_Client::restartReader(void)
 {
     TCPConnectionWatchDog.start(5000);
     TCPConnectionWatchDogTimeout(); // Call timout onces to start the connection
@@ -109,14 +109,14 @@ bool rtl_tcp_client::restartReader(void)
         return true;
 }
 
-void rtl_tcp_client::stopReader	(void)
+void CRTL_TCP_Client::stopReader	(void)
 {
 }
 
 //	The brave old getSamples. For the dab stick, we get
 //	size: still in I/Q pairs, but we have to convert the data from
 //	uint8_t to DSPCOMPLEX *
-int32_t	rtl_tcp_client::getSamples (DSPCOMPLEX *V, int32_t size)
+int32_t	CRTL_TCP_Client::getSamples (DSPCOMPLEX *V, int32_t size)
 {
     int32_t	amount, i;
     uint8_t	*tempBuffer = (uint8_t *)alloca (2 * size * sizeof (uint8_t));
@@ -129,7 +129,7 @@ int32_t	rtl_tcp_client::getSamples (DSPCOMPLEX *V, int32_t size)
 	return amount / 2;
 }
 
-int32_t	rtl_tcp_client::getSamplesFromShadowBuffer (DSPCOMPLEX *V, int32_t size)
+int32_t	CRTL_TCP_Client::getSamplesFromShadowBuffer (DSPCOMPLEX *V, int32_t size)
 {
     int32_t	amount, i;
     uint8_t	*tempBuffer = (uint8_t *)alloca (2 * size * sizeof (uint8_t));
@@ -142,18 +142,18 @@ int32_t	rtl_tcp_client::getSamplesFromShadowBuffer (DSPCOMPLEX *V, int32_t size)
 	return amount / 2;
 }
 
-int32_t	rtl_tcp_client::Samples	(void)
+int32_t	CRTL_TCP_Client::Samples	(void)
 {
     return theBuffer->GetRingBufferReadAvailable () / 2;
 }
 
-uint8_t	rtl_tcp_client::myIdentity	(void)
+uint8_t	CRTL_TCP_Client::myIdentity	(void)
 {
 	return DAB_STICK;
 }
 
 //	These functions are typical for network use
-void rtl_tcp_client::readData(void)
+void CRTL_TCP_Client::readData(void)
 {
     uint8_t	buffer[8192];
 
@@ -165,7 +165,7 @@ void rtl_tcp_client::readData(void)
 	}
 }
 
-void rtl_tcp_client::sendCommand (uint8_t cmd, int32_t param)
+void CRTL_TCP_Client::sendCommand (uint8_t cmd, int32_t param)
 {
     if(!connected)
         return;
@@ -181,45 +181,45 @@ void rtl_tcp_client::sendCommand (uint8_t cmd, int32_t param)
     TCPSocket. write (datagram. data (), datagram. size ());
 }
 
-void rtl_tcp_client::sendVFO(int32_t frequency)
+void CRTL_TCP_Client::sendVFO(int32_t frequency)
 {
 	sendCommand (0x01, frequency);
 }
 
-void rtl_tcp_client::sendRate(int32_t theRate)
+void CRTL_TCP_Client::sendRate(int32_t theRate)
 {
 	sendCommand (0x02, theRate);
 }
 
-void rtl_tcp_client::setGainMode(int32_t gainMode)
+void CRTL_TCP_Client::setGainMode(int32_t gainMode)
 {
     sendCommand (0x03, gainMode);
 }
 
-void rtl_tcp_client::sendGain(int gain)
+void CRTL_TCP_Client::sendGain(int gain)
 {
 	sendCommand (0x04, 10 * gain);
 	theGain		= gain;
 }
 
-void rtl_tcp_client::set_fCorrection(int32_t ppm)
+void CRTL_TCP_Client::set_fCorrection(int32_t ppm)
 {
     sendCommand (0x05, ppm);
     thePpm		= ppm;
 }
 
-void rtl_tcp_client::set_Offset(int32_t o)
+void CRTL_TCP_Client::set_Offset(int32_t o)
 {
     sendCommand (0x0a, Khz (o));
     vfoOffset	= o;
 }
 
-void rtl_tcp_client::setGain(int32_t g)
+void CRTL_TCP_Client::setGain(int32_t g)
 {
 	sendGain (g);
 }
 
-void rtl_tcp_client::setAgc(bool b)
+void CRTL_TCP_Client::setAgc(bool b)
 {
 	if (b)
 	   setGainMode(0);
@@ -227,7 +227,7 @@ void rtl_tcp_client::setAgc(bool b)
 	   setGainMode(1);
 }
 
-void rtl_tcp_client::TCPConnectionWatchDogTimeout()
+void CRTL_TCP_Client::TCPConnectionWatchDogTimeout()
 {
     // Check the connection to the server
     if(!connected)
