@@ -30,8 +30,8 @@
 #include	"gui.h"
 #include	"CAudio.h"
 
-#ifdef	HAVE_DABSTICK
-#include	"dabstick.h"
+#ifdef	HAVE_RTLSDR
+#include	"CRTL_SDR.h"
 #endif
 #ifdef	HAVE_SDRPLAY
 #include	"sdrplay.h"
@@ -936,10 +936,10 @@ bool	RadioInterface::setDevice(QString s)
             }
             else
 #endif
-#ifdef	HAVE_DABSTICK
-                if(s == "dabstick")
+#ifdef	HAVE_RTLSDR
+                if(s == "rtl-sdr")
                 {
-                    inputDevice	= new dabStick(dabSettings, &success, false);
+                    inputDevice	= new CRTL_SDR(dabSettings, &success);
                     if(!success)
                     {
                         delete inputDevice;

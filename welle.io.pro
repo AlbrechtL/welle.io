@@ -139,7 +139,7 @@ LIBS		+= -lfftw3f
 LIBS		+= -lusb-1.0
 LIBS		+= -ldl
 LIBS		+= -lfaad
-CONFIG		+= dabstick
+CONFIG		+= rtl-sdr
 CONFIG		+= rtl_tcp
 CONFIG          += rawfile
 }
@@ -157,20 +157,17 @@ LIBS		+= -lws2_32
 LIBS		+= -llibfaad
 LIBS		+= -lusb-1.0
 CONFIG		+= rtl_tcp
-CONFIG		+= dabstick
+CONFIG		+= rtl-sdr
 CONFIG          += rawfile
 }
 
 
 #### Devices ####
-dabstick {
-	DEFINES		+= HAVE_DABSTICK
-	INCLUDEPATH	+= ./src/input/dabstick
-	HEADERS		+= ./src/input/dabstick/dabstick.h \
-	                   ./src/input/dabstick/dongleselect.h
-	SOURCES		+= ./src/input/dabstick/dabstick.cpp \
-	                   ./src/input/dabstick/dongleselect.cpp
-	FORMS		+= ./src/input/dabstick/dabstick-widget.ui
+rtl-sdr {
+        DEFINES		+= HAVE_RTLSDR
+        INCLUDEPATH	+= ./src/input/rtl-sdr
+        HEADERS		+= ./src/input/rtl-sdr/CRTL_SDR.h
+        SOURCES		+= ./src/input/rtl-sdr/CRTL_SDR.cpp
 }
 
 rtl_tcp {
