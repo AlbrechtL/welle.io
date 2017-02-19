@@ -3,7 +3,7 @@ welle.io
 This repository contains the implementation of a simple DAB/DAB+ receiver. 
 It is fork from dab-rpi and sdr-j-dab which is now qt-dab https://github.com/JvanKatwijk/qt-dab.
 
-The receiver supports terrestrial DAB and DAB+ reception with as input the sample stream from a dabstick (rtl_sdr) or a rtl_tcp server
+The receiver supports terrestrial DAB and DAB+ reception with as input the sample stream from a rtl_sdr, a rtl_tcp server or a I/Q RAW file (for developers).
 
 
 Table of contents
@@ -28,7 +28,7 @@ h | Show help
 v | Show version 
 i | INI-file path. Do not use unless you know what you want.
 S | Sync method. Do not use unless you know what you want.
-D | Input device. Possible are: rtl_tcp, dabstick, rawfile
+D | Input device. Possible are: rtl_tcp, rtl_sdr, rawfile
 M | DAB mode. Possible are: 1,2 or 4, Default: 1 
 B | DAB band. Default Band III
 I | rtl_tcp server IP address. Only valid for input rtl_tcp 
@@ -50,7 +50,7 @@ The following libraries and their development files are needed:
 * QT 5.7 and above
 * FFTW3f
 * libfaad
-* librtlsdr (for dabstick),
+* librtlsdr
 * libusb
 
 Ubuntu Linux 16.04 LTS

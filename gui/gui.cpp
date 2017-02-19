@@ -937,7 +937,7 @@ bool	RadioInterface::setDevice(QString s)
             else
 #endif
 #ifdef	HAVE_RTLSDR
-                if(s == "rtl-sdr")
+                if(s == "rtl_sdr")
                 {
                     inputDevice	= new CRTL_SDR(dabSettings, &success);
                     if(!success)

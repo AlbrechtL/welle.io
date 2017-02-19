@@ -139,7 +139,7 @@ LIBS		+= -lfftw3f
 LIBS		+= -lusb-1.0
 LIBS		+= -ldl
 LIBS		+= -lfaad
-CONFIG		+= rtl-sdr
+CONFIG		+= rtl_sdr
 CONFIG		+= rtl_tcp
 CONFIG          += rawfile
 }
@@ -157,13 +157,13 @@ LIBS		+= -lws2_32
 LIBS		+= -llibfaad
 LIBS		+= -lusb-1.0
 CONFIG		+= rtl_tcp
-CONFIG		+= rtl-sdr
+CONFIG		+= rtl_sdr
 CONFIG          += rawfile
 }
 
 
 #### Devices ####
-rtl-sdr {
+rtl_sdr {
         DEFINES		+= HAVE_RTLSDR
         HEADERS		+= ./src/input/CRTL_SDR.h
         SOURCES		+= ./src/input/CRTL_SDR.cpp
