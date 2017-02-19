@@ -73,9 +73,7 @@
 //	error display
 	au_count	= 0;
 	au_errors	= 0;
-#ifdef GUI_3
 	padDecoderAdapter = new PADDecoderAdapter(mr);
-#endif
 }
 
 	mp4Processor::~mp4Processor (void) {
@@ -295,11 +293,10 @@ uint8_t theAudioUnit [2 * 960 + 10];	// sure, large enough
 	memset (&theAudioUnit [frame_length], 0, 10);
 
 	if (((theAudioUnit [0] >> 5) & 07) == 4)
-#ifndef GUI_3
-	   my_padhandler. processPAD (theAudioUnit);
-#else
+    {
+       //my_padhandler. processPAD (theAudioUnit);
        padDecoderAdapter-> processPAD (theAudioUnit);
-#endif
+    }
 
 	int tmp = aacDecoder. MP42PCM (dacRate,
 	                               sbrFlag,

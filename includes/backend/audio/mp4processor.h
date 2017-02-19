@@ -38,10 +38,7 @@
 #include	"reed-solomon.h"
 #include	<QObject>
 #include	"pad-handler.h"
-
-#ifdef GUI_3
 #include    "pad_decoder_adapter.h"
-#endif
 
 class	RadioInterface;
 
@@ -90,9 +87,7 @@ private:
 	int16_t		aacErrors;
 	int16_t		aacFrames;
 	int16_t		charSet;
-#ifdef GUI_3
 	PADDecoderAdapter  *padDecoderAdapter;
-#endif
 signals:
 	void		show_frameErrors		(int);
 	void		show_rsErrors			(int);

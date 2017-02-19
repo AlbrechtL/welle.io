@@ -82,10 +82,9 @@ int32_t	i;
 	ofdmSymbolCount			= 0;
 	tokenCount			= 0;
 	sampleCnt			= 0;
-#ifdef	GUI_3
 	scanMode			= false;
 	NoReadCounter			= 0;
-#endif
+
 /**
   *	the class phaseReference will take a number of samples
   *	and indicate - using some threshold - whether there is
@@ -116,12 +115,10 @@ int32_t	i;
 	         myRadioInterface, SLOT (set_coarseCorrectorDisplay (int)));
 	connect (this, SIGNAL (setSynced (char)),
 	         myRadioInterface, SLOT (setSynced (char)));
-#ifdef	GUI_3
 	connect (this, SIGNAL (setSignalPresent (bool)),
                  myRadioInterface, SLOT (setSignalPresent (bool)));
 	connect (this, SIGNAL (setErrorMessage (QString)),
 	         myRadioInterface, SLOT (setErrorMessage (QString)));
-#endif
 
 	bufferContent	= 0;
 //
@@ -169,7 +166,7 @@ DSPCOMPLEX temp;
 	   while ((bufferContent == 0) && running) {
 	      usleep (10);
 	      bufferContent = theRig -> Samples (); 
-#ifdef	GUI_3
+
 	      NoReadCounter ++;
 	      if(NoReadCounter > 100000)  { // 1 s
 	         emit setErrorMessage("Error while reading from input device");
@@ -177,10 +174,6 @@ DSPCOMPLEX temp;
 	      }
 	   }
 	   NoReadCounter = 0;
-#else
-	   }
-#endif
-
 	}
 
 	if (!running)	
@@ -218,7 +211,7 @@ int32_t		i;
 	   while ((bufferContent < n) && running) {
 	      usleep (10);
 	      bufferContent = theRig -> Samples ();
-#ifdef	GUI_3
+
 	      NoReadCounter ++;
 	      if (NoReadCounter > 100000) { // 1 s
                  emit setErrorMessage("Error while reading from input device");
@@ -226,9 +219,6 @@ int32_t		i;
 	      }
 	   }
 	   NoReadCounter = 0;
-#else
-	   }
-#endif
 	}
 	if (!running)	
 	   throw 20;
@@ -287,13 +277,12 @@ Initing:
 	      jan_abs (getSample (0));
 	   }
 notSynced:
-#ifdef	GUI_3
 	   if (scanMode && ++attempts > 5) {
 	      emit (setSignalPresent (false));
 	      scanMode	= false;
 	      attempts	= 0;
 	   }
-#endif
+
 	   syncBufferIndex	= 0;
 	   currentStrength	= 0;
 
@@ -378,13 +367,13 @@ SyncOnPhase:
   */
 	      goto notSynced;
 	   }
-#ifdef GUI_3
+
 	   if (scanMode) {
 	      emit (setSignalPresent (true));
 	      scanMode	= false;
               attempts	= 0;
 	   }
-#endif
+
 /**
   *	Once here, we are synchronized, we need to copy the data we
   *	used for synchronization for block 0
@@ -499,9 +488,8 @@ void	ofdmProcessor:: reset	(void) {
 	attempts	= 0;
 	theRig	-> resetBuffer ();
 	running = false;
-#ifdef	GUI_3
 	scanMode	= false;
-#endif
+
 	start ();
 }
 
@@ -518,14 +506,12 @@ void	ofdmProcessor::coarseCorrectorOff (void) {
 	f2Correction	= false;
 }
 
-#ifdef	GUI_3
 void	ofdmProcessor::set_scanMode	(bool b, QString channel) {
 	if (b) 
 	   reset ();
 	scanMode	= b;
 	currentChannel	= channel;
 }
-#endif
 
 #define	RANGE	36
 int16_t	ofdmProcessor::processBlock_0 (DSPCOMPLEX *v) {

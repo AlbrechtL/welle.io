@@ -55,10 +55,7 @@ static void RTLSDRCallBack(uint8_t* buf, uint32_t len, void* ctx)
     tmp = theStick->_I_Buffer->putDataIntoBuffer(buf, len);
     if ((len - tmp) > 0)
         theStick->sampleCounter += len - tmp;
-#ifdef GUI_3
     theStick->_I_ShadowBuffer->putDataIntoBuffer(buf, len);
-// Shadow buffer needed for the spectrum viewer in GUI_3
-#endif
 }
 //
 //	for handling the events in libusb, we need a controlthread
@@ -254,9 +251,7 @@ bool CRTL_SDR::restartReader(void)
         return true;
 
     _I_Buffer->FlushRingBuffer();
-#ifdef GUI_3
     _I_ShadowBuffer->FlushRingBuffer();
-#endif
     r = this->rtlsdr_reset_buffer(device);
     if (r < 0)
         return false;
@@ -362,7 +357,6 @@ int32_t CRTL_SDR::getSamples(DSPCOMPLEX* V, int32_t size, int32_t segmentSize)
     return amount / 2;
 }
 
-#ifdef GUI_3
 int32_t CRTL_SDR::getSamplesFromShadowBuffer(DSPCOMPLEX* V, int32_t size)
 {
     int32_t amount, i;
@@ -374,7 +368,6 @@ int32_t CRTL_SDR::getSamplesFromShadowBuffer(DSPCOMPLEX* V, int32_t size)
             (float(tempBuffer[2 * i + 1] - 128)) / 128.0);
     return amount / 2;
 }
-#endif
 
 int32_t CRTL_SDR::Samples(void)
 {

@@ -174,20 +174,13 @@ int	main (int argc, char **argv)
     if (RAWFileValue != "")
        rawFile = RAWFileValue;
 
-
-//	Since we do not have the possibility in GUI_2 and GUI_3 to select
-//	Mode, Band or Device, we create the possibility for
-//	passing appropriate parameters to the command
-//	Selections - if any - will be default for the next session
-
 	if (dabMode == 127)
 	   dabMode = dabSettings -> value ("dabMode", 1). toInt ();
 	if (dabDevice == QString (""))
        dabDevice = dabSettings -> value ("device", "rtl_sdr"). toString ();
 	if (dabBand == QString (""))
 	   dabBand = dabSettings -> value ("band", "BAND III"). toString ();
-//
-//	For gui_3 the data of a possible rtl_tcp should be saved
+
 	a.setWindowIcon(QIcon(":/QML/images/icon.png"));
 	dabSettings -> beginGroup ("rtl_tcp_client");
 	if (ipAddress != QString ("")) {

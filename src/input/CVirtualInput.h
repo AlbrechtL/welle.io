@@ -57,8 +57,6 @@ public:
     virtual int32_t Samples(void);
     virtual void resetBuffer(void);
     virtual int16_t bitDepth(void) { return 10; }
-    //
-    //	To accomodate gui_3 without a separate control for the device
     virtual void setGain(int32_t);
     virtual void setAgc(bool);
     //

@@ -152,10 +152,7 @@ signals:
 	void		addtoEnsemble	(const QString &);
 	void		nameofEnsemble  (int, const QString &);
 	void		changeinConfiguration (void);
-#ifdef	GUI_3
 	void		newDateTime (int *);
-#endif
-
 };
 
 #endif
