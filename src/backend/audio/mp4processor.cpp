@@ -158,9 +158,8 @@ uint8_t		rsOut	[110];
 uint8_t		dacRate;
 uint8_t		sbrFlag;
 uint8_t		aacChannelMode;
-uint8_t		psFlag;
+//uint8_t		psFlag;
 uint16_t	mpegSurround;
-int32_t		tmp;
 
 /**
   *	apply reed-solomon error repar
@@ -187,7 +186,7 @@ int32_t		tmp;
 	dacRate		= (outVector [2] >> 6) & 01;	// bit 17
 	sbrFlag		= (outVector [2] >> 5) & 01;	// bit 18
 	aacChannelMode	= (outVector [2] >> 4) & 01;	// bit 19
-	psFlag		= (outVector [2] >> 3) & 01;	// bit 20
+//	psFlag		= (outVector [2] >> 3) & 01;	// bit 20
 	mpegSurround	= (outVector [2] & 07);		// bits 21 .. 23
 
 	switch (2 * dacRate + sbrFlag) {

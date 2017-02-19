@@ -163,7 +163,7 @@ int16_t	base	= count - 2 - 1;	// for the F-pad
 //	A dynamic label is created from a sequence of (dynamic) xpad
 //	fields, starting with CI = 2, continuing with CI = 3
 void	padHandler::dynamicLabel (uint8_t *data, int16_t length, uint8_t CI) {
-static int16_t segmentno           = 0;
+//static int16_t segmentno           = 0;
 static int16_t remainDataLength    = 0;
 static bool    isLastSegment       = false;
 static bool    moreXPad            = false;
@@ -178,12 +178,12 @@ int16_t  dataLength                = 0;
 	   dataLength	   = length - 2; // The length with header removed
 
 	   if (first) { 
-	      segmentno = 1;
+          //segmentno = 1;
 	      charSet = (prefix >> 4) & 017;
 	      dynamicLabelText. clear ();
 	   }
-	   else 
-	      segmentno = (prefix >> 4) & 07 + 1;
+       /*else
+          segmentno = ((prefix >> 4) & 07) + 1;*/
 
 	   if (Cflag) {		// special dynamic label command
 	      // the only specified command is to clear the display
@@ -276,8 +276,8 @@ void	padHandler::build_MSC_segment (uint8_t *mscdataGroup, int16_t length) {
 //	according to DAB 300 401 (page 37) the header (MSC data group)
 //	is
 	uint8_t		groupType	=  mscdataGroup [0] & 0xF;
-	uint8_t		continuityIndex = (mscdataGroup [1] & 0xF) >> 4;
-	uint8_t		repetitionIndex =  mscdataGroup [1] & 0xF;
+    //uint8_t		continuityIndex = (mscdataGroup [1] & 0xF) >> 4;
+    //uint8_t		repetitionIndex =  mscdataGroup [1] & 0xF;
 	int16_t		segmentNumber	= -1;		// default
 	int16_t		transportId	= -1;		// default
 	bool		lastFlag	= false;	// default

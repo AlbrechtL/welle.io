@@ -157,7 +157,7 @@ NeAACDecFrameInfo	hInfo;
 	   
 	if (channels == 2) {
 	   audioBuffer	-> putDataIntoBuffer (outBuffer, samples);
-	   if (audioBuffer -> GetRingBufferReadAvailable () > sample_rate / 8)
+       if (audioBuffer -> GetRingBufferReadAvailable () > (int) sample_rate / 8)
 	      newAudio (sample_rate);
 	}
 	else
@@ -169,7 +169,7 @@ NeAACDecFrameInfo	hInfo;
 	      buffer [2 * i + 1] = buffer [2 * i];
 	   }
 	   audioBuffer	-> putDataIntoBuffer (buffer, samples);
-	   if (audioBuffer -> GetRingBufferReadAvailable () > sample_rate / 8)
+       if (audioBuffer -> GetRingBufferReadAvailable () > (int) sample_rate / 8)
 	      newAudio (sample_rate);
 	}
 	else

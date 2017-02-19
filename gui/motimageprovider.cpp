@@ -8,6 +8,8 @@ MOTImageProvider::MOTImageProvider(): QQuickImageProvider(QQuickImageProvider::P
 
 QPixmap MOTImageProvider::requestPixmap(const QString &id, QSize *size, const QSize &requestedSize)
 {
+    (void) id;
+    (void) requestedSize;
     if (size)
         *size = QSize(this->Pixmap_.width(), this->Pixmap_.height());
 

@@ -103,7 +103,7 @@ public:
 	void	dataforDataService	(QString &, packetdata *);
 private:
 	RadioInterface	*myRadioInterface;
-	serviceId	*findServiceId (int32_t);
+    serviceId	*findServiceId (uint32_t);
 	serviceComponent *find_packetComponent (int16_t);
         void            bind_audioService (int8_t,
                                            uint32_t, int16_t,

@@ -44,10 +44,10 @@ bool	crcFlag		= getBits_1 (data, 1) != 0;
 bool	segmentFlag	= getBits_1 (data, 2) != 0;
 bool	userAccessFlag	= getBits_1 (data, 3) != 0;
 int16_t	next		= 16;		// bits
-bool	lastSegment	= false;
-uint16_t segmentNumber	= 0;
-bool transportIdFlag	= false;
-uint16_t transportId	= 0;
+//bool	lastSegment	= false;
+//uint16_t segmentNumber	= 0;
+//bool transportIdFlag	= false;
+//uint16_t transportId	= 0;
 uint8_t	lengthInd;
 int16_t	i;
 
@@ -58,24 +58,23 @@ int16_t	i;
 	   next += 16;
 
 	if (segmentFlag) {
-	   lastSegment	= getBits_1 (data, next) != 0;
-	   segmentNumber = getBits (data, next + 1, 15);
+       //lastSegment	= getBits_1 (data, next) != 0;
+       //segmentNumber = getBits (data, next + 1, 15);
 	   next += 16;
 	}
 
 	if (userAccessFlag) {
-	   transportIdFlag	= getBits_1 (data, next + 3);
+//	   transportIdFlag	= getBits_1 (data, next + 3);
 	   lengthInd		= getBits_4 (data, next + 4);
 	   next	+= 8;
-	   if (transportIdFlag) {
+       /*if (transportIdFlag) {
 	      transportId = getBits (data, next, 16);
-	   }
+       }*/
 	   next	+= lengthInd * 8;
 	}
 
 	uint16_t	ipLength	= 0;
-	int16_t		sizeinBits	=
-	              msc. size () - next - (crcFlag != 0 ? 16 : 0);
+    //int16_t		sizeinBits	= msc. size () - next - (crcFlag != 0 ? 16 : 0);
 	ipLength = getBits (data, next + 16, 16);
 	if (ipLength < msc. size () / 8) {	// just to be sure
 	   QByteArray ipVector;

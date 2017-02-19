@@ -50,7 +50,7 @@
 	                         int16_t protLevel,
 	                         RadioInterface *mr,
 	                         RingBuffer<int16_t> *buffer) {
-int32_t i, j;
+int32_t i;
 	this	-> dabModus		= dabModus;
 	this	-> fragmentSize		= fragmentSize;
 	this	-> bitRate		= bitRate;

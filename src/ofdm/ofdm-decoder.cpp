@@ -205,7 +205,7 @@ void	ofdmDecoder::decodeFICblock (int32_t blkno) {
 int16_t	i;
 
 	memcpy (fft_buffer, command [blkno], T_u * sizeof (DSPCOMPLEX));
-fftlabel:
+//fftlabel:
 /**
   *	first step: do the FFT
   */
@@ -215,7 +215,7 @@ fftlabel:
   *	positive/negative frequencies to their right positions.
   *	The de-interleaving understands this
   */
-toBitsLabel:
+//toBitsLabel:
 /**
   *	Note that from here on, we are only interested in the
   *	"carriers" useful carriers of the FFT output
@@ -238,7 +238,7 @@ toBitsLabel:
 	   ibits [i]		= - real (r1) / ab1 * 127.0 + 128;
 	   ibits [carriers + i] = - imag (r1) / ab1 * 127.0 + 128;
 	}
-handlerLabel:
+//handlerLabel:
 	my_ficHandler -> process_ficBlock (ibits, blkno);
 }
 /**
@@ -248,12 +248,12 @@ void	ofdmDecoder::decodeMscblock (int32_t blkno) {
 int16_t	i;
 
 	memcpy (fft_buffer, command [blkno], T_u * sizeof (DSPCOMPLEX));
-fftLabel:
+//fftLabel:
 	fft_handler -> do_FFT ();
 //
 //	Note that "mapIn" maps to -carriers / 2 .. carriers / 2
 //	we did not set the fft output to low .. high
-toBitsLabel:
+//toBitsLabel:
 	for (i = 0; i < carriers; i ++) {
 	   int16_t	index	= myMapper. mapIn (i);
 	   if (index < 0) 
@@ -267,7 +267,7 @@ toBitsLabel:
 	   ibits [i]		= - real (r1) / ab1 * 127.0 + 128;
 	   ibits [carriers + i] = - imag (r1) / ab1 * 127.0 + 128;
 	}
-handlerLabel:
+//handlerLabel:
 	my_mscHandler -> process_mscBlock (ibits, blkno);
 }
 

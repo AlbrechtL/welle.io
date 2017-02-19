@@ -134,13 +134,14 @@ void	motHandler::processDirectory (int16_t	transportId,
                                       uint8_t	*segment,
                                       int16_t	segmentSize,
                                       bool	lastFlag) {
+(void) lastFlag;
 uint32_t directorySize	= ((segment [0] & 0x3F) << 24) |
 	                  ((segment [1]       ) << 16) |
 	                  ((segment [2]       ) <<  8) | segment [3];
 uint16_t numObjects	= (segment [4] << 8) | segment [5];
-int32_t	period		= (segment [6] << 16) | 
-	                  (segment [7] <<  8) | segment [8];
-int16_t segSize		= ((segment [9] & 0x1F) << 8) | segment [10];
+/*int32_t	period		= (segment [6] << 16) |
+                      (segment [7] <<  8) | segment [8];*/
+/*int16_t segSize		= ((segment [9] & 0x1F) << 8) | segment [10];*/
 
 	if ((theDirectory != NULL) &&
 	                (theDirectory -> transportId == transportId)) 

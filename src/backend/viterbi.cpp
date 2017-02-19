@@ -85,7 +85,7 @@ static uint8_t Partab [] =
 //	One could create the table above, i.e. a 256 entry
 //	odd-parity lookup table by the following function
 //	It is now precomputed
-static
+/*static
 void	partab_init(void){
 int16_t i,cnt,ti;
 
@@ -98,7 +98,7 @@ int16_t i,cnt,ti;
 	   }
 	   Partab [i] = cnt & 1;
 	}
-}
+}*/
 
 int16_t  viterbi::parity (int16_t x){
 	/* Fold down to one byte */

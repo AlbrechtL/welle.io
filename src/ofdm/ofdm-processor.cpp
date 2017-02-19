@@ -1,24 +1,32 @@
-#
 /*
- *    Copyright (C) 2013, 2014
- *    Jan van Katwijk (J.vanKatwijk@gmail.com)
- *    Lazy Chair Programming
+ *    Copyright (C) 2017
+ *    Albrecht Lohofener (albrechtloh@gmx.de)
  *
- *    This file is part of the SDR-J (JSDR).
- *    SDR-J is free software; you can redistribute it and/or modify
+ *    This file is based on SDR-J
+ *    Copyright (C) 2010, 2011, 2012, 2013
+ *    Jan van Katwijk (J.vanKatwijk@gmail.com)
+ *
+ *    This file is part of the welle.io.
+ *    Many of the ideas as implemented in welle.io are derived from
+ *    other work, made available through the GNU general Public License.
+ *    All copyrights of the original authors are recognized.
+ *
+ *    welle.io is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
  *    the Free Software Foundation; either version 2 of the License, or
  *    (at your option) any later version.
  *
- *    SDR-J is distributed in the hope that it will be useful,
+ *    welle.io is distributed in the hope that it will be useful,
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
  *
  *    You should have received a copy of the GNU General Public License
- *    along with SDR-J; if not, write to the Free Software
+ *    along with welle.io; if not, write to the Free Software
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
  */
+
 #include	"ofdm-processor.h"
 #include	"fic-handler.h"
 #include	"msc-handler.h"
@@ -270,7 +278,7 @@ float		envBuffer	[syncBufferSize];
 	sLevel		= 0;
 	try {
 
-Initing:
+//Initing:
 ///	first, we need samples to get a reasonable sLevel
 	   sLevel	= 0;
 	   for (i = 0; i < T_F / 2; i ++) {
@@ -299,7 +307,7 @@ notSynced:
   *	We now have initial values for currentStrength (i.e. the sum
   *	over the last 50 samples) and sLevel, the long term average.
   */
-SyncOnNull:
+//SyncOnNull:
 /**
   *	here we start looking for the null level, i.e. a dip
   */
@@ -324,7 +332,7 @@ SyncOnNull:
   *	We now start looking for the end of the null period.
   */
 	   counter	= 0;
-SyncOnEndNull:
+//SyncOnEndNull:
 	   while (currentStrength / 50 < 0.75 * sLevel) {
 	      DSPCOMPLEX sample = getSample (coarseCorrector + fineCorrector);
 	      envBuffer [syncBufferIndex] = jan_abs (sample);
@@ -382,7 +390,7 @@ SyncOnPhase:
 	                  (params -> T_u - startIndex) * sizeof (DSPCOMPLEX));
 	   ofdmBufferIndex	= params -> T_u - startIndex;
 
-Block_0:
+//Block_0:
 /**
   *	Block 0 is special in that it is used for fine time synchronization
   *	and its content is used as a reference for decoding the
@@ -410,7 +418,7 @@ Block_0:
 /**
   *	after block 0, we will just read in the other (params -> L - 1) blocks
   */
-Data_blocks:
+//Data_blocks:
 /**
   *	The first ones are the FIC blocks. We immediately
   *	start with building up an average of the phase difference
@@ -438,7 +446,7 @@ Data_blocks:
 	      my_ofdmDecoder. decodeMscblock (ofdmBuffer, ofdmSymbolCount);
 	   }
 
-NewOffset:
+//NewOffset:
 ///	we integrate the newly found frequency error with the
 ///	existing frequency error.
 	   fineCorrector += 0.1 * arg (FreqCorr) / M_PI *
@@ -468,7 +476,7 @@ NewOffset:
 	      coarseCorrector -= params -> carrierDiff;
 	      fineCorrector += params -> carrierDiff;
 	   }
-ReadyForNewFrame:
+//ReadyForNewFrame:
 ///	and off we go, up to the next frame
 	   goto SyncOnPhase;
 	}

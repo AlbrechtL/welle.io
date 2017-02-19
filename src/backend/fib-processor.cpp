@@ -364,6 +364,7 @@ int16_t	fib_processor::HandleFIG0Extension2 (uint8_t *d,
 	                                     int16_t offset,
 	                                     uint8_t cn,
 	                                     uint8_t pd) {
+(void) cn;
 int16_t		lOffset	= 8 * offset;
 int16_t		i;
 uint8_t		ecc;
@@ -425,12 +426,12 @@ int16_t	Length	= getBits_5 (d, 3);
 //      DSCTy   DataService Component Type
 int16_t fib_processor::HandleFIG0Extension3 (uint8_t *d, int16_t used) {
 int16_t SCId            = getBits (d, used * 8, 12);
-int16_t CAOrgflag       = getBits_1 (d, used * 8 + 15);
+//int16_t CAOrgflag       = getBits_1 (d, used * 8 + 15);
 int16_t DGflag          = getBits_1 (d, used * 8 + 16);
 int16_t DSCTy           = getBits_6 (d, used * 8 + 18);
 int16_t SubChId         = getBits_6 (d, used * 8 + 24);
 int16_t packetAddress   = getBits (d, used * 8 + 30, 10);
-uint16_t        CAOrg   = getBits (d, used * 8 + 40, 16);
+//uint16_t        CAOrg   = getBits (d, used * 8 + 40, 16);
 
 serviceComponent *packetComp = find_packetComponent (SCId);
 
@@ -799,7 +800,7 @@ uint8_t		pd_flag;
 uint8_t		SCidS;
 uint8_t		XPAD_aid;
 uint8_t		flagfield;
-uint8_t		region_id;
+//uint8_t		region_id;
 char		label [17];
 //
 //	from byte 1 we deduce:
@@ -856,7 +857,7 @@ char		label [17];
 
 	   case 3:
 	      // region label
-	      region_id = getBits_6 (d, 16 + 2);
+//	      region_id = getBits_6 (d, 16 + 2);
 	      offset = 24;
 	      for (i = 0; i < 16; i ++) 
 	         label [i] = getBits_8 (d, offset + 8 * i);
@@ -939,7 +940,7 @@ char		label [17];
 //
 //	locate - and create if needed - a reference to the entry
 //	for the serviceId serviceId
-serviceId	*fib_processor::findServiceId (int32_t serviceId) {
+serviceId	*fib_processor::findServiceId (uint32_t serviceId) {
 int16_t	i;
 
 	for (i = 0; i < 64; i ++)
@@ -1063,7 +1064,7 @@ int16_t i;
 
 uint8_t	fib_processor::kindofService (QString &s) {
 int16_t	i, j;
-int32_t	selectedService;
+uint32_t	selectedService;
 
 //	first we locate the serviceId
 	for (i = 0; i < 64; i ++) {
@@ -1079,7 +1080,6 @@ int32_t	selectedService;
 	                      listofServices [i]. serviceId);
 	   selectedService = listofServices [i]. serviceId;
 	   for (j = 0; j < 64; j ++) {
-	      int16_t subchId;
 	      if (!components [j]. inUse)
 	         continue;
 	      if (selectedService != components [j]. service -> serviceId)
@@ -1098,7 +1098,7 @@ int32_t	selectedService;
 
 void	fib_processor::dataforDataService (QString &s, packetdata *d) {
 int16_t	i, j;
-int32_t	selectedService;
+uint32_t	selectedService;
 
 //	first we locate the serviceId
 	for (i = 0; i < 64; i ++) {
@@ -1142,7 +1142,7 @@ int32_t	selectedService;
 
 void	fib_processor::dataforAudioService (QString &s, audiodata *d) {
 int16_t	i, j;
-int32_t	selectedService;
+uint32_t	selectedService;
 
 	d	-> defined	= false;
 //	first we locate the serviceId
