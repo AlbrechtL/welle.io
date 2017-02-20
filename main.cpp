@@ -187,7 +187,7 @@ int	main (int argc, char **argv)
 	   dabSettings -> setValue ("rtl_tcp_address", ipAddress);
 	   dabSettings -> setValue ("rtl_tcp_port", ipPort);
 	}
-	dabSettings -> endGroup ();
+    dabSettings -> endGroup ();
 
     dabSettings -> beginGroup ("rawfile");
     if (rawFile != QString ("")) {
@@ -204,8 +204,6 @@ int	main (int argc, char **argv)
                                                dabDevice,
                                                dabMode,
                                                dabBand);
-
-	dabSettings	-> endGroup ();
 /*
  *	Before we connect control to the gui, we have to
  *	instantiate
