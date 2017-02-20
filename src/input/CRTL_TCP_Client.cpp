@@ -74,7 +74,7 @@ CRTL_TCP_Client::~CRTL_TCP_Client	(void)
     remoteSettings -> beginGroup ("rtl_tcp_client");
     if (connected)
     {		// close previous connection
-	   stopReader	();
+       stop	();
 //	   streamer. close ();
        remoteSettings -> setValue ("remote-server", TCPSocket. peerAddress (). toString ());
 	}
@@ -87,18 +87,13 @@ CRTL_TCP_Client::~CRTL_TCP_Client	(void)
 	delete 	theShadowBuffer;
 }
 
-void CRTL_TCP_Client::setVFOFrequency(int32_t newFrequency)
+void CRTL_TCP_Client::setFrequency(int32_t newFrequency)
 {
 	vfoFrequency	= newFrequency;
     sendVFO (newFrequency);
 }
 
-int32_t	CRTL_TCP_Client::getVFOFrequency(void)
-{
-	return vfoFrequency;
-}
-
-bool CRTL_TCP_Client::restartReader(void)
+bool CRTL_TCP_Client::restart(void)
 {
     TCPConnectionWatchDog.start(5000);
     TCPConnectionWatchDogTimeout(); // Call timout onces to start the connection
@@ -109,7 +104,7 @@ bool CRTL_TCP_Client::restartReader(void)
         return true;
 }
 
-void CRTL_TCP_Client::stopReader	(void)
+void CRTL_TCP_Client::stop	(void)
 {
 }
 
@@ -129,7 +124,7 @@ int32_t	CRTL_TCP_Client::getSamples (DSPCOMPLEX *V, int32_t size)
 	return amount / 2;
 }
 
-int32_t	CRTL_TCP_Client::getSamplesFromShadowBuffer (DSPCOMPLEX *V, int32_t size)
+int32_t	CRTL_TCP_Client::getSpectrumSamples (DSPCOMPLEX *V, int32_t size)
 {
     int32_t	amount, i;
     uint8_t	*tempBuffer = (uint8_t *)alloca (2 * size * sizeof (uint8_t));
@@ -142,14 +137,14 @@ int32_t	CRTL_TCP_Client::getSamplesFromShadowBuffer (DSPCOMPLEX *V, int32_t size
 	return amount / 2;
 }
 
-int32_t	CRTL_TCP_Client::Samples	(void)
+int32_t	CRTL_TCP_Client::getSamplesToRead	(void)
 {
     return theBuffer->GetRingBufferReadAvailable () / 2;
 }
 
-uint8_t	CRTL_TCP_Client::myIdentity	(void)
+void CRTL_TCP_Client::reset(void)
 {
-	return DAB_STICK;
+    theBuffer->FlushRingBuffer();
 }
 
 //	These functions are typical for network use

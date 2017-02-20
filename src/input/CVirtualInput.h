@@ -31,38 +31,19 @@
 #define __VIRTUAL_INPUT
 
 #include "dab-constants.h"
-#include <QDialog>
 #include <QObject>
 #include <stdint.h>
 
-#define NIX 0100
-#define FILEREADER 0200
-#define DAB_STICK 0101
-#define AIRSPY 0102
-#define ELAD 0104
-#define SDRPLAY 0110
-
-#define someStick(x) (x & 017)
 class virtualInput : public QObject {
 public:
-    virtualInput(void);
-    virtual ~virtualInput(void);
-    virtual void setVFOFrequency(int32_t);
-    virtual int32_t getVFOFrequency(void);
-    virtual uint8_t myIdentity(void);
-    virtual bool restartReader(void);
-    virtual void stopReader(void);
-    virtual int32_t getSamples(DSPCOMPLEX*, int32_t);
-    virtual int32_t getSamplesFromShadowBuffer(DSPCOMPLEX* V, int32_t size);
-    virtual int32_t Samples(void);
-    virtual void resetBuffer(void);
-    virtual int16_t bitDepth(void) { return 10; }
-    virtual void setGain(int32_t);
-    virtual void setAgc(bool);
-    //
-protected:
-    int32_t lastFrequency;
-    int32_t vfoOffset;
-    int theGain;
+    virtual void setFrequency(int32_t Frequency) = 0;
+    virtual bool restart(void) = 0;
+    virtual void stop(void) = 0;
+    virtual void reset(void) = 0;
+    virtual int32_t getSamples(DSPCOMPLEX* Buffer, int32_t Size) = 0;
+    virtual int32_t getSpectrumSamples(DSPCOMPLEX* Buffer, int32_t Size) = 0;
+    virtual int32_t getSamplesToRead(void) = 0;
+    virtual void setGain(int32_t Gain) = 0;
+    virtual void setAgc(bool AGC) = 0;
 };
 #endif

@@ -231,19 +231,13 @@ CRTL_SDR::~CRTL_SDR(void)
     open = false;;
 }
 
-void CRTL_SDR::setVFOFrequency(int32_t f)
+void CRTL_SDR::setFrequency(int32_t f)
 {
     lastFrequency = f;
     (void)(this->rtlsdr_set_center_freq(device, f + vfoOffset));
 }
 
-void CRTL_SDR::getVFOFrequency(int32_t* f)
-{
-    *f = (int32_t)(this->rtlsdr_get_center_freq(device)) - vfoOffset;
-}
-//
-//
-bool CRTL_SDR::restartReader(void)
+bool CRTL_SDR::restart(void)
 {
     int32_t r;
 
@@ -265,7 +259,7 @@ bool CRTL_SDR::restartReader(void)
     return true;
 }
 
-void CRTL_SDR::stopReader(void)
+void CRTL_SDR::stop(void)
 {
     if (workerHandle == NULL)
         return;
@@ -357,7 +351,7 @@ int32_t CRTL_SDR::getSamples(DSPCOMPLEX* V, int32_t size, int32_t segmentSize)
     return amount / 2;
 }
 
-int32_t CRTL_SDR::getSamplesFromShadowBuffer(DSPCOMPLEX* V, int32_t size)
+int32_t CRTL_SDR::getSpectrumSamples(DSPCOMPLEX* V, int32_t size)
 {
     int32_t amount, i;
     uint8_t* tempBuffer = (uint8_t*)alloca(2 * size * sizeof(uint8_t));
@@ -369,12 +363,10 @@ int32_t CRTL_SDR::getSamplesFromShadowBuffer(DSPCOMPLEX* V, int32_t size)
     return amount / 2;
 }
 
-int32_t CRTL_SDR::Samples(void)
+int32_t CRTL_SDR::getSamplesToRead(void)
 {
     return _I_Buffer->GetRingBufferReadAvailable() / 2;
 }
-//
-uint8_t CRTL_SDR::myIdentity(void) { return DAB_STICK; }
 
 int32_t CRTL_SDR::getSamplesMissed(void)
 {
@@ -501,8 +493,6 @@ bool CRTL_SDR::load_rtlFunctions(void)
     return true;
 }
 
-void CRTL_SDR::resetBuffer(void) { _I_Buffer->FlushRingBuffer(); }
+void CRTL_SDR::reset(void) { _I_Buffer->FlushRingBuffer(); }
 
 int16_t CRTL_SDR::maxGain(void) { return gainsCount; }
-
-int16_t CRTL_SDR::bitDepth(void) { return 8; }

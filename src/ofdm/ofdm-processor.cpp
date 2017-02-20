@@ -170,10 +170,10 @@ DSPCOMPLEX temp;
 	   throw 21;
 ///	bufferContent is an indicator for the value of ... -> Samples ()
 	if (bufferContent == 0) {
-	   bufferContent = theRig -> Samples ();
+	   bufferContent = theRig -> getSamplesToRead ();
 	   while ((bufferContent == 0) && running) {
 	      usleep (10);
-	      bufferContent = theRig -> Samples (); 
+	      bufferContent = theRig -> getSamplesToRead (); 
 
 	      NoReadCounter ++;
 	      if(NoReadCounter > 100000)  { // 1 s
@@ -215,10 +215,10 @@ int32_t		i;
 	if (!running)
 	   throw 21;
 	if (n > bufferContent) {
-	   bufferContent = theRig -> Samples ();
+	   bufferContent = theRig -> getSamplesToRead ();
 	   while ((bufferContent < n) && running) {
 	      usleep (10);
-	      bufferContent = theRig -> Samples ();
+	      bufferContent = theRig -> getSamplesToRead ();
 
 	      NoReadCounter ++;
 	      if (NoReadCounter > 100000) { // 1 s
@@ -494,7 +494,7 @@ void	ofdmProcessor:: reset	(void) {
 	f2Correction	= true;
 	syncBufferIndex	= 0;
 	attempts	= 0;
-	theRig	-> resetBuffer ();
+	theRig	-> reset ();
 	running = false;
 	scanMode	= false;
 

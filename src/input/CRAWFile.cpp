@@ -83,25 +83,40 @@ CRAWFile::~CRAWFile(void)
 	   fclose (filePointer);
        delete SampleBuffer;
        delete SpectrumSampleBuffer;
-	}
+    }
 }
 
-bool CRAWFile::restartReader(void)
+void CRAWFile::setFrequency(int32_t Frequency)
+{
+    (void) Frequency;
+}
+
+bool CRAWFile::restart(void)
 {
 	if (readerOK)
 	   readerPausing = false;
 	return readerOK;
 }
 
-void CRAWFile::stopReader(void)
+void CRAWFile::stop(void)
 {
 	if (readerOK)
-	   readerPausing = true;
+        readerPausing = true;
 }
 
-uint8_t	CRAWFile::myIdentity(void)
+void CRAWFile::reset()
 {
-	return FILEREADER;
+
+}
+
+void CRAWFile::setGain(int32_t Gain)
+{
+    (void) Gain;
+}
+
+void CRAWFile::setAgc(bool)
+{
+
 }
 
 //	size is in I/Q pairs, file contains 8 bits values
@@ -126,7 +141,7 @@ int32_t	CRAWFile::getSamples(DSPCOMPLEX *V, int32_t size)
 	return amount / 2;
 }
 
-int32_t	CRAWFile::getSamplesFromShadowBuffer (DSPCOMPLEX *V, int32_t size)
+int32_t	CRAWFile::getSpectrumSamples (DSPCOMPLEX *V, int32_t size)
 {
     int32_t	amount, i;
     uint8_t	*temp = (uint8_t *)alloca (2 * size * sizeof (uint8_t));
@@ -138,7 +153,7 @@ int32_t	CRAWFile::getSamplesFromShadowBuffer (DSPCOMPLEX *V, int32_t size)
     return amount / 2;
 }
 
-int32_t	CRAWFile::Samples(void)
+int32_t	CRAWFile::getSamplesToRead(void)
 {
     return SampleBuffer -> GetRingBufferReadAvailable () / 2;
 }

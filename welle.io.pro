@@ -122,7 +122,6 @@ SOURCES += ./main.cpp \
             ./src/output/CAudio.cpp \
             ./src/various/fft.cpp \
             ./src/various/Xtan2.cpp \
-            ./src/input/CVirtualInput.cpp \
             ./gui/gui.cpp \
             ./gui/motimageprovider.cpp \
             ./gui/stationlist.cpp \

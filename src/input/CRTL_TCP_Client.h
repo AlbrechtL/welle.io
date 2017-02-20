@@ -27,60 +27,60 @@
  *
  */
 
-#ifndef	__RTL_TCP_CLIENT
-#define	__RTL_TCP_CLIENT
-#include	<QtNetwork>
-#include	<QSettings>
-#include	<QHostAddress>
-#include	<QByteArray>
-#include	<QTcpSocket>
-#include	<QTimer>
-#include	"dab-constants.h"
-#include	"CVirtualInput.h"
-#include	"ringbuffer.h"
+#ifndef __RTL_TCP_CLIENT
+#define __RTL_TCP_CLIENT
+#include "CVirtualInput.h"
+#include "dab-constants.h"
+#include "ringbuffer.h"
+#include <QByteArray>
+#include <QHostAddress>
+#include <QSettings>
+#include <QTcpSocket>
+#include <QTimer>
+#include <QtNetwork>
 
-class	CRTL_TCP_Client: public virtualInput{
-Q_OBJECT
+class CRTL_TCP_Client : public virtualInput {
+    Q_OBJECT
 public:
-    CRTL_TCP_Client (QSettings *settings, bool *success);
-    ~CRTL_TCP_Client	(void);
-    void		setVFOFrequency	(int32_t);
-    int32_t		getVFOFrequency	(void);
-    bool		restartReader	(void);
-    void		stopReader	(void);
-    int32_t		getSamples	(DSPCOMPLEX *V, int32_t size);
-    int32_t		getSamplesFromShadowBuffer (DSPCOMPLEX *V, int32_t size);
-    int32_t		Samples		(void);
-    uint8_t		myIdentity	(void);
-    void		setGain		(int32_t);
-	void		setAgc		(bool);
+    CRTL_TCP_Client(QSettings* settings, bool* success);
+    ~CRTL_TCP_Client(void);
+    void setFrequency(int32_t);
+    bool restart(void);
+    void stop(void);
+    int32_t getSamples(DSPCOMPLEX* V, int32_t size);
+    int32_t getSpectrumSamples(DSPCOMPLEX* V, int32_t size);
+    int32_t getSamplesToRead(void);
+    void reset(void);
+    void setGain(int32_t);
+    void setAgc(bool);
 
 private slots:
-	void		readData	(void);
-    void        TCPConnectionWatchDogTimeout(void);
+    void readData(void);
+    void TCPConnectionWatchDogTimeout(void);
 
 private:
-    void		sendGain	(int);
-    void		set_Offset	(int);
-    void		set_fCorrection	(int);
-	void		sendVFO		(int32_t);
-	void		sendRate	(int32_t);
-    void        setGainMode (int32_t gainMode);
-	void		sendCommand	(uint8_t, int32_t);
-	bool		isvalidRate	(int32_t);
-	QSettings	*remoteSettings;
-	int32_t		theRate;
-	int32_t		vfoFrequency;
-	RingBuffer<uint8_t>	*theBuffer;
-    RingBuffer<uint8_t>	*theShadowBuffer;
-	bool		connected;
-	int16_t		theGain;
-	int16_t		thePpm;
+    int32_t lastFrequency;
+    int32_t vfoOffset;
+    int theGain;
+    void sendGain(int);
+    void set_Offset(int);
+    void set_fCorrection(int);
+    void sendVFO(int32_t);
+    void sendRate(int32_t);
+    void setGainMode(int32_t gainMode);
+    void sendCommand(uint8_t, int32_t);
+    bool isvalidRate(int32_t);
+    QSettings* remoteSettings;
+    int32_t theRate;
+    int32_t vfoFrequency;
+    RingBuffer<uint8_t>* theBuffer;
+    RingBuffer<uint8_t>* theShadowBuffer;
+    bool connected;
+    int16_t thePpm;
     QHostAddress serverAddress;
-    QTcpSocket	TCPSocket;
-	qint64		basePort;
-    QTimer      TCPConnectionWatchDog;
+    QTcpSocket TCPSocket;
+    qint64 basePort;
+    QTimer TCPConnectionWatchDog;
 };
 
 #endif
-

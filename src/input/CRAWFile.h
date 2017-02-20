@@ -27,50 +27,50 @@
  *
  */
 
-#ifndef	__RAW_FILES
-#define	__RAW_FILES
+#ifndef __RAW_FILES
+#define __RAW_FILES
 
-#include	<QThread>
-#include	<QString>
-#include	<QSettings>
+#include <QSettings>
+#include <QString>
+#include <QThread>
 
+#include "CVirtualInput.h"
+#include "dab-constants.h"
+#include "ringbuffer.h"
 
-#include	"dab-constants.h"
-#include	"CVirtualInput.h"
-#include	"ringbuffer.h"
-
-class	QLabel;
-class	QSettings;
-class	fileHulp;
+class QLabel;
+class QSettings;
+class fileHulp;
 /*
  */
-class	CRAWFile: public virtualInput, QThread
-{
+class CRAWFile : public virtualInput, QThread {
 public:
-    CRAWFile	(QSettings *settings, bool *);
-                ~CRAWFile	(void);
-	int32_t		getSamples	(DSPCOMPLEX *, int32_t);
-    int32_t     getSamplesFromShadowBuffer (DSPCOMPLEX *V, int32_t size);
-	uint8_t		myIdentity	(void);
-	int32_t		Samples		(void);
-	bool		restartReader	(void);
-	void		stopReader	(void);
+    CRAWFile(QSettings* settings, bool*);
+    ~CRAWFile(void);
+    void setFrequency(int32_t Frequency);
+    int32_t getSamples(DSPCOMPLEX*, int32_t);
+    int32_t getSpectrumSamples(DSPCOMPLEX* V, int32_t size);
+    int32_t getSamplesToRead(void);
+    bool restart(void);
+    void stop(void);
+    void reset(void);
+    void setGain(int32_t Gain);
+    void setAgc(bool);
 
 private:
-    QString		fileName;
+    QString fileName;
 
-virtual	void		run		(void);
-	int32_t		readBuffer	(uint8_t *, int32_t);
-    RingBuffer<uint8_t>	*SampleBuffer;
-    RingBuffer<uint8_t>	*SpectrumSampleBuffer;
-	int32_t		bufferSize;
-	FILE		*filePointer;
-	bool		readerOK;
-	bool		readerPausing;
-	bool		ExitCondition;
-	bool		ThreadFinished;
-	int64_t		currPos;
+    virtual void run(void);
+    int32_t readBuffer(uint8_t*, int32_t);
+    RingBuffer<uint8_t>* SampleBuffer;
+    RingBuffer<uint8_t>* SpectrumSampleBuffer;
+    int32_t bufferSize;
+    FILE* filePointer;
+    bool readerOK;
+    bool readerPausing;
+    bool ExitCondition;
+    bool ThreadFinished;
+    int64_t currPos;
 };
 
 #endif
-

@@ -30,9 +30,9 @@
 #ifndef _DABSTICK
 #define _DABSTICK
 
+#include "CVirtualInput.h"
 #include "dab-constants.h"
 #include "ringbuffer.h"
-#include "CVirtualInput.h"
 #include <QObject>
 #include <QSettings>
 
@@ -72,20 +72,18 @@ class CRTL_SDR : public virtualInput {
 public:
     CRTL_SDR(QSettings*, bool*);
     ~CRTL_SDR(void);
-    void setVFOFrequency(int32_t);
-    void getVFOFrequency(int32_t*);
-    uint8_t myIdentity(void);
+    void setFrequency(int32_t);
+
     //	interface to the reader
-    bool restartReader(void);
-    void stopReader(void);
+    bool restart(void);
+    void stop(void);
     int32_t getSamples(DSPCOMPLEX*, int32_t);
     int32_t getSamples(DSPCOMPLEX*, int32_t, int32_t);
-    int32_t getSamplesFromShadowBuffer(DSPCOMPLEX* V, int32_t size);
-    int32_t Samples(void);
+    int32_t getSpectrumSamples(DSPCOMPLEX* V, int32_t size);
+    int32_t getSamplesToRead(void);
     int32_t getSamplesMissed(void);
-    void resetBuffer(void);
+    void reset(void);
     int16_t maxGain(void);
-    int16_t bitDepth(void);
     void setGain(int32_t);
     void setAgc(bool);
 
@@ -97,12 +95,14 @@ public:
     int32_t sampleCounter;
 
 private:
+    int32_t lastFrequency;
+    int32_t vfoOffset;
+    int theGain;
     QSettings* dabstickSettings;
     int32_t inputRate;
     int32_t deviceCount;
     HINSTANCE Handle;
     dll_driver* workerHandle;
-    int32_t lastFrequency;
     bool libraryLoaded;
     bool open;
     int* gains;

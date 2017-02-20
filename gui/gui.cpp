@@ -566,8 +566,8 @@ void RadioInterface::changeinConfiguration(void)
 {
     if (running) {
         Audio->stop();
-        inputDevice->stopReader();
-        inputDevice->resetBuffer();
+        inputDevice->stop();
+        inputDevice->reset();
         running = false;
     }
 }
@@ -612,7 +612,7 @@ void RadioInterface::startChannelScanClick(void)
 {
     //
     //	if running: stop the input
-    inputDevice->stopReader();
+    inputDevice->stop();
     //	Clear old channels
     stationList.reset();
     //	start the radio
@@ -748,7 +748,7 @@ void RadioInterface::setStart(void)
     if (running) // only listen when not running yet
         return;
     //
-    r = inputDevice->restartReader();
+    r = inputDevice->restart();
     qDebug("Starting %d\n", r);
     if (!r) {
         qDebug("Opening  input stream failed\n");
@@ -772,7 +772,7 @@ void RadioInterface::setStart(void)
 void RadioInterface::terminateProcess(void)
 {
     running = false;
-    inputDevice->stopReader(); // might be concurrent
+    inputDevice->stop(); // might be concurrent
     my_mscHandler->stopHandler(); // might be concurrent
     my_ofdmProcessor->stop(); // definitely concurrent
     Audio->stop();
@@ -808,8 +808,8 @@ void RadioInterface::set_channelSelect(QString s)
     if (localRunning) {
         clearEnsemble();
         Audio->stop();
-        inputDevice->stopReader();
-        inputDevice->resetBuffer();
+        inputDevice->stop();
+        inputDevice->reset();
     }
 
     tunedFrequency = 0;
@@ -828,11 +828,11 @@ void RadioInterface::set_channelSelect(QString s)
     if (tunedFrequency == 0)
         return;
 
-    inputDevice->setVFOFrequency(tunedFrequency);
+    inputDevice->setFrequency(tunedFrequency);
 
     if (localRunning) {
         Audio->restart();
-        inputDevice->restartReader();
+        inputDevice->restart();
         my_ofdmProcessor->reset();
         running = true;
     }
@@ -860,77 +860,22 @@ void RadioInterface::autoCorrector_on(void)
 //
 bool RadioInterface::setDevice(QString s)
 {
-    bool success;
-#ifdef HAVE_AIRSPY
-    if (s == "airspy") {
-        inputDevice = new airspyHandler(dabSettings, &success, true);
-        if (!success) {
-            delete inputDevice;
-            inputDevice = new virtualInput();
-            input_device = "no device";
-            return false;
-        } else
-            return true;
-    } else
-#endif
+    bool success = false;
 #ifdef HAVE_RTL_TCP
-        //	RTL_TCP might be working.
-        if (s == "rtl_tcp") {
+    //	RTL_TCP might be working.
+    if (s == "rtl_tcp")
         inputDevice = new CRTL_TCP_Client(dabSettings, &success);
-        if (!success) {
-            delete inputDevice;
-            inputDevice = new virtualInput();
-            input_device = "no device";
-            return false;
-        } else
-            return true;
-    } else
-#endif
-#ifdef HAVE_SDRPLAY
-        if (s == "sdrplay") {
-        inputDevice = new sdrplay(dabSettings, &success, true);
-        if (!success) {
-            delete inputDevice;
-            inputDevice = new virtualInput();
-            input_device = "no device";
-            return false;
-        } else
-            return true;
-    } else
 #endif
 #ifdef HAVE_RTLSDR
-        if (s == "rtl_sdr") {
+    if (s == "rtl_sdr")
         inputDevice = new CRTL_SDR(dabSettings, &success);
-        if (!success) {
-            delete inputDevice;
-            inputDevice = new virtualInput();
-            input_device = "no device";
-            return false;
-        } else
-            return true;
-    } else
 #endif
 #ifdef HAVE_RAWFILE
-        if (s == "rawfile") {
+    if (s == "rawfile")
         inputDevice = new CRAWFile(dabSettings, &success);
-        if (!success) {
-            delete inputDevice;
-            inputDevice = new virtualInput();
-            input_device = "no device";
-            return false;
-        } else
-            return true;
-    } else
 #endif
-    {
-        // s == "no device"
-        //	and as default option, we have a "no device"
-        fprintf(stderr, "Unknown input device \"%s\". \n", s.toStdString().c_str());
-        inputDevice = new virtualInput();
-        input_device = "no device";
-        return false;
-    }
-    return true;
+
+    return success;
 }
 
 void RadioInterface::CheckFICTimerTimeout(void)
@@ -1053,7 +998,7 @@ void RadioInterface::updateSpectrum(QAbstractSeries* series)
 
     // Get samples
     if (inputDevice)
-        Samples = inputDevice->getSamplesFromShadowBuffer(spectrumBuffer, dabModeParameters.T_u);
+        Samples = inputDevice->getSpectrumSamples(spectrumBuffer, dabModeParameters.T_u);
 
     // Continue only if we got data
     if (Samples <= 0)
