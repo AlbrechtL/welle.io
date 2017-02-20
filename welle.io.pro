@@ -14,7 +14,6 @@ RESOURCES += gui/touch_gui_resource.qrc
 
 DEPENDPATH += . \
 	      ./src \
-	      ./includes \
 	      ./src/ofdm \
 	      ./src/backend \
 	      ./src/backend/audio \
@@ -22,63 +21,62 @@ DEPENDPATH += . \
 	      ./src/output \
 	      ./src/various \
 	      ./src/input \
-	      ./includes/ofdm \
-	      ./includes/backend \
-	      ./includes/backend/audio \
-	      ./includes/backend/data \
-	      ./includes/output \
-              ./includes/various \
+              ./src/ofdm \
+              ./src/backend \
+              ./src/backend/audio \
+              ./src/backend/data \
+              ./src/output \
+              ./src/various \
               ./gui
 
 INCLUDEPATH += . \
 	      ./ \
 	      ./src \
-	      ./includes \
-	      ./includes/ofdm \
-	      ./includes/backend \
-	      ./includes/backend/audio \
-	      ./includes/backend/data \
-	      ./includes/backend/data/journaline \
-	      ./includes/output \
-	      ./includes/various \
+              ./src/ofdm \
+              ./src/backend \
+              ./src/backend/audio \
+              ./src/backend/data \
+              ./src/backend/data/journaline \
+              ./src/output \
+              ./src/various \
 	      ./src/input \
               ./gui
 
 # Input
-HEADERS += ./includes/dab-constants.h \
-            ./includes/ofdm/ofdm-processor.h \
-            ./includes/ofdm/ofdm-decoder.h \
-            ./includes/ofdm/phasereference.h \
-            ./includes/ofdm/phasetable.h \
-            ./includes/ofdm/freq-interleaver.h \
-            ./includes/backend/viterbi.h \
-            ./includes/backend/fic-handler.h \
-            ./includes/backend/msc-handler.h \
-            ./includes/backend/fib-processor.h  \
-            ./includes/backend/galois.h \
-            ./includes/backend/reed-solomon.h \
-            ./includes/backend/charsets.h \
-            ./includes/backend/firecode-checker.h \
-            ./includes/backend/dab-processor.h \
-            ./includes/backend/dab-virtual.h \
-            ./includes/backend/audio/dab-audio.h \
-            ./includes/backend/audio/mp2processor.h \
-            ./includes/backend/audio/mp4processor.h \
-            ./includes/backend/audio/faad-decoder.h \
-            ./includes/backend/data/dab-data.h \
-            ./includes/backend/data/data-processor.h \
-            ./includes/backend/data/pad-handler.h \
-            ./includes/backend/data/virtual-datahandler.h \
-            ./includes/backend/data/ip-datahandler.h \
-            ./includes/backend/data/mot-databuilder.h \
-            ./includes/backend/data/mot-data.h \
-            ./includes/backend/protection.h \
-            ./includes/backend/eep-protection.h \
-            ./includes/backend/uep-protection.h \
-            ./includes/output/CAudio.h \
-            ./includes/various/fft.h \
-            ./includes/various/ringbuffer.h \
-            ./includes/various/Xtan2.h \
+HEADERS += ./src/dab-constants.h \
+            ./src/ofdm/ofdm-processor.h \
+            ./src/ofdm/ofdm-decoder.h \
+            ./src/ofdm/phasereference.h \
+            ./src/ofdm/phasetable.h \
+            ./src/ofdm/freq-interleaver.h \
+            ./src/backend/viterbi.h \
+            ./src/backend/fic-handler.h \
+            ./src/backend/msc-handler.h \
+            ./src/backend/fib-processor.h  \
+            ./src/backend/galois.h \
+            ./src/backend/reed-solomon.h \
+            ./src/backend/charsets.h \
+            ./src/backend/firecode-checker.h \
+            ./src/backend/dab-processor.h \
+            ./src/backend/dab-virtual.h \
+            ./src/backend/audio/dab-audio.h \
+            ./src/backend/audio/mp2processor.h \
+            ./src/backend/audio/mp4processor.h \
+            ./src/backend/audio/faad-decoder.h \
+            ./src/backend/data/dab-data.h \
+            ./src/backend/data/data-processor.h \
+            ./src/backend/data/pad-handler.h \
+            ./src/backend/data/virtual-datahandler.h \
+            ./src/backend/data/ip-datahandler.h \
+            ./src/backend/data/mot-databuilder.h \
+            ./src/backend/data/mot-data.h \
+            ./src/backend/protection.h \
+            ./src/backend/eep-protection.h \
+            ./src/backend/uep-protection.h \
+            ./src/output/CAudio.h \
+            ./src/various/fft.h \
+            ./src/various/ringbuffer.h \
+            ./src/various/Xtan2.h \
             ./src/input/CVirtualInput.h \
             ./gui/gui.h \
             ./gui/motimageprovider.h \
