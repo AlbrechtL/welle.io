@@ -163,6 +163,10 @@ rtl_sdr {
         DEFINES		+= HAVE_RTLSDR
         HEADERS		+= ./src/input/CRTL_SDR.h
         SOURCES		+= ./src/input/CRTL_SDR.cpp
+
+        unix {
+        LIBS            += -lrtlsdr
+        }
 }
 
 rtl_tcp {
