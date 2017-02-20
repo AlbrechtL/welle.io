@@ -44,10 +44,10 @@ static void RTLSDRCallBack(uint8_t* buf, uint32_t len, void* ctx)
     if ((RTL_SDR == NULL) || (len != READLEN_DEFAULT))
         return;
 
-    tmp = RTL_SDR->Buffer->putDataIntoBuffer(buf, len);
+    tmp = RTL_SDR->SampleBuffer->putDataIntoBuffer(buf, len);
     if ((len - tmp) > 0)
         RTL_SDR->sampleCounter += len - tmp;
-    RTL_SDR->SpectrumBuffer->putDataIntoBuffer(buf, len);
+    RTL_SDR->SpectrumSampleBuffer->putDataIntoBuffer(buf, len);
 }
 
 //	Our wrapper is a simple classs
@@ -67,8 +67,8 @@ CRTL_SDR::CRTL_SDR(QSettings* s, bool* success)
     theGain = 0;
     device = NULL;
 
-    Buffer = new RingBuffer<uint8_t>(1024 * 1024);
-    SpectrumBuffer = new RingBuffer<uint8_t>(8192);
+    SampleBuffer = new RingBuffer<uint8_t>(1024 * 1024);
+    SpectrumSampleBuffer = new RingBuffer<uint8_t>(8192);
 
     // Get all devices
     uint32_t deviceCount = rtlsdr_get_device_count();
@@ -161,11 +161,11 @@ CRTL_SDR::~CRTL_SDR(void)
     if (open)
         rtlsdr_close(device);
 
-    if (Buffer != NULL)
-        delete Buffer;
+    if (SampleBuffer != NULL)
+        delete SampleBuffer;
 
-    if (SpectrumBuffer != NULL)
-        delete SpectrumBuffer;
+    if (SpectrumSampleBuffer != NULL)
+        delete SpectrumSampleBuffer;
 
     if (gains != NULL)
         delete[] gains;
@@ -186,18 +186,15 @@ bool CRTL_SDR::restart(void)
     if (RTL_SDR_Thread != NULL)
         return true;
 
-    Buffer->FlushRingBuffer();
-    SpectrumBuffer->FlushRingBuffer();
+    SampleBuffer->FlushRingBuffer();
+    SpectrumSampleBuffer->FlushRingBuffer();
     ret = rtlsdr_reset_buffer(device);
     if (ret < 0)
         return false;
 
     rtlsdr_set_center_freq(device, lastFrequency + FrequencyOffset);
     RTL_SDR_Thread = new CRTL_SDR_Thread(this);
-    //	rtlsdr_set_tuner_gain_mode (device,
-    //                combo_autogain -> currentText () == "autogain on" ? 1 : 0);
-    //	rtlsdr_set_tuner_gain (device, theGain);
-    //	fprintf (stderr, "the gain is set to %d\n", theGain);
+
     return true;
 }
 
@@ -247,7 +244,7 @@ int32_t CRTL_SDR::getSamples(DSPCOMPLEX* Buffer, int32_t Size)
     uint8_t* tempBuffer = (uint8_t*)alloca(2 * Size * sizeof(uint8_t));
 
     // Get samples
-    int32_t amount = this->Buffer->getDataFromBuffer(tempBuffer, 2 * Size);
+    int32_t amount = this->SampleBuffer->getDataFromBuffer(tempBuffer, 2 * Size);
 
     // Convert samples into generic format
     for (int i = 0; i < amount / 2; i++)
@@ -261,7 +258,7 @@ int32_t CRTL_SDR::getSpectrumSamples(DSPCOMPLEX* Buffer, int32_t Size)
     uint8_t* tempBuffer = (uint8_t*)alloca(2 * Size * sizeof(uint8_t));
 
     // Get samples
-    int32_t amount = SpectrumBuffer->getDataFromBuffer(tempBuffer, 2 * Size);
+    int32_t amount = SpectrumSampleBuffer->getDataFromBuffer(tempBuffer, 2 * Size);
 
     // Convert samples into generic format
     for (int i = 0; i < amount / 2; i++)
@@ -272,12 +269,12 @@ int32_t CRTL_SDR::getSpectrumSamples(DSPCOMPLEX* Buffer, int32_t Size)
 
 int32_t CRTL_SDR::getSamplesToRead(void)
 {
-    return Buffer->GetRingBufferReadAvailable() / 2;
+    return SampleBuffer->GetRingBufferReadAvailable() / 2;
 }
 
 void CRTL_SDR::reset(void)
 {
-    Buffer->FlushRingBuffer();
+    SampleBuffer->FlushRingBuffer();
 }
 
 // CRTL_SDR_Thread

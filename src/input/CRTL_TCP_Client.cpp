@@ -46,19 +46,16 @@ struct command
 
 CRTL_TCP_Client::CRTL_TCP_Client	(QSettings *settings, bool *success)
 {
-    theBuffer	= new RingBuffer<uint8_t>(32 * 32768);
-    theShadowBuffer	= new RingBuffer<uint8_t>(8192);
+    SampleBuffer	= new RingBuffer<uint8_t>(32 * 32768);
+    SpectrumSampleBuffer	= new RingBuffer<uint8_t>(8192);
 
     connected = false;
     remoteSettings = settings;
-    theRate	= 2048000;
-    vfoFrequency = Khz (220000);
+    Frequency = Khz (220000);
 
     // Read settings, if not exist, use default values
     remoteSettings	-> beginGroup("rtl_tcp_client");
     theGain	= remoteSettings -> value("rtl_tcp_client-gain", 20).toInt();
-    thePpm = remoteSettings -> value("rtl_tcp_client-ppm", 0).toInt();
-    vfoOffset = remoteSettings -> value("rtl_tcp_client-offset", 0).toInt();
     basePort = remoteSettings -> value("rtl_tcp_port", 1234).toInt();
     serverAddress = QHostAddress(remoteSettings -> value ("rtl_tcp_address", "127.0.0.1").toString());
     remoteSettings -> endGroup();
@@ -71,25 +68,21 @@ CRTL_TCP_Client::CRTL_TCP_Client	(QSettings *settings, bool *success)
 
 CRTL_TCP_Client::~CRTL_TCP_Client	(void)
 {
+    // Save settings
     remoteSettings -> beginGroup ("rtl_tcp_client");
-    if (connected)
-    {		// close previous connection
-       stop	();
-//	   streamer. close ();
-       remoteSettings -> setValue ("remote-server", TCPSocket. peerAddress (). toString ());
-	}
 	remoteSettings -> setValue ("rtl_tcp_client-gain",   theGain);
-	remoteSettings -> setValue ("rtl_tcp_client-ppm",    thePpm);
-	remoteSettings -> setValue ("rtl_tcp_client-offset", vfoOffset);
 	remoteSettings -> endGroup ();
-    TCPSocket. close ();
-	delete	theBuffer;
-	delete 	theShadowBuffer;
+
+    // Close connection
+    TCPSocket. close();
+
+    delete	SampleBuffer;
+    delete 	SpectrumSampleBuffer;
 }
 
 void CRTL_TCP_Client::setFrequency(int32_t newFrequency)
 {
-	vfoFrequency	= newFrequency;
+    Frequency = newFrequency;
     sendVFO (newFrequency);
 }
 
@@ -117,7 +110,7 @@ int32_t	CRTL_TCP_Client::getSamples (DSPCOMPLEX *V, int32_t size)
     uint8_t	*tempBuffer = (uint8_t *)alloca (2 * size * sizeof (uint8_t));
 
     // Get data from the ring buffer
-	amount = theBuffer	-> getDataFromBuffer (tempBuffer, 2 * size);
+    amount = SampleBuffer	-> getDataFromBuffer (tempBuffer, 2 * size);
 	for (i = 0; i < amount / 2; i ++)
 	    V [i] = DSPCOMPLEX ((float (tempBuffer [2 * i] - 128)) / 128.0,
 	                        (float (tempBuffer [2 * i + 1] - 128)) / 128.0);
@@ -130,7 +123,7 @@ int32_t	CRTL_TCP_Client::getSpectrumSamples (DSPCOMPLEX *V, int32_t size)
     uint8_t	*tempBuffer = (uint8_t *)alloca (2 * size * sizeof (uint8_t));
 
     // Get data from the ring buffer
-	amount = theShadowBuffer -> getDataFromBuffer(tempBuffer, 2 * size);
+    amount = SpectrumSampleBuffer -> getDataFromBuffer(tempBuffer, 2 * size);
 	for (i = 0; i < amount / 2; i ++)
 	   V [i] = DSPCOMPLEX ((float (tempBuffer [2 * i] - 128)) / 128.0,
 	                       (float (tempBuffer [2 * i + 1] - 128)) / 128.0);
@@ -139,12 +132,12 @@ int32_t	CRTL_TCP_Client::getSpectrumSamples (DSPCOMPLEX *V, int32_t size)
 
 int32_t	CRTL_TCP_Client::getSamplesToRead	(void)
 {
-    return theBuffer->GetRingBufferReadAvailable () / 2;
+    return SampleBuffer->GetRingBufferReadAvailable () / 2;
 }
 
 void CRTL_TCP_Client::reset(void)
 {
-    theBuffer->FlushRingBuffer();
+    SampleBuffer->FlushRingBuffer();
 }
 
 //	These functions are typical for network use
@@ -155,8 +148,8 @@ void CRTL_TCP_Client::readData(void)
     while (TCPSocket. bytesAvailable () > 8192)
     {
        TCPSocket.read ((char *)buffer, 8192);
-	   theBuffer -> putDataIntoBuffer (buffer, 8192);
-       theShadowBuffer -> putDataIntoBuffer (buffer, 8192);
+       SampleBuffer -> putDataIntoBuffer (buffer, 8192);
+       SpectrumSampleBuffer -> putDataIntoBuffer (buffer, 8192);
 	}
 }
 
@@ -197,18 +190,6 @@ void CRTL_TCP_Client::sendGain(int gain)
 	theGain		= gain;
 }
 
-void CRTL_TCP_Client::set_fCorrection(int32_t ppm)
-{
-    sendCommand (0x05, ppm);
-    thePpm		= ppm;
-}
-
-void CRTL_TCP_Client::set_Offset(int32_t o)
-{
-    sendCommand (0x0a, Khz (o));
-    vfoOffset	= o;
-}
-
 void CRTL_TCP_Client::setGain(int32_t g)
 {
 	sendGain (g);
@@ -238,8 +219,8 @@ void CRTL_TCP_Client::TCPConnectionWatchDogTimeout()
             connected	= true;
 
             setAgc(true);
-            sendRate(theRate);
-            sendVFO(vfoFrequency);
+            sendRate(INPUT_RATE);
+            sendVFO(Frequency);
             TCPSocket.waitForBytesWritten();
         }
         else
