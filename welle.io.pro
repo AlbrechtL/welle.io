@@ -63,6 +63,7 @@ HEADERS += ./src/dab-constants.h \
             ./src/backend/audio/mp2processor.h \
             ./src/backend/audio/mp4processor.h \
             ./src/backend/audio/faad-decoder.h \
+            ./src/backend/audio/neaacdec.h \
             ./src/backend/data/dab-data.h \
             ./src/backend/data/data-processor.h \
             ./src/backend/data/pad-handler.h \
@@ -165,6 +166,10 @@ rtl_sdr {
         SOURCES		+= ./src/input/CRTL_SDR.cpp
 
         unix {
+        LIBS            += -lrtlsdr
+        }
+
+        win32 {
         LIBS            += -lrtlsdr
         }
 }

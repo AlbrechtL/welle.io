@@ -172,7 +172,7 @@ void CRAWFile::run(void)
 	ExitCondition = false;
 
 	period		= (32768 * 1000) / (2 * 2048);	// full IQś read
-	fprintf (stderr, "Period = %ld\n", period);
+    fprintf (stderr, "Period = %lld\n", period);
 	bi		= new uint8_t [bufferSize];
 	nextStop	= getMyTime ();
     while (!ExitCondition)
