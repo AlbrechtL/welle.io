@@ -8,9 +8,9 @@ import "style"
 
 Item {
     id: settingsPage
-    property alias showChannelState : settings.enableExpertModeState
-    property alias enableFullScreenState : settings.enableFullScreenState
-    property alias enableExpertModeState : settings.enableExpertModeState
+    property bool showChannelState : settings.enableExpertModeState
+    property bool enableFullScreenState : settings.enableFullScreenState
+    property bool enableExpertModeState : settings.enableExpertModeState
 
     Settings {
         id: settings
