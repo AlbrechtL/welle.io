@@ -27,12 +27,12 @@
  *	header for the aac that matches, really a big help!!!!
  ************************************************************************
  */
-#include	"mp4processor.h"
+
 #include	<cstring>
+
+#include	"mp4processor.h"
 #include	"gui.h"
-//
 #include	"charsets.h"
-#include	"pad-handler.h"
 
 /**
   *	\class mp4Processor is the main handler for the aac frames
@@ -42,8 +42,7 @@
 	mp4Processor::mp4Processor (RadioInterface	*mr,
 	                            int16_t	bitRate,
 	                            RingBuffer<int16_t> *b)
-	                            :my_padhandler (mr),
-	                             the_rsDecoder (8, 0435, 0, 1, 10),
+                                :the_rsDecoder (8, 0435, 0, 1, 10),
 	                             aacDecoder (mr, b) {
 
 	myRadioInterface	= mr;
@@ -292,10 +291,7 @@ uint8_t theAudioUnit [2 * 960 + 10];	// sure, large enough
 	memset (&theAudioUnit [frame_length], 0, 10);
 
 	if (((theAudioUnit [0] >> 5) & 07) == 4)
-    {
-       //my_padhandler. processPAD (theAudioUnit);
        padDecoderAdapter-> processPAD (theAudioUnit);
-    }
 
 	int tmp = aacDecoder. MP42PCM (dacRate,
 	                               sbrFlag,

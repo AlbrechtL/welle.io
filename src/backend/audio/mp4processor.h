@@ -37,7 +37,6 @@
 #include	"firecode-checker.h"
 #include	"reed-solomon.h"
 #include	<QObject>
-#include	"pad-handler.h"
 #include    "pad_decoder_adapter.h"
 
 class	RadioInterface;
@@ -52,7 +51,6 @@ public:
 	void		addtoFrame	(uint8_t *);
 private:
 	RadioInterface	*myRadioInterface;
-	padHandler	my_padhandler;
 	bool		processSuperframe (uint8_t [], int16_t);
 	void		handle_aacFrame (uint8_t *,
 	                                 int16_t,

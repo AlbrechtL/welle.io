@@ -25,7 +25,7 @@
 #include <map>
 #include <vector>
 
-#include "fic_decoder.h"
+#include "charsets.h"
 #include "tools.h"
 
 

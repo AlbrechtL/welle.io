@@ -25,7 +25,6 @@
 #include	"gui.h"
 #include	"dab-virtual.h"
 #include	"dab-audio.h"
-#include	"dab-data.h"
 //
 //	Interface program for processing the MSC.
 //	Merely a dispatcher for the selected service
@@ -143,16 +142,16 @@ int16_t	*myBegin;
 	                                 buffer);
 
 	   else	 {	// dealing with data
-	      dabHandler = new dabData (myRadioInterface,
-	                                new_DSCTy,
-	                                new_packetAddress,
-	                                new_Length * CUSize,
-	                                new_bitRate,
-	                                new_uepFlag,
-	                                new_protLevel,
-	                                new_DGflag,
-	                                new_FEC_scheme,
-	                                show_crcErrors);
+//	      dabHandler = new dabData (myRadioInterface,
+//	                                new_DSCTy,
+//	                                new_packetAddress,
+//	                                new_Length * CUSize,
+//	                                new_bitRate,
+//	                                new_uepFlag,
+//	                                new_protLevel,
+//	                                new_DGflag,
+//	                                new_FEC_scheme,
+//	                                show_crcErrors);
 	   }
 //
 //	these we need for actual processing

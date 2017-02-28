@@ -64,13 +64,10 @@ HEADERS += ./src/dab-constants.h \
             ./src/backend/audio/mp4processor.h \
             ./src/backend/audio/faad-decoder.h \
             ./src/backend/audio/neaacdec.h \
-            ./src/backend/data/dab-data.h \
-            ./src/backend/data/data-processor.h \
-            ./src/backend/data/pad-handler.h \
-            ./src/backend/data/virtual-datahandler.h \
-            ./src/backend/data/ip-datahandler.h \
-            ./src/backend/data/mot-databuilder.h \
-            ./src/backend/data/mot-data.h \
+            ./src/backend/data/pad_decoder.h \
+            ./src/backend/data/mot_manager.h \
+            ./src/backend/data/pad_decoder_adapter.h \
+            ./src/backend/tools.h \
             ./src/backend/protection.h \
             ./src/backend/eep-protection.h \
             ./src/backend/uep-protection.h \
@@ -81,12 +78,7 @@ HEADERS += ./src/dab-constants.h \
             ./src/input/CVirtualInput.h \
             ./gui/gui.h \
             ./gui/motimageprovider.h \
-            ./gui/stationlist.h \
-            ./gui/tools.h \
-            ./gui/fic_decoder.h \
-            ./gui/pad_decoder.h \
-            ./gui/mot_manager.h \
-            ./gui/pad_decoder_adapter.h
+            ./gui/stationlist.h
 
 SOURCES += ./main.cpp \
             ./src/ofdm/ofdm-processor.cpp \
@@ -111,24 +103,16 @@ SOURCES += ./main.cpp \
             ./src/backend/audio/dab-audio.cpp \
             ./src/backend/audio/mp2processor.cpp \
             ./src/backend/audio/mp4processor.cpp \
-            ./src/backend/data/pad-handler.cpp \
-            ./src/backend/data/dab-data.cpp \
-            ./src/backend/data/data-processor.cpp \
-            ./src/backend/data/virtual-datahandler.cpp \
-            ./src/backend/data/ip-datahandler.cpp \
-            ./src/backend/data/mot-databuilder.cpp \
-            ./src/backend/data/mot-data.cpp \
+            ./src/backend/data/pad_decoder.cpp \
+            ./src/backend/data/mot_manager.cpp \
+            ./src/backend/data/pad_decoder_adapter.cpp \
+            ./src/backend/tools.cpp \
             ./src/output/CAudio.cpp \
             ./src/various/fft.cpp \
             ./src/various/Xtan2.cpp \
             ./gui/gui.cpp \
             ./gui/motimageprovider.cpp \
-            ./gui/stationlist.cpp \
-            ./gui/tools.cpp \
-            ./gui/fic_decoder.cpp \
-            ./gui/pad_decoder.cpp \
-            ./gui/mot_manager.cpp \
-            ./gui/pad_decoder_adapter.cpp
+            ./gui/stationlist.cpp
 
 unix {
 INCLUDEPATH	+= /usr/local/include

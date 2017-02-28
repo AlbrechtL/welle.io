@@ -62,8 +62,4 @@ public:
 	void Clear() {size = index_start = index_end = 0;}
 };
 
-
-typedef std::map<std::string,uint32_t> dab_channels_t;
-extern const dab_channels_t dab_channels;
-
 #endif /* TOOLS_H_ */
