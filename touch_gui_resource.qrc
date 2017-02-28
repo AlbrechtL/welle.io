@@ -1,0 +1,40 @@
+<RCC>
+    <qresource prefix="/">
+        <file>src/gui/QML/StationDelegate.qml</file>
+        <file>src/gui/QML/main.qml</file>
+        <file>src/gui/QML/RadioView.qml</file>
+        <file>src/gui/QML/SettingsPage.qml</file>
+        <file>src/gui/QML/images/button_default.png</file>
+        <file>src/gui/QML/images/button_pressed.png</file>
+        <file>src/gui/QML/images/icon-settings.png</file>
+        <file>src/gui/QML/images/navigation_next_item.png</file>
+        <file>src/gui/QML/images/navigation_previous_item.png</file>
+        <file>src/gui/QML/images/tab_selected.png</file>
+        <file>src/gui/QML/images/tabs_standard.png</file>
+        <file>src/gui/QML/images/textinput.png</file>
+        <file>src/gui/QML/images/toolbar.png</file>
+        <file>src/gui/QML/images/icon-exit.png</file>
+        <file>src/gui/QML/images/icon-info.png</file>
+        <file>NOTICE.txt</file>
+        <file>src/gui/QML/style/Units.qml</file>
+        <file>src/gui/QML/SpectrumView.qml</file>
+        <file>src/gui/QML/ExpertView.qml</file>
+        <file>src/gui/QML/style/Style.qml</file>
+        <file>src/gui/QML/style/qmldir</file>
+        <file>src/gui/QML/style/TextTitle.qml</file>
+        <file>src/gui/QML/style/TextStandart.qml</file>
+        <file>src/gui/QML/style/TextStation.qml</file>
+        <file>src/gui/QML/style/TextRadioInfo.qml</file>
+        <file>src/gui/QML/style/TextRadioStation.qml</file>
+        <file>src/gui/QML/style/TouchButton.qml</file>
+        <file>src/gui/QML/style/TouchSlider.qml</file>
+        <file>src/gui/QML/style/TouchSwitch.qml</file>
+        <file>src/gui/QML/style/TouchProgressBar.qml</file>
+        <file>src/gui/QML/style/TextExpert.qml</file>
+        <file>src/gui/QML/style/SettingsFrame.qml</file>
+        <file>src/gui/QML/style/ErrorMessagePopup.qml</file>
+        <file>src/gui/QML/InfoPage.qml</file>
+        <file>LICENSE.txt</file>
+        <file>icon.png</file>
+    </qresource>
+</RCC>

@@ -183,7 +183,7 @@ int	main (int argc, char **argv)
 	if (dabBand == QString (""))
 	   dabBand = dabSettings -> value ("band", "BAND III"). toString ();
 
-	a.setWindowIcon(QIcon(":/QML/images/icon.png"));
+    a.setWindowIcon(QIcon(":/icon.png"));
 	dabSettings -> beginGroup ("rtl_tcp_client");
 	if (ipAddress != QString ("")) {
 	   dabSettings -> setValue ("rtl_tcp_address", ipAddress);
@@ -220,7 +220,7 @@ int	main (int argc, char **argv)
     engine 	= new QQmlApplicationEngine;
     QQmlContext *rootContext = engine -> rootContext();
     rootContext -> setContextProperty("cppGUI", MyRadioInterface);
-    engine->load(QUrl("qrc:/QML/main.qml"));
+    engine->load(QUrl("qrc:/src/gui/QML/main.qml"));
     engine->addImageProvider(QLatin1String("motslideshow"), MyRadioInterface->MOTImage);
 
 	a. exec ();

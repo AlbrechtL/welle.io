@@ -2,7 +2,7 @@ TEMPLATE = app
 TARGET = welle-io
 QT += network qml quick charts multimedia
 CONFIG  += console
-RC_ICONS = ./gui/QML/images/icon.ico
+RC_ICONS = ./icon.ico
 
 Release: QMAKE_CFLAGS	+=  -flto -ffast-math -O3
 Release: QMAKE_CXXFLAGS	+=  -flto -ffast-math -O3
@@ -10,7 +10,7 @@ Release: QMAKE_LFLAGS	+=  -flto -O3
 
 DEFINES	 += MOT_BASICS__ # Not necessary after code clean up
 
-RESOURCES += gui/touch_gui_resource.qrc
+RESOURCES += ./touch_gui_resource.qrc
 
 DEPENDPATH += . \
 	      ./src \
@@ -27,7 +27,7 @@ DEPENDPATH += . \
               ./src/backend/data \
               ./src/output \
               ./src/various \
-              ./gui
+              ./src/gui
 
 INCLUDEPATH += . \
 	      ./ \
@@ -40,7 +40,7 @@ INCLUDEPATH += . \
               ./src/output \
               ./src/various \
 	      ./src/input \
-              ./gui
+              ./src/gui
 
 # Input
 HEADERS += ./src/dab-constants.h \
@@ -76,11 +76,11 @@ HEADERS += ./src/dab-constants.h \
             ./src/various/ringbuffer.h \
             ./src/various/Xtan2.h \
             ./src/input/CVirtualInput.h \
-            ./gui/gui.h \
-            ./gui/motimageprovider.h \
-            ./gui/stationlist.h
+            ./src/gui/gui.h \
+            ./src/gui/motimageprovider.h \
+            ./src/gui/stationlist.h
 
-SOURCES += ./main.cpp \
+SOURCES += ./src/main.cpp \
             ./src/ofdm/ofdm-processor.cpp \
             ./src/ofdm/ofdm-decoder.cpp \
             ./src/ofdm/phasereference.cpp \
@@ -110,9 +110,9 @@ SOURCES += ./main.cpp \
             ./src/output/CAudio.cpp \
             ./src/various/fft.cpp \
             ./src/various/Xtan2.cpp \
-            ./gui/gui.cpp \
-            ./gui/motimageprovider.cpp \
-            ./gui/stationlist.cpp
+            ./src/gui/gui.cpp \
+            ./src/gui/motimageprovider.cpp \
+            ./src/gui/stationlist.cpp
 
 unix {
 INCLUDEPATH	+= /usr/local/include

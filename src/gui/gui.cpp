@@ -154,7 +154,7 @@ const QVariantMap RadioInterface::licenses()
     ret.insert("version", InfoText);
 
     // Read graph license
-    QFile File(":/QML/images/NOTICE.txt");
+    QFile File(":/NOTICE.txt");
     File.open(QFile::ReadOnly);
     QByteArray FileContent = File.readAll();
 
@@ -162,7 +162,7 @@ const QVariantMap RadioInterface::licenses()
     ret.insert("graphLicense", FileContent);
 
     // Read license
-    QFile File2(":/license");
+    QFile File2(":/LICENSE.txt");
     File2.open(QFile::ReadOnly);
     QByteArray FileContent2 = File2.readAll();
 

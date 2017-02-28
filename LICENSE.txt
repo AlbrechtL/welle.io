@@ -1,5 +1,6 @@
 Copyright (c) 2016-2017 Albrecht Lohofener (albrechtloh@gmx.de) 
 Copyright (c) 2009-2016 Jan van Katwijk Lazy Chair Computing (J.vanKatwijk@gmail.com)
+Copyright (c) 2016 Stefan Pöschel
 
 
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
