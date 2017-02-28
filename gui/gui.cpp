@@ -35,14 +35,11 @@
 #ifdef HAVE_RTLSDR
 #include "CRTL_SDR.h"
 #endif
-#ifdef HAVE_SDRPLAY
-#include "sdrplay.h"
-#endif
 #ifdef HAVE_RTL_TCP
 #include "CRTL_TCP_Client.h"
 #endif
 #ifdef HAVE_AIRSPY
-#include "airspy-handler.h"
+#include "CAirspy.h"
 #endif
 #if HAVE_RAWFILE
 #include "CRAWFile.h"
@@ -861,8 +858,12 @@ void RadioInterface::autoCorrector_on(void)
 bool RadioInterface::setDevice(QString s)
 {
     bool success = false;
+#ifdef HAVE_AIRSPY
+    if (s == "airspy")
+        inputDevice = new CAirspy(dabSettings, &success);
+#endif
+
 #ifdef HAVE_RTL_TCP
-    //	RTL_TCP might be working.
     if (s == "rtl_tcp")
         inputDevice = new CRTL_TCP_Client(dabSettings, &success);
 #endif

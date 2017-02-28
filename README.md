@@ -3,13 +3,14 @@ welle.io
 This repository contains the implementation of a simple DAB/DAB+ receiver. 
 It is fork from dab-rpi and sdr-j-dab which is now qt-dab https://github.com/JvanKatwijk/qt-dab.
 
-The receiver supports terrestrial DAB and DAB+ reception with as input the sample stream from a rtl_sdr, a rtl_tcp server or a I/Q RAW file (for developers).
+The receiver supports terrestrial DAB and DAB+ reception with as input the sample stream from a airspy, a rtl_sdr, a rtl_tcp server or a I/Q RAW file (for developers).
 
 
 Table of contents
 ====
 
   * [Usage](#usage)
+  * [Supported Hardware](#supported-hardware)
   * [Building](#building)
     * [General Information](#general-information)
     * [Ubuntu Linux 16.04 LTS](#ubuntu-linux-1604-lts)
@@ -28,7 +29,7 @@ h | Show help
 v | Show version 
 i | INI-file path. Do not use unless you know what you want.
 S | Sync method. Do not use unless you know what you want.
-D | Input device. Possible are: rtl_tcp, rtl_sdr, rawfile
+D | Input device. Possible are: airspy, rtl_tcp, rtl_sdr, rawfile
 M | DAB mode. Possible are: 1,2 or 4, Default: 1 
 B | DAB band. Default Band III
 I | rtl_tcp server IP address. Only valid for input rtl_tcp 
@@ -40,7 +41,15 @@ Example usage:
   ```
 # welle.io -D rtl_tcp -I 192.168.1.1 -P 1000
   ```
-  
+
+Supported Hardware
+====================
+The following SDR devices are supported
+* airspy (http://airspy.com/)
+* rtlsdr (http://osmocom.org/projects/sdr/wiki/rtl-sdr)
+* rtl_tcp (http://osmocom.org/projects/sdr/wiki/rtl-sdr#rtl_tcp)
+* I/Q RAW file
+
 Building
 ====================
 
@@ -64,15 +73,18 @@ This sections shows how to compile welle.io on Ubuntu 16.04 LTS.
   ```
 # sudo apt install libfaad-dev libfftw3-dev librtlsdr-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev zlib1g-dev git
   ```
-3. Clone welle.io
+
+3. (optional) Compile and install the airspy library. For details please see https://github.com/airspy/host/#how-to-build-the-host-software-on-linux
+
+4. Clone welle.io
 
   ```
 # git clone https://github.com/AlbrechtL/welle.io.git
   ```
 
-4. Start QT Creator and open the project file "welle.io.pro" inside the folder "welle.io".
-5. Build welle.io
-6. Run welle.io and enjoy it
+5. Start QT Creator and open the project file "welle.io.pro" inside the folder "welle.io".
+6. Build welle.io
+7. Run welle.io and enjoy it
 
 Windows 10
 ---

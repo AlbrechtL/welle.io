@@ -136,6 +136,7 @@ LIBS		+= -lfftw3f
 LIBS		+= -lusb-1.0
 LIBS		+= -ldl
 LIBS		+= -lfaad
+CONFIG          += airspy
 CONFIG		+= rtl_sdr
 CONFIG		+= rtl_tcp
 CONFIG          += rawfile
@@ -160,18 +161,22 @@ CONFIG          += rawfile
 
 
 #### Devices ####
+airspy {
+        DEFINES		+= HAVE_AIRSPY
+        HEADERS		+= ./src/input/CAirspy.h
+        SOURCES		+= ./src/input/CAirspy.cpp
+
+        # The same lib for unix and Windows
+        LIBS            += -lairspy
+}
+
 rtl_sdr {
         DEFINES		+= HAVE_RTLSDR
         HEADERS		+= ./src/input/CRTL_SDR.h
         SOURCES		+= ./src/input/CRTL_SDR.cpp
 
-        unix {
-        LIBS            += -lrtlsdr
-        }
-
-        win32 {
-        LIBS            += -lrtlsdr
-        }
+        # The same lib for unix and Windows
+        LIBS            += -lrtlsdr       
 }
 
 rtl_tcp {

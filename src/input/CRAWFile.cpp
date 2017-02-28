@@ -163,7 +163,7 @@ void CRAWFile::run(void)
     int32_t	t, i;
     uint8_t	*bi;
     int32_t	bufferSize	= 32768;
-    int64_t	period;
+    int32_t	period;
     int64_t	nextStop;
 
 	if (!readerOK)
@@ -172,7 +172,7 @@ void CRAWFile::run(void)
 	ExitCondition = false;
 
 	period		= (32768 * 1000) / (2 * 2048);	// full IQś read
-    fprintf (stderr, "Period = %lld\n", period);
+    fprintf (stderr, "Period = %d\n", period);
 	bi		= new uint8_t [bufferSize];
 	nextStop	= getMyTime ();
     while (!ExitCondition)
