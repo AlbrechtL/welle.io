@@ -956,7 +956,7 @@ void RadioInterface::saveSettings(void)
     dumpControlState(dabSettings);
 }
 
-void RadioInterface::inputEnableAGCChange(bool checked)
+void RadioInterface::inputEnableAGCChanged(bool checked)
 {
     if (inputDevice) {
         inputDevice->setAgc(checked);
@@ -965,7 +965,7 @@ void RadioInterface::inputEnableAGCChange(bool checked)
     }
 }
 
-void RadioInterface::inputGainChange(double gain)
+void RadioInterface::inputGainChanged(double gain)
 {
     if (inputDevice) {
         LastCurrentManualGain = (int)gain;

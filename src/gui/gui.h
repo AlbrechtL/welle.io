@@ -89,8 +89,8 @@ public:
     Q_INVOKABLE void startChannelScanClick(void);
     Q_INVOKABLE void stopChannelScanClick(void);
     Q_INVOKABLE void saveSettings(void);
-    Q_INVOKABLE void inputEnableAGCChange(bool checked);
-    Q_INVOKABLE void inputGainChange(double gain);
+    Q_INVOKABLE void inputEnableAGCChanged(bool checked);
+    Q_INVOKABLE void inputGainChanged(double gain);
     Q_INVOKABLE void terminateProcess(void);
     QVariant stationModel() const
     {
