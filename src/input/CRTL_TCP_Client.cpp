@@ -184,23 +184,63 @@ void CRTL_TCP_Client::setGainMode(int32_t gainMode)
     sendCommand (0x03, gainMode);
 }
 
-void CRTL_TCP_Client::sendGain(int gain)
+float CRTL_TCP_Client::setGain(int32_t gain)
 {
-	sendCommand (0x04, 10 * gain);
-	theGain		= gain;
+    float gainValue = 0;
+
+    switch(gain)
+    {
+        case 0: gainValue = 0.0; break;
+        case 1: gainValue = 0.9; break;
+        case 2: gainValue = 1.4; break;
+        case 3: gainValue = 2.7; break;
+        case 4: gainValue = 3.7; break;
+        case 5: gainValue = 7.7; break;
+        case 6: gainValue = 8.7; break;
+        case 7: gainValue = 12.5; break;
+        case 8: gainValue = 14.4; break;
+        case 9: gainValue = 15.7; break;
+        case 10: gainValue = 16.6; break;
+        case 11: gainValue = 19.7; break;
+        case 12: gainValue = 20.7; break;
+        case 13: gainValue = 22.9; break;
+        case 14: gainValue = 25.4; break;
+        case 15: gainValue = 28.0; break;
+        case 16: gainValue = 29.7; break;
+        case 17: gainValue = 32.8; break;
+        case 18: gainValue = 33.8; break;
+        case 19: gainValue = 36.4; break;
+        case 20: gainValue = 37.2; break;
+        case 21: gainValue = 38.6; break;
+        case 22: gainValue = 40.2; break;
+        case 23: gainValue = 42.1; break;
+        case 24: gainValue = 43.4; break;
+        case 25: gainValue = 43.9; break;
+        case 26: gainValue = 44.4; break;
+        case 27: gainValue = 48.0; break;
+        case 28: gainValue = 49.6; break;
+        case 29: gainValue = 999; break; // Max gain
+        default: gainValue = 0.0; fprintf(stderr, "Unknown gain count: %i\n.", gain);
+    }
+
+    sendCommand (0x04, (int) 10 * gainValue);
+    theGain	= gainValue;
+
+    return gainValue;
 }
 
-void CRTL_TCP_Client::setGain(int32_t g)
+int32_t CRTL_TCP_Client::getGainCount()
 {
-	sendGain (g);
+    // rtl_tcp doesn't give us a gain count so use a hard code one from the RTL-SDR.com dongle
+    return 29;
 }
 
-void CRTL_TCP_Client::setAgc(bool b)
+void CRTL_TCP_Client::setAgc(bool AGC)
 {
-	if (b)
+    if (AGC)
 	   setGainMode(0);
 	else
-	   setGainMode(1);
+        setGainMode(1);
 }
 
 void CRTL_TCP_Client::TCPConnectionWatchDogTimeout()

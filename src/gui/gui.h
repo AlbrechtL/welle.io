@@ -76,6 +76,8 @@ typedef enum {
 class RadioInterface : public QObject {
     Q_OBJECT
     Q_PROPERTY(QVariant stationModel READ stationModel NOTIFY stationModelChanged)
+    Q_PROPERTY(int gainCount MEMBER m_gainCount CONSTANT)
+    Q_PROPERTY(float currentGainValue MEMBER m_currentGainValue NOTIFY currentGainValueChanged)
     Q_PROPERTY(QVariant licenses READ licenses CONSTANT)
 
 public:
@@ -137,13 +139,15 @@ private:
     QVector<QPointF> spectrum_data;
     int coarseCorrector;
     int fineCorrector;
-    bool setDevice(QString);
+    bool setDevice(QString device);
     QString nextChannel(QString currentChannel);
     QString input_device;
     int32_t tunedFrequency;
     int LastCurrentManualGain;
     int CurrentFrameErrors;
     QVariant p_stationModel;
+    int m_gainCount;
+    float m_currentGainValue;
 
 public slots:
     void end_of_waiting_for_stations(void);
@@ -173,9 +177,6 @@ public slots:
     void setErrorMessage(QString ErrorMessage);
 
 private slots:
-    //
-    //	Somehow, these must be connected to the GUI
-    //	We assume that any GUI will need these three:
     void setStart(void);
     void set_channelSelect(QString);
     void updateTimeDisplay(void);
@@ -183,6 +184,7 @@ private slots:
 
     void CheckFICTimerTimeout(void);
     void StationTimerTimeout(void);
+
 signals:
     void currentStation(QString text);
     void stationText(QString text);
@@ -198,6 +200,7 @@ signals:
     void channelScanStopped(void);
     void channelScanProgress(int progress);
     void foundChannelCount(int channelCount);
+    void setMaximumGain(int maximumValue);
     void newDateTime(int Year, int Month, int Day, int Hour, int Minute);
     void setYAxisMax(qreal max);
     void setXAxisMinMax(qreal min, qreal max);
@@ -209,6 +212,7 @@ signals:
     void displayAACErrors(int Errors);
     void showErrorMessage(QString Text);
     void stationModelChanged();
+    void currentGainValueChanged();
 };
 
 #endif

@@ -54,8 +54,9 @@ public:
     bool restart(void);
     void stop(void);
     void reset(void);
-    void setGain(int32_t Gain);
-    void setAgc(bool);
+    float setGain(int32_t Gain);
+    int32_t getGainCount(void);
+    void setAgc(bool AGC);
 
 private:
     QString fileName;

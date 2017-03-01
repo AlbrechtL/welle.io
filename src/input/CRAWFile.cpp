@@ -109,14 +109,19 @@ void CRAWFile::reset()
 
 }
 
-void CRAWFile::setGain(int32_t Gain)
+float CRAWFile::setGain(int32_t Gain)
 {
     (void) Gain;
 }
 
-void CRAWFile::setAgc(bool)
+int32_t CRAWFile::getGainCount()
 {
+    return 0;
+}
 
+void CRAWFile::setAgc(bool AGC)
+{
+    (void) AGC;
 }
 
 //	size is in I/Q pairs, file contains 8 bits values

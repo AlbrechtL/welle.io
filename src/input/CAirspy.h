@@ -56,20 +56,17 @@ public:
     int32_t getSamples(DSPCOMPLEX* Buffer, int32_t Size);
     int32_t getSpectrumSamples(DSPCOMPLEX* Buffer, int32_t Size);
     int32_t getSamplesToRead(void);
-    void setGain(int32_t);
+    float setGain(int32_t gain);
+    int32_t getGainCount(void);
     void setAgc(bool AGC);
 
 private:
     bool libraryLoaded;
     bool success;
     bool running;
-    bool lna_agc;
-    bool mixer_agc;
-    bool rf_bias;
 
-    int16_t vgaGain;
-    int16_t mixerGain;
-    int16_t lnaGain;
+    bool isAGC;
+    int8_t currentLinearityGain;
     int32_t selectedRate;
     DSPCOMPLEX* convBuffer;
     int16_t convBufferSize;

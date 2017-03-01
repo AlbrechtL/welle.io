@@ -57,8 +57,9 @@ public:
     int32_t getSpectrumSamples(DSPCOMPLEX* SampleBuffer, int32_t Size);
     int32_t getSamplesToRead(void);
     void setFrequency(int32_t Frequency);
-    void setGain(int32_t Gain);
-    void setAgc(bool);
+    float setGain(int32_t Gain);
+    int32_t getGainCount(void);
+    void setAgc(bool AGC);
 
     //	These need to be visible for the separate usb handling thread
     RingBuffer<uint8_t>* SampleBuffer;

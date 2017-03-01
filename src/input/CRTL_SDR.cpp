@@ -216,15 +216,24 @@ void CRTL_SDR::stop(void)
 
 //	when selecting with an integer in the range 0 .. 100
 //	first find the table value
-void CRTL_SDR::setGain(int32_t Gain)
+float CRTL_SDR::setGain(int32_t Gain)
 {
-    theGain = gains[Gain * gainsCount / 100];
+    theGain = gains[Gain];
     rtlsdr_set_tuner_gain(device, theGain);
+
+    //fprintf(stderr, "Set gain to %f db\n", theGain / 10.0);
+
+    return theGain / 10.0;
 }
 
-void CRTL_SDR::setAgc(bool b)
+int32_t CRTL_SDR::getGainCount()
 {
-    if (b == true)
+    return gainsCount - 1;
+}
+
+void CRTL_SDR::setAgc(bool AGC)
+{
+    if (AGC == true)
     {
         rtlsdr_set_tuner_gain_mode(device, 0);
         isAGC = true;

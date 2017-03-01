@@ -11,10 +11,14 @@ Item {
     property alias showChannelState : enableExpertMode.checked
     property alias enableFullScreenState : enableFullScreen.checked
     property alias enableExpertModeState : enableExpertMode.checked
+    property alias enableAGCState : enableAGC.checked
+    property alias manualGainState : manualGain.currentValue
 
     Settings {
         property alias enableFullScreenState : settingsPage.enableFullScreenState
         property alias enableExpertModeState : settingsPage.enableExpertModeState
+        property alias manualGainState : settingsPage.manualGainState
+        property alias enableAGCState : settingsPage.enableAGCState
     }
 
     Connections{
@@ -131,14 +135,24 @@ Item {
                         name: "Enable AGC"
                         objectName: "enableAGC"
                         checked: true
-                        onChanged: cppGUI.inputEnableAGCChanged(valueChecked)
+                        onChanged: {
+                            cppGUI.inputEnableAGCChanged(valueChecked)
+
+                            if(valueChecked == false)
+                                cppGUI.inputGainChanged(manualGain.currentValue)
+                        }
                     }
 
                     TouchSlider {
-                        id: gain
+                        id: manualGain
                         enabled: !enableAGC.checked
                         name: "Manual gain"
-                        onValueChanged: cppGUI.inputGainChanged(valueGain)
+                        maximumValue: cppGUI.gainCount
+                        showCurrentValue: "Value: " + cppGUI.currentGainValue.toFixed(2)
+                        onValueChanged: {
+                            if(enableAGC.checked == false)
+                                cppGUI.inputGainChanged(valueGain)
+                        }
                     }
                 }
             }

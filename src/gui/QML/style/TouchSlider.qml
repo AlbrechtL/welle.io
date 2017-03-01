@@ -12,6 +12,10 @@ ColumnLayout {
     signal valueChanged(double valueGain)
 
     property alias name: nameView.text
+    property alias maximumValue: slider.maximumValue
+    property alias showCurrentValue: valueView.text
+    property alias currentValue: slider.value
+
 
     Layout.preferredWidth: parent.width
     spacing: Units.dp(10)
@@ -30,7 +34,7 @@ ColumnLayout {
 
         Text {
             id: valueView
-            text: "Value: " + slider.value.toFixed(2)
+            text: "Value: "
             font.pixelSize: Style.textStandartSize
             font.family: Style.textFont
             color: Style.textColor
@@ -43,6 +47,7 @@ ColumnLayout {
         style: sliderStyle
         maximumValue: 100
         minimumValue: 0
+        stepSize: 1.0
 
         Layout.preferredWidth: parent.width
         onValueChanged: masterColumn.valueChanged(value)

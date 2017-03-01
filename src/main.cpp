@@ -201,8 +201,8 @@ int	main (int argc, char **argv)
 	dabSettings -> setValue ("dabMode",	dabMode);
 	dabSettings -> setValue ("device",	dabDevice);
 	dabSettings -> setValue ("band",	dabBand);
-	dabSettings	-> sync ();
-	MyRadioInterface = new RadioInterface (dabSettings,
+    dabSettings	-> sync ();
+    MyRadioInterface = new RadioInterface (dabSettings,
                                                dabDevice,
                                                dabMode,
                                                dabBand);

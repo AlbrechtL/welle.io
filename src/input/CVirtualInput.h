@@ -43,7 +43,8 @@ public:
     virtual int32_t getSamples(DSPCOMPLEX* Buffer, int32_t Size) = 0;
     virtual int32_t getSpectrumSamples(DSPCOMPLEX* Buffer, int32_t Size) = 0;
     virtual int32_t getSamplesToRead(void) = 0;
-    virtual void setGain(int32_t Gain) = 0;
+    virtual float setGain(int32_t Gain) = 0;
+    virtual int32_t getGainCount(void) = 0;
     virtual void setAgc(bool AGC) = 0;
 };
 #endif

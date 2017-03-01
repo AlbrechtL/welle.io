@@ -51,8 +51,9 @@ public:
     int32_t getSpectrumSamples(DSPCOMPLEX* V, int32_t size);
     int32_t getSamplesToRead(void);
     void reset(void);
-    void setGain(int32_t);
-    void setAgc(bool);
+    float setGain(int32_t gain);
+    int32_t getGainCount(void);
+    void setAgc(bool AGC);
 
 private slots:
     void readData(void);
@@ -61,7 +62,6 @@ private slots:
 private:
     int32_t lastFrequency;
     int theGain;
-    void sendGain(int);
     void sendVFO(int32_t);
     void sendRate(int32_t);
     void setGainMode(int32_t gainMode);

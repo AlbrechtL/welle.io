@@ -855,26 +855,30 @@ void RadioInterface::autoCorrector_on(void)
   *	or a default is taken. I.e., no dynamic switching of devices
   */
 //
-bool RadioInterface::setDevice(QString s)
+bool RadioInterface::setDevice(QString device)
 {
     bool success = false;
 #ifdef HAVE_AIRSPY
-    if (s == "airspy")
+    if (device == "airspy")
         inputDevice = new CAirspy(dabSettings, &success);
 #endif
 
 #ifdef HAVE_RTL_TCP
-    if (s == "rtl_tcp")
+    if (device == "rtl_tcp")
         inputDevice = new CRTL_TCP_Client(dabSettings, &success);
 #endif
 #ifdef HAVE_RTLSDR
-    if (s == "rtl_sdr")
+    if (device == "rtl_sdr")
         inputDevice = new CRTL_SDR(dabSettings, &success);
 #endif
 #ifdef HAVE_RAWFILE
-    if (s == "rawfile")
+    if (device == "rawfile")
         inputDevice = new CRAWFile(dabSettings, &success);
 #endif
+
+    // Get number of gains
+    if(inputDevice)
+        m_gainCount = inputDevice->getGainCount();
 
     return success;
 }
@@ -967,9 +971,11 @@ void RadioInterface::inputEnableAGCChanged(bool checked)
 
 void RadioInterface::inputGainChanged(double gain)
 {
-    if (inputDevice) {
+    if (inputDevice)
+    {
         LastCurrentManualGain = (int)gain;
-        inputDevice->setGain(LastCurrentManualGain);
+        m_currentGainValue = inputDevice->setGain(LastCurrentManualGain);
+        currentGainValueChanged();
     }
 }
 
