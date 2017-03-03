@@ -577,7 +577,7 @@ void RadioInterface::changeinConfiguration(void)
 void RadioInterface::newAudio(int rate)
 {
     if (running)
-        Audio->audioOut(rate);
+        Audio->setRate(rate);
 }
 
 //	if so configured, the function might be triggered

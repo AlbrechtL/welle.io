@@ -58,9 +58,11 @@ public:
     CAudio(RingBuffer<int16_t> *Buffer, int16_t latency);
     ~CAudio(void);
     void stop (void);
-    void audioOut (int SampleRate);
+    void setRate (int sampleRate);
 
 private:
+    void init(int sampleRate);
+
     QAudioFormat AudioFormat;
     QAudioOutput* AudioOutput;
     CAudioIODevice *AudioIODevice;

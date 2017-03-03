@@ -26,16 +26,47 @@
 #include	"CAudio.h"
 #include	<stdio.h>
 
-
 CAudio::CAudio(RingBuffer<int16_t> *Buffer, int16_t latency)
 {
+    AudioOutput = NULL;
+    CardRate = 0;
     this->latency = latency;
-    this->CardRate = 48000;
     this->Buffer = Buffer;
 
     AudioIODevice = new CAudioIODevice(Buffer, this);
 
-    AudioFormat.setSampleRate(CardRate);
+    init(48000);
+
+    connect(&CheckAudioBufferTimer, SIGNAL(timeout()), this, SLOT(checkAudioBufferTimeout()));
+    // Check audio state every 1 s, start audio if bytes are available
+    CheckAudioBufferTimer.start(1000);
+}
+
+CAudio::~CAudio(void)
+{
+    delete AudioOutput;
+    delete AudioIODevice;
+}
+
+void CAudio::setRate(int sampleRate)
+{
+    if(CardRate != sampleRate)
+    {
+        fprintf(stderr, "Sample rate %i Hz\n", sampleRate);
+        CardRate = sampleRate;
+        init(sampleRate);
+    }
+}
+
+void CAudio::init(int sampleRate)
+{
+    if(AudioOutput != NULL)
+    {
+        delete AudioOutput;
+        AudioOutput = NULL;
+    }
+
+    AudioFormat.setSampleRate(sampleRate);
     AudioFormat.setChannelCount(2);
     AudioFormat.setSampleSize(16);
     AudioFormat.setCodec("audio/pcm");
@@ -52,32 +83,14 @@ CAudio::CAudio(RingBuffer<int16_t> *Buffer, int16_t latency)
     AudioOutput = new QAudioOutput(AudioFormat, this);
     connect(AudioOutput, SIGNAL(stateChanged(QAudio::State)), this, SLOT(handleStateChanged(QAudio::State)));
 
-    connect(&CheckAudioBufferTimer, SIGNAL(timeout()), this, SLOT(checkAudioBufferTimeout()));
-    // Check audio state every 1 s, start audio if bytes are available
-    CheckAudioBufferTimer.start(1000);
-
     AudioIODevice->start();
     AudioOutput->start(AudioIODevice);
 }
 
-CAudio::~CAudio(void)
-{
-    delete AudioOutput;
-    delete AudioIODevice;
-}
-
-void CAudio::audioOut(int SampleRate)
-{
-    if(CardRate != SampleRate)
-    {
-        CardRate = SampleRate;
-        AudioFormat.setSampleRate(CardRate);
-        fprintf(stderr, "Sample rate %i Hz\n", SampleRate);
-    }
-}
-
 void CAudio::stop(void)
 {
+    AudioIODevice->stop();
+    AudioOutput->stop();
 }
 
 void CAudio::handleStateChanged(QAudio::State newState)
@@ -99,7 +112,7 @@ void CAudio::checkAudioBufferTimeout()
     int32_t Bytes = Buffer->GetRingBufferReadAvailable();
 
     // Start audio if bytes are available and audio is not active
-    if(Bytes && CurrentState != QAudio::ActiveState)
+    if(AudioOutput && Bytes && CurrentState != QAudio::ActiveState)
     {
         AudioIODevice->start();
         AudioOutput->start(AudioIODevice);
