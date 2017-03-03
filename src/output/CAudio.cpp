@@ -31,6 +31,7 @@ CAudio::CAudio(RingBuffer<int16_t> *Buffer, int16_t latency)
 {
     this->latency = latency;
     this->CardRate = 48000;
+    this->Buffer = Buffer;
 
     AudioIODevice = new CAudioIODevice(Buffer, this);
 
@@ -50,6 +51,11 @@ CAudio::CAudio(RingBuffer<int16_t> *Buffer, int16_t latency)
 
     AudioOutput = new QAudioOutput(AudioFormat, this);
     connect(AudioOutput, SIGNAL(stateChanged(QAudio::State)), this, SLOT(handleStateChanged(QAudio::State)));
+
+    connect(&CheckAudioBufferTimer, SIGNAL(timeout()), this, SLOT(checkAudioBufferTimeout()));
+    // Check audio state every 1 s, start audio if bytes are available
+    CheckAudioBufferTimer.start(1000);
+
     AudioIODevice->start();
     AudioOutput->start(AudioIODevice);
 }
@@ -58,10 +64,6 @@ CAudio::~CAudio(void)
 {
     delete AudioOutput;
     delete AudioIODevice;
-}
-
-void CAudio::restart(void)
-{
 }
 
 void CAudio::audioOut(int SampleRate)
@@ -80,24 +82,27 @@ void CAudio::stop(void)
 
 void CAudio::handleStateChanged(QAudio::State newState)
 {
-    switch (newState) {
-        case QAudio::IdleState:
-            // Finished playing (no more data)
-            /*AudioOutput->stop();
-            AudioIODevice->close();
-            delete AudioOutput;*/
-            break;
+    CurrentState = newState;
 
-        case QAudio::StoppedState:
-            // Stopped for other reasons
-            if (AudioOutput->error() != QAudio::NoError) {
-                // Error handling
-            }
-            break;
+    switch (newState)
+    {
+    case QAudio::ActiveState: fprintf(stderr, "Audio State: ActiveState\n"); break;
+    case QAudio::SuspendedState: fprintf(stderr, "Audio State: SuspendedState\n"); break;
+    case QAudio::StoppedState: fprintf(stderr, "Audio State: StoppedState\n"); break;
+    case QAudio::IdleState: fprintf(stderr, "Audio State: IdleState\n"); break;
+    default: fprintf(stderr, "Audio State: Unknown state e: %i\n", newState); break;
+    }
+}
 
-        default:
-            // ... other cases as appropriate
-            break;
+void CAudio::checkAudioBufferTimeout()
+{
+    int32_t Bytes = Buffer->GetRingBufferReadAvailable();
+
+    // Start audio if bytes are available and audio is not active
+    if(Bytes && CurrentState != QAudio::ActiveState)
+    {
+        AudioIODevice->start();
+        AudioOutput->start(AudioIODevice);
     }
 }
 

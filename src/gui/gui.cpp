@@ -755,9 +755,7 @@ void RadioInterface::setStart(void)
     //	Of course, starting the machine will generate a new instance
     //	of the ensemble, so the listing - if any - should be cleared
     clearEnsemble(); // the display
-    //
-    ///	this does not hurt
-    Audio->restart();
+
     running = true;
 }
 
@@ -828,7 +826,6 @@ void RadioInterface::set_channelSelect(QString s)
     inputDevice->setFrequency(tunedFrequency);
 
     if (localRunning) {
-        Audio->restart();
         inputDevice->restart();
         my_ofdmProcessor->reset();
         running = true;

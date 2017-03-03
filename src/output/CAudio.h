@@ -27,6 +27,7 @@
 #define	__CAUDIO__
 #include	<stdio.h>
 #include    <QAudioOutput>
+#include    <QTimer>
 
 #include	"dab-constants.h"
 #include	"ringbuffer.h"
@@ -57,21 +58,22 @@ public:
     CAudio(RingBuffer<int16_t> *Buffer, int16_t latency);
     ~CAudio(void);
     void stop (void);
-    void restart (void);
     void audioOut (int SampleRate);
 
 private:
     QAudioFormat AudioFormat;
     QAudioOutput* AudioOutput;
     CAudioIODevice *AudioIODevice;
+    QTimer  CheckAudioBufferTimer;
+    RingBuffer<int16_t> *Buffer;
 
+    QAudio::State CurrentState;
     int32_t		CardRate;
     int16_t		latency;
 
-
 private slots:
     void handleStateChanged(QAudio::State newState);
-
+    void checkAudioBufferTimeout();
 };
 #endif
 
