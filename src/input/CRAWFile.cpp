@@ -56,7 +56,7 @@ CRAWFile::CRAWFile(QSettings *settings, bool *success)
 	*success	= false;
 
 	readerOK	= false;
-    filePointer	= fopen (fileName. toLatin1 (). data (), "r");
+    filePointer	= fopen (fileName. toLatin1 (). data (), "rb");
     if (filePointer == NULL)
     {
        fprintf (stderr, "file %s cannot open\n", fileName. toLatin1 (). data ());
