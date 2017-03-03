@@ -112,6 +112,8 @@ void CRAWFile::reset()
 float CRAWFile::setGain(int32_t Gain)
 {
     (void) Gain;
+
+    return 0;
 }
 
 int32_t CRAWFile::getGainCount()
