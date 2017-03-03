@@ -141,6 +141,7 @@ LIBS		+= -lusb-1.0
 CONFIG		+= rtl_tcp
 CONFIG		+= rtl_sdr
 CONFIG          += rawfile
+CONFIG          += airspy
 }
 
 

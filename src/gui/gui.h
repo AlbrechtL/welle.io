@@ -35,7 +35,6 @@
 #include "msc-handler.h"
 #include <QComboBox>
 #include <QLabel>
-#include <sndfile.h>
 
 #include <QQmlContext>
 #include <QTimer>
