@@ -54,7 +54,7 @@ class	mscHandler;
 class ofdmProcessor: public QThread {
 Q_OBJECT
 public:
-		ofdmProcessor  	(virtualInput *,
+		ofdmProcessor  	(CVirtualInput *,
 	                         DabParams	*,
 	                         RadioInterface *,
 	                         mscHandler *,
@@ -69,7 +69,7 @@ public:
 	void	coarseCorrectorOff	(void);
 	void	set_scanMode		(bool, QString);
 private:
-	virtualInput	*theRig;
+	CVirtualInput	*theRig;
 	DabParams	*params;
 	RadioInterface	*myRadioInterface;
 	ficHandler	*my_ficHandler;

@@ -39,10 +39,10 @@
 #include <QTimer>
 #include <QtNetwork>
 
-class CRTL_TCP_Client : public virtualInput {
+class CRTL_TCP_Client : public CVirtualInput {
     Q_OBJECT
 public:
-    CRTL_TCP_Client(QSettings* settings, bool* success);
+    CRTL_TCP_Client(QSettings* settings);
     ~CRTL_TCP_Client(void);
     void setFrequency(int32_t);
     bool restart(void);

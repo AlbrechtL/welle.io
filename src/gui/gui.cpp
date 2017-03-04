@@ -27,23 +27,13 @@
  *
  */
 
+#include <QSettings>
+
+#include "CInputFactory.h"
 #include "gui.h"
 #include "CAudio.h"
 #include "dab-constants.h"
-#include <QSettings>
 
-#ifdef HAVE_RTLSDR
-#include "CRTL_SDR.h"
-#endif
-#ifdef HAVE_RTL_TCP
-#include "CRTL_TCP_Client.h"
-#endif
-#ifdef HAVE_AIRSPY
-#include "CAirspy.h"
-#endif
-#if HAVE_RAWFILE
-#include "CRAWFile.h"
-#endif
 /**
   *	We use the creation function merely to set up the
   *	user interface and make the connections between the
@@ -92,7 +82,8 @@ RadioInterface::RadioInterface(QSettings* Si,
     MOTImage = new MOTImageProvider;
 
     //	the name of the device is passed on from the main program
-    if (!setDevice(input_device))
+    inputDevice = CInputFactory::GetDevice(input_device, dabSettings);
+    if (!inputDevice)
         emit showErrorMessage("Error while opening input device \"" + device + "\"");
 
     /**
@@ -844,40 +835,6 @@ void RadioInterface::autoCorrector_on(void)
     my_ficHandler->clearEnsemble();
     my_ofdmProcessor->coarseCorrectorOn();
     my_ofdmProcessor->reset();
-}
-
-/**
-  *	\brief setDevice
-  *	In this version, a device is specified in the command line
-  *	or a default is taken. I.e., no dynamic switching of devices
-  */
-//
-bool RadioInterface::setDevice(QString device)
-{
-    bool success = false;
-#ifdef HAVE_AIRSPY
-    if (device == "airspy")
-        inputDevice = new CAirspy(dabSettings, &success);
-#endif
-
-#ifdef HAVE_RTL_TCP
-    if (device == "rtl_tcp")
-        inputDevice = new CRTL_TCP_Client(dabSettings, &success);
-#endif
-#ifdef HAVE_RTLSDR
-    if (device == "rtl_sdr")
-        inputDevice = new CRTL_SDR(dabSettings, &success);
-#endif
-#ifdef HAVE_RAWFILE
-    if (device == "rawfile")
-        inputDevice = new CRAWFile(dabSettings, &success);
-#endif
-
-    // Get number of gains
-    if(inputDevice)
-        m_gainCount = inputDevice->getGainCount();
-
-    return success;
 }
 
 void RadioInterface::CheckFICTimerTimeout(void)

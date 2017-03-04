@@ -59,7 +59,7 @@ int16_t	res	= 1;
 static
 QString	currentChannel;
 
-	ofdmProcessor::ofdmProcessor	(virtualInput	*theRig,
+	ofdmProcessor::ofdmProcessor	(CVirtualInput	*theRig,
 	                                 DabParams	*params,
 	                                 RadioInterface *mr,
 	                                 mscHandler 	*msc,

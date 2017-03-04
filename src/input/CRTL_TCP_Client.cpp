@@ -44,7 +44,7 @@ struct command
 
 #define	ONE_BYTE	8
 
-CRTL_TCP_Client::CRTL_TCP_Client	(QSettings *settings, bool *success)
+CRTL_TCP_Client::CRTL_TCP_Client(QSettings *settings)
 {
     SampleBuffer	= new RingBuffer<uint8_t>(32 * 32768);
     SpectrumSampleBuffer	= new RingBuffer<uint8_t>(8192);
@@ -62,8 +62,6 @@ CRTL_TCP_Client::CRTL_TCP_Client	(QSettings *settings, bool *success)
 
     connect(&TCPConnectionWatchDog, SIGNAL(timeout()), this, SLOT(TCPConnectionWatchDogTimeout()));
     connect(&TCPSocket, SIGNAL (readyRead (void)), this, SLOT (readData (void)));
-
-	*success	= true;
 }
 
 CRTL_TCP_Client::~CRTL_TCP_Client	(void)

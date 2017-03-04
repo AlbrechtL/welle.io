@@ -179,7 +179,7 @@ int	main (int argc, char **argv)
 	if (dabMode == 127)
 	   dabMode = dabSettings -> value ("dabMode", 1). toInt ();
 	if (dabDevice == QString (""))
-       dabDevice = dabSettings -> value ("device", "rtl_sdr"). toString ();
+       dabDevice = dabSettings -> value ("device", "auto"). toString ();
 	if (dabBand == QString (""))
 	   dabBand = dabSettings -> value ("band", "BAND III"). toString ();
 

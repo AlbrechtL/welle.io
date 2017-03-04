@@ -51,12 +51,14 @@ static void RTLSDRCallBack(uint8_t* buf, uint32_t len, void* ctx)
 }
 
 //	Our wrapper is a simple classs
-CRTL_SDR::CRTL_SDR(QSettings* s, bool* success)
+CRTL_SDR::CRTL_SDR(QSettings* settings)
 {
     int ret = 0;
 
-    settings = s;
-    *success = false;
+    this->settings = settings;
+
+    fprintf(stderr,"Open rtl-sdr\n");
+
     open = false;
     isAGC = false;
     RTL_SDR_Thread = NULL;
@@ -75,7 +77,7 @@ CRTL_SDR::CRTL_SDR(QSettings* s, bool* success)
     if (deviceCount == 0)
     {
         fprintf(stderr, "No devices found\n");
-        return;
+        throw 0;
     }
     else
     {
@@ -87,8 +89,7 @@ CRTL_SDR::CRTL_SDR(QSettings* s, bool* success)
     if (ret < 0)
     {
         fprintf(stderr, "Opening rtl-sdr failed\n");
-        *success = false;
-        return;
+        throw 0;
     }
 
     open = true;
@@ -98,8 +99,7 @@ CRTL_SDR::CRTL_SDR(QSettings* s, bool* success)
     if (ret < 0)
     {
         fprintf(stderr, "Setting sample rate failed\n");
-        *success = false;
-        return;
+        throw 0;
     }
 
     // Get tuner gains
@@ -133,7 +133,6 @@ CRTL_SDR::CRTL_SDR(QSettings* s, bool* success)
 
     settings->endGroup();
 
-    *success = true;
     return;
 }
 

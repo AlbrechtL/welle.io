@@ -2,10 +2,6 @@
  *    Copyright (C) 2017
  *    Albrecht Lohofener (albrechtloh@gmx.de)
  *
- *    This file is based on SDR-J
- *    Copyright (C) 2010, 2011, 2012
- *    Jan van Katwijk (J.vanKatwijk@gmail.com)
- *
  *    This file is part of the welle.io.
  *    Many of the ideas as implemented in welle.io are derived from
  *    other work, made available through the GNU general Public License.
@@ -27,51 +23,26 @@
  *
  */
 
-#ifndef __RAW_FILES
-#define __RAW_FILES
-
-#include <QSettings>
-#include <QString>
-#include <QThread>
+#ifndef CNULLDEVICE_H
+#define CNULLDEVICE_H
 
 #include "CVirtualInput.h"
-#include "dab-constants.h"
-#include "ringbuffer.h"
 
-class QLabel;
-class QSettings;
-class fileHulp;
-/*
- */
-class CRAWFile : public CVirtualInput, QThread {
+class CNullDevice : public CVirtualInput
+{
 public:
-    CRAWFile(QSettings* settings);
-    ~CRAWFile(void);
+    CNullDevice();
+
     void setFrequency(int32_t Frequency);
-    int32_t getSamples(DSPCOMPLEX*, int32_t);
-    int32_t getSpectrumSamples(DSPCOMPLEX* V, int32_t size);
-    int32_t getSamplesToRead(void);
     bool restart(void);
     void stop(void);
     void reset(void);
+    int32_t getSamples(DSPCOMPLEX* Buffer, int32_t Size);
+    int32_t getSpectrumSamples(DSPCOMPLEX* Buffer, int32_t Size);
+    int32_t getSamplesToRead(void);
     float setGain(int32_t Gain);
     int32_t getGainCount(void);
     void setAgc(bool AGC);
-
-private:
-    QString fileName;
-
-    virtual void run(void);
-    int32_t readBuffer(uint8_t*, int32_t);
-    RingBuffer<uint8_t>* SampleBuffer;
-    RingBuffer<uint8_t>* SpectrumSampleBuffer;
-    int32_t bufferSize;
-    FILE* filePointer;
-    bool readerOK;
-    bool readerPausing;
-    bool ExitCondition;
-    bool ThreadFinished;
-    int64_t currPos;
 };
 
-#endif
+#endif // CNULLDEVICE_H

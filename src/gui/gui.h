@@ -51,7 +51,7 @@ using namespace QtCharts;
 #include "ringbuffer.h"
 
 class QSettings;
-class virtualInput;
+class CVirtualInput;
 class CAudio;
 
 class mscHandler;
@@ -108,7 +108,7 @@ private:
     uint8_t isSynced;
     uint8_t dabBand;
     bool running;
-    virtualInput* inputDevice;
+    CVirtualInput* inputDevice;
     ofdmProcessor* my_ofdmProcessor;
     ficHandler* my_ficHandler;
     mscHandler* my_mscHandler;
@@ -138,7 +138,6 @@ private:
     QVector<QPointF> spectrum_data;
     int coarseCorrector;
     int fineCorrector;
-    bool setDevice(QString device);
     QString nextChannel(QString currentChannel);
     QString input_device;
     int32_t tunedFrequency;

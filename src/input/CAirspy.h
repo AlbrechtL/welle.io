@@ -43,10 +43,10 @@
 #include "airspy.h"
 #endif
 
-class CAirspy : public virtualInput {
+class CAirspy : public CVirtualInput {
     Q_OBJECT
 public:
-    CAirspy(QSettings*, bool*);
+    CAirspy(QSettings* Settings);
     ~CAirspy(void);
 
     void setFrequency(int32_t nf);

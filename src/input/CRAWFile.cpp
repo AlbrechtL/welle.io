@@ -46,21 +46,18 @@ static inline int64_t getMyTime(void)
 
 #define	INPUT_FRAMEBUFFERSIZE	8 * 32768
 
-CRAWFile::CRAWFile(QSettings *settings, bool *success)
+CRAWFile::CRAWFile(QSettings *settings)
 {
     settings	-> beginGroup("rawfile");
     fileName = settings -> value ("RAW_file", "").toString();
     settings -> endGroup();
 
     fileName	= fileName;
-	*success	= false;
-
 	readerOK	= false;
     filePointer	= fopen (fileName. toLatin1 (). data (), "rb");
     if (filePointer == NULL)
     {
        fprintf (stderr, "file %s cannot open\n", fileName. toLatin1 (). data ());
-	   *success = false;
 	   return;
 	}
 
@@ -68,7 +65,6 @@ CRAWFile::CRAWFile(QSettings *settings, bool *success)
     SpectrumSampleBuffer = new RingBuffer<uint8_t>(8192);
 	readerOK	= true;
 	readerPausing	= true;
-	*success	= true;
 	currPos		= 0;
 	start	();
 }

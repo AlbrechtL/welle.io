@@ -34,7 +34,7 @@
 static const int EXTIO_NS = 8192;
 static const int EXTIO_BASE_TYPE_SIZE = sizeof(float);
 
-CAirspy::CAirspy(QSettings* s, bool* success)
+CAirspy::CAirspy(QSettings* Settings)
 {
     int result;
     int distance = 10000000;
@@ -44,9 +44,9 @@ CAirspy::CAirspy(QSettings* s, bool* success)
     currentLinearityGain = 0;
     isAGC = true;
 
-    this->airspySettings = s;
+    this->airspySettings = Settings;
 
-    *success = false;
+    fprintf(stderr,"Open airspy\n");
 
     // Read settings
     airspySettings->beginGroup("airspy");
@@ -66,15 +66,14 @@ CAirspy::CAirspy(QSettings* s, bool* success)
     if (result != AIRSPY_SUCCESS) {
         fprintf(stderr,"airspy_init () failed: %s (%d)\n",
             airspy_error_name((airspy_error)result), result);
-        return;
+        throw 0;
     }
 
-    fprintf(stderr, "airspy init is succesfully\n");
     result = airspy_open(&device);
     if (result != AIRSPY_SUCCESS) {
-        fprintf(stderr,"my_airpsy_open () failed: %s (%d)\n",
+        fprintf(stderr,"airpsy_open () failed: %s (%d)\n",
             airspy_error_name((airspy_error)result), result);
-        return;
+        throw 0;
     }
 
     airspy_set_sample_type(device, AIRSPY_SAMPLE_INT16_IQ);
@@ -93,7 +92,7 @@ CAirspy::CAirspy(QSettings* s, bool* success)
 
     if (selectedRate == 0) {
         fprintf(stderr, "Sorry. cannot help you\n");
-        return;
+        throw 0;
     } else
         fprintf(stderr, "selected samplerate = %d\n", selectedRate);
 
@@ -101,7 +100,7 @@ CAirspy::CAirspy(QSettings* s, bool* success)
     if (result != AIRSPY_SUCCESS) {
         fprintf(stderr,"airspy_set_samplerate() failed: %s (%d)\n",
             airspy_error_name((enum airspy_error)result), result);
-        return;
+        throw 0;
     }
 
     //	The sizes of the mapTable and the convTable are
@@ -131,7 +130,6 @@ CAirspy::CAirspy(QSettings* s, bool* success)
 
     running = false;
 
-    *success = true;
     return;
 }
 

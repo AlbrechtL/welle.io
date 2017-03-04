@@ -2,10 +2,6 @@
  *    Copyright (C) 2017
  *    Albrecht Lohofener (albrechtloh@gmx.de)
  *
- *    This file is based on SDR-J
- *    Copyright (C) 2010, 2011, 2012, 2013
- *    Jan van Katwijk (J.vanKatwijk@gmail.com)
- *
  *    This file is part of the welle.io.
  *    Many of the ideas as implemented in welle.io are derived from
  *    other work, made available through the GNU general Public License.
@@ -27,24 +23,65 @@
  *
  */
 
-#ifndef __VIRTUAL_INPUT
-#define __VIRTUAL_INPUT
+#include "CNullDevice.h"
 
-#include "dab-constants.h"
-#include <QObject>
-#include <stdint.h>
+CNullDevice::CNullDevice()
+{
 
-class CVirtualInput : public QObject {
-public:
-    virtual void setFrequency(int32_t Frequency) = 0;
-    virtual bool restart(void) = 0;
-    virtual void stop(void) = 0;
-    virtual void reset(void) = 0;
-    virtual int32_t getSamples(DSPCOMPLEX* Buffer, int32_t Size) = 0;
-    virtual int32_t getSpectrumSamples(DSPCOMPLEX* Buffer, int32_t Size) = 0;
-    virtual int32_t getSamplesToRead(void) = 0;
-    virtual float setGain(int32_t Gain) = 0;
-    virtual int32_t getGainCount(void) = 0;
-    virtual void setAgc(bool AGC) = 0;
-};
-#endif
+}
+
+void CNullDevice::setFrequency(int32_t Frequency)
+{
+    (void) Frequency;
+}
+
+bool CNullDevice::restart()
+{
+    return false;
+}
+
+void CNullDevice::stop()
+{
+
+}
+
+void CNullDevice::reset()
+{
+
+}
+
+int32_t CNullDevice::getSamples(DSPCOMPLEX *Buffer, int32_t Size)
+{
+    memset(Buffer, 0, Size * sizeof(DSPCOMPLEX));
+
+    return Size;
+}
+
+int32_t CNullDevice::getSpectrumSamples(DSPCOMPLEX *Buffer, int32_t Size)
+{
+    memset(Buffer, 0, Size * sizeof(DSPCOMPLEX));
+
+    return Size;
+}
+
+int32_t CNullDevice::getSamplesToRead()
+{
+    return 0;
+}
+
+float CNullDevice::setGain(int32_t Gain)
+{
+    (void) Gain;
+
+    return 0;
+}
+
+int32_t CNullDevice::getGainCount()
+{
+    return 0;
+}
+
+void CNullDevice::setAgc(bool AGC)
+{
+    (void) AGC;
+}

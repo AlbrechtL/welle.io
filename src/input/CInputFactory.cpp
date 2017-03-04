@@ -1,0 +1,132 @@
+/*
+ *    Copyright (C) 2017
+ *    Albrecht Lohofener (albrechtloh@gmx.de)
+ *
+ *    This file is part of the welle.io.
+ *    Many of the ideas as implemented in welle.io are derived from
+ *    other work, made available through the GNU general Public License.
+ *    All copyrights of the original authors are recognized.
+ *
+ *    welle.io is free software; you can redistribute it and/or modify
+ *    it under the terms of the GNU General Public License as published by
+ *    the Free Software Foundation; either version 2 of the License, or
+ *    (at your option) any later version.
+ *
+ *    welle.io is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU General Public License for more details.
+ *
+ *    You should have received a copy of the GNU General Public License
+ *    along with welle.io; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
+
+#include "CInputFactory.h"
+#include "CNullDevice.h"
+
+#ifdef HAVE_RTLSDR
+#include "CRTL_SDR.h"
+#endif
+#ifdef HAVE_RTL_TCP
+#include "CRTL_TCP_Client.h"
+#endif
+#ifdef HAVE_AIRSPY
+#include "CAirspy.h"
+#endif
+#if HAVE_RAWFILE
+#include "CRAWFile.h"
+#endif
+
+
+CVirtualInput *CInputFactory::GetDevice(QString Device, QSettings* Settings)
+{
+    CVirtualInput *InputDevice = NULL;
+
+    fprintf(stderr, "Input device: %s\n", Device.toStdString().c_str());
+
+    if(Device == "auto")
+        InputDevice = GetAutoDevice(Settings);
+    else
+        InputDevice = GetManualDevice(Device, Settings);
+
+    return InputDevice;
+}
+
+CVirtualInput *CInputFactory::GetAutoDevice(QSettings *Settings)
+{
+    CVirtualInput *InputDevice = NULL;
+
+    // Try to find a input device
+    for(int i=0;i<2;i++) // At the moment two devices are supported
+    {
+        try
+        {
+            switch(i)
+            {
+#ifdef HAVE_AIRSPY
+            case 0: InputDevice = new CAirspy(Settings); break;
+#endif
+#ifdef HAVE_RTLSDR
+            case 1: InputDevice = new CRTL_SDR(Settings); break;
+#endif
+            }
+        }
+
+        // Catch all exceptions
+        catch(...)
+        {
+            // Nothing to do here, just try the next input device
+        }
+
+        // Break loop if we found a device
+        if(InputDevice != NULL)
+            break;
+    }
+
+    // Fallback if no device is found
+    if(InputDevice == NULL)
+    {
+        fprintf(stderr, "No device found use Null device instead.\n");
+        InputDevice = new CNullDevice();
+    }
+
+    return InputDevice;
+}
+
+CVirtualInput *CInputFactory::GetManualDevice(QString Device, QSettings *Settings)
+{
+    CVirtualInput *InputDevice = NULL;
+
+#ifdef HAVE_AIRSPY
+    if (Device == "airspy")
+        InputDevice = new CAirspy(Settings);
+    else
+#endif
+
+#ifdef HAVE_RTL_TCP
+    if (Device == "rtl_tcp")
+        InputDevice = new CRTL_TCP_Client(Settings);
+    else
+#endif
+
+#ifdef HAVE_RTLSDR
+    if (Device == "rtl_sdr")
+        InputDevice = new CRTL_SDR(Settings);
+    else
+#endif
+
+#ifdef HAVE_RAWFILE
+    if (Device == "rawfile")
+        InputDevice = new CRAWFile(Settings);
+    else
+#endif
+    {
+        // Fallback if unknown device is selected
+        fprintf(stderr, "Unknown input device: %s. Use Null device instead.\n", Device.toStdString().c_str());
+        InputDevice = new CNullDevice();
+    }
+
+    return InputDevice;
+}

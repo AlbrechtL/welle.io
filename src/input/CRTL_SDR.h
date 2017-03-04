@@ -44,10 +44,10 @@ class CRTL_SDR_Thread;
 //	This class is a simple wrapper around the
 //	rtlsdr library that is read is as dll
 //	It does not do any processing
-class CRTL_SDR : public virtualInput {
+class CRTL_SDR : public CVirtualInput {
     Q_OBJECT
 public:
-    CRTL_SDR(QSettings*, bool*);
+    CRTL_SDR(QSettings *settings);
     ~CRTL_SDR(void);
 
     bool restart(void);
