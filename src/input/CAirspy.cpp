@@ -339,8 +339,8 @@ void CAirspy::setAgc(bool AGC)
 QString CAirspy::getName()
 {
     // Get airspy device name and version
-    char Version[300] = {0};
-    airspy_version_string_read(device, Version, 300);
+    char Version[255] = {0};
+    airspy_version_string_read(device, Version, 255);
 
     // Get airspy library version
     airspy_lib_version_t lib_version;
