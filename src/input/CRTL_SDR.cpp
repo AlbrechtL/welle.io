@@ -217,6 +217,12 @@ void CRTL_SDR::stop(void)
 //	first find the table value
 float CRTL_SDR::setGain(int32_t Gain)
 {
+    if(Gain >= gainsCount)
+    {
+        fprintf(stderr, "Unknown gain count %i\n", Gain);
+        return 0;
+    }
+
     theGain = gains[Gain];
     rtlsdr_set_tuner_gain(device, theGain);
 

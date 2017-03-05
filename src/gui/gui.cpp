@@ -84,6 +84,7 @@ RadioInterface::RadioInterface(QSettings* Si,
     //	the name of the device is passed on from the main program
     inputDevice = CInputFactory::GetDevice(input_device, dabSettings);
     m_deviceName = inputDevice->getName();
+    m_gainCount = inputDevice->getGainCount();
 
     /**
     *	With this GUI there is no choice for the output channel,
