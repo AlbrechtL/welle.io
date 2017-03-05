@@ -43,6 +43,7 @@ public:
     float setGain(int32_t Gain);
     int32_t getGainCount(void);
     void setAgc(bool AGC);
+    QString getName(void);
 };
 
 #endif // CNULLDEVICE_H

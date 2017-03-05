@@ -54,6 +54,7 @@ public:
     float setGain(int32_t gain);
     int32_t getGainCount(void);
     void setAgc(bool AGC);
+    QString getName(void);
 
 private slots:
     void readData(void);

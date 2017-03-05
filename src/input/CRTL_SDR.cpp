@@ -247,6 +247,17 @@ void CRTL_SDR::setAgc(bool AGC)
     }
 }
 
+QString CRTL_SDR::getName()
+{
+    char manufact[256] = {0};
+    char product[256] = {0};
+    char serial[256] = {0};
+
+    rtlsdr_get_usb_strings(device, manufact, product, serial);
+
+    return QString(manufact) + ", " + QString(product) + ", " + QString(serial);
+}
+
 int32_t CRTL_SDR::getSamples(DSPCOMPLEX* Buffer, int32_t Size)
 {
     uint8_t* tempBuffer = (uint8_t*)alloca(2 * Size * sizeof(uint8_t));

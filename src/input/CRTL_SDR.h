@@ -60,6 +60,7 @@ public:
     float setGain(int32_t Gain);
     int32_t getGainCount(void);
     void setAgc(bool AGC);
+    QString getName(void);
 
     //	These need to be visible for the separate usb handling thread
     RingBuffer<uint8_t>* SampleBuffer;

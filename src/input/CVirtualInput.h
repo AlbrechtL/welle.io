@@ -32,6 +32,7 @@
 
 #include "dab-constants.h"
 #include <QObject>
+#include <QString>
 #include <stdint.h>
 
 class CVirtualInput : public QObject {
@@ -46,5 +47,6 @@ public:
     virtual float setGain(int32_t Gain) = 0;
     virtual int32_t getGainCount(void) = 0;
     virtual void setAgc(bool AGC) = 0;
+    virtual QString getName(void) = 0;
 };
 #endif

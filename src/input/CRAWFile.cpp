@@ -122,6 +122,11 @@ void CRAWFile::setAgc(bool AGC)
     (void) AGC;
 }
 
+QString CRAWFile::getName()
+{
+    return "rawfile";
+}
+
 //	size is in I/Q pairs, file contains 8 bits values
 int32_t	CRAWFile::getSamples(DSPCOMPLEX *V, int32_t size)
 {

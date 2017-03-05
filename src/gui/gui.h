@@ -78,6 +78,7 @@ class RadioInterface : public QObject {
     Q_PROPERTY(int gainCount MEMBER m_gainCount CONSTANT)
     Q_PROPERTY(float currentGainValue MEMBER m_currentGainValue NOTIFY currentGainValueChanged)
     Q_PROPERTY(QVariant licenses READ licenses CONSTANT)
+    Q_PROPERTY(QString deviceName MEMBER m_deviceName CONSTANT)
 
 public:
     RadioInterface(QSettings*,
@@ -146,6 +147,7 @@ private:
     QVariant p_stationModel;
     int m_gainCount;
     float m_currentGainValue;
+    QString m_deviceName;
 
 public slots:
     void end_of_waiting_for_stations(void);

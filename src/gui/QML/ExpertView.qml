@@ -16,6 +16,11 @@ Item {
         anchors.leftMargin: Units.dp(5)
 
         TextExpert {
+            id: displayDeviceName
+            name: "Device: " + cppGUI.deviceName
+        }
+
+        TextExpert {
             id: displayCurrentChannel
             name: "Current channel:"
         }

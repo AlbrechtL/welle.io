@@ -241,6 +241,11 @@ void CRTL_TCP_Client::setAgc(bool AGC)
         setGainMode(1);
 }
 
+QString CRTL_TCP_Client::getName()
+{
+    return "rtl_tcp_client";
+}
+
 void CRTL_TCP_Client::TCPConnectionWatchDogTimeout()
 {
     // Check the connection to the server

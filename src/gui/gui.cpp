@@ -83,8 +83,7 @@ RadioInterface::RadioInterface(QSettings* Si,
 
     //	the name of the device is passed on from the main program
     inputDevice = CInputFactory::GetDevice(input_device, dabSettings);
-    if (!inputDevice)
-        emit showErrorMessage("Error while opening input device \"" + device + "\"");
+    m_deviceName = inputDevice->getName();
 
     /**
     *	With this GUI there is no choice for the output channel,
