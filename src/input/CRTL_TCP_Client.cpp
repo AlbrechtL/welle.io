@@ -243,7 +243,7 @@ void CRTL_TCP_Client::setAgc(bool AGC)
 
 QString CRTL_TCP_Client::getName()
 {
-    return "rtl_tcp_client";
+    return "rtl_tcp_client (server: " + serverAddress.toString() + ":" + QString::number(basePort) + ")";
 }
 
 void CRTL_TCP_Client::TCPConnectionWatchDogTimeout()
