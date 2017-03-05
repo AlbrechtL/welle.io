@@ -229,9 +229,12 @@ int	main (int argc, char **argv)
  */
 	fflush (stdout);
 	fflush (stderr);
-	qDebug ("It is done\n");
-	MyRadioInterface	-> ~RadioInterface ();
-	dabSettings		-> ~QSettings ();
-	exit (1);
+
+    // Close
+    delete engine;
+    delete MyRadioInterface;
+    delete dabSettings;
+
+    return 0;
 }
 
