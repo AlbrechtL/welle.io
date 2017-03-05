@@ -88,5 +88,5 @@ void CNullDevice::setAgc(bool AGC)
 
 QString CNullDevice::getName()
 {
-    return "Null";
+    return "Null device";
 }

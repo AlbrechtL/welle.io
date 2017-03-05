@@ -51,6 +51,13 @@ CVirtualInput *CInputFactory::GetDevice(QString Device, QSettings* Settings)
     else
         InputDevice = GetManualDevice(Device, Settings);
 
+    // Fallback if no device is found or an error occured
+    if(InputDevice == NULL)
+    {
+        fprintf(stderr, "No valid device found use Null device instead.\n");
+        InputDevice = new CNullDevice();
+    }
+
     return InputDevice;
 }
 
@@ -77,19 +84,13 @@ CVirtualInput *CInputFactory::GetAutoDevice(QSettings *Settings)
         // Catch all exceptions
         catch(...)
         {
-            // Nothing to do here, just try the next input device
+            // An error occured. Maybe the device isn't present.
+            // Just try the next input device
         }
 
         // Break loop if we found a device
         if(InputDevice != NULL)
             break;
-    }
-
-    // Fallback if no device is found
-    if(InputDevice == NULL)
-    {
-        fprintf(stderr, "No device found use Null device instead.\n");
-        InputDevice = new CNullDevice();
     }
 
     return InputDevice;
@@ -99,33 +100,39 @@ CVirtualInput *CInputFactory::GetManualDevice(QString Device, QSettings *Setting
 {
     CVirtualInput *InputDevice = NULL;
 
+    try
+    {
 #ifdef HAVE_AIRSPY
-    if (Device == "airspy")
-        InputDevice = new CAirspy(Settings);
-    else
+        if (Device == "airspy")
+            InputDevice = new CAirspy(Settings);
+        else
 #endif
 
 #ifdef HAVE_RTL_TCP
-    if (Device == "rtl_tcp")
-        InputDevice = new CRTL_TCP_Client(Settings);
-    else
+        if (Device == "rtl_tcp")
+            InputDevice = new CRTL_TCP_Client(Settings);
+        else
 #endif
 
 #ifdef HAVE_RTLSDR
-    if (Device == "rtl_sdr")
-        InputDevice = new CRTL_SDR(Settings);
-    else
+        if (Device == "rtl_sdr")
+            InputDevice = new CRTL_SDR(Settings);
+        else
 #endif
 
 #ifdef HAVE_RAWFILE
-    if (Device == "rawfile")
-        InputDevice = new CRAWFile(Settings);
-    else
+        if (Device == "rawfile")
+            InputDevice = new CRAWFile(Settings);
+        else
 #endif
+            // else branch from the last device if
+            fprintf(stderr, "Unknown device \"%s\".\n", Device.toStdString().c_str());
+    }
+
+    // Catch all exceptions
+    catch(...)
     {
-        // Fallback if unknown device is selected
-        fprintf(stderr, "Unknown input device: %s. Use Null device instead.\n", Device.toStdString().c_str());
-        InputDevice = new CNullDevice();
+        fprintf(stderr, "Error while opening device \"%s\".\n", Device.toStdString().c_str());
     }
 
     return InputDevice;
