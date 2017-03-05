@@ -60,13 +60,13 @@ QString	fileName;
 int	main (int argc, char **argv)
 {
     QString	initFileName;
-    RadioInterface	*MyRadioInterface;
+    RadioInterface	*GUI;
 
     QApplication a (argc, argv);
 
     // Default values
     uint8_t		syncMethod	= 2;
-    QSettings	*dabSettings;		// ini file
+    QSettings	*settings;		// ini file
     uint8_t		dabMode		= 127;	// illegal value
     QString		dabDevice	= QString ("");
     QString		dabBand		= QString ("");
@@ -134,7 +134,7 @@ int	main (int argc, char **argv)
 	else
 	   initFileName = fullPathfor (QString (DEFAULT_INI));
 
-	dabSettings =  new QSettings (initFileName, QSettings::IniFormat);
+    settings =  new QSettings (initFileName, QSettings::IniFormat);
 
 //	Process Sync method option
 	QString SYNCOptionValue = optionParser.value (SYNCOption);
@@ -177,32 +177,32 @@ int	main (int argc, char **argv)
        rawFile = RAWFileValue;
 
 	if (dabMode == 127)
-	   dabMode = dabSettings -> value ("dabMode", 1). toInt ();
+       dabMode = settings -> value ("dabMode", 1). toInt ();
 	if (dabDevice == QString (""))
-       dabDevice = dabSettings -> value ("device", "auto"). toString ();
+       dabDevice = settings -> value ("device", "auto"). toString ();
 	if (dabBand == QString (""))
-	   dabBand = dabSettings -> value ("band", "BAND III"). toString ();
+       dabBand = settings -> value ("band", "BAND III"). toString ();
 
     a.setWindowIcon(QIcon(":/icon.png"));
-	dabSettings -> beginGroup ("rtl_tcp_client");
+    settings -> beginGroup ("rtl_tcp_client");
 	if (ipAddress != QString ("")) {
-	   dabSettings -> setValue ("rtl_tcp_address", ipAddress);
-	   dabSettings -> setValue ("rtl_tcp_port", ipPort);
+       settings -> setValue ("rtl_tcp_address", ipAddress);
+       settings -> setValue ("rtl_tcp_port", ipPort);
 	}
-    dabSettings -> endGroup ();
+    settings -> endGroup ();
 
-    dabSettings -> beginGroup ("rawfile");
+    settings -> beginGroup ("rawfile");
     if (rawFile != QString ("")) {
-       dabSettings -> setValue ("RAW_file", rawFile);
+       settings -> setValue ("RAW_file", rawFile);
     }
-    dabSettings -> endGroup ();
+    settings -> endGroup ();
 
 	(void)syncMethod;
-	dabSettings -> setValue ("dabMode",	dabMode);
-	dabSettings -> setValue ("device",	dabDevice);
-	dabSettings -> setValue ("band",	dabBand);
-    dabSettings	-> sync ();
-    MyRadioInterface = new RadioInterface (dabSettings,
+    settings -> setValue ("dabMode",	dabMode);
+    settings -> setValue ("device",	dabDevice);
+    settings -> setValue ("band",	dabBand);
+    settings	-> sync ();
+    GUI = new RadioInterface (settings,
                                                dabDevice,
                                                dabMode,
                                                dabBand);
@@ -219,9 +219,9 @@ int	main (int argc, char **argv)
     // Create new QML application, set some requried options and load the QML file
     engine 	= new QQmlApplicationEngine;
     QQmlContext *rootContext = engine -> rootContext();
-    rootContext -> setContextProperty("cppGUI", MyRadioInterface);
+    rootContext -> setContextProperty("cppGUI", GUI);
     engine->load(QUrl("qrc:/src/gui/QML/main.qml"));
-    engine->addImageProvider(QLatin1String("motslideshow"), MyRadioInterface->MOTImage);
+    engine->addImageProvider(QLatin1String("motslideshow"), GUI->MOTImage);
 
 	a. exec ();
 /*
@@ -232,8 +232,8 @@ int	main (int argc, char **argv)
 
     // Close
     delete engine;
-    delete MyRadioInterface;
-    delete dabSettings;
+    delete GUI;
+    delete settings;
 
     return 0;
 }
