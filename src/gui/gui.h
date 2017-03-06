@@ -81,11 +81,7 @@ class RadioInterface : public QObject {
     Q_PROPERTY(QString deviceName MEMBER m_deviceName CONSTANT)
 
 public:
-    RadioInterface(QSettings*,
-        QString,
-        uint8_t,
-        QString,
-        QObject* parent = NULL);
+    RadioInterface(CVirtualInput* Device, uint8_t Mode, uint8_t Band, QObject* parent = NULL);
     ~RadioInterface();
     Q_INVOKABLE void channelClick(QString, QString);
     Q_INVOKABLE void startChannelScanClick(void);
@@ -101,9 +97,6 @@ public:
     MOTImageProvider* MOTImage;
 
 private:
-    QSettings* dabSettings;
-    bool autoStart;
-    int16_t threshold;
     void setModeParameters(uint8_t);
     DabParams dabModeParameters;
     uint8_t isSynced;
@@ -120,7 +113,6 @@ private:
     const QVariantMap licenses();
     const char* get_programm_type_string(uint8_t);
     const char* get_programm_language_string(uint8_t);
-    void dumpControlState(QSettings*);
 
     QTimer CheckFICTimer;
     QTimer ScanChannelTimer;
@@ -140,7 +132,6 @@ private:
     int coarseCorrector;
     int fineCorrector;
     QString nextChannel(QString currentChannel);
-    QString input_device;
     int32_t tunedFrequency;
     int LastCurrentManualGain;
     int CurrentFrameErrors;

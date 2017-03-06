@@ -46,27 +46,14 @@ static inline int64_t getMyTime(void)
 
 #define	INPUT_FRAMEBUFFERSIZE	8 * 32768
 
-CRAWFile::CRAWFile(QSettings *settings)
+CRAWFile::CRAWFile()
 {
-    settings	-> beginGroup("rawfile");
-    fileName = settings -> value ("RAW_file", "").toString();
-    settings -> endGroup();
+    FileName = "";
 
-    fileName	= fileName;
-	readerOK	= false;
-    filePointer	= fopen (fileName. toLatin1 (). data (), "rb");
-    if (filePointer == NULL)
-    {
-       fprintf (stderr, "file %s cannot open\n", fileName. toLatin1 (). data ());
-	   return;
-	}
+    readerOK = false;
 
-    SampleBuffer	= new RingBuffer<uint8_t>(INPUT_FRAMEBUFFERSIZE);
+    SampleBuffer = new RingBuffer<uint8_t>(INPUT_FRAMEBUFFERSIZE);
     SpectrumSampleBuffer = new RingBuffer<uint8_t>(8192);
-	readerOK	= true;
-	readerPausing	= true;
-	currPos		= 0;
-	start	();
 }
 
 CRAWFile::~CRAWFile(void)
@@ -125,6 +112,28 @@ void CRAWFile::setAgc(bool AGC)
 QString CRAWFile::getName()
 {
     return "rawfile";
+}
+
+CDeviceID CRAWFile::getID()
+{
+    return CDeviceID::RAWFILE;
+}
+
+void CRAWFile::setFileName(QString FileName)
+{
+    this->FileName = FileName;
+
+    filePointer	= fopen (FileName. toLatin1 (). data (), "rb");
+    if (filePointer == NULL)
+    {
+       fprintf (stderr, "file %s cannot open\n", FileName. toLatin1 (). data ());
+       return;
+    }
+
+    readerOK = true;
+    readerPausing = true;
+    currPos	 = 0;
+    start();
 }
 
 //	size is in I/Q pairs, file contains 8 bits values

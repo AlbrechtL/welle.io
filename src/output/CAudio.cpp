@@ -26,11 +26,10 @@
 #include	"CAudio.h"
 #include	<stdio.h>
 
-CAudio::CAudio(RingBuffer<int16_t> *Buffer, int16_t latency)
+CAudio::CAudio(RingBuffer<int16_t> *Buffer)
 {
     AudioOutput = NULL;
     CardRate = 0;
-    this->latency = latency;
     this->Buffer = Buffer;
 
     AudioIODevice = new CAudioIODevice(Buffer, this);

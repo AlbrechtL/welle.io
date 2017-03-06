@@ -27,8 +27,6 @@ Parameter | Description
 ------ | ---------- | ----
 h | Show help 
 v | Show version 
-i | INI-file path. Do not use unless you know what you want.
-S | Sync method. Do not use unless you know what you want.
 D | Input device. Possible is: auto (default), airspy, rtl_tcp, rtl_sdr, rawfile
 M | DAB mode. Possible is: 1,2 or 4, Default: 1 
 B | DAB band. Default Band III

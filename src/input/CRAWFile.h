@@ -45,8 +45,10 @@ class fileHulp;
  */
 class CRAWFile : public CVirtualInput, QThread {
 public:
-    CRAWFile(QSettings* settings);
+    CRAWFile();
     ~CRAWFile(void);
+
+    // Interface methods
     void setFrequency(int32_t Frequency);
     int32_t getSamples(DSPCOMPLEX*, int32_t);
     int32_t getSpectrumSamples(DSPCOMPLEX* V, int32_t size);
@@ -58,9 +60,13 @@ public:
     int32_t getGainCount(void);
     void setAgc(bool AGC);
     QString getName(void);
+    CDeviceID getID(void);
+
+    // Specific methods
+    void setFileName(QString FileName);
 
 private:
-    QString fileName;
+    QString FileName;
 
     virtual void run(void);
     int32_t readBuffer(uint8_t*, int32_t);

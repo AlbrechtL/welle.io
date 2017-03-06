@@ -34,7 +34,7 @@
 static const int EXTIO_NS = 8192;
 static const int EXTIO_BASE_TYPE_SIZE = sizeof(float);
 
-CAirspy::CAirspy(QSettings* Settings)
+CAirspy::CAirspy()
 {
     int result;
     int distance = 10000000;
@@ -44,15 +44,7 @@ CAirspy::CAirspy(QSettings* Settings)
     currentLinearityGain = 0;
     isAGC = true;
 
-    this->airspySettings = Settings;
-
     fprintf(stderr,"Open airspy\n");
-
-    // Read settings
-    airspySettings->beginGroup("airspy");
-    isAGC = airspySettings->value("autogain", true).toBool();
-    currentLinearityGain = airspySettings->value("gain", "21").toInt();
-    airspySettings->endGroup();
 
     device = 0;
     serialNumber = 0;
@@ -135,11 +127,6 @@ CAirspy::CAirspy(QSettings* Settings)
 
 CAirspy::~CAirspy(void)
 {
-    airspySettings->beginGroup("airspy");
-    airspySettings->setValue("gain", currentLinearityGain);
-    airspySettings->setValue("autogain", isAGC);
-    airspySettings->endGroup();
-
     if (device) {
         int result = airspy_stop_rx(device);
         if (result != AIRSPY_SUCCESS) {
@@ -324,13 +311,10 @@ void CAirspy::setAgc(bool AGC)
         result = airspy_set_vga_gain(device, 15); // Maximum gain. I don't know if we can do this
         if (result != AIRSPY_SUCCESS)
            fprintf(stderr,"airspy_set_vga_gain () failed: %s (%d)\n", airspy_error_name((airspy_error)result), result);
-
-        fprintf(stderr, "AGC is on\n");
     }
     else
     {
         airspy_set_linearity_gain(device, currentLinearityGain);
-        fprintf(stderr, "AGC is off\n");
     }
 
     isAGC = AGC;
@@ -350,6 +334,11 @@ QString CAirspy::getName()
             + QString::number(lib_version.major_version) + "."
             + QString::number(lib_version.minor_version) + "."
             + QString::number(lib_version.revision);
+}
+
+CDeviceID CAirspy::getID()
+{
+    return CDeviceID::AIRSPY;
 }
 
 float CAirspy::setGain(int gain)

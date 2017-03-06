@@ -44,6 +44,7 @@ public:
     int32_t getGainCount(void);
     void setAgc(bool AGC);
     QString getName(void);
+    CDeviceID getID(void);
 };
 
 #endif // CNULLDEVICE_H

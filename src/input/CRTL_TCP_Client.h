@@ -42,8 +42,10 @@
 class CRTL_TCP_Client : public CVirtualInput {
     Q_OBJECT
 public:
-    CRTL_TCP_Client(QSettings* settings);
+    CRTL_TCP_Client();
     ~CRTL_TCP_Client(void);
+
+    // Interface methods
     void setFrequency(int32_t);
     bool restart(void);
     void stop(void);
@@ -55,6 +57,11 @@ public:
     int32_t getGainCount(void);
     void setAgc(bool AGC);
     QString getName(void);
+    CDeviceID getID(void);
+
+    // Specific methods
+    void setIP(QString IPAddress);
+    void setPort(uint16_t Port);
 
 private slots:
     void readData(void);
@@ -68,14 +75,13 @@ private:
     void setGainMode(int32_t gainMode);
     void sendCommand(uint8_t, int32_t);
     bool isvalidRate(int32_t);
-    QSettings* remoteSettings;
     int32_t Frequency;
     RingBuffer<uint8_t>* SampleBuffer;
     RingBuffer<uint8_t>* SpectrumSampleBuffer;
     bool connected;
     QHostAddress serverAddress;
+    uint16_t serverPort;
     QTcpSocket TCPSocket;
-    qint64 basePort;
     QTimer TCPConnectionWatchDog;
 };
 

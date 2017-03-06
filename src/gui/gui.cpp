@@ -40,13 +40,10 @@
   *	gui elements and the handling agents. All real action
   *	is embedded in actions, initiated by gui buttons
   */
-RadioInterface::RadioInterface(QSettings* Si,
-    QString device,
-    uint8_t dabMode,
-    QString dabBand,
-    QObject* parent)
-    : QObject(parent)
+RadioInterface::RadioInterface(CVirtualInput *Device, uint8_t Mode, uint8_t Band, QObject *parent): QObject(parent)
 {
+    QSettings Settings;
+
     //	Before printing anything, we set
     setlocale(LC_ALL, "");
 
@@ -56,23 +53,17 @@ RadioInterface::RadioInterface(QSettings* Si,
     isFICCRC = false;
     LastCurrentManualGain = 0;
 
-    dabSettings = Si;
-    input_device = device;
-    this->dabBand = dabBand == "BAND III" ? BAND_III : L_BAND;
-
-    // First we have to read the settings from the INI-file
-    int16_t latency = dabSettings->value("latency", 1).toInt(); // latency is used to allow different settings for different situations wrt the output buffering
-    threshold = dabSettings->value("threshold", 3).toInt(); // threshold is used in the phaseReference class as threshold for checking the validity of the correlation result
-    autoStart = dabSettings->value("autoStart", 0).toInt() != 0;
+    dabBand = Band;
+    inputDevice = Device;
 
     // Read channels from the settings
-    dabSettings->beginGroup("channels");
-    int channelcount = dabSettings->value("channelcout", 0).toInt();
+    Settings.beginGroup("channels");
+    int channelcount = Settings.value("channelcout", 0).toInt();
     for (int i = 1; i <= channelcount; i++) {
-        QStringList SaveChannel = dabSettings->value("channel/" + QString::number(i)).toStringList();
+        QStringList SaveChannel = Settings.value("channel/" + QString::number(i)).toStringList();
         stationList.append(SaveChannel.first(), SaveChannel.last());
     }
-    dabSettings->endGroup();
+    Settings.endGroup();
     stationList.sort();
 
     p_stationModel = QVariant::fromValue(stationList.getList());
@@ -82,7 +73,6 @@ RadioInterface::RadioInterface(QSettings* Si,
     MOTImage = new MOTImageProvider;
 
     //	the name of the device is passed on from the main program
-    inputDevice = CInputFactory::GetDevice(input_device, dabSettings);
     m_deviceName = inputDevice->getName();
     m_gainCount = inputDevice->getGainCount();
 
@@ -91,9 +81,9 @@ RadioInterface::RadioInterface(QSettings* Si,
     *	It is the soundcard, so just allocate it
     */
     AudioBuffer = new RingBuffer<int16_t>(2 * 32768);
-    Audio = new CAudio(AudioBuffer, latency);
+    Audio = new CAudio(AudioBuffer);
 
-    setModeParameters(dabMode);
+    setModeParameters(Mode);
 
     /**
     *	The actual work is done elsewhere: in ofdmProcessor
@@ -119,7 +109,7 @@ RadioInterface::RadioInterface(QSettings* Si,
         this,
         my_mscHandler,
         my_ficHandler,
-        threshold,
+        3,
         3);
 
     //	Set timer to check the FIC CRC
@@ -167,26 +157,25 @@ const QVariantMap RadioInterface::licenses()
   *	The QSettings could have been the class variable as well
   *	as the parameter
   */
-void RadioInterface::dumpControlState(QSettings* s)
+void RadioInterface::saveSettings()
 {
-    if (s == NULL) // cannot happen
-        return;
+    QSettings Settings;
 
     //	Remove channels from previous invocation ...
-    s->beginGroup("channels");
-    int ChannelCount = s->value("channelcout").toInt();
+    Settings.beginGroup("channels");
+    int ChannelCount = Settings.value("channelcout").toInt();
     for (int i = 1; i <= ChannelCount; i++)
-        s->remove("channel/" + QString::number(i));
+        Settings.remove("channel/" + QString::number(i));
 
     //	... and save the current set
     ChannelCount = stationList.count();
-    s->setValue("channelcout",
+    Settings.setValue("channelcout",
         QString::number(ChannelCount));
 
     for (int i = 1; i <= ChannelCount; i++)
-        s->setValue("channel/" + QString::number(i),
+        Settings.setValue("channel/" + QString::number(i),
             stationList.getStationAt(i - 1));
-    dabSettings->endGroup();
+    Settings.endGroup();
 }
 //
 ///	the values for the different Modes:
@@ -764,7 +753,7 @@ void RadioInterface::terminateProcess(void)
     Audio->stop();
     //
     //	everything should be halted by now
-    dumpControlState(dabSettings);
+    saveSettings();
     delete my_ofdmProcessor;
     delete my_ficHandler;
     delete my_mscHandler;
@@ -909,17 +898,22 @@ void RadioInterface::channelClick(QString StationName,
     emit ficFlag(false);
 }
 
-void RadioInterface::saveSettings(void)
-{
-    dumpControlState(dabSettings);
-}
-
 void RadioInterface::inputEnableAGCChanged(bool checked)
 {
-    if (inputDevice) {
+    if (inputDevice)
+    {
         inputDevice->setAgc(checked);
+
         if (!checked)
+        {
             inputDevice->setGain(LastCurrentManualGain);
+            fprintf(stderr, "AGC off\n");
+        }
+        else
+        {
+            fprintf(stderr, "AGC on\n");
+        }
+
     }
 }
 

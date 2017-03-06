@@ -32,45 +32,29 @@
 #include	<QDir>
 #include	<QCommandLineParser>
 #include	<unistd.h>
+
 #include	"dab-constants.h"
 #include	"gui.h"
-
-QString	fullPathfor (QString v) {
-QString	fileName;
-
-	if (v == QString ("")) 
-	   return QString ("/tmp/xxx");
-
-	if (v. at (0) == QChar ('/')) 		// full path specified
-	   return v;
-
-	fileName = QDir::homePath ();
-	fileName. append ("/");
-	fileName. append (v);
-	fileName = QDir::toNativeSeparators (fileName);
-
-	if (!fileName. endsWith (".ini"))
-	   fileName. append (".ini");
-
-	return fileName;
-}
-
-#define	DEFAULT_INI	".welle.io.ini"
+#include    "CInputFactory.h"
+#include	"CRTL_TCP_Client.h"
+#include	"CRAWFile.h"
 
 int	main (int argc, char **argv)
 {
-    QString	initFileName;
     RadioInterface	*GUI;
 
-    QApplication a (argc, argv);
+    QCoreApplication::setOrganizationName("welle.io");
+    QCoreApplication::setOrganizationDomain("welle.io");
+    QCoreApplication::setApplicationName("welle.io");
 
-    // Default values
-    uint8_t		syncMethod	= 2;
-    QSettings	*settings;		// ini file
-    uint8_t		dabMode		= 127;	// illegal value
-    QString		dabDevice	= QString ("");
-    QString		dabBand		= QString ("");
-    QString		ipAddress	= QString ("");
+    QApplication a (argc, argv);
+    a.setWindowIcon(QIcon(":/icon.png"));
+
+    // Default values   
+    uint8_t		Mode		= 1;
+    QString		dabDevice	= "auto";
+    uint8_t		Band		= BAND_III;
+    QString		ipAddress	= "127.0.0.1";
     uint16_t	ipPort		= 1234;
     QString     rawFile     = "";
 
@@ -85,15 +69,6 @@ int	main (int argc, char **argv)
 	optionParser.addHelpOption();
 	optionParser.addVersionOption();
 
-	QCommandLineOption INIFileOption ("i",
-	          QCoreApplication::translate("main", "Settings INI-file path"),
-	          QCoreApplication::translate("main", "Path"));
-	optionParser.addOption(INIFileOption);
-
-	QCommandLineOption SYNCOption ("S",
-	          QCoreApplication::translate("main", "Sync method"),
-	          QCoreApplication::translate("main", "Number"));
-	optionParser.addOption(SYNCOption);
 	QCommandLineOption InputOption ("D",
 	          QCoreApplication::translate("main", "Input device"),
 	          QCoreApplication::translate("main", "Name"));
@@ -127,20 +102,6 @@ int	main (int argc, char **argv)
 //	Process the actual command line arguments given by the user
 	optionParser.process(a);
 
-//	Process INI file option
-	QString INIFileValue = optionParser.value(INIFileOption);
-	if (INIFileValue != "")
-	   initFileName = fullPathfor (INIFileValue);
-	else
-	   initFileName = fullPathfor (QString (DEFAULT_INI));
-
-    settings =  new QSettings (initFileName, QSettings::IniFormat);
-
-//	Process Sync method option
-	QString SYNCOptionValue = optionParser.value (SYNCOption);
-	if (SYNCOptionValue != "")
-	   syncMethod = SYNCOptionValue. toInt ();
-
 //	Process input device option
 	QString InputValue = optionParser. value (InputOption);
 	if (InputValue != "")
@@ -148,26 +109,30 @@ int	main (int argc, char **argv)
 
 //	Process DAB mode option
 	QString DABModValue = optionParser.value(DABModeOption);
-	if (DABModValue != "") {
-	   dabMode	= DABModValue. toInt();
-	   if (!(dabMode == 1) || (dabMode == 2) || (dabMode == 4))
-	      dabMode = 1;
+    if (DABModValue != "")
+    {
+       Mode	= DABModValue. toInt();
+       if (!(Mode == 1) || (Mode == 2) || (Mode == 4))
+          Mode = 1;
 	}
 
 //	Process DAB band option
 	QString DABBandValue = optionParser.value (DABBandOption);
 	if (DABBandValue != "")
-	   dabBand = DABBandValue;
+    {
+       if(DABBandValue == "BAND III")
+           Band = BAND_III;
+       else
+           Band = L_BAND;
+    }
 
 //	Process rtl_tcp server IP address option
-	QString RTL_TCPServerIPValue =
-	                    optionParser. value (RTL_TCPServerIPOption);
+    QString RTL_TCPServerIPValue = optionParser. value (RTL_TCPServerIPOption);
 	if (RTL_TCPServerIPValue != "")
 	   ipAddress = RTL_TCPServerIPValue;
 
 //	Process rtl_tcp server IP port option
-	QString RTL_TCPServerPortValue =
-	                    optionParser. value(RTL_TCPServerIPPort);
+    QString RTL_TCPServerPortValue = optionParser. value(RTL_TCPServerIPPort);
 	if (RTL_TCPServerPortValue != "")
        ipPort = RTL_TCPServerPortValue.toInt ();
 
@@ -176,36 +141,27 @@ int	main (int argc, char **argv)
     if (RAWFileValue != "")
        rawFile = RAWFileValue;
 
-	if (dabMode == 127)
-       dabMode = settings -> value ("dabMode", 1). toInt ();
-	if (dabDevice == QString (""))
-       dabDevice = settings -> value ("device", "auto"). toString ();
-	if (dabBand == QString (""))
-       dabBand = settings -> value ("band", "BAND III"). toString ();
+    // Init device
+    CVirtualInput *Device = CInputFactory::GetDevice(dabDevice);
 
-    a.setWindowIcon(QIcon(":/icon.png"));
-    settings -> beginGroup ("rtl_tcp_client");
-	if (ipAddress != QString ("")) {
-       settings -> setValue ("rtl_tcp_address", ipAddress);
-       settings -> setValue ("rtl_tcp_port", ipPort);
-	}
-    settings -> endGroup ();
+    // Set rtl_tcp settings
+    if(Device->getID() == CDeviceID::RTL_TCP)
+    {
+        CRTL_TCP_Client *RTL_TCP_Client = (CRTL_TCP_Client*) Device;
 
-    settings -> beginGroup ("rawfile");
-    if (rawFile != QString ("")) {
-       settings -> setValue ("RAW_file", rawFile);
+        RTL_TCP_Client->setIP(ipAddress);
+        RTL_TCP_Client->setPort(ipPort);
     }
-    settings -> endGroup ();
 
-	(void)syncMethod;
-    settings -> setValue ("dabMode",	dabMode);
-    settings -> setValue ("device",	dabDevice);
-    settings -> setValue ("band",	dabBand);
-    settings	-> sync ();
-    GUI = new RadioInterface (settings,
-                                               dabDevice,
-                                               dabMode,
-                                               dabBand);
+    // Set rawfile settings
+    if(Device->getID() == CDeviceID::RAWFILE)
+    {
+        CRAWFile *RAWFile = (CRAWFile*) Device;
+
+        RAWFile->setFileName(rawFile);
+    }
+
+    GUI = new RadioInterface(Device, Mode, Band);
 /*
  *	Before we connect control to the gui, we have to
  *	instantiate
@@ -233,7 +189,6 @@ int	main (int argc, char **argv)
     // Close
     delete engine;
     delete GUI;
-    delete settings;
 
     return 0;
 }

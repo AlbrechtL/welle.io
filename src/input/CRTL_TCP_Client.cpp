@@ -44,21 +44,18 @@ struct command
 
 #define	ONE_BYTE	8
 
-CRTL_TCP_Client::CRTL_TCP_Client(QSettings *settings)
+CRTL_TCP_Client::CRTL_TCP_Client()
 {
     SampleBuffer	= new RingBuffer<uint8_t>(32 * 32768);
     SpectrumSampleBuffer	= new RingBuffer<uint8_t>(8192);
 
     connected = false;
-    remoteSettings = settings;
     Frequency = Khz (220000);
 
-    // Read settings, if not exist, use default values
-    remoteSettings	-> beginGroup("rtl_tcp_client");
-    theGain	= remoteSettings -> value("rtl_tcp_client-gain", 20).toInt();
-    basePort = remoteSettings -> value("rtl_tcp_port", 1234).toInt();
-    serverAddress = QHostAddress(remoteSettings -> value ("rtl_tcp_address", "127.0.0.1").toString());
-    remoteSettings -> endGroup();
+    // Use default values
+    theGain	= 0;
+    serverPort = 1234;
+    serverAddress = QHostAddress("127.0.0.1");
 
     connect(&TCPConnectionWatchDog, SIGNAL(timeout()), this, SLOT(TCPConnectionWatchDogTimeout()));
     connect(&TCPSocket, SIGNAL (readyRead (void)), this, SLOT (readData (void)));
@@ -66,11 +63,6 @@ CRTL_TCP_Client::CRTL_TCP_Client(QSettings *settings)
 
 CRTL_TCP_Client::~CRTL_TCP_Client	(void)
 {
-    // Save settings
-    remoteSettings -> beginGroup ("rtl_tcp_client");
-	remoteSettings -> setValue ("rtl_tcp_client-gain",   theGain);
-	remoteSettings -> endGroup ();
-
     // Close connection
     TCPSocket. close();
 
@@ -148,7 +140,7 @@ void CRTL_TCP_Client::readData(void)
        TCPSocket.read ((char *)buffer, 8192);
        SampleBuffer -> putDataIntoBuffer (buffer, 8192);
        SpectrumSampleBuffer -> putDataIntoBuffer (buffer, 8192);
-	}
+    }
 }
 
 void CRTL_TCP_Client::sendCommand (uint8_t cmd, int32_t param)
@@ -235,15 +227,30 @@ int32_t CRTL_TCP_Client::getGainCount()
 
 void CRTL_TCP_Client::setAgc(bool AGC)
 {
-    if (AGC)
-	   setGainMode(0);
+    if(AGC)
+        setGainMode(0);
 	else
         setGainMode(1);
 }
 
 QString CRTL_TCP_Client::getName()
 {
-    return "rtl_tcp_client (server: " + serverAddress.toString() + ":" + QString::number(basePort) + ")";
+    return "rtl_tcp_client (server: " + serverAddress.toString() + ":" + QString::number(serverPort) + ")";
+}
+
+CDeviceID CRTL_TCP_Client::getID()
+{
+    return CDeviceID::RTL_TCP;
+}
+
+void CRTL_TCP_Client::setIP(QString IPAddress)
+{
+    serverAddress = QHostAddress(IPAddress);
+}
+
+void CRTL_TCP_Client::setPort(uint16_t Port)
+{
+    serverPort = Port;
 }
 
 void CRTL_TCP_Client::TCPConnectionWatchDogTimeout()
@@ -251,10 +258,10 @@ void CRTL_TCP_Client::TCPConnectionWatchDogTimeout()
     // Check the connection to the server
     if(!connected)
     {
-        fprintf(stderr, "Try to connect to server %s:%lli\n", serverAddress.toString().toStdString().c_str(), basePort);
+        fprintf(stderr, "Try to connect to server %s:%i\n", serverAddress.toString().toStdString().c_str(), serverPort);
 
         // Try to connect
-        TCPSocket.connectToHost(serverAddress, basePort);
+        TCPSocket.connectToHost(serverAddress, serverPort);
 
         if(TCPSocket.waitForConnected(2000)) // Timeout 2 s
         {
@@ -275,7 +282,7 @@ void CRTL_TCP_Client::TCPConnectionWatchDogTimeout()
 
     if(TCPSocket.state() != QTcpSocket::ConnectedState)
     {
-        fprintf(stderr, "Connection failed to server %s:%lli\n", serverAddress.toString().toStdString().c_str(), basePort);
+        fprintf(stderr, "Connection failed to server %s:%i\n", serverAddress.toString().toStdString().c_str(), serverPort);
         connected	= false;
     }
 }

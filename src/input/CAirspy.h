@@ -46,7 +46,7 @@
 class CAirspy : public CVirtualInput {
     Q_OBJECT
 public:
-    CAirspy(QSettings* Settings);
+    CAirspy();
     ~CAirspy(void);
 
     void setFrequency(int32_t nf);
@@ -60,6 +60,7 @@ public:
     int32_t getGainCount(void);
     void setAgc(bool AGC);
     QString getName(void);
+    CDeviceID getID(void);
 
 private:
     bool libraryLoaded;
@@ -74,7 +75,6 @@ private:
     int16_t convIndex;
     int16_t mapTable_int[4 * 512];
     float mapTable_float[4 * 512];
-    QSettings* airspySettings;
     RingBuffer<DSPCOMPLEX>* SampleBuffer;
     RingBuffer<DSPCOMPLEX>* SpectrumSampleBuffer;
     int32_t inputRate;

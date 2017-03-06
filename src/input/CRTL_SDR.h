@@ -47,7 +47,7 @@ class CRTL_SDR_Thread;
 class CRTL_SDR : public CVirtualInput {
     Q_OBJECT
 public:
-    CRTL_SDR(QSettings *settings);
+    CRTL_SDR();
     ~CRTL_SDR(void);
 
     bool restart(void);
@@ -61,6 +61,7 @@ public:
     int32_t getGainCount(void);
     void setAgc(bool AGC);
     QString getName(void);
+    CDeviceID getID(void);
 
     //	These need to be visible for the separate usb handling thread
     RingBuffer<uint8_t>* SampleBuffer;
@@ -73,7 +74,6 @@ private:
     int32_t FrequencyOffset;
     int theGain;
     bool isAGC;
-    QSettings* settings;
     int32_t deviceCount;
     CRTL_SDR_Thread* RTL_SDR_Thread;
     bool open;

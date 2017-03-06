@@ -80,7 +80,9 @@ HEADERS += ./src/dab-constants.h \
     ./src/gui/motimageprovider.h \
     ./src/gui/stationlist.h \
     ./src/input/CInputFactory.h \
-    ./src/input/CNullDevice.h
+    ./src/input/CNullDevice.h \
+    ./src/input/CRAWFile.h \
+    ./src/input/CRTL_TCP_Client.h
 
 SOURCES += ./src/main.cpp \
     ./src/ofdm/ofdm-processor.cpp \
@@ -116,7 +118,9 @@ SOURCES += ./src/main.cpp \
     ./src/gui/motimageprovider.cpp \
     ./src/gui/stationlist.cpp \
     ./src/input/CInputFactory.cpp \
-    ./src/input/CNullDevice.cpp
+    ./src/input/CNullDevice.cpp \
+    ./src/input/CRAWFile.cpp \
+    ./src/input/CRTL_TCP_Client.cpp
 
 unix {
 INCLUDEPATH	+= /usr/local/include
@@ -126,8 +130,6 @@ LIBS		+= -ldl
 LIBS		+= -lfaad
 CONFIG          += airspy
 CONFIG		+= rtl_sdr
-CONFIG		+= rtl_tcp
-CONFIG          += rawfile
 }
 
 
@@ -142,9 +144,7 @@ LIBS 		+= -lstdc++
 LIBS		+= -lws2_32
 LIBS		+= -llibfaad
 LIBS		+= -lusb-1.0
-CONFIG		+= rtl_tcp
 CONFIG		+= rtl_sdr
-CONFIG          += rawfile
 CONFIG          += airspy
 }
 
@@ -166,16 +166,4 @@ rtl_sdr {
 
         # The same lib for unix and Windows
         LIBS            += -lrtlsdr       
-}
-
-rtl_tcp {
-        DEFINES		+= HAVE_RTL_TCP
-        HEADERS		+= ./src/input/CRTL_TCP_Client.h
-        SOURCES		+= ./src/input/CRTL_TCP_Client.cpp
-}
-
-rawfile {
-        DEFINES		+= HAVE_RAWFILE
-        HEADERS		+= ./src/input/CRAWFile.h
-        SOURCES		+= ./src/input/CRAWFile.cpp
 }

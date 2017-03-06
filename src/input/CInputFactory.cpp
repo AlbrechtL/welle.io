@@ -26,30 +26,28 @@
 #include "CInputFactory.h"
 #include "CNullDevice.h"
 
+#include "CRTL_TCP_Client.h"
+#include "CRAWFile.h"
+
 #ifdef HAVE_RTLSDR
 #include "CRTL_SDR.h"
 #endif
-#ifdef HAVE_RTL_TCP
-#include "CRTL_TCP_Client.h"
-#endif
+
 #ifdef HAVE_AIRSPY
 #include "CAirspy.h"
 #endif
-#if HAVE_RAWFILE
-#include "CRAWFile.h"
-#endif
 
 
-CVirtualInput *CInputFactory::GetDevice(QString Device, QSettings* Settings)
+CVirtualInput *CInputFactory::GetDevice(QString Device)
 {
     CVirtualInput *InputDevice = NULL;
 
     fprintf(stderr, "Input device: %s\n", Device.toStdString().c_str());
 
     if(Device == "auto")
-        InputDevice = GetAutoDevice(Settings);
+        InputDevice = GetAutoDevice();
     else
-        InputDevice = GetManualDevice(Device, Settings);
+        InputDevice = GetManualDevice(Device);
 
     // Fallback if no device is found or an error occured
     if(InputDevice == NULL)
@@ -61,7 +59,7 @@ CVirtualInput *CInputFactory::GetDevice(QString Device, QSettings* Settings)
     return InputDevice;
 }
 
-CVirtualInput *CInputFactory::GetAutoDevice(QSettings *Settings)
+CVirtualInput *CInputFactory::GetAutoDevice()
 {
     CVirtualInput *InputDevice = NULL;
 
@@ -73,10 +71,10 @@ CVirtualInput *CInputFactory::GetAutoDevice(QSettings *Settings)
             switch(i)
             {
 #ifdef HAVE_AIRSPY
-            case 0: InputDevice = new CAirspy(Settings); break;
+            case 0: InputDevice = new CAirspy(); break;
 #endif
 #ifdef HAVE_RTLSDR
-            case 1: InputDevice = new CRTL_SDR(Settings); break;
+            case 1: InputDevice = new CRTL_SDR(); break;
 #endif
             }
         }
@@ -96,7 +94,7 @@ CVirtualInput *CInputFactory::GetAutoDevice(QSettings *Settings)
     return InputDevice;
 }
 
-CVirtualInput *CInputFactory::GetManualDevice(QString Device, QSettings *Settings)
+CVirtualInput *CInputFactory::GetManualDevice(QString Device)
 {
     CVirtualInput *InputDevice = NULL;
 
@@ -104,28 +102,20 @@ CVirtualInput *CInputFactory::GetManualDevice(QString Device, QSettings *Setting
     {
 #ifdef HAVE_AIRSPY
         if (Device == "airspy")
-            InputDevice = new CAirspy(Settings);
+            InputDevice = new CAirspy();
         else
 #endif
-
-#ifdef HAVE_RTL_TCP
         if (Device == "rtl_tcp")
-            InputDevice = new CRTL_TCP_Client(Settings);
+            InputDevice = new CRTL_TCP_Client();
         else
-#endif
-
 #ifdef HAVE_RTLSDR
         if (Device == "rtl_sdr")
-            InputDevice = new CRTL_SDR(Settings);
+            InputDevice = new CRTL_SDR();
         else
 #endif
-
-#ifdef HAVE_RAWFILE
         if (Device == "rawfile")
-            InputDevice = new CRAWFile(Settings);
+            InputDevice = new CRAWFile();
         else
-#endif
-            // else branch from the last device if
             fprintf(stderr, "Unknown device \"%s\".\n", Device.toStdString().c_str());
     }
 

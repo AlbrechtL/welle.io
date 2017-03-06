@@ -29,7 +29,7 @@ RowLayout {
         id: switchView
         style: switchStyle
         anchors.right: parent.right
-        onClicked: masterLayout.changed(switchView.checked)
+        onCheckedChanged: masterLayout.changed(switchView.checked)
     }
 
     /* Switch Style */

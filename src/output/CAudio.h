@@ -55,7 +55,7 @@ private:
 class	CAudio: public QObject{
 Q_OBJECT
 public:
-    CAudio(RingBuffer<int16_t> *Buffer, int16_t latency);
+    CAudio(RingBuffer<int16_t> *Buffer);
     ~CAudio(void);
     void stop (void);
     void setRate (int sampleRate);
@@ -71,7 +71,6 @@ private:
 
     QAudio::State CurrentState;
     int32_t		CardRate;
-    int16_t		latency;
 
 private slots:
     void handleStateChanged(QAudio::State newState);

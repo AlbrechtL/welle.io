@@ -90,3 +90,8 @@ QString CNullDevice::getName()
 {
     return "Null device";
 }
+
+CDeviceID CNullDevice::getID()
+{
+    return CDeviceID::NULLDEVICE;
+}

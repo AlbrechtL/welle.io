@@ -35,6 +35,10 @@
 #include <QString>
 #include <stdint.h>
 
+// Enum of available input device
+enum class CDeviceID {AIRSPY, NULLDEVICE, RAWFILE, RTL_SDR, RTL_TCP};
+
+// Device interface
 class CVirtualInput : public QObject {
 public:
     virtual void setFrequency(int32_t Frequency) = 0;
@@ -48,5 +52,7 @@ public:
     virtual int32_t getGainCount(void) = 0;
     virtual void setAgc(bool AGC) = 0;
     virtual QString getName(void) = 0;
+    virtual CDeviceID getID(void) = 0;
 };
+
 #endif

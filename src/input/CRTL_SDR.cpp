@@ -51,11 +51,9 @@ static void RTLSDRCallBack(uint8_t* buf, uint32_t len, void* ctx)
 }
 
 //	Our wrapper is a simple classs
-CRTL_SDR::CRTL_SDR(QSettings* settings)
+CRTL_SDR::CRTL_SDR()
 {
     int ret = 0;
-
-    this->settings = settings;
 
     fprintf(stderr,"Open rtl-sdr\n");
 
@@ -112,10 +110,7 @@ CRTL_SDR::CRTL_SDR(QSettings* settings)
         fprintf(stderr, "%.1f ", gains[i - 1] / 10.0);
     fprintf(stderr, "\n");
 
-    // Read settings
-    settings->beginGroup("rtl_sdr");
-
-    bool isAutoGain = settings->value("autogain", true).toBool();
+    bool isAutoGain = true; // ToDo
     if(isAutoGain)
     {
         // Set AGC on
@@ -127,23 +122,14 @@ CRTL_SDR::CRTL_SDR(QSettings* settings)
         setAgc(false);
 
         // Read gein
-        theGain = settings->value("externalGain", "10").toInt();
         rtlsdr_set_tuner_gain(device, theGain);
     }
-
-    settings->endGroup();
 
     return;
 }
 
 CRTL_SDR::~CRTL_SDR(void)
 {
-    // Save settings
-    settings->beginGroup("rtl_sdr");
-    settings->setValue("externalGain", theGain);
-    settings->setValue("autogain", isAGC);
-    settings->endGroup();
-
     if (RTL_SDR_Thread != NULL)
     { // we are running
         rtlsdr_cancel_async(device);
@@ -242,14 +228,12 @@ void CRTL_SDR::setAgc(bool AGC)
     {
         rtlsdr_set_tuner_gain_mode(device, 0);
         isAGC = true;
-        fprintf(stderr, "AGC is on\n");
     }
     else
     {
         rtlsdr_set_tuner_gain_mode(device, 1);
         isAGC = false;
         setGain(theGain);
-        fprintf(stderr, "AGC is off\n");
     }
 }
 
@@ -262,6 +246,11 @@ QString CRTL_SDR::getName()
     rtlsdr_get_usb_strings(device, manufact, product, serial);
 
     return QString(manufact) + ", " + QString(product) + ", " + QString(serial);
+}
+
+CDeviceID CRTL_SDR::getID()
+{
+    return CDeviceID::RTL_SDR;
 }
 
 int32_t CRTL_SDR::getSamples(DSPCOMPLEX* Buffer, int32_t Size)

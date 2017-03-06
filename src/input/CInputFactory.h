@@ -34,11 +34,11 @@
 class CInputFactory
 {
 public:
-    static CVirtualInput* GetDevice(QString Device, QSettings *Settings);
+    static CVirtualInput* GetDevice(QString Device);
 
 private:
-    static CVirtualInput* GetAutoDevice(QSettings *Settings);
-    static CVirtualInput* GetManualDevice(QString Device, QSettings *Settings);
+    static CVirtualInput* GetAutoDevice();
+    static CVirtualInput* GetManualDevice(QString Device);
 };
 
 #endif // CINPUTFACTORY_H
