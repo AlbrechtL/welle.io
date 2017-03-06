@@ -53,7 +53,8 @@ CRTL_TCP_Client::CRTL_TCP_Client()
     Frequency = Khz (220000);
 
     // Use default values
-    theGain	= 0;
+    currentAGC = true;
+    currentGain	= 0;
     serverPort = 1234;
     serverAddress = QHostAddress("127.0.0.1");
 
@@ -178,6 +179,8 @@ float CRTL_TCP_Client::setGain(int32_t gain)
 {
     float gainValue = 0;
 
+    currentGain	= gain;
+
     switch(gain)
     {
         case 0: gainValue = 0.0; break;
@@ -214,7 +217,6 @@ float CRTL_TCP_Client::setGain(int32_t gain)
     }
 
     sendCommand (0x04, (int) 10 * gainValue);
-    theGain	= gainValue;
 
     return gainValue;
 }
@@ -227,6 +229,8 @@ int32_t CRTL_TCP_Client::getGainCount()
 
 void CRTL_TCP_Client::setAgc(bool AGC)
 {
+    currentAGC = AGC;
+
     if(AGC)
         setGainMode(0);
 	else
@@ -268,7 +272,16 @@ void CRTL_TCP_Client::TCPConnectionWatchDogTimeout()
             qDebug() << "RTL_TCP_CLIENT" << "Successful connected to server";
             connected	= true;
 
-            setAgc(true);
+            if(currentAGC)
+            {
+                setAgc(true);
+            }
+            else
+            {
+                setAgc(false);
+                setGain(currentGain);
+            }
+
             sendRate(INPUT_RATE);
             sendVFO(Frequency);
             TCPSocket.waitForBytesWritten();

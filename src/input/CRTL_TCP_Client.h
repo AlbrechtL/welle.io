@@ -69,7 +69,8 @@ private slots:
 
 private:
     int32_t lastFrequency;
-    int theGain;
+    int32_t currentGain;
+    bool currentAGC;
     void sendVFO(int32_t);
     void sendRate(int32_t);
     void setGainMode(int32_t gainMode);
