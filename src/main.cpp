@@ -27,164 +27,154 @@
  *
  */
 
-#include	<QApplication>
-#include	<QSettings>
-#include	<QDir>
-#include	<QCommandLineParser>
-#include	<unistd.h>
+#include <QApplication>
+#include <QCommandLineParser>
+#include <QDir>
+#include <QSettings>
+#include <unistd.h>
 
-#include	"dab-constants.h"
-#include	"gui.h"
-#include    "CInputFactory.h"
-#include	"CRTL_TCP_Client.h"
-#include	"CRAWFile.h"
+#include "CInputFactory.h"
+#include "CRAWFile.h"
+#include "CRTL_TCP_Client.h"
+#include "dab-constants.h"
+#include "gui.h"
 
-int	main (int argc, char **argv)
+int main(int argc, char** argv)
 {
-    RadioInterface	*GUI;
-
     QCoreApplication::setOrganizationName("welle.io");
     QCoreApplication::setOrganizationDomain("welle.io");
     QCoreApplication::setApplicationName("welle.io");
 
-    QApplication a (argc, argv);
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+
+    QApplication a(argc, argv);
     a.setWindowIcon(QIcon(":/icon.png"));
 
-    // Default values   
-    uint8_t		Mode		= 1;
-    QString		dabDevice	= "auto";
-    uint8_t		Band		= BAND_III;
-    QString		ipAddress	= "127.0.0.1";
-    uint16_t	ipPort		= 1234;
-    QString     rawFile     = "";
+    // Default values
+    uint8_t Mode = 1;
+    QString dabDevice = "auto";
+    uint8_t Band = BAND_III;
+    QString ipAddress = "127.0.0.1";
+    uint16_t ipPort = 1234;
+    QString rawFile = "";
 
-//	Newer versions of Qt provide all kinds of nice mechanisms,
-//	unfortunately, there are quite some people (including me (jvk))
-//	who also work with older versions of Qt,
+    //	Newer versions of Qt provide all kinds of nice mechanisms,
+    //	unfortunately, there are quite some people (including me (jvk))
+    //	who also work with older versions of Qt,
     QCoreApplication::setApplicationName("welle.io");
-	QCoreApplication::setApplicationVersion(CURRENT_VERSION);
+    QCoreApplication::setApplicationVersion(CURRENT_VERSION);
 
-	QCommandLineParser optionParser;
+    QCommandLineParser optionParser;
     optionParser.setApplicationDescription("welle.io Help");
-	optionParser.addHelpOption();
-	optionParser.addVersionOption();
+    optionParser.addHelpOption();
+    optionParser.addVersionOption();
 
-	QCommandLineOption InputOption ("D",
-	          QCoreApplication::translate("main", "Input device"),
-	          QCoreApplication::translate("main", "Name"));
-	optionParser.addOption(InputOption);
+    QCommandLineOption InputOption("D",
+        QCoreApplication::translate("main", "Input device"),
+        QCoreApplication::translate("main", "Name"));
+    optionParser.addOption(InputOption);
 
-	QCommandLineOption DABModeOption ("M",
-	          QCoreApplication::translate("main", "DAB mode, possible are: 1,2 or 4, default: 1"),
-	          QCoreApplication::translate("main", "Mode"));
-	optionParser.addOption (DABModeOption);
+    QCommandLineOption DABModeOption("M",
+        QCoreApplication::translate("main", "DAB mode, possible are: 1,2 or 4, default: 1"),
+        QCoreApplication::translate("main", "Mode"));
+    optionParser.addOption(DABModeOption);
 
-	QCommandLineOption DABBandOption ("B",
-	          QCoreApplication::translate("main", "DAB band"),
-	          QCoreApplication::translate("main", "Band"));
-	optionParser.addOption (DABBandOption);
+    QCommandLineOption DABBandOption("B",
+        QCoreApplication::translate("main", "DAB band"),
+        QCoreApplication::translate("main", "Band"));
+    optionParser.addOption(DABBandOption);
 
-	QCommandLineOption RTL_TCPServerIPOption ("I",
-	          QCoreApplication::translate ("main", "rtl_tcp server IP address. Only valid for input rtl_tcp."),
-              QCoreApplication::translate ("main", "IP address"));
-	optionParser.addOption(RTL_TCPServerIPOption);
+    QCommandLineOption RTL_TCPServerIPOption("I",
+        QCoreApplication::translate("main", "rtl_tcp server IP address. Only valid for input rtl_tcp."),
+        QCoreApplication::translate("main", "IP address"));
+    optionParser.addOption(RTL_TCPServerIPOption);
 
-	QCommandLineOption RTL_TCPServerIPPort ("P",
-	          QCoreApplication::translate("main", "rtl_tcp server IP port. Only valid for input rtl_tcp."),
-	          QCoreApplication::translate ("main", "Port"));
-	optionParser.addOption(RTL_TCPServerIPPort);
+    QCommandLineOption RTL_TCPServerIPPort("P",
+        QCoreApplication::translate("main", "rtl_tcp server IP port. Only valid for input rtl_tcp."),
+        QCoreApplication::translate("main", "Port"));
+    optionParser.addOption(RTL_TCPServerIPPort);
 
-    QCommandLineOption RAWFILE ("F",
-              QCoreApplication::translate("main", "I/Q RAW file. Only valid for input rawfile."),
-              QCoreApplication::translate ("main", "I/Q RAW file"));
+    QCommandLineOption RAWFILE("F",
+        QCoreApplication::translate("main", "I/Q RAW file. Only valid for input rawfile."),
+        QCoreApplication::translate("main", "I/Q RAW file"));
     optionParser.addOption(RAWFILE);
 
-//	Process the actual command line arguments given by the user
-	optionParser.process(a);
+    //	Process the actual command line arguments given by the user
+    optionParser.process(a);
 
-//	Process input device option
-	QString InputValue = optionParser. value (InputOption);
-	if (InputValue != "")
-	   dabDevice = InputValue;
+    //	Process input device option
+    QString InputValue = optionParser.value(InputOption);
+    if (InputValue != "")
+        dabDevice = InputValue;
 
-//	Process DAB mode option
-	QString DABModValue = optionParser.value(DABModeOption);
-    if (DABModValue != "")
-    {
-       Mode	= DABModValue. toInt();
-       if (!(Mode == 1) || (Mode == 2) || (Mode == 4))
-          Mode = 1;
-	}
-
-//	Process DAB band option
-	QString DABBandValue = optionParser.value (DABBandOption);
-	if (DABBandValue != "")
-    {
-       if(DABBandValue == "BAND III")
-           Band = BAND_III;
-       else
-           Band = L_BAND;
+    //	Process DAB mode option
+    QString DABModValue = optionParser.value(DABModeOption);
+    if (DABModValue != "") {
+        Mode = DABModValue.toInt();
+        if (!(Mode == 1) || (Mode == 2) || (Mode == 4))
+            Mode = 1;
     }
 
-//	Process rtl_tcp server IP address option
-    QString RTL_TCPServerIPValue = optionParser. value (RTL_TCPServerIPOption);
-	if (RTL_TCPServerIPValue != "")
-	   ipAddress = RTL_TCPServerIPValue;
+    //	Process DAB band option
+    QString DABBandValue = optionParser.value(DABBandOption);
+    if (DABBandValue != "") {
+        if (DABBandValue == "BAND III")
+            Band = BAND_III;
+        else
+            Band = L_BAND;
+    }
 
-//	Process rtl_tcp server IP port option
-    QString RTL_TCPServerPortValue = optionParser. value(RTL_TCPServerIPPort);
-	if (RTL_TCPServerPortValue != "")
-       ipPort = RTL_TCPServerPortValue.toInt ();
+    //	Process rtl_tcp server IP address option
+    QString RTL_TCPServerIPValue = optionParser.value(RTL_TCPServerIPOption);
+    if (RTL_TCPServerIPValue != "")
+        ipAddress = RTL_TCPServerIPValue;
 
-//	Process raw file
+    //	Process rtl_tcp server IP port option
+    QString RTL_TCPServerPortValue = optionParser.value(RTL_TCPServerIPPort);
+    if (RTL_TCPServerPortValue != "")
+        ipPort = RTL_TCPServerPortValue.toInt();
+
+    //	Process raw file
     QString RAWFileValue = optionParser.value(RAWFILE);
     if (RAWFileValue != "")
-       rawFile = RAWFileValue;
+        rawFile = RAWFileValue;
 
     // Init device
-    CVirtualInput *Device = CInputFactory::GetDevice(dabDevice);
+    CVirtualInput* Device = CInputFactory::GetDevice(dabDevice);
 
     // Set rtl_tcp settings
-    if(Device->getID() == CDeviceID::RTL_TCP)
-    {
-        CRTL_TCP_Client *RTL_TCP_Client = (CRTL_TCP_Client*) Device;
+    if (Device->getID() == CDeviceID::RTL_TCP) {
+        CRTL_TCP_Client* RTL_TCP_Client = (CRTL_TCP_Client*)Device;
 
         RTL_TCP_Client->setIP(ipAddress);
         RTL_TCP_Client->setPort(ipPort);
     }
 
     // Set rawfile settings
-    if(Device->getID() == CDeviceID::RAWFILE)
-    {
-        CRAWFile *RAWFile = (CRAWFile*) Device;
+    if (Device->getID() == CDeviceID::RAWFILE) {
+        CRAWFile* RAWFile = (CRAWFile*)Device;
 
         RAWFile->setFileName(rawFile);
     }
 
-    GUI = new RadioInterface(Device, Mode, Band);
-/*
- *	Before we connect control to the gui, we have to
- *	instantiate
- */
-#if QT_VERSION >= 0x050600
-	QGuiApplication::setAttribute (Qt::AA_EnableHighDpiScaling);
-#endif    
-
-    QQmlApplicationEngine *engine;
+    // Create a new radio interface instance
+    RadioInterface* GUI = new RadioInterface(Device, Mode, Band);
 
     // Create new QML application, set some requried options and load the QML file
-    engine 	= new QQmlApplicationEngine;
-    QQmlContext *rootContext = engine -> rootContext();
-    rootContext -> setContextProperty("cppGUI", GUI);
+    QQmlApplicationEngine* engine = new QQmlApplicationEngine;
+    QQmlContext* rootContext = engine->rootContext();
+
+    // Connect C++ code to QML GUI
+    rootContext->setContextProperty("cppGUI", GUI);
+
+    // Load main page
     engine->load(QUrl("qrc:/src/gui/QML/main.qml"));
+
+    // Add MOT slideshow provider
     engine->addImageProvider(QLatin1String("motslideshow"), GUI->MOTImage);
 
-	a. exec ();
-/*
- *	done:
- */
-	fflush (stdout);
-	fflush (stderr);
+    // Run application
+    a.exec();
 
     // Close
     delete engine;
@@ -192,4 +182,3 @@ int	main (int argc, char **argv)
 
     return 0;
 }
-

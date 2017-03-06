@@ -120,7 +120,7 @@ RadioInterface::RadioInterface(CVirtualInput *Device, uint8_t Mode, uint8_t Band
 
 RadioInterface::~RadioInterface()
 {
-    fprintf(stderr, "deleting radioInterface\n");
+    qDebug() << "GUI:" <<  "deleting radioInterface";
 }
 /**
  * \brief returns the licenses for all the relative libraries plus application version information
@@ -130,7 +130,7 @@ const QVariantMap RadioInterface::licenses()
     QVariantMap ret;
     // Set application version
     QString InfoText;
-    InfoText += "welle.io version: " + QString(CURRENT_VERSION) + "\n";
+    InfoText += "welle.io version: " + QString(CURRENT_VERSION);
     InfoText += "Build on: " + QString(__TIMESTAMP__);
     ret.insert("version", InfoText);
 
@@ -336,7 +336,7 @@ static const char* table12[] = {
 const char* RadioInterface::get_programm_type_string(uint8_t type)
 {
     if (type > 0x40) {
-        fprintf(stderr, "GUI: programmtype wrong (%d)\n", type);
+        qDebug() << "GUI:" <<  "programmtype wrong"<< type;
         return (table12[0]);
     }
 
@@ -393,7 +393,7 @@ static const char* table9[] = {
 const char* RadioInterface::get_programm_language_string(uint8_t language)
 {
     if (language > 43) {
-        fprintf(stderr, "GUI: wrong language (%d)\n", language);
+        qDebug() << "GUI:" <<  "wrong language" << language;
         return table9[0];
     }
     return table9[language];
@@ -566,7 +566,7 @@ void RadioInterface::newAudio(int rate)
 void RadioInterface::show_mscErrors(int er)
 {
     emit displayMSCErrors(er);
-    fprintf(stderr, "displayMSCErrors: %i\n", er);
+    qDebug() << "GUI:" <<  "displayMSCErrors:" << er;
 }
 //
 //	a slot, called by the iphandler
@@ -726,9 +726,9 @@ void RadioInterface::setStart(void)
         return;
     //
     r = inputDevice->restart();
-    qDebug("Starting %d\n", r);
+    qDebug() << "GUI:" << "Starting" << r;
     if (!r) {
-        qDebug("Opening  input stream failed\n");
+        qDebug() << "GUI:" << "Opening input stream failed";
         return;
     }
     //
@@ -759,7 +759,7 @@ void RadioInterface::terminateProcess(void)
     delete my_mscHandler;
     delete Audio;
     Audio = NULL; // signals may be pending, so careful
-    fprintf(stderr, "Termination started\n");
+    qDebug() << "GUI:" <<  "Termination started";
     delete inputDevice;
     QApplication::quit();
 }
@@ -810,7 +810,7 @@ void RadioInterface::set_channelSelect(QString s)
         my_ofdmProcessor->reset();
         running = true;
     }
-    fprintf(stderr, "%s -> %d\n", s.toLatin1().data(), tunedFrequency);
+    qDebug() << "GUI:" <<  s << "->" << tunedFrequency;
     emit displayCurrentChannel(s, tunedFrequency);
 }
 
@@ -857,7 +857,7 @@ void RadioInterface::StationTimerTimeout(void)
 
     // Reset if frame success rate is below 50 %
     if (CurrentFrameErrors > 3 && !scanMode) {
-        fprintf(stderr, "Resetting tuner ...\n");
+        qDebug() << "GUI:" <<  "Resetting tuner ...";
 
         // Reset current channel to force channelClick to do a new turn
         // This is very ugly but its working
@@ -907,11 +907,11 @@ void RadioInterface::inputEnableAGCChanged(bool checked)
         if (!checked)
         {
             inputDevice->setGain(LastCurrentManualGain);
-            fprintf(stderr, "AGC off\n");
+            qDebug() << "GUI:" << "AGC off";
         }
         else
         {
-            fprintf(stderr, "AGC on\n");
+            qDebug() << "GUI:" <<  "AGC on";
         }
 
     }

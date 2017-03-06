@@ -131,7 +131,8 @@ int16_t	currentBlock	= 0;
 	      helper. unlock ();
 	   }
 	}
-	fprintf (stderr, "ofdm decoder is closing down now\n");
+
+    qDebug() << "OFDM-decoder:" <<  "closing down now";
 }
 /**
   *	We need some functions to enter the ofdmProcessor data

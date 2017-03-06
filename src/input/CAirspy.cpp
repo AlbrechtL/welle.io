@@ -29,6 +29,7 @@
  *
 */
 
+#include <QDebug>
 #include "CAirspy.h"
 
 static const int EXTIO_NS = 8192;
@@ -44,7 +45,7 @@ CAirspy::CAirspy()
     currentLinearityGain = 0;
     isAGC = true;
 
-    fprintf(stderr,"Open airspy\n");
+    qDebug() << "Airspy:" << "Open airspy";
 
     device = 0;
     serialNumber = 0;
@@ -56,26 +57,24 @@ CAirspy::CAirspy()
     strcpy(serial, "");
     result = airspy_init();
     if (result != AIRSPY_SUCCESS) {
-        fprintf(stderr,"airspy_init () failed: %s (%d)\n",
-            airspy_error_name((airspy_error)result), result);
+        qDebug() << "Airspy:" << "airspy_init () failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")";
         throw 0;
     }
 
     result = airspy_open(&device);
     if (result != AIRSPY_SUCCESS) {
-        fprintf(stderr,"airpsy_open () failed: %s (%d)\n",
-            airspy_error_name((airspy_error)result), result);
+        qDebug() << "Airspy:" << "airpsy_open () failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")";
         throw 0;
     }
 
     airspy_set_sample_type(device, AIRSPY_SAMPLE_INT16_IQ);
     airspy_get_samplerates(device, &samplerate_count, 0);
-    fprintf(stderr, "%d samplerates are supported\n", samplerate_count);
+    qDebug() << "Airspy:" << samplerate_count << "sample rates are supported";
     airspy_get_samplerates(device, myBuffer, samplerate_count);
 
     selectedRate = 0;
     for (uint32_t i = 0; i < samplerate_count; i++) {
-        fprintf(stderr, "%d \n", myBuffer[i]);
+        qDebug() << "Airspy:" << "sample rates:" << i << myBuffer[i];
         if (abs(myBuffer[i] - 2048000) < distance) {
             distance = abs(myBuffer[i] - 2048000);
             selectedRate = myBuffer[i];
@@ -83,15 +82,14 @@ CAirspy::CAirspy()
     }
 
     if (selectedRate == 0) {
-        fprintf(stderr, "Sorry. cannot help you\n");
+        qDebug() << "Airspy:" << "Sorry. cannot help you";
         throw 0;
     } else
-        fprintf(stderr, "selected samplerate = %d\n", selectedRate);
+        qDebug() << "Airspy:" << "selected samplerate" << selectedRate;
 
     result = airspy_set_samplerate(device, selectedRate);
     if (result != AIRSPY_SUCCESS) {
-        fprintf(stderr,"airspy_set_samplerate() failed: %s (%d)\n",
-            airspy_error_name((enum airspy_error)result), result);
+        qDebug() << "Airspy:" <<"airspy_set_samplerate() failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")";
         throw 0;
     }
 
@@ -130,14 +128,12 @@ CAirspy::~CAirspy(void)
     if (device) {
         int result = airspy_stop_rx(device);
         if (result != AIRSPY_SUCCESS) {
-            fprintf(stderr,"airspy_stop_rx () failed: %s (%d)\n",
-                airspy_error_name((airspy_error)result), result);
+            qDebug() << "Airspy:" <<"airspy_stop_rx () failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")";
         }
 
         result = airspy_close(device);
         if (result != AIRSPY_SUCCESS) {
-            fprintf(stderr,"airspy_close () failed: %s (%d)\n",
-                airspy_error_name((airspy_error)result), result);
+            qDebug() << "Airspy:" <<"airspy_close () failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")";
         }
     }
     airspy_exit();
@@ -148,8 +144,7 @@ void CAirspy::setFrequency(int32_t nf)
     int result = airspy_set_freq(device, nf);
 
     if (result != AIRSPY_SUCCESS) {
-        fprintf(stderr,"airspy_set_freq() failed: %s (%d)\n",
-            airspy_error_name((airspy_error)result), result);
+        qDebug() << "Airspy:" <<"airspy_set_freq() failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")";
     }
 }
 
@@ -164,16 +159,14 @@ bool CAirspy::restart(void)
     SpectrumSampleBuffer->FlushRingBuffer();
     result = airspy_set_sample_type(device, AIRSPY_SAMPLE_INT16_IQ);
     if (result != AIRSPY_SUCCESS) {
-        fprintf(stderr,"airspy_set_sample_type () failed: %s (%d)\n",
-            airspy_error_name((airspy_error)result), result);
+        qDebug() << "Airspy:" <<"airspy_set_sample_type () failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")";
         return false;
     }
 
     result = airspy_start_rx(device,
         (airspy_sample_block_cb_fn)callback, this);
     if (result != AIRSPY_SUCCESS) {
-        fprintf(stderr,"airspy_start_rx () failed: %s (%d)\n",
-            airspy_error_name((airspy_error)result), result);
+        qDebug() << "Airspy:" <<"airspy_start_rx () failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")";
         return false;
     }
 
@@ -191,8 +184,7 @@ void CAirspy::stop(void)
     int result = airspy_stop_rx(device);
 
     if (result != AIRSPY_SUCCESS) {
-        fprintf(stderr,"airspy_stop_rx() failed: %s (%d)\n",
-            airspy_error_name((airspy_error)result), result);
+        qDebug() << "Airspy:" <<"airspy_stop_rx() failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")";
     } else {
         delete[] buffer;
         bs_ = bl_ = 0;
@@ -302,15 +294,15 @@ void CAirspy::setAgc(bool AGC)
     {
         result = airspy_set_lna_agc(device, 1);
         if (result != AIRSPY_SUCCESS)
-            fprintf(stderr,"airspy_set_lna_agc() failed: %s (%d)\n", airspy_error_name((airspy_error)result), result);
+            qDebug() << "Airspy:" <<"airspy_set_lna_agc() failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")";
 
         result = airspy_set_mixer_agc(device, 1);
         if (result != AIRSPY_SUCCESS)
-            fprintf(stderr,"airspy_set_mixer_agc() failed: %s (%d)\n", airspy_error_name((airspy_error)result), result);
+            qDebug() << "Airspy:" <<"airspy_set_mixer_agc() failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")";
 
         result = airspy_set_vga_gain(device, 15); // Maximum gain. I don't know if we can do this
         if (result != AIRSPY_SUCCESS)
-           fprintf(stderr,"airspy_set_vga_gain () failed: %s (%d)\n", airspy_error_name((airspy_error)result), result);
+           qDebug() << "Airspy:" <<"airspy_set_vga_gain () failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")";
     }
     else
     {
@@ -349,9 +341,7 @@ float CAirspy::setGain(int gain)
 
     airspy_set_linearity_gain(device, currentLinearityGain);
     if (result != AIRSPY_SUCCESS)
-        fprintf(stderr,"airspy_set_mixer_agc() failed: %s (%d)\n", airspy_error_name((airspy_error)result), result);
-
-    fprintf(stderr, "AGC is off\n");
+        qDebug() << "Airspy:" <<"airspy_set_mixer_agc() failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")";
 
     return currentLinearityGain;
 }

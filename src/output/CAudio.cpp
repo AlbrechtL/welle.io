@@ -23,10 +23,12 @@
  *
  */
 
-#include	"CAudio.h"
-#include	<stdio.h>
+#include <QDebug>
+#include <stdio.h>
 
-CAudio::CAudio(RingBuffer<int16_t> *Buffer)
+#include "CAudio.h"
+
+CAudio::CAudio(RingBuffer<int16_t>* Buffer)
 {
     AudioOutput = NULL;
     CardRate = 0;
@@ -49,9 +51,9 @@ CAudio::~CAudio(void)
 
 void CAudio::setRate(int sampleRate)
 {
-    if(CardRate != sampleRate)
-    {
-        fprintf(stderr, "Sample rate %i Hz\n", sampleRate);
+    if (CardRate != sampleRate) {
+        qDebug() << "Audio:"
+                 << "Sample rate" << sampleRate << "Hz";
         CardRate = sampleRate;
         init(sampleRate);
     }
@@ -59,8 +61,7 @@ void CAudio::setRate(int sampleRate)
 
 void CAudio::init(int sampleRate)
 {
-    if(AudioOutput != NULL)
-    {
+    if (AudioOutput != NULL) {
         delete AudioOutput;
         AudioOutput = NULL;
     }
@@ -73,9 +74,9 @@ void CAudio::init(int sampleRate)
     AudioFormat.setSampleType(QAudioFormat::SignedInt);
 
     QAudioDeviceInfo info(QAudioDeviceInfo::defaultOutputDevice());
-    if (!info.isFormatSupported(AudioFormat))
-    {
-        fprintf(stderr,"Raw audio format not supported by backend, cannot play audio.\n");
+    if (!info.isFormatSupported(AudioFormat)) {
+        qDebug() << "Audio:"
+                 << "Raw audio format not supported by backend, cannot play audio.";
         return;
     }
 
@@ -96,13 +97,27 @@ void CAudio::handleStateChanged(QAudio::State newState)
 {
     CurrentState = newState;
 
-    switch (newState)
-    {
-    case QAudio::ActiveState: fprintf(stderr, "Audio State: ActiveState\n"); break;
-    case QAudio::SuspendedState: fprintf(stderr, "Audio State: SuspendedState\n"); break;
-    case QAudio::StoppedState: fprintf(stderr, "Audio State: StoppedState\n"); break;
-    case QAudio::IdleState: fprintf(stderr, "Audio State: IdleState\n"); break;
-    default: fprintf(stderr, "Audio State: Unknown state e: %i\n", newState); break;
+    switch (newState) {
+    case QAudio::ActiveState:
+        qDebug() << "Audio:"
+                 << "ActiveState";
+        break;
+    case QAudio::SuspendedState:
+        qDebug() << "Audio:"
+                 << "SuspendedState";
+        break;
+    case QAudio::StoppedState:
+        qDebug() << "Audio:"
+                 << "StoppedState";
+        break;
+    case QAudio::IdleState:
+        qDebug() << "Audio:"
+                 << "IdleState";
+        break;
+    default:
+        qDebug() << "Audio:"
+                 << "Unknown state:" << newState;
+        break;
     }
 }
 
@@ -111,16 +126,14 @@ void CAudio::checkAudioBufferTimeout()
     int32_t Bytes = Buffer->GetRingBufferReadAvailable();
 
     // Start audio if bytes are available and audio is not active
-    if(AudioOutput && Bytes && CurrentState != QAudio::ActiveState)
-    {
+    if (AudioOutput && Bytes && CurrentState != QAudio::ActiveState) {
         AudioIODevice->start();
         AudioOutput->start(AudioIODevice);
     }
 }
 
-
-CAudioIODevice::CAudioIODevice(RingBuffer<int16_t> *Buffer, QObject *parent)
-    :   QIODevice(parent)
+CAudioIODevice::CAudioIODevice(RingBuffer<int16_t>* Buffer, QObject* parent)
+    : QIODevice(parent)
 {
     this->Buffer = Buffer;
 }
@@ -140,7 +153,7 @@ void CAudioIODevice::stop()
     close();
 }
 
-qint64 CAudioIODevice::readData(char *data, qint64 len)
+qint64 CAudioIODevice::readData(char* data, qint64 len)
 {
     qint64 total = 0;
 
@@ -149,7 +162,7 @@ qint64 CAudioIODevice::readData(char *data, qint64 len)
     return total * 2;
 }
 
-qint64 CAudioIODevice::writeData(const char *data, qint64 len)
+qint64 CAudioIODevice::writeData(const char* data, qint64 len)
 {
     Q_UNUSED(data);
     Q_UNUSED(len);
@@ -161,4 +174,3 @@ qint64 CAudioIODevice::bytesAvailable() const
 {
     return Buffer->GetRingBufferReadAvailable();
 }
-

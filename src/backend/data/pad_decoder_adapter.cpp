@@ -54,7 +54,7 @@ void PADDecoderAdapter::PADChangeDynamicLabel()
 
     emit showLabel(DynamicLabelText);
 
-    //fprintf(stderr, "PADChangeDynamicLabel: %s\n", DynamicLabelText.toStdString().c_str());
+    //qDebug("PADChangeDynamicLabel: %s\n", DynamicLabelText.toStdString().c_str());
 }
 
 void PADDecoderAdapter::PADChangeSlide()
@@ -66,7 +66,7 @@ void PADDecoderAdapter::PADChangeSlide()
 
     emit the_picture(Data, motFile.content_sub_type, motFile.content_name.c_str());
 
-    //fprintf(stderr, "PADChangeSlide: Type: %i content_name: %s click_through_url: %s\n", motFile.content_sub_type, motFile.content_name.c_str(), motFile.click_through_url.c_str());
+    //qDebug("PADChangeSlide: Type: %i content_name: %s click_through_url: %s\n", motFile.content_sub_type, motFile.content_name.c_str(), motFile.click_through_url.c_str());
 }
 
 void PADDecoderAdapter::processPAD(uint8_t *theAU)

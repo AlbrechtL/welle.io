@@ -27,6 +27,8 @@
  *
  */
 
+#include <QDebug>
+
 #include "CRTL_SDR.h"
 
 #define READLEN_DEFAULT 8192
@@ -55,7 +57,7 @@ CRTL_SDR::CRTL_SDR()
 {
     int ret = 0;
 
-    fprintf(stderr,"Open rtl-sdr\n");
+    qDebug() << "RTL_TCP:" << "Open rtl-sdr";
 
     open = false;
     isAGC = false;
@@ -74,19 +76,19 @@ CRTL_SDR::CRTL_SDR()
     uint32_t deviceCount = rtlsdr_get_device_count();
     if (deviceCount == 0)
     {
-        fprintf(stderr, "No devices found\n");
+        qDebug() << "RTL_TCP:" << "No devices found";
         throw 0;
     }
     else
     {
-        fprintf(stderr, "Found %i devices. Uses the first one\n", deviceCount);
+        qDebug() << "RTL_TCP:" << "Found" << deviceCount << "devices. Uses the first one";
     }
 
     //	Open the first device
     ret = rtlsdr_open(&device, 0);
     if (ret < 0)
     {
-        fprintf(stderr, "Opening rtl-sdr failed\n");
+        qDebug() << "RTL_TCP:" << "Opening rtl-sdr failed";
         throw 0;
     }
 
@@ -96,19 +98,18 @@ CRTL_SDR::CRTL_SDR()
     ret = rtlsdr_set_sample_rate(device, INPUT_RATE);
     if (ret < 0)
     {
-        fprintf(stderr, "Setting sample rate failed\n");
+        qDebug() << "RTL_TCP:" << "Setting sample rate failed";
         throw 0;
     }
 
     // Get tuner gains
     gainsCount = rtlsdr_get_tuner_gains(device, NULL);
-    fprintf(stderr, "Supported gain values (%d): ", gainsCount);
+    qDebug() << "RTL_TCP:" << "Supported gain values" << gainsCount;
     gains = new int[gainsCount];
     gainsCount = rtlsdr_get_tuner_gains(device, gains);
 
     for (int i = gainsCount; i > 0; i--)
-        fprintf(stderr, "%.1f ", gains[i - 1] / 10.0);
-    fprintf(stderr, "\n");
+        qDebug() << "RTL_TCP:" << "gain" << (gains[i - 1] / 10.0);
 
     bool isAutoGain = true; // ToDo
     if(isAutoGain)
@@ -205,14 +206,14 @@ float CRTL_SDR::setGain(int32_t Gain)
 {
     if(Gain >= gainsCount)
     {
-        fprintf(stderr, "Unknown gain count %i\n", Gain);
+        qDebug() << "RTL_TCP:" << "Unknown gain count" << Gain;
         return 0;
     }
 
     theGain = gains[Gain];
     rtlsdr_set_tuner_gain(device, theGain);
 
-    //fprintf(stderr, "Set gain to %f db\n", theGain / 10.0);
+    //qDebug() << "RTL_TCP:" << "Set gain to %f db\n", theGain / 10.0);
 
     return theGain / 10.0;
 }

@@ -76,7 +76,7 @@ bool MOTTransport::ParseCheckHeader(MOT_FILE& file) {
 	file.content_type = (data[5] & 0x7F) >> 1;
 	file.content_sub_type = ((data[5] & 0x01) << 8) | data[6];
 
-//	fprintf(stderr, "body_size: %5zu, header_size: %3zu, content_type: 0x%02X, content_sub_type: 0x%03X\n",
+//	qDebug("body_size: %5zu, header_size: %3zu, content_type: 0x%02X, content_sub_type: 0x%03X\n",
 //			body_size, header_size, content_type, content_sub_type);
 
 	if(header_size != header.GetSize())
@@ -128,15 +128,15 @@ bool MOTTransport::ParseCheckHeader(MOT_FILE& file) {
 				return false;
             //file.content_name = FICDecoder::ConvertTextToUTF8(&data[offset + 1], data_len - 1, data[offset] >> 4);
             file.content_name = toQStringUsingCharset ( (const char *)&data[offset + 1], (CharacterSet) (data[offset] >> 4), data_len - 1).toStdString();
-//			fprintf(stderr, "ContentName: '%s'\n", file.content_name.c_str());
+//			qDebug("ContentName: '%s'\n", file.content_name.c_str());
 			break;
 		case 0x26:	// CategoryTitle
 			file.category_title = std::string((char*) &data[offset], data_len);	// already UTF-8
-//			fprintf(stderr, "CategoryTitle: '%s'\n", file.category_title.c_str());
+//			qDebug("CategoryTitle: '%s'\n", file.category_title.c_str());
 			break;
 		case 0x27:	// ClickThroughURL
 			file.click_through_url = std::string((char*) &data[offset], data_len);	// already UTF-8
-//			fprintf(stderr, "ClickThroughURL: '%s'\n", file.click_through_url.c_str());
+//			qDebug("ClickThroughURL: '%s'\n", file.click_through_url.c_str());
 			break;
 		}
 		offset += data_len;
@@ -270,7 +270,7 @@ bool MOTManager::HandleMOTDataGroup(const std::vector<uint8_t>& dg) {
 
 	// check if file shall be shown
 	bool display = transport.IsToBeShown();
-//	fprintf(stderr, "dg_type: %d, seg_number: %2d%s, transport_id: %5d, size: %4zu; display: %s\n",
+//	qDebug("dg_type: %d, seg_number: %2d%s, transport_id: %5d, size: %4zu; display: %s\n",
 //			dg_type, seg_number, last_seg ? " (LAST)" : "", transport_id, seg_size, display ? "true" : "false");
 
 	// if file shall be shown, update it

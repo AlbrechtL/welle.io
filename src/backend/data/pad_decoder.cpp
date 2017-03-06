@@ -123,7 +123,7 @@ void PADDecoder::Process(const uint8_t *xpad_data, size_t xpad_len, bool exact_x
 		}
 	}
 
-//	fprintf(stderr, "PADDecoder: -----\n");
+//	qDebug("PADDecoder: -----\n");
 	if(xpad_cis.empty())
 		return;
 
@@ -195,7 +195,7 @@ void PADDecoder::Process(const uint8_t *xpad_data, size_t xpad_len, bool exact_x
 			}
 			break;
 		}
-//		fprintf(stderr, "PADDecoder: Data Subfield: type: %2d, len: %2zu\n", it->type, it->len);
+//		qDebug("PADDecoder: Data Subfield: type: %2d, len: %2zu\n", it->type, it->len);
 
 		xpad_offset += it->len;
 	}
@@ -282,7 +282,7 @@ bool DGLIDecoder::DecodeDataGroup() {
 
 	DataGroup::Reset();
 
-//	fprintf(stderr, "DGLIDecoder: dgli_len: %5zu\n", dgli_len);
+//	qDebug("DGLIDecoder: dgli_len: %5zu\n", dgli_len);
 
 	return true;
 }
@@ -348,7 +348,7 @@ bool DynamicLabelDecoder::DecodeDataGroup() {
 
 	DataGroup::Reset();
 
-//	fprintf(stderr, "DynamicLabelDecoder: segnum %d, toggle: %s, chars_len: %2d%s\n", dl_seg.SegNum(), dl_seg.Toggle() ? "Y" : "N", dl_seg.chars.size(), dl_seg.Last() ? " [LAST]" : "");
+//	qDebug("DynamicLabelDecoder: segnum %d, toggle: %s, chars_len: %2d%s\n", dl_seg.SegNum(), dl_seg.Toggle() ? "Y" : "N", dl_seg.chars.size(), dl_seg.Last() ? " [LAST]" : "");
 
 	// try to add segment
 	if(!dl_sr.AddSegment(dl_seg))
@@ -412,7 +412,7 @@ bool DL_SEG_REASSEMBLER::CheckForCompleteLabel() {
 		label_raw.insert(label_raw.end(), dl_segs[i].chars.begin(), dl_segs[i].chars.end());
 
 //	std::string label((const char*) &label_raw[0], label_raw.size());
-//	fprintf(stderr, "DL_SEG_REASSEMBLER: new label: '%s'\n", label.c_str());
+//	qDebug("DL_SEG_REASSEMBLER: new label: '%s'\n", label.c_str());
 	return true;
 }
 
@@ -439,7 +439,7 @@ bool MOTDecoder::DecodeDataGroup() {
 
 	DataGroup::Reset();
 
-//	fprintf(stderr, "MOTDecoder: mot_len: %5zu\n", mot_len);
+//	qDebug("MOTDecoder: mot_len: %5zu\n", mot_len);
 
 	return true;
 }

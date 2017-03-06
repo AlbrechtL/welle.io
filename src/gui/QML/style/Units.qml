@@ -24,6 +24,6 @@ QtObject {
     }
 
     Component.onCompleted: {
-          console.log("GUI dpiScaleFactor: " + Settings.dpiScaleFactor)
+          console.debug("dpiScaleFactor: " + Settings.dpiScaleFactor)
        }
 }

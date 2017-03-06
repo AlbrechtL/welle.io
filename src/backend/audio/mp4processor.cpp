@@ -271,8 +271,7 @@ uint16_t	mpegSurround;
 	      }
 	   }
 	   else {
-	      fprintf (stderr, "CRC failure with dab+ frame %d (%d)\n",
-	                                          i, num_aus);
+          qDebug() << "mp4processor:" <<  "CRC failure with dab+ frame" << i << "(" << num_aus << ")";
 	   }
 	}
 	return true;

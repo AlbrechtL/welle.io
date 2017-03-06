@@ -23,6 +23,8 @@
  *
  */
 
+#include <QDebug>
+
 #include "CInputFactory.h"
 #include "CNullDevice.h"
 
@@ -42,7 +44,7 @@ CVirtualInput *CInputFactory::GetDevice(QString Device)
 {
     CVirtualInput *InputDevice = NULL;
 
-    fprintf(stderr, "Input device: %s\n", Device.toStdString().c_str());
+    qDebug() << "InputFactory:" << "Input device:" << Device;
 
     if(Device == "auto")
         InputDevice = GetAutoDevice();
@@ -52,7 +54,7 @@ CVirtualInput *CInputFactory::GetDevice(QString Device)
     // Fallback if no device is found or an error occured
     if(InputDevice == NULL)
     {
-        fprintf(stderr, "No valid device found use Null device instead.\n");
+        qDebug() << "InputFactory:" << "No valid device found use Null device instead.";
         InputDevice = new CNullDevice();
     }
 
@@ -116,13 +118,13 @@ CVirtualInput *CInputFactory::GetManualDevice(QString Device)
         if (Device == "rawfile")
             InputDevice = new CRAWFile();
         else
-            fprintf(stderr, "Unknown device \"%s\".\n", Device.toStdString().c_str());
+            qDebug() << "InputFactory:" <<"Unknown device \"" << Device << "\".";
     }
 
     // Catch all exceptions
     catch(...)
     {
-        fprintf(stderr, "Error while opening device \"%s\".\n", Device.toStdString().c_str());
+        qDebug() << "InputFactory:" <<"Error while opening device \"" << Device << "\".";
     }
 
     return InputDevice;

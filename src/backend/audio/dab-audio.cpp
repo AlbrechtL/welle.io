@@ -86,7 +86,7 @@ int32_t i;
 	else		// cannot happen
 	   our_dabProcessor = new dabProcessor ();
 
-	fprintf (stderr, "we have now %s\n", dabModus == DAB_PLUS ? "DAB+" : "DAB");
+    qDebug() << "dab-audio:" << "we have now" << ((dabModus == DAB_PLUS) ? "DAB+" : "DAB");
 	Buffer		= new RingBuffer<int16_t>(64 * 32768);
 	running		= true;
 	start ();
@@ -109,7 +109,7 @@ int16_t	i;
 int32_t	dabAudio::process	(int16_t *v, int16_t cnt) {
 int32_t	fr;
 	   if (Buffer -> GetRingBufferWriteAvailable () < cnt)
-	      fprintf (stderr, "dab-concurrent: buffer full\n");
+          qDebug() << "dab-audio:" << "dab-concurrent: buffer full";
 	   while ((fr = Buffer -> GetRingBufferWriteAvailable ()) <= cnt) {
 	      if (!running)
 	         return 0;

@@ -483,7 +483,7 @@ SyncOnPhase:
 	catch (int e) {
 	   ;
 	}
-	fprintf (stderr, "ofdmProcessor is closing down\n");
+    qDebug() << "OFDM-processor:" <<  "closing down";
 }
 
 void	ofdmProcessor:: reset	(void) {
