@@ -213,7 +213,7 @@ float CRTL_TCP_Client::setGain(int32_t gain)
         case 27: gainValue = 48.0; break;
         case 28: gainValue = 49.6; break;
         case 29: gainValue = 999; break; // Max gain
-        default: gainValue = 0.0; qDebug() << "RTL_TCP_CLIENT" << "Unknown gain count:" << gain;
+        default: gainValue = 0.0; qDebug() << "RTL_TCP_CLIENT:" << "Unknown gain count:" << gain;
     }
 
     sendCommand (0x04, (int) 10 * gainValue);
@@ -262,14 +262,14 @@ void CRTL_TCP_Client::TCPConnectionWatchDogTimeout()
     // Check the connection to the server
     if(!connected)
     {
-        qDebug() << "RTL_TCP_CLIENT" << "Try to connect to server" << serverAddress.toString() << ":" << serverPort;
+        qDebug() << "RTL_TCP_CLIENT:" << "Try to connect to server" << serverAddress.toString() << ":" << serverPort;
 
         // Try to connect
         TCPSocket.connectToHost(serverAddress, serverPort);
 
         if(TCPSocket.waitForConnected(2000)) // Timeout 2 s
         {
-            qDebug() << "RTL_TCP_CLIENT" << "Successful connected to server";
+            qDebug() << "RTL_TCP_CLIENT:" << "Successful connected to server";
             connected	= true;
 
             if(currentAGC)
@@ -288,14 +288,14 @@ void CRTL_TCP_Client::TCPConnectionWatchDogTimeout()
         }
         else
         {
-            qDebug() << "RTL_TCP_CLIENT" << "Timeout while connecting to server";
+            qDebug() << "RTL_TCP_CLIENT:" << "Timeout while connecting to server";
             connected	= false;
         }
     }
 
     if(TCPSocket.state() != QTcpSocket::ConnectedState)
     {
-        qDebug() << "RTL_TCP_CLIENT" << "Connection failed to server" << serverAddress.toString() << ":" << serverPort;
+        qDebug() << "RTL_TCP_CLIENT:" << "Connection failed to server" << serverAddress.toString() << ":" << serverPort;
         connected	= false;
     }
 }

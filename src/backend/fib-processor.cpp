@@ -1078,7 +1078,7 @@ uint32_t	selectedService;
 	   if (listofServices [i]. serviceLabel. label != s)
 	      continue;
 
-       qDebug() <<  "we found for" << s << "serviceId" <<  listofServices [i]. serviceId;
+       qDebug() << "fib-processor:" <<  "we found for" << s << "serviceId" <<  listofServices [i]. serviceId;
 	   selectedService = listofServices [i]. serviceId;
 	   for (j = 0; j < 64; j ++) {
 	      if (!components [j]. inUse)
