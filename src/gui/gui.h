@@ -111,8 +111,6 @@ private:
     common_fft* spectrum_fft_handler;
     bool autoCorrector;
     const QVariantMap licenses();
-    const char* get_programm_type_string(uint8_t);
-    const char* get_programm_language_string(uint8_t);
 
     QTimer CheckFICTimer;
     QTimer ScanChannelTimer;
@@ -139,6 +137,7 @@ private:
     int m_gainCount;
     float m_currentGainValue;
     QString m_deviceName;
+    int CurrentChannelScanIndex;
 
 public slots:
     void end_of_waiting_for_stations(void);

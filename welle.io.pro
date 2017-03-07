@@ -120,7 +120,8 @@ SOURCES += ./src/main.cpp \
     ./src/input/CInputFactory.cpp \
     ./src/input/CNullDevice.cpp \
     ./src/input/CRAWFile.cpp \
-    ./src/input/CRTL_TCP_Client.cpp
+    ./src/input/CRTL_TCP_Client.cpp \
+    ./src/dab-constants.cpp
 
 unix {
 INCLUDEPATH	+= /usr/local/include

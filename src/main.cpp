@@ -177,8 +177,8 @@ int main(int argc, char** argv)
     a.exec();
 
     // Close
-    delete engine;
-    delete GUI;
+    //delete engine;
+    //delete GUI;
 
     return 0;
 }

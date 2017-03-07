@@ -231,174 +231,6 @@ void RadioInterface::setModeParameters(uint8_t Mode)
     spectrum_fft_handler = new common_fft(dabModeParameters.T_u);
 }
 
-struct dabFrequencies {
-    const char* key;
-    int fKHz;
-};
-
-struct dabFrequencies bandIII_frequencies[] = {
-    { "5A", 174928 },
-    { "5B", 176640 },
-    { "5C", 178352 },
-    { "5D", 180064 },
-    { "6A", 181936 },
-    { "6B", 183648 },
-    { "6C", 185360 },
-    { "6D", 187072 },
-    { "7A", 188928 },
-    { "7B", 190640 },
-    { "7C", 192352 },
-    { "7D", 194064 },
-    { "8A", 195936 },
-    { "8B", 197648 },
-    { "8C", 199360 },
-    { "8D", 201072 },
-    { "9A", 202928 },
-    { "9B", 204640 },
-    { "9C", 206352 },
-    { "9D", 208064 },
-    { "10A", 209936 },
-    { "10B", 211648 },
-    { "10C", 213360 },
-    { "10D", 215072 },
-    { "11A", 216928 },
-    { "11B", 218640 },
-    { "11C", 220352 },
-    { "11D", 222064 },
-    { "12A", 223936 },
-    { "12B", 225648 },
-    { "12C", 227360 },
-    { "12D", 229072 },
-    { "13A", 230748 },
-    { "13B", 232496 },
-    { "13C", 234208 },
-    { "13D", 235776 },
-    { "13E", 237488 },
-    { "13F", 239200 },
-    { NULL, 0 }
-};
-
-struct dabFrequencies Lband_frequencies[] = {
-    { "LA", 1452960 },
-    { "LB", 1454672 },
-    { "LC", 1456384 },
-    { "LD", 1458096 },
-    { "LE", 1459808 },
-    { "LF", 1461520 },
-    { "LG", 1463232 },
-    { "LH", 1464944 },
-    { "LI", 1466656 },
-    { "LJ", 1468368 },
-    { "LK", 1470080 },
-    { "LL", 1471792 },
-    { "LM", 1473504 },
-    { "LN", 1475216 },
-    { "LO", 1476928 },
-    { "LP", 1478640 },
-    { NULL, 0 }
-};
-
-static const char* table12[] = {
-    "none",
-    "news",
-    "current affairs",
-    "information",
-    "sport",
-    "education",
-    "drama",
-    "arts",
-    "science",
-    "talk",
-    "pop music",
-    "rock music",
-    "easy listening",
-    "light classical",
-    "classical music",
-    "other music",
-    "wheather",
-    "finance",
-    "children\'s",
-    "factual",
-    "religion",
-    "phone in",
-    "travel",
-    "leisure",
-    "jazz and blues",
-    "country music",
-    "national music",
-    "oldies music",
-    "folk music",
-    "entry 29 not used",
-    "entry 30 not used",
-    "entry 31 not used"
-};
-
-const char* RadioInterface::get_programm_type_string(uint8_t type)
-{
-    if (type > 0x40) {
-        qDebug() << "GUI:" <<  "programmtype wrong"<< type;
-        return (table12[0]);
-    }
-
-    return table12[type];
-}
-
-static const char* table9[] = {
-    "unknown",
-    "Albanian",
-    "Breton",
-    "Catalan",
-    "Croatian",
-    "Welsh",
-    "Czech",
-    "Danish",
-    "German",
-    "English",
-    "Spanish",
-    "Esperanto",
-    "Estonian",
-    "Basque",
-    "Faroese",
-    "French",
-    "Frisian",
-    "Irish",
-    "Gaelic",
-    "Galician",
-    "Icelandic",
-    "Italian",
-    "Lappish",
-    "Latin",
-    "Latvian",
-    "Luxembourgian",
-    "Lithuanian",
-    "Hungarian",
-    "Maltese",
-    "Dutch",
-    "Norwegian",
-    "Occitan",
-    "Polish",
-    "Postuguese",
-    "Romanian",
-    "Romansh",
-    "Serbian",
-    "Slovak",
-    "Slovene",
-    "Finnish",
-    "Swedish",
-    "Tuskish",
-    "Flemish",
-    "Walloon"
-};
-
-const char* RadioInterface::get_programm_language_string(uint8_t language)
-{
-    if (language > 43) {
-        qDebug() << "GUI:" <<  "wrong language" << language;
-        return table9[0];
-    }
-    return table9[language];
-}
-
 /////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -593,7 +425,8 @@ void RadioInterface::startChannelScanClick(void)
     //	Clear old channels
     stationList.reset();
     //	start the radio
-    currentChannel = dabBand == BAND_III ? bandIII_frequencies[0].key : Lband_frequencies[0].key;
+    CurrentChannelScanIndex = 0;
+    currentChannel = CDABConstants::getChannelNameAtIndex(CurrentChannelScanIndex);
     set_channelSelect(currentChannel);
     emit currentStation(currentChannel);
     emit foundChannelCount(0);
@@ -620,17 +453,9 @@ void RadioInterface::stopChannelScanClick(void)
 
 QString RadioInterface::nextChannel(QString currentChannel)
 {
-    int16_t i;
-    struct dabFrequencies* finger;
-    if (dabBand == BAND_III)
-        finger = bandIII_frequencies;
-    else
-        finger = Lband_frequencies;
+    CurrentChannelScanIndex++;
 
-    for (i = 1; finger[i].key != NULL; i++)
-        if (finger[i - 1].key == currentChannel)
-            return QString(finger[i].key);
-    return QString("");
+    return currentChannel = CDABConstants::getChannelNameAtIndex(CurrentChannelScanIndex);
 }
 
 //
@@ -772,8 +597,6 @@ void RadioInterface::terminateProcess(void)
   */
 void RadioInterface::set_channelSelect(QString s)
 {
-    int16_t i;
-    struct dabFrequencies* finger;
     bool localRunning = running;
 
     // Reset timeout to reset the tuner
@@ -787,18 +610,7 @@ void RadioInterface::set_channelSelect(QString s)
         inputDevice->reset();
     }
 
-    tunedFrequency = 0;
-    if (dabBand == BAND_III)
-        finger = bandIII_frequencies;
-    else
-        finger = Lband_frequencies;
-
-    for (i = 0; finger[i].key != NULL; i++) {
-        if (finger[i].key == s) {
-            tunedFrequency = KHz(finger[i].fKHz);
-            break;
-        }
-    }
+    tunedFrequency = KHz(CDABConstants::getFrequency(s));
 
     if (tunedFrequency == 0)
         return;
@@ -842,8 +654,8 @@ void RadioInterface::CheckFICTimerTimeout(void)
     my_ficHandler->dataforAudioService(CurrentStation, &d);
     my_mscHandler->set_audioChannel(&d);
     showLabel(QString(" "));
-    stationType(get_programm_type_string(d.programType));
-    languageType(get_programm_language_string(d.language));
+    stationType(CDABConstants::getProgramTypeName(d.programType));
+    languageType(CDABConstants::getLanguageName(d.language));
     bitrate(d.bitRate);
     if (d.ASCTy == 077)
         emit dabType("DAB+");
