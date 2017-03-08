@@ -53,7 +53,6 @@ int main(int argc, char** argv)
     // Default values
     uint8_t Mode = 1;
     QString dabDevice = "auto";
-    uint8_t Band = BAND_III;
     QString ipAddress = "127.0.0.1";
     uint16_t ipPort = 1234;
     QString rawFile = "";
@@ -78,11 +77,6 @@ int main(int argc, char** argv)
         QCoreApplication::translate("main", "DAB mode, possible are: 1,2 or 4, default: 1"),
         QCoreApplication::translate("main", "Mode"));
     optionParser.addOption(DABModeOption);
-
-    QCommandLineOption DABBandOption("B",
-        QCoreApplication::translate("main", "DAB band"),
-        QCoreApplication::translate("main", "Band"));
-    optionParser.addOption(DABBandOption);
 
     QCommandLineOption RTL_TCPServerIPOption("I",
         QCoreApplication::translate("main", "rtl_tcp server IP address. Only valid for input rtl_tcp."),
@@ -113,15 +107,6 @@ int main(int argc, char** argv)
         Mode = DABModValue.toInt();
         if (!(Mode == 1) || (Mode == 2) || (Mode == 4))
             Mode = 1;
-    }
-
-    //	Process DAB band option
-    QString DABBandValue = optionParser.value(DABBandOption);
-    if (DABBandValue != "") {
-        if (DABBandValue == "BAND III")
-            Band = BAND_III;
-        else
-            Band = L_BAND;
     }
 
     //	Process rtl_tcp server IP address option
@@ -158,7 +143,7 @@ int main(int argc, char** argv)
     }
 
     // Create a new radio interface instance
-    RadioInterface* GUI = new RadioInterface(Device, Mode, Band);
+    RadioInterface* GUI = new RadioInterface(Device, Mode);
 
     // Create new QML application, set some requried options and load the QML file
     QQmlApplicationEngine* engine = new QQmlApplicationEngine;

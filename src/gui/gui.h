@@ -81,7 +81,7 @@ class RadioInterface : public QObject {
     Q_PROPERTY(QString deviceName MEMBER m_deviceName CONSTANT)
 
 public:
-    RadioInterface(CVirtualInput* Device, uint8_t Mode, uint8_t Band, QObject* parent = NULL);
+    RadioInterface(CVirtualInput* Device, uint8_t Mode, QObject* parent = NULL);
     ~RadioInterface();
     Q_INVOKABLE void channelClick(QString, QString);
     Q_INVOKABLE void startChannelScanClick(void);
@@ -100,7 +100,6 @@ private:
     void setModeParameters(uint8_t);
     DabParams dabModeParameters;
     uint8_t isSynced;
-    uint8_t dabBand;
     bool running;
     CVirtualInput* inputDevice;
     ofdmProcessor* my_ofdmProcessor;

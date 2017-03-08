@@ -40,7 +40,7 @@
   *	gui elements and the handling agents. All real action
   *	is embedded in actions, initiated by gui buttons
   */
-RadioInterface::RadioInterface(CVirtualInput *Device, uint8_t Mode, uint8_t Band, QObject *parent): QObject(parent)
+RadioInterface::RadioInterface(CVirtualInput *Device, uint8_t Mode, QObject *parent): QObject(parent)
 {
     QSettings Settings;
 
@@ -53,7 +53,6 @@ RadioInterface::RadioInterface(CVirtualInput *Device, uint8_t Mode, uint8_t Band
     isFICCRC = false;
     LastCurrentManualGain = 0;
 
-    dabBand = Band;
     inputDevice = Device;
 
     // Read channels from the settings
