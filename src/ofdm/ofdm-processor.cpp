@@ -106,6 +106,7 @@ int32_t	i;
   *	map the result on (soft) bits and hand over control for handling
   *	the decoded blocks
   */
+    running             = false;
 	fineCorrector		= 0;	
 	coarseCorrector		= 0;
 	f2Correction		= true;
