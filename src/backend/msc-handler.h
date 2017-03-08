@@ -42,7 +42,7 @@ class	dabVirtual;
 class mscHandler {
 public:
 		mscHandler		(RadioInterface *,
-	                                 DabParams	*,
+                                     CDABParams	*,
 	                                 RingBuffer<int16_t> *,
 	                                 bool);
 		~mscHandler		(void);

@@ -37,7 +37,7 @@
   *	will extract the Tu samples, do an FFT and extract the
   *	carriers and map them on (soft) bits
   */
-	ofdmDecoder::ofdmDecoder	(DabParams	*p,
+	ofdmDecoder::ofdmDecoder	(CDABParams	*p,
 	                                 RadioInterface *mr,
 	                                 ficHandler	*my_ficHandler,
 	                                 mscHandler	*my_mscHandler):

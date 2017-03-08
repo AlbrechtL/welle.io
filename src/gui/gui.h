@@ -30,25 +30,22 @@
 #ifndef _GUI
 #define _GUI
 
-#include "DabConstants.h"
-#include "fic-handler.h"
-#include "msc-handler.h"
 #include <QComboBox>
 #include <QLabel>
-
 #include <QQmlContext>
 #include <QTimer>
 #include <QtQml/QQmlApplicationEngine>
-
 #include <QList>
 #include <QtCharts>
 using namespace QtCharts;
 
 #include "motimageprovider.h"
 #include "stationlist.h"
-
 #include "ofdm-processor.h"
 #include "ringbuffer.h"
+#include "DabConstants.h"
+#include "fic-handler.h"
+#include "msc-handler.h"
 
 class QSettings;
 class CVirtualInput;
@@ -81,7 +78,7 @@ class RadioInterface : public QObject {
     Q_PROPERTY(QString deviceName MEMBER m_deviceName CONSTANT)
 
 public:
-    RadioInterface(CVirtualInput* Device, uint8_t Mode, QObject* parent = NULL);
+    RadioInterface(CVirtualInput* Device, CDABParams& DABParams, QObject* parent = NULL);
     ~RadioInterface();
     Q_INVOKABLE void channelClick(QString, QString);
     Q_INVOKABLE void startChannelScanClick(void);
@@ -97,8 +94,7 @@ public:
     MOTImageProvider* MOTImage;
 
 private:
-    void setModeParameters(uint8_t);
-    DabParams dabModeParameters;
+    CDABParams dabModeParameters;
     uint8_t isSynced;
     bool running;
     CVirtualInput* inputDevice;

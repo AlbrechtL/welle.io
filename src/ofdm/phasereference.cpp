@@ -28,7 +28,7 @@
   *	the first non-null block of a frame
   *	The class inherits from the phaseTable.
   */
-	phaseReference::phaseReference (DabParams	*p,
+	phaseReference::phaseReference (CDABParams	*p,
 	                                int16_t threshold):
 	                                     phaseTable (p -> dabMode) {
 int32_t	i;

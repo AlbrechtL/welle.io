@@ -32,7 +32,7 @@
   */
 class	interLeaver {
 public:
-	interLeaver	(DabParams *);
+	interLeaver	(CDABParams *);
 	~interLeaver	(void);
 int16_t	mapIn		(int16_t);
 private:

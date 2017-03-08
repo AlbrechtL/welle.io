@@ -39,7 +39,7 @@ class	mscHandler;
 class	ofdmDecoder: public QThread {
 Q_OBJECT
 public:
-		ofdmDecoder		(DabParams *,
+		ofdmDecoder		(CDABParams *,
 	                                 RadioInterface *,
 	                                 ficHandler	*,
 	                                 mscHandler	*);
@@ -50,7 +50,7 @@ public:
 	int16_t	get_snr			(DSPCOMPLEX *);
 	void	stop			(void);
 private:
-	DabParams	*params;
+	CDABParams	*params;
 	RadioInterface	*myRadioInterface;
 	ficHandler	*my_ficHandler;
 	mscHandler	*my_mscHandler;

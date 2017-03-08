@@ -51,7 +51,7 @@ int main(int argc, char** argv)
     a.setWindowIcon(QIcon(":/icon.png"));
 
     // Default values
-    uint8_t Mode = 1;
+    CDABParams DABParams(1);
     QString dabDevice = "auto";
     QString ipAddress = "127.0.0.1";
     uint16_t ipPort = 1234;
@@ -104,9 +104,11 @@ int main(int argc, char** argv)
     //	Process DAB mode option
     QString DABModValue = optionParser.value(DABModeOption);
     if (DABModValue != "") {
-        Mode = DABModValue.toInt();
-        if (!(Mode == 1) || (Mode == 2) || (Mode == 4))
+        int Mode = DABModValue.toInt();
+        if ((Mode < 1) || (Mode > 4))
             Mode = 1;
+
+        DABParams.setMode(Mode);
     }
 
     //	Process rtl_tcp server IP address option
@@ -143,7 +145,7 @@ int main(int argc, char** argv)
     }
 
     // Create a new radio interface instance
-    RadioInterface* GUI = new RadioInterface(Device, Mode);
+    RadioInterface* GUI = new RadioInterface(Device, DABParams);
 
     // Create new QML application, set some requried options and load the QML file
     QQmlApplicationEngine* engine = new QQmlApplicationEngine;

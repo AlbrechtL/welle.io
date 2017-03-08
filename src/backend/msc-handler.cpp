@@ -36,7 +36,7 @@
 //	Note CIF counts from 0 .. 3
 //
 		mscHandler::mscHandler	(RadioInterface *mr,
-	                                 DabParams	*p,
+                                     CDABParams	*p,
 	                                 RingBuffer<int16_t> *buffer,
 	                                 bool	show_crcErrors) {
 	myRadioInterface	= mr;

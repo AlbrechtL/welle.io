@@ -55,7 +55,7 @@ class ofdmProcessor: public QThread {
 Q_OBJECT
 public:
 		ofdmProcessor  	(CVirtualInput *,
-	                         DabParams	*,
+	                         CDABParams	*,
 	                         RadioInterface *,
 	                         mscHandler *,
 	                         ficHandler *,
@@ -70,7 +70,7 @@ public:
 	void	set_scanMode		(bool, QString);
 private:
 	CVirtualInput	*theRig;
-	DabParams	*params;
+	CDABParams	*params;
 	RadioInterface	*myRadioInterface;
 	ficHandler	*my_ficHandler;
 

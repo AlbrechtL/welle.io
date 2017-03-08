@@ -284,3 +284,81 @@ void CDABConstants::fillFrequencyMap(void)
 
     isFrequencyMapFiled = true;
 }
+
+CDABParams::CDABParams()
+{
+    setMode(1);
+}
+
+CDABParams::CDABParams(int Mode)
+{
+    setMode(Mode);
+}
+
+void CDABParams::setMode(int Mode)
+{
+
+    switch(Mode)
+    {
+    case 1: setMode1(); break;
+    case 2: setMode2(); break;
+    case 3: setMode3(); break;
+    case 4: setMode4(); break;
+    default: qDebug() << "DABConstants:"
+                      << "Unknown mode";
+    }
+}
+
+void CDABParams::setMode1()
+{
+    dabMode = 1;
+    L = 76;
+    K = 1536;
+    T_F = 196608;
+    T_null = 2656;
+    T_s = 2552;
+    T_u = 2048;
+    guardLength = 504;
+    carrierDiff = 1000;
+}
+
+
+void CDABParams::setMode2()
+{
+    dabMode = 2;
+    L = 76;
+    K = 384;
+    T_null = 664;
+    T_F = 49152;
+    T_s = 638;
+    T_u = 512;
+    guardLength = 126;
+    carrierDiff = 4000;
+}
+
+
+void CDABParams::setMode3()
+{
+    dabMode = 3;
+    L = 153;
+    K = 192;
+    T_F = 49152;
+    T_null = 345;
+    T_s = 319;
+    T_u = 256;
+    guardLength = 63;
+    carrierDiff = 2000;
+}
+
+void CDABParams::setMode4()
+{
+    dabMode = 4;
+    L = 76;
+    K = 768;
+    T_F = 98304;
+    T_null = 1328;
+    T_s = 1276;
+    T_u = 1024;
+    guardLength = 252;
+    carrierDiff = 2000;
+}

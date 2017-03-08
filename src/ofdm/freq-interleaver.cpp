@@ -57,7 +57,7 @@ int16_t	i;
 	return v;
 }
 
-	interLeaver::interLeaver (DabParams *p) {
+	interLeaver::interLeaver (CDABParams *p) {
 
 	switch (p -> dabMode) {
 	   case 1:

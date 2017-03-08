@@ -28,7 +28,7 @@ Parameter | Description
 h | Show help 
 v | Show version 
 D | Input device. Possible is: auto (default), airspy, rtl_tcp, rtl_sdr, rawfile
-M | DAB mode. Possible is: 1,2 or 4, Default: 1 
+M | DAB mode. Possible is: 1,2,3 or 4, Default: 1 
 I | rtl_tcp server IP address. Only valid for input rtl_tcp 
 P | rtl_tcp server IP port. Only valid for input rtl_tcp
 F | I/Q RAW file. Only valid for input rawfile.

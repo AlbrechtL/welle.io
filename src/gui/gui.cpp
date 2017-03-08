@@ -40,7 +40,7 @@
   *	gui elements and the handling agents. All real action
   *	is embedded in actions, initiated by gui buttons
   */
-RadioInterface::RadioInterface(CVirtualInput *Device, uint8_t Mode, QObject *parent): QObject(parent)
+RadioInterface::RadioInterface(CVirtualInput *Device, CDABParams& DABParams, QObject *parent): QObject(parent)
 {
     QSettings Settings;
 
@@ -54,6 +54,7 @@ RadioInterface::RadioInterface(CVirtualInput *Device, uint8_t Mode, QObject *par
     LastCurrentManualGain = 0;
 
     inputDevice = Device;
+    dabModeParameters = DABParams;
 
     // Read channels from the settings
     Settings.beginGroup("channels");
@@ -81,8 +82,6 @@ RadioInterface::RadioInterface(CVirtualInput *Device, uint8_t Mode, QObject *par
     */
     AudioBuffer = new RingBuffer<int16_t>(2 * 32768);
     Audio = new CAudio(AudioBuffer);
-
-    setModeParameters(Mode);
 
     /**
     *	The actual work is done elsewhere: in ofdmProcessor
@@ -115,6 +114,8 @@ RadioInterface::RadioInterface(CVirtualInput *Device, uint8_t Mode, QObject *par
     connect(&CheckFICTimer, SIGNAL(timeout(void)), this, SLOT(CheckFICTimerTimeout(void)));
     connect(&StationTimer, SIGNAL(timeout(void)), this, SLOT(StationTimerTimeout(void)));
     CurrentFrameErrors = -1;
+
+    spectrum_fft_handler = new common_fft(dabModeParameters.T_u);
 }
 
 RadioInterface::~RadioInterface()
@@ -175,59 +176,6 @@ void RadioInterface::saveSettings()
         Settings.setValue("channel/" + QString::number(i),
             stationList.getStationAt(i - 1));
     Settings.endGroup();
-}
-//
-///	the values for the different Modes:
-void RadioInterface::setModeParameters(uint8_t Mode)
-{
-
-    if (Mode == 2) {
-        dabModeParameters.dabMode = 2;
-        dabModeParameters.L = 76; // blocks per frame
-        dabModeParameters.K = 384; // carriers
-        dabModeParameters.T_null = 664; // null length
-        dabModeParameters.T_F = 49152; // samples per frame
-        dabModeParameters.T_s = 638; // block length
-        dabModeParameters.T_u = 512; // useful part
-        dabModeParameters.guardLength = 126;
-        dabModeParameters.carrierDiff = 4000;
-    } else if (Mode == 4) {
-        dabModeParameters.dabMode = 4;
-        dabModeParameters.L = 76;
-        dabModeParameters.K = 768;
-        dabModeParameters.T_F = 98304;
-        dabModeParameters.T_null = 1328;
-        dabModeParameters.T_s = 1276;
-        dabModeParameters.T_u = 1024;
-        dabModeParameters.guardLength = 252;
-        dabModeParameters.carrierDiff = 2000;
-    } else if (Mode == 3) {
-        dabModeParameters.dabMode = 3;
-        dabModeParameters.L = 153;
-        dabModeParameters.K = 192;
-        dabModeParameters.T_F = 49152;
-        dabModeParameters.T_null = 345;
-        dabModeParameters.T_s = 319;
-        dabModeParameters.T_u = 256;
-        dabModeParameters.guardLength = 63;
-        dabModeParameters.carrierDiff = 2000;
-    } else // default = Mode I
-    {
-        dabModeParameters.dabMode = 1;
-        dabModeParameters.L = 76;
-        dabModeParameters.K = 1536;
-        dabModeParameters.T_F = 196608;
-        dabModeParameters.T_null = 2656;
-        dabModeParameters.T_s = 2552;
-        dabModeParameters.T_u = 2048;
-        dabModeParameters.guardLength = 504;
-        dabModeParameters.carrierDiff = 1000;
-    }
-
-    /*spectrumBuffer = new DSPCOMPLEX [dabModeParameters. T_u];
-        memset (spectrumBuffer, 0,
-                      dabModeParameters.T_u * sizeof (DSPCOMPLEX));*/
-    spectrum_fft_handler = new common_fft(dabModeParameters.T_u);
 }
 
 /////////////////////////////////////////////////////////////////////////////

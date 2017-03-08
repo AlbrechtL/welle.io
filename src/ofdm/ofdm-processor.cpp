@@ -60,7 +60,7 @@ static
 QString	currentChannel;
 
 	ofdmProcessor::ofdmProcessor	(CVirtualInput	*theRig,
-	                                 DabParams	*params,
+	                                 CDABParams	*params,
 	                                 RadioInterface *mr,
 	                                 mscHandler 	*msc,
 	                                 ficHandler 	*fic,
