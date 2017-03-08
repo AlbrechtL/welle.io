@@ -28,7 +28,7 @@
  * 	frames into the ffmpeg or faad decoding library
  */
 //
-#include	"dab-constants.h"
+#include	"DabConstants.h"
 #include	<stdio.h>
 #include	<stdint.h>
 #include	"CAudio.h"

@@ -38,7 +38,7 @@
 #include <QtNetwork>
 
 #include "CVirtualInput.h"
-#include "dab-constants.h"
+#include "DabConstants.h"
 #include "MathHelper.h"
 #include "ringbuffer.h"
 

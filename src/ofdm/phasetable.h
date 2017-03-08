@@ -27,7 +27,7 @@
 
 #include	<stdio.h>
 #include	<stdint.h>
-#include	"dab-constants.h"
+#include	"DabConstants.h"
 
 struct phasetableElement {
 	int32_t	kmin, kmax;

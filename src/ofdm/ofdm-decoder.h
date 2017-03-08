@@ -22,7 +22,7 @@
 #ifndef	__OFDM_DECODER
 #define	__OFDM_DECODER
 
-#include	"dab-constants.h"
+#include	"DabConstants.h"
 #include	<QThread>
 #include	<QWaitCondition>
 #include	<QMutex>

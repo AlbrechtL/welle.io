@@ -29,7 +29,7 @@
 #include    <QAudioOutput>
 #include    <QTimer>
 
-#include	"dab-constants.h"
+#include	"DabConstants.h"
 #include	"ringbuffer.h"
 
 class CAudioIODevice : public QIODevice

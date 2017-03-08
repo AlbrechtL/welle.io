@@ -31,7 +31,7 @@
 
 //
 //	Simple wrapper around fftwf
-#include	"dab-constants.h"
+#include	"DabConstants.h"
 //
 #define	FFTW_MALLOC		fftwf_malloc
 #define	FFTW_PLAN_DFT_1D	fftwf_plan_dft_1d

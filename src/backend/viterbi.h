@@ -4,7 +4,7 @@
 /*
  * 	Viterbi.h according to the SPIRAL project
  */
-#include	"dab-constants.h"
+#include	"DabConstants.h"
 #include    "MathHelper.h"
 
 //	For our particular viterbi decoder, we have

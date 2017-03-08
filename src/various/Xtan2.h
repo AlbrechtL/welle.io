@@ -12,7 +12,7 @@
 #include	<stdint.h>
 #include	<cstdlib>
 #include	<limits>
-#include	"dab-constants.h"
+#include	"DabConstants.h"
 #
 class	compAtan {
 public:

@@ -32,7 +32,7 @@
 #include "CInputFactory.h"
 #include "gui.h"
 #include "CAudio.h"
-#include "dab-constants.h"
+#include "DabConstants.h"
 
 /**
   *	We use the creation function merely to set up the

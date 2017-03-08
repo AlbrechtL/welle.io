@@ -30,7 +30,7 @@
 #ifndef _GUI
 #define _GUI
 
-#include "dab-constants.h"
+#include "DabConstants.h"
 #include "fic-handler.h"
 #include "msc-handler.h"
 #include <QComboBox>

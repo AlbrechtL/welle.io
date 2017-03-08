@@ -36,7 +36,7 @@
 #include "CInputFactory.h"
 #include "CRAWFile.h"
 #include "CRTL_TCP_Client.h"
-#include "dab-constants.h"
+#include "DabConstants.h"
 #include "gui.h"
 
 int main(int argc, char** argv)

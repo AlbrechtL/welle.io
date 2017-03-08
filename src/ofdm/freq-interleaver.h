@@ -24,7 +24,7 @@
 #ifndef	__FREQ_INTERLEAVER__
 #define	__FREQ_INTERLEAVER__
 #include	<stdint.h>
-#include	"dab-constants.h"
+#include	"DabConstants.h"
 /**
   *	\class interLeaver
   *	Implements frequency interleaving according to section 14.6

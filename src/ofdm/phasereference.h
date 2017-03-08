@@ -29,7 +29,7 @@
 #include	<stdio.h>
 #include	<stdint.h>
 #include	"phasetable.h"
-#include	"dab-constants.h"
+#include	"DabConstants.h"
 
 
 class phaseReference : public phaseTable {

@@ -41,7 +41,7 @@ INCLUDEPATH += . \
               ./src/gui
 
 # Input
-HEADERS += ./src/dab-constants.h \
+HEADERS += ./src/DabConstants.h \
     ./src/ofdm/ofdm-processor.h \
     ./src/ofdm/ofdm-decoder.h \
     ./src/ofdm/phasereference.h \
@@ -120,7 +120,7 @@ SOURCES += ./src/main.cpp \
     ./src/input/CNullDevice.cpp \
     ./src/input/CRAWFile.cpp \
     ./src/input/CRTL_TCP_Client.cpp \
-    ./src/dab-constants.cpp
+    ./src/DabConstants.cpp
 
 unix {
 INCLUDEPATH	+= /usr/local/include

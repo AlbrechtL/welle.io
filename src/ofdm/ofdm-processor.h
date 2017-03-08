@@ -32,7 +32,7 @@
 /*
  *
  */
-#include	"dab-constants.h"
+#include	"DabConstants.h"
 #include	<QThread>
 #include	<QObject>
 #include	"stdint.h"

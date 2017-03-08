@@ -24,7 +24,7 @@
 //
 //	dummy for the dab handler
 //
-#include	"dab-constants.h"
+#include	"DabConstants.h"
 #include	"dab-virtual.h"
 
 #include	"gui.h"		// defines RadioInterface

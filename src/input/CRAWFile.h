@@ -35,7 +35,7 @@
 #include <QThread>
 
 #include "CVirtualInput.h"
-#include "dab-constants.h"
+#include "DabConstants.h"
 #include "ringbuffer.h"
 
 class QLabel;

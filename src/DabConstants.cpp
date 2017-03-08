@@ -25,7 +25,7 @@
 
 #include <qdebug.h>
 
-#include "dab-constants.h"
+#include "DabConstants.h"
 
 std::map<QString, int> CDABConstants::FrequencyMap;
 bool CDABConstants::isFrequencyMapFiled = false;

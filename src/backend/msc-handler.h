@@ -33,7 +33,7 @@
 #include	<stdio.h>
 #include	<stdint.h>
 #include	<stdio.h>
-#include	"dab-constants.h"
+#include	"DabConstants.h"
 #include	"ringbuffer.h"
 
 class	RadioInterface;
