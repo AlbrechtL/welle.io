@@ -29,15 +29,18 @@
 
 #ifndef __RTL_TCP_CLIENT
 #define __RTL_TCP_CLIENT
-#include "CVirtualInput.h"
-#include "dab-constants.h"
-#include "ringbuffer.h"
+
 #include <QByteArray>
 #include <QHostAddress>
 #include <QSettings>
 #include <QTcpSocket>
 #include <QTimer>
 #include <QtNetwork>
+
+#include "CVirtualInput.h"
+#include "dab-constants.h"
+#include "MathHelper.h"
+#include "ringbuffer.h"
 
 class CRTL_TCP_Client : public CVirtualInput {
     Q_OBJECT

@@ -80,7 +80,8 @@ HEADERS += ./src/dab-constants.h \
     ./src/input/CInputFactory.h \
     ./src/input/CNullDevice.h \
     ./src/input/CRAWFile.h \
-    ./src/input/CRTL_TCP_Client.h
+    ./src/input/CRTL_TCP_Client.h \
+    ./src/MathHelper.h
 
 SOURCES += ./src/main.cpp \
     ./src/ofdm/ofdm-processor.cpp \

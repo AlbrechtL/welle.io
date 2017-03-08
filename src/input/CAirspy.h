@@ -31,12 +31,15 @@
 #ifndef __AIRSPY_RADIO__
 #define __AIRSPY_RADIO__
 
-#include "CVirtualInput.h"
-#include "dab-constants.h"
-#include "ringbuffer.h"
 #include <QFrame>
 #include <QObject>
 #include <QSettings>
+
+#include "CVirtualInput.h"
+#include "dab-constants.h"
+#include "MathHelper.h"
+#include "ringbuffer.h"
+
 #ifndef __MINGW32__
 #include "libairspy/airspy.h"
 #else

@@ -27,7 +27,7 @@
 
 #include "dab-constants.h"
 
-map<QString, int> CDABConstants::FrequencyMap;
+std::map<QString, int> CDABConstants::FrequencyMap;
 bool CDABConstants::isFrequencyMapFiled = false;
 
 int CDABConstants::getFrequency(QString ChannelName)

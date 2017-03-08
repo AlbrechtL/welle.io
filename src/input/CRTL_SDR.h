@@ -37,6 +37,7 @@
 
 #include "CVirtualInput.h"
 #include "dab-constants.h"
+#include "MathHelper.h"
 #include "ringbuffer.h"
 
 class CRTL_SDR_Thread;
