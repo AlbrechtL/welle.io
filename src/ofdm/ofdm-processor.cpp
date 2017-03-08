@@ -92,7 +92,6 @@ int32_t	i;
 	sampleCnt			= 0;
 	scanMode			= false;
 	NoReadCounter			= 0;
-
 /**
   *	the class phaseReference will take a number of samples
   *	and indicate - using some threshold - whether there is
@@ -137,22 +136,36 @@ int32_t	i;
 	   refArg [i] = arg (phaseSynchronizer. refTable [(T_u + i) % T_u] *
 	              conj (phaseSynchronizer. refTable [(T_u + i + 1) % T_u]));
 	}
-	start ();
+    //start ();
 }
 
 	ofdmProcessor::~ofdmProcessor	(void) {
 	running		= false;	// this will cause an
 	                                // exception to be raised
 	                        	// through the getNextSampleReady
-	msleep (100);
+    /*msleep (100);
 	if (isRunning ())
 	   terminate ();
-	wait ();
+    wait ();*/
+    threadHandle. join ();
 	delete		ofdmBuffer;
 	delete		oscillatorTable;
 	delete		fft_handler;
 	delete[] 	correlationVector;
 	delete[]	refArg;
+}
+
+void	ofdmProcessor::start	(void) {
+    qDebug() << "OFDM-processor:" <<  "start";
+    coarseCorrector	= 0;
+    fineCorrector	= 0;
+    f2Correction	= true;
+    syncBufferIndex	= 0;
+    sLevel		= 0;
+    localPhase	= 0;
+    theRig->restart();
+    running		= true;
+    threadHandle	= std::thread (&ofdmProcessor::run, this);
 }
 
 
@@ -252,8 +265,6 @@ int32_t		i;
 	}
 }
 static
-int32_t		syncBufferIndex	= 0;
-static
 int		attempts	= 0;
 /***
    *	\brief run
@@ -273,9 +284,9 @@ int32_t		syncBufferSize	= 32768;
 int32_t		syncBufferMask	= syncBufferSize - 1;
 float		envBuffer	[syncBufferSize];
 
-	running		= true;
+    /*running		= true;
 	fineCorrector	= 0;
-	sLevel		= 0;
+    sLevel		= 0;*/
 	try {
 
 //Initing:
@@ -289,8 +300,7 @@ notSynced:
 	      emit (setSignalPresent (false));
 	      scanMode	= false;
 	      attempts	= 0;
-	   }
-
+       }
 	   syncBufferIndex	= 0;
 	   currentStrength	= 0;
 
@@ -367,28 +377,26 @@ SyncOnPhase:
 //
 ///	and then, call upon the phase synchronizer to verify/compute
 ///	the real "first" sample
-	   startIndex = phaseSynchronizer. findIndex (ofdmBuffer);
-	   if (startIndex < 0) { // no sync, try again
+       startIndex = phaseSynchronizer. findIndex (ofdmBuffer);
+       if (startIndex < 0) { // no sync, try again
 /**
   *	In case we do not have a correlation value larger than
   *	a given threshold, we start all over again.
   */
 	      goto notSynced;
-	   }
-
+       }
 	   if (scanMode) {
 	      emit (setSignalPresent (true));
 	      scanMode	= false;
               attempts	= 0;
-	   }
-
+       }
 /**
   *	Once here, we are synchronized, we need to copy the data we
   *	used for synchronization for block 0
   */
-	   memmove (ofdmBuffer, &ofdmBuffer [startIndex],
-	                  (params -> T_u - startIndex) * sizeof (DSPCOMPLEX));
-	   ofdmBufferIndex	= params -> T_u - startIndex;
+       memmove (ofdmBuffer, &ofdmBuffer [startIndex],
+                      (params -> T_u - startIndex) * sizeof (DSPCOMPLEX));
+       ofdmBufferIndex	= params -> T_u - startIndex;
 
 //Block_0:
 /**
@@ -487,18 +495,22 @@ SyncOnPhase:
 }
 
 void	ofdmProcessor:: reset	(void) {
-	if (isRunning ())
-	   terminate ();
-	wait ();
+    /*if (isRunning ())
+       terminate ();
+    wait ();
 	fineCorrector	= coarseCorrector = 0;
 	f2Correction	= true;
 	syncBufferIndex	= 0;
 	attempts	= 0;
-	theRig	-> reset ();
+	theRig	-> resetBuffer ();
 	running = false;
 	scanMode	= false;
-
-	start ();
+    start ();*/
+    if (running) {
+       running = false;
+       threadHandle. join ();
+    }
+    start ();
 }
 
 void	ofdmProcessor::stop	(void) {

@@ -35,6 +35,7 @@
 #include	"DabConstants.h"
 #include	<QThread>
 #include	<QObject>
+#include	<thread>
 #include	"stdint.h"
 #include	"phasereference.h"
 #include	"ofdm-decoder.h"
@@ -68,9 +69,12 @@ public:
 	void	coarseCorrectorOn	(void);
 	void	coarseCorrectorOff	(void);
 	void	set_scanMode		(bool, QString);
+    void	start	(void);
 private:
-	CVirtualInput	*theRig;
-	CDABParams	*params;
+    std::thread threadHandle;
+    int32_t	syncBufferIndex;
+    CVirtualInput	*theRig;
+    CDABParams	*params;
 	RadioInterface	*myRadioInterface;
 	ficHandler	*my_ficHandler;
 
@@ -107,7 +111,6 @@ private:
 	void		getSamples	(DSPCOMPLEX *, int16_t, int32_t);
 	bool		scanMode;
 	int32_t		NoReadCounter;
-
 virtual	void		run		(void);
 	int32_t		bufferContent;
 	bool		isReset;

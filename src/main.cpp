@@ -163,9 +163,5 @@ int main(int argc, char** argv)
     // Run application
     a.exec();
 
-    // Close
-    //delete engine;
-    //delete GUI;
-
     return 0;
 }
