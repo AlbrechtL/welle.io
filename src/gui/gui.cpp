@@ -47,6 +47,7 @@ RadioInterface::RadioInterface(CVirtualInput *Device, CDABParams& DABParams, QOb
     //	Before printing anything, we set
     setlocale(LC_ALL, "");
 
+    coarseCorrector = 0;
     running = false;
     scanMode = false;
     isSynced = UNSYNCED;

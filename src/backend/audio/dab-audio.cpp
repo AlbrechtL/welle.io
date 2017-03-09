@@ -127,7 +127,7 @@ int16_t	i, j;
 int16_t	countforInterleaver	= 0;
 int16_t	interleaverIndex	= 0;
 uint8_t	shiftRegister [9];
-int16_t	Data [fragmentSize];
+int16_t	Data [fragmentSize] = {0};
 	while (running) {
 	   while (Buffer -> GetRingBufferReadAvailable () <= fragmentSize) {
 	      ourMutex. lock ();
