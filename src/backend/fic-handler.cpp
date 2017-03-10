@@ -34,7 +34,7 @@
 //	puncturing (per 32 bits) according to PI_15
 //	The last 24 bits shall be subjected to puncturing
 //	according to the table X
-extern
+
 uint8_t PI_X [24] = {
 	1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0,
 	1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0
