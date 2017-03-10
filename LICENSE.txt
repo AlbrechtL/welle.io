@@ -1,9 +1,15 @@
-Copyright (c) 2016-2017 Albrecht Lohofener (albrechtloh@gmx.de) 
-Copyright (c) 2009-2016 Jan van Katwijk Lazy Chair Computing (J.vanKatwijk@gmail.com)
-Copyright (c) 2016 Stefan Pöschel
+﻿welle.io project
+Copyright (c) 2016-2017 Albrecht Lohofener (albrechtloh@gmx.de)
+
+welle.io uses parts from the following programs 
+- qt.dab
+  Copyright (c) 2009-2017 Jan van Katwijk Lazy Chair Computing (J.vanKatwijk@gmail.com)
+  https://github.com/JvanKatwijk/qt-dab
+- dablin
+  Copyright (c) 2016 Stefan Pöschel
+  https://github.com/Opendigitalradio/dablin
 
 
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
             GNU GENERAL PUBLIC LICENSE
                Version 2, June 1991
 
