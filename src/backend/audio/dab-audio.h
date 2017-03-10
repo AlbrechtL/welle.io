@@ -40,7 +40,7 @@ public:
 	dabAudio	(uint8_t dabModus,
 	                 int16_t fragmentSize,
 	                 int16_t bitRate,
-	                 int16_t uepFlag,
+	                 bool	shortForm,
 	                 int16_t protLevel,
 	                 RadioInterface *mr,
 	                 RingBuffer<int16_t> *);
@@ -56,7 +56,7 @@ volatile bool		running;
 	uint8_t		dabModus;
 	int16_t		fragmentSize;
 	int16_t		bitRate;
-	int16_t		uepFlag;
+	bool		shortForm;
 	int16_t		protLevel;
 	uint8_t		*outV;
 	int16_t		**interleaveData;

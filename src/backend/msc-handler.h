@@ -68,7 +68,7 @@ private:
 	int16_t		new_DSCTy;
 	int16_t		new_startAddr;
 	int16_t		new_Length;
-	int16_t		new_uepFlag;
+	bool		new_shortForm;
 	int16_t		new_protLevel;
 	uint8_t		new_DGflag;
 	int16_t		new_bitRate;

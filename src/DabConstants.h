@@ -106,7 +106,7 @@ private:
 typedef struct {
     int16_t subchId;
     int16_t startAddr;
-    uint8_t uepFlag;
+    bool shortForm;
     int16_t protLevel;
     int16_t DSCTy;
     int16_t length;
@@ -119,7 +119,7 @@ typedef struct {
 typedef struct {
     int16_t subchId;
     int16_t startAddr;
-    uint8_t uepFlag;
+    bool shortForm;
     int16_t protLevel;
     int16_t length;
     int16_t bitRate;

@@ -373,17 +373,12 @@ SyncOnPhase:
   *	as long as we can be sure that the first sample to be identified
   *	is part of the samples read.
   */
-	   for (i = 0; i <  params -> T_u; i ++) 
-	      ofdmBuffer [i] = getSample (coarseCorrector + fineCorrector);
+	getSamples (ofdmBuffer, T_u, coarseCorrector + fineCorrector);
 //
 ///	and then, call upon the phase synchronizer to verify/compute
 ///	the real "first" sample
-       startIndex = phaseSynchronizer. findIndex (ofdmBuffer);
-       if (startIndex < 0) { // no sync, try again
-/**
-  *	In case we do not have a correlation value larger than
-  *	a given threshold, we start all over again.
-  */
+	   startIndex = phaseSynchronizer. findIndex (ofdmBuffer);
+	   if (startIndex < 0) { // no sync, try again
 	      goto notSynced;
        }
 	   if (scanMode) {

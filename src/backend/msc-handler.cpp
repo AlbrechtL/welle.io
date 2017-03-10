@@ -79,7 +79,7 @@
 void	mscHandler::set_audioChannel (audiodata *d) {
 	locker. lock ();
 	audioService	= true;
-	new_uepFlag	= d	-> uepFlag;
+	new_shortForm	= d	-> shortForm;
 	new_startAddr	= d	-> startAddr;
 	new_Length	= d	-> length;
 	new_protLevel	= d	-> protLevel;
@@ -95,7 +95,7 @@ void	mscHandler::set_audioChannel (audiodata *d) {
 void	mscHandler::set_dataChannel (packetdata	*d) {
 	locker. lock ();
 	audioService	= false;
-	new_uepFlag	= d	-> uepFlag;
+	new_shortForm	= d	-> shortForm;
 	new_startAddr	= d	-> startAddr;
 	new_Length	= d	-> length;
 	new_protLevel	= d	-> protLevel;
@@ -136,7 +136,7 @@ int16_t	*myBegin;
 	      dabHandler = new dabAudio (new_dabModus,
 	                                 new_Length * CUSize,
 	                                 new_bitRate,
-	                                 new_uepFlag,
+	                                 new_shortForm,
 	                                 new_protLevel,
 	                                 myRadioInterface,
 	                                 buffer);
@@ -147,7 +147,7 @@ int16_t	*myBegin;
 //	                                new_packetAddress,
 //	                                new_Length * CUSize,
 //	                                new_bitRate,
-//	                                new_uepFlag,
+//	                                new_shortForm,
 //	                                new_protLevel,
 //	                                new_DGflag,
 //	                                new_FEC_scheme,

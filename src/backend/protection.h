@@ -27,12 +27,7 @@
 
 #include	<stdint.h>
 
-// __attribute__((unused)) is necessarey for some reasons
-static
-uint8_t	PI_X [24] __attribute__((unused)) = {
-	1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0,
-	1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0
-};
+extern uint8_t	PI_X [];
 
 class	protection {
 public:

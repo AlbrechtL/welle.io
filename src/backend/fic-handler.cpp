@@ -34,7 +34,7 @@
 //	puncturing (per 32 bits) according to PI_15
 //	The last 24 bits shall be subjected to puncturing
 //	according to the table X
-static
+extern
 uint8_t PI_X [24] = {
 	1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0,
 	1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0
@@ -164,12 +164,12 @@ int16_t	viterbiBlock [3072 + 24];
   *	each 128 bit block contains 4 subblocks of 32 bits
   *	on which the given puncturing is applied
   */
+	memset (viterbiBlock, 0, (3072 + 24) * sizeof (int16_t));
+
 	for (i = 0; i < 21; i ++) {
 	   for (k = 0; k < 32 * 4; k ++) {
-	      if (PI_16 [k % 32] == 1)  
+	      if (PI_16 [k % 32] != 0)  
 	         viterbiBlock [local] = ficblock [input_counter ++];
-	      else
-	         viterbiBlock [local] = 128;	// a real "do not know"
 	      local ++;
 	   }
 	}
@@ -181,11 +181,10 @@ int16_t	viterbiBlock [3072 + 24];
   */
 	for (i = 0; i < 3; i ++) {
 	   for (k = 0; k < 32 * 4; k ++) {
-	      if (PI_15 [k % 32] == 1)  
-	         viterbiBlock [local ++] = ficblock [input_counter ++];
-	      else
-	         viterbiBlock [local ++] = 128;	// a real "do not know"
-	      }
+	      if (PI_15 [k % 32] != 0)  
+	         viterbiBlock [local] = ficblock [input_counter ++];
+	      local ++;
+	   }
 	}
 
 /**
@@ -193,11 +192,9 @@ int16_t	viterbiBlock [3072 + 24];
   *	This block constitues the 6 * 4 bits of the register itself.
   */
 	for (k = 0; k < 24; k ++) {
-	   if (PI_X [k] == 1) {
-	      viterbiBlock [local ++] = ficblock [input_counter ++];
-	   }
-	   else
-	      viterbiBlock [local ++] = 128;
+	   if (PI_X [k] != 0) 
+	      viterbiBlock [local] = ficblock [input_counter ++];
+	   local ++;
 	}
 /**
   *	Now we have the full word ready for deconvolution

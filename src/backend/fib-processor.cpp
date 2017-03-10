@@ -299,45 +299,43 @@ int16_t	option, protLevel, subChanSize;
 	if (getBits_1 (d, bitOffset + 16) == 0) {	// short form
 	   tabelIndex = getBits_6 (d, bitOffset + 18);
 	   ficList [SubChId]. Length  	= ProtLevel [tabelIndex][0];
-	   ficList [SubChId]. uepFlag	= 0;
+	   ficList [SubChId]. shortForm	= true;		// short form
 	   ficList [SubChId]. protLevel	= ProtLevel [tabelIndex][1];
 	   ficList [SubChId]. BitRate	= ProtLevel [tabelIndex][2];
 	   bitOffset += 24;
 	}
 	else { 	// EEP long form
-	   ficList [SubChId]. uepFlag	= 1;
+	   ficList [SubChId]. shortForm	= false;
 	   option = getBits_3 (d, bitOffset + 17);
 	   if (option == 0) { 		// A Level protection
-	      protLevel = getBits_2 (d, bitOffset + 20) + 1;
+	      protLevel = getBits (d, bitOffset + 20, 2);
 //
 //	we encode the A level protection by adding 0100 to the level
-	      ficList [SubChId]. protLevel = protLevel + 0100;
+	      ficList [SubChId]. protLevel = protLevel;
 	      subChanSize = getBits (d, bitOffset + 22, 10);
 	      ficList [SubChId]. Length	= subChanSize;
-	      if (protLevel == 1)
+	      if (protLevel == 0)
 	         ficList [SubChId]. BitRate	= subChanSize / 12 * 8;
-	      if (protLevel == 2)
+	      if (protLevel == 1)
 	         ficList [SubChId]. BitRate	= subChanSize / 8 * 8;
-	      if (protLevel == 3)
+	      if (protLevel == 2)
 	         ficList [SubChId]. BitRate	= subChanSize / 6 * 8;
-	      if (protLevel == 4)
+	      if (protLevel == 3)
 	         ficList [SubChId]. BitRate	= subChanSize / 4 * 8;
 	   }
 	   else			// option should be 001
 	   if (option == 001) {		// B Level protection
-	      protLevel = getBits_2 (d, bitOffset + 20) + 1;
-//
-//	we encode the B protection levels by adding a 0200 to the level
-	      ficList [SubChId]. protLevel = protLevel + 0200;
+	      protLevel = getBits_2 (d, bitOffset + 20);
+	      ficList [SubChId]. protLevel = protLevel + (1 << 2);
 	      subChanSize = getBits (d, bitOffset + 22, 10);
 	      ficList [SubChId]. Length = subChanSize;
-	      if (protLevel == 1)
+	      if (protLevel == 0)
 	         ficList [SubChId]. BitRate	= subChanSize / 27 * 32;
-	      if (protLevel == 2)
+	      if (protLevel == 1)
 	         ficList [SubChId]. BitRate	= subChanSize / 21 * 32;
-	      if (protLevel == 3)
+	      if (protLevel == 2)
 	         ficList [SubChId]. BitRate	= subChanSize / 18 * 32;
-	      if (protLevel == 4)
+	      if (protLevel == 3)
 	         ficList [SubChId]. BitRate	= subChanSize / 15 * 32;
 	   }
 
@@ -1127,7 +1125,7 @@ uint32_t	selectedService;
 	     subchId	= components [j]. subchannelId;
 	      d	-> subchId	= subchId;
 	      d	-> startAddr	= ficList [subchId]. StartAddr;
-	      d	-> uepFlag	= ficList [subchId]. uepFlag;
+	      d	-> shortForm	= ficList [subchId]. shortForm;
 	      d	-> protLevel	= ficList [subchId]. protLevel;
 	      d	-> DSCTy	= components [j]. DSCTy;
 	      d	-> length	= ficList [subchId]. Length;
@@ -1172,7 +1170,7 @@ uint32_t	selectedService;
 	      subchId	= components [j]. subchannelId;
 	      d	-> subchId	= subchId;
 	      d	-> startAddr	= ficList [subchId]. StartAddr;
-	      d	-> uepFlag	= ficList [subchId]. uepFlag;
+	      d	-> shortForm	= ficList [subchId]. shortForm;
 	      d	-> protLevel	= ficList [subchId]. protLevel;
 	      d	-> length	= ficList [subchId]. Length;
 	      d	-> bitRate	= ficList [subchId]. BitRate;

@@ -46,7 +46,7 @@
 	dabAudio::dabAudio	(uint8_t dabModus,
 	                         int16_t fragmentSize,
 	                         int16_t bitRate,
-	                         int16_t uepFlag,
+	                         bool	shortForm,
 	                         int16_t protLevel,
 	                         RadioInterface *mr,
 	                         RingBuffer<int16_t> *buffer) {
@@ -54,7 +54,7 @@ int32_t i;
 	this	-> dabModus		= dabModus;
 	this	-> fragmentSize		= fragmentSize;
 	this	-> bitRate		= bitRate;
-	this	-> uepFlag		= uepFlag;
+	this	-> shortForm		= shortForm;
 	this	-> protLevel		= protLevel;
 	this	-> myRadioInterface	= mr;
 	this	-> audioBuffer		= buffer;
@@ -66,7 +66,7 @@ int32_t i;
 	   memset (interleaveData [i], 0, fragmentSize * sizeof (int16_t));
 	}
 
-	if (uepFlag == 0)
+	if (shortForm)
 	   protectionHandler	= new uep_protection (bitRate,
 	                                              protLevel);
 	else
@@ -108,26 +108,29 @@ int16_t	i;
 
 int32_t	dabAudio::process	(int16_t *v, int16_t cnt) {
 int32_t	fr;
-	   if (Buffer -> GetRingBufferWriteAvailable () < cnt)
-          qDebug() << "dab-audio:" << "dab-concurrent: buffer full";
-	   while ((fr = Buffer -> GetRingBufferWriteAvailable ()) <= cnt) {
-	      if (!running)
-	         return 0;
-	      usleep (1);
-	   }
 
-	   Buffer	-> putDataIntoBuffer (v, cnt);
-	   Locker. wakeAll ();
-	   return fr;
+	if (Buffer -> GetRingBufferWriteAvailable () < cnt)
+	   fprintf (stderr, "dab-concurrent: buffer full\n");
+	while ((fr = Buffer -> GetRingBufferWriteAvailable ()) <= cnt) {
+	   if (!running)
+	      return 0;
+	   usleep (1);
+	}
+
+	Buffer	-> putDataIntoBuffer (v, cnt);
+	Locker. wakeAll ();
+	return fr;
 }
 
-const	int16_t interleaveMap[] = {0,8,4,12,2,10,6,14,1,9,5,13,3,11,7,15};
+const	int16_t interleaveMap [] = {0,8,4,12,2,10,6,14,1,9,5,13,3,11,7,15};
 void	dabAudio::run	(void) {
 int16_t	i, j;
 int16_t	countforInterleaver	= 0;
 int16_t	interleaverIndex	= 0;
 uint8_t	shiftRegister [9];
 int16_t	Data [fragmentSize] = {0};
+int16_t tempX [fragmentSize] = {0};
+
 	while (running) {
 	   while (Buffer -> GetRingBufferReadAvailable () <= fragmentSize) {
 	      ourMutex. lock ();
@@ -143,18 +146,19 @@ int16_t	Data [fragmentSize] = {0};
 	   Buffer	-> getDataFromBuffer (Data, fragmentSize);
 
 	   for (i = 0; i < fragmentSize; i ++) {
+	      tempX [i] = interleaveData [(interleaverIndex + 
+	                                  interleaveMap [i & 017]) & 017][i];
 	      interleaveData [interleaverIndex][i] = Data [i];
-	      Data [i] = interleaveData [(interleaverIndex + 
-	                                 interleaveMap [i & 017]) & 017][i];
 	   }
 	   interleaverIndex = (interleaverIndex + 1) & 0x0F;
+//
 //	only continue when de-interleaver is filled
 	   if (countforInterleaver <= 15) {
 	      countforInterleaver ++;
 	      continue;
 	   }
 //
-	   protectionHandler -> deconvolve (Data, fragmentSize, outV);
+	   protectionHandler -> deconvolve (tempX, fragmentSize, outV);
 //
 //	and the inline energy dispersal
 	   memset (shiftRegister, 1, 9);
