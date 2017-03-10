@@ -47,7 +47,8 @@ ColumnLayout {
         style: sliderStyle
         maximumValue: 100
         minimumValue: 0
-        stepSize: 1.0
+        value: 0
+        stepSize: 1
 
         Layout.preferredWidth: parent.width
         onValueChanged: masterColumn.valueChanged(value)

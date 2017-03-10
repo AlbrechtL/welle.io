@@ -141,14 +141,12 @@ int32_t	i;
 }
 
 	ofdmProcessor::~ofdmProcessor	(void) {
-	running		= false;	// this will cause an
-	                                // exception to be raised
-	                        	// through the getNextSampleReady
-    /*msleep (100);
-	if (isRunning ())
-	   terminate ();
-    wait ();*/
-    threadHandle. join ();
+    running		= false;
+
+    // Stop thread only if it is not running
+    if(threadHandle.joinable())
+        threadHandle. join ();
+
 	delete		ofdmBuffer;
 	delete		oscillatorTable;
 	delete		fft_handler;
@@ -491,17 +489,6 @@ SyncOnPhase:
 }
 
 void	ofdmProcessor:: reset	(void) {
-    /*if (isRunning ())
-       terminate ();
-    wait ();
-	fineCorrector	= coarseCorrector = 0;
-	f2Correction	= true;
-	syncBufferIndex	= 0;
-	attempts	= 0;
-	theRig	-> resetBuffer ();
-	running = false;
-	scanMode	= false;
-    start ();*/
     if (running) {
        running = false;
        threadHandle. join ();

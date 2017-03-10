@@ -213,7 +213,7 @@ float CRTL_SDR::setGain(int32_t Gain)
     theGain = gains[Gain];
     rtlsdr_set_tuner_gain(device, theGain);
 
-    //qDebug() << "RTL_TCP:" << "Set gain to %f db\n", theGain / 10.0);
+    //qDebug() << "RTL_TCP:" << "Set gain to" << theGain / 10.0 << "db";
 
     return theGain / 10.0;
 }
