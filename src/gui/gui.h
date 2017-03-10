@@ -83,10 +83,9 @@ public:
     Q_INVOKABLE void channelClick(QString, QString);
     Q_INVOKABLE void startChannelScanClick(void);
     Q_INVOKABLE void stopChannelScanClick(void);
-    Q_INVOKABLE void saveSettings(void);
+    Q_INVOKABLE void saveChannels(void);
     Q_INVOKABLE void inputEnableAGCChanged(bool checked);
     Q_INVOKABLE void inputGainChanged(double gain);
-    Q_INVOKABLE void terminateProcess(void);
     QVariant stationModel() const
     {
         return p_stationModel;

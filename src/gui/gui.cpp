@@ -158,7 +158,7 @@ const QVariantMap RadioInterface::licenses()
   *	The QSettings could have been the class variable as well
   *	as the parameter
   */
-void RadioInterface::saveSettings()
+void RadioInterface::saveChannels()
 {
     QSettings Settings;
 
@@ -224,8 +224,16 @@ void RadioInterface::addtoEnsemble(const QString& s)
     if (!s.contains("data") && !stationList.contains(s)) {
         stationList.append(s, currentChannel);
 
+        //	Sort stations
+        stationList.sort();
+        p_stationModel = QVariant::fromValue(stationList.getList());
+        emit stationModelChanged();
+
         //fprintf (stderr,"Found station %s\n", s.toStdString().c_str());
         emit foundChannelCount(stationList.count());
+
+        // Save the channels
+        saveChannels();
     }
 }
 
@@ -367,17 +375,21 @@ void RadioInterface::setStereo(bool isStereo)
 //
 void RadioInterface::startChannelScanClick(void)
 {
-    //
     //	if running: stop the input
     inputDevice->stop();
+
     //	Clear old channels
     stationList.reset();
+    p_stationModel = QVariant::fromValue(stationList.getList());
+    emit stationModelChanged();
+
     //	start the radio
     CurrentChannelScanIndex = 0;
     currentChannel = CDABConstants::getChannelNameAtIndex(CurrentChannelScanIndex);
     set_channelSelect(currentChannel);
     emit currentStation(currentChannel);
     emit foundChannelCount(0);
+    emit stationText("Scanning ...");
     setStart();
     my_ofdmProcessor->reset();
     my_ofdmProcessor->set_scanMode(true, currentChannel);
@@ -391,17 +403,15 @@ void RadioInterface::stopChannelScanClick(void)
     ScanChannelTimer.stop();
     scanMode = false;
 
+    emit stationText("");
     emit currentStation("No Station");
-
-    //	Sort stations
-    stationList.sort();
-    p_stationModel = QVariant::fromValue(stationList.getList());
-    emit stationModelChanged();
 }
 
 QString RadioInterface::nextChannel(QString currentChannel)
 {
     CurrentChannelScanIndex++;
+
+    emit channelScanProgress(CurrentChannelScanIndex + 1);
 
     return currentChannel = CDABConstants::getChannelNameAtIndex(CurrentChannelScanIndex);
 }
@@ -425,13 +435,10 @@ void RadioInterface::setSignalPresent(bool isSignal)
     if (currentChannel == QString("")) {
         emit channelScanStopped();
         emit currentStation("No Station");
-        //	Sort stations
-        stationList.sort();
-
-        p_stationModel = QVariant::fromValue(stationList.getList());
-        emit stationModelChanged();
+        emit stationText("");
         return;
     }
+
     set_channelSelect(currentChannel);
     emit currentStation(currentChannel);
     my_ofdmProcessor->reset();
@@ -454,6 +461,7 @@ void RadioInterface::end_of_waiting_for_stations(void)
     if (currentChannel == QString("")) {
         emit channelScanStopped();
         emit currentStation("No Station");
+        emit stationText("");
         //	Sort stations
         stationList.sort();
         p_stationModel = QVariant::fromValue(stationList.getList());
@@ -512,32 +520,6 @@ void RadioInterface::setStart(void)
     running = true;
 }
 
-/**
-  *	\brief terminateProcess
-  *	Pretty critical, since there are many threads involved
-  *	A clean termination is what is needed, regardless of the GUI
-  */
-void RadioInterface::terminateProcess(void)
-{
-    running = false;
-    inputDevice->stop(); // might be concurrent
-    my_mscHandler->stopHandler(); // might be concurrent
-    my_ofdmProcessor->stop(); // definitely concurrent
-    Audio->stop();
-    //
-    //	everything should be halted by now
-    saveSettings();
-    delete my_ofdmProcessor;
-    delete my_ficHandler;
-    delete my_mscHandler;
-    delete Audio;
-    Audio = NULL; // signals may be pending, so careful
-    qDebug() << "GUI:" <<  "Termination started";
-    delete inputDevice;
-    QApplication::quit();
-}
-
-//
 /**
   *	\brief set_channelSelect
   *	Depending on the GUI the user might select a channel

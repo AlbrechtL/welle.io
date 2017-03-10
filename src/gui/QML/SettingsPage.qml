@@ -96,7 +96,7 @@ Item {
                         TouchProgressBar{
                             id: channelScanProgressBar
                             minimumValue: 0
-                            maximumValue: 38
+                            maximumValue: 54 // 54 channels
                             width: parent.width
                             text: "Found channels: 0"
                         }
@@ -194,7 +194,7 @@ Item {
         TouchButton {
             id: exitAppButton
             text: "Exit welle.io"
-            onClicked:  cppGUI.terminateProcess()
+            onClicked: Qt.quit()
             Layout.preferredWidth: parent.width
             Layout.alignment: Qt.AlignBottom
         }

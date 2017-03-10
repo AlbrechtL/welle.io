@@ -113,7 +113,6 @@ ApplicationWindow {
                 onClicked: {
                     if(stackView.depth > 1) {
                         stackView.pop();
-                        cppGUI.saveSettings();
                     }
                     else
                     {
