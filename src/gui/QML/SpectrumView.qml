@@ -65,7 +65,7 @@ ChartView {
 
     Timer {
         id: yAxisMaxTimer
-        interval: 10 * 1000 // 10 s
+        interval: 1 * 1000 // 1 s
         repeat: false
         onTriggered: {
            axisY1.max = maxYAxis
