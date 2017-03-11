@@ -9,6 +9,9 @@ welle.io uses parts from the following programs
   Copyright (c) 2016 Stefan Pöschel
   https://github.com/Opendigitalradio/dablin
 
+Contributors (alphabetical)
+andimik, viktorgino
+
 
             GNU GENERAL PUBLIC LICENSE
                Version 2, June 1991
