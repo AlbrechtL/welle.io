@@ -113,6 +113,8 @@ void CAudio::handleStateChanged(QAudio::State newState)
     case QAudio::IdleState:
         qDebug() << "Audio:"
                  << "IdleState";
+        // Necessary to avoid a IdleState, ActiveState, IdleState, ActiveState ... loop under Ubuntu. I don't know why.
+        AudioOutput->stop();
         break;
     default:
         qDebug() << "Audio:"
