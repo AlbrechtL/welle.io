@@ -53,7 +53,7 @@ Building
 General Information
 ---
 The following libraries and their development files are needed:
-* QT 5.7 and above
+* QT 5.8 and above
 * FFTW3f
 * libfaad
 * librtlsdr
