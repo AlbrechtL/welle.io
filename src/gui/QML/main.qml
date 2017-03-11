@@ -57,6 +57,7 @@ ApplicationWindow {
     Settings {
         property alias width : mainWindow.width
         property alias height : mainWindow.height
+        property alias radioInformationViewWidth: radioInformationView.width
     }
     Loader {
         id: settingsPageLoader
@@ -208,7 +209,6 @@ ApplicationWindow {
             id: radioInformationView
             orientation: Qt.Vertical
             Layout.alignment: Qt.AlignRight
-            Layout.maximumWidth: Units.dp(320)
             Layout.minimumWidth: Units.dp(320)
 
             // Disable this view if expert view is enabled and no more space is available
