@@ -52,25 +52,23 @@ ApplicationWindow {
     visible: true
     width: Units.dp(700)
     height: Units.dp(500)
-    visibility: settingsPageLoader.settingsPage.enableFullScreenState ? "FullScreen" : "Windowed"
+    visibility: settingsPage.enableFullScreenState ? "FullScreen" : "Windowed"
 
     Settings {
         property alias width : mainWindow.width
         property alias height : mainWindow.height
         property alias radioInformationViewWidth: radioInformationView.width
     }
-    Loader {
-        id: settingsPageLoader
-        anchors.topMargin: Units.dp(10)
-        readonly property SettingsPage settingsPage: item
-        source: Qt.resolvedUrl("SettingsPage.qml")
+    SettingsPage{
+        id:settingsPage
+        onEnableExpertModeStateChanged: {
+            if(enableExpertModeState == false)
+                mainWindow.width = Units.dp(350) + radioInformationView.width
+        }
     }
-
-    Loader {
-        id: infoPageLoader
+    InfoPage{
+        id: infoPage
         anchors.topMargin: Units.dp(10)
-        readonly property InfoPage infoPage: item
-        source: Qt.resolvedUrl("InfoPage.qml")
     }
 
     Rectangle {
@@ -117,7 +115,7 @@ ApplicationWindow {
                     }
                     else
                     {
-                        stackView.push(settingsPageLoader);
+                        stackView.push(settingsPage);
                     }
                 }
             }
@@ -162,7 +160,7 @@ ApplicationWindow {
                     if(stackView.depth > 2)
                       stackView.pop();
                     else
-                      stackView.push(infoPageLoader);
+                      stackView.push(infoPage);
             }
         }
     }
@@ -176,7 +174,7 @@ ApplicationWindow {
             clip: true
             Layout.alignment: Qt.AlignLeft
             Layout.minimumWidth: Units.dp(350)
-            Layout.fillWidth: settingsPageLoader.settingsPage.enableExpertModeState ? false : true
+            Layout.fillWidth: settingsPage.enableExpertModeState ? false : true
 
             // Implements back key navigation
             focus: true
@@ -189,7 +187,7 @@ ApplicationWindow {
                 width: parent.width
                 height: parent.height
                 ListView {
-                    property bool showChannelState: settingsPageLoader.settingsPage.showChannelState
+                    property alias showChannelState: settingsPage.showChannelState
                     anchors.rightMargin: 0
                     anchors.bottomMargin: 0
                     anchors.leftMargin: 0
@@ -212,7 +210,7 @@ ApplicationWindow {
             Layout.minimumWidth: Units.dp(320)
 
             // Disable this view if expert view is enabled and no more space is available
-            visible: (mainWindow.width < Units.dp(850) && settingsPageLoader.settingsPage.enableExpertModeState) ? false : true
+            visible: (mainWindow.width < Units.dp(850) && settingsPage.enableExpertModeState) ? false : true
 
             // Radio
             RadioView {}
@@ -231,8 +229,8 @@ ApplicationWindow {
 
         ExpertView{
             id: expertView
-            Layout.fillWidth: settingsPageLoader.settingsPage.enableExpertModeState ? true : false
-            visible: settingsPageLoader.settingsPage.enableExpertModeState ? true : false
+            Layout.fillWidth: settingsPage.enableExpertModeState ? true : false
+            visible: settingsPage.enableExpertModeState ? true : false
         }
     }
 
