@@ -124,15 +124,16 @@ Item {
             }
 
             SettingsFrame {
+                Layout.fillWidth: true
                 ColumnLayout{
-                    anchors.top: parent.top
-                    anchors.left: parent.left
-                    anchors.right: parent.right
+                    anchors.fill: parent
                     spacing: Units.dp(20)
 
                     TouchSwitch {
                         id: enableAGC
                         name: "Enable AGC"
+                        height: 24
+                        Layout.fillHeight: true
                         objectName: "enableAGC"
                         checked: true
                         onChanged: {
@@ -149,6 +150,7 @@ Item {
                         name: "Manual gain"
                         maximumValue: cppGUI.gainCount
                         showCurrentValue: "Value: " + cppGUI.currentGainValue.toFixed(2)
+			Layout.fillHeight: true
                         onValueChanged: {
                             if(enableAGC.checked == false)
                                 cppGUI.inputGainChanged(valueGain)
@@ -158,15 +160,17 @@ Item {
             }
 
             SettingsFrame {
+                id: settingsFrame
+                Layout.fillWidth: true
                 ColumnLayout{
-                    anchors.top: parent.top
-                    anchors.left: parent.left
-                    anchors.right: parent.right
+                    anchors.fill: parent
                     spacing: Units.dp(20)
 
                     TouchSwitch {
                         id: enableFullScreen
                         name: "Enable full screen mode"
+                        height: 24
+                        Layout.fillHeight: true
                         objectName: "enableFullScreen"
                         checked: false
                     }
@@ -174,6 +178,8 @@ Item {
                     TouchSwitch {
                         id: enableExpertMode
                         name: "Enable expert mode"
+                        height: 24
+                        Layout.fillHeight: true
                         objectName: "enableExpertMode"
                         checked: false
                         onChanged: {
