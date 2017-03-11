@@ -63,12 +63,12 @@ Ubuntu Linux 16.04 LTS
 ---
 This sections shows how to compile welle.io on Ubuntu 16.04 LTS. 
 
-1. Install QT 5.7 including the QT Charts module by using the the "Qt Online Installer for Linux" https://www.qt.io/download-open-source/
+1. Install QT 5.8 including the QT Charts module by using the the "Qt Online Installer for Linux" https://www.qt.io/download-open-source/
 
 2. Install the following packages
 
   ```
-# sudo apt install libfaad-dev libfftw3-dev librtlsdr-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev zlib1g-dev git
+# sudo apt install libfaad-dev libfftw3-dev librtlsdr-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev
   ```
 
 3. (optional) Compile and install the airspy library. For details please see https://github.com/airspy/host/#how-to-build-the-host-software-on-linux
@@ -89,7 +89,7 @@ A compiled version can be found at https://github.com/AlbrechtL/welle.io/release
 
 This sections shows how to compile welle.io on Windows 10. Windows 7 should also be possible but is not tested. 
 
-1. Install QT 5.7 including the QT Charts and mingw modules by using the the "Qt Online Installer for Windows" https://www.qt.io/download-open-source/
+1. Install QT 5.8 including the QT Charts and mingw modules by using the the "Qt Online Installer for Windows" https://www.qt.io/download-open-source/
 2. Clone welle.io https://github.com/AlbrechtL/welle.io.git e.g. by using [TortoiseGit](https://tortoisegit.org).
 3. Clone the welle.io Windows libraries https://github.com/AlbrechtL/welle.io-win-libs.git.
 4. Start QT Creator and open the project file "welle.io.pro" inside the folder "welle.io".
@@ -98,12 +98,12 @@ This sections shows how to compile welle.io on Windows 10. Windows 7 should also
 
 Raspberry Pi 2 and 3
 ---
-To build and run welle.io on a Raspberry Pi 2 and 3 with GPU acceleration, please visit this repository: https://github.com/AlbrechtL/dab-rpi_raspbian_image
+To build and run welle.io on a Raspberry Pi 2 and 3 with GPU acceleration, please visit this repository: https://github.com/AlbrechtL/dab-rpi_raspbian_image (outdated)
 
 Limitations
 ===
-* CMake is not tested
-* DAB is not tested (only DAB+ is tested)
+* CMake is not maintained
+* DAB is not tested
 
 Development
 ===

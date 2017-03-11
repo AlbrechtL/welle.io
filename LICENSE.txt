@@ -2,7 +2,7 @@
 Copyright (c) 2016-2017 Albrecht Lohofener (albrechtloh@gmx.de)
 
 welle.io uses parts from the following programs 
-- qt.dab
+- qt-dab
   Copyright (c) 2009-2017 Jan van Katwijk Lazy Chair Computing (J.vanKatwijk@gmail.com)
   https://github.com/JvanKatwijk/qt-dab
 - dablin
