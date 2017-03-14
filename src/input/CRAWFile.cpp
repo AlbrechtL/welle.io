@@ -110,7 +110,7 @@ void CRAWFile::setAgc(bool AGC)
 
 QString CRAWFile::getName()
 {
-    return "rawfile";
+    return "rawfile (" + FileName + ")";
 }
 
 CDeviceID CRAWFile::getID()
