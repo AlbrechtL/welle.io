@@ -1,10 +1,11 @@
-welle.io
+[welle.io](https://www.welle.io)
 =====================
 This repository contains the implementation of a simple DAB/DAB+ receiver. 
 It is fork from dab-rpi and sdr-j-dab which is now qt-dab https://github.com/JvanKatwijk/qt-dab.
 
 The receiver supports terrestrial DAB and DAB+ reception with as input the sample stream from a airspy, a rtl_sdr, a rtl_tcp server or a I/Q RAW file (for developers).
 
+For a user oriented documentation please see the project site https://www.welle.io.
 
 Table of contents
 ====
@@ -43,7 +44,7 @@ Supported Hardware
 ====================
 The following SDR devices are supported
 * airspy (http://airspy.com/)
-* rtlsdr (http://osmocom.org/projects/sdr/wiki/rtl-sdr)
+* rtl_sdr (http://osmocom.org/projects/sdr/wiki/rtl-sdr)
 * rtl_tcp (http://osmocom.org/projects/sdr/wiki/rtl-sdr#rtl_tcp)
 * I/Q RAW file
 
