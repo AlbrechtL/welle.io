@@ -25,7 +25,7 @@ Usage
 The command line parameter are:
 
 Parameter | Description
------- | ---------- | ----
+------ | ----------
 h | Show help 
 v | Show version 
 D | Input device. Possible is: auto (default), airspy, rtl_tcp, rtl_sdr, rawfile
@@ -33,7 +33,7 @@ M | DAB mode. Possible is: 1,2,3 or 4, Default: 1
 I | rtl_tcp server IP address. Only valid for input rtl_tcp 
 P | rtl_tcp server IP port. Only valid for input rtl_tcp
 F | I/Q RAW file. Only valid for input rawfile.
-B | I/Q RAW file format. Possible is: u8 ([qt-dab](https://github.com/JvanKatwijk/qt-dab) RAW files), s16le ([qt-dab](https://github.com/JvanKatwijk/qt-dab) SDR files), default: u8. Only valid for input rawfile.
+B | I/Q RAW file format. Possible is: u8 (unsigned int 8 bit, [qt-dab](https://github.com/JvanKatwijk/qt-dab) RAW files), s16le (signed int 16 bit little endian, [qt-dab](https://github.com/JvanKatwijk/qt-dab) SDR files), default: u8. Only valid for input rawfile.
 
 Example usage:
   
