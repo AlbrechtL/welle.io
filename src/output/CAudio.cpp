@@ -161,6 +161,13 @@ qint64 CAudioIODevice::readData(char* data, qint64 len)
 
     total = Buffer->getDataFromBuffer(data, len / 2); // we have int16 samples
 
+    // If the buffer is empty return zeros.
+    if(total == 0)
+    {
+        memset(data, 0, len);
+        total = len;
+    }
+
     return total * 2;
 }
 
