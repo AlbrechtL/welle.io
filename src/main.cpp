@@ -56,6 +56,7 @@ int main(int argc, char** argv)
     QString ipAddress = "127.0.0.1";
     uint16_t ipPort = 1234;
     QString rawFile = "";
+    QString rawFileFormat = "u8";
 
     //	Newer versions of Qt provide all kinds of nice mechanisms,
     //	unfortunately, there are quite some people (including me (jvk))
@@ -74,7 +75,7 @@ int main(int argc, char** argv)
     optionParser.addOption(InputOption);
 
     QCommandLineOption DABModeOption("M",
-        QCoreApplication::translate("main", "DAB mode, possible are: 1,2 or 4, default: 1"),
+        QCoreApplication::translate("main", "DAB mode. Possible is: 1, 2 or 4, default: 1"),
         QCoreApplication::translate("main", "Mode"));
     optionParser.addOption(DABModeOption);
 
@@ -88,10 +89,15 @@ int main(int argc, char** argv)
         QCoreApplication::translate("main", "Port"));
     optionParser.addOption(RTL_TCPServerIPPort);
 
-    QCommandLineOption RAWFILE("F",
+    QCommandLineOption RAWFile("F",
         QCoreApplication::translate("main", "I/Q RAW file. Only valid for input rawfile."),
         QCoreApplication::translate("main", "I/Q RAW file"));
-    optionParser.addOption(RAWFILE);
+    optionParser.addOption(RAWFile);
+
+    QCommandLineOption RAWFileFormat("B",
+        QCoreApplication::translate("main", "I/Q RAW file format. Possible is: u8, s16le, default: u8. Only valid for input rawfile."),
+        QCoreApplication::translate("main", "I/Q RAW file format"));
+    optionParser.addOption(RAWFileFormat);
 
     //	Process the actual command line arguments given by the user
     optionParser.process(a);
@@ -121,10 +127,15 @@ int main(int argc, char** argv)
     if (RTL_TCPServerPortValue != "")
         ipPort = RTL_TCPServerPortValue.toInt();
 
-    //	Process raw file
-    QString RAWFileValue = optionParser.value(RAWFILE);
+    //	Process RAW file
+    QString RAWFileValue = optionParser.value(RAWFile);
     if (RAWFileValue != "")
         rawFile = RAWFileValue;
+
+    //	Process RAW file format
+    QString RAWFileFormatValue = optionParser.value(RAWFileFormat);
+    if (RAWFileFormatValue != "")
+        rawFileFormat = RAWFileFormatValue;
 
     // Init device
     CVirtualInput* Device = CInputFactory::GetDevice(dabDevice);
@@ -141,7 +152,7 @@ int main(int argc, char** argv)
     if (Device->getID() == CDeviceID::RAWFILE) {
         CRAWFile* RAWFile = (CRAWFile*)Device;
 
-        RAWFile->setFileName(rawFile);
+        RAWFile->setFileName(rawFile, rawFileFormat);
     }
 
     // Create a new radio interface instance

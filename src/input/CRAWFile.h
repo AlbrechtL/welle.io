@@ -41,8 +41,10 @@
 class QLabel;
 class QSettings;
 class fileHulp;
-/*
- */
+
+// Enum of available input device
+enum class CRAWFileFormat {U8, S16LE, Unknown};
+
 class CRAWFile : public CVirtualInput, QThread {
 public:
     CRAWFile();
@@ -63,10 +65,12 @@ public:
     CDeviceID getID(void);
 
     // Specific methods
-    void setFileName(QString FileName);
+    void setFileName(QString FileName, QString FileFormat);
 
 private:
     QString FileName;
+    CRAWFileFormat FileFormat;
+    uint8_t IQByteSize;
 
     virtual void run(void);
     int32_t readBuffer(uint8_t*, int32_t);

@@ -50,6 +50,8 @@ static inline int64_t getMyTime(void)
 CRAWFile::CRAWFile()
 {
     FileName = "";
+    FileFormat = CRAWFileFormat::Unknown;
+    IQByteSize = 1;
 
     readerOK = false;
 
@@ -118,13 +120,30 @@ CDeviceID CRAWFile::getID()
     return CDeviceID::RAWFILE;
 }
 
-void CRAWFile::setFileName(QString FileName)
+void CRAWFile::setFileName(QString FileName, QString FileFormat)
 {
     this->FileName = FileName;
 
+    if(FileFormat == "u8")
+    {
+        this->FileFormat = CRAWFileFormat::U8;
+        IQByteSize = 2;
+    }
+    else if(FileFormat == "s16le")
+    {
+        this->FileFormat = CRAWFileFormat::S16LE;
+        IQByteSize = 4;
+    }
+    else
+    {
+        this->FileFormat = CRAWFileFormat::Unknown;
+        qDebug() << "RAWFile:"
+                 << "Unknown RAW file format:" << FileFormat;
+    }
+
     filePointer = fopen(FileName.toLatin1().data(), "rb");
     if (filePointer == NULL) {
-        qDebug() << "RAWFile"
+        qDebug() << "RAWFile:"
                  << "file" << FileName << "cannot open";
         return;
     }
@@ -139,34 +158,68 @@ void CRAWFile::setFileName(QString FileName)
 int32_t CRAWFile::getSamples(DSPCOMPLEX* V, int32_t size)
 {
     int32_t amount, i;
-    uint8_t* temp = (uint8_t*)alloca(2 * size * sizeof(uint8_t));
+    uint8_t* temp = (uint8_t*)alloca(IQByteSize * size * sizeof(uint8_t));
 
     if (filePointer == NULL)
         return 0;
 
-    while ((int32_t)(SampleBuffer->GetRingBufferReadAvailable()) < 2 * size)
+    while ((int32_t)(SampleBuffer->GetRingBufferReadAvailable()) < IQByteSize * size)
         if (readerPausing)
             usleep(100000);
         else
             msleep(100);
 
-    amount = SampleBuffer->getDataFromBuffer(temp, 2 * size);
-    for (i = 0; i < amount / 2; i++)
+    amount = SampleBuffer->getDataFromBuffer(temp, IQByteSize * size);
+
+    if(FileFormat == CRAWFileFormat::U8)
+    {
+        for (i = 0; i < amount / 2; i++)
         V[i] = DSPCOMPLEX(float(temp[2 * i] - 128) / 128.0,
-            float(temp[2 * i + 1] - 128) / 128.0);
-    return amount / 2;
+        float(temp[2 * i + 1] - 128) / 128.0);
+    }
+    else if(FileFormat == CRAWFileFormat::S16LE)
+    {
+        int j=0;
+        for (i = 0; i < amount / 4; i++)
+        {
+            int16_t IQ_I = (int16_t) (temp[j + 0] << 8) | temp[j + 1];
+            int16_t IQ_Q = (int16_t) (temp[j + 2] << 8) | temp[j + 3];
+            V[i] = DSPCOMPLEX((float) (IQ_I ), (float) (IQ_Q ));
+
+            j +=IQByteSize;
+        }
+    }
+
+    return amount / IQByteSize;
 }
 
 int32_t CRAWFile::getSpectrumSamples(DSPCOMPLEX* V, int32_t size)
 {
     int32_t amount, i;
-    uint8_t* temp = (uint8_t*)alloca(2 * size * sizeof(uint8_t));
+    uint8_t* temp = (uint8_t*)alloca(IQByteSize * size * sizeof(uint8_t));
 
-    amount = SpectrumSampleBuffer->getDataFromBuffer(temp, 2 * size);
-    for (i = 0; i < amount / 2; i++)
+    amount = SpectrumSampleBuffer->getDataFromBuffer(temp, IQByteSize * size);
+
+    if(FileFormat == CRAWFileFormat::U8)
+    {
+        for (i = 0; i < amount / 2; i++)
         V[i] = DSPCOMPLEX(float(temp[2 * i] - 128) / 128.0,
-            float(temp[2 * i + 1] - 128) / 128.0);
-    return amount / 2;
+        float(temp[2 * i + 1] - 128) / 128.0);
+    }
+    else if(FileFormat == CRAWFileFormat::S16LE)
+    {
+        int j=0;
+        for (i = 0; i < amount / 4; i++)
+        {
+            int16_t IQ_I = (int16_t) (temp[j + 0] << 8) | temp[j + 1];
+            int16_t IQ_Q = (int16_t) (temp[j + 2] << 8) | temp[j + 3];
+            V[i] = DSPCOMPLEX((float) (IQ_I ), (float) (IQ_Q ));
+
+            j +=IQByteSize;
+        }
+    }
+
+    return amount / IQByteSize;
 }
 
 int32_t CRAWFile::getSamplesToRead(void)
@@ -187,7 +240,8 @@ void CRAWFile::run(void)
 
     ExitCondition = false;
 
-    period = (32768 * 1000) / (2 * 2048); // full IQś read
+    period = (32768 * 1000) / (IQByteSize * 2048); // full IQś read
+
     qDebug() << "RAWFile"
              << "Period =" << period;
     bi = new uint8_t[bufferSize];
@@ -218,7 +272,7 @@ void CRAWFile::run(void)
             usleep(nextStop - getMyTime());
     }
 
-    qDebug() << "RAWFile" <<  "Read threads ends";
+    qDebug() << "RAWFile:" <<  "Read threads ends";
 }
 
 /*
@@ -232,7 +286,7 @@ int32_t CRAWFile::readBuffer(uint8_t* data, int32_t length)
     currPos += n;
     if (n < length) {
         fseek(filePointer, 0, SEEK_SET);
-       qDebug() << "RAWFile" <<  "End of file, restarting";
+       qDebug() << "RAWFile:" <<  "End of file, restarting";
     }
     return n & ~01;
 }
