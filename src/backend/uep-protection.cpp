@@ -177,42 +177,35 @@ int32_t	viterbiCounter	= 0;
 ///	clear the bits in the viterbiBlock,
 ///	only the non-punctured ones are set
 	memset (viterbiBlock, 0, (outSize * 4 + 24) * sizeof (int16_t)); 
+
 	for (i = 0; i < L1; i ++) {
 	   for (j = 0; j < 128; j ++) {
-	      if (PI1 [j % 32] == 1) 
+	      if (PI1 [j % 32] != 0) 
 	         viterbiBlock [viterbiCounter] = v [inputCounter ++];
-	      else
-	         viterbiBlock [viterbiCounter] = 128;
 	      viterbiCounter ++;
 	   }
 	}
 
 	for (i = 0; i < L2; i ++) {
 	   for (j = 0; j < 128; j ++) {
-	      if (PI2 [j % 32] == 1) 
+	      if (PI2 [j % 32] != 0) 
 	         viterbiBlock [viterbiCounter] = v [inputCounter ++];
-	      else
-	         viterbiBlock [viterbiCounter] = 128;
 	      viterbiCounter ++;
 	   }
 	}
 
 	for (i = 0; i < L3; i ++) {
 	   for (j = 0; j < 128; j ++) {
-	      if (PI3 [j % 32] == 1) 
+	      if (PI3 [j % 32] != 0) 
 	         viterbiBlock [viterbiCounter] = v [inputCounter ++];
-	      else
-	         viterbiBlock [viterbiCounter] = 128;
 	      viterbiCounter ++;	
 	   }
 	}
 
 	for (i = 0; i < L4; i ++) {
 	   for (j = 0; j < 128; j ++) {
-	      if (PI4 [j % 32] == 1) 
+	      if (PI4 [j % 32] != 0) 
 	         viterbiBlock [viterbiCounter] = v [inputCounter ++];
-	      else
-	         viterbiBlock [viterbiCounter] = 128;
 	      viterbiCounter ++;	
 	   }
 	}
@@ -222,10 +215,8 @@ int32_t	viterbiCounter	= 0;
   *	This block constitues the 6 * 4 bits of the register itself.
   */
 	for (i = 0; i < 24; i ++) {
-	   if (PI_X [i] == 1)  
+	   if (PI_X [i] != 0)  
 	      viterbiBlock [viterbiCounter] = v [inputCounter ++];
-	   else
-	      viterbiBlock [viterbiCounter] = 128;
 	   viterbiCounter ++;
 	}
 //

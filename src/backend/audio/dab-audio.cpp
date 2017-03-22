@@ -73,7 +73,6 @@ int32_t i;
 	   protectionHandler	= new eep_protection (bitRate,
 	                                              protLevel);
 //
-	
 	if (dabModus == DAB) 
 	   our_dabProcessor = new mp2Processor (myRadioInterface,
 	                                        bitRate,
@@ -157,8 +156,9 @@ int16_t tempX [fragmentSize] = {0};
 	      countforInterleaver ++;
 	      continue;
 	   }
-//
+
 	   protectionHandler -> deconvolve (tempX, fragmentSize, outV);
+
 //
 //	and the inline energy dispersal
 	   memset (shiftRegister, 1, 9);
