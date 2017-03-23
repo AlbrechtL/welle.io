@@ -316,13 +316,13 @@ QString CAirspy::getName()
 {
     // Get airspy device name and version
     char Version[255] = {0};
-    airspy_version_string_read(device, Version, 255);
+    airspy_version_string_read(device, Version, 20);
 
     // Get airspy library version
     airspy_lib_version_t lib_version;
     airspy_lib_version(&lib_version);
 
-    return QString(Version) + ", lib. v"
+    return QString(Version) + "[...], lib. v"
             + QString::number(lib_version.major_version) + "."
             + QString::number(lib_version.minor_version) + "."
             + QString::number(lib_version.revision);
