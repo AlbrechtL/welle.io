@@ -107,8 +107,7 @@ To build and run welle.io on a Raspberry Pi 2 and 3 with GPU acceleration, pleas
 
 Limitations
 ===
-* CMake is not maintained
-* DAB is not tested
+* CMake is not maintained (not working)
 
 Development
 ===
