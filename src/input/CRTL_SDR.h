@@ -32,6 +32,7 @@
 
 #include <QObject>
 #include <QSettings>
+#include <QTimer>
 #include <QThread>
 #include <rtl-sdr.h>
 
@@ -51,6 +52,7 @@ public:
     CRTL_SDR();
     ~CRTL_SDR(void);
 
+    // Interface methods
     bool restart(void);
     void stop(void);
     void reset(void);
@@ -64,6 +66,9 @@ public:
     QString getName(void);
     CDeviceID getID(void);
 
+    // Specific methods
+    void setMinMaxValue(uint8_t MinValue, uint8_t MaxValue);
+
     //	These need to be visible for the separate usb handling thread
     RingBuffer<uint8_t>* SampleBuffer;
     RingBuffer<uint8_t>* SpectrumSampleBuffer;
@@ -71,15 +76,24 @@ public:
     int32_t sampleCounter;
 
 private:
+    QTimer AGCTimer;
+
     int32_t lastFrequency;
     int32_t FrequencyOffset;
-    int theGain;
+    int CurrentGain;
     bool isAGC;
-    int32_t deviceCount;
+    int32_t DeviceCount;
     CRTL_SDR_Thread* RTL_SDR_Thread;
     bool open;
     int* gains;
-    int16_t gainsCount;
+    uint16_t GainsCount;
+    uint16_t CurrentGainCount;
+    uint8_t MinValue;
+    uint8_t MaxValue;
+
+private slots:
+    void AGCTimerTimeout(void);
+
 };
 
 //	for handling the events in libusb, we need a controlthread

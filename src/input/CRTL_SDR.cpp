@@ -50,6 +50,20 @@ static void RTLSDRCallBack(uint8_t* buf, uint32_t len, void* ctx)
     if ((len - tmp) > 0)
         RTL_SDR->sampleCounter += len - tmp;
     RTL_SDR->SpectrumSampleBuffer->putDataIntoBuffer(buf, len);
+
+    // Check if device is overloaded
+    uint8_t MinValue = 255;
+    uint8_t MaxValue = 0;
+
+    for(uint32_t i=0;i<len;i++)
+    {
+        if(MinValue > buf[i])
+            MinValue = buf[i];
+        if(MaxValue < buf[i])
+            MaxValue = buf[i];
+    }
+
+    RTL_SDR->setMinMaxValue(MinValue, MaxValue);
 }
 
 //	Our wrapper is a simple classs
@@ -57,7 +71,7 @@ CRTL_SDR::CRTL_SDR()
 {
     int ret = 0;
 
-    qDebug() << "RTL_TCP:" << "Open rtl-sdr";
+    qDebug() << "RTL_SDR:" << "Open rtl-sdr";
 
     open = false;
     isAGC = false;
@@ -66,8 +80,11 @@ CRTL_SDR::CRTL_SDR()
     sampleCounter = 0;
     FrequencyOffset = 0;
     gains = NULL;
-    theGain = 0;
+    CurrentGain = 0;
+    CurrentGainCount = 0;
     device = NULL;
+    MinValue = 255;
+    MaxValue = 0;
 
     SampleBuffer = new RingBuffer<uint8_t>(1024 * 1024);
     SpectrumSampleBuffer = new RingBuffer<uint8_t>(8192);
@@ -76,19 +93,19 @@ CRTL_SDR::CRTL_SDR()
     uint32_t deviceCount = rtlsdr_get_device_count();
     if (deviceCount == 0)
     {
-        qDebug() << "RTL_TCP:" << "No devices found";
+        qDebug() << "RTL_SDR:" << "No devices found";
         throw 0;
     }
     else
     {
-        qDebug() << "RTL_TCP:" << "Found" << deviceCount << "devices. Uses the first one";
+        qDebug() << "RTL_SDR:" << "Found" << deviceCount << "devices. Uses the first one";
     }
 
     //	Open the first device
     ret = rtlsdr_open(&device, 0);
     if (ret < 0)
     {
-        qDebug() << "RTL_TCP:" << "Opening rtl-sdr failed";
+        qDebug() << "RTL_SDR:" << "Opening rtl-sdr failed";
         throw 0;
     }
 
@@ -98,18 +115,21 @@ CRTL_SDR::CRTL_SDR()
     ret = rtlsdr_set_sample_rate(device, INPUT_RATE);
     if (ret < 0)
     {
-        qDebug() << "RTL_TCP:" << "Setting sample rate failed";
+        qDebug() << "RTL_SDR:" << "Setting sample rate failed";
         throw 0;
     }
 
     // Get tuner gains
-    gainsCount = rtlsdr_get_tuner_gains(device, NULL);
-    qDebug() << "RTL_TCP:" << "Supported gain values" << gainsCount;
-    gains = new int[gainsCount];
-    gainsCount = rtlsdr_get_tuner_gains(device, gains);
+    GainsCount = rtlsdr_get_tuner_gains(device, NULL);
+    qDebug() << "RTL_SDR:" << "Supported gain values" << GainsCount;
+    gains = new int[GainsCount];
+    GainsCount = rtlsdr_get_tuner_gains(device, gains);
 
-    for (int i = gainsCount; i > 0; i--)
-        qDebug() << "RTL_TCP:" << "gain" << (gains[i - 1] / 10.0);
+    for (int i = GainsCount; i > 0; i--)
+        qDebug() << "RTL_SDR:" << "gain" << (gains[i - 1] / 10.0);
+
+    // Always use manual gain, the AGC is implemented in software
+    rtlsdr_set_tuner_gain_mode(device, 1);
 
     bool isAutoGain = true; // ToDo
     if(isAutoGain)
@@ -123,8 +143,11 @@ CRTL_SDR::CRTL_SDR()
         setAgc(false);
 
         // Read gein
-        rtlsdr_set_tuner_gain(device, theGain);
+        rtlsdr_set_tuner_gain(device, CurrentGain);
     }
+
+    connect(&AGCTimer, SIGNAL(timeout(void)), this, SLOT(AGCTimerTimeout(void)));
+    AGCTimer.start(50);
 
     return;
 }
@@ -200,41 +223,38 @@ void CRTL_SDR::stop(void)
     RTL_SDR_Thread = NULL;
 }
 
-//	when selecting with an integer in the range 0 .. 100
-//	first find the table value
 float CRTL_SDR::setGain(int32_t Gain)
 {
-    if(Gain >= gainsCount)
+    if(Gain >= GainsCount)
     {
-        qDebug() << "RTL_TCP:" << "Unknown gain count" << Gain;
+        qDebug() << "RTL_SDR:" << "Unknown gain count" << Gain;
         return 0;
     }
 
-    theGain = gains[Gain];
-    rtlsdr_set_tuner_gain(device, theGain);
+    CurrentGainCount = Gain;
+    CurrentGain = gains[Gain];
+    rtlsdr_set_tuner_gain(device, CurrentGain);
 
-    //qDebug() << "RTL_TCP:" << "Set gain to" << theGain / 10.0 << "db";
+    //qDebug() << "RTL_SDR:" << "Set gain to" << theGain / 10.0 << "db";
 
-    return theGain / 10.0;
+    return CurrentGain / 10.0;
 }
 
 int32_t CRTL_SDR::getGainCount()
 {
-    return gainsCount - 1;
+    return GainsCount - 1;
 }
 
 void CRTL_SDR::setAgc(bool AGC)
 {
     if (AGC == true)
     {
-        rtlsdr_set_tuner_gain_mode(device, 0);
         isAGC = true;
     }
     else
     {
-        rtlsdr_set_tuner_gain_mode(device, 1);
         isAGC = false;
-        setGain(theGain);
+        setGain(CurrentGain);
     }
 }
 
@@ -252,6 +272,37 @@ QString CRTL_SDR::getName()
 CDeviceID CRTL_SDR::getID()
 {
     return CDeviceID::RTL_SDR;
+}
+
+void CRTL_SDR::setMinMaxValue(uint8_t MinValue, uint8_t MaxValue)
+{
+    this->MinValue = MinValue;
+    this->MaxValue = MaxValue;
+}
+
+void CRTL_SDR::AGCTimerTimeout(void)
+{
+    if(isAGC)
+    {
+        // Check for overloading
+        if(MinValue == 0 || MaxValue == 255)
+        {
+            // We have to decrease the gain
+            setGain(CurrentGainCount - 1);
+
+            //qDebug() << "RTL_SDR:" << "Overload";
+        }
+        else
+        {
+            // We have to increase the gain
+            if(CurrentGainCount < (GainsCount - 1))
+                setGain(CurrentGainCount + 1);
+
+            //qDebug() << "RTL_SDR:" << "Not Overload";
+        }
+    }
+
+    //qDebug() << "RTL_SDR:" << "Min:" << MinValue << "Max:" << MaxValue;
 }
 
 int32_t CRTL_SDR::getSamples(DSPCOMPLEX* Buffer, int32_t Size)
