@@ -39,6 +39,9 @@
 #include "CAirspy.h"
 #endif
 
+#ifdef HAVE_SOAPYSDR
+#include "CSoapySdr.h"
+#endif
 
 CVirtualInput *CInputFactory::GetDevice(QString Device)
 {
@@ -78,6 +81,9 @@ CVirtualInput *CInputFactory::GetAutoDevice()
 #ifdef HAVE_RTLSDR
             case 1: InputDevice = new CRTL_SDR(); break;
 #endif
+#ifdef HAVE_SOAPYSDR
+            case 2: InputDevice = new CSoapySdr(); break;
+#endif
             }
         }
 
@@ -113,6 +119,11 @@ CVirtualInput *CInputFactory::GetManualDevice(QString Device)
 #ifdef HAVE_RTLSDR
         if (Device == "rtl_sdr")
             InputDevice = new CRTL_SDR();
+        else
+#endif
+#ifdef HAVE_SOAPYSDR
+        if (Device == "soapysdr")
+            InputDevice = new CSoapySdr();
         else
 #endif
         if (Device == "rawfile")
