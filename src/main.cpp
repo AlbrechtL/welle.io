@@ -36,7 +36,6 @@
 #include "CInputFactory.h"
 #include "CRAWFile.h"
 #include "CRTL_TCP_Client.h"
-#include "CSoapySdr.h"
 #include "DabConstants.h"
 #include "gui.h"
 
