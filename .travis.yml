@@ -1,4 +1,4 @@
-language: cpp
+language: none
 compiler: gcc
 sudo: require
 dist: trusty
@@ -11,7 +11,8 @@ before_install:
 install: 
     - sudo apt-get -y install g++-5 qt58base qt58declarative qt58charts-no-lgpl qt58multimedia libfaad-dev libfftw3-dev librtlsdr-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev
     - source /opt/qt58/bin/qt58-env.sh
-    - export CXX="g++-5"
+    - export CXX=g++-5
+    - export CC=gcc-5
 
 script:
   - qmake PREFIX=/usr
