@@ -680,7 +680,7 @@ void RadioInterface::updateSpectrum(QAbstractSeries* series)
     QXYSeries* xySeries = static_cast<QXYSeries*>(series);
 
     //	Delete old data
-    spectrum_data.clear();
+    spectrum_data.resize(dabModeParameters.T_u);
 
     qreal tunedFrequency_MHz = tunedFrequency / 1e6;
     qreal sampleFrequency_MHz = 2048000 / 1e6;
@@ -714,12 +714,19 @@ void RadioInterface::updateSpectrum(QAbstractSeries* series)
         else
             y = abs(spectrumBuffer[i - half_Tu]);
 
+        // Apply a cumulative moving average filter
+        int avg = 4; // Number of y values to average
+        qreal CMA = spectrum_data[i].y();
+        y = (CMA * avg + y) / (avg + 1);
+
         //	Find maximum value to scale the plotter
         if (y > y_max)
             y_max = y;
 
+        // Calc x frequency
         x = (i * dip_MHz) + (tunedFrequency_MHz - (sampleFrequency_MHz / 2));
-        spectrum_data.append(QPointF(x, y));
+
+        spectrum_data[i]= QPointF(x, y);
     }
 
     //	Set maximum of y-axis
