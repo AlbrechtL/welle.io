@@ -131,23 +131,10 @@ CRTL_SDR::CRTL_SDR()
     // Always use manual gain, the AGC is implemented in software
     rtlsdr_set_tuner_gain_mode(device, 1);
 
-    bool isAutoGain = true; // ToDo
-    if(isAutoGain)
-    {
-        // Set AGC on
-        setAgc(true);
-    }
-    else
-    {
-        // Set AGC off
-        setAgc(false);
-
-        // Read gein
-        rtlsdr_set_tuner_gain(device, CurrentGain);
-    }
+    // Enable AGC by default
+    setAgc(true);
 
     connect(&AGCTimer, SIGNAL(timeout(void)), this, SLOT(AGCTimerTimeout(void)));
-    AGCTimer.start(50);
 
     return;
 }
@@ -204,6 +191,8 @@ bool CRTL_SDR::restart(void)
     rtlsdr_set_center_freq(device, lastFrequency + FrequencyOffset);
     RTL_SDR_Thread = new CRTL_SDR_Thread(this);
 
+    AGCTimer.start(50);
+
     return true;
 }
 
@@ -211,6 +200,8 @@ void CRTL_SDR::stop(void)
 {
     if (RTL_SDR_Thread == NULL)
         return;
+
+    AGCTimer.stop();
 
     rtlsdr_cancel_async(device);
     if (RTL_SDR_Thread != NULL) {
@@ -254,7 +245,7 @@ void CRTL_SDR::setAgc(bool AGC)
     else
     {
         isAGC = false;
-        setGain(CurrentGain);
+        setGain(CurrentGainCount);
     }
 }
 
@@ -290,19 +281,34 @@ void CRTL_SDR::AGCTimerTimeout(void)
             // We have to decrease the gain
             setGain(CurrentGainCount - 1);
 
-            //qDebug() << "RTL_SDR:" << "Overload";
+            qDebug() << "RTL_SDR:" << "Decrease gain to" << (float) CurrentGain / 10;
         }
         else
-        {
-            // We have to increase the gain
+        {            
             if(CurrentGainCount < (GainsCount - 1))
-                setGain(CurrentGainCount + 1);
+            {
+                // Calc if a gain increase overloads the device. Calc it from the gain values
+                int NewGain = gains[CurrentGainCount + 1];
+                float DeltaGain = ((float) NewGain / 10) - ((float) CurrentGain / 10);
+                float LinGain = pow(10, DeltaGain / 20);
 
-            //qDebug() << "RTL_SDR:" << "Not Overload";
+                int NewMaxValue = (float) MaxValue * LinGain;
+                int NewMinValue = (float) MinValue / LinGain;
+
+                // We have to increase the gain
+                if(NewMinValue >=0 && NewMaxValue <= 255)
+                {
+                    setGain(CurrentGainCount + 1);
+                    qDebug() << "RTL_SDR:" << "Increase gain to" << (float) CurrentGain / 10;
+                }
+            }
         }
     }
-
-    //qDebug() << "RTL_SDR:" << "Min:" << MinValue << "Max:" << MaxValue;
+    else // AGC is off
+    {
+        if(MinValue == 0 || MaxValue == 255)
+            qDebug() << "RTL_SDR:" << "ADC overload. Maybe you are using a to high gain.";
+    }
 }
 
 int32_t CRTL_SDR::getSamples(DSPCOMPLEX* Buffer, int32_t Size)
