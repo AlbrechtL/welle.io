@@ -131,7 +131,7 @@ Item {
 
                     TouchSwitch {
                         id: enableAGC
-                        name: "Enable AGC"
+                        name: "Automatic RF gain"
                         height: 24
                         Layout.fillHeight: true
                         objectName: "enableAGC"
@@ -168,7 +168,7 @@ Item {
 
                     TouchSwitch {
                         id: enableFullScreen
-                        name: "Enable full screen mode"
+                        name: "Full screen mode"
                         height: 24
                         Layout.fillHeight: true
                         objectName: "enableFullScreen"
@@ -177,7 +177,7 @@ Item {
 
                     TouchSwitch {
                         id: enableExpertMode
-                        name: "Enable expert mode"
+                        name: "Expert mode"
                         height: 24
                         Layout.fillHeight: true
                         objectName: "enableExpertMode"
