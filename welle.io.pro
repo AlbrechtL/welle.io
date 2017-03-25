@@ -130,6 +130,7 @@ LIBS		+= -ldl
 LIBS		+= -lfaad
 CONFIG          += airspy
 CONFIG		+= rtl_sdr
+#CONFIG      += soapysdr
 }
 
 
@@ -166,4 +167,13 @@ rtl_sdr {
 
         # The same lib for unix and Windows
         LIBS            += -lrtlsdr       
+}
+
+soapysdr {
+        DEFINES		+= HAVE_SOAPYSDR
+        HEADERS		+= ./src/input/CSoapySdr.h
+        SOURCES		+= ./src/input/CSoapySdr.cpp
+
+        # The same lib for unix and Windows
+        LIBS            += -lSoapySDR
 }

@@ -3,7 +3,10 @@
 This repository contains the implementation of a simple DAB/DAB+ receiver. 
 It is fork from dab-rpi and sdr-j-dab which is now qt-dab https://github.com/JvanKatwijk/qt-dab.
 
-The receiver supports terrestrial DAB and DAB+ reception with as input the sample stream from a airspy, a rtl_sdr, a rtl_tcp server or a I/Q RAW file (for developers).
+The receiver supports terrestrial DAB and DAB+ reception with as input the sample stream from an airspy,
+an rtl_sdr, an rtl_tcp server or an I/Q RAW file (for developers). Additionnaly, there are optional
+bindings to [SoapySDR](https://github.com/pothosware/SoapySDR) that allow you to use the LimeSDR.
+Connect your antenna to `RX1_W`.
 
 For a user oriented documentation please see the project site https://www.welle.io.
 
@@ -28,7 +31,7 @@ Parameter | Description
 ------ | ----------
 h | Show help 
 v | Show version 
-D | Input device. Possible is: auto (default), airspy, rtl_tcp, rtl_sdr, rawfile
+D | Input device. Possible is: auto (default), airspy, rtl_tcp, rtl_sdr, rawfile, soapysdr
 M | DAB mode. Possible is: 1,2,3 or 4, Default: 1 
 I | rtl_tcp server IP address. Only valid for input rtl_tcp 
 P | rtl_tcp server IP port. Only valid for input rtl_tcp
@@ -51,6 +54,7 @@ The following SDR devices are supported
 * rtl_sdr (http://osmocom.org/projects/sdr/wiki/rtl-sdr)
 * rtl_tcp (http://osmocom.org/projects/sdr/wiki/rtl-sdr#rtl_tcp)
 * I/Q RAW file
+* The LimeSDR through SoapySDR
 
 Building
 ====================
