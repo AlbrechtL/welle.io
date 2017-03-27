@@ -15,6 +15,9 @@ install:
     - export CC=gcc-6
 
 script:
+  - # https://github.com/AlbrechtL/welle.io/issues/32#issuecomment-289561703
+  - sed -i -e 's|int16_t Data [fragmentSize] = {0};|int16_t Data [fragmentSize] ;|g' src/backend/audio/dab-audio.cpp
+  - sed -i -e 's|int16_t tempX [fragmentSize] = {0};|int16_t tempX [fragmentSize];|g' src/backend/audio/dab-audio.cpp
   - qmake PREFIX=/usr
   - make -j4
   - sudo make INSTALL_ROOT=appdir install ; sudo chown -R $USER appdir ; find appdir/
