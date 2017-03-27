@@ -123,7 +123,8 @@ SOURCES += ./src/main.cpp \
     ./src/DabConstants.cpp
 
 unix {
-INCLUDEPATH	+= /usr/local/include
+INCLUDEPATH	+= /opt/local/include
+LIBS            += -L/opt/local/lib
 LIBS		+= -lfftw3f
 LIBS		+= -lusb-1.0
 LIBS		+= -ldl
@@ -169,11 +170,16 @@ rtl_sdr {
         LIBS            += -lrtlsdr       
 }
 
-soapysdr {
-        DEFINES		+= HAVE_SOAPYSDR
-        HEADERS		+= ./src/input/CSoapySdr.h
-        SOURCES		+= ./src/input/CSoapySdr.cpp
+#<<<<<<< HEAD
+#DISTFILES += \
+#    README.md
+#=======
+#soapysdr {
+#        DEFINES		+= HAVE_SOAPYSDR
+#        HEADERS		+= ./src/input/CSoapySdr.h
+#        SOURCES		+= ./src/input/CSoapySdr.cpp
 
-        # The same lib for unix and Windows
-        LIBS            += -lSoapySDR
-}
+#        # The same lib for unix and Windows
+#        LIBS            += -lSoapySDR
+#}
+#>>>>>>> 7cea1ad71faf5c86d587b40819b2ef7e003d40d0
