@@ -31,7 +31,7 @@ script:
   - cd ..
   - find build/
   - mkdir -p ./appdir/usr/share/applications
-  - welle-io.desktop ./appdir/usr/share/applications
+  - cp welle-io.desktop ./appdir/usr/share/applications
   - mkdir -p ./appdir/usr/bin
   - cp build/welle-io ./appdir/usr/bin
   - mkdir -p ./appdir/usr/lib
