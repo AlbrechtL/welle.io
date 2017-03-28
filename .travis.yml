@@ -21,7 +21,6 @@ script:
   - cmake ../ -DINSTALL_UDEV_RULES=ON -DCMAKE_INSTALL_PREFIX=/usr
   - make
   - sudo make install
-  - find /usr | grep airspy
   - sudo ldconfig
   - cd ../..
   - qmake PREFIX=/usr
