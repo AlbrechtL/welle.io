@@ -25,7 +25,12 @@ script:
   - cd ../..
   - qmake PREFIX=/usr
   - make -j4
-  - sudo make INSTALL_ROOT=appdir install ; sudo chown -R $USER appdir ; find appdir/
+  - # sudo make INSTALL_ROOT=appdir install ; sudo chown -R $USER appdir ; find appdir/
+  - sudo apt-get -y install checkinstall
+  - sudo checkinstall --pkgname=app --pkgversion="1" --pkgrelease="1" --backup=no --fstrans=no --default --deldoc 
+  - mkdir appdir ; cd appdir
+  - dpkg -x ../app_1-1_amd64.deb . ; find .
+  - cd .. 
   
 after_success:
   - wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage" 
