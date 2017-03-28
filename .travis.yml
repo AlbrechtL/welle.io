@@ -27,7 +27,8 @@ script:
   - cd build
   - qmake PREFIX=/usr ..
   - make -j4
-  - # sudo make INSTALL_ROOT=appdir install ; sudo chown -R $USER appdir ; find appdir/ # "make install" seems not implemented
+  - # sudo make INSTALL_ROOT=../appdir install ; sudo chown -R $USER appdir ; find appdir/
+  - # "make install" seems not implemented, hence going though the following steps manually:
   - cd ..
   - find build/
   - mkdir -p ./appdir/usr/share/applications
