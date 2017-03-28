@@ -23,14 +23,17 @@ script:
   - sudo make install
   - sudo ldconfig
   - cd ../..
-  - qmake PREFIX=/usr
+  - mkdir build
+  - cd build
+  - qmake PREFIX=/usr ..
   - make -j4
   - # sudo make INSTALL_ROOT=appdir install ; sudo chown -R $USER appdir ; find appdir/ # "make install" seems not implemented
-  - find build
-  - mkdir -p appdir/usr/share/applications
-  - mkdir -p appdir/usr/bin
-  - mkdir -p appdir/usr/lib
-  - mkdir -p appdir/usr/share/icons/hicolor/512x512/apps/
+  - cd ..
+  - find build/
+  - mkdir -p ./appdir/usr/share/applications
+  - mkdir -p ./appdir/usr/bin
+  - mkdir -p ./appdir/usr/lib
+  - mkdir -p ./appdir/usr/share/icons/hicolor/512x512/apps/
   - cp icon.png appdir/usr/share/icons/hicolor/512x512/apps/welleio.png
   
 after_success:
