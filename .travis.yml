@@ -8,7 +8,7 @@ before_install:
     - sudo apt-get update -qq
     
 install: 
-    - sudo apt-get -y install libusb-1.0-0-dev pkg-config qt58base qt58declarative qt58charts-no-lgpl qt58multimedia libfaad-dev libfftw3-dev librtlsdr-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev
+    - sudo apt-get -y install libusb-1.0-0-dev pkg-config qt58base qt58declarative qt58charts-no-lgpl qt58multimedia libpulse0 libfaad-dev libfftw3-dev librtlsdr-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev
     - source /opt/qt58/bin/qt58-env.sh
 
 script:
