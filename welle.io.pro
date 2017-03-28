@@ -183,3 +183,6 @@ rtl_sdr {
 #        LIBS            += -lSoapySDR
 #}
 #>>>>>>> 7cea1ad71faf5c86d587b40819b2ef7e003d40d0
+
+DISTFILES += \
+    README.md

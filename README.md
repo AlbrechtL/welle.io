@@ -117,7 +117,6 @@ To build for macOS, you need to install the dependencies with macports first, as
 # sudo port install fftw-3-single faad2 rtl-sdr libusb
 ```
 
-
 Install Qt 5.8 with Qt Creator directly from Qt website, not through macports.
 
 Clone welle.io
@@ -127,12 +126,10 @@ Clone welle.io
   ```
 
 Use the provided welle.io.macports.pro within QT Creator.
-Make sure in Qt Creator, Projects, Build&Run, Run that the chekcbox "Add build library path to DYLD..." is off.
+
+Make sure in Qt Creator, "Projects, Build&Run, Run" that the checkbox "Add build library path to DYLD..." is off.
 
 Build and run.
-
-
-
 
 
 Limitations
