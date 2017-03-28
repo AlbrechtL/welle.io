@@ -18,7 +18,7 @@ script:
   - cd host-master
   - mkdir build
   - cd build
-  - cmake ../ -DINSTALL_UDEV_RULES=ON -DCMAKE_INSTALL_PREFIX=/usr
+  - cmake ../ -DINSTALL_UDEV_RULES=ON # -DCMAKE_INSTALL_PREFIX=/usr
   - make
   - sudo make install
   - sudo ldconfig
