@@ -23,7 +23,7 @@ script:
   - sudo make install
   - find /usr | grep airspy
   - sudo ldconfig
-  - cd ..
+  - cd ../..
   - qmake PREFIX=/usr
   - make -j4
   - sudo make INSTALL_ROOT=appdir install ; sudo chown -R $USER appdir ; find appdir/
