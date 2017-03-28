@@ -31,10 +31,12 @@ script:
   - cd ..
   - find build/
   - mkdir -p ./appdir/usr/share/applications
+  - welle-io.desktop ./appdir/usr/share/applications
   - mkdir -p ./appdir/usr/bin
+  - cp build/welle-io ./appdir/usr/bin
   - mkdir -p ./appdir/usr/lib
   - mkdir -p ./appdir/usr/share/icons/hicolor/512x512/apps/
-  - cp icon.png appdir/usr/share/icons/hicolor/512x512/apps/welleio.png
+  - cp icon.png appdir/usr/share/icons/hicolor/512x512/apps/welle-io.png
   
 after_success:
   - wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage" 
