@@ -15,7 +15,7 @@ script:
   - # https://github.com/airspy/airspyone_host#how-to-build-the-host-software-on-linux
   - wget https://github.com/airspy/host/archive/master.zip
   - unzip master.zip
-  - cd host-master
+  - cd airspyone_host-master/
   - mkdir build
   - cd build
   - cmake ../ -DINSTALL_UDEV_RULES=ON -DCMAKE_INSTALL_PREFIX=/usr
