@@ -1,14 +1,9 @@
 [welle.io](https://www.welle.io) [![Build Status](https://travis-ci.org/AlbrechtL/welle.io.svg?branch=master)](https://travis-ci.org/AlbrechtL/welle.io)
 =====================
-This repository contains the implementation of a simple DAB/DAB+ receiver. 
-It is fork from dab-rpi and sdr-j-dab which is now qt-dab https://github.com/JvanKatwijk/qt-dab.
+This repository contains the implementation of a SDR DAB/DAB+ receiver.  
+Please see the project website https://www.welle.io for a user oriented documentation.
 
-The receiver supports terrestrial DAB and DAB+ reception with as input the sample stream from an airspy,
-an rtl_sdr, an rtl_tcp server or an I/Q RAW file (for developers). Additionnaly, there are optional
-bindings to [SoapySDR](https://github.com/pothosware/SoapySDR) that allow you to use the LimeSDR.
-Connect your antenna to `RX1_W`.
-
-For a user oriented documentation please see the project site https://www.welle.io.
+welle.io is fork from dab-rpi and sdr-j-dab which is now qt-dab https://github.com/JvanKatwijk/qt-dab.
 
 Table of contents
 ====
@@ -19,6 +14,7 @@ Table of contents
     * [General Information](#general-information)
     * [Ubuntu Linux 16.04 LTS](#ubuntu-linux-1604-lts)
     * [Windows 10](#windows-10)
+    * [macOS](#macos)
     * [Raspberry Pi 2 and 3](#raspberry-pi-2-and-3)
   * [Limitations](#limitations)
   * [Development](#development)
@@ -54,7 +50,7 @@ The following SDR devices are supported
 * rtl_sdr (http://osmocom.org/projects/sdr/wiki/rtl-sdr)
 * rtl_tcp (http://osmocom.org/projects/sdr/wiki/rtl-sdr#rtl_tcp)
 * I/Q RAW file
-* The LimeSDR through SoapySDR
+* The LimeSDR through [SoapySDR](https://github.com/pothosware/SoapySDR) (Connect your antenna to `RX1_W`).
 
 Building
 ====================
@@ -105,11 +101,6 @@ This sections shows how to compile welle.io on Windows 10. Windows 7 should also
 5. Build welle.io
 6. Run welle.io and enjoy it
 
-Raspberry Pi 2 and 3
----
-To build and run welle.io on a Raspberry Pi 2 and 3 with GPU acceleration, please visit this repository: https://github.com/AlbrechtL/dab-rpi_raspbian_image (outdated)
-
-
 macOS
 ---
 To build for macOS, you need to install the dependencies with macports first, assuming you have macports installed:
@@ -118,19 +109,20 @@ To build for macOS, you need to install the dependencies with macports first, as
 # sudo port install fftw-3-single faad2 rtl-sdr libusb
 ```
 
-Install Qt 5.8 with Qt Creator directly from Qt website, not through macports.
-
-Clone welle.io
+1. Install Qt 5.8 with Qt Creator directly from Qt website, not through macports.
+2. Clone welle.io
 
   ```
 # git clone https://github.com/AlbrechtL/welle.io.git
   ```
 
-Open welle.io.pro with QT Creator.
+3. Open welle.io.pro with QT Creator.
+4. Make sure in Qt Creator, "Projects, Build&Run, Run" that the checkbox "Add build library path to DYLD..." is off.
+5. Build and run.
 
-Make sure in Qt Creator, "Projects, Build&Run, Run" that the checkbox "Add build library path to DYLD..." is off.
-
-Build and run.
+Raspberry Pi 2 and 3
+---
+To build and run welle.io on a Raspberry Pi 2 and 3 with GPU acceleration, please visit this repository: https://github.com/AlbrechtL/dab-rpi_raspbian_image (outdated)
 
 
 Limitations
