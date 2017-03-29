@@ -39,6 +39,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #if defined(_WIN32) || defined(_WIN64)
 #define MALLOC(a) _mm_malloc(a, 16)
+#elif defined(__APPLE__)
+#include <sys/malloc.h>
 #else
 #include <malloc.h>
 #define MALLOC(a) memalign(16, a)

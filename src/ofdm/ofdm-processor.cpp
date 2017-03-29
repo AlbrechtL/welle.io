@@ -48,6 +48,8 @@
   *	to the interpreters for FIC and MSC
   */
 
+#define abs std::abs     // to suppress warning: using integer absolute value function 'abs' when argument is of floating point type [-Wabsolute-value]
+
 static	inline
 int16_t	valueFor (int16_t b) {
 int16_t	res	= 1;

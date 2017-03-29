@@ -122,7 +122,7 @@ SOURCES += ./src/main.cpp \
     ./src/input/CRTL_TCP_Client.cpp \
     ./src/DabConstants.cpp
 
-unix {
+unix:!macx {
 INCLUDEPATH	+= /usr/local/include
 LIBS		+= -lfftw3f
 LIBS		+= -lusb-1.0
@@ -149,6 +149,18 @@ CONFIG		+= rtl_sdr
 CONFIG          += airspy
 }
 
+
+macx {
+INCLUDEPATH	+= /opt/local/include
+LIBS            += -L/opt/local/lib
+LIBS		+= -lfftw3f
+LIBS		+= -lusb-1.0
+LIBS		+= -ldl
+LIBS		+= -lfaad
+CONFIG          += airspy
+CONFIG		+= rtl_sdr
+#CONFIG      += soapysdr        # not tested
+}
 
 #### Devices ####
 airspy {
@@ -177,3 +189,6 @@ soapysdr {
         # The same lib for unix and Windows
         LIBS            += -lSoapySDR
 }
+
+DISTFILES += \
+    README.md

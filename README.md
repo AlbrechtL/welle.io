@@ -109,6 +109,30 @@ Raspberry Pi 2 and 3
 ---
 To build and run welle.io on a Raspberry Pi 2 and 3 with GPU acceleration, please visit this repository: https://github.com/AlbrechtL/dab-rpi_raspbian_image (outdated)
 
+
+macOS
+---
+To build for macOS, you need to install the dependencies with macports first, assuming you have macports installed:
+
+```
+# sudo port install fftw-3-single faad2 rtl-sdr libusb
+```
+
+Install Qt 5.8 with Qt Creator directly from Qt website, not through macports.
+
+Clone welle.io
+
+  ```
+# git clone https://github.com/AlbrechtL/welle.io.git
+  ```
+
+Open welle.io.pro with QT Creator.
+
+Make sure in Qt Creator, "Projects, Build&Run, Run" that the checkbox "Add build library path to DYLD..." is off.
+
+Build and run.
+
+
 Limitations
 ===
 * CMake is not maintained (not working)
