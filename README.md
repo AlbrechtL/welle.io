@@ -49,7 +49,7 @@ The following SDR devices are supported
 * airspy (http://airspy.com/)
 * rtl_sdr (http://osmocom.org/projects/sdr/wiki/rtl-sdr)
 * rtl_tcp (http://osmocom.org/projects/sdr/wiki/rtl-sdr#rtl_tcp)
-* I/Q RAW file
+* I/Q RAW file (https://www.welle.io/devices/rawfile)
 * The LimeSDR through [SoapySDR](https://github.com/pothosware/SoapySDR) (Connect your antenna to `RX1_W`).
 
 Building
