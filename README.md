@@ -126,7 +126,7 @@ Clone welle.io
 # git clone https://github.com/AlbrechtL/welle.io.git
   ```
 
-Use the provided welle.io.macports.pro within QT Creator.
+Open welle.io.pro with QT Creator.
 
 Make sure in Qt Creator, "Projects, Build&Run, Run" that the checkbox "Add build library path to DYLD..." is off.
 
