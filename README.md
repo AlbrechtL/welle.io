@@ -1,4 +1,4 @@
-[welle.io](https://www.welle.io)
+[welle.io](https://www.welle.io) [![Build Status](https://travis-ci.org/AlbrechtL/welle.io.svg?branch=master)](https://travis-ci.org/AlbrechtL/welle.io)
 =====================
 This repository contains the implementation of a simple DAB/DAB+ receiver. 
 It is fork from dab-rpi and sdr-j-dab which is now qt-dab https://github.com/JvanKatwijk/qt-dab.
