@@ -58,7 +58,7 @@ Building
 General Information
 ---
 The following libraries and their development files are needed:
-* QT 5.8 and above
+* QT 5.7 (don't use QT 5.8 because of [this](https://github.com/AlbrechtL/welle.io/issues/35) bug)
 * FFTW3f
 * libfaad
 * librtlsdr
@@ -68,7 +68,7 @@ Ubuntu Linux 16.04 LTS
 ---
 This sections shows how to compile welle.io on Ubuntu 16.04 LTS. 
 
-1. Install QT 5.8 including the QT Charts module by using the the "Qt Online Installer for Linux" https://www.qt.io/download-open-source/
+1. Install QT 5.7 including the QT Charts module by using the the "Qt Online Installer for Linux" https://www.qt.io/download-open-source/
 
 2. Install the following packages
 
@@ -98,7 +98,7 @@ A compiled version can be found at https://github.com/AlbrechtL/welle.io/release
 
 This sections shows how to compile welle.io on Windows 10. Windows 7 should also be possible but is not tested. 
 
-1. Install QT 5.8 including the QT Charts and mingw modules by using the the "Qt Online Installer for Windows" https://www.qt.io/download-open-source/
+1. Install QT 5.7 including the QT Charts and mingw modules by using the the "Qt Online Installer for Windows" https://www.qt.io/download-open-source/
 2. Clone welle.io https://github.com/AlbrechtL/welle.io.git e.g. by using [TortoiseGit](https://tortoisegit.org).
 3. Clone the welle.io Windows libraries https://github.com/AlbrechtL/welle.io-win-libs.git.
 4. Start QT Creator and open the project file "welle.io.pro" inside the folder "welle.io".
@@ -113,7 +113,7 @@ To build for macOS, you need to install the dependencies with macports first, as
 # sudo port install fftw-3-single faad2 rtl-sdr libusb
 ```
 
-1. Install Qt 5.8 with Qt Creator directly from Qt website, not through macports.
+1. Install Qt 5.7 with Qt Creator directly from Qt website, not through macports.
 2. Clone welle.io
 
   ```
