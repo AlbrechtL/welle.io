@@ -58,14 +58,19 @@ ApplicationWindow {
         property alias width : mainWindow.width
         property alias height : mainWindow.height
         property alias radioInformationViewWidth: radioInformationView.width
+        property alias expertViewWidth: expertView.width
     }
+
     SettingsPage{
         id:settingsPage
         onEnableExpertModeStateChanged: {
-            if(enableExpertModeState == false)
-                mainWindow.width = Units.dp(350) + radioInformationView.width
+            if(enableExpertModeState)
+                mainWindow.width = mainWindow.width + expertView.width
+            else
+                mainWindow.width = mainWindow.width - expertView.width
         }
     }
+
     InfoPage{
         id: infoPage
         anchors.topMargin: Units.dp(10)
@@ -110,13 +115,10 @@ ApplicationWindow {
                 anchors.fill: parent
                 anchors.margins: Units.dp(-20)
                 onClicked: {
-                    if(stackView.depth > 1) {
+                    if(stackView.depth > 1)
                         stackView.pop();
-                    }
                     else
-                    {
                         stackView.push(settingsPage);
-                    }
                 }
             }
         }
@@ -209,9 +211,6 @@ ApplicationWindow {
             Layout.alignment: Qt.AlignRight
             Layout.minimumWidth: Units.dp(320)
 
-            // Disable this view if expert view is enabled and no more space is available
-            visible: (mainWindow.width < Units.dp(850) && settingsPage.enableExpertModeState) ? false : true
-
             // Radio
             RadioView {}
 
@@ -230,6 +229,7 @@ ApplicationWindow {
         ExpertView{
             id: expertView
             Layout.fillWidth: settingsPage.enableExpertModeState ? true : false
+            width: Units.dp(400)
             visible: settingsPage.enableExpertModeState ? true : false
         }
     }
