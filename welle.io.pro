@@ -124,6 +124,7 @@ SOURCES += ./src/main.cpp \
 
 unix:!macx {
 INCLUDEPATH	+= /usr/local/include
+DESTDIR		= ./linux-bin 
 LIBS		+= -lfftw3f
 LIBS		+= -lusb-1.0
 LIBS		+= -ldl
