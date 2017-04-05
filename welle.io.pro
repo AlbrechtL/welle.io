@@ -124,69 +124,69 @@ SOURCES += \
     src/gui/CStationList.cpp
 
 unix:!macx {
-INCLUDEPATH	+= /usr/local/include
-LIBS		+= -lfftw3f
-LIBS		+= -lusb-1.0
-LIBS		+= -ldl
-LIBS		+= -lfaad
-CONFIG          += airspy
-CONFIG		+= rtl_sdr
-#CONFIG         += soapysdr
+    INCLUDEPATH	+= /usr/local/include
+    LIBS    += -lfftw3f
+    LIBS    += -lusb-1.0
+    LIBS    += -ldl
+    LIBS    += -lfaad
+    CONFIG  += airspy
+    CONFIG  += rtl_sdr
+    #CONFIG  += soapysdr
 }
 
 
 win32 {
-INCLUDEPATH += .welle.io-win-libs/include
-LIBS		+= -L.welle.io-win-libs/x86
-LIBS		+= -lfftw3f-3
-LIBS		+= -lole32
-LIBS		+= -lwinpthread
-LIBS		+= -lwinmm
-LIBS 		+= -lstdc++
-LIBS		+= -lws2_32
-LIBS		+= -llibfaad
-LIBS		+= -lusb-1.0
-CONFIG		+= rtl_sdr
-CONFIG          += airspy
+    INCLUDEPATH += .welle.io-win-libs/include
+    LIBS    += -L.welle.io-win-libs/x86
+    LIBS    += -lfftw3f-3
+    LIBS    += -lole32
+    LIBS    += -lwinpthread
+    LIBS    += -lwinmm
+    LIBS    += -lstdc++
+    LIBS    += -lws2_32
+    LIBS    += -llibfaad
+    LIBS    += -lusb-1.0
+    CONFIG  += rtl_sdr
+    CONFIG  += airspy
 }
 
 
 macx {
-INCLUDEPATH	+= /opt/local/include
-LIBS            += -L/opt/local/lib
-LIBS		+= -lfftw3f
-LIBS		+= -lusb-1.0
-LIBS		+= -ldl
-LIBS		+= -lfaad
-CONFIG          += airspy
-CONFIG		+= rtl_sdr
-#CONFIG         += soapysdr        # not tested
+    INCLUDEPATH	+= /opt/local/include
+    LIBS    += -L/opt/local/lib
+    LIBS    += -lfftw3f
+    LIBS    += -lusb-1.0
+    LIBS    += -ldl
+    LIBS    += -lfaad
+    CONFIG  += airspy
+    CONFIG  += rtl_sdr
+    #CONFIG  += soapysdr        # not tested
 }
 
 #### Devices ####
 airspy {
-        DEFINES		+= HAVE_AIRSPY
-        HEADERS		+= src/input/CAirspy.h
-        SOURCES		+= src/input/CAirspy.cpp
+    DEFINES    += HAVE_AIRSPY
+    HEADERS    += src/input/CAirspy.h
+    SOURCES    += src/input/CAirspy.cpp
 
-        # The same lib for unix and Windows
-        LIBS            += -lairspy
+    # The same lib for unix and Windows
+    LIBS       += -lairspy
 }
 
 rtl_sdr {
-        DEFINES		+= HAVE_RTLSDR
-        HEADERS		+= src/input/CRTL_SDR.h
-        SOURCES		+= src/input/CRTL_SDR.cpp
+    DEFINES    += HAVE_RTLSDR
+    HEADERS    += src/input/CRTL_SDR.h
+    SOURCES    += src/input/CRTL_SDR.cpp
 
-        # The same lib for unix and Windows
-        LIBS            += -lrtlsdr       
+    # The same lib for unix and Windows
+    LIBS       += -lrtlsdr
 }
 
 soapysdr {
-        DEFINES		+= HAVE_SOAPYSDR
-        HEADERS		+= src/input/CSoapySdr.h
-        SOURCES		+= src/input/CSoapySdr.cpp
+    DEFINES    += HAVE_SOAPYSDR
+    HEADERS    += src/input/CSoapySdr.h
+    SOURCES    += src/input/CSoapySdr.cpp
 
-        # The same lib for unix and Windows
-        LIBS            += -lSoapySDR
+    # The same lib for unix and Windows
+    LIBS       += -lSoapySDR
 }
