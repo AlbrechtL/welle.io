@@ -26,7 +26,7 @@
  *
 \******************************************************************************/
 
-#include "stationlist.h"
+#include "CStationList.h"
 
 	StationElement::StationElement (QString const stationName,
 	                                QString const channelName,
@@ -43,14 +43,14 @@ QString StationElement::getChannelName (void) {
 	return m_channelName;
 }
 
-	StationList::StationList (void) {
+    CStationList::CStationList (void) {
 	stationList. clear ();
 }
 
-	StationList::~StationList (void) {
+    CStationList::~CStationList (void) {
 }
 
-void	StationList::reset (void) {
+void	CStationList::reset (void) {
 	stationList. clear ();
 }
 
@@ -59,19 +59,19 @@ bool	variantLessThan (const QObject* v1, const QObject* v2) {
 	                ((StationElement*) v2) -> getStationName ();
 }
 
-void	StationList::sort (void) {
+void	CStationList::sort (void) {
 	qSort (stationList. begin (), stationList. end (), variantLessThan);
 }
 
-int	StationList::count (void) {
+int	CStationList::count (void) {
 	return stationList. count ();
 }
 
-StationElement* StationList::at (int i) {
+StationElement* CStationList::at (int i) {
 	return (StationElement*) stationList. at (i);
 }
 
-QStringList StationList::getStationAt (int i) {
+QStringList CStationList::getStationAt (int i) {
 QString StationName = at(i) -> getStationName ();
 QString ChannelName = at(i) -> getChannelName ();
 QStringList StationElement;
@@ -81,7 +81,7 @@ QStringList StationElement;
 	return StationElement;
 }
 
-bool	StationList::contains (QString value) {
+bool	CStationList::contains (QString value) {
 
 	for (int i = 0; i < count (); i++) {
 	   if (at (i) -> getStationName () == value)
@@ -91,10 +91,10 @@ bool	StationList::contains (QString value) {
 	return false;
 }
 
-void	StationList::append (QString StationName, QString ChannelName) {
+void	CStationList::append (QString StationName, QString ChannelName) {
 	stationList. append (new StationElement (StationName, ChannelName));
 }
 
-QList<QObject*>  StationList::getList (void) {
+QList<QObject*>  CStationList::getList (void) {
 	return  stationList;
 }

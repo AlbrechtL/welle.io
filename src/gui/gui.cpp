@@ -71,7 +71,7 @@ RadioInterface::RadioInterface(CVirtualInput *Device, CDABParams& DABParams, QOb
     emit stationModelChanged();
 
     // Add image provider for the MOT slide show
-    MOTImage = new MOTImageProvider;
+    MOTImage = new CMOTImageProvider;
 
     //	the name of the device is passed on from the main program
     m_deviceName = inputDevice->getName();

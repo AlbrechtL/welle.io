@@ -39,8 +39,8 @@
 #include <QtCharts>
 using namespace QtCharts;
 
-#include "motimageprovider.h"
-#include "stationlist.h"
+#include "CMOTImageProvider.h"
+#include "CStationList.h"
 #include "ofdm-processor.h"
 #include "ringbuffer.h"
 #include "DabConstants.h"
@@ -90,7 +90,7 @@ public:
     {
         return p_stationModel;
     }
-    MOTImageProvider* MOTImage;
+    CMOTImageProvider* MOTImage;
 
 private:
     CDABParams dabModeParameters;
@@ -119,7 +119,7 @@ private:
     int BandIIIChannelIt;
     int LBandChannelIt;
     tScanChannelState ScanChannelState;
-    StationList stationList;
+    CStationList stationList;
     QVector<QPointF> spectrum_data;
     int coarseCorrector;
     int fineCorrector;

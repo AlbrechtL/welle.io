@@ -52,11 +52,11 @@ signals:
     void channelNameChanged();
 };
 
-class StationList
+class CStationList
 {
 public:
-    StationList(void);
-    ~StationList(void);
+    CStationList(void);
+    ~CStationList(void);
 
     void reset(void);
     void sort(void);
