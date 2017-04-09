@@ -27,26 +27,34 @@
  *
  */
 
+#include <unistd.h>
+
 #include <QApplication>
 #include <QCommandLineParser>
 #include <QDir>
 #include <QSettings>
-#include <unistd.h>
+#include <QIcon>
+#include <QtQml/QQmlApplicationEngine>
+#include <QQmlContext>
 
 #include "CInputFactory.h"
 #include "CRAWFile.h"
 #include "CRTL_TCP_Client.h"
 #include "DabConstants.h"
-#include "gui.h"
-
+#include "CRadioController.h"
+#include "CGUI.h"
 
 int main(int argc, char** argv)
 {
     QCoreApplication::setOrganizationName("welle.io");
     QCoreApplication::setOrganizationDomain("welle.io");
     QCoreApplication::setApplicationName("welle.io");
+    QCoreApplication::setApplicationVersion(CURRENT_VERSION);
 
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+
+    //	Before printing anything, we set
+    setlocale(LC_ALL, "");
 
     QApplication a(argc, argv);
     a.setWindowIcon(QIcon(":/icon.png"));
@@ -59,12 +67,7 @@ int main(int argc, char** argv)
     QString rawFile = "";
     QString rawFileFormat = "u8";
 
-    //	Newer versions of Qt provide all kinds of nice mechanisms,
-    //	unfortunately, there are quite some people (including me (jvk))
-    //	who also work with older versions of Qt,
-    QCoreApplication::setApplicationName("welle.io");
-    QCoreApplication::setApplicationVersion(CURRENT_VERSION);
-
+    // Handle the command line
     QCommandLineParser optionParser;
     optionParser.setApplicationDescription("welle.io Help");
     optionParser.addHelpOption();
@@ -157,7 +160,8 @@ int main(int argc, char** argv)
     }
 
     // Create a new radio interface instance
-    RadioInterface* GUI = new RadioInterface(Device, DABParams);
+    CRadioController* RadioController = new CRadioController(Device, DABParams);
+    CGUI *GUI = new CGUI(RadioController, &DABParams);
 
     // Create new QML application, set some requried options and load the QML file
     QQmlApplicationEngine* engine = new QQmlApplicationEngine;

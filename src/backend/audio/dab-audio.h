@@ -33,7 +33,7 @@
 
 class	dabProcessor;
 class	protection;
-class	RadioInterface;
+class	CRadioController;
 
 class	dabAudio:public QThread, public dabVirtual {
 public:
@@ -42,13 +42,13 @@ public:
 	                 int16_t bitRate,
 	                 bool	shortForm,
 	                 int16_t protLevel,
-	                 RadioInterface *mr,
+	                 CRadioController *mr,
 	                 RingBuffer<int16_t> *);
 	~dabAudio	(void);
 int32_t	process		(int16_t *, int16_t);
 void	stopRunning	(void);
 protected:
-	RadioInterface	*myRadioInterface;
+	CRadioController	*myRadioInterface;
 	RingBuffer<int16_t>	*audioBuffer;
 private:
 void	run		(void);

@@ -27,7 +27,7 @@
 #include	"DabConstants.h"
 #include	"dab-virtual.h"
 
-#include	"gui.h"		// defines RadioInterface
+#include	"CRadioController.h"		// defines RadioInterface
 #include	"CAudio.h"	// defines audioSink
 
 	dabVirtual::dabVirtual	(void) {

@@ -30,46 +30,26 @@
 #ifndef _GUI
 #define _GUI
 
-#include <QComboBox>
-#include <QLabel>
 #include <QQmlContext>
 #include <QTimer>
 #include <QtQml/QQmlApplicationEngine>
-#include <QList>
+//#include <QList>
 #include <QtCharts>
 using namespace QtCharts;
 
+#include "CRadioController.h"
 #include "CMOTImageProvider.h"
 #include "CStationList.h"
-#include "ofdm-processor.h"
-#include "ringbuffer.h"
-#include "DabConstants.h"
-#include "fic-handler.h"
-#include "msc-handler.h"
 
-class QSettings;
-class CVirtualInput;
-class CAudio;
-
-class mscHandler;
-class ficHandler;
 
 class common_fft;
 
-typedef enum {
-    ScanStart,
-    ScanTunetoChannel,
-    ScanCheckSignal,
-    ScanWaitForFIC,
-    ScanWaitForChannelNames,
-    ScanDone
-} tScanChannelState;
 
 /*
  *	GThe main gui object. It inherits from
  *	QDialog and the generated form
  */
-class RadioInterface : public QObject {
+class CGUI : public QObject {
     Q_OBJECT
     Q_PROPERTY(QVariant stationModel READ stationModel NOTIFY stationModelChanged)
     Q_PROPERTY(int gainCount MEMBER m_gainCount CONSTANT)
@@ -78,8 +58,8 @@ class RadioInterface : public QObject {
     Q_PROPERTY(QString deviceName MEMBER m_deviceName CONSTANT)
 
 public:
-    RadioInterface(CVirtualInput* Device, CDABParams& DABParams, QObject* parent = NULL);
-    ~RadioInterface();
+    CGUI(CRadioController *RadioController, CDABParams *DABParams, QObject* parent = NULL);
+    ~CGUI();
     Q_INVOKABLE void channelClick(QString, QString);
     Q_INVOKABLE void startChannelScanClick(void);
     Q_INVOKABLE void stopChannelScanClick(void);
@@ -90,113 +70,59 @@ public:
     {
         return p_stationModel;
     }
-    CMOTImageProvider* MOTImage;
+    CMOTImageProvider* MOTImage; // ToDo: Must be a getter
 
 private:
-    CDABParams dabModeParameters;
-    uint8_t isSynced;
-    bool running;
-    CVirtualInput* inputDevice;
-    ofdmProcessor* my_ofdmProcessor;
-    ficHandler* my_ficHandler;
-    mscHandler* my_mscHandler;
-    CAudio* Audio;
-    RingBuffer<int16_t>* AudioBuffer;
+
+    CRadioController *RadioController;
+    CDABParams *DABParams;
+
     common_fft* spectrum_fft_handler;
-    bool autoCorrector;
+
     const QVariantMap licenses();
 
-    QTimer CheckFICTimer;
-    QTimer ScanChannelTimer;
-    QTimer StationTimer;
-    QString currentChannel;
-    QString CurrentStation;
-    QString CurrentDevice;
 
-    bool isFICCRC;
-    bool isSignalPresent;
-    bool scanMode;
-    int BandIIIChannelIt;
-    int LBandChannelIt;
-    tScanChannelState ScanChannelState;
     CStationList stationList;
     QVector<QPointF> spectrum_data;
-    int coarseCorrector;
-    int fineCorrector;
-    QString nextChannel(QString currentChannel);
-    int32_t tunedFrequency;
-    int LastCurrentManualGain;
-    int CurrentFrameErrors;
+
     QVariant p_stationModel;
     int m_gainCount;
     float m_currentGainValue;
     QString m_deviceName;
     int CurrentChannelScanIndex;
 
+
+    QTimer UptimeTimer;
+
 public slots:
-    void end_of_waiting_for_stations(void);
-    void set_fineCorrectorDisplay(int);
-    void set_coarseCorrectorDisplay(int);
-    void clearEnsemble(void);
-    void addtoEnsemble(const QString&);
-    void nameofEnsemble(int, const QString&);
-    void show_frameErrors(int);
-    void show_rsErrors(int);
-    void show_aacErrors(int);
-    void show_ficSuccess(bool);
-    void show_snr(int);
-    void setSynced(char);
-    void showLabel(QString);
-    void showMOT(QByteArray, int, QString);
-    void sendDatagram(char*, int);
-    void changeinConfiguration(void);
-    void newAudio(int);
-    //
-    void show_mscErrors(int);
-    void show_ipErrors(int);
-    void setStereo(bool isStereo);
-    void setSignalPresent(bool isSignal);
-    void displayDateTime(int* DateTime);
     void updateSpectrum(QAbstractSeries* series);
     void setErrorMessage(QString ErrorMessage);
 
 private slots:
-    void setStart(void);
-    void set_channelSelect(QString);
-    void updateTimeDisplay(void);
-    void autoCorrector_on(void);
-
-    void CheckFICTimerTimeout(void);
-    void StationTimerTimeout(void);
+    void UpdateTimerTimeout(void);
+    void MOTUpdate(QPixmap MOTImage);
+    void AddToStationList(QString Station, QString CurrentChannel);
 
 signals:
-    void currentStation(QString text);
-    void stationText(QString text);
-    void syncFlag(bool active);
-    void ficFlag(bool active);
-    void dabType(QString text);
-    void audioType(QString text);
-    void bitrate(int bitrate);
-    void stationType(QString text);
-    void languageType(QString text);
-    void signalPower(int power);
+
+
     void motChanged(void);
+
     void channelScanStopped(void);
     void channelScanProgress(int progress);
     void foundChannelCount(int channelCount);
+
     void setMaximumGain(int maximumValue);
-    void newDateTime(int Year, int Month, int Day, int Hour, int Minute);
+
     void setYAxisMax(qreal max);
     void setXAxisMinMax(qreal min, qreal max);
-    void displayFreqCorr(int Freq);
-    void displayMSCErrors(int Errors);
-    void displayCurrentChannel(QString Channel, int Frequency);
-    void displayFrameErrors(int Errors);
-    void displayRSErrors(int Errors);
-    void displayAACErrors(int Errors);
+
+
     void showErrorMessage(QString Text);
     void stationModelChanged();
     void currentGainValueChanged();
+
+    void setGUIData(QVariantMap GUIData);
 };
 
 #endif

@@ -21,12 +21,13 @@
  *
  * 	fib and fig processor
  */
-#include <QDebug>
+#include    <QDebug>
+#include	<cstring>
 
 #include	"fib-processor.h"
-#include	<cstring>
-#include	"gui.h"
+#include	"CRadioController.h"
 #include	"charsets.h"
+#include    "MathHelper.h"
 //
 //
 // Tabelle ETSI EN 300 401 Page 50
@@ -97,7 +98,7 @@
                                    {416,1,384}};
 
 //
-	fib_processor::fib_processor (RadioInterface *mr) {
+    fib_processor::fib_processor (CRadioController *mr) {
 	myRadioInterface	= mr;
 
 	listofServices	= new serviceId [64];

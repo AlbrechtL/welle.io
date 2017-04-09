@@ -244,13 +244,13 @@ ApplicationWindow {
             motImage.source = "image://motslideshow/image_" + Math.random()
         }
 
-        onNewDateTime:{
-            dateTimeDisplay.text = Units.pad(Day,2) + "." + Units.pad(Month,2) + "." + Year + " " + Units.pad(Hour,2) + ":" + Units.pad(Minute,2)
-        }
-
         onShowErrorMessage:{
             errorMessagePopup.text = Text;
             errorMessagePopup.open();
+        }
+
+        onSetGUIData:{
+            dateTimeDisplay.text = GUIData.DateTime
         }
     }
 }

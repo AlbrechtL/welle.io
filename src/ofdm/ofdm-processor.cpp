@@ -27,10 +27,12 @@
  *
  */
 
+#include <QDebug>
+
 #include	"ofdm-processor.h"
 #include	"fic-handler.h"
 #include	"msc-handler.h"
-#include	"gui.h"
+#include	"CRadioController.h"
 #include	"fft.h"
 //
 #define	SEARCH_RANGE		(2 * 36)
@@ -58,12 +60,9 @@ int16_t	res	= 1;
 	return res;
 }
 
-static
-QString	currentChannel;
-
 	ofdmProcessor::ofdmProcessor	(CVirtualInput	*theRig,
 	                                 CDABParams	*params,
-	                                 RadioInterface *mr,
+                                     CRadioController *mr,
 	                                 mscHandler 	*msc,
 	                                 ficHandler 	*fic,
 	                                 int16_t	threshold,
@@ -511,11 +510,8 @@ void	ofdmProcessor::coarseCorrectorOff (void) {
 	f2Correction	= false;
 }
 
-void	ofdmProcessor::set_scanMode	(bool b, QString channel) {
-	if (b) 
-	   reset ();
+void	ofdmProcessor::set_scanMode	(bool b) {
 	scanMode	= b;
-	currentChannel	= channel;
 }
 
 #define	RANGE	36

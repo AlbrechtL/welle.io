@@ -74,14 +74,16 @@ HEADERS += \
     src/various/ringbuffer.h \
     src/various/Xtan2.h \
     src/input/CVirtualInput.h \
-    src/gui/gui.h \
     src/input/CInputFactory.h \
     src/input/CNullDevice.h \
     src/input/CRAWFile.h \
     src/input/CRTL_TCP_Client.h \
     src/MathHelper.h \
     src/gui/CMOTImageProvider.h \
-    src/gui/CStationList.h
+    src/gui/CStationList.h \
+    src/gui/CGUI.h \
+    src/CRadioController.h \
+    src/CChannels.h
 
 SOURCES += \
     src/main.cpp \
@@ -114,14 +116,16 @@ SOURCES += \
     src/output/CAudio.cpp \
     src/various/fft.cpp \
     src/various/Xtan2.cpp \
-    src/gui/gui.cpp \
     src/input/CInputFactory.cpp \
     src/input/CNullDevice.cpp \
     src/input/CRAWFile.cpp \
     src/input/CRTL_TCP_Client.cpp \
     src/DabConstants.cpp \
     src/gui/CMOTImageProvider.cpp \
-    src/gui/CStationList.cpp
+    src/gui/CStationList.cpp \
+    src/gui/CGUI.cpp \
+    src/CRadioController.cpp \
+    src/CChannels.cpp
 
 unix:!macx {
     INCLUDEPATH	+= /usr/local/include

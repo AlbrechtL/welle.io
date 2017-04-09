@@ -46,12 +46,12 @@ struct quantizer_spec {
 	uint8_t cw_bits;
 };
 
-class	RadioInterface;
+class	CRadioController;
 
 class	mp2Processor: public QObject, public dabProcessor {
 Q_OBJECT
 public:
-			mp2Processor	(RadioInterface *,
+			mp2Processor	(CRadioController *,
 	                                 int16_t,
 	                                 RingBuffer<int16_t> *);
 			~mp2Processor	(void);
@@ -61,7 +61,7 @@ public:
 private:
 	int32_t		mp2sampleRate	(uint8_t *);
 	int32_t		mp2decodeFrame	(uint8_t *, int16_t *);
-	RadioInterface	*myRadioInterface;
+	CRadioController	*myRadioInterface;
 	RingBuffer<int16_t>	*buffer;
 	int32_t		baudRate;
 	void		setSamplerate		(int32_t);

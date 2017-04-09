@@ -85,12 +85,12 @@
 	   int16_t	FEC_scheme;
 	};
 
-class	RadioInterface;
+class	CRadioController;
 
 class	fib_processor: public QObject {
 Q_OBJECT
 public:
-		fib_processor		(RadioInterface *);
+		fib_processor		(CRadioController *);
 		~fib_processor		(void);
 	void	process_FIB		(uint8_t *, uint16_t);
 
@@ -102,7 +102,7 @@ public:
 	void	dataforAudioService	(QString &, audiodata *);
 	void	dataforDataService	(QString &, packetdata *);
 private:
-	RadioInterface	*myRadioInterface;
+	CRadioController	*myRadioInterface;
     serviceId	*findServiceId (uint32_t);
 	serviceComponent *find_packetComponent (int16_t);
         void            bind_audioService (int8_t,

@@ -21,11 +21,13 @@
  *
  *	This file will be included in mp4processor
 */
-#
-#include	"neaacdec.h"
+
 #include	<QObject>
-#include	"gui.h"
+
+#include	"neaacdec.h"
+#include	"CRadioController.h"
 #include	"ringbuffer.h"
+#include    "CAudio.h"
 
 
 class	faadDecoder: public QObject{
@@ -44,7 +46,7 @@ signals:
 	void			newAudio (int);
 //
 public:
-	faadDecoder	(RadioInterface *mr,
+    faadDecoder	(CRadioController *mr,
 	                 RingBuffer<int16_t> *buffer) {
 	this	-> audioBuffer	= buffer;
 	aacCap		= NeAACDecGetCapabilities	();

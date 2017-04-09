@@ -125,61 +125,59 @@ Item{
 
     Connections{
         target: cppGUI
-        onCurrentStation:{
-            currentStation.text = text
-        }
 
-        onStationText:{
-            stationText.text = text
-        }
+        onSetGUIData:{
+            // Station
+            currentStation.text = GUIData.Station
 
-        onSyncFlag:{
-            if(active)
+            // Label
+            stationText.text = GUIData.Label
+
+            // Sync flag
+            if(GUIData.isSync)
                 sync.color = "green"
             else
                 sync.color = "red"
-        }
 
-        onFicFlag:{
-            if(active && sync.color == "#008000")
+            // FIC flag
+            if(GUIData.isFICCRC)
                 fic.color = "green"
             else
                 fic.color = "red"
-        }
 
-        onDisplayFrameErrors:{
-            if(Errors == 0 && fic.color == "#008000")
+            // Frame errors flag
+            if(GUIData.FrameErrors === 0 )
                 frameSucess.color = "green"
             else
                 frameSucess.color = "red"
-        }
 
-        onBitrate: {
-            bitrateText.text = bitrate + " kbps"
-        }
+            // SNR
+            if(GUIData.SNR > 15) signalBar5.color = "green"; else signalBar5.color = "grey"
+            if(GUIData.SNR > 11) signalBar4.color = "green"; else signalBar4.color = "grey"
+            if(GUIData.SNR > 8) signalBar3.color = "green"; else signalBar3.color = "grey"
+            if(GUIData.SNR > 5) signalBar2.color = "green"; else signalBar2.color = "grey"
+            if(GUIData.SNR > 2) signalBar1.color = "green"; else signalBar1.color = "grey"
 
-        onDabType: {
-            dabTypeText.text = text
-        }
+            // Bitrate
+            bitrateText.text = GUIData.BitRate + " kbps"
 
-        onAudioType: {
-            audioTypeText.text = text
-        }
+            // DAB / DAB+
+            if(GUIData.isDAB)
+                dabTypeText.text = "DAB"
+            else
+                dabTypeText.text = "DAB+"
 
-        onStationType: {
-            stationTypeText.text = text
-        }
+            // Stereo / Mono
+            if(GUIData.isStereo)
+                audioTypeText.text = "Stereo"
+            else
+                audioTypeText.text = "Mono"
 
-        onLanguageType: {
-            languageTypeText.text = text
-        }
+            // Station type
+            stationTypeText.text = GUIData.StationType
 
-        onSignalPower: {
-            if(power > 15) signalBar5.color = "green"; else signalBar5.color = "grey"
-            if(power > 11) signalBar4.color = "green"; else signalBar4.color = "grey"
-            if(power > 8) signalBar3.color = "green"; else signalBar3.color = "grey"
-            if(power > 5) signalBar2.color = "green"; else signalBar2.color = "grey"
-            if(power > 2) signalBar1.color = "green"; else signalBar1.color = "grey"
+            // Language type
+            languageTypeText.text = GUIData.LanguageType
         }
     }
 

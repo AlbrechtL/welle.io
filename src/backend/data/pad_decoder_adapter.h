@@ -32,13 +32,13 @@
 #include <QObject>
 #include <QString>
 #include "pad_decoder.h"
-#include "gui.h"
+#include "CRadioController.h"
 
 class PADDecoderAdapter: public QObject, PADDecoderObserver
 {
     Q_OBJECT
 public:
-    PADDecoderAdapter(RadioInterface *mr);
+    PADDecoderAdapter(CRadioController *radioController);
 
     // from PADDecoderObserver
     void PADChangeDynamicLabel(void);
@@ -49,7 +49,7 @@ public:
 
 private:
     PADDecoder  *padDecoder;
-    RadioInterface	*radioInterface;
+    CRadioController	*radioController;
 
 signals:
     void showLabel (QString);

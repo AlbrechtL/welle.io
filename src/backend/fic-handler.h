@@ -36,13 +36,13 @@
 #include	"fib-processor.h"
 #include	<QMutex>
 
-class	RadioInterface;
+class	CRadioController;
 class	mscHandler;
 
 class ficHandler: public QObject, public viterbi {
 Q_OBJECT
 public:
-		ficHandler		(RadioInterface *);
+		ficHandler		(CRadioController *);
 		~ficHandler		(void);
 	void	process_ficBlock	(int16_t *, int16_t);
 	void	setBitsperBlock		(int16_t);

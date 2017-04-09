@@ -22,7 +22,7 @@
  */
 
 #include	"fic-handler.h"
-#include	"gui.h"
+#include	"CRadioController.h"
 #include	"msc-handler.h"
 #include	"protTables.h"
 //
@@ -48,7 +48,7 @@ uint8_t PI_X [24] = {
   * 	puncturing.
   *	The data is sent through to the fic processor
   */
-		ficHandler::ficHandler (RadioInterface *mr):
+		ficHandler::ficHandler (CRadioController *mr):
 	                                             viterbi (768),
 	                                             fibProcessor (mr) {
 int16_t	i, j;

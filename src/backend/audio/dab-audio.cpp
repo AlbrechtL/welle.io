@@ -19,7 +19,9 @@
  *    along with SDR-J; if not, write to the Free Software
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#
+
+#include <QDebug>
+
 #include	"DabConstants.h"
 #include	"dab-audio.h"
 #include	<QThread>
@@ -29,7 +31,7 @@
 #include	"mp4processor.h"
 #include	"eep-protection.h"
 #include	"uep-protection.h"
-#include	"gui.h"
+#include	"CRadioController.h"
 //
 //	As an experiment a version of the backend is created
 //	that will be running in a separate thread. Might be
@@ -48,7 +50,7 @@
 	                         int16_t bitRate,
 	                         bool	shortForm,
 	                         int16_t protLevel,
-	                         RadioInterface *mr,
+                             CRadioController *mr,
 	                         RingBuffer<int16_t> *buffer) {
 int32_t i;
 	this	-> dabModus		= dabModus;

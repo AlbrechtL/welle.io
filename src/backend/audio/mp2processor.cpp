@@ -27,7 +27,7 @@
 //	of the sdr-j DAB/DAB+ software
 //
 #include	"mp2processor.h"
-#include	"gui.h"
+#include	"CRadioController.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // TABLES AND CONSTANTS                                                       //
@@ -212,7 +212,7 @@ struct quantizer_spec quantizer_table [17] = {
 //	(J van Katwijk)
 ////////////////////////////////////////////////////////////////////////////////
 
-	mp2Processor::mp2Processor (RadioInterface *mr,
+	mp2Processor::mp2Processor (CRadioController *mr,
 	                            int16_t bitRate,
 	                            RingBuffer<int16_t> *buffer) {
 int16_t	i, j;

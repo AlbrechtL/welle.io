@@ -36,12 +36,12 @@
 #include	"DabConstants.h"
 #include	"ringbuffer.h"
 
-class	RadioInterface;
+class	CRadioController;
 class	dabVirtual;
 
 class mscHandler {
 public:
-		mscHandler		(RadioInterface *,
+        mscHandler		(CRadioController *,
                                      CDABParams	*,
 	                                 RingBuffer<int16_t> *,
 	                                 bool);
@@ -52,7 +52,7 @@ public:
 	void	stopProcessing		(void);
 	void	stopHandler		(void);
 private:
-	RadioInterface	*myRadioInterface;
+    CRadioController	*myRadioInterface;
 	RingBuffer<int16_t>	*buffer;
 	bool	show_crcErrors;
 	QMutex		locker;

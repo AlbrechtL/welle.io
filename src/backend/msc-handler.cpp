@@ -22,7 +22,7 @@
 #
 #include	"DabConstants.h"
 #include	"msc-handler.h"
-#include	"gui.h"
+#include	"CRadioController.h"
 #include	"dab-virtual.h"
 #include	"dab-audio.h"
 //
@@ -35,7 +35,7 @@
 #define	CUSize	(4 * 16)
 //	Note CIF counts from 0 .. 3
 //
-		mscHandler::mscHandler	(RadioInterface *mr,
+		mscHandler::mscHandler	(CRadioController *mr,
                                      CDABParams	*p,
 	                                 RingBuffer<int16_t> *buffer,
 	                                 bool	show_crcErrors) {

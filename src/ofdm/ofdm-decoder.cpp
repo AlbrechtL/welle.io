@@ -24,8 +24,11 @@
  *	Ofdm_decoder is called once every Ts samples, and
  *	its invocation results in 2 * Tu bits
  */
+
+#include <QDebug>
+
 #include	"ofdm-decoder.h"
-#include	"gui.h"
+#include	"CRadioController.h"
 #include	"phasetable.h"
 #include	"fic-handler.h"
 #include	"msc-handler.h"
@@ -38,7 +41,7 @@
   *	carriers and map them on (soft) bits
   */
 	ofdmDecoder::ofdmDecoder	(CDABParams	*p,
-	                                 RadioInterface *mr,
+                                     CRadioController *mr,
 	                                 ficHandler	*my_ficHandler,
 	                                 mscHandler	*my_mscHandler):
 	                                 bufferSpace (p -> L),

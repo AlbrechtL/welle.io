@@ -39,18 +39,18 @@
 #include	<QObject>
 #include    "pad_decoder_adapter.h"
 
-class	RadioInterface;
+class	CRadioController;
 
 class	mp4Processor : public QObject, public dabProcessor {
 Q_OBJECT
 public:
-			mp4Processor	(RadioInterface *,
+            mp4Processor	(CRadioController *,
 	                                 int16_t,
 	                                 RingBuffer<int16_t> *);
 			~mp4Processor	(void);
 	void		addtoFrame	(uint8_t *);
 private:
-	RadioInterface	*myRadioInterface;
+    CRadioController	*myRadioInterface;
 	bool		processSuperframe (uint8_t [], int16_t);
 	void		handle_aacFrame (uint8_t *,
 	                                 int16_t,

@@ -29,17 +29,19 @@
  */
 
 #include	<cstring>
+#include <QDebug>
 
 #include	"mp4processor.h"
-#include	"gui.h"
+#include	"CRadioController.h"
 #include	"charsets.h"
+#include    "MathHelper.h"
 
 /**
   *	\class mp4Processor is the main handler for the aac frames
   *	the class proper processes input and extracts the aac frames
   *	that are processed by the "faadDecoder" class
   */
-	mp4Processor::mp4Processor (RadioInterface	*mr,
+    mp4Processor::mp4Processor (CRadioController	*mr,
 	                            int16_t	bitRate,
 	                            RingBuffer<int16_t> *b)
                                 :the_rsDecoder (8, 0435, 0, 1, 10),

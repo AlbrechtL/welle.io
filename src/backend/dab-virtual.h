@@ -27,7 +27,7 @@
 #include	<stdint.h>
 #include	<stdio.h>
 
-class	RadioInterface;
+class	CRadioController;
 class	audioSink;
 
 #define	CUSize	(4 * 16)

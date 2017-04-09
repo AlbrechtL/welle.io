@@ -32,7 +32,7 @@
 #include	<stdint.h>
 #include	"freq-interleaver.h"
 
-class	RadioInterface;
+class	CRadioController;
 class	ficHandler;
 class	mscHandler;
 
@@ -40,7 +40,7 @@ class	ofdmDecoder: public QThread {
 Q_OBJECT
 public:
 		ofdmDecoder		(CDABParams *,
-	                                 RadioInterface *,
+	                                 CRadioController *,
 	                                 ficHandler	*,
 	                                 mscHandler	*);
 		~ofdmDecoder		(void);
@@ -51,7 +51,7 @@ public:
 	void	stop			(void);
 private:
 	CDABParams	*params;
-	RadioInterface	*myRadioInterface;
+	CRadioController	*myRadioInterface;
 	ficHandler	*my_ficHandler;
 	mscHandler	*my_mscHandler;
 	void		run		(void);

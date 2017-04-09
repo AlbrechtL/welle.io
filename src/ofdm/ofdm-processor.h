@@ -46,7 +46,7 @@
 //	It was found that enlarging the buffersize to e.g. 8192
 //	cannot be handled properly by the underlying system.
 #define	DUMPSIZE		4096
-class	RadioInterface;
+class	CRadioController;
 class	common_fft;
 class	ofdmDecoder;
 class	ficHandler;
@@ -57,7 +57,7 @@ Q_OBJECT
 public:
 		ofdmProcessor  	(CVirtualInput *,
 	                         CDABParams	*,
-	                         RadioInterface *,
+	                         CRadioController *,
 	                         mscHandler *,
 	                         ficHandler *,
 	                         int16_t,
@@ -68,14 +68,14 @@ public:
 	void	setOffset	(int32_t);
 	void	coarseCorrectorOn	(void);
 	void	coarseCorrectorOff	(void);
-	void	set_scanMode		(bool, QString);
+    void	set_scanMode		(bool);
     void	start	(void);
 private:
     std::thread threadHandle;
     int32_t	syncBufferIndex;
     CVirtualInput	*theRig;
     CDABParams	*params;
-	RadioInterface	*myRadioInterface;
+	CRadioController	*myRadioInterface;
 	ficHandler	*my_ficHandler;
 
 	bool		running;

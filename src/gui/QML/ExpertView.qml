@@ -17,7 +17,7 @@ Item {
 
         TextExpert {
             id: displayDeviceName
-            name: "Device: " + cppGUI.deviceName
+            name: "Device:"
         }
 
         TextExpert {
@@ -70,44 +70,40 @@ Item {
 
     Connections{
         target: cppGUI
-        onDisplayCurrentChannel:{
-            displayCurrentChannel.text = Channel + " (" + Frequency/1e6 + " MHz)"
-        }
 
-        onSignalPower:{
-            displaySNR.text = power + " dB"
-        }
+        onSetGUIData:{
+            // Channel
+            displayCurrentChannel.text = GUIData.Channel + " (" + GUIData.Frequency/1e6 + " MHz)"
 
-        onDisplayFreqCorr:{
-            displayFreqCorr.text = Freq + " Hz"
-        }
+            // SNR
+            displaySNR.text = GUIData.SNR + " dB"
 
-        onDisplayFrameErrors:{
-            displayFrameErrors.text = Errors
-        }
+            // Frequency correction
+            displayFreqCorr.text = GUIData.FrequencyCorrection + " Hz"
 
-        onDisplayRSErrors:{
-            displayRSErrors.text = Errors
-        }
+            // Frame errors
+            displayFrameErrors.text = GUIData.FrameErrors
 
-        onDisplayAACErrors:{
-            displayAACErrors.text = Errors
-        }
+            // RS errors
+            displayRSErrors.text = GUIData.RSErrors
 
-        onSyncFlag:{
-            if(active)
+            // AAC errors
+            displayAACErrors.text = GUIData.AACErrors
+
+            // Sync flag
+            if(GUIData.isSync)
                 displaySync.text = "OK"
             else
                 displaySync.text = "Not synced"
-        }
 
-        onFicFlag:{
-            if(active)
+            // FIC flag
+            if(GUIData.isFICCRC)
                 displayFIC_CRC.text = "OK"
             else
-            {
                 displayFIC_CRC.text = "Error"
-            }
+
+            // Device name
+            displayDeviceName.text = GUIData.DeviceName
         }
     }
 }

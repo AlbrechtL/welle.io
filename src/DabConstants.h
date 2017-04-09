@@ -68,15 +68,8 @@ typedef std::complex<DSPFLOAT> DSPCOMPLEX;
 // Static class to hold constant values
 class CDABConstants {
 public:
-    static int getFrequency(QString ChannelName);
-    static QString getChannelNameAtIndex(int Index);
     static QString getProgramTypeName(int Type);
     static QString getLanguageName(int Language);
-
-private:
-    static void fillFrequencyMap(void);
-    static std::map<QString, int> FrequencyMap;
-    static bool isFrequencyMapFiled;
 };
 
 class CDABParams {

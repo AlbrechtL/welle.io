@@ -29,16 +29,16 @@
 #include "pad_decoder_adapter.h"
 #include "charsets.h"
 
-PADDecoderAdapter::PADDecoderAdapter(RadioInterface *mr)
+PADDecoderAdapter::PADDecoderAdapter(CRadioController *radioController)
 {
     padDecoder = new PADDecoder(this);
-    radioInterface = mr;
+    this->radioController = radioController;
 
     connect (this, SIGNAL (showLabel (QString)),
-             mr, SLOT (showLabel (QString)));
+             radioController, SLOT (showLabel (QString)));
 
     connect (this, SIGNAL (the_picture (QByteArray, int, QString)),
-             mr, SLOT (showMOT (QByteArray, int, QString)));
+             radioController, SLOT (showMOT (QByteArray, int, QString)));
 }
 
 void PADDecoderAdapter::PADChangeDynamicLabel()
