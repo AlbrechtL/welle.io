@@ -146,7 +146,7 @@ Item{
                 fic.color = "red"
 
             // Frame errors flag
-            if(GUIData.FrameErrors === 0 )
+            if(GUIData.FrameErrors === 0 && GUIData.isSync && GUIData.isFICCRC)
                 frameSucess.color = "green"
             else
                 frameSucess.color = "red"

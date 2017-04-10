@@ -125,17 +125,17 @@ void CGUI::saveChannels()
     //	Remove channels from previous invocation ...
     Settings.beginGroup("channels");
     int ChannelCount = Settings.value("channelcout").toInt();
+
     for (int i = 1; i <= ChannelCount; i++)
         Settings.remove("channel/" + QString::number(i));
 
     //	... and save the current set
     ChannelCount = stationList.count();
-    Settings.setValue("channelcout",
-        QString::number(ChannelCount));
+    Settings.setValue("channelcout", QString::number(ChannelCount));
 
     for (int i = 1; i <= ChannelCount; i++)
-        Settings.setValue("channel/" + QString::number(i),
-            stationList.getStationAt(i - 1));
+        Settings.setValue("channel/" + QString::number(i), stationList.getStationAt(i - 1));
+
     Settings.endGroup();
 }
 

@@ -297,6 +297,16 @@ void CRadioController::SetStation(QString Station)
 
         // Wait if we found the station inside the signal
         StationTimer.start(1000);
+
+        // Clear old data
+        CurrentStationType = "";
+        CurrentLanguageType = "";
+        Label = "";
+
+        // Clear MOT
+        QPixmap MOT(320, 240);
+        MOT.fill(Qt::transparent);
+        emit MOTChanged(MOT);
     }
 }
 
