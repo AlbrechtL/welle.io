@@ -98,6 +98,7 @@ CRadioController::CRadioController(CVirtualInput *Device, CDABParams& DABParams,
 
     connect(&StationTimer, SIGNAL(timeout(void)), this, SLOT(StationTimerTimeout(void)));
     connect(&ChannelTimer, SIGNAL(timeout(void)), this, SLOT(ChannelTimerTimeout(void)));
+    connect(&SyncCheckTimer, SIGNAL(timeout(void)), this, SLOT(SyncCheckTimerTimeout(void)));
 }
 
 void CRadioController::Play(QString Channel, QString Station)
@@ -107,6 +108,9 @@ void CRadioController::Play(QString Channel, QString Station)
     DeviceRestart();
     SetChannel(Channel, false);
     SetStation(Station);
+
+    // Check every 10 s for a correct sync
+    SyncCheckTimer.start(10000);
 }
 
 void CRadioController::StartScan(void)
@@ -265,9 +269,9 @@ void CRadioController::DecoderRestart(bool isScan)
     my_ofdmProcessor->reset();
 }
 
-void CRadioController::SetChannel(QString Channel, bool isScan)
+void CRadioController::SetChannel(QString Channel, bool isScan, bool Force)
 {
-    if(CurrentChannel != Channel)
+    if(CurrentChannel != Channel || Force == true)
     {
         if(Device && Device->getID() == CDeviceID::RAWFILE)
         {
@@ -294,9 +298,9 @@ void CRadioController::SetChannel(QString Channel, bool isScan)
     }
 }
 
-void CRadioController::SetStation(QString Station)
+void CRadioController::SetStation(QString Station, bool Force)
 {
-    if(CurrentStation != Station)
+    if(CurrentStation != Station || Force == true)
     {
         CurrentStation = Station;
 
@@ -373,6 +377,20 @@ void CRadioController::ChannelTimerTimeout(void)
 
     if(isChannelScan)
         NextChannel(false);
+}
+
+void CRadioController::SyncCheckTimerTimeout(void)
+{
+    // A better approach is to use the MER since it is not implemented we use the this one
+    if(!isSync ||
+       (isSync && !isFICCRC) ||
+       (isSync && FrameErrors >= 10))
+    {
+        qDebug() << "RadioController: Restart syncing. isSync:" << isSync << ", isFICCRC:" << isFICCRC << ", FrameErrors:" << FrameErrors;
+
+        SetChannel(CurrentChannel, false, true);
+        SetStation(CurrentStation, true);
+    }
 }
 
 

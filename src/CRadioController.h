@@ -66,8 +66,8 @@ public:
 private:
     void DeviceRestart(void);
     void DecoderRestart(bool isScan);
-    void SetChannel(QString Channel, bool isScan);
-    void SetStation(QString Station);
+    void SetChannel(QString Channel, bool isScan, bool Force = false);
+    void SetStation(QString Station, bool Force = false);
     void NextChannel(bool isWait);
 
     // Back-end objects
@@ -111,6 +111,7 @@ private:
     QList<QString> StationList;
     QTimer StationTimer;
     QTimer ChannelTimer;
+    QTimer SyncCheckTimer;
 
     // Handling variables
     bool isChannelScan;
@@ -118,6 +119,7 @@ private:
 private slots:
     void StationTimerTimeout(void);
     void ChannelTimerTimeout(void);
+    void SyncCheckTimerTimeout(void);
 
 signals:
     void FoundStation(QString Station, QString CurrentChannel);
