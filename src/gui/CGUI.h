@@ -55,7 +55,6 @@ class CGUI : public QObject {
     Q_PROPERTY(int gainCount MEMBER m_gainCount CONSTANT)
     Q_PROPERTY(float currentGainValue MEMBER m_currentGainValue NOTIFY currentGainValueChanged)
     Q_PROPERTY(QVariant licenses READ licenses CONSTANT)
-    Q_PROPERTY(QString deviceName MEMBER m_deviceName CONSTANT)
 
 public:
     CGUI(CRadioController *RadioController, CDABParams *DABParams, QObject* parent = NULL);
@@ -73,26 +72,20 @@ public:
     CMOTImageProvider* MOTImage; // ToDo: Must be a getter
 
 private:
-
     CRadioController *RadioController;
     CDABParams *DABParams;
+    QTimer UptimeTimer;
 
     common_fft* spectrum_fft_handler;
+    QVector<QPointF> spectrum_data;
 
     const QVariantMap licenses();
 
-
     CStationList stationList;
-    QVector<QPointF> spectrum_data;
-
     QVariant p_stationModel;
+
     int m_gainCount;
     float m_currentGainValue;
-    QString m_deviceName;
-    int CurrentChannelScanIndex;
-
-
-    QTimer UptimeTimer;
 
 public slots:
     void updateSpectrum(QAbstractSeries* series);
@@ -103,24 +96,19 @@ private slots:
     void MOTUpdate(QPixmap MOTImage);
     void AddToStationList(QString Station, QString CurrentChannel);
 
-signals:
-
-
-    void motChanged(void);
-
+signals:   
     void channelScanStopped(void);
     void channelScanProgress(int progress);
     void foundChannelCount(int channelCount);
 
-    void setMaximumGain(int maximumValue);
+    void currentGainValueChanged();
 
     void setYAxisMax(qreal max);
     void setXAxisMinMax(qreal min, qreal max);
 
-
     void showErrorMessage(QString Text);
     void stationModelChanged();
-    void currentGainValueChanged();
+    void motChanged(void);
 
     void setGUIData(QVariantMap GUIData);
 };

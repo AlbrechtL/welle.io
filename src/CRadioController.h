@@ -59,6 +59,9 @@ public:
     QPixmap GetMOTImage(void);
     int32_t GetSpectrumSamples(DSPCOMPLEX* Buffer, int32_t Size);
     int GetCurrentFrequency(void);
+    int GetGainCount(void);
+    void SetAGC(bool isAGC);
+    float SetGain(int Gain);
 
 private:
     void DeviceRestart(void);
@@ -102,6 +105,8 @@ private:
     QString CurrentDisplayStation;
     QString CurrentStationType;
     QString CurrentLanguageType;
+    int32_t CurrentManualGain;
+    float CurrentManualGainValue;
 
     QList<QString> StationList;
     QTimer StationTimer;

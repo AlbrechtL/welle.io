@@ -73,6 +73,10 @@ CGUI::CGUI(CRadioController *RadioController, CDABParams *DABParams, QObject *pa
 
     connect(&UptimeTimer, SIGNAL(timeout(void)), this, SLOT(UpdateTimerTimeout(void)));
     UptimeTimer.start(250); // 250 ms
+
+    // Add data to the manual gain
+    if(RadioController)
+        m_gainCount = RadioController->GetGainCount();
 }
 
 CGUI::~CGUI()
@@ -196,31 +200,17 @@ void CGUI::channelClick(QString StationName,
 
 void CGUI::inputEnableAGCChanged(bool checked)
 {
-    /*if (inputDevice)
-    {
-        inputDevice->setAgc(checked);
-
-        if (!checked)
-        {
-            inputDevice->setGain(LastCurrentManualGain);
-            qDebug() << "GUI:" << "AGC off";
-        }
-        else
-        {
-            qDebug() << "GUI:" <<  "AGC on";
-        }
-
-    }*/
+    if(RadioController)
+        RadioController->SetAGC(checked);
 }
 
 void CGUI::inputGainChanged(double gain)
 {
-   /* if (inputDevice)
+    if(RadioController)
     {
-        LastCurrentManualGain = (int)gain;
-        m_currentGainValue = inputDevice->setGain(LastCurrentManualGain);
+        m_currentGainValue = RadioController->SetGain((int) gain);
         currentGainValueChanged();
-    }*/
+    }
 }
 
 // This function is called by the QML GUI

@@ -150,7 +150,7 @@ Item {
                         name: "Manual gain"
                         maximumValue: cppGUI.gainCount
                         showCurrentValue: "Value: " + cppGUI.currentGainValue.toFixed(2)
-			Layout.fillHeight: true
+                        Layout.fillHeight: true
                         onValueChanged: {
                             if(enableAGC.checked == false)
                                 cppGUI.inputGainChanged(valueGain)

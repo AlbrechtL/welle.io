@@ -93,6 +93,8 @@ CRadioController::CRadioController(CVirtualInput *Device, CDABParams& DABParams,
     FrameErrors = 0;
     RSErrors = 0;
     AACErrors = 0;
+    CurrentManualGain = 0;
+    CurrentManualGainValue = 0.0;
 
     connect(&StationTimer, SIGNAL(timeout(void)), this, SLOT(StationTimerTimeout(void)));
     connect(&ChannelTimer, SIGNAL(timeout(void)), this, SLOT(ChannelTimerTimeout(void)));
@@ -177,6 +179,47 @@ int32_t CRadioController::GetSpectrumSamples(DSPCOMPLEX *Buffer, int32_t Size)
 int CRadioController::GetCurrentFrequency(void)
 {
     return CurrentFrequency;
+}
+
+int CRadioController::GetGainCount()
+{
+    int GainCount = 0;
+
+    if(Device)
+        GainCount = Device->getGainCount();
+
+    qDebug() << "RadioController:" << "Number of gain steps:" << GainCount;
+
+    return GainCount;
+}
+
+void CRadioController::SetAGC(bool isAGC)
+{
+    if (Device)
+    {
+        Device->setAgc(isAGC);
+
+        if (!isAGC)
+        {
+            Device->setGain(CurrentManualGain);
+            qDebug() << "RadioController:" << "AGC off";
+        }
+        else
+        {
+            qDebug() << "RadioController:" <<  "AGC on";
+        }
+    }
+}
+
+float CRadioController::SetGain(int Gain)
+{
+    if (Device)
+    {
+        CurrentManualGainValue = Device->setGain(Gain);
+        CurrentManualGain = Gain;
+    }
+
+    return CurrentManualGainValue;
 }
 
 
