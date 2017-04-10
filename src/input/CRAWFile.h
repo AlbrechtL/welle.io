@@ -43,7 +43,7 @@ class QSettings;
 class fileHulp;
 
 // Enum of available input device
-enum class CRAWFileFormat {U8, S16LE, Unknown};
+enum class CRAWFileFormat {U8, S8, S16LE, Unknown};
 
 class CRAWFile : public CVirtualInput, QThread {
 public:

@@ -129,6 +129,11 @@ void CRAWFile::setFileName(QString FileName, QString FileFormat)
         this->FileFormat = CRAWFileFormat::U8;
         IQByteSize = 2;
     }
+    else if(FileFormat == "s8")
+    {
+        this->FileFormat = CRAWFileFormat::S8;
+        IQByteSize = 2;
+    }
     else if(FileFormat == "s16le")
     {
         this->FileFormat = CRAWFileFormat::S16LE;
@@ -171,12 +176,19 @@ int32_t CRAWFile::getSamples(DSPCOMPLEX* V, int32_t size)
 
     amount = SampleBuffer->getDataFromBuffer(temp, IQByteSize * size);
 
+    // Unsigned 8-bit
     if(FileFormat == CRAWFileFormat::U8)
     {
         for (i = 0; i < amount / 2; i++)
-        V[i] = DSPCOMPLEX(float(temp[2 * i] - 128) / 128.0,
-        float(temp[2 * i + 1] - 128) / 128.0);
+        V[i] = DSPCOMPLEX(float(temp[2 * i] - 128) / 128.0, float(temp[2 * i + 1] - 128) / 128.0);
     }
+    // Signed 8-bit
+    else if(FileFormat == CRAWFileFormat::S8)
+    {
+        for (i = 0; i < amount / 2; i++)
+        V[i] = DSPCOMPLEX(float((int8_t)temp[2 * i]) / 128.0, float((int8_t)temp[2 * i + 1]) / 128.0);
+    }
+    // Signed 16-bit
     else if(FileFormat == CRAWFileFormat::S16LE)
     {
         int j=0;
@@ -200,12 +212,19 @@ int32_t CRAWFile::getSpectrumSamples(DSPCOMPLEX* V, int32_t size)
 
     amount = SpectrumSampleBuffer->getDataFromBuffer(temp, IQByteSize * size);
 
+    // Unsigned 8-bit
     if(FileFormat == CRAWFileFormat::U8)
     {
         for (i = 0; i < amount / 2; i++)
-        V[i] = DSPCOMPLEX(float(temp[2 * i] - 128) / 128.0,
-        float(temp[2 * i + 1] - 128) / 128.0);
+        V[i] = DSPCOMPLEX(float(temp[2 * i] - 128) / 128.0, float(temp[2 * i + 1] - 128) / 128.0);
     }
+    // Signed 8-bit
+    else if(FileFormat == CRAWFileFormat::S8)
+    {
+        for (i = 0; i < amount / 2; i++)
+        V[i] = DSPCOMPLEX(float((int8_t)temp[2 * i]) / 128.0, float((int8_t)temp[2 * i + 1]) / 128.0);
+    }
+    // Signed 16-bit
     else if(FileFormat == CRAWFileFormat::S16LE)
     {
         int j=0;

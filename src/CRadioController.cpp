@@ -115,12 +115,21 @@ void CRadioController::StartScan(void)
 
     DeviceRestart();
 
-    // Start with lowest frequency
-    SetChannel(CChannels::FirstChannel, true);
+    if(Device && Device->getID() == CDeviceID::RAWFILE)
+    {
+        CurrentDisplayStation = "RAW File";
+        SetChannel(CChannels::FirstChannel, false); // Just a dummy
+        emit ScanStopped();
+    }
+    else
+    {
+        // Start with lowest frequency
+        SetChannel(CChannels::FirstChannel, true);
 
-    isChannelScan = true;
-    CurrentDisplayStation = "Scanning ...";
-    Label = CChannels::FirstChannel;
+        isChannelScan = true;
+        CurrentDisplayStation = "Scanning ...";
+        Label = CChannels::FirstChannel;
+    }
 }
 
 void CRadioController::StopScan(void)
