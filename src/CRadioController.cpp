@@ -352,23 +352,29 @@ void CRadioController::StationTimerTimeout()
 {
     if(StationList.contains(CurrentStation))
     {
-        // We found the station inside the signal, lets stop the timer
-        StationTimer.stop();
-
-        // Set station
         audiodata AudioData;
+        memset(&AudioData, 0, sizeof(audiodata));
+
         my_ficHandler->dataforAudioService(CurrentStation, &AudioData);
-        my_mscHandler->set_audioChannel(&AudioData);
 
-        CurrentDisplayStation = CurrentStation;
-        CurrentStationType = CDABConstants::getProgramTypeName(AudioData.programType);
-        CurrentLanguageType = CDABConstants::getLanguageName(AudioData.language);
-        BitRate = AudioData.bitRate;
+        if(AudioData.defined == true)
+        {
+            // We found the station inside the signal, lets stop the timer
+            StationTimer.stop();
 
-        if (AudioData.ASCTy == 077)
-            isDAB = false;
-        else
-            isDAB = true;
+            // Set station
+            my_mscHandler->set_audioChannel(&AudioData);
+
+            CurrentDisplayStation = CurrentStation;
+            CurrentStationType = CDABConstants::getProgramTypeName(AudioData.programType);
+            CurrentLanguageType = CDABConstants::getLanguageName(AudioData.language);
+            BitRate = AudioData.bitRate;
+
+            if (AudioData.ASCTy == 077)
+                isDAB = false;
+            else
+                isDAB = true;
+        }
     }
 }
 
