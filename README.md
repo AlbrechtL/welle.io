@@ -32,7 +32,8 @@ M | DAB mode. Possible is: 1,2,3 or 4, Default: 1
 I | rtl_tcp server IP address. Only valid for input rtl_tcp 
 P | rtl_tcp server IP port. Only valid for input rtl_tcp
 F | I/Q RAW file. Only valid for input rawfile.
-B | <ul><li>I/Q RAW format</li><li>Possible is: u8 (unsigned int 8 bit, [qt-dab](https://github.com/JvanKatwijk/qt-dab) RAW files)</li><li>Ps8 (signed 8 bit, [ODR](https://www.welle.io/devices/rawfile#odr-dabmod) files)</li><li>Ps16le (signed int 16 bit little endian, [qt-dab](https://github.com/JvanKatwijk/qt-dab) SDR files)</li><li>Default: u8. Only valid for input rawfile.</li></ul>
+B | I/Q RAW format. Possible is:<ul><li>u8 (unsigned int 8 bit, [qt-dab](https://github.com/JvanKatwijk/qt-dab) RAW files)</li><li>s8 (signed 8 bit, [ODR](https://www.welle.io/devices/rawfile#odr-dabmod) files)</li><li>s16le (signed int 16 bit little endian, [qt-dab](https://github.com/JvanKatwijk/qt-dab) SDR files)</li><li>Default: u8. Only valid for input rawfile.</li></ul>
+
 Example usage:
   
   ```
