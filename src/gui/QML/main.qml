@@ -64,10 +64,13 @@ ApplicationWindow {
     SettingsPage{
         id:settingsPage
         onEnableExpertModeStateChanged: {
-            if(enableExpertModeState)
-                mainWindow.width = mainWindow.width + expertView.width
-            else
-                mainWindow.width = mainWindow.width - expertView.width
+            if(mainWindow.visibility !== 5) // 5 means "FullScreen"
+            {
+                if(enableExpertModeState)
+                    mainWindow.width = mainWindow.width + expertView.width
+                else
+                    mainWindow.width = mainWindow.width - expertView.width
+            }
         }
     }
 
