@@ -117,6 +117,7 @@ void CRadioController::StartScan(void)
 {
     qDebug() << "RadioController:" << "Start channel scan";
 
+    SyncCheckTimer.stop();
     DeviceRestart();
 
     if(Device && Device->getID() == CDeviceID::RAWFILE)
