@@ -9,54 +9,17 @@ Item {
 
     Flickable {
         anchors.fill: parent
-        contentHeight: layout.implicitHeight
-        contentWidth: showLicenseText.contentWidth
+        contentHeight: fileContent.implicitHeight
+        contentWidth: fileContent.contentWidth
+        anchors.margins: Units.dp(20)
 
-        ColumnLayout {
-            id: layout
-            anchors.fill: parent
-            anchors.margins: Units.dp(20)
-            spacing: Units.dp(15)
-            Layout.maximumWidth: 20
-
-            TextStandart {
-                text: "Information"
-                Layout.alignment: Qt.AlignLeft
-                font.pixelSize: Style.textHeadingSize
-            }
-
-            TextStandart {
-                id: showVersionText
-                text: cppGUI.licenses.version
-                Layout.alignment: Qt.AlignLeft
-                objectName: "showVersionText"
-            }
-
-            TextStandart {
-                text: "Licenses"
-                Layout.alignment: Qt.AlignLeft
-                font.pixelSize: Style.textHeadingSize
-            }
-
-            TextStandart {
-                id: showGraphLicense
-                text: cppGUI.licenses.graphLicense
-                Layout.alignment: Qt.AlignLeft
-                objectName: "showGraphLicense"
-                wrapMode: Text.Wrap
-                width: infoPage.width
-                textFormat: Text.PlainText
-            }
-
-            TextStandart {
-                id: showLicenseText
-                text: cppGUI.licenses.license
-                Layout.alignment: Qt.AlignLeft
-                objectName: "showLicenseText"
-                wrapMode: Text.WrapAnywhere
-                width: infoPage.width
-                textFormat: Text.PlainText
-            }
+        TextStandart {
+            id: fileContent
+            text: cppGUI.licenses.FileContent
+            Layout.alignment: Qt.AlignLeft
+            wrapMode: Text.Wrap
+            width: infoPage.width
+            textFormat: Text.PlainText
         }
     }
 }

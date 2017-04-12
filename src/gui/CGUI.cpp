@@ -89,27 +89,44 @@ CGUI::~CGUI()
 const QVariantMap CGUI::licenses()
 {
     QVariantMap ret;
-    // Set application version
-    QString InfoText;
-    InfoText += "welle.io version: " + QString(CURRENT_VERSION);
-    InfoText += "Build on: " + QString(__TIMESTAMP__);
-    ret.insert("version", InfoText);
+    QFile *File;
+    QByteArray InfoContent;
 
-    // Read graph license
-    QFile File(":/NOTICE.txt");
-    File.open(QFile::ReadOnly);
-    QByteArray FileContent = File.readAll();
+    // Set application version
+    InfoContent.append("welle.io version: " + QString(CURRENT_VERSION) + "\n");
+    InfoContent.append("Build on: " + QString(__TIMESTAMP__) + "\n");
+    InfoContent.append("\n");
+
+    // Read AUTHORS
+    InfoContent.append("AUTHORS\n");
+    InfoContent.append("-------\n");
+    File = new QFile(":/AUTHORS");
+    File->open(QFile::ReadOnly);
+    InfoContent.append(File->readAll());
+    InfoContent.append("\n");
+    delete File;
+
+    // Read THANKS
+    InfoContent.append("THANKS\n");
+    InfoContent.append("------\n");
+    File = new QFile(":/THANKS");
+    File->open(QFile::ReadOnly);
+    InfoContent.append(File->readAll());
+    InfoContent.append("\n");
+    delete File;
+
+    // Read COPYING
+    InfoContent.append("COPYING\n");
+    InfoContent.append("-------\n");
+    File = new QFile(":/COPYING");
+    File->open(QFile::ReadOnly);
+    InfoContent.append(File->readAll());
+    InfoContent.append("\n");
+    delete File;
 
     // Set graph license content
-    ret.insert("graphLicense", FileContent);
+    ret.insert("FileContent", InfoContent);
 
-    // Read license
-    QFile File2(":/LICENSE.txt");
-    File2.open(QFile::ReadOnly);
-    QByteArray FileContent2 = File2.readAll();
-
-    // Set license content
-    ret.insert("license", FileContent2);
     return ret;
 }
 
