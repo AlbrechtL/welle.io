@@ -115,6 +115,7 @@ private:
 
     // Handling variables
     bool isChannelScan;
+    bool isGUIInit;
 
 private slots:
     void StationTimerTimeout(void);
@@ -126,6 +127,7 @@ signals:
     void ScanStopped(void);
     void ScanProgress(int Progress);
     void MOTChanged(QPixmap MOTImage);
+    void ShowErrorMessage(QString Text);
 
 public slots:
     // This slots are called from the backend

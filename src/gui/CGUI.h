@@ -89,7 +89,6 @@ private:
 
 public slots:
     void updateSpectrum(QAbstractSeries* series);
-    void setErrorMessage(QString ErrorMessage);
 
 private slots:
     void UpdateTimerTimeout(void);

@@ -73,6 +73,7 @@ CRadioController::CRadioController(CVirtualInput *Device, CDABParams& DABParams,
 
     MOTImage = new QPixmap(320, 240);
     isChannelScan = false;
+    isGUIInit = false;
 
     // Init the technical data
     CurrentChannel = "Unknown";
@@ -150,6 +151,19 @@ void CRadioController::StopScan(void)
 
 QVariantMap CRadioController::GetGUIData(void)
 {
+    if(!isGUIInit)
+    {
+        isGUIInit = true;
+
+        if(Device)
+        {
+            if(Device->getID() == CDeviceID::NULLDEVICE)
+                emit ShowErrorMessage("No radio device detected.");
+
+            GUIData["DeviceName"] = Device->getName();
+        }
+    }
+
     // Init the GUI data map
     GUIData["Channel"] = CurrentChannel;
     GUIData["Frequency"] = CurrentFrequency;
@@ -169,8 +183,6 @@ QVariantMap CRadioController::GetGUIData(void)
     GUIData["StationType"] = CurrentStationType;
     GUIData["LanguageType"] = CurrentLanguageType;
     GUIData["isDAB"] = isDAB;
-
-    if(Device) GUIData["DeviceName"] = Device->getName();
 
     return GUIData;
 }
@@ -248,9 +260,10 @@ void CRadioController::DeviceRestart()
     if(Device)
         isPlay = Device->restart();
 
-    if (!isPlay)
+    if(!isPlay)
     {
-        qDebug() << "RadioController:" << "Start or restart of device failed!";
+        qDebug() << "RadioController:" << "Radio device is not ready or does not exits.";
+        emit ShowErrorMessage("Radio device is not ready or does not exits.");
         return;
     }
 }
@@ -416,9 +429,9 @@ void CRadioController::addtoEnsemble(const QString &Station)
 
 void CRadioController::nameofEnsemble(int id, const QString &v)
 {
+    // ToDo: Maybe display of the ensemble name
     (void)id;
     (void)v;
-    // Unknown use case
 }
 
 void CRadioController::changeinConfiguration()
@@ -488,7 +501,7 @@ void CRadioController::setSignalPresent(bool isSignal)
 
 void CRadioController::setErrorMessage(QString ErrorMessage)
 {
-    (void)ErrorMessage; // ToDo
+    emit ShowErrorMessage(ErrorMessage);
 }
 
 void CRadioController::newAudio(int BitRate)

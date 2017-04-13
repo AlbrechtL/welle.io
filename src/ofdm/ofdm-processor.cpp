@@ -190,7 +190,7 @@ DSPCOMPLEX temp;
 
 	      NoReadCounter ++;
 	      if(NoReadCounter > 100000)  { // 1 s
-	         emit setErrorMessage("Error while reading from input device");
+             emit setErrorMessage("Error while reading from radio device.");
 	         NoReadCounter = 0;
 	      }
 	   }
@@ -235,7 +235,7 @@ int32_t		i;
 
 	      NoReadCounter ++;
 	      if (NoReadCounter > 100000) { // 1 s
-                 emit setErrorMessage("Error while reading from input device");
+                 emit setErrorMessage("Error while reading from radio device.");
 	         NoReadCounter = 0;
 	      }
 	   }
