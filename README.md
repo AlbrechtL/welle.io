@@ -27,6 +27,7 @@ Parameter | Description
 ------ | ----------
 h | Show help 
 v | Show version 
+L | GUI language e.g. de-DE
 D | Input device. Possible is: auto (default), airspy, rtl_tcp, rtl_sdr, rawfile, soapysdr
 M | DAB mode. Possible is: 1,2,3 or 4, Default: 1 
 I | rtl_tcp server IP address. Only valid for input rtl_tcp 

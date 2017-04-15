@@ -38,13 +38,13 @@ ChartView {
     ValueAxis {
         id: axisY1
         min: 0
-        titleText: "Amplitude"
+        titleText: qsTr("Amplitude")
     }
 
 
     ValueAxis {
         id: axisX
-        titleText: "Frequency [MHz]"
+        titleText: qsTr("Frequency") + " [MHz]"
     }
 
     LineSeries {

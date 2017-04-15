@@ -17,47 +17,47 @@ Item {
 
         TextExpert {
             id: displayDeviceName
-            name: "Device:"
+            name: qsTr("Device:")
         }
 
         TextExpert {
             id: displayCurrentChannel
-            name: "Current channel:"
+            name: qsTr("Current channel:")
         }
 
         TextExpert {
             id: displayFreqCorr
-            name: "Frequency correction:"
+            name: qsTr("Frequency correction:")
         }
 
         TextExpert {
             id: displaySNR
-            name: "SNR:"
+            name: qsTr("SNR:")
         }
 
         TextExpert {
             id: displayFrameErrors
-            name: "Frame errors:"
+            name: qsTr("Frame errors:")
         }
 
         TextExpert {
             id: displayRSErrors
-            name: "RS errors:"
+            name: qsTr("RS errors:")
         }
 
         TextExpert {
             id: displayAACErrors
-            name: "AAC errors:"
+            name: qsTr("AAC errors:")
         }
 
         TextExpert {
             id: displaySync
-            name: "Frame synchronization:"
+            name: qsTr("Frame synchronization:")
         }
 
         TextExpert {
             id: displayFIC_CRC
-            name: "FIC CRC:"
+            name: qsTr("FIC CRC:")
         }
 
         SpectrumView {
@@ -92,15 +92,15 @@ Item {
 
             // Sync flag
             if(GUIData.isSync)
-                displaySync.text = "OK"
+                displaySync.text = qsTr("OK")
             else
-                displaySync.text = "Not synced"
+                displaySync.text = qsTr("Not synced")
 
             // FIC flag
             if(GUIData.isFICCRC)
-                displayFIC_CRC.text = "OK"
+                displayFIC_CRC.text = qsTr("OK")
             else
-                displayFIC_CRC.text = "Error"
+                displayFIC_CRC.text = qsTr("Error")
 
             // Device name
             displayDeviceName.text = GUIData.DeviceName

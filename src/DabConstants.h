@@ -32,7 +32,7 @@
 
 #ifndef __DAB_CONSTANTS
 #define __DAB_CONSTANTS
-#
+
 #include <complex>
 #include <cstring>
 #include <limits>
@@ -44,6 +44,7 @@
 #include <map>
 
 #include <QString>
+#include <QObject>
 
 typedef float DSPFLOAT;
 typedef std::complex<DSPFLOAT> DSPCOMPLEX;
@@ -66,7 +67,8 @@ typedef std::complex<DSPFLOAT> DSPCOMPLEX;
 #define UNSYNCED 04
 
 // Static class to hold constant values
-class CDABConstants {
+class CDABConstants: public QObject {
+    Q_OBJECT
 public:
     static QString getProgramTypeName(int Type);
     static QString getLanguageName(int Language);

@@ -53,7 +53,7 @@ Item {
                         color: "white"
                         font.family: Style.textFont
                         anchors.centerIn: parent
-                        text: "ON"
+                        text: qsTr("ON")
                     }
                 }
                 Item {
@@ -65,7 +65,7 @@ Item {
                         color: "white"
                         font.family: Style.textFont
                         anchors.centerIn: parent
-                        text: "OFF"
+                        text: qsTr("OFF")
                     }
                 }
                 color: "#222"

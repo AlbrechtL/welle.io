@@ -44,6 +44,9 @@
 #include "CRadioController.h"
 #include "CGUI.h"
 
+QTranslator* AddTranslator(QApplication *app, QString Language, QTranslator *OldTranslator = NULL);
+
+
 int main(int argc, char** argv)
 {
     QCoreApplication::setOrganizationName("welle.io");
@@ -53,11 +56,20 @@ int main(int argc, char** argv)
 
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
-    //	Before printing anything, we set
+    // Before printing anything, we set
     setlocale(LC_ALL, "");
 
-    QApplication a(argc, argv);
-    a.setWindowIcon(QIcon(":/icon.png"));
+    // Create new QT application
+    QApplication app(argc, argv);
+
+    // Set ICON
+    app.setWindowIcon(QIcon(":/icon.png"));
+
+    // Init translations
+    QString locale = QLocale::system().name();
+    qDebug() << "main:" <<  "Detected system language" << locale;
+
+    QTranslator *Translator = AddTranslator(&app, locale);
 
     // Default values
     CDABParams DABParams(1);
@@ -72,6 +84,11 @@ int main(int argc, char** argv)
     optionParser.setApplicationDescription("welle.io Help");
     optionParser.addHelpOption();
     optionParser.addVersionOption();
+
+    QCommandLineOption Language("L",
+        QCoreApplication::translate("main", "Set the GUI language (e.g. de-DE)"),
+        QCoreApplication::translate("main", "Language"));
+    optionParser.addOption(Language);
 
     QCommandLineOption InputOption("D",
         QCoreApplication::translate("main", "Input device"),
@@ -104,7 +121,12 @@ int main(int argc, char** argv)
     optionParser.addOption(RAWFileFormat);
 
     //	Process the actual command line arguments given by the user
-    optionParser.process(a);
+    optionParser.process(app);
+
+    //	Process language option
+    QString languageValue = optionParser.value(Language);
+    if (languageValue != "")
+        AddTranslator(&app, languageValue, Translator);
 
     //	Process input device option
     QString InputValue = optionParser.value(InputOption);
@@ -177,7 +199,26 @@ int main(int argc, char** argv)
     engine->addImageProvider(QLatin1String("motslideshow"), GUI->MOTImage);
 
     // Run application
-    a.exec();
+    app.exec();
 
     return 0;
+}
+
+QTranslator* AddTranslator(QApplication *app, QString Language, QTranslator *OldTranslator)
+{
+    if(OldTranslator)
+        app->removeTranslator(OldTranslator);
+
+    QTranslator *Translator = new QTranslator;
+    bool isTranslation = Translator->load(QString(":/i18n/") + Language);
+
+    qDebug() << "main:" <<  "Set language" << Language;
+    app->installTranslator(Translator);
+
+    if(!isTranslation)
+    {
+        qDebug() << "main:" <<  "Error while loading language" << Language << "use English instead";
+    }
+
+    return Translator;
 }

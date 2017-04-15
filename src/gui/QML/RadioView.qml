@@ -108,7 +108,6 @@ Item{
         TextRadioStation {
             id: currentStation
             anchors.horizontalCenter: parent.horizontalCenter
-            text: "No Station"
         }
 
         /* Station Text */

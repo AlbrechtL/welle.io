@@ -76,10 +76,10 @@ CRadioController::CRadioController(CVirtualInput *Device, CDABParams& DABParams,
     isGUIInit = false;
 
     // Init the technical data
-    CurrentChannel = "Unknown";
+    CurrentChannel = tr("Unknown");
     CurrentFrequency = 0;
     CurrentStation = "";
-    CurrentDisplayStation = "No Station";
+    CurrentDisplayStation = tr("No Station");
     CurrentStationType = "";
     CurrentLanguageType = "";
     Label = "";
@@ -123,7 +123,7 @@ void CRadioController::StartScan(void)
 
     if(Device && Device->getID() == CDeviceID::RAWFILE)
     {
-        CurrentDisplayStation = "RAW File";
+        CurrentDisplayStation = tr("RAW File");
         SetChannel(CChannels::FirstChannel, false); // Just a dummy
         emit ScanStopped();
     }
@@ -133,7 +133,7 @@ void CRadioController::StartScan(void)
         SetChannel(CChannels::FirstChannel, true);
 
         isChannelScan = true;
-        CurrentDisplayStation = "Scanning ...";
+        CurrentDisplayStation = tr("Scanning") + " ...";
         Label = CChannels::FirstChannel;
     }
 }
@@ -143,7 +143,7 @@ void CRadioController::StopScan(void)
     qDebug() << "RadioController:" << "Stop channel scan";
 
     isChannelScan = false;
-    CurrentDisplayStation = "No Station";
+    CurrentDisplayStation = tr("No Station");
     Label = "";
 
     emit ScanStopped();
@@ -158,7 +158,7 @@ QVariantMap CRadioController::GetGUIData(void)
         if(Device)
         {
             if(Device->getID() == CDeviceID::NULLDEVICE)
-                emit ShowErrorMessage("No radio device detected.");
+                emit ShowErrorMessage(tr("No radio device detected."));
 
             GUIData["DeviceName"] = Device->getName();
         }
@@ -263,7 +263,7 @@ void CRadioController::DeviceRestart()
     if(!isPlay)
     {
         qDebug() << "RadioController:" << "Radio device is not ready or does not exits.";
-        emit ShowErrorMessage("Radio device is not ready or does not exits.");
+        emit ShowErrorMessage(tr("Radio device is not ready or does not exits."));
         return;
     }
 }
@@ -320,7 +320,7 @@ void CRadioController::SetStation(QString Station, bool Force)
 
         qDebug() << "RadioController: Tune to station" <<  Station;
 
-        CurrentDisplayStation = "Tuning";
+        CurrentDisplayStation = tr("Tuning") + " ...";
 
         // Wait if we found the station inside the signal
         StationTimer.start(1000);
@@ -379,6 +379,7 @@ void CRadioController::StationTimerTimeout()
             my_mscHandler->set_audioChannel(&AudioData);
 
             CurrentDisplayStation = CurrentStation;
+
             CurrentStationType = CDABConstants::getProgramTypeName(AudioData.programType);
             CurrentLanguageType = CDABConstants::getLanguageName(AudioData.language);
             BitRate = AudioData.bitRate;

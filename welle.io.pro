@@ -11,6 +11,14 @@ RC_ICONS   =    icon.ico
 RESOURCES +=    touch_gui_resource.qrc
 DISTFILES +=    README.md
 
+TRANSLATIONS = i18n/de_DE.ts
+
+lupdate_only{ # Workaround for lupdate to scan QML files
+SOURCES += src/gui/QML/*.qml \
+    src/gui/QML/style/*.qml \
+}
+
+
 DEPENDPATH += \
     src \
     src/ofdm \

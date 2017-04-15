@@ -33,7 +33,7 @@ Item {
         }
 
         onFoundChannelCount:{
-            channelScanProgressBar.text = "Found channels: " + channelCount;
+            channelScanProgressBar.text = qsTr("Found channels: ") + channelCount;
         }
     }
 
@@ -63,13 +63,13 @@ Item {
                             Layout.preferredWidth: parent.width
 
                             TextStandart {
-                                text: "Channel scan"
+                                text: qsTr("Channel scan")
                                 Layout.alignment: Qt.AlignLeft
                             }
 
                             TouchButton {
                                 id: startChannelScanButton
-                                text: "Start"
+                                text: qsTr("Start")
                                 Layout.preferredWidth: Units.dp(80)
                                 Layout.alignment: Qt.AlignCenter
                                 onClicked: {
@@ -81,7 +81,7 @@ Item {
 
                             TouchButton {
                                 id: stopChannelScanButton
-                                text: "Stop"
+                                text: qsTr("Stop")
                                 Layout.alignment: Qt.AlignRight
                                 Layout.preferredWidth: Units.dp(80)
                                 enabled: false
@@ -98,7 +98,7 @@ Item {
                             minimumValue: 0
                             maximumValue: 54 // 54 channels
                             width: parent.width
-                            text: "Found channels: 0"
+                            text: qsTr("Found channels:") + " 0"
                         }
                     }
 
@@ -131,7 +131,7 @@ Item {
 
                     TouchSwitch {
                         id: enableAGC
-                        name: "Automatic RF gain"
+                        name: qsTr("Automatic RF gain")
                         height: 24
                         Layout.fillHeight: true
                         objectName: "enableAGC"
@@ -147,9 +147,9 @@ Item {
                     TouchSlider {
                         id: manualGain
                         enabled: !enableAGC.checked
-                        name: "Manual gain"
+                        name: qsTr("Manual gain")
                         maximumValue: cppGUI.gainCount
-                        showCurrentValue: "Value: " + cppGUI.currentGainValue.toFixed(2)
+                        showCurrentValue: qsTr("Value: ") + cppGUI.currentGainValue.toFixed(2)
                         Layout.fillHeight: true
                         onValueChanged: {
                             if(enableAGC.checked == false)
@@ -168,7 +168,7 @@ Item {
 
                     TouchSwitch {
                         id: enableFullScreen
-                        name: "Full screen mode"
+                        name: qsTr("Full screen mode")
                         height: 24
                         Layout.fillHeight: true
                         objectName: "enableFullScreen"
@@ -177,7 +177,7 @@ Item {
 
                     TouchSwitch {
                         id: enableExpertMode
-                        name: "Expert mode"
+                        name: qsTr("Expert mode")
                         height: 24
                         Layout.fillHeight: true
                         objectName: "enableExpertMode"
@@ -195,7 +195,7 @@ Item {
 
         TouchButton {
             id: exitAppButton
-            text: "Exit welle.io"
+            text: qsTr("Exit welle.io")
             onClicked: Qt.quit()
             Layout.preferredWidth: parent.width
             Layout.alignment: Qt.AlignBottom
