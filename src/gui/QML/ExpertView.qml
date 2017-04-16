@@ -17,47 +17,47 @@ Item {
 
         TextExpert {
             id: displayDeviceName
-            name: qsTr("Device:")
+            name: qsTr("Device") + ":"
         }
 
         TextExpert {
             id: displayCurrentChannel
-            name: qsTr("Current channel:")
+            name: qsTr("Current channel") + ":"
         }
 
         TextExpert {
             id: displayFreqCorr
-            name: qsTr("Frequency correction:")
+            name: qsTr("Frequency correction") + ":"
         }
 
         TextExpert {
             id: displaySNR
-            name: qsTr("SNR:")
+            name: qsTr("SNR") + ":"
         }
 
         TextExpert {
             id: displayFrameErrors
-            name: qsTr("Frame errors:")
+            name: qsTr("Frame errors") + ":"
         }
 
         TextExpert {
             id: displayRSErrors
-            name: qsTr("RS errors:")
+            name: qsTr("RS errors") + ":"
         }
 
         TextExpert {
             id: displayAACErrors
-            name: qsTr("AAC errors:")
+            name: qsTr("AAC errors") + ":"
         }
 
         TextExpert {
             id: displaySync
-            name: qsTr("Frame synchronization:")
+            name: qsTr("Frame synchronization") + ":"
         }
 
         TextExpert {
             id: displayFIC_CRC
-            name: qsTr("FIC CRC:")
+            name: qsTr("FIC CRC") + ":"
         }
 
         SpectrumView {

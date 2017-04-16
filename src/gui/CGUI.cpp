@@ -94,8 +94,8 @@ const QVariantMap CGUI::licenses()
     QByteArray InfoContent;
 
     // Set application version
-    InfoContent.append(tr("welle.io version: ") + QString(CURRENT_VERSION) + "\n");
-    InfoContent.append(tr("Build on: ") + QString(__TIMESTAMP__) + "\n");
+    InfoContent.append("welle.io " + tr("version") + ": " + QString(CURRENT_VERSION) + "\n");
+    InfoContent.append(tr("Build on") + ": " + QString(__TIMESTAMP__) + "\n");
     InfoContent.append("\n");
 
     // Read AUTHORS

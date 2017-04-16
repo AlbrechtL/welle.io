@@ -33,7 +33,7 @@ Item {
         }
 
         onFoundChannelCount:{
-            channelScanProgressBar.text = qsTr("Found channels: ") + channelCount;
+            channelScanProgressBar.text = qsTr("Found channels") + ": " + channelCount;
         }
     }
 
@@ -98,7 +98,7 @@ Item {
                             minimumValue: 0
                             maximumValue: 54 // 54 channels
                             width: parent.width
-                            text: qsTr("Found channels:") + " 0"
+                            text: qsTr("Found channels") + ": 0"
                         }
                     }
 
