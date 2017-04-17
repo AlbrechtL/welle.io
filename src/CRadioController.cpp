@@ -103,6 +103,14 @@ CRadioController::CRadioController(CVirtualInput *Device, CDABParams& DABParams,
     connect(&SyncCheckTimer, SIGNAL(timeout(void)), this, SLOT(SyncCheckTimerTimeout(void)));
 }
 
+CRadioController::~CRadioController(void)
+{
+    // Shutdown the demodulator and decoder in the correct order
+    delete my_ficHandler;
+    delete my_mscHandler;
+    delete my_ofdmProcessor;
+}
+
 void CRadioController::Play(QString Channel, QString Station)
 {
     qDebug() << "RadioController:" << "Start or restart device";

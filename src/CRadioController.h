@@ -52,6 +52,7 @@ class CRadioController : public QObject
     Q_OBJECT
 public:
     CRadioController(CVirtualInput* Device, CDABParams& DABParams, QObject* parent = NULL);
+    ~CRadioController(void);
     void Play(QString Channel, QString Station);
     void StartScan(void);
     void StopScan(void);

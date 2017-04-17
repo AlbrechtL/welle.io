@@ -201,6 +201,10 @@ int main(int argc, char** argv)
     // Run application
     app.exec();
 
+    // Delete the RadioController controller to ensure a save shutdown
+    delete GUI;
+    delete RadioController;
+
     return 0;
 }
 
