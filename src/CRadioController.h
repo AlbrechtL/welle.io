@@ -90,6 +90,7 @@ private:
     int SNR;
     int FrequencyCorrection;
     int BitRate;
+    int AudioSampleRate;
     int FrameErrors;
     int RSErrors;
     int AACErrors;
@@ -142,7 +143,7 @@ public slots:
     void setSynced(char isSync);
     void setSignalPresent(bool isSignal);
     void setErrorMessage(QString ErrorMessage);
-    void newAudio(int BitRate);
+    void newAudio(int SampleRate);
     void setStereo(bool isStereo);
     void show_frameErrors(int FrameErrors);
     void show_rsErrors(int RSErrors);

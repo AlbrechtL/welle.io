@@ -89,6 +89,7 @@ CRadioController::CRadioController(CVirtualInput *Device, CDABParams& DABParams,
     SNR = 0;
     FrequencyCorrection = 0;
     BitRate = 0;
+    AudioSampleRate = 0;
     isStereo = true;
     isDAB = true;
     FrameErrors = 0;
@@ -505,9 +506,15 @@ void CRadioController::setErrorMessage(QString ErrorMessage)
     emit ShowErrorMessage(ErrorMessage);
 }
 
-void CRadioController::newAudio(int BitRate)
+void CRadioController::newAudio(int SampleRate)
 {
-    (void) BitRate; // Not used
+    if(AudioSampleRate != SampleRate)
+    {
+        qDebug() << "RadioController: Audio sample rate" <<  SampleRate << "kHz";
+        AudioSampleRate = SampleRate;
+
+        Audio->setRate(SampleRate);
+    }
 }
 
 void CRadioController::setStereo(bool isStereo)
