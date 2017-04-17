@@ -51,17 +51,17 @@
     <message>
         <location filename="../src/DabConstants.cpp" line="46"/>
         <source>talk</source>
-        <translation type="unfinished"></translation>
+        <translation>Talk</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="47"/>
         <source>pop music</source>
-        <translation>Pop Musik</translation>
+        <translation>Pop</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="48"/>
         <source>rock music</source>
-        <translation>Rock Musik</translation>
+        <translation>Rock</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="49"/>
@@ -76,7 +76,7 @@
     <message>
         <location filename="../src/DabConstants.cpp" line="51"/>
         <source>classical music</source>
-        <translation type="unfinished"></translation>
+        <translation>Klassik</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="52"/>
@@ -131,7 +131,7 @@
     <message>
         <location filename="../src/DabConstants.cpp" line="62"/>
         <source>country music</source>
-        <translation type="unfinished"></translation>
+        <translation>Country</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="63"/>
@@ -141,7 +141,7 @@
     <message>
         <location filename="../src/DabConstants.cpp" line="64"/>
         <source>oldies music</source>
-        <translation type="unfinished"></translation>
+        <translation>Oldies</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="65"/>
@@ -166,7 +166,7 @@
     <message>
         <location filename="../src/DabConstants.cpp" line="82"/>
         <source>Unknown</source>
-        <translation type="unfinished">Unbekannt</translation>
+        <translation>Unbekannt</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="83"/>
@@ -406,32 +406,32 @@
     </message>
     <message>
         <location filename="../src/CRadioController.cpp" line="82"/>
-        <location filename="../src/CRadioController.cpp" line="146"/>
+        <location filename="../src/CRadioController.cpp" line="155"/>
         <source>No Station</source>
         <translation>Kein Sender gewählt</translation>
     </message>
     <message>
-        <location filename="../src/CRadioController.cpp" line="126"/>
+        <location filename="../src/CRadioController.cpp" line="135"/>
         <source>RAW File</source>
         <translation>RAW Datei</translation>
     </message>
     <message>
-        <location filename="../src/CRadioController.cpp" line="136"/>
+        <location filename="../src/CRadioController.cpp" line="145"/>
         <source>Scanning</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/CRadioController.cpp" line="161"/>
+        <location filename="../src/CRadioController.cpp" line="170"/>
         <source>No radio device detected.</source>
         <translation>Kein Radioempfänger erkannt.</translation>
     </message>
     <message>
-        <location filename="../src/CRadioController.cpp" line="266"/>
+        <location filename="../src/CRadioController.cpp" line="278"/>
         <source>Radio device is not ready or does not exits.</source>
         <translation>Radioempfänger meldet ein Fehler oder existiert nicht.</translation>
     </message>
     <message>
-        <location filename="../src/CRadioController.cpp" line="323"/>
+        <location filename="../src/CRadioController.cpp" line="335"/>
         <source>Tuning</source>
         <translation>Sender abstimmen</translation>
     </message>
@@ -484,7 +484,7 @@
     <message>
         <location filename="../src/gui/QML/ExpertView.qml" line="55"/>
         <source>Frame synchronization</source>
-        <translation>Synchronzation</translation>
+        <translation>Synchronisation</translation>
     </message>
     <message>
         <location filename="../src/gui/QML/ExpertView.qml" line="60"/>
