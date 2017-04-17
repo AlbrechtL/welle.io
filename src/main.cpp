@@ -221,8 +221,12 @@ QTranslator* AddTranslator(QApplication *app, QString Language, QTranslator *Old
 
     if(!isTranslation)
     {
-        qDebug() << "main:" <<  "Error while loading language" << Language << "use English instead";
+        qDebug() << "main:" <<  "Error while loading language" << Language << "use English \"en_GB\" instead";
+        Language = "en_GB";
     }
+
+    QLocale curLocale(QLocale((const QString&)Language));
+    QLocale::setDefault(curLocale);
 
     return Translator;
 }

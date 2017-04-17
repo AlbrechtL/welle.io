@@ -177,7 +177,10 @@ QVariantMap CRadioController::GetGUIData(void)
     GUIData["Channel"] = CurrentChannel;
     GUIData["Frequency"] = CurrentFrequency;
     GUIData["Station"] = CurrentDisplayStation.simplified();
-    GUIData["DateTime"] = CurrentDateTime.toString("dd.MM.yyyy hh:mm");
+
+    QDateTime LocalTime = CurrentDateTime.toLocalTime();
+    GUIData["DateTime"] = QLocale().toString(LocalTime, QLocale::ShortFormat);
+
     GUIData["isSync"] = isSync;
     GUIData["isFICCRC"] = isFICCRC;
     GUIData["isSignal"] = isSignal;
@@ -463,11 +466,17 @@ void CRadioController::displayDateTime(int *DateTime)
     int HourOffset = DateTime[6];
     int MinuteOffset = DateTime[7];
 
-    Time.setHMS(Hour + HourOffset, Minute + MinuteOffset, Seconds);
-    Date.setDate(Year, Month, Day);
-
-    CurrentDateTime.setDate(Date);
+    Time.setHMS(Hour, Minute, Seconds);
     CurrentDateTime.setTime(Time);
+
+    Date.setDate(Year, Month, Day);
+    CurrentDateTime.setDate(Date);
+
+    int OffsetFromUtc = ((HourOffset * 3600) + (MinuteOffset * 60));
+    CurrentDateTime.setOffsetFromUtc(OffsetFromUtc);
+    CurrentDateTime.setTimeSpec(Qt::OffsetFromUTC);
+
+    return;
 }
 
 void CRadioController::show_ficSuccess(bool isFICCRC)
