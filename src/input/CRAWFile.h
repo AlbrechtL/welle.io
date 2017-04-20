@@ -43,7 +43,7 @@ class QSettings;
 class fileHulp;
 
 // Enum of available input device
-enum class CRAWFileFormat {U8, S8, S16LE, Unknown};
+enum class CRAWFileFormat {U8, S8, S16LE, S16BE, Unknown};
 
 class CRAWFile : public CVirtualInput, QThread {
 public:
@@ -74,6 +74,8 @@ private:
 
     virtual void run(void);
     int32_t readBuffer(uint8_t*, int32_t);
+    int32_t convertSamples(RingBuffer<uint8_t>* Buffer, DSPCOMPLEX* V, int32_t size);
+
     RingBuffer<uint8_t>* SampleBuffer;
     RingBuffer<uint8_t>* SpectrumSampleBuffer;
     int32_t bufferSize;
