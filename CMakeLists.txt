@@ -23,16 +23,13 @@ enable_testing()
 include(GNUInstallDirs)
 
 set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
 
 list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
 
 find_package(Threads REQUIRED)
 
-find_package(Qt5Widgets REQUIRED)
-find_package(Qt5Qml REQUIRED)
-find_package(Qt5Multimedia REQUIRED)
-find_package(Qt5Charts REQUIRED)
-find_package(Qt5Quick REQUIRED)
+find_package(Qt5 COMPONENTS Widgets Quick Multimedia Charts)
 
 find_package(FFTW3f REQUIRED)
 find_package(Faad REQUIRED)
@@ -105,19 +102,16 @@ if(LIBRTLSDR_FOUND)
   set(sources  ${sources} src/input/CRTL_SDR.cpp)
 endif()
 
-add_executable (${executableName} ${sources})
+add_executable (${executableName} ${sources} touch_gui_resource.qrc)
 
 target_link_libraries (${executableName}
-  Qt5::Widgets
-  Qt5::Qml
-  Qt5::Multimedia
-  Qt5::Charts
-  Qt5::Quick
   ${LIBRTLSDR_LIBRARIES}
   ${FFTW3F_LIBRARIES}
   ${FAAD_LIBRARIES}
   Threads::Threads
 )
+
+qt5_use_modules(${executableName} Widgets Quick Multimedia Charts)
 
 INSTALL (TARGETS ${executableName} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
