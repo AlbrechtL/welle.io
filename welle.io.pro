@@ -135,7 +135,7 @@ SOURCES += \
     src/CRadioController.cpp \
     src/CChannels.cpp
 
-unix:!macx {
+unix:!macx:!android: {
     INCLUDEPATH	+= /usr/local/include
     LIBS    += -lfftw3f
     LIBS    += -lusb-1.0
@@ -144,6 +144,8 @@ unix:!macx {
     CONFIG  += airspy
     CONFIG  += rtl_sdr
     #CONFIG  += soapysdr
+
+    CONFIG  += kiss_fft
 }
 
 
@@ -173,6 +175,27 @@ macx {
     CONFIG  += airspy
     CONFIG  += rtl_sdr
     #CONFIG  += soapysdr        # not tested
+}
+
+android {
+    DEFINES   += ANDROID
+
+    CONFIG  += kiss_fft
+    #CONFIG  += airspy
+    #CONFIG  += rtl_sdr
+    #CONFIG  += soapysdr        # not tested
+}
+
+kiss_fft {
+    DEFINES   += KISSFFT
+
+    INCLUDEPATH += src/various/kiss_fft
+
+    HEADERS    += \
+    src/various/kiss_fft/kiss_fft.h \
+    src/various/kiss_fft/_kiss_fft_guts.h
+
+    SOURCES    += src/various/kiss_fft/kiss_fft.c
 }
 
 #### Devices ####

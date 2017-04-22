@@ -32,7 +32,8 @@
 //
 //	Simple wrapper around fftwf
 #include	"DabConstants.h"
-//
+
+#ifndef KISSFFT
 #define	FFTW_MALLOC		fftwf_malloc
 #define	FFTW_PLAN_DFT_1D	fftwf_plan_dft_1d
 #define FFTW_DESTROY_PLAN	fftwf_destroy_plan
@@ -40,6 +41,7 @@
 #define	FFTW_PLAN		fftwf_plan
 #define	FFTW_EXECUTE		fftwf_execute
 #include	<fftw3.h>
+
 /*
  *	a simple wrapper
  */
@@ -50,14 +52,12 @@ public:
 			~common_fft	(void);
 	DSPCOMPLEX	*getVector	(void);
 	void		do_FFT		(void);
-	void		do_IFFT		(void);
-	void		do_Shift	(void);
+
 private:
 	int32_t		fft_size;
 	DSPCOMPLEX	*vector;
 	DSPCOMPLEX	*vector1;
 	FFTW_PLAN	plan;
-	void		Scale		(DSPCOMPLEX *);
 };
 
 class	common_ifft {
@@ -66,12 +66,48 @@ public:
 			~common_ifft	(void);
 	DSPCOMPLEX	*getVector	(void);
 	void		do_IFFT		(void);
+
 private:
 	int32_t		fft_size;
 	DSPCOMPLEX	*vector;
-	FFTW_PLAN	plan;
+    FFTW_PLAN	plan;
 	void		Scale		(DSPCOMPLEX *);
 };
+#else
+
+#include "kiss_fft.h"
+
+class	common_fft {
+public:
+    common_fft	(int32_t fft_size);
+    ~common_fft	(void);
+    DSPCOMPLEX	*getVector	(void);
+    void		do_FFT		(void);
+
+private:
+    int32_t fft_size;
+
+    kiss_fft_cfg cfg;
+    DSPCOMPLEX *fin;
+    DSPCOMPLEX *fout;
+};
+
+class	common_ifft {
+public:
+    common_ifft	(int32_t fft_size);
+    ~common_ifft	(void);
+    DSPCOMPLEX	*getVector	(void);
+    void		do_IFFT		(void);
+
+private:
+    int32_t fft_size;
+
+    kiss_fft_cfg cfg;
+    DSPCOMPLEX *fin;
+    DSPCOMPLEX *fout;
+};
+#endif
+
 
 #endif
 
