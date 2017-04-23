@@ -29,7 +29,6 @@
 #include	"ringbuffer.h"
 #include    "CAudio.h"
 
-#ifndef ANDROID
 class	faadDecoder: public QObject{
 Q_OBJECT
 private:
@@ -181,17 +180,3 @@ NeAACDecFrameInfo	hInfo;
 }
 
 };
-#else
-
-class	faadDecoder: public QObject{
-Q_OBJECT
-public:
-    faadDecoder	(CRadioController *mr,
-                     RingBuffer<int16_t> *buffer) { }
-    ~faadDecoder	(void) { }
-    int16_t	MP42PCM (uint8_t dacRate, uint8_t sbrFlag,
-                 int16_t mpegSurround,
-                 uint8_t	aacChannelMode,
-                 uint8_t buffer [], int16_t bufferLength) { }
-};
-#endif
