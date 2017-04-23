@@ -196,129 +196,129 @@ android {
 kiss_fft_builtin {
     DEFINES   += KISSFFT
 
-    INCLUDEPATH += src/various/kiss_fft
+    INCLUDEPATH += src/libs/kiss_fft
 
     HEADERS    += \
-    src/various/kiss_fft/kiss_fft.h \
-    src/various/kiss_fft/_kiss_fft_guts.h
+    src/libs/kiss_fft/kiss_fft.h \
+    src/libs/kiss_fft/_kiss_fft_guts.h
 
-    SOURCES    += src/various/kiss_fft/kiss_fft.c
+    SOURCES    += src/libs/kiss_fft/kiss_fft.c
 }
 
 libfaad_builtin {
     DEFINES += HAVE_CONFIG_H
 
     INCLUDEPATH += \
-    src/backend/audio/faad2 \
-    src/backend/audio/faad2/libfaad \
-    src/backend/audio/faad2/libfaad/codebook \
-    src/backend/audio/faad2/include
+    src/libs/faad2 \
+    src/libs/faad2/libfaad \
+    src/libs/faad2/libfaad/codebook \
+    src/libs/faad2/include
 
 
     HEADERS += \
-    src/backend/audio/faad2/config.h \
-    src/backend/audio/faad2/include/faad.h \
-    src/backend/audio/faad2/include/neaacdec.h \
-    src/backend/audio/faad2/libfaad/analysis.h \
-    src/backend/audio/faad2/libfaad/bits.h \
-    src/backend/audio/faad2/libfaad/cfft.h \
-    src/backend/audio/faad2/libfaad/cfft_tab.h \
-    src/backend/audio/faad2/libfaad/common.h \
-    src/backend/audio/faad2/libfaad/drc.h \
-    src/backend/audio/faad2/libfaad/drm_dec.h \
-    src/backend/audio/faad2/libfaad/error.h \
-    src/backend/audio/faad2/libfaad/filtbank.h \
-    src/backend/audio/faad2/libfaad/fixed.h \
-    src/backend/audio/faad2/libfaad/huffman.h \
-    src/backend/audio/faad2/libfaad/ic_predict.h \
-    src/backend/audio/faad2/libfaad/iq_table.h \
-    src/backend/audio/faad2/libfaad/is.h \
-    src/backend/audio/faad2/libfaad/kbd_win.h \
-    src/backend/audio/faad2/libfaad/lt_predict.h \
-    src/backend/audio/faad2/libfaad/mdct.h \
-    src/backend/audio/faad2/libfaad/mdct_tab.h \
-    src/backend/audio/faad2/libfaad/mp4.h \
-    src/backend/audio/faad2/libfaad/ms.h \
-    src/backend/audio/faad2/libfaad/output.h \
-    src/backend/audio/faad2/libfaad/pns.h \
-    src/backend/audio/faad2/libfaad/ps_dec.h \
-    src/backend/audio/faad2/libfaad/ps_tables.h \
-    src/backend/audio/faad2/libfaad/pulse.h \
-    src/backend/audio/faad2/libfaad/rvlc.h \
-    src/backend/audio/faad2/libfaad/sbr_dct.h \
-    src/backend/audio/faad2/libfaad/sbr_dec.h \
-    src/backend/audio/faad2/libfaad/sbr_e_nf.h \
-    src/backend/audio/faad2/libfaad/sbr_fbt.h \
-    src/backend/audio/faad2/libfaad/sbr_hfadj.h \
-    src/backend/audio/faad2/libfaad/sbr_hfgen.h \
-    src/backend/audio/faad2/libfaad/sbr_huff.h \
-    src/backend/audio/faad2/libfaad/sbr_noise.h \
-    src/backend/audio/faad2/libfaad/sbr_qmf_c.h \
-    src/backend/audio/faad2/libfaad/sbr_qmf.h \
-    src/backend/audio/faad2/libfaad/sbr_syntax.h \
-    src/backend/audio/faad2/libfaad/sbr_tf_grid.h \
-    src/backend/audio/faad2/libfaad/sine_win.h \
-    src/backend/audio/faad2/libfaad/specrec.h \
-    src/backend/audio/faad2/libfaad/ssr_fb.h \
-    src/backend/audio/faad2/libfaad/ssr.h \
-    src/backend/audio/faad2/libfaad/ssr_ipqf.h \
-    src/backend/audio/faad2/libfaad/ssr_win.h \
-    src/backend/audio/faad2/libfaad/structs.h \
-    src/backend/audio/faad2/libfaad/syntax.h \
-    src/backend/audio/faad2/libfaad/tns.h \
-    src/backend/audio/faad2/libfaad/codebook/hcb_10.h \
-    src/backend/audio/faad2/libfaad/codebook/hcb_11.h \
-    src/backend/audio/faad2/libfaad/codebook/hcb_1.h \
-    src/backend/audio/faad2/libfaad/codebook/hcb_2.h \
-    src/backend/audio/faad2/libfaad/codebook/hcb_3.h \
-    src/backend/audio/faad2/libfaad/codebook/hcb_4.h \
-    src/backend/audio/faad2/libfaad/codebook/hcb_5.h \
-    src/backend/audio/faad2/libfaad/codebook/hcb_6.h \
-    src/backend/audio/faad2/libfaad/codebook/hcb_7.h \
-    src/backend/audio/faad2/libfaad/codebook/hcb_8.h \
-    src/backend/audio/faad2/libfaad/codebook/hcb_9.h \
-    src/backend/audio/faad2/libfaad/codebook/hcb.h \
-    src/backend/audio/faad2/libfaad/codebook/hcb_sf.h
+    src/libs/faad2/config.h \
+    src/libs/faad2/include/faad.h \
+    src/libs/faad2/include/neaacdec.h \
+    src/libs/faad2/libfaad/analysis.h \
+    src/libs/faad2/libfaad/bits.h \
+    src/libs/faad2/libfaad/cfft.h \
+    src/libs/faad2/libfaad/cfft_tab.h \
+    src/libs/faad2/libfaad/common.h \
+    src/libs/faad2/libfaad/drc.h \
+    src/libs/faad2/libfaad/drm_dec.h \
+    src/libs/faad2/libfaad/error.h \
+    src/libs/faad2/libfaad/filtbank.h \
+    src/libs/faad2/libfaad/fixed.h \
+    src/libs/faad2/libfaad/huffman.h \
+    src/libs/faad2/libfaad/ic_predict.h \
+    src/libs/faad2/libfaad/iq_table.h \
+    src/libs/faad2/libfaad/is.h \
+    src/libs/faad2/libfaad/kbd_win.h \
+    src/libs/faad2/libfaad/lt_predict.h \
+    src/libs/faad2/libfaad/mdct.h \
+    src/libs/faad2/libfaad/mdct_tab.h \
+    src/libs/faad2/libfaad/mp4.h \
+    src/libs/faad2/libfaad/ms.h \
+    src/libs/faad2/libfaad/output.h \
+    src/libs/faad2/libfaad/pns.h \
+    src/libs/faad2/libfaad/ps_dec.h \
+    src/libs/faad2/libfaad/ps_tables.h \
+    src/libs/faad2/libfaad/pulse.h \
+    src/libs/faad2/libfaad/rvlc.h \
+    src/libs/faad2/libfaad/sbr_dct.h \
+    src/libs/faad2/libfaad/sbr_dec.h \
+    src/libs/faad2/libfaad/sbr_e_nf.h \
+    src/libs/faad2/libfaad/sbr_fbt.h \
+    src/libs/faad2/libfaad/sbr_hfadj.h \
+    src/libs/faad2/libfaad/sbr_hfgen.h \
+    src/libs/faad2/libfaad/sbr_huff.h \
+    src/libs/faad2/libfaad/sbr_noise.h \
+    src/libs/faad2/libfaad/sbr_qmf_c.h \
+    src/libs/faad2/libfaad/sbr_qmf.h \
+    src/libs/faad2/libfaad/sbr_syntax.h \
+    src/libs/faad2/libfaad/sbr_tf_grid.h \
+    src/libs/faad2/libfaad/sine_win.h \
+    src/libs/faad2/libfaad/specrec.h \
+    src/libs/faad2/libfaad/ssr_fb.h \
+    src/libs/faad2/libfaad/ssr.h \
+    src/libs/faad2/libfaad/ssr_ipqf.h \
+    src/libs/faad2/libfaad/ssr_win.h \
+    src/libs/faad2/libfaad/structs.h \
+    src/libs/faad2/libfaad/syntax.h \
+    src/libs/faad2/libfaad/tns.h \
+    src/libs/faad2/libfaad/codebook/hcb_10.h \
+    src/libs/faad2/libfaad/codebook/hcb_11.h \
+    src/libs/faad2/libfaad/codebook/hcb_1.h \
+    src/libs/faad2/libfaad/codebook/hcb_2.h \
+    src/libs/faad2/libfaad/codebook/hcb_3.h \
+    src/libs/faad2/libfaad/codebook/hcb_4.h \
+    src/libs/faad2/libfaad/codebook/hcb_5.h \
+    src/libs/faad2/libfaad/codebook/hcb_6.h \
+    src/libs/faad2/libfaad/codebook/hcb_7.h \
+    src/libs/faad2/libfaad/codebook/hcb_8.h \
+    src/libs/faad2/libfaad/codebook/hcb_9.h \
+    src/libs/faad2/libfaad/codebook/hcb.h \
+    src/libs/faad2/libfaad/codebook/hcb_sf.h
 
     SOURCES    += \
-    src/backend/audio/faad2/libfaad/bits.c \
-    src/backend/audio/faad2/libfaad/cfft.c \
-    src/backend/audio/faad2/libfaad/common.c \
-    src/backend/audio/faad2/libfaad/decoder.c \
-    src/backend/audio/faad2/libfaad/drc.c \
-    src/backend/audio/faad2/libfaad/drm_dec.c \
-    src/backend/audio/faad2/libfaad/error.c \
-    src/backend/audio/faad2/libfaad/filtbank.c \
-    src/backend/audio/faad2/libfaad/hcr.c \
-    src/backend/audio/faad2/libfaad/huffman.c \
-    src/backend/audio/faad2/libfaad/ic_predict.c \
-    src/backend/audio/faad2/libfaad/is.c \
-    src/backend/audio/faad2/libfaad/lt_predict.c \
-    src/backend/audio/faad2/libfaad/mdct.c \
-    src/backend/audio/faad2/libfaad/mp4.c \
-    src/backend/audio/faad2/libfaad/ms.c \
-    src/backend/audio/faad2/libfaad/output.c \
-    src/backend/audio/faad2/libfaad/pns.c \
-    src/backend/audio/faad2/libfaad/ps_dec.c \
-    src/backend/audio/faad2/libfaad/ps_syntax.c \
-    src/backend/audio/faad2/libfaad/pulse.c \
-    src/backend/audio/faad2/libfaad/rvlc.c \
-    src/backend/audio/faad2/libfaad/sbr_dct.c \
-    src/backend/audio/faad2/libfaad/sbr_dec.c \
-    src/backend/audio/faad2/libfaad/sbr_e_nf.c \
-    src/backend/audio/faad2/libfaad/sbr_fbt.c \
-    src/backend/audio/faad2/libfaad/sbr_hfadj.c \
-    src/backend/audio/faad2/libfaad/sbr_hfgen.c \
-    src/backend/audio/faad2/libfaad/sbr_huff.c \
-    src/backend/audio/faad2/libfaad/sbr_qmf.c \
-    src/backend/audio/faad2/libfaad/sbr_syntax.c \
-    src/backend/audio/faad2/libfaad/sbr_tf_grid.c \
-    src/backend/audio/faad2/libfaad/specrec.c \
-    src/backend/audio/faad2/libfaad/ssr.c \
-    src/backend/audio/faad2/libfaad/ssr_fb.c \
-    src/backend/audio/faad2/libfaad/ssr_ipqf.c \
-    src/backend/audio/faad2/libfaad/syntax.c \
-    src/backend/audio/faad2/libfaad/tns.c
+    src/libs/faad2/libfaad/bits.c \
+    src/libs/faad2/libfaad/cfft.c \
+    src/libs/faad2/libfaad/common.c \
+    src/libs/faad2/libfaad/decoder.c \
+    src/libs/faad2/libfaad/drc.c \
+    src/libs/faad2/libfaad/drm_dec.c \
+    src/libs/faad2/libfaad/error.c \
+    src/libs/faad2/libfaad/filtbank.c \
+    src/libs/faad2/libfaad/hcr.c \
+    src/libs/faad2/libfaad/huffman.c \
+    src/libs/faad2/libfaad/ic_predict.c \
+    src/libs/faad2/libfaad/is.c \
+    src/libs/faad2/libfaad/lt_predict.c \
+    src/libs/faad2/libfaad/mdct.c \
+    src/libs/faad2/libfaad/mp4.c \
+    src/libs/faad2/libfaad/ms.c \
+    src/libs/faad2/libfaad/output.c \
+    src/libs/faad2/libfaad/pns.c \
+    src/libs/faad2/libfaad/ps_dec.c \
+    src/libs/faad2/libfaad/ps_syntax.c \
+    src/libs/faad2/libfaad/pulse.c \
+    src/libs/faad2/libfaad/rvlc.c \
+    src/libs/faad2/libfaad/sbr_dct.c \
+    src/libs/faad2/libfaad/sbr_dec.c \
+    src/libs/faad2/libfaad/sbr_e_nf.c \
+    src/libs/faad2/libfaad/sbr_fbt.c \
+    src/libs/faad2/libfaad/sbr_hfadj.c \
+    src/libs/faad2/libfaad/sbr_hfgen.c \
+    src/libs/faad2/libfaad/sbr_huff.c \
+    src/libs/faad2/libfaad/sbr_qmf.c \
+    src/libs/faad2/libfaad/sbr_syntax.c \
+    src/libs/faad2/libfaad/sbr_tf_grid.c \
+    src/libs/faad2/libfaad/specrec.c \
+    src/libs/faad2/libfaad/ssr.c \
+    src/libs/faad2/libfaad/ssr_fb.c \
+    src/libs/faad2/libfaad/ssr_ipqf.c \
+    src/libs/faad2/libfaad/syntax.c \
+    src/libs/faad2/libfaad/tns.c
 }
 
 #### Devices ####

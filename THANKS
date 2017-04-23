@@ -4,6 +4,7 @@ following persons' or companies' code:
 QT - Copyright (c) The Qt Company, www.qt.io - LGPL Version 2.1
 FAAD2 - Copyright (c) Nero AG, www.nero.com" - GPLv2 or later
 FFTW3 - www.fftw.org - GPLv2 or later
+Kiss FFT - www.sourceforge.net/projects/kissfft - BSD License
 
 welle.io uses parts from the following programs 
 - qt-dab
