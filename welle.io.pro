@@ -9,7 +9,14 @@ Release: QMAKE_LFLAGS	+=  -flto -O3
 
 RC_ICONS   =    icon.ico
 RESOURCES +=    touch_gui_resource.qrc
-DISTFILES +=    README.md
+DISTFILES +=    README.md \
+    android/AndroidManifest.xml \
+    android/gradle/wrapper/gradle-wrapper.jar \
+    android/gradlew \
+    android/res/values/libs.xml \
+    android/build.gradle \
+    android/gradle/wrapper/gradle-wrapper.properties \
+    android/gradlew.bat
 
 TRANSLATIONS = i18n/de_DE.ts
 
@@ -341,3 +348,5 @@ soapysdr {
     # The same lib for unix and Windows
     LIBS       += -lSoapySDR
 }
+
+ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
