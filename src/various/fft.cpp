@@ -28,6 +28,7 @@
 /*
  */
 
+#ifndef KISSFFT
 	common_fft::common_fft (int32_t fft_size) {
 
 	this	-> fft_size = fft_size;
@@ -51,28 +52,6 @@ DSPCOMPLEX	*common_fft::getVector () {
 
 void	common_fft::do_FFT () {
 	FFTW_EXECUTE (plan);
-}
-
-void	common_fft::do_IFFT () {
-	FFTW_EXECUTE	(plan);
-	Scale		(vector);
-}
-
-void	common_fft::do_Shift (void) {
-DSPCOMPLEX	*v = (DSPCOMPLEX *)alloca (fft_size * sizeof (DSPCOMPLEX));
-
-	memcpy (v, vector, fft_size * sizeof (DSPCOMPLEX));
-	memcpy (vector, &v [fft_size / 2], fft_size / 2 * sizeof (DSPCOMPLEX));
-	memcpy (&vector [fft_size / 2], v, fft_size / 2 * sizeof (DSPCOMPLEX));
-}
-	
-void	common_fft::Scale (DSPCOMPLEX *Data) {
-const DSPFLOAT  Factor = 1.0 / DSPFLOAT (fft_size);
-int32_t	Position;
-
-	// scale all entries
-	for (Position = 0; Position < fft_size; Position ++)
-	   Data [Position] *= Factor;
 }
 
 /*
@@ -117,5 +96,74 @@ int32_t	Position;
 	for (Position = 0; Position < fft_size; Position ++)
 	   Data [Position] *= Factor;
 }
+#else // Kiss FFT
+common_fft::common_fft(int32_t fft_size)
+{
+    this->fft_size = fft_size;
+    cfg = kiss_fft_alloc(fft_size, 0, NULL, NULL);
 
+    fin = (DSPCOMPLEX*) malloc(fft_size * sizeof(DSPCOMPLEX));
+    fout = (DSPCOMPLEX*) malloc(fft_size * sizeof(DSPCOMPLEX));
 
+    memset(fin, 0, fft_size * sizeof(DSPCOMPLEX));
+    memset(fout, 0, fft_size * sizeof(DSPCOMPLEX));
+}
+
+common_fft::~common_fft()
+{
+    free(cfg);
+    free(fin);
+    free(fout);
+}
+
+DSPCOMPLEX *common_fft::getVector()
+{
+    return fin;
+}
+
+void common_fft::do_FFT()
+{
+    kiss_fft(cfg, (kiss_fft_cpx *) fin, (kiss_fft_cpx *) fout);
+
+    memcpy(fin, fout, fft_size * sizeof(DSPCOMPLEX));
+}
+
+common_ifft::common_ifft(int32_t fft_size)
+{
+    this->fft_size = fft_size;
+
+    cfg = kiss_fft_alloc(fft_size, 1, NULL, NULL);
+
+    fin = (DSPCOMPLEX *) malloc(fft_size * sizeof(DSPCOMPLEX));
+    fout = (DSPCOMPLEX *) malloc(fft_size * sizeof(DSPCOMPLEX));
+
+    memset(fin, 0, fft_size * sizeof(DSPCOMPLEX));
+    memset(fout, 0, fft_size * sizeof(DSPCOMPLEX));
+}
+
+common_ifft::~common_ifft()
+{
+    free(cfg);
+    free(fin);
+    free(fout);
+}
+
+DSPCOMPLEX *common_ifft::getVector()
+{
+    return fin;
+}
+
+void common_ifft::do_IFFT()
+{
+    const DSPFLOAT  Factor = 1.0 / DSPFLOAT (fft_size);
+
+    kiss_fft(cfg, (kiss_fft_cpx *) fin, (kiss_fft_cpx *) fout);
+
+    // Scale all entries
+    for (int i = 0; i < fft_size; i ++)
+       fout[i] *= Factor;
+
+    memcpy(fin, fout, fft_size * sizeof(kiss_fft_cpx));
+}
+
+#endif

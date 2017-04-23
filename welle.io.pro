@@ -9,7 +9,14 @@ Release: QMAKE_LFLAGS	+=  -flto -O3
 
 RC_ICONS   =    icon.ico
 RESOURCES +=    touch_gui_resource.qrc
-DISTFILES +=    README.md
+DISTFILES +=    README.md \
+    android/AndroidManifest.xml \
+    android/gradle/wrapper/gradle-wrapper.jar \
+    android/gradlew \
+    android/res/values/libs.xml \
+    android/build.gradle \
+    android/gradle/wrapper/gradle-wrapper.properties \
+    android/gradlew.bat
 
 TRANSLATIONS = i18n/de_DE.ts
 
@@ -135,7 +142,7 @@ SOURCES += \
     src/CRadioController.cpp \
     src/CChannels.cpp
 
-unix:!macx {
+unix:!macx:!android: {
     INCLUDEPATH	+= /usr/local/include
     LIBS    += -lfftw3f
     LIBS    += -lusb-1.0
@@ -144,6 +151,9 @@ unix:!macx {
     CONFIG  += airspy
     CONFIG  += rtl_sdr
     #CONFIG  += soapysdr
+
+    #CONFIG  += kiss_fft_builtin
+    #CONFIG  += libfaad_builtin
 }
 
 
@@ -175,6 +185,142 @@ macx {
     #CONFIG  += soapysdr        # not tested
 }
 
+android {
+    DEFINES += ANDROID
+
+    CONFIG  += kiss_fft_builtin
+    CONFIG  += libfaad_builtin
+}
+
+#### Built-in libraries ####
+kiss_fft_builtin {
+    DEFINES   += KISSFFT
+
+    INCLUDEPATH += src/various/kiss_fft
+
+    HEADERS    += \
+    src/various/kiss_fft/kiss_fft.h \
+    src/various/kiss_fft/_kiss_fft_guts.h
+
+    SOURCES    += src/various/kiss_fft/kiss_fft.c
+}
+
+libfaad_builtin {
+    DEFINES += HAVE_CONFIG_H
+
+    INCLUDEPATH += \
+    src/backend/audio/faad2 \
+    src/backend/audio/faad2/libfaad \
+    src/backend/audio/faad2/libfaad/codebook \
+    src/backend/audio/faad2/include
+
+
+    HEADERS += \
+    src/backend/audio/faad2/config.h \
+    src/backend/audio/faad2/include/faad.h \
+    src/backend/audio/faad2/include/neaacdec.h \
+    src/backend/audio/faad2/libfaad/analysis.h \
+    src/backend/audio/faad2/libfaad/bits.h \
+    src/backend/audio/faad2/libfaad/cfft.h \
+    src/backend/audio/faad2/libfaad/cfft_tab.h \
+    src/backend/audio/faad2/libfaad/common.h \
+    src/backend/audio/faad2/libfaad/drc.h \
+    src/backend/audio/faad2/libfaad/drm_dec.h \
+    src/backend/audio/faad2/libfaad/error.h \
+    src/backend/audio/faad2/libfaad/filtbank.h \
+    src/backend/audio/faad2/libfaad/fixed.h \
+    src/backend/audio/faad2/libfaad/huffman.h \
+    src/backend/audio/faad2/libfaad/ic_predict.h \
+    src/backend/audio/faad2/libfaad/iq_table.h \
+    src/backend/audio/faad2/libfaad/is.h \
+    src/backend/audio/faad2/libfaad/kbd_win.h \
+    src/backend/audio/faad2/libfaad/lt_predict.h \
+    src/backend/audio/faad2/libfaad/mdct.h \
+    src/backend/audio/faad2/libfaad/mdct_tab.h \
+    src/backend/audio/faad2/libfaad/mp4.h \
+    src/backend/audio/faad2/libfaad/ms.h \
+    src/backend/audio/faad2/libfaad/output.h \
+    src/backend/audio/faad2/libfaad/pns.h \
+    src/backend/audio/faad2/libfaad/ps_dec.h \
+    src/backend/audio/faad2/libfaad/ps_tables.h \
+    src/backend/audio/faad2/libfaad/pulse.h \
+    src/backend/audio/faad2/libfaad/rvlc.h \
+    src/backend/audio/faad2/libfaad/sbr_dct.h \
+    src/backend/audio/faad2/libfaad/sbr_dec.h \
+    src/backend/audio/faad2/libfaad/sbr_e_nf.h \
+    src/backend/audio/faad2/libfaad/sbr_fbt.h \
+    src/backend/audio/faad2/libfaad/sbr_hfadj.h \
+    src/backend/audio/faad2/libfaad/sbr_hfgen.h \
+    src/backend/audio/faad2/libfaad/sbr_huff.h \
+    src/backend/audio/faad2/libfaad/sbr_noise.h \
+    src/backend/audio/faad2/libfaad/sbr_qmf_c.h \
+    src/backend/audio/faad2/libfaad/sbr_qmf.h \
+    src/backend/audio/faad2/libfaad/sbr_syntax.h \
+    src/backend/audio/faad2/libfaad/sbr_tf_grid.h \
+    src/backend/audio/faad2/libfaad/sine_win.h \
+    src/backend/audio/faad2/libfaad/specrec.h \
+    src/backend/audio/faad2/libfaad/ssr_fb.h \
+    src/backend/audio/faad2/libfaad/ssr.h \
+    src/backend/audio/faad2/libfaad/ssr_ipqf.h \
+    src/backend/audio/faad2/libfaad/ssr_win.h \
+    src/backend/audio/faad2/libfaad/structs.h \
+    src/backend/audio/faad2/libfaad/syntax.h \
+    src/backend/audio/faad2/libfaad/tns.h \
+    src/backend/audio/faad2/libfaad/codebook/hcb_10.h \
+    src/backend/audio/faad2/libfaad/codebook/hcb_11.h \
+    src/backend/audio/faad2/libfaad/codebook/hcb_1.h \
+    src/backend/audio/faad2/libfaad/codebook/hcb_2.h \
+    src/backend/audio/faad2/libfaad/codebook/hcb_3.h \
+    src/backend/audio/faad2/libfaad/codebook/hcb_4.h \
+    src/backend/audio/faad2/libfaad/codebook/hcb_5.h \
+    src/backend/audio/faad2/libfaad/codebook/hcb_6.h \
+    src/backend/audio/faad2/libfaad/codebook/hcb_7.h \
+    src/backend/audio/faad2/libfaad/codebook/hcb_8.h \
+    src/backend/audio/faad2/libfaad/codebook/hcb_9.h \
+    src/backend/audio/faad2/libfaad/codebook/hcb.h \
+    src/backend/audio/faad2/libfaad/codebook/hcb_sf.h
+
+    SOURCES    += \
+    src/backend/audio/faad2/libfaad/bits.c \
+    src/backend/audio/faad2/libfaad/cfft.c \
+    src/backend/audio/faad2/libfaad/common.c \
+    src/backend/audio/faad2/libfaad/decoder.c \
+    src/backend/audio/faad2/libfaad/drc.c \
+    src/backend/audio/faad2/libfaad/drm_dec.c \
+    src/backend/audio/faad2/libfaad/error.c \
+    src/backend/audio/faad2/libfaad/filtbank.c \
+    src/backend/audio/faad2/libfaad/hcr.c \
+    src/backend/audio/faad2/libfaad/huffman.c \
+    src/backend/audio/faad2/libfaad/ic_predict.c \
+    src/backend/audio/faad2/libfaad/is.c \
+    src/backend/audio/faad2/libfaad/lt_predict.c \
+    src/backend/audio/faad2/libfaad/mdct.c \
+    src/backend/audio/faad2/libfaad/mp4.c \
+    src/backend/audio/faad2/libfaad/ms.c \
+    src/backend/audio/faad2/libfaad/output.c \
+    src/backend/audio/faad2/libfaad/pns.c \
+    src/backend/audio/faad2/libfaad/ps_dec.c \
+    src/backend/audio/faad2/libfaad/ps_syntax.c \
+    src/backend/audio/faad2/libfaad/pulse.c \
+    src/backend/audio/faad2/libfaad/rvlc.c \
+    src/backend/audio/faad2/libfaad/sbr_dct.c \
+    src/backend/audio/faad2/libfaad/sbr_dec.c \
+    src/backend/audio/faad2/libfaad/sbr_e_nf.c \
+    src/backend/audio/faad2/libfaad/sbr_fbt.c \
+    src/backend/audio/faad2/libfaad/sbr_hfadj.c \
+    src/backend/audio/faad2/libfaad/sbr_hfgen.c \
+    src/backend/audio/faad2/libfaad/sbr_huff.c \
+    src/backend/audio/faad2/libfaad/sbr_qmf.c \
+    src/backend/audio/faad2/libfaad/sbr_syntax.c \
+    src/backend/audio/faad2/libfaad/sbr_tf_grid.c \
+    src/backend/audio/faad2/libfaad/specrec.c \
+    src/backend/audio/faad2/libfaad/ssr.c \
+    src/backend/audio/faad2/libfaad/ssr_fb.c \
+    src/backend/audio/faad2/libfaad/ssr_ipqf.c \
+    src/backend/audio/faad2/libfaad/syntax.c \
+    src/backend/audio/faad2/libfaad/tns.c
+}
+
 #### Devices ####
 airspy {
     DEFINES    += HAVE_AIRSPY
@@ -202,3 +348,5 @@ soapysdr {
     # The same lib for unix and Windows
     LIBS       += -lSoapySDR
 }
+
+ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
