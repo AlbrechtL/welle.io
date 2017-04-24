@@ -37,168 +37,175 @@ Item {
         }
     }
 
-    ColumnLayout {
+    Flickable {
         anchors.fill: parent
-        anchors.margins: Units.dp(20)
-        spacing: Units.dp(30)
+        contentHeight: layout.height
+        contentWidth: parent.width
 
-        ColumnLayout{
-            anchors.top: parent.top
-            anchors.left: parent.left
-            anchors.right: parent.right
-            spacing: Units.dp(20)
+        ColumnLayout {
+            id: layout
+            anchors.fill: parent
+            anchors.margins: Units.dp(20)
+            spacing: Units.dp(30)
 
-            SettingsFrame{
-                ColumnLayout{
-                    anchors.top: parent.top
-                    anchors.left: parent.left
-                    anchors.right: parent.right
-                    spacing: Units.dp(20)
+            ColumnLayout{
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.right: parent.right
+                spacing: Units.dp(20)
 
+                SettingsFrame{
                     ColumnLayout{
-                        Layout.preferredWidth: parent.width
-                        spacing: parent.spacing / 2
+                        anchors.top: parent.top
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        spacing: Units.dp(20)
 
-                        RowLayout {
+                        ColumnLayout{
+                            Layout.preferredWidth: parent.width
+                            spacing: parent.spacing / 2
+
+                            RowLayout {
+                                Layout.preferredWidth: parent.width
+
+                                TextStandart {
+                                    text: qsTr("Channel scan")
+                                    Layout.alignment: Qt.AlignLeft
+                                }
+
+                                TouchButton {
+                                    id: startChannelScanButton
+                                    text: qsTr("Start")
+                                    Layout.preferredWidth: Units.dp(80)
+                                    Layout.alignment: Qt.AlignCenter
+                                    onClicked: {
+                                        startChannelScanButton.enabled = false
+                                        stopChannelScanButton.enabled = true
+                                        cppGUI.startChannelScanClick()
+                                    }
+                                }
+
+                                TouchButton {
+                                    id: stopChannelScanButton
+                                    text: qsTr("Stop")
+                                    Layout.alignment: Qt.AlignRight
+                                    Layout.preferredWidth: Units.dp(80)
+                                    enabled: false
+                                    onClicked: {
+                                        startChannelScanButton.enabled = true
+                                        stopChannelScanButton.enabled = false
+                                        cppGUI.stopChannelScanClick()
+                                    }
+                                }
+                            }
+
+                            TouchProgressBar{
+                                id: channelScanProgressBar
+                                minimumValue: 0
+                                maximumValue: 54 // 54 channels
+                                width: parent.width
+                                text: qsTr("Found channels") + ": 0"
+                            }
+                        }
+
+
+                        /*RowLayout {
                             Layout.preferredWidth: parent.width
 
-                            TextStandart {
-                                text: qsTr("Channel scan")
-                                Layout.alignment: Qt.AlignLeft
+                            ComboBox {
+                                id: styleBox
+                                model: ["5A", "5B", "5C"]
+                                Component.onCompleted: { }
                             }
 
                             TouchButton {
-                                id: startChannelScanButton
-                                text: qsTr("Start")
-                                Layout.preferredWidth: Units.dp(80)
-                                Layout.alignment: Qt.AlignCenter
-                                onClicked: {
-                                    startChannelScanButton.enabled = false
-                                    stopChannelScanButton.enabled = true
-                                    cppGUI.startChannelScanClick()
-                                }
-                            }
-
-                            TouchButton {
-                                id: stopChannelScanButton
-                                text: qsTr("Stop")
+                                id: resetChannelListButton
+                                text: "Reset station list"
                                 Layout.alignment: Qt.AlignRight
-                                Layout.preferredWidth: Units.dp(80)
-                                enabled: false
-                                onClicked: {
-                                    startChannelScanButton.enabled = true
-                                    stopChannelScanButton.enabled = false
-                                    cppGUI.stopChannelScanClick()
-                                }
+                                Layout.preferredWidth: Units.dp(110)
+                                onClicked: { }
+                            }
+                        }*/
+                    }
+                }
+
+                SettingsFrame {
+                    Layout.fillWidth: true
+                    ColumnLayout{
+                        anchors.fill: parent
+                        spacing: Units.dp(20)
+
+                        TouchSwitch {
+                            id: enableAGC
+                            name: qsTr("Automatic RF gain")
+                            height: 24
+                            Layout.fillHeight: true
+                            objectName: "enableAGC"
+                            checked: true
+                            onChanged: {
+                                cppGUI.inputEnableAGCChanged(valueChecked)
+
+                                if(valueChecked == false)
+                                    cppGUI.inputGainChanged(manualGain.currentValue)
                             }
                         }
 
-                        TouchProgressBar{
-                            id: channelScanProgressBar
-                            minimumValue: 0
-                            maximumValue: 54 // 54 channels
-                            width: parent.width
-                            text: qsTr("Found channels") + ": 0"
-                        }
-                    }
-
-
-                    /*RowLayout {
-                        Layout.preferredWidth: parent.width
-
-                        ComboBox {
-                            id: styleBox
-                            model: ["5A", "5B", "5C"]
-                            Component.onCompleted: { }
-                        }
-
-                        TouchButton {
-                            id: resetChannelListButton
-                            text: "Reset station list"
-                            Layout.alignment: Qt.AlignRight
-                            Layout.preferredWidth: Units.dp(110)
-                            onClicked: { }
-                        }
-                    }*/
-                }
-            }
-
-            SettingsFrame {
-                Layout.fillWidth: true
-                ColumnLayout{
-                    anchors.fill: parent
-                    spacing: Units.dp(20)
-
-                    TouchSwitch {
-                        id: enableAGC
-                        name: qsTr("Automatic RF gain")
-                        height: 24
-                        Layout.fillHeight: true
-                        objectName: "enableAGC"
-                        checked: true
-                        onChanged: {
-                            cppGUI.inputEnableAGCChanged(valueChecked)
-
-                            if(valueChecked == false)
-                                cppGUI.inputGainChanged(manualGain.currentValue)
-                        }
-                    }
-
-                    TouchSlider {
-                        id: manualGain
-                        enabled: !enableAGC.checked
-                        name: qsTr("Manual gain")
-                        maximumValue: cppGUI.gainCount
-                        showCurrentValue: qsTr("Value: ") + cppGUI.currentGainValue.toFixed(2)
-                        Layout.fillHeight: true
-                        onValueChanged: {
-                            if(enableAGC.checked == false)
-                                cppGUI.inputGainChanged(valueGain)
+                        TouchSlider {
+                            id: manualGain
+                            enabled: !enableAGC.checked
+                            name: qsTr("Manual gain")
+                            maximumValue: cppGUI.gainCount
+                            showCurrentValue: qsTr("Value: ") + cppGUI.currentGainValue.toFixed(2)
+                            Layout.fillHeight: true
+                            onValueChanged: {
+                                if(enableAGC.checked == false)
+                                    cppGUI.inputGainChanged(valueGain)
+                            }
                         }
                     }
                 }
-            }
 
-            SettingsFrame {
-                id: settingsFrame
-                Layout.fillWidth: true
-                ColumnLayout{
-                    anchors.fill: parent
-                    spacing: Units.dp(20)
+                SettingsFrame {
+                    id: settingsFrame
+                    Layout.fillWidth: true
+                    ColumnLayout{
+                        anchors.fill: parent
+                        spacing: Units.dp(20)
 
-                    TouchSwitch {
-                        id: enableFullScreen
-                        name: qsTr("Full screen mode")
-                        height: 24
-                        Layout.fillHeight: true
-                        objectName: "enableFullScreen"
-                        checked: false
-                    }
+                        TouchSwitch {
+                            id: enableFullScreen
+                            name: qsTr("Full screen mode")
+                            height: 24
+                            Layout.fillHeight: true
+                            objectName: "enableFullScreen"
+                            checked: false
+                        }
 
-                    TouchSwitch {
-                        id: enableExpertMode
-                        name: qsTr("Expert mode")
-                        height: 24
-                        Layout.fillHeight: true
-                        objectName: "enableExpertMode"
-                        checked: false
+                        TouchSwitch {
+                            id: enableExpertMode
+                            name: qsTr("Expert mode")
+                            height: 24
+                            Layout.fillHeight: true
+                            objectName: "enableExpertMode"
+                            checked: false
+                        }
                     }
                 }
+
+                /*TouchButton {
+                    id: inputSettingsButton
+                    text: "Input settings"
+                    width: parent.width
+                }*/
             }
 
-            /*TouchButton {
-                id: inputSettingsButton
-                text: "Input settings"
-                width: parent.width
-            }*/
-        }
-
-        TouchButton {
-            id: exitAppButton
-            text: qsTr("Exit welle.io")
-            onClicked: Qt.quit()
-            Layout.preferredWidth: parent.width
-            Layout.alignment: Qt.AlignBottom
+            TouchButton {
+                id: exitAppButton
+                text: qsTr("Exit welle.io")
+                onClicked: Qt.quit()
+                Layout.preferredWidth: parent.width
+                Layout.alignment: Qt.AlignBottom
+            }
         }
     }
 }

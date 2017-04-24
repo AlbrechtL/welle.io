@@ -29,7 +29,6 @@
 #include	"ringbuffer.h"
 #include    "CAudio.h"
 
-
 class	faadDecoder: public QObject{
 Q_OBJECT
 private:

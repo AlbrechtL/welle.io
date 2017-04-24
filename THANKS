@@ -1,9 +1,11 @@
-Some welle.io plugins use external libraries and make extensive use of the
+welle.io uses external and internal libraries and make extensive use of the
 following persons' or companies' code:
 
 QT - Copyright (c) The Qt Company, www.qt.io - LGPL Version 2.1
-FAAD2 - Copyright (c) Nero AG, www.nero.com" - GPLv2 or later
 FFTW3 - www.fftw.org - GPLv2 or later
+Kiss FFT - www.sourceforge.net/projects/kissfft - Mark Borgerding - BSD License
+kjmp2 - keyj.emphy.de/kjmp2 - Martin J. Fiedler - zlib license
+FAAD2 - Copyright (c) Nero AG, www.nero.com" - GPLv2 or later
 
 welle.io uses parts from the following programs 
 - qt-dab
