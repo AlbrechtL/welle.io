@@ -109,6 +109,8 @@ CRadioController::~CRadioController(void)
     delete my_ficHandler;
     delete my_mscHandler;
     delete my_ofdmProcessor;
+
+    delete Audio;
 }
 
 void CRadioController::Play(QString Channel, QString Station)
