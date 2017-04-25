@@ -43,6 +43,10 @@
 #include "CSoapySdr.h"
 #endif
 
+#ifdef Q_OS_ANDROID
+#include "CAndroid_RTL_SDR.h"
+#endif
+
 CVirtualInput *CInputFactory::GetDevice(QString Device)
 {
     CVirtualInput *InputDevice = NULL;
@@ -124,6 +128,11 @@ CVirtualInput *CInputFactory::GetManualDevice(QString Device)
 #ifdef HAVE_SOAPYSDR
         if (Device == "soapysdr")
             InputDevice = new CSoapySdr();
+        else
+#endif
+#ifdef Q_OS_ANDROID
+        if (Device == "android_rtl_sdr")
+            InputDevice = new CAndroid_RTL_SDR();
         else
 #endif
         if (Device == "rawfile")

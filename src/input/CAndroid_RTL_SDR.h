@@ -2,10 +2,6 @@
  *    Copyright (C) 2017
  *    Albrecht Lohofener (albrechtloh@gmx.de)
  *
- *    This file is based on SDR-J
- *    Copyright (C) 2010, 2011, 2012, 2013
- *    Jan van Katwijk (J.vanKatwijk@gmail.com)
- *
  *    This file is part of the welle.io.
  *    Many of the ideas as implemented in welle.io are derived from
  *    other work, made available through the GNU general Public License.
@@ -25,34 +21,50 @@
  *    along with welle.io; if not, write to the Free Software
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
+ *    Driver for https://github.com/martinmarinov/rtl_tcp_andro-
  */
 
-#ifndef __VIRTUAL_INPUT
-#define __VIRTUAL_INPUT
+#ifndef CANDROID_RTL_SDR_H
+#define CANDROID_RTL_SDR_H
 
-#include "DabConstants.h"
-#include <QObject>
-#include <QString>
-#include <stdint.h>
+#include <QtAndroidExtras/QAndroidJniObject>
+#include <QtAndroidExtras/QtAndroid>
+#include <QtAndroidExtras/QAndroidActivityResultReceiver>
 
-// Enum of available input device
-enum class CDeviceID {AIRSPY, NULLDEVICE, RAWFILE, RTL_SDR, RTL_TCP, ANDROID_RTL_SDR, SOAPYSDR};
+#include "CVirtualInput.h"
+#include "CRTL_TCP_Client.h"
 
-// Device interface
-class CVirtualInput : public QObject {
+class ActivityResultReceiver;
+
+class CAndroid_RTL_SDR : public CRTL_TCP_Client
+{
 public:
-    virtual void setFrequency(int32_t Frequency) = 0;
-    virtual bool restart(void) = 0;
-    virtual void stop(void) = 0;
-    virtual void reset(void) = 0;
-    virtual int32_t getSamples(DSPCOMPLEX* Buffer, int32_t Size) = 0;
-    virtual int32_t getSpectrumSamples(DSPCOMPLEX* Buffer, int32_t Size) = 0;
-    virtual int32_t getSamplesToRead(void) = 0;
-    virtual float setGain(int32_t Gain) = 0;
-    virtual int32_t getGainCount(void) = 0;
-    virtual void setAgc(bool AGC) = 0;
-    virtual QString getName(void) = 0;
-    virtual CDeviceID getID(void) = 0;
+    CAndroid_RTL_SDR();
+    ~CAndroid_RTL_SDR();
+
+    // Override
+    QString getName(void);
+    CDeviceID getID(void);
+    bool restart(void);
+
+    void setMessage(QString message);
+    void setLoaded(bool isLoaded);
+
+private:
+    ActivityResultReceiver *resultReceiver;
+    QString message;
+    bool isLoaded;
 };
 
-#endif
+class ActivityResultReceiver : public QAndroidActivityResultReceiver
+{
+public:
+    ActivityResultReceiver(CAndroid_RTL_SDR *Client): Android_RTL_SDR(Client){}
+
+    virtual void handleActivityResult(int receiverRequestCode, int resultCode, const QAndroidJniObject &data);
+
+private:
+    CAndroid_RTL_SDR *Android_RTL_SDR;
+};
+
+#endif // CANDROID_RTL_SDR_H

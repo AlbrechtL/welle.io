@@ -73,7 +73,13 @@ int main(int argc, char** argv)
 
     // Default values
     CDABParams DABParams(1);
+
+#ifdef Q_OS_ANDROID
+    QString dabDevice = "android_rtl_sdr";
+#else
     QString dabDevice = "auto";
+#endif
+
     QString ipAddress = "127.0.0.1";
     uint16_t ipPort = 1234;
     QString rawFile = "";

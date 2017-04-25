@@ -186,10 +186,13 @@ macx {
 }
 
 android {
-    DEFINES += ANDROID
+    QT += androidextras
 
     CONFIG  += kiss_fft_builtin
     CONFIG  += libfaad_builtin
+
+    HEADERS    += src/input/CAndroid_RTL_SDR.h
+    SOURCES    += src/input/CAndroid_RTL_SDR.cpp
 }
 
 #### Built-in libraries ####
