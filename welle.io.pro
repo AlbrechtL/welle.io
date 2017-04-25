@@ -211,12 +211,19 @@ kiss_fft_builtin {
 libfaad_builtin {
     DEFINES += HAVE_CONFIG_H
 
+    # Dangerous but libfaad produces a lot of warnings
+    QMAKE_CFLAGS += -Wno-unused-parameter
+    QMAKE_CFLAGS += -Wno-unused-function
+    QMAKE_CFLAGS += -Wno-unused-variable
+    QMAKE_CFLAGS += -Wno-unused-but-set-variable
+    QMAKE_CFLAGS += -Wno-old-style-declaration
+    QMAKE_CFLAGS += -Wno-missing-braces
+
     INCLUDEPATH += \
     src/libs/faad2 \
     src/libs/faad2/libfaad \
     src/libs/faad2/libfaad/codebook \
     src/libs/faad2/include
-
 
     HEADERS += \
     src/libs/faad2/config.h \
