@@ -63,15 +63,6 @@ ApplicationWindow {
 
     SettingsPage{
         id:settingsPage
-        onEnableExpertModeStateChanged: {
-            if(mainWindow.visibility !== 5) // 5 means "FullScreen"
-            {
-                if(enableExpertModeState)
-                    mainWindow.width = mainWindow.width + expertView.width
-                else
-                    mainWindow.width = mainWindow.width - expertView.width
-            }
-        }
     }
 
     InfoPage{
@@ -170,16 +161,22 @@ ApplicationWindow {
         }
     }
 
-    SplitView {
+    GridLayout {
+        id: gridLayout
         anchors.fill: parent
-        orientation: Qt.Horizontal
+        anchors.margins: Units.dp(10)
+        rowSpacing: Units.dp(20)
+        columnSpacing: Units.dp(20)
+        flow:  width > height ? GridLayout.LeftToRight : GridLayout.TopToBottom
 
         StackView {
             id: stackView
             clip: true
-            Layout.alignment: Qt.AlignLeft
+            Layout.alignment: Qt.AlignBottom
             Layout.minimumWidth: Units.dp(350)
-            Layout.fillWidth: settingsPage.enableExpertModeState ? false : true
+            Layout.minimumHeight: Units.dp(150)
+            Layout.fillWidth: true
+            Layout.fillHeight: true
 
             // Implements back key navigation
             focus: true
@@ -208,11 +205,27 @@ ApplicationWindow {
             }
         }
 
+        Rectangle {
+            color: "grey"
+            width: Units.dp(1)
+            Layout.fillHeight: true
+            visible: gridLayout.flow == GridLayout.LeftToRight ? true : false
+        }
+
+        Rectangle {
+            color: "grey"
+            height: Units.dp(1)
+            Layout.fillWidth: true
+            visible: gridLayout.flow != GridLayout.LeftToRight ? true : false
+        }
+
         SplitView {
             id: radioInformationView
             orientation: Qt.Vertical
-            Layout.alignment: Qt.AlignRight
-            Layout.minimumWidth: Units.dp(320)
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            Layout.preferredWidth: Units.dp(320)
+            Layout.minimumHeight: Units.dp(100)
 
             // Radio
             RadioView {}
@@ -229,9 +242,24 @@ ApplicationWindow {
             }
         }
 
+        Rectangle {
+            color: "grey"
+            width: Units.dp(1)
+            Layout.fillHeight: true
+            visible: (gridLayout.flow == GridLayout.LeftToRight) && (settingsPage.enableExpertModeState) ? true : false
+        }
+
+        Rectangle {
+            color: "grey"
+            height: Units.dp(1)
+            Layout.fillWidth: true
+            visible: (gridLayout.flow != GridLayout.LeftToRight) && (settingsPage.enableExpertModeState) ? true : false
+        }
+
         ExpertView{
             id: expertView
-            Layout.fillWidth: settingsPage.enableExpertModeState ? true : false
+            Layout.fillWidth: true
+            Layout.fillHeight: true
             width: Units.dp(400)
             visible: settingsPage.enableExpertModeState ? true : false
         }
