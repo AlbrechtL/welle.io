@@ -64,6 +64,7 @@ The following libraries and their development files are needed:
 * libfaad
 * librtlsdr
 * libusb
+* libpulse-dev
 
 Ubuntu Linux 16.04 LTS
 ---
