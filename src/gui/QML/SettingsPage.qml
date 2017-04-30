@@ -39,13 +39,12 @@ Item {
 
     Flickable {
         anchors.fill: parent
-        contentHeight: layout.height
+        contentHeight: layout.implicitHeight > parent.height ? layout.implicitHeight : parent.height
         contentWidth: parent.width
 
         ColumnLayout {
             id: layout
             anchors.fill: parent
-            anchors.margins: Units.dp(20)
             spacing: Units.dp(30)
 
             ColumnLayout{

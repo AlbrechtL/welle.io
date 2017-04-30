@@ -12,7 +12,6 @@ Item {
 
     ColumnLayout {
         anchors.fill: parent
-        anchors.topMargin: Units.dp(5)
         anchors.leftMargin: Units.dp(5)
 
         TextExpert {
