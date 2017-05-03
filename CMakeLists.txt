@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD 14)
 add_definitions(-Wall)
 
 if(MINGW)
-    add_definitions ( -municode)
+    add_definitions(-municode)
 endif()
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -18,7 +18,7 @@ if(NOT CMAKE_BUILD_TYPE)
 endif(NOT CMAKE_BUILD_TYPE)
 set(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "")
 
-enable_testing()
+#enable_testing()
 
 include(GNUInstallDirs)
 
@@ -28,16 +28,12 @@ set(CMAKE_AUTORCC ON)
 list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
 
 find_package(Threads REQUIRED)
-
-find_package(Qt5 COMPONENTS Widgets Quick Multimedia Charts)
-
+find_package(Qt5 COMPONENTS Widgets Quick Multimedia Charts REQUIRED)
 find_package(FFTW3f REQUIRED)
 find_package(Faad REQUIRED)
-
 if (DEFINED RTLSDR)
   find_package(LibRTLSDR REQUIRED)
 endif()
-
 
 include_directories(
     src
@@ -102,7 +98,7 @@ if(LIBRTLSDR_FOUND)
   set(sources  ${sources} src/input/CRTL_SDR.cpp)
 endif()
 
-add_executable (${executableName} ${sources} touch_gui_resource.qrc)
+add_executable (${executableName} ${sources})
 
 target_link_libraries (${executableName}
   ${LIBRTLSDR_LIBRARIES}
