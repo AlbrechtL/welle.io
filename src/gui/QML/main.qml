@@ -54,11 +54,29 @@ ApplicationWindow {
     height: Units.dp(500)
     visibility: settingsPage.enableFullScreenState ? "FullScreen" : "Windowed"
 
+    property int stackViewDepth
+    signal stackViewPush(Item item)
+    signal stackViewPop()
+    signal stackViewComplete()
+    signal stationClicked()
+    property alias isExpertView: settingsPage.enableExpertModeState
+
     Settings {
         property alias width : mainWindow.width
         property alias height : mainWindow.height
-        property alias radioInformationViewWidth: radioInformationView.width
-        property alias expertViewWidth: expertView.width
+        //property alias radioInformationViewWidth: radioInformationView.width
+        //property alias expertViewWidth: expertView.width
+    }
+
+    onIsExpertViewChanged: {
+        if(stackViewDepth > 1)
+        {
+            if(isExpertView == true)
+                infoMessagePopup.text = qsTr("Expert mode is enabled")
+            else
+                infoMessagePopup.text = qsTr("Expert mode is disabled")
+            infoMessagePopup.open()
+        }
     }
 
     SettingsPage{
@@ -99,8 +117,8 @@ ApplicationWindow {
             Behavior on opacity { NumberAnimation{} }
             Image {
                 anchors.verticalCenter: parent.verticalCenter
-                source: stackView.depth > 1 ? "images/navigation_previous_item.png" : "images/icon-settings.png"
-                height: stackView.depth > 1 ? Units.dp(20) : Units.dp(23)
+                source: stackViewDepth > 1 ? "images/navigation_previous_item.png" : "images/icon-settings.png"
+                height: stackViewDepth > 1 ? Units.dp(20) : Units.dp(23)
                 fillMode: Image.PreserveAspectFit
             }
             MouseArea {
@@ -109,10 +127,10 @@ ApplicationWindow {
                 anchors.fill: parent
                 anchors.margins: Units.dp(-20)
                 onClicked: {
-                    if(stackView.depth > 1)
-                        stackView.pop();
+                    if(stackViewDepth > 1)
+                        stackViewPop()
                     else
-                        stackView.push(settingsPage);
+                        stackViewPush(settingsPage)
                 }
             }
         }
@@ -133,7 +151,7 @@ ApplicationWindow {
 
         Rectangle {
             id: infoButton
-            width: stackView.depth > 1 ? Units.dp(40) : 0
+            width: stackViewDepth > 1 ? Units.dp(40) : 0
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
             antialiasing: true
@@ -142,39 +160,188 @@ ApplicationWindow {
             Image {
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.horizontalCenter: parent.horizontalCenter
-                source: stackView.depth > 1 ? "images/icon-info.png" : ""
+                source: stackViewDepth > 1 ? "images/icon-info.png" : ""
                 anchors.rightMargin: Units.dp(20)
                 height: Units.dp(23)
                 fillMode: Image.PreserveAspectFit
             }
             MouseArea {
-                id: exitmouse
+                id: infomouse
                 scale: 1
                 anchors.fill: parent
                 anchors.margins: Units.dp(-20)
-                onClicked:
-                    if(stackView.depth > 2)
-                      stackView.pop();
+                onClicked: {
+                    if(stackViewDepth > 2)
+                        stackViewPop()
                     else
-                      stackView.push(infoPage);
+                        stackViewPush(infoPage)
+                }
             }
         }
     }
 
-    GridLayout {
-        id: gridLayout
+    Loader {
         anchors.fill: parent
-        anchors.margins: Units.dp(10)
-        rowSpacing: Units.dp(20)
-        columnSpacing: Units.dp(20)
-        flow:  width > height ? GridLayout.LeftToRight : GridLayout.TopToBottom
+        Layout.margins: Units.dp(10);
+        sourceComponent: {
+            if(mainWindow.width > mainWindow.height)
+                if(isExpertView)
+                    return landscapeViewExpert
+                else
+                    return landscapeView
+            else
+                if(isExpertView)
+                    return portraitViewExpert
+                else
+                    return portraitView
+        }
+    }
+
+    Component {
+        id: landscapeView
+
+        SplitView {
+            id: splitView
+            anchors.fill: parent
+            orientation: Qt.Horizontal
+
+            Loader {
+                Layout.minimumWidth: Units.dp(350)
+                Layout.margins: Units.dp(10)
+                sourceComponent: stackViewMain
+            }
+            Loader {
+                Layout.preferredWidth: Units.dp(400)
+                Layout.margins: Units.dp(10)
+                sourceComponent: radioInformationView
+            }
+        }
+    }
+
+    Component {
+        id: landscapeViewExpert
+
+        SplitView {
+            id: splitView
+            anchors.fill: parent
+            orientation: Qt.Horizontal
+
+            Loader {
+                Layout.minimumWidth: Units.dp(350)
+                Layout.margins: Units.dp(10)
+                sourceComponent: stackViewMain
+            }
+            Loader {
+                Layout.preferredWidth: Units.dp(400)
+                Layout.margins: Units.dp(10)
+                sourceComponent: radioInformationView
+            }
+            Loader {
+                id: expertViewLoader
+                Layout.margins: Units.dp(10)
+                Layout.fillWidth: true
+                sourceComponent: expertView
+            }
+        }
+    }
+
+
+    Component {
+        id: portraitView
+
+        SwipeView {
+            anchors.fill: parent
+            anchors.margins: Units.dp(10)
+            spacing: Units.dp(10)
+
+            Loader {
+                sourceComponent: stackViewMain
+            }
+            Loader {
+                sourceComponent: radioInformationView
+            }
+
+            Connections {
+                target: mainWindow
+                onStationClicked: currentIndex = 1
+            }
+            Connections {
+                target: backmouse
+                onClicked: {
+                    if(currentIndex > 0)
+                    {
+                        stackViewComplete()
+                        currentIndex = 0
+                    }
+                }
+
+            }
+            Connections {
+                target: infomouse
+                onClicked: {
+                    if(currentIndex > 0)
+                    {
+                        stackViewComplete()
+                        currentIndex = 0
+                    }
+                }
+            }
+        }
+    }
+
+    Component {
+        id: portraitViewExpert
+
+        SwipeView {
+            anchors.fill: parent
+            anchors.margins: Units.dp(10)
+            spacing: Units.dp(10)
+
+            Loader {
+                sourceComponent: stackViewMain
+            }
+            Loader {
+                sourceComponent: radioInformationView
+            }
+            Loader {
+                sourceComponent: expertView
+            }
+
+            Connections {
+                target: mainWindow
+                onStationClicked: currentIndex = 1
+            }
+            Connections {
+                target: backmouse
+                onClicked: {
+                    if(currentIndex > 0)
+                    {
+                        stackViewComplete()
+                        currentIndex = 0
+                    }
+                }
+
+            }
+            Connections {
+                target: infomouse
+                onClicked: {
+                    if(currentIndex > 0)
+                    {
+                        stackViewComplete()
+                        currentIndex = 0
+                    }
+                }
+            }
+        }
+    }
+
+    Component {
+        id: stackViewMain
 
         StackView {
             id: stackView
             clip: true
             Layout.alignment: Qt.AlignBottom
-            Layout.minimumWidth: Units.dp(350)
-            Layout.minimumHeight: Units.dp(150)
             Layout.fillWidth: true
             Layout.fillHeight: true
 
@@ -189,7 +356,8 @@ ApplicationWindow {
                 width: parent.width
                 height: parent.height
                 ListView {
-                    property alias showChannelState: settingsPage.showChannelState
+                    id: test
+                    //property bool showChannelState
                     anchors.rightMargin: 0
                     anchors.bottomMargin: 0
                     anchors.leftMargin: 0
@@ -199,28 +367,30 @@ ApplicationWindow {
                     delegate: StationDelegate {
                         stationNameText: modelData.stationName
                         channelNameText: modelData.channelName
-                        onClicked: cppGUI.channelClick(modelData.stationName, modelData.channelName)
+                        onClicked: {
+                            mainWindow.stationClicked()
+                            cppGUI.channelClick(modelData.stationName, modelData.channelName)
+                        }
                     }
                 }
             }
-        }
 
-        Rectangle {
-            color: "grey"
-            width: Units.dp(1)
-            Layout.fillHeight: true
-            visible: gridLayout.flow == GridLayout.LeftToRight ? true : false
-        }
+            onDepthChanged: mainWindow.stackViewDepth = depth
 
-        Rectangle {
-            color: "grey"
-            height: Units.dp(1)
-            Layout.fillWidth: true
-            visible: gridLayout.flow != GridLayout.LeftToRight ? true : false
+            Connections {
+                target: mainWindow
+                onStackViewPush: push(item)
+                onStackViewPop: pop()
+                onStackViewComplete: completeTransition()
+            }
         }
+    }
+
+    // radioInformationView
+    Component {
+        id: radioInformationView
 
         SplitView {
-            id: radioInformationView
             orientation: Qt.Vertical
             Layout.fillWidth: true
             Layout.fillHeight: true
@@ -238,30 +408,27 @@ ApplicationWindow {
                     id: motImage
                     width: parent.width
                     height: parent.width * (sourceSize.height/sourceSize.width) // Scale MOT image with the correct aspect
+
+                    Connections{
+                        target: cppGUI
+                        onMotChanged:{
+                            motImage.source = "image://motslideshow/image_" + Math.random()
+                        }
+                    }
                 }
             }
         }
+    }
 
-        Rectangle {
-            color: "grey"
-            width: Units.dp(1)
-            Layout.fillHeight: true
-            visible: (gridLayout.flow == GridLayout.LeftToRight) && (settingsPage.enableExpertModeState) ? true : false
-        }
-
-        Rectangle {
-            color: "grey"
-            height: Units.dp(1)
-            Layout.fillWidth: true
-            visible: (gridLayout.flow != GridLayout.LeftToRight) && (settingsPage.enableExpertModeState) ? true : false
-        }
+    // expertView
+    Component {
+        id: expertView
 
         ExpertView{
-            id: expertView
             Layout.fillWidth: true
             Layout.fillHeight: true
+            Layout.preferredWidth: Units.dp(400)
             width: Units.dp(400)
-            visible: settingsPage.enableExpertModeState ? true : false
         }
     }
 
@@ -269,11 +436,12 @@ ApplicationWindow {
       id: errorMessagePopup
     }
 
+    InfoMessagePopup {
+      id: infoMessagePopup
+    }
+
     Connections{
         target: cppGUI
-        onMotChanged:{
-            motImage.source = "image://motslideshow/image_" + Math.random()
-        }
 
         onShowErrorMessage:{
             errorMessagePopup.text = Text;
