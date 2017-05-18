@@ -104,7 +104,7 @@ QT5_WRAP_CPP(EXTRA_MOCS
   src/backend/audio/faad-decoder.h
 )
 
-add_executable (${executableName} ${sources} ${EXTRA_MOCS})
+add_executable (${executableName} ${sources} ${EXTRA_MOCS} touch_gui_resource.qrc)
 
 target_link_libraries (${executableName}
   ${LIBRTLSDR_LIBRARIES}
