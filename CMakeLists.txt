@@ -31,7 +31,7 @@ find_package(Threads REQUIRED)
 find_package(Qt5 COMPONENTS Widgets Quick Multimedia Charts REQUIRED)
 find_package(FFTW3f REQUIRED)
 find_package(Faad REQUIRED)
-if (DEFINED RTLSDR)
+if (RTLSDR)
   find_package(LibRTLSDR REQUIRED)
 endif()
 
