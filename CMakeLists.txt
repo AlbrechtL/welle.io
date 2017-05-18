@@ -98,7 +98,13 @@ if(LIBRTLSDR_FOUND)
   set(sources  ${sources} src/input/CRTL_SDR.cpp)
 endif()
 
-add_executable (${executableName} ${sources})
+# The AUTOMOC system does not correctly find this header which needs MOC processing.
+# So we are forced to add it manually.
+QT5_WRAP_CPP(EXTRA_MOCS
+  src/backend/audio/faad-decoder.h
+)
+
+add_executable (${executableName} ${sources} ${EXTRA_MOCS})
 
 target_link_libraries (${executableName}
   ${LIBRTLSDR_LIBRARIES}
