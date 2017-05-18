@@ -334,7 +334,7 @@ void CRadioController::SetStation(QString Station, bool Force)
 
         qDebug() << "RadioController: Tune to station" <<  Station;
 
-        CurrentDisplayStation = tr("Tuning") + " ...";
+        CurrentDisplayStation = tr("Tuning") + " ... " + Station;
 
         // Wait if we found the station inside the signal
         StationTimer.start(1000);

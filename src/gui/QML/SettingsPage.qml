@@ -8,7 +8,6 @@ import "style"
 
 Item {
     id: settingsPage
-    property alias showChannelState : enableExpertMode.checked
     property alias enableFullScreenState : enableFullScreen.checked
     property alias enableExpertModeState : enableExpertMode.checked
     property alias enableAGCState : enableAGC.checked

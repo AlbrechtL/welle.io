@@ -433,7 +433,7 @@
     <message>
         <location filename="../src/CRadioController.cpp" line="335"/>
         <source>Tuning</source>
-        <translation>Sender abstimmen</translation>
+        <translation type="unfinished">Suche</translation>
     </message>
 </context>
 <context>

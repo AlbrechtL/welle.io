@@ -24,6 +24,9 @@
  *    Driver for https://github.com/martinmarinov/rtl_tcp_andro-
  */
 
+#include <QAndroidJniEnvironment>
+#include <QDesktopServices>
+
 #include "CAndroid_RTL_SDR.h"
 
 #define RESULT_OK -1
@@ -56,6 +59,12 @@ CAndroid_RTL_SDR::CAndroid_RTL_SDR() : CRTL_TCP_Client()
 
     resultReceiver = new ActivityResultReceiver(this);
     QtAndroid::startActivity(intent, 1, resultReceiver);
+
+    // Catch exception
+    QAndroidJniEnvironment env;
+    if (env->ExceptionCheck()) {
+        env->ExceptionClear();
+    }
 
     // Configure rtl_tcp_client
     setIP("127.0.0.1");
@@ -108,15 +117,28 @@ void ActivityResultReceiver::handleActivityResult(int receiverRequestCode, int r
         else
         {
             QAndroidJniObject MessageType = QAndroidJniObject::fromString("detailed_exception_message");
+            QString Message;
 
-            QAndroidJniObject result = data.callObjectMethod(
-                        "getStringExtra",
-                        "(Ljava/lang/String;)Ljava/lang/String;",
-                        MessageType.object<jstring>());
+            if(data.isValid())
+            {
+                QAndroidJniObject result = data.callObjectMethod(
+                            "getStringExtra",
+                            "(Ljava/lang/String;)Ljava/lang/String;",
+                            MessageType.object<jstring>());
 
-            QString Message = result.toString();
+                Message = result.toString();
+            }
+            else
+            {
+                // We assume here that the Android RTL-SDR driver is not installed
+                Message = "Android RTL-SDR driver not installed";
+
+                // Open Play store
+                QString link = "https://play.google.com/store/apps/details?id=marto.rtl_tcp_andro";
+                QDesktopServices::openUrl(QUrl(link));
+            }
+
             qDebug() << "Android RTL_SDR:" << Message;
-
             Android_RTL_SDR->setMessage(Message);
         }
     }
