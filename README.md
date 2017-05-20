@@ -15,6 +15,7 @@ Table of contents
     * [Ubuntu Linux 16.04 LTS](#ubuntu-linux-1604-lts)
     * [Windows 10](#windows-10)
     * [macOS](#macos)
+    * [Android](#android)
     * [Raspberry Pi 2 and 3](#raspberry-pi-2-and-3)
   * [Limitations](#limitations)
   * [Development](#development)
@@ -124,6 +125,24 @@ To build for macOS, you need to install the dependencies with macports first, as
 3. Open welle.io.pro with QT Creator.
 4. Make sure in Qt Creator, "Projects, Build&Run, Run" that the checkbox "Add build library path to DYLD..." is off.
 5. Build and run.
+
+Android
+---
+A compiled version APK can be found at at the Google Play store or at https://github.com/AlbrechtL/welle.io/releases
+
+This sections shows how to compile welle.io for Android.
+
+1. Install QT 5.9 for Android including the QT Charts module by using the the "Qt Online Installer for Windows" https://www.qt.io/download-open-source/
+2. Follow the side https://doc.qt.io/qt-5/androidgs.html to install the Android build enviroment
+3. Clone welle.io https://github.com/AlbrechtL/welle.io.git
+
+  ```
+# git clone https://github.com/AlbrechtL/welle.io.git
+  ```
+  
+4. Start QT Creator and open the project file "welle.io.pro" inside the folder "welle.io".
+5. Build welle.io
+6. Run welle.io and enjoy it
 
 Raspberry Pi 2 and 3
 ---
