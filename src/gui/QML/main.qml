@@ -52,16 +52,14 @@ ApplicationWindow {
     id: mainWindow
     visible: true
 
-    function getWidth()
-    {
+    function getWidth() {
         if(Screen.desktopAvailableWidth < Units.dp(700) || Screen.desktopAvailableHeight < Units.dp(500))
             return Screen.desktopAvailableWidth
         else
             return Units.dp(700)
     }
 
-    function getHeight()
-    {
+    function getHeight() {
         if(Screen.desktopAvailableHeight < Units.dp(500) || Screen.desktopAvailableWidth < Units.dp(700))
             return Screen.desktopAvailableHeight
         else
@@ -288,7 +286,7 @@ ApplicationWindow {
 
                 Connections {
                     target: mainWindow
-                    onStationClicked: currentIndex = 1
+                    onStationClicked: view.currentIndex = 1
                 }
                 Connections {
                     target: backmouse
@@ -345,7 +343,7 @@ ApplicationWindow {
 
                 Connections {
                     target: mainWindow
-                    onStationClicked: currentIndex = 1
+                    onStationClicked: view.currentIndex = 1
                 }
                 Connections {
                     target: backmouse
@@ -413,8 +411,10 @@ ApplicationWindow {
                         stationNameText: modelData.stationName
                         channelNameText: modelData.channelName
                         onClicked: {
-                            mainWindow.stationClicked()
-                            cppGUI.channelClick(modelData.stationName, modelData.channelName)
+                            if(modelData.channelName !== "") {
+                                mainWindow.stationClicked()
+                                cppGUI.channelClick(modelData.stationName, modelData.channelName)
+                            }
                         }
                     }
                 }

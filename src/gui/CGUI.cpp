@@ -58,6 +58,9 @@ CGUI::CGUI(CRadioController *RadioController, CDABParams *DABParams, QObject *pa
     Settings.endGroup();
     stationList.sort();
 
+    if(stationList.count() == 0)
+        stationList.append(tr("Station list is empty"), "");
+
     p_stationModel = QVariant::fromValue(stationList.getList());
     emit stationModelChanged();
 
@@ -212,7 +215,7 @@ void CGUI::AddToStationList(QString Station, QString CurrentChannel)
 void CGUI::channelClick(QString StationName,
     QString ChannelName)
 {
-    if(RadioController)
+    if(RadioController && ChannelName != "")
         RadioController->Play(ChannelName, StationName);
 }
 
