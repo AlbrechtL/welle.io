@@ -399,7 +399,6 @@ ApplicationWindow {
                 width: parent.width
                 height: parent.height
                 ListView {
-                    id: test
                     //property bool showChannelState
                     anchors.rightMargin: 0
                     anchors.bottomMargin: 0
@@ -417,6 +416,8 @@ ApplicationWindow {
                             }
                         }
                     }
+
+                    ScrollBar.vertical: ScrollBar { }
                 }
             }
 
