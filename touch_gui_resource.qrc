@@ -39,5 +39,6 @@
         <file>COPYING</file>
         <file>THANKS</file>
         <file>src/gui/QML/style/InfoMessagePopup.qml</file>
+        <file>src/gui/QML/style/TouchPageIndicator.qml</file>
     </qresource>
 </RCC>

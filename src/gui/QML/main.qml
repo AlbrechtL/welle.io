@@ -42,6 +42,7 @@ import QtQuick 2.2
 import QtQuick.Controls 2.0
 import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.1
+import QtQuick.Window 2.2
 import Qt.labs.settings 1.0
 
 // Import custom styles
@@ -50,9 +51,33 @@ import "style"
 ApplicationWindow {
     id: mainWindow
     visible: true
-    width: Units.dp(700)
-    height: Units.dp(500)
+
+    function getWidth()
+    {
+        if(Screen.desktopAvailableWidth < Units.dp(700) || Screen.desktopAvailableHeight < Units.dp(500))
+            return Screen.desktopAvailableWidth
+        else
+            return Units.dp(700)
+    }
+
+    function getHeight()
+    {
+        if(Screen.desktopAvailableHeight < Units.dp(500) || Screen.desktopAvailableWidth < Units.dp(700))
+            return Screen.desktopAvailableHeight
+        else
+            return Units.dp(500)
+    }
+
+    width: getWidth()
+    height: getHeight()
+
     visibility: settingsPage.enableFullScreenState ? "FullScreen" : "Windowed"
+
+    Component.onCompleted: {
+          console.debug("desktopAvailableWidth: " + Screen.desktopAvailableWidth)
+          console.debug("desktopAvailableHeight: " + Screen.desktopAvailableHeight)
+          console.debug("orientation: " + Screen.orientation)
+       }
 
     property int stackViewDepth
     signal stackViewPush(Item item)
@@ -64,8 +89,6 @@ ApplicationWindow {
     Settings {
         property alias width : mainWindow.width
         property alias height : mainWindow.height
-        //property alias radioInformationViewWidth: radioInformationView.width
-        //property alias expertViewWidth: expertView.width
     }
 
     onIsExpertViewChanged: {
@@ -249,42 +272,53 @@ ApplicationWindow {
     Component {
         id: portraitView
 
-        SwipeView {
-            anchors.fill: parent
-            anchors.margins: Units.dp(10)
-            spacing: Units.dp(10)
+        Item {
+            SwipeView {
+                id: view
+                anchors.fill: parent
+                anchors.margins: Units.dp(10)
+                spacing: Units.dp(10)
 
-            Loader {
-                sourceComponent: stackViewMain
-            }
-            Loader {
-                sourceComponent: radioInformationView
-            }
-
-            Connections {
-                target: mainWindow
-                onStationClicked: currentIndex = 1
-            }
-            Connections {
-                target: backmouse
-                onClicked: {
-                    if(currentIndex > 0)
-                    {
-                        stackViewComplete()
-                        currentIndex = 0
-                    }
+                Loader {
+                    sourceComponent: stackViewMain
+                }
+                Loader {
+                    sourceComponent: radioInformationView
                 }
 
-            }
-            Connections {
-                target: infomouse
-                onClicked: {
-                    if(currentIndex > 0)
-                    {
-                        stackViewComplete()
-                        currentIndex = 0
+                Connections {
+                    target: mainWindow
+                    onStationClicked: currentIndex = 1
+                }
+                Connections {
+                    target: backmouse
+                    onClicked: {
+                        if(view.currentIndex > 0)
+                        {
+                            stackViewComplete()
+                            view.currentIndex = 0
+                        }
+                    }
+
+                }
+                Connections {
+                    target: infomouse
+                    onClicked: {
+                        if(view.currentIndex > 0)
+                        {
+                            stackViewComplete()
+                            view.currentIndex = 0
+                        }
                     }
                 }
+            }
+
+            TouchPageIndicator {
+                id: indicator
+
+                count: view.count
+                currentIndex: view.currentIndex
+                visible: stackViewDepth == 1 ? true : false
             }
         }
     }
@@ -292,45 +326,56 @@ ApplicationWindow {
     Component {
         id: portraitViewExpert
 
-        SwipeView {
-            anchors.fill: parent
-            anchors.margins: Units.dp(10)
-            spacing: Units.dp(10)
+        Item {
+            SwipeView {
+                id: view
+                anchors.fill: parent
+                anchors.margins: Units.dp(10)
+                spacing: Units.dp(10)
 
-            Loader {
-                sourceComponent: stackViewMain
-            }
-            Loader {
-                sourceComponent: radioInformationView
-            }
-            Loader {
-                sourceComponent: expertView
-            }
-
-            Connections {
-                target: mainWindow
-                onStationClicked: currentIndex = 1
-            }
-            Connections {
-                target: backmouse
-                onClicked: {
-                    if(currentIndex > 0)
-                    {
-                        stackViewComplete()
-                        currentIndex = 0
-                    }
+                Loader {
+                    sourceComponent: stackViewMain
+                }
+                Loader {
+                    sourceComponent: radioInformationView
+                }
+                Loader {
+                    sourceComponent: expertView
                 }
 
-            }
-            Connections {
-                target: infomouse
-                onClicked: {
-                    if(currentIndex > 0)
-                    {
-                        stackViewComplete()
-                        currentIndex = 0
+                Connections {
+                    target: mainWindow
+                    onStationClicked: currentIndex = 1
+                }
+                Connections {
+                    target: backmouse
+                    onClicked: {
+                        if(view.currentIndex > 0)
+                        {
+                            stackViewComplete()
+                            view.currentIndex = 0
+                        }
+                    }
+
+                }
+                Connections {
+                    target: infomouse
+                    onClicked: {
+                        if(view.currentIndex > 0)
+                        {
+                            stackViewComplete()
+                            view.currentIndex = 0
+                        }
                     }
                 }
+            }
+
+            TouchPageIndicator {
+                id: indicator
+
+                count: view.count
+                currentIndex: view.currentIndex
+                visible: stackViewDepth == 1 ? true : false
             }
         }
     }
