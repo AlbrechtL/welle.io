@@ -53,14 +53,18 @@ ApplicationWindow {
     visible: true
 
     function getWidth() {
-        if(Screen.desktopAvailableWidth < Units.dp(700) || Screen.desktopAvailableHeight < Units.dp(500))
+        if(Screen.desktopAvailableWidth < Units.dp(700)
+                || Screen.desktopAvailableHeight < Units.dp(500)
+                || Qt.platform.os == "android") // Always full screen on Android
             return Screen.desktopAvailableWidth
         else
             return Units.dp(700)
     }
 
     function getHeight() {
-        if(Screen.desktopAvailableHeight < Units.dp(500) || Screen.desktopAvailableWidth < Units.dp(700))
+        if(Screen.desktopAvailableHeight < Units.dp(500)
+                || Screen.desktopAvailableWidth < Units.dp(700)
+                || Qt.platform.os == "android")  // Always full screen on Android
             return Screen.desktopAvailableHeight
         else
             return Units.dp(500)
@@ -72,9 +76,12 @@ ApplicationWindow {
     visibility: settingsPage.enableFullScreenState ? "FullScreen" : "Windowed"
 
     Component.onCompleted: {
-          console.debug("desktopAvailableWidth: " + Screen.desktopAvailableWidth)
-          console.debug("desktopAvailableHeight: " + Screen.desktopAvailableHeight)
-          console.debug("orientation: " + Screen.orientation)
+        console.debug("os: " + Qt.platform.os)
+        console.debug("desktopAvailableWidth: " + Screen.desktopAvailableWidth)
+        console.debug("desktopAvailableHeight: " + Screen.desktopAvailableHeight)
+        console.debug("orientation: " + Screen.orientation)
+        console.debug("devicePixelRatio: " + Screen.devicePixelRatio)
+        console.debug("pixelDensity: " + Screen.pixelDensity)
        }
 
     property int stackViewDepth
