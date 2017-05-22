@@ -227,14 +227,20 @@ ApplicationWindow {
             orientation: Qt.Horizontal
 
             Loader {
+                id: stationView
                 Layout.minimumWidth: Units.dp(350)
                 Layout.margins: Units.dp(10)
                 sourceComponent: stackViewMain
             }
             Loader {
+                id: radioInformationViewLoader
                 Layout.preferredWidth: Units.dp(400)
                 Layout.margins: Units.dp(10)
                 sourceComponent: radioInformationView
+            }
+
+            Settings {
+                property alias stationViewWidth: stationView.width
             }
         }
     }
@@ -248,11 +254,13 @@ ApplicationWindow {
             orientation: Qt.Horizontal
 
             Loader {
+                id: stationView
                 Layout.minimumWidth: Units.dp(350)
                 Layout.margins: Units.dp(10)
                 sourceComponent: stackViewMain
             }
             Loader {
+                id: radioInformationViewLoader
                 Layout.preferredWidth: Units.dp(400)
                 Layout.margins: Units.dp(10)
                 sourceComponent: radioInformationView
@@ -262,6 +270,11 @@ ApplicationWindow {
                 Layout.margins: Units.dp(10)
                 Layout.fillWidth: true
                 sourceComponent: expertView
+            }
+
+            Settings {
+                property alias expertStationViewWidth: stationView.width
+                property alias expertViewWidth: expertViewLoader.width
             }
         }
     }
