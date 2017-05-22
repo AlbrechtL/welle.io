@@ -165,7 +165,7 @@ qint64 CAudioIODevice::readData(char* data, qint64 len)
     if(total == 0)
     {
         memset(data, 0, len);
-        total = len;
+        total = len / 2;
     }
 
     return total * 2;
