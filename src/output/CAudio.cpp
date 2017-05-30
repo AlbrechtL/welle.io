@@ -76,7 +76,7 @@ void CAudio::init(int sampleRate)
     QAudioDeviceInfo info(QAudioDeviceInfo::defaultOutputDevice());
     if (!info.isFormatSupported(AudioFormat)) {
         qDebug() << "Audio:"
-                 << "Raw audio format not supported by backend, cannot play audio.";
+                 << "Audio format \"audio/pcm\" 16-bit stereo not supported. Something went wrong, cannot play audio.";
         return;
     }
 
