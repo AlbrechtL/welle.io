@@ -69,24 +69,31 @@ public:
 private slots:
     void readData(void);
     void TCPConnectionWatchDogTimeout(void);
+    void AGCTimerTimeout(void);
 
 private:
-    int32_t lastFrequency;
-    int32_t currentGain;
-    bool currentAGC;
-    void sendVFO(int32_t);
-    void sendRate(int32_t);
-    void setGainMode(int32_t gainMode);
-    void sendCommand(uint8_t, int32_t);
-    bool isvalidRate(int32_t);
+    QTcpSocket TCPSocket;
+    QTimer TCPConnectionWatchDog;
+    QTimer AGCTimer;
+
+    int32_t LastFrequency;
+    float CurrentGain;
+    uint16_t CurrentGainCount;
+    uint8_t MinValue;
+    uint8_t MaxValue;
+    bool isAGC;
     int32_t Frequency;
     RingBuffer<uint8_t>* SampleBuffer;
     RingBuffer<uint8_t>* SpectrumSampleBuffer;
     bool connected;
     QHostAddress serverAddress;
     uint16_t serverPort;
-    QTcpSocket TCPSocket;
-    QTimer TCPConnectionWatchDog;
+
+    void sendVFO(int32_t frequency);
+    void sendRate(int32_t theRate);
+    void setGainMode(int32_t gainMode);
+    void sendCommand(uint8_t cmd, int32_t param);
+    float getGainValue(uint16_t GainCount);
 };
 
 #endif

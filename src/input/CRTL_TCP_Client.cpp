@@ -53,13 +53,18 @@ CRTL_TCP_Client::CRTL_TCP_Client()
     Frequency = Khz (220000);
 
     // Use default values
-    currentAGC = true;
-    currentGain	= 0;
+    isAGC = true;
+    CurrentGain	= 0;
+    CurrentGainCount = 0;
     serverPort = 1234;
     serverAddress = QHostAddress("127.0.0.1");
+    MinValue = 255;
+    MaxValue = 0;
 
     connect(&TCPConnectionWatchDog, SIGNAL(timeout()), this, SLOT(TCPConnectionWatchDogTimeout()));
     connect(&TCPSocket, SIGNAL (readyRead (void)), this, SLOT (readData (void)));
+
+    connect(&AGCTimer, SIGNAL(timeout(void)), this, SLOT(AGCTimerTimeout(void)));
 }
 
 CRTL_TCP_Client::~CRTL_TCP_Client	(void)
@@ -141,6 +146,18 @@ void CRTL_TCP_Client::readData(void)
        TCPSocket.read ((char *)buffer, 8192);
        SampleBuffer -> putDataIntoBuffer (buffer, 8192);
        SpectrumSampleBuffer -> putDataIntoBuffer (buffer, 8192);
+
+       // Check if device is overloaded
+       MinValue = 255;
+       MaxValue = 0;
+
+       for(uint32_t i=0;i<8192;i++)
+       {
+           if(MinValue > buffer[i])
+               MinValue = buffer[i];
+           if(MaxValue < buffer[i])
+               MaxValue = buffer[i];
+       }
     }
 }
 
@@ -177,47 +194,12 @@ void CRTL_TCP_Client::setGainMode(int32_t gainMode)
 
 float CRTL_TCP_Client::setGain(int32_t gain)
 {
-    float gainValue = 0;
-
-    currentGain	= gain;
-
-    switch(gain)
-    {
-        case 0: gainValue = 0.0; break;
-        case 1: gainValue = 0.9; break;
-        case 2: gainValue = 1.4; break;
-        case 3: gainValue = 2.7; break;
-        case 4: gainValue = 3.7; break;
-        case 5: gainValue = 7.7; break;
-        case 6: gainValue = 8.7; break;
-        case 7: gainValue = 12.5; break;
-        case 8: gainValue = 14.4; break;
-        case 9: gainValue = 15.7; break;
-        case 10: gainValue = 16.6; break;
-        case 11: gainValue = 19.7; break;
-        case 12: gainValue = 20.7; break;
-        case 13: gainValue = 22.9; break;
-        case 14: gainValue = 25.4; break;
-        case 15: gainValue = 28.0; break;
-        case 16: gainValue = 29.7; break;
-        case 17: gainValue = 32.8; break;
-        case 18: gainValue = 33.8; break;
-        case 19: gainValue = 36.4; break;
-        case 20: gainValue = 37.2; break;
-        case 21: gainValue = 38.6; break;
-        case 22: gainValue = 40.2; break;
-        case 23: gainValue = 42.1; break;
-        case 24: gainValue = 43.4; break;
-        case 25: gainValue = 43.9; break;
-        case 26: gainValue = 44.4; break;
-        case 27: gainValue = 48.0; break;
-        case 28: gainValue = 49.6; break;
-        case 29: gainValue = 999; break; // Max gain
-        default: gainValue = 0.0; qDebug() << "RTL_TCP_CLIENT:" << "Unknown gain count:" << gain;
-    }
+    CurrentGainCount = gain;
+    float gainValue = getGainValue(gain);
 
     sendCommand (0x04, (int) 10 * gainValue);
 
+    CurrentGain = gainValue;
     return gainValue;
 }
 
@@ -229,12 +211,7 @@ int32_t CRTL_TCP_Client::getGainCount()
 
 void CRTL_TCP_Client::setAgc(bool AGC)
 {
-    currentAGC = AGC;
-
-    if(AGC)
-        setGainMode(0);
-	else
-        setGainMode(1);
+    isAGC = AGC;
 }
 
 QString CRTL_TCP_Client::getName()
@@ -272,19 +249,21 @@ void CRTL_TCP_Client::TCPConnectionWatchDogTimeout()
             qDebug() << "RTL_TCP_CLIENT:" << "Successful connected to server";
             connected	= true;
 
-            if(currentAGC)
+            if(isAGC)
             {
                 setAgc(true);
             }
             else
             {
                 setAgc(false);
-                setGain(currentGain);
+                setGain(CurrentGainCount);
             }
 
             sendRate(INPUT_RATE);
             sendVFO(Frequency);
             TCPSocket.waitForBytesWritten();
+
+            AGCTimer.start(50);
         }
         else
         {
@@ -297,7 +276,90 @@ void CRTL_TCP_Client::TCPConnectionWatchDogTimeout()
     {
         qDebug() << "RTL_TCP_CLIENT:" << "Connection failed to server" << serverAddress.toString() << ":" << serverPort;
         connected	= false;
+        AGCTimer.stop();
     }
 }
 
+void CRTL_TCP_Client::AGCTimerTimeout(void)
+{
+    if(isAGC)
+    {
+        // Check for overloading
+        if(MinValue == 0 || MaxValue == 255)
+        {
+            // We have to decrease the gain
+            setGain(CurrentGainCount - 1);
 
+            qDebug() << "RTL_TCP_CLIENT:" << "Decrease gain to" << (float) CurrentGain / 10;
+        }
+        else
+        {
+            if(CurrentGainCount < (getGainCount() - 1))
+            {
+                // Calc if a gain increase overloads the device. Calc it from the gain values
+                float NewGain = getGainValue(CurrentGainCount + 1);
+                float DeltaGain = NewGain - CurrentGain;
+                float LinGain = pow(10, DeltaGain / 20);
+
+                int NewMaxValue = (float) MaxValue * LinGain;
+                int NewMinValue = (float) MinValue / LinGain;
+
+                // We have to increase the gain
+                if(NewMinValue >=0 && NewMaxValue <= 255)
+                {
+                    setGain(CurrentGainCount + 1);
+                    qDebug() << "RTL_TCP_CLIENT:" << "Increase gain to" << CurrentGain;
+                }
+            }
+        }
+    }
+    else // AGC is off
+    {
+        if(MinValue == 0 || MaxValue == 255)
+            qDebug() << "RTL_TCP_CLIENT:" << "ADC overload. Maybe you are using a to high gain.";
+    }
+}
+
+float CRTL_TCP_Client::getGainValue(uint16_t GainCount)
+{
+    float gainValue = 0;
+
+    // The rtl_tcp server doesn't delivers the possible gain values.
+    // Instead, using gain values from the Rafael Micro R820T tuner
+    switch(GainCount)
+    {
+        case 0: gainValue = 0.0; break;
+        case 1: gainValue = 0.9; break;
+        case 2: gainValue = 1.4; break;
+        case 3: gainValue = 2.7; break;
+        case 4: gainValue = 3.7; break;
+        case 5: gainValue = 7.7; break;
+        case 6: gainValue = 8.7; break;
+        case 7: gainValue = 12.5; break;
+        case 8: gainValue = 14.4; break;
+        case 9: gainValue = 15.7; break;
+        case 10: gainValue = 16.6; break;
+        case 11: gainValue = 19.7; break;
+        case 12: gainValue = 20.7; break;
+        case 13: gainValue = 22.9; break;
+        case 14: gainValue = 25.4; break;
+        case 15: gainValue = 28.0; break;
+        case 16: gainValue = 29.7; break;
+        case 17: gainValue = 32.8; break;
+        case 18: gainValue = 33.8; break;
+        case 19: gainValue = 36.4; break;
+        case 20: gainValue = 37.2; break;
+        case 21: gainValue = 38.6; break;
+        case 22: gainValue = 40.2; break;
+        case 23: gainValue = 42.1; break;
+        case 24: gainValue = 43.4; break;
+        case 25: gainValue = 43.9; break;
+        case 26: gainValue = 44.4; break;
+        case 27: gainValue = 48.0; break;
+        case 28: gainValue = 49.6; break;
+        case 29: gainValue = 999; break; // Max gain
+        default: gainValue = 0.0; qDebug() << "RTL_TCP_CLIENT:" << "Unknown gain count:" << GainCount;
+    }
+
+    return gainValue;
+}
