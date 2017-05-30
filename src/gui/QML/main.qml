@@ -429,6 +429,7 @@ ApplicationWindow {
                     delegate: StationDelegate {
                         stationNameText: modelData.stationName
                         channelNameText: modelData.channelName
+                        hideChannelName: isExpertView
                         onClicked: {
                             if(modelData.channelName !== "") {
                                 mainWindow.stationClicked()
