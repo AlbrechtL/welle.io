@@ -279,9 +279,12 @@ void CRTL_SDR::AGCTimerTimeout(void)
         if(MinValue == 0 || MaxValue == 255)
         {
             // We have to decrease the gain
-            setGain(CurrentGainCount - 1);
+            if(CurrentGainCount > 0)
+            {
+                setGain(CurrentGainCount - 1);
 
-            qDebug() << "RTL_SDR:" << "Decrease gain to" << (float) CurrentGain / 10;
+                qDebug() << "RTL_SDR:" << "Decrease gain to" << (float) CurrentGain / 10;
+            }
         }
         else
         {            
