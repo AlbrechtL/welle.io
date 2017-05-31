@@ -220,6 +220,11 @@ QTranslator* AddTranslator(QApplication *app, QString Language, QTranslator *Old
         app->removeTranslator(OldTranslator);
 
     QTranslator *Translator = new QTranslator;
+
+    // Special handling for German
+    if(Language == "de_AT" || Language ==  "de_CH")
+        Language = "de_DE";
+
     bool isTranslation = Translator->load(QString(":/i18n/") + Language);
 
     qDebug() << "main:" <<  "Set language" << Language;
