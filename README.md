@@ -96,7 +96,7 @@ If you don't install the airspy library you have to disable the airspy for the w
 
 Windows 10
 ---
-A compiled version can be found at https://github.com/AlbrechtL/welle.io/releases
+A compiled version can be found at the [release page](https://github.com/AlbrechtL/welle.io/releases)
 
 This sections shows how to compile welle.io on Windows 10. Windows 7 should also be possible but is not tested. 
 
@@ -128,7 +128,8 @@ To build for macOS, you need to install the dependencies with macports first, as
 
 Android
 ---
-A compiled version APK can be found at at the Google Play store or at https://github.com/AlbrechtL/welle.io/releases
+A compiled version APK can be found at at the [Google Play store](https://play.google.com/store/apps/details?id=io.welle.welle) or at the [release page](https://github.com/AlbrechtL/welle.io/releases).  
+welle.io uses the ["RTL2832U driver"](https://play.google.com/store/apps/details?id=marto.rtl_tcp_andro)([sources](https://github.com/martinmarinov/rtl_tcp_andro-)) from Martin Marinov.
 
 This sections shows how to compile welle.io for Android.
 
