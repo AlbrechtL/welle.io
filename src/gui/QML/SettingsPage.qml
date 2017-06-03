@@ -137,6 +137,7 @@ Item {
                             id: enableAGC
                             name: qsTr("Automatic RF gain")
                             height: 24
+                            Layout.fillWidth: true
                             Layout.fillHeight: true
                             objectName: "enableAGC"
                             checked: true
@@ -152,6 +153,7 @@ Item {
                             id: manualGain
                             enabled: !enableAGC.checked
                             name: qsTr("Manual gain")
+                            Layout.fillWidth: true
                             maximumValue: cppGUI.gainCount
                             showCurrentValue: qsTr("Value: ") + cppGUI.currentGainValue.toFixed(2)
                             Layout.fillHeight: true
@@ -174,6 +176,7 @@ Item {
                             id: enableFullScreen
                             name: qsTr("Full screen mode")
                             height: 24
+                            Layout.fillWidth: true
                             Layout.fillHeight: true
                             objectName: "enableFullScreen"
                             checked: false
@@ -183,6 +186,7 @@ Item {
                             id: enableExpertMode
                             name: qsTr("Expert mode")
                             height: 24
+                            Layout.fillWidth: true
                             Layout.fillHeight: true
                             objectName: "enableExpertMode"
                             checked: false
