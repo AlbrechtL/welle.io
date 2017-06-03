@@ -82,7 +82,7 @@ ApplicationWindow {
         console.debug("orientation: " + Screen.orientation)
         console.debug("devicePixelRatio: " + Screen.devicePixelRatio)
         console.debug("pixelDensity: " + Screen.pixelDensity)
-       }
+    }
 
     property int stackViewDepth
     signal stackViewPush(Item item)
@@ -499,12 +499,22 @@ ApplicationWindow {
         }
     }
 
-    ErrorMessagePopup {
-      id: errorMessagePopup
+    MessagePopup {
+        id: errorMessagePopup
+        x: mainWindow.width/2 - width/2
+        y: mainWindow.height  - toolBar_.height - height
+        revealedY: mainWindow.height - toolBar.height - height
+        hiddenY: mainWindow.height
+        color: "#8b0000"
     }
 
-    InfoMessagePopup {
-      id: infoMessagePopup
+    MessagePopup {
+        id: infoMessagePopup
+        x: mainWindow.width/2 - width/2
+        y: mainWindow.height  - toolBar_.height - height
+        revealedY: mainWindow.height - toolBar.height - height
+        hiddenY: mainWindow.height
+        color:  "#468bb7"
     }
 
     Connections{
