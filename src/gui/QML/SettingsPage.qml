@@ -123,6 +123,7 @@ Item {
                             id: enableAGC
                             name: qsTr("Automatic RF gain")
                             height: 24
+                            Layout.fillWidth: true
                             Layout.fillHeight: true
                             objectName: "enableAGC"
                             checked: true
@@ -159,6 +160,7 @@ Item {
                             id: enableFullScreen
                             name: qsTr("Full screen mode")
                             height: 24
+                            Layout.fillWidth: true
                             Layout.fillHeight: true
                             objectName: "enableFullScreen"
                             checked: false
@@ -168,6 +170,7 @@ Item {
                             id: enableExpertMode
                             name: qsTr("Expert mode")
                             height: 24
+                            Layout.fillWidth: true
                             Layout.fillHeight: true
                             objectName: "enableExpertMode"
                             checked: false
