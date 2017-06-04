@@ -40,5 +40,6 @@
         <file>src/gui/QML/style/TouchPageIndicator.qml</file>
         <file>src/gui/QML/style/MessagePopup.qml</file>
         <file>src/gui/QML/style/TouchComboBox.qml</file>
+        <file>src/gui/QML/ChannelBrowser.qml</file>
     </qresource>
 </RCC>

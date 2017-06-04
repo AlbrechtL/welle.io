@@ -52,7 +52,7 @@ import "style"
 ApplicationWindow {
     id: mainWindow
     visible: true
-
+    property bool isLandscape: true
     function getWidth() {
         if(Screen.desktopAvailableWidth < Units.dp(700)
                 || Screen.desktopAvailableHeight < Units.dp(500)
@@ -142,11 +142,12 @@ ApplicationWindow {
             antialiasing: true
             radius: Units.dp(4)
             color: backmouse.pressed ? "#222" : "transparent"
+            property bool isSettings: false
             Behavior on opacity { NumberAnimation{} }
             Image {
                 anchors.verticalCenter: parent.verticalCenter
-                source: stackViewDepth > 1 ? "images/navigation_previous_item.png" : "images/icon-settings.png"
-                height: stackViewDepth > 1 ? Units.dp(20) : Units.dp(23)
+                source: parent.isSettings ? "images/navigation_previous_item.png" : "images/icon-settings.png"
+                height: parent.isSettings? Units.dp(20) : Units.dp(23)
                 fillMode: Image.PreserveAspectFit
             }
             MouseArea {
@@ -155,10 +156,17 @@ ApplicationWindow {
                 anchors.fill: parent
                 anchors.margins: Units.dp(-20)
                 onClicked: {
-                    if(stackViewDepth > 1)
-                        stackViewPop()
-                    else
-                        stackViewPush(settingsPage)
+                    if(mainWindow.isLandscape){
+                        backButton.isSettings = !backButton.isSettings
+                    } else {
+                        if(stackViewDepth > 1){
+                            stackViewPop()
+                            backButton.isSettings = false
+                        } else {
+                            stackViewPush(settingsPage)
+                            backButton.isSettings = true
+                        }
+                    }
                 }
             }
         }
@@ -179,16 +187,17 @@ ApplicationWindow {
 
         Rectangle {
             id: infoButton
-            width: stackViewDepth > 1 ? Units.dp(40) : 0
+            width: backButton.isSettings ? Units.dp(40) : 0
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
             antialiasing: true
             radius: Units.dp(4)
             color: backmouse.pressed ? "#222" : "transparent"
+            property bool isInfoPage: false
             Image {
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.horizontalCenter: parent.horizontalCenter
-                source: stackViewDepth > 1 ? "images/icon-info.png" : ""
+                source: backButton.isSettings ? "images/icon-info.png" : ""
                 anchors.rightMargin: Units.dp(20)
                 height: Units.dp(23)
                 fillMode: Image.PreserveAspectFit
@@ -199,59 +208,95 @@ ApplicationWindow {
                 anchors.fill: parent
                 anchors.margins: Units.dp(-20)
                 onClicked: {
-                    if(stackViewDepth > 2)
-                        stackViewPop()
-                    else
-                        stackViewPush(infoPage)
+                    if(mainWindow.isLandscape){
+                        infoButton.isInfoPage = !infoButton.isInfoPage
+                    } else {
+                        if(stackViewDepth > 2){
+                            stackViewPop()
+                            infoButton.isInfoPage = false
+                        } else {
+                            stackViewPush(infoPage)
+                            infoButton.isInfoPage = true
+                        }
+                    }
                 }
             }
         }
     }
 
     Loader {
+        id:mainViewLoader
         anchors.fill: parent
         Layout.margins: Units.dp(10);
         sourceComponent: {
-            if(mainWindow.width > mainWindow.height)
+            if(mainWindow.width > mainWindow.height){
+                mainWindow.isLandscape = true;
                 if(isExpertView)
                     return landscapeViewExpert
                 else
                     return landscapeView
-            else
+            } else {
+                mainWindow.isLandscape = false;
                 if(isExpertView)
                     return portraitViewExpert
                 else
                     return portraitView
+            }
         }
     }
 
     Component {
-        id: landscapeView
-
-        SplitView {
-            id: splitView
-            anchors.fill: parent
-            orientation: Qt.Horizontal
-
-            Loader {
-                id: stationView
-                Layout.minimumWidth: Units.dp(350)
-                Layout.margins: Units.dp(10)
-                sourceComponent: stackViewMain
+        id:channelBrowser
+        ChannelBrowser{
+            Connections {
+                target: backmouse
+                onClicked: {
+                    if(infoPageVisible){
+                        infoPageVisible = false
+                        backButton.isSettings = true
+                    } else {
+                        settingsVisible = backButton.isSettings
+                    }
+                }
             }
-            Loader {
-                id: radioInformationViewLoader
-                Layout.preferredWidth: Units.dp(400)
-                Layout.margins: Units.dp(10)
-                sourceComponent: radioInformationView
+            Connections {
+                target: infomouse
+                onClicked: {
+                    infoPageVisible = infoButton.isInfoPage
+                }
             }
+            Component.onCompleted: {
+                settingsVisible = backButton.isSettings
+                enableFullScreenState = settingsPage.enableFullScreenState
+                enableExpertModeState = settingsPage.enableExpertModeState
+                enableAGCState = settingsPage.enableAGCState
+                manualGainState = settingsPage.manualGainState
+            }
+            onEnableAGCStateChanged: {
+                settingsPage.enableAGCState = enableAGCState
+            }
+            onEnableExpertModeStateChanged: {
+                settingsPage.enableExpertModeState = enableExpertModeState
 
-            Settings {
-                property alias stationViewWidth: stationView.width
+            }
+            onEnableFullScreenStateChanged: {
+                settingsPage.enableFullScreenState = enableFullScreenState
+            }
+            onManualGainStateChanged: {
+                settingsPage.manualGainState = manualGainState
             }
         }
     }
+    Component {
+        id: landscapeView
 
+        Loader {
+            id: stationView
+            Layout.minimumWidth: Units.dp(350)
+            Layout.margins: Units.dp(10)
+            sourceComponent: channelBrowser
+        }
+    }
     Component {
         id: landscapeViewExpert
 
@@ -264,13 +309,7 @@ ApplicationWindow {
                 id: stationView
                 Layout.minimumWidth: Units.dp(350)
                 Layout.margins: Units.dp(10)
-                sourceComponent: stackViewMain
-            }
-            Loader {
-                id: radioInformationViewLoader
-                Layout.preferredWidth: Units.dp(400)
-                Layout.margins: Units.dp(10)
-                sourceComponent: radioInformationView
+                sourceComponent: channelBrowser
             }
             Loader {
                 id: expertViewLoader
