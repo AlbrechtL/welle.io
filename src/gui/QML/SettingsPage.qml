@@ -205,5 +205,7 @@ Item {
                 Layout.alignment: Qt.AlignBottom
             }
         }
+
+        ScrollBar.vertical: ScrollBar { }
     }
 }
