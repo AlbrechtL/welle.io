@@ -113,7 +113,6 @@ ApplicationWindow {
 
     InfoPage{
         id: infoPage
-        anchors.topMargin: Units.dp(10)
     }
 
     Rectangle {
