@@ -35,6 +35,11 @@
 #include "DabConstants.h"
 #include "msc-handler.h"
 
+// Fallback if git hash macro is not defined
+#ifndef GITHASH
+#define GITHASH "unknown"
+#endif
+
 /**
   *	We use the creation function merely to set up the
   *	user interface and make the connections between the
@@ -98,6 +103,7 @@ const QVariantMap CGUI::licenses()
 
     // Set application version
     InfoContent.append("welle.io " + tr("version") + ": " + QString(CURRENT_VERSION) + "\n");
+    InfoContent.append(tr("Git revision") + ": " + QString(GITHASH) + "\n");
     InfoContent.append(tr("Build on") + ": " + QString(__TIMESTAMP__) + "\n");
     InfoContent.append("\n");
 

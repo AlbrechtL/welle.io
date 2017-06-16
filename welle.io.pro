@@ -360,3 +360,11 @@ soapysdr {
 }
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
+
+# Include git hash into build
+unix:!macx {
+    GITHASHSTRING = $$system(git rev-parse --short HEAD)
+    message("Current git hash = $$GITHASHSTRING")
+    DEFINES += GITHASH=\\\"$$GITHASHSTRING\\\"
+}
+
