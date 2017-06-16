@@ -362,9 +362,18 @@ soapysdr {
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 
 # Include git hash into build
-unix:!macx {
+unix:!macx { # macOS is not tested, exclude it
     GITHASHSTRING = $$system(git rev-parse --short HEAD)
+}
+
+win32 {
+    GITHASHSTRING = $$system(git.exe rev-parse --short HEAD)
+}
+
+!isEmpty(GITHASHSTRING) {
     message("Current git hash = $$GITHASHSTRING")
     DEFINES += GITHASH=\\\"$$GITHASHSTRING\\\"
 }
-
+else {
+    warning("Can't get git hash.")
+}
