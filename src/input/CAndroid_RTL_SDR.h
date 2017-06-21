@@ -38,6 +38,7 @@ class ActivityResultReceiver;
 
 class CAndroid_RTL_SDR : public CRTL_TCP_Client
 {
+    Q_OBJECT
 public:
     CAndroid_RTL_SDR();
     ~CAndroid_RTL_SDR();
@@ -49,11 +50,15 @@ public:
 
     void setMessage(QString message);
     void setLoaded(bool isLoaded);
+    void setOpenInstallDialog(void);
 
 private:
     ActivityResultReceiver *resultReceiver;
     QString message;
     bool isLoaded;
+
+signals:
+    void showAndroidInstallDialog(QString Title, QString Text);
 };
 
 class ActivityResultReceiver : public QAndroidActivityResultReceiver

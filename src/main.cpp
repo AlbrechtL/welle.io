@@ -149,6 +149,7 @@ int main(int argc, char** argv)
 
     // Connect C++ code to QML GUI
     rootContext->setContextProperty("cppGUI", GUI);
+    rootContext->setContextProperty("cppRadioController", RadioController);
 
     // Load main page
     engine->load(QUrl("qrc:/src/gui/QML/main.qml"));

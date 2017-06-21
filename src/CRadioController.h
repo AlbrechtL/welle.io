@@ -131,6 +131,7 @@ signals:
     void ScanProgress(int Progress);
     void MOTChanged(QPixmap MOTImage);
     void ShowErrorMessage(QString Text);
+    void showAndroidInstallDialog(QString Title, QString Text);
 
 public slots:
     // This slots are called from the backend

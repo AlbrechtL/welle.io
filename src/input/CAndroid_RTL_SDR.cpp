@@ -105,6 +105,11 @@ void CAndroid_RTL_SDR::setLoaded(bool isLoaded)
     this->isLoaded = isLoaded;
 }
 
+void CAndroid_RTL_SDR::setOpenInstallDialog()
+{
+    emit showAndroidInstallDialog(tr("Android RTL-SDR driver is not installed"), tr("Do you would like to install it? After install start welle.io again."));
+}
+
 void ActivityResultReceiver::handleActivityResult(int receiverRequestCode, int resultCode, const QAndroidJniObject &data)
 {
     if(receiverRequestCode == 1)
@@ -131,11 +136,9 @@ void ActivityResultReceiver::handleActivityResult(int receiverRequestCode, int r
             else
             {
                 // We assume here that the Android RTL-SDR driver is not installed
-                Message = "Android RTL-SDR driver not installed";
+                Message = CAndroid_RTL_SDR::tr("Android RTL-SDR driver is not installed");
 
-                // Open Play store
-                QString link = "https://play.google.com/store/apps/details?id=marto.rtl_tcp_andro";
-                QDesktopServices::openUrl(QUrl(link));
+                Android_RTL_SDR->setOpenInstallDialog();
             }
 
             qDebug() << "Android RTL_SDR:" << Message;

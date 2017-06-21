@@ -43,6 +43,7 @@ import QtQuick.Controls 2.0
 import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.1
 import QtQuick.Window 2.2
+import QtQuick.Dialogs 1.1
 import Qt.labs.settings 1.0
 
 // Import custom styles
@@ -506,6 +507,16 @@ ApplicationWindow {
       id: infoMessagePopup
     }
 
+    MessageDialog {
+        id: androidRTLSDRDialog
+        icon: StandardIcon.Warning
+        standardButtons: StandardButton.Ok | StandardButton.Cancel
+        onAccepted: {
+            Qt.openUrlExternally("https://play.google.com/store/apps/details?id=marto.rtl_tcp_andro")
+            Qt.quit()
+        }
+    }
+
     Connections{
         target: cppGUI
 
@@ -516,6 +527,16 @@ ApplicationWindow {
 
         onSetGUIData:{
             dateTimeDisplay.text = GUIData.DateTime
+        }
+    }
+
+    Connections{
+        target: cppRadioController
+
+        onShowAndroidInstallDialog:{
+            androidRTLSDRDialog.title = Title
+            androidRTLSDRDialog.text = Text;
+            androidRTLSDRDialog.open();
         }
     }
 }
