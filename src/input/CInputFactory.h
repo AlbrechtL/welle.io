@@ -30,15 +30,16 @@
 #include <QSettings>
 
 #include "CVirtualInput.h"
+#include "CRadioController.h"
 
 class CInputFactory
 {
 public:
-    static CVirtualInput* GetDevice(QString Device);
+    static CVirtualInput* GetDevice(CRadioController &RadioController, QString Device);
 
 private:
-    static CVirtualInput* GetAutoDevice();
-    static CVirtualInput* GetManualDevice(QString Device);
+    static CVirtualInput* GetAutoDevice(CRadioController &RadioController);
+    static CVirtualInput* GetManualDevice(CRadioController &RadioController, QString Device);
 };
 
 #endif // CINPUTFACTORY_H

@@ -27,7 +27,6 @@
 
 #include "CInputFactory.h"
 #include "CNullDevice.h"
-
 #include "CRTL_TCP_Client.h"
 #include "CRAWFile.h"
 
@@ -47,29 +46,38 @@
 #include "CAndroid_RTL_SDR.h"
 #endif
 
-CVirtualInput *CInputFactory::GetDevice(QString Device)
+CVirtualInput *CInputFactory::GetDevice(CRadioController &RadioController, QString Device)
 {
     CVirtualInput *InputDevice = NULL;
 
     qDebug() << "InputFactory:" << "Input device:" << Device;
 
     if(Device == "auto")
-        InputDevice = GetAutoDevice();
+        InputDevice = GetAutoDevice(RadioController);
     else
-        InputDevice = GetManualDevice(Device);
+        InputDevice = GetManualDevice(RadioController, Device);
 
     // Fallback if no device is found or an error occured
     if(InputDevice == NULL)
     {
-        qDebug() << "InputFactory:" << "No valid device found use Null device instead.";
+        QString Text;
+
+        if(Device == "auto")
+            Text = QObject::tr("No valid device found use Null device instead.");
+        else
+            Text = QObject::tr("Error while opening device") + " \"" + Device +  "\".";
+
+        qDebug().noquote() << "InputFactory: " + Text;
+        RadioController.setErrorMessage(Text);
         InputDevice = new CNullDevice();
     }
 
     return InputDevice;
 }
 
-CVirtualInput *CInputFactory::GetAutoDevice()
+CVirtualInput *CInputFactory::GetAutoDevice(CRadioController &RadioController)
 {
+    (void) RadioController;
     CVirtualInput *InputDevice = NULL;
 
     // Try to find a input device
@@ -83,7 +91,7 @@ CVirtualInput *CInputFactory::GetAutoDevice()
             case 0: InputDevice = new CAirspy(); break;
 #endif
 #ifdef HAVE_RTLSDR
-            case 1: InputDevice = new CRTL_SDR(); break;
+            case 1: InputDevice = new CRTL_SDR(RadioController); break;
 #endif
 #ifdef HAVE_SOAPYSDR
             case 2: InputDevice = new CSoapySdr(); break;
@@ -106,7 +114,7 @@ CVirtualInput *CInputFactory::GetAutoDevice()
     return InputDevice;
 }
 
-CVirtualInput *CInputFactory::GetManualDevice(QString Device)
+CVirtualInput *CInputFactory::GetManualDevice(CRadioController &RadioController, QString Device)
 {
     CVirtualInput *InputDevice = NULL;
 
@@ -118,11 +126,11 @@ CVirtualInput *CInputFactory::GetManualDevice(QString Device)
         else
 #endif
         if (Device == "rtl_tcp")
-            InputDevice = new CRTL_TCP_Client();
+            InputDevice = new CRTL_TCP_Client(RadioController);
         else
 #ifdef HAVE_RTLSDR
         if (Device == "rtl_sdr")
-            InputDevice = new CRTL_SDR();
+            InputDevice = new CRTL_SDR(RadioController);
         else
 #endif
 #ifdef HAVE_SOAPYSDR
@@ -132,19 +140,19 @@ CVirtualInput *CInputFactory::GetManualDevice(QString Device)
 #endif
 #ifdef Q_OS_ANDROID
         if (Device == "android_rtl_sdr")
-            InputDevice = new CAndroid_RTL_SDR();
+            InputDevice = new CAndroid_RTL_SDR(RadioController);
         else
 #endif
         if (Device == "rawfile")
-            InputDevice = new CRAWFile();
+            InputDevice = new CRAWFile(RadioController);
         else
-            qDebug() << "InputFactory:" <<"Unknown device \"" << Device << "\".";
+            qDebug() << "InputFactory:" << "Unknown device \"" << Device << "\".";
     }
 
     // Catch all exceptions
     catch(...)
     {
-        qDebug() << "InputFactory:" <<"Error while opening device \"" << Device << "\".";
+        qDebug() << "InputFactory:" << "Error while opening device \"" << Device << "\".";
     }
 
     return InputDevice;

@@ -64,6 +64,10 @@ public:
     void SetAGC(bool isAGC);
     float SetGain(int Gain);
 
+    void setErrorMessage(QString Text);
+    void setInfoMessage(QString Text);
+    void setAndroidInstallDialog(QString Title, QString Text);
+
 private:
     void DeviceRestart(void);
     void DecoderRestart(bool isScan);
@@ -130,7 +134,8 @@ signals:
     void ScanStopped(void);
     void ScanProgress(int Progress);
     void MOTChanged(QPixmap MOTImage);
-    void ShowErrorMessage(QString Text);
+    void showErrorMessage(QString Text);
+    void showInfoMessage(QString Text);
     void showAndroidInstallDialog(QString Title, QString Text);
 
 public slots:
@@ -145,7 +150,6 @@ public slots:
     void set_coarseCorrectorDisplay(int CoarseFreuqencyCorr);
     void setSynced(char isSync);
     void setSignalPresent(bool isSignal);
-    void setErrorMessage(QString ErrorMessage);
     void newAudio(int SampleRate);
     void setStereo(bool isStereo);
     void show_frameErrors(int FrameErrors);

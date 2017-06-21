@@ -31,7 +31,7 @@
 
 #define RESULT_OK -1
 
-CAndroid_RTL_SDR::CAndroid_RTL_SDR() : CRTL_TCP_Client()
+CAndroid_RTL_SDR::CAndroid_RTL_SDR(CRadioController &RadioController) : CRTL_TCP_Client(RadioController)
 {
     this->isLoaded = false;
 
@@ -95,9 +95,10 @@ bool CAndroid_RTL_SDR::restart()
 }
 
 
-void CAndroid_RTL_SDR::setMessage(QString message)
+void CAndroid_RTL_SDR::setErrorMessage(QString message)
 {
     this->message = message;
+    RadioController->setErrorMessage(message);
 }
 
 void CAndroid_RTL_SDR::setLoaded(bool isLoaded)
@@ -107,7 +108,7 @@ void CAndroid_RTL_SDR::setLoaded(bool isLoaded)
 
 void CAndroid_RTL_SDR::setOpenInstallDialog()
 {
-    emit showAndroidInstallDialog(tr("Android RTL-SDR driver is not installed"), tr("Do you would like to install it? After install start welle.io again."));
+    RadioController->setAndroidInstallDialog(tr("Android RTL-SDR driver is not installed"), tr("Do you would like to install it? After install start welle.io again."));
 }
 
 void ActivityResultReceiver::handleActivityResult(int receiverRequestCode, int resultCode, const QAndroidJniObject &data)
@@ -141,8 +142,8 @@ void ActivityResultReceiver::handleActivityResult(int receiverRequestCode, int r
                 Android_RTL_SDR->setOpenInstallDialog();
             }
 
-            qDebug() << "Android RTL_SDR:" << Message;
-            Android_RTL_SDR->setMessage(Message);
+            qDebug().noquote() << "Android RTL_SDR:" << Message;
+            Android_RTL_SDR->setErrorMessage(Message);
         }
     }
 }

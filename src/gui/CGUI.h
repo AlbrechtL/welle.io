@@ -105,7 +105,6 @@ signals:
     void setYAxisMax(qreal max);
     void setXAxisMinMax(qreal min, qreal max);
 
-    void showErrorMessage(QString Text);
     void stationModelChanged();
     void motChanged(void);
 

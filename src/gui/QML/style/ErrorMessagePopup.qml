@@ -8,12 +8,11 @@ Popup {
     property alias text: textView.text
 
     id: popup
-    width: textView.width + Units.dp(65)
-    height: Units.dp(50)
+    width: (textView.width + Units.dp(65)) < mainWindow.width ? (textView.width + Units.dp(65)) : mainWindow.width
+    height: (textView.paintedHeight + Units.dp(10)) < Units.dp(50) ? Units.dp(50) : (textView.paintedHeight + Units.dp(10))
     x: mainWindow.width/2 - width/2
     y: mainWindow.height  - toolBar_.height - height
-    //modal: true
-    //focus: true
+
     closePolicy: Popup.NoAutoClose
     enter:  Transition {
             NumberAnimation { property: "y"; from: mainWindow.height ; to: mainWindow.height - toolBar.height - popup.height;}
@@ -21,11 +20,12 @@ Popup {
     exit: Transition {
             NumberAnimation { property: "y"; from: mainWindow.height - toolBar.height - popup.height ; to: mainWindow.height;}
         }
-    //onOpened: closeTimer.running = true;
 
     TextStandart {
         id: textView
         text: "Error Message Popup"
+        width: (paintedWidth + Units.dp(65)) > mainWindow.width ? mainWindow.width - Units.dp(65): implicitWidth
+        wrapMode: Text.WordWrap
         anchors.verticalCenter: parent.verticalCenter
         anchors.right: parent.right
     }
@@ -48,13 +48,4 @@ Popup {
     }
 
     background: Rectangle {color: "darkRed"}
-
-    /*Timer {
-        id: closeTimer
-        interval: 1 * 1000 // 10 s
-        repeat: false
-        onTriggered: {
-           popup.close()
-        }
-    }*/
 }

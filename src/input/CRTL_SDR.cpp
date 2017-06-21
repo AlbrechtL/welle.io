@@ -67,9 +67,11 @@ static void RTLSDRCallBack(uint8_t* buf, uint32_t len, void* ctx)
 }
 
 //	Our wrapper is a simple classs
-CRTL_SDR::CRTL_SDR()
+CRTL_SDR::CRTL_SDR(CRadioController &RadioController)
 {
     int ret = 0;
+
+    this->RadioController = &RadioController;
 
     qDebug() << "RTL_SDR:" << "Open rtl-sdr";
 
@@ -308,9 +310,13 @@ void CRTL_SDR::AGCTimerTimeout(void)
         }
     }
     else // AGC is off
-    {
+    {        
         if(MinValue == 0 || MaxValue == 255)
-            qDebug() << "RTL_SDR:" << "ADC overload. Maybe you are using a to high gain.";
+        {
+            QString Text = QObject::tr("ADC overload. Maybe you are using a to high gain.");
+            qDebug().noquote() << "RTL_SDR:" << Text;
+            RadioController->setInfoMessage(Text);
+        }
     }
 }
 

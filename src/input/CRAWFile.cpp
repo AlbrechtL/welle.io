@@ -47,8 +47,9 @@ static inline int64_t getMyTime(void)
 
 #define INPUT_FRAMEBUFFERSIZE 8 * 32768
 
-CRAWFile::CRAWFile()
+CRAWFile::CRAWFile(CRadioController &RadioController)
 {
+    this->RadioController = &RadioController;
     FileName = "";
     FileFormat = CRAWFileFormat::Unknown;
     IQByteSize = 1;
@@ -147,14 +148,16 @@ void CRAWFile::setFileName(QString FileName, QString FileFormat)
     else
     {
         this->FileFormat = CRAWFileFormat::Unknown;
-        qDebug() << "RAWFile:"
-                 << "Unknown RAW file format:" << FileFormat;
+        QString Text = QObject::tr("Unknown RAW file format") + ": " + FileFormat;
+        qDebug() << "RAWFile:" << Text;
+        RadioController->setErrorMessage(Text);
     }
 
     filePointer = fopen(FileName.toLatin1().data(), "rb");
     if (filePointer == NULL) {
-        qDebug() << "RAWFile:"
-                 << "file" << FileName << "cannot open";
+        QString Text = QObject::tr("Cannot open file") + ": " + FileName;
+        qDebug() << "RAWFile:"  << Text;
+        RadioController->setErrorMessage(Text);
         return;
     }
 
@@ -248,7 +251,9 @@ int32_t CRAWFile::readBuffer(uint8_t* data, int32_t length)
     currPos += n;
     if (n < length) {
         fseek(filePointer, 0, SEEK_SET);
-       qDebug() << "RAWFile:" <<  "End of file, restarting";
+        QString Text = QObject::tr("End of file, restarting");
+        qDebug() << "RAWFile:"  << Text;
+        RadioController->setInfoMessage(Text);
     }
     return n & ~01;
 }

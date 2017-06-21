@@ -44,8 +44,9 @@ struct command
 
 #define	ONE_BYTE	8
 
-CRTL_TCP_Client::CRTL_TCP_Client()
+CRTL_TCP_Client::CRTL_TCP_Client(CRadioController &RadioController)
 {
+    this->RadioController = &RadioController;
     SampleBuffer	= new RingBuffer<uint8_t>(32 * 32768);
     SpectrumSampleBuffer	= new RingBuffer<uint8_t>(8192);
 
@@ -63,7 +64,6 @@ CRTL_TCP_Client::CRTL_TCP_Client()
 
     connect(&TCPConnectionWatchDog, SIGNAL(timeout()), this, SLOT(TCPConnectionWatchDogTimeout()));
     connect(&TCPSocket, SIGNAL (readyRead (void)), this, SLOT (readData (void)));
-
     connect(&AGCTimer, SIGNAL(timeout(void)), this, SLOT(AGCTimerTimeout(void)));
 }
 
@@ -274,7 +274,9 @@ void CRTL_TCP_Client::TCPConnectionWatchDogTimeout()
 
     if(TCPSocket.state() != QTcpSocket::ConnectedState)
     {
-        qDebug() << "RTL_TCP_CLIENT:" << "Connection failed to server" << serverAddress.toString() << ":" << serverPort;
+        QString Text = QObject::tr("Connection failed to server ") + serverAddress.toString() + ":" + QString::number(serverPort);
+        qDebug().noquote() << "RTL_TCP_CLIENT:" << Text;
+        RadioController->setErrorMessage(Text);
         connected	= false;
         AGCTimer.stop();
     }
@@ -319,7 +321,11 @@ void CRTL_TCP_Client::AGCTimerTimeout(void)
     else // AGC is off
     {
         if(MinValue == 0 || MaxValue == 255)
-            qDebug() << "RTL_TCP_CLIENT:" << "ADC overload. Maybe you are using a to high gain.";
+        {
+            QString Text = QObject::tr("ADC overload. Maybe you are using a to high gain.");
+            qDebug().noquote() << "RTL_TCP_CLIENT:" << Text;
+            RadioController->setInfoMessage(Text);
+        }
     }
 }
 

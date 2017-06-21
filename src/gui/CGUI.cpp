@@ -79,7 +79,6 @@ CGUI::CGUI(CRadioController *RadioController, CDABParams *DABParams, QObject *pa
     connect(RadioController, SIGNAL(MOTChanged(QPixmap)), this, SLOT(MOTUpdate(QPixmap)));
     connect(RadioController, SIGNAL(ScanStopped()), this, SIGNAL(channelScanStopped()));
     connect(RadioController, SIGNAL(ScanProgress(int)), this, SIGNAL(channelScanProgress(int)));
-    connect(RadioController, SIGNAL(ShowErrorMessage(QString)), this, SIGNAL(showErrorMessage(QString)));
 
     connect(&UptimeTimer, SIGNAL(timeout(void)), this, SLOT(UpdateTimerTimeout(void)));
     UptimeTimer.start(250); // 250 ms

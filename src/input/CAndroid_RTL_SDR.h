@@ -40,7 +40,7 @@ class CAndroid_RTL_SDR : public CRTL_TCP_Client
 {
     Q_OBJECT
 public:
-    CAndroid_RTL_SDR();
+    CAndroid_RTL_SDR(CRadioController &RadioController);
     ~CAndroid_RTL_SDR();
 
     // Override
@@ -48,7 +48,7 @@ public:
     CDeviceID getID(void);
     bool restart(void);
 
-    void setMessage(QString message);
+    void setErrorMessage(QString message);
     void setLoaded(bool isLoaded);
     void setOpenInstallDialog(void);
 

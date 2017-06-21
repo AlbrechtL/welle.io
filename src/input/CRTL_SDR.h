@@ -40,6 +40,7 @@
 #include "DabConstants.h"
 #include "MathHelper.h"
 #include "ringbuffer.h"
+#include "CRadioController.h"
 
 class CRTL_SDR_Thread;
 
@@ -49,7 +50,7 @@ class CRTL_SDR_Thread;
 class CRTL_SDR : public CVirtualInput {
     Q_OBJECT
 public:
-    CRTL_SDR();
+    CRTL_SDR(CRadioController &RadioController);
     ~CRTL_SDR(void);
 
     // Interface methods
@@ -77,7 +78,7 @@ public:
 
 private:
     QTimer AGCTimer;
-
+    CRadioController *RadioController;
     int32_t lastFrequency;
     int32_t FrequencyOffset;
     int CurrentGain;

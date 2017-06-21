@@ -110,7 +110,6 @@ private:
 	DSPCOMPLEX	getSample	(int32_t);
 	void		getSamples	(DSPCOMPLEX *, int16_t, int32_t);
 	bool		scanMode;
-	int32_t		NoReadCounter;
 virtual	void		run		(void);
 	int32_t		bufferContent;
 	bool		isReset;
@@ -123,7 +122,6 @@ signals:
 	void		show_coarseCorrector	(int);
 	void		setSynced		(char);
     void		setSignalPresent	(bool);
-    void        setErrorMessage (QString);
 };
 #endif
 

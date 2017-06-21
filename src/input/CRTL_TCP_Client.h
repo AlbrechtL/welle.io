@@ -41,11 +41,12 @@
 #include "DabConstants.h"
 #include "MathHelper.h"
 #include "ringbuffer.h"
+#include "CRadioController.h"
 
 class CRTL_TCP_Client : public CVirtualInput {
     Q_OBJECT
 public:
-    CRTL_TCP_Client();
+    CRTL_TCP_Client(CRadioController &RadioController);
     ~CRTL_TCP_Client(void);
 
     // Interface methods
@@ -65,6 +66,8 @@ public:
     // Specific methods
     void setIP(QString IPAddress);
     void setPort(uint16_t Port);
+
+    CRadioController *RadioController;
 
 private slots:
     void readData(void);

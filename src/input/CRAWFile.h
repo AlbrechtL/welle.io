@@ -37,6 +37,7 @@
 #include "CVirtualInput.h"
 #include "DabConstants.h"
 #include "ringbuffer.h"
+#include "CRadioController.h"
 
 class QLabel;
 class QSettings;
@@ -47,7 +48,7 @@ enum class CRAWFileFormat {U8, S8, S16LE, S16BE, Unknown};
 
 class CRAWFile : public CVirtualInput, QThread {
 public:
-    CRAWFile();
+    CRAWFile(CRadioController &RadioController);
     ~CRAWFile(void);
 
     // Interface methods
@@ -68,6 +69,7 @@ public:
     void setFileName(QString FileName, QString FileFormat);
 
 private:
+    CRadioController *RadioController;
     QString FileName;
     CRAWFileFormat FileFormat;
     uint8_t IQByteSize;

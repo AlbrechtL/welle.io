@@ -141,12 +141,7 @@ QVariantMap CRadioController::GetGUIData(void)
         isGUIInit = true;
 
         if(Device)
-        {
-            if(Device->getID() == CDeviceID::NULLDEVICE)
-                emit ShowErrorMessage(tr("No radio device detected."));
-
-            GUIData["DeviceName"] = Device->getName();
-        }
+           GUIData["DeviceName"] = Device->getName();
     }
 
     // Init the GUI data map
@@ -236,6 +231,20 @@ float CRadioController::SetGain(int Gain)
     return CurrentManualGainValue;
 }
 
+void CRadioController::setErrorMessage(QString Text)
+{
+    emit showErrorMessage(Text);
+}
+
+void CRadioController::setInfoMessage(QString Text)
+{
+    emit showInfoMessage(Text);
+}
+
+void CRadioController::setAndroidInstallDialog(QString Title, QString Text)
+{
+    emit showAndroidInstallDialog(Title, Text);
+}
 
 /********************
  * Private methods  *
@@ -251,7 +260,7 @@ void CRadioController::DeviceRestart()
     if(!isPlay)
     {
         qDebug() << "RadioController:" << "Radio device is not ready or does not exits.";
-        emit ShowErrorMessage(tr("Radio device is not ready or does not exits."));
+        emit showErrorMessage(tr("Radio device is not ready or does not exits."));
         return;
     }
 }
@@ -494,11 +503,6 @@ void CRadioController::setSignalPresent(bool isSignal)
         NextChannel(isSignal);
 }
 
-void CRadioController::setErrorMessage(QString ErrorMessage)
-{
-    emit ShowErrorMessage(ErrorMessage);
-}
-
 void CRadioController::newAudio(int SampleRate)
 {
     if(AudioSampleRate != SampleRate)
@@ -573,7 +577,7 @@ void CRadioController::onEventLoopStarted()
         rawFileFormat = commandLineOptions["rawFileFormat"].toString();
 
     // Init device
-    Device = CInputFactory::GetDevice(dabDevice);
+    Device = CInputFactory::GetDevice(*this, dabDevice);
 
     // Set rtl_tcp settings
     if (Device->getID() == CDeviceID::RTL_TCP) {

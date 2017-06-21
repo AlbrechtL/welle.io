@@ -520,11 +520,6 @@ ApplicationWindow {
     Connections{
         target: cppGUI
 
-        onShowErrorMessage:{
-            errorMessagePopup.text = Text;
-            errorMessagePopup.open();
-        }
-
         onSetGUIData:{
             dateTimeDisplay.text = GUIData.DateTime
         }
@@ -532,6 +527,16 @@ ApplicationWindow {
 
     Connections{
         target: cppRadioController
+
+        onShowErrorMessage:{
+            errorMessagePopup.text = Text;
+            errorMessagePopup.open();
+        }
+
+        onShowInfoMessage:{
+            infoMessagePopup.text = Text;
+            infoMessagePopup.open();
+        }
 
         onShowAndroidInstallDialog:{
             androidRTLSDRDialog.title = Title
