@@ -37,9 +37,6 @@
 #include <QtQml/QQmlApplicationEngine>
 #include <QQmlContext>
 
-#include "CInputFactory.h"
-#include "CRAWFile.h"
-#include "CRTL_TCP_Client.h"
 #include "DabConstants.h"
 #include "CRadioController.h"
 #include "CGUI.h"
@@ -73,17 +70,6 @@ int main(int argc, char** argv)
 
     // Default values
     CDABParams DABParams(1);
-
-#ifdef Q_OS_ANDROID
-    QString dabDevice = "android_rtl_sdr";
-#else
-    QString dabDevice = "auto";
-#endif
-
-    QString ipAddress = "127.0.0.1";
-    uint16_t ipPort = 1234;
-    QString rawFile = "";
-    QString rawFileFormat = "u8";
 
     // Handle the command line
     QCommandLineParser optionParser;
@@ -134,11 +120,6 @@ int main(int argc, char** argv)
     if (languageValue != "")
         AddTranslator(&app, languageValue, Translator);
 
-    //	Process input device option
-    QString InputValue = optionParser.value(InputOption);
-    if (InputValue != "")
-        dabDevice = InputValue;
-
     //	Process DAB mode option
     QString DABModValue = optionParser.value(DABModeOption);
     if (DABModValue != "") {
@@ -149,46 +130,17 @@ int main(int argc, char** argv)
         DABParams.setMode(Mode);
     }
 
-    //	Process rtl_tcp server IP address option
-    QString RTL_TCPServerIPValue = optionParser.value(RTL_TCPServerIPOption);
-    if (RTL_TCPServerIPValue != "")
-        ipAddress = RTL_TCPServerIPValue;
-
-    //	Process rtl_tcp server IP port option
-    QString RTL_TCPServerPortValue = optionParser.value(RTL_TCPServerIPPort);
-    if (RTL_TCPServerPortValue != "")
-        ipPort = RTL_TCPServerPortValue.toInt();
-
-    //	Process RAW file
-    QString RAWFileValue = optionParser.value(RAWFile);
-    if (RAWFileValue != "")
-        rawFile = RAWFileValue;
-
-    //	Process RAW file format
-    QString RAWFileFormatValue = optionParser.value(RAWFileFormat);
-    if (RAWFileFormatValue != "")
-        rawFileFormat = RAWFileFormatValue;
-
-    // Init device
-    CVirtualInput* Device = CInputFactory::GetDevice(dabDevice);
-
-    // Set rtl_tcp settings
-    if (Device->getID() == CDeviceID::RTL_TCP) {
-        CRTL_TCP_Client* RTL_TCP_Client = (CRTL_TCP_Client*)Device;
-
-        RTL_TCP_Client->setIP(ipAddress);
-        RTL_TCP_Client->setPort(ipPort);
-    }
-
-    // Set rawfile settings
-    if (Device->getID() == CDeviceID::RAWFILE) {
-        CRAWFile* RAWFile = (CRAWFile*)Device;
-
-        RAWFile->setFileName(rawFile, rawFileFormat);
-    }
+    QVariantMap commandLineOptions;
+    commandLineOptions["dabDevice"] = optionParser.value(InputOption);
+    commandLineOptions["ipAddress"] = optionParser.value(RTL_TCPServerIPOption);
+    commandLineOptions["ipPort"] = optionParser.value(RTL_TCPServerIPPort);
+    commandLineOptions["rawFile"] = optionParser.value(RAWFile);
+    commandLineOptions["rawFileFormat"] = optionParser.value(RAWFileFormat);
 
     // Create a new radio interface instance
-    CRadioController* RadioController = new CRadioController(Device, DABParams);
+    CRadioController* RadioController = new CRadioController(commandLineOptions, DABParams);
+    QTimer::singleShot(0, RadioController, SLOT(onEventLoopStarted())); // The timer is used to signal if the QT event lopp is running
+
     CGUI *GUI = new CGUI(RadioController, &DABParams);
 
     // Create new QML application, set some requried options and load the QML file

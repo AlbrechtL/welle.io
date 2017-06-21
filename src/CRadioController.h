@@ -51,7 +51,7 @@ class CRadioController : public QObject
 {
     Q_OBJECT
 public:
-    CRadioController(CVirtualInput* Device, CDABParams& DABParams, QObject* parent = NULL);
+    CRadioController(QVariantMap &commandLineOptions, CDABParams& DABParams, QObject* parent = NULL);
     ~CRadioController(void);
     void Play(QString Channel, QString Station);
     void StartScan(void);
@@ -73,6 +73,7 @@ private:
 
     // Back-end objects
     CVirtualInput* Device;
+    QVariantMap commandLineOptions;
     CDABParams DABParams;
     CChannels Channels;
 
@@ -151,6 +152,7 @@ public slots:
     void show_aacErrors(int AACErrors);
     void showLabel(QString Label);
     void showMOT(QByteArray Data, int Subtype, QString s);
+    void onEventLoopStarted(void);
 };
 
 #endif // CRADIOCONTROLLER_H
