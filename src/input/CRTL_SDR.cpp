@@ -182,7 +182,12 @@ bool CRTL_SDR::restart(void)
     int ret;
 
     if (RTL_SDR_Thread != NULL)
-        return true;
+    {
+        if(RTL_SDR_Thread->isRunning())
+            return true;
+        else
+            return false;
+    }
 
     SampleBuffer->FlushRingBuffer();
     SpectrumSampleBuffer->FlushRingBuffer();
@@ -271,6 +276,11 @@ void CRTL_SDR::setMinMaxValue(uint8_t MinValue, uint8_t MaxValue)
 {
     this->MinValue = MinValue;
     this->MaxValue = MaxValue;
+}
+
+CRadioController *CRTL_SDR::getRadioController()
+{
+    return RadioController;
 }
 
 void CRTL_SDR::AGCTimerTimeout(void)
@@ -372,4 +382,10 @@ void CRTL_SDR_Thread::run()
     rtlsdr_read_async(RTL_SDR->device,
                       (rtlsdr_read_async_cb_t)&RTLSDRCallBack,
                       (void*)RTL_SDR, 0, READLEN_DEFAULT);
+
+    CRadioController *RadioController = RTL_SDR->getRadioController();
+    if(RadioController)
+        RadioController->setErrorMessage(QObject::tr("RTL-SDR is unplugged."));
+
+    exit(1); // Error
 }

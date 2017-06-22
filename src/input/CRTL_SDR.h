@@ -69,6 +69,7 @@ public:
 
     // Specific methods
     void setMinMaxValue(uint8_t MinValue, uint8_t MaxValue);
+    CRadioController *getRadioController(void);
 
     //	These need to be visible for the separate usb handling thread
     RingBuffer<uint8_t>* SampleBuffer;
