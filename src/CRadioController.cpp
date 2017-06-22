@@ -87,6 +87,79 @@ CRadioController::~CRadioController(void)
     delete Audio;
 }
 
+void CRadioController::onEventLoopStarted()
+{
+#ifdef Q_OS_ANDROID
+    QString dabDevice = "android_rtl_sdr";
+#else
+    QString dabDevice = "auto";
+#endif
+
+    QString ipAddress = "127.0.0.1";
+    uint16_t ipPort = 1234;
+    QString rawFile = "";
+    QString rawFileFormat = "u8";
+
+    if(commandLineOptions["dabDevice"] != "")
+        dabDevice = commandLineOptions["dabDevice"].toString();
+
+    if(commandLineOptions["ipAddress"] != "")
+        ipAddress = commandLineOptions["ipAddress"].toString();
+
+    if(commandLineOptions["ipPort"] != "")
+        ipPort = commandLineOptions["ipPort"].toInt();
+
+    if(commandLineOptions["rawFile"] != "")
+        rawFile = commandLineOptions["rawFile"].toString();
+
+    if(commandLineOptions["rawFileFormat"] != "")
+        rawFileFormat = commandLineOptions["rawFileFormat"].toString();
+
+    // Init device
+    Device = CInputFactory::GetDevice(*this, dabDevice);
+
+    // Set rtl_tcp settings
+    if (Device->getID() == CDeviceID::RTL_TCP) {
+        CRTL_TCP_Client* RTL_TCP_Client = (CRTL_TCP_Client*)Device;
+
+        RTL_TCP_Client->setIP(ipAddress);
+        RTL_TCP_Client->setPort(ipPort);
+    }
+
+    // Set rawfile settings
+    if (Device->getID() == CDeviceID::RAWFILE) {
+        CRAWFile* RAWFile = (CRAWFile*)Device;
+
+        RAWFile->setFileName(rawFile, rawFileFormat);
+    }
+
+    /**
+    *	The actual work is done elsewhere: in ofdmProcessor
+    *	and ofdmDecoder for the ofdm related part, ficHandler
+    *	for the FIC's and mscHandler for the MSC.
+    *	The ficHandler shares information with the mscHandler
+    *	but the handlers do not change each others modes.
+    */
+    my_mscHandler = new mscHandler(this,
+        &DABParams,
+        AudioBuffer,
+        false);
+
+    my_ficHandler = new ficHandler(this);
+
+    /**
+    *	The default for the ofdmProcessor depends on
+    *	the input device, note that in this setup the
+    *	device is selected on start up and cannot be changed.
+    */
+    my_ofdmProcessor = new ofdmProcessor(Device,
+        &DABParams,
+        this,
+        my_mscHandler,
+        my_ficHandler,
+        3, 3);
+}
+
 void CRadioController::Play(QString Channel, QString Station)
 {
     qDebug() << "RadioController:" << "Start or restart device";
@@ -546,77 +619,4 @@ void CRadioController::showMOT(QByteArray Data, int Subtype, QString s)
     MOTImage->loadFromData(Data, Subtype == 0 ? "GIF" : Subtype == 1 ? "JPEG" : Subtype == 2 ? "BMP" : "PNG");
 
     emit MOTChanged(*MOTImage);
-}
-
-void CRadioController::onEventLoopStarted()
-{
-#ifdef Q_OS_ANDROID
-    QString dabDevice = "android_rtl_sdr";
-#else
-    QString dabDevice = "auto";
-#endif
-
-    QString ipAddress = "127.0.0.1";
-    uint16_t ipPort = 1234;
-    QString rawFile = "";
-    QString rawFileFormat = "u8";
-
-    if(commandLineOptions["dabDevice"] != "")
-        dabDevice = commandLineOptions["dabDevice"].toString();
-
-    if(commandLineOptions["ipAddress"] != "")
-        ipAddress = commandLineOptions["ipAddress"].toString();
-
-    if(commandLineOptions["ipPort"] != "")
-        ipPort = commandLineOptions["ipPort"].toInt();
-
-    if(commandLineOptions["rawFile"] != "")
-        rawFile = commandLineOptions["rawFile"].toString();
-
-    if(commandLineOptions["rawFileFormat"] != "")
-        rawFileFormat = commandLineOptions["rawFileFormat"].toString();
-
-    // Init device
-    Device = CInputFactory::GetDevice(*this, dabDevice);
-
-    // Set rtl_tcp settings
-    if (Device->getID() == CDeviceID::RTL_TCP) {
-        CRTL_TCP_Client* RTL_TCP_Client = (CRTL_TCP_Client*)Device;
-
-        RTL_TCP_Client->setIP(ipAddress);
-        RTL_TCP_Client->setPort(ipPort);
-    }
-
-    // Set rawfile settings
-    if (Device->getID() == CDeviceID::RAWFILE) {
-        CRAWFile* RAWFile = (CRAWFile*)Device;
-
-        RAWFile->setFileName(rawFile, rawFileFormat);
-    }
-
-    /**
-    *	The actual work is done elsewhere: in ofdmProcessor
-    *	and ofdmDecoder for the ofdm related part, ficHandler
-    *	for the FIC's and mscHandler for the MSC.
-    *	The ficHandler shares information with the mscHandler
-    *	but the handlers do not change each others modes.
-    */
-    my_mscHandler = new mscHandler(this,
-        &DABParams,
-        AudioBuffer,
-        false);
-
-    my_ficHandler = new ficHandler(this);
-
-    /**
-    *	The default for the ofdmProcessor depends on
-    *	the input device, note that in this setup the
-    *	device is selected on start up and cannot be changed.
-    */
-    my_ofdmProcessor = new ofdmProcessor(Device,
-        &DABParams,
-        this,
-        my_mscHandler,
-        my_ficHandler,
-        3, 3);
 }
