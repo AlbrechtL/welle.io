@@ -63,6 +63,7 @@ HEADERS += \
     src/ofdm/phasetable.h \
     src/ofdm/freq-interleaver.h \
     src/backend/viterbi.h \
+    src/backend/viterbi_spiral.h \
     src/backend/fic-handler.h \
     src/backend/msc-handler.h \
     src/backend/fib-processor.h  \
@@ -108,6 +109,7 @@ SOURCES += \
     src/ofdm/phasetable.cpp \
     src/ofdm/freq-interleaver.cpp \
     src/backend/viterbi.cpp \
+    src/backend/viterbi_spiral.c \
     src/backend/fic-handler.cpp \
     src/backend/msc-handler.cpp \
     src/backend/protection.cpp \
@@ -183,6 +185,7 @@ macx {
     CONFIG  += airspy
     CONFIG  += rtl_sdr
     #CONFIG  += soapysdr        # not tested
+    DEFINES += SSE_AVAILABLE
 }
 
 android {
@@ -193,6 +196,10 @@ android {
 
     HEADERS    += src/input/CAndroid_RTL_SDR.h
     SOURCES    += src/input/CAndroid_RTL_SDR.cpp
+    equals(ANDROID_TARGET_ARCH, x86)  {
+        message("Enable SSE")
+        DEFINES += SSE_AVAILABLE
+    }
 }
 
 #### Built-in libraries ####

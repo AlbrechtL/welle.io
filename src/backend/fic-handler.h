@@ -31,7 +31,6 @@
 #include	<stdio.h>
 #include	<stdint.h>
 #include	"viterbi.h"
-#include	"viterbi-2.h"
 #include	<QObject>
 #include	"fib-processor.h"
 #include	<QMutex>
