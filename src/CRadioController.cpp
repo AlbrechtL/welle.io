@@ -594,11 +594,6 @@ void CRadioController::onEventLoopStarted()
         RAWFile->setFileName(rawFile, rawFileFormat);
     }
 
-    // Make it possible to show a dialog
-    if (Device->getID() == CDeviceID::ANDROID_RTL_SDR) {
-        connect(Device, SIGNAL(showAndroidInstallDialog(QString, QString)), this, SIGNAL(showAndroidInstallDialog(QString, QString)));
-    }
-
     /**
     *	The actual work is done elsewhere: in ofdmProcessor
     *	and ofdmDecoder for the ofdm related part, ficHandler
