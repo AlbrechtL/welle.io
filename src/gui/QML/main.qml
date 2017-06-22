@@ -473,8 +473,9 @@ ApplicationWindow {
                 color: "#212126"
                 Image {
                     id: motImage
-                    width: parent.width
-                    height: parent.width * (sourceSize.height/sourceSize.width) // Scale MOT image with the correct aspect
+                    anchors.topMargin: Units.dp(5)
+                    anchors.fill: parent
+                    fillMode: Image.PreserveAspectFit
 
                     Connections{
                         target: cppGUI
