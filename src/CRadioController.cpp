@@ -48,6 +48,7 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, CDABParams& 
     MOTImage = new QPixmap(320, 240);
     isChannelScan = false;
     isGUIInit = false;
+    isAGC = true;
 
     // Init the technical data
     CurrentChannel = tr("Unknown");
@@ -71,6 +72,7 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, CDABParams& 
     AACErrors = 0;
     CurrentManualGain = 0;
     CurrentManualGainValue = 0.0;
+    GainCount = 0;
 
     connect(&StationTimer, SIGNAL(timeout(void)), this, SLOT(StationTimerTimeout(void)));
     connect(&ChannelTimer, SIGNAL(timeout(void)), this, SLOT(ChannelTimerTimeout(void)));
@@ -133,6 +135,19 @@ void CRadioController::onEventLoopStarted()
         RAWFile->setFileName(rawFile, rawFileFormat);
     }
 
+    GainCount = Device->getGainCount();
+
+    if(!isAGC) // Manual AGC
+    {
+        Device->setAgc(false);
+        Device->setGain(CurrentManualGain);
+        qDebug() << "RadioController:" << "AGC off";
+    }
+    else
+    {
+        qDebug() << "RadioController:" << "AGC on";
+    }
+
     /**
     *	The actual work is done elsewhere: in ofdmProcessor
     *	and ofdmDecoder for the ofdm related part, ficHandler
@@ -170,6 +185,35 @@ void CRadioController::Play(QString Channel, QString Station)
 
     // Check every 10 s for a correct sync
     SyncCheckTimer.start(10000);
+}
+
+void CRadioController::SetChannel(QString Channel, bool isScan, bool Force)
+{
+    if(CurrentChannel != Channel || Force == true)
+    {
+        if(Device && Device->getID() == CDeviceID::RAWFILE)
+        {
+            CurrentChannel = "File";
+            CurrentFrequency = 0;
+        }
+        else // A real device
+        {
+            CurrentChannel = Channel;
+
+            // Convert channel into a frequency
+            CurrentFrequency = Channels.getFrequency(Channel);
+
+            if(CurrentFrequency != 0)
+            {
+                qDebug() << "RadioController: Tune to channel" <<  Channel << "->" << CurrentFrequency/1e6 << "MHz";
+                Device->setFrequency(CurrentFrequency);
+            }
+        }
+
+        DecoderRestart(isScan);
+
+        StationList.clear();
+    }
 }
 
 void CRadioController::StartScan(void)
@@ -239,6 +283,7 @@ QVariantMap CRadioController::GetGUIData(void)
     GUIData["StationType"] = CurrentStationType;
     GUIData["LanguageType"] = CurrentLanguageType;
     GUIData["isDAB"] = isDAB;
+    GUIData["GainCount"] = GainCount;
 
     return GUIData;
 }
@@ -263,20 +308,10 @@ int CRadioController::GetCurrentFrequency(void)
     return CurrentFrequency;
 }
 
-int CRadioController::GetGainCount()
-{
-    int GainCount = 0;
-
-    if(Device)
-        GainCount = Device->getGainCount();
-
-    qDebug() << "RadioController:" << "Number of gain steps:" << GainCount;
-
-    return GainCount;
-}
-
 void CRadioController::SetAGC(bool isAGC)
 {
+    this->isAGC = isAGC;
+
     if (Device)
     {
         Device->setAgc(isAGC);
@@ -295,11 +330,12 @@ void CRadioController::SetAGC(bool isAGC)
 
 float CRadioController::SetGain(int Gain)
 {
+    CurrentManualGain = Gain;
+
     if (Device)
-    {
         CurrentManualGainValue = Device->setGain(Gain);
-        CurrentManualGain = Gain;
-    }
+    else
+        CurrentManualGainValue = -1.0;
 
     return CurrentManualGainValue;
 }
@@ -351,35 +387,6 @@ void CRadioController::DecoderRestart(bool isScan)
     my_ficHandler->clearEnsemble();
     my_ofdmProcessor->coarseCorrectorOn();
     my_ofdmProcessor->reset();
-}
-
-void CRadioController::SetChannel(QString Channel, bool isScan, bool Force)
-{
-    if(CurrentChannel != Channel || Force == true)
-    {
-        if(Device && Device->getID() == CDeviceID::RAWFILE)
-        {
-            CurrentChannel = "File";
-            CurrentFrequency = 0;
-        }
-        else // A real device
-        {
-            CurrentChannel = Channel;
-
-            // Convert channel into a frequency
-            CurrentFrequency = Channels.getFrequency(Channel);
-
-            if(CurrentFrequency != 0)
-            {
-                qDebug() << "RadioController: Tune to channel" <<  Channel << "->" << CurrentFrequency/1e6 << "MHz";
-                Device->setFrequency(CurrentFrequency);
-            }
-        }
-
-        DecoderRestart(isScan);
-
-        StationList.clear();
-    }
 }
 
 void CRadioController::SetStation(QString Station, bool Force)

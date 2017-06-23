@@ -54,13 +54,14 @@ public:
     CRadioController(QVariantMap &commandLineOptions, CDABParams& DABParams, QObject* parent = NULL);
     ~CRadioController(void);
     void Play(QString Channel, QString Station);
+    void SetStation(QString Station, bool Force = false);
+    void SetChannel(QString Channel, bool isScan, bool Force = false);
     void StartScan(void);
     void StopScan(void);
     QVariantMap GetGUIData(void);
     QPixmap GetMOTImage(void);
     int32_t GetSpectrumSamples(DSPCOMPLEX* Buffer, int32_t Size);
     int GetCurrentFrequency(void);
-    int GetGainCount(void);
     void SetAGC(bool isAGC);
     float SetGain(int Gain);
 
@@ -71,8 +72,6 @@ public:
 private:
     void DeviceRestart(void);
     void DecoderRestart(bool isScan);
-    void SetChannel(QString Channel, bool isScan, bool Force = false);
-    void SetStation(QString Station, bool Force = false);
     void NextChannel(bool isWait);
 
     // Back-end objects
@@ -123,6 +122,8 @@ private:
     // Handling variables
     bool isChannelScan;
     bool isGUIInit;
+    bool isAGC;
+    int GainCount;
 
 private slots:
     void StationTimerTimeout(void);

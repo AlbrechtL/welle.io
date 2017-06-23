@@ -82,10 +82,6 @@ CGUI::CGUI(CRadioController *RadioController, CDABParams *DABParams, QObject *pa
 
     connect(&UptimeTimer, SIGNAL(timeout(void)), this, SLOT(UpdateTimerTimeout(void)));
     UptimeTimer.start(250); // 250 ms
-
-    // Add data to the manual gain
-    if(RadioController)
-        m_gainCount = RadioController->GetGainCount();
 }
 
 CGUI::~CGUI()
@@ -171,10 +167,7 @@ void CGUI::startChannelScanClick(void)
     if(RadioController)
         RadioController->StartScan();
 
-    //	Clear old channels
-    stationList.reset();
-    p_stationModel = QVariant::fromValue(stationList.getList());
-    emit stationModelChanged();
+    clearStationList();
 }
 
 void CGUI::stopChannelScanClick(void)
@@ -225,6 +218,12 @@ void CGUI::channelClick(QString StationName,
         RadioController->Play(ChannelName, StationName);
 }
 
+void CGUI::setManualChannel(QString ChannelName)
+{
+    if(RadioController)
+        RadioController->SetChannel(ChannelName, false);
+}
+
 void CGUI::inputEnableAGCChanged(bool checked)
 {
     if(RadioController)
@@ -236,8 +235,19 @@ void CGUI::inputGainChanged(double gain)
     if(RadioController)
     {
         m_currentGainValue = RadioController->SetGain((int) gain);
-        currentGainValueChanged();
+        if(m_currentGainValue >= 0)
+            currentGainValueChanged();
     }
+}
+
+void CGUI::clearStationList()
+{
+    //	Clear old channels
+    stationList.reset();
+    saveChannels();
+
+    p_stationModel = QVariant::fromValue(stationList.getList());
+    emit stationModelChanged();
 }
 
 // This function is called by the QML GUI
