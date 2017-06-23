@@ -55,8 +55,9 @@ void	CStationList::reset (void) {
 }
 
 bool	variantLessThan (const QObject* v1, const QObject* v2) {
-	return ((StationElement*) v1) -> getStationName () <
-	                ((StationElement*) v2) -> getStationName ();
+    return (((StationElement*) v1) -> getStationName ()).compare(
+                ((StationElement*) v2) -> getStationName (),
+                Qt::CaseInsensitive) < 0;
 }
 
 void	CStationList::sort (void) {

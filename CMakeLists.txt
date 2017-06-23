@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.2)
 
 set(executableName welle-io)
 
-project(Welle.Io VERSION 0.0.0 LANGUAGES CXX)
+project(Welle.Io VERSION 0.0.0 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 14)
 
@@ -11,6 +11,8 @@ add_definitions(-Wall)
 if(MINGW)
     add_definitions(-municode)
 endif()
+
+add_definitions(-DSSE_AVAILABLE)
 
 if(NOT CMAKE_BUILD_TYPE)
    set(CMAKE_BUILD_TYPE "Release")
@@ -58,6 +60,7 @@ set(sources
     src/ofdm/phasetable.cpp
     src/ofdm/freq-interleaver.cpp
     src/backend/viterbi.cpp
+    src/backend/viterbi_spiral.c
     src/backend/fic-handler.cpp
     src/backend/msc-handler.cpp
     src/backend/protection.cpp
