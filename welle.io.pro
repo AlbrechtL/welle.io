@@ -156,6 +156,8 @@ unix:!macx:!android: {
 
     #CONFIG  += kiss_fft_builtin
     #CONFIG  += libfaad_builtin
+
+    DEFINES += SSE_AVAILABLE
 }
 
 
