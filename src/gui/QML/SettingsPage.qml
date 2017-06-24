@@ -17,7 +17,9 @@ Item {
         property alias enableFullScreenState : settingsPage.enableFullScreenState
         property alias enableExpertModeState : settingsPage.enableExpertModeState
         property alias manualGainState : settingsPage.manualGainState
+        property alias manualGainValue: manualGain.showCurrentValue
         property alias enableAGCState : settingsPage.enableAGCState
+        property alias manualChannel: manualChannelBox.currentIndex
     }
 
     Connections{
@@ -33,6 +35,10 @@ Item {
 
         onFoundChannelCount:{
             channelScanProgressBar.text = qsTr("Found channels") + ": " + channelCount;
+        }
+
+        onSetGUIData:{
+            manualGain.maximumValue = GUIData.GainCount
         }
     }
 
@@ -74,7 +80,6 @@ Item {
                                 TouchButton {
                                     id: startChannelScanButton
                                     text: qsTr("Start")
-                                    Layout.preferredWidth: Units.dp(80)
                                     Layout.alignment: Qt.AlignCenter
                                     onClicked: {
                                         startChannelScanButton.enabled = false
@@ -87,7 +92,6 @@ Item {
                                     id: stopChannelScanButton
                                     text: qsTr("Stop")
                                     Layout.alignment: Qt.AlignRight
-                                    Layout.preferredWidth: Units.dp(80)
                                     enabled: false
                                     onClicked: {
                                         startChannelScanButton.enabled = true
@@ -102,28 +106,50 @@ Item {
                                 minimumValue: 0
                                 maximumValue: 54 // 54 channels
                                 width: parent.width
-                                text: qsTr("Found channels") + ": 0"
+                                text: qsTr("Found stations") + ": 0"
                             }
                         }
 
-
-                        /*RowLayout {
+                        RowLayout {
                             Layout.preferredWidth: parent.width
+                            visible: enableExpertMode.checked ? true : false
 
                             ComboBox {
-                                id: styleBox
-                                model: ["5A", "5B", "5C"]
+                                id: manualChannelBox
+                                model: ["5A", "5B", "5C", "5D",
+                                    "6A", "6B", "6C", "6D",
+                                    "7A", "7B", "7C", "7D",
+                                    "8A", "8B", "8C", "8D",
+                                    "9A", "9B", "9C", "9D",
+                                    "10A", "10B", "10C", "10D",
+                                    "11A", "11B", "11C", "11D",
+                                    "12A", "12B", "12C", "12D",
+                                    "13A", "13B", "13C", "13D", "13E", "13F",
+                                    "LA", "LB", "LC", "LD",
+                                    "LE", "LF", "LG", "LH",
+                                    "LI", "LJ", "LK", "LL",
+                                    "LM", "LN", "LO", "LP"]
+
                                 Component.onCompleted: { }
+                                Layout.preferredHeight: Units.dp(25)
+                                Layout.preferredWidth: Units.dp(80)
                             }
 
                             TouchButton {
                                 id: resetChannelListButton
-                                text: "Reset station list"
-                                Layout.alignment: Qt.AlignRight
-                                Layout.preferredWidth: Units.dp(110)
-                                onClicked: { }
+                                text: qsTr("Tune")
+                                Layout.alignment: Qt.AlignCenter
+                                onClicked: cppGUI.setManualChannel(manualChannelBox.currentText)
                             }
-                        }*/
+
+                            TouchButton {
+                                id: clearListButton
+                                text: qsTr("Clear station list")
+                                Layout.preferredWidth: Units.dp(140)
+                                Layout.alignment: Qt.AlignRight
+                                onClicked: cppGUI.clearStationList()
+                            }
+                        }
                     }
                 }
 
@@ -152,7 +178,6 @@ Item {
                             id: manualGain
                             enabled: !enableAGC.checked
                             name: qsTr("Manual gain")
-                            maximumValue: cppGUI.gainCount
                             showCurrentValue: qsTr("Value: ") + cppGUI.currentGainValue.toFixed(2)
                             Layout.fillHeight: true
                             onValueChanged: {
@@ -189,12 +214,6 @@ Item {
                         }
                     }
                 }
-
-                /*TouchButton {
-                    id: inputSettingsButton
-                    text: "Input settings"
-                    width: parent.width
-                }*/
             }
 
             TouchButton {

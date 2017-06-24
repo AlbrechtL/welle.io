@@ -52,19 +52,20 @@ class common_fft;
 class CGUI : public QObject {
     Q_OBJECT
     Q_PROPERTY(QVariant stationModel READ stationModel NOTIFY stationModelChanged)
-    Q_PROPERTY(int gainCount MEMBER m_gainCount CONSTANT)
     Q_PROPERTY(float currentGainValue MEMBER m_currentGainValue NOTIFY currentGainValueChanged)
     Q_PROPERTY(QVariant licenses READ licenses CONSTANT)
 
 public:
     CGUI(CRadioController *RadioController, CDABParams *DABParams, QObject* parent = NULL);
     ~CGUI();
-    Q_INVOKABLE void channelClick(QString, QString);
+    Q_INVOKABLE void channelClick(QString StationName, QString ChannelName);
+    Q_INVOKABLE void setManualChannel(QString ChannelName);
     Q_INVOKABLE void startChannelScanClick(void);
     Q_INVOKABLE void stopChannelScanClick(void);
     Q_INVOKABLE void saveChannels(void);
     Q_INVOKABLE void inputEnableAGCChanged(bool checked);
     Q_INVOKABLE void inputGainChanged(double gain);
+    Q_INVOKABLE void clearStationList(void);
     QVariant stationModel() const
     {
         return p_stationModel;
@@ -84,7 +85,6 @@ private:
     CStationList stationList;
     QVariant p_stationModel;
 
-    int m_gainCount;
     float m_currentGainValue;
 
 public slots:

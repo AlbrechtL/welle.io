@@ -156,6 +156,8 @@ unix:!macx:!android: {
 
     #CONFIG  += kiss_fft_builtin
     #CONFIG  += libfaad_builtin
+
+    DEFINES += SSE_AVAILABLE
 }
 
 
@@ -172,6 +174,10 @@ win32 {
     LIBS    += -lusb-1.0
     CONFIG  += rtl_sdr
     CONFIG  += airspy
+
+    # SSE under Windows not working. welle.io crashes
+    #QMAKE_CFLAGS += -msse2
+    #DEFINES += SSE_AVAILABLE
 }
 
 
