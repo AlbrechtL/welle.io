@@ -28,6 +28,7 @@
  */
 
 #include <QDebug>
+#include <QSettings>
 
 #include "CRadioController.h"
 #include "CInputFactory.h"
@@ -158,6 +159,29 @@ void CRadioController::onEventLoopStarted()
         my_mscHandler,
         my_ficHandler,
         3, 3);
+
+    // Restore Settings
+    QSettings Settings;
+    qDebug() << "#### Settings: " << Settings.fileName();
+
+
+    // Set AGC & Gain
+    CurrentManualGain = Settings.value("manualGainState", 0).toInt();
+    bool isAGC = Settings.value("enableAGCState", true).toBool();
+    SetAGC(isAGC); // will set Gain if AGC is not enabled
+
+    // Autoplay last station
+    QStringList StationElement = Settings.value("lastchannel").toStringList();
+    if (!StationElement.isEmpty()) {
+        QString StationName = StationElement.first();
+        QString ChannelName = StationElement.last();
+        qDebug() << "#### Last station: " << StationName
+                 << "(" << ChannelName << ")";
+        if (!ChannelName.isEmpty())
+            Play(ChannelName, StationName);
+    } else {
+        qDebug() << "#### No last station found";
+    }
 }
 
 void CRadioController::Play(QString Channel, QString Station)
@@ -167,6 +191,13 @@ void CRadioController::Play(QString Channel, QString Station)
     DeviceRestart();
     SetChannel(Channel, false);
     SetStation(Station);
+
+    // Store as last station
+    QSettings Settings;
+    QStringList StationElement;
+    StationElement. append (Station);
+    StationElement. append (Channel);
+    Settings.setValue("lastchannel", StationElement);
 
     // Check every 10 s for a correct sync
     SyncCheckTimer.start(10000);
