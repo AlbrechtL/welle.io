@@ -294,7 +294,7 @@ void CRTL_TCP_Client::AGCTimerTimeout(void)
             {
                 setGain(CurrentGainCount - 1);
 
-                qDebug() << "RTL_TCP_CLIENT:" << "Decrease gain to" << (float) CurrentGain / 10;
+                qDebug() << "RTL_TCP_CLIENT:" << "Decrease gain to" << (float) CurrentGain;
             }
         }
         else
