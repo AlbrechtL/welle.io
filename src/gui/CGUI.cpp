@@ -49,23 +49,15 @@
   */
 CGUI::CGUI(CRadioController *RadioController, CDABParams *DABParams, QObject *parent): QObject(parent)
 {
-    QSettings Settings;
-
     this->RadioController = RadioController;
     this->DABParams = DABParams;
 
     // Read channels from the settings
-    Settings.beginGroup("channels");
-    int channelcount = Settings.value("channelcout", 0).toInt();
-    for (int i = 1; i <= channelcount; i++) {
-        QStringList SaveChannel = Settings.value("channel/" + QString::number(i)).toStringList();
-        stationList.append(SaveChannel.first(), SaveChannel.last());
-    }
-    Settings.endGroup();
+    stationList.loadStations();
     stationList.sort();
 
     if(stationList.count() == 0)
-        stationList.append(tr("Station list is empty"), "");
+        stationList.append("", tr("Station list is empty"), "");
 
     p_stationModel = QVariant::fromValue(stationList.getList());
     emit stationModelChanged();
@@ -75,8 +67,9 @@ CGUI::CGUI(CRadioController *RadioController, CDABParams *DABParams, QObject *pa
 
     spectrum_fft_handler = new common_fft(DABParams->T_u);
 
-    connect(RadioController, SIGNAL(FoundStation(QString, QString)), this, SLOT(AddToStationList(QString, QString)));
     connect(RadioController, SIGNAL(MOTChanged(QPixmap)), this, SLOT(MOTUpdate(QPixmap)));
+    connect(RadioController, SIGNAL(DeviceReady()), this, SLOT(DeviceReady()));
+    connect(RadioController, SIGNAL(FoundStation(QString, QString, QString)), this, SLOT(AddToStationList(QString, QString, QString)));
     connect(RadioController, SIGNAL(ScanStopped()), this, SIGNAL(channelScanStopped()));
     connect(RadioController, SIGNAL(ScanProgress(int)), this, SIGNAL(channelScanProgress(int)));
 
@@ -143,23 +136,7 @@ const QVariantMap CGUI::licenses()
   */
 void CGUI::saveChannels()
 {
-    QSettings Settings;
-
-    //	Remove channels from previous invocation ...
-    Settings.beginGroup("channels");
-    int ChannelCount = Settings.value("channelcout").toInt();
-
-    for (int i = 1; i <= ChannelCount; i++)
-        Settings.remove("channel/" + QString::number(i));
-
-    //	... and save the current set
-    ChannelCount = stationList.count();
-    Settings.setValue("channelcout", QString::number(ChannelCount));
-
-    for (int i = 1; i <= ChannelCount; i++)
-        Settings.setValue("channel/" + QString::number(i), stationList.getStationAt(i - 1));
-
-    Settings.endGroup();
+    stationList.saveStations();
 }
 
 void CGUI::startChannelScanClick(void)
@@ -192,11 +169,21 @@ void CGUI::MOTUpdate(QPixmap MOTImage)
     emit motChanged();
 }
 
-void CGUI::AddToStationList(QString Station, QString CurrentChannel)
+void CGUI::DeviceReady(void)
+{
+    // Restore Settings
+    QSettings Settings;
+
+    // Set AGC & Gain
+    inputGainChanged(Settings.value("manualGainState", 0).toInt());
+    inputEnableAGCChanged(Settings.value("enableAGCState", true).toBool());
+}
+
+void CGUI::AddToStationList(QString SId, QString Station, QString CurrentChannel)
 {
     //	Add new station into list
-    if (!stationList.contains(Station)) {
-        stationList.append(Station, CurrentChannel);
+    if (!stationList.contains(SId, CurrentChannel)) {
+        stationList.append(SId, Station, CurrentChannel);
 
         //	Sort stations
         stationList.sort();
@@ -236,7 +223,7 @@ void CGUI::inputGainChanged(double gain)
     {
         m_currentGainValue = RadioController->SetGain((int) gain);
         if(m_currentGainValue >= 0)
-            currentGainValueChanged();
+            emit currentGainValueChanged();
     }
 }
 

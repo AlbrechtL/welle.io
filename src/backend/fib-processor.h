@@ -149,7 +149,7 @@ private:
 	bool		firstTime;
 	bool		isSynced;
 signals:
-	void		addtoEnsemble	(const QString &);
+	void		addtoEnsemble	(quint32, const QString &);
 	void		nameofEnsemble  (int, const QString &);
 	void		changeinConfiguration (void);
 	void		newDateTime (int *);

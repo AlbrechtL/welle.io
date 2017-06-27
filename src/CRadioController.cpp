@@ -175,33 +175,13 @@ void CRadioController::onEventLoopStarted()
         my_ficHandler,
         3, 3);
 
-    // Restore Settings
-    QSettings Settings;
-    qDebug() << "#### Settings: " << Settings.fileName();
-
-
-    // Set AGC & Gain
-    CurrentManualGain = Settings.value("manualGainState", 0).toInt();
-    bool isAGC = Settings.value("enableAGCState", true).toBool();
-    SetAGC(isAGC); // will set Gain if AGC is not enabled
-
-    // Autoplay last station
-    QStringList StationElement = Settings.value("lastchannel").toStringList();
-    if (!StationElement.isEmpty()) {
-        QString StationName = StationElement.first();
-        QString ChannelName = StationElement.last();
-        qDebug() << "#### Last station: " << StationName
-                 << "(" << ChannelName << ")";
-        if (!ChannelName.isEmpty())
-            Play(ChannelName, StationName);
-    } else {
-        qDebug() << "#### No last station found";
-    }
+    emit DeviceReady();
 }
 
 void CRadioController::Play(QString Channel, QString Station)
 {
-    qDebug() << "RadioController:" << "Start or restart device";
+    qDebug() << "RadioController:" << "Play channel:"
+             << Channel << "station:" << Station;
 
     DeviceRestart();
     SetChannel(Channel, false);
@@ -527,13 +507,15 @@ void CRadioController::SyncCheckTimerTimeout(void)
  * Backend slots *
  *****************/
 
-void CRadioController::addtoEnsemble(const QString &Station)
+void CRadioController::addtoEnsemble(quint32 SId, const QString &Station)
 {
-    qDebug() << "RadioController: Found station" <<  Station;
+    QString StationId = QString::number(SId, 16).toUpper();
+    qDebug() << "RadioController: Found station" <<  Station
+             << "(" << qPrintable(StationId) << ")";
 
     StationList.append(Station);
 
-    emit FoundStation(Station, CurrentChannel);
+    emit FoundStation(StationId, Station, CurrentChannel);
 }
 
 void CRadioController::nameofEnsemble(int id, const QString &v)

@@ -28,11 +28,20 @@
 
 #include "CStationList.h"
 
-	StationElement::StationElement (QString const stationName,
-	                                QString const channelName,
-	                                QObject *parent) : QObject(parent) {
+#include <QSettings>
+
+StationElement::StationElement (QString stationId,
+                                QString const stationName,
+                                QString const channelName,
+                                QObject *parent)
+    : QObject(parent) {
+    setProperty("stationId",stationId);
 	setProperty("stationName",stationName);
 	setProperty("channelName",channelName);
+}
+
+QString StationElement::getStationId (void) {
+    return m_stationId;
 }
 
 QString StationElement::getStationName (void) {
@@ -73,29 +82,72 @@ StationElement* CStationList::at (int i) {
 }
 
 QStringList CStationList::getStationAt (int i) {
+QString StationId = at(i) -> getStationId ();
 QString StationName = at(i) -> getStationName ();
 QString ChannelName = at(i) -> getChannelName ();
 QStringList StationElement;
 
+	StationElement. append (StationId);
 	StationElement. append (StationName);
 	StationElement. append (ChannelName);
 	return StationElement;
 }
 
-bool	CStationList::contains (QString value) {
+bool	CStationList::contains (QString id, QString channel) {
 
-	for (int i = 0; i < count (); i++) {
-	   if (at (i) -> getStationName () == value)
-	      return true;
-	}
+    for (int i = 0; i < count (); i++) {
+        if (at (i) -> getStationId () == id) {
+            if (channel.isEmpty()) {
+                // do not care about the channel
+                return true;
+            } else {
+                // check matching channel as well
+                if (at (i) -> getChannelName () == channel) {
+                    return true;
+                }
+            }
+        }
+    }
 
 	return false;
 }
 
-void	CStationList::append (QString StationName, QString ChannelName) {
-	stationList. append (new StationElement (StationName, ChannelName));
+void	CStationList::append (QString StationId, QString StationName, QString ChannelName) {
+    stationList. append (new StationElement (StationId, StationName, ChannelName));
 }
 
 QList<QObject*>  CStationList::getList (void) {
 	return  stationList;
+}
+
+void CStationList::loadStations() {
+    QSettings Settings;
+    Settings.beginGroup("channels");
+    int channelcount = Settings.value("channelcout", 0).toInt();
+    for (int i = 1; i <= channelcount; i++) {
+        QStringList SaveChannel = Settings.value("channel/" + QString::number(i)).toStringList();
+        if (SaveChannel.size() == 3)
+            append(SaveChannel[0], SaveChannel[1], SaveChannel[2]);
+    }
+    Settings.endGroup();
+}
+
+void CStationList::saveStations() {
+    QSettings Settings;
+
+    //	Remove channels from previous invocation ...
+    Settings.beginGroup("channels");
+    int ChannelCount = Settings.value("channelcout").toInt();
+
+    for (int i = 1; i <= ChannelCount; i++)
+        Settings.remove("channel/" + QString::number(i));
+
+    //	... and save the current set
+    ChannelCount = stationList.count();
+    Settings.setValue("channelcout", QString::number(ChannelCount));
+
+    for (int i = 1; i <= ChannelCount; i++)
+        Settings.setValue("channel/" + QString::number(i), getStationAt(i - 1));
+
+    Settings.endGroup();
 }

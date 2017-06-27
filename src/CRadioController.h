@@ -131,7 +131,8 @@ private slots:
     void SyncCheckTimerTimeout(void);
 
 signals:
-    void FoundStation(QString Station, QString CurrentChannel);
+    void DeviceReady(void);
+    void FoundStation(QString SId, QString Station, QString CurrentChannel);
     void ScanStopped(void);
     void ScanProgress(int Progress);
     void MOTChanged(QPixmap MOTImage);
@@ -141,7 +142,7 @@ signals:
 
 public slots:
     // This slots are called from the backend
-    void addtoEnsemble(const QString &Station);
+    void addtoEnsemble(quint32 SId, const QString &Station);
     void nameofEnsemble(int id, const QString&v);
     void changeinConfiguration(void);
     void displayDateTime(int* DateTime);

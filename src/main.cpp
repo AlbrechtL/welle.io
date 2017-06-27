@@ -34,7 +34,7 @@
 #include <QDir>
 #include <QSettings>
 #include <QIcon>
-#include <QtQml/QQmlApplicationEngine>
+#include <QQmlApplicationEngine>
 #include <QQmlContext>
 
 #include "DabConstants.h"

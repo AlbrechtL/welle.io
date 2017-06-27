@@ -105,8 +105,8 @@
 	memset (dateTime, 0, 8);
 	dateFlag	= false;
 	clearEnsemble	();
-	connect (this, SIGNAL (addtoEnsemble (const QString &)),
-	         myRadioInterface, SLOT (addtoEnsemble (const QString &)));
+	connect (this, SIGNAL (addtoEnsemble (quint32, const QString &)),
+	         myRadioInterface, SLOT (addtoEnsemble (quint32, const QString &)));
 	connect (this, SIGNAL (nameofEnsemble (int, const QString &)),
 	         myRadioInterface, SLOT (nameofEnsemble (int, const QString &)));
 	connect (this, SIGNAL (changeinConfiguration (void)),
@@ -850,8 +850,8 @@ char		label [17];
 	                       toQStringUsingCharset (
 	                        (const char *) label,
 	                           (CharacterSet) charSet));
-//	         qDebug() << "fib-processor:" << "FIG1/1: SId = %4x\t%s\n", SId, label);
-	         addtoEnsemble (myIndex -> serviceLabel. label);
+//	         qDebug("fib-processor: FIG1/1: SId = %4X \"%s\"", SId, label);
+	         addtoEnsemble (SId, myIndex -> serviceLabel. label);
 	         myIndex -> serviceLabel. hasName = true;
 	      }
 	      break;
@@ -903,7 +903,7 @@ char		label [17];
 	                           " (data)",
                                    (CharacterSet) charSet));
 #ifdef	MSC_DATA__
-	         addtoEnsemble (myIndex -> serviceLabel. label);
+	         addtoEnsemble (SId, myIndex -> serviceLabel. label);
 #endif
                  myIndex -> serviceLabel. hasName = true;
               }

@@ -32,7 +32,7 @@
 
 #include <QQmlContext>
 #include <QTimer>
-#include <QtQml/QQmlApplicationEngine>
+#include <QQmlApplicationEngine>
 //#include <QList>
 #include <QtCharts>
 using namespace QtCharts;
@@ -91,9 +91,10 @@ public slots:
     void updateSpectrum(QAbstractSeries* series);
 
 private slots:
+    void DeviceReady(void);
     void UpdateTimerTimeout(void);
     void MOTUpdate(QPixmap MOTImage);
-    void AddToStationList(QString Station, QString CurrentChannel);
+    void AddToStationList(QString SId, QString Station, QString CurrentChannel);
 
 signals:   
     void channelScanStopped(void);
