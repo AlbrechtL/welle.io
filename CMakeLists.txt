@@ -107,6 +107,17 @@ QT5_WRAP_CPP(EXTRA_MOCS
   src/backend/audio/faad-decoder.h
 )
 
+execute_process(
+  COMMAND git rev-parse --short HEAD
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+  OUTPUT_VARIABLE GIT_COMMIT_HASH
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+if(GIT_COMMIT_HASH)
+  add_definitions("-DGITHASH=\"${GIT_COMMIT_HASH}\"")
+endif()
+
 add_executable (${executableName} ${sources} ${EXTRA_MOCS} touch_gui_resource.qrc)
 
 target_link_libraries (${executableName}
