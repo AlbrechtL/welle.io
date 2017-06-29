@@ -114,7 +114,9 @@ execute_process(
   OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
-add_definitions("-DGITHASH=\"${GIT_COMMIT_HASH}\"")
+if(GIT_COMMIT_HASH)
+  add_definitions("-DGITHASH=\"${GIT_COMMIT_HASH}\"")
+endif()
 
 add_executable (${executableName} ${sources} ${EXTRA_MOCS} touch_gui_resource.qrc)
 
