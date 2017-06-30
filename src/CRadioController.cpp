@@ -39,7 +39,11 @@
 
 CRadioController::CRadioController(QVariantMap& commandLineOptions, CDABParams& DABParams, QObject *parent): QObject(parent)
 {
-    this->Device = NULL;
+    Device = NULL;
+    my_ficHandler = NULL;
+    my_mscHandler = NULL;
+    my_ofdmProcessor = NULL;
+
     this->commandLineOptions = commandLineOptions;
     this->DABParams = DABParams;
 
@@ -214,7 +218,7 @@ void CRadioController::SetChannel(QString Channel, bool isScan, bool Force)
             // Convert channel into a frequency
             CurrentFrequency = Channels.getFrequency(Channel);
 
-            if(CurrentFrequency != 0)
+            if(CurrentFrequency != 0 && Device)
             {
                 qDebug() << "RadioController: Tune to channel" <<  Channel << "->" << CurrentFrequency/1e6 << "MHz";
                 Device->setFrequency(CurrentFrequency);
@@ -392,12 +396,15 @@ void CRadioController::DecoderRestart(bool isScan)
     //	if we are pretty certain that the channel does not contain
     //	a signal, or "true" if there is a fair chance that the
     //	channel contains useful data
-    my_ofdmProcessor->set_scanMode(isScan);
+    if(my_ofdmProcessor && my_mscHandler && my_ficHandler)
+    {
+        my_ofdmProcessor->set_scanMode(isScan);
 
-    my_mscHandler->stopProcessing();
-    my_ficHandler->clearEnsemble();
-    my_ofdmProcessor->coarseCorrectorOn();
-    my_ofdmProcessor->reset();
+        my_mscHandler->stopProcessing();
+        my_ficHandler->clearEnsemble();
+        my_ofdmProcessor->coarseCorrectorOn();
+        my_ofdmProcessor->reset();
+    }
 }
 
 void CRadioController::SetStation(QString Station, bool Force)
