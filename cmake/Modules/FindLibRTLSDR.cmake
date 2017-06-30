@@ -1,7 +1,9 @@
 if(NOT LIBRTLSDR_FOUND)
 
-  pkg_check_modules (LIBRTLSDR_PKG librtlsdr)
-  find_path(LIBRTLSDR_INCLUDE_DIR NAMES rtl-sdr.h
+  include(FindPkgConfig)
+  pkg_check_modules(LIBRTLSDR_PKG librtlsdr)
+
+  find_path(LIBRTLSDR_INCLUDE_DIRS NAMES rtl-sdr.h
 	PATHS
 	${LIBRTLSDR_PKG_INCLUDE_DIRS}
 	/usr/include
@@ -12,17 +14,18 @@ if(NOT LIBRTLSDR_FOUND)
 	PATHS
 	${LIBRTLSDR_PKG_LIBRARY_DIRS}
 	/usr/lib
+        /usr/lib64
 	/usr/local/lib
   )
 
-  if(LIBRTLSDR_INCLUDE_DIR AND LIBRTLSDR_LIBRARIES)
+  if(LIBRTLSDR_INCLUDE_DIRS AND LIBRTLSDR_LIBRARIES)
 	set(LIBRTLSDR_FOUND TRUE CACHE INTERNAL "librtlsdr found")
-	message(STATUS "Found librtlsdr: ${LIBRTLSDR_INCLUDE_DIR}, ${LIBRTLSDR_LIBRARIES}")
-  else(LIBRTLSDR_INCLUDE_DIR AND LIBRTLSDR_LIBRARIES)
+	message(STATUS "Found librtlsdr: ${LIBRTLSDR_INCLUDE_DIRS}, ${LIBRTLSDR_LIBRARIES}")
+  else()
 	set(LIBRTLSDR_FOUND FALSE CACHE INTERNAL "librtlsdr found")
 	message(STATUS "librtlsdr not found.")
-  endif(LIBRTLSDR_INCLUDE_DIR AND LIBRTLSDR_LIBRARIES)
+  endif()
 
-  mark_as_advanced(LIBRTLSDR_INCLUDE_DIR LIBRTLSDR_LIBRARIES)
+  mark_as_advanced(LIBRTLSDR_INCLUDE_DIRS LIBRTLSDR_LIBRARIES)
 
-endif(NOT LIBRTLSDR_FOUND)
+endif()
