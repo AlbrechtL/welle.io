@@ -187,8 +187,8 @@ void CRadioController::Play(QString Channel, QString Station)
     SetChannel(Channel, false);
     SetStation(Station);
 
-    // Check every 10 s for a correct sync
-    SyncCheckTimer.start(10000);
+    // Check every 15 s for a correct sync
+    SyncCheckTimer.start(15000);
 }
 
 void CRadioController::SetChannel(QString Channel, bool isScan, bool Force)
