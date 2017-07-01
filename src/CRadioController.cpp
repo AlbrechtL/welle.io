@@ -492,6 +492,7 @@ void CRadioController::SyncCheckTimerTimeout(void)
        (isSync && FrameErrors >= 10))
     {
         qDebug() << "RadioController: Restart syncing. isSync:" << isSync << ", isFICCRC:" << isFICCRC << ", FrameErrors:" << FrameErrors;
+        emit showInfoMessage(tr("Lost signal or bad signal quality, trying to find it again."));
 
         SetChannel(CurrentChannel, false, true);
         SetStation(CurrentStation, true);
