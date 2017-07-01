@@ -8,7 +8,7 @@ Release: QMAKE_CXXFLAGS	+=  -flto -ffast-math -O3
 Release: QMAKE_LFLAGS	+=  -flto -O3
 
 RC_ICONS   =    icon.ico
-RESOURCES +=    touch_gui_resource.qrc
+RESOURCES +=    resources.qrc
 DISTFILES +=    README.md \
     android/AndroidManifest.xml \
     android/gradle/wrapper/gradle-wrapper.jar \
