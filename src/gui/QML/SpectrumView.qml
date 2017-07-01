@@ -11,7 +11,7 @@ ChartView {
     backgroundColor: "#00000000"
     //titleColor: "white"
     legend.visible: false
-    title: "Spectrum"
+    title: qsTr("Spectrum")
 
     property real maxYAxis: 0
 
