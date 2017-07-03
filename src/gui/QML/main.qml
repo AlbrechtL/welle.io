@@ -156,7 +156,7 @@ ApplicationWindow {
                 anchors.fill: parent
                 anchors.margins: Units.dp(-20)
                 onClicked: {
-                    if(mainWindow.isLandscape){
+                    if(mainWindow.isLandscape && settingsPage.is3D){
                         backButton.isSettings = !backButton.isSettings
                     } else {
                         if(stackViewDepth > 1){
@@ -208,7 +208,7 @@ ApplicationWindow {
                 anchors.fill: parent
                 anchors.margins: Units.dp(-20)
                 onClicked: {
-                    if(mainWindow.isLandscape){
+                    if(mainWindow.isLandscape && settingsPage.is3D){
                         infoButton.isInfoPage = !infoButton.isInfoPage
                     } else {
                         if(stackViewDepth > 2){
@@ -231,10 +231,17 @@ ApplicationWindow {
         sourceComponent: {
             if(mainWindow.width > mainWindow.height){
                 mainWindow.isLandscape = true;
-                if(isExpertView)
-                    return landscapeViewExpert
-                else
-                    return landscapeView
+                if(settingsPage.is3D){
+                    if(isExpertView)
+                        return landscapeViewExpert3D
+                    else
+                        return landscapeView3D
+                } else {
+                    if(isExpertView)
+                        return landscapeViewExpert
+                    else
+                        return landscapeView
+                }
             } else {
                 mainWindow.isLandscape = false;
                 if(isExpertView)
@@ -271,6 +278,7 @@ ApplicationWindow {
                 enableExpertModeState = settingsPage.enableExpertModeState
                 enableAGCState = settingsPage.enableAGCState
                 manualGainState = settingsPage.manualGainState
+                is3D = settingsPage.is3D
             }
             onEnableAGCStateChanged: {
                 settingsPage.enableAGCState = enableAGCState
@@ -285,10 +293,13 @@ ApplicationWindow {
             onManualGainStateChanged: {
                 settingsPage.manualGainState = manualGainState
             }
+            onIs3DChanged: {
+                settingsPage.is3D = is3D
+            }
         }
     }
     Component {
-        id: landscapeView
+        id: landscapeView3D
 
         Loader {
             id: stationView
@@ -298,7 +309,7 @@ ApplicationWindow {
         }
     }
     Component {
-        id: landscapeViewExpert
+        id: landscapeViewExpert3D
 
         SplitView {
             id: splitView
@@ -325,6 +336,66 @@ ApplicationWindow {
         }
     }
 
+    Component {
+        id: landscapeView
+
+        SplitView {
+            id: splitView
+            anchors.fill: parent
+            orientation: Qt.Horizontal
+
+            Loader {
+                id: stationView
+                Layout.minimumWidth: Units.dp(350)
+                Layout.margins: Units.dp(10)
+                sourceComponent: stackViewMain
+            }
+            Loader {
+                id: radioInformationViewLoader
+                Layout.preferredWidth: Units.dp(400)
+                Layout.margins: Units.dp(10)
+                sourceComponent: radioInformationView
+            }
+
+            Settings {
+                property alias stationViewWidth: stationView.width
+            }
+        }
+    }
+
+    Component {
+        id: landscapeViewExpert
+
+        SplitView {
+            id: splitView
+            anchors.fill: parent
+            orientation: Qt.Horizontal
+
+            Loader {
+                id: stationView
+                Layout.minimumWidth: Units.dp(350)
+                Layout.margins: Units.dp(10)
+                sourceComponent: stackViewMain
+            }
+            Loader {
+                id: radioInformationViewLoader
+                Layout.preferredWidth: Units.dp(400)
+                Layout.margins: Units.dp(10)
+                sourceComponent: radioInformationView
+            }
+            Loader {
+                id: expertViewLoader
+                Layout.margins: Units.dp(10)
+                Layout.fillWidth: true
+                sourceComponent: expertView
+            }
+
+            Settings {
+                property alias expertStationViewWidth: stationView.width
+                property alias expertViewWidth: expertViewLoader.width
+            }
+        }
+    }
 
     Component {
         id: portraitView

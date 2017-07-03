@@ -14,6 +14,7 @@ Item {
     property alias enableExpertModeState : enableExpertMode.checked
     property alias enableAGCState : enableAGC.checked
     property alias manualGainState : manualGain.currentValue
+    property alias is3D : enable3D.checked
 
     ListModel {
         id: colors
@@ -93,11 +94,12 @@ Item {
     Item {
         id:channels
         height: parent.height*0.4
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: settingsVisible?8:parent.height/2-height/2
         anchors.left: parent.left
         anchors.leftMargin: 8
         anchors.right: parent.right
         anchors.rightMargin: 8
-        anchors.verticalCenter: parent.verticalCenter
         Item {
             id: channelsWrapper
             height: parent.height
@@ -415,7 +417,7 @@ Item {
         anchors.right: parent.right
         anchors.rightMargin: 8
         flow: GridLayout.TopToBottom
-        rows: 5
+        rows: 6
         columns: 2
 
         Item {
@@ -498,7 +500,7 @@ Item {
         }
 
         Item {
-            Layout.rowSpan: 3
+            Layout.rowSpan: 4
             Layout.fillHeight: true
             Layout.fillWidth: true
             TouchSlider {
@@ -507,7 +509,7 @@ Item {
                 anchors.fill: parent
                 visible: !enableAGC.checked
                 enabled: !enableAGC.checked
-                maximumValue: cppGUI.gainCount
+                maximumValue: cppGUI.gainCount?cppGUI.gainCount:0
                 showCurrentValue: qsTr("Value: ") + cppGUI.currentGainValue.toFixed(2)
                 onValueChanged: {
                     if(enableAGC.checked == false)
@@ -524,9 +526,18 @@ Item {
             Layout.fillHeight: true
             objectName: "enableFullScreen"
             checked: false
+        }        
+
+        TouchSwitch {
+            id: enable3D
+            name: qsTr("Channel list layout")
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            objectName: "enable3D"
+            checked: false
+            onText: "3D"
+            offText: "2D"
         }
-
-
         TouchSwitch {
             id: enableExpertMode
             name: qsTr("Expert mode")
