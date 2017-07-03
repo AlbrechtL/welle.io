@@ -640,11 +640,6 @@ Item {
         onFoundChannelCount:{
             channelScanProgressBar.text = qsTr("Found channels") + ": " + channelCount;
         }
-
-        onShowErrorMessage:{
-            errorMessagePopup.text = Text;
-            errorMessagePopup.open();
-        }
     }
 
     states: [
