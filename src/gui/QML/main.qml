@@ -626,6 +626,15 @@ ApplicationWindow {
         revealedY: mainWindow.height - toolBar.height - height
         hiddenY: mainWindow.height
         color:  "#468bb7"
+        onOpened: closeTimer.running = true;
+        Timer {
+            id: closeTimer
+            interval: 1 * 5000 // 5 s
+            repeat: false
+            onTriggered: {
+              infoMessagePopup.close()
+            }
+        }
     }
 
     MessageDialog {

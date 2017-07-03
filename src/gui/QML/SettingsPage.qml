@@ -170,7 +170,7 @@ Item {
 
                         TouchSwitch {
                             id: enable3D
-                            name: qsTr("Channel list layout")
+                            name: qsTr("Channel list layout (experimental)")
                             height: 24
                             Layout.fillWidth: true
                             Layout.fillHeight: true
