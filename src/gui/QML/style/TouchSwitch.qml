@@ -13,6 +13,8 @@ Item {
     property alias name: nameView.text
     property alias objectName: switchView.objectName
     property alias checked: switchView.checked
+    property string onText: qsTr("ON")
+    property string offText: qsTr("OFF")
 
     Layout.preferredWidth: parent.width
 
@@ -53,7 +55,7 @@ Item {
                         color: "white"
                         font.family: Style.textFont
                         anchors.centerIn: parent
-                        text: qsTr("ON")
+                        text: masterLayout.onText
                     }
                 }
                 Item {
@@ -65,7 +67,7 @@ Item {
                         color: "white"
                         font.family: Style.textFont
                         anchors.centerIn: parent
-                        text: qsTr("OFF")
+                        text: masterLayout.offText
                     }
                 }
                 color: "#222"
