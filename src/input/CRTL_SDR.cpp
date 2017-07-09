@@ -77,6 +77,7 @@ CRTL_SDR::CRTL_SDR(CRadioController &RadioController)
 
     open = false;
     isAGC = false;
+    isHwAGC = false;
     RTL_SDR_Thread = NULL;
     lastFrequency = KHz(94700); // just a dummy
     sampleCounter = 0;
@@ -132,6 +133,9 @@ CRTL_SDR::CRTL_SDR(CRadioController &RadioController)
 
     // Always use manual gain, the AGC is implemented in software
     rtlsdr_set_tuner_gain_mode(device, 1);
+
+    // Disable hardware AGC by default
+    setHwAgc(false);
 
     // Enable AGC by default
     setAgc(true);
@@ -254,6 +258,12 @@ void CRTL_SDR::setAgc(bool AGC)
         isAGC = false;
         setGain(CurrentGainCount);
     }
+}
+
+void CRTL_SDR::setHwAgc(bool hwAGC)
+{
+    isHwAGC = hwAGC;
+    rtlsdr_set_agc_mode(device, hwAGC ? 1 : 0);
 }
 
 QString CRTL_SDR::getName()

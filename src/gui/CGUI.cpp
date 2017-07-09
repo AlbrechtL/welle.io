@@ -68,7 +68,6 @@ CGUI::CGUI(CRadioController *RadioController, CDABParams *DABParams, QObject *pa
     spectrum_fft_handler = new common_fft(DABParams->T_u);
 
     connect(RadioController, SIGNAL(MOTChanged(QPixmap)), this, SLOT(MOTUpdate(QPixmap)));
-    connect(RadioController, SIGNAL(DeviceReady()), this, SLOT(DeviceReady()));
     connect(RadioController, SIGNAL(FoundStation(QString, QString, QString)), this, SLOT(AddToStationList(QString, QString, QString)));
     connect(RadioController, SIGNAL(ScanStopped()), this, SIGNAL(channelScanStopped()));
     connect(RadioController, SIGNAL(ScanProgress(int)), this, SIGNAL(channelScanProgress(int)));
@@ -169,16 +168,6 @@ void CGUI::MOTUpdate(QPixmap MOTImage)
     emit motChanged();
 }
 
-void CGUI::DeviceReady(void)
-{
-    // Restore Settings
-    QSettings Settings;
-
-    // Set AGC & Gain
-    inputGainChanged(Settings.value("manualGainState", 0).toInt());
-    inputEnableAGCChanged(Settings.value("enableAGCState", true).toBool());
-}
-
 void CGUI::AddToStationList(QString SId, QString Station, QString CurrentChannel)
 {
     //	Add new station into list
@@ -215,6 +204,12 @@ void CGUI::inputEnableAGCChanged(bool checked)
 {
     if(RadioController)
         RadioController->SetAGC(checked);
+}
+
+void CGUI::inputEnableHwAGCChanged(bool checked)
+{
+    if(RadioController)
+        RadioController->SetHwAGC(checked);
 }
 
 void CGUI::inputGainChanged(double gain)

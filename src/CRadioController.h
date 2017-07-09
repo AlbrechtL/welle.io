@@ -62,6 +62,7 @@ public:
     QPixmap GetMOTImage(void);
     int32_t GetSpectrumSamples(DSPCOMPLEX* Buffer, int32_t Size);
     int GetCurrentFrequency(void);
+    void SetHwAGC(bool isHwAGC);
     void SetAGC(bool isAGC);
     float SetGain(int Gain);
 
@@ -123,6 +124,7 @@ private:
     bool isChannelScan;
     bool isGUIInit;
     bool isAGC;
+    bool isHwAGC;
     int GainCount;
 
 private slots:

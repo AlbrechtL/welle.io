@@ -11,6 +11,7 @@ Item {
     property alias enableFullScreenState : enableFullScreen.checked
     property alias enableExpertModeState : enableExpertMode.checked
     property alias enableAGCState : enableAGC.checked
+    property alias enableHwAGCState : enableHwAGC.checked
     property alias manualGainState : manualGain.currentValue
 
     Settings {
@@ -19,8 +20,16 @@ Item {
         property alias manualGainState : settingsPage.manualGainState
         property alias manualGainValue: manualGain.showCurrentValue
         property alias enableAGCState : settingsPage.enableAGCState
+        property alias enableHwAGCState : settingsPage.enableHwAGCState
         property alias manualChannel: manualChannelBox.currentIndex
         property alias enableManualChannel: enableManualChannel.checked
+    }
+
+    Component.onCompleted: {
+        console.debug("Apply settings initially")
+        cppGUI.inputEnableHwAGCChanged(enableHwAGCState)
+        cppGUI.inputGainChanged(manualGainState)
+        cppGUI.inputEnableAGCChanged(enableAGCState)
     }
 
     Connections{
@@ -120,12 +129,24 @@ Item {
                         spacing: Units.dp(20)
 
                         TouchSwitch {
+                            id: enableHwAGC
+                            name: qsTr("Hardware RF gain")
+                            height: 24
+                            Layout.fillHeight: true
+                            objectName: "enableHwAGC"
+                            checked: enableHwAGCState
+                            onChanged: {
+                                cppGUI.inputEnableHwAGCChanged(valueChecked)
+                            }
+                        }
+
+                        TouchSwitch {
                             id: enableAGC
                             name: qsTr("Automatic RF gain")
                             height: 24
                             Layout.fillHeight: true
                             objectName: "enableAGC"
-                            checked: true
+                            checked: enableAGCState
                             onChanged: {
                                 cppGUI.inputEnableAGCChanged(valueChecked)
 
@@ -140,6 +161,7 @@ Item {
                             name: qsTr("Manual gain")
                             showCurrentValue: qsTr("Value: ") + cppGUI.currentGainValue.toFixed(2)
                             Layout.fillHeight: true
+                            currentValue: manualGainState
                             onValueChanged: {
                                 if(enableAGC.checked == false)
                                     cppGUI.inputGainChanged(valueGain)

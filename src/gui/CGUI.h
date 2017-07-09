@@ -64,6 +64,7 @@ public:
     Q_INVOKABLE void stopChannelScanClick(void);
     Q_INVOKABLE void saveChannels(void);
     Q_INVOKABLE void inputEnableAGCChanged(bool checked);
+    Q_INVOKABLE void inputEnableHwAGCChanged(bool checked);
     Q_INVOKABLE void inputGainChanged(double gain);
     Q_INVOKABLE void clearStationList(void);
     QVariant stationModel() const
@@ -91,7 +92,6 @@ public slots:
     void updateSpectrum(QAbstractSeries* series);
 
 private slots:
-    void DeviceReady(void);
     void UpdateTimerTimeout(void);
     void MOTUpdate(QPixmap MOTImage);
     void AddToStationList(QString SId, QString Station, QString CurrentChannel);

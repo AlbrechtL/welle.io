@@ -64,6 +64,7 @@ public:
     float setGain(int32_t Gain);
     int32_t getGainCount(void);
     void setAgc(bool AGC);
+    void setHwAgc(bool hwAGC);
     QString getName(void);
     CDeviceID getID(void);
 
@@ -84,6 +85,7 @@ private:
     int32_t FrequencyOffset;
     int CurrentGain;
     bool isAGC;
+    bool isHwAGC;
     int32_t DeviceCount;
     CRTL_SDR_Thread* RTL_SDR_Thread;
     bool open;

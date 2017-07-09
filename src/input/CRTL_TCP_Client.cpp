@@ -55,6 +55,7 @@ CRTL_TCP_Client::CRTL_TCP_Client(CRadioController &RadioController)
 
     // Use default values
     isAGC = true;
+    isHwAGC = false;
     CurrentGain	= 0;
     CurrentGainCount = 0;
     serverPort = 1234;
@@ -214,6 +215,12 @@ void CRTL_TCP_Client::setAgc(bool AGC)
     isAGC = AGC;
 }
 
+void CRTL_TCP_Client::setHwAgc(bool hwAGC)
+{
+    isHwAGC = hwAGC;
+    sendCommand (0x08, hwAGC ? 1 : 0);
+}
+
 QString CRTL_TCP_Client::getName()
 {
     return "rtl_tcp_client (server: " + serverAddress.toString() + ":" + QString::number(serverPort) + ")";
@@ -248,6 +255,8 @@ void CRTL_TCP_Client::TCPConnectionWatchDogTimeout()
         {
             qDebug() << "RTL_TCP_CLIENT:" << "Successful connected to server";
             connected	= true;
+
+            setHwAgc(isHwAGC);
 
             if(isAGC)
             {

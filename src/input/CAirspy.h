@@ -62,6 +62,7 @@ public:
     float setGain(int32_t gain);
     int32_t getGainCount(void);
     void setAgc(bool AGC);
+    void setHwAgc(bool hwAGC);
     QString getName(void);
     CDeviceID getID(void);
 

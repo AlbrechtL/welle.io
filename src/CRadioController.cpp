@@ -54,6 +54,7 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, CDABParams& 
     isChannelScan = false;
     isGUIInit = false;
     isAGC = true;
+    isHwAGC = true;
 
     // Init the technical data
     CurrentChannel = tr("Unknown");
@@ -141,6 +142,8 @@ void CRadioController::onEventLoopStarted()
     }
 
     GainCount = Device->getGainCount();
+
+    Device->setHwAgc(isHwAGC);
 
     if(!isAGC) // Manual AGC
     {
@@ -321,6 +324,17 @@ int32_t CRadioController::GetSpectrumSamples(DSPCOMPLEX *Buffer, int32_t Size)
 int CRadioController::GetCurrentFrequency(void)
 {
     return CurrentFrequency;
+}
+
+void CRadioController::SetHwAGC(bool isHwAGC)
+{
+    this->isHwAGC = isHwAGC;
+
+    if (Device)
+    {
+        Device->setHwAgc(isHwAGC);
+        qDebug() << "RadioController:" << (isHwAGC ? "HwAGC on" : "HwAGC off");
+    }
 }
 
 void CRadioController::SetAGC(bool isAGC)
