@@ -50,7 +50,7 @@ class CRTL_SDR_Thread;
 class CRTL_SDR : public CVirtualInput {
     Q_OBJECT
 public:
-    CRTL_SDR(CRadioController &RadioController);
+    CRTL_SDR(CRadioController &RadioController, int fd = -1, QString path = "");
     ~CRTL_SDR(void);
 
     // Interface methods

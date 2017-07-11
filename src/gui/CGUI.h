@@ -93,7 +93,7 @@ public slots:
 
 private slots:
     void UpdateTimerTimeout(void);
-    void MOTUpdate(QPixmap MOTImage);
+    void MOTUpdate(QImage MOTImage);
     void AddToStationList(QString SId, QString Station, QString CurrentChannel);
 
 signals:   

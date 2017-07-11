@@ -59,6 +59,15 @@ void CAudio::setRate(int sampleRate)
     }
 }
 
+void CAudio::setVolume(qreal volume)
+{
+    if (AudioOutput != NULL) {
+        qDebug() << "Audio:"
+                 << "Volume" << volume;
+        AudioOutput->setVolume(volume);
+    }
+}
+
 void CAudio::init(int sampleRate)
 {
     if (AudioOutput != NULL) {
@@ -91,6 +100,12 @@ void CAudio::stop(void)
 {
     AudioIODevice->stop();
     AudioOutput->stop();
+}
+
+void CAudio::reset(void)
+{
+    AudioIODevice->flush();
+    AudioOutput->reset();
 }
 
 void CAudio::handleStateChanged(QAudio::State newState)
@@ -153,6 +168,11 @@ void CAudioIODevice::stop()
 {
     Buffer->FlushRingBuffer();
     close();
+}
+
+void CAudioIODevice::flush()
+{
+    Buffer->FlushRingBuffer();
 }
 
 qint64 CAudioIODevice::readData(char* data, qint64 len)

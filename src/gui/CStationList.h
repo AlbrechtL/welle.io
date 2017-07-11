@@ -35,9 +35,9 @@
 class StationElement : public QObject {
 Q_OBJECT
 
-    Q_PROPERTY(QString stationId MEMBER m_stationId NOTIFY stationIdChanged)
-    Q_PROPERTY(QString stationName MEMBER m_stationName NOTIFY stationNameChanged)
-    Q_PROPERTY(QString channelName MEMBER m_channelName NOTIFY channelNameChanged)
+    Q_PROPERTY(QString stationId MEMBER mStationId NOTIFY stationIdChanged)
+    Q_PROPERTY(QString stationName MEMBER mStationName NOTIFY stationNameChanged)
+    Q_PROPERTY(QString channelName MEMBER mChannelName NOTIFY channelNameChanged)
 
 public:
     explicit StationElement (QString stationId, QString stationName,
@@ -47,9 +47,9 @@ public:
     QString getChannelName(void);
 
 private:
-    QString m_stationId;
-    QString m_stationName;
-    QString m_channelName;
+    QString mStationId;
+    QString mStationName;
+    QString mChannelName;
 
 signals:
     void stationIdChanged();
@@ -60,7 +60,7 @@ signals:
 class CStationList
 {
 public:
-    CStationList(void);
+    CStationList(QString settingsGroup = "channel");
     ~CStationList(void);
 
     void reset(void);
@@ -68,14 +68,17 @@ public:
     int count(void);
     StationElement* at(int i);
     QStringList getStationAt(int i);
-    bool contains(QString id, QString channel = "");
+    StationElement* find(QString StationId, QString ChannelName);
+    bool contains(QString StationId, QString ChannelName);
     void append(QString StationId, QString StationName, QString ChannelName);
+    bool remove(QString StationId, QString ChannelName);
     QList<QObject*>  getList(void);
     void loadStations();
     void saveStations();
 
 private:
-    QList<QObject*> stationList;
+    QString mSettingsGroup;
+    QList<QObject*> mStationList;
 };
 
 #endif // STATIONLIST_H

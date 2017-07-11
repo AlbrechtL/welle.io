@@ -67,7 +67,7 @@ CGUI::CGUI(CRadioController *RadioController, CDABParams *DABParams, QObject *pa
 
     spectrum_fft_handler = new common_fft(DABParams->T_u);
 
-    connect(RadioController, SIGNAL(MOTChanged(QPixmap)), this, SLOT(MOTUpdate(QPixmap)));
+    connect(RadioController, SIGNAL(MOTChanged(QImage)), this, SLOT(MOTUpdate(QImage)));
     connect(RadioController, SIGNAL(FoundStation(QString, QString, QString)), this, SLOT(AddToStationList(QString, QString, QString)));
     connect(RadioController, SIGNAL(ScanStopped()), this, SIGNAL(channelScanStopped()));
     connect(RadioController, SIGNAL(ScanProgress(int)), this, SIGNAL(channelScanProgress(int)));
@@ -162,9 +162,9 @@ void CGUI::UpdateTimerTimeout()
     }
 }
 
-void CGUI::MOTUpdate(QPixmap MOTImage)
+void CGUI::MOTUpdate(QImage MOTImage)
 {
-    this->MOTImage->setPixmap(MOTImage);
+    this->MOTImage->setPixmap(QPixmap::fromImage(MOTImage));
     emit motChanged();
 }
 

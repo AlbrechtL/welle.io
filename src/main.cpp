@@ -30,7 +30,9 @@
 #include <unistd.h>
 
 #include <QApplication>
+#include <QCoreApplication>
 #include <QCommandLineParser>
+#include <QDebug>
 #include <QDir>
 #include <QSettings>
 #include <QIcon>
@@ -40,6 +42,9 @@
 #include "DabConstants.h"
 #include "CRadioController.h"
 #include "CGUI.h"
+#ifdef Q_OS_ANDROID
+#include "CAndroidJNI.h"
+#endif
 
 QTranslator* AddTranslator(QApplication *app, QString Language, QTranslator *OldTranslator = NULL);
 
@@ -50,6 +55,35 @@ int main(int argc, char** argv)
     QCoreApplication::setOrganizationDomain("welle.io");
     QCoreApplication::setApplicationName("welle.io");
     QCoreApplication::setApplicationVersion(CURRENT_VERSION);
+
+    // Default values
+    CDABParams DABParams(1);
+    QVariantMap commandLineOptions;
+
+#ifdef Q_OS_ANDROID
+    //  Process Android Service
+    if (argc == 2 && qstrcmp(argv[1], "-S") == 0) {
+        qDebug() << "main:" <<  "Run as service";
+
+        // Create new QT core application
+        QCoreApplication app(argc, argv);
+
+        commandLineOptions["dabDevice"]     = "";
+        commandLineOptions["ipAddress"]     = "";
+        commandLineOptions["ipPort"]        = "";
+        commandLineOptions["rawFile"]       = "";
+        commandLineOptions["rawFileFormat"] = "";
+
+        // Create a new radio interface instance
+        CRadioController RadioController(commandLineOptions, DABParams);
+
+        CAndroidJNI::getInstance().setRadioController(&RadioController);
+
+        // Run application
+        return app.exec();
+    }
+#endif
+    qDebug() << "main:" <<  "Run as application";
 
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
@@ -67,9 +101,6 @@ int main(int argc, char** argv)
     qDebug() << "main:" <<  "Detected system language" << locale;
 
     QTranslator *Translator = AddTranslator(&app, locale);
-
-    // Default values
-    CDABParams DABParams(1);
 
     // Handle the command line
     QCommandLineParser optionParser;
@@ -130,7 +161,6 @@ int main(int argc, char** argv)
         DABParams.setMode(Mode);
     }
 
-    QVariantMap commandLineOptions;
     commandLineOptions["dabDevice"] = optionParser.value(InputOption);
     commandLineOptions["ipAddress"] = optionParser.value(RTL_TCPServerIPOption);
     commandLineOptions["ipPort"] = optionParser.value(RTL_TCPServerIPPort);

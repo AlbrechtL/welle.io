@@ -30,124 +30,158 @@
 
 #include <QSettings>
 
-StationElement::StationElement (QString stationId,
-                                QString const stationName,
-                                QString const channelName,
-                                QObject *parent)
-    : QObject(parent) {
+StationElement::StationElement(QString stationId,
+                               QString const stationName,
+                               QString const channelName,
+                               QObject *parent)
+    : QObject(parent)
+{
     setProperty("stationId",stationId);
-	setProperty("stationName",stationName);
-	setProperty("channelName",channelName);
+    setProperty("stationName",stationName);
+    setProperty("channelName",channelName);
 }
 
-QString StationElement::getStationId (void) {
-    return m_stationId;
+QString StationElement::getStationId(void)
+{
+    return mStationId;
 }
 
-QString StationElement::getStationName (void) {
-	return m_stationName;
+QString StationElement::getStationName(void)
+{
+    return mStationName;
 }
 
-QString StationElement::getChannelName (void) {
-	return m_channelName;
+QString StationElement::getChannelName(void)
+{
+    return mChannelName;
 }
 
-    CStationList::CStationList (void) {
-	stationList. clear ();
+CStationList::CStationList(QString settingsGroup)
+    : mSettingsGroup(settingsGroup)
+{
+    mStationList.clear();
 }
 
-    CStationList::~CStationList (void) {
+CStationList::~CStationList (void)
+{
 }
 
-void	CStationList::reset (void) {
-	stationList. clear ();
+void CStationList::reset(void) {
+    mStationList.clear();
 }
 
-bool	variantLessThan (const QObject* v1, const QObject* v2) {
-    return (((StationElement*) v1) -> getStationName ()).compare(
-                ((StationElement*) v2) -> getStationName (),
-                Qt::CaseInsensitive) < 0;
+bool variantLessThan(const QObject* v1, const QObject* v2)
+{
+    int result = (((StationElement*) v1)->getStationName()).compare(
+                ((StationElement*) v2)->getStationName(), Qt::CaseInsensitive);
+    if (result < 0) {
+        return true;
+    } else if (result > 0) {
+        return false;
+    } else {
+        return (((StationElement*) v1)->getChannelName()).compare(
+                    ((StationElement*) v2)->getChannelName(), Qt::CaseInsensitive) < 0;
+    }
 }
 
-void	CStationList::sort (void) {
-	qSort (stationList. begin (), stationList. end (), variantLessThan);
+void CStationList::sort(void)
+{
+    qSort(mStationList.begin(), mStationList.end(), variantLessThan);
 }
 
-int	CStationList::count (void) {
-	return stationList. count ();
+int CStationList::count(void)
+{
+    return mStationList.count();
 }
 
-StationElement* CStationList::at (int i) {
-	return (StationElement*) stationList. at (i);
+StationElement* CStationList::at(int i)
+{
+    return (StationElement*) mStationList.at(i);
 }
 
-QStringList CStationList::getStationAt (int i) {
-QString StationId = at(i) -> getStationId ();
-QString StationName = at(i) -> getStationName ();
-QString ChannelName = at(i) -> getChannelName ();
-QStringList StationElement;
+QStringList CStationList::getStationAt(int i)
+{
+    QString StationId = at(i)->getStationId();
+    QString StationName = at(i)->getStationName();
+    QString ChannelName = at(i)->getChannelName();
+    QStringList StationElement;
 
-	StationElement. append (StationId);
-	StationElement. append (StationName);
-	StationElement. append (ChannelName);
-	return StationElement;
+    StationElement.append(StationId);
+    StationElement.append(StationName);
+    StationElement.append(ChannelName);
+    return StationElement;
 }
 
-bool	CStationList::contains (QString id, QString channel) {
-
-    for (int i = 0; i < count (); i++) {
-        if (at (i) -> getStationId () == id) {
-            if (channel.isEmpty()) {
-                // do not care about the channel
-                return true;
-            } else {
-                // check matching channel as well
-                if (at (i) -> getChannelName () == channel) {
-                    return true;
-                }
-            }
+StationElement* CStationList::find(QString StationId, QString ChannelName)
+{
+    foreach (QObject *obj, mStationList) {
+        StationElement *station = (StationElement*)obj;
+        if (station->getStationId() == StationId &&
+                station->getChannelName() == ChannelName) {
+            return station;
         }
     }
 
-	return false;
+    return 0;
 }
 
-void	CStationList::append (QString StationId, QString StationName, QString ChannelName) {
-    stationList. append (new StationElement (StationId, StationName, ChannelName));
+bool CStationList::contains(QString StationId, QString ChannelName)
+{
+    return (find(StationId, ChannelName) != 0);
 }
 
-QList<QObject*>  CStationList::getList (void) {
-	return  stationList;
+void CStationList::append(QString StationId, QString StationName, QString ChannelName)
+{
+    mStationList.append(new StationElement(StationId, StationName, ChannelName));
 }
 
-void CStationList::loadStations() {
+bool CStationList::remove(QString StationId, QString ChannelName)
+{
+    for (QList<QObject*>::iterator it = mStationList.begin(); it != mStationList.end(); it++) {
+        StationElement *station = (StationElement*)*it;
+        if (station->getStationId() == StationId && station->getChannelName() == ChannelName) {
+            mStationList.erase(it);
+            return true;
+        }
+    }
+    return false;
+}
+
+QList<QObject*> CStationList::getList(void)
+{
+    return  mStationList;
+}
+
+void CStationList::loadStations()
+{
     QSettings Settings;
-    Settings.beginGroup("channels");
-    int channelcount = Settings.value("channelcout", 0).toInt();
+    Settings.beginGroup(mSettingsGroup + "s");
+    int channelcount = Settings.value(mSettingsGroup + "cout", 0).toInt();
     for (int i = 1; i <= channelcount; i++) {
-        QStringList SaveChannel = Settings.value("channel/" + QString::number(i)).toStringList();
+        QStringList SaveChannel = Settings.value(mSettingsGroup + "/" + QString::number(i)).toStringList();
         if (SaveChannel.size() == 3)
             append(SaveChannel[0], SaveChannel[1], SaveChannel[2]);
     }
     Settings.endGroup();
 }
 
-void CStationList::saveStations() {
+void CStationList::saveStations()
+{
     QSettings Settings;
 
-    //	Remove channels from previous invocation ...
-    Settings.beginGroup("channels");
+    // Remove channels from previous invocation ...
+    Settings.beginGroup(mSettingsGroup + "s");
     int ChannelCount = Settings.value("channelcout").toInt();
 
     for (int i = 1; i <= ChannelCount; i++)
-        Settings.remove("channel/" + QString::number(i));
+        Settings.remove(mSettingsGroup + "/" + QString::number(i));
 
-    //	... and save the current set
-    ChannelCount = stationList.count();
-    Settings.setValue("channelcout", QString::number(ChannelCount));
+    // ... and save the current set
+    ChannelCount = mStationList.count();
+    Settings.setValue(mSettingsGroup + "cout", QString::number(ChannelCount));
 
     for (int i = 1; i <= ChannelCount; i++)
-        Settings.setValue("channel/" + QString::number(i), getStationAt(i - 1));
+        Settings.setValue(mSettingsGroup + "/" + QString::number(i), getStationAt(i - 1));
 
     Settings.endGroup();
 }

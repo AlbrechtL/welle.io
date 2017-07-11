@@ -33,7 +33,7 @@
 #include <QObject>
 #include <QList>
 #include <QDateTime>
-#include <QPixmap>
+#include <QImage>
 #include <QVariantMap>
 
 #include "CAudio.h"
@@ -51,15 +51,29 @@ class CRadioController : public QObject
 {
     Q_OBJECT
 public:
+    enum DabStatus {
+        Error       = -1,
+        Unknown     = 0,
+        Initialised = 1,
+        Playing     = 2,
+        Paused      = 3,
+        Stopped     = 4,
+        Scanning    = 5,
+    } ;
+
     CRadioController(QVariantMap &commandLineOptions, CDABParams& DABParams, QObject* parent = NULL);
     ~CRadioController(void);
+    void setDevice(CVirtualInput* Device);
     void Play(QString Channel, QString Station);
+    void Pause();
+    void Stop();
+    void SetVolume(qreal volume);
     void SetStation(QString Station, bool Force = false);
     void SetChannel(QString Channel, bool isScan, bool Force = false);
     void StartScan(void);
     void StopScan(void);
     QVariantMap GetGUIData(void);
-    QPixmap GetMOTImage(void);
+    QImage GetMOTImage(void);
     int32_t GetSpectrumSamples(DSPCOMPLEX* Buffer, int32_t Size);
     int GetCurrentFrequency(void);
     void SetHwAGC(bool isHwAGC);
@@ -103,9 +117,10 @@ private:
     bool isStereo;
     bool isDAB;
     QString Label;
-    QPixmap *MOTImage;
+    QImage *MOTImage;
 
     // Controller objects
+    DabStatus Status;
     QString CurrentChannel;
     int32_t CurrentFrequency;
     QString CurrentStation;
@@ -133,11 +148,12 @@ private slots:
     void SyncCheckTimerTimeout(void);
 
 signals:
+    void DisplayDataUpdate(void);
     void DeviceReady(void);
     void FoundStation(QString SId, QString Station, QString CurrentChannel);
     void ScanStopped(void);
     void ScanProgress(int Progress);
-    void MOTChanged(QPixmap MOTImage);
+    void MOTChanged(QImage MOTImage);
     void showErrorMessage(QString Text);
     void showInfoMessage(QString Text);
     void showAndroidInstallDialog(QString Title, QString Text);

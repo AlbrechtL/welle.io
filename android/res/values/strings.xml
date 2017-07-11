@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="menu_stations">Stations</string>
+    <string name="menu_channels">Channels</string>
+    <string name="menu_favorites">Favorites</string>
+    <string name="action_scan">Scan</string>
+    <string name="action_favorite">Favorite</string>
+    <string name="action_record">Record</string>
+    <string name="action_play">Play</string>
+    <string name="action_pause">Pause</string>
+    <string name="action_skip">Skip</string>
+    <string name="action_next_channel">Next Channel</string>
+    <string name="label_scanning">Scanning:</string>
+    <string name="msg_rtl_sdr_unplugged">RTL-SDR is unplugged.</string>
+</resources>

@@ -50,13 +50,14 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, CDABParams& 
     AudioBuffer = new RingBuffer<int16_t>(2 * AUDIOBUFFERSIZE);
     Audio = new CAudio(AudioBuffer);
 
-    MOTImage = new QPixmap(320, 240);
+    MOTImage = new QImage();
     isChannelScan = false;
     isGUIInit = false;
     isAGC = true;
     isHwAGC = true;
 
     // Init the technical data
+    Status = Unknown;
     CurrentChannel = tr("Unknown");
     CurrentFrequency = 0;
     CurrentStation = "";
@@ -95,6 +96,11 @@ CRadioController::~CRadioController(void)
     delete Audio;
 }
 
+void CRadioController::setDevice(CVirtualInput* Dev)
+{
+    this->Device = Dev;
+}
+
 void CRadioController::onEventLoopStarted()
 {
 #ifdef Q_OS_ANDROID
@@ -124,7 +130,8 @@ void CRadioController::onEventLoopStarted()
         rawFileFormat = commandLineOptions["rawFileFormat"].toString();
 
     // Init device
-    Device = CInputFactory::GetDevice(*this, dabDevice);
+    if (Device == NULL)
+        Device = CInputFactory::GetDevice(*this, dabDevice);
 
     // Set rtl_tcp settings
     if (Device->getID() == CDeviceID::RTL_TCP) {
@@ -182,6 +189,7 @@ void CRadioController::onEventLoopStarted()
         my_ficHandler,
         3, 3);
 
+    Status = Initialised;
     emit DeviceReady();
 }
 
@@ -194,6 +202,9 @@ void CRadioController::Play(QString Channel, QString Station)
     SetChannel(Channel, false);
     SetStation(Station);
 
+    Status = Playing;
+    emit DisplayDataUpdate();
+
     // Store as last station
     QSettings Settings;
     QStringList StationElement;
@@ -203,6 +214,40 @@ void CRadioController::Play(QString Channel, QString Station)
 
     // Check every 10 s for a correct sync
     SyncCheckTimer.start(10000);
+}
+
+void CRadioController::Pause()
+{
+    if (Device)
+        Device->stop();
+
+    if (Audio)
+        Audio->reset();
+
+    SyncCheckTimer.stop();
+
+    Status = Paused;
+    emit DisplayDataUpdate();
+}
+
+void CRadioController::Stop()
+{
+    if (Device)
+        Device->stop();
+
+    if (Audio)
+        Audio->reset();
+
+    SyncCheckTimer.stop();
+
+    Status = Stopped;
+    emit DisplayDataUpdate();
+}
+
+void CRadioController::SetVolume(qreal volume)
+{
+    if (Audio)
+        Audio->setVolume(volume);
 }
 
 void CRadioController::SetChannel(QString Channel, bool isScan, bool Force)
@@ -256,6 +301,9 @@ void CRadioController::StartScan(void)
         CurrentDisplayStation = tr("Scanning") + " ...";
         Label = CChannels::FirstChannel;
     }
+
+    Status = Scanning;
+    emit DisplayDataUpdate();
 }
 
 void CRadioController::StopScan(void)
@@ -266,7 +314,9 @@ void CRadioController::StopScan(void)
     CurrentDisplayStation = tr("No Station");
     Label = "";
 
+    Status = Stopped;
     emit ScanStopped();
+    emit DisplayDataUpdate();
 }
 
 QVariantMap CRadioController::GetGUIData(void)
@@ -280,6 +330,7 @@ QVariantMap CRadioController::GetGUIData(void)
     }
 
     // Init the GUI data map
+    GUIData["Status"] = Status;
     GUIData["Channel"] = CurrentChannel;
     GUIData["Frequency"] = CurrentFrequency;
     GUIData["Station"] = CurrentDisplayStation.simplified();
@@ -306,7 +357,7 @@ QVariantMap CRadioController::GetGUIData(void)
     return GUIData;
 }
 
-QPixmap CRadioController::GetMOTImage()
+QImage CRadioController::GetMOTImage()
 {
     return *MOTImage;
 }
@@ -371,6 +422,7 @@ float CRadioController::SetGain(int Gain)
 
 void CRadioController::setErrorMessage(QString Text)
 {
+    Status = Error;
     emit showErrorMessage(Text);
 }
 
@@ -381,6 +433,7 @@ void CRadioController::setInfoMessage(QString Text)
 
 void CRadioController::setAndroidInstallDialog(QString Title, QString Text)
 {
+    Status = Error;
     emit showAndroidInstallDialog(Title, Text);
 }
 
@@ -439,8 +492,10 @@ void CRadioController::SetStation(QString Station, bool Force)
         CurrentLanguageType = "";
         Label = "";
 
+        emit DisplayDataUpdate();
+
         // Clear MOT
-        QPixmap MOT(320, 240);
+        QImage MOT(320, 240, QImage::Format_Alpha8);
         MOT.fill(Qt::transparent);
         emit MOTChanged(MOT);
     }
@@ -497,6 +552,9 @@ void CRadioController::StationTimerTimeout()
                 isDAB = false;
             else
                 isDAB = true;
+
+            Status = Playing;
+            emit DisplayDataUpdate();
         }
     }
 }
@@ -651,6 +709,7 @@ void CRadioController::show_aacErrors(int AACErrors)
 void CRadioController::showLabel(QString Label)
 {
     this->Label = Label;
+    emit DisplayDataUpdate();
 }
 
 void CRadioController::showMOT(QByteArray Data, int Subtype, QString s)
