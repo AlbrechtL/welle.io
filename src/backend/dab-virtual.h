@@ -25,18 +25,13 @@
 #include    <stdint.h>
 #include    <stdio.h>
 
-class CRadioController;
-class audioSink;
-
 #define CUSize  (4 * 16)
 
 class dabVirtual {
     public:
-        dabVirtual(void);
-        virtual ~dabVirtual (void);
-        virtual int32_t process     (int16_t *, int16_t);
-        virtual void    stopRunning (void);
-        virtual void    stop        (void);
+        virtual ~dabVirtual() {};
+        virtual int32_t process     (int16_t *v, int16_t cnt) = 0;
+        virtual void    stopRunning (void) = 0;
 };
 #endif
 

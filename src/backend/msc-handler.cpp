@@ -44,7 +44,7 @@ mscHandler::mscHandler(
     cifVector            = new int16_t[55296];
     cifCount             = 0;    // msc blocks in CIF
     blkCount             = 0;
-    dabHandler           = new dabVirtual;
+    dabHandler           = nullptr;
     newChannel           = false;
     work_to_be_done      = false;
     dabModus             = 0;
@@ -71,8 +71,10 @@ mscHandler::mscHandler(
 mscHandler::~mscHandler()
 {
     delete[] cifVector;
-    dabHandler->stopRunning ();
-    delete dabHandler;
+    if (dabHandler) {
+        dabHandler->stopRunning ();
+        delete dabHandler;
+    }
 }
 
 //  Note, the set_xxx functions are called from within a
@@ -134,8 +136,10 @@ void  mscHandler::process_mscBlock(int16_t *fbits, int16_t blkno)
     if (newChannel) {
         locker.lock ();
         newChannel = false;
-        dabHandler->stopRunning();
-        delete dabHandler;
+        if (dabHandler) {
+            dabHandler->stopRunning();
+            delete dabHandler;
+        }
 
         if (audioService) {
             dabHandler = new dabAudio(
@@ -182,7 +186,9 @@ void  mscHandler::process_mscBlock(int16_t *fbits, int16_t blkno)
     //  Here we move the vector to be processed to a
     //  separate task or separate function, depending on
     //  the settings in the ini file, we might take advantage of multi cores
-    (void)dabHandler -> process (myBegin, Length * CUSize);
+    if (dabHandler) {
+        (void)dabHandler->process (myBegin, Length * CUSize);
+    }
 }
 
 void mscHandler::stopProcessing()
@@ -193,6 +199,8 @@ void mscHandler::stopProcessing()
 void mscHandler::stopHandler()
 {
     work_to_be_done = false;
-    dabHandler->stopRunning ();
+    if (dabHandler) {
+        dabHandler->stopRunning ();
+    }
 }
 
