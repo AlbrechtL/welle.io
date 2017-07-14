@@ -121,7 +121,6 @@ SOURCES += \
     src/backend/charsets.cpp \
     src/backend/firecode-checker.cpp \
     src/backend/dab-virtual.cpp \
-    src/backend/dab-processor.cpp \
     src/backend/protTables.cpp \
     src/backend/audio/dab-audio.cpp \
     src/backend/audio/mp2processor.cpp \

@@ -82,7 +82,7 @@ dabAudio::dabAudio(
             our_dabProcessor = new mp4Processor (myRadioInterface, bitRate, audioBuffer);
         }
         else        // cannot happen
-            our_dabProcessor = new dabProcessor ();
+            our_dabProcessor = new dummyProcessor ();
     }
 
     qDebug() << "dab-audio:" << "we have now" << ((dabModus == DAB_PLUS) ? "DAB+" : "DAB");
@@ -99,7 +99,6 @@ dabAudio::~dabAudio()
         usleep(1);
     }
     delete protectionHandler;
-    delete our_dabProcessor;
     delete  Buffer;
     delete[] outV;
     for (i = 0; i < 16; i ++) {

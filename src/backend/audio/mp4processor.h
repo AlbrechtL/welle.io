@@ -28,6 +28,8 @@
  */
 //
 #include    "DabConstants.h"
+#include    <vector>
+#include    <memory>
 #include    <stdio.h>
 #include    <stdint.h>
 #include    "CAudio.h"
@@ -48,7 +50,6 @@ class   mp4Processor : public QObject, public dabProcessor
                      int16_t bitRate,
                      RingBuffer<int16_t> *b);
 
-        ~mp4Processor(void);
         void        addtoFrame(uint8_t *v);
 
     private:
@@ -66,7 +67,7 @@ class   mp4Processor : public QObject, public dabProcessor
         int16_t     blocksInBuffer;
         int16_t     blockCount;
         int16_t     bitRate;
-        uint8_t    *frameBytes;
+        std::vector<uint8_t> frameBytes;
         uint8_t   **RSMatrix;
         int16_t     RSDims;
         int16_t     au_start[10];
@@ -77,7 +78,7 @@ class   mp4Processor : public QObject, public dabProcessor
         int16_t     errorRate;
         firecode_checker    fc;
         reedSolomon the_rsDecoder;
-        uint8_t    *outVector;
+        std::vector<uint8_t> outVector;
         //  and for the aac decoder
         faadDecoder aacDecoder;
         int16_t     frameCount;
@@ -87,7 +88,7 @@ class   mp4Processor : public QObject, public dabProcessor
         int16_t     aacErrors;
         int16_t     aacFrames;
         int16_t     charSet;
-        PADDecoderAdapter  *padDecoderAdapter;
+        std::unique_ptr<PADDecoderAdapter> padDecoderAdapter;
 signals:
         void        show_frameErrors(int frameErrors);
         void        show_rsErrors(int rsErrors);

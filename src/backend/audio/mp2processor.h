@@ -32,6 +32,7 @@
 #include    <math.h>
 #include    "dab-processor.h"
 #include    <QObject>
+#include    <vector>
 #include    <stdio.h>
 #include    "ringbuffer.h"
 
@@ -55,9 +56,8 @@ class mp2Processor: public QObject, public dabProcessor
         mp2Processor( CRadioController *mr,
                       int16_t bitRate,
                       RingBuffer<int16_t> *buffer);
-        ~mp2Processor(void);
-        void        addtoFrame  (uint8_t *);
-        void        setFile     (FILE *);
+        virtual void addtoFrame(uint8_t *v);
+        void setFile(FILE *);
 
     private:
         int32_t     mp2sampleRate(uint8_t *frame);
@@ -84,7 +84,7 @@ class mp2Processor: public QObject, public dabProcessor
         int32_t     bit_window;
         int32_t     bits_in_window;
         uint8_t     *frame_pos;
-        uint8_t     *MP2frame;
+        std::vector<uint8_t> MP2frame;
         int16_t     MP2framesize;
         int16_t     MP2Header_OK;
         int16_t     MP2headerCount;

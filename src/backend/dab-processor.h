@@ -28,12 +28,15 @@
 
 //  virtual class, just for providing a common base
 //  for the real decoder classes
-
 class dabProcessor {
     public:
-        dabProcessor(void);
-        virtual ~dabProcessor(void);
-        virtual void addtoFrame(uint8_t *);
+        virtual void addtoFrame(uint8_t *) = 0;
+};
+
+// The dummy processor does nothing
+class dummyProcessor : public dabProcessor {
+    public:
+        virtual void addtoFrame(uint8_t *) {};
 };
 #endif
 

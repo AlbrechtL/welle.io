@@ -61,8 +61,8 @@ mp4Processor::mp4Processor(
 
     superFramesize = 110 * (bitRate / 8);
     RSDims         = bitRate / 8;
-    frameBytes     = new uint8_t[RSDims * 120];   // input
-    outVector      = new uint8_t[RSDims * 110];
+    frameBytes.resize(RSDims * 120);   // input
+    outVector.resize(RSDims * 110);
     blockFillIndex = 0;
     blocksInBuffer = 0;
     frameCount     = 0;
@@ -75,13 +75,7 @@ mp4Processor::mp4Processor(
     //  error display
     au_count    = 0;
     au_errors   = 0;
-    padDecoderAdapter = new PADDecoderAdapter(mr);
-}
-
-mp4Processor::~mp4Processor()
-{
-    delete[] frameBytes;
-    delete[] outVector;
+    padDecoderAdapter = std::make_unique<PADDecoderAdapter>(mr);
 }
 
 /**
@@ -128,7 +122,7 @@ void mp4Processor::addtoFrame(uint8_t *V)
          * and adjust the buffer here for the next round
          */
         if (fc.check (&frameBytes[blockFillIndex * nbits / 8]) &&
-                (processSuperframe (frameBytes,
+                (processSuperframe (frameBytes.data(),
                                     blockFillIndex * nbits / 8))) {
             //  since we processed a full cycle of 5 blocks, we just start a
             //  new sequence, beginning with block blockFillIndex

@@ -242,7 +242,7 @@ struct quantizer_spec quantizer_table[17] = {
         Voffs          = 0;
         baudRate       = 48000;    // default for DAB
         MP2framesize   = 24 * bitRate; // may be changed
-        MP2frame       = new uint8_t[2 * MP2framesize];
+        MP2frame.resize(2 * MP2framesize);
         MP2Header_OK   = 0;
         MP2headerCount = 0;
         MP2bitCount    = 0;
@@ -250,11 +250,6 @@ struct quantizer_spec quantizer_table[17] = {
         errorFrames    = 0;
     }
 
-mp2Processor::~mp2Processor()
-{
-    delete[] MP2frame;
-}
-//
 
 #define valid(x)    ((x == 48000) || (x == 24000))
 void mp2Processor::setSamplerate (int32_t rate)
@@ -609,10 +604,10 @@ void mp2Processor::addtoFrame(uint8_t *v)
 
     for (i = 0; i < amount; i ++) {
         if (MP2Header_OK == 2) {
-            addbittoMP2 (MP2frame, v[i], MP2bitCount ++);
+            addbittoMP2 (MP2frame.data(), v[i], MP2bitCount ++);
             if (MP2bitCount >= lf) {
                 int16_t sample_buf[KJMP2_SAMPLES_PER_FRAME * 2];
-                if (mp2decodeFrame (MP2frame, sample_buf)) {
+                if (mp2decodeFrame (MP2frame.data(), sample_buf)) {
                     buffer->putDataIntoBuffer (sample_buf,
                             2 * (int32_t)KJMP2_SAMPLES_PER_FRAME);
                     newAudio (baudRate);
@@ -630,7 +625,7 @@ void mp2Processor::addtoFrame(uint8_t *v)
                     if (++ MP2headerCount == 12) {
                         MP2bitCount = 0;
                         for (j = 0; j < 12; j ++)
-                            addbittoMP2 (MP2frame, 1, MP2bitCount ++);
+                            addbittoMP2 (MP2frame.data(), 1, MP2bitCount ++);
                         MP2Header_OK = 1;
                     }
                 }
@@ -639,9 +634,9 @@ void mp2Processor::addtoFrame(uint8_t *v)
             }
             else {
                 if (MP2Header_OK == 1) {
-                    addbittoMP2 (MP2frame, v[i], MP2bitCount ++);
+                    addbittoMP2 (MP2frame.data(), v[i], MP2bitCount ++);
                     if (MP2bitCount == 24) {
-                        setSamplerate (mp2sampleRate (MP2frame));
+                        setSamplerate (mp2sampleRate (MP2frame.data()));
                         MP2Header_OK = 2;
                     }
                 }
