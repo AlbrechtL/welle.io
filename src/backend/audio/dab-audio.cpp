@@ -51,7 +51,8 @@ dabAudio::dabAudio(
         bool   shortForm,
         int16_t protLevel,
         CRadioController *mr,
-        RingBuffer<int16_t> *buffer)
+        RingBuffer<int16_t> *buffer) :
+    Buffer(64 * 32768)
 {
     int32_t i;
     this->dabModus         = dabModus;
@@ -86,7 +87,6 @@ dabAudio::dabAudio(
     }
 
     qDebug() << "dab-audio:" << "we have now" << ((dabModus == DAB_PLUS) ? "DAB+" : "DAB");
-    Buffer      = new RingBuffer<int16_t>(64 * 32768);
     running     = true;
     start ();
 }
@@ -98,7 +98,6 @@ dabAudio::~dabAudio()
     while (this->isRunning ()) {
         usleep(1);
     }
-    delete  Buffer;
     for (i = 0; i < 16; i ++) {
         delete[] interleaveData [i];
     }
@@ -109,16 +108,16 @@ int32_t dabAudio::process(int16_t *v, int16_t cnt)
 {
     int32_t fr;
 
-    if (Buffer -> GetRingBufferWriteAvailable () < cnt)
+    if (Buffer.GetRingBufferWriteAvailable () < cnt)
         fprintf (stderr, "dab-concurrent: buffer full\n");
 
-    while ((fr = Buffer -> GetRingBufferWriteAvailable ()) <= cnt) {
+    while ((fr = Buffer.GetRingBufferWriteAvailable ()) <= cnt) {
         if (!running)
             return 0;
         usleep (1);
     }
 
-    Buffer->putDataIntoBuffer (v, cnt);
+    Buffer.putDataIntoBuffer (v, cnt);
     Locker.wakeAll ();
     return fr;
 }
@@ -135,7 +134,7 @@ void dabAudio::run()
     int16_t tempX[fragmentSize];
 
     while (running) {
-        while (Buffer->GetRingBufferReadAvailable () <= fragmentSize) {
+        while (Buffer.GetRingBufferReadAvailable () <= fragmentSize) {
             ourMutex.lock ();
             Locker.wait (&ourMutex, 1);  // 1 msec waiting time
             ourMutex.unlock ();
@@ -146,7 +145,7 @@ void dabAudio::run()
         if (!running)
             break;
 
-        Buffer->getDataFromBuffer (Data, fragmentSize);
+        Buffer.getDataFromBuffer (Data, fragmentSize);
 
         for (i = 0; i < fragmentSize; i ++) {
             tempX[i] = interleaveData[(interleaverIndex +

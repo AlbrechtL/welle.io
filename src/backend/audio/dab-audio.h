@@ -69,7 +69,7 @@ class dabAudio : public QThread, public dabVirtual
 
         std::unique_ptr<protection> protectionHandler;
         dabProcessor   *our_dabProcessor;
-        RingBuffer<int16_t> *Buffer;
+        RingBuffer<int16_t> Buffer;
 };
 
 #endif
