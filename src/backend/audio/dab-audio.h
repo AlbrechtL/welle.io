@@ -24,6 +24,7 @@
 
 #include    "dab-virtual.h"
 #include    <memory>
+#include    <vector>
 #include    <QThread>
 #include    <QMutex>
 #include    <QWaitCondition>
@@ -60,7 +61,7 @@ class dabAudio : public QThread, public dabVirtual
         int16_t     bitRate;
         bool        shortForm;
         int16_t     protLevel;
-        uint8_t     *outV;
+        std::vector<uint8_t> outV;
         int16_t     **interleaveData;
 
         QWaitCondition  Locker;

@@ -62,7 +62,7 @@ dabAudio::dabAudio(
     this->myRadioInterface = mr;
     this->audioBuffer      = buffer;
 
-    outV            = new uint8_t[bitRate * 24];
+    outV.resize(bitRate * 24);
     interleaveData  = new int16_t*[16]; // max size
     for (i = 0; i < 16; i ++) {
         interleaveData[i] = new int16_t[fragmentSize];
@@ -99,7 +99,6 @@ dabAudio::~dabAudio()
         usleep(1);
     }
     delete  Buffer;
-    delete[] outV;
     for (i = 0; i < 16; i ++) {
         delete[] interleaveData [i];
     }
@@ -162,7 +161,7 @@ void dabAudio::run()
             continue;
         }
 
-        protectionHandler->deconvolve (tempX, fragmentSize, outV);
+        protectionHandler->deconvolve (tempX, fragmentSize, outV.data());
 
         //
         //  and the inline energy dispersal
@@ -174,7 +173,7 @@ void dabAudio::run()
             shiftRegister[0] = b;
             outV[i] ^= b;
         }
-        our_dabProcessor->addtoFrame (outV);
+        our_dabProcessor->addtoFrame (outV.data());
     }
 }
 
