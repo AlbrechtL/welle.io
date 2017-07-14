@@ -23,6 +23,7 @@
 #define __DAB_AUDIO
 
 #include    "dab-virtual.h"
+#include    <memory>
 #include    <QThread>
 #include    <QMutex>
 #include    <QWaitCondition>
@@ -65,7 +66,7 @@ class dabAudio : public QThread, public dabVirtual
         QWaitCondition  Locker;
         QMutex          ourMutex;
 
-        protection     *protectionHandler;
+        std::unique_ptr<protection> protectionHandler;
         dabProcessor   *our_dabProcessor;
         RingBuffer<int16_t> *Buffer;
 };

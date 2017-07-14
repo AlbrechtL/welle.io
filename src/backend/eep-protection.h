@@ -24,6 +24,7 @@
 
 #include    <stdio.h>
 #include    <stdint.h>
+#include    <vector>
 #include    "protection.h"
 #include    "viterbi.h"
 
@@ -40,7 +41,7 @@ class eep_protection: public protection, public viterbi {
         int8_t      *PI2;
         int16_t     bitRate;
         int32_t     outSize;
-        int16_t     *viterbiBlock;
+        std::vector<int16_t> viterbiBlock;
 };
 
 #endif

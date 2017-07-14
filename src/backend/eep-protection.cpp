@@ -31,11 +31,11 @@
  */
 eep_protection::eep_protection(int16_t bitRate,
         int16_t protLevel) :
-    viterbi(24 * bitRate)
+    viterbi(24 * bitRate),
+    outSize(24 * bitRate),
+    viterbiBlock(outSize * 4 + 24)
 {
     this->bitRate = bitRate;
-    outSize = 24 * bitRate;
-    viterbiBlock = new int16_t [outSize * 4 + 24];
     if ((protLevel & (1 << 2)) == 0) {  // set A profiles
         switch (protLevel & 03) {
             case 0:           // actually level 1
@@ -109,11 +109,6 @@ eep_protection::eep_protection(int16_t bitRate,
         }
 }
 
-eep_protection::~eep_protection(void)
-{
-    delete[] viterbiBlock;
-}
-
 bool eep_protection::deconvolve(
         int16_t *v,
         int32_t size,
@@ -123,7 +118,7 @@ bool eep_protection::deconvolve(
     int32_t inputCounter    = 0;
     int32_t viterbiCounter  = 0;
     (void)size;         // currently unused
-    memset (viterbiBlock, 0, (outSize * 4 + 24) * sizeof (int16_t)); 
+    memset (viterbiBlock.data(), 0, (outSize * 4 + 24) * sizeof (int16_t)); 
     //
     //  according to the standard we process the logical frame
     //  with a pair of tuples
@@ -152,7 +147,7 @@ bool eep_protection::deconvolve(
         viterbiCounter ++;
     }
 
-    viterbi::deconvolve (viterbiBlock, outBuffer);
+    viterbi::deconvolve (viterbiBlock.data(), outBuffer);
     return true;
 }
 

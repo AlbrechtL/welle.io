@@ -24,6 +24,7 @@
 
 #include    <stdio.h>
 #include    <stdint.h>
+#include    <vector>
 #include    "protection.h"
 #include    "viterbi.h"
 
@@ -31,7 +32,6 @@ class uep_protection: public protection, public viterbi
 {
     public:
         uep_protection(int16_t bitRate, int16_t protLevel);
-        ~uep_protection(void);
         bool        deconvolve(int16_t *v, int32_t size, uint8_t *outBuffer);
     private:
         int16_t     L1;
@@ -44,7 +44,7 @@ class uep_protection: public protection, public viterbi
         int8_t     *PI4;
         int16_t     bitRate;
         int32_t     outSize;
-        int16_t    *viterbiBlock;
+        std::vector<int16_t> viterbiBlock;
 };
 
 #endif

@@ -138,7 +138,9 @@ int16_t findIndex(int16_t bitRate, int16_t protLevel)
 uep_protection::uep_protection(
         int16_t bitRate,
         int16_t protLevel) :
-    viterbi(24 * bitRate)
+    viterbi(24 * bitRate),
+    outSize(24 * bitRate),
+    viterbiBlock(outSize * 4 + 24)
 {
     int16_t index;
 
@@ -148,8 +150,6 @@ uep_protection::uep_protection(
         fprintf (stderr, "%d (%d) has a problem\n", bitRate, protLevel);
         index = 1;
     }
-    outSize  = 24 * bitRate;
-    viterbiBlock = new int16_t[outSize * 4 + 24];
     L1  = profileTable[index].L1;
     L2  = profileTable[index].L2;
     L3  = profileTable[index].L3;
@@ -162,11 +162,6 @@ uep_protection::uep_protection(
         PI4 = get_PCodes (profileTable[index].PI4 -1);
     else
         PI4 = NULL;
-}
-
-uep_protection::~uep_protection()
-{
-    delete[] viterbiBlock;
 }
 
 bool uep_protection::deconvolve(int16_t *v, int32_t size, uint8_t *outBuffer)
@@ -182,7 +177,7 @@ bool uep_protection::deconvolve(int16_t *v, int32_t size, uint8_t *outBuffer)
 
     /// clear the bits in the viterbiBlock,
     /// only the non-punctured ones are set
-    memset (viterbiBlock, 0, (outSize * 4 + 24) * sizeof (int16_t));
+    memset (viterbiBlock.data(), 0, (outSize * 4 + 24) * sizeof (int16_t));
 
     for (i = 0; i < L1; i ++) {
         for (j = 0; j < 128; j ++) {
@@ -233,7 +228,7 @@ bool uep_protection::deconvolve(int16_t *v, int32_t size, uint8_t *outBuffer)
 
     /// The actual deconvolution is done by the viterbi decoder
 
-    viterbi::deconvolve (viterbiBlock, outBuffer);
+    viterbi::deconvolve (viterbiBlock.data(), outBuffer);
     return true;
 }
 

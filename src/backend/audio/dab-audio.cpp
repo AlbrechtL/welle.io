@@ -70,9 +70,9 @@ dabAudio::dabAudio(
     }
 
     if (shortForm)
-        protectionHandler = new uep_protection (bitRate, protLevel);
+        protectionHandler = std::make_unique<uep_protection>(bitRate, protLevel);
     else
-        protectionHandler = new eep_protection (bitRate, protLevel);
+        protectionHandler = std::make_unique<eep_protection>(bitRate, protLevel);
 
     if (dabModus == DAB) {
         our_dabProcessor = new mp2Processor (myRadioInterface, bitRate, audioBuffer);
@@ -98,7 +98,6 @@ dabAudio::~dabAudio()
     while (this->isRunning ()) {
         usleep(1);
     }
-    delete protectionHandler;
     delete  Buffer;
     delete[] outV;
     for (i = 0; i < 16; i ++) {

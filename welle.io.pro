@@ -112,7 +112,6 @@ SOURCES += \
     src/backend/viterbi_spiral.c \
     src/backend/fic-handler.cpp \
     src/backend/msc-handler.cpp \
-    src/backend/protection.cpp \
     src/backend/eep-protection.cpp \
     src/backend/uep-protection.cpp \
     src/backend/fib-processor.cpp  \

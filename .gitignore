@@ -1,3 +1,7 @@
 *~
 /.idea/
 /cmake-build-debug/
+Makefile
+welle-io
+*.o
+moc*cpp
