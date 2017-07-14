@@ -49,11 +49,11 @@ uint8_t PI_X [24] = {
   */
 ficHandler::ficHandler(CRadioController *mr) :
     viterbi(768),
+    bitBuffer_out(768),
+    ofdm_input(2304),
     fibProcessor(mr)
 {
     int16_t i, j;
-    bitBuffer_out   = new uint8_t[768];
-    ofdm_input      = new int16_t[2304];
     index        = 0;
     BitsperBlock = 2 * 1536;
     ficno        = 0;
@@ -76,13 +76,6 @@ ficHandler::ficHandler(CRadioController *mr) :
     connect (this, SIGNAL (show_ficSuccess (bool)),
             mr, SLOT (show_ficSuccess (bool)));
 }
-
-ficHandler::~ficHandler()
-{
-    delete  bitBuffer_out;
-    delete  ofdm_input;
-}
-
 
 /**
  * \brief setBitsperBlock
@@ -134,7 +127,7 @@ void ficHandler::process_ficBlock(int16_t *data, int16_t blkno)
         for (i = 0; i < BitsperBlock; i ++) {
             ofdm_input[index ++] = data[i];
             if (index >= 2304) {
-                process_ficInput (ofdm_input, ficno);
+                process_ficInput (ofdm_input.data(), ficno);
                 index = 0;
                 ficno++;
             }
@@ -210,7 +203,7 @@ void ficHandler::process_ficInput(int16_t *ficblock, int16_t ficno)
      * Now we have the full word ready for deconvolution
      * deconvolution is according to DAB standard section 11.2
      */
-    deconvolve (viterbiBlock, bitBuffer_out);
+    deconvolve (viterbiBlock, bitBuffer_out.data());
 
     /**
      * if everything worked as planned, we now have a

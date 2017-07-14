@@ -40,8 +40,7 @@ class ficHandler: public QObject, public viterbi
 {
     Q_OBJECT
     public:
-        ficHandler      (CRadioController *);
-        ~ficHandler     (void);
+        ficHandler(CRadioController *);
         void    process_ficBlock    (int16_t *data, int16_t blkno);
         void    setBitsperBlock     (int16_t b);
         void    clearEnsemble       (void);
@@ -54,9 +53,8 @@ class ficHandler: public QObject, public viterbi
         void        process_ficInput    (int16_t *ficblock, int16_t ficno);
         int8_t      *PI_15;
         int8_t      *PI_16;
-        uint8_t     *bitBuffer_in;
-        uint8_t     *bitBuffer_out;
-        int16_t     *ofdm_input;
+        std::vector<uint8_t> bitBuffer_out;
+        std::vector<int16_t> ofdm_input;
         int16_t     index;
         int16_t     BitsperBlock;
         int16_t     ficno;
