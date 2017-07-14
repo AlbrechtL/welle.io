@@ -32,7 +32,6 @@
 class eep_protection: public protection, public viterbi {
     public:
         eep_protection(int16_t, int16_t);
-        ~eep_protection(void);
         bool        deconvolve(int16_t*, int32_t, uint8_t*);
     private:
         int16_t     L1;
