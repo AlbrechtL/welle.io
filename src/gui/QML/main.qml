@@ -52,7 +52,7 @@ import "style"
 ApplicationWindow {
     id: mainWindow
     visible: true
-
+    property bool isLandscape: true
     function getWidth() {
         if(Screen.desktopAvailableWidth < Units.dp(700)
                 || Screen.desktopAvailableHeight < Units.dp(500)
@@ -83,7 +83,7 @@ ApplicationWindow {
         console.debug("orientation: " + Screen.orientation)
         console.debug("devicePixelRatio: " + Screen.devicePixelRatio)
         console.debug("pixelDensity: " + Screen.pixelDensity)
-       }
+    }
 
     property int stackViewDepth
     signal stackViewPush(Item item)
@@ -142,11 +142,12 @@ ApplicationWindow {
             antialiasing: true
             radius: Units.dp(4)
             color: backmouse.pressed ? "#222" : "transparent"
+            property bool isSettings: false
             Behavior on opacity { NumberAnimation{} }
             Image {
                 anchors.verticalCenter: parent.verticalCenter
-                source: stackViewDepth > 1 ? "images/navigation_previous_item.png" : "images/icon-settings.png"
-                height: stackViewDepth > 1 ? Units.dp(20) : Units.dp(23)
+                source: parent.isSettings ? "images/navigation_previous_item.png" : "images/icon-settings.png"
+                height: parent.isSettings? Units.dp(20) : Units.dp(23)
                 fillMode: Image.PreserveAspectFit
             }
             MouseArea {
@@ -155,10 +156,17 @@ ApplicationWindow {
                 anchors.fill: parent
                 anchors.margins: Units.dp(-20)
                 onClicked: {
-                    if(stackViewDepth > 1)
-                        stackViewPop()
-                    else
-                        stackViewPush(settingsPage)
+                    if(mainWindow.isLandscape && settingsPage.is3D){
+                        backButton.isSettings = !backButton.isSettings
+                    } else {
+                        if(stackViewDepth > 1){
+                            stackViewPop()
+                            backButton.isSettings = false
+                        } else {
+                            stackViewPush(settingsPage)
+                            backButton.isSettings = true
+                        }
+                    }
                 }
             }
         }
@@ -179,16 +187,17 @@ ApplicationWindow {
 
         Rectangle {
             id: infoButton
-            width: stackViewDepth > 1 ? Units.dp(40) : 0
+            width: backButton.isSettings ? Units.dp(40) : 0
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
             antialiasing: true
             radius: Units.dp(4)
             color: backmouse.pressed ? "#222" : "transparent"
+            property bool isInfoPage: false
             Image {
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.horizontalCenter: parent.horizontalCenter
-                source: stackViewDepth > 1 ? "images/icon-info.png" : ""
+                source: backButton.isSettings ? "images/icon-info.png" : ""
                 anchors.rightMargin: Units.dp(20)
                 height: Units.dp(23)
                 fillMode: Image.PreserveAspectFit
@@ -199,29 +208,131 @@ ApplicationWindow {
                 anchors.fill: parent
                 anchors.margins: Units.dp(-20)
                 onClicked: {
-                    if(stackViewDepth > 2)
-                        stackViewPop()
-                    else
-                        stackViewPush(infoPage)
+                    if(mainWindow.isLandscape && settingsPage.is3D){
+                        infoButton.isInfoPage = !infoButton.isInfoPage
+                    } else {
+                        if(stackViewDepth > 2){
+                            stackViewPop()
+                            infoButton.isInfoPage = false
+                        } else {
+                            stackViewPush(infoPage)
+                            infoButton.isInfoPage = true
+                        }
+                    }
                 }
             }
         }
     }
 
     Loader {
+        id:mainViewLoader
         anchors.fill: parent
         Layout.margins: Units.dp(10);
         sourceComponent: {
-            if(mainWindow.width > mainWindow.height)
-                if(isExpertView)
-                    return landscapeViewExpert
-                else
-                    return landscapeView
-            else
+            if(mainWindow.width > mainWindow.height){
+                mainWindow.isLandscape = true;
+                if(settingsPage.is3D){
+                    if(isExpertView)
+                        return landscapeViewExpert3D
+                    else
+                        return landscapeView3D
+                } else {
+                    if(isExpertView)
+                        return landscapeViewExpert
+                    else
+                        return landscapeView
+                }
+            } else {
+                mainWindow.isLandscape = false;
                 if(isExpertView)
                     return portraitViewExpert
                 else
                     return portraitView
+            }
+        }
+    }
+
+    Component {
+        id:channelBrowser
+        ChannelBrowser{
+            Connections {
+                target: backmouse
+                onClicked: {
+                    if(infoPageVisible){
+                        infoPageVisible = false
+                        backButton.isSettings = true
+                    } else {
+                        settingsVisible = backButton.isSettings
+                    }
+                }
+            }
+            Connections {
+                target: infomouse
+                onClicked: {
+                    infoPageVisible = infoButton.isInfoPage
+                }
+            }
+            Component.onCompleted: {
+                settingsVisible = backButton.isSettings
+                enableFullScreenState = settingsPage.enableFullScreenState
+                enableExpertModeState = settingsPage.enableExpertModeState
+                enableAGCState = settingsPage.enableAGCState
+                manualGainState = settingsPage.manualGainState
+                is3D = settingsPage.is3D
+            }
+            onEnableAGCStateChanged: {
+                settingsPage.enableAGCState = enableAGCState
+            }
+            onEnableExpertModeStateChanged: {
+                settingsPage.enableExpertModeState = enableExpertModeState
+
+            }
+            onEnableFullScreenStateChanged: {
+                settingsPage.enableFullScreenState = enableFullScreenState
+            }
+            onManualGainStateChanged: {
+                settingsPage.manualGainState = manualGainState
+            }
+            onIs3DChanged: {
+                settingsPage.is3D = is3D
+            }
+        }
+    }
+    Component {
+        id: landscapeView3D
+
+        Loader {
+            id: stationView
+            Layout.minimumWidth: Units.dp(350)
+            Layout.margins: Units.dp(10)
+            sourceComponent: channelBrowser
+        }
+    }
+    Component {
+        id: landscapeViewExpert3D
+
+        SplitView {
+            id: splitView
+            anchors.fill: parent
+            orientation: Qt.Horizontal
+
+            Loader {
+                id: stationView
+                Layout.minimumWidth: Units.dp(350)
+                Layout.margins: Units.dp(10)
+                sourceComponent: channelBrowser
+            }
+            Loader {
+                id: expertViewLoader
+                Layout.margins: Units.dp(10)
+                Layout.fillWidth: true
+                sourceComponent: expertView
+            }
+
+            Settings {
+                property alias expertStationViewWidth: stationView.width
+                property alias expertViewWidth: expertViewLoader.width
+            }
         }
     }
 
@@ -285,7 +396,6 @@ ApplicationWindow {
             }
         }
     }
-
 
     Component {
         id: portraitView
@@ -500,12 +610,31 @@ ApplicationWindow {
         }
     }
 
-    ErrorMessagePopup {
-      id: errorMessagePopup
+    MessagePopup {
+        id: errorMessagePopup
+        x: mainWindow.width/2 - width/2
+        y: mainWindow.height  - toolBar_.height - height
+        revealedY: mainWindow.height - toolBar.height - height
+        hiddenY: mainWindow.height
+        color: "#8b0000"
     }
 
-    InfoMessagePopup {
-      id: infoMessagePopup
+    MessagePopup {
+        id: infoMessagePopup
+        x: mainWindow.width/2 - width/2
+        y: mainWindow.height  - toolBar_.height - height
+        revealedY: mainWindow.height - toolBar.height - height
+        hiddenY: mainWindow.height
+        color:  "#468bb7"
+        onOpened: closeTimer.running = true;
+        Timer {
+            id: closeTimer
+            interval: 1 * 5000 // 5 s
+            repeat: false
+            onTriggered: {
+              infoMessagePopup.close()
+            }
+        }
     }
 
     MessageDialog {

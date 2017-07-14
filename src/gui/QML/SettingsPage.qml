@@ -13,6 +13,7 @@ Item {
     property alias enableAGCState : enableAGC.checked
     property alias enableHwAGCState : enableHwAGC.checked
     property alias manualGainState : manualGain.currentValue
+    property alias is3D : enable3D.checked
 
     Settings {
         property alias enableFullScreenState : settingsPage.enableFullScreenState
@@ -23,6 +24,7 @@ Item {
         property alias enableHwAGCState : settingsPage.enableHwAGCState
         property alias manualChannel: manualChannelBox.currentIndex
         property alias enableManualChannel: enableManualChannel.checked
+        property alias is3D : settingsPage.is3D
     }
 
     Component.onCompleted: {
@@ -144,6 +146,7 @@ Item {
                             id: enableAGC
                             name: qsTr("Automatic RF gain")
                             height: 24
+                            Layout.fillWidth: true
                             Layout.fillHeight: true
                             objectName: "enableAGC"
                             checked: enableAGCState
@@ -181,15 +184,29 @@ Item {
                             id: enableFullScreen
                             name: qsTr("Full screen mode")
                             height: 24
+                            Layout.fillWidth: true
                             Layout.fillHeight: true
                             objectName: "enableFullScreen"
                             checked: false
                         }
 
                         TouchSwitch {
+                            id: enable3D
+                            name: qsTr("Channel list layout (experimental)")
+                            height: 24
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+                            objectName: "enable3D"
+                            checked: false
+                            onText: "3D"
+                            offText: "2D"
+                        }
+
+                        TouchSwitch {
                             id: enableExpertMode
                             name: qsTr("Expert mode")
                             height: 24
+                            Layout.fillWidth: true
                             Layout.fillHeight: true
                             objectName: "enableExpertMode"
                             checked: false

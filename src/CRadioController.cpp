@@ -212,8 +212,8 @@ void CRadioController::Play(QString Channel, QString Station)
     StationElement. append (Channel);
     Settings.setValue("lastchannel", StationElement);
 
-    // Check every 10 s for a correct sync
-    SyncCheckTimer.start(10000);
+    // Check every 15 s for a correct sync
+    SyncCheckTimer.start(15000);
 }
 
 void CRadioController::Pause()
@@ -575,6 +575,7 @@ void CRadioController::SyncCheckTimerTimeout(void)
        (isSync && FrameErrors >= 10))
     {
         qDebug() << "RadioController: Restart syncing. isSync:" << isSync << ", isFICCRC:" << isFICCRC << ", FrameErrors:" << FrameErrors;
+        emit showInfoMessage(tr("Lost signal or bad signal quality, trying to find it again."));
 
         SetChannel(CurrentChannel, false, true);
         SetStation(CurrentStation, true);
