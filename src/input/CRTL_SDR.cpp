@@ -84,7 +84,6 @@ CRTL_SDR::CRTL_SDR(CRadioController &RadioController) :
     lastFrequency = KHz(94700); // just a dummy
     sampleCounter = 0;
     FrequencyOffset = 0;
-    gains = NULL;
     CurrentGain = 0;
     CurrentGainCount = 0;
     device = NULL;
@@ -124,8 +123,8 @@ CRTL_SDR::CRTL_SDR(CRadioController &RadioController) :
     // Get tuner gains
     GainsCount = rtlsdr_get_tuner_gains(device, NULL);
     qDebug() << "RTL_SDR:" << "Supported gain values" << GainsCount;
-    gains = new int[GainsCount];
-    GainsCount = rtlsdr_get_tuner_gains(device, gains);
+    gains.resize(GainsCount);
+    GainsCount = rtlsdr_get_tuner_gains(device, gains.data());
 
     for (int i = GainsCount; i > 0; i--)
         qDebug() << "RTL_SDR:" << "gain" << (gains[i - 1] / 10.0);
@@ -158,9 +157,6 @@ CRTL_SDR::~CRTL_SDR(void)
 
     if (open)
         rtlsdr_close(device);
-
-    if (gains != NULL)
-        delete[] gains;
 
     open = false;
 }
@@ -293,7 +289,7 @@ void CRTL_SDR::AGCTimerTimeout(void)
             }
         }
         else
-        {            
+        {
             if(CurrentGainCount < (GainsCount - 1))
             {
                 // Calc if a gain increase overloads the device. Calc it from the gain values
@@ -314,7 +310,7 @@ void CRTL_SDR::AGCTimerTimeout(void)
         }
     }
     else // AGC is off
-    {        
+    {
         if(MinValue == 0 || MaxValue == 255)
         {
             QString Text = QObject::tr("ADC overload. Maybe you are using a to high gain.");
