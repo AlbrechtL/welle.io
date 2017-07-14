@@ -75,14 +75,14 @@ dabAudio::dabAudio(
         protectionHandler = std::make_unique<eep_protection>(bitRate, protLevel);
 
     if (dabModus == DAB) {
-        our_dabProcessor = new mp2Processor (myRadioInterface, bitRate, audioBuffer);
+        our_dabProcessor = std::make_unique<mp2Processor>(myRadioInterface, bitRate, audioBuffer);
     }
     else {
         if (dabModus == DAB_PLUS) {
-            our_dabProcessor = new mp4Processor (myRadioInterface, bitRate, audioBuffer);
+            our_dabProcessor = std::make_unique<mp4Processor>(myRadioInterface, bitRate, audioBuffer);
         }
         else        // cannot happen
-            our_dabProcessor = new dummyProcessor ();
+            our_dabProcessor = std::make_unique<dummyProcessor>();
     }
 
     qDebug() << "dab-audio:" << "we have now" << ((dabModus == DAB_PLUS) ? "DAB+" : "DAB");
