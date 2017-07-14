@@ -35,7 +35,8 @@ reedSolomon::reedSolomon(
         uint16_t fcr,
         uint16_t prim,
         uint16_t nroots) :
-    myGalois(symsize, gfpoly)
+    myGalois(symsize, gfpoly),
+    generator(nroots + 1)
 {
         int i, j, root, iprim;
 
@@ -46,8 +47,6 @@ reedSolomon::reedSolomon(
         this->nroots   = nroots;
         for (iprim = 1; (iprim % prim) != 0; iprim += codeLength);
         this->iprim    = iprim / prim;
-        this->generator  = new uint8_t[nroots + 1];
-        memset (generator, 0, (nroots + 1) * sizeof (generator[0]));
         generator[0] = 1;
 
         for (i = 0, root = fcr * prim; i < nroots; i++, root += 1) {
@@ -76,11 +75,6 @@ reedSolomon::reedSolomon(
         for (i = 0; i <= nroots; i ++)
             generator[i] = myGalois.poly2power (generator[i]);
     }
-
-reedSolomon::~reedSolomon()
-{
-    delete generator;
-}
 
 //  Basic encoder, returns - in bb - the parity bytes
 void reedSolomon::encode_rs(const uint8_t *data, uint8_t *bb)
