@@ -29,24 +29,20 @@
 #include    "galois.h"
 #include    <stdio.h>
 
-galois::galois(uint16_t symsize, uint16_t gfpoly)
+galois::galois(uint16_t symsize, uint16_t gfpoly) :
+    mm(symsize),
+    gfpoly(gfpoly),
+    codeLength((1 << mm) - 1),
+    d_q(1 << mm),
+    alpha_to(codeLength + 1),
+    index_of(codeLength + 1)
 {
-    uint16_t sr;
-    uint16_t i;
-
-    this->mm         = symsize;
-    this->gfpoly     = gfpoly;
-    this->codeLength = (1 << mm) - 1;
-    this->d_q        = 1 << mm;
-    this->alpha_to   = new uint16_t[codeLength + 1];
-    this->index_of   = new uint16_t[codeLength + 1];
-
     /*  Generate Galois field lookup tables */
     index_of[0] = codeLength;  /* log (zero) = -inf */
     alpha_to[codeLength] = 0;  /* alpha**-inf = 0 */
 
-    sr = 1;
-    for (i = 0; i < codeLength; i++){
+    uint16_t sr = 1;
+    for (uint16_t i = 0; i < codeLength; i++){
         index_of[sr] = i;
         alpha_to[i] = sr;
         sr <<= 1;
@@ -63,12 +59,6 @@ int galois::modnn(int x)
         x = (x >> mm) + (x & codeLength);
     }
     return x;
-}
-
-galois::~galois()
-{
-    delete[] alpha_to;
-    delete[] index_of;
 }
 
 static inline
