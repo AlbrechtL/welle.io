@@ -1,4 +1,3 @@
-#
 /*
  *    Copyright (C) 2017
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
@@ -20,20 +19,21 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *
- *	Simple base class for combining uep and eep deconvolvers
+ *  Simple base class for combining uep and eep deconvolvers
  */
-#ifndef	__PROTECTION
-#define	__PROTECTION
+#ifndef __PROTECTION
+#define __PROTECTION
 
-#include	<stdint.h>
+#include    <stdint.h>
 
-extern uint8_t	PI_X [];
+extern uint8_t PI_X[];
 
-class	protection {
-public:
-		protection  	(void);
-virtual		~protection	(void);
-virtual	bool	deconvolve	(int16_t *, int32_t, uint8_t *);
+class protection
+{
+    public:
+        protection(void);
+        virtual ~protection (void);
+        virtual bool deconvolve(int16_t *, int32_t, uint8_t *);
 };
 #endif
 

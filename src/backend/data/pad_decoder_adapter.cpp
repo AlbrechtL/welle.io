@@ -74,7 +74,7 @@ void PADDecoderAdapter::processPAD(uint8_t *theAU)
     // Get PAD length
     uint8_t pad_start = 2;
     uint8_t pad_len = theAU[1];
-    if(pad_len == 255) {
+    if (pad_len == 255) {
         pad_len += theAU[2];
         pad_start++;
     }

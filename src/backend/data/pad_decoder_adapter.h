@@ -49,7 +49,7 @@ public:
 
 private:
     PADDecoder  *padDecoder;
-    CRadioController	*radioController;
+    CRadioController    *radioController;
 
 signals:
     void showLabel (QString);

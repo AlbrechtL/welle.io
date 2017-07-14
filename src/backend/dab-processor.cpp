@@ -1,4 +1,3 @@
-#
 /*
  *
  *    Copyright (C) 2013
@@ -21,16 +20,14 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-#include	"dab-processor.h"
+#include    "dab-processor.h"
 
-	dabProcessor::dabProcessor (void) {
-}
+dabProcessor::dabProcessor(void) { }
 
-	dabProcessor::~dabProcessor	(void) {
-}
+dabProcessor::~dabProcessor(void) { }
 
-void	dabProcessor::addtoFrame	(uint8_t *v) {
-	(void)v;
+void dabProcessor::addtoFrame(uint8_t *v) {
+    (void)v;
 }
 
 

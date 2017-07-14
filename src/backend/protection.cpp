@@ -1,4 +1,3 @@
-#
 /*
  *    Copyright (C) 2017
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
@@ -20,14 +19,16 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *
- *	Simple base class for combining uep and eep deconvolvers
+ *  Simple base class for combining uep and eep deconvolvers
  */
-#include	"protection.h"
+#include    "protection.h"
 
-	protection::protection 	(void) {}
-	protection::~protection	(void) {}
-bool	protection::deconvolve	(int16_t *a, int32_t b, uint8_t *c) {
-	   (void)a; (void)b; (void)c;
-	   return false;
+protection::protection() {}
+protection::~protection() {}
+
+bool protection::deconvolve(int16_t *a, int32_t b, uint8_t *c)
+{
+    (void)a; (void)b; (void)c;
+    return false;
 }
 

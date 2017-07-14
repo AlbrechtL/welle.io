@@ -1,4 +1,3 @@
-#
 /*
  *
  *    Copyright (C) 2013
@@ -22,29 +21,25 @@
  *
  */
 //
-//	dummy for the dab handler
+//  dummy for the dab handler
 //
-#include	"DabConstants.h"
-#include	"dab-virtual.h"
+#include "DabConstants.h"
+#include "dab-virtual.h"
 
-#include	"CRadioController.h"		// defines RadioInterface
-#include	"CAudio.h"	// defines audioSink
+#include "CRadioController.h"        // defines RadioInterface
+#include "CAudio.h"  // defines audioSink
 
-	dabVirtual::dabVirtual	(void) {
+dabVirtual::dabVirtual(void) { }
+
+dabVirtual::~dabVirtual(void) { }
+
+int32_t dabVirtual::process(int16_t *v, int16_t c) {
+    (void)v;
+    (void)c;
+    return 32768;
 }
 
-	dabVirtual::~dabVirtual	(void) {
-}
+void dabVirtual::stopRunning(void) { }
 
-int32_t	dabVirtual::process	(int16_t *v, int16_t c) {
-	(void)v;
-	(void)c;
-	return 32768;
-}
-
-void	dabVirtual::stopRunning	(void) {
-}
-
-void	dabVirtual::stop	(void) {
-}
+void dabVirtual::stop(void) { }
 

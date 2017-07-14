@@ -1,4 +1,3 @@
-#
 /*
  *
  *    Copyright (C) 2013
@@ -21,22 +20,20 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-#
-#ifndef	DAB_PROCESSOR
-#define	DAB_PROCESSOR
+#ifndef DAB_PROCESSOR
+#define DAB_PROCESSOR
 
-#include	<stdint.h>
-#include	<stdio.h>
+#include    <stdint.h>
+#include    <stdio.h>
 
-//
-//	virtual class, just for providing a common base
-//	for the real decoder classes
+//  virtual class, just for providing a common base
+//  for the real decoder classes
 
-class	dabProcessor {
-public:
-		dabProcessor	(void);
-virtual		~dabProcessor	(void);
-virtual	void	addtoFrame	(uint8_t *);
+class dabProcessor {
+    public:
+        dabProcessor(void);
+        virtual ~dabProcessor(void);
+        virtual void addtoFrame(uint8_t *);
 };
 #endif
 

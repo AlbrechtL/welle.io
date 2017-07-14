@@ -22,12 +22,12 @@
 ******************************************************************************/
 
 //
-//	Code adapted of the original code:
-//	- it is made into a class for use within the framework
-//	of the sdr-j DAB/DAB+ software
+//  Code adapted of the original code:
+//  - it is made into a class for use within the framework
+//  of the sdr-j DAB/DAB+ software
 //
-#include	"mp2processor.h"
-#include	"CRadioController.h"
+#include    "mp2processor.h"
+#include    "CRadioController.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // TABLES AND CONSTANTS                                                       //
@@ -55,7 +55,7 @@ const short bitrates[28] = {
 
 // scale factor base values (24-bit fixed-point)
 static
-const int scf_base [3] = {0x02000000, 0x01965FEA, 0x01428A30};
+const int scf_base[3] = {0x02000000, 0x01965FEA, 0x01428A30};
 
 // synthesis window
 static
@@ -137,24 +137,24 @@ static uint8_t quant_lut_step1[2][16] = {
     {   0,  0,  0,  0,  0,  0,  1,  1,  1,  2,  2,  2,  2,  2 }   // stereo
 };
 
-// quantizer lookup, step 2: bitrate class, sample rate -> B2 table idx, sblimit
+// quantizer lookup, step 2: bitrate class, sample rate->B2 table idx, sblimit
 #define QUANT_TAB_A (27 | 64)   // Table 3-B.2a: high-rate, sblimit = 27
 #define QUANT_TAB_B (30 | 64)   // Table 3-B.2b: high-rate, sblimit = 30
 #define QUANT_TAB_C   8         // Table 3-B.2c:  low-rate, sblimit =  8
 #define QUANT_TAB_D  12         // Table 3-B.2d:  low-rate, sblimit = 12
 
 static
-const char quant_lut_step2 [3][4] = {
+const char quant_lut_step2[3][4] = {
     //   44.1 kHz,      48 kHz,      32 kHz
     { QUANT_TAB_C, QUANT_TAB_C, QUANT_TAB_D },  // 32 - 48 kbit/sec/ch
     { QUANT_TAB_A, QUANT_TAB_A, QUANT_TAB_A },  // 56 - 80 kbit/sec/ch
     { QUANT_TAB_B, QUANT_TAB_A, QUANT_TAB_B },  // 96+     kbit/sec/ch
 };
 
-// quantizer lookup, step 3: B2 table, subband -> nbal, row index
+// quantizer lookup, step 3: B2 table, subband->nbal, row index
 // (upper 4 bits: nbal, lower 4 bits: row index)
 static
-uint8_t quant_lut_step3 [3][32] = {
+uint8_t quant_lut_step3[3][32] = {
     // low-rate table (3-B.2c and 3-B.2d)
     { 0x44,0x44,                                                   // SB  0 -  1
       0x34,0x34,0x34,0x34,0x34,0x34,0x34,0x34,0x34,0x34            // SB  2 - 12
@@ -173,9 +173,9 @@ uint8_t quant_lut_step3 [3][32] = {
     }
 };
 
-// quantizer lookup, step 4: table row, allocation[] value -> quant table index
+// quantizer lookup, step 4: table row, allocation[] value->quant table index
 static
-const char quant_lut_step4 [6][16] = {
+const char quant_lut_step4[6][16] = {
     { 0, 1, 2, 17 },
     { 0, 1, 2, 3, 4, 5, 6, 17 },
     { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 17 },
@@ -186,7 +186,7 @@ const char quant_lut_step4 [6][16] = {
 
 // quantizer table
 static
-struct quantizer_spec quantizer_table [17] = {
+struct quantizer_spec quantizer_table[17] = {
     {     3, 1,  5 },  //  1
     {     5, 1,  7 },  //  2
     {     7, 0,  3 },  //  3
@@ -208,61 +208,63 @@ struct quantizer_spec quantizer_table [17] = {
 
 
 ////////////////////////////////////////////////////////////////////////////////
-//	The initialization is now done in the constructor
-//	(J van Katwijk)
+//  The initialization is now done in the constructor
+//  (J van Katwijk)
 ////////////////////////////////////////////////////////////////////////////////
 
-	mp2Processor::mp2Processor (CRadioController *mr,
-	                            int16_t bitRate,
-	                            RingBuffer<int16_t> *buffer) {
-int16_t	i, j;
-int16_t *nPtr = &N [0][0];
+    mp2Processor::mp2Processor (CRadioController *mr,
+                                int16_t bitRate,
+                                RingBuffer<int16_t> *buffer) {
+        int16_t i, j;
+        int16_t *nPtr = &N[0][0];
 
-	// compute N[i][j]
-	for (i = 0;  i < 64;  i ++)
-	   for (j = 0;  j < 32;  ++j)
-	      *nPtr++ = (int16_t) (256.0 *
-	                           cos(((16 + i) * ((j << 1) + 1)) *
-	                           0.0490873852123405));
+        // compute N[i][j]
+        for (i = 0;  i < 64;  i ++)
+            for (j = 0;  j < 32;  ++j)
+                *nPtr++ = (int16_t) (256.0 *
+                        cos(((16 + i) * ((j << 1) + 1)) *
+                            0.0490873852123405));
 
-	// perform local initialization:
-	for (i = 0;  i < 2;  ++i)
-	   for (j = 1023;  j >= 0;  j--)
-	      V [i][j] = 0;
+        // perform local initialization:
+        for (i = 0;  i < 2;  ++i)
+            for (j = 1023;  j >= 0;  j--)
+                V[i][j] = 0;
 
-	myRadioInterface	= mr;
-	this	-> buffer	= buffer;
-	connect (this, SIGNAL (show_frameErrors (int)),
-	         mr, SLOT (show_frameErrors (int)));
-	connect (this, SIGNAL (newAudio (int)),
-	         mr, SLOT (newAudio (int)));
-	connect (this, SIGNAL (isStereo (bool)),
-	         mr, SLOT (setStereo (bool)));
+        myRadioInterface    = mr;
+        this->buffer        = buffer;
+        connect (this, SIGNAL (show_frameErrors (int)),
+                mr, SLOT (show_frameErrors (int)));
+        connect (this, SIGNAL (newAudio (int)),
+                mr, SLOT (newAudio (int)));
+        connect (this, SIGNAL (isStereo (bool)),
+                mr, SLOT (setStereo (bool)));
 
-	Voffs		= 0;
-	baudRate	= 48000;	// default for DAB
-	MP2framesize	= 24 * bitRate;	// may be changed
-	MP2frame	= new uint8_t [2 * MP2framesize];
-	MP2Header_OK	= 0;
-	MP2headerCount	= 0;
-	MP2bitCount	= 0;
-	numberofFrames	= 0;
-	errorFrames	= 0;
-}
+        Voffs          = 0;
+        baudRate       = 48000;    // default for DAB
+        MP2framesize   = 24 * bitRate; // may be changed
+        MP2frame       = new uint8_t[2 * MP2framesize];
+        MP2Header_OK   = 0;
+        MP2headerCount = 0;
+        MP2bitCount    = 0;
+        numberofFrames = 0;
+        errorFrames    = 0;
+    }
 
-	mp2Processor::~mp2Processor (void) {
-	delete[] MP2frame;
+mp2Processor::~mp2Processor()
+{
+    delete[] MP2frame;
 }
 //
 
-#define	valid(x)	((x == 48000) || (x == 24000))
-void	mp2Processor::setSamplerate (int32_t rate) {
-	if (baudRate == rate)
-	   return;
-	if (!valid (rate))
-	   return;
-//	ourSink		-> setMode (0, rate);
-	baudRate = rate;
+#define valid(x)    ((x == 48000) || (x == 24000))
+void mp2Processor::setSamplerate (int32_t rate)
+{
+    if (baudRate == rate)
+        return;
+    if (!valid (rate))
+        return;
+    //  ourSink->setMode (0, rate);
+    baudRate = rate;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -270,15 +272,17 @@ void	mp2Processor::setSamplerate (int32_t rate) {
 // //
 ////////////////////////////////////////////////////////////////////////////////
 
-int32_t	mp2Processor::mp2sampleRate	(uint8_t *frame) {
+int32_t mp2Processor::mp2sampleRate (uint8_t *frame)
+{
     if (!frame)
         return 0;
-    if (( frame[0]         != 0xFF)   // no valid syncword?
-    ||  ((frame[1] & 0xF6) != 0xF4)   // no MPEG-1/2 Audio Layer II?
-    ||  ((frame[2] - 0x10) >= 0xE0))  // invalid bitrate?
+    if (     (frame[0] != 0xFF)   // no valid syncword?
+          || ((frame[1] & 0xF6) != 0xF4)   // no MPEG-1/2 Audio Layer II?
+          || ((frame[2] - 0x10) >= 0xE0))  // invalid bitrate?
         return 0;
+
     return sample_rates[(((frame[1] & 0x08) >> 1) ^ 4)  // MPEG-1/2 switch
-                      + ((frame[2] >> 2) & 3)];         // actual rate
+        + ((frame[2] >> 2) & 3)];         // actual rate
 }
 
 
@@ -286,72 +290,78 @@ int32_t	mp2Processor::mp2sampleRate	(uint8_t *frame) {
 // DECODE HELPER FUNCTIONS                                                    //
 ////////////////////////////////////////////////////////////////////////////////
 
-struct quantizer_spec* mp2Processor::read_allocation(int sb, int b2_table) {
+struct quantizer_spec* mp2Processor::read_allocation(int sb, int b2_table)
+{
     int table_idx = quant_lut_step3[b2_table][sb];
     table_idx = quant_lut_step4[table_idx & 15][get_bits(table_idx >> 4)];
     return table_idx ? (&quantizer_table[table_idx - 1]) : 0;
 }
 
 
-void 	mp2Processor::read_samples (struct quantizer_spec *q,
-	                            int scalefactor, int *sample) {
-int idx, adj, scale;
-register int val;
+void mp2Processor::read_samples(struct quantizer_spec *q,
+                                int scalefactor,
+                                int *sample)
+{
+    int idx, adj, scale;
+    int val;
 
-	if (!q) {
+    if (!q) {
         // no bits allocated for this subband
-	   sample[0] = sample[1] = sample[2] = 0;
-	   return;
-	}
+        sample[0] = sample[1] = sample[2] = 0;
+        return;
+    }
 
-// resolve scalefactor
-	if (scalefactor == 63) {
-	   scalefactor = 0;
-	} else {
-	   adj = scalefactor / 3;
-	   scalefactor = (scf_base[scalefactor % 3] + ((1 << adj) >> 1)) >> adj;
-	}
+    // resolve scalefactor
+    if (scalefactor == 63) {
+        scalefactor = 0;
+    }
+    else {
+        adj = scalefactor / 3;
+        scalefactor = (scf_base[scalefactor % 3] + ((1 << adj) >> 1)) >> adj;
+    }
 
-	// decode samples
-	adj = q -> nlevels;
-	if (q -> grouping) { // decode grouped samples
-	   val = get_bits (q -> cw_bits);
-	   sample [0] = val % adj;
-	   val /= adj;
-	   sample [1] = val % adj;
-	   sample [2] = val / adj;
-	} else { // decode direct samples
-	   for (idx = 0;  idx < 3;  ++idx)
-	      sample[idx] = get_bits (q->cw_bits);
-	}
+    // decode samples
+    adj = q->nlevels;
+    if (q->grouping) { // decode grouped samples
+        val = get_bits (q->cw_bits);
+        sample[0] = val % adj;
+        val /= adj;
+        sample[1] = val % adj;
+        sample[2] = val / adj;
+    } else { // decode direct samples
+        for (idx = 0;  idx < 3;  ++idx) {
+            sample[idx] = get_bits (q->cw_bits);
+        }
+    }
 
-	// postmultiply samples
-	scale = 65536 / (adj + 1);
-	adj = ((adj + 1) >> 1) - 1;
-	for (idx = 0;  idx < 3;  ++idx) {
+    // postmultiply samples
+    scale = 65536 / (adj + 1);
+    adj = ((adj + 1) >> 1) - 1;
+    for (idx = 0;  idx < 3;  ++idx) {
         // step 1: renormalization to [-1..1]
         val = (adj - sample[idx]) * scale;
         // step 2: apply scalefactor
         sample[idx] = ( val * (scalefactor >> 12)                  // upper part
-                    + ((val * (scalefactor & 4095) + 2048) >> 12)) // lower part
-                    >> 12;  // scale adjust
-	}
+                + ((val * (scalefactor & 4095) + 2048) >> 12)) // lower part
+            >> 12;  // scale adjust
+    }
 }
 
 
 #define show_bits(bit_count) (bit_window >> (24 - (bit_count)))
 
-int32_t mp2Processor::get_bits (int32_t bit_count) {
-//int32_t result = show_bits (bit_count);
-int32_t	result	= bit_window >> (24 - bit_count);
+int32_t mp2Processor::get_bits(int32_t bit_count)
+{
+    //int32_t result = show_bits (bit_count);
+    int32_t result  = bit_window >> (24 - bit_count);
 
-	bit_window = (bit_window << bit_count) & 0xFFFFFF;
-	bits_in_window -= bit_count;
-	while (bits_in_window < 16) {
-	   bit_window |= (*frame_pos++) << (16 - bits_in_window);
-	   bits_in_window += 8;
-	}
-	return result;
+    bit_window = (bit_window << bit_count) & 0xFFFFFF;
+    bits_in_window -= bit_count;
+    while (bits_in_window < 16) {
+        bit_window |= (*frame_pos++) << (16 - bits_in_window);
+        bits_in_window += 8;
+    }
+    return result;
 }
 
 
@@ -359,121 +369,129 @@ int32_t	result	= bit_window >> (24 - bit_count);
 // FRAME DECODE FUNCTION                                                      //
 ////////////////////////////////////////////////////////////////////////////////
 
-int32_t	mp2Processor::mp2decodeFrame (uint8_t *frame, int16_t *pcm) {
-uint32_t bit_rate_index_minus1;
-uint32_t sampling_frequency;
-uint32_t padding_bit;
-uint32_t mode;
-uint32_t frame_size;
-int32_t	bound, sblimit;
-int32_t sb, ch, gr, part, idx, nch, i, j, sum;
-int32_t table_idx;
+int32_t mp2Processor::mp2decodeFrame (uint8_t *frame, int16_t *pcm)
+{
+    uint32_t bit_rate_index_minus1;
+    uint32_t sampling_frequency;
+    uint32_t padding_bit;
+    uint32_t mode;
+    uint32_t frame_size;
+    int32_t bound, sblimit;
+    int32_t sb, ch, gr, part, idx, nch, i, j, sum;
+    int32_t table_idx;
 
-	numberofFrames ++;
-	if (numberofFrames >= 25) {
-	   show_frameErrors (errorFrames);
-	   numberofFrames	= 0;
-	   errorFrames		= 0;
-	}
+    numberofFrames ++;
+    if (numberofFrames >= 25) {
+        show_frameErrors (errorFrames);
+        numberofFrames   = 0;
+        errorFrames      = 0;
+    }
 
-// check for valid header: syncword OK, MPEG-Audio Layer 2
-	if (( frame[0]         != 0xFF)   // no valid syncword?
-	   ||  ((frame[1] & 0xF6) != 0xF4)   // no MPEG-1/2 Audio Layer II?
-	   ||  ((frame[2] - 0x10) >= 0xE0))  { // invalid bitrate?
-	   errorFrames ++;
-	   return 0;
-	}
+    // check for valid header: syncword OK, MPEG-Audio Layer 2
+    if (      (frame[0] != 0xFF)   // no valid syncword?
+          || ((frame[1] & 0xF6) != 0xF4)   // no MPEG-1/2 Audio Layer II?
+          || ((frame[2] - 0x10) >= 0xE0))  { // invalid bitrate?
+        errorFrames ++;
+        return 0;
+    }
 
-	// set up the bitstream reader
-	bit_window	= frame [2] << 16;
-	bits_in_window	= 8;
-	frame_pos	= &frame[3];
+    // set up the bitstream reader
+    bit_window     = frame[2] << 16;
+    bits_in_window = 8;
+    frame_pos      = &frame[3];
 
-	// read the rest of the header
-	bit_rate_index_minus1 = get_bits(4) - 1;
-	if (bit_rate_index_minus1 > 13)
-	   return 0;  // invalid bit rate or 'free format'
+    // read the rest of the header
+    bit_rate_index_minus1 = get_bits(4) - 1;
+    if (bit_rate_index_minus1 > 13)
+        return 0;  // invalid bit rate or 'free format'
 
-	if (((frame [0] >> 5) & 07) == 4)
-	   fprintf (stderr, "we might have a label\n");
-//	   my_padhandler. processPAD (theAudioUnit);
+    if (((frame[0] >> 5) & 07) == 4)
+        fprintf (stderr, "we might have a label\n");
+    //     my_padhandler. processPAD (theAudioUnit);
 
-	sampling_frequency = get_bits(2);
-	if (sampling_frequency == 3)
-	   return 0;
+    sampling_frequency = get_bits(2);
+    if (sampling_frequency == 3)
+        return 0;
 
-	if ((frame [1] & 0x08) == 0) {  // MPEG-2
-	   sampling_frequency += 4;
-	   bit_rate_index_minus1 += 14;
-	}
+    if ((frame[1] & 0x08) == 0) {  // MPEG-2
+        sampling_frequency += 4;
+        bit_rate_index_minus1 += 14;
+    }
 
-	padding_bit = get_bits (1);
-	get_bits (1);  // discard private_bit
-	mode = get_bits(2);
+    padding_bit = get_bits (1);
+    get_bits (1);  // discard private_bit
+    mode = get_bits(2);
 
-// parse the mode_extension, set up the stereo bound
-	if (mode == JOINT_STEREO) 
-	   bound = (get_bits(2) + 1) << 2;
-	else {
-	   get_bits(2);
-	   bound = (mode == MONO) ? 0 : 32;
-	}
-	emit isStereo (mode == JOINT_STEREO);
+    // parse the mode_extension, set up the stereo bound
+    if (mode == JOINT_STEREO) {
+        bound = (get_bits(2) + 1) << 2;
+    }
+    else {
+        get_bits(2);
+        bound = (mode == MONO) ? 0 : 32;
+    }
+    emit isStereo (mode == JOINT_STEREO);
 
-// discard the last 4 bits of the header and the CRC value, if present
-	get_bits(4);
-	if ((frame[1] & 1) == 0)
-	   get_bits (16);
+    // discard the last 4 bits of the header and the CRC value, if present
+    get_bits(4);
+    if ((frame[1] & 1) == 0)
+        get_bits (16);
 
-// compute the frame size
-	frame_size = (144000 * bitrates[bit_rate_index_minus1]
-	   / sample_rates [sampling_frequency]) + padding_bit;
+    // compute the frame size
+    frame_size = (144000 * bitrates[bit_rate_index_minus1]
+            / sample_rates[sampling_frequency]) + padding_bit;
 
-	if (!pcm)
-	   return frame_size;  // no decoding
+    if (!pcm)
+        return frame_size;  // no decoding
 
-// prepare the quantizer table lookups
-	if (sampling_frequency & 4) {
-	// MPEG-2 (LSR)
-	   table_idx = 2;
-	   sblimit = 30;
-	} else {
-	// MPEG-1
-	   table_idx = (mode == MONO) ? 0 : 1;
-	   table_idx = quant_lut_step1[table_idx][bit_rate_index_minus1];
-	   table_idx = quant_lut_step2[table_idx][sampling_frequency];
-	   sblimit = table_idx & 63;
-	   table_idx >>= 6;
-	}
+    // prepare the quantizer table lookups
+    if (sampling_frequency & 4) {
+        // MPEG-2 (LSR)
+        table_idx = 2;
+        sblimit = 30;
+    }
+    else {
+        // MPEG-1
+        table_idx = (mode == MONO) ? 0 : 1;
+        table_idx = quant_lut_step1[table_idx][bit_rate_index_minus1];
+        table_idx = quant_lut_step2[table_idx][sampling_frequency];
+        sblimit   = table_idx & 63;
+        table_idx >>= 6;
+    }
 
-	if (bound > sblimit)
-	   bound = sblimit;
+    if (bound > sblimit)
+        bound = sblimit;
 
-	// read the allocation information
-	for (sb = 0; sb < bound; ++sb)
-	   for (ch = 0; ch < 2; ++ch)
-	      allocation [ch][sb] = read_allocation (sb, table_idx);
+    // read the allocation information
+    for (sb = 0; sb < bound; ++sb) {
+        for (ch = 0; ch < 2; ++ch) {
+            allocation[ch][sb] = read_allocation (sb, table_idx);
+        }
+    }
 
-	for (sb = bound;  sb < sblimit;  ++sb)
-	   allocation[0][sb] =
-	          allocation[1][sb] = read_allocation(sb, table_idx);
+    for (sb = bound;  sb < sblimit;  ++sb) {
+        allocation[0][sb] =
+            allocation[1][sb] = read_allocation(sb, table_idx);
+    }
 
-	// read scale factor selector information
-	nch = (mode == MONO) ? 1 : 2;
-	for (sb = 0;  sb < sblimit;  ++sb) {
-	   for (ch = 0;  ch < nch;  ++ch)
-	      if (allocation[ch][sb])
-	         scfsi [ch][sb] = get_bits(2);
+    // read scale factor selector information
+    nch = (mode == MONO) ? 1 : 2;
+    for (sb = 0;  sb < sblimit;  ++sb) {
+        for (ch = 0;  ch < nch;  ++ch) {
+            if (allocation[ch][sb])
+                scfsi[ch][sb] = get_bits(2);
+        }
 
-	   if (mode == MONO)
-	      scfsi[1][sb] = scfsi[0][sb];
-	}
+        if (mode == MONO) {
+            scfsi[1][sb] = scfsi[0][sb];
+        }
+    }
 
-	// read scale factors
-	for (sb = 0;  sb < sblimit;  ++sb) {
-	   for (ch = 0;  ch < nch;  ++ch) {
-	      if (allocation[ch][sb]) {
-	         switch (scfsi[ch][sb]) {
+    // read scale factors
+    for (sb = 0;  sb < sblimit;  ++sb) {
+        for (ch = 0;  ch < nch;  ++ch) {
+            if (allocation[ch][sb]) {
+                switch (scfsi[ch][sb]) {
                     case 0: scalefactor[ch][sb][0] = get_bits(6);
                             scalefactor[ch][sb][1] = get_bits(6);
                             scalefactor[ch][sb][2] = get_bits(6);
@@ -484,148 +502,164 @@ int32_t table_idx;
                             break;
                     case 2: scalefactor[ch][sb][0] =
                             scalefactor[ch][sb][1] =
-                            scalefactor[ch][sb][2] = get_bits(6);
+                                scalefactor[ch][sb][2] = get_bits(6);
                             break;
                     case 3: scalefactor[ch][sb][0] = get_bits(6);
                             scalefactor[ch][sb][1] =
-                            scalefactor[ch][sb][2] = get_bits(6);
+                                scalefactor[ch][sb][2] = get_bits(6);
                             break;
-	         }
-	      }
-	   }
-	   if (mode == MONO)
-	      for (part = 0;  part < 3;  ++part)
-	         scalefactor[1][sb][part] = scalefactor[0][sb][part];
-	}
+                }
+            }
+        }
+        if (mode == MONO) {
+            for (part = 0;  part < 3;  ++part) {
+                scalefactor[1][sb][part] = scalefactor[0][sb][part];
+            }
+        }
+    }
 
-// coefficient input and reconstruction
-	for (part = 0;  part < 3;  ++part) {
-	   for (gr = 0;  gr < 4;  ++gr) {
-// read the samples
-	      for (sb = 0;  sb < bound;  ++sb)
-	         for (ch = 0;  ch < 2;  ++ch)
-	            read_samples (allocation[ch][sb],
-	                          scalefactor[ch][sb][part],
-	                          &sample[ch][sb][0]);
-	      for (sb = bound;  sb < sblimit;  ++sb) {
-	         read_samples (allocation[0][sb],
-	                             scalefactor[0][sb][part],
-	                             &sample[0][sb][0]);
-	         for (idx = 0;  idx < 3;  ++idx)
-	            sample[1][sb][idx] = sample[0][sb][idx];
-	      }
+    // coefficient input and reconstruction
+    for (part = 0;  part < 3;  ++part) {
+        for (gr = 0;  gr < 4;  ++gr) {
+            // read the samples
+            for (sb = 0;  sb < bound;  ++sb) {
+                for (ch = 0;  ch < 2;  ++ch) {
+                    read_samples (allocation[ch][sb],
+                            scalefactor[ch][sb][part],
+                            &sample[ch][sb][0]);
+                }
+            }
 
-	      for (ch = 0;  ch < 2;  ++ch)
-	         for (sb = sblimit;  sb < 32;  ++sb)
-	            for (idx = 0;  idx < 3;  ++idx)
-	               sample[ch][sb][idx] = 0;
+            for (sb = bound;  sb < sblimit;  ++sb) {
+                read_samples (allocation[0][sb],
+                        scalefactor[0][sb][part],
+                        &sample[0][sb][0]);
+                for (idx = 0;  idx < 3;  ++idx) {
+                    sample[1][sb][idx] = sample[0][sb][idx];
+                }
+            }
 
-// synthesis loop
-	      for (idx = 0;  idx < 3;  ++idx) {
-// shifting step
-	         Voffs = table_idx = (Voffs - 64) & 1023;
+            for (ch = 0;  ch < 2;  ++ch) {
+                for (sb = sblimit;  sb < 32;  ++sb) {
+                    for (idx = 0;  idx < 3;  ++idx) {
+                        sample[ch][sb][idx] = 0;
+                    }
+                }
+            }
 
-	         for (ch = 0;  ch < 2;  ++ch) {
-// matrixing
-	            for (i = 0;  i < 64;  ++i) {
-	               sum = 0;
-	               for (j = 0;  j < 32;  ++j) // 8b*15b=23b
-	                  sum += N[i][j] * sample[ch][j][idx];
-// intermediate value is 28 bit (23 + 5), clamp to 14b
-//
-	               V [ch][table_idx + i] = (sum + 8192) >> 14;
-	            }
+            // synthesis loop
+            for (idx = 0;  idx < 3;  ++idx) {
+                // shifting step
+                Voffs = table_idx = (Voffs - 64) & 1023;
 
-// construction of U
-	            for (i = 0;  i < 8;  ++i)
-	               for (j = 0;  j < 32;  ++j) {
-	                  U [(i << 6) + j]
-	                           = V [ch][(table_idx + (i << 7) + j) & 1023];
-	                  U [(i << 6) + j + 32] =
-	                            V [ch][(table_idx + (i << 7) + j + 96) & 1023];
-	               }
+                for (ch = 0;  ch < 2;  ++ch) {
+                    // matrixing
+                    for (i = 0;  i < 64;  ++i) {
+                        sum = 0;
+                        for (j = 0;  j < 32;  ++j) // 8b*15b=23b
+                            sum += N[i][j] * sample[ch][j][idx];
+                        // intermediate value is 28 bit (23 + 5), clamp to 14b
+                        //
+                        V[ch][table_idx + i] = (sum + 8192) >> 14;
+                    }
 
-// apply window
-	            for (i = 0;  i < 512;  ++i)
-	               U [i] = (U [i] * D [i] + 32) >> 6;
+                    // construction of U
+                    for (i = 0;  i < 8;  ++i) {
+                        for (j = 0;  j < 32;  ++j) {
+                            U[(i << 6) + j]
+                                = V[ch][(table_idx + (i << 7) + j) & 1023];
+                            U[(i << 6) + j + 32] =
+                                V[ch][(table_idx + (i << 7) + j + 96) & 1023];
+                        }
+                    }
 
-// output samples
-	            for (j = 0;  j < 32;  ++j) {
-	               sum = 0;
-	               for (i = 0;  i < 16;  ++i)
-	                  sum -= U [(i << 5) + j];
-	               sum = (sum + 8) >> 4;
-	               if (sum < -32768)
-	                  sum = -32768;
-	               if (sum > 32767)
-	                  sum = 32767;
-	               pcm [(idx << 6) | (j << 1) | ch] = (uint16_t) sum;
-	            }
-	         } // end of synthesis channel loop
-	      } // end of synthesis sub-block loop
-// adjust PCM output pointer: decoded 3 * 32 = 96 stereo samples
-	      pcm += 192;
-	   } // decoding of the granule finished
-	}
-	return frame_size;
+                    // apply window
+                    for (i = 0;  i < 512;  ++i) {
+                        U[i] = (U[i] * D[i] + 32) >> 6;
+                    }
+
+                    // output samples
+                    for (j = 0;  j < 32;  ++j) {
+                        sum = 0;
+                        for (i = 0;  i < 16;  ++i) {
+                            sum -= U[(i << 5) + j];
+                        }
+                        sum = (sum + 8) >> 4;
+                        if (sum < -32768)
+                            sum = -32768;
+                        if (sum > 32767)
+                            sum = 32767;
+                        pcm[(idx << 6) | (j << 1) | ch] = (uint16_t) sum;
+                    }
+                } // end of synthesis channel loop
+            } // end of synthesis sub-block loop
+            // adjust PCM output pointer: decoded 3 * 32 = 96 stereo samples
+            pcm += 192;
+        } // decoding of the granule finished
+    }
+    return frame_size;
 }
 
-//
-//	bits to MP2 frames, amount is amount of bits
-void	mp2Processor::addtoFrame (uint8_t *v) {
-int16_t	i, j;
-int16_t	lf	= baudRate == 48000 ? MP2framesize : 2 * MP2framesize;
-int16_t	amount	= MP2framesize;
+//  bits to MP2 frames, amount is amount of bits
+void mp2Processor::addtoFrame(uint8_t *v)
+{
+    int16_t i, j;
+    int16_t lf  = baudRate == 48000 ? MP2framesize : 2 * MP2framesize;
+    int16_t amount  = MP2framesize;
 
-	for (i = 0; i < amount; i ++) {
-	   if (MP2Header_OK == 2) {
-	      addbittoMP2 (MP2frame, v [i], MP2bitCount ++);
-	      if (MP2bitCount >= lf) {
-	         int16_t sample_buf [KJMP2_SAMPLES_PER_FRAME * 2];
-	         if (mp2decodeFrame (MP2frame, sample_buf)) {
-	            buffer -> putDataIntoBuffer (sample_buf, 
-	                                 2 * (int32_t)KJMP2_SAMPLES_PER_FRAME);
-	            newAudio (baudRate);
-	         }
+    for (i = 0; i < amount; i ++) {
+        if (MP2Header_OK == 2) {
+            addbittoMP2 (MP2frame, v[i], MP2bitCount ++);
+            if (MP2bitCount >= lf) {
+                int16_t sample_buf[KJMP2_SAMPLES_PER_FRAME * 2];
+                if (mp2decodeFrame (MP2frame, sample_buf)) {
+                    buffer->putDataIntoBuffer (sample_buf,
+                            2 * (int32_t)KJMP2_SAMPLES_PER_FRAME);
+                    newAudio (baudRate);
+                }
 
-	         MP2Header_OK = 0;
-	         MP2headerCount = 0;
-	         MP2bitCount = 0;
-	      }
-	   } else 
-	   if (MP2Header_OK == 0) {
-//	apparently , we are not in sync yet
-	      if (v [i] == 01) {
-	         if (++ MP2headerCount == 12) {
-	            MP2bitCount = 0;
-	            for (j = 0; j < 12; j ++)
-	               addbittoMP2 (MP2frame, 1, MP2bitCount ++);
-	            MP2Header_OK = 1;
-	         }
-	      }
-	      else
-	         MP2headerCount = 0;
-	   }
-	   else
-	   if (MP2Header_OK == 1) {
-	      addbittoMP2 (MP2frame, v [i], MP2bitCount ++);
-	      if (MP2bitCount == 24) {
-	         setSamplerate (mp2sampleRate (MP2frame));
-	         MP2Header_OK = 2;
-	      }
-	   }
-	}
+                MP2Header_OK = 0;
+                MP2headerCount = 0;
+                MP2bitCount = 0;
+            }
+        }
+        else {
+            if (MP2Header_OK == 0) {
+                //  apparently , we are not in sync yet
+                if (v[i] == 01) {
+                    if (++ MP2headerCount == 12) {
+                        MP2bitCount = 0;
+                        for (j = 0; j < 12; j ++)
+                            addbittoMP2 (MP2frame, 1, MP2bitCount ++);
+                        MP2Header_OK = 1;
+                    }
+                }
+                else
+                    MP2headerCount = 0;
+            }
+            else {
+                if (MP2Header_OK == 1) {
+                    addbittoMP2 (MP2frame, v[i], MP2bitCount ++);
+                    if (MP2bitCount == 24) {
+                        setSamplerate (mp2sampleRate (MP2frame));
+                        MP2Header_OK = 2;
+                    }
+                }
+            }
+        }
+    }
 }
 
-void	mp2Processor::addbittoMP2 (uint8_t *v, uint8_t b, int16_t nm) {
-uint8_t	byte	= v [nm / 8];
-int16_t	bitnr	= 7 - (nm & 7);
-uint8_t	newbyte = (01 << bitnr);
+void mp2Processor::addbittoMP2 (uint8_t *v, uint8_t b, int16_t nm)
+{
+    uint8_t byte    = v[nm / 8];
+    int16_t bitnr   = 7 - (nm & 7);
+    uint8_t newbyte = (01 << bitnr);
 
-	if (b == 0)
-	   byte	&= ~newbyte;
-	else
-	   byte |= newbyte;
-	v [nm / 8] = byte;
+    if (b == 0)
+        byte &= ~newbyte;
+    else
+        byte |= newbyte;
+    v[nm / 8] = byte;
 }
 

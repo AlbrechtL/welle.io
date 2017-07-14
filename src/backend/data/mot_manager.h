@@ -30,24 +30,25 @@
 
 
 // --- MOT_FILE -----------------------------------------------------------------
-struct MOT_FILE {
-	std::vector<uint8_t> data;
+struct MOT_FILE
+{
+    std::vector<uint8_t> data;
 
-	// from header core
-	int content_type;
-	int content_sub_type;
+    // from header core
+    int content_type;
+    int content_sub_type;
 
-	// from header extension
-	std::string content_name;
-	std::string category_title;
-	std::string click_through_url;
+    // from header extension
+    std::string content_name;
+    std::string category_title;
+    std::string click_through_url;
 
-	MOT_FILE() {Reset();}
-	void Reset() {
-		data.clear();
-		content_type = -1;
-		content_sub_type = -1;
-	}
+    MOT_FILE() {Reset();}
+    void Reset() {
+        data.clear();
+        content_type = -1;
+        content_sub_type = -1;
+    }
 };
 
 
@@ -55,55 +56,61 @@ typedef std::vector<uint8_t> seg_t;
 typedef std::map<int,seg_t> segs_t;
 
 // --- MOTEntity -----------------------------------------------------------------
-class MOTEntity {
-private:
-	segs_t segs;
-	int last_seg_number;
-	size_t size;
-public:
-	MOTEntity() : last_seg_number(-1), size(0) {}
+class MOTEntity
+{
+    public:
+        MOTEntity() : last_seg_number(-1), size(0) {}
 
-	void AddSeg(int seg_number, bool last_seg, const uint8_t* data, size_t len);
-	bool IsFinished();
-	size_t GetSize() {return size;}
-	std::vector<uint8_t> GetData();
+        void AddSeg(int seg_number, bool last_seg, const uint8_t* data, size_t len);
+        bool IsFinished();
+        size_t GetSize() {return size;}
+        std::vector<uint8_t> GetData();
+
+    private:
+        segs_t segs;
+        int last_seg_number;
+        size_t size;
 };
 
 
 // --- MOTTransport -----------------------------------------------------------------
-class MOTTransport {
-private:
-	MOTEntity header;
-	MOTEntity body;
-	bool shown;
+class MOTTransport
+{
+    public:
+        MOTTransport(): shown(false) {}
 
-	MOT_FILE result_file;
+        void AddSeg(bool dg_type_header, int seg_number, bool last_seg, const uint8_t* data, size_t len);
+        bool IsToBeShown();
+        MOT_FILE GetFile() {return result_file;}
 
-	bool ParseCheckHeader(MOT_FILE& file);
-public:
-	MOTTransport(): shown(false) {}
+    private:
+        MOTEntity header;
+        MOTEntity body;
+        bool shown;
 
-	void AddSeg(bool dg_type_header, int seg_number, bool last_seg, const uint8_t* data, size_t len);
-	bool IsToBeShown();
-	MOT_FILE GetFile() {return result_file;}
+        MOT_FILE result_file;
+
+        bool ParseCheckHeader(MOT_FILE& file);
 };
 
 
 // --- MOTManager -----------------------------------------------------------------
-class MOTManager {
-private:
-	MOTTransport transport;
-	int current_transport_id;
+class MOTManager
+{
+    public:
+        MOTManager();
 
-	bool ParseCheckDataGroupHeader(const std::vector<uint8_t>& dg, size_t& offset, int& dg_type);
-	bool ParseCheckSessionHeader(const std::vector<uint8_t>& dg, size_t& offset, bool& last_seg, int& seg_number, int& transport_id);
-	bool ParseCheckSegmentationHeader(const std::vector<uint8_t>& dg, size_t& offset, size_t& seg_size);
-public:
-	MOTManager();
+        void Reset();
+        bool HandleMOTDataGroup(const std::vector<uint8_t>& dg);
+        MOT_FILE GetFile() {return transport.GetFile();}
 
-	void Reset();
-	bool HandleMOTDataGroup(const std::vector<uint8_t>& dg);
-	MOT_FILE GetFile() {return transport.GetFile();}
+    private:
+        MOTTransport transport;
+        int current_transport_id;
+
+        bool ParseCheckDataGroupHeader(const std::vector<uint8_t>& dg, size_t& offset, int& dg_type);
+        bool ParseCheckSessionHeader(const std::vector<uint8_t>& dg, size_t& offset, bool& last_seg, int& seg_number, int& transport_id);
+        bool ParseCheckSegmentationHeader(const std::vector<uint8_t>& dg, size_t& offset, size_t& seg_size);
 };
 
 #endif /* MOT_MANAGER_H_ */
