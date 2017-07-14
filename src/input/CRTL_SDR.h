@@ -72,8 +72,8 @@ public:
     CRadioController *getRadioController(void);
 
     //	These need to be visible for the separate usb handling thread
-    RingBuffer<uint8_t>* SampleBuffer;
-    RingBuffer<uint8_t>* SpectrumSampleBuffer;
+    RingBuffer<uint8_t> SampleBuffer;
+    RingBuffer<uint8_t> SpectrumSampleBuffer;
     struct rtlsdr_dev* device;
     int32_t sampleCounter;
 
