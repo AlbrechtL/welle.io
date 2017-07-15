@@ -1,4 +1,3 @@
-#
 /*
  *
  *    Copyright (C) 2013
@@ -21,31 +20,32 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-#
-#ifndef	__PHASE_TABLE
-#define	__PHASE_TABLE
 
-#include	<stdio.h>
-#include	<stdint.h>
-#include	"DabConstants.h"
+#ifndef __PHASE_TABLE
+#define __PHASE_TABLE
 
-struct phasetableElement {
-	int32_t	kmin, kmax;
-	int32_t i;
-	int32_t n;
+#include    <stdio.h>
+#include    <stdint.h>
+#include    "DabConstants.h"
+
+struct phasetableElement
+{
+    int32_t kmin, kmax;
+    int32_t i;
+    int32_t n;
 };
 
 
-class phaseTable {
-public:
-		phaseTable 	(int16_t);
-		~phaseTable	(void);
-	DSPFLOAT	get_Phi	(int32_t);
-private:
+class phaseTable
+{
+    public:
+        phaseTable  (int16_t transmission_mode);
+        DSPFLOAT    get_Phi (int32_t);
 
-	struct phasetableElement	*currentTable;
-	int16_t		Mode;
-	int32_t		h_table (int32_t i, int32_t j);
+    private:
+        const struct phasetableElement *currentTable;
+        int16_t     Mode;
+        int32_t     h_table(int32_t i, int32_t j);
 };
 #endif
 

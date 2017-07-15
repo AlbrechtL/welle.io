@@ -1,4 +1,3 @@
-#
 /*
  *
  *    Copyright (C) 2013
@@ -21,33 +20,34 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-#
-#ifndef	__PHASEREFERENCE
-#define	__PHASEREFERENCE
+#ifndef __PHASEREFERENCE
+#define __PHASEREFERENCE
 
-#include	"fft.h"
-#include	<stdio.h>
-#include	<stdint.h>
-#include	"phasetable.h"
-#include	"DabConstants.h"
+#include    "fft.h"
+#include    <stdio.h>
+#include    <stdint.h>
+#include    "phasetable.h"
+#include    "DabConstants.h"
 
 
-class phaseReference : public phaseTable {
-public:
-		phaseReference (CDABParams *, int16_t);
-		~phaseReference	(void);
-	int32_t	findIndex	(DSPCOMPLEX *);
-	DSPCOMPLEX	*refTable;
-private:
-	int32_t		Tu;
-	int16_t		threshold;
+class phaseReference : public phaseTable
+{
+    public:
+        phaseReference (CDABParams *, int16_t);
+        ~phaseReference (void);
+        int32_t findIndex   (DSPCOMPLEX *);
+        DSPCOMPLEX  *refTable;
 
-	common_fft	*fft_processor;
-	DSPCOMPLEX	*fft_buffer;
-	common_ifft	*res_processor;
-	DSPCOMPLEX	*res_buffer;
-	int32_t		fft_counter;
-	DSPFLOAT	Max;
+    private:
+        int32_t     Tu;
+        int16_t     threshold;
+
+        common_fft  *fft_processor;
+        DSPCOMPLEX  *fft_buffer;
+        common_ifft *res_processor;
+        DSPCOMPLEX  *res_buffer;
+        int32_t     fft_counter;
+        DSPFLOAT    Max;
 };
 #endif
 

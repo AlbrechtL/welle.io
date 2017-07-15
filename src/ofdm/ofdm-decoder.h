@@ -1,4 +1,3 @@
-#
 /*
  *    Copyright (C) 2013
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
@@ -19,70 +18,72 @@
  *    along with SDR-J; if not, write to the Free Software
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#ifndef	__OFDM_DECODER
-#define	__OFDM_DECODER
+#ifndef __OFDM_DECODER
+#define __OFDM_DECODER
 
-#include	"DabConstants.h"
-#include	<QThread>
-#include	<QWaitCondition>
-#include	<QMutex>
-#include	<QSemaphore>
-#include	"fft.h"
-#include	"phasetable.h"
-#include	<stdint.h>
-#include	"freq-interleaver.h"
+#include    "DabConstants.h"
+#include    <QThread>
+#include    <QWaitCondition>
+#include    <QMutex>
+#include    <QSemaphore>
+#include    "fft.h"
+#include    "phasetable.h"
+#include    <stdint.h>
+#include    "freq-interleaver.h"
 
-class	CRadioController;
-class	ficHandler;
-class	mscHandler;
+class   CRadioController;
+class   ficHandler;
+class   mscHandler;
 
-class	ofdmDecoder: public QThread {
-Q_OBJECT
-public:
-		ofdmDecoder		(CDABParams *,
-	                                 CRadioController *,
-	                                 ficHandler	*,
-	                                 mscHandler	*);
-		~ofdmDecoder		(void);
-	void	processBlock_0		(DSPCOMPLEX *);
-	void	decodeFICblock		(DSPCOMPLEX *, int32_t n);
-	void	decodeMscblock		(DSPCOMPLEX *, int32_t n);
-	int16_t	get_snr			(DSPCOMPLEX *);
-	void	stop			(void);
-private:
-	CDABParams	*params;
-	CRadioController	*myRadioInterface;
-	ficHandler	*my_ficHandler;
-	mscHandler	*my_mscHandler;
-	void		run		(void);
-	bool		running;
-	DSPCOMPLEX	**command;
-	int16_t		amount;
-	int16_t		currentBlock;
-	void		processBlock_0		(void);
-	void		decodeFICblock		(int32_t n);
-	void		decodeMscblock		(int32_t n);
-	QSemaphore	bufferSpace;
-	QWaitCondition	commandHandler;
-	QMutex		helper;
-	int32_t		T_s;
-	int32_t		T_u;
-	int32_t		T_g;
-	int32_t		carriers;
-	int16_t		getMiddle	(void);
-	DSPCOMPLEX	*phaseReference;
-	common_fft	*fft_handler;
-	DSPCOMPLEX	*fft_buffer;
-	interLeaver	myMapper;
-	phaseTable	*phasetable;
-	int32_t		blockIndex;
-	int16_t		*ibits;
-	int16_t		snrCount;
-	int16_t		snr;
-signals:
-	void		show_snr	(int);
+class   ofdmDecoder : public QThread
+{
+    Q_OBJECT
+    public:
+        ofdmDecoder(
+                CDABParams *p,
+                CRadioController *mr,
+                ficHandler *my_ficHandler,
+                mscHandler *my_mscHandler);
+        ~ofdmDecoder(void);
+        void    processBlock_0      (DSPCOMPLEX *);
+        void    decodeFICblock      (DSPCOMPLEX *, int32_t n);
+        void    decodeMscblock      (DSPCOMPLEX *, int32_t n);
+        int16_t get_snr         (DSPCOMPLEX *);
+        void    stop            (void);
+    private:
+        CDABParams  *params;
+        CRadioController    *myRadioInterface;
+        ficHandler  *my_ficHandler;
+        mscHandler  *my_mscHandler;
+        void        run     (void);
+        bool        running;
+        DSPCOMPLEX  **command;
+        int16_t     amount;
+        int16_t     currentBlock;
+        void        processBlock_0      (void);
+        void        decodeFICblock      (int32_t n);
+        void        decodeMscblock      (int32_t n);
+        QSemaphore  bufferSpace;
+        QWaitCondition  commandHandler;
+        QMutex      helper;
+        int32_t     T_s;
+        int32_t     T_u;
+        int32_t     T_g;
+        int32_t     carriers;
+        int16_t     getMiddle   (void);
+        DSPCOMPLEX  *phaseReference;
+        common_fft  *fft_handler;
+        DSPCOMPLEX  *fft_buffer;
+        interLeaver myMapper;
+        phaseTable  *phasetable;
+        int32_t     blockIndex;
+        int16_t     *ibits;
+        int16_t     snrCount;
+        int16_t     snr;
+
+    signals:
+        void        show_snr    (int);
 };
 
 #endif
-
 

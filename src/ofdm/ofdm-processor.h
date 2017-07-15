@@ -27,101 +27,105 @@
  *
  */
 
-#ifndef	__OFDM_PROCESSOR__
-#define	__OFDM_PROCESSOR__
+#ifndef __OFDM_PROCESSOR__
+#define __OFDM_PROCESSOR__
 /*
  *
  */
-#include	"DabConstants.h"
-#include	<QThread>
-#include	<QObject>
-#include	<thread>
-#include	"stdint.h"
-#include	"phasereference.h"
-#include	"ofdm-decoder.h"
-#include	"CVirtualInput.h"
-#include	"ringbuffer.h"
+#include    "DabConstants.h"
+#include    <QThread>
+#include    <QObject>
+#include    <thread>
+#include    "stdint.h"
+#include    "phasereference.h"
+#include    "ofdm-decoder.h"
+#include    "CVirtualInput.h"
+#include    "ringbuffer.h"
 //
-//	Note:
-//	It was found that enlarging the buffersize to e.g. 8192
-//	cannot be handled properly by the underlying system.
-#define	DUMPSIZE		4096
-class	CRadioController;
-class	common_fft;
-class	ofdmDecoder;
-class	ficHandler;
-class	mscHandler;
+//  Note:
+//  It was found that enlarging the buffersize to e.g. 8192
+//  cannot be handled properly by the underlying system.
+#define DUMPSIZE        4096
+class   CRadioController;
+class   common_fft;
+class   ofdmDecoder;
+class   ficHandler;
+class   mscHandler;
 
-class ofdmProcessor: public QThread {
-Q_OBJECT
-public:
-		ofdmProcessor  	(CVirtualInput *,
-	                         CDABParams	*,
-	                         CRadioController *,
-	                         mscHandler *,
-	                         ficHandler *,
-	                         int16_t,
-	                         uint8_t);
-		~ofdmProcessor	(void);
-	void	reset			(void);
-	void	stop		(void);
-	void	setOffset	(int32_t);
-	void	coarseCorrectorOn	(void);
-	void	coarseCorrectorOff	(void);
-    void	set_scanMode		(bool);
-    void	start	(void);
-private:
-    std::thread threadHandle;
-    int32_t	syncBufferIndex;
-    CVirtualInput	*theRig;
-    CDABParams	*params;
-	CRadioController	*myRadioInterface;
-	ficHandler	*my_ficHandler;
+class ofdmProcessor: public QThread
+{
+    Q_OBJECT
+    public:
+        ofdmProcessor(
+                CVirtualInput  *theRig,
+                CDABParams *params,
+                CRadioController *mr,
+                mscHandler     *msc,
+                ficHandler     *fic,
+                int16_t    threshold,
+                uint8_t    freqsyncMethod);
+        ~ofdmProcessor  (void);
+        void    reset           (void);
+        void    stop        (void);
+        void    setOffset   (int32_t);
+        void    coarseCorrectorOn   (void);
+        void    coarseCorrectorOff  (void);
+        void    set_scanMode        (bool);
+        void    start   (void);
 
-	bool		running;
-	int16_t		gain;
-	int32_t		T_null;
-	int32_t		T_u;
-	int32_t		T_s;
-	int32_t		T_g;
-	int32_t		T_F;
-	float		sLevel;
-	DSPCOMPLEX	*dataBuffer;
-	int32_t		FreqOffset;
-	DSPCOMPLEX	*oscillatorTable;
-	int32_t		localPhase;
-	int16_t		fineCorrector;
-	int32_t		coarseCorrector;
+    private:
+        std::thread threadHandle;
+        int32_t syncBufferIndex;
+        CVirtualInput   *theRig;
+        CDABParams  *params;
+        CRadioController    *myRadioInterface;
+        ficHandler  *my_ficHandler;
 
-	uint8_t		freqsyncMethod;
-	bool		f2Correction;
-	int32_t		tokenCount;
-	DSPCOMPLEX	*ofdmBuffer;
-	uint32_t	ofdmBufferIndex;
-	uint32_t	ofdmSymbolCount;
-	phaseReference	phaseSynchronizer;
-	ofdmDecoder	my_ofdmDecoder;
-	DSPFLOAT	avgCorr;
-	float		*correlationVector;
-	float		*refArg;
-	int32_t		sampleCnt;
-	int32_t		inputSize;
-	int32_t		inputPointer;
-	DSPCOMPLEX	getSample	(int32_t);
-	void		getSamples	(DSPCOMPLEX *, int16_t, int32_t);
-	bool		scanMode;
-virtual	void		run		(void);
-	int32_t		bufferContent;
-	bool		isReset;
-	int16_t		processBlock_0	(DSPCOMPLEX *);
-	int16_t		getMiddle	(DSPCOMPLEX *);
-	common_fft	*fft_handler;
-	DSPCOMPLEX	*fft_buffer;
-signals:
-	void		show_fineCorrector	(int);
-	void		show_coarseCorrector	(int);
-	void		setSynced		(char);
-    void		setSignalPresent	(bool);
+        bool        running;
+        int16_t     gain;
+        int32_t     T_null;
+        int32_t     T_u;
+        int32_t     T_s;
+        int32_t     T_g;
+        int32_t     T_F;
+        float       sLevel;
+        DSPCOMPLEX  *dataBuffer;
+        int32_t     FreqOffset;
+        DSPCOMPLEX  *oscillatorTable;
+        int32_t     localPhase;
+        int16_t     fineCorrector;
+        int32_t     coarseCorrector;
+
+        uint8_t     freqsyncMethod;
+        bool        f2Correction;
+        int32_t     tokenCount;
+        DSPCOMPLEX  *ofdmBuffer;
+        uint32_t    ofdmBufferIndex;
+        uint32_t    ofdmSymbolCount;
+        phaseReference  phaseSynchronizer;
+        ofdmDecoder my_ofdmDecoder;
+        DSPFLOAT    avgCorr;
+        float       *correlationVector;
+        float       *refArg;
+        int32_t     sampleCnt;
+        int32_t     inputSize;
+        int32_t     inputPointer;
+        DSPCOMPLEX  getSample   (int32_t);
+        void        getSamples  (DSPCOMPLEX *, int16_t, int32_t);
+        bool        scanMode;
+        virtual void        run     (void);
+        int32_t     bufferContent;
+        bool        isReset;
+        int16_t     processBlock_0  (DSPCOMPLEX *);
+        int16_t     getMiddle   (DSPCOMPLEX *);
+        common_fft  *fft_handler;
+        DSPCOMPLEX  *fft_buffer;
+
+    signals:
+        void        show_fineCorrector  (int);
+        void        show_coarseCorrector    (int);
+        void        setSynced       (char);
+        void        setSignalPresent    (bool);
 };
 #endif
 
