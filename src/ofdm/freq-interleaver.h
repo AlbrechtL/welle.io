@@ -23,6 +23,7 @@
 #ifndef __FREQ_INTERLEAVER__
 #define __FREQ_INTERLEAVER__
 #include    <stdint.h>
+#include    <vector>
 #include    "DabConstants.h"
 
 /**
@@ -34,11 +35,10 @@ class   interLeaver
 {
     public:
         interLeaver(CDABParams *);
-        ~interLeaver(void);
         int16_t mapIn(int16_t);
 
     private:
-        int16_t *permTable;
+        std::vector<int16_t> permTable;
 };
 
 #endif

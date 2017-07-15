@@ -32,9 +32,10 @@
   * of the DAB standard
   */
 
-int16_t *createMapper(int16_t T_u, int16_t V1, int16_t lwb, int16_t upb, int16_t *v)
+static std::vector<int16_t> createMapper(int16_t T_u, int16_t V1, int16_t lwb, int16_t upb)
 {
-    int16_t *tmp    = (int16_t *)alloca (T_u * sizeof (int16_t));
+    std::vector<int16_t> tmp(T_u);
+    std::vector<int16_t> v(T_u);
     int16_t index   = 0;
     int16_t i;
 
@@ -63,32 +64,23 @@ interLeaver::interLeaver(CDABParams *p)
         case 1:
         default:     // shouldn't happen
             permTable = createMapper (p->T_u,
-                    511, 256, 256 + p->K,
-                    new int16_t[p->T_u]);
+                    511, 256, 256 + p->K);
             break;
         case 2:
             permTable = createMapper (p->T_u,
-                    127, 64, 64 + p->K,
-                    new int16_t[p->T_u]);
+                    127, 64, 64 + p->K);
             break;
 
         case 3:
             permTable = createMapper (p->T_u,
-                    63, 32, 32 + p->K,
-                    new int16_t[p->T_u]);
+                    63, 32, 32 + p->K);
             break;
 
         case 4:
             permTable = createMapper (p->T_u,
-                    255, 128, 128 + p->K,
-                    new int16_t[p->T_u]);
+                    255, 128, 128 + p->K);
             break;
     }
-}
-
-interLeaver::~interLeaver(void)
-{
-    delete  permTable;
 }
 
 //  according to the standard, the map is a function from
