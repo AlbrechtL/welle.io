@@ -18,7 +18,7 @@
  *    along with SDR-J; if not, write to the Free Software
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#include    "phasereference.h" 
+#include    "phasereference.h"
 #include    "string.h"
 /**
  * \class phaseReference
@@ -28,7 +28,9 @@
  * The class inherits from the phaseTable.
  */
 phaseReference::phaseReference (CDABParams  *p, int16_t threshold) :
-    phaseTable(p->dabMode)
+    phaseTable(p->dabMode),
+    fft_processor(p->T_u),
+    res_processor(p->T_u)
 {
     int32_t i;
     DSPFLOAT    Phi_k;
@@ -37,27 +39,19 @@ phaseReference::phaseReference (CDABParams  *p, int16_t threshold) :
     this->threshold    = threshold;
 
     Max           = 0.0;
-    refTable      = new DSPCOMPLEX    [Tu];   //
-    fft_processor = new common_fft    (Tu);
-    fft_buffer    = fft_processor->getVector ();
-    res_processor = new common_ifft   (Tu);
-    res_buffer    = res_processor->getVector ();
+    refTable.resize(Tu);
+    fft_buffer    = fft_processor.getVector ();
+    res_buffer    = res_processor.getVector ();
     fft_counter   = 0;
-
-    memset (refTable, 0, sizeof (DSPCOMPLEX) * Tu);
 
     for (i = 1; i <= p->K / 2; i ++) {
         Phi_k =  get_Phi (i);
-        refTable [i] = DSPCOMPLEX (cos (Phi_k), sin (Phi_k));
+        refTable[i] = DSPCOMPLEX (cos (Phi_k), sin (Phi_k));
         Phi_k = get_Phi (-i);
-        refTable [Tu - i] = DSPCOMPLEX (cos (Phi_k), sin (Phi_k));
+        refTable[Tu - i] = DSPCOMPLEX (cos (Phi_k), sin (Phi_k));
     }
 }
 
-phaseReference::~phaseReference (void) {
-    delete  refTable;
-    delete  fft_processor;
-}
 
 /**
  * \brief findIndex
@@ -68,7 +62,8 @@ phaseReference::~phaseReference (void) {
  * we believe that that indicates the first sample we were
  * looking for.
  */
-int32_t phaseReference::findIndex (DSPCOMPLEX *v) {
+int32_t phaseReference::findIndex (DSPCOMPLEX *v)
+{
     int32_t i;
     int32_t maxIndex    = -1;
     float   sum     = 0;
@@ -76,23 +71,23 @@ int32_t phaseReference::findIndex (DSPCOMPLEX *v) {
     Max = 1.0;
     memcpy (fft_buffer, v, Tu * sizeof (DSPCOMPLEX));
 
-    fft_processor->do_FFT ();
-    //
+    fft_processor.do_FFT ();
+
     //  back into the frequency domain, now correlate
-    for (i = 0; i < Tu; i ++) 
-        res_buffer [i] = fft_buffer [i] * conj (refTable [i]);
+    for (i = 0; i < Tu; i ++)
+        res_buffer[i] = fft_buffer[i] * conj (refTable[i]);
     //  and, again, back into the time domain
-    res_processor->do_IFFT ();
+    res_processor.do_IFFT ();
     /**
      * We compute the average signal value ...
      */
     for (i = 0; i < Tu; i ++)
-        sum  += abs (res_buffer [i]);
+        sum  += abs (res_buffer[i]);
     Max = -10000;
     for (i = 0; i < Tu; i ++)
-        if (abs (res_buffer [i]) > Max) {
+        if (abs (res_buffer[i]) > Max) {
             maxIndex = i;
-            Max = abs (res_buffer [i]);
+            Max = abs (res_buffer[i]);
         }
     /**
      * that gives us a basis for defining the threshold
@@ -100,6 +95,5 @@ int32_t phaseReference::findIndex (DSPCOMPLEX *v) {
     if (Max < threshold * sum / Tu)
         return  - abs (Max * Tu / sum) - 1;
     else
-        return maxIndex; 
+        return maxIndex;
 }
-//

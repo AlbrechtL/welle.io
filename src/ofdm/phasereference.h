@@ -24,6 +24,7 @@
 #define __PHASEREFERENCE
 
 #include    "fft.h"
+#include    <vector>
 #include    <stdio.h>
 #include    <stdint.h>
 #include    "phasetable.h"
@@ -34,17 +35,16 @@ class phaseReference : public phaseTable
 {
     public:
         phaseReference (CDABParams *, int16_t);
-        ~phaseReference (void);
         int32_t findIndex   (DSPCOMPLEX *);
-        DSPCOMPLEX  *refTable;
+        std::vector<DSPCOMPLEX> refTable;
 
     private:
         int32_t     Tu;
         int16_t     threshold;
 
-        common_fft  *fft_processor;
+        common_fft  fft_processor;
         DSPCOMPLEX  *fft_buffer;
-        common_ifft *res_processor;
+        common_ifft res_processor;
         DSPCOMPLEX  *res_buffer;
         int32_t     fft_counter;
         DSPFLOAT    Max;
