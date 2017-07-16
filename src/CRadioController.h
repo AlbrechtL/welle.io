@@ -47,7 +47,12 @@
 
 class CVirtualInput;
 
+#ifdef Q_OS_ANDROID
+#include "rep_CRadioController_source.h"
+class CRadioController : public CRadioControllerSource
+#else
 class CRadioController : public QObject
+#endif
 {
     Q_OBJECT
 public:
@@ -59,7 +64,7 @@ public:
         Paused      = 3,
         Stopped     = 4,
         Scanning    = 5,
-    } ;
+    };
 
     CRadioController(QVariantMap &commandLineOptions, CDABParams& DABParams, QObject* parent = NULL);
     ~CRadioController(void);
@@ -67,18 +72,28 @@ public:
     void Play(QString Channel, QString Station);
     void Pause();
     void Stop();
-    void SetVolume(qreal volume);
     void SetStation(QString Station, bool Force = false);
     void SetChannel(QString Channel, bool isScan, bool Force = false);
     void StartScan(void);
     void StopScan(void);
-    QVariantMap GetGUIData(void);
-    QImage GetMOTImage(void);
+    QVariantMap GUIData(void) const;
+    QImage MOT() const;
     int32_t GetSpectrumSamples(DSPCOMPLEX* Buffer, int32_t Size);
     int GetCurrentFrequency(void);
-    void SetHwAGC(bool isHwAGC);
-    void SetAGC(bool isAGC);
-    float SetGain(int Gain);
+
+    qreal Volume() const;
+    void setVolume(qreal Volume);
+
+    bool HwAGC() const;
+    void setHwAGC(bool isHwAGC);
+
+    bool AGC() const;
+    void setAGC(bool isAGC);
+
+    int Gain() const;
+    void setGain(int Gain);
+
+    float GainValue() const;
 
     void setErrorMessage(QString Text);
     void setInfoMessage(QString Text);
@@ -88,6 +103,8 @@ private:
     void DeviceRestart(void);
     void DecoderRestart(bool isScan);
     void NextChannel(bool isWait);
+    void UpdateGUIData();
+    void SetFrequencyCorrection(int FrequencyCorrection);
 
     // Back-end objects
     CVirtualInput* Device;
@@ -102,7 +119,7 @@ private:
     RingBuffer<int16_t>* AudioBuffer;
 
     // Objects set by the back-end
-    QVariantMap GUIData;
+    QVariantMap _GUIData;
     QDateTime CurrentDateTime;
     bool isFICCRC;
     bool isSync;
@@ -129,6 +146,7 @@ private:
     QString CurrentLanguageType;
     int32_t CurrentManualGain;
     float CurrentManualGainValue;
+    qreal CurrentVolume;
 
     QList<QString> StationList;
     QTimer StationTimer;
@@ -147,16 +165,24 @@ private slots:
     void ChannelTimerTimeout(void);
     void SyncCheckTimerTimeout(void);
 
+#ifndef Q_OS_ANDROID
 signals:
-    void DisplayDataUpdate(void);
-    void DeviceReady(void);
-    void FoundStation(QString SId, QString Station, QString CurrentChannel);
-    void ScanStopped(void);
-    void ScanProgress(int Progress);
+    void HwAGCChanged(bool);
+    void AGCChanged(bool);
+    void GainValueChanged(float);
+    void GainChanged(int);
+    void VolumeChanged(qreal);
     void MOTChanged(QImage MOTImage);
+
+    void GUIDataChanged(QVariantMap GUIData);
+    void DeviceReady();
+    void FoundStation(QString SId, QString Station, QString CurrentChannel);
+    void ScanStopped();
+    void ScanProgress(int Progress);
     void showErrorMessage(QString Text);
     void showInfoMessage(QString Text);
     void showAndroidInstallDialog(QString Title, QString Text);
+#endif
 
 public slots:
     // This slots are called from the backend

@@ -157,7 +157,7 @@ CRTL_SDR::CRTL_SDR(CRadioController &RadioController, int fd, QString path)
     // Enable AGC by default
     setAgc(true);
 
-    connect(&AGCTimer, SIGNAL(timeout(void)), this, SLOT(AGCTimerTimeout(void)));
+    connect(&AGCTimer, &QTimer::timeout, this, &CRTL_SDR::AGCTimerTimeout);
 
     return;
 }

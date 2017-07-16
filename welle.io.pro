@@ -198,6 +198,7 @@ macx {
 
 android {
     QT += androidextras
+    QT += remoteobjects
 
     CONFIG  += kiss_fft_builtin
     CONFIG  += libfaad_builtin
@@ -213,6 +214,9 @@ android {
     SOURCES    += \
         src/gui/CAndroidJNI.cpp \
         src/input/CAndroid_RTL_SDR.cpp
+
+    REPC_SOURCE += src/CRadioController.rep
+    REPC_REPLICA += src/CRadioController.rep
 
     equals(ANDROID_TARGET_ARCH, x86)  {
         message("Enable SSE")

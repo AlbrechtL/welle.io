@@ -27,6 +27,7 @@
  *
  */
 
+#include <QDebug>
 #include <QSettings>
 
 #include "CInputFactory.h"
@@ -47,7 +48,12 @@
   *	gui elements and the handling agents. All real action
   *	is embedded in actions, initiated by gui buttons
   */
-CGUI::CGUI(CRadioController *RadioController, CDABParams *DABParams, QObject *parent): QObject(parent)
+#ifdef Q_OS_ANDROID
+CGUI::CGUI(CRadioControllerReplica *RadioController, CDABParams *DABParams, QObject *parent)
+#else
+CGUI::CGUI(CRadioController *RadioController, CDABParams *DABParams, QObject *parent)
+#endif
+    : QObject(parent)
 {
     this->RadioController = RadioController;
     this->DABParams = DABParams;
@@ -67,13 +73,19 @@ CGUI::CGUI(CRadioController *RadioController, CDABParams *DABParams, QObject *pa
 
     spectrum_fft_handler = new common_fft(DABParams->T_u);
 
-    connect(RadioController, SIGNAL(MOTChanged(QImage)), this, SLOT(MOTUpdate(QImage)));
-    connect(RadioController, SIGNAL(FoundStation(QString, QString, QString)), this, SLOT(AddToStationList(QString, QString, QString)));
-    connect(RadioController, SIGNAL(ScanStopped()), this, SIGNAL(channelScanStopped()));
-    connect(RadioController, SIGNAL(ScanProgress(int)), this, SIGNAL(channelScanProgress(int)));
-
-    connect(&UptimeTimer, SIGNAL(timeout(void)), this, SLOT(UpdateTimerTimeout(void)));
-    UptimeTimer.start(250); // 250 ms
+#ifdef Q_OS_ANDROID
+    connect(RadioController, &CRadioControllerReplica::GUIDataChanged, this, &CGUI::GUIDataUpdate);
+    connect(RadioController, &CRadioControllerReplica::MOTChanged, this, &CGUI::MOTUpdate);
+    connect(RadioController, &CRadioControllerReplica::FoundStation, this, &CGUI::AddToStationList);
+    connect(RadioController, &CRadioControllerReplica::ScanStopped, this, &CGUI::channelScanStopped);
+    connect(RadioController, &CRadioControllerReplica::ScanProgress, this, &CGUI::channelScanProgress);
+#else
+    connect(RadioController, &CRadioController::GUIDataChanged, this, &CGUI::GUIDataUpdate);
+    connect(RadioController, &CRadioController::MOTChanged, this, &CGUI::MOTUpdate);
+    connect(RadioController, &CRadioController::FoundStation, this, &CGUI::AddToStationList);
+    connect(RadioController, &CRadioController::ScanStopped, this, &CGUI::channelScanStopped);
+    connect(RadioController, &CRadioController::ScanProgress, this, &CGUI::channelScanProgress);
+#endif
 }
 
 CGUI::~CGUI()
@@ -152,14 +164,10 @@ void CGUI::stopChannelScanClick(void)
         RadioController->StopScan();
 }
 
-void CGUI::UpdateTimerTimeout()
+void CGUI::GUIDataUpdate(QVariantMap GUIData)
 {
-    if(RadioController)
-    {
-        QVariantMap GUIData = RadioController->GetGUIData();
-
-        emit setGUIData(GUIData);
-    }
+    //qDebug() << "CGUI:" <<  "GUIDataUpdate";
+    emit setGUIData(GUIData);
 }
 
 void CGUI::MOTUpdate(QImage MOTImage)
@@ -203,20 +211,21 @@ void CGUI::setManualChannel(QString ChannelName)
 void CGUI::inputEnableAGCChanged(bool checked)
 {
     if(RadioController)
-        RadioController->SetAGC(checked);
+        RadioController->setAGC(checked);
 }
 
 void CGUI::inputEnableHwAGCChanged(bool checked)
 {
     if(RadioController)
-        RadioController->SetHwAGC(checked);
+        RadioController->setHwAGC(checked);
 }
 
 void CGUI::inputGainChanged(double gain)
 {
     if(RadioController)
     {
-        m_currentGainValue = RadioController->SetGain((int) gain);
+        RadioController->setGain((int) gain);
+        m_currentGainValue = RadioController->GainValue();
         if(m_currentGainValue >= 0)
             emit currentGainValueChanged();
     }
@@ -235,6 +244,10 @@ void CGUI::clearStationList()
 // This function is called by the QML GUI
 void CGUI::updateSpectrum(QAbstractSeries* series)
 {
+#ifdef Q_OS_ANDROID
+    //TODO updateSpectrum
+    Q_UNUSED(series)
+#else
     int Samples = 0;
     int16_t T_u = DABParams->T_u;
 
@@ -306,4 +319,5 @@ void CGUI::updateSpectrum(QAbstractSeries* series)
 
     //	Set new data
     xySeries->replace(spectrum_data);
+#endif
 }

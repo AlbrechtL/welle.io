@@ -187,8 +187,8 @@ void CAndroidJNI::setRadioController(CRadioController *radioController)
     qDebug() << "AndroidJNI:" <<  "Set RadioController";
     this->mRadioController = radioController;
 
-    connect(radioController, &CRadioController::DisplayDataUpdate,
-            this, &CAndroidJNI::displayDataUpdate);
+    connect(radioController, &CRadioController::GUIDataChanged,
+            this, &CAndroidJNI::updateGuiData);
     connect(radioController, &CRadioController::DeviceReady,
             this, &CAndroidJNI::deviceReady);
     connect(radioController, &CRadioController::FoundStation,
@@ -209,23 +209,16 @@ bool CAndroidJNI::openUsbDevice(int fd, QString path)
 {
     qDebug() << "AndroidJNI:" <<  "Open USB device:" << path << "fd:" << fd;
     if(mRadioController) {
-        qDebug() << "AndroidJNI:" <<  "#### openUsbDevice mark 1";
         CRTL_SDR *device = new CRTL_SDR(*mRadioController, fd, path);
-        qDebug() << "AndroidJNI:" <<  "#### openUsbDevice mark 2";
         mRadioController->setDevice(device);
-        qDebug() << "AndroidJNI:" <<  "#### openUsbDevice mark 3";
         QTimer::singleShot(0, mRadioController, SLOT(onEventLoopStarted()));
-        qDebug() << "AndroidJNI:" <<  "#### openUsbDevice mark 4";
         return true;
-    } else {
-        qDebug() << "AndroidJNI:" <<  "#### openUsbDevice mark 5";
     }
     return false;
 }
 
 StationElement *CAndroidJNI::findStation(QString stationId)
 {
-    qDebug() << "AndroidJNI:" <<  "#### findStation:" << stationId;
     QString sId = stationId.left(4);
     QString channelName = stationId.mid(4);
     return mStationList.find(sId, channelName);
@@ -286,13 +279,9 @@ void CAndroidJNI::stopChannelScan(void)
         mRadioController->StopScan();
 }
 
-void CAndroidJNI::displayDataUpdate(void)
+void CAndroidJNI::updateGuiData(QVariantMap GUIData)
 {
-    qDebug() << "AndroidJNI:" <<  "Display Update";
-    if(!mRadioController)
-        return;
-
-    QVariantMap GUIData = mRadioController->GetGUIData();
+    //qDebug() << "AndroidJNI:" <<  "Display Update";
 
     jint jStatus = GUIData["Status"].toInt();
     QAndroidJniObject jChannel = QAndroidJniObject::fromString(GUIData["Channel"].toString());
@@ -301,7 +290,7 @@ void CAndroidJNI::displayDataUpdate(void)
     QAndroidJniObject jStationType = QAndroidJniObject::fromString(GUIData["StationType"].toString());
 
     QAndroidJniObject::callStaticMethod<void>("io/welle/welle/DabService",
-                                              "updateDisplayData",
+                                              "updateGuiData",
                                               "(ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",
                                               jStatus,
                                               jChannel.object<jstring>(),
@@ -332,9 +321,9 @@ void CAndroidJNI::deviceReady(void)
 
     // Set AGC & Gain
     QSettings Settings;
-    mRadioController->SetHwAGC(Settings.value("enableHwAGCState", false).toBool());
-    mRadioController->SetGain(Settings.value("manualGainState", 0).toInt());
-    mRadioController->SetAGC(Settings.value("enableAGCState", true).toBool());
+    mRadioController->setHwAGC(Settings.value("enableHwAGCState", false).toBool());
+    mRadioController->setGain(Settings.value("manualGainState", 0).toInt());
+    mRadioController->setAGC(Settings.value("enableAGCState", true).toBool());
 
     // Notify service
     QAndroidJniObject::callStaticMethod<void>("io/welle/welle/DabService",
@@ -382,7 +371,7 @@ void CAndroidJNI::duckPlayback(bool duck)
 {
     qDebug() << "AndroidJNI:" << (duck ? "Duck" : "Unduck") << "playback";
     if (mRadioController)
-        mRadioController->SetVolume(duck ? 0.5 : 1);
+        mRadioController->setVolume(duck ? 0.5 : 1);
 }
 
 void CAndroidJNI::pausePlayback()
@@ -461,7 +450,8 @@ void CAndroidJNI::channelScanProgress(int Progress)
     QAndroidJniObject::callStaticMethod<void>("io/welle/welle/DabService",
                                               "channelScanProgress",
                                               "(I)V", Progress);
-    displayDataUpdate();
+    if (mRadioController)
+        updateGuiData(mRadioController->GUIData());
 }
 
 void CAndroidJNI::showErrorMessage(QString Text)

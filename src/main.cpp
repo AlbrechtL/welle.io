@@ -43,7 +43,10 @@
 #include "CRadioController.h"
 #include "CGUI.h"
 #ifdef Q_OS_ANDROID
+#include <QtAndroid>
+#include <QAndroidJniObject>
 #include "CAndroidJNI.h"
+#include "rep_CRadioController_replica.h"
 #endif
 
 QTranslator* AddTranslator(QApplication *app, QString Language, QTranslator *OldTranslator = NULL);
@@ -55,6 +58,7 @@ int main(int argc, char** argv)
     QCoreApplication::setOrganizationDomain("welle.io");
     QCoreApplication::setApplicationName("welle.io");
     QCoreApplication::setApplicationVersion(CURRENT_VERSION);
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
     // Default values
     CDABParams DABParams(1);
@@ -63,29 +67,32 @@ int main(int argc, char** argv)
 #ifdef Q_OS_ANDROID
     //  Process Android Service
     if (argc == 2 && qstrcmp(argv[1], "-S") == 0) {
-        qDebug() << "main:" <<  "Run as service";
+        qDebug() << "main:" <<  "Run as service, pid:" << QCoreApplication::applicationPid();
 
         // Create new QT core application
         QCoreApplication app(argc, argv);
 
-        commandLineOptions["dabDevice"]     = "";
-        commandLineOptions["ipAddress"]     = "";
-        commandLineOptions["ipPort"]        = "";
-        commandLineOptions["rawFile"]       = "";
-        commandLineOptions["rawFileFormat"] = "";
-
         // Create a new radio interface instance
         CRadioController RadioController(commandLineOptions, DABParams);
+
+        // Enable remoting source
+        QRemoteObjectHost srcNode(QUrl(QStringLiteral("local:replica")));
+        srcNode.enableRemoting(&RadioController);
 
         CAndroidJNI::getInstance().setRadioController(&RadioController);
 
         // Run application
         return app.exec();
+    } else {
+        // Start background service first
+        QAndroidJniObject::callStaticMethod<void>("io/welle/welle/DabService",
+                                                  "startDabService",
+                                                  "(Landroid/content/Context;)V",
+                                                  QtAndroid::androidActivity().object());
+
+        qDebug() << "main:" <<  "Run as application, pid:" << QCoreApplication::applicationPid();
     }
 #endif
-    qDebug() << "main:" <<  "Run as application";
-
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
     // Before printing anything, we set
     setlocale(LC_ALL, "");
@@ -161,6 +168,17 @@ int main(int argc, char** argv)
         DABParams.setMode(Mode);
     }
 
+#ifdef Q_OS_ANDROID
+
+    // Create a radio interface replica and connect to source
+    QRemoteObjectNode repNode;
+    repNode.connectToNode(QUrl(QStringLiteral("local:replica")));
+    CRadioControllerReplica* RadioController = repNode.acquire<CRadioControllerReplica>();
+    bool res = RadioController->waitForSource();
+    Q_ASSERT(res);
+
+#else
+
     commandLineOptions["dabDevice"] = optionParser.value(InputOption);
     commandLineOptions["ipAddress"] = optionParser.value(RTL_TCPServerIPOption);
     commandLineOptions["ipPort"] = optionParser.value(RTL_TCPServerIPPort);
@@ -170,6 +188,8 @@ int main(int argc, char** argv)
     // Create a new radio interface instance
     CRadioController* RadioController = new CRadioController(commandLineOptions, DABParams);
     QTimer::singleShot(0, RadioController, SLOT(onEventLoopStarted())); // The timer is used to signal if the QT event lopp is running
+
+#endif
 
     CGUI *GUI = new CGUI(RadioController, &DABParams);
 

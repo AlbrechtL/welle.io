@@ -1,0 +1,30 @@
+#include <QImage>
+#include <QVariantMap>
+
+class CRadioController
+{
+    PROP(bool HwAGC READWRITE);
+    PROP(bool AGC READWRITE);
+    PROP(float GainValue READONLY);
+    PROP(int Gain READWRITE);
+
+    PROP(qreal Volume READWRITE);
+
+    PROP(QVariantMap GUIData READONLY);
+    PROP(QImage MOT READONLY);
+
+    SIGNAL(DeviceReady());
+    SIGNAL(FoundStation(QString SId, QString Station, QString CurrentChannel));
+    SIGNAL(ScanStopped());
+    SIGNAL(ScanProgress(int Progress));
+
+    SIGNAL(showErrorMessage(QString Text));
+    SIGNAL(showInfoMessage(QString Text));
+    SIGNAL(showAndroidInstallDialog(QString Title, QString Text));
+
+    SLOT(StartScan());
+    SLOT(StopScan());
+    SLOT(Play(QString Channel, QString Station));
+    SLOT(SetStation(QString Station, bool Force = false));
+    SLOT(SetChannel(QString Channel, bool isScan, bool Force = false));
+};

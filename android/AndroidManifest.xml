@@ -66,19 +66,19 @@
         <meta-data android:name="com.google.android.gms.car.application.theme" android:resource="@style/CarTheme"/>
         <meta-data android:name="com.google.android.wearable.media.theme" android:resource="@style/WearTheme"/>
 
-        <activity android:name=".DabDelegate"
-            android:theme="@android:style/Theme.Dialog"
-            android:exported="true" >
+        <activity android:process=":qt" android:name=".DabDelegate" android:theme="@android:style/Theme.Dialog" android:exported="true" android:label="welle.io">
             <intent-filter>
                 <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"/>
             </intent-filter>
 
-            <meta-data
-                android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
-                android:resource="@xml/device_filter" />
+            <meta-data android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" android:resource="@xml/device_filter"/>
+
+            <!-- Application to launch -->
+            <meta-data android:name="android.app.lib_name" android:value="-- %%INSERT_APP_LIB_NAME%% --"/>
+            <!-- Application to launch -->
         </activity>
 
-        <service android:enabled="true" android:name=".DabMediaService" android:exported="true">
+        <service android:process=":qt" android:enabled="true" android:name=".DabMediaService" android:exported="true">
             <intent-filter>
                 <action android:name="android.media.browse.MediaBrowserService"/>
             </intent-filter>
@@ -88,7 +88,7 @@
             <!-- Background running -->
         </service>
 
-        <service android:enabled="true" android:name=".DabService" android:exported="false">
+        <service android:process=":qt" android:enabled="true" android:name=".DabService" android:exported="false">
             <!-- Application arguments -->
             <meta-data android:name="android.app.arguments" android:value="-S"/>
             <!-- Application arguments -->

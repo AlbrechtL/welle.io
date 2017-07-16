@@ -128,6 +128,10 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
         return channelList;
     }
 
+    public static void startDabService(Context context) {
+        context.startService(new Intent(context, DabService.class));
+    }
+    
     // Native
 
     private static DabService instance = null;
@@ -231,7 +235,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
         instance.mChannelScanProgress = progress;
     }
 
-    public static void updateDisplayData(int status, String channel, String station, String label, String type) {
+    public static void updateGuiData(int status, String channel, String station, String label, String type) {
         Log.i(TAG, "Update display data status" + status + " channel: " + channel + ", station=" + station
                 + ", label=" + label + ", type=" + type);
         if (instance == null)
@@ -955,8 +959,12 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
         Log.i(TAG, "Service started, startId: " + startId);
         if (intent == null)
             return START_STICKY;
-
-        if (intent.getAction().equals(UsbManager.ACTION_USB_DEVICE_ATTACHED)) {
+        
+        String action = intent.getAction();
+        if (action == null)
+            return START_STICKY;
+        
+        if (action.equals(UsbManager.ACTION_USB_DEVICE_ATTACHED)) {
             UsbDevice usbDevice = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
             Log.d(TAG, "USB attached: " + usbDevice.getDeviceName());
             if (mUsbDevice == null) {
@@ -964,7 +972,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
                 openUsbDevice();
             }
         } else {
-            Log.d(TAG, "onStartCommand action: " + intent.getAction());
+            Log.d(TAG, "onStartCommand action: " + action);
         }
         return Service.START_STICKY;
     }

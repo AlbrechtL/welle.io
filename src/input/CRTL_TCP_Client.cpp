@@ -63,9 +63,9 @@ CRTL_TCP_Client::CRTL_TCP_Client(CRadioController &RadioController)
     MinValue = 255;
     MaxValue = 0;
 
-    connect(&TCPConnectionWatchDog, SIGNAL(timeout()), this, SLOT(TCPConnectionWatchDogTimeout()));
-    connect(&TCPSocket, SIGNAL (readyRead (void)), this, SLOT (readData (void)));
-    connect(&AGCTimer, SIGNAL(timeout(void)), this, SLOT(AGCTimerTimeout(void)));
+    connect(&TCPConnectionWatchDog, &QTimer::timeout, this, &CRTL_TCP_Client::TCPConnectionWatchDogTimeout);
+    connect(&TCPSocket, &QTcpSocket::readyRead, this, &CRTL_TCP_Client::readData);
+    connect(&AGCTimer, &QTimer::timeout, this, &CRTL_TCP_Client::AGCTimerTimeout);
 }
 
 CRTL_TCP_Client::~CRTL_TCP_Client	(void)

@@ -37,10 +37,14 @@
 #include <QtCharts>
 using namespace QtCharts;
 
+#ifdef Q_OS_ANDROID
+#include "rep_CRadioController_replica.h"
+#else
 #include "CRadioController.h"
+#endif
 #include "CMOTImageProvider.h"
 #include "CStationList.h"
-
+#include "DabConstants.h"
 
 class common_fft;
 
@@ -56,7 +60,11 @@ class CGUI : public QObject {
     Q_PROPERTY(QVariant licenses READ licenses CONSTANT)
 
 public:
+#ifdef Q_OS_ANDROID
+    CGUI(CRadioControllerReplica *RadioController, CDABParams *DABParams, QObject* parent = NULL);
+#else
     CGUI(CRadioController *RadioController, CDABParams *DABParams, QObject* parent = NULL);
+#endif
     ~CGUI();
     Q_INVOKABLE void channelClick(QString StationName, QString ChannelName);
     Q_INVOKABLE void setManualChannel(QString ChannelName);
@@ -74,9 +82,12 @@ public:
     CMOTImageProvider* MOTImage; // ToDo: Must be a getter
 
 private:
+#ifdef Q_OS_ANDROID
+    CRadioControllerReplica *RadioController;
+#else
     CRadioController *RadioController;
+#endif
     CDABParams *DABParams;
-    QTimer UptimeTimer;
 
     common_fft* spectrum_fft_handler;
     QVector<QPointF> spectrum_data;
@@ -92,7 +103,7 @@ public slots:
     void updateSpectrum(QAbstractSeries* series);
 
 private slots:
-    void UpdateTimerTimeout(void);
+    void GUIDataUpdate(QVariantMap GUIData);
     void MOTUpdate(QImage MOTImage);
     void AddToStationList(QString SId, QString Station, QString CurrentChannel);
 

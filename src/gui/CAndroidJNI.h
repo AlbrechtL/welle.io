@@ -75,7 +75,7 @@ private:
 private slots:
     void serviceReady(void);
     void deviceReady(void);
-    void displayDataUpdate(void);
+    void updateGuiData(QVariantMap GUIData);
     void foundStation(QString stationId, QString stationName, QString channelName);
     void channelScanStopped(void);
     void channelScanProgress(int Progress);
