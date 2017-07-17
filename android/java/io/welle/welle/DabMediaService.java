@@ -23,10 +23,10 @@ public class DabMediaService extends MediaBrowserServiceCompat implements Servic
 
     private static final String TAG = DabMediaService.class.getSimpleName();
 
-    public static final String MEDIA_ID_ROOT = "__ROOT__";
-    public static final String MEDIA_ID_DAB_CHANNELS = "__DAB_CHANNELS__";
-    public static final String MEDIA_ID_DAB_STATIONS = "__DAB_STATIONS__";
-    public static final String MEDIA_ID_FAVORITE_STATIONS = "__FAVORITE_STATIONS__";
+    private static final String MEDIA_ID_ROOT = "__ROOT__";
+    private static final String MEDIA_ID_DAB_CHANNELS = "__DAB_CHANNELS__";
+    private static final String MEDIA_ID_DAB_STATIONS = "__DAB_STATIONS__";
+    private static final String MEDIA_ID_FAVORITE_STATIONS = "__FAVORITE_STATIONS__";
 
     private DabBinder mDabBinder = null;
 

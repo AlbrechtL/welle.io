@@ -31,7 +31,9 @@
 #include "CInputFactory.h"
 #include "CAndroidJNI.h"
 #include "CAudio.h"
+#ifdef HAVE_RTLSDR_BUILTIN
 #include "CRTL_SDR.h"
+#endif
 #include "DabConstants.h"
 #include "msc-handler.h"
 
@@ -207,6 +209,7 @@ void CAndroidJNI::setRadioController(CRadioController *radioController)
 
 bool CAndroidJNI::openUsbDevice(int fd, QString path)
 {
+#ifdef HAVE_RTLSDR_BUILTIN
     qDebug() << "AndroidJNI:" <<  "Open USB device:" << path << "fd:" << fd;
     if(mRadioController) {
         CRTL_SDR *device = new CRTL_SDR(*mRadioController, fd, path);
@@ -214,6 +217,9 @@ bool CAndroidJNI::openUsbDevice(int fd, QString path)
         QTimer::singleShot(0, mRadioController, SLOT(onEventLoopStarted()));
         return true;
     }
+#else
+    qCritical() << "AndroidJNI:" <<  "Built-in RTL-SDR is not supported";
+#endif
     return false;
 }
 
