@@ -564,6 +564,7 @@ void CRadioController::NextChannel(bool isWait)
         else
             StopScan();
 
+        UpdateGUIData();
         emit ScanProgress(Channels.getCurrentIndex() + 1);
     }
 }
