@@ -14,7 +14,7 @@ class CRadioController
     PROP(QImage MOT READONLY);
 
     SIGNAL(DeviceReady());
-    SIGNAL(FoundStation(QString SId, QString Station, QString CurrentChannel));
+    SIGNAL(FoundStation(QString Station, QString CurrentChannel));
     SIGNAL(ScanStopped());
     SIGNAL(ScanProgress(int Progress));
 

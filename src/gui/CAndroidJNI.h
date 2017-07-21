@@ -40,19 +40,19 @@ public:
 
     Q_INVOKABLE bool openUsbDevice(int fd, QString path);
 
-    Q_INVOKABLE bool isFavoriteStation(QString stationId);
-    Q_INVOKABLE void addFavoriteStation(QString stationId, QString stationName);
-    Q_INVOKABLE void removeFavoriteStation(QString stationId);
+    Q_INVOKABLE bool isFavoriteStation(QString station, QString channel);
+    Q_INVOKABLE void addFavoriteStation(QString station, QString channel);
+    Q_INVOKABLE void removeFavoriteStation(QString station, QString channel);
     Q_INVOKABLE void saveFavoriteStations();
 
-    Q_INVOKABLE void playStationById(QString stationId);
+    Q_INVOKABLE void play(QString station, QString channel);
 
     Q_INVOKABLE void duckPlayback(bool duck);
     Q_INVOKABLE void pausePlayback();
     Q_INVOKABLE void stopPlayback();
 
     Q_INVOKABLE void nextChannel();
-    Q_INVOKABLE void setManualChannel(QString channelName);
+    Q_INVOKABLE void setManualChannel(QString channel);
 
     Q_INVOKABLE void startChannelScan(void);
     Q_INVOKABLE void stopChannelScan(void);
@@ -69,14 +69,13 @@ private:
     CRadioController *mRadioController;
     CStationList mStationList;
     CStationList mFavoriteList;
-    void addStation(QString stationId, QString stationName, QString channelName);
-    StationElement* findStation(QString stationId);
+    void addStation(QString station, QString channel);
 
 private slots:
     void serviceReady(void);
     void deviceReady(void);
     void updateGuiData(QVariantMap GUIData);
-    void foundStation(QString stationId, QString stationName, QString channelName);
+    void foundStation(QString station, QString channel);
     void channelScanStopped(void);
     void channelScanProgress(int Progress);
     void showErrorMessage(QString Text);

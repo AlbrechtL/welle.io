@@ -44,68 +44,75 @@
 extern "C" {
 #endif
 
-JNIEXPORT void JNICALL Java_io_welle_welle_DabService_openUsbDevice(JNIEnv *env, jobject, jint fd, jstring path)
+JNIEXPORT void JNICALL Java_io_welle_welle_DabService_openUsbDevice(JNIEnv *env, jobject, jint jfd, jstring jPath)
 {
-    QString qPath(env->GetStringUTFChars(path, 0));
-    qDebug() << "AndroidJNI:" <<  "openUsbDevice" << " fd:" << fd << " path: " << qPath;
+    QString path(env->GetStringUTFChars(jPath, 0));
+    qDebug() << "AndroidJNI:" <<  "openUsbDevice" << "fd:" << jfd << "path:" << path;
     QMetaObject::invokeMethod(&CAndroidJNI::getInstance(), "openUsbDevice",
                               Qt::QueuedConnection,
-                              Q_ARG(int, fd),
-                              Q_ARG(QString, qPath));
+                              Q_ARG(int, jfd),
+                              Q_ARG(QString, path));
 }
 
-JNIEXPORT jboolean JNICALL Java_io_welle_welle_DabService_isFavoriteStation(JNIEnv *env, jobject, jstring stationId)
+JNIEXPORT jboolean JNICALL Java_io_welle_welle_DabService_isFavoriteStation(JNIEnv *env, jobject, jstring jStation, jstring jChannel)
 {
-    QString qStationId(env->GetStringUTFChars(stationId, 0));
-    qDebug() << "AndroidJNI:" <<  "isFavoriteStation" << " id: " << qStationId;
-    return CAndroidJNI::getInstance().isFavoriteStation(qStationId) ? JNI_TRUE
-                                                                    : JNI_FALSE;
+    QString station(env->GetStringUTFChars(jStation, 0));
+    QString channel(env->GetStringUTFChars(jChannel, 0));
+    qDebug() << "AndroidJNI:" <<  "isFavoriteStation" << "station:" << station
+             << "channel:" << channel;
+    bool result = CAndroidJNI::getInstance().isFavoriteStation(station, channel);
+    return  result ? JNI_TRUE : JNI_FALSE;
 }
 
-JNIEXPORT void JNICALL Java_io_welle_welle_DabService_addFavoriteStation(JNIEnv *env, jobject, jstring stationId, jstring stationName)
+JNIEXPORT void JNICALL Java_io_welle_welle_DabService_addFavoriteStation(JNIEnv *env, jobject, jstring jStation, jstring jChannel)
 {
-    QString qStationId(env->GetStringUTFChars(stationId, 0));
-    QString qStationName(env->GetStringUTFChars(stationName, 0));
-    qDebug() << "AndroidJNI:" <<  "addFavoriteStation" << " id: " << qStationId
-             << " station: " << qStationName;
+    QString station(env->GetStringUTFChars(jStation, 0));
+    QString channel(env->GetStringUTFChars(jChannel, 0));
+    qDebug() << "AndroidJNI:" <<  "addFavoriteStation"
+             << "station:" << station << "channel:" << channel;
     QMetaObject::invokeMethod(&CAndroidJNI::getInstance(), "addFavoriteStation",
                               Qt::QueuedConnection,
-                              Q_ARG(QString, qStationId),
-                              Q_ARG(QString, qStationName));
+                              Q_ARG(QString, station),
+                              Q_ARG(QString, channel));
 }
 
-JNIEXPORT void JNICALL Java_io_welle_welle_DabService_removeFavoriteStation(JNIEnv *env, jobject, jstring stationId)
+JNIEXPORT void JNICALL Java_io_welle_welle_DabService_removeFavoriteStation(JNIEnv *env, jobject, jstring jStation, jstring jChannel)
 {
-    QString qStationId(env->GetStringUTFChars(stationId, 0));
-    qDebug() << "AndroidJNI:" <<  "addFavoriteStation" << " id: " << qStationId;
+    QString station(env->GetStringUTFChars(jStation, 0));
+    QString channel(env->GetStringUTFChars(jChannel, 0));
+    qDebug() << "AndroidJNI:" <<  "removeFavoriteStation"
+             << "station:" << station << "channel:" << channel;
     QMetaObject::invokeMethod(&CAndroidJNI::getInstance(), "removeFavoriteStation",
                               Qt::QueuedConnection,
-                              Q_ARG(QString, qStationId));
+                              Q_ARG(QString, station),
+                              Q_ARG(QString, channel));
 }
 
-JNIEXPORT void JNICALL Java_io_welle_welle_DabService_playStationById(JNIEnv *env, jobject, jstring stationId)
+JNIEXPORT void JNICALL Java_io_welle_welle_DabService_play(JNIEnv *env, jobject, jstring jStation, jstring jChannel)
 {
-    QString qStationId(env->GetStringUTFChars(stationId, 0));
-    qDebug() << "AndroidJNI:" <<  "playStationById" << " id: " << qStationId;
-    QMetaObject::invokeMethod(&CAndroidJNI::getInstance(), "playStationById",
-                              Qt::QueuedConnection, Q_ARG(QString, qStationId));
+    QString station(env->GetStringUTFChars(jStation, 0));
+    QString channel(env->GetStringUTFChars(jChannel, 0));
+    qDebug() << "AndroidJNI:" <<  "play" << "station:"
+             << station << "channel:" << channel;
+    QMetaObject::invokeMethod(&CAndroidJNI::getInstance(), "play",
+                              Qt::QueuedConnection,
+                              Q_ARG(QString, station),
+                              Q_ARG(QString, channel));
 }
 
 JNIEXPORT jstring JNICALL Java_io_welle_welle_DabService_lastStation(JNIEnv *env, jobject)
 {
     qDebug() << "AndroidJNI:" <<  "getLastStation";
     QString station = CAndroidJNI::getLastStation();
-    //QAndroidJniObject jStation = QAndroidJniObject::fromString(station);
-    //return jStation.object<jstring>();
-
     return env->NewStringUTF(station.toLatin1().constData());
 }
 
-JNIEXPORT void JNICALL Java_io_welle_welle_DabService_duckPlayback(JNIEnv *, jobject, jboolean duck)
+JNIEXPORT void JNICALL Java_io_welle_welle_DabService_duckPlayback(JNIEnv *, jobject, jboolean jDuck)
 {
+    bool duck = (jDuck == JNI_TRUE);
     qDebug() << "AndroidJNI:" <<  "duckPlayback is:" << duck;
     QMetaObject::invokeMethod(&CAndroidJNI::getInstance(), "duckPlayback",
-                              Qt::QueuedConnection, Q_ARG(bool, (duck == JNI_TRUE)));
+                              Qt::QueuedConnection, Q_ARG(bool, duck));
 }
 
 JNIEXPORT void JNICALL Java_io_welle_welle_DabService_pausePlayback(JNIEnv *, jobject)
@@ -129,13 +136,13 @@ JNIEXPORT void JNICALL Java_io_welle_welle_DabService_nextChannel(JNIEnv *, jobj
                               Qt::QueuedConnection);
 }
 
-JNIEXPORT void JNICALL Java_io_welle_welle_DabService_setManualChannel(JNIEnv *env, jobject, jstring channelName)
+JNIEXPORT void JNICALL Java_io_welle_welle_DabService_setManualChannel(JNIEnv *env, jobject, jstring jChannel)
 {
-    QString qChannelName(env->GetStringUTFChars(channelName, 0));
-    qDebug() << "AndroidJNI:" <<  "setManualChannel" << " channel: " << qChannelName;
+    QString channel(env->GetStringUTFChars(jChannel, 0));
+    qDebug() << "AndroidJNI:" <<  "setManualChannel" << "channel:" << channel;
     QMetaObject::invokeMethod(&CAndroidJNI::getInstance(), "setManualChannel",
                               Qt::QueuedConnection,
-                              Q_ARG(QString, qChannelName));
+                              Q_ARG(QString, channel));
 }
 
 JNIEXPORT void JNICALL Java_io_welle_welle_DabService_startChannelScan(JNIEnv *, jobject)
@@ -223,36 +230,26 @@ bool CAndroidJNI::openUsbDevice(int fd, QString path)
     return false;
 }
 
-StationElement *CAndroidJNI::findStation(QString stationId)
+bool CAndroidJNI::isFavoriteStation(QString station, QString channel)
 {
-    QString sId = stationId.left(4);
-    QString channelName = stationId.mid(4);
-    return mStationList.find(sId, channelName);
+    qDebug() << "AndroidJNI:" <<  "Is favorite station:" << station
+             << "channel:" << channel;
+    return mFavoriteList.contains(station, channel);
 }
 
-bool CAndroidJNI::isFavoriteStation(QString stationId)
+void CAndroidJNI::addFavoriteStation(QString station, QString channel)
 {
-    qDebug() << "AndroidJNI:" <<  "Is favorite station:" + stationId;
-    QString sId = stationId.left(4);
-    QString channelName = stationId.mid(4);
-    return mFavoriteList.contains(sId, channelName);
-}
-
-void CAndroidJNI::addFavoriteStation(QString stationId, QString stationName)
-{
-    qDebug() << "AndroidJNI:" <<  "Add favorite station:" + stationId;
-    QString sId = stationId.left(4);
-    QString channelName = stationId.mid(4);
-    mFavoriteList.append(sId, stationName, channelName);
+    qDebug() << "AndroidJNI:" <<  "Add favorite station:" << station
+             << "channel:" << channel;
+    mFavoriteList.append(station, channel);
     saveFavoriteStations();
 }
 
-void CAndroidJNI::removeFavoriteStation(QString stationId)
+void CAndroidJNI::removeFavoriteStation(QString station, QString channel)
 {
-    qDebug() << "AndroidJNI:" <<  "Remove favorite station:" + stationId;
-    QString sId = stationId.left(4);
-    QString channelName = stationId.mid(4);
-    mFavoriteList.remove(sId, channelName);
+    qDebug() << "AndroidJNI:" <<  "Remove favorite station:" << station
+             << "channel:" << channel;
+    mFavoriteList.remove(station, channel);
     saveFavoriteStations();
 }
 
@@ -292,15 +289,17 @@ void CAndroidJNI::updateGuiData(QVariantMap GUIData)
     jint jStatus = GUIData["Status"].toInt();
     QAndroidJniObject jChannel = QAndroidJniObject::fromString(GUIData["Channel"].toString());
     QAndroidJniObject jStation = QAndroidJniObject::fromString(GUIData["Station"].toString());
+    QAndroidJniObject jTitle = QAndroidJniObject::fromString(GUIData["Title"].toString());
     QAndroidJniObject jLabel = QAndroidJniObject::fromString(GUIData["Label"].toString());
     QAndroidJniObject jStationType = QAndroidJniObject::fromString(GUIData["StationType"].toString());
 
     QAndroidJniObject::callStaticMethod<void>("io/welle/welle/DabService",
                                               "updateGuiData",
-                                              "(ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",
+                                              "(ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",
                                               jStatus,
                                               jChannel.object<jstring>(),
                                               jStation.object<jstring>(),
+                                              jTitle.object<jstring>(),
                                               jLabel.object<jstring>(),
                                               jStationType.object<jstring>());
 }
@@ -316,7 +315,7 @@ void CAndroidJNI::deviceReady(void)
     mStationList.loadStations();
     foreach (QObject *obj, mStationList.getList()) {
         StationElement *s = (StationElement*)obj;
-        addStation(s->getStationId(), s->getStationName(), s->getChannelName());
+        addStation(s->getStationName(), s->getChannelName());
     }
 
     // Read favorite stations from settings
@@ -336,41 +335,34 @@ void CAndroidJNI::deviceReady(void)
                                               "deviceReady", "()V");
 }
 
-void CAndroidJNI::foundStation(QString stationId, QString stationName,
-                               QString channelName)
+void CAndroidJNI::foundStation(QString station, QString channel)
 {
-    qDebug() << "AndroidJNI:" <<  "Found station:" << stationName
-             << "(" << qPrintable(stationId) << ")" << "channel:" << channelName;
+    qDebug() << "AndroidJNI:" <<  "Found station:" << station
+             << "channel:" << channel;
     //	Add new station into list
-    if (!mStationList.contains(stationId, channelName)) {
-        addStation(stationId, stationName, channelName);
+    if (!mStationList.contains(station, channel)) {
+        addStation(station, channel);
 
         // Save the channels
         saveStations();
     }
 }
 
-void CAndroidJNI::playStationById(QString stationId)
+void CAndroidJNI::play(QString station, QString channel)
 {
-    qDebug() << "AndroidJNI:" <<  "Play station id:" << stationId;
-    if(mRadioController) {
-        StationElement *station = findStation(stationId);
-        if (station) {
-            mRadioController->Play(station->getChannelName(), station->getStationName());
-
-            QSettings Settings;
-            Settings.setValue("laststation", stationId);
-        } else
-            qDebug() << "AndroidJNI:" <<  "Station id:" << stationId << "not found!";
-    }
+    qDebug() << "AndroidJNI:" <<  "Play station:" << station
+             << "channel:" << channel;
+    if(mRadioController)
+        mRadioController->Play(channel, station);
 }
 
 QString CAndroidJNI::getLastStation(void)
 {
     qDebug() << "AndroidJNI:" <<  "Get last station";
     QSettings settings;
-    QString lastStation = settings.value("laststation").toString();
-    return (lastStation.isEmpty()) ? "" : lastStation;
+    QStringList lastStation = settings.value("lastchannel").toStringList();
+    return lastStation.size() == 2 ? lastStation.first() + lastStation.last()
+                                   : "";
 }
 
 void CAndroidJNI::duckPlayback(bool duck)
@@ -401,11 +393,11 @@ void CAndroidJNI::nextChannel()
 //        mRadioController->NextChannel(false);
 }
 
-void CAndroidJNI::setManualChannel(QString ChannelName)
+void CAndroidJNI::setManualChannel(QString channel)
 {
-    qDebug() << "AndroidJNI:" <<  "Set channel: " << ChannelName;
+    qDebug() << "AndroidJNI:" <<  "Set channel:" << channel;
     if(mRadioController)
-        mRadioController->SetChannel(ChannelName, false);
+        mRadioController->SetChannel(channel, false);
 }
 
 void CAndroidJNI::serviceReady(void)
@@ -415,20 +407,18 @@ void CAndroidJNI::serviceReady(void)
                                               "serviceReady", "()V");
 }
 
-void CAndroidJNI::addStation(QString stationId, QString stationName, QString channelName)
+void CAndroidJNI::addStation(QString station, QString channel)
 {
-    qDebug() << "AndroidJNI:" <<  "Add station:" << stationName
-             << "(" << qPrintable(stationId) << ")" << "channel:" << channelName;
-    mStationList.append(stationId, stationName, channelName);
+    qDebug() << "AndroidJNI:" <<  "Add station:" << station
+             << "channel:" << channel;
+    mStationList.append(station, channel);
     mStationList.sort();
 
-    QAndroidJniObject jSId = QAndroidJniObject::fromString(stationId + channelName);
-    QAndroidJniObject jStation = QAndroidJniObject::fromString(stationName);
-    QAndroidJniObject jChannel = QAndroidJniObject::fromString(channelName);
+    QAndroidJniObject jStation = QAndroidJniObject::fromString(station);
+    QAndroidJniObject jChannel = QAndroidJniObject::fromString(channel);
     QAndroidJniObject::callStaticMethod<void>("io/welle/welle/DabService",
                                               "addStation",
-                                              "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",
-                                              jSId.object<jstring>(),
+                                              "(Ljava/lang/String;Ljava/lang/String;)V",
                                               jStation.object<jstring>(),
                                               jChannel.object<jstring>());
 }
@@ -452,7 +442,7 @@ void CAndroidJNI::channelScanStopped(void)
 
 void CAndroidJNI::channelScanProgress(int Progress)
 {
-    qDebug() << "AndroidJNI:" <<  "Channel scan progress: " << Progress;
+    qDebug() << "AndroidJNI:" <<  "Channel scan progress:" << Progress;
     QAndroidJniObject::callStaticMethod<void>("io/welle/welle/DabService",
                                               "channelScanProgress",
                                               "(I)V", Progress);
@@ -462,7 +452,7 @@ void CAndroidJNI::channelScanProgress(int Progress)
 
 void CAndroidJNI::showErrorMessage(QString Text)
 {
-    qDebug() << "AndroidJNI:" <<  "Show error: " << Text;
+    qDebug() << "AndroidJNI:" <<  "Show error:" << Text;
     QAndroidJniObject jText = QAndroidJniObject::fromString(Text);
     QAndroidJniObject::callStaticMethod<void>("io/welle/welle/DabService",
                                               "showErrorMessage",
@@ -472,7 +462,7 @@ void CAndroidJNI::showErrorMessage(QString Text)
 
 void CAndroidJNI::showInfoMessage(QString Text)
 {
-    qDebug() << "AndroidJNI:" <<  "Show info: " << Text;
+    qDebug() << "AndroidJNI:" <<  "Show info:" << Text;
     QAndroidJniObject jText = QAndroidJniObject::fromString(Text);
     QAndroidJniObject::callStaticMethod<void>("io/welle/welle/DabService",
                                               "showInfoMessage",

@@ -24,6 +24,7 @@ import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.session.MediaButtonReceiver;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.MediaSessionCompat.Token;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -73,12 +74,12 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
 
     // Bundle extras
     private static final String BUNDLE_KEY_DAB_TYPE = "DAB_TYPE";
-    private static final String BUNDLE_KEY_STATION_ID = "STATION_ID";
-    private static final String BUNDLE_KEY_STATION_NAME = "STATION_NAME";
+    private static final String BUNDLE_KEY_STATION = "STATION_NAME";
     private static final String BUNDLE_KEY_CHANNEL = "CHANNEL";
 
-    private static final String MEDIA_ID_CHANNEL_SCAN = "FFFFFF";
-    private static final String MEDIA_ID_ERROR = "EEEEEE";
+    private static final String MEDIA_ID_CHANNEL_SCAN = "####";
+    private static final String MEDIA_ID_ERROR = "****";
+    private static final String MEDIA_ID_UNKNOWN = "__";
 
     private static final int TYPE_DAB_STATION = 1;
     private static final int TYPE_DAB_CHANNEL = 2;
@@ -106,8 +107,6 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
             "LM",  "LN",  "LO",  "LP"
     };
 
-    private static final String CHANNEL_ID_PREFIX = "____";
-
     private static List<MediaBrowserCompat.MediaItem> channelList = null;
 
     public static List<MediaBrowserCompat.MediaItem> getChannelList() {
@@ -119,7 +118,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
                 extras.putString(BUNDLE_KEY_CHANNEL, channel);
 
                 channelList.add(new MediaBrowserCompat.MediaItem(new MediaDescriptionCompat.Builder()
-                        .setMediaId(CHANNEL_ID_PREFIX + channel)
+                        .setMediaId(toMediaId(null, channel))
                         .setTitle(channel)
                         .setExtras(extras)
                         .build(), MediaBrowserCompat.MediaItem.FLAG_PLAYABLE));
@@ -131,6 +130,14 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
     public static void startDabService(Context context) {
         context.startService(new Intent(context, DabService.class));
     }
+
+    public static String toMediaId(String station, String channel) {
+        if (station == null)
+            station = MEDIA_ID_UNKNOWN;
+        if (channel == null)
+            channel = MEDIA_ID_UNKNOWN;
+        return station + channel;
+    }
     
     // Native
 
@@ -138,11 +145,11 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
 
     public static native void openUsbDevice(int fd, String path);
 
-    public static native boolean isFavoriteStation(String stationId);
-    public static native void addFavoriteStation(String stationId, String stationName);
-    public static native void removeFavoriteStation(String stationId);
+    public static native boolean isFavoriteStation(String station, String channel);
+    public static native void addFavoriteStation(String station, String channel);
+    public static native void removeFavoriteStation(String station, String channel);
 
-    public static native void playStationById(String stationId);
+    public static native void play(String station, String channel);
     public static native String lastStation();
 
     public static native void duckPlayback(boolean duck);
@@ -173,19 +180,18 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
         instance.handleDeviceReady();
     }
 
-    public static void addStation(String id, String station, String channel) {
-        Log.i(TAG, "Add station: " + station + " (" + id + ") channel: " + channel);
+    public static void addStation(String station, String channel) {
+        Log.i(TAG, "Add station: " + station + " channel: " + channel);
         if (instance == null)
             return;
 
         Bundle extras = new Bundle();
         extras.putInt(BUNDLE_KEY_DAB_TYPE, TYPE_DAB_STATION);
-        extras.putString(BUNDLE_KEY_STATION_ID, id);
-        extras.putString(BUNDLE_KEY_STATION_NAME, station);
+        extras.putString(BUNDLE_KEY_STATION, station);
         extras.putString(BUNDLE_KEY_CHANNEL, channel);
 
         instance.mStationList.add(new MediaBrowserCompat.MediaItem(new MediaDescriptionCompat.Builder()
-                .setMediaId(id)
+                .setMediaId(toMediaId(station, channel))
                 .setTitle(station.trim() + " (" + channel + ")")
                 .setExtras(extras)
                 .build(), MediaBrowserCompat.MediaItem.FLAG_PLAYABLE));
@@ -235,27 +241,34 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
         instance.mChannelScanProgress = progress;
     }
 
-    public static void updateGuiData(int status, String channel, String station, String label, String type) {
-        Log.i(TAG, "Update display data status" + status + " channel: " + channel + ", station=" + station
-                + ", label=" + label + ", type=" + type);
+    public static void updateGuiData(int status, String channel, String station, String title, String label, String type) {
+        Log.i(TAG, "Update display data status" + status + " channel: " + channel
+                + ", station=" + station + ", title=" + title + ", label=" + label
+                + ", type=" + type);
         if (instance == null)
             return;
 
-        String displayTitle = (channel == null) ? station : station + " (" + channel +")";
-
         instance.mDabStatus = status;
+        instance.mCurrentStation = station;
+        instance.mCurrentChannel = channel;
+
         instance.mTrack = new MediaMetadataCompat.Builder()
                 .putString(MediaMetadataCompat.METADATA_KEY_TITLE, station)
-                .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, displayTitle)
+                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, channel)
+                .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, title)
                 .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE, label)
                 .putString(MediaMetadataCompat.METADATA_KEY_GENRE, type)
                 .build();
+
         instance.updatePlaybackState();
     }
 
     public static void showErrorMessage(String text) {
         Log.i(TAG, "Show error message: " + text);
         if (instance == null)
+            return;
+
+        if (instance.mDabStatus == DAB_STATUS_PAUSED)
             return;
 
         instance.mError = text;
@@ -305,7 +318,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
 
     private int mChannelScanProgress = -1;
     private int mDabStatus = DAB_STATUS_UNKNOWN;
-    private MediaBrowserCompat.MediaItem mCurrentMedia = null;
+    private String mCurrentStation = null;
     private String mCurrentChannel = null;
     private String mError = null;
 
@@ -356,35 +369,13 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
         @Override
         public void onPlayFromMediaId(String mediaId, Bundle extras) {
             Log.d(TAG, "playFromMediaId mediaId:" + mediaId + "  extras=" + extras);
-            // Check stations
-            for (MediaBrowserCompat.MediaItem mediaItem: mStationList) {
-                if (mediaItem.getMediaId().equals(mediaId)) {
-                    Log.d(TAG, "playFromMediaId: station " + mediaId + " found");
-                    mCurrentMedia = mediaItem;
-
-                    // play the music
-                    handlePlayRequest();
-                    break;
-                }
-            }
-            // Check channels
-            for (MediaBrowserCompat.MediaItem mediaItem: getChannelList()) {
-                if (mediaItem.getMediaId().equals(mediaId)) {
-                    Log.d(TAG, "playFromMediaId: channel " + mediaId + " found");
-                    mCurrentMedia = mediaItem;
-
-                    // play the music
-                    handlePlayRequest();
-                    break;
-                }
-            }
+            handlePlayRequest(extras);
         }
 
         @Override
         public void onPlay() {
             Log.d(TAG, "play");
-
-            handlePlayRequest();
+            handlePlayRequest(null);
         }
 
         @Override
@@ -433,7 +424,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
         }
     }
 
-    private void handlePlayRequest() {
+    private void handlePlayRequest(Bundle extras) {
         Log.d(TAG, "handlePlayRequest");
 
         if (!requestAudioFocus()) {
@@ -445,14 +436,25 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
             mSession.setActive(true);
         }
 
-        if (mCurrentMedia == null) {
-            playLastStation();
+        if (extras == null) {
+            Log.d(TAG, "handlePlayRequest: last station");
+            if (mCurrentStation != null && mCurrentChannel != null) {
+                play(mCurrentStation, mCurrentChannel);
+            } else {
+                playLastStation();
+            }
         } else {
-            int type = mCurrentMedia.getDescription().getExtras().getInt(BUNDLE_KEY_DAB_TYPE);
-            if (type == TYPE_DAB_STATION)
-                playStationById(mCurrentMedia.getMediaId());
-            else
-                setManualChannel(mCurrentMedia.getMediaId());
+            int dabType = extras.getInt(BUNDLE_KEY_DAB_TYPE);
+            String channel = extras.getString(BUNDLE_KEY_CHANNEL);
+
+            if (dabType == TYPE_DAB_STATION) {
+                String station = extras.getString(BUNDLE_KEY_STATION);
+                Log.d(TAG, "handlePlayRequest: station: " + station + " channel: " + channel);
+                play(station, channel);
+            } else if (dabType == TYPE_DAB_CHANNEL) {
+                Log.d(TAG, "handlePlayRequest: channel: " + channel);
+                setManualChannel(channel);
+            }
         }
     }
 
@@ -476,24 +478,38 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
         releaseAudioFocus();
     }
 
-    private void handleSkipRequest(int i) {
-        Log.d(TAG, "handleSkipRequest: " + i);
-        if (mCurrentMedia == null || mStationList.isEmpty())
+    private void handleSkipRequest(int n) {
+        Log.d(TAG, "handleSkipRequest: " + n);
+        if (mCurrentStation == null || mCurrentChannel == null || mStationList.isEmpty())
             return;
-        int index = mStationList.indexOf(mCurrentMedia);
-        MediaBrowserCompat.MediaItem mediaItem = null;
-        if (index == -1) {
-            mediaItem = mStationList.get(0);
-        } else {
-            index += i;
-            if (0 <= index && index < mStationList.size()) {
-                mediaItem = mStationList.get(index);
+
+        int index = -1;
+        int count = -1;
+        String id = toMediaId(mCurrentStation, mCurrentChannel);
+        for (MediaBrowserCompat.MediaItem mediaItem: mStationList) {
+            ++count;
+            if (mediaItem.getMediaId().equals(id)) {
+                index = count;
+                Log.d(TAG, "handleSkipRequest: found: " + id + " index: " + count);
+                break;
             }
         }
 
+        MediaBrowserCompat.MediaItem mediaItem = null;
+        if (index < 0) {
+            mediaItem = mStationList.get(0);
+        } else {
+            index += n;
+            if (index < 0) {
+                index = 0;
+            } else if (index >= mStationList.size()) {
+                index = index % mStationList.size();
+            }
+            mediaItem = mStationList.get(index);
+        }
+
         if (mediaItem != null) {
-            mCurrentMedia = mediaItem;
-            handlePlayRequest();
+            handlePlayRequest(mediaItem.getDescription().getExtras());
         }
     }
 
@@ -510,7 +526,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
     private boolean handleCustomAction(String action, Bundle extras) {
         if (CUSTOM_ACTION_PLAY.equals(action)) {
             Log.i(TAG, "handleCustomAction: play");
-            handlePlayRequest();
+            handlePlayRequest(extras);
         } else if (CUSTOM_ACTION_PAUSE.equals(action)) {
             Log.i(TAG, "handleCustomAction: pause");
             handlePauseRequest();
@@ -529,15 +545,13 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
         } else if (CUSTOM_ACTION_FAVORITE.equals(action)) {
             Log.i(TAG, "handleCustomAction: favorite");
 
-            if (mCurrentMedia != null) {
-                String mediaId = mCurrentMedia.getMediaId();
-                if (isFavoriteStation(mediaId))
-                    removeFavoriteStation(mediaId);
+            if (mCurrentStation != null && mCurrentChannel != null) {
+                if (isFavoriteStation(mCurrentStation, mCurrentChannel))
+                    removeFavoriteStation(mCurrentStation, mCurrentChannel);
                 else
-                    addFavoriteStation(mediaId, mCurrentMedia.getDescription().getTitle().toString());
+                    addFavoriteStation(mCurrentStation, mCurrentChannel);
+                updatePlaybackState();
             }
-
-            updatePlaybackState();
         } else if (CUSTOM_ACTION_NEXT_CHANNEL.equals(action)) {
             Log.i(TAG, "handleCustomAction: nex channel");
             nextChannel();
@@ -556,40 +570,35 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
         if (id.isEmpty()) {
             if (mStationList.isEmpty())
                 return;
-            mCurrentMedia = mStationList.get(0);
-            handlePlayRequest();
+            Bundle extras = mStationList.get(0).getDescription().getExtras();
+            handlePlayRequest(extras);
             return;
         }
 
         for (MediaBrowserCompat.MediaItem mediaItem: mStationList) {
             if (mediaItem.getMediaId().equals(id)) {
                 Log.d(TAG, "playLastStation: station " + id + " found");
-                mCurrentMedia = mediaItem;
-                handlePlayRequest();
+                handlePlayRequest(mediaItem.getDescription().getExtras());
                 return;
             }
         }
 
-        String station = id.substring(0, 4);
-        String channel = id.substring(4);
+        int len = id.length();
+        if (len < 3)
+            return;
+        String station = id.substring(0, (len - 2));
+        String channel = id.substring((len - 2));
 
         Bundle extras = new Bundle();
         extras.putInt(BUNDLE_KEY_DAB_TYPE, TYPE_DAB_STATION);
-        extras.putString(BUNDLE_KEY_STATION_ID, id);
-        extras.putString(BUNDLE_KEY_STATION_NAME, station);
+        extras.putString(BUNDLE_KEY_STATION, station);
         extras.putString(BUNDLE_KEY_CHANNEL, channel);
 
-        mCurrentMedia = new MediaBrowserCompat.MediaItem(new MediaDescriptionCompat.Builder()
-                .setMediaId(id)
-                .setTitle(station)
-                .setExtras(extras)
-                .build(), MediaBrowserCompat.MediaItem.FLAG_PLAYABLE);
-
-        handlePlayRequest();
+        handlePlayRequest(extras);
     }
 
     private void updatePlaybackState() {
-        Log.d(TAG, "updateDabStatus");
+        Log.d(TAG, "updatePlaybackState");
 
         Resources resources = getResources();
         PlaybackStateCompat.Builder stateBuilder = new PlaybackStateCompat.Builder();
@@ -597,8 +606,9 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
         long playbackActions = 0;
 
         // Update playback state
-        if (DAB_STATUS_ERROR == mDabStatus && mError != null) {
-            stateBuilder.setErrorMessage(-1, mError);
+        if (DAB_STATUS_ERROR == mDabStatus) {
+            String error =  mError != null ? mError  : resources.getString(R.string.error_unknown);
+            stateBuilder.setErrorMessage(-1, error);
         } else {
             playbackActions |= PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID;
             //TODO playbackActions |= PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH;
@@ -624,11 +634,11 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
 //                        resources.getString(R.string.record), android.R.drawable.ic_menu_add);
 
                 // Set the activeQueueItemId if the current index is valid.
-                if (mCurrentMedia != null) {
+                if (mCurrentStation != null && mCurrentChannel != null) {
                     //stateBuilder.setActiveQueueItemId(mCurrentMedia.getQueueId());
 //TODO fav                    stateBuilder.addCustomAction(CUSTOM_ACTION_FAVORITE,
 //                            resources.getString(R.string.action_favorite),
-//                            (isFavoriteStation(mCurrentMedia.getDescription().getMediaId())
+//                            (isFavoriteStation(mCurrentStation, mCurrentChannel)
 //                                    ? android.R.drawable.star_on
 //                                    : android.R.drawable.star_off));
                 }
@@ -662,11 +672,12 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
     }
 
     private void updateMetadata() {
-        if (DAB_STATUS_ERROR == mDabStatus && mError != null) {
+        if (DAB_STATUS_ERROR == mDabStatus) {
+            String error =  mError != null ? mError  : getResources().getString(R.string.error_unknown);
             MediaMetadataCompat track = new MediaMetadataCompat.Builder()
                     .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, MEDIA_ID_ERROR)
-                    .putString(MediaMetadataCompat.METADATA_KEY_TITLE, mError)
-                    .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, mError)
+                    .putString(MediaMetadataCompat.METADATA_KEY_TITLE, error)
+                    .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, error)
                     .build();
 
             mSession.setMetadata(track);
@@ -674,7 +685,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
             mSession.setMetadata(mTrack);
         } else if (0 <= mChannelScanProgress) {
             Resources resources = getResources();
-            String title = resources.getString(R.string.label_scanning) + " " + mChannelScanProgress + "%";
+            String title = resources.getString(R.string.label_scanning) + " " + mChannelScanProgress;
             String subTitle = (mCurrentChannel == null) ? "" : mCurrentChannel;
 
             MediaMetadataCompat track = new MediaMetadataCompat.Builder()
@@ -685,16 +696,14 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
                     .build();
 
             mSession.setMetadata(track);
-        } else if (mCurrentMedia != null) {
-            String title = mCurrentMedia.getDescription().getTitle().toString();
-            Bundle extras = mCurrentMedia.getDescription().getExtras();
-            String channel = extras.getString(BUNDLE_KEY_CHANNEL);
-            String displayTitle = (channel == null) ? title : title + " (" + channel +")";
+        } else if (mCurrentStation != null) {
+            String subTitle = (mCurrentChannel == null) ? "" : mCurrentChannel;
 
             MediaMetadataCompat track = new MediaMetadataCompat.Builder()
-                    .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, mCurrentMedia.getMediaId())
-                    .putString(MediaMetadataCompat.METADATA_KEY_TITLE, title)
-                    .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, displayTitle)
+                    .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, toMediaId(mCurrentStation, mCurrentChannel))
+                    .putString(MediaMetadataCompat.METADATA_KEY_TITLE, mCurrentStation)
+                    .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, mCurrentStation)
+                    .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE, subTitle)
                     .build();
 
             mSession.setMetadata(track);
@@ -712,10 +721,11 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
         // Update Notification
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this);
 
-        if (DAB_STATUS_ERROR == mDabStatus && mError != null) {
+        if (DAB_STATUS_ERROR == mDabStatus) {
             // Error
+            String error =  mError != null ? mError  : getResources().getString(R.string.error_unknown);
             notificationBuilder.setStyle(new NotificationCompat.MediaStyle());
-            notificationBuilder.setContentTitle(mError);
+            notificationBuilder.setContentTitle(error);
         } else if (0 <= mChannelScanProgress) {
             // Scanning
             notificationBuilder.setStyle(new NotificationCompat.MediaStyle().setShowActionsInCompactView(new int[]{0}));
@@ -732,7 +742,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
                 notificationBuilder.setContentTitle(mTrack.getText(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE));
                 notificationBuilder.setContentText(mTrack.getText(MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE));
             } else {
-                notificationBuilder.setContentTitle(resources.getString(R.string.label_scanning) + " " + mChannelScanProgress + "%");
+                notificationBuilder.setContentTitle(resources.getString(R.string.label_scanning) + " " + mChannelScanProgress);
                 notificationBuilder.setContentText((mCurrentChannel == null) ? "" : mCurrentChannel);
             }
         } else {
@@ -781,12 +791,9 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
             if (mTrack != null) {
                 notificationBuilder.setContentTitle(mTrack.getText(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE));
                 notificationBuilder.setContentText(mTrack.getText(MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE));
-            } else if (mCurrentMedia != null) {
-                notificationBuilder.setContentTitle(mCurrentMedia.getDescription().getTitle());
-                notificationBuilder.setContentText(mCurrentMedia.getDescription().getSubtitle());
             } else {
-                notificationBuilder.setContentTitle("");
-                notificationBuilder.setContentText("");
+                notificationBuilder.setContentTitle((mCurrentStation == null) ? "" : mCurrentStation);
+                notificationBuilder.setContentText((mCurrentChannel == null) ? "" : mCurrentChannel);
             }
         }
 
@@ -801,8 +808,10 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
     private boolean requestAudioFocus() {
-        if (mAudioFocus)
+        if (mAudioFocus) {
+            Log.d(TAG, "requestAudioFocus AudioFocus already granted");
             return true;
+        }
         Log.d(TAG, "requestAudioFocus");
         AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         int result = audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC,
@@ -828,6 +837,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
     @Override
     public void onAudioFocusChange(int focusChange) {
         if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
+            Log.d(TAG, "AUDIOFOCUS_LOSS");
             // Permanent loss of audio focus
             // Pause playback immediately
             mAudioFocus = false;
@@ -835,20 +845,23 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
             handlePauseRequest();
             //TODO Wait 30 seconds before stopping playback
         } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
+            Log.d(TAG, "AUDIOFOCUS_LOSS_TRANSIENT");
             // Pause playback
             mAudioFocus = false;
             duckPlayback(false);
             handlePauseRequest();
         } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) {
+            Log.d(TAG, "AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK");
             // Lower the volume, keep playing
             mAudioFocus = true;
             duckPlayback(true);
         } else if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
+            Log.d(TAG, "AUDIOFOCUS_GAIN");
             // Your app has been granted audio focus again
             // Raise volume to normal, restart playback if necessary
             mAudioFocus = true;
             if (mDabStatus != DAB_STATUS_PLAYING)
-                handlePlayRequest();
+                handlePlayRequest(null);
             duckPlayback(false);
         }
     }
@@ -874,11 +887,12 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
                     mUsbConnected = false;
                     mChannelScanProgress = -1;
                     mTrack = null;
-                    mCurrentMedia = null;
+                    mCurrentStation = null;
                     mCurrentChannel = null;
                     mDabStatus = DAB_STATUS_ERROR;
-                    mError = getResources().getString(R.string.msg_rtl_sdr_unplugged);
+                    mError = getResources().getString(R.string.error_rtl_sdr_unplugged);
                     updatePlaybackState();
+                    stopSelf();
                 }
             } else if (ANDROID_AUTO_STATUS.equals(action)) {
                 String status = intent.getStringExtra(ANDROID_AUTO_MEDIA_CONNECTION_STATUS);
@@ -973,6 +987,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
             }
         } else {
             Log.d(TAG, "onStartCommand action: " + action);
+            MediaButtonReceiver.handleIntent(mSession, intent);
         }
         return Service.START_STICKY;
     }

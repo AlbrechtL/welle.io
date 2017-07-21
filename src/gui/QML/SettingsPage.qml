@@ -42,6 +42,8 @@ Item {
         }
 
         onChannelScanProgress:{
+            startChannelScanButton.enabled = false
+            stopChannelScanButton.enabled = true
             channelScanProgressBar.value = progress
         }
 

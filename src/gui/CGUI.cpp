@@ -63,7 +63,7 @@ CGUI::CGUI(CRadioController *RadioController, CDABParams *DABParams, QObject *pa
     stationList.sort();
 
     if(stationList.count() == 0)
-        stationList.append("", tr("Station list is empty"), "");
+        stationList.append(tr("Station list is empty"), "");
 
     p_stationModel = QVariant::fromValue(stationList.getList());
     emit stationModelChanged();
@@ -176,11 +176,11 @@ void CGUI::MOTUpdate(QImage MOTImage)
     emit motChanged();
 }
 
-void CGUI::AddToStationList(QString SId, QString Station, QString CurrentChannel)
+void CGUI::AddToStationList(QString StationName, QString CurrentChannel)
 {
     //	Add new station into list
-    if (!stationList.contains(SId, CurrentChannel)) {
-        stationList.append(SId, Station, CurrentChannel);
+    if (!stationList.contains(StationName, CurrentChannel)) {
+        stationList.append(StationName, CurrentChannel);
 
         //	Sort stations
         stationList.sort();
@@ -195,8 +195,7 @@ void CGUI::AddToStationList(QString SId, QString Station, QString CurrentChannel
     }
 }
 
-void CGUI::channelClick(QString StationName,
-    QString ChannelName)
+void CGUI::channelClick(QString StationName, QString ChannelName)
 {
     if(RadioController && ChannelName != "")
         RadioController->Play(ChannelName, StationName);

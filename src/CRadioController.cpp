@@ -318,10 +318,11 @@ void CRadioController::StartScan(void)
         isChannelScan = true;
         CurrentDisplayStation = tr("Scanning") + " ...";
         Label = CChannels::FirstChannel;
-    }
 
-    Status = Scanning;
-    UpdateGUIData();
+        Status = Scanning;
+        UpdateGUIData();
+        emit ScanProgress(0);
+    }
 }
 
 void CRadioController::StopScan(void)
@@ -356,7 +357,8 @@ void CRadioController::UpdateGUIData()
     _GUIData["Status"] = Status;
     _GUIData["Channel"] = CurrentChannel;
     _GUIData["Frequency"] = CurrentFrequency;
-    _GUIData["Station"] = CurrentDisplayStation.simplified();
+    _GUIData["Station"] = CurrentStation;
+    _GUIData["Title"] = CurrentDisplayStation.simplified();
 
     QDateTime LocalTime = CurrentDateTime.toLocalTime();
     _GUIData["DateTime"] = QLocale().toString(LocalTime, QLocale::ShortFormat);
@@ -637,13 +639,12 @@ void CRadioController::SyncCheckTimerTimeout(void)
 
 void CRadioController::addtoEnsemble(quint32 SId, const QString &Station)
 {
-    QString StationId = QString::number(SId, 16).toUpper();
     qDebug() << "RadioController: Found station" <<  Station
-             << "(" << qPrintable(StationId) << ")";
+             << "(" << qPrintable(QString::number(SId, 16).toUpper()) << ")";
 
     StationList.append(Station);
 
-    emit FoundStation(StationId, Station, CurrentChannel);
+    emit FoundStation(Station, CurrentChannel);
 }
 
 void CRadioController::nameofEnsemble(int id, const QString &v)

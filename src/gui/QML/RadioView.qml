@@ -127,7 +127,7 @@ Item{
 
         onSetGUIData:{
             // Station
-            currentStation.text = GUIData.Station
+            currentStation.text = GUIData.Title
 
             // Label
             stationText.text = GUIData.Label

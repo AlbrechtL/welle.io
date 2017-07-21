@@ -105,9 +105,9 @@ public slots:
 private slots:
     void GUIDataUpdate(QVariantMap GUIData);
     void MOTUpdate(QImage MOTImage);
-    void AddToStationList(QString SId, QString Station, QString CurrentChannel);
+    void AddToStationList(QString Station, QString CurrentChannel);
 
-signals:   
+signals:
     void channelScanStopped(void);
     void channelScanProgress(int progress);
     void foundChannelCount(int channelCount);

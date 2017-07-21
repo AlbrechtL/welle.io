@@ -31,14 +31,6 @@ public class DabDelegate extends Activity {
             serviceIntent.setAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
             serviceIntent.putExtra(UsbManager.EXTRA_DEVICE, usbDevice);
             startService(serviceIntent);
-        } else if (intent.getAction().equals(UsbManager.ACTION_USB_DEVICE_DETACHED)) {
-            Log.i(TAG, "USB deattached");
-            UsbDevice usbDevice = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-
-//            Intent serviceIntent = new Intent(this, DabService.class);
-//            serviceIntent.setAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
-//            serviceIntent.putExtra(UsbManager.EXTRA_DEVICE, usbDevice);
-//            startService(serviceIntent);
         }
 
         finish();

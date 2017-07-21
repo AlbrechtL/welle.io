@@ -176,7 +176,7 @@ signals:
 
     void GUIDataChanged(QVariantMap GUIData);
     void DeviceReady();
-    void FoundStation(QString SId, QString Station, QString CurrentChannel);
+    void FoundStation(QString Station, QString CurrentChannel);
     void ScanStopped();
     void ScanProgress(int Progress);
     void showErrorMessage(QString Text);

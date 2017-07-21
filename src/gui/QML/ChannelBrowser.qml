@@ -639,7 +639,7 @@ Item {
         onSetGUIData:{
             // Station
             if(!scanningTimer.running)
-                currentStation.text = GUIData.Station
+                currentStation.text = GUIData.Title
 
             // Label
             stationText.text = GUIData.Label
