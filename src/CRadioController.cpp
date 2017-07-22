@@ -63,27 +63,29 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, CDABParams& 
     // Init the technical data
     Status = Unknown;
     CurrentChannel = tr("Unknown");
+    CurrentEnsemble = "";
     CurrentFrequency = 0;
     CurrentStation = "";
-    CurrentDisplayStation = tr("No Station");
     CurrentStationType = "";
     CurrentLanguageType = "";
-    Label = "";
-    isSync = false;
-    isFICCRC = false;
-    isSignal = false;
-    SNR = 0;
-    FrequencyCorrection = 0;
-    BitRate = 0;
-    AudioSampleRate = 0;
-    isStereo = true;
-    isDAB = true;
-    FrameErrors = 0;
-    RSErrors = 0;
-    AACErrors = 0;
+    CurrentTitle = tr("No Station");
+    CurrentText = "";
+
+    mIsSync = false;
+    mIsFICCRC = false;
+    mIsSignal = false;
+    mSNR = 0;
+    mFrequencyCorrection = 0;
+    mBitRate = 0;
+    mAudioSampleRate = 0;
+    mIsStereo = true;
+    mIsDAB = true;
+    mFrameErrors = 0;
+    mRSErrors = 0;
+    mAACErrors = 0;
+    mGainCount = 0;
     CurrentManualGain = 0;
     CurrentManualGainValue = 0.0;
-    GainCount = 0;
     CurrentVolume = 1.0;
 
     connect(&StationTimer, &QTimer::timeout, this, &CRadioController::StationTimerTimeout);
@@ -153,7 +155,8 @@ void CRadioController::onEventLoopStarted()
     }
 #endif
 
-    GainCount = Device->getGainCount();
+    mGainCount = Device->getGainCount();
+    emit GainCountChanged(mGainCount);
 
     Device->setHwAgc(isHwAGC);
 
@@ -275,11 +278,13 @@ void CRadioController::SetChannel(QString Channel, bool isScan, bool Force)
         if(Device && Device->getID() == CDeviceID::RAWFILE)
         {
             CurrentChannel = "File";
+            CurrentEnsemble = "";
             CurrentFrequency = 0;
         }
         else // A real device
         {
             CurrentChannel = Channel;
+            CurrentEnsemble = "";
 
             // Convert channel into a frequency
             CurrentFrequency = Channels.getFrequency(Channel);
@@ -306,7 +311,7 @@ void CRadioController::StartScan(void)
 
     if(Device && Device->getID() == CDeviceID::RAWFILE)
     {
-        CurrentDisplayStation = tr("RAW File");
+        CurrentTitle = tr("RAW File");
         SetChannel(CChannels::FirstChannel, false); // Just a dummy
         emit ScanStopped();
     }
@@ -316,8 +321,8 @@ void CRadioController::StartScan(void)
         SetChannel(CChannels::FirstChannel, true);
 
         isChannelScan = true;
-        CurrentDisplayStation = tr("Scanning") + " ...";
-        Label = CChannels::FirstChannel;
+        CurrentTitle = tr("Scanning") + " ...";
+        CurrentText = CChannels::FirstChannel;
 
         Status = Scanning;
         UpdateGUIData();
@@ -330,8 +335,8 @@ void CRadioController::StopScan(void)
     qDebug() << "RadioController:" << "Stop channel scan";
 
     isChannelScan = false;
-    CurrentDisplayStation = tr("No Station");
-    Label = "";
+    CurrentTitle = tr("No Station");
+    CurrentText = "";
 
     Status = Stopped;
     UpdateGUIData();
@@ -340,7 +345,7 @@ void CRadioController::StopScan(void)
 
 QVariantMap CRadioController::GUIData(void) const
 {
-    return _GUIData;
+    return mGUIData;
 }
 
 void CRadioController::UpdateGUIData()
@@ -350,37 +355,22 @@ void CRadioController::UpdateGUIData()
         isGUIInit = true;
 
         if(Device)
-           _GUIData["DeviceName"] = Device->getName();
+           mGUIData["DeviceName"] = Device->getName();
     }
 
     // Init the GUI data map
-    _GUIData["Status"] = Status;
-    _GUIData["Channel"] = CurrentChannel;
-    _GUIData["Frequency"] = CurrentFrequency;
-    _GUIData["Station"] = CurrentStation;
-    _GUIData["Title"] = CurrentDisplayStation.simplified();
-
-    QDateTime LocalTime = CurrentDateTime.toLocalTime();
-    _GUIData["DateTime"] = QLocale().toString(LocalTime, QLocale::ShortFormat);
-
-    _GUIData["isSync"] = isSync;
-    _GUIData["isFICCRC"] = isFICCRC;
-    _GUIData["isSignal"] = isSignal;
-    _GUIData["SNR"] = SNR;
-    _GUIData["FrequencyCorrection"] = FrequencyCorrection;
-    _GUIData["BitRate"] = BitRate;
-    _GUIData["isStereo"] = isStereo;
-    _GUIData["FrameErrors"] = FrameErrors;
-    _GUIData["RSErrors"] = RSErrors;
-    _GUIData["AACErrors"] = AACErrors;
-    _GUIData["Label"] = Label;
-    _GUIData["StationType"] = CurrentStationType;
-    _GUIData["LanguageType"] = CurrentLanguageType;
-    _GUIData["isDAB"] = isDAB;
-    _GUIData["GainCount"] = GainCount;
+    mGUIData["Status"] = Status;
+    mGUIData["Channel"] = CurrentChannel;
+    mGUIData["Ensemble"] = CurrentEnsemble;
+    mGUIData["Frequency"] = CurrentFrequency;
+    mGUIData["Station"] = CurrentStation;
+    mGUIData["StationType"] = CurrentStationType;
+    mGUIData["Title"] = CurrentTitle.simplified();
+    mGUIData["Text"] = CurrentText;
+    mGUIData["LanguageType"] = CurrentLanguageType;
 
     //qDebug() << "RadioController:" <<  "UpdateGUIData";
-    emit GUIDataChanged(_GUIData);
+    emit GUIDataChanged(mGUIData);
 }
 
 QImage CRadioController::MOT() const
@@ -396,6 +386,77 @@ int32_t CRadioController::GetSpectrumSamples(DSPCOMPLEX *Buffer, int32_t Size)
         Samples = Device->getSpectrumSamples(Buffer, Size);
 
     return Samples;
+}
+
+QString CRadioController::DateTime() const
+{
+    QDateTime LocalTime = mCurrentDateTime.toLocalTime();
+    return QLocale().toString(LocalTime, QLocale::ShortFormat);
+}
+
+bool CRadioController::isSync() const
+{
+    return mIsSync;
+}
+
+bool CRadioController::isFICCRC() const
+{
+    return mIsFICCRC;
+}
+
+bool CRadioController::isSignal() const
+{
+    return mIsSignal;
+}
+
+bool CRadioController::isStereo() const
+{
+    return mIsStereo;
+}
+
+bool CRadioController::isDAB() const
+{
+    return mIsDAB;
+}
+
+int CRadioController::SNR() const
+{
+    return mSNR;
+}
+
+int CRadioController::FrequencyCorrection() const
+{
+    return mFrequencyCorrection;
+}
+
+int CRadioController::BitRate() const
+{
+    return mBitRate;
+}
+
+int CRadioController::AudioSampleRate() const
+{
+    return mAudioSampleRate;
+}
+
+int CRadioController::FrameErrors() const
+{
+    return mFrameErrors;
+}
+
+int CRadioController::RSErrors() const
+{
+    return mRSErrors;
+}
+
+int CRadioController::AACErrors() const
+{
+    return mAACErrors;
+}
+
+int CRadioController::GainCount() const
+{
+    return mGainCount;
 }
 
 int CRadioController::GetCurrentFrequency(void)
@@ -531,7 +592,7 @@ void CRadioController::SetStation(QString Station, bool Force)
 
         qDebug() << "RadioController: Tune to station" <<  Station;
 
-        CurrentDisplayStation = tr("Tuning") + " ... " + Station;
+        CurrentTitle = tr("Tuning") + " ... " + Station;
 
         // Wait if we found the station inside the signal
         StationTimer.start(1000);
@@ -539,7 +600,7 @@ void CRadioController::SetStation(QString Station, bool Force)
         // Clear old data
         CurrentStationType = "";
         CurrentLanguageType = "";
-        Label = "";
+        CurrentText = "";
 
         UpdateGUIData();
 
@@ -559,7 +620,7 @@ void CRadioController::NextChannel(bool isWait)
     else
     {
         QString Channel = Channels.getNextChannel();
-        Label = Channel;
+        CurrentText = Channel;
 
         if(!Channel.isEmpty())
             SetChannel(Channel, true);
@@ -592,16 +653,18 @@ void CRadioController::StationTimerTimeout()
             // Set station
             my_mscHandler->set_audioChannel(&AudioData);
 
-            CurrentDisplayStation = CurrentStation;
+            CurrentTitle = CurrentStation;
 
             CurrentStationType = CDABConstants::getProgramTypeName(AudioData.programType);
             CurrentLanguageType = CDABConstants::getLanguageName(AudioData.language);
-            BitRate = AudioData.bitRate;
+            mBitRate = AudioData.bitRate;
+            emit BitRateChanged(mBitRate);
 
             if (AudioData.ASCTy == 077)
-                isDAB = false;
+                mIsDAB = false;
             else
-                isDAB = true;
+                mIsDAB = true;
+            emit isDABChanged(mIsDAB);
 
             Status = Playing;
             UpdateGUIData();
@@ -620,11 +683,11 @@ void CRadioController::ChannelTimerTimeout(void)
 void CRadioController::SyncCheckTimerTimeout(void)
 {
     // A better approach is to use the MER since it is not implemented we use the this one
-    if(!isSync ||
-       (isSync && !isFICCRC) ||
-       (isSync && FrameErrors >= 10))
+    if(!mIsSync ||
+       (mIsSync && !mIsFICCRC) ||
+       (mIsSync && mFrameErrors >= 10))
     {
-        qDebug() << "RadioController: Restart syncing. isSync:" << isSync << ", isFICCRC:" << isFICCRC << ", FrameErrors:" << FrameErrors;
+        qDebug() << "RadioController: Restart syncing. isSync:" << mIsSync << ", isFICCRC:" << mIsFICCRC << ", FrameErrors:" << mFrameErrors;
         emit showInfoMessage(tr("Lost signal or bad signal quality, trying to find it again."));
 
         SetChannel(CurrentChannel, false, true);
@@ -647,11 +710,15 @@ void CRadioController::addtoEnsemble(quint32 SId, const QString &Station)
     emit FoundStation(Station, CurrentChannel);
 }
 
-void CRadioController::nameofEnsemble(int id, const QString &v)
+void CRadioController::nameofEnsemble(int id, const QString &Ensemble)
 {
-    // ToDo: Maybe display of the ensemble name
+    qDebug() << "RadioController: Name of ensemble:" << Ensemble;
     (void)id;
-    (void)v;
+
+    if (CurrentEnsemble == Ensemble)
+        return;
+    CurrentEnsemble = Ensemble;
+    UpdateGUIData();
 }
 
 void CRadioController::changeinConfiguration()
@@ -674,71 +741,72 @@ void CRadioController::displayDateTime(int *DateTime)
     int MinuteOffset = DateTime[7];
 
     Time.setHMS(Hour, Minute, Seconds);
-    CurrentDateTime.setTime(Time);
+    mCurrentDateTime.setTime(Time);
 
     Date.setDate(Year, Month, Day);
-    CurrentDateTime.setDate(Date);
+    mCurrentDateTime.setDate(Date);
 
     int OffsetFromUtc = ((HourOffset * 3600) + (MinuteOffset * 60));
-    CurrentDateTime.setOffsetFromUtc(OffsetFromUtc);
-    CurrentDateTime.setTimeSpec(Qt::OffsetFromUTC);
+    mCurrentDateTime.setOffsetFromUtc(OffsetFromUtc);
+    mCurrentDateTime.setTimeSpec(Qt::OffsetFromUTC);
 
-    UpdateGUIData();
+    QDateTime LocalTime = mCurrentDateTime.toLocalTime();
+    emit DateTimeChanged(QLocale().toString(LocalTime, QLocale::ShortFormat));
 
     return;
 }
 
 void CRadioController::show_ficSuccess(bool isFICCRC)
 {
-    if (this->isFICCRC == isFICCRC)
+    if (mIsFICCRC == isFICCRC)
         return;
-    this->isFICCRC = isFICCRC;
-    UpdateGUIData();
+    mIsFICCRC = isFICCRC;
+    emit isFICCRCChanged(mIsFICCRC);
 }
 
 void CRadioController::show_snr(int SNR)
 {
-    if (this->SNR == SNR)
+    if (mSNR == SNR)
         return;
-    this->SNR = SNR;
-    UpdateGUIData();
+    mSNR = SNR;
+    emit SNRChanged(mSNR);
 }
 
 void CRadioController::set_fineCorrectorDisplay(int FineFrequencyCorr)
 {
-    int CoarseFrequencyCorr = (FrequencyCorrection / 1000);
+    int CoarseFrequencyCorr = (mFrequencyCorrection / 1000);
     SetFrequencyCorrection((CoarseFrequencyCorr * 1000) + FineFrequencyCorr);
 }
 
 void CRadioController::set_coarseCorrectorDisplay(int CoarseFreuqencyCorr)
 {
-    int OldCoareFrequencyCorrr = (FrequencyCorrection / 1000);
-    int FineFrequencyCorr = FrequencyCorrection - (OldCoareFrequencyCorrr * 1000);
+    int OldCoareFrequencyCorrr = (mFrequencyCorrection / 1000);
+    int FineFrequencyCorr = mFrequencyCorrection - (OldCoareFrequencyCorrr * 1000);
     SetFrequencyCorrection((CoarseFreuqencyCorr * 1000) + FineFrequencyCorr);
 }
 
 void CRadioController::SetFrequencyCorrection(int FrequencyCorrection)
 {
-    if (this->FrequencyCorrection == FrequencyCorrection)
+    if (mFrequencyCorrection == FrequencyCorrection)
         return;
-    this->FrequencyCorrection = FrequencyCorrection;
-    UpdateGUIData();
+    mFrequencyCorrection = FrequencyCorrection;
+    emit FrequencyCorrectionChanged(mFrequencyCorrection);
 }
 
 void CRadioController::setSynced(char isSync)
 {
     bool sync = (isSync == SYNCED) ? true : false;
-    if (this->isSync == sync)
+    if (mIsSync == sync)
         return;
-    this->isSync = sync;
-    UpdateGUIData();
+    mIsSync = sync;
+    emit isSyncChanged(mIsSync);
 }
 
 void CRadioController::setSignalPresent(bool isSignal)
 {
-    if (this->isSignal != isSignal) {
-        this->isSignal = isSignal;
-        UpdateGUIData();
+    if (mIsSignal != isSignal) {
+        mIsSignal = isSignal;
+        emit isSignalChanged(mIsSignal);
     }
 
     if(isChannelScan)
@@ -747,10 +815,11 @@ void CRadioController::setSignalPresent(bool isSignal)
 
 void CRadioController::newAudio(int SampleRate)
 {
-    if(AudioSampleRate != SampleRate)
+    if(mAudioSampleRate != SampleRate)
     {
         qDebug() << "RadioController: Audio sample rate" <<  SampleRate << "kHz";
-        AudioSampleRate = SampleRate;
+        mAudioSampleRate = SampleRate;
+        emit AudioSampleRateChanged(mAudioSampleRate);
 
         Audio->setRate(SampleRate);
     }
@@ -758,41 +827,41 @@ void CRadioController::newAudio(int SampleRate)
 
 void CRadioController::setStereo(bool isStereo)
 {
-    if (this->isStereo == isStereo)
+    if (mIsStereo == isStereo)
         return;
-    this->isStereo = isStereo;
-    UpdateGUIData();
+    mIsStereo = isStereo;
+    emit isStereoChanged(mIsStereo);
 }
 
 void CRadioController::show_frameErrors(int FrameErrors)
 {
-    if (this->FrameErrors == FrameErrors)
+    if (mFrameErrors == FrameErrors)
         return;
-    this->FrameErrors = FrameErrors;
-    UpdateGUIData();
+    mFrameErrors = FrameErrors;
+    emit FrameErrorsChanged(mFrameErrors);
 }
 
 void CRadioController::show_rsErrors(int RSErrors)
 {
-    if (this->RSErrors == RSErrors)
+    if (mRSErrors == RSErrors)
         return;
-    this->RSErrors = RSErrors;
-    UpdateGUIData();
+    mRSErrors = RSErrors;
+    emit RSErrorsChanged(mRSErrors);
 }
 
 void CRadioController::show_aacErrors(int AACErrors)
 {
-    if (this->AACErrors == AACErrors)
+    if (mAACErrors == AACErrors)
         return;
-    this->AACErrors = AACErrors;
-    UpdateGUIData();
+    mAACErrors = AACErrors;
+    emit AACErrorsChanged(mAACErrors);
 }
 
 void CRadioController::showLabel(QString Label)
 {
-    if (this->Label == Label)
+    if (this->CurrentText == Label)
         return;
-    this->Label = Label;
+    this->CurrentText = Label;
     UpdateGUIData();
 }
 

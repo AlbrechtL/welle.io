@@ -52,7 +52,7 @@ Item {
         }
 
         onSetGUIData:{
-            manualGain.maximumValue = GUIData.GainCount
+            manualGain.maximumValue = cppRadioController.GainCount
         }
     }
 

@@ -195,57 +195,40 @@ Item {
                         id: signalBar1
                         height: 4
                         width: 4
-                        color: "grey"
+                        color: (cppRadioController.SNR > 2) ? "green" : "grey"
                     }
                     Rectangle{
                         id: signalBar2
                         height: 8
                         width: 4
-                        color: "grey"
+                        color: (cppRadioController.SNR > 5) ? "green" : "grey"
                     }
                     Rectangle{
                         id: signalBar3
                         height: 12
                         width: 4
-                        color: "grey"
+                        color: (cppRadioController.SNR > 8) ? "green" : "grey"
                     }
                     Rectangle{
                         id: signalBar4
                         height: 16
                         width: 4
-                        color: "grey"
+                        color: (cppRadioController.SNR > 11) ? "green" : "grey"
                     }
 
                     Rectangle{
                         id: signalBar5
                         height: 20
                         width: 4
-                        color: "grey"
+                        color: (cppRadioController.SNR > 15) ? "green" : "grey"
                     }
 
                 }
 
                 Text {
-                    id: bitrateText
-                    color: "#ffffff"
-                    anchors.right: dabTypeText.left
-                    anchors.rightMargin: 16
-                    font.pixelSize: 22
-                }
-
-
-                Text {
-                    id: dabTypeText
+                    id: ensembleText
                     color: "#ffffff"
                     anchors.horizontalCenter: parent.horizontalCenter
-                    font.pixelSize: 22
-                }
-
-                Text {
-                    id: audioTypeText
-                    color: "#ffffff"
-                    anchors.left: dabTypeText.right
-                    anchors.leftMargin: 16
                     font.pixelSize: 22
                 }
 
@@ -260,7 +243,7 @@ Item {
                         id: sync
                         height: 16
                         width: 16
-                        color: "red"
+                        color: cppRadioController.isSync ? "green" : "red"
                         Layout.fillHeight: true
                         Layout.fillWidth: true
                     }
@@ -268,7 +251,7 @@ Item {
                         id: fic
                         height: 16
                         width: 16
-                        color: "red"
+                        color: cppRadioController.isFICCRC ? "green" : "red"
                         Layout.fillHeight: true
                         Layout.fillWidth: true
                     }
@@ -276,7 +259,9 @@ Item {
                         id: frameSucess
                         height: 16
                         width: 16
-                        color: "red"
+                        color: (cppRadioController.FrameErrors === 0
+                                && cppRadioController.isSync
+                                && cppRadioController.isFICCRC) ? "green" : "red"
                         Layout.fillHeight: true
                         Layout.fillWidth: true
                     }
@@ -284,7 +269,7 @@ Item {
             }
 
             Text {
-                id: currentStation
+                id: stationTitle
                 color: "#ffffff"
                 text: qsTr("")
                 wrapMode: Text.WrapAtWordBoundaryOrAnywhere
@@ -304,18 +289,18 @@ Item {
                     id:scanningTimer
                     interval: 500; running: false; repeat: true
                     onTriggered:{
-                        switch(currentStation.text){
+                        switch(stationTitle.text){
                         case "Scanning":
-                            currentStation.text = "Scanning."
+                            stationTitle.text = "Scanning."
                             break;
                         case "Scanning.":
-                            currentStation.text = "Scanning.."
+                            stationTitle.text = "Scanning.."
                             break;
                         case "Scanning..":
-                            currentStation.text = "Scanning..."
+                            stationTitle.text = "Scanning..."
                             break;
                         default :
-                            currentStation.text = "Scanning"
+                            stationTitle.text = "Scanning"
                             break;
                         }
                     }
@@ -340,34 +325,52 @@ Item {
                 font.pixelSize: 18
             }
 
-
             Item {
                 id: radio_info
+                visible: false
                 height: 30
                 anchors.bottom: parent.bottom
                 anchors.bottomMargin: 0
-                Text {
-                    id: languageTypeText
-                    width: parent.width/2
-                    color: "#ffffff"
-                    anchors.leftMargin: 0
-                    font.pixelSize: 22
-                    anchors.left: parent.left
-                }
 
                 Text {
                     id: stationTypeText
+                    visible: radio_info.visible
                     color: "#ffffff"
-                    horizontalAlignment: Text.AlignRight
-                    anchors.left: languageTypeText.right
+                    horizontalAlignment: Text.AlignLeft
+                    anchors.left: parent.left
+                    anchors.right: stationDetails.left
                     anchors.leftMargin: 0
-                    anchors.right: parent.right
                     anchors.rightMargin: 0
                     font.pixelSize: 22
                 }
-                anchors.leftMargin: 0
+
+                Text {
+                    id: languageTypeText
+                    visible: radio_info.visible
+                    color: "#ffffff"
+                    horizontalAlignment: Text.AlignHCenter
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    font.pixelSize: 22
+                }
+
+                Text {
+                    id: stationDetails
+                    visible: radio_info.visible
+                    color: "#ffffff"
+                    horizontalAlignment: Text.AlignRight
+                    anchors.left: stationDetails.right
+                    anchors.right: parent.right
+                    anchors.leftMargin: 0
+                    anchors.rightMargin: 0
+                    font.pixelSize: 22
+                    text: cppRadioController.BitRate + " kbps, "
+                          + (cppRadioController.isStereo ? "Stereo" : "Mono")
+                          + (cppRadioController.isDAB ? ", DAB" : ", DAB+")
+                }
+
+                anchors.leftMargin: 5
                 anchors.right: parent.right
-                anchors.rightMargin: 0
+                anchors.rightMargin: 5
                 anchors.left: parent.left
             }
         }
@@ -637,52 +640,18 @@ Item {
         target: cppGUI
 
         onSetGUIData:{
-            // Station
+            // Title
             if(!scanningTimer.running)
-                currentStation.text = GUIData.Title
+                stationTitle.text = GUIData.Title
 
-            // Label
-            stationText.text = GUIData.Label
+            // Text
+            stationText.text = GUIData.Text
 
-            // Sync flag
-            if(GUIData.isSync)
-                sync.color = "green"
-            else
-                sync.color = "red"
+            // Ensemble
+            ensembleText.text = GUIData.Ensemble
 
-            // FIC flag
-            if(GUIData.isFICCRC)
-                fic.color = "green"
-            else
-                fic.color = "red"
-
-            // Frame errors flag
-            if(GUIData.FrameErrors === 0 && GUIData.isSync && GUIData.isFICCRC)
-                frameSucess.color = "green"
-            else
-                frameSucess.color = "red"
-
-            // SNR
-            if(GUIData.SNR > 15) signalBar5.color = "green"; else signalBar5.color = "grey"
-            if(GUIData.SNR > 11) signalBar4.color = "green"; else signalBar4.color = "grey"
-            if(GUIData.SNR > 8) signalBar3.color = "green"; else signalBar3.color = "grey"
-            if(GUIData.SNR > 5) signalBar2.color = "green"; else signalBar2.color = "grey"
-            if(GUIData.SNR > 2) signalBar1.color = "green"; else signalBar1.color = "grey"
-
-            // Bitrate
-            bitrateText.text = GUIData.BitRate + " kbps"
-
-            // DAB / DAB+
-            if(GUIData.isDAB)
-                dabTypeText.text = "DAB"
-            else
-                dabTypeText.text = "DAB+"
-
-            // Stereo / Mono
-            if(GUIData.isStereo)
-                audioTypeText.text = "Stereo"
-            else
-                audioTypeText.text = "Mono"
+            // Station info
+            radio_info.visible = (GUIData.Status === 2 || GUIData.Status === 3)
 
             // Station type
             stationTypeText.text = GUIData.StationType

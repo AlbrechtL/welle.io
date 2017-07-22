@@ -27,48 +27,41 @@ Item{
                 id: signalBar1
                 height: Units.dp(4)
                 width: Units.dp(4)
-                color: "grey"
+                color: (cppRadioController.SNR > 2) ? "green" : "grey"
             }
             Rectangle{
                 id: signalBar2
                 height: Units.dp(8)
                 width: Units.dp(4)
-                color: "grey"
+                color: (cppRadioController.SNR > 5) ? "green" : "grey"
             }
             Rectangle{
                 id: signalBar3
                 height: Units.dp(12)
                 width: Units.dp(4)
-                color: "grey"
+                color: (cppRadioController.SNR > 8) ? "green" : "grey"
             }
             Rectangle{
                 id: signalBar4
                 height: Units.dp(16)
                 width: Units.dp(4)
-                color: "grey"
+                color: (cppRadioController.SNR > 11) ? "green" : "grey"
             }
 
             Rectangle{
                 id: signalBar5
                 height: Units.dp(20)
                 width: Units.dp(4)
-                color: "grey"
+                color: (cppRadioController.SNR > 15) ? "green" : "grey"
             }
         }
 
         TextRadioInfo {
-            id: bitrateText
-            text: "96 kbps"
-        }
-
-        TextRadioInfo {
-            id: dabTypeText
-            text: "DAB+"
-        }
-
-        TextRadioInfo {
-            id: audioTypeText
-            text: "Stereo"
+            id: ensembleText
+            horizontalAlignment: Text.AlignHCenter
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.leftMargin: Units.dp(5)
+            anchors.rightMargin: Units.dp(5)
         }
 
         /* Flags */
@@ -84,19 +77,21 @@ Item{
                 id: sync
                 height: Units.dp(16)
                 width: Units.dp(16)
-                color: "red"
+                color: cppRadioController.isSync ? "green" : "red"
             }
             Rectangle{
                 id: fic
                 height: Units.dp(16)
                 width: Units.dp(16)
-                color: "red"
+                color: cppRadioController.isFICCRC ? "green" : "red"
             }
             Rectangle{
                 id: frameSucess
                 height: Units.dp(16)
                 width: Units.dp(16)
-                color: "red"
+                color: (cppRadioController.FrameErrors === 0
+                        && cppRadioController.isSync
+                        && cppRadioController.isFICCRC) ? "green" : "red"
             }
         }
     }
@@ -106,7 +101,7 @@ Item{
 
         /* Station Name */
         TextRadioStation {
-            id: currentStation
+            id: stationTitle
             anchors.horizontalCenter: parent.horizontalCenter
         }
 
@@ -126,51 +121,17 @@ Item{
         target: cppGUI
 
         onSetGUIData:{
-            // Station
-            currentStation.text = GUIData.Title
+            // Title
+            stationTitle.text = GUIData.Title
 
-            // Label
-            stationText.text = GUIData.Label
+            // Text
+            stationText.text = GUIData.Text
 
-            // Sync flag
-            if(GUIData.isSync)
-                sync.color = "green"
-            else
-                sync.color = "red"
+            // Ensemble
+            ensembleText.text = GUIData.Ensemble
 
-            // FIC flag
-            if(GUIData.isFICCRC)
-                fic.color = "green"
-            else
-                fic.color = "red"
-
-            // Frame errors flag
-            if(GUIData.FrameErrors === 0 && GUIData.isSync && GUIData.isFICCRC)
-                frameSucess.color = "green"
-            else
-                frameSucess.color = "red"
-
-            // SNR
-            if(GUIData.SNR > 15) signalBar5.color = "green"; else signalBar5.color = "grey"
-            if(GUIData.SNR > 11) signalBar4.color = "green"; else signalBar4.color = "grey"
-            if(GUIData.SNR > 8) signalBar3.color = "green"; else signalBar3.color = "grey"
-            if(GUIData.SNR > 5) signalBar2.color = "green"; else signalBar2.color = "grey"
-            if(GUIData.SNR > 2) signalBar1.color = "green"; else signalBar1.color = "grey"
-
-            // Bitrate
-            bitrateText.text = GUIData.BitRate + " kbps"
-
-            // DAB / DAB+
-            if(GUIData.isDAB)
-                dabTypeText.text = "DAB"
-            else
-                dabTypeText.text = "DAB+"
-
-            // Stereo / Mono
-            if(GUIData.isStereo)
-                audioTypeText.text = "Stereo"
-            else
-                audioTypeText.text = "Mono"
+            // Station info
+            stationInfo.visible = (GUIData.Status === 2 || GUIData.Status === 3)
 
             // Station type
             stationTypeText.text = GUIData.StationType
@@ -181,6 +142,8 @@ Item{
     }
 
     RowLayout{
+        id: stationInfo
+        visible: false
         anchors.bottom: parent.bottom
         anchors.bottomMargin: Units.dp(5)
         Layout.fillWidth : true
@@ -188,18 +151,28 @@ Item{
         width: parent.width
 
         TextRadioInfo {
-            id: languageTypeText
+            id: stationTypeText
+            visible: stationInfo.visible
             anchors.left: parent.left
             anchors.leftMargin: Units.dp(5)
-            text: "German"
         }
 
         TextRadioInfo {
-            id: stationTypeText
-            anchors.right: parent.right
+            id: languageTypeText
+            visible: stationInfo.visible
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.leftMargin: Units.dp(5)
             anchors.rightMargin: Units.dp(5)
-            text: "Information"
         }
 
+        TextRadioInfo {
+            id: stationDetails
+            visible: stationInfo.visible
+            anchors.right: parent.right
+            anchors.rightMargin: Units.dp(5)
+            text: cppRadioController.BitRate + " kbps, "
+                  + (cppRadioController.isStereo ? "Stereo" : "Mono")
+                  + (cppRadioController.isDAB ? ", DAB" : ", DAB+")
+        }
     }
 }

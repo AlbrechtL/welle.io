@@ -181,7 +181,7 @@ ApplicationWindow {
             x: mainWindow.width - width - Units.dp(5) - infoButton.width
             anchors.verticalCenter: parent.verticalCenter
             anchors.rightMargin: Units.dp(5)
-            text: "01.01.2016 00:00"
+            text: cppRadioController.DateTime
             id: dateTimeDisplay
         }
 
@@ -644,14 +644,6 @@ ApplicationWindow {
         onAccepted: {
             Qt.openUrlExternally("https://play.google.com/store/apps/details?id=marto.rtl_tcp_andro")
             Qt.quit()
-        }
-    }
-
-    Connections{
-        target: cppGUI
-
-        onSetGUIData:{
-            dateTimeDisplay.text = GUIData.DateTime
         }
     }
 

@@ -290,7 +290,7 @@ void CAndroidJNI::updateGuiData(QVariantMap GUIData)
     QAndroidJniObject jChannel = QAndroidJniObject::fromString(GUIData["Channel"].toString());
     QAndroidJniObject jStation = QAndroidJniObject::fromString(GUIData["Station"].toString());
     QAndroidJniObject jTitle = QAndroidJniObject::fromString(GUIData["Title"].toString());
-    QAndroidJniObject jLabel = QAndroidJniObject::fromString(GUIData["Label"].toString());
+    QAndroidJniObject jLabel = QAndroidJniObject::fromString(GUIData["Text"].toString());
     QAndroidJniObject jStationType = QAndroidJniObject::fromString(GUIData["StationType"].toString());
 
     QAndroidJniObject::callStaticMethod<void>("io/welle/welle/DabService",

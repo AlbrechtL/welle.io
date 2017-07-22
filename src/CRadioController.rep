@@ -3,9 +3,24 @@
 
 class CRadioController
 {
+    PROP(QString DateTime READONLY);
+    PROP(bool isSync READONLY);
+    PROP(bool isFICCRC READONLY);
+    PROP(bool isSignal READONLY);
+    PROP(bool isStereo READONLY);
+    PROP(bool isDAB READONLY);
+    PROP(int SNR READONLY);
+    PROP(int FrequencyCorrection READONLY);
+    PROP(int BitRate READONLY);
+    PROP(int AudioSampleRate READONLY);
+    PROP(int FrameErrors READONLY);
+    PROP(int RSErrors READONLY);
+    PROP(int AACErrors READONLY);
+
     PROP(bool HwAGC READWRITE);
     PROP(bool AGC READWRITE);
     PROP(float GainValue READONLY);
+    PROP(int GainCount READONLY);
     PROP(int Gain READWRITE);
 
     PROP(qreal Volume READWRITE);

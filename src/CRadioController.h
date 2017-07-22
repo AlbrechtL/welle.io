@@ -50,11 +50,35 @@ class CVirtualInput;
 #ifdef Q_OS_ANDROID
 #include "rep_CRadioController_source.h"
 class CRadioController : public CRadioControllerSource
-#else
-class CRadioController : public QObject
-#endif
 {
     Q_OBJECT
+#else
+class CRadioController : public QObject
+{
+    Q_OBJECT
+    Q_PROPERTY(QString DateTime READ DateTime NOTIFY DateTimeChanged)
+    Q_PROPERTY(bool isSync READ isSync NOTIFY isSyncChanged)
+    Q_PROPERTY(bool isFICCRC READ isFICCRC NOTIFY isFICCRCChanged)
+    Q_PROPERTY(bool isSignal READ isSignal NOTIFY isSignalChanged)
+    Q_PROPERTY(bool isStereo READ isStereo NOTIFY isStereoChanged)
+    Q_PROPERTY(bool isDAB READ isDAB NOTIFY isDABChanged)
+    Q_PROPERTY(int SNR READ SNR NOTIFY SNRChanged)
+    Q_PROPERTY(int FrequencyCorrection READ FrequencyCorrection NOTIFY FrequencyCorrectionChanged)
+    Q_PROPERTY(int BitRate READ BitRate NOTIFY BitRateChanged)
+    Q_PROPERTY(int AudioSampleRate READ AudioSampleRate NOTIFY AudioSampleRateChanged)
+    Q_PROPERTY(int FrameErrors READ FrameErrors NOTIFY FrameErrorsChanged)
+    Q_PROPERTY(int RSErrors READ RSErrors NOTIFY RSErrorsChanged)
+    Q_PROPERTY(int AACErrors READ AACErrors NOTIFY AACErrorsChanged)
+    Q_PROPERTY(bool HwAGC READ HwAGC WRITE setHwAGC NOTIFY HwAGCChanged)
+    Q_PROPERTY(bool AGC READ AGC WRITE setAGC NOTIFY AGCChanged)
+    Q_PROPERTY(float GainValue READ GainValue NOTIFY GainValueChanged)
+    Q_PROPERTY(int GainCount READ GainCount NOTIFY GainCountChanged)
+    Q_PROPERTY(int Gain READ Gain WRITE setGain NOTIFY GainChanged)
+    Q_PROPERTY(qreal Volume READ Volume WRITE setVolume NOTIFY VolumeChanged)
+    Q_PROPERTY(QVariantMap GUIData READ GUIData NOTIFY GUIDataChanged)
+    Q_PROPERTY(QImage MOT READ MOT NOTIFY MOTChanged)
+#endif
+
 public:
     enum DabStatus {
         Error       = -1,
@@ -81,6 +105,20 @@ public:
     int32_t GetSpectrumSamples(DSPCOMPLEX* Buffer, int32_t Size);
     int GetCurrentFrequency(void);
 
+    QString DateTime() const;
+    bool isSync() const;
+    bool isFICCRC() const;
+    bool isSignal() const;
+    bool isStereo() const;
+    bool isDAB() const;
+    int SNR() const;
+    int FrequencyCorrection() const;
+    int BitRate() const;
+    int AudioSampleRate() const;
+    int FrameErrors() const;
+    int RSErrors() const;
+    int AACErrors() const;
+
     qreal Volume() const;
     void setVolume(qreal Volume);
 
@@ -93,6 +131,7 @@ public:
     int Gain() const;
     void setGain(int Gain);
 
+    int GainCount() const;
     float GainValue() const;
 
     void setErrorMessage(QString Text);
@@ -119,31 +158,34 @@ private:
     RingBuffer<int16_t>* AudioBuffer;
 
     // Objects set by the back-end
-    QVariantMap _GUIData;
-    QDateTime CurrentDateTime;
-    bool isFICCRC;
-    bool isSync;
-    bool isSignal;
-    int SNR;
-    int FrequencyCorrection;
-    int BitRate;
-    int AudioSampleRate;
-    int FrameErrors;
-    int RSErrors;
-    int AACErrors;
-    bool isStereo;
-    bool isDAB;
-    QString Label;
+    QVariantMap mGUIData;
+    QDateTime mCurrentDateTime;
+    bool mIsSync;
+    bool mIsFICCRC;
+    bool mIsSignal;
+    bool mIsStereo;
+    bool mIsDAB;
+    int mSNR;
+    int mFrequencyCorrection;
+    int mBitRate;
+    int mAudioSampleRate;
+    int mFrameErrors;
+    int mRSErrors;
+    int mAACErrors;
+    int mGainCount;
+
     QImage *MOTImage;
 
     // Controller objects
     DabStatus Status;
     QString CurrentChannel;
+    QString CurrentEnsemble;
     int32_t CurrentFrequency;
     QString CurrentStation;
-    QString CurrentDisplayStation;
     QString CurrentStationType;
     QString CurrentLanguageType;
+    QString CurrentTitle;
+    QString CurrentText;
     int32_t CurrentManualGain;
     float CurrentManualGainValue;
     qreal CurrentVolume;
@@ -158,7 +200,6 @@ private:
     bool isGUIInit;
     bool isAGC;
     bool isHwAGC;
-    int GainCount;
 
 private slots:
     void StationTimerTimeout(void);
@@ -167,6 +208,21 @@ private slots:
 
 #ifndef Q_OS_ANDROID
 signals:
+    void DateTimeChanged(QString);
+    void isSyncChanged(bool);
+    void isFICCRCChanged(bool);
+    void isSignalChanged(bool);
+    void isStereoChanged(bool);
+    void isDABChanged(bool);
+    void SNRChanged(int);
+    void FrequencyCorrectionChanged(int);
+    void BitRateChanged(int);
+    void AudioSampleRateChanged(int);
+    void FrameErrorsChanged(int);
+    void RSErrorsChanged(int);
+    void AACErrorsChanged(int);
+    void GainCountChanged(int);
+
     void HwAGCChanged(bool);
     void AGCChanged(bool);
     void GainValueChanged(float);
