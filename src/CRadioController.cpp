@@ -112,16 +112,20 @@ void CRadioController::setDevice(CVirtualInput* Dev)
 
 void CRadioController::onEventLoopStarted()
 {
-#ifdef Q_OS_ANDROID
+#ifdef HAVE_RTLSDR_BUILTIN
     if (Device == NULL)
         return;
 #else
-    QString dabDevice = "auto";
 
     QString ipAddress = "127.0.0.1";
     uint16_t ipPort = 1234;
     QString rawFile = "";
     QString rawFileFormat = "u8";
+
+#ifdef Q_OS_ANDROID
+    QString dabDevice = "android_rtl_sdr";
+#else
+    QString dabDevice = "auto";
 
     if(commandLineOptions["dabDevice"] != "")
         dabDevice = commandLineOptions["dabDevice"].toString();
@@ -137,6 +141,7 @@ void CRadioController::onEventLoopStarted()
 
     if(commandLineOptions["rawFileFormat"] != "")
         rawFileFormat = commandLineOptions["rawFileFormat"].toString();
+#endif
 
     // Init device
     Device = CInputFactory::GetDevice(*this, dabDevice);

@@ -211,6 +211,10 @@ void CAndroidJNI::setRadioController(CRadioController *radioController)
     connect(radioController, &CRadioController::showInfoMessage,
             this, &CAndroidJNI::showInfoMessage);
 
+#ifndef HAVE_RTLSDR_BUILTIN
+    qDebug() << "AndroidJNI:" << "Start RadioController";
+    QTimer::singleShot(0, mRadioController, SLOT(onEventLoopStarted()));
+#endif
     serviceReady();
 }
 
@@ -225,6 +229,8 @@ bool CAndroidJNI::openUsbDevice(int fd, QString path)
         return true;
     }
 #else
+    Q_UNUSED(fd)
+    Q_UNUSED(path)
     qCritical() << "AndroidJNI:" <<  "Built-in RTL-SDR is not supported";
 #endif
     return false;
