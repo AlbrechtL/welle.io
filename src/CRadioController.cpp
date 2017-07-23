@@ -60,6 +60,8 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, CDABParams& 
     isAGC = true;
     isHwAGC = true;
 
+    spectrum_fft_handler = new common_fft(DABParams.T_u);
+
     // Init the technical data
     Status = Unknown;
     CurrentChannel = tr("Unknown");
@@ -378,16 +380,6 @@ QImage CRadioController::MOT() const
     return *MOTImage;
 }
 
-int32_t CRadioController::GetSpectrumSamples(DSPCOMPLEX *Buffer, int32_t Size)
-{
-    int Samples = 0;
-
-    if(Device)
-        Samples = Device->getSpectrumSamples(Buffer, Size);
-
-    return Samples;
-}
-
 QString CRadioController::DateTime() const
 {
     QDateTime LocalTime = mCurrentDateTime.toLocalTime();
@@ -457,11 +449,6 @@ int CRadioController::AACErrors() const
 int CRadioController::GainCount() const
 {
     return mGainCount;
-}
-
-int CRadioController::GetCurrentFrequency(void)
-{
-    return CurrentFrequency;
 }
 
 bool CRadioController::HwAGC() const
@@ -872,4 +859,67 @@ void CRadioController::showMOT(QByteArray Data, int Subtype, QString s)
     MOTImage->loadFromData(Data, Subtype == 0 ? "GIF" : Subtype == 1 ? "JPEG" : Subtype == 2 ? "BMP" : "PNG");
 
     emit MOTChanged(*MOTImage);
+}
+
+void CRadioController::UpdateSpectrum()
+{
+    int Samples = 0;
+    int16_t T_u = DABParams.T_u;
+
+    //	Delete old data
+    spectrum_data.resize(T_u);
+
+    qreal tunedFrequency_MHz = 0;
+    qreal sampleFrequency_MHz = 2048000 / 1e6;
+    qreal dip_MHz = sampleFrequency_MHz / T_u;
+
+    qreal x(0);
+    qreal y(0);
+    qreal y_max(0);
+
+    // Get FFT buffer
+    DSPCOMPLEX* spectrumBuffer = spectrum_fft_handler->getVector();
+
+    // Get samples
+    tunedFrequency_MHz = CurrentFrequency / 1e6;
+    if(Device)
+        Samples = Device->getSpectrumSamples(spectrumBuffer, T_u);
+
+    // Continue only if we got data
+    if (Samples <= 0)
+        return;
+
+    // Do FFT to get the spectrum
+    spectrum_fft_handler->do_FFT();
+
+    //	Process samples one by one
+    for (int i = 0; i < T_u; i++) {
+        int half_Tu = T_u / 2;
+
+        //	Shift FFT samples
+        if (i < half_Tu)
+            y = abs(spectrumBuffer[i + half_Tu]);
+        else
+            y = abs(spectrumBuffer[i - half_Tu]);
+
+        // Apply a cumulative moving average filter
+        int avg = 4; // Number of y values to average
+        qreal CMA = spectrum_data[i].y();
+        y = (CMA * avg + y) / (avg + 1);
+
+        //	Find maximum value to scale the plotter
+        if (y > y_max)
+            y_max = y;
+
+        // Calc x frequency
+        x = (i * dip_MHz) + (tunedFrequency_MHz - (sampleFrequency_MHz / 2));
+
+        spectrum_data[i]= QPointF(x, y);
+    }
+
+    //	Set new data
+    emit SpectrumUpdated(round(y_max) + 1,
+                         tunedFrequency_MHz - (sampleFrequency_MHz / 2),
+                         tunedFrequency_MHz + (sampleFrequency_MHz / 2),
+                         spectrum_data);
 }

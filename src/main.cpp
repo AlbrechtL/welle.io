@@ -191,7 +191,7 @@ int main(int argc, char** argv)
 
 #endif
 
-    CGUI *GUI = new CGUI(RadioController, &DABParams);
+    CGUI *GUI = new CGUI(RadioController);
 
     // Create new QML application, set some requried options and load the QML file
     QQmlApplicationEngine* engine = new QQmlApplicationEngine;

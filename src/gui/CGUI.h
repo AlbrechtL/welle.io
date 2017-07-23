@@ -46,9 +46,6 @@ using namespace QtCharts;
 #include "CStationList.h"
 #include "DabConstants.h"
 
-class common_fft;
-
-
 /*
  *	GThe main gui object. It inherits from
  *	QDialog and the generated form
@@ -61,9 +58,9 @@ class CGUI : public QObject {
 
 public:
 #ifdef Q_OS_ANDROID
-    CGUI(CRadioControllerReplica *RadioController, CDABParams *DABParams, QObject* parent = NULL);
+    CGUI(CRadioControllerReplica *RadioController, QObject* parent = NULL);
 #else
-    CGUI(CRadioController *RadioController, CDABParams *DABParams, QObject* parent = NULL);
+    CGUI(CRadioController *RadioController, QObject* parent = NULL);
 #endif
     ~CGUI();
     Q_INVOKABLE void channelClick(QString StationName, QString ChannelName);
@@ -75,6 +72,8 @@ public:
     Q_INVOKABLE void inputEnableHwAGCChanged(bool checked);
     Q_INVOKABLE void inputGainChanged(double gain);
     Q_INVOKABLE void clearStationList(void);
+    Q_INVOKABLE void registerSpectrumSeries(QAbstractSeries* series);
+
     QVariant stationModel() const
     {
         return p_stationModel;
@@ -87,10 +86,8 @@ private:
 #else
     CRadioController *RadioController;
 #endif
-    CDABParams *DABParams;
 
-    common_fft* spectrum_fft_handler;
-    QVector<QPointF> spectrum_data;
+    QXYSeries* spectrum_series;
 
     const QVariantMap licenses();
 
@@ -100,11 +97,12 @@ private:
     float m_currentGainValue;
 
 public slots:
-    void updateSpectrum(QAbstractSeries* series);
+    void updateSpectrum();
 
 private slots:
     void GUIDataUpdate(QVariantMap GUIData);
     void MOTUpdate(QImage MOTImage);
+    void SpectrumUpdate(qreal Ymax, qreal Xmin, qreal Xmax, QVector<QPointF> Data);
     void AddToStationList(QString Station, QString CurrentChannel);
 
 signals:

@@ -49,14 +49,14 @@
   *	is embedded in actions, initiated by gui buttons
   */
 #ifdef Q_OS_ANDROID
-CGUI::CGUI(CRadioControllerReplica *RadioController, CDABParams *DABParams, QObject *parent)
+CGUI::CGUI(CRadioControllerReplica *RadioController, QObject *parent)
 #else
-CGUI::CGUI(CRadioController *RadioController, CDABParams *DABParams, QObject *parent)
+CGUI::CGUI(CRadioController *RadioController, QObject *parent)
 #endif
     : QObject(parent)
+    , spectrum_series(NULL)
 {
     this->RadioController = RadioController;
-    this->DABParams = DABParams;
 
     // Read channels from the settings
     stationList.loadStations();
@@ -71,17 +71,17 @@ CGUI::CGUI(CRadioController *RadioController, CDABParams *DABParams, QObject *pa
     // Add image provider for the MOT slide show
     MOTImage = new CMOTImageProvider;
 
-    spectrum_fft_handler = new common_fft(DABParams->T_u);
-
 #ifdef Q_OS_ANDROID
     connect(RadioController, &CRadioControllerReplica::GUIDataChanged, this, &CGUI::GUIDataUpdate);
     connect(RadioController, &CRadioControllerReplica::MOTChanged, this, &CGUI::MOTUpdate);
+    connect(RadioController, &CRadioControllerReplica::SpectrumUpdated, this, &CGUI::SpectrumUpdate);
     connect(RadioController, &CRadioControllerReplica::FoundStation, this, &CGUI::AddToStationList);
     connect(RadioController, &CRadioControllerReplica::ScanStopped, this, &CGUI::channelScanStopped);
     connect(RadioController, &CRadioControllerReplica::ScanProgress, this, &CGUI::channelScanProgress);
 #else
     connect(RadioController, &CRadioController::GUIDataChanged, this, &CGUI::GUIDataUpdate);
     connect(RadioController, &CRadioController::MOTChanged, this, &CGUI::MOTUpdate);
+    connect(RadioController, &CRadioController::SpectrumUpdated, this, &CGUI::SpectrumUpdate);
     connect(RadioController, &CRadioController::FoundStation, this, &CGUI::AddToStationList);
     connect(RadioController, &CRadioController::ScanStopped, this, &CGUI::channelScanStopped);
     connect(RadioController, &CRadioController::ScanProgress, this, &CGUI::channelScanProgress);
@@ -240,83 +240,29 @@ void CGUI::clearStationList()
     emit stationModelChanged();
 }
 
-// This function is called by the QML GUI
-void CGUI::updateSpectrum(QAbstractSeries* series)
+
+void CGUI::registerSpectrumSeries(QAbstractSeries* series)
 {
-#ifdef Q_OS_ANDROID
-    //TODO updateSpectrum
-    Q_UNUSED(series)
-#else
-    int Samples = 0;
-    int16_t T_u = DABParams->T_u;
+    spectrum_series = static_cast<QXYSeries*>(series);
+}
 
-    if (series == NULL)
-        return;
+// This function is called by the QML GUI
+void CGUI::updateSpectrum()
+{
+    if (RadioController && spectrum_series)
+        RadioController->UpdateSpectrum();
+}
 
-    QXYSeries* xySeries = static_cast<QXYSeries*>(series);
-
-    //	Delete old data
-    spectrum_data.resize(T_u);
-
-    qreal tunedFrequency_MHz = 0;
-    qreal sampleFrequency_MHz = 2048000 / 1e6;
-    qreal dip_MHz = sampleFrequency_MHz / T_u;
-
-    qreal x(0);
-    qreal y(0);
-    qreal y_max(0);
-
-    // Get FFT buffer
-    DSPCOMPLEX* spectrumBuffer = spectrum_fft_handler->getVector();
-
-    // Get samples
-    if (RadioController)
-    {
-        tunedFrequency_MHz = RadioController->GetCurrentFrequency() / 1e6;
-        Samples = RadioController->GetSpectrumSamples(spectrumBuffer, T_u);
-    }
-
-    // Continue only if we got data
-    if (Samples <= 0)
-        return;
-
-    // Do FFT to get the spectrum
-    spectrum_fft_handler->do_FFT();
-
-    //	Process samples one by one
-    for (int i = 0; i < T_u; i++) {
-        int half_Tu = T_u / 2;
-
-        //	Shift FFT samples
-        if (i < half_Tu)
-            y = abs(spectrumBuffer[i + half_Tu]);
-        else
-            y = abs(spectrumBuffer[i - half_Tu]);
-
-        // Apply a cumulative moving average filter
-        int avg = 4; // Number of y values to average
-        qreal CMA = spectrum_data[i].y();
-        y = (CMA * avg + y) / (avg + 1);
-
-        //	Find maximum value to scale the plotter
-        if (y > y_max)
-            y_max = y;
-
-        // Calc x frequency
-        x = (i * dip_MHz) + (tunedFrequency_MHz - (sampleFrequency_MHz / 2));
-
-        spectrum_data[i]= QPointF(x, y);
-    }
-
-    //	Set maximum of y-axis
-    y_max = round(y_max) + 1;
-    if (y_max > 0.0001)
-        emit setYAxisMax(y_max);
+void CGUI::SpectrumUpdate(qreal Ymax, qreal Xmin, qreal Xmax, QVector<QPointF> Data)
+{
+    // Set maximum of y-axis
+    if (Ymax > 0.0001)
+        emit setYAxisMax(Ymax);
 
     // Set x-axis min and max
-    emit setXAxisMinMax(tunedFrequency_MHz - (sampleFrequency_MHz / 2), tunedFrequency_MHz + (sampleFrequency_MHz / 2));
+    emit setXAxisMinMax(Xmin, Xmax);
 
-    //	Set new data
-    xySeries->replace(spectrum_data);
-#endif
+    // Set new data
+    if (spectrum_series)
+        spectrum_series->replace(Data);
 }

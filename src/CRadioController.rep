@@ -1,5 +1,7 @@
 #include <QImage>
+#include <QPointF>
 #include <QVariantMap>
+#include <QVector>
 
 class CRadioController
 {
@@ -32,6 +34,7 @@ class CRadioController
     SIGNAL(FoundStation(QString Station, QString CurrentChannel));
     SIGNAL(ScanStopped());
     SIGNAL(ScanProgress(int Progress));
+    SIGNAL(SpectrumUpdated(qreal Ymax, qreal Xmin, qreal Xmax, QVector<QPointF> Data));
 
     SIGNAL(showErrorMessage(QString Text));
     SIGNAL(showInfoMessage(QString Text));
@@ -42,4 +45,5 @@ class CRadioController
     SLOT(Play(QString Channel, QString Station));
     SLOT(SetStation(QString Station, bool Force = false));
     SLOT(SetChannel(QString Channel, bool isScan, bool Force = false));
+    SLOT(UpdateSpectrum());
 };

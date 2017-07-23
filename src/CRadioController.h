@@ -89,6 +89,7 @@ public:
         Stopped     = 4,
         Scanning    = 5,
     };
+    Q_ENUMS(DabStatus)
 
     CRadioController(QVariantMap &commandLineOptions, CDABParams& DABParams, QObject* parent = NULL);
     ~CRadioController(void);
@@ -100,10 +101,9 @@ public:
     void SetChannel(QString Channel, bool isScan, bool Force = false);
     void StartScan(void);
     void StopScan(void);
+    void UpdateSpectrum(void);
     QVariantMap GUIData(void) const;
     QImage MOT() const;
-    int32_t GetSpectrumSamples(DSPCOMPLEX* Buffer, int32_t Size);
-    int GetCurrentFrequency(void);
 
     QString DateTime() const;
     bool isSync() const;
@@ -201,6 +201,10 @@ private:
     bool isAGC;
     bool isHwAGC;
 
+    // Spectrum variables
+    common_fft* spectrum_fft_handler;
+    QVector<QPointF> spectrum_data;
+
 private slots:
     void StationTimerTimeout(void);
     void ChannelTimerTimeout(void);
@@ -235,6 +239,7 @@ signals:
     void FoundStation(QString Station, QString CurrentChannel);
     void ScanStopped();
     void ScanProgress(int Progress);
+    void SpectrumUpdated(qreal Ymax, qreal Xmin, qreal Xmax, QVector<QPointF> Data);
     void showErrorMessage(QString Text);
     void showInfoMessage(QString Text);
     void showAndroidInstallDialog(QString Title, QString Text);
