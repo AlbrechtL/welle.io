@@ -173,6 +173,7 @@ private:
     int mRSErrors;
     int mAACErrors;
     int mGainCount;
+    int mStationCount;
 
     QImage *MOTImage;
 

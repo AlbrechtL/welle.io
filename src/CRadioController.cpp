@@ -86,6 +86,7 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, CDABParams& 
     mRSErrors = 0;
     mAACErrors = 0;
     mGainCount = 0;
+    mStationCount = 0;
     CurrentManualGain = 0;
     CurrentManualGainValue = 0.0;
     CurrentVolume = 1.0;
@@ -325,11 +326,14 @@ void CRadioController::StartScan(void)
     else
     {
         // Start with lowest frequency
-        SetChannel(CChannels::FirstChannel, true);
+        QString Channel = CChannels::FirstChannel;
+        SetChannel(Channel, true);
 
         isChannelScan = true;
-        CurrentTitle = tr("Scanning") + " ...";
-        CurrentText = CChannels::FirstChannel;
+        mStationCount = 0;
+        CurrentTitle = tr("Scanning") + " ... " + Channel
+                + " (" + QString::number((int)(1 * 100 / NUMBEROFCHANNELS)) + "%)";
+        CurrentText = tr("Found channels") + ": " + QString::number(mStationCount);
 
         Status = Scanning;
         UpdateGUIData();
@@ -368,7 +372,7 @@ void CRadioController::UpdateGUIData()
     // Init the GUI data map
     mGUIData["Status"] = Status;
     mGUIData["Channel"] = CurrentChannel;
-    mGUIData["Ensemble"] = CurrentEnsemble;
+    mGUIData["Ensemble"] = CurrentEnsemble.trimmed();
     mGUIData["Frequency"] = CurrentFrequency;
     mGUIData["Station"] = CurrentStation;
     mGUIData["StationType"] = CurrentStationType;
@@ -612,15 +616,20 @@ void CRadioController::NextChannel(bool isWait)
     else
     {
         QString Channel = Channels.getNextChannel();
-        CurrentText = Channel;
 
-        if(!Channel.isEmpty())
+        if(!Channel.isEmpty()) {
             SetChannel(Channel, true);
-        else
-            StopScan();
 
-        UpdateGUIData();
-        emit ScanProgress(Channels.getCurrentIndex() + 1);
+            int index = Channels.getCurrentIndex() + 1;
+
+            CurrentTitle = tr("Scanning") + " ... " + Channel
+                    + " (" + QString::number((int)(index * 100 / NUMBEROFCHANNELS)) + "%)";
+
+            UpdateGUIData();
+            emit ScanProgress(index);
+        } else {
+            StopScan();
+        }
     }
 }
 
@@ -698,6 +707,12 @@ void CRadioController::addtoEnsemble(quint32 SId, const QString &Station)
              << "(" << qPrintable(QString::number(SId, 16).toUpper()) << ")";
 
     StationList.append(Station);
+
+    if (Status == Scanning) {
+        mStationCount++;
+        CurrentText = tr("Found channels") + ": " + QString::number(mStationCount);
+        UpdateGUIData();
+    }
 
     emit FoundStation(Station, CurrentChannel);
 }

@@ -31,7 +31,6 @@
 
 #include "CChannels.h"
 
-#define NUMBEROFCHANNELS 54
 QString CChannels::FirstChannel = "5A";
 
 CChannels::CChannels()
