@@ -131,8 +131,8 @@ Item{
             ensembleText.text = GUIData.Ensemble
 
             // Station info
-            stationInfo.visible = (dabStatus === 2 /* Playing */
-                                   || dabStatus === 3 /* Paused */)
+            stationInfo.visible = (GUIData.Status === 2 /* Playing */
+                                   || GUIData.Status === 3 /* Paused */)
 
             // Station type
             stationTypeText.text = GUIData.StationType
