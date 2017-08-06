@@ -31,9 +31,7 @@
 #include "CInputFactory.h"
 #include "CAndroidJNI.h"
 #include "CAudio.h"
-#ifdef HAVE_RTLSDR_BUILTIN
-#include "CRTL_SDR.h"
-#endif
+#include "CRTL_TCP_Client.h"
 #include "DabConstants.h"
 #include "msc-handler.h"
 
@@ -44,14 +42,14 @@
 extern "C" {
 #endif
 
-JNIEXPORT void JNICALL Java_io_welle_welle_DabService_openUsbDevice(JNIEnv *env, jobject, jint jfd, jstring jPath)
+JNIEXPORT void JNICALL Java_io_welle_welle_DabService_openTcpConnection(JNIEnv *env, jobject, jstring host, jint port)
 {
-    QString path(env->GetStringUTFChars(jPath, 0));
-    qDebug() << "AndroidJNI:" <<  "openUsbDevice" << "fd:" << jfd << "path:" << path;
-    QMetaObject::invokeMethod(&CAndroidJNI::getInstance(), "openUsbDevice",
+    QString qHost(env->GetStringUTFChars(host, 0));
+    qDebug() << "AndroidJNI:" <<  "openTcpConnection" << ":" << qHost << ":" << port;
+    QMetaObject::invokeMethod(&CAndroidJNI::getInstance(), "openTcpConnection",
                               Qt::QueuedConnection,
-                              Q_ARG(int, jfd),
-                              Q_ARG(QString, path));
+                              Q_ARG(QString, qHost),
+                              Q_ARG(int, port));
 }
 
 JNIEXPORT jboolean JNICALL Java_io_welle_welle_DabService_isFavoriteStation(JNIEnv *env, jobject, jstring jStation, jstring jChannel)
@@ -211,28 +209,24 @@ void CAndroidJNI::setRadioController(CRadioController *radioController)
     connect(radioController, &CRadioController::showInfoMessage,
             this, &CAndroidJNI::showInfoMessage);
 
-#ifndef HAVE_RTLSDR_BUILTIN
+#if 0
     qDebug() << "AndroidJNI:" << "Start RadioController";
     QTimer::singleShot(0, mRadioController, SLOT(onEventLoopStarted()));
 #endif
     serviceReady();
 }
 
-bool CAndroidJNI::openUsbDevice(int fd, QString path)
+bool CAndroidJNI::openTcpConnection(QString host, int port)
 {
-#ifdef HAVE_RTLSDR_BUILTIN
-    qDebug() << "AndroidJNI:" <<  "Open USB device:" << path << "fd:" << fd;
+    qDebug() << "AndroidJNI:" <<  "Open TCP connection:" << host << ":" << port;
     if(mRadioController) {
-        CRTL_SDR *device = new CRTL_SDR(*mRadioController, fd, path);
+        CRTL_TCP_Client *device = new CRTL_TCP_Client(*mRadioController);
+        device->setIP(host);
+        device->setPort(port);
         mRadioController->setDevice(device);
         QTimer::singleShot(0, mRadioController, SLOT(onEventLoopStarted()));
         return true;
     }
-#else
-    Q_UNUSED(fd)
-    Q_UNUSED(path)
-    qCritical() << "AndroidJNI:" <<  "Built-in RTL-SDR is not supported";
-#endif
     return false;
 }
 

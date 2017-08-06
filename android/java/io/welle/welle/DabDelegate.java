@@ -8,7 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 public class DabDelegate extends Activity {
-    private static final String TAG = DabMediaService.class.getSimpleName();
+    private static final String TAG = DabDelegate.class.getSimpleName();
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -22,15 +22,17 @@ public class DabDelegate extends Activity {
                 + " component: " + intent.getComponent().toString()
                 + " dataStr: " + intent.getDataString());
 
-        if (intent.getAction().equals(UsbManager.ACTION_USB_DEVICE_ATTACHED)) {
+        if (intent.getAction().equals(DabService.ACTION_SDR_DEVICE_ATTACHED)) {
             //if (intent.hasExtra(UsbManager.EXTRA_DEVICE)) {
             Log.i(TAG, "USB attached");
             UsbDevice usbDevice = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
 
             Intent serviceIntent = new Intent(this, DabService.class);
-            serviceIntent.setAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
-            serviceIntent.putExtra(UsbManager.EXTRA_DEVICE, usbDevice);
+            serviceIntent.setAction(DabService.ACTION_SDR_DEVICE_ATTACHED);
+            serviceIntent.putExtras(intent.getExtras());
             startService(serviceIntent);
+
+            setResult(RESULT_OK, intent);
         }
 
         finish();

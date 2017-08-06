@@ -36,7 +36,7 @@ extern "C" {
 #endif
 
 #ifdef HAVE_CONFIG_H
-#  include "../faad/config.h"
+#  include "../config.h"
 #endif
 
 #include "neaacdec.h"

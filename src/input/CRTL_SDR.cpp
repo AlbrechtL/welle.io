@@ -31,10 +31,6 @@
 
 #include "CRTL_SDR.h"
 
-#ifdef HAVE_RTLSDR_BUILTIN
-#include "rtl-sdr-android.h"
-#endif
-
 #define READLEN_DEFAULT 8192
 
 //	For the callback, we do need some environment which
@@ -71,7 +67,7 @@ static void RTLSDRCallBack(uint8_t* buf, uint32_t len, void* ctx)
 }
 
 //	Our wrapper is a simple classs
-CRTL_SDR::CRTL_SDR(CRadioController &RadioController, int fd, QString path)
+CRTL_SDR::CRTL_SDR(CRadioController &RadioController)
 {
     int ret = 0;
 
@@ -96,37 +92,24 @@ CRTL_SDR::CRTL_SDR(CRadioController &RadioController, int fd, QString path)
     SampleBuffer = new RingBuffer<uint8_t>(1024 * 1024);
     SpectrumSampleBuffer = new RingBuffer<uint8_t>(8192);
 
-#ifdef HAVE_RTLSDR_BUILTIN
-    if (fd > -1) {
-        ret = rtlsdr_open2(&device, fd, path.toLatin1().constData());
-        if (ret < 0)
-        {
-            qDebug() << "RTL_SDR:" << "Opening rtl-sdr:" << path << "failed";
-            throw 0;
-        }
+    // Get all devices
+    uint32_t deviceCount = rtlsdr_get_device_count();
+    if (deviceCount == 0)
+    {
+        qDebug() << "RTL_SDR:" << "No devices found";
+        throw 0;
     }
     else
-#endif
     {
-        // Get all devices
-        uint32_t deviceCount = rtlsdr_get_device_count();
-        if (deviceCount == 0)
-        {
-            qDebug() << "RTL_SDR:" << "No devices found";
-            throw 0;
-        }
-        else
-        {
-            qDebug() << "RTL_SDR:" << "Found" << deviceCount << "devices. Uses the first one";
-        }
+        qDebug() << "RTL_SDR:" << "Found" << deviceCount << "devices. Uses the first one";
+    }
 
-        //	Open the first device
-        ret = rtlsdr_open(&device, 0);
-        if (ret < 0)
-        {
-            qDebug() << "RTL_SDR:" << "Opening rtl-sdr failed";
-            throw 0;
-        }
+    //	Open the first device
+    ret = rtlsdr_open(&device, 0);
+    if (ret < 0)
+    {
+        qDebug() << "RTL_SDR:" << "Opening rtl-sdr failed";
+        throw 0;
     }
 
     open = true;

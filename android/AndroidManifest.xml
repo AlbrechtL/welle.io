@@ -68,10 +68,9 @@
 
         <activity android:process=":qt" android:name=".DabDelegate" android:theme="@android:style/Theme.Dialog" android:exported="true" android:label="welle.io">
             <intent-filter>
-                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <action android:name="com.sdrtouch.rtlsdr.SDR_DEVICE_ATTACHED"/>
             </intent-filter>
-
-            <meta-data android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" android:resource="@xml/device_filter"/>
 
             <!-- Application to launch -->
             <meta-data android:name="android.app.lib_name" android:value="-- %%INSERT_APP_LIB_NAME%% --"/>

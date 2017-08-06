@@ -7,8 +7,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.IntentFilter;
 import android.content.res.Resources;
-import android.hardware.usb.UsbDevice;
-import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
 import android.media.AudioManager;
 import android.os.Binder;
@@ -39,6 +37,13 @@ import java.util.List;
 public class DabService extends QtService implements AudioManager.OnAudioFocusChangeListener {
 
     private static final String TAG = DabService.class.getSimpleName();
+
+    // SDR device attached
+    public static final String ACTION_SDR_DEVICE_ATTACHED = "com.sdrtouch.rtlsdr.SDR_DEVICE_ATTACHED";
+    public static final String ACTION_SDR_DEVICE_DETACHED = "com.sdrtouch.rtlsdr.SDR_DEVICE_DETACHED";
+    public static final String EXTRA_DEVICE_NAME = "deviceName";
+    public static final String EXTRA_ADDRESS = "address";
+    public static final String EXTRA_PORT = "port";
 
     // ID for our MediaNotification.
     public static final int NOTIFICATION_ID = 416;
@@ -143,7 +148,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
 
     private static DabService instance = null;
 
-    public static native void openUsbDevice(int fd, String path);
+    public static native void openTcpConnection(String host, int port);
 
     public static native boolean isFavoriteStation(String station, String channel);
     public static native void addFavoriteStation(String station, String channel);
@@ -309,7 +314,20 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
         }
     }
 
-    private UsbDevice mUsbDevice = null;
+    private class DabDevice {
+        public DabDevice(String name, String host, int port) {
+            this.name = name;
+            this.host = host;
+            this.port = port;
+            this.connected = false;
+        }
+        public String name;
+        public String host;
+        public int port;
+        public boolean connected;
+    }
+
+    private DabDevice mDabDevice = null;
     private DabCallback mDabCallback = null;
     private MediaSessionCompat mSession = null;
     private MediaMetadataCompat mTrack = null;
@@ -322,7 +340,6 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
     private String mCurrentChannel = null;
     private String mError = null;
 
-    private boolean mUsbConnected = false;
     private boolean mServiceReady = false;
     private boolean mAudioFocus = false;
 
@@ -331,29 +348,19 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
 
     private IBinder mBinder = new DabBinder();
 
-    private void openUsbDevice() {
-        if (mUsbDevice == null || mUsbConnected || !mServiceReady)
-            return;
-
-        // Get device path
-        String path = mUsbDevice.getDeviceName();
-
-        // Open device
-        UsbManager usbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
-        UsbDeviceConnection deviceConnection = usbManager.openDevice(mUsbDevice);
-        int fd = deviceConnection.getFileDescriptor();
-        openUsbDevice(fd, path);
-    }
-
     private void handleServiceReady() {
         Log.d(TAG, "Handle service ready");
         mServiceReady = true;
-        openUsbDevice();
+
+        if (mDabDevice != null) {
+            if (!mDabDevice.connected)
+                openTcpConnection(mDabDevice.host, mDabDevice.port);
+        }
     }
 
     private void handleDeviceReady() {
         Log.d(TAG, "Handle device ready");
-        mUsbConnected = true;
+        if (mDabDevice != null) mDabDevice.connected = true;
 
         // Inform others
         initDabCallback();
@@ -878,13 +885,12 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
             String action = intent.getAction();
             Log.i(TAG, "onReceive global: " + action);
 
-            if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
-                UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-                Log.i(TAG, "USB detached: " + device.getDeviceName());
-                if (mUsbDevice != null && mUsbDevice.getDeviceName().equals(device.getDeviceName())) {
-                    Log.i(TAG, "USB close");
-                    mUsbDevice = null;
-                    mUsbConnected = false;
+            if (ACTION_SDR_DEVICE_DETACHED.equals(action)) {
+                String name = intent.getStringExtra(EXTRA_DEVICE_NAME);
+                Log.d(TAG, "SDR detached: " + name);
+                if (mDabDevice != null && mDabDevice.name.equals(name)) {
+                    Log.i(TAG, "SDR closed");
+                    mDabDevice = null;
                     mChannelScanProgress = -1;
                     mTrack = null;
                     mCurrentStation = null;
@@ -978,12 +984,16 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
         if (action == null)
             return START_STICKY;
         
-        if (action.equals(UsbManager.ACTION_USB_DEVICE_ATTACHED)) {
-            UsbDevice usbDevice = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-            Log.d(TAG, "USB attached: " + usbDevice.getDeviceName());
-            if (mUsbDevice == null) {
-                mUsbDevice = usbDevice;
-                openUsbDevice();
+        if (ACTION_SDR_DEVICE_ATTACHED.equals(action)) {
+            String name = intent.getStringExtra(EXTRA_DEVICE_NAME);
+            String host = intent.getStringExtra(EXTRA_ADDRESS);
+            int port = intent.getIntExtra(EXTRA_PORT, 0);
+
+            Log.d(TAG, "SDR attached: " + host + ":" + port);
+
+            if (host != null && port > 0) {
+                mDabDevice = new DabDevice(name, host, port);
+                openTcpConnection(host, port);
             }
         } else {
             Log.d(TAG, "onStartCommand action: " + action);

@@ -203,10 +203,6 @@ android {
     CONFIG  += kiss_fft_builtin
     CONFIG  += libfaad_builtin
 
-    # Uncomment to enable Android Auto integration
-    #CONFIG  += rtl_sdr_builtin
-    #CONFIG  += libusb_builtin
-
     HEADERS    += \
         src/gui/CAndroidJNI.h \
         src/input/CAndroid_RTL_SDR.h
@@ -255,7 +251,7 @@ libfaad_builtin {
     src/libs/faad2/include
 
     HEADERS += \
-    src/libs/faad2/faad/config.h \
+    src/libs/faad2/config.h \
     src/libs/faad2/include/faad.h \
     src/libs/faad2/include/neaacdec.h \
     src/libs/faad2/libfaad/analysis.h \
@@ -377,69 +373,6 @@ rtl_sdr {
 
     # The same lib for unix and Windows
     LIBS       += -lrtlsdr
-}
-
-rtl_sdr_builtin {
-    DEFINES    += HAVE_RTLSDR
-    DEFINES    += HAVE_RTLSDR_BUILTIN
-
-    INCLUDEPATH += \
-    src/libs/rtl-sdr/include
-
-    HEADERS += \
-    src/input/CRTL_SDR.h \
-    src/libs/rtl-sdr/include/reg_field.h \
-    src/libs/rtl-sdr/include/rtl-sdr.h \
-    src/libs/rtl-sdr/include/rtl-sdr-android.h \
-    src/libs/rtl-sdr/include/rtl-sdr_export.h \
-    src/libs/rtl-sdr/include/rtlsdr_i2c.h \
-    src/libs/rtl-sdr/include/tuner_e4k.h \
-    src/libs/rtl-sdr/include/tuner_fc0012.h \
-    src/libs/rtl-sdr/include/tuner_fc0013.h \
-    src/libs/rtl-sdr/include/tuner_fc2580.h \
-    src/libs/rtl-sdr/include/tuner_r82xx.h \
-    src/libs/rtl-sdr/src/convenience/convenience.h \
-    src/libs/rtl-sdr/src/getopt/getopt.h \
-
-    SOURCES += \
-    src/input/CRTL_SDR.cpp \
-    src/libs/rtl-sdr/src/librtlsdr.c \
-    src/libs/rtl-sdr/src/rtl-sdr-android.c \
-    src/libs/rtl-sdr/src/tuner_e4k.c \
-    src/libs/rtl-sdr/src/tuner_fc0012.c \
-    src/libs/rtl-sdr/src/tuner_fc0013.c \
-    src/libs/rtl-sdr/src/tuner_fc2580.c \
-    src/libs/rtl-sdr/src/tuner_r82xx.c
-}
-
-libusb_builtin {
-
-    INCLUDEPATH += \
-    src/libs/libusb/android/ \
-    src/libs/libusb/libusb/
-
-    HEADERS += \
-    src/libs/libusb/android/config.h \
-    src/libs/libusb/libusb/hotplug.h \
-    src/libs/libusb/libusb/libusb.h \
-    src/libs/libusb/libusb/libusbi.h \
-    src/libs/libusb/libusb/os/linux_usbfs.h \
-    src/libs/libusb/libusb/os/poll_posix.h \
-    src/libs/libusb/libusb/os/threads_posix.h \
-    src/libs/libusb/libusb/version.h \
-    src/libs/libusb/libusb/version_nano.h
-
-    SOURCES += \
-    src/libs/libusb/libusb/core.c \
-    src/libs/libusb/libusb/descriptor.c \
-    src/libs/libusb/libusb/hotplug.c \
-    src/libs/libusb/libusb/io.c \
-    src/libs/libusb/libusb/os/linux_netlink.c \
-    src/libs/libusb/libusb/os/linux_usbfs.c \
-    src/libs/libusb/libusb/os/poll_posix.c \
-    src/libs/libusb/libusb/os/threads_posix.c \
-    src/libs/libusb/libusb/strerror.c \
-    src/libs/libusb/libusb/sync.c
 }
 
 soapysdr {

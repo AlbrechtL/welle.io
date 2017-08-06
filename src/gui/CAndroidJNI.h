@@ -38,7 +38,7 @@ public:
     static CAndroidJNI& getInstance();
     ~CAndroidJNI();
 
-    Q_INVOKABLE bool openUsbDevice(int fd, QString path);
+    Q_INVOKABLE bool openTcpConnection(QString host, int port);
 
     Q_INVOKABLE bool isFavoriteStation(QString station, QString channel);
     Q_INVOKABLE void addFavoriteStation(QString station, QString channel);
