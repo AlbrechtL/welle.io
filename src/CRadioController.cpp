@@ -121,7 +121,7 @@ void CRadioController::onEventLoopStarted()
         QString rawFileFormat = "u8";
 
 #ifdef Q_OS_ANDROID
-        QString dabDevice = "android_rtl_sdr";
+        QString dabDevice = "rtl_tcp";
 #else
         QString dabDevice = "auto";
 
@@ -532,12 +532,6 @@ void CRadioController::setErrorMessage(QString Text)
 void CRadioController::setInfoMessage(QString Text)
 {
     emit showInfoMessage(Text);
-}
-
-void CRadioController::setAndroidInstallDialog(QString Title, QString Text)
-{
-    Status = Error;
-    emit showAndroidInstallDialog(Title, Text);
 }
 
 /********************

@@ -49,6 +49,11 @@
   *	is embedded in actions, initiated by gui buttons
   */
 #ifdef Q_OS_ANDROID
+#include <QAndroidJniObject>
+#include <QtAndroid>
+#include <QAndroidJniEnvironment>
+#include <QDesktopServices>
+
 CGUI::CGUI(CRadioControllerReplica *RadioController, QObject *parent)
 #else
 CGUI::CGUI(CRadioController *RadioController, QObject *parent)
@@ -78,6 +83,9 @@ CGUI::CGUI(CRadioController *RadioController, QObject *parent)
     connect(RadioController, &CRadioControllerReplica::FoundStation, this, &CGUI::AddToStationList);
     connect(RadioController, &CRadioControllerReplica::ScanStopped, this, &CGUI::channelScanStopped);
     connect(RadioController, &CRadioControllerReplica::ScanProgress, this, &CGUI::channelScanProgress);
+
+    connect(this, &CGUI::onSuccess, RadioController, &CRadioControllerReplica::onEventLoopStarted);
+    connect(this, &CGUI::onError, RadioController, &CRadioControllerReplica::setErrorMessage);
 #else
     connect(RadioController, &CRadioController::GUIDataChanged, this, &CGUI::GUIDataUpdate);
     connect(RadioController, &CRadioController::MOTChanged, this, &CGUI::MOTUpdate);
@@ -86,6 +94,16 @@ CGUI::CGUI(CRadioController *RadioController, QObject *parent)
     connect(RadioController, &CRadioController::ScanStopped, this, &CGUI::channelScanStopped);
     connect(RadioController, &CRadioController::ScanProgress, this, &CGUI::channelScanProgress);
 #endif
+
+    QVariantMap GUIData = RadioController->GUIData();
+    bool ok;
+    int dabStatus = GUIData.value("Status").toInt(&ok);
+    if (!ok || dabStatus == 0) {
+        qDebug() << "CGUI:" <<  "Open default device";
+        openDefaultDevice();
+    } else {
+        qDebug() << "CGUI:" <<  "Device already open";
+    }
 }
 
 CGUI::~CGUI()
@@ -266,3 +284,88 @@ void CGUI::SpectrumUpdate(qreal Ymax, qreal Xmin, qreal Xmax, QVector<QPointF> D
     if (spectrum_series)
         spectrum_series->replace(Data);
 }
+
+#ifndef Q_OS_ANDROID
+
+void CGUI::openDefaultDevice()
+{
+    // The timer is used to signal if the QT event lopp is running
+    QTimer::singleShot(0, RadioController, SLOT(onEventLoopStarted()));
+}
+
+#else
+
+void CGUI::openDefaultDevice()
+{
+    // Start Android rtl_tcp
+    QAndroidJniObject path = QAndroidJniObject::fromString("iqsrc://-a 127.0.0.1 -p 1234 -s 2048000");
+
+    QAndroidJniObject uri = QAndroidJniObject::callStaticObjectMethod(
+                "android/net/Uri",
+                "parse",
+                "(Ljava/lang/String;)Landroid/net/Uri;", path.object<jstring>());
+
+    QAndroidJniObject ACTION_VIEW = QAndroidJniObject::getStaticObjectField<jstring>(
+                "android/content/Intent",
+                "ACTION_VIEW");
+
+    QAndroidJniObject intent(
+                "android/content/Intent",
+                "(Ljava/lang/String;)V",
+                ACTION_VIEW.object<jstring>());
+
+    QAndroidJniObject result = intent.callObjectMethod(
+                "setData",
+                "(Landroid/net/Uri;)Landroid/content/Intent;",
+                uri.object<jobject>());
+
+    QtAndroid::startActivity(intent, 1234, this);
+
+    // Catch exception
+    QAndroidJniEnvironment env;
+    if (env->ExceptionCheck()) {
+        env->ExceptionClear();
+    }
+}
+
+#define RESULT_OK -1
+
+void CGUI::handleActivityResult(int receiverRequestCode, int resultCode,
+                                const QAndroidJniObject &data)
+{
+    if(receiverRequestCode == 1234)
+    {
+        if(resultCode == RESULT_OK)
+        {
+            qDebug() << "Android RTL_SDR: Successfully opened";
+            emit onSuccess();
+        }
+        else
+        {
+            QAndroidJniObject MessageType = QAndroidJniObject::fromString("detailed_exception_message");
+            QString Message;
+
+            if(data.isValid())
+            {
+                QAndroidJniObject result = data.callObjectMethod(
+                            "getStringExtra",
+                            "(Ljava/lang/String;)Ljava/lang/String;",
+                            MessageType.object<jstring>());
+
+                Message = result.toString();
+            }
+            else
+            {
+                // We assume here that the Android RTL-SDR driver is not installed
+                Message = CGUI::tr("Android RTL-SDR driver is not installed");
+
+                emit showAndroidInstallDialog(Message, CGUI::tr("Do you would like to install it? After install start welle.io again."));
+            }
+
+            qDebug().noquote() << "Android RTL_SDR:" << Message;
+            emit onError(Message);
+        }
+    }
+}
+
+#endif

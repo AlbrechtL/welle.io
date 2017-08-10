@@ -36,7 +36,7 @@
 #include <stdint.h>
 
 // Enum of available input device
-enum class CDeviceID {AIRSPY, NULLDEVICE, RAWFILE, RTL_SDR, RTL_TCP, ANDROID_RTL_SDR, SOAPYSDR};
+enum class CDeviceID {AIRSPY, NULLDEVICE, RAWFILE, RTL_SDR, RTL_TCP, SOAPYSDR};
 
 // Device interface
 class CVirtualInput : public QObject {

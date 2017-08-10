@@ -187,7 +187,6 @@ int main(int argc, char** argv)
 
     // Create a new radio interface instance
     CRadioController* RadioController = new CRadioController(commandLineOptions, DABParams);
-    QTimer::singleShot(0, RadioController, SLOT(onEventLoopStarted())); // The timer is used to signal if the QT event lopp is running
 
 #endif
 

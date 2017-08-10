@@ -38,6 +38,7 @@
 using namespace QtCharts;
 
 #ifdef Q_OS_ANDROID
+#include <QAndroidActivityResultReceiver>
 #include "rep_CRadioController_replica.h"
 #else
 #include "CRadioController.h"
@@ -50,7 +51,11 @@ using namespace QtCharts;
  *	GThe main gui object. It inherits from
  *	QDialog and the generated form
  */
-class CGUI : public QObject {
+class CGUI : public QObject
+#ifdef Q_OS_ANDROID
+           , public QAndroidActivityResultReceiver
+#endif
+{
     Q_OBJECT
     Q_PROPERTY(QVariant stationModel READ stationModel NOTIFY stationModelChanged)
     Q_PROPERTY(float currentGainValue MEMBER m_currentGainValue NOTIFY currentGainValueChanged)
@@ -73,6 +78,7 @@ public:
     Q_INVOKABLE void inputGainChanged(double gain);
     Q_INVOKABLE void clearStationList(void);
     Q_INVOKABLE void registerSpectrumSeries(QAbstractSeries* series);
+    Q_INVOKABLE void openDefaultDevice();
 
     QVariant stationModel() const
     {
@@ -82,6 +88,9 @@ public:
 
 private:
 #ifdef Q_OS_ANDROID
+    void handleActivityResult(int receiverRequestCode, int resultCode,
+                              const QAndroidJniObject &data);
+
     CRadioControllerReplica *RadioController;
 #else
     CRadioController *RadioController;
@@ -119,6 +128,10 @@ signals:
     void motChanged(void);
 
     void setGUIData(QVariantMap GUIData);
+
+    void onSuccess();
+    void onError(QString Message);
+    void showAndroidInstallDialog(QString Title, QString Text);
 };
 
 #endif

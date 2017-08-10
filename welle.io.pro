@@ -203,15 +203,9 @@ android {
     CONFIG  += kiss_fft_builtin
     CONFIG  += libfaad_builtin
 
-    HEADERS    += \
-        src/gui/CAndroidJNI.h \
-        src/input/CAndroid_RTL_SDR.h
-
-    SOURCES    += \
-        src/gui/CAndroidJNI.cpp \
-        src/input/CAndroid_RTL_SDR.cpp
-
-    REPC_SOURCE += src/CRadioController.rep
+    HEADERS      += src/gui/CAndroidJNI.h
+    SOURCES      += src/gui/CAndroidJNI.cpp
+    REPC_SOURCE  += src/CRadioController.rep
     REPC_REPLICA += src/CRadioController.rep
 
     equals(ANDROID_TARGET_ARCH, x86)  {

@@ -134,10 +134,6 @@ public:
     int GainCount() const;
     float GainValue() const;
 
-    void setErrorMessage(QString Text);
-    void setInfoMessage(QString Text);
-    void setAndroidInstallDialog(QString Title, QString Text);
-
 private:
     void DeviceRestart(void);
     void DecoderRestart(bool isScan);
@@ -243,7 +239,6 @@ signals:
     void SpectrumUpdated(qreal Ymax, qreal Xmin, qreal Xmax, QVector<QPointF> Data);
     void showErrorMessage(QString Text);
     void showInfoMessage(QString Text);
-    void showAndroidInstallDialog(QString Title, QString Text);
 #endif
 
 public slots:
@@ -266,6 +261,8 @@ public slots:
     void showLabel(QString Label);
     void showMOT(QByteArray Data, int Subtype, QString s);
     void onEventLoopStarted(void);
+    void setErrorMessage(QString Text);
+    void setInfoMessage(QString Text);
 };
 
 #endif // CRADIOCONTROLLER_H

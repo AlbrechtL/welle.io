@@ -42,8 +42,9 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
     public static final String ACTION_SDR_DEVICE_ATTACHED = "com.sdrtouch.rtlsdr.SDR_DEVICE_ATTACHED";
     public static final String ACTION_SDR_DEVICE_DETACHED = "com.sdrtouch.rtlsdr.SDR_DEVICE_DETACHED";
     public static final String EXTRA_DEVICE_NAME = "deviceName";
-    public static final String EXTRA_ADDRESS = "address";
-    public static final String EXTRA_PORT = "port";
+    public static final String SDR_ADDRESS = "127.0.0.1";
+    public static final int SDR_PORT = 1234;
+    public static final int SDR_SAMPLERATE = 2048000;
 
     // ID for our MediaNotification.
     public static final int NOTIFICATION_ID = 416;
@@ -986,8 +987,8 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
         
         if (ACTION_SDR_DEVICE_ATTACHED.equals(action)) {
             String name = intent.getStringExtra(EXTRA_DEVICE_NAME);
-            String host = intent.getStringExtra(EXTRA_ADDRESS);
-            int port = intent.getIntExtra(EXTRA_PORT, 0);
+            String host = SDR_ADDRESS;
+            int port = SDR_PORT;
 
             Log.d(TAG, "SDR attached: " + host + ":" + port);
 

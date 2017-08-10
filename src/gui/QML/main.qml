@@ -659,6 +659,10 @@ ApplicationWindow {
             infoMessagePopup.text = Text;
             infoMessagePopup.open();
         }
+    }
+
+    Connections{
+        target: cppGUI
 
         onShowAndroidInstallDialog:{
             androidRTLSDRDialog.title = Title
