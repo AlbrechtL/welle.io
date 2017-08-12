@@ -103,7 +103,7 @@ CRTL_SDR::CRTL_SDR(CRadioController &RadioController) :
     }
 
     //	Iterate over all found rtl-sdr devices and try to open it. Stops if one device is successfull opened.
-    for(int i=0; i<deviceCount; i++)
+    for(uint32_t i=0; i<deviceCount; i++)
     {
         ret = rtlsdr_open(&device, i);
         if (ret >= 0)
