@@ -8,7 +8,8 @@
     <string name="action_record">Record</string>
     <string name="action_play">Play</string>
     <string name="action_pause">Pause</string>
-    <string name="action_skip">Skip</string>
+    <string name="action_skip_next">Next</string>
+    <string name="action_skip_prev">Previous</string>
     <string name="action_next_channel">Next Channel</string>
     <string name="label_scanning">Scanning:</string>
     <string name="error_rtl_sdr_unplugged">RTL-SDR is unplugged.</string>

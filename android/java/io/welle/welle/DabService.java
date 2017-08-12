@@ -755,6 +755,13 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
             notificationBuilder.setStyle(new NotificationCompat.MediaStyle().setShowActionsInCompactView(new int[]{0,1,2}));
             Intent intent;
 
+            // Skip prev button
+            intent = new Intent(CUSTOM_ACTION_SKIP_PREV);
+            notificationBuilder.addAction(new NotificationCompat.Action(android.R.drawable.ic_media_previous,
+                    resources.getString(R.string.action_skip_prev),
+                    PendingIntent.getBroadcast(this, ACTION_SKIP_PREV, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+            ));
+
             // Play/Pause toggle button
             if (DAB_STATUS_PLAYING == mDabStatus) {
                 intent = new Intent(CUSTOM_ACTION_PAUSE);
@@ -770,11 +777,10 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
                 ));
             }
 
-
-            // Skip button
+            // Skip next button
             intent = new Intent(CUSTOM_ACTION_SKIP_NEXT);
             notificationBuilder.addAction(new NotificationCompat.Action(android.R.drawable.ic_media_next,
-                    resources.getString(R.string.action_skip),
+                    resources.getString(R.string.action_skip_next),
                     PendingIntent.getBroadcast(this, ACTION_SKIP_NEXT, intent, PendingIntent.FLAG_UPDATE_CURRENT)
             ));
 
