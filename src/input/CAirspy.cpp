@@ -75,8 +75,8 @@ CAirspy::CAirspy()
     selectedRate = 0;
     for (uint32_t i = 0; i < samplerate_count; i++) {
         qDebug() << "Airspy:" << "sample rates:" << i << myBuffer[i];
-        if (abs(myBuffer[i] - 2048000) < distance) {
-            distance = abs(myBuffer[i] - 2048000);
+        if (abs((int32_t) myBuffer[i] - 2048000) < distance) {
+            distance = abs((int32_t) myBuffer[i] - 2048000);
             selectedRate = myBuffer[i];
         }
     }
