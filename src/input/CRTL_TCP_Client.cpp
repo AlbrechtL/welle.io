@@ -51,6 +51,7 @@ CRTL_TCP_Client::CRTL_TCP_Client(CRadioController &RadioController)
     SpectrumSampleBuffer	= new RingBuffer<uint8_t>(8192);
 
     connected = false;
+    stopped = false;
     Frequency = Khz (220000);
 
     // Use default values
@@ -65,6 +66,7 @@ CRTL_TCP_Client::CRTL_TCP_Client(CRadioController &RadioController)
 
     connect(&TCPConnectionWatchDog, &QTimer::timeout, this, &CRTL_TCP_Client::TCPConnectionWatchDogTimeout);
     connect(&TCPSocket, &QTcpSocket::readyRead, this, &CRTL_TCP_Client::readData);
+    connect(&TCPSocket, &QTcpSocket::disconnected, this, &CRTL_TCP_Client::disconnected);
     connect(&AGCTimer, &QTimer::timeout, this, &CRTL_TCP_Client::AGCTimerTimeout);
 }
 
@@ -85,6 +87,7 @@ void CRTL_TCP_Client::setFrequency(int32_t newFrequency)
 
 bool CRTL_TCP_Client::restart(void)
 {
+    stopped = false;
     TCPConnectionWatchDog.start(5000);
     TCPConnectionWatchDogTimeout(); // Call timout onces to start the connection
 
@@ -96,6 +99,8 @@ bool CRTL_TCP_Client::restart(void)
 
 void CRTL_TCP_Client::stop	(void)
 {
+    // Fake stopped due to missing RTL-TCP command
+    stopped = true;
 }
 
 //	The brave old getSamples. For the dab stick, we get
@@ -134,6 +139,7 @@ int32_t	CRTL_TCP_Client::getSamplesToRead	(void)
 
 void CRTL_TCP_Client::reset(void)
 {
+    stopped = false;
     SampleBuffer->FlushRingBuffer();
 }
 
@@ -145,6 +151,10 @@ void CRTL_TCP_Client::readData(void)
     while (TCPSocket. bytesAvailable () > 8192)
     {
        TCPSocket.read ((char *)buffer, 8192);
+       if (stopped) {
+           continue;
+       }
+
        SampleBuffer -> putDataIntoBuffer (buffer, 8192);
        SpectrumSampleBuffer -> putDataIntoBuffer (buffer, 8192);
 
@@ -160,6 +170,12 @@ void CRTL_TCP_Client::readData(void)
                MaxValue = buffer[i];
        }
     }
+}
+
+void CRTL_TCP_Client::disconnected(void)
+{
+    if(RadioController)
+        RadioController->setErrorMessage(QObject::tr("RTL-TCP connection closed."));
 }
 
 void CRTL_TCP_Client::sendCommand (uint8_t cmd, int32_t param)

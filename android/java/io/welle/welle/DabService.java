@@ -274,9 +274,6 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
         if (instance == null)
             return;
 
-        if (instance.mDabStatus == DAB_STATUS_PAUSED)
-            return;
-
         instance.mError = text;
         instance.mDabStatus = DAB_STATUS_ERROR;
         instance.updatePlaybackState();
@@ -952,7 +949,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
         // Register receiver
         mDabReceiver = new DabReceiver();
         IntentFilter filter = new IntentFilter();
-        filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
+        filter.addAction(ACTION_SDR_DEVICE_DETACHED);
         filter.addAction(Intent.ACTION_MEDIA_BUTTON);
         filter.addAction(CUSTOM_ACTION_PLAY);
         filter.addAction(CUSTOM_ACTION_PAUSE);

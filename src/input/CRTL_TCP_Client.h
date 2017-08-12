@@ -72,6 +72,7 @@ public:
 
 private slots:
     void readData(void);
+    void disconnected(void);
     void TCPConnectionWatchDogTimeout(void);
     void AGCTimerTimeout(void);
 
@@ -91,6 +92,7 @@ private:
     RingBuffer<uint8_t>* SampleBuffer;
     RingBuffer<uint8_t>* SpectrumSampleBuffer;
     bool connected;
+    bool stopped;
     QHostAddress serverAddress;
     uint16_t serverPort;
 
