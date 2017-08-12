@@ -1,4 +1,3 @@
-#
 /*
  *
  *    Copyright (C) 2013
@@ -21,12 +20,12 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-#
-#ifndef	PROTTABLES
-#define	PROTTABLES
-#include	<stdint.h>
 
-int8_t	*get_PCodes (int16_t);
+#ifndef PROTTABLES
+#define PROTTABLES
+#include    <stdint.h>
+
+int8_t *get_PCodes(int16_t);
 
 #endif
 

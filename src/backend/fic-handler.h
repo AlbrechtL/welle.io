@@ -1,4 +1,3 @@
-#
 /*
  *
  *    Copyright (C) 2013
@@ -21,56 +20,54 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-#
 /*
- * 	FIC data
+ *  FIC data
  */
-#ifndef	__FIC_HANDLER
-#define	__FIC_HANDLER
+#ifndef __FIC_HANDLER
+#define __FIC_HANDLER
 
-#include	<stdio.h>
-#include	<stdint.h>
-#include	"viterbi.h"
-#include	<QObject>
-#include	"fib-processor.h"
-#include	<QMutex>
+#include    <stdio.h>
+#include    <stdint.h>
+#include    "viterbi.h"
+#include    <QObject>
+#include    "fib-processor.h"
+#include    <QMutex>
 
-class	CRadioController;
-class	mscHandler;
+class   CRadioController;
+class   mscHandler;
 
-class ficHandler: public QObject, public viterbi {
-Q_OBJECT
-public:
-		ficHandler		(CRadioController *);
-		~ficHandler		(void);
-	void	process_ficBlock	(int16_t *, int16_t);
-	void	setBitsperBlock		(int16_t);
-	void	clearEnsemble		(void);
-	bool	syncReached		(void);
-	int16_t	get_ficRatio		(void);
-	uint8_t	kindofService		(QString &);
-	void	dataforDataService	(QString &, packetdata *);
-	void	dataforAudioService	(QString &, audiodata *);
-private:
-	void		process_ficInput	(int16_t *, int16_t);
-	int8_t		*PI_15;
-	int8_t		*PI_16;
-	uint8_t		*bitBuffer_in;
-	uint8_t		*bitBuffer_out;
-	int16_t		*ofdm_input;
-	int16_t		index;
-	int16_t		BitsperBlock;
-	int16_t		ficno;
-	int16_t		ficBlocks;
-	int16_t		ficMissed;
-	int16_t		ficRatio;
-	uint16_t	convState;
-	QMutex		fibProtector;
-	fib_processor	fibProcessor;
-	uint8_t		PRBS [768];
-	uint8_t		shiftRegister [9];
-signals:
-	void		show_ficSuccess	(bool);
+class ficHandler: public QObject, public viterbi
+{
+    Q_OBJECT
+    public:
+        ficHandler(CRadioController *);
+        void    process_ficBlock    (int16_t *data, int16_t blkno);
+        void    setBitsperBlock     (int16_t b);
+        void    clearEnsemble       (void);
+        bool    syncReached         (void);
+        int16_t get_ficRatio        (void);
+        uint8_t kindofService       (QString &);
+        void    dataforDataService  (QString &, packetdata *);
+        void    dataforAudioService (QString &, audiodata *);
+    private:
+        void        process_ficInput    (int16_t *ficblock, int16_t ficno);
+        int8_t      *PI_15;
+        int8_t      *PI_16;
+        std::vector<uint8_t> bitBuffer_out;
+        std::vector<int16_t> ofdm_input;
+        int16_t     index;
+        int16_t     BitsperBlock;
+        int16_t     ficno;
+        int16_t     ficBlocks;
+        int16_t     ficMissed;
+        int16_t     ficRatio;
+        uint16_t    convState;
+        QMutex      fibProtector;
+        fib_processor   fibProcessor;
+        uint8_t     PRBS[768];
+        uint8_t     shiftRegister[9];
+    signals:
+        void        show_ficSuccess (bool);
 };
 
 #endif

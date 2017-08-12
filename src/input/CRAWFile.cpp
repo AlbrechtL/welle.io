@@ -47,17 +47,16 @@ static inline int64_t getMyTime(void)
 
 #define INPUT_FRAMEBUFFERSIZE 8 * 32768
 
-CRAWFile::CRAWFile(CRadioController &RadioController)
+CRAWFile::CRAWFile(CRadioController &RadioController) :
+    FileName(""),
+    FileFormat(CRAWFileFormat::Unknown),
+    IQByteSize(1),
+    SampleBuffer(INPUT_FRAMEBUFFERSIZE),
+    SpectrumSampleBuffer(8192)
 {
     this->RadioController = &RadioController;
-    FileName = "";
-    FileFormat = CRAWFileFormat::Unknown;
-    IQByteSize = 1;
 
     readerOK = false;
-
-    SampleBuffer = new RingBuffer<uint8_t>(INPUT_FRAMEBUFFERSIZE);
-    SpectrumSampleBuffer = new RingBuffer<uint8_t>(8192);
 }
 
 CRAWFile::~CRAWFile(void)
@@ -67,8 +66,6 @@ CRAWFile::~CRAWFile(void)
         while (isRunning())
             usleep(100);
         fclose(filePointer);
-        delete SampleBuffer;
-        delete SpectrumSampleBuffer;
     }
 }
 
@@ -173,7 +170,7 @@ int32_t CRAWFile::getSamples(DSPCOMPLEX* V, int32_t size)
     if (filePointer == NULL)
         return 0;
 
-    while ((int32_t)(SampleBuffer->GetRingBufferReadAvailable()) < IQByteSize * size)
+    while ((int32_t)(SampleBuffer.GetRingBufferReadAvailable()) < IQByteSize * size)
         if (readerPausing)
             usleep(100000);
         else
@@ -183,19 +180,18 @@ int32_t CRAWFile::getSamples(DSPCOMPLEX* V, int32_t size)
 }
 
 int32_t CRAWFile::getSpectrumSamples(DSPCOMPLEX* V, int32_t size)
-{   
+{
     return convertSamples(SpectrumSampleBuffer, V, size);
 }
 
 int32_t CRAWFile::getSamplesToRead(void)
 {
-    return SampleBuffer->GetRingBufferReadAvailable() / 2;
+    return SampleBuffer.GetRingBufferReadAvailable() / 2;
 }
 
 void CRAWFile::run(void)
 {
     int32_t t, i;
-    uint8_t* bi;
     int32_t bufferSize = 32768;
     int32_t period;
     int64_t nextStop;
@@ -209,7 +205,7 @@ void CRAWFile::run(void)
 
     qDebug() << "RAWFile"
              << "Period =" << period;
-    bi = new uint8_t[bufferSize];
+    std::vector<uint8_t>bi(bufferSize);
     nextStop = getMyTime();
     while (!ExitCondition) {
         if (readerPausing) {
@@ -218,21 +214,21 @@ void CRAWFile::run(void)
             continue;
         }
 
-        while (SampleBuffer->WriteSpace() < bufferSize + 10) {
+        while (SampleBuffer.WriteSpace() < bufferSize + 10) {
             if (ExitCondition)
                 break;
             usleep(100);
         }
 
         nextStop += period;
-        t = readBuffer(bi, bufferSize);
+        t = readBuffer(bi.data(), bufferSize);
         if (t <= 0) {
             for (i = 0; i < bufferSize; i++)
                 bi[i] = 0;
             t = bufferSize;
         }
-        SampleBuffer->putDataIntoBuffer(bi, t);
-        SpectrumSampleBuffer->putDataIntoBuffer(bi, t);
+        SampleBuffer.putDataIntoBuffer(bi.data(), t);
+        SpectrumSampleBuffer.putDataIntoBuffer(bi.data(), t);
         if (nextStop - getMyTime() > 0)
             usleep(nextStop - getMyTime());
     }
@@ -258,12 +254,12 @@ int32_t CRAWFile::readBuffer(uint8_t* data, int32_t length)
     return n & ~01;
 }
 
-int32_t CRAWFile::convertSamples(RingBuffer<uint8_t> *Buffer, DSPCOMPLEX *V, int32_t size)
+int32_t CRAWFile::convertSamples(RingBuffer<uint8_t>& Buffer, DSPCOMPLEX *V, int32_t size)
 {
     int32_t amount, i;
     uint8_t* temp = (uint8_t*)alloca(IQByteSize * size * sizeof(uint8_t));
 
-    amount = Buffer->getDataFromBuffer(temp, IQByteSize * size);
+    amount = Buffer.getDataFromBuffer(temp, IQByteSize * size);
 
     // Unsigned 8-bit
     if(FileFormat == CRAWFileFormat::U8)

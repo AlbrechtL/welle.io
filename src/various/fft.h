@@ -1,4 +1,3 @@
-#
 /*
  *
  *    Copyright (C) 2009 .. 2014
@@ -27,84 +26,84 @@
  */
 
 #ifndef _COMMON_FFT
-#define	_COMMON_FFT
+#define _COMMON_FFT
 
-//
-//	Simple wrapper around fftwf
-#include	"DabConstants.h"
+//  Simple wrapper around fftwf
+#include    "DabConstants.h"
 
 #ifndef KISSFFT
-#define	FFTW_MALLOC		fftwf_malloc
-#define	FFTW_PLAN_DFT_1D	fftwf_plan_dft_1d
-#define FFTW_DESTROY_PLAN	fftwf_destroy_plan
-#define	FFTW_FREE		fftwf_free
-#define	FFTW_PLAN		fftwf_plan
-#define	FFTW_EXECUTE		fftwf_execute
-#include	<fftw3.h>
+#define FFTW_MALLOC     fftwf_malloc
+#define FFTW_PLAN_DFT_1D    fftwf_plan_dft_1d
+#define FFTW_DESTROY_PLAN   fftwf_destroy_plan
+#define FFTW_FREE       fftwf_free
+#define FFTW_PLAN       fftwf_plan
+#define FFTW_EXECUTE        fftwf_execute
+#include    <fftw3.h>
 
 /*
- *	a simple wrapper
+ *  a simple wrapper
  */
 
-class	common_fft {
-public:
-			common_fft	(int32_t);
-			~common_fft	(void);
-	DSPCOMPLEX	*getVector	(void);
-	void		do_FFT		(void);
+class   common_fft
+{
+    public:
+        common_fft(int32_t);
+        ~common_fft(void);
+        DSPCOMPLEX  *getVector(void);
+        void        do_FFT(void);
 
-private:
-	int32_t		fft_size;
-	DSPCOMPLEX	*vector;
-	DSPCOMPLEX	*vector1;
-	FFTW_PLAN	plan;
+    private:
+        int32_t     fft_size;
+        DSPCOMPLEX  *vector;
+        DSPCOMPLEX  *vector1;
+        FFTW_PLAN   plan;
 };
 
-class	common_ifft {
-public:
-			common_ifft	(int32_t);
-			~common_ifft	(void);
-	DSPCOMPLEX	*getVector	(void);
-	void		do_IFFT		(void);
+class   common_ifft {
+    public:
+        common_ifft(int32_t);
+        ~common_ifft(void);
+        DSPCOMPLEX  *getVector(void);
+        void        do_IFFT(void);
 
-private:
-	int32_t		fft_size;
-	DSPCOMPLEX	*vector;
-    FFTW_PLAN	plan;
-	void		Scale		(DSPCOMPLEX *);
+    private:
+        int32_t     fft_size;
+        DSPCOMPLEX  *vector;
+        FFTW_PLAN   plan;
+        void        Scale(DSPCOMPLEX *);
 };
 #else
 
 #include "kiss_fft.h"
 
-class	common_fft {
-public:
-    common_fft	(int32_t fft_size);
-    ~common_fft	(void);
-    DSPCOMPLEX	*getVector	(void);
-    void		do_FFT		(void);
+class   common_fft {
+    public:
+        common_fft  (int32_t fft_size);
+        ~common_fft (void);
+        DSPCOMPLEX  *getVector(void);
+        void        do_FFT(void);
 
-private:
-    int32_t fft_size;
+    private:
+        int32_t fft_size;
 
-    kiss_fft_cfg cfg;
-    DSPCOMPLEX *fin;
-    DSPCOMPLEX *fout;
+        kiss_fft_cfg cfg;
+        DSPCOMPLEX *fin;
+        DSPCOMPLEX *fout;
 };
 
-class	common_ifft {
-public:
-    common_ifft	(int32_t fft_size);
-    ~common_ifft	(void);
-    DSPCOMPLEX	*getVector	(void);
-    void		do_IFFT		(void);
+class   common_ifft {
+    public:
+        common_ifft (int32_t fft_size);
+        ~common_ifft    (void);
+        DSPCOMPLEX  *getVector  (void);
+        void        do_IFFT     (void);
 
-private:
-    int32_t fft_size;
+    private:
+        int32_t fft_size;
 
-    kiss_fft_cfg cfg;
-    DSPCOMPLEX *fin;
-    DSPCOMPLEX *fout;
+        kiss_fft_cfg cfg;
+        DSPCOMPLEX *fin;
+        DSPCOMPLEX *fout;
 };
 #endif
 

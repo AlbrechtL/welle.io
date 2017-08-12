@@ -23,78 +23,75 @@
  *    along with SDR-J; if not, write to the Free Software
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#include	"fft.h"
-#include	<cstring>
-/*
- */
+#include    "fft.h"
+#include    <cstring>
 
 #ifndef KISSFFT
-	common_fft::common_fft (int32_t fft_size) {
+common_fft::common_fft (int32_t fft_size) {
+    this->fft_size = fft_size;
 
-	this	-> fft_size = fft_size;
-
-	vector	= (DSPCOMPLEX *) FFTW_MALLOC (sizeof (DSPCOMPLEX) * fft_size);
-	memset (vector, 0, sizeof (DSPCOMPLEX) * fft_size);
-	plan	= FFTW_PLAN_DFT_1D (fft_size,
-	                            reinterpret_cast <fftwf_complex *>(vector),
-	                            reinterpret_cast <fftwf_complex *>(vector),
-	                            FFTW_FORWARD, FFTW_ESTIMATE);
+    vector  = (DSPCOMPLEX *) FFTW_MALLOC (sizeof (DSPCOMPLEX) * fft_size);
+    memset (vector, 0, sizeof (DSPCOMPLEX) * fft_size);
+    plan  = FFTW_PLAN_DFT_1D (fft_size,
+            reinterpret_cast <fftwf_complex *>(vector),
+            reinterpret_cast <fftwf_complex *>(vector),
+            FFTW_FORWARD, FFTW_ESTIMATE);
 }
 
-	common_fft::~common_fft () {
-	   FFTW_DESTROY_PLAN (plan);
-	   FFTW_FREE (vector);
+common_fft::~common_fft () {
+    FFTW_DESTROY_PLAN (plan);
+    FFTW_FREE (vector);
 }
 
-DSPCOMPLEX	*common_fft::getVector () {
-	return vector;
+DSPCOMPLEX  *common_fft::getVector () {
+    return vector;
 }
 
-void	common_fft::do_FFT () {
-	FFTW_EXECUTE (plan);
+void    common_fft::do_FFT () {
+    FFTW_EXECUTE (plan);
 }
 
 /*
- * 	and a wrapper for the inverse transformation
+ *  and a wrapper for the inverse transformation
  */
-	common_ifft::common_ifft (int32_t fft_size) {
-int32_t	i;
+common_ifft::common_ifft (int32_t fft_size) {
+    int32_t i;
 
-//	if ((fft_size & (fft_size - 1)) == 0)
-	   this	-> fft_size = fft_size;
-//	else
-//	   this -> fft_size = 4096;	/* just a default	*/
+    //  if ((fft_size & (fft_size - 1)) == 0)
+    this->fft_size = fft_size;
+    //  else
+    //     this -> fft_size = 4096; /* just a default   */
 
-	vector	= (DSPCOMPLEX *)FFTW_MALLOC (sizeof (DSPCOMPLEX) * fft_size);
-	for (i = 0; i < fft_size; i ++)
-	   vector [i] = 0;
-	plan	= FFTW_PLAN_DFT_1D (fft_size,
-	                            reinterpret_cast <fftwf_complex *>(vector),
-	                            reinterpret_cast <fftwf_complex *>(vector),
-	                            FFTW_BACKWARD, FFTW_ESTIMATE);
+    vector  = (DSPCOMPLEX *)FFTW_MALLOC (sizeof (DSPCOMPLEX) * fft_size);
+    for (i = 0; i < fft_size; i ++)
+        vector [i] = 0;
+    plan  = FFTW_PLAN_DFT_1D (fft_size,
+            reinterpret_cast <fftwf_complex *>(vector),
+            reinterpret_cast <fftwf_complex *>(vector),
+            FFTW_BACKWARD, FFTW_ESTIMATE);
 }
 
-	common_ifft::~common_ifft () {
-	   FFTW_DESTROY_PLAN (plan);
-	   FFTW_FREE (vector);
+common_ifft::~common_ifft () {
+    FFTW_DESTROY_PLAN (plan);
+    FFTW_FREE (vector);
 }
 
-DSPCOMPLEX	*common_ifft::getVector () {
-	return vector;
+DSPCOMPLEX  *common_ifft::getVector () {
+    return vector;
 }
 
-void	common_ifft::do_IFFT () {
-	FFTW_EXECUTE	(plan);
-	Scale		(vector);
+void    common_ifft::do_IFFT () {
+    FFTW_EXECUTE    (plan);
+    Scale       (vector);
 }
 
-void	common_ifft::Scale (DSPCOMPLEX *Data) {
-const DSPFLOAT  Factor = 1.0 / DSPFLOAT (fft_size);
-int32_t	Position;
+void    common_ifft::Scale (DSPCOMPLEX *Data) {
+    const DSPFLOAT  Factor = 1.0 / DSPFLOAT (fft_size);
+    int32_t Position;
 
-	// scale all entries
-	for (Position = 0; Position < fft_size; Position ++)
-	   Data [Position] *= Factor;
+    // scale all entries
+    for (Position = 0; Position < fft_size; Position ++)
+        Data [Position] *= Factor;
 }
 #else // Kiss FFT
 common_fft::common_fft(int32_t fft_size)
@@ -161,7 +158,7 @@ void common_ifft::do_IFFT()
 
     // Scale all entries
     for (int i = 0; i < fft_size; i ++)
-       fout[i] *= Factor;
+        fout[i] *= Factor;
 
     memcpy(fin, fout, fft_size * sizeof(kiss_fft_cpx));
 }

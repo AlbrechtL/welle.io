@@ -46,10 +46,10 @@ static void RTLSDRCallBack(uint8_t* buf, uint32_t len, void* ctx)
     if ((RTL_SDR == NULL) || (len != READLEN_DEFAULT))
         return;
 
-    tmp = RTL_SDR->SampleBuffer->putDataIntoBuffer(buf, len);
+    tmp = RTL_SDR->SampleBuffer.putDataIntoBuffer(buf, len);
     if ((len - tmp) > 0)
         RTL_SDR->sampleCounter += len - tmp;
-    RTL_SDR->SpectrumSampleBuffer->putDataIntoBuffer(buf, len);
+    RTL_SDR->SpectrumSampleBuffer.putDataIntoBuffer(buf, len);
 
     // Check if device is overloaded
     uint8_t MinValue = 255;
@@ -67,7 +67,10 @@ static void RTLSDRCallBack(uint8_t* buf, uint32_t len, void* ctx)
 }
 
 //	Our wrapper is a simple classs
-CRTL_SDR::CRTL_SDR(CRadioController &RadioController)
+CRTL_SDR::CRTL_SDR(CRadioController &RadioController) :
+    SampleBuffer(1024 * 1024),
+    SpectrumSampleBuffer(8192)
+
 {
     int ret = 0;
 
@@ -81,15 +84,11 @@ CRTL_SDR::CRTL_SDR(CRadioController &RadioController)
     lastFrequency = KHz(94700); // just a dummy
     sampleCounter = 0;
     FrequencyOffset = 0;
-    gains = NULL;
     CurrentGain = 0;
     CurrentGainCount = 0;
     device = NULL;
     MinValue = 255;
     MaxValue = 0;
-
-    SampleBuffer = new RingBuffer<uint8_t>(1024 * 1024);
-    SpectrumSampleBuffer = new RingBuffer<uint8_t>(8192);
 
     // Get all devices
     uint32_t deviceCount = rtlsdr_get_device_count();
@@ -133,8 +132,8 @@ CRTL_SDR::CRTL_SDR(CRadioController &RadioController)
     // Get tuner gains
     GainsCount = rtlsdr_get_tuner_gains(device, NULL);
     qDebug() << "RTL_SDR:" << "Supported gain values" << GainsCount;
-    gains = new int[GainsCount];
-    GainsCount = rtlsdr_get_tuner_gains(device, gains);
+    gains.resize(GainsCount);
+    GainsCount = rtlsdr_get_tuner_gains(device, gains.data());
 
     for (int i = GainsCount; i > 0; i--)
         qDebug() << "RTL_SDR:" << "gain" << (gains[i - 1] / 10.0);
@@ -168,15 +167,6 @@ CRTL_SDR::~CRTL_SDR(void)
     if (open)
         rtlsdr_close(device);
 
-    if (SampleBuffer != NULL)
-        delete SampleBuffer;
-
-    if (SpectrumSampleBuffer != NULL)
-        delete SpectrumSampleBuffer;
-
-    if (gains != NULL)
-        delete[] gains;
-
     open = false;
 }
 
@@ -198,8 +188,8 @@ bool CRTL_SDR::restart(void)
             return false;
     }
 
-    SampleBuffer->FlushRingBuffer();
-    SpectrumSampleBuffer->FlushRingBuffer();
+    SampleBuffer.FlushRingBuffer();
+    SpectrumSampleBuffer.FlushRingBuffer();
     ret = rtlsdr_reset_buffer(device);
     if (ret < 0)
         return false;
@@ -308,7 +298,7 @@ void CRTL_SDR::AGCTimerTimeout(void)
             }
         }
         else
-        {            
+        {
             if(CurrentGainCount < (GainsCount - 1))
             {
                 // Calc if a gain increase overloads the device. Calc it from the gain values
@@ -329,7 +319,7 @@ void CRTL_SDR::AGCTimerTimeout(void)
         }
     }
     else // AGC is off
-    {        
+    {
         if(MinValue == 0 || MaxValue == 255)
         {
             QString Text = QObject::tr("ADC overload. Maybe you are using a to high gain.");
@@ -344,7 +334,7 @@ int32_t CRTL_SDR::getSamples(DSPCOMPLEX* Buffer, int32_t Size)
     uint8_t* tempBuffer = (uint8_t*)alloca(2 * Size * sizeof(uint8_t));
 
     // Get samples
-    int32_t amount = this->SampleBuffer->getDataFromBuffer(tempBuffer, 2 * Size);
+    int32_t amount = SampleBuffer.getDataFromBuffer(tempBuffer, 2 * Size);
 
     // Convert samples into generic format
     for (int i = 0; i < amount / 2; i++)
@@ -358,7 +348,7 @@ int32_t CRTL_SDR::getSpectrumSamples(DSPCOMPLEX* Buffer, int32_t Size)
     uint8_t* tempBuffer = (uint8_t*)alloca(2 * Size * sizeof(uint8_t));
 
     // Get samples
-    int32_t amount = SpectrumSampleBuffer->getDataFromBuffer(tempBuffer, 2 * Size);
+    int32_t amount = SpectrumSampleBuffer.getDataFromBuffer(tempBuffer, 2 * Size);
 
     // Convert samples into generic format
     for (int i = 0; i < amount / 2; i++)
@@ -369,12 +359,12 @@ int32_t CRTL_SDR::getSpectrumSamples(DSPCOMPLEX* Buffer, int32_t Size)
 
 int32_t CRTL_SDR::getSamplesToRead(void)
 {
-    return SampleBuffer->GetRingBufferReadAvailable() / 2;
+    return SampleBuffer.GetRingBufferReadAvailable() / 2;
 }
 
 void CRTL_SDR::reset(void)
 {
-    SampleBuffer->FlushRingBuffer();
+    SampleBuffer.FlushRingBuffer();
 }
 
 // CRTL_SDR_Thread

@@ -1,4 +1,3 @@
-#
 /*
  *    Copyright (C) 2013
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
@@ -20,26 +19,19 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-#
 #ifndef _DAB_VIRTUAL
-#define	_DAB_VIRTUAL
+#define _DAB_VIRTUAL
 
-#include	<stdint.h>
-#include	<stdio.h>
+#include    <stdint.h>
+#include    <stdio.h>
 
-class	CRadioController;
-class	audioSink;
+#define CUSize  (4 * 16)
 
-#define	CUSize	(4 * 16)
-
-class	dabVirtual {
-public:
-		dabVirtual	(void);
-virtual		~dabVirtual	(void);
-virtual int32_t	process		(int16_t *, int16_t);
-virtual void	stopRunning	(void);
-virtual	void	stop		(void);
-protected:
+class dabVirtual {
+    public:
+        virtual ~dabVirtual() {};
+        virtual int32_t process     (int16_t *v, int16_t cnt) = 0;
+        virtual void    stopRunning (void) = 0;
 };
 #endif
 

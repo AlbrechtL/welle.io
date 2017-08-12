@@ -63,7 +63,6 @@ set(sources
     src/backend/viterbi_spiral.c
     src/backend/fic-handler.cpp
     src/backend/msc-handler.cpp
-    src/backend/protection.cpp
     src/backend/eep-protection.cpp
     src/backend/uep-protection.cpp
     src/backend/fib-processor.cpp
@@ -71,8 +70,6 @@ set(sources
     src/backend/reed-solomon.cpp
     src/backend/charsets.cpp
     src/backend/firecode-checker.cpp
-    src/backend/dab-virtual.cpp
-    src/backend/dab-processor.cpp
     src/backend/protTables.cpp
     src/backend/audio/dab-audio.cpp
     src/backend/audio/mp2processor.cpp
