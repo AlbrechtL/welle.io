@@ -69,7 +69,7 @@ CChannels::CChannels()
     FrequencyMap["12B"] = 225648000;
     FrequencyMap["12C"] = 227360000;
     FrequencyMap["12D"] = 229072000;
-    FrequencyMap["13A"] = 230748000;
+    FrequencyMap["13A"] = 230784000;
     FrequencyMap["13B"] = 232496000;
     FrequencyMap["13C"] = 234208000;
     FrequencyMap["13D"] = 235776000;
