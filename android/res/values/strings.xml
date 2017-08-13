@@ -14,4 +14,5 @@
     <string name="label_scanning">Scanning:</string>
     <string name="error_rtl_sdr_unplugged">RTL-SDR is unplugged.</string>
     <string name="error_unknown">Unknown error.</string>
+    <string name="error_not_initialised">DAB not initialised.</string>
 </resources>

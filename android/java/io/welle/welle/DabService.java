@@ -612,7 +612,10 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
 
         // Update playback state
         if (DAB_STATUS_ERROR == mDabStatus) {
-            String error =  mError != null ? mError  : resources.getString(R.string.error_unknown);
+            String error =  mError != null ? mError : resources.getString(R.string.error_unknown);
+            stateBuilder.setErrorMessage(-1, error);
+        } else if (DAB_STATUS_UNKNOWN == mDabStatus) {
+            String error =  getResources().getString(R.string.error_not_initialised);
             stateBuilder.setErrorMessage(-1, error);
         } else {
             playbackActions |= PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID;
@@ -686,6 +689,15 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
                     .build();
 
             mSession.setMetadata(track);
+        } else if (DAB_STATUS_UNKNOWN == mDabStatus) {
+            String error =  getResources().getString(R.string.error_not_initialised);
+            MediaMetadataCompat track = new MediaMetadataCompat.Builder()
+                    .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, MEDIA_ID_ERROR)
+                    .putString(MediaMetadataCompat.METADATA_KEY_TITLE, error)
+                    .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, error)
+                    .build();
+
+            mSession.setMetadata(track);
         } else if (mTrack != null) {
             mSession.setMetadata(mTrack);
         } else if (0 <= mChannelScanProgress) {
@@ -728,9 +740,12 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
 
         if (DAB_STATUS_ERROR == mDabStatus) {
             // Error
-            String error =  mError != null ? mError  : getResources().getString(R.string.error_unknown);
+            String error = mError != null ? mError : getResources().getString(R.string.error_unknown);
             notificationBuilder.setStyle(new NotificationCompat.MediaStyle());
             notificationBuilder.setContentTitle(error);
+        } else if (DAB_STATUS_UNKNOWN == mDabStatus) {
+            notificationBuilder.setStyle(new NotificationCompat.MediaStyle());
+            notificationBuilder.setContentTitle(getResources().getString(R.string.error_not_initialised));
         } else if (0 <= mChannelScanProgress) {
             // Scanning
             notificationBuilder.setStyle(new NotificationCompat.MediaStyle().setShowActionsInCompactView(new int[]{0}));

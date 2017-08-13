@@ -33,6 +33,8 @@ public class DabDelegate extends Activity {
                             + " -s " + DabService.SDR_SAMPLERATE));
             newIntent.putExtra(UsbManager.EXTRA_DEVICE, usbDevice);
             startActivityForResult(newIntent, 1234);
+
+            setResult(Activity.RESULT_OK, newIntent);
         }
     }
 
