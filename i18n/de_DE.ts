@@ -731,8 +731,8 @@
     </message>
     <message>
         <location filename="../src/main.cpp" line="111"/>
-        <source>I/Q RAW file format. Possible is: u8, s16le, default: u8. Only valid for input rawfile.</source>
-        <translation>I/Q RAW Rohdateiformat. M&ouml;glich sind u8 (Standard), s16le, s16be. Nur g&uuml;ltig f&uuml;r Radioempf&auml;nger rawfile.</translation>
+        <source>I/Q RAW file format. Possible is: u8 (standard), s8, s16le, s16be. Only valid for input rawfile.</source>
+        <translation>I/Q RAW Rohdateiformat. M&ouml;glich sind u8 (Standard), s8, s16le, s16be. Nur g&uuml;ltig f&uuml;r Radioempf&auml;nger rawfile.</translation>
     </message>
     <message>
         <location filename="../src/main.cpp" line="112"/>
