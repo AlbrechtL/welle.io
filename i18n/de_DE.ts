@@ -24,142 +24,142 @@
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="38"/>
-        <source>news</source>
+        <source>News</source>
         <translation>Nachrichten</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="39"/>
-        <source>current affairs</source>
+        <source>Current Affairs</source>
         <translation>Aktuelle Nachrichten</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="40"/>
-        <source>information</source>
+        <source>Information</source>
         <translation>Informationen</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="41"/>
-        <source>sport</source>
+        <source>Sport</source>
         <translation>Sport</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="42"/>
-        <source>education</source>
+        <source>Education</source>
         <translation>Bildung</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="43"/>
-        <source>dram</source>
+        <source>Drama</source>
         <translation>Drama</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="44"/>
-        <source>arts</source>
+        <source>Arts</source>
         <translation>Kunst</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="45"/>
-        <source>science</source>
+        <source>Science</source>
         <translation>Forschung</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="46"/>
-        <source>talk</source>
+        <source>Talk</source>
         <translation>Talk</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="47"/>
-        <source>pop music</source>
+        <source>Pop Music</source>
         <translation>Pop</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="48"/>
-        <source>rock music</source>
+        <source>Rock Music</source>
         <translation>Rock</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="49"/>
-        <source>easy listening</source>
+        <source>Easy Listening</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="50"/>
-        <source>light classical</source>
+        <source>Light classical</source>
         <translation>Klassik</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="51"/>
-        <source>classical music</source>
+        <source>Classical Music</source>
         <translation>Klassik</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="52"/>
-        <source>other music</source>
+        <source>Other Music</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="53"/>
-        <source>wheather</source>
-        <translation type="unfinished"></translation>
+        <source>Weather</source>
+        <translation>Wetter</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="54"/>
-        <source>finance</source>
-        <translation type="unfinished"></translation>
+        <source>Finance</source>
+        <translation>Finanzen</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="55"/>
-        <source>children&apos;s</source>
+        <source>Children&apos;s</source>
         <translation>Kinder</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="56"/>
-        <source>factual</source>
+        <source>Factual</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="57"/>
-        <source>religion</source>
+        <source>Religion</source>
         <translation>Religion</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="58"/>
-        <source>phone in</source>
+        <source>Phone In</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="59"/>
-        <source>travel</source>
-        <translation type="unfinished"></translation>
+        <source>Travel</source>
+        <translation>Reise</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="60"/>
-        <source>leisure</source>
+        <source>Leisure</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="61"/>
-        <source>jazz and blues</source>
+        <source>Jazz and Blues</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="62"/>
-        <source>country music</source>
+        <source>Country Music</source>
         <translation>Country</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="63"/>
-        <source>national music</source>
+        <source>National Music</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="64"/>
-        <source>oldies music</source>
+        <source>Oldies Music</source>
         <translation>Oldies</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="65"/>
-        <source>folk music</source>
+        <source>Folk Music</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -225,51 +225,51 @@
     <message>
         <location filename="../src/DabConstants.cpp" line="91"/>
         <source>English</source>
-        <translation type="unfinished"></translation>
+        <translation>Englisch</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="92"/>
         <source>Spanish</source>
-        <translation type="unfinished"></translation>
+        <translation>Spanisch</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="93"/>
         <source>Esperanto</source>
-        <translation type="unfinished"></translation>
+        <translation>Esperanto</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="94"/>
         <source>Estonian</source>
-        <translation type="unfinished"></translation>
+        <translation>Estnisch</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="95"/>
         <source>Basque</source>
-        <translation type="unfinished"></translation>
+        <translation>Baskisch</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="96"/>
         <source>Faroese</source>
-        <translation type="unfinished"></translation>
+        <translation>Far;ouml;esisch</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="97"/>
         <source>French</source>
-        <translation type="unfinished"></translation>
+        <translation>Franz&ouml;sisch</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="98"/>
         <source>Frisian</source>
-        <translation type="unfinished"></translation>
+        <translation>Friesisch</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="99"/>
         <source>Irish</source>
-        <translation type="unfinished"></translation>
+        <translation>Irisch</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="100"/>
-        <source>GaeliC</source>
+        <source>Gaelic</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -279,13 +279,13 @@
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="102"/>
-        <source>IcelandiC</source>
-        <translation type="unfinished"></translation>
+        <source>Icelandic</source>
+        <translation>Isl&auml;ndisch</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="103"/>
         <source>Italian</source>
-        <translation type="unfinished"></translation>
+        <translation>Italienisch</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="104"/>
@@ -295,7 +295,7 @@
     <message>
         <location filename="../src/DabConstants.cpp" line="105"/>
         <source>Latin</source>
-        <translation type="unfinished"></translation>
+        <translation>Latein</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="106"/>
@@ -315,22 +315,22 @@
     <message>
         <location filename="../src/DabConstants.cpp" line="109"/>
         <source>Hungarian</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungarisch</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="110"/>
         <source>Maltese</source>
-        <translation type="unfinished"></translation>
+        <translation>Maltesisch</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="111"/>
         <source>Dutch</source>
-        <translation type="unfinished"></translation>
+        <translation>Niederl&auml;ndisch</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="112"/>
         <source>Norwegian</source>
-        <translation type="unfinished"></translation>
+        <translation>Norwegisch</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="113"/>
@@ -340,17 +340,17 @@
     <message>
         <location filename="../src/DabConstants.cpp" line="114"/>
         <source>Polish</source>
-        <translation type="unfinished"></translation>
+        <translation>Polnisch</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="115"/>
-        <source>Postuguese</source>
-        <translation type="unfinished"></translation>
+        <source>Portuguese</source>
+        <translation>Portugiesisch</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="116"/>
         <source>Romanian</source>
-        <translation type="unfinished"></translation>
+        <translation>Rum&auml;nisch</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="117"/>
@@ -360,32 +360,32 @@
     <message>
         <location filename="../src/DabConstants.cpp" line="118"/>
         <source>Serbian</source>
-        <translation type="unfinished"></translation>
+        <translation>Serbisch</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="119"/>
         <source>Slovak</source>
-        <translation type="unfinished"></translation>
+        <translation>Slowakisch</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="120"/>
         <source>Slovene</source>
-        <translation type="unfinished"></translation>
+        <translation>Slowenisch</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="121"/>
         <source>Finnish</source>
-        <translation type="unfinished"></translation>
+        <translation>Finnisch</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="122"/>
         <source>Swedish</source>
-        <translation type="unfinished"></translation>
+        <translation>Schwedisch</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="123"/>
-        <source>Tuskish</source>
-        <translation type="unfinished"></translation>
+        <source>Turkish</source>
+        <translation>T&uuml;rkisch</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="124"/>
@@ -418,7 +418,7 @@
     <message>
         <location filename="../src/gui/CGUI.cpp" line="103"/>
         <source>Build on</source>
-        <translation>Übersetzt am</translation>
+        <translation>&Uuml;bersetzt am</translation>
     </message>
 </context>
 <context>
@@ -432,7 +432,7 @@
         <location filename="../src/CRadioController.cpp" line="61"/>
         <location filename="../src/CRadioController.cpp" line="252"/>
         <source>No Station</source>
-        <translation>Kein Sender gewählt</translation>
+        <translation>Kein Sender gew&auml;hlt</translation>
     </message>
     <message>
         <location filename="../src/CRadioController.cpp" line="232"/>
@@ -442,7 +442,7 @@
     <message>
         <location filename="../src/CRadioController.cpp" line="242"/>
         <source>Scanning</source>
-        <translation></translation>
+        <translation>Scanne</translation>
     </message>
     <message>
         <location filename="../src/CRadioController.cpp" line="495"/>
@@ -452,7 +452,7 @@
     <message>
         <location filename="../src/CRadioController.cpp" line="376"/>
         <source>Radio device is not ready or does not exits.</source>
-        <translation>Radioempfänger meldet ein Fehler oder existiert nicht.</translation>
+        <translation>Radioempf&auml;nger meldet einen Fehler oder existiert nicht.</translation>
     </message>
     <message>
         <location filename="../src/CRadioController.cpp" line="407"/>
@@ -465,12 +465,12 @@
     <message>
         <location filename="../src/gui/QML/ExpertView.qml" line="19"/>
         <source>Device</source>
-        <translation>Radioempfänger</translation>
+        <translation>Ger&auml;t</translation>
     </message>
     <message>
         <location filename="../src/gui/QML/ExpertView.qml" line="24"/>
         <source>Current channel</source>
-        <translation>Kanal</translation>
+        <translation>Aktueller Kanal</translation>
     </message>
     <message>
         <location filename="../src/gui/QML/ExpertView.qml" line="29"/>
@@ -529,12 +529,12 @@
     <message>
         <location filename="../src/input/CInputFactory.cpp" line="66"/>
         <source>No valid device found use Null device instead.</source>
-        <translation>Kein Radioempfänger gefunden.</translation>
+        <translation>Kein Radioempf&auml;nger gefunden.</translation>
     </message>
     <message>
         <location filename="../src/input/CInputFactory.cpp" line="68"/>
         <source>Error while opening device</source>
-        <translation>Fehler beim Zugriff auf Emfpänger</translation>
+        <translation>Fehler beim Zugriff auf Empf&auml;nger</translation>
     </message>
     <message>
         <location filename="../src/input/CRAWFile.cpp" line="151"/>
@@ -544,18 +544,18 @@
     <message>
         <location filename="../src/input/CRAWFile.cpp" line="158"/>
         <source>Cannot open file</source>
-        <translation>Fehler beim Öffnen der Datei</translation>
+        <translation>Fehler beim &Ouml;ffnen der Datei</translation>
     </message>
     <message>
         <location filename="../src/input/CRAWFile.cpp" line="254"/>
         <source>End of file, restarting</source>
-        <translation>RAW-Datei vollständig gelesen, beginne von vorn</translation>
+        <translation>RAW-Datei zu Ende, beginne von vorn</translation>
     </message>
     <message>
         <location filename="../src/input/CRTL_SDR.cpp" line="326"/>
         <location filename="../src/input/CRTL_TCP_Client.cpp" line="325"/>
         <source>ADC overload. Maybe you are using a to high gain.</source>
-        <translation type="unfinished">HF-Eingangsverstärkung ist zu groß (ADC ist übersteuert).</translation>
+        <translation type="unfinished">HF-Eingangsverst&auml;rkung ist zu gro&szlig; (AGC ist &Uuml;bersteuert).</translation>
     </message>
     <message>
         <location filename="../src/input/CRTL_SDR.cpp" line="388"/>
@@ -593,17 +593,17 @@
     <message>
         <location filename="../src/gui/QML/SettingsPage.qml" line="110"/>
         <source>Found stations</source>
-        <translation>Gefundene Sender</translation>
+        <translation>Gefundene Programme</translation>
     </message>
     <message>
         <location filename="../src/gui/QML/SettingsPage.qml" line="124"/>
         <source>Automatic RF gain</source>
-        <translation>Auto HF-Verstärkung</translation>
+        <translation>Auto HF-Verst&auml;rkung</translation>
     </message>
     <message>
         <location filename="../src/gui/QML/SettingsPage.qml" line="140"/>
         <source>Manual gain</source>
-        <translation>Manuelle Verstärkung</translation>
+        <translation>Manuelle Verst&auml;rkung</translation>
     </message>
     <message>
         <location filename="../src/gui/QML/SettingsPage.qml" line="141"/>
@@ -628,7 +628,7 @@
     <message>
         <location filename="../src/gui/QML/SettingsPage.qml" line="200"/>
         <source>Clear station list</source>
-        <translation>Lösche Senderliste</translation>
+        <translation>L&ouml;sche Senderliste</translation>
     </message>
     <message>
         <location filename="../src/gui/QML/SettingsPage.qml" line="236"/>
@@ -682,7 +682,7 @@
     <message>
         <location filename="../src/main.cpp" line="86"/>
         <source>Input device</source>
-        <translation>Radioempfänger</translation>
+        <translation>Radioempf&auml;nger</translation>
     </message>
     <message>
         <location filename="../src/main.cpp" line="87"/>
@@ -692,27 +692,27 @@
     <message>
         <location filename="../src/main.cpp" line="91"/>
         <source>DAB mode. Possible is: 1, 2 or 4, default: 1</source>
-        <translation>DAB Mode. Möglich ist 1,2 oder 4, Standard: 1</translation>
+        <translation>DAB Mode. M&ouml;glich ist 1, 2 oder 4, Standard: 1</translation>
     </message>
     <message>
         <location filename="../src/main.cpp" line="92"/>
         <source>Mode</source>
-        <translation>Mode</translation>
+        <translation>Modus</translation>
     </message>
     <message>
         <location filename="../src/main.cpp" line="96"/>
         <source>rtl_tcp server IP address. Only valid for input rtl_tcp.</source>
-        <translation>rtl_tcp server IP Adresse. Nur gültig für Empfänger rtl_tcp.</translation>
+        <translation>rtl_tcp server IP Adresse. Nur g&uuml;ltig f&uuml;r Empf&auml;nger rtl_tcp.</translation>
     </message>
     <message>
         <location filename="../src/main.cpp" line="97"/>
         <source>IP address</source>
-        <translation>IP Adresse</translation>
+        <translation>IP-Adresse</translation>
     </message>
     <message>
         <location filename="../src/main.cpp" line="101"/>
         <source>rtl_tcp server IP port. Only valid for input rtl_tcp.</source>
-        <translation>IP Port. Nur gültig für Empfänger rtl_tcp.</translation>
+        <translation>IP Port. Nur g&uuml;ltig f&uuml;r Empf&auml;nger rtl_tcp.</translation>
     </message>
     <message>
         <location filename="../src/main.cpp" line="102"/>
@@ -722,22 +722,22 @@
     <message>
         <location filename="../src/main.cpp" line="106"/>
         <source>I/Q RAW file. Only valid for input rawfile.</source>
-        <translation>I/Q RAW Datei als Radioempfänger. Nur gültig für Radioempfänger rawfile.</translation>
+        <translation>I/Q RAW Datei als Radioempf&auml;nger. Nur g&uuml;ltig f&uuml;r Radioempf&auml;nger rawfile.</translation>
     </message>
     <message>
         <location filename="../src/main.cpp" line="107"/>
         <source>I/Q RAW file</source>
-        <translation>I/Q RAW Datei</translation>
+        <translation>I/Q RAW Rohdatei</translation>
     </message>
     <message>
         <location filename="../src/main.cpp" line="111"/>
         <source>I/Q RAW file format. Possible is: u8, s16le, default: u8. Only valid for input rawfile.</source>
-        <translation>I/Q RAW Dateiformat. Möglich ist u8, s16le, Standard: u8. Nur gültig für Radioempfänger rawfile.</translation>
+        <translation>I/Q RAW Rohdateiformat. M&ouml;glich sind u8 (Standard), s16le, s16be. Nur g&uuml;ltig f&uuml;r Radioempf&auml;nger rawfile.</translation>
     </message>
     <message>
         <location filename="../src/main.cpp" line="112"/>
         <source>I/Q RAW file format</source>
-        <translation>I/Q RAW Dateiformat</translation>
+        <translation>I/Q RAW Rohdatenformat</translation>
     </message>
     <message>
         <location filename="../src/gui/QML/main.qml" line="104"/>
