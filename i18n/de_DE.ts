@@ -250,7 +250,7 @@
     <message>
         <location filename="../src/DabConstants.cpp" line="96"/>
         <source>Faroese</source>
-        <translation>Faröerisch</translation>
+        <translation>Färöisch</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="97"/>
@@ -418,7 +418,7 @@
     <message>
         <location filename="../src/gui/CGUI.cpp" line="103"/>
         <source>Build on</source>
-        <translation>Übersetzt am</translation>
+        <translation>&Uuml;bersetzt am</translation>
     </message>
 </context>
 <context>
@@ -432,7 +432,7 @@
         <location filename="../src/CRadioController.cpp" line="61"/>
         <location filename="../src/CRadioController.cpp" line="252"/>
         <source>No Station</source>
-        <translation>Kein Sender gewählt</translation>
+        <translation>Kein Sender gew&auml;hlt</translation>
     </message>
     <message>
         <location filename="../src/CRadioController.cpp" line="232"/>
@@ -529,7 +529,7 @@
     <message>
         <location filename="../src/gui/QML/ExpertView.qml" line="19"/>
         <source>Device</source>
-        <translation>Gerät</translation>
+        <translation>Radioempfänger</translation>
     </message>
     <message>
         <location filename="../src/gui/QML/ExpertView.qml" line="24"/>
@@ -593,7 +593,7 @@
     <message>
         <location filename="../src/input/CInputFactory.cpp" line="66"/>
         <source>No valid device found use Null device instead.</source>
-        <translation>Kein Radioempfänger gefunden.</translation>
+        <translation>Kein Radioempf&auml;nger gefunden.</translation>
     </message>
     <message>
         <location filename="../src/input/CInputFactory.cpp" line="68"/>
@@ -608,7 +608,7 @@
     <message>
         <location filename="../src/input/CRAWFile.cpp" line="158"/>
         <source>Cannot open file</source>
-        <translation>Fehler beim Öffnen der Datei</translation>
+        <translation>Fehler beim &Ouml;ffnen der Datei</translation>
     </message>
     <message>
         <location filename="../src/input/CRAWFile.cpp" line="254"/>
@@ -616,14 +616,10 @@
         <translation>RAW-Datei zu Ende, beginne von vorn</translation>
     </message>
     <message>
-        <source>AGC overload. Maybe you are using a to high gain.</source>
-        <translation type="obsolete">HF-Eingangsverstärkung ist zu groß (AGC ist übersteuert).</translation>
-    </message>
-    <message>
         <location filename="../src/input/CRTL_SDR.cpp" line="326"/>
         <location filename="../src/input/CRTL_TCP_Client.cpp" line="325"/>
-        <source>ADC overload. Maybe you are using a to high gain.</source>
-        <translation type="unfinished"></translation>
+        <source>AGC overload. Maybe you are using a to high gain.</source>
+        <translation type="obsolete">HF-Eingangsverstärkung ist zu groß (AGC ist übersteuert).</translation>
     </message>
     <message>
         <location filename="../src/input/CRTL_SDR.cpp" line="388"/>
@@ -666,12 +662,12 @@
     <message>
         <location filename="../src/gui/QML/SettingsPage.qml" line="126"/>
         <source>Automatic RF gain</source>
-        <translation>Auto HF-Verstärkung</translation>
+        <translation>Auto HF-Verst&auml;rkung</translation>
     </message>
     <message>
         <location filename="../src/gui/QML/SettingsPage.qml" line="143"/>
         <source>Manual gain</source>
-        <translation>Manuelle Verstärkung</translation>
+        <translation>Manuelle Verst&auml;rkung</translation>
     </message>
     <message>
         <location filename="../src/gui/QML/SettingsPage.qml" line="144"/>
@@ -701,7 +697,7 @@
     <message>
         <location filename="../src/gui/QML/SettingsPage.qml" line="217"/>
         <source>Clear station list</source>
-        <translation>Lösche Senderliste</translation>
+        <translation>L&ouml;sche Senderliste</translation>
     </message>
     <message>
         <location filename="../src/gui/QML/SettingsPage.qml" line="253"/>
@@ -755,7 +751,7 @@
     <message>
         <location filename="../src/main.cpp" line="86"/>
         <source>Input device</source>
-        <translation>Radioempfänger</translation>
+        <translation>Radioempf&auml;nger</translation>
     </message>
     <message>
         <location filename="../src/main.cpp" line="87"/>
@@ -775,7 +771,7 @@
     <message>
         <location filename="../src/main.cpp" line="96"/>
         <source>rtl_tcp server IP address. Only valid for input rtl_tcp.</source>
-        <translation>rtl_tcp server IP Adresse. Nur gültig für Empfänger rtl_tcp.</translation>
+        <translation>rtl_tcp server IP Adresse. Nur g&uuml;ltig f&uuml;r Empf&auml;nger rtl_tcp.</translation>
     </message>
     <message>
         <location filename="../src/main.cpp" line="97"/>
@@ -785,7 +781,7 @@
     <message>
         <location filename="../src/main.cpp" line="101"/>
         <source>rtl_tcp server IP port. Only valid for input rtl_tcp.</source>
-        <translation>IP Port. Nur gültig für Empfänger rtl_tcp.</translation>
+        <translation>IP Port. Nur g&uuml;ltig f&uuml;r Empf&auml;nger rtl_tcp.</translation>
     </message>
     <message>
         <location filename="../src/main.cpp" line="102"/>
@@ -795,7 +791,7 @@
     <message>
         <location filename="../src/main.cpp" line="106"/>
         <source>I/Q RAW file. Only valid for input rawfile.</source>
-        <translation>I/Q RAW Datei als Radioempfänger. Nur gültig für Radioempfänger rawfile.</translation>
+        <translation>I/Q RAW Datei als Radioempf&auml;nger. Nur g&uuml;ltig f&uuml;r Radioempf&auml;nger rawfile.</translation>
     </message>
     <message>
         <location filename="../src/main.cpp" line="107"/>
