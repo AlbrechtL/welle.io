@@ -1,4 +1,3 @@
-#
 /*
  *    Copyright (C) 2013
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
@@ -19,8 +18,8 @@
  *    along with SDR-J; if not, write to the Free Software
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- *	This charset handling was kindly added by Przemyslaw Wegrzyn	
- *	all rights acknowledged
+ *  This charset handling was kindly added by Przemyslaw Wegrzyn
+ *  all rights acknowledged
  */
 #ifndef __CHARSETS_H
 #define __CHARSETS_H

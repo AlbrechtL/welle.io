@@ -1,4 +1,3 @@
-#
 /******************************************************************************
 ** kjmp2 -- a minimal MPEG-1 Audio Layer II decoder library                  **
 *******************************************************************************
@@ -21,77 +20,83 @@
 **      distribution.                                                        **
 ******************************************************************************/
 //
-//	This software is a rewrite of the original kjmp2 software,
-//	Rewriting in the form of a class
-//	for use in the sdr-j DAB/DAB+ receiver
-//	all rights remain where they belong
+//  This software is a rewrite of the original kjmp2 software,
+//  Rewriting in the form of a class
+//  for use in the sdr-j DAB/DAB+ receiver
+//  all rights remain where they belong
 #ifndef MP2PROCESSOR
-#define	MP2PROCESSOR
+#define MP2PROCESSOR
 
-#include	<stdio.h>
-#include	<stdint.h>
-#include	<math.h>
-#include	"dab-processor.h"
-#include	<QObject>
-#include	<stdio.h>
-#include	"ringbuffer.h"
+#include    <stdio.h>
+#include    <stdint.h>
+#include    <math.h>
+#include    "dab-processor.h"
+#include    <QObject>
+#include    <vector>
+#include    <stdio.h>
+#include    "ringbuffer.h"
 
 #define KJMP2_MAX_FRAME_SIZE    1440  // the maximum size of a frame
 #define KJMP2_SAMPLES_PER_FRAME 1152  // the number of samples per frame
 
 // quantizer specification structure
-struct quantizer_spec {
-	int32_t nlevels;
-	uint8_t grouping;
-	uint8_t cw_bits;
+struct quantizer_spec
+{
+    int32_t nlevels;
+    uint8_t grouping;
+    uint8_t cw_bits;
 };
 
-class	CRadioController;
+class CRadioController;
 
-class	mp2Processor: public QObject, public dabProcessor {
-Q_OBJECT
-public:
-			mp2Processor	(CRadioController *,
-	                                 int16_t,
-	                                 RingBuffer<int16_t> *);
-			~mp2Processor	(void);
-	void		addtoFrame	(uint8_t *);
-	void		setFile		(FILE *);
+class mp2Processor: public QObject, public dabProcessor
+{
+    Q_OBJECT
+    public:
+        mp2Processor( CRadioController *mr,
+                      int16_t bitRate,
+                      RingBuffer<int16_t> *buffer);
+        virtual void addtoFrame(uint8_t *v);
+        void setFile(FILE *);
 
-private:
-	int32_t		mp2sampleRate	(uint8_t *);
-	int32_t		mp2decodeFrame	(uint8_t *, int16_t *);
-	CRadioController	*myRadioInterface;
-	RingBuffer<int16_t>	*buffer;
-	int32_t		baudRate;
-	void		setSamplerate		(int32_t);
-	struct quantizer_spec *read_allocation (int, int);
-	void		read_samples	(struct quantizer_spec *, int, int *);
-	int32_t		get_bits	(int32_t);
-	int16_t		V [2][1024];
-	int16_t		Voffs;
-	int16_t		N [64][32];
-	struct quantizer_spec *allocation[2][32];
-	int32_t		scfsi[2][32];
-	int32_t		scalefactor[2][32][3];
-	int32_t		sample[2][32][3];
-	int32_t		U[512];
+    private:
+        int32_t     mp2sampleRate(uint8_t *frame);
+        int32_t     mp2decodeFrame(uint8_t *frame, int16_t *pcm);
 
-	int32_t		bit_window;
-	int32_t		bits_in_window;
-	uint8_t		*frame_pos;
-	uint8_t		*MP2frame;
-	int16_t		MP2framesize;
-	int16_t		MP2Header_OK;
-	int16_t		MP2headerCount;
-	int16_t		MP2bitCount;
-	void		addbittoMP2	(uint8_t *, uint8_t, int16_t);
-	int16_t		numberofFrames;
-	int16_t		errorFrames;
-signals:
-	void		show_frameErrors	(int);
-	void		newAudio		(int);
-	void		isStereo		(bool);
+        CRadioController    *myRadioInterface;
+        RingBuffer<int16_t> *buffer;
+        int32_t     baudRate;
+        void        setSamplerate(int32_t rate);
+        struct quantizer_spec *read_allocation(int sb, int b2_table);
+        void        read_samples(struct quantizer_spec *q,
+                                int scalefactor,
+                                int *sample);
+        int32_t     get_bits(int32_t bit_count);
+        int16_t     V[2][1024];
+        int16_t     Voffs;
+        int16_t     N[64][32];
+        struct quantizer_spec *allocation[2][32];
+        int32_t     scfsi[2][32];
+        int32_t     scalefactor[2][32][3];
+        int32_t     sample[2][32][3];
+        int32_t     U[512];
+
+        int32_t     bit_window;
+        int32_t     bits_in_window;
+        uint8_t     *frame_pos;
+        std::vector<uint8_t> MP2frame;
+        int16_t     MP2framesize;
+        int16_t     MP2Header_OK;
+        int16_t     MP2headerCount;
+        int16_t     MP2bitCount;
+        void        addbittoMP2 (uint8_t *v, uint8_t b, int16_t nm);
+        int16_t     numberofFrames;
+        int16_t     errorFrames;
+
+    signals:
+        void        show_frameErrors(int errorFrames);
+        void        newAudio(int baudRate);
+        void        isStereo(bool isJointStereo);
 };
 #endif
 

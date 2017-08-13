@@ -1,4 +1,3 @@
-#
 /*
  *    Copyright (C) 2013
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
@@ -20,29 +19,28 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-#
-#ifndef	EEP_PROTECTION
-#define	EEP_PROTECTION
+#ifndef EEP_PROTECTION
+#define EEP_PROTECTION
 
-#include	<stdio.h>
-#include	<stdint.h>
-#include	"protection.h"
-#include	"viterbi.h"
+#include    <stdio.h>
+#include    <stdint.h>
+#include    <vector>
+#include    "protection.h"
+#include    "viterbi.h"
 
 
-	class eep_protection: public protection, public viterbi {
-public:
-		eep_protection		(int16_t, int16_t);
-		~eep_protection		(void);
-bool		deconvolve		(int16_t *, int32_t, uint8_t *);
-private:
-	int16_t		L1;
-	int16_t		L2;
-	int8_t		*PI1;
-	int8_t		*PI2;
-	int16_t		bitRate;
-	int32_t		outSize;
-	int16_t		*viterbiBlock;
+class eep_protection: public protection, public viterbi {
+    public:
+        eep_protection(int16_t, int16_t);
+        bool        deconvolve(int16_t*, int32_t, uint8_t*);
+    private:
+        int16_t     L1;
+        int16_t     L2;
+        int8_t      *PI1;
+        int8_t      *PI2;
+        int16_t     bitRate;
+        int32_t     outSize;
+        std::vector<int16_t> viterbiBlock;
 };
 
 #endif

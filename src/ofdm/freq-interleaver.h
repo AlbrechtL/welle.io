@@ -1,4 +1,3 @@
-#
 /*
  *    Copyright (C) 2013
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
@@ -20,24 +19,26 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-#
-#ifndef	__FREQ_INTERLEAVER__
-#define	__FREQ_INTERLEAVER__
-#include	<stdint.h>
-#include	"DabConstants.h"
-/**
-  *	\class interLeaver
-  *	Implements frequency interleaving according to section 14.6
-  *	of the DAB standard
-  */
-class	interLeaver {
-public:
-	interLeaver	(CDABParams *);
-	~interLeaver	(void);
-int16_t	mapIn		(int16_t);
-private:
 
-	int16_t	*permTable;
+#ifndef __FREQ_INTERLEAVER__
+#define __FREQ_INTERLEAVER__
+#include    <stdint.h>
+#include    <vector>
+#include    "DabConstants.h"
+
+/**
+ * \class interLeaver
+ * Implements frequency interleaving according to section 14.6
+ * of the DAB standard
+ */
+class   interLeaver
+{
+    public:
+        interLeaver(CDABParams *);
+        int16_t mapIn(int16_t);
+
+    private:
+        std::vector<int16_t> permTable;
 };
 
 #endif

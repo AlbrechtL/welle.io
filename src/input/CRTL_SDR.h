@@ -34,6 +34,7 @@
 #include <QSettings>
 #include <QTimer>
 #include <QThread>
+#include <vector>
 #include <rtl-sdr.h>
 
 #include "CVirtualInput.h"
@@ -73,8 +74,8 @@ public:
     CRadioController *getRadioController(void);
 
     //	These need to be visible for the separate usb handling thread
-    RingBuffer<uint8_t>* SampleBuffer;
-    RingBuffer<uint8_t>* SpectrumSampleBuffer;
+    RingBuffer<uint8_t> SampleBuffer;
+    RingBuffer<uint8_t> SpectrumSampleBuffer;
     struct rtlsdr_dev* device;
     int32_t sampleCounter;
 
@@ -89,7 +90,7 @@ private:
     int32_t DeviceCount;
     CRTL_SDR_Thread* RTL_SDR_Thread;
     bool open;
-    int* gains;
+    std::vector<int> gains;
     uint16_t GainsCount;
     uint16_t CurrentGainCount;
     uint8_t MinValue;
