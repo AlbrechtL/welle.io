@@ -83,7 +83,7 @@ int main(int argc, char** argv)
     optionParser.addOption(Language);
 
     QCommandLineOption InputOption("D",
-        QCoreApplication::translate("main", "Input device"),
+        QCoreApplication::translate("main", "Input device. Possible is: auto (default), airspy, rtl_tcp, rtl_sdr, rawfile, soapysdr"),
         QCoreApplication::translate("main", "Name"));
     optionParser.addOption(InputOption);
 

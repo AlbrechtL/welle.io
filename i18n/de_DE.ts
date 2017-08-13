@@ -250,12 +250,12 @@
     <message>
         <location filename="../src/DabConstants.cpp" line="96"/>
         <source>Faroese</source>
-        <translation>Far;ouml;esisch</translation>
+        <translation>Färöisch</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="97"/>
         <source>French</source>
-        <translation>Franz&ouml;sisch</translation>
+        <translation>Französisch</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="98"/>
@@ -280,7 +280,7 @@
     <message>
         <location filename="../src/DabConstants.cpp" line="102"/>
         <source>Icelandic</source>
-        <translation>Isl&auml;ndisch</translation>
+        <translation>Isländisch</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="103"/>
@@ -325,7 +325,7 @@
     <message>
         <location filename="../src/DabConstants.cpp" line="111"/>
         <source>Dutch</source>
-        <translation>Niederl&auml;ndisch</translation>
+        <translation>Niederländisch</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="112"/>
@@ -350,7 +350,7 @@
     <message>
         <location filename="../src/DabConstants.cpp" line="116"/>
         <source>Romanian</source>
-        <translation>Rum&auml;nisch</translation>
+        <translation>Rumänisch</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="117"/>
@@ -385,7 +385,7 @@
     <message>
         <location filename="../src/DabConstants.cpp" line="123"/>
         <source>Turkish</source>
-        <translation>T&uuml;rkisch</translation>
+        <translation>Türkisch</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="124"/>
@@ -452,7 +452,7 @@
     <message>
         <location filename="../src/CRadioController.cpp" line="376"/>
         <source>Radio device is not ready or does not exits.</source>
-        <translation>Radioempf&auml;nger meldet einen Fehler oder existiert nicht.</translation>
+        <translation>Radioempfänger meldet einen Fehler oder existiert nicht.</translation>
     </message>
     <message>
         <location filename="../src/CRadioController.cpp" line="407"/>
@@ -461,11 +461,75 @@
     </message>
 </context>
 <context>
+    <name>ChannelBrowser</name>
+    <message>
+        <location filename="../src/gui/QML/ChannelBrowser.qml" line="289"/>
+        <source></source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/QML/ChannelBrowser.qml" line="328"/>
+        <source></source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/QML/ChannelBrowser.qml" line="482"/>
+        <location filename="../src/gui/QML/ChannelBrowser.qml" line="709"/>
+        <source>Found channels</source>
+        <translation type="unfinished">Gefundene Sender</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/QML/ChannelBrowser.qml" line="489"/>
+        <source>Automatic RF gain</source>
+        <translation type="unfinished">Auto HF-Verstärkung</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/QML/ChannelBrowser.qml" line="508"/>
+        <source>Manual gain</source>
+        <translation type="unfinished">Manuelle Verstärkung</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/QML/ChannelBrowser.qml" line="513"/>
+        <source>Value: </source>
+        <translation type="unfinished">Aktuell: </translation>
+    </message>
+    <message>
+        <location filename="../src/gui/QML/ChannelBrowser.qml" line="533"/>
+        <source>Select channel manually</source>
+        <translation type="unfinished">Manuelle Kanalwahl</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/QML/ChannelBrowser.qml" line="545"/>
+        <source>Clear station list</source>
+        <translation type="unfinished">Lösche Senderliste</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/QML/ChannelBrowser.qml" line="580"/>
+        <source>Full screen mode</source>
+        <translation type="unfinished">Vollbildmodus</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/QML/ChannelBrowser.qml" line="589"/>
+        <source>Channel list layout</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/QML/ChannelBrowser.qml" line="600"/>
+        <source>Expert mode</source>
+        <translation type="unfinished">Expertenmodus</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/QML/ChannelBrowser.qml" line="614"/>
+        <source>Exit welle.io</source>
+        <translation type="unfinished">welle.io beenden</translation>
+    </message>
+</context>
+<context>
     <name>ExpertView</name>
     <message>
         <location filename="../src/gui/QML/ExpertView.qml" line="19"/>
         <source>Device</source>
-        <translation>Ger&auml;t</translation>
+        <translation>Radioempfänger</translation>
     </message>
     <message>
         <location filename="../src/gui/QML/ExpertView.qml" line="24"/>
@@ -534,12 +598,12 @@
     <message>
         <location filename="../src/input/CInputFactory.cpp" line="68"/>
         <source>Error while opening device</source>
-        <translation>Fehler beim Zugriff auf Empf&auml;nger</translation>
+        <translation>Fehler beim Zugriff auf Empfänger</translation>
     </message>
     <message>
         <location filename="../src/input/CRAWFile.cpp" line="151"/>
         <source>Unknown RAW file format</source>
-        <translation>Unbekanntes RAW-Datei Format</translation>
+        <translation>Unbekanntes RAW-Dateiformat</translation>
     </message>
     <message>
         <location filename="../src/input/CRAWFile.cpp" line="158"/>
@@ -554,8 +618,8 @@
     <message>
         <location filename="../src/input/CRTL_SDR.cpp" line="326"/>
         <location filename="../src/input/CRTL_TCP_Client.cpp" line="325"/>
-        <source>ADC overload. Maybe you are using a to high gain.</source>
-        <translation type="unfinished">HF-Eingangsverst&auml;rkung ist zu gro&szlig; (AGC ist &Uuml;bersteuert).</translation>
+        <source>AGC overload. Maybe you are using a to high gain.</source>
+        <translation type="obsolete">HF-Eingangsverstärkung ist zu groß (AGC ist übersteuert).</translation>
     </message>
     <message>
         <location filename="../src/input/CRTL_SDR.cpp" line="388"/>
@@ -571,67 +635,72 @@
 <context>
     <name>SettingsPage</name>
     <message>
-        <location filename="../src/gui/QML/SettingsPage.qml" line="77"/>
+        <location filename="../src/gui/QML/SettingsPage.qml" line="79"/>
         <source>Channel scan</source>
         <translation>Sendersuchlauf</translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/SettingsPage.qml" line="83"/>
+        <location filename="../src/gui/QML/SettingsPage.qml" line="85"/>
         <source>Start</source>
         <translation>Start</translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/SettingsPage.qml" line="94"/>
+        <location filename="../src/gui/QML/SettingsPage.qml" line="96"/>
         <source>Stop</source>
         <translation>Stopp</translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/SettingsPage.qml" line="38"/>
+        <location filename="../src/gui/QML/SettingsPage.qml" line="40"/>
         <source>Found channels</source>
         <translation>Gefundene Sender</translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/SettingsPage.qml" line="110"/>
+        <location filename="../src/gui/QML/SettingsPage.qml" line="112"/>
         <source>Found stations</source>
         <translation>Gefundene Programme</translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/SettingsPage.qml" line="124"/>
+        <location filename="../src/gui/QML/SettingsPage.qml" line="126"/>
         <source>Automatic RF gain</source>
         <translation>Auto HF-Verst&auml;rkung</translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/SettingsPage.qml" line="140"/>
+        <location filename="../src/gui/QML/SettingsPage.qml" line="143"/>
         <source>Manual gain</source>
         <translation>Manuelle Verst&auml;rkung</translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/SettingsPage.qml" line="141"/>
+        <location filename="../src/gui/QML/SettingsPage.qml" line="144"/>
         <source>Value: </source>
         <translation>Aktuell: </translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/SettingsPage.qml" line="160"/>
+        <location filename="../src/gui/QML/SettingsPage.qml" line="163"/>
         <source>Full screen mode</source>
         <translation>Vollbildmodus</translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/SettingsPage.qml" line="169"/>
+        <location filename="../src/gui/QML/SettingsPage.qml" line="173"/>
+        <source>Channel list layout (experimental)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/QML/SettingsPage.qml" line="185"/>
         <source>Expert mode</source>
         <translation>Expertenmodus</translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/SettingsPage.qml" line="188"/>
+        <location filename="../src/gui/QML/SettingsPage.qml" line="205"/>
         <source>Select channel manually</source>
         <translation>Manuelle Kanalwahl</translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/SettingsPage.qml" line="200"/>
+        <location filename="../src/gui/QML/SettingsPage.qml" line="217"/>
         <source>Clear station list</source>
         <translation>L&ouml;sche Senderliste</translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/SettingsPage.qml" line="236"/>
+        <location filename="../src/gui/QML/SettingsPage.qml" line="253"/>
         <source>Exit welle.io</source>
         <translation>welle.io beenden</translation>
     </message>
@@ -657,12 +726,12 @@
 <context>
     <name>TouchSwitch</name>
     <message>
-        <location filename="../src/gui/QML/style/TouchSwitch.qml" line="56"/>
+        <location filename="../src/gui/QML/style/TouchSwitch.qml" line="16"/>
         <source>ON</source>
         <translation>AN</translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/style/TouchSwitch.qml" line="68"/>
+        <location filename="../src/gui/QML/style/TouchSwitch.qml" line="17"/>
         <source>OFF</source>
         <translation>AUS</translation>
     </message>
@@ -692,7 +761,7 @@
     <message>
         <location filename="../src/main.cpp" line="91"/>
         <source>DAB mode. Possible is: 1, 2 or 4, default: 1</source>
-        <translation>DAB Mode. M&ouml;glich ist 1, 2 oder 4, Standard: 1</translation>
+        <translation>DAB Mode. Möglich ist 1, 2 oder 4, Standard: 1</translation>
     </message>
     <message>
         <location filename="../src/main.cpp" line="92"/>
@@ -732,7 +801,7 @@
     <message>
         <location filename="../src/main.cpp" line="111"/>
         <source>I/Q RAW file format. Possible is: u8 (standard), s8, s16le, s16be. Only valid for input rawfile.</source>
-        <translation>I/Q RAW Rohdateiformat. M&ouml;glich sind u8 (Standard), s8, s16le, s16be. Nur g&uuml;ltig f&uuml;r Radioempf&auml;nger rawfile.</translation>
+        <translation>I/Q RAW Rohdateiformat. Möglich ist u8 (Standard), s8, s16le, s16be. Nur gültig für Radioempfänger rawfile.</translation>
     </message>
     <message>
         <location filename="../src/main.cpp" line="112"/>
