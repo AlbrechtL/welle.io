@@ -194,7 +194,6 @@ private:
 
     // Handling variables
     bool isChannelScan;
-    bool isGUIInit;
     bool isAGC;
     bool isHwAGC;
 

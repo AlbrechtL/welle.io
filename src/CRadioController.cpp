@@ -56,7 +56,6 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, CDABParams& 
 
     MOTImage = new QImage();
     isChannelScan = false;
-    isGUIInit = false;
     isAGC = true;
     isHwAGC = true;
 
@@ -90,6 +89,8 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, CDABParams& 
     CurrentManualGain = 0;
     CurrentManualGainValue = 0.0;
     CurrentVolume = 1.0;
+
+    UpdateGUIData();
 
     connect(&StationTimer, &QTimer::timeout, this, &CRadioController::StationTimerTimeout);
     connect(&ChannelTimer, &QTimer::timeout, this, &CRadioController::ChannelTimerTimeout);
@@ -216,11 +217,11 @@ void CRadioController::Play(QString Channel, QString Station)
              << Channel << "station:" << Station;
 
     DeviceRestart();
-    SetChannel(Channel, false);
-    SetStation(Station);
 
     Status = Playing;
-    UpdateGUIData();
+
+    SetChannel(Channel, false);
+    SetStation(Station);
 
     // Store as last station
     QSettings Settings;
@@ -304,6 +305,8 @@ void CRadioController::SetChannel(QString Channel, bool isScan, bool Force)
         DecoderRestart(isScan);
 
         StationList.clear();
+
+        UpdateGUIData();
     }
 }
 
@@ -358,13 +361,8 @@ QVariantMap CRadioController::GUIData(void) const
 
 void CRadioController::UpdateGUIData()
 {
-    if(!isGUIInit)
-    {
-        isGUIInit = true;
-
-        if(Device)
-           mGUIData["DeviceName"] = Device->getName();
-    }
+    if(Device)
+       mGUIData["DeviceName"] = Device->getName();
 
     // Init the GUI data map
     mGUIData["Status"] = Status;

@@ -98,7 +98,7 @@ CGUI::CGUI(CRadioController *RadioController, QObject *parent)
     QVariantMap GUIData = RadioController->GUIData();
     bool ok;
     int dabStatus = GUIData.value("Status").toInt(&ok);
-    if (!ok || dabStatus == 0) {
+    if (!ok || dabStatus <= 0) {
         qDebug() << "CGUI:" <<  "Open default device";
         openDefaultDevice();
     } else {

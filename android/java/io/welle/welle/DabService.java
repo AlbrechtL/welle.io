@@ -917,7 +917,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
                     mDabStatus = DAB_STATUS_ERROR;
                     mError = getResources().getString(R.string.error_rtl_sdr_unplugged);
                     updatePlaybackState();
-                    stopSelf();
+                    stopForeground(true);
                 }
             } else if (ANDROID_AUTO_STATUS.equals(action)) {
                 String status = intent.getStringExtra(ANDROID_AUTO_MEDIA_CONNECTION_STATUS);
@@ -997,11 +997,11 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
         super.onStartCommand(intent, flags, startId);
         Log.i(TAG, "Service started, startId: " + startId);
         if (intent == null)
-            return START_STICKY;
+            return Service.START_STICKY;
         
         String action = intent.getAction();
         if (action == null)
-            return START_STICKY;
+            return Service.START_STICKY;
         
         if (ACTION_SDR_DEVICE_ATTACHED.equals(action)) {
             String name = intent.getStringExtra(EXTRA_DEVICE_NAME);
@@ -1047,11 +1047,8 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
     public void onDestroy() {
         super.onDestroy();
         Log.i(TAG, "Service destroyed");
-        stopPlayback();
-        //TODO close USB device
 
         unregisterReceiver(mDabReceiver);
-        mNotificationManager.cancel(NOTIFICATION_ID);
         stopForeground(true);
     }
 
