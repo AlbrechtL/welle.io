@@ -18,7 +18,8 @@ DISTFILES +=    README.md \
     android/gradle/wrapper/gradle-wrapper.properties \
     android/gradlew.bat \
     android/java/io/welle/welle/DabMediaService.java \
-    android/java/io/welle/welle/DabService.java
+    android/java/io/welle/welle/DabService.java \
+    android/java/io/welle/welle/DabDelegate.java
 
 TRANSLATIONS = i18n/de_DE.ts
 
