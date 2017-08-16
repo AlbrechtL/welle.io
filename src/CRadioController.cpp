@@ -218,10 +218,11 @@ void CRadioController::Play(QString Channel, QString Station)
 
     DeviceRestart();
 
-    Status = Playing;
-
     SetChannel(Channel, false);
     SetStation(Station);
+
+    Status = Playing;
+    UpdateGUIData();
 
     // Store as last station
     QSettings Settings;
