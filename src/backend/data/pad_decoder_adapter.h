@@ -41,8 +41,8 @@ public:
     PADDecoderAdapter(CRadioController *radioController);
 
     // from PADDecoderObserver
-    void PADChangeDynamicLabel(void);
-    void PADChangeSlide(void);
+    void PADChangeDynamicLabel(const DL_STATE& /*dl*/);
+    void PADChangeSlide(const MOT_FILE& /*slide*/);
 
     // Adapter
     void processPAD(uint8_t *theAU);

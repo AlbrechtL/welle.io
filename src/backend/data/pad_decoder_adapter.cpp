@@ -31,7 +31,15 @@
 
 PADDecoderAdapter::PADDecoderAdapter(CRadioController *radioController)
 {
-    padDecoder = new PADDecoder(this);
+    padDecoder = new PADDecoder(this, true);
+    // Enable loose mode
+    /* If the announced X-PAD length of a DAB+ service does not match the available
+    X-PAD length i.e. if it falls below, a red `[X-PAD len]` message is shown and
+    the X-PAD is discarded. However not all X-PADs may be affected and hence it may
+    happen that the Dynamic Label can be processed but the MOT Slideshow cannot. To
+    anyhow process affected X-PADs, a loose mode can be enabled by using `-L`. Thus
+    the mentioned message will be shown in yellow then.*/
+
     this->radioController = radioController;
 
     connect (this, SIGNAL (showLabel (QString)),
@@ -41,11 +49,8 @@ PADDecoderAdapter::PADDecoderAdapter(CRadioController *radioController)
              radioController, SLOT (showMOT (QByteArray, int, QString)));
 }
 
-void PADDecoderAdapter::PADChangeDynamicLabel()
+void PADDecoderAdapter::PADChangeDynamicLabel(const DL_STATE& DynamicLabel)
 {
-    // Get dynamic label
-    DL_STATE DynamicLabel = padDecoder->GetDynamicLabel();
-
     // Convert it
     QString DynamicLabelText = toQStringUsingCharset (
                                                (const char *)&DynamicLabel.raw[0],
@@ -57,11 +62,8 @@ void PADDecoderAdapter::PADChangeDynamicLabel()
     //qDebug("PADChangeDynamicLabel: %s\n", DynamicLabelText.toStdString().c_str());
 }
 
-void PADDecoderAdapter::PADChangeSlide()
+void PADDecoderAdapter::PADChangeSlide(const MOT_FILE& motFile)
 {
-    // Get file slide
-    MOT_FILE motFile = padDecoder->GetSlide();
-
     QByteArray Data((const char*) motFile.data.data(), (int) motFile.data.size());
 
     emit the_picture(Data, motFile.content_sub_type, motFile.content_name.c_str());
