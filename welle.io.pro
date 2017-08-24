@@ -18,7 +18,7 @@ DISTFILES +=    README.md \
     android/gradle/wrapper/gradle-wrapper.properties \
     android/gradlew.bat
 
-TRANSLATIONS = i18n/de_DE.ts
+TRANSLATIONS = i18n/de_DE.ts i18n/it_IT.ts
 
 lupdate_only{ # Workaround for lupdate to scan QML files
 SOURCES += src/gui/QML/*.qml \
