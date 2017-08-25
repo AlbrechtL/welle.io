@@ -427,7 +427,7 @@ int32_t mp2Processor::mp2decodeFrame (uint8_t *frame, int16_t *pcm)
         get_bits(2);
         bound = (mode == MONO) ? 0 : 32;
     }
-    emit isStereo (mode == JOINT_STEREO);
+    emit isStereo (mode != MONO);
 
     // discard the last 4 bits of the header and the CRC value, if present
     get_bits(4);
