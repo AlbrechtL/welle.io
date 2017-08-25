@@ -45,7 +45,8 @@ public:
     void PADChangeSlide(const MOT_FILE& /*slide*/);
 
     // Adapter
-    void processPAD(uint8_t *theAU);
+    void processPAD_DABPlus(uint8_t *Data);
+    void processPAD_DAB(uint8_t *Data, int16_t Length, int16_t ScF_CRC_Length);
 
 private:
     PADDecoder  *padDecoder;

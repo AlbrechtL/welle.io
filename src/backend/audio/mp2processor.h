@@ -29,12 +29,14 @@
 
 #include    <stdio.h>
 #include    <stdint.h>
+#include    <memory>
 #include    <math.h>
 #include    "dab-processor.h"
 #include    <QObject>
 #include    <vector>
 #include    <stdio.h>
 #include    "ringbuffer.h"
+#include    "pad_decoder_adapter.h"
 
 #define KJMP2_MAX_FRAME_SIZE    1440  // the maximum size of a frame
 #define KJMP2_SAMPLES_PER_FRAME 1152  // the number of samples per frame
@@ -65,6 +67,7 @@ class mp2Processor: public QObject, public dabProcessor
 
         CRadioController    *myRadioInterface;
         RingBuffer<int16_t> *buffer;
+        int16_t     bitRate;
         int32_t     baudRate;
         void        setSamplerate(int32_t rate);
         struct quantizer_spec *read_allocation(int sb, int b2_table);
@@ -92,6 +95,7 @@ class mp2Processor: public QObject, public dabProcessor
         void        addbittoMP2 (uint8_t *v, uint8_t b, int16_t nm);
         int16_t     numberofFrames;
         int16_t     errorFrames;
+        std::unique_ptr<PADDecoderAdapter> padDecoderAdapter;
 
     signals:
         void        show_frameErrors(int errorFrames);

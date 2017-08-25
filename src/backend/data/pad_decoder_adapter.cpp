@@ -71,13 +71,13 @@ void PADDecoderAdapter::PADChangeSlide(const MOT_FILE& motFile)
     //qDebug("PADChangeSlide: Type: %i content_name: %s click_through_url: %s\n", motFile.content_sub_type, motFile.content_name.c_str(), motFile.click_through_url.c_str());
 }
 
-void PADDecoderAdapter::processPAD(uint8_t *theAU)
+void PADDecoderAdapter::processPAD_DABPlus(uint8_t *Data)
 {
     // Get PAD length
     uint8_t pad_start = 2;
-    uint8_t pad_len = theAU[1];
+    uint8_t pad_len = Data[1];
     if (pad_len == 255) {
-        pad_len += theAU[2];
+        pad_len += Data[2];
         pad_start++;
     }
 
@@ -86,12 +86,12 @@ void PADDecoderAdapter::processPAD(uint8_t *theAU)
     size_t xpad_len = pad_len - FPAD_LEN;
 
     // Adapt FPAD to PADDecoder
-    uint8_t *fpad = theAU + pad_start + pad_len - FPAD_LEN;
+    uint8_t *fpad = Data + pad_start + pad_len - FPAD_LEN;
     uint16_t fpad_value = fpad[0] << 8 | fpad[1];
 
     // Adapt AU data to PADDecoder
     uint8_t xpad_data[256];
-    uint8_t *xpad = theAU + pad_start;
+    uint8_t *xpad = Data + pad_start;
 
     // Undo reversed byte order
     size_t used_xpad_len = std::min(xpad_len, sizeof(xpad_data));
@@ -100,4 +100,28 @@ void PADDecoderAdapter::processPAD(uint8_t *theAU)
 
     // Run PADDecoder
     padDecoder->Process(xpad_data, xpad_len, true, fpad_value);
+}
+
+void PADDecoderAdapter::processPAD_DAB(uint8_t *Data, int16_t Length, int16_t ScF_CRC_Length)
+{
+    uint8_t FPAD_LEN = 2;
+
+    // Adapt length to PADDecoder
+    size_t xpad_len = Length - FPAD_LEN - ScF_CRC_Length;
+
+    // Adapt FPAD to PADDecoder
+    uint8_t *fpad = Data + Length - FPAD_LEN;
+    uint16_t fpad_value = fpad[0] << 8 | fpad[1];
+
+    // Adapt AU data to PADDecoder
+    uint8_t xpad_data[xpad_len];
+    uint8_t *xpad = Data;
+
+    // Undo reversed byte order
+    size_t used_xpad_len = std::min(xpad_len, sizeof(xpad_data));
+    for(size_t i = 0; i < used_xpad_len; i++)
+        xpad_data[i] = xpad[xpad_len - 1 - i];
+
+    // Run PADDecoder
+    padDecoder->Process(xpad_data, xpad_len, false, fpad_value);
 }
