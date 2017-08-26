@@ -92,9 +92,10 @@ ofdmDecoder::~ofdmDecoder(void)
         usleep (100);
     delete      fft_handler;
     delete[]    phaseReference;
-    for (i = 0; i < params->L; i ++)
-        delete[] command[i];
-    delete[] command;
+// Ugly hack, to following three lines produces crashes while shutdown
+//    for (i = 0; i < params->L; i ++)
+//        delete[] command[i];
+//    delete[] command;
 }
 
 void    ofdmDecoder::stop(void)
