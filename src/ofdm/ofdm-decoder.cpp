@@ -84,7 +84,7 @@ ofdmDecoder::ofdmDecoder(
 
 ofdmDecoder::~ofdmDecoder(void)
 {
-    int16_t i;
+//    int16_t i;
     running = false;
     commandHandler.wakeAll ();
     usleep (1000);
