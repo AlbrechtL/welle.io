@@ -512,7 +512,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
         } else {
             index += n;
             if (index < 0) {
-                index = 0;
+                index = mStationList.size() + (index % mStationList.size());
             } else if (index >= mStationList.size()) {
                 index = index % mStationList.size();
             }
