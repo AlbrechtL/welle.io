@@ -39,6 +39,15 @@ StationElement::StationElement(QString const stationName,
     setProperty("channelName",channelName);
 }
 
+StationElement::StationElement(QObject *parent)
+    : QObject(parent)
+{
+}
+
+StationElement::~StationElement ()
+{
+}
+
 QString StationElement::getStationName(void)
 {
     return mStationName;
@@ -49,10 +58,25 @@ QString StationElement::getChannelName(void)
     return mChannelName;
 }
 
+QDataStream& operator<<(QDataStream &out, StationElement* const& object)
+{
+    out << object->mStationName;
+    out << object->mChannelName;
+    return out;
+}
+
+QDataStream& operator>>(QDataStream &in, StationElement*& object)
+{
+    object = new StationElement();
+    in >> object->mStationName;
+    in >> object->mChannelName;
+    return in;
+}
+
 CStationList::CStationList(QString settingsGroup)
     : mSettingsGroup(settingsGroup)
 {
-    mStationList.clear();
+    reset();
 }
 
 CStationList::~CStationList (void)
@@ -60,7 +84,11 @@ CStationList::~CStationList (void)
 }
 
 void CStationList::reset(void) {
-    mStationList.clear();
+    for (QList<StationElement*>::iterator it = mStationList.begin(); it != mStationList.end();) {
+        StationElement *station = *it;
+        it = mStationList.erase(it);
+        delete station;
+    }
 }
 
 bool variantLessThan(const QObject* v1, const QObject* v2)
@@ -89,7 +117,7 @@ int CStationList::count(void)
 
 StationElement* CStationList::at(int i)
 {
-    return (StationElement*) mStationList.at(i);
+    return mStationList.at(i);
 }
 
 QStringList CStationList::getStationAt(int i)
@@ -108,8 +136,7 @@ StationElement* CStationList::find(QString StationName, QString ChannelName)
     if (StationName.isNull())
         return 0;
 
-    foreach (QObject *obj, mStationList) {
-        StationElement *station = (StationElement*)obj;
+    foreach (StationElement *station, mStationList) {
         if (station->getStationName() == StationName &&
                 station->getChannelName() == ChannelName) {
             return station;
@@ -131,18 +158,19 @@ void CStationList::append(QString StationName, QString ChannelName)
 
 bool CStationList::remove(QString StationName, QString ChannelName)
 {
-    for (QList<QObject*>::iterator it = mStationList.begin(); it != mStationList.end(); it++) {
-        StationElement *station = (StationElement*)*it;
+    for (QList<StationElement*>::iterator it = mStationList.begin(); it != mStationList.end(); it++) {
+        StationElement *station = *it;
         if (station->getStationName() == StationName
                 && station->getChannelName() == ChannelName) {
             mStationList.erase(it);
+            delete station;
             return true;
         }
     }
     return false;
 }
 
-QList<QObject*> CStationList::getList(void)
+QList<StationElement*> CStationList::getList(void) const
 {
     return  mStationList;
 }

@@ -92,6 +92,13 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, CDABParams& 
 
     UpdateGUIData();
 
+    // Read channels from the settings
+    mStationList.loadStations();
+    mStationList.sort();
+
+    emit StationsChanged(mStationList.getList());
+
+    // Init timers
     connect(&StationTimer, &QTimer::timeout, this, &CRadioController::StationTimerTimeout);
     connect(&ChannelTimer, &QTimer::timeout, this, &CRadioController::ChannelTimerTimeout);
     connect(&SyncCheckTimer, &QTimer::timeout, this, &CRadioController::SyncCheckTimerTimeout);
@@ -263,6 +270,21 @@ void CRadioController::Stop()
     UpdateGUIData();
 }
 
+void CRadioController::ClearStations()
+{
+    //	Clear old channels
+    emit StationsCleared();
+    mStationList.reset();
+    emit StationsChanged(mStationList.getList());
+
+    // Save the channels
+    mStationList.saveStations();
+
+    // Clear last station
+    QSettings Settings;
+    Settings.remove("lastchannel");
+}
+
 qreal CRadioController::Volume() const
 {
     return CurrentVolume;
@@ -340,6 +362,8 @@ void CRadioController::StartScan(void)
         UpdateGUIData();
         emit ScanProgress(0);
     }
+
+    ClearStations();
 }
 
 void CRadioController::StopScan(void)
@@ -353,6 +377,11 @@ void CRadioController::StopScan(void)
     Status = Stopped;
     UpdateGUIData();
     emit ScanStopped();
+}
+
+QList<StationElement *> CRadioController::Stations() const
+{
+    return mStationList.getList();
 }
 
 QVariantMap CRadioController::GUIData(void) const
@@ -704,7 +733,19 @@ void CRadioController::addtoEnsemble(quint32 SId, const QString &Station)
         UpdateGUIData();
     }
 
-    emit FoundStation(Station, CurrentChannel);
+    //	Add new station into list
+    if (!mStationList.contains(Station, CurrentChannel)) {
+        mStationList.append(Station, CurrentChannel);
+
+        //	Sort stations
+        mStationList.sort();
+
+        emit StationsChanged(mStationList.getList());
+        emit FoundStation(Station, CurrentChannel);
+
+        // Save the channels
+        mStationList.saveStations();
+    }
 }
 
 void CRadioController::nameofEnsemble(int id, const QString &Ensemble)

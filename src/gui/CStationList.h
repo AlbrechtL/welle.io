@@ -29,6 +29,7 @@
 #ifndef STATIONLIST_H
 #define STATIONLIST_H
 
+#include <QDataStream>
 #include <QObject>
 #include <QVariant>
 
@@ -41,8 +42,14 @@ Q_OBJECT
 public:
     explicit StationElement (QString stationName, QString channelName,
                              QObject *parent = 0);
+    explicit StationElement (QObject *parent = 0);
+    virtual ~StationElement ();
+
     QString getStationName(void);
     QString getChannelName(void);
+
+    friend QDataStream& operator<<(QDataStream &out, StationElement* const& object);
+    friend QDataStream& operator>>(QDataStream &in, StationElement*& object);
 
 private:
     QString mStationName;
@@ -68,13 +75,13 @@ public:
     bool contains(QString StationName, QString ChannelName);
     void append(QString StationName, QString ChannelName);
     bool remove(QString StationName, QString ChannelName);
-    QList<QObject*>  getList(void);
+    QList<StationElement*> getList(void) const;
     void loadStations();
     void saveStations();
 
 private:
     QString mSettingsGroup;
-    QList<QObject*> mStationList;
+    QList<StationElement*> mStationList;
 };
 
 #endif // STATIONLIST_H

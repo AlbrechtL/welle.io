@@ -63,14 +63,9 @@ CGUI::CGUI(CRadioController *RadioController, QObject *parent)
 {
     this->RadioController = RadioController;
 
-    // Read channels from the settings
-    stationList.loadStations();
-    stationList.sort();
-
-    if(stationList.count() == 0)
-        stationList.append(tr("Station list is empty"), "");
-
-    p_stationModel = QVariant::fromValue(stationList.getList());
+    QList<StationElement*> stations = RadioController->Stations();
+    QList<QObject*> stationList = *reinterpret_cast<QList<QObject*>*>(&stations);
+    p_stationModel = QVariant::fromValue(stationList);
     emit stationModelChanged();
 
     // Add image provider for the MOT slide show
@@ -80,7 +75,7 @@ CGUI::CGUI(CRadioController *RadioController, QObject *parent)
     connect(RadioController, &CRadioControllerReplica::GUIDataChanged, this, &CGUI::GUIDataUpdate);
     connect(RadioController, &CRadioControllerReplica::MOTChanged, this, &CGUI::MOTUpdate);
     connect(RadioController, &CRadioControllerReplica::SpectrumUpdated, this, &CGUI::SpectrumUpdate);
-    connect(RadioController, &CRadioControllerReplica::FoundStation, this, &CGUI::AddToStationList);
+    connect(RadioController, &CRadioControllerReplica::StationsChanged, this, &CGUI::StationsChange);
     connect(RadioController, &CRadioControllerReplica::ScanStopped, this, &CGUI::channelScanStopped);
     connect(RadioController, &CRadioControllerReplica::ScanProgress, this, &CGUI::channelScanProgress);
 
@@ -90,7 +85,7 @@ CGUI::CGUI(CRadioController *RadioController, QObject *parent)
     connect(RadioController, &CRadioController::GUIDataChanged, this, &CGUI::GUIDataUpdate);
     connect(RadioController, &CRadioController::MOTChanged, this, &CGUI::MOTUpdate);
     connect(RadioController, &CRadioController::SpectrumUpdated, this, &CGUI::SpectrumUpdate);
-    connect(RadioController, &CRadioController::FoundStation, this, &CGUI::AddToStationList);
+    connect(RadioController, &CRadioController::StationsChanged, this, &CGUI::StationsChange);
     connect(RadioController, &CRadioController::ScanStopped, this, &CGUI::channelScanStopped);
     connect(RadioController, &CRadioController::ScanProgress, this, &CGUI::channelScanProgress);
 #endif
@@ -158,22 +153,10 @@ const QVariantMap CGUI::licenses()
     return ret;
 }
 
-/**
-  *	\brief At the end, we might save some GUI values
-  *	The QSettings could have been the class variable as well
-  *	as the parameter
-  */
-void CGUI::saveChannels()
-{
-    stationList.saveStations();
-}
-
 void CGUI::startChannelScanClick(void)
 {
     if(RadioController)
         RadioController->StartScan();
-
-    clearStationList();
 }
 
 void CGUI::stopChannelScanClick(void)
@@ -194,23 +177,14 @@ void CGUI::MOTUpdate(QImage MOTImage)
     emit motChanged();
 }
 
-void CGUI::AddToStationList(QString StationName, QString CurrentChannel)
+void CGUI::StationsChange(QList<StationElement*> Stations)
 {
-    //	Add new station into list
-    if (!stationList.contains(StationName, CurrentChannel)) {
-        stationList.append(StationName, CurrentChannel);
+    //qDebug() << "CGUI:" <<  "StationsChange";
+    QList<QObject*> stationList = *reinterpret_cast<QList<QObject*>*>(&Stations);
+    p_stationModel = QVariant::fromValue(stationList);
 
-        //	Sort stations
-        stationList.sort();
-        p_stationModel = QVariant::fromValue(stationList.getList());
-        emit stationModelChanged();
-
-        //fprintf (stderr,"Found station %s\n", s.toStdString().c_str());
-        emit foundChannelCount(stationList.count());
-
-        // Save the channels
-        saveChannels();
-    }
+    emit stationModelChanged();
+    emit foundChannelCount(Stations.count());
 }
 
 void CGUI::channelClick(QString StationName, QString ChannelName)
@@ -250,14 +224,11 @@ void CGUI::inputGainChanged(double gain)
 
 void CGUI::clearStationList()
 {
-    //	Clear old channels
-    stationList.reset();
-    saveChannels();
-
-    p_stationModel = QVariant::fromValue(stationList.getList());
-    emit stationModelChanged();
+    if(RadioController)
+    {
+        RadioController->ClearStations();
+    }
 }
-
 
 void CGUI::registerSpectrumSeries(QAbstractSeries* series)
 {

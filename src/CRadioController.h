@@ -37,6 +37,7 @@
 #include <QVariantMap>
 
 #include "CAudio.h"
+#include "CStationList.h"
 #include "DabConstants.h"
 #include "ofdm-processor.h"
 #include "ringbuffer.h"
@@ -75,6 +76,7 @@ class CRadioController : public QObject
     Q_PROPERTY(int GainCount READ GainCount NOTIFY GainCountChanged)
     Q_PROPERTY(int Gain READ Gain WRITE setGain NOTIFY GainChanged)
     Q_PROPERTY(qreal Volume READ Volume WRITE setVolume NOTIFY VolumeChanged)
+    Q_PROPERTY(QList<StationElement*> Stations READ Stations NOTIFY StationsChanged)
     Q_PROPERTY(QVariantMap GUIData READ GUIData NOTIFY GUIDataChanged)
     Q_PROPERTY(QImage MOT READ MOT NOTIFY MOTChanged)
 #endif
@@ -97,11 +99,13 @@ public:
     void Play(QString Channel, QString Station);
     void Pause();
     void Stop();
+    void ClearStations();
     void SetStation(QString Station, bool Force = false);
     void SetChannel(QString Channel, bool isScan, bool Force = false);
     void StartScan(void);
     void StopScan(void);
     void UpdateSpectrum(void);
+    QList<StationElement*> Stations() const;
     QVariantMap GUIData(void) const;
     QImage MOT() const;
 
@@ -187,6 +191,7 @@ private:
     float CurrentManualGainValue;
     qreal CurrentVolume;
 
+    CStationList mStationList;
     QList<QString> StationList;
     QTimer StationTimer;
     QTimer ChannelTimer;
@@ -230,8 +235,10 @@ signals:
     void VolumeChanged(qreal);
     void MOTChanged(QImage MOTImage);
 
+    void StationsChanged(QList<StationElement*> Stations);
     void GUIDataChanged(QVariantMap GUIData);
     void DeviceReady();
+    void StationsCleared();
     void FoundStation(QString Station, QString CurrentChannel);
     void ScanStopped();
     void ScanProgress(int Progress);

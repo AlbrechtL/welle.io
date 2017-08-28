@@ -1,7 +1,9 @@
 #include <QImage>
 #include <QPointF>
+#include <QVariant>
 #include <QVariantMap>
 #include <QVector>
+#include "CStationList.h"
 
 class CRadioController
 {
@@ -27,10 +29,12 @@ class CRadioController
 
     PROP(qreal Volume READWRITE);
 
+    PROP(QList<StationElement*> Stations READONLY);
     PROP(QVariantMap GUIData READONLY);
     PROP(QImage MOT READONLY);
 
     SIGNAL(DeviceReady());
+    SIGNAL(StationsCleared());
     SIGNAL(FoundStation(QString Station, QString CurrentChannel));
     SIGNAL(ScanStopped());
     SIGNAL(ScanProgress(int Progress));
@@ -42,6 +46,7 @@ class CRadioController
     SLOT(StartScan());
     SLOT(StopScan());
     SLOT(Play(QString Channel, QString Station));
+    SLOT(ClearStations());
     SLOT(SetStation(QString Station, bool Force = false));
     SLOT(SetChannel(QString Channel, bool isScan, bool Force = false));
     SLOT(UpdateSpectrum());

@@ -168,8 +168,6 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
     public static native void startChannelScan();
     public static native void stopChannelScan();
 
-    public static native void saveStations();
-
     public static void serviceReady() {
         Log.i(TAG, "Service ready");
         if (instance == null)

@@ -44,7 +44,6 @@ using namespace QtCharts;
 #include "CRadioController.h"
 #endif
 #include "CMOTImageProvider.h"
-#include "CStationList.h"
 #include "DabConstants.h"
 
 /*
@@ -72,7 +71,6 @@ public:
     Q_INVOKABLE void setManualChannel(QString ChannelName);
     Q_INVOKABLE void startChannelScanClick(void);
     Q_INVOKABLE void stopChannelScanClick(void);
-    Q_INVOKABLE void saveChannels(void);
     Q_INVOKABLE void inputEnableAGCChanged(bool checked);
     Q_INVOKABLE void inputEnableHwAGCChanged(bool checked);
     Q_INVOKABLE void inputGainChanged(double gain);
@@ -100,7 +98,6 @@ private:
 
     const QVariantMap licenses();
 
-    CStationList stationList;
     QVariant p_stationModel;
 
     float m_currentGainValue;
@@ -112,7 +109,7 @@ private slots:
     void GUIDataUpdate(QVariantMap GUIData);
     void MOTUpdate(QImage MOTImage);
     void SpectrumUpdate(qreal Ymax, qreal Xmin, qreal Xmax, QVector<QPointF> Data);
-    void AddToStationList(QString Station, QString CurrentChannel);
+    void StationsChange(QList<StationElement *> Stations);
 
 signals:
     void channelScanStopped(void);

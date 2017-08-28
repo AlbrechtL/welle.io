@@ -178,7 +178,6 @@ CAndroidJNI& CAndroidJNI::getInstance()
 CAndroidJNI::CAndroidJNI(QObject *parent)
     : QObject(parent)
     , mRadioController(NULL)
-    , mStationList()
     , mFavoriteList("favorite")
 {
     qDebug() << "AndroidJNI:" <<  "Created";
@@ -198,6 +197,8 @@ void CAndroidJNI::setRadioController(CRadioController *radioController)
             this, &CAndroidJNI::updateGuiData);
     connect(radioController, &CRadioController::DeviceReady,
             this, &CAndroidJNI::deviceReady);
+    connect(radioController, &CRadioController::StationsCleared,
+            this, &CAndroidJNI::clearStations);
     connect(radioController, &CRadioController::FoundStation,
             this, &CAndroidJNI::foundStation);
     connect(radioController, &CRadioController::ScanStopped,
@@ -260,19 +261,11 @@ void CAndroidJNI::saveFavoriteStations()
     //TODO update favorite stations
 }
 
-void CAndroidJNI::saveStations()
-{
-    qDebug() << "AndroidJNI:" <<  "Save stations";
-    mStationList.saveStations();
-}
-
 void CAndroidJNI::startChannelScan(void)
 {
     qDebug() << "AndroidJNI:" <<  "Start channel scan";
     if(mRadioController)
         mRadioController->StartScan();
-
-//    clearStationList();
 }
 
 void CAndroidJNI::stopChannelScan(void)
@@ -310,11 +303,8 @@ void CAndroidJNI::deviceReady(void)
     if(!mRadioController)
         return;
 
-    // Read stations from settings
-    mStationList.reset();
-    mStationList.loadStations();
-    foreach (QObject *obj, mStationList.getList()) {
-        StationElement *s = (StationElement*)obj;
+    // Get stations
+    foreach (StationElement *s, mRadioController->Stations()) {
         addStation(s->getStationName(), s->getChannelName());
     }
 
@@ -339,13 +329,7 @@ void CAndroidJNI::foundStation(QString station, QString channel)
 {
     qDebug() << "AndroidJNI:" <<  "Found station:" << station
              << "channel:" << channel;
-    //	Add new station into list
-    if (!mStationList.contains(station, channel)) {
-        addStation(station, channel);
-
-        // Save the channels
-        saveStations();
-    }
+    addStation(station, channel);
 }
 
 void CAndroidJNI::play(QString station, QString channel)
@@ -411,8 +395,6 @@ void CAndroidJNI::addStation(QString station, QString channel)
 {
     qDebug() << "AndroidJNI:" <<  "Add station:" << station
              << "channel:" << channel;
-    mStationList.append(station, channel);
-    mStationList.sort();
 
     QAndroidJniObject jStation = QAndroidJniObject::fromString(station);
     QAndroidJniObject jChannel = QAndroidJniObject::fromString(channel);
@@ -426,8 +408,6 @@ void CAndroidJNI::addStation(QString station, QString channel)
 void CAndroidJNI::clearStations(void)
 {
     qDebug() << "AndroidJNI:" <<  "Clear stations";
-    mStationList.reset();
-    saveStations();
     QAndroidJniObject::callStaticMethod<void>("io/welle/welle/DabService",
                                               "clearStations", "()V");
 }

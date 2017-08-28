@@ -57,9 +57,6 @@ public:
     Q_INVOKABLE void startChannelScan(void);
     Q_INVOKABLE void stopChannelScan(void);
 
-    Q_INVOKABLE void saveStations(void);
-    Q_INVOKABLE void clearStations(void);
-
     static QString getLastStation(void);
 
     void setRadioController(CRadioController *radioController);
@@ -67,7 +64,6 @@ public:
 private:
     CAndroidJNI(QObject* parent = NULL);
     CRadioController *mRadioController;
-    CStationList mStationList;
     CStationList mFavoriteList;
     void addStation(QString station, QString channel);
 
@@ -75,6 +71,7 @@ private slots:
     void serviceReady(void);
     void deviceReady(void);
     void updateGuiData(QVariantMap GUIData);
+    void clearStations(void);
     void foundStation(QString station, QString channel);
     void channelScanStopped(void);
     void channelScanProgress(int Progress);
