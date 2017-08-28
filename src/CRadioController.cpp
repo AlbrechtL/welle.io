@@ -391,8 +391,7 @@ QVariantMap CRadioController::GUIData(void) const
 
 void CRadioController::UpdateGUIData()
 {
-    if(Device)
-       mGUIData["DeviceName"] = Device->getName();
+    mGUIData["DeviceName"] = (Device) ? Device->getName() : "";
 
     // Init the GUI data map
     mGUIData["Status"] = Status;
