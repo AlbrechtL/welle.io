@@ -227,6 +227,10 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
             return;
 
         instance.mStationList.clear();
+
+        if (instance.mDabCallback != null) {
+            instance.mDabCallback.updateStationList(instance.mStationList);
+        }
     }
 
     public static void channelScanStopped() {
@@ -235,6 +239,8 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
             return;
 
         instance.mChannelScanProgress = -1;
+
+        instance.updatePlaybackState();
     }
 
     public static void channelScanProgress(int progress) {
@@ -243,12 +249,14 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
             return;
 
         instance.mChannelScanProgress = progress;
+
+        instance.updatePlaybackState();
     }
 
     public static void updateGuiData(int status, String channel, String station, String title, String label, String type) {
-        Log.i(TAG, "Update display data status" + status + " channel: " + channel
-                + ", station=" + station + ", title=" + title + ", label=" + label
-                + ", type=" + type);
+        Log.i(TAG, "Update display data: status: " + status + " channel: " + channel
+                + ", station: " + station + ", title: " + title + ", label: " + label
+                + ", type: " + type);
         if (instance == null)
             return;
 
