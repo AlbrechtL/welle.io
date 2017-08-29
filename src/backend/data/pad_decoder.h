@@ -1,6 +1,6 @@
 /*
     DABlin - capital DAB experience
-    Copyright (C) 2015-2016 Stefan Pöschel
+    Copyright (C) 2015-2017 Stefan Pöschel
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,8 +19,8 @@
 #ifndef PAD_DECODER_H_
 #define PAD_DECODER_H_
 
-#include <cstdint>
-#include <cstring>
+#include <stdint.h>
+#include <string.h>
 #include <list>
 #include <map>
 #include <mutex>
@@ -36,187 +36,165 @@
 
 
 // --- DL_SEG -----------------------------------------------------------------
-struct DL_SEG
-{
-    uint8_t prefix[2];
-    std::vector<uint8_t> chars;
+struct DL_SEG {
+	uint8_t prefix[2];
+	std::vector<uint8_t> chars;
 
-    bool Toggle() const {return prefix[0] & 0x80;}
-    bool First() const {return prefix[0] & 0x40;}
-    bool Last() const {return prefix[0] & 0x20;}
-    int SegNum() const {return First() ? 0 : ((prefix[1] & 0x70) >> 4);}
+	bool Toggle() const {return prefix[0] & 0x80;}
+	bool First() const {return prefix[0] & 0x40;}
+	bool Last() const {return prefix[0] & 0x20;}
+	int SegNum() const {return First() ? 0 : ((prefix[1] & 0x70) >> 4);}
 };
 
 
 // --- DataGroup -----------------------------------------------------------------
-class DataGroup
-{
-    public:
-        DataGroup(size_t dg_size_max);
-        virtual ~DataGroup() {}
+class DataGroup {
+protected:
+	std::vector<uint8_t> dg_raw;
+	size_t dg_size;
+	size_t dg_size_needed;
 
-        bool ProcessDataSubfield(bool start, const uint8_t *data, size_t len);
+	virtual size_t GetInitialNeededSize() {return 0;};
+	virtual bool DecodeDataGroup() = 0;
+	bool EnsureDataGroupSize(size_t desired_dg_size);
+	bool CheckCRC(size_t len);
+	void Reset();
+public:
+	DataGroup(size_t dg_size_max);
+	virtual ~DataGroup() {}
 
-    protected:
-        std::vector<uint8_t> dg_raw;
-        size_t dg_size;
-        size_t dg_size_needed;
-
-        virtual size_t GetInitialNeededSize() {return 0;};
-        virtual bool DecodeDataGroup() = 0;
-        bool EnsureDataGroupSize(size_t desired_dg_size);
-        bool CheckCRC(size_t len);
-        void Reset();
+	bool ProcessDataSubfield(bool start, const uint8_t *data, size_t len);
 };
 
 
 // --- DGLIDecoder -----------------------------------------------------------------
-class DGLIDecoder : public DataGroup
-{
-    public:
-        DGLIDecoder() : DataGroup(2 + CalcCRC::CRCLen) {Reset();}
+class DGLIDecoder : public DataGroup {
+private:
+	size_t dgli_len;
 
-        void Reset();
+	size_t GetInitialNeededSize() {return 2 + CalcCRC::CRCLen;}	// DG len + CRC
+	bool DecodeDataGroup();
+public:
+	DGLIDecoder() : DataGroup(2 + CalcCRC::CRCLen) {Reset();}
 
-        size_t GetDGLILen();
+	void Reset();
 
-    private:
-        size_t dgli_len;
-
-        size_t GetInitialNeededSize() {return 2 + CalcCRC::CRCLen;} // DG len + CRC
-        bool DecodeDataGroup();
+	size_t GetDGLILen();
 };
 
 
 typedef std::map<int,DL_SEG> dl_segs_t;
 
 // --- DL_SEG_REASSEMBLER -----------------------------------------------------------------
-struct DL_SEG_REASSEMBLER
-{
-    dl_segs_t dl_segs;
-    std::vector<uint8_t> label_raw;
+struct DL_SEG_REASSEMBLER {
+	dl_segs_t dl_segs;
+	std::vector<uint8_t> label_raw;
 
-    bool AddSegment(DL_SEG &dl_seg);
-    bool CheckForCompleteLabel();
-    void Reset();
+	bool AddSegment(DL_SEG &dl_seg);
+	bool CheckForCompleteLabel();
+	void Reset();
 };
 
 
 // --- DL_STATE -----------------------------------------------------------------
-struct DL_STATE
-{
-    std::vector<uint8_t> raw;
-    int charset;
+struct DL_STATE {
+	std::vector<uint8_t> raw;
+	int charset;
 
-    DL_STATE() {Reset();}
-    void Reset() {
-        raw.clear();
-        charset = -1;
-    }
+	DL_STATE() {Reset();}
+	void Reset() {
+		raw.clear();
+		charset = -1;
+	}
 };
 
 
 // --- DynamicLabelDecoder -----------------------------------------------------------------
-class DynamicLabelDecoder : public DataGroup
-{
-    public:
-        DynamicLabelDecoder() : DataGroup(2 + 16 + CalcCRC::CRCLen) {Reset();}
+class DynamicLabelDecoder : public DataGroup {
+private:
+	DL_SEG_REASSEMBLER dl_sr;
+	DL_STATE label;
 
-        void Reset();
+	size_t GetInitialNeededSize() {return 2 + CalcCRC::CRCLen;}	// at least prefix + CRC
+	bool DecodeDataGroup();
+public:
+	DynamicLabelDecoder() : DataGroup(2 + 16 + CalcCRC::CRCLen) {Reset();}
 
-        DL_STATE GetLabel() {return label;}
+	void Reset();
 
-    private:
-        DL_SEG_REASSEMBLER dl_sr;
-        DL_STATE label;
-
-        size_t GetInitialNeededSize() {return 2 + CalcCRC::CRCLen;} // at least prefix + CRC
-        bool DecodeDataGroup();
+	DL_STATE GetLabel() {return label;}
 };
 
 
 // --- MOTDecoder -----------------------------------------------------------------
-class MOTDecoder : public DataGroup
-{
-    public:
-        MOTDecoder() : DataGroup(16384) {Reset();}  // = 2^14
+class MOTDecoder : public DataGroup {
+private:
+	size_t mot_len;
 
-        void Reset();
+	size_t GetInitialNeededSize() {return mot_len;}	// MOT len + CRC (or zero!)
+	bool DecodeDataGroup();
+public:
+	MOTDecoder() : DataGroup(16384) {Reset();}	// = 2^14
 
-        void SetLen(size_t mot_len) {this->mot_len = mot_len;}
+	void Reset();
 
-        std::vector<uint8_t> GetMOTDataGroup();
+	void SetLen(size_t mot_len) {this->mot_len = mot_len;}
 
-    private:
-        size_t mot_len;
-
-        size_t GetInitialNeededSize() {return mot_len;} // MOT len + CRC (or zero!)
-        bool DecodeDataGroup();
+	std::vector<uint8_t> GetMOTDataGroup();
 };
 
 
 // --- XPAD_CI -----------------------------------------------------------------
-struct XPAD_CI
-{
-    size_t len;
-    int type;
+struct XPAD_CI {
+	size_t len;
+	int type;
 
-    static const size_t lens[];
-    static int GetContinuedLastCIType(int last_ci_type);
+	static const size_t lens[];
+	static int GetContinuedLastCIType(int last_ci_type);
 
-    XPAD_CI() {Reset();}
-    XPAD_CI(uint8_t ci_raw) {
-        len = lens[ci_raw >> 5];
-        type = ci_raw & 0x1F;
-    }
+	XPAD_CI() {Reset();}
+	XPAD_CI(uint8_t ci_raw) {
+		len = lens[ci_raw >> 5];
+		type = ci_raw & 0x1F;
+	}
+	XPAD_CI(size_t len, int type) : len(len), type(type) {}
 
-    XPAD_CI(size_t len, int type) : len(len), type(type) {}
-
-    void Reset() {
-        len = 0;
-        type = -1;
-    }
+	void Reset() {
+		len = 0;
+		type = -1;
+	}
 };
 
 typedef std::list<XPAD_CI> xpad_cis_t;
 
 
 // --- PADDecoderObserver -----------------------------------------------------------------
-class PADDecoderObserver
-{
-    public:
-        virtual ~PADDecoderObserver() {};
+class PADDecoderObserver {
+public:
+	virtual ~PADDecoderObserver() {};
 
-        virtual void PADChangeDynamicLabel() {};
-        virtual void PADChangeSlide() {};
+	virtual void PADChangeDynamicLabel(const DL_STATE& /*dl*/) {};
+	virtual void PADChangeSlide(const MOT_FILE& /*slide*/) {};
 };
 
 
 // --- PADDecoder -----------------------------------------------------------------
-class PADDecoder
-{
-    public:
-        PADDecoder(PADDecoderObserver *observer) : observer(observer) {}
+class PADDecoder {
+private:
+	PADDecoderObserver *observer;
+	bool loose;
 
-        void Process(const uint8_t *xpad_data, size_t xpad_len, bool exact_xpad_len, uint16_t fpad);
-        void Reset();
+	XPAD_CI last_xpad_ci;
 
-        DL_STATE GetDynamicLabel();
-        MOT_FILE GetSlide();
+	DynamicLabelDecoder dl_decoder;
+	DGLIDecoder dgli_decoder;
+	MOTDecoder mot_decoder;
+	MOTManager mot_manager;
+public:
+	PADDecoder(PADDecoderObserver *observer, bool loose) : observer(observer), loose(loose) {}
 
-    private:
-        PADDecoderObserver *observer;
-
-        XPAD_CI last_xpad_ci;
-
-        std::mutex data_mutex;
-        DL_STATE dl;
-        MOT_FILE slide;
-
-        DynamicLabelDecoder dl_decoder;
-        DGLIDecoder dgli_decoder;
-        MOTDecoder mot_decoder;
-        MOTManager mot_manager;
+	void Process(const uint8_t *xpad_data, size_t xpad_len, bool exact_xpad_len, uint16_t fpad);
+	void Reset();
 };
 
 #endif /* PAD_DECODER_H_ */

@@ -12,7 +12,7 @@ Popup {
 
     id: popup
     width: textView.width + Units.dp(65)
-    height: Units.dp(50)
+    height: (textView.paintedHeight + Units.dp(10)) < Units.dp(50) ? Units.dp(50) : (textView.paintedHeight + Units.dp(10))
     closePolicy: Popup.NoAutoClose
     enter:  Transition {
         NumberAnimation { property: "y"; from: hiddenY ; to: revealedY;}
@@ -31,6 +31,10 @@ Popup {
             text: "Message Popup"
             anchors.verticalCenter: parent.verticalCenter
             anchors.right: parent.right
+            wrapMode: Text.WordWrap
+            onTextChanged: {
+                if(paintedWidth + Units.dp(65) > mainWindow.width) width = mainWindow.width - Units.dp(65)
+            }
         }
 
         Rectangle {

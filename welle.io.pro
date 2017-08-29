@@ -21,7 +21,7 @@ DISTFILES +=    README.md \
     android/java/io/welle/welle/DabService.java \
     android/java/io/welle/welle/DabDelegate.java
 
-TRANSLATIONS = i18n/de_DE.ts
+TRANSLATIONS = i18n/de_DE.ts i18n/it_IT.ts
 
 lupdate_only{ # Workaround for lupdate to scan QML files
 SOURCES += src/gui/QML/*.qml \

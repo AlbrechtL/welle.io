@@ -49,7 +49,7 @@
 typedef float DSPFLOAT;
 typedef std::complex<DSPFLOAT> DSPCOMPLEX;
 
-#define CURRENT_VERSION "1.0-alpha"
+#define CURRENT_VERSION "1.0-beta"
 
 #define DAB 0100
 #define DAB_PLUS 0101

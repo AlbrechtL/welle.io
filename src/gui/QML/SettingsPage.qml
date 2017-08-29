@@ -202,6 +202,7 @@ Item {
                             checked: false
                             onText: "3D"
                             offText: "2D"
+                            visible: false // Deactivated because 3D view is not ready
                         }
 
                         TouchSwitch {

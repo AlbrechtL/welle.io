@@ -118,6 +118,7 @@ const QVariantMap CGUI::licenses()
     InfoContent.append("welle.io " + tr("version") + ": " + QString(CURRENT_VERSION) + "\n");
     InfoContent.append(tr("Git revision") + ": " + QString(GITHASH) + "\n");
     InfoContent.append(tr("Build on") + ": " + QString(__TIMESTAMP__) + "\n");
+    InfoContent.append(tr("QT version") + ": " + qVersion() + "\n");
     InfoContent.append("\n");
 
     // Read AUTHORS

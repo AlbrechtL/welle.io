@@ -296,7 +296,7 @@ void  mp4Processor::handle_aacFrame(
     memset (&theAudioUnit[frame_length], 0, 10);
 
     if (((theAudioUnit[0] >> 5) & 07) == 4)
-        padDecoderAdapter-> processPAD (theAudioUnit);
+        padDecoderAdapter-> processPAD_DABPlus(theAudioUnit);
 
     int tmp = aacDecoder. MP42PCM (dacRate,
             sbrFlag,

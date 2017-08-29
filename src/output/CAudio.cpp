@@ -85,8 +85,7 @@ void CAudio::init(int sampleRate)
     QAudioDeviceInfo info(QAudioDeviceInfo::defaultOutputDevice());
     if (!info.isFormatSupported(AudioFormat)) {
         qDebug() << "Audio:"
-                 << "Audio format \"audio/pcm\" 16-bit stereo not supported. Something went wrong, cannot play audio.";
-        return;
+                 << "Audio format \"audio/pcm\" 16-bit stereo not supported. Your audio may not work!";
     }
 
     AudioOutput = new QAudioOutput(AudioFormat, this);

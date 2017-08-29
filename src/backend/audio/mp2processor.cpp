@@ -232,6 +232,7 @@ struct quantizer_spec quantizer_table[17] = {
 
         myRadioInterface    = mr;
         this->buffer        = buffer;
+        this->bitRate       = bitRate;
         connect (this, SIGNAL (show_frameErrors (int)),
                 mr, SLOT (show_frameErrors (int)));
         connect (this, SIGNAL (newAudio (int)),
@@ -248,6 +249,7 @@ struct quantizer_spec quantizer_table[17] = {
         MP2bitCount    = 0;
         numberofFrames = 0;
         errorFrames    = 0;
+        padDecoderAdapter = std::make_unique<PADDecoderAdapter>(mr);
     }
 
 
@@ -425,7 +427,7 @@ int32_t mp2Processor::mp2decodeFrame (uint8_t *frame, int16_t *pcm)
         get_bits(2);
         bound = (mode == MONO) ? 0 : 32;
     }
-    emit isStereo (mode == JOINT_STEREO);
+    emit isStereo (mode != MONO);
 
     // discard the last 4 bits of the header and the CRC value, if present
     get_bits(4);
@@ -601,6 +603,21 @@ void mp2Processor::addtoFrame(uint8_t *v)
     int16_t i, j;
     int16_t lf  = baudRate == 48000 ? MP2framesize : 2 * MP2framesize;
     int16_t amount  = MP2framesize;
+    uint8_t	data [24 * bitRate / 8];
+    int16_t	length	= 24 * bitRate / 8;
+
+
+    for (i = 0; i < 24 * bitRate / 8; i ++) {
+           data [i] = 0;
+           for (j = 0; j < 8; j ++) {
+              data [i] <<= 1;
+              data [i] |= v [8 * i + j] & 01;
+           }
+        }
+        {
+          int16_t ScF_CRC_Length	= bitRate * 1000 >= 56000 ? 4 : 2;
+          padDecoderAdapter-> processPAD_DAB (data, length, ScF_CRC_Length);
+        }
 
     for (i = 0; i < amount; i ++) {
         if (MP2Header_OK == 2) {
