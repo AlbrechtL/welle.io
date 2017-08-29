@@ -641,8 +641,8 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
                 stateBuilder.addCustomAction(CUSTOM_ACTION_SCAN_START, resources.getString(R.string.action_scan),
                         android.R.drawable.ic_menu_search);
 
-                stateBuilder.addCustomAction(CUSTOM_ACTION_NEXT_CHANNEL, resources.getString(R.string.action_next_channel),
-                        android.R.drawable.ic_menu_upload); //ic_menu_rotate
+//TODO next channel                stateBuilder.addCustomAction(CUSTOM_ACTION_NEXT_CHANNEL, resources.getString(R.string.action_next_channel),
+//                        android.R.drawable.ic_menu_upload);
 
 //TODO record                stateBuilder.addCustomAction(CUSTOM_ACTION_RECORD,
 //                        resources.getString(R.string.record), android.R.drawable.ic_menu_add);
@@ -814,7 +814,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
 
             // Next channel button
 //TODO next chan            intent = new Intent(CUSTOM_ACTION_NEXT_CHANNEL);
-//            notificationBuilder.addAction(new NotificationCompat.Action(android.R.drawable.ic_menu_rotate,
+//            notificationBuilder.addAction(new NotificationCompat.Action(android.R.drawable.ic_menu_upload,
 //                    resources.getString(R.string.action_next_channel),
 //                    PendingIntent.getBroadcast(this, ACTION_NEXT_CHANNEL, intent, PendingIntent.FLAG_UPDATE_CURRENT)
 //            ));
