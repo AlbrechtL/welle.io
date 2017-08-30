@@ -69,15 +69,6 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
     private static final String CUSTOM_ACTION_RECORD = "io.welle.welle.RECORD";
     private static final String CUSTOM_ACTION_NEXT_CHANNEL = "io.welle.welle.NEXT_CHANNEL";
 
-    private static final int ACTION_OPEN = 1;
-    private static final int ACTION_PLAY = 2;
-    private static final int ACTION_PAUSE = 3;
-    private static final int ACTION_SKIP_NEXT = 4;
-    private static final int ACTION_SKIP_PREV = 5;
-    private static final int ACTION_SCAN_START = 6;
-    private static final int ACTION_SCAN_STOP = 7;
-    private static final int ACTION_NEXT_CHANNEL = 8;
-
     // Bundle extras
     private static final String BUNDLE_KEY_DAB_TYPE = "DAB_TYPE";
     private static final String BUNDLE_KEY_STATION = "STATION_NAME";
@@ -216,6 +207,8 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
             }
         });
 
+        instance.updatePlaybackState();
+
         if (instance.mDabCallback != null) {
             instance.mDabCallback.updateStationList(instance.mStationList);
         }
@@ -227,6 +220,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
             return;
 
         instance.mStationList.clear();
+        instance.updatePlaybackState();
 
         if (instance.mDabCallback != null) {
             instance.mDabCallback.updateStationList(instance.mStationList);
@@ -344,7 +338,6 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
     private String mCurrentChannel = null;
     private String mError = null;
 
-    private boolean mServiceReady = false;
     private boolean mAudioFocus = false;
 
     List<MediaBrowserCompat.MediaItem> mStationList = new ArrayList<>();
@@ -354,7 +347,6 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
 
     private void handleServiceReady() {
         Log.d(TAG, "Handle service ready");
-        mServiceReady = true;
 
         if (mDabDevice != null) {
             if (!mDabDevice.connected)
@@ -365,6 +357,9 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
     private void handleDeviceReady() {
         Log.d(TAG, "Handle device ready");
         if (mDabDevice != null) mDabDevice.connected = true;
+
+        // Update state
+        updatePlaybackState();
 
         // Inform others
         initDabCallback();
@@ -624,17 +619,21 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
             String error =  getResources().getString(R.string.error_not_initialised);
             stateBuilder.setErrorMessage(-1, error);
         } else {
-            playbackActions |= PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID;
+            if (!mStationList.isEmpty()) {
+                playbackActions |= PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID;
+            }
             //TODO playbackActions |= PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH;
 
             if (0 > mChannelScanProgress) {
                 // Playback
-                playbackActions |= PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS |
-                        PlaybackStateCompat.ACTION_SKIP_TO_NEXT;
+                if (mStationList.size() > 1) {
+                    playbackActions |= PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS |
+                            PlaybackStateCompat.ACTION_SKIP_TO_NEXT;
+                }
 
                 if (mDabStatus == DAB_STATUS_PLAYING) {
                     playbackActions |= PlaybackStateCompat.ACTION_PAUSE;
-                } else {
+                } else if (mDabStatus >= DAB_STATUS_INITIALISED) {
                     playbackActions |= PlaybackStateCompat.ACTION_PLAY;
                 }
 
@@ -743,24 +742,24 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
 
         // Update Notification
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this);
+        notificationBuilder.setStyle(new NotificationCompat.MediaStyle()
+                .setMediaSession(mSession.getSessionToken())
+        );
 
         if (DAB_STATUS_ERROR == mDabStatus) {
             // Error
             String error = mError != null ? mError : getResources().getString(R.string.error_unknown);
-            notificationBuilder.setStyle(new NotificationCompat.MediaStyle());
             notificationBuilder.setContentTitle(error);
         } else if (DAB_STATUS_UNKNOWN == mDabStatus) {
-            notificationBuilder.setStyle(new NotificationCompat.MediaStyle());
             notificationBuilder.setContentTitle(getResources().getString(R.string.error_not_initialised));
         } else if (0 <= mChannelScanProgress) {
             // Scanning
-            notificationBuilder.setStyle(new NotificationCompat.MediaStyle().setShowActionsInCompactView(new int[]{0}));
 
             // Stop scan button
             Intent intent = new Intent(CUSTOM_ACTION_SCAN_STOP);
             notificationBuilder.addAction(new NotificationCompat.Action(android.R.drawable.ic_menu_close_clear_cancel,
                     resources.getString(R.string.action_scan),
-                    PendingIntent.getBroadcast(this, ACTION_SCAN_STOP, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+                    PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
             ));
 
             // Title & Text
@@ -773,50 +772,53 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
             }
         } else {
             // Playback
-            notificationBuilder.setStyle(new NotificationCompat.MediaStyle().setShowActionsInCompactView(new int[]{0,1,2}));
             Intent intent;
 
             // Skip prev button
-            intent = new Intent(CUSTOM_ACTION_SKIP_PREV);
-            notificationBuilder.addAction(new NotificationCompat.Action(android.R.drawable.ic_media_previous,
-                    resources.getString(R.string.action_skip_prev),
-                    PendingIntent.getBroadcast(this, ACTION_SKIP_PREV, intent, PendingIntent.FLAG_UPDATE_CURRENT)
-            ));
+            if (mStationList.size() > 1) {
+                intent = new Intent(CUSTOM_ACTION_SKIP_PREV);
+                notificationBuilder.addAction(new NotificationCompat.Action(android.R.drawable.ic_media_previous,
+                        resources.getString(R.string.action_skip_prev),
+                        PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+                ));
+            }
 
             // Play/Pause toggle button
             if (DAB_STATUS_PLAYING == mDabStatus) {
                 intent = new Intent(CUSTOM_ACTION_PAUSE);
                 notificationBuilder.addAction(new NotificationCompat.Action(android.R.drawable.ic_media_pause,
                         resources.getString(R.string.action_pause),
-                        PendingIntent.getBroadcast(this, ACTION_PLAY, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+                        PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
                 ));
-            } else {
+            } else if (mDabStatus >= DAB_STATUS_INITIALISED && !mStationList.isEmpty()) {
                 intent = new Intent(CUSTOM_ACTION_PLAY);
                 notificationBuilder.addAction(new NotificationCompat.Action(android.R.drawable.ic_media_play,
                         resources.getString(R.string.action_play),
-                        PendingIntent.getBroadcast(this, ACTION_PAUSE, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+                        PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
                 ));
             }
 
             // Skip next button
-            intent = new Intent(CUSTOM_ACTION_SKIP_NEXT);
-            notificationBuilder.addAction(new NotificationCompat.Action(android.R.drawable.ic_media_next,
-                    resources.getString(R.string.action_skip_next),
-                    PendingIntent.getBroadcast(this, ACTION_SKIP_NEXT, intent, PendingIntent.FLAG_UPDATE_CURRENT)
-            ));
+            if (mStationList.size() > 1) {
+                intent = new Intent(CUSTOM_ACTION_SKIP_NEXT);
+                notificationBuilder.addAction(new NotificationCompat.Action(android.R.drawable.ic_media_next,
+                        resources.getString(R.string.action_skip_next),
+                        PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+                ));
+            }
 
             // Start scan button
             intent = new Intent(CUSTOM_ACTION_SCAN_START);
             notificationBuilder.addAction(new NotificationCompat.Action(android.R.drawable.ic_menu_search,
                     resources.getString(R.string.action_scan),
-                    PendingIntent.getBroadcast(this, ACTION_SCAN_START, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+                    PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
             ));
 
             // Next channel button
 //TODO next chan            intent = new Intent(CUSTOM_ACTION_NEXT_CHANNEL);
 //            notificationBuilder.addAction(new NotificationCompat.Action(android.R.drawable.ic_menu_upload,
 //                    resources.getString(R.string.action_next_channel),
-//                    PendingIntent.getBroadcast(this, ACTION_NEXT_CHANNEL, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+//                    PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
 //            ));
 
             // Title & Text
