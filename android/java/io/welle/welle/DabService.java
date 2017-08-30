@@ -615,14 +615,29 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
         if (DAB_STATUS_ERROR == mDabStatus) {
             String error =  mError != null ? mError : resources.getString(R.string.error_unknown);
             stateBuilder.setErrorMessage(-1, error);
+            mSession.setMetadata(new MediaMetadataCompat.Builder()
+                    .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, MEDIA_ID_ERROR)
+                    .putString(MediaMetadataCompat.METADATA_KEY_TITLE, error)
+                    .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, error)
+                    .build());
         } else if (DAB_STATUS_UNKNOWN == mDabStatus) {
             String error =  getResources().getString(R.string.error_not_initialised);
             stateBuilder.setErrorMessage(-1, error);
+            mSession.setMetadata(new MediaMetadataCompat.Builder()
+                    .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, MEDIA_ID_ERROR)
+                    .putString(MediaMetadataCompat.METADATA_KEY_TITLE, error)
+                    .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, error)
+                    .build());
         } else {
+            //TODO playbackActions |= PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH;
+
             if (!mStationList.isEmpty()) {
                 playbackActions |= PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID;
             }
-            //TODO playbackActions |= PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH;
+
+            if (mTrack != null) {
+                mSession.setMetadata(mTrack);
+            }
 
             if (0 > mChannelScanProgress) {
                 // Playback
@@ -646,20 +661,39 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
 //TODO record                stateBuilder.addCustomAction(CUSTOM_ACTION_RECORD,
 //                        resources.getString(R.string.record), android.R.drawable.ic_menu_add);
 
-                // Set the activeQueueItemId if the current index is valid.
-                if (mCurrentStation != null && mCurrentChannel != null) {
-                    //stateBuilder.setActiveQueueItemId(mCurrentMedia.getQueueId());
-//TODO fav                    stateBuilder.addCustomAction(CUSTOM_ACTION_FAVORITE,
+//TODO fav                if (mCurrentStation != null && mCurrentChannel != null) {
+//                    stateBuilder.addCustomAction(CUSTOM_ACTION_FAVORITE,
 //                            resources.getString(R.string.action_favorite),
 //                            (isFavoriteStation(mCurrentStation, mCurrentChannel)
 //                                    ? android.R.drawable.star_on
 //                                    : android.R.drawable.star_off));
+//                }
+
+                if (mTrack == null && mCurrentStation != null) {
+                    String subTitle = (mCurrentChannel == null) ? "" : mCurrentChannel;
+                    mSession.setMetadata(new MediaMetadataCompat.Builder()
+                            .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, toMediaId(mCurrentStation, mCurrentChannel))
+                            .putString(MediaMetadataCompat.METADATA_KEY_TITLE, mCurrentStation)
+                            .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, mCurrentStation)
+                            .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE, subTitle)
+                            .build());
                 }
             } else {
                 // Scanning
                 playbackActions |= PlaybackStateCompat.ACTION_PAUSE;
                 stateBuilder.addCustomAction(CUSTOM_ACTION_SCAN_STOP, resources.getString(R.string.action_scan),
                         android.R.drawable.ic_menu_close_clear_cancel);
+
+                if (mTrack == null) {
+                    String title = resources.getString(R.string.label_scanning) + " " + mChannelScanProgress;
+                    String subTitle = (mCurrentChannel == null) ? "" : mCurrentChannel;
+                    mSession.setMetadata(new MediaMetadataCompat.Builder()
+                            .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, MEDIA_ID_CHANNEL_SCAN)
+                            .putString(MediaMetadataCompat.METADATA_KEY_TITLE, title)
+                            .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, title)
+                            .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE, subTitle)
+                            .build());
+                }
             }
 
             int playbackState;
@@ -679,57 +713,6 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
         }
 
         mSession.setPlaybackState(stateBuilder.build());
-
-        // Update meta data
-        updateMetadata();
-    }
-
-    private void updateMetadata() {
-        if (DAB_STATUS_ERROR == mDabStatus) {
-            String error =  mError != null ? mError  : getResources().getString(R.string.error_unknown);
-            MediaMetadataCompat track = new MediaMetadataCompat.Builder()
-                    .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, MEDIA_ID_ERROR)
-                    .putString(MediaMetadataCompat.METADATA_KEY_TITLE, error)
-                    .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, error)
-                    .build();
-
-            mSession.setMetadata(track);
-        } else if (DAB_STATUS_UNKNOWN == mDabStatus) {
-            String error =  getResources().getString(R.string.error_not_initialised);
-            MediaMetadataCompat track = new MediaMetadataCompat.Builder()
-                    .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, MEDIA_ID_ERROR)
-                    .putString(MediaMetadataCompat.METADATA_KEY_TITLE, error)
-                    .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, error)
-                    .build();
-
-            mSession.setMetadata(track);
-        } else if (mTrack != null) {
-            mSession.setMetadata(mTrack);
-        } else if (0 <= mChannelScanProgress) {
-            Resources resources = getResources();
-            String title = resources.getString(R.string.label_scanning) + " " + mChannelScanProgress;
-            String subTitle = (mCurrentChannel == null) ? "" : mCurrentChannel;
-
-            MediaMetadataCompat track = new MediaMetadataCompat.Builder()
-                    .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, MEDIA_ID_CHANNEL_SCAN)
-                    .putString(MediaMetadataCompat.METADATA_KEY_TITLE, title)
-                    .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, title)
-                    .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE, subTitle)
-                    .build();
-
-            mSession.setMetadata(track);
-        } else if (mCurrentStation != null) {
-            String subTitle = (mCurrentChannel == null) ? "" : mCurrentChannel;
-
-            MediaMetadataCompat track = new MediaMetadataCompat.Builder()
-                    .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, toMediaId(mCurrentStation, mCurrentChannel))
-                    .putString(MediaMetadataCompat.METADATA_KEY_TITLE, mCurrentStation)
-                    .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, mCurrentStation)
-                    .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE, subTitle)
-                    .build();
-
-            mSession.setMetadata(track);
-        }
 
         // Update notification
         mNotificationManager.notify(NOTIFICATION_ID, createNotification());
