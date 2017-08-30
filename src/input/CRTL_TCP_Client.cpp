@@ -81,6 +81,7 @@ CRTL_TCP_Client::~CRTL_TCP_Client	(void)
 
 void CRTL_TCP_Client::setFrequency(int32_t newFrequency)
 {
+    stopped = false;
     Frequency = newFrequency;
     sendVFO (newFrequency);
 }
