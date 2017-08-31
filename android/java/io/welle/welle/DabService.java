@@ -255,8 +255,8 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
             return;
 
         instance.mDabStatus = status;
-        instance.mCurrentStation = station;
-        instance.mCurrentChannel = channel;
+        instance.mCurrentStation = station.isEmpty() ? null : station;
+        instance.mCurrentChannel = channel.isEmpty() ? null : channel;
 
         instance.mTrack = new MediaMetadataCompat.Builder()
                 .putString(MediaMetadataCompat.METADATA_KEY_TITLE, station)

@@ -44,6 +44,8 @@ extern "C" {
 
 JNIEXPORT void JNICALL Java_io_welle_welle_DabService_openTcpConnection(JNIEnv *env, jobject, jstring host, jint port)
 {
+    if (host == NULL)
+        return;
     QString qHost(env->GetStringUTFChars(host, 0));
     qDebug() << "AndroidJNI:" <<  "openTcpConnection" << ":" << qHost << ":" << port;
     QMetaObject::invokeMethod(&CAndroidJNI::getInstance(), "openTcpConnection",
@@ -54,6 +56,8 @@ JNIEXPORT void JNICALL Java_io_welle_welle_DabService_openTcpConnection(JNIEnv *
 
 JNIEXPORT jboolean JNICALL Java_io_welle_welle_DabService_isFavoriteStation(JNIEnv *env, jobject, jstring jStation, jstring jChannel)
 {
+    if (jStation == NULL || jChannel == NULL)
+        return JNI_FALSE;
     QString station(env->GetStringUTFChars(jStation, 0));
     QString channel(env->GetStringUTFChars(jChannel, 0));
     qDebug() << "AndroidJNI:" <<  "isFavoriteStation" << "station:" << station
@@ -64,6 +68,8 @@ JNIEXPORT jboolean JNICALL Java_io_welle_welle_DabService_isFavoriteStation(JNIE
 
 JNIEXPORT void JNICALL Java_io_welle_welle_DabService_addFavoriteStation(JNIEnv *env, jobject, jstring jStation, jstring jChannel)
 {
+    if (jStation == NULL || jChannel == NULL)
+        return;
     QString station(env->GetStringUTFChars(jStation, 0));
     QString channel(env->GetStringUTFChars(jChannel, 0));
     qDebug() << "AndroidJNI:" <<  "addFavoriteStation"
@@ -76,6 +82,8 @@ JNIEXPORT void JNICALL Java_io_welle_welle_DabService_addFavoriteStation(JNIEnv 
 
 JNIEXPORT void JNICALL Java_io_welle_welle_DabService_removeFavoriteStation(JNIEnv *env, jobject, jstring jStation, jstring jChannel)
 {
+    if (jStation == NULL || jChannel == NULL)
+        return;
     QString station(env->GetStringUTFChars(jStation, 0));
     QString channel(env->GetStringUTFChars(jChannel, 0));
     qDebug() << "AndroidJNI:" <<  "removeFavoriteStation"
@@ -88,6 +96,8 @@ JNIEXPORT void JNICALL Java_io_welle_welle_DabService_removeFavoriteStation(JNIE
 
 JNIEXPORT void JNICALL Java_io_welle_welle_DabService_play(JNIEnv *env, jobject, jstring jStation, jstring jChannel)
 {
+    if (jStation == NULL || jChannel == NULL)
+        return;
     QString station(env->GetStringUTFChars(jStation, 0));
     QString channel(env->GetStringUTFChars(jChannel, 0));
     qDebug() << "AndroidJNI:" <<  "play" << "station:"
@@ -136,6 +146,8 @@ JNIEXPORT void JNICALL Java_io_welle_welle_DabService_nextChannel(JNIEnv *, jobj
 
 JNIEXPORT void JNICALL Java_io_welle_welle_DabService_setManualChannel(JNIEnv *env, jobject, jstring jChannel)
 {
+    if (jChannel == NULL)
+        return;
     QString channel(env->GetStringUTFChars(jChannel, 0));
     qDebug() << "AndroidJNI:" <<  "setManualChannel" << "channel:" << channel;
     QMetaObject::invokeMethod(&CAndroidJNI::getInstance(), "setManualChannel",
