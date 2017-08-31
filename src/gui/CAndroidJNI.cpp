@@ -169,13 +169,6 @@ JNIEXPORT void JNICALL Java_io_welle_welle_DabService_stopChannelScan(JNIEnv *, 
                               Qt::QueuedConnection);
 }
 
-JNIEXPORT void JNICALL Java_io_welle_welle_DabService_saveStations(JNIEnv *, jobject)
-{
-    qDebug() << "AndroidJNI:" <<  "saveStations";
-    QMetaObject::invokeMethod(&CAndroidJNI::getInstance(), "saveStations",
-                              Qt::QueuedConnection);
-}
-
 #ifdef __cplusplus
 }
 #endif
@@ -227,6 +220,17 @@ void CAndroidJNI::setRadioController(CRadioController *radioController)
     QTimer::singleShot(0, mRadioController, SLOT(onEventLoopStarted()));
 #endif
     serviceReady();
+
+    // Get stations
+    foreach (StationElement *s, mRadioController->Stations()) {
+        addStation(s->getStationName(), s->getChannelName());
+    }
+
+    // Read favorite stations from settings
+    mFavoriteList.reset();
+    mFavoriteList.loadStations();
+    mFavoriteList.sort();
+    //TODO update favorite stations
 }
 
 bool CAndroidJNI::openTcpConnection(QString host, int port)
@@ -314,17 +318,6 @@ void CAndroidJNI::deviceReady(void)
     qDebug() << "AndroidJNI:" <<  "Device ready";
     if(!mRadioController)
         return;
-
-    // Get stations
-    foreach (StationElement *s, mRadioController->Stations()) {
-        addStation(s->getStationName(), s->getChannelName());
-    }
-
-    // Read favorite stations from settings
-    mFavoriteList.reset();
-    mFavoriteList.loadStations();
-    mFavoriteList.sort();
-    //TODO update favorite stations
 
     // Set AGC & Gain
     QSettings Settings;
