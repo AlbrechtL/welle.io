@@ -319,8 +319,7 @@ void CRTL_TCP_Client::AGCTimerTimeout(void)
             if(CurrentGainCount > 0)
             {
                 setGain(CurrentGainCount - 1);
-
-                qDebug() << "RTL_TCP_CLIENT:" << "Decrease gain to" << (float) CurrentGain;
+                //qDebug() << "RTL_TCP_CLIENT:" << "Decrease gain to" << (float) CurrentGain;
             }
         }
         else
@@ -339,7 +338,7 @@ void CRTL_TCP_Client::AGCTimerTimeout(void)
                 if(NewMinValue >=0 && NewMaxValue <= 255)
                 {
                     setGain(CurrentGainCount + 1);
-                    qDebug() << "RTL_TCP_CLIENT:" << "Increase gain to" << CurrentGain;
+                    //qDebug() << "RTL_TCP_CLIENT:" << "Increase gain to" << CurrentGain;
                 }
             }
         }

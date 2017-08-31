@@ -496,7 +496,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
             ++count;
             if (mediaItem.getMediaId().equals(id)) {
                 index = count;
-                Log.d(TAG, "handleSkipRequest: found: " + id + " index: " + count);
+                Log.d(TAG, "handleSkipRequest: found: " + id + " index: " + index);
                 break;
             }
         }
@@ -574,10 +574,9 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
         String id = lastStation();
 
         if (id.isEmpty()) {
-            if (mStationList.isEmpty())
-                return;
-            Bundle extras = mStationList.get(0).getDescription().getExtras();
-            handlePlayRequest(extras);
+            if (!mStationList.isEmpty()) {
+                handlePlayRequest(mStationList.get(0).getDescription().getExtras());
+            }
             return;
         }
 
@@ -1039,6 +1038,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
         super.onDestroy();
         Log.i(TAG, "Service destroyed");
 
+        mSession.release();
         unregisterReceiver(mDabReceiver);
         stopForeground(true);
     }
