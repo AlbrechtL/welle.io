@@ -108,12 +108,12 @@ public class DabMediaService extends MediaBrowserServiceCompat implements Servic
 
                 List<MediaBrowserCompat.MediaItem> mediaItems = new ArrayList<>();
 
-//TODO channels                if (mDabBinder != null) {
-//                    mediaItems.add(new MediaBrowserCompat.MediaItem(new MediaDescriptionCompat.Builder()
-//                            .setMediaId(MEDIA_ID_DAB_CHANNELS)
-//                            .setTitle(resources.getString(R.string.menu_channels))
-//                            .build(), MediaBrowserCompat.MediaItem.FLAG_BROWSABLE));
-//                }
+                if (mDabBinder != null) {
+                    mediaItems.add(new MediaBrowserCompat.MediaItem(new MediaDescriptionCompat.Builder()
+                            .setMediaId(MEDIA_ID_DAB_CHANNELS)
+                            .setTitle(resources.getString(R.string.menu_channels))
+                            .build(), MediaBrowserCompat.MediaItem.FLAG_BROWSABLE));
+                }
 
                 if (stationList != null && !stationList.isEmpty()) {
                     stationListShown = true;

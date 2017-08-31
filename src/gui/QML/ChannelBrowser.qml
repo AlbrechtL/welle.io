@@ -420,7 +420,7 @@ Item {
         anchors.right: parent.right
         anchors.rightMargin: 8
         flow: GridLayout.TopToBottom
-        rows: 6
+        rows: 5
         columns: 2
 
         Item {
@@ -522,56 +522,43 @@ Item {
         }
 
         Item {
-            Layout.rowSpan: 2
             Layout.fillHeight: true
             Layout.fillWidth: true
 
-            ColumnLayout{
+            RowLayout {
                 anchors.fill: parent
-                spacing: Units.dp(20)
-                visible: enableExpertMode.checked
+                //Layout.preferredWidth: parent.width
 
-                TouchSwitch {
-                    id: enableManualChannel
-                    name: qsTr("Select channel manually")
-                    height: 24
-                    Layout.fillHeight: true
-                    checked: false
-                    onChanged: checked ? cppGUI.setManualChannel(manualChannelBox.currentText):{}
+                TouchButton {
+                    id: clearListButton
+                    text: qsTr("Clear station list")
+                    Layout.preferredWidth: Units.dp(150)
+                    Layout.alignment: Qt.AlignLeft
+                    onClicked: cppGUI.clearStationList()
                 }
 
-                RowLayout {
-                    Layout.preferredWidth: parent.width
+                TouchComboBox {
+                    id: manualChannelBox
+                    enabled: true
+                    model: ["5A", "5B", "5C", "5D",
+                        "6A", "6B", "6C", "6D",
+                        "7A", "7B", "7C", "7D",
+                        "8A", "8B", "8C", "8D",
+                        "9A", "9B", "9C", "9D",
+                        "10A", "10B", "10C", "10D",
+                        "11A", "11B", "11C", "11D",
+                        "12A", "12B", "12C", "12D",
+                        "13A", "13B", "13C", "13D", "13E", "13F",
+                        "LA", "LB", "LC", "LD",
+                        "LE", "LF", "LG", "LH",
+                        "LI", "LJ", "LK", "LL",
+                        "LM", "LN", "LO", "LP"]
 
-                    TouchButton {
-                        id: clearListButton
-                        text: qsTr("Clear station list")
-                        Layout.preferredWidth: Units.dp(150)
-                        Layout.alignment: Qt.AlignLeft
-                        onClicked: cppGUI.clearStationList()
-                    }
-
-                    TouchComboBox {
-                        id: manualChannelBox
-                        enabled: enableManualChannel.checked? true : false
-                        model: ["5A", "5B", "5C", "5D",
-                            "6A", "6B", "6C", "6D",
-                            "7A", "7B", "7C", "7D",
-                            "8A", "8B", "8C", "8D",
-                            "9A", "9B", "9C", "9D",
-                            "10A", "10B", "10C", "10D",
-                            "11A", "11B", "11C", "11D",
-                            "12A", "12B", "12C", "12D",
-                            "13A", "13B", "13C", "13D", "13E", "13F",
-                            "LA", "LB", "LC", "LD",
-                            "LE", "LF", "LG", "LH",
-                            "LI", "LJ", "LK", "LL",
-                            "LM", "LN", "LO", "LP"]
-
-                        Layout.preferredHeight: Units.dp(25)
-                        Layout.preferredWidth: Units.dp(130)
-                        Layout.alignment: Qt.AlignRight
-                        onCurrentTextChanged: enabled ? cppGUI.setManualChannel(currentText) : {}
+                    Layout.preferredHeight: Units.dp(25)
+                    Layout.preferredWidth: Units.dp(130)
+                    Layout.alignment: Qt.AlignRight
+                    onActivated: {
+                        cppGUI.setManualChannel(model[index])
                     }
                 }
             }
@@ -658,6 +645,11 @@ Item {
 
             // Language type
             languageTypeText.text = GUIData.LanguageType
+
+            // Channel
+            var channelIndex = manualChannelBox.find(GUIData.Channel)
+            if (channelIndex !== -1)
+                manualChannelBox.currentIndex = channelIndex
         }
 
         onStationModelChanged: {

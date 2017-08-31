@@ -113,6 +113,7 @@ void CRadioController::ResetTechnicalData(void)
     CurrentManualGainValue = 0.0;
     CurrentVolume = 1.0;
 
+    startPlayback = false;
     isChannelScan = false;
     isAGC = true;
     isHwAGC = true;
@@ -258,6 +259,7 @@ void CRadioController::Play(QString Channel, QString Station)
              << Channel << "station:" << Station;
 
     DeviceRestart();
+    startPlayback = false;
 
     SetChannel(Channel, false);
     SetStation(Station);
@@ -286,6 +288,7 @@ void CRadioController::Pause()
 
     SyncCheckTimer.stop();
 
+    startPlayback = false;
     Status = Paused;
     UpdateGUIData();
 }
@@ -300,6 +303,7 @@ void CRadioController::Stop()
 
     SyncCheckTimer.stop();
 
+    startPlayback = false;
     Status = Stopped;
     UpdateGUIData();
 }
@@ -367,12 +371,54 @@ void CRadioController::SetChannel(QString Channel, bool isScan, bool Force)
     }
 }
 
+void CRadioController::SetManualChannel(QString Channel)
+{
+    // Play channel's first station, if available
+    foreach(StationElement* station, mStationList.getList())
+    {
+        if (station->getChannelName() == Channel)
+        {
+            QString stationName = station->getStationName();
+            qDebug() << "RadioController: Play channel" <<  Channel << "and first station" << stationName;
+            Play(Channel, stationName);
+            return;
+        }
+    }
+
+    // Otherwise tune to channel and play first found station
+    qDebug() << "RadioController: Tune to channel" <<  Channel;
+
+    SyncCheckTimer.stop();
+    DeviceRestart();
+
+    startPlayback = true;
+    Status = Playing;
+    CurrentTitle = tr("Tuning") + " ... " + Channel;
+
+    // Clear old data
+    CurrentStation = "";
+    CurrentStationType = "";
+    CurrentLanguageType = "";
+    CurrentText = "";
+
+    UpdateGUIData();
+
+    // Clear MOT
+    QImage MOT(320, 240, QImage::Format_Alpha8);
+    MOT.fill(Qt::transparent);
+    emit MOTChanged(MOT);
+
+    // Switch channel
+    SetChannel(Channel, false, true);
+}
+
 void CRadioController::StartScan(void)
 {
     qDebug() << "RadioController:" << "Start channel scan";
 
     SyncCheckTimer.stop();
     DeviceRestart();
+    startPlayback = false;
 
     if(Device && Device->getID() == CDeviceID::RAWFILE)
     {
@@ -760,6 +806,12 @@ void CRadioController::addtoEnsemble(quint32 SId, const QString &Station)
 {
     qDebug() << "RadioController: Found station" <<  Station
              << "(" << qPrintable(QString::number(SId, 16).toUpper()) << ")";
+
+    if (startPlayback && StationList.isEmpty()) {
+        qDebug() << "RadioController: Start playback of first station" << Station;
+        startPlayback = false;
+        Play(CurrentChannel, Station);
+    }
 
     StationList.append(Station);
 

@@ -103,6 +103,7 @@ public:
     void ClearStations();
     void SetStation(QString Station, bool Force = false);
     void SetChannel(QString Channel, bool isScan, bool Force = false);
+    void SetManualChannel(QString Channel);
     void StartScan(void);
     void StopScan(void);
     void UpdateSpectrum(void);
@@ -200,6 +201,7 @@ private:
     QTimer SyncCheckTimer;
 
     // Handling variables
+    bool startPlayback;
     bool isChannelScan;
     bool isAGC;
     bool isHwAGC;

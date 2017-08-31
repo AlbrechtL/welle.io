@@ -412,7 +412,7 @@ void CAndroidJNI::setManualChannel(QString channel)
 {
     qDebug() << "AndroidJNI:" <<  "Set channel:" << channel;
     if(mRadioController)
-        mRadioController->SetChannel(channel, false);
+        mRadioController->SetManualChannel(channel);
 }
 
 void CAndroidJNI::serviceReady(void)

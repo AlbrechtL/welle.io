@@ -50,6 +50,7 @@ class CRadioController
     SLOT(ClearStations());
     SLOT(SetStation(QString Station, bool Force = false));
     SLOT(SetChannel(QString Channel, bool isScan, bool Force = false));
+    SLOT(SetManualChannel(QString Channel));
     SLOT(UpdateSpectrum());
 
     SLOT(onEventLoopStarted());

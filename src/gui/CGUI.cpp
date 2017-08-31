@@ -197,7 +197,7 @@ void CGUI::channelClick(QString StationName, QString ChannelName)
 void CGUI::setManualChannel(QString ChannelName)
 {
     if(RadioController)
-        RadioController->SetChannel(ChannelName, false);
+        RadioController->SetManualChannel(ChannelName);
 }
 
 void CGUI::inputEnableAGCChanged(bool checked)
