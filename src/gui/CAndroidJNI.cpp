@@ -54,6 +54,13 @@ JNIEXPORT void JNICALL Java_io_welle_welle_DabService_openTcpConnection(JNIEnv *
                               Q_ARG(int, port));
 }
 
+JNIEXPORT void JNICALL Java_io_welle_welle_DabService_closeTcpConnection(JNIEnv *, jobject)
+{
+    qDebug() << "AndroidJNI:" <<  "closeTcpConnection";
+    QMetaObject::invokeMethod(&CAndroidJNI::getInstance(), "closeTcpConnection",
+                              Qt::QueuedConnection);
+}
+
 JNIEXPORT jboolean JNICALL Java_io_welle_welle_DabService_isFavoriteStation(JNIEnv *env, jobject, jstring jStation, jstring jChannel)
 {
     if (jStation == NULL || jChannel == NULL)
@@ -202,6 +209,8 @@ void CAndroidJNI::setRadioController(CRadioController *radioController)
             this, &CAndroidJNI::updateGuiData);
     connect(radioController, &CRadioController::DeviceReady,
             this, &CAndroidJNI::deviceReady);
+    connect(radioController, &CRadioController::DeviceClosed,
+            this, &CAndroidJNI::deviceClosed);
     connect(radioController, &CRadioController::StationsCleared,
             this, &CAndroidJNI::clearStations);
     connect(radioController, &CRadioController::FoundStation,
@@ -245,6 +254,14 @@ bool CAndroidJNI::openTcpConnection(QString host, int port)
         return true;
     }
     return false;
+}
+
+void CAndroidJNI::closeTcpConnection()
+{
+    qDebug() << "AndroidJNI:" <<  "Close TCP connection";
+    if(mRadioController) {
+        mRadioController->closeDevice();
+    }
 }
 
 bool CAndroidJNI::isFavoriteStation(QString station, QString channel)
@@ -328,6 +345,15 @@ void CAndroidJNI::deviceReady(void)
     // Notify service
     QAndroidJniObject::callStaticMethod<void>("io/welle/welle/DabService",
                                               "deviceReady", "()V");
+}
+
+void CAndroidJNI::deviceClosed(void)
+{
+    qDebug() << "AndroidJNI:" <<  "Device closed";
+
+    // Notify service
+    QAndroidJniObject::callStaticMethod<void>("io/welle/welle/DabService",
+                                              "deviceClosed", "()V");
 }
 
 void CAndroidJNI::foundStation(QString station, QString channel)

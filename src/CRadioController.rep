@@ -34,6 +34,7 @@ class CRadioController
     PROP(QImage MOT READONLY);
 
     SIGNAL(DeviceReady());
+    SIGNAL(DeviceClosed());
     SIGNAL(StationsCleared());
     SIGNAL(FoundStation(QString Station, QString CurrentChannel));
     SIGNAL(ScanStopped());

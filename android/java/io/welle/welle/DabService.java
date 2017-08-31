@@ -141,6 +141,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
     private static DabService instance = null;
 
     public static native void openTcpConnection(String host, int port);
+    public static native void closeTcpConnection();
 
     public static native boolean isFavoriteStation(String station, String channel);
     public static native void addFavoriteStation(String station, String channel);
@@ -173,6 +174,14 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
             return;
 
         instance.handleDeviceReady();
+    }
+
+    public static void deviceClosed() {
+        Log.i(TAG, "Device closed");
+        if (instance == null)
+            return;
+
+        instance.handleDeviceClosed();
     }
 
     public static void addStation(String station, String channel) {
@@ -338,6 +347,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
     private String mCurrentChannel = null;
     private String mError = null;
 
+    private boolean mServiceReady = false;
     private boolean mAudioFocus = false;
 
     List<MediaBrowserCompat.MediaItem> mStationList = new ArrayList<>();
@@ -352,11 +362,21 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
             if (!mDabDevice.connected)
                 openTcpConnection(mDabDevice.host, mDabDevice.port);
         }
+        mServiceReady = true;
     }
 
     private void handleDeviceReady() {
         Log.d(TAG, "Handle device ready");
         if (mDabDevice != null) mDabDevice.connected = true;
+
+        // Activate media session
+        if (!mSession.isActive()) {
+            mSession.setActive(true);
+            Log.d(TAG, "media session is active");
+        }
+
+        // Open notification
+        startForeground(NOTIFICATION_ID, createNotification());
 
         // Update state
         updatePlaybackState();
@@ -366,6 +386,30 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
 
         // Play last station
         playLastStation();
+    }
+
+    private void handleDeviceClosed() {
+        Log.d(TAG, "Handle device closed");
+
+        // Release audio focus
+        releaseAudioFocus();
+
+        // Deactivate media session
+        if (mSession.isActive()) {
+            mSession.setActive(false);
+        }
+
+        // Close notification
+        mNotificationManager.cancel(NOTIFICATION_ID);
+        stopForeground(true);
+
+        mDabDevice = null;
+        mChannelScanProgress = -1;
+        mTrack = null;
+        mCurrentStation = null;
+        mCurrentChannel = null;
+        mDabStatus = DAB_STATUS_ERROR;
+        mError = getResources().getString(R.string.error_rtl_sdr_unplugged);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -431,6 +475,9 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
     }
 
     private void handlePlayRequest(Bundle extras) {
+        if (mDabDevice == null)
+            return;
+
         Log.d(TAG, "handlePlayRequest");
 
         if (!requestAudioFocus()) {
@@ -465,6 +512,9 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
     }
 
     private void handlePauseRequest() {
+        if (mDabDevice == null)
+            return;
+
         Log.d(TAG, "handlePauseRequest");
         if (0 <= mChannelScanProgress)
             stopChannelScan();
@@ -475,6 +525,9 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
     }
 
     private void handleStopRequest() {
+        if (mDabDevice == null)
+            return;
+
         Log.d(TAG, "handleStopRequest");
         if (0 <= mChannelScanProgress)
             stopChannelScan();
@@ -485,6 +538,9 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
     }
 
     private void handleSkipRequest(int n) {
+        if (mDabDevice == null)
+            return;
+
         Log.d(TAG, "handleSkipRequest: " + n);
         if (mCurrentStation == null || mCurrentChannel == null || mStationList.isEmpty())
             return;
@@ -520,16 +576,25 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
     }
 
     private void handleScanStartRequest() {
+        if (mDabDevice == null)
+            return;
+
         Log.d(TAG, "handleScanStartRequest");
         startChannelScan();
     }
 
     private void handleScanStopRequest() {
+        if (mDabDevice == null)
+            return;
+
         Log.d(TAG, "handleScanStopRequest");
         stopChannelScan();
     }
 
     private boolean handleCustomAction(String action, Bundle extras) {
+        if (mDabDevice == null)
+            return false;
+
         if (CUSTOM_ACTION_PLAY.equals(action)) {
             Log.i(TAG, "handleCustomAction: play");
             handlePlayRequest(extras);
@@ -570,6 +635,9 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
     }
 
     private void playLastStation() {
+        if (mDabDevice == null)
+            return;
+
         Log.d(TAG, "playLastStation");
         String id = lastStation();
 
@@ -603,6 +671,9 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
     }
 
     private void updatePlaybackState() {
+        if (mDabDevice == null)
+            return;
+
         Log.d(TAG, "updatePlaybackState");
 
         Resources resources = getResources();
@@ -720,6 +791,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
     private Notification createNotification() {
+        Intent intent;
         Resources resources = getResources();
 
         // Update Notification
@@ -738,7 +810,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
             // Scanning
 
             // Stop scan button
-            Intent intent = new Intent(CUSTOM_ACTION_SCAN_STOP);
+            intent = new Intent(CUSTOM_ACTION_SCAN_STOP);
             notificationBuilder.addAction(new NotificationCompat.Action(android.R.drawable.ic_menu_close_clear_cancel,
                     resources.getString(R.string.action_scan),
                     PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
@@ -754,7 +826,6 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
             }
         } else {
             // Playback
-            Intent intent;
 
             // Skip prev button
             if (mStationList.size() > 1) {
@@ -899,15 +970,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
                 Log.d(TAG, "SDR detached: " + name);
                 if (mDabDevice != null && mDabDevice.name.equals(name)) {
                     Log.i(TAG, "SDR closed");
-                    mDabDevice = null;
-                    mChannelScanProgress = -1;
-                    mTrack = null;
-                    mCurrentStation = null;
-                    mCurrentChannel = null;
-                    mDabStatus = DAB_STATUS_ERROR;
-                    mError = getResources().getString(R.string.error_rtl_sdr_unplugged);
-                    updatePlaybackState();
-                    stopForeground(true);
+                    closeTcpConnection();
                 }
             } else if (ANDROID_AUTO_STATUS.equals(action)) {
                 String status = intent.getStringExtra(ANDROID_AUTO_MEDIA_CONNECTION_STATUS);
@@ -952,11 +1015,6 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
         sessionExtras.putBoolean(SLOT_RESERVATION_SKIP_TO_NEXT, true);
         mSession.setExtras(sessionExtras);
 
-        if (!mSession.isActive()) {
-            mSession.setActive(true);
-            Log.d(TAG, "media session is active");
-        }
-
         // Register receiver
         mDabReceiver = new DabReceiver();
         IntentFilter filter = new IntentFilter();
@@ -975,7 +1033,6 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
 
         // Notification
         mNotificationManager = NotificationManagerCompat.from(this);
-        startForeground(NOTIFICATION_ID, createNotification());
 
         // Playback state
         updatePlaybackState();
@@ -1002,7 +1059,9 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
 
             if (host != null && port > 0) {
                 mDabDevice = new DabDevice(name, host, port);
-                openTcpConnection(host, port);
+                if (mServiceReady) {
+                    openTcpConnection(host, port);
+                }
             }
         } else {
             Log.d(TAG, "onStartCommand action: " + action);

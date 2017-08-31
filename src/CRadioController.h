@@ -95,7 +95,8 @@ public:
 
     CRadioController(QVariantMap &commandLineOptions, CDABParams& DABParams, QObject* parent = NULL);
     ~CRadioController(void);
-    void setDevice(CVirtualInput* Device);
+    void closeDevice();
+    void setDevice(CVirtualInput* Dev);
     void Play(QString Channel, QString Station);
     void Pause();
     void Stop();
@@ -139,6 +140,7 @@ public:
     float GainValue() const;
 
 private:
+    void ResetTechnicalData(void);
     void DeviceRestart(void);
     void DecoderRestart(bool isScan);
     void NextChannel(bool isWait);
@@ -238,6 +240,7 @@ signals:
     void StationsChanged(QList<StationElement*> Stations);
     void GUIDataChanged(QVariantMap GUIData);
     void DeviceReady();
+    void DeviceClosed();
     void StationsCleared();
     void FoundStation(QString Station, QString CurrentChannel);
     void ScanStopped();

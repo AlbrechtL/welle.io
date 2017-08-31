@@ -55,13 +55,36 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, CDABParams& 
     Audio = new CAudio(AudioBuffer);
 
     MOTImage = new QImage();
-    isChannelScan = false;
-    isAGC = true;
-    isHwAGC = true;
 
     spectrum_fft_handler = new common_fft(DABParams.T_u);
 
     // Init the technical data
+    ResetTechnicalData();
+    UpdateGUIData();
+
+    // Read channels from settings
+    mStationList.loadStations();
+    mStationList.sort();
+    emit StationsChanged(mStationList.getList());
+
+    // Init timers
+    connect(&StationTimer, &QTimer::timeout, this, &CRadioController::StationTimerTimeout);
+    connect(&ChannelTimer, &QTimer::timeout, this, &CRadioController::ChannelTimerTimeout);
+    connect(&SyncCheckTimer, &QTimer::timeout, this, &CRadioController::SyncCheckTimerTimeout);
+}
+
+CRadioController::~CRadioController(void)
+{
+    // Shutdown the demodulator and decoder in the correct order
+    delete my_ficHandler;
+    delete my_mscHandler;
+    delete my_ofdmProcessor;
+
+    delete Audio;
+}
+
+void CRadioController::ResetTechnicalData(void)
+{
     Status = Unknown;
     CurrentChannel = tr("Unknown");
     CurrentEnsemble = "";
@@ -90,32 +113,43 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, CDABParams& 
     CurrentManualGainValue = 0.0;
     CurrentVolume = 1.0;
 
-    UpdateGUIData();
-
-    // Read channels from the settings
-    mStationList.loadStations();
-    mStationList.sort();
-
-    emit StationsChanged(mStationList.getList());
-
-    // Init timers
-    connect(&StationTimer, &QTimer::timeout, this, &CRadioController::StationTimerTimeout);
-    connect(&ChannelTimer, &QTimer::timeout, this, &CRadioController::ChannelTimerTimeout);
-    connect(&SyncCheckTimer, &QTimer::timeout, this, &CRadioController::SyncCheckTimerTimeout);
+    isChannelScan = false;
+    isAGC = true;
+    isHwAGC = true;
 }
 
-CRadioController::~CRadioController(void)
+void CRadioController::closeDevice()
 {
-    // Shutdown the demodulator and decoder in the correct order
-    delete my_ficHandler;
-    delete my_mscHandler;
-    delete my_ofdmProcessor;
+    qDebug() << "RadioController:" << "Close device";
 
-    delete Audio;
+    delete my_ficHandler;
+    my_ficHandler = NULL;
+
+    delete my_mscHandler;
+    my_mscHandler = NULL;
+
+    delete my_ofdmProcessor;
+    my_ofdmProcessor = NULL;
+
+    delete Device;
+    Device = NULL;
+
+    if (Audio)
+        Audio->reset();
+
+    SyncCheckTimer.stop();
+
+    // Reset the technical data
+    ResetTechnicalData();
+
+    emit DeviceClosed();
 }
 
 void CRadioController::setDevice(CVirtualInput* Dev)
 {
+    if (Device) {
+        closeDevice();
+    }
     this->Device = Dev;
 }
 
@@ -657,6 +691,9 @@ void CRadioController::NextChannel(bool isWait)
 
 void CRadioController::StationTimerTimeout()
 {
+    if(!my_mscHandler || !my_ficHandler)
+        return;
+
     if(StationList.contains(CurrentStation))
     {
         audiodata AudioData;

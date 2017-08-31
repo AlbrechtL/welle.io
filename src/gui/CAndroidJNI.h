@@ -39,6 +39,7 @@ public:
     ~CAndroidJNI();
 
     Q_INVOKABLE bool openTcpConnection(QString host, int port);
+    Q_INVOKABLE void closeTcpConnection();
 
     Q_INVOKABLE bool isFavoriteStation(QString station, QString channel);
     Q_INVOKABLE void addFavoriteStation(QString station, QString channel);
@@ -70,6 +71,7 @@ private:
 private slots:
     void serviceReady(void);
     void deviceReady(void);
+    void deviceClosed(void);
     void updateGuiData(QVariantMap GUIData);
     void clearStations(void);
     void foundStation(QString station, QString channel);
