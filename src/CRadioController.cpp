@@ -261,6 +261,10 @@ void CRadioController::Play(QString Channel, QString Station)
     qDebug() << "RadioController:" << "Play channel:"
              << Channel << "station:" << Station;
 
+    if (Status == Scanning) {
+        StopScan();
+    }
+
     DeviceRestart();
     startPlayback = false;
 
