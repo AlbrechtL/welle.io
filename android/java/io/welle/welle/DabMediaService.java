@@ -89,12 +89,12 @@ public class DabMediaService extends MediaBrowserServiceCompat implements Servic
     public void onServiceConnected(ComponentName name, IBinder binder) {
         Log.d(TAG, "onServiceConnected");
         if (binder instanceof DabBinder) {
-            Log.i(TAG, "DabService connected");
+            Log.d(TAG, "DabService connected");
             DabBinder dabBinder = (DabBinder) binder;
 
             // Connect RTL-SDR if needed
             if (!dabBinder.isDeviceAvailable()) {
-                Log.i(TAG, "DabService connect to RTL-SDR");
+                Log.d(TAG, "DabService connect to RTL-SDR");
                 Intent intent = new Intent(this, DabDelegate.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
@@ -161,7 +161,9 @@ public class DabMediaService extends MediaBrowserServiceCompat implements Servic
     }
 
     @Override
-    public void onSearch(String query, Bundle extras, Result<List<MediaBrowserCompat.MediaItem>> result) {
+    public void onSearch(@NonNull String query, Bundle extras,
+                         @NonNull Result<List<MediaBrowserCompat.MediaItem>> result) {
+        Log.d(TAG, "onSearch: " + query);
         List<MediaBrowserCompat.MediaItem> mediaItems = new ArrayList<>();
         //TODO add search results
         result.sendResult(mediaItems);

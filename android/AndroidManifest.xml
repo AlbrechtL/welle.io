@@ -72,6 +72,11 @@
                 <action android:name="com.sdrtouch.rtlsdr.SDR_DEVICE_ATTACHED"/>
             </intent-filter>
 
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <action android:name="android.media.action.MEDIA_PLAY_FROM_SEARCH" />
+            </intent-filter>
+
             <!-- Application to launch -->
             <meta-data android:name="android.app.lib_name" android:value="-- %%INSERT_APP_LIB_NAME%% --"/>
             <!-- Application to launch -->

@@ -34,7 +34,7 @@ public class DabDelegate extends Activity {
             startActivityForResult(intent, 1234);
             return true;
         } catch (ActivityNotFoundException e) {
-            Log.i(TAG, "RTL-SDR error: " + "Android RTL-SDR driver is not installed");
+            Log.e(TAG, "RTL-SDR error: " + "Android RTL-SDR driver is not installed");
             return false;
         }
     }
@@ -43,7 +43,7 @@ public class DabDelegate extends Activity {
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        Log.i(TAG, "DabDelegate onCreate");
+        Log.d(TAG, "onCreate");
 
         Intent intent = getIntent();
         if (intent != null && intent.hasExtra(UsbManager.EXTRA_DEVICE)) {
@@ -85,7 +85,7 @@ public class DabDelegate extends Activity {
         } else if (data != null) {
             // something went wrong, and the driver failed to start
             String errmsg = data.getStringExtra("detailed_exception_message");
-            Log.i(TAG, "RTL-SDR error: " + errmsg);
+            Log.e(TAG, "RTL-SDR error: " + errmsg);
         }
         finish();
     }
