@@ -224,10 +224,6 @@ void CAndroidJNI::setRadioController(CRadioController *radioController)
     connect(radioController, &CRadioController::showInfoMessage,
             this, &CAndroidJNI::showInfoMessage);
 
-#if 0
-    qDebug() << "AndroidJNI:" << "Start RadioController";
-    QTimer::singleShot(0, mRadioController, SLOT(onEventLoopStarted()));
-#endif
     serviceReady();
 
     // Get stations
@@ -249,8 +245,7 @@ bool CAndroidJNI::openTcpConnection(QString host, int port)
         CRTL_TCP_Client *device = new CRTL_TCP_Client(*mRadioController);
         device->setIP(host);
         device->setPort(port);
-        mRadioController->setDevice(device);
-        QTimer::singleShot(0, mRadioController, SLOT(onEventLoopStarted()));
+        mRadioController->openDevice(device);
         return true;
     }
     return false;

@@ -146,63 +146,66 @@ void CRadioController::closeDevice()
     emit DeviceClosed();
 }
 
-void CRadioController::setDevice(CVirtualInput* Dev)
+void CRadioController::openDevice(CVirtualInput* Dev)
 {
     if (Device) {
         closeDevice();
     }
     this->Device = Dev;
+    Initialise();
 }
 
 void CRadioController::onEventLoopStarted()
 {
-    if (Device == NULL) {
-
-        QString ipAddress = "127.0.0.1";
-        uint16_t ipPort = 1234;
-        QString rawFile = "";
-        QString rawFileFormat = "u8";
-
 #ifdef Q_OS_ANDROID
-        QString dabDevice = "rtl_tcp";
+    QString dabDevice = "rtl_tcp";
 #else
-        QString dabDevice = "auto";
-
-        if(commandLineOptions["dabDevice"] != "")
-            dabDevice = commandLineOptions["dabDevice"].toString();
-
-        if(commandLineOptions["ipAddress"] != "")
-            ipAddress = commandLineOptions["ipAddress"].toString();
-
-        if(commandLineOptions["ipPort"] != "")
-            ipPort = commandLineOptions["ipPort"].toInt();
-
-        if(commandLineOptions["rawFile"] != "")
-            rawFile = commandLineOptions["rawFile"].toString();
-
-        if(commandLineOptions["rawFileFormat"] != "")
-            rawFileFormat = commandLineOptions["rawFileFormat"].toString();
+    QString dabDevice = "auto";
 #endif
 
-        // Init device
-        Device = CInputFactory::GetDevice(*this, dabDevice);
+    QString ipAddress = "127.0.0.1";
+    uint16_t ipPort = 1234;
+    QString rawFile = "";
+    QString rawFileFormat = "u8";
 
-        // Set rtl_tcp settings
-        if (Device->getID() == CDeviceID::RTL_TCP) {
-            CRTL_TCP_Client* RTL_TCP_Client = (CRTL_TCP_Client*)Device;
+    if(commandLineOptions["dabDevice"] != "")
+        dabDevice = commandLineOptions["dabDevice"].toString();
 
-            RTL_TCP_Client->setIP(ipAddress);
-            RTL_TCP_Client->setPort(ipPort);
-        }
+    if(commandLineOptions["ipAddress"] != "")
+        ipAddress = commandLineOptions["ipAddress"].toString();
 
-        // Set rawfile settings
-        if (Device->getID() == CDeviceID::RAWFILE) {
-            CRAWFile* RAWFile = (CRAWFile*)Device;
+    if(commandLineOptions["ipPort"] != "")
+        ipPort = commandLineOptions["ipPort"].toInt();
 
-            RAWFile->setFileName(rawFile, rawFileFormat);
-        }
+    if(commandLineOptions["rawFile"] != "")
+        rawFile = commandLineOptions["rawFile"].toString();
+
+    if(commandLineOptions["rawFileFormat"] != "")
+        rawFileFormat = commandLineOptions["rawFileFormat"].toString();
+
+    // Init device
+    Device = CInputFactory::GetDevice(*this, dabDevice);
+
+    // Set rtl_tcp settings
+    if (Device->getID() == CDeviceID::RTL_TCP) {
+        CRTL_TCP_Client* RTL_TCP_Client = (CRTL_TCP_Client*)Device;
+
+        RTL_TCP_Client->setIP(ipAddress);
+        RTL_TCP_Client->setPort(ipPort);
     }
 
+    // Set rawfile settings
+    if (Device->getID() == CDeviceID::RAWFILE) {
+        CRAWFile* RAWFile = (CRAWFile*)Device;
+
+        RAWFile->setFileName(rawFile, rawFileFormat);
+    }
+
+    Initialise();
+}
+
+void CRadioController::Initialise(void)
+{
     mGainCount = Device->getGainCount();
     emit GainCountChanged(mGainCount);
 

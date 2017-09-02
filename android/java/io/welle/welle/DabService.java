@@ -7,7 +7,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.IntentFilter;
 import android.content.res.Resources;
-import android.hardware.usb.UsbManager;
 import android.media.AudioManager;
 import android.os.Binder;
 import android.os.Bundle;
@@ -122,10 +121,6 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
             }
         }
         return channelList;
-    }
-
-    public static void startDabService(Context context) {
-        context.startService(new Intent(context, DabService.class));
     }
 
     public static String toMediaId(String station, String channel) {
@@ -301,6 +296,10 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
     }
 
     public class DabBinder extends Binder {
+
+        boolean isDeviceAvailable() {
+            return (mDabDevice != null);
+        }
 
         Token getSessionToken() {
             return mSession.getSessionToken();

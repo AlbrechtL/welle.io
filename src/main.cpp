@@ -177,8 +177,8 @@ int main(int argc, char** argv)
 #ifdef Q_OS_ANDROID
 
     // Start background service
-    QAndroidJniObject::callStaticMethod<void>("io/welle/welle/DabService",
-                                              "startDabService",
+    QAndroidJniObject::callStaticMethod<void>("io/welle/welle/DabDelegate",
+                                              "startDab",
                                               "(Landroid/content/Context;)V",
                                               QtAndroid::androidActivity().object());
 
@@ -200,6 +200,7 @@ int main(int argc, char** argv)
 
     // Create a new radio interface instance
     CRadioController* RadioController = new CRadioController(commandLineOptions, DABParams);
+    QTimer::singleShot(0, RadioController, SLOT(onEventLoopStarted())); // The timer is used to signal if the QT event lopp is running
 
 #endif
 
