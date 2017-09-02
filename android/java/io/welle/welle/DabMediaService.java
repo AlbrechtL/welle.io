@@ -14,23 +14,31 @@ import android.support.v4.media.MediaDescriptionCompat;
 import android.util.Log;
 
 import io.welle.welle.DabService.DabBinder;
-import io.welle.welle.DabService.DabCallback;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class DabMediaService extends MediaBrowserServiceCompat implements ServiceConnection, DabCallback {
+public class DabMediaService extends MediaBrowserServiceCompat implements ServiceConnection {
 
     private static final String TAG = DabMediaService.class.getSimpleName();
 
     private static final String MEDIA_ID_ROOT = "__ROOT__";
     private static final String MEDIA_ID_DAB_CHANNELS = "__DAB_CHANNELS__";
-    private static final String MEDIA_ID_DAB_STATIONS = "__DAB_STATIONS__";
     private static final String MEDIA_ID_FAVORITE_STATIONS = "__FAVORITE_STATIONS__";
 
-    private DabBinder mDabBinder = null;
-    private boolean stationListShown = false;
-    private boolean favoriteListShown = false;
+    public static final String[] CHANNELS = {
+            // Band III
+            "5A",  "5B",  "5C",  "5D",  "6A",  "6B",  "6C",  "6D",  "7A",  "7B",  "7C",  "7D",
+            "8A",  "8B",  "8C",  "8D",  "9A",  "9B",  "9C",  "9D", "10A", "10B", "10C", "10D",
+            "11A", "11B", "11C", "11D", "12A", "12B", "12C", "12D", "13A", "13B", "13C", "13D",
+            "13E", "13F",
+            // Band L
+            "LA",  "LB",  "LC",  "LD",  "LE",  "LF",  "LG",  "LH",  "LI",  "LJ",  "LK",  "LL",
+            "LM",  "LN",  "LO",  "LP"
+    };
+
+    private List<MediaBrowserCompat.MediaItem> mChannelList = new ArrayList<>();
+    private List<MediaBrowserCompat.MediaItem> mFavoriteList = new ArrayList<>();
 
     /*
      * (non-Javadoc)
@@ -41,6 +49,18 @@ public class DabMediaService extends MediaBrowserServiceCompat implements Servic
         super.onCreate();
         Log.d(TAG, "onCreate");
         bindService(new Intent(this, DabService.class), this, Context.BIND_AUTO_CREATE);
+
+        for (String channel : CHANNELS) {
+            Bundle extras = new Bundle();
+            extras.putInt(DabService.BUNDLE_KEY_DAB_TYPE, DabService.TYPE_DAB_CHANNEL);
+            extras.putString(DabService.BUNDLE_KEY_CHANNEL, channel);
+
+            mChannelList.add(new MediaBrowserCompat.MediaItem(new MediaDescriptionCompat.Builder()
+                    .setMediaId(DabService.toMediaId(null, channel))
+                    .setTitle(channel)
+                    .setExtras(extras)
+                    .build(), MediaBrowserCompat.MediaItem.FLAG_PLAYABLE));
+        }
     }
 
     /**
@@ -62,9 +82,7 @@ public class DabMediaService extends MediaBrowserServiceCompat implements Servic
     public void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "onDestroy");
-        if (mDabBinder != null) {
-            mDabBinder.setDabCallback(null);
-        }
+        unbindService(this);
     }
 
     @Override
@@ -72,16 +90,24 @@ public class DabMediaService extends MediaBrowserServiceCompat implements Servic
         Log.d(TAG, "onServiceConnected");
         if (binder instanceof DabBinder) {
             Log.i(TAG, "DabService connected");
-            mDabBinder = (DabBinder) binder;
-            mDabBinder.setDabCallback(this);
-            setSessionToken(mDabBinder.getSessionToken());
+            DabBinder dabBinder = (DabBinder) binder;
+
+            // Connect RTL-SDR if needed
+            if (!dabBinder.isDeviceAvailable()) {
+                Log.i(TAG, "DabService connect to RTL-SDR");
+                Intent intent = new Intent(this, DabDelegate.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+            }
+
+            // Set media session
+            setSessionToken(dabBinder.getSessionToken());
         }
     }
 
     @Override
     public void onServiceDisconnected(ComponentName name) {
         Log.d(TAG, "onServiceDisconnected");
-        mDabBinder = null;
     }
 
     @Override
@@ -94,70 +120,35 @@ public class DabMediaService extends MediaBrowserServiceCompat implements Servic
                                @NonNull final Result<List<MediaBrowserCompat.MediaItem>> result) {
         Log.d(TAG, "onLoadChildren: parentMediaId=" + parentMediaId);
 
-        List<MediaBrowserCompat.MediaItem> stationList = null;
-        List<MediaBrowserCompat.MediaItem> favoriteList = null;
-
-        if (mDabBinder != null) {
-            stationList = mDabBinder.getStationList();
-            favoriteList = mDabBinder.getFavoriteList();
-        }
-
         switch (parentMediaId) {
             case MEDIA_ID_ROOT:
                 Resources resources = getResources();
 
                 List<MediaBrowserCompat.MediaItem> mediaItems = new ArrayList<>();
 
-                if (mDabBinder != null) {
-                    mediaItems.add(new MediaBrowserCompat.MediaItem(new MediaDescriptionCompat.Builder()
-                            .setMediaId(MEDIA_ID_DAB_CHANNELS)
-                            .setTitle(resources.getString(R.string.menu_channels))
-                            .build(), MediaBrowserCompat.MediaItem.FLAG_BROWSABLE));
-                }
+                mediaItems.add(new MediaBrowserCompat.MediaItem(new MediaDescriptionCompat.Builder()
+                        .setMediaId(MEDIA_ID_DAB_CHANNELS)
+                        .setTitle(resources.getString(R.string.menu_channels))
+                        .build(), MediaBrowserCompat.MediaItem.FLAG_BROWSABLE));
 
-                if (stationList != null && !stationList.isEmpty()) {
-                    stationListShown = true;
-                    mediaItems.add(new MediaBrowserCompat.MediaItem(new MediaDescriptionCompat.Builder()
-                            .setMediaId(MEDIA_ID_DAB_STATIONS)
-                            .setTitle(resources.getString(R.string.menu_stations))
-                            .build(), MediaBrowserCompat.MediaItem.FLAG_BROWSABLE));
-                } else {
-                    stationListShown = false;
-                }
-
-                if (favoriteList != null && !favoriteList.isEmpty()) {
-                    favoriteListShown = true;
+                if (!mFavoriteList.isEmpty()) {
                     mediaItems.add(new MediaBrowserCompat.MediaItem(new MediaDescriptionCompat.Builder()
                             .setMediaId(MEDIA_ID_FAVORITE_STATIONS)
                             .setTitle(resources.getString(R.string.menu_favorites))
                             .build(), MediaBrowserCompat.MediaItem.FLAG_BROWSABLE));
-                } else {
-                    favoriteListShown = false;
                 }
 
                 result.sendResult(mediaItems);
                 break;
 
             case MEDIA_ID_DAB_CHANNELS:
-                result.sendResult(DabService.getChannelList());
-                break;
-
-            case MEDIA_ID_DAB_STATIONS:
-                if (stationList != null && !stationList.isEmpty()) {
-                    stationListShown = true;
-                    result.sendResult(stationList);
-                } else {
-                    stationListShown = false;
-                    result.sendResult(null);
-                }
+                result.sendResult(mChannelList);
                 break;
 
             case MEDIA_ID_FAVORITE_STATIONS:
-                if (favoriteList != null && !favoriteList.isEmpty()) {
-                    favoriteListShown = true;
-                    result.sendResult(favoriteList);
+                if (mFavoriteList.isEmpty()) {
+                    result.sendResult(mFavoriteList);
                 } else {
-                    favoriteListShown = false;
                     result.sendResult(null);
                 }
                 break;
@@ -175,39 +166,4 @@ public class DabMediaService extends MediaBrowserServiceCompat implements Servic
         //TODO add search results
         result.sendResult(mediaItems);
     }
-
-    @Override
-    public void updateStationList(List<MediaBrowserCompat.MediaItem> list) {
-        if (list.isEmpty()) {
-            if (stationListShown)
-                notifyChildrenChanged(MEDIA_ID_ROOT);
-        } else {
-            if (stationListShown)
-                notifyChildrenChanged(MEDIA_ID_DAB_STATIONS);
-            else
-                notifyChildrenChanged(MEDIA_ID_ROOT);
-        }
-    }
-
-    @Override
-    public void updateFavoriteList(List<MediaBrowserCompat.MediaItem> list) {
-        if (list.isEmpty()) {
-            if (favoriteListShown)
-                notifyChildrenChanged(MEDIA_ID_ROOT);
-        } else {
-            if (favoriteListShown)
-                notifyChildrenChanged(MEDIA_ID_FAVORITE_STATIONS);
-            else
-                notifyChildrenChanged(MEDIA_ID_ROOT);
-        }
-    }
-
-    @Override
-    public void updateDabStatus(int playbackState) {}
-
-    @Override
-    public void updateScanProgress(int scanProgress) {}
-
-    @Override
-    public void showError(String error) {}
 }

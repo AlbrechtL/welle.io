@@ -2,6 +2,7 @@
 <resources>
     <string name="menu_stations">Stations</string>
     <string name="menu_channels">Channels</string>
+    <string name="menu_channel_scan">Find Stations</string>
     <string name="menu_favorites">Favorites</string>
     <string name="action_scan">Scan</string>
     <string name="action_favorite">Favorite</string>
