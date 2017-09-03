@@ -472,7 +472,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
     }
 
     private void handlePlayRequest(Bundle extras) {
-        if (mDabDevice == null)
+        if (!mServiceReady)
             return;
 
         Log.d(TAG, "handlePlayRequest");
@@ -509,7 +509,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
     }
 
     private void handlePauseRequest() {
-        if (mDabDevice == null)
+        if (!mServiceReady)
             return;
 
         Log.d(TAG, "handlePauseRequest");
@@ -522,7 +522,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
     }
 
     private void handleStopRequest() {
-        if (mDabDevice == null)
+        if (!mServiceReady)
             return;
 
         Log.d(TAG, "handleStopRequest");
@@ -535,7 +535,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
     }
 
     private void handleSkipRequest(boolean next) {
-        if (mDabDevice == null)
+        if (!mServiceReady)
             return;
 
         Log.d(TAG, "handleSkipRequest: " + next);
@@ -580,7 +580,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
     }
 
     private void handleScanStartRequest() {
-        if (mDabDevice == null)
+        if (!mServiceReady)
             return;
 
         Log.d(TAG, "handleScanStartRequest");
@@ -588,7 +588,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
     }
 
     private void handleScanStopRequest() {
-        if (mDabDevice == null)
+        if (!mServiceReady)
             return;
 
         Log.d(TAG, "handleScanStopRequest");
@@ -596,7 +596,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
     }
 
     private boolean handleCustomAction(String action, Bundle extras) {
-        if (mDabDevice == null)
+        if (!mServiceReady)
             return false;
 
         if (CUSTOM_ACTION_PLAY.equals(action)) {
@@ -637,7 +637,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
     }
 
     private void playLastStation() {
-        if (mDabDevice == null)
+        if (!mServiceReady)
             return;
 
         Log.d(TAG, "playLastStation");
@@ -673,9 +673,6 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
     }
 
     private void updatePlaybackState() {
-        if (mDabDevice == null)
-            return;
-
         Log.d(TAG, "updatePlaybackState");
 
         Resources resources = getResources();
@@ -684,16 +681,16 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
         long playbackActions = 0;
 
         // Update playback state
-        if (DAB_STATUS_ERROR == mDabStatus) {
-            String error =  mError != null ? mError : resources.getString(R.string.error_unknown);
+        if (!mServiceReady || DAB_STATUS_UNKNOWN == mDabStatus) {
+            String error =  getResources().getString(R.string.error_not_initialised);
             stateBuilder.setErrorMessage(-1, error);
             mSession.setMetadata(new MediaMetadataCompat.Builder()
                     .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, MEDIA_ID_ERROR)
                     .putString(MediaMetadataCompat.METADATA_KEY_TITLE, error)
                     .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, error)
                     .build());
-        } else if (DAB_STATUS_UNKNOWN == mDabStatus) {
-            String error =  getResources().getString(R.string.error_not_initialised);
+        } else if (DAB_STATUS_ERROR == mDabStatus) {
+            String error =  mError != null ? mError : resources.getString(R.string.error_unknown);
             stateBuilder.setErrorMessage(-1, error);
             mSession.setMetadata(new MediaMetadataCompat.Builder()
                     .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, MEDIA_ID_ERROR)
@@ -800,12 +797,12 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
                 .setMediaSession(mSession.getSessionToken())
         );
 
-        if (DAB_STATUS_ERROR == mDabStatus) {
+        if (!mServiceReady || DAB_STATUS_UNKNOWN == mDabStatus) {
+            notificationBuilder.setContentTitle(getResources().getString(R.string.error_not_initialised));
+        } else if (DAB_STATUS_ERROR == mDabStatus) {
             // Error
             String error = mError != null ? mError : getResources().getString(R.string.error_unknown);
             notificationBuilder.setContentTitle(error);
-        } else if (DAB_STATUS_UNKNOWN == mDabStatus) {
-            notificationBuilder.setContentTitle(getResources().getString(R.string.error_not_initialised));
         } else if (0 <= mChannelScanProgress) {
             // Scanning
 
