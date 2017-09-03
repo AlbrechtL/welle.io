@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">welle.io</string>
     <string name="menu_stations">Stations</string>
     <string name="menu_channels">Channels</string>
     <string name="menu_channel_scan">Find Stations</string>

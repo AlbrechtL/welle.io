@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <manifest package="io.welle.welle" xmlns:android="http://schemas.android.com/apk/res/android" android:versionName="1.0" android:versionCode="5" android:installLocation="auto">
-    <application android:hardwareAccelerated="true" android:name="org.qtproject.qt5.android.bindings.QtApplication" android:label="welle.io" android:icon="@drawable/icon">
-        <activity android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation" android:name="org.qtproject.qt5.android.bindings.QtActivity" android:label="welle.io" android:screenOrientation="unspecified" android:launchMode="singleTop">
+    <application android:hardwareAccelerated="true" android:name="org.qtproject.qt5.android.bindings.QtApplication" android:label="@string/app_name" android:icon="@drawable/icon">
+        <activity android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation" android:name="org.qtproject.qt5.android.bindings.QtActivity" android:label="@string/app_name" android:screenOrientation="unspecified" android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -66,7 +66,7 @@
         <meta-data android:name="com.google.android.gms.car.application.theme" android:resource="@style/CarTheme"/>
         <meta-data android:name="com.google.android.wearable.media.theme" android:resource="@style/WearTheme"/>
 
-        <activity android:process=":qt" android:name=".DabDelegate" android:theme = "@android:style/Theme.Translucent.NoTitleBar" android:exported="true" android:label="welle.io">
+        <activity android:process=":qt" android:name=".DabDelegate" android:theme = "@android:style/Theme.Translucent.NoTitleBar" android:label="@string/app_name" android:exported="true">
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <action android:name="com.sdrtouch.rtlsdr.SDR_DEVICE_ATTACHED"/>
@@ -82,7 +82,7 @@
             <!-- Application to launch -->
         </activity>
 
-        <service android:process=":qt" android:enabled="true" android:name=".DabMediaService" android:exported="true">
+        <service android:process=":qt" android:enabled="true" android:name=".DabMediaService" android:label="@string/app_name" android:exported="true">
             <intent-filter>
                 <action android:name="android.media.browse.MediaBrowserService"/>
             </intent-filter>
@@ -92,7 +92,7 @@
             <!-- Background running -->
         </service>
 
-        <service android:process=":qt" android:enabled="true" android:name=".DabService" android:exported="false">
+        <service android:process=":qt" android:enabled="true" android:name=".DabService" android:label="@string/app_name" android:exported="false">
             <!-- Application arguments -->
             <meta-data android:name="android.app.arguments" android:value="-S"/>
             <!-- Application arguments -->
