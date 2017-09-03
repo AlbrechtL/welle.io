@@ -719,21 +719,21 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
                 }
 
                 stateBuilder.addCustomAction(CUSTOM_ACTION_SCAN_START, resources.getString(R.string.action_scan),
-                        android.R.drawable.ic_menu_search);
+                        R.drawable.ic_search);
 
 //TODO next channel                stateBuilder.addCustomAction(CUSTOM_ACTION_NEXT_CHANNEL, resources.getString(R.string.action_next_channel),
-//                        android.R.drawable.ic_menu_upload);
+//                        R.drawable.ic_skip_up);
 
 //TODO record                stateBuilder.addCustomAction(CUSTOM_ACTION_RECORD,
-//                        resources.getString(R.string.record), android.R.drawable.ic_menu_add);
+//                        resources.getString(R.string.record), R.drawable.ic_radio_button_checked);
 
                 if (mCurrentStation != null && mCurrentChannel != null) {
                     stateBuilder.setActiveQueueItemId(toMediaId(mCurrentStation, mCurrentChannel).hashCode());
                     stateBuilder.addCustomAction(CUSTOM_ACTION_FAVORITE,
                             resources.getString(R.string.action_favorite),
                             (isFavoriteStation(mCurrentStation, mCurrentChannel)
-                                    ? android.R.drawable.star_on
-                                    : android.R.drawable.star_off));
+                                    ? R.drawable.ic_favorite
+                                    : R.drawable.ic_favorite_border));
                 }
 
                 if (mTrack == null && mCurrentStation != null) {
@@ -749,7 +749,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
                 // Scanning
                 playbackActions |= PlaybackStateCompat.ACTION_PAUSE;
                 stateBuilder.addCustomAction(CUSTOM_ACTION_SCAN_STOP, resources.getString(R.string.action_scan),
-                        android.R.drawable.ic_menu_close_clear_cancel);
+                        R.drawable.ic_close);
 
                 if (mTrack == null) {
                     String title = resources.getString(R.string.label_scanning) + " " + mChannelScanProgress;
@@ -808,7 +808,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
 
             // Stop scan button
             intent = new Intent(CUSTOM_ACTION_SCAN_STOP);
-            notificationBuilder.addAction(new NotificationCompat.Action(android.R.drawable.ic_menu_close_clear_cancel,
+            notificationBuilder.addAction(new NotificationCompat.Action(R.drawable.ic_close,
                     resources.getString(R.string.action_scan),
                     PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
             ));
@@ -827,7 +827,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
             // Skip prev button
             if (mStationList.size() > 1) {
                 intent = new Intent(CUSTOM_ACTION_SKIP_PREV);
-                notificationBuilder.addAction(new NotificationCompat.Action(android.R.drawable.ic_media_previous,
+                notificationBuilder.addAction(new NotificationCompat.Action(R.drawable.ic_skip_previous,
                         resources.getString(R.string.action_skip_prev),
                         PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
                 ));
@@ -836,13 +836,13 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
             // Play/Pause toggle button
             if (DAB_STATUS_PLAYING == mDabStatus) {
                 intent = new Intent(CUSTOM_ACTION_PAUSE);
-                notificationBuilder.addAction(new NotificationCompat.Action(android.R.drawable.ic_media_pause,
+                notificationBuilder.addAction(new NotificationCompat.Action(R.drawable.ic_pause,
                         resources.getString(R.string.action_pause),
                         PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
                 ));
             } else if (mDabStatus >= DAB_STATUS_INITIALISED && !mStationList.isEmpty()) {
                 intent = new Intent(CUSTOM_ACTION_PLAY);
-                notificationBuilder.addAction(new NotificationCompat.Action(android.R.drawable.ic_media_play,
+                notificationBuilder.addAction(new NotificationCompat.Action(R.drawable.ic_play,
                         resources.getString(R.string.action_play),
                         PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
                 ));
@@ -851,7 +851,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
             // Skip next button
             if (mStationList.size() > 1) {
                 intent = new Intent(CUSTOM_ACTION_SKIP_NEXT);
-                notificationBuilder.addAction(new NotificationCompat.Action(android.R.drawable.ic_media_next,
+                notificationBuilder.addAction(new NotificationCompat.Action(R.drawable.ic_skip_next,
                         resources.getString(R.string.action_skip_next),
                         PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
                 ));
@@ -859,14 +859,14 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
 
             // Start scan button
             intent = new Intent(CUSTOM_ACTION_SCAN_START);
-            notificationBuilder.addAction(new NotificationCompat.Action(android.R.drawable.ic_menu_search,
+            notificationBuilder.addAction(new NotificationCompat.Action(R.drawable.ic_search,
                     resources.getString(R.string.action_scan),
                     PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
             ));
 
             // Next channel button
 //TODO next chan            intent = new Intent(CUSTOM_ACTION_NEXT_CHANNEL);
-//            notificationBuilder.addAction(new NotificationCompat.Action(android.R.drawable.ic_menu_upload,
+//            notificationBuilder.addAction(new NotificationCompat.Action(R.drawable.ic_skip_up,
 //                    resources.getString(R.string.action_next_channel),
 //                    PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
 //            ));
