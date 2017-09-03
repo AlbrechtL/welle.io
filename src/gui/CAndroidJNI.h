@@ -74,6 +74,7 @@ private slots:
     void deviceReady(void);
     void deviceClosed(void);
     void updateGuiData(QVariantMap GUIData);
+    void updateMOT(QImage img);
     void clearStations(void);
     void foundStation(QString station, QString channel);
     void channelScanStopped(void);

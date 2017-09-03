@@ -197,6 +197,7 @@ macx {
 android {
     QT += androidextras
     QT += remoteobjects
+    LIBS += -ljnigraphics
 
     CONFIG  += kiss_fft_builtin
     CONFIG  += libfaad_builtin

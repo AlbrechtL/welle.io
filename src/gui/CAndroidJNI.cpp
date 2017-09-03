@@ -25,8 +25,10 @@
 
 #include <QDebug>
 #include <QSettings>
+#include <QAndroidJniEnvironment>
 #include <QAndroidJniObject>
 #include <QMetaObject>
+#include <android/bitmap.h>
 
 #include "CInputFactory.h"
 #include "CAndroidJNI.h"
@@ -191,6 +193,8 @@ void CAndroidJNI::setRadioController(CRadioController *radioController)
 
     connect(radioController, &CRadioController::GUIDataChanged,
             this, &CAndroidJNI::updateGuiData);
+    connect(radioController, &CRadioController::MOTChanged,
+            this, &CAndroidJNI::updateMOT);
     connect(radioController, &CRadioController::DeviceReady,
             this, &CAndroidJNI::deviceReady);
     connect(radioController, &CRadioController::DeviceClosed,
@@ -299,6 +303,56 @@ void CAndroidJNI::updateGuiData(QVariantMap GUIData)
                                               jTitle.object<jstring>(),
                                               jLabel.object<jstring>(),
                                               jStationType.object<jstring>());
+}
+
+void CAndroidJNI::updateMOT(QImage img)
+{
+    // Convert image
+    QImage image = (img.format() == QImage::Format_RGBA8888) ? img
+                                                             : img.convertToFormat(QImage::Format_RGBA8888);
+
+    // Create Android Bitmap
+    QAndroidJniObject config = QAndroidJniObject::getStaticObjectField("android/graphics/Bitmap$Config",
+                                                                       "ARGB_8888",
+                                                                       "Landroid/graphics/Bitmap$Config;");
+
+    QAndroidJniObject bitmap = QAndroidJniObject::callStaticObjectMethod("android/graphics/Bitmap",
+                                                                         "createBitmap",
+                                                                         "(IILandroid/graphics/Bitmap$Config;)Landroid/graphics/Bitmap;",
+                                                                         img.width(),
+                                                                         img.height(),
+                                                                         config.object());
+    // Copy QImage to Android Bitmap
+    QAndroidJniEnvironment env;
+    AndroidBitmapInfo info;
+    if (AndroidBitmap_getInfo(env, bitmap.object(), &info) != ANDROID_BITMAP_RESULT_SUCCESS)
+        return;
+
+    if (info.format!= ANDROID_BITMAP_FORMAT_RGBA_8888)
+        return;
+
+    void *pixels;
+    if (AndroidBitmap_lockPixels(env, bitmap.object(), &pixels) != ANDROID_BITMAP_RESULT_SUCCESS)
+        return;
+
+    if (info.stride == uint32_t(image.bytesPerLine())) {
+        memcpy(pixels, image.constBits(), info.stride * info.height);
+    } else {
+        uchar *bmpPtr = static_cast<uchar *>(pixels);
+        const unsigned width = std::min(info.width, (uint)image.width());
+        const unsigned height = std::min(info.height, (uint)image.height());
+        for (unsigned y = 0; y < height; y++, bmpPtr += info.stride)
+            memcpy(bmpPtr, image.constScanLine(y), width);
+    }
+
+    if (AndroidBitmap_unlockPixels(env, bitmap.object()) != ANDROID_BITMAP_RESULT_SUCCESS)
+        return;
+
+    // Update Android Bitmap
+    QAndroidJniObject::callStaticMethod<void>("io/welle/welle/DabService",
+                                              "updateMOT",
+                                              "(Landroid/graphics/Bitmap;)V",
+                                              bitmap.object());
 }
 
 void CAndroidJNI::deviceReady(void)
