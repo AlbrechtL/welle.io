@@ -411,8 +411,7 @@ void CRadioController::SetManualChannel(QString Channel)
     UpdateGUIData();
 
     // Clear MOT
-    QImage MOT(320, 240, QImage::Format_Alpha8);
-    MOT.fill(Qt::transparent);
+    QImage MOT;
     emit MOTChanged(MOT);
 
     // Switch channel
@@ -712,8 +711,7 @@ void CRadioController::SetStation(QString Station, bool Force)
         UpdateGUIData();
 
         // Clear MOT
-        QImage MOT(320, 240, QImage::Format_Alpha8);
-        MOT.fill(Qt::transparent);
+        QImage MOT;
         emit MOTChanged(MOT);
     }
 }

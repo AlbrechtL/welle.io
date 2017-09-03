@@ -307,6 +307,15 @@ void CAndroidJNI::updateGuiData(QVariantMap GUIData)
 
 void CAndroidJNI::updateMOT(QImage img)
 {
+    if (img.isNull()) {
+        // Update Android Bitmap
+        QAndroidJniObject::callStaticMethod<void>("io/welle/welle/DabService",
+                                                  "updateMOT",
+                                                  "(Landroid/graphics/Bitmap;)V",
+                                                  NULL);
+        return;
+    }
+
     // Convert image
     QImage image = (img.format() == QImage::Format_RGBA8888) ? img
                                                              : img.convertToFormat(QImage::Format_RGBA8888);
