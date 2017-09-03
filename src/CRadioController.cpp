@@ -446,6 +446,12 @@ void CRadioController::StartScan(void)
         CurrentText = tr("Found channels") + ": " + QString::number(mStationCount);
 
         Status = Scanning;
+
+        // Clear old data
+        CurrentStation = "";
+        CurrentStationType = "";
+        CurrentLanguageType = "";
+
         UpdateGUIData();
         emit ScanProgress(0);
     }
