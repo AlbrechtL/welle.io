@@ -15,7 +15,10 @@ import android.util.Log;
 
 import io.welle.welle.DabService.DabBinder;
 
+import java.util.Comparator;
+import java.util.Iterator;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class DabMediaService extends MediaBrowserServiceCompat implements ServiceConnection {
@@ -26,7 +29,7 @@ public class DabMediaService extends MediaBrowserServiceCompat implements Servic
     private static final String MEDIA_ID_DAB_CHANNELS = "__DAB_CHANNELS__";
     private static final String MEDIA_ID_FAVORITE_STATIONS = "__FAVORITE_STATIONS__";
 
-    public static final String[] CHANNELS = {
+    private static final String[] CHANNELS = {
             // Band III
             "5A",  "5B",  "5C",  "5D",  "6A",  "6B",  "6C",  "6D",  "7A",  "7B",  "7C",  "7D",
             "8A",  "8B",  "8C",  "8D",  "9A",  "9B",  "9C",  "9D", "10A", "10B", "10C", "10D",
@@ -37,8 +40,44 @@ public class DabMediaService extends MediaBrowserServiceCompat implements Servic
             "LM",  "LN",  "LO",  "LP"
     };
 
-    private List<MediaBrowserCompat.MediaItem> mChannelList = new ArrayList<>();
-    private List<MediaBrowserCompat.MediaItem> mFavoriteList = new ArrayList<>();
+    private static DabMediaService instance = null;
+    private static List<MediaBrowserCompat.MediaItem> mChannelList = new ArrayList<>();
+    private static List<MediaBrowserCompat.MediaItem> mFavoriteList = new ArrayList<>();
+
+    public static void addFavoriteStation(String station, String channel) {
+        Log.i(TAG, "Add favorite station: " + station + " channel: " + channel);
+        boolean updateRoot = mFavoriteList.isEmpty();
+
+        mFavoriteList.add(new MediaBrowserCompat.MediaItem(DabService.createStation(station, channel),
+                MediaBrowserCompat.MediaItem.FLAG_PLAYABLE));
+        Collections.sort(mFavoriteList, new Comparator<MediaBrowserCompat.MediaItem>() {
+            @Override
+            public int compare(MediaBrowserCompat.MediaItem lhs, MediaBrowserCompat.MediaItem rhs) {
+                return DabService.compareStation(lhs.getDescription(), rhs.getDescription());
+            }
+        });
+
+        if (instance != null) {
+            instance.notifyChildrenChanged(updateRoot ? MEDIA_ID_ROOT : MEDIA_ID_FAVORITE_STATIONS);
+        }
+    }
+
+    public static void removeFavoriteStation(String station, String channel) {
+        Log.i(TAG, "Remove favorite station: " + station + " channel: " + channel);
+
+        String mediaId = DabService.toMediaId(station, channel);
+        Iterator<MediaBrowserCompat.MediaItem> it = mFavoriteList.iterator();
+        while (it.hasNext()) {
+            MediaBrowserCompat.MediaItem mediaItem = it.next();
+            if (mediaId.equals(mediaItem.getMediaId())) {
+                it.remove();
+            }
+        }
+
+        if (instance != null) {
+            instance.notifyChildrenChanged(mFavoriteList.isEmpty() ? MEDIA_ID_ROOT : MEDIA_ID_FAVORITE_STATIONS);
+        }
+    }
 
     /*
      * (non-Javadoc)
@@ -48,6 +87,9 @@ public class DabMediaService extends MediaBrowserServiceCompat implements Servic
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "onCreate");
+
+        instance = this;
+
         bindService(new Intent(this, DabService.class), this, Context.BIND_AUTO_CREATE);
 
         for (String channel : CHANNELS) {
@@ -146,11 +188,7 @@ public class DabMediaService extends MediaBrowserServiceCompat implements Servic
                 break;
 
             case MEDIA_ID_FAVORITE_STATIONS:
-                if (mFavoriteList.isEmpty()) {
-                    result.sendResult(mFavoriteList);
-                } else {
-                    result.sendResult(null);
-                }
+                result.sendResult(mFavoriteList);
                 break;
 
             default:

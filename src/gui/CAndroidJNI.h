@@ -42,9 +42,8 @@ public:
     Q_INVOKABLE void closeTcpConnection();
 
     Q_INVOKABLE bool isFavoriteStation(QString station, QString channel);
-    Q_INVOKABLE void addFavoriteStation(QString station, QString channel);
-    Q_INVOKABLE void removeFavoriteStation(QString station, QString channel);
-    Q_INVOKABLE void saveFavoriteStations();
+    Q_INVOKABLE void setFavoriteStation(QString station, QString channel,
+                                        bool value);
 
     Q_INVOKABLE void play(QString station, QString channel);
 
@@ -67,6 +66,8 @@ private:
     CRadioController *mRadioController;
     CStationList mFavoriteList;
     void addStation(QString station, QString channel);
+    void addFavoriteStation(QString station, QString channel);
+    void removeFavoriteStation(QString station, QString channel);
 
 private slots:
     void serviceReady(void);

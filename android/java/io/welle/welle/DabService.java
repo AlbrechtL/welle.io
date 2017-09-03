@@ -107,7 +107,33 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
             channel = MEDIA_ID_UNKNOWN;
         return station + channel;
     }
-    
+
+    public static int compareStation(MediaDescriptionCompat ld, MediaDescriptionCompat rd) {
+        String lStation = ld.getTitle().toString();
+        String rStation = rd.getTitle().toString();
+
+        int comp = lStation.compareToIgnoreCase(rStation);
+        if (comp == 0) {
+            String lChannel = ld.getExtras().getString(BUNDLE_KEY_CHANNEL);
+            String rChannel = rd.getExtras().getString(BUNDLE_KEY_CHANNEL);
+            comp = lChannel.compareToIgnoreCase(rChannel);
+        }
+        return comp;
+    }
+
+    public static MediaDescriptionCompat createStation(String station, String channel) {
+        Bundle extras = new Bundle();
+        extras.putInt(BUNDLE_KEY_DAB_TYPE, TYPE_DAB_STATION);
+        extras.putString(BUNDLE_KEY_STATION, station);
+        extras.putString(BUNDLE_KEY_CHANNEL, channel);
+        return new MediaDescriptionCompat.Builder()
+                .setMediaId(toMediaId(station, channel))
+                .setTitle(station.trim() + " (" + channel + ")")
+                //.setTitle(station.trim())
+                .setExtras(extras)
+                .build();
+    }
+
     // Native
 
     private static DabService instance = null;
@@ -116,8 +142,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
     public static native void closeTcpConnection();
 
     public static native boolean isFavoriteStation(String station, String channel);
-    public static native void addFavoriteStation(String station, String channel);
-    public static native void removeFavoriteStation(String station, String channel);
+    public static native void setFavoriteStation(String station, String channel, boolean value);
 
     public static native void play(String station, String channel);
     public static native String lastStation();
@@ -413,37 +438,15 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
     }
 
     private void handleAddStation(String station, String channel) {
-        Bundle extras = new Bundle();
-        extras.putInt(BUNDLE_KEY_DAB_TYPE, TYPE_DAB_STATION);
-        extras.putString(BUNDLE_KEY_STATION, station);
-        extras.putString(BUNDLE_KEY_CHANNEL, channel);
-
-        String mediaId = toMediaId(station, channel);
-        mStationList.add(new MediaSessionCompat.QueueItem(new MediaDescriptionCompat.Builder()
-                .setMediaId(mediaId)
-                .setTitle(station.trim() + " (" + channel + ")")
-                //.setTitle(station.trim())
-                .setExtras(extras)
-                .build(), mediaId.hashCode()));
-
+        mStationList.add(new MediaSessionCompat.QueueItem(createStation(station, channel),
+                toMediaId(station, channel).hashCode()));
         Collections.sort(mStationList, new Comparator<MediaSessionCompat.QueueItem>() {
             @Override
             public int compare(MediaSessionCompat.QueueItem lhs, MediaSessionCompat.QueueItem rhs) {
-                String lStation = lhs.getDescription().getTitle().toString();
-                String rStation = rhs.getDescription().getTitle().toString();
-
-                int comp = lStation.compareToIgnoreCase(rStation);
-                if (comp == 0) {
-                    String lChannel = lhs.getDescription().getExtras().getString(BUNDLE_KEY_CHANNEL);
-                    String rChannel = rhs.getDescription().getExtras().getString(BUNDLE_KEY_CHANNEL);
-                    comp = lChannel.compareToIgnoreCase(rChannel);
-                }
-                return comp;
+                return compareStation(lhs.getDescription(), rhs.getDescription());
             }
         });
-
         mSession.setQueue(mStationList);
-
         updatePlaybackState();
     }
 
@@ -618,10 +621,8 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
             Log.i(TAG, "handleCustomAction: favorite");
 
             if (mCurrentStation != null && mCurrentChannel != null) {
-                if (isFavoriteStation(mCurrentStation, mCurrentChannel))
-                    removeFavoriteStation(mCurrentStation, mCurrentChannel);
-                else
-                    addFavoriteStation(mCurrentStation, mCurrentChannel);
+                setFavoriteStation(mCurrentStation, mCurrentChannel,
+                        !isFavoriteStation(mCurrentStation, mCurrentChannel));
                 updatePlaybackState();
             }
         } else if (CUSTOM_ACTION_NEXT_CHANNEL.equals(action)) {
@@ -731,11 +732,11 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
 
                 if (mCurrentStation != null && mCurrentChannel != null) {
                     stateBuilder.setActiveQueueItemId(toMediaId(mCurrentStation, mCurrentChannel).hashCode());
-//TODO fav                    stateBuilder.addCustomAction(CUSTOM_ACTION_FAVORITE,
-//                            resources.getString(R.string.action_favorite),
-//                            (isFavoriteStation(mCurrentStation, mCurrentChannel)
-//                                    ? android.R.drawable.star_on
-//                                    : android.R.drawable.star_off));
+                    stateBuilder.addCustomAction(CUSTOM_ACTION_FAVORITE,
+                            resources.getString(R.string.action_favorite),
+                            (isFavoriteStation(mCurrentStation, mCurrentChannel)
+                                    ? android.R.drawable.star_on
+                                    : android.R.drawable.star_off));
                 }
 
                 if (mTrack == null && mCurrentStation != null) {
@@ -1095,5 +1096,6 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
         mSession.release();
         unregisterReceiver(mDabReceiver);
         stopForeground(true);
+        instance = null;
     }
 }

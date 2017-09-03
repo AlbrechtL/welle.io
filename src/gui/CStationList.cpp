@@ -193,7 +193,7 @@ void CStationList::saveStations()
 
     // Remove channels from previous invocation ...
     Settings.beginGroup(mSettingsGroup + "s");
-    int ChannelCount = Settings.value("channelcout").toInt();
+    int ChannelCount = Settings.value(mSettingsGroup + "cout").toInt();
 
     for (int i = 1; i <= ChannelCount; i++)
         Settings.remove(mSettingsGroup + "/" + QString::number(i));
