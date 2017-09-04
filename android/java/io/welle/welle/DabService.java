@@ -485,7 +485,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
     }
 
     private void handlePlayRequest(Bundle extras) {
-        if (!mServiceReady)
+        if (mDabDevice == null)
             return;
 
         Log.d(TAG, "handlePlayRequest");
@@ -522,7 +522,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
     }
 
     private void handlePauseRequest() {
-        if (!mServiceReady)
+        if (mDabDevice == null)
             return;
 
         Log.d(TAG, "handlePauseRequest");
@@ -535,7 +535,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
     }
 
     private void handleStopRequest() {
-        if (!mServiceReady)
+        if (mDabDevice == null)
             return;
 
         Log.d(TAG, "handleStopRequest");
@@ -548,7 +548,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
     }
 
     private void handleSkipRequest(boolean next) {
-        if (!mServiceReady)
+        if (mDabDevice == null)
             return;
 
         Log.d(TAG, "handleSkipRequest: " + next);
@@ -593,7 +593,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
     }
 
     private void handleScanStartRequest() {
-        if (!mServiceReady)
+        if (mDabDevice == null)
             return;
 
         Log.d(TAG, "handleScanStartRequest");
@@ -601,7 +601,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
     }
 
     private void handleScanStopRequest() {
-        if (!mServiceReady)
+        if (mDabDevice == null)
             return;
 
         Log.d(TAG, "handleScanStopRequest");
@@ -640,7 +640,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
             }
         } else if (CUSTOM_ACTION_NEXT_CHANNEL.equals(action)) {
             Log.i(TAG, "handleCustomAction: nex channel");
-            nextChannel();
+            if(mDabDevice != null) nextChannel();
         } else if (CUSTOM_ACTION_RECORD.equals(action)) {
             Log.i(TAG, "handleCustomAction: record");
         } else {
@@ -650,7 +650,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
     }
 
     private void playLastStation() {
-        if (!mServiceReady)
+        if (mDabDevice == null)
             return;
 
         Log.d(TAG, "playLastStation");

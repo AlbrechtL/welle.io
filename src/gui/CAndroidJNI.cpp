@@ -188,6 +188,9 @@ CAndroidJNI::~CAndroidJNI()
 
 void CAndroidJNI::setRadioController(CRadioController *radioController)
 {
+    if (!radioController)
+        return;
+
     qDebug() << "AndroidJNI:" <<  "Set RadioController";
     this->mRadioController = radioController;
 
@@ -225,6 +228,12 @@ void CAndroidJNI::setRadioController(CRadioController *radioController)
     foreach (StationElement *s, mFavoriteList.getList()) {
         addFavoriteStation(s->getStationName(), s->getChannelName());
     }
+
+    // Update GUI data
+    updateGuiData(mRadioController->GUIData());
+
+    // Update MOT image
+    updateMOT(mRadioController->MOT());
 }
 
 bool CAndroidJNI::openTcpConnection(QString host, int port)
