@@ -105,8 +105,8 @@ fib_processor::fib_processor(CRadioController *mr)
     memset (dateTime, 0, 8);
     dateFlag    = false;
     clearEnsemble   ();
-    connect (this, SIGNAL (addtoEnsemble (const QString &)),
-            myRadioInterface, SLOT (addtoEnsemble (const QString &)));
+    connect (this, SIGNAL (addtoEnsemble (quint32, const QString &)),
+            myRadioInterface, SLOT (addtoEnsemble (quint32, const QString &)));
     connect (this, SIGNAL (nameofEnsemble (int, const QString &)),
             myRadioInterface, SLOT (nameofEnsemble (int, const QString &)));
     connect (this, SIGNAL (changeinConfiguration (void)),
@@ -839,7 +839,7 @@ void    fib_processor::process_FIG1 (uint8_t *d)
                             (const char *) label,
                             (CharacterSet) charSet));
                 //           qDebug() << "fib-processor:" << "FIG1/1: SId = %4x\t%s\n", SId, label);
-                addtoEnsemble (myIndex->serviceLabel.label);
+                addtoEnsemble (SId, myIndex->serviceLabel.label);
                 myIndex->serviceLabel.hasName = true;
             }
             break;
@@ -892,7 +892,7 @@ void    fib_processor::process_FIG1 (uint8_t *d)
                             " (data)",
                             (CharacterSet) charSet));
 #ifdef  MSC_DATA__
-                addtoEnsemble (myIndex->serviceLabel.label);
+                addtoEnsemble (SId, myIndex->serviceLabel.label);
 #endif
                 myIndex->serviceLabel.hasName = true;
             }

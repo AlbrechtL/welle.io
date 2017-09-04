@@ -60,6 +60,7 @@ public:
     float setGain(int32_t gain);
     int32_t getGainCount(void);
     void setAgc(bool AGC);
+    void setHwAgc(bool hwAGC);
     QString getName(void);
     CDeviceID getID(void);
 
@@ -71,6 +72,7 @@ public:
 
 private slots:
     void readData(void);
+    void disconnected(void);
     void TCPConnectionWatchDogTimeout(void);
     void AGCTimerTimeout(void);
 
@@ -85,10 +87,12 @@ private:
     uint8_t MinValue;
     uint8_t MaxValue;
     bool isAGC;
+    bool isHwAGC;
     int32_t Frequency;
     RingBuffer<uint8_t>* SampleBuffer;
     RingBuffer<uint8_t>* SpectrumSampleBuffer;
     bool connected;
+    bool stopped;
     QHostAddress serverAddress;
     uint16_t serverPort;
 

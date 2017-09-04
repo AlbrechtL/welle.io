@@ -108,6 +108,11 @@ void CRAWFile::setAgc(bool AGC)
     (void)AGC;
 }
 
+void CRAWFile::setHwAgc(bool hwAGC)
+{
+    (void)hwAGC;
+}
+
 QString CRAWFile::getName()
 {
     return "rawfile (" + FileName + ")";

@@ -50,7 +50,7 @@ Item {
 
     property alias stationNameText: stationItem.text
     property alias channelNameText: channelItem.text
-    property bool hideChannelName
+    property bool showChannelName
 
     signal clicked
 
@@ -74,7 +74,7 @@ Item {
         anchors.verticalCenter: parent.verticalCenter
         anchors.right: parent.right
         anchors.rightMargin: Units.dp(15)
-        opacity: root.hideChannelName ? 1 : 0
+        opacity: root.showChannelName ? 1 : 0
     }
 
     Rectangle {

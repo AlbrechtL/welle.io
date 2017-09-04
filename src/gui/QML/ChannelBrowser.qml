@@ -195,57 +195,40 @@ Item {
                         id: signalBar1
                         height: 4
                         width: 4
-                        color: "grey"
+                        color: (cppRadioController.SNR > 2) ? "green" : "grey"
                     }
                     Rectangle{
                         id: signalBar2
                         height: 8
                         width: 4
-                        color: "grey"
+                        color: (cppRadioController.SNR > 5) ? "green" : "grey"
                     }
                     Rectangle{
                         id: signalBar3
                         height: 12
                         width: 4
-                        color: "grey"
+                        color: (cppRadioController.SNR > 8) ? "green" : "grey"
                     }
                     Rectangle{
                         id: signalBar4
                         height: 16
                         width: 4
-                        color: "grey"
+                        color: (cppRadioController.SNR > 11) ? "green" : "grey"
                     }
 
                     Rectangle{
                         id: signalBar5
                         height: 20
                         width: 4
-                        color: "grey"
+                        color: (cppRadioController.SNR > 15) ? "green" : "grey"
                     }
 
                 }
 
                 Text {
-                    id: bitrateText
-                    color: "#ffffff"
-                    anchors.right: dabTypeText.left
-                    anchors.rightMargin: 16
-                    font.pixelSize: 22
-                }
-
-
-                Text {
-                    id: dabTypeText
+                    id: ensembleText
                     color: "#ffffff"
                     anchors.horizontalCenter: parent.horizontalCenter
-                    font.pixelSize: 22
-                }
-
-                Text {
-                    id: audioTypeText
-                    color: "#ffffff"
-                    anchors.left: dabTypeText.right
-                    anchors.leftMargin: 16
                     font.pixelSize: 22
                 }
 
@@ -260,7 +243,7 @@ Item {
                         id: sync
                         height: 16
                         width: 16
-                        color: "red"
+                        color: cppRadioController.isSync ? "green" : "red"
                         Layout.fillHeight: true
                         Layout.fillWidth: true
                     }
@@ -268,7 +251,7 @@ Item {
                         id: fic
                         height: 16
                         width: 16
-                        color: "red"
+                        color: cppRadioController.isFICCRC ? "green" : "red"
                         Layout.fillHeight: true
                         Layout.fillWidth: true
                     }
@@ -276,7 +259,9 @@ Item {
                         id: frameSucess
                         height: 16
                         width: 16
-                        color: "red"
+                        color: (cppRadioController.FrameErrors === 0
+                                && cppRadioController.isSync
+                                && cppRadioController.isFICCRC) ? "green" : "red"
                         Layout.fillHeight: true
                         Layout.fillWidth: true
                     }
@@ -284,7 +269,7 @@ Item {
             }
 
             Text {
-                id: currentStation
+                id: stationTitle
                 color: "#ffffff"
                 text: qsTr("")
                 wrapMode: Text.WrapAtWordBoundaryOrAnywhere
@@ -304,18 +289,18 @@ Item {
                     id:scanningTimer
                     interval: 500; running: false; repeat: true
                     onTriggered:{
-                        switch(currentStation.text){
+                        switch(stationTitle.text){
                         case "Scanning":
-                            currentStation.text = "Scanning."
+                            stationTitle.text = "Scanning."
                             break;
                         case "Scanning.":
-                            currentStation.text = "Scanning.."
+                            stationTitle.text = "Scanning.."
                             break;
                         case "Scanning..":
-                            currentStation.text = "Scanning..."
+                            stationTitle.text = "Scanning..."
                             break;
                         default :
-                            currentStation.text = "Scanning"
+                            stationTitle.text = "Scanning"
                             break;
                         }
                     }
@@ -340,34 +325,52 @@ Item {
                 font.pixelSize: 18
             }
 
-
             Item {
                 id: radio_info
+                visible: false
                 height: 30
                 anchors.bottom: parent.bottom
                 anchors.bottomMargin: 0
-                Text {
-                    id: languageTypeText
-                    width: parent.width/2
-                    color: "#ffffff"
-                    anchors.leftMargin: 0
-                    font.pixelSize: 22
-                    anchors.left: parent.left
-                }
 
                 Text {
                     id: stationTypeText
+                    visible: radio_info.visible
                     color: "#ffffff"
-                    horizontalAlignment: Text.AlignRight
-                    anchors.left: languageTypeText.right
+                    horizontalAlignment: Text.AlignLeft
+                    anchors.left: parent.left
+                    anchors.right: stationDetails.left
                     anchors.leftMargin: 0
-                    anchors.right: parent.right
                     anchors.rightMargin: 0
                     font.pixelSize: 22
                 }
-                anchors.leftMargin: 0
+
+                Text {
+                    id: languageTypeText
+                    visible: radio_info.visible
+                    color: "#ffffff"
+                    horizontalAlignment: Text.AlignHCenter
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    font.pixelSize: 22
+                }
+
+                Text {
+                    id: stationDetails
+                    visible: radio_info.visible
+                    color: "#ffffff"
+                    horizontalAlignment: Text.AlignRight
+                    anchors.left: stationDetails.right
+                    anchors.right: parent.right
+                    anchors.leftMargin: 0
+                    anchors.rightMargin: 0
+                    font.pixelSize: 22
+                    text: cppRadioController.BitRate + " kbps, "
+                          + (cppRadioController.isStereo ? "Stereo" : "Mono")
+                          + (cppRadioController.isDAB ? ", DAB" : ", DAB+")
+                }
+
+                anchors.leftMargin: 5
                 anchors.right: parent.right
-                anchors.rightMargin: 0
+                anchors.rightMargin: 5
                 anchors.left: parent.left
             }
         }
@@ -417,7 +420,7 @@ Item {
         anchors.right: parent.right
         anchors.rightMargin: 8
         flow: GridLayout.TopToBottom
-        rows: 6
+        rows: 5
         columns: 2
 
         Item {
@@ -519,56 +522,43 @@ Item {
         }
 
         Item {
-            Layout.rowSpan: 2
             Layout.fillHeight: true
             Layout.fillWidth: true
 
-            ColumnLayout{
+            RowLayout {
                 anchors.fill: parent
-                spacing: Units.dp(20)
-                visible: enableExpertMode.checked
+                //Layout.preferredWidth: parent.width
 
-                TouchSwitch {
-                    id: enableManualChannel
-                    name: qsTr("Select channel manually")
-                    height: 24
-                    Layout.fillHeight: true
-                    checked: false
-                    onChanged: checked ? cppGUI.setManualChannel(manualChannelBox.currentText):{}
+                TouchButton {
+                    id: clearListButton
+                    text: qsTr("Clear station list")
+                    Layout.preferredWidth: Units.dp(150)
+                    Layout.alignment: Qt.AlignLeft
+                    onClicked: cppGUI.clearStationList()
                 }
 
-                RowLayout {
-                    Layout.preferredWidth: parent.width
+                TouchComboBox {
+                    id: manualChannelBox
+                    enabled: true
+                    model: ["5A", "5B", "5C", "5D",
+                        "6A", "6B", "6C", "6D",
+                        "7A", "7B", "7C", "7D",
+                        "8A", "8B", "8C", "8D",
+                        "9A", "9B", "9C", "9D",
+                        "10A", "10B", "10C", "10D",
+                        "11A", "11B", "11C", "11D",
+                        "12A", "12B", "12C", "12D",
+                        "13A", "13B", "13C", "13D", "13E", "13F",
+                        "LA", "LB", "LC", "LD",
+                        "LE", "LF", "LG", "LH",
+                        "LI", "LJ", "LK", "LL",
+                        "LM", "LN", "LO", "LP"]
 
-                    TouchButton {
-                        id: clearListButton
-                        text: qsTr("Clear station list")
-                        Layout.preferredWidth: Units.dp(150)
-                        Layout.alignment: Qt.AlignLeft
-                        onClicked: cppGUI.clearStationList()
-                    }
-
-                    TouchComboBox {
-                        id: manualChannelBox
-                        enabled: enableManualChannel.checked? true : false
-                        model: ["5A", "5B", "5C", "5D",
-                            "6A", "6B", "6C", "6D",
-                            "7A", "7B", "7C", "7D",
-                            "8A", "8B", "8C", "8D",
-                            "9A", "9B", "9C", "9D",
-                            "10A", "10B", "10C", "10D",
-                            "11A", "11B", "11C", "11D",
-                            "12A", "12B", "12C", "12D",
-                            "13A", "13B", "13C", "13D", "13E", "13F",
-                            "LA", "LB", "LC", "LD",
-                            "LE", "LF", "LG", "LH",
-                            "LI", "LJ", "LK", "LL",
-                            "LM", "LN", "LO", "LP"]
-
-                        Layout.preferredHeight: Units.dp(25)
-                        Layout.preferredWidth: Units.dp(130)
-                        Layout.alignment: Qt.AlignRight
-                        onCurrentTextChanged: enabled ? cppGUI.setManualChannel(currentText) : {}
+                    Layout.preferredHeight: Units.dp(25)
+                    Layout.preferredWidth: Units.dp(130)
+                    Layout.alignment: Qt.AlignRight
+                    onActivated: {
+                        cppGUI.setManualChannel(model[index])
                     }
                 }
             }
@@ -637,58 +627,29 @@ Item {
         target: cppGUI
 
         onSetGUIData:{
-            // Station
+            // Title
             if(!scanningTimer.running)
-                currentStation.text = GUIData.Station
+                stationTitle.text = GUIData.Title
 
-            // Label
-            stationText.text = GUIData.Label
+            // Text
+            stationText.text = GUIData.Text
 
-            // Sync flag
-            if(GUIData.isSync)
-                sync.color = "green"
-            else
-                sync.color = "red"
+            // Ensemble
+            ensembleText.text = GUIData.Ensemble
 
-            // FIC flag
-            if(GUIData.isFICCRC)
-                fic.color = "green"
-            else
-                fic.color = "red"
-
-            // Frame errors flag
-            if(GUIData.FrameErrors === 0 && GUIData.isSync && GUIData.isFICCRC)
-                frameSucess.color = "green"
-            else
-                frameSucess.color = "red"
-
-            // SNR
-            if(GUIData.SNR > 15) signalBar5.color = "green"; else signalBar5.color = "grey"
-            if(GUIData.SNR > 11) signalBar4.color = "green"; else signalBar4.color = "grey"
-            if(GUIData.SNR > 8) signalBar3.color = "green"; else signalBar3.color = "grey"
-            if(GUIData.SNR > 5) signalBar2.color = "green"; else signalBar2.color = "grey"
-            if(GUIData.SNR > 2) signalBar1.color = "green"; else signalBar1.color = "grey"
-
-            // Bitrate
-            bitrateText.text = GUIData.BitRate + " kbps"
-
-            // DAB / DAB+
-            if(GUIData.isDAB)
-                dabTypeText.text = "DAB"
-            else
-                dabTypeText.text = "DAB+"
-
-            // Stereo / Mono
-            if(GUIData.isStereo)
-                audioTypeText.text = "Stereo"
-            else
-                audioTypeText.text = "Mono"
+            // Station info
+            radio_info.visible = (GUIData.Status === 2 || GUIData.Status === 3)
 
             // Station type
             stationTypeText.text = GUIData.StationType
 
             // Language type
             languageTypeText.text = GUIData.LanguageType
+
+            // Channel
+            var channelIndex = manualChannelBox.find(GUIData.Channel)
+            if (channelIndex !== -1)
+                manualChannelBox.currentIndex = channelIndex
         }
 
         onStationModelChanged: {

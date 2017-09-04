@@ -29,23 +29,31 @@
 #ifndef STATIONLIST_H
 #define STATIONLIST_H
 
+#include <QDataStream>
 #include <QObject>
 #include <QVariant>
 
 class StationElement : public QObject {
 Q_OBJECT
 
-    Q_PROPERTY(QString stationName MEMBER m_stationName NOTIFY stationNameChanged)
-    Q_PROPERTY(QString channelName MEMBER m_channelName NOTIFY channelNameChanged)
+    Q_PROPERTY(QString stationName MEMBER mStationName NOTIFY stationNameChanged)
+    Q_PROPERTY(QString channelName MEMBER mChannelName NOTIFY channelNameChanged)
 
 public:
-    explicit StationElement (QString stationName, QString channelName, QObject *parent = 0);
+    explicit StationElement (QString stationName, QString channelName,
+                             QObject *parent = 0);
+    explicit StationElement (QObject *parent = 0);
+    virtual ~StationElement ();
+
     QString getStationName(void);
     QString getChannelName(void);
 
+    friend QDataStream& operator<<(QDataStream &out, StationElement* const& object);
+    friend QDataStream& operator>>(QDataStream &in, StationElement*& object);
+
 private:
-    QString m_stationName;
-    QString m_channelName;
+    QString mStationName;
+    QString mChannelName;
 
 signals:
     void stationNameChanged();
@@ -55,7 +63,7 @@ signals:
 class CStationList
 {
 public:
-    CStationList(void);
+    CStationList(QString settingsGroup = "channel");
     ~CStationList(void);
 
     void reset(void);
@@ -63,12 +71,17 @@ public:
     int count(void);
     StationElement* at(int i);
     QStringList getStationAt(int i);
-    bool contains(QString value);
+    StationElement* find(QString StationName, QString ChannelName);
+    bool contains(QString StationName, QString ChannelName);
     void append(QString StationName, QString ChannelName);
-    QList<QObject*>  getList(void);
+    bool remove(QString StationName, QString ChannelName);
+    QList<StationElement*> getList(void) const;
+    void loadStations();
+    void saveStations();
 
 private:
-    QList<QObject*> stationList;
+    QString mSettingsGroup;
+    QList<StationElement*> mStationList;
 };
 
 #endif // STATIONLIST_H

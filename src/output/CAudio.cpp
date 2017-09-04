@@ -38,7 +38,7 @@ CAudio::CAudio(RingBuffer<int16_t>* Buffer)
 
     init(48000);
 
-    connect(&CheckAudioBufferTimer, SIGNAL(timeout()), this, SLOT(checkAudioBufferTimeout()));
+    connect(&CheckAudioBufferTimer, &QTimer::timeout, this, &CAudio::checkAudioBufferTimeout);
     // Check audio state every 1 s, start audio if bytes are available
     CheckAudioBufferTimer.start(1000);
 }
@@ -56,6 +56,15 @@ void CAudio::setRate(int sampleRate)
                  << "Sample rate" << sampleRate << "Hz";
         CardRate = sampleRate;
         init(sampleRate);
+    }
+}
+
+void CAudio::setVolume(qreal volume)
+{
+    if (AudioOutput != NULL) {
+        qDebug() << "Audio:"
+                 << "Volume" << volume;
+        AudioOutput->setVolume(volume);
     }
 }
 
@@ -80,7 +89,7 @@ void CAudio::init(int sampleRate)
     }
 
     AudioOutput = new QAudioOutput(AudioFormat, this);
-    connect(AudioOutput, SIGNAL(stateChanged(QAudio::State)), this, SLOT(handleStateChanged(QAudio::State)));
+    connect(AudioOutput, &QAudioOutput::stateChanged, this, &CAudio::handleStateChanged);
 
     AudioIODevice->start();
     AudioOutput->start(AudioIODevice);
@@ -90,6 +99,12 @@ void CAudio::stop(void)
 {
     AudioIODevice->stop();
     AudioOutput->stop();
+}
+
+void CAudio::reset(void)
+{
+    AudioIODevice->flush();
+    AudioOutput->reset();
 }
 
 void CAudio::handleStateChanged(QAudio::State newState)
@@ -152,6 +167,11 @@ void CAudioIODevice::stop()
 {
     Buffer->FlushRingBuffer();
     close();
+}
+
+void CAudioIODevice::flush()
+{
+    Buffer->FlushRingBuffer();
 }
 
 qint64 CAudioIODevice::readData(char* data, qint64 len)

@@ -11,6 +11,7 @@ Item {
     property alias enableFullScreenState : enableFullScreen.checked
     property alias enableExpertModeState : enableExpertMode.checked
     property alias enableAGCState : enableAGC.checked
+    property alias enableHwAGCState : enableHwAGC.checked
     property alias manualGainState : manualGain.currentValue
     property alias is3D : enable3D.checked
 
@@ -20,9 +21,16 @@ Item {
         property alias manualGainState : settingsPage.manualGainState
         property alias manualGainValue: manualGain.showCurrentValue
         property alias enableAGCState : settingsPage.enableAGCState
+        property alias enableHwAGCState : settingsPage.enableHwAGCState
         property alias manualChannel: manualChannelBox.currentIndex
-        property alias enableManualChannel: enableManualChannel.checked
         property alias is3D : settingsPage.is3D
+    }
+
+    Component.onCompleted: {
+        console.debug("Apply settings initially")
+        cppGUI.inputEnableHwAGCChanged(enableHwAGCState)
+        cppGUI.inputGainChanged(manualGainState)
+        cppGUI.inputEnableAGCChanged(enableAGCState)
     }
 
     Connections{
@@ -33,6 +41,8 @@ Item {
         }
 
         onChannelScanProgress:{
+            startChannelScanButton.enabled = false
+            stopChannelScanButton.enabled = true
             channelScanProgressBar.value = progress
         }
 
@@ -41,7 +51,12 @@ Item {
         }
 
         onSetGUIData:{
-            manualGain.maximumValue = GUIData.GainCount
+            manualGain.maximumValue = cppRadioController.GainCount
+
+            // Channel
+            var channelIndex = manualChannelBox.find(GUIData.Channel)
+            if (channelIndex !== -1)
+                manualChannelBox.currentIndex = channelIndex
         }
     }
 
@@ -111,6 +126,43 @@ Item {
                                 width: parent.width
                                 text: qsTr("Found stations") + ": 0"
                             }
+
+                            RowLayout {
+                                Layout.preferredWidth: parent.width
+
+                                TouchButton {
+                                    id: clearListButton
+                                    text: qsTr("Clear station list")
+                                    Layout.preferredWidth: Units.dp(150)
+                                    Layout.alignment: Qt.AlignLeft
+                                    onClicked: cppGUI.clearStationList()
+                                }
+
+                                TouchComboBox {
+                                    id: manualChannelBox
+                                    enabled: true
+                                    model: ["5A", "5B", "5C", "5D",
+                                        "6A", "6B", "6C", "6D",
+                                        "7A", "7B", "7C", "7D",
+                                        "8A", "8B", "8C", "8D",
+                                        "9A", "9B", "9C", "9D",
+                                        "10A", "10B", "10C", "10D",
+                                        "11A", "11B", "11C", "11D",
+                                        "12A", "12B", "12C", "12D",
+                                        "13A", "13B", "13C", "13D", "13E", "13F",
+                                        "LA", "LB", "LC", "LD",
+                                        "LE", "LF", "LG", "LH",
+                                        "LI", "LJ", "LK", "LL",
+                                        "LM", "LN", "LO", "LP"]
+
+                                    Layout.preferredHeight: Units.dp(25)
+                                    Layout.preferredWidth: Units.dp(130)
+                                    Layout.alignment: Qt.AlignRight
+                                    onActivated: {
+                                        cppGUI.setManualChannel(model[index])
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -122,13 +174,25 @@ Item {
                         spacing: Units.dp(20)
 
                         TouchSwitch {
+                            id: enableHwAGC
+                            name: qsTr("Hardware RF gain")
+                            height: 24
+                            Layout.fillHeight: true
+                            objectName: "enableHwAGC"
+                            checked: enableHwAGCState
+                            onChanged: {
+                                cppGUI.inputEnableHwAGCChanged(valueChecked)
+                            }
+                        }
+
+                        TouchSwitch {
                             id: enableAGC
                             name: qsTr("Automatic RF gain")
                             height: 24
                             Layout.fillWidth: true
                             Layout.fillHeight: true
                             objectName: "enableAGC"
-                            checked: true
+                            checked: enableAGCState
                             onChanged: {
                                 cppGUI.inputEnableAGCChanged(valueChecked)
 
@@ -143,6 +207,7 @@ Item {
                             name: qsTr("Manual gain")
                             showCurrentValue: qsTr("Value: ") + cppGUI.currentGainValue.toFixed(2)
                             Layout.fillHeight: true
+                            currentValue: manualGainState
                             onValueChanged: {
                                 if(enableAGC.checked == false)
                                     cppGUI.inputGainChanged(valueGain)
@@ -192,61 +257,6 @@ Item {
                         }
                     }
                 }
-
-                SettingsFrame {
-                    Layout.fillWidth: true
-                    visible: enableExpertMode.checked ? true : false
-
-                    ColumnLayout{
-                        anchors.fill: parent
-                        spacing: Units.dp(20)
-
-                        TouchSwitch {
-                            id: enableManualChannel
-                            name: qsTr("Select channel manually")
-                            height: 24
-                            Layout.fillHeight: true
-                            checked: false
-                            onChanged: checked ? cppGUI.setManualChannel(manualChannelBox.currentText):{}
-                        }
-
-                        RowLayout {
-                            Layout.preferredWidth: parent.width
-
-                            TouchButton {
-                                id: clearListButton
-                                text: qsTr("Clear station list")
-                                Layout.preferredWidth: Units.dp(150)
-                                Layout.alignment: Qt.AlignLeft
-                                onClicked: cppGUI.clearStationList()
-                            }
-
-                            TouchComboBox {
-                                id: manualChannelBox
-                                enabled: enableManualChannel.checked? true : false
-                                model: ["5A", "5B", "5C", "5D",
-                                    "6A", "6B", "6C", "6D",
-                                    "7A", "7B", "7C", "7D",
-                                    "8A", "8B", "8C", "8D",
-                                    "9A", "9B", "9C", "9D",
-                                    "10A", "10B", "10C", "10D",
-                                    "11A", "11B", "11C", "11D",
-                                    "12A", "12B", "12C", "12D",
-                                    "13A", "13B", "13C", "13D", "13E", "13F",
-                                    "LA", "LB", "LC", "LD",
-                                    "LE", "LF", "LG", "LH",
-                                    "LI", "LJ", "LK", "LL",
-                                    "LM", "LN", "LO", "LP"]
-
-                                Layout.preferredHeight: Units.dp(25)
-                                Layout.preferredWidth: Units.dp(130)
-                                Layout.alignment: Qt.AlignRight
-                                onCurrentTextChanged: enabled ? cppGUI.setManualChannel(currentText) : {}
-                            }
-                        }
-                    }
-                }
-
             }
 
             TouchButton {

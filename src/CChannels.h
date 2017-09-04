@@ -34,6 +34,8 @@
 
 #include <QString>
 
+#define NUMBEROFCHANNELS 54
+
 class CChannels
 {
 public:

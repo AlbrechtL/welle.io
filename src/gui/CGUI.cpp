@@ -27,6 +27,7 @@
  *
  */
 
+#include <QDebug>
 #include <QSettings>
 
 #include "CInputFactory.h"
@@ -47,41 +48,38 @@
   *	gui elements and the handling agents. All real action
   *	is embedded in actions, initiated by gui buttons
   */
-CGUI::CGUI(CRadioController *RadioController, CDABParams *DABParams, QObject *parent): QObject(parent)
+#ifdef Q_OS_ANDROID
+CGUI::CGUI(CRadioControllerReplica *RadioController, QObject *parent)
+#else
+CGUI::CGUI(CRadioController *RadioController, QObject *parent)
+#endif
+    : QObject(parent)
+    , RadioController(RadioController)
+    , spectrum_series(NULL)
 {
-    QSettings Settings;
-
-    this->RadioController = RadioController;
-    this->DABParams = DABParams;
-
-    // Read channels from the settings
-    Settings.beginGroup("channels");
-    int channelcount = Settings.value("channelcout", 0).toInt();
-    for (int i = 1; i <= channelcount; i++) {
-        QStringList SaveChannel = Settings.value("channel/" + QString::number(i)).toStringList();
-        stationList.append(SaveChannel.first(), SaveChannel.last());
-    }
-    Settings.endGroup();
-    stationList.sort();
-
-    if(stationList.count() == 0)
-        stationList.append(tr("Station list is empty"), "");
-
-    p_stationModel = QVariant::fromValue(stationList.getList());
+    QList<StationElement*> stations = RadioController->Stations();
+    QList<QObject*> *stationList = reinterpret_cast<QList<QObject*>*>(&stations);
+    p_stationModel = QVariant::fromValue(*stationList);
     emit stationModelChanged();
 
     // Add image provider for the MOT slide show
     MOTImage = new CMOTImageProvider;
 
-    spectrum_fft_handler = new common_fft(DABParams->T_u);
-
-    connect(RadioController, SIGNAL(FoundStation(QString, QString)), this, SLOT(AddToStationList(QString, QString)));
-    connect(RadioController, SIGNAL(MOTChanged(QPixmap)), this, SLOT(MOTUpdate(QPixmap)));
-    connect(RadioController, SIGNAL(ScanStopped()), this, SIGNAL(channelScanStopped()));
-    connect(RadioController, SIGNAL(ScanProgress(int)), this, SIGNAL(channelScanProgress(int)));
-
-    connect(&UptimeTimer, SIGNAL(timeout(void)), this, SLOT(UpdateTimerTimeout(void)));
-    UptimeTimer.start(250); // 250 ms
+#ifdef Q_OS_ANDROID
+    connect(RadioController, &CRadioControllerReplica::GUIDataChanged, this, &CGUI::GUIDataUpdate);
+    connect(RadioController, &CRadioControllerReplica::MOTChanged, this, &CGUI::MOTUpdate);
+    connect(RadioController, &CRadioControllerReplica::SpectrumUpdated, this, &CGUI::SpectrumUpdate);
+    connect(RadioController, &CRadioControllerReplica::StationsChanged, this, &CGUI::StationsChange);
+    connect(RadioController, &CRadioControllerReplica::ScanStopped, this, &CGUI::channelScanStopped);
+    connect(RadioController, &CRadioControllerReplica::ScanProgress, this, &CGUI::channelScanProgress);
+#else
+    connect(RadioController, &CRadioController::GUIDataChanged, this, &CGUI::GUIDataUpdate);
+    connect(RadioController, &CRadioController::MOTChanged, this, &CGUI::MOTUpdate);
+    connect(RadioController, &CRadioController::SpectrumUpdated, this, &CGUI::SpectrumUpdate);
+    connect(RadioController, &CRadioController::StationsChanged, this, &CGUI::StationsChange);
+    connect(RadioController, &CRadioController::ScanStopped, this, &CGUI::channelScanStopped);
+    connect(RadioController, &CRadioController::ScanProgress, this, &CGUI::channelScanProgress);
+#endif
 }
 
 CGUI::~CGUI()
@@ -137,38 +135,10 @@ const QVariantMap CGUI::licenses()
     return ret;
 }
 
-/**
-  *	\brief At the end, we might save some GUI values
-  *	The QSettings could have been the class variable as well
-  *	as the parameter
-  */
-void CGUI::saveChannels()
-{
-    QSettings Settings;
-
-    //	Remove channels from previous invocation ...
-    Settings.beginGroup("channels");
-    int ChannelCount = Settings.value("channelcout").toInt();
-
-    for (int i = 1; i <= ChannelCount; i++)
-        Settings.remove("channel/" + QString::number(i));
-
-    //	... and save the current set
-    ChannelCount = stationList.count();
-    Settings.setValue("channelcout", QString::number(ChannelCount));
-
-    for (int i = 1; i <= ChannelCount; i++)
-        Settings.setValue("channel/" + QString::number(i), stationList.getStationAt(i - 1));
-
-    Settings.endGroup();
-}
-
 void CGUI::startChannelScanClick(void)
 {
     if(RadioController)
         RadioController->StartScan();
-
-    clearStationList();
 }
 
 void CGUI::stopChannelScanClick(void)
@@ -177,43 +147,29 @@ void CGUI::stopChannelScanClick(void)
         RadioController->StopScan();
 }
 
-void CGUI::UpdateTimerTimeout()
+void CGUI::GUIDataUpdate(QVariantMap GUIData)
 {
-    if(RadioController)
-    {
-        QVariantMap GUIData = RadioController->GetGUIData();
-
-        emit setGUIData(GUIData);
-    }
+    //qDebug() << "CGUI:" <<  "GUIDataUpdate";
+    emit setGUIData(GUIData);
 }
 
-void CGUI::MOTUpdate(QPixmap MOTImage)
+void CGUI::MOTUpdate(QImage MOTImage)
 {
-    this->MOTImage->setPixmap(MOTImage);
+    this->MOTImage->setPixmap(QPixmap::fromImage(MOTImage));
     emit motChanged();
 }
 
-void CGUI::AddToStationList(QString Station, QString CurrentChannel)
+void CGUI::StationsChange(QList<StationElement*> Stations)
 {
-    //	Add new station into list
-    if (!stationList.contains(Station)) {
-        stationList.append(Station, CurrentChannel);
+    //qDebug() << "CGUI:" <<  "StationsChange";
+    QList<QObject*> *stationList = reinterpret_cast<QList<QObject*>*>(&Stations);
+    p_stationModel = QVariant::fromValue(*stationList);
 
-        //	Sort stations
-        stationList.sort();
-        p_stationModel = QVariant::fromValue(stationList.getList());
-        emit stationModelChanged();
-
-        //fprintf (stderr,"Found station %s\n", s.toStdString().c_str());
-        emit foundChannelCount(stationList.count());
-
-        // Save the channels
-        saveChannels();
-    }
+    emit stationModelChanged();
+    emit foundChannelCount(Stations.count());
 }
 
-void CGUI::channelClick(QString StationName,
-    QString ChannelName)
+void CGUI::channelClick(QString StationName, QString ChannelName)
 {
     if(RadioController && ChannelName != "")
         RadioController->Play(ChannelName, StationName);
@@ -222,107 +178,62 @@ void CGUI::channelClick(QString StationName,
 void CGUI::setManualChannel(QString ChannelName)
 {
     if(RadioController)
-        RadioController->SetChannel(ChannelName, false);
+        RadioController->SetManualChannel(ChannelName);
 }
 
 void CGUI::inputEnableAGCChanged(bool checked)
 {
     if(RadioController)
-        RadioController->SetAGC(checked);
+        RadioController->setAGC(checked);
+}
+
+void CGUI::inputEnableHwAGCChanged(bool checked)
+{
+    if(RadioController)
+        RadioController->setHwAGC(checked);
 }
 
 void CGUI::inputGainChanged(double gain)
 {
     if(RadioController)
     {
-        m_currentGainValue = RadioController->SetGain((int) gain);
+        RadioController->setGain((int) gain);
+        m_currentGainValue = RadioController->GainValue();
         if(m_currentGainValue >= 0)
-            currentGainValueChanged();
+            emit currentGainValueChanged();
     }
 }
 
 void CGUI::clearStationList()
 {
-    //	Clear old channels
-    stationList.reset();
-    saveChannels();
+    if(RadioController)
+    {
+        RadioController->ClearStations();
+    }
+}
 
-    p_stationModel = QVariant::fromValue(stationList.getList());
-    emit stationModelChanged();
+void CGUI::registerSpectrumSeries(QAbstractSeries* series)
+{
+    spectrum_series = static_cast<QXYSeries*>(series);
 }
 
 // This function is called by the QML GUI
-void CGUI::updateSpectrum(QAbstractSeries* series)
+void CGUI::updateSpectrum()
 {
-    int Samples = 0;
-    int16_t T_u = DABParams->T_u;
+    if (RadioController && spectrum_series)
+        RadioController->UpdateSpectrum();
+}
 
-    if (series == NULL)
-        return;
-
-    QXYSeries* xySeries = static_cast<QXYSeries*>(series);
-
-    //	Delete old data
-    spectrum_data.resize(T_u);
-
-    qreal tunedFrequency_MHz = 0;
-    qreal sampleFrequency_MHz = 2048000 / 1e6;
-    qreal dip_MHz = sampleFrequency_MHz / T_u;
-
-    qreal x(0);
-    qreal y(0);
-    qreal y_max(0);
-
-    // Get FFT buffer
-    DSPCOMPLEX* spectrumBuffer = spectrum_fft_handler->getVector();
-
-    // Get samples
-    if (RadioController)
-    {
-        tunedFrequency_MHz = RadioController->GetCurrentFrequency() / 1e6;
-        Samples = RadioController->GetSpectrumSamples(spectrumBuffer, T_u);
-    }
-
-    // Continue only if we got data
-    if (Samples <= 0)
-        return;
-
-    // Do FFT to get the spectrum
-    spectrum_fft_handler->do_FFT();
-
-    //	Process samples one by one
-    for (int i = 0; i < T_u; i++) {
-        int half_Tu = T_u / 2;
-
-        //	Shift FFT samples
-        if (i < half_Tu)
-            y = abs(spectrumBuffer[i + half_Tu]);
-        else
-            y = abs(spectrumBuffer[i - half_Tu]);
-
-        // Apply a cumulative moving average filter
-        int avg = 4; // Number of y values to average
-        qreal CMA = spectrum_data[i].y();
-        y = (CMA * avg + y) / (avg + 1);
-
-        //	Find maximum value to scale the plotter
-        if (y > y_max)
-            y_max = y;
-
-        // Calc x frequency
-        x = (i * dip_MHz) + (tunedFrequency_MHz - (sampleFrequency_MHz / 2));
-
-        spectrum_data[i]= QPointF(x, y);
-    }
-
-    //	Set maximum of y-axis
-    y_max = round(y_max) + 1;
-    if (y_max > 0.0001)
-        emit setYAxisMax(y_max);
+void CGUI::SpectrumUpdate(qreal Ymax, qreal Xmin, qreal Xmax, QVector<QPointF> Data)
+{
+    // Set maximum of y-axis
+    if (Ymax > 0.0001)
+        emit setYAxisMax(Ymax);
 
     // Set x-axis min and max
-    emit setXAxisMinMax(tunedFrequency_MHz - (sampleFrequency_MHz / 2), tunedFrequency_MHz + (sampleFrequency_MHz / 2));
+    emit setXAxisMinMax(Xmin, Xmax);
 
-    //	Set new data
-    xySeries->replace(spectrum_data);
+    // Set new data
+    if (spectrum_series)
+        spectrum_series->replace(Data);
 }

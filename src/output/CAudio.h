@@ -42,6 +42,7 @@ public:
 
     void start();
     void stop();
+    void flush();
 
     qint64 readData(char *data, qint64 maxlen);
     qint64 writeData(const char *data, qint64 len);
@@ -58,7 +59,9 @@ public:
     CAudio(RingBuffer<int16_t> *Buffer);
     ~CAudio(void);
     void stop (void);
+    void reset(void);
     void setRate (int sampleRate);
+    void setVolume (qreal volume);
 
 private:
     void init(int sampleRate);

@@ -164,7 +164,7 @@ class   fib_processor: public QObject {
         bool        isSynced;
 
     signals:
-        void addtoEnsemble(const QString& label);
+        void addtoEnsemble(quint32 SId, const QString& label);
         void nameofEnsemble(int SId, const QString& name);
         void changeinConfiguration(void);
         void newDateTime(int *dateTime);

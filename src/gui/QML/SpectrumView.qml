@@ -35,6 +35,10 @@ ChartView {
         }
     }
 
+    Component.onCompleted: {
+        cppGUI.registerSpectrumSeries(spectrumView.series(0));
+    }
+
     ValueAxis {
         id: axisY1
         min: 0
@@ -59,7 +63,7 @@ ChartView {
         running: parent.visible ? true : false // Trigger new data only if spectrum is showed
         repeat: true
         onTriggered: {
-           cppGUI.updateSpectrum(spectrumView.series(0));
+           cppGUI.updateSpectrum();
         }
     }
 

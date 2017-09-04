@@ -165,6 +165,11 @@ void CSoapySdr::setAgc(bool AGC)
     (void) AGC;
 }
 
+void CSoapySdr::setHwAgc(bool hwAGC)
+{
+    (void) hwAGC;
+}
+
 QString CSoapySdr::getName()
 {
     return "SoapySDR";

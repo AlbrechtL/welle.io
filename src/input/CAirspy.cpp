@@ -312,6 +312,11 @@ void CAirspy::setAgc(bool AGC)
     isAGC = AGC;
 }
 
+void CAirspy::setHwAgc(bool hwAGC)
+{
+    (void) hwAGC;
+}
+
 QString CAirspy::getName()
 {
     // Get airspy device name and version

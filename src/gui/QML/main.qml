@@ -181,7 +181,7 @@ ApplicationWindow {
             x: mainWindow.width - width - Units.dp(5) - infoButton.width
             anchors.verticalCenter: parent.verticalCenter
             anchors.rightMargin: Units.dp(5)
-            text: "01.01.2016 00:00"
+            text: cppRadioController.DateTime
             id: dateTimeDisplay
         }
 
@@ -539,7 +539,7 @@ ApplicationWindow {
                     delegate: StationDelegate {
                         stationNameText: modelData.stationName
                         channelNameText: modelData.channelName
-                        hideChannelName: isExpertView
+                        showChannelName: true
                         onClicked: {
                             if(modelData.channelName !== "") {
                                 mainWindow.stationClicked()
@@ -648,14 +648,6 @@ ApplicationWindow {
     }
 
     Connections{
-        target: cppGUI
-
-        onSetGUIData:{
-            dateTimeDisplay.text = GUIData.DateTime
-        }
-    }
-
-    Connections{
         target: cppRadioController
 
         onShowErrorMessage:{
@@ -667,6 +659,10 @@ ApplicationWindow {
             infoMessagePopup.text = Text;
             infoMessagePopup.open();
         }
+    }
+
+    Connections{
+        target: cppGUI
 
         onShowAndroidInstallDialog:{
             androidRTLSDRDialog.title = Title

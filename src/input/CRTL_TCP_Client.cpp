@@ -51,10 +51,12 @@ CRTL_TCP_Client::CRTL_TCP_Client(CRadioController &RadioController)
     SpectrumSampleBuffer	= new RingBuffer<uint8_t>(8192);
 
     connected = false;
+    stopped = false;
     Frequency = Khz (220000);
 
     // Use default values
     isAGC = true;
+    isHwAGC = false;
     CurrentGain	= 0;
     CurrentGainCount = 0;
     serverPort = 1234;
@@ -62,9 +64,10 @@ CRTL_TCP_Client::CRTL_TCP_Client(CRadioController &RadioController)
     MinValue = 255;
     MaxValue = 0;
 
-    connect(&TCPConnectionWatchDog, SIGNAL(timeout()), this, SLOT(TCPConnectionWatchDogTimeout()));
-    connect(&TCPSocket, SIGNAL (readyRead (void)), this, SLOT (readData (void)));
-    connect(&AGCTimer, SIGNAL(timeout(void)), this, SLOT(AGCTimerTimeout(void)));
+    connect(&TCPConnectionWatchDog, &QTimer::timeout, this, &CRTL_TCP_Client::TCPConnectionWatchDogTimeout);
+    connect(&TCPSocket, &QTcpSocket::readyRead, this, &CRTL_TCP_Client::readData);
+    connect(&TCPSocket, &QTcpSocket::disconnected, this, &CRTL_TCP_Client::disconnected);
+    connect(&AGCTimer, &QTimer::timeout, this, &CRTL_TCP_Client::AGCTimerTimeout);
 }
 
 CRTL_TCP_Client::~CRTL_TCP_Client	(void)
@@ -78,12 +81,14 @@ CRTL_TCP_Client::~CRTL_TCP_Client	(void)
 
 void CRTL_TCP_Client::setFrequency(int32_t newFrequency)
 {
+    stopped = false;
     Frequency = newFrequency;
     sendVFO (newFrequency);
 }
 
 bool CRTL_TCP_Client::restart(void)
 {
+    stopped = false;
     TCPConnectionWatchDog.start(5000);
     TCPConnectionWatchDogTimeout(); // Call timout onces to start the connection
 
@@ -95,6 +100,8 @@ bool CRTL_TCP_Client::restart(void)
 
 void CRTL_TCP_Client::stop	(void)
 {
+    // Fake stopped due to missing RTL-TCP command
+    stopped = true;
 }
 
 //	The brave old getSamples. For the dab stick, we get
@@ -133,6 +140,7 @@ int32_t	CRTL_TCP_Client::getSamplesToRead	(void)
 
 void CRTL_TCP_Client::reset(void)
 {
+    stopped = false;
     SampleBuffer->FlushRingBuffer();
 }
 
@@ -144,6 +152,10 @@ void CRTL_TCP_Client::readData(void)
     while (TCPSocket. bytesAvailable () > 8192)
     {
        TCPSocket.read ((char *)buffer, 8192);
+       if (stopped) {
+           continue;
+       }
+
        SampleBuffer -> putDataIntoBuffer (buffer, 8192);
        SpectrumSampleBuffer -> putDataIntoBuffer (buffer, 8192);
 
@@ -159,6 +171,12 @@ void CRTL_TCP_Client::readData(void)
                MaxValue = buffer[i];
        }
     }
+}
+
+void CRTL_TCP_Client::disconnected(void)
+{
+    if(RadioController)
+        RadioController->setErrorMessage(QObject::tr("RTL-TCP connection closed."));
 }
 
 void CRTL_TCP_Client::sendCommand (uint8_t cmd, int32_t param)
@@ -214,6 +232,12 @@ void CRTL_TCP_Client::setAgc(bool AGC)
     isAGC = AGC;
 }
 
+void CRTL_TCP_Client::setHwAgc(bool hwAGC)
+{
+    isHwAGC = hwAGC;
+    sendCommand (0x08, hwAGC ? 1 : 0);
+}
+
 QString CRTL_TCP_Client::getName()
 {
     return "rtl_tcp_client (server: " + serverAddress.toString() + ":" + QString::number(serverPort) + ")";
@@ -248,6 +272,8 @@ void CRTL_TCP_Client::TCPConnectionWatchDogTimeout()
         {
             qDebug() << "RTL_TCP_CLIENT:" << "Successful connected to server";
             connected	= true;
+
+            setHwAgc(isHwAGC);
 
             if(isAGC)
             {
@@ -293,8 +319,7 @@ void CRTL_TCP_Client::AGCTimerTimeout(void)
             if(CurrentGainCount > 0)
             {
                 setGain(CurrentGainCount - 1);
-
-                qDebug() << "RTL_TCP_CLIENT:" << "Decrease gain to" << (float) CurrentGain;
+                //qDebug() << "RTL_TCP_CLIENT:" << "Decrease gain to" << (float) CurrentGain;
             }
         }
         else
@@ -313,7 +338,7 @@ void CRTL_TCP_Client::AGCTimerTimeout(void)
                 if(NewMinValue >=0 && NewMaxValue <= 255)
                 {
                     setGain(CurrentGainCount + 1);
-                    qDebug() << "RTL_TCP_CLIENT:" << "Increase gain to" << CurrentGain;
+                    //qDebug() << "RTL_TCP_CLIENT:" << "Increase gain to" << CurrentGain;
                 }
             }
         }

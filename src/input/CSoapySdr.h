@@ -58,6 +58,7 @@ public:
     virtual float setGain(int32_t Gain);
     virtual int32_t getGainCount(void);
     virtual void setAgc(bool AGC);
+    virtual void setHwAgc(bool hwAGC);
     virtual QString getName(void);
     virtual CDeviceID getID(void);
 private:

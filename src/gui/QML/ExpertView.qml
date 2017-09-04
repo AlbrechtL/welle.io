@@ -27,36 +27,44 @@ Item {
         TextExpert {
             id: displayFreqCorr
             name: qsTr("Frequency correction") + ":"
+            text: cppRadioController.FrequencyCorrection + " Hz"
         }
 
         TextExpert {
             id: displaySNR
             name: qsTr("SNR") + ":"
+            text: cppRadioController.SNR + " dB"
         }
 
         TextExpert {
             id: displayFrameErrors
             name: qsTr("Frame errors") + ":"
+            text: cppRadioController.FrameErrors
         }
 
         TextExpert {
             id: displayRSErrors
             name: qsTr("RS errors") + ":"
+            text: cppRadioController.RSErrors
         }
 
         TextExpert {
             id: displayAACErrors
             name: qsTr("AAC errors") + ":"
+            text: cppRadioController.AACErrors
         }
 
         TextExpert {
             id: displaySync
             name: qsTr("Frame synchronization") + ":"
+            text: cppRadioController.isSync ? displaySync.text = qsTr("OK")
+                                            : displaySync.text = qsTr("Not synced")
         }
 
         TextExpert {
             id: displayFIC_CRC
             name: qsTr("FIC CRC") + ":"
+            text: cppRadioController.isFICCRC ? qsTr("OK") : qsTr("Error")
         }
 
         SpectrumView {
@@ -73,33 +81,6 @@ Item {
         onSetGUIData:{
             // Channel
             displayCurrentChannel.text = GUIData.Channel + " (" + GUIData.Frequency/1e6 + " MHz)"
-
-            // SNR
-            displaySNR.text = GUIData.SNR + " dB"
-
-            // Frequency correction
-            displayFreqCorr.text = GUIData.FrequencyCorrection + " Hz"
-
-            // Frame errors
-            displayFrameErrors.text = GUIData.FrameErrors
-
-            // RS errors
-            displayRSErrors.text = GUIData.RSErrors
-
-            // AAC errors
-            displayAACErrors.text = GUIData.AACErrors
-
-            // Sync flag
-            if(GUIData.isSync)
-                displaySync.text = qsTr("OK")
-            else
-                displaySync.text = qsTr("Not synced")
-
-            // FIC flag
-            if(GUIData.isFICCRC)
-                displayFIC_CRC.text = qsTr("OK")
-            else
-                displayFIC_CRC.text = qsTr("Error")
 
             // Device name
             displayDeviceName.text = GUIData.DeviceName

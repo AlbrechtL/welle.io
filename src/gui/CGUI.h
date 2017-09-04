@@ -32,40 +32,47 @@
 
 #include <QQmlContext>
 #include <QTimer>
-#include <QtQml/QQmlApplicationEngine>
+#include <QQmlApplicationEngine>
 //#include <QList>
 #include <QtCharts>
 using namespace QtCharts;
 
+#ifdef Q_OS_ANDROID
+#include "rep_CRadioController_replica.h"
+#else
 #include "CRadioController.h"
+#endif
 #include "CMOTImageProvider.h"
-#include "CStationList.h"
-
-
-class common_fft;
-
+#include "DabConstants.h"
 
 /*
  *	GThe main gui object. It inherits from
  *	QDialog and the generated form
  */
-class CGUI : public QObject {
+class CGUI : public QObject
+{
     Q_OBJECT
     Q_PROPERTY(QVariant stationModel READ stationModel NOTIFY stationModelChanged)
     Q_PROPERTY(float currentGainValue MEMBER m_currentGainValue NOTIFY currentGainValueChanged)
     Q_PROPERTY(QVariant licenses READ licenses CONSTANT)
 
 public:
-    CGUI(CRadioController *RadioController, CDABParams *DABParams, QObject* parent = NULL);
+#ifdef Q_OS_ANDROID
+    CGUI(CRadioControllerReplica *RadioController, QObject* parent = NULL);
+#else
+    CGUI(CRadioController *RadioController, QObject* parent = NULL);
+#endif
     ~CGUI();
     Q_INVOKABLE void channelClick(QString StationName, QString ChannelName);
     Q_INVOKABLE void setManualChannel(QString ChannelName);
     Q_INVOKABLE void startChannelScanClick(void);
     Q_INVOKABLE void stopChannelScanClick(void);
-    Q_INVOKABLE void saveChannels(void);
     Q_INVOKABLE void inputEnableAGCChanged(bool checked);
+    Q_INVOKABLE void inputEnableHwAGCChanged(bool checked);
     Q_INVOKABLE void inputGainChanged(double gain);
     Q_INVOKABLE void clearStationList(void);
+    Q_INVOKABLE void registerSpectrumSeries(QAbstractSeries* series);
+
     QVariant stationModel() const
     {
         return p_stationModel;
@@ -73,29 +80,30 @@ public:
     CMOTImageProvider* MOTImage; // ToDo: Must be a getter
 
 private:
+#ifdef Q_OS_ANDROID
+    CRadioControllerReplica *RadioController;
+#else
     CRadioController *RadioController;
-    CDABParams *DABParams;
-    QTimer UptimeTimer;
+#endif
 
-    common_fft* spectrum_fft_handler;
-    QVector<QPointF> spectrum_data;
+    QXYSeries* spectrum_series;
 
     const QVariantMap licenses();
 
-    CStationList stationList;
     QVariant p_stationModel;
 
     float m_currentGainValue;
 
 public slots:
-    void updateSpectrum(QAbstractSeries* series);
+    void updateSpectrum();
 
 private slots:
-    void UpdateTimerTimeout(void);
-    void MOTUpdate(QPixmap MOTImage);
-    void AddToStationList(QString Station, QString CurrentChannel);
+    void GUIDataUpdate(QVariantMap GUIData);
+    void MOTUpdate(QImage MOTImage);
+    void SpectrumUpdate(qreal Ymax, qreal Xmin, qreal Xmax, QVector<QPointF> Data);
+    void StationsChange(QList<StationElement *> Stations);
 
-signals:   
+signals:
     void channelScanStopped(void);
     void channelScanProgress(int progress);
     void foundChannelCount(int channelCount);

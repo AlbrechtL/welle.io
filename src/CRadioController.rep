@@ -1,0 +1,59 @@
+#include <QImage>
+#include <QPointF>
+#include <QVariant>
+#include <QVariantMap>
+#include <QVector>
+#include "CStationList.h"
+
+class CRadioController
+{
+    PROP(QString DateTime READONLY);
+    PROP(bool isSync READONLY);
+    PROP(bool isFICCRC READONLY);
+    PROP(bool isSignal READONLY);
+    PROP(bool isStereo READONLY);
+    PROP(bool isDAB READONLY);
+    PROP(int SNR READONLY);
+    PROP(int FrequencyCorrection READONLY);
+    PROP(int BitRate READONLY);
+    PROP(int AudioSampleRate READONLY);
+    PROP(int FrameErrors READONLY);
+    PROP(int RSErrors READONLY);
+    PROP(int AACErrors READONLY);
+
+    PROP(bool HwAGC READWRITE);
+    PROP(bool AGC READWRITE);
+    PROP(float GainValue READONLY);
+    PROP(int GainCount READONLY);
+    PROP(int Gain READWRITE);
+
+    PROP(qreal Volume READWRITE);
+
+    PROP(QList<StationElement*> Stations READONLY);
+    PROP(QVariantMap GUIData READONLY);
+    PROP(QImage MOT READONLY);
+
+    SIGNAL(DeviceReady());
+    SIGNAL(DeviceClosed());
+    SIGNAL(StationsCleared());
+    SIGNAL(FoundStation(QString Station, QString CurrentChannel));
+    SIGNAL(ScanStopped());
+    SIGNAL(ScanProgress(int Progress));
+    SIGNAL(SpectrumUpdated(qreal Ymax, qreal Xmin, qreal Xmax, QVector<QPointF> Data));
+
+    SIGNAL(showErrorMessage(QString Text));
+    SIGNAL(showInfoMessage(QString Text));
+
+    SLOT(StartScan());
+    SLOT(StopScan());
+    SLOT(Play(QString Channel, QString Station));
+    SLOT(ClearStations());
+    SLOT(SetStation(QString Station, bool Force = false));
+    SLOT(SetChannel(QString Channel, bool isScan, bool Force = false));
+    SLOT(SetManualChannel(QString Channel));
+    SLOT(UpdateSpectrum());
+
+    SLOT(onEventLoopStarted());
+    SLOT(setErrorMessage(QString Text));
+    SLOT(setInfoMessage(QString Text));
+};

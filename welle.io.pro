@@ -16,7 +16,10 @@ DISTFILES +=    README.md \
     android/res/values/libs.xml \
     android/build.gradle \
     android/gradle/wrapper/gradle-wrapper.properties \
-    android/gradlew.bat
+    android/gradlew.bat \
+    android/java/io/welle/welle/DabMediaService.java \
+    android/java/io/welle/welle/DabService.java \
+    android/java/io/welle/welle/DabDelegate.java
 
 TRANSLATIONS = i18n/de_DE.ts i18n/it_IT.ts
 
@@ -193,12 +196,17 @@ macx {
 
 android {
     QT += androidextras
+    QT += remoteobjects
+    LIBS += -ljnigraphics
 
     CONFIG  += kiss_fft_builtin
     CONFIG  += libfaad_builtin
 
-    HEADERS    += src/input/CAndroid_RTL_SDR.h
-    SOURCES    += src/input/CAndroid_RTL_SDR.cpp
+    HEADERS      += src/gui/CAndroidJNI.h
+    SOURCES      += src/gui/CAndroidJNI.cpp
+    REPC_SOURCE  += src/CRadioController.rep
+    REPC_REPLICA += src/CRadioController.rep
+
     equals(ANDROID_TARGET_ARCH, x86)  {
         message("Enable SSE")
         DEFINES += SSE_AVAILABLE

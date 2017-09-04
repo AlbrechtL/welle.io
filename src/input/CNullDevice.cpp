@@ -86,6 +86,11 @@ void CNullDevice::setAgc(bool AGC)
     (void) AGC;
 }
 
+void CNullDevice::setHwAgc(bool hwAGC)
+{
+    (void) hwAGC;
+}
+
 QString CNullDevice::getName()
 {
     return "Null device";
