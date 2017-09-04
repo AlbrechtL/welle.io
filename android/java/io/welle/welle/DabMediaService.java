@@ -168,17 +168,17 @@ public class DabMediaService extends MediaBrowserServiceCompat implements Servic
 
                 List<MediaBrowserCompat.MediaItem> mediaItems = new ArrayList<>();
 
-                mediaItems.add(new MediaBrowserCompat.MediaItem(new MediaDescriptionCompat.Builder()
-                        .setMediaId(MEDIA_ID_DAB_CHANNELS)
-                        .setTitle(resources.getString(R.string.menu_channels))
-                        .build(), MediaBrowserCompat.MediaItem.FLAG_BROWSABLE));
-
                 if (!mFavoriteList.isEmpty()) {
                     mediaItems.add(new MediaBrowserCompat.MediaItem(new MediaDescriptionCompat.Builder()
                             .setMediaId(MEDIA_ID_FAVORITE_STATIONS)
                             .setTitle(resources.getString(R.string.menu_favorites))
                             .build(), MediaBrowserCompat.MediaItem.FLAG_BROWSABLE));
                 }
+
+                mediaItems.add(new MediaBrowserCompat.MediaItem(new MediaDescriptionCompat.Builder()
+                        .setMediaId(MEDIA_ID_DAB_CHANNELS)
+                        .setTitle(resources.getString(R.string.menu_channels))
+                        .build(), MediaBrowserCompat.MediaItem.FLAG_BROWSABLE));
 
                 result.sendResult(mediaItems);
                 break;
