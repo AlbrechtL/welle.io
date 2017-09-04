@@ -179,6 +179,7 @@ Item {
                             height: 24
                             Layout.fillHeight: true
                             objectName: "enableHwAGC"
+                            visible: enableExpertMode.checked ? true : false
                             checked: enableHwAGCState
                             onChanged: {
                                 cppGUI.inputEnableHwAGCChanged(valueChecked)
@@ -192,7 +193,7 @@ Item {
                             Layout.fillWidth: true
                             Layout.fillHeight: true
                             objectName: "enableAGC"
-                            checked: enableAGCState
+                            checked: true
                             onChanged: {
                                 cppGUI.inputEnableAGCChanged(valueChecked)
 

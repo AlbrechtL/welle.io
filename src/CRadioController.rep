@@ -43,6 +43,7 @@ class CRadioController
 
     SIGNAL(showErrorMessage(QString Text));
     SIGNAL(showInfoMessage(QString Text));
+    SIGNAL(showAndroidInstallDialog(QString Title, QString Text));
 
     SLOT(StartScan());
     SLOT(StopScan());
@@ -56,4 +57,5 @@ class CRadioController
     SLOT(onEventLoopStarted());
     SLOT(setErrorMessage(QString Text));
     SLOT(setInfoMessage(QString Text));
+    SLOT(setAndroidInstallDialog(QString Title, QString Text));
 };
