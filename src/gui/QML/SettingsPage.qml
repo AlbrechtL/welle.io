@@ -50,11 +50,11 @@ Item {
             channelScanProgressBar.text = qsTr("Found channels") + ": " + channelCount;
         }
 
-        onSetGUIData:{
+        onGuiDataChanged:{
             manualGain.maximumValue = cppRadioController.GainCount
 
             // Channel
-            var channelIndex = manualChannelBox.find(GUIData.Channel)
+            var channelIndex = manualChannelBox.find(guiData.Channel)
             if (channelIndex !== -1)
                 manualChannelBox.currentIndex = channelIndex
         }

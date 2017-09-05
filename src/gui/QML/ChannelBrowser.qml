@@ -230,6 +230,7 @@ Item {
                     color: "#ffffff"
                     anchors.horizontalCenter: parent.horizontalCenter
                     font.pixelSize: 22
+                    text: cppGUI.guiData.Ensemble
                 }
 
                 RowLayout{
@@ -310,7 +311,7 @@ Item {
             Text {
                 id: stationText
                 color: "#ffffff"
-                text: qsTr("")
+                text: cppGUI.guiData.Text
                 verticalAlignment: Text.AlignTop
                 horizontalAlignment: Text.AlignHCenter
                 wrapMode: Text.WrapAtWordBoundaryOrAnywhere
@@ -327,7 +328,7 @@ Item {
 
             Item {
                 id: radio_info
-                visible: false
+                visible: (cppGUI.guiData.Status === 2 || cppGUI.guiData.Status === 3)
                 height: 30
                 anchors.bottom: parent.bottom
                 anchors.bottomMargin: 0
@@ -342,6 +343,7 @@ Item {
                     anchors.leftMargin: 0
                     anchors.rightMargin: 0
                     font.pixelSize: 22
+                    text: cppGUI.guiData.StationType
                 }
 
                 Text {
@@ -351,6 +353,7 @@ Item {
                     horizontalAlignment: Text.AlignHCenter
                     anchors.horizontalCenter: parent.horizontalCenter
                     font.pixelSize: 22
+                    text: cppGUI.guiData.LanguageType
                 }
 
                 Text {
@@ -626,28 +629,13 @@ Item {
     Connections{
         target: cppGUI
 
-        onSetGUIData:{
+        onGuiDataChanged:{
             // Title
             if(!scanningTimer.running)
-                stationTitle.text = GUIData.Title
-
-            // Text
-            stationText.text = GUIData.Text
-
-            // Ensemble
-            ensembleText.text = GUIData.Ensemble
-
-            // Station info
-            radio_info.visible = (GUIData.Status === 2 || GUIData.Status === 3)
-
-            // Station type
-            stationTypeText.text = GUIData.StationType
-
-            // Language type
-            languageTypeText.text = GUIData.LanguageType
+                stationTitle.text = guiData.Title
 
             // Channel
-            var channelIndex = manualChannelBox.find(GUIData.Channel)
+            var channelIndex = manualChannelBox.find(guiData.Channel)
             if (channelIndex !== -1)
                 manualChannelBox.currentIndex = channelIndex
         }

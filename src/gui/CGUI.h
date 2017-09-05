@@ -52,6 +52,7 @@ using namespace QtCharts;
 class CGUI : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QVariantMap guiData READ guiData NOTIFY guiDataChanged)
     Q_PROPERTY(QVariant stationModel READ stationModel NOTIFY stationModelChanged)
     Q_PROPERTY(float currentGainValue MEMBER m_currentGainValue NOTIFY currentGainValueChanged)
     Q_PROPERTY(QVariant licenses READ licenses CONSTANT)
@@ -73,10 +74,16 @@ public:
     Q_INVOKABLE void clearStationList(void);
     Q_INVOKABLE void registerSpectrumSeries(QAbstractSeries* series);
 
+    QVariantMap guiData() const
+    {
+        return RadioController->GUIData();
+    }
+
     QVariant stationModel() const
     {
         return p_stationModel;
     }
+
     CMOTImageProvider* MOTImage; // ToDo: Must be a getter
 
 private:
@@ -98,7 +105,6 @@ public slots:
     void updateSpectrum();
 
 private slots:
-    void GUIDataUpdate(QVariantMap GUIData);
     void MOTUpdate(QImage MOTImage);
     void SpectrumUpdate(qreal Ymax, qreal Xmin, qreal Xmax, QVector<QPointF> Data);
     void StationsChange(QList<StationElement *> Stations);
@@ -113,10 +119,9 @@ signals:
     void setYAxisMax(qreal max);
     void setXAxisMinMax(qreal min, qreal max);
 
+    void guiDataChanged(QVariantMap guiData);
     void stationModelChanged();
     void motChanged(void);
-
-    void setGUIData(QVariantMap GUIData);
 };
 
 #endif
