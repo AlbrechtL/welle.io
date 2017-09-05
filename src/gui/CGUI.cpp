@@ -57,23 +57,20 @@ CGUI::CGUI(CRadioController *RadioController, QObject *parent)
     , RadioController(RadioController)
     , spectrum_series(NULL)
 {
-    QList<StationElement*> stations = RadioController->Stations();
-    QList<QObject*> *stationList = reinterpret_cast<QList<QObject*>*>(&stations);
-    p_stationModel = QVariant::fromValue(*stationList);
-    emit stationModelChanged();
+    StationsChange(RadioController->Stations());
 
     // Add image provider for the MOT slide show
     MOTImage = new CMOTImageProvider;
 
 #ifdef Q_OS_ANDROID
-    connect(RadioController, &CRadioControllerReplica::GUIDataChanged, this, &CGUI::GUIDataUpdate);
+    connect(RadioController, &CRadioControllerReplica::GUIDataChanged, this, &CGUI::guiDataChanged);
     connect(RadioController, &CRadioControllerReplica::MOTChanged, this, &CGUI::MOTUpdate);
     connect(RadioController, &CRadioControllerReplica::SpectrumUpdated, this, &CGUI::SpectrumUpdate);
     connect(RadioController, &CRadioControllerReplica::StationsChanged, this, &CGUI::StationsChange);
     connect(RadioController, &CRadioControllerReplica::ScanStopped, this, &CGUI::channelScanStopped);
     connect(RadioController, &CRadioControllerReplica::ScanProgress, this, &CGUI::channelScanProgress);
 #else
-    connect(RadioController, &CRadioController::GUIDataChanged, this, &CGUI::GUIDataUpdate);
+    connect(RadioController, &CRadioController::GUIDataChanged, this, &CGUI::guiDataChanged);
     connect(RadioController, &CRadioController::MOTChanged, this, &CGUI::MOTUpdate);
     connect(RadioController, &CRadioController::SpectrumUpdated, this, &CGUI::SpectrumUpdate);
     connect(RadioController, &CRadioController::StationsChanged, this, &CGUI::StationsChange);
@@ -147,14 +144,12 @@ void CGUI::stopChannelScanClick(void)
         RadioController->StopScan();
 }
 
-void CGUI::GUIDataUpdate(QVariantMap GUIData)
-{
-    //qDebug() << "CGUI:" <<  "GUIDataUpdate";
-    emit setGUIData(GUIData);
-}
-
 void CGUI::MOTUpdate(QImage MOTImage)
 {
+    if (MOTImage.isNull()) {
+        MOTImage = QImage(320, 240, QImage::Format_Alpha8);
+        MOTImage.fill(Qt::transparent);
+    }
     this->MOTImage->setPixmap(QPixmap::fromImage(MOTImage));
     emit motChanged();
 }
@@ -162,8 +157,15 @@ void CGUI::MOTUpdate(QImage MOTImage)
 void CGUI::StationsChange(QList<StationElement*> Stations)
 {
     //qDebug() << "CGUI:" <<  "StationsChange";
-    QList<QObject*> *stationList = reinterpret_cast<QList<QObject*>*>(&Stations);
-    p_stationModel = QVariant::fromValue(*stationList);
+    if (Stations.isEmpty()) {
+        static const StationElement emptyStation(tr("Station list is empty"), "");
+        QList<QObject*>emptyList;
+        emptyList.append((QObject*)&emptyStation);
+        p_stationModel = QVariant::fromValue(emptyList);
+    } else {
+        QList<QObject*> *stationList = reinterpret_cast<QList<QObject*>*>(&Stations);
+        p_stationModel = QVariant::fromValue(*stationList);
+    }
 
     emit stationModelChanged();
     emit foundChannelCount(Stations.count());

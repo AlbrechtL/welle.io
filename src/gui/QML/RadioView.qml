@@ -62,6 +62,7 @@ Item{
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.leftMargin: Units.dp(5)
             anchors.rightMargin: Units.dp(5)
+            text: cppGUI.guiData.Ensemble
         }
 
         /* Flags */
@@ -103,6 +104,7 @@ Item{
         TextRadioStation {
             id: stationTitle
             anchors.horizontalCenter: parent.horizontalCenter
+            text: cppGUI.guiData.Title
         }
 
         /* Station Text */
@@ -114,37 +116,14 @@ Item{
             width: parent.parent.width
             wrapMode: Text.WordWrap
             horizontalAlignment: Text.AlignHCenter
-        }
-    }
-
-    Connections{
-        target: cppGUI
-
-        onSetGUIData:{
-            // Title
-            stationTitle.text = GUIData.Title
-
-            // Text
-            stationText.text = GUIData.Text
-
-            // Ensemble
-            ensembleText.text = GUIData.Ensemble
-
-            // Station info
-            stationInfo.visible = (GUIData.Status === 2 /* Playing */
-                                   || GUIData.Status === 3 /* Paused */)
-
-            // Station type
-            stationTypeText.text = GUIData.StationType
-
-            // Language type
-            languageTypeText.text = GUIData.LanguageType
+            text: cppGUI.guiData.Text
         }
     }
 
     RowLayout{
         id: stationInfo
-        visible: false
+        visible: (cppGUI.guiData.Status === 2 /* Playing */
+                  || cppGUI.guiData.Status === 3 /* Paused */)
         anchors.bottom: parent.bottom
         anchors.bottomMargin: Units.dp(5)
         Layout.fillWidth : true
@@ -156,6 +135,7 @@ Item{
             visible: stationInfo.visible
             anchors.left: parent.left
             anchors.leftMargin: Units.dp(5)
+            text: cppGUI.guiData.StationType
         }
 
         TextRadioInfo {
@@ -164,6 +144,7 @@ Item{
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.leftMargin: Units.dp(5)
             anchors.rightMargin: Units.dp(5)
+            text: cppGUI.guiData.LanguageType
         }
 
         TextRadioInfo {

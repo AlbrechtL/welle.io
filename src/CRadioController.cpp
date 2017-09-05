@@ -653,6 +653,11 @@ void CRadioController::setInfoMessage(QString Text)
     emit showInfoMessage(Text);
 }
 
+void CRadioController::setAndroidInstallDialog(QString Title, QString Text)
+{
+    emit showAndroidInstallDialog(Title, Text);
+}
+
 /********************
  * Private methods  *
  ********************/

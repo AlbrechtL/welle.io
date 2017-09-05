@@ -17,11 +17,13 @@ Item {
         TextExpert {
             id: displayDeviceName
             name: qsTr("Device") + ":"
+            text: cppGUI.guiData.DeviceName
         }
 
         TextExpert {
             id: displayCurrentChannel
             name: qsTr("Current channel") + ":"
+            text: cppGUI.guiData.Channel + " (" + cppGUI.guiData.Frequency/1e6 + " MHz)"
         }
 
         TextExpert {
@@ -72,18 +74,6 @@ Item {
             Layout.preferredHeight: Units.dp(200)
             Layout.fillWidth: true
             Layout.fillHeight: true
-        }
-    }
-
-    Connections{
-        target: cppGUI
-
-        onSetGUIData:{
-            // Channel
-            displayCurrentChannel.text = GUIData.Channel + " (" + GUIData.Frequency/1e6 + " MHz)"
-
-            // Device name
-            displayDeviceName.text = GUIData.DeviceName
         }
     }
 }

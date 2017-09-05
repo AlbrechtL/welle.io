@@ -251,6 +251,7 @@ signals:
     void SpectrumUpdated(qreal Ymax, qreal Xmin, qreal Xmax, QVector<QPointF> Data);
     void showErrorMessage(QString Text);
     void showInfoMessage(QString Text);
+    void showAndroidInstallDialog(QString Title, QString Text);
 #endif
 
 public slots:
@@ -275,6 +276,7 @@ public slots:
     void onEventLoopStarted(void);
     void setErrorMessage(QString Text);
     void setInfoMessage(QString Text);
+    void setAndroidInstallDialog(QString Title, QString Text);
 };
 
 #endif // CRADIOCONTROLLER_H
