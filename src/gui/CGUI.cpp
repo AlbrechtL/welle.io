@@ -57,10 +57,7 @@ CGUI::CGUI(CRadioController *RadioController, QObject *parent)
     , RadioController(RadioController)
     , spectrum_series(NULL)
 {
-    QList<StationElement*> stations = RadioController->Stations();
-    QList<QObject*> *stationList = reinterpret_cast<QList<QObject*>*>(&stations);
-    p_stationModel = QVariant::fromValue(*stationList);
-    emit stationModelChanged();
+    StationsChange(RadioController->Stations());
 
     // Add image provider for the MOT slide show
     MOTImage = new CMOTImageProvider;
@@ -160,8 +157,15 @@ void CGUI::MOTUpdate(QImage MOTImage)
 void CGUI::StationsChange(QList<StationElement*> Stations)
 {
     //qDebug() << "CGUI:" <<  "StationsChange";
-    QList<QObject*> *stationList = reinterpret_cast<QList<QObject*>*>(&Stations);
-    p_stationModel = QVariant::fromValue(*stationList);
+    if (Stations.isEmpty()) {
+        static const StationElement emptyStation(tr("Station list is empty"), "");
+        QList<QObject*>emptyList;
+        emptyList.append((QObject*)&emptyStation);
+        p_stationModel = QVariant::fromValue(emptyList);
+    } else {
+        QList<QObject*> *stationList = reinterpret_cast<QList<QObject*>*>(&Stations);
+        p_stationModel = QVariant::fromValue(*stationList);
+    }
 
     emit stationModelChanged();
     emit foundChannelCount(Stations.count());
