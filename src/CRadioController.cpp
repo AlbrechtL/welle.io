@@ -60,7 +60,6 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, CDABParams& 
 
     // Init the technical data
     ResetTechnicalData();
-    UpdateGUIData();
 
     // Read channels from settings
     mStationList.loadStations();
@@ -117,6 +116,12 @@ void CRadioController::ResetTechnicalData(void)
     isChannelScan = false;
     isAGC = true;
     isHwAGC = true;
+
+    UpdateGUIData();
+
+    // Clear MOT
+    MOTImage->loadFromData(0, 0, Q_NULLPTR);
+    emit MOTChanged(*MOTImage);
 }
 
 void CRadioController::closeDevice()
@@ -413,8 +418,8 @@ void CRadioController::SetManualChannel(QString Channel)
     UpdateGUIData();
 
     // Clear MOT
-    QImage MOT;
-    emit MOTChanged(MOT);
+    MOTImage->loadFromData(0, 0, Q_NULLPTR);
+    emit MOTChanged(*MOTImage);
 
     // Switch channel
     SetChannel(Channel, false, true);
@@ -723,8 +728,8 @@ void CRadioController::SetStation(QString Station, bool Force)
         UpdateGUIData();
 
         // Clear MOT
-        QImage MOT;
-        emit MOTChanged(MOT);
+        MOTImage->loadFromData(0, 0, Q_NULLPTR);
+        emit MOTChanged(*MOTImage);
     }
 }
 
