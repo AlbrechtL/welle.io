@@ -265,6 +265,11 @@ void CRTL_SDR::setHwAgc(bool hwAGC)
     rtlsdr_set_agc_mode(device, hwAGC ? 1 : 0);
 }
 
+bool CRTL_SDR::isHwAgcSupported()
+{
+    return true;
+}
+
 QString CRTL_SDR::getName()
 {
     char manufact[256] = {0};

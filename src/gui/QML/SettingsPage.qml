@@ -179,7 +179,7 @@ Item {
                             height: 24
                             Layout.fillHeight: true
                             objectName: "enableHwAGC"
-                            visible: enableExpertMode.checked ? true : false
+                            visible: (cppRadioController.isHwAGCSupported && enableExpertMode.checked) ? true : false
                             checked: enableHwAGCState
                             onChanged: {
                                 cppGUI.inputEnableHwAGCChanged(valueChecked)

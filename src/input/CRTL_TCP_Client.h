@@ -61,6 +61,7 @@ public:
     int32_t getGainCount(void);
     void setAgc(bool AGC);
     void setHwAgc(bool hwAGC);
+    bool isHwAgcSupported();
     QString getName(void);
     CDeviceID getID(void);
 

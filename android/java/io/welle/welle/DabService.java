@@ -128,8 +128,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
         extras.putString(BUNDLE_KEY_CHANNEL, channel);
         return new MediaDescriptionCompat.Builder()
                 .setMediaId(toMediaId(station, channel))
-                .setTitle(station.trim() + " (" + channel + ")")
-                //.setTitle(station.trim())
+                .setTitle(station.trim())
                 .setExtras(extras)
                 .build();
     }

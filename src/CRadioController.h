@@ -70,6 +70,7 @@ class CRadioController : public QObject
     Q_PROPERTY(int FrameErrors READ FrameErrors NOTIFY FrameErrorsChanged)
     Q_PROPERTY(int RSErrors READ RSErrors NOTIFY RSErrorsChanged)
     Q_PROPERTY(int AACErrors READ AACErrors NOTIFY AACErrorsChanged)
+    Q_PROPERTY(bool isHwAGCSupported READ isHwAGCSupported NOTIFY isHwAGCSupportedChanged)
     Q_PROPERTY(bool HwAGC READ HwAGC WRITE setHwAGC NOTIFY HwAGCChanged)
     Q_PROPERTY(bool AGC READ AGC WRITE setAGC NOTIFY AGCChanged)
     Q_PROPERTY(float GainValue READ GainValue NOTIFY GainValueChanged)
@@ -128,6 +129,7 @@ public:
     qreal Volume() const;
     void setVolume(qreal Volume);
 
+    bool isHwAGCSupported() const;
     bool HwAGC() const;
     void setHwAGC(bool isHwAGC);
 
@@ -233,6 +235,7 @@ signals:
     void AACErrorsChanged(int);
     void GainCountChanged(int);
 
+    void isHwAGCSupportedChanged(bool);
     void HwAGCChanged(bool);
     void AGCChanged(bool);
     void GainValueChanged(float);
