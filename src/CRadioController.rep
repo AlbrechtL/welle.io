@@ -21,6 +21,7 @@ class CRadioController
     PROP(int RSErrors READONLY);
     PROP(int AACErrors READONLY);
 
+    PROP(bool isHwAGCSupported READONLY);
     PROP(bool HwAGC READWRITE);
     PROP(bool AGC READWRITE);
     PROP(float GainValue READONLY);

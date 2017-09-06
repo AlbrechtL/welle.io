@@ -143,6 +143,7 @@ void CRadioController::closeDevice()
     // Reset the technical data
     ResetTechnicalData();
 
+    emit isHwAGCSupportedChanged(isHwAGCSupported());
     emit DeviceClosed();
 }
 
@@ -253,6 +254,7 @@ void CRadioController::Initialise(void)
 
     Status = Initialised;
     emit DeviceReady();
+    emit isHwAGCSupportedChanged(isHwAGCSupported());
     UpdateGUIData();
 }
 
@@ -574,6 +576,11 @@ int CRadioController::AACErrors() const
 int CRadioController::GainCount() const
 {
     return mGainCount;
+}
+
+bool CRadioController::isHwAGCSupported() const
+{
+    return (this->Device) ? this->Device->isHwAgcSupported() : false;
 }
 
 bool CRadioController::HwAGC() const

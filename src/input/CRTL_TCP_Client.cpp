@@ -238,6 +238,11 @@ void CRTL_TCP_Client::setHwAgc(bool hwAGC)
     sendCommand (0x08, hwAGC ? 1 : 0);
 }
 
+bool CRTL_TCP_Client::isHwAgcSupported()
+{
+    return true;
+}
+
 QString CRTL_TCP_Client::getName()
 {
     return "rtl_tcp_client (server: " + serverAddress.toString() + ":" + QString::number(serverPort) + ")";

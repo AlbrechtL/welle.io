@@ -52,6 +52,7 @@ public:
     virtual int32_t getGainCount(void) = 0;
     virtual void setAgc(bool AGC) = 0;
     virtual void setHwAgc(bool hwAGC) = 0;
+    virtual bool isHwAgcSupported() { return false; }
     virtual QString getName(void) = 0;
     virtual CDeviceID getID(void) = 0;
 };
