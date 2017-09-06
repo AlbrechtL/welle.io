@@ -59,8 +59,7 @@ Item {
         TextExpert {
             id: displaySync
             name: qsTr("Frame synchronization") + ":"
-            text: cppRadioController.isSync ? displaySync.text = qsTr("OK")
-                                            : displaySync.text = qsTr("Not synced")
+            text: cppRadioController.isSync ? qsTr("OK") : qsTr("Not synced")
         }
 
         TextExpert {
