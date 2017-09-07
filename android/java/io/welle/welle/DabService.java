@@ -813,11 +813,8 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
         Resources resources = getResources();
 
         // Update Notification
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this);
-        notificationBuilder.setStyle(new NotificationCompat.MediaStyle()
-                .setMediaSession(mSession.getSessionToken())
-        );
 
+        int shown = 0;
         if (!mServiceReady || DAB_STATUS_UNKNOWN == mDabStatus) {
             notificationBuilder.setContentTitle(getResources().getString(R.string.error_not_initialised));
         } else if (DAB_STATUS_ERROR == mDabStatus) {
@@ -826,6 +823,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
             notificationBuilder.setContentTitle(error);
         } else if (0 <= mChannelScanProgress) {
             // Scanning
+            shown++;
 
             // Stop scan button
             intent = new Intent(CUSTOM_ACTION_SCAN_STOP);
@@ -847,6 +845,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
 
             // Skip prev button
             if (mStationList.size() > 1) {
+                shown++;
                 intent = new Intent(CUSTOM_ACTION_SKIP_PREV);
                 notificationBuilder.addAction(new NotificationCompat.Action(R.drawable.ic_skip_previous,
                         resources.getString(R.string.action_skip_prev),
@@ -856,12 +855,14 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
 
             // Play/Pause toggle button
             if (DAB_STATUS_PLAYING == mDabStatus) {
+                shown++;
                 intent = new Intent(CUSTOM_ACTION_PAUSE);
                 notificationBuilder.addAction(new NotificationCompat.Action(R.drawable.ic_pause,
                         resources.getString(R.string.action_pause),
                         PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
                 ));
             } else if (mDabStatus >= DAB_STATUS_INITIALISED && !mStationList.isEmpty()) {
+                shown++;
                 intent = new Intent(CUSTOM_ACTION_PLAY);
                 notificationBuilder.addAction(new NotificationCompat.Action(R.drawable.ic_play,
                         resources.getString(R.string.action_play),
@@ -871,6 +872,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
 
             // Skip next button
             if (mStationList.size() > 1) {
+                shown++;
                 intent = new Intent(CUSTOM_ACTION_SKIP_NEXT);
                 notificationBuilder.addAction(new NotificationCompat.Action(R.drawable.ic_skip_next,
                         resources.getString(R.string.action_skip_next),
@@ -879,6 +881,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
             }
 
             // Start scan button
+            shown++;
             intent = new Intent(CUSTOM_ACTION_SCAN_START);
             notificationBuilder.addAction(new NotificationCompat.Action(R.drawable.ic_search,
                     resources.getString(R.string.action_scan),
@@ -902,10 +905,24 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
             }
         }
 
+        int showInCompactView[];
+        if (shown >= 3)
+            showInCompactView = new int[]{0,1,2};
+        else if (shown == 2)
+            showInCompactView = new int[]{0,1};
+        else if (shown == 1)
+            showInCompactView = new int[]{0};
+        else
+            showInCompactView = new int[]{};
+
         notificationBuilder.setSmallIcon(R.drawable.icon);
         if (mDisplayArt != null) notificationBuilder.setLargeIcon(mDisplayArt);
         notificationBuilder.setShowWhen(false);
         notificationBuilder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+        notificationBuilder.setStyle(new NotificationCompat.MediaStyle()
+                .setShowActionsInCompactView(showInCompactView)
+                .setMediaSession(mSession.getSessionToken())
+        );
 
         return notificationBuilder.build();
     }
