@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Binder;
@@ -925,7 +926,8 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
             showInCompactView = new int[]{};
 
         notificationBuilder.setSmallIcon(R.drawable.ic_icon);
-        if (mDisplayArt != null) notificationBuilder.setLargeIcon(mDisplayArt);
+        notificationBuilder.setLargeIcon(mDisplayArt != null ? mDisplayArt
+                : BitmapFactory.decodeResource(resources, R.drawable.ic_icon));
         notificationBuilder.setShowWhen(false);
         notificationBuilder.setVisibility(Notification.VISIBILITY_PUBLIC);
         notificationBuilder.setStyle(new Notification.MediaStyle()
