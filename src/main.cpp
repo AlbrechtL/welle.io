@@ -49,9 +49,6 @@
 #include "rep_CRadioController_replica.h"
 #endif
 
-QTranslator* AddTranslator(QApplication *app, QString Language, QTranslator *OldTranslator = NULL);
-
-
 int main(int argc, char** argv)
 {
     QCoreApplication::setOrganizationName("welle.io");
@@ -110,7 +107,7 @@ int main(int argc, char** argv)
     QString locale = QLocale::system().name();
     qDebug() << "main:" <<  "Detected system language" << locale;
 
-    QTranslator *Translator = AddTranslator(&app, locale);
+    QTranslator *Translator = CGUI::AddTranslator(locale);
 
     // Default values
     CDABParams DABParams(1);
@@ -162,7 +159,7 @@ int main(int argc, char** argv)
     //	Process language option
     QString languageValue = optionParser.value(Language);
     if (languageValue != "")
-        AddTranslator(&app, languageValue, Translator);
+        CGUI::AddTranslator(languageValue, Translator);
 
     //	Process DAB mode option
     QString DABModValue = optionParser.value(DABModeOption);
@@ -228,32 +225,4 @@ int main(int argc, char** argv)
     delete RadioController;
 
     return 0;
-}
-
-QTranslator* AddTranslator(QApplication *app, QString Language, QTranslator *OldTranslator)
-{
-    if(OldTranslator)
-        app->removeTranslator(OldTranslator);
-
-    QTranslator *Translator = new QTranslator;
-
-    // Special handling for German
-    if(Language == "de_AT" || Language ==  "de_CH")
-        Language = "de_DE";
-
-    bool isTranslation = Translator->load(QString(":/i18n/") + Language);
-
-    qDebug() << "main:" <<  "Set language" << Language;
-    app->installTranslator(Translator);
-
-    if(!isTranslation)
-    {
-        qDebug() << "main:" <<  "Error while loading language" << Language << "use English \"en_GB\" instead";
-        Language = "en_GB";
-    }
-
-    QLocale curLocale(QLocale((const QString&)Language));
-    QLocale::setDefault(curLocale);
-
-    return Translator;
 }

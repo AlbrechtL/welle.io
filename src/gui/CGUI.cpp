@@ -263,3 +263,31 @@ void CGUI::SpectrumUpdate(qreal Ymax, qreal Xmin, qreal Xmax, QVector<QPointF> D
     if (spectrum_series)
         spectrum_series->replace(Data);
 }
+
+QTranslator* CGUI::AddTranslator(QString Language, QTranslator *OldTranslator)
+{
+    if(OldTranslator)
+        QCoreApplication::removeTranslator(OldTranslator);
+
+    QTranslator *Translator = new QTranslator;
+
+    // Special handling for German
+    if(Language == "de_AT" || Language ==  "de_CH")
+        Language = "de_DE";
+
+    bool isTranslation = Translator->load(QString(":/i18n/") + Language);
+
+    qDebug() << "main:" <<  "Set language" << Language;
+    QCoreApplication::installTranslator(Translator);
+
+    if(!isTranslation)
+    {
+        qDebug() << "main:" <<  "Error while loading language" << Language << "use English \"en_GB\" instead";
+        Language = "en_GB";
+    }
+
+    QLocale curLocale(QLocale((const QString&)Language));
+    QLocale::setDefault(curLocale);
+
+    return Translator;
+}

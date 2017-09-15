@@ -58,6 +58,9 @@ class CGUI : public QObject
     Q_PROPERTY(QVariant licenses READ licenses CONSTANT)
 
 public:
+    static QTranslator* AddTranslator(QString Language,
+                                      QTranslator *OldTranslator = NULL);
+
 #ifdef Q_OS_ANDROID
     CGUI(CRadioControllerReplica *RadioController, QObject* parent = NULL);
 #else

@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 public class DabService extends QtService implements AudioManager.OnAudioFocusChangeListener {
 
@@ -137,6 +138,8 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
     // Native
 
     private static DabService instance = null;
+
+    public static native void setLanguage(String language);
 
     public static native void openTcpConnection(String host, int port);
     public static native void closeTcpConnection();
@@ -306,6 +309,10 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
 
     private void handleServiceReady() {
         Log.d(TAG, "Handle service ready");
+
+        String language = Locale.getDefault().toString();
+        Log.d(TAG, "Locale: " + language);
+        setLanguage(language);
 
         if (mDabDevice != null) {
             if (!mDabDevice.connected)

@@ -30,6 +30,7 @@
 #include <QMetaObject>
 #include <android/bitmap.h>
 
+#include "CGUI.h"
 #include "CInputFactory.h"
 #include "CAndroidJNI.h"
 #include "CAudio.h"
@@ -43,6 +44,16 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+JNIEXPORT void JNICALL Java_io_welle_welle_DabService_setLanguage(JNIEnv *env, jobject, jstring jLang)
+{
+    if (jLang == NULL)
+        return;
+    QString language(env->GetStringUTFChars(jLang, 0));
+    qDebug() << "AndroidJNI:" <<  "setLanguage" << ":" << language;
+
+    CGUI::AddTranslator(language);
+}
 
 JNIEXPORT void JNICALL Java_io_welle_welle_DabService_openTcpConnection(JNIEnv *env, jobject, jstring host, jint port)
 {
