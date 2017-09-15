@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Binder;
@@ -773,8 +772,8 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
             } else {
                 // Scanning
                 playbackActions |= PlaybackState.ACTION_PAUSE;
-                stateBuilder.addCustomAction(CUSTOM_ACTION_SCAN_STOP, resources.getString(R.string.action_scan),
-                        R.drawable.ic_close);
+                stateBuilder.addCustomAction(CUSTOM_ACTION_SCAN_STOP, resources.getString(R.string.action_cancel),
+                        R.drawable.ic_cancel);
 
                 metaData.putString(MediaMetadata.METADATA_KEY_MEDIA_ID, MEDIA_ID_CHANNEL_SCAN);
                 if (mDisplayTitle != null) {
@@ -837,8 +836,8 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
 
             // Stop scan button
             intent = new Intent(CUSTOM_ACTION_SCAN_STOP);
-            notificationBuilder.addAction(new Notification.Action(R.drawable.ic_close,
-                    resources.getString(R.string.action_scan),
+            notificationBuilder.addAction(new Notification.Action(R.drawable.ic_cancel,
+                    resources.getString(R.string.action_cancel),
                     PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
             ));
 
@@ -926,8 +925,8 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
             showInCompactView = new int[]{};
 
         notificationBuilder.setSmallIcon(R.drawable.ic_icon);
-        notificationBuilder.setLargeIcon(mDisplayArt != null ? mDisplayArt
-                : BitmapFactory.decodeResource(resources, R.drawable.ic_icon));
+        if (mDisplayArt != null)
+            notificationBuilder.setLargeIcon(mDisplayArt);
         notificationBuilder.setShowWhen(false);
         notificationBuilder.setVisibility(Notification.VISIBILITY_PUBLIC);
         notificationBuilder.setStyle(new Notification.MediaStyle()
