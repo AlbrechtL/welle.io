@@ -75,6 +75,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
     private static final int DAB_STATUS_SCANNING    = 5;
 
     // Custom actions
+    private static final String CUSTOM_ACTION_CLOSE = "io.welle.welle.CLOSE";
     private static final String CUSTOM_ACTION_PLAY = "io.welle.welle.PLAY";
     private static final String CUSTOM_ACTION_PAUSE = "io.welle.welle.PAUSE";
     private static final String CUSTOM_ACTION_SKIP_NEXT = "io.welle.welle.SKIP_NEXT";
@@ -646,6 +647,9 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
             if(mDabDevice != null) nextChannel();
         } else if (CUSTOM_ACTION_RECORD.equals(action)) {
             Log.i(TAG, "handleCustomAction: record");
+        } else if (CUSTOM_ACTION_CLOSE.equals(action)) {
+            Log.i(TAG, "handleCustomAction: close");
+            closeTcpConnection();
         } else {
             return false;
         }
@@ -914,6 +918,12 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
             }
         }
 
+        intent = new Intent(CUSTOM_ACTION_CLOSE);
+        notificationBuilder.addAction(new Notification.Action(R.drawable.ic_close,
+                resources.getString(R.string.action_close),
+                PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        ));
+
         intent = new Intent(this, org.qtproject.qt5.android.bindings.QtActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         notificationBuilder.setContentIntent(PendingIntent.getActivity(this, REQUEST_CODE, intent,
@@ -1101,6 +1111,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
         IntentFilter filter = new IntentFilter();
         filter.addAction(ACTION_SDR_DEVICE_DETACHED);
         filter.addAction(Intent.ACTION_MEDIA_BUTTON);
+        filter.addAction(CUSTOM_ACTION_CLOSE);
         filter.addAction(CUSTOM_ACTION_PLAY);
         filter.addAction(CUSTOM_ACTION_PAUSE);
         filter.addAction(CUSTOM_ACTION_SKIP_NEXT);

@@ -55,6 +55,7 @@ class CRadioController
     SLOT(SetManualChannel(QString Channel));
     SLOT(UpdateSpectrum());
 
+    SLOT(closeDevice());
     SLOT(onEventLoopStarted());
     SLOT(setErrorMessage(QString Text));
     SLOT(setInfoMessage(QString Text));

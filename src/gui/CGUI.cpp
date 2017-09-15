@@ -63,6 +63,7 @@ CGUI::CGUI(CRadioController *RadioController, QObject *parent)
     MOTImage = new CMOTImageProvider;
 
 #ifdef Q_OS_ANDROID
+    connect(RadioController, &CRadioControllerReplica::DeviceClosed, this, &CGUI::DeviceClosed);
     connect(RadioController, &CRadioControllerReplica::GUIDataChanged, this, &CGUI::guiDataChanged);
     connect(RadioController, &CRadioControllerReplica::MOTChanged, this, &CGUI::MOTUpdate);
     connect(RadioController, &CRadioControllerReplica::SpectrumUpdated, this, &CGUI::SpectrumUpdate);
@@ -83,6 +84,29 @@ CGUI::~CGUI()
 {
     qDebug() << "GUI:" <<  "deleting radioInterface";
 }
+
+void CGUI::close()
+{
+#ifdef Q_OS_ANDROID
+    if (RadioController) {
+        qDebug() << "GUI:" <<  "close device";
+        disconnect(RadioController, &CRadioControllerReplica::DeviceClosed, this, &CGUI::close);
+        RadioController->closeDevice();
+        return;
+    }
+#endif
+    qDebug() << "GUI:" <<  "close application";
+    QApplication::quit();
+}
+
+void CGUI::DeviceClosed()
+{
+#ifdef Q_OS_ANDROID
+    qDebug() << "GUI:" <<  "device closed => closing application";
+    QApplication::quit();
+#endif
+}
+
 /**
  * \brief returns the licenses for all the relative libraries plus application version information
  */

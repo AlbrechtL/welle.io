@@ -175,8 +175,12 @@ void CRTL_TCP_Client::readData(void)
 
 void CRTL_TCP_Client::disconnected(void)
 {
-    if(RadioController)
+    if(RadioController) {
         RadioController->setErrorMessage(QObject::tr("RTL-TCP connection closed."));
+#ifdef Q_OS_ANDROID
+        QTimer::singleShot(0, RadioController, SLOT(closeDevice()));
+#endif
+    }
 }
 
 void CRTL_TCP_Client::sendCommand (uint8_t cmd, int32_t param)

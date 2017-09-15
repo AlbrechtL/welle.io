@@ -102,9 +102,11 @@ private:
     float m_currentGainValue;
 
 public slots:
+    void close();
     void updateSpectrum();
 
 private slots:
+    void DeviceClosed();
     void MOTUpdate(QImage MOTImage);
     void SpectrumUpdate(qreal Ymax, qreal Xmin, qreal Xmax, QVector<QPointF> Data);
     void StationsChange(QList<StationElement *> Stations);

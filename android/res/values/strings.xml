@@ -5,6 +5,7 @@
     <string name="menu_channels">Channels</string>
     <string name="menu_channel_scan">Find Stations</string>
     <string name="menu_favorites">Favorites</string>
+    <string name="action_close">Close</string>
     <string name="action_cancel">Cancel</string>
     <string name="action_scan">Scan</string>
     <string name="action_favorite">Favorite</string>
