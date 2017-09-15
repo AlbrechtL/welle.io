@@ -914,6 +914,11 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
             }
         }
 
+        intent = new Intent(this, org.qtproject.qt5.android.bindings.QtActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        notificationBuilder.setContentIntent(PendingIntent.getActivity(this, REQUEST_CODE, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT));
+
         int showInCompactView[];
         if (shown >= 3)
             showInCompactView = new int[]{0,1,2};
@@ -1078,7 +1083,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
         Context context = getApplicationContext();
 
         // This is an Intent to launch the app's UI, used primarily by the ongoing notification.
-        Intent intent = new Intent(context, org.qtproject.qt5.android.bindings.QtApplication.class);
+        Intent intent = new Intent(context, org.qtproject.qt5.android.bindings.QtActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         mSession.setSessionActivity(PendingIntent.getActivity(context, REQUEST_CODE, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT));
