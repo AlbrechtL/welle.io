@@ -63,6 +63,7 @@ CGUI::CGUI(CRadioController *RadioController, QObject *parent)
     MOTImage = new CMOTImageProvider;
 
 #ifdef Q_OS_ANDROID
+    connect(RadioController, &CRadioControllerReplica::DeviceClosed, this, &CGUI::DeviceClosed);
     connect(RadioController, &CRadioControllerReplica::GUIDataChanged, this, &CGUI::guiDataChanged);
     connect(RadioController, &CRadioControllerReplica::MOTChanged, this, &CGUI::MOTUpdate);
     connect(RadioController, &CRadioControllerReplica::SpectrumUpdated, this, &CGUI::SpectrumUpdate);
@@ -83,6 +84,29 @@ CGUI::~CGUI()
 {
     qDebug() << "GUI:" <<  "deleting radioInterface";
 }
+
+void CGUI::close()
+{
+#ifdef Q_OS_ANDROID
+    if (RadioController) {
+        qDebug() << "GUI:" <<  "close device";
+        disconnect(RadioController, &CRadioControllerReplica::DeviceClosed, this, &CGUI::close);
+        RadioController->closeDevice();
+        return;
+    }
+#endif
+    qDebug() << "GUI:" <<  "close application";
+    QApplication::quit();
+}
+
+void CGUI::DeviceClosed()
+{
+#ifdef Q_OS_ANDROID
+    qDebug() << "GUI:" <<  "device closed => closing application";
+    QApplication::quit();
+#endif
+}
+
 /**
  * \brief returns the licenses for all the relative libraries plus application version information
  */
@@ -238,4 +262,32 @@ void CGUI::SpectrumUpdate(qreal Ymax, qreal Xmin, qreal Xmax, QVector<QPointF> D
     // Set new data
     if (spectrum_series)
         spectrum_series->replace(Data);
+}
+
+QTranslator* CGUI::AddTranslator(QString Language, QTranslator *OldTranslator)
+{
+    if(OldTranslator)
+        QCoreApplication::removeTranslator(OldTranslator);
+
+    QTranslator *Translator = new QTranslator;
+
+    // Special handling for German
+    if(Language == "de_AT" || Language ==  "de_CH")
+        Language = "de_DE";
+
+    bool isTranslation = Translator->load(QString(":/i18n/") + Language);
+
+    qDebug() << "main:" <<  "Set language" << Language;
+    QCoreApplication::installTranslator(Translator);
+
+    if(!isTranslation)
+    {
+        qDebug() << "main:" <<  "Error while loading language" << Language << "use English \"en_GB\" instead";
+        Language = "en_GB";
+    }
+
+    QLocale curLocale(QLocale((const QString&)Language));
+    QLocale::setDefault(curLocale);
+
+    return Translator;
 }

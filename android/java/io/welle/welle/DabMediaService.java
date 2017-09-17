@@ -8,9 +8,10 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
-import android.support.v4.media.MediaBrowserCompat;
-import android.support.v4.media.MediaBrowserServiceCompat;
-import android.support.v4.media.MediaDescriptionCompat;
+import android.media.browse.MediaBrowser;
+import android.media.MediaDescription;
+import android.service.media.MediaBrowserService;
+import android.net.Uri;
 import android.util.Log;
 
 import io.welle.welle.DabService.DabBinder;
@@ -21,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class DabMediaService extends MediaBrowserServiceCompat implements ServiceConnection {
+public class DabMediaService extends MediaBrowserService implements ServiceConnection {
 
     private static final String TAG = DabMediaService.class.getSimpleName();
 
@@ -41,18 +42,18 @@ public class DabMediaService extends MediaBrowserServiceCompat implements Servic
     };
 
     private static DabMediaService instance = null;
-    private static List<MediaBrowserCompat.MediaItem> mChannelList = new ArrayList<>();
-    private static List<MediaBrowserCompat.MediaItem> mFavoriteList = new ArrayList<>();
+    private static List<MediaBrowser.MediaItem> mChannelList = new ArrayList<>();
+    private static List<MediaBrowser.MediaItem> mFavoriteList = new ArrayList<>();
 
     public static void addFavoriteStation(String station, String channel) {
         Log.i(TAG, "Add favorite station: " + station + " channel: " + channel);
         boolean updateRoot = mFavoriteList.isEmpty();
 
-        mFavoriteList.add(new MediaBrowserCompat.MediaItem(DabService.createStation(station, channel),
-                MediaBrowserCompat.MediaItem.FLAG_PLAYABLE));
-        Collections.sort(mFavoriteList, new Comparator<MediaBrowserCompat.MediaItem>() {
+        mFavoriteList.add(new MediaBrowser.MediaItem(DabService.createStation(station, channel),
+                MediaBrowser.MediaItem.FLAG_PLAYABLE));
+        Collections.sort(mFavoriteList, new Comparator<MediaBrowser.MediaItem>() {
             @Override
-            public int compare(MediaBrowserCompat.MediaItem lhs, MediaBrowserCompat.MediaItem rhs) {
+            public int compare(MediaBrowser.MediaItem lhs, MediaBrowser.MediaItem rhs) {
                 return DabService.compareStation(lhs.getDescription(), rhs.getDescription());
             }
         });
@@ -66,9 +67,9 @@ public class DabMediaService extends MediaBrowserServiceCompat implements Servic
         Log.i(TAG, "Remove favorite station: " + station + " channel: " + channel);
 
         String mediaId = DabService.toMediaId(station, channel);
-        Iterator<MediaBrowserCompat.MediaItem> it = mFavoriteList.iterator();
+        Iterator<MediaBrowser.MediaItem> it = mFavoriteList.iterator();
         while (it.hasNext()) {
-            MediaBrowserCompat.MediaItem mediaItem = it.next();
+            MediaBrowser.MediaItem mediaItem = it.next();
             if (mediaId.equals(mediaItem.getMediaId())) {
                 it.remove();
             }
@@ -97,11 +98,11 @@ public class DabMediaService extends MediaBrowserServiceCompat implements Servic
             extras.putInt(DabService.BUNDLE_KEY_DAB_TYPE, DabService.TYPE_DAB_CHANNEL);
             extras.putString(DabService.BUNDLE_KEY_CHANNEL, channel);
 
-            mChannelList.add(new MediaBrowserCompat.MediaItem(new MediaDescriptionCompat.Builder()
+            mChannelList.add(new MediaBrowser.MediaItem(new MediaDescription.Builder()
                     .setMediaId(DabService.toMediaId(null, channel))
                     .setTitle(channel)
                     .setExtras(extras)
-                    .build(), MediaBrowserCompat.MediaItem.FLAG_PLAYABLE));
+                    .build(), MediaBrowser.MediaItem.FLAG_PLAYABLE));
         }
     }
 
@@ -159,26 +160,28 @@ public class DabMediaService extends MediaBrowserServiceCompat implements Servic
 
     @Override
     public void onLoadChildren(@NonNull final String parentMediaId,
-                               @NonNull final Result<List<MediaBrowserCompat.MediaItem>> result) {
+                               @NonNull final Result<List<MediaBrowser.MediaItem>> result) {
         Log.d(TAG, "onLoadChildren: parentMediaId=" + parentMediaId);
 
         switch (parentMediaId) {
             case MEDIA_ID_ROOT:
                 Resources resources = getResources();
 
-                List<MediaBrowserCompat.MediaItem> mediaItems = new ArrayList<>();
+                List<MediaBrowser.MediaItem> mediaItems = new ArrayList<>();
 
                 if (!mFavoriteList.isEmpty()) {
-                    mediaItems.add(new MediaBrowserCompat.MediaItem(new MediaDescriptionCompat.Builder()
+                    mediaItems.add(new MediaBrowser.MediaItem(new MediaDescription.Builder()
                             .setMediaId(MEDIA_ID_FAVORITE_STATIONS)
                             .setTitle(resources.getString(R.string.menu_favorites))
-                            .build(), MediaBrowserCompat.MediaItem.FLAG_BROWSABLE));
+                            .setIconUri(Uri.parse("android.resource://" + "io.welle.welle/drawable/ic_favorites"))
+                            .build(), MediaBrowser.MediaItem.FLAG_BROWSABLE));
                 }
 
-                mediaItems.add(new MediaBrowserCompat.MediaItem(new MediaDescriptionCompat.Builder()
+                mediaItems.add(new MediaBrowser.MediaItem(new MediaDescription.Builder()
                         .setMediaId(MEDIA_ID_DAB_CHANNELS)
                         .setTitle(resources.getString(R.string.menu_channels))
-                        .build(), MediaBrowserCompat.MediaItem.FLAG_BROWSABLE));
+                        .setIconUri(Uri.parse("android.resource://" + "io.welle.welle/drawable/ic_antenna"))
+                        .build(), MediaBrowser.MediaItem.FLAG_BROWSABLE));
 
                 result.sendResult(mediaItems);
                 break;
@@ -196,14 +199,5 @@ public class DabMediaService extends MediaBrowserServiceCompat implements Servic
                 result.sendResult(null);
                 break;
         }
-    }
-
-    @Override
-    public void onSearch(@NonNull String query, Bundle extras,
-                         @NonNull Result<List<MediaBrowserCompat.MediaItem>> result) {
-        Log.d(TAG, "onSearch: " + query);
-        List<MediaBrowserCompat.MediaItem> mediaItems = new ArrayList<>();
-        //TODO add search results
-        result.sendResult(mediaItems);
     }
 }

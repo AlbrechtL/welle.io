@@ -58,6 +58,9 @@ class CGUI : public QObject
     Q_PROPERTY(QVariant licenses READ licenses CONSTANT)
 
 public:
+    static QTranslator* AddTranslator(QString Language,
+                                      QTranslator *OldTranslator = NULL);
+
 #ifdef Q_OS_ANDROID
     CGUI(CRadioControllerReplica *RadioController, QObject* parent = NULL);
 #else
@@ -102,9 +105,11 @@ private:
     float m_currentGainValue;
 
 public slots:
+    void close();
     void updateSpectrum();
 
 private slots:
+    void DeviceClosed();
     void MOTUpdate(QImage MOTImage);
     void SpectrumUpdate(qreal Ymax, qreal Xmin, qreal Xmax, QVector<QPointF> Data);
     void StationsChange(QList<StationElement *> Stations);
