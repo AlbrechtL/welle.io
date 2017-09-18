@@ -1,0 +1,53 @@
+#
+#   Navigation to the left › side: left
+#
+- title: Start
+  url: "/"
+  side: left
+
+- title: "Download"
+  url: "#download"
+  side: left
+
+- title: "Devices"
+  side: left
+  url: "/devices/"
+  dropdown:
+  - title: "airspy"
+    url: "/devices/airspy"
+  - title: "rtl_sdr"
+    url: "/devices/rtl_sdr"
+  - title: "rtl_tcp"
+    url: "/devices/rtl_tcp"
+  - title: "SoapySDR"
+    url: "/devices/soapysdr"
+  - title: "rawfile"
+    url: "/devices/rawfile"
+
+- title: Forum
+  url: "https://forum.welle.io/"
+  side: left
+
+- title: FAQ
+  url: "/faq"
+  side: left
+
+- title: Development
+  side: left
+  dropdown:
+  - title: Sources
+    url: "#sources"
+    side: left
+  - title: Wiki
+    url: "#wiki"
+
+#
+#   Navigation to the right › side: right
+#
+- title: "Info"
+  url: "/info/"
+  side: right
+
+- title: "Contact"
+  url: "/contact/"
+  side: right
