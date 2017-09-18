@@ -946,6 +946,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
         else
             showInCompactView = new int[]{};
 
+        notificationBuilder.setColor(resources.getColor(R.color.background));
         notificationBuilder.setSmallIcon(R.drawable.ic_icon);
         if (mDisplayArt != null)
             notificationBuilder.setLargeIcon(mDisplayArt);

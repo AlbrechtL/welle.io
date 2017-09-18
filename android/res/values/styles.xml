@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#ffff5722</color>
-    <color name="colorPrimaryDark">#ffbf360c</color>
-    <color name="colorAccent">#ffff5722</color>
+    <color name="colorPrimary">#ffff3d00</color>
+    <color name="colorAccent">#ffff3d00</color>
+    <color name="colorPrimaryDark">#ff212126</color>
+    <color name="background">#ff212126</color>
 
     <style name="AppTheme" parent="Theme.AppCompat">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:background">@color/background</item>
+        <item name="android:windowBackground">@color/background</item>
+        <item name="android:colorBackground">@color/background</item>
     </style>
 
     <style name="CarTheme" parent="AppTheme">
