@@ -147,7 +147,7 @@ ApplicationWindow {
             Image {
                 anchors.verticalCenter: parent.verticalCenter
                 source: parent.isSettings ? "images/navigation_previous_item.png" : "images/icon-settings.png"
-                height: parent.isSettings? Units.dp(20) : Units.dp(23)
+                height: parent.isSettings ? Units.dp(20) : Units.dp(23)
                 fillMode: Image.PreserveAspectFit
             }
             MouseArea {
@@ -161,7 +161,8 @@ ApplicationWindow {
                     } else {
                         if(stackViewDepth > 1){
                             stackViewPop()
-                            backButton.isSettings = false
+                            if(stackViewDepth === 1)
+                                backButton.isSettings = false
                         } else {
                             stackViewPush(settingsPage)
                             backButton.isSettings = true
