@@ -4,15 +4,12 @@
 <context>
     <name>CAndroid_RTL_SDR</name>
     <message>
-        <location filename="../src/input/CAndroid_RTL_SDR.cpp" line="111"/>
-        <location filename="../src/input/CAndroid_RTL_SDR.cpp" line="140"/>
         <source>Android RTL-SDR driver is not installed</source>
-        <translation>Android RTL-SDR Treiber ist nicht installiert</translation>
+        <translation type="vanished">Android RTL-SDR Treiber ist nicht installiert</translation>
     </message>
     <message>
-        <location filename="../src/input/CAndroid_RTL_SDR.cpp" line="111"/>
         <source>Do you would like to install it? After install start welle.io again.</source>
-        <translation>Soll er installiert werden? welle.io muss nach der Treiberinstallation neu gestartet werden.</translation>
+        <translation type="vanished">Soll er installiert werden? welle.io muss nach der Treiberinstallation neu gestartet werden.</translation>
     </message>
 </context>
 <context>
@@ -401,61 +398,74 @@
 <context>
     <name>CGUI</name>
     <message>
-        <location filename="../src/gui/CGUI.cpp" line="68"/>
+        <location filename="../src/gui/CGUI.cpp" line="185"/>
         <source>Station list is empty</source>
         <translation>Keine Sender vorhanden</translation>
     </message>
     <message>
-        <location filename="../src/gui/CGUI.cpp" line="101"/>
+        <location filename="../src/gui/CGUI.cpp" line="120"/>
         <source>version</source>
         <translation>Version</translation>
     </message>
     <message>
-        <location filename="../src/gui/CGUI.cpp" line="102"/>
+        <location filename="../src/gui/CGUI.cpp" line="121"/>
         <source>Git revision</source>
         <translation>Git Revision</translation>
     </message>
     <message>
-        <location filename="../src/gui/CGUI.cpp" line="103"/>
+        <location filename="../src/gui/CGUI.cpp" line="122"/>
         <source>Build on</source>
-        <translation>&Uuml;bersetzt am</translation>
+        <translation>Übersetzt am</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/CGUI.cpp" line="123"/>
+        <source>QT version</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>CRadioController</name>
     <message>
-        <location filename="../src/CRadioController.cpp" line="58"/>
+        <location filename="../src/CRadioController.cpp" line="88"/>
         <source>Unknown</source>
         <translation>Unbekannt</translation>
     </message>
     <message>
-        <location filename="../src/CRadioController.cpp" line="61"/>
-        <location filename="../src/CRadioController.cpp" line="252"/>
+        <location filename="../src/CRadioController.cpp" line="94"/>
+        <location filename="../src/CRadioController.cpp" line="473"/>
         <source>No Station</source>
-        <translation>Kein Sender gew&auml;hlt</translation>
+        <translation>Kein Sender gewählt</translation>
     </message>
     <message>
-        <location filename="../src/CRadioController.cpp" line="232"/>
+        <location filename="../src/CRadioController.cpp" line="438"/>
         <source>RAW File</source>
         <translation>RAW Datei</translation>
     </message>
     <message>
-        <location filename="../src/CRadioController.cpp" line="242"/>
+        <location filename="../src/CRadioController.cpp" line="450"/>
+        <location filename="../src/CRadioController.cpp" line="751"/>
         <source>Scanning</source>
         <translation>Scanne</translation>
     </message>
     <message>
-        <location filename="../src/CRadioController.cpp" line="495"/>
+        <location filename="../src/CRadioController.cpp" line="452"/>
+        <location filename="../src/CRadioController.cpp" line="848"/>
+        <source>Found channels</source>
+        <translation>Gefundene Sender</translation>
+    </message>
+    <message>
+        <location filename="../src/CRadioController.cpp" line="821"/>
         <source>Lost signal or bad signal quality, trying to find it again.</source>
         <translation>Kein oder schlechter Empfang. Suche Sender neu.</translation>
     </message>
     <message>
-        <location filename="../src/CRadioController.cpp" line="376"/>
+        <location filename="../src/CRadioController.cpp" line="687"/>
         <source>Radio device is not ready or does not exits.</source>
         <translation>Radioempfänger meldet einen Fehler oder existiert nicht.</translation>
     </message>
     <message>
-        <location filename="../src/CRadioController.cpp" line="407"/>
+        <location filename="../src/CRadioController.cpp" line="410"/>
+        <location filename="../src/CRadioController.cpp" line="718"/>
         <source>Tuning</source>
         <translation>Suche</translation>
     </message>
@@ -465,61 +475,55 @@
     <message>
         <location filename="../src/gui/QML/ChannelBrowser.qml" line="289"/>
         <source></source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/ChannelBrowser.qml" line="328"/>
-        <source></source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/QML/ChannelBrowser.qml" line="482"/>
-        <location filename="../src/gui/QML/ChannelBrowser.qml" line="709"/>
+        <location filename="../src/gui/QML/ChannelBrowser.qml" line="488"/>
+        <location filename="../src/gui/QML/ChannelBrowser.qml" line="658"/>
         <source>Found channels</source>
         <translation type="unfinished">Gefundene Sender</translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/ChannelBrowser.qml" line="489"/>
+        <location filename="../src/gui/QML/ChannelBrowser.qml" line="495"/>
         <source>Automatic RF gain</source>
         <translation type="unfinished">Auto HF-Verstärkung</translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/ChannelBrowser.qml" line="508"/>
+        <location filename="../src/gui/QML/ChannelBrowser.qml" line="514"/>
         <source>Manual gain</source>
         <translation type="unfinished">Manuelle Verstärkung</translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/ChannelBrowser.qml" line="513"/>
+        <location filename="../src/gui/QML/ChannelBrowser.qml" line="519"/>
         <source>Value: </source>
         <translation type="unfinished">Aktuell: </translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/ChannelBrowser.qml" line="533"/>
         <source>Select channel manually</source>
-        <translation type="unfinished">Manuelle Kanalwahl</translation>
+        <translation type="obsolete">Manuelle Kanalwahl</translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/ChannelBrowser.qml" line="545"/>
+        <location filename="../src/gui/QML/ChannelBrowser.qml" line="537"/>
         <source>Clear station list</source>
         <translation type="unfinished">Lösche Senderliste</translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/ChannelBrowser.qml" line="580"/>
+        <location filename="../src/gui/QML/ChannelBrowser.qml" line="573"/>
         <source>Full screen mode</source>
         <translation type="unfinished">Vollbildmodus</translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/ChannelBrowser.qml" line="589"/>
+        <location filename="../src/gui/QML/ChannelBrowser.qml" line="582"/>
         <source>Channel list layout</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/ChannelBrowser.qml" line="600"/>
+        <location filename="../src/gui/QML/ChannelBrowser.qml" line="593"/>
         <source>Expert mode</source>
         <translation type="unfinished">Expertenmodus</translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/ChannelBrowser.qml" line="614"/>
+        <location filename="../src/gui/QML/ChannelBrowser.qml" line="607"/>
         <source>Exit welle.io</source>
         <translation type="unfinished">welle.io beenden</translation>
     </message>
@@ -532,58 +536,58 @@
         <translation>Radioempfänger</translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/ExpertView.qml" line="24"/>
+        <location filename="../src/gui/QML/ExpertView.qml" line="25"/>
         <source>Current channel</source>
         <translation>Aktueller Kanal</translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/ExpertView.qml" line="29"/>
+        <location filename="../src/gui/QML/ExpertView.qml" line="31"/>
         <source>Frequency correction</source>
         <translation>Frequenzkorrektur</translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/ExpertView.qml" line="34"/>
+        <location filename="../src/gui/QML/ExpertView.qml" line="37"/>
         <source>SNR</source>
         <translation>SNR</translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/ExpertView.qml" line="39"/>
+        <location filename="../src/gui/QML/ExpertView.qml" line="43"/>
         <source>Frame errors</source>
         <translation>Framefehler</translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/ExpertView.qml" line="44"/>
+        <location filename="../src/gui/QML/ExpertView.qml" line="49"/>
         <source>RS errors</source>
         <translation>RS Fehler</translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/ExpertView.qml" line="49"/>
+        <location filename="../src/gui/QML/ExpertView.qml" line="55"/>
         <source>AAC errors</source>
         <translation>AAC Framefehler</translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/ExpertView.qml" line="54"/>
+        <location filename="../src/gui/QML/ExpertView.qml" line="61"/>
         <source>Frame synchronization</source>
         <translation>Synchronisation</translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/ExpertView.qml" line="59"/>
+        <location filename="../src/gui/QML/ExpertView.qml" line="67"/>
         <source>FIC CRC</source>
         <translation>FIC CRC</translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/ExpertView.qml" line="94"/>
-        <location filename="../src/gui/QML/ExpertView.qml" line="100"/>
+        <location filename="../src/gui/QML/ExpertView.qml" line="62"/>
+        <location filename="../src/gui/QML/ExpertView.qml" line="68"/>
         <source>OK</source>
         <translation>OK</translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/ExpertView.qml" line="96"/>
+        <location filename="../src/gui/QML/ExpertView.qml" line="62"/>
         <source>Not synced</source>
         <translation>Nicht synchron</translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/ExpertView.qml" line="102"/>
+        <location filename="../src/gui/QML/ExpertView.qml" line="68"/>
         <source>Error</source>
         <translation>Fehler</translation>
     </message>
@@ -591,43 +595,52 @@
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../src/input/CInputFactory.cpp" line="66"/>
+        <location filename="../src/input/CInputFactory.cpp" line="62"/>
         <source>No valid device found use Null device instead.</source>
-        <translation>Kein Radioempf&auml;nger gefunden.</translation>
+        <translation>Kein Radioempfänger gefunden.</translation>
     </message>
     <message>
-        <location filename="../src/input/CInputFactory.cpp" line="68"/>
+        <location filename="../src/input/CInputFactory.cpp" line="64"/>
         <source>Error while opening device</source>
         <translation>Fehler beim Zugriff auf Empfänger</translation>
     </message>
     <message>
-        <location filename="../src/input/CRAWFile.cpp" line="151"/>
+        <location filename="../src/input/CRAWFile.cpp" line="153"/>
         <source>Unknown RAW file format</source>
         <translation>Unbekanntes RAW-Dateiformat</translation>
     </message>
     <message>
-        <location filename="../src/input/CRAWFile.cpp" line="158"/>
+        <location filename="../src/input/CRAWFile.cpp" line="160"/>
         <source>Cannot open file</source>
-        <translation>Fehler beim &Ouml;ffnen der Datei</translation>
+        <translation>Fehler beim Öffnen der Datei</translation>
     </message>
     <message>
-        <location filename="../src/input/CRAWFile.cpp" line="254"/>
+        <location filename="../src/input/CRAWFile.cpp" line="255"/>
         <source>End of file, restarting</source>
         <translation>RAW-Datei zu Ende, beginne von vorn</translation>
     </message>
     <message>
-        <location filename="../src/input/CRTL_SDR.cpp" line="326"/>
-        <location filename="../src/input/CRTL_TCP_Client.cpp" line="325"/>
         <source>AGC overload. Maybe you are using a to high gain.</source>
         <translation type="obsolete">HF-Eingangsverstärkung ist zu groß (AGC ist übersteuert).</translation>
     </message>
     <message>
-        <location filename="../src/input/CRTL_SDR.cpp" line="388"/>
+        <location filename="../src/input/CRTL_SDR.cpp" line="340"/>
+        <location filename="../src/input/CRTL_TCP_Client.cpp" line="359"/>
+        <source>ADC overload. Maybe you are using a to high gain.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/input/CRTL_SDR.cpp" line="402"/>
         <source>RTL-SDR is unplugged.</source>
         <translation>RTL-SDR wurde entfernt.</translation>
     </message>
     <message>
-        <location filename="../src/input/CRTL_TCP_Client.cpp" line="277"/>
+        <location filename="../src/input/CRTL_TCP_Client.cpp" line="179"/>
+        <source>RTL-TCP connection closed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/input/CRTL_TCP_Client.cpp" line="312"/>
         <source>Connection failed to server </source>
         <translation>Verbindungsfehler zu Server </translation>
     </message>
@@ -635,72 +648,76 @@
 <context>
     <name>SettingsPage</name>
     <message>
-        <location filename="../src/gui/QML/SettingsPage.qml" line="79"/>
+        <location filename="../src/gui/QML/SettingsPage.qml" line="94"/>
         <source>Channel scan</source>
         <translation>Sendersuchlauf</translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/SettingsPage.qml" line="85"/>
+        <location filename="../src/gui/QML/SettingsPage.qml" line="100"/>
         <source>Start</source>
         <translation>Start</translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/SettingsPage.qml" line="96"/>
+        <location filename="../src/gui/QML/SettingsPage.qml" line="111"/>
         <source>Stop</source>
         <translation>Stopp</translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/SettingsPage.qml" line="40"/>
+        <location filename="../src/gui/QML/SettingsPage.qml" line="50"/>
         <source>Found channels</source>
         <translation>Gefundene Sender</translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/SettingsPage.qml" line="112"/>
+        <location filename="../src/gui/QML/SettingsPage.qml" line="127"/>
         <source>Found stations</source>
         <translation>Gefundene Programme</translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/SettingsPage.qml" line="126"/>
+        <location filename="../src/gui/QML/SettingsPage.qml" line="178"/>
+        <source>Hardware RF gain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/QML/SettingsPage.qml" line="191"/>
         <source>Automatic RF gain</source>
-        <translation>Auto HF-Verst&auml;rkung</translation>
+        <translation>Auto HF-Verstärkung</translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/SettingsPage.qml" line="143"/>
+        <location filename="../src/gui/QML/SettingsPage.qml" line="208"/>
         <source>Manual gain</source>
-        <translation>Manuelle Verst&auml;rkung</translation>
+        <translation>Manuelle Verstärkung</translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/SettingsPage.qml" line="144"/>
+        <location filename="../src/gui/QML/SettingsPage.qml" line="209"/>
         <source>Value: </source>
         <translation>Aktuell: </translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/SettingsPage.qml" line="163"/>
+        <location filename="../src/gui/QML/SettingsPage.qml" line="229"/>
         <source>Full screen mode</source>
         <translation>Vollbildmodus</translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/SettingsPage.qml" line="173"/>
+        <location filename="../src/gui/QML/SettingsPage.qml" line="239"/>
         <source>Channel list layout (experimental)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/SettingsPage.qml" line="185"/>
+        <location filename="../src/gui/QML/SettingsPage.qml" line="252"/>
         <source>Expert mode</source>
         <translation>Expertenmodus</translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/SettingsPage.qml" line="205"/>
         <source>Select channel manually</source>
-        <translation>Manuelle Kanalwahl</translation>
+        <translation type="vanished">Manuelle Kanalwahl</translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/SettingsPage.qml" line="217"/>
+        <location filename="../src/gui/QML/SettingsPage.qml" line="135"/>
         <source>Clear station list</source>
-        <translation>L&ouml;sche Senderliste</translation>
+        <translation>Lösche Senderliste</translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/SettingsPage.qml" line="253"/>
+        <location filename="../src/gui/QML/SettingsPage.qml" line="265"/>
         <source>Exit welle.io</source>
         <translation>welle.io beenden</translation>
     </message>
@@ -713,12 +730,12 @@
         <translation>Spektrum</translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/SpectrumView.qml" line="41"/>
+        <location filename="../src/gui/QML/SpectrumView.qml" line="45"/>
         <source>Amplitude</source>
         <translation>Amplitude</translation>
     </message>
     <message>
-        <location filename="../src/gui/QML/SpectrumView.qml" line="47"/>
+        <location filename="../src/gui/QML/SpectrumView.qml" line="51"/>
         <source>Frequency</source>
         <translation>Frequenz</translation>
     </message>
@@ -739,72 +756,76 @@
 <context>
     <name>main</name>
     <message>
-        <location filename="../src/main.cpp" line="81"/>
+        <location filename="../src/main.cpp" line="122"/>
         <source>Set the GUI language (e.g. de-DE)</source>
         <translation>GUI Sprache festlegen</translation>
     </message>
     <message>
-        <location filename="../src/main.cpp" line="82"/>
+        <location filename="../src/main.cpp" line="123"/>
         <source>Language</source>
         <translation>Sprache</translation>
     </message>
     <message>
-        <location filename="../src/main.cpp" line="86"/>
         <source>Input device</source>
-        <translation>Radioempf&auml;nger</translation>
+        <translation type="vanished">Radioempfänger</translation>
     </message>
     <message>
-        <location filename="../src/main.cpp" line="87"/>
+        <location filename="../src/main.cpp" line="127"/>
+        <source>Input device. Possible is: auto (default), airspy, rtl_tcp, rtl_sdr, rawfile, soapysdr</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/main.cpp" line="128"/>
         <source>Name</source>
         <translation>Name</translation>
     </message>
     <message>
-        <location filename="../src/main.cpp" line="91"/>
+        <location filename="../src/main.cpp" line="132"/>
         <source>DAB mode. Possible is: 1, 2 or 4, default: 1</source>
         <translation>DAB Mode. Möglich ist 1, 2 oder 4, Standard: 1</translation>
     </message>
     <message>
-        <location filename="../src/main.cpp" line="92"/>
+        <location filename="../src/main.cpp" line="133"/>
         <source>Mode</source>
         <translation>Modus</translation>
     </message>
     <message>
-        <location filename="../src/main.cpp" line="96"/>
+        <location filename="../src/main.cpp" line="137"/>
         <source>rtl_tcp server IP address. Only valid for input rtl_tcp.</source>
-        <translation>rtl_tcp server IP Adresse. Nur g&uuml;ltig f&uuml;r Empf&auml;nger rtl_tcp.</translation>
+        <translation>rtl_tcp server IP Adresse. Nur gültig für Empfänger rtl_tcp.</translation>
     </message>
     <message>
-        <location filename="../src/main.cpp" line="97"/>
+        <location filename="../src/main.cpp" line="138"/>
         <source>IP address</source>
         <translation>IP-Adresse</translation>
     </message>
     <message>
-        <location filename="../src/main.cpp" line="101"/>
+        <location filename="../src/main.cpp" line="142"/>
         <source>rtl_tcp server IP port. Only valid for input rtl_tcp.</source>
-        <translation>IP Port. Nur g&uuml;ltig f&uuml;r Empf&auml;nger rtl_tcp.</translation>
+        <translation>IP Port. Nur gültig für Empfänger rtl_tcp.</translation>
     </message>
     <message>
-        <location filename="../src/main.cpp" line="102"/>
+        <location filename="../src/main.cpp" line="143"/>
         <source>Port</source>
         <translation>Port</translation>
     </message>
     <message>
-        <location filename="../src/main.cpp" line="106"/>
+        <location filename="../src/main.cpp" line="147"/>
         <source>I/Q RAW file. Only valid for input rawfile.</source>
-        <translation>I/Q RAW Datei als Radioempf&auml;nger. Nur g&uuml;ltig f&uuml;r Radioempf&auml;nger rawfile.</translation>
+        <translation>I/Q RAW Datei als Radioempfänger. Nur gültig für Empfänger rawfile.</translation>
     </message>
     <message>
-        <location filename="../src/main.cpp" line="107"/>
+        <location filename="../src/main.cpp" line="148"/>
         <source>I/Q RAW file</source>
         <translation>I/Q RAW Rohdatei</translation>
     </message>
     <message>
-        <location filename="../src/main.cpp" line="111"/>
+        <location filename="../src/main.cpp" line="152"/>
         <source>I/Q RAW file format. Possible is: u8 (standard), s8, s16le, s16be. Only valid for input rawfile.</source>
         <translation>I/Q RAW Rohdateiformat. Möglich ist u8 (Standard), s8, s16le, s16be. Nur gültig für Radioempfänger rawfile.</translation>
     </message>
     <message>
-        <location filename="../src/main.cpp" line="112"/>
+        <location filename="../src/main.cpp" line="153"/>
         <source>I/Q RAW file format</source>
         <translation>I/Q RAW Rohdatenformat</translation>
     </message>
