@@ -57,6 +57,8 @@ public:
     Q_INVOKABLE void startChannelScan(void);
     Q_INVOKABLE void stopChannelScan(void);
 
+    Q_INVOKABLE void setErrorMessage(QString text);
+
     static QString getLastStation(void);
 
     void setRadioController(CRadioController *radioController);

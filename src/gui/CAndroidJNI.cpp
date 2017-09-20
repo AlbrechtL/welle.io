@@ -173,6 +173,17 @@ JNIEXPORT void JNICALL Java_io_welle_welle_DabService_stopChannelScan(JNIEnv *, 
                               Qt::QueuedConnection);
 }
 
+JNIEXPORT void JNICALL Java_io_welle_welle_DabService_setErrorMessage(JNIEnv *env, jobject, jstring jText)
+{
+    if (jText == NULL)
+        return;
+    QString text(env->GetStringUTFChars(jText, 0));
+    qDebug() << "AndroidJNI:" <<  "setErrorMessage" << "text:" << text;
+    QMetaObject::invokeMethod(&CAndroidJNI::getInstance(), "setErrorMessage",
+                              Qt::QueuedConnection,
+                              Q_ARG(QString, text));
+}
+
 #ifdef __cplusplus
 }
 #endif
@@ -467,6 +478,13 @@ void CAndroidJNI::setManualChannel(QString channel)
     qDebug() << "AndroidJNI:" <<  "Set channel:" << channel;
     if(mRadioController)
         mRadioController->SetManualChannel(channel);
+}
+
+void CAndroidJNI::setErrorMessage(QString text)
+{
+    qDebug() << "AndroidJNI:" <<  "Set error msg:" << text;
+    if(mRadioController)
+        mRadioController->setErrorMessage(text);
 }
 
 void CAndroidJNI::serviceReady(void)

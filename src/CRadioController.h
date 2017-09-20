@@ -79,6 +79,7 @@ class CRadioController : public QObject
     Q_PROPERTY(qreal Volume READ Volume WRITE setVolume NOTIFY VolumeChanged)
     Q_PROPERTY(QList<StationElement*> Stations READ Stations NOTIFY StationsChanged)
     Q_PROPERTY(QVariantMap GUIData READ GUIData NOTIFY GUIDataChanged)
+    Q_PROPERTY(QString ErrorMsg READ ErrorMsg NOTIFY showErrorMessage)
     Q_PROPERTY(QImage MOT READ MOT NOTIFY MOTChanged)
 #endif
 
@@ -110,6 +111,7 @@ public:
     void UpdateSpectrum(void);
     QList<StationElement*> Stations() const;
     QVariantMap GUIData(void) const;
+    QString ErrorMsg() const;
     QImage MOT() const;
 
     QString DateTime() const;
@@ -165,6 +167,7 @@ private:
 
     // Objects set by the back-end
     QVariantMap mGUIData;
+    QString mErrorMsg;
     QDateTime mCurrentDateTime;
     bool mIsSync;
     bool mIsFICCRC;
@@ -254,7 +257,6 @@ signals:
     void SpectrumUpdated(qreal Ymax, qreal Xmin, qreal Xmax, QVector<QPointF> Data);
     void showErrorMessage(QString Text);
     void showInfoMessage(QString Text);
-    void showAndroidInstallDialog(QString Title, QString Text);
 #endif
 
 public slots:
@@ -279,7 +281,6 @@ public slots:
     void onEventLoopStarted(void);
     void setErrorMessage(QString Text);
     void setInfoMessage(QString Text);
-    void setAndroidInstallDialog(QString Title, QString Text);
 };
 
 #endif // CRADIOCONTROLLER_H
