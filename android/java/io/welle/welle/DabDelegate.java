@@ -1,9 +1,11 @@
 package io.welle.welle;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.hardware.usb.UsbDevice;
@@ -21,6 +23,7 @@ public class DabDelegate extends Activity {
     }
 
     private ServiceConnection mConnection = null;
+    private DabService.DabBinder mDabBinder = null;
 
     private boolean startSdrActivity(UsbDevice usbDevice) {
         try {
@@ -35,8 +38,45 @@ public class DabDelegate extends Activity {
             return true;
         } catch (ActivityNotFoundException e) {
             Log.e(TAG, "RTL-SDR error: " + "Android RTL-SDR driver is not installed");
+            if (mDabBinder != null)
+                mDabBinder.setError(getString(R.string.error_driver_not_installed));
             return false;
         }
+    }
+
+    private void showAndroidInstallDialog() throws Exception {
+        AlertDialog.Builder builder = new AlertDialog.Builder(DabDelegate.this);
+        builder.setTitle(R.string.dialog_driver_title);
+        builder.setMessage(R.string.dialog_driver_msg);
+
+        builder.setPositiveButton(R.string.dialog_driver_btn_ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                try {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=marto.rtl_tcp_andro")));
+                } catch (android.content.ActivityNotFoundException anfe) {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=marto.rtl_tcp_andro")));
+                }
+
+                dialog.dismiss();
+            }
+        });
+
+        builder.setNegativeButton(R.string.dialog_driver_btn_cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                finish();
+            }
+        });
+
+        builder.show();
     }
 
     @Override
@@ -55,11 +95,16 @@ public class DabDelegate extends Activity {
             mConnection = new ServiceConnection() {
                 @Override
                 public void onServiceConnected(ComponentName name, IBinder binder) {
-                    DabService.DabBinder dabBinder = (DabService.DabBinder) binder;
-                    if (dabBinder.isDeviceAvailable()) {
+                    mDabBinder = (DabService.DabBinder) binder;
+                    if (mDabBinder.isDeviceAvailable()) {
                         finish();
                     } else if (!startSdrActivity(null)) {
-                        //TODO show Android Install Dialog & Error
+                        // Show Android Install Dialog & Error
+                        try {
+                            showAndroidInstallDialog();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
 
@@ -82,12 +127,15 @@ public class DabDelegate extends Activity {
             serviceIntent.setAction(DabService.ACTION_SDR_DEVICE_ATTACHED);
             serviceIntent.putExtras(data.getExtras());
             startService(serviceIntent);
+            finish();
         } else if (data != null) {
             // something went wrong, and the driver failed to start
             String errmsg = data.getStringExtra("detailed_exception_message");
             Log.e(TAG, "RTL-SDR error: " + errmsg);
+            if (mDabBinder != null)
+                mDabBinder.setError(errmsg);
+            finish();
         }
-        finish();
     }
 
     @Override

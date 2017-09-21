@@ -94,6 +94,8 @@ void CRadioController::ResetTechnicalData(void)
     CurrentTitle = tr("No Station");
     CurrentText = "";
 
+    mErrorMsg = "";
+
     mIsSync = false;
     mIsFICCRC = false;
     mIsSignal = false;
@@ -512,6 +514,11 @@ QImage CRadioController::MOT() const
     return *MOTImage;
 }
 
+QString CRadioController::ErrorMsg() const
+{
+    return mErrorMsg;
+}
+
 QString CRadioController::DateTime() const
 {
     QDateTime LocalTime = mCurrentDateTime.toLocalTime();
@@ -657,17 +664,14 @@ void CRadioController::setGain(int Gain)
 void CRadioController::setErrorMessage(QString Text)
 {
     Status = Error;
+    mGUIData["Status"] = Status;
+    mErrorMsg = Text;
     emit showErrorMessage(Text);
 }
 
 void CRadioController::setInfoMessage(QString Text)
 {
     emit showInfoMessage(Text);
-}
-
-void CRadioController::setAndroidInstallDialog(QString Title, QString Text)
-{
-    emit showAndroidInstallDialog(Title, Text);
 }
 
 /********************

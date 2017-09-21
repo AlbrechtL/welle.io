@@ -83,6 +83,12 @@ ApplicationWindow {
         console.debug("orientation: " + Screen.orientation)
         console.debug("devicePixelRatio: " + Screen.devicePixelRatio)
         console.debug("pixelDensity: " + Screen.pixelDensity)
+
+        if (cppRadioController.GUIData.Status === -1) {
+            console.debug("error: " + cppRadioController.ErrorMsg)
+            errorMessagePopup.text = cppRadioController.ErrorMsg
+            errorMessagePopup.open()
+        }
     }
 
     property int stackViewDepth
@@ -638,16 +644,6 @@ ApplicationWindow {
         }
     }
 
-    MessageDialog {
-        id: androidRTLSDRDialog
-        icon: StandardIcon.Warning
-        standardButtons: StandardButton.Ok | StandardButton.Cancel
-        onAccepted: {
-            Qt.openUrlExternally("https://play.google.com/store/apps/details?id=marto.rtl_tcp_andro")
-            Qt.quit()
-        }
-    }
-
     Connections{
         target: cppRadioController
 
@@ -659,12 +655,6 @@ ApplicationWindow {
         onShowInfoMessage:{
             infoMessagePopup.text = Text;
             infoMessagePopup.open();
-        }
-
-        onShowAndroidInstallDialog:{
-            androidRTLSDRDialog.title = Title
-            androidRTLSDRDialog.text = Text;
-            androidRTLSDRDialog.open();
         }
     }
 }

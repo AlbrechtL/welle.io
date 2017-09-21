@@ -19,4 +19,9 @@
     <string name="error_rtl_sdr_unplugged">RTL-SDR is unplugged.</string>
     <string name="error_unknown">Unknown error.</string>
     <string name="error_not_initialised">DAB not initialised.</string>
+    <string name="error_driver_not_installed">Android RTL-SDR driver is not installed.</string>
+    <string name="dialog_driver_title">Android RTL-SDR driver is not installed</string>
+    <string name="dialog_driver_msg">Do you would like to install it? After install start welle.io again.</string>
+    <string name="dialog_driver_btn_ok">Install</string>
+    <string name="dialog_driver_btn_cancel">Cancel</string>
 </resources>

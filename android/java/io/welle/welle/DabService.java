@@ -160,6 +160,8 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
     public static native void startChannelScan();
     public static native void stopChannelScan();
 
+    public static native void setErrorMessage(String text);
+
     public static void serviceReady() {
         Log.i(TAG, "Service ready");
         if (instance == null)
@@ -270,6 +272,16 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
         Token getSessionToken() {
             return mSession.getSessionToken();
         }
+
+        void setError(String text) {
+            if (mServiceReady) {
+                setErrorMessage(text);
+            } else {
+                mDabStatus = DAB_STATUS_ERROR;
+                mError = text;
+                updatePlaybackState();
+            }
+        }
     }
 
     private class DabDevice {
@@ -314,9 +326,14 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
         Log.d(TAG, "Locale: " + language);
         setLanguage(language);
 
+        if (mDabStatus == DAB_STATUS_ERROR && mError != null) {
+            setErrorMessage(mError);
+        }
+
         if (mDabDevice != null) {
-            if (!mDabDevice.connected)
+            if (!mDabDevice.connected) {
                 openTcpConnection(mDabDevice.host, mDabDevice.port);
+            }
         }
         mServiceReady = true;
     }

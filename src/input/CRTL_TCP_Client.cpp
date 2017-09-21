@@ -72,6 +72,12 @@ CRTL_TCP_Client::CRTL_TCP_Client(CRadioController &RadioController)
 
 CRTL_TCP_Client::~CRTL_TCP_Client	(void)
 {
+#ifdef Q_OS_ANDROID
+    // Send TCP_ANDROID_EXIT cmd to explicitly cause the driver to turn off itself
+    sendCommand (0x7e, 0);
+    TCPSocket. flush();
+#endif
+
     // Close connection
     TCPSocket. close();
 
