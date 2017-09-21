@@ -9,13 +9,13 @@
   url: "#download"
   side: left
 
-- title: "Devices"
+- title: "Hardware"
   side: left
   url: "/devices/"
   dropdown:
   - title: "airspy"
     url: "/devices/airspy"
-  - title: "rtl_sdr"
+  - title: "rtl-sdr"
     url: "/devices/rtl_sdr"
   - title: "rtl_tcp"
     url: "/devices/rtl_tcp"
@@ -35,11 +35,13 @@
 - title: Development
   side: left
   dropdown:
-  - title: Sources
-    url: "#sources"
-    side: left
   - title: Wiki
-    url: "#wiki"
+    url: "https://github.com/AlbrechtL/welle.io/wiki"
+  - title: Tickets
+    url: "https://github.com/AlbrechtL/welle.io/issues"
+  - title: Sources
+    url: "https://github.com/AlbrechtL/welle.io"
+
 
 #
 #   Navigation to the right › side: right

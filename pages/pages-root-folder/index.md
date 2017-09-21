@@ -53,8 +53,8 @@ Main Features
 * [airspy](/devices/airspy), [rtl-sdr (RTL2832U)](/devices/rtl_sdr), [rtl_tcp](/devices/rtl_tcp), [SoapySDR](/devices/soapysdr) and [rawfile](/devices/rawfile) support
 * Touch optimized GUI
 * Channel scan
-* Slideshow (if station sends it)
-* Radio text
+* Slide show (MOT slide show)
+* Radio text (dynamic label)
 
 Demo Videos
 ---
@@ -79,7 +79,7 @@ Support
 
 
 If you need help don't hesitate to use one of two options
-* Use the [forum](https://forum.welle.io/)
+* Use the [forum](https://forum.welle.io/) ([forum.welle.io](https://forum.welle.io/))
 * Open a [new issue](https://github.com/AlbrechtL/welle.io/issues) on Github.
 
 ### FAQ
@@ -94,6 +94,6 @@ Please take a look into the [task list](https://github.com/AlbrechtL/welle.io/wi
 Please visit the GitHub repository: [https://github.com/albrechtl/welle.io](https://github.com/albrechtl/welle.io)
 
 ### Wiki
-You will find much more details inside the [Wiki](http://github.com/AlbrechtL/welle.io/wiki) (under construction).
+You will find more details inside the [Wiki](http://github.com/AlbrechtL/welle.io/wiki) (under construction).
 
 
