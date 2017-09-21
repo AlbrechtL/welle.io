@@ -582,7 +582,7 @@
     <message>
         <location filename="../src/input/CInputFactory.cpp" line="62"/>
         <source>No valid device found use Null device instead.</source>
-        <translation type="unfinished">Megfelelő eszköz nem található, helyette a &quot;Null&quot; eszköz van használatban.</translation>
+        <translation type="unfinished">Megfelelő rádióvevő nem található, helyette a &quot;Null&quot; eszköz van használatban.</translation>
     </message>
     <message>
         <location filename="../src/input/CInputFactory.cpp" line="64"/>
@@ -631,12 +631,12 @@
     <message>
         <location filename="../src/gui/QML/SettingsPage.qml" line="50"/>
         <source>Found channels</source>
-        <translation type="unfinished">Talált csatornák</translation>
+        <translation type="unfinished">Megtalált állomások száma</translation>
     </message>
     <message>
         <location filename="../src/gui/QML/SettingsPage.qml" line="94"/>
         <source>Channel scan</source>
-        <translation type="unfinished">Csatorna keresés</translation>
+        <translation type="unfinished">Állomás keresés</translation>
     </message>
     <message>
         <location filename="../src/gui/QML/SettingsPage.qml" line="100"/>
@@ -651,7 +651,7 @@
     <message>
         <location filename="../src/gui/QML/SettingsPage.qml" line="127"/>
         <source>Found stations</source>
-        <translation type="unfinished">Talált állomások</translation>
+        <translation type="unfinished">Megtalált állomások száma</translation>
     </message>
     <message>
         <location filename="../src/gui/QML/SettingsPage.qml" line="135"/>
