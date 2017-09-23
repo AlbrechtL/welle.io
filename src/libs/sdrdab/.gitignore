@@ -1,0 +1,14 @@
+/Debug/
+/Unittest/
+/test/testdata/*
+!/test/testdata/README
+!/test/testdata/download.sh
+/test/matlab/inputdata/*
+!/test/matlab/inputdata/README
+!/test/matlab/inputdata/download.sh
+*.aac
+/Release/
+/src/html/
+*.db
+
+/GprofTest/

@@ -39,7 +39,6 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 
-#include "DabConstants.h"
 #include "CRadioController.h"
 #include "CGUI.h"
 #ifdef Q_OS_ANDROID
@@ -54,7 +53,7 @@ int main(int argc, char** argv)
     QCoreApplication::setOrganizationName("welle.io");
     QCoreApplication::setOrganizationDomain("welle.io");
     QCoreApplication::setApplicationName("welle.io");
-    QCoreApplication::setApplicationVersion(CURRENT_VERSION);
+    QCoreApplication::setApplicationVersion("1.0 beta");
 
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
@@ -108,9 +107,6 @@ int main(int argc, char** argv)
     qDebug() << "main:" <<  "Detected system language" << locale;
 
     QTranslator *Translator = CGUI::AddTranslator(locale);
-
-    // Default values
-    CDABParams DABParams(1);
 
     // Handle the command line
     QCommandLineParser optionParser;
@@ -168,7 +164,7 @@ int main(int argc, char** argv)
         if ((Mode < 1) || (Mode > 4))
             Mode = 1;
 
-        DABParams.setMode(Mode);
+        //DABParams.setMode(Mode);
     }
 
 #ifdef Q_OS_ANDROID
@@ -196,7 +192,7 @@ int main(int argc, char** argv)
     commandLineOptions["rawFileFormat"] = optionParser.value(RAWFileFormat);
 
     // Create a new radio interface instance
-    CRadioController* RadioController = new CRadioController(commandLineOptions, DABParams);
+    CRadioController* RadioController = new CRadioController(commandLineOptions);
     QTimer::singleShot(0, RadioController, SLOT(onEventLoopStarted())); // The timer is used to signal if the QT event lopp is running
 
 #endif

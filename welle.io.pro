@@ -31,127 +31,146 @@ SOURCES += src/gui/QML/*.qml \
 
 DEPENDPATH += \
     src \
-    src/ofdm \
-    src/backend \
-    src/backend/audio \
-    src/backend/data \
-    src/output \
-    src/various \
-    src/input \
-    src/ofdm \
-    src/backend \
-    src/backend/audio \
-    src/backend/data \
-    src/output \
-    src/various \
-    src/gui
+#    src/output \
+#    src/input \
+    src/gui \
+    src/libs/sdrdab \
+    src/libs/sdrdab/AudioDecoder \
+    src/libs/sdrdab/DataDecoder \
+    src/libs/sdrdab/DataFeeder \
+    src/libs/sdrdab/Resampler \
+    src/libs/sdrdab/RingBuffer \
+    src/libs/sdrdab/threading \
+    src/libs/rscode
 
 INCLUDEPATH += \
     src \
-    src/ofdm \
-    src/backend \
-    src/backend/audio \
-    src/backend/data \
-    src/backend/data/journaline \
-    src/output \
-    src/various \
-    src/input \
-    src/gui
+#    src/output \
+#    src/input \
+    src/gui \
+    src/libs/sdrdab \
+    src/libs/sdrdab/AudioDecoder \
+    src/libs/sdrdab/DataDecoder \
+    src/libs/sdrdab/DataFeeder \
+    src/libs/sdrdab/Resampler \
+    src/libs/sdrdab/RingBuffer \
+    src/libs/sdrdab/threading \
+    src/libs/rscode
 
 HEADERS += \
-    src/DabConstants.h \
-    src/ofdm/ofdm-processor.h \
-    src/ofdm/ofdm-decoder.h \
-    src/ofdm/phasereference.h \
-    src/ofdm/phasetable.h \
-    src/ofdm/freq-interleaver.h \
-    src/backend/viterbi.h \
-    src/backend/viterbi_spiral.h \
-    src/backend/fic-handler.h \
-    src/backend/msc-handler.h \
-    src/backend/fib-processor.h  \
-    src/backend/galois.h \
-    src/backend/reed-solomon.h \
-    src/backend/charsets.h \
-    src/backend/firecode-checker.h \
-    src/backend/dab-processor.h \
-    src/backend/dab-virtual.h \
-    src/backend/audio/dab-audio.h \
-    src/backend/audio/mp2processor.h \
-    src/backend/audio/mp4processor.h \
-    src/backend/audio/faad-decoder.h \
-    src/backend/audio/neaacdec.h \
-    src/backend/data/pad_decoder.h \
-    src/backend/data/mot_manager.h \
-    src/backend/data/pad_decoder_adapter.h \
-    src/backend/tools.h \
-    src/backend/protection.h \
-    src/backend/eep-protection.h \
-    src/backend/uep-protection.h \
-    src/output/CAudio.h \
-    src/various/fft.h \
-    src/various/ringbuffer.h \
-    src/various/Xtan2.h \
-    src/input/CVirtualInput.h \
-    src/input/CInputFactory.h \
-    src/input/CNullDevice.h \
-    src/input/CRAWFile.h \
-    src/input/CRTL_TCP_Client.h \
-    src/MathHelper.h \
+#    src/input/CVirtualInput.h \
+#    src/input/CInputFactory.h \
+#    src/input/CNullDevice.h \
+#    src/input/CRAWFile.h \
+#    src/input/CRTL_TCP_Client.h \
     src/gui/CMOTImageProvider.h \
     src/gui/CStationList.h \
     src/gui/CGUI.h \
     src/CRadioController.h \
-    src/CChannels.h
+    src/CChannels.h \
+    src/libs/sdrdab/synchronizer_data.h \
+    src/libs/sdrdab/threading/wrapper_functions.h \
+    src/libs/sdrdab/threading/blocking_queue.h \
+    src/libs/sdrdab/threading/scoped_lock.h \
+    src/libs/sdrdab/threading/signaled_worker_thread.h \
+    src/libs/sdrdab/data_format.h \
+    src/libs/sdrdab/fft_engine.h \
+    src/libs/sdrdab/DataDecoder/energy_dispersal.h \
+    src/libs/sdrdab/DataDecoder/data_decoder_data.h \
+    src/libs/sdrdab/DataDecoder/superframe.h \
+    src/libs/sdrdab/DataDecoder/depuncturer.h \
+    src/libs/sdrdab/DataDecoder/reed_solomon.h \
+    src/libs/sdrdab/DataDecoder/deviterbi.h \
+    src/libs/sdrdab/DataDecoder/extract_from_bitstream.h \
+    src/libs/sdrdab/Resampler/resampler.h \
+    src/libs/sdrdab/osx_compat.h \
+    src/libs/sdrdab/RingBuffer/resampling_ring_buffer.h \
+    src/libs/sdrdab/RingBuffer/ring_buffer.h \
+    src/libs/sdrdab/synchronizer.h \
+    src/libs/sdrdab/audio_decoder.h \
+    src/libs/sdrdab/DataFeeder/abstract_data_feeder.h \
+    src/libs/sdrdab/DataFeeder/rtl_data_feeder.h \
+    src/libs/sdrdab/DataFeeder/file_data_feeder.h \
+    src/libs/sdrdab/demodulator.h \
+    src/libs/sdrdab/AudioDecoder/fake_sink.h \
+    src/libs/sdrdab/AudioDecoder/file_sink.h \
+    src/libs/sdrdab/AudioDecoder/null_sink.h \
+    src/libs/sdrdab/AudioDecoder/file_src.h \
+    src/libs/sdrdab/AudioDecoder/ring_src.h \
+    src/libs/sdrdab/AudioDecoder/pulse_sink.h \
+    src/libs/sdrdab/AudioDecoder/ogg_sink.h \
+    src/libs/sdrdab/AudioDecoder/abstract_src.h \
+    src/libs/sdrdab/AudioDecoder/player.h \
+    src/libs/sdrdab/AudioDecoder/abstract_sink.h \
+    src/libs/sdrdab/AudioDecoder/blocking_ring_buffer.h \
+    src/libs/sdrdab/scheduler.h \
+    src/libs/sdrdab/data_decoder.h \
+    src/libs/rscode/ecc.h
 
 SOURCES += \
     src/main.cpp \
-    src/ofdm/ofdm-processor.cpp \
-    src/ofdm/ofdm-decoder.cpp \
-    src/ofdm/phasereference.cpp \
-    src/ofdm/phasetable.cpp \
-    src/ofdm/freq-interleaver.cpp \
-    src/backend/viterbi.cpp \
-    src/backend/viterbi_spiral.c \
-    src/backend/fic-handler.cpp \
-    src/backend/msc-handler.cpp \
-    src/backend/eep-protection.cpp \
-    src/backend/uep-protection.cpp \
-    src/backend/fib-processor.cpp  \
-    src/backend/galois.cpp \
-    src/backend/reed-solomon.cpp \
-    src/backend/charsets.cpp \
-    src/backend/firecode-checker.cpp \
-    src/backend/protTables.cpp \
-    src/backend/audio/dab-audio.cpp \
-    src/backend/audio/mp2processor.cpp \
-    src/backend/audio/mp4processor.cpp \
-    src/backend/data/pad_decoder.cpp \
-    src/backend/data/mot_manager.cpp \
-    src/backend/data/pad_decoder_adapter.cpp \
-    src/backend/tools.cpp \
-    src/output/CAudio.cpp \
-    src/various/fft.cpp \
-    src/various/Xtan2.cpp \
-    src/input/CInputFactory.cpp \
-    src/input/CNullDevice.cpp \
-    src/input/CRAWFile.cpp \
-    src/input/CRTL_TCP_Client.cpp \
-    src/DabConstants.cpp \
+#    src/output/CAudio.cpp \
+#    src/input/CInputFactory.cpp \
+#    src/input/CNullDevice.cpp \
+#    src/input/CRAWFile.cpp \
+#    src/input/CRTL_TCP_Client.cpp \
     src/gui/CMOTImageProvider.cpp \
     src/gui/CStationList.cpp \
     src/gui/CGUI.cpp \
     src/CRadioController.cpp \
-    src/CChannels.cpp
+    src/CChannels.cpp \
+    src/libs/sdrdab/threading/signaled_worker_thread.cc \
+    src/libs/sdrdab/threading/scoped_lock.cc \
+    src/libs/sdrdab/demodulator.cc \
+    src/libs/sdrdab/DataDecoder/extract_from_bitstream.cc \
+    src/libs/sdrdab/DataDecoder/deviterbi.cc \
+    src/libs/sdrdab/DataDecoder/superframe.cc \
+    src/libs/sdrdab/DataDecoder/depuncturer.cc \
+    src/libs/sdrdab/DataDecoder/reed_solomon.cc \
+    src/libs/sdrdab/DataDecoder/energy_dispersal.cc \
+    src/libs/sdrdab/data_decoder.cc \
+    src/libs/sdrdab/Resampler/resampler.cc \
+    src/libs/sdrdab/fft_engine.cc \
+    src/libs/sdrdab/RingBuffer/resampling_ring_buffer.cc \
+    src/libs/sdrdab/DataFeeder/abstract_data_feeder.cc \
+    src/libs/sdrdab/DataFeeder/rtl_data_feeder.cc \
+    src/libs/sdrdab/DataFeeder/file_data_feeder.cc \
+    src/libs/sdrdab/osx_compat.cc \
+    src/libs/sdrdab/audio_decoder.cc \
+    src/libs/sdrdab/AudioDecoder/abstract_sink.cc \
+    src/libs/sdrdab/AudioDecoder/pulse_sink.cc \
+    src/libs/sdrdab/AudioDecoder/player.cc \
+    src/libs/sdrdab/AudioDecoder/null_sink.cc \
+    src/libs/sdrdab/AudioDecoder/file_sink.cc \
+    src/libs/sdrdab/AudioDecoder/file_src.cc \
+    src/libs/sdrdab/AudioDecoder/blocking_ring_buffer.cc \
+    src/libs/sdrdab/AudioDecoder/abstract_src.cc \
+    src/libs/sdrdab/AudioDecoder/fake_sink.cc \
+    src/libs/sdrdab/AudioDecoder/ogg_sink.cc \
+    src/libs/sdrdab/AudioDecoder/ring_src.cc \
+    src/libs/sdrdab/scheduler.cc \
+    src/libs/sdrdab/synchronizer.cc \
+    src/libs/rscode/galois.c \
+    src/libs/rscode/rs.c \
+    src/libs/rscode/berlekamp.c \
+    src/libs/rscode/crcgen.c
 
 unix:!macx:!android: {
     INCLUDEPATH	+= /usr/local/include
+
+    # onyl for sdrdab
+    INCLUDEPATH	+= /usr/include/gstreamer-1.0 \
+    /usr/include/glib-2.0 \
+    /usr/lib/x86_64-linux-gnu/glib-2.0/include \
+    /usr/lib/x86_64-linux-gnu/gstreamer-1.0/include
+    LIBS    += -lglib-2.0 -lgstreamer-1.0 -lgobject-2.0 -lgstapp-1.0 -lreadline -lusb-1.0 -lsamplerate -lrtlsdr
+
     LIBS    += -lfftw3f
     LIBS    += -lusb-1.0
     LIBS    += -ldl
     LIBS    += -lfaad
-    CONFIG  += airspy
-    CONFIG  += rtl_sdr
+    #CONFIG  += airspy
+    #CONFIG  += rtl_sdr
     #CONFIG  += soapysdr
 
     #CONFIG  += kiss_fft_builtin
@@ -159,7 +178,6 @@ unix:!macx:!android: {
 
     DEFINES += SSE_AVAILABLE
 }
-
 
 win32 {
     INCLUDEPATH += ../welle.io-win-libs/include
@@ -179,7 +197,6 @@ win32 {
     #QMAKE_CFLAGS += -msse2
     #DEFINES += SSE_AVAILABLE
 }
-
 
 macx {
     INCLUDEPATH	+= /opt/local/include

@@ -30,7 +30,6 @@
 #ifndef __VIRTUAL_INPUT
 #define __VIRTUAL_INPUT
 
-#include "DabConstants.h"
 #include <QObject>
 #include <QString>
 #include <stdint.h>

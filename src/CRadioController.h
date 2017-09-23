@@ -35,16 +35,12 @@
 #include <QDateTime>
 #include <QImage>
 #include <QVariantMap>
+#include <QTimer>
 
-#include "CAudio.h"
+//#include "CAudio.h"
 #include "CStationList.h"
-#include "DabConstants.h"
-#include "ofdm-processor.h"
-#include "ringbuffer.h"
-#include "DabConstants.h"
-#include "fic-handler.h"
-#include "msc-handler.h"
 #include "CChannels.h"
+#include "scheduler.h"
 
 class CVirtualInput;
 
@@ -54,7 +50,7 @@ class CRadioController : public CRadioControllerSource
 {
     Q_OBJECT
 #else
-class CRadioController : public QObject
+class CRadioController : public QObject, public Scheduler
 {
     Q_OBJECT
     Q_PROPERTY(QString DateTime READ DateTime NOTIFY DateTimeChanged)
@@ -94,7 +90,7 @@ public:
     };
     Q_ENUMS(DabStatus)
 
-    CRadioController(QVariantMap &commandLineOptions, CDABParams& DABParams, QObject* parent = NULL);
+    CRadioController(QVariantMap &commandLineOptions, QObject* parent = NULL);
     ~CRadioController(void);
     void closeDevice();
     void openDevice(CVirtualInput* Dev);
@@ -154,13 +150,9 @@ private:
     // Back-end objects
     CVirtualInput* Device;
     QVariantMap commandLineOptions;
-    CDABParams DABParams;
     CChannels Channels;
 
-    ofdmProcessor* my_ofdmProcessor;
-    ficHandler* my_ficHandler;
-    mscHandler* my_mscHandler;
-    CAudio* Audio;
+//    CAudio* Audio;
     RingBuffer<int16_t>* AudioBuffer;
 
     // Objects set by the back-end
@@ -210,7 +202,7 @@ private:
     bool isHwAGC;
 
     // Spectrum variables
-    common_fft* spectrum_fft_handler;
+//    common_fft* spectrum_fft_handler;
     QVector<QPointF> spectrum_data;
 
 private slots:
