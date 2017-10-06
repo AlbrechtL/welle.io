@@ -353,9 +353,6 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
 
         // Update state
         updatePlaybackState();
-
-        // Play last station
-        playLastStation();
     }
 
     private void handleDeviceClosed() {
