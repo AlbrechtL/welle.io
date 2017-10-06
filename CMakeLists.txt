@@ -36,6 +36,11 @@ find_package(Faad REQUIRED)
 if (RTLSDR)
   find_package(LibRTLSDR REQUIRED)
 endif()
+if (SOAPYSDR)
+  find_package(SoapySDR NO_MODULE REQUIRED)
+  # Note: SoapySDRConfig.cmake sets C++11 standard so it needs to be reset to C++14
+  set(CMAKE_CXX_STANDARD 14)
+endif()
 
 include_directories(
     src
@@ -50,6 +55,7 @@ include_directories(
     ${FFTW3F_INCLUDE_DIRS}
     ${FAAD_INCLUDE_DIRS}
     ${LIBRTLSDR_INCLUDE_DIRS}
+    ${SoapySDR_INCLUDE_DIRS}
 )
 
 set(sources
@@ -98,6 +104,11 @@ if(LIBRTLSDR_FOUND)
   set(sources  ${sources} src/input/CRTL_SDR.cpp)
 endif()
 
+if(SoapySDR_FOUND)
+  add_definitions (-DHAVE_SOAPYSDR)
+  set(sources  ${sources} src/input/CSoapySdr.cpp)
+endif()
+
 # The AUTOMOC system does not correctly find this header which needs MOC processing.
 # So we are forced to add it manually.
 QT5_WRAP_CPP(EXTRA_MOCS
@@ -121,6 +132,7 @@ target_link_libraries (${executableName}
   ${LIBRTLSDR_LIBRARIES}
   ${FFTW3F_LIBRARIES}
   ${FAAD_LIBRARIES}
+  ${SoapySDR_LIBRARIES}
   Threads::Threads
 )
 
