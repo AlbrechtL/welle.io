@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">welle.io</string>
+    <string name="menu_stations">Sender</string>
+    <string name="menu_channels">Kanäle</string>
+    <string name="menu_channel_scan">Sendersuchlauf</string>
+    <string name="menu_favorites">Favoriten</string>
+    <string name="action_close">Beenden</string>
+    <string name="action_cancel">Abbrechen</string>
+    <string name="action_scan">Suchen</string>
+    <string name="action_favorite">Favorit</string>
+    <string name="action_record">Aufnehmen</string>
+    <string name="action_play">Abspielen</string>
+    <string name="action_pause">Pausieren</string>
+    <string name="action_skip_next">Nächste</string>
+    <string name="action_skip_prev">Vorherige</string>
+    <string name="action_next_channel">Nächster Kanal</string>
+    <string name="label_scanning">Scanne</string>
+    <string name="error_unknown">Unbekannter Fehler.</string>
+    <string name="error_not_initialised">Radioempfänger meldet einen Fehler oder existiert nicht.</string>
+    <string name="error_driver_not_installed">Android RTL-SDR Treiber ist nicht installiert.</string>
+    <string name="dialog_driver_title">Android RTL-SDR Treiber ist nicht installiert</string>
+    <string name="dialog_driver_msg">Soll er installiert werden? welle.io muss nach der Treiberinstallation neu gestartet werden.</string>
+    <string name="dialog_driver_btn_ok">Installieren</string>
+    <string name="dialog_driver_btn_cancel">Abbrechen</string>
+</resources>

@@ -381,7 +381,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
         mDisplayArt = null;
         mGenre = null;
 
-        mError = getResources().getString(R.string.error_rtl_sdr_unplugged);
+        mError = getResources().getString(R.string.error_not_initialised);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -808,7 +808,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
                     }
                 } else {
                     metaData.putString(MediaMetadata.METADATA_KEY_DISPLAY_TITLE,
-                            resources.getString(R.string.label_scanning) + " " + mChannelScanProgress);
+                            resources.getString(R.string.label_scanning) + ": " + mChannelScanProgress);
                     if (mCurrentChannel != null) {
                         metaData.putString(MediaMetadata.METADATA_KEY_DISPLAY_SUBTITLE, mCurrentChannel);
                     }
