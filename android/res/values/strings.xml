@@ -15,10 +15,9 @@
     <string name="action_skip_next">Next</string>
     <string name="action_skip_prev">Previous</string>
     <string name="action_next_channel">Next Channel</string>
-    <string name="label_scanning">Scanning:</string>
-    <string name="error_rtl_sdr_unplugged">RTL-SDR is unplugged.</string>
+    <string name="label_scanning">Scanning</string>
     <string name="error_unknown">Unknown error.</string>
-    <string name="error_not_initialised">DAB not initialised.</string>
+    <string name="error_not_initialised">Radio device is not ready or does not exits.</string>
     <string name="error_driver_not_installed">Android RTL-SDR driver is not installed.</string>
     <string name="dialog_driver_title">Android RTL-SDR driver is not installed</string>
     <string name="dialog_driver_msg">Do you would like to install it? After install start welle.io again.</string>
