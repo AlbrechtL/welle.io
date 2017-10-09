@@ -111,7 +111,7 @@ void CRadioController::ResetTechnicalData(void)
     mGainCount = 0;
     mStationCount = 0;
     CurrentManualGain = 0;
-    CurrentManualGainValue = 0.0;
+    CurrentManualGainValue = std::numeric_limits<float>::lowest();
     CurrentVolume = 1.0;
 
     startPlayback = false;
@@ -651,14 +651,14 @@ int CRadioController::Gain() const
 void CRadioController::setGain(int Gain)
 {
     CurrentManualGain = Gain;
-    emit GainChanged(CurrentManualGain);
 
     if (Device)
         CurrentManualGainValue = Device->setGain(Gain);
     else
-        CurrentManualGainValue = -1.0;
+        CurrentManualGainValue = std::numeric_limits<float>::lowest();
 
     emit GainValueChanged(CurrentManualGainValue);
+    emit GainChanged(CurrentManualGain);
 }
 
 void CRadioController::setErrorMessage(QString Text)

@@ -57,6 +57,8 @@ CGUI::CGUI(CRadioController *RadioController, QObject *parent)
     , RadioController(RadioController)
     , spectrum_series(NULL)
 {
+    m_currentGainValue = 0;
+
     StationsChange(RadioController->Stations());
 
     // Add image provider for the MOT slide show
@@ -224,9 +226,12 @@ void CGUI::inputGainChanged(double gain)
     if(RadioController)
     {
         RadioController->setGain((int) gain);
-        m_currentGainValue = RadioController->GainValue();
-        if(m_currentGainValue >= 0)
+        float currentGainValue = RadioController->GainValue();
+        if(currentGainValue > std::numeric_limits<float>::lowest())
+        {
+            m_currentGainValue = currentGainValue;
             emit currentGainValueChanged();
+        }
     }
 }
 
