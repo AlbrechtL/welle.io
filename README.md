@@ -15,6 +15,7 @@ Table of contents
     * [Ubuntu Linux 16.04 LTS](#ubuntu-linux-1604-lts)
     * [Windows 10](#windows-10)
     * [macOS](#macos)
+    * [CMake instead of Qt Creator (Windows, Linux, macOS)](#cmake-instead-of-qt-creator-windows-linux-macos)
     * [Android](#android)
     * [Raspberry Pi 2 and 3](#raspberry-pi-2-and-3)
   * [Limitations](#limitations)
@@ -126,6 +127,38 @@ To build for macOS, you need to install the dependencies with macports first, as
 3. Open welle.io.pro with QT Creator.
 4. Make sure in Qt Creator, "Projects, Build&Run, Run" that the checkbox "Add build library path to DYLD..." is off.
 5. Build and run.
+
+CMake instead of Qt Creator (Windows, Linux, macOS)
+---
+
+As an alternative to Qt Creator, CMake can be used for building welle.io after installing dependencies and cloning the repository:
+
+1. Create a build directory inside the repository and change into it
+
+  ```
+# mkdir build
+# cd build
+  ```
+
+2. Run CMake. To enable support for RTL-SDR add the flag `-DRTLSDR` (requires librtlsdr) and for SoapySDR add `-DSOAPYSDR` (requires SoapySDR compiled with support for each desired hardware like the AirSpy or HackRF)
+
+  ```
+# cmake ..
+  ```
+
+  or to enable support for both RTL-SDR and Soapy-SDR:
+
+  ```
+# cmake .. -DRTLSDR -DSOAPYSDR
+  ```
+
+3. Run make (or use the created project file depending on the selected generator)
+
+  ```
+# make
+  ```
+
+4. Run welle.io and enjoy it
 
 Android
 ---
