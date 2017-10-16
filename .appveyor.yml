@@ -1,0 +1,16 @@
+version: 1.0.{build}
+
+image: Visual Studio 2015
+
+init:
+  - set PATH=C:\Qt\5.9.1\mingw53_32\bin;%PATH%
+
+before_build:
+  - md build
+  - md c:\welle.io
+
+build_script:
+  - cd build
+  - qmake PREFIX=c:\welle.io ..
+
+test: off
