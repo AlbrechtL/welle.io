@@ -12,6 +12,6 @@ before_build:
 build_script:
   - cd build
   - qmake PREFIX=c:\welle.io ..
-  - make -j4
+  - mingw32-make -j4
 
 test: off
