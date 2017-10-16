@@ -52,7 +52,6 @@ INCLUDEPATH += \
     src/backend \
     src/backend/audio \
     src/backend/data \
-    src/backend/data/journaline \
     src/output \
     src/various \
     src/input \
