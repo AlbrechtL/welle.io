@@ -6,13 +6,16 @@ init:
   - set PATH=C:\Qt\5.9\mingw53_32\bin;C:\Qt\Tools\mingw530_32\bin;%PATH%
 
 before_build:
+  - cd ..\
   - md build
   - md c:\welle.io
-  - git clone https://github.com/AlbrechtL/welle.io-win-libs.git ..\welle.io-win-libs
+  - git clone https://github.com/AlbrechtL/welle.io-win-libs.git
 
 build_script:
-  - cd build
-  - qmake PREFIX=c:\welle.io ..
-  - mingw32-make -j4
+  - qmake ..\welle.io
+  - mingw32-make -f Makefile.Release -j4
 
-test: off
+test_script:
+ - set PATH=..\welle.io-win-libs\x86;%PATH%
+ - cd release
+ - welle-io.exe --version
