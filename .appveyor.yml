@@ -13,7 +13,7 @@ before_build:
 
 build_script:
   - cd build
-  - qmake ..\welle.io
+  - qmake ..\welle-io
   - mingw32-make -f Makefile.Release -j4
 
 test_script:
