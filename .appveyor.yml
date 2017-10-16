@@ -11,7 +11,12 @@ before_build:
   - md c:\welle.io
   - git clone https://github.com/AlbrechtL/welle.io-win-libs.git
 
-#build_script:
-#  - cd build
-#  - qmake ..\welle-io
-#  - mingw32-make -f Makefile.Release -j4
+build_script:
+  - cd build
+  - qmake ..\welle-io
+  - mingw32-make -f Makefile.Release -j4
+
+#test_script:
+# - set PATH=..\welle.io-win-libs\x86;%PATH%
+# - cd release
+# - welle-io.exe --version
