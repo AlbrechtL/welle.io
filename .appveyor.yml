@@ -3,7 +3,7 @@ version: 1.0.{build}
 image: Visual Studio 2015
 
 init:
-  - set PATH=C:\Qt\5.9.1\mingw53_32\bin;%PATH%
+  - set PATH=C:\Qt\5.9\mingw53_32\bin;C:\Qt\Tools\mingw530_32\bin;%PATH%
 
 before_build:
   - md build
