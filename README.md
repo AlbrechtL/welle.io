@@ -1,5 +1,8 @@
-[welle.io](https://www.welle.io) [![Build Status](https://travis-ci.org/AlbrechtL/welle.io.svg?branch=master)](https://travis-ci.org/AlbrechtL/welle.io)
+[welle.io](https://www.welle.io)
 =====================
+- Linux (Travis): [![Travis Build Status](https://travis-ci.org/AlbrechtL/welle.io.svg?branch=master)](https://travis-ci.org/AlbrechtL/welle.io)
+- Windows (AppVeyor): [![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/yipsu95pb4ecdofe?svg=true)](https://ci.appveyor.com/project/AlbrechtL/welle-io)
+
 This repository contains the implementation of a SDR DAB/DAB+ receiver.  
 Please see the project website https://www.welle.io for a user oriented documentation. You can also use the forum https://forum.welle.io to get in contact with us.
 
