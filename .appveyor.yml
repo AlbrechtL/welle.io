@@ -8,8 +8,7 @@ init:
 before_build:
   - md build
   - md c:\welle.io
-  - cd ..\
-  - git clone https://github.com/AlbrechtL/welle.io-win-libs.git
+  - git clone https://github.com/AlbrechtL/welle.io-win-libs.git ..\welle.io-win-libs
 
 build_script:
   - cd build
