@@ -3,12 +3,13 @@ version: 1.0.{build}
 image: Visual Studio 2015
 
 init:
+  - set PATHORIG=%PATH%
   - set PATH=C:\Qt\5.9\mingw53_32\bin;C:\Qt\Tools\mingw530_32\bin;%PATH%
 
 before_build:
   - cd ..\
   - md build
-  - md c:\welle.io
+  # Get all headers and DLLs for the build
   - git clone https://github.com/AlbrechtL/welle.io-win-libs.git
 
 build_script:
@@ -16,7 +17,17 @@ build_script:
   - qmake ..\welle-io
   - mingw32-make -f Makefile.Release -j4
 
-#test_script:
-# - set PATH=..\welle.io-win-libs\x86;%PATH%
-# - cd release
-# - welle-io.exe --version
+after_build:
+  - cp release\welle-io.exe ..\welle.io-win-libs\install\packages\com.vendor.product\data
+  - cd ..\welle.io-win-libs\install\packages\com.vendor.product\data
+  # Deploy QT and related plugins
+  - windeployqt welle-io.exe --plugindir plugins\ --no-translations
+  # Deploy QML files
+  - windeployqt welle-io.exe --dir qml\ --qmldir ..\..\..\..\..\..\welle-io\src\gui\QML --no-translations --no-libraries --no-plugins
+  # Build installer
+  #- cd ..\..\..\
+  #- create.bat
+  
+test_script:
+ - set PATH=%PATHORIG%
+ - welle-io.exe --version
