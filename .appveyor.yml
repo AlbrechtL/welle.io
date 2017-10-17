@@ -18,12 +18,12 @@ build_script:
   - mingw32-make -f Makefile.Release -j4
 
 after_build:
-  - cp release\welle-io.exe ..\welle.io-win-libs\install\packages\com.vendor.product\data
-  - cd ..\welle.io-win-libs\install\packages\com.vendor.product\data
+  - cp release\welle-io.exe C:\projects\welle.io-win-libs\install\packages\com.vendor.product\data
+  - cd C:\projects\welle.io-win-libs\install\packages\com.vendor.product\data
   # Deploy QT and related plugins
   - windeployqt welle-io.exe --plugindir plugins\ --no-translations
   # Deploy QML files
-  - windeployqt welle-io.exe --dir qml\ --qmldir ..\..\..\..\..\..\welle-io\src\gui\QML --no-translations --no-libraries --no-plugins
+  - windeployqt welle-io.exe --dir qml\ --qmldir C:\projects\welle-io\src\gui\QML\ --no-translations --no-libraries --no-plugins
   # Build installer
   #- cd ..\..\..\
   #- create.bat
