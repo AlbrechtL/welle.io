@@ -24,10 +24,12 @@ after_build:
   - windeployqt welle-io.exe --plugindir plugins\ --no-translations
   # Deploy QML files
   - windeployqt welle-io.exe --dir qml\ --qmldir C:\projects\welle-io\src\gui\QML\ --no-translations --no-libraries --no-plugins
-  # Build installer
-  #- cd ..\..\..\
-  #- create.bat
   
 test_script:
  - set PATH=%PATHORIG%
  - welle-io.exe --version
+
+before_deploy:
+ - cd C:\projects\welle.io-win-libs\install\
+ # Build installer
+ - create.bat ..\..\welle-io
