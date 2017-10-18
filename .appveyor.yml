@@ -23,7 +23,11 @@ after_build:
   # Deploy QT and related plugins
   - windeployqt welle-io.exe --plugindir plugins\ --no-translations
   # Deploy QML files
-  - windeployqt welle-io.exe --dir qml\ --qmldir C:\projects\welle-io\src\gui\QML\ --no-translations --no-libraries --no-plugins
+  - windeployqt welle-io.exe --dir qml\ --qmldir C:\projects\welle-io\src\gui\QML\ --no-translations --no-plugins
+  # Copy Quick DLLs and delete the duplicate DLLs
+  - copy qml\Qt5QuickControls2.dll .
+  - copy qml\Qt5QuickTemplates2.dll .
+  - del qml\*.dll
   # Build installer the filename will be stored in variable %filename%
   - cd C:\projects\welle.io-win-libs\install\
   - create.bat ..\..\welle-io
