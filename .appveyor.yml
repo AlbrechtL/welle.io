@@ -56,8 +56,8 @@ deploy:
     subject: albrechtl
     repo: welle.io
     package: welle.io_nightly
-    version: %file_version%
-    artifact: %filename%
+    version: $(file_version)
+    artifact: $(filename)
     publish: true
     override: true
     explode: true
