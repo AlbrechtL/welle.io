@@ -5,6 +5,16 @@ image: Visual Studio 2015
 init:
   - set PATHORIG=%PATH%
   - set PATH=C:\Qt\5.9\mingw53_32\bin;C:\Qt\Tools\mingw530_32\bin;%PATH%
+  # Create datetime
+  - for /f "tokens=2 delims==" %%G in ('wmic os get localdatetime /value') do set datetime=%%G
+  - set year=%datetime:~0,4%
+  - set month=%datetime:~4,2%
+  - set day=%datetime:~6,2%
+  - set current_date=%year%%month%%day%
+  # Create git hash
+  - for /f %%i in ('git -C C:\projects\welle-io\ rev-parse --short HEAD') do set git_hash=%%i
+  # Create version
+  - set file_version=%current_date%_%git_hash%
 
 before_build:
   - cd ..\
@@ -31,10 +41,27 @@ after_build:
   # Build installer the filename will be stored in variable %filename%
   - cd C:\projects\welle.io-win-libs\install\
   - create.bat ..\..\welle-io
-  # Upload it to transfer.sh
-  - curl --upload-file .\%filename% https://transfer.sh/%filename%
   
 test_script:
   - set PATH=%PATHORIG%
   - cd C:\projects\welle.io-win-libs\install\packages\com.vendor.product\data
   - welle-io.exe --version
+  
+deploy:
+  # Upload it to BinTray
+  - provider: BinTray
+    username: albrechtl
+    api_key:
+      secure: i7ksq/PodhXDzjw7trN/y00EA6U4tZ9m4EGOFDv736Nrvb6lpvG8jtXwTV4cPOtV
+    subject: albrechtl
+    repo: welle.io
+    package: welle.io_nightly
+    version: %file_version%
+    artifact: %filename%
+    publish: true
+    override: true
+    explode: true
+
+after_deploy:
+  # Backup: Upload it to transfer.sh
+  - curl --upload-file .\%filename% https://transfer.sh/%filename%
