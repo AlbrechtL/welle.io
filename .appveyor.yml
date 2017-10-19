@@ -42,6 +42,8 @@ after_build:
   # Build installer the filename will be stored in variable %filename%
   - cd C:\projects\welle.io-win-libs\install\
   - create.bat ..\..\welle-io
+  # Add to artifact list
+  - appveyor PushArtifact %filename%
   
 test_script:
   - set PATH=%PATHORIG%
@@ -58,7 +60,6 @@ deploy:
     repo: welle.io
     package: welle.io_nightly
     version: '%file_version%'
-    artifact: 'C:\projects\welle.io-win-libs\install\%filename%'
     publish: true
     override: true
     explode: true
