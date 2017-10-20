@@ -34,7 +34,7 @@ At the moment there is no stable release available. But the releases are tested 
 welle.io is under heavy development. You can also try the latest developer builds. But PLEASE BE WARNED the builds are automatically created and untested.
  * [welle.io nightly builds](https://bintray.com/albrechtl/welle.io/welle.io_nightly#files)
 
-To use it on macOS or on a Raspberry Pi you can compile welle.io direct from the sources. To compile welle.io check [sources](https://github.com/AlbrechtL/welle.io).
+To use it on macOS or on a Raspberry Pi you have to compile welle.io direct from the sources.
 
 Usage
 =====
