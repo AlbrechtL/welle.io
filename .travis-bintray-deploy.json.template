@@ -9,7 +9,7 @@
   },
   "files": [
     {
-      "includePattern": "*.AppImage",
+      "includePattern": "(welle.io.*.AppImage)",
       "uploadPattern": "$1"
     }
   ],
