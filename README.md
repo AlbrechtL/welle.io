@@ -11,6 +11,7 @@ welle.io is fork from dab-rpi and sdr-j-dab which is now qt-dab https://github.c
 Table of contents
 ====
 
+  * [Download](#download)
   * [Usage](#usage)
   * [Supported Hardware](#supported-hardware)
   * [Building](#building)
@@ -23,6 +24,17 @@ Table of contents
     * [Raspberry Pi 2 and 3](#raspberry-pi-2-and-3)
   * [Limitations](#limitations)
   * [Development](#development)
+
+Download
+========
+At the moment there is no stable release available. But the releases are tested and working in the most cases. If you discovered an issue use the [forum](https://forum.welle.io/) or open a new [issue](https://github.com/AlbrechtL/welle.io/issues) please.
+ * ### [welle.io for Windows, Linux and Android (APK)](http://github.com/AlbrechtL/welle.io/releases)
+ * ### [welle.io for Android at Google Play](https://play.google.com/store/apps/details?id=io.welle.welle)
+
+welle.io is under heavy development. You can also try the latest developer builds. But PLEASE BE WARNED the builds are automatically created and untested.
+ * [welle.io nightly builds](https://bintray.com/albrechtl/welle.io/welle.io_nightly#files)
+
+To use it on macOS or on a Raspberry Pi you can compile welle.io direct from the sources. To compile welle.io check [sources](https://github.com/AlbrechtL/welle.io).
 
 Usage
 =====
