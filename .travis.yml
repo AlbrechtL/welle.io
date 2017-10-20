@@ -15,6 +15,8 @@ install:
     - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 60 --slave /usr/bin/g++ g++ /usr/bin/g++-5
     
 script:
+  - DATE=`date +%Y%m%d`
+  - GIT_HASH=`git rev-parse --short HEAD`
   - # https://github.com/airspy/airspyone_host#how-to-build-the-host-software-on-linux
   - wget https://github.com/airspy/host/archive/master.zip
   - unzip master.zip
@@ -49,4 +51,14 @@ after_success:
   - ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -qmldir=. -bundle-non-qt-libs
   - ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -qmldir=. -appimage
   - find ./appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq
-  - curl --upload-file ./welle*.AppImage https://transfer.sh/welle_io-git.$(git rev-parse --short HEAD)-x86_64.AppImage
+  #- curl --upload-file ./welle*.AppImage https://transfer.sh/welle_io-git."$GIT_HASH"-x86_64.AppImage
+  # Prepare bintray deploy
+  - sed -e "s/\${VERSION}/"$DATE"_"$GIT_HASH"/" .travis-bintray-deploy.json.template >travis-bintray-deploy.json
+
+deploy:
+  provider: bintray
+  file: "travis-bintray-deploy.json"
+  user: "albrechtl"
+  key:
+    secure: "FvQOjUijZP1es80QQAIuBUFSvtsrJC03STlNu+Uvl9RUlgtWuXk1c5g9zggYgbm61LL5NTb5BLQggDkvuBdiNbE9CE2Y2MPWh1sava/n1z0vVgNoYjOIX9HO4s8fQkHs70Xx5XtUb1nAx2u4CDBt0wUWfbz6r77w3PJ5d1TpZjj+u3FOGUq9EW1ECQnBXuAHtu5WKdN3hOSw7WLXx4yQwR6RHF9zXE/dzvjA4B/JHY5Jfm3le4sCjKe4V4HDlqcmzorww8b4g+RezL0h+RGyqt0zHufa11lMa3VsZcTrQAhTZha7b2Sia1Vy+jWTtqb/BJM/fz0iOmoQNlual5lNPYmb0r3fyU4HTSnlH8FK+ifQBsCE6qUSdsOpOyKq+cX+jBaZXmgDqhA9bUofsAh/jtA3WgBX2GE6sSX0Z1/3HJnUzzEjgCMjiK6XYjl5qKZ20At68m9msjNom2CQ+QAGqLCsn6ADo0prxBHqUst5IeoKu30QdoarUbZvYliE7OLqewUsuGE8Dqwq78Qw6wWTlVauUpOrvmavoobUd7h4jE7xoko3KEfLGB5jGSKcTysKR4fVPAAEQYjfsImI9083VdY2UN7MGw3dHncH2N2Ncp8bKjjSrNg2Ve8IKtHryn/QjvAwnfdyO4vUqY1+40YmmNaiDRVsYZc2FisKSPsG4ws="
+
