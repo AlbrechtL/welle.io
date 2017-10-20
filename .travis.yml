@@ -52,6 +52,8 @@ after_success:
   - ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -qmldir=. -appimage
   - find ./appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq
   #- curl --upload-file ./welle*.AppImage https://transfer.sh/welle_io-git."$GIT_HASH"-x86_64.AppImage
+  # Rename
+  - mv welle.io-x86_64.AppImage "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.AppImage
   # Prepare bintray deploy
   - sed -e "s/\${VERSION}/"$DATE"_"$GIT_HASH"/" .travis-bintray-deploy.json.template >travis-bintray-deploy.json
 
