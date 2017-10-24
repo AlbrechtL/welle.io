@@ -54,7 +54,7 @@ int main(int argc, char** argv)
     QCoreApplication::setOrganizationName("welle.io");
     QCoreApplication::setOrganizationDomain("welle.io");
     QCoreApplication::setApplicationName("welle.io");
-    QCoreApplication::setApplicationVersion(CURRENT_VERSION);
+    QCoreApplication::setApplicationVersion(QString(CURRENT_VERSION) + " Git: " + GITHASH);
 
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 

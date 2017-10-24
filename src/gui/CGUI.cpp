@@ -36,12 +36,6 @@
 #include "DabConstants.h"
 #include "msc-handler.h"
 
-// Fallback if git hash macro is not defined
-#ifndef GITHASH
-#pragma message "Git hash is not defined! Set it to \"unknown\""
-#define GITHASH "unknown"
-#endif
-
 /**
   *	We use the creation function merely to set up the
   *	user interface and make the connections between the

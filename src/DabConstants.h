@@ -49,7 +49,13 @@
 typedef float DSPFLOAT;
 typedef std::complex<DSPFLOAT> DSPCOMPLEX;
 
-#define CURRENT_VERSION "1.0-beta"
+// Fallback if git hash macro is not defined
+#ifndef GITHASH
+#pragma message "Git hash is not defined! Set it to \"unknown\""
+#define GITHASH "unknown"
+#endif
+
+#define CURRENT_VERSION "1.0-beta1"
 
 #define DAB 0100
 #define DAB_PLUS 0101
