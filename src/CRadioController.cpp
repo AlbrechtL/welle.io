@@ -66,21 +66,6 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, QObject *par
     connect(&StationTimer, &QTimer::timeout, this, &CRadioController::StationTimerTimeout);
     connect(&ChannelTimer, &QTimer::timeout, this, &CRadioController::ChannelTimerTimeout);
     connect(&SyncCheckTimer, &QTimer::timeout, this, &CRadioController::SyncCheckTimerTimeout);
-
-    SchedulerConfig_t config; //invokes default SchedulerConfig_t constructor
-    config.sampling_rate  = 2048000;
-    config.carrier_frequency = 12000000;
-
-    config.input_filename = "DAB-Test/20160827_202005_5C";
-    config.data_source = Scheduler::DATA_FROM_FILE;
-
-    //config.use_speakers = !(this_->user_input_->silent_);
-    //config.output_filename = this_->user_input_->output_;
-    //config.convolutional_alg = this_->user_input_->decodingAlg_;
-    //if (this_->user_input_->channel_nr > 0)
-    //    config.start_station_nr = this_->user_input_->channel_nr;
-
-    this->Scheduler::Start(config);
 }
 
 CRadioController::~CRadioController(void)
@@ -243,11 +228,14 @@ void CRadioController::Play(QString Channel, QString Station)
         StopScan();
     }
 
-    DeviceRestart();
+    /*DeviceRestart();
     startPlayback = false;
 
     SetChannel(Channel, false);
-    SetStation(Station);
+    SetStation(Station);*/
+
+    if(Status != Playing)
+        SchedularStart();
 
     Status = Playing;
     UpdateGUIData();
@@ -787,7 +775,7 @@ void CRadioController::SyncCheckTimerTimeout(void)
 
 void CRadioController::addtoEnsemble(quint32 SId, const QString &Station)
 {
-    qDebug() << "RadioController: Found station" <<  Station
+    /*qDebug() << "RadioController: Found station" <<  Station
              << "(" << qPrintable(QString::number(SId, 16).toUpper()) << ")";
 
     if (startPlayback && StationList.isEmpty()) {
@@ -802,21 +790,9 @@ void CRadioController::addtoEnsemble(quint32 SId, const QString &Station)
         mStationCount++;
         CurrentText = tr("Found channels") + ": " + QString::number(mStationCount);
         UpdateGUIData();
-    }
+    }*/
 
-    //	Add new station into list
-    if (!mStationList.contains(Station, CurrentChannel)) {
-        mStationList.append(Station, CurrentChannel);
 
-        //	Sort stations
-        mStationList.sort();
-
-        emit StationsChanged(mStationList.getList());
-        emit FoundStation(Station, CurrentChannel);
-
-        // Save the channels
-        mStationList.saveStations();
-    }
 }
 
 void CRadioController::nameofEnsemble(int id, const QString &Ensemble)
@@ -900,6 +876,94 @@ void CRadioController::SetFrequencyCorrection(int FrequencyCorrection)
         return;
     mFrequencyCorrection = FrequencyCorrection;
     emit FrequencyCorrectionChanged(mFrequencyCorrection);
+}
+
+void CRadioController::SchedularStart()
+{
+    //Launch a thread
+    SchedulerThread = new std::thread(SchedularThreadWrapper, this);
+}
+
+void CRadioController::SchedularThreadWrapper(CRadioController *RadioController)
+{
+    if(RadioController)
+        RadioController->SchedulerRunThread();
+}
+
+void CRadioController::SchedulerRunThread()
+{
+    SchedulerConfig_t config; //invokes default SchedulerConfig_t constructor
+    config.sampling_rate  = 2048000;
+    config.carrier_frequency = 12000000;
+
+    config.input_filename = "../DAB-Test/20160827_202005_5C.iq";
+    // ToDo: DATA_FROM_FILE doesn't check if file exists
+    config.data_source = Scheduler::DATA_FROM_FILE;
+
+    //config.use_speakers = !(this_->user_input_->silent_);
+    //config.output_filename = this_->user_input_->output_;
+    //config.convolutional_alg = this_->user_input_->decodingAlg_;
+    //if (this_->user_input_->channel_nr > 0)
+    //    config.start_station_nr = this_->user_input_->channel_nr;
+
+    this->Scheduler::Start(config);
+}
+
+/********* sdrdab overrides *********/
+void CRadioController::ParametersFromSDR(Scheduler::scheduler_error_t error_code)
+{
+    switch(error_code)
+    {
+    case OK: qDebug() << "RadioController: no error"; break;
+    case ERROR_UNKNOWN: qDebug() << "RadioController: unknown error"; break;
+    case FILE_NOT_FOUND: qDebug() << "RadioController: FileDataFeeder was unable to open raw file"; break;
+    case DEVICE_NOT_FOUND: qDebug() << "RadioController: DataFeeder was unable to use tuner"; break;
+    case DEVICE_DISCONNECTED: qDebug() << "RadioController: tuner device has been disconnected"; break;
+    case FILE_END: qDebug() << "RadioController: input file with raw samples has ended"; break;
+    case DAB_NOT_DETECTED: qDebug() << "RadioController: DAB signal was not detected"; break;
+    case STATION_NOT_FOUND: qDebug() << "RadioController: given station number is incorrect"; break;
+    }
+}
+
+void CRadioController::ParametersFromSDR(float snr)
+{
+
+}
+
+void CRadioController::ParametersFromSDR(UserFICData_t *user_fic_extra_data)
+{
+    if(!user_fic_extra_data)
+        return;
+
+    /*qDebug() << "RadioController: DAB_plus " << user_fic_extra_data->DAB_plus_;
+    qDebug() << "RadioController: bitrate " << user_fic_extra_data->bitrate_;
+    qDebug() << "RadioController: service_label " << QString::fromStdString(user_fic_extra_data->service_label_);*/
+
+    // ToDo Just for testing
+    CurrentChannel = "File";
+
+    for(auto station : user_fic_extra_data->stations)
+    {
+        QString StationName = QString::fromStdString(station.station_name);
+
+        //	Add new station into list
+        if (!mStationList.contains(StationName, CurrentChannel))
+        {
+            qDebug() << "RadioController: Found station" <<  StationName
+                     << "(" << qPrintable(QString::number(station.ServiceId, 16).toUpper()) << ")";
+
+            mStationList.append(StationName, CurrentChannel);
+
+            //	Sort stations
+            mStationList.sort();
+
+            //emit StationsChanged(mStationList.getList());
+            //emit FoundStation(StationName, CurrentChannel);
+
+            // Save the channels
+            mStationList.saveStations();
+        }
+    }
 }
 
 void CRadioController::setSynced(char isSync)

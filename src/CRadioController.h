@@ -30,6 +30,8 @@
 #ifndef CRADIOCONTROLLER_H
 #define CRADIOCONTROLLER_H
 
+#include <thread>
+
 #include <QObject>
 #include <QList>
 #include <QDateTime>
@@ -147,6 +149,38 @@ private:
     void UpdateGUIData();
     void SetFrequencyCorrection(int FrequencyCorrection);
 
+    void SchedularStart(void);
+    static void SchedularThreadWrapper(CRadioController *RadioController);
+    void SchedulerRunThread(void);
+
+    /********* sdrdab overrides *********/
+    /**
+     * "Callback" executed whenever something interesting happens.
+     * Error code variant.
+     * @brief Error callback
+     * @param[in] error_code error code
+     */
+    virtual void ParametersFromSDR(scheduler_error_t error_code);
+
+    /**
+     * "Callback" executed whenever something interesting happens.
+     * SNR variant.
+     * @brief SNR measurement callback
+     * @param[in] snr current SNR level [dB]
+     */
+    virtual void ParametersFromSDR(float snr);
+
+    /**
+     * "Callback" executed whenever something interesting happens.
+     * FIG & SlideShow variant.
+     * @brief new UserFICData_t callback
+     * @param[in] user_fic_extra_data pointer to the structure
+     * @note user_fic_extra_data has to be freed before return!
+     */
+    virtual void ParametersFromSDR(UserFICData_t *user_fic_extra_data);
+
+    std::thread *SchedulerThread;
+
     // Back-end objects
     CVirtualInput* Device;
     QVariantMap commandLineOptions;
@@ -190,7 +224,7 @@ private:
     qreal CurrentVolume;
 
     CStationList mStationList;
-    QList<QString> StationList;
+    //QList<QString> StationList;
     QTimer StationTimer;
     QTimer ChannelTimer;
     QTimer SyncCheckTimer;
