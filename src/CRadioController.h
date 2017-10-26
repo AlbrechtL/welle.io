@@ -180,6 +180,7 @@ private:
     virtual void ParametersFromSDR(UserFICData_t *user_fic_extra_data);
 
     std::thread *SchedulerThread;
+    UserFICData_t FICExtraData;
 
     // Back-end objects
     CVirtualInput* Device;
@@ -243,6 +244,7 @@ private slots:
     void StationTimerTimeout(void);
     void ChannelTimerTimeout(void);
     void SyncCheckTimerTimeout(void);
+    void FICExtraDataUpdate(void);
 
 #ifndef Q_OS_ANDROID
 signals:
@@ -281,6 +283,8 @@ signals:
     void showErrorMessage(QString Text);
     void showInfoMessage(QString Text);
     void showAndroidInstallDialog(QString Title, QString Text);
+
+    void FICExtraDataUpdated(void);
 #endif
 
 public slots:

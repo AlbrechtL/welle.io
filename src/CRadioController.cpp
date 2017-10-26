@@ -66,6 +66,7 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, QObject *par
     connect(&StationTimer, &QTimer::timeout, this, &CRadioController::StationTimerTimeout);
     connect(&ChannelTimer, &QTimer::timeout, this, &CRadioController::ChannelTimerTimeout);
     connect(&SyncCheckTimer, &QTimer::timeout, this, &CRadioController::SyncCheckTimerTimeout);
+    connect(this, &CRadioController::FICExtraDataUpdated, this, &CRadioController::FICExtraDataUpdate);
 }
 
 CRadioController::~CRadioController(void)
@@ -389,8 +390,10 @@ void CRadioController::StartScan(void)
     qDebug() << "RadioController:" << "Start channel scan";
 
     SyncCheckTimer.stop();
-    DeviceRestart();
     startPlayback = false;
+
+    // ToDo: Just for testing
+    SchedularStart();
 
 //    if(Device && Device->getID() == CDeviceID::RAWFILE)
 //    {
@@ -768,6 +771,39 @@ void CRadioController::SyncCheckTimerTimeout(void)
     }
 }
 
+void CRadioController::FICExtraDataUpdate()
+{
+    /*qDebug() << "RadioController: DAB_plus " << user_fic_extra_data->DAB_plus_;
+    qDebug() << "RadioController: bitrate " << user_fic_extra_data->bitrate_;
+    qDebug() << "RadioController: service_label " << QString::fromStdString(user_fic_extra_data->service_label_);*/
+
+    // ToDo Just for testing
+    CurrentChannel = "File";
+
+    for(auto station : FICExtraData.stations)
+    {
+        QString StationName = QString::fromStdString(station.station_name);
+
+        //	Add new station into list
+        if (!mStationList.contains(StationName, CurrentChannel))
+        {
+            qDebug() << "RadioController: Found station" <<  StationName
+                     << "(" << qPrintable(QString::number(station.ServiceId, 16).toUpper()) << ")";
+
+            mStationList.append(StationName, CurrentChannel);
+
+            //	Sort stations
+            mStationList.sort();
+
+            emit StationsChanged(mStationList.getList());
+            emit FoundStation(StationName, CurrentChannel);
+
+            // Save the channels
+            mStationList.saveStations();
+        }
+    }
+}
+
 
 /*****************
  * Backend slots *
@@ -935,35 +971,8 @@ void CRadioController::ParametersFromSDR(UserFICData_t *user_fic_extra_data)
     if(!user_fic_extra_data)
         return;
 
-    /*qDebug() << "RadioController: DAB_plus " << user_fic_extra_data->DAB_plus_;
-    qDebug() << "RadioController: bitrate " << user_fic_extra_data->bitrate_;
-    qDebug() << "RadioController: service_label " << QString::fromStdString(user_fic_extra_data->service_label_);*/
-
-    // ToDo Just for testing
-    CurrentChannel = "File";
-
-    for(auto station : user_fic_extra_data->stations)
-    {
-        QString StationName = QString::fromStdString(station.station_name);
-
-        //	Add new station into list
-        if (!mStationList.contains(StationName, CurrentChannel))
-        {
-            qDebug() << "RadioController: Found station" <<  StationName
-                     << "(" << qPrintable(QString::number(station.ServiceId, 16).toUpper()) << ")";
-
-            mStationList.append(StationName, CurrentChannel);
-
-            //	Sort stations
-            mStationList.sort();
-
-            //emit StationsChanged(mStationList.getList());
-            //emit FoundStation(StationName, CurrentChannel);
-
-            // Save the channels
-            mStationList.saveStations();
-        }
-    }
+    FICExtraData = user_fic_extra_data;
+    emit FICExtraDataUpdated();
 }
 
 void CRadioController::setSynced(char isSync)
