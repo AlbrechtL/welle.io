@@ -49,6 +49,11 @@ CSoapySdr::~CSoapySdr()
 }
 
 
+void CSoapySdr::setDriverArgs(QString args)
+{
+    m_driver_args = args;
+}
+
 void CSoapySdr::setFrequency(int32_t Frequency)
 {
     m_freq = Frequency;
@@ -70,7 +75,7 @@ bool CSoapySdr::restart()
     m_sampleBuffer.FlushRingBuffer();
     m_spectrumSampleBuffer.FlushRingBuffer();
 
-    m_device = SoapySDR::Device::make();
+    m_device = SoapySDR::Device::make(m_driver_args.toStdString());
     stringstream ss;
     ss << "SoapySDR driver=" << m_device->getDriverKey();
     ss << " hardware=" << m_device->getHardwareKey();

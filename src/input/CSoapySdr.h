@@ -61,10 +61,12 @@ public:
     virtual void setHwAgc(bool hwAGC);
     virtual QString getName(void);
     virtual CDeviceID getID(void);
+    virtual void setDriverArgs(QString args);
 private:
     friend class CSoapySdr_Thread;
 
     int32_t m_freq = 0;
+    QString m_driver_args;
     SoapySDR::Device *m_device = nullptr;
     std::atomic<bool> m_running;
     CSoapySdr_Thread *m_thread = nullptr;

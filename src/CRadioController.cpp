@@ -31,6 +31,7 @@
 #include <QSettings>
 
 #include "CRadioController.h"
+#include "CSoapySdr.h"
 #include "CInputFactory.h"
 #include "CRAWFile.h"
 #include "CRTL_TCP_Client.h"
@@ -171,6 +172,7 @@ void CRadioController::onEventLoopStarted()
     QString dabDevice = "auto";
 #endif
 
+    QString sdrDriverArgs;
     QString ipAddress = "127.0.0.1";
     uint16_t ipPort = 1234;
     QString rawFile = "";
@@ -178,6 +180,9 @@ void CRadioController::onEventLoopStarted()
 
     if(commandLineOptions["dabDevice"] != "")
         dabDevice = commandLineOptions["dabDevice"].toString();
+
+    if(commandLineOptions["sdr-driver-args"] != "")
+        sdrDriverArgs = commandLineOptions["sdr-driver-args"].toString();
 
     if(commandLineOptions["ipAddress"] != "")
         ipAddress = commandLineOptions["ipAddress"].toString();
@@ -207,6 +212,11 @@ void CRadioController::onEventLoopStarted()
         CRAWFile* RAWFile = (CRAWFile*)Device;
 
         RAWFile->setFileName(rawFile, rawFileFormat);
+    }
+
+    if (Device->getID() == CDeviceID::SOAPYSDR) {
+	CSoapySdr *sdr = (CSoapySdr*)Device;
+	sdr->setDriverArgs(sdrDriverArgs);
     }
 
     Initialise();
