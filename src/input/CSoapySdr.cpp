@@ -54,6 +54,11 @@ void CSoapySdr::setDriverArgs(QString args)
     m_driver_args = args;
 }
 
+void CSoapySdr::setAntenna(QString antenna)
+{
+    m_antenna = antenna;
+}
+
 void CSoapySdr::setFrequency(int32_t Frequency)
 {
     m_freq = Frequency;
@@ -94,7 +99,8 @@ bool CSoapySdr::restart()
         m_device->getSampleRate(SOAPY_SDR_RX, 0) / 1000.0 <<
         " ksps.";
 
-    m_device->setAntenna(SOAPY_SDR_RX, 0, "LNAW");
+    if (!m_antenna.isEmpty())
+        m_device->setAntenna(SOAPY_SDR_RX, 0, m_antenna.toStdString());
 
     if (m_freq > 0) {
         setFrequency(m_freq);

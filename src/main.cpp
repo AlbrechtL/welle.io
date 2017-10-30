@@ -133,6 +133,11 @@ int main(int argc, char** argv)
         QCoreApplication::translate("main", "args"));
     optionParser.addOption(SDRDriverArgsOption);
 
+    QCommandLineOption SDRAntennaOption("sdr-antenna",
+        QCoreApplication::translate("main", "The value depends on the SDR Hardware, typical values are RX2, TX/RX, LNAW. Just query it with SoapySDRUtil --probe=driver=uhd"),
+        QCoreApplication::translate("main", "antenna"));
+    optionParser.addOption(SDRAntennaOption);
+
     QCommandLineOption DABModeOption("M",
         QCoreApplication::translate("main", "DAB mode. Possible is: 1, 2 or 4, default: 1"),
         QCoreApplication::translate("main", "Mode"));
@@ -196,6 +201,7 @@ int main(int argc, char** argv)
     QVariantMap commandLineOptions;
     commandLineOptions["dabDevice"] = optionParser.value(InputOption);
     commandLineOptions["sdr-driver-args"] = optionParser.value(SDRDriverArgsOption);
+    commandLineOptions["sdr-antenna"] = optionParser.value(SDRAntennaOption);
     commandLineOptions["ipAddress"] = optionParser.value(RTL_TCPServerIPOption);
     commandLineOptions["ipPort"] = optionParser.value(RTL_TCPServerIPPort);
     commandLineOptions["rawFile"] = optionParser.value(RAWFile);

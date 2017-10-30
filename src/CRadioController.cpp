@@ -173,6 +173,7 @@ void CRadioController::onEventLoopStarted()
 #endif
 
     QString sdrDriverArgs;
+    QString sdrAntenna;
     QString ipAddress = "127.0.0.1";
     uint16_t ipPort = 1234;
     QString rawFile = "";
@@ -183,6 +184,9 @@ void CRadioController::onEventLoopStarted()
 
     if(commandLineOptions["sdr-driver-args"] != "")
         sdrDriverArgs = commandLineOptions["sdr-driver-args"].toString();
+
+    if(commandLineOptions["sdr-antenna"] != "")
+        sdrAntenna = commandLineOptions["sdr-antenna"].toString();
 
     if(commandLineOptions["ipAddress"] != "")
         ipAddress = commandLineOptions["ipAddress"].toString();
@@ -215,8 +219,15 @@ void CRadioController::onEventLoopStarted()
     }
 
     if (Device->getID() == CDeviceID::SOAPYSDR) {
-	CSoapySdr *sdr = (CSoapySdr*)Device;
-	sdr->setDriverArgs(sdrDriverArgs);
+        CSoapySdr *sdr = (CSoapySdr*)Device;
+
+        if (!sdrDriverArgs.isEmpty()) {
+            sdr->setDriverArgs(sdrDriverArgs);
+        }
+
+        if (!sdrDriverArgs.isEmpty()) {
+            sdr->setAntenna(sdrAntenna);
+        }
     }
 
     Initialise();
