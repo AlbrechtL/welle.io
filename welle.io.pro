@@ -68,6 +68,8 @@ HEADERS += \
     src/gui/CGUI.h \
     src/CRadioController.h \
     src/CChannels.h \
+    src/CSDRDABInterface.h \
+    src/CFICData.h \
     src/libs/sdrdab/synchronizer_data.h \
     src/libs/sdrdab/threading/wrapper_functions.h \
     src/libs/sdrdab/threading/blocking_queue.h \
@@ -119,6 +121,8 @@ SOURCES += \
     src/gui/CGUI.cpp \
     src/CRadioController.cpp \
     src/CChannels.cpp \
+    src/CSDRDABInterface.cpp \
+    src/CFICData.cpp \
     src/libs/sdrdab/threading/signaled_worker_thread.cc \
     src/libs/sdrdab/threading/scoped_lock.cc \
     src/libs/sdrdab/demodulator.cc \

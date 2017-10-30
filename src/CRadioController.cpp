@@ -66,7 +66,9 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, QObject *par
     connect(&StationTimer, &QTimer::timeout, this, &CRadioController::StationTimerTimeout);
     connect(&ChannelTimer, &QTimer::timeout, this, &CRadioController::ChannelTimerTimeout);
     connect(&SyncCheckTimer, &QTimer::timeout, this, &CRadioController::SyncCheckTimerTimeout);
-    connect(this, &CRadioController::FICExtraDataUpdated, this, &CRadioController::FICExtraDataUpdate);
+
+    // Init SDRDAB interface
+    connect(&SDRDABInterface, &CSDRDABInterface::NewStationFound, this, &CRadioController::NewStation);
 }
 
 CRadioController::~CRadioController(void)
@@ -172,6 +174,9 @@ void CRadioController::onEventLoopStarted()
     if(commandLineOptions["rawFileFormat"] != "")
         rawFileFormat = commandLineOptions["rawFileFormat"].toString();
 
+    if(dabDevice == "rawfile")
+        SDRDABInterface.SetRAWInput(rawFile);
+
     // Init device
 //    Device = CInputFactory::GetDevice(*this, dabDevice);
 
@@ -236,7 +241,9 @@ void CRadioController::Play(QString Channel, QString Station)
     SetStation(Station);*/
 
     if(Status != Playing)
-        SchedularStart();
+        SDRDABInterface.Start();
+
+    SDRDABInterface.TuneToStation(Station);
 
     Status = Playing;
     UpdateGUIData();
@@ -393,7 +400,7 @@ void CRadioController::StartScan(void)
     startPlayback = false;
 
     // ToDo: Just for testing
-    SchedularStart();
+    SDRDABInterface.Start();
 
 //    if(Device && Device->getID() == CDeviceID::RAWFILE)
 //    {
@@ -771,39 +778,26 @@ void CRadioController::SyncCheckTimerTimeout(void)
     }
 }
 
-void CRadioController::FICExtraDataUpdate()
+void CRadioController::NewStation(QString StationName)
 {
-    /*qDebug() << "RadioController: DAB_plus " << user_fic_extra_data->DAB_plus_;
-    qDebug() << "RadioController: bitrate " << user_fic_extra_data->bitrate_;
-    qDebug() << "RadioController: service_label " << QString::fromStdString(user_fic_extra_data->service_label_);*/
-
     // ToDo Just for testing
     CurrentChannel = "File";
 
-    for(auto station : FICExtraData.stations)
+    //	Add new station into list
+    if (!mStationList.contains(StationName, CurrentChannel))
     {
-        QString StationName = QString::fromStdString(station.station_name);
+        mStationList.append(StationName, CurrentChannel);
 
-        //	Add new station into list
-        if (!mStationList.contains(StationName, CurrentChannel))
-        {
-            qDebug() << "RadioController: Found station" <<  StationName
-                     << "(" << qPrintable(QString::number(station.ServiceId, 16).toUpper()) << ")";
+        //	Sort stations
+        mStationList.sort();
 
-            mStationList.append(StationName, CurrentChannel);
+        emit StationsChanged(mStationList.getList());
+        emit FoundStation(StationName, CurrentChannel);
 
-            //	Sort stations
-            mStationList.sort();
-
-            emit StationsChanged(mStationList.getList());
-            emit FoundStation(StationName, CurrentChannel);
-
-            // Save the channels
-            mStationList.saveStations();
-        }
+        // Save the channels
+        mStationList.saveStations();
     }
 }
-
 
 /*****************
  * Backend slots *
@@ -906,74 +900,9 @@ void CRadioController::set_coarseCorrectorDisplay(int CoarseFreuqencyCorr)
     SetFrequencyCorrection((CoarseFreuqencyCorr * 1000) + FineFrequencyCorr);
 }
 
-void CRadioController::SetFrequencyCorrection(int FrequencyCorrection)
-{
-    if (mFrequencyCorrection == FrequencyCorrection)
-        return;
-    mFrequencyCorrection = FrequencyCorrection;
-    emit FrequencyCorrectionChanged(mFrequencyCorrection);
-}
 
-void CRadioController::SchedularStart()
-{
-    //Launch a thread
-    SchedulerThread = new std::thread(SchedularThreadWrapper, this);
-}
 
-void CRadioController::SchedularThreadWrapper(CRadioController *RadioController)
-{
-    if(RadioController)
-        RadioController->SchedulerRunThread();
-}
 
-void CRadioController::SchedulerRunThread()
-{
-    SchedulerConfig_t config; //invokes default SchedulerConfig_t constructor
-    config.sampling_rate  = 2048000;
-    config.carrier_frequency = 12000000;
-
-    config.input_filename = "../DAB-Test/20160827_202005_5C.iq";
-    // ToDo: DATA_FROM_FILE doesn't check if file exists
-    config.data_source = Scheduler::DATA_FROM_FILE;
-
-    //config.use_speakers = !(this_->user_input_->silent_);
-    //config.output_filename = this_->user_input_->output_;
-    //config.convolutional_alg = this_->user_input_->decodingAlg_;
-    //if (this_->user_input_->channel_nr > 0)
-    //    config.start_station_nr = this_->user_input_->channel_nr;
-
-    this->Scheduler::Start(config);
-}
-
-/********* sdrdab overrides *********/
-void CRadioController::ParametersFromSDR(Scheduler::scheduler_error_t error_code)
-{
-    switch(error_code)
-    {
-    case OK: qDebug() << "RadioController: no error"; break;
-    case ERROR_UNKNOWN: qDebug() << "RadioController: unknown error"; break;
-    case FILE_NOT_FOUND: qDebug() << "RadioController: FileDataFeeder was unable to open raw file"; break;
-    case DEVICE_NOT_FOUND: qDebug() << "RadioController: DataFeeder was unable to use tuner"; break;
-    case DEVICE_DISCONNECTED: qDebug() << "RadioController: tuner device has been disconnected"; break;
-    case FILE_END: qDebug() << "RadioController: input file with raw samples has ended"; break;
-    case DAB_NOT_DETECTED: qDebug() << "RadioController: DAB signal was not detected"; break;
-    case STATION_NOT_FOUND: qDebug() << "RadioController: given station number is incorrect"; break;
-    }
-}
-
-void CRadioController::ParametersFromSDR(float snr)
-{
-
-}
-
-void CRadioController::ParametersFromSDR(UserFICData_t *user_fic_extra_data)
-{
-    if(!user_fic_extra_data)
-        return;
-
-    FICExtraData = user_fic_extra_data;
-    emit FICExtraDataUpdated();
-}
 
 void CRadioController::setSynced(char isSync)
 {
@@ -993,6 +922,14 @@ void CRadioController::setSignalPresent(bool isSignal)
 
     if(isChannelScan)
         NextChannel(isSignal);
+}
+
+void CRadioController::SetFrequencyCorrection(int FrequencyCorrection)
+{
+    if (mFrequencyCorrection == FrequencyCorrection)
+        return;
+    mFrequencyCorrection = FrequencyCorrection;
+    emit FrequencyCorrectionChanged(mFrequencyCorrection);
 }
 
 void CRadioController::newAudio(int SampleRate)

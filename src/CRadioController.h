@@ -43,6 +43,7 @@
 #include "CStationList.h"
 #include "CChannels.h"
 #include "scheduler.h"
+#include "CSDRDABInterface.h"
 
 class CVirtualInput;
 
@@ -149,38 +150,7 @@ private:
     void UpdateGUIData();
     void SetFrequencyCorrection(int FrequencyCorrection);
 
-    void SchedularStart(void);
-    static void SchedularThreadWrapper(CRadioController *RadioController);
-    void SchedulerRunThread(void);
-
-    /********* sdrdab overrides *********/
-    /**
-     * "Callback" executed whenever something interesting happens.
-     * Error code variant.
-     * @brief Error callback
-     * @param[in] error_code error code
-     */
-    virtual void ParametersFromSDR(scheduler_error_t error_code);
-
-    /**
-     * "Callback" executed whenever something interesting happens.
-     * SNR variant.
-     * @brief SNR measurement callback
-     * @param[in] snr current SNR level [dB]
-     */
-    virtual void ParametersFromSDR(float snr);
-
-    /**
-     * "Callback" executed whenever something interesting happens.
-     * FIG & SlideShow variant.
-     * @brief new UserFICData_t callback
-     * @param[in] user_fic_extra_data pointer to the structure
-     * @note user_fic_extra_data has to be freed before return!
-     */
-    virtual void ParametersFromSDR(UserFICData_t *user_fic_extra_data);
-
-    std::thread *SchedulerThread;
-    UserFICData_t FICExtraData;
+    CSDRDABInterface SDRDABInterface;
 
     // Back-end objects
     CVirtualInput* Device;
@@ -244,7 +214,7 @@ private slots:
     void StationTimerTimeout(void);
     void ChannelTimerTimeout(void);
     void SyncCheckTimerTimeout(void);
-    void FICExtraDataUpdate(void);
+    void NewStation(QString StationName);
 
 #ifndef Q_OS_ANDROID
 signals:
