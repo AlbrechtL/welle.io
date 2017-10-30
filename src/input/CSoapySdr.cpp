@@ -59,6 +59,11 @@ void CSoapySdr::setAntenna(QString antenna)
     m_antenna = antenna;
 }
 
+void CSoapySdr::setClockSource(QString clock_source)
+{
+    m_clock_source = clock_source;
+}
+
 void CSoapySdr::setFrequency(int32_t Frequency)
 {
     m_freq = Frequency;
@@ -101,6 +106,9 @@ bool CSoapySdr::restart()
 
     if (!m_antenna.isEmpty())
         m_device->setAntenna(SOAPY_SDR_RX, 0, m_antenna.toStdString());
+
+    if (!m_clock_source.isEmpty())
+        m_device->setClockSource(m_clock_source.toStdString());
 
     if (m_freq > 0) {
         setFrequency(m_freq);

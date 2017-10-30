@@ -174,6 +174,7 @@ void CRadioController::onEventLoopStarted()
 
     QString sdrDriverArgs;
     QString sdrAntenna;
+    QString sdrClockSource;
     QString ipAddress = "127.0.0.1";
     uint16_t ipPort = 1234;
     QString rawFile = "";
@@ -187,6 +188,9 @@ void CRadioController::onEventLoopStarted()
 
     if(commandLineOptions["sdr-antenna"] != "")
         sdrAntenna = commandLineOptions["sdr-antenna"].toString();
+
+    if(commandLineOptions["sdr-clock-source"] != "")
+        sdrClockSource = commandLineOptions["sdr-clock-source"].toString();
 
     if(commandLineOptions["ipAddress"] != "")
         ipAddress = commandLineOptions["ipAddress"].toString();
@@ -227,6 +231,10 @@ void CRadioController::onEventLoopStarted()
 
         if (!sdrDriverArgs.isEmpty()) {
             sdr->setAntenna(sdrAntenna);
+        }
+
+        if (!sdrClockSource.isEmpty()) {
+            sdr->setClockSource(sdrClockSource);
         }
     }
 

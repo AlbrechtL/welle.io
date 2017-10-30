@@ -134,9 +134,14 @@ int main(int argc, char** argv)
     optionParser.addOption(SDRDriverArgsOption);
 
     QCommandLineOption SDRAntennaOption("sdr-antenna",
-        QCoreApplication::translate("main", "The value depends on the SDR Hardware, typical values are RX2, TX/RX, LNAW. Just query it with SoapySDRUtil --probe=driver=uhd"),
+        QCoreApplication::translate("main", "The value depends on the SDR Hardware, typical values are TX/RX, RX2. Just query it with SoapySDRUtil --probe=driver=uhd"),
         QCoreApplication::translate("main", "antenna"));
     optionParser.addOption(SDRAntennaOption);
+
+    QCommandLineOption SDRClockSourceOption("sdr-clock-source",
+        QCoreApplication::translate("main", "The value depends on the SDR Hardware, typical values are internal, external, gpsdo. Just query it with SoapySDRUtil --probe=driver=uhd"),
+        QCoreApplication::translate("main", "clock_source"));
+    optionParser.addOption(SDRClockSourceOption);
 
     QCommandLineOption DABModeOption("M",
         QCoreApplication::translate("main", "DAB mode. Possible is: 1, 2 or 4, default: 1"),
@@ -202,6 +207,7 @@ int main(int argc, char** argv)
     commandLineOptions["dabDevice"] = optionParser.value(InputOption);
     commandLineOptions["sdr-driver-args"] = optionParser.value(SDRDriverArgsOption);
     commandLineOptions["sdr-antenna"] = optionParser.value(SDRAntennaOption);
+    commandLineOptions["sdr-clock-source"] = optionParser.value(SDRClockSourceOption);
     commandLineOptions["ipAddress"] = optionParser.value(RTL_TCPServerIPOption);
     commandLineOptions["ipPort"] = optionParser.value(RTL_TCPServerIPPort);
     commandLineOptions["rawFile"] = optionParser.value(RAWFile);

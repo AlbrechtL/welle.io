@@ -63,12 +63,14 @@ public:
     virtual CDeviceID getID(void);
     virtual void setDriverArgs(QString args);
     virtual void setAntenna(QString antenna);
+    virtual void setClockSource(QString clock_source);
 private:
     friend class CSoapySdr_Thread;
 
     int32_t m_freq = 0;
     QString m_driver_args;
     QString m_antenna;
+    QString m_clock_source;
     SoapySDR::Device *m_device = nullptr;
     std::atomic<bool> m_running;
     CSoapySdr_Thread *m_thread = nullptr;
