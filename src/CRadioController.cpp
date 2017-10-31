@@ -31,6 +31,9 @@
 #include <QSettings>
 
 #include "CRadioController.h"
+#ifdef HAVE_SOAPYSDR
+#include "CSoapySdr.h"
+#endif /* HAVE_SOAPYSDR */
 #include "CInputFactory.h"
 #include "CRAWFile.h"
 #include "CRTL_TCP_Client.h"
@@ -171,6 +174,11 @@ void CRadioController::onEventLoopStarted()
     QString dabDevice = "auto";
 #endif
 
+#ifdef HAVE_SOAPYSDR
+    QString sdrDriverArgs;
+    QString sdrAntenna;
+    QString sdrClockSource;
+#endif /* HAVE_SOAPYSDR */
     QString ipAddress = "127.0.0.1";
     uint16_t ipPort = 1234;
     QString rawFile = "";
@@ -178,6 +186,17 @@ void CRadioController::onEventLoopStarted()
 
     if(commandLineOptions["dabDevice"] != "")
         dabDevice = commandLineOptions["dabDevice"].toString();
+
+#ifdef HAVE_SOAPYSDR
+    if(commandLineOptions["sdr-driver-args"] != "")
+        sdrDriverArgs = commandLineOptions["sdr-driver-args"].toString();
+
+    if(commandLineOptions["sdr-antenna"] != "")
+        sdrAntenna = commandLineOptions["sdr-antenna"].toString();
+
+    if(commandLineOptions["sdr-clock-source"] != "")
+        sdrClockSource = commandLineOptions["sdr-clock-source"].toString();
+#endif /* HAVE_SOAPYSDR */
 
     if(commandLineOptions["ipAddress"] != "")
         ipAddress = commandLineOptions["ipAddress"].toString();
@@ -208,6 +227,24 @@ void CRadioController::onEventLoopStarted()
 
         RAWFile->setFileName(rawFile, rawFileFormat);
     }
+
+#ifdef HAVE_SOAPYSDR
+    if (Device->getID() == CDeviceID::SOAPYSDR) {
+        CSoapySdr *sdr = (CSoapySdr*)Device;
+
+        if (!sdrDriverArgs.isEmpty()) {
+            sdr->setDriverArgs(sdrDriverArgs);
+        }
+
+        if (!sdrDriverArgs.isEmpty()) {
+            sdr->setAntenna(sdrAntenna);
+        }
+
+        if (!sdrClockSource.isEmpty()) {
+            sdr->setClockSource(sdrClockSource);
+        }
+    }
+#endif /* HAVE_SOAPYSDR */
 
     Initialise();
 }

@@ -49,6 +49,21 @@ CSoapySdr::~CSoapySdr()
 }
 
 
+void CSoapySdr::setDriverArgs(QString args)
+{
+    m_driver_args = args;
+}
+
+void CSoapySdr::setAntenna(QString antenna)
+{
+    m_antenna = antenna;
+}
+
+void CSoapySdr::setClockSource(QString clock_source)
+{
+    m_clock_source = clock_source;
+}
+
 void CSoapySdr::setFrequency(int32_t Frequency)
 {
     m_freq = Frequency;
@@ -70,7 +85,7 @@ bool CSoapySdr::restart()
     m_sampleBuffer.FlushRingBuffer();
     m_spectrumSampleBuffer.FlushRingBuffer();
 
-    m_device = SoapySDR::Device::make();
+    m_device = SoapySDR::Device::make(m_driver_args.toStdString());
     stringstream ss;
     ss << "SoapySDR driver=" << m_device->getDriverKey();
     ss << " hardware=" << m_device->getHardwareKey();
@@ -89,7 +104,11 @@ bool CSoapySdr::restart()
         m_device->getSampleRate(SOAPY_SDR_RX, 0) / 1000.0 <<
         " ksps.";
 
-    m_device->setAntenna(SOAPY_SDR_RX, 0, "LNAW");
+    if (!m_antenna.isEmpty())
+        m_device->setAntenna(SOAPY_SDR_RX, 0, m_antenna.toStdString());
+
+    if (!m_clock_source.isEmpty())
+        m_device->setClockSource(m_clock_source.toStdString());
 
     if (m_freq > 0) {
         setFrequency(m_freq);
