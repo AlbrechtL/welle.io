@@ -124,7 +124,7 @@ RtlDataFeeder::RtlDataFeeder(const char *dongle_name, int buf_n, size_t buf_s, u
     rtl_device_index_ = VerboseDeviceSearch(dongle_name);
     if (debug)
         fprintf(stderr,"Device index: %d\n",rtl_device_index_);
-    int retval = DongleInit(rtl_device_index_, sample_rate, carrier_freq, 1000, 0);
+    int retval = DongleInit(rtl_device_index_, sample_rate, carrier_freq, 15, 0);
     if (retval >= 0) {
         if (debug) {
             fprintf(stderr, "Dongle opened successfully\n");
