@@ -58,14 +58,17 @@ void CSDRDABInterface::SchedulerRunThread()
 {
     SchedulerConfig_t config; //invokes default SchedulerConfig_t constructor
     config.sampling_rate  = 2048000;
-    config.carrier_frequency = 12000000;
 
     if(SDRDevice == SDRDevice_t::RAW)
     {
-        QByteArray ba = RAWFile.toLocal8Bit();
-        config.input_filename = ba.data(); // Does not work
-        //config.input_filename = "../dab_test_data/Test_Data/Italy/20170616_RAI_Monte_Venda_12D.raw";
+        QByteArray *ba = new QByteArray(RAWFile.toLocal8Bit()); // ToDo Memory leak!!
+        config.input_filename = ba->data();
         config.data_source = Scheduler::DATA_FROM_FILE;
+    }
+    else // Assume RTL-SDR
+    {
+        config.data_source = Scheduler::DATA_FROM_DONGLE;
+        config.carrier_frequency = 202928000;
     }
 
     //config.use_speakers = !(this_->user_input_->silent_);
