@@ -47,7 +47,7 @@ class FileDataFeeder : public AbstractDataFeeder {
          * @param carrier_freq center frequency of data saved in file
          * @param number_of_bits number_of_bits^2 is a length of sinus LUT table
          */
-        FileDataFeeder(const char *file_name, size_t buf_s, uint32_t sample_rate, uint32_t carrier_freq, int number_of_bits);
+        FileDataFeeder(const char *file_name, size_t buf_s, uint32_t sample_rate, uint32_t carrier_freq, int number_of_bits, ResamplingRingBuffer::resample_quality type);
         ~FileDataFeeder();
 
         virtual uint32_t GetCenterFrequency(void);
@@ -58,15 +58,6 @@ class FileDataFeeder : public AbstractDataFeeder {
         virtual bool EverythingOK(void);
         virtual void HandleDrifts(float fc_drift, float fs_drift);
 
-        /**
-         *   Chose integer:
-         SRC_SINC_BEST_QUALITY       > 0,
-         SRC_SINC_MEDIUM_QUALITY     > 1,
-         SRC_SINC_FASTEST            > 2,
-         SRC_ZERO_ORDER_HOLD         > 3,
-         SRC_LINEAR                  > 4
-         */
-        void ResamplerType(int quality);
 
 #ifndef GOOGLE_UNIT_TEST
     private:

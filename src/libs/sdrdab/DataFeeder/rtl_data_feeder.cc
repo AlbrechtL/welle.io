@@ -44,7 +44,7 @@ void AsyncCallback(unsigned char *buf, unsigned int len, void *ctx) {
     size_t block_size = ptctx->block_size;
 
     if (ptctx->finish_rtl_process) {
-        rtlsdr_cancel_async(pto->dev);
+        rtlsdr_cancel_async(pto->rtl_dev_);
         return;
     }
     // calculate time needed to fill buffer
@@ -59,17 +59,17 @@ void AsyncCallback(unsigned char *buf, unsigned int len, void *ctx) {
 
     if (0==pthread_mutex_timedlock(&(*ptctx->lock_buffer), &abs_time)){
         if (ptctx->finish_rtl_process) {
-            rtlsdr_cancel_async(pto->dev);
+            rtlsdr_cancel_async(pto->rtl_dev_);
             return;
         }
         float *out_buffer = ptctx->write_here;
-        if (out_buffer!=pto->previous_write_here){
-            pto->previous_write_here = out_buffer;
+        if (out_buffer!=pto->previous_write_here_){
+            pto->previous_write_here_ = out_buffer;
 
             size_t clipped = 0;
             size_t almost_clipped = 0;
-            float real_mean = pto->real_dc_rb->Mean();
-            float imag_mean = pto->imag_dc_rb->Mean();
+            float real_mean = pto->real_dc_rb_->Mean();
+            float imag_mean = pto->imag_dc_rb_->Mean();
             float real_sum = 0.0;
             float imag_sum = 0.0;
             unsigned char c1,c2;
@@ -82,7 +82,7 @@ void AsyncCallback(unsigned char *buf, unsigned int len, void *ctx) {
                 f2 = static_cast<float>(c2) - 127.0;
                 if (f1 >= 127.0 || f1<= -127.0)
                     clipped++;
-                if (f1> pto->almost_treshold || f1< -pto->almost_treshold)
+                if (f1> pto->almost_treshold_ || f1< -pto->almost_treshold_)
                     almost_clipped++;
 
                 real_sum += f1;
@@ -90,11 +90,13 @@ void AsyncCallback(unsigned char *buf, unsigned int len, void *ctx) {
                 *(out_buffer + i) = (f1-real_mean)/128.0;
                 *(out_buffer + i+1) = (f2-imag_mean)/128.0;
             }
-            pto->real_dc_rb->WriteNext(real_sum*2/len);
-            pto->imag_dc_rb->WriteNext(imag_sum*2/len);
+            pto->real_dc_rb_->WriteNext(real_sum*2/len);
+            pto->imag_dc_rb_->WriteNext(imag_sum*2/len);
             // MORE INLINE OPERATIONS
-            pto->AGC(clipped,almost_clipped,len);
-            //pto->Remodulate(out_buffer,len,pto->current_fc_offset);
+            pto->clipped_ = clipped;
+            pto->almost_clipped_ = almost_clipped;
+            pto->rtl_buffer_len_=(size_t)len;
+
             ptctx->data_stored = true;
             event_queue->push(ptctx->thread_id);
         } else {
@@ -111,82 +113,96 @@ void AsyncCallback(unsigned char *buf, unsigned int len, void *ctx) {
 };
 
 RtlDataFeeder::RtlDataFeeder(const char *dongle_name, int buf_n, size_t buf_s, uint32_t sample_rate, uint32_t carrier_freq, int number_of_bits): AbstractDataFeeder(number_of_bits) {
-    tuner_gains = NULL;
+    rtl_gains_ = NULL;
     verbose = true;
-    inner_buf_num = buf_n;
-    inner_buff_size = buf_s;
-    dev = NULL;
-    device_index = VerboseDeviceSearch(dongle_name);
+    inner_buf_num_ = buf_n;
+    inner_buff_size_ = buf_s;
+    rtl_dev_ = NULL;
+    clipped_ = 0;
+    almost_clipped_ = 0;
+    carrier_freq_ = carrier_freq;
+    rtl_device_index_ = VerboseDeviceSearch(dongle_name);
     if (debug)
-        fprintf(stderr,"Device index: %d\n",device_index);
-    int retval = DongleInit(device_index, sample_rate, carrier_freq, 1000, 0);
+        fprintf(stderr,"Device index: %d\n",rtl_device_index_);
+    int retval = DongleInit(rtl_device_index_, sample_rate, carrier_freq, 1000, 0);
     if (retval >= 0) {
         if (debug) {
             fprintf(stderr, "Dongle opened successfully\n");
-            fprintf(stderr, "Freq: %d\n", rtlsdr_get_center_freq(dev));
-            fprintf(stderr, "Freq: %d\n", rtlsdr_get_sample_rate(dev));
+            fprintf(stderr, "Freq: %d\n", rtlsdr_get_center_freq(rtl_dev_));
+            fprintf(stderr, "Freq: %d\n", rtlsdr_get_sample_rate(rtl_dev_));
             fprintf(stderr, "Freq correction set to: %d\n",
-                    rtlsdr_get_freq_correction(dev));
+                    rtlsdr_get_freq_correction(rtl_dev_));
         }
     } else {
-        delete[] increment_gain_factor;
-        tuner_gains = NULL;
-        rtlsdr_close(dev);
-        dev = NULL;
+        delete[] increment_gain_factor_;
+        rtl_gains_ = NULL;
+        rtlsdr_close(rtl_dev_);
+        rtl_dev_ = NULL;
     }
 };
 
 RtlDataFeeder::~RtlDataFeeder() {
-    delete[] increment_gain_factor;
-    if (dev!=NULL)
-        rtlsdr_close(dev);
-    dev = NULL;
+    delete[] increment_gain_factor_;
+    if (rtl_dev_!=NULL)
+        rtlsdr_close(rtl_dev_);
+    rtl_dev_ = NULL;
 };
 
 void RtlDataFeeder::ReadAsync(void *data_needed){
-    rtlsdr_read_async(dev, AsyncCallback, data_needed, inner_buf_num, inner_buff_size);
+    rtlsdr_read_async(rtl_dev_, AsyncCallback, data_needed, inner_buf_num_, inner_buff_size_);
 };
 
 void RtlDataFeeder::StopProcessing(void) {
-    rtlsdr_cancel_async(dev);
+    rtlsdr_cancel_async(rtl_dev_);
     running = 0;
     return;
 };
 
 void RtlDataFeeder::HandleDrifts(float fc_drift, float fs_drift) {
-    current_fc_offset += fc_drift;
-    if (!do_handle_fs)
-        return;
-    current_fs_offset += fs_drift;
-    int ppm = static_cast<int>(current_fs_offset);
-    rtlsdr_set_freq_correction(dev, ppm); // Hz /Hz * million
-    if (debug) {
-        fprintf(stderr, "PPM set to: %d\n", ppm);
-        fprintf(stderr, "Now remodulating by: %d Hz\n", static_cast<int>(current_fc_offset));
+    this->AGC();
+
+    if( fc_drift != 0){
+        current_fc_offset_ += fc_drift;
+        SetCenterFrequency( (unsigned int) current_fc_offset_ + carrier_freq_ );
+        if (debug) {
+            fprintf(stderr, "Now remodulating by: %d Hz\n", static_cast<int>(current_fc_offset_));
+        }
     }
+
+    if (!do_handle_fs_)
+        return;
+    if( fs_drift != 0 ){
+        current_fs_offset_ += fs_drift;
+        int ppm = static_cast<int>(current_fs_offset_);
+        rtlsdr_set_freq_correction(rtl_dev_, ppm); // Hz /Hz * million
+        if (debug) {
+            fprintf(stderr, "PPM set to: %d\n", ppm);
+        }
+    }
+
     return;
 };
 
 uint32_t RtlDataFeeder::SetCenterFrequency(uint32_t fc) {
-    if (0 != rtlsdr_set_center_freq(dev, fc))
+    if (0 != rtlsdr_set_center_freq(rtl_dev_, fc))
         return 0;
     else
-        return rtlsdr_get_center_freq(dev);
+        return rtlsdr_get_center_freq(rtl_dev_);
 };
 
 uint32_t RtlDataFeeder::SetSamplingFrequency(uint32_t fs) {
-    if (0 != rtlsdr_set_sample_rate(dev, fs))
+    if (0 != rtlsdr_set_sample_rate(rtl_dev_, fs))
         return 0;
     else
-        return rtlsdr_get_sample_rate(dev);
+        return rtlsdr_get_sample_rate(rtl_dev_);
 };
 
 uint32_t RtlDataFeeder::GetSamplingFrequency() {
-    return rtlsdr_get_sample_rate(dev);
+    return rtlsdr_get_sample_rate(rtl_dev_);
 };
 
 uint32_t RtlDataFeeder::GetCenterFrequency() {
-    return rtlsdr_get_center_freq(dev);
+    return rtlsdr_get_center_freq(rtl_dev_);
 };
 
 bool RtlDataFeeder::FromFile(void) {
@@ -198,7 +214,7 @@ bool RtlDataFeeder::FromDongle(void) {
 };
 
 bool RtlDataFeeder::EverythingOK(void){
-    if (dev==NULL){
+    if (rtl_dev_==NULL){
         if (verbose)
             fprintf(stderr,"Device not connected\n");
         return false;
@@ -216,29 +232,29 @@ bool RtlDataFeeder::EverythingOK(void){
     return true;
 };
 
-int RtlDataFeeder::AGC(size_t clipped, size_t almost_clipped, size_t size) {
-    if (!do_agc)
+int RtlDataFeeder::AGC() {
+    if (!do_agc_)
         return 0;
     if (debug) {
-        fprintf(stderr, "Gain INDEX: %d \tCurrent threshold %4.5f\n", gain_index,almost_treshold);
-        fprintf(stderr, "Clipped %d\n", static_cast<int>(clipped));
-        fprintf(stderr, "Almost Clipped %d\n", static_cast<int>(almost_clipped));
+        fprintf(stderr, "Gain INDEX: %d \tCurrent threshold %4.5f\n", rtl_gain_index_,almost_treshold_);
+        fprintf(stderr, "Clipped %d\n", static_cast<int>(clipped_));
+        fprintf(stderr, "Almost Clipped %d\n", static_cast<int>(almost_clipped_));
     }
     // not (much) more than 1 every 100k probes
-    size_t threshold = size / 16384;
+    size_t threshold = rtl_buffer_len_ / 16384;
 
-    if (clipped > threshold) {
-        if (gain_index > 0) {
-            rtlsdr_set_tuner_gain(dev, tuner_gains[gain_index - 1]);
-            almost_treshold = 0.9*increment_gain_factor[gain_index - 1];
-            --gain_index;
+    if (clipped_ > threshold) {
+        if (rtl_gain_index_ > 0) {
+            rtlsdr_set_tuner_gain(rtl_dev_, rtl_gains_[rtl_gain_index_ - 1]);
+            almost_treshold_ = 0.9*increment_gain_factor_[rtl_gain_index_ - 1];
+            --rtl_gain_index_;
         }
         return -1;
-    } else if (almost_clipped < threshold) {
-        if (gain_index < tuner_gain_count - 1) {
-            rtlsdr_set_tuner_gain(dev, tuner_gains[gain_index + 1]);
-            almost_treshold = increment_gain_factor[gain_index + 1];
-            ++gain_index;
+    } else if (almost_clipped_ < threshold) {
+        if (rtl_gain_index_ < rtl_gain_count_ - 1) {
+            rtlsdr_set_tuner_gain(rtl_dev_, rtl_gains_[rtl_gain_index_ + 1]);
+            almost_treshold_ = increment_gain_factor_[rtl_gain_index_ + 1];
+            ++rtl_gain_index_;
         }
         return 1;
     }
@@ -247,67 +263,67 @@ int RtlDataFeeder::AGC(size_t clipped, size_t almost_clipped, size_t size) {
 
 int RtlDataFeeder::SetInitialGain(int gain) {
     // set manual gain
-    if (0 != rtlsdr_set_tuner_gain_mode(dev, 1)) {
+    if (0 != rtlsdr_set_tuner_gain_mode(rtl_dev_, 1)) {
         fprintf(stderr, "WARNING: Failed to enable manual gain.\n");
     }
-    tuner_gain_count = rtlsdr_get_tuner_gains(dev, NULL);
+    rtl_gain_count_ = rtlsdr_get_tuner_gains(rtl_dev_, NULL);
 
-    if (tuner_gain_count <= 0) {
+    if (rtl_gain_count_ <= 0) {
         fprintf(stderr, "WARNING: Failed to enable manual gain.\n");
     }
-    tuner_gains = new int[tuner_gain_count];
-    tuner_gain_count = rtlsdr_get_tuner_gains(dev, tuner_gains);
-    increment_gain_factor = new float[tuner_gain_count];
-    float tuner_linear_gains[tuner_gain_count];
+    rtl_gains_ = new int[rtl_gain_count_];
+    rtl_gain_count_ = rtlsdr_get_tuner_gains(rtl_dev_, rtl_gains_);
+    increment_gain_factor_ = new float[rtl_gain_count_];
+    float tuner_linear_gains[rtl_gain_count_];
 
-    for (int i=0; i<tuner_gain_count;i++){
-        *(tuner_linear_gains+i) = pow(10, static_cast<double>(*(tuner_gains+i)) / 100.0);
+    for (int i=0; i<rtl_gain_count_;i++){
+        *(tuner_linear_gains+i) = pow(10, static_cast<double>(*(rtl_gains_+i)) / 100.0);
     }
-    for (int i=0; i<tuner_gain_count-1;i++){
-        *(increment_gain_factor+i) = 127 / (*(tuner_linear_gains+i+1) / *(tuner_linear_gains+i) );
+    for (int i=0; i<rtl_gain_count_-1;i++){
+        *(increment_gain_factor_+i) = 127 / (*(tuner_linear_gains+i+1) / *(tuner_linear_gains+i) );
     }
-    *(increment_gain_factor+tuner_gain_count-1) = 0;
+    *(increment_gain_factor_+rtl_gain_count_-1) = 0;
 
     if (debug) {
         fprintf(stderr, "Available gains:\n");
         int i;
-        for (i = 0; i < tuner_gain_count; i++) {
-            fprintf(stderr, "%d ", tuner_gains[i]);
+        for (i = 0; i < rtl_gain_count_; i++) {
+            fprintf(stderr, "%d ", rtl_gains_[i]);
         }
         fprintf(stderr, "\n");
     }
     if (gain != 1000) {                                   // set gain as specified
-        if (0 != rtlsdr_set_tuner_gain(dev, gain)) {
+        if (0 != rtlsdr_set_tuner_gain(rtl_dev_, gain)) {
             fprintf(stderr, "WARNING: Failed to set tuner gain.\n");
-            rtlsdr_set_tuner_gain(dev, tuner_gains[tuner_gain_count - 1]);
+            rtlsdr_set_tuner_gain(rtl_dev_, rtl_gains_[rtl_gain_count_ - 1]);
             if (debug)
                 fprintf(stderr, "Setting to max gain: %d\n",
-                        tuner_gains[tuner_gain_count - 1]);
+                        rtl_gains_[rtl_gain_count_ - 1]);
         }
     } else {                         // no gain specified - these go up to eleven!
-        rtlsdr_set_tuner_gain(dev, tuner_gains[tuner_gain_count - 1]);
+        rtlsdr_set_tuner_gain(rtl_dev_, rtl_gains_[rtl_gain_count_ - 1]);
         if (debug)
             fprintf(stderr, "Setting to max gain: %d\n",
-                    tuner_gains[tuner_gain_count - 1]);
+                    rtl_gains_[rtl_gain_count_ - 1]);
     }
-    return rtlsdr_get_tuner_gain(dev);
+    return rtlsdr_get_tuner_gain(rtl_dev_);
 };
 
 int RtlDataFeeder::DongleInit(int dev_index, int samp_rate, int frequency,
                                  int gain, int ppm_error) {
-    if (dev != NULL){
+    if (rtl_dev_ != NULL){
         if(debug)
             fprintf(stderr,"Dongle opened previously, closing\n");
-        rtlsdr_close(dev);  // possible re-init
+        rtlsdr_close(rtl_dev_);  // possible re-init
     }
-    if (device_index < 0) {
+    if (rtl_device_index_ < 0) {
         if (verbose)
             fprintf(stderr, "No devices found\n");
         return -1;
     }
-    if (rtlsdr_open(&dev, device_index) < 0) {
+    if (rtlsdr_open(&rtl_dev_, rtl_device_index_) < 0) {
         if (verbose)
-            fprintf(stderr, "Failed to open rtlsdr device #%d.\n", device_index);
+            fprintf(stderr, "Failed to open rtlsdr device #%d.\n", rtl_device_index_);
         return -1;
     }
     uint32_t real_samp_rate = SetSamplingFrequency(samp_rate);
@@ -326,17 +342,17 @@ int RtlDataFeeder::DongleInit(int dev_index, int samp_rate, int frequency,
         fprintf(stderr, "Center frequency set to: %d\n", real_frequency);
 
     int real_gain = SetInitialGain(gain);
-    for (int i = 0; i < tuner_gain_count; i++)
-        if (real_gain == tuner_gains[i]){
-            gain_index = i;
-            almost_treshold = increment_gain_factor[i];
+    for (int i = 0; i < rtl_gain_count_; i++)
+        if (real_gain == rtl_gains_[i]){
+            rtl_gain_index_ = i;
+            almost_treshold_ = increment_gain_factor_[i];
         }
     if (debug)
         fprintf(stderr, "Gain set to: %d\n", real_gain);
 
-    rtlsdr_set_freq_correction(dev, ppm_error);
+    rtlsdr_set_freq_correction(rtl_dev_, ppm_error);
 
-    if (0 != rtlsdr_reset_buffer(dev)) {
+    if (0 != rtlsdr_reset_buffer(rtl_dev_)) {
         if (verbose)
             fprintf(stderr, "WARNING: Failed to reset buffers.\n");
     }

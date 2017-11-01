@@ -2,10 +2,13 @@
  * @class BlockingRingBuffer
  *
  * @author: Kacper Patro patro.kacper@gmail.com
+ * @author: Jaorslaw Bulat kwant@agh.edu.pl (WriteInto(...) now wait for free space, do not overwrite tail)
  * @date May 24, 2015
  *
- * @version 1.0 beta
+ * @version 2.0
  * @copyright Copyright (c) 2015 Kacper Patro
+ * @copyright Copyright (c) 2017 Kacper Patro, Jaroslaw Bulat
+ *
  * @par License
  *
  * This library is free software; you can redistribute it and/or
@@ -21,7 +24,6 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- *
  */
 
 #ifndef SRC_BLOCKING_RING_BUFFER_H_
@@ -30,6 +32,8 @@
 #include "RingBuffer/ring_buffer.h"
 #include <stdint.h>
 #include <pthread.h>
+#include <time.h>
+
 
 /**
  * @class BlockingRingBuffer
@@ -58,7 +62,7 @@ class BlockingRingBuffer {
         size_t ReadFrom(uint8_t *dest_buffer, size_t how_many);
 
         /**
-         * Writes into internal ring buffer, could override oldest data when full
+         * Writes into internal ring buffer, wait if full, do not override data
          * @param[in] source_buffer Pointer to source buffer
          * @param[in] how_many Number of elements to read from source buffer
          * @return Number of elements written into internal buffer
@@ -114,6 +118,12 @@ class BlockingRingBuffer {
         void ForceSignal();
 
     private:
+        /**
+         * Make sure, buffer have at least "size" free space, if not wait (block) for it
+         * @param[in] size - required free space in buffer
+         */        
+        void waitUntilBufferReady(size_t size);
+
         pthread_mutex_t count_mutex_;   /**< Mutex for conditional variable */
         pthread_cond_t count_condition_not_empty_;  /**< Conditional variable, affects blocking */
 

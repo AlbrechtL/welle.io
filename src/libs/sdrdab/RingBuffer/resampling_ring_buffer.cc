@@ -25,7 +25,8 @@
 
 #include "resampling_ring_buffer.h"
 
-ResamplingRingBuffer::ResamplingRingBuffer(int quality, size_t size, int channels) : RingBuffer(size){
+ResamplingRingBuffer::ResamplingRingBuffer(resample_quality quality, size_t size, int channels) : RingBuffer(size){
+    fprintf(stderr, "ResamplingRingBuffer mode: %d", quality);
     resampler = new Resampler(quality, channels);
 }
 

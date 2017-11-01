@@ -56,86 +56,86 @@ StartProcessing (void *data_needed) {
 }
 
 AbstractDataFeeder::AbstractDataFeeder (int number_of_bits) {
-	sin_length = pow(2, number_of_bits);
-	lut_length = sin_length + ((sin_length)/4);
-	sine_tab = new float[lut_length];
-	FillLut(sin_length);
+	sin_length_ = pow(2, number_of_bits);
+	lut_length_ = sin_length_ + ((sin_length_)/4);
+	sine_tab_ = new float[lut_length_];
+	FillLut(sin_length_);
 
     running = 0;
     verbose = true;
     debug = false;
-    current_fs_offset = 0.0;
-    current_fc_offset = 0.0;
+    current_fs_offset_ = 0.0;
+    current_fc_offset_ = 0.0;
 
-    do_remodulate = true;
-    do_handle_fs = true;
-    do_agc = true;
+    do_remodulate_ = true;
+    do_handle_fs_ = true;
+    do_agc_ = true;
 
-    previous_write_here = NULL;
-    real_dc_rb = new RingBuffer<float>(DC_LENGTH);
-    real_dc_rb->Initialize(0.0);
-    imag_dc_rb = new RingBuffer<float>(DC_LENGTH);
-    imag_dc_rb->Initialize(0.0);
-    inner_buf_num = 0;
-    inner_buff_size = 0;
+    previous_write_here_ = NULL;
+    real_dc_rb_ = new RingBuffer<float>(DC_LENGTH);
+    real_dc_rb_->Initialize(0.0);
+    imag_dc_rb_ = new RingBuffer<float>(DC_LENGTH);
+    imag_dc_rb_->Initialize(0.0);
+    inner_buf_num_ = 0;
+    inner_buff_size_ = 0;
 };
 
 AbstractDataFeeder::~AbstractDataFeeder () {
-    delete real_dc_rb;
-    delete imag_dc_rb;
+    delete real_dc_rb_;
+    delete imag_dc_rb_;
 };
 
 void AbstractDataFeeder::FillLut(int length){
 	float i = 0;
 	for (int j=0; j<=(length-1); j++){
-		sine_tab[j] = sin(i);
+		sine_tab_[j] = sin(i);
 		if (j<(length)/4){
-			sine_tab[j+(length)] = sine_tab[j];
+			sine_tab_[j+(length)] = sine_tab_[j];
 		}
-		i=i+((two_pi)/(length));
+		i=i+((two_pi_)/(length));
 	};
 };
 
 void AbstractDataFeeder::Remodulate (float* data, size_t size,
         float frequency_shift) {
 
-    if(!do_remodulate)
+    if(!do_remodulate_)
         return;
 
     uint32_t sampling_frequency = this->GetSamplingFrequency();
     if (frequency_shift == 0.0){
         return;
     }
-    float shift_factor = two_pi * frequency_shift / sampling_frequency;
+    float shift_factor = two_pi_ * frequency_shift / sampling_frequency;
     float shift_factor_arg = 0;
     float radians_reduction = 0;
     float re, imag;
     float cos_shift_factor;
     float sin_shift_factor;
-    float sin_constant = (sin_length-1) / two_pi; // it's a constant value, no need to count it in for loop
+    float sin_constant = (sin_length_-1) / two_pi_; // it's a constant value, no need to count it in for loop
     int ind;
 
     for (size_t i=0, j=1; i < size && j < size; i+=2, j+=2) {
         shift_factor_arg = shift_factor * i/2 - radians_reduction;
 
-        if(shift_factor_arg > two_pi) {
-            radians_reduction += two_pi;
-            shift_factor_arg -= two_pi;
+        if(shift_factor_arg > two_pi_) {
+            radians_reduction += two_pi_;
+            shift_factor_arg -= two_pi_;
         }
         else if(shift_factor_arg < 0) {
-            radians_reduction -= two_pi;
-            shift_factor_arg += two_pi;
+            radians_reduction -= two_pi_;
+            shift_factor_arg += two_pi_;
         }
 
         re = *(data + i);
         imag = *(data + j);
         ind = round(shift_factor_arg * sin_constant);
-        sin_shift_factor = sine_tab[ind];
-        ind += (sin_length/4)-1; // cosinus shift
-        cos_shift_factor = sine_tab[ind];
+        sin_shift_factor = sine_tab_[ind];
+        ind += (sin_length_/4)-1; // cosinus shift
+        cos_shift_factor = sine_tab_[ind];
 
         *(data +i) = re * cos_shift_factor - imag * sin_shift_factor;
         *(data +j) = re * sin_shift_factor + imag * cos_shift_factor;
     }
 }
-const float AbstractDataFeeder::two_pi = 6.283185306;
+const float AbstractDataFeeder::two_pi_ = 6.283185306;

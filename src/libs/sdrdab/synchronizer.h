@@ -5,15 +5,16 @@
  * synchronization to NULL, PR, fc/fs, etc...
  *
  * @author Jaroslaw Bulat kwant@agh.edu.pl (Synchronizer)
- * @author Piotr Jaglarz pjaglarz@student.agh.edu.pl (Synchronizer::Process, Synchronizer::DetectMode, Synchronizer::DetectAndDecodeNULL)
+ * @author Piotr Jaglarz pjaglarz@student.agh.edu.pl (Synchronizer::Process, Synchronizer::DetectMode, Synchronizer::DetectNULL)
  * @author Michal Rybczynski mryba@student.agh.edu.pl (Synchronizer::DetectPhaseReference, Synchronizer::PhaseReferenceGen)
+ * @author Miroslaw Szewczyk mirsze@student.agh.edu.pl (Synchronizer::calculateSNRfromPREFIX, Synchronizer::DecodeNull);
  * @date 7 July 2015 - version 1.0 beta
  * @date 7 July 2016 - version 2.0 beta
  * @date 1 November 2016 - version 2.0
  * @version 2.0 
  * @pre libfftw3
  *
- * @copyright Copyright (c) 2015 Jaroslaw Bulat, Piotr Jaglarz, Michal Rybczynski.
+ * @copyright Copyright (c) 2015 Jaroslaw Bulat, Piotr Jaglarz, Michal Rybczynski, Miroslaw Szewczyk.
  * @par License
  *
  * This library is free software; you can redistribute it and/or
@@ -80,12 +81,19 @@ public:
      */
     void DetectMode(const float *data, size_t size, syncDetect *out);
 
-    void SetFcSearchRange(int first_pos, int second_pos, int first_neg, int second_neg) {
-        first_pos_value_ = first_pos;
-        second_pos_value_ = second_pos;
-        first_neg_value_ = first_neg;
-        second_neg_value_ = second_neg;
-    }
+    /**
+     * Reduces window for carrier frequency search
+     * @param first_pos window start, positive direction
+     * @param second_pos window end, positive direction
+     * @param first_neg window start, negative direction
+     * @param second_neg window end, negative direction
+     */
+    void SetFcSearchRange(int first_pos, int second_pos, int first_neg, int second_neg);
+
+    /**
+     * Resets window for carrier frequency search to default values.
+     */
+    void ResetFcSearchRange();
 
     /**
      * switch on SNR from spectrum (in frequency domain)
@@ -110,11 +118,6 @@ public:
     float getSNRfromPREFIX(void);
 
 
-    /**
-     * todo: calculate SNR from PR
-     * PR could be treat as a known training sequence
-     */
-    //float getSNRfromPR(void);
 
 #ifndef GOOGLE_UNIT_TEST
 private:
@@ -122,10 +125,15 @@ private:
 
     int null_position_;         ///< position of first sample of NULL symbol related to beginning of the frame,
     nullQuality null_quality_;  ///< null quality
+    float previous_null_max_;   ///< maximum of previous null to compare, if it carry information about TII
+    int tii_[2];                 ///< p & c to recognise the transmitter
     float fc_drift_;            ///< carrier frequency drift in Hz, 0 means no drift, could be negative
     float *abs_data_;           ///< buffer for abs of data
     float *abs_sum_;            ///< buffer of window sum
     float *abs_run_sum_;        ///< buffer of run sum
+    float *null_symbol_TD_;     ///<null symbol in time domain
+    float *null_symbol_FD_;     ///<null symbol in frequency domain
+    float *temporary_null_;     ///<temporary null symbol, it contains few useless samples
     float *sigPhaseRef_;        ///< phase reference signal vector
     float *sigPhaseRef_freq;    ///< phase reference signal vecotr in frequency domain (without CP)
 
@@ -138,7 +146,8 @@ private:
     float *sin_e_long_;         ///< buffer for 4/3 of sin used to calculate 3 stripes values instead of full FFT
 
     bool switchOnSNRfromSPECTRUM_;///< calculate SNR from spectrum (in frequency domain)
-    float *data_snr_;           ///< tmp buffer for SNR calculation
+    float *data_snr_;             ///< tmp buffer for SNR calculation
+    float *data_snr_PR_;     ///< tmp buffer for SNR calculation from PR
     float SNRfromSPECTRUM_;     ///< SNR from spectrum
     bool switchOnSNRfromPREFIX_;///< calculate SNR from prefix (in time domain)
     float SNRfromPREFIX_;     	///< SNRfrom time
@@ -155,6 +164,7 @@ private:
     static const int phase_ref_index_mode3[][5];    ///< Relation between the indices i, k' and n and the carrier index k for transmission mode III
     static const int phase_ref_index_mode4[][5];    ///< Relation between the indices i, k' and n and the carrier index k for transmission mode IV
     static const int phase_parameter_h[][32];       ///< Time-Frequency-Phase parameter h values
+    static const int transmitter_patterns[70][8];   ///< Transmitter patterns for TII
 
     /**
      * Detect position of NULL symbol, set null_position_
@@ -163,7 +173,15 @@ private:
      * @param size number of complex samples to process
      * @todo extract data from first NULL (identification of station)
      */
-    void DetectAndDecodeNULL(const float *data, size_t size);
+    void DetectNULL(const float *data, size_t size);
+
+    /**
+     * Decode NULL symbol
+     * @param data beginning of data in rtl_samples_ (DataFeeder{})
+     * @param size number of complex samples to process
+     * @todo Decoding NULL symbol in other modes, I mode actually, optimize- it is necessary to call this function on every dab frame?
+     */
+    void DecodeNULL(const float *data);
 
     /**
      * Detect position of Phase Reference and decode (FFT) first frame - it is reference to DQPSK
@@ -172,6 +190,7 @@ private:
      * @param size number of complex samples to process
      * @todo at this point, length of frame should be depended only on transmission mode, change size to enum transmissionMode
      */
+
     void DetectPhaseReference(const float* data, size_t size, void * datafeeder);
 
     /**
@@ -204,7 +223,7 @@ private:
     void calculateSNRfromSPECTRUM(const float *data);
 
     /**
-     * calculate SNR value from prefix (in time domain)
+     * calculate SNR value from prefix (in frequency domain)
      * @param begining of PR data
      */
     void calculateSNRfromPREFIX(const float *data);

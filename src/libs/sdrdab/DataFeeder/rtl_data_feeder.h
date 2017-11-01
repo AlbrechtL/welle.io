@@ -37,6 +37,10 @@
 class RtlDataFeeder : public AbstractDataFeeder {
 public:
 
+    size_t clipped_;
+    size_t almost_clipped_;
+    size_t rtl_buffer_len_;
+
     void GetDongleList(std::list<std::string> * device_list);
 
     /**
@@ -85,13 +89,15 @@ public:
 #ifndef GOOGLE_UNIT_TEST
 private:
 #endif
-    float *increment_gain_factor;
-    rtlsdr_dev_t *dev;
-    int *tuner_gains;
-    int tuner_gain_count;
-    int gain_index;
-    int device_index;         ///< device_index kept for faster dongle re-init
-    float almost_treshold;
+    float *increment_gain_factor_;
+    rtlsdr_dev_t *rtl_dev_;
+    int *rtl_gains_;
+    int rtl_gain_count_;
+    int rtl_gain_index_;
+    int rtl_device_index_;         ///< device_index kept for faster dongle re-init
+    float almost_treshold_;
+    int carrier_freq_;
+
     /**
      * Set gain after initializing device
      *
@@ -109,12 +115,9 @@ private:
 
     /**
      * Automatic Gain Control - corrects gain to avoid clipping and use full range at the same time
-     * @param clipped number of clipped samples
-     * @param almost_clipped number of samples which would be clipped when increasing gain
-     * @param size number of complex samples to process
      * @return -1 if gain decreased, 0 if nothing done, 1 if gain increased
      */
-    int AGC(size_t clipped, size_t almost_clipped, size_t size);
+    int AGC();
 
     /**
      * Asynchronous callback

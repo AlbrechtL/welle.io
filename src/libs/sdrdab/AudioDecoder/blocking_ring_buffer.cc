@@ -2,10 +2,13 @@
  * @class BlockingRingBuffer
  *
  * @author: Kacper Patro patro.kacper@gmail.com
+ * @author: Jaorslaw Bulat kwant@agh.edu.pl (WriteInto(...) now wait for free space, do not overwrite tail)
  * @date May 24, 2015
  *
- * @version 1.0 beta
+ * @version 2.0
  * @copyright Copyright (c) 2015 Kacper Patro
+ * @copyright Copyright (c) 2017 Kacper Patro, Jaroslaw Bulat
+ *
  * @par License
  *
  * This library is free software; you can redistribute it and/or
@@ -21,7 +24,6 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- *
  */
 
 #include "blocking_ring_buffer.h"
@@ -53,7 +55,23 @@ size_t BlockingRingBuffer::ReadFrom(uint8_t *dest_buffer, size_t how_many) {
     return result;
 }
 
+void BlockingRingBuffer::waitUntilBufferReady(size_t size){
+    while(true){
+        pthread_mutex_lock(&count_mutex_);
+        size_t freeSpace = buffer_.FreeSpace();
+        pthread_mutex_unlock(&count_mutex_);
+        if(freeSpace<size){
+            nanosleep((const struct timespec[]){{0, 1000*1000*100L}}, NULL); // 100 ms sleep            
+            // printf("-------- SLEEP\n");
+        } else {
+            break;
+        }
+    }
+}
+
 size_t BlockingRingBuffer::WriteInto(uint8_t *source_buffer, size_t how_many) {
+    waitUntilBufferReady(how_many);
+
     pthread_mutex_lock(&count_mutex_);
 
     size_t result = buffer_.WriteInto(source_buffer, how_many);

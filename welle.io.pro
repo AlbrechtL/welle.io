@@ -84,6 +84,7 @@ HEADERS += \
     src/libs/sdrdab/DataDecoder/reed_solomon.h \
     src/libs/sdrdab/DataDecoder/deviterbi.h \
     src/libs/sdrdab/DataDecoder/extract_from_bitstream.h \
+    src/libs/sdrdab/DataDecoder/galois_field_arithmethic.h \
     src/libs/sdrdab/Resampler/resampler.h \
     src/libs/sdrdab/osx_compat.h \
     src/libs/sdrdab/RingBuffer/resampling_ring_buffer.h \
@@ -132,6 +133,7 @@ SOURCES += \
     src/libs/sdrdab/DataDecoder/depuncturer.cc \
     src/libs/sdrdab/DataDecoder/reed_solomon.cc \
     src/libs/sdrdab/DataDecoder/energy_dispersal.cc \
+    src/libs/sdrdab/DataDecoder/galois_field_arithmetic.cc \
     src/libs/sdrdab/data_decoder.cc \
     src/libs/sdrdab/Resampler/resampler.cc \
     src/libs/sdrdab/fft_engine.cc \

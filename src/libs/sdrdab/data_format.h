@@ -865,6 +865,7 @@ struct audiodecoderData {
 struct resampleData {
     void * data_feeder;
     float fs_drift;
+    float fc_drift;
 };
 
 struct synchronizerData {

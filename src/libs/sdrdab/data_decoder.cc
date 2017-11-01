@@ -210,6 +210,9 @@ DataDecoder::~DataDecoder() {
 void DataDecoder::ConvDecoderWrapper(float * input, size_t size, uint8_t * output) {
 
     switch (current_conv_decoder) {
+        //case ALG_XXX: //prepared for other decoding algorithm
+            //xxx(input, size, output);
+            //break;
         default:
         case ALG_VITERBI_TZ:
             DeViterbiProcess(input, size, output);
@@ -219,6 +222,9 @@ void DataDecoder::ConvDecoderWrapper(float * input, size_t size, uint8_t * outpu
 void DataDecoder::ConvDecoderInitWrapper(void) {
 
     switch (current_conv_decoder_init) {
+        //case ALG_XXX: //prepared for other decoding algorithm
+           // xxx();
+            //break;
         default:
         case ALG_VITERBI_TZ:
             DeViterbiInit();

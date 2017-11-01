@@ -2,10 +2,13 @@
  * @class RingSrc
  *
  * @author: Kacper Patro patro.kacper@gmail.com
- * @date May 17, 2015
+ * @author: Jaorslaw Bulat kwant@agh.edu.pl (WriteInto(...) now wait for free space, do not overwrite tail)
+ * @date May 24, 2015
  *
- * @version 1.0 beta
+ * @version 2.0
  * @copyright Copyright (c) 2015 Kacper Patro
+ * @copyright Copyright (c) 2017 Kacper Patro, Jaroslaw Bulat
+ *
  * @par License
  *
  * This library is free software; you can redistribute it and/or
@@ -21,7 +24,6 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- *
  */
 
 #ifndef SRC_RING_SRC_H_

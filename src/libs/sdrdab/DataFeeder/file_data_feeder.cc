@@ -38,19 +38,19 @@
 #endif
 
 FileDataFeeder::FileDataFeeder(const char *file_name, size_t buf_s,
-        uint32_t sample_rate, uint32_t carrier_freq, int number_of_bits):AbstractDataFeeder(number_of_bits){
+        uint32_t sample_rate, uint32_t carrier_freq, int number_of_bits, ResamplingRingBuffer::resample_quality type):AbstractDataFeeder(number_of_bits){
     s_rate_ = sample_rate;
 
     c_freq_ = carrier_freq;
 
     file_descriptor_ = open(file_name,O_RDONLY);
 
-    inner_buff_size = buf_s;
-    inner_buf_num = 1;
+    inner_buff_size_ = buf_s;
+    inner_buf_num_ = 1;
 
     file_wrapper_buffer_ = new unsigned char[buf_s];
     normalization_buffer_ = new float[buf_s];
-    resampling_buffer_ = new ResamplingRingBuffer(SRC_SINC_FASTEST,inner_buff_size*4,2);
+    resampling_buffer_ = new ResamplingRingBuffer(type,inner_buff_size_*4,2);
 };
 
 FileDataFeeder::~FileDataFeeder() {
@@ -136,13 +136,13 @@ inline void FileDataFeeder::SetDelay(timeval play_start_time, timeval play_end_t
 };
 
 inline size_t FileDataFeeder::ReadFromFile(size_t block_size) {
-    inner_buff_size = block_size;
-    return read(file_descriptor_, file_wrapper_buffer_, inner_buff_size);
+    inner_buff_size_ = block_size;
+    return read(file_descriptor_, file_wrapper_buffer_, inner_buff_size_);
 };
 
 inline bool FileDataFeeder::EnoughDataReadFromFile(size_t number_written, data_feeder_ctx_t *params, BlockingQueue<int> *event_queue){
     bool should_continue = true;
-    if(number_written<inner_buff_size){
+    if(number_written<inner_buff_size_){
         params->data_stored = true;
         event_queue->push(params->thread_id);
         running = 0;
@@ -156,12 +156,12 @@ inline bool FileDataFeeder::EnoughDataReadFromFile(size_t number_written, data_f
 };
 
 inline float FileDataFeeder::PickRatio(size_t block_size){
-    float ratio = 1.0 - current_fs_offset/1000000.0;
+    float ratio = 1.0 - current_fs_offset_/1000000.0;
     float block_size_float = static_cast<float>(block_size);
     float number_of_probes = ratio*block_size_float;
     if (number_of_probes>block_size_float-1.0 && number_of_probes<block_size_float+1.0)
         ratio=1.0;
-    if (!do_handle_fs)
+    if (!do_handle_fs_)
         ratio=1.0;
     return ratio;
 };
@@ -172,7 +172,7 @@ inline bool FileDataFeeder::EnoughDataInBuffer(size_t expected_amount){
 
 inline void FileDataFeeder::WriteResampledOut(data_feeder_ctx_t *ptctx, BlockingQueue<int> *event_queue){
     resampling_buffer_->sReadFrom(ptctx->write_here, ptctx->block_size);
-    previous_write_here = ptctx->write_here;
+    previous_write_here_ = ptctx->write_here;
     ptctx->data_stored = true;
     event_queue->push(ptctx->thread_id);
 };
@@ -181,8 +181,8 @@ void FileDataFeeder::Normalize(size_t data_size){
     // insert into output buffer
     // remove DC from real and image part
     // probes are normalized to +-1.0
-    float real_mean = real_dc_rb->Mean();
-    float imag_mean = imag_dc_rb->Mean();
+    float real_mean = real_dc_rb_->Mean();
+    float imag_mean = imag_dc_rb_->Mean();
     float real_sum = 0.0;
     float imag_sum = 0.0;
     unsigned char c1,c2;
@@ -198,8 +198,8 @@ void FileDataFeeder::Normalize(size_t data_size){
         *(normalization_buffer_ + k+1) = (f2-imag_mean)/128.0;
     }
 
-    real_dc_rb->WriteNext(real_sum*2/data_size);
-    imag_dc_rb->WriteNext(imag_sum*2/data_size);
+    real_dc_rb_->WriteNext(real_sum*2/data_size);
+    imag_dc_rb_->WriteNext(imag_sum*2/data_size);
 };
 
 bool FileDataFeeder::EverythingOK(void){
@@ -222,7 +222,7 @@ bool FileDataFeeder::EverythingOK(void){
 };
 
 void FileDataFeeder::HandleDrifts(float fc_drift, float fs_drift){
-    current_fc_offset += fc_drift;
-    if (do_handle_fs)
-        current_fs_offset += fs_drift;
+    current_fc_offset_ += fc_drift;
+    if (do_handle_fs_)
+        current_fs_offset_ += fs_drift;
 };

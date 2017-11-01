@@ -65,6 +65,7 @@ public:
 
     enum conv_decoder_alg_t {
         ALG_VITERBI_TZ,
+        //ALG_XXX, // prepared for other decoding algorithm
         ALG_UNSPEC //when no value is specified. UserInput will change it to ALG_VITERBI_TZ
     };
 

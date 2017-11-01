@@ -45,10 +45,14 @@ Synchronizer::Synchronizer(size_t size) :  null_position_(0),
 	abs_data_(NULL),
 	abs_sum_(NULL),
 	abs_run_sum_(NULL),
+    null_symbol_TD_(NULL),
+    null_symbol_FD_(NULL),
+    temporary_null_(NULL),
 	sigPhaseRef_(NULL),
 	sigPhaseRef_freq(NULL),
 	fc_corr_(NULL),
 	data_snr_(NULL),
+    data_snr_PR_(NULL),
 	phase_ref_clean_(NULL),
 	mode_parameters_(NULL),
 	fc_search_range_(20),
@@ -79,11 +83,16 @@ Synchronizer::Synchronizer(ModeParameters *mode_parameters, size_t size) : FFTEn
 		abs_data_(NULL),
 		abs_sum_(NULL),
 		abs_run_sum_(NULL),
-		sigPhaseRef_(NULL),
+        null_symbol_TD_(NULL),
+        null_symbol_FD_(NULL),
+        temporary_null_(NULL),
+        sigPhaseRef_(NULL),
 		sigPhaseRef_freq(NULL),
 		fc_corr_(NULL),
 		data_snr_(NULL),
-		phase_ref_clean_(NULL),		
+        data_snr_PR_(NULL),
+		phase_ref_clean_(NULL),
+
 		mode_parameters_(mode_parameters),
 		fc_search_range_(200),
 		fc_short_search_(false),
@@ -97,14 +106,23 @@ Synchronizer::Synchronizer(ModeParameters *mode_parameters, size_t size) : FFTEn
 	// synchronization buffer size (max size)
 	size_t synchro_size = mode_parameters_->frame_size;
 
+	ResetFcSearchRange();
 	first_pos_value_ = 2;
 	second_pos_value_ = 2*fc_search_range_ + 2;
 	first_neg_value_ = -2*fc_search_range_;
 	second_neg_value_ = 0;
+    tii_[0] = 0;
+    tii_[1] = 0;
+    previous_null_max_ = 0;
 
-	// allocation for DetectAndDecodeNULL
+	// allocation for DetectNULL
 	abs_data_ = new float[synchro_size + mode_parameters_->null_size - 1];
 	abs_sum_ = new float[synchro_size];
+
+    //allocation for DecodeNull
+    null_symbol_TD_ = new float[2 * mode_parameters_->null_size];
+    null_symbol_FD_ = new float[mode_parameters_->number_of_carriers + 2];
+    temporary_null_ = new float[mode_parameters_->fft_size];
 
 	// allocation for DetectPhaseReference
 	sigPhaseRef_freq = new float[2 * mode_parameters_->fft_size];
@@ -114,6 +132,7 @@ Synchronizer::Synchronizer(ModeParameters *mode_parameters, size_t size) : FFTEn
 
 	fc_corr_ = new float[2 * mode_parameters_->fft_size];
     data_snr_ = new float[2 * mode_parameters_->fft_size];
+    data_snr_PR_ = new float[2 * mode_parameters_->fft_size];
 
     phase_ref_clean_ = new float[2 * mode_parameters_->fft_size];
 }
@@ -121,7 +140,9 @@ Synchronizer::Synchronizer(ModeParameters *mode_parameters, size_t size) : FFTEn
 
 void Synchronizer::Process(const float *data, size_t size, syncFeedback *out)
 {
-	DetectAndDecodeNULL(data, size);
+	DetectNULL(data, size);
+    if(null_quality_ == NULL_OK)
+        DecodeNULL(data);
 
 	// shift to the first frame sample (first PR sample)
 	data += 2 * (null_position_ + mode_parameters_->null_size);
@@ -147,6 +168,9 @@ Synchronizer::~Synchronizer()
 	delete[] abs_data_;
 	delete[] abs_sum_;
 	delete[] abs_run_sum_;
+    delete[] null_symbol_TD_,
+    delete[] null_symbol_FD_,
+    delete[] temporary_null_,
 
 	delete[] sigPhaseRef_;
 	delete[] sigPhaseRef_freq;
@@ -238,94 +262,155 @@ void Synchronizer::DetectMode(const float *data, size_t size, syncDetect *out)
 }
 
 
-void Synchronizer::DetectAndDecodeNULL(const float* data, size_t size)
+void Synchronizer::DetectNULL(const float* data, size_t size)
 {
-	/*** detect null symbol ***/
-
-	size_t synchro_size_short = mode_parameters_->null_size; /* 2*null_size */
-
-	// compute abs of data
-	for (size_t i = 0; i < synchro_size_short + mode_parameters_->null_size - 1; i++) {
-		abs_data_[i] = fabs(*data) + fabs(*(data+1));
-		data += 2;
-	}
-
-	// first element
-	abs_sum_[0] = 0;
-	for (size_t i = 0; i < mode_parameters_->null_size; i++)
-		abs_sum_[0] += abs_data_[i];
-
-	// remaining elements
-	for (size_t i = 1; i < synchro_size_short; i++)
-		abs_sum_[i] = abs_sum_[i-1] - abs_data_[i-1] + abs_data_[mode_parameters_->null_size+i-1];
-
-	// position of minimum element
-	size_t min_pos = 0;
-	for (size_t i = 1; i < synchro_size_short; i++) {
-		if (abs_sum_[i] < abs_sum_[min_pos])
-			min_pos = i;
-	}
-
-	null_quality_ = NULL_OK;
-
-	// min & max energy
-	float min_energy = abs_sum_[min_pos];
-	float max_energy = abs_sum_[0] + abs_sum_[synchro_size_short-1] - abs_sum_[min_pos];
-
-	//printf("short -> null: %zu, min_energy: %f, max_energy: %f\n", min_pos, min_energy, max_energy);
-
-	/*** if no detect null ***/
-
-	int null_err = 50;
-
-	//	int incr1 = int(synchro_size_short + mode_parameters_->null_size - 1);
-	//	int incr2 = int(mode_parameters_->frame_size + mode_parameters_->null_size - 1)-int(synchro_size_short + mode_parameters_->null_size - 1);
-	//	printf("\n                                                                     size %d: %d, %d, %d\n", int(size), incr1, incr2, incr1+incr2 );
-
-	if (std::abs(static_cast<float>(mode_parameters_->null_size)/2.0 - static_cast<float>(min_pos)) > null_err  || std::fabs(max_energy / min_energy) < 2) {
-
-		size_t synchro_size_long = mode_parameters_->frame_size;
-
-		// compute abs of data (only rest data)
-		for (size_t i = synchro_size_short + mode_parameters_->null_size - 1; i < synchro_size_long + mode_parameters_->null_size - 1; i++) {
-			abs_data_[i] = fabs(*data) + fabs(*(data+1));
-			data += 2;
-		}
-
-		// remaining elements (only rest data)
-		for (size_t i = synchro_size_short; i < synchro_size_long; i++)
-			abs_sum_[i] = abs_sum_[i-1] - abs_data_[i-1] + abs_data_[mode_parameters_->null_size+i-1];
-
-		// position of minimum element
-		min_pos = 0;
-		for (size_t i = 1; i < synchro_size_long; i++) {
-			if (abs_sum_[i] < abs_sum_[min_pos])
-				min_pos = i;
-		}
-
-		// min & max energy
-		if (min_pos < synchro_size_long - mode_parameters_->null_size) {
-			min_energy = abs_sum_[min_pos];
-			max_energy = abs_sum_[min_pos+mode_parameters_->null_size];
-		} else {
-			min_energy = abs_sum_[min_pos];
-			max_energy = abs_sum_[min_pos-mode_parameters_->null_size];
-		}
-
-		null_quality_ = NULL_SHIFT;
-
-		printf("long -> null: %zu, min_energy: %f, max_energy: %f\n", min_pos, min_energy, max_energy);
-
-		// check if null is OK
-		if (fabs(max_energy / min_energy) < 2) {
-			min_pos = 0;
-			null_quality_ = NULL_NOT_DETECTED;
-			printf("\n******************* NULL not detected *************************\n\n");
-		}
-	}
-	null_position_ = min_pos;
+    /*** detect null symbol ***/
+    size_t synchro_size_short = mode_parameters_->null_size; /* 2*null_size */
+    // compute abs of data
+    for (size_t i = 0; i < synchro_size_short + mode_parameters_->null_size - 1; i++) {
+        abs_data_[i] = fabs(*data) + fabs(*(data+1));
+        data += 2;
+    }
+    // first element
+    abs_sum_[0] = 0;
+    for (size_t i = 0; i < mode_parameters_->null_size; i++)
+        abs_sum_[0] += abs_data_[i];
+    // remaining elements
+    for (size_t i = 1; i < synchro_size_short; i++)
+        abs_sum_[i] = abs_sum_[i-1] - abs_data_[i-1] + abs_data_[mode_parameters_->null_size+i-1];
+    // position of minimum element
+    size_t min_pos = 0;
+    for (size_t i = 1; i < synchro_size_short; i++) {
+        if (abs_sum_[i] < abs_sum_[min_pos])
+            min_pos = i;
+    }
+    null_quality_ = NULL_OK;
+    // min & max energy
+    float min_energy = abs_sum_[min_pos];
+    float max_energy = abs_sum_[0] + abs_sum_[synchro_size_short-1] - abs_sum_[min_pos];
+    //printf("short -> null: %zu, min_energy: %f, max_energy: %f\n", min_pos, min_energy, max_energy);
+    /*** if no detect null ***/
+    int null_err = 50;
+    //	int incr1 = int(synchro_size_short + mode_parameters_->null_size - 1);
+    //	int incr2 = int(mode_parameters_->frame_size + mode_parameters_->null_size - 1)-int(synchro_size_short + mode_parameters_->null_size - 1);
+    //	printf("\n                                                                     size %d: %d, %d, %d\n", int(size), incr1, incr2, incr1+incr2 );
+    if (std::abs(static_cast<float>(mode_parameters_->null_size)/2.0 - static_cast<float>(min_pos)) > null_err  || std::fabs(max_energy / min_energy) < 2) {
+        size_t synchro_size_long = mode_parameters_->frame_size;
+        // compute abs of data (only rest data)
+        for (size_t i = synchro_size_short + mode_parameters_->null_size - 1; i < synchro_size_long + mode_parameters_->null_size - 1; i++) {
+            abs_data_[i] = fabs(*data) + fabs(*(data+1));
+            data += 2;
+        }
+        // remaining elements (only rest data)
+        for (size_t i = synchro_size_short; i < synchro_size_long; i++)
+            abs_sum_[i] = abs_sum_[i-1] - abs_data_[i-1] + abs_data_[mode_parameters_->null_size+i-1];
+        // position of minimum element
+        min_pos = 0;
+        for (size_t i = 1; i < synchro_size_long; i++) {
+            if (abs_sum_[i] < abs_sum_[min_pos])
+                min_pos = i;
+        }
+        // min & max energy
+        if (min_pos < synchro_size_long - mode_parameters_->null_size) {
+            min_energy = abs_sum_[min_pos];
+            max_energy = abs_sum_[min_pos+mode_parameters_->null_size];
+        } else {
+            min_energy = abs_sum_[min_pos];
+            max_energy = abs_sum_[min_pos-mode_parameters_->null_size];
+        }
+        null_quality_ = NULL_SHIFT;
+        printf("long -> null: %zu, min_energy: %f, max_energy: %f\n", min_pos, min_energy, max_energy);
+        // check if null is OK
+        if (fabs(max_energy / min_energy) < 2) {
+            min_pos = 0;
+            null_quality_ = NULL_NOT_DETECTED;
+            printf("\n******************* NULL not detected *************************\n\n");
+        }
+    }
+    null_position_ = min_pos;
 }
 
+void Synchronizer::DecodeNULL(const float *data) {
+    size_t fft_size = 2 * mode_parameters_->fft_size;
+	size_t null_size = 2 * mode_parameters_->null_size;
+	size_t number_of_carriers = mode_parameters_->number_of_carriers + 1;
+    data += 2 * null_position_;
+    float maximum = 0; //maximum value of null symbol- useful with decoding TII
+	float average = 0; //average value of null symbol, where TII are not included(elements 768-1279 in temp array)
+	int match = 0; //counts how many matches we have got in null symbol with TII table
+	float threshold = 0; //threshold, from what value we try to decode null
+    float sum = 0;
+
+    memcpy(null_symbol_TD_, data, sizeof(float) * null_size);
+    FFT(null_symbol_TD_);
+	for (size_t i = 0; i<fft_size; i+=2){
+		temporary_null_[i/2] = sqrt(null_symbol_TD_[i]*null_symbol_TD_[i] + null_symbol_TD_[i+1]*null_symbol_TD_[i+1]);
+		if(i > 1536 && i < 2560)
+			sum += temporary_null_[i/2];
+		if ((temporary_null_[i/2] > maximum) && ((i<=1536) || (i>=2560)))
+			maximum = temporary_null_[i/2];
+	}
+	average = sum/((fft_size/2) - number_of_carriers);
+    if(maximum > fabs(previous_null_max_ - average)) {
+        //setting up threshold, when we have strong signal, threshold is higher
+        if ((maximum - average) > 15)
+            if (maximum != 0)
+                threshold = (16 * average) / maximum;
+        else
+            if (maximum != 0)
+                threshold = (4 * average) / maximum;
+
+        temporary_null_[0] = 0;
+        if (maximum!=0) {
+            for (size_t i = 0; i < fft_size / 2; i++) {
+                //we have to insert into end of new table first 768 elements of array temporary NULL
+                if (i >= 0 && i < 769) {
+                    if ((temporary_null_[i] / maximum) > threshold)
+                        null_symbol_FD_[i + 769] = 1;
+                    else
+                        null_symbol_FD_[i + 769] = 0;
+                }
+                //we have to insert into beginning of new table last 768 elements of array temporary NULL
+                if (i >= 1280) {
+                    if ((temporary_null_[i] / maximum) > threshold)
+                        null_symbol_FD_[i - 1280] = 1;
+                    else
+                        null_symbol_FD_[i - 1280] = 0;
+                }
+            }
+            null_symbol_FD_[0] = 0;
+            null_symbol_FD_[768] = 0;
+            for (size_t c = 0; c < 24; c++) {
+                for (size_t p = 0; p < 70; p++) {
+                    match = 0;
+                    for (size_t idx = 0; idx < 8; idx++) {
+                        if (null_symbol_FD_[1 + idx * 48 + 2 * c] == 1 && transmitter_patterns[p][idx] == 1) {
+                            match++;
+                        }
+                        if (null_symbol_FD_[384 + idx * 48 + 2 * c] == 1 && transmitter_patterns[p][idx] == 1) {
+                            match++;
+                        }
+                        if (null_symbol_FD_[769 + idx * 48 + 2 * c] == 1 && transmitter_patterns[p][idx] == 1) {
+                            match++;
+                        }
+                        if (null_symbol_FD_[1153 + idx * 48 + 2 * c] == 1 && transmitter_patterns[p][idx] == 1) {
+                            match++;
+                        }
+                        if (match >= 14) {
+                            if (tii_[0] != p || tii_[1] != c){
+                                tii_[0] = p;
+                                tii_[1] = c;
+                                // printf("p:%d c:%d \n", tii_[0],tii_[1]);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        previous_null_max_ = maximum;
+    } else
+        previous_null_max_ = maximum;
+}
 
 void Synchronizer::DetectPhaseReference(const float* data, size_t size, void * datafeeder)
 {
@@ -553,7 +638,6 @@ void Synchronizer::PhaseReferenceGen()
 	memcpy(sigPhaseRef_freq, phase_ref_symb, sizeof(float) * (2 * mode_parameters_->fft_size));
 
 	IFFT(phase_ref_symb);
-
 	//Add cyclic prefix
 	for (size_t i = 0; i < 2 * mode_parameters_->guard_size; i++) {
 		sigPhaseRef_[i] = phase_ref_symb[2 * mode_parameters_->fft_size - 2 * mode_parameters_->guard_size + i];
@@ -654,15 +738,49 @@ void Synchronizer::calculateSNRfromSPECTRUM(const float *data){
 void Synchronizer::calculateSNRfromPREFIX(const float *data){
 	size_t fft_size = 2 * mode_parameters_->fft_size;
 	size_t guard_size = 2 * mode_parameters_->guard_size;
+    size_t size = 2 * mode_parameters_->number_of_carriers;
+    float max = 0;
+    float signal = 0;
+    float noise = 0;
+    float abs_ref = 0;
+    float abs_sig = 0;
 
-	float signal = 0, noise = 0;
-	for (size_t i = 0; i < guard_size; i += 2) {
-		// fprintf(stderr, "%zu %7.2f %7.2f %7.2f %7.2f %7.2f %7.2f\n", i, data[i] * data[i + fft_size], data[i], data[i + fft_size], data[i + 1] * data[i + 1 + fft_size], data[i + 1], data[i + 1 + fft_size]);
+    /////Copying data without cyclic prefix
+    memcpy(data_snr_PR_, data+guard_size, sizeof(float) * fft_size);
+    FFT(data_snr_PR_);
 
-		signal += data[i] * data[i + fft_size] + data[i + 1] * data[i + 1 + fft_size];
-		noise += (data[i] - data[i + fft_size]) * (data[i] - data[i + fft_size])
-	                		 + (data[i + 1] - data[i + 1 + fft_size]) * (data[i + 1] - data[i + 1 + fft_size]);
-	}
-//	printf("sig:%f, nois:%f\n", signal, noise);
-	SNRfromPREFIX_ = 10 * log10(2 * signal / noise);
+    for(size_t i = 0; i < fft_size; i+=2){
+        abs_data_[i/2] = sqrt(data_snr_PR_[i]*data_snr_PR_[i] + data_snr_PR_[i+1]*data_snr_PR_[i+1]);
+        if(abs_data_[i/2]>max) {
+            max = abs_data_[i/2];
+        }
+    }
+    for(size_t i = 0; i < fft_size; i+=2){
+        data_snr_PR_[i] = data_snr_PR_[i] / max;
+        data_snr_PR_[i+1] = data_snr_PR_[i+1] / max;
+        abs_ref = sqrt(sigPhaseRef_freq[i]*sigPhaseRef_freq[i] + sigPhaseRef_freq[i+1] * sigPhaseRef_freq[i+1]);
+        abs_sig = sqrt(data_snr_PR_[i]*data_snr_PR_[i]+data_snr_PR_[i+1]*data_snr_PR_[i+1]);
+        noise = noise + (abs_ref - abs_sig)*(abs_ref - abs_sig);
+        signal = signal + abs_sig*abs_sig;
+    }
+    SNRfromPREFIX_ = 10 * log10(signal / noise);
+    if(SNRfromPREFIX_ < 0){
+        SNRfromPREFIX_ = 0;
+    }
+
+    //printf("SNR:%f\n", SNRfromPREFIX_);
+}
+
+void Synchronizer::SetFcSearchRange(int first_pos, int second_pos, int first_neg, int second_neg) {
+    first_pos_value_ = first_pos;
+    second_pos_value_ = second_pos;
+    first_neg_value_ = first_neg;
+    second_neg_value_ = second_neg;
+}
+
+void Synchronizer::ResetFcSearchRange(){
+    first_pos_value_ = 2;
+    second_pos_value_ = 2*fc_search_range_ + 2;
+    first_neg_value_ = -2*fc_search_range_;
+    second_neg_value_ = 0;
 }

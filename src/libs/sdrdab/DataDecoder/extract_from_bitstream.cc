@@ -88,7 +88,7 @@ uint8_t ExtractFromBitstream::ExtractDataFromFIC(uint8_t* data, size_t size, uin
                         ((static_cast<uint16_t>(data[number_of_bytes + 2] & 0x03)) << 2)
                         + (static_cast<uint16_t>(data[number_of_bytes + 3]));
                     kth_info.protection_level = (data[number_of_bytes + 2] & 0x0C) >> 2;
-                    kth_info.protection_level_typeB = (data[number_of_bytes + 2] & 0x60) >> 4;
+                    kth_info.protection_level_typeB = (data[number_of_bytes + 2] & 0x10) >> 4;
                     kth_info.table6_subchannel_short_info = 0;
                     number_of_bytes += 4;
                     MCIdata_.subChannel_Basic_Information.push_back(kth_info);

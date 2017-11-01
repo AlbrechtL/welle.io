@@ -31,8 +31,10 @@
 
 static void Resample(void *data) {
     resampleData *res_data = reinterpret_cast<resampleData*>(data);
-    RtlDataFeeder *data_feeder = reinterpret_cast<RtlDataFeeder*>(res_data->data_feeder);
-    data_feeder->HandleDrifts(0, res_data->fs_drift);
+    AbstractDataFeeder *data_feeder = reinterpret_cast<AbstractDataFeeder*>(res_data->data_feeder);
+    data_feeder->HandleDrifts(res_data->fc_drift, res_data->fs_drift);
+    res_data->fc_drift = 0;
+    res_data->fs_drift = 0;
 }
 
 static void AudioProcess(void *data) {

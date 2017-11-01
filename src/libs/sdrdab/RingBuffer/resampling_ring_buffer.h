@@ -32,8 +32,15 @@
 
 class ResamplingRingBuffer : public RingBuffer<float> {
     public:
-
-        ResamplingRingBuffer(int quality, size_t size, int channels);
+    enum resample_quality
+    {
+        SRC_SINC_BEST_QUALITY		= 0,
+        SRC_SINC_MEDIUM_QUALITY		= 1,
+        SRC_SINC_FASTEST			= 2,
+        SRC_ZERO_ORDER_HOLD			= 3,
+        SRC_LINEAR					= 4,
+    } ;
+        ResamplingRingBuffer(resample_quality quality, size_t size, int channels);
 
         virtual ~ResamplingRingBuffer();
 

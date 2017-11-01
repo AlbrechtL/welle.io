@@ -108,8 +108,10 @@ Scheduler::Scheduler() :
     fc_converged_(false),
     recalc_fc_drift_(0),
     fc_counter_(0),
-    fs_drift_table_length_(30),
     fc_drift_table_(new float[10]),
+    fs_drift_counter_(-1),
+    fs_drift_table_full_(false),
+    fs_drift_stable_(false),
     number_of_frames_for_estimate_fsdrift_(10),
     demod_decod_created_(false),
     station_number_(255),
@@ -142,7 +144,7 @@ static void CheckAudioBuffer(size_t size, void * data)
 }
 
 Scheduler::state_t Scheduler::Init(const char * dongle_or_file_name, uint8_t internal_buffer_number, size_t internal_buffer_size, uint32_t sample_rate,
-                                   uint32_t carrier_freq, data_source_t data_source)
+                                   uint32_t carrier_freq, data_source_t data_source, ResamplingRingBuffer::resample_quality resample_quality)
 {
     PrintSystemStateIfVerbose( "Init" );
 
@@ -150,7 +152,7 @@ Scheduler::state_t Scheduler::Init(const char * dongle_or_file_name, uint8_t int
     sampling_frequency_ = sample_rate;
 
     if ( data_source == DATA_FROM_FILE ) {
-        datafeeder_ = new FileDataFeeder( dongle_or_file_name, internal_buffer_size, sample_rate, carrier_freq, 10 );
+        datafeeder_ = new FileDataFeeder( dongle_or_file_name, internal_buffer_size, sample_rate, carrier_freq, 10 , resample_quality);
     } else if ( data_source == DATA_FROM_DONGLE ) {
         datafeeder_ = new RtlDataFeeder( dongle_or_file_name, internal_buffer_number, internal_buffer_size, sample_rate, carrier_freq, 10 );
     } else {
@@ -242,6 +244,7 @@ Scheduler::state_t Scheduler::CreateThreads()
 
     resample_data_.data_feeder = datafeeder_;
     resample_data_.fs_drift = 0;
+    resample_data_.fc_drift = 0;
 
     if ( threads_[RESAMPLE_THREAD_ID].init(
                 &Resample,
@@ -289,7 +292,7 @@ Scheduler::state_t Scheduler::CreateThreads()
 
     return INIT;
 }
-
+int distanse;
 Scheduler::state_t Scheduler::Sync()
 {
     bool is_locked = false;
@@ -314,7 +317,8 @@ Scheduler::state_t Scheduler::Sync()
             if ( sync_detect_.mode == DAB_MODE_UNKNOWN ) {
                 sync_read_.read_here += sync_read_size_;
                 sync_read_pos_ += sync_read_size_;
-
+                printf("Read synchoronizer data address: %p\n", sync_read_.read_here);
+                distanse=data_write_.write_here-sync_read_.read_here;
                 ParametersFromSDR(DAB_NOT_DETECTED);
             } else {
                 // If mode detected, set proper parameters for transmission mode, and proper pointers position
@@ -353,7 +357,7 @@ Scheduler::state_t Scheduler::Sync()
 
                 CalculateAndSetDrifts();
                 if( verbose_ ){
-                    fprintf( stderr, "NULL:%d, Fs:%6.2f, Fc:%6.4f, ", sync_feedback_.null_position, fs_drift_, estimated_fc_drift_ );
+                    fprintf( stderr, "NULL:%d, Fs:%6.2f, Fc:%6.3f, ", sync_feedback_.null_position, fs_drift_, estimated_fc_drift_ );
                     fprintf( stderr, "SNR(RAW):%5.2f(%5.2f) dB", synchronizer_->getSNRfromPREFIX(), synchronizer_->getSNRfromSPECTRUM());
                 }
 
@@ -455,7 +459,7 @@ Scheduler::state_t Scheduler::Conf()
 
             CalculateAndSetDrifts();
             if( verbose_ ){
-                fprintf( stderr, "NULL:%d, Fs:%6.2f, Fc:%6.4f, ", sync_feedback_.null_position, fs_drift_, estimated_fc_drift_ );
+                fprintf( stderr, "NULL:%d, Fs:%6.2f, Fc:%6.3f, ", sync_feedback_.null_position, fs_drift_, estimated_fc_drift_ );
                 fprintf( stderr, "SNR(RAW):%5.2f(%5.2f) dB\n\n", synchronizer_->getSNRfromPREFIX(), synchronizer_->getSNRfromSPECTRUM());
             }
 
@@ -465,7 +469,6 @@ Scheduler::state_t Scheduler::Conf()
             UserFICData_t *user_data = NULL;
             datadecoder_->Process( &decod_read_write_, station_info_list_, &station_info_, user_data );
             ParametersFromSDR( user_data );
-
             // If no station decoded in FIC, go to SYNC state
             std::list<stationInfo>::iterator it;
             if (station_info_list_.size() > 0 ) {
@@ -482,9 +485,9 @@ Scheduler::state_t Scheduler::Conf()
                     /// Creating AudioDecoder, it->IsLong == 1 -> DAB+, it->IsLong == 0 -> DAB
                     it = station_info_list_.begin();
                     if ( it->IsLong ) {
-                        audiodecoder_ = new AudioDecoder( 0, 50 * 10000 );
+                        audiodecoder_ = new AudioDecoder( 0.2, 20 * 1550 );                 // time-stretching 0.3-0.7 buffer fill, ~2 seconds of buffer 
                     } else {
-                        audiodecoder_ = new AudioDecoder( 0, 50 * 10000, PLAYER_MPEG );
+                        audiodecoder_ = new AudioDecoder( 0.2, 20 * 1550, PLAYER_MPEG );
                     }
 
                     // Play on speakers
@@ -544,7 +547,7 @@ Scheduler::state_t Scheduler::Conf()
                 if ( verbose_ ) {
                     fprintf(stderr, "\nGOING TO CONFSTATION STATE\n");
                 }
-            } else {  // ToDo: decoder should wait a few (not one) before it 
+            } else {  // ToDo: decoder should wait a few (not one) before it
                 ResetFsDrift();
                 state_ = SYNC;
                 if ( verbose_ ) {
@@ -805,7 +808,7 @@ Scheduler::state_t Scheduler::Play()
                 sync_read_pos_ += sync_pointer_shift_size_;
 
                 if( verbose_ ){
-                    fprintf( stderr, "NULL:%d, Fs:%6.2f, Fc:%6.4f, ", sync_feedback_.null_position, fs_drift_, estimated_fc_drift_ );
+                    fprintf( stderr, "NULL:%d, Fs:%6.2f, Fc:%6.3f, ", sync_feedback_.null_position, fs_drift_, estimated_fc_drift_ );
                     fprintf( stderr, "SNR(RAW):%5.2f(%5.2f) dB, ", synchronizer_->getSNRfromPREFIX(), synchronizer_->getSNRfromSPECTRUM());
                 }
             } else if ( sync_feedback_.null_quality == NULL_SHIFT ) {
@@ -814,10 +817,10 @@ Scheduler::state_t Scheduler::Play()
                                        mode_parameters_.null_size + sync_pointer_shift_size_;
                 sync_read_pos_ = sync_read_pos_ + 2 * sync_feedback_.null_position -
                                  mode_parameters_.null_size  + sync_pointer_shift_size_;
-                
+
                 if ( verbose_ ) {
                     fprintf( stderr, "Null_shift: %d \n", sync_feedback_.null_position );
-                }                                 
+                }
             }
             ShiftSyncFeederPointersIfPossible();
             ResumeSynchronizerIfReady();
@@ -935,53 +938,24 @@ void Scheduler::ShiftDemodDecodPointersIfPossible() {
 void Scheduler::CalculateAndSetDrifts()
 {
     CalculateFcDrift();
+    CalculateFsDrift();
 
-    if (data_source_ == DATA_FROM_DONGLE) {         //CalculateFsDriftFromFcDrift
-        fs_drift_ = ( -estimated_fc_drift_ / carrier_frequency_ ) * 1000000000;
-    } else if (data_source_ == DATA_FROM_FILE) {    // CalculateFsDriftOnNull
-        int fs_drift_symbols = static_cast<int>(sync_feedback_.null_position) - mode_parameters_.null_size / 2;
-        fs_drift_ = static_cast<float>(fs_drift_symbols) * 1000000 / mode_parameters_.frame_size;
-    }
-    // drift debug
-    // printf("%5.3g:", fs_drift_);
-    // for(std::deque<float>::iterator it=fs_drift_queue_.begin(); it!=fs_drift_queue_.end(); ++it){
-    //     printf(" %5.3g", *it);
-    // }
-
-    fs_drift_queue_.push_back(fs_drift_);
-    size_t queue_size = fs_drift_queue_.size();
-    if ( queue_size >= number_of_frames_for_estimate_fsdrift_) {
-        float fs_mean_drift = 0;
-        for ( size_t it = 0; it < queue_size; ++it ) {
-            fs_mean_drift += fs_drift_queue_.at(it);
-        }
-        fs_mean_drift /= queue_size;
-        fs_drift_ = fs_mean_drift; // for compatibility
-
-        if ( fabs(fs_mean_drift) > 1 && fc_converged_ ) {   // treschold
-            // set FS drift
-        	// drift debug
-        	// printf(" set: %6.4g",fs_mean_drift / (number_of_frames_for_estimate_fsdrift_ / 4));
-            resample_data_.fs_drift = fs_mean_drift / (number_of_frames_for_estimate_fsdrift_ / 4); //todo test better algorithms
-            threads_[RESAMPLE_THREAD_ID].resume_thread();
-            recalc_fc_drift_ = 5; //@todo
-        }
-
-        size_t queue_tail_length = fs_drift_queue_.size() / 4;
-        fs_drift_queue_.erase(fs_drift_queue_.begin(), fs_drift_queue_.begin() + queue_tail_length);
-    }
-    // drift debug
-    // printf("\n");
+    threads_[RESAMPLE_THREAD_ID].resume_thread();
 }
 
-void Scheduler::CalculateFcDrift()
-{
-    if ( fc_counter_ > 9 ) {
-        fc_drift_table_full_ = true;
-        fc_counter_ = 0;
-    }
+void Scheduler::SkipAfterFsChange() {
+    fs_drift_counter_ = -3;
+    fs_drift_table_full_ = false;
+    fs_drift_stable_ = false;
+
+    recalc_fc_drift_ = 3;
+    synchronizer_->ResetFcSearchRange();
+}
+
+void Scheduler::CalculateFcDrift() {
     float estimated_fc_drift = 0;
-    float mean;
+    float mean = 0;
+
     if ( fc_drift_table_full_ ) {
         mean = EstimateFcDrift();
 
@@ -1008,6 +982,53 @@ void Scheduler::CalculateFcDrift()
     // }
 
     fc_counter_++;
+    if ( fc_counter_ > 9 ) {
+        fc_drift_table_full_ = true;
+        fc_counter_ = 0;
+    }
+}
+
+void Scheduler::CalculateFsDrift() {
+    float fs_mean_drift = 0;
+
+    // CalculateFsDriftOnNull
+    int fs_drift_symbols = static_cast<int>(sync_feedback_.null_position) - mode_parameters_.null_size / 2;
+    fs_drift_ = static_cast<float>(fs_drift_symbols) * 1000000 / mode_parameters_.frame_size;
+    
+    if (fs_drift_counter_ >= 0) {
+        if(fs_drift_ < -6 && state_ == PLAY)
+            fs_table_[fs_drift_counter_] = -6;
+        else if(fs_drift_ > 6 && state_ == PLAY)
+            fs_table_[fs_drift_counter_] = 6;
+        else
+            fs_table_[fs_drift_counter_] = fs_drift_;
+
+        if (fs_drift_table_full_) {
+            for (size_t it = 0; it < fs_drift_table_length_; ++it) {
+                fs_mean_drift += fs_table_[it];
+            }
+            fs_mean_drift /= fs_drift_table_length_;
+            fs_drift_ = fs_mean_drift;
+            if (fabs(fs_mean_drift) > 3 && fs_drift_table_full_) {
+                if(state_ == PLAY) {
+                    resample_data_.fs_drift = ( fs_mean_drift > 0 ? 1 : -1 );
+                } else {
+                    resample_data_.fs_drift = fs_mean_drift;
+                }
+                SkipAfterFsChange();
+                return;
+            }
+        }
+    }
+    fs_drift_counter_++;
+    if (fs_drift_counter_ == fs_drift_table_length_) {
+        if(fs_drift_table_full_)
+            fs_drift_stable_ = true;
+
+        fs_drift_counter_ = 0;
+        fs_drift_table_full_ = true;
+    }
+
 }
 
 float Scheduler::EstimateFcDrift()
@@ -1058,8 +1079,15 @@ float Scheduler::ConvergedFcHandle(float mean)
         estimated_fc_drift = sync_feedback_.fc_drift;
         fc_drift_table_[fc_counter_] = sync_feedback_.fc_drift;
 
-        if (fc_counter_ == 0) {
+        if (fc_counter_ == 0 && state_ == PLAY) {
             SetSearchRange(static_cast<int>(estimated_fc_drift));
+        }
+        if (fs_drift_stable_ == true
+                && abs(estimated_fc_drift_) > 10
+                && data_source_ == DATA_FROM_DONGLE ){
+            resample_data_.fc_drift = roundf(estimated_fc_drift)*1000;
+            StartFcHandle();
+            synchronizer_->ResetFcSearchRange();
         }
     } else {
         estimated_fc_drift = mean;
@@ -1071,13 +1099,17 @@ float Scheduler::ConvergedFcHandle(float mean)
 float Scheduler::FsChangedFcHandle(float mean)
 {
     int threshold = 1;
+    float estimated_fc_drift = 0;
 
     if (state_ == SYNC) {
         threshold = 100;
     }
 
-    float estimated_fc_drift = 0;
-    if (fabs(estimated_fc_drift_ - sync_feedback_.fc_drift) < threshold) {
+    if ( (data_source_ != DATA_FROM_DONGLE
+            && fabs(estimated_fc_drift_ - sync_feedback_.fc_drift) < threshold)
+         || (data_source_ == DATA_FROM_DONGLE
+               && recalc_fc_drift_ == 1) ) {
+
         for (int i = 0; i < 10; i++) {
             fc_drift_table_[i] = sync_feedback_.fc_drift;
         }
@@ -1593,7 +1625,7 @@ void Scheduler::Start(SchedulerConfig_t config)
 
     station_number_ = config.start_station_nr;
 
-    state_ = Init(dongle_or_file_name, 4, 12 * 16384, config.sampling_rate, config.carrier_frequency, config.data_source);
+    state_ = Init(dongle_or_file_name, 4, 12 * 16384, config.sampling_rate, config.carrier_frequency, config.data_source, config.resample_quality);
 
     if (state_ == SYNC) {
         while (!datafeeder_->IsRunning());
