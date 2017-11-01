@@ -46,6 +46,9 @@ h | Show help
 v | Show version 
 L | GUI language e.g. de_DE
 D | Input device. Possible is: auto (default), airspy, rtl_tcp, rtl_sdr, rawfile, soapysdr
+--sdr-driver-args | The value depends on the SDR driver and is directly passed to it (currently only SoapySDR::Device::make(args)). A typical value for SoapySDR is a string like driver=remote,remote=127.0.0.1,remote:driver=rtlsdr,rtl=0
+--sdr-antenna | The value depends on the SDR Hardware, typical values are TX/RX, RX2. Just query it with SoapySDRUtil --probe=driver=uhd
+--sdr-clock-source | The value depends on the SDR Hardware, typical values are internal, external, gpsdo. Just query it with SoapySDRUtil --probe=driver=uhd
 M | DAB mode. Possible is: 1,2,3 or 4, Default: 1 
 I | rtl_tcp server IP address. Only valid for input rtl_tcp 
 P | rtl_tcp server IP port. Only valid for input rtl_tcp
@@ -68,8 +71,21 @@ The following SDR devices are supported
 * rtl_sdr (http://osmocom.org/projects/sdr/wiki/rtl-sdr)
 * rtl_tcp (http://osmocom.org/projects/sdr/wiki/rtl-sdr#rtl_tcp)
 * I/Q RAW file (https://www.welle.io/devices/rawfile)
-* The LimeSDR through [SoapySDR](https://github.com/pothosware/SoapySDR) (Connect your antenna to `RX1_W`).
-* The HackRF through [SoapySDR](https://github.com/pothosware/SoapySDR) built with HackRF support
+* All SDR-devices that are supported by SoapySDR, gr-osmosdr and uhd. These are too many devices to list them all. To see if your SDR is supported, have a look at the lists at [SoapySDR](https://github.com/pothosware/SoapySDR/wiki) and [SoapyOsmo](https://github.com/pothosware/SoapyOsmo/wiki).
+    * Devices supported by gr-osmosdr are supported via [SoapyOsmo](https://github.com/pothosware/SoapyOsmo/wiki)
+    * Devices supported by uhd are supported via [SoapyUHD](https://github.com/pothosware/SoapyUHD/wiki)
+    * One limitation is of course that the SDR devices must be tunable to the DAB+ frequencies.
+
+Hardware specific Notes
+=======================
+
+# LimeSDR
+
+Connect the Antenna to the RX1_W port and start welle-io with the options -D soapysdr --sdr-antenna LNAW. SoapySDRUtil --probe=driver=lime may show other possible options.
+
+# USRP
+
+Start welle-io with -D soapysdr --sdr-driver-args driver=uhd --sdr-antenna <antenna> --sdr-clock-source <clock source>. To list possible values for antenna and clock source use the command "SoapySDRUtil --probe=driver=uhd".
 
 Building
 ====================
@@ -155,7 +171,7 @@ As an alternative to Qt Creator, CMake can be used for building welle.io after i
 # cd build
   ```
 
-2. Run CMake. To enable support for RTL-SDR add the flag `-DRTLSDR` (requires librtlsdr) and for SoapySDR add `-DSOAPYSDR` (requires SoapySDR compiled with support for each desired hardware like the AirSpy or HackRF)
+2. Run CMake. To enable support for RTL-SDR add the flag `-DRTLSDR=1` (requires librtlsdr) and for SoapySDR add `-DSOAPYSDR=1` (requires SoapySDR compiled with support for each desired hardware like the AirSpy or HackRF)
 
   ```
 # cmake ..
@@ -164,7 +180,7 @@ As an alternative to Qt Creator, CMake can be used for building welle.io after i
   or to enable support for both RTL-SDR and Soapy-SDR:
 
   ```
-# cmake .. -DRTLSDR -DSOAPYSDR
+# cmake .. -DRTLSDR=1 -DSOAPYSDR=1
   ```
 
 3. Run make (or use the created project file depending on the selected generator)
