@@ -171,7 +171,7 @@ As an alternative to Qt Creator, CMake can be used for building welle.io after i
 # cd build
   ```
 
-2. Run CMake. To enable support for RTL-SDR add the flag `-DRTLSDR` (requires librtlsdr) and for SoapySDR add `-DSOAPYSDR` (requires SoapySDR compiled with support for each desired hardware like the AirSpy or HackRF)
+2. Run CMake. To enable support for RTL-SDR add the flag `-DRTLSDR=1` (requires librtlsdr) and for SoapySDR add `-DSOAPYSDR=1` (requires SoapySDR compiled with support for each desired hardware like the AirSpy or HackRF)
 
   ```
 # cmake ..
@@ -180,7 +180,7 @@ As an alternative to Qt Creator, CMake can be used for building welle.io after i
   or to enable support for both RTL-SDR and Soapy-SDR:
 
   ```
-# cmake .. -DRTLSDR -DSOAPYSDR
+# cmake .. -DRTLSDR=1 -DSOAPYSDR=1
   ```
 
 3. Run make (or use the created project file depending on the selected generator)
