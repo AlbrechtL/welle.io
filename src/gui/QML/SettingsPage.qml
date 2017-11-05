@@ -262,7 +262,7 @@ Item {
 
             TouchButton {
                 id: exitAppButton
-                text: qsTr("Exit welle.io")
+                text: qsTr("EXIT")
                 onClicked: cppGUI.close()
                 Layout.preferredWidth: parent.width
                 Layout.alignment: Qt.AlignBottom
