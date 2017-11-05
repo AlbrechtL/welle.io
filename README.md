@@ -76,14 +76,14 @@ The following SDR devices are supported
     * Devices supported by uhd are supported via [SoapyUHD](https://github.com/pothosware/SoapyUHD/wiki)
     * One limitation is of course that the SDR devices must be tunable to the DAB+ frequencies.
 
-Hardware specific Notes
-=======================
+SoapySDR Notes
+---
 
-# LimeSDR
+### LimeSDR
 
 Connect the Antenna to the RX1_W port and start welle-io with the options -D soapysdr --sdr-antenna LNAW. SoapySDRUtil --probe=driver=lime may show other possible options.
 
-# USRP
+### USRP
 
 Start welle-io with -D soapysdr --sdr-driver-args driver=uhd --sdr-antenna <antenna> --sdr-clock-source <clock source>. To list possible values for antenna and clock source use the command "SoapySDRUtil --probe=driver=uhd".
 
