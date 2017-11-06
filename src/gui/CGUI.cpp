@@ -36,12 +36,6 @@
 #include "DabConstants.h"
 #include "msc-handler.h"
 
-// Fallback if git hash macro is not defined
-#ifndef GITHASH
-#pragma message "Git hash is not defined! Set it to \"unknown\""
-#define GITHASH "unknown"
-#endif
-
 /**
   *	We use the creation function merely to set up the
   *	user interface and make the connections between the
@@ -57,6 +51,8 @@ CGUI::CGUI(CRadioController *RadioController, QObject *parent)
     , RadioController(RadioController)
     , spectrum_series(NULL)
 {
+    m_currentGainValue = 0;
+
     StationsChange(RadioController->Stations());
 
     // Add image provider for the MOT slide show
@@ -224,9 +220,12 @@ void CGUI::inputGainChanged(double gain)
     if(RadioController)
     {
         RadioController->setGain((int) gain);
-        m_currentGainValue = RadioController->GainValue();
-        if(m_currentGainValue >= 0)
+        float currentGainValue = RadioController->GainValue();
+        if(currentGainValue > std::numeric_limits<float>::lowest())
+        {
+            m_currentGainValue = currentGainValue;
             emit currentGainValueChanged();
+        }
     }
 }
 

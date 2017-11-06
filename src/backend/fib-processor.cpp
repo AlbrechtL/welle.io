@@ -102,7 +102,7 @@ fib_processor::fib_processor(CRadioController *mr)
     myRadioInterface = mr;
 
     listofServices = new serviceId[64];
-    memset (dateTime, 0, 8);
+    memset (dateTime, 0, 8 * sizeof(int32_t));
     dateFlag    = false;
     clearEnsemble   ();
     connect (this, SIGNAL (addtoEnsemble (quint32, const QString &)),

@@ -139,15 +139,6 @@ Item{
         }
 
         TextRadioInfo {
-            id: languageTypeText
-            visible: stationInfo.visible
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.leftMargin: Units.dp(5)
-            anchors.rightMargin: Units.dp(5)
-            text: cppGUI.guiData.LanguageType
-        }
-
-        TextRadioInfo {
             id: stationDetails
             visible: stationInfo.visible
             anchors.right: parent.right

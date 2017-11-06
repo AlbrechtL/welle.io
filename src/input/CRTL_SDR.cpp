@@ -234,9 +234,14 @@ float CRTL_SDR::setGain(int32_t Gain)
 
     CurrentGainCount = Gain;
     CurrentGain = gains[Gain];
-    rtlsdr_set_tuner_gain(device, CurrentGain);
 
-    //qDebug() << "RTL_SDR:" << "Set gain to" << theGain / 10.0 << "db";
+    //qDebug() << "RTL_SDR:" << "Set gain to" << CurrentGain / 10.0 << "db";
+
+    int ret = rtlsdr_set_tuner_gain(device, CurrentGain);
+    if (ret != 0)
+    {
+        qDebug() << "RTL_SDR:" << "Setting gain failed";
+    }
 
     return CurrentGain / 10.0;
 }
@@ -308,8 +313,7 @@ void CRTL_SDR::AGCTimerTimeout(void)
             if(CurrentGainCount > 0)
             {
                 setGain(CurrentGainCount - 1);
-
-                qDebug() << "RTL_SDR:" << "Decrease gain to" << (float) CurrentGain / 10;
+                qDebug() << "RTL_SDR:" << "Decreased gain to" << (float) CurrentGain / 10;
             }
         }
         else
@@ -328,7 +332,7 @@ void CRTL_SDR::AGCTimerTimeout(void)
                 if(NewMinValue >=0 && NewMaxValue <= 255)
                 {
                     setGain(CurrentGainCount + 1);
-                    qDebug() << "RTL_SDR:" << "Increase gain to" << (float) CurrentGain / 10;
+                    qDebug() << "RTL_SDR:" << "Increased gain to" << (float) CurrentGain / 10;
                 }
             }
         }

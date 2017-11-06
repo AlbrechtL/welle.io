@@ -31,6 +31,9 @@
 #include <QSettings>
 
 #include "CRadioController.h"
+#ifdef HAVE_SOAPYSDR
+#include "CSoapySdr.h"
+#endif /* HAVE_SOAPYSDR */
 #include "CInputFactory.h"
 #include "CRAWFile.h"
 #include "CRTL_TCP_Client.h"
@@ -111,7 +114,7 @@ void CRadioController::ResetTechnicalData(void)
     mGainCount = 0;
     mStationCount = 0;
     CurrentManualGain = 0;
-    CurrentManualGainValue = 0.0;
+    CurrentManualGainValue = std::numeric_limits<float>::lowest();
     CurrentVolume = 1.0;
 
     startPlayback = false;
@@ -171,6 +174,11 @@ void CRadioController::onEventLoopStarted()
     QString dabDevice = "auto";
 #endif
 
+#ifdef HAVE_SOAPYSDR
+    QString sdrDriverArgs;
+    QString sdrAntenna;
+    QString sdrClockSource;
+#endif /* HAVE_SOAPYSDR */
     QString ipAddress = "127.0.0.1";
     uint16_t ipPort = 1234;
     QString rawFile = "";
@@ -178,6 +186,17 @@ void CRadioController::onEventLoopStarted()
 
     if(commandLineOptions["dabDevice"] != "")
         dabDevice = commandLineOptions["dabDevice"].toString();
+
+#ifdef HAVE_SOAPYSDR
+    if(commandLineOptions["sdr-driver-args"] != "")
+        sdrDriverArgs = commandLineOptions["sdr-driver-args"].toString();
+
+    if(commandLineOptions["sdr-antenna"] != "")
+        sdrAntenna = commandLineOptions["sdr-antenna"].toString();
+
+    if(commandLineOptions["sdr-clock-source"] != "")
+        sdrClockSource = commandLineOptions["sdr-clock-source"].toString();
+#endif /* HAVE_SOAPYSDR */
 
     if(commandLineOptions["ipAddress"] != "")
         ipAddress = commandLineOptions["ipAddress"].toString();
@@ -208,6 +227,24 @@ void CRadioController::onEventLoopStarted()
 
         RAWFile->setFileName(rawFile, rawFileFormat);
     }
+
+#ifdef HAVE_SOAPYSDR
+    if (Device->getID() == CDeviceID::SOAPYSDR) {
+        CSoapySdr *sdr = (CSoapySdr*)Device;
+
+        if (!sdrDriverArgs.isEmpty()) {
+            sdr->setDriverArgs(sdrDriverArgs);
+        }
+
+        if (!sdrDriverArgs.isEmpty()) {
+            sdr->setAntenna(sdrAntenna);
+        }
+
+        if (!sdrClockSource.isEmpty()) {
+            sdr->setClockSource(sdrClockSource);
+        }
+    }
+#endif /* HAVE_SOAPYSDR */
 
     Initialise();
 }
@@ -651,14 +688,14 @@ int CRadioController::Gain() const
 void CRadioController::setGain(int Gain)
 {
     CurrentManualGain = Gain;
-    emit GainChanged(CurrentManualGain);
 
     if (Device)
         CurrentManualGainValue = Device->setGain(Gain);
     else
-        CurrentManualGainValue = -1.0;
+        CurrentManualGainValue = std::numeric_limits<float>::lowest();
 
     emit GainValueChanged(CurrentManualGainValue);
+    emit GainChanged(CurrentManualGain);
 }
 
 void CRadioController::setErrorMessage(QString Text)
