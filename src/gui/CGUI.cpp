@@ -207,22 +207,22 @@ void CGUI::setManualChannel(QString ChannelName)
 
 void CGUI::inputEnableAGCChanged(bool checked)
 {
-    if(RadioController)
-        RadioController->setAGC(checked);
+    /*if(RadioController)
+        RadioController->setAGC(checked);*/
 }
 
 void CGUI::inputEnableHwAGCChanged(bool checked)
 {
-    if(RadioController)
-        RadioController->setHwAGC(checked);
+    /*if(RadioController)
+        RadioController->setHwAGC(checked);*/
 }
 
 void CGUI::inputGainChanged(double gain)
 {
     if(RadioController)
     {
-        RadioController->setGain((int) gain);
-        m_currentGainValue = RadioController->GainValue();
+        //RadioController->setGain((int) gain);
+        //m_currentGainValue = RadioController->GainValue();
         if(m_currentGainValue >= 0)
             emit currentGainValueChanged();
     }
