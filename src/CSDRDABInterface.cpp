@@ -29,39 +29,51 @@
 
 CSDRDABInterface::CSDRDABInterface(QObject *parent) : QObject(parent)
 {
-    connect(this, &CSDRDABInterface::FICDataUpdated, this, &CSDRDABInterface::FICDataUpdate);
+    connect(this, &CSDRDABInterface::ficDataUpdated, this, &CSDRDABInterface::ficDataUpdate);
 
-    SDRDevice = SDRDevice_t::Unknown;
-    RAWFile = "";
+    m_SDRDevice = SDRDevice_t::Unknown;
+    m_RAWFile = "";
 }
 
-void CSDRDABInterface::SetRAWInput(QString File)
+void CSDRDABInterface::setRAWInput(QString File)
 {
-    SDRDevice = SDRDevice_t::RAW;
-    RAWFile = File;
+    m_SDRDevice = SDRDevice_t::RAW;
+    m_RAWFile = File;
 }
 
-
-void CSDRDABInterface::Start()
+void CSDRDABInterface::start(bool isAudio)
 {
+    m_isAudio = isAudio;
+
     //Launch a thread
-    SchedulerThread = new std::thread(SchedularThreadWrapper, this);
+    m_SchedulerThread = new std::thread(schedularThreadWrapper, this);
 }
 
-void CSDRDABInterface::SchedularThreadWrapper(CSDRDABInterface *SDRDABInterface)
+void CSDRDABInterface::stop()
+{
+    this->Scheduler::Stop();
+
+    // Wait for thead end
+    m_SchedulerThread->join();
+    delete m_SchedulerThread;
+}
+
+void CSDRDABInterface::schedularThreadWrapper(CSDRDABInterface *SDRDABInterface)
 {
     if(SDRDABInterface)
-        SDRDABInterface->SchedulerRunThread();
+        SDRDABInterface->schedulerRunThread();
 }
 
-void CSDRDABInterface::SchedulerRunThread()
+void CSDRDABInterface::schedulerRunThread()
 {
     SchedulerConfig_t config; //invokes default SchedulerConfig_t constructor
     config.sampling_rate  = 2048000;
+    config.start_station_nr = 255; // Start with first channel (default)
+    config.use_speakers = m_isAudio;
 
-    if(SDRDevice == SDRDevice_t::RAW)
+    if(m_SDRDevice == SDRDevice_t::RAW)
     {
-        QByteArray *ba = new QByteArray(RAWFile.toLocal8Bit()); // ToDo Memory leak!!
+        QByteArray *ba = new QByteArray(m_RAWFile.toLocal8Bit()); // ToDo Memory leak!!
         config.input_filename = ba->data();
         config.data_source = Scheduler::DATA_FROM_FILE;
     }
@@ -70,12 +82,6 @@ void CSDRDABInterface::SchedulerRunThread()
         config.data_source = Scheduler::DATA_FROM_DONGLE;
         config.carrier_frequency = 202928000;
     }
-
-    //config.use_speakers = !(this_->user_input_->silent_);
-    //config.output_filename = this_->user_input_->output_;
-    //config.convolutional_alg = this_->user_input_->decodingAlg_;
-    //if (this_->user_input_->channel_nr > 0)
-    //    config.start_station_nr = this_->user_input_->channel_nr;
 
     this->Scheduler::Start(config);
 }
@@ -87,7 +93,7 @@ void CSDRDABInterface::ParametersFromSDR(Scheduler::scheduler_error_t error_code
     {
     case OK: qDebug() << "SDRDABInterface: no error"; break;
     case ERROR_UNKNOWN: qDebug() << "SDRDABInterface: unknown error"; break;
-    case FILE_NOT_FOUND: qDebug() << "SDRDABInterface: FileDataFeeder was unable to open raw file" << RAWFile; break;
+    case FILE_NOT_FOUND: qDebug() << "SDRDABInterface: FileDataFeeder was unable to open raw file" << m_RAWFile; break;
     case DEVICE_NOT_FOUND: qDebug() << "SDRDABInterface: DataFeeder was unable to use tuner"; break;
     case DEVICE_DISCONNECTED: qDebug() << "SDRDABInterface: tuner device has been disconnected"; break;
     case FILE_END: qDebug() << "SDRDABInterface: input file with raw samples has ended"; break;
@@ -98,7 +104,7 @@ void CSDRDABInterface::ParametersFromSDR(Scheduler::scheduler_error_t error_code
 
 void CSDRDABInterface::ParametersFromSDR(float snr)
 {
-
+    qDebug() << "SDRDABInterface: SNR " <<  snr;
 }
 
 void CSDRDABInterface::ParametersFromSDR(UserFICData_t *user_fic_extra_data)
@@ -108,47 +114,47 @@ void CSDRDABInterface::ParametersFromSDR(UserFICData_t *user_fic_extra_data)
         return;
 
     // Copy FIC data
-    FICDataMutex.lock();
-    FICData.Set(user_fic_extra_data);
-    FICDataMutex.unlock();
+    m_FICDataMutex.lock();
+    m_FICData.Set(user_fic_extra_data);
+    m_FICDataMutex.unlock();
 
     // Fire signal
-    emit FICDataUpdated();
+    emit ficDataUpdated();
 
     delete user_fic_extra_data;
 }
 
-void CSDRDABInterface::FICDataUpdate()
+void CSDRDABInterface::ficDataUpdate()
 {
-    FICDataMutex.lock();
+    m_FICDataMutex.lock();
 
     // Check for new stations
-    for(auto station : FICData.stations)
+    for(auto station : m_FICData.stations)
     {
         QString StationName = QString::fromStdString(station.station_name);
 
         //	Add new station into list
-        if ((StationName != "Packet Mode") &&
-            (StationName != "Not Available") &&
-            (!StationList.contains(StationName)))
+        if ((StationName != "Packet Mode") && // Todo Find a better way
+            (StationName != "Not Available") &&  // Todo Find a better way
+            (!m_StationList.contains(StationName)))
         {
             qDebug() << "SDRDABInterface: Found station" <<  StationName
                      << "(" << qPrintable(QString::number(station.ServiceId, 16).toUpper()) << ")"
                      << "SubChannelId " << station.SubChannelId;
 
-            StationList.append(StationName);
-            emit NewStationFound(StationName);
+            m_StationList.append(StationName);
+            emit newStationFound(StationName);
         }
     }
 
-    FICDataMutex.unlock();
+    m_FICDataMutex.unlock();
 }
 
-void CSDRDABInterface::TuneToStation(QString StationName)
+void CSDRDABInterface::tuneToStation(QString StationName)
 {
-    FICDataMutex.lock();
+    m_FICDataMutex.lock();
     // Search for station
-    for(auto station : FICData.stations)
+    for(auto station : m_FICData.stations)
     {
         if(QString::fromStdString(station.station_name) == StationName)
         {
@@ -156,5 +162,10 @@ void CSDRDABInterface::TuneToStation(QString StationName)
             break; // break for loop
         }
     }
-    FICDataMutex.unlock();
+    m_FICDataMutex.unlock();
+}
+
+SDRDevice_t CSDRDABInterface::getSDRDevice()
+{
+    return m_SDRDevice;
 }

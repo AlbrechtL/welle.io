@@ -59,12 +59,11 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, QObject *par
     emit StationsChanged(mStationList.getList());
 
     // Init SDRDAB interface
-    connect(&SDRDABInterface, &CSDRDABInterface::NewStationFound, this, &CRadioController::NewStation);
+    connect(&SDRDABInterface, &CSDRDABInterface::newStationFound, this, &CRadioController::NewStation);
 }
 
 CRadioController::~CRadioController(void)
 {
-//    delete Audio;
 }
 
 void CRadioController::ResetTechnicalData(void)
@@ -132,7 +131,7 @@ void CRadioController::onEventLoopStarted()
         rawFileFormat = commandLineOptions["rawFileFormat"].toString();
 
     if(dabDevice == "rawfile")
-        SDRDABInterface.SetRAWInput(rawFile);
+        SDRDABInterface.setRAWInput(rawFile);
 
     Initialise();
 }
@@ -154,9 +153,16 @@ void CRadioController::Play(QString Channel, QString Station)
     }
 
     if(Status != Playing)
-        SDRDABInterface.Start();
+    {
+        SDRDABInterface.start();
+    }
+    else
+    {
+        SDRDABInterface.stop();
+        SDRDABInterface.start();
+    }
 
-    SDRDABInterface.TuneToStation(Station);
+    SDRDABInterface.tuneToStation(Station);
 
     Status = Playing;
     UpdateGUIData();
@@ -164,8 +170,8 @@ void CRadioController::Play(QString Channel, QString Station)
     // Store as last station
     QSettings Settings;
     QStringList StationElement;
-    StationElement. append (Station);
-    StationElement. append (Channel);
+    StationElement.append (Station);
+    StationElement.append (Channel);
     Settings.setValue("lastchannel", StationElement);
 }
 
@@ -198,14 +204,14 @@ void CRadioController::ClearStations()
 
 void CRadioController::SetChannel(QString Channel, bool isScan, bool Force)
 {
-//    if(CurrentChannel != Channel || Force == true)
-//    {
-//        if(Device && Device->getID() == CDeviceID::RAWFILE)
-//        {
-//            CurrentChannel = "File";
-//            CurrentEnsemble = "";
-//            CurrentFrequency = 0;
-//        }
+    if(CurrentChannel != Channel || Force == true)
+    {
+        if(SDRDABInterface.getSDRDevice() == SDRDevice_t::RAW)
+        {
+            CurrentChannel = "File";
+            CurrentEnsemble = "";
+            CurrentFrequency = 0;
+        }
 //        else // A real device
 //        {
 //            CurrentChannel = Channel;
@@ -221,12 +227,8 @@ void CRadioController::SetChannel(QString Channel, bool isScan, bool Force)
 //            }
 //        }
 
-//        DecoderRestart(isScan);
-
-//        StationList.clear();
-
-//        UpdateGUIData();
-//    }
+        UpdateGUIData();
+    }
 }
 
 void CRadioController::SetManualChannel(QString Channel)
@@ -270,14 +272,14 @@ void CRadioController::StartScan(void)
     qDebug() << "RadioController:" << "Start channel scan";
 
     // ToDo: Just for testing
-    SDRDABInterface.Start();
+    SDRDABInterface.start(false);
 
-//    if(Device && Device->getID() == CDeviceID::RAWFILE)
-//    {
-//        CurrentTitle = tr("RAW File");
-//        SetChannel(CChannels::FirstChannel, false); // Just a dummy
-//        emit ScanStopped();
-//    }
+    if(SDRDABInterface.getSDRDevice() == SDRDevice_t::RAW)
+    {
+        CurrentTitle = tr("RAW File");
+        SetChannel(CChannels::FirstChannel, false); // Just a dummy
+        emit ScanStopped();
+    }
 //    else
 //    {
 //        // Start with lowest frequency
@@ -414,9 +416,6 @@ void CRadioController::NextChannel(bool isWait)
 
 void CRadioController::NewStation(QString StationName)
 {
-    // ToDo Just for testing
-    CurrentChannel = "File";
-
     //	Add new station into list
     if (!mStationList.contains(StationName, CurrentChannel))
     {

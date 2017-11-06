@@ -43,13 +43,15 @@ class CSDRDABInterface : public QObject, public Scheduler
     Q_OBJECT
 public:
     explicit CSDRDABInterface(QObject *parent = nullptr);
-    void SetRAWInput(QString File);
-    void Start(void);
-    void TuneToStation(QString StationName);
+    void setRAWInput(QString File);
+    void start(bool isAudio = true);
+    void stop(void);
+    void tuneToStation(QString StationName);
+    SDRDevice_t getSDRDevice(void);
 
 private:
-    static void SchedularThreadWrapper(CSDRDABInterface *SDRDABInterface);
-    void SchedulerRunThread(void);
+    static void schedularThreadWrapper(CSDRDABInterface *SDRDABInterface);
+    void schedulerRunThread(void);
 
     /********* sdrdab overrides *********/
     /**
@@ -78,20 +80,21 @@ private:
     virtual void ParametersFromSDR(UserFICData_t *user_fic_extra_data);
 
 
-    std::thread *SchedulerThread;
-    std::mutex FICDataMutex;
-    CFICData FICData;
-    QList<QString> StationList;
+    std::thread *m_SchedulerThread;
+    std::mutex m_FICDataMutex;
+    CFICData m_FICData;
+    QList<QString> m_StationList;
 
-    SDRDevice_t SDRDevice;
-    QString RAWFile;
+    SDRDevice_t m_SDRDevice;
+    QString m_RAWFile;
+    bool m_isAudio;
 
 signals:
-    void FICDataUpdated(void);
-    void NewStationFound(QString StationName);
+    void ficDataUpdated(void);
+    void newStationFound(QString StationName);
 
 public slots:
-    void FICDataUpdate(void);
+    void ficDataUpdate(void);
 };
 
 #endif // CSDRDABINTERFACE_H
