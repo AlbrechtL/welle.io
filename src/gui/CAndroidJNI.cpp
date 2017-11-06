@@ -240,11 +240,13 @@ void CAndroidJNI::setRadioController(CRadioController *radioController)
     serviceReady();
 
     // Get stations
+    clearStations();
     foreach (StationElement *s, mRadioController->Stations()) {
         addStation(s->getStationName(), s->getChannelName());
     }
 
     // Read favorite stations from settings
+    clearFavoriteStations();
     mFavoriteList.reset();
     mFavoriteList.loadStations();
     foreach (StationElement *s, mFavoriteList.getList()) {
@@ -534,6 +536,13 @@ void CAndroidJNI::removeFavoriteStation(QString station, QString channel)
                                               "(Ljava/lang/String;Ljava/lang/String;)V",
                                               jStation.object<jstring>(),
                                               jChannel.object<jstring>());
+}
+
+void CAndroidJNI::clearFavoriteStations()
+{
+    qDebug() << "AndroidJNI:" <<  "Clear favorite stations";
+    QAndroidJniObject::callStaticMethod<void>("io/welle/welle/DabMediaService",
+                                              "clearFavoriteStations", "()V");
 }
 
 void CAndroidJNI::clearStations(void)

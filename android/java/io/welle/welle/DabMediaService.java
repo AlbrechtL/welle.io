@@ -42,8 +42,8 @@ public class DabMediaService extends MediaBrowserService implements ServiceConne
     };
 
     private static DabMediaService instance = null;
-    private static List<MediaBrowser.MediaItem> mChannelList = new ArrayList<>();
     private static List<MediaBrowser.MediaItem> mFavoriteList = new ArrayList<>();
+    private List<MediaBrowser.MediaItem> mChannelList = new ArrayList<>();
 
     public static void addFavoriteStation(String station, String channel) {
         Log.i(TAG, "Add favorite station: " + station + " channel: " + channel);
@@ -80,6 +80,18 @@ public class DabMediaService extends MediaBrowserService implements ServiceConne
         }
     }
 
+    public static void clearFavoriteStations() {
+        Log.i(TAG, "Clear favorite stations");
+        if (mFavoriteList.isEmpty())
+            return;
+
+        mFavoriteList.clear();
+
+        if (instance != null) {
+            instance.notifyChildrenChanged(MEDIA_ID_ROOT);
+        }
+    }
+
     /*
      * (non-Javadoc)
      * @see android.app.Service#onCreate()
@@ -93,6 +105,7 @@ public class DabMediaService extends MediaBrowserService implements ServiceConne
 
         bindService(new Intent(this, DabService.class), this, Context.BIND_AUTO_CREATE);
 
+        // Init channel list
         for (String channel : CHANNELS) {
             Bundle extras = new Bundle();
             extras.putInt(DabService.BUNDLE_KEY_DAB_TYPE, DabService.TYPE_DAB_CHANNEL);
