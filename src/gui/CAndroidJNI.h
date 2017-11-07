@@ -70,6 +70,7 @@ private:
     void addStation(QString station, QString channel);
     void addFavoriteStation(QString station, QString channel);
     void removeFavoriteStation(QString station, QString channel);
+    void clearFavoriteStations();
 
 private slots:
     void serviceReady(void);
