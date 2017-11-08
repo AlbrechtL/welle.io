@@ -28,25 +28,30 @@
 
 #include "CAudio.h"
 
-CAudio::CAudio(RingBuffer<int16_t>* Buffer)
+CAudio::CAudio(RingBuffer<int16_t> *Buffer)
 {
     AudioOutput = NULL;
     CardRate = 0;
     this->Buffer = Buffer;
-
-    AudioIODevice = new CAudioIODevice(Buffer, this);
-
-    init(48000);
-
-    connect(&CheckAudioBufferTimer, &QTimer::timeout, this, &CAudio::checkAudioBufferTimeout);
-    // Check audio state every 1 s, start audio if bytes are available
-    CheckAudioBufferTimer.start(1000);
 }
 
 CAudio::~CAudio(void)
 {
     delete AudioOutput;
     delete AudioIODevice;
+    delete CheckAudioBufferTimer;
+}
+
+void CAudio::start(void)
+{
+    AudioIODevice = new CAudioIODevice(Buffer, this);
+
+    init(48000);
+
+    CheckAudioBufferTimer = new QTimer;
+    connect(CheckAudioBufferTimer, &QTimer::timeout, this, &CAudio::checkAudioBufferTimeout);
+    // Check audio state every 1 s, start audio if bytes are available
+    CheckAudioBufferTimer->start(1000);
 }
 
 void CAudio::setRate(int sampleRate)
@@ -139,7 +144,7 @@ void CAudio::handleStateChanged(QAudio::State newState)
 
 void CAudio::checkAudioBufferTimeout()
 {
-    int32_t Bytes = Buffer->GetRingBufferReadAvailable();
+    int32_t Bytes = Buffer->DataStored();
 
     // Start audio if bytes are available and audio is not active
     if (AudioOutput && Bytes && CurrentState != QAudio::ActiveState) {
@@ -165,20 +170,20 @@ void CAudioIODevice::start()
 
 void CAudioIODevice::stop()
 {
-    Buffer->FlushRingBuffer();
+    Buffer->Reset();
     close();
 }
 
 void CAudioIODevice::flush()
 {
-    Buffer->FlushRingBuffer();
+    Buffer->Reset();
 }
 
 qint64 CAudioIODevice::readData(char* data, qint64 len)
 {
     qint64 total = 0;
 
-    total = Buffer->getDataFromBuffer(data, len / 2); // we have int16 samples
+    total = Buffer->sReadFrom((int16_t*) data, len / 2); // we have int16 samples
 
     // If the buffer is empty return zeros.
     if(total == 0)
@@ -200,5 +205,5 @@ qint64 CAudioIODevice::writeData(const char* data, qint64 len)
 
 qint64 CAudioIODevice::bytesAvailable() const
 {
-    return Buffer->GetRingBufferReadAvailable();
+    return Buffer->DataStored();
 }

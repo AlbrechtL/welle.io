@@ -39,7 +39,6 @@
 #include <QVariantMap>
 #include <QTimer>
 
-//#include "CAudio.h"
 #include "CStationList.h"
 #include "CChannels.h"
 #include "scheduler.h"
@@ -53,7 +52,7 @@ class CRadioController : public CRadioControllerSource
 {
     Q_OBJECT
 #else
-class CRadioController : public QObject, public Scheduler
+class CRadioController : public QObject
 {
     Q_OBJECT
 #endif
@@ -87,8 +86,6 @@ public:
     QList<StationElement*> Stations() const;
     QVariantMap GUIData(void) const;
     QImage MOT() const;
-
-
 
 private:
     void Initialise(void);

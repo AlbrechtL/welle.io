@@ -29,8 +29,7 @@
 #include    <QAudioOutput>
 #include    <QTimer>
 
-#include	"DabConstants.h"
-#include	"ringbuffer.h"
+#include "libs/sdrdab/RingBuffer/ring_buffer.h"
 
 class CAudioIODevice : public QIODevice
 {
@@ -58,6 +57,7 @@ Q_OBJECT
 public:
     CAudio(RingBuffer<int16_t> *Buffer);
     ~CAudio(void);
+
     void stop (void);
     void reset(void);
     void setRate (int sampleRate);
@@ -69,11 +69,14 @@ private:
     QAudioFormat AudioFormat;
     QAudioOutput* AudioOutput;
     CAudioIODevice *AudioIODevice;
-    QTimer  CheckAudioBufferTimer;
+    QTimer  *CheckAudioBufferTimer;
     RingBuffer<int16_t> *Buffer;
 
     QAudio::State CurrentState;
     int32_t		CardRate;
+
+public slots:
+    void start(void);
 
 private slots:
     void handleStateChanged(QAudio::State newState);

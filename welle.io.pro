@@ -108,7 +108,10 @@ HEADERS += \
     src/libs/sdrdab/AudioDecoder/blocking_ring_buffer.h \
     src/libs/sdrdab/scheduler.h \
     src/libs/sdrdab/data_decoder.h \
-    src/libs/rscode/ecc.h
+    src/libs/rscode/ecc.h \
+    src/output/CAudioDecoder.h \
+    src/output/faad-decoder.h \
+    src/output/CAudio.h
 
 SOURCES += \
     src/main.cpp \
@@ -159,7 +162,9 @@ SOURCES += \
     src/libs/rscode/galois.c \
     src/libs/rscode/rs.c \
     src/libs/rscode/berlekamp.c \
-    src/libs/rscode/crcgen.c
+    src/libs/rscode/crcgen.c \
+    src/output/CAudioDecoder.cpp \
+    src/output/CAudio.cpp
 
 unix:!macx:!android: {
     INCLUDEPATH	+= /usr/local/include

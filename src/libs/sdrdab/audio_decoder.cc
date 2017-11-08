@@ -28,7 +28,7 @@
 
 #include "audio_decoder.h"
 
-AudioDecoder::AudioDecoder(float threshold, size_t length, int type) {
+AudioDecoderGstreamer::AudioDecoderGstreamer(float threshold, size_t length, int type) {
     src_ = new RingSrc(threshold, length);
     sink_ = new NullSink();
 
@@ -36,44 +36,44 @@ AudioDecoder::AudioDecoder(float threshold, size_t length, int type) {
     player_->AddSink(sink_);
 }
 
-AudioDecoder::~AudioDecoder() {
+AudioDecoderGstreamer::~AudioDecoderGstreamer() {
     delete player_;
     delete sink_;
     delete src_;
 }
 
-void AudioDecoder::RemoveSink(AbstractSink *sink) {
+void AudioDecoderGstreamer::RemoveSink(AbstractSink *sink) {
     player_->RemoveSink(sink);
 }
 
-AbstractSink *AudioDecoder::AddSink(AbstractSink *sink) {
+AbstractSink *AudioDecoderGstreamer::AddSink(AbstractSink *sink) {
     return player_->AddSink(sink);
 }
 
-size_t AudioDecoder::Write(uint8_t *buffer, size_t length) {
+size_t AudioDecoderGstreamer::Write(uint8_t *buffer, size_t length) {
     return src_->Write(buffer, length);
 }
 
-void AudioDecoder::LastFrame() {
+void AudioDecoderGstreamer::LastFrame() {
     src_->set_last_frame(true);
 }
 
-void AudioDecoder::RegisterTagsMapCallback(TagsMapCallback cb_func, void *cb_data) {
+void AudioDecoderGstreamer::RegisterTagsMapCallback(TagsMapCallback cb_func, void *cb_data) {
     player_->RegisterTagsMapCallback(cb_func, cb_data);
 }
 
-void AudioDecoder::Process() {
+void AudioDecoderGstreamer::Process() {
     player_->Process();
 }
 
-int AudioDecoder::PlayerType() const {
+int AudioDecoderGstreamer::PlayerType() const {
     return player_->type();
 }
 
-void AudioDecoder::Flush() {
+void AudioDecoderGstreamer::Flush() {
     src_->set_flush(true);
 }
 
-void AudioDecoder::RegisterReadCallback(ReadCallback cb_func, void *cb_data) {
+void AudioDecoderGstreamer::RegisterReadCallback(ReadCallback cb_func, void *cb_data) {
     src_->RegisterReadCallback(cb_func, cb_data);
 }

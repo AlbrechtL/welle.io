@@ -37,14 +37,27 @@
 
 class AudioDecoder {
     public:
+        virtual void RemoveSink(AbstractSink *sink) = 0;
+        virtual AbstractSink *AddSink(AbstractSink *sink) = 0;
+        virtual size_t Write(uint8_t *buffer, size_t length) = 0;
+        virtual void LastFrame() = 0;
+        virtual void RegisterTagsMapCallback(TagsMapCallback cb_func, void *cb_data) = 0;
+        virtual void RegisterReadCallback(ReadCallback cb_func, void *cb_data) = 0;
+        virtual void Process() = 0;
+        virtual int PlayerType() const = 0;
+        virtual void Flush() = 0;
+};
+
+class AudioDecoderGstreamer : public AudioDecoder {
+    public:
         /**
          * Constructor of AudioDecoder
          * @param[in] threshold Relative to 0.5, indicates values for which audio time-stretching will take place
          * @param[in] length Length of internal blocking ring buffer
          * @param[in] type Player type: mpeg or aac
          */
-        AudioDecoder(float threshold, size_t length, int type = PLAYER_AAC);
-        virtual ~AudioDecoder();
+        AudioDecoderGstreamer(float threshold, size_t length, int type = PLAYER_AAC);
+        virtual ~AudioDecoderGstreamer();
 
         /**
          * Removes sink

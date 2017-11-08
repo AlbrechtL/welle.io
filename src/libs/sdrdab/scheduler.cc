@@ -43,6 +43,9 @@
 
 #include "threading/wrapper_functions.h"
 
+// welle.io integration
+#include "../../../output/CAudioDecoder.h"
+
 Scheduler::Scheduler() :
 
     carrier_frequency_(0),
@@ -485,9 +488,10 @@ Scheduler::state_t Scheduler::Conf()
                     /// Creating AudioDecoder, it->IsLong == 1 -> DAB+, it->IsLong == 0 -> DAB
                     it = station_info_list_.begin();
                     if ( it->IsLong ) {
-                        audiodecoder_ = new AudioDecoder( 0.2, 20 * 1550 );                 // time-stretching 0.3-0.7 buffer fill, ~2 seconds of buffer 
+                        //audiodecoder_ = new AudioDecoderGstreamer( 0.2, 20 * 1550 );                 // time-stretching 0.3-0.7 buffer fill, ~2 seconds of buffer
+                        audiodecoder_ = new CAudioDecoder( 0.2, 20 * 1550 ); // welle.io integration
                     } else {
-                        audiodecoder_ = new AudioDecoder( 0.2, 20 * 1550, PLAYER_MPEG );
+                        audiodecoder_ = new AudioDecoderGstreamer( 0.2, 20 * 1550, PLAYER_MPEG );
                     }
 
                     // Play on speakers
