@@ -1,36 +1,39 @@
 /*
- *    Copyright (C) 2013
- *    Jan van Katwijk (J.vanKatwijk@gmail.com)
- *    Lazy Chair Programming
+ *    Copyright (C) 2017
+ *    Albrecht Lohofener (albrechtloh@gmx.de)
  *
- *    This file is part of the SDR-J (JSDR).
- *    SDR-J is free software; you can redistribute it and/or modify
+ *    This file is based on SDR-J
+ *    Copyright (C) 2010, 2011, 2012
+ *    Jan van Katwijk (J.vanKatwijk@gmail.com)
+ *
+ *    The ringbuffer here is a rewrite of the ringbuffer used in the PA code
+ *    All rights remain with their owners
+ *
+ *    This file is part of the welle.io.
+ *    Many of the ideas as implemented in welle.io are derived from
+ *    other work, made available through the GNU general Public License.
+ *    All copyrights of the original authors are recognized.
+ *
+ *    welle.io is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
  *    the Free Software Foundation; either version 2 of the License, or
  *    (at your option) any later version.
  *
- *    SDR-J is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *    GNU General Public License for more details.
- *
  *    You should have received a copy of the GNU General Public License
  *    along with SDR-J; if not, write to the Free Software
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- *  This file will be included in mp4processor
  */
 
 #include    <QObject>
 #include    "neaacdec.h"
 
-#include    "libs/sdrdab/RingBuffer/ring_buffer.h"
+#include "various/CRingBuffer.h"
 
-class   faadDecoder: public QObject
+class   CFaadDecoder: public QObject
 {
     Q_OBJECT
     public:
-        faadDecoder (RingBuffer<int16_t> *buffer) {
+        CFaadDecoder (CRingBuffer<int16_t> *buffer) {
             this->audioBuffer  = buffer;
             aacCap = NeAACDecGetCapabilities   ();
             aacHandle = NeAACDecOpen          ();
@@ -39,7 +42,7 @@ class   faadDecoder: public QObject
             baudRate = 48000;
         }
 
-        ~faadDecoder(void) {
+        ~CFaadDecoder(void) {
             NeAACDecClose(aacHandle);
         }
 
@@ -140,7 +143,7 @@ class   faadDecoder: public QObject
             }
 
             if (channels == 2) {
-                audioBuffer->WriteInto(outBuffer, samples);
+                audioBuffer->putDataIntoBuffer(outBuffer, samples);
             }
             else
                 if (channels == 1) {
@@ -150,7 +153,7 @@ class   faadDecoder: public QObject
                         buffer [2 * i]    = ((int16_t *)outBuffer) [i];
                         buffer [2 * i + 1] = buffer [2 * i];
                     }
-                    audioBuffer->WriteInto (buffer, samples);
+                    audioBuffer->putDataIntoBuffer(buffer, samples);
                 }
                 else
                     fprintf (stderr, "Cannot handle these channels\n");
@@ -166,5 +169,5 @@ class   faadDecoder: public QObject
         NeAACDecConfigurationPtr aacConf;
         NeAACDecFrameInfo        hInfo;
         int32_t                  baudRate;
-        RingBuffer<int16_t>     *audioBuffer;
+        CRingBuffer<int16_t>     *audioBuffer;
 };

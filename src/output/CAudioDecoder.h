@@ -35,11 +35,15 @@
 #ifndef CAUDIODECODER_H
 #define CAUDIODECODER_H
 
+#include <mutex>
+#include <condition_variable>
+#include <thread>
 #include <QObject>
 #include <QThread>
 
-#include "output/faad-decoder.h"
-#include "output/CAudio.h"
+#include "output/CFaadDecoder.h"
+#include "output/CAudioOutput.h"
+#include "various/CRingBuffer.h"
 
 // SDRDAB
 #include "libs/sdrdab/audio_decoder.h"
@@ -47,7 +51,6 @@
 #include "libs/sdrdab/AudioDecoder/player.h"
 #include "libs/sdrdab/AudioDecoder/null_sink.h"
 #include "libs/sdrdab/AudioDecoder/ring_src.h"
-#include "libs/sdrdab/RingBuffer/ring_buffer.h"
 
 class CAudioDecoder : public QObject, public AudioDecoder
 {
@@ -62,7 +65,7 @@ public:
      * @param[in] type Player type: mpeg or aac
      */
 
-    virtual ~CAudioDecoder();
+    ~CAudioDecoder();
 
     /**
      * Removes sink
@@ -121,10 +124,16 @@ public:
     void Flush();
 
 private:
+    std::mutex m_NewDataLock;
+    std::condition_variable m_NewData;
+
     QThread *m_AudioThread;
-    faadDecoder *m_aacDecoder;
-    RingBuffer<int16_t> *m_AudioBuffer;
-    CAudio *m_AudioOutput;
+    CFaadDecoder *m_aacDecoder;
+    CRingBuffer<int16_t> *m_WAVBuffer;
+    CRingBuffer<uint8_t> *m_CodedBuffer;
+    size_t m_CodedBufferSize;
+    CAudioOutput *m_AudioOutput;
+    bool m_StopProcess;
 
 signals:signals:
     void operate();

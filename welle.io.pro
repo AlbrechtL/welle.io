@@ -110,8 +110,10 @@ HEADERS += \
     src/libs/sdrdab/data_decoder.h \
     src/libs/rscode/ecc.h \
     src/output/CAudioDecoder.h \
-    src/output/faad-decoder.h \
-    src/output/CAudio.h
+    src/various/CRingBuffer.h \
+    src/output/CFaadDecoder.h \
+    src/various/Tools.h \
+    src/output/CAudioOutput.h
 
 SOURCES += \
     src/main.cpp \
@@ -164,7 +166,8 @@ SOURCES += \
     src/libs/rscode/berlekamp.c \
     src/libs/rscode/crcgen.c \
     src/output/CAudioDecoder.cpp \
-    src/output/CAudio.cpp
+    src/various/Tools.cpp \
+    src/output/CAudioOutput.cpp
 
 unix:!macx:!android: {
     INCLUDEPATH	+= /usr/local/include
