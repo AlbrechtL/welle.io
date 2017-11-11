@@ -30,13 +30,15 @@
 
 #include <QSettings>
 
-StationElement::StationElement(QString const stationName,
-                               QString const channelName,
+StationElement::StationElement(QString stationName,
+                               QString channelName,
+                               uint subChannelID,
                                QObject *parent)
     : QObject(parent)
 {
     setProperty("stationName",stationName);
     setProperty("channelName",channelName);
+    setProperty("subChannelID", subChannelID);
 }
 
 StationElement::StationElement(QObject *parent)
@@ -56,6 +58,11 @@ QString StationElement::getStationName(void)
 QString StationElement::getChannelName(void)
 {
     return mChannelName;
+}
+
+uint StationElement::getSubChannelID(void)
+{
+    return mSubChannelID;
 }
 
 QDataStream& operator<<(QDataStream &out, StationElement* const& object)
@@ -124,10 +131,13 @@ QStringList CStationList::getStationAt(int i)
 {
     QString StationName = at(i)->getStationName();
     QString ChannelName = at(i)->getChannelName();
+    uint8_t aSubChannelID = at(i)->getSubChannelID();
+    QString SubChannelID = QString::number(at(i)->getSubChannelID());
     QStringList StationElement;
 
     StationElement.append(StationName);
     StationElement.append(ChannelName);
+    StationElement.append(SubChannelID);
     return StationElement;
 }
 
@@ -151,9 +161,9 @@ bool CStationList::contains(QString StationName, QString ChannelName)
     return (find(StationName, ChannelName) != 0);
 }
 
-void CStationList::append(QString StationName, QString ChannelName)
+void CStationList::append(QString StationName, QString ChannelName, uint8_t SubChannelId)
 {
-    mStationList.append(new StationElement(StationName, ChannelName));
+    mStationList.append(new StationElement(StationName, ChannelName, SubChannelId));
 }
 
 bool CStationList::remove(QString StationName, QString ChannelName)
@@ -182,7 +192,7 @@ void CStationList::loadStations()
     int channelcount = Settings.value(mSettingsGroup + "cout", 0).toInt();
     for (int i = 1; i <= channelcount; i++) {
         QStringList SaveChannel = Settings.value(mSettingsGroup + "/" + QString::number(i)).toStringList();
-        append(SaveChannel.first(), SaveChannel.last());
+        append(SaveChannel.at(0), SaveChannel.at(1), SaveChannel.at(2).toInt());
     }
     Settings.endGroup();
 }

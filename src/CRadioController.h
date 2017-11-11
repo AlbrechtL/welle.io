@@ -73,7 +73,7 @@ public:
     ~CRadioController(void);
     void closeDevice();
     void openDevice(CVirtualInput* Dev);
-    void Play(QString Channel, QString Station);
+    void Play(QString Channel, QString Station, int SubChannelID = 255);
     void Pause();
     void Stop();
     void ClearStations();
@@ -125,7 +125,7 @@ private:
     QVector<QPointF> spectrum_data;
 
 private slots:
-    void NewStation(QString StationName);
+    void NewStation(QString StationName, uint8_t SubChannelId);
     void setErrorMessage(QString Text);
     void setInfoMessage(QString Text);
 

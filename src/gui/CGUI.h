@@ -66,7 +66,7 @@ public:
     CGUI(CRadioController *RadioController, QObject* parent = NULL);
 #endif
     ~CGUI();
-    Q_INVOKABLE void channelClick(QString StationName, QString ChannelName);
+    Q_INVOKABLE void channelClick(QString StationName, QString ChannelName, int SubChannelID);
     Q_INVOKABLE void setManualChannel(QString ChannelName);
     Q_INVOKABLE void startChannelScanClick(void);
     Q_INVOKABLE void stopChannelScanClick(void);

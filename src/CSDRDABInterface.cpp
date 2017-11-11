@@ -35,15 +35,21 @@ CSDRDABInterface::CSDRDABInterface(QObject *parent) : QObject(parent)
     m_RAWFile = "";
 }
 
+CSDRDABInterface::~CSDRDABInterface()
+{
+    stop();
+}
+
 void CSDRDABInterface::setRAWInput(QString File)
 {
     m_SDRDevice = SDRDevice_t::RAW;
     m_RAWFile = File;
 }
 
-void CSDRDABInterface::start(bool isAudio)
+void CSDRDABInterface::start(bool isAudio, uint8_t stationNumber)
 {
     m_isAudio = isAudio;
+    m_stationNumber = stationNumber;
 
     //Launch a thread
     m_SchedulerThread = new std::thread(schedularThreadWrapper, this);
@@ -68,7 +74,7 @@ void CSDRDABInterface::schedulerRunThread()
 {
     SchedulerConfig_t config; //invokes default SchedulerConfig_t constructor
     config.sampling_rate  = 2048000;
-    config.start_station_nr = 255; // Start with first channel (default)
+    config.start_station_nr = m_stationNumber; // Start with first channel (255 = default)
     config.use_speakers = m_isAudio;
 
     if(m_SDRDevice == SDRDevice_t::RAW)
@@ -143,26 +149,16 @@ void CSDRDABInterface::ficDataUpdate()
                      << "SubChannelId " << station.SubChannelId;
 
             m_StationList.append(StationName);
-            emit newStationFound(StationName);
+            emit newStationFound(StationName, station.SubChannelId);
         }
     }
 
     m_FICDataMutex.unlock();
 }
 
-void CSDRDABInterface::tuneToStation(QString StationName)
+void CSDRDABInterface::tuneToStation(int SubChannelID)
 {
-    m_FICDataMutex.lock();
-    // Search for station
-    for(auto station : m_FICData.stations)
-    {
-        if(QString::fromStdString(station.station_name) == StationName)
-        {
-            this->ParametersToSDR(STATION_NUMBER, station.SubChannelId);
-            break; // break for loop
-        }
-    }
-    m_FICDataMutex.unlock();
+    this->ParametersToSDR(STATION_NUMBER, (uint8_t) SubChannelID);
 }
 
 SDRDevice_t CSDRDABInterface::getSDRDevice()

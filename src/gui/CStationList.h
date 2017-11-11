@@ -38,15 +38,17 @@ Q_OBJECT
 
     Q_PROPERTY(QString stationName MEMBER mStationName NOTIFY stationNameChanged)
     Q_PROPERTY(QString channelName MEMBER mChannelName NOTIFY channelNameChanged)
+    Q_PROPERTY(uint subChannelID MEMBER mSubChannelID NOTIFY subChannelIDChanged)
 
 public:
-    explicit StationElement (QString stationName, QString channelName,
+    explicit StationElement (QString stationName, QString channelName, uint subChannelID,
                              QObject *parent = 0);
     explicit StationElement (QObject *parent = 0);
     virtual ~StationElement ();
 
     QString getStationName(void);
     QString getChannelName(void);
+    uint getSubChannelID(void);
 
     friend QDataStream& operator<<(QDataStream &out, StationElement* const& object);
     friend QDataStream& operator>>(QDataStream &in, StationElement*& object);
@@ -54,10 +56,12 @@ public:
 private:
     QString mStationName;
     QString mChannelName;
+    uint mSubChannelID;
 
 signals:
     void stationNameChanged();
     void channelNameChanged();
+    void subChannelIDChanged();
 };
 
 class CStationList
@@ -73,7 +77,7 @@ public:
     QStringList getStationAt(int i);
     StationElement* find(QString StationName, QString ChannelName);
     bool contains(QString StationName, QString ChannelName);
-    void append(QString StationName, QString ChannelName);
+    void append(QString StationName, QString ChannelName, uint8_t SubChannelId);
     bool remove(QString StationName, QString ChannelName);
     QList<StationElement*> getList(void) const;
     void loadStations();

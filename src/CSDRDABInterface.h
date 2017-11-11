@@ -43,10 +43,11 @@ class CSDRDABInterface : public QObject, public Scheduler
     Q_OBJECT
 public:
     explicit CSDRDABInterface(QObject *parent = nullptr);
+    ~CSDRDABInterface();
     void setRAWInput(QString File);
-    void start(bool isAudio = true);
+    void start(bool isAudio = true, uint8_t stationNumber = 255);
     void stop(void);
-    void tuneToStation(QString StationName);
+    void tuneToStation(int SubChannelID);
     SDRDevice_t getSDRDevice(void);
 
 private:
@@ -88,10 +89,11 @@ private:
     SDRDevice_t m_SDRDevice;
     QString m_RAWFile;
     bool m_isAudio;
+    uint8_t m_stationNumber;
 
 signals:
     void ficDataUpdated(void);
-    void newStationFound(QString StationName);
+    void newStationFound(QString StationName, uint8_t SubChannelId);
 
 public slots:
     void ficDataUpdate(void);

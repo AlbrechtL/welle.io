@@ -62,7 +62,6 @@ Item {
 
     TextStandart {
         id: stationItem
-        text: modelData
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: parent.left
         anchors.leftMargin: Units.dp(15)
@@ -70,7 +69,6 @@ Item {
 
     TextStation {
         id: channelItem
-        text: modelData
         anchors.verticalCenter: parent.verticalCenter
         anchors.right: parent.right
         anchors.rightMargin: Units.dp(15)

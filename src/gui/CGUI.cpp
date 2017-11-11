@@ -180,7 +180,7 @@ void CGUI::StationsChange(QList<StationElement*> Stations)
 {
     //qDebug() << "CGUI:" <<  "StationsChange";
     if (Stations.isEmpty()) {
-        static const StationElement emptyStation(tr("Station list is empty"), "");
+        static const StationElement emptyStation(tr("Station list is empty"), "", 0);
         QList<QObject*>emptyList;
         emptyList.append((QObject*)&emptyStation);
         p_stationModel = QVariant::fromValue(emptyList);
@@ -193,10 +193,10 @@ void CGUI::StationsChange(QList<StationElement*> Stations)
     emit foundChannelCount(Stations.count());
 }
 
-void CGUI::channelClick(QString StationName, QString ChannelName)
+void CGUI::channelClick(QString StationName, QString ChannelName, int SubChannelID)
 {
     if(RadioController && ChannelName != "")
-        RadioController->Play(ChannelName, StationName);
+        RadioController->Play(ChannelName, StationName, SubChannelID);
 }
 
 void CGUI::setManualChannel(QString ChannelName)

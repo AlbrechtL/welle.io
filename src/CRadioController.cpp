@@ -143,26 +143,34 @@ void CRadioController::Initialise(void)
     UpdateGUIData();
 }
 
-void CRadioController::Play(QString Channel, QString Station)
+void CRadioController::Play(QString Channel, QString Station, int SubChannelID)
 {
     qDebug() << "RadioController:" << "Play channel:"
              << Channel << "station:" << Station;
 
-    if (Status == Scanning) {
+    if (Status == Scanning)
+    {
         StopScan();
     }
 
     if(Status != Playing)
     {
-        SDRDABInterface.start();
+        SetChannel(Channel, false);
+        SDRDABInterface.start(true, SubChannelID);
     }
     else
     {
-        SDRDABInterface.stop();
-        SDRDABInterface.start();
-    }
+        if(CurrentChannel == Channel)
+        {
+            SDRDABInterface.tuneToStation(SubChannelID);
 
-    SDRDABInterface.tuneToStation(Station);
+        }
+        else
+        {
+            SDRDABInterface.stop();
+            SDRDABInterface.start(true, SubChannelID);
+        }
+    }
 
     Status = Playing;
     UpdateGUIData();
@@ -414,12 +422,12 @@ void CRadioController::NextChannel(bool isWait)
     }*/
 }
 
-void CRadioController::NewStation(QString StationName)
+void CRadioController::NewStation(QString StationName, uint8_t SubChannelId)
 {
     //	Add new station into list
     if (!mStationList.contains(StationName, CurrentChannel))
     {
-        mStationList.append(StationName, CurrentChannel);
+        mStationList.append(StationName, CurrentChannel, SubChannelId);
 
         //	Sort stations
         mStationList.sort();

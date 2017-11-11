@@ -160,7 +160,7 @@ Item {
                 interval: 2000; running: false; repeat: false
                 onTriggered:{
                     __dablayout.state = ""
-                    cppGUI.channelClick(dabModel.get(0).stationName, dabModel.get(0).channelName)
+                    cppGUI.channelClick(dabModel.get(0).stationName, dabModel.get(0).channelName, dabModel.get(0).subChannelID)
                 }
             }
         }

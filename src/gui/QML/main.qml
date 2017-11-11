@@ -544,7 +544,7 @@ ApplicationWindow {
                         onClicked: {
                             if(modelData.channelName !== "") {
                                 mainWindow.stationClicked()
-                                cppGUI.channelClick(modelData.stationName, modelData.channelName)
+                                cppGUI.channelClick(modelData.stationName, modelData.channelName, modelData.subChannelID)
                             }
                         }
                     }
