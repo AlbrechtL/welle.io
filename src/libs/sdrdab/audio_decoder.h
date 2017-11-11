@@ -37,6 +37,7 @@
 
 class AudioDecoder {
     public:
+        virtual ~AudioDecoder(){}
         virtual void RemoveSink(AbstractSink *sink) = 0;
         virtual AbstractSink *AddSink(AbstractSink *sink) = 0;
         virtual size_t Write(uint8_t *buffer, size_t length) = 0;

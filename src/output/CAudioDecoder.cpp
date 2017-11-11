@@ -51,10 +51,12 @@ CAudioDecoder::CAudioDecoder(float threshold, size_t length, int type)
     m_aacDecoder = new CFaadDecoder(m_WAVBuffer);
     m_AudioOutput = new CAudioOutput(m_WAVBuffer);
 
+    // CAudioOutput uses QTimers and these requires an event loop in QThread
     m_AudioOutput->moveToThread(m_AudioThread);
     m_AudioThread->start();
-    connect(this, &CAudioDecoder::operate, m_AudioOutput, &CAudioOutput::start);
 
+    // Init audio output
+    connect(this, &CAudioDecoder::operate, m_AudioOutput, &CAudioOutput::start);
     emit operate();
 }
 
@@ -64,6 +66,10 @@ CAudioDecoder::~CAudioDecoder()
     delete m_CodedBuffer;
     delete m_aacDecoder;
     delete m_AudioOutput;
+
+    // Stop thread
+    m_AudioThread->quit();
+    m_AudioThread->wait();
     delete m_AudioThread;
 }
 
@@ -146,6 +152,8 @@ void CAudioDecoder::Process()
 
     // Wait until data is inside the buffer
     std::unique_lock<std::mutex> locker(m_NewDataLock);
+
+    m_StopProcess = false;
 
     while(!m_StopProcess)
     {
