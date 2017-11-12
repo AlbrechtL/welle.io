@@ -193,8 +193,9 @@ As an alternative to Qt Creator, CMake can be used for building welle.io after i
 
 Android
 ---
-A compiled version APK can be found at at the [Google Play store](https://play.google.com/store/apps/details?id=io.welle.welle) or at the [release page](https://github.com/AlbrechtL/welle.io/releases).  
-welle.io uses the ["RTL2832U driver"](https://play.google.com/store/apps/details?id=marto.rtl_tcp_andro)([sources](https://github.com/martinmarinov/rtl_tcp_andro-)) from Martin Marinov.
+A compiled version of welle.io (APK file) can be found at at the [Google Play store](https://play.google.com/store/apps/details?id=io.welle.welle) or at the [release page](https://github.com/AlbrechtL/welle.io/releases).  
+
+welle.io uses the "RTL2832U driver" from Martin Marinov, to be found at the [Google play store](https://play.google.com/store/apps/details?id=marto.rtl_tcp_andro) or at [F-droid](https://f-droid.org/packages/marto.rtl_tcp_andro/). Also see ([sources](https://github.com/martinmarinov/rtl_tcp_andro-) or [APK file](https://github.com/martinmarinov/rtl_tcp_andro-/blob/master/app/app-release.apk)). Please note that a recent version of this driver is needed (v3.06 or above), otherwise welle.io will not find your stick.
 
 This sections shows how to compile welle.io for Android.
 
