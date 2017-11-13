@@ -66,7 +66,7 @@ class   CFaadDecoder: public QObject
                 int16_t mpegSurround,
                 uint8_t aacChannelMode,
                 uint8_t buffer[], int16_t bufferLength) {
-            int16_t samples;
+            size_t samples;
             uint8_t channels;
             long unsigned int   sample_rate;
             int16_t *outBuffer;
@@ -137,17 +137,19 @@ class   CFaadDecoder: public QObject
             //  fprintf (stderr, "header = %d\n", hInfo. header_type);
             channels    = hInfo. channels;
             if (hInfo. error != 0) {
-                fprintf (stderr, "Warning: %s\n",
+                fprintf (stderr, "CFaadDecoder: warning: %s\n",
                         faacDecGetErrorMessage (hInfo. error));
                 return 0;
             }
 
             if (channels == 2) {
-                audioBuffer->putDataIntoBuffer(outBuffer, samples);
+                size_t writeSize = audioBuffer->putDataIntoBuffer(outBuffer, samples);
+                if(writeSize != samples)
+                    fprintf (stderr, "CFaadDecoder: can't write WAV sample to buffer. Wrote %zu bytes of %zu bytes.\n", writeSize, samples);
             }
             else
                 if (channels == 1) {
-                    int16_t *buffer = (int16_t *)alloca (2 * samples);
+                    int16_t *buffer = (int16_t *)alloca (2 * samples); // ToDo Memory leak!
                     int16_t i;
                     for (i = 0; i < samples; i ++) {
                         buffer [2 * i]    = ((int16_t *)outBuffer) [i];
