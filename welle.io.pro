@@ -31,31 +31,16 @@ SOURCES += src/gui/QML/*.qml \
 
 DEPENDPATH += \
     src \
-#    src/output \
+    src/output \
 #    src/input \
-    src/gui \
-    src/libs/sdrdab \
-    src/libs/sdrdab/AudioDecoder \
-    src/libs/sdrdab/DataDecoder \
-    src/libs/sdrdab/DataFeeder \
-    src/libs/sdrdab/Resampler \
-    src/libs/sdrdab/RingBuffer \
-    src/libs/sdrdab/threading \
-    src/libs/rscode
+    src/gui
+
 
 INCLUDEPATH += \
     src \
-#    src/output \
+    src/output \
 #    src/input \
-    src/gui \
-    src/libs/sdrdab \
-    src/libs/sdrdab/AudioDecoder \
-    src/libs/sdrdab/DataDecoder \
-    src/libs/sdrdab/DataFeeder \
-    src/libs/sdrdab/Resampler \
-    src/libs/sdrdab/RingBuffer \
-    src/libs/sdrdab/threading \
-    src/libs/rscode
+    src/gui
 
 HEADERS += \
 #    src/input/CVirtualInput.h \
@@ -70,45 +55,6 @@ HEADERS += \
     src/CChannels.h \
     src/CSDRDABInterface.h \
     src/CFICData.h \
-    src/libs/sdrdab/synchronizer_data.h \
-    src/libs/sdrdab/threading/wrapper_functions.h \
-    src/libs/sdrdab/threading/blocking_queue.h \
-    src/libs/sdrdab/threading/scoped_lock.h \
-    src/libs/sdrdab/threading/signaled_worker_thread.h \
-    src/libs/sdrdab/data_format.h \
-    src/libs/sdrdab/fft_engine.h \
-    src/libs/sdrdab/DataDecoder/energy_dispersal.h \
-    src/libs/sdrdab/DataDecoder/data_decoder_data.h \
-    src/libs/sdrdab/DataDecoder/superframe.h \
-    src/libs/sdrdab/DataDecoder/depuncturer.h \
-    src/libs/sdrdab/DataDecoder/reed_solomon.h \
-    src/libs/sdrdab/DataDecoder/deviterbi.h \
-    src/libs/sdrdab/DataDecoder/extract_from_bitstream.h \
-    src/libs/sdrdab/DataDecoder/galois_field_arithmethic.h \
-    src/libs/sdrdab/Resampler/resampler.h \
-    src/libs/sdrdab/osx_compat.h \
-    src/libs/sdrdab/RingBuffer/resampling_ring_buffer.h \
-    src/libs/sdrdab/RingBuffer/ring_buffer.h \
-    src/libs/sdrdab/synchronizer.h \
-    src/libs/sdrdab/audio_decoder.h \
-    src/libs/sdrdab/DataFeeder/abstract_data_feeder.h \
-    src/libs/sdrdab/DataFeeder/rtl_data_feeder.h \
-    src/libs/sdrdab/DataFeeder/file_data_feeder.h \
-    src/libs/sdrdab/demodulator.h \
-    src/libs/sdrdab/AudioDecoder/fake_sink.h \
-    src/libs/sdrdab/AudioDecoder/file_sink.h \
-    src/libs/sdrdab/AudioDecoder/null_sink.h \
-    src/libs/sdrdab/AudioDecoder/file_src.h \
-    src/libs/sdrdab/AudioDecoder/ring_src.h \
-    src/libs/sdrdab/AudioDecoder/pulse_sink.h \
-    src/libs/sdrdab/AudioDecoder/ogg_sink.h \
-    src/libs/sdrdab/AudioDecoder/abstract_src.h \
-    src/libs/sdrdab/AudioDecoder/player.h \
-    src/libs/sdrdab/AudioDecoder/abstract_sink.h \
-    src/libs/sdrdab/AudioDecoder/blocking_ring_buffer.h \
-    src/libs/sdrdab/scheduler.h \
-    src/libs/sdrdab/data_decoder.h \
-    src/libs/rscode/ecc.h \
     src/output/CAudioDecoder.h \
     src/various/CRingBuffer.h \
     src/output/CFaadDecoder.h \
@@ -129,42 +75,6 @@ SOURCES += \
     src/CChannels.cpp \
     src/CSDRDABInterface.cpp \
     src/CFICData.cpp \
-    src/libs/sdrdab/threading/signaled_worker_thread.cc \
-    src/libs/sdrdab/threading/scoped_lock.cc \
-    src/libs/sdrdab/demodulator.cc \
-    src/libs/sdrdab/DataDecoder/extract_from_bitstream.cc \
-    src/libs/sdrdab/DataDecoder/deviterbi.cc \
-    src/libs/sdrdab/DataDecoder/superframe.cc \
-    src/libs/sdrdab/DataDecoder/depuncturer.cc \
-    src/libs/sdrdab/DataDecoder/reed_solomon.cc \
-    src/libs/sdrdab/DataDecoder/energy_dispersal.cc \
-    src/libs/sdrdab/DataDecoder/galois_field_arithmetic.cc \
-    src/libs/sdrdab/data_decoder.cc \
-    src/libs/sdrdab/Resampler/resampler.cc \
-    src/libs/sdrdab/fft_engine.cc \
-    src/libs/sdrdab/RingBuffer/resampling_ring_buffer.cc \
-    src/libs/sdrdab/DataFeeder/abstract_data_feeder.cc \
-    src/libs/sdrdab/DataFeeder/rtl_data_feeder.cc \
-    src/libs/sdrdab/DataFeeder/file_data_feeder.cc \
-    src/libs/sdrdab/osx_compat.cc \
-    src/libs/sdrdab/audio_decoder.cc \
-    src/libs/sdrdab/AudioDecoder/abstract_sink.cc \
-    src/libs/sdrdab/AudioDecoder/pulse_sink.cc \
-    src/libs/sdrdab/AudioDecoder/player.cc \
-    src/libs/sdrdab/AudioDecoder/null_sink.cc \
-    src/libs/sdrdab/AudioDecoder/file_sink.cc \
-    src/libs/sdrdab/AudioDecoder/file_src.cc \
-    src/libs/sdrdab/AudioDecoder/blocking_ring_buffer.cc \
-    src/libs/sdrdab/AudioDecoder/abstract_src.cc \
-    src/libs/sdrdab/AudioDecoder/fake_sink.cc \
-    src/libs/sdrdab/AudioDecoder/ogg_sink.cc \
-    src/libs/sdrdab/AudioDecoder/ring_src.cc \
-    src/libs/sdrdab/scheduler.cc \
-    src/libs/sdrdab/synchronizer.cc \
-    src/libs/rscode/galois.c \
-    src/libs/rscode/rs.c \
-    src/libs/rscode/berlekamp.c \
-    src/libs/rscode/crcgen.c \
     src/output/CAudioDecoder.cpp \
     src/various/Tools.cpp \
     src/output/CAudioOutput.cpp
@@ -172,12 +82,7 @@ SOURCES += \
 unix:!macx:!android: {
     INCLUDEPATH	+= /usr/local/include
 
-    # onyl for sdrdab
-    INCLUDEPATH	+= /usr/include/gstreamer-1.0 \
-    /usr/include/glib-2.0 \
-    /usr/lib/x86_64-linux-gnu/glib-2.0/include \
-    /usr/lib/x86_64-linux-gnu/gstreamer-1.0/include
-    LIBS    += -lglib-2.0 -lgstreamer-1.0 -lgobject-2.0 -lgstapp-1.0 -lreadline -lusb-1.0 -lsamplerate -lrtlsdr
+    LIBS    += -lsamplerate -lrtlsdr
 
     LIBS    += -lfftw3f
     LIBS    += -lusb-1.0
@@ -191,6 +96,8 @@ unix:!macx:!android: {
     #CONFIG  += libfaad_builtin
 
     DEFINES += SSE_AVAILABLE
+
+    CONFIG  += sdrdab_builtin
 }
 
 win32 {
@@ -245,6 +152,97 @@ android {
 }
 
 #### Built-in libraries ####
+sdrdab_builtin {
+    INCLUDEPATH	+= src/libs \
+    src/libs/sdrdab \
+    src/libs/sdrdab/AudioDecoder \
+    src/libs/sdrdab/DataDecoder \
+    src/libs/sdrdab/DataFeeder \
+    src/libs/sdrdab/Resampler \
+    src/libs/sdrdab/RingBuffer \
+    src/libs/sdrdab/threading \
+    src/libs/rscode
+
+    DEPENDPATH += \
+    src/libs/sdrdab \
+    src/libs/sdrdab/AudioDecoder \
+    src/libs/sdrdab/DataDecoder \
+    src/libs/sdrdab/DataFeeder \
+    src/libs/sdrdab/Resampler \
+    src/libs/sdrdab/RingBuffer \
+    src/libs/sdrdab/threading \
+    src/libs/rscode
+
+    HEADERS    += \
+    src/libs/sdrdab/synchronizer_data.h \
+    src/libs/sdrdab/threading/wrapper_functions.h \
+    src/libs/sdrdab/threading/blocking_queue.h \
+    src/libs/sdrdab/threading/scoped_lock.h \
+    src/libs/sdrdab/threading/signaled_worker_thread.h \
+    src/libs/sdrdab/data_format.h \
+    src/libs/sdrdab/fft_engine.h \
+    src/libs/sdrdab/DataDecoder/energy_dispersal.h \
+    src/libs/sdrdab/DataDecoder/data_decoder_data.h \
+    src/libs/sdrdab/DataDecoder/superframe.h \
+    src/libs/sdrdab/DataDecoder/depuncturer.h \
+    src/libs/sdrdab/DataDecoder/reed_solomon.h \
+    src/libs/sdrdab/DataDecoder/deviterbi.h \
+    src/libs/sdrdab/DataDecoder/extract_from_bitstream.h \
+    src/libs/sdrdab/Resampler/resampler.h \
+    src/libs/sdrdab/osx_compat.h \
+    src/libs/sdrdab/RingBuffer/resampling_ring_buffer.h \
+    src/libs/sdrdab/RingBuffer/ring_buffer.h \
+    src/libs/sdrdab/synchronizer.h \
+    src/libs/sdrdab/audio_decoder.h \
+    src/libs/sdrdab/DataFeeder/abstract_data_feeder.h \
+    src/libs/sdrdab/DataFeeder/rtl_data_feeder.h \
+    src/libs/sdrdab/DataFeeder/file_data_feeder.h \
+    src/libs/sdrdab/demodulator.h \
+    src/libs/sdrdab/AudioDecoder/fake_sink.h \
+    src/libs/sdrdab/AudioDecoder/file_sink.h \
+    src/libs/sdrdab/AudioDecoder/null_sink.h \
+    src/libs/sdrdab/AudioDecoder/file_src.h \
+    src/libs/sdrdab/AudioDecoder/ring_src.h \
+    src/libs/sdrdab/AudioDecoder/pulse_sink.h \
+    src/libs/sdrdab/AudioDecoder/ogg_sink.h \
+    src/libs/sdrdab/AudioDecoder/abstract_src.h \
+    src/libs/sdrdab/AudioDecoder/player.h \
+    src/libs/sdrdab/AudioDecoder/abstract_sink.h \
+    src/libs/sdrdab/AudioDecoder/blocking_ring_buffer.h \
+    src/libs/sdrdab/scheduler.h \
+    src/libs/sdrdab/data_decoder.h \
+    src/libs/rscode/ecc.h
+
+    SOURCES    += \
+    src/libs/sdrdab/threading/signaled_worker_thread.cc \
+    src/libs/sdrdab/threading/scoped_lock.cc \
+    src/libs/sdrdab/demodulator.cc \
+    src/libs/sdrdab/DataDecoder/extract_from_bitstream.cc \
+    src/libs/sdrdab/DataDecoder/deviterbi.cc \
+    src/libs/sdrdab/DataDecoder/superframe.cc \
+    src/libs/sdrdab/DataDecoder/depuncturer.cc \
+    src/libs/sdrdab/DataDecoder/reed_solomon.cc \
+    src/libs/sdrdab/DataDecoder/energy_dispersal.cc \
+    src/libs/sdrdab/DataDecoder/galois_field_arithmetic.cc \
+    src/libs/sdrdab/data_decoder.cc \
+    src/libs/sdrdab/Resampler/resampler.cc \
+    src/libs/sdrdab/fft_engine.cc \
+    src/libs/sdrdab/RingBuffer/resampling_ring_buffer.cc \
+    src/libs/sdrdab/DataFeeder/abstract_data_feeder.cc \
+    src/libs/sdrdab/DataFeeder/rtl_data_feeder.cc \
+    src/libs/sdrdab/DataFeeder/file_data_feeder.cc \
+    src/libs/sdrdab/osx_compat.cc \
+    src/libs/sdrdab/AudioDecoder/abstract_sink.cc \
+    src/libs/sdrdab/AudioDecoder/blocking_ring_buffer.cc \
+    src/libs/sdrdab/AudioDecoder/abstract_src.cc \
+    src/libs/sdrdab/scheduler.cc \
+    src/libs/sdrdab/synchronizer.cc \
+    src/libs/rscode/galois.c \
+    src/libs/rscode/rs.c \
+    src/libs/rscode/berlekamp.c \
+    src/libs/rscode/crcgen.c
+}
+
 kiss_fft_builtin {
     DEFINES   += KISSFFT
 

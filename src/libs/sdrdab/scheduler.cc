@@ -491,20 +491,21 @@ Scheduler::state_t Scheduler::Conf()
                         //audiodecoder_ = new AudioDecoderGstreamer( 0.2, 20 * 1550 );                 // time-stretching 0.3-0.7 buffer fill, ~2 seconds of buffer
                         audiodecoder_ = new CAudioDecoder( 0.2, 20 * 1550 ); // welle.io integration
                     } else {
-                        audiodecoder_ = new AudioDecoderGstreamer( 0.2, 20 * 1550, PLAYER_MPEG );
+                        //audiodecoder_ = new AudioDecoderGstreamer( 0.2, 20 * 1550, PLAYER_MPEG );
+                        audiodecoder_ = new CAudioDecoder( 0.2, 20 * 1550, PLAYER_MPEG ); // welle.io integration
                     }
 
-                    // Play on speakers
-                    if ( use_pulse_sink_ ) {
-                        pulse_sink_ = new PulseSink();
-                        audiodecoder_->AddSink(pulse_sink_);
-                    }
+//                    // Play on speakers
+//                    if ( use_pulse_sink_ ) {
+//                        pulse_sink_ = new PulseSink();
+//                        audiodecoder_->AddSink(pulse_sink_);
+//                    }
 
-                    // Save to file
-                    if ( output_filename_ != NULL ) {
-                        ogg_sink_ = new OggSink( output_filename_ );
-                        audiodecoder_->AddSink( ogg_sink_ );
-                    }
+//                    // Save to file
+//                    if ( output_filename_ != NULL ) {
+//                        ogg_sink_ = new OggSink( output_filename_ );
+//                        audiodecoder_->AddSink( ogg_sink_ );
+//                    }
 
                     audio_buffer_size_ = audio_buffer_mul_ * 3000;
                     audio_buffer_ = new uint8_t[audio_buffer_size_]();
