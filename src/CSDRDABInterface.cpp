@@ -86,7 +86,9 @@ void CSDRDABInterface::schedulerRunThread()
     else // Assume RTL-SDR
     {
         config.data_source = Scheduler::DATA_FROM_DONGLE;
-        config.carrier_frequency = 202928000;
+        config.carrier_frequency = 178352000; // 5C
+        //config.carrier_frequency = 202928000; // 9A
+        //config.carrier_frequency = 222064000; // 11D
     }
 
     this->Scheduler::Start(config);

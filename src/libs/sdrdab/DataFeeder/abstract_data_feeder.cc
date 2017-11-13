@@ -69,7 +69,7 @@ AbstractDataFeeder::AbstractDataFeeder (int number_of_bits) {
 
     do_remodulate_ = true;
     do_handle_fs_ = true;
-    do_agc_ = false;
+    do_agc_ = true;
 
     previous_write_here_ = NULL;
     real_dc_rb_ = new RingBuffer<float>(DC_LENGTH);
