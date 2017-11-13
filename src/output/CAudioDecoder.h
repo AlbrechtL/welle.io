@@ -134,9 +134,11 @@ private:
     size_t m_CodedBufferSize;
     CAudioOutput *m_AudioOutput;
     bool m_StopProcess;
+    uint32_t m_sampleRate;
 
 signals:signals:
     void operate();
+    void sampleRateChanged(int sampleRate);
 
 public slots:
 };

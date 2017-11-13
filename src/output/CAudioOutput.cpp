@@ -186,6 +186,10 @@ qint64 CAudioIODevice::readData(char* data, qint64 len)
     static CTimeDuration TimeDuration;
     static bool isEmpty = false;
 
+    // Sometimes it can be 0 samples
+    if(len == 0)
+        return 0;
+
     total = Buffer->getDataFromBuffer((int16_t*) data, len / 2); // we have int16 samples
 
     // If the buffer is empty return zeros.
@@ -200,7 +204,7 @@ qint64 CAudioIODevice::readData(char* data, qint64 len)
         if(isEmpty)
         {
             TimeDuration.stop();
-            qDebug() << "CAudioIODevice:" << TimeDuration.getDuration() << "ms";
+            qDebug() << "CAudioIODevice: Silence for" << TimeDuration.getDuration() << "ms";
         }
         else
         {

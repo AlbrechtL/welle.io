@@ -24,7 +24,9 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include    "thread"
 #include    <QObject>
+#include    <QDebug>
 #include    "neaacdec.h"
 
 #include "various/CRingBuffer.h"
@@ -39,7 +41,6 @@ class   CFaadDecoder: public QObject
             aacHandle = NeAACDecOpen          ();
             aacConf = NeAACDecGetCurrentConfiguration (aacHandle);
             aacInitialized  = false;
-            baudRate = 48000;
         }
 
         ~CFaadDecoder(void) {
@@ -62,10 +63,13 @@ class   CFaadDecoder: public QObject
             }
         }
 
-        int16_t MP42PCM(uint8_t dacRate, uint8_t sbrFlag,
+        int16_t MP42PCM(uint8_t adts_dacsbr,
                 int16_t mpegSurround,
                 uint8_t aacChannelMode,
-                uint8_t buffer[], int16_t bufferLength) {
+                uint8_t buffer[],
+                int16_t bufferLength,
+                uint32_t *sampleRate = nullptr)
+        {
             size_t samples;
             uint8_t channels;
             long unsigned int   sample_rate;
@@ -89,10 +93,7 @@ class   CFaadDecoder: public QObject
                  * => explicit signaling not possible, as libfaad2 does not
                  * support AudioObjectType 29 (PS)
                  */
-                int core_sr_index =
-                    dacRate ?
-                    (sbrFlag ? 6 : 3) :
-                    (sbrFlag ? 8 : 5);   // 24/48/16/32 kHz
+                int core_sr_index = adts_dacsbr; // 24/48/16/32 kHz
                 int core_ch_config = get_aac_channel_configuration (mpegSurround,
                         aacChannelMode);
                 if (core_ch_config == -1) {
@@ -121,13 +122,12 @@ class   CFaadDecoder: public QObject
 
             outBuffer = (int16_t *)NeAACDecDecode (aacHandle,
                     &hInfo, buffer, bufferLength);
+
             sample_rate = hInfo. samplerate;
+            if(sampleRate)
+                *sampleRate = sample_rate;
+
             samples     = hInfo. samples;
-            if ((sample_rate == 24000) ||
-                    (sample_rate == 32000) ||
-                    (sample_rate == 48000) ||
-                    (sample_rate !=  (long unsigned)baudRate))
-                baudRate = sample_rate;
 
             //  fprintf (stderr, "bytes consumed %d\n", (int)(hInfo. bytesconsumed));
             //  fprintf (stderr, "samplerate = %d, samples = %d, channels = %d, error = %d, sbr = %d\n", sample_rate, samples,
@@ -136,11 +136,31 @@ class   CFaadDecoder: public QObject
             //           hInfo. sbr);
             //  fprintf (stderr, "header = %d\n", hInfo. header_type);
             channels    = hInfo. channels;
-            if (hInfo. error != 0) {
+
+            // Error check
+            if (hInfo. error != 0)
+            {
                 fprintf (stderr, "CFaadDecoder: warning: %s\n",
                         faacDecGetErrorMessage (hInfo. error));
                 return 0;
             }
+
+            // Sometimes it can be 0 samples
+            if(samples == 0)
+                return 0;
+
+            // Sleep until the buffer has enough free space
+            bool isOverload=false;
+
+            // Wait until buffer has enough free space
+            while(audioBuffer->FreeSpace() < samples)
+            {
+                isOverload = true;
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            }
+
+//            if(isOverload)
+//                qDebug() << "CFaadDecoder:" << "Wav audio buffer overload!";
 
             if (channels == 2) {
                 size_t writeSize = audioBuffer->putDataIntoBuffer(outBuffer, samples);
@@ -170,6 +190,5 @@ class   CFaadDecoder: public QObject
         NeAACDecHandle           aacHandle;
         NeAACDecConfigurationPtr aacConf;
         NeAACDecFrameInfo        hInfo;
-        int32_t                  baudRate;
         CRingBuffer<int16_t>     *audioBuffer;
 };

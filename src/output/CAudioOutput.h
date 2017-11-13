@@ -60,7 +60,6 @@ public:
 
     void stop (void);
     void reset(void);
-    void setRate (int sampleRate);
     void setVolume (qreal volume);
 
 private:
@@ -77,6 +76,7 @@ private:
 
 public slots:
     void start(void);
+    void setRate(int sampleRate);
 
 private slots:
     void handleStateChanged(QAudio::State newState);

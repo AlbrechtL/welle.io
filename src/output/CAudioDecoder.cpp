@@ -42,6 +42,7 @@ CAudioDecoder::CAudioDecoder(float threshold, size_t length, int type)
     : QObject(nullptr)
 {
     m_StopProcess = false;
+    m_sampleRate = 48000;
 
     m_AudioThread = new QThread;
     m_WAVBuffer = new CRingBuffer<int16_t>(2 * 32768);
@@ -57,6 +58,7 @@ CAudioDecoder::CAudioDecoder(float threshold, size_t length, int type)
 
     // Init audio output
     connect(this, &CAudioDecoder::operate, m_AudioOutput, &CAudioOutput::start);
+    connect(this, &CAudioDecoder::sampleRateChanged, m_AudioOutput, &CAudioOutput::setRate);
     emit operate();
 }
 
@@ -85,45 +87,25 @@ AbstractSink *CAudioDecoder::AddSink(AbstractSink *sink)
 
 size_t CAudioDecoder::Write(uint8_t *buffer, size_t length)
 {
-    // Wait until buffer has enough space
-    while((m_CodedBufferSize - m_CodedBuffer->GetRingBufferReadAvailable()) < length)
+    bool isOverload=false;
+
+    // Wait until buffer has enough free space
+    while(m_CodedBuffer->FreeSpace() < length)
+    {
+        isOverload = true;
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+
+    if(isOverload)
+        qDebug() << "CAudioDecoder:" << "Compressed audio buffer overload!";
 
     // Copy data to buffer
-    size_t size = m_CodedBuffer->putDataIntoBuffer(buffer, length);
+    m_CodedBuffer->putDataIntoBuffer(buffer, length);
 
     // Wake Process thread
     m_NewData.notify_one();
 
-    if(length != size)
-        qDebug() << "CAudioDecoder:" << "Only" << size << "bytes witten of"  << length << "bytes";
-
     return length;
-
-    /*
-    uint8_t *bufferStart = buffer;
-    size_t remainingData = length;
-
-    while(remainingData != 0)
-    {
-        // Use the ADTS header to figure out the AU size
-        size_t adts_size = ((bufferStart[3]&0x3) << 14) | (bufferStart[4] << 3) | ((bufferStart[5] & 0xE0) >> 5);
-
-        // Skip the ADTS header
-        bufferStart += 7;
-        size_t au_size = adts_size - 7;
-
-        m_aacDecoder->MP42PCM (1, //dacRate
-                1, // ToDo: sbrFlag
-                0, // ToDo: mpegSurround
-                1, // ToDo: aacChannelMode
-                bufferStart,
-                au_size);
-
-        remainingData -= adts_size;
-        bufferStart += au_size;
-    }
-*/
 }
 
 void CAudioDecoder::LastFrame()
@@ -159,24 +141,18 @@ void CAudioDecoder::Process()
     {
         m_NewData.wait(locker);
 
-        // Wait until buffer 50 % of buffer is filled
-        /*while(m_CodedBuffer->GetRingBufferReadAvailable() < m_CodedBufferSize / 2)
-        {
-            CTimeDuration TimeDuration;
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
-            TimeDuration.stop();
-
-            //qDebug() << TimeDuration.getDuration() << "ms" << m_CodedBuffer->GetRingBufferReadAvailable();
-        }*/
-
         while(m_CodedBuffer->GetRingBufferReadAvailable() > 7)
         {
+            uint8_t adts_dacsbr = 0;
+
             // Get ADTS header
             if(!haveHeader)
             {
                 m_CodedBuffer->getDataFromBuffer((uint8_t*) adts, 7);
 
-                // Get AU size from ADTS header
+                // Process ADTS header
+                adts_dacsbr = (adts[2]>>2) & 0xF;
+
                 size_t adts_size = ((adts[3]&0x3) << 14) | (adts[4] << 3) | ((adts[5] & 0xE0) >> 5);
                 current_au_size = adts_size - 7;
 
@@ -196,13 +172,21 @@ void CAudioDecoder::Process()
             {
                 m_CodedBuffer->getDataFromBuffer((uint8_t*) au_data, current_au_size);
 
+                uint32_t sampleRate = 0;
+
                 // Decode AAC
-                m_aacDecoder->MP42PCM (1, //dacRate
-                        1, // ToDo: sbrFlag
+                m_aacDecoder->MP42PCM (adts_dacsbr,
                         0, // ToDo: mpegSurround
                         1, // ToDo: aacChannelMode
                         au_data,
-                        current_au_size);
+                        current_au_size,
+                        &sampleRate);
+
+                if(sampleRate != m_sampleRate && sampleRate > 0)
+                {
+                    m_sampleRate = sampleRate;
+                    emit sampleRateChanged(m_sampleRate);
+                }
 
                 // Next process header
                 haveHeader = false;
@@ -220,6 +204,9 @@ int CAudioDecoder::PlayerType() const
 
 void CAudioDecoder::Flush()
 {
+    m_CodedBuffer->FlushRingBuffer();
+    m_WAVBuffer->FlushRingBuffer();
+
     m_StopProcess = true;
     m_NewData.notify_one();
 }
