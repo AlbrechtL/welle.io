@@ -52,7 +52,7 @@ int main(int argc, char** argv)
 {
     QCoreApplication::setOrganizationName("welle.io");
     QCoreApplication::setOrganizationDomain("welle.io");
-    QCoreApplication::setApplicationName("welle.io");
+    QCoreApplication::setApplicationName("welle_next.io"); // ToDo Remove "next"
     QCoreApplication::setApplicationVersion("1.0 beta");
 
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
