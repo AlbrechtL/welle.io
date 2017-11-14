@@ -42,7 +42,7 @@
 #include "CStationList.h"
 #include "CChannels.h"
 #include "scheduler.h"
-#include "CSDRDABInterface.h"
+#include "CSdrDabInterface.h"
 
 class CVirtualInput;
 
@@ -94,7 +94,7 @@ private:
     void UpdateGUIData();
     void SetFrequencyCorrection(int FrequencyCorrection);
 
-    CSDRDABInterface SDRDABInterface;
+    CSdrDabInterface SDRDABInterface;
 
     // Back-end objects
     QVariantMap commandLineOptions;

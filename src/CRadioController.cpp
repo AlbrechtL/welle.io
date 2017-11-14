@@ -59,7 +59,7 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, QObject *par
     emit StationsChanged(mStationList.getList());
 
     // Init SDRDAB interface
-    connect(&SDRDABInterface, &CSDRDABInterface::newStationFound, this, &CRadioController::NewStation);
+    connect(&SDRDABInterface, &CSdrDabInterface::newStationFound, this, &CRadioController::NewStation);
 }
 
 CRadioController::~CRadioController(void)

@@ -53,13 +53,13 @@ HEADERS += \
     src/gui/CGUI.h \
     src/CRadioController.h \
     src/CChannels.h \
-    src/CSDRDABInterface.h \
-    src/CFICData.h \
     src/output/CAudioDecoder.h \
     src/various/CRingBuffer.h \
     src/output/CFaadDecoder.h \
     src/various/Tools.h \
-    src/output/CAudioOutput.h
+    src/output/CAudioOutput.h \
+    src/CSdrDabInterface.h \
+    src/CFicData.h
 
 SOURCES += \
     src/main.cpp \
@@ -73,12 +73,12 @@ SOURCES += \
     src/gui/CGUI.cpp \
     src/CRadioController.cpp \
     src/CChannels.cpp \
-    src/CSDRDABInterface.cpp \
-    src/CFICData.cpp \
     src/output/CAudioDecoder.cpp \
     src/various/Tools.cpp \
     src/output/CAudioOutput.cpp \
-    src/output/CFaadDecoder.cpp
+    src/output/CFaadDecoder.cpp \
+    src/CSdrDabInterface.cpp \
+    src/CFicData.cpp
 
 unix:!macx:!android: {
     INCLUDEPATH	+= /usr/local/include

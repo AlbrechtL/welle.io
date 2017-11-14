@@ -23,14 +23,14 @@
  * along with this program.  If not, see \<http://www.gnu.org/licenses/\>.
  */
 
-#include "CFICData.h"
+#include "CFicData.h"
 #include <cmath>
 /// @cond
 #include <cstdio>
 #include <cstring>
 /// @endcond
 
-CFICData::CFICData()
+CFicData::CFicData()
     : DAB_plus_(),
     bitrate_(),
     station_id_(0),
@@ -45,14 +45,14 @@ CFICData::CFICData()
         StringifyCoordinates();
     }
 
-CFICData::coordinate_t::coordinate_t(char direction)
+CFicData::coordinate_t::coordinate_t(char direction)
     : direction_(direction),
     degrees_(0),
     minutes_(0),
     seconds_(0) {
     }
 
-void CFICData::Set(UserFICData_t *data) {
+void CFicData::Set(UserFICData_t *data) {
 
     if(data != NULL)
     {
@@ -84,9 +84,9 @@ void CFICData::Set(UserFICData_t *data) {
 
         if (data->validity_ & UserFICData_t::COORDINATES_VALID) {
             this->SetCoordinate(data->latitude_,
-                    CFICData::coordinate_t::LATITUDE);
+                    CFicData::coordinate_t::LATITUDE);
             this->SetCoordinate(data->longitude_,
-                    CFICData::coordinate_t::LONGITUDE);
+                    CFicData::coordinate_t::LONGITUDE);
             this->StringifyCoordinates();
             this->validity_ |= UserFICData_t::COORDINATES_VALID;
         }
@@ -131,7 +131,7 @@ void CFICData::Print(void) {
     }
 }
 */
-std::string CFICData::DecodeEBULabel(const char label[16])
+std::string CFicData::DecodeEBULabel(const char label[16])
 {
     std::string retval;
     retval.reserve(16+8);
@@ -144,12 +144,12 @@ std::string CFICData::DecodeEBULabel(const char label[16])
     return retval;
 }
 
-void CFICData::SetCoordinate(int16_t coarse, coordinate_t::variety_t variety)
+void CFicData::SetCoordinate(int16_t coarse, coordinate_t::variety_t variety)
 {
-    coordinate_t CFICData::*coord;
+    coordinate_t CFicData::*coord;
     double multiplier;
     if (variety == coordinate_t::LATITUDE) {
-        coord = &CFICData::latitude_;
+        coord = &CFicData::latitude_;
         multiplier = coordinate_t::LATITUDE_MULTIPLIER;
         if (coarse < 0) {
             (this->*coord).direction_ = coordinate_t::LATITUDE_NEGATIVE;
@@ -158,7 +158,7 @@ void CFICData::SetCoordinate(int16_t coarse, coordinate_t::variety_t variety)
             (this->*coord).direction_ = coordinate_t::LATITUDE_POSITIVE;
         }
     } else if (variety == coordinate_t::LONGITUDE) {
-        coord = &CFICData::longitude_;
+        coord = &CFicData::longitude_;
         multiplier = coordinate_t::LONGITUDE_MULTIPLIER;
         if (coarse < 0) {
             (this->*coord).direction_ = coordinate_t::LONGITUDE_NEGATIVE;
@@ -183,7 +183,7 @@ void CFICData::SetCoordinate(int16_t coarse, coordinate_t::variety_t variety)
     (this->*coord).seconds_ = static_cast<uint8_t>(fractpart);
 }
 
-void CFICData::StringifyCoordinates(void) {
+void CFicData::StringifyCoordinates(void) {
     this->coordinates_.clear();
     unsigned char degree_symbol[3] = { 0xC2, 0xB0, 0x00 };
     char buf[48];

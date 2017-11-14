@@ -34,16 +34,16 @@
 #include "scheduler.h"
 
 // welle.io header
-#include "CFICData.h"
+#include "CFicData.h"
 
 enum class SDRDevice_t {Unknown, RAW, RTLSDR};
 
-class CSDRDABInterface : public QObject, public Scheduler
+class CSdrDabInterface : public QObject, public Scheduler
 {
     Q_OBJECT
 public:
-    explicit CSDRDABInterface(QObject *parent = nullptr);
-    ~CSDRDABInterface();
+    explicit CSdrDabInterface(QObject *parent = nullptr);
+    ~CSdrDabInterface();
     void setRAWInput(QString File);
     void start(bool isAudio = true, uint8_t stationNumber = 255);
     void stop(void);
@@ -51,7 +51,7 @@ public:
     SDRDevice_t getSDRDevice(void);
 
 private:
-    static void schedularThreadWrapper(CSDRDABInterface *SDRDABInterface);
+    static void schedularThreadWrapper(CSdrDabInterface *SDRDABInterface);
     void schedulerRunThread(void);
 
     /********* sdrdab overrides *********/
@@ -83,7 +83,7 @@ private:
 
     std::thread *m_SchedulerThread;
     std::mutex m_FICDataMutex;
-    CFICData m_FICData;
+    CFicData m_FICData;
     QList<QString> m_StationList;
 
     SDRDevice_t m_SDRDevice;

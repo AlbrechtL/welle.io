@@ -204,7 +204,7 @@ qint64 CAudioIODevice::readData(char* data, qint64 len)
         if(isEmpty)
         {
             TimeDuration.stop();
-            qDebug() << "CAudioIODevice: Silence for" << TimeDuration.getDuration() << "ms";
+            qDebug() << "CAudioIODevice: No audio data for" << TimeDuration.getDuration() << "ms";
         }
         else
         {

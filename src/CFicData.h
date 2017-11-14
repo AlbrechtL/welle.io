@@ -42,10 +42,10 @@
  * Customized class for storing processed UserFICData_t fields.
  * @copydetails user_data.h
  */
-class CFICData {
+class CFicData {
     public:
 
-        CFICData(); ///< trival default constructor
+        CFicData(); ///< trival default constructor
 
         /**
          * Sets fields according to given UserFICData_t structure.
