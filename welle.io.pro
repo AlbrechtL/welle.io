@@ -77,7 +77,8 @@ SOURCES += \
     src/CFICData.cpp \
     src/output/CAudioDecoder.cpp \
     src/various/Tools.cpp \
-    src/output/CAudioOutput.cpp
+    src/output/CAudioOutput.cpp \
+    src/output/CFaadDecoder.cpp
 
 unix:!macx:!android: {
     INCLUDEPATH	+= /usr/local/include
