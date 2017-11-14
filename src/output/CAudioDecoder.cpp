@@ -41,6 +41,9 @@
 CAudioDecoder::CAudioDecoder(float threshold, size_t length, int type)
     : QObject(nullptr)
 {
+    Q_UNUSED(threshold);
+
+    m_codecType = type;
     m_StopProcess = false;
     m_sampleRate = 48000;
 
@@ -77,12 +80,14 @@ CAudioDecoder::~CAudioDecoder()
 
 void CAudioDecoder::RemoveSink(AbstractSink *sink)
 {
-    // Not used
+    Q_UNUSED(sink);
 }
 
 AbstractSink *CAudioDecoder::AddSink(AbstractSink *sink)
 {
-    // Not used
+    Q_UNUSED(sink);
+
+    return nullptr;
 }
 
 size_t CAudioDecoder::Write(uint8_t *buffer, size_t length)
@@ -117,11 +122,15 @@ void CAudioDecoder::LastFrame()
 void CAudioDecoder::RegisterTagsMapCallback(TagsMapCallback cb_func, void *cb_data)
 {
     // ???
+    Q_UNUSED(cb_func);
+    Q_UNUSED(cb_data);
 }
 
 void CAudioDecoder::RegisterReadCallback(ReadCallback cb_func, void *cb_data)
 {
     // ???
+    Q_UNUSED(cb_func);
+    Q_UNUSED(cb_data);
 }
 
 void CAudioDecoder::Process()
@@ -199,7 +208,7 @@ void CAudioDecoder::Process()
 
 int CAudioDecoder::PlayerType() const
 {
-    // ???
+    return m_codecType;
 }
 
 void CAudioDecoder::Flush()

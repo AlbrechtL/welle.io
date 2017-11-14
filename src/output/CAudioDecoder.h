@@ -135,8 +135,9 @@ private:
     CAudioOutput *m_AudioOutput;
     bool m_StopProcess;
     uint32_t m_sampleRate;
+    int m_codecType;
 
-signals:signals:
+signals:
     void operate();
     void sampleRateChanged(int sampleRate);
 
