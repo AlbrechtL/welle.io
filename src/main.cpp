@@ -170,9 +170,9 @@ int main(int argc, char** argv)
         QCoreApplication::translate("main", "I/Q RAW file format"));
     optionParser.addOption(RAWFileFormat);
 
-    QCommandLineOption MSCFileName("msc-file-name",
-        QCoreApplication::translate("main", "MSC file name. This file can be used to analyse zu X-PAD data with XPADexpert"),
-        QCoreApplication::translate("main", "MSC file name"));
+    QCommandLineOption MSCFileName("msc-file",
+        QCoreApplication::translate("main", "The MSC file can be used to analyse zu X-PAD data with XPADexpert"),
+        QCoreApplication::translate("main", "File name"));
     optionParser.addOption(MSCFileName);
 
     //	Process the actual command line arguments given by the user
