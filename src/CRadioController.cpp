@@ -680,6 +680,14 @@ float CRadioController::GainValue() const
     return CurrentManualGainValue;
 }
 
+QString CRadioController::GetMscFileName()
+{
+    if(commandLineOptions["mscFileName"] != "")
+        return commandLineOptions["mscFileName"].toString();
+    else
+        return QString();
+}
+
 int CRadioController::Gain() const
 {
     return CurrentManualGain;

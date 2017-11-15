@@ -49,7 +49,7 @@ class   mp4Processor : public QObject, public dabProcessor
         mp4Processor(CRadioController    *mr,
                      int16_t bitRate,
                      RingBuffer<int16_t> *b);
-
+        ~mp4Processor();
         void        addtoFrame(uint8_t *v);
 
     private:
@@ -89,6 +89,8 @@ class   mp4Processor : public QObject, public dabProcessor
         int16_t     aacFrames;
         int16_t     charSet;
         std::unique_ptr<PADDecoderAdapter> padDecoderAdapter;
+        QByteArray  *MscFileName;
+        FILE        *MscFile;
 signals:
         void        show_frameErrors(int frameErrors);
         void        show_rsErrors(int rsErrors);
