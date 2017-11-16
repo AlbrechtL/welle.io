@@ -32,6 +32,7 @@
 #include "CRTL_SDR.h"
 
 #define READLEN_DEFAULT 8192
+#define INPUT_RATE 2048000
 
 //	For the callback, we do need some environment which
 //	is passed through the ctx parameter

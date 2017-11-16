@@ -105,8 +105,8 @@ CAirspy::CAirspy()
     convIndex = 0;
     convBuffer = new DSPCOMPLEX[convBufferSize + 1];
 
-    SampleBuffer = new RingBuffer<DSPCOMPLEX>(256 * 1024);
-    SpectrumSampleBuffer = new RingBuffer<DSPCOMPLEX>(8192);
+    SampleBuffer = new CRingBuffer<DSPCOMPLEX>(256 * 1024);
+    SpectrumSampleBuffer = new CRingBuffer<DSPCOMPLEX>(8192);
 
     if(isAGC)
     {

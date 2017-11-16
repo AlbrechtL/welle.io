@@ -43,12 +43,13 @@ struct command
 }__attribute__((packed));
 
 #define	ONE_BYTE	8
+#define INPUT_RATE 2048000
 
 CRTL_TCP_Client::CRTL_TCP_Client(CRadioController &RadioController)
 {
     this->RadioController = &RadioController;
-    SampleBuffer	= new RingBuffer<uint8_t>(32 * 32768);
-    SpectrumSampleBuffer	= new RingBuffer<uint8_t>(8192);
+    SampleBuffer	= new CRingBuffer<uint8_t>(32 * 32768);
+    SpectrumSampleBuffer	= new CRingBuffer<uint8_t>(8192);
 
     connected = false;
     stopped = false;

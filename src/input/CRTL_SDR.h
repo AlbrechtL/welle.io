@@ -38,9 +38,8 @@
 #include <rtl-sdr.h>
 
 #include "CVirtualInput.h"
-#include "DabConstants.h"
+#include "various/CRingBuffer.h"
 #include "MathHelper.h"
-#include "ringbuffer.h"
 #include "CRadioController.h"
 
 class CRTL_SDR_Thread;
@@ -75,8 +74,8 @@ public:
     CRadioController *getRadioController(void);
 
     //	These need to be visible for the separate usb handling thread
-    RingBuffer<uint8_t> SampleBuffer;
-    RingBuffer<uint8_t> SpectrumSampleBuffer;
+    CRingBuffer<uint8_t> SampleBuffer;
+    CRingBuffer<uint8_t> SpectrumSampleBuffer;
     struct rtlsdr_dev* device;
     int32_t sampleCounter;
 

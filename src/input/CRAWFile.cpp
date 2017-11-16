@@ -219,7 +219,7 @@ void CRAWFile::run(void)
             continue;
         }
 
-        while (SampleBuffer.WriteSpace() < bufferSize + 10) {
+        while (SampleBuffer.FreeSpace() < bufferSize + 10) {
             if (ExitCondition)
                 break;
             usleep(100);
@@ -259,7 +259,7 @@ int32_t CRAWFile::readBuffer(uint8_t* data, int32_t length)
     return n & ~01;
 }
 
-int32_t CRAWFile::convertSamples(RingBuffer<uint8_t>& Buffer, DSPCOMPLEX *V, int32_t size)
+int32_t CRAWFile::convertSamples(CRingBuffer<uint8_t>& Buffer, DSPCOMPLEX *V, int32_t size)
 {
     int32_t amount, i;
     uint8_t* temp = (uint8_t*)alloca(IQByteSize * size * sizeof(uint8_t));
@@ -270,7 +270,8 @@ int32_t CRAWFile::convertSamples(RingBuffer<uint8_t>& Buffer, DSPCOMPLEX *V, int
     if(FileFormat == CRAWFileFormat::U8)
     {
         for (i = 0; i < amount / 2; i++)
-        V[i] = DSPCOMPLEX(float(temp[2 * i] - 128) / 128.0, float(temp[2 * i + 1] - 128) / 128.0);
+        //V[i] = DSPCOMPLEX(float(temp[2 * i] - 128) / 128.0, float(temp[2 * i + 1] - 128) / 128.0);
+            V[i] = DSPCOMPLEX(float(temp[2 * i]), float(temp[2 * i + 1]));
     }
     // Signed 8-bit
     else if(FileFormat == CRAWFileFormat::S8)

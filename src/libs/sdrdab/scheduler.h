@@ -366,7 +366,8 @@ public:
 
     enum data_source_t {
             DATA_FROM_FILE,
-            DATA_FROM_DONGLE
+            DATA_FROM_DONGLE,
+            DATA_FROM_WELLE_IO
         };
 
     data_source_t data_source_;

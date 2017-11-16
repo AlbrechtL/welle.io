@@ -43,11 +43,12 @@ INCLUDEPATH += \
     src/gui
 
 HEADERS += \
-#    src/input/CVirtualInput.h \
-#    src/input/CInputFactory.h \
-#    src/input/CNullDevice.h \
-#    src/input/CRAWFile.h \
-#    src/input/CRTL_TCP_Client.h \
+    src/MathHelper.h \
+    src/input/CVirtualInput.h \
+    src/input/CInputFactory.h \
+    src/input/CNullDevice.h \
+    src/input/CRAWFile.h \
+    src/input/CRTL_TCP_Client.h \
     src/gui/CMOTImageProvider.h \
     src/gui/CStationList.h \
     src/gui/CGUI.h \
@@ -59,15 +60,15 @@ HEADERS += \
     src/various/Tools.h \
     src/output/CAudioOutput.h \
     src/CSdrDabInterface.h \
-    src/CFicData.h
+    src/CFicData.h \
+    src/input/CSdrDabInputAdapter.h
 
 SOURCES += \
     src/main.cpp \
-#    src/output/CAudio.cpp \
-#    src/input/CInputFactory.cpp \
-#    src/input/CNullDevice.cpp \
-#    src/input/CRAWFile.cpp \
-#    src/input/CRTL_TCP_Client.cpp \
+    src/input/CInputFactory.cpp \
+    src/input/CNullDevice.cpp \
+    src/input/CRAWFile.cpp \
+    src/input/CRTL_TCP_Client.cpp \
     src/gui/CMOTImageProvider.cpp \
     src/gui/CStationList.cpp \
     src/gui/CGUI.cpp \
@@ -78,7 +79,8 @@ SOURCES += \
     src/output/CAudioOutput.cpp \
     src/output/CFaadDecoder.cpp \
     src/CSdrDabInterface.cpp \
-    src/CFicData.cpp
+    src/CFicData.cpp \
+    src/input/CSdrDabInputAdapter.cpp
 
 unix:!macx:!android: {
     INCLUDEPATH	+= /usr/local/include
@@ -89,8 +91,8 @@ unix:!macx:!android: {
     LIBS    += -lusb-1.0
     LIBS    += -ldl
     LIBS    += -lfaad
-    #CONFIG  += airspy
-    #CONFIG  += rtl_sdr
+    CONFIG  += airspy
+    CONFIG  += rtl_sdr
     #CONFIG  += soapysdr
 
     #CONFIG  += kiss_fft_builtin

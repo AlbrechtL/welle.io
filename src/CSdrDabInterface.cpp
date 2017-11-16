@@ -31,8 +31,9 @@ CSdrDabInterface::CSdrDabInterface(QObject *parent) : QObject(parent)
 {
     connect(this, &CSdrDabInterface::ficDataUpdated, this, &CSdrDabInterface::ficDataUpdate);
 
-    m_SDRDevice = SDRDevice_t::Unknown;
     m_RAWFile = "";
+
+    VerbosityOn();
 }
 
 CSdrDabInterface::~CSdrDabInterface()
@@ -42,7 +43,6 @@ CSdrDabInterface::~CSdrDabInterface()
 
 void CSdrDabInterface::setRAWInput(QString File)
 {
-    m_SDRDevice = SDRDevice_t::RAW;
     m_RAWFile = File;
 }
 
@@ -77,7 +77,7 @@ void CSdrDabInterface::schedulerRunThread()
     config.start_station_nr = m_stationNumber; // Start with first channel (255 = default)
     config.use_speakers = m_isAudio;
 
-    if(m_SDRDevice == SDRDevice_t::RAW)
+    /*if(m_SDRDevice == SDRDevice_t::RAW)
     {
         QByteArray *ba = new QByteArray(m_RAWFile.toLocal8Bit()); // ToDo Memory leak!!
         config.input_filename = ba->data();
@@ -86,10 +86,16 @@ void CSdrDabInterface::schedulerRunThread()
     else // Assume RTL-SDR
     {
         config.data_source = Scheduler::DATA_FROM_DONGLE;
-        //config.carrier_frequency = 178352000; // 5C
+        config.carrier_frequency = 178352000; // 5C
         //config.carrier_frequency = 202928000; // 9A
-        config.carrier_frequency = 222064000; // 11D
-    }
+        /config.carrier_frequency = 222064000; // 11D
+    }*/
+
+    config.input_filename = "../DAB-Test/20160827_202005_5C.iq";
+    //config.data_source = Scheduler::DATA_FROM_FILE;
+
+    config.data_source = Scheduler::DATA_FROM_WELLE_IO;
+    config.carrier_frequency = 178352000; // 5C
 
     this->Scheduler::Start(config);
 }
@@ -163,7 +169,3 @@ void CSdrDabInterface::tuneToStation(int SubChannelID)
     this->ParametersToSDR(STATION_NUMBER, (uint8_t) SubChannelID);
 }
 
-SDRDevice_t CSdrDabInterface::getSDRDevice()
-{
-    return m_SDRDevice;
-}

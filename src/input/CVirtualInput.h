@@ -33,6 +33,9 @@
 #include <QObject>
 #include <QString>
 #include <stdint.h>
+#include <complex>
+
+typedef std::complex<float> DSPCOMPLEX;
 
 // Enum of available input device
 enum class CDeviceID {AIRSPY, NULLDEVICE, RAWFILE, RTL_SDR, RTL_TCP, SOAPYSDR};

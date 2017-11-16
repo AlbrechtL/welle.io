@@ -31,9 +31,10 @@
 #include <QSettings>
 
 #include "CRadioController.h"
-//#include "CInputFactory.h"
-//#include "CRAWFile.h"
-//#include "CRTL_TCP_Client.h"
+#include "input/CSdrDabInputAdapter.h"
+#include "input/CInputFactory.h"
+#include "input/CRAWFile.h"
+#include "input/CRTL_TCP_Client.h"
 
 #define AUDIOBUFFERSIZE 32768
 
@@ -130,8 +131,29 @@ void CRadioController::onEventLoopStarted()
     if(commandLineOptions["rawFileFormat"] != "")
         rawFileFormat = commandLineOptions["rawFileFormat"].toString();
 
-    if(dabDevice == "rawfile")
-        SDRDABInterface.setRAWInput(rawFile);
+    /*if(dabDevice == "rawfile")
+        SDRDABInterface.setRAWInput(rawFile);*/
+
+    // Init device
+    Device = CInputFactory::GetDevice(*this, dabDevice);
+
+    // Set device to sdrdab adapter
+    CSdrDabInputAdapter::m_Device = Device;
+
+    // Set rtl_tcp settings
+    if (Device->getID() == CDeviceID::RTL_TCP) {
+        CRTL_TCP_Client* RTL_TCP_Client = (CRTL_TCP_Client*)Device;
+
+        RTL_TCP_Client->setIP(ipAddress);
+        RTL_TCP_Client->setPort(ipPort);
+    }
+
+    // Set rawfile settings
+    if (Device->getID() == CDeviceID::RAWFILE) {
+        CRAWFile* RAWFile = (CRAWFile*)Device;
+
+        RAWFile->setFileName(rawFile, rawFileFormat);
+    }
 
     Initialise();
 }
@@ -214,7 +236,7 @@ void CRadioController::SetChannel(QString Channel, bool isScan, bool Force)
 {
     if(CurrentChannel != Channel || Force == true)
     {
-        if(SDRDABInterface.getSDRDevice() == SDRDevice_t::RAW)
+        if(Device->getID() == CDeviceID::RAWFILE)
         {
             CurrentChannel = "File";
             CurrentEnsemble = "";
@@ -282,7 +304,7 @@ void CRadioController::StartScan(void)
     // ToDo: Just for testing
     SDRDABInterface.start(false);
 
-    if(SDRDABInterface.getSDRDevice() == SDRDevice_t::RAW)
+    if(Device->getID() == CDeviceID::RAWFILE)
     {
         CurrentTitle = tr("RAW File");
         SetChannel(CChannels::FirstChannel, false); // Just a dummy

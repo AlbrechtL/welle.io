@@ -36,9 +36,8 @@
 #include <QSettings>
 
 #include "CVirtualInput.h"
-#include "DabConstants.h"
 #include "MathHelper.h"
-#include "ringbuffer.h"
+#include "various/CRingBuffer.h"
 
 #ifndef __MINGW32__
 #include "libairspy/airspy.h"
@@ -79,8 +78,8 @@ private:
     int16_t convIndex;
     int16_t mapTable_int[4 * 512];
     float mapTable_float[4 * 512];
-    RingBuffer<DSPCOMPLEX>* SampleBuffer;
-    RingBuffer<DSPCOMPLEX>* SpectrumSampleBuffer;
+    CRingBuffer<DSPCOMPLEX>* SampleBuffer;
+    CRingBuffer<DSPCOMPLEX>* SpectrumSampleBuffer;
     int32_t inputRate;
     struct airspy_device* device;
     uint64_t serialNumber;

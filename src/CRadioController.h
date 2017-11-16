@@ -97,6 +97,7 @@ private:
     CSdrDabInterface SDRDABInterface;
 
     // Back-end objects
+    CVirtualInput* Device;
     QVariantMap commandLineOptions;
 
     // Objects set by the back-end
@@ -126,8 +127,6 @@ private:
 
 private slots:
     void NewStation(QString StationName, uint8_t SubChannelId);
-    void setErrorMessage(QString Text);
-    void setInfoMessage(QString Text);
 
 #ifndef Q_OS_ANDROID
 signals:
@@ -146,6 +145,8 @@ signals:
 
 public slots:
     void onEventLoopStarted(void);
+    void setErrorMessage(QString Text);
+    void setInfoMessage(QString Text);
 
 };
 

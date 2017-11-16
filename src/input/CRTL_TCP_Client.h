@@ -38,9 +38,8 @@
 #include <QtNetwork>
 
 #include "CVirtualInput.h"
-#include "DabConstants.h"
+#include "various/CRingBuffer.h"
 #include "MathHelper.h"
-#include "ringbuffer.h"
 #include "CRadioController.h"
 
 class CRTL_TCP_Client : public CVirtualInput {
@@ -90,8 +89,8 @@ private:
     bool isAGC;
     bool isHwAGC;
     int32_t Frequency;
-    RingBuffer<uint8_t>* SampleBuffer;
-    RingBuffer<uint8_t>* SpectrumSampleBuffer;
+    CRingBuffer<uint8_t>* SampleBuffer;
+    CRingBuffer<uint8_t>* SpectrumSampleBuffer;
     bool connected;
     bool stopped;
     QHostAddress serverAddress;

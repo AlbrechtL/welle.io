@@ -35,8 +35,7 @@
 #include <QThread>
 
 #include "CVirtualInput.h"
-#include "DabConstants.h"
-#include "ringbuffer.h"
+#include "various/CRingBuffer.h"
 #include "CRadioController.h"
 
 class QLabel;
@@ -77,10 +76,10 @@ private:
 
     virtual void run(void);
     int32_t readBuffer(uint8_t*, int32_t);
-    int32_t convertSamples(RingBuffer<uint8_t>& Buffer, DSPCOMPLEX* V, int32_t size);
+    int32_t convertSamples(CRingBuffer<uint8_t>& Buffer, DSPCOMPLEX* V, int32_t size);
 
-    RingBuffer<uint8_t> SampleBuffer;
-    RingBuffer<uint8_t> SpectrumSampleBuffer;
+    CRingBuffer<uint8_t> SampleBuffer;
+    CRingBuffer<uint8_t> SpectrumSampleBuffer;
     int32_t bufferSize;
     FILE* filePointer;
     bool readerOK;

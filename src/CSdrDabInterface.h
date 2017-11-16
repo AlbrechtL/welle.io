@@ -36,8 +36,6 @@
 // welle.io header
 #include "CFicData.h"
 
-enum class SDRDevice_t {Unknown, RAW, RTLSDR};
-
 class CSdrDabInterface : public QObject, public Scheduler
 {
     Q_OBJECT
@@ -48,7 +46,6 @@ public:
     void start(bool isAudio = true, uint8_t stationNumber = 255);
     void stop(void);
     void tuneToStation(int SubChannelID);
-    SDRDevice_t getSDRDevice(void);
 
 private:
     static void schedularThreadWrapper(CSdrDabInterface *SDRDABInterface);
@@ -86,7 +83,6 @@ private:
     CFicData m_FICData;
     QList<QString> m_StationList;
 
-    SDRDevice_t m_SDRDevice;
     QString m_RAWFile;
     bool m_isAudio;
     uint8_t m_stationNumber;

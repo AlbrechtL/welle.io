@@ -45,6 +45,7 @@
 
 // welle.io integration
 #include "../../../output/CAudioDecoder.h"
+#include "../../../input/CSdrDabInputAdapter.h"
 
 Scheduler::Scheduler() :
 
@@ -158,6 +159,8 @@ Scheduler::state_t Scheduler::Init(const char * dongle_or_file_name, uint8_t int
         datafeeder_ = new FileDataFeeder( dongle_or_file_name, internal_buffer_size, sample_rate, carrier_freq, 10 , resample_quality);
     } else if ( data_source == DATA_FROM_DONGLE ) {
         datafeeder_ = new RtlDataFeeder( dongle_or_file_name, internal_buffer_number, internal_buffer_size, sample_rate, carrier_freq, 10 );
+    } else if( data_source == DATA_FROM_WELLE_IO) {
+        datafeeder_ = new CSdrDabInputAdapter( internal_buffer_size, sample_rate, carrier_freq, 10 , resample_quality);  // ToDo Why 10 bits?
     } else {
         fprintf( stderr, "DataFeeder object creation fail, returning..." );
         return INTERNAL_ERROR;
@@ -812,7 +815,7 @@ Scheduler::state_t Scheduler::Play()
                 sync_read_.read_here += sync_pointer_shift_size_;
                 sync_read_pos_ += sync_pointer_shift_size_;
 
-                if( verbose_ ){
+                if( 1 ){
                     fprintf( stderr, "NULL:%d, Fs:%6.2f, Fc:%6.3f, ", sync_feedback_.null_position, fs_drift_, estimated_fc_drift_ );
                     fprintf( stderr, "SNR(RAW):%5.2f(%5.2f) dB, ", synchronizer_->getSNRfromPREFIX(), synchronizer_->getSNRfromSPECTRUM());
                 }
