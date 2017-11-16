@@ -29,11 +29,11 @@
 #include <memory>
 
 #include "input/CVirtualInput.h"
-#include "various/CRingBuffer.h"
 
 // sdrdab
 #include "../libs/sdrdab/DataFeeder/abstract_data_feeder.h"
 #include "../libs/sdrdab/Resampler/resampler.h"
+#include "../libs/sdrdab/RingBuffer/resampling_ring_buffer.h"
 
 class CSdrDabInputAdapter : public AbstractDataFeeder
 {
@@ -61,8 +61,7 @@ private:
     uint32_t m_SampleRate;
     uint32_t m_CarrierFreq;
     int m_NumberOfBits;
-    std::unique_ptr<CRingBuffer<float>> m_DataBuffer;
-    std::unique_ptr<Resampler> m_Resampler;
+    std::unique_ptr<ResamplingRingBuffer> m_Resampling_buffer;
 };
 
 #endif // CSDRDABADAPTER_H

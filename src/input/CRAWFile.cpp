@@ -270,8 +270,7 @@ int32_t CRAWFile::convertSamples(CRingBuffer<uint8_t>& Buffer, DSPCOMPLEX *V, in
     if(FileFormat == CRAWFileFormat::U8)
     {
         for (i = 0; i < amount / 2; i++)
-        //V[i] = DSPCOMPLEX(float(temp[2 * i] - 128) / 128.0, float(temp[2 * i + 1] - 128) / 128.0);
-            V[i] = DSPCOMPLEX(float(temp[2 * i]), float(temp[2 * i + 1]));
+        V[i] = DSPCOMPLEX(float(temp[2 * i] - 128) / 128.0, float(temp[2 * i + 1] - 128) / 128.0);
     }
     // Signed 8-bit
     else if(FileFormat == CRAWFileFormat::S8)

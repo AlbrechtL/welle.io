@@ -22,7 +22,6 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-#include <thread>
 #include <QDebug>
 
 #include "CSdrDabInputAdapter.h"
@@ -30,22 +29,25 @@
 // sdrdab
 #include "../libs/sdrdab/threading/blocking_queue.h"
 
-#define DEVICEBLOCKSIZE_MS 2048 // default are 2048000 samples/s = 2048 sample/ms
-
 CVirtualInput *CSdrDabInputAdapter::m_Device = nullptr;
 
 CSdrDabInputAdapter::CSdrDabInputAdapter(size_t internal_buffer_size, uint32_t sample_rate, uint32_t carrier_freq, int number_of_bits, ResamplingRingBuffer::resample_quality resample_quality):AbstractDataFeeder(number_of_bits)
 {
     if(m_Device == nullptr)
+    {
         qDebug() << "CSdrDabInputAdapter:" << "No input device selected!";
+    }
+    else
+    {
+        m_Device->setFrequency(carrier_freq);
+    }
 
     this->m_InternalBufferSize = internal_buffer_size;
     this->m_SampleRate = sample_rate;
     this->m_CarrierFreq = carrier_freq;
     this->m_NumberOfBits = number_of_bits;
 
-    m_DataBuffer = std::make_unique<CRingBuffer<float>>(internal_buffer_size);
-    m_Resampler = std::make_unique<Resampler>(resample_quality, 2);
+    m_Resampling_buffer = std::make_unique<ResamplingRingBuffer>(resample_quality ,internal_buffer_size*4,2);
 }
 
 CSdrDabInputAdapter::~CSdrDabInputAdapter()
@@ -56,7 +58,6 @@ CSdrDabInputAdapter::~CSdrDabInputAdapter()
 uint32_t CSdrDabInputAdapter::GetCenterFrequency()
 {
     return m_CarrierFreq;
-
 }
 
 uint32_t CSdrDabInputAdapter::GetSamplingFrequency()
@@ -67,6 +68,9 @@ uint32_t CSdrDabInputAdapter::GetSamplingFrequency()
 uint32_t CSdrDabInputAdapter::SetCenterFrequency(uint32_t carrier_freq)
 {
     this->m_CarrierFreq = carrier_freq;
+
+    if(m_Device != nullptr)
+        m_Device->setFrequency(carrier_freq);
 
     return this->m_CarrierFreq;
 }
@@ -84,9 +88,8 @@ void CSdrDabInputAdapter::ReadAsync(void *data_needed)
     BlockingQueue<int> *event_queue = reinterpret_cast<BlockingQueue<int>*>(params->event_queue);
     pthread_cond_t *pointer_changed_cond = reinterpret_cast<pthread_cond_t*>(params->pointer_changed_cond);
 
-    float tempBuffer[params->block_size];
-    DSPCOMPLEX complexSampleBuffer[DEVICEBLOCKSIZE_MS];
-    float floatSampleBuffer[DEVICEBLOCKSIZE_MS * 2];
+    DSPCOMPLEX complexSampleBuffer[params->block_size/2];
+    float floatSampleBuffer[params->block_size];
 
     // Start input device
     if(m_Device != nullptr)
@@ -96,9 +99,10 @@ void CSdrDabInputAdapter::ReadAsync(void *data_needed)
     {
         // ********* Start I/Q data handling *********
         int32_t ReadSize = 0;
+        float ratio = PickRatio(params->block_size);
 
         if(m_Device != nullptr)
-            ReadSize = m_Device->getSamples(complexSampleBuffer, DEVICEBLOCKSIZE_MS);
+            ReadSize = m_Device->getSamples(complexSampleBuffer, params->block_size/2);
 
         // If we have samples
         if(ReadSize > 0)
@@ -110,10 +114,11 @@ void CSdrDabInputAdapter::ReadAsync(void *data_needed)
                 floatSampleBuffer[i * 2 + 1] = complexSampleBuffer[i].imag();
             }
 
-            // Put data into internal buffer
-            m_DataBuffer->putDataIntoBuffer(floatSampleBuffer, ReadSize * 2);
-        }
+            //Normalize(floatSampleBuffer, floatSampleBuffer, ReadSize * 2);
 
+            // Put data into internal buffer
+            m_Resampling_buffer->WriteResampledInto(floatSampleBuffer, ReadSize * 2, ratio);
+        }
 
         pthread_mutex_lock(params->lock_buffer);
 
@@ -129,22 +134,12 @@ void CSdrDabInputAdapter::ReadAsync(void *data_needed)
         }
 
         // Check of enough data is available.
-        if(m_DataBuffer->GetRingBufferReadAvailable() >= params->block_size)
+        if(m_Resampling_buffer->DataStored() >= params->block_size)
         {
             if(previous_write_here_ == params->write_here)
                 ++params->blocks_skipped;
 
-            float ratio = PickRatio(params->block_size);
-
-            // Get data
-            m_DataBuffer->getDataFromBuffer(tempBuffer, params->block_size);
-
-            // Normalize
-            Normalize(tempBuffer, tempBuffer, params->block_size);
-
-            // Resample
-            m_Resampler->SetSourceBuffer(tempBuffer, params->block_size);
-            m_Resampler->Resample(params->write_here, params->block_size, ratio);
+            m_Resampling_buffer->sReadFrom(params->write_here, params->block_size);
 
             previous_write_here_ = params->write_here;
             params->data_stored = true;
@@ -157,10 +152,6 @@ void CSdrDabInputAdapter::ReadAsync(void *data_needed)
 
         // ********* Stop I/Q data handling **********
         pthread_mutex_unlock(params->lock_buffer);
-
-        // No data, lets wait
-        if(params->data_stored == false)
-            std::this_thread::sleep_for(std::chrono::microseconds((int) (m_SampleRate / (DEVICEBLOCKSIZE_MS * 2)))); // Oversample two times
     }
 }
 

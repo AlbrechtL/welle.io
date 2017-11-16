@@ -42,7 +42,6 @@ class CSdrDabInterface : public QObject, public Scheduler
 public:
     explicit CSdrDabInterface(QObject *parent = nullptr);
     ~CSdrDabInterface();
-    void setRAWInput(QString File);
     void start(bool isAudio = true, uint8_t stationNumber = 255);
     void stop(void);
     void tuneToStation(int SubChannelID);
@@ -83,7 +82,6 @@ private:
     CFicData m_FICData;
     QList<QString> m_StationList;
 
-    QString m_RAWFile;
     bool m_isAudio;
     uint8_t m_stationNumber;
 

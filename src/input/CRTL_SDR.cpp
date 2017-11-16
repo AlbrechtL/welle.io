@@ -28,6 +28,7 @@
  */
 
 #include <QDebug>
+#include <QThread>
 
 #include "CRTL_SDR.h"
 
@@ -151,6 +152,8 @@ CRTL_SDR::CRTL_SDR(CRadioController &RadioController) :
 
     connect(&AGCTimer, &QTimer::timeout, this, &CRTL_SDR::AGCTimerTimeout);
 
+    AGCTimer.start(50); // ToDo better call from restart method
+
     return;
 }
 
@@ -202,7 +205,7 @@ bool CRTL_SDR::restart(void)
     rtlsdr_set_center_freq(device, lastFrequency + FrequencyOffset);
     RTL_SDR_Thread = new CRTL_SDR_Thread(this);
 
-    AGCTimer.start(50);
+    //AGCTimer.start(50);
 
     return true;
 }
@@ -347,6 +350,9 @@ void CRTL_SDR::AGCTimerTimeout(void)
 
 int32_t CRTL_SDR::getSamples(DSPCOMPLEX* Buffer, int32_t Size)
 {
+    while ((int32_t)(SampleBuffer.GetRingBufferReadAvailable()) < Size)
+            QThread::msleep(100);
+
     uint8_t* tempBuffer = (uint8_t*)alloca(2 * Size * sizeof(uint8_t));
 
     // Get samples

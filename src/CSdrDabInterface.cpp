@@ -31,19 +31,12 @@ CSdrDabInterface::CSdrDabInterface(QObject *parent) : QObject(parent)
 {
     connect(this, &CSdrDabInterface::ficDataUpdated, this, &CSdrDabInterface::ficDataUpdate);
 
-    m_RAWFile = "";
-
-    VerbosityOn();
+    //VerbosityOn();
 }
 
 CSdrDabInterface::~CSdrDabInterface()
 {
     stop();
-}
-
-void CSdrDabInterface::setRAWInput(QString File)
-{
-    m_RAWFile = File;
 }
 
 void CSdrDabInterface::start(bool isAudio, uint8_t stationNumber)
@@ -77,25 +70,13 @@ void CSdrDabInterface::schedulerRunThread()
     config.start_station_nr = m_stationNumber; // Start with first channel (255 = default)
     config.use_speakers = m_isAudio;
 
-    /*if(m_SDRDevice == SDRDevice_t::RAW)
-    {
-        QByteArray *ba = new QByteArray(m_RAWFile.toLocal8Bit()); // ToDo Memory leak!!
-        config.input_filename = ba->data();
-        config.data_source = Scheduler::DATA_FROM_FILE;
-    }
-    else // Assume RTL-SDR
-    {
-        config.data_source = Scheduler::DATA_FROM_DONGLE;
-        config.carrier_frequency = 178352000; // 5C
-        //config.carrier_frequency = 202928000; // 9A
-        /config.carrier_frequency = 222064000; // 11D
-    }*/
-
-    config.input_filename = "../DAB-Test/20160827_202005_5C.iq";
+    // config.input_filename = "../DAB-Test/20160827_202005_5C.iq";
     //config.data_source = Scheduler::DATA_FROM_FILE;
+    config.data_source = Scheduler::DATA_FROM_DONGLE;
 
     config.data_source = Scheduler::DATA_FROM_WELLE_IO;
     config.carrier_frequency = 178352000; // 5C
+    //config.carrier_frequency = 222064000; // 11D
 
     this->Scheduler::Start(config);
 }
@@ -107,7 +88,7 @@ void CSdrDabInterface::ParametersFromSDR(Scheduler::scheduler_error_t error_code
     {
     case OK: qDebug() << "CSdrDabInterface: no error"; break;
     case ERROR_UNKNOWN: qDebug() << "CSdrDabInterface: unknown error"; break;
-    case FILE_NOT_FOUND: qDebug() << "CSdrDabInterface: FileDataFeeder was unable to open raw file" << m_RAWFile; break;
+    case FILE_NOT_FOUND: qDebug() << "CSdrDabInterface: FileDataFeeder was unable to open raw file"; break;
     case DEVICE_NOT_FOUND: qDebug() << "CSdrDabInterface: DataFeeder was unable to use tuner"; break;
     case DEVICE_DISCONNECTED: qDebug() << "CSdrDabInterface: tuner device has been disconnected"; break;
     case FILE_END: qDebug() << "CSdrDabInterface: input file with raw samples has ended"; break;
