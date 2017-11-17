@@ -35,11 +35,11 @@
 class CInputFactory
 {
 public:
-    static CVirtualInput* GetDevice(CRadioController &RadioController, QString Device);
+    static std::shared_ptr<CVirtualInput> GetDevice(CRadioController &RadioController, QString Device);
 
 private:
-    static CVirtualInput* GetAutoDevice(CRadioController &RadioController);
-    static CVirtualInput* GetManualDevice(CRadioController &RadioController, QString Device);
+    static std::shared_ptr<CVirtualInput> GetAutoDevice(CRadioController &RadioController);
+    static std::shared_ptr<CVirtualInput> GetManualDevice(CRadioController &RadioController, QString Device);
 };
 
 #endif // CINPUTFACTORY_H

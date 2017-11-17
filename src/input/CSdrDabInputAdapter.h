@@ -49,9 +49,9 @@ public:
     virtual bool EverythingOK(void);
     virtual void HandleDrifts(float fc_drift, float fs_drift);
 
-    void SetInputDevice(CVirtualInput *Device);
+    void SetInputDevice(std::shared_ptr<CVirtualInput> Device);
 
-    static CVirtualInput *m_Device;
+    static std::shared_ptr<CVirtualInput> m_Device;
 
 private:
     float PickRatio(size_t block_size);

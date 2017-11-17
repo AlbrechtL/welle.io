@@ -25,9 +25,11 @@
 
 #ifndef __CAUDIO__
 #define	__CAUDIO__
-#include	<stdio.h>
-#include    <QAudioOutput>
-#include    <QTimer>
+
+#include <memory>
+#include <stdio.h>
+#include <QAudioOutput>
+#include <QTimer>
 
 #include "various/CRingBuffer.h"
 
@@ -36,7 +38,7 @@ class CAudioIODevice : public QIODevice
     Q_OBJECT
 
 public:
-    CAudioIODevice(CRingBuffer<int16_t> *Buffer, QObject *parent);
+    CAudioIODevice(std::shared_ptr<CRingBuffer<int16_t>> Buffer, QObject *parent);
     ~CAudioIODevice();
 
     void start();
@@ -48,14 +50,14 @@ public:
     qint64 bytesAvailable() const;
 
 private:
-    CRingBuffer<int16_t> *Buffer;
+    std::shared_ptr<CRingBuffer<int16_t>> Buffer;
 };
 
 
 class	CAudioOutput: public QObject{
 Q_OBJECT
 public:
-    CAudioOutput(CRingBuffer<int16_t> *Buffer);
+    CAudioOutput(std::shared_ptr<CRingBuffer<int16_t>> Buffer);
     ~CAudioOutput(void);
 
     void stop (void);
@@ -69,7 +71,7 @@ private:
     QAudioOutput* AudioOutput;
     CAudioIODevice *AudioIODevice;
     QTimer  *CheckAudioBufferTimer;
-    CRingBuffer<int16_t> *Buffer;
+    std::shared_ptr<CRingBuffer<int16_t>> Buffer;
 
     QAudio::State CurrentState;
     int32_t		CardRate;

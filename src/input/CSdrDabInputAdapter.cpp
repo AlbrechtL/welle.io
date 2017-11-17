@@ -29,7 +29,7 @@
 // sdrdab
 #include "../libs/sdrdab/threading/blocking_queue.h"
 
-CVirtualInput *CSdrDabInputAdapter::m_Device = nullptr;
+std::shared_ptr<CVirtualInput> CSdrDabInputAdapter::m_Device = nullptr;
 
 CSdrDabInputAdapter::CSdrDabInputAdapter(size_t internal_buffer_size, uint32_t sample_rate, uint32_t carrier_freq, int number_of_bits, ResamplingRingBuffer::resample_quality resample_quality):AbstractDataFeeder(number_of_bits)
 {
@@ -167,7 +167,7 @@ void CSdrDabInputAdapter::HandleDrifts(float fc_drift, float fs_drift)
         current_fs_offset_ += fs_drift;
 }
 
-void CSdrDabInputAdapter::SetInputDevice(CVirtualInput *Device)
+void CSdrDabInputAdapter::SetInputDevice(std::shared_ptr<CVirtualInput> Device)
 {
     m_Device = Device;
 }

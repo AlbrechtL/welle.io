@@ -26,7 +26,7 @@
 
 #include "output/CFaadDecoder.h"
 
-CFaadDecoder::CFaadDecoder (CRingBuffer<int16_t> *buffer)
+CFaadDecoder::CFaadDecoder (std::shared_ptr<CRingBuffer<int16_t> > buffer)
 {
     this->audioBuffer  = buffer;
     aacCap = NeAACDecGetCapabilities();

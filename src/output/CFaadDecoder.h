@@ -24,6 +24,7 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <memory>
 #include <thread>
 #include <QObject>
 #include "neaacdec.h"
@@ -34,7 +35,7 @@ class   CFaadDecoder: public QObject
 {
     Q_OBJECT
 public:
-    CFaadDecoder (CRingBuffer<int16_t> *buffer);
+    CFaadDecoder (std::shared_ptr<CRingBuffer<int16_t>> buffer);
     ~CFaadDecoder(void);
 
     int get_aac_channel_configuration(
@@ -55,5 +56,5 @@ private:
     NeAACDecHandle           aacHandle;
     NeAACDecConfigurationPtr aacConf;
     NeAACDecFrameInfo        hInfo;
-    CRingBuffer<int16_t>     *audioBuffer;
+    std::shared_ptr<CRingBuffer<int16_t>> audioBuffer;
 };

@@ -815,7 +815,7 @@ Scheduler::state_t Scheduler::Play()
                 sync_read_.read_here += sync_pointer_shift_size_;
                 sync_read_pos_ += sync_pointer_shift_size_;
 
-                if( 1 ){
+                if( verbose_ ){
                     fprintf( stderr, "NULL:%d, Fs:%6.2f, Fc:%6.3f, ", sync_feedback_.null_position, fs_drift_, estimated_fc_drift_ );
                     fprintf( stderr, "SNR(RAW):%5.2f(%5.2f) dB, ", synchronizer_->getSNRfromPREFIX(), synchronizer_->getSNRfromSPECTRUM());
                 }

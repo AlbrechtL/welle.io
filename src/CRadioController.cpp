@@ -142,7 +142,7 @@ void CRadioController::onEventLoopStarted()
 
     // Set rtl_tcp settings
     if (Device->getID() == CDeviceID::RTL_TCP) {
-        CRTL_TCP_Client* RTL_TCP_Client = (CRTL_TCP_Client*)Device;
+        std::shared_ptr<CRTL_TCP_Client> RTL_TCP_Client = std::static_pointer_cast<CRTL_TCP_Client>(Device);
 
         RTL_TCP_Client->setIP(ipAddress);
         RTL_TCP_Client->setPort(ipPort);
@@ -150,7 +150,7 @@ void CRadioController::onEventLoopStarted()
 
     // Set rawfile settings
     if (Device->getID() == CDeviceID::RAWFILE) {
-        CRAWFile* RAWFile = (CRAWFile*)Device;
+        std::shared_ptr<CRAWFile> RAWFile = std::static_pointer_cast<CRAWFile>(Device);
 
         RAWFile->setFileName(rawFile, rawFileFormat);
     }

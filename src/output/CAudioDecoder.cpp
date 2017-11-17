@@ -48,11 +48,11 @@ CAudioDecoder::CAudioDecoder(float threshold, size_t length, int type)
     m_sampleRate = 48000;
 
     m_AudioThread = new QThread;
-    m_WAVBuffer = new CRingBuffer<int16_t>(2 * 32768);
+    m_WAVBuffer = std::make_shared<CRingBuffer<int16_t>>(2 * 32768);
 
     m_CodedBufferSize = length;
-    m_CodedBuffer  = new CRingBuffer<uint8_t>(m_CodedBufferSize);
-    m_aacDecoder = new CFaadDecoder(m_WAVBuffer);
+    m_CodedBuffer  = std::make_unique<CRingBuffer<uint8_t>>(m_CodedBufferSize);
+    m_aacDecoder = std::make_unique<CFaadDecoder>(m_WAVBuffer);
     m_AudioOutput = new CAudioOutput(m_WAVBuffer);
 
     // CAudioOutput uses QTimers and these requires an event loop in QThread
@@ -67,9 +67,6 @@ CAudioDecoder::CAudioDecoder(float threshold, size_t length, int type)
 
 CAudioDecoder::~CAudioDecoder()
 {
-    delete m_WAVBuffer;
-    delete m_CodedBuffer;
-    delete m_aacDecoder;
     delete m_AudioOutput;
 
     // Stop thread

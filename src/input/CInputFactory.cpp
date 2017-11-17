@@ -42,9 +42,9 @@
 #include "CSoapySdr.h"
 #endif
 
-CVirtualInput *CInputFactory::GetDevice(CRadioController &RadioController, QString Device)
+std::shared_ptr<CVirtualInput> CInputFactory::GetDevice(CRadioController &RadioController, QString Device)
 {
-    CVirtualInput *InputDevice = NULL;
+    std::shared_ptr<CVirtualInput> InputDevice = nullptr;
 
     qDebug() << "InputFactory:" << "Input device:" << Device;
 
@@ -65,16 +65,16 @@ CVirtualInput *CInputFactory::GetDevice(CRadioController &RadioController, QStri
 
         qDebug().noquote() << "InputFactory: " + Text;
         RadioController.setErrorMessage(Text);
-        InputDevice = new CNullDevice();
+        InputDevice = std::make_shared<CNullDevice>();
     }
 
     return InputDevice;
 }
 
-CVirtualInput *CInputFactory::GetAutoDevice(CRadioController &RadioController)
+std::shared_ptr<CVirtualInput> CInputFactory::GetAutoDevice(CRadioController &RadioController)
 {
     (void) RadioController;
-    CVirtualInput *InputDevice = NULL;
+    std::shared_ptr<CVirtualInput> InputDevice = nullptr;
 
     // Try to find a input device
     for(int i=0;i<2;i++) // At the moment two devices are supported
@@ -84,13 +84,13 @@ CVirtualInput *CInputFactory::GetAutoDevice(CRadioController &RadioController)
             switch(i)
             {
 #ifdef HAVE_AIRSPY
-            case 0: InputDevice = new CAirspy(); break;
+            case 0: InputDevice = std::make_shared<CAirspy>(); break;
 #endif
 #ifdef HAVE_RTLSDR
-            case 1: InputDevice = new CRTL_SDR(RadioController); break;
+            case 1: InputDevice = std::make_shared<CRTL_SDR>(RadioController); break;
 #endif
 #ifdef HAVE_SOAPYSDR
-            case 2: InputDevice = new CSoapySdr(); break;
+            case 2: InputDevice = std::make_shared<CSoapySdr>(); break;
 #endif
             }
         }
@@ -110,32 +110,32 @@ CVirtualInput *CInputFactory::GetAutoDevice(CRadioController &RadioController)
     return InputDevice;
 }
 
-CVirtualInput *CInputFactory::GetManualDevice(CRadioController &RadioController, QString Device)
+std::shared_ptr<CVirtualInput> CInputFactory::GetManualDevice(CRadioController &RadioController, QString Device)
 {
-    CVirtualInput *InputDevice = NULL;
+    std::shared_ptr<CVirtualInput> InputDevice = nullptr;
 
     try
     {
 #ifdef HAVE_AIRSPY
         if (Device == "airspy")
-            InputDevice = new CAirspy();
+            InputDevice = std::make_shared<CAirspy>();
         else
 #endif
         if (Device == "rtl_tcp")
-            InputDevice = new CRTL_TCP_Client(RadioController);
+            InputDevice = std::make_shared<CRTL_TCP_Client>(RadioController);
         else
 #ifdef HAVE_RTLSDR
         if (Device == "rtl_sdr")
-            InputDevice = new CRTL_SDR(RadioController);
+            InputDevice = std::make_shared<CRTL_SDR>(RadioController);
         else
 #endif
 #ifdef HAVE_SOAPYSDR
         if (Device == "soapysdr")
-            InputDevice = new CSoapySdr();
+            InputDevice = std::make_shared<CSoapySdr>();
         else
 #endif
         if (Device == "rawfile")
-            InputDevice = new CRAWFile(RadioController);
+            InputDevice = std::make_shared<CRAWFile>(RadioController);
         else
             qDebug() << "InputFactory:" << "Unknown device \"" << Device << "\".";
     }

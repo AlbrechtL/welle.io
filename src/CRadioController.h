@@ -97,7 +97,7 @@ private:
     CSdrDabInterface SDRDABInterface;
 
     // Back-end objects
-    CVirtualInput* Device;
+    std::shared_ptr<CVirtualInput> Device;
     QVariantMap commandLineOptions;
 
     // Objects set by the back-end

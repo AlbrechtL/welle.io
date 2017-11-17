@@ -128,9 +128,9 @@ private:
     std::condition_variable m_NewData;
 
     QThread *m_AudioThread;
-    CFaadDecoder *m_aacDecoder;
-    CRingBuffer<int16_t> *m_WAVBuffer;
-    CRingBuffer<uint8_t> *m_CodedBuffer;
+    std::unique_ptr<CFaadDecoder> m_aacDecoder;
+    std::shared_ptr<CRingBuffer<int16_t>> m_WAVBuffer;
+    std::unique_ptr<CRingBuffer<uint8_t>> m_CodedBuffer;
     size_t m_CodedBufferSize;
     CAudioOutput *m_AudioOutput;
     bool m_StopProcess;
