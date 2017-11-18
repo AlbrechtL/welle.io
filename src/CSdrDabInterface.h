@@ -65,7 +65,7 @@ private:
      * @brief SNR measurement callback
      * @param[in] snr current SNR level [dB]
      */
-    virtual void ParametersFromSDR(float snr);
+    virtual void ParametersFromSDR(float snr, float estimated_fc_drift);
 
     /**
      * "Callback" executed whenever something interesting happens.
@@ -85,12 +85,14 @@ private:
     bool m_isAudio;
     uint8_t m_stationNumber;
     int m_SNR;
+    int m_estimated_fc_drift;
 
 signals:
     void ficDataUpdated(void);
     void newStationFound(QString StationName, uint8_t SubChannelId);
     void stationInfoUpdate(bool isDABPlus, size_t bitrate, QString programme_type);
-    void snrChanged(int);
+    void snrChanged(int SNR);
+    void fcDriftChanged(int estimated_fc_drift);
 
 public slots:
     void ficDataUpdate(void);

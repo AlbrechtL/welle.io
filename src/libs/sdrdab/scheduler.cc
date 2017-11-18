@@ -366,7 +366,7 @@ Scheduler::state_t Scheduler::Sync()
                     fprintf( stderr, "NULL:%d, Fs:%6.2f, Fc:%6.3f, ", sync_feedback_.null_position, fs_drift_, estimated_fc_drift_ );
                     fprintf( stderr, "SNR(RAW):%5.2f(%5.2f) dB", synchronizer_->getSNRfromPREFIX(), synchronizer_->getSNRfromSPECTRUM());
                 }
-                ParametersFromSDR(synchronizer_->getSNRfromSPECTRUM());
+                ParametersFromSDR(synchronizer_->getSNRfromSPECTRUM(), estimated_fc_drift_);
 
                 // If fc_drift_ is detected, go to CONF state
                 if ( fc_converged_ && fabs(fs_drift_) < 2  ) {
@@ -469,7 +469,7 @@ Scheduler::state_t Scheduler::Conf()
                 fprintf( stderr, "NULL:%d, Fs:%6.2f, Fc:%6.3f, ", sync_feedback_.null_position, fs_drift_, estimated_fc_drift_ );
                 fprintf( stderr, "SNR(RAW):%5.2f(%5.2f) dB\n\n", synchronizer_->getSNRfromPREFIX(), synchronizer_->getSNRfromSPECTRUM());
             }
-            ParametersFromSDR(synchronizer_->getSNRfromSPECTRUM());
+            ParametersFromSDR(synchronizer_->getSNRfromSPECTRUM(), estimated_fc_drift_);
 
             // Demodulate FIC
             demodulator_->Process( &station_info_, &demod_read_write_);
@@ -821,7 +821,8 @@ Scheduler::state_t Scheduler::Play()
                     fprintf( stderr, "NULL:%d, Fs:%6.2f, Fc:%6.3f, ", sync_feedback_.null_position, fs_drift_, estimated_fc_drift_ );
                     fprintf( stderr, "SNR(RAW):%5.2f(%5.2f) dB, ", synchronizer_->getSNRfromPREFIX(), synchronizer_->getSNRfromSPECTRUM());
                 }
-                ParametersFromSDR(synchronizer_->getSNRfromSPECTRUM());
+                ParametersFromSDR(synchronizer_->getSNRfromSPECTRUM(), estimated_fc_drift_);
+
             } else if ( sync_feedback_.null_quality == NULL_SHIFT ) {
                 ResetFsDrift();
                 sync_read_.read_here = sync_read_.read_here + 2 * sync_feedback_.null_position -
@@ -1680,7 +1681,7 @@ void Scheduler::ParametersFromSDR(scheduler_error_t error_code)
     return; //no need to implement further
 }
 
-void Scheduler::ParametersFromSDR(float snr)
+void Scheduler::ParametersFromSDR(float snr, float estimated_fc_drift)
 {
     return; //no need to implement further
 }

@@ -475,7 +475,7 @@ public:
      * @brief SNR measurement callback
      * @param[in] snr current SNR level [dB]
      */
-    virtual void ParametersFromSDR(float snr);
+    virtual void ParametersFromSDR(float snr, float estimated_fc_drift);
 
     /**
      * "Callback" executed whenever something interesting happens.

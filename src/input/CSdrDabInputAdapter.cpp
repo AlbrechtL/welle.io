@@ -166,6 +166,8 @@ void CSdrDabInputAdapter::HandleDrifts(float fc_drift, float fs_drift)
     current_fc_offset_ += fc_drift;
     if (do_handle_fs_)
         current_fs_offset_ += fs_drift;
+
+    //qDebug() << "CSdrDabInputAdapter:" << "current_fc_offset_:" << current_fc_offset_ << "fc_drift:" << fc_drift << "current_fs_offset_:" << current_fs_offset_ << "fs_drift:" << fs_drift;
 }
 
 inline float CSdrDabInputAdapter::PickRatio(size_t block_size){

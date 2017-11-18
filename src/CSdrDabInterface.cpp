@@ -97,7 +97,7 @@ void CSdrDabInterface::ParametersFromSDR(Scheduler::scheduler_error_t error_code
     }
 }
 
-void CSdrDabInterface::ParametersFromSDR(float snr)
+void CSdrDabInterface::ParametersFromSDR(float snr, float estimated_fc_drift)
 {
     //qDebug() << "CSdrDabInterface: SNR " <<  snr;
 
@@ -108,6 +108,14 @@ void CSdrDabInterface::ParametersFromSDR(float snr)
     {
         m_SNR = snr_round;
         snrChanged(m_SNR);
+    }
+
+    int m_estimated_fc_drift_round = roundf(estimated_fc_drift * 1000); // Now we have Hz
+
+    if(m_estimated_fc_drift_round != m_estimated_fc_drift)
+    {
+        m_estimated_fc_drift = m_estimated_fc_drift_round;
+        fcDriftChanged(m_estimated_fc_drift);
     }
 }
 
@@ -157,5 +165,6 @@ void CSdrDabInterface::ficDataUpdate()
 
 void CSdrDabInterface::tuneToStation(int SubChannelID)
 {
+    // ToDo Scrutinize if SNR calculation is correct
     this->ParametersToSDR(STATION_NUMBER, (uint8_t) SubChannelID);
 }

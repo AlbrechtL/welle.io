@@ -68,6 +68,7 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, QObject *par
     connect(&SDRDABInterface, &CSdrDabInterface::newStationFound, this, &CRadioController::newStation);
     connect(&SDRDABInterface, &CSdrDabInterface::stationInfoUpdate, this, &CRadioController::ficUpdate);
     connect(&SDRDABInterface, &CSdrDabInterface::snrChanged, this, &CRadioController::newSnrValue);
+    connect(&SDRDABInterface, &CSdrDabInterface::fcDriftChanged, this, &CRadioController::newFcDriftValue);
 }
 
 
@@ -427,6 +428,11 @@ int CRadioController::SNR() const
     return mSNR;
 }
 
+int CRadioController::FrequencyCorrection() const
+{
+    return mFrequencyCorrection;
+}
+
 void CRadioController::setErrorMessage(QString Text)
 {
     Status = Error;
@@ -508,10 +514,16 @@ void CRadioController::ficUpdate(bool isDABPlus, size_t bitrate, QString program
     CurrentStationType = programme_type;
 }
 
-void CRadioController::newSnrValue(float SNR)
+void CRadioController::newSnrValue(int SNR)
 {
     mSNR = SNR;
-    emit SNRChanged(SNR);
+    emit SNRChanged(mSNR);
+}
+
+void CRadioController::newFcDriftValue(int estimated_fc_drift)
+{
+    mFrequencyCorrection = estimated_fc_drift;
+    emit FrequencyCorrectionChanged(mFrequencyCorrection);
 }
 
 void CRadioController::updateSpectrum()
