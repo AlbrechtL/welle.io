@@ -55,7 +55,7 @@ CGUI::CGUI(CRadioController *RadioController, QObject *parent)
     , RadioController(RadioController)
     , spectrum_series(NULL)
 {
-    StationsChange(RadioController->Stations());
+    StationsChange(RadioController->stations());
 
     // Add image provider for the MOT slide show
     MOTImage = new CMOTImageProvider;
@@ -157,13 +157,13 @@ const QVariantMap CGUI::licenses()
 void CGUI::startChannelScanClick(void)
 {
     if(RadioController)
-        RadioController->StartScan();
+        RadioController->startScan();
 }
 
 void CGUI::stopChannelScanClick(void)
 {
     if(RadioController)
-        RadioController->StopScan();
+        RadioController->stopScan();
 }
 
 void CGUI::MOTUpdate(QImage MOTImage)
@@ -196,13 +196,13 @@ void CGUI::StationsChange(QList<StationElement*> Stations)
 void CGUI::channelClick(QString StationName, QString ChannelName, int SubChannelID)
 {
     if(RadioController && ChannelName != "")
-        RadioController->Play(ChannelName, StationName, SubChannelID);
+        RadioController->play(ChannelName, StationName, SubChannelID);
 }
 
 void CGUI::setManualChannel(QString ChannelName)
 {
     if(RadioController)
-        RadioController->SetManualChannel(ChannelName);
+        RadioController->setManualChannel(ChannelName);
 }
 
 void CGUI::inputEnableAGCChanged(bool checked)
@@ -232,7 +232,7 @@ void CGUI::clearStationList()
 {
     if(RadioController)
     {
-        RadioController->ClearStations();
+        RadioController->clearStations();
     }
 }
 
@@ -245,7 +245,7 @@ void CGUI::registerSpectrumSeries(QAbstractSeries* series)
 void CGUI::updateSpectrum()
 {
     if (RadioController && spectrum_series)
-        RadioController->UpdateSpectrum();
+        RadioController->updateSpectrum();
 }
 
 void CGUI::SpectrumUpdate(qreal Ymax, qreal Xmin, qreal Xmax, QVector<QPointF> Data)

@@ -25,14 +25,15 @@
 #include <QDebug>
 
 #include "CSdrDabInputAdapter.h"
+#include "CRadioController.h"
 
 // sdrdab
 #include "../libs/sdrdab/threading/blocking_queue.h"
 
-std::shared_ptr<CVirtualInput> CSdrDabInputAdapter::m_Device = nullptr;
-
 CSdrDabInputAdapter::CSdrDabInputAdapter(size_t internal_buffer_size, uint32_t sample_rate, uint32_t carrier_freq, int number_of_bits, ResamplingRingBuffer::resample_quality resample_quality):AbstractDataFeeder(number_of_bits)
 {
+    m_Device = CRadioController::getDevice();
+
     if(m_Device == nullptr)
     {
         qDebug() << "CSdrDabInputAdapter:" << "No input device selected!";
@@ -165,11 +166,6 @@ void CSdrDabInputAdapter::HandleDrifts(float fc_drift, float fs_drift)
     current_fc_offset_ += fc_drift;
     if (do_handle_fs_)
         current_fs_offset_ += fs_drift;
-}
-
-void CSdrDabInputAdapter::SetInputDevice(std::shared_ptr<CVirtualInput> Device)
-{
-    m_Device = Device;
 }
 
 inline float CSdrDabInputAdapter::PickRatio(size_t block_size){

@@ -37,6 +37,7 @@
 
 #include "CAudioDecoder.h"
 #include "various/Tools.h"
+#include "CRadioController.h"
 
 CAudioDecoder::CAudioDecoder(float threshold, size_t length, int type)
     : QObject(nullptr)
@@ -46,6 +47,7 @@ CAudioDecoder::CAudioDecoder(float threshold, size_t length, int type)
     m_codecType = type;
     m_StopProcess = false;
     m_sampleRate = 48000;
+    m_isStereo = false;
 
     m_AudioThread = new QThread;
     m_WAVBuffer = std::make_shared<CRingBuffer<int16_t>>(2 * 32768);
@@ -179,6 +181,7 @@ void CAudioDecoder::Process()
                 m_CodedBuffer->getDataFromBuffer((uint8_t*) au_data, current_au_size);
 
                 uint32_t sampleRate = 0;
+                bool isStereo = false;
 
                 // Decode AAC
                 m_aacDecoder->MP42PCM (adts_dacsbr,
@@ -186,12 +189,19 @@ void CAudioDecoder::Process()
                         1, // ToDo: aacChannelMode
                         au_data,
                         current_au_size,
-                        &sampleRate);
+                        &sampleRate,
+                        &isStereo);
 
                 if(sampleRate != m_sampleRate && sampleRate > 0)
                 {
                     m_sampleRate = sampleRate;
                     emit sampleRateChanged(m_sampleRate);
+                }
+
+                if(isStereo != m_isStereo)
+                {
+                    m_isStereo = isStereo;
+                    CRadioController::setStereo(m_isStereo);
                 }
 
                 // Next process header

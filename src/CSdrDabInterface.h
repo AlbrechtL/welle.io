@@ -88,6 +88,7 @@ private:
 signals:
     void ficDataUpdated(void);
     void newStationFound(QString StationName, uint8_t SubChannelId);
+    void stationInfoUpdate(bool isDABPlus, size_t bitrate, QString programme_type);
 
 public slots:
     void ficDataUpdate(void);

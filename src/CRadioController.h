@@ -55,6 +55,9 @@ class CRadioController : public CRadioControllerSource
 class CRadioController : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(bool isDAB READ isDAB NOTIFY isDABChanged)
+    Q_PROPERTY(int BitRate READ BitRate NOTIFY BitRateChanged)
+    Q_PROPERTY(bool isStereo READ isStereo NOTIFY isStereoChanged)
 #endif
 
 public:
@@ -66,6 +69,7 @@ public:
         Paused      = 3,
         Stopped     = 4,
         Scanning    = 5,
+        Tuning      = 6
     };
     Q_ENUMS(DabStatus)
 
@@ -73,32 +77,39 @@ public:
     ~CRadioController(void);
     void closeDevice();
     void openDevice(CVirtualInput* Dev);
-    void Play(QString Channel, QString Station, int SubChannelID = 255);
-    void Pause();
-    void Stop();
-    void ClearStations();
-    void SetStation(QString Station, bool Force = false);
-    void SetChannel(QString Channel, bool isScan, bool Force = false);
-    void SetManualChannel(QString Channel);
-    void StartScan(void);
-    void StopScan(void);
-    void UpdateSpectrum(void);
-    QList<StationElement*> Stations() const;
-    QVariantMap GUIData(void) const;
-    QImage MOT() const;
+    void play(QString Channel, QString Station, int SubChannelID = 255);
+    void pause();
+    void stop();
+    void clearStations();
+    void setChannel(QString Channel, bool isScan, bool Force = false);
+    void setManualChannel(QString Channel);
+    void startScan(void);
+    void stopScan(void);
+    void updateSpectrum(void);
+    QList<StationElement*> stations() const;
+    QVariantMap guiData(void) const;
+    QImage mot() const;
+
+    bool isDAB() const;
+    int BitRate() const;
+    bool isStereo() const;
 
 private:
-    void Initialise(void);
-    void ResetTechnicalData(void);
-    void NextChannel(bool isWait);
-    void UpdateGUIData();
-    void SetFrequencyCorrection(int FrequencyCorrection);
+    void initialise(void);
+    void resetTechnicalData(void);
+    void nextChannel(bool isWait);
+    void updateGUIData();
+    void setFrequencyCorrection(int FrequencyCorrection);
 
     CSdrDabInterface SDRDABInterface;
 
     // Back-end objects
     std::shared_ptr<CVirtualInput> Device;
     QVariantMap commandLineOptions;
+    bool mIsDAB;
+    int mBitRate;
+    bool mIsStereo;
+    QString ProgrammeType;
 
     // Objects set by the back-end
     QVariantMap mGUIData;
@@ -126,21 +137,25 @@ private:
     QVector<QPointF> spectrum_data;
 
 private slots:
-    void NewStation(QString StationName, uint8_t SubChannelId);
+    void newStation(QString StationName, uint8_t SubChannelId);
+    void ficUpdate(bool isDABPlus, size_t bitrate, QString programme_type);
 
 #ifndef Q_OS_ANDROID
 signals:
+    void isDABChanged(bool);
+    void BitRateChanged(int);
+    void isStereoChanged(bool);
     void SpectrumUpdated(qreal Ymax, qreal Xmin, qreal Xmax, QVector<QPointF> Data);
-    void GUIDataChanged(QVariantMap GUIData);
+    void GUIDataChanged(QVariantMap guiData);
     void FoundStation(QString Station, QString CurrentChannel);
     void ScanStopped();
     void ScanProgress(int Progress);
     void StationsCleared();
     void MOTChanged(QImage MOTImage);
-    void StationsChanged(QList<StationElement*> Stations);
+    void StationsChanged(QList<StationElement*> stations);
     void FICExtraDataUpdated(void);
     void showErrorMessage(QString Text);
-     void showInfoMessage(QString Text);
+    void showInfoMessage(QString Text);
 #endif
 
 public slots:
@@ -148,6 +163,13 @@ public slots:
     void setErrorMessage(QString Text);
     void setInfoMessage(QString Text);
 
+// Static members
+private:
+    static CRadioController *m_RadioController;
+
+public:
+    static std::shared_ptr<CVirtualInput> getDevice(void);
+    static void setStereo(bool isStereo);
 };
 
 #endif // CRADIOCONTROLLER_H

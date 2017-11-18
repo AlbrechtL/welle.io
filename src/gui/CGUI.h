@@ -78,7 +78,7 @@ public:
 
     QVariantMap guiData() const
     {
-        return RadioController->GUIData();
+        return RadioController->guiData();
     }
 
     QVariant stationModel() const

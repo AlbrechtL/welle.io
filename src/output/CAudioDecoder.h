@@ -135,6 +135,7 @@ private:
     CAudioOutput *m_AudioOutput;
     bool m_StopProcess;
     uint32_t m_sampleRate;
+    bool m_isStereo;
     int m_codecType;
 
 signals:

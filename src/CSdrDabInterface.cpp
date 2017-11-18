@@ -142,6 +142,7 @@ void CSdrDabInterface::ficDataUpdate()
         }
     }
 
+    emit stationInfoUpdate(m_FICData.DAB_plus_, m_FICData.bitrate_, QString(m_FICData.programme_type_));
     m_FICDataMutex.unlock();
 }
 
@@ -149,4 +150,3 @@ void CSdrDabInterface::tuneToStation(int SubChannelID)
 {
     this->ParametersToSDR(STATION_NUMBER, (uint8_t) SubChannelID);
 }
-
