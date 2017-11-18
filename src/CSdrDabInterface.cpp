@@ -70,9 +70,9 @@ void CSdrDabInterface::schedulerRunThread()
     config.start_station_nr = m_stationNumber; // Start with first channel (255 = default)
     config.use_speakers = m_isAudio;
 
-    // config.input_filename = "../DAB-Test/20160827_202005_5C.iq";
+    //config.input_filename = "../DAB-Test/rai12d.raw";
     //config.data_source = Scheduler::DATA_FROM_FILE;
-    config.data_source = Scheduler::DATA_FROM_DONGLE;
+    //config.data_source = Scheduler::DATA_FROM_DONGLE;
 
     config.data_source = Scheduler::DATA_FROM_WELLE_IO;
     config.carrier_frequency = 178352000; // 5C
@@ -99,7 +99,16 @@ void CSdrDabInterface::ParametersFromSDR(Scheduler::scheduler_error_t error_code
 
 void CSdrDabInterface::ParametersFromSDR(float snr)
 {
-    qDebug() << "CSdrDabInterface: SNR " <<  snr;
+    //qDebug() << "CSdrDabInterface: SNR " <<  snr;
+
+    // Round to two decimal points
+    int snr_round = roundf(snr * 100);
+
+    if(snr_round != m_SNR)
+    {
+        m_SNR = snr_round;
+        snrChanged(m_SNR);
+    }
 }
 
 void CSdrDabInterface::ParametersFromSDR(UserFICData_t *user_fic_extra_data)

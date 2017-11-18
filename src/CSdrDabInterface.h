@@ -84,11 +84,13 @@ private:
 
     bool m_isAudio;
     uint8_t m_stationNumber;
+    int m_SNR;
 
 signals:
     void ficDataUpdated(void);
     void newStationFound(QString StationName, uint8_t SubChannelId);
     void stationInfoUpdate(bool isDABPlus, size_t bitrate, QString programme_type);
+    void snrChanged(int);
 
 public slots:
     void ficDataUpdate(void);

@@ -58,6 +58,8 @@ class CRadioController : public QObject
     Q_PROPERTY(bool isDAB READ isDAB NOTIFY isDABChanged)
     Q_PROPERTY(int BitRate READ BitRate NOTIFY BitRateChanged)
     Q_PROPERTY(bool isStereo READ isStereo NOTIFY isStereoChanged)
+    Q_PROPERTY(int SNR READ SNR NOTIFY SNRChanged)
+
 #endif
 
 public:
@@ -93,6 +95,7 @@ public:
     bool isDAB() const;
     int BitRate() const;
     bool isStereo() const;
+    int SNR() const;
 
 private:
     void initialise(void);
@@ -109,6 +112,7 @@ private:
     bool mIsDAB;
     int mBitRate;
     bool mIsStereo;
+    int mSNR;
     QString ProgrammeType;
 
     // Objects set by the back-end
@@ -139,12 +143,15 @@ private:
 private slots:
     void newStation(QString StationName, uint8_t SubChannelId);
     void ficUpdate(bool isDABPlus, size_t bitrate, QString programme_type);
+    void newSnrValue(float SNR);
 
 #ifndef Q_OS_ANDROID
 signals:
     void isDABChanged(bool);
     void BitRateChanged(int);
     void isStereoChanged(bool);
+    void SNRChanged(int);
+
     void SpectrumUpdated(qreal Ymax, qreal Xmin, qreal Xmax, QVector<QPointF> Data);
     void GUIDataChanged(QVariantMap guiData);
     void FoundStation(QString Station, QString CurrentChannel);

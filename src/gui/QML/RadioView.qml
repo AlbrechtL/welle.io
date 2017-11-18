@@ -27,25 +27,25 @@ Item{
                 id: signalBar1
                 height: Units.dp(4)
                 width: Units.dp(4)
-                color: (cppRadioController.SNR > 2) ? "green" : "grey"
+                color: (cppRadioController.SNR/100 > 2) ? "green" : "grey"
             }
             Rectangle{
                 id: signalBar2
                 height: Units.dp(8)
                 width: Units.dp(4)
-                color: (cppRadioController.SNR > 5) ? "green" : "grey"
+                color: (cppRadioController.SNR/100 > 5) ? "green" : "grey"
             }
             Rectangle{
                 id: signalBar3
                 height: Units.dp(12)
                 width: Units.dp(4)
-                color: (cppRadioController.SNR > 8) ? "green" : "grey"
+                color: (cppRadioController.SNR/100 > 8) ? "green" : "grey"
             }
             Rectangle{
                 id: signalBar4
                 height: Units.dp(16)
                 width: Units.dp(4)
-                color: (cppRadioController.SNR > 11) ? "green" : "grey"
+                color: (cppRadioController.SNR/100 > 11) ? "green" : "grey"
             }
 
             Rectangle{

@@ -67,7 +67,9 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, QObject *par
     // Init SDRDAB interface
     connect(&SDRDABInterface, &CSdrDabInterface::newStationFound, this, &CRadioController::newStation);
     connect(&SDRDABInterface, &CSdrDabInterface::stationInfoUpdate, this, &CRadioController::ficUpdate);
+    connect(&SDRDABInterface, &CSdrDabInterface::snrChanged, this, &CRadioController::newSnrValue);
 }
+
 
 CRadioController::~CRadioController(void)
 {
@@ -420,6 +422,11 @@ bool CRadioController::isStereo() const
     return mIsStereo;
 }
 
+int CRadioController::SNR() const
+{
+    return mSNR;
+}
+
 void CRadioController::setErrorMessage(QString Text)
 {
     Status = Error;
@@ -501,6 +508,12 @@ void CRadioController::ficUpdate(bool isDABPlus, size_t bitrate, QString program
     CurrentStationType = programme_type;
 }
 
+void CRadioController::newSnrValue(float SNR)
+{
+    mSNR = SNR;
+    emit SNRChanged(SNR);
+}
+
 void CRadioController::updateSpectrum()
 {
 //    int Samples = 0;
@@ -575,6 +588,8 @@ std::shared_ptr<CVirtualInput> CRadioController::getDevice()
 void CRadioController::setStereo(bool isStereo)
 {
     if(m_RadioController)
+    {
         m_RadioController->mIsStereo = isStereo;
-    emit m_RadioController->isStereoChanged(isStereo);
+        emit m_RadioController->isStereoChanged(isStereo);
+    }
 }

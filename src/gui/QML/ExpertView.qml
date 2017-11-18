@@ -35,7 +35,7 @@ Item {
         TextExpert {
             id: displaySNR
             name: qsTr("SNR") + ":"
-            text: cppRadioController.SNR + " dB"
+            text: cppRadioController.SNR / 100 + " dB"
         }
 
         TextExpert {
