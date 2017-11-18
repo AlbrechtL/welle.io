@@ -1,0 +1,4 @@
+- Avoid CSdrDabInputAdapter. It is better too implement the inputs in the sdrdab style
+- Remove gstreamer header hack
+- Figure out if SNR calculation is correct
+- Solve all "ToDo" in source code
