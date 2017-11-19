@@ -61,7 +61,10 @@ class CRadioController : public QObject
     Q_PROPERTY(int SNR READ SNR NOTIFY SNRChanged)
     Q_PROPERTY(int FrequencyCorrection READ FrequencyCorrection NOTIFY FrequencyCorrectionChanged)
     Q_PROPERTY(bool isSync READ isSync NOTIFY isSyncChanged)
-
+    Q_PROPERTY(int FrameErrors READ FrameErrors NOTIFY FrameErrorsChanged)
+    Q_PROPERTY(int RSErrors READ RSErrors NOTIFY RSErrorsChanged)
+    Q_PROPERTY(int AACErrors READ AACErrors NOTIFY AACErrorsChanged)
+    Q_PROPERTY(bool isFICCRC READ isFICCRC NOTIFY isFICCRCChanged)
 #endif
 
 public:
@@ -100,6 +103,10 @@ public:
     int SNR() const;
     int FrequencyCorrection() const;
     bool isSync() const;
+    int FrameErrors() const;
+    int RSErrors() const;
+    int AACErrors() const;
+    bool isFICCRC() const;
 
 private:
     void initialise(void);
@@ -119,6 +126,10 @@ private:
     QString ProgrammeType;
     int mFrequencyCorrection;
     bool mIsSync;
+    int mFrameErrors;
+    int mRSErrors;
+    int mAACErrors;
+    bool mIsFICCRC;
 
     // Objects set by the back-end
     QVariantMap mGUIData;
@@ -151,6 +162,10 @@ private slots:
     void snrUpdate(int SNR);
     void fcDriftUpdate(int estimated_fc_drift);
     void syncStateUpdate(bool isSync);
+    void rsErrorsUpdate(int rs_errors);
+    void superFrameErrorsUpdate(int super_frame_error);
+    void aacCrcUpdate(int aac_crc_errors);
+    void ficCrcUpdate(int fic_crc_errors);
 
 #ifndef Q_OS_ANDROID
 signals:
@@ -160,6 +175,10 @@ signals:
     void SNRChanged(int);
     void FrequencyCorrectionChanged(int);
     void isSyncChanged(bool);
+    void FrameErrorsChanged(int);
+    void RSErrorsChanged(int);
+    void AACErrorsChanged(int);
+    void isFICCRCChanged(bool);
 
     void SpectrumUpdated(qreal Ymax, qreal Xmin, qreal Xmax, QVector<QPointF> Data);
     void GUIDataChanged(QVariantMap guiData);

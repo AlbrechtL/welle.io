@@ -70,7 +70,7 @@ void CSdrDabInterface::schedulerRunThread()
     config.start_station_nr = m_stationNumber; // Start with first channel (255 = default)
     config.use_speakers = m_isAudio;
 
-    //config.input_filename = "../DAB-Test/rai12d.raw";
+    //config.input_filename = "../DAB-Test/20160827_202005_5C.iq";
     //config.data_source = Scheduler::DATA_FROM_FILE;
     //config.data_source = Scheduler::DATA_FROM_DONGLE;
 
@@ -97,7 +97,7 @@ void CSdrDabInterface::ParametersFromSDR(Scheduler::scheduler_error_t error_code
     }
 }
 
-void CSdrDabInterface::ParametersFromSDR(float snr, float estimated_fc_drift)
+void CSdrDabInterface::ParametersFromSDR(float snr, float estimated_fc_drift, decode_errors_t decode_errors)
 {
     //qDebug() << "CSdrDabInterface: SNR " <<  snr;
 
@@ -116,6 +116,31 @@ void CSdrDabInterface::ParametersFromSDR(float snr, float estimated_fc_drift)
     {
         m_estimated_fc_drift = m_estimated_fc_drift_round;
         fcDriftChanged(m_estimated_fc_drift);
+    }
+
+    if(m_rs_errors != decode_errors.rs_errors)
+    {
+        m_rs_errors = decode_errors.rs_errors;
+        rsErrorsChanged(m_rs_errors);
+    }
+
+    if(m_super_frame_error != decode_errors.super_frame_error)
+    {
+        m_super_frame_error = decode_errors.super_frame_error;
+        superFrameErrorsChanged(m_super_frame_error);
+    }
+
+    if(m_aac_crc_errors != decode_errors.aac_crc_errors)
+    {
+        m_aac_crc_errors = decode_errors.aac_crc_errors;
+        aacCrcChanged(m_aac_crc_errors);
+    }
+
+    if(m_fic_crc_errors != decode_errors.fic_crc_errors)
+    {
+        m_fic_crc_errors = decode_errors.fic_crc_errors;
+        ficCrcChanged(m_fic_crc_errors);
+        //qDebug() << "CSdrDabInterface: FIC CRC Errors: " <<  m_fic_crc_errors;
     }
 }
 

@@ -233,13 +233,13 @@ void DataDecoder::ConvDecoderInitWrapper(void) {
 }
 
 
-void DataDecoder::Process(decodReadWrite* decod, std::list<stationInfo> & station_info_list, stationInfo *audioService, UserFICData_t * &user_fic_extra_data) {
+void DataDecoder::Process(decodReadWrite* decod, std::list<stationInfo> & station_info_list, stationInfo *audioService, UserFICData_t * &user_fic_extra_data, decode_errors_t *decode_errors) {
 
     /**
      * FIC decoding
      * Main task: get the station_info_list for scheduler
      */
-    FICDecoder(decod->read_here);
+    FICDecoder(decod->read_here, decode_errors);
 
     /*
      * Create or update the stationInfo list. The SubChannel_Basic_Infrmation list is treated as an auxiliary list.
@@ -280,7 +280,8 @@ void DataDecoder::Process(decodReadWrite* decod, std::list<stationInfo> & statio
         MSCDecoder(decod->read_here + mode_parameters_.fic_size + padding_.leftPaddingOffset,
                 decod->read_size,
                 decod->write_here,
-                audioService->IsLong
+                audioService->IsLong,
+                decode_errors
                 );
 
         decod->write_size = super_frame_size_;
@@ -297,7 +298,7 @@ void DataDecoder::Process(decodReadWrite* decod, std::list<stationInfo> & statio
 }
 
 
-void DataDecoder::FICDecoder(float *data){
+void DataDecoder::FICDecoder(float *data, decode_errors_t *decode_errors){
     for(size_t i = 0; i < mode_parameters_.number_of_cif; i++) {
         // De-puncturing
         DePuncturerProcess(data+((mode_parameters_.fic_size/mode_parameters_.number_of_cif)*i), mode_parameters_.fic_size/mode_parameters_.number_of_cif, depunctur_data_+((depunctur_info_.after_depuncturer_total_len_fic)*i), false, false);
@@ -344,6 +345,8 @@ void DataDecoder::FICDecoder(float *data){
     fic_data_exist_status_.extract_FIC_return = 32;
     fic_data_exist_status_.labels1_status = 0;
     fic_data_exist_status_.FIGtype_status = 0;
+    if(decode_errors)
+        decode_errors->fic_crc_errors = 0;
 
     for (size_t i = 0; i < mode_parameters_.number_of_fib; i++)
     {
@@ -368,12 +371,16 @@ void DataDecoder::FICDecoder(float *data){
             energ_disp_out_ = p_energ + (i+1) * 32;
         }
         else
+        {
+            if(decode_errors)
+                decode_errors->fic_crc_errors ++;
             continue;
+        }
     }
     energ_disp_out_ = p_energ;
 }
 
-void DataDecoder::MSCDecoder(float *read_data, size_t read_size, uint8_t* write_data, bool is_dab){
+void DataDecoder::MSCDecoder(float *read_data, size_t read_size, uint8_t* write_data, bool is_dab, decode_errors_t *decode_errors){
     TimeDeInterleaver(read_data);
 
     if( msc_info_.number_dab_frame * mode_parameters_.number_of_cif >  16 )
@@ -401,7 +408,7 @@ void DataDecoder::MSCDecoder(float *read_data, size_t read_size, uint8_t* write_
             EnergyDispersalProcess(binary_data_msc_, energy_gen_data_msc_, superframe_write, depunctur_info_.after_depuncturer_total_len_msc/4 - 6);
             superframe_cifs_+= cifs_per_tr;
 
-            SuperFrameHandle(superframe_, write_data);
+            SuperFrameHandle(superframe_, write_data, decode_errors);
         } else {
             EnergyDispersalProcess(binary_data_msc_, energy_gen_data_msc_, write_data, depunctur_info_.after_depuncturer_total_len_msc/4 - 6);
             super_frame_size_ = mode_parameters_.number_of_cif * msc_info_.number_bits_per_cif/8;

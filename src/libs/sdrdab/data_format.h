@@ -881,12 +881,19 @@ struct demodulatorData {
     bool sync_ready;
 };
 
+struct decode_errors_t {
+    int rs_errors = 0;
+    int super_frame_error = 0;
+    int aac_crc_errors = 0;
+    int fic_crc_errors = 0;
+};
+
 struct datadecoderData {
     void * data_decoder;
     decodReadWrite * decod_read_write;
     std::list<stationInfo> * station_info_list;
     stationInfo * station_info;
     UserFICData_t * user_fic_extra_data;
+    decode_errors_t *decode_errors;
 };
-
 #endif /* DATA_FORMAT_H_ */

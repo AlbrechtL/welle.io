@@ -366,7 +366,7 @@ Scheduler::state_t Scheduler::Sync()
                     fprintf( stderr, "NULL:%d, Fs:%6.2f, Fc:%6.3f, ", sync_feedback_.null_position, fs_drift_, estimated_fc_drift_ );
                     fprintf( stderr, "SNR(RAW):%5.2f(%5.2f) dB", synchronizer_->getSNRfromPREFIX(), synchronizer_->getSNRfromSPECTRUM());
                 }
-                ParametersFromSDR(synchronizer_->getSNRfromSPECTRUM(), estimated_fc_drift_);
+                ParametersFromSDR(synchronizer_->getSNRfromSPECTRUM(), estimated_fc_drift_, decode_errors);
 
                 // If fc_drift_ is detected, go to CONF state
                 if ( fc_converged_ && fabs(fs_drift_) < 2  ) {
@@ -469,13 +469,13 @@ Scheduler::state_t Scheduler::Conf()
                 fprintf( stderr, "NULL:%d, Fs:%6.2f, Fc:%6.3f, ", sync_feedback_.null_position, fs_drift_, estimated_fc_drift_ );
                 fprintf( stderr, "SNR(RAW):%5.2f(%5.2f) dB\n\n", synchronizer_->getSNRfromPREFIX(), synchronizer_->getSNRfromSPECTRUM());
             }
-            ParametersFromSDR(synchronizer_->getSNRfromSPECTRUM(), estimated_fc_drift_);
+            ParametersFromSDR(synchronizer_->getSNRfromSPECTRUM(), estimated_fc_drift_, decode_errors);
 
             // Demodulate FIC
             demodulator_->Process( &station_info_, &demod_read_write_);
 
             UserFICData_t *user_data = NULL;
-            datadecoder_->Process( &decod_read_write_, station_info_list_, &station_info_, user_data );
+            datadecoder_->Process( &decod_read_write_, station_info_list_, &station_info_, user_data , &decode_errors);
             ParametersFromSDR( user_data );
             // If no station decoded in FIC, go to SYNC state
             std::list<stationInfo>::iterator it;
@@ -733,6 +733,7 @@ void Scheduler::ResumeDatadecoderIfReady() {
         datadecoder_data_.station_info_list = &station_info_list_;
         datadecoder_data_.station_info = &station_info_;
         datadecoder_data_.user_fic_extra_data = NULL;
+        datadecoder_data_.decode_errors = &decode_errors;
 
         datadecoder_report_handled_ = false;
         threads_[DATADECODER_PROCESS_THREAD_ID].resume_thread();
@@ -821,7 +822,7 @@ Scheduler::state_t Scheduler::Play()
                     fprintf( stderr, "NULL:%d, Fs:%6.2f, Fc:%6.3f, ", sync_feedback_.null_position, fs_drift_, estimated_fc_drift_ );
                     fprintf( stderr, "SNR(RAW):%5.2f(%5.2f) dB, ", synchronizer_->getSNRfromPREFIX(), synchronizer_->getSNRfromSPECTRUM());
                 }
-                ParametersFromSDR(synchronizer_->getSNRfromSPECTRUM(), estimated_fc_drift_);
+                ParametersFromSDR(synchronizer_->getSNRfromSPECTRUM(), estimated_fc_drift_, decode_errors);
 
             } else if ( sync_feedback_.null_quality == NULL_SHIFT ) {
                 ResetFsDrift();
@@ -1683,7 +1684,7 @@ void Scheduler::ParametersFromSDR(scheduler_error_t error_code)
     return; //no need to implement further
 }
 
-void Scheduler::ParametersFromSDR(float snr, float estimated_fc_drift)
+void Scheduler::ParametersFromSDR(float snr, float estimated_fc_drift, decode_errors_t decode_errors)
 {
     return; //no need to implement further
 }

@@ -68,7 +68,7 @@ public:
 
     virtual ~SuperFrame();
 
-    void SuperFrameHandle(uint8_t *data, uint8_t* write_data);
+    void SuperFrameHandle(uint8_t *data, uint8_t* write_data, decode_errors_t *decode_errors);
 
     /**
      * sirc-shift internalbuffer

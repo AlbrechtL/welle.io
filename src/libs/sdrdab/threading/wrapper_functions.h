@@ -67,7 +67,7 @@ static void DatadecoderProcess(void *_data) {
     DataDecoder *data_decoder = reinterpret_cast<DataDecoder*>(data->data_decoder);
     //usleep(1000*200);
     data_decoder->Process(data->decod_read_write, *data->station_info_list,
-            data->station_info, data->user_fic_extra_data);
+            data->station_info, data->user_fic_extra_data, data->decode_errors);
 }
 
 /* these are for future use:

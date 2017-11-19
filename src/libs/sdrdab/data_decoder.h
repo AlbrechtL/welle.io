@@ -103,7 +103,7 @@ public:
      * @param audioService current station chosen by user.
      * @param[out] user_fic_extra_data Extra FIC data structure pointer
      */
-    void Process(decodReadWrite* decod, std::list<stationInfo> & station_info_list, stationInfo *audioService, UserFICData_t * &user_fic_extra_data);
+    void Process(decodReadWrite* decod, std::list<stationInfo> & station_info_list, stationInfo *audioService, UserFICData_t * &user_fic_extra_data, decode_errors_t *decode_errors);
 
 #ifndef GOOGLE_UNIT_TEST
 private:
@@ -114,7 +114,7 @@ private:
      * @param data pointer to samples_
      * @todo common parts with MSCDecoder()
      */
-    void FICDecoder(float *data);
+    void FICDecoder(float *data, decode_errors_t *decode_errors);
 
     /**
      * high level decoding MSC - Main Service Channel
@@ -128,7 +128,7 @@ private:
      * (eg. different bitrate, many audio streams)
      * @todo prepare workflow for decoding many audio streams simultanously
      */
-    void MSCDecoder(float *data, size_t read_size, uint8_t* write_data, bool is_dab);
+    void MSCDecoder(float *data, size_t read_size, uint8_t* write_data, bool is_dab, decode_errors_t *decode_errors);
 
     void TimeDeinterleaverInit();
     /**

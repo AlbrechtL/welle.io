@@ -70,8 +70,12 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, QObject *par
     connect(&SDRDABInterface, &CSdrDabInterface::snrChanged, this, &CRadioController::snrUpdate);
     connect(&SDRDABInterface, &CSdrDabInterface::fcDriftChanged, this, &CRadioController::fcDriftUpdate);
     connect(&SDRDABInterface, &CSdrDabInterface::syncStateChanged, this, &CRadioController::syncStateUpdate);
-}
+    connect(&SDRDABInterface, &CSdrDabInterface::rsErrorsChanged, this, &CRadioController::rsErrorsUpdate);
+    connect(&SDRDABInterface, &CSdrDabInterface::superFrameErrorsChanged, this, &CRadioController::superFrameErrorsUpdate);
+    connect(&SDRDABInterface, &CSdrDabInterface::aacCrcChanged, this, &CRadioController::aacCrcUpdate);
+    connect(&SDRDABInterface, &CSdrDabInterface::ficCrcChanged, this, &CRadioController::ficCrcUpdate);
 
+}
 
 CRadioController::~CRadioController(void)
 {
@@ -439,6 +443,26 @@ bool CRadioController::isSync() const
     return mIsSync;
 }
 
+int CRadioController::FrameErrors() const
+{
+    return mFrameErrors;
+}
+
+int CRadioController::RSErrors() const
+{
+    return mRSErrors;
+}
+
+int CRadioController::AACErrors() const
+{
+    return mAACErrors;
+}
+
+bool CRadioController::isFICCRC() const
+{
+    return mIsFICCRC;
+}
+
 void CRadioController::setErrorMessage(QString Text)
 {
     Status = Error;
@@ -536,6 +560,38 @@ void CRadioController::syncStateUpdate(bool isSync)
 {
     mIsSync = isSync;
     emit isSyncChanged(mIsSync);
+}
+
+void CRadioController::rsErrorsUpdate(int rs_errors)
+{
+    mRSErrors = rs_errors;
+    emit RSErrorsChanged(mRSErrors);
+}
+
+void CRadioController::superFrameErrorsUpdate(int super_frame_error)
+{
+    mFrameErrors = super_frame_error;
+    emit FrameErrorsChanged(mFrameErrors);
+}
+
+void CRadioController::aacCrcUpdate(int aac_crc_errors)
+{
+    mAACErrors = aac_crc_errors;
+    emit AACErrorsChanged(mAACErrors);
+}
+
+void CRadioController::ficCrcUpdate(int fic_crc_errors)
+{
+    if(fic_crc_errors)
+    {
+        mIsFICCRC = false;
+        emit isFICCRCChanged(false);
+    }
+    else
+    {
+        mIsFICCRC = true;
+        emit isFICCRCChanged(true);
+    }
 }
 
 void CRadioController::updateSpectrum()

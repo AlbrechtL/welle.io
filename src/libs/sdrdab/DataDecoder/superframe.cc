@@ -59,7 +59,7 @@ SuperFrame::SuperFrame(stationInfo *info, ModeParameters *param) :
 SuperFrame::~SuperFrame(){
 }
 
-void SuperFrame::SuperFrameHandle(uint8_t *data, uint8_t *write_data){
+void SuperFrame::SuperFrameHandle(uint8_t *data, uint8_t *write_data, decode_errors_t *decode_errors){
     size_t bytes_per_cif = msc_info_.number_bits_per_cif/8;
     super_frame_size_ = 0;
     bool superframe = false;
@@ -70,6 +70,8 @@ void SuperFrame::SuperFrameHandle(uint8_t *data, uint8_t *write_data){
                 superframe = true;
                 break;
             }else{                                          // not enough data for decoding adts (need 5 CIFs) or header not found
+                if(decode_errors)
+                    decode_errors->super_frame_error++;
                 CircshiftBuff(data);
                 return;
             }
@@ -81,11 +83,15 @@ void SuperFrame::SuperFrameHandle(uint8_t *data, uint8_t *write_data){
         return;
     }
 
+    if(decode_errors)
+        decode_errors->super_frame_error = 0;
+
     uint8_t *adts_frame = data + adts_head_idx_*bytes_per_cif;
     // uint8_t *adts_frameForCustomRS = data + adts_head_idx_*bytes_per_cif;
 
     ///@todo how many errors should be trigger for 120/110 RS?
-    ReedSolomonCorrection(adts_frame, 5*bytes_per_cif);
+    if(decode_errors)
+        decode_errors->rs_errors = ReedSolomonCorrection(adts_frame, 5*bytes_per_cif);
 
     // uint32_t i = 0;
     // while(adts_frame[i++] != adts_frameForCustomRS[i++]) {
@@ -150,6 +156,8 @@ void SuperFrame::SuperFrameHandle(uint8_t *data, uint8_t *write_data){
             // z rs moim i istniejacym
             // czas
             crc_errors++;
+            if(decode_errors)
+                decode_errors->aac_crc_errors = crc_errors;
             continue;
         }
 

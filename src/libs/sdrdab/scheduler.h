@@ -176,6 +176,7 @@ private:
     audioRead audio_read_; ///< Structure for AudioDecoder to read from audio_buffer_
     std::list<stationInfo> station_info_list_; ///< List of stations in stationInfo structure format
     stationInfo station_info_; ///< Structure with station parameters
+    decode_errors_t decode_errors;
 
     bool use_pulse_sink_; ///< todo
     PulseSink * pulse_sink_; ///< PulseSink object
@@ -362,6 +363,7 @@ protected:
     };
 
     void ParametersToSDR(scheduler_error_t error);
+
 public:
 
     public:
@@ -477,8 +479,9 @@ public:
      * @brief SNR measurement callback
      * @param[in] snr current SNR level [dB]
      * @param[in] estimated_fc_drift current frequency drift [kHz]
+     * @param[in] decode_errors current decode errors
      */
-    virtual void ParametersFromSDR(float snr, float estimated_fc_drift);
+    virtual void ParametersFromSDR(float snr, float estimated_fc_drift, decode_errors_t decode_errors);
 
     /**
      * "Callback" executed whenever something interesting happens.

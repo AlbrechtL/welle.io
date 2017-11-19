@@ -65,7 +65,7 @@ private:
      * @brief SNR measurement callback
      * @param[in] snr current SNR level [dB]
      */
-    virtual void ParametersFromSDR(float snr, float estimated_fc_drift);
+    virtual void ParametersFromSDR(float snr, float estimated_fc_drift, decode_errors_t decode_errors);
 
     /**
      * "Callback" executed whenever something interesting happens.
@@ -84,7 +84,6 @@ private:
      */
     virtual void ParametersFromSDR(UserFICData_t *user_fic_extra_data);
 
-
     std::thread *m_SchedulerThread;
     std::mutex m_FICDataMutex;
     CFicData m_FICData;
@@ -95,6 +94,10 @@ private:
     int m_SNR;
     int m_estimated_fc_drift;
     state_t m_state;
+    int m_rs_errors;
+    int m_super_frame_error;
+    int m_aac_crc_errors;
+    int m_fic_crc_errors;
 
 signals:
     void ficDataUpdated(void);
@@ -103,6 +106,10 @@ signals:
     void snrChanged(int SNR);
     void fcDriftChanged(int estimated_fc_drift);
     void syncStateChanged(bool isSync);
+    void rsErrorsChanged(int rs_errors);
+    void superFrameErrorsChanged(int super_frame_error);
+    void aacCrcChanged(int aac_crc_errors);
+    void ficCrcChanged(int fic_crc_errors);
 
 public slots:
     void ficDataUpdate(void);
