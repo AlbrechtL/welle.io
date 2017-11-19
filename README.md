@@ -32,16 +32,16 @@ Parameter | Description
 -d, --device | Input device. Possible is: auto (default), airspy, rtl_tcp, rtl_sdr, rawfile, soapysdr
 -i, --ip-address | rtl_tcp server IP address. Only valid for input rtl_tcp 
 -p, --ip-port | rtl_tcp server IP port. Only valid for input rtl_tcp
--f, --file | I/Q RAW file. Only valid for input rawfile.
+-f, --file | I/Q RAW file. Only valid for input rawfile (default format u8)
 --format | I/Q RAW format. Possible is:<ul><li>u8 (unsigned int 8 bit, [qt-dab](https://github.com/JvanKatwijk/qt-dab) RAW files)</li><li>s8 (signed 8 bit, [ODR](https://www.welle.io/devices/rawfile#odr-dabmod) files)</li><li>s16le (signed int 16 bit little endian, [qt-dab](https://github.com/JvanKatwijk/qt-dab) SDR files)</li><li>s16be (signed int 16 bit big endian, [qt-dab](https://github.com/JvanKatwijk/qt-dab) SDR files)</li><li>Default: u8. Only valid for input rawfile.</li></ul>
 
 Example usage:
   
   ```
-# welle.io -D rtl_tcp -I 192.168.1.1 -P 1000
+# welle.io -d rtl_tcp -i 192.168.1.1 -p 1000
   ```
   ```
-# welle.io -D rawfile -F test.sdr -B s16le
+# welle.io -d rawfile -f test.sdr --format s16le
   ```
 
 Supported Hardware
@@ -59,7 +59,7 @@ Building
 General Information
 ---
 The following libraries and their development files are needed:
-* QT 5.9 (don't use QT 5.8 because of [this](https://github.com/AlbrechtL/welle.io/issues/35) bug)
+* QT 5.9
 * FFTW3f
 * libfaad
 * librtlsdr
