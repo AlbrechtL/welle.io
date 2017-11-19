@@ -69,6 +69,14 @@ private:
 
     /**
      * "Callback" executed whenever something interesting happens.
+     * @brief new state machine callback
+     * @param[in] user_fic_extra_data pointer to the structure
+     * @note user_fic_extra_data has to be freed before return!
+     */
+    virtual void ParametersFromSDR(state_t state);
+
+    /**
+     * "Callback" executed whenever something interesting happens.
      * FIG & SlideShow variant.
      * @brief new UserFICData_t callback
      * @param[in] user_fic_extra_data pointer to the structure
@@ -86,6 +94,7 @@ private:
     uint8_t m_stationNumber;
     int m_SNR;
     int m_estimated_fc_drift;
+    state_t m_state;
 
 signals:
     void ficDataUpdated(void);
@@ -93,6 +102,7 @@ signals:
     void stationInfoUpdate(bool isDABPlus, size_t bitrate, QString programme_type);
     void snrChanged(int SNR);
     void fcDriftChanged(int estimated_fc_drift);
+    void syncStateChanged(bool isSync);
 
 public slots:
     void ficDataUpdate(void);

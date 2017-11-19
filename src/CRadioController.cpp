@@ -48,7 +48,7 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, QObject *par
     , commandLineOptions(commandLineOptions)
 {
     if(m_RadioController != nullptr)
-        throw std::string("Only one CRadioController is allowed");
+        throw std::string("Only one CRadioController instance is allowed");
     else
          m_RadioController = this;
 
@@ -67,8 +67,9 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, QObject *par
     // Init SDRDAB interface
     connect(&SDRDABInterface, &CSdrDabInterface::newStationFound, this, &CRadioController::newStation);
     connect(&SDRDABInterface, &CSdrDabInterface::stationInfoUpdate, this, &CRadioController::ficUpdate);
-    connect(&SDRDABInterface, &CSdrDabInterface::snrChanged, this, &CRadioController::newSnrValue);
-    connect(&SDRDABInterface, &CSdrDabInterface::fcDriftChanged, this, &CRadioController::newFcDriftValue);
+    connect(&SDRDABInterface, &CSdrDabInterface::snrChanged, this, &CRadioController::snrUpdate);
+    connect(&SDRDABInterface, &CSdrDabInterface::fcDriftChanged, this, &CRadioController::fcDriftUpdate);
+    connect(&SDRDABInterface, &CSdrDabInterface::syncStateChanged, this, &CRadioController::syncStateUpdate);
 }
 
 
@@ -386,7 +387,7 @@ QVariantMap CRadioController::guiData(void) const
 
 void CRadioController::updateGUIData()
 {
-//    mGUIData["DeviceName"] = (Device) ? Device->getName() : "";
+    mGUIData["DeviceName"] = (Device) ? Device->getName() : "";
 
     // Init the GUI data map
     mGUIData["Status"] = Status;
@@ -431,6 +432,11 @@ int CRadioController::SNR() const
 int CRadioController::FrequencyCorrection() const
 {
     return mFrequencyCorrection;
+}
+
+bool CRadioController::isSync() const
+{
+    return mIsSync;
 }
 
 void CRadioController::setErrorMessage(QString Text)
@@ -514,16 +520,22 @@ void CRadioController::ficUpdate(bool isDABPlus, size_t bitrate, QString program
     CurrentStationType = programme_type;
 }
 
-void CRadioController::newSnrValue(int SNR)
+void CRadioController::snrUpdate(int SNR)
 {
     mSNR = SNR;
     emit SNRChanged(mSNR);
 }
 
-void CRadioController::newFcDriftValue(int estimated_fc_drift)
+void CRadioController::fcDriftUpdate(int estimated_fc_drift)
 {
     mFrequencyCorrection = estimated_fc_drift;
     emit FrequencyCorrectionChanged(mFrequencyCorrection);
+}
+
+void CRadioController::syncStateUpdate(bool isSync)
+{
+    mIsSync = isSync;
+    emit isSyncChanged(mIsSync);
 }
 
 void CRadioController::updateSpectrum()

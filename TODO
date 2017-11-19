@@ -5,3 +5,4 @@
 - Add soapysdr options from version 1.0
 - Add options "--msc-file" from version 1.0
 - Merge CGUI and CRadioController to one class
+- Remove compile warnings

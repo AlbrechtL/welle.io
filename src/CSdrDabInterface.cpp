@@ -119,6 +119,30 @@ void CSdrDabInterface::ParametersFromSDR(float snr, float estimated_fc_drift)
     }
 }
 
+void CSdrDabInterface::ParametersFromSDR(Scheduler::state_t state)
+{
+    static const QString states_string[9] = {"INIT",
+                  "SYNC",
+                  "CONF",
+                  "CONFSTATION",
+                  "CONFCONVALG",
+                  "PLAY",
+                  "INIT_ERROR",
+                  "INTERNAL_ERROR",
+                  "EXTERNAL_STOP"};
+
+    if(m_state != state)
+    {
+        m_state = state;
+        qDebug() << "CSdrDabInterface: State:" <<  states_string[m_state];
+
+        if(m_state == CONF || m_state == CONFSTATION || m_state == PLAY)
+            emit syncStateChanged(true);
+        else
+            emit syncStateChanged(false);
+    }
+}
+
 void CSdrDabInterface::ParametersFromSDR(UserFICData_t *user_fic_extra_data)
 {
     // Check for valid data

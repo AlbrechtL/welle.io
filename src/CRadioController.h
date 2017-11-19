@@ -60,6 +60,7 @@ class CRadioController : public QObject
     Q_PROPERTY(bool isStereo READ isStereo NOTIFY isStereoChanged)
     Q_PROPERTY(int SNR READ SNR NOTIFY SNRChanged)
     Q_PROPERTY(int FrequencyCorrection READ FrequencyCorrection NOTIFY FrequencyCorrectionChanged)
+    Q_PROPERTY(bool isSync READ isSync NOTIFY isSyncChanged)
 
 #endif
 
@@ -98,6 +99,7 @@ public:
     bool isStereo() const;
     int SNR() const;
     int FrequencyCorrection() const;
+    bool isSync() const;
 
 private:
     void initialise(void);
@@ -116,6 +118,7 @@ private:
     int mSNR;
     QString ProgrammeType;
     int mFrequencyCorrection;
+    bool mIsSync;
 
     // Objects set by the back-end
     QVariantMap mGUIData;
@@ -145,8 +148,9 @@ private:
 private slots:
     void newStation(QString StationName, uint8_t SubChannelId);
     void ficUpdate(bool isDABPlus, size_t bitrate, QString programme_type);
-    void newSnrValue(int SNR);
-    void newFcDriftValue(int estimated_fc_drift);
+    void snrUpdate(int SNR);
+    void fcDriftUpdate(int estimated_fc_drift);
+    void syncStateUpdate(bool isSync);
 
 #ifndef Q_OS_ANDROID
 signals:
@@ -155,6 +159,7 @@ signals:
     void isStereoChanged(bool);
     void SNRChanged(int);
     void FrequencyCorrectionChanged(int);
+    void isSyncChanged(bool);
 
     void SpectrumUpdated(qreal Ymax, qreal Xmin, qreal Xmax, QVector<QPointF> Data);
     void GUIDataChanged(QVariantMap guiData);

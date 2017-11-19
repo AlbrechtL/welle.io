@@ -48,6 +48,20 @@
 #include <deque>
 class Scheduler
 {
+    /// Possible machine state values
+public: enum state_t {
+        INIT, ///< Init State - creating proper DataFeeder object, start StartProcessing thread which writes raw data to buffer
+        SYNC, ///< Sync State - detecting transmission mode, setting fs_drift and fc_drift until we be able decode FIC
+        CONF, ///< Conf State - decoding FIC, starting AudioProcessing thread,
+        CONFSTATION, ///< Confstation State - create DataDecoder for dekoding new station, create buffers with proper size
+        CONFCONVALG, ///< Switch between convolutional decoders.
+        PLAY, ///< Play State - dekode FIC and MSC, play music or save it to file
+        INIT_ERROR, ///< Init_error State - exits program when device or file will be not found, or internal error occurs in INIT state
+        INTERNAL_ERROR, ///< Internal_error State - exits program when internal error occurs
+        EXTERNAL_STOP ///< External_stop State - exits program when user write "quit" in console
+    };
+
+private:
     float carrier_frequency_;
     float sampling_frequency_;
     AbstractDataFeeder * datafeeder_; ///< DataFeeder object
@@ -86,18 +100,6 @@ class Scheduler
 
     bool verbose_; ///< Enables debug printfs
 
-    /// Possible machine state values
-    enum state_t {
-        INIT, ///< Init State - creating proper DataFeeder object, start StartProcessing thread which writes raw data to buffer
-        SYNC, ///< Sync State - detecting transmission mode, setting fs_drift and fc_drift until we be able decode FIC
-        CONF, ///< Conf State - decoding FIC, starting AudioProcessing thread,
-        CONFSTATION, ///< Confstation State - create DataDecoder for dekoding new station, create buffers with proper size
-        CONFCONVALG, ///< Switch between convolutional decoders.
-        PLAY, ///< Play State - dekode FIC and MSC, play music or save it to file
-        INIT_ERROR, ///< Init_error State - exits program when device or file will be not found, or internal error occurs in INIT state
-        INTERNAL_ERROR, ///< Internal_error State - exits program when internal error occurs
-        EXTERNAL_STOP ///< External_stop State - exits program when user write "quit" in console
-    };
     state_t state_; ///< Current state of a machine state
     volatile bool requested_stop_; ///< Tells whether library has received a signal to stop operation
     volatile bool conv_decoder_alg_change; ///< Tells scheduler to resync and use new convolutional decoder algorithm
@@ -474,6 +476,7 @@ public:
      * SNR variant.
      * @brief SNR measurement callback
      * @param[in] snr current SNR level [dB]
+     * @param[in] estimated_fc_drift current frequency drift [kHz]
      */
     virtual void ParametersFromSDR(float snr, float estimated_fc_drift);
 
@@ -485,6 +488,14 @@ public:
      * @note user_fic_extra_data has to be freed before return!
      */
     virtual void ParametersFromSDR(UserFICData_t *user_fic_extra_data);
+
+    /**
+     * "Callback" executed whenever something interesting happens.
+     * @brief new state machine callback
+     * @param[in] user_fic_extra_data pointer to the structure
+     * @note user_fic_extra_data has to be freed before return!
+     */
+    virtual void ParametersFromSDR(state_t state);
 
     /**
      * "Callback" executed whenever something interesting happens.

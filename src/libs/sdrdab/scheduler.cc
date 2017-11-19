@@ -1525,6 +1525,8 @@ void Scheduler::Process( data_source_t data_source )
 {
     // Start state machine
     while ( true ) {
+        ParametersFromSDR(state_);
+
         // Check if DataFeeder is running (it stops when file ends)
         if ( !datafeeder_->IsRunning() ) {
             program_end_delay_++;
@@ -1689,6 +1691,11 @@ void Scheduler::ParametersFromSDR(float snr, float estimated_fc_drift)
 void Scheduler::ParametersFromSDR(UserFICData_t *user_fic_extra_data)
 {
     delete user_fic_extra_data; //no need to implement further
+}
+
+void Scheduler::ParametersFromSDR(Scheduler::state_t state)
+{
+    return; //no need to implement further
 }
 
 void Scheduler::ParametersFromSDR(std::string *text)
