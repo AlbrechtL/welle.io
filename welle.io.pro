@@ -61,7 +61,8 @@ HEADERS += \
     src/output/CAudioOutput.h \
     src/CSdrDabInterface.h \
     src/CFicData.h \
-    src/input/CSdrDabInputAdapter.h
+    src/input/CSdrDabInputAdapter.h \
+    src/Version.h
 
 SOURCES += \
     src/main.cpp \

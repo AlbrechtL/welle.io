@@ -1,9 +1,9 @@
 [welle.io](https://www.welle.io) [![Build Status](https://travis-ci.org/AlbrechtL/welle.io.svg?branch=master)](https://travis-ci.org/AlbrechtL/welle.io)
 =====================
-This repository contains the implementation of a SDR DAB/DAB+ receiver.  
+This repository contains a SDR DAB/DAB+ receiver.  
 Please see the project website https://www.welle.io for a user oriented documentation.
 
-welle.io is fork from dab-rpi and sdr-j-dab which is now qt-dab https://github.com/JvanKatwijk/qt-dab.
+# WARNING: This is the next branch and heavy under development! It may not to compile or work!
 
 Table of contents
 ====
@@ -26,15 +26,14 @@ The command line parameter are:
 
 Parameter | Description
 ------ | ----------
-h | Show help 
-v | Show version 
-L | GUI language e.g. de_DE
-D | Input device. Possible is: auto (default), airspy, rtl_tcp, rtl_sdr, rawfile, soapysdr
-M | DAB mode. Possible is: 1,2,3 or 4, Default: 1 
-I | rtl_tcp server IP address. Only valid for input rtl_tcp 
-P | rtl_tcp server IP port. Only valid for input rtl_tcp
-F | I/Q RAW file. Only valid for input rawfile.
-B | I/Q RAW format. Possible is:<ul><li>u8 (unsigned int 8 bit, [qt-dab](https://github.com/JvanKatwijk/qt-dab) RAW files)</li><li>s8 (signed 8 bit, [ODR](https://www.welle.io/devices/rawfile#odr-dabmod) files)</li><li>s16le (signed int 16 bit little endian, [qt-dab](https://github.com/JvanKatwijk/qt-dab) SDR files)</li><li>s16be (signed int 16 bit big endian, [qt-dab](https://github.com/JvanKatwijk/qt-dab) SDR files)</li><li>Default: u8. Only valid for input rawfile.</li></ul>
+-h, --help | Show help 
+-v, --version | Show version 
+-l, --language | GUI language e.g. de_DE
+-d, --device | Input device. Possible is: auto (default), airspy, rtl_tcp, rtl_sdr, rawfile, soapysdr
+-i, --ip-address | rtl_tcp server IP address. Only valid for input rtl_tcp 
+-p, --ip-port | rtl_tcp server IP port. Only valid for input rtl_tcp
+-f, --file | I/Q RAW file. Only valid for input rawfile.
+--format | I/Q RAW format. Possible is:<ul><li>u8 (unsigned int 8 bit, [qt-dab](https://github.com/JvanKatwijk/qt-dab) RAW files)</li><li>s8 (signed 8 bit, [ODR](https://www.welle.io/devices/rawfile#odr-dabmod) files)</li><li>s16le (signed int 16 bit little endian, [qt-dab](https://github.com/JvanKatwijk/qt-dab) SDR files)</li><li>s16be (signed int 16 bit big endian, [qt-dab](https://github.com/JvanKatwijk/qt-dab) SDR files)</li><li>Default: u8. Only valid for input rawfile.</li></ul>
 
 Example usage:
   

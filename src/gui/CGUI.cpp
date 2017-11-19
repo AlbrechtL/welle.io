@@ -30,15 +30,8 @@
 #include <QDebug>
 #include <QSettings>
 
-//#include "CInputFactory.h"
+#include "Version.h"
 #include "CGUI.h"
-//#include "CAudio.h"
-
-// Fallback if git hash macro is not defined
-#ifndef GITHASH
-#pragma message "Git hash is not defined! Set it to \"unknown\""
-#define GITHASH "unknown"
-#endif
 
 /**
   *	We use the creation function merely to set up the
@@ -115,7 +108,7 @@ const QVariantMap CGUI::licenses()
     QByteArray InfoContent;
 
     // Set application version
-//    InfoContent.append("welle.io " + tr("version") + ": " + QString(CURRENT_VERSION) + "\n");
+    InfoContent.append("welle.io " + tr("version") + ": " + QString(CURRENT_VERSION) + "\n");
     InfoContent.append(tr("Git revision") + ": " + QString(GITHASH) + "\n");
     InfoContent.append(tr("Build on") + ": " + QString(__TIMESTAMP__) + "\n");
     InfoContent.append(tr("QT version") + ": " + qVersion() + "\n");

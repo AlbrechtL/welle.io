@@ -39,6 +39,7 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 
+#include "Version.h"
 #include "CRadioController.h"
 #include "CGUI.h"
 #ifdef Q_OS_ANDROID
@@ -52,8 +53,8 @@ int main(int argc, char** argv)
 {
     QCoreApplication::setOrganizationName("welle.io");
     QCoreApplication::setOrganizationDomain("welle.io");
-    QCoreApplication::setApplicationName("welle_next.io"); // ToDo Remove "next"
-    QCoreApplication::setApplicationVersion("1.0 beta");
+    QCoreApplication::setApplicationName("welle_next.io"); // ToDo Remove "next" only to ensure a new config file
+    QCoreApplication::setApplicationVersion(QString(CURRENT_VERSION) + " Git: " + GITHASH);
 
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
@@ -114,37 +115,32 @@ int main(int argc, char** argv)
     optionParser.addHelpOption();
     optionParser.addVersionOption();
 
-    QCommandLineOption Language("L",
+    QCommandLineOption Language(QStringList() << "l" << "language",
         QCoreApplication::translate("main", "Set the GUI language (e.g. de-DE)"),
         QCoreApplication::translate("main", "Language"));
     optionParser.addOption(Language);
 
-    QCommandLineOption InputOption("D",
+    QCommandLineOption InputOption(QStringList() << "d" << "device",
         QCoreApplication::translate("main", "Input device. Possible is: auto (default), airspy, rtl_tcp, rtl_sdr, rawfile, soapysdr"),
         QCoreApplication::translate("main", "Name"));
     optionParser.addOption(InputOption);
 
-    QCommandLineOption DABModeOption("M",
-        QCoreApplication::translate("main", "DAB mode. Possible is: 1, 2 or 4, default: 1"),
-        QCoreApplication::translate("main", "Mode"));
-    optionParser.addOption(DABModeOption);
-
-    QCommandLineOption RTL_TCPServerIPOption("I",
+    QCommandLineOption RTL_TCPServerIPOption(QStringList() << "i" << "ip-address",
         QCoreApplication::translate("main", "rtl_tcp server IP address. Only valid for input rtl_tcp."),
         QCoreApplication::translate("main", "IP address"));
     optionParser.addOption(RTL_TCPServerIPOption);
 
-    QCommandLineOption RTL_TCPServerIPPort("P",
+    QCommandLineOption RTL_TCPServerIPPort(QStringList() << "p" << "ip-port",
         QCoreApplication::translate("main", "rtl_tcp server IP port. Only valid for input rtl_tcp."),
         QCoreApplication::translate("main", "Port"));
     optionParser.addOption(RTL_TCPServerIPPort);
 
-    QCommandLineOption RAWFile("F",
+    QCommandLineOption RAWFile(QStringList() << "f" << "file",
         QCoreApplication::translate("main", "I/Q RAW file. Only valid for input rawfile."),
         QCoreApplication::translate("main", "I/Q RAW file"));
     optionParser.addOption(RAWFile);
 
-    QCommandLineOption RAWFileFormat("B",
+    QCommandLineOption RAWFileFormat("format",
         QCoreApplication::translate("main", "I/Q RAW file format. Possible is: u8 (standard), s8, s16le, s16be. Only valid for input rawfile."),
         QCoreApplication::translate("main", "I/Q RAW file format"));
     optionParser.addOption(RAWFileFormat);
@@ -156,16 +152,6 @@ int main(int argc, char** argv)
     QString languageValue = optionParser.value(Language);
     if (languageValue != "")
         CGUI::AddTranslator(languageValue, Translator);
-
-    //	Process DAB mode option
-    QString DABModValue = optionParser.value(DABModeOption);
-    if (DABModValue != "") {
-        int Mode = DABModValue.toInt();
-        if ((Mode < 1) || (Mode > 4))
-            Mode = 1;
-
-        //DABParams.setMode(Mode);
-    }
 
 #ifdef Q_OS_ANDROID
 

@@ -2,3 +2,6 @@
 - Remove gstreamer header hack
 - Figure out if SNR calculation is correct
 - Solve all "ToDo" in source code
+- Add soapysdr options from version 1.0
+- Add options "--msc-file" from version 1.0
+- Merge CGUI and CRadioController to one class

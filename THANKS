@@ -1,21 +1,28 @@
 welle.io uses external and internal libraries and make extensive use of the
 following persons' or companies' code:
 
-QT - Copyright (c) The Qt Company, www.qt.io - LGPL Version 2.1
-FFTW3 - www.fftw.org - GPLv2 or later
-Kiss FFT - www.sourceforge.net/projects/kissfft - Mark Borgerding - BSD License
-kjmp2 - keyj.emphy.de/kjmp2 - Martin J. Fiedler - zlib license
-FAAD2 - Copyright (c) Nero AG, www.nero.com" - GPLv2 or later
-
-welle.io uses parts from the following programs 
+- sdrdab
+  Copyright (c) 2015-2017 Jarosław Bułat (kwant@agh.edu.pl) and by students of AGH-UST in Department of Telecommunications, GPLv2 or later.
+  https://sdr.kt.agh.edu.pl/
+  https://github.com/kwanty/sdrdab
 - qt-dab
-  Copyright (c) 2009-2017 Jan van Katwijk Lazy Chair Computing (J.vanKatwijk@gmail.com)
+  Copyright (c) 2009-2017 Jan van Katwijk Lazy Chair Computing (J.vanKatwijk@gmail.com), GPLv2 or later
   https://github.com/JvanKatwijk/qt-dab
 - dablin
-  Copyright (c) 2016 Stefan Pöschel
+  Copyright (c) 2016 Stefan Pöschel, GPLv2 or later
   https://github.com/Opendigitalradio/dablin
 - headunit-dekstop
   https://github.com/viktorgino/headunit-desktop
+- QT
+  Copyright (c) The Qt Company, www.qt.io - LGPL Version 2.1
+- FFTW3
+  www.fftw.org - GPLv2 or later
+- Kiss FFT
+  www.sourceforge.net/projects/kissfft - Mark Borgerding - BSD License
+- kjmp2
+  keyj.emphy.de/kjmp2 - Martin J. Fiedler - zlib license
+- FAAD2
+  Copyright (c) Nero AG, www.nero.com" - GPLv2 or later
 
 Icons:
 Navigation icons made by Gregor Cresnar
