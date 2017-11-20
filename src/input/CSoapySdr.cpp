@@ -36,8 +36,7 @@
 using namespace std;
 
 CSoapySdr::CSoapySdr() :
-    m_sampleBuffer(1024 * 1024),
-    m_spectrumSampleBuffer(8192)
+    m_sampleBuffer(1024 * 1024)
 {
     m_running = false;
     qDebug() << "SoapySdr";
@@ -68,7 +67,6 @@ bool CSoapySdr::restart()
     }
 
     m_sampleBuffer.FlushRingBuffer();
-    m_spectrumSampleBuffer.FlushRingBuffer();
 
     m_device = SoapySDR::Device::make();
     stringstream ss;
@@ -129,13 +127,6 @@ void CSoapySdr::reset()
 int32_t CSoapySdr::getSamples(DSPCOMPLEX *Buffer, int32_t Size)
 {
     int32_t amount = m_sampleBuffer.getDataFromBuffer(Buffer, Size);
-    return amount;
-}
-
-int32_t CSoapySdr::getSpectrumSamples(DSPCOMPLEX *Buffer, int32_t Size)
-{
-    int32_t amount = m_spectrumSampleBuffer.getDataFromBuffer(Buffer, Size);
-
     return amount;
 }
 
@@ -249,7 +240,6 @@ void CSoapySdr_Thread::process(SoapySDR::Stream *stream)
             buf.resize(ret);
 
             soapySdr->m_sampleBuffer.putDataIntoBuffer(buf.data(), ret);
-            soapySdr->m_spectrumSampleBuffer.putDataIntoBuffer(buf.data(), ret);
         }
     }
 }

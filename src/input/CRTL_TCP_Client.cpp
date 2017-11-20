@@ -49,7 +49,6 @@ CRTL_TCP_Client::CRTL_TCP_Client(CRadioController &RadioController)
 {
     this->RadioController = &RadioController;
     SampleBuffer	= new CRingBuffer<uint8_t>(32 * 32768);
-    SpectrumSampleBuffer	= new CRingBuffer<uint8_t>(8192);
 
     connected = false;
     stopped = false;
@@ -77,7 +76,6 @@ CRTL_TCP_Client::~CRTL_TCP_Client	(void)
     TCPSocket. close();
 
     delete	SampleBuffer;
-    delete 	SpectrumSampleBuffer;
 }
 
 void CRTL_TCP_Client::setFrequency(int32_t newFrequency)
@@ -121,19 +119,6 @@ int32_t	CRTL_TCP_Client::getSamples (DSPCOMPLEX *V, int32_t size)
 	return amount / 2;
 }
 
-int32_t	CRTL_TCP_Client::getSpectrumSamples (DSPCOMPLEX *V, int32_t size)
-{
-    int32_t	amount, i;
-    uint8_t	*tempBuffer = (uint8_t *)alloca (2 * size * sizeof (uint8_t));
-
-    // Get data from the ring buffer
-    amount = SpectrumSampleBuffer -> getDataFromBuffer(tempBuffer, 2 * size);
-	for (i = 0; i < amount / 2; i ++)
-	   V [i] = DSPCOMPLEX ((float (tempBuffer [2 * i] - 128)) / 128.0,
-	                       (float (tempBuffer [2 * i + 1] - 128)) / 128.0);
-	return amount / 2;
-}
-
 int32_t	CRTL_TCP_Client::getSamplesToRead	(void)
 {
     return SampleBuffer->GetRingBufferReadAvailable () / 2;
@@ -158,7 +143,6 @@ void CRTL_TCP_Client::readData(void)
        }
 
        SampleBuffer -> putDataIntoBuffer (buffer, 8192);
-       SpectrumSampleBuffer -> putDataIntoBuffer (buffer, 8192);
 
        // Check if device is overloaded
        MinValue = 255;

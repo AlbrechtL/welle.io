@@ -45,6 +45,7 @@ public:
     void start(bool isAudio = true, uint8_t stationNumber = 255);
     void stop(void);
     void tuneToStation(int SubChannelID);
+    void getSpectrumData(std::vector<float> &SpectrumBuffer);
 
 private:
     static void schedularThreadWrapper(CSdrDabInterface *SDRDABInterface);
@@ -84,6 +85,13 @@ private:
      */
     virtual void ParametersFromSDR(UserFICData_t *user_fic_extra_data);
 
+    /**
+     * "Callback" executed whenever something interesting happens.
+     * @brief new spectrum data callback
+     * @param[in] spectrum_data spectrum data reference
+     */
+    virtual void ParametersFromSDR(std::vector<float> &spectrum_data);
+
     std::thread *m_SchedulerThread;
     std::mutex m_FICDataMutex;
     CFicData m_FICData;
@@ -98,6 +106,8 @@ private:
     int m_super_frame_error;
     int m_aac_crc_errors;
     int m_fic_crc_errors;
+
+    std::vector<float> m_spectrum_data;
 
 signals:
     void ficDataUpdated(void);

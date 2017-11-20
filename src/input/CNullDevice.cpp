@@ -57,13 +57,6 @@ int32_t CNullDevice::getSamples(DSPCOMPLEX *Buffer, int32_t Size)
     return Size;
 }
 
-int32_t CNullDevice::getSpectrumSamples(DSPCOMPLEX *Buffer, int32_t Size)
-{
-    memset(Buffer, 0, Size * sizeof(DSPCOMPLEX));
-
-    return Size;
-}
-
 int32_t CNullDevice::getSamplesToRead()
 {
     return 0;

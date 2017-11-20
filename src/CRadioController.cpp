@@ -596,65 +596,57 @@ void CRadioController::ficCrcUpdate(int fic_crc_errors)
 
 void CRadioController::updateSpectrum()
 {
-//    int Samples = 0;
-//    int16_t T_u = DABParams.T_u;
+    // Get samples
+    SDRDABInterface.getSpectrumData(SpectrumBuffer);
+    int fftSize = SpectrumBuffer.size() / 2;
 
-//    //	Delete old data
-//    spectrum_data.resize(T_u);
+    // Continue only if we got data
+    if(fftSize <= 0)
+        return;
 
-//    qreal tunedFrequency_MHz = 0;
-//    qreal sampleFrequency_MHz = 2048000 / 1e6;
-//    qreal dip_MHz = sampleFrequency_MHz / T_u;
+    // Resize if required
+    Spectrum.resize(fftSize);
 
-//    qreal x(0);
-//    qreal y(0);
-//    qreal y_max(0);
+    qreal tunedFrequency_MHz = CurrentFrequency / 1e6;
+    qreal sampleFrequency_MHz = 2048000 / 1e6;
+    qreal dip_MHz = sampleFrequency_MHz / fftSize;
 
-//    // Get FFT buffer
-//    DSPCOMPLEX* spectrumBuffer = spectrum_fft_handler->getVector();
+    qreal x(0);
+    qreal y(0);
+    qreal y_max(0);
 
-//    // Get samples
-//    tunedFrequency_MHz = CurrentFrequency / 1e6;
-//    if(Device)
-//        Samples = Device->getSpectrumSamples(spectrumBuffer, T_u);
+    //	Process samples one by one
+    for (int i = 0; i < fftSize; i++) {
+        int half_Tu = fftSize / 2;
 
-//    // Continue only if we got data
-//    if (Samples <= 0)
-//        return;
+        //	Shift FFT samples
+        if (i < half_Tu)
+            y = sqrt((SpectrumBuffer[(i+half_Tu)*2] * SpectrumBuffer[(i+half_Tu)*2]) +
+                    (SpectrumBuffer[(i+half_Tu)*2 + 1] * SpectrumBuffer[(i+half_Tu)*2 + 1]));
+        else
+            y = sqrt((SpectrumBuffer[(i-half_Tu)*2] * SpectrumBuffer[(i-half_Tu)*2]) +
+                    (SpectrumBuffer[(i-half_Tu)*2 + 1] * SpectrumBuffer[(i-half_Tu)*2 + 1]));
 
-//    // Do FFT to get the spectrum
-//    spectrum_fft_handler->do_FFT();
-
-//    //	Process samples one by one
-//    for (int i = 0; i < T_u; i++) {
-//        int half_Tu = T_u / 2;
-
-//        //	Shift FFT samples
-//        if (i < half_Tu)
-//            y = abs(spectrumBuffer[i + half_Tu]);
-//        else
-//            y = abs(spectrumBuffer[i - half_Tu]);
-
-//        // Apply a cumulative moving average filter
+        // Apply a cumulative moving average filter
 //        int avg = 4; // Number of y values to average
-//        qreal CMA = spectrum_data[i].y();
+//        qreal CMA = Spectrum[i].y();
 //        y = (CMA * avg + y) / (avg + 1);
 
-//        //	Find maximum value to scale the plotter
-//        if (y > y_max)
-//            y_max = y;
+        //	Find maximum value to scale the plotter
+        if (y > y_max)
+            y_max = y;
 
-//        // Calc x frequency
-//        x = (i * dip_MHz) + (tunedFrequency_MHz - (sampleFrequency_MHz / 2));
+        // Calc x frequency
+        x = (i * dip_MHz) + (tunedFrequency_MHz - (sampleFrequency_MHz / 2));
 
-//        spectrum_data[i]= QPointF(x, y);
-//    }
+        Spectrum[i]= QPointF(x, y);
+    }
 
-//    //	Set new data
-//    emit SpectrumUpdated(round(y_max) + 1,
-//                         tunedFrequency_MHz - (sampleFrequency_MHz / 2),
-//                         tunedFrequency_MHz + (sampleFrequency_MHz / 2),
-//                         spectrum_data);
+    //	Set new data
+    emit SpectrumUpdated(round(y_max) + 1,
+                         tunedFrequency_MHz - (sampleFrequency_MHz / 2),
+                         tunedFrequency_MHz + (sampleFrequency_MHz / 2),
+                         Spectrum);
 }
 
 std::shared_ptr<CVirtualInput> CRadioController::getDevice()

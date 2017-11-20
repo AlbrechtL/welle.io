@@ -38,7 +38,6 @@ public:
     void stop(void);
     void reset(void);
     int32_t getSamples(DSPCOMPLEX* Buffer, int32_t Size);
-    int32_t getSpectrumSamples(DSPCOMPLEX* Buffer, int32_t Size);
     int32_t getSamplesToRead(void);
     float setGain(int32_t Gain);
     int32_t getGainCount(void);

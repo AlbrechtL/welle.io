@@ -58,7 +58,6 @@ public:
     void stop(void);
     void reset(void);
     int32_t getSamples(DSPCOMPLEX* SampleBuffer, int32_t Size);
-    int32_t getSpectrumSamples(DSPCOMPLEX* SampleBuffer, int32_t Size);
     int32_t getSamplesToRead(void);
     void setFrequency(int32_t Frequency);
     float setGain(int32_t Gain);
@@ -75,7 +74,6 @@ public:
 
     //	These need to be visible for the separate usb handling thread
     CRingBuffer<uint8_t> SampleBuffer;
-    CRingBuffer<uint8_t> SpectrumSampleBuffer;
     struct rtlsdr_dev* device;
     int32_t sampleCounter;
 

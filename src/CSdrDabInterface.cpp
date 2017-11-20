@@ -185,6 +185,12 @@ void CSdrDabInterface::ParametersFromSDR(UserFICData_t *user_fic_extra_data)
     delete user_fic_extra_data;
 }
 
+void CSdrDabInterface::ParametersFromSDR(std::vector<float> &spectrum_data)
+{
+    // Copy the data
+    m_spectrum_data = spectrum_data;
+}
+
 void CSdrDabInterface::ficDataUpdate()
 {
     m_FICDataMutex.lock();
@@ -216,4 +222,9 @@ void CSdrDabInterface::tuneToStation(int SubChannelID)
 {
     // ToDo Scrutinize if SNR calculation is correct
     this->ParametersToSDR(STATION_NUMBER, (uint8_t) SubChannelID);
+}
+
+void CSdrDabInterface::getSpectrumData(std::vector<float> &SpectrumBuffer)
+{
+    SpectrumBuffer = m_spectrum_data;
 }

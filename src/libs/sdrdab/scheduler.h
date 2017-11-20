@@ -502,6 +502,13 @@ public:
 
     /**
      * "Callback" executed whenever something interesting happens.
+     * @brief new spectrum data callback
+     * @param[in] spectrum_data spectrum data reference
+     */
+    virtual void ParametersFromSDR(std::vector<float> &spectrum_data);
+
+    /**
+     * "Callback" executed whenever something interesting happens.
      * RDS variant.
      * @brief RDS callback
      * @param[in] text RDS text

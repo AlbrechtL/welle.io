@@ -50,7 +50,6 @@ CAirspy::CAirspy()
     device = 0;
     serialNumber = 0;
     SampleBuffer = NULL;
-    SpectrumSampleBuffer = NULL;
 
     libraryLoaded = true;
 
@@ -106,7 +105,6 @@ CAirspy::CAirspy()
     convBuffer = new DSPCOMPLEX[convBufferSize + 1];
 
     SampleBuffer = new CRingBuffer<DSPCOMPLEX>(256 * 1024);
-    SpectrumSampleBuffer = new CRingBuffer<DSPCOMPLEX>(8192);
 
     if(isAGC)
     {
@@ -156,7 +154,6 @@ bool CAirspy::restart(void)
         return true;
 
     SampleBuffer->FlushRingBuffer();
-    SpectrumSampleBuffer->FlushRingBuffer();
     result = airspy_set_sample_type(device, AIRSPY_SAMPLE_INT16_IQ);
     if (result != AIRSPY_SUCCESS) {
         qDebug() << "Airspy:" <<"airspy_set_sample_type () failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")";
@@ -248,7 +245,6 @@ int CAirspy::data_available(void* buf, int buf_size)
             }
 
             SampleBuffer->putDataIntoBuffer(temp, 2048);
-            SpectrumSampleBuffer->putDataIntoBuffer(temp, 2048);
             //
             //	shift the sample at the end to the beginning, it is needed
             //	as the starting sample for the next time
@@ -262,18 +258,12 @@ int CAirspy::data_available(void* buf, int buf_size)
 void CAirspy::reset(void)
 {
     SampleBuffer->FlushRingBuffer();
-    SpectrumSampleBuffer->FlushRingBuffer();
 }
 
 int32_t CAirspy::getSamples(DSPCOMPLEX* Buffer, int32_t Size)
 {
 
     return SampleBuffer->getDataFromBuffer(Buffer, Size);
-}
-
-int32_t CAirspy::getSpectrumSamples(DSPCOMPLEX *Buffer, int32_t Size)
-{
-    return SpectrumSampleBuffer->getDataFromBuffer(Buffer, Size);
 }
 
 int32_t CAirspy::getSamplesToRead(void)

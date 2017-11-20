@@ -53,7 +53,6 @@ public:
     // Interface methods
     void setFrequency(int32_t Frequency);
     int32_t getSamples(DSPCOMPLEX*, int32_t);
-    int32_t getSpectrumSamples(DSPCOMPLEX* V, int32_t size);
     int32_t getSamplesToRead(void);
     bool restart(void);
     void stop(void);
@@ -79,7 +78,6 @@ private:
     int32_t convertSamples(CRingBuffer<uint8_t>& Buffer, DSPCOMPLEX* V, int32_t size);
 
     CRingBuffer<uint8_t> SampleBuffer;
-    CRingBuffer<uint8_t> SpectrumSampleBuffer;
     int32_t bufferSize;
     FILE* filePointer;
     bool readerOK;

@@ -117,6 +117,11 @@ public:
      */
     float getSNRfromPREFIX(void);
 
+    /**
+     * return spectrum data
+     */
+    std::vector<float> *getSpectrumData(void);
+
 
 
 #ifndef GOOGLE_UNIT_TEST
@@ -165,6 +170,8 @@ private:
     static const int phase_ref_index_mode4[][5];    ///< Relation between the indices i, k' and n and the carrier index k for transmission mode IV
     static const int phase_parameter_h[][32];       ///< Time-Frequency-Phase parameter h values
     static const int transmitter_patterns[70][8];   ///< Transmitter patterns for TII
+
+    std::vector<float> *spectrum_buffer;
 
     /**
      * Detect position of NULL symbol, set null_position_

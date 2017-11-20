@@ -153,8 +153,8 @@ private:
     CStationList mStationList;
 
     // Spectrum variables
-//    common_fft* spectrum_fft_handler;
-    QVector<QPointF> spectrum_data;
+    std::vector<float> SpectrumBuffer;
+    QVector<QPointF> Spectrum;
 
 private slots:
     void newStation(QString StationName, uint8_t SubChannelId);

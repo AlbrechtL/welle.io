@@ -53,7 +53,6 @@ public:
     virtual void stop(void);
     virtual void reset(void);
     virtual int32_t getSamples(DSPCOMPLEX* Buffer, int32_t Size);
-    virtual int32_t getSpectrumSamples(DSPCOMPLEX* Buffer, int32_t Size);
     virtual int32_t getSamplesToRead(void);
     virtual float setGain(int32_t Gain);
     virtual int32_t getGainCount(void);
@@ -70,7 +69,6 @@ private:
     CSoapySdr_Thread *m_thread = nullptr;
 
     RingBuffer<DSPCOMPLEX> m_sampleBuffer;
-    RingBuffer<DSPCOMPLEX> m_spectrumSampleBuffer;
 
     void workerthread(void);
 };

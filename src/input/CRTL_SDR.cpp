@@ -51,7 +51,6 @@ static void RTLSDRCallBack(uint8_t* buf, uint32_t len, void* ctx)
     tmp = RTL_SDR->SampleBuffer.putDataIntoBuffer(buf, len);
     if ((len - tmp) > 0)
         RTL_SDR->sampleCounter += len - tmp;
-    RTL_SDR->SpectrumSampleBuffer.putDataIntoBuffer(buf, len);
 
     // Check if device is overloaded
     uint8_t MinValue = 255;
@@ -70,9 +69,7 @@ static void RTLSDRCallBack(uint8_t* buf, uint32_t len, void* ctx)
 
 //	Our wrapper is a simple classs
 CRTL_SDR::CRTL_SDR(CRadioController &RadioController) :
-    SampleBuffer(1024 * 1024),
-    SpectrumSampleBuffer(8192)
-
+    SampleBuffer(1024 * 1024)
 {
     int ret = 0;
 
@@ -197,7 +194,6 @@ bool CRTL_SDR::restart(void)
     }
 
     SampleBuffer.FlushRingBuffer();
-    SpectrumSampleBuffer.FlushRingBuffer();
     ret = rtlsdr_reset_buffer(device);
     if (ret < 0)
         return false;
@@ -357,20 +353,6 @@ int32_t CRTL_SDR::getSamples(DSPCOMPLEX* Buffer, int32_t Size)
 
     // Get samples
     int32_t amount = SampleBuffer.getDataFromBuffer(tempBuffer, 2 * Size);
-
-    // Convert samples into generic format
-    for (int i = 0; i < amount / 2; i++)
-        Buffer[i] = DSPCOMPLEX((float(tempBuffer[2 * i] - 128)) / 128.0, (float(tempBuffer[2 * i + 1] - 128)) / 128.0);
-
-    return amount / 2;
-}
-
-int32_t CRTL_SDR::getSpectrumSamples(DSPCOMPLEX* Buffer, int32_t Size)
-{
-    uint8_t* tempBuffer = (uint8_t*)alloca(2 * Size * sizeof(uint8_t));
-
-    // Get samples
-    int32_t amount = SpectrumSampleBuffer.getDataFromBuffer(tempBuffer, 2 * Size);
 
     // Convert samples into generic format
     for (int i = 0; i < amount / 2; i++)

@@ -53,7 +53,6 @@ public:
     bool restart(void);
     void stop(void);
     int32_t getSamples(DSPCOMPLEX* V, int32_t size);
-    int32_t getSpectrumSamples(DSPCOMPLEX* V, int32_t size);
     int32_t getSamplesToRead(void);
     void reset(void);
     float setGain(int32_t gain);
@@ -90,7 +89,6 @@ private:
     bool isHwAGC;
     int32_t Frequency;
     CRingBuffer<uint8_t>* SampleBuffer;
-    CRingBuffer<uint8_t>* SpectrumSampleBuffer;
     bool connected;
     bool stopped;
     QHostAddress serverAddress;

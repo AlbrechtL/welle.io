@@ -51,8 +51,7 @@ CRAWFile::CRAWFile(CRadioController &RadioController) :
     FileName(""),
     FileFormat(CRAWFileFormat::Unknown),
     IQByteSize(1),
-    SampleBuffer(INPUT_FRAMEBUFFERSIZE),
-    SpectrumSampleBuffer(8192)
+    SampleBuffer(INPUT_FRAMEBUFFERSIZE)
 {
     this->RadioController = &RadioController;
 
@@ -184,11 +183,6 @@ int32_t CRAWFile::getSamples(DSPCOMPLEX* V, int32_t size)
     return convertSamples(SampleBuffer, V, size);
 }
 
-int32_t CRAWFile::getSpectrumSamples(DSPCOMPLEX* V, int32_t size)
-{
-    return convertSamples(SpectrumSampleBuffer, V, size);
-}
-
 int32_t CRAWFile::getSamplesToRead(void)
 {
     return SampleBuffer.GetRingBufferReadAvailable() / 2;
@@ -233,7 +227,6 @@ void CRAWFile::run(void)
             t = bufferSize;
         }
         SampleBuffer.putDataIntoBuffer(bi.data(), t);
-        SpectrumSampleBuffer.putDataIntoBuffer(bi.data(), t);
         if (nextStop - getMyTime() > 0)
             usleep(nextStop - getMyTime());
     }

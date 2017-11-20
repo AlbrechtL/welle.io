@@ -367,6 +367,7 @@ Scheduler::state_t Scheduler::Sync()
                     fprintf( stderr, "SNR(RAW):%5.2f(%5.2f) dB", synchronizer_->getSNRfromPREFIX(), synchronizer_->getSNRfromSPECTRUM());
                 }
                 ParametersFromSDR(synchronizer_->getSNRfromSPECTRUM(), estimated_fc_drift_, decode_errors);
+                ParametersFromSDR(*(synchronizer_->getSpectrumData()));
 
                 // If fc_drift_ is detected, go to CONF state
                 if ( fc_converged_ && fabs(fs_drift_) < 2  ) {
@@ -470,6 +471,7 @@ Scheduler::state_t Scheduler::Conf()
                 fprintf( stderr, "SNR(RAW):%5.2f(%5.2f) dB\n\n", synchronizer_->getSNRfromPREFIX(), synchronizer_->getSNRfromSPECTRUM());
             }
             ParametersFromSDR(synchronizer_->getSNRfromSPECTRUM(), estimated_fc_drift_, decode_errors);
+            ParametersFromSDR(*(synchronizer_->getSpectrumData()));
 
             // Demodulate FIC
             demodulator_->Process( &station_info_, &demod_read_write_);
@@ -823,6 +825,7 @@ Scheduler::state_t Scheduler::Play()
                     fprintf( stderr, "SNR(RAW):%5.2f(%5.2f) dB, ", synchronizer_->getSNRfromPREFIX(), synchronizer_->getSNRfromSPECTRUM());
                 }
                 ParametersFromSDR(synchronizer_->getSNRfromSPECTRUM(), estimated_fc_drift_, decode_errors);
+                ParametersFromSDR(*(synchronizer_->getSpectrumData()));
 
             } else if ( sync_feedback_.null_quality == NULL_SHIFT ) {
                 ResetFsDrift();
@@ -1697,6 +1700,11 @@ void Scheduler::ParametersFromSDR(UserFICData_t *user_fic_extra_data)
 void Scheduler::ParametersFromSDR(Scheduler::state_t state)
 {
     return; //no need to implement further
+}
+
+void Scheduler::ParametersFromSDR(std::vector<float> &spectrum_data)
+{
+    return;  //no need to implement further
 }
 
 void Scheduler::ParametersFromSDR(std::string *text)

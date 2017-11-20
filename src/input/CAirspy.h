@@ -56,7 +56,6 @@ public:
     void stop(void);
     void reset(void);
     int32_t getSamples(DSPCOMPLEX* Buffer, int32_t Size);
-    int32_t getSpectrumSamples(DSPCOMPLEX* Buffer, int32_t Size);
     int32_t getSamplesToRead(void);
     float setGain(int32_t gain);
     int32_t getGainCount(void);
@@ -79,7 +78,6 @@ private:
     int16_t mapTable_int[4 * 512];
     float mapTable_float[4 * 512];
     CRingBuffer<DSPCOMPLEX>* SampleBuffer;
-    CRingBuffer<DSPCOMPLEX>* SpectrumSampleBuffer;
     int32_t inputRate;
     struct airspy_device* device;
     uint64_t serialNumber;

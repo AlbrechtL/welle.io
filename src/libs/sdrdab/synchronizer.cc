@@ -133,6 +133,7 @@ Synchronizer::Synchronizer(ModeParameters *mode_parameters, size_t size) : FFTEn
 	fc_corr_ = new float[2 * mode_parameters_->fft_size];
     data_snr_ = new float[2 * mode_parameters_->fft_size];
     data_snr_PR_ = new float[2 * mode_parameters_->fft_size];
+    spectrum_buffer = new std::vector<float>(2 * mode_parameters_->fft_size);
 
     phase_ref_clean_ = new float[2 * mode_parameters_->fft_size];
 }
@@ -688,6 +689,11 @@ float Synchronizer::getSNRfromPREFIX(void){
         return -std::numeric_limits<float>::infinity();
 }
 
+std::vector<float> *Synchronizer::getSpectrumData()
+{
+    return spectrum_buffer;
+}
+
 
 // xxxxxxxxxxxxxxxxxxxxxxx 0000000000000000  xxxxxxxxxxxxxxxxx
 // 0                lowsig lowzero highzero  highsig  fft_size
@@ -708,6 +714,8 @@ void Synchronizer::calculateSNRfromSPECTRUM(const float *data){
 
     memcpy(data_snr_, data, 2*fft_size*sizeof(float));
     FFT(data_snr_);
+
+    std::copy(data_snr_, data_snr_ + 2*fft_size, spectrum_buffer->begin());
 
     float signal=0;
     float noise=0;
