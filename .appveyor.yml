@@ -30,6 +30,9 @@ build_script:
 
 after_build:
   - cp release\welle-io.exe C:\projects\welle.io-win-libs\install\packages\com.vendor.product\data
+  # Just a workaround
+  - cp C:\projects\welle.io-win-libs\x86\libsamplerate.dll C:\projects\welle.io-win-libs\install\packages\com.vendor.product\data
+  
   - cd C:\projects\welle.io-win-libs\install\packages\com.vendor.product\data
   # Deploy QT and related plugins
   - windeployqt welle-io.exe --plugindir plugins\ --no-translations
