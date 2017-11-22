@@ -8,6 +8,7 @@ Please see the project website https://www.welle.io for a user oriented document
 Table of contents
 ====
 
+  * [Download](#download)
   * [Usage](#usage)
   * [Supported Hardware](#supported-hardware)
   * [Building](#building)
@@ -15,10 +16,18 @@ Table of contents
     * [Ubuntu Linux 16.04 LTS](#ubuntu-linux-1604-lts)
     * [Windows 10](#windows-10)
     * [macOS](#macos)
+    * [CMake instead of Qt Creator (Windows, Linux, macOS)](#cmake-instead-of-qt-creator-windows-linux-macos)
     * [Android](#android)
     * [Raspberry Pi 2 and 3](#raspberry-pi-2-and-3)
   * [Limitations](#limitations)
   * [Development](#development)
+
+Download
+========
+At the moment there is no stable release available but you can try the latest developer builds. But PLEASE BE WARNED the builds are automatically created and untested.
+ * [welle.io next nightly builds](https://bintray.com/albrechtl/welle.io/welle.io_next_nighly#files)
+
+To use it on macOS or on a Raspberry Pi you have to compile welle.io direct from the sources.
 
 Usage
 =====
@@ -51,7 +60,21 @@ The following SDR devices are supported
 * rtl_sdr (http://osmocom.org/projects/sdr/wiki/rtl-sdr)
 * rtl_tcp (http://osmocom.org/projects/sdr/wiki/rtl-sdr#rtl_tcp)
 * I/Q RAW file (https://www.welle.io/devices/rawfile)
-* The LimeSDR through [SoapySDR](https://github.com/pothosware/SoapySDR) (Connect your antenna to `RX1_W`).
+* All SDR-devices that are supported by SoapySDR, gr-osmosdr and uhd. These are too many devices to list them all. To see if your SDR is supported, have a look at the lists at [SoapySDR](https://github.com/pothosware/SoapySDR/wiki) and [SoapyOsmo](https://github.com/pothosware/SoapyOsmo/wiki).
+    * Devices supported by gr-osmosdr are supported via [SoapyOsmo](https://github.com/pothosware/SoapyOsmo/wiki)
+    * Devices supported by uhd are supported via [SoapyUHD](https://github.com/pothosware/SoapyUHD/wiki)
+    * One limitation is of course that the SDR devices must be tunable to the DAB+ frequencies.
+
+SoapySDR Notes
+---
+
+### LimeSDR
+
+Connect the Antenna to the RX1_W port and start welle-io with the options -D soapysdr --sdr-antenna LNAW. SoapySDRUtil --probe=driver=lime may show other possible options.
+
+### USRP
+
+Start welle-io with -D soapysdr --sdr-driver-args driver=uhd --sdr-antenna <antenna> --sdr-clock-source <clock source>. To list possible values for antenna and clock source use the command "SoapySDRUtil --probe=driver=uhd".
 
 Building
 ====================
@@ -125,10 +148,43 @@ To build for macOS, you need to install the dependencies with macports first, as
 4. Make sure in Qt Creator, "Projects, Build&Run, Run" that the checkbox "Add build library path to DYLD..." is off.
 5. Build and run.
 
+CMake instead of Qt Creator (Windows, Linux, macOS)
+---
+
+As an alternative to Qt Creator, CMake can be used for building welle.io after installing dependencies and cloning the repository:
+
+1. Create a build directory inside the repository and change into it
+
+  ```
+# mkdir build
+# cd build
+  ```
+
+2. Run CMake. To enable support for RTL-SDR add the flag `-DRTLSDR=1` (requires librtlsdr) and for SoapySDR add `-DSOAPYSDR=1` (requires SoapySDR compiled with support for each desired hardware like the AirSpy or HackRF)
+
+  ```
+# cmake ..
+  ```
+
+  or to enable support for both RTL-SDR and Soapy-SDR:
+
+  ```
+# cmake .. -DRTLSDR=1 -DSOAPYSDR=1
+  ```
+
+3. Run make (or use the created project file depending on the selected generator)
+
+  ```
+# make
+  ```
+
+4. Run welle.io and enjoy it
+
 Android
 ---
-A compiled version APK can be found at at the [Google Play store](https://play.google.com/store/apps/details?id=io.welle.welle) or at the [release page](https://github.com/AlbrechtL/welle.io/releases).  
-welle.io uses the ["RTL2832U driver"](https://play.google.com/store/apps/details?id=marto.rtl_tcp_andro)([sources](https://github.com/martinmarinov/rtl_tcp_andro-)) from Martin Marinov.
+A compiled version of welle.io (APK file) can be found at at the [Google Play store](https://play.google.com/store/apps/details?id=io.welle.welle) or at the [release page](https://github.com/AlbrechtL/welle.io/releases).  
+
+welle.io uses the "RTL2832U driver" from Martin Marinov, to be found at the [Google play store](https://play.google.com/store/apps/details?id=marto.rtl_tcp_andro) or at [F-droid](https://f-droid.org/packages/marto.rtl_tcp_andro/). Also see ([sources](https://github.com/martinmarinov/rtl_tcp_andro-) or [APK file](https://github.com/martinmarinov/rtl_tcp_andro-/blob/master/app/app-release.apk)). Please note that a recent version of this driver is needed (v3.06 or above), otherwise welle.io will not find your stick.
 
 This sections shows how to compile welle.io for Android.
 
