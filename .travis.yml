@@ -10,7 +10,7 @@ before_install:
     
 install: 
     - sudo apt-get -y install gcc-5 g++-5
-    - sudo apt-get -y install libusb-1.0-0-dev pkg-config qt59base qt59declarative qt59quickcontrols qt59quickcontrols2 qt59charts-no-lgpl qt59multimedia libpulse0 libfaad-dev libfftw3-dev librtlsdr-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev
+    - sudo apt-get -y install libusb-1.0-0-dev pkg-config qt59base qt59declarative qt59quickcontrols qt59quickcontrols2 qt59charts-no-lgpl qt59multimedia libpulse0 libfaad-dev libfftw3-dev librtlsdr-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev libsamplerate0-dev
     - source /opt/qt59/bin/qt59-env.sh
     - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 60 --slave /usr/bin/g++ g++ /usr/bin/g++-5
     
