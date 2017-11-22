@@ -74,7 +74,6 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, QObject *par
     connect(&SDRDABInterface, &CSdrDabInterface::superFrameErrorsChanged, this, &CRadioController::superFrameErrorsUpdate);
     connect(&SDRDABInterface, &CSdrDabInterface::aacCrcChanged, this, &CRadioController::aacCrcUpdate);
     connect(&SDRDABInterface, &CSdrDabInterface::ficCrcChanged, this, &CRadioController::ficCrcUpdate);
-
 }
 
 CRadioController::~CRadioController(void)
@@ -148,9 +147,6 @@ void CRadioController::onEventLoopStarted()
     if(commandLineOptions["rawFileFormat"] != "")
         rawFileFormat = commandLineOptions["rawFileFormat"].toString();
 
-    /*if(dabDevice == "rawfile")
-        SDRDABInterface.setRAWInput(rawFile);*/
-
     // Init device
     Device = CInputFactory::GetDevice(*this, dabDevice);
 
@@ -204,26 +200,15 @@ void CRadioController::play(QString Channel, QString Station, int SubChannelID)
     emit MOTChanged(*MOTImage);
 
     // Implement the different states of playing
-    if(Status != Playing)
+    if(CurrentChannel == Channel && Status == Playing)
     {
-        setChannel(Channel, false);
-        SDRDABInterface.start(true, SubChannelID);
-        Status = Tuning;
+        SDRDABInterface.tuneToStation(SubChannelID);
+        Status = Playing;
+        CurrentTitle = CurrentStation;
     }
     else
     {
-        if(CurrentChannel == Channel)
-        {
-            SDRDABInterface.tuneToStation(SubChannelID);
-            Status = Playing;
-            CurrentTitle = CurrentStation;
-        }
-        else
-        {
-            SDRDABInterface.stop();
-            SDRDABInterface.start(true, SubChannelID);
-            Status = Tuning;
-        }
+        setChannel(Channel, SubChannelID, true);
     }
 
     updateGUIData();
@@ -263,9 +248,9 @@ void CRadioController::clearStations()
     Settings.remove("lastchannel");
 }
 
-void CRadioController::setChannel(QString Channel, bool isScan, bool Force)
+void CRadioController::setChannel(QString Channel, int SubChannelID, bool isAudio)
 {
-    if(CurrentChannel != Channel || Force == true)
+    if(CurrentChannel != Channel)
     {
         if(Device->getID() == CDeviceID::RAWFILE)
         {
@@ -273,20 +258,20 @@ void CRadioController::setChannel(QString Channel, bool isScan, bool Force)
             CurrentEnsemble = "";
             CurrentFrequency = 0;
         }
-//        else // A real device
-//        {
-//            CurrentChannel = Channel;
-//            CurrentEnsemble = "";
+        else // A real device
+        {
+            CurrentChannel = Channel;
+            CurrentEnsemble = "";
 
-//            // Convert channel into a frequency
-//            CurrentFrequency = Channels.getFrequency(Channel);
+            // Convert channel into a frequency
+            CurrentFrequency = Channels.getFrequency(Channel);
 
-//            if(CurrentFrequency != 0 && Device)
-//            {
-//                qDebug() << "RadioController: Tune to channel" <<  Channel << "->" << CurrentFrequency/1e6 << "MHz";
-//                Device->setFrequency(CurrentFrequency);
-//            }
-//        }
+            qDebug() << "RadioController: Tune to channel" <<  Channel << "->" << CurrentFrequency/1e6 << "MHz";
+        }
+
+        Status = Tuning;
+        SDRDABInterface.stop();
+        SDRDABInterface.start(CurrentFrequency, SubChannelID, isAudio);
 
         updateGUIData();
     }
@@ -301,7 +286,7 @@ void CRadioController::setManualChannel(QString Channel)
         {
             QString stationName = station->getStationName();
             qDebug() << "RadioController: Play channel" <<  Channel << "and first station" << stationName;
-            play(Channel, stationName);
+            play(Channel, stationName, true);
             return;
         }
     }
@@ -325,7 +310,7 @@ void CRadioController::setManualChannel(QString Channel)
     emit MOTChanged(*MOTImage);
 
     // Switch channel
-    setChannel(Channel, false, true);
+    setChannel(Channel, 255, false);
 }
 
 void CRadioController::startScan(void)
@@ -338,7 +323,12 @@ void CRadioController::startScan(void)
     if(Device->getID() == CDeviceID::RAWFILE)
     {
         CurrentTitle = tr("RAW File");
-        setChannel(CChannels::FirstChannel, false); // Just a dummy
+        setChannel(CChannels::FirstChannel, 255, false); // Just a dummy
+        emit ScanStopped();
+    }
+    else
+    {
+        qDebug() << "RadioController:" << "Start channel not implemented yet!";
         emit ScanStopped();
     }
 //    else

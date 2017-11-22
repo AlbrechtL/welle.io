@@ -31,6 +31,7 @@ CSdrDabInterface::CSdrDabInterface(QObject *parent) : QObject(parent)
 {
     connect(this, &CSdrDabInterface::ficDataUpdated, this, &CSdrDabInterface::ficDataUpdate);
 
+    m_SchedulerThread = nullptr;
     //VerbosityOn();
 }
 
@@ -39,10 +40,11 @@ CSdrDabInterface::~CSdrDabInterface()
     stop();
 }
 
-void CSdrDabInterface::start(bool isAudio, uint8_t stationNumber)
+void CSdrDabInterface::start(int32_t frequency, uint8_t stationNumber, bool isAudio)
 {
     m_isAudio = isAudio;
     m_stationNumber = stationNumber;
+    m_frequency = frequency;
 
     //Launch a thread
     m_SchedulerThread = new std::thread(schedularThreadWrapper, this);
@@ -50,11 +52,15 @@ void CSdrDabInterface::start(bool isAudio, uint8_t stationNumber)
 
 void CSdrDabInterface::stop()
 {
-    this->Scheduler::Stop();
+    if(m_SchedulerThread)
+    {
+        this->Scheduler::Stop();
 
-    // Wait for thead end
-    m_SchedulerThread->join();
-    delete m_SchedulerThread;
+        // Wait for thead end
+        m_SchedulerThread->join();
+        delete m_SchedulerThread;
+        m_SchedulerThread = nullptr;
+    }
 }
 
 void CSdrDabInterface::schedularThreadWrapper(CSdrDabInterface *SDRDABInterface)
@@ -75,7 +81,8 @@ void CSdrDabInterface::schedulerRunThread()
     //config.data_source = Scheduler::DATA_FROM_DONGLE;
 
     config.data_source = Scheduler::DATA_FROM_WELLE_IO;
-    config.carrier_frequency = 178352000; // 5C
+    config.carrier_frequency =m_frequency;
+    //config.carrier_frequency = 178352000; // 5C
     //config.carrier_frequency = 222064000; // 11D
 
     this->Scheduler::Start(config);

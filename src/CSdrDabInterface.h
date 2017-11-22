@@ -42,7 +42,7 @@ class CSdrDabInterface : public QObject, public Scheduler
 public:
     explicit CSdrDabInterface(QObject *parent = nullptr);
     ~CSdrDabInterface();
-    void start(bool isAudio = true, uint8_t stationNumber = 255);
+    void start(int32_t frequency, uint8_t stationNumber = 255, bool isAudio = true);
     void stop(void);
     void tuneToStation(int SubChannelID);
     void getSpectrumData(std::vector<float> &SpectrumBuffer);
@@ -99,6 +99,7 @@ private:
 
     bool m_isAudio;
     uint8_t m_stationNumber;
+    int32_t m_frequency;
     int m_SNR;
     int m_estimated_fc_drift;
     state_t m_state;

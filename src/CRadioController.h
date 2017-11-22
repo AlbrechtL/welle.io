@@ -84,11 +84,11 @@ public:
     ~CRadioController(void);
     void closeDevice();
     void openDevice(CVirtualInput* Dev);
-    void play(QString Channel, QString Station, int SubChannelID = 255);
+    void play(QString Channel, QString Station, int SubChannelID);
     void pause();
     void stop();
     void clearStations();
-    void setChannel(QString Channel, bool isScan, bool Force = false);
+    void setChannel(QString Channel, int SubChannelID, bool isAudio);
     void setManualChannel(QString Channel);
     void startScan(void);
     void stopScan(void);
@@ -151,6 +151,7 @@ private:
     qreal CurrentVolume;
 
     CStationList mStationList;
+    CChannels Channels;
 
     // Spectrum variables
     std::vector<float> SpectrumBuffer;
