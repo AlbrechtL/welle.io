@@ -58,6 +58,8 @@ after_success:
   - sed -e "s/\${VERSION}/"$DATE"_"$GIT_HASH"/" .travis-bintray-deploy.json.template >travis-bintray-deploy.json
 
 deploy:
+  on:
+   branch: next
   provider: bintray
   file: "travis-bintray-deploy.json"
   user: "albrechtl"
