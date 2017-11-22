@@ -25,7 +25,7 @@ Table of contents
 Download
 ========
 At the moment there is no stable release available but you can try the latest developer builds. But PLEASE BE WARNED the builds are automatically created and untested.
- * [welle.io next nightly builds](https://bintray.com/albrechtl/welle.io/welle.io_next_nighly#files)
+ * [welle.io next nightly builds](https://bintray.com/albrechtl/welle.io/welle.io_next_nightly#files)
 
 To use it on macOS or on a Raspberry Pi you have to compile welle.io direct from the sources.
 
