@@ -115,12 +115,14 @@ win32 {
     LIBS    += -lws2_32
     LIBS    += -llibfaad
     LIBS    += -lusb-1.0
+    LIBS    += -lsamplerate
     CONFIG  += rtl_sdr
     CONFIG  += airspy
 
     # SSE under Windows not working. welle.io crashes
     #QMAKE_CFLAGS += -msse2
     #DEFINES += SSE_AVAILABLE
+    CONFIG  += sdrdab_builtin
 }
 
 macx {

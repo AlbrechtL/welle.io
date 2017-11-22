@@ -1601,7 +1601,7 @@ void Scheduler::Process( data_source_t data_source )
                 if ( data_source == DATA_FROM_DONGLE ) {
                     Stop(DEVICE_DISCONNECTED);
                 } else if ( data_source == DATA_FROM_FILE ) {
-                    Stop(FILE_END);
+                    Stop(FILE_END_);
                 }
             } else if ( state_ == EXTERNAL_STOP ) {
                 Stop(OK);
@@ -1671,7 +1671,7 @@ void Scheduler::Stop(scheduler_error_t error_code)
     if (audiodecoder_ != NULL) {
         audiodecoder_data_.finish_work = true;
 
-        if ( error_code == FILE_END) {
+        if ( error_code == FILE_END_) {
             audiodecoder_->LastFrame();
         } else {
             audiodecoder_->Flush();

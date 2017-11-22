@@ -98,7 +98,7 @@ void CSdrDabInterface::ParametersFromSDR(Scheduler::scheduler_error_t error_code
     case FILE_NOT_FOUND: qDebug() << "CSdrDabInterface: FileDataFeeder was unable to open raw file"; break;
     case DEVICE_NOT_FOUND: qDebug() << "CSdrDabInterface: DataFeeder was unable to use tuner"; break;
     case DEVICE_DISCONNECTED: qDebug() << "CSdrDabInterface: tuner device has been disconnected"; break;
-    case FILE_END: qDebug() << "CSdrDabInterface: input file with raw samples has ended"; break;
+    case FILE_END_: qDebug() << "CSdrDabInterface: input file with raw samples has ended"; break;
     case DAB_NOT_DETECTED: qDebug() << "CSdrDabInterface: DAB signal was not detected"; break;
     case STATION_NOT_FOUND: qDebug() << "CSdrDabInterface: given station number is incorrect"; break;
     }

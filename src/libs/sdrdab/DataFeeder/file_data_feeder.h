@@ -36,6 +36,11 @@
 #include <fcntl.h>
 #include <sys/time.h>
 #include <threading/blocking_queue.h>
+#include <sys/types.h>
+
+#ifdef _WIN32
+typedef uint32_t __useconds_t; // TODO I don't if this is correct??
+#endif
 
 class FileDataFeeder : public AbstractDataFeeder {
     public:

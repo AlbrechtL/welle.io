@@ -357,7 +357,8 @@ protected:
         FILE_NOT_FOUND, ///< FileDataFeeder was unable to open raw file
         DEVICE_NOT_FOUND, ///< DataFeeder was unable to use tuner
         DEVICE_DISCONNECTED, ///< tuner device has been disconnected
-        FILE_END, ///< input file with raw samples has ended
+        //FILE_END, ///< input file with raw samples has ended
+        FILE_END_, // "FILE_END" seems to be defined in MS Windows
         DAB_NOT_DETECTED, ///< DAB signal was not detected
         STATION_NOT_FOUND, ///< given station number is incorrect
     };
