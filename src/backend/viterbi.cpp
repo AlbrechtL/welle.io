@@ -158,7 +158,7 @@ viterbi::viterbi(int16_t wordlength, bool spiral)
         printf("Allocation of data array failed\n");
     }
     if (posix_memalign ((void**)&symbols, 16,
-                RATE * (wordlength + (K - 1)) * sizeof(COMPUTETYPE))){
+                RATE * (wordlength + (K - 1)) * sizeof(COMPUTETYPE)*2)){
         printf("Allocation of symbols array failed\n");
     }
     if (posix_memalign ((void**)&(vp. decisions),
