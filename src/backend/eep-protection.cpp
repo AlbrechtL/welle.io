@@ -35,6 +35,7 @@ eep_protection::eep_protection(int16_t bitRate,
     outSize(24 * bitRate),
     viterbiBlock(outSize * 4 + 24)
 {
+    viterbiBlock = {0};
     this->bitRate = bitRate;
     if ((protLevel & (1 << 2)) == 0) {  // set A profiles
         switch (protLevel & 03) {
