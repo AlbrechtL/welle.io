@@ -57,6 +57,21 @@ mp4Processor::mp4Processor(
             mr, SLOT (show_aacErrors (int)));
     connect (this, SIGNAL (isStereo (bool)),
             mr, SLOT (setStereo (bool)));
+
+    // Open a MSC file (XPADxpert) if the user defined it
+    QString MscFileName_tmp = myRadioInterface->GetMscFileName();
+    if(!MscFileName_tmp.isEmpty())
+    {
+        qDebug() << "mp4processor:" <<  "Enabled writing of MSC data to the file: " << MscFileName_tmp;
+
+        MscFileName = new QByteArray(MscFileName_tmp.toLocal8Bit());
+        MscFile = fopen(MscFileName->data(), "wb");  // w for write, b for binary
+    }
+    else
+    {
+        MscFile = nullptr;
+    }
+
     this->bitRate  = bitRate;  // input rate
 
     superFramesize = 110 * (bitRate / 8);
@@ -76,6 +91,12 @@ mp4Processor::mp4Processor(
     au_count    = 0;
     au_errors   = 0;
     padDecoderAdapter = std::make_unique<PADDecoderAdapter>(mr);
+}
+
+mp4Processor::~mp4Processor()
+{
+    fclose(MscFile);
+    delete MscFileName;
 }
 
 /**
@@ -182,6 +203,10 @@ bool mp4Processor::processSuperframe(uint8_t frameBytes[], int16_t base)
             outVector[j + k * RSDims] = rsOut[k];
         }
     }
+
+    // MSC file
+    if(MscFile)
+        fwrite(outVector.data(), outVector.size(), 1, MscFile);
 
     //  bits 0 .. 15 is firecode
     //  bit 16 is unused

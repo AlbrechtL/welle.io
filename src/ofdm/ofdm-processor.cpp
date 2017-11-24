@@ -144,8 +144,8 @@ ofdmProcessor::~ofdmProcessor()
     if(threadHandle.joinable())
         threadHandle.join();
 
-    delete      ofdmBuffer;
-    delete      oscillatorTable;
+    delete[]    ofdmBuffer;
+    delete[]    oscillatorTable;
     delete      fft_handler;
     delete[]    correlationVector;
     delete[]    refArg;

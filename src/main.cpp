@@ -170,6 +170,11 @@ int main(int argc, char** argv)
         QCoreApplication::translate("main", "I/Q RAW file format"));
     optionParser.addOption(RAWFileFormat);
 
+    QCommandLineOption MSCFileName("msc-file",
+        QCoreApplication::translate("main", "The MSC file can be used to analyse zu X-PAD data with XPADexpert"),
+        QCoreApplication::translate("main", "File name"));
+    optionParser.addOption(MSCFileName);
+
     //	Process the actual command line arguments given by the user
     optionParser.process(app);
 
@@ -216,6 +221,7 @@ int main(int argc, char** argv)
     commandLineOptions["ipPort"] = optionParser.value(RTL_TCPServerIPPort);
     commandLineOptions["rawFile"] = optionParser.value(RAWFile);
     commandLineOptions["rawFileFormat"] = optionParser.value(RAWFileFormat);
+    commandLineOptions["mscFileName"] = optionParser.value(MSCFileName);
 
     // Create a new radio interface instance
     CRadioController* RadioController = new CRadioController(commandLineOptions, DABParams);

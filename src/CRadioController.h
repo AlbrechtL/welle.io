@@ -143,6 +143,7 @@ public:
 
     int GainCount() const;
     float GainValue() const;
+    QString GetMscFileName(void);
 
 private:
     void Initialise(void);

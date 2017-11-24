@@ -77,10 +77,14 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, CDABParams& 
 
 CRadioController::~CRadioController(void)
 {
+    disconnect(my_ficHandler, 0, 0, 0);
+    disconnect(my_ofdmProcessor, 0, 0, 0);
+
     // Shutdown the demodulator and decoder in the correct order
+    delete my_ofdmProcessor;
+
     delete my_ficHandler;
     delete my_mscHandler;
-    delete my_ofdmProcessor;
 
     delete Audio;
 }
@@ -133,14 +137,14 @@ void CRadioController::closeDevice()
 {
     qDebug() << "RadioController:" << "Close device";
 
+    delete my_ofdmProcessor;
+    my_ofdmProcessor = NULL;
+
     delete my_ficHandler;
     my_ficHandler = NULL;
 
     delete my_mscHandler;
     my_mscHandler = NULL;
-
-    delete my_ofdmProcessor;
-    my_ofdmProcessor = NULL;
 
     delete Device;
     Device = NULL;
@@ -678,6 +682,14 @@ void CRadioController::setAGC(bool isAGC)
 float CRadioController::GainValue() const
 {
     return CurrentManualGainValue;
+}
+
+QString CRadioController::GetMscFileName()
+{
+    if(commandLineOptions["mscFileName"] != "")
+        return commandLineOptions["mscFileName"].toString();
+    else
+        return QString();
 }
 
 int CRadioController::Gain() const
