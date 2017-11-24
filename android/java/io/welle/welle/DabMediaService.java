@@ -5,6 +5,11 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
@@ -44,6 +49,28 @@ public class DabMediaService extends MediaBrowserService implements ServiceConne
     private static DabMediaService instance = null;
     private static List<MediaBrowser.MediaItem> mFavoriteList = new ArrayList<>();
     private List<MediaBrowser.MediaItem> mChannelList = new ArrayList<>();
+
+    public static Bitmap drawableToBitmap(Drawable drawable) {
+        Bitmap bitmap = null;
+
+        if (drawable instanceof BitmapDrawable) {
+            BitmapDrawable bitmapDrawable = (BitmapDrawable) drawable;
+            if(bitmapDrawable.getBitmap() != null) {
+                return bitmapDrawable.getBitmap();
+            }
+        }
+
+        if(drawable.getIntrinsicWidth() <= 0 || drawable.getIntrinsicHeight() <= 0) {
+            bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888); // Single color bitmap will be created of 1x1 pixel
+        } else {
+            bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        }
+
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        drawable.draw(canvas);
+        return bitmap;
+    }
 
     public static void addFavoriteStation(String station, String channel) {
         Log.i(TAG, "Add favorite station: " + station + " channel: " + channel);
@@ -186,14 +213,14 @@ public class DabMediaService extends MediaBrowserService implements ServiceConne
                     mediaItems.add(new MediaBrowser.MediaItem(new MediaDescription.Builder()
                             .setMediaId(MEDIA_ID_FAVORITE_STATIONS)
                             .setTitle(resources.getString(R.string.menu_favorites))
-                            .setIconUri(Uri.parse("android.resource://" + "io.welle.welle/drawable/ic_favorites"))
+                            .setIconBitmap(drawableToBitmap(resources.getDrawable(R.drawable.ic_favorites)))
                             .build(), MediaBrowser.MediaItem.FLAG_BROWSABLE));
                 }
 
                 mediaItems.add(new MediaBrowser.MediaItem(new MediaDescription.Builder()
                         .setMediaId(MEDIA_ID_DAB_CHANNELS)
                         .setTitle(resources.getString(R.string.menu_channels))
-                        .setIconUri(Uri.parse("android.resource://" + "io.welle.welle/drawable/ic_antenna"))
+                        .setIconBitmap(drawableToBitmap(resources.getDrawable(R.drawable.ic_antenna)))
                         .build(), MediaBrowser.MediaItem.FLAG_BROWSABLE));
 
                 result.sendResult(mediaItems);
