@@ -184,6 +184,7 @@ private:
 	PADDecoderObserver *observer;
 	bool loose;
 
+	uint8_t xpad[196];	// longest possible X-PAD
 	XPAD_CI last_xpad_ci;
 
 	DynamicLabelDecoder dl_decoder;
@@ -193,7 +194,7 @@ private:
 public:
 	PADDecoder(PADDecoderObserver *observer, bool loose) : observer(observer), loose(loose) {}
 
-	void Process(const uint8_t *xpad_data, size_t xpad_len, bool exact_xpad_len, uint16_t fpad);
+	void Process(const uint8_t *xpad_data, size_t xpad_len, bool exact_xpad_len, const uint8_t* fpad_data);
 	void Reset();
 };
 

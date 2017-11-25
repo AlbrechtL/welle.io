@@ -59,12 +59,13 @@ std::vector<uint8_t> MOTEntity::GetData() {
 }
 
 
-// --- MOTTransport -----------------------------------------------------------------
-void MOTTransport::AddSeg(bool dg_type_header, int seg_number, bool last_seg, const uint8_t* data, size_t len) {
+// --- MOTObject -----------------------------------------------------------------
+void MOTObject::AddSeg(bool dg_type_header, int seg_number, bool last_seg, const uint8_t* data, size_t len) {
 	(dg_type_header ? header : body).AddSeg(seg_number, last_seg, data, len);
 }
 
-bool MOTTransport::ParseCheckHeader(MOT_FILE& file) {
+bool MOTObject::ParseCheckHeader(MOT_FILE& target_file) {
+	MOT_FILE file = target_file;
 	std::vector<uint8_t> data = header.GetData();
 
 	// parse/check header core
@@ -73,16 +74,32 @@ bool MOTTransport::ParseCheckHeader(MOT_FILE& file) {
 
 	size_t body_size = (data[0] << 20) | (data[1] << 12) | (data[2] << 4) | (data[3] >> 4);
 	size_t header_size = ((data[3] & 0x0F) << 9) | (data[4] << 1) | (data[5] >> 7);
-	file.content_type = (data[5] & 0x7F) >> 1;
-	file.content_sub_type = ((data[5] & 0x01) << 8) | data[6];
+	int content_type = (data[5] & 0x7F) >> 1;
+	int content_sub_type = ((data[5] & 0x01) << 8) | data[6];
 
 //	fprintf(stderr, "body_size: %5zu, header_size: %3zu, content_type: 0x%02X, content_sub_type: 0x%03X\n",
 //			body_size, header_size, content_type, content_sub_type);
 
 	if(header_size != header.GetSize())
 		return false;
-	if(body_size != body.GetSize())
+
+	bool header_update =
+			content_type == MOT_FILE::CONTENT_TYPE_MOT_TRANSPORT &&
+			content_sub_type == MOT_FILE::CONTENT_SUB_TYPE_HEADER_UPDATE;
+
+	// abort, if neither none nor both conditions (header received/update) apply
+	if(header_received != header_update)
 		return false;
+
+	if(!header_update) {
+		// store core info
+		file.body_size = body_size;
+		file.content_type = content_type;
+		file.content_sub_type = content_sub_type;
+	}
+
+	std::string old_content_name = file.content_name;
+	std::string new_content_name;
 
 	// parse/check header extension
 	for(size_t offset = 7; offset < data.size();) {
@@ -128,13 +145,14 @@ bool MOTTransport::ParseCheckHeader(MOT_FILE& file) {
 				return false;
 			// TODO: not only distinguish between Now or not
 			file.trigger_time_now = !(data[offset] & 0x80);
-//			fprintf(stderr, "TriggerTime: %s\n", file.tr	igger_time_now ? "Now" : "(not Now)");
+//			fprintf(stderr, "TriggerTime: %s\n", file.trigger_time_now ? "Now" : "(not Now)");
 			break;
 		case 0x0C:	// ContentName
 			if(data_len == 0)
 				return false;
             //file.content_name = FICDecoder::ConvertTextToUTF8(&data[offset + 1], data_len - 1, data[offset] >> 4);
             file.content_name = toQStringUsingCharset ( (const char *)&data[offset + 1], (CharacterSet) (data[offset] >> 4), data_len - 1).toStdString();
+			new_content_name = file.content_name;
 //			fprintf(stderr, "ContentName: '%s'\n", file.content_name.c_str());
 			break;
 		case 0x26:	// CategoryTitle
@@ -149,25 +167,42 @@ bool MOTTransport::ParseCheckHeader(MOT_FILE& file) {
 		offset += data_len;
 	}
 
+	if(!header_update) {
+		// ensure actual header is processed only once
+		header_received = true;
+	} else {
+		// ensure matching content name
+		if(new_content_name != old_content_name)
+			return false;
+	}
+
+	target_file = file;
 	return true;
 }
 
-bool MOTTransport::IsToBeShown() {
+bool MOTObject::IsToBeShown() {
 	// abort, if already shown
 	if(shown)
 		return false;
 
-	// abort, if incomplete
-	if(!header.IsFinished() || !body.IsFinished())
+	// try to process finished header
+	if(header.IsFinished()) {
+		// parse/check MOT header
+		bool result = ParseCheckHeader(result_file);
+		header.Reset();	// allow for header updates
+		if(!result)
+			return false;
+	}
+
+	// abort, if incomplete/not yet triggered
+	if(!header_received)
+		return false;
+	if(!body.IsFinished() || result_file.body_size != body.GetSize())
+		return false;
+	if(!result_file.trigger_time_now)
 		return false;
 
-	// parse/check MOT header
-	MOT_FILE header_file;
-	if(!ParseCheckHeader(header_file))
-		return false;
-
-	// update result file
-	result_file = header_file;
+	// add body data
 	result_file.data = body.GetData();
 
 	shown = true;
@@ -181,7 +216,7 @@ MOTManager::MOTManager() {
 }
 
 void MOTManager::Reset() {
-	transport = MOTTransport();
+	object = MOTObject();
 	current_transport_id = -1;
 }
 
@@ -268,18 +303,18 @@ bool MOTManager::HandleMOTDataGroup(const std::vector<uint8_t>& dg) {
 		return false;
 
 
-	// add segment to transport (reset if necessary)
+	// add segment to MOT object (reset if necessary)
 	if(current_transport_id != transport_id) {
 		current_transport_id = transport_id;
-		transport = MOTTransport();
+		object = MOTObject();
 	}
-	transport.AddSeg(dg_type == 3, seg_number, last_seg, &dg[offset], seg_size);
+	object.AddSeg(dg_type == 3, seg_number, last_seg, &dg[offset], seg_size);
 
-	// check if file shall be shown
-	bool display = transport.IsToBeShown();
+	// check if object shall be shown
+	bool display = object.IsToBeShown();
 //	fprintf(stderr, "dg_type: %d, seg_number: %2d%s, transport_id: %5d, size: %4zu; display: %s\n",
 //			dg_type, seg_number, last_seg ? " (LAST)" : "", transport_id, seg_size, display ? "true" : "false");
 
-	// if file shall be shown, update it
+	// if object shall be shown, update it
 	return display;
 }

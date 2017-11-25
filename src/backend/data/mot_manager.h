@@ -22,6 +22,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <string>
 #include <map>
 #include <vector>
 
@@ -34,6 +35,7 @@ struct MOT_FILE {
 	std::vector<uint8_t> data;
 
 	// from header core
+	size_t body_size;
 	int content_type;
 	int content_sub_type;
 
@@ -43,13 +45,18 @@ struct MOT_FILE {
 	std::string click_through_url;
 	bool trigger_time_now;
 
-	MOT_FILE() {Reset();}
-	void Reset() {
-		data.clear();
-		content_type = -1;
-		content_sub_type = -1;
-		trigger_time_now = false;
-	}
+	static const int CONTENT_TYPE_IMAGE			= 0x02;
+	static const int CONTENT_TYPE_MOT_TRANSPORT	= 0x05;
+	static const int CONTENT_SUB_TYPE_JFIF			= 0x001;
+	static const int CONTENT_SUB_TYPE_PNG			= 0x003;
+	static const int CONTENT_SUB_TYPE_HEADER_UPDATE	= 0x000;
+
+	MOT_FILE() :
+		body_size(-1),
+		content_type(-1),
+		content_sub_type(-1),
+		trigger_time_now(false)
+	{}
 };
 
 
@@ -63,7 +70,12 @@ private:
 	int last_seg_number;
 	size_t size;
 public:
-	MOTEntity() : last_seg_number(-1), size(0) {}
+	MOTEntity() {Reset();}
+	void Reset() {
+		segs.clear();
+		last_seg_number = -1;
+		size = 0;
+	}
 
 	void AddSeg(int seg_number, bool last_seg, const uint8_t* data, size_t len);
 	bool IsFinished();
@@ -72,18 +84,19 @@ public:
 };
 
 
-// --- MOTTransport -----------------------------------------------------------------
-class MOTTransport {
+// --- MOTObject -----------------------------------------------------------------
+class MOTObject {
 private:
 	MOTEntity header;
 	MOTEntity body;
+	bool header_received;
 	bool shown;
 
 	MOT_FILE result_file;
 
-	bool ParseCheckHeader(MOT_FILE& file);
+	bool ParseCheckHeader(MOT_FILE& target_file);
 public:
-	MOTTransport(): shown(false) {}
+	MOTObject(): header_received(false), shown(false) {}
 
 	void AddSeg(bool dg_type_header, int seg_number, bool last_seg, const uint8_t* data, size_t len);
 	bool IsToBeShown();
@@ -94,7 +107,7 @@ public:
 // --- MOTManager -----------------------------------------------------------------
 class MOTManager {
 private:
-	MOTTransport transport;
+	MOTObject object;
 	int current_transport_id;
 
 	bool ParseCheckDataGroupHeader(const std::vector<uint8_t>& dg, size_t& offset, int& dg_type);
@@ -105,7 +118,7 @@ public:
 
 	void Reset();
 	bool HandleMOTDataGroup(const std::vector<uint8_t>& dg);
-	MOT_FILE GetFile() {return transport.GetFile();}
+	MOT_FILE GetFile() {return object.GetFile();}
 };
 
 #endif /* MOT_MANAGER_H_ */

@@ -49,13 +49,18 @@ void PADDecoder::Reset() {
 	mot_manager.Reset();
 }
 
-void PADDecoder::Process(const uint8_t *xpad_data, size_t xpad_len, bool exact_xpad_len, uint16_t fpad) {
+void PADDecoder::Process(const uint8_t *xpad_data, size_t xpad_len, bool exact_xpad_len, const uint8_t* fpad_data) {
+	// undo reversed byte order + trim long MP2 frames
+	size_t used_xpad_len = std::min(xpad_len, sizeof(xpad));
+	for(size_t i = 0; i < used_xpad_len; i++)
+		xpad[i] = xpad_data[xpad_len - 1 - i];
+
 	xpad_cis_t xpad_cis;
 	size_t xpad_cis_len = -1;
 
-	int fpad_type = fpad >> 14;
-	int xpad_ind = (fpad & 0x3000) >> 12;
-	bool ci_flag = fpad & 0x0002;
+	int fpad_type = fpad_data[0] >> 6;
+	int xpad_ind = (fpad_data[0] & 0x30) >> 4;
+	bool ci_flag = fpad_data[1] & 0x02;
 
 	XPAD_CI prev_xpad_ci = last_xpad_ci;
 	last_xpad_ci.Reset();
@@ -68,7 +73,7 @@ void PADDecoder::Process(const uint8_t *xpad_data, size_t xpad_len, bool exact_x
 				if(xpad_len < 1)
 					return;
 
-				int type = xpad_data[0] & 0x1F;
+				int type = xpad[0] & 0x1F;
 
 				// skip end marker
 				if(type != 0x00) {
@@ -82,7 +87,7 @@ void PADDecoder::Process(const uint8_t *xpad_data, size_t xpad_len, bool exact_x
 					if(xpad_len < i + 1)
 						return;
 
-					uint8_t ci_raw = xpad_data[i];
+					uint8_t ci_raw = xpad[i];
 					xpad_cis_len++;
 
 					// break on end marker
@@ -142,13 +147,13 @@ void PADDecoder::Process(const uint8_t *xpad_data, size_t xpad_len, bool exact_x
 		// handle Data Subfield
 		switch(it->type) {
 		case 1:		// Data Group Length Indicator
-			dgli_decoder.ProcessDataSubfield(ci_flag, xpad_data + xpad_offset, it->len);
+			dgli_decoder.ProcessDataSubfield(ci_flag, xpad + xpad_offset, it->len);
 			break;
 
 		case 2:		// Dynamic Label segment (start)
 		case 3:		// Dynamic Label segment (continuation)
 			// if new label available, append it
-			if(dl_decoder.ProcessDataSubfield(it->type == 2, xpad_data + xpad_offset, it->len))
+			if(dl_decoder.ProcessDataSubfield(it->type == 2, xpad + xpad_offset, it->len))
 				observer->PADChangeDynamicLabel(dl_decoder.GetLabel());
 			break;
 
@@ -158,28 +163,22 @@ void PADDecoder::Process(const uint8_t *xpad_data, size_t xpad_len, bool exact_x
 			// no break
 		case 13:	// MOT, X-PAD data group (continuation)
 			// if new Data Group available, append it
-			if(mot_decoder.ProcessDataSubfield(it->type == 12, xpad_data + xpad_offset, it->len)) {
+			if(mot_decoder.ProcessDataSubfield(it->type == 12, xpad + xpad_offset, it->len)) {
 				// if new slide available, show it
 				if(mot_manager.HandleMOTDataGroup(mot_decoder.GetMOTDataGroup())) {
 					const MOT_FILE new_slide = mot_manager.GetFile();
 
-					// check slide type
+					// check file type
 					bool show_slide = true;
-					if(new_slide.content_type != 0x02)	// image
+					if(new_slide.content_type != MOT_FILE::CONTENT_TYPE_IMAGE)
 						show_slide = false;
 					switch(new_slide.content_sub_type) {
-					case 0x01:	// JFIF
-						break;
-					case 0x03:	// PNG
+					case MOT_FILE::CONTENT_SUB_TYPE_JFIF:
+					case MOT_FILE::CONTENT_SUB_TYPE_PNG:
 						break;
 					default:
 						show_slide = false;
 					}
-
-					// check TriggerTime
-					if(!new_slide.trigger_time_now)
-						show_slide = false;
-
 
 					if(show_slide)
 						observer->PADChangeSlide(new_slide);
