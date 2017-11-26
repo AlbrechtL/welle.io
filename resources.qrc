@@ -33,8 +33,9 @@
         <file>src/gui/QML/style/SettingsFrame.qml</file>
         <file>src/gui/QML/InfoPage.qml</file>
         <file>i18n/de_DE.qm</file>
-	<file>i18n/it_IT.qm</file>
-	<file>i18n/hu_HU.qm</file>
+        <file>i18n/it_IT.qm</file>
+        <file>i18n/hu_HU.qm</file>
+        <file>i18n/nb_NO.qm</file>
         <file>icon.png</file>
         <file>AUTHORS</file>
         <file>COPYING</file>
