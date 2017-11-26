@@ -528,7 +528,7 @@
     <message>
         <location filename="../src/gui/QML/ExpertView.qml" line="25"/>
         <source>Current channel</source>
-        <translation type="unfinished">Kanalblokk</translation>
+        <translation>Kanalblokk</translation>
     </message>
     <message>
         <location filename="../src/gui/QML/ExpertView.qml" line="31"/>
