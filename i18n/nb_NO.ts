@@ -455,7 +455,7 @@
     <message>
         <location filename="../src/CRadioController.cpp" line="740"/>
         <source>Radio device is not ready or does not exits.</source>
-        <translation>Radiomottaker er ikke klar eller eksisterer ikke</translation>
+        <translation>Radiomottaker er ikke klar eller eksisterer ikke.</translation>
     </message>
     <message>
         <location filename="../src/CRadioController.cpp" line="874"/>
@@ -515,7 +515,7 @@
     <message>
         <location filename="../src/gui/QML/ChannelBrowser.qml" line="607"/>
         <source>Exit welle.io</source>
-        <translation>Avslutt Welle.io</translation>
+        <translation>Avslutt welle.io</translation>
     </message>
 </context>
 <context>
@@ -528,8 +528,7 @@
     <message>
         <location filename="../src/gui/QML/ExpertView.qml" line="25"/>
         <source>Current channel</source>
-        <translatorcomment>Maybe too complicated translation. &quot;kanal&quot; only should suffice</translatorcomment>
-        <translation>nåværende kanal</translation>
+        <translation type="unfinished">Kanalblokk</translation>
     </message>
     <message>
         <location filename="../src/gui/QML/ExpertView.qml" line="31"/>
@@ -554,7 +553,7 @@
     <message>
         <location filename="../src/gui/QML/ExpertView.qml" line="55"/>
         <source>AAC errors</source>
-        <translation>AAC feil</translation>
+        <translation>AAC-feil</translation>
     </message>
     <message>
         <location filename="../src/gui/QML/ExpertView.qml" line="61"/>
@@ -589,7 +588,7 @@
         <location filename="../src/input/CInputFactory.cpp" line="62"/>
         <source>No valid device found use Null device instead.</source>
         <translatorcomment>Bad phrasing</translatorcomment>
-        <translation>Ingen brukbar enhet funnet, bruk NULL enhet i stedet.</translation>
+        <translation>Ingen fungerende enhet funnet, bruker NULL enhet i stedet.</translation>
     </message>
     <message>
         <location filename="../src/input/CInputFactory.cpp" line="64"/>
@@ -615,7 +614,7 @@
         <location filename="../src/input/CRTL_SDR.cpp" line="344"/>
         <location filename="../src/input/CRTL_TCP_Client.cpp" line="365"/>
         <source>ADC overload. Maybe you are using a to high gain.</source>
-        <translation>ADC overbelastning. Kanskje gain er satt for høyt.</translation>
+        <translation>ADC overbelastning. Kanskje forsterkning er satt for høyt.</translation>
     </message>
     <message>
         <location filename="../src/input/CRTL_SDR.cpp" line="406"/>
@@ -630,7 +629,7 @@
     <message>
         <location filename="../src/input/CRTL_TCP_Client.cpp" line="318"/>
         <source>Connection failed to server </source>
-        <translation>Tilkobling til server mislyktes</translation>
+        <translation>Tilkobling til server mislyktes </translation>
     </message>
 </context>
 <context>
@@ -668,22 +667,22 @@
     <message>
         <location filename="../src/gui/QML/SettingsPage.qml" line="178"/>
         <source>Hardware RF gain</source>
-        <translation>Hardware RF gain</translation>
+        <translation>Hardware RF forsterkning</translation>
     </message>
     <message>
         <location filename="../src/gui/QML/SettingsPage.qml" line="191"/>
         <source>Automatic RF gain</source>
-        <translation>Automatisk RF gain</translation>
+        <translation>Automatisk RF forsterkning</translation>
     </message>
     <message>
         <location filename="../src/gui/QML/SettingsPage.qml" line="208"/>
         <source>Manual gain</source>
-        <translation>Manuell gain</translation>
+        <translation>Manuell forsterkning</translation>
     </message>
     <message>
         <location filename="../src/gui/QML/SettingsPage.qml" line="209"/>
         <source>Value: </source>
-        <translation>Verdi:</translation>
+        <translation>Verdi: </translation>
     </message>
     <message>
         <location filename="../src/gui/QML/SettingsPage.qml" line="229"/>
@@ -789,7 +788,7 @@
     <message>
         <location filename="../src/main.cpp" line="139"/>
         <source>antenna</source>
-        <translation>Antenne</translation>
+        <translation>antenne</translation>
     </message>
     <message>
         <location filename="../src/main.cpp" line="143"/>
