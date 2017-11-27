@@ -43,7 +43,7 @@ struct v {
 class viterbi
 {
     public:
-        viterbi(int16_t, bool spiral = true);
+        viterbi(int16_t, bool spiral = false);
         ~viterbi(void);
         void deconvolve(int16_t *input, uint8_t *output);
 
