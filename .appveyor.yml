@@ -34,7 +34,8 @@ after_build:
   - ps: .\create_install.ps1 -welleExe ..\..\build\release\welle-io.exe -QTPath C:\Qt\5.9\mingw53_32\bin -ToolsPath C:\Qt\Tools\mingw530_32\bin -InstallerPath C:\Qt\Tools\QtInstallerFramework\2.0\bin
 
   # Add to artifact list
-  - cmd: appveyor PushArtifact %welle_io_filename%
+  - set PATH=%PATHORIG%
+  - appveyor PushArtifact %welle_io_filename%
   
 test_script:
   - set PATH=%PATHORIG%
