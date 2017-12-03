@@ -32,7 +32,7 @@ Copy-Item config installer\config -recurse
 Copy-Item packages installer\packages -recurse
 
 Write-Host "*** Copy non QT DLLs from welle.io-win-libs repository ***" -ForegroundColor Red
-Copy-Item ..\..\welle.io-win-libs\x64_install\* installer\packages\io.welle.welle\data  -recurse
+Copy-Item ..\..\welle.io-win-libs\x86_install\* installer\packages\io.welle.welle\data  -recurse
 
 Write-Host "*** Copy welle-io.exe ***" -ForegroundColor Red
 Copy-Item $WelleExe installer\packages\io.welle.welle\data\welle-io.exe
