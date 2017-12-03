@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package>
+    <DisplayName>welle.io</DisplayName>
+    <Description>welle.io</Description>
+    <Version>1.0</Version>
+    <ReleaseDate>2017-12-01</ReleaseDate>
+    <Licenses>
+        <License name="GNU GENERAL PUBLIC LICENSE" file="COPYING" />
+    </Licenses>
+	<Script>installscript.qs</Script>
+	<Default>true</Default>
+</Package>

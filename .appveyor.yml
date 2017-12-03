@@ -29,25 +29,16 @@ build_script:
   - mingw32-make -f Makefile.Release -j4
 
 after_build:
-  - cp release\welle-io.exe C:\projects\welle.io-win-libs\install\packages\com.vendor.product\data
-  - cd C:\projects\welle.io-win-libs\install\packages\com.vendor.product\data
-  # Deploy QT and related plugins
-  - windeployqt welle-io.exe --plugindir plugins\ --no-translations
-  # Deploy QML files
-  - windeployqt welle-io.exe --dir qml\ --qmldir C:\projects\welle-io\src\gui\QML\ --no-translations --no-plugins
-  # Copy Quick DLLs and delete the duplicate DLLs
-  - copy qml\Qt5QuickControls2.dll .
-  - copy qml\Qt5QuickTemplates2.dll .
-  - del qml\*.dll
-  # Build installer the filename will be stored in variable %filename%
-  - cd C:\projects\welle.io-win-libs\install\
-  - create.bat ..\..\welle-io
+  # Create installer
+  - cd ..\welle-io\windows\
+  - ps: .\create_install.ps -welleExe release\welle-io.exe -QTPath C:\Qt\5.9\mingw53_32\bin -ToolsPath C:\Qt\Tools\mingw530_32\bin -InstallerPath C:\Qt\Tools\QtInstallerFramework\2.0\bin\ 
+
   # Add to artifact list
-  - appveyor PushArtifact %filename%
+  - appveyor PushArtifact %welle_io_filename%
   
 test_script:
   - set PATH=%PATHORIG%
-  - cd C:\projects\welle.io-win-libs\install\packages\com.vendor.product\data
+  - cd installer\packages\io.welle.welle\data
   - welle-io.exe --version
   
 deploy:
@@ -66,4 +57,4 @@ deploy:
 
 after_deploy:
   # Backup: Upload it to transfer.sh
-  - curl --upload-file C:\projects\welle.io-win-libs\install\%filename% https://transfer.sh/%filename%
+  #- curl --upload-file C:\projects\welle.io-win-libs\install\%filename% https://transfer.sh/%filename%

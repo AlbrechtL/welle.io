@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Installer>
+    <Name>welle.io</Name>
+    <Version>1.0-rc1</Version>
+    <Title>welle.io Installer</Title>
+    <Publisher>Albrecht Lohofener</Publisher>
+    <StartMenuDir>welle.io</StartMenuDir>
+    <TargetDir>@ApplicationsDir@/welle.io</TargetDir>
+	<ControlScript>controlScript.qs</ControlScript>
+</Installer>
