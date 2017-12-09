@@ -214,7 +214,7 @@ This sections shows how to compile welle.io for Android.
 
 Raspberry Pi 2 and 3
 ---
-To build and run welle.io on a Raspberry Pi 2 and 3 with GPU acceleration, please visit this repository: https://github.com/AlbrechtL/dab-rpi_raspbian_image (outdated)
+To build and run welle.io on a Raspberry Pi 2 and 3 with GPU acceleration, please read [this guide,](https://github.com/AlbrechtL/welle.io/blob/master/RASPBERRY-PI.md) or visit this repository: https://github.com/AlbrechtL/dab-rpi_raspbian_image (outdated)
 
 
 Limitations
