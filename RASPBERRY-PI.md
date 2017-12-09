@@ -50,9 +50,9 @@ Setup
 
 First we need to get Raspbian up and running on the Raspberry Pi.  
 Only [Raspbian Stretch](https://www.raspberrypi.org/downloads/raspbian/) or newer will work, since Raspbian Jessie or older have a too old GCC/GLIBC version.  
-The easiest way is to download [NOOBS](https://www.raspberrypi.org/downloads/noobs/)  
+The easiest way is to download [NOOBS.](https://www.raspberrypi.org/downloads/noobs/)  
 
-1. Download [NOOBS](https://downloads.raspberrypi.org/NOOBS_latest)  
+1. Download [NOOBS.](https://downloads.raspberrypi.org/NOOBS_latest)  
    Make sure it's version 2.4.5 or later.  
 2. Follow the [official quick start guide](https://www.raspberrypi.org/learning/software-guide/quickstart/) for installing Raspian.  
    ([Additional information](https://www.raspberrypi.org/documentation/installation/installing-images/README.md))  
@@ -131,7 +131,7 @@ Now we need to set up the toolchain, environments and directories on our host co
 10. Get a GCC toolchain for ARM systems.  
    ```
    wget https://releases.linaro.org/components/toolchain/binaries/latest-5/arm-linux-gnueabihf/gcc-linaro-5.5.0-2017.10-x86_64_arm-linux-gnueabihf.tar.xz
-   tar -xf gcc-linaro-5.5.0-2017.10-x86_64_arm-linux-gnueabihf.tar.xz
+   tar -xvf gcc-linaro-5.5.0-2017.10-x86_64_arm-linux-gnueabihf.tar.xz
    ```
    Or check the [website](https://releases.linaro.org/components/toolchain/binaries/latest-5/arm-linux-gnueabihf/) for the latest toolchain.  
    If you are using a 32-bit system, download the 32-bit version. (i686)  
@@ -232,9 +232,9 @@ This is only half the battle though. Now we continue on to set up our host compu
 18. We now need the Qt environment for our host computer, including Qt Creator.  
 	The easiest way to obtain this, is to download a precompiled Qt binary for our operating system. In this case, Ubuntu.  
 	Go to [Qt website](https://www1.qt.io/download-open-source/#section-2) and download the appropriate package for your system.  
-	For Ubuntu, Use [Online Installer Linux 64-bit](http://download.qt.io/official_releases/online_installers/qt-unified-linux-x64-online.run)  
+	For Ubuntu, Use [Online Installer Linux 64-bit.](http://download.qt.io/official_releases/online_installers/qt-unified-linux-x64-online.run)  
 	Or the [32bit version](http://download.qt.io/official_releases/online_installers/qt-unified-linux-x86-online.run) if you have such a system.  
-	Before we begin, start another instance of terminal, for a fresh start, or cd .. your way back to your home folder.  
+	Before we begin, start another instance of terminal for a fresh start, or cd .. your way back to your home folder.  
 	```
 	wget http://download.qt.io/official_releases/online_installers/qt-unified-linux-x64-online.run
 	sudo chmod +x qt-unified-linux-x64-online.run
