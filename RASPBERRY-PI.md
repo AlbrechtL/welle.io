@@ -78,7 +78,7 @@ The easiest way is to download [NOOBS.](https://www.raspberrypi.org/downloads/no
    ```
 4. Install the required packages for welle.io and RTL-SDR.  
    ```
-   sudo apt install libfaad-dev libfftw3-dev librtlsdr-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev rtl-sdr
+   sudo apt install libfaad-dev libfftw3-dev librtlsdr-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev rtl-sdr pulseaudio
    ```   
 5. Install a bunch of development files.  
    (for simplicity we use build-dep, not everything is really needed, but it is easier this way).  
@@ -86,10 +86,14 @@ The easiest way is to download [NOOBS.](https://www.raspberrypi.org/downloads/no
    ```
    sudo nano /etc/apt/sources.list
    ```
+   Run update again to include deb-src in the repository list:  
+   ```
+   sudo apt update
+   ```
    Install required libraries:
    ```
    sudo apt-get build-dep qt4-x11
-   sudo apt-get build-dep libqt5gui5
+   sudo apt-get build-dep qtbase-opensource-src
    ```
    ```
    sudo apt install libudev-dev libinput-dev libts-dev libxcb-xinerama0-dev libxcb-xinerama0
@@ -302,7 +306,7 @@ This is only half the battle though. Now we continue on to set up our host compu
 	cd ~/build-welle-io-Raspberry_Pi-Release
 	scp welle-io pi@raspberrypi.local:/home/pi
 	```
-
+	
 **ON RASPBERRY PI:**
 
 27. Find the file "welle-io" and run it to enjoy Welle.io on your Raspberry Pi.  
@@ -330,9 +334,33 @@ The SD card might be corrupt if it is written to while the Pi experiences underv
 Using the Pi in undervoltage mode is not the end of the world, but expect the unexpected.
 
 Troubleshooting
----------------
-In progress...
+===============
+
+* If you have no audio out when using an external sound card like a HiFiBerry DAC+, IQAudIO PiDAC+, PiMoroni pHAT DAC, JustBoom or any USB DAC, try installing Pulseaudio.  
+  ```
+  sudo apt install pulseaudio
+  ```
+* If you for some reason don't have any text in either the qopenglwidget example or in welle.io and get a message like this in the terminal:  
+  ```
+  QFontDatabase: Cannot find font directory /usr/local/qt5pi/lib/fonts.
+  Note that Qt no longer ships fonts. Deploy some (from http://dejavu-fonts.org for example) or switch to fontconfig.
+  ```
+  It means the fonts folder for the Qt environment does not exist.
+  To fix this, we simply make the folder and populate it with some fonts.
+  ```
+  mkdir /usr/local/qt5pi/lib/fonts
+  ```
+  Then we steal a font from the system font folder.  
+  ```
+  cp /usr/share/fonts/truetype/freefont/FreeSans.ttf /usr/local/qt5pi/lib/fonts/FreeSans.ttf
+  ```
+  You can basically put any font you want in the fonts folder.  
+* If your screen goes blank after a set time, have a look at the [official documentation](https://www.raspberrypi.org/documentation/configuration/screensaver.md) for screensavers.  
+
 
 Known issues
 -----------
-In progress...
+* When using a touch screen, the user interface will be "transparent" to your screen touches.  
+This means that you can accidentally click on icons on the desktop itself, behind the user interface of the program, while operating the program as normal.  
+It is not known if this is a Qt issue or welle.io issue.  
+For now, take care when operating the user interface with a touch screen.
