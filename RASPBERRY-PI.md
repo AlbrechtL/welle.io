@@ -78,7 +78,7 @@ The easiest way is to download [NOOBS.](https://www.raspberrypi.org/downloads/no
    ```
 4. Install the required packages for welle.io and RTL-SDR.  
    ```
-   sudo apt install libfaad-dev libfftw3-dev librtlsdr-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev rtl-sdr pulseaudio
+   sudo apt install libfaad-dev libfftw3-dev librtlsdr-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev rtl-sdr
    ```   
 5. Install a bunch of development files.  
    (for simplicity we use build-dep, not everything is really needed, but it is easier this way).  
