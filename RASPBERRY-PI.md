@@ -287,7 +287,7 @@ This is only half the battle though. Now we continue on to set up our host compu
     First, double click on "welle.io.pro" in the tree view,  
 	scroll down to where it says **unix:!macx:!android:** find the line which says "CONFIG += airspy"  
 	and comment it out by putting a # in front of it.  
-	(Unless you need Airpy support.)  
+	(Unless you need Airspy support.)  
 	```
 	#CONFIG += airspy
 	```
@@ -362,5 +362,5 @@ Known issues
 -----------
 * When using a touch screen, the user interface will be "transparent" to your screen touches.  
 This means that you can accidentally click on icons on the desktop itself, behind the user interface of the program, while operating the program as normal.  
-It is not known if this is a Qt issue or welle.io issue.  
+It is not known if this is a Qt issue, welle.io issue or a Raspbian driver issue.  
 For now, take care when operating the user interface with a touch screen.
