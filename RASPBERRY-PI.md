@@ -2,7 +2,7 @@ Welle.io on Raspberry Pi 2/3
 ============================
 This guide borrows parts from [Qt wiki](https://wiki.qt.io/RaspberryPi2EGLFS).  
 This guide is a work in progress.  
-If you have issues or something is completely wrong, please let us know at the [forums](https://forum.welle.io/)  
+If you have issues or something is completely wrong, please let us know at the [forums.](https://forum.welle.io/)  
 ---------------------------------------------------------------------------------
 Table of contents  
 =================
@@ -81,7 +81,7 @@ The easiest way is to download [NOOBS.](https://www.raspberrypi.org/downloads/no
    sudo apt install libfaad-dev libfftw3-dev librtlsdr-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev rtl-sdr
    ```   
 5. Install a bunch of development files.  
-   (for simplicity we use build-dep, not everything is really needed, but it is easier this way).  
+   (For simplicity we use build-dep, not everything is really needed, but it is easier this way.)  
    Edit sources list in /etc/apt/sources.list and uncomment (remove #) the **deb-src** line:  
    ```
    sudo nano /etc/apt/sources.list
@@ -171,24 +171,25 @@ Building
 	```
     ./configure -release -opengl es2 -device <rpi-version> -device-option CROSS_COMPILE=~/raspi/gcc-linaro-5.5.0-2017.10-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf- -sysroot ~/raspi/sysroot -opensource -confirm-license -no-use-gold-linker -make libs -prefix /usr/local/qt5pi -extprefix ~/raspi/qt5pi -hostprefix ~/raspi/qt5 -v
 	```
-13. Compile Qt  
+13. Compile Qt.  
     (Optional: use switch **-j** to tell make how many cores your cpu has.)  
 	(Example, ***make -j4*** tells make to use four cpu cores, which greatly speeds up compile time.)  
     ```
 	make
 	make install
 	```
-	If anything failed, you can clean everything with  
+	If anything failed, you can clean everything with:  
 	```
 	git clean -dfx
 	```
-14. Deploy Qt to the device. We simply sync everything from ~/raspi/qt5pi to the prefix we configured above.  
+14. Deploy Qt to the device.  
+    We simply rsync everything from ~/raspi/qt5pi to the prefix we configured above.  
     ```
 	cd ..
     rsync -avz qt5pi pi@raspberrypi.local:/usr/local
 	```
-	Build an example to test if everything went well.  
-	After proper build, copy an executable to the device.  
+	Now we will build an example to test if everything went well.  
+	After the building is complete, we will copy the executable example to the device.  
 	```
     cd qt5/qtbase/examples/opengl/qopenglwidget
     ~/raspi/qt5/bin/qmake
@@ -238,7 +239,7 @@ This is only half the battle though. Now we continue on to set up our host compu
 	Go to [Qt website](https://www1.qt.io/download-open-source/#section-2) and download the appropriate package for your system.  
 	For Ubuntu, Use [Online Installer Linux 64-bit.](http://download.qt.io/official_releases/online_installers/qt-unified-linux-x64-online.run)  
 	Or the [32bit version](http://download.qt.io/official_releases/online_installers/qt-unified-linux-x86-online.run) if you have such a system.  
-	Before we begin, start another instance of terminal for a fresh start, or cd .. your way back to your home folder.  
+	Before we begin, start another instance of terminal for a fresh start, or **cd ..** your way back to your home folder.  
 	```
 	wget http://download.qt.io/official_releases/online_installers/qt-unified-linux-x64-online.run
 	sudo chmod +x qt-unified-linux-x64-online.run
@@ -252,41 +253,41 @@ This is only half the battle though. Now we continue on to set up our host compu
 	```
 20. Start Qt Creator.  
 21. Open project and select the welle.io folder that you just cloned and click on welle.io.pro.  
-22. When the "configure project" screen comes up, click on "manage kits"  
-    Then go to the "Qt Versions" tab and click "Add..."  
-	Move to the "~/raspi/qt5/bin/qmake" folder and select the qmake there.  
-	"Details" on the bottom should say something along the lines of "Qt version 5.9.3 for Embedded linux"  
+22. When the **configure project** screen comes up, click on **manage kits**  
+    Then go to the **Qt Versions** tab and click **Add...**  
+	Move to the **~/raspi/qt5/bin/qmake** folder and select the qmake there.  
+	**Details** on the bottom should say something along the lines of "Qt version 5.9.3 for Embedded linux"  
 	
-	Now, go over to the "Compilers" tab and add "GCC C"  
+	Now, go over to the **Compilers** tab and add **GCC C**  
 	Name it "GCC ARM" or similar so we can easily identify it later.  
-	In "Compiler path" browse to ~/raspi/gcc-linaro-5.5.0-2017.10-x86_64_arm-linux-gnueabihf/bin and select "arm-linux-gnueabihf-gcc"  
+	In **Compiler path** browse to ~/raspi/gcc-linaro-5.5.0-2017.10-x86_64_arm-linux-gnueabihf/bin and select **arm-linux-gnueabihf-gcc**  
 	ABI should read "arm-linux-generic-elf-32bit"  
 	
-	Once again, click on "Add" and add a GCC C++ compiler.  
-	Name it G++ ARM or similar.  
-	Compiler path should be the same as the previous one, but select "arm-linux-gnueabihf-g++" instead of "arm-linux-gnueabihf-gcc"  
-	ABI Should be the same here as the previous one.  
+	Once again, click on **Add** and add a **GCC C++** compiler.  
+	Name it "G++ ARM" or similar.  
+	Compiler path should be the same as the previous one, but select **arm-linux-gnueabihf-g++** instead of "arm-linux-gnueabihf-gcc"  
+	ABI should read "arm-linux-generic-elf-32bit", same as the previous one.  
 	
-	The last thing we need to set up is in the "Debuggers" tab. This one isn't really needed, but lets do it anyway.  
-	Press "Add" name it ARM GDB or similar and path should be the same as previous, but select "arm-linux-gnueabihf-gdb"  
+	The last thing we could set up is in the **Debuggers** tab. This one isn't really needed, but lets do it anyway.  
+	Press **Add** and name it "ARM GDB" or similar and the path should be the same as previous, but select **arm-linux-gnueabihf-gdb**.  
 	With all this done, we can make a new kit.  
 	
-	Click on the "Kits" tab and "add"  
+	Click on the **Kits** tab and **add**.  
 	Name it "Raspberry Pi" or similar.  
-	Device type: Generic Linux Device  
-	Sysroot: ~/raspi/sysroot  
-	Compiler: C: GCC ARM  
-	Compiler: C++: G++ ARM  
-	Debugger: ARM GDB  
-	Qt version: Qt 5.9.3 (qt5)    (The one you made, not the default one which most likely already was present in the "Qt Versions" tab.)  
+	Device type: **Generic Linux Device**  
+	Sysroot: **~/raspi/sysroot**  
+	Compiler: C: **GCC ARM** (Or what you named your GCC compiler.)  
+	Compiler: C++: **G++ ARM** (Or what you named your G++ compiler.)  
+	Debugger: **ARM GDB** (Or what you named your GDB debugger.)  
+	Qt version: **Qt 5.9.3 (qt5)** (The one you made, not the default one which most likely already was present in the "Qt Versions" tab.)  
 
     With all this done, click apply and ok.  
-	Now your newly created "Raspberry Pi" kit shoud appear in the "Configure project" section. Select it and press "configure project".  
-	Stuff should happen and you should be greeted with a projects tree view and some other stuff, probably a Project MESSAGE message of some sort too.  
+	Now your newly created "Raspberry Pi" kit should appear in the **Configure project** section. Select it and press **configure project.**  
+	Stuff should happen and you should be greeted with a projects tree view and some other stuff, probably a Project "MESSAGE" message of some sort too.  
 23. In order to compile welle.io for Raspberry Pi successfully, we need to do two adjustments to the source code.  
-    First, double click on "welle.io.pro" in the tree view,  
-	scroll down to where it says **unix:!macx:!android:** find the line which says "CONFIG += airspy"  
-	and comment it out by putting a # in front of it.  
+    First, double click on **welle.io.pro** in the tree view,  
+	scroll down to where it says **unix:!macx:!android:** find the line which says **CONFIG += airspy**  
+	and comment it out by putting a **#** in front of it.  
 	(Unless you need Airspy support.)  
 	```
 	#CONFIG += airspy
@@ -296,9 +297,9 @@ This is only half the battle though. Now we continue on to set up our host compu
 	#DEFINES += SSE_AVAILABLE
 	```
 	Save file (ctrl+s)  
-24.	Now click on the monitor icon at the left hand side, most likely saying "welle.io debug" or similar, change the build to "release".  
+24.	Now click on the monitor icon at the left hand side, most likely saying "welle.io debug" or similar, change the build to **release**.  
 	Wait a couple of seconds until the green arrows lights up again.  
-25. Click on the hammer icon, which means "build project".  
+25. Click on the hammer icon, which means **build project**.  
     Qt Creator will build welle.io and output the finished program into a "release" folder most likely named "build-welle-io-Raspberry_Pi-Release".  
 26. Open a new terminal and navigate to the release folder.  
     Transfer the program over to the Raspberry Pi.
@@ -309,7 +310,7 @@ This is only half the battle though. Now we continue on to set up our host compu
 	
 **ON RASPBERRY PI:**
 
-27. Find the file "welle-io" and run it to enjoy Welle.io on your Raspberry Pi.  
+27. Find the file **welle-io** and run it to enjoy Welle.io on your Raspberry Pi.  
     Open a new terminal and type:  
     ```
 	./welle-io
@@ -321,11 +322,12 @@ Power supply
 Raspberry Pi 3 requires significantly more power than the original Pi, which could easily be run off a generic USB phone charger.  
 The problem with such chargers is the fact that the USB cable is almost always too thin to reliably supply the required 5 volts the Pi 3 needs to run.  
 Also, a phone charger is not necessarily a good power supply in general.  
-Even powerful Apple 10w iPad chargers which outputs amps and amps of current, fails to deliver more than 4.6-4.8 volts to the Pi, which forces the Pi to go into "undervoltage" mode.  
-In undervoltage mode, it reduces the speed of the CPU and GPU, which affects the entire operation of the system.  
-This is noticeable by a lightning bolt icon in the top right corner of the screen.  
+Even powerful Apple 12W iPad chargers which outputs amps and amps of current, fails to deliver more than 4.6-4.8 volts to the Pi, which forces the Pi to go into "undervoltage" mode.  
+In undervoltage mode, the Pi reduces the speed of the CPU and GPU, which affects the entire operation of the system.  
+Hiccups in other parts of the system might occur, such as in RAM and I/O chips.  
+Too low voltage is noticeable by a lightning bolt icon in the top right corner of the screen.  
 More info about the power requirements [here](https://www.raspberrypi.org/help/faqs/#powerReqs).  
-The official Pi supply is a more beefy (and proper) power supply that provides 5.1 volts over a thicker cable, which mitigates the power loss in thinner generic USB cables.  
+The official [Raspberry Pi universal power supply](https://www.raspberrypi.org/products/raspberry-pi-universal-power-supply/) is a more beefy (and proper) power supply that provides 5.1 volts over a thicker cable, which mitigates the power loss experienced in thinner generic USB cables.  
 However, when running with lots of peripherals, like a touch screen, mouse, keyboard, gamepad, bluetooth dongle, Wi-Fi dongle, RTL-SDR dongle and whatnot, even an official power supply struggles.  
 The solution is to somehow add another official power supply, or an even beefier power supply that can output 5.1 volt, 4+ amps.  
 
