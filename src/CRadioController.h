@@ -144,6 +144,7 @@ public:
     int GainCount() const;
     float GainValue() const;
     QString GetMscFileName(void);
+    QString GetMP2FileName(void);
 
 private:
     void Initialise(void);

@@ -58,6 +58,7 @@ class mp2Processor: public QObject, public dabProcessor
         mp2Processor( CRadioController *mr,
                       int16_t bitRate,
                       RingBuffer<int16_t> *buffer);
+        ~mp2Processor(void);
         virtual void addtoFrame(uint8_t *v);
         void setFile(FILE *);
 
@@ -96,6 +97,9 @@ class mp2Processor: public QObject, public dabProcessor
         int16_t     numberofFrames;
         int16_t     errorFrames;
         std::unique_ptr<PADDecoderAdapter> padDecoderAdapter;
+
+        QByteArray  *MP2FileName;
+        FILE *MP2File;
 
     signals:
         void        show_frameErrors(int errorFrames);

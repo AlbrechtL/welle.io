@@ -692,6 +692,14 @@ QString CRadioController::GetMscFileName()
         return QString();
 }
 
+QString CRadioController::GetMP2FileName()
+{
+    if(commandLineOptions["mp2FileName"] != "")
+        return commandLineOptions["mp2FileName"].toString();
+    else
+        return QString();
+}
+
 int CRadioController::Gain() const
 {
     return CurrentManualGain;

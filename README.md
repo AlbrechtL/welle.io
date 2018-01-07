@@ -54,8 +54,8 @@ I | rtl_tcp server IP address. Only valid for input rtl_tcp
 P | rtl_tcp server IP port. Only valid for input rtl_tcp
 F | I/Q RAW file. Only valid for input rawfile.
 B | I/Q RAW format. Possible is:<ul><li>u8 (unsigned int 8 bit, [qt-dab](https://github.com/JvanKatwijk/qt-dab) RAW files)</li><li>s8 (signed 8 bit, [ODR](https://www.welle.io/devices/rawfile#odr-dabmod) files)</li><li>s16le (signed int 16 bit little endian, [qt-dab](https://github.com/JvanKatwijk/qt-dab) SDR files)</li><li>s16be (signed int 16 bit big endian, [qt-dab](https://github.com/JvanKatwijk/qt-dab) SDR files)</li><li>Default: u8. Only valid for input rawfile.</li></ul>
---msc-file | MSC file name. This file can be used to analyse zu X-PAD data with XPADexpert (https://www.basicmaster.de/xpadxpert)
-
+--msc-file | MSC file name. Records the DAB+ superframes. This file can be used to analyse zu X-PAD data with XPADexpert (https://www.basicmaster.de/xpadxpert)
+--mp2-file | MP2 file name. Records the DAB MP2 frames. This file can be used to analyse zu X-PAD data with XPADexpert (https://www.basicmaster.de/xpadxpert)
 Example usage:
   
   ```

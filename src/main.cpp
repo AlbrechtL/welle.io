@@ -171,9 +171,14 @@ int main(int argc, char** argv)
     optionParser.addOption(RAWFileFormat);
 
     QCommandLineOption MSCFileName("msc-file",
-        QCoreApplication::translate("main", "The MSC file can be used to analyse zu X-PAD data with XPADexpert"),
+        QCoreApplication::translate("main", "Records the DAB+ superframes. This file can be used to analyse zu X-PAD data with XPADexpert"),
         QCoreApplication::translate("main", "File name"));
     optionParser.addOption(MSCFileName);
+
+    QCommandLineOption MP2FileName("mp2-file",
+        QCoreApplication::translate("main", "Records the DAB MP2 frames. This file can be used to analyse zu X-PAD data with XPADexpert"),
+        QCoreApplication::translate("main", "File name"));
+    optionParser.addOption(MP2FileName);
 
     //	Process the actual command line arguments given by the user
     optionParser.process(app);
@@ -222,6 +227,7 @@ int main(int argc, char** argv)
     commandLineOptions["rawFile"] = optionParser.value(RAWFile);
     commandLineOptions["rawFileFormat"] = optionParser.value(RAWFileFormat);
     commandLineOptions["mscFileName"] = optionParser.value(MSCFileName);
+    commandLineOptions["mp2FileName"] = optionParser.value(MP2FileName);
 
     // Create a new radio interface instance
     CRadioController* RadioController = new CRadioController(commandLineOptions, DABParams);

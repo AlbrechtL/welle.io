@@ -26,6 +26,7 @@
 //  - it is made into a class for use within the framework
 //  of the sdr-j DAB/DAB+ software
 //
+#include    <QDebug>
 #include    "mp2processor.h"
 #include    "CRadioController.h"
 
@@ -250,7 +251,27 @@ struct quantizer_spec quantizer_table[17] = {
         numberofFrames = 0;
         errorFrames    = 0;
         padDecoderAdapter = std::make_unique<PADDecoderAdapter>(mr);
+
+        // Open a MP2 file (XPADxpert) if the user defined it
+        QString MP2FileName_tmp = myRadioInterface->GetMP2FileName();
+        if(!MP2FileName_tmp.isEmpty())
+        {
+            qDebug() << "mp2processor:" <<  "Enabled writing of MP2 data to the file: " << MP2FileName_tmp;
+
+            MP2FileName = new QByteArray(MP2FileName_tmp.toLocal8Bit());
+            MP2File = fopen(MP2FileName->data(), "wb");  // w for write, b for binary
+        }
+        else
+        {
+            MP2File = nullptr;
+        }
     }
+
+mp2Processor::~mp2Processor()
+{
+    fclose(MP2File);
+    delete(MP2FileName);
+}
 
 
 #define valid(x)    ((x == 48000) || (x == 24000))
@@ -606,7 +627,6 @@ void mp2Processor::addtoFrame(uint8_t *v)
     uint8_t	data [24 * bitRate / 8];
     int16_t	length	= 24 * bitRate / 8;
 
-
     for (i = 0; i < 24 * bitRate / 8; i ++) {
            data [i] = 0;
            for (j = 0; j < 8; j ++) {
@@ -623,6 +643,10 @@ void mp2Processor::addtoFrame(uint8_t *v)
         if (MP2Header_OK == 2) {
             addbittoMP2 (MP2frame.data(), v[i], MP2bitCount ++);
             if (MP2bitCount >= lf) {
+
+                if(MP2File)
+                    fwrite(MP2frame.data(), lf/8, 1, MP2File);
+
                 int16_t sample_buf[KJMP2_SAMPLES_PER_FRAME * 2];
                 if (mp2decodeFrame (MP2frame.data(), sample_buf)) {
                     buffer->putDataIntoBuffer (sample_buf,
