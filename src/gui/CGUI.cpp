@@ -272,7 +272,17 @@ QTranslator* CGUI::AddTranslator(QString Language, QTranslator *OldTranslator)
 
     // Special handling for German
     if(Language == "de_AT" || Language ==  "de_CH")
+    {
+        qDebug() << "main:" <<  "Use de_DE instead of" << Language;
         Language = "de_DE";
+    }
+
+    // Special handling for French
+    if(Language == "fr_BE")
+    {
+        qDebug() << "main:" <<  "Use fr_FR instead of" << Language;
+        Language = "fr_FR";
+    }
 
     bool isTranslation = Translator->load(QString(":/i18n/") + Language);
 
