@@ -184,7 +184,7 @@ QString CDABConstants::getLanguageName(int Language)
     case 126: LanguageName = tr("Arabic"); break;
     case 127: LanguageName = tr("Amharic"); break;
     default: qDebug() << "DABConstants:"
-                      << "Unknown language type";
+                      << "Unknown language type: " << Language;
     }
 
     return LanguageName;
