@@ -87,6 +87,8 @@ int main(int argc, char** argv)
         // Delete the RadioController controller to ensure a save shutdown
         delete RadioController;
 
+        qDebug() << "main:" <<  "Service closed";
+
         return 0;
     } else {
         qDebug() << "main:" <<  "Run as application, pid:" << QCoreApplication::applicationPid();
@@ -257,6 +259,8 @@ int main(int argc, char** argv)
     // Delete the RadioController controller to ensure a save shutdown
     delete GUI;
     delete RadioController;
+
+    qDebug() << "main:" <<  "Application closed";
 
     return 0;
 }

@@ -59,6 +59,7 @@ CGUI::CGUI(CRadioController *RadioController, QObject *parent)
     MOTImage = new CMOTImageProvider;
 
 #ifdef Q_OS_ANDROID
+    connect(RadioController, &CRadioControllerReplica::stateChanged, this, &CGUI::stateChanged);
     connect(RadioController, &CRadioControllerReplica::DeviceClosed, this, &CGUI::DeviceClosed);
     connect(RadioController, &CRadioControllerReplica::GUIDataChanged, this, &CGUI::guiDataChanged);
     connect(RadioController, &CRadioControllerReplica::MOTChanged, this, &CGUI::MOTUpdate);
@@ -94,6 +95,17 @@ void CGUI::close()
     qDebug() << "GUI:" <<  "close application";
     QApplication::quit();
 }
+
+#ifdef Q_OS_ANDROID
+void CGUI::stateChanged(QRemoteObjectReplica::State state, QRemoteObjectReplica::State oldState)
+{
+    qDebug() << "GUI:" <<  "state changed from:" << oldState << "" << state;
+    if (state == QRemoteObjectReplica::Suspect) {
+        qDebug() << "GUI:" <<  "closing application";
+        QApplication::quit();
+    }
+}
+#endif
 
 void CGUI::DeviceClosed()
 {

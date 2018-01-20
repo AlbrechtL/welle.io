@@ -109,6 +109,9 @@ public slots:
     void updateSpectrum();
 
 private slots:
+#ifdef Q_OS_ANDROID
+    void stateChanged(QRemoteObjectReplica::State state, QRemoteObjectReplica::State oldState);
+#endif
     void DeviceClosed();
     void MOTUpdate(QImage MOTImage);
     void SpectrumUpdate(qreal Ymax, qreal Xmin, qreal Xmax, QVector<QPointF> Data);
