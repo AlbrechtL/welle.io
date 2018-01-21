@@ -1,7 +1,7 @@
 TEMPLATE = app
 TARGET = welle-io
 QT += network qml quick charts multimedia
-CONFIG += console c++14
+CONFIG += c++14
 
 Release: QMAKE_CFLAGS	+=  -flto -ffast-math -O3
 Release: QMAKE_CXXFLAGS	+=  -flto -ffast-math -O3
