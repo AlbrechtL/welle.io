@@ -283,14 +283,14 @@ QTranslator* CGUI::AddTranslator(QString Language, QTranslator *OldTranslator)
     QTranslator *Translator = new QTranslator;
 
     // Special handling for German
-    if(Language == "de_AT" || Language ==  "de_CH")
+    if(Language == "de_AT" || Language ==  "de_CH" || Language ==  "de_BE" || Language ==  "de_IT" || Language ==  "de_LU")
     {
         qDebug() << "main:" <<  "Use de_DE instead of" << Language;
         Language = "de_DE";
     }
 
     // Special handling for French
-    if(Language == "fr_BE")
+    if(Language == "fr_BE" || Language == "fr_CA" || Language == "fr_CH" || Language == "fr_LU")
     {
         qDebug() << "main:" <<  "Use fr_FR instead of" << Language;
         Language = "fr_FR";
