@@ -77,8 +77,8 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, CDABParams& 
 
 CRadioController::~CRadioController(void)
 {
-    disconnect(my_ficHandler, 0, 0, 0);
-    disconnect(my_ofdmProcessor, 0, 0, 0);
+    if (my_ficHandler) disconnect(my_ficHandler, 0, 0, 0);
+    if (my_ofdmProcessor) disconnect(my_ofdmProcessor, 0, 0, 0);
 
     // Shutdown the demodulator and decoder in the correct order
     delete my_ofdmProcessor;
@@ -137,11 +137,17 @@ void CRadioController::closeDevice()
 {
     qDebug() << "RadioController:" << "Close device";
 
-    delete my_ofdmProcessor;
-    my_ofdmProcessor = NULL;
+    if (my_ofdmProcessor) {
+        disconnect(my_ofdmProcessor, 0, 0, 0);
+        delete my_ofdmProcessor;
+        my_ofdmProcessor = NULL;
+    }
 
-    delete my_ficHandler;
-    my_ficHandler = NULL;
+    if (my_ficHandler) {
+        disconnect(my_ficHandler, 0, 0, 0);
+        delete my_ficHandler;
+        my_ficHandler = NULL;
+    }
 
     delete my_mscHandler;
     my_mscHandler = NULL;
@@ -268,6 +274,7 @@ void CRadioController::Initialise(void)
     }
     else
     {
+        Device->setAgc(true);
         qDebug() << "RadioController:" << "AGC on";
     }
 

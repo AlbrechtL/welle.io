@@ -297,8 +297,9 @@ void CRTL_TCP_Client::TCPConnectionWatchDogTimeout()
             else
             {
                 setAgc(false);
-                setGain(CurrentGainCount);
             }
+
+            setGain(CurrentGainCount);
 
             sendRate(INPUT_RATE);
             sendVFO(Frequency);

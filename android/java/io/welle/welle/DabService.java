@@ -361,16 +361,21 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
         // Release audio focus
         releaseAudioFocus();
 
-        // Deactivate media session
+        // Release media session
         if (mSession.isActive()) {
             mSession.setActive(false);
         }
+        mSession.release();
+
+        // Unregister broadcast receiver
+        unregisterReceiver(mDabReceiver);
 
         // Close notification
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         notificationManager.cancel(NOTIFICATION_ID);
         stopForeground(true);
 
+        // Reset variables
         mDabDevice = null;
         mDabStatus = DAB_STATUS_ERROR;
         mChannelScanProgress = -1;
@@ -382,6 +387,9 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
         mGenre = null;
 
         mError = getResources().getString(R.string.error_not_initialised);
+
+        // Stop service
+        this.stopService(new Intent(this, DabService.class));
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1201,10 +1209,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
     public void onDestroy() {
         super.onDestroy();
         Log.i(TAG, "Service destroyed");
-
-        mSession.release();
-        unregisterReceiver(mDabReceiver);
-        stopForeground(true);
         instance = null;
+        System.exit(0);
     }
 }
