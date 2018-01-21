@@ -34,7 +34,7 @@ Hardware requirements
 * Raspberry Pi 2 or 3. The original Pi may, or may not work
 * [Adequate power supply](#power-supply)
 * 4GB or larger MicroSD card
-* A RTL2823U DVB-T stick to receive radio signals  
+* A RTL2832U DVB-T stick to receive radio signals  
 (If you are using an Airspy device, compile and install the airspy library.)  
 (For details please see [here](https://github.com/airspy/host/#how-to-build-the-host-software-on-linux))  
   
