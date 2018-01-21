@@ -274,6 +274,7 @@ void CRadioController::Initialise(void)
     }
     else
     {
+        Device->setAgc(true);
         qDebug() << "RadioController:" << "AGC on";
     }
 
