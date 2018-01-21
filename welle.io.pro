@@ -101,7 +101,8 @@ HEADERS += \
     src/gui/CStationList.h \
     src/gui/CGUI.h \
     src/CRadioController.h \
-    src/CChannels.h
+    src/CChannels.h \
+    src/CLogFile.h
 
 SOURCES += \
     src/main.cpp \
@@ -141,7 +142,8 @@ SOURCES += \
     src/gui/CStationList.cpp \
     src/gui/CGUI.cpp \
     src/CRadioController.cpp \
-    src/CChannels.cpp
+    src/CChannels.cpp \
+    src/CLogFile.cpp
 
 unix:!macx:!android: {
     INCLUDEPATH	+= /usr/local/include

@@ -42,6 +42,7 @@
 #include "DabConstants.h"
 #include "CRadioController.h"
 #include "CGUI.h"
+#include "CLogFile.h"
 #ifdef Q_OS_ANDROID
 #include <QtAndroid>
 #include <QAndroidJniObject>
@@ -51,10 +52,13 @@
 
 int main(int argc, char** argv)
 {
+    QString Version = QString(CURRENT_VERSION) + " Git: " + GITHASH;
+    qDebug() << "main: Starting" << Version;
+
     QCoreApplication::setOrganizationName("welle.io");
     QCoreApplication::setOrganizationDomain("welle.io");
     QCoreApplication::setApplicationName("welle.io");
-    QCoreApplication::setApplicationVersion(QString(CURRENT_VERSION) + " Git: " + GITHASH);
+    QCoreApplication::setApplicationVersion(Version);
 
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
@@ -173,17 +177,31 @@ int main(int argc, char** argv)
     optionParser.addOption(RAWFileFormat);
 
     QCommandLineOption MSCFileName("msc-file",
-        QCoreApplication::translate("main", "Records the DAB+ superframes. This file can be used to analyse zu X-PAD data with XPADexpert"),
+        QCoreApplication::translate("main", "Records the DAB+ superframes. This file can be used to analyse zu X-PAD data with XPADexpert."),
         QCoreApplication::translate("main", "File name"));
     optionParser.addOption(MSCFileName);
 
     QCommandLineOption MP2FileName("mp2-file",
-        QCoreApplication::translate("main", "Records the DAB MP2 frames. This file can be used to analyse zu X-PAD data with XPADexpert"),
+        QCoreApplication::translate("main", "Records the DAB MP2 frames. This file can be used to analyse zu X-PAD data with XPADexpert."),
         QCoreApplication::translate("main", "File name"));
     optionParser.addOption(MP2FileName);
 
+    QCommandLineOption LogFileName("log-file",
+        QCoreApplication::translate("main", "Redirects all log output texts to a file."),
+        QCoreApplication::translate("main", "File name"));
+    optionParser.addOption(LogFileName);
+
     //	Process the actual command line arguments given by the user
     optionParser.process(app);
+
+    // First of all process the log file
+    QString LogFileNameValue = optionParser.value(LogFileName);
+    if (LogFileNameValue != "")
+    {
+        CLogFile::SetFileName(LogFileNameValue);
+        qInstallMessageHandler(CLogFile::CustomMessageHandler);
+        qDebug() << "main: Version:" << Version;
+    }
 
     //	Process language option
     QString languageValue = optionParser.value(Language);
