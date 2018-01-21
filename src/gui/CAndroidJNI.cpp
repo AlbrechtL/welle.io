@@ -278,6 +278,8 @@ void CAndroidJNI::closeTcpConnection()
     qDebug() << "AndroidJNI:" <<  "Close TCP connection";
     if(mRadioController) {
         mRadioController->closeDevice();
+    } else {
+        deviceClosed();
     }
 }
 

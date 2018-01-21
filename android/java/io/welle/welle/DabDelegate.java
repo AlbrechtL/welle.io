@@ -122,6 +122,7 @@ public class DabDelegate extends Activity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode != 1234) return; // This is the requestCode that was used with startActivityForResult
         if (resultCode == RESULT_OK) {
+            Log.d(TAG, "onActivityResult: RESULT_OK");
             // Connection with device has been opened and the rtl-tcp server is running. You are now responsible for connecting.
             Intent serviceIntent = new Intent(this, DabService.class);
             serviceIntent.setAction(DabService.ACTION_SDR_DEVICE_ATTACHED);
@@ -141,6 +142,7 @@ public class DabDelegate extends Activity {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        Log.d(TAG, "onDestroy");
 
         if (mConnection != null) {
             unbindService(mConnection);
