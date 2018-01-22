@@ -37,10 +37,10 @@ after_build:
   - set PATH=%PATHORIG%
   - appveyor PushArtifact %welle_io_filename%
   
-test_script:
-  - set PATH=%PATHORIG%
-  - cd installer\packages\io.welle.welle\data
-  - welle-io.exe --version
+#test_script:
+#  - set PATH=%PATHORIG%
+#  - cd installer\packages\io.welle.welle\data
+#  - welle-io.exe --version
   
 deploy:
   # Upload it to BinTray
