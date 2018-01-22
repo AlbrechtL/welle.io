@@ -97,6 +97,7 @@ set(sources
     src/gui/CGUI.cpp
     src/CRadioController.cpp
     src/CChannels.cpp
+    src/CLogFile.cpp
 )
 
 if(LIBRTLSDR_FOUND)
