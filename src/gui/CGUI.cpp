@@ -131,6 +131,9 @@ const QVariantMap CGUI::licenses()
     InfoContent.append(tr("QT version") + ": " + qVersion() + "\n");
     InfoContent.append("\n");
 
+    InfoContent.append("For legal information scroll down, please.\n");
+    InfoContent.append("\n");
+
     // Read AUTHORS
     InfoContent.append("AUTHORS\n");
     InfoContent.append("-------\n");
@@ -150,9 +153,36 @@ const QVariantMap CGUI::licenses()
     delete File;
 
     // Read COPYING
-    InfoContent.append("COPYING\n");
+    InfoContent.append("COPYING (GPLv2)\n");
     InfoContent.append("-------\n");
     File = new QFile(":/COPYING");
+    File->open(QFile::ReadOnly);
+    InfoContent.append(File->readAll());
+    InfoContent.append("\n");
+    delete File;
+
+    // Read COPYING
+    InfoContent.append("QT COPYING (LGPL-2.1)\n");
+    InfoContent.append("-------\n");
+    File = new QFile(":/src/libs/COPYING.QT.LGPL-2.1");
+    File->open(QFile::ReadOnly);
+    InfoContent.append(File->readAll());
+    InfoContent.append("\n");
+    delete File;
+
+    // Read COPYING
+    InfoContent.append("kjmp2 COPYING (zlib)\n");
+    InfoContent.append("-------\n");
+    File = new QFile(":/src/libs/COPYING.kjmp2.zlib");
+    File->open(QFile::ReadOnly);
+    InfoContent.append(File->readAll());
+    InfoContent.append("\n");
+    delete File;
+
+    // Read COPYING
+    InfoContent.append("kiss_fft COPYING (BSD 3-clause)\n");
+    InfoContent.append("-------\n");
+    File = new QFile(":/src/libs/kiss_fft/COPYING");
     File->open(QFile::ReadOnly);
     InfoContent.append(File->readAll());
     InfoContent.append("\n");
