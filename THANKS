@@ -2,10 +2,12 @@ welle.io uses external and internal libraries and make extensive use of the
 following persons' or companies' code:
 
 QT - Copyright (c) The Qt Company, www.qt.io - LGPL Version 2.1
-FFTW3 - www.fftw.org - GPLv2 or later
-Kiss FFT - www.sourceforge.net/projects/kissfft - Mark Borgerding - BSD License
+FFTW3 - www.fftw.org - GPLv2 license or later
+Kiss FFT - www.sourceforge.net/projects/kissfft - Mark Borgerding - BSD 3-clause license
 kjmp2 - keyj.emphy.de/kjmp2 - Martin J. Fiedler - zlib license
-FAAD2 - Copyright (c) Nero AG, www.nero.com" - GPLv2 or later
+FAAD2 - Copyright (c) Nero AG, www.nero.com" - GPLv2 license or later
+rtl-sdr - https://osmocom.org/projects/sdr/wiki/rtl-sdr - GPLv2 license or later
+airspy - https://github.com/airspy/airspyone_host - GPLv2 or later and BSD 3-clause license
 
 welle.io uses parts from the following programs 
 - qt-dab
