@@ -5,10 +5,10 @@ import QtQuick.Layouts 1.1
 import "style"
 
 Item {
-    width: Units.dp(400)
     height: Units.dp(400)
     Layout.fillWidth: true
     Layout.fillHeight: true
+    Layout.preferredWidth: Units.dp(400)
 
     ColumnLayout {
         anchors.fill: parent

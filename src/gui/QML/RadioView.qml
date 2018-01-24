@@ -6,8 +6,9 @@ import "style"
 
 Item{
     height: Units.dp(180)
-    width: Units.dp(320)
+    Layout.preferredWidth: Units.dp(320)
     Layout.minimumWidth: Units.dp(150)
+    Layout.preferredHeight: Units.dp(180)
 
     RowLayout{
         anchors.top: parent.top

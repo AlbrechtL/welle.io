@@ -400,6 +400,7 @@ ApplicationWindow {
             Settings {
                 property alias expertStationViewWidth: stationView.width
                 property alias expertViewWidth: expertViewLoader.width
+                property alias radioInformationViewWidth: radioInformationViewLoader.width
             }
         }
     }
