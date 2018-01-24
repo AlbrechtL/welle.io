@@ -2,7 +2,7 @@
 <Installer>
     <Name>welle.io</Name>
     <Version>1.0-rc2</Version>
-    <Title>welle.io Installer</Title>
+    <Title>welle.io</Title>
     <Publisher>Albrecht Lohofener</Publisher>
     <StartMenuDir>welle.io</StartMenuDir>
     <TargetDir>@ApplicationsDir@/welle.io</TargetDir>
