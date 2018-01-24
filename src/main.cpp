@@ -43,6 +43,8 @@
 #include "CRadioController.h"
 #include "CGUI.h"
 #include "CLogFile.h"
+#include "CSplashScreen.h"
+
 #ifdef Q_OS_ANDROID
 #include <QtAndroid>
 #include <QAndroidJniObject>
@@ -193,6 +195,9 @@ int main(int argc, char** argv)
 
     //	Process the actual command line arguments given by the user
     optionParser.process(app);
+
+    CSplashScreen::Show();
+    CSplashScreen::ShowMessage(QCoreApplication::translate("main","Starting welle.io"));
 
     // First of all process the log file
     QString LogFileNameValue = optionParser.value(LogFileName);

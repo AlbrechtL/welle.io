@@ -98,6 +98,7 @@ set(sources
     src/CRadioController.cpp
     src/CChannels.cpp
     src/CLogFile.cpp
+    src/CSplashScreen.cpp
 )
 
 if(LIBRTLSDR_FOUND)

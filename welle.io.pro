@@ -102,7 +102,8 @@ HEADERS += \
     src/gui/CGUI.h \
     src/CRadioController.h \
     src/CChannels.h \
-    src/CLogFile.h
+    src/CLogFile.h \
+    src/CSplashScreen.h
 
 SOURCES += \
     src/main.cpp \
@@ -143,7 +144,8 @@ SOURCES += \
     src/gui/CGUI.cpp \
     src/CRadioController.cpp \
     src/CChannels.cpp \
-    src/CLogFile.cpp
+    src/CLogFile.cpp \
+    src/CSplashScreen.cpp
 
 unix:!macx:!android: {
     INCLUDEPATH	+= /usr/local/include
