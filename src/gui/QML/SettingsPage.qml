@@ -47,7 +47,7 @@ Item {
         }
 
         onFoundChannelCount:{
-            channelScanProgressBar.text = qsTr("Found channels") + ": " + channelCount;
+            channelScanProgressBar.text = qsTr("Found stations") + ": " + channelCount;
         }
 
         onGuiDataChanged:{
