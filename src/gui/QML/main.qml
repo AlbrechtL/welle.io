@@ -537,12 +537,15 @@ ApplicationWindow {
             initialItem: Item {
                 width: parent.width
                 height: parent.height
+                TextStandart {
+                    x: Units.dp(5)
+                    y: Units.dp(5)
+                    text: qsTr("Station list is empty")
+                    visible: stationChannelView.count ? false : true
+                }
+
                 ListView {
-                    //property bool showChannelState
-                    anchors.rightMargin: 0
-                    anchors.bottomMargin: 0
-                    anchors.leftMargin: 0
-                    anchors.topMargin: 0
+                    id: stationChannelView
                     model: cppGUI.stationModel
                     anchors.fill: parent
                     delegate: StationDelegate {

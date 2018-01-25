@@ -219,15 +219,8 @@ void CGUI::MOTUpdate(QImage MOTImage)
 void CGUI::StationsChange(QList<StationElement*> Stations)
 {
     //qDebug() << "CGUI:" <<  "StationsChange";
-    if (Stations.isEmpty()) {
-        static const StationElement emptyStation(tr("Station list is empty"), "");
-        QList<QObject*>emptyList;
-        emptyList.append((QObject*)&emptyStation);
-        p_stationModel = QVariant::fromValue(emptyList);
-    } else {
-        QList<QObject*> *stationList = reinterpret_cast<QList<QObject*>*>(&Stations);
-        p_stationModel = QVariant::fromValue(*stationList);
-    }
+    QList<QObject*> *stationList = reinterpret_cast<QList<QObject*>*>(&Stations);
+    p_stationModel = QVariant::fromValue(*stationList);
 
     emit stationModelChanged();
     emit foundChannelCount(Stations.count());
