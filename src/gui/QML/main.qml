@@ -214,6 +214,7 @@ ApplicationWindow {
                 scale: 1
                 anchors.fill: parent
                 anchors.margins: Units.dp(-20)
+                enabled: backButton.isSettings ? true : false
                 onClicked: {
                     if(mainWindow.isLandscape && settingsPage.is3D){
                         infoButton.isInfoPage = !infoButton.isInfoPage
