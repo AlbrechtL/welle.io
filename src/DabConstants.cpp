@@ -34,7 +34,7 @@ QString CDABConstants::getProgramTypeName(int Type)
 
     switch(Type)
     {
-    case 0: TypeName = tr("none"); break;
+    case 0: TypeName = ""; break;
     case 1: TypeName = tr("News"); break;
     case 2: TypeName = tr("Current Affairs"); break;
     case 3: TypeName = tr("Information"); break;
@@ -79,7 +79,7 @@ QString CDABConstants::getLanguageName(int Language)
 
     switch(Language)
     {
-    case 0: LanguageName = tr("Unknown"); break;
+    case 0: LanguageName = tr(""); break;
     case 1: LanguageName = tr("Albanian"); break;
     case 2: LanguageName = tr("Breton"); break;
     case 3: LanguageName = tr("Catalan"); break;
