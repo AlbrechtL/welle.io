@@ -42,30 +42,30 @@ The command line parameter are:
 
 Parameter | Description
 ------ | ----------
-h | Show help 
-v | Show version 
-L | GUI language e.g. de_DE
-D | Input device. Possible is: auto (default), airspy, rtl_tcp, rtl_sdr, rawfile, soapysdr
---sdr-driver-args | The value depends on the SDR driver and is directly passed to it (currently only SoapySDR::Device::make(args)). A typical value for SoapySDR is a string like driver=remote,remote=127.0.0.1,remote:driver=rtlsdr,rtl=0
---sdr-antenna | The value depends on the SDR Hardware, typical values are TX/RX, RX2. Just query it with SoapySDRUtil --probe=driver=uhd
---sdr-clock-source | The value depends on the SDR Hardware, typical values are internal, external, gpsdo. Just query it with SoapySDRUtil --probe=driver=uhd
-M | DAB mode. Possible is: 1,2,3 or 4, Default: 1 
-I | rtl_tcp server IP address. Only valid for input rtl_tcp 
-P | rtl_tcp server IP port. Only valid for input rtl_tcp
-F | I/Q RAW file. Only valid for input rawfile.
-B | I/Q RAW format. Possible is:<ul><li>u8 (unsigned int 8 bit, [qt-dab](https://github.com/JvanKatwijk/qt-dab) RAW files)</li><li>s8 (signed 8 bit, [ODR](https://www.welle.io/devices/rawfile#odr-dabmod) files)</li><li>s16le (signed int 16 bit little endian, [qt-dab](https://github.com/JvanKatwijk/qt-dab) SDR files)</li><li>s16be (signed int 16 bit big endian, [qt-dab](https://github.com/JvanKatwijk/qt-dab) SDR files)</li><li>Default: u8. Only valid for input rawfile.</li></ul>
+-h, --help | Show help 
+-v, --version | Show version 
+-d, --device | Input device. Possible is: auto (default), airspy, rtl_tcp, rtl_sdr, rawfile, soapysdr
+--rtltcp-address | rtl_tcp server IP address. Only valid for input rtl_tcp 
+--rtltcp-port | rtl_tcp server IP port. Only valid for input rtl_tcp
+--raw-file | I/Q RAW file. Only valid for input rawfile.
+--raw-format | I/Q RAW format. Possible is:<ul><li>u8 (unsigned int 8 bit, [qt-dab](https://github.com/JvanKatwijk/qt-dab) RAW files)</li><li>s8 (signed 8 bit, [ODR](https://www.welle.io/devices/rawfile#odr-dabmod) files)</li><li>s16le (signed int 16 bit little endian, [qt-dab](https://github.com/JvanKatwijk/qt-dab) SDR files)</li><li>s16be (signed int 16 bit big endian, [qt-dab](https://github.com/JvanKatwijk/qt-dab) SDR files)</li><li>Default: u8. Only valid for input rawfile.</li></ul>
+--soapysdr-driver-args | The value depends on the soapySDR driver and is directly passed to it (currently only SoapySDR::Device::make(args)). A typical value for SoapySDR is a string like driver=remote,remote=127.0.0.1,remote:driver=rtlsdr,rtl=0
+--soapysdr-antenna | The value depends on the soapySDR Hardware, typical values are TX/RX, RX2. Just query it with SoapySDRUtil --probe=driver=uhd
+--soapysdr-clock-source | The value depends on the soapySDR Hardware, typical values are internal, external, gpsdo. Just query it with SoapySDRUtil --probe=driver=uhd
+--dab-mode | DAB mode. Possible is: 1,2,3 or 4, Default: 1 
 --msc-file | MSC file name. Records the DAB+ superframes. This file can be used to analyse zu X-PAD data with XPADexpert (https://www.basicmaster.de/xpadxpert).
 --mp2-file | MP2 file name. Records the DAB MP2 frames. This file can be used to analyse zu X-PAD data with XPADexpert (https://www.basicmaster.de/xpadxpert).
 --log-file | Log file name. Redirects all log output texts to a file.
+--language | Sets the GUI language according to the ISO country codes e.g. de_DE
 
 
 Example usage:
   
   ```
-# welle.io -D rtl_tcp -I 192.168.1.1 -P 1000
+# welle.io -d rtl_tcp --rtltcp-address 192.168.1.1 --rtltcp-port 1000
   ```
   ```
-# welle.io -D rawfile -F test.sdr -B s16le
+# welle.io -d rawfile --raw-file test.sdr --raw-format s16le
   ```
 
 Supported Hardware
@@ -85,11 +85,11 @@ SoapySDR Notes
 
 ### LimeSDR
 
-Connect the Antenna to the RX1_W port and start welle-io with the options -D soapysdr --sdr-antenna LNAW. SoapySDRUtil --probe=driver=lime may show other possible options.
+Connect the Antenna to the RX1_W port and start welle-io with the options -d soapysdr --soapysdr-antenna LNAW. SoapySDRUtil --probe=driver=lime may show other possible options.
 
 ### USRP
 
-Start welle-io with -D soapysdr --sdr-driver-args driver=uhd --sdr-antenna <antenna> --sdr-clock-source <clock source>. To list possible values for antenna and clock source use the command "SoapySDRUtil --probe=driver=uhd".
+Start welle-io with -d soapysdr --soapysdr-driver-args driver=uhd --soapysdr-antenna <antenna> --soapysdr-clock-source <clock source>. To list possible values for antenna and clock source use the command "SoapySDRUtil --probe=driver=uhd".
 
 Building
 ====================

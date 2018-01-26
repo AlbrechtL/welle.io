@@ -55,7 +55,6 @@
 int main(int argc, char** argv)
 {
     QString Version = QString(CURRENT_VERSION) + " Git: " + GITHASH;
-    qDebug() << "main: Starting" << Version;
 
     QCoreApplication::setOrganizationName("welle.io");
     QCoreApplication::setOrganizationDomain("welle.io");
@@ -113,8 +112,6 @@ int main(int argc, char** argv)
 
     // Init translations
     QString locale = QLocale::system().name();
-    qDebug() << "main:" <<  "Detected system language" << locale;
-
     QTranslator *Translator = CGUI::AddTranslator(locale);
 
     // Default values
@@ -126,65 +123,60 @@ int main(int argc, char** argv)
     optionParser.addHelpOption();
     optionParser.addVersionOption();
 
-    QCommandLineOption Language("L",
-        QCoreApplication::translate("main", "Set the GUI language (e.g. de-DE)"),
-        QCoreApplication::translate("main", "Language"));
-    optionParser.addOption(Language);
-
-    QCommandLineOption InputOption("D",
+    QCommandLineOption InputOption(QStringList() << "d" << "device",
         QCoreApplication::translate("main", "Input device. Possible is: auto (default), airspy, rtl_tcp, rtl_sdr, rawfile, soapysdr"),
         QCoreApplication::translate("main", "Name"));
     optionParser.addOption(InputOption);
 
+    QCommandLineOption RTL_TCPServerIPOption("rtltcp-address",
+        QCoreApplication::translate("main", "rtl_tcp server IP address. Only valid for input rtl_tcp."),
+        QCoreApplication::translate("main", "IP address"));
+    optionParser.addOption(RTL_TCPServerIPOption);
+
+    QCommandLineOption RTL_TCPServerIPPort("rtltcp-port",
+        QCoreApplication::translate("main", "rtl_tcp server IP port. Only valid for input rtl_tcp."),
+        QCoreApplication::translate("main", "Port"));
+    optionParser.addOption(RTL_TCPServerIPPort);
+
+    QCommandLineOption RAWFile("raw-file",
+        QCoreApplication::translate("main", "I/Q RAW file. Only valid for input rawfile."),
+        QCoreApplication::translate("main", "I/Q RAW file"));
+    optionParser.addOption(RAWFile);
+
+    QCommandLineOption RAWFileFormat("raw-format",
+        QCoreApplication::translate("main", "I/Q RAW file format. Possible is: u8 (standard), s8, s16le, s16be. Only valid for input rawfile."),
+        QCoreApplication::translate("main", "I/Q RAW file format"));
+    optionParser.addOption(RAWFileFormat);
+
 #ifdef HAVE_SOAPYSDR
-    QCommandLineOption SDRDriverArgsOption("sdr-driver-args",
+    QCommandLineOption SDRDriverArgsOption("soapysdr-driver-args",
         QCoreApplication::translate("main", "The value depends on the SDR driver and is directly passed to it (currently only SoapySDR::Device::make(args)). A typical value for SoapySDR is a string like driver=remote,remote=127.0.0.1,remote:driver=rtlsdr,rtl=0"),
         QCoreApplication::translate("main", "args"));
     optionParser.addOption(SDRDriverArgsOption);
 
-    QCommandLineOption SDRAntennaOption("sdr-antenna",
+    QCommandLineOption SDRAntennaOption("soapysdr-antenna",
         QCoreApplication::translate("main", "The value depends on the SDR Hardware, typical values are TX/RX, RX2. Just query it with SoapySDRUtil --probe=driver=uhd"),
         QCoreApplication::translate("main", "antenna"));
     optionParser.addOption(SDRAntennaOption);
 
-    QCommandLineOption SDRClockSourceOption("sdr-clock-source",
+    QCommandLineOption SDRClockSourceOption("soapysdr-clock-source",
         QCoreApplication::translate("main", "The value depends on the SDR Hardware, typical values are internal, external, gpsdo. Just query it with SoapySDRUtil --probe=driver=uhd"),
         QCoreApplication::translate("main", "clock_source"));
     optionParser.addOption(SDRClockSourceOption);
 #endif /* HAVE_SOAPYSDR */
 
-    QCommandLineOption DABModeOption("M",
+    QCommandLineOption DABModeOption("dab-mode",
         QCoreApplication::translate("main", "DAB mode. Possible is: 1, 2 or 4, default: 1"),
         QCoreApplication::translate("main", "Mode"));
     optionParser.addOption(DABModeOption);
 
-    QCommandLineOption RTL_TCPServerIPOption("I",
-        QCoreApplication::translate("main", "rtl_tcp server IP address. Only valid for input rtl_tcp."),
-        QCoreApplication::translate("main", "IP address"));
-    optionParser.addOption(RTL_TCPServerIPOption);
-
-    QCommandLineOption RTL_TCPServerIPPort("P",
-        QCoreApplication::translate("main", "rtl_tcp server IP port. Only valid for input rtl_tcp."),
-        QCoreApplication::translate("main", "Port"));
-    optionParser.addOption(RTL_TCPServerIPPort);
-
-    QCommandLineOption RAWFile("F",
-        QCoreApplication::translate("main", "I/Q RAW file. Only valid for input rawfile."),
-        QCoreApplication::translate("main", "I/Q RAW file"));
-    optionParser.addOption(RAWFile);
-
-    QCommandLineOption RAWFileFormat("B",
-        QCoreApplication::translate("main", "I/Q RAW file format. Possible is: u8 (standard), s8, s16le, s16be. Only valid for input rawfile."),
-        QCoreApplication::translate("main", "I/Q RAW file format"));
-    optionParser.addOption(RAWFileFormat);
-
     QCommandLineOption MSCFileName("msc-file",
-        QCoreApplication::translate("main", "Records the DAB+ superframes. This file can be used to analyse zu X-PAD data with XPADexpert."),
+        QCoreApplication::translate("main", "Records the DAB+ superframes. This file can be used to analyse the X-PAD data with XPADexpert."),
         QCoreApplication::translate("main", "File name"));
     optionParser.addOption(MSCFileName);
 
     QCommandLineOption MP2FileName("mp2-file",
-        QCoreApplication::translate("main", "Records the DAB MP2 frames. This file can be used to analyse zu X-PAD data with XPADexpert."),
+        QCoreApplication::translate("main", "Records the DAB MP2 frames. This file can be used to analyse the X-PAD data with XPADexpert."),
         QCoreApplication::translate("main", "File name"));
     optionParser.addOption(MP2FileName);
 
@@ -192,6 +184,11 @@ int main(int argc, char** argv)
         QCoreApplication::translate("main", "Redirects all log output texts to a file."),
         QCoreApplication::translate("main", "File name"));
     optionParser.addOption(LogFileName);
+
+    QCommandLineOption Language("language",
+        QCoreApplication::translate("main", "Sets the GUI language according to the ISO country codes (e.g. de_DE)"),
+        QCoreApplication::translate("main", "Language"));
+    optionParser.addOption(Language);
 
     //	Process the actual command line arguments given by the user
     optionParser.process(app);
