@@ -47,7 +47,7 @@ public:
             uint8_t aacChannelMode,
             uint8_t buffer[],
             int16_t bufferLength,
-            uint32_t *sampleRate = nullptr, bool *isStereo = nullptr);
+            uint32_t *sampleRate = nullptr, bool *isParametricStereo = nullptr);
 
 private:
     bool                     processorOK;

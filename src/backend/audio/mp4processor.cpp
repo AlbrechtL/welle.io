@@ -91,6 +91,7 @@ mp4Processor::mp4Processor(
     au_count    = 0;
     au_errors   = 0;
     padDecoderAdapter = std::make_unique<PADDecoderAdapter>(mr);
+    aacAudioMode = AACAudioMode::Unknown;
 }
 
 mp4Processor::~mp4Processor()
@@ -288,7 +289,6 @@ bool mp4Processor::processSuperframe(uint8_t frameBytes[], int16_t base)
                     mpegSurround,
                     aacChannelMode,
                     &err);
-            emit isStereo (aacChannelMode);
             if (err) {
                 aacErrors ++;
             }
@@ -315,6 +315,7 @@ void  mp4Processor::handle_aacFrame(
         uint8_t  aacChannelMode,
         bool *error)
 {
+    bool isParametricStereo = false;
     uint8_t theAudioUnit[2 * 960 + 10];    // sure, large enough
 
     memcpy (theAudioUnit, v, frame_length);
@@ -328,7 +329,39 @@ void  mp4Processor::handle_aacFrame(
             mpegSurround,
             aacChannelMode,
             theAudioUnit,
-            frame_length);
+            frame_length,
+            nullptr,
+            &isParametricStereo);
     *error  = tmp == 0;
+
+    AACAudioMode aacAudioMode_tmp = AACAudioMode::Unknown;
+
+    if(aacChannelMode == 0 && isParametricStereo == true) // Parametric stereo
+        aacAudioMode_tmp = AACAudioMode::ParametricStereo;
+    else if(aacChannelMode == 1) // Stereo
+        aacAudioMode_tmp = AACAudioMode::Stereo;
+    else if(aacChannelMode == 0) // Mono
+        aacAudioMode_tmp = AACAudioMode::Mono;
+
+    if(aacAudioMode != aacAudioMode_tmp)
+    {
+        aacAudioMode = aacAudioMode_tmp;
+        switch(aacAudioMode)
+        {
+        case AACAudioMode::Mono:
+            qDebug() << "mp4processor:" <<  "Detected mono audio signal";
+            emit isStereo (false);
+            break;
+        case AACAudioMode::Stereo:
+            qDebug() << "mp4processor:" <<  "Detected stereo audio signal";
+            emit isStereo (true);
+            break;
+        case AACAudioMode::ParametricStereo:
+            qDebug() << "mp4processor:" <<  "Detected parametric stereo audio signal";
+            emit isStereo (true);
+            break;
+        default: qDebug() << "mp4processor:" <<  "Unknown audio mode";
+        }
+    }
 }
 

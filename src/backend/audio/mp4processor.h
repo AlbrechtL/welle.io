@@ -42,6 +42,8 @@
 
 class   CRadioController;
 
+enum class AACAudioMode { Unknown, Mono, Stereo, ParametricStereo};
+
 class   mp4Processor : public QObject, public dabProcessor
 {
     Q_OBJECT
@@ -91,6 +93,7 @@ class   mp4Processor : public QObject, public dabProcessor
         std::unique_ptr<PADDecoderAdapter> padDecoderAdapter;
         QByteArray  *MscFileName;
         FILE        *MscFile;
+        AACAudioMode aacAudioMode;
 signals:
         void        show_frameErrors(int frameErrors);
         void        show_rsErrors(int rsErrors);

@@ -63,7 +63,7 @@ int16_t CFaadDecoder::MP42PCM(
     uint8_t buffer[],
     int16_t bufferLength,
     uint32_t *sampleRate,
-    bool *isStereo)
+    bool *isParametricStereo)
 {
     size_t samples;
     uint8_t channels;
@@ -122,6 +122,9 @@ int16_t CFaadDecoder::MP42PCM(
     outBuffer = (int16_t *)NeAACDecDecode (aacHandle,
             &hInfo, buffer, bufferLength);
 
+    if(isParametricStereo)
+        *isParametricStereo = hInfo.ps == 1 ? true : false;
+
     sample_rate = hInfo. samplerate;
     if(sampleRate)
         *sampleRate = sample_rate;
@@ -135,8 +138,6 @@ int16_t CFaadDecoder::MP42PCM(
     //           hInfo. sbr);
     //  fprintf (stderr, "header = %d\n", hInfo. header_type);
     channels    = hInfo. channels;
-    if(isStereo)
-        *isStereo = channels == 2 ? true : false;
 
     // Error check
     if (hInfo. error != 0)
