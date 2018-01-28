@@ -27,6 +27,7 @@
 #define	__CAUDIO__
 #include	<stdio.h>
 #include    <QAudioOutput>
+#include    <memory>
 #include    <QTimer>
 
 #include	"DabConstants.h"
@@ -37,7 +38,7 @@ class CAudioIODevice : public QIODevice
     Q_OBJECT
 
 public:
-    CAudioIODevice(RingBuffer<int16_t> *Buffer, QObject *parent);
+    CAudioIODevice(std::shared_ptr<RingBuffer<int16_t>> Buffer, QObject *parent);
     ~CAudioIODevice();
 
     void start();
@@ -49,14 +50,14 @@ public:
     qint64 bytesAvailable() const;
 
 private:
-    RingBuffer<int16_t> *Buffer;
+    std::shared_ptr<RingBuffer<int16_t>> Buffer;
 };
 
 
 class	CAudio: public QObject{
 Q_OBJECT
 public:
-    CAudio(RingBuffer<int16_t> *Buffer);
+    CAudio(std::shared_ptr<RingBuffer<int16_t>> Buffer);
     ~CAudio(void);
     void stop (void);
     void reset(void);
@@ -70,7 +71,7 @@ private:
     QAudioOutput* AudioOutput;
     CAudioIODevice *AudioIODevice;
     QTimer  CheckAudioBufferTimer;
-    RingBuffer<int16_t> *Buffer;
+    std::shared_ptr<RingBuffer<int16_t>> Buffer;
 
     QAudio::State CurrentState;
     int32_t		CardRate;

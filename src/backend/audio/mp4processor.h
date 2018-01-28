@@ -34,7 +34,7 @@
 #include    <stdint.h>
 #include    "CAudio.h"
 #include    "dab-processor.h"
-#include    "faad-decoder.h"
+#include    "CFaadDecoder.h"
 #include    "firecode-checker.h"
 #include    "reed-solomon.h"
 #include    <QObject>
@@ -48,7 +48,7 @@ class   mp4Processor : public QObject, public dabProcessor
     public:
         mp4Processor(CRadioController    *mr,
                      int16_t bitRate,
-                     RingBuffer<int16_t> *b);
+                     std::shared_ptr<RingBuffer<int16_t> > b);
         ~mp4Processor();
         void        addtoFrame(uint8_t *v);
 
@@ -80,7 +80,7 @@ class   mp4Processor : public QObject, public dabProcessor
         reedSolomon the_rsDecoder;
         std::vector<uint8_t> outVector;
         //  and for the aac decoder
-        faadDecoder aacDecoder;
+        CFaadDecoder aacDecoder;
         int16_t     frameCount;
         int16_t     successFrames;
         int16_t     frameErrors;

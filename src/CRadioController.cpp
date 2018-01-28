@@ -55,7 +55,7 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, CDABParams& 
     my_mscHandler = NULL;
     my_ofdmProcessor = NULL;
 
-    AudioBuffer = new RingBuffer<int16_t>(2 * AUDIOBUFFERSIZE);
+    AudioBuffer = std::make_shared<RingBuffer<int16_t>>(2 * AUDIOBUFFERSIZE);
     Audio = new CAudio(AudioBuffer);
 
     MOTImage = new QImage();

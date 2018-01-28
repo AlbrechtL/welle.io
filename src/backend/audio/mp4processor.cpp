@@ -43,9 +43,9 @@
 mp4Processor::mp4Processor(
         CRadioController *mr,
         int16_t bitRate,
-        RingBuffer<int16_t> *b) :
+        std::shared_ptr<RingBuffer<int16_t>> b) :
     the_rsDecoder(8, 0435, 0, 1, 10),
-    aacDecoder(mr, b)
+    aacDecoder(b)
 {
 
     myRadioInterface    = mr;

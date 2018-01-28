@@ -215,7 +215,7 @@ struct quantizer_spec quantizer_table[17] = {
 
     mp2Processor::mp2Processor (CRadioController *mr,
                                 int16_t bitRate,
-                                RingBuffer<int16_t> *buffer) {
+                                std::shared_ptr<RingBuffer<int16_t>> buffer) {
         int16_t i, j;
         int16_t *nPtr = &N[0][0];
 

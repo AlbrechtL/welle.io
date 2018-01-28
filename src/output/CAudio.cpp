@@ -28,7 +28,7 @@
 
 #include "CAudio.h"
 
-CAudio::CAudio(RingBuffer<int16_t>* Buffer)
+CAudio::CAudio(std::shared_ptr<RingBuffer<int16_t> > Buffer)
 {
     AudioOutput = NULL;
     CardRate = 0;
@@ -148,7 +148,7 @@ void CAudio::checkAudioBufferTimeout()
     }
 }
 
-CAudioIODevice::CAudioIODevice(RingBuffer<int16_t>* Buffer, QObject* parent)
+CAudioIODevice::CAudioIODevice(std::shared_ptr<RingBuffer<int16_t>> Buffer, QObject* parent)
     : QIODevice(parent)
 {
     this->Buffer = Buffer;

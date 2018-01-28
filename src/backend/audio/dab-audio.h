@@ -38,20 +38,20 @@ class CRadioController;
 class dabAudio : public QThread, public dabVirtual
 {
     public:
-        dabAudio( uint8_t dabModus,
+        dabAudio(uint8_t dabModus,
                   int16_t fragmentSize,
                   int16_t bitRate,
                   bool   shortForm,
                   int16_t protLevel,
                   CRadioController *mr,
-                  RingBuffer<int16_t> *);
+                  std::shared_ptr<RingBuffer<int16_t> >);
         ~dabAudio(void);
         int32_t process(int16_t *v, int16_t cnt);
         void    stopRunning(void);
 
     protected:
         CRadioController    *myRadioInterface;
-        RingBuffer<int16_t> *audioBuffer;
+        std::shared_ptr<RingBuffer<int16_t>> audioBuffer;
 
     private:
         void    run(void);

@@ -80,6 +80,7 @@ set(sources
     src/backend/audio/dab-audio.cpp
     src/backend/audio/mp2processor.cpp
     src/backend/audio/mp4processor.cpp
+    src/backend/audio/CFaadDecoder.cpp
     src/backend/data/pad_decoder.cpp
     src/backend/data/mot_manager.cpp
     src/backend/data/pad_decoder_adapter.cpp

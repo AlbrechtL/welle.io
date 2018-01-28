@@ -165,7 +165,7 @@ private:
     ficHandler* my_ficHandler;
     mscHandler* my_mscHandler;
     CAudio* Audio;
-    RingBuffer<int16_t>* AudioBuffer;
+    std::shared_ptr<RingBuffer<int16_t>> AudioBuffer;
 
     // Objects set by the back-end
     QVariantMap mGUIData;

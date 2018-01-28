@@ -29,6 +29,7 @@
 #define MSC_HANDLER
 
 #include    <QMutex>
+#include    <memory>
 #include    <stdio.h>
 #include    <stdint.h>
 #include    <stdio.h>
@@ -43,7 +44,7 @@ class mscHandler
     public:
         mscHandler(CRadioController *,
                 CDABParams *,
-                RingBuffer<int16_t> *,
+                std::shared_ptr<RingBuffer<int16_t> >,
                 bool show_crcErrors);
         ~mscHandler(void);
         void process_mscBlock(int16_t *fbits, int16_t blkno);
@@ -53,7 +54,7 @@ class mscHandler
         void stopHandler(void);
     private:
         CRadioController    *myRadioInterface;
-        RingBuffer<int16_t> *buffer;
+        std::shared_ptr<RingBuffer<int16_t>> buffer;
         bool        show_crcErrors;
         QMutex      locker;
         bool        audioService;

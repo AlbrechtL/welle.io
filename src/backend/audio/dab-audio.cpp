@@ -51,7 +51,7 @@ dabAudio::dabAudio(
         bool   shortForm,
         int16_t protLevel,
         CRadioController *mr,
-        RingBuffer<int16_t> *buffer) :
+        std::shared_ptr<RingBuffer<int16_t>> buffer) :
     Buffer(64 * 32768)
 {
     int32_t i;

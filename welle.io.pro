@@ -78,7 +78,7 @@ HEADERS += \
     src/backend/audio/dab-audio.h \
     src/backend/audio/mp2processor.h \
     src/backend/audio/mp4processor.h \
-    src/backend/audio/faad-decoder.h \
+    src/backend/audio/CFaadDecoder.h \
     src/backend/audio/neaacdec.h \
     src/backend/data/pad_decoder.h \
     src/backend/data/mot_manager.h \
@@ -127,6 +127,7 @@ SOURCES += \
     src/backend/audio/dab-audio.cpp \
     src/backend/audio/mp2processor.cpp \
     src/backend/audio/mp4processor.cpp \
+    src/backend/audio/CFaadDecoder.cpp \
     src/backend/data/pad_decoder.cpp \
     src/backend/data/mot_manager.cpp \
     src/backend/data/pad_decoder_adapter.cpp \

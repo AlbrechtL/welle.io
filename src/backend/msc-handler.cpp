@@ -35,7 +35,7 @@
 mscHandler::mscHandler(
         CRadioController *mr,
         CDABParams *p,
-        RingBuffer<int16_t> *buffer,
+        std::shared_ptr<RingBuffer<int16_t>> buffer,
         bool   show_crcErrors)
 {
     myRadioInterface     = mr;

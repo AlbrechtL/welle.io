@@ -57,7 +57,7 @@ class mp2Processor: public QObject, public dabProcessor
     public:
         mp2Processor( CRadioController *mr,
                       int16_t bitRate,
-                      RingBuffer<int16_t> *buffer);
+                      std::shared_ptr<RingBuffer<int16_t>> buffer);
         ~mp2Processor(void);
         virtual void addtoFrame(uint8_t *v);
         void setFile(FILE *);
@@ -67,7 +67,7 @@ class mp2Processor: public QObject, public dabProcessor
         int32_t     mp2decodeFrame(uint8_t *frame, int16_t *pcm);
 
         CRadioController    *myRadioInterface;
-        RingBuffer<int16_t> *buffer;
+        std::shared_ptr<RingBuffer<int16_t>> buffer;
         int16_t     bitRate;
         int32_t     baudRate;
         void        setSamplerate(int32_t rate);
