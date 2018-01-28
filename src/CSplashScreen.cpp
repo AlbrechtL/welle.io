@@ -49,14 +49,16 @@ void CSplashScreen::Show(void)
 void CSplashScreen::Close()
 {
 #ifndef Q_OS_ANDROID
-    Splash->close();
+    if(Splash)
+        Splash->close();
 #endif
 }
 
 void CSplashScreen::ShowMessage(QString Message)
 {
 #ifndef Q_OS_ANDROID
-    Splash->showMessage(Message, Qt::AlignBottom | Qt::AlignHCenter, Qt::white);
+    if(Splash)
+        Splash->showMessage(Message, Qt::AlignBottom | Qt::AlignHCenter, Qt::white);
 #else
     Q_UNUSED(Message);
 #endif

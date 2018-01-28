@@ -57,6 +57,7 @@ Parameter | Description
 --mp2-file | MP2 file name. Records the DAB MP2 frames. This file can be used to analyse zu X-PAD data with XPADexpert (https://www.basicmaster.de/xpadxpert).
 --log-file | Log file name. Redirects all log output texts to a file.
 --language | Sets the GUI language according to the ISO country codes e.g. de_DE
+--disable-splash | Disables the splash screen
 
 
 Example usage:
