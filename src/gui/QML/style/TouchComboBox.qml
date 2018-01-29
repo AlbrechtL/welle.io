@@ -27,7 +27,7 @@ ComboBox {
             {
                  color: (highlighted || pressed) ? "#468bb7" : "#515154"
 
-                 radius: Unit.dp(2)
+                 radius: Units.dp(2)
                  opacity: pressed ? 0.7 : 1
                  focus: true
             }
