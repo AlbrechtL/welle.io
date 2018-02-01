@@ -25,15 +25,11 @@
  */
 
 #include <memory>
-#include <thread>
-#include <QObject>
 #include "neaacdec.h"
-
 #include "ringbuffer.h"
 
-class   CFaadDecoder: public QObject
+class CFaadDecoder
 {
-    Q_OBJECT
 public:
     CFaadDecoder (std::shared_ptr<RingBuffer<int16_t>> buffer);
     ~CFaadDecoder(void);
