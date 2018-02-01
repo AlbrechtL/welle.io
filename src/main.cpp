@@ -128,12 +128,12 @@ int main(int argc, char** argv)
         QCoreApplication::translate("main", "Name"));
     optionParser.addOption(InputOption);
 
-    QCommandLineOption RTL_TCPServerIPOption("rtltcp-address",
+    QCommandLineOption RTL_TCPServerIPOption("rtl_tcp-address",
         QCoreApplication::translate("main", "rtl_tcp server IP address. Only valid for input rtl_tcp."),
         QCoreApplication::translate("main", "IP address"));
     optionParser.addOption(RTL_TCPServerIPOption);
 
-    QCommandLineOption RTL_TCPServerIPPort("rtltcp-port",
+    QCommandLineOption RTL_TCPServerIPPort("rtl_tcp-port",
         QCoreApplication::translate("main", "rtl_tcp server IP port. Only valid for input rtl_tcp."),
         QCoreApplication::translate("main", "Port"));
     optionParser.addOption(RTL_TCPServerIPPort);

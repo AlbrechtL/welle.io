@@ -45,8 +45,8 @@ Parameter | Description
 -h, --help | Show help 
 -v, --version | Show version 
 -d, --device | Input device. Possible is: auto (default), airspy, rtl_tcp, rtl_sdr, rawfile, soapysdr
---rtltcp-address | rtl_tcp server IP address. Only valid for input rtl_tcp 
---rtltcp-port | rtl_tcp server IP port. Only valid for input rtl_tcp
+--rtl_tcp-address | rtl_tcp server IP address. Only valid for input rtl_tcp 
+--rtl_tcp-port | rtl_tcp server IP port. Only valid for input rtl_tcp
 --raw-file | I/Q RAW file. Only valid for input rawfile.
 --raw-format | I/Q RAW format. Possible is:<ul><li>u8 (unsigned int 8 bit, [qt-dab](https://github.com/JvanKatwijk/qt-dab) RAW files)</li><li>s8 (signed 8 bit, [ODR](https://www.welle.io/devices/rawfile#odr-dabmod) files)</li><li>s16le (signed int 16 bit little endian, [qt-dab](https://github.com/JvanKatwijk/qt-dab) SDR files)</li><li>s16be (signed int 16 bit big endian, [qt-dab](https://github.com/JvanKatwijk/qt-dab) SDR files)</li><li>Default: u8. Only valid for input rawfile.</li></ul>
 --soapysdr-driver-args | The value depends on the soapySDR driver and is directly passed to it (currently only SoapySDR::Device::make(args)). A typical value for SoapySDR is a string like driver=remote,remote=127.0.0.1,remote:driver=rtlsdr,rtl=0
@@ -63,7 +63,7 @@ Parameter | Description
 Example usage:
   
   ```
-# welle.io -d rtl_tcp --rtltcp-address 192.168.1.1 --rtltcp-port 1000
+# welle.io -d rtl_tcp --rtl_tcp-address 192.168.1.1 --rtl_tcp-port 1000
   ```
   ```
 # welle.io -d rawfile --raw-file test.sdr --raw-format s16le
