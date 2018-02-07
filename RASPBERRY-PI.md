@@ -1,4 +1,4 @@
-Welle.io on Raspberry Pi 2/3  
+welle.io on Raspberry Pi 2/3  
 ============================
 This guide borrows parts from [Qt wiki](https://wiki.qt.io/RaspberryPi2EGLFS).  
 This guide is a work in progress.  
@@ -310,7 +310,7 @@ This is only half the battle though. Now we continue on to set up our host compu
 	
 **ON RASPBERRY PI:**
 
-27. Find the file **welle-io** and run it to enjoy Welle.io on your Raspberry Pi.  
+27. Find the file **welle-io** and run it to enjoy welle.io on your Raspberry Pi.  
     Open a new terminal and type:  
     ```
 	./welle-io
@@ -358,7 +358,19 @@ Troubleshooting
   ```
   You can basically put any font you want in the fonts folder.  
 * If your screen goes blank after a set time, have a look at the [official documentation](https://www.raspberrypi.org/documentation/configuration/screensaver.md) for screensavers.  
-
+* Error: **EGLFS: OpenGL windows cannot be mixed with others.** appears, this means the splash screen is not working correctly on Raspberry Pi.  
+To work around this issue, start welle.io with the argument **--disable-splash**.  
+```
+./welle-io --disable-splash
+```
+* When using VNC or another form of remote desktop software,  
+OpenGLES will not output any Qt windows to the remote desktop,  
+only a fullscreen window on an attached screen, such as HDMI or DSI port.  
+To work around this issue, use argument **-platform xcb** when starting welle.io.  
+You might have to install the proper xcb libraries if these are not present on your Raspberry Pi.
+```
+./welle-io -platform xcb
+```
 
 Known issues
 -----------
