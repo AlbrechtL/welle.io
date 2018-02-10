@@ -100,6 +100,7 @@ signals:
         void        show_aacErrors(int aacErrors);
         void        showLabel(QString label);
         void        isStereo(bool);
+        void        setSampleRate(int sampleRate);
 };
 
 #endif
