@@ -112,12 +112,6 @@ if(SoapySDR_FOUND)
   set(sources  ${sources} src/input/CSoapySdr.cpp)
 endif()
 
-# The AUTOMOC system does not correctly find this header which needs MOC processing.
-# So we are forced to add it manually.
-QT5_WRAP_CPP(EXTRA_MOCS
-  src/backend/audio/faad-decoder.h
-)
-
 execute_process(
   COMMAND git rev-parse --short HEAD
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
