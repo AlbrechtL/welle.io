@@ -32,7 +32,7 @@
 #include	<QMessageBox>
 #include	<QHostAddress>
 #include	<QTcpSocket>
-#include    <arpa/inet.h>
+#include    <QtEndian>
 
 #include	"CRTL_TCP_Client.h"
 
@@ -185,8 +185,8 @@ void CRTL_TCP_Client::readData(void)
            memcpy(&DongleInfo, buffer, sizeof(dongle_info_t));
 
            // Convert the byte order
-           DongleInfo.tuner_type = ntohl(DongleInfo.tuner_type);
-           DongleInfo.tuner_gain_count = ntohl(DongleInfo.tuner_gain_count);
+           DongleInfo.tuner_type = qFromBigEndian(DongleInfo.tuner_type);
+           DongleInfo.tuner_gain_count = qFromBigEndian(DongleInfo.tuner_gain_count);
 
            if(DongleInfo.magic[0] == 'R' &&
               DongleInfo.magic[1] == 'T' &&
