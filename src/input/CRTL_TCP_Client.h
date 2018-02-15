@@ -36,6 +36,7 @@
 #include <QTcpSocket>
 #include <QTimer>
 #include <QtNetwork>
+#include <array>
 
 #include "CVirtualInput.h"
 #include "DabConstants.h"
