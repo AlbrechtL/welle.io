@@ -57,6 +57,8 @@ mp4Processor::mp4Processor(
             mr, SLOT (show_aacErrors (int)));
     connect (this, SIGNAL (isStereo (bool)),
             mr, SLOT (setStereo (bool)));
+    connect (this, SIGNAL (setSampleRate (int)),
+            mr, SLOT (newAudio (int)));
 
     // Open a MSC file (XPADxpert) if the user defined it
     QString MscFileName_tmp = myRadioInterface->GetMscFileName();
@@ -316,6 +318,7 @@ void  mp4Processor::handle_aacFrame(
         bool *error)
 {
     bool isParametricStereo = false;
+    uint32_t sampleRate = 0;
     uint8_t theAudioUnit[2 * 960 + 10];    // sure, large enough
 
     memcpy (theAudioUnit, v, frame_length);
@@ -330,11 +333,12 @@ void  mp4Processor::handle_aacFrame(
             aacChannelMode,
             theAudioUnit,
             frame_length,
-            nullptr,
+            &sampleRate,
             &isParametricStereo);
     *error  = tmp == 0;
 
     AACAudioMode aacAudioMode_tmp = AACAudioMode::Unknown;
+    setSampleRate(sampleRate);
 
     if(aacChannelMode == 0 && isParametricStereo == true) // Parametric stereo
         aacAudioMode_tmp = AACAudioMode::ParametricStereo;

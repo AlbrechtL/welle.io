@@ -32,6 +32,8 @@
 #include	<QMessageBox>
 #include	<QHostAddress>
 #include	<QTcpSocket>
+#include    <QtEndian>
+
 #include	"CRTL_TCP_Client.h"
 
 //	commands are packed in 5 bytes, one "command byte"
@@ -41,6 +43,16 @@ struct command
     unsigned char cmd;
     unsigned int param;
 }__attribute__((packed));
+
+enum rtlsdr_tuner {
+    RTLSDR_TUNER_UNKNOWN = 0,
+    RTLSDR_TUNER_E4000,
+    RTLSDR_TUNER_FC0012,
+    RTLSDR_TUNER_FC0013,
+    RTLSDR_TUNER_FC2580,
+    RTLSDR_TUNER_R820T,
+    RTLSDR_TUNER_R828D
+};
 
 #define	ONE_BYTE	8
 
@@ -63,6 +75,9 @@ CRTL_TCP_Client::CRTL_TCP_Client(CRadioController &RadioController)
     serverAddress = QHostAddress("127.0.0.1");
     MinValue = 255;
     MaxValue = 0;
+
+    FirstData = true;
+    memset(&DongleInfo, 0, sizeof(dongle_info_t));
 
     connect(&TCPConnectionWatchDog, &QTimer::timeout, this, &CRTL_TCP_Client::TCPConnectionWatchDogTimeout);
     connect(&TCPSocket, &QTcpSocket::readyRead, this, &CRTL_TCP_Client::readData);
@@ -162,6 +177,50 @@ void CRTL_TCP_Client::readData(void)
            continue;
        }
 
+       if(FirstData)
+       {
+           FirstData = false;
+
+           // Get dongle information
+           memcpy(&DongleInfo, buffer, sizeof(dongle_info_t));
+
+           // Convert the byte order
+           DongleInfo.tuner_type = qFromBigEndian(DongleInfo.tuner_type);
+           DongleInfo.tuner_gain_count = qFromBigEndian(DongleInfo.tuner_gain_count);
+
+           if(DongleInfo.magic[0] == 'R' &&
+              DongleInfo.magic[1] == 'T' &&
+              DongleInfo.magic[2] == 'L' &&
+              DongleInfo.magic[3] == '0')
+           {
+               QString TunerType;
+               switch(DongleInfo.tuner_type)
+               {
+               case RTLSDR_TUNER_UNKNOWN: TunerType = "Unknown"; break;
+               case RTLSDR_TUNER_E4000: TunerType = "E4000"; break;
+               case RTLSDR_TUNER_FC0012: TunerType = "FC0012"; break;
+               case RTLSDR_TUNER_FC0013: TunerType = "FC0013"; break;
+               case RTLSDR_TUNER_FC2580: TunerType = "FC2580"; break;
+               case RTLSDR_TUNER_R820T: TunerType = "R820T"; break;
+               case RTLSDR_TUNER_R828D: TunerType = "R828D"; break;
+               default: TunerType = "Unknown";
+               }
+               qDebug() << "RTL_TCP_CLIENT:" << "Tuner type:" << DongleInfo.tuner_type << TunerType ;
+               qDebug() << "RTL_TCP_CLIENT:" << "Tuner gain count:" << DongleInfo.tuner_gain_count;
+
+               // If the gain is to low the AGC doesn't work
+               if(DongleInfo.tuner_type == RTLSDR_TUNER_R820T ||
+                  DongleInfo.tuner_type == RTLSDR_TUNER_R828D)
+                   setGain(1);
+               else
+                   setGain(0);
+           }
+           else
+           {
+               qDebug() << "RTL_TCP_CLIENT:" << "Doesn't found the \"RTL0\" magic key.";
+           }
+       }
+
        SampleBuffer -> putDataIntoBuffer (buffer, 8192);
        SpectrumSampleBuffer -> putDataIntoBuffer (buffer, 8192);
 
@@ -181,7 +240,9 @@ void CRTL_TCP_Client::readData(void)
 
 void CRTL_TCP_Client::disconnected(void)
 {
-    if(RadioController) {
+    if(RadioController)
+    {
+        FirstData = true;
         RadioController->setErrorMessage(QObject::tr("RTL-TCP connection closed."));
 #ifdef Q_OS_ANDROID
         QTimer::singleShot(0, RadioController, SLOT(closeDevice()));
@@ -233,8 +294,19 @@ float CRTL_TCP_Client::setGain(int32_t gain)
 
 int32_t CRTL_TCP_Client::getGainCount()
 {
-    // rtl_tcp doesn't give us a gain count so use a hard code one from the RTL-SDR.com dongle
-    return 29;
+    int32_t MaxGainCount = 0;
+    switch(DongleInfo.tuner_type)
+    {
+    case RTLSDR_TUNER_E4000: MaxGainCount = e4k_gains.size(); break;
+    case RTLSDR_TUNER_FC0012: MaxGainCount = fc0012_gains.size(); break;
+    case RTLSDR_TUNER_FC0013: MaxGainCount = fc0013_gains.size(); break;
+    case RTLSDR_TUNER_FC2580: MaxGainCount = fc2580_gains.size(); break;
+    case RTLSDR_TUNER_R820T: MaxGainCount = r82xx_gains.size(); break;
+    case RTLSDR_TUNER_R828D: MaxGainCount = r82xx_gains.size(); break;
+    default: MaxGainCount = 29; // Most likely it is the R820T tuner
+    }
+
+    return MaxGainCount;
 }
 
 void CRTL_TCP_Client::setAgc(bool AGC)
@@ -335,12 +407,12 @@ void CRTL_TCP_Client::AGCTimerTimeout(void)
             if(CurrentGainCount > 0)
             {
                 setGain(CurrentGainCount - 1);
-                //qDebug() << "RTL_TCP_CLIENT:" << "Decrease gain to" << (float) CurrentGain;
+                qDebug() << "RTL_TCP_CLIENT:" << "Decrease gain to" << (float) CurrentGain;
             }
         }
         else
         {
-            if(CurrentGainCount < (getGainCount() - 1))
+            if(CurrentGainCount < (getGainCount() - 1) && getGainCount() > 0)
             {
                 // Calc if a gain increase overloads the device. Calc it from the gain values
                 float NewGain = getGainValue(CurrentGainCount + 1);
@@ -354,7 +426,7 @@ void CRTL_TCP_Client::AGCTimerTimeout(void)
                 if(NewMinValue >=0 && NewMaxValue <= 255)
                 {
                     setGain(CurrentGainCount + 1);
-                    //qDebug() << "RTL_TCP_CLIENT:" << "Increase gain to" << CurrentGain;
+                    qDebug() << "RTL_TCP_CLIENT:" << "Increase gain to" << CurrentGain;
                 }
             }
         }
@@ -374,41 +446,32 @@ float CRTL_TCP_Client::getGainValue(uint16_t GainCount)
 {
     float gainValue = 0;
 
-    // The rtl_tcp server doesn't delivers the possible gain values.
-    // Instead, using gain values from the Rafael Micro R820T tuner
-    switch(GainCount)
+    if(DongleInfo.tuner_type == RTLSDR_TUNER_UNKNOWN)
+        return 0;
+
+    // Get max gain count
+    uint32_t MaxGainCount = getGainCount();
+    if(MaxGainCount == 0)
+        return 0;
+
+    // Check if GainCount is valid
+    if(GainCount < MaxGainCount)
     {
-        case 0: gainValue = 0.0; break;
-        case 1: gainValue = 0.9; break;
-        case 2: gainValue = 1.4; break;
-        case 3: gainValue = 2.7; break;
-        case 4: gainValue = 3.7; break;
-        case 5: gainValue = 7.7; break;
-        case 6: gainValue = 8.7; break;
-        case 7: gainValue = 12.5; break;
-        case 8: gainValue = 14.4; break;
-        case 9: gainValue = 15.7; break;
-        case 10: gainValue = 16.6; break;
-        case 11: gainValue = 19.7; break;
-        case 12: gainValue = 20.7; break;
-        case 13: gainValue = 22.9; break;
-        case 14: gainValue = 25.4; break;
-        case 15: gainValue = 28.0; break;
-        case 16: gainValue = 29.7; break;
-        case 17: gainValue = 32.8; break;
-        case 18: gainValue = 33.8; break;
-        case 19: gainValue = 36.4; break;
-        case 20: gainValue = 37.2; break;
-        case 21: gainValue = 38.6; break;
-        case 22: gainValue = 40.2; break;
-        case 23: gainValue = 42.1; break;
-        case 24: gainValue = 43.4; break;
-        case 25: gainValue = 43.9; break;
-        case 26: gainValue = 44.4; break;
-        case 27: gainValue = 48.0; break;
-        case 28: gainValue = 49.6; break;
-        case 29: gainValue = 999; break; // Max gain
-        default: gainValue = 0.0; qDebug() << "RTL_TCP_CLIENT:" << "Unknown gain count:" << GainCount;
+        // Get gain
+        switch(DongleInfo.tuner_type)
+        {
+        case RTLSDR_TUNER_E4000: gainValue = e4k_gains[GainCount]; break;
+        case RTLSDR_TUNER_FC0012: gainValue = fc0012_gains[GainCount]; break;
+        case RTLSDR_TUNER_FC0013: gainValue = fc0013_gains[GainCount]; break;
+        case RTLSDR_TUNER_FC2580: gainValue = fc2580_gains[GainCount]; break;
+        case RTLSDR_TUNER_R820T: gainValue = r82xx_gains[GainCount]; break;
+        case RTLSDR_TUNER_R828D: gainValue = r82xx_gains[GainCount]; break;
+        default: gainValue = 0;
+        }
+    }
+    else
+    {
+        gainValue = 999.0; // Max gain
     }
 
     return gainValue;
