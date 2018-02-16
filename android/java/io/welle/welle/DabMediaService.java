@@ -6,17 +6,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
-import android.media.browse.MediaBrowser;
-import android.media.MediaDescription;
-import android.service.media.MediaBrowserService;
-import android.net.Uri;
+import android.support.v4.media.MediaBrowserCompat;
+import android.support.v4.media.MediaBrowserServiceCompat;
+import android.support.v4.media.MediaDescriptionCompat;
 import android.util.Log;
 
 import io.welle.welle.DabService.DabBinder;
@@ -27,7 +25,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class DabMediaService extends MediaBrowserService implements ServiceConnection {
+public class DabMediaService extends MediaBrowserServiceCompat implements ServiceConnection {
 
     private static final String TAG = DabMediaService.class.getSimpleName();
 
@@ -47,8 +45,8 @@ public class DabMediaService extends MediaBrowserService implements ServiceConne
     };
 
     private static DabMediaService instance = null;
-    private static List<MediaBrowser.MediaItem> mFavoriteList = new ArrayList<>();
-    private List<MediaBrowser.MediaItem> mChannelList = new ArrayList<>();
+    private static List<MediaBrowserCompat.MediaItem> mFavoriteList = new ArrayList<>();
+    private List<MediaBrowserCompat.MediaItem> mChannelList = new ArrayList<>();
 
     public static Bitmap drawableToBitmap(Drawable drawable) {
         Bitmap bitmap = null;
@@ -76,11 +74,11 @@ public class DabMediaService extends MediaBrowserService implements ServiceConne
         Log.i(TAG, "Add favorite station: " + station + " channel: " + channel);
         boolean updateRoot = mFavoriteList.isEmpty();
 
-        mFavoriteList.add(new MediaBrowser.MediaItem(DabService.createStation(station, channel),
-                MediaBrowser.MediaItem.FLAG_PLAYABLE));
-        Collections.sort(mFavoriteList, new Comparator<MediaBrowser.MediaItem>() {
+        mFavoriteList.add(new MediaBrowserCompat.MediaItem(DabService.createStation(station, channel),
+                MediaBrowserCompat.MediaItem.FLAG_PLAYABLE));
+        Collections.sort(mFavoriteList, new Comparator<MediaBrowserCompat.MediaItem>() {
             @Override
-            public int compare(MediaBrowser.MediaItem lhs, MediaBrowser.MediaItem rhs) {
+            public int compare(MediaBrowserCompat.MediaItem lhs, MediaBrowserCompat.MediaItem rhs) {
                 return DabService.compareStation(lhs.getDescription(), rhs.getDescription());
             }
         });
@@ -94,9 +92,9 @@ public class DabMediaService extends MediaBrowserService implements ServiceConne
         Log.i(TAG, "Remove favorite station: " + station + " channel: " + channel);
 
         String mediaId = DabService.toMediaId(station, channel);
-        Iterator<MediaBrowser.MediaItem> it = mFavoriteList.iterator();
+        Iterator<MediaBrowserCompat.MediaItem> it = mFavoriteList.iterator();
         while (it.hasNext()) {
-            MediaBrowser.MediaItem mediaItem = it.next();
+            MediaBrowserCompat.MediaItem mediaItem = it.next();
             if (mediaId.equals(mediaItem.getMediaId())) {
                 it.remove();
             }
@@ -138,11 +136,11 @@ public class DabMediaService extends MediaBrowserService implements ServiceConne
             extras.putInt(DabService.BUNDLE_KEY_DAB_TYPE, DabService.TYPE_DAB_CHANNEL);
             extras.putString(DabService.BUNDLE_KEY_CHANNEL, channel);
 
-            mChannelList.add(new MediaBrowser.MediaItem(new MediaDescription.Builder()
+            mChannelList.add(new MediaBrowserCompat.MediaItem(new MediaDescriptionCompat.Builder()
                     .setMediaId(DabService.toMediaId(null, channel))
                     .setTitle(channel)
                     .setExtras(extras)
-                    .build(), MediaBrowser.MediaItem.FLAG_PLAYABLE));
+                    .build(), MediaBrowserCompat.MediaItem.FLAG_PLAYABLE));
         }
     }
 
@@ -200,28 +198,28 @@ public class DabMediaService extends MediaBrowserService implements ServiceConne
 
     @Override
     public void onLoadChildren(@NonNull final String parentMediaId,
-                               @NonNull final Result<List<MediaBrowser.MediaItem>> result) {
+                               @NonNull final Result<List<MediaBrowserCompat.MediaItem>> result) {
         Log.d(TAG, "onLoadChildren: parentMediaId=" + parentMediaId);
 
         switch (parentMediaId) {
             case MEDIA_ID_ROOT:
                 Resources resources = getResources();
 
-                List<MediaBrowser.MediaItem> mediaItems = new ArrayList<>();
+                List<MediaBrowserCompat.MediaItem> mediaItems = new ArrayList<>();
 
                 if (!mFavoriteList.isEmpty()) {
-                    mediaItems.add(new MediaBrowser.MediaItem(new MediaDescription.Builder()
+                    mediaItems.add(new MediaBrowserCompat.MediaItem(new MediaDescriptionCompat.Builder()
                             .setMediaId(MEDIA_ID_FAVORITE_STATIONS)
                             .setTitle(resources.getString(R.string.menu_favorites))
                             .setIconBitmap(drawableToBitmap(resources.getDrawable(R.drawable.ic_favorites)))
-                            .build(), MediaBrowser.MediaItem.FLAG_BROWSABLE));
+                            .build(), MediaBrowserCompat.MediaItem.FLAG_BROWSABLE));
                 }
 
-                mediaItems.add(new MediaBrowser.MediaItem(new MediaDescription.Builder()
+                mediaItems.add(new MediaBrowserCompat.MediaItem(new MediaDescriptionCompat.Builder()
                         .setMediaId(MEDIA_ID_DAB_CHANNELS)
                         .setTitle(resources.getString(R.string.menu_channels))
                         .setIconBitmap(drawableToBitmap(resources.getDrawable(R.drawable.ic_antenna)))
-                        .build(), MediaBrowser.MediaItem.FLAG_BROWSABLE));
+                        .build(), MediaBrowserCompat.MediaItem.FLAG_BROWSABLE));
 
                 result.sendResult(mediaItems);
                 break;
@@ -239,5 +237,14 @@ public class DabMediaService extends MediaBrowserService implements ServiceConne
                 result.sendResult(null);
                 break;
         }
+    }
+
+    @Override
+    public void onSearch(@NonNull String query, Bundle extras,
+                         @NonNull Result<List<MediaBrowserCompat.MediaItem>> result) {
+        Log.d(TAG, "onSearch: " + query);
+        List<MediaBrowserCompat.MediaItem> mediaItems = new ArrayList<>();
+        //TODO add search results
+        result.sendResult(mediaItems);
     }
 }
