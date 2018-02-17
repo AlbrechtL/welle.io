@@ -111,6 +111,7 @@ ApplicationWindow {
             else
                 infoMessagePopup.text = qsTr("Expert mode is disabled")
             infoMessagePopup.open()
+            backButton.isSettings = false
         }
     }
 
