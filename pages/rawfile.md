@@ -11,16 +11,16 @@ The RAW files input is for developers how have recorded I/Q samples files. You c
 
 **Windows**
   ```
-welle-io.exe -D rawfile -F yourfile
+welle-io.exe -d rawfile --raw-file yourfile
   ```
 
 **Linux**
   ```
-# welle-io -D rawfile -F yourfile
+# welle-io -d rawfile --raw-file yourfile
   ```
 
 ## File Format
-welle.io supports different rawfiles formats. You can chnage the raw file format with the option "-B". Please read the next sections below for more details.
+welle.io supports different rawfiles formats. You can chnage the raw file format with the option "--raw-format". Please read the next sections below for more details.
 
 ### u8 - 8 Bit unsigned
 The I/Q samples have to be in 8-bit unsigned in the following format.
@@ -30,7 +30,7 @@ The I/Q samples have to be in 8-bit unsigned in the following format.
 
 **Example**
   ```
-# welle-io -D rawfile -F yourfile -B u8
+# welle-io -d rawfile --raw-file yourfile --raw-format u8
   ```
 
 **Sources**
@@ -44,7 +44,7 @@ The I/Q samples have to be in 8-bit signed. For the format please see the format
 
 **Example**
   ```
-# welle-io -D rawfile -F yourfile -B s8
+# welle-io -d rawfile --raw-file yourfile --raw-format s8
   ```
 
 **Sources**
@@ -58,7 +58,7 @@ The I/Q samples have to be in 16-bit signed little endian in the following forma
 
 **Example**
   ```
-# welle-io -D rawfile -F yourfile -B s16le
+# welle-io -d rawfile --raw-file yourfile --raw-format s16le
   ```
 
 **Sources**
@@ -87,3 +87,9 @@ Use "odr-dabmod" with this [INI-file](../download/DabMod.ini) and the following 
 # odr-dabmod DabMod.ini
   ```
 The input file has to be "DabMux.eti" and the output file is "DabMod.iq".
+
+### Other tools
+You can also use the following tools to record a RAW file
+ * [QT-DAB](https://www.sdr-j.tk/index.html)
+ * [QIRX](http://softsyst.com/qirx)
+ * [SDR#](https://airspy.com/)

@@ -15,15 +15,15 @@ Please note that the sample rate is 2048000 samples/s. Each sample consists of a
 
 **Windows**
   ```
-welle-io.exe -D rtl_tcp -I yourIP -P yourPort
+welle-io.exe -d rtl_tcp --rtl_tcp-address YourIP --rtl_tcp-port YourPort
 e.g.
-welle-io.exe -D rtl_tcp -I 10.10.1.10 -P 1235
+welle-io.exe -d rtl_tcp --rtl_tcp-address 10.10.1.10 --rtl_tcp-port 1235
   ```
 
 **Linux**
   ```
-# welle-io -D rtl_tcp -I yourIP -P yourPort
+# welle-io -d rtl_tcp --rtl_tcp-address YourIP --rtl_tcp-port YourPort
 e.g.
-# welle-io -D rtl_tcp -I 10.10.1.10 -P 1235
+# welle-io -d rtl_tcp --rtl_tcp-address 10.10.1.10 --rtl_tcp-port 1235
   ```
 If you need to start rtl_tcp as a deamon you can use this init.d script "[rtl_tcp_server](../download/rtl_tcp-server)". This script starts rtl_tcp with listen on all Ethernet interfaces on port 1235.

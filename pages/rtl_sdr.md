@@ -22,16 +22,16 @@ Basically all rtl-sdrs with the Realtek chipset RTL2832U are supported. These ar
 If you start welle.io without any options welle.io will detect the rtl-sdr device automatically. After enabling the "Expert mode" you can check if welle.io detects the device successfully.
 ![welle-io-rtlsdr.png](/images/welle-io-rtlsdr.png)
 
-You can also use the command line option "-D" to force welle.io to use the airspy device.
+You can also use the command line option "-d" to force welle.io to use the airspy device.
 
 **Windows**
   ```
-welle-io.exe -D rtl_sdr
+welle-io.exe -d rtl_sdr
   ```
 
 **Linux**
   ```
-# welle-io -D rtl_sdr
+# welle-io -d rtl_sdr
   ```
 
 

@@ -41,7 +41,7 @@ To verify that both SoapySDR and the desired bindings are properly installed, ch
 
 For the LimeSDR connect your receiving antenna to the `RX1_W` port.
 
-Then compile welle.io with soapysdr support enabled in the project file `welle.io.pro` or `-DSOAPYSDR=1` when building with CMake. Run welle.io with the `-D soapysdr` option.
+Then compile welle.io with soapysdr support enabled in the project file `welle.io.pro` or `-DSOAPYSDR=1` when building with CMake. Run welle.io with the `-d soapysdr` option.
 
 ## Known limitations
 
