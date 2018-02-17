@@ -157,13 +157,13 @@ Assuming that you have [Homebrew](https://brew.sh/) installed, execute the follo
 1. Use the welle.io repository as a "tap" (alternative package repository):
 
 ```
-# brew tap AlbrechtL/welleio https://github.com/AlbrechtL/welle.io
+# brew tap AlbrechtL/welle_io https://github.com/AlbrechtL/welle.io
 ```
 
 2. Install welle.io (and dependencies):
 
 ```
-# brew install AlbrechtL/welleio/welle.io
+# brew install AlbrechtL/welle_io/welle.io
 ```
 
 ### MacPorts
