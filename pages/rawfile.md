@@ -20,7 +20,7 @@ welle-io.exe -d rawfile --raw-file yourfile
   ```
 
 ## File Format
-welle.io supports different rawfiles formats. You can chnage the raw file format with the option "--raw-format". Please read the next sections below for more details.
+welle.io supports different rawfiles formats. You can change the raw file format with the option "--raw-format". Please read the next sections below for more details.
 
 ### u8 - 8 Bit unsigned
 The I/Q samples have to be in 8-bit unsigned in the following format.
