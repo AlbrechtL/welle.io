@@ -207,13 +207,6 @@ void CRTL_TCP_Client::readData(void)
                }
                qDebug() << "RTL_TCP_CLIENT:" << "Tuner type:" << DongleInfo.tuner_type << TunerType ;
                qDebug() << "RTL_TCP_CLIENT:" << "Tuner gain count:" << DongleInfo.tuner_gain_count;
-
-               // If the gain is to low the AGC doesn't work
-               if(DongleInfo.tuner_type == RTLSDR_TUNER_R820T ||
-                  DongleInfo.tuner_type == RTLSDR_TUNER_R828D)
-                   setGain(1);
-               else
-                   setGain(0);
            }
            else
            {

@@ -34,7 +34,7 @@ At the moment there is no stable release available. But the releases are tested 
 welle.io is under heavy development. You can also try the latest developer builds. But PLEASE BE WARNED the builds are automatically created and untested.
  * [welle.io nightly builds](https://bintray.com/albrechtl/welle.io/welle.io_nightly#files)
 
-To use it on macOS or on a Raspberry Pi you have to compile welle.io direct from the sources.
+To use it on macOS or on a Raspberry Pi you have to compile welle.io direct from the sources. See below for more information.
 
 Usage
 =====
@@ -147,13 +147,34 @@ This sections shows how to compile welle.io on Windows 10. Windows 7 should also
 
 macOS
 ---
-To build for macOS, you need to install the dependencies with macports first, assuming you have macports installed:
+
+To build for macOS, you have have several options: Either you install everything incl. dependencies manually (not covered here and not recommended) or use Homebrew or MacPorts.
+
+### Homebrew
+
+Assuming that you have [Homebrew](https://brew.sh/) installed, execute the following steps:
+
+1. Use the welle.io repository as a "tap" (alternative package repository):
+
+```
+# brew tap AlbrechtL/welle_io https://github.com/AlbrechtL/welle.io
+```
+
+2. Install welle.io (and dependencies):
+
+```
+# brew install AlbrechtL/welle_io/welle.io
+```
+
+### MacPorts
+
+You need to install the dependencies with MacPorts first, assuming you have [MacPorts](https://www.macports.org/) installed:
 
 ```
 # sudo port install fftw-3-single faad2 rtl-sdr libusb
 ```
 
-1. Install Qt 5.9 with Qt Creator directly from Qt website, not through macports.
+1. Install Qt 5.9 with Qt Creator directly from Qt website, not through MacPorts.
 2. Clone welle.io
 
   ```

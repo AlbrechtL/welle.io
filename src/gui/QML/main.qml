@@ -111,6 +111,7 @@ ApplicationWindow {
             else
                 infoMessagePopup.text = qsTr("Expert mode is disabled")
             infoMessagePopup.open()
+            backButton.isSettings = false
         }
     }
 
@@ -354,7 +355,7 @@ ApplicationWindow {
 
             Loader {
                 id: stationView
-                Layout.minimumWidth: Units.dp(350)
+                Layout.preferredWidth: Units.dp(350)
                 Layout.margins: Units.dp(10)
                 sourceComponent: stackViewMain
             }
@@ -381,7 +382,7 @@ ApplicationWindow {
 
             Loader {
                 id: stationView
-                Layout.minimumWidth: Units.dp(350)
+                Layout.preferredWidth: Units.dp(350)
                 Layout.margins: Units.dp(10)
                 sourceComponent: stackViewMain
             }
