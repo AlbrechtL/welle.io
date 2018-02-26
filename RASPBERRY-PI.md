@@ -153,6 +153,8 @@ Building
 	cd qt5
 	git checkout 5.10
 	```
+	If the branch version does not exist, try another/newer branch number.  
+	Branch information for Qt is located [here.](http://code.qt.io/cgit/qt/qt5.git/)
 	Now we need to initialize the repository, which will download all the submodules we need for Qt.  
 	We will not download qtwebkit or qtwebengine since these modules tend to create problems later, and are not needed for welle.io anyway.  
 	```
