@@ -1,8 +1,8 @@
 class WelleIo < Formula
   desc "DAB/DAB+ Software Radio"
   homepage "https://www.welle.io"
-  url "https://github.com/AlbrechtL/welle.io/archive/V1.0-rc2.tar.gz"
-  sha256 "a82c0607a568be33aaa24604b8c7d6d4f2895703c7a1f2393a02365136bcd367"
+  url "https://github.com/AlbrechtL/welle.io/archive/V1.0-rc3.tar.gz"
+  sha256 "eb1d56c5d3442f1b5870866f0effb9022ba7426e51a966e5a7f7ac98e76b17f2"
   head "https://github.com/AlbrechtL/welle.io.git"
 
   depends_on "cmake" => :build
