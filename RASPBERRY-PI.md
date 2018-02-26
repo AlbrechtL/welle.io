@@ -153,6 +153,7 @@ Building
 	cd qt5
 	git checkout 5.10
 	```
+	Currently, Qt version 5.10 is working.  
 	If the branch version does not exist, try another/newer branch number.  
 	Branch information for Qt is located [here.](http://code.qt.io/cgit/qt/qt5.git/)  
 	Now we need to initialize the repository, which will download all the submodules we need for Qt.  
