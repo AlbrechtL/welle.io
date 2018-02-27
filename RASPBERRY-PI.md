@@ -316,9 +316,11 @@ This is only half the battle though. Now we continue on to set up our host compu
 27. Find the file **welle-io** and run it to enjoy welle.io on your Raspberry Pi.  
     Open a new terminal and type:  
     ```
-	./welle-io
+	./welle-io --disable-splash
 	```
-	
+    The **--disable-splash** argument is used because otherwise welle.io will crash on Raspberry Pi.  
+    See the troubleshooting section at the bottom for details.  
+    	
 Power supply
 ============
 
