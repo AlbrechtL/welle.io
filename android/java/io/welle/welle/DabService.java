@@ -345,7 +345,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
         if (mDabDevice != null) mDabDevice.connected = true;
 
         // Activate media session
-        if (!mSession.isActive()) {
+        if (mSession != null && !mSession.isActive()) {
             mSession.setActive(true);
             Log.d(TAG, "media session is active");
         }
@@ -364,7 +364,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
         releaseAudioFocus();
 
         // Deactivate media session
-        if (mSession.isActive()) {
+        if (mSession != null && mSession.isActive()) {
             mSession.setActive(false);
         }
 
@@ -481,7 +481,9 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
                 return compareStation(lhs.getDescription(), rhs.getDescription());
             }
         });
-        mSession.setQueue(mStationList);
+        if (mSession != null) {
+            mSession.setQueue(mStationList);
+        }
         updatePlaybackState();
     }
 
@@ -501,8 +503,9 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
                     .setExtras(extras)
                     .build(), MEDIA_ID_CHANNEL_SCAN.hashCode()));
         }
-        mSession.setQueue(fakeScanList);
-
+        if (mSession != null) {
+            mSession.setQueue(fakeScanList);
+        }
         updatePlaybackState();
     }
 
@@ -521,7 +524,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
             return;
         }
 
-        if (!mSession.isActive()) {
+        if (mSession != null && !mSession.isActive()) {
             mSession.setActive(true);
         }
 
@@ -832,8 +835,10 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
                     SystemClock.elapsedRealtime());
         }
 
-        mSession.setMetadata(metaData.build());
-        mSession.setPlaybackState(stateBuilder.build());
+        if (mSession != null) {
+            mSession.setMetadata(metaData.build());
+            mSession.setPlaybackState(stateBuilder.build());
+        }
 
         // Update notification
         mNotificationManager.notify(NOTIFICATION_ID, createNotification());
@@ -966,10 +971,13 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
             notificationBuilder.setLargeIcon(mDisplayArt);
         notificationBuilder.setShowWhen(false);
         notificationBuilder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
-        notificationBuilder.setStyle(new NotificationCompat.MediaStyle()
-                .setShowActionsInCompactView(showInCompactView)
-                .setMediaSession(mSession.getSessionToken())
-        );
+
+        NotificationCompat.MediaStyle style = new NotificationCompat.MediaStyle();
+        style.setShowActionsInCompactView(showInCompactView);
+        if (mSession != null) {
+            style.setMediaSession(mSession.getSessionToken());
+        }
+        notificationBuilder.setStyle(style);
 
         return notificationBuilder.build();
     }
