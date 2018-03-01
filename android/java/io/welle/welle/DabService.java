@@ -23,6 +23,7 @@ import android.support.v7.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.session.MediaButtonReceiver;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.MediaSessionCompat.Token;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -344,7 +345,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
         if (mDabDevice != null) mDabDevice.connected = true;
 
         // Activate media session
-        if (!mSession.isActive()) {
+        if (mSession != null && !mSession.isActive()) {
             mSession.setActive(true);
             Log.d(TAG, "media session is active");
         }
@@ -363,7 +364,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
         releaseAudioFocus();
 
         // Deactivate media session
-        if (mSession.isActive()) {
+        if (mSession != null && mSession.isActive()) {
             mSession.setActive(false);
         }
 
@@ -480,7 +481,9 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
                 return compareStation(lhs.getDescription(), rhs.getDescription());
             }
         });
-        mSession.setQueue(mStationList);
+        if (mSession != null) {
+            mSession.setQueue(mStationList);
+        }
         updatePlaybackState();
     }
 
@@ -500,8 +503,9 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
                     .setExtras(extras)
                     .build(), MEDIA_ID_CHANNEL_SCAN.hashCode()));
         }
-        mSession.setQueue(fakeScanList);
-
+        if (mSession != null) {
+            mSession.setQueue(fakeScanList);
+        }
         updatePlaybackState();
     }
 
@@ -520,7 +524,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
             return;
         }
 
-        if (!mSession.isActive()) {
+        if (mSession != null && !mSession.isActive()) {
             mSession.setActive(true);
         }
 
@@ -831,8 +835,10 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
                     SystemClock.elapsedRealtime());
         }
 
-        mSession.setMetadata(metaData.build());
-        mSession.setPlaybackState(stateBuilder.build());
+        if (mSession != null) {
+            mSession.setMetadata(metaData.build());
+            mSession.setPlaybackState(stateBuilder.build());
+        }
 
         // Update notification
         mNotificationManager.notify(NOTIFICATION_ID, createNotification());
@@ -965,10 +971,13 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
             notificationBuilder.setLargeIcon(mDisplayArt);
         notificationBuilder.setShowWhen(false);
         notificationBuilder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
-        notificationBuilder.setStyle(new NotificationCompat.MediaStyle()
-                .setShowActionsInCompactView(showInCompactView)
-                .setMediaSession(mSession.getSessionToken())
-        );
+
+        NotificationCompat.MediaStyle style = new NotificationCompat.MediaStyle();
+        style.setShowActionsInCompactView(showInCompactView);
+        if (mSession != null) {
+            style.setMediaSession(mSession.getSessionToken());
+        }
+        notificationBuilder.setStyle(style);
 
         return notificationBuilder.build();
     }
@@ -1060,34 +1069,6 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
                 Bundle aa_extras = intent.getExtras();
                 for (String key : aa_extras.keySet())
                     Log.i(TAG, "AA key:" + key + " connected: " + aa_extras.getString(key));
-            } else if (Intent.ACTION_MEDIA_BUTTON.equals(action)) {
-                KeyEvent event = intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
-                Log.i(TAG, "media key event: " + event.getKeyCode());
-                if (mServiceReady && event.getAction() == KeyEvent.ACTION_UP) {
-                    // Check which key was pressed
-                    switch (event.getKeyCode()) {
-                        case KeyEvent.KEYCODE_MEDIA_PLAY:
-                            handlePlayRequest(null);
-                            break;
-                        case KeyEvent.KEYCODE_MEDIA_PAUSE:
-                            handlePauseRequest();
-                            break;
-                        case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
-                            if (mDabStatus == DAB_STATUS_PLAYING)
-                                handlePauseRequest();
-                            else
-                                handlePlayRequest(null);
-                            break;
-                        case KeyEvent.KEYCODE_MEDIA_NEXT:
-                            handleSkipRequest(true);
-                            break;
-                        case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
-                            handleSkipRequest(false);
-                            break;
-                        default:
-                            break;
-                    }
-                }
             } else {
                 handleCustomAction(action, intent.getExtras());
             }
@@ -1124,14 +1105,11 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
         sessionExtras.putBoolean(SLOT_RESERVATION_SKIP_TO_PREV, true);
         sessionExtras.putBoolean(SLOT_RESERVATION_SKIP_TO_NEXT, true);
         mSession.setExtras(sessionExtras);
-        mSession.setMediaButtonReceiver(PendingIntent.getBroadcast(this, 0,
-                new Intent(Intent.ACTION_MEDIA_BUTTON), PendingIntent.FLAG_UPDATE_CURRENT));
 
         // Register receiver
         mDabReceiver = new DabReceiver();
         IntentFilter filter = new IntentFilter();
         filter.addAction(ACTION_SDR_DEVICE_DETACHED);
-        filter.addAction(Intent.ACTION_MEDIA_BUTTON);
         filter.addAction(CUSTOM_ACTION_CLOSE);
         filter.addAction(CUSTOM_ACTION_PLAY);
         filter.addAction(CUSTOM_ACTION_PAUSE);
@@ -1172,7 +1150,7 @@ public class DabService extends QtService implements AudioManager.OnAudioFocusCh
             }
         } else {
             Log.d(TAG, "onStartCommand action: " + action);
-            //MediaButtonReceiver.handleIntent(mSession, intent);
+            MediaButtonReceiver.handleIntent(mSession, intent);
         }
         return Service.START_STICKY;
     }
