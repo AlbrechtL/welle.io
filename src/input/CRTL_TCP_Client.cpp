@@ -353,6 +353,8 @@ void CRTL_TCP_Client::TCPConnectionWatchDogTimeout()
             qDebug() << "RTL_TCP_CLIENT:" << "Successful connected to server";
             connected	= true;
 
+            setGainMode(isHwAGC ? 1 : 0);
+
             setHwAgc(isHwAGC);
 
             if(isAGC)
