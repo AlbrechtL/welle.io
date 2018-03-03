@@ -355,7 +355,7 @@ ApplicationWindow {
 
             Loader {
                 id: stationView
-                Layout.preferredWidth: Units.dp(350)
+                Layout.minimumWidth: Units.dp(300)
                 Layout.margins: Units.dp(10)
                 sourceComponent: stackViewMain
             }
@@ -382,7 +382,7 @@ ApplicationWindow {
 
             Loader {
                 id: stationView
-                Layout.preferredWidth: Units.dp(350)
+                Layout.minimumWidth: Units.dp(300)
                 Layout.margins: Units.dp(10)
                 sourceComponent: stackViewMain
             }
