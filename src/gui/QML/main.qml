@@ -84,6 +84,12 @@ ApplicationWindow {
         console.debug("devicePixelRatio: " + Screen.devicePixelRatio)
         console.debug("pixelDensity: " + Screen.pixelDensity)
 
+        // Reset window settings if OS is Android (it is a little hacky)
+        if(Qt.platform.os == "android") {
+            mainWindow.width = getWidth()
+            mainWindow.height = getHeight()
+        }
+
         if (cppRadioController.GUIData.Status === -1) {
             console.debug("error: " + cppRadioController.ErrorMsg)
             errorMessagePopup.text = cppRadioController.ErrorMsg
