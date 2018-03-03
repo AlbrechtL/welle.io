@@ -394,7 +394,7 @@ void CRTL_TCP_Client::TCPConnectionWatchDogTimeout()
 
 void CRTL_TCP_Client::AGCTimerTimeout(void)
 {
-    if(isAGC)
+    if(isAGC && (DongleInfo.tuner_type != RTLSDR_TUNER_UNKNOWN))
     {
         // Check for overloading
         if(MinValue == 0 || MaxValue == 255)
@@ -408,7 +408,7 @@ void CRTL_TCP_Client::AGCTimerTimeout(void)
         }
         else
         {
-            if(CurrentGainCount < (getGainCount() - 1) && getGainCount() > 0)
+            if(CurrentGainCount < (getGainCount() - 1))
             {
                 // Calc if a gain increase overloads the device. Calc it from the gain values
                 float NewGain = getGainValue(CurrentGainCount + 1);
@@ -427,7 +427,7 @@ void CRTL_TCP_Client::AGCTimerTimeout(void)
             }
         }
     }
-    else // AGC is off
+    else // AGC is off or unknown tuner
     {
         if(MinValue == 0 || MaxValue == 255)
         {
