@@ -5,10 +5,9 @@
             <solid android:color="#222126"/>
         </shape>
     </item>
-    <item
-android:width="100dp"
-    android:height="100dp"
-    android:gravity="center">
-         <bitmap android:src="@drawable/splash_icon"/>
+    <item>
+         <bitmap 
+            android:gravity="center"
+            android:src="@drawable/splash_icon"/>
     </item>
 </layer-list>
