@@ -48,6 +48,8 @@
 
 class CVirtualInput;
 
+enum class PlotTypeEn { Spectrum, ImpulseResponse, QPSK, Null, Unknown };
+
 #ifdef Q_OS_ANDROID
 #include "rep_CRadioController_source.h"
 class CRadioController : public CRadioControllerSource
@@ -109,6 +111,7 @@ public:
     void StartScan(void);
     void StopScan(void);
     void UpdateSpectrum(void);
+    void setPlotType(PlotTypeEn PlotType);
     QList<StationElement*> Stations() const;
     QVariantMap GUIData(void) const;
     QString ErrorMsg() const;
@@ -166,6 +169,7 @@ private:
     mscHandler* my_mscHandler;
     CAudio* Audio;
     std::shared_ptr<RingBuffer<int16_t>> AudioBuffer;
+    std::shared_ptr<std::vector<float>> ImpuleResponseBuffer;
 
     // Objects set by the back-end
     QVariantMap mGUIData;
@@ -217,6 +221,7 @@ private:
     // Spectrum variables
     common_fft* spectrum_fft_handler;
     QVector<QPointF> spectrum_data;
+    PlotTypeEn PlotType;
 
 private slots:
     void StationTimerTimeout(void);

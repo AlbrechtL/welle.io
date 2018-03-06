@@ -60,7 +60,9 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, CDABParams& 
 
     MOTImage = new QImage();
 
+    PlotType = PlotTypeEn::Spectrum;
     spectrum_fft_handler = new common_fft(DABParams.T_u);
+    ImpuleResponseBuffer = std::make_shared<std::vector<float>>(DABParams.T_u);
 
     // Init the technical data
     ResetTechnicalData();
@@ -309,7 +311,8 @@ void CRadioController::Initialise(void)
         this,
         my_mscHandler,
         my_ficHandler,
-        3, 3);
+        3, 3,
+        ImpuleResponseBuffer);
 
     Status = Initialised;
     emit DeviceReady();
@@ -1128,49 +1131,79 @@ void CRadioController::UpdateSpectrum()
     qreal y(0);
     qreal y_max(0);
 
-    // Get FFT buffer
-    DSPCOMPLEX* spectrumBuffer = spectrum_fft_handler->getVector();
+    qreal x_min = 0;
+    qreal x_max = 0;
 
-    // Get samples
-    tunedFrequency_MHz = CurrentFrequency / 1e6;
-    if(Device)
-        Samples = Device->getSpectrumSamples(spectrumBuffer, T_u);
+    if(PlotType == PlotTypeEn::Spectrum)
+    {
+        // Get FFT buffer
+        DSPCOMPLEX* spectrumBuffer = spectrum_fft_handler->getVector();
 
-    // Continue only if we got data
-    if (Samples <= 0)
-        return;
+        // Get samples
+        tunedFrequency_MHz = CurrentFrequency / 1e6;
+        if(Device)
+            Samples = Device->getSpectrumSamples(spectrumBuffer, T_u);
 
-    // Do FFT to get the spectrum
-    spectrum_fft_handler->do_FFT();
+        // Continue only if we got data
+        if (Samples <= 0)
+            return;
 
-    //	Process samples one by one
-    for (int i = 0; i < T_u; i++) {
-        int half_Tu = T_u / 2;
+        // Do FFT to get the spectrum
+        spectrum_fft_handler->do_FFT();
 
-        //	Shift FFT samples
-        if (i < half_Tu)
-            y = abs(spectrumBuffer[i + half_Tu]);
-        else
-            y = abs(spectrumBuffer[i - half_Tu]);
+        //	Process samples one by one
+        for (int i = 0; i < T_u; i++) {
+            int half_Tu = T_u / 2;
 
-        // Apply a cumulative moving average filter
-        int avg = 4; // Number of y values to average
-        qreal CMA = spectrum_data[i].y();
-        y = (CMA * avg + y) / (avg + 1);
+            //	Shift FFT samples
+            if (i < half_Tu)
+                y = abs(spectrumBuffer[i + half_Tu]);
+            else
+                y = abs(spectrumBuffer[i - half_Tu]);
 
-        //	Find maximum value to scale the plotter
-        if (y > y_max)
-            y_max = y;
+            // Apply a cumulative moving average filter
+            int avg = 4; // Number of y values to average
+            qreal CMA = spectrum_data[i].y();
+            y = (CMA * avg + y) / (avg + 1);
 
-        // Calc x frequency
-        x = (i * dip_MHz) + (tunedFrequency_MHz - (sampleFrequency_MHz / 2));
+            //	Find maximum value to scale the plotter
+            if (y > y_max)
+                y_max = y;
 
-        spectrum_data[i]= QPointF(x, y);
+            // Calc x frequency
+            x = (i * dip_MHz) + (tunedFrequency_MHz - (sampleFrequency_MHz / 2));
+
+            spectrum_data[i]= QPointF(x, y);
+          }
+
+        x_min = tunedFrequency_MHz - (sampleFrequency_MHz / 2);
+        x_max = tunedFrequency_MHz + (sampleFrequency_MHz / 2);
+    }
+    else if(PlotType == PlotTypeEn::ImpulseResponse)
+    {
+        for (int i = 0; i < T_u; i++)
+        {
+            y = ImpuleResponseBuffer->at(i);
+            x = i;
+
+            //	Find maximum value to scale the plotter
+            if (y > y_max)
+                y_max = y;
+            spectrum_data[i]= QPointF(x, y);
+        }
+
+        x_min = 0;
+        x_max = T_u;
     }
 
     //	Set new data
     emit SpectrumUpdated(round(y_max) + 1,
-                         tunedFrequency_MHz - (sampleFrequency_MHz / 2),
-                         tunedFrequency_MHz + (sampleFrequency_MHz / 2),
+                         x_min,
+                         x_max,
                          spectrum_data);
+}
+
+void CRadioController::setPlotType(PlotTypeEn PlotType)
+{
+    this->PlotType = PlotType;
 }

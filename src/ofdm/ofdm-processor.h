@@ -63,7 +63,8 @@ class ofdmProcessor: public QThread
                 mscHandler     *msc,
                 ficHandler     *fic,
                 int16_t    threshold,
-                uint8_t    freqsyncMethod);
+                uint8_t    freqsyncMethod,
+                std::shared_ptr<std::vector<float>> ImpuleResponseBuffer);
         ~ofdmProcessor  (void);
         void    reset           (void);
         void    stop        (void);
@@ -80,6 +81,7 @@ class ofdmProcessor: public QThread
         CDABParams  *params;
         CRadioController    *myRadioInterface;
         ficHandler  *my_ficHandler;
+        std::shared_ptr<std::vector<float>> ImpuleResponseBuffer;
 
         bool        running;
         int16_t     gain;

@@ -68,11 +68,52 @@ Item {
             text: cppRadioController.isFICCRC ? qsTr("OK") : qsTr("Error")
         }
 
-        SpectrumView {
-            Layout.preferredWidth: Units.dp(200)
-            Layout.preferredHeight: Units.dp(200)
-            Layout.fillWidth: true
-            Layout.fillHeight: true
+        RowLayout {
+            SpectrumView {
+                id: plot
+                Layout.preferredWidth: Units.dp(200)
+                Layout.preferredHeight: Units.dp(200)
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+            }
+
+            ColumnLayout {
+                anchors.topMargin: 10
+                anchors.right: parent.right
+                anchors.top: parent.top
+                TouchButton {
+                    id: buttonSpec
+                    text: qsTr("Spectrum")
+                    onClicked: {
+                        cppGUI.setPlotType(0);
+                        plot.plotType = 0;
+                    }
+                }
+                TouchButton {
+                    id: buttonIR
+                    text: qsTr("IR")
+                    onClicked: {
+                        cppGUI.setPlotType(1);
+                        plot.plotType = 1;
+                    }
+                }
+                TouchButton {
+                    id: buttonQPSK
+                    text: qsTr("QPSK")
+                    onClicked: {
+                        cppGUI.setPlotType(2);
+                        plot.plotType = 2;
+                    }
+                }
+                TouchButton {
+                    id: buttonNull
+                    text: qsTr("Null")
+                    onClicked: {
+                        cppGUI.setPlotType(3);
+                        plot.plotType = 3;
+                    }
+                }
+            }
         }
     }
 }

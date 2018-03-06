@@ -76,6 +76,7 @@ public:
     Q_INVOKABLE void inputGainChanged(double gain);
     Q_INVOKABLE void clearStationList(void);
     Q_INVOKABLE void registerSpectrumSeries(QAbstractSeries* series);
+    Q_INVOKABLE void setPlotType(int PlotType);
 
     QVariantMap guiData() const
     {

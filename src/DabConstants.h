@@ -55,7 +55,7 @@ typedef std::complex<DSPFLOAT> DSPCOMPLEX;
 #define GITHASH "unknown"
 #endif
 
-#define CURRENT_VERSION "1.0"
+#define CURRENT_VERSION "1.x development"
 
 #define DAB 0100
 #define DAB_PLUS 0101

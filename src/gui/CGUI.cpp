@@ -277,6 +277,21 @@ void CGUI::registerSpectrumSeries(QAbstractSeries* series)
     spectrum_series = static_cast<QXYSeries*>(series);
 }
 
+void CGUI::setPlotType(int PlotType)
+{
+    if(RadioController)
+    {
+        switch(PlotType)
+        {
+        case 0: RadioController->setPlotType(PlotTypeEn::Spectrum); break;
+        case 1: RadioController->setPlotType(PlotTypeEn::ImpulseResponse); break;
+        case 2: RadioController->setPlotType(PlotTypeEn::QPSK); break;
+        case 3: RadioController->setPlotType(PlotTypeEn::Null); break;
+        default: RadioController->setPlotType(PlotTypeEn::Unknown);
+        }
+    }
+}
+
 // This function is called by the QML GUI
 void CGUI::updateSpectrum()
 {

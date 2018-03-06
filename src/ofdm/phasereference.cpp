@@ -62,7 +62,7 @@ phaseReference::phaseReference (CDABParams  *p, int16_t threshold) :
  * we believe that that indicates the first sample we were
  * looking for.
  */
-int32_t phaseReference::findIndex (DSPCOMPLEX *v)
+int32_t phaseReference::findIndex (DSPCOMPLEX *v, std::shared_ptr<std::vector<float>> ImpuleResponseBuffer)
 {
     int32_t i;
     int32_t maxIndex    = -1;
@@ -85,10 +85,14 @@ int32_t phaseReference::findIndex (DSPCOMPLEX *v)
         sum  += abs (res_buffer[i]);
     Max = -10000;
     for (i = 0; i < Tu; i ++)
-        if (abs (res_buffer[i]) > Max) {
+    {
+        float value = abs (res_buffer[i]);
+        ImpuleResponseBuffer->at(i) = value;
+        if (value > Max) {
             maxIndex = i;
             Max = abs (res_buffer[i]);
         }
+    }
     /**
      * that gives us a basis for defining the threshold
      */

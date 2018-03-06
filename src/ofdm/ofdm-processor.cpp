@@ -67,7 +67,8 @@ ofdmProcessor::ofdmProcessor(
         mscHandler     *msc,
         ficHandler     *fic,
         int16_t    threshold,
-        uint8_t    freqsyncMethod) :
+        uint8_t    freqsyncMethod,
+        std::shared_ptr<std::vector<float> > ImpuleResponseBuffer) :
     phaseSynchronizer (params, threshold),
     my_ofdmDecoder (params, mr, fic, msc)
 {
@@ -86,6 +87,7 @@ ofdmProcessor::ofdmProcessor(
         fft_buffer             = fft_handler->getVector ();
         ofdmBuffer             = new DSPCOMPLEX [76 * T_s];
         ofdmBufferIndex        = 0;
+        this->ImpuleResponseBuffer = ImpuleResponseBuffer;
         ofdmSymbolCount        = 0;
         tokenCount             = 0;
         sampleCnt              = 0;
@@ -362,7 +364,7 @@ SyncOnPhase:
         //
         /// and then, call upon the phase synchronizer to verify/compute
         /// the real "first" sample
-        startIndex = phaseSynchronizer. findIndex (ofdmBuffer);
+        startIndex = phaseSynchronizer. findIndex (ofdmBuffer, ImpuleResponseBuffer);
         if (startIndex < 0) { // no sync, try again
             goto notSynced;
         }

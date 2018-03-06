@@ -25,6 +25,7 @@
 
 #include    "fft.h"
 #include    <vector>
+#include    <memory>
 #include    <stdio.h>
 #include    <stdint.h>
 #include    "phasetable.h"
@@ -35,7 +36,7 @@ class phaseReference : public phaseTable
 {
     public:
         phaseReference (CDABParams *, int16_t);
-        int32_t findIndex   (DSPCOMPLEX *);
+        int32_t findIndex   (DSPCOMPLEX *v, std::shared_ptr<std::vector<float> > ImpuleResponseBuffer);
         std::vector<DSPCOMPLEX> refTable;
 
     private:

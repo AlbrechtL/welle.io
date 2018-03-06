@@ -14,6 +14,34 @@ ChartView {
     title: qsTr("Spectrum")
 
     property real maxYAxis: 0
+    property int plotType: 0
+
+    onPlotTypeChanged: {
+        switch(plotType) {
+        case 0:
+            title = qsTr("Spectrum");
+            axisX.titleText = qsTr("Frequency") + " [MHz]";
+            axisY1.titleText = qsTr("Amplitude")
+            break;
+        case 1:
+            title = qsTr("Impulse Response");
+            axisX.titleText = qsTr("Samples");
+            axisY1.titleText = qsTr("Amplitude");
+            break;
+        case 2:
+            title = qsTr("Constellation Diagram (not implemented)");
+            axisX.titleText = qsTr("Q");
+            axisY1.titleText = qsTr("I");
+            break;
+        case 3:
+            title = qsTr("Null Symbol (not implemented)");
+            axisX.titleText = qsTr("Frequency") + " [MHz]";
+            axisY1.titleText = qsTr("Amplitude");
+            break;
+        }
+
+
+    }
 
     Connections{
         target: cppGUI
