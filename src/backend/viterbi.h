@@ -43,12 +43,11 @@ struct v {
 class viterbi
 {
     public:
-        viterbi(int16_t, bool spiral = false);
+        viterbi(int16_t);
         ~viterbi(void);
         void deconvolve(int16_t *input, uint8_t *output);
 
     private:
-        bool        spiral;
         struct v    vp;
         COMPUTETYPE Branchtab   [NUMSTATES / 2 * RATE] __attribute__ ((aligned (16)));
         //  int parityb     (uint8_t);
@@ -60,10 +59,6 @@ class viterbi
         void update_viterbi_blk_GENERIC( struct v *vp,
                                          COMPUTETYPE *syms,
                                          int16_t nbits);
-
-        void update_viterbi_blk_SPIRAL( struct v *vp,
-                                        COMPUTETYPE *syms,
-                                        int16_t nbits);
 
         void chainback_viterbi( struct v *vp,
                                 uint8_t *data, /* Decoded output data */

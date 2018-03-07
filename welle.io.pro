@@ -65,7 +65,6 @@ HEADERS += \
     src/ofdm/phasetable.h \
     src/ofdm/freq-interleaver.h \
     src/backend/viterbi.h \
-    src/backend/viterbi_spiral.h \
     src/backend/fic-handler.h \
     src/backend/msc-handler.h \
     src/backend/fib-processor.h  \
@@ -113,7 +112,6 @@ SOURCES += \
     src/ofdm/phasetable.cpp \
     src/ofdm/freq-interleaver.cpp \
     src/backend/viterbi.cpp \
-    src/backend/viterbi_spiral.c \
     src/backend/fic-handler.cpp \
     src/backend/msc-handler.cpp \
     src/backend/eep-protection.cpp \
@@ -160,8 +158,6 @@ unix:!macx:!android: {
 
     #CONFIG  += kiss_fft_builtin
     #CONFIG  += libfaad_builtin
-
-    DEFINES += SSE_AVAILABLE
 }
 
 
@@ -178,10 +174,6 @@ win32 {
     LIBS    += -lusb-1.0
     CONFIG  += rtl_sdr
     CONFIG  += airspy
-
-    # SSE under Windows not working. welle.io crashes
-    #QMAKE_CFLAGS += -msse2
-    #DEFINES += SSE_AVAILABLE
 }
 
 
@@ -195,7 +187,6 @@ macx {
     CONFIG  += airspy
     CONFIG  += rtl_sdr
     #CONFIG  += soapysdr        # not tested
-    DEFINES += SSE_AVAILABLE
 }
 
 android {
@@ -210,11 +201,6 @@ android {
     SOURCES      += src/gui/CAndroidJNI.cpp
     REPC_SOURCE  += src/CRadioController.rep
     REPC_REPLICA += src/CRadioController.rep
-
-    equals(ANDROID_TARGET_ARCH, x86)  {
-        message("Enable SSE")
-        DEFINES += SSE_AVAILABLE
-    }
 }
 
 #### Built-in libraries ####
