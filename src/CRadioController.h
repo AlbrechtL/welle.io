@@ -146,8 +146,17 @@ public:
 
     int GainCount() const;
     float GainValue() const;
-    QString GetMscFileName(void);
-    QString GetMP2FileName(void);
+    std::string GetMscFileName(void);
+    std::string GetMP2FileName(void);
+
+    //called from the backend
+    void show_frameErrors(int FrameErrors);
+    void newAudio(int SampleRate);
+    void setStereo(bool isStereo);
+    void show_rsErrors(int RSErrors);
+    void show_aacErrors(int AACErrors);
+    void showLabel(QString Label);
+    void showMOT(QByteArray Data, int Subtype, QString s);
 
 private:
     void Initialise(void);
@@ -278,13 +287,6 @@ public slots:
     void set_coarseCorrectorDisplay(int CoarseFreuqencyCorr);
     void setSynced(char isSync);
     void setSignalPresent(bool isSignal);
-    void newAudio(int SampleRate);
-    void setStereo(bool isStereo);
-    void show_frameErrors(int FrameErrors);
-    void show_rsErrors(int RSErrors);
-    void show_aacErrors(int AACErrors);
-    void showLabel(QString Label);
-    void showMOT(QByteArray Data, int Subtype, QString s);
     void onEventLoopStarted(void);
     void setErrorMessage(QString Text);
     void setInfoMessage(QString Text);

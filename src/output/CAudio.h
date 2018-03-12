@@ -65,7 +65,6 @@ public:
     void setVolume (qreal volume);
 
 private:
-    void init(int sampleRate);
 
     QAudioFormat AudioFormat;
     QAudioOutput* AudioOutput;
@@ -76,7 +75,11 @@ private:
     QAudio::State CurrentState;
     int32_t		CardRate;
 
+signals:
+    void rateChanged(int newRate);
+
 private slots:
+    void init(int sampleRate);
     void handleStateChanged(QAudio::State newState);
     void checkAudioBufferTimeout();
 };

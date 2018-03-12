@@ -37,7 +37,8 @@ typedef enum {
 } CharacterSet;
 
 /**
- * Converts the null-terminated character string to QString, using a given character set.
+ * Converts the null-terminated character string to QString, using a given
+ * character set.
  *
  * @param buffer    null-terminated buffer to convert
  * @param charset   character set used in buffer

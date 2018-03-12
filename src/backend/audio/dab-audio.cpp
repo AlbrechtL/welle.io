@@ -76,28 +76,31 @@ dabAudio::dabAudio(
         protectionHandler = std::make_unique<eep_protection>(bitRate, protLevel);
 
     if (dabModus == DAB) {
-        our_dabProcessor = new mp2Processor (myRadioInterface, bitRate, audioBuffer);
+        our_dabProcessor = std::make_unique<mp2Processor>(myRadioInterface, bitRate, audioBuffer);
     }
     else {
         if (dabModus == DAB_PLUS) {
-            our_dabProcessor = new mp4Processor (myRadioInterface, bitRate, audioBuffer);
+            our_dabProcessor = std::make_unique<mp4Processor>(myRadioInterface, bitRate, audioBuffer);
         }
         else        // cannot happen
-            our_dabProcessor = new dummyProcessor ();
+            our_dabProcessor = std::make_unique<dummyProcessor>();
     }
 
     qDebug() << "dab-audio:" << "we have now" << ((dabModus == DAB_PLUS) ? "DAB+" : "DAB");
     running     = true;
-    start ();
+
+    ourThread = std::thread(&dabAudio::run, this);
 }
 
 dabAudio::~dabAudio()
 {
     int16_t i;
     running = false;
-    while (this->isRunning ()) {
-        usleep(1);
+
+    if (ourThread.joinable()) {
+        ourThread.join();
     }
+
     for (i = 0; i < 16; i ++) {
         delete[] interleaveData [i];
     }
@@ -118,7 +121,7 @@ int32_t dabAudio::process(int16_t *v, int16_t cnt)
     }
 
     Buffer.putDataIntoBuffer (v, cnt);
-    Locker.wakeAll ();
+    Locker.notify_all();
     return fr;
 }
 
@@ -135,9 +138,10 @@ void dabAudio::run()
 
     while (running) {
         while (Buffer.GetRingBufferReadAvailable () <= fragmentSize) {
-            ourMutex.lock ();
-            Locker.wait (&ourMutex, 1);  // 1 msec waiting time
-            ourMutex.unlock ();
+            // TODO why is this needed?
+            std::unique_lock<std::mutex> lock(ourMutex);
+            Locker.wait_for(lock, std::chrono::milliseconds(1));
+            lock.unlock();
             if (!running)
                 break;
         }
@@ -162,7 +166,6 @@ void dabAudio::run()
 
         protectionHandler->deconvolve (tempX, fragmentSize, outV.data());
 
-        //
         //  and the inline energy dispersal
         memset (shiftRegister, 1, 9);
         for (i = 0; i < bitRate * 24; i ++) {
@@ -180,8 +183,5 @@ void dabAudio::run()
 void dabAudio::stopRunning()
 {
     running = false;
-    while (this->isRunning ())
-        usleep (1);
-    //  myAudioSink->stop ();
 }
 
