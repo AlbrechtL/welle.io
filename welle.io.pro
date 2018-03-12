@@ -81,7 +81,6 @@ HEADERS += \
     src/backend/audio/neaacdec.h \
     src/backend/data/pad_decoder.h \
     src/backend/data/mot_manager.h \
-    src/backend/data/pad_decoder_adapter.h \
     src/backend/tools.h \
     src/backend/protection.h \
     src/backend/eep-protection.h \
@@ -128,7 +127,6 @@ SOURCES += \
     src/backend/audio/CFaadDecoder.cpp \
     src/backend/data/pad_decoder.cpp \
     src/backend/data/mot_manager.cpp \
-    src/backend/data/pad_decoder_adapter.cpp \
     src/backend/tools.cpp \
     src/output/CAudio.cpp \
     src/various/fft.cpp \
