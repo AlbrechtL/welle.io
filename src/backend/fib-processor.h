@@ -25,40 +25,34 @@
 
 #include    <stdint.h>
 #include    <stdio.h>
+#include    <vector>
 #include    <QObject>
 #include    "msc-handler.h"
 
-struct dablabel {
+struct dabLabel {
     //     uint8_t  label [17];
     QString  label;
-    uint8_t  mask;
-    bool     hasName;
+    uint8_t  mask = 0x00;
+    bool     hasName = false;
 };
 
-typedef struct dablabel dabLabel;
-
-typedef struct subchannelmap channelMap;
 
 //  from FIG1/2
-struct serviceid {
-    uint32_t serviceId;
+struct Service {
+    uint32_t serviceId = 0;
     dabLabel serviceLabel;
-    bool     inUse;
-    bool     hasPNum;
-    bool     hasLanguage;
-    int16_t  language;
-    int16_t  programType;
-    uint16_t pNum;
-
+    bool     hasPNum = false;
+    bool     hasLanguage = false;
+    int16_t  language = -1;
+    int16_t  programType = 0;
+    uint16_t pNum = 0;
 };
-typedef struct serviceid serviceId;
 
 //      The service component describes the actual service
 //      It really should be a union
-struct servicecomponents {
-    bool         inUse;          // just administration
+struct ServiceComponent {
     int8_t       TMid;           // the transport mode
-    serviceId    *service;       // belongs to the service
+    Service     *service;       // belongs to the service
     int16_t      componentNr;    // component
 
     int16_t      ASCTy;          // used for audio
@@ -71,9 +65,7 @@ struct servicecomponents {
     int16_t      packetAddress;  // used in packet
 };
 
-typedef struct servicecomponents serviceComponent;
-
-struct subchannelmap {
+struct ChannelMap {
     int32_t  SubChId;
     int32_t  StartAddr;
     int32_t  Length;
@@ -90,7 +82,6 @@ class   fib_processor: public QObject {
     Q_OBJECT
     public:
         fib_processor(CRadioController *);
-        ~fib_processor(void);
         void    process_FIB(uint8_t *, uint16_t);
 
         void    setupforNewFrame(void);
@@ -102,8 +93,8 @@ class   fib_processor: public QObject {
         void    dataforDataService(QString &, packetdata *);
     private:
         CRadioController *myRadioInterface;
-        serviceId *findServiceId(uint32_t serviceId);
-        serviceComponent *find_packetComponent(int16_t SCId);
+        Service *findServiceId(uint32_t serviceId);
+        ServiceComponent *find_packetComponent(int16_t SCId);
 
         void bind_audioService(
                 int8_t TMid,
@@ -155,10 +146,9 @@ class   fib_processor: public QObject {
         int16_t HandleFIG0Extension22(uint8_t *d, int16_t used);
 
         int32_t dateTime[8];
-        channelMap ficList [64];
-        serviceComponent components[64];
-
-        serviceId  *listofServices;
+        ChannelMap ficList[64];
+        std::vector<ServiceComponent> components;
+        std::vector<Service> listofServices;
         bool        dateFlag;
         bool        firstTime;
         bool        isSynced;

@@ -101,10 +101,9 @@ fib_processor::fib_processor(CRadioController *mr)
 {
     myRadioInterface = mr;
 
-    listofServices = new serviceId[64];
     memset (dateTime, 0, 8 * sizeof(int32_t));
-    dateFlag    = false;
-    clearEnsemble   ();
+    dateFlag = false;
+    clearEnsemble();
     connect (this, SIGNAL (addtoEnsemble (quint32, const QString &)),
             myRadioInterface, SLOT (addtoEnsemble (quint32, const QString &)));
     connect (this, SIGNAL (nameofEnsemble (int, const QString &)),
@@ -114,11 +113,6 @@ fib_processor::fib_processor(CRadioController *mr)
             SLOT (changeinConfiguration (void)));
     connect (this, SIGNAL (newDateTime (int *)),
             myRadioInterface, SLOT (displayDateTime (int *)));
-}
-
-fib_processor::~fib_processor(void)
-{
-    delete[] listofServices;
 }
 
 //  FIB's are segments of 256 bits. When here, we already
@@ -396,15 +390,15 @@ int16_t fib_processor::HandleFIG0Extension3(uint8_t *d, int16_t used)
     int16_t packetAddress   = getBits (d, used * 8 + 30, 10);
     //uint16_t        CAOrg   = getBits (d, used * 8 + 40, 16);
 
-    serviceComponent *packetComp = find_packetComponent (SCId);
+    ServiceComponent *packetComp = find_packetComponent(SCId);
 
     used += 56 / 8;
-    if (packetComp == NULL)     // no serviceComponent yet
+    if (packetComp == NULL)     // no ServiceComponent yet
         return used;
-    packetComp      -> subchannelId = SubChId;
-    packetComp      -> DSCTy        = DSCTy;
-    packetComp  -> DGflag   = DGflag;
-    packetComp      -> packetAddress        = packetAddress;
+    packetComp->subchannelId = SubChId;
+    packetComp->DSCTy = DSCTy;
+    packetComp->DGflag = DGflag;
+    packetComp->packetAddress = packetAddress;
     return used;
 }
 
@@ -626,7 +620,7 @@ void fib_processor::FIG0Extension16 (uint8_t *d)
 {
     int16_t length = getBits_5 (d, 3); // in bytes
     int16_t offset = 16;           // in bits
-    serviceId *s;
+    Service *s;
 
     while (offset < length * 8) {
         uint16_t    SId = getBits (d, offset, 16);
@@ -646,7 +640,7 @@ void fib_processor::FIG0Extension17(uint8_t *d)
 {
     int16_t length  = getBits_5 (d, 3);
     int16_t offset  = 16;
-    serviceId *s;
+    Service *s;
 
     while (offset < length * 8) {
         uint16_t    SId = getBits (d, offset, 16);
@@ -781,7 +775,7 @@ void    fib_processor::process_FIG1 (uint8_t *d)
     uint32_t    SId = 0;
     uint8_t     oe;
     int16_t     offset  = 0;
-    serviceId   *myIndex;
+    Service    *myIndex;
     int16_t     i;
     uint8_t     pd_flag;
     uint8_t     SCidS;
@@ -930,47 +924,32 @@ void    fib_processor::process_FIG1 (uint8_t *d)
 }
 
 //  locate - and create if needed - a reference to the entry
-//  for the serviceId serviceId
-serviceId *fib_processor::findServiceId(uint32_t serviceId)
+//  for the Service serviceId
+Service *fib_processor::findServiceId(uint32_t serviceId)
 {
-    int16_t i;
-
-    for (i = 0; i < 64; i++) {
-        if (  (listofServices[i].inUse) &&
-              (listofServices[i].serviceId == serviceId)) {
+    for (size_t i = 0; i < listofServices.size(); i++) {
+        if (listofServices[i].serviceId == serviceId) {
             return &listofServices[i];
         }
     }
 
-    for (i = 0; i < 64; i ++) {
-        if (!listofServices[i].inUse) {
-            listofServices[i].inUse = true;
-            listofServices[i].serviceLabel.hasName = false;
-            listofServices[i].serviceId = serviceId;
-            listofServices[i].language = -1;
-            return &listofServices[i];
-        }
-    }
-
-    return &listofServices[0]; // should not happen
+    Service serv;
+    serv.serviceId = serviceId;
+    listofServices.push_back(serv);
+    return &listofServices.back();
 }
 
-serviceComponent *fib_processor::find_packetComponent(int16_t SCId)
+ServiceComponent *fib_processor::find_packetComponent(int16_t SCId)
 {
-    int16_t i;
-
-    for (i = 0; i < 64; i++) {
-        if (!components[i].inUse) {
+    for (auto& component : components) {
+        if (component.TMid != 03) {
             continue;
         }
-        if (components[i].TMid != 03) {
-            continue;
-        }
-        if (components[i].SCId == SCId) {
-            return &components [i];
+        if (component.SCId == SCId) {
+            return &component;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 //  bind_audioService is the main processor for - what the name suggests -
@@ -983,30 +962,23 @@ void fib_processor::bind_audioService(
         int16_t ps_flag,
         int16_t ASCTy)
 {
-    serviceId *s = findServiceId (SId);
-    int16_t i;
-    int16_t firstFree = -1;
+    Service *s = findServiceId(SId);
 
-    for (i = 0; i < 64; i++) {
-        if (!components[i].inUse) {
-            if (firstFree == -1) {
-                firstFree = i;
-            }
-            continue;
-        }
+    if (std::find_if(components.begin(), components.end(),
+                [&](const ServiceComponent& sc) {
+                    return sc.service == s && sc.componentNr == compnr;
+                }) == components.end()) {
+        ServiceComponent newcomp;
+        newcomp.TMid         = TMid;
+        newcomp.componentNr  = compnr;
+        newcomp.service      = s;
+        newcomp.subchannelId = subChId;
+        newcomp.PS_flag      = ps_flag;
+        newcomp.ASCTy        = ASCTy;
+        components.push_back(newcomp);
 
-        if (   (components[i].service == s) &&
-               (components[i].componentNr == compnr))
-            return;
+        //  qDebug() << "fib-processor:" << "service %8x (comp %d) is audio\n", SId, compnr);
     }
-    components[firstFree].inUse        = true;
-    components[firstFree].TMid         = TMid;
-    components[firstFree].componentNr  = compnr;
-    components[firstFree].service      = s;
-    components[firstFree].subchannelId = subChId;
-    components[firstFree].PS_flag      = ps_flag;
-    components[firstFree].ASCTy        = ASCTy;
-    //  qDebug() << "fib-processor:" << "service %8x (comp %d) is audio\n", SId, compnr);
 }
 
 //      bind_packetService is the main processor for - what the name suggests -
@@ -1020,51 +992,35 @@ void fib_processor::bind_packetService(
         int16_t ps_flag,
         int16_t CAflag)
 {
-    serviceId *s = findServiceId (SId);
-    int16_t i;
-    int16_t firstFree = -1;
+    Service *s = findServiceId (SId);
+    if (std::find_if(components.begin(), components.end(),
+                [&](const ServiceComponent& sc) {
+                    return sc.service == s && sc.componentNr == compnr;
+                }) == components.end()) {
+        ServiceComponent newcomp;
+        newcomp.TMid        = TMid;
+        newcomp.service     = s;
+        newcomp.componentNr = compnr;
+        newcomp.SCId        = SCId;
+        newcomp.PS_flag     = ps_flag;
+        newcomp.CAflag      = CAflag;
+        components.push_back(newcomp);
 
-    for (i = 0; i < 64; i++) {
-        if (!components[i].inUse) {
-            if (firstFree == -1) {
-                firstFree = i;
-            }
-            continue;
-        }
-        if (  (components[i].service == s) &&
-              (components[i].componentNr == compnr)) {
-            return;
-        }
+        //  qDebug() << "fib-processor:" << "service %8x (comp %d) is packet\n", SId, compnr);
     }
-
-    components[firstFree].inUse       = true;
-    components[firstFree].TMid        = TMid;
-    components[firstFree].service     = s;
-    components[firstFree].componentNr = compnr;
-    components[firstFree].SCId        = SCId;
-    components[firstFree].PS_flag     = ps_flag;
-    components[firstFree].CAflag      = CAflag;
-    //  qDebug() << "fib-processor:" << "service %8x (comp %d) is packet\n", SId, compnr);
 }
 
 void fib_processor::setupforNewFrame()
 {
-    for (int16_t i = 0; i < 64; i++) {
-        components[i].inUse = false;
-    }
+    components.clear();
 }
 
 void fib_processor::clearEnsemble()
 {
     setupforNewFrame ();
-    memset (components, 0, sizeof (components));
+    components.clear();
     memset (ficList, 0, sizeof (ficList));
-    for (int16_t i = 0; i < 64; i ++) {
-        listofServices[i].inUse = false;
-        listofServices[i].serviceId = -1;
-        listofServices[i].serviceLabel.label = QString ();
-        components[i].inUse = false;
-    }
+    listofServices.clear();
 
     firstTime   = true;
     isSynced    = false;
@@ -1073,14 +1029,10 @@ void fib_processor::clearEnsemble()
 
 uint8_t fib_processor::kindofService (QString &s)
 {
-    int16_t i, j;
     uint32_t selectedService;
 
     //  first we locate the serviceId
-    for (i = 0; i < 64; i++) {
-        if (!listofServices[i].inUse)
-            continue;
-
+    for (size_t i = 0; i < listofServices.size(); i++) {
         if (!listofServices[i].serviceLabel.hasName)
             continue;
 
@@ -1089,20 +1041,19 @@ uint8_t fib_processor::kindofService (QString &s)
 
         qDebug() << "fib-processor:" <<  "we found for" << s << "serviceId" <<  listofServices[i].serviceId;
         selectedService = listofServices[i].serviceId;
-        for (j = 0; j < 64; j ++) {
-            if (!components[j].inUse)
+        for (const auto& sc : components) {
+            if (selectedService != sc.service->serviceId)
                 continue;
 
-            if (selectedService != components[j].service->serviceId)
-                continue;
-
-            if (components[j].TMid == 03)
+            if (sc.TMid == 03) {
                 return PACKET_SERVICE;
-
-            if (components[j].TMid == 00)
+            }
+            else if (sc.TMid == 00) {
                 return AUDIO_SERVICE;
-
-            qDebug() << "fib-processor:" << "TMid =" << components[j].TMid;
+            }
+            else {
+                qDebug() << "fib-processor: unknown TMid =" << sc.TMid;
+            }
         }
     }
     return UNKNOWN_SERVICE;
@@ -1110,14 +1061,10 @@ uint8_t fib_processor::kindofService (QString &s)
 
 void fib_processor::dataforDataService (QString &s, packetdata *d)
 {
-    int16_t i, j;
     uint32_t selectedService;
 
-    //  first we locate the serviceId
-    for (i = 0; i < 64; i++) {
-        if (!listofServices[i].inUse)
-            continue;
-
+    //  first we locate the Service
+    for (size_t i = 0; i < listofServices.size(); i++) {
         if (!listofServices[i].serviceLabel.hasName)
             continue;
 
@@ -1125,29 +1072,27 @@ void fib_processor::dataforDataService (QString &s, packetdata *d)
             continue;
 
         selectedService = listofServices[i].serviceId;
-        for (j = 0; j < 64; j ++) {
+        for (const auto& sc : components) {
             int16_t subchId;
-            if (!components[j].inUse)
-                continue;
-            if (selectedService != components[j].service->serviceId)
+            if (selectedService != sc.service->serviceId)
                 continue;
 
-            if (components[j].TMid != 03) {
+            if (sc.TMid != 03) {
                 qDebug() << "fib-processor:" << "fatal error, expected data service";
                 return;
             }
 
-            subchId = components[j].subchannelId;
+            subchId = sc.subchannelId;
             d->subchId       = subchId;
             d->startAddr     = ficList[subchId].StartAddr;
             d->shortForm     = ficList[subchId].shortForm;
             d->protLevel     = ficList[subchId].protLevel;
-            d->DSCTy         = components[j].DSCTy;
+            d->DSCTy         = sc.DSCTy;
             d->length        = ficList[subchId].Length;
             d->bitRate       = ficList[subchId].BitRate;
             d->FEC_scheme    = ficList[subchId].FEC_scheme;
-            d->DGflag        = components[j].DGflag;
-            d->packetAddress = components[j].packetAddress;
+            d->DGflag        = sc.DGflag;
+            d->packetAddress = sc.packetAddress;
             return;
         }
     }
@@ -1156,15 +1101,11 @@ void fib_processor::dataforDataService (QString &s, packetdata *d)
 
 void fib_processor::dataforAudioService (QString &s, audiodata *d)
 {
-    int16_t i, j;
     uint32_t    selectedService;
 
     d->defined  = false;
     //  first we locate the serviceId
-    for (i = 0; i < 64; i ++) {
-        if (!listofServices[i].inUse)
-            continue;
-
+    for (size_t i = 0; i < listofServices.size(); i ++) {
         if (!listofServices[i].serviceLabel.hasName)
             continue;
 
@@ -1172,26 +1113,24 @@ void fib_processor::dataforAudioService (QString &s, audiodata *d)
             continue;
 
         selectedService = listofServices[i].serviceId;
-        for (j = 0; j < 64; j++) {
+        for (const auto& sc : components) {
             int16_t subchId;
-            if (!components[j].inUse)
-                continue;
-            if (selectedService != components[j].service -> serviceId)
+            if (selectedService != sc.service -> serviceId)
                 continue;
 
-            if (components[j].TMid != 00) {
+            if (sc.TMid != 00) {
                 qDebug() << "fib-processor:" << "fatal error, expected audio service";
                 return;
             }
             d->defined     = true;
-            subchId        = components[j].subchannelId;
+            subchId        = sc.subchannelId;
             d->subchId     = subchId;
             d->startAddr   = ficList[subchId].StartAddr;
             d->shortForm   = ficList[subchId].shortForm;
             d->protLevel   = ficList[subchId].protLevel;
             d->length      = ficList[subchId].Length;
             d->bitRate     = ficList[subchId].BitRate;
-            d->ASCTy       = components[j].ASCTy;
+            d->ASCTy       = sc.ASCTy;
             d->language    = listofServices[i].language;
             d->programType = listofServices[i].programType;
             return;
