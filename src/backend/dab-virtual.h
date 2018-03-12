@@ -30,8 +30,7 @@
 class dabVirtual {
     public:
         virtual ~dabVirtual() {};
-        virtual int32_t process     (int16_t *v, int16_t cnt) = 0;
-        virtual void    stopRunning (void) = 0;
+        virtual int32_t process(int16_t *v, int16_t cnt) = 0;
 };
 #endif
 

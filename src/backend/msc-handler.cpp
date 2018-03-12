@@ -72,7 +72,6 @@ mscHandler::~mscHandler()
 {
     delete[] cifVector;
     if (dabHandler) {
-        dabHandler->stopRunning ();
         delete dabHandler;
     }
 }
@@ -137,7 +136,6 @@ void  mscHandler::process_mscBlock(int16_t *fbits, int16_t blkno)
         locker.lock ();
         newChannel = false;
         if (dabHandler) {
-            dabHandler->stopRunning();
             delete dabHandler;
         }
 
@@ -196,11 +194,4 @@ void mscHandler::stopProcessing()
     work_to_be_done = false;
 }
 
-void mscHandler::stopHandler()
-{
-    work_to_be_done = false;
-    if (dabHandler) {
-        dabHandler->stopRunning ();
-    }
-}
 
