@@ -83,7 +83,7 @@ mscHandler::~mscHandler()
 //  thread executing process_mscBlock
 void mscHandler::set_audioChannel(audiodata *d)
 {
-    locker.lock ();
+    std::unique_lock<std::mutex> lock(mutex);
     audioService    = true;
     new_shortForm   = d->shortForm;
     new_startAddr   = d->startAddr;
@@ -95,12 +95,11 @@ void mscHandler::set_audioChannel(audiodata *d)
     new_ASCTy       = d->ASCTy;
     new_dabModus    = new_ASCTy == 077 ? DAB_PLUS : DAB;
     newChannel      = true;
-    locker.unlock ();
 }
 
 void mscHandler::set_dataChannel(packetdata *d)
 {
-    locker.lock ();
+    std::unique_lock<std::mutex> lock(mutex);
     audioService      = false;
     new_shortForm     = d->shortForm;
     new_startAddr     = d->startAddr;
@@ -112,7 +111,6 @@ void mscHandler::set_dataChannel(packetdata *d)
     new_DSCTy         = d->DSCTy;
     new_packetAddress = d->packetAddress;
     newChannel        = true;
-    locker.unlock ();
 }
 
 //  add blocks. First is (should be) block 5, last is (should be) 76
@@ -133,7 +131,7 @@ void  mscHandler::process_mscBlock(int16_t *fbits, int16_t blkno)
     currentblk  = (blkno - 4) % numberofblocksperCIF;
 
     if (newChannel) {
-        locker.lock ();
+        std::unique_lock<std::mutex> lock(mutex);
         newChannel = false;
         if (dabHandler) {
             delete dabHandler;
@@ -167,7 +165,6 @@ void  mscHandler::process_mscBlock(int16_t *fbits, int16_t blkno)
         Length    = new_Length;
         //  and this one to get started
         work_to_be_done  = true;
-        locker.unlock ();
     }
 
     //  and the normal operation is:

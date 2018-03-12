@@ -28,7 +28,7 @@
 #ifndef MSC_HANDLER
 #define MSC_HANDLER
 
-#include    <QMutex>
+#include    <mutex>
 #include    <memory>
 #include    <stdio.h>
 #include    <stdint.h>
@@ -55,7 +55,7 @@ class mscHandler
         CRadioController    *myRadioInterface;
         std::shared_ptr<RingBuffer<int16_t>> buffer;
         bool        show_crcErrors;
-        QMutex      locker;
+        std::mutex  mutex;
         bool        audioService;
         dabVirtual *dabHandler;
         int16_t    *cifVector;
