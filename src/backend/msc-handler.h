@@ -51,7 +51,6 @@ class mscHandler
         void set_audioChannel(audiodata  *);
         void set_dataChannel(packetdata *);
         void stopProcessing(void);
-        void stopHandler(void);
     private:
         CRadioController    *myRadioInterface;
         std::shared_ptr<RingBuffer<int16_t>> buffer;

@@ -51,7 +51,6 @@ class dabAudio : public dabVirtual
         dabAudio& operator=(const dabAudio&) = delete;
 
         int32_t process(int16_t *v, int16_t cnt);
-        void    stopRunning(void);
 
     protected:
         CRadioController    *myRadioInterface;

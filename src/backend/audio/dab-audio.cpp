@@ -179,9 +179,3 @@ void dabAudio::run()
     }
 }
 
-//  It might take a msec for the task to stop
-void dabAudio::stopRunning()
-{
-    running = false;
-}
-
