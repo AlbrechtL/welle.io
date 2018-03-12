@@ -36,15 +36,14 @@ mscHandler::mscHandler(
         CRadioController *mr,
         CDABParams *p,
         std::shared_ptr<RingBuffer<int16_t>> buffer,
-        bool   show_crcErrors)
+        bool   show_crcErrors) :
+    cifVector(864 * CUSize)
 {
     myRadioInterface     = mr;
     this->buffer         = buffer;
     this->show_crcErrors = show_crcErrors;
-    cifVector            = new int16_t[55296];
     cifCount             = 0;    // msc blocks in CIF
     blkCount             = 0;
-    dabHandler           = nullptr;
     newChannel           = false;
     work_to_be_done      = false;
     dabModus             = 0;
@@ -66,14 +65,6 @@ mscHandler::mscHandler(
     }
 
     audioService        = true;     // default
-}
-
-mscHandler::~mscHandler()
-{
-    delete[] cifVector;
-    if (dabHandler) {
-        delete dabHandler;
-    }
 }
 
 //  Note, the set_xxx functions are called from within a
@@ -134,11 +125,11 @@ void  mscHandler::process_mscBlock(int16_t *fbits, int16_t blkno)
         std::unique_lock<std::mutex> lock(mutex);
         newChannel = false;
         if (dabHandler) {
-            delete dabHandler;
+            dabHandler.reset();
         }
 
         if (audioService) {
-            dabHandler = new dabAudio(
+            dabHandler = std::make_shared<dabAudio>(
                     new_dabModus,
                     new_Length * CUSize,
                     new_bitRate,
@@ -147,17 +138,18 @@ void  mscHandler::process_mscBlock(int16_t *fbits, int16_t blkno)
                     myRadioInterface,
                     buffer);
         }
-        else  {  // TODO dealing with data
-            //        dabHandler = new dabData (myRadioInterface,
-            //                                  new_DSCTy,
-            //                                  new_packetAddress,
-            //                                  new_Length * CUSize,
-            //                                  new_bitRate,
-            //                                  new_shortForm,
-            //                                  new_protLevel,
-            //                                  new_DGflag,
-            //                                  new_FEC_scheme,
-            //                                  show_crcErrors);
+        else  {  /* TODO dealing with data
+                    dabHandler = std::make_shared<dabData>(myRadioInterface,
+                                              new_DSCTy,
+                                              new_packetAddress,
+                                              new_Length * CUSize,
+                                              new_bitRate,
+                                              new_shortForm,
+                                              new_protLevel,
+                                              new_DGflag,
+                                              new_FEC_scheme,
+                                              show_crcErrors);
+            */
         }
 
         //  these we need for actual processing
@@ -182,7 +174,7 @@ void  mscHandler::process_mscBlock(int16_t *fbits, int16_t blkno)
     //  separate task or separate function, depending on
     //  the settings in the ini file, we might take advantage of multi cores
     if (dabHandler) {
-        (void)dabHandler->process (myBegin, Length * CUSize);
+        (void)dabHandler->process(myBegin, Length * CUSize);
     }
 }
 
