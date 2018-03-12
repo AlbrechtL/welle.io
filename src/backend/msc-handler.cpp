@@ -42,11 +42,6 @@ mscHandler::mscHandler(
     myRadioInterface     = mr;
     this->buffer         = buffer;
     this->show_crcErrors = show_crcErrors;
-    cifCount             = 0;    // msc blocks in CIF
-    blkCount             = 0;
-    newChannel           = false;
-    work_to_be_done      = false;
-    dabModus             = 0;
     BitsperBlock         = 2 * p->K;
 
     if (p -> dabMode == 4) {  // 2 CIFS per 76 blocks
@@ -63,8 +58,6 @@ mscHandler::mscHandler(
                 numberofblocksperCIF = 18;
         }
     }
-
-    audioService        = true;     // default
 }
 
 //  Note, the set_xxx functions are called from within a
@@ -182,5 +175,4 @@ void mscHandler::stopProcessing()
 {
     work_to_be_done = false;
 }
-
 

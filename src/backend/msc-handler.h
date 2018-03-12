@@ -48,42 +48,40 @@ class mscHandler
                 std::shared_ptr<RingBuffer<int16_t> >,
                 bool show_crcErrors);
         void process_mscBlock(int16_t *fbits, int16_t blkno);
-        void set_audioChannel(audiodata  *);
-        void set_dataChannel(packetdata *);
+        void set_audioChannel(audiodata *d);
+        void set_dataChannel(packetdata *d);
         void stopProcessing(void);
     private:
         CRadioController    *myRadioInterface;
         std::shared_ptr<RingBuffer<int16_t>> buffer;
         bool        show_crcErrors;
         std::mutex  mutex;
-        bool        audioService;
+        bool        audioService = true;     // default
         std::shared_ptr<dabVirtual> dabHandler;
         std::vector<int16_t> cifVector;
-        int16_t     cifCount;
-        int16_t     blkCount;
-        bool        work_to_be_done;
-        bool        newChannel;
-        int16_t     new_packetAddress;
-        int16_t     new_ASCTy;
-        int16_t     new_DSCTy;
-        int16_t     new_startAddr;
-        int16_t     new_Length;
-        bool        new_shortForm;
-        int16_t     new_protLevel;
-        uint8_t     new_DGflag;
-        int16_t     new_bitRate;
-        int16_t     new_language;
-        int16_t     new_type;
-        int16_t     new_FEC_scheme;
-        int16_t     startAddr;
-        int16_t     Length;
-        int8_t      dabModus;
-        int8_t      new_dabModus;
+        int16_t     cifCount = 0; // msc blocks in CIF
+        int16_t     blkCount = 0;
+        bool        work_to_be_done = false;
+        bool        newChannel = false;
+        int16_t     new_packetAddress = 0;
+        int16_t     new_ASCTy = 0;
+        int16_t     new_DSCTy = 0;
+        int16_t     new_startAddr = 0;
+        int16_t     new_Length = 0;
+        bool        new_shortForm = 0;
+        int16_t     new_protLevel = 0;
+        uint8_t     new_DGflag = 0;
+        int16_t     new_bitRate = 0;
+        int16_t     new_language = 0;
+        int16_t     new_type = 0;
+        int16_t     new_FEC_scheme = 0;
+        int16_t     startAddr = 0;
+        int16_t     Length = 0;
+        int8_t      dabModus = 0;
+        int8_t      new_dabModus = 0;
         int16_t     BitsperBlock;
         int16_t     numberofblocksperCIF;
-        int16_t     blockCount;
 };
 
 #endif
-
 
