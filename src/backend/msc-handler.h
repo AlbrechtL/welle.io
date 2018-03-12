@@ -30,6 +30,7 @@
 
 #include    <mutex>
 #include    <memory>
+#include    <vector>
 #include    <stdio.h>
 #include    <stdint.h>
 #include    <stdio.h>
@@ -46,7 +47,6 @@ class mscHandler
                 CDABParams *,
                 std::shared_ptr<RingBuffer<int16_t> >,
                 bool show_crcErrors);
-        ~mscHandler(void);
         void process_mscBlock(int16_t *fbits, int16_t blkno);
         void set_audioChannel(audiodata  *);
         void set_dataChannel(packetdata *);
@@ -57,8 +57,8 @@ class mscHandler
         bool        show_crcErrors;
         std::mutex  mutex;
         bool        audioService;
-        dabVirtual *dabHandler;
-        int16_t    *cifVector;
+        std::shared_ptr<dabVirtual> dabHandler;
+        std::vector<int16_t> cifVector;
         int16_t     cifCount;
         int16_t     blkCount;
         bool        work_to_be_done;
