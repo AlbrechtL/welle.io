@@ -66,7 +66,6 @@ set(sources
     src/ofdm/phasetable.cpp
     src/ofdm/freq-interleaver.cpp
     src/backend/viterbi.cpp
-    src/backend/viterbi_spiral.c
     src/backend/fic-handler.cpp
     src/backend/msc-handler.cpp
     src/backend/eep-protection.cpp
