@@ -24,10 +24,11 @@
 
 #include    "dab-virtual.h"
 #include    <memory>
+#include    <atomic>
 #include    <vector>
-#include    <QThread>
-#include    <QMutex>
-#include    <QWaitCondition>
+#include    <thread>
+#include    <mutex>
+#include    <condition_variable>
 #include    "ringbuffer.h"
 #include    <stdio.h>
 
@@ -35,7 +36,7 @@ class dabProcessor;
 class protection;
 class CRadioController;
 
-class dabAudio : public QThread, public dabVirtual
+class dabAudio : public dabVirtual
 {
     public:
         dabAudio(uint8_t dabModus,
@@ -46,6 +47,9 @@ class dabAudio : public QThread, public dabVirtual
                   CRadioController *mr,
                   std::shared_ptr<RingBuffer<int16_t> >);
         ~dabAudio(void);
+        dabAudio(const dabAudio&) = delete;
+        dabAudio& operator=(const dabAudio&) = delete;
+
         int32_t process(int16_t *v, int16_t cnt);
         void    stopRunning(void);
 
@@ -55,7 +59,7 @@ class dabAudio : public QThread, public dabVirtual
 
     private:
         void    run(void);
-        volatile bool running;
+        std::atomic<bool> running;
         uint8_t     dabModus;
         int16_t     fragmentSize;
         int16_t     bitRate;
@@ -64,11 +68,12 @@ class dabAudio : public QThread, public dabVirtual
         std::vector<uint8_t> outV;
         int16_t     **interleaveData;
 
-        QWaitCondition  Locker;
-        QMutex          ourMutex;
+        std::condition_variable  Locker;
+        std::mutex               ourMutex;
+        std::thread              ourThread;
 
         std::unique_ptr<protection> protectionHandler;
-        dabProcessor   *our_dabProcessor;
+        std::unique_ptr<dabProcessor> our_dabProcessor;
         RingBuffer<int16_t> Buffer;
 };
 

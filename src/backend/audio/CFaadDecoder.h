@@ -31,8 +31,10 @@
 class CFaadDecoder
 {
 public:
-    CFaadDecoder (std::shared_ptr<RingBuffer<int16_t>> buffer);
+    CFaadDecoder(std::shared_ptr<RingBuffer<int16_t>> buffer);
     ~CFaadDecoder(void);
+    CFaadDecoder(const CFaadDecoder& other) = delete;
+    CFaadDecoder& operator=(const CFaadDecoder& other) = delete;
 
     int get_aac_channel_configuration(
             int16_t m_mpeg_surround_config,

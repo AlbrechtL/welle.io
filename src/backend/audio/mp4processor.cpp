@@ -45,33 +45,18 @@ mp4Processor::mp4Processor(
         int16_t bitRate,
         std::shared_ptr<RingBuffer<int16_t>> b) :
     the_rsDecoder(8, 0435, 0, 1, 10),
-    aacDecoder(b)
+    aacDecoder(b),
+    padDecoder(this, true)
 {
-
-    myRadioInterface    = mr;
-    connect (this, SIGNAL (show_frameErrors (int)),
-            mr, SLOT (show_frameErrors (int)));
-    connect (this, SIGNAL (show_rsErrors (int)),
-            mr, SLOT (show_rsErrors (int)));
-    connect (this, SIGNAL (show_aacErrors (int)),
-            mr, SLOT (show_aacErrors (int)));
-    connect (this, SIGNAL (isStereo (bool)),
-            mr, SLOT (setStereo (bool)));
-    connect (this, SIGNAL (setSampleRate (int)),
-            mr, SLOT (newAudio (int)));
+    myRadioInterface = mr;
 
     // Open a MSC file (XPADxpert) if the user defined it
-    QString MscFileName_tmp = myRadioInterface->GetMscFileName();
-    if(!MscFileName_tmp.isEmpty())
-    {
-        qDebug() << "mp4processor:" <<  "Enabled writing of MSC data to the file: " << MscFileName_tmp;
-
-        MscFileName = new QByteArray(MscFileName_tmp.toLocal8Bit());
-        MscFile = fopen(MscFileName->data(), "wb");  // w for write, b for binary
-    }
-    else
-    {
-        MscFile = nullptr;
+    mscFileName = myRadioInterface->GetMscFileName();
+    if (!mscFileName.empty()) {
+        FILE* fd = fopen(mscFileName.c_str(), "wb");  // w for write, b for binary
+        if (fd != nullptr) {
+            mscFile.reset(fd);
+        }
     }
 
     this->bitRate  = bitRate;  // input rate
@@ -92,14 +77,23 @@ mp4Processor::mp4Processor(
     //  error display
     au_count    = 0;
     au_errors   = 0;
-    padDecoderAdapter = std::make_unique<PADDecoderAdapter>(mr);
     aacAudioMode = AACAudioMode::Unknown;
 }
 
-mp4Processor::~mp4Processor()
+void mp4Processor::PADChangeDynamicLabel(const DL_STATE& dl)
 {
-    fclose(MscFile);
-    delete MscFileName;
+    myRadioInterface->showLabel(
+            toQStringUsingCharset (
+                (const char *)&dl.raw[0],
+                (CharacterSet) dl.charset,
+                dl.raw.size()));
+}
+
+void mp4Processor::PADChangeSlide(const MOT_FILE& slide)
+{
+    QByteArray Data((const char*) slide.data.data(), (int) slide.data.size());
+
+    myRadioInterface->showMOT(Data, slide.content_sub_type, slide.content_name.c_str());
 }
 
 /**
@@ -136,7 +130,7 @@ void mp4Processor::addtoFrame(uint8_t *V)
         /// first, we show the "successrate"
         if (++frameCount >= 25) {
             frameCount = 0;
-            show_frameErrors (frameErrors);
+            myRadioInterface->show_frameErrors(frameErrors);
             frameErrors = 0;
         }
 
@@ -152,7 +146,7 @@ void mp4Processor::addtoFrame(uint8_t *V)
             //  new sequence, beginning with block blockFillIndex
             blocksInBuffer    = 0;
             if (++successFrames > 25) {
-                show_rsErrors (rsErrors);
+                myRadioInterface->show_rsErrors(rsErrors);
                 successFrames  = 0;
                 rsErrors   = 0;
             }
@@ -208,8 +202,9 @@ bool mp4Processor::processSuperframe(uint8_t frameBytes[], int16_t base)
     }
 
     // MSC file
-    if(MscFile)
-        fwrite(outVector.data(), outVector.size(), 1, MscFile);
+    if (mscFile) {
+        fwrite(outVector.data(), outVector.size(), 1, mscFile.get());
+    }
 
     //  bits 0 .. 15 is firecode
     //  bit 16 is unused
@@ -296,7 +291,7 @@ bool mp4Processor::processSuperframe(uint8_t frameBytes[], int16_t base)
             }
 
             if (++aacFrames > 25) {
-                show_aacErrors (aacErrors);
+                myRadioInterface->show_aacErrors(aacErrors);
                 aacErrors  = 0;
                 aacFrames  = 0;
             }
@@ -324,8 +319,9 @@ void  mp4Processor::handle_aacFrame(
     memcpy (theAudioUnit, v, frame_length);
     memset (&theAudioUnit[frame_length], 0, 10);
 
-    if (((theAudioUnit[0] >> 5) & 07) == 4)
-        padDecoderAdapter-> processPAD_DABPlus(theAudioUnit);
+    if (((theAudioUnit[0] >> 5) & 07) == 4) {
+        processPAD(theAudioUnit);
+    }
 
     int tmp = aacDecoder. MP42PCM (dacRate,
             sbrFlag,
@@ -338,7 +334,7 @@ void  mp4Processor::handle_aacFrame(
     *error  = tmp == 0;
 
     AACAudioMode aacAudioMode_tmp = AACAudioMode::Unknown;
-    setSampleRate(sampleRate);
+    myRadioInterface->newAudio(sampleRate);
 
     if(aacChannelMode == 0 && isParametricStereo == true) // Parametric stereo
         aacAudioMode_tmp = AACAudioMode::ParametricStereo;
@@ -354,18 +350,37 @@ void  mp4Processor::handle_aacFrame(
         {
         case AACAudioMode::Mono:
             qDebug() << "mp4processor:" <<  "Detected mono audio signal";
-            emit isStereo (false);
+            myRadioInterface->setStereo(false);
             break;
         case AACAudioMode::Stereo:
             qDebug() << "mp4processor:" <<  "Detected stereo audio signal";
-            emit isStereo (true);
+            myRadioInterface->setStereo(true);
             break;
         case AACAudioMode::ParametricStereo:
             qDebug() << "mp4processor:" <<  "Detected parametric stereo audio signal";
-            emit isStereo (true);
+            myRadioInterface->setStereo(true);
             break;
         default: qDebug() << "mp4processor:" <<  "Unknown audio mode";
         }
     }
+}
+
+void mp4Processor::processPAD(uint8_t *data)
+{
+    // Get PAD length
+    uint8_t pad_start = 2;
+    uint8_t pad_len = data[1];
+    if (pad_len == 255) {
+        pad_len += data[2];
+        pad_start++;
+    }
+
+    // Adapt to PADDecoder
+    uint8_t FPAD_LEN = 2;
+    size_t xpad_len = pad_len - FPAD_LEN;
+    uint8_t *fpad = data + pad_start + pad_len - FPAD_LEN;
+
+    // Run PADDecoder
+    padDecoder.Process(data + pad_start, xpad_len, true, fpad);
 }
 

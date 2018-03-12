@@ -698,20 +698,20 @@ float CRadioController::GainValue() const
     return CurrentManualGainValue;
 }
 
-QString CRadioController::GetMscFileName()
+std::string CRadioController::GetMscFileName()
 {
     if(commandLineOptions["mscFileName"] != "")
-        return commandLineOptions["mscFileName"].toString();
+        return commandLineOptions["mscFileName"].toString().toStdString();
     else
-        return QString();
+        return "";
 }
 
-QString CRadioController::GetMP2FileName()
+std::string CRadioController::GetMP2FileName()
 {
     if(commandLineOptions["mp2FileName"] != "")
-        return commandLineOptions["mp2FileName"].toString();
+        return commandLineOptions["mp2FileName"].toString().toStdString();
     else
-        return QString();
+        return "";
 }
 
 int CRadioController::Gain() const

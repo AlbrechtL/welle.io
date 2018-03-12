@@ -36,7 +36,8 @@ CAudio::CAudio(std::shared_ptr<RingBuffer<int16_t> > Buffer)
 
     AudioIODevice = new CAudioIODevice(Buffer, this);
 
-    init(48000);
+    connect(this, SIGNAL(rateChanged(int)), this, SLOT(init(int)));
+    emit rateChanged(48000);
 
     connect(&CheckAudioBufferTimer, &QTimer::timeout, this, &CAudio::checkAudioBufferTimeout);
     // Check audio state every 1 s, start audio if bytes are available
@@ -55,7 +56,7 @@ void CAudio::setRate(int sampleRate)
         qDebug() << "Audio:"
                  << "Sample rate" << sampleRate << "Hz";
         CardRate = sampleRate;
-        init(sampleRate);
+        emit rateChanged(sampleRate);
     }
 }
 
