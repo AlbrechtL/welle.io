@@ -157,6 +157,7 @@ public:
     void show_aacErrors(int AACErrors);
     void showLabel(QString Label);
     void showMOT(QByteArray Data, int Subtype, QString s);
+    void show_snr(int SNR);
 
 private:
     void Initialise(void);
@@ -282,7 +283,6 @@ public slots:
     void changeinConfiguration(void);
     void displayDateTime(int* DateTime);
     void show_ficSuccess(bool isFICCRC);
-    void show_snr(int SNR);
     void set_fineCorrectorDisplay(int FineFrequencyCorr);
     void set_coarseCorrectorDisplay(int CoarseFreuqencyCorr);
     void setSynced(char isSync);
