@@ -51,8 +51,6 @@ firecode_checker::firecode_checker()
     }
 }
 
-firecode_checker::~firecode_checker() { }
-
 uint16_t firecode_checker::run8(uint8_t regs[])
 {
     int16_t i,j;
