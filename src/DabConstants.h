@@ -34,20 +34,15 @@
 #define __DAB_CONSTANTS
 
 #include <complex>
-#include <cstring>
 #include <limits>
-#include <math.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <map>
+#include <cmath>
+#include <cstring>
+#include <cstdint>
+#include <cstdio>
+#include <cstdlib>
 
-#include <QString>
-#include <QObject>
-
-typedef float DSPFLOAT;
-typedef std::complex<DSPFLOAT> DSPCOMPLEX;
+using DSPFLOAT = float;
+using DSPCOMPLEX = std::complex<DSPFLOAT>;
 
 // Fallback if git hash macro is not defined
 #ifndef GITHASH
@@ -72,19 +67,16 @@ typedef std::complex<DSPFLOAT> DSPCOMPLEX;
 #define LONG_LOW 03
 #define UNSYNCED 04
 
-// Static class to hold constant values
-class CDABConstants: public QObject {
-    Q_OBJECT
-public:
-    static QString getProgramTypeName(int Type);
-    static QString getLanguageName(int Language);
-};
+namespace CDABConstants {
+    const char* getProgramTypeName(int type);
+    const char* getLanguageName(int language);
+}
 
 class CDABParams {
 public:
     CDABParams();
-    CDABParams(int Mode);
-    void setMode(int Mode);
+    CDABParams(int mode);
+    void setMode(int mode);
 
     // To access directly the members is ugly but it was the easiest for the existing code
     uint8_t dabMode;
@@ -104,7 +96,7 @@ private:
     void setMode4(void);
 };
 
-typedef struct {
+struct packetdata {
     int16_t subchId;
     int16_t startAddr;
     bool shortForm;
@@ -115,9 +107,9 @@ typedef struct {
     int16_t FEC_scheme;
     int16_t DGflag;
     int16_t packetAddress;
-} packetdata;
+};
 
-typedef struct {
+struct audiodata {
     int16_t subchId;
     int16_t startAddr;
     bool shortForm;
@@ -128,6 +120,6 @@ typedef struct {
     int16_t language;
     int16_t programType;
     bool defined;
-} audiodata;
+};
 
 #endif

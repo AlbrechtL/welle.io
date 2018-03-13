@@ -117,7 +117,7 @@ int32_t dabAudio::process(int16_t *v, int16_t cnt)
     while ((fr = Buffer.GetRingBufferWriteAvailable ()) <= cnt) {
         if (!running)
             return 0;
-        usleep (1);
+        std::this_thread::sleep_for(std::chrono::microseconds(1));
     }
 
     Buffer.putDataIntoBuffer (v, cnt);

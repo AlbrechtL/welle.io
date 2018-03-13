@@ -23,171 +23,166 @@
  *
  */
 
-#include <qdebug.h>
-
+#include <iostream>
 #include "DabConstants.h"
 
-
-QString CDABConstants::getProgramTypeName(int Type)
+const char* CDABConstants::getProgramTypeName(int type)
 {
-    QString TypeName = "";
-
-    switch(Type)
-    {
-    case 0: TypeName = ""; break;
-    case 1: TypeName = tr("News"); break;
-    case 2: TypeName = tr("Current Affairs"); break;
-    case 3: TypeName = tr("Information"); break;
-    case 4: TypeName = tr("Sport"); break;
-    case 5: TypeName = tr("Education"); break;
-    case 6: TypeName = tr("Drama"); break;
-    case 7: TypeName = tr("Arts"); break;
-    case 8: TypeName = tr("Science"); break;
-    case 9: TypeName = tr("Talk"); break;
-    case 10: TypeName = tr("Pop Music"); break;
-    case 11: TypeName = tr("Rock Music"); break;
-    case 12: TypeName = tr("Easy Listening"); break;
-    case 13: TypeName = tr("Light classical"); break;
-    case 14: TypeName = tr("Classical Music"); break;
-    case 15: TypeName = tr("Other Music"); break;
-    case 16: TypeName = tr("Weather"); break;
-    case 17: TypeName = tr("Finance"); break;
-    case 18: TypeName = tr("Children\'s"); break;
-    case 19: TypeName = tr("Factual"); break;
-    case 20: TypeName = tr("Religion"); break;
-    case 21: TypeName = tr("Phone In"); break;
-    case 22: TypeName = tr("Travel"); break;
-    case 23: TypeName = tr("Leisure"); break;
-    case 24: TypeName = tr("Jazz and Blues"); break;
-    case 25: TypeName = tr("Country Music"); break;
-    case 26: TypeName = tr("National Music"); break;
-    case 27: TypeName = tr("Oldies Music"); break;
-    case 28: TypeName = tr("Folk Music"); break;
-    case 29: TypeName = tr("entry 29 not used"); break;
-    case 30: TypeName = tr("entry 30 not used"); break;
-    case 31: TypeName = tr("entry 31 not used"); break;
-    default: qDebug() << "DABConstants:"
-                      << "Unknown program type";
+    const char* typeName = "";
+    switch(type) {
+        case 0: typeName = ""; break;
+        case 1: typeName = "News"; break;
+        case 2: typeName = "Current Affairs"; break;
+        case 3: typeName = "Information"; break;
+        case 4: typeName = "Sport"; break;
+        case 5: typeName = "Education"; break;
+        case 6: typeName = "Drama"; break;
+        case 7: typeName = "Arts"; break;
+        case 8: typeName = "Science"; break;
+        case 9: typeName = "Talk"; break;
+        case 10: typeName = "Pop Music"; break;
+        case 11: typeName = "Rock Music"; break;
+        case 12: typeName = "Easy Listening"; break;
+        case 13: typeName = "Light classical"; break;
+        case 14: typeName = "Classical Music"; break;
+        case 15: typeName = "Other Music"; break;
+        case 16: typeName = "Weather"; break;
+        case 17: typeName = "Finance"; break;
+        case 18: typeName = "Children\'s"; break;
+        case 19: typeName = "Factual"; break;
+        case 20: typeName = "Religion"; break;
+        case 21: typeName = "Phone In"; break;
+        case 22: typeName = "Travel"; break;
+        case 23: typeName = "Leisure"; break;
+        case 24: typeName = "Jazz and Blues"; break;
+        case 25: typeName = "Country Music"; break;
+        case 26: typeName = "National Music"; break;
+        case 27: typeName = "Oldies Music"; break;
+        case 28: typeName = "Folk Music"; break;
+        case 29: typeName = "entry 29 not used"; break;
+        case 30: typeName = "entry 30 not used"; break;
+        case 31: typeName = "entry 31 not used"; break;
+        default: std::clog << "DABConstants:"
+                 << "Unknown program type";
     }
 
-    return TypeName;
+    return typeName;
 }
 
-QString CDABConstants::getLanguageName(int Language)
+const char* CDABConstants::getLanguageName(int language)
 {
-    QString LanguageName = "";
+    const char* languageName = "";
 
-    switch(Language)
-    {
-    case 0: LanguageName = tr(""); break;
-    case 1: LanguageName = tr("Albanian"); break;
-    case 2: LanguageName = tr("Breton"); break;
-    case 3: LanguageName = tr("Catalan"); break;
-    case 4: LanguageName = tr("Croatian"); break;
-    case 5: LanguageName = tr("Welsh"); break;
-    case 6: LanguageName = tr("Czech"); break;
-    case 7: LanguageName = tr("Danish"); break;
-    case 8: LanguageName = tr("German"); break;
-    case 9: LanguageName = tr("English"); break;
-    case 10: LanguageName = tr("Spanish"); break;
-    case 11: LanguageName = tr("Esperanto"); break;
-    case 12: LanguageName = tr("Estonian"); break;
-    case 13: LanguageName = tr("Basque"); break;
-    case 14: LanguageName = tr("Faroese"); break;
-    case 15: LanguageName = tr("French"); break;
-    case 16: LanguageName = tr("Frisian"); break;
-    case 17: LanguageName = tr("Irish"); break;
-    case 18: LanguageName = tr("Gaelic"); break;
-    case 19: LanguageName = tr("Galician"); break;
-    case 20: LanguageName = tr("Icelandic"); break;
-    case 21: LanguageName = tr("Italian"); break;
-    case 22: LanguageName = tr("Lappish"); break;
-    case 23: LanguageName = tr("Latin"); break;
-    case 24: LanguageName = tr("Latvian"); break;
-    case 25: LanguageName = tr("Luxembourgian"); break;
-    case 26: LanguageName = tr("Lithuanian"); break;
-    case 27: LanguageName = tr("Hungarian"); break;
-    case 28: LanguageName = tr("Maltese"); break;
-    case 29: LanguageName = tr("Dutch"); break;
-    case 30: LanguageName = tr("Norwegian"); break;
-    case 31: LanguageName = tr("Occitan"); break;
-    case 32: LanguageName = tr("Polish"); break;
-    case 33: LanguageName = tr("Portuguese"); break;
-    case 34: LanguageName = tr("Romanian"); break;
-    case 35: LanguageName = tr("Romansh"); break;
-    case 36: LanguageName = tr("Serbian"); break;
-    case 37: LanguageName = tr("Slovak"); break;
-    case 38: LanguageName = tr("Slovene"); break;
-    case 39: LanguageName = tr("Finnish"); break;
-    case 40: LanguageName = tr("Swedish"); break;
-    case 41: LanguageName = tr("Turkish"); break;
-    case 42: LanguageName = tr("Flemish"); break;
-    case 43: LanguageName = tr("Walloon"); break;
-    case 64: LanguageName = tr("Background sound/clean feed"); break;
-    case 69: LanguageName = tr("Zulu"); break;
-    case 70: LanguageName = tr("Vietnamese"); break;
-    case 71: LanguageName = tr("Uzbek"); break;
-    case 72: LanguageName = tr("Urdu"); break;
-    case 73: LanguageName = tr("Ukranian"); break;
-    case 74: LanguageName = tr("Thai"); break;
-    case 75: LanguageName = tr("Telugu"); break;
-    case 76: LanguageName = tr("Tatar"); break;
-    case 77: LanguageName = tr("Tamil"); break;
-    case 78: LanguageName = tr("Tadzhik"); break;
-    case 79: LanguageName = tr("Swahili"); break;
-    case 80: LanguageName = tr("Sranan Tongo"); break;
-    case 81: LanguageName = tr("Somali"); break;
-    case 82: LanguageName = tr("Sinhalese"); break;
-    case 83: LanguageName = tr("Shona"); break;
-    case 84: LanguageName = tr("Serbo-Croat"); break;
-    case 85: LanguageName = tr("Rusyn"); break;
-    case 86: LanguageName = tr("Russian"); break;
-    case 87: LanguageName = tr("Quechua"); break;
-    case 88: LanguageName = tr("Pushtu"); break;
-    case 89: LanguageName = tr("Punjabi"); break;
-    case 90: LanguageName = tr("Persian"); break;
-    case 91: LanguageName = tr("Papiamento"); break;
-    case 92: LanguageName = tr("Oriya"); break;
-    case 93: LanguageName = tr("Nepali"); break;
-    case 94: LanguageName = tr("Ndebele"); break;
-    case 95: LanguageName = tr("Marathi"); break;
-    case 96: LanguageName = tr("Moldavian"); break;
-    case 97: LanguageName = tr("Malaysian"); break;
-    case 98: LanguageName = tr("Malagasay"); break;
-    case 99: LanguageName = tr("Macedonian"); break;
-    case 100: LanguageName = tr("Laotian"); break;
-    case 101: LanguageName = tr("Korean"); break;
-    case 102: LanguageName = tr("Khmer"); break;
-    case 103: LanguageName = tr("Kazakh"); break;
-    case 104: LanguageName = tr("Kannada"); break;
-    case 105: LanguageName = tr("Japanese"); break;
-    case 106: LanguageName = tr("Indonesian"); break;
-    case 107: LanguageName = tr("Hindi"); break;
-    case 108: LanguageName = tr("Hebrew"); break;
-    case 109: LanguageName = tr("Hausa"); break;
-    case 110: LanguageName = tr("Gurani"); break;
-    case 111: LanguageName = tr("Gujurati"); break;
-    case 112: LanguageName = tr("Greek"); break;
-    case 113: LanguageName = tr("Georgian"); break;
-    case 114: LanguageName = tr("Fulani"); break;
-    case 115: LanguageName = tr("Dari"); break;
-    case 116: LanguageName = tr("Chuvash"); break;
-    case 117: LanguageName = tr("Chinese"); break;
-    case 118: LanguageName = tr("Burmese"); break;
-    case 119: LanguageName = tr("Bulgarian"); break;
-    case 120: LanguageName = tr("Bengali"); break;
-    case 121: LanguageName = tr("Belorussian"); break;
-    case 122: LanguageName = tr("Bambora"); break;
-    case 123: LanguageName = tr("Azerbaijani"); break;
-    case 124: LanguageName = tr("Assamese"); break;
-    case 125: LanguageName = tr("Armenian"); break;
-    case 126: LanguageName = tr("Arabic"); break;
-    case 127: LanguageName = tr("Amharic"); break;
-    default: qDebug() << "DABConstants:"
-                      << "Unknown language type: " << Language;
+    switch (language) {
+        case 0: languageName = ""; break;
+        case 1: languageName = "Albanian"; break;
+        case 2: languageName = "Breton"; break;
+        case 3: languageName = "Catalan"; break;
+        case 4: languageName = "Croatian"; break;
+        case 5: languageName = "Welsh"; break;
+        case 6: languageName = "Czech"; break;
+        case 7: languageName = "Danish"; break;
+        case 8: languageName = "German"; break;
+        case 9: languageName = "English"; break;
+        case 10: languageName = "Spanish"; break;
+        case 11: languageName = "Esperanto"; break;
+        case 12: languageName = "Estonian"; break;
+        case 13: languageName = "Basque"; break;
+        case 14: languageName = "Faroese"; break;
+        case 15: languageName = "French"; break;
+        case 16: languageName = "Frisian"; break;
+        case 17: languageName = "Irish"; break;
+        case 18: languageName = "Gaelic"; break;
+        case 19: languageName = "Galician"; break;
+        case 20: languageName = "Icelandic"; break;
+        case 21: languageName = "Italian"; break;
+        case 22: languageName = "Lappish"; break;
+        case 23: languageName = "Latin"; break;
+        case 24: languageName = "Latvian"; break;
+        case 25: languageName = "Luxembourgian"; break;
+        case 26: languageName = "Lithuanian"; break;
+        case 27: languageName = "Hungarian"; break;
+        case 28: languageName = "Maltese"; break;
+        case 29: languageName = "Dutch"; break;
+        case 30: languageName = "Norwegian"; break;
+        case 31: languageName = "Occitan"; break;
+        case 32: languageName = "Polish"; break;
+        case 33: languageName = "Portuguese"; break;
+        case 34: languageName = "Romanian"; break;
+        case 35: languageName = "Romansh"; break;
+        case 36: languageName = "Serbian"; break;
+        case 37: languageName = "Slovak"; break;
+        case 38: languageName = "Slovene"; break;
+        case 39: languageName = "Finnish"; break;
+        case 40: languageName = "Swedish"; break;
+        case 41: languageName = "Turkish"; break;
+        case 42: languageName = "Flemish"; break;
+        case 43: languageName = "Walloon"; break;
+        case 64: languageName = "Background sound/clean feed"; break;
+        case 69: languageName = "Zulu"; break;
+        case 70: languageName = "Vietnamese"; break;
+        case 71: languageName = "Uzbek"; break;
+        case 72: languageName = "Urdu"; break;
+        case 73: languageName = "Ukranian"; break;
+        case 74: languageName = "Thai"; break;
+        case 75: languageName = "Telugu"; break;
+        case 76: languageName = "Tatar"; break;
+        case 77: languageName = "Tamil"; break;
+        case 78: languageName = "Tadzhik"; break;
+        case 79: languageName = "Swahili"; break;
+        case 80: languageName = "Sranan Tongo"; break;
+        case 81: languageName = "Somali"; break;
+        case 82: languageName = "Sinhalese"; break;
+        case 83: languageName = "Shona"; break;
+        case 84: languageName = "Serbo-Croat"; break;
+        case 85: languageName = "Rusyn"; break;
+        case 86: languageName = "Russian"; break;
+        case 87: languageName = "Quechua"; break;
+        case 88: languageName = "Pushtu"; break;
+        case 89: languageName = "Punjabi"; break;
+        case 90: languageName = "Persian"; break;
+        case 91: languageName = "Papiamento"; break;
+        case 92: languageName = "Oriya"; break;
+        case 93: languageName = "Nepali"; break;
+        case 94: languageName = "Ndebele"; break;
+        case 95: languageName = "Marathi"; break;
+        case 96: languageName = "Moldavian"; break;
+        case 97: languageName = "Malaysian"; break;
+        case 98: languageName = "Malagasay"; break;
+        case 99: languageName = "Macedonian"; break;
+        case 100: languageName = "Laotian"; break;
+        case 101: languageName = "Korean"; break;
+        case 102: languageName = "Khmer"; break;
+        case 103: languageName = "Kazakh"; break;
+        case 104: languageName = "Kannada"; break;
+        case 105: languageName = "Japanese"; break;
+        case 106: languageName = "Indonesian"; break;
+        case 107: languageName = "Hindi"; break;
+        case 108: languageName = "Hebrew"; break;
+        case 109: languageName = "Hausa"; break;
+        case 110: languageName = "Gurani"; break;
+        case 111: languageName = "Gujurati"; break;
+        case 112: languageName = "Greek"; break;
+        case 113: languageName = "Georgian"; break;
+        case 114: languageName = "Fulani"; break;
+        case 115: languageName = "Dari"; break;
+        case 116: languageName = "Chuvash"; break;
+        case 117: languageName = "Chinese"; break;
+        case 118: languageName = "Burmese"; break;
+        case 119: languageName = "Bulgarian"; break;
+        case 120: languageName = "Bengali"; break;
+        case 121: languageName = "Belorussian"; break;
+        case 122: languageName = "Bambora"; break;
+        case 123: languageName = "Azerbaijani"; break;
+        case 124: languageName = "Assamese"; break;
+        case 125: languageName = "Armenian"; break;
+        case 126: languageName = "Arabic"; break;
+        case 127: languageName = "Amharic"; break;
+        default: std::clog << "DABConstants:"
+                 << "Unknown language type: " << language;
     }
 
-    return LanguageName;
+    return languageName;
 }
 
 
@@ -196,21 +191,20 @@ CDABParams::CDABParams()
     setMode(1);
 }
 
-CDABParams::CDABParams(int Mode)
+CDABParams::CDABParams(int mode)
 {
-    setMode(Mode);
+    setMode(mode);
 }
 
-void CDABParams::setMode(int Mode)
+void CDABParams::setMode(int mode)
 {
-
-    switch(Mode)
+    switch(mode)
     {
     case 1: setMode1(); break;
     case 2: setMode2(); break;
     case 3: setMode3(); break;
     case 4: setMode4(); break;
-    default: qDebug() << "DABConstants:"
+    default: std::clog << "DABConstants:"
                       << "Unknown mode";
     }
 }

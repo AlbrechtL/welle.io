@@ -890,8 +890,8 @@ void CRadioController::StationTimerTimeout()
 
             CurrentTitle = CurrentStation;
 
-            CurrentStationType = CDABConstants::getProgramTypeName(AudioData.programType);
-            CurrentLanguageType = CDABConstants::getLanguageName(AudioData.language);
+            CurrentStationType = tr(CDABConstants::getProgramTypeName(AudioData.programType));
+            CurrentLanguageType = tr(CDABConstants::getLanguageName(AudioData.language));
             mBitRate = AudioData.bitRate;
             emit BitRateChanged(mBitRate);
 

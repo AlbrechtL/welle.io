@@ -9,3 +9,7 @@ Regressions to be fixed later:
 * We have lost the RTL_TCP input, because there is no cross-platform
   replacement for the QT sockets. Boost::ASIO would be, but we don't want to
   add the dependency for boost.
+
+* qDebug() got replaced by std::clog. Problem? We could probably redirect the stream.
+
+* i18n translation is moved out of the backend. Problem?
