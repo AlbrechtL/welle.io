@@ -37,6 +37,7 @@
 #include <QTimer>
 #include <QtNetwork>
 #include <array>
+#include <string>
 
 #include "CVirtualInput.h"
 #include "DabConstants.h"
@@ -69,7 +70,7 @@ public:
     void setAgc(bool AGC);
     void setHwAgc(bool hwAGC);
     bool isHwAgcSupported();
-    QString getName(void);
+    std::string getName(void);
     CDeviceID getID(void);
 
     // Specific methods

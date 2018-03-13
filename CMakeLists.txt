@@ -89,7 +89,6 @@ set(sources
     src/input/CInputFactory.cpp
     src/input/CNullDevice.cpp
     src/input/CRAWFile.cpp
-    src/input/CRTL_TCP_Client.cpp
     src/DabConstants.cpp
     src/gui/CMOTImageProvider.cpp
     src/gui/CStationList.cpp

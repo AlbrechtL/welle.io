@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2017
+ *    Copyright (C) 2018
  *    Matthias P. Braendli (matthias.braendli@mpb.li)
  *    Albrecht Lohofener (albrechtloh@gmx.de)
  *
@@ -24,9 +24,9 @@
  *
  */
 
-#include <QDebug>
 #include <vector>
 #include <sstream>
+#include <iostream>
 #include <cassert>
 #include <SoapySDR/Errors.hpp>
 #include "CSoapySdr.h"
@@ -40,7 +40,7 @@ CSoapySdr::CSoapySdr() :
     m_spectrumSampleBuffer(8192)
 {
     m_running = false;
-    qDebug() << "SoapySdr";
+    std::clog << "SoapySdr";
 }
 
 CSoapySdr::~CSoapySdr()
@@ -49,17 +49,17 @@ CSoapySdr::~CSoapySdr()
 }
 
 
-void CSoapySdr::setDriverArgs(QString args)
+void CSoapySdr::setDriverArgs(const std::string& args)
 {
     m_driver_args = args;
 }
 
-void CSoapySdr::setAntenna(QString antenna)
+void CSoapySdr::setAntenna(const std::string& antenna)
 {
     m_antenna = antenna;
 }
 
-void CSoapySdr::setClockSource(QString clock_source)
+void CSoapySdr::setClockSource(const std::string& clock_source)
 {
     m_clock_source = clock_source;
 }
@@ -70,7 +70,7 @@ void CSoapySdr::setFrequency(int32_t Frequency)
     if (m_device != nullptr) {
         m_device->setFrequency(SOAPY_SDR_RX, 0, Frequency);
         Frequency = m_device->getFrequency(SOAPY_SDR_RX, 0);
-        qDebug() << "OutputSoapySDR:Actual frequency: " <<
+        std::clog << "OutputSoapySDR:Actual frequency: " <<
             Frequency / 1000.0 <<
             " kHz.";
     }
@@ -78,14 +78,14 @@ void CSoapySdr::setFrequency(int32_t Frequency)
 
 bool CSoapySdr::restart()
 {
-    if (m_thread != nullptr) {
+    if (m_running) {
         return true;
     }
 
     m_sampleBuffer.FlushRingBuffer();
     m_spectrumSampleBuffer.FlushRingBuffer();
 
-    m_device = SoapySDR::Device::make(m_driver_args.toStdString());
+    m_device = SoapySDR::Device::make(m_driver_args);
     stringstream ss;
     ss << "SoapySDR driver=" << m_device->getDriverKey();
     ss << " hardware=" << m_device->getHardwareKey();
@@ -93,22 +93,22 @@ bool CSoapySdr::restart()
     {
         ss << "  " << it.first << "=" << it.second;
     }
-    qDebug() << ss.str().c_str();
+    std::clog << ss.str().c_str();
 
     m_device->setMasterClockRate(INPUT_RATE*16);
-    qDebug() << "SoapySDR master clock rate set to " <<
+    std::clog << "SoapySDR master clock rate set to " <<
         m_device->getMasterClockRate()/1000.0 << " kHz";
 
     m_device->setSampleRate(SOAPY_SDR_RX, 0, INPUT_RATE);
-    qDebug() << "OutputSoapySDR:Actual RX rate: " <<
+    std::clog << "OutputSoapySDR:Actual RX rate: " <<
         m_device->getSampleRate(SOAPY_SDR_RX, 0) / 1000.0 <<
         " ksps.";
 
-    if (!m_antenna.isEmpty())
-        m_device->setAntenna(SOAPY_SDR_RX, 0, m_antenna.toStdString());
+    if (!m_antenna.empty())
+        m_device->setAntenna(SOAPY_SDR_RX, 0, m_antenna);
 
-    if (!m_clock_source.isEmpty())
-        m_device->setClockSource(m_clock_source.toStdString());
+    if (!m_clock_source.empty())
+        m_device->setClockSource(m_clock_source);
 
     if (m_freq > 0) {
         setFrequency(m_freq);
@@ -118,7 +118,7 @@ bool CSoapySdr::restart()
     m_device->setGainMode(SOAPY_SDR_RX, 0, automatic);
 
     m_running = true;
-    m_thread = new CSoapySdr_Thread(this);
+    m_thread = std::thread(&CSoapySdr::workerthread, this);
 
     return true;
 }
@@ -126,12 +126,8 @@ bool CSoapySdr::restart()
 void CSoapySdr::stop()
 {
     m_running = false;
-    if (m_thread != nullptr) {
-        while (!m_thread->isFinished()) {
-            usleep(100);
-        }
-        delete m_thread;
-        m_thread = nullptr;
+    if (m_thread.joinable()) {
+        m_thread.join();
     }
 
     if (m_device != nullptr) {
@@ -168,7 +164,7 @@ float CSoapySdr::setGain(int32_t Gain)
     if (m_device != nullptr) {
         m_device->setGain(SOAPY_SDR_RX, 0, Gain);
         float g = m_device->getGain(SOAPY_SDR_RX, 0);
-        qDebug() << "Soapy gain is " << g;
+        std::clog << "Soapy gain is " << g;
         return g;
     }
     return 0;
@@ -189,7 +185,7 @@ void CSoapySdr::setHwAgc(bool hwAGC)
     (void) hwAGC;
 }
 
-QString CSoapySdr::getName()
+std::string CSoapySdr::getName()
 {
     return "SoapySDR";
 }
@@ -199,20 +195,12 @@ CDeviceID CSoapySdr::getID()
     return CDeviceID::SOAPYSDR;
 }
 
-CSoapySdr_Thread::CSoapySdr_Thread(CSoapySdr *soapySdr)
-{
-    this->soapySdr = soapySdr;
-    start();
-}
-
-CSoapySdr_Thread::~CSoapySdr_Thread() {}
-
-void CSoapySdr_Thread::run()
+void CSoapySdr::workerthread()
 {
     std::vector<size_t> channels;
     channels.push_back(0);
-    auto device = soapySdr->m_device;
-    qDebug() << " *************** Setup soapy stream";
+    auto device = m_device;
+    std::clog << " *************** Setup soapy stream";
     auto stream = device->setupStream(SOAPY_SDR_RX, "CF32", channels);
     assert(stream != nullptr);
 
@@ -221,21 +209,19 @@ void CSoapySdr_Thread::run()
         process(stream);
     }
     catch (std::exception& e) {
-        qDebug() << " *************** Exception caught in soapy: " << e.what();
+        std::clog << " *************** Exception caught in soapy: " << e.what();
     }
 
-    qDebug() << " *************** Close soapy stream";
+    std::clog << " *************** Close soapy stream";
     device->closeStream(stream);
-    soapySdr->m_running = false;
+    m_running = false;
 }
 
-void CSoapySdr_Thread::process(SoapySDR::Stream *stream)
+void CSoapySdr::process(SoapySDR::Stream *stream)
 {
-    auto device = soapySdr->m_device;
-
-    while (soapySdr->m_running) {
+    while (m_running) {
         // Stream MTU is in samples, not bytes.
-        const size_t mtu = device->getStreamMTU(stream);
+        const size_t mtu = m_device->getStreamMTU(stream);
 
         const size_t samps_to_read = mtu; // Always read MTU samples
         std::vector<DSPCOMPLEX> buf(samps_to_read);
@@ -245,8 +231,8 @@ void CSoapySdr_Thread::process(SoapySDR::Stream *stream)
 
         int flags = 0;
         long long timeNs = 0;
-        assert(device != nullptr);
-        int ret = device->readStream(
+        assert(m_device != nullptr);
+        int ret = m_device->readStream(
                 stream, buffs, samps_to_read, flags, timeNs);
 
         if (ret == SOAPY_SDR_TIMEOUT) {
@@ -260,15 +246,15 @@ void CSoapySdr_Thread::process(SoapySDR::Stream *stream)
         }
 
         if (ret < 0) {
-            qDebug() << " *************** Unexpected stream error " <<
+            std::clog << " *************** Unexpected stream error " <<
                 SoapySDR::errToStr(ret);
-            soapySdr->m_running = false;
+            m_running = false;
         }
         else {
             buf.resize(ret);
 
-            soapySdr->m_sampleBuffer.putDataIntoBuffer(buf.data(), ret);
-            soapySdr->m_spectrumSampleBuffer.putDataIntoBuffer(buf.data(), ret);
+            m_sampleBuffer.putDataIntoBuffer(buf.data(), ret);
+            m_spectrumSampleBuffer.putDataIntoBuffer(buf.data(), ret);
         }
     }
 }

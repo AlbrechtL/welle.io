@@ -91,7 +91,7 @@ void CNullDevice::setHwAgc(bool hwAGC)
     (void) hwAGC;
 }
 
-QString CNullDevice::getName()
+std::string CNullDevice::getName()
 {
     return "Null device";
 }

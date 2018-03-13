@@ -318,9 +318,11 @@ bool CRTL_TCP_Client::isHwAgcSupported()
     return true;
 }
 
-QString CRTL_TCP_Client::getName()
+std::string CRTL_TCP_Client::getName()
 {
-    return "rtl_tcp_client (server: " + serverAddress.toString() + ":" + QString::number(serverPort) + ")";
+    return "rtl_tcp_client (server: " +
+        serverAddress.toString().toStdString() + ":" +
+        QString::number(serverPort).toStdString() + ")";
 }
 
 CDeviceID CRTL_TCP_Client::getID()

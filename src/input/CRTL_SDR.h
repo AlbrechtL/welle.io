@@ -30,11 +30,9 @@
 #ifndef _DABSTICK
 #define _DABSTICK
 
-#include <QObject>
-#include <QSettings>
-#include <QTimer>
-#include <QThread>
 #include <vector>
+#include <thread>
+#include <string>
 #include <rtl-sdr.h>
 
 #include "CVirtualInput.h"
@@ -49,7 +47,6 @@ class CRTL_SDR_Thread;
 //	rtlsdr library that is read is as dll
 //	It does not do any processing
 class CRTL_SDR : public CVirtualInput {
-    Q_OBJECT
 public:
     CRTL_SDR(CRadioController &RadioController);
     ~CRTL_SDR(void);
@@ -67,21 +64,20 @@ public:
     void setAgc(bool AGC);
     void setHwAgc(bool hwAGC);
     bool isHwAgcSupported();
-    QString getName(void);
+    std::string getName(void);
     CDeviceID getID(void);
 
     // Specific methods
     void setMinMaxValue(uint8_t MinValue, uint8_t MaxValue);
-    CRadioController *getRadioController(void);
 
     //	These need to be visible for the separate usb handling thread
     RingBuffer<uint8_t> SampleBuffer;
     RingBuffer<uint8_t> SpectrumSampleBuffer;
-    struct rtlsdr_dev* device;
+    struct rtlsdr_dev *device;
     int32_t sampleCounter;
 
 private:
-    QTimer AGCTimer;
+    std::thread AGC_Thread;
     CRadioController *RadioController;
     int32_t lastFrequency;
     int32_t FrequencyOffset;
@@ -89,7 +85,10 @@ private:
     bool isAGC;
     bool isHwAGC;
     int32_t DeviceCount;
-    CRTL_SDR_Thread* RTL_SDR_Thread;
+    std::thread RTL_SDR_Thread;
+    void rtlsdr_read_async_wrapper(void);
+    std::atomic<bool> rtlsdr_running;
+
     bool open;
     std::vector<int> gains;
     uint16_t GainsCount;
@@ -97,23 +96,8 @@ private:
     uint8_t MinValue;
     uint8_t MaxValue;
 
-private slots:
-    void AGCTimerTimeout(void);
+    void AGCTimer(void);
 
-};
-
-//	for handling the events in libusb, we need a controlthread
-//	whose sole purpose is to process the rtlsdr_read_async function
-//	from the lib.
-class CRTL_SDR_Thread : public QThread {
-public:
-    CRTL_SDR_Thread(CRTL_SDR* RTL_SDR);
-    ~CRTL_SDR_Thread(void);
-
-private:
-    virtual void run(void);
-
-    CRTL_SDR* RTL_SDR;
 };
 
 #endif
