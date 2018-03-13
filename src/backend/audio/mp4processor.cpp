@@ -28,7 +28,7 @@
  */
 
 #include <cstring>
-#include <QDebug>
+#include <iostream>
 
 #include "mp4processor.h"
 #include "CRadioController.h"
@@ -83,7 +83,7 @@ mp4Processor::mp4Processor(
 void mp4Processor::PADChangeDynamicLabel(const DL_STATE& dl)
 {
     myRadioInterface->showLabel(
-            toQStringUsingCharset (
+            toUtf8StringUsingCharset(
                 (const char *)&dl.raw[0],
                 (CharacterSet) dl.charset,
                 dl.raw.size()));
@@ -91,9 +91,7 @@ void mp4Processor::PADChangeDynamicLabel(const DL_STATE& dl)
 
 void mp4Processor::PADChangeSlide(const MOT_FILE& slide)
 {
-    QByteArray Data((const char*) slide.data.data(), (int) slide.data.size());
-
-    myRadioInterface->showMOT(Data, slide.content_sub_type, slide.content_name.c_str());
+    myRadioInterface->showMOT(slide.data, slide.content_sub_type);
 }
 
 /**

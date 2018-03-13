@@ -14,4 +14,4 @@ Regressions to be fixed later:
 
 * i18n translation is moved out of the backend. Problem?
 
-* Rework label parsing for charset!
+* Test label and DLS parsing with all Charsets! EBU seems to work

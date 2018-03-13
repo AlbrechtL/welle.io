@@ -24,16 +24,14 @@
 #define FIB_PROCESSOR
 
 #include    <vector>
-#include    <string>
+#include    <array>
 #include    <cstdint>
 #include    <cstdio>
 #include    "msc-handler.h"
 
 struct dabLabel {
-    //     uint8_t  label [17];
-    std::string label;
-    uint8_t  mask = 0x00;
-    bool     hasName = false;
+    std::string label; // UTF-8 encoded
+    uint8_t     mask = 0x00;
 };
 
 
@@ -52,7 +50,7 @@ struct Service {
 //      It really should be a union
 struct ServiceComponent {
     int8_t       TMid;           // the transport mode
-    Service     *service;       // belongs to the service
+    Service     *service;        // belongs to the service
     int16_t      componentNr;    // component
 
     int16_t      ASCTy;          // used for audio
@@ -61,7 +59,7 @@ struct ServiceComponent {
     uint16_t     SCId;           // used in packet
     uint8_t      CAflag;         // used in packet (or not at all)
     int16_t      DSCTy;          // used in packet
-    uint8_t      DGflag;     // used for TDC
+    uint8_t      DGflag;         // used for TDC
     int16_t      packetAddress;  // used in packet
 };
 
@@ -81,15 +79,14 @@ class   CRadioController;
 class   fib_processor {
     public:
         fib_processor(CRadioController *);
-        void    process_FIB(uint8_t *, uint16_t);
+        void    process_FIB(uint8_t*, uint16_t);
 
         void    setupforNewFrame(void);
         void    clearEnsemble(void);
         bool    syncReached(void);
-        void    setSelectedService(const std::string &s);
-        uint8_t kindofService(const std::string& s);
-        void    dataforAudioService(const std::string& s, audiodata *);
-        void    dataforDataService(const std::string& s, packetdata *);
+        uint8_t kindofService(const std::string& label);
+        void    dataforAudioService(const std::string& label, audiodata *);
+        void    dataforDataService(const std::string& label, packetdata *);
     private:
         CRadioController *myRadioInterface;
         Service *findServiceId(uint32_t serviceId);
