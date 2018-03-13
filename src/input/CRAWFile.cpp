@@ -152,13 +152,13 @@ void CRAWFile::setFileName(const std::string& FileName, const std::string& FileF
     else
     {
         this->FileFormat = CRAWFileFormat::Unknown;
-        std::clog << "RAWFile: unknown file format";
+        std::clog << "RAWFile: unknown file format" << std::endl;
         RadioController->setErrorMessage("Unknown RAW file format"s);
     }
 
     filePointer = fopen(FileName.c_str(), "rb");
     if (filePointer == nullptr) {
-        std::clog << "RAWFile: Cannot open file: " << FileName;
+        std::clog << "RAWFile: Cannot open file: " << FileName << std::endl;
         RadioController->setErrorMessage("Cannot open file", FileName);
         return;
     }
@@ -208,7 +208,7 @@ void CRAWFile::run(void)
 
     period = (32768 * 1000) / (IQByteSize * 2048); // full IQś read
 
-    std::clog << "RAWFile" << "Period =" << period;
+    std::clog << "RAWFile" << "Period =" << period << std::endl;
     std::vector<uint8_t> bi(bufferSize);
     nextStop = getMyTime();
     while (!ExitCondition) {
@@ -238,7 +238,7 @@ void CRAWFile::run(void)
                         nextStop - getMyTime()));
     }
 
-    std::clog << "RAWFile:" <<  "Read threads ends";
+    std::clog << "RAWFile:" <<  "Read threads ends" << std::endl;
 }
 
 /*
@@ -252,7 +252,7 @@ int32_t CRAWFile::readBuffer(uint8_t* data, int32_t length)
     currPos += n;
     if (n < length) {
         fseek(filePointer, 0, SEEK_SET);
-        std::clog << "RAWFile:"  << "End of file, restarting";
+        std::clog << "RAWFile:"  << "End of file, restarting" << std::endl;
         RadioController->setInfoMessage("End of file, restarting"s);
     }
     return n & ~01;

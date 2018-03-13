@@ -138,7 +138,7 @@ ofdmProcessor::~ofdmProcessor()
 
 void    ofdmProcessor::start(void)
 {
-    std::clog << "OFDM-processor:" <<  "start";
+    std::clog << "OFDM-processor:" <<  "start" << std::endl;
     coarseCorrector    = 0;
     fineCorrector      = 0;
     f2Correction       = true;
@@ -457,7 +457,7 @@ SyncOnPhase:
     catch (int e) {
         // TODO replace this
     }
-    std::clog << "OFDM-processor:" <<  "closing down";
+    std::clog << "OFDM-processor:" <<  "closing down" << std::endl;
 }
 
 void ofdmProcessor::reset()

@@ -63,7 +63,7 @@ const char* CDABConstants::getProgramTypeName(int type)
         case 30: typeName = "entry 30 not used"; break;
         case 31: typeName = "entry 31 not used"; break;
         default: std::clog << "DABConstants:"
-                 << "Unknown program type";
+                 << "Unknown program type" << std::endl;
     }
 
     return typeName;
@@ -179,7 +179,7 @@ const char* CDABConstants::getLanguageName(int language)
         case 126: languageName = "Arabic"; break;
         case 127: languageName = "Amharic"; break;
         default: std::clog << "DABConstants:"
-                 << "Unknown language type: " << language;
+                 << "Unknown language type: " << language << std::endl;
     }
 
     return languageName;
@@ -205,7 +205,7 @@ void CDABParams::setMode(int mode)
     case 3: setMode3(); break;
     case 4: setMode4(); break;
     default: std::clog << "DABConstants:"
-                      << "Unknown mode";
+                      << "Unknown mode" << std::endl;
     }
 }
 

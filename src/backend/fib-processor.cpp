@@ -131,7 +131,7 @@ void fib_processor::process_FIB (uint8_t *p, uint16_t fib)
                 return;
 
             default:
-                //              std::clog << "fib-processor:" << "FIG%d aanwezig\n", FIGtype);
+                //              std::clog << "fib-processor:" << "FIG%d aanwezig\n", FIGtype) << std::endl;
                 break;
         }
         //
@@ -168,7 +168,7 @@ void fib_processor::process_FIG0 (uint8_t *d)
         case 21: FIG0Extension21 (d); break;
         case 22: FIG0Extension22 (d); break;
         default:
-            //        std::clog << "fib-processor:" << "FIG0/%d passed by\n", extension);
+            //        std::clog << "fib-processor:" << "FIG0/%d passed by\n", extension) << std::endl;
             break;
     }
 }
@@ -200,16 +200,16 @@ void fib_processor::FIG0Extension0 (uint8_t *d)
     (void)occurrenceChange;
 
     //  if (changeflag == 1) {
-    //     std::clog << "fib-processor:" << "Changes in sub channel organization\n");
-    //     std::clog << "fib-processor:" << "cifcount = %d\n", highpart * 250 + lowpart);
-    //     std::clog << "fib-processor:" << "Change happening in %d CIFs\n", occurrenceChange);
+    //     std::clog << "fib-processor:" << "Changes in sub channel organization\n") << std::endl;
+    //     std::clog << "fib-processor:" << "cifcount = %d\n", highpart * 250 + lowpart) << std::endl;
+    //     std::clog << "fib-processor:" << "Change happening in %d CIFs\n", occurrenceChange) << std::endl;
     //  }
     //  else if (changeflag == 3) {
-    //     std::clog << "fib-processor:" << "Changes in subchannel and service organization\n");
-    //     std::clog << "fib-processor:" << "cifcount = %d\n", highpart * 250 + lowpart);
-    //     std::clog << "fib-processor:" << "Change happening in %d CIFs\n", occurrenceChange);
+    //     std::clog << "fib-processor:" << "Changes in subchannel and service organization\n") << std::endl;
+    //     std::clog << "fib-processor:" << "cifcount = %d\n", highpart * 250 + lowpart) << std::endl;
+    //     std::clog << "fib-processor:" << "Change happening in %d CIFs\n", occurrenceChange) << std::endl;
     //  }
-    std::clog << "fib-processor:" << "changes in config not supported, choose again";
+    std::clog << "fib-processor:" << "changes in config not supported, choose again" << std::endl;
     // Were, the signal ensembleChanged was called, which was ignored by the
     // frontend
 }
@@ -463,7 +463,7 @@ int16_t fib_processor::HandleFIG0Extension8(
         SCid = getBits (d, lOffset + 4, 12);
         lOffset += 16;
         //           if (find_packetComponent ((SCIds << 4) | SCid) != NULL) {
-        //              std::clog << "fib-processor:" << "packet component bestaat !!\n");
+        //              std::clog << "fib-processor:" << "packet component bestaat !!\n") << std::endl;
         //           }
     }
     else {
@@ -575,7 +575,7 @@ int16_t fib_processor::HandleFIG0Extension13(
                 break;
 
             case 0x44a:     // Journaline
-                //           std::clog << "fib-processor:" << "Journaline\n");
+                //           std::clog << "fib-processor:" << "Journaline\n") << std::endl;
                 break;
 
             default:
@@ -622,7 +622,7 @@ void fib_processor::FIG0Extension16 (uint8_t *d)
             s -> pNum       = PNum;
             s -> hasPNum    = true;
             //        std::clog << "fib-processor:" << "Program number info SId = %.8X, PNum = %d\n",
-            //                                         SId, PNum);
+            //                                         SId, PNum) << std::endl;
         }
         offset += 72;
     }
@@ -670,7 +670,7 @@ void fib_processor::FIG0Extension18(uint8_t *d)
         SId = getBits (d, offset, 16);
         AsuFlags = getBits (d, offset + 16, 16);
         //     std::clog << "fib-processor:" << "Announcement %d for SId %d with %d clusters\n",
-        //                      AsuFlags, SId, NumClusters);
+        //                      AsuFlags, SId, NumClusters) << std::endl;
         offset += 40 + NumClusters * 8;
     }
     (void)SId;
@@ -695,7 +695,7 @@ void fib_processor::FIG0Extension19(uint8_t *d)
         //            "%s %s Announcement %d for Cluster %2u on SubCh %2u ",
         //                ((new_flag==1)?"new":"old"),
         //                ((region_flag==1)?"regional":""),
-        //                AswFlags, ClusterId,SubChId);
+        //                AswFlags, ClusterId,SubChId) << std::endl;
         if (region_flag) {
             region_Id_Lower = getBits_6 (d, offset + 34);
             offset += 40;
@@ -716,7 +716,7 @@ void fib_processor::FIG0Extension19(uint8_t *d)
 
 void fib_processor::FIG0Extension21(uint8_t *d)
 {
-    //  std::clog << "fib-processor:" << "Frequency information\n");
+    //  std::clog << "fib-processor:" << "Frequency information\n") << std::endl;
     (void)d;
 }
 
@@ -745,7 +745,7 @@ int16_t fib_processor::HandleFIG0Extension22(uint8_t *d, int16_t used)
         int16_t latitudeCoarse = getBits (d, used * 8 + 8, 16);
         int16_t longitudeCoarse = getBits (d, used * 8 + 24, 16);
         //     std::clog << "fib-processor:" << "Id = %d, (%d %d)\n", mainId,
-        //                                latitudeCoarse, longitudeCoarse);
+        //                                latitudeCoarse, longitudeCoarse) << std::endl;
         (void)latitudeCoarse;
         (void)longitudeCoarse;
         return used + 48 / 6;
@@ -753,7 +753,7 @@ int16_t fib_processor::HandleFIG0Extension22(uint8_t *d, int16_t used)
     //  MS == 1
 
     noSubfields = getBits_3 (d, used * 8 + 13);
-    //  std::clog << "fib-processor:" << "Id = %d, subfields = %d\n", mainId, noSubfields);
+    //  std::clog << "fib-processor:" << "Id = %d, subfields = %d\n", mainId, noSubfields) << std::endl;
     used += (16 + noSubfields * 48) / 8;
 
     return used;
@@ -797,7 +797,7 @@ void    fib_processor::process_FIG1 (uint8_t *d)
                 for (i = 0; i < 16; i ++) {
                     label[i] = getBits_8 (d, offset + 8 * i);
                 }
-                //           std::clog << "fib-processor:" << "Ensemblename: %16s\n", label);
+                //           std::clog << "fib-processor:" << "Ensemblename: %16s\n", label) << std::endl;
                 if (!oe) {
                     if (firstTime) {
                         // TODO charset!
@@ -808,7 +808,7 @@ void    fib_processor::process_FIG1 (uint8_t *d)
                 }
             }
             //        std::clog << "fib-processor:" <<
-            //                 "charset %d is used for ensemblename\n", charSet);
+            //                 "charset %d is used for ensemblename\n", charSet) << std::endl;
             break;
 
         case 1: // 16 bit Identifier field for service label
@@ -820,7 +820,7 @@ void    fib_processor::process_FIG1 (uint8_t *d)
                     label[i] = getBits_8 (d, offset + 8 * i);
                 }
                 myIndex->serviceLabel.label = label;
-                // std::clog << "fib-processor:" << "FIG1/1: SId = %4x\t%s\n", SId, label);
+                // std::clog << "fib-processor:" << "FIG1/1: SId = %4x\t%s\n", SId, label) << std::endl;
                 myRadioInterface->addServiceToEnsemble(SId, myIndex->serviceLabel.label);
                 myIndex->serviceLabel.hasName = true;
             }
@@ -834,7 +834,7 @@ void    fib_processor::process_FIG1 (uint8_t *d)
                 label[i] = getBits_8 (d, offset + 8 * i);
             }
 
-            //        std::clog << "fib-processor:" << "FIG1/3: RegionID = %2x\t%s\n", region_id, label);
+            //        std::clog << "fib-processor:" << "FIG1/3: RegionID = %2x\t%s\n", region_id, label) << std::endl;
             break;
 
         case 4:
@@ -853,7 +853,7 @@ void    fib_processor::process_FIG1 (uint8_t *d)
             for (i = 0; i < 16; i ++)
                 label[i] = getBits_8 (d, offset + 8 * i);
             //        std::clog << "fib-processor:" << "FIG1/4: Sid = %8x\tp/d=%d\tSCidS=%1X\tflag=%8X\t%s\n",
-            //                          SId, pd_flag, SCidS, flagfield, label);
+            //                          SId, pd_flag, SCidS, flagfield, label) << std::endl;
             break;
 
 
@@ -893,11 +893,11 @@ void    fib_processor::process_FIG1 (uint8_t *d)
             }
 
             //        std::clog << "fib-processor:" << "FIG1/6: SId = %8x\tp/d = %d\t SCidS = %1X\tXPAD_aid = %2u\t%s\n",
-            //             SId, pd_flag, SCidS, XPAD_aid, label);
+            //             SId, pd_flag, SCidS, XPAD_aid, label) << std::endl;
             break;
 
         default:
-            //        std::clog << "fib-processor:" << "FIG1/%d: not handled now\n", extension);
+            //        std::clog << "fib-processor:" << "FIG1/%d: not handled now\n", extension) << std::endl;
             break;
     }
     (void)SCidS;
@@ -959,7 +959,7 @@ void fib_processor::bind_audioService(
         newcomp.ASCTy        = ASCTy;
         components.push_back(newcomp);
 
-        //  std::clog << "fib-processor:" << "service %8x (comp %d) is audio\n", SId, compnr);
+        //  std::clog << "fib-processor:" << "service %8x (comp %d) is audio\n", SId, compnr) << std::endl;
     }
 }
 
@@ -988,7 +988,7 @@ void fib_processor::bind_packetService(
         newcomp.CAflag      = CAflag;
         components.push_back(newcomp);
 
-        //  std::clog << "fib-processor:" << "service %8x (comp %d) is packet\n", SId, compnr);
+        //  std::clog << "fib-processor:" << "service %8x (comp %d) is packet\n", SId, compnr) << std::endl;
     }
 }
 
@@ -1021,7 +1021,7 @@ uint8_t fib_processor::kindofService(const std::string& s)
         if (listofServices[i].serviceLabel.label != s)
             continue;
 
-        std::clog << "fib-processor:" <<  "we found for" << s << "serviceId" <<  listofServices[i].serviceId;
+        std::clog << "fib-processor:" <<  "we found for" << s << "serviceId" <<  listofServices[i].serviceId << std::endl;
         selectedService = listofServices[i].serviceId;
         for (const auto& sc : components) {
             if (selectedService != sc.service->serviceId)
@@ -1034,7 +1034,7 @@ uint8_t fib_processor::kindofService(const std::string& s)
                 return AUDIO_SERVICE;
             }
             else {
-                std::clog << "fib-processor: unknown TMid =" << sc.TMid;
+                std::clog << "fib-processor: unknown TMid =" << sc.TMid << std::endl;
             }
         }
     }
@@ -1060,7 +1060,7 @@ void fib_processor::dataforDataService (const std::string &s, packetdata *d)
                 continue;
 
             if (sc.TMid != 03) {
-                std::clog << "fib-processor:" << "fatal error, expected data service";
+                std::clog << "fib-processor:" << "fatal error, expected data service" << std::endl;
                 return;
             }
 
@@ -1078,7 +1078,7 @@ void fib_processor::dataforDataService (const std::string &s, packetdata *d)
             return;
         }
     }
-    std::clog << "fib-processor:" << "service" << s << "insuffiently defined";
+    std::clog << "fib-processor:" << "service" << s << "insuffiently defined" << std::endl;
 }
 
 void fib_processor::dataforAudioService (const std::string &s, audiodata *d)
@@ -1101,7 +1101,7 @@ void fib_processor::dataforAudioService (const std::string &s, audiodata *d)
                 continue;
 
             if (sc.TMid != 00) {
-                std::clog << "fib-processor:" << "fatal error, expected audio service";
+                std::clog << "fib-processor:" << "fatal error, expected audio service" << std::endl;
                 return;
             }
             d->defined     = true;
@@ -1118,7 +1118,7 @@ void fib_processor::dataforAudioService (const std::string &s, audiodata *d)
             return;
         }
     }
-    std::clog << "fib-processor:" << "service" << s << "insuffiently defined";
+    std::clog << "fib-processor:" << "service" << s << "insuffiently defined" << std::endl;
 }
 
 bool fib_processor::syncReached()

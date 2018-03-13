@@ -127,7 +127,7 @@ void ofdmDecoder::workerthread(void)
         }
     }
 
-    std::clog << "OFDM-decoder:" <<  "closing down now";
+    std::clog << "OFDM-decoder:" <<  "closing down now" << std::endl;
 }
 
 /**

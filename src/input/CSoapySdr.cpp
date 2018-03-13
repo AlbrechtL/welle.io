@@ -40,7 +40,7 @@ CSoapySdr::CSoapySdr() :
     m_spectrumSampleBuffer(8192)
 {
     m_running = false;
-    std::clog << "SoapySdr";
+    std::clog << "SoapySdr" << std::endl;
 }
 
 CSoapySdr::~CSoapySdr()
@@ -72,7 +72,7 @@ void CSoapySdr::setFrequency(int32_t Frequency)
         Frequency = m_device->getFrequency(SOAPY_SDR_RX, 0);
         std::clog << "OutputSoapySDR:Actual frequency: " <<
             Frequency / 1000.0 <<
-            " kHz.";
+            " kHz." << std::endl;
     }
 }
 
@@ -93,16 +93,16 @@ bool CSoapySdr::restart()
     {
         ss << "  " << it.first << "=" << it.second;
     }
-    std::clog << ss.str().c_str();
+    std::clog << ss.str().c_str() << std::endl;
 
     m_device->setMasterClockRate(INPUT_RATE*16);
     std::clog << "SoapySDR master clock rate set to " <<
-        m_device->getMasterClockRate()/1000.0 << " kHz";
+        m_device->getMasterClockRate()/1000.0 << " kHz" << std::endl;
 
     m_device->setSampleRate(SOAPY_SDR_RX, 0, INPUT_RATE);
     std::clog << "OutputSoapySDR:Actual RX rate: " <<
         m_device->getSampleRate(SOAPY_SDR_RX, 0) / 1000.0 <<
-        " ksps.";
+        " ksps." << std::endl;
 
     if (!m_antenna.empty())
         m_device->setAntenna(SOAPY_SDR_RX, 0, m_antenna);
@@ -164,7 +164,7 @@ float CSoapySdr::setGain(int32_t Gain)
     if (m_device != nullptr) {
         m_device->setGain(SOAPY_SDR_RX, 0, Gain);
         float g = m_device->getGain(SOAPY_SDR_RX, 0);
-        std::clog << "Soapy gain is " << g;
+        std::clog << "Soapy gain is " << g << std::endl;
         return g;
     }
     return 0;
@@ -200,7 +200,7 @@ void CSoapySdr::workerthread()
     std::vector<size_t> channels;
     channels.push_back(0);
     auto device = m_device;
-    std::clog << " *************** Setup soapy stream";
+    std::clog << " *************** Setup soapy stream" << std::endl;
     auto stream = device->setupStream(SOAPY_SDR_RX, "CF32", channels);
     assert(stream != nullptr);
 
@@ -209,10 +209,10 @@ void CSoapySdr::workerthread()
         process(stream);
     }
     catch (std::exception& e) {
-        std::clog << " *************** Exception caught in soapy: " << e.what();
+        std::clog << " *************** Exception caught in soapy: " << e.what() << std::endl;
     }
 
-    std::clog << " *************** Close soapy stream";
+    std::clog << " *************** Close soapy stream" << std::endl;
     device->closeStream(stream);
     m_running = false;
 }
@@ -247,7 +247,7 @@ void CSoapySdr::process(SoapySDR::Stream *stream)
 
         if (ret < 0) {
             std::clog << " *************** Unexpected stream error " <<
-                SoapySDR::errToStr(ret);
+                SoapySDR::errToStr(ret) << std::endl;
             m_running = false;
         }
         else {

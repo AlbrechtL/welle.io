@@ -76,7 +76,7 @@ CRTL_SDR::CRTL_SDR(CRadioController &RadioController) :
 
     this->RadioController = &RadioController;
 
-    std::clog << "RTL_SDR:" << "Open rtl-sdr";
+    std::clog << "RTL_SDR:" << "Open rtl-sdr" << std::endl;
 
     open = false;
     isAGC = false;
@@ -94,12 +94,12 @@ CRTL_SDR::CRTL_SDR(CRadioController &RadioController) :
     uint32_t deviceCount = rtlsdr_get_device_count();
     if (deviceCount == 0)
     {
-        std::clog << "RTL_SDR:" << "No devices found";
+        std::clog << "RTL_SDR:" << "No devices found" << std::endl;
         throw 0;
     }
     else
     {
-        std::clog << "RTL_SDR:" << "Found" << deviceCount << "devices. Uses the first working one";
+        std::clog << "RTL_SDR:" << "Found" << deviceCount << "devices. Uses the first working one" << std::endl;
     }
 
     //	Iterate over all found rtl-sdr devices and try to open it. Stops if one device is successfull opened.
@@ -108,14 +108,14 @@ CRTL_SDR::CRTL_SDR(CRadioController &RadioController) :
         ret = rtlsdr_open(&device, i);
         if (ret >= 0)
         {
-            std::clog << "RTL_SDR:" << "Opening rtl-sdr device" << i;
+            std::clog << "RTL_SDR:" << "Opening rtl-sdr device" << i << std::endl;
             break;
         }
     }
 
     if (ret < 0)
     {
-        std::clog << "RTL_SDR:" << "Opening rtl-sdr failed";
+        std::clog << "RTL_SDR:" << "Opening rtl-sdr failed" << std::endl;
         throw 0;
     }
 
@@ -125,18 +125,18 @@ CRTL_SDR::CRTL_SDR(CRadioController &RadioController) :
     ret = rtlsdr_set_sample_rate(device, INPUT_RATE);
     if (ret < 0)
     {
-        std::clog << "RTL_SDR:" << "Setting sample rate failed";
+        std::clog << "RTL_SDR:" << "Setting sample rate failed" << std::endl;
         throw 0;
     }
 
     // Get tuner gains
     GainsCount = rtlsdr_get_tuner_gains(device, NULL);
-    std::clog << "RTL_SDR:" << "Supported gain values" << GainsCount;
+    std::clog << "RTL_SDR:" << "Supported gain values" << GainsCount << std::endl;
     gains.resize(GainsCount);
     GainsCount = rtlsdr_get_tuner_gains(device, gains.data());
 
     for (int i = GainsCount; i > 0; i--)
-        std::clog << "RTL_SDR:" << "gain" << (gains[i - 1] / 10.0);
+        std::clog << "RTL_SDR:" << "gain" << (gains[i - 1] / 10.0) << std::endl;
 
     // Always use manual gain, the AGC is implemented in software
     rtlsdr_set_tuner_gain_mode(device, 1);
@@ -212,19 +212,19 @@ float CRTL_SDR::setGain(int32_t Gain)
 {
     if(Gain >= GainsCount)
     {
-        std::clog << "RTL_SDR:" << "Unknown gain count" << Gain;
+        std::clog << "RTL_SDR:" << "Unknown gain count" << Gain << std::endl;
         return 0;
     }
 
     CurrentGainCount = Gain;
     CurrentGain = gains[Gain];
 
-    //std::clog << "RTL_SDR:" << "Set gain to" << CurrentGain / 10.0 << "db";
+    //std::clog << "RTL_SDR:" << "Set gain to" << CurrentGain / 10.0 << "db" << std::endl;
 
     int ret = rtlsdr_set_tuner_gain(device, CurrentGain);
     if (ret != 0)
     {
-        std::clog << "RTL_SDR:" << "Setting gain failed";
+        std::clog << "RTL_SDR:" << "Setting gain failed" << std::endl;
     }
 
     return CurrentGain / 10.0;
@@ -301,7 +301,7 @@ void CRTL_SDR::AGCTimer(void)
                 if(CurrentGainCount > 0)
                 {
                     setGain(CurrentGainCount - 1);
-                    std::clog << "RTL_SDR:" << "Decreased gain to" << (float) CurrentGain / 10;
+                    std::clog << "RTL_SDR:" << "Decreased gain to" << (float) CurrentGain / 10 << std::endl;
                 }
             }
             else
@@ -320,7 +320,7 @@ void CRTL_SDR::AGCTimer(void)
                     if(NewMinValue >=0 && NewMaxValue <= 255)
                     {
                         setGain(CurrentGainCount + 1);
-                        std::clog << "RTL_SDR:" << "Increased gain to" << (float) CurrentGain / 10;
+                        std::clog << "RTL_SDR:" << "Increased gain to" << (float) CurrentGain / 10 << std::endl;
                     }
                 }
             }
@@ -330,7 +330,7 @@ void CRTL_SDR::AGCTimer(void)
             if(MinValue == 0 || MaxValue == 255)
             {
                 std::string Text = "ADC overload. Maybe you are using a to high gain.";
-                std::clog << "RTL_SDR:" << Text;
+                std::clog << "RTL_SDR:" << Text << std::endl;
                 RadioController->setInfoMessage(Text);
             }
         }
