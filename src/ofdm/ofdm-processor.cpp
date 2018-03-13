@@ -27,13 +27,11 @@
  *
  */
 
-#include <QDebug>
-
-#include    "ofdm-processor.h"
-#include    "fic-handler.h"
-#include    "msc-handler.h"
-#include    "CRadioController.h"
-#include    "fft.h"
+#include <iostream>
+#include "ofdm-processor.h"
+#include "fic-handler.h"
+#include "msc-handler.h"
+#include "CRadioController.h"
 //
 #define SEARCH_RANGE        (2 * 36)
 #define CORRELATION_LENGTH  24
@@ -52,7 +50,7 @@
 
 #define abs std::abs     // to suppress warning: using integer absolute value function 'abs' when argument is of floating point type [-Wabsolute-value]
 
-static  inline
+static inline
 int16_t valueFor (int16_t b) {
     int16_t res = 1;
     while (--b > 0)
@@ -68,14 +66,15 @@ ofdmProcessor::ofdmProcessor(
         ficHandler     *fic,
         int16_t    threshold,
         uint8_t    freqsyncMethod,
-        std::shared_ptr<std::vector<float> > ImpuleResponseBuffer) :
+        std::shared_ptr<std::vector<float> > impulseResponseBuffer) :
     phaseSynchronizer (params, threshold),
-    my_ofdmDecoder (params, mr, fic, msc)
+    my_ofdmDecoder (params, mr, fic, msc),
+    fft_handler(params->T_u)
 {
         int32_t i;
         this->theRig           = theRig;
         this->params           = params;
-        this->my_ficHandler    = fic;
+        this->myFicHandler     = fic;
         this->freqsyncMethod   = freqsyncMethod;
         this->T_null           = params->T_null;
         this->T_s              = params->T_s;
@@ -83,13 +82,11 @@ ofdmProcessor::ofdmProcessor(
         this->T_g              = T_s - T_u;
         this->T_F              = params->T_F;
         this->myRadioInterface = mr;
-        fft_handler            = new common_fft (T_u);
-        fft_buffer             = fft_handler->getVector ();
-        ofdmBuffer             = new DSPCOMPLEX [76 * T_s];
+        fft_buffer             = fft_handler.getVector();
+        ofdmBuffer.resize(76 * T_s);
         ofdmBufferIndex        = 0;
-        this->ImpuleResponseBuffer = ImpuleResponseBuffer;
+        this->impulseResponseBuffer = impulseResponseBuffer;
         ofdmSymbolCount        = 0;
-        tokenCount             = 0;
         sampleCnt              = 0;
         scanMode               = false;
         /**
@@ -110,27 +107,18 @@ ofdmProcessor::ofdmProcessor(
         fineCorrector       = 0;
         coarseCorrector     = 0;
         f2Correction        = true;
-        oscillatorTable     = new DSPCOMPLEX [INPUT_RATE];
+        oscillatorTable.resize(INPUT_RATE);
         localPhase          = 0;
 
         for (i = 0; i < INPUT_RATE; i ++)
             oscillatorTable [i] = DSPCOMPLEX (cos (2.0 * M_PI * i / INPUT_RATE),
                     sin (2.0 * M_PI * i / INPUT_RATE));
 
-        connect (this, SIGNAL (show_fineCorrector (int)),
-                myRadioInterface, SLOT (set_fineCorrectorDisplay (int)));
-        connect (this, SIGNAL (show_coarseCorrector (int)),
-                myRadioInterface, SLOT (set_coarseCorrectorDisplay (int)));
-        connect (this, SIGNAL (setSynced (char)),
-                myRadioInterface, SLOT (setSynced (char)));
-        connect (this, SIGNAL (setSignalPresent (bool)),
-                myRadioInterface, SLOT (setSignalPresent (bool)));
-
         bufferContent   = 0;
         //
         //  and for the correlation
-        refArg              = new float [CORRELATION_LENGTH];
-        correlationVector   = new float [SEARCH_RANGE + CORRELATION_LENGTH];
+        refArg.resize(CORRELATION_LENGTH);
+        correlationVector.resize(SEARCH_RANGE + CORRELATION_LENGTH);
         for (i = 0; i < CORRELATION_LENGTH; i ++)  {
             refArg [i] = arg (phaseSynchronizer. refTable [(T_u + i) % T_u] *
                     conj (phaseSynchronizer. refTable [(T_u + i + 1) % T_u]));
@@ -143,19 +131,14 @@ ofdmProcessor::~ofdmProcessor()
     running     = false;
 
     // Stop thread only if it is not running
-    if(threadHandle.joinable())
+    if (threadHandle.joinable()) {
         threadHandle.join();
-
-    delete[]    ofdmBuffer;
-    delete[]    oscillatorTable;
-    delete      fft_handler;
-    delete[]    correlationVector;
-    delete[]    refArg;
+    }
 }
 
 void    ofdmProcessor::start(void)
 {
-    qDebug() << "OFDM-processor:" <<  "start";
+    std::clog << "OFDM-processor:" <<  "start";
     coarseCorrector    = 0;
     fineCorrector      = 0;
     f2Correction       = true;
@@ -164,13 +147,13 @@ void    ofdmProcessor::start(void)
     localPhase         = 0;
     theRig->restart();
     running            = true;
-    threadHandle       = std::thread (&ofdmProcessor::run, this);
+    threadHandle       = std::thread(&ofdmProcessor::run, this);
 }
 
 
 /**
  * \brief getSample
- * Profiling shows that gettting a sample, together
+ * Profiling shows that getting a sample, together
  * with the frequency shift, is a real performance killer.
  * we therefore distinguish between getting a single sample
  * and getting a vector full of samples
@@ -185,7 +168,7 @@ DSPCOMPLEX ofdmProcessor::getSample (int32_t phase)
     if (bufferContent == 0) {
         bufferContent = theRig->getSamplesToRead ();
         while ((bufferContent == 0) && running) {
-            usleep (10);
+            std::this_thread::sleep_for(std::chrono::microseconds(10));
             bufferContent = theRig->getSamplesToRead ();
         }
     }
@@ -202,13 +185,13 @@ DSPCOMPLEX ofdmProcessor::getSample (int32_t phase)
     //  first: adjust frequency. We need Hz accuracy
     localPhase  -= phase;
     localPhase  = (localPhase + INPUT_RATE) % INPUT_RATE;
-    temp        *= oscillatorTable [localPhase];
+    temp        *= oscillatorTable[localPhase];
     sLevel      = 0.00001 * jan_abs (temp) + (1 - 0.00001) * sLevel;
 #define N   5
     sampleCnt   ++;
     if (++ sampleCnt > INPUT_RATE / N) {
-        show_fineCorrector   (fineCorrector);
-        show_coarseCorrector (coarseCorrector / KHz (1));
+        myRadioInterface->set_fineCorrectorDisplay(fineCorrector);
+        myRadioInterface->set_coarseCorrectorDisplay(coarseCorrector / KHz(1));
         sampleCnt = 0;
     }
     return temp;
@@ -223,7 +206,7 @@ void ofdmProcessor::getSamples (DSPCOMPLEX *v, int16_t n, int32_t phase)
     if (n > bufferContent) {
         bufferContent = theRig->getSamplesToRead ();
         while ((bufferContent < n) && running) {
-            usleep (10);
+            std::this_thread::sleep_for(std::chrono::microseconds(10));
             bufferContent = theRig->getSamplesToRead ();
         }
     }
@@ -239,14 +222,14 @@ void ofdmProcessor::getSamples (DSPCOMPLEX *v, int16_t n, int32_t phase)
     for (i = 0; i < n; i ++) {
         localPhase   -= phase;
         localPhase   = (localPhase + INPUT_RATE) % INPUT_RATE;
-        v [i]    *= oscillatorTable [localPhase];
+        v [i]    *= oscillatorTable[localPhase];
         sLevel   = 0.00001 * jan_abs (v [i]) + (1 - 0.00001) * sLevel;
     }
 
     sampleCnt   += n;
     if (sampleCnt > INPUT_RATE / N) {
-        show_fineCorrector   (fineCorrector);
-        show_coarseCorrector (coarseCorrector / KHz (1));
+        myRadioInterface->set_fineCorrectorDisplay(fineCorrector);
+        myRadioInterface->set_coarseCorrectorDisplay(coarseCorrector / KHz(1));
         sampleCnt = 0;
     }
 }
@@ -285,7 +268,7 @@ void ofdmProcessor::run(void)
         }
 notSynced:
         if (scanMode && ++attempts > 5) {
-            emit (setSignalPresent (false));
+            myRadioInterface->setSignalPresent(false);
             scanMode  = false;
             attempts  = 0;
         }
@@ -310,7 +293,7 @@ notSynced:
          * here we start looking for the null level, i.e. a dip
          */
         counter  = 0;
-        setSynced (false);
+        myRadioInterface->setSynced(false);
         while (currentStrength / 50  > 0.50 * sLevel) {
             DSPCOMPLEX sample =
                 getSample (coarseCorrector + fineCorrector);
@@ -360,16 +343,16 @@ SyncOnPhase:
          * as long as we can be sure that the first sample to be identified
          * is part of the samples read.
          */
-        getSamples (ofdmBuffer, T_u, coarseCorrector + fineCorrector);
+        getSamples (ofdmBuffer.data(), T_u, coarseCorrector + fineCorrector);
         //
         /// and then, call upon the phase synchronizer to verify/compute
         /// the real "first" sample
-        startIndex = phaseSynchronizer. findIndex (ofdmBuffer, ImpuleResponseBuffer);
+        startIndex = phaseSynchronizer. findIndex (ofdmBuffer.data(), impulseResponseBuffer);
         if (startIndex < 0) { // no sync, try again
             goto notSynced;
         }
         if (scanMode) {
-            emit (setSignalPresent (true));
+            myRadioInterface->setSignalPresent(true);
             scanMode  = false;
             attempts  = 0;
         }
@@ -377,7 +360,7 @@ SyncOnPhase:
          * Once here, we are synchronized, we need to copy the data we
          * used for synchronization for block 0
          */
-        memmove (ofdmBuffer, &ofdmBuffer [startIndex],
+        memmove (ofdmBuffer.data(), &ofdmBuffer[startIndex],
                 (params->T_u - startIndex) * sizeof (DSPCOMPLEX));
         ofdmBufferIndex  = params->T_u - startIndex;
 
@@ -388,18 +371,18 @@ SyncOnPhase:
          * first datablock.
          * We read the missing samples in the ofdm buffer
          */
-        setSynced (true);
-        getSamples (&ofdmBuffer [ofdmBufferIndex],
+        myRadioInterface->setSynced(true);
+        getSamples (&ofdmBuffer[ofdmBufferIndex],
                 T_u - ofdmBufferIndex,
                 coarseCorrector + fineCorrector);
-        my_ofdmDecoder. processBlock_0 (ofdmBuffer);
+        my_ofdmDecoder. processBlock_0(ofdmBuffer.data());
         //
         //  Here we look only at the block_0 when we need a coarse
         //  frequency synchronization.
         //  The width is limited to 2 * 35 Khz (i.e. positive and negative)
-        f2Correction = !my_ficHandler->syncReached ();
+        f2Correction = !myFicHandler->syncReached ();
         if (f2Correction) {
-            int correction        = processBlock_0 (ofdmBuffer);
+            int correction        = processBlock_0(ofdmBuffer.data());
             if (correction != 100) {
                 coarseCorrector    += correction * params->carrierDiff;
                 if (abs (coarseCorrector) > Khz (35))
@@ -419,22 +402,22 @@ SyncOnPhase:
         FreqCorr     = DSPCOMPLEX (0, 0);
         for (ofdmSymbolCount = 1;
                 ofdmSymbolCount < 4; ofdmSymbolCount ++) {
-            getSamples (ofdmBuffer, T_s, coarseCorrector + fineCorrector);
+            getSamples (ofdmBuffer.data(), T_s, coarseCorrector + fineCorrector);
             for (i = (int)T_u; i < (int)T_s; i ++)
-                FreqCorr += ofdmBuffer [i] * conj (ofdmBuffer [i - T_u]);
+                FreqCorr += ofdmBuffer[i] * conj (ofdmBuffer[i - T_u]);
 
-            my_ofdmDecoder. decodeFICblock (ofdmBuffer, ofdmSymbolCount);
+            my_ofdmDecoder. decodeFICblock (ofdmBuffer.data(), ofdmSymbolCount);
         }
 
         /// and similar for the (params->L - 4) MSC blocks
         for (ofdmSymbolCount = 4;
                 ofdmSymbolCount <  (uint16_t)params->L;
                 ofdmSymbolCount ++) {
-            getSamples (ofdmBuffer, T_s, coarseCorrector + fineCorrector);
+            getSamples (ofdmBuffer.data(), T_s, coarseCorrector + fineCorrector);
             for (i = (int32_t)T_u; i < (int32_t)T_s; i ++)
-                FreqCorr += ofdmBuffer [i] * conj (ofdmBuffer [i - T_u]);
+                FreqCorr += ofdmBuffer[i] * conj (ofdmBuffer[i - T_u]);
 
-            my_ofdmDecoder. decodeMscblock (ofdmBuffer, ofdmSymbolCount);
+            my_ofdmDecoder. decodeMscblock(ofdmBuffer.data(), ofdmSymbolCount);
         }
 
         //NewOffset:
@@ -449,7 +432,7 @@ SyncOnPhase:
          */
         syncBufferIndex  = 0;
         currentStrength  = 0;
-        getSamples (ofdmBuffer, T_null, coarseCorrector + fineCorrector);
+        getSamples (ofdmBuffer.data(), T_null, coarseCorrector + fineCorrector);
         /**
          * The first sample to be found for the next frame should be T_g
          * samples ahead
@@ -474,7 +457,7 @@ SyncOnPhase:
     catch (int e) {
         // TODO replace this
     }
-    qDebug() << "OFDM-processor:" <<  "closing down";
+    std::clog << "OFDM-processor:" <<  "closing down";
 }
 
 void ofdmProcessor::reset()
@@ -513,7 +496,7 @@ int16_t ofdmProcessor::processBlock_0 (DSPCOMPLEX *v)
     int16_t i, j, index = 100;
 
     memcpy (fft_buffer, v, T_u * sizeof (DSPCOMPLEX));
-    fft_handler->do_FFT ();
+    fft_handler.do_FFT();
     if (freqsyncMethod == 0)
         return getMiddle (fft_buffer);
     else
@@ -531,7 +514,7 @@ int16_t ofdmProcessor::processBlock_0 (DSPCOMPLEX *v)
             //  The phase differences are computed once
             for (i = 0; i < SEARCH_RANGE + CORRELATION_LENGTH; i ++) {
                 int16_t baseIndex = T_u - SEARCH_RANGE / 2 + i;
-                correlationVector [i] =
+                correlationVector[i] =
                     arg (fft_buffer [baseIndex % T_u] *
                             conj (fft_buffer [(baseIndex + 1) % T_u]));
             }
@@ -541,7 +524,7 @@ int16_t ofdmProcessor::processBlock_0 (DSPCOMPLEX *v)
             for (i = 0; i < SEARCH_RANGE; i ++) {
                 float sum = 0;
                 for (j = 0; j < CORRELATION_LENGTH; j ++) {
-                    sum += abs (refArg [j] * correlationVector [i + j]);
+                    sum += abs (refArg [j] * correlationVector[i + j]);
                     if (sum > MMax) {
                         oldMMax = MMax;
                         MMax        = sum;

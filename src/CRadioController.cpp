@@ -76,12 +76,13 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, CDABParams& 
     connect(&StationTimer, &QTimer::timeout, this, &CRadioController::StationTimerTimeout);
     connect(&ChannelTimer, &QTimer::timeout, this, &CRadioController::ChannelTimerTimeout);
     connect(&SyncCheckTimer, &QTimer::timeout, this, &CRadioController::SyncCheckTimerTimeout);
+
+    connect(this, SIGNAL(SwitchToNextChannel(bool)), this, SLOT(NextChannel(bool)));
 }
 
 CRadioController::~CRadioController(void)
 {
     if (my_ficHandler) disconnect(my_ficHandler, 0, 0, 0);
-    if (my_ofdmProcessor) disconnect(my_ofdmProcessor, 0, 0, 0);
 
     // Shutdown the demodulator and decoder in the correct order
     delete my_ofdmProcessor;
@@ -141,9 +142,8 @@ void CRadioController::closeDevice()
     qDebug() << "RadioController:" << "Close device";
 
     if (my_ofdmProcessor) {
-        disconnect(my_ofdmProcessor, 0, 0, 0);
         delete my_ofdmProcessor;
-        my_ofdmProcessor = NULL;
+        my_ofdmProcessor = nullptr;
     }
 
     if (my_ficHandler) {
@@ -1068,8 +1068,8 @@ void CRadioController::setSignalPresent(bool isSignal)
         emit isSignalChanged(mIsSignal);
     }
 
-    if(isChannelScan)
-        NextChannel(isSignal);
+    if (isChannelScan)
+        emit SwitchToNextChannel(isSignal);
 }
 
 void CRadioController::newAudio(int SampleRate)

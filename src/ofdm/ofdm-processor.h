@@ -33,28 +33,24 @@
  *
  */
 #include    "DabConstants.h"
-#include    <QThread>
-#include    <QObject>
 #include    <thread>
-#include    "stdint.h"
+#include    <atomic>
+#include    <vector>
 #include    "phasereference.h"
 #include    "ofdm-decoder.h"
 #include    "CVirtualInput.h"
-#include    "ringbuffer.h"
+#include    "fft.h"
 //
 //  Note:
 //  It was found that enlarging the buffersize to e.g. 8192
 //  cannot be handled properly by the underlying system.
 #define DUMPSIZE        4096
 class   CRadioController;
-class   common_fft;
-class   ofdmDecoder;
 class   ficHandler;
 class   mscHandler;
 
-class ofdmProcessor: public QThread
+class ofdmProcessor
 {
-    Q_OBJECT
     public:
         ofdmProcessor(
                 CVirtualInput  *theRig,
@@ -64,26 +60,26 @@ class ofdmProcessor: public QThread
                 ficHandler     *fic,
                 int16_t    threshold,
                 uint8_t    freqsyncMethod,
-                std::shared_ptr<std::vector<float>> ImpuleResponseBuffer);
-        ~ofdmProcessor  (void);
-        void    reset           (void);
-        void    stop        (void);
-        void    setOffset   (int32_t);
-        void    coarseCorrectorOn   (void);
-        void    coarseCorrectorOff  (void);
-        void    set_scanMode        (bool);
-        void    start   (void);
+                std::shared_ptr<std::vector<float>> impulseResponseBuffer);
+        ~ofdmProcessor(void);
+        void reset(void);
+        void stop(void);
+        void setOffset(int32_t);
+        void coarseCorrectorOn(void);
+        void coarseCorrectorOff(void);
+        void set_scanMode(bool);
+        void start(void);
 
     private:
         std::thread threadHandle;
         int32_t syncBufferIndex;
-        CVirtualInput   *theRig;
-        CDABParams  *params;
-        CRadioController    *myRadioInterface;
-        ficHandler  *my_ficHandler;
-        std::shared_ptr<std::vector<float>> ImpuleResponseBuffer;
+        CVirtualInput    *theRig;
+        CDABParams       *params;
+        CRadioController *myRadioInterface;
+        ficHandler       *myFicHandler;
+        std::shared_ptr<std::vector<float>> impulseResponseBuffer;
 
-        bool        running;
+        std::atomic<bool> running;
         int16_t     gain;
         int32_t     T_null;
         int32_t     T_u;
@@ -91,43 +87,30 @@ class ofdmProcessor: public QThread
         int32_t     T_g;
         int32_t     T_F;
         float       sLevel;
-        DSPCOMPLEX  *dataBuffer;
-        int32_t     FreqOffset;
-        DSPCOMPLEX  *oscillatorTable;
+        std::vector<DSPCOMPLEX> oscillatorTable;
         int32_t     localPhase;
         int16_t     fineCorrector;
         int32_t     coarseCorrector;
 
         uint8_t     freqsyncMethod;
         bool        f2Correction;
-        int32_t     tokenCount;
-        DSPCOMPLEX  *ofdmBuffer;
+        std::vector<DSPCOMPLEX> ofdmBuffer;
         uint32_t    ofdmBufferIndex;
         uint32_t    ofdmSymbolCount;
-        phaseReference  phaseSynchronizer;
+        phaseReference phaseSynchronizer;
         ofdmDecoder my_ofdmDecoder;
-        DSPFLOAT    avgCorr;
-        float       *correlationVector;
-        float       *refArg;
+        std::vector<float> correlationVector;
+        std::vector<float> refArg;
         int32_t     sampleCnt;
-        int32_t     inputSize;
-        int32_t     inputPointer;
-        DSPCOMPLEX  getSample   (int32_t);
-        void        getSamples  (DSPCOMPLEX *, int16_t, int32_t);
+        DSPCOMPLEX  getSample(int32_t);
+        void        getSamples(DSPCOMPLEX *, int16_t, int32_t);
         bool        scanMode;
-        virtual void        run     (void);
+        void        run(void);
         int32_t     bufferContent;
-        bool        isReset;
-        int16_t     processBlock_0  (DSPCOMPLEX *);
-        int16_t     getMiddle   (DSPCOMPLEX *);
-        common_fft  *fft_handler;
+        int16_t     processBlock_0(DSPCOMPLEX *);
+        int16_t     getMiddle(DSPCOMPLEX *);
+        common_fft  fft_handler;
         DSPCOMPLEX  *fft_buffer;
-
-    signals:
-        void        show_fineCorrector  (int);
-        void        show_coarseCorrector    (int);
-        void        setSynced       (char);
-        void        setSignalPresent    (bool);
 };
 #endif
 
