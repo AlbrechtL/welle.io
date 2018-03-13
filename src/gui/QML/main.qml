@@ -318,7 +318,8 @@ ApplicationWindow {
 
         Loader {
             id: stationView
-            Layout.minimumWidth: Units.dp(350)
+            Layout.minimumWidth: Units.dp(150)
+            Layout.preferredWidth: Units.dp(300)
             Layout.margins: Units.dp(10)
             sourceComponent: channelBrowser
         }
@@ -333,7 +334,8 @@ ApplicationWindow {
 
             Loader {
                 id: stationView
-                Layout.minimumWidth: Units.dp(350)
+                Layout.minimumWidth: Units.dp(150)
+                Layout.preferredWidth: Units.dp(300)
                 Layout.margins: Units.dp(10)
                 sourceComponent: channelBrowser
             }
@@ -361,12 +363,14 @@ ApplicationWindow {
 
             Loader {
                 id: stationView
-                Layout.minimumWidth: Units.dp(300)
+                Layout.minimumWidth: Units.dp(150)
+                Layout.preferredWidth: Units.dp(300)
                 Layout.margins: Units.dp(10)
                 sourceComponent: stackViewMain
             }
             Loader {
                 id: radioInformationViewLoader
+                Layout.minimumWidth: Units.dp(50)
                 Layout.preferredWidth: Units.dp(400)
                 Layout.margins: Units.dp(10)
                 sourceComponent: radioInformationView
@@ -388,18 +392,21 @@ ApplicationWindow {
 
             Loader {
                 id: stationView
-                Layout.minimumWidth: Units.dp(300)
+                Layout.minimumWidth: Units.dp(150)
+                Layout.preferredWidth: Units.dp(300)
                 Layout.margins: Units.dp(10)
                 sourceComponent: stackViewMain
             }
             Loader {
                 id: radioInformationViewLoader
+                Layout.minimumWidth: Units.dp(50)
                 Layout.preferredWidth: Units.dp(400)
                 Layout.margins: Units.dp(10)
                 sourceComponent: radioInformationView
             }
             Loader {
                 id: expertViewLoader
+                Layout.minimumWidth: Units.dp(50)
                 Layout.margins: Units.dp(10)
                 Layout.fillWidth: true
                 sourceComponent: expertView
