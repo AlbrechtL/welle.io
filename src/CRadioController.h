@@ -158,13 +158,16 @@ public:
     void showLabel(QString Label);
     void showMOT(QByteArray Data, int Subtype, QString s);
     void show_snr(int SNR);
+    void set_fineCorrectorDisplay(int FineFrequencyCorr);
+    void set_coarseCorrectorDisplay(int CoarseFreuqencyCorr);
+    void setSynced(char isSync);
+    void setSignalPresent(bool isSignal);
 
 private:
     void Initialise(void);
     void ResetTechnicalData(void);
     void DeviceRestart(void);
     void DecoderRestart(bool isScan);
-    void NextChannel(bool isWait);
     void UpdateGUIData();
     void SetFrequencyCorrection(int FrequencyCorrection);
 
@@ -237,6 +240,10 @@ private slots:
     void StationTimerTimeout(void);
     void ChannelTimerTimeout(void);
     void SyncCheckTimerTimeout(void);
+    void NextChannel(bool isWait);
+
+signals:
+    void SwitchToNextChannel(bool isWait);
 
 #ifndef Q_OS_ANDROID
 signals:
@@ -283,10 +290,6 @@ public slots:
     void changeinConfiguration(void);
     void displayDateTime(int* DateTime);
     void show_ficSuccess(bool isFICCRC);
-    void set_fineCorrectorDisplay(int FineFrequencyCorr);
-    void set_coarseCorrectorDisplay(int CoarseFreuqencyCorr);
-    void setSynced(char isSync);
-    void setSignalPresent(bool isSignal);
     void onEventLoopStarted(void);
     void setErrorMessage(QString Text);
     /* head will be translated, text will be left untranslated */
