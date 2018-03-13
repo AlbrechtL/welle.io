@@ -297,7 +297,7 @@ bool mp4Processor::processSuperframe(uint8_t frameBytes[], int16_t base)
             }
         }
         else {
-            qDebug() << "mp4processor:" <<  "CRC failure with dab+ frame" << i << "(" << num_aus << ")";
+            std::clog << "mp4processor:" <<  "CRC failure with dab+ frame" << i << "(" << num_aus << ")" << std::endl;
         }
     }
     return true;
@@ -349,18 +349,18 @@ void  mp4Processor::handle_aacFrame(
         switch(aacAudioMode)
         {
         case AACAudioMode::Mono:
-            qDebug() << "mp4processor:" <<  "Detected mono audio signal";
+            std::clog << "mp4processor:" <<  "Detected mono audio signal" << std::endl;
             myRadioInterface->setStereo(false);
             break;
         case AACAudioMode::Stereo:
-            qDebug() << "mp4processor:" <<  "Detected stereo audio signal";
+            std::clog << "mp4processor:" <<  "Detected stereo audio signal" << std::endl;
             myRadioInterface->setStereo(true);
             break;
         case AACAudioMode::ParametricStereo:
-            qDebug() << "mp4processor:" <<  "Detected parametric stereo audio signal";
+            std::clog << "mp4processor:" <<  "Detected parametric stereo audio signal" << std::endl;
             myRadioInterface->setStereo(true);
             break;
-        default: qDebug() << "mp4processor:" <<  "Unknown audio mode";
+        default: std::clog << "mp4processor:" <<  "Unknown audio mode" << std::endl;
         }
     }
 }
