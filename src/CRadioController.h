@@ -289,7 +289,10 @@ public slots:
     void setSignalPresent(bool isSignal);
     void onEventLoopStarted(void);
     void setErrorMessage(QString Text);
+    /* head will be translated, text will be left untranslated */
+    void setErrorMessage(const std::string& head, const std::string& text = "");
     void setInfoMessage(QString Text);
+    void setInfoMessage(const std::string& Text);
 };
 
 #endif // CRADIOCONTROLLER_H

@@ -27,7 +27,7 @@
  *
  */
 
-#include <QDebug>
+#include <iostream>
 
 #include "CRTL_SDR.h"
 
@@ -76,12 +76,11 @@ CRTL_SDR::CRTL_SDR(CRadioController &RadioController) :
 
     this->RadioController = &RadioController;
 
-    qDebug() << "RTL_SDR:" << "Open rtl-sdr";
+    std::clog << "RTL_SDR:" << "Open rtl-sdr";
 
     open = false;
     isAGC = false;
     isHwAGC = false;
-    RTL_SDR_Thread = NULL;
     lastFrequency = KHz(94700); // just a dummy
     sampleCounter = 0;
     FrequencyOffset = 0;
@@ -95,12 +94,12 @@ CRTL_SDR::CRTL_SDR(CRadioController &RadioController) :
     uint32_t deviceCount = rtlsdr_get_device_count();
     if (deviceCount == 0)
     {
-        qDebug() << "RTL_SDR:" << "No devices found";
+        std::clog << "RTL_SDR:" << "No devices found";
         throw 0;
     }
     else
     {
-        qDebug() << "RTL_SDR:" << "Found" << deviceCount << "devices. Uses the first working one";
+        std::clog << "RTL_SDR:" << "Found" << deviceCount << "devices. Uses the first working one";
     }
 
     //	Iterate over all found rtl-sdr devices and try to open it. Stops if one device is successfull opened.
@@ -109,14 +108,14 @@ CRTL_SDR::CRTL_SDR(CRadioController &RadioController) :
         ret = rtlsdr_open(&device, i);
         if (ret >= 0)
         {
-            qDebug() << "RTL_SDR:" << "Opening rtl-sdr device" << i;
+            std::clog << "RTL_SDR:" << "Opening rtl-sdr device" << i;
             break;
         }
     }
 
     if (ret < 0)
     {
-        qDebug() << "RTL_SDR:" << "Opening rtl-sdr failed";
+        std::clog << "RTL_SDR:" << "Opening rtl-sdr failed";
         throw 0;
     }
 
@@ -126,18 +125,18 @@ CRTL_SDR::CRTL_SDR(CRadioController &RadioController) :
     ret = rtlsdr_set_sample_rate(device, INPUT_RATE);
     if (ret < 0)
     {
-        qDebug() << "RTL_SDR:" << "Setting sample rate failed";
+        std::clog << "RTL_SDR:" << "Setting sample rate failed";
         throw 0;
     }
 
     // Get tuner gains
     GainsCount = rtlsdr_get_tuner_gains(device, NULL);
-    qDebug() << "RTL_SDR:" << "Supported gain values" << GainsCount;
+    std::clog << "RTL_SDR:" << "Supported gain values" << GainsCount;
     gains.resize(GainsCount);
     GainsCount = rtlsdr_get_tuner_gains(device, gains.data());
 
     for (int i = GainsCount; i > 0; i--)
-        qDebug() << "RTL_SDR:" << "gain" << (gains[i - 1] / 10.0);
+        std::clog << "RTL_SDR:" << "gain" << (gains[i - 1] / 10.0);
 
     // Always use manual gain, the AGC is implemented in software
     rtlsdr_set_tuner_gain_mode(device, 1);
@@ -148,25 +147,16 @@ CRTL_SDR::CRTL_SDR(CRadioController &RadioController) :
     // Enable AGC by default
     setAgc(true);
 
-    connect(&AGCTimer, &QTimer::timeout, this, &CRTL_SDR::AGCTimerTimeout);
-
     return;
 }
 
 CRTL_SDR::~CRTL_SDR(void)
 {
-    if (RTL_SDR_Thread != NULL)
+    if (RTL_SDR_Thread.joinable())
     { // we are running
         rtlsdr_cancel_async(device);
-        if (RTL_SDR_Thread != NULL)
-        {
-            while (!RTL_SDR_Thread->isFinished())
-                usleep(100);
-            delete RTL_SDR_Thread;
-        }
+        RTL_SDR_Thread.join();
     }
-
-    RTL_SDR_Thread = NULL;
 
     if (open)
         rtlsdr_close(device);
@@ -184,12 +174,8 @@ bool CRTL_SDR::restart(void)
 {
     int ret;
 
-    if (RTL_SDR_Thread != NULL)
-    {
-        if(RTL_SDR_Thread->isRunning())
-            return true;
-        else
-            return false;
+    if (rtlsdr_running) {
+        return true;
     }
 
     SampleBuffer.FlushRingBuffer();
@@ -199,48 +185,46 @@ bool CRTL_SDR::restart(void)
         return false;
 
     rtlsdr_set_center_freq(device, lastFrequency + FrequencyOffset);
-    RTL_SDR_Thread = new CRTL_SDR_Thread(this);
+    rtlsdr_running = true;
 
-    AGCTimer.start(50);
+    RTL_SDR_Thread = std::thread(&CRTL_SDR::rtlsdr_read_async_wrapper, this);
+    AGC_Thread = std::thread(&CRTL_SDR::AGCTimer, this);
 
     return true;
 }
 
 void CRTL_SDR::stop(void)
 {
-    if (RTL_SDR_Thread == NULL)
+    if (not rtlsdr_running)
         return;
 
-    AGCTimer.stop();
-
     rtlsdr_cancel_async(device);
-    if (RTL_SDR_Thread != NULL) {
-        while (!RTL_SDR_Thread->isFinished())
-            usleep(100);
-
-        delete RTL_SDR_Thread;
+    if (RTL_SDR_Thread.joinable()) {
+        RTL_SDR_Thread.join();
     }
 
-    RTL_SDR_Thread = NULL;
+    if (AGC_Thread.joinable()) {
+        AGC_Thread.join();
+    }
 }
 
 float CRTL_SDR::setGain(int32_t Gain)
 {
     if(Gain >= GainsCount)
     {
-        qDebug() << "RTL_SDR:" << "Unknown gain count" << Gain;
+        std::clog << "RTL_SDR:" << "Unknown gain count" << Gain;
         return 0;
     }
 
     CurrentGainCount = Gain;
     CurrentGain = gains[Gain];
 
-    //qDebug() << "RTL_SDR:" << "Set gain to" << CurrentGain / 10.0 << "db";
+    //std::clog << "RTL_SDR:" << "Set gain to" << CurrentGain / 10.0 << "db";
 
     int ret = rtlsdr_set_tuner_gain(device, CurrentGain);
     if (ret != 0)
     {
-        qDebug() << "RTL_SDR:" << "Setting gain failed";
+        std::clog << "RTL_SDR:" << "Setting gain failed";
     }
 
     return CurrentGain / 10.0;
@@ -275,7 +259,7 @@ bool CRTL_SDR::isHwAgcSupported()
     return true;
 }
 
-QString CRTL_SDR::getName()
+std::string CRTL_SDR::getName()
 {
     char manufact[256] = {0};
     char product[256] = {0};
@@ -283,7 +267,13 @@ QString CRTL_SDR::getName()
 
     rtlsdr_get_usb_strings(device, manufact, product, serial);
 
-    return QString(manufact) + ", " + QString(product) + ", " + QString(serial);
+    std::string name;
+    name += manufact;
+    name += ", ";
+    name += product;
+    name += ", ";
+    name += serial;
+    return name;
 }
 
 CDeviceID CRTL_SDR::getID()
@@ -297,53 +287,52 @@ void CRTL_SDR::setMinMaxValue(uint8_t MinValue, uint8_t MaxValue)
     this->MaxValue = MaxValue;
 }
 
-CRadioController *CRTL_SDR::getRadioController()
+void CRTL_SDR::AGCTimer(void)
 {
-    return RadioController;
-}
+    while (rtlsdr_running) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
-void CRTL_SDR::AGCTimerTimeout(void)
-{
-    if(isAGC)
-    {
-        // Check for overloading
-        if(MinValue == 0 || MaxValue == 255)
+        if (isAGC)
         {
-            // We have to decrease the gain
-            if(CurrentGainCount > 0)
+            // Check for overloading
+            if(MinValue == 0 || MaxValue == 255)
             {
-                setGain(CurrentGainCount - 1);
-                qDebug() << "RTL_SDR:" << "Decreased gain to" << (float) CurrentGain / 10;
-            }
-        }
-        else
-        {
-            if(CurrentGainCount < (GainsCount - 1))
-            {
-                // Calc if a gain increase overloads the device. Calc it from the gain values
-                int NewGain = gains[CurrentGainCount + 1];
-                float DeltaGain = ((float) NewGain / 10) - ((float) CurrentGain / 10);
-                float LinGain = pow(10, DeltaGain / 20);
-
-                int NewMaxValue = (float) MaxValue * LinGain;
-                int NewMinValue = (float) MinValue / LinGain;
-
-                // We have to increase the gain
-                if(NewMinValue >=0 && NewMaxValue <= 255)
+                // We have to decrease the gain
+                if(CurrentGainCount > 0)
                 {
-                    setGain(CurrentGainCount + 1);
-                    qDebug() << "RTL_SDR:" << "Increased gain to" << (float) CurrentGain / 10;
+                    setGain(CurrentGainCount - 1);
+                    std::clog << "RTL_SDR:" << "Decreased gain to" << (float) CurrentGain / 10;
+                }
+            }
+            else
+            {
+                if(CurrentGainCount < (GainsCount - 1))
+                {
+                    // Calc if a gain increase overloads the device. Calc it from the gain values
+                    int NewGain = gains[CurrentGainCount + 1];
+                    float DeltaGain = ((float) NewGain / 10) - ((float) CurrentGain / 10);
+                    float LinGain = pow(10, DeltaGain / 20);
+
+                    int NewMaxValue = (float) MaxValue * LinGain;
+                    int NewMinValue = (float) MinValue / LinGain;
+
+                    // We have to increase the gain
+                    if(NewMinValue >=0 && NewMaxValue <= 255)
+                    {
+                        setGain(CurrentGainCount + 1);
+                        std::clog << "RTL_SDR:" << "Increased gain to" << (float) CurrentGain / 10;
+                    }
                 }
             }
         }
-    }
-    else // AGC is off
-    {
-        if(MinValue == 0 || MaxValue == 255)
+        else // AGC is off
         {
-            QString Text = QObject::tr("ADC overload. Maybe you are using a to high gain.");
-            qDebug().noquote() << "RTL_SDR:" << Text;
-            RadioController->setInfoMessage(Text);
+            if(MinValue == 0 || MaxValue == 255)
+            {
+                std::string Text = "ADC overload. Maybe you are using a to high gain.";
+                std::clog << "RTL_SDR:" << Text;
+                RadioController->setInfoMessage(Text);
+            }
         }
     }
 }
@@ -386,24 +375,18 @@ void CRTL_SDR::reset(void)
     SampleBuffer.FlushRingBuffer();
 }
 
-// CRTL_SDR_Thread
-CRTL_SDR_Thread::CRTL_SDR_Thread(CRTL_SDR *RTL_SDR)
+void CRTL_SDR::rtlsdr_read_async_wrapper()
 {
-    this->RTL_SDR = RTL_SDR;
-    start();
-}
-
-CRTL_SDR_Thread::~CRTL_SDR_Thread() {}
-
-void CRTL_SDR_Thread::run()
-{
-    rtlsdr_read_async(RTL_SDR->device,
+    rtlsdr_read_async(device,
                       (rtlsdr_read_async_cb_t)&RTLSDRCallBack,
-                      (void*)RTL_SDR, 0, READLEN_DEFAULT);
+                      (void*)this, 0, READLEN_DEFAULT);
 
-    CRadioController *RadioController = RTL_SDR->getRadioController();
-    if(RadioController)
-        RadioController->setErrorMessage(QObject::tr("RTL-SDR is unplugged."));
+    using namespace std::string_literals;
 
-    exit(1); // Error
+    if (RadioController) {
+        RadioController->setErrorMessage("RTL-SDR is unplugged."s);
+    }
+
+    rtlsdr_running = false;
 }
+

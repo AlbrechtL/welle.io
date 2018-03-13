@@ -44,7 +44,7 @@ public:
     int32_t getGainCount(void);
     void setAgc(bool AGC);
     void setHwAgc(bool hwAGC);
-    QString getName(void);
+    std::string getName(void);
     CDeviceID getID(void);
 };
 

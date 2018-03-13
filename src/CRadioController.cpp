@@ -227,6 +227,7 @@ void CRadioController::onEventLoopStarted()
     CSplashScreen::ShowMessage(tr("Init radio receiver"));
     Device = CInputFactory::GetDevice(*this, dabDevice);
 
+#ifdef HAVE_RTL_TCP
     // Set rtl_tcp settings
     if (Device->getID() == CDeviceID::RTL_TCP) {
         CRTL_TCP_Client* RTL_TCP_Client = (CRTL_TCP_Client*)Device;
@@ -234,12 +235,13 @@ void CRadioController::onEventLoopStarted()
         RTL_TCP_Client->setIP(ipAddress);
         RTL_TCP_Client->setPort(ipPort);
     }
+#endif // HAVE_RTL_TCP
 
     // Set rawfile settings
     if (Device->getID() == CDeviceID::RAWFILE) {
         CRAWFile* RAWFile = (CRAWFile*)Device;
 
-        RAWFile->setFileName(rawFile, rawFileFormat);
+        RAWFile->setFileName(rawFile.toStdString(), rawFileFormat.toStdString());
     }
 
 #ifdef HAVE_SOAPYSDR
@@ -247,15 +249,15 @@ void CRadioController::onEventLoopStarted()
         CSoapySdr *sdr = (CSoapySdr*)Device;
 
         if (!sdrDriverArgs.isEmpty()) {
-            sdr->setDriverArgs(sdrDriverArgs);
+            sdr->setDriverArgs(sdrDriverArgs.toStdString());
         }
 
         if (!sdrDriverArgs.isEmpty()) {
-            sdr->setAntenna(sdrAntenna);
+            sdr->setAntenna(sdrAntenna.toStdString());
         }
 
         if (!sdrClockSource.isEmpty()) {
-            sdr->setClockSource(sdrClockSource);
+            sdr->setClockSource(sdrClockSource.toStdString());
         }
     }
 #endif /* HAVE_SOAPYSDR */
@@ -547,7 +549,8 @@ QVariantMap CRadioController::GUIData(void) const
 
 void CRadioController::UpdateGUIData()
 {
-    mGUIData["DeviceName"] = (Device) ? Device->getName() : "";
+    mGUIData["DeviceName"] = Device ?
+        QString::fromStdString(Device->getName()) : "";
 
     // Init the GUI data map
     mGUIData["Status"] = Status;
@@ -752,9 +755,24 @@ void CRadioController::setErrorMessage(QString Text)
     emit showErrorMessage(Text);
 }
 
+void CRadioController::setErrorMessage(const std::string& head, const std::string& text)
+{
+    if (text.empty()) {
+        setErrorMessage(tr(head.c_str()));
+    }
+    else {
+        setErrorMessage(tr(head.c_str()) + ": " + QString::fromStdString(text));
+    }
+}
+
 void CRadioController::setInfoMessage(QString Text)
 {
     emit showInfoMessage(Text);
+}
+
+void CRadioController::setInfoMessage(const std::string& Text)
+{
+    emit showInfoMessage(tr(Text.c_str()));
 }
 
 /********************

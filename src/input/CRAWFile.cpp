@@ -27,7 +27,8 @@
  *
  */
 
-#include <QDebug>
+#include <string>
+#include <iostream>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,6 +37,8 @@
 #include <unistd.h>
 
 #include "CRAWFile.h"
+
+using namespace std::string_literals;
 
 static inline int64_t getMyTime(void)
 {
@@ -55,16 +58,15 @@ CRAWFile::CRAWFile(CRadioController &RadioController) :
     SpectrumSampleBuffer(8192)
 {
     this->RadioController = &RadioController;
-
-    readerOK = false;
 }
 
 CRAWFile::~CRAWFile(void)
 {
     ExitCondition = true;
     if (readerOK) {
-        while (isRunning())
-            usleep(100);
+        if (thread.joinable()) {
+            thread.join();
+        }
         fclose(filePointer);
     }
 }
@@ -113,7 +115,7 @@ void CRAWFile::setHwAgc(bool hwAGC)
     (void)hwAGC;
 }
 
-QString CRAWFile::getName()
+std::string CRAWFile::getName()
 {
     return "rawfile (" + FileName + ")";
 }
@@ -123,7 +125,7 @@ CDeviceID CRAWFile::getID()
     return CDeviceID::RAWFILE;
 }
 
-void CRAWFile::setFileName(QString FileName, QString FileFormat)
+void CRAWFile::setFileName(const std::string& FileName, const std::string& FileFormat)
 {
     this->FileName = FileName;
 
@@ -150,36 +152,34 @@ void CRAWFile::setFileName(QString FileName, QString FileFormat)
     else
     {
         this->FileFormat = CRAWFileFormat::Unknown;
-        QString Text = QObject::tr("Unknown RAW file format") + ": " + FileFormat;
-        qDebug() << "RAWFile:" << Text;
-        RadioController->setErrorMessage(Text);
+        std::clog << "RAWFile: unknown file format";
+        RadioController->setErrorMessage("Unknown RAW file format"s);
     }
 
-    filePointer = fopen(FileName.toLatin1().data(), "rb");
-    if (filePointer == NULL) {
-        QString Text = QObject::tr("Cannot open file") + ": " + FileName;
-        qDebug() << "RAWFile:"  << Text;
-        RadioController->setErrorMessage(Text);
+    filePointer = fopen(FileName.c_str(), "rb");
+    if (filePointer == nullptr) {
+        std::clog << "RAWFile: Cannot open file: " << FileName;
+        RadioController->setErrorMessage("Cannot open file", FileName);
         return;
     }
 
     readerOK = true;
     readerPausing = true;
     currPos = 0;
-    start();
+    thread = std::thread(&CRAWFile::run, this);
 }
 
 //	size is in I/Q pairs, file contains 8 bits values
 int32_t CRAWFile::getSamples(DSPCOMPLEX* V, int32_t size)
 {
-    if (filePointer == NULL)
+    if (filePointer == nullptr)
         return 0;
 
     while ((int32_t)(SampleBuffer.GetRingBufferReadAvailable()) < IQByteSize * size)
         if (readerPausing)
-            usleep(100000);
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
         else
-            msleep(100);
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     return convertSamples(SampleBuffer, V, size);
 }
@@ -208,13 +208,12 @@ void CRAWFile::run(void)
 
     period = (32768 * 1000) / (IQByteSize * 2048); // full IQś read
 
-    qDebug() << "RAWFile"
-             << "Period =" << period;
-    std::vector<uint8_t>bi(bufferSize);
+    std::clog << "RAWFile" << "Period =" << period;
+    std::vector<uint8_t> bi(bufferSize);
     nextStop = getMyTime();
     while (!ExitCondition) {
         if (readerPausing) {
-            usleep(1000);
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
             nextStop = getMyTime();
             continue;
         }
@@ -222,7 +221,7 @@ void CRAWFile::run(void)
         while (SampleBuffer.WriteSpace() < bufferSize + 10) {
             if (ExitCondition)
                 break;
-            usleep(100);
+            std::this_thread::sleep_for(std::chrono::microseconds(100));
         }
 
         nextStop += period;
@@ -235,10 +234,11 @@ void CRAWFile::run(void)
         SampleBuffer.putDataIntoBuffer(bi.data(), t);
         SpectrumSampleBuffer.putDataIntoBuffer(bi.data(), t);
         if (nextStop - getMyTime() > 0)
-            usleep(nextStop - getMyTime());
+            std::this_thread::sleep_for(std::chrono::microseconds(
+                        nextStop - getMyTime()));
     }
 
-    qDebug() << "RAWFile:" <<  "Read threads ends";
+    std::clog << "RAWFile:" <<  "Read threads ends";
 }
 
 /*
@@ -252,9 +252,8 @@ int32_t CRAWFile::readBuffer(uint8_t* data, int32_t length)
     currPos += n;
     if (n < length) {
         fseek(filePointer, 0, SEEK_SET);
-        QString Text = QObject::tr("End of file, restarting");
-        qDebug() << "RAWFile:"  << Text;
-        RadioController->setInfoMessage(Text);
+        std::clog << "RAWFile:"  << "End of file, restarting";
+        RadioController->setInfoMessage("End of file, restarting"s);
     }
     return n & ~01;
 }

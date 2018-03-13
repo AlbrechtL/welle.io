@@ -31,16 +31,16 @@
 #define __VIRTUAL_INPUT
 
 #include "DabConstants.h"
-#include <QObject>
-#include <QString>
-#include <stdint.h>
+#include <string>
+#include <cstdint>
 
 // Enum of available input device
 enum class CDeviceID {AIRSPY, NULLDEVICE, RAWFILE, RTL_SDR, RTL_TCP, SOAPYSDR};
 
 // Device interface
-class CVirtualInput : public QObject {
+class CVirtualInput {
 public:
+    virtual ~CVirtualInput() {};
     virtual void setFrequency(int32_t Frequency) = 0;
     virtual bool restart(void) = 0;
     virtual void stop(void) = 0;
@@ -53,7 +53,7 @@ public:
     virtual void setAgc(bool AGC) = 0;
     virtual void setHwAgc(bool hwAGC) = 0;
     virtual bool isHwAgcSupported() { return false; }
-    virtual QString getName(void) = 0;
+    virtual std::string getName(void) = 0;
     virtual CDeviceID getID(void) = 0;
 };
 

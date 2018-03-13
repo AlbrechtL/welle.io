@@ -121,9 +121,11 @@ CVirtualInput *CInputFactory::GetManualDevice(CRadioController &RadioController,
             InputDevice = new CAirspy();
         else
 #endif
+#ifdef HAVE_RTL_TCP
         if (Device == "rtl_tcp")
             InputDevice = new CRTL_TCP_Client(RadioController);
         else
+#endif
 #ifdef HAVE_RTLSDR
         if (Device == "rtl_sdr")
             InputDevice = new CRTL_SDR(RadioController);

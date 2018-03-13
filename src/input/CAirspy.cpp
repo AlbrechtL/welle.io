@@ -29,52 +29,44 @@
  *
 */
 
-#include <QDebug>
+#include <iostream>
 #include "CAirspy.h"
 
 static const int EXTIO_NS = 8192;
 static const int EXTIO_BASE_TYPE_SIZE = sizeof(float);
 
-CAirspy::CAirspy()
+CAirspy::CAirspy() :
+    SampleBuffer(256 * 1024),
+    SpectrumSampleBuffer(8192)
 {
-    int result;
     int distance = 10000000;
     uint32_t myBuffer[20];
     uint32_t samplerate_count;
 
-    currentLinearityGain = 0;
-    isAGC = true;
+    std::clog << "Airspy:" << "Open airspy";
 
-    qDebug() << "Airspy:" << "Open airspy";
-
-    device = 0;
-    serialNumber = 0;
-    SampleBuffer = NULL;
-    SpectrumSampleBuffer = NULL;
-
-    libraryLoaded = true;
+    device = {};
 
     strcpy(serial, "");
-    result = airspy_init();
+    int result = airspy_init();
     if (result != AIRSPY_SUCCESS) {
-        qDebug() << "Airspy:" << "airspy_init () failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")";
+        std::clog  << "Airspy:" << "airspy_init () failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")";
         throw 0;
     }
 
     result = airspy_open(&device);
     if (result != AIRSPY_SUCCESS) {
-        qDebug() << "Airspy:" << "airpsy_open () failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")";
+        std::clog  << "Airspy:" << "airpsy_open () failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")";
         throw 0;
     }
 
     airspy_set_sample_type(device, AIRSPY_SAMPLE_INT16_IQ);
     airspy_get_samplerates(device, &samplerate_count, 0);
-    qDebug() << "Airspy:" << samplerate_count << "sample rates are supported";
+    std::clog  << "Airspy:" << samplerate_count << "sample rates are supported";
     airspy_get_samplerates(device, myBuffer, samplerate_count);
 
-    selectedRate = 0;
     for (uint32_t i = 0; i < samplerate_count; i++) {
-        qDebug() << "Airspy:" << "sample rates:" << i << myBuffer[i];
+        std::clog  << "Airspy:" << "sample rates:" << i << myBuffer[i];
         if (abs((int32_t) myBuffer[i] - 2048000) < distance) {
             distance = abs((int32_t) myBuffer[i] - 2048000);
             selectedRate = myBuffer[i];
@@ -82,14 +74,14 @@ CAirspy::CAirspy()
     }
 
     if (selectedRate == 0) {
-        qDebug() << "Airspy:" << "Sorry. cannot help you";
+        std::clog  << "Airspy:" << "Sorry. cannot help you";
         throw 0;
     } else
-        qDebug() << "Airspy:" << "selected samplerate" << selectedRate;
+        std::clog  << "Airspy:" << "selected samplerate" << selectedRate;
 
     result = airspy_set_samplerate(device, selectedRate);
     if (result != AIRSPY_SUCCESS) {
-        qDebug() << "Airspy:" <<"airspy_set_samplerate() failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")";
+        std::clog  << "Airspy:" <<"airspy_set_samplerate() failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")";
         throw 0;
     }
 
@@ -105,15 +97,11 @@ CAirspy::CAirspy()
     convIndex = 0;
     convBuffer = new DSPCOMPLEX[convBufferSize + 1];
 
-    SampleBuffer = new RingBuffer<DSPCOMPLEX>(256 * 1024);
-    SpectrumSampleBuffer = new RingBuffer<DSPCOMPLEX>(8192);
 
-    if(isAGC)
-    {
+    if (isAGC) {
         setAgc(true);
     }
-    else
-    {
+    else {
         setAgc(false);
         setGain(currentLinearityGain);
     }
@@ -128,13 +116,17 @@ CAirspy::~CAirspy(void)
     if (device) {
         int result = airspy_stop_rx(device);
         if (result != AIRSPY_SUCCESS) {
-            qDebug() << "Airspy:" <<"airspy_stop_rx () failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")";
+            std::clog  << "Airspy:" <<"airspy_stop_rx () failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")";
         }
 
         result = airspy_close(device);
         if (result != AIRSPY_SUCCESS) {
-            qDebug() << "Airspy:" <<"airspy_close () failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")";
+            std::clog  << "Airspy:" <<"airspy_close () failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")";
         }
+    }
+
+    if (buffer) {
+        delete[] buffer;
     }
     airspy_exit();
 }
@@ -144,7 +136,7 @@ void CAirspy::setFrequency(int32_t nf)
     int result = airspy_set_freq(device, nf);
 
     if (result != AIRSPY_SUCCESS) {
-        qDebug() << "Airspy:" <<"airspy_set_freq() failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")";
+        std::clog  << "Airspy:" <<"airspy_set_freq() failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")";
     }
 }
 
@@ -155,18 +147,18 @@ bool CAirspy::restart(void)
     if (running)
         return true;
 
-    SampleBuffer->FlushRingBuffer();
-    SpectrumSampleBuffer->FlushRingBuffer();
+    SampleBuffer.FlushRingBuffer();
+    SpectrumSampleBuffer.FlushRingBuffer();
     result = airspy_set_sample_type(device, AIRSPY_SAMPLE_INT16_IQ);
     if (result != AIRSPY_SUCCESS) {
-        qDebug() << "Airspy:" <<"airspy_set_sample_type () failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")";
+        std::clog  << "Airspy:" <<"airspy_set_sample_type () failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")";
         return false;
     }
 
     result = airspy_start_rx(device,
         (airspy_sample_block_cb_fn)callback, this);
     if (result != AIRSPY_SUCCESS) {
-        qDebug() << "Airspy:" <<"airspy_start_rx () failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")";
+        std::clog  << "Airspy:" <<"airspy_start_rx () failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")";
         return false;
     }
 
@@ -184,9 +176,11 @@ void CAirspy::stop(void)
     int result = airspy_stop_rx(device);
 
     if (result != AIRSPY_SUCCESS) {
-        qDebug() << "Airspy:" <<"airspy_stop_rx() failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")";
-    } else {
+        std::clog  << "Airspy:" <<"airspy_stop_rx() failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")";
+    }
+    else {
         delete[] buffer;
+        buffer = nullptr;
         bs_ = bl_ = 0;
     }
     running = false;
@@ -247,8 +241,8 @@ int CAirspy::data_available(void* buf, int buf_size)
                 temp[j] = cmul(convBuffer[inpBase + 1], inpRatio) + cmul(convBuffer[inpBase], 1 - inpRatio);
             }
 
-            SampleBuffer->putDataIntoBuffer(temp, 2048);
-            SpectrumSampleBuffer->putDataIntoBuffer(temp, 2048);
+            SampleBuffer.putDataIntoBuffer(temp, 2048);
+            SpectrumSampleBuffer.putDataIntoBuffer(temp, 2048);
             //
             //	shift the sample at the end to the beginning, it is needed
             //	as the starting sample for the next time
@@ -261,24 +255,24 @@ int CAirspy::data_available(void* buf, int buf_size)
 
 void CAirspy::reset(void)
 {
-    SampleBuffer->FlushRingBuffer();
-    SpectrumSampleBuffer->FlushRingBuffer();
+    SampleBuffer.FlushRingBuffer();
+    SpectrumSampleBuffer.FlushRingBuffer();
 }
 
 int32_t CAirspy::getSamples(DSPCOMPLEX* Buffer, int32_t Size)
 {
 
-    return SampleBuffer->getDataFromBuffer(Buffer, Size);
+    return SampleBuffer.getDataFromBuffer(Buffer, Size);
 }
 
 int32_t CAirspy::getSpectrumSamples(DSPCOMPLEX *Buffer, int32_t Size)
 {
-    return SpectrumSampleBuffer->getDataFromBuffer(Buffer, Size);
+    return SpectrumSampleBuffer.getDataFromBuffer(Buffer, Size);
 }
 
 int32_t CAirspy::getSamplesToRead(void)
 {
-    return SampleBuffer->GetRingBufferReadAvailable();
+    return SampleBuffer.GetRingBufferReadAvailable();
 }
 
 int32_t CAirspy::getGainCount()
@@ -294,15 +288,15 @@ void CAirspy::setAgc(bool AGC)
     {
         result = airspy_set_lna_agc(device, 1);
         if (result != AIRSPY_SUCCESS)
-            qDebug() << "Airspy:" <<"airspy_set_lna_agc() failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")";
+            std::clog  << "Airspy:" <<"airspy_set_lna_agc() failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")";
 
         result = airspy_set_mixer_agc(device, 1);
         if (result != AIRSPY_SUCCESS)
-            qDebug() << "Airspy:" <<"airspy_set_mixer_agc() failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")";
+            std::clog  << "Airspy:" <<"airspy_set_mixer_agc() failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")";
 
         result = airspy_set_vga_gain(device, 15); // Maximum gain. I don't know if we can do this
         if (result != AIRSPY_SUCCESS)
-           qDebug() << "Airspy:" <<"airspy_set_vga_gain () failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")";
+           std::clog  << "Airspy:" <<"airspy_set_vga_gain () failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")";
     }
     else
     {
@@ -317,7 +311,7 @@ void CAirspy::setHwAgc(bool hwAGC)
     (void) hwAGC;
 }
 
-QString CAirspy::getName()
+std::string CAirspy::getName()
 {
     // Get airspy device name and version
     char Version[255] = {0};
@@ -327,10 +321,13 @@ QString CAirspy::getName()
     airspy_lib_version_t lib_version;
     airspy_lib_version(&lib_version);
 
-    return QString(Version) + "[...], lib. v"
-            + QString::number(lib_version.major_version) + "."
-            + QString::number(lib_version.minor_version) + "."
-            + QString::number(lib_version.revision);
+    std::string ver = Version;
+
+    ver += "[...], lib. v" +
+        std::to_string(lib_version.major_version) + "." +
+        std::to_string(lib_version.minor_version) + "." +
+        std::to_string(lib_version.revision);
+    return ver;
 }
 
 CDeviceID CAirspy::getID()
@@ -346,7 +343,7 @@ float CAirspy::setGain(int gain)
 
     airspy_set_linearity_gain(device, currentLinearityGain);
     if (result != AIRSPY_SUCCESS)
-        qDebug() << "Airspy:" <<"airspy_set_mixer_agc() failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")";
+        std::clog  << "Airspy:" <<"airspy_set_mixer_agc() failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")";
 
     return currentLinearityGain;
 }
