@@ -45,6 +45,8 @@ class viterbi
     public:
         viterbi(int16_t);
         ~viterbi(void);
+        viterbi(const viterbi& other) = delete;
+        viterbi& operator=(const viterbi& other) = delete;
         void deconvolve(int16_t *input, uint8_t *output);
 
     private:
