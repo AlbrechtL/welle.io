@@ -24,10 +24,9 @@
  *  its invocation results in 2 * Tu bits
  */
 
-#include <QDebug>
+#include <iostream>
 #include "ofdm-decoder.h"
 #include "CRadioController.h"
-#include "phasetable.h"
 #include "fic-handler.h"
 #include "msc-handler.h"
 #include "freq-interleaver.h"
@@ -44,27 +43,24 @@ ofdmDecoder::ofdmDecoder(
         CRadioController *mr,
         ficHandler *my_ficHandler,
         mscHandler *my_mscHandler) :
-    bufferSpace (p->L),
+    fft_handler(p->T_u),
     myMapper (p)
 {
     int16_t i;
-    this->params       = p;
+    this->params           = p;
     this->myRadioInterface = mr;
     this->my_ficHandler    = my_ficHandler;
     this->my_mscHandler    = my_mscHandler;
-    this->T_s          = params    -> T_s;
-    this->T_u          = params    -> T_u;
-    this->carriers     = params    -> K;
-    ibits               = new int16_t[2 * this->carriers];
+    this->T_s              = params    -> T_s;
+    this->T_u              = params    -> T_u;
+    this->carriers         = params    -> K;
+    ibits.resize(2 * this->carriers);
 
-    this->T_g          = T_s - T_u;
-    fft_handler         = new common_fft (T_u);
-    fft_buffer          = fft_handler->getVector ();
-    phaseReference          = new DSPCOMPLEX[T_u];
+    this->T_g           = T_s - T_u;
+    fft_buffer          = fft_handler.getVector ();
+    phaseReference.resize(T_u);
 
-    connect (this, SIGNAL (show_snr (int)),
-            mr, SLOT (show_snr (int)));
-    snrCount        = 0;
+    snrCount    = 0;
     snr         = 0;
 
     /**
@@ -75,34 +71,30 @@ ofdmDecoder::ofdmDecoder(
      * We just create a large buffer where index i refers to block i.
      *
      */
-    command         = new DSPCOMPLEX *[params->L];
-    for (i = 0; i < params->L; i ++)
+    command = new DSPCOMPLEX*[params->L];
+    for (i = 0; i < params->L; i ++) {
         command[i] = new DSPCOMPLEX[T_u];
-    amount      = 0;
-    start ();
+    }
+    amount = 0;
+    myThread = std::thread(&ofdmDecoder::workerthread, this);
 }
 
 ofdmDecoder::~ofdmDecoder(void)
 {
-    int16_t i;
-    running = false;
-    commandHandler.wakeAll ();
-    usleep (1000);
-    while (!isFinished () && isRunning ())
-        usleep (100);
-    delete      fft_handler;
-    delete[]    phaseReference;
-    for (i = 0; i < params->L; i ++)
+    stop();
+
+    for (int16_t i = 0; i < params->L; i ++)
         delete[] command[i];
     delete[] command;
 }
 
-void    ofdmDecoder::stop(void)
+void ofdmDecoder::stop(void)
 {
     running = false;
-    commandHandler.wakeAll ();
-    while (isRunning ())
-        usleep (100);
+    commandHandler.notify_all();
+    if (myThread.joinable()) {
+        myThread.join();
+    }
 }
 
 /**
@@ -112,32 +104,30 @@ void    ofdmDecoder::stop(void)
  * In our original code the block count was 1 higher than
  * our count here.
  */
-void    ofdmDecoder::run(void)
+void ofdmDecoder::workerthread(void)
 {
-    int16_t currentBlock    = 0;
+    int16_t currentBlock = 0;
 
-    running     = true;
+    running = true;
+
     while (running) {
-        helper.lock ();
-        commandHandler.wait (&helper, 100);
-        helper.unlock ();
-        while ((amount > 0) && running) {
+        std::unique_lock<std::mutex> lock(myMutex);
+        commandHandler.wait_for(lock, std::chrono::milliseconds(100));
+
+        while (amount > 0 && running) {
             if (currentBlock == 0)
-                processBlock_0 ();
+                processBlock_0();
             else
                 if (currentBlock < 4)
-                    decodeFICblock (currentBlock);
+                    decodeFICblock(currentBlock);
                 else
-                    decodeMscblock (currentBlock);
-            bufferSpace.release (1);
-            helper.lock ();
+                    decodeMscblock(currentBlock);
             currentBlock = (currentBlock + 1) % (params->L);
             amount -= 1;
-            helper.unlock ();
         }
     }
 
-    qDebug() << "OFDM-decoder:" <<  "closing down now";
+    std::clog << "OFDM-decoder:" <<  "closing down now";
 }
 
 /**
@@ -146,32 +136,29 @@ void    ofdmDecoder::run(void)
  */
 void    ofdmDecoder::processBlock_0 (DSPCOMPLEX *vi)
 {
-    bufferSpace.acquire (1);
-    memcpy (command[0], vi, sizeof (DSPCOMPLEX) * T_u);
-    helper.lock ();
-    amount ++;
-    commandHandler.wakeOne ();
-    helper.unlock ();
+    std::unique_lock<std::mutex> lock(myMutex);
+
+    memcpy(command[0], vi, sizeof (DSPCOMPLEX) * T_u);
+    amount++;
+    commandHandler.notify_one();
 }
 
 void    ofdmDecoder::decodeFICblock (DSPCOMPLEX *vi, int32_t blkno)
 {
-    bufferSpace.acquire (1);
+    std::unique_lock<std::mutex> lock(myMutex);
+
     memcpy (command[blkno], &vi[T_g], sizeof (DSPCOMPLEX) * T_u);
-    helper.lock ();
-    amount ++;
-    commandHandler.wakeOne ();
-    helper.unlock ();
+    amount++;
+    commandHandler.notify_one();
 }
 
 void    ofdmDecoder::decodeMscblock (DSPCOMPLEX *vi, int32_t blkno)
 {
-    bufferSpace.acquire (1);
+    std::unique_lock<std::mutex> lock(myMutex);
+
     memcpy (command[blkno], &vi[T_g], sizeof (DSPCOMPLEX) * T_u);
-    helper.lock ();
-    amount ++;
-    commandHandler.wakeOne ();
-    helper.unlock ();
+    amount++;
+    commandHandler.notify_one();
 }
 
 /**
@@ -183,25 +170,25 @@ void    ofdmDecoder::decodeMscblock (DSPCOMPLEX *vi, int32_t blkno)
 /**
  * handle block 0 as collected from the buffer
  */
-void    ofdmDecoder::processBlock_0 (void)
+void ofdmDecoder::processBlock_0 (void)
 {
     memcpy (fft_buffer, command[0], T_u * sizeof (DSPCOMPLEX));
-    fft_handler->do_FFT ();
+    fft_handler.do_FFT ();
     /**
      * The SNR is determined by looking at a segment of bins
      * within the signal region and bits outside.
      * It is just an indication
      */
-    snr     = 0.7 * snr + 0.3 * get_snr (fft_buffer);
+    snr = 0.7 * snr + 0.3 * get_snr (fft_buffer);
     if (++snrCount > 10) {
-        show_snr (snr);
+        myRadioInterface->show_snr(snr);
         snrCount = 0;
     }
     /**
      * we are now in the frequency domain, and we keep the carriers
      * as coming from the FFT as phase reference.
      */
-    memcpy (phaseReference, fft_buffer, T_u * sizeof (DSPCOMPLEX));
+    memcpy (phaseReference.data(), fft_buffer, T_u * sizeof (DSPCOMPLEX));
 }
 
 /**
@@ -213,16 +200,14 @@ void    ofdmDecoder::processBlock_0 (void)
  * \brief decodeFICblock
  * do the transforms and hand over the result to the fichandler
  */
-void    ofdmDecoder::decodeFICblock (int32_t blkno)
+void ofdmDecoder::decodeFICblock (int32_t blkno)
 {
-    int16_t i;
-
     memcpy (fft_buffer, command[blkno], T_u * sizeof (DSPCOMPLEX));
     //fftlabel:
     /**
      * first step: do the FFT
      */
-    fft_handler->do_FFT ();
+    fft_handler.do_FFT ();
     /**
      * a little optimization: we do not interchange the
      * positive/negative frequencies to their right positions.
@@ -233,8 +218,8 @@ void    ofdmDecoder::decodeFICblock (int32_t blkno)
      * Note that from here on, we are only interested in the
      * "carriers" useful carriers of the FFT output
      */
-    for (i = 0; i < carriers; i ++) {
-        int16_t  index   = myMapper.mapIn (i);
+    for (int16_t i = 0; i < carriers; i ++) {
+        int16_t index = myMapper.mapIn (i);
         if (index < 0)
             index += T_u;
         /**
@@ -248,28 +233,26 @@ void    ofdmDecoder::decodeFICblock (int32_t blkno)
         DSPFLOAT ab1 = jan_abs (r1);
         /// split the real and the imaginary part and scale it
 
-        ibits[i]        =  - real (r1) / ab1 * 127.0;
+        ibits[i]            =  - real (r1) / ab1 * 127.0;
         ibits[carriers + i] =  - imag (r1) / ab1 * 127.0;
     }
     //handlerLabel:
-    my_ficHandler->process_ficBlock (ibits, blkno);
+    my_ficHandler->process_ficBlock (ibits.data(), blkno);
 }
 
 /**
  * Msc block decoding is equal to FIC block decoding,
  */
-void    ofdmDecoder::decodeMscblock (int32_t blkno)
+void ofdmDecoder::decodeMscblock (int32_t blkno)
 {
-    int16_t i;
-
     memcpy (fft_buffer, command[blkno], T_u * sizeof (DSPCOMPLEX));
     //fftLabel:
-    fft_handler->do_FFT ();
+    fft_handler.do_FFT ();
     //
     //  Note that "mapIn" maps to -carriers / 2 .. carriers / 2
     //  we did not set the fft output to low .. high
     //toBitsLabel:
-    for (i = 0; i < carriers; i ++) {
+    for (int16_t i = 0; i < carriers; i ++) {
         int16_t  index   = myMapper.mapIn (i);
         if (index < 0)
             index += T_u;
@@ -279,11 +262,11 @@ void    ofdmDecoder::decodeMscblock (int32_t blkno)
         DSPFLOAT ab1 = jan_abs (r1);
         //  Recall:  the viterbi decoder wants 127 max pos, - 127 max neg
         //  we make the bits into softbits in the range -127 .. 127
-        ibits[i]        =  - real (r1) / ab1 * 127.0;
+        ibits[i]            =  - real (r1) / ab1 * 127.0;
         ibits[carriers + i] =  - imag (r1) / ab1 * 127.0;
     }
     //handlerLabel:
-    my_mscHandler->process_mscBlock (ibits, blkno);
+    my_mscHandler->process_mscBlock (ibits.data(), blkno);
 }
 
 /**

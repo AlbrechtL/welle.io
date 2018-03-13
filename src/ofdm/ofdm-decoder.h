@@ -22,12 +22,12 @@
 #define __OFDM_DECODER
 
 #include    "DabConstants.h"
-#include    <QThread>
-#include    <QWaitCondition>
-#include    <QMutex>
-#include    <QSemaphore>
+#include    <vector>
+#include    <thread>
+#include    <condition_variable>
+#include    <mutex>
+#include    <atomic>
 #include    "fft.h"
-#include    "phasetable.h"
 #include    <stdint.h>
 #include    "freq-interleaver.h"
 
@@ -35,9 +35,8 @@ class   CRadioController;
 class   ficHandler;
 class   mscHandler;
 
-class   ofdmDecoder : public QThread
+class   ofdmDecoder
 {
-    Q_OBJECT
     public:
         ofdmDecoder(
                 CDABParams *p,
@@ -55,34 +54,31 @@ class   ofdmDecoder : public QThread
         CRadioController    *myRadioInterface;
         ficHandler  *my_ficHandler;
         mscHandler  *my_mscHandler;
-        void        run     (void);
-        bool        running;
-        DSPCOMPLEX  **command;
+        std::atomic<bool>   running;
+
+        std::condition_variable commandHandler;
+        std::mutex  myMutex;
         int16_t     amount;
-        int16_t     currentBlock;
-        void        processBlock_0      (void);
-        void        decodeFICblock      (int32_t n);
-        void        decodeMscblock      (int32_t n);
-        QSemaphore  bufferSpace;
-        QWaitCondition  commandHandler;
-        QMutex      helper;
+        DSPCOMPLEX  **command;
+
+        std::thread myThread;
+        void        workerthread(void);
+        void        processBlock_0(void);
+        void        decodeFICblock(int32_t n);
+        void        decodeMscblock(int32_t n);
+
         int32_t     T_s;
         int32_t     T_u;
         int32_t     T_g;
         int32_t     carriers;
-        int16_t     getMiddle   (void);
-        DSPCOMPLEX  *phaseReference;
-        common_fft  *fft_handler;
+        std::vector<DSPCOMPLEX> phaseReference;
+        common_fft  fft_handler;
         DSPCOMPLEX  *fft_buffer;
         interLeaver myMapper;
-        phaseTable  *phasetable;
-        int32_t     blockIndex;
-        int16_t     *ibits;
+
+        std::vector<int16_t> ibits;
         int16_t     snrCount;
         int16_t     snr;
-
-    signals:
-        void        show_snr    (int);
 };
 
 #endif
