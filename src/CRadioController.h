@@ -162,6 +162,10 @@ public:
     void set_coarseCorrectorDisplay(int CoarseFreuqencyCorr);
     void setSynced(char isSync);
     void setSignalPresent(bool isSignal);
+    void addServiceToEnsemble(uint32_t SId, const std::string& station);
+    void updateEnsembleName(const std::string& name);
+    void updateDateTime(const int* DateTime);
+    void show_ficSuccess(bool isFICCRC);
 
 private:
     void Initialise(void);
@@ -241,9 +245,14 @@ private slots:
     void ChannelTimerTimeout(void);
     void SyncCheckTimerTimeout(void);
     void NextChannel(bool isWait);
+    void addtoEnsemble(quint32 SId, const QString &Station);
+    void displayDateTime(const int* DateTime);
 
 signals:
     void SwitchToNextChannel(bool isWait);
+    void EnsembleAdded(quint32 SId, const QString& station);
+    void EnsembleNameUpdated(const QString& name);
+    void DateTimeUpdated(const int* DateTime);
 
 #ifndef Q_OS_ANDROID
 signals:
@@ -285,11 +294,7 @@ signals:
 
 public slots:
     // This slots are called from the backend
-    void addtoEnsemble(quint32 SId, const QString &Station);
-    void nameofEnsemble(int id, const QString&v);
-    void changeinConfiguration(void);
-    void displayDateTime(int* DateTime);
-    void show_ficSuccess(bool isFICCRC);
+    void nameofEnsemble(const QString&v);
     void onEventLoopStarted(void);
     void setErrorMessage(QString Text);
     /* head will be translated, text will be left untranslated */

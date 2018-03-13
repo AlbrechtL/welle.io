@@ -49,20 +49,15 @@ uint8_t PI_X [24] = {
   */
 ficHandler::ficHandler(CRadioController *mr) :
     viterbi(768),
+    myRadioInterface(mr),
     bitBuffer_out(768),
     ofdm_input(2304),
     fibProcessor(mr)
 {
     int16_t i, j;
-    index        = 0;
-    BitsperBlock = 2 * 1536;
-    ficno        = 0;
-    ficBlocks    = 0;
-    ficMissed    = 0;
-    ficRatio     = 0;
     PI_15        = get_PCodes (15 - 1);
     PI_16        = get_PCodes (16 - 1);
-    memset (shiftRegister, 1, 9);
+    memset(shiftRegister, 1, 9);
 
     for (i = 0; i < 768; i ++) {
         PRBS [i] = shiftRegister[8] ^ shiftRegister[4];
@@ -72,9 +67,6 @@ ficHandler::ficHandler(CRadioController *mr) :
 
         shiftRegister[0] = PRBS[i];
     }
-
-    connect (this, SIGNAL (show_ficSuccess (bool)),
-            mr, SLOT (show_ficSuccess (bool)));
 }
 
 /**
@@ -225,45 +217,40 @@ void ficHandler::process_ficInput(int16_t *ficblock, int16_t ficno)
     for (i = ficno * 3; i < ficno * 3 + 3; i ++) {
         uint8_t *p = &bitBuffer_out[(i % 3) * 256];
         if (!check_CRC_bits (p, 256)) {
-            show_ficSuccess (false);
+            myRadioInterface->show_ficSuccess(false);
             continue;
         }
-        show_ficSuccess (true);
-        fibProtector.lock ();
-        fibProcessor.process_FIB (p, ficno);
-        fibProtector.unlock ();
+        myRadioInterface->show_ficSuccess (true);
+        {
+            std::unique_lock<std::mutex> lock(fibMutex);
+            fibProcessor.process_FIB(p, ficno);
+        }
     }
     //  fibProcessor.printActions (ficno);
 }
 
 void ficHandler::clearEnsemble()
 {
-    fibProtector.lock ();
-    fibProcessor.clearEnsemble ();
-    fibProtector.unlock ();
+    std::unique_lock<std::mutex> lock(fibMutex);
+    fibProcessor.clearEnsemble();
 }
 
-uint8_t ficHandler::kindofService(QString &s)
+uint8_t ficHandler::kindofService(const std::string& s)
 {
-    uint8_t result;
-    fibProtector.lock ();
-    result  = fibProcessor.kindofService (s);
-    fibProtector.unlock ();
-    return result;
+    std::unique_lock<std::mutex> lock(fibMutex);
+    return fibProcessor.kindofService(s);
 }
 
-void ficHandler::dataforAudioService (QString &s, audiodata *d)
+void ficHandler::dataforAudioService (const std::string &s, audiodata *d)
 {
-    fibProtector.lock ();
-    fibProcessor.dataforAudioService (s, d);
-    fibProtector.unlock ();
+    std::unique_lock<std::mutex> lock(fibMutex);
+    fibProcessor.dataforAudioService(s, d);
 }
 
-void ficHandler::dataforDataService  (QString &s, packetdata *d)
+void ficHandler::dataforDataService  (const std::string &s, packetdata *d)
 {
-    fibProtector.lock ();
-    fibProcessor.dataforDataService (s, d);
-    fibProtector.unlock ();
+    std::unique_lock<std::mutex> lock(fibMutex);
+    fibProcessor.dataforDataService(s, d);
 }
 
 int16_t ficHandler::get_ficRatio()
@@ -273,10 +260,7 @@ int16_t ficHandler::get_ficRatio()
 
 bool ficHandler::syncReached()
 {
-    bool result;
-    fibProtector.lock ();
-    result = fibProcessor.syncReached ();
-    fibProtector.unlock ();
-    return result;
+    std::unique_lock<std::mutex> lock(fibMutex);
+    return fibProcessor.syncReached();
 }
 

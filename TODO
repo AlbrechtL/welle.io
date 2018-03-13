@@ -13,3 +13,5 @@ Regressions to be fixed later:
 * qDebug() got replaced by std::clog. Problem? We could probably redirect the stream.
 
 * i18n translation is moved out of the backend. Problem?
+
+* Rework label parsing for charset!
