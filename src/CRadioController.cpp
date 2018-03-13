@@ -77,13 +77,21 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, CDABParams& 
     connect(&ChannelTimer, &QTimer::timeout, this, &CRadioController::ChannelTimerTimeout);
     connect(&SyncCheckTimer, &QTimer::timeout, this, &CRadioController::SyncCheckTimerTimeout);
 
-    connect(this, SIGNAL(SwitchToNextChannel(bool)), this, SLOT(NextChannel(bool)));
+    connect(this, &CRadioController::SwitchToNextChannel,
+            this, &CRadioController::NextChannel);
+
+    connect(this, &CRadioController::EnsembleAdded,
+            this, &CRadioController::addtoEnsemble);
+
+    connect(this, &CRadioController::EnsembleNameUpdated,
+            this, &CRadioController::nameofEnsemble);
+
+    connect(this, &CRadioController::DateTimeUpdated,
+            this, &CRadioController::displayDateTime);
 }
 
 CRadioController::~CRadioController(void)
 {
-    if (my_ficHandler) disconnect(my_ficHandler, 0, 0, 0);
-
     // Shutdown the demodulator and decoder in the correct order
     delete my_ofdmProcessor;
 
@@ -147,9 +155,8 @@ void CRadioController::closeDevice()
     }
 
     if (my_ficHandler) {
-        disconnect(my_ficHandler, 0, 0, 0);
         delete my_ficHandler;
-        my_ficHandler = NULL;
+        my_ficHandler = nullptr;
     }
 
     delete my_mscHandler;
@@ -878,7 +885,7 @@ void CRadioController::StationTimerTimeout()
         audiodata AudioData;
         memset(&AudioData, 0, sizeof(audiodata));
 
-        my_ficHandler->dataforAudioService(CurrentStation, &AudioData);
+        my_ficHandler->dataforAudioService(CurrentStation.toStdString(), &AudioData);
 
         if(AudioData.defined == true)
         {
@@ -935,6 +942,11 @@ void CRadioController::SyncCheckTimerTimeout(void)
  * Backend slots *
  *****************/
 
+void CRadioController::addServiceToEnsemble(uint32_t SId, const std::string& station)
+{
+    emit EnsembleAdded(SId, QString::fromStdString(station));
+}
+
 void CRadioController::addtoEnsemble(quint32 SId, const QString &Station)
 {
     qDebug() << "RadioController: Found station" <<  Station
@@ -969,10 +981,14 @@ void CRadioController::addtoEnsemble(quint32 SId, const QString &Station)
     }
 }
 
-void CRadioController::nameofEnsemble(int id, const QString &Ensemble)
+void CRadioController::updateEnsembleName(const std::string& name)
+{
+    emit EnsembleNameUpdated(QString::fromStdString(name));
+}
+
+void CRadioController::nameofEnsemble(const QString &Ensemble)
 {
     qDebug() << "RadioController: Name of ensemble:" << Ensemble;
-    (void)id;
 
     if (CurrentEnsemble == Ensemble)
         return;
@@ -980,12 +996,13 @@ void CRadioController::nameofEnsemble(int id, const QString &Ensemble)
     UpdateGUIData();
 }
 
-void CRadioController::changeinConfiguration()
+
+void CRadioController::updateDateTime(const int *DateTime)
 {
-    // Unknown use case
+    emit DateTimeUpdated(DateTime);
 }
 
-void CRadioController::displayDateTime(int *DateTime)
+void CRadioController::displayDateTime(const int *DateTime)
 {
     QDate Date;
     QTime Time;

@@ -23,15 +23,15 @@
 #ifndef FIB_PROCESSOR
 #define FIB_PROCESSOR
 
-#include    <stdint.h>
-#include    <stdio.h>
 #include    <vector>
-#include    <QObject>
+#include    <string>
+#include    <cstdint>
+#include    <cstdio>
 #include    "msc-handler.h"
 
 struct dabLabel {
     //     uint8_t  label [17];
-    QString  label;
+    std::string label;
     uint8_t  mask = 0x00;
     bool     hasName = false;
 };
@@ -78,8 +78,7 @@ struct ChannelMap {
 
 class   CRadioController;
 
-class   fib_processor: public QObject {
-    Q_OBJECT
+class   fib_processor {
     public:
         fib_processor(CRadioController *);
         void    process_FIB(uint8_t *, uint16_t);
@@ -87,10 +86,10 @@ class   fib_processor: public QObject {
         void    setupforNewFrame(void);
         void    clearEnsemble(void);
         bool    syncReached(void);
-        void    setSelectedService(QString &);
-        uint8_t kindofService(QString &);
-        void    dataforAudioService(QString &, audiodata *);
-        void    dataforDataService(QString &, packetdata *);
+        void    setSelectedService(const std::string &s);
+        uint8_t kindofService(const std::string& s);
+        void    dataforAudioService(const std::string& s, audiodata *);
+        void    dataforDataService(const std::string& s, packetdata *);
     private:
         CRadioController *myRadioInterface;
         Service *findServiceId(uint32_t serviceId);
@@ -152,12 +151,6 @@ class   fib_processor: public QObject {
         bool        dateFlag;
         bool        firstTime;
         bool        isSynced;
-
-    signals:
-        void addtoEnsemble(quint32 SId, const QString& label);
-        void nameofEnsemble(int SId, const QString& name);
-        void changeinConfiguration(void);
-        void newDateTime(int *dateTime);
 };
 
 #endif

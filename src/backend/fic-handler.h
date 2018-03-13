@@ -26,19 +26,17 @@
 #ifndef __FIC_HANDLER
 #define __FIC_HANDLER
 
-#include    <stdio.h>
-#include    <stdint.h>
+#include    <mutex>
+#include    <cstdio>
+#include    <cstdint>
 #include    "viterbi.h"
-#include    <QObject>
 #include    "fib-processor.h"
-#include    <QMutex>
 
 class   CRadioController;
 class   mscHandler;
 
-class ficHandler: public QObject, public viterbi
+class ficHandler: public viterbi
 {
-    Q_OBJECT
     public:
         ficHandler(CRadioController *);
         void    process_ficBlock    (int16_t *data, int16_t blkno);
@@ -46,28 +44,26 @@ class ficHandler: public QObject, public viterbi
         void    clearEnsemble       (void);
         bool    syncReached         (void);
         int16_t get_ficRatio        (void);
-        uint8_t kindofService       (QString &);
-        void    dataforDataService  (QString &, packetdata *);
-        void    dataforAudioService (QString &, audiodata *);
+        uint8_t kindofService       (const std::string& s);
+        void    dataforDataService  (const std::string& s, packetdata *d);
+        void    dataforAudioService (const std::string& s, audiodata *f);
     private:
-        void        process_ficInput    (int16_t *ficblock, int16_t ficno);
+        CRadioController *myRadioInterface;
+        void        process_ficInput(int16_t *ficblock, int16_t ficno);
         int8_t      *PI_15;
         int8_t      *PI_16;
         std::vector<uint8_t> bitBuffer_out;
         std::vector<int16_t> ofdm_input;
-        int16_t     index;
-        int16_t     BitsperBlock;
-        int16_t     ficno;
-        int16_t     ficBlocks;
-        int16_t     ficMissed;
-        int16_t     ficRatio;
-        uint16_t    convState;
-        QMutex      fibProtector;
+        int16_t     index = 0;
+        int16_t     BitsperBlock = 2 * 1536;
+        int16_t     ficno = 0;
+        int16_t     ficBlocks = 0;
+        int16_t     ficMissed = 0;
+        int16_t     ficRatio = 0;
+        std::mutex  fibMutex;
         fib_processor   fibProcessor;
         uint8_t     PRBS[768];
         uint8_t     shiftRegister[9];
-    signals:
-        void        show_ficSuccess (bool);
 };
 
 #endif
