@@ -155,8 +155,8 @@ public:
     void setStereo(bool isStereo);
     void show_rsErrors(int RSErrors);
     void show_aacErrors(int AACErrors);
-    void showLabel(QString Label);
-    void showMOT(QByteArray Data, int Subtype, QString s);
+    void showLabel(const std::string& Label);
+    void showMOT(const std::vector<uint8_t>& Data, int Subtype);
     void show_snr(int SNR);
     void set_fineCorrectorDisplay(int FineFrequencyCorr);
     void set_coarseCorrectorDisplay(int CoarseFreuqencyCorr);

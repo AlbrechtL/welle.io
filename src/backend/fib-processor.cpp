@@ -800,8 +800,9 @@ void    fib_processor::process_FIG1 (uint8_t *d)
                 //           std::clog << "fib-processor:" << "Ensemblename: %16s\n", label) << std::endl;
                 if (!oe) {
                     if (firstTime) {
-                        // TODO charset!
-                        myRadioInterface->updateEnsembleName(label);
+                        std::string label_utf8 = toUtf8StringUsingCharset(
+                                (const char *) label, (CharacterSet) charSet);
+                        myRadioInterface->updateEnsembleName(label_utf8);
                     }
                     firstTime   = false;
                     isSynced    = true;
@@ -815,14 +816,14 @@ void    fib_processor::process_FIG1 (uint8_t *d)
             SId = getBits (d, 16, 16);
             offset  = 32;
             myIndex = findServiceId (SId);
-            if ((!myIndex->serviceLabel. hasName) && (charSet <= 16)) {
+            if (myIndex->serviceLabel.label.empty() && charSet <= 16) {
                 for (i = 0; i < 16; i ++) {
                     label[i] = getBits_8 (d, offset + 8 * i);
                 }
-                myIndex->serviceLabel.label = label;
+                myIndex->serviceLabel.label = toUtf8StringUsingCharset(
+                        (const char *)label, (CharacterSet) charSet);
                 // std::clog << "fib-processor:" << "FIG1/1: SId = %4x\t%s\n", SId, label) << std::endl;
                 myRadioInterface->addServiceToEnsemble(SId, myIndex->serviceLabel.label);
-                myIndex->serviceLabel.hasName = true;
             }
             break;
 
@@ -861,16 +862,16 @@ void    fib_processor::process_FIG1 (uint8_t *d)
             SId = getLBits (d, 16, 32);
             offset  = 48;
             myIndex = findServiceId (SId);
-            if ((!myIndex->serviceLabel.hasName) && (charSet <= 16)) {
+            if (myIndex->serviceLabel.label.empty() && charSet <= 16) {
                 for (i = 0; i < 16; i ++) {
                     label[i] = getBits_8 (d, offset + 8 * i);
                 }
-                myIndex->serviceLabel.label = label;
+                myIndex->serviceLabel.label = toUtf8StringUsingCharset(
+                        (const char *)label, (CharacterSet)charSet);
                 myIndex->serviceLabel.label += " (data)";
 #ifdef  MSC_DATA__
                 myRadioInterface->addServiceToEnsemble(SId, myIndex->serviceLabel.label);
 #endif
-                myIndex->serviceLabel.hasName = true;
             }
             break;
 
@@ -1015,9 +1016,6 @@ uint8_t fib_processor::kindofService(const std::string& s)
 
     //  first we locate the serviceId
     for (size_t i = 0; i < listofServices.size(); i++) {
-        if (!listofServices[i].serviceLabel.hasName)
-            continue;
-
         if (listofServices[i].serviceLabel.label != s)
             continue;
 
@@ -1047,9 +1045,6 @@ void fib_processor::dataforDataService (const std::string &s, packetdata *d)
 
     //  first we locate the Service
     for (size_t i = 0; i < listofServices.size(); i++) {
-        if (!listofServices[i].serviceLabel.hasName)
-            continue;
-
         if (listofServices[i].serviceLabel.label != s)
             continue;
 
@@ -1088,9 +1083,6 @@ void fib_processor::dataforAudioService (const std::string &s, audiodata *d)
     d->defined  = false;
     //  first we locate the serviceId
     for (size_t i = 0; i < listofServices.size(); i ++) {
-        if (!listofServices[i].serviceLabel.hasName)
-            continue;
-
         if (listofServices[i].serviceLabel.label != s)
             continue;
 

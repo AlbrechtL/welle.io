@@ -1133,19 +1133,20 @@ void CRadioController::show_aacErrors(int AACErrors)
     emit AACErrorsChanged(mAACErrors);
 }
 
-void CRadioController::showLabel(QString Label)
+void CRadioController::showLabel(const std::string& Label)
 {
-    if (this->CurrentText == Label)
-        return;
-    this->CurrentText = Label;
-    UpdateGUIData();
+    auto qlabel = QString::fromUtf8(Label.c_str());
+    if (this->CurrentText != qlabel) {
+        this->CurrentText = qlabel;
+        UpdateGUIData();
+    }
 }
 
-void CRadioController::showMOT(QByteArray Data, int Subtype, QString s)
+void CRadioController::showMOT(const std::vector<uint8_t>& Data, int Subtype)
 {
-    (void)s; // Not used, can be removed
+    QByteArray qdata((const char*)Data.data(), (int)Data.size());
 
-    MOTImage->loadFromData(Data, Subtype == 0 ? "GIF" : Subtype == 1 ? "JPEG" : Subtype == 2 ? "BMP" : "PNG");
+    MOTImage->loadFromData(qdata, Subtype == 0 ? "GIF" : Subtype == 1 ? "JPEG" : Subtype == 2 ? "BMP" : "PNG");
 
     emit MOTChanged(*MOTImage);
 }

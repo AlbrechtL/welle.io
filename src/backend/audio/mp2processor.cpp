@@ -261,17 +261,15 @@ mp2Processor::mp2Processor (CRadioController *mr,
 void mp2Processor::PADChangeDynamicLabel(const DL_STATE& dl)
 {
     myRadioInterface->showLabel(
-            toQStringUsingCharset (
-                (const char *)&dl.raw[0],
-                (CharacterSet) dl.charset,
+            toUtf8StringUsingCharset(
+                &dl.raw[0],
+                (CharacterSet)dl.charset,
                 dl.raw.size()));
 }
 
 void mp2Processor::PADChangeSlide(const MOT_FILE& slide)
 {
-    QByteArray Data((const char*) slide.data.data(), (int) slide.data.size());
-
-    myRadioInterface->showMOT(Data, slide.content_sub_type, slide.content_name.c_str());
+    myRadioInterface->showMOT(slide.data, slide.content_sub_type);
 }
 
 #define valid(x)    ((x == 48000) || (x == 24000))
