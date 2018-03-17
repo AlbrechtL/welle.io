@@ -160,7 +160,7 @@ void PADDecoder::Process(const uint8_t *xpad_data, size_t xpad_len, bool exact_x
 		// TODO: don't use hardcoded X-PAD Application Types for MOT
 		case 12:	// MOT, X-PAD data group (start)
 			mot_decoder.SetLen(dgli_len);
-			// no break
+			[[fallthrough]]; // Warning, might not be supported by all compilers!
 		case 13:	// MOT, X-PAD data group (continuation)
 			// if new Data Group available, append it
 			if(mot_decoder.ProcessDataSubfield(it->type == 12, xpad + xpad_offset, it->len)) {
