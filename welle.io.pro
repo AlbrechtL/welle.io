@@ -31,27 +31,21 @@ SOURCES += src/gui/QML/*.qml \
 
 DEPENDPATH += \
     src \
-    src/ofdm \
     src/backend \
     src/backend/audio \
     src/backend/data \
-    src/output \
-    src/various \
+    src/backend/ofdm \
     src/input \
-    src/ofdm \
-    src/backend \
-    src/backend/audio \
-    src/backend/data \
     src/output \
     src/various \
     src/gui
 
 INCLUDEPATH += \
     src \
-    src/ofdm \
     src/backend \
     src/backend/audio \
     src/backend/data \
+    src/backend/ofdm \
     src/output \
     src/various \
     src/input \
@@ -59,11 +53,11 @@ INCLUDEPATH += \
 
 HEADERS += \
     src/DabConstants.h \
-    src/ofdm/ofdm-processor.h \
-    src/ofdm/ofdm-decoder.h \
-    src/ofdm/phasereference.h \
-    src/ofdm/phasetable.h \
-    src/ofdm/freq-interleaver.h \
+    src/backend/ofdm/ofdm-processor.h \
+    src/backend/ofdm/ofdm-decoder.h \
+    src/backend/ofdm/phasereference.h \
+    src/backend/ofdm/phasetable.h \
+    src/backend/ofdm/freq-interleaver.h \
     src/backend/viterbi.h \
     src/backend/fic-handler.h \
     src/backend/msc-handler.h \
@@ -105,11 +99,11 @@ HEADERS += \
 
 SOURCES += \
     src/main.cpp \
-    src/ofdm/ofdm-processor.cpp \
-    src/ofdm/ofdm-decoder.cpp \
-    src/ofdm/phasereference.cpp \
-    src/ofdm/phasetable.cpp \
-    src/ofdm/freq-interleaver.cpp \
+    src/backend/ofdm/ofdm-processor.cpp \
+    src/backend/ofdm/ofdm-decoder.cpp \
+    src/backend/ofdm/phasereference.cpp \
+    src/backend/ofdm/phasetable.cpp \
+    src/backend/ofdm/freq-interleaver.cpp \
     src/backend/viterbi.cpp \
     src/backend/fic-handler.cpp \
     src/backend/msc-handler.cpp \
