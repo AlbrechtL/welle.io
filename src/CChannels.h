@@ -31,8 +31,7 @@
 #define CCHANNELS_H
 
 #include <map>
-
-#include <QString>
+#include <string>
 
 #define NUMBEROFCHANNELS 54
 
@@ -40,20 +39,20 @@ class CChannels
 {
 public:
     CChannels();
-    int getFrequency(QString ChannelName);
-    QString getNextChannel(void);
-    QString getCurrentChannel(void);
+    int getFrequency(const std::string& ChannelName);
+    std::string getNextChannel(void);
+    std::string getCurrentChannel(void);
     int getCurrentFrequency(void);
     int getCurrentIndex(void);
 
-    static QString FirstChannel;
+    static std::string FirstChannel;
 
 private:
-    QString getChannelNameAtIndex(int Index);
+    std::string getChannelNameAtIndex(int Index);
 
-    std::map<QString, int> FrequencyMap;
+    std::map<std::string, int> FrequencyMap;
     int CurrentFrequencyIndex;
-    QString CurrentChannel;
+    std::string CurrentChannel;
     int CurrentFrequency;
 };
 

@@ -434,7 +434,7 @@ void CRadioController::SetChannel(QString Channel, bool isScan, bool Force)
             CurrentEnsemble = "";
 
             // Convert channel into a frequency
-            CurrentFrequency = Channels.getFrequency(Channel);
+            CurrentFrequency = Channels.getFrequency(Channel.toStdString());
 
             if(CurrentFrequency != 0 && Device)
             {
@@ -502,13 +502,14 @@ void CRadioController::StartScan(void)
     if(Device && Device->getID() == CDeviceID::RAWFILE)
     {
         CurrentTitle = tr("RAW File");
-        SetChannel(CChannels::FirstChannel, false); // Just a dummy
+        const auto FirstChannel = QString::fromStdString(CChannels::FirstChannel);
+        SetChannel(FirstChannel, false); // Just a dummy
         emit ScanStopped();
     }
     else
     {
         // Start with lowest frequency
-        QString Channel = CChannels::FirstChannel;
+        QString Channel = QString::fromStdString(CChannels::FirstChannel);
         SetChannel(Channel, true);
 
         isChannelScan = true;
@@ -847,13 +848,11 @@ void CRadioController::SetStation(QString Station, bool Force)
 
 void CRadioController::NextChannel(bool isWait)
 {
-    if(isWait) // It might be a channel, wait 10 seconds
-    {
+    if (isWait) { // It might be a channel, wait 10 seconds
         ChannelTimer.start(10000);
     }
-    else
-    {
-        QString Channel = Channels.getNextChannel();
+    else {
+        auto Channel = QString::fromStdString(Channels.getNextChannel());
 
         if(!Channel.isEmpty()) {
             SetChannel(Channel, true);
@@ -865,7 +864,8 @@ void CRadioController::NextChannel(bool isWait)
 
             UpdateGUIData();
             emit ScanProgress(index);
-        } else {
+        }
+        else {
             StopScan();
         }
     }
