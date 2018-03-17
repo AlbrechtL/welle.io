@@ -22,7 +22,7 @@
 #include    "msc-handler.h"
 #include    "CRadioController.h"
 #include    "dab-virtual.h"
-#include    "dab-audio.h"
+#include    "audio/dab-audio.h"
 
 //  Interface program for processing the MSC.
 //  Merely a dispatcher for the selected service

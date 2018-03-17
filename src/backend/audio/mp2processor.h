@@ -27,15 +27,14 @@
 #ifndef MP2PROCESSOR
 #define MP2PROCESSOR
 
-#include    <stdio.h>
-#include    <stdint.h>
-#include    <memory>
-#include    <math.h>
-#include    "dab-processor.h"
-#include    <vector>
-#include    <stdio.h>
-#include    "ringbuffer.h"
-#include "pad_decoder.h"
+#include <memory>
+#include <vector>
+#include <cstdint>
+#include <cmath>
+#include <cstdio>
+#include "dab-processor.h"
+#include "ringbuffer.h"
+#include "data/pad_decoder.h"
 
 #define KJMP2_MAX_FRAME_SIZE    1440  // the maximum size of a frame
 #define KJMP2_SAMPLES_PER_FRAME 1152  // the number of samples per frame

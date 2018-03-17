@@ -21,15 +21,15 @@
 #ifndef __OFDM_DECODER
 #define __OFDM_DECODER
 
-#include    "DabConstants.h"
-#include    <vector>
-#include    <thread>
-#include    <condition_variable>
-#include    <mutex>
-#include    <atomic>
-#include    "fft.h"
-#include    <stdint.h>
-#include    "freq-interleaver.h"
+#include <vector>
+#include <thread>
+#include <condition_variable>
+#include <mutex>
+#include <atomic>
+#include <cstdint>
+#include "fft.h"
+#include "DabConstants.h"
+#include "ofdm/freq-interleaver.h"
 
 class   CRadioController;
 class   ficHandler;

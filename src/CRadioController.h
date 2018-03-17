@@ -39,7 +39,7 @@
 #include "CAudio.h"
 #include "CStationList.h"
 #include "DabConstants.h"
-#include "ofdm-processor.h"
+#include "ofdm/ofdm-processor.h"
 #include "ringbuffer.h"
 #include "DabConstants.h"
 #include "fic-handler.h"
