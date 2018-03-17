@@ -17,3 +17,7 @@ Regressions to be fixed later:
 * Test label and DLS parsing with all Charsets! EBU seems to work
 
 * Building with QMake is untested. Same for the Android build.
+
+* Review display of coarse and fine freq corrections. The units were awkward...
+
+* Improve onFICDecodeSuccess (i.e. announce a count instead of calling the function for every FIB)

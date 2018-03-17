@@ -212,15 +212,14 @@ void ficHandler::process_ficInput(int16_t *ficblock, int16_t ficno)
      * each of the fib blocks is protected by a crc
      * (we know that there are three fib blocks each time we are here
      * we keep track of the successrate
-     * and show that per 100 fic blocks
      */
     for (i = ficno * 3; i < ficno * 3 + 3; i ++) {
         uint8_t *p = &bitBuffer_out[(i % 3) * 256];
         if (!check_CRC_bits (p, 256)) {
-            myRadioInterface->show_ficSuccess(false);
+            myRadioInterface->onFICDecodeSuccess(false);
             continue;
         }
-        myRadioInterface->show_ficSuccess (true);
+        myRadioInterface->onFICDecodeSuccess(true);
         {
             std::unique_lock<std::mutex> lock(fibMutex);
             fibProcessor.process_FIB(p, ficno);

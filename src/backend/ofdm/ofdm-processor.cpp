@@ -190,8 +190,8 @@ DSPCOMPLEX ofdmProcessor::getSample (int32_t phase)
 #define N   5
     sampleCnt   ++;
     if (++ sampleCnt > INPUT_RATE / N) {
-        myRadioInterface->set_fineCorrectorDisplay(fineCorrector);
-        myRadioInterface->set_coarseCorrectorDisplay(coarseCorrector / KHz(1));
+        myRadioInterface->onFrequencyCorrectorChange(
+                fineCorrector, coarseCorrector);
         sampleCnt = 0;
     }
     return temp;
@@ -228,8 +228,8 @@ void ofdmProcessor::getSamples (DSPCOMPLEX *v, int16_t n, int32_t phase)
 
     sampleCnt   += n;
     if (sampleCnt > INPUT_RATE / N) {
-        myRadioInterface->set_fineCorrectorDisplay(fineCorrector);
-        myRadioInterface->set_coarseCorrectorDisplay(coarseCorrector / KHz(1));
+        myRadioInterface->onFrequencyCorrectorChange(
+                fineCorrector, coarseCorrector);
         sampleCnt = 0;
     }
 }
@@ -268,7 +268,7 @@ void ofdmProcessor::run(void)
         }
 notSynced:
         if (scanMode && ++attempts > 5) {
-            myRadioInterface->setSignalPresent(false);
+            myRadioInterface->onSignalPresence(false);
             scanMode  = false;
             attempts  = 0;
         }
@@ -293,7 +293,7 @@ notSynced:
          * here we start looking for the null level, i.e. a dip
          */
         counter  = 0;
-        myRadioInterface->setSynced(false);
+        myRadioInterface->onSyncChange(false);
         while (currentStrength / 50  > 0.50 * sLevel) {
             DSPCOMPLEX sample =
                 getSample (coarseCorrector + fineCorrector);
@@ -352,7 +352,7 @@ SyncOnPhase:
             goto notSynced;
         }
         if (scanMode) {
-            myRadioInterface->setSignalPresent(true);
+            myRadioInterface->onSignalPresence(true);
             scanMode  = false;
             attempts  = 0;
         }
@@ -371,7 +371,7 @@ SyncOnPhase:
          * first datablock.
          * We read the missing samples in the ofdm buffer
          */
-        myRadioInterface->setSynced(true);
+        myRadioInterface->onSyncChange(true);
         getSamples (&ofdmBuffer[ofdmBufferIndex],
                 T_u - ofdmBufferIndex,
                 coarseCorrector + fineCorrector);

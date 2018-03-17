@@ -40,6 +40,7 @@
 #include "CStationList.h"
 #include "DabConstants.h"
 #include "ofdm/ofdm-processor.h"
+#include "radio-controller.h"
 #include "ringbuffer.h"
 #include "DabConstants.h"
 #include "fic-handler.h"
@@ -52,11 +53,12 @@ enum class PlotTypeEn { Spectrum, ImpulseResponse, QPSK, Null, Unknown };
 
 #ifdef Q_OS_ANDROID
 #include "rep_CRadioController_source.h"
-class CRadioController : public CRadioControllerSource
+class CRadioController : public CRadioControllerSource,
+                         public RadioControllerInterface
 {
     Q_OBJECT
 #else
-class CRadioController : public QObject
+class CRadioController : public QObject, public RadioControllerInterface
 {
     Q_OBJECT
     Q_PROPERTY(QString DateTime READ DateTime NOTIFY DateTimeChanged)
@@ -150,22 +152,21 @@ public:
     std::string GetMP2FileName(void);
 
     //called from the backend
-    void show_frameErrors(int FrameErrors);
-    void newAudio(int SampleRate);
-    void setStereo(bool isStereo);
-    void show_rsErrors(int RSErrors);
-    void show_aacErrors(int AACErrors);
-    void showLabel(const std::string& Label);
-    void showMOT(const std::vector<uint8_t>& Data, int Subtype);
-    void show_snr(int SNR);
-    void set_fineCorrectorDisplay(int FineFrequencyCorr);
-    void set_coarseCorrectorDisplay(int CoarseFreuqencyCorr);
-    void setSynced(char isSync);
-    void setSignalPresent(bool isSignal);
-    void addServiceToEnsemble(uint32_t SId, const std::string& station);
-    void updateEnsembleName(const std::string& name);
-    void updateDateTime(const int* DateTime);
-    void show_ficSuccess(bool isFICCRC);
+    virtual void onFrameErrors(int frameErrors) override;
+    virtual void onNewAudio(int sampleRate) override;
+    virtual void onStereoChange(bool isStereo) override;
+    virtual void onRsErrors(int rsErrors) override;
+    virtual void onAacErrors(int aacErrors) override;
+    virtual void onNewDynamicLabel(const std::string& label) override;
+    virtual void onMOT(const std::vector<uint8_t>& data, int subtype) override;
+    virtual void onSNR(int snr) override;
+    virtual void onFrequencyCorrectorChange(int fine, int coarse) override;
+    virtual void onSyncChange(char isSync) override;
+    virtual void onSignalPresence(bool isSignal) override;
+    virtual void onServiceDetected(uint32_t sId, const std::string& label) override;
+    virtual void onNewEnsembleName(const std::string& name) override;
+    virtual void onDateTimeUpdate(const dab_date_time_t& dateTime) override;
+    virtual void onFICDecodeSuccess(bool isFICCRC) override;
 
 private:
     void Initialise(void);
@@ -173,7 +174,6 @@ private:
     void DeviceRestart(void);
     void DecoderRestart(bool isScan);
     void UpdateGUIData();
-    void SetFrequencyCorrection(int FrequencyCorrection);
 
     // Back-end objects
     CVirtualInput* Device;
@@ -246,13 +246,13 @@ private slots:
     void SyncCheckTimerTimeout(void);
     void NextChannel(bool isWait);
     void addtoEnsemble(quint32 SId, const QString &Station);
-    void displayDateTime(const int* DateTime);
+    void displayDateTime(const dab_date_time_t& dateTime);
 
 signals:
     void SwitchToNextChannel(bool isWait);
     void EnsembleAdded(quint32 SId, const QString& station);
     void EnsembleNameUpdated(const QString& name);
-    void DateTimeUpdated(const int* DateTime);
+    void DateTimeUpdated(const dab_date_time_t& dateTime);
 
 #ifndef Q_OS_ANDROID
 signals:

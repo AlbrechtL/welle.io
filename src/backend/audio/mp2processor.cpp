@@ -260,7 +260,7 @@ mp2Processor::mp2Processor (CRadioController *mr,
 
 void mp2Processor::PADChangeDynamicLabel(const DL_STATE& dl)
 {
-    myRadioInterface->showLabel(
+    myRadioInterface->onNewDynamicLabel(
             toUtf8StringUsingCharset(
                 &dl.raw[0],
                 (CharacterSet)dl.charset,
@@ -269,7 +269,7 @@ void mp2Processor::PADChangeDynamicLabel(const DL_STATE& dl)
 
 void mp2Processor::PADChangeSlide(const MOT_FILE& slide)
 {
-    myRadioInterface->showMOT(slide.data, slide.content_sub_type);
+    myRadioInterface->onMOT(slide.data, slide.content_sub_type);
 }
 
 #define valid(x)    ((x == 48000) || (x == 24000))
@@ -398,7 +398,7 @@ int32_t mp2Processor::mp2decodeFrame (uint8_t *frame, int16_t *pcm)
 
     numberofFrames ++;
     if (numberofFrames >= 25) {
-        myRadioInterface->show_frameErrors(errorFrames);
+        myRadioInterface->onFrameErrors(errorFrames);
         numberofFrames   = 0;
         errorFrames      = 0;
     }
@@ -446,7 +446,7 @@ int32_t mp2Processor::mp2decodeFrame (uint8_t *frame, int16_t *pcm)
         get_bits(2);
         bound = (mode == MONO) ? 0 : 32;
     }
-    myRadioInterface->setStereo(mode != MONO);
+    myRadioInterface->onStereoChange(mode != MONO);
 
     // discard the last 4 bits of the header and the CRC value, if present
     get_bits(4);
@@ -650,7 +650,7 @@ void mp2Processor::addtoFrame(uint8_t *v)
                 if (mp2decodeFrame (MP2frame.data(), sample_buf)) {
                     buffer->putDataIntoBuffer (sample_buf,
                             2 * (int32_t)KJMP2_SAMPLES_PER_FRAME);
-                    myRadioInterface->newAudio(baudRate);
+                    myRadioInterface->onNewAudio(baudRate);
                 }
 
                 MP2Header_OK = 0;
