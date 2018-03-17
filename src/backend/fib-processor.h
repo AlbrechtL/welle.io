@@ -28,6 +28,7 @@
 #include    <cstdint>
 #include    <cstdio>
 #include    "msc-handler.h"
+#include    "radio-controller.h"
 
 struct dabLabel {
     std::string label; // UTF-8 encoded
@@ -141,7 +142,7 @@ class   fib_processor {
         int16_t HandleFIG0Extension13(uint8_t *d, int16_t used, uint8_t pdBit);
         int16_t HandleFIG0Extension22(uint8_t *d, int16_t used);
 
-        int32_t dateTime[8];
+        dab_date_time_t dateTime = {};
         ChannelMap ficList[64];
         std::vector<ServiceComponent> components;
         std::vector<Service> listofServices;

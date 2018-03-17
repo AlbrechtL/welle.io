@@ -82,7 +82,7 @@ mp4Processor::mp4Processor(
 
 void mp4Processor::PADChangeDynamicLabel(const DL_STATE& dl)
 {
-    myRadioInterface->showLabel(
+    myRadioInterface->onNewDynamicLabel(
             toUtf8StringUsingCharset(
                 (const char *)&dl.raw[0],
                 (CharacterSet) dl.charset,
@@ -91,7 +91,7 @@ void mp4Processor::PADChangeDynamicLabel(const DL_STATE& dl)
 
 void mp4Processor::PADChangeSlide(const MOT_FILE& slide)
 {
-    myRadioInterface->showMOT(slide.data, slide.content_sub_type);
+    myRadioInterface->onMOT(slide.data, slide.content_sub_type);
 }
 
 /**
@@ -128,7 +128,7 @@ void mp4Processor::addtoFrame(uint8_t *V)
         /// first, we show the "successrate"
         if (++frameCount >= 25) {
             frameCount = 0;
-            myRadioInterface->show_frameErrors(frameErrors);
+            myRadioInterface->onFrameErrors(frameErrors);
             frameErrors = 0;
         }
 
@@ -144,7 +144,7 @@ void mp4Processor::addtoFrame(uint8_t *V)
             //  new sequence, beginning with block blockFillIndex
             blocksInBuffer    = 0;
             if (++successFrames > 25) {
-                myRadioInterface->show_rsErrors(rsErrors);
+                myRadioInterface->onRsErrors(rsErrors);
                 successFrames  = 0;
                 rsErrors   = 0;
             }
@@ -289,7 +289,7 @@ bool mp4Processor::processSuperframe(uint8_t frameBytes[], int16_t base)
             }
 
             if (++aacFrames > 25) {
-                myRadioInterface->show_aacErrors(aacErrors);
+                myRadioInterface->onAacErrors(aacErrors);
                 aacErrors  = 0;
                 aacFrames  = 0;
             }
@@ -332,7 +332,7 @@ void  mp4Processor::handle_aacFrame(
     *error  = tmp == 0;
 
     AACAudioMode aacAudioMode_tmp = AACAudioMode::Unknown;
-    myRadioInterface->newAudio(sampleRate);
+    myRadioInterface->onNewAudio(sampleRate);
 
     if(aacChannelMode == 0 && isParametricStereo == true) // Parametric stereo
         aacAudioMode_tmp = AACAudioMode::ParametricStereo;
@@ -348,15 +348,15 @@ void  mp4Processor::handle_aacFrame(
         {
         case AACAudioMode::Mono:
             std::clog << "mp4processor:" <<  "Detected mono audio signal" << std::endl;
-            myRadioInterface->setStereo(false);
+            myRadioInterface->onStereoChange(false);
             break;
         case AACAudioMode::Stereo:
             std::clog << "mp4processor:" <<  "Detected stereo audio signal" << std::endl;
-            myRadioInterface->setStereo(true);
+            myRadioInterface->onStereoChange(true);
             break;
         case AACAudioMode::ParametricStereo:
             std::clog << "mp4processor:" <<  "Detected parametric stereo audio signal" << std::endl;
-            myRadioInterface->setStereo(true);
+            myRadioInterface->onStereoChange(true);
             break;
         default: std::clog << "mp4processor:" <<  "Unknown audio mode" << std::endl;
         }

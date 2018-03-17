@@ -101,7 +101,6 @@ fib_processor::fib_processor(CRadioController *mr)
 {
     myRadioInterface = mr;
 
-    memset (dateTime, 0, 8 * sizeof(int32_t));
     dateFlag = false;
     clearEnsemble();
 }
@@ -487,10 +486,10 @@ void fib_processor::FIG0Extension9 (uint8_t *d)
 {
     int16_t offset  = 16;
 
-    dateTime[6] = (getBits_1 (d, offset + 2) == 1) ?
+    dateTime.hourOffset = (getBits_1 (d, offset + 2) == 1) ?
         -1 * getBits_4 (d, offset + 3):
         getBits_4 (d, offset + 3);
-    dateTime[7] = (getBits_1 (d, offset + 7) == 1) ? 30 : 0;
+    dateTime.minuteOffset = (getBits_1 (d, offset + 7) == 1) ? 30 : 0;
 }
 
 void fib_processor::FIG0Extension10 (uint8_t *fig)
@@ -515,18 +514,18 @@ void fib_processor::FIG0Extension10 (uint8_t *fig)
     int32_t M   = ((m + 2) % 12) + 1;
     int32_t D   = d + 1;
 
-    dateTime[0] = Y;   // Year
-    dateTime[1] = M;   // Month
-    dateTime[2] = D;   // Day
-    dateTime[3] = getBits_5 (fig, offset + 21);    // Hour
-    if (getBits_6 (fig, offset + 26) != dateTime [4])
-        dateTime[5] =  0;  // Seconds (handle overflow)
+    dateTime.year = Y;
+    dateTime.month = M;
+    dateTime.day = D;
+    dateTime.hour = getBits_5(fig, offset + 21);
+    if (getBits_6(fig, offset + 26) != dateTime.minutes)
+        dateTime.seconds =  0;  // handle overflow
 
-    dateTime[4] = getBits_6 (fig, offset + 26);    // Minutes
+    dateTime.minutes = getBits_6(fig, offset + 26);
     if (fig [offset + 20] == 1)
-        dateTime[5] = getBits_6 (fig, offset + 32);    // Seconds
-    dateFlag    = true;
-    myRadioInterface->updateDateTime(dateTime);
+        dateTime.seconds = getBits_6(fig, offset + 32);
+    dateFlag = true;
+    myRadioInterface->onDateTimeUpdate(dateTime);
 }
 
 void fib_processor::FIG0Extension13 (uint8_t *d)
@@ -802,7 +801,7 @@ void    fib_processor::process_FIG1 (uint8_t *d)
                     if (firstTime) {
                         std::string label_utf8 = toUtf8StringUsingCharset(
                                 (const char *) label, (CharacterSet) charSet);
-                        myRadioInterface->updateEnsembleName(label_utf8);
+                        myRadioInterface->onNewEnsembleName(label_utf8);
                     }
                     firstTime   = false;
                     isSynced    = true;
@@ -823,7 +822,7 @@ void    fib_processor::process_FIG1 (uint8_t *d)
                 myIndex->serviceLabel.label = toUtf8StringUsingCharset(
                         (const char *)label, (CharacterSet) charSet);
                 // std::clog << "fib-processor:" << "FIG1/1: SId = %4x\t%s\n", SId, label) << std::endl;
-                myRadioInterface->addServiceToEnsemble(SId, myIndex->serviceLabel.label);
+                myRadioInterface->onServiceDetected(SId, myIndex->serviceLabel.label);
             }
             break;
 
@@ -870,7 +869,7 @@ void    fib_processor::process_FIG1 (uint8_t *d)
                         (const char *)label, (CharacterSet)charSet);
                 myIndex->serviceLabel.label += " (data)";
 #ifdef  MSC_DATA__
-                myRadioInterface->addServiceToEnsemble(SId, myIndex->serviceLabel.label);
+                myRadioInterface->onServiceDetected(SId, myIndex->serviceLabel.label);
 #endif
             }
             break;

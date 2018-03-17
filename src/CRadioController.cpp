@@ -942,9 +942,9 @@ void CRadioController::SyncCheckTimerTimeout(void)
  * Backend slots *
  *****************/
 
-void CRadioController::addServiceToEnsemble(uint32_t SId, const std::string& station)
+void CRadioController::onServiceDetected(uint32_t SId, const std::string& label)
 {
-    emit EnsembleAdded(SId, QString::fromStdString(station));
+    emit EnsembleAdded(SId, QString::fromStdString(label));
 }
 
 void CRadioController::addtoEnsemble(quint32 SId, const QString &Station)
@@ -981,7 +981,7 @@ void CRadioController::addtoEnsemble(quint32 SId, const QString &Station)
     }
 }
 
-void CRadioController::updateEnsembleName(const std::string& name)
+void CRadioController::onNewEnsembleName(const std::string& name)
 {
     emit EnsembleNameUpdated(QString::fromStdString(name));
 }
@@ -997,42 +997,32 @@ void CRadioController::nameofEnsemble(const QString &Ensemble)
 }
 
 
-void CRadioController::updateDateTime(const int *DateTime)
+void CRadioController::onDateTimeUpdate(const dab_date_time_t& dateTime)
 {
-    emit DateTimeUpdated(DateTime);
+    emit DateTimeUpdated(dateTime);
 }
 
-void CRadioController::displayDateTime(const int *DateTime)
+void CRadioController::displayDateTime(const dab_date_time_t& dateTime)
 {
     QDate Date;
     QTime Time;
 
-    int Year = DateTime[0];
-    int Month = DateTime[1];
-    int Day = DateTime[2];
-    int Hour = DateTime[3];
-    int Minute = DateTime[4];
-    int Seconds	= DateTime [5];
-    int HourOffset = DateTime[6];
-    int MinuteOffset = DateTime[7];
-
-    Time.setHMS(Hour, Minute, Seconds);
+    Time.setHMS(dateTime.hour, dateTime.minutes, dateTime.seconds);
     mCurrentDateTime.setTime(Time);
 
-    Date.setDate(Year, Month, Day);
+    Date.setDate(dateTime.year, dateTime.month, dateTime.day);
     mCurrentDateTime.setDate(Date);
 
-    int OffsetFromUtc = ((HourOffset * 3600) + (MinuteOffset * 60));
+    int OffsetFromUtc = dateTime.hourOffset * 3600 +
+                        dateTime.minuteOffset * 60;
     mCurrentDateTime.setOffsetFromUtc(OffsetFromUtc);
     mCurrentDateTime.setTimeSpec(Qt::OffsetFromUTC);
 
     QDateTime LocalTime = mCurrentDateTime.toLocalTime();
     emit DateTimeChanged(QLocale().toString(LocalTime, QLocale::ShortFormat));
-
-    return;
 }
 
-void CRadioController::show_ficSuccess(bool isFICCRC)
+void CRadioController::onFICDecodeSuccess(bool isFICCRC)
 {
     if (mIsFICCRC == isFICCRC)
         return;
@@ -1040,36 +1030,23 @@ void CRadioController::show_ficSuccess(bool isFICCRC)
     emit isFICCRCChanged(mIsFICCRC);
 }
 
-void CRadioController::show_snr(int SNR)
+void CRadioController::onSNR(int snr)
 {
-    if (mSNR == SNR)
+    if (mSNR == snr)
         return;
-    mSNR = SNR;
+    mSNR = snr;
     emit SNRChanged(mSNR);
 }
 
-void CRadioController::set_fineCorrectorDisplay(int FineFrequencyCorr)
+void CRadioController::onFrequencyCorrectorChange(int fine, int coarse)
 {
-    int CoarseFrequencyCorr = (mFrequencyCorrection / 1000);
-    SetFrequencyCorrection((CoarseFrequencyCorr * 1000) + FineFrequencyCorr);
-}
-
-void CRadioController::set_coarseCorrectorDisplay(int CoarseFreuqencyCorr)
-{
-    int OldCoareFrequencyCorrr = (mFrequencyCorrection / 1000);
-    int FineFrequencyCorr = mFrequencyCorrection - (OldCoareFrequencyCorrr * 1000);
-    SetFrequencyCorrection((CoarseFreuqencyCorr * 1000) + FineFrequencyCorr);
-}
-
-void CRadioController::SetFrequencyCorrection(int FrequencyCorrection)
-{
-    if (mFrequencyCorrection == FrequencyCorrection)
+    if (mFrequencyCorrection == coarse + fine)
         return;
-    mFrequencyCorrection = FrequencyCorrection;
+    mFrequencyCorrection = coarse + fine;
     emit FrequencyCorrectionChanged(mFrequencyCorrection);
 }
 
-void CRadioController::setSynced(char isSync)
+void CRadioController::onSyncChange(char isSync)
 {
     bool sync = (isSync == SYNCED) ? true : false;
     if (mIsSync == sync)
@@ -1078,7 +1055,7 @@ void CRadioController::setSynced(char isSync)
     emit isSyncChanged(mIsSync);
 }
 
-void CRadioController::setSignalPresent(bool isSignal)
+void CRadioController::onSignalPresence(bool isSignal)
 {
     if (mIsSignal != isSignal) {
         mIsSignal = isSignal;
@@ -1089,19 +1066,19 @@ void CRadioController::setSignalPresent(bool isSignal)
         emit SwitchToNextChannel(isSignal);
 }
 
-void CRadioController::newAudio(int SampleRate)
+void CRadioController::onNewAudio(int sampleRate)
 {
-    if(mAudioSampleRate != SampleRate)
+    if(mAudioSampleRate != sampleRate)
     {
-        qDebug() << "RadioController: Audio sample rate" <<  SampleRate << "kHz";
-        mAudioSampleRate = SampleRate;
+        qDebug() << "RadioController: Audio sample rate" <<  sampleRate << "kHz";
+        mAudioSampleRate = sampleRate;
         emit AudioSampleRateChanged(mAudioSampleRate);
 
-        Audio->setRate(SampleRate);
+        Audio->setRate(sampleRate);
     }
 }
 
-void CRadioController::setStereo(bool isStereo)
+void CRadioController::onStereoChange(bool isStereo)
 {
     if (mIsStereo == isStereo)
         return;
@@ -1109,44 +1086,44 @@ void CRadioController::setStereo(bool isStereo)
     emit isStereoChanged(mIsStereo);
 }
 
-void CRadioController::show_frameErrors(int FrameErrors)
+void CRadioController::onFrameErrors(int frameErrors)
 {
-    if (mFrameErrors == FrameErrors)
+    if (mFrameErrors == frameErrors)
         return;
-    mFrameErrors = FrameErrors;
+    mFrameErrors = frameErrors;
     emit FrameErrorsChanged(mFrameErrors);
 }
 
-void CRadioController::show_rsErrors(int RSErrors)
+void CRadioController::onRsErrors(int rsErrors)
 {
-    if (mRSErrors == RSErrors)
+    if (mRSErrors == rsErrors)
         return;
-    mRSErrors = RSErrors;
+    mRSErrors = rsErrors;
     emit RSErrorsChanged(mRSErrors);
 }
 
-void CRadioController::show_aacErrors(int AACErrors)
+void CRadioController::onAacErrors(int aacErrors)
 {
-    if (mAACErrors == AACErrors)
+    if (mAACErrors == aacErrors)
         return;
-    mAACErrors = AACErrors;
+    mAACErrors = aacErrors;
     emit AACErrorsChanged(mAACErrors);
 }
 
-void CRadioController::showLabel(const std::string& Label)
+void CRadioController::onNewDynamicLabel(const std::string& label)
 {
-    auto qlabel = QString::fromUtf8(Label.c_str());
+    auto qlabel = QString::fromUtf8(label.c_str());
     if (this->CurrentText != qlabel) {
         this->CurrentText = qlabel;
         UpdateGUIData();
     }
 }
 
-void CRadioController::showMOT(const std::vector<uint8_t>& Data, int Subtype)
+void CRadioController::onMOT(const std::vector<uint8_t>& Data, int subtype)
 {
     QByteArray qdata((const char*)Data.data(), (int)Data.size());
 
-    MOTImage->loadFromData(qdata, Subtype == 0 ? "GIF" : Subtype == 1 ? "JPEG" : Subtype == 2 ? "BMP" : "PNG");
+    MOTImage->loadFromData(qdata, subtype == 0 ? "GIF" : subtype == 1 ? "JPEG" : subtype == 2 ? "BMP" : "PNG");
 
     emit MOTChanged(*MOTImage);
 }

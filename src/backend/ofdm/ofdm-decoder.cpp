@@ -180,7 +180,7 @@ void ofdmDecoder::processBlock_0 (void)
      */
     snr = 0.7 * snr + 0.3 * get_snr (fft_buffer);
     if (++snrCount > 10) {
-        myRadioInterface->show_snr(snr);
+        myRadioInterface->onSNR(snr);
         snrCount = 0;
     }
     /**
