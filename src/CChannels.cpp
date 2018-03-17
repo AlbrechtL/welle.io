@@ -27,11 +27,12 @@
  *
  */
 
-#include <QDebug>
-
+#include <iostream>
 #include "CChannels.h"
 
-QString CChannels::FirstChannel = "5A";
+using namespace std;
+
+string CChannels::FirstChannel = "5A";
 
 CChannels::CChannels()
 {
@@ -99,17 +100,15 @@ CChannels::CChannels()
     CurrentFrequencyIndex = 0;
 }
 
-int CChannels::getFrequency(QString ChannelName)
+int CChannels::getFrequency(const string& ChannelName)
 {
     int Frequency = 0;
 
     try {
         Frequency = FrequencyMap.at(ChannelName);
     }
-
-    catch (...) {
-        qDebug() << "DABConstants:"
-                 << "Frequency doesn't exists";
+    catch (const std::out_of_range&) {
+        clog << "DABConstants: Frequency doesn't exist" << endl;
         Frequency = 0;
     }
 
@@ -117,23 +116,26 @@ int CChannels::getFrequency(QString ChannelName)
     CurrentChannel = ChannelName;
 
     // Get index of current fequency
-    for(int i=0; i<NUMBEROFCHANNELS; i++)
-        if(getChannelNameAtIndex(i) == ChannelName) CurrentFrequencyIndex = i;
+    for (int i=0; i<NUMBEROFCHANNELS; i++) {
+        if (getChannelNameAtIndex(i) == ChannelName) {
+            CurrentFrequencyIndex = i;
+        }
+    }
 
     return Frequency;
 }
 
-QString CChannels::getNextChannel(void)
+string CChannels::getNextChannel(void)
 {
     CurrentFrequencyIndex++;
 
-    if(CurrentFrequencyIndex >= NUMBEROFCHANNELS)
-        return QString();
+    if (CurrentFrequencyIndex >= NUMBEROFCHANNELS)
+        return "";
     else
         return getChannelNameAtIndex(CurrentFrequencyIndex);
 }
 
-QString CChannels::getCurrentChannel(void)
+string CChannels::getCurrentChannel(void)
 {
     return CurrentChannel;
 }
@@ -148,10 +150,9 @@ int CChannels::getCurrentIndex()
     return CurrentFrequencyIndex;
 }
 
-
-QString CChannels::getChannelNameAtIndex(int Index)
+string CChannels::getChannelNameAtIndex(int Index)
 {
-    QString ChannelName = "";
+    string ChannelName = "";
 
     switch(Index)
     {
@@ -212,8 +213,8 @@ QString CChannels::getChannelNameAtIndex(int Index)
     case 51: ChannelName = "LN"; break;
     case 52: ChannelName = "LO"; break;
     case 53: ChannelName = "LP"; break;
-    default: qDebug() << "DABConstants:"
-                      << "No channel name at index";
+    default: clog << "DABConstants:"
+                      << "No channel name at index" << endl;
     }
 
     return ChannelName;
