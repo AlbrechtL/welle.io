@@ -30,14 +30,14 @@
 #include "DabConstants.h"
 #include <vector>
 #include <memory>
-#include <stdio.h>
-#include <stdint.h>
+#include <cstdio>
+#include <cstdint>
 #include "CAudio.h"
 #include "dab-processor.h"
 #include "CFaadDecoder.h"
 #include "firecode-checker.h"
 #include "reed-solomon.h"
-#include "pad_decoder.h"
+#include "data/pad_decoder.h"
 
 class   CRadioController;
 

@@ -25,11 +25,10 @@
  */
 
 #include <iostream>
-#include "ofdm-decoder.h"
+#include "ofdm/ofdm-decoder.h"
 #include "CRadioController.h"
 #include "fic-handler.h"
 #include "msc-handler.h"
-#include "freq-interleaver.h"
 
 /**
  * \brief ofdmDecoder

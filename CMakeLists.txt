@@ -45,9 +45,6 @@ endif()
 include_directories(
     src
     src/backend
-    src/backend/ofdm
-    src/backend/audio
-    src/backend/data
     src/output
     src/various
     src/input
