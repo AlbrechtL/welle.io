@@ -44,8 +44,8 @@ endif()
 
 include_directories(
     src
-    src/ofdm
     src/backend
+    src/backend/ofdm
     src/backend/audio
     src/backend/data
     src/output
@@ -60,11 +60,11 @@ include_directories(
 
 set(sources
     src/main.cpp
-    src/ofdm/ofdm-processor.cpp
-    src/ofdm/ofdm-decoder.cpp
-    src/ofdm/phasereference.cpp
-    src/ofdm/phasetable.cpp
-    src/ofdm/freq-interleaver.cpp
+    src/backend/ofdm/ofdm-processor.cpp
+    src/backend/ofdm/ofdm-decoder.cpp
+    src/backend/ofdm/phasereference.cpp
+    src/backend/ofdm/phasetable.cpp
+    src/backend/ofdm/freq-interleaver.cpp
     src/backend/viterbi.cpp
     src/backend/fic-handler.cpp
     src/backend/msc-handler.cpp

@@ -15,3 +15,5 @@ Regressions to be fixed later:
 * i18n translation is moved out of the backend. Problem?
 
 * Test label and DLS parsing with all Charsets! EBU seems to work
+
+* Building with QMake is untested. Same for the Android build.
