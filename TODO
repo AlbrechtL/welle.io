@@ -34,3 +34,5 @@ Improvements:
 * Clarify if Locker is needed in void DabAudio::run()
 
 * Write a ringbuffer replacement that can take advantage of move semantics
+
+* Avoid copies in RTLSDR uint8 to float normalisation

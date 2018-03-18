@@ -1,4 +1,7 @@
 /*
+ *    Copyright (C) 2018
+ *    Matthias P. Braendli (matthias.braendli@mpb.li)
+ *
  *    Copyright (C) 2017
  *    Albrecht Lohofener (albrechtloh@gmx.de)
  *
@@ -27,33 +30,33 @@
  *
  */
 
-#ifndef CCHANNELS_H
-#define CCHANNELS_H
+#ifndef CHANNELS_H
+#define CHANNELS_H
 
 #include <map>
 #include <string>
 
 #define NUMBEROFCHANNELS 54
 
-class CChannels
+class Channels
 {
 public:
-    CChannels();
-    int getFrequency(const std::string& ChannelName);
+    Channels();
+    int getFrequency(const std::string& channelName);
     std::string getNextChannel(void);
     std::string getCurrentChannel(void);
     int getCurrentFrequency(void);
     int getCurrentIndex(void);
 
-    static std::string FirstChannel;
+    static std::string firstChannel;
 
 private:
-    std::string getChannelNameAtIndex(int Index);
+    std::string getChannelNameAtIndex(int index);
 
-    std::map<std::string, int> FrequencyMap;
-    int CurrentFrequencyIndex;
-    std::string CurrentChannel;
-    int CurrentFrequency;
+    std::map<std::string, int> frequencyMap;
+    int currentFrequencyIndex;
+    std::string currentChannel;
+    int currentFrequency;
 };
 
 #endif // CCHANNELS_H

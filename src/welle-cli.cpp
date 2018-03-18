@@ -32,6 +32,8 @@
 
 #include <iostream>
 #include "backend/radio-receiver.h"
+#include "input/CInputFactory.h"
+#include "various/channels.h"
 
 using namespace std;
 
@@ -49,21 +51,57 @@ class RadioInterface : public RadioControllerInterface {
         virtual void onSyncChange(char isSync) override { }
         virtual void onSignalPresence(bool isSignal) override { }
         virtual void onServiceDetected(uint32_t sId, const std::string& label) override { }
-        virtual void onNewEnsembleName(const std::string& name) override { }
+        virtual void onNewEnsembleName(const std::string& name) override
+        {
+            cerr << "Ensemble name is: " << name << endl;
+        }
+
         virtual void onDateTimeUpdate(const dab_date_time_t& dateTime) override { }
         virtual void onFICDecodeSuccess(bool isFICCRC) override { }
         virtual void onNewImpulseResponse(std::vector<float>&& data) override { }
+        virtual void onMessage(message_level_t level, const std::string& text) override
+        {
+            switch (level) {
+                case message_level_t::Information:
+                    cerr << "Info: " << text << endl;
+                    break;
+                case message_level_t::Error:
+                    cerr << "Error: " << text << endl;
+                    break;
+            }
+        }
 };
 
 int main(int argc, char **argv)
 {
     cerr << "Hello this is welle-cli" << endl;
 
-    /*
     RadioInterface ri;
-    auto in = CInputFactory::GetDevice(ri, "auto");
-    RadioReceiver rx(ri, in);
-    */
+    CVirtualInput *in = CInputFactory::GetDevice(ri, "auto");
+    if (not in) {
+        cerr << "Could not start device" << endl;
+        return 1;
+    }
 
+    in->setAgc(true);
+
+    Channels channels;
+    if (argc == 2) {
+        in->setFrequency(channels.getFrequency(argv[1]));
+    }
+    else {
+        in->setFrequency(channels.getFrequency("10B"));
+    }
+
+    RadioReceiver rx(ri, *in, "", "");
+
+    cerr << "RadioReceiver initialised" << endl;
+
+    rx.restart(false);
+
+    cerr << "RadioReceiver restarted, sleeping 20s..." << endl;
+    this_thread::sleep_for(chrono::seconds(20));
+
+    cerr << "Bye!" << endl;
     return 0;
 }

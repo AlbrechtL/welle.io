@@ -1,4 +1,7 @@
 /*
+ *    Copyright (C) 2018
+ *    Matthias P. Braendli (matthias.braendli@mpb.li)
+ *
  *    Copyright (C) 2017
  *    Albrecht Lohofener (albrechtloh@gmx.de)
  *
@@ -38,8 +41,6 @@
 
 #include "CRAWFile.h"
 
-using namespace std::string_literals;
-
 static inline int64_t getMyTime(void)
 {
     struct timeval tv;
@@ -50,14 +51,14 @@ static inline int64_t getMyTime(void)
 
 #define INPUT_FRAMEBUFFERSIZE 8 * 32768
 
-CRAWFile::CRAWFile(CRadioController &RadioController) :
+CRAWFile::CRAWFile(RadioControllerInterface& radioController) :
+    radioController(radioController),
     FileName(""),
     FileFormat(CRAWFileFormat::Unknown),
     IQByteSize(1),
     SampleBuffer(INPUT_FRAMEBUFFERSIZE),
     SpectrumSampleBuffer(8192)
 {
-    this->RadioController = &RadioController;
 }
 
 CRAWFile::~CRAWFile(void)
@@ -153,13 +154,15 @@ void CRAWFile::setFileName(const std::string& FileName, const std::string& FileF
     {
         this->FileFormat = CRAWFileFormat::Unknown;
         std::clog << "RAWFile: unknown file format" << std::endl;
-        RadioController->setErrorMessage("Unknown RAW file format"s);
+        radioController.onMessage(message_level_t::Error,
+                "Unknown RAW file format");
     }
 
     filePointer = fopen(FileName.c_str(), "rb");
     if (filePointer == nullptr) {
         std::clog << "RAWFile: Cannot open file: " << FileName << std::endl;
-        RadioController->setErrorMessage("Cannot open file", FileName);
+        radioController.onMessage(message_level_t::Error,
+                "Cannot open file" + FileName);
         return;
     }
 
@@ -253,7 +256,8 @@ int32_t CRAWFile::readBuffer(uint8_t* data, int32_t length)
     if (n < length) {
         fseek(filePointer, 0, SEEK_SET);
         std::clog << "RAWFile:"  << "End of file, restarting" << std::endl;
-        RadioController->setInfoMessage("End of file, restarting"s);
+        radioController.onMessage(message_level_t::Information,
+                "End of file, restarting");
     }
     return n & ~01;
 }

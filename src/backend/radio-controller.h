@@ -52,6 +52,8 @@ struct dab_date_time_t {
     int minuteOffset;
 };
 
+enum class message_level_t { Information, Error };
+
 /* Definition of the interface all radio controllers must implement.
  * All functions starting with "on" are callbacks for the backend.
  */
@@ -116,6 +118,9 @@ class RadioControllerInterface {
 
         /* When a new channel impulse response vector was calculated */
         virtual void onNewImpulseResponse(std::vector<float>&& data) = 0;
+
+        /* When a information or warning message should be printed */
+        virtual void onMessage(message_level_t level, const std::string& text) = 0;
 };
 
 /* Definition of the interface all input devices must implement */

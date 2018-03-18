@@ -1,4 +1,7 @@
 /*
+ *    Copyright (C) 2018
+ *    Matthias P. Braendli (matthias.braendli@mpb.li)
+ *
  *    Copyright (C) 2017
  *    Albrecht Lohofener (albrechtloh@gmx.de)
  *
@@ -36,7 +39,7 @@
 #include "CVirtualInput.h"
 #include "dab-constants.h"
 #include "ringbuffer.h"
-#include "CRadioController.h"
+#include "radio-controller.h"
 
 class QLabel;
 class QSettings;
@@ -47,7 +50,7 @@ enum class CRAWFileFormat {U8, S8, S16LE, S16BE, Unknown};
 
 class CRAWFile : public CVirtualInput {
 public:
-    CRAWFile(CRadioController &RadioController);
+    CRAWFile(RadioControllerInterface& radioController);
     ~CRAWFile(void);
 
     // Interface methods
@@ -69,7 +72,7 @@ public:
     void setFileName(const std::string& FileName, const std::string& FileFormat);
 
 private:
-    CRadioController *RadioController;
+    RadioControllerInterface& radioController;
     std::string FileName;
     CRAWFileFormat FileFormat;
     uint8_t IQByteSize;
