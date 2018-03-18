@@ -51,7 +51,8 @@ class mp2Processor: public dabProcessor, public PADDecoderObserver
 {
     public:
         mp2Processor(RadioControllerInterface& mr,
-                     int16_t bitRate);
+                     int16_t bitRate,
+                     const std::string& mp2FileName);
         virtual void addtoFrame(uint8_t *v);
         void setFile(FILE *);
 
@@ -93,7 +94,6 @@ class mp2Processor: public dabProcessor, public PADDecoderObserver
         int16_t     numberofFrames;
         int16_t     errorFrames;
 
-        std::string  mp2FileName;
         struct FILEDeleter{ void operator()(FILE* fd){ if (fd) fclose(fd); }};
         std::unique_ptr<FILE, FILEDeleter> mp2File;
 

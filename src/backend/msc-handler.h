@@ -47,13 +47,17 @@ class MscHandler
     public:
         MscHandler(RadioControllerInterface& mr,
                 const DABParams& p,
-                bool show_crcErrors);
+                bool show_crcErrors,
+                const std::string& mscFileName,
+                const std::string& mp2FileName);
         void process_mscBlock(int16_t *fbits, int16_t blkno);
         void set_audioChannel(audiodata *d);
         void set_dataChannel(packetdata *d);
         void stopProcessing(void);
     private:
         RadioControllerInterface& radioInterface;
+        const std::string& mscFileName;
+        const std::string& mp2FileName;
         bool        show_crcErrors;
         std::mutex  mutex;
         bool        audioService = true;     // default

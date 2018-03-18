@@ -37,8 +37,12 @@
 MscHandler::MscHandler(
         RadioControllerInterface& mr,
         const DABParams& p,
-        bool show_crcErrors) :
+        bool show_crcErrors,
+        const std::string& mscFileName,
+        const std::string& mp2FileName) :
     radioInterface(mr),
+    mscFileName(mscFileName),
+    mp2FileName(mp2FileName),
     cifVector(864 * CUSize)
 {
     this->show_crcErrors = show_crcErrors;
@@ -128,7 +132,9 @@ void  MscHandler::process_mscBlock(int16_t *fbits, int16_t blkno)
                     new_bitRate,
                     new_shortForm,
                     new_protLevel,
-                    radioInterface);
+                    radioInterface,
+                    mscFileName,
+                    mp2FileName);
         }
         else  {  /* TODO dealing with data
                     dabHandler = std::make_shared<DabData>(radioInterface,

@@ -40,21 +40,20 @@
  * that are processed by the "faadDecoder" class
  */
 mp4Processor::mp4Processor(
-        RadioControllerInterface& mr, int16_t bitRate) :
+        RadioControllerInterface& mr,
+        int16_t bitRate,
+        const std::string& mscFileName) :
     myRadioInterface(mr),
     the_rsDecoder(8, 0435, 0, 1, 10),
     padDecoder(this, true)
 {
-#if 0
     // Open a MSC file (XPADxpert) if the user defined it
-    mscFileName = myRadioInterface.GetMscFileName();
     if (!mscFileName.empty()) {
         FILE* fd = fopen(mscFileName.c_str(), "wb");  // w for write, b for binary
         if (fd != nullptr) {
             mscFile.reset(fd);
         }
     }
-#endif
 
     this->bitRate  = bitRate;  // input rate
 

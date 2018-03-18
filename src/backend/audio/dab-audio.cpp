@@ -48,9 +48,13 @@ DabAudio::DabAudio(
         int16_t bitRate,
         bool shortForm,
         int16_t protLevel,
-        RadioControllerInterface& mr) :
+        RadioControllerInterface& mr,
+        const std::string& mscFileName,
+        const std::string& mp2FileName) :
     myRadioInterface(mr),
-    Buffer(64 * 32768)
+    Buffer(64 * 32768),
+    mscFileName(mscFileName),
+    mp2FileName(mp2FileName)
 {
     int32_t i;
     this->dabModus         = dabModus;
@@ -74,11 +78,13 @@ DabAudio::DabAudio(
         protectionHandler = make_unique<eep_protection>(bitRate, protLevel);
 
     if (dabModus == DAB) {
-        our_dabProcessor = make_unique<mp2Processor>(myRadioInterface, bitRate);
+        our_dabProcessor = make_unique<mp2Processor>(
+                myRadioInterface, bitRate, mp2FileName);
     }
     else {
         if (dabModus == DAB_PLUS) {
-            our_dabProcessor = make_unique<mp4Processor>(myRadioInterface, bitRate);
+            our_dabProcessor = make_unique<mp4Processor>(
+                    myRadioInterface, bitRate, mscFileName);
         }
         else        // cannot happen
             our_dabProcessor = make_unique<dummyProcessor>();

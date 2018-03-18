@@ -147,8 +147,6 @@ public:
 
     int GainCount() const;
     float GainValue() const;
-    std::string GetMscFileName(void);
-    std::string GetMP2FileName(void);
 
     //called from the backend
     virtual void onFrameErrors(int frameErrors) override;
