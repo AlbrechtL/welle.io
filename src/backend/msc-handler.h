@@ -51,8 +51,8 @@ class MscHandler
                 const std::string& mscFileName,
                 const std::string& mp2FileName);
         void process_mscBlock(int16_t *fbits, int16_t blkno);
-        void set_audioChannel(audiodata *d);
-        void set_dataChannel(packetdata *d);
+        void setAudioChannel(const audiodata_t& d);
+        void setDataChannel(const packetdata_t& d);
         void stopProcessing(void);
     private:
         RadioControllerInterface& radioInterface;

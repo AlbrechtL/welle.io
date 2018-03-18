@@ -242,16 +242,16 @@ uint8_t FicHandler::kindofService(const std::string& s)
     return fibProcessor.kindofService(s);
 }
 
-void FicHandler::dataforAudioService (const std::string &s, audiodata *d)
+audiodata_t FicHandler::getAudioServiceData(const std::string& s)
 {
     std::unique_lock<std::mutex> lock(fibMutex);
-    fibProcessor.dataforAudioService(s, d);
+    return fibProcessor.getAudioServiceData(s);
 }
 
-void FicHandler::dataforDataService  (const std::string &s, packetdata *d)
+packetdata_t FicHandler::getDataServiceData(const std::string& s)
 {
     std::unique_lock<std::mutex> lock(fibMutex);
-    fibProcessor.dataforDataService(s, d);
+    return fibProcessor.getDataServiceData(s);
 }
 
 int16_t FicHandler::get_ficRatio()

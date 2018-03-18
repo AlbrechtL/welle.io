@@ -83,7 +83,7 @@ public:
     int16_t carrierDiff;
 };
 
-struct packetdata {
+struct packetdata_t {
     int16_t subchId;
     int16_t startAddr;
     bool shortForm;
@@ -94,9 +94,10 @@ struct packetdata {
     int16_t FEC_scheme;
     int16_t DGflag;
     int16_t packetAddress;
+    bool valid;
 };
 
-struct audiodata {
+struct audiodata_t {
     int16_t subchId;
     int16_t startAddr;
     bool shortForm;
@@ -106,7 +107,7 @@ struct audiodata {
     int16_t ASCTy;
     int16_t language;
     int16_t programType;
-    bool defined;
+    bool valid;
 };
 
 #endif

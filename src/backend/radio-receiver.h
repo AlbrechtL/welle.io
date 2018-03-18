@@ -44,7 +44,17 @@ class RadioReceiver {
     public:
         RadioReceiver(
                 RadioControllerInterface& rci,
-                InputInterface& input);
+                InputInterface& input,
+                const std::string& mscFileName,
+                const std::string& mp2FileName);
+
+        /* Restart the receiver, and specify if we want
+         * to scan or receive. */
+        void restart(bool doScan);
+
+        audiodata_t getAudioServiceData(const std::string& label);
+
+        void selectAudioService(const audiodata_t& ad);
 
     private:
         RadioControllerInterface& rci;
@@ -52,12 +62,9 @@ class RadioReceiver {
 
         DABParams params;
 
-        std::string mscFileName;
-        std::string mp2FileName;
-
-        OFDMProcessor ofdmProcessor;
-        FicHandler ficHandler;
         MscHandler mscHandler;
+        FicHandler ficHandler;
+        OFDMProcessor ofdmProcessor;
 };
 
 #endif

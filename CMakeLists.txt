@@ -79,6 +79,7 @@ set(backend_sources
     src/backend/ofdm/phasetable.cpp
     src/backend/protTables.cpp
     src/backend/reed-solomon.cpp
+    src/backend/radio-receiver.cpp
     src/backend/tools.cpp
     src/backend/uep-protection.cpp
     src/backend/viterbi.cpp
@@ -99,7 +100,6 @@ set(welle_io_sources
 )
 
 set(welle_cli_sources
-    src/backend/radio-receiver.cpp
     src/welle-cli.cpp
 )
 
