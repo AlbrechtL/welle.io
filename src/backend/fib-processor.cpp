@@ -1074,8 +1074,8 @@ packetdata_t fib_processor::getDataServiceData(const std::string &s)
             return d;
         }
     }
-    std::clog << "fib-processor:"
-        "service" << s << "insuffiently defined" << std::endl;
+    std::clog << "fib-processor: "
+        "service " << s << " insufficiently defined" << std::endl;
     return d;
 }
 
@@ -1115,8 +1115,8 @@ audiodata_t fib_processor::getAudioServiceData(const std::string &s)
             return d;
         }
     }
-    std::clog << "fib-processor:"
-        "service" << s << "insuffiently defined" << std::endl;
+    std::clog << "fib-processor: "
+        "service " << s << " insufficiently defined" << std::endl;
     return d;
 }
 
