@@ -225,7 +225,7 @@ void OfdmDecoder::decodeFICblock (int32_t blkno)
          */
         DSPCOMPLEX r1 = fft_buffer[index] * conj (phaseReference[index]);
         phaseReference[index] = fft_buffer[index];
-        DSPFLOAT ab1 = jan_abs (r1);
+        DSPFLOAT ab1 = l1_norm(r1);
         /// split the real and the imaginary part and scale it
 
         ibits[i]            =  - real (r1) / ab1 * 127.0;
@@ -254,7 +254,7 @@ void OfdmDecoder::decodeMscblock (int32_t blkno)
 
         DSPCOMPLEX   r1 = fft_buffer[index] * conj (phaseReference[index]);
         phaseReference[index] = fft_buffer[index];
-        DSPFLOAT ab1 = jan_abs (r1);
+        DSPFLOAT ab1 = l1_norm(r1);
         //  Recall:  the viterbi decoder wants 127 max pos, - 127 max neg
         //  we make the bits into softbits in the range -127 .. 127
         ibits[i]            =  - real (r1) / ab1 * 127.0;
@@ -289,6 +289,6 @@ int16_t OfdmDecoder::get_snr (DSPCOMPLEX *v)
     for (i = T_u / 2 - params.K / 4;  i < T_u / 2 + params.K / 4; i ++)
         signal += abs (v[(T_u / 2 + i) % T_u]);
 
-    return get_db (signal / (params.K / 2)) - get_db (noise);
+    return get_db_over_256(signal / (params.K / 2)) - get_db_over_256(noise);
 }
 
