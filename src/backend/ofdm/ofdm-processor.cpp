@@ -65,14 +65,12 @@ OFDMProcessor::OFDMProcessor(
         MscHandler& msc,
         FicHandler& fic,
         int16_t    threshold,
-        uint8_t    freqsyncMethod,
-        std::vector<float>& impulseResponseBuffer) :
+        uint8_t    freqsyncMethod) :
     radioInterface(ri),
     input(interface),
     params(params),
     ficHandler(fic),
-    impulseResponseBuffer(impulseResponseBuffer),
-    phaseSynchronizer(params, threshold),
+    phaseRef(params, threshold),
     ofdmDecoder(params, ri, fic, msc),
     fft_handler(params.T_u)
 {
@@ -120,8 +118,8 @@ OFDMProcessor::OFDMProcessor(
         refArg.resize(CORRELATION_LENGTH);
         correlationVector.resize(SEARCH_RANGE + CORRELATION_LENGTH);
         for (i = 0; i < CORRELATION_LENGTH; i ++)  {
-            refArg[i] = arg(phaseSynchronizer[(T_u + i) % T_u] *
-                        conj(phaseSynchronizer[(T_u + i + 1) % T_u]));
+            refArg[i] = arg(phaseRef[(T_u + i) % T_u] *
+                        conj(phaseRef[(T_u + i + 1) % T_u]));
         }
         //start ();
     }
@@ -347,8 +345,10 @@ SyncOnPhase:
         //
         /// and then, call upon the phase synchronizer to verify/compute
         /// the real "first" sample
-        startIndex = phaseSynchronizer.findIndex(ofdmBuffer.data(),
+        startIndex = phaseRef.findIndex(ofdmBuffer.data(),
                 impulseResponseBuffer);
+        radioInterface.onNewImpulseResponse(std::move(impulseResponseBuffer));
+        impulseResponseBuffer.clear();
 
         if (startIndex < 0) { // no sync, try again
             goto notSynced;

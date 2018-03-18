@@ -62,7 +62,6 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, DABParams& p
 
     PlotType = PlotTypeEn::Spectrum;
     spectrum_fft_handler = new common_fft(dabparams.T_u);
-    impulseResponseBuffer.resize(dabparams.T_u);
 
     // Init the technical data
     ResetTechnicalData();
@@ -330,8 +329,7 @@ void CRadioController::Initialise(void)
         *this,
         *my_mscHandler,
         *my_ficHandler,
-        3, 3,
-        impulseResponseBuffer);
+        3, 3);
 
     Status = Initialised;
     emit DeviceReady();
@@ -1024,6 +1022,12 @@ void CRadioController::onFICDecodeSuccess(bool isFICCRC)
     emit isFICCRCChanged(mIsFICCRC);
 }
 
+void CRadioController::onNewImpulseResponse(std::vector<float>&& data)
+{
+    std::lock_guard<std::mutex> lock(impulseResponseBufferMutex);
+    std::swap(impulseResponseBuffer, data);
+}
+
 void CRadioController::onSNR(int snr)
 {
     if (mSNR == snr)
@@ -1187,21 +1191,22 @@ void CRadioController::UpdateSpectrum()
         x_min = tunedFrequency_MHz - (sampleFrequency_MHz / 2);
         x_max = tunedFrequency_MHz + (sampleFrequency_MHz / 2);
     }
-    else if(PlotType == PlotTypeEn::ImpulseResponse)
-    {
-        for (int i = 0; i < T_u; i++)
-        {
-            y = impulseResponseBuffer.at(i);
-            x = i;
+    else if (PlotType == PlotTypeEn::ImpulseResponse) {
+        std::lock_guard<std::mutex> lock(impulseResponseBufferMutex);
+        if (impulseResponseBuffer.size() == (size_t)T_u) {
+            for (int i = 0; i < T_u; i++) {
+                y = impulseResponseBuffer[i];
+                x = i;
 
-            //	Find maximum value to scale the plotter
-            if (y > y_max)
-                y_max = y;
-            spectrum_data[i]= QPointF(x, y);
+                // Find maximum value to scale the plotter
+                if (y > y_max)
+                    y_max = y;
+                spectrum_data[i] = QPointF(x, y);
+            }
+
+            x_min = 0;
+            x_max = T_u;
         }
-
-        x_min = 0;
-        x_max = T_u;
     }
 
     //	Set new data
