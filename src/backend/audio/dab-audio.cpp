@@ -91,7 +91,7 @@ DabAudio::DabAudio(
     }
 
     std::clog << "dab-audio:"
-        "we have now" << ((dabModus == DAB_PLUS) ? "DAB+" : "DAB") << std::endl;
+        " we have now " << ((dabModus == DAB_PLUS) ? "DAB+" : "DAB") << std::endl;
 
     running = true;
     ourThread = std::thread(&DabAudio::run, this);
