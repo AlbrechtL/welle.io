@@ -34,7 +34,6 @@
 #include <memory>
 #include <cstdio>
 #include <cstdint>
-#include "CAudio.h"
 #include "dab-constants.h"
 #include "dab-processor.h"
 #include "CFaadDecoder.h"

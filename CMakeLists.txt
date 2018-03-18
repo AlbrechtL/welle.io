@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.2)
 
 set(executableName welle-io)
 
+set(cliExecutableName welle-cli)
+
 project(Welle.Io VERSION 0.0.0 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 14)
@@ -55,38 +57,38 @@ include_directories(
     ${SoapySDR_INCLUDE_DIRS}
 )
 
-set(sources
-    src/main.cpp
-    src/backend/ofdm/ofdm-processor.cpp
-    src/backend/ofdm/ofdm-decoder.cpp
-    src/backend/ofdm/phasereference.cpp
-    src/backend/ofdm/phasetable.cpp
-    src/backend/ofdm/freq-interleaver.cpp
-    src/backend/viterbi.cpp
-    src/backend/fic-handler.cpp
-    src/backend/msc-handler.cpp
-    src/backend/eep-protection.cpp
-    src/backend/uep-protection.cpp
-    src/backend/fib-processor.cpp
-    src/backend/galois.cpp
-    src/backend/reed-solomon.cpp
-    src/backend/charsets.cpp
-    src/backend/firecode-checker.cpp
-    src/backend/protTables.cpp
+set(backend_sources
+    src/backend/audio/CFaadDecoder.cpp
     src/backend/audio/dab-audio.cpp
     src/backend/audio/mp2processor.cpp
     src/backend/audio/mp4processor.cpp
-    src/backend/audio/CFaadDecoder.cpp
-    src/backend/data/pad_decoder.cpp
+    src/backend/charsets.cpp
+    src/backend/dab-constants.cpp
     src/backend/data/mot_manager.cpp
+    src/backend/data/pad_decoder.cpp
+    src/backend/eep-protection.cpp
+    src/backend/fib-processor.cpp
+    src/backend/fic-handler.cpp
+    src/backend/firecode-checker.cpp
+    src/backend/galois.cpp
+    src/backend/msc-handler.cpp
+    src/backend/ofdm/freq-interleaver.cpp
+    src/backend/ofdm/ofdm-decoder.cpp
+    src/backend/ofdm/ofdm-processor.cpp
+    src/backend/ofdm/phasereference.cpp
+    src/backend/ofdm/phasetable.cpp
+    src/backend/protTables.cpp
+    src/backend/reed-solomon.cpp
     src/backend/tools.cpp
-    src/output/CAudio.cpp
+    src/backend/uep-protection.cpp
+    src/backend/viterbi.cpp
     src/various/fft.cpp
     src/various/Xtan2.cpp
-    src/input/CInputFactory.cpp
-    src/input/CNullDevice.cpp
-    src/input/CRAWFile.cpp
-    src/backend/dab-constants.cpp
+)
+
+set(welle_io_sources
+    src/main.cpp
+    src/output/CAudio.cpp
     src/gui/CMOTImageProvider.cpp
     src/gui/CStationList.cpp
     src/gui/CGUI.cpp
@@ -96,14 +98,25 @@ set(sources
     src/CSplashScreen.cpp
 )
 
+set(welle_cli_sources
+    src/backend/radio-receiver.cpp
+    src/welle-cli.cpp
+)
+
+set(input_sources
+    src/input/CInputFactory.cpp
+    src/input/CNullDevice.cpp
+    src/input/CRAWFile.cpp
+)
+
 if(LIBRTLSDR_FOUND)
   add_definitions (-DHAVE_RTLSDR)
-  set(sources  ${sources} src/input/CRTL_SDR.cpp)
+  set(input_sources  ${input_sources} src/input/CRTL_SDR.cpp)
 endif()
 
 if(SoapySDR_FOUND)
   add_definitions (-DHAVE_SOAPYSDR)
-  set(sources  ${sources} src/input/CSoapySdr.cpp)
+  set(input_sources  ${input_sources} src/input/CSoapySdr.cpp)
 endif()
 
 execute_process(
@@ -117,9 +130,19 @@ if(GIT_COMMIT_HASH)
   add_definitions("-DGITHASH=\"${GIT_COMMIT_HASH}\"")
 endif()
 
-add_executable (${executableName} ${sources} ${EXTRA_MOCS} resources.qrc)
+add_executable (${executableName} ${welle_io_sources} ${backend_sources} ${input_sources} ${EXTRA_MOCS} resources.qrc)
 
 target_link_libraries (${executableName}
+  ${LIBRTLSDR_LIBRARIES}
+  ${FFTW3F_LIBRARIES}
+  ${FAAD_LIBRARIES}
+  ${SoapySDR_LIBRARIES}
+  Threads::Threads
+)
+
+add_executable (${cliExecutableName} ${welle_cli_sources} ${backend_sources})
+
+target_link_libraries (${cliExecutableName}
   ${LIBRTLSDR_LIBRARIES}
   ${FFTW3F_LIBRARIES}
   ${FAAD_LIBRARIES}

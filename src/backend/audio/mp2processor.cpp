@@ -26,7 +26,6 @@
 //  - it is made into a class for use within the framework
 //  of the sdr-j DAB/DAB+ software
 //
-#include    <QDebug>
 #include    "mp2processor.h"
 
 ////////////////////////////////////////////////////////////////////////////////
