@@ -12,7 +12,7 @@ Regressions to be fixed later:
 
 * qDebug() got replaced by std::clog. Problem? We could probably redirect the stream.
 
-* i18n translation is moved out of the backend. Problem?
+* i18n translation is moved out of the backend. Problem? The ts files refer to them!
 
 * Test label and DLS parsing with all Charsets! EBU seems to work
 
@@ -20,4 +20,19 @@ Regressions to be fixed later:
 
 * Review display of coarse and fine freq corrections. The units were awkward...
 
+* Add file dumps again
+
+
+Improvements:
+
+* Avoid the copy in void mp4Processor::handle_aacFrame.
+
+* Move onStereo into onNewAudio, avoid having to upmix mono to stereo.
+
+* Improve error handling. Many places could return exceptions
+
 * Improve onFICDecodeSuccess (i.e. announce a count instead of calling the function for every FIB)
+
+* Clarify if Locker is needed in void DabAudio::run()
+
+* Write a ringbuffer replacement that can take advantage of move semantics

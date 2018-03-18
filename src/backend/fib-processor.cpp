@@ -21,10 +21,10 @@
  *  fib and fig processor
  */
 #include <iostream>
+#include <algorithm>
 #include <cstring>
 
 #include "fib-processor.h"
-#include "CRadioController.h"
 #include "charsets.h"
 #include "MathHelper.h"
 
@@ -97,11 +97,9 @@ const int ProtLevel[64][3] = {
     {280,3,384},
     {416,1,384}};
 
-fib_processor::fib_processor(CRadioController *mr)
+fib_processor::fib_processor(RadioControllerInterface& mr) :
+    myRadioInterface(mr)
 {
-    myRadioInterface = mr;
-
-    dateFlag = false;
     clearEnsemble();
 }
 
@@ -525,7 +523,7 @@ void fib_processor::FIG0Extension10 (uint8_t *fig)
     if (fig [offset + 20] == 1)
         dateTime.seconds = getBits_6(fig, offset + 32);
     dateFlag = true;
-    myRadioInterface->onDateTimeUpdate(dateTime);
+    myRadioInterface.onDateTimeUpdate(dateTime);
 }
 
 void fib_processor::FIG0Extension13 (uint8_t *d)
@@ -801,7 +799,7 @@ void    fib_processor::process_FIG1 (uint8_t *d)
                     if (firstTime) {
                         std::string label_utf8 = toUtf8StringUsingCharset(
                                 (const char *) label, (CharacterSet) charSet);
-                        myRadioInterface->onNewEnsembleName(label_utf8);
+                        myRadioInterface.onNewEnsembleName(label_utf8);
                     }
                     firstTime   = false;
                     isSynced    = true;
@@ -822,7 +820,7 @@ void    fib_processor::process_FIG1 (uint8_t *d)
                 myIndex->serviceLabel.label = toUtf8StringUsingCharset(
                         (const char *)label, (CharacterSet) charSet);
                 // std::clog << "fib-processor:" << "FIG1/1: SId = %4x\t%s\n", SId, label) << std::endl;
-                myRadioInterface->onServiceDetected(SId, myIndex->serviceLabel.label);
+                myRadioInterface.onServiceDetected(SId, myIndex->serviceLabel.label);
             }
             break;
 
@@ -869,7 +867,7 @@ void    fib_processor::process_FIG1 (uint8_t *d)
                         (const char *)label, (CharacterSet)charSet);
                 myIndex->serviceLabel.label += " (data)";
 #ifdef  MSC_DATA__
-                myRadioInterface->onServiceDetected(SId, myIndex->serviceLabel.label);
+                myRadioInterface.onServiceDetected(SId, myIndex->serviceLabel.label);
 #endif
             }
             break;
@@ -999,9 +997,9 @@ void fib_processor::setupforNewFrame()
 
 void fib_processor::clearEnsemble()
 {
-    setupforNewFrame ();
+    setupforNewFrame();
     components.clear();
-    memset (ficList, 0, sizeof (ficList));
+    ficList.resize(64);
     listofServices.clear();
 
     firstTime   = true;

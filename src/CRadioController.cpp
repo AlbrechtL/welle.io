@@ -41,28 +41,28 @@
 
 #define AUDIOBUFFERSIZE 32768
 
-CRadioController::CRadioController(QVariantMap& commandLineOptions, CDABParams& DABParams, QObject *parent)
+CRadioController::CRadioController(QVariantMap& commandLineOptions, DABParams& params, QObject *parent)
 #ifdef Q_OS_ANDROID
     : CRadioControllerSource(parent)
 #else
     : QObject(parent)
 #endif
     , commandLineOptions(commandLineOptions)
-    , DABParams(DABParams)
+    , dabparams(params)
+    , audioBuffer(2 * AUDIOBUFFERSIZE)
 {
     Device = NULL;
     my_ficHandler = NULL;
     my_mscHandler = NULL;
     my_ofdmProcessor = NULL;
 
-    AudioBuffer = std::make_shared<RingBuffer<int16_t>>(2 * AUDIOBUFFERSIZE);
-    Audio = new CAudio(AudioBuffer);
+    Audio = new CAudio(audioBuffer);
 
     MOTImage = new QImage();
 
     PlotType = PlotTypeEn::Spectrum;
-    spectrum_fft_handler = new common_fft(DABParams.T_u);
-    ImpuleResponseBuffer = std::make_shared<std::vector<float>>(DABParams.T_u);
+    spectrum_fft_handler = new common_fft(dabparams.T_u);
+    impulseResponseBuffer.resize(dabparams.T_u);
 
     // Init the technical data
     ResetTechnicalData();
@@ -297,31 +297,29 @@ void CRadioController::Initialise(void)
         Audio->setVolume(CurrentVolume);
 
     /**
-    *	The actual work is done elsewhere: in ofdmProcessor
-    *	and ofdmDecoder for the ofdm related part, ficHandler
+    *	The actual work is done elsewhere: in OFDMProcessor
+    *	and OfdmDecoder for the ofdm related part, ficHandler
     *	for the FIC's and mscHandler for the MSC.
     *	The ficHandler shares information with the mscHandler
     *	but the handlers do not change each others modes.
     */
-    my_mscHandler = new mscHandler(this,
-        &DABParams,
-        AudioBuffer,
-        false);
+    my_mscHandler = new MscHandler(*this, dabparams, false);
 
-    my_ficHandler = new ficHandler(this);
+    my_ficHandler = new FicHandler(*this);
 
     /**
-    *	The default for the ofdmProcessor depends on
+    *	The default for the OFDMProcessor depends on
     *	the input device, note that in this setup the
     *	device is selected on start up and cannot be changed.
     */
-    my_ofdmProcessor = new ofdmProcessor(Device,
-        &DABParams,
-        this,
-        my_mscHandler,
-        my_ficHandler,
+    my_ofdmProcessor = new OFDMProcessor(
+        *Device,
+        dabparams,
+        *this,
+        *my_mscHandler,
+        *my_ficHandler,
         3, 3,
-        ImpuleResponseBuffer);
+        impulseResponseBuffer);
 
     Status = Initialised;
     emit DeviceReady();
@@ -897,8 +895,8 @@ void CRadioController::StationTimerTimeout()
 
             CurrentTitle = CurrentStation;
 
-            CurrentStationType = tr(CDABConstants::getProgramTypeName(AudioData.programType));
-            CurrentLanguageType = tr(CDABConstants::getLanguageName(AudioData.language));
+            CurrentStationType = tr(DABConstants::getProgramTypeName(AudioData.programType));
+            CurrentLanguageType = tr(DABConstants::getLanguageName(AudioData.language));
             mBitRate = AudioData.bitRate;
             emit BitRateChanged(mBitRate);
 
@@ -1066,10 +1064,11 @@ void CRadioController::onSignalPresence(bool isSignal)
         emit SwitchToNextChannel(isSignal);
 }
 
-void CRadioController::onNewAudio(int sampleRate)
+void CRadioController::onNewAudio(std::vector<int16_t>&& audio, int sampleRate)
 {
-    if(mAudioSampleRate != sampleRate)
-    {
+    audioBuffer.putDataIntoBuffer(audio.data(), audio.size());
+
+    if (mAudioSampleRate != sampleRate) {
         qDebug() << "RadioController: Audio sample rate" <<  sampleRate << "kHz";
         mAudioSampleRate = sampleRate;
         emit AudioSampleRateChanged(mAudioSampleRate);
@@ -1131,7 +1130,7 @@ void CRadioController::onMOT(const std::vector<uint8_t>& Data, int subtype)
 void CRadioController::UpdateSpectrum()
 {
     int Samples = 0;
-    int16_t T_u = DABParams.T_u;
+    int16_t T_u = dabparams.T_u;
 
     //	Delete old data
     spectrum_data.resize(T_u);
@@ -1196,7 +1195,7 @@ void CRadioController::UpdateSpectrum()
     {
         for (int i = 0; i < T_u; i++)
         {
-            y = ImpuleResponseBuffer->at(i);
+            y = impulseResponseBuffer.at(i);
             x = i;
 
             //	Find maximum value to scale the plotter

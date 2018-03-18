@@ -28,7 +28,6 @@
 //
 #include    <QDebug>
 #include    "mp2processor.h"
-#include    "CRadioController.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // TABLES AND CONSTANTS                                                       //
@@ -213,9 +212,9 @@ struct quantizer_spec quantizer_table[17] = {
 //  (J van Katwijk)
 ////////////////////////////////////////////////////////////////////////////////
 
-mp2Processor::mp2Processor (CRadioController *mr,
-                            int16_t bitRate,
-                            std::shared_ptr<RingBuffer<int16_t>> buffer) :
+mp2Processor::mp2Processor(RadioControllerInterface& mr, int16_t bitRate) :
+    myRadioInterface(mr),
+    bitRate(bitRate),
     padDecoder(this, true)
 {
     int16_t i, j;
@@ -233,10 +232,6 @@ mp2Processor::mp2Processor (CRadioController *mr,
         for (j = 1023;  j >= 0;  j--)
             V[i][j] = 0;
 
-    myRadioInterface    = mr;
-    this->buffer        = buffer;
-    this->bitRate       = bitRate;
-
     Voffs          = 0;
     baudRate       = 48000;    // default for DAB
     MP2framesize   = 24 * bitRate; // may be changed
@@ -247,8 +242,9 @@ mp2Processor::mp2Processor (CRadioController *mr,
     numberofFrames = 0;
     errorFrames    = 0;
 
+#if 0
     // Open a MP2 file (XPADxpert) if the user defined it
-    mp2FileName = myRadioInterface->GetMP2FileName();
+    mp2FileName = myRadioInterface.GetMP2FileName();
     if (!mp2FileName.empty()) {
         FILE *fd = fopen(mp2FileName.c_str(), "wb");
         // w for write, b for binary
@@ -256,11 +252,12 @@ mp2Processor::mp2Processor (CRadioController *mr,
             mp2File.reset(fd);
         }
     }
+#endif
 }
 
 void mp2Processor::PADChangeDynamicLabel(const DL_STATE& dl)
 {
-    myRadioInterface->onNewDynamicLabel(
+    myRadioInterface.onNewDynamicLabel(
             toUtf8StringUsingCharset(
                 &dl.raw[0],
                 (CharacterSet)dl.charset,
@@ -269,7 +266,7 @@ void mp2Processor::PADChangeDynamicLabel(const DL_STATE& dl)
 
 void mp2Processor::PADChangeSlide(const MOT_FILE& slide)
 {
-    myRadioInterface->onMOT(slide.data, slide.content_sub_type);
+    myRadioInterface.onMOT(slide.data, slide.content_sub_type);
 }
 
 #define valid(x)    ((x == 48000) || (x == 24000))
@@ -398,7 +395,7 @@ int32_t mp2Processor::mp2decodeFrame (uint8_t *frame, int16_t *pcm)
 
     numberofFrames ++;
     if (numberofFrames >= 25) {
-        myRadioInterface->onFrameErrors(errorFrames);
+        myRadioInterface.onFrameErrors(errorFrames);
         numberofFrames   = 0;
         errorFrames      = 0;
     }
@@ -446,7 +443,7 @@ int32_t mp2Processor::mp2decodeFrame (uint8_t *frame, int16_t *pcm)
         get_bits(2);
         bound = (mode == MONO) ? 0 : 32;
     }
-    myRadioInterface->onStereoChange(mode != MONO);
+    myRadioInterface.onStereoChange(mode != MONO);
 
     // discard the last 4 bits of the header and the CRC value, if present
     get_bits(4);
@@ -641,16 +638,13 @@ void mp2Processor::addtoFrame(uint8_t *v)
         if (MP2Header_OK == 2) {
             addbittoMP2 (MP2frame.data(), v[i], MP2bitCount ++);
             if (MP2bitCount >= lf) {
-
-                if(mp2File) {
+                if (mp2File) {
                     fwrite(MP2frame.data(), lf/8, 1, mp2File.get());
                 }
 
-                int16_t sample_buf[KJMP2_SAMPLES_PER_FRAME * 2];
-                if (mp2decodeFrame (MP2frame.data(), sample_buf)) {
-                    buffer->putDataIntoBuffer (sample_buf,
-                            2 * (int32_t)KJMP2_SAMPLES_PER_FRAME);
-                    myRadioInterface->onNewAudio(baudRate);
+                std::vector<int16_t> audio(KJMP2_SAMPLES_PER_FRAME * 2);
+                if (mp2decodeFrame(MP2frame.data(), audio.data())) {
+                    myRadioInterface.onNewAudio(std::move(audio), baudRate);
                 }
 
                 MP2Header_OK = 0;

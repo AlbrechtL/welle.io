@@ -58,34 +58,34 @@ static std::vector<int16_t> createMapper(int16_t T_u, int16_t V1, int16_t lwb, i
     return v;
 }
 
-interLeaver::interLeaver(CDABParams *p)
+FrequencyInterleaver::FrequencyInterleaver(const DABParams& param)
 {
-    switch (p->dabMode) {
+    switch (param.dabMode) {
         case 1:
         default:     // shouldn't happen
-            permTable = createMapper (p->T_u,
-                    511, 256, 256 + p->K);
+            permTable = createMapper (param.T_u,
+                    511, 256, 256 + param.K);
             break;
         case 2:
-            permTable = createMapper (p->T_u,
-                    127, 64, 64 + p->K);
+            permTable = createMapper (param.T_u,
+                    127, 64, 64 + param.K);
             break;
 
         case 3:
-            permTable = createMapper (p->T_u,
-                    63, 32, 32 + p->K);
+            permTable = createMapper (param.T_u,
+                    63, 32, 32 + param.K);
             break;
 
         case 4:
-            permTable = createMapper (p->T_u,
-                    255, 128, 128 + p->K);
+            permTable = createMapper (param.T_u,
+                    255, 128, 128 + param.K);
             break;
     }
 }
 
 //  according to the standard, the map is a function from
 //  0 .. 1535->-768 .. 768 (with exclusion of {0})
-int16_t interLeaver::mapIn(int16_t n)
+int16_t FrequencyInterleaver::mapIn(int16_t n)
 {
     return permTable[n];
 }

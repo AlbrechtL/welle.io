@@ -1,4 +1,7 @@
 /*
+ *    Copyright (C) 2018
+ *    Matthias P. Braendli (matthias.braendli@mpb.li)
+ *
  *    Copyright (C) 2013
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
  *    Lazy Chair Programming
@@ -18,9 +21,8 @@
  *    along with SDR-J; if not, write to the Free Software
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#include    "DabConstants.h"
+#include    "dab-constants.h"
 #include    "msc-handler.h"
-#include    "CRadioController.h"
 #include    "dab-virtual.h"
 #include    "audio/dab-audio.h"
 
@@ -32,27 +34,25 @@
 
 #define CUSize  (4 * 16)
 //  Note CIF counts from 0 .. 3
-mscHandler::mscHandler(
-        CRadioController *mr,
-        CDABParams *p,
-        std::shared_ptr<RingBuffer<int16_t>> buffer,
-        bool   show_crcErrors) :
-    cifVector(864 * CUSize)
+MscHandler::MscHandler(
+        RadioControllerInterface& mr,
+        const DABParams& p,
+        bool show_crcErrors) :
+    cifVector(864 * CUSize),
+    radioInterface(mr)
 {
-    myRadioInterface     = mr;
-    this->buffer         = buffer;
     this->show_crcErrors = show_crcErrors;
-    BitsperBlock         = 2 * p->K;
+    bitsperBlock = 2 * p.K;
 
-    if (p -> dabMode == 4) {  // 2 CIFS per 76 blocks
+    if (p.dabMode == 4) {  // 2 CIFS per 76 blocks
         numberofblocksperCIF = 36;
     }
     else {
-        if (p -> dabMode == 1) {  // 4 CIFS per 76 blocks
+        if (p.dabMode == 1) {  // 4 CIFS per 76 blocks
             numberofblocksperCIF = 18;
         }
         else {
-            if (p -> dabMode == 2)  // 1 CIF per 76 blocks
+            if (p.dabMode == 2)  // 1 CIF per 76 blocks
                 numberofblocksperCIF = 72;
             else            // shouldnot/cannot happen
                 numberofblocksperCIF = 18;
@@ -65,13 +65,13 @@ mscHandler::mscHandler(
 //  so, a little bit of locking seems wise while
 //  the actual changing of the settings is done in the
 //  thread executing process_mscBlock
-void mscHandler::set_audioChannel(audiodata *d)
+void MscHandler::set_audioChannel(audiodata *d)
 {
     std::unique_lock<std::mutex> lock(mutex);
     audioService    = true;
     new_shortForm   = d->shortForm;
     new_startAddr   = d->startAddr;
-    new_Length      = d->length;
+    new_length      = d->length;
     new_protLevel   = d->protLevel;
     new_bitRate     = d->bitRate;
     new_language    = d->language;
@@ -81,13 +81,13 @@ void mscHandler::set_audioChannel(audiodata *d)
     newChannel      = true;
 }
 
-void mscHandler::set_dataChannel(packetdata *d)
+void MscHandler::set_dataChannel(packetdata *d)
 {
     std::unique_lock<std::mutex> lock(mutex);
     audioService      = false;
     new_shortForm     = d->shortForm;
     new_startAddr     = d->startAddr;
-    new_Length        = d->length;
+    new_length        = d->length;
     new_protLevel     = d->protLevel;
     new_DGflag        = d->DGflag;
     new_bitRate       = d->bitRate;
@@ -104,7 +104,7 @@ void mscHandler::set_dataChannel(packetdata *d)
 //
 //  Any change in the selected service will only be active
 //  during te next process_mscBlock call.
-void  mscHandler::process_mscBlock(int16_t *fbits, int16_t blkno)
+void  MscHandler::process_mscBlock(int16_t *fbits, int16_t blkno)
 {
     int16_t currentblk;
     int16_t *myBegin;
@@ -122,20 +122,19 @@ void  mscHandler::process_mscBlock(int16_t *fbits, int16_t blkno)
         }
 
         if (audioService) {
-            dabHandler = std::make_shared<dabAudio>(
+            dabHandler = std::make_shared<DabAudio>(
                     new_dabModus,
-                    new_Length * CUSize,
+                    new_length * CUSize,
                     new_bitRate,
                     new_shortForm,
                     new_protLevel,
-                    myRadioInterface,
-                    buffer);
+                    radioInterface);
         }
         else  {  /* TODO dealing with data
-                    dabHandler = std::make_shared<dabData>(myRadioInterface,
+                    dabHandler = std::make_shared<DabData>(radioInterface,
                                               new_DSCTy,
                                               new_packetAddress,
-                                              new_Length * CUSize,
+                                              new_length * CUSize,
                                               new_bitRate,
                                               new_shortForm,
                                               new_protLevel,
@@ -147,14 +146,14 @@ void  mscHandler::process_mscBlock(int16_t *fbits, int16_t blkno)
 
         //  these we need for actual processing
         startAddr = new_startAddr;
-        Length    = new_Length;
+        length    = new_length;
         //  and this one to get started
         work_to_be_done  = true;
     }
 
     //  and the normal operation is:
-    memcpy (&cifVector[currentblk * BitsperBlock],
-            fbits, BitsperBlock * sizeof (int16_t));
+    memcpy (&cifVector[currentblk * bitsperBlock],
+            fbits, bitsperBlock * sizeof (int16_t));
 
     if (currentblk < numberofblocksperCIF - 1)
         return;
@@ -167,11 +166,11 @@ void  mscHandler::process_mscBlock(int16_t *fbits, int16_t blkno)
     //  separate task or separate function, depending on
     //  the settings in the ini file, we might take advantage of multi cores
     if (dabHandler) {
-        (void)dabHandler->process(myBegin, Length * CUSize);
+        (void)dabHandler->process(myBegin, length * CUSize);
     }
 }
 
-void mscHandler::stopProcessing()
+void MscHandler::stopProcessing()
 {
     work_to_be_done = false;
 }

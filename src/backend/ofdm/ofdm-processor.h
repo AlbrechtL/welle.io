@@ -1,4 +1,7 @@
 /*
+ *    Copyright (C) 2018
+ *    Matthias P. Braendli (matthias.braendli@mpb.li)
+ *
  *    Copyright (C) 2017
  *    Albrecht Lohofener (albrechtloh@gmx.de)
  *
@@ -32,36 +35,36 @@
 /*
  *
  */
-#include    "DabConstants.h"
-#include    <thread>
-#include    <atomic>
-#include    <vector>
-#include    "phasereference.h"
-#include    "ofdm-decoder.h"
-#include    "CVirtualInput.h"
-#include    "fft.h"
+#include "dab-constants.h"
+#include <thread>
+#include <atomic>
+#include <vector>
+#include "phasereference.h"
+#include "ofdm-decoder.h"
+#include "CVirtualInput.h"
+#include "fft.h"
+#include "radio-controller.h"
+#include "fic-handler.h"
+#include "msc-handler.h"
 //
 //  Note:
 //  It was found that enlarging the buffersize to e.g. 8192
 //  cannot be handled properly by the underlying system.
 #define DUMPSIZE        4096
-class   CRadioController;
-class   ficHandler;
-class   mscHandler;
 
-class ofdmProcessor
+class OFDMProcessor
 {
     public:
-        ofdmProcessor(
-                CVirtualInput  *theRig,
-                CDABParams *params,
-                CRadioController *mr,
-                mscHandler     *msc,
-                ficHandler     *fic,
+        OFDMProcessor(
+                InputInterface& interface,
+                const DABParams& params,
+                RadioControllerInterface& ri,
+                MscHandler& msc,
+                FicHandler& fic,
                 int16_t    threshold,
                 uint8_t    freqsyncMethod,
-                std::shared_ptr<std::vector<float>> impulseResponseBuffer);
-        ~ofdmProcessor(void);
+                std::vector<float>& impulseResponseBuffer);
+        ~OFDMProcessor(void);
         void reset(void);
         void stop(void);
         void setOffset(int32_t);
@@ -73,14 +76,13 @@ class ofdmProcessor
     private:
         std::thread threadHandle;
         int32_t syncBufferIndex;
-        CVirtualInput    *theRig;
-        CDABParams       *params;
-        CRadioController *myRadioInterface;
-        ficHandler       *myFicHandler;
-        std::shared_ptr<std::vector<float>> impulseResponseBuffer;
+        RadioControllerInterface& radioInterface;
+        InputInterface& input;
+        const DABParams& params;
+        FicHandler& ficHandler;
+        std::vector<float>& impulseResponseBuffer;
 
         std::atomic<bool> running;
-        int16_t     gain;
         int32_t     T_null;
         int32_t     T_u;
         int32_t     T_s;
@@ -97,20 +99,21 @@ class ofdmProcessor
         std::vector<DSPCOMPLEX> ofdmBuffer;
         uint32_t    ofdmBufferIndex;
         uint32_t    ofdmSymbolCount;
-        phaseReference phaseSynchronizer;
-        ofdmDecoder my_ofdmDecoder;
+        PhaseReference phaseSynchronizer;
+        OfdmDecoder ofdmDecoder;
         std::vector<float> correlationVector;
         std::vector<float> refArg;
         int32_t     sampleCnt;
-        DSPCOMPLEX  getSample(int32_t);
-        void        getSamples(DSPCOMPLEX *, int16_t, int32_t);
         bool        scanMode;
-        void        run(void);
         int32_t     bufferContent;
-        int16_t     processBlock_0(DSPCOMPLEX *);
-        int16_t     getMiddle(DSPCOMPLEX *);
         common_fft  fft_handler;
         DSPCOMPLEX  *fft_buffer;
+
+        DSPCOMPLEX  getSample(int32_t);
+        void        getSamples(DSPCOMPLEX *, int16_t, int32_t);
+        void        run(void);
+        int16_t     processBlock_0(DSPCOMPLEX *);
+        int16_t     getMiddle(DSPCOMPLEX *);
 };
 #endif
 

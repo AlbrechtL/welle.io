@@ -1,4 +1,7 @@
 /*
+ *    Copyright (C) 2018
+ *    Matthias P. Braendli (matthias.braendli@mpb.li)
+ *
  *    Copyright (C) 2013
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
  *    Lazy Chair Programming
@@ -22,19 +25,19 @@
 
 #ifndef __FREQ_INTERLEAVER__
 #define __FREQ_INTERLEAVER__
-#include    <stdint.h>
-#include    <vector>
-#include    "DabConstants.h"
+#include <cstdint>
+#include <vector>
+#include "dab-constants.h"
 
 /**
- * \class interLeaver
+ * \class FrequencyInterleaver
  * Implements frequency interleaving according to section 14.6
  * of the DAB standard
  */
-class   interLeaver
+class FrequencyInterleaver
 {
     public:
-        interLeaver(CDABParams *);
+        FrequencyInterleaver(const DABParams& param);
         int16_t mapIn(int16_t);
 
     private:

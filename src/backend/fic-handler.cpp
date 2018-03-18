@@ -1,4 +1,7 @@
 /*
+ *    Copyright (C) 2018
+ *    Matthias P. Braendli (matthias.braendli@mpb.li)
+ *
  *    Copyright (C) 2013
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
  *    Lazy Chair Computing
@@ -21,7 +24,6 @@
  */
 
 #include "fic-handler.h"
-#include "CRadioController.h"
 #include "msc-handler.h"
 #include "protTables.h"
 
@@ -40,14 +42,14 @@ uint8_t PI_X [24] = {
 };
 
 /**
-  * \class ficHandler
+  * \class FicHandler
   *     We get in - through get_ficBlock - the FIC data
   *     in units of 768 bits.
   *     We follow the standard and apply conv coding and
   *     puncturing.
   *     The data is sent through to the fic processor
   */
-ficHandler::ficHandler(CRadioController *mr) :
+FicHandler::FicHandler(RadioControllerInterface& mr) :
     viterbi(768),
     myRadioInterface(mr),
     bitBuffer_out(768),
@@ -81,7 +83,7 @@ ficHandler::ficHandler(CRadioController *mr) :
  * Note that Mode III is NOT supported
  */
 
-void ficHandler::setBitsperBlock(int16_t b)
+void FicHandler::setBitsperBlock(int16_t b)
 {
     if (  (b == 2 * 384) ||
           (b == 2 * 768) ||
@@ -106,7 +108,7 @@ void ficHandler::setBitsperBlock(int16_t b)
  * The function is called with a blkno. This should be 1, 2 or 3
  * for each time 2304 bits are in, we call process_ficInput
  */
-void ficHandler::process_ficBlock(int16_t *data, int16_t blkno)
+void FicHandler::process_ficBlock(int16_t *data, int16_t blkno)
 {
     int32_t i;
 
@@ -141,7 +143,7 @@ void ficHandler::process_ficBlock(int16_t *data, int16_t blkno)
  * In the next coding step, we will combine this function with the
  * one above
  */
-void ficHandler::process_ficInput(int16_t *ficblock, int16_t ficno)
+void FicHandler::process_ficInput(int16_t *ficblock, int16_t ficno)
 {
     int16_t input_counter = 0;
     int16_t i, k;
@@ -216,10 +218,10 @@ void ficHandler::process_ficInput(int16_t *ficblock, int16_t ficno)
     for (i = ficno * 3; i < ficno * 3 + 3; i ++) {
         uint8_t *p = &bitBuffer_out[(i % 3) * 256];
         if (!check_CRC_bits (p, 256)) {
-            myRadioInterface->onFICDecodeSuccess(false);
+            myRadioInterface.onFICDecodeSuccess(false);
             continue;
         }
-        myRadioInterface->onFICDecodeSuccess(true);
+        myRadioInterface.onFICDecodeSuccess(true);
         {
             std::unique_lock<std::mutex> lock(fibMutex);
             fibProcessor.process_FIB(p, ficno);
@@ -228,36 +230,36 @@ void ficHandler::process_ficInput(int16_t *ficblock, int16_t ficno)
     //  fibProcessor.printActions (ficno);
 }
 
-void ficHandler::clearEnsemble()
+void FicHandler::clearEnsemble()
 {
     std::unique_lock<std::mutex> lock(fibMutex);
     fibProcessor.clearEnsemble();
 }
 
-uint8_t ficHandler::kindofService(const std::string& s)
+uint8_t FicHandler::kindofService(const std::string& s)
 {
     std::unique_lock<std::mutex> lock(fibMutex);
     return fibProcessor.kindofService(s);
 }
 
-void ficHandler::dataforAudioService (const std::string &s, audiodata *d)
+void FicHandler::dataforAudioService (const std::string &s, audiodata *d)
 {
     std::unique_lock<std::mutex> lock(fibMutex);
     fibProcessor.dataforAudioService(s, d);
 }
 
-void ficHandler::dataforDataService  (const std::string &s, packetdata *d)
+void FicHandler::dataforDataService  (const std::string &s, packetdata *d)
 {
     std::unique_lock<std::mutex> lock(fibMutex);
     fibProcessor.dataforDataService(s, d);
 }
 
-int16_t ficHandler::get_ficRatio()
+int16_t FicHandler::get_ficRatio()
 {
     return ficRatio;
 }
 
-bool ficHandler::syncReached()
+bool FicHandler::syncReached()
 {
     std::unique_lock<std::mutex> lock(fibMutex);
     return fibProcessor.syncReached();

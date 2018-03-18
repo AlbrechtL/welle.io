@@ -34,7 +34,7 @@
 #include <atomic>
 
 #include "CVirtualInput.h"
-#include "DabConstants.h"
+#include "dab-constants.h"
 #include "ringbuffer.h"
 #include "CRadioController.h"
 

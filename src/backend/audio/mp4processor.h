@@ -1,4 +1,7 @@
 /*
+ *    Copyright (C) 2018
+ *    Matthias P. Braendli (matthias.braendli@mpb.li)
+ *
  *    Copyright (C) 2013, 2014
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
  *    Lazy Chair Programming
@@ -27,36 +30,33 @@
  *  frames into the ffmpeg or faad decoding library
  */
 //
-#include "DabConstants.h"
 #include <vector>
 #include <memory>
 #include <cstdio>
 #include <cstdint>
 #include "CAudio.h"
+#include "dab-constants.h"
 #include "dab-processor.h"
 #include "CFaadDecoder.h"
 #include "firecode-checker.h"
 #include "reed-solomon.h"
 #include "data/pad_decoder.h"
-
-class   CRadioController;
+#include "radio-controller.h"
 
 enum class AACAudioMode { Unknown, Mono, Stereo, ParametricStereo};
 
-class   mp4Processor : public dabProcessor, public PADDecoderObserver
+class mp4Processor : public dabProcessor, public PADDecoderObserver
 {
     public:
-        mp4Processor(CRadioController *mr,
-                     int16_t bitRate,
-                     std::shared_ptr<RingBuffer<int16_t> > b);
-        void        addtoFrame(uint8_t *v);
+        mp4Processor(RadioControllerInterface& mr, int16_t bitRate);
+        void addtoFrame(uint8_t *v);
 
         // PADDecoderObserver impl
         void PADChangeDynamicLabel(const DL_STATE& dl);
         void PADChangeSlide(const MOT_FILE& slide);
 
     private:
-        CRadioController    *myRadioInterface;
+        RadioControllerInterface& myRadioInterface;
         bool  processSuperframe(uint8_t frameBytes[], int16_t base);
         void  handle_aacFrame(uint8_t *v,
                               int16_t  frame_length,
@@ -65,7 +65,7 @@ class   mp4Processor : public dabProcessor, public PADDecoderObserver
                               uint8_t  mpegSurround,
                               uint8_t  aacChannelMode,
                               bool    *error);
-        void processPAD(uint8_t *data);
+        void processPAD(const uint8_t *data);
         int16_t     superFramesize;
         int16_t     blockFillIndex;
         int16_t     blocksInBuffer;

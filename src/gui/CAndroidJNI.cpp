@@ -35,7 +35,7 @@
 #include "CAndroidJNI.h"
 #include "CAudio.h"
 #include "CRTL_TCP_Client.h"
-#include "DabConstants.h"
+#include "dab-constants.h"
 #include "msc-handler.h"
 
 #ifdef Q_OS_ANDROID

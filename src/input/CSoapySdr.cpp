@@ -30,7 +30,7 @@
 #include <cassert>
 #include <SoapySDR/Errors.hpp>
 #include "CSoapySdr.h"
-#include "DabConstants.h"
+#include "dab-constants.h"
 #include "unistd.h"
 
 using namespace std;

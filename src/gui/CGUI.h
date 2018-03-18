@@ -43,7 +43,7 @@ using namespace QtCharts;
 #include "CRadioController.h"
 #endif
 #include "CMOTImageProvider.h"
-#include "DabConstants.h"
+#include "dab-constants.h"
 
 /*
  *	GThe main gui object. It inherits from

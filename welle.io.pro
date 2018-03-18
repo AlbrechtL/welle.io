@@ -52,7 +52,7 @@ INCLUDEPATH += \
     src/gui
 
 HEADERS += \
-    src/DabConstants.h \
+    src/backend/dab-constants.h \
     src/backend/ofdm/ofdm-processor.h \
     src/backend/ofdm/ofdm-decoder.h \
     src/backend/ofdm/phasereference.h \
@@ -129,7 +129,7 @@ SOURCES += \
     src/input/CNullDevice.cpp \
     src/input/CRAWFile.cpp \
     src/input/CRTL_TCP_Client.cpp \
-    src/DabConstants.cpp \
+    src/backend/dab-constants.cpp \
     src/gui/CMOTImageProvider.cpp \
     src/gui/CStationList.cpp \
     src/gui/CGUI.cpp \

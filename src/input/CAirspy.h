@@ -32,7 +32,7 @@
 #define __AIRSPY_RADIO__
 
 #include "CVirtualInput.h"
-#include "DabConstants.h"
+#include "dab-constants.h"
 #include "MathHelper.h"
 #include "ringbuffer.h"
 
