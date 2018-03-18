@@ -55,9 +55,6 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, DABParams& p
     , audioBuffer(2 * AUDIOBUFFERSIZE)
 {
     Device = NULL;
-    my_ficHandler = NULL;
-    my_mscHandler = NULL;
-    my_ofdmProcessor = NULL;
 
     Audio = new CAudio(audioBuffer);
 
@@ -95,11 +92,6 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, DABParams& p
 CRadioController::~CRadioController(void)
 {
     // Shutdown the demodulator and decoder in the correct order
-    delete my_ofdmProcessor;
-
-    delete my_ficHandler;
-    delete my_mscHandler;
-
     delete Audio;
 }
 
@@ -151,18 +143,7 @@ void CRadioController::closeDevice()
 {
     qDebug() << "RadioController:" << "Close device";
 
-    if (my_ofdmProcessor) {
-        delete my_ofdmProcessor;
-        my_ofdmProcessor = nullptr;
-    }
-
-    if (my_ficHandler) {
-        delete my_ficHandler;
-        my_ficHandler = nullptr;
-    }
-
-    delete my_mscHandler;
-    my_mscHandler = NULL;
+    my_rx.reset();
 
     delete Device;
     Device = NULL;
@@ -309,30 +290,8 @@ void CRadioController::Initialise(void)
         mp2FileName = commandLineOptions["mp2FileName"].toString().toStdString();
     }
 
-    /**
-    *	The actual work is done elsewhere: in OFDMProcessor
-    *	and OfdmDecoder for the ofdm related part, ficHandler
-    *	for the FIC's and mscHandler for the MSC.
-    *	The ficHandler shares information with the mscHandler
-    *	but the handlers do not change each others modes.
-    */
-    my_mscHandler = new MscHandler(
-            *this, dabparams, false, mscFileName, mp2FileName);
-
-    my_ficHandler = new FicHandler(*this);
-
-    /**
-    *	The default for the OFDMProcessor depends on
-    *	the input device, note that in this setup the
-    *	device is selected on start up and cannot be changed.
-    */
-    my_ofdmProcessor = new OFDMProcessor(
-        *Device,
-        dabparams,
-        *this,
-        *my_mscHandler,
-        *my_ficHandler,
-        3, 3);
+    my_rx = std::make_unique<RadioReceiver>(
+            *this, *Device, mscFileName, mp2FileName);
 
     Status = Initialised;
     emit DeviceReady();
@@ -804,14 +763,8 @@ void CRadioController::DecoderRestart(bool isScan)
     //	if we are pretty certain that the channel does not contain
     //	a signal, or "true" if there is a fair chance that the
     //	channel contains useful data
-    if(my_ofdmProcessor && my_mscHandler && my_ficHandler)
-    {
-        my_ofdmProcessor->set_scanMode(isScan);
-
-        my_mscHandler->stopProcessing();
-        my_ficHandler->clearEnsemble();
-        my_ofdmProcessor->coarseCorrectorOn();
-        my_ofdmProcessor->reset();
+    if (my_rx) {
+        my_rx->restart(isScan);
     }
 }
 
@@ -872,32 +825,26 @@ void CRadioController::NextChannel(bool isWait)
 
 void CRadioController::StationTimerTimeout()
 {
-    if(!my_mscHandler || !my_ficHandler)
+    if (!my_rx)
         return;
 
-    if(StationList.contains(CurrentStation))
-    {
-        audiodata AudioData;
-        memset(&AudioData, 0, sizeof(audiodata));
+    if (StationList.contains(CurrentStation)) {
+        auto audioData = my_rx->getAudioServiceData(CurrentStation.toStdString());
 
-        my_ficHandler->dataforAudioService(CurrentStation.toStdString(), &AudioData);
-
-        if(AudioData.defined == true)
-        {
+        if (audioData.valid) {
             // We found the station inside the signal, lets stop the timer
             StationTimer.stop();
 
-            // Set station
-            my_mscHandler->set_audioChannel(&AudioData);
+            my_rx->selectAudioService(audioData);
 
             CurrentTitle = CurrentStation;
 
-            CurrentStationType = tr(DABConstants::getProgramTypeName(AudioData.programType));
-            CurrentLanguageType = tr(DABConstants::getLanguageName(AudioData.language));
-            mBitRate = AudioData.bitRate;
+            CurrentStationType = tr(DABConstants::getProgramTypeName(audioData.programType));
+            CurrentLanguageType = tr(DABConstants::getLanguageName(audioData.language));
+            mBitRate = audioData.bitRate;
             emit BitRateChanged(mBitRate);
 
-            if (AudioData.ASCTy == 077)
+            if (audioData.ASCTy == 077)
                 mIsDAB = false;
             else
                 mIsDAB = true;
@@ -1149,8 +1096,7 @@ void CRadioController::UpdateSpectrum()
     qreal x_min = 0;
     qreal x_max = 0;
 
-    if(PlotType == PlotTypeEn::Spectrum)
-    {
+    if(PlotType == PlotTypeEn::Spectrum) {
         // Get FFT buffer
         DSPCOMPLEX* spectrumBuffer = spectrum_fft_handler->getVector();
 

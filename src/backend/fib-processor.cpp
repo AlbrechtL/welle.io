@@ -1,4 +1,7 @@
 /*
+ *    Copyright (C) 2018
+ *    Matthias P. Braendli (matthias.braendli@mpb.li)
+ *
  *    Copyright (C) 2014
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
  *    Lazy Chair Programming
@@ -1009,15 +1012,13 @@ void fib_processor::clearEnsemble()
 
 uint8_t fib_processor::kindofService(const std::string& s)
 {
-    uint32_t selectedService;
-
     //  first we locate the serviceId
     for (size_t i = 0; i < listofServices.size(); i++) {
         if (listofServices[i].serviceLabel.label != s)
             continue;
 
         std::clog << "fib-processor:" <<  "we found for" << s << "serviceId" <<  listofServices[i].serviceId << std::endl;
-        selectedService = listofServices[i].serviceId;
+        uint32_t selectedService = listofServices[i].serviceId;
         for (const auto& sc : components) {
             if (selectedService != sc.service->serviceId)
                 continue;
@@ -1036,78 +1037,87 @@ uint8_t fib_processor::kindofService(const std::string& s)
     return UNKNOWN_SERVICE;
 }
 
-void fib_processor::dataforDataService (const std::string &s, packetdata *d)
+packetdata_t fib_processor::getDataServiceData(const std::string &s)
 {
-    uint32_t selectedService;
+    packetdata_t d;
+    d.valid = false;
 
     //  first we locate the Service
     for (size_t i = 0; i < listofServices.size(); i++) {
         if (listofServices[i].serviceLabel.label != s)
             continue;
 
-        selectedService = listofServices[i].serviceId;
+        uint32_t selectedService = listofServices[i].serviceId;
         for (const auto& sc : components) {
             int16_t subchId;
             if (selectedService != sc.service->serviceId)
                 continue;
 
             if (sc.TMid != 03) {
-                std::clog << "fib-processor:" << "fatal error, expected data service" << std::endl;
-                return;
+                std::clog << "fib-processor:"
+                    "fatal error, expected data service" << std::endl;
+                return d;
             }
 
             subchId = sc.subchannelId;
-            d->subchId       = subchId;
-            d->startAddr     = ficList[subchId].StartAddr;
-            d->shortForm     = ficList[subchId].shortForm;
-            d->protLevel     = ficList[subchId].protLevel;
-            d->DSCTy         = sc.DSCTy;
-            d->length        = ficList[subchId].Length;
-            d->bitRate       = ficList[subchId].BitRate;
-            d->FEC_scheme    = ficList[subchId].FEC_scheme;
-            d->DGflag        = sc.DGflag;
-            d->packetAddress = sc.packetAddress;
-            return;
+            d.subchId       = subchId;
+            d.startAddr     = ficList[subchId].StartAddr;
+            d.shortForm     = ficList[subchId].shortForm;
+            d.protLevel     = ficList[subchId].protLevel;
+            d.DSCTy         = sc.DSCTy;
+            d.length        = ficList[subchId].Length;
+            d.bitRate       = ficList[subchId].BitRate;
+            d.FEC_scheme    = ficList[subchId].FEC_scheme;
+            d.DGflag        = sc.DGflag;
+            d.packetAddress = sc.packetAddress;
+            d.valid = true;
+            return d;
         }
     }
-    std::clog << "fib-processor:" << "service" << s << "insuffiently defined" << std::endl;
+    std::clog << "fib-processor:"
+        "service" << s << "insuffiently defined" << std::endl;
+    return d;
 }
 
-void fib_processor::dataforAudioService (const std::string &s, audiodata *d)
+audiodata_t fib_processor::getAudioServiceData(const std::string &s)
 {
-    uint32_t    selectedService;
 
-    d->defined  = false;
+    audiodata_t d;
+
+    d.valid = false;
     //  first we locate the serviceId
     for (size_t i = 0; i < listofServices.size(); i ++) {
         if (listofServices[i].serviceLabel.label != s)
             continue;
 
-        selectedService = listofServices[i].serviceId;
+        uint32_t selectedService = listofServices[i].serviceId;
         for (const auto& sc : components) {
             int16_t subchId;
             if (selectedService != sc.service -> serviceId)
                 continue;
 
             if (sc.TMid != 00) {
-                std::clog << "fib-processor:" << "fatal error, expected audio service" << std::endl;
-                return;
+                std::clog << "fib-processor:"
+                    "fatal error, expected audio service" << std::endl;
+                return d;
             }
-            d->defined     = true;
             subchId        = sc.subchannelId;
-            d->subchId     = subchId;
-            d->startAddr   = ficList[subchId].StartAddr;
-            d->shortForm   = ficList[subchId].shortForm;
-            d->protLevel   = ficList[subchId].protLevel;
-            d->length      = ficList[subchId].Length;
-            d->bitRate     = ficList[subchId].BitRate;
-            d->ASCTy       = sc.ASCTy;
-            d->language    = listofServices[i].language;
-            d->programType = listofServices[i].programType;
-            return;
+            d.subchId     = subchId;
+            d.startAddr   = ficList[subchId].StartAddr;
+            d.shortForm   = ficList[subchId].shortForm;
+            d.protLevel   = ficList[subchId].protLevel;
+            d.length      = ficList[subchId].Length;
+            d.bitRate     = ficList[subchId].BitRate;
+            d.ASCTy       = sc.ASCTy;
+            d.language    = listofServices[i].language;
+            d.programType = listofServices[i].programType;
+            d.valid       = true;
+            return d;
         }
     }
-    std::clog << "fib-processor:" << "service" << s << "insuffiently defined" << std::endl;
+    std::clog << "fib-processor:"
+        "service" << s << "insuffiently defined" << std::endl;
+    return d;
 }
 
 bool fib_processor::syncReached()

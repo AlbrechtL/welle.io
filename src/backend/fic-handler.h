@@ -47,8 +47,8 @@ class FicHandler: public viterbi
         bool    syncReached         (void);
         int16_t get_ficRatio        (void);
         uint8_t kindofService       (const std::string& s);
-        void    dataforDataService  (const std::string& s, packetdata *d);
-        void    dataforAudioService (const std::string& s, audiodata *f);
+        audiodata_t getAudioServiceData(const std::string& s);
+        packetdata_t getDataServiceData(const std::string& s);
     private:
         RadioControllerInterface& myRadioInterface;
         void        process_ficInput(int16_t *ficblock, int16_t ficno);

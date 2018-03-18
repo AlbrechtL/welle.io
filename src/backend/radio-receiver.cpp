@@ -40,7 +40,9 @@ static constexpr size_t AUDIOBUFFERSIZE = 32768;
 
 RadioReceiver::RadioReceiver(
                 RadioControllerInterface& rci,
-                InputInterface& input) :
+                InputInterface& input,
+                const std::string& mscFileName,
+                const std::string& mp2FileName) :
     rci(rci),
     input(input),
     mscHandler(rci, params, false, mscFileName, mp2FileName),
@@ -54,3 +56,21 @@ RadioReceiver::RadioReceiver(
 {
 }
 
+void RadioReceiver::restart(bool doScan)
+{
+    ofdmProcessor.set_scanMode(doScan);
+    mscHandler.stopProcessing();
+    ficHandler.clearEnsemble();
+    ofdmProcessor.coarseCorrectorOn();
+    ofdmProcessor.reset();
+}
+
+audiodata_t RadioReceiver::getAudioServiceData(const std::string& label)
+{
+    return ficHandler.getAudioServiceData(label);
+}
+
+void RadioReceiver::selectAudioService(const audiodata_t& ad)
+{
+    mscHandler.setAudioChannel(ad);
+}

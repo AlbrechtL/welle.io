@@ -1,4 +1,6 @@
 /*
+ *    Copyright (C) 2018
+ *    Matthias P. Braendli (matthias.braendli@mpb.li)
  *
  *    Copyright (C) 2013
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
@@ -86,8 +88,8 @@ class   fib_processor {
         void    clearEnsemble(void);
         bool    syncReached(void);
         uint8_t kindofService(const std::string& label);
-        void    dataforAudioService(const std::string& label, audiodata *);
-        void    dataforDataService(const std::string& label, packetdata *);
+        audiodata_t getAudioServiceData(const std::string& label);
+        packetdata_t getDataServiceData(const std::string& label);
     private:
         RadioControllerInterface& myRadioInterface;
         Service *findServiceId(uint32_t serviceId);

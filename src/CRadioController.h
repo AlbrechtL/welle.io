@@ -43,11 +43,8 @@
 #include "CAudio.h"
 #include "CStationList.h"
 #include "dab-constants.h"
-#include "ofdm/ofdm-processor.h"
-#include "radio-controller.h"
+#include "radio-receiver.h"
 #include "ringbuffer.h"
-#include "fic-handler.h"
-#include "msc-handler.h"
 #include "CChannels.h"
 
 class CVirtualInput;
@@ -183,9 +180,7 @@ private:
     DABParams dabparams;
     CChannels Channels;
 
-    OFDMProcessor* my_ofdmProcessor;
-    FicHandler* my_ficHandler;
-    MscHandler* my_mscHandler;
+    std::unique_ptr<RadioReceiver> my_rx;
     CAudio* Audio;
     RingBuffer<int16_t> audioBuffer;
     std::mutex impulseResponseBufferMutex;

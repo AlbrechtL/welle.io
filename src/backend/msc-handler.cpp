@@ -64,40 +64,40 @@ MscHandler::MscHandler(
     }
 }
 
-//  Note, the set_xxx functions are called from within a
+//  Note, the setxxx functions are called from within a
 //  different thread than the process_mscBlock method,
 //  so, a little bit of locking seems wise while
 //  the actual changing of the settings is done in the
 //  thread executing process_mscBlock
-void MscHandler::set_audioChannel(audiodata *d)
+void MscHandler::setAudioChannel(const audiodata_t& d)
 {
-    std::unique_lock<std::mutex> lock(mutex);
+    std::lock_guard<std::mutex> lock(mutex);
     audioService    = true;
-    new_shortForm   = d->shortForm;
-    new_startAddr   = d->startAddr;
-    new_length      = d->length;
-    new_protLevel   = d->protLevel;
-    new_bitRate     = d->bitRate;
-    new_language    = d->language;
-    new_type        = d->programType;
-    new_ASCTy       = d->ASCTy;
+    new_shortForm   = d.shortForm;
+    new_startAddr   = d.startAddr;
+    new_length      = d.length;
+    new_protLevel   = d.protLevel;
+    new_bitRate     = d.bitRate;
+    new_language    = d.language;
+    new_type        = d.programType;
+    new_ASCTy       = d.ASCTy;
     new_dabModus    = new_ASCTy == 077 ? DAB_PLUS : DAB;
     newChannel      = true;
 }
 
-void MscHandler::set_dataChannel(packetdata *d)
+void MscHandler::setDataChannel(const packetdata_t& d)
 {
-    std::unique_lock<std::mutex> lock(mutex);
+    std::lock_guard<std::mutex> lock(mutex);
     audioService      = false;
-    new_shortForm     = d->shortForm;
-    new_startAddr     = d->startAddr;
-    new_length        = d->length;
-    new_protLevel     = d->protLevel;
-    new_DGflag        = d->DGflag;
-    new_bitRate       = d->bitRate;
-    new_FEC_scheme    = d->FEC_scheme;
-    new_DSCTy         = d->DSCTy;
-    new_packetAddress = d->packetAddress;
+    new_shortForm     = d.shortForm;
+    new_startAddr     = d.startAddr;
+    new_length        = d.length;
+    new_protLevel     = d.protLevel;
+    new_DGflag        = d.DGflag;
+    new_bitRate       = d.bitRate;
+    new_FEC_scheme    = d.FEC_scheme;
+    new_DSCTy         = d.DSCTy;
+    new_packetAddress = d.packetAddress;
     newChannel        = true;
 }
 
@@ -119,7 +119,7 @@ void  MscHandler::process_mscBlock(int16_t *fbits, int16_t blkno)
     currentblk  = (blkno - 4) % numberofblocksperCIF;
 
     if (newChannel) {
-        std::unique_lock<std::mutex> lock(mutex);
+        std::lock_guard<std::mutex> lock(mutex);
         newChannel = false;
         if (dabHandler) {
             dabHandler.reset();
