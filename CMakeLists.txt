@@ -83,6 +83,7 @@ set(backend_sources
     src/backend/tools.cpp
     src/backend/uep-protection.cpp
     src/backend/viterbi.cpp
+    src/various/channels.cpp
     src/various/fft.cpp
     src/various/Xtan2.cpp
 )
@@ -94,7 +95,6 @@ set(welle_io_sources
     src/gui/CStationList.cpp
     src/gui/CGUI.cpp
     src/CRadioController.cpp
-    src/CChannels.cpp
     src/CLogFile.cpp
     src/CSplashScreen.cpp
 )
@@ -140,7 +140,7 @@ target_link_libraries (${executableName}
   Threads::Threads
 )
 
-add_executable (${cliExecutableName} ${welle_cli_sources} ${backend_sources})
+add_executable (${cliExecutableName} ${welle_cli_sources} ${backend_sources} ${input_sources})
 
 target_link_libraries (${cliExecutableName}
   ${LIBRTLSDR_LIBRARIES}

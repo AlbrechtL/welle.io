@@ -215,7 +215,7 @@ void CRadioController::onEventLoopStarted()
 
     // Init device
     CSplashScreen::ShowMessage(tr("Init radio receiver"));
-    Device = CInputFactory::GetDevice(*this, dabDevice);
+    Device = CInputFactory::GetDevice(*this, dabDevice.toStdString());
 
 #ifdef HAVE_RTL_TCP
     // Set rtl_tcp settings
@@ -404,7 +404,7 @@ void CRadioController::SetChannel(QString Channel, bool isScan, bool Force)
             CurrentEnsemble = "";
 
             // Convert channel into a frequency
-            CurrentFrequency = Channels.getFrequency(Channel.toStdString());
+            CurrentFrequency = channels.getFrequency(Channel.toStdString());
 
             if(CurrentFrequency != 0 && Device)
             {
@@ -472,14 +472,14 @@ void CRadioController::StartScan(void)
     if(Device && Device->getID() == CDeviceID::RAWFILE)
     {
         CurrentTitle = tr("RAW File");
-        const auto FirstChannel = QString::fromStdString(CChannels::FirstChannel);
+        const auto FirstChannel = QString::fromStdString(Channels::firstChannel);
         SetChannel(FirstChannel, false); // Just a dummy
         emit ScanStopped();
     }
     else
     {
         // Start with lowest frequency
-        QString Channel = QString::fromStdString(CChannels::FirstChannel);
+        QString Channel = QString::fromStdString(Channels::firstChannel);
         SetChannel(Channel, true);
 
         isChannelScan = true;
@@ -732,11 +732,6 @@ void CRadioController::setInfoMessage(QString Text)
     emit showInfoMessage(Text);
 }
 
-void CRadioController::setInfoMessage(const std::string& Text)
-{
-    emit showInfoMessage(tr(Text.c_str()));
-}
-
 /********************
  * Private methods  *
  ********************/
@@ -800,12 +795,12 @@ void CRadioController::NextChannel(bool isWait)
         ChannelTimer.start(10000);
     }
     else {
-        auto Channel = QString::fromStdString(Channels.getNextChannel());
+        auto Channel = QString::fromStdString(channels.getNextChannel());
 
         if(!Channel.isEmpty()) {
             SetChannel(Channel, true);
 
-            int index = Channels.getCurrentIndex() + 1;
+            int index = channels.getCurrentIndex() + 1;
 
             CurrentTitle = tr("Scanning") + " ... " + Channel
                     + " (" + QString::number((int)(index * 100 / NUMBEROFCHANNELS)) + "%)";
@@ -978,6 +973,18 @@ void CRadioController::onNewImpulseResponse(std::vector<float>&& data)
     std::swap(impulseResponseBuffer, data);
 }
 
+void CRadioController::onMessage(message_level_t level, const std::string& text)
+{
+    switch (level) {
+        case message_level_t::Information:
+            emit showInfoMessage(tr(text.c_str()));
+            break;
+        case message_level_t::Error:
+            emit showErrorMessage(tr(text.c_str()));
+            break;
+    }
+}
+
 void CRadioController::onSNR(int snr)
 {
     if (mSNR == snr)
@@ -1102,7 +1109,7 @@ void CRadioController::UpdateSpectrum()
 
         // Get samples
         tunedFrequency_MHz = CurrentFrequency / 1e6;
-        if(Device)
+        if (Device)
             Samples = Device->getSpectrumSamples(spectrumBuffer, T_u);
 
         // Continue only if we got data

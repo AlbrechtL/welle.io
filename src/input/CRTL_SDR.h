@@ -1,4 +1,7 @@
 /*
+ *    Copyright (C) 2018
+ *    Matthias P. Braendli (matthias.braendli@mpb.li)
+ *
  *    Copyright (C) 2017
  *    Albrecht Lohofener (albrechtloh@gmx.de)
  *
@@ -27,39 +30,40 @@
  *
  */
 
-#ifndef _DABSTICK
-#define _DABSTICK
+#ifndef _CRTLSDR_H
+#define _CRTLSDR_H
 
 #include <vector>
 #include <thread>
 #include <string>
+#include <atomic>
 #include <rtl-sdr.h>
 
 #include "CVirtualInput.h"
 #include "dab-constants.h"
 #include "MathHelper.h"
 #include "ringbuffer.h"
-#include "CRadioController.h"
+#include "radio-controller.h"
 
 class CRTL_SDR_Thread;
 
-//	This class is a simple wrapper around the
-//	rtlsdr library that is read is as dll
-//	It does not do any processing
+// This class is a simple wrapper around the
+// rtlsdr library that is read is as dll
+// It does not do any processing
 class CRTL_SDR : public CVirtualInput {
 public:
-    CRTL_SDR(CRadioController &RadioController);
+    CRTL_SDR(RadioControllerInterface& radioController);
     ~CRTL_SDR(void);
 
     // Interface methods
     bool restart(void);
     void stop(void);
     void reset(void);
-    int32_t getSamples(DSPCOMPLEX* SampleBuffer, int32_t Size);
-    int32_t getSpectrumSamples(DSPCOMPLEX* SampleBuffer, int32_t Size);
+    int32_t getSamples(DSPCOMPLEX *buffer, int32_t size);
+    int32_t getSpectrumSamples(DSPCOMPLEX *buffer, int32_t size);
     int32_t getSamplesToRead(void);
     void setFrequency(int32_t Frequency);
-    float setGain(int32_t Gain);
+    float setGain(int32_t gain_index);
     int32_t getGainCount(void);
     void setAgc(bool AGC);
     void setHwAgc(bool hwAGC);
@@ -67,37 +71,32 @@ public:
     std::string getName(void);
     CDeviceID getID(void);
 
-    // Specific methods
-    void setMinMaxValue(uint8_t MinValue, uint8_t MaxValue);
-
-    //	These need to be visible for the separate usb handling thread
-    RingBuffer<uint8_t> SampleBuffer;
-    RingBuffer<uint8_t> SpectrumSampleBuffer;
-    struct rtlsdr_dev *device;
-    int32_t sampleCounter;
-
 private:
-    std::thread AGC_Thread;
-    CRadioController *RadioController;
+    std::thread agcThread;
+    RadioControllerInterface& radioController;
     int32_t lastFrequency;
-    int32_t FrequencyOffset;
-    int CurrentGain;
+    int32_t frequencyOffset = 0;
+    int currentGain = 0;
     bool isAGC;
     bool isHwAGC;
-    int32_t DeviceCount;
-    std::thread RTL_SDR_Thread;
+    std::thread rtlsdrThread;
     void rtlsdr_read_async_wrapper(void);
-    std::atomic<bool> rtlsdr_running;
+    std::atomic<bool> rtlsdrRunning;
 
     bool open;
     std::vector<int> gains;
-    uint16_t GainsCount;
-    uint16_t CurrentGainCount;
-    uint8_t MinValue;
-    uint8_t MaxValue;
+    uint32_t currentGainIndex;
+    uint8_t minAmplitude;
+    uint8_t maxAmplitude;
 
     void AGCTimer(void);
 
+    RingBuffer<uint8_t> sampleBuffer;
+    RingBuffer<uint8_t> spectrumSampleBuffer;
+    struct rtlsdr_dev *device;
+    int32_t sampleCounter;
+
+    static void RTLSDRCallBack(uint8_t* buf, uint32_t len, void *ctx);
 };
 
 #endif

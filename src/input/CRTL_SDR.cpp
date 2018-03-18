@@ -1,4 +1,7 @@
 /*
+ *    Copyright (C) 2018
+ *    Matthias P. Braendli (matthias.braendli@mpb.li)
+ *
  *    Copyright (C) 2017
  *    Albrecht Lohofener (albrechtloh@gmx.de)
  *
@@ -33,48 +36,12 @@
 
 #define READLEN_DEFAULT 8192
 
-//	For the callback, we do need some environment which
-//	is passed through the ctx parameter
-//
-//	This is the user-side call back function
-//	ctx is the calling task
-static void RTLSDRCallBack(uint8_t* buf, uint32_t len, void* ctx)
-{
-    CRTL_SDR* RTL_SDR = (CRTL_SDR*)ctx;
-    int32_t tmp;
-
-    if ((RTL_SDR == NULL) || (len != READLEN_DEFAULT))
-        return;
-
-    tmp = RTL_SDR->SampleBuffer.putDataIntoBuffer(buf, len);
-    if ((len - tmp) > 0)
-        RTL_SDR->sampleCounter += len - tmp;
-    RTL_SDR->SpectrumSampleBuffer.putDataIntoBuffer(buf, len);
-
-    // Check if device is overloaded
-    uint8_t MinValue = 255;
-    uint8_t MaxValue = 0;
-
-    for(uint32_t i=0;i<len;i++)
-    {
-        if(MinValue > buf[i])
-            MinValue = buf[i];
-        if(MaxValue < buf[i])
-            MaxValue = buf[i];
-    }
-
-    RTL_SDR->setMinMaxValue(MinValue, MaxValue);
-}
-
-//	Our wrapper is a simple classs
-CRTL_SDR::CRTL_SDR(CRadioController &RadioController) :
-    SampleBuffer(1024 * 1024),
-    SpectrumSampleBuffer(8192)
-
+CRTL_SDR::CRTL_SDR(RadioControllerInterface& radioController) :
+    radioController(radioController),
+    sampleBuffer(1024 * 1024),
+    spectrumSampleBuffer(8192)
 {
     int ret = 0;
-
-    this->RadioController = &RadioController;
 
     std::clog << "RTL_SDR:" << "Open rtl-sdr" << std::endl;
 
@@ -83,39 +50,35 @@ CRTL_SDR::CRTL_SDR(CRadioController &RadioController) :
     isHwAGC = false;
     lastFrequency = kHz(94700); // just a dummy
     sampleCounter = 0;
-    FrequencyOffset = 0;
-    CurrentGain = 0;
-    CurrentGainCount = 0;
+    frequencyOffset = 0;
+    currentGain = 0;
+    currentGainIndex = 0;
     device = NULL;
-    MinValue = 255;
-    MaxValue = 0;
+    minAmplitude = 255;
+    maxAmplitude = 0;
+    rtlsdrRunning = false;
 
     // Get all devices
     uint32_t deviceCount = rtlsdr_get_device_count();
-    if (deviceCount == 0)
-    {
+    if (deviceCount == 0) {
         std::clog << "RTL_SDR:" << "No devices found" << std::endl;
         throw 0;
     }
-    else
-    {
-        std::clog << "RTL_SDR:" << "Found" << deviceCount << "devices. Uses the first working one" << std::endl;
+    else {
+        std::clog << "RTL_SDR:" << "Found " << deviceCount << " devices. Uses the first working one" << std::endl;
     }
 
     //	Iterate over all found rtl-sdr devices and try to open it. Stops if one device is successfull opened.
-    for(uint32_t i=0; i<deviceCount; i++)
-    {
+    for(uint32_t i=0; i<deviceCount; i++) {
         ret = rtlsdr_open(&device, i);
-        if (ret >= 0)
-        {
-            std::clog << "RTL_SDR:" << "Opening rtl-sdr device" << i << std::endl;
+        if (ret >= 0) {
+            std::clog << "RTL_SDR:" << " Opening rtl-sdr device" << i << std::endl;
             break;
         }
     }
 
-    if (ret < 0)
-    {
-        std::clog << "RTL_SDR:" << "Opening rtl-sdr failed" << std::endl;
+    if (ret < 0) {
+        std::clog << "RTL_SDR:" << " Opening rtl-sdr failed" << std::endl;
         throw 0;
     }
 
@@ -123,20 +86,20 @@ CRTL_SDR::CRTL_SDR(CRadioController &RadioController) :
 
     // Set sample rate
     ret = rtlsdr_set_sample_rate(device, INPUT_RATE);
-    if (ret < 0)
-    {
-        std::clog << "RTL_SDR:" << "Setting sample rate failed" << std::endl;
+    if (ret < 0) {
+        std::clog << "RTL_SDR:" << " Setting sample rate failed" << std::endl;
         throw 0;
     }
 
     // Get tuner gains
-    GainsCount = rtlsdr_get_tuner_gains(device, NULL);
-    std::clog << "RTL_SDR:" << "Supported gain values" << GainsCount << std::endl;
-    gains.resize(GainsCount);
-    GainsCount = rtlsdr_get_tuner_gains(device, gains.data());
+    uint32_t gainsCount = rtlsdr_get_tuner_gains(device, NULL);
+    std::clog << "RTL_SDR:" << " Supported gain values" << gainsCount << std::endl;
+    gains.resize(gainsCount);
+    gainsCount = rtlsdr_get_tuner_gains(device, gains.data());
 
-    for (int i = GainsCount; i > 0; i--)
-        std::clog << "RTL_SDR:" << "gain" << (gains[i - 1] / 10.0) << std::endl;
+    for (int i = gainsCount; i > 0; i--) {
+        std::clog << "RTL_SDR:" << " gain " << (gains[i - 1] / 10.0) << std::endl;
+    }
 
     // Always use manual gain, the AGC is implemented in software
     rtlsdr_set_tuner_gain_mode(device, 1);
@@ -146,16 +109,13 @@ CRTL_SDR::CRTL_SDR(CRadioController &RadioController) :
 
     // Enable AGC by default
     setAgc(true);
-
-    return;
 }
 
 CRTL_SDR::~CRTL_SDR(void)
 {
-    if (RTL_SDR_Thread.joinable())
-    { // we are running
+    if (rtlsdrThread.joinable()) { // we are running
         rtlsdr_cancel_async(device);
-        RTL_SDR_Thread.join();
+        rtlsdrThread.join();
     }
 
     if (open)
@@ -167,84 +127,80 @@ CRTL_SDR::~CRTL_SDR(void)
 void CRTL_SDR::setFrequency(int32_t Frequency)
 {
     lastFrequency = Frequency;
-    (void)(rtlsdr_set_center_freq(device, Frequency + FrequencyOffset));
+    (void)(rtlsdr_set_center_freq(device, Frequency + frequencyOffset));
 }
 
 bool CRTL_SDR::restart(void)
 {
     int ret;
 
-    if (rtlsdr_running) {
+    if (rtlsdrRunning) {
         return true;
     }
 
-    SampleBuffer.FlushRingBuffer();
-    SpectrumSampleBuffer.FlushRingBuffer();
+    sampleBuffer.FlushRingBuffer();
+    spectrumSampleBuffer.FlushRingBuffer();
     ret = rtlsdr_reset_buffer(device);
     if (ret < 0)
         return false;
 
-    rtlsdr_set_center_freq(device, lastFrequency + FrequencyOffset);
-    rtlsdr_running = true;
+    rtlsdr_set_center_freq(device, lastFrequency + frequencyOffset);
+    rtlsdrRunning = true;
 
-    RTL_SDR_Thread = std::thread(&CRTL_SDR::rtlsdr_read_async_wrapper, this);
-    AGC_Thread = std::thread(&CRTL_SDR::AGCTimer, this);
+    rtlsdrThread = std::thread(&CRTL_SDR::rtlsdr_read_async_wrapper, this);
+    agcThread = std::thread(&CRTL_SDR::AGCTimer, this);
 
     return true;
 }
 
 void CRTL_SDR::stop(void)
 {
-    if (not rtlsdr_running)
+    if (not rtlsdrRunning)
         return;
 
     rtlsdr_cancel_async(device);
-    if (RTL_SDR_Thread.joinable()) {
-        RTL_SDR_Thread.join();
+    if (rtlsdrThread.joinable()) {
+        rtlsdrThread.join();
     }
 
-    if (AGC_Thread.joinable()) {
-        AGC_Thread.join();
+    if (agcThread.joinable()) {
+        agcThread.join();
     }
 }
 
-float CRTL_SDR::setGain(int32_t Gain)
+float CRTL_SDR::setGain(int32_t gain_index)
 {
-    if(Gain >= GainsCount)
-    {
-        std::clog << "RTL_SDR:" << "Unknown gain count" << Gain << std::endl;
+    if ((size_t)gain_index >= gains.size()) {
+        std::clog << "RTL_SDR:" << "Unknown gain count" << gain_index << std::endl;
         return 0;
     }
 
-    CurrentGainCount = Gain;
-    CurrentGain = gains[Gain];
+    currentGainIndex = gain_index;
+    currentGain = gains[gain_index];
 
-    //std::clog << "RTL_SDR:" << "Set gain to" << CurrentGain / 10.0 << "db" << std::endl;
+    //std::clog << "RTL_SDR:" << "Set gain to" << currentGain / 10.0 << "db" << std::endl;
 
-    int ret = rtlsdr_set_tuner_gain(device, CurrentGain);
-    if (ret != 0)
-    {
+    int ret = rtlsdr_set_tuner_gain(device, currentGain);
+    if (ret != 0) {
         std::clog << "RTL_SDR:" << "Setting gain failed" << std::endl;
     }
 
-    return CurrentGain / 10.0;
+    return currentGain / 10.0;
 }
 
 int32_t CRTL_SDR::getGainCount()
 {
-    return GainsCount - 1;
+    return gains.size() - 1;
 }
 
 void CRTL_SDR::setAgc(bool AGC)
 {
-    if (AGC == true)
-    {
+    if (AGC == true) {
         isAGC = true;
     }
-    else
-    {
+    else {
         isAGC = false;
-        setGain(CurrentGainCount);
+        setGain(currentGainIndex);
     }
 }
 
@@ -281,112 +237,134 @@ CDeviceID CRTL_SDR::getID()
     return CDeviceID::RTL_SDR;
 }
 
-void CRTL_SDR::setMinMaxValue(uint8_t MinValue, uint8_t MaxValue)
-{
-    this->MinValue = MinValue;
-    this->MaxValue = MaxValue;
-}
-
 void CRTL_SDR::AGCTimer(void)
 {
-    while (rtlsdr_running) {
+    while (rtlsdrRunning) {
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
-        if (isAGC)
-        {
+        if (isAGC) {
             // Check for overloading
-            if(MinValue == 0 || MaxValue == 255)
-            {
+            if (minAmplitude == 0 || maxAmplitude == 255) {
                 // We have to decrease the gain
-                if(CurrentGainCount > 0)
-                {
-                    setGain(CurrentGainCount - 1);
-                    std::clog << "RTL_SDR:" << "Decreased gain to" << (float) CurrentGain / 10 << std::endl;
+                if (currentGainIndex > 0) {
+                    setGain(currentGainIndex - 1);
+                    std::clog << "RTL_SDR:" << "Decreased gain to " << (float)currentGain / 10.0f << std::endl;
                 }
             }
-            else
-            {
-                if(CurrentGainCount < (GainsCount - 1))
-                {
+            else {
+                if (currentGainIndex < (gains.size() - 1)) {
                     // Calc if a gain increase overloads the device. Calc it from the gain values
-                    int NewGain = gains[CurrentGainCount + 1];
-                    float DeltaGain = ((float) NewGain / 10) - ((float) CurrentGain / 10);
+                    int NewGain = gains[currentGainIndex + 1];
+                    float DeltaGain = ((float) NewGain / 10) - ((float) currentGain / 10);
                     float LinGain = pow(10, DeltaGain / 20);
 
-                    int NewMaxValue = (float) MaxValue * LinGain;
-                    int NewMinValue = (float) MinValue / LinGain;
+                    int NewMaxValue = (float) maxAmplitude * LinGain;
+                    int NewMinValue = (float) minAmplitude / LinGain;
 
                     // We have to increase the gain
-                    if(NewMinValue >=0 && NewMaxValue <= 255)
-                    {
-                        setGain(CurrentGainCount + 1);
-                        std::clog << "RTL_SDR:" << "Increased gain to" << (float) CurrentGain / 10 << std::endl;
+                    if(NewMinValue >= 0 && NewMaxValue <= 255) {
+                        setGain(currentGainIndex + 1);
+                        std::clog << "RTL_SDR:" << "Increased gain to " << (float) currentGain / 10 << std::endl;
                     }
                 }
             }
         }
-        else // AGC is off
-        {
-            if(MinValue == 0 || MaxValue == 255)
-            {
+        else { // AGC is off
+            if (minAmplitude == 0 || maxAmplitude == 255) {
                 std::string Text = "ADC overload. Maybe you are using a to high gain.";
                 std::clog << "RTL_SDR:" << Text << std::endl;
-                RadioController->setInfoMessage(Text);
+                radioController.onMessage(message_level_t::Information, Text);
             }
         }
     }
 }
 
-int32_t CRTL_SDR::getSamples(DSPCOMPLEX* Buffer, int32_t Size)
+int32_t CRTL_SDR::getSamples(DSPCOMPLEX *buffer, int32_t size)
 {
-    uint8_t* tempBuffer = (uint8_t*)alloca(2 * Size * sizeof(uint8_t));
+    std::vector<uint8_t> tempBuffer(2 * size);
 
-    // Get samples
-    int32_t amount = SampleBuffer.getDataFromBuffer(tempBuffer, 2 * Size);
+    int32_t amount = sampleBuffer.getDataFromBuffer(tempBuffer.data(), 2 * size);
 
-    // Convert samples into generic format
-    for (int i = 0; i < amount / 2; i++)
-        Buffer[i] = DSPCOMPLEX((float(tempBuffer[2 * i] - 128)) / 128.0, (float(tempBuffer[2 * i + 1] - 128)) / 128.0);
+    // Normalise samples
+    for (int i = 0; i < amount / 2; i++) {
+        buffer[i] = DSPCOMPLEX(
+                (float(tempBuffer[2 * i] - 128)) / 128.0,
+                (float(tempBuffer[2 * i + 1] - 128)) / 128.0);
+    }
 
     return amount / 2;
 }
 
-int32_t CRTL_SDR::getSpectrumSamples(DSPCOMPLEX* Buffer, int32_t Size)
+int32_t CRTL_SDR::getSpectrumSamples(DSPCOMPLEX *buffer, int32_t size)
 {
-    uint8_t* tempBuffer = (uint8_t*)alloca(2 * Size * sizeof(uint8_t));
+    std::vector<uint8_t> tempBuffer(2 * size);
 
     // Get samples
-    int32_t amount = SpectrumSampleBuffer.getDataFromBuffer(tempBuffer, 2 * Size);
+    int32_t amount = spectrumSampleBuffer.getDataFromBuffer(
+            tempBuffer.data(), 2 * size);
 
     // Convert samples into generic format
-    for (int i = 0; i < amount / 2; i++)
-        Buffer[i] = DSPCOMPLEX((float(tempBuffer[2 * i] - 128)) / 128.0, (float(tempBuffer[2 * i + 1] - 128)) / 128.0);
+    for (int i = 0; i < amount / 2; i++) {
+        buffer[i] = DSPCOMPLEX(
+                (float(tempBuffer[2 * i] - 128)) / 128.0,
+                (float(tempBuffer[2 * i + 1] - 128)) / 128.0);
+    }
 
     return amount / 2;
 }
 
 int32_t CRTL_SDR::getSamplesToRead(void)
 {
-    return SampleBuffer.GetRingBufferReadAvailable() / 2;
+    return sampleBuffer.GetRingBufferReadAvailable() / 2;
 }
 
 void CRTL_SDR::reset(void)
 {
-    SampleBuffer.FlushRingBuffer();
+    sampleBuffer.FlushRingBuffer();
+}
+
+void CRTL_SDR::RTLSDRCallBack(uint8_t* buf, uint32_t len, void* ctx)
+{
+    if (ctx) {
+        CRTL_SDR *rtlsdr = (CRTL_SDR*)ctx;
+
+        if (len != READLEN_DEFAULT) {
+            std::clog << "Short read" << std::endl;
+            return;
+        }
+
+        int32_t tmp = rtlsdr->sampleBuffer.putDataIntoBuffer(buf, len);
+        if ((len - tmp) > 0)
+            rtlsdr->sampleCounter += len - tmp;
+
+        rtlsdr->spectrumSampleBuffer.putDataIntoBuffer(buf, len);
+
+        // Check if device is overloaded
+        rtlsdr->minAmplitude = 255;
+        rtlsdr->maxAmplitude = 0;
+
+        for (uint32_t i=0;i<len;i++) {
+            if (rtlsdr->minAmplitude > buf[i])
+                rtlsdr->minAmplitude = buf[i];
+
+            if (rtlsdr->maxAmplitude < buf[i])
+                rtlsdr->maxAmplitude = buf[i];
+        }
+    }
+    else {
+        std::clog << "ERROR no ctx in RTLSDR callback" << std::endl;
+    }
 }
 
 void CRTL_SDR::rtlsdr_read_async_wrapper()
 {
+    std::clog << "Start RTLSDR thread" << std::endl;
     rtlsdr_read_async(device,
-                      (rtlsdr_read_async_cb_t)&RTLSDRCallBack,
+                      (rtlsdr_read_async_cb_t)&CRTL_SDR::RTLSDRCallBack,
                       (void*)this, 0, READLEN_DEFAULT);
 
-    using namespace std::string_literals;
+    radioController.onMessage(message_level_t::Error, "RTL-SDR is unplugged.");
 
-    if (RadioController) {
-        RadioController->setErrorMessage("RTL-SDR is unplugged."s);
-    }
-
-    rtlsdr_running = false;
+    rtlsdrRunning = false;
 }
 

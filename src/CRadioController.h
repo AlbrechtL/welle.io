@@ -45,7 +45,7 @@
 #include "dab-constants.h"
 #include "radio-receiver.h"
 #include "ringbuffer.h"
-#include "CChannels.h"
+#include "channels.h"
 
 class CVirtualInput;
 
@@ -166,6 +166,7 @@ public:
     virtual void onDateTimeUpdate(const dab_date_time_t& dateTime) override;
     virtual void onFICDecodeSuccess(bool isFICCRC) override;
     virtual void onNewImpulseResponse(std::vector<float>&& data) override;
+    virtual void onMessage(message_level_t level, const std::string& text) override;
 
 private:
     void Initialise(void);
@@ -178,7 +179,7 @@ private:
     CVirtualInput* Device;
     QVariantMap commandLineOptions;
     DABParams dabparams;
-    CChannels Channels;
+    Channels channels;
 
     std::unique_ptr<RadioReceiver> my_rx;
     CAudio* Audio;
@@ -298,7 +299,6 @@ public slots:
     /* head will be translated, text will be left untranslated */
     void setErrorMessage(const std::string& head, const std::string& text = "");
     void setInfoMessage(QString Text);
-    void setInfoMessage(const std::string& Text);
 };
 
 #endif // CRADIOCONTROLLER_H

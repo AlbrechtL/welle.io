@@ -1,4 +1,7 @@
 /*
+ *    Copyright (C) 2018
+ *    Matthias P. Braendli (matthias.braendli@mpb.li)
+ *
  *    Copyright (C) 2017
  *    Albrecht Lohofener (albrechtloh@gmx.de)
  *
@@ -23,11 +26,15 @@
  *
  */
 
-#include <QDebug>
+#include <iostream>
 
 #include "CInputFactory.h"
 #include "CNullDevice.h"
+
+#ifdef HAVE_RTL_TCP
 #include "CRTL_TCP_Client.h"
+#endif
+
 #include "CRAWFile.h"
 
 #ifdef HAVE_RTLSDR
@@ -42,110 +49,100 @@
 #include "CSoapySdr.h"
 #endif
 
-CVirtualInput *CInputFactory::GetDevice(CRadioController &RadioController, QString Device)
+CVirtualInput *CInputFactory::GetDevice(RadioControllerInterface& radioController, const std::string& device)
 {
     CVirtualInput *InputDevice = NULL;
 
-    qDebug() << "InputFactory:" << "Input device:" << Device;
+    std::clog << "InputFactory:" << "Input device:" << device << std::endl;
 
-    if(Device == "auto")
-        InputDevice = GetAutoDevice(RadioController);
+    if (device == "auto")
+        InputDevice = GetAutoDevice(radioController);
     else
-        InputDevice = GetManualDevice(RadioController, Device);
+        InputDevice = GetManualDevice(radioController, device);
 
     // Fallback if no device is found or an error occured
-    if(InputDevice == NULL)
-    {
-        QString Text;
+    if (InputDevice == NULL) {
+        std::string text;
 
-        if(Device == "auto")
-            Text = QObject::tr("No valid device found use Null device instead.");
+        if (device == "auto")
+            text = "No valid device found use Null device instead.";
         else
-            Text = QObject::tr("Error while opening device") + " \"" + Device +  "\".";
+            text = "Error while opening device";
 
-        qDebug().noquote() << "InputFactory: " + Text;
-        RadioController.setErrorMessage(Text);
+        radioController.onMessage(message_level_t::Error, text);
         InputDevice = new CNullDevice();
     }
 
     return InputDevice;
 }
 
-CVirtualInput *CInputFactory::GetAutoDevice(CRadioController &RadioController)
+CVirtualInput* CInputFactory::GetAutoDevice(RadioControllerInterface& radioController)
 {
-    (void) RadioController;
-    CVirtualInput *InputDevice = NULL;
+    (void)radioController;
+    CVirtualInput *inputDevice = NULL;
 
     // Try to find a input device
-    for(int i=0;i<2;i++) // At the moment two devices are supported
-    {
-        try
-        {
-            switch(i)
-            {
+    for (int i=0; i<2; i++) { // At the moment two devices are supported
+        try {
+            switch(i) {
 #ifdef HAVE_AIRSPY
-            case 0: InputDevice = new CAirspy(); break;
+            case 0: inputDevice = new CAirspy(); break;
 #endif
 #ifdef HAVE_RTLSDR
-            case 1: InputDevice = new CRTL_SDR(RadioController); break;
+            case 1: inputDevice = new CRTL_SDR(radioController); break;
 #endif
 #ifdef HAVE_SOAPYSDR
-            case 2: InputDevice = new CSoapySdr(); break;
+            case 2: inputDevice = new CSoapySdr(); break;
 #endif
             }
         }
-
-        // Catch all exceptions
-        catch(...)
-        {
+        catch (...) {
             // An error occured. Maybe the device isn't present.
             // Just try the next input device
         }
 
         // Break loop if we found a device
-        if(InputDevice != NULL)
+        if (inputDevice != NULL)
             break;
     }
 
-    return InputDevice;
+    return inputDevice;
 }
 
-CVirtualInput *CInputFactory::GetManualDevice(CRadioController &RadioController, QString Device)
+CVirtualInput* CInputFactory::GetManualDevice(RadioControllerInterface& radioController, const std::string& device)
 {
     CVirtualInput *InputDevice = NULL;
 
-    try
-    {
+    try {
 #ifdef HAVE_AIRSPY
-        if (Device == "airspy")
+        if (device == "airspy")
             InputDevice = new CAirspy();
         else
 #endif
 #ifdef HAVE_RTL_TCP
-        if (Device == "rtl_tcp")
-            InputDevice = new CRTL_TCP_Client(RadioController);
+        if (device == "rtl_tcp")
+            InputDevice = new CRTL_TCP_Client(radioController);
         else
 #endif
 #ifdef HAVE_RTLSDR
-        if (Device == "rtl_sdr")
-            InputDevice = new CRTL_SDR(RadioController);
+        if (device == "rtl_sdr")
+            InputDevice = new CRTL_SDR(radioController);
         else
 #endif
 #ifdef HAVE_SOAPYSDR
-        if (Device == "soapysdr")
+        if (device == "soapysdr")
             InputDevice = new CSoapySdr();
         else
 #endif
-        if (Device == "rawfile")
-            InputDevice = new CRAWFile(RadioController);
+        if (device == "rawfile")
+            InputDevice = new CRAWFile(radioController);
         else
-            qDebug() << "InputFactory:" << "Unknown device \"" << Device << "\".";
+            std::clog << "InputFactory:"
+                "Unknown device \"" << device << "\"." << std::endl;
     }
-
-    // Catch all exceptions
-    catch(...)
-    {
-        qDebug() << "InputFactory:" << "Error while opening device \"" << Device << "\".";
+    catch (...) {
+        std::clog << "InputFactory:"
+            "Error while opening device \"" << device << "\"." << std::endl;
     }
 
     return InputDevice;
