@@ -62,8 +62,7 @@ class OFDMProcessor
                 MscHandler& msc,
                 FicHandler& fic,
                 int16_t    threshold,
-                uint8_t    freqsyncMethod,
-                std::vector<float>& impulseResponseBuffer);
+                uint8_t    freqsyncMethod);
         ~OFDMProcessor(void);
         void reset(void);
         void stop(void);
@@ -80,7 +79,7 @@ class OFDMProcessor
         InputInterface& input;
         const DABParams& params;
         FicHandler& ficHandler;
-        std::vector<float>& impulseResponseBuffer;
+        std::vector<float> impulseResponseBuffer;
 
         std::atomic<bool> running;
         int32_t     T_null;
@@ -99,7 +98,7 @@ class OFDMProcessor
         std::vector<DSPCOMPLEX> ofdmBuffer;
         uint32_t    ofdmBufferIndex;
         uint32_t    ofdmSymbolCount;
-        PhaseReference phaseSynchronizer;
+        PhaseReference phaseRef;
         OfdmDecoder ofdmDecoder;
         std::vector<float> correlationVector;
         std::vector<float> refArg;

@@ -89,12 +89,14 @@ int32_t PhaseReference::findIndex(DSPCOMPLEX *v,
         sum += abs(res_buffer[i]);
 
     DSPFLOAT max = -10000;
+    impulseResponseBuffer.resize(Tu);
     for (size_t i = 0; i < Tu; i++) {
-        float value = abs(res_buffer[i]);
-        impulseResponseBuffer.at(i) = value;
+        const float value = abs(res_buffer[i]);
+        impulseResponseBuffer[i] = value;
+
         if (value > max) {
             maxIndex = i;
-            max = abs(res_buffer[i]);
+            max = value;
         }
     }
     /**

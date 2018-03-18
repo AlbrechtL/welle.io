@@ -1,4 +1,7 @@
 /*
+ *    Copyright (C) 2018
+ *    Matthias P. Braendli (matthias.braendli@mpb.li)
+ *
  *    Copyright (C) 2017
  *    Albrecht Lohofener (albrechtloh@gmx.de)
  *
@@ -35,6 +38,7 @@
 #include <QDateTime>
 #include <QImage>
 #include <QVariantMap>
+#include <mutex>
 
 #include "CAudio.h"
 #include "CStationList.h"
@@ -164,6 +168,7 @@ public:
     virtual void onNewEnsembleName(const std::string& name) override;
     virtual void onDateTimeUpdate(const dab_date_time_t& dateTime) override;
     virtual void onFICDecodeSuccess(bool isFICCRC) override;
+    virtual void onNewImpulseResponse(std::vector<float>&& data) override;
 
 private:
     void Initialise(void);
@@ -183,6 +188,7 @@ private:
     MscHandler* my_mscHandler;
     CAudio* Audio;
     RingBuffer<int16_t> audioBuffer;
+    std::mutex impulseResponseBufferMutex;
     std::vector<float> impulseResponseBuffer;
 
     // Objects set by the back-end

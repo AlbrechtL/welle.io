@@ -113,6 +113,9 @@ class RadioControllerInterface {
 
         /* For every FIB, tell if the CRC check passed */
         virtual void onFICDecodeSuccess(bool isFICCRC) = 0;
+
+        /* When a new channel impulse response vector was calculated */
+        virtual void onNewImpulseResponse(std::vector<float>&& data) = 0;
 };
 
 /* Definition of the interface all input devices must implement */
