@@ -26,29 +26,30 @@
 #include    "fft.h"
 #include    <vector>
 #include    <memory>
-#include    <stdio.h>
-#include    <stdint.h>
+#include    <cstdio>
+#include    <cstdint>
 #include    "phasetable.h"
-#include    "DabConstants.h"
+#include    "dab-constants.h"
 
-
-class phaseReference : public phaseTable
+class PhaseReference : public phaseTable
 {
     public:
-        phaseReference (CDABParams *, int16_t);
-        int32_t findIndex   (DSPCOMPLEX *v, std::shared_ptr<std::vector<float> > ImpuleResponseBuffer);
-        std::vector<DSPCOMPLEX> refTable;
+        PhaseReference(const DABParams& p, int16_t threshold);
+        int32_t findIndex(DSPCOMPLEX *v,
+                std::vector<float>& impulseResponseBuffer);
+
+        DSPCOMPLEX operator[](size_t ix);
 
     private:
-        int32_t     Tu;
+        std::vector<DSPCOMPLEX> refTable;
+
         int16_t     threshold;
 
         common_fft  fft_processor;
         DSPCOMPLEX  *fft_buffer;
+
         common_ifft res_processor;
         DSPCOMPLEX  *res_buffer;
-        int32_t     fft_counter;
-        DSPFLOAT    Max;
 };
 #endif
 

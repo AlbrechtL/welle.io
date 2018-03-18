@@ -29,7 +29,7 @@
 #define _COMMON_FFT
 
 //  Simple wrapper around fftwf
-#include    "DabConstants.h"
+#include    "dab-constants.h"
 
 #ifndef KISSFFT
 #define FFTW_MALLOC     fftwf_malloc

@@ -86,7 +86,7 @@ set(sources
     src/input/CInputFactory.cpp
     src/input/CNullDevice.cpp
     src/input/CRAWFile.cpp
-    src/DabConstants.cpp
+    src/backend/dab-constants.cpp
     src/gui/CMOTImageProvider.cpp
     src/gui/CStationList.cpp
     src/gui/CGUI.cpp

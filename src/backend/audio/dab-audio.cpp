@@ -1,4 +1,7 @@
 /*
+ *    Copyright (C) 2018
+ *    Matthias P. Braendli (matthias.braendli@mpb.li)
+ *
  *    Copyright (C) 2013
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
  *    Lazy Chair Programming
@@ -19,18 +22,13 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <QDebug>
-
-#include    "DabConstants.h"
-#include    "dab-audio.h"
-#include    <QThread>
-#include    <QMutex>
-#include    <QWaitCondition>
-#include    "mp2processor.h"
-#include    "mp4processor.h"
-#include    "eep-protection.h"
-#include    "uep-protection.h"
-#include    "CRadioController.h"
+#include <iostream>
+#include "dab-constants.h"
+#include "dab-audio.h"
+#include "mp2processor.h"
+#include "mp4processor.h"
+#include "eep-protection.h"
+#include "uep-protection.h"
 
 //  As an experiment a version of the backend is created
 //  that will be running in a separate thread. Might be
@@ -44,14 +42,14 @@
 //
 //
 //  fragmentsize == Length * CUSize
-dabAudio::dabAudio(
+DabAudio::DabAudio(
         uint8_t dabModus,
         int16_t fragmentSize,
         int16_t bitRate,
-        bool   shortForm,
+        bool shortForm,
         int16_t protLevel,
-        CRadioController *mr,
-        std::shared_ptr<RingBuffer<int16_t>> buffer) :
+        RadioControllerInterface& mr) :
+    myRadioInterface(mr),
     Buffer(64 * 32768)
 {
     int32_t i;
@@ -60,8 +58,6 @@ dabAudio::dabAudio(
     this->bitRate          = bitRate;
     this->shortForm        = shortForm;
     this->protLevel        = protLevel;
-    this->myRadioInterface = mr;
-    this->audioBuffer      = buffer;
 
     outV.resize(bitRate * 24);
     interleaveData  = new int16_t*[16]; // max size
@@ -70,29 +66,32 @@ dabAudio::dabAudio(
         memset (interleaveData[i], 0, fragmentSize * sizeof (int16_t));
     }
 
+    using std::make_unique;
+
     if (shortForm)
-        protectionHandler = std::make_unique<uep_protection>(bitRate, protLevel);
+        protectionHandler = make_unique<uep_protection>(bitRate, protLevel);
     else
-        protectionHandler = std::make_unique<eep_protection>(bitRate, protLevel);
+        protectionHandler = make_unique<eep_protection>(bitRate, protLevel);
 
     if (dabModus == DAB) {
-        our_dabProcessor = std::make_unique<mp2Processor>(myRadioInterface, bitRate, audioBuffer);
+        our_dabProcessor = make_unique<mp2Processor>(myRadioInterface, bitRate);
     }
     else {
         if (dabModus == DAB_PLUS) {
-            our_dabProcessor = std::make_unique<mp4Processor>(myRadioInterface, bitRate, audioBuffer);
+            our_dabProcessor = make_unique<mp4Processor>(myRadioInterface, bitRate);
         }
         else        // cannot happen
-            our_dabProcessor = std::make_unique<dummyProcessor>();
+            our_dabProcessor = make_unique<dummyProcessor>();
     }
 
-    qDebug() << "dab-audio:" << "we have now" << ((dabModus == DAB_PLUS) ? "DAB+" : "DAB");
-    running     = true;
+    std::clog << "dab-audio:"
+        "we have now" << ((dabModus == DAB_PLUS) ? "DAB+" : "DAB") << std::endl;
 
-    ourThread = std::thread(&dabAudio::run, this);
+    running = true;
+    ourThread = std::thread(&DabAudio::run, this);
 }
 
-dabAudio::~dabAudio()
+DabAudio::~DabAudio()
 {
     int16_t i;
     running = false;
@@ -107,7 +106,7 @@ dabAudio::~dabAudio()
     delete [] interleaveData;
 }
 
-int32_t dabAudio::process(int16_t *v, int16_t cnt)
+int32_t DabAudio::process(int16_t *v, int16_t cnt)
 {
     int32_t fr;
 
@@ -120,14 +119,14 @@ int32_t dabAudio::process(int16_t *v, int16_t cnt)
         std::this_thread::sleep_for(std::chrono::microseconds(1));
     }
 
-    Buffer.putDataIntoBuffer (v, cnt);
+    Buffer.putDataIntoBuffer(v, cnt);
     Locker.notify_all();
     return fr;
 }
 
 const int16_t interleaveMap[] = {0,8,4,12,2,10,6,14,1,9,5,13,3,11,7,15};
 
-void dabAudio::run()
+void DabAudio::run()
 {
     int16_t i, j;
     int16_t countforInterleaver = 0;
@@ -137,7 +136,7 @@ void dabAudio::run()
     int16_t tempX[fragmentSize];
 
     while (running) {
-        while (Buffer.GetRingBufferReadAvailable () <= fragmentSize) {
+        while (Buffer.GetRingBufferReadAvailable() <= fragmentSize) {
             // TODO why is this needed?
             std::unique_lock<std::mutex> lock(ourMutex);
             Locker.wait_for(lock, std::chrono::milliseconds(1));
@@ -149,7 +148,7 @@ void dabAudio::run()
         if (!running)
             break;
 
-        Buffer.getDataFromBuffer (Data, fragmentSize);
+        Buffer.getDataFromBuffer(Data, fragmentSize);
 
         for (i = 0; i < fragmentSize; i ++) {
             tempX[i] = interleaveData[(interleaverIndex +
@@ -164,7 +163,7 @@ void dabAudio::run()
             continue;
         }
 
-        protectionHandler->deconvolve (tempX, fragmentSize, outV.data());
+        protectionHandler->deconvolve(tempX, fragmentSize, outV.data());
 
         //  and the inline energy dispersal
         memset (shiftRegister, 1, 9);

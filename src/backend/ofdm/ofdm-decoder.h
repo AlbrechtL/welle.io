@@ -1,4 +1,7 @@
 /*
+ *    Copyright (C) 2018
+ *    Matthias P. Braendli (matthias.braendli@mpb.li)
+ *
  *    Copyright (C) 2013
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
  *    Lazy Chair Programming
@@ -28,53 +31,49 @@
 #include <atomic>
 #include <cstdint>
 #include "fft.h"
-#include "DabConstants.h"
+#include "dab-constants.h"
 #include "ofdm/freq-interleaver.h"
+#include "radio-controller.h"
+#include "fic-handler.h"
+#include "msc-handler.h"
 
-class   CRadioController;
-class   ficHandler;
-class   mscHandler;
-
-class   ofdmDecoder
+class   OfdmDecoder
 {
     public:
-        ofdmDecoder(
-                CDABParams *p,
-                CRadioController *mr,
-                ficHandler *my_ficHandler,
-                mscHandler *my_mscHandler);
-        ~ofdmDecoder(void);
+        OfdmDecoder(
+                const DABParams& p,
+                RadioControllerInterface& mr,
+                FicHandler& ficHandler,
+                MscHandler& mscHandler);
+        ~OfdmDecoder(void);
         void    processBlock_0      (DSPCOMPLEX *);
         void    decodeFICblock      (DSPCOMPLEX *, int32_t n);
         void    decodeMscblock      (DSPCOMPLEX *, int32_t n);
         int16_t get_snr         (DSPCOMPLEX *);
         void    stop            (void);
     private:
-        CDABParams  *params;
-        CRadioController    *myRadioInterface;
-        ficHandler  *my_ficHandler;
-        mscHandler  *my_mscHandler;
-        std::atomic<bool>   running;
+        const DABParams& params;
+        RadioControllerInterface& radioInterface;
+        FicHandler& ficHandler;
+        MscHandler& mscHandler;
+        std::atomic<bool> running;
 
         std::condition_variable commandHandler;
-        std::mutex  myMutex;
-        int16_t     amount;
-        DSPCOMPLEX  **command;
+        std::mutex mutex;
+        int16_t amount;
+        DSPCOMPLEX **command;
 
-        std::thread myThread;
-        void        workerthread(void);
-        void        processBlock_0(void);
-        void        decodeFICblock(int32_t n);
-        void        decodeMscblock(int32_t n);
+        std::thread thread;
+        void workerthread(void);
+        void processBlock_0(void);
+        void decodeFICblock(int32_t n);
+        void decodeMscblock(int32_t n);
 
-        int32_t     T_s;
-        int32_t     T_u;
-        int32_t     T_g;
-        int32_t     carriers;
+        int32_t T_g;
         std::vector<DSPCOMPLEX> phaseReference;
         common_fft  fft_handler;
         DSPCOMPLEX  *fft_buffer;
-        interLeaver myMapper;
+        FrequencyInterleaver interleaver;
 
         std::vector<int16_t> ibits;
         int16_t     snrCount;

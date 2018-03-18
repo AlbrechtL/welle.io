@@ -1,4 +1,7 @@
 /*
+ *    Copyright (C) 2018
+ *    Matthias P. Braendli (matthias.braendli@mpb.li)
+ *
  *    Copyright (C) 2013
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
  *    Lazy Chair Programming
@@ -22,39 +25,37 @@
 #ifndef __DAB_AUDIO
 #define __DAB_AUDIO
 
-#include    "dab-virtual.h"
-#include    <memory>
-#include    <atomic>
-#include    <vector>
-#include    <thread>
-#include    <mutex>
-#include    <condition_variable>
-#include    "ringbuffer.h"
-#include    <stdio.h>
+#include "dab-virtual.h"
+#include <memory>
+#include <atomic>
+#include <vector>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+#include <cstdio>
+#include "ringbuffer.h"
+#include "radio-controller.h"
 
 class dabProcessor;
 class protection;
-class CRadioController;
 
-class dabAudio : public dabVirtual
+class DabAudio : public DabVirtual
 {
     public:
-        dabAudio(uint8_t dabModus,
+        DabAudio(uint8_t dabModus,
                   int16_t fragmentSize,
                   int16_t bitRate,
-                  bool   shortForm,
+                  bool shortForm,
                   int16_t protLevel,
-                  CRadioController *mr,
-                  std::shared_ptr<RingBuffer<int16_t> >);
-        ~dabAudio(void);
-        dabAudio(const dabAudio&) = delete;
-        dabAudio& operator=(const dabAudio&) = delete;
+                  RadioControllerInterface& mr);
+        ~DabAudio(void);
+        DabAudio(const DabAudio&) = delete;
+        DabAudio& operator=(const DabAudio&) = delete;
 
         int32_t process(int16_t *v, int16_t cnt);
 
     protected:
-        CRadioController    *myRadioInterface;
-        std::shared_ptr<RingBuffer<int16_t>> audioBuffer;
+        RadioControllerInterface& myRadioInterface;
 
     private:
         void    run(void);

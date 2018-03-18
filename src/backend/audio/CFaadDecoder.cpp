@@ -1,4 +1,7 @@
 /*
+ *    Copyright (C) 2018
+ *    Matthias P. Braendli (matthias.braendli@mpb.li)
+ *
  *    Copyright (C) 2017
  *    Albrecht Lohofener (albrechtloh@gmx.de)
  *
@@ -26,12 +29,13 @@
 
 #include "CFaadDecoder.h"
 
-CFaadDecoder::CFaadDecoder (std::shared_ptr<RingBuffer<int16_t> > buffer)
+using namespace std;
+
+CFaadDecoder::CFaadDecoder()
 {
-    this->audioBuffer  = buffer;
     aacCap = NeAACDecGetCapabilities();
     aacHandle = NeAACDecOpen();
-    aacConf = NeAACDecGetCurrentConfiguration (aacHandle);
+    aacConf = NeAACDecGetCurrentConfiguration(aacHandle);
     aacInitialized  = false;
 }
 
@@ -41,22 +45,22 @@ CFaadDecoder::~CFaadDecoder(void)
 }
 
 int CFaadDecoder::get_aac_channel_configuration(
-    int16_t m_mpeg_surround_config,
-    uint8_t aacChannelMode) {
+        int16_t m_mpeg_surround_config,
+        uint8_t aacChannelMode) {
 
-switch(m_mpeg_surround_config) {
-    case 0:     // no surround
-        return aacChannelMode ? 2 : 1;
-    case 1:     // 5.1
-        return 6;
-    case 2:     // 7.1
-        return 7;
-    default:
-        return -1;
-}
+    switch(m_mpeg_surround_config) {
+        case 0:     // no surround
+            return aacChannelMode ? 2 : 1;
+        case 1:     // 5.1
+            return 6;
+        case 2:     // 7.1
+            return 7;
+        default:
+            return -1;
+    }
 }
 
-int16_t CFaadDecoder::MP42PCM(
+vector<int16_t> CFaadDecoder::MP42PCM(
     uint8_t dacRate, uint8_t sbrFlag,
     int16_t mpegSurround,
     uint8_t aacChannelMode,
@@ -65,14 +69,11 @@ int16_t CFaadDecoder::MP42PCM(
     uint32_t *sampleRate,
     bool *isParametricStereo)
 {
-    size_t samples;
     uint8_t channels;
     long unsigned int   sample_rate;
-    int16_t *outBuffer;
-    NeAACDecFrameInfo   hInfo;
+    NeAACDecFrameInfo hInfo;
 
-    if (!aacInitialized)
-    {
+    if (!aacInitialized) {
         /* AudioSpecificConfig structure (the only way to select 960 transform here!)
          *
          *  00010 = AudioObjectType 2 (AAC LC)
@@ -89,84 +90,85 @@ int16_t CFaadDecoder::MP42PCM(
          * => explicit signaling not possible, as libfaad2 does not
          * support AudioObjectType 29 (PS)
          */
-        int core_sr_index =
-                dacRate ?
+        int core_sr_index = dacRate ?
                 (sbrFlag ? 6 : 3) :
                 (sbrFlag ? 8 : 5);   // 24/48/16/32 kHz
-        int core_ch_config = get_aac_channel_configuration (mpegSurround,
+        int core_ch_config = get_aac_channel_configuration(mpegSurround,
                 aacChannelMode);
+
         if (core_ch_config == -1) {
-            printf ("CFaadDecoder: Unrecognized mpeg surround config (ignored): %d\n",
-                    mpegSurround);
-            return false;
+            throw runtime_error("CFaadDecoder:"
+                    " Unrecognized mpeg surround config (ignored): " +
+                    to_string(mpegSurround));
         }
 
         uint8_t asc[2];
         asc[0] = 0b00010 << 3 | core_sr_index >> 1;
         asc[1] = (core_sr_index & 0x01) << 7 | core_ch_config << 3 | 0b100;
-        long int init_result = NeAACDecInit2 (aacHandle,
+        long int init_result = NeAACDecInit2(aacHandle,
                 asc,
                 sizeof (asc),
                 &sample_rate,
                 &channels);
         if (init_result != 0) {
             /* If some error initializing occured, skip the file */
-            printf ("CFaadDecoder: Error initializing decoder library: %s\n",
-                    NeAACDecGetErrorMessage (-init_result));
+            const string errmsg = NeAACDecGetErrorMessage(-init_result);
             NeAACDecClose (aacHandle);
-            return false;
+            throw runtime_error("CFaadDecoder:"
+                    " Error initializing decoder library: " + errmsg);
         }
         aacInitialized = true;
     }
 
-    outBuffer = (int16_t *)NeAACDecDecode (aacHandle,
-            &hInfo, buffer, bufferLength);
+    int16_t *outBuffer;
+    outBuffer = (int16_t *)NeAACDecDecode(aacHandle, &hInfo, buffer, bufferLength);
 
-    if(isParametricStereo)
-        *isParametricStereo = hInfo.ps == 1 ? true : false;
+    if (isParametricStereo) {
+        *isParametricStereo = (hInfo.ps == 1);
+    }
 
-    sample_rate = hInfo. samplerate;
-    if(sampleRate)
+    sample_rate = hInfo.samplerate;
+    if (sampleRate) {
         *sampleRate = sample_rate;
+    }
 
-    samples     = hInfo. samples;
+    size_t samples = hInfo.samples;
 
     //  fprintf (stderr, "bytes consumed %d\n", (int)(hInfo. bytesconsumed));
     //  fprintf (stderr, "samplerate = %d, samples = %d, channels = %d, error = %d, sbr = %d\n", sample_rate, samples,
-    //           hInfo. channels,
-    //           hInfo. error,
-    //           hInfo. sbr);
-    //  fprintf (stderr, "header = %d\n", hInfo. header_type);
-    channels    = hInfo. channels;
+    //           hInfo.channels,
+    //           hInfo.error,
+    //           hInfo.sbr);
+    //  fprintf (stderr, "header = %d\n", hInfo.header_type);
+    channels    = hInfo.channels;
 
     // Error check
-    if (hInfo. error != 0)
+    if (hInfo.error != 0)
     {
-        fprintf (stderr, "CFaadDecoder: warning: %s\n",
-                faacDecGetErrorMessage (hInfo. error));
-        return 0;
+        fprintf(stderr, "CFaadDecoder: warning: %s\n",
+                faacDecGetErrorMessage(hInfo.error));
+        return {};
     }
 
     // Sometimes it can be 0 samples
-    if(samples == 0)
-        return 0;
+    if (samples == 0)
+        return {};
 
     if (channels == 2) {
-        size_t writeSize = audioBuffer->putDataIntoBuffer(outBuffer, samples);
-        if(writeSize != samples)
-            fprintf (stderr, "CFaadDecoder: can't write WAV sample to buffer. Wrote %zu bytes of %zu bytes.\n", writeSize, samples);
+        vector<int16_t> audio(outBuffer, outBuffer + samples);
+        return audio;
     }
-    else
+    else {
         if (channels == 1) {
-            int16_t *buffer = (int16_t *)alloca (2 * samples); // ToDo Memory leak!
+            vector<int16_t> audio(2*samples);
             for (size_t i = 0; i < samples; i ++) {
-                buffer [2 * i]    = ((int16_t *)outBuffer) [i];
-                buffer [2 * i + 1] = buffer [2 * i];
+                audio[2 * i]     = outBuffer[i];
+                audio[2 * i + 1] = outBuffer[i];
             }
-            audioBuffer->putDataIntoBuffer(buffer, samples);
+            return audio;
         }
-        else
-            fprintf (stderr, "CFaadDecoder: Cannot handle these channels\n");
-
-    return samples / 2;
+        else {
+            throw runtime_error("CFaadDecoder: Cannot handle these channels");
+        }
+    }
 }

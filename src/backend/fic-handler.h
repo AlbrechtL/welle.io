@@ -1,4 +1,6 @@
 /*
+ *    Copyright (C) 2018
+ *    Matthias P. Braendli (matthias.braendli@mpb.li)
  *
  *    Copyright (C) 2013
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
@@ -26,19 +28,19 @@
 #ifndef __FIC_HANDLER
 #define __FIC_HANDLER
 
-#include    <mutex>
-#include    <cstdio>
-#include    <cstdint>
-#include    "viterbi.h"
-#include    "fib-processor.h"
+#include <mutex>
+#include <cstdio>
+#include <cstdint>
+#include "viterbi.h"
+#include "fib-processor.h"
+#include "radio-controller.h"
 
-class   CRadioController;
 class   mscHandler;
 
-class ficHandler: public viterbi
+class FicHandler: public viterbi
 {
     public:
-        ficHandler(CRadioController *);
+        FicHandler(RadioControllerInterface& mr);
         void    process_ficBlock    (int16_t *data, int16_t blkno);
         void    setBitsperBlock     (int16_t b);
         void    clearEnsemble       (void);
@@ -48,7 +50,7 @@ class ficHandler: public viterbi
         void    dataforDataService  (const std::string& s, packetdata *d);
         void    dataforAudioService (const std::string& s, audiodata *f);
     private:
-        CRadioController *myRadioInterface;
+        RadioControllerInterface& myRadioInterface;
         void        process_ficInput(int16_t *ficblock, int16_t ficno);
         int8_t      *PI_15;
         int8_t      *PI_16;

@@ -79,7 +79,7 @@ class   CRadioController;
 
 class   fib_processor {
     public:
-        fib_processor(CRadioController *);
+        fib_processor(RadioControllerInterface& mr);
         void    process_FIB(uint8_t*, uint16_t);
 
         void    setupforNewFrame(void);
@@ -89,7 +89,7 @@ class   fib_processor {
         void    dataforAudioService(const std::string& label, audiodata *);
         void    dataforDataService(const std::string& label, packetdata *);
     private:
-        CRadioController *myRadioInterface;
+        RadioControllerInterface& myRadioInterface;
         Service *findServiceId(uint32_t serviceId);
         ServiceComponent *find_packetComponent(int16_t SCId);
 
@@ -143,12 +143,12 @@ class   fib_processor {
         int16_t HandleFIG0Extension22(uint8_t *d, int16_t used);
 
         dab_date_time_t dateTime = {};
-        ChannelMap ficList[64];
+        std::vector<ChannelMap> ficList;
         std::vector<ServiceComponent> components;
         std::vector<Service> listofServices;
-        bool        dateFlag;
-        bool        firstTime;
-        bool        isSynced;
+        bool        dateFlag = false;
+        bool        firstTime = true;
+        bool        isSynced = false;
 };
 
 #endif

@@ -1,4 +1,7 @@
 /*
+ *    Copyright (C) 2018
+ *    Matthias P. Braendli (matthias.braendli@mpb.li)
+ *
  *    Copyright (C) 2017
  *    Albrecht Lohofener (albrechtloh@gmx.de)
  *
@@ -26,9 +29,7 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-//
-//	Common definitions and includes for
-//	the DAB decoder
+//  Common definitions and includes for the DAB decoder
 
 #ifndef __DAB_CONSTANTS
 #define __DAB_CONSTANTS
@@ -43,14 +44,6 @@
 
 using DSPFLOAT = float;
 using DSPCOMPLEX = std::complex<DSPFLOAT>;
-
-// Fallback if git hash macro is not defined
-#ifndef GITHASH
-#pragma message "Git hash is not defined! Set it to \"unknown\""
-#define GITHASH "unknown"
-#endif
-
-#define CURRENT_VERSION "1.x development"
 
 #define DAB 0100
 #define DAB_PLUS 0101
@@ -67,15 +60,15 @@ using DSPCOMPLEX = std::complex<DSPFLOAT>;
 #define LONG_LOW 03
 #define UNSYNCED 04
 
-namespace CDABConstants {
+namespace DABConstants {
     const char* getProgramTypeName(int type);
     const char* getLanguageName(int language);
 }
 
-class CDABParams {
+class DABParams {
 public:
-    CDABParams();
-    CDABParams(int mode);
+    DABParams();
+    DABParams(int mode);
     void setMode(int mode);
 
     // To access directly the members is ugly but it was the easiest for the existing code
@@ -88,12 +81,6 @@ public:
     int16_t T_u; // useful part
     int16_t guardLength;
     int16_t carrierDiff;
-
-private:
-    void setMode1(void);
-    void setMode2(void);
-    void setMode3(void);
-    void setMode4(void);
 };
 
 struct packetdata {

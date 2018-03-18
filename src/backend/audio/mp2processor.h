@@ -33,8 +33,8 @@
 #include <cmath>
 #include <cstdio>
 #include "dab-processor.h"
-#include "ringbuffer.h"
 #include "data/pad_decoder.h"
+#include "radio-controller.h"
 
 #define KJMP2_MAX_FRAME_SIZE    1440  // the maximum size of a frame
 #define KJMP2_SAMPLES_PER_FRAME 1152  // the number of samples per frame
@@ -47,14 +47,11 @@ struct quantizer_spec
     uint8_t cw_bits;
 };
 
-class CRadioController;
-
 class mp2Processor: public dabProcessor, public PADDecoderObserver
 {
     public:
-        mp2Processor( CRadioController *mr,
-                      int16_t bitRate,
-                      std::shared_ptr<RingBuffer<int16_t>> buffer);
+        mp2Processor(RadioControllerInterface& mr,
+                     int16_t bitRate);
         virtual void addtoFrame(uint8_t *v);
         void setFile(FILE *);
 
@@ -66,10 +63,9 @@ class mp2Processor: public dabProcessor, public PADDecoderObserver
         int32_t     mp2sampleRate(uint8_t *frame);
         int32_t     mp2decodeFrame(uint8_t *frame, int16_t *pcm);
 
-        CRadioController    *myRadioInterface;
-        std::shared_ptr<RingBuffer<int16_t>> buffer;
+        RadioControllerInterface& myRadioInterface;
         int16_t     bitRate;
-        int32_t     baudRate;
+        int32_t     baudRate = 48000;
         void        setSamplerate(int32_t rate);
         struct quantizer_spec *read_allocation(int sb, int b2_table);
         void        read_samples(struct quantizer_spec *q,
@@ -77,7 +73,7 @@ class mp2Processor: public dabProcessor, public PADDecoderObserver
                                 int *sample);
         int32_t     get_bits(int32_t bit_count);
         int16_t     V[2][1024];
-        int16_t     Voffs;
+        int16_t     Voffs = 0;
         int16_t     N[64][32];
         struct quantizer_spec *allocation[2][32];
         int32_t     scfsi[2][32];

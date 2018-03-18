@@ -1,4 +1,7 @@
 /*
+ *    Copyright (C) 2018
+ *    Matthias P. Braendli (matthias.braendli@mpb.li)
+ *
  *    Copyright (C) 2017
  *    Albrecht Lohofener (albrechtloh@gmx.de)
  *
@@ -28,26 +31,28 @@
 
 #include "CAudio.h"
 
-CAudio::CAudio(std::shared_ptr<RingBuffer<int16_t> > Buffer)
+CAudio::CAudio(RingBuffer<int16_t>& buffer) :
+    buffer(buffer),
+    audioIODevice(buffer, this)
 {
-    AudioOutput = NULL;
+    audioOutput = NULL;
     CardRate = 0;
-    this->Buffer = Buffer;
-
-    AudioIODevice = new CAudioIODevice(Buffer, this);
 
     connect(this, SIGNAL(rateChanged(int)), this, SLOT(init(int)));
     emit rateChanged(48000);
 
-    connect(&CheckAudioBufferTimer, &QTimer::timeout, this, &CAudio::checkAudioBufferTimeout);
+    connect(&CheckAudioBufferTimer, &QTimer::timeout,
+            this, &CAudio::checkAudioBufferTimeout);
+
     // Check audio state every 1 s, start audio if bytes are available
     CheckAudioBufferTimer.start(1000);
 }
 
 CAudio::~CAudio(void)
 {
-    delete AudioOutput;
-    delete AudioIODevice;
+    if (audioOutput != NULL) {
+        delete audioOutput;
+    }
 }
 
 void CAudio::setRate(int sampleRate)
@@ -62,18 +67,18 @@ void CAudio::setRate(int sampleRate)
 
 void CAudio::setVolume(qreal volume)
 {
-    if (AudioOutput != NULL) {
+    if (audioOutput != NULL) {
         qDebug() << "Audio:"
                  << "Volume" << volume;
-        AudioOutput->setVolume(volume);
+        audioOutput->setVolume(volume);
     }
 }
 
 void CAudio::init(int sampleRate)
 {
-    if (AudioOutput != NULL) {
-        delete AudioOutput;
-        AudioOutput = NULL;
+    if (audioOutput != NULL) {
+        delete audioOutput;
+        audioOutput = NULL;
     }
 
     AudioFormat.setSampleRate(sampleRate);
@@ -89,23 +94,23 @@ void CAudio::init(int sampleRate)
                  << "Audio format \"audio/pcm\" 16-bit stereo not supported. Your audio may not work!";
     }
 
-    AudioOutput = new QAudioOutput(AudioFormat, this);
-    connect(AudioOutput, &QAudioOutput::stateChanged, this, &CAudio::handleStateChanged);
+    audioOutput = new QAudioOutput(AudioFormat, this);
+    connect(audioOutput, &QAudioOutput::stateChanged, this, &CAudio::handleStateChanged);
 
-    AudioIODevice->start();
-    AudioOutput->start(AudioIODevice);
+    audioIODevice.start();
+    audioOutput->start(&audioIODevice);
 }
 
 void CAudio::stop(void)
 {
-    AudioIODevice->stop();
-    AudioOutput->stop();
+    audioIODevice.stop();
+    audioOutput->stop();
 }
 
 void CAudio::reset(void)
 {
-    AudioIODevice->flush();
-    AudioOutput->reset();
+    audioIODevice.flush();
+    audioOutput->reset();
 }
 
 void CAudio::handleStateChanged(QAudio::State newState)
@@ -129,7 +134,7 @@ void CAudio::handleStateChanged(QAudio::State newState)
         qDebug() << "Audio:"
                  << "IdleState";
         // Necessary to avoid a IdleState, ActiveState, IdleState, ActiveState ... loop under Ubuntu. I don't know why.
-        AudioOutput->stop();
+        audioOutput->stop();
         break;
     default:
         qDebug() << "Audio:"
@@ -140,19 +145,19 @@ void CAudio::handleStateChanged(QAudio::State newState)
 
 void CAudio::checkAudioBufferTimeout()
 {
-    int32_t Bytes = Buffer->GetRingBufferReadAvailable();
+    int32_t Bytes = buffer.GetRingBufferReadAvailable();
 
     // Start audio if bytes are available and audio is not active
-    if (AudioOutput && Bytes && CurrentState != QAudio::ActiveState) {
-        AudioIODevice->start();
-        AudioOutput->start(AudioIODevice);
+    if (audioOutput && Bytes && CurrentState != QAudio::ActiveState) {
+        audioIODevice.start();
+        audioOutput->start(&audioIODevice);
     }
 }
 
-CAudioIODevice::CAudioIODevice(std::shared_ptr<RingBuffer<int16_t>> Buffer, QObject* parent)
-    : QIODevice(parent)
+CAudioIODevice::CAudioIODevice(RingBuffer<int16_t>& buffer, QObject* parent) :
+    QIODevice(parent),
+    buffer(buffer)
 {
-    this->Buffer = Buffer;
 }
 
 CAudioIODevice::~CAudioIODevice()
@@ -166,20 +171,20 @@ void CAudioIODevice::start()
 
 void CAudioIODevice::stop()
 {
-    Buffer->FlushRingBuffer();
+    buffer.FlushRingBuffer();
     close();
 }
 
 void CAudioIODevice::flush()
 {
-    Buffer->FlushRingBuffer();
+    buffer.FlushRingBuffer();
 }
 
 qint64 CAudioIODevice::readData(char* data, qint64 len)
 {
     qint64 total = 0;
 
-    total = Buffer->getDataFromBuffer(data, len / 2); // we have int16 samples
+    total = buffer.getDataFromBuffer(data, len / 2); // we have int16 samples
 
     // If the buffer is empty return zeros.
     if(total == 0)
@@ -201,5 +206,5 @@ qint64 CAudioIODevice::writeData(const char* data, qint64 len)
 
 qint64 CAudioIODevice::bytesAvailable() const
 {
-    return Buffer->GetRingBufferReadAvailable();
+    return buffer.GetRingBufferReadAvailable();
 }

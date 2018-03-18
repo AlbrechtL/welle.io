@@ -38,11 +38,10 @@
 
 #include "CAudio.h"
 #include "CStationList.h"
-#include "DabConstants.h"
+#include "dab-constants.h"
 #include "ofdm/ofdm-processor.h"
 #include "radio-controller.h"
 #include "ringbuffer.h"
-#include "DabConstants.h"
 #include "fic-handler.h"
 #include "msc-handler.h"
 #include "CChannels.h"
@@ -99,7 +98,7 @@ public:
     };
     Q_ENUMS(DabStatus)
 
-    CRadioController(QVariantMap &commandLineOptions, CDABParams& DABParams, QObject* parent = NULL);
+    CRadioController(QVariantMap &commandLineOptions, DABParams& params, QObject* parent = NULL);
     ~CRadioController(void);
     void closeDevice();
     void openDevice(CVirtualInput* Dev);
@@ -153,7 +152,7 @@ public:
 
     //called from the backend
     virtual void onFrameErrors(int frameErrors) override;
-    virtual void onNewAudio(int sampleRate) override;
+    virtual void onNewAudio(std::vector<int16_t>&& audio, int sampleRate) override;
     virtual void onStereoChange(bool isStereo) override;
     virtual void onRsErrors(int rsErrors) override;
     virtual void onAacErrors(int aacErrors) override;
@@ -178,15 +177,15 @@ private:
     // Back-end objects
     CVirtualInput* Device;
     QVariantMap commandLineOptions;
-    CDABParams DABParams;
+    DABParams dabparams;
     CChannels Channels;
 
-    ofdmProcessor* my_ofdmProcessor;
-    ficHandler* my_ficHandler;
-    mscHandler* my_mscHandler;
+    OFDMProcessor* my_ofdmProcessor;
+    FicHandler* my_ficHandler;
+    MscHandler* my_mscHandler;
     CAudio* Audio;
-    std::shared_ptr<RingBuffer<int16_t>> AudioBuffer;
-    std::shared_ptr<std::vector<float>> ImpuleResponseBuffer;
+    RingBuffer<int16_t> audioBuffer;
+    std::vector<float> impulseResponseBuffer;
 
     // Objects set by the back-end
     QVariantMap mGUIData;

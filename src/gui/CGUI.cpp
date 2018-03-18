@@ -33,8 +33,9 @@
 #include "CInputFactory.h"
 #include "CGUI.h"
 #include "CAudio.h"
-#include "DabConstants.h"
+#include "dab-constants.h"
 #include "msc-handler.h"
+#include "version.h"
 
 /**
   *	We use the creation function merely to set up the
