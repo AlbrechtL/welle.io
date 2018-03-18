@@ -48,7 +48,10 @@ enum class AACAudioMode { Unknown, Mono, Stereo, ParametricStereo};
 class mp4Processor : public dabProcessor, public PADDecoderObserver
 {
     public:
-        mp4Processor(RadioControllerInterface& mr, int16_t bitRate);
+        mp4Processor(RadioControllerInterface& mr,
+                int16_t bitRate,
+                const std::string& mscFileName);
+
         void addtoFrame(uint8_t *v);
 
         // PADDecoderObserver impl
@@ -93,7 +96,6 @@ class mp4Processor : public dabProcessor, public PADDecoderObserver
         int16_t     aacFrames;
         int16_t     charSet;
 
-        std::string mscFileName;
         struct FILEDeleter{ void operator()(FILE* fd){ if (fd) fclose(fd); }};
         std::unique_ptr<FILE, FILEDeleter> mscFile;
 

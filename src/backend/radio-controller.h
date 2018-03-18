@@ -37,6 +37,7 @@
 #include <string>
 #include <complex>
 #include <cstddef>
+#include "dab-constants.h"
 
 struct dab_date_time_t {
     int year;
@@ -117,9 +118,6 @@ class RadioControllerInterface {
 /* Definition of the interface all input devices must implement */
 class InputInterface {
     public:
-        using DSPFLOAT = float;
-        using DSPCOMPLEX = std::complex<DSPFLOAT>;
-
         virtual ~InputInterface() {};
         virtual void setFrequency(int32_t frequency) = 0;
         virtual bool restart(void) = 0;

@@ -47,7 +47,9 @@ class DabAudio : public DabVirtual
                   int16_t bitRate,
                   bool shortForm,
                   int16_t protLevel,
-                  RadioControllerInterface& mr);
+                  RadioControllerInterface& mr,
+                  const std::string& mscFileName,
+                  const std::string& mp2FileName);
         ~DabAudio(void);
         DabAudio(const DabAudio&) = delete;
         DabAudio& operator=(const DabAudio&) = delete;
@@ -75,6 +77,9 @@ class DabAudio : public DabVirtual
         std::unique_ptr<protection> protectionHandler;
         std::unique_ptr<dabProcessor> our_dabProcessor;
         RingBuffer<int16_t> Buffer;
+
+        const std::string& mscFileName;
+        const std::string& mp2FileName;
 };
 
 #endif

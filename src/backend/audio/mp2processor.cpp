@@ -212,7 +212,10 @@ struct quantizer_spec quantizer_table[17] = {
 //  (J van Katwijk)
 ////////////////////////////////////////////////////////////////////////////////
 
-mp2Processor::mp2Processor(RadioControllerInterface& mr, int16_t bitRate) :
+mp2Processor::mp2Processor(
+        RadioControllerInterface& mr,
+        int16_t bitRate,
+        const std::string& mp2FileName) :
     myRadioInterface(mr),
     bitRate(bitRate),
     padDecoder(this, true)
@@ -242,9 +245,7 @@ mp2Processor::mp2Processor(RadioControllerInterface& mr, int16_t bitRate) :
     numberofFrames = 0;
     errorFrames    = 0;
 
-#if 0
     // Open a MP2 file (XPADxpert) if the user defined it
-    mp2FileName = myRadioInterface.GetMP2FileName();
     if (!mp2FileName.empty()) {
         FILE *fd = fopen(mp2FileName.c_str(), "wb");
         // w for write, b for binary
@@ -252,7 +253,6 @@ mp2Processor::mp2Processor(RadioControllerInterface& mr, int16_t bitRate) :
             mp2File.reset(fd);
         }
     }
-#endif
 }
 
 void mp2Processor::PADChangeDynamicLabel(const DL_STATE& dl)

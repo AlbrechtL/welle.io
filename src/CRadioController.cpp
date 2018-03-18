@@ -242,6 +242,8 @@ void CRadioController::onEventLoopStarted()
         RTL_TCP_Client->setIP(ipAddress);
         RTL_TCP_Client->setPort(ipPort);
     }
+#else
+    (void)ipPort; // suppress warning
 #endif // HAVE_RTL_TCP
 
     // Set rawfile settings
@@ -281,20 +283,29 @@ void CRadioController::Initialise(void)
 
     Device->setHwAgc(isHwAGC);
 
-    if(!isAGC) // Manual AGC
-    {
+    if (!isAGC) { // Manual AGC
         Device->setAgc(false);
         Device->setGain(CurrentManualGain);
         qDebug() << "RadioController:" << "AGC off";
     }
-    else
-    {
+    else {
         Device->setAgc(true);
         qDebug() << "RadioController:" << "AGC on";
     }
 
-    if(Audio)
+    if (Audio) {
         Audio->setVolume(CurrentVolume);
+    }
+
+    std::string mscFileName;
+    if (commandLineOptions["mscFileName"] != "") {
+        mscFileName = commandLineOptions["mscFileName"].toString().toStdString();
+    }
+
+    std::string mp2FileName;
+    if (commandLineOptions["mp2FileName"] != "") {
+        mp2FileName = commandLineOptions["mp2FileName"].toString().toStdString();
+    }
 
     /**
     *	The actual work is done elsewhere: in OFDMProcessor
@@ -303,7 +314,8 @@ void CRadioController::Initialise(void)
     *	The ficHandler shares information with the mscHandler
     *	but the handlers do not change each others modes.
     */
-    my_mscHandler = new MscHandler(*this, dabparams, false);
+    my_mscHandler = new MscHandler(
+            *this, dabparams, false, mscFileName, mp2FileName);
 
     my_ficHandler = new FicHandler(*this);
 
@@ -705,22 +717,6 @@ void CRadioController::setAGC(bool isAGC)
 float CRadioController::GainValue() const
 {
     return CurrentManualGainValue;
-}
-
-std::string CRadioController::GetMscFileName()
-{
-    if(commandLineOptions["mscFileName"] != "")
-        return commandLineOptions["mscFileName"].toString().toStdString();
-    else
-        return "";
-}
-
-std::string CRadioController::GetMP2FileName()
-{
-    if(commandLineOptions["mp2FileName"] != "")
-        return commandLineOptions["mp2FileName"].toString().toStdString();
-    else
-        return "";
 }
 
 int CRadioController::Gain() const
