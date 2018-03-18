@@ -243,6 +243,12 @@ class RadioInterface : public RadioControllerInterface {
 int main(int argc, char **argv)
 {
     cerr << "Hello this is welle-cli" << endl;
+    if (argc != 3) {
+        cerr << "Usage: " << endl <<
+            " welle-cli channel programme" << endl <<
+            " example: welle-cli 10B GRRIF" << endl;
+        return 1;
+    }
 
     RadioInterface ri;
     CVirtualInput *in = CInputFactory::GetDevice(ri, "auto");
@@ -255,17 +261,8 @@ int main(int argc, char **argv)
     in->setAgc(true);
 
     Channels channels;
-    if (argc >= 2) {
-        in->setFrequency(channels.getFrequency(argv[1]));
-    }
-    else {
-        in->setFrequency(channels.getFrequency("10B"));
-    }
-
-    string service_to_tune = "GRRIF+";
-    if (argc >= 3) {
-        service_to_tune = argv[2];
-    }
+    in->setFrequency(channels.getFrequency(argv[1]));
+    string service_to_tune = argv[2];
 
     RadioReceiver rx(ri, *in, "", "");
 
@@ -279,23 +276,30 @@ int main(int argc, char **argv)
         this_thread::sleep_for(chrono::seconds(5));
     }
 
-    for (const auto s : ri.getServices()) {
-        if (s.find_first_of(service_to_tune) != string::npos) {
-            auto audioData = rx.getAudioServiceData(s);
+    bool tuned = false;
+    while (not tuned) {
+        this_thread::sleep_for(chrono::seconds(5));
 
-            if (audioData.valid) {
-                cerr << "AudioData: SAD:" << audioData.startAddr <<
-                    " subchId:" << hex << audioData.subchId << dec << endl;
-                rx.selectAudioService(audioData);
-                this_thread::sleep_for(chrono::seconds(30));
-                break;
-            }
-            else {
-                cerr << "Not valid" << endl;
+        for (const auto s : ri.getServices()) {
+            if (s.find_first_of(service_to_tune) != string::npos) {
+                auto audioData = rx.getAudioServiceData(s);
+
+                if (audioData.valid) {
+                    cerr << "AudioData: SAD:" << audioData.startAddr <<
+                        " subchId:" << hex << audioData.subchId << dec << endl;
+                    rx.selectAudioService(audioData);
+                    tuned = true;
+                    break;
+                }
+                else {
+                    cerr << "Not valid" << endl;
+                }
             }
         }
     }
 
-    cerr << "Bye!" << endl;
+    // Quit on Ctrl-C
+    while (true) { }
+
     return 0;
 }
