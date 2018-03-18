@@ -35,6 +35,7 @@ find_package(Threads REQUIRED)
 find_package(Qt5 COMPONENTS Widgets Quick Multimedia Charts REQUIRED)
 find_package(FFTW3f REQUIRED)
 find_package(Faad REQUIRED)
+find_package(ALSA REQUIRED)
 if (RTLSDR)
   find_package(LibRTLSDR REQUIRED)
 endif()
@@ -146,6 +147,7 @@ target_link_libraries (${cliExecutableName}
   ${LIBRTLSDR_LIBRARIES}
   ${FFTW3F_LIBRARIES}
   ${FAAD_LIBRARIES}
+  ${ALSA_LIBRARIES}
   ${SoapySDR_LIBRARIES}
   Threads::Threads
 )
