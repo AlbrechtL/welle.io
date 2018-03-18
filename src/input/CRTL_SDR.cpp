@@ -81,7 +81,7 @@ CRTL_SDR::CRTL_SDR(CRadioController &RadioController) :
     open = false;
     isAGC = false;
     isHwAGC = false;
-    lastFrequency = KHz(94700); // just a dummy
+    lastFrequency = kHz(94700); // just a dummy
     sampleCounter = 0;
     FrequencyOffset = 0;
     CurrentGain = 0;

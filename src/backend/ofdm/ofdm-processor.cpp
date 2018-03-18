@@ -186,7 +186,7 @@ DSPCOMPLEX OFDMProcessor::getSample (int32_t phase)
     localPhase  -= phase;
     localPhase  = (localPhase + INPUT_RATE) % INPUT_RATE;
     temp        *= oscillatorTable[localPhase];
-    sLevel      = 0.00001 * jan_abs (temp) + (1 - 0.00001) * sLevel;
+    sLevel      = 0.00001 * l1_norm(temp) + (1 - 0.00001) * sLevel;
 #define N   5
     sampleCnt   ++;
     if (++ sampleCnt > INPUT_RATE / N) {
@@ -223,7 +223,7 @@ void OFDMProcessor::getSamples(DSPCOMPLEX *v, int16_t n, int32_t phase)
         localPhase   -= phase;
         localPhase   = (localPhase + INPUT_RATE) % INPUT_RATE;
         v [i]    *= oscillatorTable[localPhase];
-        sLevel   = 0.00001 * jan_abs (v [i]) + (1 - 0.00001) * sLevel;
+        sLevel   = 0.00001 * l1_norm(v [i]) + (1 - 0.00001) * sLevel;
     }
 
     sampleCnt   += n;
@@ -264,7 +264,7 @@ void OFDMProcessor::run(void)
         /// first, we need samples to get a reasonable sLevel
         sLevel   = 0;
         for (i = 0; i < T_F / 2; i ++) {
-            jan_abs (getSample (0));
+            l1_norm(getSample (0));
         }
 notSynced:
         if (scanMode && ++attempts > 5) {
@@ -280,7 +280,7 @@ notSynced:
         currentStrength  = 0;
         for (i = 0; i < 50; i ++) {
             DSPCOMPLEX sample         = getSample (0);
-            envBuffer [syncBufferIndex]   = jan_abs (sample);
+            envBuffer [syncBufferIndex]   = l1_norm(sample);
             currentStrength           += envBuffer [syncBufferIndex];
             syncBufferIndex ++;
         }
@@ -297,7 +297,7 @@ notSynced:
         while (currentStrength / 50  > 0.50 * sLevel) {
             DSPCOMPLEX sample =
                 getSample (coarseCorrector + fineCorrector);
-            envBuffer [syncBufferIndex] = jan_abs (sample);
+            envBuffer [syncBufferIndex] = l1_norm(sample);
             //  update the levels
             currentStrength += envBuffer [syncBufferIndex] -
                 envBuffer [(syncBufferIndex - 50) & syncBufferMask];
@@ -316,7 +316,7 @@ notSynced:
         //SyncOnEndNull:
         while (currentStrength / 50 < 0.75 * sLevel) {
             DSPCOMPLEX sample = getSample (coarseCorrector + fineCorrector);
-            envBuffer [syncBufferIndex] = jan_abs (sample);
+            envBuffer [syncBufferIndex] = l1_norm(sample);
             //  update the levels
             currentStrength += envBuffer [syncBufferIndex] -
                 envBuffer [(syncBufferIndex - 50) & syncBufferMask];
@@ -381,13 +381,13 @@ SyncOnPhase:
         //
         //  Here we look only at the block_0 when we need a coarse
         //  frequency synchronization.
-        //  The width is limited to 2 * 35 Khz (i.e. positive and negative)
+        //  The width is limited to 2 * 35 kHz (i.e. positive and negative)
         f2Correction = !ficHandler.syncReached();
         if (f2Correction) {
             int correction        = processBlock_0(ofdmBuffer.data());
             if (correction != 100) {
                 coarseCorrector    += correction * params.carrierDiff;
-                if (abs (coarseCorrector) > Khz (35))
+                if (abs (coarseCorrector) > kHz(35))
                     coarseCorrector = 0;
             }
         }

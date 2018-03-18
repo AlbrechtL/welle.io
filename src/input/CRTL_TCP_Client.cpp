@@ -64,7 +64,7 @@ CRTL_TCP_Client::CRTL_TCP_Client(CRadioController &RadioController)
 
     connected = false;
     stopped = false;
-    Frequency = Khz (220000);
+    Frequency = kHz(220000);
 
     // Use default values
     isAGC = true;
