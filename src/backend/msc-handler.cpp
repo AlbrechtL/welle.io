@@ -38,8 +38,8 @@ MscHandler::MscHandler(
         RadioControllerInterface& mr,
         const DABParams& p,
         bool show_crcErrors) :
-    cifVector(864 * CUSize),
-    radioInterface(mr)
+    radioInterface(mr),
+    cifVector(864 * CUSize)
 {
     this->show_crcErrors = show_crcErrors;
     bitsperBlock = 2 * p.K;
