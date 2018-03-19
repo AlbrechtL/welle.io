@@ -83,6 +83,7 @@ HEADERS += \
     src/various/fft.h \
     src/various/ringbuffer.h \
     src/various/Xtan2.h \
+    src/various/channels.h \
     src/input/CVirtualInput.h \
     src/input/CInputFactory.h \
     src/input/CNullDevice.h \
@@ -93,7 +94,6 @@ HEADERS += \
     src/gui/CStationList.h \
     src/gui/CGUI.h \
     src/CRadioController.h \
-    src/CChannels.h \
     src/CLogFile.h \
     src/CSplashScreen.h
 
@@ -125,6 +125,7 @@ SOURCES += \
     src/output/CAudio.cpp \
     src/various/fft.cpp \
     src/various/Xtan2.cpp \
+    src/various/channels.cpp \
     src/input/CInputFactory.cpp \
     src/input/CNullDevice.cpp \
     src/input/CRAWFile.cpp \
@@ -134,7 +135,6 @@ SOURCES += \
     src/gui/CStationList.cpp \
     src/gui/CGUI.cpp \
     src/CRadioController.cpp \
-    src/CChannels.cpp \
     src/CLogFile.cpp \
     src/CSplashScreen.cpp
 
@@ -146,6 +146,7 @@ unix:!macx:!android: {
     LIBS    += -lfaad
     CONFIG  += airspy
     CONFIG  += rtl_sdr
+    CONFIG  += rtl_tcp
     #CONFIG  += soapysdr
 
     #CONFIG  += kiss_fft_builtin
@@ -348,6 +349,10 @@ rtl_sdr {
 
     # The same lib for unix and Windows
     LIBS       += -lrtlsdr
+}
+
+rtl_tcp {
+    DEFINES    += HAVE_RTL_TCP
 }
 
 soapysdr {

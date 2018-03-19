@@ -30,6 +30,7 @@
 #ifndef __RTL_TCP_CLIENT
 #define __RTL_TCP_CLIENT
 
+#include <QObject>
 #include <QByteArray>
 #include <QHostAddress>
 #include <QSettings>
@@ -54,7 +55,7 @@ typedef struct { /* structure size must be multiple of 2 bytes */
 class CRTL_TCP_Client : public CVirtualInput {
     Q_OBJECT
 public:
-    CRTL_TCP_Client(CRadioController &RadioController);
+    CRTL_TCP_Client(RadioControllerInterface& radioController);
     ~CRTL_TCP_Client(void);
 
     // Interface methods
@@ -77,7 +78,7 @@ public:
     void setIP(QString IPAddress);
     void setPort(uint16_t Port);
 
-    CRadioController *RadioController;
+    RadioControllerInterface& radioController;
 
 private slots:
     void readData(void);
