@@ -111,13 +111,14 @@ fib_processor::fib_processor(RadioControllerInterface& mr) :
 //  This is merely a dispatcher
 void fib_processor::process_FIB (uint8_t *p, uint16_t fib)
 {
-    uint8_t FIGtype;
     int8_t  processedBytes  = 0;
     uint8_t *d = p;
 
+    std::lock_guard<std::mutex> lock(mutex);
+
     (void)fib;
     while (processedBytes  < 30) {
-        FIGtype         = getBits_3 (d, 0);
+        const uint8_t FIGtype = getBits_3 (d, 0);
         switch (FIGtype) {
             case 0:
                 process_FIG0 (d);
@@ -131,14 +132,12 @@ void fib_processor::process_FIB (uint8_t *p, uint16_t fib)
                 return;
 
             default:
-                //              std::clog << "fib-processor:" << "FIG%d aanwezig\n", FIGtype) << std::endl;
+                //std::clog << "FIG%d present" << FIGtype << std::endl;
                 break;
         }
-        //
         //  Thanks to Ronny Kunze, who discovered that I used
         //  a p rather than a d
         processedBytes += getBits_5 (d, 3) + 1;
-        //        processedBytes += getBits (p, 3, 5) + 1;
         d = p + processedBytes * 8;
     }
 }
@@ -209,7 +208,7 @@ void fib_processor::FIG0Extension0 (uint8_t *d)
     //     std::clog << "fib-processor:" << "cifcount = %d\n", highpart * 250 + lowpart) << std::endl;
     //     std::clog << "fib-processor:" << "Change happening in %d CIFs\n", occurrenceChange) << std::endl;
     //  }
-    std::clog << "fib-processor:" << "changes in config not supported, choose again" << std::endl;
+    std::clog << "fib-processor: " << "changes in config not supported, choose again" << std::endl;
     // Were, the signal ensembleChanged was called, which was ignored by the
     // frontend
 }
@@ -949,12 +948,12 @@ void fib_processor::bind_audioService(
 
     if (std::find_if(components.begin(), components.end(),
                 [&](const ServiceComponent& sc) {
-                    return sc.service == s && sc.componentNr == compnr;
+                    return sc.SId == s->serviceId && sc.componentNr == compnr;
                 }) == components.end()) {
         ServiceComponent newcomp;
         newcomp.TMid         = TMid;
         newcomp.componentNr  = compnr;
-        newcomp.service      = s;
+        newcomp.SId          = SId;
         newcomp.subchannelId = subChId;
         newcomp.PS_flag      = ps_flag;
         newcomp.ASCTy        = ASCTy;
@@ -978,11 +977,11 @@ void fib_processor::bind_packetService(
     Service *s = findServiceId (SId);
     if (std::find_if(components.begin(), components.end(),
                 [&](const ServiceComponent& sc) {
-                    return sc.service == s && sc.componentNr == compnr;
+                    return sc.SId == s->serviceId && sc.componentNr == compnr;
                 }) == components.end()) {
         ServiceComponent newcomp;
         newcomp.TMid        = TMid;
-        newcomp.service     = s;
+        newcomp.SId         = SId;
         newcomp.componentNr = compnr;
         newcomp.SCId        = SCId;
         newcomp.PS_flag     = ps_flag;
@@ -993,14 +992,9 @@ void fib_processor::bind_packetService(
     }
 }
 
-void fib_processor::setupforNewFrame()
-{
-    components.clear();
-}
-
 void fib_processor::clearEnsemble()
 {
-    setupforNewFrame();
+    std::lock_guard<std::mutex> lock(mutex);
     components.clear();
     ficList.resize(64);
     listofServices.clear();
@@ -1012,15 +1006,20 @@ void fib_processor::clearEnsemble()
 
 uint8_t fib_processor::kindofService(const std::string& s)
 {
+    std::lock_guard<std::mutex> lock(mutex);
+
     //  first we locate the serviceId
     for (size_t i = 0; i < listofServices.size(); i++) {
         if (listofServices[i].serviceLabel.label != s)
             continue;
 
-        std::clog << "fib-processor:" <<  "we found for" << s << "serviceId" <<  listofServices[i].serviceId << std::endl;
+        std::clog << "fib-processor: "
+            "we found for " << s << " serviceId " <<
+            listofServices[i].serviceId << std::endl;
+
         uint32_t selectedService = listofServices[i].serviceId;
         for (const auto& sc : components) {
-            if (selectedService != sc.service->serviceId)
+            if (selectedService != sc.SId)
                 continue;
 
             if (sc.TMid == 03) {
@@ -1030,7 +1029,7 @@ uint8_t fib_processor::kindofService(const std::string& s)
                 return AUDIO_SERVICE;
             }
             else {
-                std::clog << "fib-processor: unknown TMid =" << sc.TMid << std::endl;
+                std::clog << "fib-processor: unknown TMid=" << sc.TMid << std::endl;
             }
         }
     }
@@ -1039,6 +1038,8 @@ uint8_t fib_processor::kindofService(const std::string& s)
 
 packetdata_t fib_processor::getDataServiceData(const std::string &s)
 {
+    std::lock_guard<std::mutex> lock(mutex);
+
     packetdata_t d;
     d.valid = false;
 
@@ -1050,7 +1051,7 @@ packetdata_t fib_processor::getDataServiceData(const std::string &s)
         uint32_t selectedService = listofServices[i].serviceId;
         for (const auto& sc : components) {
             int16_t subchId;
-            if (selectedService != sc.service->serviceId)
+            if (selectedService != sc.SId)
                 continue;
 
             if (sc.TMid != 03) {
@@ -1081,7 +1082,7 @@ packetdata_t fib_processor::getDataServiceData(const std::string &s)
 
 audiodata_t fib_processor::getAudioServiceData(const std::string &s)
 {
-
+    std::lock_guard<std::mutex> lock(mutex);
     audiodata_t d;
 
     d.valid = false;
@@ -1093,7 +1094,7 @@ audiodata_t fib_processor::getAudioServiceData(const std::string &s)
         uint32_t selectedService = listofServices[i].serviceId;
         for (const auto& sc : components) {
             int16_t subchId;
-            if (selectedService != sc.service -> serviceId)
+            if (selectedService != sc.SId)
                 continue;
 
             if (sc.TMid != 00) {
@@ -1101,7 +1102,7 @@ audiodata_t fib_processor::getAudioServiceData(const std::string &s)
                     "fatal error, expected audio service" << std::endl;
                 return d;
             }
-            subchId        = sc.subchannelId;
+            subchId       = sc.subchannelId;
             d.subchId     = subchId;
             d.startAddr   = ficList[subchId].StartAddr;
             d.shortForm   = ficList[subchId].shortForm;

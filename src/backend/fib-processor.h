@@ -27,6 +27,7 @@
 
 #include    <vector>
 #include    <array>
+#include    <mutex>
 #include    <cstdint>
 #include    <cstdio>
 #include    "msc-handler.h"
@@ -53,7 +54,7 @@ struct Service {
 //      It really should be a union
 struct ServiceComponent {
     int8_t       TMid;           // the transport mode
-    Service     *service;        // belongs to the service
+    uint32_t     SId;            // belongs to the service
     int16_t      componentNr;    // component
 
     int16_t      ASCTy;          // used for audio
@@ -82,14 +83,19 @@ class   CRadioController;
 class   fib_processor {
     public:
         fib_processor(RadioControllerInterface& mr);
-        void    process_FIB(uint8_t*, uint16_t);
 
-        void    setupforNewFrame(void);
+        // called from the demodulator
+        void    process_FIB(uint8_t*, uint16_t);
         void    clearEnsemble(void);
         bool    syncReached(void);
+
+        // returns PACKET_SERVICE or AUDIO_SERVICE or UNKNOWN_SERVICE
         uint8_t kindofService(const std::string& label);
+
+        // Called from the frontend
         audiodata_t getAudioServiceData(const std::string& label);
         packetdata_t getDataServiceData(const std::string& label);
+
     private:
         RadioControllerInterface& myRadioInterface;
         Service *findServiceId(uint32_t serviceId);
@@ -145,6 +151,7 @@ class   fib_processor {
         int16_t HandleFIG0Extension22(uint8_t *d, int16_t used);
 
         dab_date_time_t dateTime = {};
+        std::mutex mutex;
         std::vector<ChannelMap> ficList;
         std::vector<ServiceComponent> components;
         std::vector<Service> listofServices;
