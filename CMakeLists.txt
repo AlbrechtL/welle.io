@@ -131,9 +131,6 @@ if(GIT_COMMIT_HASH)
   add_definitions("-DGITHASH=\"${GIT_COMMIT_HASH}\"")
 endif()
 
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O2 -fno-omit-frame-pointer -fsanitize=address")
-set(CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_STATIC_LINKER_FLAGS_DEBUG} -O2 -fno-omit-frame-pointer -fsanitize=address")
-
 add_executable (${executableName} ${welle_io_sources} ${backend_sources} ${input_sources} ${EXTRA_MOCS} resources.qrc)
 
 target_link_libraries (${executableName}
@@ -145,6 +142,11 @@ target_link_libraries (${executableName}
 )
 
 add_executable (${cliExecutableName} ${welle_cli_sources} ${backend_sources} ${input_sources})
+
+if(CMAKE_BUILD_TYPE MATCHES Debug)
+  SET_TARGET_PROPERTIES(${cliExecutableName} PROPERTIES COMPILE_FLAGS "-O2 -fno-omit-frame-pointer -fsanitize=address")
+  SET_TARGET_PROPERTIES(${cliExecutableName} PROPERTIES LINK_FLAGS "-fno-omit-frame-pointer -fsanitize=address")
+endif(CMAKE_BUILD_TYPE MATCHES Debug)
 
 target_link_libraries (${cliExecutableName}
   ${LIBRTLSDR_LIBRARIES}
