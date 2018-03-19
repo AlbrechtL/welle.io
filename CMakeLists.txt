@@ -131,6 +131,9 @@ if(GIT_COMMIT_HASH)
   add_definitions("-DGITHASH=\"${GIT_COMMIT_HASH}\"")
 endif()
 
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O2 -fno-omit-frame-pointer -fsanitize=address")
+set(CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_STATIC_LINKER_FLAGS_DEBUG} -O2 -fno-omit-frame-pointer -fsanitize=address")
+
 add_executable (${executableName} ${welle_io_sources} ${backend_sources} ${input_sources} ${EXTRA_MOCS} resources.qrc)
 
 target_link_libraries (${executableName}
