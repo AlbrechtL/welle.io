@@ -17,6 +17,7 @@ ChartView {
     property int plotType: 0
 
     onPlotTypeChanged: {
+        axisY1.min = 0;
         switch(plotType) {
         case 0:
             title = qsTr("Spectrum");
@@ -27,6 +28,7 @@ ChartView {
             title = qsTr("Impulse Response");
             axisX.titleText = qsTr("Samples");
             axisY1.titleText = qsTr("Amplitude");
+            axisY1.min = -20;
             break;
         case 2:
             title = qsTr("Constellation Diagram (not implemented)");
