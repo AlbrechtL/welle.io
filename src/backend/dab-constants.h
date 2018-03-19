@@ -73,12 +73,12 @@ public:
 
     // To access directly the members is ugly but it was the easiest for the existing code
     uint8_t dabMode;
-    int16_t L; // blocks per frame
-    int16_t K; // carriers
-    int16_t T_null; // null length
-    int32_t T_F; // samples per frame
-    int16_t T_s; // block length
-    int16_t T_u; // useful part
+    int16_t L; // symbols per transmission frame
+    int16_t K; // Number of FFT carriers with power
+    int16_t T_null; // null symbol length
+    int32_t T_F; // samples per transmission frame
+    int16_t T_s; // symbol length including cyclic prefix
+    int16_t T_u; // Size of the FFT == symbol length without cyclic prefix
     int16_t guardLength;
     int16_t carrierDiff;
 };
