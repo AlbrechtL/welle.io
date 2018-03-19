@@ -34,7 +34,7 @@ ChartView {
             axisY1.titleText = qsTr("I");
             break;
         case 3:
-            title = qsTr("Null Symbol (not implemented)");
+            title = qsTr("Null Symbol");
             axisX.titleText = qsTr("Frequency") + " [MHz]";
             axisY1.titleText = qsTr("Amplitude");
             break;

@@ -974,6 +974,12 @@ void CRadioController::onNewImpulseResponse(std::vector<float>&& data)
     std::swap(impulseResponseBuffer, data);
 }
 
+void CRadioController::onNewNullSymbol(std::vector<DSPCOMPLEX>&& data)
+{
+    std::lock_guard<std::mutex> lock(nullSymbolBufferMutex);
+    std::swap(nullSymbolBuffer, data);
+}
+
 void CRadioController::onMessage(message_level_t level, const std::string& text)
 {
     switch (level) {
@@ -1163,6 +1169,44 @@ void CRadioController::UpdateSpectrum()
 
             x_min = 0;
             x_max = T_u;
+        }
+    }
+    else if (PlotType == PlotTypeEn::Null) {
+        std::lock_guard<std::mutex> lock(nullSymbolBufferMutex);
+        if (nullSymbolBuffer.size() == (size_t)T_u) {
+            // Get samples
+            tunedFrequency_MHz = CurrentFrequency / 1e6;
+
+            // The nullSymbolBuffer already contains the FFT output
+            // of the NULL Symbol
+
+            // Process samples one by one
+            for (int i = 0; i < T_u; i++) {
+                int half_Tu = T_u / 2;
+
+                // Shift FFT samples
+                if (i < half_Tu)
+                    y = abs(nullSymbolBuffer[i + half_Tu]);
+                else
+                    y = abs(nullSymbolBuffer[i - half_Tu]);
+
+                // Apply a cumulative moving average filter
+                int avg = 4; // Number of y values to average
+                qreal CMA = spectrum_data[i].y();
+                y = (CMA * avg + y) / (avg + 1);
+
+                // Find maximum value to scale the plotter
+                if (y > y_max)
+                    y_max = y;
+
+                // Calc x frequency
+                x = (i * dip_MHz) + (tunedFrequency_MHz - (sampleFrequency_MHz / 2));
+
+                spectrum_data[i]= QPointF(x, y);
+            }
+
+            x_min = tunedFrequency_MHz - (sampleFrequency_MHz / 2);
+            x_max = tunedFrequency_MHz + (sampleFrequency_MHz / 2);
         }
     }
 

@@ -68,7 +68,6 @@ class OFDMProcessor
         void stop(void);
         void setOffset(int32_t);
         void coarseCorrectorOn(void);
-        void coarseCorrectorOff(void);
         void set_scanMode(bool);
         void start(void);
 
@@ -94,10 +93,8 @@ class OFDMProcessor
         int32_t     coarseCorrector;
 
         uint8_t     freqsyncMethod;
-        bool        f2Correction;
         std::vector<DSPCOMPLEX> ofdmBuffer;
         uint32_t    ofdmBufferIndex;
-        uint32_t    ofdmSymbolCount;
         PhaseReference phaseRef;
         OfdmDecoder ofdmDecoder;
         std::vector<float> correlationVector;
@@ -106,12 +103,12 @@ class OFDMProcessor
         bool        scanMode;
         int32_t     bufferContent;
         common_fft  fft_handler;
-        DSPCOMPLEX  *fft_buffer;
+        DSPCOMPLEX  *fft_buffer; // of size T_u
 
         DSPCOMPLEX  getSample(int32_t);
         void        getSamples(DSPCOMPLEX *, int16_t, int32_t);
         void        run(void);
-        int16_t     processBlock_0(DSPCOMPLEX *);
+        int16_t     processBlock_0(DSPCOMPLEX *null_fft);
         int16_t     getMiddle(DSPCOMPLEX *);
 };
 #endif
