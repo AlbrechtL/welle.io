@@ -1158,7 +1158,7 @@ void CRadioController::UpdateSpectrum()
         std::lock_guard<std::mutex> lock(impulseResponseBufferMutex);
         if (impulseResponseBuffer.size() == (size_t)T_u) {
             for (int i = 0; i < T_u; i++) {
-                y = impulseResponseBuffer[i];
+                y = 10.0f * std::log10(impulseResponseBuffer[i]);
                 x = i;
 
                 // Find maximum value to scale the plotter
