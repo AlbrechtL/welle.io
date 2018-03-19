@@ -113,13 +113,14 @@ void  MscHandler::process_mscBlock(int16_t *fbits, int16_t blkno)
     int16_t currentblk;
     int16_t *myBegin;
 
+    std::lock_guard<std::mutex> lock(mutex);
+
     if (!work_to_be_done && !newChannel)
         return;
 
     currentblk  = (blkno - 4) % numberofblocksperCIF;
 
     if (newChannel) {
-        std::lock_guard<std::mutex> lock(mutex);
         newChannel = false;
         if (dabHandler) {
             dabHandler.reset();
