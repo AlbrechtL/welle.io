@@ -45,7 +45,9 @@ RadioReceiver::RadioReceiver(
                 const std::string& mp2FileName) :
     rci(rci),
     input(input),
-    mscHandler(rci, params, false, mscFileName, mp2FileName),
+    mscFilename(mscFileName),
+    mp2Filename(mp2FileName),
+    mscHandler(rci, params, false, mscFilename, mp2Filename),
     ficHandler(rci),
     ofdmProcessor(input,
         params,

@@ -128,7 +128,6 @@ OFDMProcessor::~OFDMProcessor()
 {
     running = false;
 
-    // Stop thread only if it is not running
     if (threadHandle.joinable()) {
         threadHandle.join();
     }
