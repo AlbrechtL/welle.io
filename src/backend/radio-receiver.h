@@ -60,7 +60,10 @@ class RadioReceiver {
         RadioControllerInterface& rci;
         InputInterface& input;
 
-        DABParams params;
+        std::string mscFilename;
+        std::string mp2Filename;
+
+        DABParams params; // Defaults to TM1 parameters
 
         MscHandler mscHandler;
         FicHandler ficHandler;

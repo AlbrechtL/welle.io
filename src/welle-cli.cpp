@@ -298,6 +298,8 @@ int main(int argc, char **argv)
         }
     }
 
+    cerr << "Tuned" << endl;
+
     // Quit on Ctrl-C
     while (true) { }
 
