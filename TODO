@@ -20,8 +20,6 @@ Regressions to be fixed later:
 
 * Review display of coarse and fine freq corrections. The units were awkward...
 
-* Fix QObject::connect: Cannot queue arguments of type 'dab_date_time_t'
-
 Improvements:
 
 * Avoid the copy in void mp4Processor::handle_aacFrame.

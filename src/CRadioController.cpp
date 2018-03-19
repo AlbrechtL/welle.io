@@ -85,6 +85,7 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, DABParams& p
     connect(this, &CRadioController::EnsembleNameUpdated,
             this, &CRadioController::nameofEnsemble);
 
+    qRegisterMetaType<dab_date_time_t>("dab_date_time_t");
     connect(this, &CRadioController::DateTimeUpdated,
             this, &CRadioController::displayDateTime);
 }
