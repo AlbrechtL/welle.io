@@ -51,7 +51,7 @@
 
 CVirtualInput *CInputFactory::GetDevice(RadioControllerInterface& radioController, const std::string& device)
 {
-    CVirtualInput *InputDevice = NULL;
+    CVirtualInput *InputDevice = nullptr;
 
     std::clog << "InputFactory:" << "Input device:" << device << std::endl;
 
@@ -61,7 +61,7 @@ CVirtualInput *CInputFactory::GetDevice(RadioControllerInterface& radioControlle
         InputDevice = GetManualDevice(radioController, device);
 
     // Fallback if no device is found or an error occured
-    if (InputDevice == NULL) {
+    if (InputDevice == nullptr) {
         std::string text;
 
         if (device == "auto")
@@ -79,10 +79,10 @@ CVirtualInput *CInputFactory::GetDevice(RadioControllerInterface& radioControlle
 CVirtualInput* CInputFactory::GetAutoDevice(RadioControllerInterface& radioController)
 {
     (void)radioController;
-    CVirtualInput *inputDevice = NULL;
+    CVirtualInput *inputDevice = nullptr;
 
     // Try to find a input device
-    for (int i=0; i<2; i++) { // At the moment two devices are supported
+    for (int i = 0; i <= 2; i++) {
         try {
             switch(i) {
 #ifdef HAVE_AIRSPY
@@ -102,7 +102,7 @@ CVirtualInput* CInputFactory::GetAutoDevice(RadioControllerInterface& radioContr
         }
 
         // Break loop if we found a device
-        if (inputDevice != NULL)
+        if (inputDevice != nullptr)
             break;
     }
 
@@ -111,7 +111,7 @@ CVirtualInput* CInputFactory::GetAutoDevice(RadioControllerInterface& radioContr
 
 CVirtualInput* CInputFactory::GetManualDevice(RadioControllerInterface& radioController, const std::string& device)
 {
-    CVirtualInput *InputDevice = NULL;
+    CVirtualInput *InputDevice = nullptr;
 
     try {
 #ifdef HAVE_AIRSPY
