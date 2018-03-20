@@ -120,7 +120,7 @@ class RadioControllerInterface {
         virtual void onNewImpulseResponse(std::vector<float>&& data) = 0;
 
         /* When a new null symbol vector was received.
-         * Data contains the FFT of the NULL symbol. */
+         * Data contains the samples of the complete NULL symbol. */
         virtual void onNewNullSymbol(std::vector<DSPCOMPLEX>&& data) = 0;
 
         /* When a information or warning message should be printed */

@@ -111,7 +111,7 @@ void OfdmDecoder::workerthread(void)
 
         while (amount > 0 && running) {
             if (currentBlock == 0)
-                processBlock_0();
+                processPRS();
             else
                 if (currentBlock < 4)
                     decodeFICblock(currentBlock);
@@ -129,7 +129,7 @@ void OfdmDecoder::workerthread(void)
  * We need some functions to enter the ofdmProcessor data
  * in the buffer.
  */
-void OfdmDecoder::processBlock_0 (DSPCOMPLEX *vi)
+void OfdmDecoder::processPRS (DSPCOMPLEX *vi)
 {
     std::unique_lock<std::mutex> lock(mutex);
 
@@ -165,7 +165,7 @@ void OfdmDecoder::decodeMscblock (DSPCOMPLEX *vi, int32_t blkno)
 /**
  * handle block 0 as collected from the buffer
  */
-void OfdmDecoder::processBlock_0 (void)
+void OfdmDecoder::processPRS (void)
 {
     memcpy (fft_buffer, command[0], params.T_u * sizeof (DSPCOMPLEX));
     fft_handler.do_FFT ();

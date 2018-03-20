@@ -42,21 +42,13 @@
   * of the samplestream.
   * It takes as parameter (a.o) the handler for the
   * input device as well as the interpreters for
-  * FIC blocks and for MSC blocks.
+  * FIC symbols and for MSC symbols.
   * Local is a class ofdmDecoder that will - as the name suggests -
   * map samples to bits and that will pass on the bits
   * to the interpreters for FIC and MSC
   */
 
 #define abs std::abs     // to suppress warning: using integer absolute value function 'abs' when argument is of floating point type [-Wabsolute-value]
-
-static inline
-int16_t valueFor (int16_t b) {
-    int16_t res = 1;
-    while (--b > 0)
-        res <<= 1;
-    return res;
-}
 
 OFDMProcessor::OFDMProcessor(
         InputInterface& interface,
@@ -98,7 +90,7 @@ OFDMProcessor::OFDMProcessor(
         /**
          * the ofdmDecoder takes time domain samples, will do an FFT,
          * map the result on (soft) bits and hand over control for handling
-         * the decoded blocks
+         * the decoded symbols
          */
         running             = false;
         fineCorrector       = 0;
@@ -214,13 +206,13 @@ void OFDMProcessor::getSamples(DSPCOMPLEX *v, int16_t n, int32_t phase)
     //  OK, we have samples!!
     //  first: adjust frequency. We need Hz accuracy
     for (i = 0; i < n; i ++) {
-        localPhase   -= phase;
+        localPhase  -= phase;
         localPhase   = (localPhase + INPUT_RATE) % INPUT_RATE;
-        v [i]    *= oscillatorTable[localPhase];
-        sLevel   = 0.00001 * l1_norm(v [i]) + (1 - 0.00001) * sLevel;
+        v[i]    *= oscillatorTable[localPhase];
+        sLevel   = 0.00001 * l1_norm(v[i]) + (1 - 0.00001) * sLevel;
     }
 
-    sampleCnt   += n;
+    sampleCnt += n;
     if (sampleCnt > INPUT_RATE / N) {
         radioInterface.onFrequencyCorrectorChange(
                 fineCorrector, coarseCorrector);
@@ -228,13 +220,11 @@ void OFDMProcessor::getSamples(DSPCOMPLEX *v, int16_t n, int32_t phase)
     }
 }
 
-static int attempts    = 0; // TODO move into class
-
 /***
  *    \brief run
  *    The main thread, reading samples,
  *    time synchronization and frequency synchronization
- *    Identifying blocks in the DAB frame
+ *    Identifying symbols in the DAB frame
  *    and sending them to the ofdmDecoder who will transfer the results
  *    Finally, estimating the small freqency error
  */
@@ -353,21 +343,19 @@ SyncOnPhase:
             scanMode  = false;
             attempts  = 0;
         }
+
         /**
          * Once here, we are synchronized, we need to copy the data we
-         * used for synchronization for block 0
-         */
+         * used for synchronization for the PRS */
         memmove (ofdmBuffer.data(), &ofdmBuffer[startIndex],
                 (params.T_u - startIndex) * sizeof (DSPCOMPLEX));
         ofdmBufferIndex  = params.T_u - startIndex;
 
-        //Block_0: NULL symbol
+        //Symbol 0: Phase reference symbol symbol
         /**
-         * Block 0 is special in that it is used for fine time synchronization
+         * Symbol 0 is special in that it is used for fine time synchronization
          * and its content is used as a reference for decoding the
          * first datablock.
-         * Also, the NULL is interesting to save because it carries the TII. It
-         * has a longer cyclic prefix compared to the other L-1 symbols.
          * We read the missing samples in the ofdm buffer
          */
         radioInterface.onSyncChange(true);
@@ -375,20 +363,12 @@ SyncOnPhase:
                 T_u - ofdmBufferIndex,
                 coarseCorrector + fineCorrector);
 
-        memcpy(fft_buffer, ofdmBuffer.data(), T_u * sizeof(DSPCOMPLEX));
-        fft_handler.do_FFT();
-
-        std::vector<DSPCOMPLEX> nullsymbol(fft_buffer, fft_buffer + T_u);
-        radioInterface.onNewNullSymbol(std::move(nullsymbol));
-
-        ofdmDecoder.processBlock_0(fft_buffer);
-        //  Here we look only at the block_0 when we need a coarse
+        ofdmDecoder.processPRS(ofdmBuffer.data());
+        //  Here we look only at the PRS when we need a coarse
         //  frequency synchronization.
         //  The width is limited to 2 * 35 kHz (i.e. positive and negative)
         if (!ficHandler.syncReached()) {
-            memcpy(fft_buffer, ofdmBuffer.data(), T_u * sizeof(DSPCOMPLEX));
-            fft_handler.do_FFT();
-            int correction = processBlock_0(fft_buffer);
+            int correction = processPRS(ofdmBuffer.data());
             if (correction != 100) {
                 coarseCorrector    += correction * params.carrierDiff;
                 if (abs (coarseCorrector) > kHz(35))
@@ -396,13 +376,13 @@ SyncOnPhase:
             }
         }
         /**
-         * after block 0, we will just read in the other (params.L - 1) blocks
+         * after symbol 0, we will just read in the other (params.L - 1) symbols
          */
         uint32_t ofdmSymbolCount = 0;
 
-        //Data_blocks:
+        //Data_symbols:
         /**
-         * The first ones are the FIC blocks. We immediately
+         * The first ones are the FIC symbols. We immediately
          * start with building up an average of the phase difference
          * between the samples in the cyclic prefix and the
          * corresponding samples in the datapart.
@@ -414,14 +394,14 @@ SyncOnPhase:
             for (i = (int)T_u; i < (int)T_s; i ++)
                 FreqCorr += ofdmBuffer[i] * conj (ofdmBuffer[i - T_u]);
 
-            ofdmDecoder.decodeFICblock (ofdmBuffer.data(), ofdmSymbolCount);
+            ofdmDecoder.decodeFICblock(ofdmBuffer.data(), ofdmSymbolCount);
         }
 
-        /// and similar for the (params.L - 4) MSC blocks
+        /// and similar for the (params.L - 4) MSC symbols
         for (ofdmSymbolCount = 4;
                 ofdmSymbolCount <  (uint16_t)params.L;
                 ofdmSymbolCount ++) {
-            getSamples (ofdmBuffer.data(), T_s, coarseCorrector + fineCorrector);
+            getSamples(ofdmBuffer.data(), T_s, coarseCorrector + fineCorrector);
             for (i = (int32_t)T_u; i < (int32_t)T_s; i ++)
                 FreqCorr += ofdmBuffer[i] * conj (ofdmBuffer[i - T_u]);
 
@@ -440,7 +420,12 @@ SyncOnPhase:
          */
         syncBufferIndex  = 0;
         currentStrength  = 0;
-        getSamples (ofdmBuffer.data(), T_null, coarseCorrector + fineCorrector);
+
+        // The NULL is interesting to save because it carries the TII.
+        std::vector<DSPCOMPLEX> nullSymbol(T_null);
+        getSamples(nullSymbol.data(), T_null, coarseCorrector + fineCorrector);
+        radioInterface.onNewNullSymbol(std::move(nullSymbol));
+
         /**
          * The first sample to be found for the next frame should be T_g
          * samples ahead
@@ -492,17 +477,20 @@ void    OFDMProcessor::set_scanMode (bool b)
     scanMode    = b;
 }
 
-#define RANGE   36
-int16_t OFDMProcessor::processBlock_0(DSPCOMPLEX *v)
+#define RANGE 36
+int16_t OFDMProcessor::processPRS(DSPCOMPLEX *v)
 {
     int16_t i, j, index = 100;
 
+    memcpy(fft_buffer, v, T_u * sizeof(DSPCOMPLEX));
+    fft_handler.do_FFT();
+
     if (freqsyncMethod == 0)
-        return getMiddle(v);
+        return getMiddle(fft_buffer);
     else
         if (freqsyncMethod == 1) {
             //  The "best" approach for computing the coarse frequency
-            //  offset is to look at the spectrum of block 0 and relate that
+            //  offset is to look at the spectrum of symbol 0 and relate that
             //  with the spectrum as it should be, i.e. the refTable
             //  However, since there might be
             //  a pretty large phase offset between the incoming data and
@@ -515,8 +503,8 @@ int16_t OFDMProcessor::processBlock_0(DSPCOMPLEX *v)
             for (i = 0; i < SEARCH_RANGE + CORRELATION_LENGTH; i ++) {
                 int16_t baseIndex = T_u - SEARCH_RANGE / 2 + i;
                 correlationVector[i] =
-                    arg (v [baseIndex % T_u] *
-                            conj (v [(baseIndex + 1) % T_u]));
+                    arg (fft_buffer [baseIndex % T_u] *
+                            conj (fft_buffer [(baseIndex + 1) % T_u]));
             }
 
             float    MMax    = 0;
@@ -546,24 +534,24 @@ int16_t OFDMProcessor::processBlock_0(DSPCOMPLEX *v)
             //  of zeros in the row of args between successive carriers.
             float Mmin   = 1000;
             for (i = T_u - SEARCH_RANGE / 2; i < T_u + SEARCH_RANGE / 2; i ++) {
-                float a1  =  abs (abs (arg (v [(i + 1) % T_u] *
-                                conj (v [(i + 2) % T_u])) / M_PI) - 1);
-                float a2  =  abs (abs (arg (v [(i + 2) % T_u] *
-                                conj (v [(i + 3) % T_u])) / M_PI) - 1);
-                float a3   = abs (arg (v [(i + 3) % T_u] *
-                            conj (v [(i + 4) % T_u])));
-                float a4   = abs (arg (v [(i + 4) % T_u] *
-                            conj (v [(i + 5) % T_u])));
-                float a5   = abs (arg (v [(i + 5) % T_u] *
-                            conj (v [(i + 6) % T_u])));
-                float b1   = abs (abs (arg (v [(i + 16 + 1) % T_u] *
-                                conj (v [(i + 16 + 3) % T_u])) / M_PI) - 1);
-                float b2   = abs (arg (v [(i + 16 + 3) % T_u] *
-                            conj (v [(i + 16 + 4) % T_u])));
-                float b3   = abs (arg (v [(i + 16 + 4) % T_u] *
-                            conj (v [(i + 16 + 5) % T_u])));
-                float b4   = abs (arg (v [(i + 16 + 5) % T_u] *
-                            conj (v [(i + 16 + 6) % T_u])));
+                float a1  =  abs (abs (arg (fft_buffer [(i + 1) % T_u] *
+                                conj (fft_buffer [(i + 2) % T_u])) / M_PI) - 1);
+                float a2  =  abs (abs (arg (fft_buffer [(i + 2) % T_u] *
+                                conj (fft_buffer [(i + 3) % T_u])) / M_PI) - 1);
+                float a3   = abs (arg (fft_buffer [(i + 3) % T_u] *
+                            conj (fft_buffer [(i + 4) % T_u])));
+                float a4   = abs (arg (fft_buffer [(i + 4) % T_u] *
+                            conj (fft_buffer [(i + 5) % T_u])));
+                float a5   = abs (arg (fft_buffer [(i + 5) % T_u] *
+                            conj (fft_buffer [(i + 6) % T_u])));
+                float b1   = abs (abs (arg (fft_buffer [(i + 16 + 1) % T_u] *
+                                conj (fft_buffer [(i + 16 + 3) % T_u])) / M_PI) - 1);
+                float b2   = abs (arg (fft_buffer [(i + 16 + 3) % T_u] *
+                            conj (fft_buffer [(i + 16 + 4) % T_u])));
+                float b3   = abs (arg (fft_buffer [(i + 16 + 4) % T_u] *
+                            conj (fft_buffer [(i + 16 + 5) % T_u])));
+                float b4   = abs (arg (fft_buffer [(i + 16 + 5) % T_u] *
+                            conj (fft_buffer [(i + 16 + 6) % T_u])));
                 float sum = a1 + a2 + a3 + a4 + a5 + b1 + b2 + b3 + b4;
                 if (sum < Mmin) {
                     Mmin = sum;
