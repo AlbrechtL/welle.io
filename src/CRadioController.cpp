@@ -1173,12 +1173,17 @@ void CRadioController::UpdateSpectrum()
     }
     else if (PlotType == PlotTypeEn::Null) {
         std::lock_guard<std::mutex> lock(nullSymbolBufferMutex);
-        if (nullSymbolBuffer.size() == (size_t)T_u) {
-            // Get samples
-            tunedFrequency_MHz = CurrentFrequency / 1e6;
+        if (nullSymbolBuffer.size() == (size_t)dabparams.T_null) {
+            // Get FFT buffer
+            DSPCOMPLEX* spectrumBuffer = spectrum_fft_handler->getVector();
 
-            // The nullSymbolBuffer already contains the FFT output
-            // of the NULL Symbol
+            std::copy(nullSymbolBuffer.begin(), nullSymbolBuffer.begin() + T_u,
+                    spectrumBuffer);
+
+            // Do FFT to get the spectrum
+            spectrum_fft_handler->do_FFT();
+
+            tunedFrequency_MHz = CurrentFrequency / 1e6;
 
             // Process samples one by one
             for (int i = 0; i < T_u; i++) {
@@ -1186,9 +1191,9 @@ void CRadioController::UpdateSpectrum()
 
                 // Shift FFT samples
                 if (i < half_Tu)
-                    y = abs(nullSymbolBuffer[i + half_Tu]);
+                    y = abs(spectrumBuffer[i + half_Tu]);
                 else
-                    y = abs(nullSymbolBuffer[i - half_Tu]);
+                    y = abs(spectrumBuffer[i - half_Tu]);
 
                 // Apply a cumulative moving average filter
                 int avg = 4; // Number of y values to average

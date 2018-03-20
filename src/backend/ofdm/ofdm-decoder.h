@@ -46,9 +46,9 @@ class   OfdmDecoder
                 FicHandler& ficHandler,
                 MscHandler& mscHandler);
         ~OfdmDecoder(void);
-        void    processBlock_0      (DSPCOMPLEX *);
-        void    decodeFICblock      (DSPCOMPLEX *, int32_t n);
-        void    decodeMscblock      (DSPCOMPLEX *, int32_t n);
+        void    processPRS(DSPCOMPLEX *);
+        void    decodeFICblock(DSPCOMPLEX *, int32_t n);
+        void    decodeMscblock(DSPCOMPLEX *, int32_t n);
         int16_t get_snr         (DSPCOMPLEX *);
         void    stop            (void);
     private:
@@ -65,7 +65,7 @@ class   OfdmDecoder
 
         std::thread thread;
         void workerthread(void);
-        void processBlock_0(void);
+        void processPRS(void);
         void decodeFICblock(int32_t n);
         void decodeMscblock(int32_t n);
 

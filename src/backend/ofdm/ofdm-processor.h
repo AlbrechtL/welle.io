@@ -91,6 +91,8 @@ class OFDMProcessor
         int32_t     localPhase;
         int16_t     fineCorrector;
         int32_t     coarseCorrector;
+        int attempts = 0;
+
 
         uint8_t     freqsyncMethod;
         std::vector<DSPCOMPLEX> ofdmBuffer;
@@ -108,7 +110,7 @@ class OFDMProcessor
         DSPCOMPLEX  getSample(int32_t);
         void        getSamples(DSPCOMPLEX *, int16_t, int32_t);
         void        run(void);
-        int16_t     processBlock_0(DSPCOMPLEX *null_fft);
+        int16_t     processPRS(DSPCOMPLEX *v);
         int16_t     getMiddle(DSPCOMPLEX *);
 };
 #endif
