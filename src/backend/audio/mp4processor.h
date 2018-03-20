@@ -60,7 +60,7 @@ class mp4Processor : public dabProcessor, public PADDecoderObserver
     private:
         RadioControllerInterface& myRadioInterface;
         bool  processSuperframe(uint8_t frameBytes[], int16_t base);
-        void  handle_aacFrame(uint8_t *v,
+        void  handleAacFrame(uint8_t *v,
                               int16_t  frame_length,
                               uint8_t  dacRate,
                               uint8_t  sbrFlag,
