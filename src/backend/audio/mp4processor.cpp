@@ -273,7 +273,7 @@ bool mp4Processor::processSuperframe(uint8_t frameBytes[], int16_t base)
         //  but first the crc check
         if (check_crc_bytes (&outVector[au_start[i]], aac_frame_length)) {
             bool err;
-            handle_aacFrame(&outVector[au_start[i]],
+            handleAacFrame(&outVector[au_start[i]],
                     aac_frame_length,
                     dacRate,
                     sbrFlag,
@@ -297,7 +297,7 @@ bool mp4Processor::processSuperframe(uint8_t frameBytes[], int16_t base)
     return true;
 }
 
-void mp4Processor::handle_aacFrame(
+void mp4Processor::handleAacFrame(
         uint8_t *v,
         int16_t frame_length,
         uint8_t dacRate,
@@ -308,20 +308,16 @@ void mp4Processor::handle_aacFrame(
 {
     bool isParametricStereo = false;
     uint32_t sampleRate = 0;
-    uint8_t theAudioUnit[2 * 960 + 10];    // sure, large enough
 
-    memcpy(theAudioUnit, v, frame_length);
-    memset(&theAudioUnit[frame_length], 0, 10);
-
-    if (((theAudioUnit[0] >> 5) & 07) == 4) {
-        processPAD(theAudioUnit);
+    if (((v[0] >> 5) & 07) == 4) {
+        processPAD(v);
     }
 
     auto audio = aacDecoder.MP42PCM(dacRate,
             sbrFlag,
             mpegSurround,
             aacChannelMode,
-            theAudioUnit,
+            v,
             frame_length,
             &sampleRate,
             &isParametricStereo);
