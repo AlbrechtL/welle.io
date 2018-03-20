@@ -280,8 +280,6 @@ int main(int argc, char **argv)
     while (not service_to_tune.empty()) {
         int attempts = 3;
         while (attempts > 0) {
-            this_thread::sleep_for(chrono::seconds(5));
-
             for (const auto s : ri.getServices()) {
                 if (s.find(service_to_tune) != string::npos) {
                     auto audioData = rx.getAudioServiceData(s);
@@ -301,10 +299,13 @@ int main(int argc, char **argv)
                 }
             }
 
-            attempts--;
+            if (attempts > 0) {
+                this_thread::sleep_for(chrono::seconds(3));
+                attempts--;
+            }
         }
 
-        cerr << "**** Please enter programme name, or leave empty to quit." << endl;
+        cerr << "**** Please enter programme name" << endl;
 
         cin >> service_to_tune;
         cerr << "**** Trying to tune to " << service_to_tune << endl;
