@@ -283,12 +283,13 @@ int main(int argc, char **argv)
             this_thread::sleep_for(chrono::seconds(5));
 
             for (const auto s : ri.getServices()) {
-                if (s.find_first_of(service_to_tune) != string::npos) {
+                if (s.find(service_to_tune) != string::npos) {
                     auto audioData = rx.getAudioServiceData(s);
 
                     if (audioData.valid) {
                         cerr << "AudioData: SAD:" << audioData.startAddr <<
-                            " subchId:" << hex << audioData.subchId << dec << endl;
+                            " subchId:" << hex << audioData.subchId << dec <<
+                            " " << s << endl;
                         rx.selectAudioService(audioData);
                         attempts = 0;
                         break;
@@ -306,6 +307,7 @@ int main(int argc, char **argv)
         cerr << "**** Please enter programme name, or leave empty to quit." << endl;
 
         cin >> service_to_tune;
+        cerr << "**** Trying to tune to " << service_to_tune << endl;
     }
 
     return 0;
