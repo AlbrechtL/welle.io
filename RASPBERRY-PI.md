@@ -287,17 +287,13 @@ This is only half the battle though. Now we continue on to set up our host compu
     With all this done, click apply and ok.  
 	Now your newly created "Raspberry Pi" kit should appear in the **Configure project** section. Select it and press **configure project.**  
 	Stuff should happen and you should be greeted with a projects tree view and some other stuff, probably a Project "MESSAGE" message of some sort too.  
-23. In order to compile welle.io for Raspberry Pi successfully, we need to do two adjustments to the source code.  
-    First, double click on **welle.io.pro** in the tree view,  
+23. In order to compile welle.io for Raspberry Pi successfully, we need to do one adjustment to the source code.  
+    Double click on **welle.io.pro** in the tree view,  
 	scroll down to where it says **unix:!macx:!android:** find the line which says **CONFIG += airspy**  
 	and comment it out by putting a **#** in front of it.  
 	(Unless you need Airspy support.)  
 	```
 	#CONFIG += airspy
-	```
-	Then, a couple of lines down from here, it says **DEFINES += SSE_AVAILABLE**, comment out this line too.  
-	```
-	#DEFINES += SSE_AVAILABLE
 	```
 	Save file (ctrl+s)  
 24.	Now click on the monitor icon at the left hand side, most likely saying "welle.io debug" or similar, change the build to **release**.  
