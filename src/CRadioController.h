@@ -100,7 +100,6 @@ public:
     Q_ENUMS(DabStatus)
 
     CRadioController(QVariantMap &commandLineOptions, DABParams& params, QObject* parent = NULL);
-    ~CRadioController(void);
     void closeDevice();
     void openDevice(CVirtualInput* Dev);
     void Play(QString Channel, QString Station);
@@ -182,8 +181,8 @@ private:
     Channels channels;
 
     std::unique_ptr<RadioReceiver> my_rx;
-    CAudio* Audio;
     RingBuffer<int16_t> audioBuffer;
+    CAudio audio;
     std::mutex impulseResponseBufferMutex;
     std::vector<float> impulseResponseBuffer;
     std::mutex nullSymbolBufferMutex;
@@ -208,7 +207,7 @@ private:
     int mGainCount;
     int mStationCount;
 
-    QImage *MOTImage;
+    QImage motImage;
 
     // Controller objects
     DabStatus Status;
