@@ -150,6 +150,11 @@ void CRAWFile::setFileName(const std::string& FileName, const std::string& FileF
         this->FileFormat = CRAWFileFormat::S16BE;
         IQByteSize = 4;
     }
+    else if(FileFormat == "cf32")
+    {
+        this->FileFormat = CRAWFileFormat::COMPLEXF;
+        IQByteSize = 8;
+    }
     else
     {
         this->FileFormat = CRAWFileFormat::Unknown;
@@ -264,47 +269,42 @@ int32_t CRAWFile::readBuffer(uint8_t* data, int32_t length)
 
 int32_t CRAWFile::convertSamples(RingBuffer<uint8_t>& Buffer, DSPCOMPLEX *V, int32_t size)
 {
-    int32_t amount, i;
+    // Native endianness complex<float> requires no conversion
+    if (FileFormat == CRAWFileFormat::COMPLEXF) {
+        int32_t amount = Buffer.getDataFromBuffer(V, IQByteSize * size);
+        return amount / IQByteSize;
+    }
+
     uint8_t* temp = (uint8_t*)alloca(IQByteSize * size * sizeof(uint8_t));
 
-    amount = Buffer.getDataFromBuffer(temp, IQByteSize * size);
+    int32_t amount = Buffer.getDataFromBuffer(temp, IQByteSize * size);
 
     // Unsigned 8-bit
-    if(FileFormat == CRAWFileFormat::U8)
-    {
-        for (i = 0; i < amount / 2; i++)
-        V[i] = DSPCOMPLEX(float(temp[2 * i] - 128) / 128.0, float(temp[2 * i + 1] - 128) / 128.0);
+    if (FileFormat == CRAWFileFormat::U8) {
+        for (int i = 0; i < amount / 2; i++)
+            V[i] = DSPCOMPLEX(float(temp[2 * i] - 128) / 128.0,
+                              float(temp[2 * i + 1] - 128) / 128.0);
     }
     // Signed 8-bit
-    else if(FileFormat == CRAWFileFormat::S8)
-    {
-        for (i = 0; i < amount / 2; i++)
-        V[i] = DSPCOMPLEX(float((int8_t)temp[2 * i]) / 128.0, float((int8_t)temp[2 * i + 1]) / 128.0);
+    else if (FileFormat == CRAWFileFormat::S8) {
+        for (int i = 0; i < amount / 2; i++)
+            V[i] = DSPCOMPLEX(float((int8_t)temp[2 * i]) / 128.0,
+                              float((int8_t)temp[2 * i + 1]) / 128.0);
     }
     // Signed 16-bit little endian
-    else if(FileFormat == CRAWFileFormat::S16LE)
-    {
-        int j=0;
-        for (i = 0; i < amount / 4; i++)
-        {
-            int16_t IQ_I = (int16_t) (temp[j + 0] << 8) | temp[j + 1];
-            int16_t IQ_Q = (int16_t) (temp[j + 2] << 8) | temp[j + 3];
-            V[i] = DSPCOMPLEX((float) (IQ_I ), (float) (IQ_Q ));
-
-            j +=IQByteSize;
+    else if (FileFormat == CRAWFileFormat::S16LE) {
+        for (int i = 0, j = 0; i < amount / 4; i++, j+= IQByteSize) {
+            int16_t IQ_I = (int16_t)(temp[j + 0] << 8) | temp[j + 1];
+            int16_t IQ_Q = (int16_t)(temp[j + 2] << 8) | temp[j + 3];
+            V[i] = DSPCOMPLEX((float)(IQ_I), (float)(IQ_Q));
         }
     }
     // Signed 16-bit big endian
-    else if(FileFormat == CRAWFileFormat::S16BE)
-    {
-        int j=0;
-        for (i = 0; i < amount / 4; i++)
-        {
-            int16_t IQ_I = (int16_t) (temp[j + 1] << 8) | temp[j + 0];
-            int16_t IQ_Q = (int16_t) (temp[j + 3] << 8) | temp[j + 2];
-            V[i] = DSPCOMPLEX((float) (IQ_I ), (float) (IQ_Q ));
-
-            j +=IQByteSize;
+    else if (FileFormat == CRAWFileFormat::S16BE) {
+        for (int i = 0, j = 0; i < amount / 4; i++, j += IQByteSize) {
+            int16_t IQ_I = (int16_t)(temp[j + 1] << 8) | temp[j + 0];
+            int16_t IQ_Q = (int16_t)(temp[j + 3] << 8) | temp[j + 2];
+            V[i] = DSPCOMPLEX((float)(IQ_I), (float)(IQ_Q));
         }
     }
 
