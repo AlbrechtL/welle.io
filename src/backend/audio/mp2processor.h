@@ -67,6 +67,7 @@ class mp2Processor: public dabProcessor, public PADDecoderObserver
         RadioControllerInterface& myRadioInterface;
         int16_t     bitRate;
         int32_t     baudRate = 48000;
+        uint32_t    mode = 0;
         void        setSamplerate(int32_t rate);
         struct quantizer_spec *read_allocation(int sb, int b2_table);
         void        read_samples(struct quantizer_spec *q,

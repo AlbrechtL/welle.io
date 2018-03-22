@@ -151,8 +151,7 @@ public:
 
     //called from the backend
     virtual void onFrameErrors(int frameErrors) override;
-    virtual void onNewAudio(std::vector<int16_t>&& audio, int sampleRate) override;
-    virtual void onStereoChange(bool isStereo) override;
+    virtual void onNewAudio(std::vector<int16_t>&& audio, int sampleRate, bool isStereo) override;
     virtual void onRsErrors(int rsErrors) override;
     virtual void onAacErrors(int aacErrors) override;
     virtual void onNewDynamicLabel(const std::string& label) override;

@@ -327,7 +327,6 @@ void mp4Processor::handleAacFrame(
     }
 
     AACAudioMode aacAudioMode_tmp = AACAudioMode::Unknown;
-    myRadioInterface.onNewAudio(move(audio), sampleRate);
 
     if (aacChannelMode == 0 && isParametricStereo == true) // Parametric stereo
         aacAudioMode_tmp = AACAudioMode::ParametricStereo;
@@ -336,26 +335,26 @@ void mp4Processor::handleAacFrame(
     else if (aacChannelMode == 0) // Mono
         aacAudioMode_tmp = AACAudioMode::Mono;
 
-    if(aacAudioMode != aacAudioMode_tmp) {
+    const bool stereo = (aacAudioMode_tmp != AACAudioMode::Mono);
+    myRadioInterface.onNewAudio(move(audio), sampleRate, stereo);
+
+    if (aacAudioMode != aacAudioMode_tmp) {
         aacAudioMode = aacAudioMode_tmp;
         switch(aacAudioMode) {
             case AACAudioMode::Mono:
-                std::clog << "mp4processor:"
+                std::clog << "mp4processor: "
                     "Detected mono audio signal" << std::endl;
-                myRadioInterface.onStereoChange(false);
                 break;
             case AACAudioMode::Stereo:
-                std::clog << "mp4processor:"
+                std::clog << "mp4processor: "
                     "Detected stereo audio signal" << std::endl;
-                myRadioInterface.onStereoChange(true);
                 break;
             case AACAudioMode::ParametricStereo:
-                std::clog << "mp4processor:"
+                std::clog << "mp4processor: "
                     "Detected parametric stereo audio signal" << std::endl;
-                myRadioInterface.onStereoChange(true);
                 break;
             default:
-                std::clog << "mp4processor:"
+                std::clog << "mp4processor: "
                     "Unknown audio mode" << std::endl;
         }
     }

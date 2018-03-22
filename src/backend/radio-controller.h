@@ -65,12 +65,9 @@ class RadioControllerInterface {
          * with an count of 0. */
         virtual void onFrameErrors(int frameErrors) = 0;
 
-        /* New audio data is available. The sampleRate may
-         * change at any time. */
-        virtual void onNewAudio(std::vector<int16_t>&& audioData, int sampleRate) = 0;
-
-        /* Stereo setting may have changed. */
-        virtual void onStereoChange(bool isStereo) = 0;
+        /* New audio data is available. The sampleRate and the
+         * stereo indicator may change at any time. */
+        virtual void onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, bool stereo) = 0;
 
         /* (DAB+ only) Reed-Solomon decoding error count.
          * The function will also be called in the absence of errors,
