@@ -164,6 +164,7 @@ public:
     virtual void onDateTimeUpdate(const dab_date_time_t& dateTime) override;
     virtual void onFICDecodeSuccess(bool isFICCRC) override;
     virtual void onNewImpulseResponse(std::vector<float>&& data) override;
+    virtual void onConstellationPoints(std::vector<DSPCOMPLEX>&& data) override;
     virtual void onNewNullSymbol(std::vector<DSPCOMPLEX>&& data) override;
     virtual void onMessage(message_level_t level, const std::string& text) override;
 
@@ -187,6 +188,8 @@ private:
     std::vector<float> impulseResponseBuffer;
     std::mutex nullSymbolBufferMutex;
     std::vector<DSPCOMPLEX> nullSymbolBuffer;
+    std::mutex constellationPointBufferMutex;
+    std::vector<DSPCOMPLEX> constellationPointBuffer;
 
     // Objects set by the back-end
     QVariantMap mGUIData;

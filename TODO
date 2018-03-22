@@ -10,6 +10,8 @@ Regressions to be fixed later:
   replacement for the QT sockets. Boost::ASIO would be, but we don't want to
   add the dependency for boost.
 
+* Switch from line to scatterplot for IQ constellation only.
+
 * qDebug() got replaced by std::clog. Problem? We could probably redirect the stream.
 
 * i18n translation is moved out of the backend. Problem? The ts files refer to them!
@@ -25,6 +27,8 @@ Improvements:
 * Avoid having to upmix mono to stereo.
 
 * Improve error handling. Many places could return exceptions
+
+* Color IQ constellation points according to amplitude.
 
 * Improve onFICDecodeSuccess (i.e. announce a count instead of calling the function for every FIB)
 

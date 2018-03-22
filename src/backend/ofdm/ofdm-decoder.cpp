@@ -109,6 +109,12 @@ void OfdmDecoder::workerthread(void)
         std::unique_lock<std::mutex> lock(mutex);
         commandHandler.wait_for(lock, std::chrono::milliseconds(100));
 
+        if (currentBlock == 0) {
+            constellationPoints.clear();
+            constellationPoints.reserve(
+                    params.L * params.K / constellationDecimation);
+        }
+
         while (amount > 0 && running) {
             if (currentBlock == 0)
                 processPRS();
@@ -119,6 +125,12 @@ void OfdmDecoder::workerthread(void)
                     decodeMscblock(currentBlock);
             currentBlock = (currentBlock + 1) % (params.L);
             amount -= 1;
+
+            if (currentBlock == 0) {
+                radioInterface.onConstellationPoints(
+                        std::move(constellationPoints));
+                constellationPoints.clear();
+            }
         }
     }
 
@@ -230,6 +242,10 @@ void OfdmDecoder::decodeFICblock (int32_t blkno)
 
         ibits[i]            =  - real (r1) / ab1 * 127.0;
         ibits[params.K + i] =  - imag (r1) / ab1 * 127.0;
+
+        if (i % constellationDecimation == 0) {
+            constellationPoints.push_back(r1);
+        }
     }
     //handlerLabel:
     ficHandler.process_ficBlock(ibits.data(), blkno);
@@ -243,7 +259,7 @@ void OfdmDecoder::decodeMscblock (int32_t blkno)
     memcpy (fft_buffer, command[blkno], params.T_u * sizeof (DSPCOMPLEX));
     //fftLabel:
     fft_handler.do_FFT ();
-    //
+
     //  Note that "mapIn" maps to -carriers / 2 .. carriers / 2
     //  we did not set the fft output to low .. high
     //toBitsLabel:
@@ -259,6 +275,10 @@ void OfdmDecoder::decodeMscblock (int32_t blkno)
         //  we make the bits into softbits in the range -127 .. 127
         ibits[i]            =  - real (r1) / ab1 * 127.0;
         ibits[params.K + i] =  - imag (r1) / ab1 * 127.0;
+
+        if (i % constellationDecimation == 0) {
+            constellationPoints.push_back(r1);
+        }
     }
     //handlerLabel:
     mscHandler.process_mscBlock(ibits.data(), blkno);

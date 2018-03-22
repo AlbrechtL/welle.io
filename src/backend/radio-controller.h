@@ -116,6 +116,10 @@ class RadioControllerInterface {
         /* When a new channel impulse response vector was calculated */
         virtual void onNewImpulseResponse(std::vector<float>&& data) = 0;
 
+        /* When new constellation points are available. data contains
+         * (L-1) * K / OfdmDecoder::constellationDecimation points. */
+        virtual void onConstellationPoints(std::vector<DSPCOMPLEX>&& data) = 0;
+
         /* When a new null symbol vector was received.
          * Data contains the samples of the complete NULL symbol. */
         virtual void onNewNullSymbol(std::vector<DSPCOMPLEX>&& data) = 0;
