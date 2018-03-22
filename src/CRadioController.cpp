@@ -53,12 +53,9 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, DABParams& p
     , commandLineOptions(commandLineOptions)
     , dabparams(params)
     , audioBuffer(2 * AUDIOBUFFERSIZE)
+    , audio(audioBuffer)
 {
     Device = NULL;
-
-    Audio = new CAudio(audioBuffer);
-
-    MOTImage = new QImage();
 
     PlotType = PlotTypeEn::Spectrum;
     spectrum_fft_handler = new common_fft(dabparams.T_u);
@@ -88,12 +85,6 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, DABParams& p
     qRegisterMetaType<dab_date_time_t>("dab_date_time_t");
     connect(this, &CRadioController::DateTimeUpdated,
             this, &CRadioController::displayDateTime);
-}
-
-CRadioController::~CRadioController(void)
-{
-    // Shutdown the demodulator and decoder in the correct order
-    delete Audio;
 }
 
 void CRadioController::ResetTechnicalData(void)
@@ -136,8 +127,8 @@ void CRadioController::ResetTechnicalData(void)
     UpdateGUIData();
 
     // Clear MOT
-    MOTImage->loadFromData(0, 0, Q_NULLPTR);
-    emit MOTChanged(*MOTImage);
+    motImage.loadFromData(0, 0, Q_NULLPTR);
+    emit MOTChanged(motImage);
 }
 
 void CRadioController::closeDevice()
@@ -149,8 +140,7 @@ void CRadioController::closeDevice()
     delete Device;
     Device = NULL;
 
-    if (Audio)
-        Audio->reset();
+    audio.reset();
 
     SyncCheckTimer.stop();
 
@@ -277,9 +267,7 @@ void CRadioController::Initialise(void)
         qDebug() << "RadioController:" << "AGC on";
     }
 
-    if (Audio) {
-        Audio->setVolume(CurrentVolume);
-    }
+    audio.setVolume(CurrentVolume);
 
     std::string mscFileName;
     if (commandLineOptions["mscFileName"] != "") {
@@ -334,8 +322,7 @@ void CRadioController::Pause()
     if (Device)
         Device->stop();
 
-    if (Audio)
-        Audio->reset();
+    audio.reset();
 
     SyncCheckTimer.stop();
 
@@ -349,8 +336,7 @@ void CRadioController::Stop()
     if (Device)
         Device->stop();
 
-    if (Audio)
-        Audio->reset();
+    audio.reset();
 
     SyncCheckTimer.stop();
 
@@ -383,8 +369,7 @@ void CRadioController::setVolume(qreal Volume)
 {
     CurrentVolume = Volume;
 
-    if (Audio)
-        Audio->setVolume(Volume);
+    audio.setVolume(Volume);
 
     emit VolumeChanged(CurrentVolume);
 }
@@ -455,8 +440,8 @@ void CRadioController::SetManualChannel(QString Channel)
     UpdateGUIData();
 
     // Clear MOT
-    MOTImage->loadFromData(0, 0, Q_NULLPTR);
-    emit MOTChanged(*MOTImage);
+    motImage.loadFromData(0, 0, Q_NULLPTR);
+    emit MOTChanged(motImage);
 
     // Switch channel
     SetChannel(Channel, false, true);
@@ -548,7 +533,7 @@ void CRadioController::UpdateGUIData()
 
 QImage CRadioController::MOT() const
 {
-    return *MOTImage;
+    return motImage;
 }
 
 QString CRadioController::ErrorMsg() const
@@ -785,8 +770,8 @@ void CRadioController::SetStation(QString Station, bool Force)
         UpdateGUIData();
 
         // Clear MOT
-        MOTImage->loadFromData(0, 0, Q_NULLPTR);
-        emit MOTChanged(*MOTImage);
+        motImage.loadFromData(0, 0, Q_NULLPTR);
+        emit MOTChanged(motImage);
     }
 }
 
@@ -1028,16 +1013,16 @@ void CRadioController::onSignalPresence(bool isSignal)
         emit SwitchToNextChannel(isSignal);
 }
 
-void CRadioController::onNewAudio(std::vector<int16_t>&& audio, int sampleRate, bool isStereo)
+void CRadioController::onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, bool isStereo)
 {
-    audioBuffer.putDataIntoBuffer(audio.data(), audio.size());
+    audioBuffer.putDataIntoBuffer(audioData.data(), audioData.size());
 
     if (mAudioSampleRate != sampleRate) {
         qDebug() << "RadioController: Audio sample rate" <<  sampleRate << "kHz";
         mAudioSampleRate = sampleRate;
         emit AudioSampleRateChanged(mAudioSampleRate);
 
-        Audio->setRate(sampleRate);
+        audio.setRate(sampleRate);
     }
 
     if (mIsStereo != isStereo) {
@@ -1083,9 +1068,9 @@ void CRadioController::onMOT(const std::vector<uint8_t>& Data, int subtype)
 {
     QByteArray qdata((const char*)Data.data(), (int)Data.size());
 
-    MOTImage->loadFromData(qdata, subtype == 0 ? "GIF" : subtype == 1 ? "JPEG" : subtype == 2 ? "BMP" : "PNG");
+    motImage.loadFromData(qdata, subtype == 0 ? "GIF" : subtype == 1 ? "JPEG" : subtype == 2 ? "BMP" : "PNG");
 
-    emit MOTChanged(*MOTImage);
+    emit MOTChanged(motImage);
 }
 
 void CRadioController::UpdateSpectrum()
