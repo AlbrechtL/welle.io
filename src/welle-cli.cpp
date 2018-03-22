@@ -40,6 +40,7 @@
 #include <alsa/asoundlib.h>
 #include "backend/radio-receiver.h"
 #include "input/CInputFactory.h"
+#include "input/CRAWFile.h"
 #include "various/channels.h"
 
 using namespace std;
@@ -235,22 +236,41 @@ int main(int argc, char **argv)
     if (argc != 3) {
         cerr << "Usage: " << endl <<
             " welle-cli channel programme" << endl <<
-            " example: welle-cli 10B GRRIF" << endl;
+            " welle-cli file programme" << endl <<
+            " examples: welle-cli 10B GRRIF" << endl <<
+            "           welle-cli ./ofdm.iq GRRIF" << endl;
         return 1;
     }
 
     RadioInterface ri;
-    CVirtualInput *in = CInputFactory::GetDevice(ri, "auto");
-    if (not in) {
-        cerr << "Could not start device" << endl;
-        return 1;
+
+    string channel_or_file = argv[1];
+    Channels channels;
+    auto freq = channels.getFrequency(channel_or_file);
+
+    unique_ptr<CVirtualInput> in = nullptr;
+    if (freq != 0) {
+        in.reset(CInputFactory::GetDevice(ri, "auto"));
+
+        if (not in) {
+            cerr << "Could not start device" << endl;
+            return 1;
+        }
+    }
+    else {
+        auto in_file = make_unique<CRAWFile>(ri);
+        if (not in_file) {
+            cerr << "Could not prepare CRAWFile" << endl;
+            return 1;
+        }
+        in_file->setFileName(channel_or_file, "u8");
+        in = move(in_file);
     }
 
     in->setGain(6);
     in->setAgc(true);
 
-    Channels channels;
-    in->setFrequency(channels.getFrequency(argv[1]));
+    in->setFrequency(freq);
     string service_to_tune = argv[2];
 
     RadioReceiver rx(ri, *in, "", "");
@@ -293,9 +313,12 @@ int main(int argc, char **argv)
             }
         }
 
-        cerr << "**** Please enter programme name" << endl;
+        cerr << "**** Please enter programme name. Enter '.' to quit." << endl;
 
         cin >> service_to_tune;
+        if (service_to_tune == ".") {
+            break;
+        }
         cerr << "**** Trying to tune to " << service_to_tune << endl;
     }
 
