@@ -46,7 +46,7 @@ class QSettings;
 class fileHulp;
 
 // Enum of available input device
-enum class CRAWFileFormat {U8, S8, S16LE, S16BE, Unknown};
+enum class CRAWFileFormat {U8, S8, S16LE, S16BE, COMPLEXF, Unknown};
 
 class CRAWFile : public CVirtualInput {
 public:
