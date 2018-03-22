@@ -201,6 +201,7 @@ class RadioInterface : public RadioControllerInterface {
         virtual void onFICDecodeSuccess(bool isFICCRC) override { (void)isFICCRC; }
         virtual void onNewImpulseResponse(std::vector<float>&& data) override { (void)data; }
         virtual void onNewNullSymbol(std::vector<DSPCOMPLEX>&& data) override { (void)data; }
+        virtual void onConstellationPoints(std::vector<DSPCOMPLEX>&& data) override { (void)data; }
         virtual void onMessage(message_level_t level, const std::string& text) override
         {
             switch (level) {

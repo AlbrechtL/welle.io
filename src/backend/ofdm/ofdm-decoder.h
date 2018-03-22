@@ -78,6 +78,13 @@ class   OfdmDecoder
         std::vector<int16_t> ibits;
         int16_t     snrCount;
         int16_t     snr;
+
+    public:
+        // Plotting all points is too costly, we decimate the number of points.
+        // The decimation factor should divide K for all transmission modes.
+        static const size_t constellationDecimation = 96;
+    private:
+        std::vector<DSPCOMPLEX> constellationPoints;
 };
 
 #endif

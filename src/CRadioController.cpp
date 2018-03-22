@@ -959,6 +959,12 @@ void CRadioController::onNewImpulseResponse(std::vector<float>&& data)
     std::swap(impulseResponseBuffer, data);
 }
 
+void CRadioController::onConstellationPoints(std::vector<DSPCOMPLEX>&& data)
+{
+    std::lock_guard<std::mutex> lock(constellationPointBufferMutex);
+    std::swap(constellationPointBuffer, data);
+}
+
 void CRadioController::onNewNullSymbol(std::vector<DSPCOMPLEX>&& data)
 {
     std::lock_guard<std::mutex> lock(nullSymbolBufferMutex);
@@ -1078,9 +1084,6 @@ void CRadioController::UpdateSpectrum()
     int Samples = 0;
     int16_t T_u = dabparams.T_u;
 
-    //	Delete old data
-    spectrum_data.resize(T_u);
-
     qreal tunedFrequency_MHz = 0;
     qreal sampleFrequency_MHz = 2048000 / 1e6;
     qreal dip_MHz = sampleFrequency_MHz / T_u;
@@ -1092,7 +1095,9 @@ void CRadioController::UpdateSpectrum()
     qreal x_min = 0;
     qreal x_max = 0;
 
-    if(PlotType == PlotTypeEn::Spectrum) {
+    if (PlotType == PlotTypeEn::Spectrum) {
+        spectrum_data.resize(T_u);
+
         // Get FFT buffer
         DSPCOMPLEX* spectrumBuffer = spectrum_fft_handler->getVector();
 
@@ -1136,9 +1141,29 @@ void CRadioController::UpdateSpectrum()
         x_min = tunedFrequency_MHz - (sampleFrequency_MHz / 2);
         x_max = tunedFrequency_MHz + (sampleFrequency_MHz / 2);
     }
+    else if (PlotType == PlotTypeEn::QPSK) {
+        std::unique_lock<std::mutex> lock(constellationPointBufferMutex);
+        // Plotting all points is too costly, take only a subset
+        const size_t decim = OfdmDecoder::constellationDecimation;
+        const size_t num_iqpoints = (dabparams.L-1) * dabparams.K / decim;
+        if (constellationPointBuffer.size() == num_iqpoints) {
+            spectrum_data.resize(num_iqpoints);
+            for (size_t i = 0; i < num_iqpoints; i++) {
+                y = 180.0f / (float)M_PI * std::arg(constellationPointBuffer[i]);
+                spectrum_data[i] = QPointF(i, y);
+            }
+
+            x_min = 0;
+            x_max = num_iqpoints;
+        }
+        else {
+            qDebug() << "IQ" << constellationPointBuffer.size() << num_iqpoints;
+        }
+    }
     else if (PlotType == PlotTypeEn::ImpulseResponse) {
         std::lock_guard<std::mutex> lock(impulseResponseBufferMutex);
         if (impulseResponseBuffer.size() == (size_t)T_u) {
+            spectrum_data.resize(T_u);
             for (int i = 0; i < T_u; i++) {
                 y = 10.0f * std::log10(impulseResponseBuffer[i]);
                 x = i;
@@ -1154,13 +1179,15 @@ void CRadioController::UpdateSpectrum()
         }
     }
     else if (PlotType == PlotTypeEn::Null) {
-        std::lock_guard<std::mutex> lock(nullSymbolBufferMutex);
+        std::unique_lock<std::mutex> lock(nullSymbolBufferMutex);
         if (nullSymbolBuffer.size() == (size_t)dabparams.T_null) {
+            spectrum_data.resize(T_u);
             // Get FFT buffer
             DSPCOMPLEX* spectrumBuffer = spectrum_fft_handler->getVector();
 
             std::copy(nullSymbolBuffer.begin(), nullSymbolBuffer.begin() + T_u,
                     spectrumBuffer);
+            lock.unlock();
 
             // Do FFT to get the spectrum
             spectrum_fft_handler->do_FFT();
@@ -1197,8 +1224,12 @@ void CRadioController::UpdateSpectrum()
         }
     }
 
+    float y_max_with_margin = (PlotType == PlotTypeEn::QPSK) ?
+        180 :
+        round(y_max) + 1;
+
     //	Set new data
-    emit SpectrumUpdated(round(y_max) + 1,
+    emit SpectrumUpdated(y_max_with_margin,
                          x_min,
                          x_max,
                          spectrum_data);
