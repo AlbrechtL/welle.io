@@ -386,7 +386,6 @@ int32_t mp2Processor::mp2decodeFrame (uint8_t *frame, int16_t *pcm)
     uint32_t bit_rate_index_minus1;
     uint32_t sampling_frequency;
     uint32_t padding_bit;
-    uint32_t mode;
     uint32_t frame_size;
     int32_t bound, sblimit;
     int32_t sb, ch, gr, part, idx, nch, i, j, sum;
@@ -442,7 +441,6 @@ int32_t mp2Processor::mp2decodeFrame (uint8_t *frame, int16_t *pcm)
         get_bits(2);
         bound = (mode == MONO) ? 0 : 32;
     }
-    myRadioInterface.onStereoChange(mode != MONO);
 
     // discard the last 4 bits of the header and the CRC value, if present
     get_bits(4);
@@ -643,7 +641,8 @@ void mp2Processor::addtoFrame(uint8_t *v)
 
                 std::vector<int16_t> audio(KJMP2_SAMPLES_PER_FRAME * 2);
                 if (mp2decodeFrame(MP2frame.data(), audio.data())) {
-                    myRadioInterface.onNewAudio(std::move(audio), baudRate);
+                    myRadioInterface.onNewAudio(
+                            std::move(audio), baudRate, mode != MONO);
                 }
 
                 MP2Header_OK = 0;

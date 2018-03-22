@@ -1028,7 +1028,7 @@ void CRadioController::onSignalPresence(bool isSignal)
         emit SwitchToNextChannel(isSignal);
 }
 
-void CRadioController::onNewAudio(std::vector<int16_t>&& audio, int sampleRate)
+void CRadioController::onNewAudio(std::vector<int16_t>&& audio, int sampleRate, bool isStereo)
 {
     audioBuffer.putDataIntoBuffer(audio.data(), audio.size());
 
@@ -1039,14 +1039,11 @@ void CRadioController::onNewAudio(std::vector<int16_t>&& audio, int sampleRate)
 
         Audio->setRate(sampleRate);
     }
-}
 
-void CRadioController::onStereoChange(bool isStereo)
-{
-    if (mIsStereo == isStereo)
-        return;
-    mIsStereo = isStereo;
-    emit isStereoChanged(mIsStereo);
+    if (mIsStereo != isStereo) {
+        mIsStereo = isStereo;
+        emit isStereoChanged(mIsStereo);
+    }
 }
 
 void CRadioController::onFrameErrors(int frameErrors)

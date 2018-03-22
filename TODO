@@ -22,7 +22,7 @@ Regressions to be fixed later:
 
 Improvements:
 
-* Move onStereo into onNewAudio, avoid having to upmix mono to stereo.
+* Avoid having to upmix mono to stereo.
 
 * Improve error handling. Many places could return exceptions
 
@@ -33,3 +33,7 @@ Improvements:
 * Write a ringbuffer replacement that can take advantage of move semantics
 
 * Avoid copies in RTLSDR uint8 to float normalisation
+
+* There are 3 sync methods in ofdm-processor.cpp (freqsyncMethod). Compare!
+
+* Lock loss even with strong signals in multipath.

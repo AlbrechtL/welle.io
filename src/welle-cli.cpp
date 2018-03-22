@@ -151,34 +151,22 @@ class AudioOutput {
 class RadioInterface : public RadioControllerInterface {
     public:
         virtual void onFrameErrors(int frameErrors) override { (void)frameErrors; }
-        virtual void onNewAudio(std::vector<int16_t>&& audioData, int sampleRate) override
+        virtual void onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, bool isStereo) override
         {
             lock_guard<mutex> lock(aomutex);
 
-            if (sampleRate != (int)rate) {
-                ao.reset();
-                rate = sampleRate;
-                cerr << "Reset audio output with rate " << rate << endl;
-                ao = make_unique<AudioOutput>(stereo ? 2 : 1, rate);
-            }
+            bool reset_ao = (sampleRate != (int)rate) or (isStereo != stereo);
+            rate = sampleRate;
+            stereo = isStereo;
 
-            if (!ao) {
-                cerr << "Create audio output with rate " << rate << endl;
+            if (!ao or reset_ao) {
+                cerr << "Create audio output with stereo " << stereo << " and rate " << rate << endl;
                 ao = make_unique<AudioOutput>(stereo ? 2 : 1, rate);
             }
 
             ao->playPCM(move(audioData));
         }
 
-        virtual void onStereoChange(bool isStereo) override
-        {
-            lock_guard<mutex> lock(aomutex);
-            if (isStereo != stereo) {
-                ao.reset();
-                cerr << "Create audio output with stereo " << stereo << endl;
-                ao = make_unique<AudioOutput>(stereo ? 2 : 1, rate);
-            }
-        }
         virtual void onRsErrors(int rsErrors) override { (void)rsErrors; }
         virtual void onAacErrors(int aacErrors) override { (void)aacErrors; }
         virtual void onNewDynamicLabel(const std::string& label) override
