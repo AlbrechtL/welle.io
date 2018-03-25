@@ -1,4 +1,6 @@
 /*
+ *    Copyright (C) 2018
+ *    Matthias P. Braendli (matthias.braendli@mpb.li)
  *
  *    Copyright (C) 2013
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
@@ -26,48 +28,44 @@
 #ifndef __FIC_HANDLER
 #define __FIC_HANDLER
 
-#include    <stdio.h>
-#include    <stdint.h>
-#include    "viterbi.h"
-#include    <QObject>
-#include    "fib-processor.h"
-#include    <QMutex>
+#include <mutex>
+#include <cstdio>
+#include <cstdint>
+#include "viterbi.h"
+#include "fib-processor.h"
+#include "radio-controller.h"
 
-class   CRadioController;
 class   mscHandler;
 
-class ficHandler: public QObject, public viterbi
+class FicHandler: public viterbi
 {
-    Q_OBJECT
     public:
-        ficHandler(CRadioController *);
+        FicHandler(RadioControllerInterface& mr);
         void    process_ficBlock    (int16_t *data, int16_t blkno);
         void    setBitsperBlock     (int16_t b);
         void    clearEnsemble       (void);
         bool    syncReached         (void);
         int16_t get_ficRatio        (void);
-        uint8_t kindofService       (QString &);
-        void    dataforDataService  (QString &, packetdata *);
-        void    dataforAudioService (QString &, audiodata *);
+        uint8_t kindofService       (const std::string& s);
+        audiodata_t getAudioServiceData(const std::string& s);
+        packetdata_t getDataServiceData(const std::string& s);
     private:
-        void        process_ficInput    (int16_t *ficblock, int16_t ficno);
+        RadioControllerInterface& myRadioInterface;
+        void        process_ficInput(int16_t *ficblock, int16_t ficno);
         int8_t      *PI_15;
         int8_t      *PI_16;
         std::vector<uint8_t> bitBuffer_out;
         std::vector<int16_t> ofdm_input;
-        int16_t     index;
-        int16_t     BitsperBlock;
-        int16_t     ficno;
-        int16_t     ficBlocks;
-        int16_t     ficMissed;
-        int16_t     ficRatio;
-        uint16_t    convState;
-        QMutex      fibProtector;
+        int16_t     index = 0;
+        int16_t     BitsperBlock = 2 * 1536;
+        int16_t     ficno = 0;
+        int16_t     ficBlocks = 0;
+        int16_t     ficMissed = 0;
+        int16_t     ficRatio = 0;
+        std::mutex  fibMutex;
         fib_processor   fibProcessor;
         uint8_t     PRBS[768];
         uint8_t     shiftRegister[9];
-    signals:
-        void        show_ficSuccess (bool);
 };
 
 #endif

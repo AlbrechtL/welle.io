@@ -1,4 +1,7 @@
 /*
+ *    Copyright (C) 2018
+ *    Matthias P. Braendli (matthias.braendli@mpb.li)
+ *
  *    Copyright (C) 2017
  *    Albrecht Lohofener (albrechtloh@gmx.de)
  *
@@ -30,7 +33,7 @@
 #include    <memory>
 #include    <QTimer>
 
-#include	"DabConstants.h"
+#include	"dab-constants.h"
 #include	"ringbuffer.h"
 
 class CAudioIODevice : public QIODevice
@@ -38,7 +41,7 @@ class CAudioIODevice : public QIODevice
     Q_OBJECT
 
 public:
-    CAudioIODevice(std::shared_ptr<RingBuffer<int16_t>> Buffer, QObject *parent);
+    CAudioIODevice(RingBuffer<int16_t>& buffer, QObject *parent);
     ~CAudioIODevice();
 
     void start();
@@ -50,14 +53,14 @@ public:
     qint64 bytesAvailable() const;
 
 private:
-    std::shared_ptr<RingBuffer<int16_t>> Buffer;
+    RingBuffer<int16_t>& buffer;
 };
 
 
 class	CAudio: public QObject{
 Q_OBJECT
 public:
-    CAudio(std::shared_ptr<RingBuffer<int16_t>> Buffer);
+    CAudio(RingBuffer<int16_t>& buffer);
     ~CAudio(void);
     void stop (void);
     void reset(void);
@@ -65,18 +68,21 @@ public:
     void setVolume (qreal volume);
 
 private:
-    void init(int sampleRate);
+    RingBuffer<int16_t>& buffer;
+    CAudioIODevice audioIODevice;
 
     QAudioFormat AudioFormat;
-    QAudioOutput* AudioOutput;
-    CAudioIODevice *AudioIODevice;
-    QTimer  CheckAudioBufferTimer;
-    std::shared_ptr<RingBuffer<int16_t>> Buffer;
+    QAudioOutput* audioOutput;
+    QTimer CheckAudioBufferTimer;
 
     QAudio::State CurrentState;
-    int32_t		CardRate;
+    int32_t CardRate;
+
+signals:
+    void rateChanged(int newRate);
 
 private slots:
+    void init(int sampleRate);
     void handleStateChanged(QAudio::State newState);
     void checkAudioBufferTimeout();
 };

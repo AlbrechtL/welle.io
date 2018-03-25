@@ -30,6 +30,7 @@
 #ifndef __RTL_TCP_CLIENT
 #define __RTL_TCP_CLIENT
 
+#include <QObject>
 #include <QByteArray>
 #include <QHostAddress>
 #include <QSettings>
@@ -37,9 +38,10 @@
 #include <QTimer>
 #include <QtNetwork>
 #include <array>
+#include <string>
 
 #include "CVirtualInput.h"
-#include "DabConstants.h"
+#include "dab-constants.h"
 #include "MathHelper.h"
 #include "ringbuffer.h"
 #include "CRadioController.h"
@@ -53,7 +55,7 @@ typedef struct { /* structure size must be multiple of 2 bytes */
 class CRTL_TCP_Client : public CVirtualInput {
     Q_OBJECT
 public:
-    CRTL_TCP_Client(CRadioController &RadioController);
+    CRTL_TCP_Client(RadioControllerInterface& radioController);
     ~CRTL_TCP_Client(void);
 
     // Interface methods
@@ -69,14 +71,14 @@ public:
     void setAgc(bool AGC);
     void setHwAgc(bool hwAGC);
     bool isHwAgcSupported();
-    QString getName(void);
+    std::string getName(void);
     CDeviceID getID(void);
 
     // Specific methods
     void setIP(QString IPAddress);
     void setPort(uint16_t Port);
 
-    CRadioController *RadioController;
+    RadioControllerInterface& radioController;
 
 private slots:
     void readData(void);

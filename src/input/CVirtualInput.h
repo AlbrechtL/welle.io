@@ -30,31 +30,16 @@
 #ifndef __VIRTUAL_INPUT
 #define __VIRTUAL_INPUT
 
-#include "DabConstants.h"
-#include <QObject>
-#include <QString>
-#include <stdint.h>
+#include "dab-constants.h"
+#include "radio-controller.h"
 
-// Enum of available input device
-enum class CDeviceID {AIRSPY, NULLDEVICE, RAWFILE, RTL_SDR, RTL_TCP, SOAPYSDR};
+enum class CDeviceID {
+    AIRSPY, NULLDEVICE, RAWFILE, RTL_SDR, RTL_TCP, SOAPYSDR};
 
-// Device interface
-class CVirtualInput : public QObject {
-public:
-    virtual void setFrequency(int32_t Frequency) = 0;
-    virtual bool restart(void) = 0;
-    virtual void stop(void) = 0;
-    virtual void reset(void) = 0;
-    virtual int32_t getSamples(DSPCOMPLEX* Buffer, int32_t Size) = 0;
-    virtual int32_t getSpectrumSamples(DSPCOMPLEX* Buffer, int32_t Size) = 0;
-    virtual int32_t getSamplesToRead(void) = 0;
-    virtual float setGain(int32_t Gain) = 0;
-    virtual int32_t getGainCount(void) = 0;
-    virtual void setAgc(bool AGC) = 0;
-    virtual void setHwAgc(bool hwAGC) = 0;
-    virtual bool isHwAgcSupported() { return false; }
-    virtual QString getName(void) = 0;
-    virtual CDeviceID getID(void) = 0;
+class CVirtualInput : public InputInterface {
+    public:
+        virtual ~CVirtualInput() {};
+        virtual CDeviceID getID(void) = 0;
 };
 
 #endif

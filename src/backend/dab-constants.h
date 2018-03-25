@@ -1,4 +1,7 @@
 /*
+ *    Copyright (C) 2018
+ *    Matthias P. Braendli (matthias.braendli@mpb.li)
+ *
  *    Copyright (C) 2017
  *    Albrecht Lohofener (albrechtloh@gmx.de)
  *
@@ -26,36 +29,21 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-//
-//	Common definitions and includes for
-//	the DAB decoder
+//  Common definitions and includes for the DAB decoder
 
 #ifndef __DAB_CONSTANTS
 #define __DAB_CONSTANTS
 
 #include <complex>
-#include <cstring>
 #include <limits>
-#include <math.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <map>
+#include <cmath>
+#include <cstring>
+#include <cstdint>
+#include <cstdio>
+#include <cstdlib>
 
-#include <QString>
-#include <QObject>
-
-typedef float DSPFLOAT;
-typedef std::complex<DSPFLOAT> DSPCOMPLEX;
-
-// Fallback if git hash macro is not defined
-#ifndef GITHASH
-#pragma message "Git hash is not defined! Set it to \"unknown\""
-#define GITHASH "unknown"
-#endif
-
-#define CURRENT_VERSION "1.x development"
+using DSPFLOAT = float;
+using DSPCOMPLEX = std::complex<DSPFLOAT>;
 
 #define DAB 0100
 #define DAB_PLUS 0101
@@ -72,39 +60,30 @@ typedef std::complex<DSPFLOAT> DSPCOMPLEX;
 #define LONG_LOW 03
 #define UNSYNCED 04
 
-// Static class to hold constant values
-class CDABConstants: public QObject {
-    Q_OBJECT
-public:
-    static QString getProgramTypeName(int Type);
-    static QString getLanguageName(int Language);
-};
+namespace DABConstants {
+    const char* getProgramTypeName(int type);
+    const char* getLanguageName(int language);
+}
 
-class CDABParams {
+class DABParams {
 public:
-    CDABParams();
-    CDABParams(int Mode);
-    void setMode(int Mode);
+    DABParams();
+    DABParams(int mode);
+    void setMode(int mode);
 
     // To access directly the members is ugly but it was the easiest for the existing code
     uint8_t dabMode;
-    int16_t L; // blocks per frame
-    int16_t K; // carriers
-    int16_t T_null; // null length
-    int32_t T_F; // samples per frame
-    int16_t T_s; // block length
-    int16_t T_u; // useful part
+    int16_t L; // symbols per transmission frame
+    int16_t K; // Number of FFT carriers with power
+    int16_t T_null; // null symbol length
+    int32_t T_F; // samples per transmission frame
+    int16_t T_s; // symbol length including cyclic prefix
+    int16_t T_u; // Size of the FFT == symbol length without cyclic prefix
     int16_t guardLength;
     int16_t carrierDiff;
-
-private:
-    void setMode1(void);
-    void setMode2(void);
-    void setMode3(void);
-    void setMode4(void);
 };
 
-typedef struct {
+struct packetdata_t {
     int16_t subchId;
     int16_t startAddr;
     bool shortForm;
@@ -115,9 +94,10 @@ typedef struct {
     int16_t FEC_scheme;
     int16_t DGflag;
     int16_t packetAddress;
-} packetdata;
+    bool valid;
+};
 
-typedef struct {
+struct audiodata_t {
     int16_t subchId;
     int16_t startAddr;
     bool shortForm;
@@ -127,7 +107,7 @@ typedef struct {
     int16_t ASCTy;
     int16_t language;
     int16_t programType;
-    bool defined;
-} audiodata;
+    bool valid;
+};
 
 #endif

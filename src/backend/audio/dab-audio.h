@@ -1,4 +1,7 @@
 /*
+ *    Copyright (C) 2018
+ *    Matthias P. Braendli (matthias.braendli@mpb.li)
+ *
  *    Copyright (C) 2013
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
  *    Lazy Chair Programming
@@ -22,40 +25,43 @@
 #ifndef __DAB_AUDIO
 #define __DAB_AUDIO
 
-#include    "dab-virtual.h"
-#include    <memory>
-#include    <vector>
-#include    <QThread>
-#include    <QMutex>
-#include    <QWaitCondition>
-#include    "ringbuffer.h"
-#include    <stdio.h>
+#include "dab-virtual.h"
+#include <memory>
+#include <atomic>
+#include <vector>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+#include <cstdio>
+#include "ringbuffer.h"
+#include "radio-controller.h"
 
 class dabProcessor;
 class protection;
-class CRadioController;
 
-class dabAudio : public QThread, public dabVirtual
+class DabAudio : public DabVirtual
 {
     public:
-        dabAudio(uint8_t dabModus,
+        DabAudio(uint8_t dabModus,
                   int16_t fragmentSize,
                   int16_t bitRate,
-                  bool   shortForm,
+                  bool shortForm,
                   int16_t protLevel,
-                  CRadioController *mr,
-                  std::shared_ptr<RingBuffer<int16_t> >);
-        ~dabAudio(void);
+                  RadioControllerInterface& mr,
+                  const std::string& mscFileName,
+                  const std::string& mp2FileName);
+        ~DabAudio(void);
+        DabAudio(const DabAudio&) = delete;
+        DabAudio& operator=(const DabAudio&) = delete;
+
         int32_t process(int16_t *v, int16_t cnt);
-        void    stopRunning(void);
 
     protected:
-        CRadioController    *myRadioInterface;
-        std::shared_ptr<RingBuffer<int16_t>> audioBuffer;
+        RadioControllerInterface& myRadioInterface;
 
     private:
         void    run(void);
-        volatile bool running;
+        std::atomic<bool> running;
         uint8_t     dabModus;
         int16_t     fragmentSize;
         int16_t     bitRate;
@@ -64,12 +70,16 @@ class dabAudio : public QThread, public dabVirtual
         std::vector<uint8_t> outV;
         int16_t     **interleaveData;
 
-        QWaitCondition  Locker;
-        QMutex          ourMutex;
+        std::condition_variable  Locker;
+        std::mutex               ourMutex;
+        std::thread              ourThread;
 
         std::unique_ptr<protection> protectionHandler;
-        dabProcessor   *our_dabProcessor;
+        std::unique_ptr<dabProcessor> our_dabProcessor;
         RingBuffer<int16_t> Buffer;
+
+        const std::string& mscFileName;
+        const std::string& mp2FileName;
 };
 
 #endif

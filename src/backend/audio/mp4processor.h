@@ -1,4 +1,7 @@
 /*
+ *    Copyright (C) 2018
+ *    Matthias P. Braendli (matthias.braendli@mpb.li)
+ *
  *    Copyright (C) 2013, 2014
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
  *    Lazy Chair Programming
@@ -27,43 +30,44 @@
  *  frames into the ffmpeg or faad decoding library
  */
 //
-#include    "DabConstants.h"
-#include    <vector>
-#include    <memory>
-#include    <stdio.h>
-#include    <stdint.h>
-#include    "CAudio.h"
-#include    "dab-processor.h"
-#include    "CFaadDecoder.h"
-#include    "firecode-checker.h"
-#include    "reed-solomon.h"
-#include    <QObject>
-#include    "pad_decoder_adapter.h"
-
-class   CRadioController;
+#include <vector>
+#include <memory>
+#include <cstdio>
+#include <cstdint>
+#include "dab-constants.h"
+#include "dab-processor.h"
+#include "CFaadDecoder.h"
+#include "firecode-checker.h"
+#include "reed-solomon.h"
+#include "data/pad_decoder.h"
+#include "radio-controller.h"
 
 enum class AACAudioMode { Unknown, Mono, Stereo, ParametricStereo};
 
-class   mp4Processor : public QObject, public dabProcessor
+class mp4Processor : public dabProcessor, public PADDecoderObserver
 {
-    Q_OBJECT
     public:
-        mp4Processor(CRadioController    *mr,
-                     int16_t bitRate,
-                     std::shared_ptr<RingBuffer<int16_t> > b);
-        ~mp4Processor();
-        void        addtoFrame(uint8_t *v);
+        mp4Processor(RadioControllerInterface& mr,
+                int16_t bitRate,
+                const std::string& mscFileName);
+
+        void addtoFrame(uint8_t *v);
+
+        // PADDecoderObserver impl
+        void PADChangeDynamicLabel(const DL_STATE& dl);
+        void PADChangeSlide(const MOT_FILE& slide);
 
     private:
-        CRadioController    *myRadioInterface;
+        RadioControllerInterface& myRadioInterface;
         bool  processSuperframe(uint8_t frameBytes[], int16_t base);
-        void  handle_aacFrame(uint8_t *v,
+        void  handleAacFrame(uint8_t *v,
                               int16_t  frame_length,
                               uint8_t  dacRate,
                               uint8_t  sbrFlag,
                               uint8_t  mpegSurround,
                               uint8_t  aacChannelMode,
                               bool    *error);
+        void processPAD(const uint8_t *data);
         int16_t     superFramesize;
         int16_t     blockFillIndex;
         int16_t     blocksInBuffer;
@@ -90,17 +94,13 @@ class   mp4Processor : public QObject, public dabProcessor
         int16_t     aacErrors;
         int16_t     aacFrames;
         int16_t     charSet;
-        std::unique_ptr<PADDecoderAdapter> padDecoderAdapter;
-        QByteArray  *MscFileName;
-        FILE        *MscFile;
+
+        struct FILEDeleter{ void operator()(FILE* fd){ if (fd) fclose(fd); }};
+        std::unique_ptr<FILE, FILEDeleter> mscFile;
+
         AACAudioMode aacAudioMode;
-signals:
-        void        show_frameErrors(int frameErrors);
-        void        show_rsErrors(int rsErrors);
-        void        show_aacErrors(int aacErrors);
-        void        showLabel(QString label);
-        void        isStereo(bool);
-        void        setSampleRate(int sampleRate);
+
+        PADDecoder padDecoder;
 };
 
 #endif

@@ -1,4 +1,7 @@
 /*
+ *    Copyright (C) 2018
+ *    Matthias P. Braendli (matthias.braendli@mpb.li)
+ *
  *    Copyright (C) 2017
  *    Albrecht Lohofener (albrechtloh@gmx.de)
  *
@@ -27,34 +30,44 @@
  *
  */
 
-#ifndef CCHANNELS_H
-#define CCHANNELS_H
+#ifndef RADIO_RECEIVER_H
+#define RADIO_RECEIVER_H
 
-#include <map>
+#include <memory>
+#include <string>
+#include "radio-controller.h"
+#include "fic-handler.h"
+#include "msc-handler.h"
+#include "ofdm/ofdm-processor.h"
 
-#include <QString>
+class RadioReceiver {
+    public:
+        RadioReceiver(
+                RadioControllerInterface& rci,
+                InputInterface& input,
+                const std::string& mscFileName,
+                const std::string& mp2FileName);
 
-#define NUMBEROFCHANNELS 54
+        /* Restart the receiver, and specify if we want
+         * to scan or receive. */
+        void restart(bool doScan);
 
-class CChannels
-{
-public:
-    CChannels();
-    int getFrequency(QString ChannelName);
-    QString getNextChannel(void);
-    QString getCurrentChannel(void);
-    int getCurrentFrequency(void);
-    int getCurrentIndex(void);
+        audiodata_t getAudioServiceData(const std::string& label);
 
-    static QString FirstChannel;
+        void selectAudioService(const audiodata_t& ad);
 
-private:
-    QString getChannelNameAtIndex(int Index);
+    private:
+        RadioControllerInterface& rci;
+        InputInterface& input;
 
-    std::map<QString, int> FrequencyMap;
-    int CurrentFrequencyIndex;
-    QString CurrentChannel;
-    int CurrentFrequency;
+        std::string mscFilename;
+        std::string mp2Filename;
+
+        DABParams params; // Defaults to TM1 parameters
+
+        MscHandler mscHandler;
+        FicHandler ficHandler;
+        OFDMProcessor ofdmProcessor;
 };
 
-#endif // CCHANNELS_H
+#endif

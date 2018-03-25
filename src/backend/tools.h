@@ -30,7 +30,6 @@ class CalcCRC
 {
     public:
         CalcCRC(bool initial_invert, bool final_invert, uint16_t gen_polynom);
-        virtual ~CalcCRC() {}
         uint16_t Calc(const uint8_t *data, size_t len);
 
         static CalcCRC CalcCRC_CRC16_CCITT;
@@ -41,27 +40,6 @@ class CalcCRC
         bool initial_invert;
         bool final_invert;
         uint16_t crc_lut[256];
-};
-
-
-// --- CircularBuffer -----------------------------------------------------------------
-class CircularBuffer
-{
-    public:
-        CircularBuffer(size_t capacity);
-        ~CircularBuffer();
-
-        size_t Capacity() { return capacity; }
-        size_t Size() { return size; }
-        size_t Write(const uint8_t *data, size_t bytes);
-        size_t Read(uint8_t *data, size_t bytes);
-        void Clear() { size = index_start = index_end = 0; }
-    private:
-        uint8_t *buffer;
-        size_t capacity;
-        size_t size;
-        size_t index_start;
-        size_t index_end;
 };
 
 #endif /* TOOLS_H_ */

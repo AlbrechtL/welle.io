@@ -31,12 +31,8 @@
 #ifndef __AIRSPY_RADIO__
 #define __AIRSPY_RADIO__
 
-#include <QFrame>
-#include <QObject>
-#include <QSettings>
-
 #include "CVirtualInput.h"
-#include "DabConstants.h"
+#include "dab-constants.h"
 #include "MathHelper.h"
 #include "ringbuffer.h"
 
@@ -47,7 +43,6 @@
 #endif
 
 class CAirspy : public CVirtualInput {
-    Q_OBJECT
 public:
     CAirspy();
     ~CAirspy(void);
@@ -63,32 +58,31 @@ public:
     int32_t getGainCount(void);
     void setAgc(bool AGC);
     void setHwAgc(bool hwAGC);
-    QString getName(void);
+    std::string getName(void);
     CDeviceID getID(void);
 
 private:
-    bool libraryLoaded;
-    bool success;
-    bool running;
+    bool running = false;
 
-    bool isAGC;
-    int8_t currentLinearityGain;
-    int32_t selectedRate;
+    bool isAGC = true;
+    int8_t currentLinearityGain = 0;
+    int32_t selectedRate = 0;
     DSPCOMPLEX* convBuffer;
-    int16_t convBufferSize;
-    int16_t convIndex;
+    int16_t convBufferSize = 0;
+    int16_t convIndex = 0;
     int16_t mapTable_int[4 * 512];
     float mapTable_float[4 * 512];
-    RingBuffer<DSPCOMPLEX>* SampleBuffer;
-    RingBuffer<DSPCOMPLEX>* SpectrumSampleBuffer;
+    RingBuffer<DSPCOMPLEX> SampleBuffer;
+    RingBuffer<DSPCOMPLEX> SpectrumSampleBuffer;
     int32_t inputRate;
-    struct airspy_device* device;
-    uint64_t serialNumber;
+    struct airspy_device *device;
+    uint64_t serialNumber = 0;
     char serial[128];
     // callback buffer
-    int bs_;
-    uint8_t* buffer;
-    int bl_;
+    int bs_ = 0;
+    uint8_t *buffer;
+    int bl_ = 0;
+
     static int callback(airspy_transfer_t*);
     int data_available(void* buf, int buf_size);
 };

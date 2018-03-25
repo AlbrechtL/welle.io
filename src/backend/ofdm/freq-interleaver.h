@@ -1,4 +1,6 @@
 /*
+ *    Copyright (C) 2018
+ *    Matthias P. Braendli (matthias.braendli@mpb.li)
  *
  *    Copyright (C) 2013
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
@@ -20,35 +22,27 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-#ifndef __PHASEREFERENCE
-#define __PHASEREFERENCE
 
-#include    "fft.h"
-#include    <vector>
-#include    <memory>
-#include    <stdio.h>
-#include    <stdint.h>
-#include    "phasetable.h"
-#include    "DabConstants.h"
+#ifndef __FREQ_INTERLEAVER__
+#define __FREQ_INTERLEAVER__
+#include <cstdint>
+#include <vector>
+#include "dab-constants.h"
 
-
-class phaseReference : public phaseTable
+/**
+ * \class FrequencyInterleaver
+ * Implements frequency interleaving according to section 14.6
+ * of the DAB standard
+ */
+class FrequencyInterleaver
 {
     public:
-        phaseReference (CDABParams *, int16_t);
-        int32_t findIndex   (DSPCOMPLEX *v, std::shared_ptr<std::vector<float> > ImpuleResponseBuffer);
-        std::vector<DSPCOMPLEX> refTable;
+        FrequencyInterleaver(const DABParams& param);
+        int16_t mapIn(int16_t);
 
     private:
-        int32_t     Tu;
-        int16_t     threshold;
-
-        common_fft  fft_processor;
-        DSPCOMPLEX  *fft_buffer;
-        common_ifft res_processor;
-        DSPCOMPLEX  *res_buffer;
-        int32_t     fft_counter;
-        DSPFLOAT    Max;
+        std::vector<int16_t> permTable;
 };
+
 #endif
 

@@ -17,6 +17,7 @@ ChartView {
     property int plotType: 0
 
     onPlotTypeChanged: {
+        axisY1.min = 0;
         switch(plotType) {
         case 0:
             title = qsTr("Spectrum");
@@ -27,20 +28,20 @@ ChartView {
             title = qsTr("Impulse Response");
             axisX.titleText = qsTr("Samples");
             axisY1.titleText = qsTr("Amplitude");
+            axisY1.min = -20;
             break;
         case 2:
-            title = qsTr("Constellation Diagram (not implemented)");
+            title = qsTr("Constellation Diagram");
             axisX.titleText = qsTr("Q");
             axisY1.titleText = qsTr("I");
+            axisY1.min = -180;
             break;
         case 3:
-            title = qsTr("Null Symbol (not implemented)");
+            title = qsTr("Null Symbol");
             axisX.titleText = qsTr("Frequency") + " [MHz]";
             axisY1.titleText = qsTr("Amplitude");
             break;
         }
-
-
     }
 
     Connections{

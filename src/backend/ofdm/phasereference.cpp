@@ -27,77 +27,83 @@
  * the first non-null block of a frame
  * The class inherits from the phaseTable.
  */
-phaseReference::phaseReference (CDABParams  *p, int16_t threshold) :
-    phaseTable(p->dabMode),
-    fft_processor(p->T_u),
-    res_processor(p->T_u)
+PhaseReference::PhaseReference(const DABParams& p, int16_t threshold) :
+    phaseTable(p.dabMode),
+    fft_processor(p.T_u),
+    res_processor(p.T_u)
 {
     int32_t i;
-    DSPFLOAT    Phi_k;
+    DSPFLOAT Phi_k;
 
-    this->Tu       = p->T_u;
-    this->threshold    = threshold;
+    this->threshold = threshold;
 
-    Max           = 0.0;
-    refTable.resize(Tu);
-    fft_buffer    = fft_processor.getVector ();
-    res_buffer    = res_processor.getVector ();
-    fft_counter   = 0;
+    refTable.resize(p.T_u);
+    fft_buffer    = fft_processor.getVector();
+    res_buffer    = res_processor.getVector();
 
-    for (i = 1; i <= p->K / 2; i ++) {
-        Phi_k =  get_Phi (i);
-        refTable[i] = DSPCOMPLEX (cos (Phi_k), sin (Phi_k));
-        Phi_k = get_Phi (-i);
-        refTable[Tu - i] = DSPCOMPLEX (cos (Phi_k), sin (Phi_k));
+    for (i = 1; i <= p.K / 2; i ++) {
+        Phi_k = get_Phi(i);
+        refTable[i] = DSPCOMPLEX(cos(Phi_k), sin(Phi_k));
+
+        Phi_k = get_Phi(-i);
+        refTable[p.T_u - i] = DSPCOMPLEX(cos(Phi_k), sin(Phi_k));
     }
 }
 
+DSPCOMPLEX PhaseReference::operator[](size_t ix)
+{
+    return refTable.at(ix);
+}
 
 /**
  * \brief findIndex
  * the vector v contains "Tu" samples that are believed to
  * belong to the first non-null block of a DAB frame.
- * We correlate the data in this verctor with the predefined
+ * We correlate the data in this vector with the predefined
  * data, and if the maximum exceeds a threshold value,
  * we believe that that indicates the first sample we were
  * looking for.
  */
-int32_t phaseReference::findIndex (DSPCOMPLEX *v, std::shared_ptr<std::vector<float>> ImpuleResponseBuffer)
+int32_t PhaseReference::findIndex(DSPCOMPLEX *v,
+        std::vector<float>& impulseResponseBuffer)
 {
-    int32_t i;
-    int32_t maxIndex    = -1;
-    float   sum     = 0;
+    int32_t maxIndex = -1;
+    float   sum = 0;
 
-    Max = 1.0;
-    memcpy (fft_buffer, v, Tu * sizeof (DSPCOMPLEX));
+    size_t Tu = refTable.size();
 
-    fft_processor.do_FFT ();
+    memcpy(fft_buffer, v, Tu * sizeof(DSPCOMPLEX));
+
+    fft_processor.do_FFT();
 
     //  back into the frequency domain, now correlate
-    for (i = 0; i < Tu; i ++)
-        res_buffer[i] = fft_buffer[i] * conj (refTable[i]);
+    for (size_t i = 0; i < Tu; i++)
+        res_buffer[i] = fft_buffer[i] * conj(refTable[i]);
+
     //  and, again, back into the time domain
-    res_processor.do_IFFT ();
+    res_processor.do_IFFT();
     /**
      * We compute the average signal value ...
      */
-    for (i = 0; i < Tu; i ++)
-        sum  += abs (res_buffer[i]);
-    Max = -10000;
-    for (i = 0; i < Tu; i ++)
-    {
-        float value = abs (res_buffer[i]);
-        ImpuleResponseBuffer->at(i) = value;
-        if (value > Max) {
+    for (size_t i = 0; i < Tu; i++)
+        sum += abs(res_buffer[i]);
+
+    DSPFLOAT max = -10000;
+    impulseResponseBuffer.resize(Tu);
+    for (size_t i = 0; i < Tu; i++) {
+        const float value = abs(res_buffer[i]);
+        impulseResponseBuffer[i] = value;
+
+        if (value > max) {
             maxIndex = i;
-            Max = abs (res_buffer[i]);
+            max = value;
         }
     }
     /**
      * that gives us a basis for defining the threshold
      */
-    if (Max < threshold * sum / Tu)
-        return  - abs (Max * Tu / sum) - 1;
+    if (max < threshold * sum / Tu)
+        return -std::abs(max * Tu / sum) - 1;
     else
         return maxIndex;
 }

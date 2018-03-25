@@ -1,4 +1,6 @@
 /*
+ *    Copyright (C) 2018
+ *    Matthias P. Braendli (matthias.braendli@mpb.li)
  *
  *    Copyright (C) 2013
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
@@ -23,42 +25,36 @@
 #ifndef FIB_PROCESSOR
 #define FIB_PROCESSOR
 
-#include    <stdint.h>
-#include    <stdio.h>
-#include    <QObject>
+#include    <vector>
+#include    <array>
+#include    <mutex>
+#include    <cstdint>
+#include    <cstdio>
 #include    "msc-handler.h"
+#include    "radio-controller.h"
 
-struct dablabel {
-    //     uint8_t  label [17];
-    QString  label;
-    uint8_t  mask;
-    bool     hasName;
+struct dabLabel {
+    std::string label; // UTF-8 encoded
+    uint8_t     mask = 0x00;
 };
 
-typedef struct dablabel dabLabel;
-
-typedef struct subchannelmap channelMap;
 
 //  from FIG1/2
-struct serviceid {
-    uint32_t serviceId;
+struct Service {
+    uint32_t serviceId = 0;
     dabLabel serviceLabel;
-    bool     inUse;
-    bool     hasPNum;
-    bool     hasLanguage;
-    int16_t  language;
-    int16_t  programType;
-    uint16_t pNum;
-
+    bool     hasPNum = false;
+    bool     hasLanguage = false;
+    int16_t  language = -1;
+    int16_t  programType = 0;
+    uint16_t pNum = 0;
 };
-typedef struct serviceid serviceId;
 
 //      The service component describes the actual service
 //      It really should be a union
-struct servicecomponents {
-    bool         inUse;          // just administration
+struct ServiceComponent {
     int8_t       TMid;           // the transport mode
-    serviceId    *service;       // belongs to the service
+    uint32_t     SId;            // belongs to the service
     int16_t      componentNr;    // component
 
     int16_t      ASCTy;          // used for audio
@@ -67,13 +63,11 @@ struct servicecomponents {
     uint16_t     SCId;           // used in packet
     uint8_t      CAflag;         // used in packet (or not at all)
     int16_t      DSCTy;          // used in packet
-    uint8_t      DGflag;     // used for TDC
+    uint8_t      DGflag;         // used for TDC
     int16_t      packetAddress;  // used in packet
 };
 
-typedef struct servicecomponents serviceComponent;
-
-struct subchannelmap {
+struct ChannelMap {
     int32_t  SubChId;
     int32_t  StartAddr;
     int32_t  Length;
@@ -86,24 +80,26 @@ struct subchannelmap {
 
 class   CRadioController;
 
-class   fib_processor: public QObject {
-    Q_OBJECT
+class   fib_processor {
     public:
-        fib_processor(CRadioController *);
-        ~fib_processor(void);
-        void    process_FIB(uint8_t *, uint16_t);
+        fib_processor(RadioControllerInterface& mr);
 
-        void    setupforNewFrame(void);
+        // called from the demodulator
+        void    process_FIB(uint8_t*, uint16_t);
         void    clearEnsemble(void);
         bool    syncReached(void);
-        void    setSelectedService(QString &);
-        uint8_t kindofService(QString &);
-        void    dataforAudioService(QString &, audiodata *);
-        void    dataforDataService(QString &, packetdata *);
+
+        // returns PACKET_SERVICE or AUDIO_SERVICE or UNKNOWN_SERVICE
+        uint8_t kindofService(const std::string& label);
+
+        // Called from the frontend
+        audiodata_t getAudioServiceData(const std::string& label);
+        packetdata_t getDataServiceData(const std::string& label);
+
     private:
-        CRadioController *myRadioInterface;
-        serviceId *findServiceId(uint32_t serviceId);
-        serviceComponent *find_packetComponent(int16_t SCId);
+        RadioControllerInterface& myRadioInterface;
+        Service *findServiceId(uint32_t serviceId);
+        ServiceComponent *find_packetComponent(int16_t SCId);
 
         void bind_audioService(
                 int8_t TMid,
@@ -154,20 +150,14 @@ class   fib_processor: public QObject {
         int16_t HandleFIG0Extension13(uint8_t *d, int16_t used, uint8_t pdBit);
         int16_t HandleFIG0Extension22(uint8_t *d, int16_t used);
 
-        int32_t dateTime[8];
-        channelMap ficList [64];
-        serviceComponent components[64];
-
-        serviceId  *listofServices;
-        bool        dateFlag;
-        bool        firstTime;
-        bool        isSynced;
-
-    signals:
-        void addtoEnsemble(quint32 SId, const QString& label);
-        void nameofEnsemble(int SId, const QString& name);
-        void changeinConfiguration(void);
-        void newDateTime(int *dateTime);
+        dab_date_time_t dateTime = {};
+        std::mutex mutex;
+        std::vector<ChannelMap> ficList;
+        std::vector<ServiceComponent> components;
+        std::vector<Service> listofServices;
+        bool        dateFlag = false;
+        bool        firstTime = true;
+        bool        isSynced = false;
 };
 
 #endif

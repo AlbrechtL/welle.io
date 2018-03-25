@@ -1,4 +1,7 @@
 /*
+ *    Copyright (C) 2018
+ *    Matthias P. Braendli (matthias.braendli@mpb.li)
+ *
  *    Copyright (C) 2017
  *    Albrecht Lohofener (albrechtloh@gmx.de)
  *
@@ -26,20 +29,19 @@
 #ifndef CINPUTFACTORY_H
 #define CINPUTFACTORY_H
 
-#include <QString>
-#include <QSettings>
+#include <string>
 
 #include "CVirtualInput.h"
-#include "CRadioController.h"
+#include "radio-controller.h"
 
 class CInputFactory
 {
 public:
-    static CVirtualInput* GetDevice(CRadioController &RadioController, QString Device);
+    static CVirtualInput* GetDevice(RadioControllerInterface& RadioController, const std::string& Device);
 
 private:
-    static CVirtualInput* GetAutoDevice(CRadioController &RadioController);
-    static CVirtualInput* GetManualDevice(CRadioController &RadioController, QString Device);
+    static CVirtualInput* GetAutoDevice(RadioControllerInterface& RadioController);
+    static CVirtualInput* GetManualDevice(RadioControllerInterface& RadioController, const std::string& Device);
 };
 
 #endif // CINPUTFACTORY_H

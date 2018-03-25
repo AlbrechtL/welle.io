@@ -39,7 +39,8 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 
-#include "DabConstants.h"
+#include "version.h"
+#include "dab-constants.h"
 #include "CRadioController.h"
 #include "CGUI.h"
 #include "CLogFile.h"
@@ -74,11 +75,11 @@ int main(int argc, char** argv)
         QCoreApplication app(argc, argv);
 
         // Default values
-        CDABParams DABParams(1);
+        DABParams dabparams(1);
         QVariantMap commandLineOptions;
 
         // Create a new radio interface instance
-        CRadioController* RadioController = new CRadioController(commandLineOptions, DABParams);
+        CRadioController* RadioController = new CRadioController(commandLineOptions, dabparams);
 
         // Enable remoting source
         QRemoteObjectHost srcNode(QUrl(QStringLiteral("local:replica")));
@@ -115,7 +116,7 @@ int main(int argc, char** argv)
     QTranslator *Translator = CGUI::AddTranslator(locale);
 
     // Default values
-    CDABParams DABParams(1);
+    DABParams dabparams(1);
 
     // Handle the command line
     QCommandLineParser optionParser;
@@ -144,7 +145,7 @@ int main(int argc, char** argv)
     optionParser.addOption(RAWFile);
 
     QCommandLineOption RAWFileFormat("raw-format",
-        QCoreApplication::translate("main", "I/Q RAW file format. Possible is: u8 (standard), s8, s16le, s16be. Only valid for input rawfile."),
+        QCoreApplication::translate("main", "I/Q RAW file format. Possible is: u8 (standard), s8, s16le, s16be, cf32. Only valid for input rawfile."),
         QCoreApplication::translate("main", "I/Q RAW file format"));
     optionParser.addOption(RAWFileFormat);
 
@@ -225,7 +226,7 @@ int main(int argc, char** argv)
         if ((Mode < 1) || (Mode > 4))
             Mode = 1;
 
-        DABParams.setMode(Mode);
+        dabparams.setMode(Mode);
     }
 
 #ifdef Q_OS_ANDROID
@@ -260,7 +261,7 @@ int main(int argc, char** argv)
     commandLineOptions["mp2FileName"] = optionParser.value(MP2FileName);
 
     // Create a new radio interface instance
-    CRadioController* RadioController = new CRadioController(commandLineOptions, DABParams);
+    CRadioController* RadioController = new CRadioController(commandLineOptions, dabparams);
     QTimer::singleShot(0, RadioController, SLOT(onEventLoopStarted())); // The timer is used to signal if the QT event lopp is running
 
 #endif

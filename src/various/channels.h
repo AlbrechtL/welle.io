@@ -1,6 +1,13 @@
 /*
+ *    Copyright (C) 2018
+ *    Matthias P. Braendli (matthias.braendli@mpb.li)
+ *
  *    Copyright (C) 2017
  *    Albrecht Lohofener (albrechtloh@gmx.de)
+ *
+ *    This file is based on SDR-J
+ *    Copyright (C) 2010, 2011, 2012
+ *    Jan van Katwijk (J.vanKatwijk@gmail.com)
  *
  *    This file is part of the welle.io.
  *    Many of the ideas as implemented in welle.io are derived from
@@ -23,80 +30,33 @@
  *
  */
 
-#include "CNullDevice.h"
+#ifndef CHANNELS_H
+#define CHANNELS_H
 
-CNullDevice::CNullDevice()
+#include <map>
+#include <string>
+
+#define NUMBEROFCHANNELS 54
+
+class Channels
 {
+public:
+    Channels();
+    int getFrequency(const std::string& channelName);
+    std::string getNextChannel(void);
+    std::string getCurrentChannel(void);
+    int getCurrentFrequency(void);
+    int getCurrentIndex(void);
 
-}
+    static std::string firstChannel;
 
-void CNullDevice::setFrequency(int32_t Frequency)
-{
-    (void) Frequency;
-}
+private:
+    std::string getChannelNameAtIndex(int index);
 
-bool CNullDevice::restart()
-{
-    return false;
-}
+    std::map<std::string, int> frequencyMap;
+    int currentFrequencyIndex;
+    std::string currentChannel;
+    int currentFrequency;
+};
 
-void CNullDevice::stop()
-{
-
-}
-
-void CNullDevice::reset()
-{
-
-}
-
-int32_t CNullDevice::getSamples(DSPCOMPLEX *Buffer, int32_t Size)
-{
-    memset(Buffer, 0, Size * sizeof(DSPCOMPLEX));
-
-    return Size;
-}
-
-int32_t CNullDevice::getSpectrumSamples(DSPCOMPLEX *Buffer, int32_t Size)
-{
-    memset(Buffer, 0, Size * sizeof(DSPCOMPLEX));
-
-    return Size;
-}
-
-int32_t CNullDevice::getSamplesToRead()
-{
-    return 0;
-}
-
-float CNullDevice::setGain(int32_t Gain)
-{
-    (void) Gain;
-
-    return 0;
-}
-
-int32_t CNullDevice::getGainCount()
-{
-    return 0;
-}
-
-void CNullDevice::setAgc(bool AGC)
-{
-    (void) AGC;
-}
-
-void CNullDevice::setHwAgc(bool hwAGC)
-{
-    (void) hwAGC;
-}
-
-std::string CNullDevice::getName()
-{
-    return "Null device";
-}
-
-CDeviceID CNullDevice::getID()
-{
-    return CDeviceID::NULLDEVICE;
-}
+#endif // CCHANNELS_H

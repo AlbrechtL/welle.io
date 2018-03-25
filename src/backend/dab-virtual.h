@@ -27,11 +27,10 @@
 
 #define CUSize  (4 * 16)
 
-class dabVirtual {
+class DabVirtual {
     public:
-        virtual ~dabVirtual() {};
-        virtual int32_t process     (int16_t *v, int16_t cnt) = 0;
-        virtual void    stopRunning (void) = 0;
+        virtual ~DabVirtual() {};
+        virtual int32_t process(int16_t *v, int16_t cnt) = 0;
 };
 #endif
 

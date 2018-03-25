@@ -30,6 +30,7 @@
 //  for the real decoder classes
 class dabProcessor {
     public:
+        virtual ~dabProcessor() = default;
         virtual void addtoFrame(uint8_t *) = 0;
 };
 

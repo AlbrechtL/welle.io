@@ -1,4 +1,5 @@
 /*
+ *
  *    Copyright (C) 2013
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
  *    Lazy Chair Programming
@@ -19,27 +20,36 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
+#ifndef __PHASEREFERENCE
+#define __PHASEREFERENCE
 
-#ifndef __FREQ_INTERLEAVER__
-#define __FREQ_INTERLEAVER__
-#include    <stdint.h>
+#include    "fft.h"
 #include    <vector>
-#include    "DabConstants.h"
+#include    <memory>
+#include    <cstdio>
+#include    <cstdint>
+#include    "phasetable.h"
+#include    "dab-constants.h"
 
-/**
- * \class interLeaver
- * Implements frequency interleaving according to section 14.6
- * of the DAB standard
- */
-class   interLeaver
+class PhaseReference : public phaseTable
 {
     public:
-        interLeaver(CDABParams *);
-        int16_t mapIn(int16_t);
+        PhaseReference(const DABParams& p, int16_t threshold);
+        int32_t findIndex(DSPCOMPLEX *v,
+                std::vector<float>& impulseResponseBuffer);
+
+        DSPCOMPLEX operator[](size_t ix);
 
     private:
-        std::vector<int16_t> permTable;
-};
+        std::vector<DSPCOMPLEX> refTable;
 
+        int16_t     threshold;
+
+        common_fft  fft_processor;
+        DSPCOMPLEX  *fft_buffer;
+
+        common_ifft res_processor;
+        DSPCOMPLEX  *res_buffer;
+};
 #endif
 

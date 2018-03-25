@@ -26,7 +26,7 @@
 
 #include    <stdio.h>
 #include    <stdint.h>
-#include    "DabConstants.h"
+#include    "dab-constants.h"
 
 struct phasetableElement
 {

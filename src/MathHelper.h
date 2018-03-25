@@ -1,4 +1,7 @@
 /*
+ *    Copyright (C) 2018
+ *    Matthias P. Braendli (matthias.braendli@mpb.li)
+ *
  *    Copyright (C) 2017
  *    Albrecht Lohofener (albrechtloh@gmx.de)
  *
@@ -30,33 +33,21 @@
 #ifndef MATHHELPER_H
 #define MATHHELPER_H
 
+#include <complex>
+#include <cstring>
+
 #define Hz(x) (x)
-#define Khz(x) (x * 1000)
-#define KHz(x) (x * 1000)
 #define kHz(x) (x * 1000)
-#define Mhz(x) (Khz(x) * 1000)
-#define MHz(x) (KHz(x) * 1000)
-#define mHz(x) (kHz(x) * 1000)
+#define MHz(x) (kHz(x) * 1000)
 
-static inline DSPCOMPLEX cmul(DSPCOMPLEX x, float y)
+static inline float get_db_over_256(float x)
 {
-    return DSPCOMPLEX(real(x) * y, imag(x) * y);
+    return 20 * log10((x + 1.0f) / 256.0f);
 }
 
-static inline float get_db(DSPFLOAT x)
+static inline float l1_norm(std::complex<float> z)
 {
-    return 20 * log10((x + 1) / (float)(256));
-}
-
-static inline float jan_abs(DSPCOMPLEX z)
-{
-    float re = real(z);
-    float im = imag(z);
-    if (re < 0)
-        re = -re;
-    if (im < 0)
-        im = -im;
-    return re + im;
+    return std::abs(z.real()) + std::abs(z.imag());
 }
 
 static inline bool check_CRC_bits(uint8_t* in, int16_t size)

@@ -31,39 +31,33 @@ SOURCES += src/gui/QML/*.qml \
 
 DEPENDPATH += \
     src \
-    src/ofdm \
     src/backend \
     src/backend/audio \
     src/backend/data \
-    src/output \
-    src/various \
+    src/backend/ofdm \
     src/input \
-    src/ofdm \
-    src/backend \
-    src/backend/audio \
-    src/backend/data \
     src/output \
     src/various \
     src/gui
 
 INCLUDEPATH += \
     src \
-    src/ofdm \
     src/backend \
     src/backend/audio \
     src/backend/data \
+    src/backend/ofdm \
     src/output \
     src/various \
     src/input \
     src/gui
 
 HEADERS += \
-    src/DabConstants.h \
-    src/ofdm/ofdm-processor.h \
-    src/ofdm/ofdm-decoder.h \
-    src/ofdm/phasereference.h \
-    src/ofdm/phasetable.h \
-    src/ofdm/freq-interleaver.h \
+    src/backend/dab-constants.h \
+    src/backend/ofdm/ofdm-processor.h \
+    src/backend/ofdm/ofdm-decoder.h \
+    src/backend/ofdm/phasereference.h \
+    src/backend/ofdm/phasetable.h \
+    src/backend/ofdm/freq-interleaver.h \
     src/backend/viterbi.h \
     src/backend/fic-handler.h \
     src/backend/msc-handler.h \
@@ -81,7 +75,6 @@ HEADERS += \
     src/backend/audio/neaacdec.h \
     src/backend/data/pad_decoder.h \
     src/backend/data/mot_manager.h \
-    src/backend/data/pad_decoder_adapter.h \
     src/backend/tools.h \
     src/backend/protection.h \
     src/backend/eep-protection.h \
@@ -90,6 +83,7 @@ HEADERS += \
     src/various/fft.h \
     src/various/ringbuffer.h \
     src/various/Xtan2.h \
+    src/various/channels.h \
     src/input/CVirtualInput.h \
     src/input/CInputFactory.h \
     src/input/CNullDevice.h \
@@ -100,17 +94,16 @@ HEADERS += \
     src/gui/CStationList.h \
     src/gui/CGUI.h \
     src/CRadioController.h \
-    src/CChannels.h \
     src/CLogFile.h \
     src/CSplashScreen.h
 
 SOURCES += \
     src/main.cpp \
-    src/ofdm/ofdm-processor.cpp \
-    src/ofdm/ofdm-decoder.cpp \
-    src/ofdm/phasereference.cpp \
-    src/ofdm/phasetable.cpp \
-    src/ofdm/freq-interleaver.cpp \
+    src/backend/ofdm/ofdm-processor.cpp \
+    src/backend/ofdm/ofdm-decoder.cpp \
+    src/backend/ofdm/phasereference.cpp \
+    src/backend/ofdm/phasetable.cpp \
+    src/backend/ofdm/freq-interleaver.cpp \
     src/backend/viterbi.cpp \
     src/backend/fic-handler.cpp \
     src/backend/msc-handler.cpp \
@@ -128,21 +121,20 @@ SOURCES += \
     src/backend/audio/CFaadDecoder.cpp \
     src/backend/data/pad_decoder.cpp \
     src/backend/data/mot_manager.cpp \
-    src/backend/data/pad_decoder_adapter.cpp \
     src/backend/tools.cpp \
     src/output/CAudio.cpp \
     src/various/fft.cpp \
     src/various/Xtan2.cpp \
+    src/various/channels.cpp \
     src/input/CInputFactory.cpp \
     src/input/CNullDevice.cpp \
     src/input/CRAWFile.cpp \
     src/input/CRTL_TCP_Client.cpp \
-    src/DabConstants.cpp \
+    src/backend/dab-constants.cpp \
     src/gui/CMOTImageProvider.cpp \
     src/gui/CStationList.cpp \
     src/gui/CGUI.cpp \
     src/CRadioController.cpp \
-    src/CChannels.cpp \
     src/CLogFile.cpp \
     src/CSplashScreen.cpp
 
@@ -154,6 +146,7 @@ unix:!macx:!android: {
     LIBS    += -lfaad
     CONFIG  += airspy
     CONFIG  += rtl_sdr
+    CONFIG  += rtl_tcp
     #CONFIG  += soapysdr
 
     #CONFIG  += kiss_fft_builtin
@@ -356,6 +349,10 @@ rtl_sdr {
 
     # The same lib for unix and Windows
     LIBS       += -lrtlsdr
+}
+
+rtl_tcp {
+    DEFINES    += HAVE_RTL_TCP
 }
 
 soapysdr {

@@ -1,4 +1,7 @@
 /*
+ *    Copyright (C) 2018
+ *    Matthias P. Braendli (matthias.braendli@mpb.li)
+ *
  *    Copyright (C) 2017
  *    Albrecht Lohofener (albrechtloh@gmx.de)
  *
@@ -41,28 +44,21 @@
 
 #define AUDIOBUFFERSIZE 32768
 
-CRadioController::CRadioController(QVariantMap& commandLineOptions, CDABParams& DABParams, QObject *parent)
+CRadioController::CRadioController(QVariantMap& commandLineOptions, DABParams& params, QObject *parent)
 #ifdef Q_OS_ANDROID
     : CRadioControllerSource(parent)
 #else
     : QObject(parent)
 #endif
     , commandLineOptions(commandLineOptions)
-    , DABParams(DABParams)
+    , dabparams(params)
+    , audioBuffer(2 * AUDIOBUFFERSIZE)
+    , audio(audioBuffer)
 {
     Device = NULL;
-    my_ficHandler = NULL;
-    my_mscHandler = NULL;
-    my_ofdmProcessor = NULL;
-
-    AudioBuffer = std::make_shared<RingBuffer<int16_t>>(2 * AUDIOBUFFERSIZE);
-    Audio = new CAudio(AudioBuffer);
-
-    MOTImage = new QImage();
 
     PlotType = PlotTypeEn::Spectrum;
-    spectrum_fft_handler = new common_fft(DABParams.T_u);
-    ImpuleResponseBuffer = std::make_shared<std::vector<float>>(DABParams.T_u);
+    spectrum_fft_handler = new common_fft(dabparams.T_u);
 
     // Init the technical data
     ResetTechnicalData();
@@ -76,20 +72,19 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, CDABParams& 
     connect(&StationTimer, &QTimer::timeout, this, &CRadioController::StationTimerTimeout);
     connect(&ChannelTimer, &QTimer::timeout, this, &CRadioController::ChannelTimerTimeout);
     connect(&SyncCheckTimer, &QTimer::timeout, this, &CRadioController::SyncCheckTimerTimeout);
-}
 
-CRadioController::~CRadioController(void)
-{
-    if (my_ficHandler) disconnect(my_ficHandler, 0, 0, 0);
-    if (my_ofdmProcessor) disconnect(my_ofdmProcessor, 0, 0, 0);
+    connect(this, &CRadioController::SwitchToNextChannel,
+            this, &CRadioController::NextChannel);
 
-    // Shutdown the demodulator and decoder in the correct order
-    delete my_ofdmProcessor;
+    connect(this, &CRadioController::EnsembleAdded,
+            this, &CRadioController::addtoEnsemble);
 
-    delete my_ficHandler;
-    delete my_mscHandler;
+    connect(this, &CRadioController::EnsembleNameUpdated,
+            this, &CRadioController::nameofEnsemble);
 
-    delete Audio;
+    qRegisterMetaType<dab_date_time_t>("dab_date_time_t");
+    connect(this, &CRadioController::DateTimeUpdated,
+            this, &CRadioController::displayDateTime);
 }
 
 void CRadioController::ResetTechnicalData(void)
@@ -132,34 +127,20 @@ void CRadioController::ResetTechnicalData(void)
     UpdateGUIData();
 
     // Clear MOT
-    MOTImage->loadFromData(0, 0, Q_NULLPTR);
-    emit MOTChanged(*MOTImage);
+    motImage.loadFromData(0, 0, Q_NULLPTR);
+    emit MOTChanged(motImage);
 }
 
 void CRadioController::closeDevice()
 {
     qDebug() << "RadioController:" << "Close device";
 
-    if (my_ofdmProcessor) {
-        disconnect(my_ofdmProcessor, 0, 0, 0);
-        delete my_ofdmProcessor;
-        my_ofdmProcessor = NULL;
-    }
-
-    if (my_ficHandler) {
-        disconnect(my_ficHandler, 0, 0, 0);
-        delete my_ficHandler;
-        my_ficHandler = NULL;
-    }
-
-    delete my_mscHandler;
-    my_mscHandler = NULL;
+    my_rx.reset();
 
     delete Device;
     Device = NULL;
 
-    if (Audio)
-        Audio->reset();
+    audio.reset();
 
     SyncCheckTimer.stop();
 
@@ -225,8 +206,9 @@ void CRadioController::onEventLoopStarted()
 
     // Init device
     CSplashScreen::ShowMessage(tr("Init radio receiver"));
-    Device = CInputFactory::GetDevice(*this, dabDevice);
+    Device = CInputFactory::GetDevice(*this, dabDevice.toStdString());
 
+#ifdef HAVE_RTL_TCP
     // Set rtl_tcp settings
     if (Device->getID() == CDeviceID::RTL_TCP) {
         CRTL_TCP_Client* RTL_TCP_Client = (CRTL_TCP_Client*)Device;
@@ -234,12 +216,15 @@ void CRadioController::onEventLoopStarted()
         RTL_TCP_Client->setIP(ipAddress);
         RTL_TCP_Client->setPort(ipPort);
     }
+#else
+    (void)ipPort; // suppress warning
+#endif // HAVE_RTL_TCP
 
     // Set rawfile settings
     if (Device->getID() == CDeviceID::RAWFILE) {
         CRAWFile* RAWFile = (CRAWFile*)Device;
 
-        RAWFile->setFileName(rawFile, rawFileFormat);
+        RAWFile->setFileName(rawFile.toStdString(), rawFileFormat.toStdString());
     }
 
 #ifdef HAVE_SOAPYSDR
@@ -247,15 +232,15 @@ void CRadioController::onEventLoopStarted()
         CSoapySdr *sdr = (CSoapySdr*)Device;
 
         if (!sdrDriverArgs.isEmpty()) {
-            sdr->setDriverArgs(sdrDriverArgs);
+            sdr->setDriverArgs(sdrDriverArgs.toStdString());
         }
 
         if (!sdrDriverArgs.isEmpty()) {
-            sdr->setAntenna(sdrAntenna);
+            sdr->setAntenna(sdrAntenna.toStdString());
         }
 
         if (!sdrClockSource.isEmpty()) {
-            sdr->setClockSource(sdrClockSource);
+            sdr->setClockSource(sdrClockSource.toStdString());
         }
     }
 #endif /* HAVE_SOAPYSDR */
@@ -272,47 +257,30 @@ void CRadioController::Initialise(void)
 
     Device->setHwAgc(isHwAGC);
 
-    if(!isAGC) // Manual AGC
-    {
+    if (!isAGC) { // Manual AGC
         Device->setAgc(false);
         Device->setGain(CurrentManualGain);
         qDebug() << "RadioController:" << "AGC off";
     }
-    else
-    {
+    else {
         Device->setAgc(true);
         qDebug() << "RadioController:" << "AGC on";
     }
 
-    if(Audio)
-        Audio->setVolume(CurrentVolume);
+    audio.setVolume(CurrentVolume);
 
-    /**
-    *	The actual work is done elsewhere: in ofdmProcessor
-    *	and ofdmDecoder for the ofdm related part, ficHandler
-    *	for the FIC's and mscHandler for the MSC.
-    *	The ficHandler shares information with the mscHandler
-    *	but the handlers do not change each others modes.
-    */
-    my_mscHandler = new mscHandler(this,
-        &DABParams,
-        AudioBuffer,
-        false);
+    std::string mscFileName;
+    if (commandLineOptions["mscFileName"] != "") {
+        mscFileName = commandLineOptions["mscFileName"].toString().toStdString();
+    }
 
-    my_ficHandler = new ficHandler(this);
+    std::string mp2FileName;
+    if (commandLineOptions["mp2FileName"] != "") {
+        mp2FileName = commandLineOptions["mp2FileName"].toString().toStdString();
+    }
 
-    /**
-    *	The default for the ofdmProcessor depends on
-    *	the input device, note that in this setup the
-    *	device is selected on start up and cannot be changed.
-    */
-    my_ofdmProcessor = new ofdmProcessor(Device,
-        &DABParams,
-        this,
-        my_mscHandler,
-        my_ficHandler,
-        3, 3,
-        ImpuleResponseBuffer);
+    my_rx = std::make_unique<RadioReceiver>(
+            *this, *Device, mscFileName, mp2FileName);
 
     Status = Initialised;
     emit DeviceReady();
@@ -354,8 +322,7 @@ void CRadioController::Pause()
     if (Device)
         Device->stop();
 
-    if (Audio)
-        Audio->reset();
+    audio.reset();
 
     SyncCheckTimer.stop();
 
@@ -369,8 +336,7 @@ void CRadioController::Stop()
     if (Device)
         Device->stop();
 
-    if (Audio)
-        Audio->reset();
+    audio.reset();
 
     SyncCheckTimer.stop();
 
@@ -403,8 +369,7 @@ void CRadioController::setVolume(qreal Volume)
 {
     CurrentVolume = Volume;
 
-    if (Audio)
-        Audio->setVolume(Volume);
+    audio.setVolume(Volume);
 
     emit VolumeChanged(CurrentVolume);
 }
@@ -425,7 +390,7 @@ void CRadioController::SetChannel(QString Channel, bool isScan, bool Force)
             CurrentEnsemble = "";
 
             // Convert channel into a frequency
-            CurrentFrequency = Channels.getFrequency(Channel);
+            CurrentFrequency = channels.getFrequency(Channel.toStdString());
 
             if(CurrentFrequency != 0 && Device)
             {
@@ -475,8 +440,8 @@ void CRadioController::SetManualChannel(QString Channel)
     UpdateGUIData();
 
     // Clear MOT
-    MOTImage->loadFromData(0, 0, Q_NULLPTR);
-    emit MOTChanged(*MOTImage);
+    motImage.loadFromData(0, 0, Q_NULLPTR);
+    emit MOTChanged(motImage);
 
     // Switch channel
     SetChannel(Channel, false, true);
@@ -493,13 +458,14 @@ void CRadioController::StartScan(void)
     if(Device && Device->getID() == CDeviceID::RAWFILE)
     {
         CurrentTitle = tr("RAW File");
-        SetChannel(CChannels::FirstChannel, false); // Just a dummy
+        const auto FirstChannel = QString::fromStdString(Channels::firstChannel);
+        SetChannel(FirstChannel, false); // Just a dummy
         emit ScanStopped();
     }
     else
     {
         // Start with lowest frequency
-        QString Channel = CChannels::FirstChannel;
+        QString Channel = QString::fromStdString(Channels::firstChannel);
         SetChannel(Channel, true);
 
         isChannelScan = true;
@@ -547,7 +513,8 @@ QVariantMap CRadioController::GUIData(void) const
 
 void CRadioController::UpdateGUIData()
 {
-    mGUIData["DeviceName"] = (Device) ? Device->getName() : "";
+    mGUIData["DeviceName"] = Device ?
+        QString::fromStdString(Device->getName()) : "";
 
     // Init the GUI data map
     mGUIData["Status"] = Status;
@@ -566,7 +533,7 @@ void CRadioController::UpdateGUIData()
 
 QImage CRadioController::MOT() const
 {
-    return *MOTImage;
+    return motImage;
 }
 
 QString CRadioController::ErrorMsg() const
@@ -698,22 +665,6 @@ float CRadioController::GainValue() const
     return CurrentManualGainValue;
 }
 
-QString CRadioController::GetMscFileName()
-{
-    if(commandLineOptions["mscFileName"] != "")
-        return commandLineOptions["mscFileName"].toString();
-    else
-        return QString();
-}
-
-QString CRadioController::GetMP2FileName()
-{
-    if(commandLineOptions["mp2FileName"] != "")
-        return commandLineOptions["mp2FileName"].toString();
-    else
-        return QString();
-}
-
 int CRadioController::Gain() const
 {
     return CurrentManualGain;
@@ -752,6 +703,16 @@ void CRadioController::setErrorMessage(QString Text)
     emit showErrorMessage(Text);
 }
 
+void CRadioController::setErrorMessage(const std::string& head, const std::string& text)
+{
+    if (text.empty()) {
+        setErrorMessage(tr(head.c_str()));
+    }
+    else {
+        setErrorMessage(tr(head.c_str()) + ": " + QString::fromStdString(text));
+    }
+}
+
 void CRadioController::setInfoMessage(QString Text)
 {
     emit showInfoMessage(Text);
@@ -783,14 +744,8 @@ void CRadioController::DecoderRestart(bool isScan)
     //	if we are pretty certain that the channel does not contain
     //	a signal, or "true" if there is a fair chance that the
     //	channel contains useful data
-    if(my_ofdmProcessor && my_mscHandler && my_ficHandler)
-    {
-        my_ofdmProcessor->set_scanMode(isScan);
-
-        my_mscHandler->stopProcessing();
-        my_ficHandler->clearEnsemble();
-        my_ofdmProcessor->coarseCorrectorOn();
-        my_ofdmProcessor->reset();
+    if (my_rx) {
+        my_rx->restart(isScan);
     }
 }
 
@@ -815,32 +770,31 @@ void CRadioController::SetStation(QString Station, bool Force)
         UpdateGUIData();
 
         // Clear MOT
-        MOTImage->loadFromData(0, 0, Q_NULLPTR);
-        emit MOTChanged(*MOTImage);
+        motImage.loadFromData(0, 0, Q_NULLPTR);
+        emit MOTChanged(motImage);
     }
 }
 
 void CRadioController::NextChannel(bool isWait)
 {
-    if(isWait) // It might be a channel, wait 10 seconds
-    {
+    if (isWait) { // It might be a channel, wait 10 seconds
         ChannelTimer.start(10000);
     }
-    else
-    {
-        QString Channel = Channels.getNextChannel();
+    else {
+        auto Channel = QString::fromStdString(channels.getNextChannel());
 
         if(!Channel.isEmpty()) {
             SetChannel(Channel, true);
 
-            int index = Channels.getCurrentIndex() + 1;
+            int index = channels.getCurrentIndex() + 1;
 
             CurrentTitle = tr("Scanning") + " ... " + Channel
                     + " (" + QString::number((int)(index * 100 / NUMBEROFCHANNELS)) + "%)";
 
             UpdateGUIData();
             emit ScanProgress(index);
-        } else {
+        }
+        else {
             StopScan();
         }
     }
@@ -852,32 +806,26 @@ void CRadioController::NextChannel(bool isWait)
 
 void CRadioController::StationTimerTimeout()
 {
-    if(!my_mscHandler || !my_ficHandler)
+    if (!my_rx)
         return;
 
-    if(StationList.contains(CurrentStation))
-    {
-        audiodata AudioData;
-        memset(&AudioData, 0, sizeof(audiodata));
+    if (StationList.contains(CurrentStation)) {
+        auto audioData = my_rx->getAudioServiceData(CurrentStation.toStdString());
 
-        my_ficHandler->dataforAudioService(CurrentStation, &AudioData);
-
-        if(AudioData.defined == true)
-        {
+        if (audioData.valid) {
             // We found the station inside the signal, lets stop the timer
             StationTimer.stop();
 
-            // Set station
-            my_mscHandler->set_audioChannel(&AudioData);
+            my_rx->selectAudioService(audioData);
 
             CurrentTitle = CurrentStation;
 
-            CurrentStationType = CDABConstants::getProgramTypeName(AudioData.programType);
-            CurrentLanguageType = CDABConstants::getLanguageName(AudioData.language);
-            mBitRate = AudioData.bitRate;
+            CurrentStationType = tr(DABConstants::getProgramTypeName(audioData.programType));
+            CurrentLanguageType = tr(DABConstants::getLanguageName(audioData.language));
+            mBitRate = audioData.bitRate;
             emit BitRateChanged(mBitRate);
 
-            if (AudioData.ASCTy == 077)
+            if (audioData.ASCTy == 077)
                 mIsDAB = false;
             else
                 mIsDAB = true;
@@ -917,6 +865,11 @@ void CRadioController::SyncCheckTimerTimeout(void)
  * Backend slots *
  *****************/
 
+void CRadioController::onServiceDetected(uint32_t SId, const std::string& label)
+{
+    emit EnsembleAdded(SId, QString::fromStdString(label));
+}
+
 void CRadioController::addtoEnsemble(quint32 SId, const QString &Station)
 {
     qDebug() << "RadioController: Found station" <<  Station
@@ -951,10 +904,14 @@ void CRadioController::addtoEnsemble(quint32 SId, const QString &Station)
     }
 }
 
-void CRadioController::nameofEnsemble(int id, const QString &Ensemble)
+void CRadioController::onNewEnsembleName(const std::string& name)
+{
+    emit EnsembleNameUpdated(QString::fromStdString(name));
+}
+
+void CRadioController::nameofEnsemble(const QString &Ensemble)
 {
     qDebug() << "RadioController: Name of ensemble:" << Ensemble;
-    (void)id;
 
     if (CurrentEnsemble == Ensemble)
         return;
@@ -962,42 +919,33 @@ void CRadioController::nameofEnsemble(int id, const QString &Ensemble)
     UpdateGUIData();
 }
 
-void CRadioController::changeinConfiguration()
+
+void CRadioController::onDateTimeUpdate(const dab_date_time_t& dateTime)
 {
-    // Unknown use case
+    emit DateTimeUpdated(dateTime);
 }
 
-void CRadioController::displayDateTime(int *DateTime)
+void CRadioController::displayDateTime(const dab_date_time_t& dateTime)
 {
     QDate Date;
     QTime Time;
 
-    int Year = DateTime[0];
-    int Month = DateTime[1];
-    int Day = DateTime[2];
-    int Hour = DateTime[3];
-    int Minute = DateTime[4];
-    int Seconds	= DateTime [5];
-    int HourOffset = DateTime[6];
-    int MinuteOffset = DateTime[7];
-
-    Time.setHMS(Hour, Minute, Seconds);
+    Time.setHMS(dateTime.hour, dateTime.minutes, dateTime.seconds);
     mCurrentDateTime.setTime(Time);
 
-    Date.setDate(Year, Month, Day);
+    Date.setDate(dateTime.year, dateTime.month, dateTime.day);
     mCurrentDateTime.setDate(Date);
 
-    int OffsetFromUtc = ((HourOffset * 3600) + (MinuteOffset * 60));
+    int OffsetFromUtc = dateTime.hourOffset * 3600 +
+                        dateTime.minuteOffset * 60;
     mCurrentDateTime.setOffsetFromUtc(OffsetFromUtc);
     mCurrentDateTime.setTimeSpec(Qt::OffsetFromUTC);
 
     QDateTime LocalTime = mCurrentDateTime.toLocalTime();
     emit DateTimeChanged(QLocale().toString(LocalTime, QLocale::ShortFormat));
-
-    return;
 }
 
-void CRadioController::show_ficSuccess(bool isFICCRC)
+void CRadioController::onFICDecodeSuccess(bool isFICCRC)
 {
     if (mIsFICCRC == isFICCRC)
         return;
@@ -1005,36 +953,53 @@ void CRadioController::show_ficSuccess(bool isFICCRC)
     emit isFICCRCChanged(mIsFICCRC);
 }
 
-void CRadioController::show_snr(int SNR)
+void CRadioController::onNewImpulseResponse(std::vector<float>&& data)
 {
-    if (mSNR == SNR)
+    std::lock_guard<std::mutex> lock(impulseResponseBufferMutex);
+    std::swap(impulseResponseBuffer, data);
+}
+
+void CRadioController::onConstellationPoints(std::vector<DSPCOMPLEX>&& data)
+{
+    std::lock_guard<std::mutex> lock(constellationPointBufferMutex);
+    std::swap(constellationPointBuffer, data);
+}
+
+void CRadioController::onNewNullSymbol(std::vector<DSPCOMPLEX>&& data)
+{
+    std::lock_guard<std::mutex> lock(nullSymbolBufferMutex);
+    std::swap(nullSymbolBuffer, data);
+}
+
+void CRadioController::onMessage(message_level_t level, const std::string& text)
+{
+    switch (level) {
+        case message_level_t::Information:
+            emit showInfoMessage(tr(text.c_str()));
+            break;
+        case message_level_t::Error:
+            emit showErrorMessage(tr(text.c_str()));
+            break;
+    }
+}
+
+void CRadioController::onSNR(int snr)
+{
+    if (mSNR == snr)
         return;
-    mSNR = SNR;
+    mSNR = snr;
     emit SNRChanged(mSNR);
 }
 
-void CRadioController::set_fineCorrectorDisplay(int FineFrequencyCorr)
+void CRadioController::onFrequencyCorrectorChange(int fine, int coarse)
 {
-    int CoarseFrequencyCorr = (mFrequencyCorrection / 1000);
-    SetFrequencyCorrection((CoarseFrequencyCorr * 1000) + FineFrequencyCorr);
-}
-
-void CRadioController::set_coarseCorrectorDisplay(int CoarseFreuqencyCorr)
-{
-    int OldCoareFrequencyCorrr = (mFrequencyCorrection / 1000);
-    int FineFrequencyCorr = mFrequencyCorrection - (OldCoareFrequencyCorrr * 1000);
-    SetFrequencyCorrection((CoarseFreuqencyCorr * 1000) + FineFrequencyCorr);
-}
-
-void CRadioController::SetFrequencyCorrection(int FrequencyCorrection)
-{
-    if (mFrequencyCorrection == FrequencyCorrection)
+    if (mFrequencyCorrection == coarse + fine)
         return;
-    mFrequencyCorrection = FrequencyCorrection;
+    mFrequencyCorrection = coarse + fine;
     emit FrequencyCorrectionChanged(mFrequencyCorrection);
 }
 
-void CRadioController::setSynced(char isSync)
+void CRadioController::onSyncChange(char isSync)
 {
     bool sync = (isSync == SYNCED) ? true : false;
     if (mIsSync == sync)
@@ -1043,85 +1008,81 @@ void CRadioController::setSynced(char isSync)
     emit isSyncChanged(mIsSync);
 }
 
-void CRadioController::setSignalPresent(bool isSignal)
+void CRadioController::onSignalPresence(bool isSignal)
 {
     if (mIsSignal != isSignal) {
         mIsSignal = isSignal;
         emit isSignalChanged(mIsSignal);
     }
 
-    if(isChannelScan)
-        NextChannel(isSignal);
+    if (isChannelScan)
+        emit SwitchToNextChannel(isSignal);
 }
 
-void CRadioController::newAudio(int SampleRate)
+void CRadioController::onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, bool isStereo)
 {
-    if(mAudioSampleRate != SampleRate)
-    {
-        qDebug() << "RadioController: Audio sample rate" <<  SampleRate << "kHz";
-        mAudioSampleRate = SampleRate;
+    audioBuffer.putDataIntoBuffer(audioData.data(), audioData.size());
+
+    if (mAudioSampleRate != sampleRate) {
+        qDebug() << "RadioController: Audio sample rate" <<  sampleRate << "kHz";
+        mAudioSampleRate = sampleRate;
         emit AudioSampleRateChanged(mAudioSampleRate);
 
-        Audio->setRate(SampleRate);
+        audio.setRate(sampleRate);
+    }
+
+    if (mIsStereo != isStereo) {
+        mIsStereo = isStereo;
+        emit isStereoChanged(mIsStereo);
     }
 }
 
-void CRadioController::setStereo(bool isStereo)
+void CRadioController::onFrameErrors(int frameErrors)
 {
-    if (mIsStereo == isStereo)
+    if (mFrameErrors == frameErrors)
         return;
-    mIsStereo = isStereo;
-    emit isStereoChanged(mIsStereo);
-}
-
-void CRadioController::show_frameErrors(int FrameErrors)
-{
-    if (mFrameErrors == FrameErrors)
-        return;
-    mFrameErrors = FrameErrors;
+    mFrameErrors = frameErrors;
     emit FrameErrorsChanged(mFrameErrors);
 }
 
-void CRadioController::show_rsErrors(int RSErrors)
+void CRadioController::onRsErrors(int rsErrors)
 {
-    if (mRSErrors == RSErrors)
+    if (mRSErrors == rsErrors)
         return;
-    mRSErrors = RSErrors;
+    mRSErrors = rsErrors;
     emit RSErrorsChanged(mRSErrors);
 }
 
-void CRadioController::show_aacErrors(int AACErrors)
+void CRadioController::onAacErrors(int aacErrors)
 {
-    if (mAACErrors == AACErrors)
+    if (mAACErrors == aacErrors)
         return;
-    mAACErrors = AACErrors;
+    mAACErrors = aacErrors;
     emit AACErrorsChanged(mAACErrors);
 }
 
-void CRadioController::showLabel(QString Label)
+void CRadioController::onNewDynamicLabel(const std::string& label)
 {
-    if (this->CurrentText == Label)
-        return;
-    this->CurrentText = Label;
-    UpdateGUIData();
+    auto qlabel = QString::fromUtf8(label.c_str());
+    if (this->CurrentText != qlabel) {
+        this->CurrentText = qlabel;
+        UpdateGUIData();
+    }
 }
 
-void CRadioController::showMOT(QByteArray Data, int Subtype, QString s)
+void CRadioController::onMOT(const std::vector<uint8_t>& Data, int subtype)
 {
-    (void)s; // Not used, can be removed
+    QByteArray qdata((const char*)Data.data(), (int)Data.size());
 
-    MOTImage->loadFromData(Data, Subtype == 0 ? "GIF" : Subtype == 1 ? "JPEG" : Subtype == 2 ? "BMP" : "PNG");
+    motImage.loadFromData(qdata, subtype == 0 ? "GIF" : subtype == 1 ? "JPEG" : subtype == 2 ? "BMP" : "PNG");
 
-    emit MOTChanged(*MOTImage);
+    emit MOTChanged(motImage);
 }
 
 void CRadioController::UpdateSpectrum()
 {
     int Samples = 0;
-    int16_t T_u = DABParams.T_u;
-
-    //	Delete old data
-    spectrum_data.resize(T_u);
+    int16_t T_u = dabparams.T_u;
 
     qreal tunedFrequency_MHz = 0;
     qreal sampleFrequency_MHz = 2048000 / 1e6;
@@ -1134,14 +1095,15 @@ void CRadioController::UpdateSpectrum()
     qreal x_min = 0;
     qreal x_max = 0;
 
-    if(PlotType == PlotTypeEn::Spectrum)
-    {
+    if (PlotType == PlotTypeEn::Spectrum) {
+        spectrum_data.resize(T_u);
+
         // Get FFT buffer
         DSPCOMPLEX* spectrumBuffer = spectrum_fft_handler->getVector();
 
         // Get samples
         tunedFrequency_MHz = CurrentFrequency / 1e6;
-        if(Device)
+        if (Device)
             Samples = Device->getSpectrumSamples(spectrumBuffer, T_u);
 
         // Continue only if we got data
@@ -1179,25 +1141,95 @@ void CRadioController::UpdateSpectrum()
         x_min = tunedFrequency_MHz - (sampleFrequency_MHz / 2);
         x_max = tunedFrequency_MHz + (sampleFrequency_MHz / 2);
     }
-    else if(PlotType == PlotTypeEn::ImpulseResponse)
-    {
-        for (int i = 0; i < T_u; i++)
-        {
-            y = ImpuleResponseBuffer->at(i);
-            x = i;
+    else if (PlotType == PlotTypeEn::QPSK) {
+        std::unique_lock<std::mutex> lock(constellationPointBufferMutex);
+        // Plotting all points is too costly, take only a subset
+        const size_t decim = OfdmDecoder::constellationDecimation;
+        const size_t num_iqpoints = (dabparams.L-1) * dabparams.K / decim;
+        if (constellationPointBuffer.size() == num_iqpoints) {
+            spectrum_data.resize(num_iqpoints);
+            for (size_t i = 0; i < num_iqpoints; i++) {
+                y = 180.0f / (float)M_PI * std::arg(constellationPointBuffer[i]);
+                spectrum_data[i] = QPointF(i, y);
+            }
 
-            //	Find maximum value to scale the plotter
-            if (y > y_max)
-                y_max = y;
-            spectrum_data[i]= QPointF(x, y);
+            x_min = 0;
+            x_max = num_iqpoints;
         }
+        else {
+            qDebug() << "IQ" << constellationPointBuffer.size() << num_iqpoints;
+        }
+    }
+    else if (PlotType == PlotTypeEn::ImpulseResponse) {
+        std::lock_guard<std::mutex> lock(impulseResponseBufferMutex);
+        if (impulseResponseBuffer.size() == (size_t)T_u) {
+            spectrum_data.resize(T_u);
+            for (int i = 0; i < T_u; i++) {
+                y = 10.0f * std::log10(impulseResponseBuffer[i]);
+                x = i;
 
-        x_min = 0;
-        x_max = T_u;
+                // Find maximum value to scale the plotter
+                if (y > y_max)
+                    y_max = y;
+                spectrum_data[i] = QPointF(x, y);
+            }
+
+            x_min = 0;
+            x_max = T_u;
+        }
+    }
+    else if (PlotType == PlotTypeEn::Null) {
+        std::unique_lock<std::mutex> lock(nullSymbolBufferMutex);
+        if (nullSymbolBuffer.size() == (size_t)dabparams.T_null) {
+            spectrum_data.resize(T_u);
+            // Get FFT buffer
+            DSPCOMPLEX* spectrumBuffer = spectrum_fft_handler->getVector();
+
+            std::copy(nullSymbolBuffer.begin(), nullSymbolBuffer.begin() + T_u,
+                    spectrumBuffer);
+            lock.unlock();
+
+            // Do FFT to get the spectrum
+            spectrum_fft_handler->do_FFT();
+
+            tunedFrequency_MHz = CurrentFrequency / 1e6;
+
+            // Process samples one by one
+            for (int i = 0; i < T_u; i++) {
+                int half_Tu = T_u / 2;
+
+                // Shift FFT samples
+                if (i < half_Tu)
+                    y = abs(spectrumBuffer[i + half_Tu]);
+                else
+                    y = abs(spectrumBuffer[i - half_Tu]);
+
+                // Apply a cumulative moving average filter
+                int avg = 4; // Number of y values to average
+                qreal CMA = spectrum_data[i].y();
+                y = (CMA * avg + y) / (avg + 1);
+
+                // Find maximum value to scale the plotter
+                if (y > y_max)
+                    y_max = y;
+
+                // Calc x frequency
+                x = (i * dip_MHz) + (tunedFrequency_MHz - (sampleFrequency_MHz / 2));
+
+                spectrum_data[i]= QPointF(x, y);
+            }
+
+            x_min = tunedFrequency_MHz - (sampleFrequency_MHz / 2);
+            x_max = tunedFrequency_MHz + (sampleFrequency_MHz / 2);
+        }
     }
 
+    float y_max_with_margin = (PlotType == PlotTypeEn::QPSK) ?
+        180 :
+        round(y_max) + 1;
+
     //	Set new data
-    emit SpectrumUpdated(round(y_max) + 1,
+    emit SpectrumUpdated(y_max_with_margin,
                          x_min,
                          x_max,
                          spectrum_data);

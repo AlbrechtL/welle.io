@@ -3,7 +3,7 @@
 /*
  *  Viterbi.h according to the SPIRAL project
  */
-#include    "DabConstants.h"
+#include    "dab-constants.h"
 #include    "MathHelper.h"
 
 //  For our particular viterbi decoder, we have
@@ -45,6 +45,8 @@ class viterbi
     public:
         viterbi(int16_t);
         ~viterbi(void);
+        viterbi(const viterbi& other) = delete;
+        viterbi& operator=(const viterbi& other) = delete;
         void deconvolve(int16_t *input, uint8_t *output);
 
     private:

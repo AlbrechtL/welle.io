@@ -56,15 +56,15 @@ enum rtlsdr_tuner {
 
 #define	ONE_BYTE	8
 
-CRTL_TCP_Client::CRTL_TCP_Client(CRadioController &RadioController)
+CRTL_TCP_Client::CRTL_TCP_Client(RadioControllerInterface& radioController) :
+    radioController(radioController)
 {
-    this->RadioController = &RadioController;
     SampleBuffer	= new RingBuffer<uint8_t>(32 * 32768);
     SpectrumSampleBuffer	= new RingBuffer<uint8_t>(8192);
 
     connected = false;
     stopped = false;
-    Frequency = Khz (220000);
+    Frequency = kHz(220000);
 
     // Use default values
     isAGC = true;
@@ -233,14 +233,11 @@ void CRTL_TCP_Client::readData(void)
 
 void CRTL_TCP_Client::disconnected(void)
 {
-    if(RadioController)
-    {
-        FirstData = true;
-        RadioController->setErrorMessage(QObject::tr("RTL-TCP connection closed."));
+    FirstData = true;
+    radioController.onMessage(message_level_t::Error, "RTL-TCP connection closed.");
 #ifdef Q_OS_ANDROID
-        QTimer::singleShot(0, RadioController, SLOT(closeDevice()));
+    QTimer::singleShot(0, RadioController, SLOT(closeDevice()));
 #endif
-    }
 }
 
 void CRTL_TCP_Client::sendCommand (uint8_t cmd, int32_t param)
@@ -318,9 +315,11 @@ bool CRTL_TCP_Client::isHwAgcSupported()
     return true;
 }
 
-QString CRTL_TCP_Client::getName()
+std::string CRTL_TCP_Client::getName()
 {
-    return "rtl_tcp_client (server: " + serverAddress.toString() + ":" + QString::number(serverPort) + ")";
+    return "rtl_tcp_client (server: " +
+        serverAddress.toString().toStdString() + ":" +
+        QString::number(serverPort).toStdString() + ")";
 }
 
 CDeviceID CRTL_TCP_Client::getID()
@@ -386,7 +385,10 @@ void CRTL_TCP_Client::TCPConnectionWatchDogTimeout()
     {
         QString Text = QObject::tr("Connection failed to server ") + serverAddress.toString() + ":" + QString::number(serverPort);
         qDebug().noquote() << "RTL_TCP_CLIENT:" << Text;
-        RadioController->setErrorMessage(Text);
+        radioController.onMessage(message_level_t::Error,
+                "Connection failed to server " +
+                serverAddress.toString().toStdString() + ":" +
+                std::to_string(serverPort));
         connected	= false;
         AGCTimer.stop();
     }
@@ -433,7 +435,8 @@ void CRTL_TCP_Client::AGCTimerTimeout(void)
         {
             QString Text = QObject::tr("ADC overload. Maybe you are using a to high gain.");
             qDebug().noquote() << "RTL_TCP_CLIENT:" << Text;
-            RadioController->setInfoMessage(Text);
+            radioController.onMessage(message_level_t::Information,
+                    "ADC overload. Maybe you are using a to high gain.");
         }
     }
 }

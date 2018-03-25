@@ -31,6 +31,7 @@ extern uint8_t PI_X[];
 class protection
 {
     public:
+        virtual ~protection() = default;
         virtual bool deconvolve(int16_t *, int32_t, uint8_t *) = 0;
 };
 #endif

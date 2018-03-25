@@ -1,4 +1,7 @@
 /*
+ *    Copyright (C) 2018
+ *    Matthias P. Braendli (matthias.braendli@mpb.li)
+ *
  *    Copyright (C) 2017
  *    Albrecht Lohofener (albrechtloh@gmx.de)
  *
@@ -30,25 +33,24 @@
 #ifndef __RAW_FILES
 #define __RAW_FILES
 
-#include <QSettings>
-#include <QString>
-#include <QThread>
+#include <thread>
+#include <atomic>
 
 #include "CVirtualInput.h"
-#include "DabConstants.h"
+#include "dab-constants.h"
 #include "ringbuffer.h"
-#include "CRadioController.h"
+#include "radio-controller.h"
 
 class QLabel;
 class QSettings;
 class fileHulp;
 
 // Enum of available input device
-enum class CRAWFileFormat {U8, S8, S16LE, S16BE, Unknown};
+enum class CRAWFileFormat {U8, S8, S16LE, S16BE, COMPLEXF, Unknown};
 
-class CRAWFile : public CVirtualInput, QThread {
+class CRAWFile : public CVirtualInput {
 public:
-    CRAWFile(CRadioController &RadioController);
+    CRAWFile(RadioControllerInterface& radioController);
     ~CRAWFile(void);
 
     // Interface methods
@@ -63,31 +65,32 @@ public:
     int32_t getGainCount(void);
     void setAgc(bool AGC);
     void setHwAgc(bool hwAGC);
-    QString getName(void);
+    std::string getName(void);
     CDeviceID getID(void);
 
     // Specific methods
-    void setFileName(QString FileName, QString FileFormat);
+    void setFileName(const std::string& FileName, const std::string& FileFormat);
 
 private:
-    CRadioController *RadioController;
-    QString FileName;
+    RadioControllerInterface& radioController;
+    std::string FileName;
     CRAWFileFormat FileFormat;
     uint8_t IQByteSize;
 
-    virtual void run(void);
+    void run(void);
     int32_t readBuffer(uint8_t*, int32_t);
     int32_t convertSamples(RingBuffer<uint8_t>& Buffer, DSPCOMPLEX* V, int32_t size);
 
     RingBuffer<uint8_t> SampleBuffer;
     RingBuffer<uint8_t> SpectrumSampleBuffer;
-    int32_t bufferSize;
-    FILE* filePointer;
-    bool readerOK;
-    bool readerPausing;
-    bool ExitCondition;
-    bool ThreadFinished;
-    int64_t currPos;
+    int32_t bufferSize = 0;
+    FILE* filePointer = nullptr;
+    bool readerOK = false;
+    bool readerPausing = false;
+    std::atomic<bool> ExitCondition;
+    int64_t currPos = 0;
+
+    std::thread thread;
 };
 
 #endif
