@@ -17,10 +17,10 @@
     <string name="action_next_channel">Next Channel</string>
     <string name="label_scanning">Scanning</string>
     <string name="error_unknown">Unknown error.</string>
-    <string name="error_not_initialised">Radio device is not ready or does not exits.</string>
+    <string name="error_not_initialised">Radio device is not ready or does not exist.</string>
     <string name="error_driver_not_installed">Android RTL-SDR driver is not installed.</string>
     <string name="dialog_driver_title">Android RTL-SDR driver is not installed</string>
-    <string name="dialog_driver_msg">Do you would like to install it? After install start welle.io again.</string>
+    <string name="dialog_driver_msg">Would you like to install it? Start welle.io again after install.</string>
     <string name="dialog_driver_btn_ok">Install</string>
     <string name="dialog_driver_btn_cancel">Cancel</string>
 </resources>

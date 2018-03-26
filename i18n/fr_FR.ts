@@ -8,7 +8,7 @@
         <translation type="vanished">Android RTL-SDR Treiber ist nicht installiert</translation>
     </message>
     <message>
-        <source>Do you would like to install it? After install start welle.io again.</source>
+        <source>Would you like to install it? Start welle.io again after install.</source>
         <translation type="vanished">Soll er installiert werden? welle.io muss nach der Treiberinstallation neu gestartet werden.</translation>
     </message>
 </context>
@@ -460,7 +460,7 @@
     </message>
     <message>
         <location filename="../src/CRadioController.cpp" line="687"/>
-        <source>Radio device is not ready or does not exits.</source>
+        <source>Radio device is not ready or does not exist.</source>
         <translation>Le récepteur n&apos;est pas prêt ou n&apos;a pas été trouvé</translation>
     </message>
     <message>

@@ -454,7 +454,7 @@
     </message>
     <message>
         <location filename="../src/CRadioController.cpp" line="740"/>
-        <source>Radio device is not ready or does not exits.</source>
+        <source>Radio device is not ready or does not exist.</source>
         <translation>Radiomottaker er ikke klar eller eksisterer ikke.</translation>
     </message>
     <message>

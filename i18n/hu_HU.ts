@@ -450,7 +450,7 @@
     </message>
     <message>
         <location filename="../src/CRadioController.cpp" line="687"/>
-        <source>Radio device is not ready or does not exits.</source>
+        <source>Radio device is not ready or does not exist.</source>
         <translation type="unfinished">A rádióvevő nem áll készen vagy nincs.</translation>
     </message>
     <message>
