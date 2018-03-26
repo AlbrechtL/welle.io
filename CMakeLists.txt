@@ -108,6 +108,7 @@ set(input_sources
     src/input/CInputFactory.cpp
     src/input/CNullDevice.cpp
     src/input/CRAWFile.cpp
+    src/input/CRTL_TCP_Client.cpp
 )
 
 if(LIBRTLSDR_FOUND)
