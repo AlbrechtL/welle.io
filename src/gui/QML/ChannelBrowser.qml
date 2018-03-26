@@ -11,6 +11,7 @@ Item {
     property alias settingsVisible: item2.visible
     property alias infoPageVisible: infoPageLoader.visible
     property alias enableFullScreenState : enableFullScreen.checked
+    property alias enableLastPlayedStationState : enableLastPlayedStation.checked
     property alias enableExpertModeState : enableExpertMode.checked
     property alias enableAGCState : enableAGC.checked
     property alias manualGainState : manualGain.currentValue
@@ -567,7 +568,6 @@ Item {
             }
         }
 
-
         TouchSwitch {
             id: enableFullScreen
             name: qsTr("Full screen mode")
@@ -575,7 +575,16 @@ Item {
             Layout.fillHeight: true
             objectName: "enableFullScreen"
             checked: false
-        }        
+        }
+
+        TouchSwitch {
+            id: enableLastPlayedStation
+            name: qsTr("Last station")
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            objectName: "enableLastPlayedStation"
+            checked: false
+        }
 
         TouchSwitch {
             id: enable3D

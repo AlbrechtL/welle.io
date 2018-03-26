@@ -290,6 +290,7 @@ ApplicationWindow {
             Component.onCompleted: {
                 settingsVisible = backButton.isSettings
                 enableFullScreenState = settingsPage.enableFullScreenState
+                enableLastPlayedStationState = settingsPage.enableLastPlayedStationState
                 enableExpertModeState = settingsPage.enableExpertModeState
                 enableAGCState = settingsPage.enableAGCState
                 manualGainState = settingsPage.manualGainState
@@ -305,6 +306,11 @@ ApplicationWindow {
             onEnableFullScreenStateChanged: {
                 settingsPage.enableFullScreenState = enableFullScreenState
             }
+
+            onEnableLastPlayedStationStateChanged:  {
+                settingsPage.enableLastPlayedStationState = enableLastPlayedStationState
+            }
+
             onManualGainStateChanged: {
                 settingsPage.manualGainState = manualGainState
             }

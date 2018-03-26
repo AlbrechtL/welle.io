@@ -190,6 +190,11 @@ int main(int argc, char** argv)
         QCoreApplication::translate("main", "Language"));
     optionParser.addOption(Language);
 
+    QCommandLineOption InitialStation("station",
+        QCoreApplication::translate("main", "Tries to play a station from a previous channel scan on program start."),
+        QCoreApplication::translate("main", "Station name"));
+    optionParser.addOption(InitialStation);
+
     QCommandLineOption DisableSplash("disable-splash",
         QCoreApplication::translate("main", "Disables the splash screen"));
     optionParser.addOption(DisableSplash);
@@ -258,12 +263,43 @@ int main(int argc, char** argv)
     commandLineOptions["rawFileFormat"] = optionParser.value(RAWFileFormat);
     commandLineOptions["mscFileName"] = optionParser.value(MSCFileName);
     commandLineOptions["mp2FileName"] = optionParser.value(MP2FileName);
+    commandLineOptions["initialStation"] = optionParser.value(InitialStation);
 
     // Create a new radio interface instance
     CRadioController* RadioController = new CRadioController(commandLineOptions, DABParams);
     QTimer::singleShot(0, RadioController, SLOT(onEventLoopStarted())); // The timer is used to signal if the QT event lopp is running
 
 #endif
+
+
+    QSettings settings;
+
+    // Should we play the last staiion we have listened to previously?
+    if( settings.value("enableLastPlayedStationState", false).toBool() ) {
+
+        QStringList lastStation = settings.value("lastchannel").toStringList();
+        if( lastStation.count() == 2 )
+            RadioController->Play( lastStation[1], lastStation[0]);
+    }
+
+
+    // Should we start with a inital station given on command line?
+    if( RadioController->Stations().count() > 0 && commandLineOptions["initialStation"] != "" ) {
+
+        static QString channelToSearchFor = commandLineOptions["initialStation"].toString().simplified();
+
+        QList<StationElement*> stationList = RadioController->Stations();
+        QList<StationElement*>::iterator it;
+
+        // try to find station name in the station list
+        it = std::find_if(stationList.begin(), stationList.end(), [](StationElement* station) {
+
+                return station->getStationName().indexOf( channelToSearchFor ) == 0;
+        });
+
+        if(it != stationList.end())
+            RadioController->Play((*it)->getChannelName(), (*it)->getStationName());
+    }
 
     CGUI *GUI = new CGUI(RadioController);
 
