@@ -208,17 +208,13 @@ void CRadioController::onEventLoopStarted()
     CSplashScreen::ShowMessage(tr("Init radio receiver"));
     Device = CInputFactory::GetDevice(*this, dabDevice.toStdString());
 
-#ifdef HAVE_RTL_TCP
     // Set rtl_tcp settings
     if (Device->getID() == CDeviceID::RTL_TCP) {
         CRTL_TCP_Client* RTL_TCP_Client = (CRTL_TCP_Client*)Device;
 
-        RTL_TCP_Client->setIP(ipAddress);
+        RTL_TCP_Client->setIP(ipAddress.toStdString());
         RTL_TCP_Client->setPort(ipPort);
     }
-#else
-    (void)ipPort; // suppress warning
-#endif // HAVE_RTL_TCP
 
     // Set rawfile settings
     if (Device->getID() == CDeviceID::RAWFILE) {
