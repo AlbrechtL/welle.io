@@ -528,7 +528,7 @@
     <name>QObject</name>
     <message>
         <location filename="../src/input/CInputFactory.cpp" line="66"/>
-        <source>No valid device found use Null device instead.</source>
+        <source>No valid device found, using Null device instead.</source>
         <translation>Nessun dispositivo radio valido trovato.</translation>
     </message>
     <message>

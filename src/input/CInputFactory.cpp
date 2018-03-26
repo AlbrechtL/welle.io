@@ -59,7 +59,7 @@ CVirtualInput *CInputFactory::GetDevice(CRadioController &RadioController, QStri
         QString Text;
 
         if(Device == "auto")
-            Text = QObject::tr("No valid device found use Null device instead.");
+            Text = QObject::tr("No valid device found, using Null device instead.");
         else
             Text = QObject::tr("Error while opening device") + " \"" + Device +  "\".";
 

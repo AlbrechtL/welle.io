@@ -586,7 +586,7 @@
     <name>QObject</name>
     <message>
         <location filename="../src/input/CInputFactory.cpp" line="62"/>
-        <source>No valid device found use Null device instead.</source>
+        <source>No valid device found, using Null device instead.</source>
         <translatorcomment>Bad phrasing</translatorcomment>
         <translation>Ingen fungerende enhet funnet, bruker NULL enhet i stedet.</translation>
     </message>
