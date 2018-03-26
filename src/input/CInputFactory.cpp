@@ -30,11 +30,7 @@
 
 #include "CInputFactory.h"
 #include "CNullDevice.h"
-
-#ifdef HAVE_RTL_TCP
 #include "CRTL_TCP_Client.h"
-#endif
-
 #include "CRAWFile.h"
 
 #ifdef HAVE_RTLSDR
@@ -119,11 +115,9 @@ CVirtualInput* CInputFactory::GetManualDevice(RadioControllerInterface& radioCon
             InputDevice = new CAirspy();
         else
 #endif
-#ifdef HAVE_RTL_TCP
         if (device == "rtl_tcp")
             InputDevice = new CRTL_TCP_Client(radioController);
         else
-#endif
 #ifdef HAVE_RTLSDR
         if (device == "rtl_sdr")
             InputDevice = new CRTL_SDR(radioController);
