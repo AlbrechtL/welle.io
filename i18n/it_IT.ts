@@ -11,7 +11,7 @@
     </message>
     <message>
         <location filename="../src/input/CAndroid_RTL_SDR.cpp" line="111"/>
-        <source>Do you would like to install it? After install start welle.io again.</source>
+        <source>Would you like to install it? Start welle.io again after install.</source>
         <translation>Vuoi installarlo? Una volta installato riapri welle.io.</translation>
     </message>
 </context>
@@ -451,7 +451,7 @@
     </message>
     <message>
         <location filename="../src/CRadioController.cpp" line="376"/>
-        <source>Radio device is not ready or does not exits.</source>
+        <source>Radio device is not ready or does not exist.</source>
         <translation>Il dispositivo radio non è pronto o non è connesso.</translation>
     </message>
     <message>
@@ -528,7 +528,7 @@
     <name>QObject</name>
     <message>
         <location filename="../src/input/CInputFactory.cpp" line="66"/>
-        <source>No valid device found use Null device instead.</source>
+        <source>No valid device found, using Null device instead.</source>
         <translation>Nessun dispositivo radio valido trovato.</translation>
     </message>
     <message>

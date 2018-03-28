@@ -770,8 +770,8 @@ void CRadioController::DeviceRestart()
 
     if(!isPlay)
     {
-        qDebug() << "RadioController:" << "Radio device is not ready or does not exits.";
-        emit showErrorMessage(tr("Radio device is not ready or does not exits."));
+        qDebug() << "RadioController:" << "Radio device is not ready or does not exist.";
+        emit showErrorMessage(tr("Radio device is not ready or does not exist."));
         return;
     }
 }

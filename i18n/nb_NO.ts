@@ -454,7 +454,7 @@
     </message>
     <message>
         <location filename="../src/CRadioController.cpp" line="740"/>
-        <source>Radio device is not ready or does not exits.</source>
+        <source>Radio device is not ready or does not exist.</source>
         <translation>Radiomottaker er ikke klar eller eksisterer ikke.</translation>
     </message>
     <message>
@@ -586,7 +586,7 @@
     <name>QObject</name>
     <message>
         <location filename="../src/input/CInputFactory.cpp" line="62"/>
-        <source>No valid device found use Null device instead.</source>
+        <source>No valid device found, using Null device instead.</source>
         <translatorcomment>Bad phrasing</translatorcomment>
         <translation>Ingen fungerende enhet funnet, bruker NULL enhet i stedet.</translation>
     </message>

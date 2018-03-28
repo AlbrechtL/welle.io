@@ -8,7 +8,7 @@
         <translation type="vanished">Android RTL-SDR Treiber ist nicht installiert</translation>
     </message>
     <message>
-        <source>Do you would like to install it? After install start welle.io again.</source>
+        <source>Would you like to install it? Start welle.io again after install.</source>
         <translation type="vanished">Soll er installiert werden? welle.io muss nach der Treiberinstallation neu gestartet werden.</translation>
     </message>
 </context>
@@ -132,12 +132,12 @@
     <message>
         <location filename="../src/DabConstants.cpp" line="60"/>
         <source>Leisure</source>
-        <translation type="unfinished"></translation>
+        <translation>Freizeit</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="61"/>
         <source>Jazz and Blues</source>
-        <translation type="unfinished"></translation>
+        <translation>Jazz und Blues</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="62"/>
@@ -182,37 +182,37 @@
     <message>
         <location filename="../src/DabConstants.cpp" line="83"/>
         <source>Albanian</source>
-        <translation type="unfinished"></translation>
+        <translation>Albanisch</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="84"/>
         <source>Breton</source>
-        <translation type="unfinished"></translation>
+        <translation>Bretonisch</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="85"/>
         <source>Catalan</source>
-        <translation type="unfinished"></translation>
+        <translation>Katalanisch</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="86"/>
         <source>Croatian</source>
-        <translation type="unfinished"></translation>
+        <translation>Kroatisch</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="87"/>
         <source>Welsh</source>
-        <translation type="unfinished"></translation>
+        <translation>Wallisisch</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="88"/>
         <source>Czech</source>
-        <translation type="unfinished"></translation>
+        <translation>Tschechisch</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="89"/>
         <source>Danish</source>
-        <translation type="unfinished"></translation>
+        <translation>Dänisch</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="90"/>
@@ -267,12 +267,12 @@
     <message>
         <location filename="../src/DabConstants.cpp" line="100"/>
         <source>Gaelic</source>
-        <translation type="unfinished"></translation>
+        <translation>Gälisch</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="101"/>
         <source>Galician</source>
-        <translation type="unfinished"></translation>
+        <translation>Galicisch</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="102"/>
@@ -287,7 +287,7 @@
     <message>
         <location filename="../src/DabConstants.cpp" line="104"/>
         <source>Lappish</source>
-        <translation type="unfinished"></translation>
+        <translation>Lappisch</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="105"/>
@@ -297,17 +297,17 @@
     <message>
         <location filename="../src/DabConstants.cpp" line="106"/>
         <source>Latvian</source>
-        <translation type="unfinished"></translation>
+        <translation>Lettisch</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="107"/>
         <source>Luxembourgian</source>
-        <translation type="unfinished"></translation>
+        <translation>Luxemburgisch</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="108"/>
         <source>Lithuanian</source>
-        <translation type="unfinished"></translation>
+        <translation>Litauisch</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="109"/>
@@ -332,7 +332,7 @@
     <message>
         <location filename="../src/DabConstants.cpp" line="113"/>
         <source>Occitan</source>
-        <translation type="unfinished"></translation>
+        <translation>Okzitanisch</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="114"/>
@@ -352,7 +352,7 @@
     <message>
         <location filename="../src/DabConstants.cpp" line="117"/>
         <source>Romansh</source>
-        <translation type="unfinished"></translation>
+        <translation>Rätoromanisch</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="118"/>
@@ -387,12 +387,12 @@
     <message>
         <location filename="../src/DabConstants.cpp" line="124"/>
         <source>Flemish</source>
-        <translation type="unfinished"></translation>
+        <translation>Flämisch</translation>
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="125"/>
         <source>Walloon</source>
-        <translation type="unfinished"></translation>
+        <translation>Wallonisch</translation>
     </message>
 </context>
 <context>
@@ -420,7 +420,7 @@
     <message>
         <location filename="../src/gui/CGUI.cpp" line="123"/>
         <source>QT version</source>
-        <translation type="unfinished"></translation>
+        <translation>QT Version</translation>
     </message>
 </context>
 <context>
@@ -460,7 +460,7 @@
     </message>
     <message>
         <location filename="../src/CRadioController.cpp" line="687"/>
-        <source>Radio device is not ready or does not exits.</source>
+        <source>Radio device is not ready or does not exist.</source>
         <translation>Radioempfänger meldet einen Fehler oder existiert nicht.</translation>
     </message>
     <message>
@@ -596,7 +596,7 @@
     <name>QObject</name>
     <message>
         <location filename="../src/input/CInputFactory.cpp" line="62"/>
-        <source>No valid device found use Null device instead.</source>
+        <source>No valid device found, using Null device instead.</source>
         <translation>Kein Radioempfänger gefunden.</translation>
     </message>
     <message>
@@ -637,7 +637,7 @@
     <message>
         <location filename="../src/input/CRTL_TCP_Client.cpp" line="179"/>
         <source>RTL-TCP connection closed.</source>
-        <translation type="unfinished"></translation>
+        <translation>RTL-TCP-Versbindung geschlossen.</translation>
     </message>
     <message>
         <location filename="../src/input/CRTL_TCP_Client.cpp" line="312"/>
@@ -772,7 +772,7 @@
     <message>
         <location filename="../src/main.cpp" line="127"/>
         <source>Input device. Possible is: auto (default), airspy, rtl_tcp, rtl_sdr, rawfile, soapysdr</source>
-        <translation type="unfinished"></translation>
+        <translation>Radioempfänger. Möglich ist auto (Standard), airspy, rtl_tcp, rtl_sdr, rawfile, soapysdr</translation>
     </message>
     <message>
         <location filename="../src/main.cpp" line="128"/>

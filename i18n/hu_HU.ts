@@ -450,7 +450,7 @@
     </message>
     <message>
         <location filename="../src/CRadioController.cpp" line="687"/>
-        <source>Radio device is not ready or does not exits.</source>
+        <source>Radio device is not ready or does not exist.</source>
         <translation type="unfinished">A rádióvevő nem áll készen vagy nincs.</translation>
     </message>
     <message>
@@ -581,7 +581,7 @@
     <name>QObject</name>
     <message>
         <location filename="../src/input/CInputFactory.cpp" line="62"/>
-        <source>No valid device found use Null device instead.</source>
+        <source>No valid device found, using Null device instead.</source>
         <translation type="unfinished">Megfelelő rádióvevő nem található, helyette a &quot;Null&quot; eszköz van használatban.</translation>
     </message>
     <message>
