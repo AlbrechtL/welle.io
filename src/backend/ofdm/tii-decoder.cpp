@@ -19,6 +19,7 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #include <array>
+#include <algorithm>
 #include <stdexcept>
 #include <iostream>
 #include "tii-decoder.h"
@@ -102,6 +103,30 @@ bool operator==(const CombPattern& lhs, const CombPattern& rhs)
     return lhs.comb == rhs.comb and lhs.pattern == rhs.pattern;
 }
 
+std::vector<carrier_t> CombPattern::generateCarriers() const
+{
+    std::vector<carrier_t> carriers;
+    carriers.reserve(32);
+
+    for (carrier_t k = 0; k < 384; k++) {
+        for (int b = 0; b < 8; b++) {
+            if (k == 1 + 2*comb + 48*b and tii_pattern[pattern][b]) {
+                carriers.push_back(k - 769);
+                carriers.push_back(k - 769 + 1);
+                carriers.push_back(k - 385);
+                carriers.push_back(k - 385 + 1);
+                carriers.push_back(k);
+                carriers.push_back(k + 1);
+                carriers.push_back(k + 384);
+                carriers.push_back(k + 384 + 1);
+            }
+        }
+    }
+
+    sort(carriers.begin(), carriers.end());
+
+    return carriers;
+}
 
 TIIDecoder::TIIDecoder(const DABParams& params) :
     m_params(params),
@@ -284,6 +309,8 @@ void TIIDecoder::run()
                 clog << "TII likelihood " << cp.second <<
                     ": comb " << cp.first.comb <<
                     " and pattern " << cp.first.pattern << endl;
+
+                analyse_phase(cp.first);
             }
         }
 
@@ -292,3 +319,54 @@ void TIIDecoder::run()
         lock.unlock();
     }
 }
+
+void TIIDecoder::analyse_phase(const CombPattern& cp)
+{
+    const size_t spacing = m_params.T_u;
+    const auto carriers = cp.generateCarriers();
+
+    const complexf *n = m_fft_null.getVector();
+    const complexf *p = m_fft_prs.getVector();
+
+    vector<float> phases_tii(spacing);
+    transform(n, n + spacing, phases_tii.begin(),
+                [](const complexf& z){ return arg(z); });
+
+    auto k_to_ix = [](carrier_t k) -> int {
+        if (k < 0)
+            return 2048 + k;
+        else
+            return k; };
+
+    // Both carriers take the phase from the first frequency of the pair.
+    // This assumes carriers is sorted.
+    vector<float> phases_prs(carriers.size());
+    for (size_t i = 0; i < carriers.size(); i += 2) {
+        const int ix = k_to_ix(carriers[i]);
+
+        phases_prs[i] = arg(p[ix]);
+        phases_prs[i+1] = arg(p[ix]);
+    }
+
+    unordered_map<float, uint32_t> error_per_correction;
+    for (int i = -40; i < 40; i++) {
+        float err = (float)i / 4;
+
+        float abs_err = 0;
+
+        for (int j = 0; j < carriers.size(); j++) {
+            constexpr float pi = M_PI;
+            complexf rotate_vec = polar(1.0f, pi * err * carriers[j] / 2048.0f);
+            float delta = arg(n[j] * rotate_vec) - phases_prs[j];
+            abs_err += abs(delta);
+        }
+        error_per_correction[err] = abs_err;
+    }
+
+    auto best = min_element(error_per_correction.begin(),
+                            error_per_correction.end());
+    if (best != error_per_correction.end()) {
+        cerr << "Best delay " << best->first << " err " << best->second << endl;
+    }
+}
+

@@ -31,12 +31,18 @@
 
 using complexf = std::complex<float>;
 
+// We use this to distinguish between carriers k as given in the spec
+// (-768 to 768) and FFT bins (0 to 2048)
+using carrier_t = int;
+
 struct CombPattern {
     CombPattern() = default;
     CombPattern(int c, int p) :
         comb(c), pattern(p) {}
     int comb = 0; // From 0 to 24
     int pattern = 0; // From 0 to 70
+
+    std::vector<carrier_t> generateCarriers(void) const;
 };
 
 // Make CombPattern satisfy Hash and Compare
@@ -53,8 +59,6 @@ namespace std {
     };
 }
 
-using carrier_t = int;
-
 class TIIDecoder {
     public:
         TIIDecoder(const DABParams& params);
@@ -67,6 +71,7 @@ class TIIDecoder {
 
     private:
         void run(void);
+        void analyse_phase(const CombPattern& cp);
 
         const DABParams& m_params;
 
