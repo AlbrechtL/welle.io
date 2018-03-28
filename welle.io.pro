@@ -72,6 +72,7 @@ HEADERS += \
     src/backend/ofdm/ofdm-processor.h \
     src/backend/ofdm/phasereference.h \
     src/backend/ofdm/phasetable.h \
+    src/backend/ofdm/tii-decoder.h \
     src/backend/parity.h \
     src/backend/protTables.h \
     src/backend/protection.h \
@@ -120,6 +121,7 @@ SOURCES += \
     src/backend/ofdm/ofdm-processor.cpp \
     src/backend/ofdm/phasereference.cpp \
     src/backend/ofdm/phasetable.cpp \
+    src/backend/ofdm/tii-decoder.cpp \
     src/backend/protTables.cpp \
     src/backend/reed-solomon.cpp \
     src/backend/radio-receiver.cpp \
