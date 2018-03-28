@@ -62,6 +62,7 @@ OFDMProcessor::OFDMProcessor(
     input(interface),
     params(params),
     ficHandler(fic),
+    tiiDecoder(params),
     phaseRef(params, threshold),
     ofdmDecoder(params, ri, fic, msc),
     fft_handler(params.T_u)
@@ -363,6 +364,8 @@ SyncOnPhase:
                 T_u - ofdmBufferIndex,
                 coarseCorrector + fineCorrector);
 
+        tiiDecoder.push_prs(ofdmBuffer);
+
         ofdmDecoder.processPRS(ofdmBuffer.data());
         //  Here we look only at the PRS when we need a coarse
         //  frequency synchronization.
@@ -424,6 +427,7 @@ SyncOnPhase:
         // The NULL is interesting to save because it carries the TII.
         std::vector<DSPCOMPLEX> nullSymbol(T_null);
         getSamples(nullSymbol.data(), T_null, coarseCorrector + fineCorrector);
+        tiiDecoder.push_nullsymbol(nullSymbol);
         radioInterface.onNewNullSymbol(std::move(nullSymbol));
 
         /**

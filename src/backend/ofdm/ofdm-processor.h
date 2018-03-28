@@ -41,6 +41,7 @@
 #include <vector>
 #include "phasereference.h"
 #include "ofdm-decoder.h"
+#include "tii-decoder.h"
 #include "CVirtualInput.h"
 #include "fft.h"
 #include "radio-controller.h"
@@ -79,6 +80,7 @@ class OFDMProcessor
         const DABParams& params;
         FicHandler& ficHandler;
         std::vector<float> impulseResponseBuffer;
+        TIIDecoder tiiDecoder;
 
         std::atomic<bool> running;
         int32_t     T_null;

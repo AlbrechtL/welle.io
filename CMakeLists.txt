@@ -78,6 +78,7 @@ set(backend_sources
     src/backend/ofdm/ofdm-processor.cpp
     src/backend/ofdm/phasereference.cpp
     src/backend/ofdm/phasetable.cpp
+    src/backend/ofdm/tii-decoder.cpp
     src/backend/protTables.cpp
     src/backend/reed-solomon.cpp
     src/backend/radio-receiver.cpp
