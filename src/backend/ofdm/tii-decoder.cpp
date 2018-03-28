@@ -354,7 +354,7 @@ void TIIDecoder::analyse_phase(const CombPattern& cp)
 
         float abs_err = 0;
 
-        for (int j = 0; j < carriers.size(); j++) {
+        for (size_t j = 0; j < carriers.size(); j++) {
             constexpr float pi = M_PI;
             complexf rotate_vec = polar(1.0f, pi * err * carriers[j] / 2048.0f);
             float delta = arg(n[j] * rotate_vec) - phases_prs[j];
@@ -364,7 +364,11 @@ void TIIDecoder::analyse_phase(const CombPattern& cp)
     }
 
     auto best = min_element(error_per_correction.begin(),
-                            error_per_correction.end());
+                            error_per_correction.end(),
+                            [](const pair<float, int>& lhs,
+                               const pair<float, int>& rhs) {
+                                return lhs.second < rhs.second;
+                            });
     if (best != error_per_correction.end()) {
         cerr << "Best delay " << best->first << " err " << best->second << endl;
     }
