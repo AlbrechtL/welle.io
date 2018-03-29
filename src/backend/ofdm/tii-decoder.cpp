@@ -165,31 +165,15 @@ TIIDecoder::~TIIDecoder()
     }
 }
 
-void TIIDecoder::push_nullsymbol(const std::vector<complexf>& null)
-{
-    unique_lock<mutex> lock(m_state_mutex);
-    if (m_state == State::Idle) {
-        m_null = null;
-        m_state = State::NullReady;
-    }
-    else if (m_state == State::PrsReady) {
-        m_null = null;
-        m_state = State::BothReady;
-    }
-    lock.unlock();
-    m_state_changed.notify_all();
-}
-
-void TIIDecoder::push_prs(const std::vector<complexf>& prs)
+void TIIDecoder::push_symbols(
+        const std::vector<complexf>& null,
+        const std::vector<complexf>& prs)
 {
     unique_lock<mutex> lock(m_state_mutex);
     if (m_state == State::Idle) {
         m_prs = prs;
-        m_state = State::PrsReady;
-    }
-    else if (m_state == State::NullReady) {
-        m_prs = prs;
-        m_state = State::BothReady;
+        m_null = null;
+        m_state = State::NullPrsReady;
     }
     lock.unlock();
     m_state_changed.notify_all();
@@ -199,11 +183,10 @@ void TIIDecoder::run()
 {
     const size_t spacing = m_params.T_u;
     const size_t nullsize = m_params.T_null;
-    const size_t cyclicprefix = m_params.T_s - spacing;
 
     while (true) {
         unique_lock<mutex> lock(m_state_mutex);
-        while (not (m_state == State::BothReady or
+        while (not (m_state == State::NullPrsReady or
                     m_state == State::Abort)) {
             m_state_changed.wait(lock);
         }
@@ -213,7 +196,7 @@ void TIIDecoder::run()
         }
 
         lock.unlock();
-        // We are in BothReady state, and the state will not change now
+        // We are in NullPrsReady state, and the state will not change now
 
         // Take the NULL symbol from that frame, but skip the cyclic prefix and
         // truncate
@@ -227,13 +210,12 @@ void TIIDecoder::run()
                 m_fft_null.getVector());
         m_fft_null.do_FFT();
 
-        // The phase reference symbol, skip the cyclic prefix
-        if (m_prs.size() < cyclicprefix + spacing) {
+        // The phase reference symbol, assume cyclic prefix absent
+        if (m_prs.size() < spacing) {
             throw out_of_range("PRS length: " + to_string(m_prs.size()) +
-                    " vs " + to_string(cyclicprefix + spacing));
+                    " vs " + to_string(spacing));
         }
-        copy(m_prs.begin() + cyclicprefix, m_prs.begin() + cyclicprefix + spacing,
-                m_fft_prs.getVector());
+        copy(m_prs.begin(), m_prs.begin() + spacing, m_fft_prs.getVector());
         m_fft_prs.do_FFT();
 
         /* In TM1, the carriers repeat four times:
@@ -304,13 +286,20 @@ void TIIDecoder::run()
             }
         }
 
+        size_t num_likely_cps = 0;
         for (const auto& cp : cp_count) {
             if (cp.second >= 4) {
-                clog << "TII likelihood " << cp.second <<
-                    ": comb " << cp.first.comb <<
-                    " and pattern " << cp.first.pattern << endl;
+                num_likely_cps++;
+            }
+        }
 
-                analyse_phase(cp.first);
+        // Sometimes the number of likely CPs is huge because
+        // the threshold is wrong. Skip these cases.
+        if (num_likely_cps < 10) {
+            for (const auto& cp : cp_count) {
+                if (cp.second >= 4) {
+                    analyse_phase(cp.first);
+                }
             }
         }
 
@@ -322,15 +311,10 @@ void TIIDecoder::run()
 
 void TIIDecoder::analyse_phase(const CombPattern& cp)
 {
-    const size_t spacing = m_params.T_u;
     const auto carriers = cp.generateCarriers();
 
     const complexf *n = m_fft_null.getVector();
     const complexf *p = m_fft_prs.getVector();
-
-    vector<float> phases_tii(spacing);
-    transform(n, n + spacing, phases_tii.begin(),
-                [](const complexf& z){ return arg(z); });
 
     auto k_to_ix = [](carrier_t k) -> int {
         if (k < 0)
@@ -338,9 +322,10 @@ void TIIDecoder::analyse_phase(const CombPattern& cp)
         else
             return k; };
 
-    // Both carriers take the phase from the first frequency of the pair.
+    // Both TII carriers take the phase from the first PRS frequency of the pair.
     // This assumes carriers is sorted.
     vector<float> phases_prs(carriers.size());
+
     for (size_t i = 0; i < carriers.size(); i += 2) {
         const int ix = k_to_ix(carriers[i]);
 
@@ -348,29 +333,43 @@ void TIIDecoder::analyse_phase(const CombPattern& cp)
         phases_prs[i+1] = arg(p[ix]);
     }
 
-    unordered_map<float, uint32_t> error_per_correction;
+    auto& meas = m_error_per_correction[cp];
+
     for (int i = -40; i < 40; i++) {
         float err = (float)i / 4;
 
         float abs_err = 0;
 
         for (size_t j = 0; j < carriers.size(); j++) {
+            const int ix = k_to_ix(carriers[j]);
             constexpr float pi = M_PI;
-            complexf rotate_vec = polar(1.0f, pi * err * carriers[j] / 2048.0f);
-            float delta = arg(n[j] * rotate_vec) - phases_prs[j];
+            complexf rotator = polar(1.0f, 2.0f * pi * err * carriers[j] / 2048.0f);
+            float delta = arg(n[ix] * rotator) - phases_prs[j];
             abs_err += abs(delta);
         }
-        error_per_correction[err] = abs_err;
+        meas.error_per_correction[err] += abs_err;
     }
 
-    auto best = min_element(error_per_correction.begin(),
-                            error_per_correction.end(),
-                            [](const pair<float, int>& lhs,
-                               const pair<float, int>& rhs) {
-                                return lhs.second < rhs.second;
-                            });
-    if (best != error_per_correction.end()) {
-        cerr << "Best delay " << best->first << " err " << best->second << endl;
+    meas.num_measurements++;
+
+    if (meas.num_measurements >= 5) {
+        auto best = min_element(
+                meas.error_per_correction.begin(),
+                meas.error_per_correction.end(),
+                [](const pair<float, int>& lhs,
+                    const pair<float, int>& rhs) {
+                return lhs.second < rhs.second;
+                });
+
+        if (best != meas.error_per_correction.end()) {
+            clog << "TII comb " << cp.comb <<
+                " pattern " << cp.pattern <<
+                " delay " << best->first << " with error " <<
+                best->second << endl;
+        }
+
+        meas.error_per_correction.clear();
+        meas.num_measurements = 0;
     }
 }
 

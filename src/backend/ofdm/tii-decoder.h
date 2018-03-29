@@ -66,8 +66,9 @@ class TIIDecoder {
         TIIDecoder(const TIIDecoder& other) = delete;
         TIIDecoder& operator=(const TIIDecoder& other) = delete;
 
-        void push_nullsymbol(const std::vector<complexf>& null);
-        void push_prs(const std::vector<complexf>& prs);
+        void push_symbols(
+                const std::vector<complexf>& null,
+                const std::vector<complexf>& prs);
 
     private:
         void run(void);
@@ -81,7 +82,7 @@ class TIIDecoder {
         std::unordered_map<carrier_t, std::unordered_set<CombPattern> >
             m_cp_per_carrier;
 
-        enum class State { Idle, NullReady, PrsReady, BothReady, Abort };
+        enum class State { Idle, NullPrsReady, Abort };
 
         std::thread m_thread;
         std::mutex m_state_mutex;
@@ -91,5 +92,12 @@ class TIIDecoder {
         common_fft m_fft_null;
         common_fft m_fft_prs;
 
+        struct cp_error_measurement_t {
+            std::unordered_map<float, uint64_t> error_per_correction;
+            size_t num_measurements = 0;
+        };
+
+        std::unordered_map<CombPattern,
+            cp_error_measurement_t> m_error_per_correction;
 };
 
