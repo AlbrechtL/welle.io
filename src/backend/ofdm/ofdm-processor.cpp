@@ -327,7 +327,7 @@ SyncOnPhase:
          * as long as we can be sure that the first sample to be identified
          * is part of the samples read.
          */
-        getSamples (ofdmBuffer.data(), T_u, coarseCorrector + fineCorrector);
+        getSamples(ofdmBuffer.data(), T_u, coarseCorrector + fineCorrector);
         //
         /// and then, call upon the phase synchronizer to verify/compute
         /// the real "first" sample
@@ -364,7 +364,8 @@ SyncOnPhase:
                 T_u - ofdmBufferIndex,
                 coarseCorrector + fineCorrector);
 
-        tiiDecoder.push_prs(ofdmBuffer);
+        std::vector<complexf> prs(T_u);
+        std::copy(ofdmBuffer.begin(), ofdmBuffer.begin() + T_u, prs.begin());
 
         ofdmDecoder.processPRS(ofdmBuffer.data());
         //  Here we look only at the PRS when we need a coarse
@@ -427,7 +428,7 @@ SyncOnPhase:
         // The NULL is interesting to save because it carries the TII.
         std::vector<DSPCOMPLEX> nullSymbol(T_null);
         getSamples(nullSymbol.data(), T_null, coarseCorrector + fineCorrector);
-        tiiDecoder.push_nullsymbol(nullSymbol);
+        tiiDecoder.push_symbols(nullSymbol, prs);
         radioInterface.onNewNullSymbol(std::move(nullSymbol));
 
         /**
