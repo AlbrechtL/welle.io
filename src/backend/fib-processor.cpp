@@ -799,7 +799,6 @@ void    FIBProcessor::process_FIG1 (uint8_t *d)
                 //           std::clog << "fib-processor:" << "Ensemblename: %16s\n", label) << std::endl;
                 if (!oe) {
                     if (firstTime) {
-                        std::lock_guard<std::mutex> lock(mutex);
                         ensembleName = toUtf8StringUsingCharset(
                                 (const char *) label, (CharacterSet) charSet);
                         myRadioInterface.onNewEnsembleName(ensembleName);
@@ -1126,6 +1125,12 @@ std::vector<Service> FIBProcessor::getServiceList() const
 {
     std::lock_guard<std::mutex> lock(mutex);
     return services;
+}
+
+std::string FIBProcessor::getEnsembleName() const
+{
+    std::lock_guard<std::mutex> lock(mutex);
+    return ensembleName;
 }
 
 bool FIBProcessor::syncReached()

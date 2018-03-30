@@ -56,6 +56,11 @@ class RadioReceiver {
 
         void selectAudioService(const audiodata_t& ad);
 
+        void selectAudioService(const Service& s);
+
+        std::string getEnsembleName(void) const;
+        std::vector<Service> getServiceList(void) const;
+
     private:
         RadioControllerInterface& rci;
         InputInterface& input;

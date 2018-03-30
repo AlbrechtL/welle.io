@@ -113,10 +113,7 @@ CRTL_SDR::CRTL_SDR(RadioControllerInterface& radioController) :
 
 CRTL_SDR::~CRTL_SDR(void)
 {
-    if (rtlsdrThread.joinable()) { // we are running
-        rtlsdr_cancel_async(device);
-        rtlsdrThread.join();
-    }
+    stop();
 
     if (open)
         rtlsdr_close(device);

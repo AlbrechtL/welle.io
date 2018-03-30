@@ -183,8 +183,6 @@ class RadioInterface : public RadioControllerInterface {
         virtual void onServiceDetected(uint32_t sId, const std::string& label) override
         {
             cout << "New Service: 0x" << hex << sId << dec << " '" << label << "'" << endl;
-            lock_guard<mutex> lock(servicesMutex);
-            services.insert(label);
         }
 
         virtual void onNewEnsembleName(const std::string& name) override
@@ -225,19 +223,11 @@ class RadioInterface : public RadioControllerInterface {
 
         bool synced = false;
 
-        set<string> getServices() {
-            lock_guard<mutex> lock(servicesMutex);
-            return services;
-        }
-
     private:
         mutex aomutex;
         unique_ptr<AudioOutput> ao;
         bool stereo = true;
         unsigned int rate = 48000;
-
-        mutex servicesMutex;
-        set<string> services;
 };
 
 int main(int argc, char **argv)
@@ -302,31 +292,22 @@ int main(int argc, char **argv)
     }
 
     while (not service_to_tune.empty()) {
-        int attempts = 3;
-        while (attempts > 0) {
-            for (const auto s : ri.getServices()) {
-                if (s.find(service_to_tune) != string::npos) {
-                    auto audioData = rx.getAudioServiceData(s);
 
-                    if (audioData.valid) {
-                        cerr << "AudioData: SAD:" << audioData.startAddr <<
-                            " subchId:" << hex << audioData.subchId << dec <<
-                            " " << s << endl;
-                        rx.selectAudioService(audioData);
-                        attempts = 0;
-                        break;
-                    }
-                    else {
-                        cerr << "Not valid" << endl;
-                        break;
-                    }
-                }
-            }
+        cerr << "Service list" << endl;
+        for (const auto s : rx.getServiceList()) {
+            cerr << "  [0x" << std::hex << s.serviceId << std::dec << "] " <<
+                s.serviceLabel.label << endl;
+        }
 
-            if (attempts > 0) {
-                this_thread::sleep_for(chrono::seconds(3));
-                attempts--;
+        bool service_selected = false;
+        for (const auto s : rx.getServiceList()) {
+            if (s.serviceLabel.label.find(service_to_tune) != string::npos) {
+                service_selected = true;
+                rx.selectAudioService(s);
             }
+        }
+        if (not service_selected) {
+            cerr << "Could not tune to " << service_to_tune << endl;
         }
 
         cerr << "**** Please enter programme name. Enter '.' to quit." << endl;

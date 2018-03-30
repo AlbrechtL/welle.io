@@ -265,3 +265,12 @@ bool FicHandler::syncReached()
     return fibProcessor.syncReached();
 }
 
+std::string FicHandler::getEnsembleName() const
+{
+    return fibProcessor.getEnsembleName();
+}
+
+std::vector<Service> FicHandler::getServiceList() const
+{
+    return fibProcessor.getServiceList();
+}
