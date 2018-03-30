@@ -100,7 +100,7 @@ const int ProtLevel[64][3] = {
     {280,3,384},
     {416,1,384}};
 
-fib_processor::fib_processor(RadioControllerInterface& mr) :
+FIBProcessor::FIBProcessor(RadioControllerInterface& mr) :
     myRadioInterface(mr)
 {
     clearEnsemble();
@@ -109,7 +109,7 @@ fib_processor::fib_processor(RadioControllerInterface& mr) :
 //  FIB's are segments of 256 bits. When here, we already
 //  passed the crc and we start unpacking into FIGs
 //  This is merely a dispatcher
-void fib_processor::process_FIB (uint8_t *p, uint16_t fib)
+void FIBProcessor::process_FIB (uint8_t *p, uint16_t fib)
 {
     int8_t  processedBytes  = 0;
     uint8_t *d = p;
@@ -144,7 +144,7 @@ void fib_processor::process_FIB (uint8_t *p, uint16_t fib)
 //
 //  Handle ensemble is all through FIG0
 //
-void fib_processor::process_FIG0 (uint8_t *d)
+void FIBProcessor::process_FIG0 (uint8_t *d)
 {
     uint8_t extension   = getBits_5 (d, 8 + 3);
     //uint8_t   CN  = getBits_1 (d, 8 + 0);
@@ -176,7 +176,7 @@ void fib_processor::process_FIG0 (uint8_t *d)
 //  FOG0/0 indicated a change in channel organization
 //  we are not equipped for that, so we just return
 //  control to the init
-void fib_processor::FIG0Extension0 (uint8_t *d)
+void FIBProcessor::FIG0Extension0 (uint8_t *d)
 {
     uint16_t    EId;
     uint8_t     changeflag;
@@ -216,7 +216,7 @@ void fib_processor::FIG0Extension0 (uint8_t *d)
 //  FIG0 extension 1 creates a mapping between the
 //  sub channel identifications and the positions in the
 //  relevant CIF.
-void fib_processor::FIG0Extension1 (uint8_t *d)
+void FIBProcessor::FIG0Extension1 (uint8_t *d)
 {
     int16_t used    = 2;        // offset in bytes
     int16_t Length  = getBits_5 (d, 3);
@@ -228,7 +228,7 @@ void fib_processor::FIG0Extension1 (uint8_t *d)
 }
 
 //  defining the channels
-int16_t fib_processor::HandleFIG0Extension1(
+int16_t FIBProcessor::HandleFIG0Extension1(
         uint8_t *d,
         int16_t offset,
         uint8_t pd)
@@ -289,7 +289,7 @@ int16_t fib_processor::HandleFIG0Extension1(
     return bitOffset / 8;   // we return bytes
 }
 
-void fib_processor::FIG0Extension2 (uint8_t *d)
+void FIBProcessor::FIG0Extension2 (uint8_t *d)
 {
     int16_t used    = 2;        // offset in bytes
     int16_t Length  = getBits_5 (d, 3);
@@ -303,7 +303,7 @@ void fib_processor::FIG0Extension2 (uint8_t *d)
 
 //  Note Offset is in bytes
 //  With FIG0/2 we bind the channels to Service Ids
-int16_t fib_processor::HandleFIG0Extension2(
+int16_t FIBProcessor::HandleFIG0Extension2(
         uint8_t *d,
         int16_t offset,
         uint8_t cn,
@@ -361,7 +361,7 @@ int16_t fib_processor::HandleFIG0Extension2(
 //      additional information about the service component
 //      description in packet mode.
 //      manual: page 55
-void fib_processor::FIG0Extension3 (uint8_t *d)
+void FIBProcessor::FIG0Extension3 (uint8_t *d)
 {
     int16_t used    = 2;
     int16_t Length  = getBits_5 (d, 3);
@@ -371,7 +371,7 @@ void fib_processor::FIG0Extension3 (uint8_t *d)
 }
 
 //      DSCTy   DataService Component Type
-int16_t fib_processor::HandleFIG0Extension3(uint8_t *d, int16_t used)
+int16_t FIBProcessor::HandleFIG0Extension3(uint8_t *d, int16_t used)
 {
     int16_t SCId            = getBits (d, used * 8, 12);
     //int16_t CAOrgflag       = getBits_1 (d, used * 8 + 15);
@@ -393,7 +393,7 @@ int16_t fib_processor::HandleFIG0Extension3(uint8_t *d, int16_t used)
     return used;
 }
 
-void fib_processor::FIG0Extension5 (uint8_t *d)
+void FIBProcessor::FIG0Extension5 (uint8_t *d)
 {
     int16_t used    = 2;        // offset in bytes
     int16_t Length  = getBits_5 (d, 3);
@@ -403,7 +403,7 @@ void fib_processor::FIG0Extension5 (uint8_t *d)
     }
 }
 
-int16_t fib_processor::HandleFIG0Extension5(uint8_t* d, int16_t offset)
+int16_t FIBProcessor::HandleFIG0Extension5(uint8_t* d, int16_t offset)
 {
     int16_t loffset = offset * 8;
     uint8_t lsFlag  = getBits_1 (d, loffset);
@@ -427,7 +427,7 @@ int16_t fib_processor::HandleFIG0Extension5(uint8_t* d, int16_t offset)
     return loffset / 8;
 }
 
-void fib_processor::FIG0Extension8 (uint8_t *d)
+void FIBProcessor::FIG0Extension8 (uint8_t *d)
 {
     int16_t used    = 2;        // offset in bytes
     int16_t Length  = getBits_5 (d, 3);
@@ -438,7 +438,7 @@ void fib_processor::FIG0Extension8 (uint8_t *d)
     }
 }
 
-int16_t fib_processor::HandleFIG0Extension8(
+int16_t FIBProcessor::HandleFIG0Extension8(
         uint8_t *d,
         int16_t used,
         uint8_t pdBit)
@@ -482,7 +482,7 @@ int16_t fib_processor::HandleFIG0Extension8(
 
 //  FIG0/9 and FIG0/10 are copied from the work of
 //  Michael Hoehn
-void fib_processor::FIG0Extension9 (uint8_t *d)
+void FIBProcessor::FIG0Extension9 (uint8_t *d)
 {
     int16_t offset  = 16;
 
@@ -492,7 +492,7 @@ void fib_processor::FIG0Extension9 (uint8_t *d)
     dateTime.minuteOffset = (getBits_1 (d, offset + 7) == 1) ? 30 : 0;
 }
 
-void fib_processor::FIG0Extension10 (uint8_t *fig)
+void FIBProcessor::FIG0Extension10 (uint8_t *fig)
 {
     int16_t     offset = 16;
     int32_t     mjd = getLBits (fig, offset + 1, 17);
@@ -528,7 +528,7 @@ void fib_processor::FIG0Extension10 (uint8_t *fig)
     myRadioInterface.onDateTimeUpdate(dateTime);
 }
 
-void fib_processor::FIG0Extension13 (uint8_t *d)
+void FIBProcessor::FIG0Extension13 (uint8_t *d)
 {
     int16_t used    = 2;        // offset in bytes
     int16_t Length  = getBits_5 (d, 3);
@@ -539,7 +539,7 @@ void fib_processor::FIG0Extension13 (uint8_t *d)
     }
 }
 
-int16_t fib_processor::HandleFIG0Extension13(
+int16_t FIBProcessor::HandleFIG0Extension13(
         uint8_t *d,
         int16_t used,
         uint8_t pdBit)
@@ -587,7 +587,7 @@ int16_t fib_processor::HandleFIG0Extension13(
     return lOffset / 8;
 }
 
-void fib_processor::FIG0Extension14 (uint8_t *d)
+void FIBProcessor::FIG0Extension14 (uint8_t *d)
 {
     int16_t Length  = getBits_5 (d, 3); // in Bytes
     int16_t used    = 2;            // in Bytes
@@ -607,7 +607,7 @@ void fib_processor::FIG0Extension14 (uint8_t *d)
     }
 }
 
-void fib_processor::FIG0Extension16 (uint8_t *d)
+void FIBProcessor::FIG0Extension16 (uint8_t *d)
 {
     int16_t length = getBits_5 (d, 3); // in bytes
     int16_t offset = 16;           // in bits
@@ -627,7 +627,7 @@ void fib_processor::FIG0Extension16 (uint8_t *d)
     }
 }
 
-void fib_processor::FIG0Extension17(uint8_t *d)
+void FIBProcessor::FIG0Extension17(uint8_t *d)
 {
     int16_t length  = getBits_5 (d, 3);
     int16_t offset  = 16;
@@ -658,7 +658,7 @@ void fib_processor::FIG0Extension17(uint8_t *d)
     }
 }
 
-void fib_processor::FIG0Extension18(uint8_t *d)
+void FIBProcessor::FIG0Extension18(uint8_t *d)
 {
     int16_t  offset  = 16;       // bits
     uint16_t SId, AsuFlags;
@@ -676,7 +676,7 @@ void fib_processor::FIG0Extension18(uint8_t *d)
     (void)AsuFlags;
 }
 
-void fib_processor::FIG0Extension19(uint8_t *d)
+void FIBProcessor::FIG0Extension19(uint8_t *d)
 {
     int16_t  offset  = 16;       // bits
     uint16_t AswFlags;
@@ -713,13 +713,13 @@ void fib_processor::FIG0Extension19(uint8_t *d)
     (void)region_Id_Lower;
 }
 
-void fib_processor::FIG0Extension21(uint8_t *d)
+void FIBProcessor::FIG0Extension21(uint8_t *d)
 {
     //  std::clog << "fib-processor:" << "Frequency information\n") << std::endl;
     (void)d;
 }
 
-void fib_processor::FIG0Extension22(uint8_t *d)
+void FIBProcessor::FIG0Extension22(uint8_t *d)
 {
     int16_t Length  = getBits_5 (d, 3);
     int16_t offset  = 16;       // on bits
@@ -731,7 +731,7 @@ void fib_processor::FIG0Extension22(uint8_t *d)
     (void)offset;
 }
 
-int16_t fib_processor::HandleFIG0Extension22(uint8_t *d, int16_t used)
+int16_t FIBProcessor::HandleFIG0Extension22(uint8_t *d, int16_t used)
 {
     uint8_t MS;
     int16_t mainId;
@@ -760,7 +760,7 @@ int16_t fib_processor::HandleFIG0Extension22(uint8_t *d, int16_t used)
 
 //  FIG 1
 //
-void    fib_processor::process_FIG1 (uint8_t *d)
+void    FIBProcessor::process_FIG1 (uint8_t *d)
 {
     uint8_t     charSet, extension;
     uint32_t    SId = 0;
@@ -907,21 +907,21 @@ void    fib_processor::process_FIG1 (uint8_t *d)
 
 //  locate - and create if needed - a reference to the entry
 //  for the Service serviceId
-Service *fib_processor::findServiceId(uint32_t serviceId)
+Service *FIBProcessor::findServiceId(uint32_t serviceId)
 {
-    for (size_t i = 0; i < listofServices.size(); i++) {
-        if (listofServices[i].serviceId == serviceId) {
-            return &listofServices[i];
+    for (size_t i = 0; i < services.size(); i++) {
+        if (services[i].serviceId == serviceId) {
+            return &services[i];
         }
     }
 
     Service serv;
     serv.serviceId = serviceId;
-    listofServices.push_back(serv);
-    return &listofServices.back();
+    services.push_back(serv);
+    return &services.back();
 }
 
-ServiceComponent *fib_processor::find_packetComponent(int16_t SCId)
+ServiceComponent *FIBProcessor::find_packetComponent(int16_t SCId)
 {
     for (auto& component : components) {
         if (component.TMid != 03) {
@@ -936,7 +936,7 @@ ServiceComponent *fib_processor::find_packetComponent(int16_t SCId)
 
 //  bind_audioService is the main processor for - what the name suggests -
 //  connecting the description of audioservices to a SID
-void fib_processor::bind_audioService(
+void FIBProcessor::bind_audioService(
         int8_t TMid,
         uint32_t SId,
         int16_t compnr,
@@ -966,7 +966,7 @@ void fib_processor::bind_audioService(
 //      bind_packetService is the main processor for - what the name suggests -
 //      connecting the service component defining the service to the SId,
 ///     Note that the subchannel is assigned through a FIG0/3
-void fib_processor::bind_packetService(
+void FIBProcessor::bind_packetService(
         int8_t TMid,
         uint32_t SId,
         int16_t compnr,
@@ -992,32 +992,32 @@ void fib_processor::bind_packetService(
     }
 }
 
-void fib_processor::clearEnsemble()
+void FIBProcessor::clearEnsemble()
 {
     std::lock_guard<std::mutex> lock(mutex);
     components.clear();
     ficList.resize(64);
-    listofServices.clear();
+    services.clear();
 
     firstTime   = true;
     isSynced    = false;
 }
 
 
-uint8_t fib_processor::kindofService(const std::string& s)
+uint8_t FIBProcessor::kindofService(const std::string& s)
 {
     std::lock_guard<std::mutex> lock(mutex);
 
     //  first we locate the serviceId
-    for (size_t i = 0; i < listofServices.size(); i++) {
-        if (listofServices[i].serviceLabel.label != s)
+    for (size_t i = 0; i < services.size(); i++) {
+        if (services[i].serviceLabel.label != s)
             continue;
 
         std::clog << "fib-processor: "
             "we found for " << s << " serviceId " <<
-            listofServices[i].serviceId << std::endl;
+            services[i].serviceId << std::endl;
 
-        uint32_t selectedService = listofServices[i].serviceId;
+        uint32_t selectedService = services[i].serviceId;
         for (const auto& sc : components) {
             if (selectedService != sc.SId)
                 continue;
@@ -1036,7 +1036,7 @@ uint8_t fib_processor::kindofService(const std::string& s)
     return UNKNOWN_SERVICE;
 }
 
-packetdata_t fib_processor::getDataServiceData(const std::string &s)
+packetdata_t FIBProcessor::getDataServiceData(const std::string &s)
 {
     std::lock_guard<std::mutex> lock(mutex);
 
@@ -1044,11 +1044,11 @@ packetdata_t fib_processor::getDataServiceData(const std::string &s)
     d.valid = false;
 
     //  first we locate the Service
-    for (size_t i = 0; i < listofServices.size(); i++) {
-        if (listofServices[i].serviceLabel.label != s)
+    for (size_t i = 0; i < services.size(); i++) {
+        if (services[i].serviceLabel.label != s)
             continue;
 
-        uint32_t selectedService = listofServices[i].serviceId;
+        uint32_t selectedService = services[i].serviceId;
         for (const auto& sc : components) {
             int16_t subchId;
             if (selectedService != sc.SId)
@@ -1080,18 +1080,18 @@ packetdata_t fib_processor::getDataServiceData(const std::string &s)
     return d;
 }
 
-audiodata_t fib_processor::getAudioServiceData(const std::string &s)
+audiodata_t FIBProcessor::getAudioServiceData(const std::string &s)
 {
     std::lock_guard<std::mutex> lock(mutex);
     audiodata_t d;
 
     d.valid = false;
     //  first we locate the serviceId
-    for (size_t i = 0; i < listofServices.size(); i ++) {
-        if (listofServices[i].serviceLabel.label != s)
+    for (size_t i = 0; i < services.size(); i ++) {
+        if (services[i].serviceLabel.label != s)
             continue;
 
-        uint32_t selectedService = listofServices[i].serviceId;
+        uint32_t selectedService = services[i].serviceId;
         for (const auto& sc : components) {
             int16_t subchId;
             if (selectedService != sc.SId)
@@ -1110,8 +1110,8 @@ audiodata_t fib_processor::getAudioServiceData(const std::string &s)
             d.length      = ficList[subchId].Length;
             d.bitRate     = ficList[subchId].BitRate;
             d.ASCTy       = sc.ASCTy;
-            d.language    = listofServices[i].language;
-            d.programType = listofServices[i].programType;
+            d.language    = services[i].language;
+            d.programType = services[i].programType;
             d.valid       = true;
             return d;
         }
@@ -1121,7 +1121,13 @@ audiodata_t fib_processor::getAudioServiceData(const std::string &s)
     return d;
 }
 
-bool fib_processor::syncReached()
+std::vector<Service> FIBProcessor::getServiceList() const
+{
+    std::lock_guard<std::mutex> lock(mutex);
+    return services;
+}
+
+bool FIBProcessor::syncReached()
 {
     return isSynced;
 }

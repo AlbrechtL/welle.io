@@ -80,9 +80,9 @@ struct ChannelMap {
 
 class   CRadioController;
 
-class   fib_processor {
+class   FIBProcessor {
     public:
-        fib_processor(RadioControllerInterface& mr);
+        FIBProcessor(RadioControllerInterface& mr);
 
         // called from the demodulator
         void    process_FIB(uint8_t*, uint16_t);
@@ -95,6 +95,8 @@ class   fib_processor {
         // Called from the frontend
         audiodata_t getAudioServiceData(const std::string& label);
         packetdata_t getDataServiceData(const std::string& label);
+
+        std::vector<Service> getServiceList(void) const;
 
     private:
         RadioControllerInterface& myRadioInterface;
@@ -151,10 +153,10 @@ class   fib_processor {
         int16_t HandleFIG0Extension22(uint8_t *d, int16_t used);
 
         dab_date_time_t dateTime = {};
-        std::mutex mutex;
+        mutable std::mutex mutex;
         std::vector<ChannelMap> ficList;
         std::vector<ServiceComponent> components;
-        std::vector<Service> listofServices;
+        std::vector<Service> services;
         bool        dateFlag = false;
         bool        firstTime = true;
         bool        isSynced = false;
