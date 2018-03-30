@@ -335,9 +335,7 @@ void TIIDecoder::analyse_phase(const CombPattern& cp)
 
     auto& meas = m_error_per_correction[cp];
 
-    for (int i = -40; i < 40; i++) {
-        float err = (float)i / 4;
-
+    for (int err = -4; err < 500; err++) {
         float abs_err = 0;
 
         for (size_t j = 0; j < carriers.size(); j++) {
@@ -362,10 +360,13 @@ void TIIDecoder::analyse_phase(const CombPattern& cp)
                 });
 
         if (best != meas.error_per_correction.end()) {
+            constexpr float km_per_sample = 3e8f / 1000.0f / 2048000.0f;
+            const float delay_km = best->first * km_per_sample;
             clog << "TII comb " << cp.comb <<
                 " pattern " << cp.pattern <<
-                " delay " << best->first << " with error " <<
-                best->second << endl;
+                " delay " << best->first <<
+                "= " << delay_km << " km" <<
+                " with error " << best->second << endl;
         }
 
         meas.error_per_correction.clear();
