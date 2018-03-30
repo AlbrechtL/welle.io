@@ -96,7 +96,9 @@ class   FIBProcessor {
         audiodata_t getAudioServiceData(const std::string& label);
         packetdata_t getDataServiceData(const std::string& label);
 
+        std::string getEnsembleName(void) const;
         std::vector<Service> getServiceList(void) const;
+
 
     private:
         RadioControllerInterface& myRadioInterface;
@@ -154,6 +156,7 @@ class   FIBProcessor {
 
         dab_date_time_t dateTime = {};
         mutable std::mutex mutex;
+        std::string ensembleName;
         std::vector<ChannelMap> ficList;
         std::vector<ServiceComponent> components;
         std::vector<Service> services;
