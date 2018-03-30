@@ -799,9 +799,10 @@ void    FIBProcessor::process_FIG1 (uint8_t *d)
                 //           std::clog << "fib-processor:" << "Ensemblename: %16s\n", label) << std::endl;
                 if (!oe) {
                     if (firstTime) {
-                        std::string label_utf8 = toUtf8StringUsingCharset(
+                        std::lock_guard<std::mutex> lock(mutex);
+                        ensembleName = toUtf8StringUsingCharset(
                                 (const char *) label, (CharacterSet) charSet);
-                        myRadioInterface.onNewEnsembleName(label_utf8);
+                        myRadioInterface.onNewEnsembleName(ensembleName);
                     }
                     firstTime   = false;
                     isSynced    = true;
