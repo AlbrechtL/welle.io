@@ -76,3 +76,19 @@ void RadioReceiver::selectAudioService(const audiodata_t& ad)
 {
     mscHandler.setAudioChannel(ad);
 }
+
+void RadioReceiver::selectAudioService(const Service& s)
+{
+    audiodata_t ad = ficHandler.getAudioServiceData(s.serviceLabel.label);
+    mscHandler.setAudioChannel(ad);
+}
+
+std::string RadioReceiver::getEnsembleName(void) const
+{
+    return ficHandler.getEnsembleName();
+}
+
+std::vector<Service> RadioReceiver::getServiceList(void) const
+{
+    return ficHandler.getServiceList();
+}
