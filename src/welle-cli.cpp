@@ -264,7 +264,13 @@ int main(int argc, char **argv)
             cerr << "Could not prepare CRAWFile" << endl;
             return 1;
         }
-        in_file->setFileName(channel_or_file, "u8");
+
+        if (channel_or_file.find("u8.iq") == string::npos) {
+            in_file->setFileName(channel_or_file, "cf32");
+        }
+        else {
+            in_file->setFileName(channel_or_file, "u8");
+        }
         in = move(in_file);
     }
 
