@@ -63,7 +63,7 @@ class FicHandler: public viterbi
         int16_t     ficMissed = 0;
         int16_t     ficRatio = 0;
         std::mutex  fibMutex;
-        fib_processor   fibProcessor;
+        FIBProcessor fibProcessor;
         uint8_t     PRBS[768];
         uint8_t     shiftRegister[9];
 };
