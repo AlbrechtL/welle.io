@@ -52,6 +52,16 @@ struct dab_date_time_t {
     int minuteOffset;
 };
 
+
+struct tii_measurement_t {
+    int comb = 0;
+    int pattern = 0;
+    float error = 0;
+    int delay_samples = 0;
+
+    float getDelayKm(void) const;
+};
+
 enum class message_level_t { Information, Error };
 
 /* Definition of the interface all radio controllers must implement.
@@ -123,6 +133,9 @@ class RadioControllerInterface {
         /* When a new null symbol vector was received.
          * Data contains the samples of the complete NULL symbol. */
         virtual void onNewNullSymbol(std::vector<DSPCOMPLEX>&& data) = 0;
+
+        /* When TII information for a comb/pattern pair is available */
+        virtual void onTIIMeasurement(tii_measurement_t&& m) = 0;
 
         /* When a information or warning message should be printed */
         virtual void onMessage(message_level_t level, const std::string& text) = 0;

@@ -214,6 +214,15 @@ class RadioInterface : public RadioControllerInterface {
             }
         }
 
+        virtual void onTIIMeasurement(tii_measurement_t&& m) override
+        {
+            clog << "TII comb " << m.comb <<
+                " pattern " << m.pattern <<
+                " delay " << m.delay_samples <<
+                "= " << m.getDelayKm() << " km" <<
+                " with error " << m.error << endl;
+        }
+
         bool synced = false;
 
         set<string> getServices() {

@@ -128,7 +128,14 @@ std::vector<carrier_t> CombPattern::generateCarriers() const
     return carriers;
 }
 
-TIIDecoder::TIIDecoder(const DABParams& params) :
+float tii_measurement_t::getDelayKm(void) const
+{
+    constexpr float km_per_sample = 3e8f / 1000.0f / 2048000.0f;
+    return delay_samples * km_per_sample;
+}
+
+TIIDecoder::TIIDecoder(const DABParams& params, RadioControllerInterface& ri) :
+    m_radioInterface(ri),
     m_params(params),
     m_fft_null(params.T_u),
     m_fft_prs(params.T_u)
@@ -165,7 +172,7 @@ TIIDecoder::~TIIDecoder()
     }
 }
 
-void TIIDecoder::push_symbols(
+void TIIDecoder::pushSymbols(
         const std::vector<complexf>& null,
         const std::vector<complexf>& prs)
 {
@@ -360,13 +367,13 @@ void TIIDecoder::analyse_phase(const CombPattern& cp)
                 });
 
         if (best != meas.error_per_correction.end()) {
-            constexpr float km_per_sample = 3e8f / 1000.0f / 2048000.0f;
-            const float delay_km = best->first * km_per_sample;
-            clog << "TII comb " << cp.comb <<
-                " pattern " << cp.pattern <<
-                " delay " << best->first <<
-                "= " << delay_km << " km" <<
-                " with error " << best->second << endl;
+            tii_measurement_t m;
+            m.error = best->second;
+            m.delay_samples = best->first;
+            m.comb = cp.comb;
+            m.pattern = cp.pattern;
+
+            m_radioInterface.onTIIMeasurement(move(m));
         }
 
         meas.error_per_correction.clear();

@@ -967,6 +967,15 @@ void CRadioController::onNewNullSymbol(std::vector<DSPCOMPLEX>&& data)
     std::swap(nullSymbolBuffer, data);
 }
 
+void CRadioController::onTIIMeasurement(tii_measurement_t&& m)
+{
+    qDebug().noquote() << "TII comb " << m.comb <<
+        " pattern " << m.pattern <<
+        " delay " << m.delay_samples <<
+        "= " << m.getDelayKm() << " km" <<
+        " with error " << m.error;
+}
+
 void CRadioController::onMessage(message_level_t level, const std::string& text)
 {
     switch (level) {
