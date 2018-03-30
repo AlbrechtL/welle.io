@@ -9,6 +9,7 @@ project(Welle.Io VERSION 0.0.0 LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 14)
 
 add_definitions(-Wall)
+add_definitions(-g)
 
 if(MINGW)
     add_definitions(-municode)
