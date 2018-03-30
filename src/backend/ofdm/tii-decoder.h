@@ -21,6 +21,7 @@
 #include "dab-constants.h"
 #include <unordered_map>
 #include <unordered_set>
+#include <list>
 #include <vector>
 #include <mutex>
 #include <thread>
@@ -28,6 +29,7 @@
 #include <complex>
 #include <cstddef>
 #include "fft.h"
+#include "radio-controller.h"
 
 using complexf = std::complex<float>;
 
@@ -61,12 +63,12 @@ namespace std {
 
 class TIIDecoder {
     public:
-        TIIDecoder(const DABParams& params);
+        TIIDecoder(const DABParams& params, RadioControllerInterface& ri);
         ~TIIDecoder();
         TIIDecoder(const TIIDecoder& other) = delete;
         TIIDecoder& operator=(const TIIDecoder& other) = delete;
 
-        void push_symbols(
+        void pushSymbols(
                 const std::vector<complexf>& null,
                 const std::vector<complexf>& prs);
 
@@ -74,6 +76,7 @@ class TIIDecoder {
         void run(void);
         void analyse_phase(const CombPattern& cp);
 
+        RadioControllerInterface& m_radioInterface;
         const DABParams& m_params;
 
         std::vector<complexf> m_null;
