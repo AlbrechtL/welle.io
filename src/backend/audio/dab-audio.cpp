@@ -76,16 +76,16 @@ DabAudio::DabAudio(
         protectionHandler = make_unique<eep_protection>(bitRate, protLevel);
 
     if (dabModus == DAB) {
-        our_dabProcessor = make_unique<mp2Processor>(
+        our_dabProcessor = make_unique<Mp2Processor>(
                 myRadioInterface, bitRate, mp2FileName);
     }
     else {
         if (dabModus == DAB_PLUS) {
-            our_dabProcessor = make_unique<mp4Processor>(
+            our_dabProcessor = make_unique<Mp4Processor>(
                     myRadioInterface, bitRate, mscFileName);
         }
         else        // cannot happen
-            our_dabProcessor = make_unique<dummyProcessor>();
+            our_dabProcessor = make_unique<DummyProcessor>();
     }
 
     std::clog << "dab-audio:"

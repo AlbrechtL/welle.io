@@ -35,11 +35,11 @@
 #include "MathHelper.h"
 
 /**
- * \class mp4Processor is the main handler for the aac frames
+ * \class Mp4Processor is the main handler for the aac frames
  * the class proper processes input and extracts the aac frames
  * that are processed by the "faadDecoder" class
  */
-mp4Processor::mp4Processor(
+Mp4Processor::Mp4Processor(
         RadioControllerInterface& mr,
         int16_t bitRate,
         const std::string& mscFileName) :
@@ -76,7 +76,7 @@ mp4Processor::mp4Processor(
     aacAudioMode = AACAudioMode::Unknown;
 }
 
-void mp4Processor::PADChangeDynamicLabel(const DL_STATE& dl)
+void Mp4Processor::PADChangeDynamicLabel(const DL_STATE& dl)
 {
     myRadioInterface.onNewDynamicLabel(
             toUtf8StringUsingCharset(
@@ -85,7 +85,7 @@ void mp4Processor::PADChangeDynamicLabel(const DL_STATE& dl)
                 dl.raw.size()));
 }
 
-void mp4Processor::PADChangeSlide(const MOT_FILE& slide)
+void Mp4Processor::PADChangeSlide(const MOT_FILE& slide)
 {
     myRadioInterface.onMOT(slide.data, slide.content_sub_type);
 }
@@ -100,7 +100,7 @@ void mp4Processor::PADChangeSlide(const MOT_FILE& slide)
  * per Byte, nbits is the number of Bits (i.e. containing bytes)
  * the function adds nbits bits, packed in bytes, to the frame
  */
-void mp4Processor::addtoFrame(uint8_t *V)
+void Mp4Processor::addtoFrame(uint8_t *V)
 {
     int16_t i, j;
     uint8_t temp    = 0;
@@ -161,7 +161,7 @@ void mp4Processor::addtoFrame(uint8_t *V)
  * First, we know the firecode checker gave green light
  * We correct the errors using RS
  */
-bool mp4Processor::processSuperframe(uint8_t frameBytes[], int16_t base)
+bool Mp4Processor::processSuperframe(uint8_t frameBytes[], int16_t base)
 {
     uint8_t     num_aus;
     int16_t     i, j, k;
@@ -291,13 +291,13 @@ bool mp4Processor::processSuperframe(uint8_t frameBytes[], int16_t base)
             }
         }
         else {
-            std::clog << "mp4processor:" <<  "CRC failure with dab+ frame" << i << "(" << num_aus << ")" << std::endl;
+            std::clog << "Mp4processor:" <<  "CRC failure with dab+ frame" << i << "(" << num_aus << ")" << std::endl;
         }
     }
     return true;
 }
 
-void mp4Processor::handleAacFrame(
+void Mp4Processor::handleAacFrame(
         uint8_t *v,
         int16_t frame_length,
         uint8_t dacRate,
@@ -342,25 +342,25 @@ void mp4Processor::handleAacFrame(
         aacAudioMode = aacAudioMode_tmp;
         switch(aacAudioMode) {
             case AACAudioMode::Mono:
-                std::clog << "mp4processor: "
+                std::clog << "Mp4processor: "
                     "Detected mono audio signal" << std::endl;
                 break;
             case AACAudioMode::Stereo:
-                std::clog << "mp4processor: "
+                std::clog << "Mp4processor: "
                     "Detected stereo audio signal" << std::endl;
                 break;
             case AACAudioMode::ParametricStereo:
-                std::clog << "mp4processor: "
+                std::clog << "Mp4processor: "
                     "Detected parametric stereo audio signal" << std::endl;
                 break;
             default:
-                std::clog << "mp4processor: "
+                std::clog << "Mp4processor: "
                     "Unknown audio mode" << std::endl;
         }
     }
 }
 
-void mp4Processor::processPAD(const uint8_t *data)
+void Mp4Processor::processPAD(const uint8_t *data)
 {
     // Get PAD length
     uint8_t pad_start = 2;

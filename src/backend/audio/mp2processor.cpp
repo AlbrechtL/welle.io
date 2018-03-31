@@ -211,7 +211,7 @@ struct quantizer_spec quantizer_table[17] = {
 //  (J van Katwijk)
 ////////////////////////////////////////////////////////////////////////////////
 
-mp2Processor::mp2Processor(
+Mp2Processor::Mp2Processor(
         RadioControllerInterface& mr,
         int16_t bitRate,
         const std::string& mp2FileName) :
@@ -254,7 +254,7 @@ mp2Processor::mp2Processor(
     }
 }
 
-void mp2Processor::PADChangeDynamicLabel(const DL_STATE& dl)
+void Mp2Processor::PADChangeDynamicLabel(const DL_STATE& dl)
 {
     myRadioInterface.onNewDynamicLabel(
             toUtf8StringUsingCharset(
@@ -263,13 +263,13 @@ void mp2Processor::PADChangeDynamicLabel(const DL_STATE& dl)
                 dl.raw.size()));
 }
 
-void mp2Processor::PADChangeSlide(const MOT_FILE& slide)
+void Mp2Processor::PADChangeSlide(const MOT_FILE& slide)
 {
     myRadioInterface.onMOT(slide.data, slide.content_sub_type);
 }
 
 #define valid(x)    ((x == 48000) || (x == 24000))
-void mp2Processor::setSamplerate (int32_t rate)
+void Mp2Processor::setSamplerate (int32_t rate)
 {
     if (baudRate == rate)
         return;
@@ -284,7 +284,7 @@ void mp2Processor::setSamplerate (int32_t rate)
 // //
 ////////////////////////////////////////////////////////////////////////////////
 
-int32_t mp2Processor::mp2sampleRate (uint8_t *frame)
+int32_t Mp2Processor::mp2sampleRate (uint8_t *frame)
 {
     if (!frame)
         return 0;
@@ -302,7 +302,7 @@ int32_t mp2Processor::mp2sampleRate (uint8_t *frame)
 // DECODE HELPER FUNCTIONS                                                    //
 ////////////////////////////////////////////////////////////////////////////////
 
-struct quantizer_spec* mp2Processor::read_allocation(int sb, int b2_table)
+struct quantizer_spec* Mp2Processor::read_allocation(int sb, int b2_table)
 {
     int table_idx = quant_lut_step3[b2_table][sb];
     table_idx = quant_lut_step4[table_idx & 15][get_bits(table_idx >> 4)];
@@ -310,7 +310,7 @@ struct quantizer_spec* mp2Processor::read_allocation(int sb, int b2_table)
 }
 
 
-void mp2Processor::read_samples(struct quantizer_spec *q,
+void Mp2Processor::read_samples(struct quantizer_spec *q,
                                 int scalefactor,
                                 int *sample)
 {
@@ -362,7 +362,7 @@ void mp2Processor::read_samples(struct quantizer_spec *q,
 
 #define show_bits(bit_count) (bit_window >> (24 - (bit_count)))
 
-int32_t mp2Processor::get_bits(int32_t bit_count)
+int32_t Mp2Processor::get_bits(int32_t bit_count)
 {
     //int32_t result = show_bits (bit_count);
     int32_t result  = bit_window >> (24 - bit_count);
@@ -381,7 +381,7 @@ int32_t mp2Processor::get_bits(int32_t bit_count)
 // FRAME DECODE FUNCTION                                                      //
 ////////////////////////////////////////////////////////////////////////////////
 
-int32_t mp2Processor::mp2decodeFrame (uint8_t *frame, int16_t *pcm)
+int32_t Mp2Processor::mp2decodeFrame (uint8_t *frame, int16_t *pcm)
 {
     uint32_t bit_rate_index_minus1;
     uint32_t sampling_frequency;
@@ -611,7 +611,7 @@ int32_t mp2Processor::mp2decodeFrame (uint8_t *frame, int16_t *pcm)
 }
 
 //  bits to MP2 frames, amount is amount of bits
-void mp2Processor::addtoFrame(uint8_t *v)
+void Mp2Processor::addtoFrame(uint8_t *v)
 {
     int16_t i, j;
     int16_t lf  = baudRate == 48000 ? MP2framesize : 2 * MP2framesize;
@@ -677,7 +677,7 @@ void mp2Processor::addtoFrame(uint8_t *v)
     }
 }
 
-void mp2Processor::addbittoMP2 (uint8_t *v, uint8_t b, int16_t nm)
+void Mp2Processor::addbittoMP2 (uint8_t *v, uint8_t b, int16_t nm)
 {
     uint8_t byte    = v[nm / 8];
     int16_t bitnr   = 7 - (nm & 7);
@@ -690,7 +690,7 @@ void mp2Processor::addbittoMP2 (uint8_t *v, uint8_t b, int16_t nm)
     v[nm / 8] = byte;
 }
 
-void mp2Processor::processPAD(uint8_t *data, int16_t Length, int16_t ScF_CRC_Length)
+void Mp2Processor::processPAD(uint8_t *data, int16_t Length, int16_t ScF_CRC_Length)
 {
     // Adapt to PADDecoder
     uint8_t FPAD_LEN = 2;
