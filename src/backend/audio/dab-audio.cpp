@@ -52,7 +52,7 @@ DabAudio::DabAudio(
         const std::string& mscFileName,
         const std::string& mp2FileName) :
     myRadioInterface(mr),
-    Buffer(64 * 32768),
+    mscBuffer(64 * 32768),
     mscFileName(mscFileName),
     mp2FileName(mp2FileName)
 {
@@ -64,10 +64,8 @@ DabAudio::DabAudio(
     this->protLevel        = protLevel;
 
     outV.resize(bitRate * 24);
-    interleaveData  = new int16_t*[16]; // max size
     for (i = 0; i < 16; i ++) {
-        interleaveData[i] = new int16_t[fragmentSize];
-        memset (interleaveData[i], 0, fragmentSize * sizeof (int16_t));
+        interleaveData[i].resize(fragmentSize);
     }
 
     using std::make_unique;
@@ -99,34 +97,29 @@ DabAudio::DabAudio(
 
 DabAudio::~DabAudio()
 {
-    int16_t i;
     running = false;
 
     if (ourThread.joinable()) {
+        mscDataAvailable.notify_all();
         ourThread.join();
     }
-
-    for (i = 0; i < 16; i ++) {
-        delete[] interleaveData [i];
-    }
-    delete [] interleaveData;
 }
 
 int32_t DabAudio::process(int16_t *v, int16_t cnt)
 {
     int32_t fr;
 
-    if (Buffer.GetRingBufferWriteAvailable () < cnt)
+    if (mscBuffer.GetRingBufferWriteAvailable () < cnt)
         fprintf (stderr, "dab-concurrent: buffer full\n");
 
-    while ((fr = Buffer.GetRingBufferWriteAvailable ()) <= cnt) {
+    while ((fr = mscBuffer.GetRingBufferWriteAvailable ()) <= cnt) {
         if (!running)
             return 0;
         std::this_thread::sleep_for(std::chrono::microseconds(1));
     }
 
-    Buffer.putDataIntoBuffer(v, cnt);
-    Locker.notify_all();
+    mscBuffer.putDataIntoBuffer(v, cnt);
+    mscDataAvailable.notify_all();
     return fr;
 }
 
@@ -142,19 +135,19 @@ void DabAudio::run()
     int16_t tempX[fragmentSize];
 
     while (running) {
-        while (Buffer.GetRingBufferReadAvailable() <= fragmentSize) {
-            // TODO why is this needed?
-            std::unique_lock<std::mutex> lock(ourMutex);
-            Locker.wait_for(lock, std::chrono::milliseconds(1));
-            lock.unlock();
-            if (!running)
-                break;
+        std::unique_lock<std::mutex> lock(ourMutex);
+        while (running && mscBuffer.GetRingBufferReadAvailable() <= fragmentSize) {
+            mscDataAvailable.wait(lock);
         }
 
         if (!running)
             break;
 
-        Buffer.getDataFromBuffer(Data, fragmentSize);
+        // mscBuffer is threadsafe to access, no need to keep the lock
+        lock.unlock();
+
+
+        mscBuffer.getDataFromBuffer(Data, fragmentSize);
 
         for (i = 0; i < fragmentSize; i ++) {
             tempX[i] = interleaveData[(interleaverIndex +
@@ -180,7 +173,7 @@ void DabAudio::run()
             shiftRegister[0] = b;
             outV[i] ^= b;
         }
-        our_dabProcessor->addtoFrame (outV.data());
+        our_dabProcessor->addtoFrame(outV.data());
     }
 }
 
