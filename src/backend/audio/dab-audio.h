@@ -68,15 +68,15 @@ class DabAudio : public DabVirtual
         bool        shortForm;
         int16_t     protLevel;
         std::vector<uint8_t> outV;
-        int16_t     **interleaveData;
+        std::vector<int16_t> interleaveData[16];
 
-        std::condition_variable  Locker;
+        std::condition_variable  mscDataAvailable;
         std::mutex               ourMutex;
         std::thread              ourThread;
 
         std::unique_ptr<protection> protectionHandler;
         std::unique_ptr<dabProcessor> our_dabProcessor;
-        RingBuffer<int16_t> Buffer;
+        RingBuffer<int16_t> mscBuffer;
 
         const std::string& mscFileName;
         const std::string& mp2FileName;
