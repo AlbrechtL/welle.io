@@ -53,8 +53,8 @@ class FicHandler: public viterbi
     private:
         RadioControllerInterface& myRadioInterface;
         void        process_ficInput(int16_t *ficblock, int16_t ficno);
-        int8_t      *PI_15;
-        int8_t      *PI_16;
+        const int8_t *PI_15;
+        const int8_t *PI_16;
         std::vector<uint8_t> bitBuffer_out;
         std::vector<int16_t> ofdm_input;
         int16_t     index = 0;

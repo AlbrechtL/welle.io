@@ -144,15 +144,13 @@ uep_protection::uep_protection(
         int16_t bitRate,
         int16_t protLevel) :
     viterbi(24 * bitRate),
+    bitRate(bitRate),
     outSize(24 * bitRate),
     viterbiBlock(outSize * 4 + 24)
 {
-    int16_t index;
-
-    this->bitRate = bitRate;
-    index  = findIndex (bitRate, protLevel);
+    int16_t index = findIndex (bitRate, protLevel);
     if (index == -1) {
-        fprintf (stderr, "%d (%d) has a problem\n", bitRate, protLevel);
+        fprintf(stderr, "UEP: %d (%d) has a problem\n", bitRate, protLevel);
         index = 1;
     }
     L1  = profileTable[index].L1;
@@ -160,11 +158,11 @@ uep_protection::uep_protection(
     L3  = profileTable[index].L3;
     L4  = profileTable[index].L4;
 
-    PI1 = get_PCodes (profileTable[index].PI1 -1);
-    PI2 = get_PCodes (profileTable[index].PI2 -1);
-    PI3 = get_PCodes (profileTable[index].PI3 -1);
+    PI1 = get_PCodes(profileTable[index].PI1 -1);
+    PI2 = get_PCodes(profileTable[index].PI2 -1);
+    PI3 = get_PCodes(profileTable[index].PI3 -1);
     if ((profileTable[index].PI4 - 1) != -1)
-        PI4 = get_PCodes (profileTable[index].PI4 -1);
+        PI4 = get_PCodes(profileTable[index].PI4 -1);
     else
         PI4 = NULL;
 }
