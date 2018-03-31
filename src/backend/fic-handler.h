@@ -35,7 +35,7 @@
 #include "fib-processor.h"
 #include "radio-controller.h"
 
-class FicHandler: public viterbi
+class FicHandler: public Viterbi
 {
     public:
         FicHandler(RadioControllerInterface& mr);

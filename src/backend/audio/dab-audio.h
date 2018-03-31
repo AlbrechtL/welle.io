@@ -37,7 +37,7 @@
 #include "radio-controller.h"
 
 class DabProcessor;
-class protection;
+class Protection;
 
 class DabAudio : public DabVirtual
 {
@@ -74,7 +74,7 @@ class DabAudio : public DabVirtual
         std::mutex               ourMutex;
         std::thread              ourThread;
 
-        std::unique_ptr<protection> protectionHandler;
+        std::unique_ptr<Protection> protectionHandler;
         std::unique_ptr<DabProcessor> our_dabProcessor;
         RingBuffer<int16_t> mscBuffer;
 

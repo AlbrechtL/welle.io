@@ -28,9 +28,9 @@
 #include    "protection.h"
 #include    "viterbi.h"
 
-class eep_protection: public protection, public viterbi {
+class EEPProtection: public Protection, public Viterbi {
     public:
-        eep_protection(int16_t, int16_t);
+        EEPProtection(int16_t, int16_t);
         bool deconvolve(int16_t*, int32_t, uint8_t*);
     private:
         int16_t L1;

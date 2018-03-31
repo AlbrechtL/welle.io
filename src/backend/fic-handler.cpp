@@ -50,7 +50,7 @@ uint8_t PI_X [24] = {
   *     The data is sent through to the fic processor
   */
 FicHandler::FicHandler(RadioControllerInterface& mr) :
-    viterbi(768),
+    Viterbi(768),
     myRadioInterface(mr),
     bitBuffer_out(768),
     ofdm_input(2304),

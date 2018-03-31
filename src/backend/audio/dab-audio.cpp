@@ -71,9 +71,9 @@ DabAudio::DabAudio(
     using std::make_unique;
 
     if (shortForm)
-        protectionHandler = make_unique<uep_protection>(bitRate, protLevel);
+        protectionHandler = make_unique<UEPProtection>(bitRate, protLevel);
     else
-        protectionHandler = make_unique<eep_protection>(bitRate, protLevel);
+        protectionHandler = make_unique<EEPProtection>(bitRate, protLevel);
 
     if (dabModus == DAB) {
         our_dabProcessor = make_unique<Mp2Processor>(
