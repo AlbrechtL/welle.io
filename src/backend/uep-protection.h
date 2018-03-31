@@ -34,16 +34,16 @@ class uep_protection: public protection, public viterbi
         uep_protection(int16_t bitRate, int16_t protLevel);
         bool        deconvolve(int16_t *v, int32_t size, uint8_t *outBuffer);
     private:
-        int16_t     L1;
-        int16_t     L2;
-        int16_t     L3;
-        int16_t     L4;
-        int8_t     *PI1;
-        int8_t     *PI2;
-        int8_t     *PI3;
-        int8_t     *PI4;
-        int16_t     bitRate;
-        int32_t     outSize;
+        int16_t L1;
+        int16_t L2;
+        int16_t L3;
+        int16_t L4;
+        const int8_t *PI1;
+        const int8_t *PI2;
+        const int8_t *PI3;
+        const int8_t *PI4;
+        int16_t bitRate;
+        int32_t outSize;
         std::vector<int16_t> viterbiBlock;
 };
 
