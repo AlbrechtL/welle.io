@@ -47,10 +47,10 @@ struct quantizer_spec
     uint8_t cw_bits;
 };
 
-class mp2Processor: public dabProcessor, public PADDecoderObserver
+class Mp2Processor: public DabProcessor, public PADDecoderObserver
 {
     public:
-        mp2Processor(RadioControllerInterface& mr,
+        Mp2Processor(RadioControllerInterface& mr,
                      int16_t bitRate,
                      const std::string& mp2FileName);
         virtual void addtoFrame(uint8_t *v);

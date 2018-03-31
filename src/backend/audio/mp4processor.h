@@ -44,10 +44,10 @@
 
 enum class AACAudioMode { Unknown, Mono, Stereo, ParametricStereo};
 
-class mp4Processor : public dabProcessor, public PADDecoderObserver
+class Mp4Processor : public DabProcessor, public PADDecoderObserver
 {
     public:
-        mp4Processor(RadioControllerInterface& mr,
+        Mp4Processor(RadioControllerInterface& mr,
                 int16_t bitRate,
                 const std::string& mscFileName);
 
