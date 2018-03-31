@@ -140,10 +140,10 @@ int16_t findIndex(int16_t bitRate, int16_t protLevel)
  * The bitRate and the protectionLevel determine the
  * depuncturing scheme.
  */
-uep_protection::uep_protection(
+UEPProtection::UEPProtection(
         int16_t bitRate,
         int16_t protLevel) :
-    viterbi(24 * bitRate),
+    Viterbi(24 * bitRate),
     bitRate(bitRate),
     outSize(24 * bitRate),
     viterbiBlock(outSize * 4 + 24)
@@ -167,7 +167,7 @@ uep_protection::uep_protection(
         PI4 = NULL;
 }
 
-bool uep_protection::deconvolve(int16_t *v, int32_t size, uint8_t *outBuffer)
+bool UEPProtection::deconvolve(int16_t *v, int32_t size, uint8_t *outBuffer)
 {
     int16_t i, j;
     int16_t inputCounter    = 0;
@@ -187,7 +187,7 @@ bool uep_protection::deconvolve(int16_t *v, int32_t size, uint8_t *outBuffer)
             if (PI1[j % 32] != 0) {
                 viterbiBlock[viterbiCounter] = v[inputCounter ++];
             }
-            viterbiCounter ++;
+            viterbiCounter++;
         }
     }
 
@@ -196,7 +196,7 @@ bool uep_protection::deconvolve(int16_t *v, int32_t size, uint8_t *outBuffer)
             if (PI2[j % 32] != 0) {
                 viterbiBlock[viterbiCounter] = v[inputCounter ++];
             }
-            viterbiCounter ++;
+            viterbiCounter++;
         }
     }
 
@@ -205,7 +205,7 @@ bool uep_protection::deconvolve(int16_t *v, int32_t size, uint8_t *outBuffer)
             if (PI3[j % 32] != 0) {
                 viterbiBlock[viterbiCounter] = v[inputCounter ++];
             }
-            viterbiCounter ++;
+            viterbiCounter++;
         }
     }
 
@@ -214,7 +214,7 @@ bool uep_protection::deconvolve(int16_t *v, int32_t size, uint8_t *outBuffer)
             if (PI4[j % 32] != 0) {
                 viterbiBlock[viterbiCounter] = v[inputCounter ++];
             }
-            viterbiCounter ++;
+            viterbiCounter++;
         }
     }
 
@@ -226,12 +226,12 @@ bool uep_protection::deconvolve(int16_t *v, int32_t size, uint8_t *outBuffer)
         if (PI_X[i] != 0) {
             viterbiBlock[viterbiCounter] = v[inputCounter ++];
         }
-        viterbiCounter ++;
+        viterbiCounter++;
     }
 
     /// The actual deconvolution is done by the viterbi decoder
 
-    viterbi::deconvolve (viterbiBlock.data(), outBuffer);
+    Viterbi::deconvolve(viterbiBlock.data(), outBuffer);
     return true;
 }
 

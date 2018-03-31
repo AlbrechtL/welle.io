@@ -78,7 +78,7 @@ static uint8_t Partab[] =
 //  One could create the table above, i.e. a 256 entry
 //  odd-parity lookup table by the following function
 //  It is now precomputed
-void viterbi::partab_init()
+void Viterbi::partab_init()
 {
     int16_t i,cnt,ti;
 
@@ -93,7 +93,7 @@ void viterbi::partab_init()
     }
 }
 
-int viterbi::parity(int x)
+int Viterbi::parity(int x)
 {
     /* Fold down to one byte */
     x ^= (x >> 16);
@@ -124,7 +124,7 @@ void renormalize(COMPUTETYPE* X, COMPUTETYPE threshold)
 //  There are (in mode 1) 3 ofdm blocks, giving 4 FIC blocks
 //  There all have a predefined length. In that case we use the
 //  "fast" (i.e. spiral) code, otherwise we use the generic code
-viterbi::viterbi(int16_t wordlength)
+Viterbi::Viterbi(int16_t wordlength)
 {
     int polys[RATE] = POLYS;
     int16_t i, state;
@@ -175,7 +175,7 @@ viterbi::viterbi(int16_t wordlength)
 }
 
 
-viterbi::~viterbi()
+Viterbi::~Viterbi()
 {
 #ifdef  __MINGW32__
     _aligned_free (vp. decisions);
@@ -225,7 +225,7 @@ uint8_t getbit (uint8_t v, int32_t o)
 //  Note that our DAB environment maps the softbits to -127 .. 127
 //  we have to map that onto 0 .. 255
 
-void viterbi::deconvolve(int16_t *input, uint8_t *output)
+void Viterbi::deconvolve(int16_t *input, uint8_t *output)
 {
     uint32_t    i;
 
@@ -246,7 +246,7 @@ void viterbi::deconvolve(int16_t *input, uint8_t *output)
 }
 
 /* C-language butterfly */
-void viterbi::BFLY(
+void Viterbi::BFLY(
         int i,
         int s,
         COMPUTETYPE * syms,
@@ -283,7 +283,7 @@ void viterbi::BFLY(
  * Note that nbits is the number of decoded data bits, not the number
  * of symbols!
  */
-void viterbi::update_viterbi_blk_GENERIC(
+void Viterbi::update_viterbi_blk_GENERIC(
         struct v *vp,
         COMPUTETYPE *syms,
         int16_t nbits)
@@ -311,7 +311,7 @@ void viterbi::update_viterbi_blk_GENERIC(
 
 //
 /* Viterbi chainback */
-void viterbi::chainback_viterbi(
+void Viterbi::chainback_viterbi(
         struct v *vp,
         uint8_t *data, /* Decoded output data */
         int16_t nbits, /* Number of data bits */
@@ -340,7 +340,7 @@ void viterbi::chainback_viterbi(
 }
 
 /* Initialize Viterbi decoder for start of new frame */
-void viterbi::init_viterbi(struct v *p, int16_t starting_state)
+void Viterbi::init_viterbi(struct v *p, int16_t starting_state)
 {
     struct v *vp = p;
     int32_t i;

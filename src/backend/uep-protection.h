@@ -28,11 +28,11 @@
 #include    "protection.h"
 #include    "viterbi.h"
 
-class uep_protection: public protection, public viterbi
+class UEPProtection: public Protection, public Viterbi
 {
     public:
-        uep_protection(int16_t bitRate, int16_t protLevel);
-        bool        deconvolve(int16_t *v, int32_t size, uint8_t *outBuffer);
+        UEPProtection(int16_t bitRate, int16_t protLevel);
+        bool deconvolve(int16_t *v, int32_t size, uint8_t *outBuffer);
     private:
         int16_t L1;
         int16_t L2;
