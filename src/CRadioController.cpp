@@ -231,7 +231,7 @@ void CRadioController::onEventLoopStarted()
             sdr->setDriverArgs(sdrDriverArgs.toStdString());
         }
 
-        if (!sdrDriverArgs.isEmpty()) {
+        if (!sdrAntenna.isEmpty()) {
             sdr->setAntenna(sdrAntenna.toStdString());
         }
 

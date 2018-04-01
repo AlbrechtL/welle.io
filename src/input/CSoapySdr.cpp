@@ -104,18 +104,43 @@ bool CSoapySdr::restart()
         m_device->getSampleRate(SOAPY_SDR_RX, 0) / 1000.0 <<
         " ksps." << std::endl;
 
-    if (!m_antenna.empty())
-        m_device->setAntenna(SOAPY_SDR_RX, 0, m_antenna);
 
-    if (!m_clock_source.empty())
+    if (!m_antenna.empty()) {
+        clog << "Select antenna " << m_antenna << ", supported: ";
+        for (const auto& ant : m_device->listAntennas(SOAPY_SDR_RX, 0)) {
+            clog << " " << ant;
+        }
+        clog << endl;
+
+        m_device->setAntenna(SOAPY_SDR_RX, 0, m_antenna);
+    }
+    else {
+        clog << "Not selecting antenna" << endl;
+    }
+
+    if (!m_clock_source.empty()) {
         m_device->setClockSource(m_clock_source);
+    }
 
     if (m_freq > 0) {
         setFrequency(m_freq);
     }
 
-    const bool automatic = true;
+    auto range = m_device->getGainRange(SOAPY_SDR_RX, 0);
+    // Ignore step size, as it could be 0. 1dB steps are ok
+    for (double g = range.minimum(); g < range.maximum(); g++) {
+        m_gains.push_back(g);
+    }
+
+    const bool automatic = false;
     m_device->setGainMode(SOAPY_SDR_RX, 0, automatic);
+
+    if (m_device->hasDCOffsetMode(SOAPY_SDR_RX, 0)) {
+        m_device->setDCOffsetMode(SOAPY_SDR_RX, 0, true);
+    }
+    else {
+        clog << "DC offset compensation not supported" << endl;
+    }
 
     m_running = true;
     m_thread = std::thread(&CSoapySdr::workerthread, this);
@@ -159,10 +184,10 @@ int32_t CSoapySdr::getSamplesToRead()
     return m_sampleBuffer.GetRingBufferReadAvailable();
 }
 
-float CSoapySdr::setGain(int32_t Gain)
+float CSoapySdr::setGain(int32_t gainIndex)
 {
     if (m_device != nullptr) {
-        m_device->setGain(SOAPY_SDR_RX, 0, Gain);
+        m_device->setGain(SOAPY_SDR_RX, 0, m_gains.at(gainIndex));
         float g = m_device->getGain(SOAPY_SDR_RX, 0);
         std::clog << "Soapy gain is " << g << std::endl;
         return g;
@@ -172,17 +197,19 @@ float CSoapySdr::setGain(int32_t Gain)
 
 int32_t CSoapySdr::getGainCount()
 {
-    return 100;
+    return m_gains.size();
 }
 
 void CSoapySdr::setAgc(bool AGC)
 {
-    (void) AGC;
+    (void)AGC;
 }
 
 void CSoapySdr::setHwAgc(bool hwAGC)
 {
-    (void) hwAGC;
+    if (m_device != nullptr) {
+        m_device->setGainMode(SOAPY_SDR_RX, 0, hwAGC);
+    }
 }
 
 std::string CSoapySdr::getName()
