@@ -15,8 +15,6 @@ if(MINGW)
     add_definitions(-municode)
 endif()
 
-add_definitions(-DSSE_AVAILABLE)
-
 if(NOT CMAKE_BUILD_TYPE)
    set(CMAKE_BUILD_TYPE "Release")
    message(STATUS "Build type not specified: defaulting to release.")
