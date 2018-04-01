@@ -52,7 +52,7 @@ public:
     virtual int32_t getSamples(DSPCOMPLEX* Buffer, int32_t Size);
     virtual int32_t getSpectrumSamples(DSPCOMPLEX* Buffer, int32_t Size);
     virtual int32_t getSamplesToRead(void);
-    virtual float setGain(int32_t Gain);
+    virtual float setGain(int32_t gainIndex);
     virtual int32_t getGainCount(void);
     virtual void setAgc(bool AGC);
     virtual void setHwAgc(bool hwAGC);
@@ -72,6 +72,8 @@ private:
 
     RingBuffer<DSPCOMPLEX> m_sampleBuffer;
     RingBuffer<DSPCOMPLEX> m_spectrumSampleBuffer;
+
+    std::vector<double> m_gains;
 
     std::thread m_thread;
     void workerthread(void);

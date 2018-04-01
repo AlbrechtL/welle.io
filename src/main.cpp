@@ -150,17 +150,17 @@ int main(int argc, char** argv)
     optionParser.addOption(RAWFileFormat);
 
 #ifdef HAVE_SOAPYSDR
-    QCommandLineOption SDRDriverArgsOption("soapysdr-driver-args",
+    QCommandLineOption SDRDriverArgsOption("sdr-driver-args",
         QCoreApplication::translate("main", "The value depends on the SDR driver and is directly passed to it (currently only SoapySDR::Device::make(args)). A typical value for SoapySDR is a string like driver=remote,remote=127.0.0.1,remote:driver=rtlsdr,rtl=0"),
         QCoreApplication::translate("main", "args"));
     optionParser.addOption(SDRDriverArgsOption);
 
-    QCommandLineOption SDRAntennaOption("soapysdr-antenna",
+    QCommandLineOption SDRAntennaOption("sdr-antenna",
         QCoreApplication::translate("main", "The value depends on the SDR Hardware, typical values are TX/RX, RX2. Just query it with SoapySDRUtil --probe=driver=uhd"),
         QCoreApplication::translate("main", "antenna"));
     optionParser.addOption(SDRAntennaOption);
 
-    QCommandLineOption SDRClockSourceOption("soapysdr-clock-source",
+    QCommandLineOption SDRClockSourceOption("sdr-clock-source",
         QCoreApplication::translate("main", "The value depends on the SDR Hardware, typical values are internal, external, gpsdo. Just query it with SoapySDRUtil --probe=driver=uhd"),
         QCoreApplication::translate("main", "clock_source"));
     optionParser.addOption(SDRClockSourceOption);
