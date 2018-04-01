@@ -1,9 +1,5 @@
 cmake_minimum_required(VERSION 3.2)
 
-set(executableName welle-io)
-
-set(cliExecutableName welle-cli)
-
 project(Welle.Io VERSION 0.0.0 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 14)
@@ -23,21 +19,37 @@ set(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "")
 
 #enable_testing()
 
-include(GNUInstallDirs)
-
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
-
 list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
 
+if(NOT DEFINED BUILD_WELLE_IO)
+    set(BUILD_WELLE_IO ON)
+endif()
+
+if(NOT DEFINED BUILD_WELLE_CLI)
+    set(BUILD_WELLE_CLI ON)
+endif()
+
+include(GNUInstallDirs)
+
+if(BUILD_WELLE_IO)
+    set(CMAKE_AUTOMOC ON)
+    set(CMAKE_AUTORCC ON)
+
+    find_package(Qt5 COMPONENTS Widgets Quick Multimedia Charts REQUIRED)
+endif()
+
+if(BUILD_WELLE_CLI)
+    find_package(ALSA REQUIRED)
+endif()
+
 find_package(Threads REQUIRED)
-find_package(Qt5 COMPONENTS Widgets Quick Multimedia Charts REQUIRED)
 find_package(FFTW3f REQUIRED)
 find_package(Faad REQUIRED)
-find_package(ALSA REQUIRED)
+
 if (RTLSDR)
   find_package(LibRTLSDR REQUIRED)
 endif()
+
 if (SOAPYSDR)
   find_package(SoapySDR NO_MODULE REQUIRED)
   # Note: SoapySDRConfig.cmake sets C++11 standard so it needs to be reset to C++14
@@ -132,35 +144,43 @@ if(GIT_COMMIT_HASH)
   add_definitions("-DGITHASH=\"${GIT_COMMIT_HASH}\"")
 endif()
 
-add_executable (${executableName} ${welle_io_sources} ${backend_sources} ${input_sources} ${EXTRA_MOCS} resources.qrc)
+if(BUILD_WELLE_IO)
+    set(executableName welle-io)
+    add_executable (${executableName} ${welle_io_sources} ${backend_sources} ${input_sources} ${EXTRA_MOCS} resources.qrc)
 
-target_link_libraries (${executableName}
-  ${LIBRTLSDR_LIBRARIES}
-  ${FFTW3F_LIBRARIES}
-  ${FAAD_LIBRARIES}
-  ${SoapySDR_LIBRARIES}
-  Threads::Threads
-)
+    target_link_libraries (${executableName}
+      ${LIBRTLSDR_LIBRARIES}
+      ${FFTW3F_LIBRARIES}
+      ${FAAD_LIBRARIES}
+      ${SoapySDR_LIBRARIES}
+      Threads::Threads
+    )
 
-add_executable (${cliExecutableName} ${welle_cli_sources} ${backend_sources} ${input_sources})
+    qt5_use_modules(${executableName} Widgets Quick Multimedia Charts)
 
-if(CMAKE_BUILD_TYPE MATCHES Debug)
-  SET_TARGET_PROPERTIES(${cliExecutableName} PROPERTIES COMPILE_FLAGS "-O2 -fno-omit-frame-pointer -fsanitize=address")
-  SET_TARGET_PROPERTIES(${cliExecutableName} PROPERTIES LINK_FLAGS "-fno-omit-frame-pointer -fsanitize=address")
-endif(CMAKE_BUILD_TYPE MATCHES Debug)
+    INSTALL (TARGETS ${executableName} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+endif()
 
-target_link_libraries (${cliExecutableName}
-  ${LIBRTLSDR_LIBRARIES}
-  ${FFTW3F_LIBRARIES}
-  ${FAAD_LIBRARIES}
-  ${ALSA_LIBRARIES}
-  ${SoapySDR_LIBRARIES}
-  Threads::Threads
-)
+if(BUILD_WELLE_CLI)
+    set(cliExecutableName welle-cli)
+    add_executable (${cliExecutableName} ${welle_cli_sources} ${backend_sources} ${input_sources})
 
-qt5_use_modules(${executableName} Widgets Quick Multimedia Charts)
+    if(CMAKE_BUILD_TYPE MATCHES Debug)
+      SET_TARGET_PROPERTIES(${cliExecutableName} PROPERTIES COMPILE_FLAGS "-O2 -fno-omit-frame-pointer -fsanitize=address")
+      SET_TARGET_PROPERTIES(${cliExecutableName} PROPERTIES LINK_FLAGS "-fno-omit-frame-pointer -fsanitize=address")
+    endif(CMAKE_BUILD_TYPE MATCHES Debug)
 
-INSTALL (TARGETS ${executableName} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+    target_link_libraries (${cliExecutableName}
+      ${LIBRTLSDR_LIBRARIES}
+      ${FFTW3F_LIBRARIES}
+      ${FAAD_LIBRARIES}
+      ${ALSA_LIBRARIES}
+      ${SoapySDR_LIBRARIES}
+      Threads::Threads
+    )
+
+    INSTALL (TARGETS ${cliExecutableName} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+endif()
 
 configure_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
