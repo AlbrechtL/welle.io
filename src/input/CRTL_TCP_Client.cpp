@@ -390,7 +390,7 @@ bool CRTL_TCP_Client::connect()
 #if defined(_WIN32)
         char * ch_errstr = gai_strerrorA(s);
 #else
-        unsigned char * ch_errstr = gai_strerror(s);
+        const char * ch_errstr = gai_strerror(s);
 #endif
         std::string errstr(ch_errstr);
         throw std::runtime_error("getaddrinfo: " + errstr);
