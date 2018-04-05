@@ -144,7 +144,7 @@ class RadioControllerInterface {
 /* Definition of the interface all input devices must implement */
 class InputInterface {
     public:
-        virtual ~InputInterface() {};
+        virtual ~InputInterface() {}
         virtual void setFrequency(int32_t frequency) = 0;
         virtual bool restart(void) = 0;
         virtual void stop(void) = 0;
