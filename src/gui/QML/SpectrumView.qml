@@ -20,27 +20,41 @@ ChartView {
         axisY1.min = 0;
         switch(plotType) {
         case 0:
-            title = qsTr("Spectrum");
-            axisX.titleText = qsTr("Frequency") + " [MHz]";
+            title = qsTr("Spectrum")
+            axisX.titleText = qsTr("Frequency") + " [MHz]"
             axisY1.titleText = qsTr("Amplitude")
             break;
         case 1:
-            title = qsTr("Impulse Response");
-            axisX.titleText = qsTr("Samples");
-            axisY1.titleText = qsTr("Amplitude");
-            axisY1.min = -20;
+            title = qsTr("Impulse Response")
+            axisX.titleText = qsTr("Samples")
+            axisY1.titleText = qsTr("Amplitude")
+            axisY1.min = -20
             break;
         case 2:
-            title = qsTr("Constellation Diagram");
-            axisX.titleText = qsTr("Q");
-            axisY1.titleText = qsTr("I");
-            axisY1.min = -180;
+            title = qsTr("Constellation Diagram")
+            axisX.titleText = qsTr("Q")
+            axisY1.titleText = qsTr("I")
+            axisY1.min = -180
             break;
         case 3:
-            title = qsTr("Null Symbol");
-            axisX.titleText = qsTr("Frequency") + " [MHz]";
-            axisY1.titleText = qsTr("Amplitude");
+            title = qsTr("Null Symbol")
+            axisX.titleText = qsTr("Frequency") + " [MHz]"
+            axisY1.titleText = qsTr("Amplitude")
             break;
+        }
+
+        if(plotType != 2) {
+            removeAllSeries()
+            var line = createSeries(ChartView.SeriesTypeLine, "line series", axisX, axisY1)
+            line.color = "#38ad6b"
+            cppGUI.registerSpectrumSeries(spectrumView.series(0));
+        }
+        else {
+            removeAllSeries()
+            var scatter = createSeries(ChartView.SeriesTypeScatter, "scatter series", axisX, axisY1)
+            scatter.markerSize = 1.0
+            scatter.borderColor = "#38ad6b";
+            cppGUI.registerSpectrumSeries(spectrumView.series(0));
         }
     }
 
@@ -65,7 +79,7 @@ ChartView {
     }
 
     Component.onCompleted: {
-        cppGUI.registerSpectrumSeries(spectrumView.series(0));
+        plotTypeChanged(0);
     }
 
     ValueAxis {
@@ -78,12 +92,6 @@ ChartView {
     ValueAxis {
         id: axisX
         titleText: qsTr("Frequency") + " [MHz]"
-    }
-
-    LineSeries {
-        id: lineSeries1
-        axisX: axisX
-        axisY: axisY1
     }
 
     Timer {
