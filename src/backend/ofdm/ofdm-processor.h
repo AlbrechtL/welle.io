@@ -56,8 +56,7 @@
 class OFDMProcessor
 {
     public:
-        OFDMProcessor(
-                InputInterface& interface,
+        OFDMProcessor(InputInterface& intputInterface, // Identifier "interface" is already defined in the w32api header basetype.h
                 const DABParams& params,
                 RadioControllerInterface& ri,
                 MscHandler& msc,

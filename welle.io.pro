@@ -169,6 +169,7 @@ win32 {
     LIBS    += -lws2_32
     LIBS    += -llibfaad
     LIBS    += -lusb-1.0
+    LIBS    += -lws2_32
     CONFIG  += rtl_sdr
     CONFIG  += airspy
 }

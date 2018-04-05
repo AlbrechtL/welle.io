@@ -60,6 +60,15 @@ CRTL_TCP_Client::CRTL_TCP_Client(RadioControllerInterface& radioController) :
 {
     memset(&dongleInfo, 0, sizeof(dongle_info_t));
     dongleInfo.tuner_type = RTLSDR_TUNER_UNKNOWN;
+
+#if defined(_WIN32)
+    WSADATA wsa;
+    std::clog << "RTL_TCP_CLIENT: Initialising Winsock...";
+
+    if (WSAStartup(MAKEWORD(2,2),&wsa) != 0)
+         std::clog << "Failed. Error Code :" << WSAGetLastError();
+    std::clog << "done" << std::endl;
+#endif
 }
 
 CRTL_TCP_Client::~CRTL_TCP_Client(void)
@@ -103,7 +112,12 @@ void CRTL_TCP_Client::stop(void)
     rtlsdrRunning = false;
 
     // Close connection
+#if defined(_WIN32)
+    closesocket(sock);
+#else
     close(sock);
+#endif
+
     lock.unlock();
 
     if (agcThread.joinable()) {
@@ -161,7 +175,11 @@ void CRTL_TCP_Client::receiveData(void)
     while (sock != -1 && read < buffer.size()) {
         const size_t remain = buffer.size() - read;
 
-        ssize_t ret = recv(sock, buffer.data() + read, remain, 0);
+#if defined(_WIN32)
+    ssize_t ret = recv(sock, (char*) buffer.data() + read, remain, 0);
+#else
+    ssize_t ret = recv(sock, buffer.data() + read, remain, 0);
+#endif
 
         if (ret == 0) {
             handleDisconnect();
@@ -249,7 +267,11 @@ void CRTL_TCP_Client::handleDisconnect()
     // TODO Why is this done?
     QTimer::singleShot(0, RadioController, SLOT(closeDevice()));
 #endif
+#if defined(_WIN32)
+    closesocket(sock);
+#else
     close(sock);
+#endif
     sock = -1;
 }
 
@@ -267,7 +289,11 @@ void CRTL_TCP_Client::sendCommand(uint8_t cmd, int32_t param)
     datagram[3] = (param >> ONE_BYTE) & 0xFF;
     datagram[2] = (param >> (2 * ONE_BYTE)) & 0xFF;
     datagram[1] = (param >> (3 * ONE_BYTE)) & 0xFF;
+#if defined(_WIN32)
+    send(sock, (char*) datagram.data(), datagram.size(), 0);
+#else
     send(sock, datagram.data(), datagram.size(), 0);
+#endif
 }
 
 void CRTL_TCP_Client::sendVFO(int32_t frequency)
@@ -349,6 +375,7 @@ bool CRTL_TCP_Client::connect()
 {
     bool ret = false;
     struct addrinfo hints;
+    memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = 0;
@@ -360,7 +387,12 @@ bool CRTL_TCP_Client::connect()
 
     int s = getaddrinfo(serverAddress.c_str(), port_str.c_str(), &hints, &result);
     if (s != 0) {
-        std::string errstr = gai_strerror(s);
+#if defined(_WIN32)
+        char * ch_errstr = gai_strerrorA(s);
+#else
+        unsigned char * ch_errstr = gai_strerror(s);
+#endif
+        std::string errstr(ch_errstr);
         throw std::runtime_error("getaddrinfo: " + errstr);
     }
 
@@ -379,8 +411,11 @@ bool CRTL_TCP_Client::connect()
             sock = sfd;
             break;                  /* Success */
         }
-
+#if defined(_WIN32)
+        closesocket(sfd);
+#else
         close(sfd);
+#endif
     }
 
     if (rp == NULL) {               /* No address succeeded */
@@ -463,7 +498,7 @@ void CRTL_TCP_Client::agcTimer(void)
                 // We have to decrease the gain
                 if(currentGainCount > 0) {
                     setGain(currentGainCount - 1);
-                    std::clog << "RTL_TCP_CLIENT: Decrease gain to" <<
+                    std::clog << "RTL_TCP_CLIENT: Decrease gain to " <<
                         (float)currentGain << std::endl;
                 }
             }
@@ -480,7 +515,7 @@ void CRTL_TCP_Client::agcTimer(void)
                     // We have to increase the gain
                     if (newMinValue >=0 && newMaxValue <= 255) {
                         setGain(currentGainCount + 1);
-                        std::clog << "RTL_TCP_CLIENT: Increase gain to" <<
+                        std::clog << "RTL_TCP_CLIENT: Increase gain to " <<
                             currentGain << std::endl;
                     }
                 }

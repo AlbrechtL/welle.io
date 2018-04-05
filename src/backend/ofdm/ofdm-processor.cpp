@@ -51,7 +51,7 @@
 #define abs std::abs     // to suppress warning: using integer absolute value function 'abs' when argument is of floating point type [-Wabsolute-value]
 
 OFDMProcessor::OFDMProcessor(
-        InputInterface& interface,
+        InputInterface& intputInterface,
         const DABParams& params,
         RadioControllerInterface& ri,
         MscHandler& msc,
@@ -59,7 +59,7 @@ OFDMProcessor::OFDMProcessor(
         int16_t    threshold,
         uint8_t    freqsyncMethod) :
     radioInterface(ri),
-    input(interface),
+    input(intputInterface),
     params(params),
     ficHandler(fic),
     tiiDecoder(params, ri),

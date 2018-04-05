@@ -37,11 +37,18 @@
 #include <string>
 #include <thread>
 #include <mutex>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <unistd.h>
-#include <netdb.h>
-#include <arpa/inet.h>
+
+#if defined(_WIN32)    
+    #include <winsock2.h>
+    #include <ws2tcpip.h>
+    #include <windows.h>
+#else
+    #include <sys/socket.h>
+    #include <netinet/in.h>
+    #include <unistd.h>
+    #include <netdb.h>
+    #include <arpa/inet.h>
+#endif
 
 #include "CVirtualInput.h"
 #include "dab-constants.h"
