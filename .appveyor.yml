@@ -50,7 +50,7 @@ deploy:
       secure: i7ksq/PodhXDzjw7trN/y00EA6U4tZ9m4EGOFDv736Nrvb6lpvG8jtXwTV4cPOtV
     subject: albrechtl
     repo: welle.io
-    package: welle.io_nightly
+    package: welle.io_next_nightly
     version: '%file_version%'
     publish: true
     override: true

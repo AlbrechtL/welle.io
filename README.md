@@ -3,6 +3,8 @@
 - Linux (Travis): [![Travis Build Status](https://travis-ci.org/AlbrechtL/welle.io.svg?branch=master)](https://travis-ci.org/AlbrechtL/welle.io)
 - Windows (AppVeyor): [![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/yipsu95pb4ecdofe?svg=true)](https://ci.appveyor.com/project/AlbrechtL/welle-io)
 
+# WARNING: This is the next branch and heavy under development! It may not to compile or work!
+
 This repository contains the implementation of a SDR DAB/DAB+ receiver.  
 Please see the project website https://www.welle.io for a user oriented documentation. You can also use the forum https://forum.welle.io to get in contact with us.
 
@@ -27,12 +29,14 @@ Table of contents
 
 Download
 ========
-At the moment there is no stable release available. But the releases are tested and working in the most cases. If you discovered an issue use the [forum](https://forum.welle.io/) or open a new [issue](https://github.com/AlbrechtL/welle.io/issues) please.
+Stable release can be found here:
  * ### [welle.io for Windows, Linux and Android (APK)](http://github.com/AlbrechtL/welle.io/releases)
  * ### [welle.io for Android at Google Play](https://play.google.com/store/apps/details?id=io.welle.welle)
 
+If you discovered an issue use the [forum](https://forum.welle.io/) or open a new [issue](https://github.com/AlbrechtL/welle.io/issues) please.
+
 welle.io is under heavy development. You can also try the latest developer builds. But PLEASE BE WARNED the builds are automatically created and untested.
- * [welle.io nightly builds](https://bintray.com/albrechtl/welle.io/welle.io_nightly#files)
+ * [welle.io next nightly builds](https://bintray.com/albrechtl/welle.io/welle.io_next_nightly#files)
 
 To use it on macOS or on a Raspberry Pi you have to compile welle.io direct from the sources. See below for more information.
 

@@ -58,9 +58,12 @@ after_success:
   - sed -e "s/\${VERSION}/"$DATE"_"$GIT_HASH"/" .travis-bintray-deploy.json.template >travis-bintray-deploy.json
 
 deploy:
+  on:
+   branch: next
   provider: bintray
   file: "travis-bintray-deploy.json"
   user: "albrechtl"
+  skip_cleanup: true
   key:
     secure: "FvQOjUijZP1es80QQAIuBUFSvtsrJC03STlNu+Uvl9RUlgtWuXk1c5g9zggYgbm61LL5NTb5BLQggDkvuBdiNbE9CE2Y2MPWh1sava/n1z0vVgNoYjOIX9HO4s8fQkHs70Xx5XtUb1nAx2u4CDBt0wUWfbz6r77w3PJ5d1TpZjj+u3FOGUq9EW1ECQnBXuAHtu5WKdN3hOSw7WLXx4yQwR6RHF9zXE/dzvjA4B/JHY5Jfm3le4sCjKe4V4HDlqcmzorww8b4g+RezL0h+RGyqt0zHufa11lMa3VsZcTrQAhTZha7b2Sia1Vy+jWTtqb/BJM/fz0iOmoQNlual5lNPYmb0r3fyU4HTSnlH8FK+ifQBsCE6qUSdsOpOyKq+cX+jBaZXmgDqhA9bUofsAh/jtA3WgBX2GE6sSX0Z1/3HJnUzzEjgCMjiK6XYjl5qKZ20At68m9msjNom2CQ+QAGqLCsn6ADo0prxBHqUst5IeoKu30QdoarUbZvYliE7OLqewUsuGE8Dqwq78Qw6wWTlVauUpOrvmavoobUd7h4jE7xoko3KEfLGB5jGSKcTysKR4fVPAAEQYjfsImI9083VdY2UN7MGw3dHncH2N2Ncp8bKjjSrNg2Ve8IKtHryn/QjvAwnfdyO4vUqY1+40YmmNaiDRVsYZc2FisKSPsG4ws="
 
