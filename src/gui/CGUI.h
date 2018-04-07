@@ -33,6 +33,11 @@
 #include <QQmlContext>
 #include <QTimer>
 #include <QQmlApplicationEngine>
+
+#ifndef QT_NO_SYSTEMTRAYICON
+    #include <QSystemTrayIcon>
+#endif
+
 //#include <QList>
 #include <QtCharts>
 using namespace QtCharts;
@@ -77,6 +82,7 @@ public:
     Q_INVOKABLE void clearStationList(void);
     Q_INVOKABLE void registerSpectrumSeries(QAbstractSeries* series);
     Q_INVOKABLE void setPlotType(int PlotType);
+    Q_INVOKABLE void tryHideWindow(void);
 
     QVariantMap guiData() const
     {
@@ -105,6 +111,16 @@ private:
 
     float m_currentGainValue;
 
+#ifndef QT_NO_SYSTEMTRAYICON
+    QAction *minimizeAction;
+    QAction *maximizeAction;
+    QAction *restoreAction;
+    QAction *quitAction;
+
+    QSystemTrayIcon *trayIcon;
+    QMenu *trayIconMenu;
+#endif
+
 public slots:
     void close();
     void updateSpectrum();
@@ -117,6 +133,8 @@ private slots:
     void MOTUpdate(QImage MOTImage);
     void SpectrumUpdate(qreal Ymax, qreal Xmin, qreal Xmax, QVector<QPointF> Data);
     void StationsChange(QList<StationElement *> Stations);
+    void showErrorMessage(QString Text);
+    void showInfoMessage(QString Text);
 
 signals:
     void channelScanStopped(void);
@@ -131,6 +149,12 @@ signals:
     void guiDataChanged(QVariantMap guiData);
     void stationModelChanged();
     void motChanged(void);
+
+#ifndef QT_NO_SYSTEMTRAYICON
+    void minimizeWindow(void);
+    void maximizeWindow(void);
+    void restoreWindow(void);
+#endif
 };
 
 #endif

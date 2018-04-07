@@ -74,7 +74,7 @@ ApplicationWindow {
     width: getWidth()
     height: getHeight()
 
-    visibility: settingsPage.enableFullScreenState ? "FullScreen" : "Windowed"
+    visibility: settingsPage.enableFullScreenState ? Window.FullScreen : Window.Windowed
 
     Component.onCompleted: {
         console.debug("os: " + Qt.platform.os)
@@ -674,5 +674,21 @@ ApplicationWindow {
             infoMessagePopup.text = Text;
             infoMessagePopup.open();
         }
+    }
+
+    Connections {
+        target: cppGUI
+
+        onMinimizeWindow: hide()
+        onMaximizeWindow: showMaximized()
+        onRestoreWindow: {
+            showNormal()
+            raise() // Stay in foreground
+        }
+    }
+
+    onVisibilityChanged: {
+        if(visibility == Window.Minimized)
+            cppGUI.tryHideWindow()
     }
 }

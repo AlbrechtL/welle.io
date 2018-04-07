@@ -75,6 +75,35 @@ CGUI::CGUI(CRadioController *RadioController, QObject *parent)
     connect(RadioController, &CRadioController::StationsChanged, this, &CGUI::StationsChange);
     connect(RadioController, &CRadioController::ScanStopped, this, &CGUI::channelScanStopped);
     connect(RadioController, &CRadioController::ScanProgress, this, &CGUI::channelScanProgress);
+    connect(RadioController, &CRadioController::showErrorMessage, this, &CGUI::showErrorMessage);
+    connect(RadioController, &CRadioController::showInfoMessage, this, &CGUI::showInfoMessage);
+#endif
+
+#ifndef QT_NO_SYSTEMTRAYICON
+    minimizeAction = new QAction(tr("Mi&nimize"), this);
+    connect(minimizeAction, SIGNAL(triggered()), this, SIGNAL(minimizeWindow()));
+
+    maximizeAction = new QAction(tr("Ma&ximize"), this);
+    connect(maximizeAction, SIGNAL(triggered()), this, SIGNAL(maximizeWindow()));
+
+    restoreAction = new QAction(tr("&Restore"), this);
+    connect(restoreAction, SIGNAL(triggered()), this, SIGNAL(restoreWindow()));
+
+    quitAction = new QAction(tr("&Quit"), this);
+    connect(quitAction, &QAction::triggered, qApp, &QCoreApplication::quit);
+
+    trayIconMenu = new QMenu();
+    trayIconMenu->addAction(minimizeAction);
+    trayIconMenu->addAction(maximizeAction);
+    trayIconMenu->addAction(restoreAction);
+    trayIconMenu->addSeparator();
+    trayIconMenu->addAction(quitAction);
+
+    trayIcon = new QSystemTrayIcon();
+    trayIcon->setContextMenu(trayIconMenu);
+
+    trayIcon->setIcon(QIcon(":/icon.png"));
+    trayIcon->show();
 #endif
 }
 
@@ -227,6 +256,20 @@ void CGUI::StationsChange(QList<StationElement*> Stations)
     emit foundChannelCount(Stations.count());
 }
 
+void CGUI::showErrorMessage(QString Text)
+{
+#ifndef QT_NO_SYSTEMTRAYICON
+    trayIcon->showMessage(QCoreApplication::applicationName(), Text, QIcon(":/icon.png"), 5000);
+#endif
+}
+
+void CGUI::showInfoMessage(QString Text)
+{
+#ifndef QT_NO_SYSTEMTRAYICON
+    trayIcon->showMessage(QCoreApplication::applicationName(), Text, QIcon(":/icon.png"), 5000);
+#endif
+}
+
 void CGUI::channelClick(QString StationName, QString ChannelName)
 {
     if(RadioController && ChannelName != "")
@@ -291,6 +334,17 @@ void CGUI::setPlotType(int PlotType)
         default: RadioController->setPlotType(PlotTypeEn::Unknown);
         }
     }
+}
+
+void CGUI::tryHideWindow()
+{
+#ifndef QT_NO_SYSTEMTRAYICON
+    trayIcon->showMessage(QCoreApplication::applicationName(), tr("The program will keep running in the "
+                                       "system tray. To terminate the program, "
+                                       "choose <b>Quit</b> in the context menu "
+                                       "of the system tray entry."), QIcon(":/icon.png"), 5000);
+    emit minimizeWindow();
+#endif
 }
 
 // This function is called by the QML GUI
