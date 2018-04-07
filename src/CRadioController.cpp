@@ -85,6 +85,8 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, DABParams& p
     qRegisterMetaType<dab_date_time_t>("dab_date_time_t");
     connect(this, &CRadioController::DateTimeUpdated,
             this, &CRadioController::displayDateTime);
+
+    isAutoPlay = false;
 }
 
 void CRadioController::ResetTechnicalData(void)
@@ -282,6 +284,10 @@ void CRadioController::Initialise(void)
     emit DeviceReady();
     emit isHwAGCSupportedChanged(isHwAGCSupported());
     UpdateGUIData();
+
+    if(isAutoPlay) {
+        Play(autoChannel, autoStation);
+    }
 }
 
 void CRadioController::Play(QString Channel, QString Station)
@@ -1243,4 +1249,11 @@ void CRadioController::UpdateSpectrum()
 void CRadioController::setPlotType(PlotTypeEn PlotType)
 {
     this->PlotType = PlotType;
+}
+
+void CRadioController::setAutoPlay(QString Channel, QString Station)
+{
+    isAutoPlay = true;
+    autoChannel = Channel;
+    autoStation = Station;
 }

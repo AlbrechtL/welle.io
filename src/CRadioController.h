@@ -113,6 +113,7 @@ public:
     void StopScan(void);
     void UpdateSpectrum(void);
     void setPlotType(PlotTypeEn PlotType);
+    void setAutoPlay(QString Channel, QString Station);
     QList<StationElement*> Stations() const;
     QVariantMap GUIData(void) const;
     QString ErrorMsg() const;
@@ -238,6 +239,9 @@ private:
     bool isChannelScan;
     bool isAGC;
     bool isHwAGC;
+    bool isAutoPlay;
+    QString autoChannel;
+    QString autoStation;
 
     // Spectrum variables
     common_fft* spectrum_fft_handler;

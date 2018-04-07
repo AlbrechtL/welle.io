@@ -280,7 +280,7 @@ int main(int argc, char** argv)
 
         QStringList lastStation = settings.value("lastchannel").toStringList();
         if( lastStation.count() == 2 )
-            RadioController->Play( lastStation[1], lastStation[0]);
+            RadioController->setAutoPlay( lastStation[1], lastStation[0]);
     }
 
 
@@ -295,11 +295,11 @@ int main(int argc, char** argv)
         // try to find station name in the station list
         it = std::find_if(stationList.begin(), stationList.end(), [](StationElement* station) {
 
-                return station->getStationName().indexOf( channelToSearchFor ) == 0;
+                return station->getStationName().simplified().indexOf( channelToSearchFor ) == 0;
         });
 
         if(it != stationList.end())
-            RadioController->Play((*it)->getChannelName(), (*it)->getStationName());
+            RadioController->setAutoPlay((*it)->getChannelName(), (*it)->getStationName());
     }
 
     CGUI *GUI = new CGUI(RadioController);
