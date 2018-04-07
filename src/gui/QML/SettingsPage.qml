@@ -9,6 +9,7 @@ import "style"
 Item {
     id: settingsPage
     property alias enableFullScreenState : enableFullScreen.checked
+    property alias enableLastPlayedStationState : enableLastPlayedStation.checked
     property alias enableExpertModeState : enableExpertMode.checked
     property alias enableAGCState : enableAGC.checked
     property alias enableHwAGCState : enableHwAGC.checked
@@ -17,6 +18,7 @@ Item {
 
     Settings {
         property alias enableFullScreenState : settingsPage.enableFullScreenState
+        property alias enableLastPlayedStationState : settingsPage.enableLastPlayedStationState
         property alias enableExpertModeState : settingsPage.enableExpertModeState
         property alias manualGainState : settingsPage.manualGainState
         property alias manualGainValue: manualGain.showCurrentValue
@@ -232,6 +234,16 @@ Item {
                             Layout.fillWidth: true
                             Layout.fillHeight: true
                             objectName: "enableFullScreen"
+                            checked: false
+                        }
+
+                        TouchSwitch {
+                            id: enableLastPlayedStation
+                            name: qsTr("Last played")
+                            height: 24
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+                            objectName: "enableLastPlayedStation"
                             checked: false
                         }
 
