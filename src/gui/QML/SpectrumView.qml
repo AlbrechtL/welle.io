@@ -17,41 +17,41 @@ ChartView {
     property int plotType: 0
 
     onPlotTypeChanged: {
-        axisY1.min = 0;
+        axisY.min = 0;
         switch(plotType) {
         case 0:
             title = qsTr("Spectrum")
             axisX.titleText = qsTr("Frequency") + " [MHz]"
-            axisY1.titleText = qsTr("Amplitude")
+            axisY.titleText = qsTr("Amplitude")
             break;
         case 1:
             title = qsTr("Impulse Response")
             axisX.titleText = qsTr("Samples")
-            axisY1.titleText = qsTr("Amplitude")
-            axisY1.min = -20
+            axisY.titleText = qsTr("Amplitude")
+            axisY.min = -20
             break;
         case 2:
             title = qsTr("Constellation Diagram")
-            axisX.titleText = qsTr("Q")
-            axisY1.titleText = qsTr("I")
-            axisY1.min = -180
+            axisX.titleText = qsTr("Subcarrier")
+            axisY.titleText = qsTr("DQPSK Angle [Degree]")
+            axisY.min = -180
             break;
         case 3:
             title = qsTr("Null Symbol")
             axisX.titleText = qsTr("Frequency") + " [MHz]"
-            axisY1.titleText = qsTr("Amplitude")
+            axisY.titleText = qsTr("Amplitude")
             break;
         }
 
         if(plotType != 2) {
             removeAllSeries()
-            var line = createSeries(ChartView.SeriesTypeLine, "line series", axisX, axisY1)
+            var line = createSeries(ChartView.SeriesTypeLine, "line series", axisX, axisY)
             line.color = "#38ad6b"
             cppGUI.registerSpectrumSeries(spectrumView.series(0));
         }
         else {
             removeAllSeries()
-            var scatter = createSeries(ChartView.SeriesTypeScatter, "scatter series", axisX, axisY1)
+            var scatter = createSeries(ChartView.SeriesTypeScatter, "scatter series", axisX, axisY)
             scatter.markerSize = 1.0
             scatter.borderColor = "#38ad6b";
             cppGUI.registerSpectrumSeries(spectrumView.series(0));
@@ -61,9 +61,9 @@ ChartView {
     Connections{
         target: cppGUI
         onSetYAxisMax:{
-            if(axisY1.max < max) // Up scale y axis emidetly if y should be bigger
+            if(axisY.max < max) // Up scale y axis emidetly if y should be bigger
             {
-                axisY1.max = max
+                axisY.max = max
             }
             else // Only for down scale
             {
@@ -83,7 +83,7 @@ ChartView {
     }
 
     ValueAxis {
-        id: axisY1
+        id: axisY
         min: 0
         titleText: qsTr("Amplitude")
     }
@@ -109,7 +109,7 @@ ChartView {
         interval: 1 * 1000 // 1 s
         repeat: false
         onTriggered: {
-           axisY1.max = maxYAxis
+           axisY.max = maxYAxis
         }
     }
 }
