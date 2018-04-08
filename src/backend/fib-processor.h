@@ -67,15 +67,28 @@ struct ServiceComponent {
     int16_t      packetAddress;  // used in packet
 };
 
-struct ChannelMap {
-    int32_t  SubChId;
-    int32_t  StartAddr;
-    int32_t  Length;
+struct Subchannel {
+    int32_t  subChId;
+    int32_t  startAddr;
+    int32_t  length;
     bool     shortForm;
+
+    // when short-form, UEP:
+    int16_t  tableIndex;
+
+    // when long-form:
+    // Option 0: EEP-A
+    // Option 1: EEP-B
+    int32_t  protOption;
     int32_t  protLevel;
-    int32_t  BitRate;
+
     int16_t  language;
-    int16_t  FEC_scheme;
+
+    // For subchannels carrying packet-mode service components
+    int16_t  fecScheme; // 0=no FEC, 1=FEC, 2=Rfu, 3=Rfu
+
+    // Calculate the effective subchannel bitrate
+    int32_t bitrate(void);
 };
 
 class   CRadioController;
@@ -158,7 +171,7 @@ class   FIBProcessor {
         dab_date_time_t dateTime = {};
         mutable std::mutex mutex;
         std::string ensembleName;
-        std::vector<ChannelMap> ficList;
+        std::vector<Subchannel> subChannels;
         std::vector<ServiceComponent> components;
         std::vector<Service> services;
         bool firstTime = true;

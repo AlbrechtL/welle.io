@@ -100,6 +100,37 @@ const int ProtLevel[64][3] = {
     {280,3,384},
     {416,1,384}};
 
+int32_t Subchannel::bitrate()
+{
+    if (shortForm) {
+        return ProtLevel[tableIndex][2];
+    }
+    else {  // EEP
+        if (protOption == 0) { // EEP-A
+            if (protLevel == 0)
+                return length / 12 * 8;
+            if (protLevel == 1)
+                return length / 8 * 8;
+            if (protLevel == 2)
+                return length / 6 * 8;
+            if (protLevel == 3)
+                return length / 4 * 8;
+        }
+        else { // EEP-B
+            if (protLevel == 0)
+                return length / 27 * 32;
+            if (protLevel == 1)
+                return length / 21 * 32;
+            if (protLevel == 2)
+                return length / 18 * 32;
+            if (protLevel == 3)
+                return length / 15 * 32;
+        }
+    }
+
+    throw std::runtime_error("Unsupported protection");
+}
+
 FIBProcessor::FIBProcessor(RadioControllerInterface& mr) :
     myRadioInterface(mr)
 {
@@ -236,51 +267,35 @@ int16_t FIBProcessor::HandleFIG0Extension1(
     int16_t bitOffset   = offset * 8;
     int16_t SubChId     = getBits_6 (d, bitOffset);
     int16_t StartAdr    = getBits (d, bitOffset + 6, 10);
-    int16_t tabelIndex;
     int16_t option, protLevel, subChanSize;
     (void)pd;       // not used right now, maybe later
-    ficList [SubChId]. StartAddr = StartAdr;
-    if (getBits_1 (d, bitOffset + 16) == 0) {   // short form
-        tabelIndex = getBits_6 (d, bitOffset + 18);
-        ficList[SubChId].Length       = ProtLevel[tabelIndex][0];
-        ficList[SubChId].shortForm    = true;    // short form
-        ficList[SubChId].protLevel    = ProtLevel[tabelIndex][1];
-        ficList[SubChId].BitRate      = ProtLevel[tabelIndex][2];
+    subChannels[SubChId].startAddr = StartAdr;
+    if (getBits_1 (d, bitOffset + 16) == 0) {   // UEP, short form
+        int16_t tableIx = getBits_6 (d, bitOffset + 18);
+        subChannels[SubChId].tableIndex = tableIx;
+        subChannels[SubChId].length     = ProtLevel[tableIx][0];
+        subChannels[SubChId].shortForm  = true;
+        subChannels[SubChId].protLevel  = ProtLevel[tableIx][1];
         bitOffset += 24;
     }
-    else {  // EEP long form
-        ficList[SubChId].shortForm    = false;
+    else {  // EEP, long form
+        subChannels[SubChId].shortForm    = false;
         option = getBits_3 (d, bitOffset + 17);
+        subChannels[SubChId].protOption = option;
         if (option == 0) {      // A Level protection
             protLevel = getBits (d, bitOffset + 20, 2);
             //
             //  we encode the A level protection by adding 0100 to the level
-            ficList[SubChId]. protLevel = protLevel;
+            subChannels[SubChId]. protLevel = protLevel;
             subChanSize = getBits (d, bitOffset + 22, 10);
-            ficList[SubChId].Length   = subChanSize;
-            if (protLevel == 0)
-                ficList[SubChId].BitRate  = subChanSize / 12 * 8;
-            if (protLevel == 1)
-                ficList[SubChId].BitRate  = subChanSize / 8 * 8;
-            if (protLevel == 2)
-                ficList[SubChId].BitRate  = subChanSize / 6 * 8;
-            if (protLevel == 3)
-                ficList[SubChId].BitRate  = subChanSize / 4 * 8;
+            subChannels[SubChId].length   = subChanSize;
         }
         else            // option should be 001
             if (option == 001) {        // B Level protection
                 protLevel = getBits_2 (d, bitOffset + 20);
-                ficList[SubChId].protLevel = protLevel + (1 << 2);
+                subChannels[SubChId].protLevel = protLevel + (1 << 2);
                 subChanSize = getBits (d, bitOffset + 22, 10);
-                ficList[SubChId].Length = subChanSize;
-                if (protLevel == 0)
-                    ficList[SubChId].BitRate  = subChanSize / 27 * 32;
-                if (protLevel == 1)
-                    ficList[SubChId].BitRate  = subChanSize / 21 * 32;
-                if (protLevel == 2)
-                    ficList[SubChId].BitRate  = subChanSize / 18 * 32;
-                if (protLevel == 3)
-                    ficList[SubChId].BitRate  = subChanSize / 15 * 32;
+                subChannels[SubChId].length = subChanSize;
             }
 
         bitOffset += 32;
@@ -413,7 +428,7 @@ int16_t FIBProcessor::HandleFIG0Extension5(uint8_t* d, int16_t offset)
         if (getBits_1 (d, loffset + 1) == 0) {
             subChId = getBits_6 (d, loffset + 2);
             language = getBits_8 (d, loffset + 8);
-            ficList[subChId].language = language;
+            subChannels[subChId].language = language;
         }
         loffset += 16;
     }
@@ -593,18 +608,17 @@ int16_t FIBProcessor::HandleFIG0Extension13(
 
 void FIBProcessor::FIG0Extension14 (uint8_t *d)
 {
-    int16_t Length  = getBits_5 (d, 3); // in Bytes
-    int16_t used    = 2;            // in Bytes
-    int16_t i;
+    int16_t length = getBits_5 (d, 3); // in Bytes
+    int16_t used   = 2; // in Bytes
 
-    while (used < Length) {
-        int16_t SubChId = getBits_6 (d, used * 8);
-        uint8_t FEC_scheme = getBits_2 (d, used * 8 + 6);
+    while (used < length) {
+        int16_t subChId = getBits_6 (d, used * 8);
+        uint8_t fecScheme = getBits_2 (d, used * 8 + 6);
         used = used + 1;
 
-        for (i = 0; i < 64; i++) {
-            if (ficList[i].SubChId == SubChId) {
-                ficList[i].FEC_scheme = FEC_scheme;
+        for (int i = 0; i < 64; i++) {
+            if (subChannels[i].subChId == subChId) {
+                subChannels[i].fecScheme = fecScheme;
             }
         }
 
@@ -683,22 +697,21 @@ void FIBProcessor::FIG0Extension18(uint8_t *d)
 void FIBProcessor::FIG0Extension19(uint8_t *d)
 {
     int16_t  offset  = 16;       // bits
-    uint16_t AswFlags;
     int16_t  Length  = getBits_5 (d, 3);
     uint8_t  region_Id_Lower;
 
     while (offset / 8 < Length - 1) {
-        uint8_t ClusterId   = getBits_8 (d, offset);
+        uint8_t clusterId   = getBits_8 (d, offset);
         bool    new_flag    = getBits_1(d, offset + 24);
         bool    region_flag = getBits_1 (d, offset + 25);
-        uint8_t SubChId     = getBits_6 (d, offset + 26);
+        uint8_t subChId     = getBits_6 (d, offset + 26);
 
-        AswFlags    = getBits (d, offset + 8, 16);
+        uint16_t aswFlags = getBits (d, offset + 8, 16);
         //     std::clog << "fib-processor:" <<
         //            "%s %s Announcement %d for Cluster %2u on SubCh %2u ",
         //                ((new_flag==1)?"new":"old"),
         //                ((region_flag==1)?"regional":""),
-        //                AswFlags, ClusterId,SubChId) << std::endl;
+        //                aswFlags, clusterId,subChId) << std::endl;
         if (region_flag) {
             region_Id_Lower = getBits_6 (d, offset + 34);
             offset += 40;
@@ -709,11 +722,11 @@ void FIBProcessor::FIG0Extension19(uint8_t *d)
         }
 
         //     fprintf(stderr,"\n");
-        (void)ClusterId;
+        (void)clusterId;
         (void)new_flag;
-        (void)SubChId;
+        (void)subChId;
+        (void)aswFlags;
     }
-    (void)AswFlags;
     (void)region_Id_Lower;
 }
 
@@ -1000,7 +1013,7 @@ void FIBProcessor::clearEnsemble()
 {
     std::lock_guard<std::mutex> lock(mutex);
     components.clear();
-    ficList.resize(64);
+    subChannels.resize(64);
     services.clear();
 
     firstTime   = true;
@@ -1066,13 +1079,13 @@ packetdata_t FIBProcessor::getDataServiceData(const std::string &s)
 
             subchId = sc.subchannelId;
             d.subchId       = subchId;
-            d.startAddr     = ficList[subchId].StartAddr;
-            d.shortForm     = ficList[subchId].shortForm;
-            d.protLevel     = ficList[subchId].protLevel;
+            d.startAddr     = subChannels[subchId].startAddr;
+            d.shortForm     = subChannels[subchId].shortForm;
+            d.protLevel     = subChannels[subchId].protLevel;
             d.DSCTy         = sc.DSCTy;
-            d.length        = ficList[subchId].Length;
-            d.bitRate       = ficList[subchId].BitRate;
-            d.FEC_scheme    = ficList[subchId].FEC_scheme;
+            d.length        = subChannels[subchId].length;
+            d.bitRate       = subChannels[subchId].bitrate();
+            d.FEC_scheme    = subChannels[subchId].fecScheme;
             d.DGflag        = sc.DGflag;
             d.packetAddress = sc.packetAddress;
             d.valid = true;
@@ -1108,11 +1121,11 @@ audiodata_t FIBProcessor::getAudioServiceData(const std::string &s)
             }
             subchId       = sc.subchannelId;
             d.subchId     = subchId;
-            d.startAddr   = ficList[subchId].StartAddr;
-            d.shortForm   = ficList[subchId].shortForm;
-            d.protLevel   = ficList[subchId].protLevel;
-            d.length      = ficList[subchId].Length;
-            d.bitRate     = ficList[subchId].BitRate;
+            d.startAddr   = subChannels[subchId].startAddr;
+            d.shortForm   = subChannels[subchId].shortForm;
+            d.protLevel   = subChannels[subchId].protLevel;
+            d.length      = subChannels[subchId].length;
+            d.bitRate     = subChannels[subchId].bitrate();
             d.ASCTy       = sc.ASCTy;
             d.language    = services[i].language;
             d.programType = services[i].programType;
