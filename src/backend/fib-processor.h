@@ -50,9 +50,6 @@ class FIBProcessor {
         Subchannel getSubchannel(const ServiceComponent& sc) const;
 
     private:
-        audiodata_t getAudioServiceData(const std::string& label);
-        packetdata_t getDataServiceData(const std::string& label);
-
         RadioControllerInterface& myRadioInterface;
         Service *findServiceId(uint32_t serviceId);
         ServiceComponent *find_packetComponent(int16_t SCId);

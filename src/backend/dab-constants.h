@@ -82,35 +82,7 @@ public:
     int16_t carrierDiff;
 };
 
-struct packetdata_t {
-    int16_t subchId;
-    int16_t startAddr;
-    bool shortForm;
-    int16_t protLevel;
-    int16_t DSCTy;
-    int16_t length;
-    int16_t bitRate;
-    int16_t FEC_scheme;
-    int16_t DGflag;
-    int16_t packetAddress;
-    bool valid;
-};
-
-struct audiodata_t {
-    int16_t subchId;
-    int16_t startAddr;
-    bool shortForm;
-    int16_t protLevel;
-    int16_t length;
-    int16_t bitRate;
-    int16_t ASCTy;
-    int16_t language;
-    int16_t programType;
-    bool valid;
-};
-
-
-struct dabLabel {
+struct DabLabel {
     std::string label; // UTF-8 encoded
     uint8_t     mask = 0x00;
 };
@@ -119,7 +91,7 @@ struct dabLabel {
 //  from FIG1/2
 struct Service {
     uint32_t serviceId = 0;
-    dabLabel serviceLabel;
+    DabLabel serviceLabel;
     bool     hasPNum = false;
     bool     hasLanguage = false;
     int16_t  language = -1;

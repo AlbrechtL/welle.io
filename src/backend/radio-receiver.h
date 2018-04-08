@@ -52,9 +52,6 @@ class RadioReceiver {
          * to scan or receive. */
         void restart(bool doScan);
 
-        audiodata_t getAudioServiceData(const std::string& label);
-        void selectAudioService(const audiodata_t& ad);
-
         // Play the audio component of the service. Returns true if an
         // audio subchannel was found and tuned to.
         bool playAudioComponent(const Service& s);
