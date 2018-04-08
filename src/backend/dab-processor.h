@@ -34,10 +34,5 @@ class DabProcessor {
         virtual void addtoFrame(uint8_t *) = 0;
 };
 
-// The dummy processor does nothing
-class DummyProcessor : public DabProcessor {
-    public:
-        virtual void addtoFrame(uint8_t *) {};
-};
 #endif
 

@@ -55,9 +55,14 @@ class RadioReceiver {
         audiodata_t getAudioServiceData(const std::string& label);
         void selectAudioService(const audiodata_t& ad);
 
-        void selectAudioService(const Service& s);
+        // Play the audio component of the service. Returns true if an
+        // audio subchannel was found and tuned to.
+        bool playAudioComponent(const Service& s);
+
         std::string getEnsembleName(void) const;
         std::vector<Service> getServiceList(void) const;
+        std::list<ServiceComponent> getComponents(const Service& s) const;
+        Subchannel getSubchannel(const ServiceComponent& sc) const;
 
     private:
         RadioControllerInterface& rci;

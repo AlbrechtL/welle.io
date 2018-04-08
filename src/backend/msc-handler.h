@@ -51,39 +51,26 @@ class MscHandler
                 const std::string& mscFileName,
                 const std::string& mp2FileName);
         void process_mscBlock(int16_t *fbits, int16_t blkno);
-        void setAudioChannel(const audiodata_t& d);
-        void setDataChannel(const packetdata_t& d);
         void stopProcessing(void);
+        void setSubChannel(AudioServiceComponentType ascty, const Subchannel& sc);
+
     private:
         RadioControllerInterface& radioInterface;
         const std::string& mscFileName;
         const std::string& mp2FileName;
+        const int16_t bitsperBlock;
         bool        show_crcErrors;
         std::mutex  mutex;
-        bool        audioService = true;     // default
         std::shared_ptr<DabVirtual> dabHandler;
         std::vector<int16_t> cifVector;
         int16_t     cifCount = 0; // msc blocks in CIF
         int16_t     blkCount = 0;
         bool        work_to_be_done = false;
-        bool        newChannel = false;
-        int16_t     new_packetAddress = 0;
-        int16_t     new_ASCTy = 0;
-        int16_t     new_DSCTy = 0;
-        int16_t     new_startAddr = 0;
-        int16_t     new_length = 0;
-        bool        new_shortForm = 0;
-        int16_t     new_protLevel = 0;
-        uint8_t     new_DGflag = 0;
-        int16_t     new_bitRate = 0;
-        int16_t     new_language = 0;
-        int16_t     new_type = 0;
-        int16_t     new_FEC_scheme = 0;
         int16_t     startAddr = 0;
         int16_t     length = 0;
-        int8_t      dabModus = 0;
-        int8_t      new_dabModus = 0;
-        int16_t     bitsperBlock;
+        bool        newChannel = false;
+        AudioServiceComponentType audioType;
+        Subchannel  subChannel;
         int16_t     numberofblocksperCIF;
 };
 

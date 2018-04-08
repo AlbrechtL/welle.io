@@ -44,12 +44,9 @@ class FicHandler: public Viterbi
         void    clearEnsemble       (void);
         bool    syncReached         (void);
         int16_t get_ficRatio        (void);
-        uint8_t kindofService       (const std::string& s);
-        audiodata_t getAudioServiceData(const std::string& s);
-        packetdata_t getDataServiceData(const std::string& s);
 
-        std::string getEnsembleName(void) const;
-        std::vector<Service> getServiceList(void) const;
+        FIBProcessor fibProcessor;
+
     private:
         RadioControllerInterface& myRadioInterface;
         void        process_ficInput(int16_t *ficblock, int16_t ficno);
@@ -63,8 +60,6 @@ class FicHandler: public Viterbi
         int16_t     ficBlocks = 0;
         int16_t     ficMissed = 0;
         int16_t     ficRatio = 0;
-        mutable std::mutex  fibMutex;
-        FIBProcessor fibProcessor;
         uint8_t     PRBS[768];
         uint8_t     shiftRegister[9];
 };

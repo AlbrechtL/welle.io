@@ -45,12 +45,9 @@
 using DSPFLOAT = float;
 using DSPCOMPLEX = std::complex<DSPFLOAT>;
 
-#define DAB 0100
-#define DAB_PLUS 0101
+enum class AudioServiceComponentType { DAB, DABPlus, Unknown };
 
-#define AUDIO_SERVICE 0101
-#define PACKET_SERVICE 0102
-#define UNKNOWN_SERVICE 0100
+enum class TransportMode { Audio, StreamData, FIDC, PacketData };
 
 #define INPUT_RATE 2048000
 #define BANDWIDTH 1536000
@@ -64,6 +61,8 @@ namespace DABConstants {
     const char* getProgramTypeName(int type);
     const char* getLanguageName(int language);
 }
+
+extern const int ProtLevel[64][3];
 
 class DABParams {
 public:
@@ -108,6 +107,68 @@ struct audiodata_t {
     int16_t language;
     int16_t programType;
     bool valid;
+};
+
+
+struct dabLabel {
+    std::string label; // UTF-8 encoded
+    uint8_t     mask = 0x00;
+};
+
+
+//  from FIG1/2
+struct Service {
+    uint32_t serviceId = 0;
+    dabLabel serviceLabel;
+    bool     hasPNum = false;
+    bool     hasLanguage = false;
+    int16_t  language = -1;
+    int16_t  programType = 0;
+    uint16_t pNum = 0;
+};
+
+//      The service component describes the actual service
+//      It really should be a union
+struct ServiceComponent {
+    int8_t       TMid;           // the transport mode
+    uint32_t     SId;            // belongs to the service
+    int16_t      componentNr;    // component
+
+    int16_t      ASCTy;          // used for audio
+    int16_t      PS_flag;        // use for both audio and packet
+    int16_t      subchannelId;   // used in both audio and packet
+    uint16_t     SCId;           // used in packet
+    uint8_t      CAflag;         // used in packet (or not at all)
+    int16_t      DSCTy;          // used in packet
+    uint8_t      DGflag;         // used for TDC
+    int16_t      packetAddress;  // used in packet
+
+    TransportMode transportMode(void) const;
+    AudioServiceComponentType audioType(void) const;
+};
+
+struct Subchannel {
+    int32_t  subChId;
+    int32_t  startAddr;
+    int32_t  length;
+    bool     shortForm;
+
+    // when short-form, UEP:
+    int16_t  tableIndex;
+
+    // when long-form:
+    // Option 0: EEP-A
+    // Option 1: EEP-B
+    int32_t  protOption;
+    int32_t  protLevel;
+
+    int16_t  language;
+
+    // For subchannels carrying packet-mode service components
+    int16_t  fecScheme; // 0=no FEC, 1=FEC, 2=Rfu, 3=Rfu
+
+    // Calculate the effective subchannel bitrate
+    int32_t bitrate(void) const;
 };
 
 #endif

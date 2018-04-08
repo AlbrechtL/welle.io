@@ -303,7 +303,7 @@ int main(int argc, char **argv)
         for (const auto s : rx.getServiceList()) {
             if (s.serviceLabel.label.find(service_to_tune) != string::npos) {
                 service_selected = true;
-                rx.selectAudioService(s);
+                rx.playAudioComponent(s);
             }
         }
         if (not service_selected) {

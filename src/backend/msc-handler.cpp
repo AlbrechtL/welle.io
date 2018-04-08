@@ -43,11 +43,10 @@ MscHandler::MscHandler(
     radioInterface(mr),
     mscFileName(mscFileName),
     mp2FileName(mp2FileName),
+    bitsperBlock(2 * p.K),
+    show_crcErrors(show_crcErrors),
     cifVector(864 * CUSize)
 {
-    this->show_crcErrors = show_crcErrors;
-    bitsperBlock = 2 * p.K;
-
     if (p.dabMode == 4) {  // 2 CIFS per 76 blocks
         numberofblocksperCIF = 36;
     }
@@ -64,41 +63,13 @@ MscHandler::MscHandler(
     }
 }
 
-//  Note, the setxxx functions are called from within a
-//  different thread than the process_mscBlock method,
-//  so, a little bit of locking seems wise while
-//  the actual changing of the settings is done in the
-//  thread executing process_mscBlock
-void MscHandler::setAudioChannel(const audiodata_t& d)
+void MscHandler::setSubChannel(AudioServiceComponentType ascty,
+        const Subchannel& sc)
 {
     std::lock_guard<std::mutex> lock(mutex);
-    audioService    = true;
-    new_shortForm   = d.shortForm;
-    new_startAddr   = d.startAddr;
-    new_length      = d.length;
-    new_protLevel   = d.protLevel;
-    new_bitRate     = d.bitRate;
-    new_language    = d.language;
-    new_type        = d.programType;
-    new_ASCTy       = d.ASCTy;
-    new_dabModus    = new_ASCTy == 077 ? DAB_PLUS : DAB;
-    newChannel      = true;
-}
-
-void MscHandler::setDataChannel(const packetdata_t& d)
-{
-    std::lock_guard<std::mutex> lock(mutex);
-    audioService      = false;
-    new_shortForm     = d.shortForm;
-    new_startAddr     = d.startAddr;
-    new_length        = d.length;
-    new_protLevel     = d.protLevel;
-    new_DGflag        = d.DGflag;
-    new_bitRate       = d.bitRate;
-    new_FEC_scheme    = d.FEC_scheme;
-    new_DSCTy         = d.DSCTy;
-    new_packetAddress = d.packetAddress;
-    newChannel        = true;
+    audioType = ascty;
+    subChannel = sc;
+    newChannel = true;
 }
 
 //  add blocks. First is (should be) block 5, last is (should be) 76
@@ -108,17 +79,14 @@ void MscHandler::setDataChannel(const packetdata_t& d)
 //
 //  Any change in the selected service will only be active
 //  during te next process_mscBlock call.
-void  MscHandler::process_mscBlock(int16_t *fbits, int16_t blkno)
+void MscHandler::process_mscBlock(int16_t *fbits, int16_t blkno)
 {
-    int16_t currentblk;
-    int16_t *myBegin;
-
     std::lock_guard<std::mutex> lock(mutex);
 
     if (!work_to_be_done && !newChannel)
         return;
 
-    currentblk  = (blkno - 4) % numberofblocksperCIF;
+    int16_t currentblk = (blkno - 4) % numberofblocksperCIF;
 
     if (newChannel) {
         newChannel = false;
@@ -126,34 +94,31 @@ void  MscHandler::process_mscBlock(int16_t *fbits, int16_t blkno)
             dabHandler.reset();
         }
 
-        if (audioService) {
-            dabHandler = std::make_shared<DabAudio>(
-                    new_dabModus,
-                    new_length * CUSize,
-                    new_bitRate,
-                    new_shortForm,
-                    new_protLevel,
-                    radioInterface,
-                    mscFileName,
-                    mp2FileName);
-        }
-        else  {  /* TODO dealing with data
+        dabHandler = std::make_shared<DabAudio>(
+                audioType,
+                subChannel.length * CUSize,
+                subChannel.bitrate(),
+                subChannel.shortForm,
+                subChannel.protLevel,
+                radioInterface,
+                mscFileName,
+                mp2FileName);
+         /* TODO dealing with data
                     dabHandler = std::make_shared<DabData>(radioInterface,
                                               new_DSCTy,
                                               new_packetAddress,
-                                              new_length * CUSize,
-                                              new_bitRate,
-                                              new_shortForm,
-                                              new_protLevel,
+                                              subChannel.length * CUSize,
+                                              subChannel.bitrate(),
+                                              subChannel.shortForm,
+                                              subChannel.protLevel,
                                               new_DGflag,
                                               new_FEC_scheme,
                                               show_crcErrors);
             */
-        }
 
         //  these we need for actual processing
-        startAddr = new_startAddr;
-        length    = new_length;
+        startAddr = subChannel.startAddr;
+        length    = subChannel.length;
         //  and this one to get started
         work_to_be_done  = true;
     }
@@ -168,10 +133,9 @@ void  MscHandler::process_mscBlock(int16_t *fbits, int16_t blkno)
     //  OK, now we have a full CIF
     blkCount    = 0;
     cifCount    = (cifCount + 1) & 03;
-    myBegin     = &cifVector [startAddr * CUSize];
-    //  Here we move the vector to be processed to a
-    //  separate task or separate function, depending on
-    //  the settings in the ini file, we might take advantage of multi cores
+
+    int16_t *myBegin = &cifVector[startAddr * CUSize];
+
     if (dabHandler) {
         (void)dabHandler->process(myBegin, length * CUSize);
     }

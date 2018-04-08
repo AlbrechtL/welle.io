@@ -25,75 +25,16 @@
 #ifndef FIB_PROCESSOR
 #define FIB_PROCESSOR
 
-#include    <vector>
-#include    <array>
-#include    <mutex>
-#include    <cstdint>
-#include    <cstdio>
-#include    "msc-handler.h"
-#include    "radio-controller.h"
+#include <vector>
+#include <list>
+#include <array>
+#include <mutex>
+#include <cstdint>
+#include <cstdio>
+#include "msc-handler.h"
+#include "radio-controller.h"
 
-struct dabLabel {
-    std::string label; // UTF-8 encoded
-    uint8_t     mask = 0x00;
-};
-
-
-//  from FIG1/2
-struct Service {
-    uint32_t serviceId = 0;
-    dabLabel serviceLabel;
-    bool     hasPNum = false;
-    bool     hasLanguage = false;
-    int16_t  language = -1;
-    int16_t  programType = 0;
-    uint16_t pNum = 0;
-};
-
-//      The service component describes the actual service
-//      It really should be a union
-struct ServiceComponent {
-    int8_t       TMid;           // the transport mode
-    uint32_t     SId;            // belongs to the service
-    int16_t      componentNr;    // component
-
-    int16_t      ASCTy;          // used for audio
-    int16_t      PS_flag;        // use for both audio and packet
-    int16_t      subchannelId;   // used in both audio and packet
-    uint16_t     SCId;           // used in packet
-    uint8_t      CAflag;         // used in packet (or not at all)
-    int16_t      DSCTy;          // used in packet
-    uint8_t      DGflag;         // used for TDC
-    int16_t      packetAddress;  // used in packet
-};
-
-struct Subchannel {
-    int32_t  subChId;
-    int32_t  startAddr;
-    int32_t  length;
-    bool     shortForm;
-
-    // when short-form, UEP:
-    int16_t  tableIndex;
-
-    // when long-form:
-    // Option 0: EEP-A
-    // Option 1: EEP-B
-    int32_t  protOption;
-    int32_t  protLevel;
-
-    int16_t  language;
-
-    // For subchannels carrying packet-mode service components
-    int16_t  fecScheme; // 0=no FEC, 1=FEC, 2=Rfu, 3=Rfu
-
-    // Calculate the effective subchannel bitrate
-    int32_t bitrate(void);
-};
-
-class   CRadioController;
-
-class   FIBProcessor {
+class FIBProcessor {
     public:
         FIBProcessor(RadioControllerInterface& mr);
 
@@ -102,18 +43,16 @@ class   FIBProcessor {
         void    clearEnsemble(void);
         bool    syncReached(void);
 
-        // returns PACKET_SERVICE or AUDIO_SERVICE or UNKNOWN_SERVICE
-        uint8_t kindofService(const std::string& label);
-
         // Called from the frontend
+        std::string getEnsembleName(void) const;
+        std::vector<Service> getServiceList(void) const;
+        std::list<ServiceComponent> getComponents(const Service& s) const;
+        Subchannel getSubchannel(const ServiceComponent& sc) const;
+
+    private:
         audiodata_t getAudioServiceData(const std::string& label);
         packetdata_t getDataServiceData(const std::string& label);
 
-        std::string getEnsembleName(void) const;
-        std::vector<Service> getServiceList(void) const;
-
-
-    private:
         RadioControllerInterface& myRadioInterface;
         Service *findServiceId(uint32_t serviceId);
         ServiceComponent *find_packetComponent(int16_t SCId);

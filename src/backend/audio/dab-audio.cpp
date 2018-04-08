@@ -43,7 +43,7 @@
 //
 //  fragmentsize == Length * CUSize
 DabAudio::DabAudio(
-        uint8_t dabModus,
+        AudioServiceComponentType dabModus,
         int16_t fragmentSize,
         int16_t bitRate,
         bool shortForm,
@@ -75,21 +75,18 @@ DabAudio::DabAudio(
     else
         protectionHandler = make_unique<EEPProtection>(bitRate, protLevel);
 
-    if (dabModus == DAB) {
+    if (dabModus == AudioServiceComponentType::DAB) {
         our_dabProcessor = make_unique<Mp2Processor>(
                 myRadioInterface, bitRate, mp2FileName);
     }
-    else {
-        if (dabModus == DAB_PLUS) {
-            our_dabProcessor = make_unique<Mp4Processor>(
-                    myRadioInterface, bitRate, mscFileName);
-        }
-        else        // cannot happen
-            our_dabProcessor = make_unique<DummyProcessor>();
+    else if (dabModus == AudioServiceComponentType::DABPlus) {
+        our_dabProcessor = make_unique<Mp4Processor>(
+                myRadioInterface, bitRate, mscFileName);
     }
 
-    std::clog << "dab-audio:"
-        " we have now " << ((dabModus == DAB_PLUS) ? "DAB+" : "DAB") << std::endl;
+    std::clog << "dab-audio: we have now " <<
+        ((dabModus == AudioServiceComponentType::DABPlus) ? "DAB+" : "DAB") <<
+        std::endl;
 
     running = true;
     ourThread = std::thread(&DabAudio::run, this);
@@ -165,7 +162,7 @@ void DabAudio::run()
         protectionHandler->deconvolve(tempX, fragmentSize, outV.data());
 
         //  and the inline energy dispersal
-        memset (shiftRegister, 1, 9);
+        memset(shiftRegister, 1, 9);
         for (i = 0; i < bitRate * 24; i ++) {
             uint8_t b = shiftRegister[8] ^ shiftRegister[4];
             for (j = 8; j > 0; j--)
@@ -173,7 +170,10 @@ void DabAudio::run()
             shiftRegister[0] = b;
             outV[i] ^= b;
         }
-        our_dabProcessor->addtoFrame(outV.data());
+
+        if (our_dabProcessor) {
+            our_dabProcessor->addtoFrame(outV.data());
+        }
     }
 }
 

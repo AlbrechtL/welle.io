@@ -42,7 +42,7 @@ class Protection;
 class DabAudio : public DabVirtual
 {
     public:
-        DabAudio(uint8_t dabModus,
+        DabAudio(AudioServiceComponentType dabModus,
                   int16_t fragmentSize,
                   int16_t bitRate,
                   bool shortForm,
@@ -62,7 +62,7 @@ class DabAudio : public DabVirtual
     private:
         void    run(void);
         std::atomic<bool> running;
-        uint8_t     dabModus;
+        AudioServiceComponentType dabModus;
         int16_t     fragmentSize;
         int16_t     bitRate;
         bool        shortForm;

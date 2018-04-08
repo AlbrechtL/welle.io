@@ -31,106 +31,6 @@
 #include "charsets.h"
 #include "MathHelper.h"
 
-//
-// Table ETSI EN 300 401 Page 50
-// Table is copied from the work of Michael Hoehn
-const int ProtLevel[64][3] = {
-    {16,5,32},  // Index 0
-    {21,4,32},
-    {24,3,32},
-    {29,2,32},
-    {35,1,32},  // Index 4
-    {24,5,48},
-    {29,4,48},
-    {35,3,48},
-    {42,2,48},
-    {52,1,48},  // Index 9
-    {29,5,56},
-    {35,4,56},
-    {42,3,56},
-    {52,2,56},
-    {32,5,64},  // Index 14
-    {42,4,64},
-    {48,3,64},
-    {58,2,64},
-    {70,1,64},
-    {40,5,80},  // Index 19
-    {52,4,80},
-    {58,3,80},
-    {70,2,80},
-    {84,1,80},
-    {48,5,96},  // Index 24
-    {58,4,96},
-    {70,3,96},
-    {84,2,96},
-    {104,1,96},
-    {58,5,112}, // Index 29
-    {70,4,112},
-    {84,3,112},
-    {104,2,112},
-    {64,5,128},
-    {84,4,128}, // Index 34
-    {96,3,128},
-    {116,2,128},
-    {140,1,128},
-    {80,5,160},
-    {104,4,160},    // Index 39
-    {116,3,160},
-    {140,2,160},
-    {168,1,160},
-    {96,5,192},
-    {116,4,192},    // Index 44
-    {140,3,192},
-    {168,2,192},
-    {208,1,192},
-    {116,5,224},
-    {140,4,224},    // Index 49
-    {168,3,224},
-    {208,2,224},
-    {232,1,224},
-    {128,5,256},
-    {168,4,256},    // Index 54
-    {192,3,256},
-    {232,2,256},
-    {280,1,256},
-    {160,5,320},
-    {208,4,320},    // index 59
-    {280,2,320},
-    {192,5,384},
-    {280,3,384},
-    {416,1,384}};
-
-int32_t Subchannel::bitrate()
-{
-    if (shortForm) {
-        return ProtLevel[tableIndex][2];
-    }
-    else {  // EEP
-        if (protOption == 0) { // EEP-A
-            if (protLevel == 0)
-                return length / 12 * 8;
-            if (protLevel == 1)
-                return length / 8 * 8;
-            if (protLevel == 2)
-                return length / 6 * 8;
-            if (protLevel == 3)
-                return length / 4 * 8;
-        }
-        else { // EEP-B
-            if (protLevel == 0)
-                return length / 27 * 32;
-            if (protLevel == 1)
-                return length / 21 * 32;
-            if (protLevel == 2)
-                return length / 18 * 32;
-            if (protLevel == 3)
-                return length / 15 * 32;
-        }
-    }
-
-    throw std::runtime_error("Unsupported protection");
-}
-
 FIBProcessor::FIBProcessor(RadioControllerInterface& mr) :
     myRadioInterface(mr)
 {
@@ -264,10 +164,9 @@ int16_t FIBProcessor::HandleFIG0Extension1(
         int16_t offset,
         uint8_t pd)
 {
-    int16_t bitOffset   = offset * 8;
-    int16_t SubChId     = getBits_6 (d, bitOffset);
-    int16_t StartAdr    = getBits (d, bitOffset + 6, 10);
-    int16_t option, protLevel, subChanSize;
+    int16_t bitOffset = offset * 8;
+    int16_t SubChId   = getBits_6 (d, bitOffset);
+    int16_t StartAdr  = getBits(d, bitOffset + 6, 10);
     (void)pd;       // not used right now, maybe later
     subChannels[SubChId].startAddr = StartAdr;
     if (getBits_1 (d, bitOffset + 16) == 0) {   // UEP, short form
@@ -280,21 +179,21 @@ int16_t FIBProcessor::HandleFIG0Extension1(
     }
     else {  // EEP, long form
         subChannels[SubChId].shortForm    = false;
-        option = getBits_3 (d, bitOffset + 17);
+        int16_t option = getBits_3 (d, bitOffset + 17);
         subChannels[SubChId].protOption = option;
         if (option == 0) {      // A Level protection
-            protLevel = getBits (d, bitOffset + 20, 2);
+            int16_t protLevel = getBits (d, bitOffset + 20, 2);
             //
             //  we encode the A level protection by adding 0100 to the level
-            subChannels[SubChId]. protLevel = protLevel;
-            subChanSize = getBits (d, bitOffset + 22, 10);
+            subChannels[SubChId].protLevel = protLevel;
+            int16_t subChanSize = getBits (d, bitOffset + 22, 10);
             subChannels[SubChId].length   = subChanSize;
         }
         else            // option should be 001
             if (option == 001) {        // B Level protection
-                protLevel = getBits_2 (d, bitOffset + 20);
+                int16_t protLevel = getBits_2 (d, bitOffset + 20);
                 subChannels[SubChId].protLevel = protLevel + (1 << 2);
-                subChanSize = getBits (d, bitOffset + 22, 10);
+                int16_t subChanSize = getBits (d, bitOffset + 22, 10);
                 subChannels[SubChId].length = subChanSize;
             }
 
@@ -1020,39 +919,6 @@ void FIBProcessor::clearEnsemble()
     isSynced    = false;
 }
 
-
-uint8_t FIBProcessor::kindofService(const std::string& s)
-{
-    std::lock_guard<std::mutex> lock(mutex);
-
-    //  first we locate the serviceId
-    for (size_t i = 0; i < services.size(); i++) {
-        if (services[i].serviceLabel.label != s)
-            continue;
-
-        std::clog << "fib-processor: "
-            "we found for " << s << " serviceId " <<
-            services[i].serviceId << std::endl;
-
-        uint32_t selectedService = services[i].serviceId;
-        for (const auto& sc : components) {
-            if (selectedService != sc.SId)
-                continue;
-
-            if (sc.TMid == 03) {
-                return PACKET_SERVICE;
-            }
-            else if (sc.TMid == 00) {
-                return AUDIO_SERVICE;
-            }
-            else {
-                std::clog << "fib-processor: unknown TMid=" << sc.TMid << std::endl;
-            }
-        }
-    }
-    return UNKNOWN_SERVICE;
-}
-
 packetdata_t FIBProcessor::getDataServiceData(const std::string &s)
 {
     std::lock_guard<std::mutex> lock(mutex);
@@ -1142,6 +1008,25 @@ std::vector<Service> FIBProcessor::getServiceList() const
 {
     std::lock_guard<std::mutex> lock(mutex);
     return services;
+}
+
+std::list<ServiceComponent> FIBProcessor::getComponents(const Service& s) const
+{
+    std::list<ServiceComponent> c;
+    std::lock_guard<std::mutex> lock(mutex);
+    for (const auto& component : components) {
+        if (component.SId == s.serviceId) {
+            c.push_back(component);
+        }
+    }
+
+    return c;
+}
+
+Subchannel FIBProcessor::getSubchannel(const ServiceComponent& sc) const
+{
+    std::lock_guard<std::mutex> lock(mutex);
+    return subChannels.at(sc.subchannelId);
 }
 
 std::string FIBProcessor::getEnsembleName() const

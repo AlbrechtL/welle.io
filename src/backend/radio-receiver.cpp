@@ -67,28 +67,38 @@ void RadioReceiver::restart(bool doScan)
     ofdmProcessor.reset();
 }
 
-audiodata_t RadioReceiver::getAudioServiceData(const std::string& label)
+bool RadioReceiver::playAudioComponent(const Service& s)
 {
-    return ficHandler.getAudioServiceData(label);
-}
+    const auto comps = ficHandler.fibProcessor.getComponents(s);
+    for (const auto& sc : comps) {
+        if (sc.transportMode() == TransportMode::Audio && (
+                    sc.audioType() == AudioServiceComponentType::DAB ||
+                    sc.audioType() == AudioServiceComponentType::DABPlus) ) {
+            const auto& subch = ficHandler.fibProcessor.getSubchannel(sc);
+            mscHandler.setSubChannel(sc.audioType(), subch);
+            return true;
+        }
+    }
 
-void RadioReceiver::selectAudioService(const audiodata_t& ad)
-{
-    mscHandler.setAudioChannel(ad);
-}
-
-void RadioReceiver::selectAudioService(const Service& s)
-{
-    audiodata_t ad = ficHandler.getAudioServiceData(s.serviceLabel.label);
-    mscHandler.setAudioChannel(ad);
+    return false;
 }
 
 std::string RadioReceiver::getEnsembleName(void) const
 {
-    return ficHandler.getEnsembleName();
+    return ficHandler.fibProcessor.getEnsembleName();
 }
 
 std::vector<Service> RadioReceiver::getServiceList(void) const
 {
-    return ficHandler.getServiceList();
+    return ficHandler.fibProcessor.getServiceList();
+}
+
+std::list<ServiceComponent> RadioReceiver::getComponents(const Service& s) const
+{
+    return ficHandler.fibProcessor.getComponents(s);
+}
+
+Subchannel RadioReceiver::getSubchannel(const ServiceComponent& sc) const
+{
+    return ficHandler.fibProcessor.getSubchannel(sc);
 }

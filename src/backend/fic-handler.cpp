@@ -51,10 +51,10 @@ uint8_t PI_X [24] = {
   */
 FicHandler::FicHandler(RadioControllerInterface& mr) :
     Viterbi(768),
+    fibProcessor(mr),
     myRadioInterface(mr),
     bitBuffer_out(768),
-    ofdm_input(2304),
-    fibProcessor(mr)
+    ofdm_input(2304)
 {
     int16_t i, j;
     PI_15        = get_PCodes (15 - 1);
@@ -222,36 +222,14 @@ void FicHandler::process_ficInput(int16_t *ficblock, int16_t ficno)
             continue;
         }
         myRadioInterface.onFICDecodeSuccess(true);
-        {
-            std::unique_lock<std::mutex> lock(fibMutex);
-            fibProcessor.process_FIB(p, ficno);
-        }
+        fibProcessor.process_FIB(p, ficno);
     }
     //  fibProcessor.printActions (ficno);
 }
 
 void FicHandler::clearEnsemble()
 {
-    std::unique_lock<std::mutex> lock(fibMutex);
     fibProcessor.clearEnsemble();
-}
-
-uint8_t FicHandler::kindofService(const std::string& s)
-{
-    std::unique_lock<std::mutex> lock(fibMutex);
-    return fibProcessor.kindofService(s);
-}
-
-audiodata_t FicHandler::getAudioServiceData(const std::string& s)
-{
-    std::unique_lock<std::mutex> lock(fibMutex);
-    return fibProcessor.getAudioServiceData(s);
-}
-
-packetdata_t FicHandler::getDataServiceData(const std::string& s)
-{
-    std::unique_lock<std::mutex> lock(fibMutex);
-    return fibProcessor.getDataServiceData(s);
 }
 
 int16_t FicHandler::get_ficRatio()
@@ -261,16 +239,6 @@ int16_t FicHandler::get_ficRatio()
 
 bool FicHandler::syncReached()
 {
-    std::unique_lock<std::mutex> lock(fibMutex);
     return fibProcessor.syncReached();
 }
 
-std::string FicHandler::getEnsembleName() const
-{
-    return fibProcessor.getEnsembleName();
-}
-
-std::vector<Service> FicHandler::getServiceList() const
-{
-    return fibProcessor.getServiceList();
-}

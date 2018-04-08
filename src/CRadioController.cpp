@@ -812,29 +812,42 @@ void CRadioController::StationTimerTimeout()
         return;
 
     if (StationList.contains(CurrentStation)) {
-        auto audioData = my_rx->getAudioServiceData(CurrentStation.toStdString());
+        const auto services = my_rx->getServiceList();
 
-        if (audioData.valid) {
-            // We found the station inside the signal, lets stop the timer
-            StationTimer.stop();
+        for (const auto& s : services) {
+            if (s.serviceLabel.label == CurrentStation.toStdString()) {
 
-            my_rx->selectAudioService(audioData);
+                const auto comps = my_rx->getComponents(s);
+                for (const auto& sc : comps) {
+                    if (sc.transportMode() == TransportMode::Audio && (
+                            sc.audioType() == AudioServiceComponentType::DAB ||
+                            sc.audioType() == AudioServiceComponentType::DABPlus) ) {
+                        const auto& subch = my_rx->getSubchannel(sc);
 
-            CurrentTitle = CurrentStation;
+                        // We found the station inside the signal, lets stop the timer
+                        StationTimer.stop();
 
-            CurrentStationType = tr(DABConstants::getProgramTypeName(audioData.programType));
-            CurrentLanguageType = tr(DABConstants::getLanguageName(audioData.language));
-            mBitRate = audioData.bitRate;
-            emit BitRateChanged(mBitRate);
+                        my_rx->playAudioComponent(s);
 
-            if (audioData.ASCTy == 077)
-                mIsDAB = false;
-            else
-                mIsDAB = true;
-            emit isDABChanged(mIsDAB);
+                        CurrentTitle = CurrentStation;
 
-            Status = Playing;
-            UpdateGUIData();
+                        CurrentStationType = tr(DABConstants::getProgramTypeName(s.programType));
+                        CurrentLanguageType = tr(DABConstants::getLanguageName(s.language));
+
+                        mBitRate = subch.bitrate();
+                        emit BitRateChanged(mBitRate);
+
+                        if (sc.audioType() == AudioServiceComponentType::DABPlus)
+                            mIsDAB = false;
+                        else
+                            mIsDAB = true;
+                        emit isDABChanged(mIsDAB);
+
+                        Status = Playing;
+                        UpdateGUIData();
+                    }
+                }
+            }
         }
     }
 }
