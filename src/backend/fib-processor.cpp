@@ -490,6 +490,7 @@ void FIBProcessor::FIG0Extension9 (uint8_t *d)
         -1 * getBits_4 (d, offset + 3):
         getBits_4 (d, offset + 3);
     dateTime.minuteOffset = (getBits_1 (d, offset + 7) == 1) ? 30 : 0;
+    timeOffsetReceived = true;
 }
 
 void FIBProcessor::FIG0Extension10 (uint8_t *fig)
@@ -522,10 +523,13 @@ void FIBProcessor::FIG0Extension10 (uint8_t *fig)
         dateTime.seconds =  0;  // handle overflow
 
     dateTime.minutes = getBits_6(fig, offset + 26);
-    if (fig [offset + 20] == 1)
+    if (fig [offset + 20] == 1) {
         dateTime.seconds = getBits_6(fig, offset + 32);
-    dateFlag = true;
-    myRadioInterface.onDateTimeUpdate(dateTime);
+    }
+
+    if (timeOffsetReceived) {
+        myRadioInterface.onDateTimeUpdate(dateTime);
+    }
 }
 
 void FIBProcessor::FIG0Extension13 (uint8_t *d)

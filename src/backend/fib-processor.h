@@ -142,27 +142,27 @@ class   FIBProcessor {
 
         int16_t HandleFIG0Extension1(uint8_t *d, int16_t offset, uint8_t pd);
 
-        int16_t  HandleFIG0Extension2(
+        int16_t HandleFIG0Extension2(
                 uint8_t *d,
                 int16_t offset,
                 uint8_t cn,
                 uint8_t pd);
 
         int16_t HandleFIG0Extension3(uint8_t *d, int16_t used);
-        int16_t HandleFIG0Extension5(uint8_t* d, int16_t offset);
+        int16_t HandleFIG0Extension5(uint8_t *d, int16_t offset);
         int16_t HandleFIG0Extension8(uint8_t *d, int16_t used, uint8_t pdBit);
         int16_t HandleFIG0Extension13(uint8_t *d, int16_t used, uint8_t pdBit);
         int16_t HandleFIG0Extension22(uint8_t *d, int16_t used);
 
+        bool timeOffsetReceived = false;
         dab_date_time_t dateTime = {};
         mutable std::mutex mutex;
         std::string ensembleName;
         std::vector<ChannelMap> ficList;
         std::vector<ServiceComponent> components;
         std::vector<Service> services;
-        bool        dateFlag = false;
-        bool        firstTime = true;
-        bool        isSynced = false;
+        bool firstTime = true;
+        bool isSynced = false;
 };
 
 #endif
