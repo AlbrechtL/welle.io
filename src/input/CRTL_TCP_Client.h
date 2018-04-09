@@ -37,19 +37,7 @@
 #include <string>
 #include <thread>
 #include <mutex>
-
-#if defined(_WIN32)    
-    #include <winsock2.h>
-    #include <ws2tcpip.h>
-    #include <windows.h>
-#else
-    #include <sys/socket.h>
-    #include <netinet/in.h>
-    #include <unistd.h>
-    #include <netdb.h>
-    #include <arpa/inet.h>
-#endif
-
+#include "Socket.h"
 #include "CVirtualInput.h"
 #include "dab-constants.h"
 #include "MathHelper.h"
@@ -93,11 +81,10 @@ private:
     void agcTimer(void);
     void receiveData(void);
     void receiveAndReconnect(void);
-    bool connect(void);
     void handleDisconnect(void);
 
     std::mutex mutex;
-    int sock = -1;
+    Socket sock;
     std::thread receiveThread;
     bool agcRunning = false;
     std::thread agcThread;

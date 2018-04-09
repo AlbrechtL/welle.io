@@ -60,15 +60,6 @@ CRTL_TCP_Client::CRTL_TCP_Client(RadioControllerInterface& radioController) :
 {
     memset(&dongleInfo, 0, sizeof(dongle_info_t));
     dongleInfo.tuner_type = RTLSDR_TUNER_UNKNOWN;
-
-#if defined(_WIN32)
-    WSADATA wsa;
-    std::clog << "RTL_TCP_CLIENT: Initialising Winsock...";
-
-    if (WSAStartup(MAKEWORD(2,2),&wsa) != 0)
-         std::clog << "Failed. Error Code :" << WSAGetLastError();
-    std::clog << "done" << std::endl;
-#endif
 }
 
 CRTL_TCP_Client::~CRTL_TCP_Client(void)
@@ -112,11 +103,7 @@ void CRTL_TCP_Client::stop(void)
     rtlsdrRunning = false;
 
     // Close connection
-#if defined(_WIN32)
-    closesocket(sock);
-#else
-    close(sock);
-#endif
+    sock.close();
 
     lock.unlock();
 
@@ -127,8 +114,6 @@ void CRTL_TCP_Client::stop(void)
     if (receiveThread.joinable()) {
         receiveThread.join();
     }
-
-    sock = -1;
 }
 
 static int32_t read_convert_from_buffer(
@@ -172,14 +157,10 @@ void CRTL_TCP_Client::receiveData(void)
 
     size_t read = 0;
 
-    while (sock != -1 && read < buffer.size()) {
+    while (sock.valid() && read < buffer.size()) {
         const size_t remain = buffer.size() - read;
 
-#if defined(_WIN32)
-    ssize_t ret = recv(sock, (char*) buffer.data() + read, remain, 0);
-#else
-    ssize_t ret = recv(sock, buffer.data() + read, remain, 0);
-#endif
+        ssize_t ret = sock.recv(buffer.data() + read, remain, 0);
 
         if (ret == 0) {
             handleDisconnect();
@@ -267,17 +248,12 @@ void CRTL_TCP_Client::handleDisconnect()
     // TODO Why is this done?
     QTimer::singleShot(0, RadioController, SLOT(closeDevice()));
 #endif
-#if defined(_WIN32)
-    closesocket(sock);
-#else
-    close(sock);
-#endif
-    sock = -1;
+    sock.close();
 }
 
 void CRTL_TCP_Client::sendCommand(uint8_t cmd, int32_t param)
 {
-    if (!connected || sock == -1) {
+    if (!connected || !sock.valid()) {
         return;
     }
 
@@ -289,11 +265,7 @@ void CRTL_TCP_Client::sendCommand(uint8_t cmd, int32_t param)
     datagram[3] = (param >> ONE_BYTE) & 0xFF;
     datagram[2] = (param >> (2 * ONE_BYTE)) & 0xFF;
     datagram[1] = (param >> (3 * ONE_BYTE)) & 0xFF;
-#if defined(_WIN32)
-    send(sock, (char*) datagram.data(), datagram.size(), 0);
-#else
-    send(sock, datagram.data(), datagram.size(), 0);
-#endif
+    sock.send(datagram.data(), datagram.size(), 0);
 }
 
 void CRTL_TCP_Client::sendVFO(int32_t frequency)
@@ -371,66 +343,6 @@ void CRTL_TCP_Client::setIP(const std::string& ipAddress)
     serverAddress = ipAddress;
 }
 
-bool CRTL_TCP_Client::connect()
-{
-    bool ret = false;
-    struct addrinfo hints;
-    memset(&hints, 0, sizeof(hints));
-    hints.ai_family = AF_UNSPEC;
-    hints.ai_socktype = SOCK_STREAM;
-    hints.ai_flags = 0;
-    hints.ai_protocol = 0;          /* Any protocol */
-
-    struct addrinfo *result;
-
-    std::string port_str = std::to_string(serverPort);
-
-    int s = getaddrinfo(serverAddress.c_str(), port_str.c_str(), &hints, &result);
-    if (s != 0) {
-#if defined(_WIN32)
-        char * ch_errstr = gai_strerrorA(s);
-#else
-        const char * ch_errstr = gai_strerror(s);
-#endif
-        std::string errstr(ch_errstr);
-        throw std::runtime_error("getaddrinfo: " + errstr);
-    }
-
-    struct addrinfo *rp;
-
-    int sfd = -1;
-
-    for (rp = result; rp != NULL; rp = rp->ai_next) {
-        sfd = socket(rp->ai_family, rp->ai_socktype,
-                rp->ai_protocol);
-
-        if (sfd == -1)
-            continue;
-
-        if (::connect(sfd, rp->ai_addr, rp->ai_addrlen) != -1) {
-            sock = sfd;
-            break;                  /* Success */
-        }
-#if defined(_WIN32)
-        closesocket(sfd);
-#else
-        close(sfd);
-#endif
-    }
-
-    if (rp == NULL) {               /* No address succeeded */
-        std::clog << "Could not connect" << std::endl;
-        goto out;
-    }
-
-    ret = true;
-
-out:
-    freeaddrinfo(result);           /* No longer needed */
-
-    return ret;
-}
-
 void CRTL_TCP_Client::setPort(uint16_t Port)
 {
     serverPort = Port;
@@ -445,11 +357,11 @@ void CRTL_TCP_Client::receiveAndReconnect()
             std::clog << "RTL_TCP_CLIENT: Try to connect to server " <<
                 serverAddress << ":" << serverPort << std::endl;
 
-            connected = connect();
+            connected = sock.connect(serverAddress, serverPort);
 
             if (connected) {
                 std::clog << "RTL_TCP_CLIENT: Successful connected to server " <<
-                    sock << std::endl;
+                    std::endl;
 
                 // Always use manual gain, the AGC is implemented in software
                 setGainMode(1);

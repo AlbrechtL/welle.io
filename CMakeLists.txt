@@ -100,6 +100,7 @@ set(backend_sources
     src/various/fft.cpp
     src/various/Xtan2.cpp
     src/various/wavfile.c
+    src/various/Socket.cpp
 )
 
 set(welle_io_sources
