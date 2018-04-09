@@ -53,10 +53,16 @@ class Socket {
         ~Socket();
         Socket(const Socket& other) = delete;
         Socket& operator=(const Socket& other) = delete;
+        Socket(Socket&& other);
+        Socket& operator=(Socket&& other);
 
         void close();
         bool valid() const;
 
+        // Binds to any address
+        bool bind(int port);
+        bool listen();
+        Socket accept();
         bool connect(const std::string& address, int port);
 
         ssize_t recv(void *buffer, size_t length, int flags);

@@ -40,6 +40,7 @@ endif()
 
 if(BUILD_WELLE_CLI)
     find_package(ALSA REQUIRED)
+    find_package(yaml-cpp REQUIRED)
 endif()
 
 find_package(Threads REQUIRED)
@@ -117,6 +118,7 @@ set(welle_io_sources
 set(welle_cli_sources
     src/welle-cli.cpp
     src/welle-cli/alsa-output.cpp
+    src/welle-cli/webradiointerface.cpp
 )
 
 set(input_sources
@@ -179,6 +181,7 @@ if(BUILD_WELLE_CLI)
       ${FAAD_LIBRARIES}
       ${ALSA_LIBRARIES}
       ${SoapySDR_LIBRARIES}
+      ${YAML_CPP_LIBRARIES}
       Threads::Threads
     )
 

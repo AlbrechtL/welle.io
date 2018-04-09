@@ -42,6 +42,8 @@
 #include <cstdio>
 #include <unistd.h>
 #include "welle-cli/alsa-output.h"
+#include "welle-cli/webradiointerface.h"
+#include <yaml-cpp/yaml.h>
 #include "backend/radio-receiver.h"
 #include "input/CInputFactory.h"
 #include "input/CRAWFile.h"
@@ -164,8 +166,19 @@ class RadioInterface : public RadioControllerInterface {
 
         virtual void onDateTimeUpdate(const dab_date_time_t& dateTime) override
         {
-            cout << "UTCTime: " << dateTime.year << "-" << dateTime.month << "-" << dateTime.day <<
-                " " << dateTime.hour << ":" << dateTime.minutes << endl;
+            YAML::Emitter e;
+            e << YAML::BeginDoc << YAML::BeginMap <<
+                YAML::Key << "UTCTime" <<
+                YAML::Value <<
+                    YAML::BeginMap <<
+                        YAML::Key << "year" << YAML::Value << dateTime.year <<
+                        YAML::Key << "month" << YAML::Value << dateTime.month <<
+                        YAML::Key << "day" << YAML::Value << dateTime.day <<
+                        YAML::Key << "hour" << YAML::Value << dateTime.hour <<
+                        YAML::Key << "minutes" << YAML::Value << dateTime.minutes <<
+                    YAML::EndMap <<
+                YAML::EndMap << YAML::EndDoc;
+            cout << e.c_str();
         }
 
         virtual void onFICDecodeSuccess(bool isFICCRC) override { (void)isFICCRC; }
@@ -186,11 +199,18 @@ class RadioInterface : public RadioControllerInterface {
 
         virtual void onTIIMeasurement(tii_measurement_t&& m) override
         {
-            clog << "TII comb " << m.comb <<
-                " pattern " << m.pattern <<
-                " delay " << m.delay_samples <<
-                "= " << m.getDelayKm() << " km" <<
-                " with error " << m.error << endl;
+            YAML::Emitter e;
+            e << YAML::BeginDoc << YAML::BeginMap <<
+                YAML::Key << "TII" <<
+                YAML::BeginMap <<
+                    YAML::Key << "comb" << YAML::Value << m.comb <<
+                    YAML::Key << "pattern" << YAML::Value << m.pattern <<
+                    YAML::Key << "delay" << YAML::Value << m.delay_samples <<
+                    YAML::Key << "delay_km" << YAML::Value << m.getDelayKm() <<
+                    YAML::Key << "error" << YAML::Value << m.error <<
+                    YAML::EndMap <<
+                YAML::EndMap << YAML::EndDoc;
+            cout << e.c_str();
         }
 
         bool synced = false;
@@ -202,6 +222,7 @@ struct options_t {
     string programme = "GRRIF";
     bool dump_programme = false;
     bool dump_all_programmes = false;
+    int web_port = -1; // positive value means enable
 };
 
 static void usage()
@@ -217,6 +238,9 @@ static void usage()
         "Use -D to dump all programmes to files, do not play to ALSA." << endl <<
         " welle-cli -c channel -D " << endl <<
         endl <<
+        "Use -w to enable webserver." << endl <<
+        " welle-cli -c channel -w port" << endl <<
+        endl <<
         " examples: welle-cli -c 10B -p GRRIF" << endl <<
         "           welle-cli -f ./ofdm.iq -p GRRIF" << endl;
 }
@@ -225,7 +249,7 @@ options_t parse_cmdline(int argc, char **argv)
 {
     options_t options;
     int opt;
-    while ((opt = getopt(argc, argv, "c:dDf:hp:")) != -1) {
+    while ((opt = getopt(argc, argv, "c:dDf:hp:w:")) != -1) {
         switch (opt) {
             case 'c':
                 options.channel = optarg;
@@ -245,6 +269,9 @@ options_t parse_cmdline(int argc, char **argv)
             case 'h':
                 usage();
                 exit(1);
+            case 'w':
+                options.web_port = std::atoi(optarg);
+                break;
             default:
                 cerr << "Unknown option. Use -h for help" << endl;
                 exit(1);
@@ -296,59 +323,24 @@ int main(int argc, char **argv)
     in->setFrequency(freq);
     string service_to_tune = options.programme;
 
-    RadioReceiver rx(ri, *in);
-
-    rx.restart(false);
-
-    cerr << "Wait for sync" << endl;
-    while (not ri.synced) {
-        this_thread::sleep_for(chrono::seconds(3));
-    }
-
-    if (options.dump_all_programmes) {
-        using SId_t = uint32_t;
-        map<SId_t, WavProgrammeHandler> phs;
-
-        cerr << "Service list" << endl;
-        for (const auto& s : rx.getServiceList()) {
-            cerr << "  [0x" << std::hex << s.serviceId << std::dec << "] " <<
-                s.serviceLabel.label << " ";
-            for (const auto& sc : rx.getComponents(s)) {
-                cerr << " [component "  << sc.componentNr <<
-                    " ASCTy: " <<
-                    (sc.audioType() == AudioServiceComponentType::DAB ? "DAB" :
-                     sc.audioType() == AudioServiceComponentType::DABPlus ? "DAB+" : "unknown") << " ]";
-
-                const auto& sub = rx.getSubchannel(sc);
-                cerr << " [subch " << sub.subChId << " bitrate:" << sub.bitrate() << " at SAd:" << sub.startAddr << "]";
-            }
-            cerr << endl;
-
-            string dumpFilePrefix = s.serviceLabel.label;
-            dumpFilePrefix.erase(std::find_if(dumpFilePrefix.rbegin(), dumpFilePrefix.rend(),
-                        [](int ch) { return !std::isspace(ch); }).base(), dumpFilePrefix.end());
-
-            WavProgrammeHandler ph(s.serviceId, dumpFilePrefix);
-            phs.emplace(std::make_pair(s.serviceId, move(ph)));
-
-            auto dumpFileName = dumpFilePrefix + ".msc";
-
-            if (rx.addServiceToDecode(phs.at(s.serviceId), dumpFileName, s) == false) {
-                cerr << "Tune to " << service_to_tune << " failed" << endl;
-            }
-        }
-
-        while (true) {
-            cerr << "**** Enter '.' to quit." << endl;
-            cin >> service_to_tune;
-            if (service_to_tune == ".") {
-                break;
-            }
-        }
+    if (options.web_port != -1) {
+        WebRadioInterface wri(*in, options.web_port);
+        wri.serve();
     }
     else {
-        AlsaProgrammeHandler ph;
-        while (not service_to_tune.empty()) {
+        RadioReceiver rx(ri, *in);
+
+        rx.restart(false);
+
+        cerr << "Wait for sync" << endl;
+        while (not ri.synced) {
+            this_thread::sleep_for(chrono::seconds(3));
+        }
+
+        if (options.dump_all_programmes) {
+            using SId_t = uint32_t;
+            map<SId_t, WavProgrammeHandler> phs;
+
             cerr << "Service list" << endl;
             for (const auto& s : rx.getServiceList()) {
                 cerr << "  [0x" << std::hex << s.serviceId << std::dec << "] " <<
@@ -363,35 +355,76 @@ int main(int argc, char **argv)
                     cerr << " [subch " << sub.subChId << " bitrate:" << sub.bitrate() << " at SAd:" << sub.startAddr << "]";
                 }
                 cerr << endl;
-            }
 
-            bool service_selected = false;
-            for (const auto s : rx.getServiceList()) {
-                if (s.serviceLabel.label.find(service_to_tune) != string::npos) {
-                    service_selected = true;
-                    string dumpFileName;
-                    if (options.dump_programme) {
-                        dumpFileName = s.serviceLabel.label;
-                        dumpFileName.erase(std::find_if(dumpFileName.rbegin(), dumpFileName.rend(),
-                                    [](int ch) { return !std::isspace(ch); }).base(), dumpFileName.end());
-                        dumpFileName += ".msc";
-                    }
-                    if (rx.playSingleProgramme(ph, dumpFileName, s) == false) {
-                        cerr << "Tune to " << service_to_tune << " failed" << endl;
-                    }
+                string dumpFilePrefix = s.serviceLabel.label;
+                dumpFilePrefix.erase(std::find_if(dumpFilePrefix.rbegin(), dumpFilePrefix.rend(),
+                            [](int ch) { return !std::isspace(ch); }).base(), dumpFilePrefix.end());
+
+                WavProgrammeHandler ph(s.serviceId, dumpFilePrefix);
+                phs.emplace(std::make_pair(s.serviceId, move(ph)));
+
+                auto dumpFileName = dumpFilePrefix + ".msc";
+
+                if (rx.addServiceToDecode(phs.at(s.serviceId), dumpFileName, s) == false) {
+                    cerr << "Tune to " << service_to_tune << " failed" << endl;
                 }
             }
-            if (not service_selected) {
-                cerr << "Could not tune to " << service_to_tune << endl;
-            }
 
-            cerr << "**** Please enter programme name. Enter '.' to quit." << endl;
-
-            cin >> service_to_tune;
-            if (service_to_tune == ".") {
-                break;
+            while (true) {
+                cerr << "**** Enter '.' to quit." << endl;
+                cin >> service_to_tune;
+                if (service_to_tune == ".") {
+                    break;
+                }
             }
-            cerr << "**** Trying to tune to " << service_to_tune << endl;
+        }
+        else {
+            AlsaProgrammeHandler ph;
+            while (not service_to_tune.empty()) {
+                cerr << "Service list" << endl;
+                for (const auto& s : rx.getServiceList()) {
+                    cerr << "  [0x" << std::hex << s.serviceId << std::dec << "] " <<
+                        s.serviceLabel.label << " ";
+                    for (const auto& sc : rx.getComponents(s)) {
+                        cerr << " [component "  << sc.componentNr <<
+                            " ASCTy: " <<
+                            (sc.audioType() == AudioServiceComponentType::DAB ? "DAB" :
+                             sc.audioType() == AudioServiceComponentType::DABPlus ? "DAB+" : "unknown") << " ]";
+
+                        const auto& sub = rx.getSubchannel(sc);
+                        cerr << " [subch " << sub.subChId << " bitrate:" << sub.bitrate() << " at SAd:" << sub.startAddr << "]";
+                    }
+                    cerr << endl;
+                }
+
+                bool service_selected = false;
+                for (const auto s : rx.getServiceList()) {
+                    if (s.serviceLabel.label.find(service_to_tune) != string::npos) {
+                        service_selected = true;
+                        string dumpFileName;
+                        if (options.dump_programme) {
+                            dumpFileName = s.serviceLabel.label;
+                            dumpFileName.erase(std::find_if(dumpFileName.rbegin(), dumpFileName.rend(),
+                                        [](int ch) { return !std::isspace(ch); }).base(), dumpFileName.end());
+                            dumpFileName += ".msc";
+                        }
+                        if (rx.playSingleProgramme(ph, dumpFileName, s) == false) {
+                            cerr << "Tune to " << service_to_tune << " failed" << endl;
+                        }
+                    }
+                }
+                if (not service_selected) {
+                    cerr << "Could not tune to " << service_to_tune << endl;
+                }
+
+                cerr << "**** Please enter programme name. Enter '.' to quit." << endl;
+
+                cin >> service_to_tune;
+                if (service_to_tune == ".") {
+                    break;
+                }
+                cerr << "**** Trying to tune to " << service_to_tune << endl;
+            }
         }
     }
 

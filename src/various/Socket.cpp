@@ -65,6 +65,24 @@ Socket::~Socket()
     }
 }
 
+Socket::Socket(Socket&& other)
+{
+    if (&other == this) {
+        return;
+    }
+    sock = other.sock;
+    other.sock = INVALID_SOCKET;
+}
+
+Socket& Socket::operator=(Socket&& other)
+{
+    if (&other != this) {
+        sock = other.sock;
+        other.sock = INVALID_SOCKET;
+    }
+    return *this;
+}
+
 void Socket::close()
 {
 #if defined(_WIN32)
@@ -89,6 +107,67 @@ ssize_t Socket::recv(void *buffer, size_t length, int flags)
 ssize_t Socket::send(const void *buffer, size_t length, int flags)
 {
     return ::send(sock, (const char*)buffer, length, flags);
+}
+
+bool Socket::bind(int port)
+{
+    if (valid()) {
+        return false;
+    }
+
+    int listensock = ::socket(PF_INET, SOCK_STREAM, 0);
+
+    if (listensock == -1) {
+        perror("Could not create socket");
+        return false;
+    }
+
+    int reuse = 1;
+    if (setsockopt(listensock, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse))
+            == -1) {
+        throw std::runtime_error("Can't reuse address");
+    }
+
+    sockaddr_in addr;
+    addr.sin_family = PF_INET;
+    addr.sin_addr.s_addr = htons(INADDR_ANY);
+    addr.sin_port = htons(port);
+    const int bind_ret = ::bind(listensock, (sockaddr*)&addr, sizeof(sockaddr_in));
+    if (bind_ret == -1) {
+        perror("Could not bind socket");
+        return false;
+    }
+
+    sock = listensock;
+    return true;
+}
+
+bool Socket::listen()
+{
+    const int listen_ret = ::listen(sock, 1);
+    if (listen_ret == -1) {
+        perror("Could not listen");
+        return false;
+    }
+    return true;
+}
+
+Socket Socket::accept()
+{
+    struct sockaddr_in remote_addr;
+    socklen_t remote_addr_len = sizeof(remote_addr);
+    int conn = ::accept(sock, (sockaddr*)&remote_addr, &remote_addr_len);
+    if (conn == -1) {
+        if (errno == ECONNABORTED) {
+            return {};
+        }
+        perror("accept failed");
+        return {};
+    }
+
+    Socket s;
+    s.sock = conn;
+    return s;
 }
 
 bool Socket::connect(const std::string& address, int port)
