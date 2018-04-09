@@ -36,11 +36,12 @@
 #include <iostream>
 #include <memory>
 #include <mutex>
+#include <thread>
 #include <set>
 #include <utility>
 #include <cstdio>
 #include <unistd.h>
-#include <alsa/asoundlib.h>
+#include "welle-cli/alsa-output.h"
 #include "backend/radio-receiver.h"
 #include "input/CInputFactory.h"
 #include "input/CRAWFile.h"
@@ -50,110 +51,6 @@ extern "C" {
 }
 
 using namespace std;
-
-#define PCM_DEVICE "default"
-
-class AudioOutput {
-    public:
-        AudioOutput(int chans, unsigned int rate) :
-            channels(chans)
-        {
-            int err;
-            if ((err = snd_pcm_open(&pcm_handle, PCM_DEVICE, SND_PCM_STREAM_PLAYBACK, 0)) < 0)
-                fprintf(stderr, "ERROR: Can't open \"%s\" PCM device. %s\n",
-                        PCM_DEVICE, snd_strerror(err));
-
-            snd_pcm_hw_params_alloca(&params);
-            snd_pcm_hw_params_any(pcm_handle, params);
-
-            if ((err = snd_pcm_hw_params_set_access(pcm_handle, params, SND_PCM_ACCESS_RW_INTERLEAVED)) < 0)
-                fprintf(stderr, "ERROR: Can't set interleaved mode. %s\n", snd_strerror(err));
-
-            if ((err = snd_pcm_hw_params_set_format(pcm_handle, params, SND_PCM_FORMAT_S16_LE)) < 0)
-                fprintf(stderr, "ERROR: Can't set format. %s\n", snd_strerror(err));
-
-            if ((err = snd_pcm_hw_params_set_channels(pcm_handle, params, channels)) < 0)
-                fprintf(stderr, "ERROR: Can't set channels number. %s\n", snd_strerror(err));
-
-            if ((err = snd_pcm_hw_params_set_rate_near(pcm_handle, params, &rate, 0)) < 0)
-                fprintf(stderr, "ERROR: Can't set rate. %s\n", snd_strerror(err));
-
-            if ((err = snd_pcm_hw_params(pcm_handle, params)) < 0)
-                fprintf(stderr, "ERROR: Can't set harware parameters. %s\n", snd_strerror(err));
-
-            fprintf(stderr, "PCM name: '%s'\n", snd_pcm_name(pcm_handle));
-            fprintf(stderr, "PCM state: %s\n", snd_pcm_state_name(snd_pcm_state(pcm_handle)));
-            fprintf(stderr, "PCM rate: %d\n", rate);
-
-            snd_pcm_hw_params_get_period_size(params, &period_size, 0);
-            fprintf(stderr, "PCM frame size: %lu\n", period_size);
-            fprintf(stderr, "PCM channels: %d\n", channels);
-
-            snd_pcm_sw_params_t *swparams;
-            snd_pcm_sw_params_alloca(&swparams);
-            /* get the current swparams */
-            err = snd_pcm_sw_params_current(pcm_handle, swparams);
-            if (err < 0) {
-                fprintf(stderr, "Unable to determine current swparams for playback: %s\n", snd_strerror(err));
-            }
-            err = snd_pcm_sw_params_set_start_threshold(pcm_handle, swparams, (8192 / period_size) * period_size);
-            if (err < 0) {
-                fprintf(stderr, "Unable to set start threshold mode for playback: %s\n", snd_strerror(err));
-            }
-            if ((err = snd_pcm_sw_params(pcm_handle, swparams)) < 0) {
-                printf("Setting of swparams failed: %s\n", snd_strerror(err));
-            }
-
-            if ((err = snd_pcm_prepare(pcm_handle)) < 0) {
-                fprintf(stderr, "cannot prepare audio interface for use (%s)\n",
-                        snd_strerror(err));
-            }
-        }
-
-        ~AudioOutput() {
-            snd_pcm_drain(pcm_handle);
-            snd_pcm_close(pcm_handle);
-        }
-
-        void playPCM(std::vector<int16_t>&& pcm)
-        {
-            if (pcm.empty())
-                return;
-
-            const int16_t *data = pcm.data();
-
-            const size_t num_frames = pcm.size() / channels;
-            size_t remaining = num_frames;
-
-            while (pcm_handle and remaining > 0) {
-                size_t frames_to_send = (remaining < period_size) ? remaining : period_size;
-
-                snd_pcm_sframes_t ret = snd_pcm_writei(pcm_handle, data, frames_to_send);
-
-                if (ret == -EPIPE) {
-                    snd_pcm_prepare(pcm_handle);
-                    fprintf(stderr, "XRUN\n");
-                    this_thread::sleep_for(chrono::milliseconds(20));
-                    break;
-                }
-                else if (ret < 0) {
-                    fprintf(stderr, "ERROR: Can't write to PCM device. %s\n", snd_strerror(ret));
-                    break;
-                }
-                else {
-                    size_t samples_read = ret * channels;
-                    remaining -= ret;
-                    data += samples_read;
-                }
-            }
-        }
-
-    private:
-        int channels = 2;
-        snd_pcm_uframes_t period_size;
-        snd_pcm_t *pcm_handle;
-        snd_pcm_hw_params_t *params;
-};
 
 class AlsaProgrammeHandler: public ProgrammeHandlerInterface {
     public:
@@ -168,7 +65,7 @@ class AlsaProgrammeHandler: public ProgrammeHandlerInterface {
 
             if (!ao or reset_ao) {
                 cerr << "Create audio output with stereo " << stereo << " and rate " << rate << endl;
-                ao = make_unique<AudioOutput>(stereo ? 2 : 1, rate);
+                ao = make_unique<AlsaOutput>(stereo ? 2 : 1, rate);
             }
 
             ao->playPCM(move(audioData));
@@ -185,7 +82,7 @@ class AlsaProgrammeHandler: public ProgrammeHandlerInterface {
 
     private:
         mutex aomutex;
-        unique_ptr<AudioOutput> ao;
+        unique_ptr<AlsaOutput> ao;
         bool stereo = true;
         unsigned int rate = 48000;
 };

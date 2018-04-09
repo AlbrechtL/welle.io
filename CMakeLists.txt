@@ -116,6 +116,7 @@ set(welle_io_sources
 
 set(welle_cli_sources
     src/welle-cli.cpp
+    src/welle-cli/alsa-output.cpp
 )
 
 set(input_sources
