@@ -212,10 +212,10 @@ struct quantizer_spec quantizer_table[17] = {
 ////////////////////////////////////////////////////////////////////////////////
 
 Mp2Processor::Mp2Processor(
-        RadioControllerInterface& mr,
+        ProgrammeHandlerInterface& mr,
         int16_t bitRate,
         const std::string& mp2FileName) :
-    myRadioInterface(mr),
+    myInterface(mr),
     bitRate(bitRate),
     padDecoder(this, true)
 {
@@ -256,7 +256,7 @@ Mp2Processor::Mp2Processor(
 
 void Mp2Processor::PADChangeDynamicLabel(const DL_STATE& dl)
 {
-    myRadioInterface.onNewDynamicLabel(
+    myInterface.onNewDynamicLabel(
             toUtf8StringUsingCharset(
                 &dl.raw[0],
                 (CharacterSet)dl.charset,
@@ -265,7 +265,7 @@ void Mp2Processor::PADChangeDynamicLabel(const DL_STATE& dl)
 
 void Mp2Processor::PADChangeSlide(const MOT_FILE& slide)
 {
-    myRadioInterface.onMOT(slide.data, slide.content_sub_type);
+    myInterface.onMOT(slide.data, slide.content_sub_type);
 }
 
 #define valid(x)    ((x == 48000) || (x == 24000))
@@ -393,7 +393,7 @@ int32_t Mp2Processor::mp2decodeFrame (uint8_t *frame, int16_t *pcm)
 
     numberofFrames ++;
     if (numberofFrames >= 25) {
-        myRadioInterface.onFrameErrors(errorFrames);
+        myInterface.onFrameErrors(errorFrames);
         numberofFrames   = 0;
         errorFrames      = 0;
     }
@@ -641,7 +641,7 @@ void Mp2Processor::addtoFrame(uint8_t *v)
 
                 std::vector<int16_t> audio(KJMP2_SAMPLES_PER_FRAME * 2);
                 if (mp2decodeFrame(MP2frame.data(), audio.data())) {
-                    myRadioInterface.onNewAudio(
+                    myInterface.onNewAudio(
                             std::move(audio), baudRate, mode != MONO);
                 }
 

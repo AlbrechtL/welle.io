@@ -31,6 +31,7 @@
  */
 
 #include <string>
+#include <iostream>
 #include <memory>
 #include "radio-receiver.h"
 
@@ -47,7 +48,7 @@ RadioReceiver::RadioReceiver(
     input(input),
     mscFilename(mscFileName),
     mp2Filename(mp2FileName),
-    mscHandler(rci, params, false, mscFilename, mp2Filename),
+    mscHandler(params, false),
     ficHandler(rci),
     ofdmProcessor(input,
         params,
@@ -56,6 +57,9 @@ RadioReceiver::RadioReceiver(
         ficHandler,
         3, 3)
 {
+    if (not mscFilename.empty() or not mp2Filename.empty()) {
+        std::clog << "WARNING FILE DUMP BROKEN" << std::endl;
+    }
 }
 
 void RadioReceiver::restart(bool doScan)
@@ -67,16 +71,56 @@ void RadioReceiver::restart(bool doScan)
     ofdmProcessor.reset();
 }
 
-bool RadioReceiver::playAudioComponent(const Service& s)
+bool RadioReceiver::playSingleProgramme(ProgrammeHandlerInterface& handler,
+        const Service& s)
+{
+    return playProgramme(handler, s, true);
+}
+
+bool RadioReceiver::addServiceToDecode(ProgrammeHandlerInterface& handler,
+        const Service& s)
+{
+    return playProgramme(handler, s, false);
+}
+
+bool RadioReceiver::removeServiceToDecode(const Service& s)
 {
     const auto comps = ficHandler.fibProcessor.getComponents(s);
     for (const auto& sc : comps) {
-        if (sc.transportMode() == TransportMode::Audio && (
-                    sc.audioType() == AudioServiceComponentType::DAB ||
-                    sc.audioType() == AudioServiceComponentType::DABPlus) ) {
+        if (sc.transportMode() == TransportMode::Audio) {
             const auto& subch = ficHandler.fibProcessor.getSubchannel(sc);
-            mscHandler.setSubChannel(sc.audioType(), subch);
-            return true;
+            if (subch.valid()) {
+                return mscHandler.removeSubchannel(subch);
+            }
+        }
+    }
+    return false;
+}
+
+bool RadioReceiver::playProgramme(ProgrammeHandlerInterface& handler,
+        const Service& s, bool unique)
+{
+    const auto comps = ficHandler.fibProcessor.getComponents(s);
+    for (const auto& sc : comps) {
+        if (sc.transportMode() == TransportMode::Audio) {
+            const auto& subch = ficHandler.fibProcessor.getSubchannel(sc);
+
+            if (subch.valid()) {
+                if (unique) {
+                    mscHandler.stopProcessing();
+                }
+
+                if (sc.audioType() == AudioServiceComponentType::DAB) {
+                    mscHandler.addSubchannel(
+                            handler, sc.audioType(), mp2Filename, subch);
+                    return true;
+                }
+                else if (sc.audioType() == AudioServiceComponentType::DABPlus) {
+                    mscHandler.addSubchannel(
+                            handler, sc.audioType(), mscFilename, subch);
+                    return true;
+                }
+            }
         }
     }
 

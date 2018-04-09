@@ -31,6 +31,7 @@
 #define MSC_HANDLER
 
 #include <mutex>
+#include <list>
 #include <memory>
 #include <vector>
 #include <cstdio>
@@ -45,33 +46,54 @@ class DabVirtual;
 class MscHandler
 {
     public:
-        MscHandler(RadioControllerInterface& mr,
-                const DABParams& p,
-                bool show_crcErrors,
-                const std::string& mscFileName,
-                const std::string& mp2FileName);
-        void process_mscBlock(int16_t *fbits, int16_t blkno);
+        MscHandler(const DABParams& p, bool show_crcErrors);
+
+        // Stop processing and remove all subchannels
         void stopProcessing(void);
-        void setSubChannel(AudioServiceComponentType ascty, const Subchannel& sc);
+
+        bool addSubchannel(
+                ProgrammeHandlerInterface& handler,
+                AudioServiceComponentType ascty,
+                const std::string& dumpFileName,
+                const Subchannel& sub);
+
+        bool removeSubchannel(const Subchannel& sub);
 
     private:
-        RadioControllerInterface& radioInterface;
-        const std::string& mscFileName;
-        const std::string& mp2FileName;
+        friend class OfdmDecoder;
+        void processMscBlock(int16_t *fbits, int16_t blkno);
+
+        struct SelectedStream {
+            SelectedStream(
+                ProgrammeHandlerInterface& handler,
+                AudioServiceComponentType ascty,
+                const std::string& dumpFileName,
+                const Subchannel& subCh) :
+                    handler(handler),
+                    audioType(ascty),
+                    dumpFileName(dumpFileName),
+                    subCh(subCh) {}
+
+            ProgrammeHandlerInterface& handler;
+
+            AudioServiceComponentType audioType;
+            const std::string dumpFileName;
+            const Subchannel subCh;
+
+            std::shared_ptr<DabVirtual> dabHandler;
+        };
+
+        std::mutex mutex;
+        std::list<SelectedStream> streams;
+
         const int16_t bitsperBlock;
-        bool        show_crcErrors;
-        std::mutex  mutex;
-        std::shared_ptr<DabVirtual> dabHandler;
+        int16_t numberofblocksperCIF;
+        bool show_crcErrors;
+
         std::vector<int16_t> cifVector;
-        int16_t     cifCount = 0; // msc blocks in CIF
-        int16_t     blkCount = 0;
-        bool        work_to_be_done = false;
-        int16_t     startAddr = 0;
-        int16_t     length = 0;
-        bool        newChannel = false;
-        AudioServiceComponentType audioType;
-        Subchannel  subChannel;
-        int16_t     numberofblocksperCIF;
+        int16_t cifCount = 0; // msc blocks in CIF
+        int16_t blkCount = 0;
+        bool work_to_be_done = false;
 };
 
 #endif

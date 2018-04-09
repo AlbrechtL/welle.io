@@ -102,45 +102,48 @@ struct Service {
 //      The service component describes the actual service
 //      It really should be a union
 struct ServiceComponent {
-    int8_t       TMid;           // the transport mode
-    uint32_t     SId;            // belongs to the service
-    int16_t      componentNr;    // component
+    int8_t       TMid = 0;           // the transport mode
+    uint32_t     SId = 0;            // belongs to the service
+    int16_t      componentNr = 0;    // component
 
-    int16_t      ASCTy;          // used for audio
-    int16_t      PS_flag;        // use for both audio and packet
-    int16_t      subchannelId;   // used in both audio and packet
-    uint16_t     SCId;           // used in packet
-    uint8_t      CAflag;         // used in packet (or not at all)
-    int16_t      DSCTy;          // used in packet
-    uint8_t      DGflag;         // used for TDC
-    int16_t      packetAddress;  // used in packet
+    int16_t      ASCTy = 0;          // used for audio
+    int16_t      PS_flag = 0;        // use for both audio and packet
+    int16_t      subchannelId = 0;   // used in both audio and packet
+    uint16_t     SCId = 0;           // used in packet
+    uint8_t      CAflag = 0;         // used in packet (or not at all)
+    int16_t      DSCTy = 0;          // used in packet
+    uint8_t      DGflag = 0;         // used for TDC
+    int16_t      packetAddress = 0;  // used in packet
 
     TransportMode transportMode(void) const;
     AudioServiceComponentType audioType(void) const;
 };
 
 struct Subchannel {
-    int32_t  subChId;
-    int32_t  startAddr;
-    int32_t  length;
-    bool     shortForm;
+    int32_t  subChId = -1;
+    int32_t  startAddr = 0;
+    int32_t  length = 0;
+    bool     shortForm = false;
+    bool     programmeNotData = true;
 
     // when short-form, UEP:
-    int16_t  tableIndex;
+    int16_t  tableIndex = 0;
 
     // when long-form:
     // Option 0: EEP-A
     // Option 1: EEP-B
-    int32_t  protOption;
-    int32_t  protLevel;
+    int32_t  protOption = 0;
+    int32_t  protLevel = 0;
 
-    int16_t  language;
+    int16_t  language = 0;
 
     // For subchannels carrying packet-mode service components
-    int16_t  fecScheme; // 0=no FEC, 1=FEC, 2=Rfu, 3=Rfu
+    int16_t  fecScheme = 0; // 0=no FEC, 1=FEC, 2=Rfu, 3=Rfu
 
     // Calculate the effective subchannel bitrate
     int32_t bitrate(void) const;
+
+    inline bool valid() const { return subChId != -1; }
 };
 
 #endif

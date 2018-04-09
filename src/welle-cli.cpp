@@ -149,7 +149,7 @@ class AudioOutput {
         snd_pcm_hw_params_t *params;
 };
 
-class RadioInterface : public RadioControllerInterface {
+class RadioInterface : public RadioControllerInterface, public ProgrammeHandlerInterface {
     public:
         virtual void onFrameErrors(int frameErrors) override { (void)frameErrors; }
         virtual void onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, bool isStereo) override
@@ -294,16 +294,29 @@ int main(int argc, char **argv)
     while (not service_to_tune.empty()) {
 
         cerr << "Service list" << endl;
-        for (const auto s : rx.getServiceList()) {
+        for (const auto& s : rx.getServiceList()) {
             cerr << "  [0x" << std::hex << s.serviceId << std::dec << "] " <<
-                s.serviceLabel.label << endl;
+                s.serviceLabel.label << " ";
+            for (const auto& sc : rx.getComponents(s)) {
+                cerr << " [component "  << sc.componentNr <<
+                    " ASCTy: " <<
+                    (sc.audioType() == AudioServiceComponentType::DAB ? "DAB" :
+                     sc.audioType() == AudioServiceComponentType::DABPlus ? "DAB+" : "unknown") << " ]";
+
+                const auto& sub = rx.getSubchannel(sc);
+                cerr << " [subch " << sub.subChId << " bitrate:" << sub.bitrate() << " at SAd:" << sub.startAddr << "]";
+            }
+            cerr << endl;
         }
 
         bool service_selected = false;
         for (const auto s : rx.getServiceList()) {
             if (s.serviceLabel.label.find(service_to_tune) != string::npos) {
                 service_selected = true;
-                rx.playAudioComponent(s);
+#warning "Fix dump files"
+                if (rx.playSingleProgramme(ri, s) == false) {
+                    cerr << "Tune to " << service_to_tune << " failed" << endl;
+                }
             }
         }
         if (not service_selected) {

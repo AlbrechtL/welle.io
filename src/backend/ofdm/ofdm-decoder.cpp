@@ -281,7 +281,7 @@ void OfdmDecoder::decodeMscblock (int32_t blkno)
         }
     }
     //handlerLabel:
-    mscHandler.process_mscBlock(ibits.data(), blkno);
+    mscHandler.processMscBlock(ibits.data(), blkno);
 }
 
 /**

@@ -824,27 +824,37 @@ void CRadioController::StationTimerTimeout()
                             sc.audioType() == AudioServiceComponentType::DABPlus) ) {
                         const auto& subch = my_rx->getSubchannel(sc);
 
+                        if (not subch.valid()) {
+                            return;
+                        }
+
                         // We found the station inside the signal, lets stop the timer
                         StationTimer.stop();
 
-                        my_rx->playAudioComponent(s);
+                        bool success = my_rx->playSingleProgramme(*this, s);
+                        if (!success) {
+                            qDebug() << "Selecting service failed";
+                        }
+                        else {
+                            CurrentTitle = CurrentStation;
 
-                        CurrentTitle = CurrentStation;
+                            CurrentStationType = tr(DABConstants::getProgramTypeName(s.programType));
+                            CurrentLanguageType = tr(DABConstants::getLanguageName(s.language));
 
-                        CurrentStationType = tr(DABConstants::getProgramTypeName(s.programType));
-                        CurrentLanguageType = tr(DABConstants::getLanguageName(s.language));
+                            mBitRate = subch.bitrate();
+                            emit BitRateChanged(mBitRate);
 
-                        mBitRate = subch.bitrate();
-                        emit BitRateChanged(mBitRate);
+                            if (sc.audioType() == AudioServiceComponentType::DABPlus)
+                                mIsDAB = false;
+                            else
+                                mIsDAB = true;
+                            emit isDABChanged(mIsDAB);
 
-                        if (sc.audioType() == AudioServiceComponentType::DABPlus)
-                            mIsDAB = false;
-                        else
-                            mIsDAB = true;
-                        emit isDABChanged(mIsDAB);
+                            Status = Playing;
+                            UpdateGUIData();
+                        }
 
-                        Status = Playing;
-                        UpdateGUIData();
+                        return;
                     }
                 }
             }

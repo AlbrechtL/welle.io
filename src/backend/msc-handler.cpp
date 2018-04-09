@@ -21,10 +21,11 @@
  *    along with SDR-J; if not, write to the Free Software
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#include    "dab-constants.h"
-#include    "msc-handler.h"
-#include    "dab-virtual.h"
-#include    "audio/dab-audio.h"
+#include <algorithm>
+#include "dab-constants.h"
+#include "msc-handler.h"
+#include "dab-virtual.h"
+#include "audio/dab-audio.h"
 
 //  Interface program for processing the MSC.
 //  Merely a dispatcher for the selected service
@@ -35,14 +36,8 @@
 #define CUSize  (4 * 16)
 //  Note CIF counts from 0 .. 3
 MscHandler::MscHandler(
-        RadioControllerInterface& mr,
         const DABParams& p,
-        bool show_crcErrors,
-        const std::string& mscFileName,
-        const std::string& mp2FileName) :
-    radioInterface(mr),
-    mscFileName(mscFileName),
-    mp2FileName(mp2FileName),
+        bool show_crcErrors) :
     bitsperBlock(2 * p.K),
     show_crcErrors(show_crcErrors),
     cifVector(864 * CUSize)
@@ -63,86 +58,111 @@ MscHandler::MscHandler(
     }
 }
 
-void MscHandler::setSubChannel(AudioServiceComponentType ascty,
-        const Subchannel& sc)
+bool MscHandler::addSubchannel(
+        ProgrammeHandlerInterface& handler,
+        AudioServiceComponentType ascty,
+        const std::string& dumpFileName,
+        const Subchannel& sub)
 {
     std::lock_guard<std::mutex> lock(mutex);
-    audioType = ascty;
-    subChannel = sc;
-    newChannel = true;
+
+    // check not already in list
+    for (const auto& stream : streams) {
+        if (stream.subCh.subChId == sub.subChId) {
+            return false;
+        }
+    }
+
+    SelectedStream s(handler, ascty, dumpFileName, sub);
+
+    s.dabHandler = std::make_shared<DabAudio>(
+                ascty,
+                sub.length * CUSize,
+                sub.bitrate(),
+                sub.shortForm,
+                sub.protLevel,
+                handler,
+                dumpFileName);
+
+     /* TODO dealing with data
+      s.dabHandler = std::make_shared<DabData>(radioInterface,
+                                  new_DSCTy,
+                                  new_packetAddress,
+                                  subChannel.length * CUSize,
+                                  subChannel.bitrate(),
+                                  subChannel.shortForm,
+                                  subChannel.protLevel,
+                                  new_DGflag,
+                                  new_FEC_scheme,
+                                  show_crcErrors);
+      */
+
+    streams.push_back(std::move(s));
+
+    work_to_be_done = true;
+    return true;
+}
+
+bool MscHandler::removeSubchannel(const Subchannel& sub)
+{
+    std::lock_guard<std::mutex> lock(mutex);
+
+    auto it = std::find_if(streams.begin(), streams.end(),
+            [&](const SelectedStream& stream) {
+                return stream.subCh.subChId == sub.subChId;
+            } );
+
+    if (it != streams.end()) {
+        streams.erase(it);
+        return true;
+    }
+
+    return false;
 }
 
 //  add blocks. First is (should be) block 5, last is (should be) 76
 //  Note that this method is called from within the ofdm-processor thread
-//  while the set_xxx methods are called from within the 
+//  while the set_xxx methods are called from within the
 //  gui thread
 //
 //  Any change in the selected service will only be active
-//  during te next process_mscBlock call.
-void MscHandler::process_mscBlock(int16_t *fbits, int16_t blkno)
+//  during te next processMscBlock call.
+void MscHandler::processMscBlock(int16_t *fbits, int16_t blkno)
 {
     std::lock_guard<std::mutex> lock(mutex);
 
-    if (!work_to_be_done && !newChannel)
+    if (!work_to_be_done)
         return;
 
     int16_t currentblk = (blkno - 4) % numberofblocksperCIF;
 
-    if (newChannel) {
-        newChannel = false;
-        if (dabHandler) {
-            dabHandler.reset();
-        }
-
-        dabHandler = std::make_shared<DabAudio>(
-                audioType,
-                subChannel.length * CUSize,
-                subChannel.bitrate(),
-                subChannel.shortForm,
-                subChannel.protLevel,
-                radioInterface,
-                mscFileName,
-                mp2FileName);
-         /* TODO dealing with data
-                    dabHandler = std::make_shared<DabData>(radioInterface,
-                                              new_DSCTy,
-                                              new_packetAddress,
-                                              subChannel.length * CUSize,
-                                              subChannel.bitrate(),
-                                              subChannel.shortForm,
-                                              subChannel.protLevel,
-                                              new_DGflag,
-                                              new_FEC_scheme,
-                                              show_crcErrors);
-            */
-
-        //  these we need for actual processing
-        startAddr = subChannel.startAddr;
-        length    = subChannel.length;
-        //  and this one to get started
-        work_to_be_done  = true;
-    }
-
     //  and the normal operation is:
-    memcpy (&cifVector[currentblk * bitsperBlock],
+    memcpy(&cifVector[currentblk * bitsperBlock],
             fbits, bitsperBlock * sizeof (int16_t));
 
     if (currentblk < numberofblocksperCIF - 1)
         return;
 
     //  OK, now we have a full CIF
-    blkCount    = 0;
-    cifCount    = (cifCount + 1) & 03;
+    blkCount = 0;
+    cifCount = (cifCount + 1) & 03;
 
-    int16_t *myBegin = &cifVector[startAddr * CUSize];
+    for (auto& stream : streams) {
+        int16_t *myBegin = &cifVector[stream.subCh.startAddr * CUSize];
 
-    if (dabHandler) {
-        (void)dabHandler->process(myBegin, length * CUSize);
+        if (stream.dabHandler) {
+            (void)stream.dabHandler->process(myBegin, stream.subCh.length * CUSize);
+        }
+        else {
+            throw std::logic_error("No dabHandler!");
+        }
     }
 }
 
 void MscHandler::stopProcessing()
 {
+    std::lock_guard<std::mutex> lock(mutex);
     work_to_be_done = false;
+    streams.clear();
 }
 

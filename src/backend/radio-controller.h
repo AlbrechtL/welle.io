@@ -65,39 +65,12 @@ struct tii_measurement_t {
 enum class message_level_t { Information, Error };
 
 /* Definition of the interface all radio controllers must implement.
+ * The RadioController handles events that are common to all programmes
+ * being listened to.
  * All functions starting with "on" are callbacks for the backend.
  */
 class RadioControllerInterface {
     public:
-        /* Count the number of frame errors from the MP2, AAC or data
-         * decoder.
-         * The function will also be called in the absence of errors,
-         * with an count of 0. */
-        virtual void onFrameErrors(int frameErrors) = 0;
-
-        /* New audio data is available. The sampleRate and the
-         * stereo indicator may change at any time. */
-        virtual void onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, bool stereo) = 0;
-
-        /* (DAB+ only) Reed-Solomon decoding error count.
-         * The function will also be called in the absence of errors,
-         * with an count of 0. */
-        virtual void onRsErrors(int rsErrors) = 0;
-
-        /* (DAB+ only) Firecode check error count.
-         * The function will also be called in the absence of errors,
-         * with an count of 0. */
-        virtual void onAacErrors(int aacErrors) = 0;
-
-        /* A new Dynamic Label was decoded.
-         * label is utf-8 encoded. */
-        virtual void onNewDynamicLabel(const std::string& label) = 0;
-
-        /* A slide was decoded. data contains the raw bytes, and subtype
-         * defines the data format:
-         * 0x01 for JPEG, 0x03 for PNG */
-        virtual void onMOT(const std::vector<uint8_t>& data, int subtype) = 0;
-
         /* Signal-to-Noise Ratio was calculated. snr is a value in dB. */
         virtual void onSNR(int snr) = 0;
 
@@ -139,6 +112,41 @@ class RadioControllerInterface {
 
         /* When a information or warning message should be printed */
         virtual void onMessage(message_level_t level, const std::string& text) = 0;
+};
+
+/* A Programme Hander is associated to each tuned programme in the ensemble.
+ */
+class ProgrammeHandlerInterface {
+    public:
+        /* Count the number of frame errors from the MP2, AAC or data
+         * decoder.
+         * The function will also be called in the absence of errors,
+         * with an count of 0. */
+        virtual void onFrameErrors(int frameErrors) = 0;
+
+        /* New audio data is available. The sampleRate and the
+         * stereo indicator may change at any time. */
+        virtual void onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, bool stereo) = 0;
+
+        /* (DAB+ only) Reed-Solomon decoding error count.
+         * The function will also be called in the absence of errors,
+         * with an count of 0. */
+        virtual void onRsErrors(int rsErrors) = 0;
+
+        /* (DAB+ only) Firecode check error count.
+         * The function will also be called in the absence of errors,
+         * with an count of 0. */
+        virtual void onAacErrors(int aacErrors) = 0;
+
+        /* A new Dynamic Label was decoded.
+         * label is utf-8 encoded. */
+        virtual void onNewDynamicLabel(const std::string& label) = 0;
+
+        /* A slide was decoded. data contains the raw bytes, and subtype
+         * defines the data format:
+         * 0x01 for JPEG, 0x03 for PNG */
+        virtual void onMOT(const std::vector<uint8_t>& data, int subtype) = 0;
+
 };
 
 /* Definition of the interface all input devices must implement */

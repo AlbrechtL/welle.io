@@ -40,10 +40,10 @@
  * that are processed by the "faadDecoder" class
  */
 Mp4Processor::Mp4Processor(
-        RadioControllerInterface& mr,
+        ProgrammeHandlerInterface& phi,
         int16_t bitRate,
         const std::string& mscFileName) :
-    myRadioInterface(mr),
+    myInterface(phi),
     the_rsDecoder(8, 0435, 0, 1, 10),
     padDecoder(this, true)
 {
@@ -78,7 +78,7 @@ Mp4Processor::Mp4Processor(
 
 void Mp4Processor::PADChangeDynamicLabel(const DL_STATE& dl)
 {
-    myRadioInterface.onNewDynamicLabel(
+    myInterface.onNewDynamicLabel(
             toUtf8StringUsingCharset(
                 (const char *)&dl.raw[0],
                 (CharacterSet) dl.charset,
@@ -87,7 +87,7 @@ void Mp4Processor::PADChangeDynamicLabel(const DL_STATE& dl)
 
 void Mp4Processor::PADChangeSlide(const MOT_FILE& slide)
 {
-    myRadioInterface.onMOT(slide.data, slide.content_sub_type);
+    myInterface.onMOT(slide.data, slide.content_sub_type);
 }
 
 /**
@@ -124,7 +124,7 @@ void Mp4Processor::addtoFrame(uint8_t *V)
         /// first, we show the "successrate"
         if (++frameCount >= 25) {
             frameCount = 0;
-            myRadioInterface.onFrameErrors(frameErrors);
+            myInterface.onFrameErrors(frameErrors);
             frameErrors = 0;
         }
 
@@ -140,7 +140,7 @@ void Mp4Processor::addtoFrame(uint8_t *V)
             //  new sequence, beginning with block blockFillIndex
             blocksInBuffer    = 0;
             if (++successFrames > 25) {
-                myRadioInterface.onRsErrors(rsErrors);
+                myInterface.onRsErrors(rsErrors);
                 successFrames  = 0;
                 rsErrors   = 0;
             }
@@ -285,7 +285,7 @@ bool Mp4Processor::processSuperframe(uint8_t frameBytes[], int16_t base)
             }
 
             if (++aacFrames > 25) {
-                myRadioInterface.onAacErrors(aacErrors);
+                myInterface.onAacErrors(aacErrors);
                 aacErrors  = 0;
                 aacFrames  = 0;
             }
@@ -336,7 +336,7 @@ void Mp4Processor::handleAacFrame(
         aacAudioMode_tmp = AACAudioMode::Mono;
 
     const bool stereo = (aacAudioMode_tmp != AACAudioMode::Mono);
-    myRadioInterface.onNewAudio(move(audio), sampleRate, stereo);
+    myInterface.onNewAudio(move(audio), sampleRate, stereo);
 
     if (aacAudioMode != aacAudioMode_tmp) {
         aacAudioMode = aacAudioMode_tmp;

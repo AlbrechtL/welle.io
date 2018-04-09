@@ -48,13 +48,11 @@ DabAudio::DabAudio(
         int16_t bitRate,
         bool shortForm,
         int16_t protLevel,
-        RadioControllerInterface& mr,
-        const std::string& mscFileName,
-        const std::string& mp2FileName) :
-    myRadioInterface(mr),
+        ProgrammeHandlerInterface& phi,
+        const std::string& dumpFileName) :
+    myProgrammeHandler(phi),
     mscBuffer(64 * 32768),
-    mscFileName(mscFileName),
-    mp2FileName(mp2FileName)
+    dumpFileName(dumpFileName)
 {
     int32_t i;
     this->dabModus         = dabModus;
@@ -77,16 +75,12 @@ DabAudio::DabAudio(
 
     if (dabModus == AudioServiceComponentType::DAB) {
         our_dabProcessor = make_unique<Mp2Processor>(
-                myRadioInterface, bitRate, mp2FileName);
+                myProgrammeHandler, bitRate, dumpFileName);
     }
     else if (dabModus == AudioServiceComponentType::DABPlus) {
         our_dabProcessor = make_unique<Mp4Processor>(
-                myRadioInterface, bitRate, mscFileName);
+                myProgrammeHandler, bitRate, dumpFileName);
     }
-
-    std::clog << "dab-audio: we have now " <<
-        ((dabModus == AudioServiceComponentType::DABPlus) ? "DAB+" : "DAB") <<
-        std::endl;
 
     running = true;
     ourThread = std::thread(&DabAudio::run, this);

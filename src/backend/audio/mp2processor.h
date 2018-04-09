@@ -50,7 +50,7 @@ struct quantizer_spec
 class Mp2Processor: public DabProcessor, public PADDecoderObserver
 {
     public:
-        Mp2Processor(RadioControllerInterface& mr,
+        Mp2Processor(ProgrammeHandlerInterface& mr,
                      int16_t bitRate,
                      const std::string& mp2FileName);
         virtual void addtoFrame(uint8_t *v);
@@ -64,7 +64,7 @@ class Mp2Processor: public DabProcessor, public PADDecoderObserver
         int32_t     mp2sampleRate(uint8_t *frame);
         int32_t     mp2decodeFrame(uint8_t *frame, int16_t *pcm);
 
-        RadioControllerInterface& myRadioInterface;
+        ProgrammeHandlerInterface& myInterface;
         int16_t     bitRate;
         int32_t     baudRate = 48000;
         uint32_t    mode = 0;

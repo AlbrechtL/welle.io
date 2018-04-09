@@ -58,7 +58,10 @@ class CRadioController : public CRadioControllerSource,
 {
     Q_OBJECT
 #else
-class CRadioController : public QObject, public RadioControllerInterface
+class CRadioController :
+    public QObject,
+    public RadioControllerInterface,
+    public ProgrammeHandlerInterface
 {
     Q_OBJECT
     Q_PROPERTY(QString DateTime READ DateTime NOTIFY DateTimeChanged)

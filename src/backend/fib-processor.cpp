@@ -165,36 +165,37 @@ int16_t FIBProcessor::HandleFIG0Extension1(
         uint8_t pd)
 {
     int16_t bitOffset = offset * 8;
-    int16_t SubChId   = getBits_6 (d, bitOffset);
-    int16_t StartAdr  = getBits(d, bitOffset + 6, 10);
-    (void)pd;       // not used right now, maybe later
-    subChannels[SubChId].startAddr = StartAdr;
+    const int16_t subChId   = getBits_6 (d, bitOffset);
+    const int16_t startAdr  = getBits(d, bitOffset + 6, 10);
+    subChannels[subChId].programmeNotData = pd;
+    subChannels[subChId].subChId = subChId;
+    subChannels[subChId].startAddr = startAdr;
     if (getBits_1 (d, bitOffset + 16) == 0) {   // UEP, short form
         int16_t tableIx = getBits_6 (d, bitOffset + 18);
-        subChannels[SubChId].tableIndex = tableIx;
-        subChannels[SubChId].length     = ProtLevel[tableIx][0];
-        subChannels[SubChId].shortForm  = true;
-        subChannels[SubChId].protLevel  = ProtLevel[tableIx][1];
+        subChannels[subChId].tableIndex = tableIx;
+        subChannels[subChId].length     = ProtLevel[tableIx][0];
+        subChannels[subChId].shortForm  = true;
+        subChannels[subChId].protLevel  = ProtLevel[tableIx][1];
         bitOffset += 24;
     }
     else {  // EEP, long form
-        subChannels[SubChId].shortForm    = false;
+        subChannels[subChId].shortForm    = false;
         int16_t option = getBits_3 (d, bitOffset + 17);
-        subChannels[SubChId].protOption = option;
+        subChannels[subChId].protOption = option;
         if (option == 0) {      // A Level protection
             int16_t protLevel = getBits (d, bitOffset + 20, 2);
             //
             //  we encode the A level protection by adding 0100 to the level
-            subChannels[SubChId].protLevel = protLevel;
+            subChannels[subChId].protLevel = protLevel;
             int16_t subChanSize = getBits (d, bitOffset + 22, 10);
-            subChannels[SubChId].length   = subChanSize;
+            subChannels[subChId].length   = subChanSize;
         }
         else            // option should be 001
             if (option == 001) {        // B Level protection
                 int16_t protLevel = getBits_2 (d, bitOffset + 20);
-                subChannels[SubChId].protLevel = protLevel + (1 << 2);
+                subChannels[subChId].protLevel = protLevel + (1 << 2);
                 int16_t subChanSize = getBits (d, bitOffset + 22, 10);
-                subChannels[SubChId].length = subChanSize;
+                subChannels[subChId].length = subChanSize;
             }
 
         bitOffset += 32;

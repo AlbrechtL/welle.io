@@ -47,7 +47,7 @@ enum class AACAudioMode { Unknown, Mono, Stereo, ParametricStereo};
 class Mp4Processor : public DabProcessor, public PADDecoderObserver
 {
     public:
-        Mp4Processor(RadioControllerInterface& mr,
+        Mp4Processor(ProgrammeHandlerInterface& phi,
                 int16_t bitRate,
                 const std::string& mscFileName);
 
@@ -58,7 +58,7 @@ class Mp4Processor : public DabProcessor, public PADDecoderObserver
         void PADChangeSlide(const MOT_FILE& slide);
 
     private:
-        RadioControllerInterface& myRadioInterface;
+        ProgrammeHandlerInterface& myInterface;
         bool  processSuperframe(uint8_t frameBytes[], int16_t base);
         void  handleAacFrame(uint8_t *v,
                               int16_t  frame_length,

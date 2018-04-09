@@ -54,14 +54,28 @@ class RadioReceiver {
 
         // Play the audio component of the service. Returns true if an
         // audio subchannel was found and tuned to.
-        bool playAudioComponent(const Service& s);
+        bool playSingleProgramme(ProgrammeHandlerInterface& handler,
+                const Service& s);
+
+        bool addServiceToDecode(ProgrammeHandlerInterface& handler,
+                const Service& s);
+
+        bool removeServiceToDecode(const Service& s);
 
         std::string getEnsembleName(void) const;
         std::vector<Service> getServiceList(void) const;
         std::list<ServiceComponent> getComponents(const Service& s) const;
+
+        /* Return the subchannel corresponding to the given component.
+         * This can fail, in which case the Subchannel returned has
+         * subch field equals to -1
+         */
         Subchannel getSubchannel(const ServiceComponent& sc) const;
 
     private:
+        bool playProgramme(ProgrammeHandlerInterface& handler, const Service& s,
+                bool unique);
+
         RadioControllerInterface& rci;
         InputInterface& input;
 
