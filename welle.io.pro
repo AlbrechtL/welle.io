@@ -87,6 +87,7 @@ HEADERS += \
     src/various/ringbuffer.h \
     src/various/Xtan2.h \
     src/various/channels.h \
+    src/various/wavfile.h \
     src/input/CVirtualInput.h \
     src/input/CInputFactory.h \
     src/input/CNullDevice.h \
@@ -131,6 +132,7 @@ SOURCES += \
     src/various/Xtan2.cpp \
     src/various/channels.cpp \
     src/various/fft.cpp \
+    src/various/wavfile.c \
     src/output/CAudio.cpp \
     src/input/CInputFactory.cpp \
     src/input/CNullDevice.cpp \

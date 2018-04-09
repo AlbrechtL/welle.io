@@ -45,6 +45,9 @@
 #include "input/CInputFactory.h"
 #include "input/CRAWFile.h"
 #include "various/channels.h"
+extern "C" {
+#include "various/wavfile.h"
+}
 
 using namespace std;
 
@@ -187,9 +190,20 @@ class AlsaProgrammeHandler: public ProgrammeHandlerInterface {
         unsigned int rate = 48000;
 };
 
-class SilentProgrammeHandler: public ProgrammeHandlerInterface {
+class WavProgrammeHandler: public ProgrammeHandlerInterface {
     public:
-        SilentProgrammeHandler(uint32_t SId) : SId(SId) {}
+        WavProgrammeHandler(uint32_t SId, const std::string& fileprefix) :
+            SId(SId),
+            filePrefix(fileprefix) {}
+        ~WavProgrammeHandler() {
+            if (fd) {
+                wavfile_close(fd);
+            }
+        }
+        WavProgrammeHandler(const WavProgrammeHandler& other) = delete;
+        WavProgrammeHandler& operator=(const WavProgrammeHandler& other) = delete;
+        WavProgrammeHandler(WavProgrammeHandler&& other) = default;
+        WavProgrammeHandler& operator=(WavProgrammeHandler&& other) = default;
 
         virtual void onFrameErrors(int frameErrors) override { (void)frameErrors; }
         virtual void onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, bool isStereo) override
@@ -197,9 +211,23 @@ class SilentProgrammeHandler: public ProgrammeHandlerInterface {
             if (rate != sampleRate or stereo != isStereo) {
                 cout << "[0x" << std::hex << SId << std::dec << "] " <<
                     "rate " << sampleRate << " stereo " << isStereo << endl;
+
+                string filename = filePrefix + ".wav";
+                if (fd) {
+                    wavfile_close(fd);
+                }
+                fd = wavfile_open(filename.c_str(), sampleRate, isStereo ? 2 : 1);
+
+                if (not fd) {
+                    cerr << "Could not open wav file " << filename << endl;
+                }
             }
             rate = sampleRate;
             stereo = isStereo;
+
+            if (fd) {
+                wavfile_write(fd, audioData.data(), audioData.size());
+            }
         }
 
         virtual void onRsErrors(int rsErrors) override { (void)rsErrors; }
@@ -214,8 +242,10 @@ class SilentProgrammeHandler: public ProgrammeHandlerInterface {
 
     private:
         uint32_t SId;
+        string filePrefix;
+        FILE* fd = nullptr;
         bool stereo = true;
-        int rate = 48000;
+        int rate = 0;
 };
 
 
@@ -380,7 +410,7 @@ int main(int argc, char **argv)
 
     if (options.dump_all_programmes) {
         using SId_t = uint32_t;
-        map<SId_t, SilentProgrammeHandler> phs;
+        map<SId_t, WavProgrammeHandler> phs;
 
         cerr << "Service list" << endl;
         for (const auto& s : rx.getServiceList()) {
@@ -397,13 +427,14 @@ int main(int argc, char **argv)
             }
             cerr << endl;
 
-            SilentProgrammeHandler ph(s.serviceId);
+            string dumpFilePrefix = s.serviceLabel.label;
+            dumpFilePrefix.erase(std::find_if(dumpFilePrefix.rbegin(), dumpFilePrefix.rend(),
+                        [](int ch) { return !std::isspace(ch); }).base(), dumpFilePrefix.end());
+
+            WavProgrammeHandler ph(s.serviceId, dumpFilePrefix);
             phs.emplace(std::make_pair(s.serviceId, move(ph)));
 
-            string dumpFileName = s.serviceLabel.label;
-            dumpFileName.erase(std::find_if(dumpFileName.rbegin(), dumpFileName.rend(),
-                        [](int ch) { return !std::isspace(ch); }).base(), dumpFileName.end());
-            dumpFileName += ".msc";
+            auto dumpFileName = dumpFilePrefix + ".msc";
 
             if (rx.addServiceToDecode(phs.at(s.serviceId), dumpFileName, s) == false) {
                 cerr << "Tune to " << service_to_tune << " failed" << endl;

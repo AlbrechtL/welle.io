@@ -99,6 +99,7 @@ set(backend_sources
     src/various/channels.cpp
     src/various/fft.cpp
     src/various/Xtan2.cpp
+    src/various/wavfile.c
 )
 
 set(welle_io_sources
