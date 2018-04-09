@@ -41,13 +41,9 @@ static constexpr size_t AUDIOBUFFERSIZE = 32768;
 
 RadioReceiver::RadioReceiver(
                 RadioControllerInterface& rci,
-                InputInterface& input,
-                const std::string& mscFileName,
-                const std::string& mp2FileName) :
+                InputInterface& input) :
     rci(rci),
     input(input),
-    mscFilename(mscFileName),
-    mp2Filename(mp2FileName),
     mscHandler(params, false),
     ficHandler(rci),
     ofdmProcessor(input,
@@ -56,11 +52,7 @@ RadioReceiver::RadioReceiver(
         mscHandler,
         ficHandler,
         3, 3)
-{
-    if (not mscFilename.empty() or not mp2Filename.empty()) {
-        std::clog << "WARNING FILE DUMP BROKEN" << std::endl;
-    }
-}
+{ }
 
 void RadioReceiver::restart(bool doScan)
 {
@@ -72,15 +64,15 @@ void RadioReceiver::restart(bool doScan)
 }
 
 bool RadioReceiver::playSingleProgramme(ProgrammeHandlerInterface& handler,
-        const Service& s)
+        const std::string& dumpFileName, const Service& s)
 {
-    return playProgramme(handler, s, true);
+    return playProgramme(handler, s, dumpFileName, true);
 }
 
 bool RadioReceiver::addServiceToDecode(ProgrammeHandlerInterface& handler,
-        const Service& s)
+        const std::string& dumpFileName, const Service& s)
 {
-    return playProgramme(handler, s, false);
+    return playProgramme(handler, s, dumpFileName, false);
 }
 
 bool RadioReceiver::removeServiceToDecode(const Service& s)
@@ -98,7 +90,7 @@ bool RadioReceiver::removeServiceToDecode(const Service& s)
 }
 
 bool RadioReceiver::playProgramme(ProgrammeHandlerInterface& handler,
-        const Service& s, bool unique)
+        const Service& s, const std::string& dumpFileName, bool unique)
 {
     const auto comps = ficHandler.fibProcessor.getComponents(s);
     for (const auto& sc : comps) {
@@ -110,14 +102,10 @@ bool RadioReceiver::playProgramme(ProgrammeHandlerInterface& handler,
                     mscHandler.stopProcessing();
                 }
 
-                if (sc.audioType() == AudioServiceComponentType::DAB) {
+                if (sc.audioType() == AudioServiceComponentType::DAB ||
+                    sc.audioType() == AudioServiceComponentType::DABPlus) {
                     mscHandler.addSubchannel(
-                            handler, sc.audioType(), mp2Filename, subch);
-                    return true;
-                }
-                else if (sc.audioType() == AudioServiceComponentType::DABPlus) {
-                    mscHandler.addSubchannel(
-                            handler, sc.audioType(), mscFilename, subch);
+                            handler, sc.audioType(), dumpFileName, subch);
                     return true;
                 }
             }

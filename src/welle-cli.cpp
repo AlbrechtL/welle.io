@@ -30,13 +30,16 @@
  *
  */
 
-#include <iostream>
-#include <cstdio>
-#include <set>
-#include <deque>
-#include <mutex>
-#include <memory>
+#include <algorithm>
 #include <condition_variable>
+#include <deque>
+#include <iostream>
+#include <memory>
+#include <mutex>
+#include <set>
+#include <utility>
+#include <cstdio>
+#include <unistd.h>
 #include <alsa/asoundlib.h>
 #include "backend/radio-receiver.h"
 #include "input/CInputFactory.h"
@@ -149,7 +152,7 @@ class AudioOutput {
         snd_pcm_hw_params_t *params;
 };
 
-class RadioInterface : public RadioControllerInterface, public ProgrammeHandlerInterface {
+class AlsaProgrammeHandler: public ProgrammeHandlerInterface {
     public:
         virtual void onFrameErrors(int frameErrors) override { (void)frameErrors; }
         virtual void onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, bool isStereo) override
@@ -176,6 +179,48 @@ class RadioInterface : public RadioControllerInterface, public ProgrammeHandlerI
         }
 
         virtual void onMOT(const std::vector<uint8_t>& data, int subtype) override { (void)data; (void)subtype; }
+
+    private:
+        mutex aomutex;
+        unique_ptr<AudioOutput> ao;
+        bool stereo = true;
+        unsigned int rate = 48000;
+};
+
+class SilentProgrammeHandler: public ProgrammeHandlerInterface {
+    public:
+        SilentProgrammeHandler(uint32_t SId) : SId(SId) {}
+
+        virtual void onFrameErrors(int frameErrors) override { (void)frameErrors; }
+        virtual void onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, bool isStereo) override
+        {
+            if (rate != sampleRate or stereo != isStereo) {
+                cout << "[0x" << std::hex << SId << std::dec << "] " <<
+                    "rate " << sampleRate << " stereo " << isStereo << endl;
+            }
+            rate = sampleRate;
+            stereo = isStereo;
+        }
+
+        virtual void onRsErrors(int rsErrors) override { (void)rsErrors; }
+        virtual void onAacErrors(int aacErrors) override { (void)aacErrors; }
+        virtual void onNewDynamicLabel(const std::string& label) override
+        {
+            cout << "[0x" << std::hex << SId << std::dec << "] " <<
+                "DLS: " << label << endl;
+        }
+
+        virtual void onMOT(const std::vector<uint8_t>& data, int subtype) override { (void)data; (void)subtype; }
+
+    private:
+        uint32_t SId;
+        bool stereo = true;
+        int rate = 48000;
+};
+
+
+class RadioInterface : public RadioControllerInterface {
+    public:
         virtual void onSNR(int snr) override { (void)snr; }
         virtual void onFrequencyCorrectorChange(int fine, int coarse) override { (void)fine; (void)coarse; }
         virtual void onSyncChange(char isSync) override { synced = isSync; }
@@ -222,34 +267,78 @@ class RadioInterface : public RadioControllerInterface, public ProgrammeHandlerI
         }
 
         bool synced = false;
-
-    private:
-        mutex aomutex;
-        unique_ptr<AudioOutput> ao;
-        bool stereo = true;
-        unsigned int rate = 48000;
 };
+
+struct options_t {
+    string channel = "10B";
+    string iqsource = "";
+    string programme = "GRRIF";
+    bool dump_programme = false;
+    bool dump_all_programmes = false;
+};
+
+static void usage()
+{
+    cerr << "Usage: " << endl <<
+        "Receive using RTLSDR, and play with ALSA:" << endl <<
+        " welle-cli -c channel -p programme" << endl <<
+        endl <<
+        "Read an IQ file and play with ALSA:" << endl <<
+        "IQ file format is complexf I/Q unless the filename ends with u8.iq" << endl <<
+        " welle-cli -f file -p programme" << endl <<
+        endl <<
+        "Use -D to dump all programmes to files, do not play to ALSA." << endl <<
+        " welle-cli -c channel -D " << endl <<
+        endl <<
+        " examples: welle-cli -c 10B -p GRRIF" << endl <<
+        "           welle-cli -f ./ofdm.iq -p GRRIF" << endl;
+}
+
+options_t parse_cmdline(int argc, char **argv)
+{
+    options_t options;
+    int opt;
+    while ((opt = getopt(argc, argv, "c:dDf:hp:")) != -1) {
+        switch (opt) {
+            case 'c':
+                options.channel = optarg;
+                break;
+            case 'd':
+                options.dump_programme = true;
+                break;
+            case 'D':
+                options.dump_all_programmes = true;
+                break;
+            case 'f':
+                options.iqsource = optarg;
+                break;
+            case 'p':
+                options.programme = optarg;
+                break;
+            case 'h':
+                usage();
+                exit(1);
+            default:
+                cerr << "Unknown option. Use -h for help" << endl;
+                exit(1);
+        }
+    }
+
+    return options;
+}
 
 int main(int argc, char **argv)
 {
     cerr << "Hello this is welle-cli" << endl;
-    if (argc != 3) {
-        cerr << "Usage: " << endl <<
-            " welle-cli channel programme" << endl <<
-            " welle-cli file programme" << endl <<
-            " examples: welle-cli 10B GRRIF" << endl <<
-            "           welle-cli ./ofdm.iq GRRIF" << endl;
-        return 1;
-    }
+    auto options = parse_cmdline(argc, argv);
 
     RadioInterface ri;
 
-    string channel_or_file = argv[1];
     Channels channels;
-    auto freq = channels.getFrequency(channel_or_file);
 
     unique_ptr<CVirtualInput> in = nullptr;
-    if (freq != 0) {
+
+    if (options.iqsource.empty()) {
         in.reset(CInputFactory::GetDevice(ri, "auto"));
 
         if (not in) {
@@ -264,11 +353,11 @@ int main(int argc, char **argv)
             return 1;
         }
 
-        if (channel_or_file.find("u8.iq") == string::npos) {
-            in_file->setFileName(channel_or_file, "cf32");
+        if (options.iqsource.find("u8.iq") == string::npos) {
+            in_file->setFileName(options.iqsource, "cf32");
         }
         else {
-            in_file->setFileName(channel_or_file, "u8");
+            in_file->setFileName(options.iqsource, "u8");
         }
         in = move(in_file);
     }
@@ -276,22 +365,22 @@ int main(int argc, char **argv)
     in->setGain(6);
     in->setAgc(true);
 
+    auto freq = channels.getFrequency(options.channel);
     in->setFrequency(freq);
-    string service_to_tune = argv[2];
+    string service_to_tune = options.programme;
 
-    RadioReceiver rx(ri, *in, "", "");
-
-    cerr << "RadioReceiver initialised" << endl;
+    RadioReceiver rx(ri, *in);
 
     rx.restart(false);
 
-    cerr << "RadioReceiver restarted" << endl;
+    cerr << "Wait for sync" << endl;
     while (not ri.synced) {
-        cerr << "Wait for sync" << endl;
-        this_thread::sleep_for(chrono::seconds(5));
+        this_thread::sleep_for(chrono::seconds(3));
     }
 
-    while (not service_to_tune.empty()) {
+    if (options.dump_all_programmes) {
+        using SId_t = uint32_t;
+        map<SId_t, SilentProgrammeHandler> phs;
 
         cerr << "Service list" << endl;
         for (const auto& s : rx.getServiceList()) {
@@ -307,29 +396,75 @@ int main(int argc, char **argv)
                 cerr << " [subch " << sub.subChId << " bitrate:" << sub.bitrate() << " at SAd:" << sub.startAddr << "]";
             }
             cerr << endl;
-        }
 
-        bool service_selected = false;
-        for (const auto s : rx.getServiceList()) {
-            if (s.serviceLabel.label.find(service_to_tune) != string::npos) {
-                service_selected = true;
-#warning "Fix dump files"
-                if (rx.playSingleProgramme(ri, s) == false) {
-                    cerr << "Tune to " << service_to_tune << " failed" << endl;
-                }
+            SilentProgrammeHandler ph(s.serviceId);
+            phs.emplace(std::make_pair(s.serviceId, move(ph)));
+
+            string dumpFileName = s.serviceLabel.label;
+            dumpFileName.erase(std::find_if(dumpFileName.rbegin(), dumpFileName.rend(),
+                        [](int ch) { return !std::isspace(ch); }).base(), dumpFileName.end());
+            dumpFileName += ".msc";
+
+            if (rx.addServiceToDecode(phs.at(s.serviceId), dumpFileName, s) == false) {
+                cerr << "Tune to " << service_to_tune << " failed" << endl;
             }
         }
-        if (not service_selected) {
-            cerr << "Could not tune to " << service_to_tune << endl;
-        }
 
-        cerr << "**** Please enter programme name. Enter '.' to quit." << endl;
-
-        cin >> service_to_tune;
-        if (service_to_tune == ".") {
-            break;
+        while (true) {
+            cerr << "**** Enter '.' to quit." << endl;
+            cin >> service_to_tune;
+            if (service_to_tune == ".") {
+                break;
+            }
         }
-        cerr << "**** Trying to tune to " << service_to_tune << endl;
+    }
+    else {
+        AlsaProgrammeHandler ph;
+        while (not service_to_tune.empty()) {
+            cerr << "Service list" << endl;
+            for (const auto& s : rx.getServiceList()) {
+                cerr << "  [0x" << std::hex << s.serviceId << std::dec << "] " <<
+                    s.serviceLabel.label << " ";
+                for (const auto& sc : rx.getComponents(s)) {
+                    cerr << " [component "  << sc.componentNr <<
+                        " ASCTy: " <<
+                        (sc.audioType() == AudioServiceComponentType::DAB ? "DAB" :
+                         sc.audioType() == AudioServiceComponentType::DABPlus ? "DAB+" : "unknown") << " ]";
+
+                    const auto& sub = rx.getSubchannel(sc);
+                    cerr << " [subch " << sub.subChId << " bitrate:" << sub.bitrate() << " at SAd:" << sub.startAddr << "]";
+                }
+                cerr << endl;
+            }
+
+            bool service_selected = false;
+            for (const auto s : rx.getServiceList()) {
+                if (s.serviceLabel.label.find(service_to_tune) != string::npos) {
+                    service_selected = true;
+                    string dumpFileName;
+                    if (options.dump_programme) {
+                        dumpFileName = s.serviceLabel.label;
+                        dumpFileName.erase(std::find_if(dumpFileName.rbegin(), dumpFileName.rend(),
+                                    [](int ch) { return !std::isspace(ch); }).base(), dumpFileName.end());
+                        dumpFileName += ".msc";
+                    }
+                    if (rx.playSingleProgramme(ph, dumpFileName, s) == false) {
+                        cerr << "Tune to " << service_to_tune << " failed" << endl;
+                    }
+                }
+            }
+            if (not service_selected) {
+                cerr << "Could not tune to " << service_to_tune << endl;
+            }
+
+            cerr << "**** Please enter programme name. Enter '.' to quit." << endl;
+
+            cin >> service_to_tune;
+            if (service_to_tune == ".") {
+                break;
+            }
+            cerr << "**** Trying to tune to " << service_to_tune << endl;
+        }
     }
 
     return 0;

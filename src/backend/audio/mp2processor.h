@@ -54,7 +54,6 @@ class Mp2Processor: public DabProcessor, public PADDecoderObserver
                      int16_t bitRate,
                      const std::string& mp2FileName);
         virtual void addtoFrame(uint8_t *v);
-        void setFile(FILE *);
 
         // PADDecoderObserver impl
         void PADChangeDynamicLabel(const DL_STATE& dl);

@@ -77,7 +77,7 @@ class DabAudio : public DabVirtual
         std::unique_ptr<DabProcessor> our_dabProcessor;
         RingBuffer<int16_t> mscBuffer;
 
-        const std::string& dumpFileName;
+        const std::string dumpFileName;
 };
 
 #endif

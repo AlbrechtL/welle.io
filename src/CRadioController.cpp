@@ -267,18 +267,7 @@ void CRadioController::Initialise(void)
 
     audio.setVolume(CurrentVolume);
 
-    std::string mscFileName;
-    if (commandLineOptions["mscFileName"] != "") {
-        mscFileName = commandLineOptions["mscFileName"].toString().toStdString();
-    }
-
-    std::string mp2FileName;
-    if (commandLineOptions["mp2FileName"] != "") {
-        mp2FileName = commandLineOptions["mp2FileName"].toString().toStdString();
-    }
-
-    my_rx = std::make_unique<RadioReceiver>(
-            *this, *Device, mscFileName, mp2FileName);
+    my_rx = std::make_unique<RadioReceiver>(*this, *Device);
 
     Status = Initialised;
     emit DeviceReady();
@@ -831,7 +820,12 @@ void CRadioController::StationTimerTimeout()
                         // We found the station inside the signal, lets stop the timer
                         StationTimer.stop();
 
-                        bool success = my_rx->playSingleProgramme(*this, s);
+                        std::string dumpFileName;
+                        if (commandLineOptions["dumpFileName"] != "") {
+                            dumpFileName = commandLineOptions["dumpFileName"].toString().toStdString();
+                        }
+
+                        bool success = my_rx->playSingleProgramme(*this, dumpFileName, s);
                         if (!success) {
                             qDebug() << "Selecting service failed";
                         }

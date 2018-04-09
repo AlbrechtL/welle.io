@@ -44,21 +44,19 @@ class RadioReceiver {
     public:
         RadioReceiver(
                 RadioControllerInterface& rci,
-                InputInterface& input,
-                const std::string& mscFileName,
-                const std::string& mp2FileName);
+                InputInterface& input);
 
         /* Restart the receiver, and specify if we want
          * to scan or receive. */
         void restart(bool doScan);
 
-        // Play the audio component of the service. Returns true if an
-        // audio subchannel was found and tuned to.
+        /* Play the audio component of the service. Returns true if an
+         * audio subchannel was found and tuned to. */
         bool playSingleProgramme(ProgrammeHandlerInterface& handler,
-                const Service& s);
+                const std::string& dumpFileName, const Service& s);
 
         bool addServiceToDecode(ProgrammeHandlerInterface& handler,
-                const Service& s);
+                const std::string& dumpFileName, const Service& s);
 
         bool removeServiceToDecode(const Service& s);
 
@@ -73,14 +71,13 @@ class RadioReceiver {
         Subchannel getSubchannel(const ServiceComponent& sc) const;
 
     private:
-        bool playProgramme(ProgrammeHandlerInterface& handler, const Service& s,
+        bool playProgramme(ProgrammeHandlerInterface& handler,
+                const Service& s,
+                const std::string& dumpFileName,
                 bool unique);
 
         RadioControllerInterface& rci;
         InputInterface& input;
-
-        std::string mscFilename;
-        std::string mp2Filename;
 
         DABParams params; // Defaults to TM1 parameters
 

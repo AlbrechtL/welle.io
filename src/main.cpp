@@ -171,15 +171,10 @@ int main(int argc, char** argv)
         QCoreApplication::translate("main", "Mode"));
     optionParser.addOption(DABModeOption);
 
-    QCommandLineOption MSCFileName("msc-file",
-        QCoreApplication::translate("main", "Records the DAB+ superframes. This file can be used to analyse the X-PAD data with XPADexpert."),
+    QCommandLineOption dumpFileName("dump-file",
+        QCoreApplication::translate("main", "Records DAB frames or DAB+ superframes. This file can be used to analyse the X-PAD data with XPADexpert."),
         QCoreApplication::translate("main", "File name"));
-    optionParser.addOption(MSCFileName);
-
-    QCommandLineOption MP2FileName("mp2-file",
-        QCoreApplication::translate("main", "Records the DAB MP2 frames. This file can be used to analyse the X-PAD data with XPADexpert."),
-        QCoreApplication::translate("main", "File name"));
-    optionParser.addOption(MP2FileName);
+    optionParser.addOption(dumpFileName);
 
     QCommandLineOption LogFileName("log-file",
         QCoreApplication::translate("main", "Redirects all log output texts to a file."),
@@ -262,8 +257,7 @@ int main(int argc, char** argv)
     commandLineOptions["ipPort"] = optionParser.value(RTL_TCPServerIPPort);
     commandLineOptions["rawFile"] = optionParser.value(RAWFile);
     commandLineOptions["rawFileFormat"] = optionParser.value(RAWFileFormat);
-    commandLineOptions["mscFileName"] = optionParser.value(MSCFileName);
-    commandLineOptions["mp2FileName"] = optionParser.value(MP2FileName);
+    commandLineOptions["dumpFileName"] = optionParser.value(dumpFileName);
     commandLineOptions["initialStation"] = optionParser.value(InitialStation);
 
     // Create a new radio interface instance
