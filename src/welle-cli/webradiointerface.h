@@ -30,6 +30,27 @@
 #include "backend/radio-receiver.h"
 #include "various/Socket.h"
 
+
+#if 0
+class WebProgrammeHandler : public ProgrammeHandlerInterface {
+    private:
+        Socket s;
+    public:
+        virtual void onFrameErrors(int frameErrors) override;
+        virtual void onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, bool isStereo) override;
+
+
+        virtual void onRsErrors(int rsErrors) override { (void)rsErrors; }
+        virtual void onAacErrors(int aacErrors) override { (void)aacErrors; }
+        virtual void onNewDynamicLabel(const std::string& label) override
+        {
+            cout << "DLS: " << label << endl;
+        }
+
+        virtual void onMOT(const std::vector<uint8_t>& data, int subtype) override { (void)data; (void)subtype; }
+};
+#endif
+
 class WebRadioInterface : public RadioControllerInterface {
     public:
         WebRadioInterface(CVirtualInput& in, int port);
@@ -51,7 +72,7 @@ class WebRadioInterface : public RadioControllerInterface {
         virtual void onTIIMeasurement(tii_measurement_t&& m) override;
 
     private:
-        void dispatch_client(Socket s);
+        bool dispatch_client(Socket s);
 
         mutable std::mutex mut;
         int last_snr = 0;

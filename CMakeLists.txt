@@ -40,7 +40,6 @@ endif()
 
 if(BUILD_WELLE_CLI)
     find_package(ALSA REQUIRED)
-    find_package(yaml-cpp REQUIRED)
 endif()
 
 find_package(Threads REQUIRED)
@@ -181,7 +180,6 @@ if(BUILD_WELLE_CLI)
       ${FAAD_LIBRARIES}
       ${ALSA_LIBRARIES}
       ${SoapySDR_LIBRARIES}
-      ${YAML_CPP_LIBRARIES}
       Threads::Threads
     )
 

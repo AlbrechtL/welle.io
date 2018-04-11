@@ -24,143 +24,131 @@
  */
 
 #include <future>
-#include <regex>
+#include <iomanip>
 #include <iostream>
+#include <regex>
+#include <sstream>
 #include <utility>
 #include <cstdio>
 #include <errno.h>
-#include <yaml-cpp/yaml.h>
 #include "welle-cli/webradiointerface.h"
+#include "libs/json.hpp"
 
 using namespace std;
 
 static const char* http_ok = "HTTP/1.0 200 OK\r\n";
 static const char* http_contentlength = "Content-Length: 0\r\n";
 static const char* http_contenttype_wav = "Content-type: audio/wav\r\n";
-static const char* http_contenttype_yaml = "Content-type: application/x-yaml\r\n";
+static const char* http_contenttype_json = "Content-type: application/json\r\n";
 static const char* http_nocache = "Cache-Control: no-cache\r\n";
 
-void WebRadioInterface::dispatch_client(Socket s)
+static string sid_to_hex(uint32_t serviceId)
+{
+    std::stringstream sidstream;
+    sidstream << "0x" <<
+        std::setfill('0') << std::setw(4) <<
+        std::hex << serviceId;
+    return sidstream.str();
+}
+
+bool WebRadioInterface::dispatch_client(Socket s)
 {
     vector<char> buf(1025);
     if (not s.valid()) {
         cerr << "socket in dispatcher not valid!" << endl;
-        return;
+        return false;
     }
     ssize_t ret = s.recv(buf.data(), buf.size()-1, 0);
 
     if (ret == 0) {
-        return;
+        return false;
     }
     else if (ret == -1) {
         string errstr = strerror(errno);
         cerr << "recv error " << errstr << endl;
-        return;
+        return false;
     }
     else {
         buf.resize(ret);
         string request(buf.begin(), buf.end());
 
-        const regex regex_head(R"(^HEAD [/]([^ ]+) HTTP)");
-        const regex regex_get(R"(^GET [/]([^ ]+) HTTP)");
+        const regex regex_mux_json(R"(^GET [/]mux.json HTTP)");
 
-        std::smatch match_head;
-        bool isHead = regex_search(request, match_head, regex_head);
-        if (isHead) {
-            const string resource = match_head[1];
-            if (resource == "mux.yaml") {
-                string headers = http_ok;
-                headers += http_contenttype_yaml;
-                headers += http_contentlength;
-                headers += http_nocache;
-                headers += "\r\n";
-                s.send(headers.data(), headers.size(), 0);
+        std::smatch match_mux_json;
+        bool is_mux_json = regex_search(request, match_mux_json, regex_mux_json);
+        if (is_mux_json) {
+            nlohmann::json j = {"Ensemble", { "Name", rx->getEnsembleName() } };
+
+            nlohmann::json j_services;
+            for (const auto& s : rx->getServiceList()) {
+                nlohmann::json j_srv = {
+                    {"SId", sid_to_hex(s.serviceId)},
+                    {"Label", s.serviceLabel.label}};
+
+                nlohmann::json j_components;
+
+                for (const auto& sc : rx->getComponents(s)) {
+                    nlohmann::json j_sc = {
+                        {"ComponentNr", sc.componentNr},
+                        {"ASCTy",
+                        (sc.audioType() == AudioServiceComponentType::DAB ? "DAB" :
+                         sc.audioType() == AudioServiceComponentType::DABPlus ? "DAB+" :
+                         "unknown") } };
+
+                    const auto& sub = rx->getSubchannel(sc);
+                    j_sc["Subchannel"] = {
+                        { "Subchannel_id", sub.subChId},
+                        { "Bitrate", sub.bitrate()},
+                        { "SAd", sub.startAddr}};
+
+                    j_components.push_back(j_sc);
+                }
+                j_srv["Components"] = j_components;
+
+                j_services["Services"].push_back(j_srv);
+            }
+
+            {
+                lock_guard<mutex> lock(mut);
+
+                nlohmann::json j_utc = {
+                    {"year", last_dateTime.year},
+                    {"month", last_dateTime.month},
+                    {"day", last_dateTime.day},
+                    {"hour", last_dateTime.hour},
+                    {"minutes", last_dateTime.minutes}
+                };
+
+                //j["UTCTime"] = j_utc;
+            }
+
+            string headers = http_ok;
+            headers += http_contenttype_json;
+            headers += http_nocache;
+            headers += "\r\n";
+            s.send(headers.data(), headers.size(), 0);
+
+            const auto json_str = j.dump();
+
+            s.send(json_str.c_str(), json_str.size(), 0);
+            return true;
+        }
+
+        const regex regex_wav(R"(^HEAD [/]wav[/]([^ ]+) HTTP)");
+        std::smatch match_wav;
+        bool is_wav = regex_search(request, match_wav, regex_wav);
+        if (is_wav) {
+            const string stream = match_wav[1];
+            for (const auto& s : rx->getServiceList()) {
+                if (sid_to_hex(s.serviceId) == stream) {
+#warning "TODO"
+                }
             }
         }
 
-        std::smatch match_get;
-        bool isGet = regex_search(request, match_get, regex_get);
-        if (isGet) {
-            const string resource = match_get[1];
-            if (resource == "mux.yaml") {
-                YAML::Emitter e;
-                e << YAML::BeginDoc << YAML::BeginMap <<
-                    YAML::Key << "Ensemble" <<
-                    YAML::Value <<
-                        YAML::BeginMap <<
-                            YAML::Key << "Name" <<
-                            YAML::Value << rx->getEnsembleName() <<
-                        YAML::EndMap <<
-                    YAML::Key << "Services" <<
-                    YAML::Value <<
-                        YAML::BeginSeq;
-                for (const auto& s : rx->getServiceList()) {
-                    e << YAML::BeginMap;
-                    e << YAML::Key << "SId" <<
-                         YAML::Value << s.serviceId;
-                    e << YAML::Key << "Label" <<
-                         YAML::Value << s.serviceLabel.label;
-                    e << YAML::Key << "Components" <<
-                         YAML::Value << YAML::BeginSeq;
-                    for (const auto& sc : rx->getComponents(s)) {
-                        e << YAML::BeginMap;
-                        e << YAML::Key << "ComponentNr" <<
-                            YAML::Value << sc.componentNr;
-                        e << YAML::Key << "ASCTy" <<
-                            YAML::Value <<
-                            (sc.audioType() == AudioServiceComponentType::DAB ? "DAB" :
-                             sc.audioType() == AudioServiceComponentType::DABPlus ? "DAB+" :
-                             "unknown");
-
-                        const auto& sub = rx->getSubchannel(sc);
-                        e << YAML::Key << "Subchannel_id" <<
-                            YAML::Value << sub.subChId;
-                        e << YAML::Key << "Bitrate" <<
-                            YAML::Value << sub.bitrate();
-                        e << YAML::Key << "SAd" <<
-                            YAML::Value << sub.startAddr;
-                        e << YAML::EndMap;
-                    }
-                    e << YAML::EndSeq;
-                    e << YAML::EndMap;
-                }
-                e << YAML::EndSeq;
-
-                {
-                    lock_guard<mutex> lock(mut);
-
-                    e << YAML::Key << "UTCTime" <<
-                        YAML::Value <<
-                            YAML::BeginMap <<
-                                YAML::Key << "year" <<
-                                YAML::Value << last_dateTime.year <<
-                                YAML::Key << "month" <<
-                                YAML::Value << last_dateTime.month <<
-                                YAML::Key << "day" <<
-                                YAML::Value << last_dateTime.day <<
-                                YAML::Key << "hour" <<
-                                YAML::Value << last_dateTime.hour <<
-                                YAML::Key << "minutes" <<
-                                YAML::Value << last_dateTime.minutes <<
-                            YAML::EndMap;
-                }
-                e << YAML::EndMap << YAML::EndDoc;
-
-                string headers = http_ok;
-                headers += http_contenttype_yaml;
-                headers += http_nocache;
-                headers += "\r\n";
-                s.send(headers.data(), headers.size(), 0);
-
-                s.send(e.c_str(), e.size(), 0);
-                e.c_str();
-            }
-        }
-
-        if (not (isGet or isHead)) {
-            cerr << "Could not understand request" << endl;
-        }
+        cerr << "Could not understand request" << endl;
     }
+    return false;
 }
 
 WebRadioInterface::WebRadioInterface(CVirtualInput& in, int port)
@@ -183,7 +171,7 @@ WebRadioInterface::WebRadioInterface(CVirtualInput& in, int port)
 
 void WebRadioInterface::serve()
 {
-    deque<future<void> > running_connections;
+    deque<future<bool> > running_connections;
 
     while (true) {
         auto client = serverSocket.accept();
@@ -191,7 +179,7 @@ void WebRadioInterface::serve()
         running_connections.push_back(async(launch::async,
                     &WebRadioInterface::dispatch_client, this, move(client)));
 
-        deque<future<void> > still_running_connections;
+        deque<future<bool> > still_running_connections;
         for (auto& fut : running_connections) {
             if (fut.valid()) {
                 fut.get();

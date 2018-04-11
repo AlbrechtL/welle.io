@@ -43,16 +43,18 @@
 #include <unistd.h>
 #include "welle-cli/alsa-output.h"
 #include "welle-cli/webradiointerface.h"
-#include <yaml-cpp/yaml.h>
 #include "backend/radio-receiver.h"
 #include "input/CInputFactory.h"
 #include "input/CRAWFile.h"
 #include "various/channels.h"
+#include "libs/json.hpp"
 extern "C" {
 #include "various/wavfile.h"
 }
 
 using namespace std;
+
+using namespace nlohmann;
 
 class AlsaProgrammeHandler: public ProgrammeHandlerInterface {
     public:
@@ -166,19 +168,15 @@ class RadioInterface : public RadioControllerInterface {
 
         virtual void onDateTimeUpdate(const dab_date_time_t& dateTime) override
         {
-            YAML::Emitter e;
-            e << YAML::BeginDoc << YAML::BeginMap <<
-                YAML::Key << "UTCTime" <<
-                YAML::Value <<
-                    YAML::BeginMap <<
-                        YAML::Key << "year" << YAML::Value << dateTime.year <<
-                        YAML::Key << "month" << YAML::Value << dateTime.month <<
-                        YAML::Key << "day" << YAML::Value << dateTime.day <<
-                        YAML::Key << "hour" << YAML::Value << dateTime.hour <<
-                        YAML::Key << "minutes" << YAML::Value << dateTime.minutes <<
-                    YAML::EndMap <<
-                YAML::EndMap << YAML::EndDoc;
-            cout << e.c_str();
+            json j;
+            j["UTCTime"] = {
+                {"year", dateTime.year},
+                {"month", dateTime.month},
+                {"day", dateTime.day},
+                {"hour", dateTime.hour},
+                {"minutes", dateTime.minutes}
+            };
+            cout << j << endl;
         }
 
         virtual void onFICDecodeSuccess(bool isFICCRC) override { (void)isFICCRC; }
@@ -199,18 +197,15 @@ class RadioInterface : public RadioControllerInterface {
 
         virtual void onTIIMeasurement(tii_measurement_t&& m) override
         {
-            YAML::Emitter e;
-            e << YAML::BeginDoc << YAML::BeginMap <<
-                YAML::Key << "TII" <<
-                YAML::BeginMap <<
-                    YAML::Key << "comb" << YAML::Value << m.comb <<
-                    YAML::Key << "pattern" << YAML::Value << m.pattern <<
-                    YAML::Key << "delay" << YAML::Value << m.delay_samples <<
-                    YAML::Key << "delay_km" << YAML::Value << m.getDelayKm() <<
-                    YAML::Key << "error" << YAML::Value << m.error <<
-                    YAML::EndMap <<
-                YAML::EndMap << YAML::EndDoc;
-            cout << e.c_str();
+            json j;
+            j["TII"] = {
+                {"comb", m.comb},
+                {"pattern", m.pattern},
+                {"delay", m.delay_samples},
+                {"delay_km", m.getDelayKm()},
+                {"error", m.error}
+            };
+            cout << j << endl;
         }
 
         bool synced = false;
