@@ -14,7 +14,6 @@ Item {
     property alias enableAGCState : enableAGC.checked
     property alias enableHwAGCState : enableHwAGC.checked
     property alias manualGainState : manualGain.currentValue
-    property alias is3D : enable3D.checked
 
     Settings {
         property alias enableFullScreenState : settingsPage.enableFullScreenState
@@ -25,7 +24,6 @@ Item {
         property alias enableAGCState : settingsPage.enableAGCState
         property alias enableHwAGCState : settingsPage.enableHwAGCState
         property alias manualChannel: manualChannelBox.currentIndex
-        property alias is3D : settingsPage.is3D
     }
 
     Component.onCompleted: {
@@ -245,19 +243,6 @@ Item {
                             Layout.fillHeight: true
                             objectName: "enableLastPlayedStation"
                             checked: false
-                        }
-
-                        TouchSwitch {
-                            id: enable3D
-                            name: qsTr("Channel list layout (experimental)")
-                            height: 24
-                            Layout.fillWidth: true
-                            Layout.fillHeight: true
-                            objectName: "enable3D"
-                            checked: false
-                            onText: "3D"
-                            offText: "2D"
-                            visible: false // Deactivated because 3D view is not ready
                         }
 
                         TouchSwitch {

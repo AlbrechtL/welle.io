@@ -35,19 +35,18 @@
         <file>src/gui/QML/style/TouchPageIndicator.qml</file>
         <file>src/gui/QML/style/MessagePopup.qml</file>
         <file>src/gui/QML/style/TouchComboBox.qml</file>
-        <file>src/gui/QML/ChannelBrowser.qml</file>
         <file>i18n/de_DE.qm</file>
         <file>i18n/it_IT.qm</file>
         <file>i18n/hu_HU.qm</file>
         <file>i18n/nb_NO.qm</file>
-	<file>i18n/fr_FR.qm</file>
+        <file>i18n/fr_FR.qm</file>
         <file>icon.png</file>
-	<file>splash.png</file>
+        <file>splash.png</file>
         <file>AUTHORS</file>
         <file>THANKS</file>
         <file>COPYING</file>
-	<file>src/libs/COPYING.kjmp2.zlib</file>
-	<file>src/libs/COPYING.QT.LGPL-2.1</file>
-	<file>src/libs/kiss_fft/COPYING</file>
+        <file>src/libs/COPYING.kjmp2.zlib</file>
+        <file>src/libs/COPYING.QT.LGPL-2.1</file>
+        <file>src/libs/kiss_fft/COPYING</file>
     </qresource>
 </RCC>
