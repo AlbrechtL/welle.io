@@ -169,17 +169,13 @@ ApplicationWindow {
                 anchors.fill: parent
                 anchors.margins: Units.dp(-20)
                 onClicked: {
-                    if(mainWindow.isLandscape && settingsPage.is3D){
-                        backButton.isSettings = !backButton.isSettings
+                    if(stackViewDepth > 1){
+                        stackViewPop()
+                        if(stackViewDepth === 1)
+                            backButton.isSettings = false
                     } else {
-                        if(stackViewDepth > 1){
-                            stackViewPop()
-                            if(stackViewDepth === 1)
-                                backButton.isSettings = false
-                        } else {
-                            stackViewPush(settingsPage)
-                            backButton.isSettings = true
-                        }
+                        stackViewPush(settingsPage)
+                        backButton.isSettings = true
                     }
                 }
             }
@@ -223,16 +219,12 @@ ApplicationWindow {
                 anchors.margins: Units.dp(-20)
                 enabled: backButton.isSettings ? true : false
                 onClicked: {
-                    if(mainWindow.isLandscape && settingsPage.is3D){
-                        infoButton.isInfoPage = !infoButton.isInfoPage
+                    if(stackViewDepth > 2){
+                        stackViewPop()
+                        infoButton.isInfoPage = false
                     } else {
-                        if(stackViewDepth > 2){
-                            stackViewPop()
-                            infoButton.isInfoPage = false
-                        } else {
-                            stackViewPush(infoPage)
-                            infoButton.isInfoPage = true
-                        }
+                        stackViewPush(infoPage)
+                        infoButton.isInfoPage = true
                     }
                 }
             }
@@ -246,17 +238,10 @@ ApplicationWindow {
         sourceComponent: {
             if(mainWindow.width > mainWindow.height){
                 mainWindow.isLandscape = true;
-                if(settingsPage.is3D){
-                    if(isExpertView)
-                        return landscapeViewExpert3D
-                    else
-                        return landscapeView3D
-                } else {
-                    if(isExpertView)
-                        return landscapeViewExpert
-                    else
-                        return landscapeView
-                }
+                if(isExpertView)
+                    return landscapeViewExpert
+                else
+                    return landscapeView
             } else {
                 mainWindow.isLandscape = false;
                 if(isExpertView)
