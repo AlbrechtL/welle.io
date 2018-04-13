@@ -238,10 +238,7 @@ ApplicationWindow {
         sourceComponent: {
             if(mainWindow.width > mainWindow.height){
                 mainWindow.isLandscape = true;
-                if(isExpertView)
-                    return landscapeViewExpert
-                else
-                    return landscapeView
+                return landscapeView
             } else {
                 mainWindow.isLandscape = false;
                 if(isExpertView)
@@ -270,40 +267,14 @@ ApplicationWindow {
                 id: radioInformationViewLoader
                 Layout.preferredWidth: Units.dp(400)
                 Layout.margins: Units.dp(10)
-                sourceComponent: radioInformationView
-            }
-
-            Settings {
-                property alias stationViewWidth: stationView.width
-            }
-        }
-    }
-
-    Component {
-        id: landscapeViewExpert
-
-        SplitView {
-            id: splitView
-            anchors.fill: parent
-            orientation: Qt.Horizontal
-
-            Loader {
-                id: stationView
-                Layout.minimumWidth: Units.dp(300)
-                Layout.margins: Units.dp(10)
-                sourceComponent: stackViewMain
-            }
-            Loader {
-                id: radioInformationViewLoader
-                Layout.preferredWidth: Units.dp(400)
-                Layout.margins: Units.dp(10)
+                Layout.fillWidth: true
                 sourceComponent: radioInformationView
             }
             Loader {
                 id: expertViewLoader
                 Layout.margins: Units.dp(10)
-                Layout.fillWidth: true
-                sourceComponent: expertView
+                sourceComponent: isExpertView ? expertView : undefined
+                visible: isExpertView
             }
 
             Settings {
