@@ -143,11 +143,11 @@ bool WebRadioInterface::dispatch_client(Socket s)
             headers += http_contenttype_json;
             headers += http_nocache;
             headers += "\r\n";
-            s.send(headers.data(), headers.size(), 0);
+            s.send(headers.data(), headers.size(), MSG_NOSIGNAL);
 
             const auto json_str = j.dump();
 
-            s.send(json_str.c_str(), json_str.size(), 0);
+            s.send(json_str.c_str(), json_str.size(), MSG_NOSIGNAL);
             return true;
         }
 
