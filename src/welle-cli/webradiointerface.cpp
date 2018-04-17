@@ -24,6 +24,7 @@
  */
 
 #include <future>
+#include <algorithm>
 #include <iomanip>
 #include <iostream>
 #include <regex>
@@ -77,7 +78,8 @@ bool WebRadioInterface::dispatch_client(Socket s)
         std::smatch match_mux_json;
         bool is_mux_json = regex_search(request, match_mux_json, regex_mux_json);
         if (is_mux_json) {
-            nlohmann::json j = {"Ensemble", { "Name", rx->getEnsembleName() } };
+            nlohmann::json j;
+            j["Ensemble"]["Name"] = rx->getEnsembleName();
 
             nlohmann::json j_services;
             for (const auto& s : rx->getServiceList()) {
@@ -105,8 +107,9 @@ bool WebRadioInterface::dispatch_client(Socket s)
                 }
                 j_srv["Components"] = j_components;
 
-                j_services["Services"].push_back(j_srv);
+                j_services.push_back(j_srv);
             }
+            j["Services"] = j_services;
 
             {
                 lock_guard<mutex> lock(mut);
@@ -119,8 +122,22 @@ bool WebRadioInterface::dispatch_client(Socket s)
                     {"minutes", last_dateTime.minutes}
                 };
 
-                //j["UTCTime"] = j_utc;
+                j["UTCTime"] = j_utc;
+
+                j["SNR"] = last_snr;
+                j["FrequencyCorrection"] =
+                    last_fine_correction + last_coarse_correction;
+
             }
+            for (const auto& tii : getTiiStats()) {
+                j["TII"].push_back({
+                        {"comb", tii.comb},
+                        {"pattern", tii.pattern},
+                        {"delay", tii.delay_samples},
+                        {"delay_km", tii.getDelayKm()},
+                        {"error", tii.error}});
+            }
+
 
             string headers = http_ok;
             headers += http_contenttype_json;
@@ -246,6 +263,61 @@ void WebRadioInterface::onMessage(message_level_t level, const std::string& text
 void WebRadioInterface::onTIIMeasurement(tii_measurement_t&& m)
 {
     lock_guard<mutex> lock(mut);
-    last_tii = move(m);
+    auto& l = tiis[make_pair(m.comb, m.pattern)];
+    l.push_back(move(m));
+
+    if (l.size() > 20) {
+        l.pop_front();
+    }
 }
 
+list<tii_measurement_t> WebRadioInterface::getTiiStats()
+{
+    list<tii_measurement_t> l;
+
+    lock_guard<mutex> lock(mut);
+    for (const auto& cp_list : tiis) {
+        const auto comb = cp_list.first.first;
+        const auto pattern = cp_list.first.second;
+
+        if (cp_list.second.size() < 5) {
+            cerr << "Skip TII " << comb << " " << pattern << " with " <<
+                cp_list.second.size() << " measurements" << endl;
+            continue;
+        }
+
+        tii_measurement_t avg;
+        avg.comb = comb;
+        avg.pattern = pattern;
+        vector<int> delays;
+        double error = 0.0;
+        size_t len = 0;
+        for (const auto& meas : cp_list.second) {
+            delays.push_back(meas.delay_samples);
+            error += meas.error;
+            len++;
+        }
+
+        avg.error = error / len;
+
+        // Calculate the median
+        std::nth_element(delays.begin(), delays.begin() + len/2, delays.end());
+        avg.delay_samples = delays[len/2];
+
+        l.push_back(move(avg));
+    }
+
+    using namespace std::chrono;
+    const auto now = steady_clock::now();
+    // Remove a single entry every second to make the flukes
+    // disappear
+    if (time_last_tiis_clean + seconds(1) > now) {
+        for (auto& cp_list : tiis) {
+            cp_list.second.pop_front();
+        }
+
+        time_last_tiis_clean = now;
+    }
+
+    return l;
+}

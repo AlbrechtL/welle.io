@@ -25,6 +25,9 @@
 
 #include <vector>
 #include <deque>
+#include <chrono>
+#include <list>
+#include <map>
 #include <memory>
 #include <cstdint>
 #include "backend/radio-receiver.h"
@@ -73,6 +76,7 @@ class WebRadioInterface : public RadioControllerInterface {
 
     private:
         bool dispatch_client(Socket s);
+        std::list<tii_measurement_t> getTiiStats();
 
         mutable std::mutex mut;
         int last_snr = 0;
@@ -83,7 +87,11 @@ class WebRadioInterface : public RadioControllerInterface {
         std::vector<DSPCOMPLEX> last_NULL;
         std::vector<DSPCOMPLEX> last_constellation;
         std::deque<std::pair<message_level_t, std::string> > pending_messages;
-        tii_measurement_t last_tii;
+
+        using comb_pattern_t = std::pair<int, int>;
+
+        std::chrono::time_point<std::chrono::steady_clock> time_last_tiis_clean;
+        std::map<comb_pattern_t, std::list<tii_measurement_t> > tiis;
 
         Socket serverSocket;
 
