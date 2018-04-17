@@ -40,16 +40,16 @@
 #include "dab-constants.h"
 
 struct dab_date_time_t {
-    int year;
-    int month;
-    int day;
-    int hour;
-    int minutes;
-    int seconds;
+    int year = 0;
+    int month = 0;
+    int day = 0;
+    int hour = 0;
+    int minutes = 0;
+    int seconds = 0;
 
     // Information decoded from local time offset in FIG 0/9
-    int hourOffset;
-    int minuteOffset;
+    int hourOffset = 0;
+    int minuteOffset = 0;
 };
 
 
