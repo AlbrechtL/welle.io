@@ -125,6 +125,18 @@ void WebProgrammeHandler::removeSender(ProgrammeSender *sender)
     senders.remove(sender);
 }
 
+WebProgrammeHandler::dls_t WebProgrammeHandler::getDLS() const
+{
+    dls_t dls;
+
+    if (last_label_valid) {
+        dls.label = last_label;
+        dls.time_label = std::chrono::system_clock::to_time_t(time_label);
+    }
+
+    return dls;
+}
+
 void WebProgrammeHandler::onFrameErrors(int frameErrors)
 {
     last_frameErrors = frameErrors;
@@ -136,7 +148,32 @@ void WebProgrammeHandler::onNewAudio(std::vector<int16_t>&& audioData,
     stereo = isStereo;
     rate = sampleRate;
 
+    if (audioData.empty()) {
+        return;
+    }
+
     const int channels = stereo ? 2 : 1;
+
+    if (stereo) {
+        int16_t max_L = 0;
+        int16_t max_R = 0;
+        for (size_t i = 0; i < audioData.size()-1; i+=2) {
+            max_L = std::max(max_L, audioData[i]);
+            max_R = std::max(max_R, audioData[i+1]);
+        }
+
+        last_audioLevel_L = max_L;
+        last_audioLevel_R = max_R;
+    }
+    else {
+        int16_t max_mono = 0;
+        for (size_t i = 0; i < audioData.size(); i++) {
+            max_mono = std::max(max_mono, audioData[i]);
+        }
+
+        last_audioLevel_L = max_mono;
+        last_audioLevel_R = max_mono;
+    }
 
     if (not lame_initialised) {
         lame_set_in_samplerate(lame.lame, rate);
@@ -147,7 +184,7 @@ void WebProgrammeHandler::onNewAudio(std::vector<int16_t>&& audioData,
         lame_initialised = true;
     }
 
-    vector<uint8_t> mp3buf(8192);
+    vector<uint8_t> mp3buf(16384);
 
     int written = lame_encode_buffer_interleaved(lame.lame,
             audioData.data(), audioData.size()/channels,
@@ -159,7 +196,7 @@ void WebProgrammeHandler::onNewAudio(std::vector<int16_t>&& audioData,
     else if (written > (ssize_t)mp3buf.size()) {
         cerr << "mp3 encoder wrote more than buffer size!" << endl;
     }
-    else {
+    else if (written > 0) {
         mp3buf.resize(written);
 
         std::unique_lock<std::mutex> lock(senders_mutex);
@@ -279,6 +316,26 @@ bool WebRadioInterface::dispatch_client(Socket s)
                     j_components.push_back(j_sc);
                 }
                 j_srv["Components"] = j_components;
+
+                try {
+                    const auto& wph = phs.at(s.serviceId);
+                    nlohmann::json j_audio = {
+                        {"left", wph.last_audioLevel_L},
+                        {"right", wph.last_audioLevel_R}};
+                    j_srv["audiolevel"] = j_audio;
+
+                    j_srv["channels"] = wph.stereo ? 2 : 1;
+                    j_srv["samplerate"] = wph.rate;
+
+                    auto dls = wph.getDLS();
+                    nlohmann::json j_dls = {
+                        {"label", dls.label},
+                        {"time", dls.time_label}};
+                    j_srv["dls"] = j_dls;
+                }
+                catch (const out_of_range&) {
+                    j_srv["audiolevel"] = nullptr;
+                }
 
                 j_services.push_back(j_srv);
             }

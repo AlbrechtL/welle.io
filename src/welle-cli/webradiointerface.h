@@ -97,12 +97,19 @@ class WebProgrammeHandler : public ProgrammeHandlerInterface {
     public:
         bool stereo = false;
         int rate = 0;
+        int last_audioLevel_L = -1;
+        int last_audioLevel_R = -1;
 
         WebProgrammeHandler(uint32_t serviceId);
         WebProgrammeHandler(WebProgrammeHandler&& other);
 
         void registerSender(ProgrammeSender *sender);
         void removeSender(ProgrammeSender *sender);
+
+        struct dls_t {
+            std::string label;
+            time_t time_label = -1; };
+        dls_t getDLS() const;
 
         virtual void onFrameErrors(int frameErrors) override;
         virtual void onNewAudio(std::vector<int16_t>&& audioData,
