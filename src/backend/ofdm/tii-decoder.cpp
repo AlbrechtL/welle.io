@@ -239,7 +239,7 @@ void TIIDecoder::run()
          * measurements over the four blocks.
          */
         vector<complexf> blocks_multiplied(192);
-        vector<float> prs_power(192);
+        vector<float> prs_power_sq(192);
 
         /* Equivalent numpy code
         blocks = [null_fft[-768:-384], null_fft[-384:], null_fft[1:385], null_fft[385:769]]
@@ -252,18 +252,20 @@ void TIIDecoder::run()
 
         for (size_t i = 0; i < 192; i++) {
             const complexf *p = m_fft_prs.getVector();
-            prs_power[i] = abs(p[1 + 2*i]);
+            prs_power_sq[i] = norm(p[1 + 2*i]);
         }
 
         const size_t k_start[] = {2048 - 768, 2048 - 384, 1, 385};
         const complexf *n = m_fft_null.getVector();
         for (size_t k : k_start) {
             for (size_t i = 0; i < 192; i++) {
-                blocks_multiplied[i] += n[k + 2*i] * conj(n[k+2*i+1]);
+                // The two consecutive carriers should have the
+                // same phase. By multiplying with the conjugate,
+                // we should get a value with low imaginary component.
+                // In terms of units, this resembles a norm.
+                blocks_multiplied[i] += n[k+2*i] * conj(n[k+2*i+1]);
             }
         }
-
-        const float threshold_factor = 4.0f;
 
         auto ix_to_k = [](int ix) -> carrier_t {
             if (ix <= 1024)
@@ -271,18 +273,17 @@ void TIIDecoder::run()
             else
                 return ix - 2048; };
 
+        const float threshold_factor = 0.4f;
+
         vector<carrier_t> carriers;
-        //cerr << "TII Carrier indices:";
         for (size_t i = 0; i < 192; i++) {
-            const float threshold = prs_power[i] * threshold_factor;
+            const float threshold = prs_power_sq[i] * threshold_factor;
             if (abs(blocks_multiplied[i]) > threshold) {
                 // Convert back from "pair index" to k
                 const carrier_t k = ix_to_k(i*2 + 1);
                 carriers.push_back(k);
-                //cerr << " " << k;
             }
         }
-        //cerr << endl;
 
         unordered_map<CombPattern, int> cp_count;
         for (const carrier_t k : carriers) {
