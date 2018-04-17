@@ -40,6 +40,7 @@ endif()
 
 if(BUILD_WELLE_CLI)
     find_package(ALSA REQUIRED)
+    find_package(Lame REQUIRED)
 endif()
 
 find_package(Threads REQUIRED)
@@ -179,11 +180,18 @@ if(BUILD_WELLE_CLI)
       ${FFTW3F_LIBRARIES}
       ${FAAD_LIBRARIES}
       ${ALSA_LIBRARIES}
+      ${LAME_LIBRARIES}
       ${SoapySDR_LIBRARIES}
       Threads::Threads
     )
 
     INSTALL (TARGETS ${cliExecutableName} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+    add_custom_command(
+            TARGET ${cliExecutableName} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy
+                    ${CMAKE_SOURCE_DIR}/src/welle-cli/index.html
+                    ${CMAKE_CURRENT_BINARY_DIR}/index.html)
 endif()
 
 configure_file(

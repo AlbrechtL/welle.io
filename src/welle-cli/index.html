@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>welle-io web</title>
+<style>
+body {
+    background-color: linen;
+    font-family: Verdana, sans-serif;
+}
+</style>
+    </head>
+    <body>
+        <div id="ensembleinfo">
+        </div>
+        <div id="player">
+            <audio controls>
+                <!--<source src="/mp3/0x4f57" type="audio/mpeg"> -->
+            </audio>
+        </div>
+    <script>
+        var ensembleInfoTimer = setInterval(populate_ensembleinfo, 1000);
+
+        function populate_ensembleinfo() {
+            var r = new XMLHttpRequest();
+            r.onreadystatechange = function () {
+                if (r.readyState != 4 || r.status != 200) return;
+                var ei = document.getElementById('ensembleinfo');
+                ei.innerText = r.responseText;
+            };
+            r.open("GET", "/mux.json", true);
+            r.send()
+        };
+    </script>
+    </body>
+</html>

@@ -23,36 +23,95 @@
  *
  */
 
-#include <vector>
-#include <deque>
 #include <chrono>
+#include <condition_variable>
+#include <deque>
 #include <list>
 #include <map>
 #include <memory>
+#include <mutex>
+#include <vector>
 #include <cstdint>
+#include <lame/lame.h>
 #include "backend/radio-receiver.h"
 #include "various/Socket.h"
 
-
-#if 0
-class WebProgrammeHandler : public ProgrammeHandlerInterface {
+class ProgrammeSender {
     private:
         Socket s;
+
+        bool running = true;
+        std::condition_variable cv;
+        std::mutex mutex;
+
+        void cancel();
+
     public:
-        virtual void onFrameErrors(int frameErrors) override;
-        virtual void onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, bool isStereo) override;
-
-
-        virtual void onRsErrors(int rsErrors) override { (void)rsErrors; }
-        virtual void onAacErrors(int aacErrors) override { (void)aacErrors; }
-        virtual void onNewDynamicLabel(const std::string& label) override
-        {
-            cout << "DLS: " << label << endl;
-        }
-
-        virtual void onMOT(const std::vector<uint8_t>& data, int subtype) override { (void)data; (void)subtype; }
+        ProgrammeSender(Socket&& s);
+        bool send_mp3(const std::vector<uint8_t>& mp3data);
+        void wait_for_termination();
 };
-#endif
+
+struct Lame {
+    lame_t lame;
+
+    Lame() {
+        lame = lame_init();
+    }
+
+    Lame(const Lame& other) = delete;
+    Lame& operator=(const Lame& other) = delete;
+    Lame(Lame&& other) = default;
+    Lame& operator=(Lame&& other) = default;
+
+    ~Lame() {
+        lame_close(lame);
+    }
+};
+
+class WebProgrammeHandler : public ProgrammeHandlerInterface {
+    private:
+        uint32_t serviceId;
+
+        bool lame_initialised = false;
+        Lame lame;
+
+        int last_frameErrors = -1;
+        int last_rsErrors = -1;
+        int last_aacErrors = -1;
+
+        std::mutex senders_mutex;
+        std::list<ProgrammeSender*> senders;
+
+        std::mutex pad_mutex;
+
+        bool last_label_valid = false;
+        std::chrono::time_point<std::chrono::system_clock> time_label;
+        std::string last_label;
+
+        bool last_mot_valid = false;
+        std::chrono::time_point<std::chrono::system_clock> time_mot;
+        std::vector<uint8_t> last_mot;
+        int last_subtype = -1;
+
+    public:
+        bool stereo = false;
+        int rate = 0;
+
+        WebProgrammeHandler(uint32_t serviceId);
+        WebProgrammeHandler(WebProgrammeHandler&& other);
+
+        void registerSender(ProgrammeSender *sender);
+        void removeSender(ProgrammeSender *sender);
+
+        virtual void onFrameErrors(int frameErrors) override;
+        virtual void onNewAudio(std::vector<int16_t>&& audioData,
+                int sampleRate, bool isStereo) override;
+        virtual void onRsErrors(int rsErrors) override;
+        virtual void onAacErrors(int aacErrors) override;
+        virtual void onNewDynamicLabel(const std::string& label) override;
+        virtual void onMOT(const std::vector<uint8_t>& data, int subtype) override;
+};
 
 class WebRadioInterface : public RadioControllerInterface {
     public:
@@ -79,6 +138,7 @@ class WebRadioInterface : public RadioControllerInterface {
         std::list<tii_measurement_t> getTiiStats();
 
         mutable std::mutex mut;
+        bool synced = 0;
         int last_snr = 0;
         int last_fine_correction = 0;
         int last_coarse_correction = 0;
@@ -96,4 +156,7 @@ class WebRadioInterface : public RadioControllerInterface {
         Socket serverSocket;
 
         std::unique_ptr<RadioReceiver> rx;
+
+        using SId_t = uint32_t;
+        std::map<SId_t, WebProgrammeHandler> phs;
 };
