@@ -125,6 +125,13 @@ void WebProgrammeHandler::removeSender(ProgrammeSender *sender)
     senders.remove(sender);
 }
 
+bool WebProgrammeHandler::needsToBeDecoded() const
+{
+    std::unique_lock<std::mutex> lock(senders_mutex);
+    return not senders.empty();
+}
+
+
 WebProgrammeHandler::dls_t WebProgrammeHandler::getDLS() const
 {
     dls_t dls;
@@ -236,6 +243,47 @@ void WebProgrammeHandler::onMOT(const std::vector<uint8_t>& data, int subtype)
     last_subtype = subtype;
 }
 
+void WebRadioInterface::check_decoders_required()
+{
+    std::unique_lock<std::mutex> lock(phs_decode_mut);
+    for (auto& s : rx->getServiceList()) {
+        const auto sid = s.serviceId;
+
+        try {
+            bool require = phs.at(sid).needsToBeDecoded();
+            bool is_decoded = programmes_being_decoded[sid];
+
+            if (require and not is_decoded) {
+                bool success = rx->addServiceToDecode(phs.at(sid), "", s);
+
+                if (success) {
+                    programmes_being_decoded[sid] = success;
+                }
+                else {
+                    cerr << "Tune to 0x" << sid_to_hex(s.serviceId) <<
+                        " failed" << endl;
+                }
+            }
+            else if (is_decoded and not require) {
+                bool success = rx->removeServiceToDecode(s);
+
+                if (success) {
+                    programmes_being_decoded[sid] = false;
+                }
+                else {
+                    cerr << "Stop playing 0x" << sid_to_hex(s.serviceId) <<
+                        " failed" << endl;
+                }
+            }
+
+        }
+        catch (const out_of_range&) {
+            cerr << "Cannot tune to 0x" << sid_to_hex(s.serviceId) <<
+                " because no handler exists!" << endl;
+        }
+    }
+}
+
 bool WebRadioInterface::dispatch_client(Socket s)
 {
     vector<char> buf(1025);
@@ -342,7 +390,7 @@ bool WebRadioInterface::dispatch_client(Socket s)
             j["Services"] = j_services;
 
             {
-                lock_guard<mutex> lock(mut);
+                lock_guard<mutex> lock(data_mut);
 
                 nlohmann::json j_utc = {
                     {"year", last_dateTime.year},
@@ -387,13 +435,10 @@ bool WebRadioInterface::dispatch_client(Socket s)
         if (is_mp3) {
             const string stream = match_mp3[1];
             for (const auto& srv : rx->getServiceList()) {
-                if (sid_to_hex(srv.serviceId) == stream) {
+                if (sid_to_hex(srv.serviceId) == stream or
+                        std::stoi(stream) == srv.serviceId) {
                     try {
                         auto& ph = phs.at(srv.serviceId);
-
-                        if (ph.rate != 48000 and ph.rate != 32000) {
-                            throw out_of_range("Invalid rate "+to_string(ph.rate));
-                        }
 
                         string headers = http_ok;
                         headers += http_contenttype_mp3;
@@ -405,10 +450,12 @@ bool WebRadioInterface::dispatch_client(Socket s)
 
                         cerr << "Registering mp3 sender" << endl;
                         ph.registerSender(&sender);
+                        check_decoders_required();
                         sender.wait_for_termination();
 
                         cerr << "Removing mp3 sender" << endl;
                         ph.removeSender(&sender);
+                        check_decoders_required();
 
                         return true;
                     }
@@ -477,13 +524,10 @@ WebRadioInterface::WebRadioInterface(CVirtualInput& in, int port)
         num_services = list.size();
     }
 
+    // TODO move creation of phs into check_decoders_required
     for (auto& s : rx->getServiceList()) {
         WebProgrammeHandler ph(s.serviceId);
         phs.emplace(std::make_pair(s.serviceId, move(ph)));
-
-        if (rx->addServiceToDecode(phs.at(s.serviceId), "", s) == false) {
-            cerr << "Tune to 0x" << sid_to_hex(s.serviceId) << " failed" << endl;
-        }
     }
 }
 
@@ -512,13 +556,13 @@ void WebRadioInterface::serve()
 
 void WebRadioInterface::onSNR(int snr)
 {
-    lock_guard<mutex> lock(mut);
+    lock_guard<mutex> lock(data_mut);
     last_snr = snr;
 }
 
 void WebRadioInterface::onFrequencyCorrectorChange(int fine, int coarse)
 {
-    lock_guard<mutex> lock(mut);
+    lock_guard<mutex> lock(data_mut);
     last_fine_correction = fine;
     last_coarse_correction = coarse;
 }
@@ -535,7 +579,7 @@ void WebRadioInterface::onNewEnsembleName(const std::string& name) {(void)name; 
 
 void WebRadioInterface::onDateTimeUpdate(const dab_date_time_t& dateTime)
 {
-    lock_guard<mutex> lock(mut);
+    lock_guard<mutex> lock(data_mut);
     last_dateTime = dateTime;
 }
 
@@ -543,31 +587,31 @@ void WebRadioInterface::onFICDecodeSuccess(bool isFICCRC) {(void)isFICCRC; }
 
 void WebRadioInterface::onNewImpulseResponse(std::vector<float>&& data)
 {
-    lock_guard<mutex> lock(mut);
+    lock_guard<mutex> lock(data_mut);
     last_CIR = move(data);
 }
 
 void WebRadioInterface::onNewNullSymbol(std::vector<DSPCOMPLEX>&& data)
 {
-    lock_guard<mutex> lock(mut);
+    lock_guard<mutex> lock(data_mut);
     last_NULL = move(data);
 }
 
 void WebRadioInterface::onConstellationPoints(std::vector<DSPCOMPLEX>&& data)
 {
-    lock_guard<mutex> lock(mut);
+    lock_guard<mutex> lock(data_mut);
     last_constellation = move(data);
 }
 
 void WebRadioInterface::onMessage(message_level_t level, const std::string& text)
 {
-    lock_guard<mutex> lock(mut);
+    lock_guard<mutex> lock(data_mut);
     pending_messages.emplace_back(level, text);
 }
 
 void WebRadioInterface::onTIIMeasurement(tii_measurement_t&& m)
 {
-    lock_guard<mutex> lock(mut);
+    lock_guard<mutex> lock(data_mut);
     auto& l = tiis[make_pair(m.comb, m.pattern)];
     l.push_back(move(m));
 
@@ -580,7 +624,7 @@ list<tii_measurement_t> WebRadioInterface::getTiiStats()
 {
     list<tii_measurement_t> l;
 
-    lock_guard<mutex> lock(mut);
+    lock_guard<mutex> lock(data_mut);
     for (const auto& cp_list : tiis) {
         const auto comb = cp_list.first.first;
         const auto pattern = cp_list.first.second;

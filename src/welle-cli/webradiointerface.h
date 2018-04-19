@@ -80,7 +80,7 @@ class WebProgrammeHandler : public ProgrammeHandlerInterface {
         int last_rsErrors = -1;
         int last_aacErrors = -1;
 
-        std::mutex senders_mutex;
+        mutable std::mutex senders_mutex;
         std::list<ProgrammeSender*> senders;
 
         std::mutex pad_mutex;
@@ -105,6 +105,7 @@ class WebProgrammeHandler : public ProgrammeHandlerInterface {
 
         void registerSender(ProgrammeSender *sender);
         void removeSender(ProgrammeSender *sender);
+        bool needsToBeDecoded() const;
 
         struct dls_t {
             std::string label;
@@ -142,9 +143,10 @@ class WebRadioInterface : public RadioControllerInterface {
 
     private:
         bool dispatch_client(Socket s);
+        void check_decoders_required();
         std::list<tii_measurement_t> getTiiStats();
 
-        mutable std::mutex mut;
+        mutable std::mutex data_mut;
         bool synced = 0;
         int last_snr = 0;
         int last_fine_correction = 0;
@@ -164,6 +166,8 @@ class WebRadioInterface : public RadioControllerInterface {
 
         std::unique_ptr<RadioReceiver> rx;
 
+        mutable std::mutex phs_decode_mut;
         using SId_t = uint32_t;
         std::map<SId_t, WebProgrammeHandler> phs;
+        std::map<SId_t, bool> programmes_being_decoded;
 };

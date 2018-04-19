@@ -12,24 +12,77 @@ body {
     <body>
         <div id="ensembleinfo">
         </div>
-        <div id="player">
-            <audio controls>
+        <div>
+            <audio id="player" controls>
                 <!--<source src="/mp3/0x4f57" type="audio/mpeg"> -->
             </audio>
         </div>
     <script>
-        var ensembleInfoTimer = setInterval(populate_ensembleinfo, 1000);
+var ensembleInfoTimer = setInterval(populate_ensembleinfo, 1000);
 
-        function populate_ensembleinfo() {
-            var r = new XMLHttpRequest();
-            r.onreadystatechange = function () {
-                if (r.readyState != 4 || r.status != 200) return;
-                var ei = document.getElementById('ensembleinfo');
-                ei.innerText = r.responseText;
-            };
-            r.open("GET", "/mux.json", true);
-            r.send()
-        };
+function ensembleInfoTemplate() {
+    var html = '<p>Ensemble name:<pre>${name}</pre></p>';
+    html += '<p>SNR: ${SNR}</p>';
+    html += '<p>Freq corr: ${FrequencyCorrection}</p>';
+    html += '<p>Services:</p>';
+    html += '<ul>${services}</ul>';
+    return html;
+}
+
+function serviceTemplate() {
+    var html = '<li>${Label} ${SId} ${bitrate}kbps ${samplerate}Hz ${dls}';
+    html += ' <button type=button onclick="setPlayerSource(${SId})" />'
+    html += '</li>';
+    return html;
+}
+
+function setPlayerSource(sid) {
+    document.getElementById("player").src = "/mp3/" + sid;
+    document.getElementById("player").load();
+}
+
+function parseTemplate(template, data) {
+   return template.replace(/\$\{(\w+)\}/gi, function(match, parensMatch) {
+     if (data[parensMatch] !== undefined) {
+       return data[parensMatch];
+     }
+
+     return match;
+   });
+}
+
+
+function populate_ensembleinfo() {
+    var r = new XMLHttpRequest();
+    r.onreadystatechange = function () {
+        if (r.readyState != 4 || r.status != 200) return;
+        var data = JSON.parse(r.responseText);
+
+        var servicehtml = "";
+        for (key in data["Services"]) {
+            var service = data["Services"][key];
+            var s = {};
+            s["Label"] = service["Label"];
+            s["SId"] = service["SId"];
+            s["bitrate"] = service["bitrate"];
+            s["samplerate"] = service["samplerate"];
+            s["dls"] = service["dls"]["label"];
+
+            servicehtml += parseTemplate(serviceTemplate(), s)
+        }
+
+        var ens = {};
+        ens["name"] = data["Ensemble"]["Name"];
+        ens["SNR"] = data["SNR"];
+        ens["FrequencyCorrection"] = data["FrequencyCorrection"];
+        ens["services"] = servicehtml;
+
+        var ei = document.getElementById('ensembleinfo');
+        ei.innerHTML = parseTemplate(ensembleInfoTemplate(), ens);
+    };
+    r.open("GET", "/mux.json", true);
+    r.send()
+};
     </script>
     </body>
 </html>
