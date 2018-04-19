@@ -245,6 +245,10 @@ void WebProgrammeHandler::onMOT(const std::vector<uint8_t>& data, int subtype)
 
 void WebRadioInterface::check_decoders_required()
 {
+    if (decode_all) {
+        return;
+    }
+
     std::unique_lock<std::mutex> lock(phs_decode_mut);
     for (auto& s : rx->getServiceList()) {
         const auto sid = s.serviceId;
@@ -436,7 +440,7 @@ bool WebRadioInterface::dispatch_client(Socket s)
             const string stream = match_mp3[1];
             for (const auto& srv : rx->getServiceList()) {
                 if (sid_to_hex(srv.serviceId) == stream or
-                        std::stoi(stream) == srv.serviceId) {
+                        (uint32_t)std::stoi(stream) == srv.serviceId) {
                     try {
                         auto& ph = phs.at(srv.serviceId);
 
@@ -490,7 +494,8 @@ bool WebRadioInterface::dispatch_client(Socket s)
     return false;
 }
 
-WebRadioInterface::WebRadioInterface(CVirtualInput& in, int port)
+WebRadioInterface::WebRadioInterface(CVirtualInput& in, int port, bool decode_all) :
+    decode_all(decode_all)
 {
     bool success = serverSocket.bind(port);
     if (success) {
@@ -524,10 +529,17 @@ WebRadioInterface::WebRadioInterface(CVirtualInput& in, int port)
         num_services = list.size();
     }
 
-    // TODO move creation of phs into check_decoders_required
     for (auto& s : rx->getServiceList()) {
         WebProgrammeHandler ph(s.serviceId);
         phs.emplace(std::make_pair(s.serviceId, move(ph)));
+
+        if (decode_all) {
+            bool success = rx->addServiceToDecode(phs.at(s.serviceId), "", s);
+            if (not success) {
+                cerr << "Tune to 0x" << sid_to_hex(s.serviceId) <<
+                    " failed" << endl;
+            }
+        }
     }
 }
 

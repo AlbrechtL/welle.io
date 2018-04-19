@@ -123,7 +123,7 @@ class WebProgrammeHandler : public ProgrammeHandlerInterface {
 
 class WebRadioInterface : public RadioControllerInterface {
     public:
-        WebRadioInterface(CVirtualInput& in, int port);
+        WebRadioInterface(CVirtualInput& in, int port, bool decode_all);
 
         void serve();
 
@@ -147,6 +147,7 @@ class WebRadioInterface : public RadioControllerInterface {
         std::list<tii_measurement_t> getTiiStats();
 
         mutable std::mutex data_mut;
+        bool decode_all = false;
         bool synced = 0;
         int last_snr = 0;
         int last_fine_correction = 0;

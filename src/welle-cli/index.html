@@ -64,7 +64,7 @@ function populate_ensembleinfo() {
             var s = {};
             s["Label"] = service["Label"];
             s["SId"] = service["SId"];
-            s["bitrate"] = service["bitrate"];
+            s["bitrate"] = service["Components"][0]["Subchannel"]["Bitrate"];
             s["samplerate"] = service["samplerate"];
             s["dls"] = service["dls"]["label"];
 

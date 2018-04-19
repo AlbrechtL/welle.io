@@ -216,7 +216,7 @@ struct options_t {
     string iqsource = "";
     string programme = "GRRIF";
     bool dump_programme = false;
-    bool dump_all_programmes = false;
+    bool decode_all_programmes = false;
     int web_port = -1; // positive value means enable
 };
 
@@ -233,8 +233,11 @@ static void usage()
         "Use -D to dump all programmes to files, do not play to ALSA." << endl <<
         " welle-cli -c channel -D " << endl <<
         endl <<
-        "Use -w to enable webserver." << endl <<
+        "Use -w to enable webserver, decode a programmes on demand." << endl <<
         " welle-cli -c channel -w port" << endl <<
+        endl <<
+        "Use -Dw to enable webserver, decode all programmes." << endl <<
+        " welle-cli -c channel -Dw port" << endl <<
         endl <<
         " examples: welle-cli -c 10B -p GRRIF" << endl <<
         "           welle-cli -f ./ofdm.iq -p GRRIF" << endl;
@@ -253,7 +256,7 @@ options_t parse_cmdline(int argc, char **argv)
                 options.dump_programme = true;
                 break;
             case 'D':
-                options.dump_all_programmes = true;
+                options.decode_all_programmes = true;
                 break;
             case 'f':
                 options.iqsource = optarg;
@@ -319,7 +322,7 @@ int main(int argc, char **argv)
     string service_to_tune = options.programme;
 
     if (options.web_port != -1) {
-        WebRadioInterface wri(*in, options.web_port);
+        WebRadioInterface wri(*in, options.web_port, options.decode_all_programmes);
         wri.serve();
     }
     else {
@@ -332,7 +335,7 @@ int main(int argc, char **argv)
             this_thread::sleep_for(chrono::seconds(3));
         }
 
-        if (options.dump_all_programmes) {
+        if (options.decode_all_programmes) {
             using SId_t = uint32_t;
             map<SId_t, WavProgrammeHandler> phs;
 
