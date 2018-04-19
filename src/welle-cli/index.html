@@ -31,7 +31,7 @@ function ensembleInfoTemplate() {
 
 function serviceTemplate() {
     var html = '<li>${Label} ${SId} ${bitrate}kbps ${samplerate}Hz ${dls}';
-    html += ' <button type=button onclick="setPlayerSource(${SId})" />'
+    html += ' <button type=button onclick="setPlayerSource(${SId})">Play</button>'
     html += '</li>';
     return html;
 }
