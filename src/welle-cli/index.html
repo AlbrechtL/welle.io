@@ -30,7 +30,7 @@ function ensembleInfoTemplate() {
 }
 
 function serviceTemplate() {
-    var html = '<li>${Label} ${SId} ${bitrate}kbps ${samplerate}Hz ${dls}';
+    var html = '<li>${Label} <b>${SId}</b> ${bitrate}kbps ${samplerate}Hz <i>${dls}</i>';
     html += ' <button type=button onclick="setPlayerSource(${SId})">Play</button>'
     html += '</li>';
     return html;
@@ -39,6 +39,7 @@ function serviceTemplate() {
 function setPlayerSource(sid) {
     document.getElementById("player").src = "/mp3/" + sid;
     document.getElementById("player").load();
+    document.getElementById("player").play();
 }
 
 function parseTemplate(template, data) {
