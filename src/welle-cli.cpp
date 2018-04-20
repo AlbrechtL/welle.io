@@ -179,7 +179,7 @@ class RadioInterface : public RadioControllerInterface {
             cout << j << endl;
         }
 
-        virtual void onFICDecodeSuccess(bool isFICCRC) override { (void)isFICCRC; }
+        virtual void onFIBDecodeSuccess(bool crcCheckOk, const uint8_t* fib) override { (void)crcCheckOk; (void)fib; }
         virtual void onNewImpulseResponse(std::vector<float>&& data) override { (void)data; }
         virtual void onNewNullSymbol(std::vector<DSPCOMPLEX>&& data) override { (void)data; }
         virtual void onConstellationPoints(std::vector<DSPCOMPLEX>&& data) override { (void)data; }

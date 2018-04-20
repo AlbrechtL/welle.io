@@ -166,7 +166,7 @@ public:
     virtual void onServiceDetected(uint32_t sId, const std::string& label) override;
     virtual void onNewEnsembleName(const std::string& name) override;
     virtual void onDateTimeUpdate(const dab_date_time_t& dateTime) override;
-    virtual void onFICDecodeSuccess(bool isFICCRC) override;
+    virtual void onFIBDecodeSuccess(bool crcCheckOk, const uint8_t* fib) override;
     virtual void onNewImpulseResponse(std::vector<float>&& data) override;
     virtual void onConstellationPoints(std::vector<DSPCOMPLEX>&& data) override;
     virtual void onNewNullSymbol(std::vector<DSPCOMPLEX>&& data) override;

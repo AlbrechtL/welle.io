@@ -93,8 +93,8 @@ class RadioControllerInterface {
         virtual void onNewEnsembleName(const std::string& name) = 0;
         virtual void onDateTimeUpdate(const dab_date_time_t& dateTime) = 0;
 
-        /* For every FIB, tell if the CRC check passed */
-        virtual void onFICDecodeSuccess(bool isFICCRC) = 0;
+        /* For every FIB, tell if the CRC check passed. fib points to a bit-vector with 256 bits of FIB data  */
+        virtual void onFIBDecodeSuccess(bool crcCheckOk, const uint8_t* fib) = 0;
 
         /* When a new channel impulse response vector was calculated */
         virtual void onNewImpulseResponse(std::vector<float>&& data) = 0;

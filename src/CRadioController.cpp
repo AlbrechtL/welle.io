@@ -964,11 +964,12 @@ void CRadioController::displayDateTime(const dab_date_time_t& dateTime)
     emit DateTimeChanged(QLocale().toString(LocalTime, QLocale::ShortFormat));
 }
 
-void CRadioController::onFICDecodeSuccess(bool isFICCRC)
+void CRadioController::onFIBDecodeSuccess(bool crcCheckOk, const uint8_t* fib)
 {
-    if (mIsFICCRC == isFICCRC)
+    (void)fib;
+    if (mIsFICCRC == crcCheckOk)
         return;
-    mIsFICCRC = isFICCRC;
+    mIsFICCRC = crcCheckOk;
     emit isFICCRCChanged(mIsFICCRC);
 }
 

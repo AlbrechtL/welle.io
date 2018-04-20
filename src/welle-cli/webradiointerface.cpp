@@ -42,6 +42,9 @@ static const char* http_404 = "HTTP/1.0 404 Not Found\r\n";
 static const char* http_503 = "HTTP/1.0 503 Service Unavailable\r\n";
 static const char* http_contenttype_mp3 = "Content-Type: audio/mpeg\r\n";
 static const char* http_contenttype_text = "Content-Type: text/plain\r\n";
+static const char* http_contenttype_data =
+        "Content-Type: application/octet-stream\r\n";
+
 static const char* http_contenttype_json =
         "Content-Type: application/json; charset=utf-8\r\n";
 
@@ -481,7 +484,34 @@ bool WebRadioInterface::dispatch_client(Socket s)
             }
         }
 
-        cerr << "Could not understand request" << endl;
+        const regex regex_fib(R"(^GET [/]fib HTTP)");
+
+        std::smatch match_fib;
+        bool is_fib = regex_search(request, match_fib, regex_fib);
+        if (is_fib) {
+            string headers = http_ok;
+            headers += http_contenttype_data;
+            headers += http_nocache;
+            headers += "\r\n";
+            s.send(headers.data(), headers.size(), MSG_NOSIGNAL);
+
+            while (true) {
+                unique_lock<mutex> lock(data_mut);
+                while (fib_blocks.empty()) {
+                    new_fib_block_available.wait_for(lock, chrono::seconds(1));
+                }
+                ssize_t ret = s.send(fib_blocks.front().data(),
+                        fib_blocks.front().size(), MSG_NOSIGNAL);
+
+                if (ret == -1) {
+                    break;
+                }
+                fib_blocks.pop_front();
+            }
+            return true;
+        }
+
+        cerr << "Could not understand request " << request << endl;
     }
 
     string headers = http_404;
@@ -595,7 +625,31 @@ void WebRadioInterface::onDateTimeUpdate(const dab_date_time_t& dateTime)
     last_dateTime = dateTime;
 }
 
-void WebRadioInterface::onFICDecodeSuccess(bool isFICCRC) {(void)isFICCRC; }
+void WebRadioInterface::onFIBDecodeSuccess(bool crcCheckOk, const uint8_t* fib)
+{
+    if (not crcCheckOk) {
+        return;
+    }
+
+    lock_guard<mutex> lock(data_mut);
+
+    // Convert the fib bitvector to bytes
+    vector<uint8_t> buf(32);
+    for (size_t i = 0; i < buf.size(); i++) {
+        uint8_t v = 0;
+        for (int j = 0; j < 8; j++) {
+            if (fib[8*i+j]) {
+                v |= 1 << (7-j);
+            }
+        }
+        buf[i] = v;
+    }
+    fib_blocks.push_back(move(buf));
+
+    if (fib_blocks.size() > 3*250) { // six seconds
+        fib_blocks.pop_front();
+    }
+}
 
 void WebRadioInterface::onNewImpulseResponse(std::vector<float>&& data)
 {

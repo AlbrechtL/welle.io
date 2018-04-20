@@ -217,14 +217,13 @@ void FicHandler::process_ficInput(int16_t *ficblock, int16_t ficno)
      */
     for (i = ficno * 3; i < ficno * 3 + 3; i ++) {
         uint8_t *p = &bitBuffer_out[(i % 3) * 256];
-        if (!check_CRC_bits (p, 256)) {
-            myRadioInterface.onFICDecodeSuccess(false);
+        const bool crcvalid = check_CRC_bits(p, 256);
+        myRadioInterface.onFIBDecodeSuccess(crcvalid, p);
+        if (!crcvalid) {
             continue;
         }
-        myRadioInterface.onFICDecodeSuccess(true);
         fibProcessor.process_FIB(p, ficno);
     }
-    //  fibProcessor.printActions (ficno);
 }
 
 void FicHandler::clearEnsemble()
