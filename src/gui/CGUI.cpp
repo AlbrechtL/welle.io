@@ -260,6 +260,8 @@ void CGUI::showErrorMessage(QString Text)
 {
 #ifndef QT_NO_SYSTEMTRAYICON
     trayIcon->showMessage(QCoreApplication::applicationName(), Text, QIcon(":/icon.png"), 5000);
+#else
+    (void)Text;
 #endif
 }
 
@@ -267,6 +269,8 @@ void CGUI::showInfoMessage(QString Text)
 {
 #ifndef QT_NO_SYSTEMTRAYICON
     trayIcon->showMessage(QCoreApplication::applicationName(), Text, QIcon(":/icon.png"), 5000);
+#else
+    (void)Text;
 #endif
 }
 
