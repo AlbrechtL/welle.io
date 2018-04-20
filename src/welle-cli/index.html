@@ -14,6 +14,7 @@ body {
         <div>
             <p>Ensemble:</p>
             <div id="ensembleinfo"></div>
+            <div id="images"></div>
             <div id="tiiinfo"></div>
         </div>
         <div>
@@ -36,7 +37,7 @@ function ensembleInfoTemplate() {
 
 function serviceTemplate() {
     var html = '<li>${Label} <b>${SId}</b> ${bitrate}kbps ${samplerate}Hz <i>${dls}</i>';
-    html += ' <button type=button onclick="setPlayerSource(${SId})">Play</button>'
+    html += ' <button type=button onclick="setPlayerSource(${SId})">Play</button>';
     html += '</li>';
     return html;
 }
@@ -71,6 +72,7 @@ function populate_ensembleinfo() {
         var data = JSON.parse(r.responseText);
 
         var servicehtml = "";
+        var imageshtml = "";
         for (key in data["Services"]) {
             var service = data["Services"][key];
             var s = {};
@@ -79,6 +81,10 @@ function populate_ensembleinfo() {
             s["bitrate"] = service["Components"][0]["Subchannel"]["Bitrate"];
             s["samplerate"] = service["samplerate"];
             s["dls"] = service["dls"]["label"];
+
+            imageshtml += ' <img width=64 heigth=48 src="' +
+                "data:" + service["mot"]["type"] + ";base64," +
+                service["mot"]["data"] + '">';
 
             servicehtml += parseTemplate(serviceTemplate(), s)
         }
@@ -97,6 +103,8 @@ function populate_ensembleinfo() {
 
         var ei = document.getElementById('ensembleinfo');
         ei.innerHTML = parseTemplate(ensembleInfoTemplate(), ens);
+
+        document.getElementById('images').innerHTML = imageshtml;
 
         tiihtml = "<ul>";
         for (key in data["TII"]) {

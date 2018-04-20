@@ -34,6 +34,7 @@
 #include <errno.h>
 #include "welle-cli/webradiointerface.h"
 #include "libs/json.hpp"
+#include "libs/base64.h"
 
 using namespace std;
 
@@ -139,12 +140,25 @@ WebProgrammeHandler::dls_t WebProgrammeHandler::getDLS() const
 {
     dls_t dls;
 
+    std::unique_lock<std::mutex> lock(pad_mutex);
     if (last_label_valid) {
         dls.label = last_label;
-        dls.time_label = std::chrono::system_clock::to_time_t(time_label);
+        dls.time = std::chrono::system_clock::to_time_t(time_label);
     }
 
     return dls;
+}
+
+WebProgrammeHandler::mot_t WebProgrammeHandler::getMOT_base64() const
+{
+    mot_t mot;
+
+    std::unique_lock<std::mutex> lock(pad_mutex);
+    if (last_mot_valid) {
+        mot.data = Base64::Encode(last_mot);
+        mot.time = chrono::system_clock::to_time_t(time_mot);
+    }
+    return mot;
 }
 
 void WebProgrammeHandler::onFrameErrors(int frameErrors)
@@ -243,7 +257,15 @@ void WebProgrammeHandler::onMOT(const std::vector<uint8_t>& data, int subtype)
     last_mot_valid = true;
     time_mot = chrono::system_clock::now();
     last_mot = data;
-    last_subtype = subtype;
+    if (subtype == 0x01) {
+        last_subtype = MOTType::JPEG;
+    }
+    else if (subtype == 0x03) {
+        last_subtype = MOTType::PNG;
+    }
+    else {
+        last_subtype = MOTType::Unknown;
+    }
 }
 
 void WebRadioInterface::check_decoders_required()
@@ -382,10 +404,27 @@ bool WebRadioInterface::dispatch_client(Socket s)
                     j_srv["channels"] = wph.stereo ? 2 : 1;
                     j_srv["samplerate"] = wph.rate;
 
+                    auto mot = wph.getMOT_base64();
+                    nlohmann::json j_mot = {
+                        {"data", mot.data},
+                        {"time", mot.time}};
+                    switch (mot.subtype) {
+                        case MOTType::Unknown:
+                            j_mot["type"] = "application/octet-stream";
+                            break;
+                        case MOTType::JPEG:
+                            j_mot["type"] = "image/jpeg";
+                            break;
+                        case MOTType::PNG:
+                            j_mot["type"] = "image/png";
+                            break;
+                    }
+                    j_srv["mot"] = j_mot;
+
                     auto dls = wph.getDLS();
                     nlohmann::json j_dls = {
                         {"label", dls.label},
-                        {"time", dls.time_label}};
+                        {"time", dls.time}};
                     j_srv["dls"] = j_dls;
                 }
                 catch (const out_of_range&) {

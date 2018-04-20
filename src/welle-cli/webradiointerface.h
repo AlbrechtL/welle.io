@@ -69,6 +69,8 @@ struct Lame {
     }
 };
 
+enum class MOTType { JPEG, PNG, Unknown };
+
 class WebProgrammeHandler : public ProgrammeHandlerInterface {
     private:
         uint32_t serviceId;
@@ -83,7 +85,7 @@ class WebProgrammeHandler : public ProgrammeHandlerInterface {
         mutable std::mutex senders_mutex;
         std::list<ProgrammeSender*> senders;
 
-        std::mutex pad_mutex;
+        mutable std::mutex pad_mutex;
 
         bool last_label_valid = false;
         std::chrono::time_point<std::chrono::system_clock> time_label;
@@ -92,7 +94,7 @@ class WebProgrammeHandler : public ProgrammeHandlerInterface {
         bool last_mot_valid = false;
         std::chrono::time_point<std::chrono::system_clock> time_mot;
         std::vector<uint8_t> last_mot;
-        int last_subtype = -1;
+        MOTType last_subtype = MOTType::Unknown;
 
     public:
         bool stereo = false;
@@ -109,8 +111,14 @@ class WebProgrammeHandler : public ProgrammeHandlerInterface {
 
         struct dls_t {
             std::string label;
-            time_t time_label = -1; };
+            time_t time = -1; };
         dls_t getDLS() const;
+
+        struct mot_t {
+            std::string data;
+            MOTType subtype = MOTType::Unknown;
+            time_t time = -1; };
+        mot_t getMOT_base64() const;
 
         virtual void onFrameErrors(int frameErrors) override;
         virtual void onNewAudio(std::vector<int16_t>&& audioData,
