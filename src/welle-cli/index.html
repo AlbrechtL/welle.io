@@ -11,7 +11,10 @@ body {
 </style>
     </head>
     <body>
-        <div id="ensembleinfo">
+        <div>
+            <p>Ensemble:</p>
+            <div id="ensembleinfo"></div>
+            <div id="tiiinfo"></div>
         </div>
         <div>
             <audio id="player" controls>
@@ -22,9 +25,10 @@ body {
 var ensembleInfoTimer = setInterval(populate_ensembleinfo, 1000);
 
 function ensembleInfoTemplate() {
-    var html = '<p>Ensemble name:<pre>${name}</pre></p>';
+    var html = '<p>Label: <b>${name}</b></p>';
     html += '<p>SNR: ${SNR}</p>';
     html += '<p>Freq corr: ${FrequencyCorrection}</p>';
+    html += '<p>Date:${year}-${month}-${day} ${hour}:${minutes} UTC</p>';
     html += '<p>Services:</p>';
     html += '<ul>${services}</ul>';
     return html;
@@ -34,6 +38,12 @@ function serviceTemplate() {
     var html = '<li>${Label} <b>${SId}</b> ${bitrate}kbps ${samplerate}Hz <i>${dls}</i>';
     html += ' <button type=button onclick="setPlayerSource(${SId})">Play</button>'
     html += '</li>';
+    return html;
+}
+
+function tiiTemplate() {
+    var html = '<li>MainId ${pattern} SubId ${comb} <b>${delay}</b>';
+    html += ' ${error}</li>';
     return html;
 }
 
@@ -75,12 +85,27 @@ function populate_ensembleinfo() {
 
         var ens = {};
         ens["name"] = data["Ensemble"]["Name"];
+        ens["year"] = data["UTCTime"]["year"];
+        ens["month"] = data["UTCTime"]["month"];
+        ens["day"] = data["UTCTime"]["day"];
+        ens["hour"] = data["UTCTime"]["hour"];
+        ens["minutes"] = data["UTCTime"]["minutes"];
+
         ens["SNR"] = data["SNR"];
         ens["FrequencyCorrection"] = data["FrequencyCorrection"];
         ens["services"] = servicehtml;
 
         var ei = document.getElementById('ensembleinfo');
         ei.innerHTML = parseTemplate(ensembleInfoTemplate(), ens);
+
+        tiihtml = "<ul>";
+        for (key in data["TII"]) {
+            tiihtml += parseTemplate(tiiTemplate(), data["TII"][key])
+        }
+        tiihtml += "</ul>";
+
+        var tii_el = document.getElementById('tiiinfo');
+        tii_el.innerHTML = tiihtml;
     };
     r.open("GET", "/mux.json", true);
     r.send()
