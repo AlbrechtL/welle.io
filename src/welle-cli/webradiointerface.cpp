@@ -157,6 +157,7 @@ WebProgrammeHandler::mot_t WebProgrammeHandler::getMOT_base64() const
     if (last_mot_valid) {
         mot.data = Base64::Encode(last_mot);
         mot.time = chrono::system_clock::to_time_t(time_mot);
+        mot.subtype = last_subtype;
     }
     return mot;
 }
