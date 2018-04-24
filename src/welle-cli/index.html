@@ -30,7 +30,6 @@ table#servicetable th {
     </head>
     <body>
         <div>
-            <p>Ensemble:</p>
             <div id="ensembleinfo"></div>
             <div id="images"></div>
             <div>Spectrum <canvas id="spectrum" width="512" height="150" style="border:1px solid #d3d3d3;">
@@ -54,11 +53,9 @@ var ensembleInfoTimer = setInterval(populateEnsembleinfo, 1000);
 var plotTimer = setInterval(populatePlots, 480);
 
 function ensembleInfoTemplate() {
-    var html = '<p>Label: <b>${name}</b></p>';
-    html += '<p>SNR: ${SNR}</p>';
-    html += '<p>Freq corr: ${FrequencyCorrection}</p>';
-    html += '<p>Date:${year}-${month}-${day} ${hour}:${minutes} UTC</p>';
-    html += '<p>Services:</p>';
+    var html = '<p><b>${name}</b> SNR: ${SNR}';
+    html += ' Freq corr: ${FrequencyCorrection}';
+    html += ' Date:${year}-${month}-${day} ${hour}:${minutes} UTC</p>';
     html += '<table id="servicetable">'
     html += '<tr><th>Label</th> <th>SId</th> <th>bitrate</th> <th>samplerate</th> <th>DLS</th> <th></th></tr>';
     html += '${services}</table>';
