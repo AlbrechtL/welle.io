@@ -314,7 +314,7 @@ void WebRadioInterface::check_decoders_required()
     }
 }
 
-bool WebRadioInterface::dispatch_client(Socket s)
+bool WebRadioInterface::dispatch_client(Socket&& s)
 {
     vector<char> buf(1025);
     if (not s.valid()) {
@@ -335,220 +335,21 @@ bool WebRadioInterface::dispatch_client(Socket s)
         buf.resize(ret);
         string request(buf.begin(), buf.end());
 
-        const regex regex_index(R"(^GET [/] HTTP)");
-        std::smatch match_index;
-        bool is_index = regex_search(request, match_index, regex_index);
-        if (is_index) {
-            FILE *fd = fopen("index.html", "r");
-            if (fd) {
-                string headers = http_ok;
-                headers += http_contenttype_html;
-                headers += http_nocache;
-                headers += "\r\n";
-                s.send(headers.data(), headers.size(), MSG_NOSIGNAL);
-
-                vector<char> data(1024);
-                size_t ret = 0;
-                do {
-                    ret = fread(data.data(), 1, data.size(), fd);
-                    s.send(data.data(), ret, MSG_NOSIGNAL);
-                } while (ret > 0);
-
-                fclose(fd);
-                return true;
-            }
+        if (request.find("GET / HTTP") == 0) {
+            return send_index(move(s));
         }
-
-        const regex regex_mux_json(R"(^GET [/]mux.json HTTP)");
-
-        std::smatch match_mux_json;
-        bool is_mux_json = regex_search(request, match_mux_json, regex_mux_json);
-        if (is_mux_json) {
-            nlohmann::json j;
-            j["Ensemble"]["Name"] = rx->getEnsembleName();
-
-            nlohmann::json j_services;
-            for (const auto& s : rx->getServiceList()) {
-                string urlmp3 = "/mp3/" + sid_to_hex(s.serviceId);
-                nlohmann::json j_srv = {
-                    {"SId", sid_to_hex(s.serviceId)},
-                    {"Label", s.serviceLabel.label},
-                    {"url_mp3", urlmp3}};
-
-                nlohmann::json j_components;
-
-                for (const auto& sc : rx->getComponents(s)) {
-                    nlohmann::json j_sc = {
-                        {"ComponentNr", sc.componentNr},
-                        {"ASCTy",
-                        (sc.audioType() == AudioServiceComponentType::DAB ? "DAB" :
-                         sc.audioType() == AudioServiceComponentType::DABPlus ? "DAB+" :
-                         "unknown") } };
-
-                    const auto& sub = rx->getSubchannel(sc);
-                    j_sc["Subchannel"] = {
-                        { "Subchannel_id", sub.subChId},
-                        { "Bitrate", sub.bitrate()},
-                        { "SAd", sub.startAddr}};
-
-                    j_components.push_back(j_sc);
-                }
-                j_srv["Components"] = j_components;
-
-                try {
-                    const auto& wph = phs.at(s.serviceId);
-                    nlohmann::json j_audio = {
-                        {"left", wph.last_audioLevel_L},
-                        {"right", wph.last_audioLevel_R}};
-                    j_srv["audiolevel"] = j_audio;
-
-                    j_srv["channels"] = wph.stereo ? 2 : 1;
-                    j_srv["samplerate"] = wph.rate;
-
-                    auto mot = wph.getMOT_base64();
-                    nlohmann::json j_mot = {
-                        {"data", mot.data},
-                        {"time", mot.time}};
-                    switch (mot.subtype) {
-                        case MOTType::Unknown:
-                            j_mot["type"] = "application/octet-stream";
-                            break;
-                        case MOTType::JPEG:
-                            j_mot["type"] = "image/jpeg";
-                            break;
-                        case MOTType::PNG:
-                            j_mot["type"] = "image/png";
-                            break;
-                    }
-                    j_srv["mot"] = j_mot;
-
-                    auto dls = wph.getDLS();
-                    nlohmann::json j_dls = {
-                        {"label", dls.label},
-                        {"time", dls.time}};
-                    j_srv["dls"] = j_dls;
-                }
-                catch (const out_of_range&) {
-                    j_srv["audiolevel"] = nullptr;
-                }
-
-                j_services.push_back(j_srv);
-            }
-            j["Services"] = j_services;
-
-            {
-                lock_guard<mutex> lock(data_mut);
-
-                nlohmann::json j_utc = {
-                    {"year", last_dateTime.year},
-                    {"month", last_dateTime.month},
-                    {"day", last_dateTime.day},
-                    {"hour", last_dateTime.hour},
-                    {"minutes", last_dateTime.minutes}
-                };
-
-                j["UTCTime"] = j_utc;
-
-                j["SNR"] = last_snr;
-                j["FrequencyCorrection"] =
-                    last_fine_correction + last_coarse_correction;
-
-            }
-            for (const auto& tii : getTiiStats()) {
-                j["TII"].push_back({
-                        {"comb", tii.comb},
-                        {"pattern", tii.pattern},
-                        {"delay", tii.delay_samples},
-                        {"delay_km", tii.getDelayKm()},
-                        {"error", tii.error}});
-            }
-
-
-            string headers = http_ok;
-            headers += http_contenttype_json;
-            headers += http_nocache;
-            headers += "\r\n";
-            s.send(headers.data(), headers.size(), MSG_NOSIGNAL);
-
-            const auto json_str = j.dump();
-
-            s.send(json_str.c_str(), json_str.size(), MSG_NOSIGNAL);
-            return true;
+        else if (request.find("GET /mux.json HTTP") == 0) {
+            return send_mux_json(move(s));
         }
-
-        const regex regex_mp3(R"(^GET [/]mp3[/]([^ ]+) HTTP)");
-        std::smatch match_mp3;
-        bool is_mp3 = regex_search(request, match_mp3, regex_mp3);
-        if (is_mp3) {
-            const string stream = match_mp3[1];
-            for (const auto& srv : rx->getServiceList()) {
-                if (sid_to_hex(srv.serviceId) == stream or
-                        (uint32_t)std::stoi(stream) == srv.serviceId) {
-                    try {
-                        auto& ph = phs.at(srv.serviceId);
-
-                        string headers = http_ok;
-                        headers += http_contenttype_mp3;
-                        headers += http_nocache;
-                        headers += "\r\n";
-                        s.send(headers.data(), headers.size(), MSG_NOSIGNAL);
-
-                        ProgrammeSender sender(move(s));
-
-                        cerr << "Registering mp3 sender" << endl;
-                        ph.registerSender(&sender);
-                        check_decoders_required();
-                        sender.wait_for_termination();
-
-                        cerr << "Removing mp3 sender" << endl;
-                        ph.removeSender(&sender);
-                        check_decoders_required();
-
-                        return true;
-                    }
-                    catch (const out_of_range& e) {
-                        cerr << "Could not setup mp3 sender for " <<
-                            srv.serviceId << ": " << e.what() << endl;
-
-                        string headers = http_503;
-                        headers += http_contenttype_text;
-                        headers += http_nocache;
-                        headers += "\r\n";
-                        headers += "503 Service Unavailable\r\n";
-                        headers += e.what();
-                        headers += "\r\n";
-                        s.send(headers.data(), headers.size(), MSG_NOSIGNAL);
-                        return false;
-                    }
-                }
-            }
+        else if (request.find("GET /fib HTTP") == 0) {
+            send_fib(move(s));
         }
-
-        const regex regex_fib(R"(^GET [/]fib HTTP)");
-
-        std::smatch match_fib;
-        bool is_fib = regex_search(request, match_fib, regex_fib);
-        if (is_fib) {
-            string headers = http_ok;
-            headers += http_contenttype_data;
-            headers += http_nocache;
-            headers += "\r\n";
-            s.send(headers.data(), headers.size(), MSG_NOSIGNAL);
-
-            while (true) {
-                unique_lock<mutex> lock(data_mut);
-                while (fib_blocks.empty()) {
-                    new_fib_block_available.wait_for(lock, chrono::seconds(1));
-                }
-                ssize_t ret = s.send(fib_blocks.front().data(),
-                        fib_blocks.front().size(), MSG_NOSIGNAL);
-
-                if (ret == -1) {
-                    break;
-                }
-                fib_blocks.pop_front();
+        else {
+            const regex regex_mp3(R"(^GET [/]mp3[/]([^ ]+) HTTP)");
+            std::smatch match_mp3;
+            if (regex_search(request, match_mp3, regex_mp3)) {
+                send_mp3(move(s), match_mp3[1]);
             }
-            return true;
         }
 
         cerr << "Could not understand request " << request << endl;
@@ -562,6 +363,213 @@ bool WebRadioInterface::dispatch_client(Socket s)
     headers += "Sorry\r\n";
     s.send(headers.data(), headers.size(), MSG_NOSIGNAL);
     return false;
+}
+
+bool WebRadioInterface::send_index(Socket&& s)
+{
+    FILE *fd = fopen("index.html", "r");
+    if (fd) {
+        string headers = http_ok;
+        headers += http_contenttype_html;
+        headers += http_nocache;
+        headers += "\r\n";
+        s.send(headers.data(), headers.size(), MSG_NOSIGNAL);
+
+        vector<char> data(1024);
+        size_t ret = 0;
+        do {
+            ret = fread(data.data(), 1, data.size(), fd);
+            s.send(data.data(), ret, MSG_NOSIGNAL);
+        } while (ret > 0);
+
+        fclose(fd);
+        return true;
+    }
+    return false;
+}
+
+bool WebRadioInterface::send_mux_json(Socket&& s)
+{
+    nlohmann::json j;
+    j["Ensemble"]["Name"] = rx->getEnsembleName();
+
+    nlohmann::json j_services;
+    for (const auto& s : rx->getServiceList()) {
+        string urlmp3 = "/mp3/" + sid_to_hex(s.serviceId);
+        nlohmann::json j_srv = {
+            {"SId", sid_to_hex(s.serviceId)},
+            {"Label", s.serviceLabel.label},
+            {"url_mp3", urlmp3}};
+
+        nlohmann::json j_components;
+
+        for (const auto& sc : rx->getComponents(s)) {
+            nlohmann::json j_sc = {
+                {"ComponentNr", sc.componentNr},
+                {"ASCTy",
+                    (sc.audioType() == AudioServiceComponentType::DAB ? "DAB" :
+                     sc.audioType() == AudioServiceComponentType::DABPlus ? "DAB+" :
+                     "unknown") } };
+
+            const auto& sub = rx->getSubchannel(sc);
+            j_sc["Subchannel"] = {
+                { "Subchannel_id", sub.subChId},
+                { "Bitrate", sub.bitrate()},
+                { "SAd", sub.startAddr}};
+
+            j_components.push_back(j_sc);
+        }
+        j_srv["Components"] = j_components;
+
+        try {
+            const auto& wph = phs.at(s.serviceId);
+            nlohmann::json j_audio = {
+                {"left", wph.last_audioLevel_L},
+                {"right", wph.last_audioLevel_R}};
+            j_srv["audiolevel"] = j_audio;
+
+            j_srv["channels"] = wph.stereo ? 2 : 1;
+            j_srv["samplerate"] = wph.rate;
+
+            auto mot = wph.getMOT_base64();
+            nlohmann::json j_mot = {
+                {"data", mot.data},
+                {"time", mot.time}};
+            switch (mot.subtype) {
+                case MOTType::Unknown:
+                    j_mot["type"] = "application/octet-stream";
+                    break;
+                case MOTType::JPEG:
+                    j_mot["type"] = "image/jpeg";
+                    break;
+                case MOTType::PNG:
+                    j_mot["type"] = "image/png";
+                    break;
+            }
+            j_srv["mot"] = j_mot;
+
+            auto dls = wph.getDLS();
+            nlohmann::json j_dls = {
+                {"label", dls.label},
+                {"time", dls.time}};
+            j_srv["dls"] = j_dls;
+        }
+        catch (const out_of_range&) {
+            j_srv["audiolevel"] = nullptr;
+        }
+
+        j_services.push_back(j_srv);
+    }
+    j["Services"] = j_services;
+
+    {
+        lock_guard<mutex> lock(data_mut);
+
+        nlohmann::json j_utc = {
+            {"year", last_dateTime.year},
+            {"month", last_dateTime.month},
+            {"day", last_dateTime.day},
+            {"hour", last_dateTime.hour},
+            {"minutes", last_dateTime.minutes}
+        };
+
+        j["UTCTime"] = j_utc;
+
+        j["SNR"] = last_snr;
+        j["FrequencyCorrection"] =
+            last_fine_correction + last_coarse_correction;
+
+    }
+    for (const auto& tii : getTiiStats()) {
+        j["TII"].push_back({
+                {"comb", tii.comb},
+                {"pattern", tii.pattern},
+                {"delay", tii.delay_samples},
+                {"delay_km", tii.getDelayKm()},
+                {"error", tii.error}});
+    }
+
+
+    string headers = http_ok;
+    headers += http_contenttype_json;
+    headers += http_nocache;
+    headers += "\r\n";
+    s.send(headers.data(), headers.size(), MSG_NOSIGNAL);
+
+    const auto json_str = j.dump();
+
+    s.send(json_str.c_str(), json_str.size(), MSG_NOSIGNAL);
+    return true;
+}
+
+bool WebRadioInterface::send_mp3(Socket&& s, const std::string& stream)
+{
+    for (const auto& srv : rx->getServiceList()) {
+        if (sid_to_hex(srv.serviceId) == stream or
+                (uint32_t)std::stoi(stream) == srv.serviceId) {
+            try {
+                auto& ph = phs.at(srv.serviceId);
+
+                string headers = http_ok;
+                headers += http_contenttype_mp3;
+                headers += http_nocache;
+                headers += "\r\n";
+                s.send(headers.data(), headers.size(), MSG_NOSIGNAL);
+
+                ProgrammeSender sender(move(s));
+
+                cerr << "Registering mp3 sender" << endl;
+                ph.registerSender(&sender);
+                check_decoders_required();
+                sender.wait_for_termination();
+
+                cerr << "Removing mp3 sender" << endl;
+                ph.removeSender(&sender);
+                check_decoders_required();
+
+                return true;
+            }
+            catch (const out_of_range& e) {
+                cerr << "Could not setup mp3 sender for " <<
+                    srv.serviceId << ": " << e.what() << endl;
+
+                string headers = http_503;
+                headers += http_contenttype_text;
+                headers += http_nocache;
+                headers += "\r\n";
+                headers += "503 Service Unavailable\r\n";
+                headers += e.what();
+                headers += "\r\n";
+                s.send(headers.data(), headers.size(), MSG_NOSIGNAL);
+                return false;
+            }
+        }
+    }
+    return false;
+}
+
+bool WebRadioInterface::send_fib(Socket&& s)
+{
+    string headers = http_ok;
+    headers += http_contenttype_data;
+    headers += http_nocache;
+    headers += "\r\n";
+    s.send(headers.data(), headers.size(), MSG_NOSIGNAL);
+
+    while (true) {
+        unique_lock<mutex> lock(data_mut);
+        while (fib_blocks.empty()) {
+            new_fib_block_available.wait_for(lock, chrono::seconds(1));
+        }
+        ssize_t ret = s.send(fib_blocks.front().data(),
+                fib_blocks.front().size(), MSG_NOSIGNAL);
+
+        if (ret == -1) {
+            break;
+        }
+        fib_blocks.pop_front();
+    }
+    return true;
 }
 
 WebRadioInterface::WebRadioInterface(CVirtualInput& in, int port, bool decode_all) :
@@ -626,10 +634,15 @@ void WebRadioInterface::serve()
         deque<future<bool> > still_running_connections;
         for (auto& fut : running_connections) {
             if (fut.valid()) {
-                fut.get();
-            }
-            else {
-                still_running_connections.push_back(move(fut));
+                switch (fut.wait_for(chrono::milliseconds(1))) {
+                    case future_status::deferred:
+                    case future_status::timeout:
+                        still_running_connections.push_back(move(fut));
+                        break;
+                    case future_status::ready:
+                        fut.get();
+                        break;
+                }
             }
         }
         running_connections = move(still_running_connections);

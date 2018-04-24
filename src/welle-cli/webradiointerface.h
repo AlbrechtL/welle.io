@@ -150,7 +150,11 @@ class WebRadioInterface : public RadioControllerInterface {
         virtual void onTIIMeasurement(tii_measurement_t&& m) override;
 
     private:
-        bool dispatch_client(Socket s);
+        bool dispatch_client(Socket&& s);
+        bool send_index(Socket&& s);
+        bool send_mux_json(Socket&& s);
+        bool send_mp3(Socket&& s, const std::string& stream);
+        bool send_fib(Socket&& s);
         void check_decoders_required();
         std::list<tii_measurement_t> getTiiStats();
 
