@@ -150,11 +150,26 @@ class WebRadioInterface : public RadioControllerInterface {
         virtual void onTIIMeasurement(tii_measurement_t&& m) override;
 
     private:
-        bool dispatch_client(Socket&& s);
-        bool send_index(Socket&& s);
-        bool send_mux_json(Socket&& s);
-        bool send_mp3(Socket&& s, const std::string& stream);
-        bool send_fib(Socket&& s);
+        bool dispatch_client(Socket&& client);
+        // Send the index.html file
+        bool send_index(Socket& s);
+
+        // Generate and send the mux.json
+        bool send_mux_json(Socket& s);
+
+        // Send an mp3 stream containing the selected programme.
+        // stream is a service id, either in hex with 0x prefix or
+        // in decimal
+        bool send_mp3(Socket& s, const std::string& stream);
+
+        // Send the Fast Information Channel as a stream.
+        // Every FIB is 32 bytes long, there three FIBs per 24ms interval,
+        // which gives 32000 bits/s
+        bool send_fic(Socket& s);
+
+        // Send the impulse response, in dB, as a sequence of float values.
+        bool send_impulseresponse(Socket& s);
+
         void check_decoders_required();
         std::list<tii_measurement_t> getTiiStats();
 

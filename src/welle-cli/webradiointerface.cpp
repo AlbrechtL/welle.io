@@ -314,8 +314,10 @@ void WebRadioInterface::check_decoders_required()
     }
 }
 
-bool WebRadioInterface::dispatch_client(Socket&& s)
+bool WebRadioInterface::dispatch_client(Socket&& client)
 {
+    Socket s(move(client));
+
     vector<char> buf(1025);
     if (not s.valid()) {
         cerr << "socket in dispatcher not valid!" << endl;
@@ -336,19 +338,22 @@ bool WebRadioInterface::dispatch_client(Socket&& s)
         string request(buf.begin(), buf.end());
 
         if (request.find("GET / HTTP") == 0) {
-            return send_index(move(s));
+            return send_index(s);
         }
         else if (request.find("GET /mux.json HTTP") == 0) {
-            return send_mux_json(move(s));
+            return send_mux_json(s);
         }
-        else if (request.find("GET /fib HTTP") == 0) {
-            send_fib(move(s));
+        else if (request.find("GET /fic HTTP") == 0) {
+            return send_fic(s);
+        }
+        else if (request.find("GET /impulseresponse HTTP") == 0) {
+            return send_impulseresponse(s);
         }
         else {
             const regex regex_mp3(R"(^GET [/]mp3[/]([^ ]+) HTTP)");
             std::smatch match_mp3;
             if (regex_search(request, match_mp3, regex_mp3)) {
-                send_mp3(move(s), match_mp3[1]);
+                return send_mp3(s, match_mp3[1]);
             }
         }
 
@@ -365,7 +370,7 @@ bool WebRadioInterface::dispatch_client(Socket&& s)
     return false;
 }
 
-bool WebRadioInterface::send_index(Socket&& s)
+bool WebRadioInterface::send_index(Socket& s)
 {
     FILE *fd = fopen("index.html", "r");
     if (fd) {
@@ -373,13 +378,22 @@ bool WebRadioInterface::send_index(Socket&& s)
         headers += http_contenttype_html;
         headers += http_nocache;
         headers += "\r\n";
-        s.send(headers.data(), headers.size(), MSG_NOSIGNAL);
+        ssize_t ret = s.send(headers.data(), headers.size(), MSG_NOSIGNAL);
+        if (ret == -1) {
+            cerr << "Failed to send index.html headers" << endl;
+            return false;
+        }
 
         vector<char> data(1024);
-        size_t ret = 0;
         do {
             ret = fread(data.data(), 1, data.size(), fd);
-            s.send(data.data(), ret, MSG_NOSIGNAL);
+            ret = s.send(data.data(), ret, MSG_NOSIGNAL);
+            if (ret == -1) {
+                cerr << "Failed to send index.html data" << endl;
+                fclose(fd);
+                return false;
+            }
+
         } while (ret > 0);
 
         fclose(fd);
@@ -388,7 +402,7 @@ bool WebRadioInterface::send_index(Socket&& s)
     return false;
 }
 
-bool WebRadioInterface::send_mux_json(Socket&& s)
+bool WebRadioInterface::send_mux_json(Socket& s)
 {
     nlohmann::json j;
     j["Ensemble"]["Name"] = rx->getEnsembleName();
@@ -494,15 +508,23 @@ bool WebRadioInterface::send_mux_json(Socket&& s)
     headers += http_contenttype_json;
     headers += http_nocache;
     headers += "\r\n";
-    s.send(headers.data(), headers.size(), MSG_NOSIGNAL);
+    ssize_t ret = s.send(headers.data(), headers.size(), MSG_NOSIGNAL);
+    if (ret == -1) {
+        cerr << "Failed to send mux.json headers" << endl;
+        return false;
+    }
 
     const auto json_str = j.dump();
 
-    s.send(json_str.c_str(), json_str.size(), MSG_NOSIGNAL);
+    ret = s.send(json_str.c_str(), json_str.size(), MSG_NOSIGNAL);
+    if (ret == -1) {
+        cerr << "Failed to send mux.json data" << endl;
+        return false;
+    }
     return true;
 }
 
-bool WebRadioInterface::send_mp3(Socket&& s, const std::string& stream)
+bool WebRadioInterface::send_mp3(Socket& s, const std::string& stream)
 {
     for (const auto& srv : rx->getServiceList()) {
         if (sid_to_hex(srv.serviceId) == stream or
@@ -514,7 +536,11 @@ bool WebRadioInterface::send_mp3(Socket&& s, const std::string& stream)
                 headers += http_contenttype_mp3;
                 headers += http_nocache;
                 headers += "\r\n";
-                s.send(headers.data(), headers.size(), MSG_NOSIGNAL);
+                ssize_t ret = s.send(headers.data(), headers.size(), MSG_NOSIGNAL);
+                if (ret == -1) {
+                    cerr << "Failed to send mp3 headers" << endl;
+                    return false;
+                }
 
                 ProgrammeSender sender(move(s));
 
@@ -548,27 +574,58 @@ bool WebRadioInterface::send_mp3(Socket&& s, const std::string& stream)
     return false;
 }
 
-bool WebRadioInterface::send_fib(Socket&& s)
+bool WebRadioInterface::send_fic(Socket& s)
 {
     string headers = http_ok;
     headers += http_contenttype_data;
     headers += http_nocache;
     headers += "\r\n";
-    s.send(headers.data(), headers.size(), MSG_NOSIGNAL);
+    ssize_t ret = s.send(headers.data(), headers.size(), MSG_NOSIGNAL);
+    if (ret == -1) {
+        cerr << "Failed to send FIC headers" << endl;
+        return false;
+    }
 
     while (true) {
         unique_lock<mutex> lock(data_mut);
         while (fib_blocks.empty()) {
             new_fib_block_available.wait_for(lock, chrono::seconds(1));
         }
-        ssize_t ret = s.send(fib_blocks.front().data(),
+        ret = s.send(fib_blocks.front().data(),
                 fib_blocks.front().size(), MSG_NOSIGNAL);
-
         if (ret == -1) {
-            break;
+            cerr << "Failed to send FIC data" << endl;
+            return false;
         }
+
         fib_blocks.pop_front();
     }
+    return true;
+}
+
+bool WebRadioInterface::send_impulseresponse(Socket& s)
+{
+    string headers = http_ok;
+    headers += http_contenttype_data;
+    headers += http_nocache;
+    headers += "\r\n";
+    ssize_t ret = s.send(headers.data(), headers.size(), MSG_NOSIGNAL);
+    if (ret == -1) {
+        cerr << "Failed to send CIR headers" << endl;
+        return false;
+    }
+
+    unique_lock<mutex> lock(data_mut);
+    vector<float> cir_db(last_CIR.size());
+    std::transform(last_CIR.begin(), last_CIR.end(), cir_db.begin(),
+            [](float y) { return 10.0f * log10(y); });
+
+    ret = s.send(cir_db.data(), cir_db.size(), MSG_NOSIGNAL);
+    if (ret == -1) {
+        cerr << "Failed to send CIR data" << endl;
+        return false;
+    }
+
     return true;
 }
 
