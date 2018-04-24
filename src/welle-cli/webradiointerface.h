@@ -172,6 +172,7 @@ class WebRadioInterface : public RadioControllerInterface {
 
         // Send the signal spectrum, in dB, as a sequence of float values.
         bool send_spectrum(Socket& s);
+        bool send_null_spectrum(Socket& s);
 
         void check_decoders_required();
         std::list<tii_measurement_t> getTiiStats();

@@ -352,6 +352,9 @@ bool WebRadioInterface::dispatch_client(Socket&& client)
         else if (request.find("GET /spectrum HTTP") == 0) {
             return send_spectrum(s);
         }
+        else if (request.find("GET /nullspectrum HTTP") == 0) {
+            return send_null_spectrum(s);
+        }
         else {
             const regex regex_mp3(R"(^GET [/]mp3[/]([^ ]+) HTTP)");
             std::smatch match_mp3;
@@ -633,23 +636,10 @@ bool WebRadioInterface::send_impulseresponse(Socket& s)
     return true;
 }
 
-bool WebRadioInterface::send_spectrum(Socket& s)
+static constexpr size_t T_u = 2048;
+
+static bool send_fft_data(Socket& s, DSPCOMPLEX *spectrumBuffer)
 {
-    const size_t T_u = 2048;
-    vector<DSPCOMPLEX> spectrum_data(T_u);
-
-    // Get FFT buffer
-    DSPCOMPLEX* spectrumBuffer = spectrum_fft_handler.getVector();
-
-    size_t samples = input.getSpectrumSamples(spectrumBuffer, T_u);
-
-    // Continue only if we got data
-    if (samples <= 0)
-        return false;
-
-    // Do FFT to get the spectrum
-    spectrum_fft_handler.do_FFT();
-
     vector<float> spectrum(T_u);
 
     // Shift FFT samples
@@ -679,6 +669,42 @@ bool WebRadioInterface::send_spectrum(Socket& s)
     }
 
     return true;
+}
+
+bool WebRadioInterface::send_spectrum(Socket& s)
+{
+    // Get FFT buffer
+    DSPCOMPLEX* spectrumBuffer = spectrum_fft_handler.getVector();
+
+    size_t samples = input.getSpectrumSamples(spectrumBuffer, T_u);
+
+    // Continue only if we got data
+    if (samples <= 0)
+        return false;
+
+    // Do FFT to get the spectrum
+    spectrum_fft_handler.do_FFT();
+
+    return send_fft_data(s, spectrumBuffer);
+}
+
+bool WebRadioInterface::send_null_spectrum(Socket& s)
+{
+    // Get FFT buffer
+    DSPCOMPLEX* spectrumBuffer = spectrum_fft_handler.getVector();
+
+    lock_guard<mutex> lock(data_mut);
+    if (last_NULL.size() != T_u + 608) {
+        cerr << "Invalid NULL size " << last_NULL.size() << endl;
+        return false;
+    }
+
+    copy(last_NULL.begin(), last_NULL.begin() + T_u, spectrumBuffer);
+
+    // Do FFT to get the spectrum
+    spectrum_fft_handler.do_FFT();
+
+    return send_fft_data(s, spectrumBuffer);
 }
 
 WebRadioInterface::WebRadioInterface(CVirtualInput& in, int port, bool decode_all) :

@@ -15,13 +15,12 @@ body {
             <p>Ensemble:</p>
             <div id="ensembleinfo"></div>
             <div id="images"></div>
-            <div id="tiiinfo"></div>
             <div>Spectrum <canvas id="spectrum" width="512" height="150" style="border:1px solid #d3d3d3;">
                     Your browser doesn't support canvas</canvas>
-            </div>
-            <div>CIR: <canvas id="cir" width="512" height="150" style="border:1px solid #d3d3d3;">
+            CIR: <canvas id="cir" width="512" height="150" style="border:1px solid #d3d3d3;">
                     Your browser doesn't support canvas</canvas>
             </div>
+            <div id="tiiinfo"></div>
         </div>
         <div>
             <audio id="player" controls>
@@ -127,14 +126,22 @@ function populateEnsembleinfo() {
     r.send()
 };
 
-function plot(data, id, scalefactor, shiftfactor) {
+function plot(data, id, scalefactor, shiftfactor, plot_ix) {
     var canvas = document.getElementById(id);
     var ctx = canvas.getContext("2d");
-    ctx.fillStyle = "#111100";
-    ctx.fillRect(0,0,data.length,150);
+    if (plot_ix == 0) {
+        ctx.fillStyle = "#111100";
+        ctx.fillRect(0,0,data.length,150);
+    }
 
     ctx.beginPath();
-    ctx.strokeStyle="#FF4444";
+    colors = ["#FF4444", "#33FF55", "#778800"];
+    if (plot_ix < colors.length) {
+        ctx.strokeStyle=colors[plot_ix];
+    }
+    else {
+        ctx.strokeStyle=colors[0];
+    }
     var dataMax = 0;
     var dataMin = 1000;
     for (var i = 0; i < data.length; i++) {
@@ -170,8 +177,20 @@ function populateSpectrum() {
         var arrayBuffer = r.response;
         if (arrayBuffer) {
             var spec = new Float32Array(arrayBuffer);
-            plot(spec, "spectrum", 1, 25)
+            plot(spec, "spectrum", 2, 20, 0);
         }
+
+        r2 = new XMLHttpRequest();
+        r2.onload = function(oEvent) {
+            var arrayBuffer = r2.response;
+            if (arrayBuffer) {
+                var spec = new Float32Array(arrayBuffer);
+                plot(spec, "spectrum", 2, 20, 1);
+            }
+        };
+        r2.open("GET", "/nullspectrum", true);
+        r2.responseType = "arraybuffer";
+        r2.send(null);
     };
     r.open("GET", "/spectrum", true);
     r.responseType = "arraybuffer";
@@ -184,7 +203,7 @@ function populateCIR() {
         var arrayBuffer = r.response;
         if (arrayBuffer) {
             var cir = new Float32Array(arrayBuffer);
-            plot(cir, "cir", 4, 30)
+            plot(cir, "cir", 4, 30, 0)
         }
     };
     r.open("GET", "/impulseresponse", true);
