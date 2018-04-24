@@ -644,11 +644,11 @@ static bool send_fft_data(Socket& s, DSPCOMPLEX *spectrumBuffer, size_t T_u)
     vector<float> spectrum(T_u);
 
     // Shift FFT samples
-    const int half_Tu = T_u / 2;
-    for (int i = 0; i < half_Tu; i++) {
+    const size_t half_Tu = T_u / 2;
+    for (size_t i = 0; i < half_Tu; i++) {
         spectrum[i] = abs(spectrumBuffer[i + half_Tu]);
     }
-    for (int i = half_Tu; i < T_u; i++) {
+    for (size_t i = half_Tu; i < T_u; i++) {
         spectrum[i] = abs(spectrumBuffer[i - half_Tu]);
     }
 
@@ -695,7 +695,7 @@ bool WebRadioInterface::send_null_spectrum(Socket& s)
     DSPCOMPLEX* spectrumBuffer = spectrum_fft_handler.getVector();
 
     lock_guard<mutex> lock(data_mut);
-    if (last_NULL.size() != dabparams.T_null) {
+    if (last_NULL.size() != (size_t)dabparams.T_null) {
         cerr << "Invalid NULL size " << last_NULL.size() << endl;
         return false;
     }
