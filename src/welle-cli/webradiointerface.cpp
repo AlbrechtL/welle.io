@@ -352,6 +352,9 @@ bool WebRadioInterface::dispatch_client(Socket&& client)
         else if (request.find("GET /spectrum HTTP") == 0) {
             return send_spectrum(s);
         }
+        else if (request.find("GET /constellation HTTP") == 0) {
+            return send_constellation(s);
+        }
         else if (request.find("GET /nullspectrum HTTP") == 0) {
             return send_null_spectrum(s);
         }
@@ -636,9 +639,7 @@ bool WebRadioInterface::send_impulseresponse(Socket& s)
     return true;
 }
 
-static constexpr size_t T_u = 2048;
-
-static bool send_fft_data(Socket& s, DSPCOMPLEX *spectrumBuffer)
+static bool send_fft_data(Socket& s, DSPCOMPLEX *spectrumBuffer, size_t T_u)
 {
     vector<float> spectrum(T_u);
 
@@ -676,7 +677,7 @@ bool WebRadioInterface::send_spectrum(Socket& s)
     // Get FFT buffer
     DSPCOMPLEX* spectrumBuffer = spectrum_fft_handler.getVector();
 
-    size_t samples = input.getSpectrumSamples(spectrumBuffer, T_u);
+    size_t samples = input.getSpectrumSamples(spectrumBuffer, dabparams.T_u);
 
     // Continue only if we got data
     if (samples <= 0)
@@ -685,7 +686,7 @@ bool WebRadioInterface::send_spectrum(Socket& s)
     // Do FFT to get the spectrum
     spectrum_fft_handler.do_FFT();
 
-    return send_fft_data(s, spectrumBuffer);
+    return send_fft_data(s, spectrumBuffer, dabparams.T_u);
 }
 
 bool WebRadioInterface::send_null_spectrum(Socket& s)
@@ -694,20 +695,58 @@ bool WebRadioInterface::send_null_spectrum(Socket& s)
     DSPCOMPLEX* spectrumBuffer = spectrum_fft_handler.getVector();
 
     lock_guard<mutex> lock(data_mut);
-    if (last_NULL.size() != T_u + 608) {
+    if (last_NULL.size() != dabparams.T_null) {
         cerr << "Invalid NULL size " << last_NULL.size() << endl;
         return false;
     }
 
-    copy(last_NULL.begin(), last_NULL.begin() + T_u, spectrumBuffer);
+    copy(last_NULL.begin(), last_NULL.begin() + dabparams.T_u, spectrumBuffer);
 
     // Do FFT to get the spectrum
     spectrum_fft_handler.do_FFT();
 
-    return send_fft_data(s, spectrumBuffer);
+    return send_fft_data(s, spectrumBuffer, dabparams.T_u);
+}
+
+bool WebRadioInterface::send_constellation(Socket& s)
+{
+    const size_t decim = OfdmDecoder::constellationDecimation;
+    const size_t num_iqpoints = (dabparams.L-1) * dabparams.K / decim;
+    std::vector<float> phases(num_iqpoints);
+
+    lock_guard<mutex> lock(data_mut);
+    if (last_constellation.size() == num_iqpoints) {
+        phases.resize(num_iqpoints);
+        for (size_t i = 0; i < num_iqpoints; i++) {
+            const float y = 180.0f / (float)M_PI * std::arg(last_constellation[i]);
+            phases[i] = y;
+        }
+
+        string headers = http_ok;
+        headers += http_contenttype_data;
+        headers += http_nocache;
+        headers += "\r\n";
+        ssize_t ret = s.send(headers.data(), headers.size(), MSG_NOSIGNAL);
+        if (ret == -1) {
+            cerr << "Failed to send constellation headers" << endl;
+            return false;
+        }
+
+        size_t lengthBytes = phases.size() * sizeof(float);
+        ret = s.send(phases.data(), lengthBytes, MSG_NOSIGNAL);
+        if (ret == -1) {
+            cerr << "Failed to send constellation data" << endl;
+            return false;
+        }
+
+        return true;
+    }
+
+    return false;
 }
 
 WebRadioInterface::WebRadioInterface(CVirtualInput& in, int port, bool decode_all) :
+    dabparams(1),
     input(in),
     spectrum_fft_handler(2048),
     decode_all(decode_all)

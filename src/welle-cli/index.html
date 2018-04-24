@@ -38,6 +38,9 @@ table#servicetable th {
             CIR: <canvas id="cir" width="512" height="150" style="border:1px solid #d3d3d3;">
                     Your browser doesn't support canvas</canvas>
             </div>
+            <div>Constellation: <canvas id="constellation" width="300" height="180" style="border:1px solid #d3d3d3;">
+                    Your browser doesn't support canvas</canvas>
+            </div>
             <div id="tiiinfo"></div>
         </div>
         <div>
@@ -48,7 +51,7 @@ table#servicetable th {
     <script>
 var ensembleInfoTimer = setInterval(populateEnsembleinfo, 1000);
 
-var plotTimer = setInterval(populatePlots, 240);
+var plotTimer = setInterval(populatePlots, 480);
 
 function ensembleInfoTemplate() {
     var html = '<p>Label: <b>${name}</b></p>';
@@ -189,6 +192,7 @@ function plot(data, id, scalefactor, shiftfactor, plot_ix) {
 function populatePlots() {
     populateSpectrum();
     populateCIR();
+    populateConstellation();
 };
 
 function populateSpectrum() {
@@ -227,6 +231,39 @@ function populateCIR() {
         }
     };
     r.open("GET", "/impulseresponse", true);
+    r.responseType = "arraybuffer";
+    r.send(null);
+}
+
+function populateConstellation() {
+    var r = new XMLHttpRequest();
+    r.onload = function(oEvent) {
+        var arrayBuffer = r.response;
+        if (arrayBuffer) {
+            var data = new Float32Array(arrayBuffer);
+
+            var squeeze = 4;
+
+            var canvas = document.getElementById("constellation");
+            var ctx = canvas.getContext("2d");
+            ctx.fillStyle = "#111100";
+            ctx.fillRect(0,0,data.length / squeeze,180);
+
+            ctx.beginPath();
+            ctx.strokeStyle="rgba(255, 100, 0, 0.8)";
+            for (var i = 0; i < data.length; i++) {
+                var x = i / squeeze;
+                var y = (data[i] + 180) / 2;
+                // Draw a little cross
+                ctx.moveTo(x-1, y);
+                ctx.lineTo(x+1, y);
+                ctx.moveTo(x, y-1);
+                ctx.lineTo(x, y+1);
+            }
+            ctx.stroke();
+        }
+    };
+    r.open("GET", "/constellation", true);
     r.responseType = "arraybuffer";
     r.send(null);
 }

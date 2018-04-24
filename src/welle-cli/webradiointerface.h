@@ -174,9 +174,13 @@ class WebRadioInterface : public RadioControllerInterface {
         bool send_spectrum(Socket& s);
         bool send_null_spectrum(Socket& s);
 
+        // Send the constellation points, a sequence of phases between -180 and 180 .
+        bool send_constellation(Socket& s);
+
         void check_decoders_required();
         std::list<tii_measurement_t> getTiiStats();
 
+        DABParams dabparams;
         CVirtualInput& input;
         common_fft spectrum_fft_handler;
         mutable std::mutex data_mut;
