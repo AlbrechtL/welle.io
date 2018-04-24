@@ -8,6 +8,24 @@ body {
     background-color: linen;
     font-family: Verdana, sans-serif;
 }
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+th, td {
+    padding: 5px;
+    text-align: left;
+}
+table#servicetable tr:nth-child(even) {
+    background-color: #eee;
+}
+table#servicetable tr:nth-child(odd) {
+    background-color: linen;
+}
+table#servicetable th {
+    color: white;
+    background-color: #444;
+}
 </style>
     </head>
     <body>
@@ -38,14 +56,16 @@ function ensembleInfoTemplate() {
     html += '<p>Freq corr: ${FrequencyCorrection}</p>';
     html += '<p>Date:${year}-${month}-${day} ${hour}:${minutes} UTC</p>';
     html += '<p>Services:</p>';
-    html += '<ul>${services}</ul>';
+    html += '<table id="servicetable">'
+    html += '<tr><th>Label</th> <th>SId</th> <th>bitrate</th> <th>samplerate</th> <th>DLS</th> <th></th></tr>';
+    html += '${services}</table>';
     return html;
 }
 
 function serviceTemplate() {
-    var html = '<li>${Label} <b>${SId}</b> ${bitrate}kbps ${samplerate}Hz <i>${dls}</i>';
-    html += ' <button type=button onclick="setPlayerSource(${SId})">Play</button>';
-    html += '</li>';
+    var html = '<tr><td>${Label}</td> <td>${SId}</td> <td>${bitrate}kbps</td> <td>${samplerate}Hz</td> <td></i>${dls}</i></td>';
+    html += '<td><button type=button onclick="setPlayerSource(${SId})">Play</button></td>';
+    html += '</tr>';
     return html;
 }
 
