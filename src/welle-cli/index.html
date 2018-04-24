@@ -16,6 +16,9 @@ body {
             <div id="ensembleinfo"></div>
             <div id="images"></div>
             <div id="tiiinfo"></div>
+            <div>CIR: <canvas id="cir" width="512" height="150" style="border:1px solid #d3d3d3;">
+                    Your browser doesn't support canvas</canvas>
+            </div>
         </div>
         <div>
             <audio id="player" controls>
@@ -23,7 +26,9 @@ body {
             </audio>
         </div>
     <script>
-var ensembleInfoTimer = setInterval(populate_ensembleinfo, 1000);
+var ensembleInfoTimer = setInterval(populateEnsembleinfo, 1000);
+
+var cirTimer = setInterval(populateCIR, 240);
 
 function ensembleInfoTemplate() {
     var html = '<p>Label: <b>${name}</b></p>';
@@ -65,7 +70,7 @@ function parseTemplate(template, data) {
 }
 
 
-function populate_ensembleinfo() {
+function populateEnsembleinfo() {
     var r = new XMLHttpRequest();
     r.onreadystatechange = function () {
         if (r.readyState != 4 || r.status != 200) return;
@@ -118,6 +123,50 @@ function populate_ensembleinfo() {
     r.open("GET", "/mux.json", true);
     r.send()
 };
+
+function populateCIR() {
+    var r = new XMLHttpRequest();
+    r.onload = function(oEvent) {
+        var arrayBuffer = r.response;
+        if (arrayBuffer) {
+            var cir = new Float32Array(arrayBuffer);
+
+            var canvas = document.getElementById("cir");
+            var ctx = canvas.getContext("2d");
+            ctx.fillStyle = "#111100";
+            ctx.fillRect(0,0,cir.length,150);
+
+            ctx.beginPath();
+            ctx.strokeStyle="#FF0000";
+            var cirMax = 0;
+            var cirMin = 1000;
+            for (var i = 0; i < cir.length; i++) {
+                var cirScaled = 170-4*(cir[i] + 30);
+
+                if (cirMax < cirScaled) {
+                    cirMax = cirScaled;
+                }
+
+                if (cirMin > cirScaled) {
+                    cirMin = cirScaled;
+                }
+
+                if (i % 4 == 0) {
+                    ctx.moveTo(i/4, cirMin);
+                    ctx.lineTo(i/4, cirMax);
+
+                    cirMax = 0;
+                    cirMin = 1000;
+                }
+            }
+            ctx.stroke();
+        }
+    };
+    r.open("GET", "/impulseresponse", true);
+    r.responseType = "arraybuffer";
+    r.send(null);
+}
+
     </script>
     </body>
 </html>

@@ -620,7 +620,8 @@ bool WebRadioInterface::send_impulseresponse(Socket& s)
     std::transform(last_CIR.begin(), last_CIR.end(), cir_db.begin(),
             [](float y) { return 10.0f * log10(y); });
 
-    ret = s.send(cir_db.data(), cir_db.size(), MSG_NOSIGNAL);
+    size_t lengthBytes = cir_db.size() * sizeof(float);
+    ret = s.send(cir_db.data(), lengthBytes, MSG_NOSIGNAL);
     if (ret == -1) {
         cerr << "Failed to send CIR data" << endl;
         return false;
