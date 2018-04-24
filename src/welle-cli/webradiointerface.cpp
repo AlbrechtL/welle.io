@@ -349,6 +349,9 @@ bool WebRadioInterface::dispatch_client(Socket&& client)
         else if (request.find("GET /impulseresponse HTTP") == 0) {
             return send_impulseresponse(s);
         }
+        else if (request.find("GET /spectrum HTTP") == 0) {
+            return send_spectrum(s);
+        }
         else {
             const regex regex_mp3(R"(^GET [/]mp3[/]([^ ]+) HTTP)");
             std::smatch match_mp3;
@@ -630,7 +633,57 @@ bool WebRadioInterface::send_impulseresponse(Socket& s)
     return true;
 }
 
+bool WebRadioInterface::send_spectrum(Socket& s)
+{
+    const size_t T_u = 2048;
+    vector<DSPCOMPLEX> spectrum_data(T_u);
+
+    // Get FFT buffer
+    DSPCOMPLEX* spectrumBuffer = spectrum_fft_handler.getVector();
+
+    size_t samples = input.getSpectrumSamples(spectrumBuffer, T_u);
+
+    // Continue only if we got data
+    if (samples <= 0)
+        return false;
+
+    // Do FFT to get the spectrum
+    spectrum_fft_handler.do_FFT();
+
+    vector<float> spectrum(T_u);
+
+    // Shift FFT samples
+    const int half_Tu = T_u / 2;
+    for (int i = 0; i < half_Tu; i++) {
+        spectrum[i] = abs(spectrumBuffer[i + half_Tu]);
+    }
+    for (int i = half_Tu; i < T_u; i++) {
+        spectrum[i] = abs(spectrumBuffer[i - half_Tu]);
+    }
+
+    string headers = http_ok;
+    headers += http_contenttype_data;
+    headers += http_nocache;
+    headers += "\r\n";
+    ssize_t ret = s.send(headers.data(), headers.size(), MSG_NOSIGNAL);
+    if (ret == -1) {
+        cerr << "Failed to send spectrum headers" << endl;
+        return false;
+    }
+
+    size_t lengthBytes = spectrum.size() * sizeof(float);
+    ret = s.send(spectrum.data(), lengthBytes, MSG_NOSIGNAL);
+    if (ret == -1) {
+        cerr << "Failed to send spectrum data" << endl;
+        return false;
+    }
+
+    return true;
+}
+
 WebRadioInterface::WebRadioInterface(CVirtualInput& in, int port, bool decode_all) :
+    input(in),
+    spectrum_fft_handler(2048),
     decode_all(decode_all)
 {
     bool success = serverSocket.bind(port);

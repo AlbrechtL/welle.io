@@ -16,6 +16,9 @@ body {
             <div id="ensembleinfo"></div>
             <div id="images"></div>
             <div id="tiiinfo"></div>
+            <div>Spectrum <canvas id="spectrum" width="512" height="150" style="border:1px solid #d3d3d3;">
+                    Your browser doesn't support canvas</canvas>
+            </div>
             <div>CIR: <canvas id="cir" width="512" height="150" style="border:1px solid #d3d3d3;">
                     Your browser doesn't support canvas</canvas>
             </div>
@@ -28,7 +31,7 @@ body {
     <script>
 var ensembleInfoTimer = setInterval(populateEnsembleinfo, 1000);
 
-var cirTimer = setInterval(populateCIR, 240);
+var plotTimer = setInterval(populatePlots, 240);
 
 function ensembleInfoTemplate() {
     var html = '<p>Label: <b>${name}</b></p>';
@@ -124,42 +127,64 @@ function populateEnsembleinfo() {
     r.send()
 };
 
+function plot(data, id, scalefactor, shiftfactor) {
+    var canvas = document.getElementById(id);
+    var ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#111100";
+    ctx.fillRect(0,0,data.length,150);
+
+    ctx.beginPath();
+    ctx.strokeStyle="#FF4444";
+    var dataMax = 0;
+    var dataMin = 1000;
+    for (var i = 0; i < data.length; i++) {
+        var dataScaled = 170-scalefactor*(data[i] + shiftfactor);
+
+        if (dataMax < dataScaled) {
+            dataMax = dataScaled;
+        }
+
+        if (dataMin > dataScaled) {
+            dataMin = dataScaled;
+        }
+
+        if (i % 4 == 0) {
+            ctx.moveTo(i/4, dataMin);
+            ctx.lineTo(i/4, dataMax);
+
+            dataMax = 0;
+            dataMin = 1000;
+        }
+    }
+    ctx.stroke();
+};
+
+function populatePlots() {
+    populateSpectrum();
+    populateCIR();
+};
+
+function populateSpectrum() {
+    var r = new XMLHttpRequest();
+    r.onload = function(oEvent) {
+        var arrayBuffer = r.response;
+        if (arrayBuffer) {
+            var spec = new Float32Array(arrayBuffer);
+            plot(spec, "spectrum", 1, 25)
+        }
+    };
+    r.open("GET", "/spectrum", true);
+    r.responseType = "arraybuffer";
+    r.send(null);
+};
+
 function populateCIR() {
     var r = new XMLHttpRequest();
     r.onload = function(oEvent) {
         var arrayBuffer = r.response;
         if (arrayBuffer) {
             var cir = new Float32Array(arrayBuffer);
-
-            var canvas = document.getElementById("cir");
-            var ctx = canvas.getContext("2d");
-            ctx.fillStyle = "#111100";
-            ctx.fillRect(0,0,cir.length,150);
-
-            ctx.beginPath();
-            ctx.strokeStyle="#FF0000";
-            var cirMax = 0;
-            var cirMin = 1000;
-            for (var i = 0; i < cir.length; i++) {
-                var cirScaled = 170-4*(cir[i] + 30);
-
-                if (cirMax < cirScaled) {
-                    cirMax = cirScaled;
-                }
-
-                if (cirMin > cirScaled) {
-                    cirMin = cirScaled;
-                }
-
-                if (i % 4 == 0) {
-                    ctx.moveTo(i/4, cirMin);
-                    ctx.lineTo(i/4, cirMax);
-
-                    cirMax = 0;
-                    cirMin = 1000;
-                }
-            }
-            ctx.stroke();
+            plot(cir, "cir", 4, 30)
         }
     };
     r.open("GET", "/impulseresponse", true);

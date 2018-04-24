@@ -170,9 +170,14 @@ class WebRadioInterface : public RadioControllerInterface {
         // Send the impulse response, in dB, as a sequence of float values.
         bool send_impulseresponse(Socket& s);
 
+        // Send the signal spectrum, in dB, as a sequence of float values.
+        bool send_spectrum(Socket& s);
+
         void check_decoders_required();
         std::list<tii_measurement_t> getTiiStats();
 
+        CVirtualInput& input;
+        common_fft spectrum_fft_handler;
         mutable std::mutex data_mut;
         bool decode_all = false;
         bool synced = 0;
