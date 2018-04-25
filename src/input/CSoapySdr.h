@@ -63,12 +63,16 @@ public:
     virtual void setClockSource(const std::string& clock_source);
 
 private:
+    void decreaseGain();
+    void increaseGain();
+
     int32_t m_freq = 0;
     std::string m_driver_args;
     std::string m_antenna;
     std::string m_clock_source;
     SoapySDR::Device *m_device = nullptr;
     std::atomic<bool> m_running;
+    bool m_sw_agc = true;
 
     RingBuffer<DSPCOMPLEX> m_sampleBuffer;
     RingBuffer<DSPCOMPLEX> m_spectrumSampleBuffer;

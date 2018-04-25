@@ -45,8 +45,6 @@
 #include "ringbuffer.h"
 #include "radio-controller.h"
 
-class CRTL_SDR_Thread;
-
 // This class is a simple wrapper around the
 // rtlsdr library that is read is as dll
 // It does not do any processing

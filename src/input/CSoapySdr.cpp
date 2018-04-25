@@ -187,12 +187,43 @@ int32_t CSoapySdr::getSamplesToRead()
 float CSoapySdr::setGain(int32_t gainIndex)
 {
     if (m_device != nullptr) {
-        m_device->setGain(SOAPY_SDR_RX, 0, m_gains.at(gainIndex));
+        try {
+            m_device->setGain(SOAPY_SDR_RX, 0, m_gains.at(gainIndex));
+        }
+        catch (const out_of_range&) {
+            std::clog << "Soapy gain " << gainIndex << " is out of range" << std::endl;
+        }
         float g = m_device->getGain(SOAPY_SDR_RX, 0);
         std::clog << "Soapy gain is " << g << std::endl;
         return g;
     }
     return 0;
+}
+
+void CSoapySdr::increaseGain()
+{
+    if (m_device != nullptr) {
+        float current_gain = m_device->getGain(SOAPY_SDR_RX, 0);
+        for (const float g : m_gains) {
+            if (g > current_gain) {
+                m_device->setGain(SOAPY_SDR_RX, 0, g);
+                break;
+            }
+        }
+    }
+}
+
+void CSoapySdr::decreaseGain()
+{
+    if (m_device != nullptr) {
+        float current_gain = m_device->getGain(SOAPY_SDR_RX, 0);
+        for (auto it = m_gains.rbegin(); it != m_gains.rend(); ++it) {
+            if (*it > current_gain) {
+                m_device->setGain(SOAPY_SDR_RX, 0, *it);
+                break;
+            }
+        }
+    }
 }
 
 int32_t CSoapySdr::getGainCount()
@@ -202,7 +233,7 @@ int32_t CSoapySdr::getGainCount()
 
 void CSoapySdr::setAgc(bool AGC)
 {
-    (void)AGC;
+    m_sw_agc = AGC;
 }
 
 void CSoapySdr::setHwAgc(bool hwAGC)
@@ -246,7 +277,10 @@ void CSoapySdr::workerthread()
 
 void CSoapySdr::process(SoapySDR::Stream *stream)
 {
+    size_t frames = 0;
     while (m_running) {
+        frames++;
+
         // Stream MTU is in samples, not bytes.
         const size_t mtu = m_device->getStreamMTU(stream);
 
@@ -279,6 +313,24 @@ void CSoapySdr::process(SoapySDR::Stream *stream)
         }
         else {
             buf.resize(ret);
+
+            if (m_sw_agc and (frames % 200) == 0) {
+                float maxnorm = 0;
+                for (const DSPCOMPLEX& z : buf) {
+                    if (norm(z) > maxnorm) {
+                        maxnorm = norm(z);
+                    }
+                }
+
+                const float maxampl = sqrt(maxnorm);
+
+                if (maxampl > 0.5f) {
+                    decreaseGain();
+                }
+                else if (maxampl < 0.1f) {
+                    increaseGain();
+                }
+            }
 
             m_sampleBuffer.putDataIntoBuffer(buf.data(), ret);
             m_spectrumSampleBuffer.putDataIntoBuffer(buf.data(), ret);
