@@ -57,13 +57,14 @@ function ensembleInfoTemplate() {
     html += ' Freq corr: ${FrequencyCorrection}';
     html += ' Date:${year}-${month}-${day} ${hour}:${minutes} UTC</p>';
     html += '<table id="servicetable">'
-    html += '<tr><th>Label</th> <th>SId</th> <th>bitrate</th> <th>samplerate</th> <th>DLS</th> <th></th></tr>';
+    html += '<tr><th>Label</th> <th>SId</th> <th>bitrate</th> <th>samplerate</th> <th>DLS</th> <th>Audio Level</th> <th></th></tr>';
     html += '${services}</table>';
     return html;
 }
 
 function serviceTemplate() {
     var html = '<tr><td>${Label}</td> <td>${SId}</td> <td>${bitrate}kbps</td> <td>${samplerate}Hz</td> <td></i>${dls}</i></td>';
+    html += '<td><canvas id="${canvasid}" width="64" height="24" style="border:1px solid #d3d3d3;"></canvas></td>';
     html += '<td><button type=button onclick="setPlayerSource(${SId})">Play</button></td>';
     html += '</tr>';
     return html;
@@ -91,6 +92,31 @@ function parseTemplate(template, data) {
    });
 }
 
+function drawAudiolevels(services) {
+    for (key in services) {
+        var service = services[key];
+        var id = "canvas" + service["SId"];
+        var canvas = document.getElementById(id);
+        var ctx = canvas.getContext("2d");
+
+        var level_db_l = -90;
+        if (service["audiolevel"]["left"] > 0) {
+            level_db_l = Math.round(20 * Math.log10(service["audiolevel"]["left"] / 0x7fff));
+        }
+        var level_db_r = -90;
+        if (service["audiolevel"]["right"] > 0) {
+            level_db_r = Math.round(20 * Math.log10(service["audiolevel"]["right"] / 0x7fff));
+        }
+
+        var width_l = (level_db_l + 90) * 64/90;
+        var width_r = (level_db_r + 90) * 64/90;
+
+        ctx.fillStyle = "#444444";
+        ctx.fillRect(0,0,width_l,12);
+        ctx.fillStyle = "#DD4444";
+        ctx.fillRect(0,12,width_r,12);
+    }
+};
 
 function populateEnsembleinfo() {
     var r = new XMLHttpRequest();
@@ -108,6 +134,7 @@ function populateEnsembleinfo() {
             s["bitrate"] = service["Components"][0]["Subchannel"]["Bitrate"];
             s["samplerate"] = service["samplerate"];
             s["dls"] = service["dls"]["label"];
+            s["canvasid"] = "canvas" + service["SId"];
 
             imageshtml += ' <img width=128 height=96 src="' +
                 "data:" + service["mot"]["type"] + ";base64," +
@@ -141,6 +168,8 @@ function populateEnsembleinfo() {
 
         var tii_el = document.getElementById('tiiinfo');
         tii_el.innerHTML = tiihtml;
+
+        drawAudiolevels(data["Services"]);
     };
     r.open("GET", "/mux.json", true);
     r.send()
