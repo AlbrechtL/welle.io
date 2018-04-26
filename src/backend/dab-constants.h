@@ -95,7 +95,7 @@ struct Service {
     bool     hasPNum = false;
     bool     hasLanguage = false;
     int16_t  language = -1;
-    int16_t  programType = 0;
+    int16_t  programType = 0; // PTy, FIG0/17
     uint16_t pNum = 0;
 };
 

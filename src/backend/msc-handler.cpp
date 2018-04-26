@@ -69,7 +69,7 @@ bool MscHandler::addSubchannel(
     // check not already in list
     for (const auto& stream : streams) {
         if (stream.subCh.subChId == sub.subChId) {
-            return false;
+            return true;
         }
     }
 

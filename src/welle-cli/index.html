@@ -71,16 +71,19 @@ window.onload = function() {
         xhr.setRequestHeader("Content-type", "text/plain");
         xhr.send(channel);
     };
+};
 
+function refreshChannel() {
     var r = new XMLHttpRequest();
     r.onreadystatechange = function () {
         if (r.readyState != 4 || r.status != 200) return;
-        console.log("Set channel to " + r.responseText);
-        ch.value = r.responseText;
+        document.getElementById("channelselector").value = r.responseText;
     };
     r.open("GET", "/channel", true);
     r.send()
 };
+
+var channelRefreshTimer = setInterval(refreshChannel, 2000);
 
 var ensembleInfoTimer = setInterval(populateEnsembleinfo, 1000);
 
@@ -133,13 +136,16 @@ function drawAudiolevels(services) {
         var canvas = document.getElementById(id);
         var ctx = canvas.getContext("2d");
 
+
         var level_db_l = -90;
-        if (service["audiolevel"]["left"] > 0) {
-            level_db_l = Math.round(20 * Math.log10(service["audiolevel"]["left"] / 0x7fff));
-        }
         var level_db_r = -90;
-        if (service["audiolevel"]["right"] > 0) {
-            level_db_r = Math.round(20 * Math.log10(service["audiolevel"]["right"] / 0x7fff));
+        if (service["audiolevel"]) {
+            if (service["audiolevel"]["left"] > 0) {
+                level_db_l = Math.round(20 * Math.log10(service["audiolevel"]["left"] / 0x7fff));
+            }
+            if (service["audiolevel"]["right"] > 0) {
+                level_db_r = Math.round(20 * Math.log10(service["audiolevel"]["right"] / 0x7fff));
+            }
         }
 
         var width_l = (level_db_l + 90) * 64/90;
@@ -165,14 +171,27 @@ function populateEnsembleinfo() {
             var s = {};
             s["Label"] = service["Label"];
             s["SId"] = service["SId"];
-            s["bitrate"] = service["Components"][0]["Subchannel"]["Bitrate"];
+            if (service["Components"]) {
+                s["bitrate"] = service["Components"][0]["Subchannel"]["Bitrate"];
+            }
+            else {
+                s["bitrate"] = 0;
+            }
             s["samplerate"] = service["samplerate"];
-            s["dls"] = service["dls"]["label"];
+            if (service["dls"]) {
+                s["dls"] = service["dls"]["label"];
+            }
+            else {
+                s["dls"] = "";
+            }
+
             s["canvasid"] = "canvas" + service["SId"];
 
-            imageshtml += ' <img width=128 height=96 src="' +
-                "data:" + service["mot"]["type"] + ";base64," +
-                service["mot"]["data"] + '">';
+            if (service["mot"]) {
+                imageshtml += ' <img width=128 height=96 src="' +
+                    "data:" + service["mot"]["type"] + ";base64," +
+                    service["mot"]["data"] + '">';
+            }
 
             servicehtml += parseTemplate(serviceTemplate(), s)
         }

@@ -45,12 +45,11 @@ class ProgrammeSender {
         std::condition_variable cv;
         std::mutex mutex;
 
-        void cancel();
-
     public:
         ProgrammeSender(Socket&& s);
         bool send_mp3(const std::vector<uint8_t>& mp3data);
         void wait_for_termination();
+        void cancel();
 };
 
 struct Lame {
@@ -109,6 +108,7 @@ class WebProgrammeHandler : public ProgrammeHandlerInterface {
         void registerSender(ProgrammeSender *sender);
         void removeSender(ProgrammeSender *sender);
         bool needsToBeDecoded() const;
+        void cancelAll();
 
         struct dls_t {
             std::string label;
@@ -133,6 +133,9 @@ class WebProgrammeHandler : public ProgrammeHandlerInterface {
 class WebRadioInterface : public RadioControllerInterface {
     public:
         WebRadioInterface(CVirtualInput& in, int port, bool decode_all);
+        ~WebRadioInterface();
+        WebRadioInterface(const WebRadioInterface&) = delete;
+        WebRadioInterface& operator=(const WebRadioInterface&) = delete;
 
         void serve();
 
@@ -151,6 +154,8 @@ class WebRadioInterface : public RadioControllerInterface {
         virtual void onTIIMeasurement(tii_measurement_t&& m) override;
 
     private:
+        void retune(const std::string& channel);
+
         bool dispatch_client(Socket&& client);
         // Send the index.html file
         bool send_index(Socket& s);
@@ -181,13 +186,21 @@ class WebRadioInterface : public RadioControllerInterface {
         // Send the currently tuned channel
         bool send_channel(Socket& s);
 
+        // Handle a POST to /channel that will tune the receiver
+        bool handle_channel_post(Socket& s, const std::string& request);
+
+        void handle_phs();
         void check_decoders_required();
         std::list<tii_measurement_t> getTiiStats();
+
+        std::thread programme_handler_thread;
+        bool running = true;
 
         Channels channels;
         DABParams dabparams;
         CVirtualInput& input;
         common_fft spectrum_fft_handler;
+
         mutable std::mutex data_mut;
         bool decode_all = false;
         bool synced = 0;
@@ -195,10 +208,14 @@ class WebRadioInterface : public RadioControllerInterface {
         int last_fine_correction = 0;
         int last_coarse_correction = 0;
         dab_date_time_t last_dateTime;
+        std::deque<std::pair<message_level_t, std::string> > pending_messages;
+
+        mutable std::mutex plotdata_mut;
         std::vector<float> last_CIR;
         std::vector<DSPCOMPLEX> last_NULL;
         std::vector<DSPCOMPLEX> last_constellation;
-        std::deque<std::pair<message_level_t, std::string> > pending_messages;
+
+        mutable std::mutex fib_mut;
         std::condition_variable new_fib_block_available;
         std::deque<std::vector<uint8_t> > fib_blocks;
 
@@ -209,10 +226,11 @@ class WebRadioInterface : public RadioControllerInterface {
 
         Socket serverSocket;
 
+        mutable std::mutex rx_mut;
         std::unique_ptr<RadioReceiver> rx;
 
-        mutable std::mutex phs_decode_mut;
         using SId_t = uint32_t;
         std::map<SId_t, WebProgrammeHandler> phs;
         std::map<SId_t, bool> programmes_being_decoded;
+        std::condition_variable phs_changed;
 };

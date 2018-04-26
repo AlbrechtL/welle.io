@@ -72,10 +72,6 @@ ProgrammeSender::ProgrammeSender(Socket&& s) :
 void ProgrammeSender::cancel()
 {
     s.close();
-    std::unique_lock<std::mutex> lock(mutex);
-    running = false;
-    lock.unlock();
-    cv.notify_all();
 }
 
 bool ProgrammeSender::send_mp3(const std::vector<uint8_t>& mp3Data)
@@ -88,7 +84,11 @@ bool ProgrammeSender::send_mp3(const std::vector<uint8_t>& mp3Data)
 
     ssize_t ret = s.send(mp3Data.data(), mp3Data.size(), flags);
     if (ret == -1) {
-        cancel();
+        s.close();
+        std::unique_lock<std::mutex> lock(mutex);
+        running = false;
+        lock.unlock();
+        cv.notify_all();
         return false;
     }
 
@@ -99,7 +99,7 @@ void ProgrammeSender::wait_for_termination()
 {
     std::unique_lock<std::mutex> lock(mutex);
     while (running) {
-        cv.wait(lock);
+        cv.wait_for(lock, chrono::seconds(2));
     }
 }
 
@@ -136,6 +136,13 @@ bool WebProgrammeHandler::needsToBeDecoded() const
     return not senders.empty();
 }
 
+void WebProgrammeHandler::cancelAll()
+{
+    std::unique_lock<std::mutex> lock(senders_mutex);
+    for (auto& s : senders) {
+        s->cancel();
+    }
+}
 
 WebProgrammeHandler::dls_t WebProgrammeHandler::getDLS() const
 {
@@ -276,7 +283,7 @@ void WebRadioInterface::check_decoders_required()
         return;
     }
 
-    std::unique_lock<std::mutex> lock(phs_decode_mut);
+    lock_guard<mutex> lock(rx_mut);
     for (auto& s : rx->getServiceList()) {
         const auto sid = s.serviceId;
 
@@ -313,6 +320,60 @@ void WebRadioInterface::check_decoders_required()
                 " because no handler exists!" << endl;
         }
     }
+    phs_changed.notify_all();
+}
+
+void WebRadioInterface::retune(const std::string& channel)
+{
+    auto freq = channels.getFrequency(channel);
+    if (freq == 0) {
+        cerr << "Invalid channel: " << channel << endl;
+        return;
+    }
+
+    cerr << "Retune to " << freq << endl;
+    {
+        unique_lock<mutex> lock(rx_mut);
+
+        cerr << "Destroy RX" << endl;
+        rx.reset();
+
+        for (auto& ph : phs) {
+            cerr << "Cancel ph " << ph.first << endl;
+            ph.second.cancelAll();
+        }
+
+        for (auto& ph : phs) {
+            cerr << "Wait on ph " << ph.first << endl;
+            while (ph.second.needsToBeDecoded() and
+                    programmes_being_decoded[ph.first]) {
+                phs_changed.wait_for(lock, chrono::seconds(1));
+            }
+        }
+
+        this_thread::sleep_for(chrono::seconds(2));
+
+        cerr << "Clearing" << endl;
+
+        phs.clear();
+        programmes_being_decoded.clear();
+        tiis.clear();
+
+        cerr << "Set frequency" << endl;
+        input.setFrequency(freq);
+    }
+
+    {
+        cerr << "Restart RX" << endl;
+        lock_guard<mutex> lock(rx_mut);
+        rx = make_unique<RadioReceiver>(*this, input);
+
+        if (not rx) {
+            throw runtime_error("Could not initialise WebRadioInterface");
+        }
+
+        rx->restart(false);
+    }
 }
 
 bool WebRadioInterface::dispatch_client(Socket&& client)
@@ -335,6 +396,15 @@ bool WebRadioInterface::dispatch_client(Socket&& client)
         return false;
     }
     else {
+        while (true) {
+            unique_lock<mutex> lock(data_mut);
+            if (rx) {
+                break;
+            }
+            lock.unlock();
+            this_thread::sleep_for(chrono::seconds(1));
+        }
+
         buf.resize(ret);
         string request(buf.begin(), buf.end());
 
@@ -359,8 +429,11 @@ bool WebRadioInterface::dispatch_client(Socket&& client)
         else if (request.find("GET /nullspectrum HTTP") == 0) {
             return send_null_spectrum(s);
         }
-        if (request.find("GET /channel HTTP") == 0) {
+        else if (request.find("GET /channel HTTP") == 0) {
             return send_channel(s);
+        }
+        else if (request.find("POST /channel HTTP") == 0) {
+            return handle_channel_post(s, request);
         }
         else {
             const regex regex_mp3(R"(^GET [/]mp3[/]([^ ]+) HTTP)");
@@ -368,9 +441,11 @@ bool WebRadioInterface::dispatch_client(Socket&& client)
             if (regex_search(request, match_mp3, regex_mp3)) {
                 return send_mp3(s, match_mp3[1]);
             }
+            else {
+                cerr << "Could not understand request " << request << endl;
+            }
         }
 
-        cerr << "Could not understand request " << request << endl;
     }
 
     string headers = http_404;
@@ -418,76 +493,83 @@ bool WebRadioInterface::send_index(Socket& s)
 bool WebRadioInterface::send_mux_json(Socket& s)
 {
     nlohmann::json j;
-    j["Ensemble"]["Name"] = rx->getEnsembleName();
+    {
+        lock_guard<mutex> lock(rx_mut);
+        j["Ensemble"]["Name"] = rx->getEnsembleName();
 
-    nlohmann::json j_services;
-    for (const auto& s : rx->getServiceList()) {
-        string urlmp3 = "/mp3/" + sid_to_hex(s.serviceId);
-        nlohmann::json j_srv = {
-            {"SId", sid_to_hex(s.serviceId)},
-            {"Label", s.serviceLabel.label},
-            {"url_mp3", urlmp3}};
+        nlohmann::json j_services;
+        for (const auto& s : rx->getServiceList()) {
+            string urlmp3 = "/mp3/" + sid_to_hex(s.serviceId);
+            nlohmann::json j_srv = {
+                {"SId", sid_to_hex(s.serviceId)},
+                {"Label", s.serviceLabel.label},
+                {"url_mp3", urlmp3}};
 
-        nlohmann::json j_components;
+            nlohmann::json j_components;
 
-        for (const auto& sc : rx->getComponents(s)) {
-            nlohmann::json j_sc = {
-                {"ComponentNr", sc.componentNr},
-                {"ASCTy",
-                    (sc.audioType() == AudioServiceComponentType::DAB ? "DAB" :
-                     sc.audioType() == AudioServiceComponentType::DABPlus ? "DAB+" :
-                     "unknown") } };
+            for (const auto& sc : rx->getComponents(s)) {
+                nlohmann::json j_sc = {
+                    {"ComponentNr", sc.componentNr},
+                    {"ASCTy",
+                        (sc.audioType() == AudioServiceComponentType::DAB ? "DAB" :
+                         sc.audioType() == AudioServiceComponentType::DABPlus ? "DAB+" :
+                         "unknown") } };
 
-            const auto& sub = rx->getSubchannel(sc);
-            j_sc["Subchannel"] = {
-                { "Subchannel_id", sub.subChId},
-                { "Bitrate", sub.bitrate()},
-                { "SAd", sub.startAddr}};
+                const auto& sub = rx->getSubchannel(sc);
+                j_sc["Subchannel"] = {
+                    { "Subchannel_id", sub.subChId},
+                    { "Bitrate", sub.bitrate()},
+                    { "SAd", sub.startAddr}};
 
-            j_components.push_back(j_sc);
-        }
-        j_srv["Components"] = j_components;
-
-        try {
-            const auto& wph = phs.at(s.serviceId);
-            nlohmann::json j_audio = {
-                {"left", wph.last_audioLevel_L},
-                {"right", wph.last_audioLevel_R}};
-            j_srv["audiolevel"] = j_audio;
-
-            j_srv["channels"] = wph.stereo ? 2 : 1;
-            j_srv["samplerate"] = wph.rate;
-
-            auto mot = wph.getMOT_base64();
-            nlohmann::json j_mot = {
-                {"data", mot.data},
-                {"time", mot.time}};
-            switch (mot.subtype) {
-                case MOTType::Unknown:
-                    j_mot["type"] = "application/octet-stream";
-                    break;
-                case MOTType::JPEG:
-                    j_mot["type"] = "image/jpeg";
-                    break;
-                case MOTType::PNG:
-                    j_mot["type"] = "image/png";
-                    break;
+                j_components.push_back(j_sc);
             }
-            j_srv["mot"] = j_mot;
+            j_srv["Components"] = j_components;
 
-            auto dls = wph.getDLS();
-            nlohmann::json j_dls = {
-                {"label", dls.label},
-                {"time", dls.time}};
-            j_srv["dls"] = j_dls;
-        }
-        catch (const out_of_range&) {
-            j_srv["audiolevel"] = nullptr;
-        }
+            try {
+                const auto& wph = phs.at(s.serviceId);
+                nlohmann::json j_audio = {
+                    {"left", wph.last_audioLevel_L},
+                    {"right", wph.last_audioLevel_R}};
+                j_srv["audiolevel"] = j_audio;
 
-        j_services.push_back(j_srv);
+                j_srv["channels"] = wph.stereo ? 2 : 1;
+                j_srv["samplerate"] = wph.rate;
+
+                auto mot = wph.getMOT_base64();
+                nlohmann::json j_mot = {
+                    {"data", mot.data},
+                    {"time", mot.time}};
+                switch (mot.subtype) {
+                    case MOTType::Unknown:
+                        j_mot["type"] = "application/octet-stream";
+                        break;
+                    case MOTType::JPEG:
+                        j_mot["type"] = "image/jpeg";
+                        break;
+                    case MOTType::PNG:
+                        j_mot["type"] = "image/png";
+                        break;
+                }
+                j_srv["mot"] = j_mot;
+
+                auto dls = wph.getDLS();
+                nlohmann::json j_dls = {
+                    {"label", dls.label},
+                    {"time", dls.time}};
+                j_srv["dls"] = j_dls;
+            }
+            catch (const out_of_range&) {
+                j_srv["audiolevel"] = nullptr;
+                j_srv["channels"] = 0;
+                j_srv["samplerate"] = 0;
+                j_srv["mot"] = nullptr;
+                j_srv["dls"] = nullptr;
+            }
+
+            j_services.push_back(j_srv);
+        }
+        j["Services"] = j_services;
     }
-    j["Services"] = j_services;
 
     {
         lock_guard<mutex> lock(data_mut);
@@ -506,14 +588,14 @@ bool WebRadioInterface::send_mux_json(Socket& s)
         j["FrequencyCorrection"] =
             last_fine_correction + last_coarse_correction;
 
-    }
-    for (const auto& tii : getTiiStats()) {
-        j["TII"].push_back({
-                {"comb", tii.comb},
-                {"pattern", tii.pattern},
-                {"delay", tii.delay_samples},
-                {"delay_km", tii.getDelayKm()},
-                {"error", tii.error}});
+        for (const auto& tii : getTiiStats()) {
+            j["TII"].push_back({
+                    {"comb", tii.comb},
+                    {"pattern", tii.pattern},
+                    {"delay", tii.delay_samples},
+                    {"delay_km", tii.getDelayKm()},
+                    {"error", tii.error}});
+        }
     }
 
 
@@ -600,7 +682,7 @@ bool WebRadioInterface::send_fic(Socket& s)
     }
 
     while (true) {
-        unique_lock<mutex> lock(data_mut);
+        unique_lock<mutex> lock(fib_mut);
         while (fib_blocks.empty()) {
             new_fib_block_available.wait_for(lock, chrono::seconds(1));
         }
@@ -628,7 +710,7 @@ bool WebRadioInterface::send_impulseresponse(Socket& s)
         return false;
     }
 
-    unique_lock<mutex> lock(data_mut);
+    lock_guard<mutex> lock(plotdata_mut);
     vector<float> cir_db(last_CIR.size());
     std::transform(last_CIR.begin(), last_CIR.end(), cir_db.begin(),
             [](float y) { return 10.0f * log10(y); });
@@ -698,7 +780,7 @@ bool WebRadioInterface::send_null_spectrum(Socket& s)
     // Get FFT buffer
     DSPCOMPLEX* spectrumBuffer = spectrum_fft_handler.getVector();
 
-    lock_guard<mutex> lock(data_mut);
+    lock_guard<mutex> lock(plotdata_mut);
     if (last_NULL.size() != (size_t)dabparams.T_null) {
         cerr << "Invalid NULL size " << last_NULL.size() << endl;
         return false;
@@ -718,7 +800,7 @@ bool WebRadioInterface::send_constellation(Socket& s)
     const size_t num_iqpoints = (dabparams.L-1) * dabparams.K / decim;
     std::vector<float> phases(num_iqpoints);
 
-    lock_guard<mutex> lock(data_mut);
+    lock_guard<mutex> lock(plotdata_mut);
     if (last_constellation.size() == num_iqpoints) {
         phases.resize(num_iqpoints);
         for (size_t i = 0; i < num_iqpoints; i++) {
@@ -783,6 +865,31 @@ bool WebRadioInterface::send_channel(Socket& s)
     return true;
 }
 
+bool WebRadioInterface::handle_channel_post(Socket& s, const std::string& request)
+{
+    auto header_end_ix = request.find("\r\n\r\n");
+    if (header_end_ix != string::npos) {
+        auto channel = request.substr(header_end_ix + 4);
+
+        cerr << "POST channel: " << channel << endl;
+
+        retune(channel);
+
+        string response = http_ok;
+        response += http_contenttype_text;
+        response += http_nocache;
+        response += "\r\n";
+        response += "Retuning...";
+        ssize_t ret = s.send(response.data(), response.size(), MSG_NOSIGNAL);
+        if (ret == -1) {
+            cerr << "Failed to send frequency" << endl;
+            return false;
+        }
+        return true;
+    }
+    return false;
+}
+
 WebRadioInterface::WebRadioInterface(CVirtualInput& in, int port, bool decode_all) :
     dabparams(1),
     input(in),
@@ -804,36 +911,53 @@ WebRadioInterface::WebRadioInterface(CVirtualInput& in, int port, bool decode_al
 
     rx->restart(false);
 
-    cerr << "Wait for sync" << endl;
-    while (not synced) {
-        this_thread::sleep_for(chrono::seconds(3));
-    }
+    programme_handler_thread = thread(&WebRadioInterface::handle_phs, this);
+}
 
-    // Wait for the number of services to converge
-    ssize_t num_services = -1;
-    while (true) {
-        this_thread::sleep_for(chrono::seconds(3));
-        auto list = rx->getServiceList();
-        if (num_services == (ssize_t)list.size()) {
-            cerr << "Found " << num_services << " services" << endl;
-            break;
+WebRadioInterface::~WebRadioInterface()
+{
+    running = false;
+    if (programme_handler_thread.joinable()) {
+        programme_handler_thread.join();
+    }
+}
+
+void WebRadioInterface::handle_phs()
+{
+    while (running) {
+        this_thread::sleep_for(chrono::seconds(2));
+        {
+            lock_guard<mutex> lock(data_mut);
+            if (not rx) {
+                continue;
+            }
         }
-        num_services = list.size();
-    }
 
-    for (auto& s : rx->getServiceList()) {
-        WebProgrammeHandler ph(s.serviceId);
-        phs.emplace(std::make_pair(s.serviceId, move(ph)));
+        lock_guard<mutex> lock(rx_mut);
+        for (auto& s : rx->getServiceList()) {
+            if (phs.count(s.serviceId) == 0) {
+                WebProgrammeHandler ph(s.serviceId);
+                phs.emplace(std::make_pair(s.serviceId, move(ph)));
 
-        if (decode_all) {
-            bool success = rx->addServiceToDecode(phs.at(s.serviceId), "", s);
-            if (not success) {
-                cerr << "Tune to 0x" << sid_to_hex(s.serviceId) <<
-                    " failed" << endl;
+            }
+            else if (decode_all) {
+                auto scs = rx->getComponents(s);
+                for (auto& sc : scs) {
+                    if (sc.transportMode() == TransportMode::Audio) {
+                        bool success = rx->addServiceToDecode(
+                                phs.at(s.serviceId), "", s);
+
+                        if (not success) {
+                            cerr << "Tune to 0x" << sid_to_hex(s.serviceId) <<
+                                " failed" << endl;
+                        }
+                    }
+                }
             }
         }
     }
 }
+
 
 void WebRadioInterface::serve()
 {
@@ -883,7 +1007,10 @@ void WebRadioInterface::onSyncChange(char isSync)
 
 void WebRadioInterface::onSignalPresence(bool isSignal) { (void)isSignal; }
 void WebRadioInterface::onServiceDetected(uint32_t sId, const std::string& label)
-{(void)sId; (void)label; }
+{
+    (void)sId; (void)label;
+}
+
 void WebRadioInterface::onNewEnsembleName(const std::string& name) {(void)name; }
 
 void WebRadioInterface::onDateTimeUpdate(const dab_date_time_t& dateTime)
@@ -898,7 +1025,7 @@ void WebRadioInterface::onFIBDecodeSuccess(bool crcCheckOk, const uint8_t* fib)
         return;
     }
 
-    lock_guard<mutex> lock(data_mut);
+    lock_guard<mutex> lock(fib_mut);
 
     // Convert the fib bitvector to bytes
     vector<uint8_t> buf(32);
@@ -916,23 +1043,25 @@ void WebRadioInterface::onFIBDecodeSuccess(bool crcCheckOk, const uint8_t* fib)
     if (fib_blocks.size() > 3*250) { // six seconds
         fib_blocks.pop_front();
     }
+
+    new_fib_block_available.notify_one();
 }
 
 void WebRadioInterface::onNewImpulseResponse(std::vector<float>&& data)
 {
-    lock_guard<mutex> lock(data_mut);
+    lock_guard<mutex> lock(plotdata_mut);
     last_CIR = move(data);
 }
 
 void WebRadioInterface::onNewNullSymbol(std::vector<DSPCOMPLEX>&& data)
 {
-    lock_guard<mutex> lock(data_mut);
+    lock_guard<mutex> lock(plotdata_mut);
     last_NULL = move(data);
 }
 
 void WebRadioInterface::onConstellationPoints(std::vector<DSPCOMPLEX>&& data)
 {
-    lock_guard<mutex> lock(data_mut);
+    lock_guard<mutex> lock(plotdata_mut);
     last_constellation = move(data);
 }
 
@@ -957,14 +1086,11 @@ list<tii_measurement_t> WebRadioInterface::getTiiStats()
 {
     list<tii_measurement_t> l;
 
-    lock_guard<mutex> lock(data_mut);
     for (const auto& cp_list : tiis) {
         const auto comb = cp_list.first.first;
         const auto pattern = cp_list.first.second;
 
         if (cp_list.second.size() < 5) {
-            cerr << "Skip TII " << comb << " " << pattern << " with " <<
-                cp_list.second.size() << " measurements" << endl;
             continue;
         }
 
