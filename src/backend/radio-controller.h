@@ -153,18 +153,19 @@ class ProgrammeHandlerInterface {
 class InputInterface {
     public:
         virtual ~InputInterface() {}
-        virtual void setFrequency(int32_t frequency) = 0;
+        virtual void setFrequency(int frequency) = 0;
+        virtual int getFrequency(void) const = 0;
         virtual bool restart(void) = 0;
         virtual void stop(void) = 0;
         virtual void reset(void) = 0;
         virtual int32_t getSamples(DSPCOMPLEX* buffer, int32_t size) = 0;
         virtual int32_t getSpectrumSamples(DSPCOMPLEX* buffer, int32_t size) = 0;
         virtual int32_t getSamplesToRead(void) = 0;
-        virtual float setGain(int32_t gain) = 0;
-        virtual int32_t getGainCount(void) = 0;
+        virtual float setGain(int gain) = 0;
+        virtual int getGainCount(void) = 0;
         virtual void setAgc(bool agc) = 0;
         virtual void setHwAgc(bool hwAGC) = 0;
-        virtual bool isHwAgcSupported(void) { return false; }
+        virtual bool isHwAgcSupported(void) const { return false; }
         virtual std::string getName(void) = 0;
 };
 

@@ -131,13 +131,19 @@ CAirspy::~CAirspy(void)
     airspy_exit();
 }
 
-void CAirspy::setFrequency(int32_t nf)
+void CAirspy::setFrequency(int nf)
 {
+    freq = nf;
     int result = airspy_set_freq(device, nf);
 
     if (result != AIRSPY_SUCCESS) {
         std::clog  << "Airspy:" <<"airspy_set_freq() failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")" << std::endl;
     }
+}
+
+int CAirspy::getFrequency() const
+{
+    return freq;
 }
 
 bool CAirspy::restart(void)
@@ -275,7 +281,7 @@ int32_t CAirspy::getSamplesToRead(void)
     return SampleBuffer.GetRingBufferReadAvailable();
 }
 
-int32_t CAirspy::getGainCount()
+int CAirspy::getGainCount()
 {
     return 21;
 }

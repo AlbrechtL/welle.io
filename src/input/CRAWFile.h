@@ -54,15 +54,16 @@ public:
     ~CRAWFile(void);
 
     // Interface methods
-    void setFrequency(int32_t Frequency);
+    void setFrequency(int Frequency);
+    int getFrequency(void) const;
     int32_t getSamples(DSPCOMPLEX*, int32_t);
     int32_t getSpectrumSamples(DSPCOMPLEX* V, int32_t size);
     int32_t getSamplesToRead(void);
     bool restart(void);
     void stop(void);
     void reset(void);
-    float setGain(int32_t Gain);
-    int32_t getGainCount(void);
+    float setGain(int Gain);
+    int getGainCount(void);
     void setAgc(bool AGC);
     void setHwAgc(bool hwAGC);
     std::string getName(void);

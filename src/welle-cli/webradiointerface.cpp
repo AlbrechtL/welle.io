@@ -40,6 +40,7 @@ using namespace std;
 
 static const char* http_ok = "HTTP/1.0 200 OK\r\n";
 static const char* http_404 = "HTTP/1.0 404 Not Found\r\n";
+static const char* http_500 = "HTTP/1.0 500 Internal Server Error\r\n";
 static const char* http_503 = "HTTP/1.0 503 Service Unavailable\r\n";
 static const char* http_contenttype_mp3 = "Content-Type: audio/mpeg\r\n";
 static const char* http_contenttype_text = "Content-Type: text/plain\r\n";
@@ -357,6 +358,9 @@ bool WebRadioInterface::dispatch_client(Socket&& client)
         }
         else if (request.find("GET /nullspectrum HTTP") == 0) {
             return send_null_spectrum(s);
+        }
+        if (request.find("GET /channel HTTP") == 0) {
+            return send_channel(s);
         }
         else {
             const regex regex_mp3(R"(^GET [/]mp3[/]([^ ]+) HTTP)");
@@ -743,6 +747,40 @@ bool WebRadioInterface::send_constellation(Socket& s)
     }
 
     return false;
+}
+
+bool WebRadioInterface::send_channel(Socket& s)
+{
+    const auto freq = input.getFrequency();
+
+    try {
+        const auto chan = channels.getChannelForFrequency(freq);
+
+        string response = http_ok;
+        response += http_contenttype_text;
+        response += http_nocache;
+        response += "\r\n";
+        response += chan;
+        ssize_t ret = s.send(response.data(), response.size(), MSG_NOSIGNAL);
+        if (ret == -1) {
+            cerr << "Failed to send frequency" << endl;
+            return false;
+        }
+    }
+    catch (const out_of_range& e) {
+        string response = http_500;
+        response += http_contenttype_text;
+        response += http_nocache;
+        response += "\r\n";
+        response += "Error: ";
+        response += e.what();
+        ssize_t ret = s.send(response.data(), response.size(), MSG_NOSIGNAL);
+        if (ret == -1) {
+            cerr << "Failed to send frequency 500" << endl;
+            return false;
+        }
+    }
+    return true;
 }
 
 WebRadioInterface::WebRadioInterface(CVirtualInput& in, int port, bool decode_all) :

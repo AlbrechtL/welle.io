@@ -47,6 +47,7 @@ public:
     std::string getCurrentChannel(void);
     int getCurrentFrequency(void);
     int getCurrentIndex(void);
+    std::string getChannelForFrequency(int frequency);
 
     static std::string firstChannel;
 

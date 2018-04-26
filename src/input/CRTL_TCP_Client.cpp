@@ -67,10 +67,15 @@ CRTL_TCP_Client::~CRTL_TCP_Client(void)
     stop();
 }
 
-void CRTL_TCP_Client::setFrequency(int32_t newFrequency)
+void CRTL_TCP_Client::setFrequency(int newFrequency)
 {
     frequency = newFrequency;
-    sendVFO (newFrequency);
+    sendVFO(newFrequency);
+}
+
+int CRTL_TCP_Client::getFrequency() const
+{
+    return frequency;
 }
 
 bool CRTL_TCP_Client::restart(void)
@@ -321,7 +326,7 @@ void CRTL_TCP_Client::setHwAgc(bool hwAGC)
     sendCommand(0x08, hwAGC ? 1 : 0);
 }
 
-bool CRTL_TCP_Client::isHwAgcSupported()
+bool CRTL_TCP_Client::isHwAgcSupported() const
 {
     return true;
 }

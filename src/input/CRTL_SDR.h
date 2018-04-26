@@ -60,20 +60,21 @@ public:
     int32_t getSamples(DSPCOMPLEX *buffer, int32_t size);
     int32_t getSpectrumSamples(DSPCOMPLEX *buffer, int32_t size);
     int32_t getSamplesToRead(void);
-    void setFrequency(int32_t Frequency);
-    float setGain(int32_t gain_index);
-    int32_t getGainCount(void);
+    void setFrequency(int Frequency);
+    int getFrequency(void) const;
+    float setGain(int gain_index);
+    int getGainCount(void);
     void setAgc(bool AGC);
     void setHwAgc(bool hwAGC);
-    bool isHwAgcSupported();
+    bool isHwAgcSupported() const;
     std::string getName(void);
     CDeviceID getID(void);
 
 private:
     std::thread agcThread;
     RadioControllerInterface& radioController;
-    int32_t lastFrequency;
-    int32_t frequencyOffset = 0;
+    int lastFrequency;
+    int frequencyOffset = 0;
     int currentGain = 0;
     bool isAGC;
     bool isHwAGC;
@@ -83,7 +84,7 @@ private:
 
     bool open;
     std::vector<int> gains;
-    uint32_t currentGainIndex;
+    int currentGainIndex;
     uint8_t minAmplitude;
     uint8_t maxAmplitude;
 

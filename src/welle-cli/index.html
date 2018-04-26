@@ -30,6 +30,7 @@ table#servicetable th {
     </head>
     <body>
         <div>
+            <div>Channel: <select id="channelselector" name="channel"></select></div>
             <div id="ensembleinfo"></div>
             <div id="images"></div>
             <div>Spectrum <canvas id="spectrum" width="512" height="150" style="border:1px solid #d3d3d3;">
@@ -47,7 +48,40 @@ table#servicetable th {
                 <!--<source src="/mp3/0x4f57" type="audio/mpeg"> -->
             </audio>
         </div>
-    <script>
+    <script type="text/javascript">
+
+var channels = [ "5A", "5B", "5C", "5D", "6A", "6B", "6C", "6D", "7A", "7B",
+"7C", "7D", "8A", "8B", "8C", "8D", "9A", "9B", "9C", "9D", "10A", "10B",
+"10C", "10D", "11A", "11B", "11C", "11D", "12A", "12B", "12C", "12D", "13A",
+"13B", "13C", "13D", "13E", "13F"];
+
+window.onload = function() {
+    var ch = document.getElementById("channelselector");
+
+    for (c in channels) {
+        var opt = document.createElement("option");
+        opt.text = channels[c];
+        ch.options.add(opt, -1);
+    }
+
+    ch.onchange = function() {
+        var channel = document.getElementById("channelselector").value;
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", '/channel', true);
+        xhr.setRequestHeader("Content-type", "text/plain");
+        xhr.send(channel);
+    };
+
+    var r = new XMLHttpRequest();
+    r.onreadystatechange = function () {
+        if (r.readyState != 4 || r.status != 200) return;
+        console.log("Set channel to " + r.responseText);
+        ch.value = r.responseText;
+    };
+    r.open("GET", "/channel", true);
+    r.send()
+};
+
 var ensembleInfoTimer = setInterval(populateEnsembleinfo, 1000);
 
 var plotTimer = setInterval(populatePlots, 480);

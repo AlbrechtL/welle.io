@@ -121,10 +121,15 @@ CRTL_SDR::~CRTL_SDR(void)
     open = false;
 }
 
-void CRTL_SDR::setFrequency(int32_t Frequency)
+void CRTL_SDR::setFrequency(int frequency)
 {
-    lastFrequency = Frequency;
-    (void)(rtlsdr_set_center_freq(device, Frequency + frequencyOffset));
+    lastFrequency = frequency;
+    (void)(rtlsdr_set_center_freq(device, frequency + frequencyOffset));
+}
+
+int CRTL_SDR::getFrequency(void) const
+{
+    return lastFrequency;
 }
 
 bool CRTL_SDR::restart(void)
@@ -165,7 +170,7 @@ void CRTL_SDR::stop(void)
     }
 }
 
-float CRTL_SDR::setGain(int32_t gain_index)
+float CRTL_SDR::setGain(int gain_index)
 {
     if ((size_t)gain_index >= gains.size()) {
         std::clog << "RTL_SDR:" << "Unknown gain count" << gain_index << std::endl;
@@ -185,7 +190,7 @@ float CRTL_SDR::setGain(int32_t gain_index)
     return currentGain / 10.0;
 }
 
-int32_t CRTL_SDR::getGainCount()
+int CRTL_SDR::getGainCount()
 {
     return gains.size() - 1;
 }
@@ -207,7 +212,7 @@ void CRTL_SDR::setHwAgc(bool hwAGC)
     rtlsdr_set_agc_mode(device, hwAGC ? 1 : 0);
 }
 
-bool CRTL_SDR::isHwAgcSupported()
+bool CRTL_SDR::isHwAgcSupported() const
 {
     return true;
 }
@@ -249,7 +254,7 @@ void CRTL_SDR::AGCTimer(void)
                 }
             }
             else {
-                if (currentGainIndex < (gains.size() - 1)) {
+                if (currentGainIndex < ((ssize_t)gains.size() - 1)) {
                     // Calc if a gain increase overloads the device. Calc it from the gain values
                     int NewGain = gains[currentGainIndex + 1];
                     float DeltaGain = ((float) NewGain / 10) - ((float) currentGain / 10);

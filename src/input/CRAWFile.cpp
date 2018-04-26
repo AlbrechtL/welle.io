@@ -72,9 +72,14 @@ CRAWFile::~CRAWFile(void)
     }
 }
 
-void CRAWFile::setFrequency(int32_t Frequency)
+void CRAWFile::setFrequency(int Frequency)
 {
     (void)Frequency;
+}
+
+int CRAWFile::getFrequency() const
+{
+    return 0;
 }
 
 bool CRAWFile::restart(void)
@@ -94,14 +99,14 @@ void CRAWFile::reset()
 {
 }
 
-float CRAWFile::setGain(int32_t Gain)
+float CRAWFile::setGain(int Gain)
 {
     (void)Gain;
 
     return 0;
 }
 
-int32_t CRAWFile::getGainCount()
+int CRAWFile::getGainCount()
 {
     return 0;
 }

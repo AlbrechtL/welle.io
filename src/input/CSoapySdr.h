@@ -45,15 +45,16 @@ public:
     CSoapySdr(const CSoapySdr&) = delete;
     CSoapySdr operator=(const CSoapySdr&) = delete;
 
-    virtual void setFrequency(int32_t Frequency);
+    virtual void setFrequency(int Frequency);
+    virtual int getFrequency(void) const;
     virtual bool restart(void);
     virtual void stop(void);
     virtual void reset(void);
     virtual int32_t getSamples(DSPCOMPLEX* Buffer, int32_t Size);
     virtual int32_t getSpectrumSamples(DSPCOMPLEX* Buffer, int32_t Size);
     virtual int32_t getSamplesToRead(void);
-    virtual float setGain(int32_t gainIndex);
-    virtual int32_t getGainCount(void);
+    virtual float setGain(int gainIndex);
+    virtual int getGainCount(void);
     virtual void setAgc(bool AGC);
     virtual void setHwAgc(bool hwAGC);
     virtual std::string getName(void);
@@ -66,7 +67,7 @@ private:
     void decreaseGain();
     void increaseGain();
 
-    int32_t m_freq = 0;
+    int m_freq = 0;
     std::string m_driver_args;
     std::string m_antenna;
     std::string m_clock_source;

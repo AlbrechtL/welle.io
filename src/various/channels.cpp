@@ -223,3 +223,13 @@ string Channels::getChannelNameAtIndex(int index)
 
     return channelName;
 }
+
+std::string Channels::getChannelForFrequency(int frequency)
+{
+    for (const auto c_f : frequencyMap) {
+        if (c_f.second == frequency) {
+            return c_f.first;
+        }
+    }
+    throw out_of_range("frequency is outside channel list");
+}

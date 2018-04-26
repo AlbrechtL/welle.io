@@ -64,16 +64,21 @@ void CSoapySdr::setClockSource(const std::string& clock_source)
     m_clock_source = clock_source;
 }
 
-void CSoapySdr::setFrequency(int32_t Frequency)
+void CSoapySdr::setFrequency(int Frequency)
 {
     m_freq = Frequency;
     if (m_device != nullptr) {
         m_device->setFrequency(SOAPY_SDR_RX, 0, Frequency);
-        Frequency = m_device->getFrequency(SOAPY_SDR_RX, 0);
+        m_freq = m_device->getFrequency(SOAPY_SDR_RX, 0);
         std::clog << "OutputSoapySDR:Actual frequency: " <<
-            Frequency / 1000.0 <<
+            m_freq / 1000.0 <<
             " kHz." << std::endl;
     }
+}
+
+int CSoapySdr::getFrequency() const
+{
+    return m_freq;
 }
 
 bool CSoapySdr::restart()

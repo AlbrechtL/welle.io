@@ -35,6 +35,7 @@
 #include <lame/lame.h>
 #include "backend/radio-receiver.h"
 #include "various/Socket.h"
+#include "various/channels.h"
 
 class ProgrammeSender {
     private:
@@ -177,9 +178,13 @@ class WebRadioInterface : public RadioControllerInterface {
         // Send the constellation points, a sequence of phases between -180 and 180 .
         bool send_constellation(Socket& s);
 
+        // Send the currently tuned channel
+        bool send_channel(Socket& s);
+
         void check_decoders_required();
         std::list<tii_measurement_t> getTiiStats();
 
+        Channels channels;
         DABParams dabparams;
         CVirtualInput& input;
         common_fft spectrum_fft_handler;

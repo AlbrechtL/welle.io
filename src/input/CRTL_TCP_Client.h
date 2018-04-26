@@ -56,17 +56,18 @@ public:
     ~CRTL_TCP_Client(void);
 
     // Interface methods
-    void setFrequency(int32_t);
+    void setFrequency(int);
+    int getFrequency(void) const;
     bool restart(void);
     int32_t getSamples(DSPCOMPLEX* V, int32_t size);
     int32_t getSpectrumSamples(DSPCOMPLEX* V, int32_t size);
     int32_t getSamplesToRead(void);
     void reset(void);
-    float setGain(int32_t gain);
-    int32_t getGainCount(void);
+    float setGain(int gain);
+    int getGainCount(void);
     void setAgc(bool AGC);
     void setHwAgc(bool hwAGC);
-    bool isHwAgcSupported();
+    bool isHwAgcSupported() const;
     std::string getName(void);
     CDeviceID getID(void);
 
@@ -95,7 +96,7 @@ private:
     uint8_t maxAmplitude = 0;
     bool isAGC = true;
     bool isHwAGC = false;
-    int32_t frequency = kHz(220000);
+    int frequency = kHz(220000);
     RingBuffer<uint8_t> sampleBuffer;
     RingBuffer<uint8_t> spectrumSampleBuffer;
     bool connected = false;

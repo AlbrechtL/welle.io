@@ -47,15 +47,16 @@ public:
     CAirspy();
     ~CAirspy(void);
 
-    void setFrequency(int32_t nf);
+    void setFrequency(int nf);
+    int getFrequency(void) const;
     bool restart(void);
     void stop(void);
     void reset(void);
     int32_t getSamples(DSPCOMPLEX* Buffer, int32_t Size);
     int32_t getSpectrumSamples(DSPCOMPLEX* Buffer, int32_t Size);
     int32_t getSamplesToRead(void);
-    float setGain(int32_t gain);
-    int32_t getGainCount(void);
+    float setGain(int gain);
+    int getGainCount(void);
     void setAgc(bool AGC);
     void setHwAgc(bool hwAGC);
     std::string getName(void);
@@ -63,6 +64,7 @@ public:
 
 private:
     bool running = false;
+    int freq = 0;
 
     bool isAGC = true;
     int8_t currentLinearityGain = 0;

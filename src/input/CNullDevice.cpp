@@ -30,9 +30,14 @@ CNullDevice::CNullDevice()
 
 }
 
-void CNullDevice::setFrequency(int32_t Frequency)
+void CNullDevice::setFrequency(int Frequency)
 {
     (void) Frequency;
+}
+
+int CNullDevice::getFrequency(void) const
+{
+    return 0;
 }
 
 bool CNullDevice::restart()
@@ -69,14 +74,14 @@ int32_t CNullDevice::getSamplesToRead()
     return 0;
 }
 
-float CNullDevice::setGain(int32_t Gain)
+float CNullDevice::setGain(int Gain)
 {
     (void) Gain;
 
     return 0;
 }
 
-int32_t CNullDevice::getGainCount()
+int CNullDevice::getGainCount()
 {
     return 0;
 }
