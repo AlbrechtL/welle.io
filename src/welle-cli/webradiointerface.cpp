@@ -279,7 +279,7 @@ void WebProgrammeHandler::onMOT(const std::vector<uint8_t>& data, int subtype)
 
 void WebRadioInterface::check_decoders_required()
 {
-    if (decode_all) {
+    if (decode_strategy == DecodeStrategy::All) {
         return;
     }
 
@@ -288,7 +288,8 @@ void WebRadioInterface::check_decoders_required()
         const auto sid = s.serviceId;
 
         try {
-            bool require = phs.at(sid).needsToBeDecoded();
+            bool require = phs.at(sid).needsToBeDecoded() or
+                sid == current_carousel_service;
             bool is_decoded = programmes_being_decoded[sid];
 
             if (require and not is_decoded) {
@@ -358,6 +359,7 @@ void WebRadioInterface::retune(const std::string& channel)
         phs.clear();
         programmes_being_decoded.clear();
         tiis.clear();
+        current_carousel_service = 0;
 
         cerr << "Set frequency" << endl;
         input.setFrequency(freq);
@@ -890,11 +892,12 @@ bool WebRadioInterface::handle_channel_post(Socket& s, const std::string& reques
     return false;
 }
 
-WebRadioInterface::WebRadioInterface(CVirtualInput& in, int port, bool decode_all) :
+WebRadioInterface::WebRadioInterface(CVirtualInput& in,
+        int port, DecodeStrategy ds) :
     dabparams(1),
     input(in),
     spectrum_fft_handler(2048),
-    decode_all(decode_all)
+    decode_strategy(ds)
 {
     bool success = serverSocket.bind(port);
     if (success) {
@@ -927,20 +930,20 @@ void WebRadioInterface::handle_phs()
     while (running) {
         this_thread::sleep_for(chrono::seconds(2));
         {
-            lock_guard<mutex> lock(data_mut);
+            lock_guard<mutex> lock_data(data_mut);
             if (not rx) {
                 continue;
             }
         }
 
-        lock_guard<mutex> lock(rx_mut);
-        for (auto& s : rx->getServiceList()) {
+        unique_lock<mutex> lock(rx_mut);
+        auto serviceList = rx->getServiceList();
+        for (auto& s : serviceList) {
             if (phs.count(s.serviceId) == 0) {
                 WebProgrammeHandler ph(s.serviceId);
                 phs.emplace(std::make_pair(s.serviceId, move(ph)));
-
             }
-            else if (decode_all) {
+            else if (decode_strategy == DecodeStrategy::All) {
                 auto scs = rx->getComponents(s);
                 for (auto& sc : scs) {
                     if (sc.transportMode() == TransportMode::Audio) {
@@ -954,6 +957,34 @@ void WebRadioInterface::handle_phs()
                     }
                 }
             }
+        }
+
+        if (decode_strategy == DecodeStrategy::Carousel) {
+            if (current_carousel_service == 0) {
+                if (not serviceList.empty()) {
+                    current_carousel_service = serviceList.front().serviceId;
+                    time_carousel_change = chrono::steady_clock::now();
+                }
+            }
+            else if (time_carousel_change + chrono::seconds(4) <
+                    chrono::steady_clock::now()) {
+                auto current_it = phs.find(current_carousel_service);
+                if (current_it == phs.end()) {
+                    cerr << "Reset service decoder carousel! Cannot find service "
+                        << current_carousel_service << endl;
+                    current_carousel_service = 0;
+                }
+                else {
+                    // Rotate through phs
+                    if (++current_it == phs.end()) {
+                        current_it = phs.begin();
+                    }
+                    current_carousel_service = current_it->first;
+                }
+            }
+
+            lock.unlock();
+            check_decoders_required();
         }
     }
 }

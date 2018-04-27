@@ -217,6 +217,7 @@ struct options_t {
     string programme = "GRRIF";
     bool dump_programme = false;
     bool decode_all_programmes = false;
+    bool decode_programmes_carousel = false;
     int web_port = -1; // positive value means enable
 };
 
@@ -239,6 +240,11 @@ static void usage()
         "Use -Dw to enable webserver, decode all programmes." << endl <<
         " welle-cli -c channel -Dw port" << endl <<
         endl <<
+        "Use -Cw to enable webserver, decode programmes one by one in a carousel." << endl <<
+        "This is useful if your machine cannot decode all programmes simultaneously, but" << endl <<
+        "you still want to get an overview of the ensemble." << endl <<
+        " welle-cli -c channel -Cw port" << endl <<
+        endl <<
         " examples: welle-cli -c 10B -p GRRIF" << endl <<
         "           welle-cli -f ./ofdm.iq -p GRRIF" << endl;
 }
@@ -247,10 +253,13 @@ options_t parse_cmdline(int argc, char **argv)
 {
     options_t options;
     int opt;
-    while ((opt = getopt(argc, argv, "c:dDf:hp:w:")) != -1) {
+    while ((opt = getopt(argc, argv, "c:CdDf:hp:w:")) != -1) {
         switch (opt) {
             case 'c':
                 options.channel = optarg;
+                break;
+            case 'C':
+                options.decode_programmes_carousel = true;
                 break;
             case 'd':
                 options.dump_programme = true;
@@ -274,6 +283,11 @@ options_t parse_cmdline(int argc, char **argv)
                 cerr << "Unknown option. Use -h for help" << endl;
                 exit(1);
         }
+    }
+
+    if (options.decode_all_programmes and options.decode_programmes_carousel) {
+        cerr << "Cannot select both -C and -D" << endl;
+        exit(1);
     }
 
     return options;
@@ -322,7 +336,15 @@ int main(int argc, char **argv)
     string service_to_tune = options.programme;
 
     if (options.web_port != -1) {
-        WebRadioInterface wri(*in, options.web_port, options.decode_all_programmes);
+        using DS = WebRadioInterface::DecodeStrategy;
+        DS ds = DS::OnDemand;
+        if (options.decode_all_programmes) {
+            ds = DS::All;
+        }
+        else if (options.decode_programmes_carousel) {
+            ds = DS::Carousel;
+        }
+        WebRadioInterface wri(*in, options.web_port, ds);
         wri.serve();
     }
     else {
