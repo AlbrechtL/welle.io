@@ -3,7 +3,7 @@
         <file>src/gui/QML/StationDelegate.qml</file>
         <file>src/gui/QML/main.qml</file>
         <file>src/gui/QML/RadioView.qml</file>
-        <file>src/gui/QML/SettingsPage.qml</file>
+        <file>src/gui/QML/settingspages/GlobalSettings.qml</file>
         <file>src/gui/QML/images/button_default.png</file>
         <file>src/gui/QML/images/button_pressed.png</file>
         <file>src/gui/QML/images/icon-settings.png</file>
@@ -35,6 +35,19 @@
         <file>src/gui/QML/style/TouchPageIndicator.qml</file>
         <file>src/gui/QML/style/MessagePopup.qml</file>
         <file>src/gui/QML/style/TouchComboBox.qml</file>
+        <file>src/gui/icon/welle_io_icons/index.theme</file>
+        <file>src/gui/icon/welle_io_icons/20x20/back.png</file>
+        <file>src/gui/icon/welle_io_icons/20x20/drawer.png</file>
+        <file>src/gui/icon/welle_io_icons/20x20/menu.png</file>
+        <file>src/gui/icon/welle_io_icons/20x20@2/back.png</file>
+        <file>src/gui/icon/welle_io_icons/20x20@2/drawer.png</file>
+        <file>src/gui/icon/welle_io_icons/20x20@2/menu.png</file>
+        <file>src/gui/icon/welle_io_icons/20x20@3/back.png</file>
+        <file>src/gui/icon/welle_io_icons/20x20@3/drawer.png</file>
+        <file>src/gui/icon/welle_io_icons/20x20@3/menu.png</file>
+        <file>src/gui/icon/welle_io_icons/20x20@4/back.png</file>
+        <file>src/gui/icon/welle_io_icons/20x20@4/drawer.png</file>
+        <file>src/gui/icon/welle_io_icons/20x20@4/menu.png</file>
         <file>i18n/de_DE.qm</file>
         <file>i18n/it_IT.qm</file>
         <file>i18n/hu_HU.qm</file>
@@ -48,5 +61,9 @@
         <file>src/libs/COPYING.kjmp2.zlib</file>
         <file>src/libs/COPYING.QT.LGPL-2.1</file>
         <file>src/libs/kiss_fft/COPYING</file>
+        <file>src/gui/QML/settingspages/ChannelSettings.qml</file>
+        <file>src/gui/QML/settingspages/RTLSDRSettings.qml</file>
+        <file>src/gui/QML/settingspages/RTLTCPSettings.qml</file>
+        <file>src/gui/QML/settingspages/SoapySDRSettings.qml</file>
     </qresource>
 </RCC>

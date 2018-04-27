@@ -867,16 +867,16 @@ void CRadioController::ChannelTimerTimeout(void)
 void CRadioController::SyncCheckTimerTimeout(void)
 {
     // A better approach is to use the MER since it is not implemented we use the this one
-    if(!mIsSync ||
-       (mIsSync && !mIsFICCRC) ||
-       (mIsSync && mFrameErrors >= 10))
-    {
-        qDebug() << "RadioController: Restart syncing. isSync:" << mIsSync << ", isFICCRC:" << mIsFICCRC << ", FrameErrors:" << mFrameErrors;
-        emit showInfoMessage(tr("Lost signal or bad signal quality, trying to find it again."));
+//    if(!mIsSync ||
+//       (mIsSync && !mIsFICCRC) ||
+//       (mIsSync && mFrameErrors >= 10))
+//    {
+//        qDebug() << "RadioController: Restart syncing. isSync:" << mIsSync << ", isFICCRC:" << mIsFICCRC << ", FrameErrors:" << mFrameErrors;
+//        emit showInfoMessage(tr("Lost signal or bad signal quality, trying to find it again."));
 
-        SetChannel(CurrentChannel, false, true);
-        SetStation(CurrentStation, true);
-    }
+//        SetChannel(CurrentChannel, false, true);
+//        SetStation(CurrentStation, true);
+//    }
 }
 
 

@@ -77,14 +77,6 @@ Item {
         opacity: root.showChannelName ? 1 : 0
     }
 
-    Rectangle {
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.margins: Units.dp(7)
-        height: 1
-        color: "#424246"
-    }
-
     MouseArea {
         id: mouse
         anchors.fill: parent

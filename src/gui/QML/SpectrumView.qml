@@ -7,7 +7,7 @@ import "style"
 ChartView {
     id: spectrumView
     animationOptions: ChartView.NoAnimation
-    theme: ChartView.ChartThemeDark
+    theme: ChartView.ChartThemeLight
     backgroundColor: "#00000000"
     //titleColor: "white"
     legend.visible: false

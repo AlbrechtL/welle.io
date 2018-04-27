@@ -38,21 +38,25 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.2
-import QtQuick.Controls 2.0
-import QtQuick.Controls 1.4
-import QtQuick.Layouts 1.1
+import QtQuick 2.9
+import QtQuick.Layouts 1.3
+import QtQuick.Controls 2.3
+import QtQuick.Controls.Material 2.1
+import QtQuick.Controls.Universal 2.1
 import QtQuick.Window 2.2
-import QtQuick.Dialogs 1.1
 import Qt.labs.settings 1.0
 
-// Import custom styles
 import "style"
+import "settingspages"
 
 ApplicationWindow {
     id: mainWindow
     visible: true
-    property bool isLandscape: true
+
+    signal stationClicked()
+    property alias isExpertView: globalSettings.enableExpertModeState
+
+//    property bool isLandscape: true
     function getWidth() {
         if(Screen.desktopAvailableWidth < Units.dp(700)
                 || Screen.desktopAvailableHeight < Units.dp(500)
@@ -74,7 +78,15 @@ ApplicationWindow {
     width: getWidth()
     height: getHeight()
 
-    visibility: settingsPage.enableFullScreenState ? Window.FullScreen : Window.Windowed
+    readonly property bool inPortrait: mainWindow.width < mainWindow.height
+
+    onWidthChanged: {
+        // Set drawer width to half of windows width
+        if(moveDrawer.x > width)
+            moveDrawer.x = width / 2;
+    }
+
+    visibility: globalSettings.enableFullScreenState ? Window.FullScreen : Window.Windowed
 
     Component.onCompleted: {
         console.debug("os: " + Qt.platform.os)
@@ -95,321 +107,151 @@ ApplicationWindow {
             errorMessagePopup.text = cppRadioController.ErrorMsg
             errorMessagePopup.open()
         }
+
+        // Set drawer width to half of windows width if it is not defined
+        if(moveDrawer.x === 0)
+            moveDrawer.x = mainWindow.width / 2;
     }
 
-    property int stackViewDepth
-    signal stackViewPush(Item item)
-    signal stackViewPop()
-    signal stackViewComplete()
-    signal stationClicked()
-    property alias isExpertView: settingsPage.enableExpertModeState
+//    Keys.onEscapePressed: stackView.pop(null);
 
     Settings {
         property alias width : mainWindow.width
         property alias height : mainWindow.height
+        property alias leftDrawerWidth: moveDrawer.x
     }
 
-    onIsExpertViewChanged: {
-        if(stackViewDepth > 1)
-        {
-            if(isExpertView == true)
-                infoMessagePopup.text = qsTr("Expert mode is enabled")
-            else
-                infoMessagePopup.text = qsTr("Expert mode is disabled")
-            infoMessagePopup.open()
-            backButton.isSettings = false
-        }
+    GlobalSettings {
+        id: globalSettings
+        visible: false
     }
 
-    SettingsPage{
-        id:settingsPage
-    }
+    header: ToolBar {
+        id: overlayHeader
+        Material.foreground: "white"
 
-    InfoPage{
-        id: infoPage
-    }
-
-    Rectangle {
-        x: 0
-        color: "#212126"
-        anchors.rightMargin: 0
-        anchors.bottomMargin: 0
-        anchors.leftMargin: 0
-        anchors.topMargin: 0
-        anchors.fill: parent
-    }
-
-    toolBar: BorderImage {
-        id: toolBar_
-        border.bottom: Units.dp(10)
-        source: "images/toolbar.png"
-        width: parent.width
-        height: Units.dp(40)
-
-        Rectangle {
-            id: backButton
-            width: Units.dp(60)
-            anchors.left: parent.left
-            anchors.leftMargin: Units.dp(20)
-            anchors.verticalCenter: parent.verticalCenter
-            antialiasing: true
-            radius: Units.dp(4)
-            color: backmouse.pressed ? "#222" : "transparent"
-            property bool isSettings: false
-            Behavior on opacity { NumberAnimation{} }
-            Image {
-                anchors.verticalCenter: parent.verticalCenter
-                source: parent.isSettings ? "images/navigation_previous_item.png" : "images/icon-settings.png"
-                height: parent.isSettings ? Units.dp(20) : Units.dp(23)
-                fillMode: Image.PreserveAspectFit
-            }
-            MouseArea {
-                id: backmouse
-                scale: 1
-                anchors.fill: parent
-                anchors.margins: Units.dp(-20)
-                onClicked: {
-                    if(stackViewDepth > 1){
-                        stackViewPop()
-                        if(stackViewDepth === 1)
-                            backButton.isSettings = false
-                    } else {
-                        stackViewPush(settingsPage)
-                        backButton.isSettings = true
-                    }
-                }
-            }
-        }
-
-        TextTitle {
-            x: backButton.x + backButton.width + Units.dp(20)
-            anchors.verticalCenter: parent.verticalCenter
-            text: "welle.io"
-        }
-
-        TextStandart {
-            x: mainWindow.width - width - Units.dp(5) - infoButton.width
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.rightMargin: Units.dp(5)
-            text: cppRadioController.DateTime
-            id: dateTimeDisplay
-        }
-
-        Rectangle {
-            id: infoButton
-            width: backButton.isSettings ? Units.dp(40) : 0
-            anchors.right: parent.right
-            anchors.verticalCenter: parent.verticalCenter
-            antialiasing: true
-            radius: Units.dp(4)
-            color: backmouse.pressed ? "#222" : "transparent"
-            property bool isInfoPage: false
-            Image {
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.horizontalCenter: parent.horizontalCenter
-                source: backButton.isSettings ? "images/icon-info.png" : ""
-                anchors.rightMargin: Units.dp(20)
-                height: Units.dp(23)
-                fillMode: Image.PreserveAspectFit
-            }
-            MouseArea {
-                id: infomouse
-                scale: 1
-                anchors.fill: parent
-                anchors.margins: Units.dp(-20)
-                enabled: backButton.isSettings ? true : false
-                onClicked: {
-                    if(stackViewDepth > 2){
-                        stackViewPop()
-                        infoButton.isInfoPage = false
-                    } else {
-                        stackViewPush(infoPage)
-                        infoButton.isInfoPage = true
-                    }
-                }
-            }
-        }
-    }
-
-    Loader {
-        id:mainViewLoader
-        anchors.fill: parent
-        Layout.margins: Units.dp(10);
-        sourceComponent: {
-            if(mainWindow.width > mainWindow.height){
-                mainWindow.isLandscape = true;
-                return landscapeView
-            } else {
-                mainWindow.isLandscape = false;
-                if(isExpertView)
-                    return portraitViewExpert
-                else
-                    return portraitView
-            }
-        }
-    }
-
-    Component {
-        id: landscapeView
-
-        SplitView {
-            id: splitView
+        RowLayout {
+            spacing: 20
             anchors.fill: parent
-            orientation: Qt.Horizontal
 
-            Loader {
-                id: stationView
-                Layout.minimumWidth: Units.dp(300)
-                Layout.margins: Units.dp(10)
-                sourceComponent: stackViewMain
+            ToolButton {
+                icon.name: listStackView.depth > 1 ? "back" : "drawer"
+                visible: inPortrait || listStackView.depth > 1
+                onClicked: {
+                    if(listStackView.depth > 1) {
+                        listStackView.pop(StackView.Immediate)
+                        stackView.pop(null, StackView.Immediate)
+                    }
+                    else {
+                        if (drawer.visible)
+                            drawer.close()
+                        else
+                            drawer.open()
+                    }
+                }
             }
-            Loader {
-                id: radioInformationViewLoader
-                Layout.preferredWidth: Units.dp(400)
-                Layout.margins: Units.dp(10)
+
+            Label {
+                id: titleLabel
+                text: listStackView.depth > 1 ? listStackView.currentItem.currentItem.text + " " + qsTr("Settings") : "welle.io"
+//                text:  "welle.io"
+                font.pixelSize: 20
+                elide: Label.ElideRight
+                horizontalAlignment: Qt.AlignHCenter
+                verticalAlignment: Qt.AlignVCenter
                 Layout.fillWidth: true
-                sourceComponent: radioInformationView
-            }
-            Loader {
-                id: expertViewLoader
-                Layout.margins: Units.dp(10)
-                sourceComponent: isExpertView ? expertView : undefined
-                visible: isExpertView
             }
 
-            Settings {
-                property alias expertStationViewWidth: stationView.width
-                property alias expertViewWidth: expertViewLoader.width
-                property alias radioInformationViewWidth: radioInformationViewLoader.width
+            ToolButton {
+                icon.name: "menu"
+                onClicked: optionsMenu.open()
+
+                Menu {
+                    id: optionsMenu
+                    x: parent.width - width
+                    transformOrigin: Menu.TopRight
+
+                    MenuItem {
+                        text: qsTr("Settings")
+//                        onTriggered: settingsDialog.open()
+                        onTriggered:  {
+                            listStackView.push(stettingsList, StackView.Immediate)
+                            drawer.open()
+                        }
+                    }
+                    MenuItem {
+                        text: qsTr("About")
+                        onTriggered: aboutDialog.open()
+                    }
+                    MenuItem {
+                        text: qsTr("Exit")
+                        onTriggered: cppGUI.close()
+                    }
+                }
             }
         }
     }
 
     Component {
-        id: portraitView
+        id: stettingsList
 
-        Item {
-            SwipeView {
-                id: view
-                anchors.fill: parent
-                anchors.margins: Units.dp(10)
-                spacing: Units.dp(10)
+        ListView {
+            id: listView
+            focus: true
+            currentIndex: -1
 
-                Loader {
-                    sourceComponent: stackViewMain
-                }
-                Loader {
-                    sourceComponent: radioInformationView
-                }
+            delegate: ItemDelegate {
+                width: parent.width
+                text: model.title
+                highlighted: ListView.isCurrentItem
+                onClicked: {
+                    if(listView.currentIndex != index) {
+                        listView.currentIndex = index
 
-                Connections {
-                    target: mainWindow
-                    onStationClicked: view.currentIndex = 1
-                }
-                Connections {
-                    target: backmouse
-                    onClicked: {
-                        if(view.currentIndex > 0)
-                        {
-                            stackViewComplete()
-                            view.currentIndex = 0
-                        }
-                    }
-
-                }
-                Connections {
-                    target: infomouse
-                    onClicked: {
-                        if(view.currentIndex > 0)
-                        {
-                            stackViewComplete()
-                            view.currentIndex = 0
+                        switch(index) {
+                            case 0: stackView.replace(globalSettings);  break
+                            default: stackView.replace(model.source);
                         }
                     }
                 }
             }
 
-            TouchPageIndicator {
-                id: indicator
+            model: ListModel {
+                ListElement { title: qsTr("General"); }
+                ListElement { title: qsTr("Channels");  source: "qrc:/src/gui/QML/settingspages/ChannelSettings.qml" }
+                ListElement { title: qsTr("RTL-SDR"); source: "qrc:/src/gui/QML/settingspages/RTLSDRSettings.qml" }
+                ListElement { title: qsTr("RTL-TCP"); source: "qrc:/src/gui/QML/settingspages/RTLTCPSettings.qml" }
+                ListElement { title: qsTr("SoapySDR"); source: "qrc:/src/gui/QML/settingspages/SoapySDRSettings.qml" }
+            }
 
-                count: view.count
-                currentIndex: view.currentIndex
-                visible: stackViewDepth == 1 ? true : false
+            Component.onCompleted: {
+                // Load first settings page
+                listView.currentIndex = 0
+                stackView.push(globalSettings, StackView.Immediate)
             }
         }
     }
 
-    Component {
-        id: portraitViewExpert
+    Drawer {
+        id: drawer
 
-        Item {
-            SwipeView {
-                id: view
-                anchors.fill: parent
-                anchors.margins: Units.dp(10)
-                spacing: Units.dp(10)
+        y: overlayHeader.height
+        width: moveDrawer.x
+        height: mainWindow.height - overlayHeader.height
 
-                Loader {
-                    sourceComponent: stackViewMain
-                }
-                Loader {
-                    sourceComponent: radioInformationView
-                }
-                Loader {
-                    sourceComponent: expertView
-                }
-
-                Connections {
-                    target: mainWindow
-                    onStationClicked: view.currentIndex = 1
-                }
-                Connections {
-                    target: backmouse
-                    onClicked: {
-                        if(view.currentIndex > 0)
-                        {
-                            stackViewComplete()
-                            view.currentIndex = 0
-                        }
-                    }
-
-                }
-                Connections {
-                    target: infomouse
-                    onClicked: {
-                        if(view.currentIndex > 0)
-                        {
-                            stackViewComplete()
-                            view.currentIndex = 0
-                        }
-                    }
-                }
-            }
-
-            TouchPageIndicator {
-                id: indicator
-
-                count: view.count
-                currentIndex: view.currentIndex
-                visible: stackViewDepth == 1 ? true : false
-            }
-        }
-    }
-
-    Component {
-        id: stackViewMain
+        modal: inPortrait
+        interactive: inPortrait
+        position: inPortrait ? 0 : 1
+        visible: !inPortrait
 
         StackView {
-            id: stackView
-            clip: true
-            Layout.alignment: Qt.AlignBottom
-            Layout.fillWidth: true
-            Layout.fillHeight: true
+            id: listStackView
+            anchors.fill: parent
 
             // Implements back key navigation
             focus: true
-            Keys.onReleased: if (event.key === Qt.Key_Back && stackView.depth > 1) {
-                                 stackView.pop();
+            Keys.onReleased: if (event.key === Qt.Key_Back && listStackView.depth > 1) {
+                                 listStackView.pop();
                                  event.accepted = true;
                              }
 
@@ -424,88 +266,128 @@ ApplicationWindow {
                 }
 
                 ListView {
-                    id: stationChannelView
-                    model: cppGUI.stationModel
-                    anchors.fill: parent
-                    delegate: StationDelegate {
-                        stationNameText: modelData.stationName
-                        channelNameText: modelData.channelName
-                        showChannelName: isExpertView
-                        onClicked: {
-                            if(modelData.channelName !== "") {
-                                mainWindow.stationClicked()
-                                cppGUI.channelClick(modelData.stationName, modelData.channelName)
-                            }
-                        }
-                    }
+                   id: stationChannelView
+                   model: cppGUI.stationModel
+                   anchors.fill: parent
+                   delegate: StationDelegate {
+                       stationNameText: modelData.stationName
+                       channelNameText: modelData.channelName
+                       showChannelName: isExpertView
+                       onClicked: {
+                           if(modelData.channelName !== "") {
+                               mainWindow.stationClicked()
+                               cppGUI.channelClick(modelData.stationName, modelData.channelName)
+                           }
+                       }
+                   }
 
-                    ScrollBar.vertical: ScrollBar { }
+                    ScrollIndicator.vertical: ScrollIndicator { }
                 }
             }
+        }
 
-            onDepthChanged: mainWindow.stackViewDepth = depth
+        // Make it possible to change the lists width
+        Rectangle {
+            id: moveDrawer
+            width: Units.dp(5)
+            height: parent.height
+//          color: "red"
+//          border.color: "red"
+            opacity: 0
 
-            Connections {
-                target: mainWindow
-                onStackViewPush: push(item)
-                onStackViewPop: pop()
-                onStackViewComplete: completeTransition()
+            MouseArea {
+                anchors.fill: parent
+                cursorShape : Qt.SizeHorCursor
+                drag.target: moveDrawer
+                drag.axis: Drag.XAxis
+                drag.minimumX: 0
+                drag.maximumX: mainWindow.width
             }
         }
     }
 
-    // radioInformationView
-    Component {
-        id: radioInformationView
+    Flickable {
+        anchors.fill: parent
+        anchors.leftMargin: !inPortrait ? drawer.width: undefined
+        contentHeight: gridLayout.implicitHeight > parent.height ? gridLayout.implicitHeight : parent.height
+        contentWidth: parent.width - anchors.leftMargin
 
-        SplitView {
-            orientation: Qt.Vertical
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            Layout.preferredWidth: Units.dp(320)
-            Layout.minimumHeight: Units.dp(100)
+        StackView {
+            id: stackView
+            anchors.fill: parent
 
-            // Radio
-            RadioView {}
+            // Implements back key navigation
+            focus: true
 
-            // MOT image
-            Rectangle {
-                id: motImageRec
-                color: "#212126"
-                Image {
-                    id: motImage
-                    anchors.topMargin: Units.dp(5)
+            initialItem: Item {
+                GridLayout {
+                    id: gridLayout
                     anchors.fill: parent
-                    fillMode: Image.PreserveAspectFit
+                    anchors.margins: Units.dp(10)
+                    flow: inPortrait ? GridLayout.TopToBottom : GridLayout.LeftToRight
+                    columnSpacing: Units.dp(10)
+                    rowSpacing: Units.dp(10)
 
-                    Connections{
-                        target: cppGUI
-                        onMotChanged:{
-                            motImage.source = "image://motslideshow/image_" + Math.random()
+                    ColumnLayout {                        
+                        // Radio information
+                        RadioView {
+                            Layout.fillWidth: (!isExpertView || inPortrait) ? true : false
                         }
+
+                        // MOT image
+                        Rectangle {
+                           id: motImageRec
+                           Layout.preferredWidth: Units.dp(320)
+                           Layout.fillHeight: true
+                           Layout.fillWidth: (!isExpertView || inPortrait) ? true : false
+
+                           Image {
+                               id: motImage
+                               anchors.fill: parent
+                               fillMode: Image.PreserveAspectFit
+
+                               Connections{
+                                   target: cppGUI
+                                   onMotChanged:{
+                                       motImage.source = "image://motslideshow/image_" + Math.random()
+                                   }
+                               }
+                           }
+                        }
+                    }
+
+                    ExpertView{
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        Layout.preferredWidth: Units.dp(400)
+                        width: Units.dp(400)
+                        visible: isExpertView
                     }
                 }
             }
         }
     }
 
-    // expertView
-    Component {
-        id: expertView
+    Popup {
+        id: aboutDialog
+        modal: true
+        focus: true
+        x: (mainWindow.width - width) / 2
+        y: 0
+        width: Math.min(mainWindow.width, mainWindow.height) / 3 * 2
+        contentHeight: mainWindow.height - (overlayHeader.height * 2)
+        clip: true
 
-        ExpertView{
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            Layout.preferredWidth: Units.dp(400)
-            width: Units.dp(400)
+        contentItem: InfoPage{
+            id: infoPage
         }
     }
 
     MessagePopup {
         id: errorMessagePopup
         x: mainWindow.width/2 - width/2
-        y: mainWindow.height  - toolBar_.height - height
-        revealedY: mainWindow.height - toolBar.height - height
+        y: mainWindow.height  - overlayHeader.height - height
+        revealedY: mainWindow.height - overlayHeader.height - height
         hiddenY: mainWindow.height
         color: "#8b0000"
     }
@@ -513,8 +395,8 @@ ApplicationWindow {
     MessagePopup {
         id: infoMessagePopup
         x: mainWindow.width/2 - width/2
-        y: mainWindow.height  - toolBar_.height - height
-        revealedY: mainWindow.height - toolBar.height - height
+        y: mainWindow.height  - overlayHeader.height - height
+        revealedY: mainWindow.height - overlayHeader.height - height
         hiddenY: mainWindow.height
         color:  "#468bb7"
         onOpened: closeTimer.running = true;
@@ -554,7 +436,7 @@ ApplicationWindow {
     }
 
     onVisibilityChanged: {
-        if(visibility == Window.Minimized)
+        if(visibility === Window.Minimized)
             cppGUI.tryHideWindow()
     }
 }

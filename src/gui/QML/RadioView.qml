@@ -5,6 +5,7 @@ import QtQuick.Layouts 1.1
 import "style"
 
 Item{
+    id: item
     height: Units.dp(180)
     Layout.preferredWidth: Units.dp(320)
     Layout.minimumWidth: Units.dp(150)

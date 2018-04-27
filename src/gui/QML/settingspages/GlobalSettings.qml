@@ -4,7 +4,7 @@ import QtQuick.Layouts 1.1
 import Qt.labs.settings 1.0
 
 // Import custom styles
-import "style"
+import "../style"
 
 Item {
     id: settingsPage
@@ -31,6 +31,7 @@ Item {
         cppGUI.inputEnableHwAGCChanged(enableHwAGCState)
         cppGUI.inputGainChanged(manualGainState)
         cppGUI.inputEnableAGCChanged(enableAGCState)
+        console.debug("width: " + width)
     }
 
     Connections{
@@ -68,6 +69,7 @@ Item {
         ColumnLayout {
             id: layout
             anchors.fill: parent
+            anchors.margins: Units.dp(10)
             spacing: Units.dp(30)
 
             ColumnLayout{
@@ -257,14 +259,13 @@ Item {
                     }
                 }
             }
-
-            TouchButton {
-                id: exitAppButton
-                text: qsTr("EXIT")
-                onClicked: cppGUI.close()
-                Layout.preferredWidth: parent.width
-                Layout.alignment: Qt.AlignBottom
-            }
+//            TouchButton {
+//                id: exitAppButton
+//                text: qsTr("OK")
+//                onClicked: settingsDialog.close()
+//                Layout.preferredWidth: parent.width
+//                Layout.alignment: Qt.AlignBottom
+//            }
         }
 
         ScrollBar.vertical: ScrollBar { }

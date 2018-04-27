@@ -1,0 +1,24 @@
+[Icon Theme]
+Name=welle_io_icons
+Comment=Copied from "Qt Quick Controls 2 Gallery Example Icon Theme"
+
+Directories=20x20,20x20@2,20x20@3,20x20@4
+
+[20x20]
+Size=20
+Type=Fixed
+
+[20x20@2]
+Size=20
+Scale=2
+Type=Fixed
+
+[20x20@3]
+Size=20
+Scale=3
+Type=Fixed
+
+[20x20@4]
+Size=20
+Scale=4
+Type=Fixed

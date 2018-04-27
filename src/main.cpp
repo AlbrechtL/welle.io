@@ -64,6 +64,11 @@ int main(int argc, char** argv)
 
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
+    QStringList themePaths;
+    themePaths << ":/src/gui/icon";
+    QIcon::setThemeSearchPaths(themePaths);
+    QIcon::setThemeName("welle_io_icons");
+
     qRegisterMetaTypeStreamOperators<QList<StationElement*>>("StationList");
 #ifdef Q_OS_ANDROID
 

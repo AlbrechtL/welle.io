@@ -7,7 +7,7 @@ import "style"
 Item {
     height: Units.dp(400)
     Layout.fillWidth: true
-    Layout.fillHeight: true
+   // Layout.fillHeight: true
     Layout.preferredWidth: Units.dp(400)
 
     ColumnLayout {
@@ -90,8 +90,8 @@ Item {
                     }
                 }
                 TouchButton {
-                    id: buttonIR
-                    text: qsTr("IR")
+                    id: buttonCIR
+                    text: qsTr("CIR")
                     onClicked: {
                         cppGUI.setPlotType(1);
                         plot.plotType = 1;
