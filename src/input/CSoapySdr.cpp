@@ -41,6 +41,10 @@ CSoapySdr::CSoapySdr() :
 {
     m_running = false;
     qDebug() << "SoapySdr";
+
+    // since the Soapy device is only created in restart() we need to call restart() in constructor
+    // otherwise there is no device when the last used gain value is set after start of program
+    restart();
 }
 
 CSoapySdr::~CSoapySdr()
@@ -114,7 +118,17 @@ bool CSoapySdr::restart()
         setFrequency(m_freq);
     }
 
-    const bool automatic = true;
+    bool automatic = false;
+    if (m_device->hasGainMode(SOAPY_SDR_RX, 0) == true)
+    {
+        automatic = true;
+        qDebug() << "Soapy device has automatic gain control";
+    }
+    else
+    {
+        automatic = false;
+        qDebug() << "Soapy device has no automatic gain control";
+    }
     m_device->setGainMode(SOAPY_SDR_RX, 0, automatic);
 
     m_running = true;
@@ -166,10 +180,15 @@ int32_t CSoapySdr::getSamplesToRead()
 float CSoapySdr::setGain(int32_t Gain)
 {
     if (m_device != nullptr) {
+        qDebug() << "Soapy try set gain to " << Gain;
         m_device->setGain(SOAPY_SDR_RX, 0, Gain);
         float g = m_device->getGain(SOAPY_SDR_RX, 0);
         qDebug() << "Soapy gain is " << g;
         return g;
+    }
+    else
+    {
+        qDebug() << "Error: No soapy device to set gain to " << Gain;
     }
     return 0;
 }
