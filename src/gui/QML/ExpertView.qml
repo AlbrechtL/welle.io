@@ -29,7 +29,7 @@ Item {
         TextExpert {
             id: displayFreqCorr
             name: qsTr("Frequency correction") + ":"
-            text: cppRadioController.FrequencyCorrection + " Hz"
+            text: cppRadioController.FrequencyCorrection + " Hz (" + cppRadioController.FrequencyCorrectionPpm.toFixed(2) + " ppm)"
         }
 
         TextExpert {
