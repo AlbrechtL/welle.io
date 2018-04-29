@@ -153,7 +153,7 @@ ApplicationWindow {
 
             Label {
                 id: titleLabel
-                text: listStackView.depth > 1 ? listStackView.currentItem.currentItem.text + " " + qsTr("Settings") : "welle.io"
+                text: listStackView.depth > 1 ? listStackView.currentItem.text + " " + qsTr("Settings") : "welle.io"
 //                text:  "welle.io"
                 font.pixelSize: 20
                 elide: Label.ElideRight
