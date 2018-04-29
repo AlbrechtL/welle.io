@@ -28,6 +28,7 @@
  */
 
 #include "CFaadDecoder.h"
+#include <string> // to_string
 
 using namespace std;
 

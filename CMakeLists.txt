@@ -25,8 +25,10 @@ if(NOT DEFINED BUILD_WELLE_IO)
     set(BUILD_WELLE_IO ON)
 endif()
 
-if(NOT DEFINED BUILD_WELLE_CLI)
+if(NOT APPLE)
+  if(NOT DEFINED BUILD_WELLE_CLI)
     set(BUILD_WELLE_CLI ON)
+  endif()
 endif()
 
 include(GNUInstallDirs)
