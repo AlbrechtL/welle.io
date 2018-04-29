@@ -132,7 +132,12 @@ class WebProgrammeHandler : public ProgrammeHandlerInterface {
 
 class WebRadioInterface : public RadioControllerInterface {
     public:
-        WebRadioInterface(CVirtualInput& in, int port, bool decode_all);
+        enum class DecodeStrategy {
+            OnDemand, // Decode services only on-demand
+            All,      // Decode all services simultaneously
+            Carousel  // Decode all services one by one, for 30s
+        };
+        WebRadioInterface(CVirtualInput& in, int port, DecodeStrategy ds);
         ~WebRadioInterface();
         WebRadioInterface(const WebRadioInterface&) = delete;
         WebRadioInterface& operator=(const WebRadioInterface&) = delete;
@@ -201,8 +206,9 @@ class WebRadioInterface : public RadioControllerInterface {
         CVirtualInput& input;
         common_fft spectrum_fft_handler;
 
+        DecodeStrategy decode_strategy = DecodeStrategy::OnDemand;
+
         mutable std::mutex data_mut;
-        bool decode_all = false;
         bool synced = 0;
         int last_snr = 0;
         int last_fine_correction = 0;
@@ -233,4 +239,7 @@ class WebRadioInterface : public RadioControllerInterface {
         std::map<SId_t, WebProgrammeHandler> phs;
         std::map<SId_t, bool> programmes_being_decoded;
         std::condition_variable phs_changed;
+
+        SId_t current_carousel_service = 0;
+        std::chrono::time_point<std::chrono::steady_clock> time_carousel_change;
 };
