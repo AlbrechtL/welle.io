@@ -56,6 +56,13 @@ ApplicationWindow {
     signal stationClicked()
     property alias isExpertView: globalSettings.enableExpertModeState
 
+    function getTitle(){
+        if(listStackView.depth > 1  && listStackView.currentItem.currentItem)
+            return listStackView.currentItem.currentItem.text + " " + qsTr("Settings")
+        else
+            return "welle.io"
+    }
+
 //    property bool isLandscape: true
     function getWidth() {
         if(Screen.desktopAvailableWidth < Units.dp(700)
@@ -153,7 +160,7 @@ ApplicationWindow {
 
             Label {
                 id: titleLabel
-                text: listStackView.depth > 1 ? listStackView.currentItem.currentItem.text + " " + qsTr("Settings") : "welle.io"
+                text: getTitle()
 //                text:  "welle.io"
                 font.pixelSize: 20
                 elide: Label.ElideRight

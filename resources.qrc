@@ -4,17 +4,6 @@
         <file>src/gui/QML/main.qml</file>
         <file>src/gui/QML/RadioView.qml</file>
         <file>src/gui/QML/settingspages/GlobalSettings.qml</file>
-        <file>src/gui/QML/images/button_default.png</file>
-        <file>src/gui/QML/images/button_pressed.png</file>
-        <file>src/gui/QML/images/icon-settings.png</file>
-        <file>src/gui/QML/images/navigation_next_item.png</file>
-        <file>src/gui/QML/images/navigation_previous_item.png</file>
-        <file>src/gui/QML/images/tab_selected.png</file>
-        <file>src/gui/QML/images/tabs_standard.png</file>
-        <file>src/gui/QML/images/textinput.png</file>
-        <file>src/gui/QML/images/toolbar.png</file>
-        <file>src/gui/QML/images/icon-exit.png</file>
-        <file>src/gui/QML/images/icon-info.png</file>
         <file>src/gui/QML/style/Units.qml</file>
         <file>src/gui/QML/SpectrumView.qml</file>
         <file>src/gui/QML/ExpertView.qml</file>
@@ -25,16 +14,12 @@
         <file>src/gui/QML/style/TextStation.qml</file>
         <file>src/gui/QML/style/TextRadioInfo.qml</file>
         <file>src/gui/QML/style/TextRadioStation.qml</file>
-        <file>src/gui/QML/style/TouchButton.qml</file>
         <file>src/gui/QML/style/TouchSlider.qml</file>
-        <file>src/gui/QML/style/TouchSwitch.qml</file>
-        <file>src/gui/QML/style/TouchProgressBar.qml</file>
         <file>src/gui/QML/style/TextExpert.qml</file>
         <file>src/gui/QML/style/SettingsFrame.qml</file>
         <file>src/gui/QML/InfoPage.qml</file>
         <file>src/gui/QML/style/TouchPageIndicator.qml</file>
         <file>src/gui/QML/style/MessagePopup.qml</file>
-        <file>src/gui/QML/style/TouchComboBox.qml</file>
         <file>src/gui/icon/welle_io_icons/index.theme</file>
         <file>src/gui/icon/welle_io_icons/20x20/back.png</file>
         <file>src/gui/icon/welle_io_icons/20x20/drawer.png</file>

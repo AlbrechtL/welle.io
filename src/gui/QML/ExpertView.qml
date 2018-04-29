@@ -1,4 +1,5 @@
 import QtQuick 2.2
+import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.1
 
 // Import custom styles
@@ -81,7 +82,7 @@ Item {
                 anchors.topMargin: 10
                 anchors.right: parent.right
                 anchors.top: parent.top
-                TouchButton {
+                Button {
                     id: buttonSpec
                     text: qsTr("Spectrum")
                     onClicked: {
@@ -89,7 +90,7 @@ Item {
                         plot.plotType = 0;
                     }
                 }
-                TouchButton {
+                Button {
                     id: buttonCIR
                     text: qsTr("CIR")
                     onClicked: {
@@ -97,7 +98,7 @@ Item {
                         plot.plotType = 1;
                     }
                 }
-                TouchButton {
+                Button {
                     id: buttonQPSK
                     text: qsTr("QPSK")
                     onClicked: {
@@ -105,7 +106,7 @@ Item {
                         plot.plotType = 2;
                     }
                 }
-                TouchButton {
+                Button {
                     id: buttonNull
                     text: qsTr("Null")
                     onClicked: {
