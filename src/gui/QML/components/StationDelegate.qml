@@ -41,7 +41,8 @@
 import QtQuick 2.2
 
 // Import custom styles
-import "style"
+import "../texts"
+import "../components"
 
 Item {
     id: root

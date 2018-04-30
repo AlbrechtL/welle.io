@@ -3,7 +3,8 @@ import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.1
 
 // Import custom styles
-import "style"
+import "texts"
+import "components"
 
 Item {
     height: Units.dp(400)

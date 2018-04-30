@@ -2,7 +2,7 @@ import QtQuick 2.0
 import QtCharts 2.1
 
 // Import custom styles
-import "style"
+import "texts"
 
 ChartView {
     id: spectrumView

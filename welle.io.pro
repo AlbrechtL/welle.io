@@ -26,7 +26,8 @@ TRANSLATIONS = i18n/de_DE.ts i18n/it_IT.ts i18n/hu_HU.ts i18n/nb_NO.ts i18n/fr_F
 lupdate_only{ # Workaround for lupdate to scan QML files
 SOURCES += src/gui/QML/*.qml \
     src/gui/QML/style/*.qml \
-    src/gui/QML/settingspages/*.qml \
+    src/gui/QML/settingpages/*.qml \
+    src/gui/QML/components/*.qml \
 }
 
 

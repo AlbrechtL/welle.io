@@ -46,8 +46,9 @@ import QtQuick.Controls.Universal 2.1
 import QtQuick.Window 2.2
 import Qt.labs.settings 1.0
 
-import "style"
-import "settingspages"
+import "texts"
+import "settingpages"
+import "components"
 
 ApplicationWindow {
     id: mainWindow
@@ -225,10 +226,10 @@ ApplicationWindow {
 
             model: ListModel {
                 ListElement { title: qsTr("General"); }
-                ListElement { title: qsTr("Channels");  source: "qrc:/src/gui/QML/settingspages/ChannelSettings.qml" }
-                ListElement { title: qsTr("RTL-SDR"); source: "qrc:/src/gui/QML/settingspages/RTLSDRSettings.qml" }
-                ListElement { title: qsTr("RTL-TCP"); source: "qrc:/src/gui/QML/settingspages/RTLTCPSettings.qml" }
-                ListElement { title: qsTr("SoapySDR"); source: "qrc:/src/gui/QML/settingspages/SoapySDRSettings.qml" }
+                ListElement { title: qsTr("Channels");  source: "qrc:/src/gui/QML/settingpages/ChannelSettings.qml" }
+                ListElement { title: qsTr("RTL-SDR"); source: "qrc:/src/gui/QML/settingpages/RTLSDRSettings.qml" }
+                ListElement { title: qsTr("RTL-TCP"); source: "qrc:/src/gui/QML/settingpages/RTLTCPSettings.qml" }
+                ListElement { title: qsTr("SoapySDR"); source: "qrc:/src/gui/QML/settingpages/SoapySDRSettings.qml" }
             }
 
             Component.onCompleted: {

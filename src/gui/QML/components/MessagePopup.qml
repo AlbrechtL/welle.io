@@ -1,8 +1,7 @@
 import QtQuick 2.5
-import QtQuick.Controls 2.1
+import QtQuick.Controls 2.3
 
-// Import custom styles
-import "."
+import "../texts"
 
 Popup {
     property alias text: textView.text
@@ -32,20 +31,23 @@ Popup {
             anchors.verticalCenter: parent.verticalCenter
             anchors.right: parent.right
             wrapMode: Text.WordWrap
+            color: "white"
             onTextChanged: {
                 if(paintedWidth + Units.dp(65) > mainWindow.width) width = mainWindow.width - Units.dp(65)
             }
         }
 
-        Rectangle {
+        Button {
             anchors.left: parent.left
             anchors.verticalCenter: parent.verticalCenter
-            Image {
-                anchors.verticalCenter: parent.verticalCenter
-                source: "../images/icon-exit.png"
-                height: Units.dp(25)
-                fillMode: Image.PreserveAspectFit
-            }
+            icon.name: "exit"
+            icon.width: width
+            icon.height: width
+            icon.color: "white"
+            padding: 0
+            background: null
+            height: Units.dp(30)
+            width: height
         }
 
         MouseArea {
