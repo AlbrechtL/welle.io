@@ -72,6 +72,7 @@ class CRadioController :
     Q_PROPERTY(bool isDAB READ isDAB NOTIFY isDABChanged)
     Q_PROPERTY(int SNR READ SNR NOTIFY SNRChanged)
     Q_PROPERTY(int FrequencyCorrection READ FrequencyCorrection NOTIFY FrequencyCorrectionChanged)
+    Q_PROPERTY(float FrequencyCorrectionPpm READ FrequencyCorrectionPpm NOTIFY FrequencyCorrectionPpmChanged)
     Q_PROPERTY(int BitRate READ BitRate NOTIFY BitRateChanged)
     Q_PROPERTY(int AudioSampleRate READ AudioSampleRate NOTIFY AudioSampleRateChanged)
     Q_PROPERTY(int FrameErrors READ FrameErrors NOTIFY FrameErrorsChanged)
@@ -130,6 +131,7 @@ public:
     bool isDAB() const;
     int SNR() const;
     int FrequencyCorrection() const;
+    float FrequencyCorrectionPpm() const;
     int BitRate() const;
     int AudioSampleRate() const;
     int FrameErrors() const;
@@ -207,6 +209,7 @@ private:
     bool mIsDAB;
     int mSNR;
     int mFrequencyCorrection;
+    float mFrequencyCorrectionPpm;
     int mBitRate;
     int mAudioSampleRate;
     int mFrameErrors;
@@ -275,6 +278,7 @@ signals:
     void isDABChanged(bool);
     void SNRChanged(int);
     void FrequencyCorrectionChanged(int);
+    void FrequencyCorrectionPpmChanged(float);
     void BitRateChanged(int);
     void AudioSampleRateChanged(int);
     void FrameErrorsChanged(int);
