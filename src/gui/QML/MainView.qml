@@ -317,21 +317,27 @@ ApplicationWindow {
     Flickable {
         anchors.fill: parent
         anchors.leftMargin: !inPortrait ? drawer.width: undefined
-        contentHeight: gridLayout.implicitHeight > parent.height ? gridLayout.implicitHeight : parent.height
+        contentHeight: stackView.currentItem.implicitHeight > parent.height ? stackView.currentItem.implicitHeight : parent.height
         contentWidth: parent.width - anchors.leftMargin
+
+        ScrollBar.vertical: ScrollBar { }
 
         StackView {
             id: stackView
             anchors.fill: parent
+            anchors.margins: Units.dp(10)
 
             // Implements back key navigation
             focus: true
 
             initialItem: Item {
+                // Necessary for Flickable
+                implicitHeight: gridLayout.implicitHeight
+
                 GridLayout {
                     id: gridLayout
                     anchors.fill: parent
-                    anchors.margins: Units.dp(10)
+
                     flow: inPortrait ? GridLayout.TopToBottom : GridLayout.LeftToRight
                     columnSpacing: Units.dp(10)
                     rowSpacing: Units.dp(10)
