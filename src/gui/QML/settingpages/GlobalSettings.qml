@@ -241,15 +241,15 @@ Item {
 
                         Slider {
                             id: manualGain
-                            from: 100
-                            to: 0
+                            from: 0
+                            to: 100
                             value: manualGainState
                             stepSize: 1
 
                             Layout.preferredWidth: parent.width
                             onValueChanged: {
                                 if(enableAGC.checked == false)
-                                                cppGUI.inputGainChanged(valueGain)
+                                    cppGUI.inputGainChanged(manualGainState)
                             }
                         }
                     }
