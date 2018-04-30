@@ -1,38 +1,35 @@
 <RCC>
     <qresource prefix="/">
-        <file>src/gui/QML/StationDelegate.qml</file>
-        <file>src/gui/QML/main.qml</file>
+        <file>src/gui/QML/MainView.qml</file>
         <file>src/gui/QML/RadioView.qml</file>
-        <file>src/gui/QML/settingspages/GlobalSettings.qml</file>
-        <file>src/gui/QML/style/Units.qml</file>
         <file>src/gui/QML/SpectrumView.qml</file>
         <file>src/gui/QML/ExpertView.qml</file>
-        <file>src/gui/QML/style/Style.qml</file>
-        <file>src/gui/QML/style/qmldir</file>
-        <file>src/gui/QML/style/TextTitle.qml</file>
-        <file>src/gui/QML/style/TextStandart.qml</file>
-        <file>src/gui/QML/style/TextStation.qml</file>
-        <file>src/gui/QML/style/TextRadioInfo.qml</file>
-        <file>src/gui/QML/style/TextRadioStation.qml</file>
-        <file>src/gui/QML/style/TouchSlider.qml</file>
-        <file>src/gui/QML/style/TextExpert.qml</file>
-        <file>src/gui/QML/style/SettingsFrame.qml</file>
+        <file>src/gui/QML/texts/qmldir</file>
+        <file>src/gui/QML/texts/TextStyle.qml</file>
+        <file>src/gui/QML/texts/TextTitle.qml</file>
+        <file>src/gui/QML/texts/TextStandart.qml</file>
+        <file>src/gui/QML/texts/TextStation.qml</file>
+        <file>src/gui/QML/texts/TextRadioInfo.qml</file>
+        <file>src/gui/QML/texts/TextRadioStation.qml</file>
+        <file>src/gui/QML/texts/TextExpert.qml</file>
         <file>src/gui/QML/InfoPage.qml</file>
-        <file>src/gui/QML/style/TouchPageIndicator.qml</file>
-        <file>src/gui/QML/style/MessagePopup.qml</file>
         <file>src/gui/icon/welle_io_icons/index.theme</file>
         <file>src/gui/icon/welle_io_icons/20x20/back.png</file>
         <file>src/gui/icon/welle_io_icons/20x20/drawer.png</file>
         <file>src/gui/icon/welle_io_icons/20x20/menu.png</file>
+        <file>src/gui/icon/welle_io_icons/20x20/exit.png</file>
         <file>src/gui/icon/welle_io_icons/20x20@2/back.png</file>
         <file>src/gui/icon/welle_io_icons/20x20@2/drawer.png</file>
         <file>src/gui/icon/welle_io_icons/20x20@2/menu.png</file>
+        <file>src/gui/icon/welle_io_icons/20x20@2/exit.png</file>
         <file>src/gui/icon/welle_io_icons/20x20@3/back.png</file>
         <file>src/gui/icon/welle_io_icons/20x20@3/drawer.png</file>
         <file>src/gui/icon/welle_io_icons/20x20@3/menu.png</file>
+        <file>src/gui/icon/welle_io_icons/20x20@3/exit.png</file>
         <file>src/gui/icon/welle_io_icons/20x20@4/back.png</file>
         <file>src/gui/icon/welle_io_icons/20x20@4/drawer.png</file>
         <file>src/gui/icon/welle_io_icons/20x20@4/menu.png</file>
+        <file>src/gui/icon/welle_io_icons/20x20@4/exit.png</file>
         <file>i18n/de_DE.qm</file>
         <file>i18n/it_IT.qm</file>
         <file>i18n/hu_HU.qm</file>
@@ -46,9 +43,15 @@
         <file>src/libs/COPYING.kjmp2.zlib</file>
         <file>src/libs/COPYING.QT.LGPL-2.1</file>
         <file>src/libs/kiss_fft/COPYING</file>
-        <file>src/gui/QML/settingspages/ChannelSettings.qml</file>
-        <file>src/gui/QML/settingspages/RTLSDRSettings.qml</file>
-        <file>src/gui/QML/settingspages/RTLTCPSettings.qml</file>
-        <file>src/gui/QML/settingspages/SoapySDRSettings.qml</file>
+        <file>src/gui/QML/settingpages/GlobalSettings.qml</file>
+        <file>src/gui/QML/settingpages/ChannelSettings.qml</file>
+        <file>src/gui/QML/settingpages/RTLSDRSettings.qml</file>
+        <file>src/gui/QML/settingpages/RTLTCPSettings.qml</file>
+        <file>src/gui/QML/settingpages/SoapySDRSettings.qml</file>
+        <file>src/gui/QML/components/MessagePopup.qml</file>
+        <file>src/gui/QML/components/SettingsFrame.qml</file>
+        <file>src/gui/QML/components/StationDelegate.qml</file>
+        <file>src/gui/QML/components/Units.qml</file>
+        <file>src/gui/QML/components/qmldir</file>
     </qresource>
 </RCC>

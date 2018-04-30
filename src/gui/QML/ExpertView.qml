@@ -3,7 +3,8 @@ import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.1
 
 // Import custom styles
-import "style"
+import "texts"
+import "components"
 
 Item {
     height: Units.dp(400)
@@ -30,7 +31,7 @@ Item {
         TextExpert {
             id: displayFreqCorr
             name: qsTr("Frequency correction") + ":"
-            text: cppRadioController.FrequencyCorrection + " Hz"
+            text: cppRadioController.FrequencyCorrection + " Hz (" + cppRadioController.FrequencyCorrectionPpm.toFixed(2) + " ppm)"
         }
 
         TextExpert {

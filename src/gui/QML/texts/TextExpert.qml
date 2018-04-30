@@ -17,15 +17,15 @@ Item{
 
         Text{
             id: nameView
-            font.pixelSize: Style.textStandartSize
-            font.family: Style.textFont
-            color: Style.textColor
+            font.pixelSize: TextStyle.textStandartSize
+            font.family: TextStyle.textFont
+            color: TextStyle.textColor
         }
         Text{
             id: textView
-            font.pixelSize: Style.textStandartSize
-            font.family: Style.textFont
-            color: Style.textColor
+            font.pixelSize: TextStyle.textStandartSize
+            font.family: TextStyle.textFont
+            color: TextStyle.textColor
         }
     }
 }

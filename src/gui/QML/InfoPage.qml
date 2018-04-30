@@ -3,7 +3,7 @@ import QtQuick.Layouts 1.1
 import QtQuick.Controls 2.0
 
 // Import custom styles
-import "style"
+import "texts"
 
 Item {
     id: infoPage

@@ -2,7 +2,8 @@ import QtQuick 2.2
 import QtQuick.Layouts 1.1
 
 // Import custom styles
-import "style"
+import "texts"
+import "components"
 
 Item{
     id: item

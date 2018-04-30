@@ -312,7 +312,7 @@ int main(int argc, char** argv)
     rootContext->setContextProperty("cppRadioController", RadioController);
 
     // Load main page
-    engine->load(QUrl("qrc:/src/gui/QML/main.qml"));
+    engine->load(QUrl("qrc:/src/gui/QML/MainView.qml"));
 
     // Add MOT slideshow provider
     engine->addImageProvider(QLatin1String("motslideshow"), GUI->MOTImage);

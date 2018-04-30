@@ -108,6 +108,7 @@ void CRadioController::ResetTechnicalData(void)
     mIsSignal = false;
     mSNR = 0;
     mFrequencyCorrection = 0;
+    mFrequencyCorrectionPpm = 0.0f;
     mBitRate = 0;
     mAudioSampleRate = 0;
     mIsStereo = true;
@@ -573,6 +574,11 @@ int CRadioController::FrequencyCorrection() const
     return mFrequencyCorrection;
 }
 
+float CRadioController::FrequencyCorrectionPpm() const
+{
+    return mFrequencyCorrectionPpm;
+}
+
 int CRadioController::BitRate() const
 {
     return mBitRate;
@@ -1026,6 +1032,12 @@ void CRadioController::onFrequencyCorrectorChange(int fine, int coarse)
         return;
     mFrequencyCorrection = coarse + fine;
     emit FrequencyCorrectionChanged(mFrequencyCorrection);
+
+    if (CurrentFrequency != 0)
+    {
+        mFrequencyCorrectionPpm = -(1e6 * (float)mFrequencyCorrection) / (float)CurrentFrequency;
+        emit FrequencyCorrectionPpmChanged(mFrequencyCorrectionPpm);
+    }
 }
 
 void CRadioController::onSyncChange(char isSync)

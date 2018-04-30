@@ -4,7 +4,8 @@ import QtQuick.Layouts 1.1
 import Qt.labs.settings 1.0
 
 // Import custom styles
-import "../style"
+import "../texts"
+import "../components"
 
 Item {
     id: settingsPage
@@ -13,14 +14,14 @@ Item {
     property alias enableExpertModeState : enableExpertMode.checked
     property alias enableAGCState : enableAGC.checked
     property alias enableHwAGCState : enableHwAGC.checked
-    property alias manualGainState : manualGain.currentValue
+    property alias manualGainState : manualGain.value
 
     Settings {
         property alias enableFullScreenState : settingsPage.enableFullScreenState
         property alias enableLastPlayedStationState : settingsPage.enableLastPlayedStationState
         property alias enableExpertModeState : settingsPage.enableExpertModeState
         property alias manualGainState : settingsPage.manualGainState
-        property alias manualGainValue: manualGain.showCurrentValue
+        property alias manualGainValue: valueSliderView.text
         property alias enableAGCState : settingsPage.enableAGCState
         property alias enableHwAGCState : settingsPage.enableHwAGCState
         property alias manualChannel: manualChannelBox.currentIndex
@@ -52,7 +53,7 @@ Item {
         }
 
         onGuiDataChanged:{
-            manualGain.maximumValue = cppRadioController.GainCount
+            manualGain.to = cppRadioController.GainCount
 
             // Channel
             var channelIndex = manualChannelBox.find(guiData.Channel)
@@ -126,9 +127,9 @@ Item {
 
                             Text {
                                 id: textView
-                                font.pixelSize: Style.textStandartSize
-                                font.family: Style.textFont
-                                color: Style.textColor
+                                font.pixelSize: TextStyle.textStandartSize
+                                font.family: TextStyle.textFont
+                                color: TextStyle.textColor
                                 anchors.centerIn: parent
                                 text: qsTr("Found stations") + ": 0"
                             }
@@ -210,18 +211,61 @@ Item {
                         }
                     }
 
-                    TouchSlider {
-                        id: manualGain
+                    ColumnLayout {
+                        Layout.preferredWidth: parent.width
+                        spacing: Units.dp(10)
+                        opacity: enabled ? 1 : 0.5
                         enabled: !enableAGC.checked
-                        name: qsTr("Manual gain")
-                        showCurrentValue: qsTr("Value: ") + cppGUI.currentGainValue.toFixed(2)
-                        Layout.fillHeight: true
-                        currentValue: manualGainState
-                        onValueChanged: {
-                            if(enableAGC.checked == false)
-                                cppGUI.inputGainChanged(valueGain)
+
+                        RowLayout {
+                            Layout.preferredWidth: parent.width
+
+                            Text {
+                                id: nameSliderView
+                                font.pixelSize: TextStyle.textStandartSize
+                                font.family: TextStyle.textFont
+                                color: TextStyle.textColor
+                                Layout.alignment: Qt.AlignLeft
+                                text: qsTr("Manual gain")
+                            }
+
+                            Text {
+                                id: valueSliderView
+                                text: qsTr("Value: ") + cppGUI.currentGainValue.toFixed(2)
+                                font.pixelSize: TextStyle.textStandartSize
+                                font.family: TextStyle.textFont
+                                color: TextStyle.textColor
+                                Layout.alignment: Qt.AlignRight
+                            }
+                        }
+
+                        Slider {
+                            id: manualGain
+                            from: 100
+                            to: 0
+                            value: manualGainState
+                            stepSize: 1
+
+                            Layout.preferredWidth: parent.width
+                            onValueChanged: {
+                                if(enableAGC.checked == false)
+                                                cppGUI.inputGainChanged(valueGain)
+                            }
                         }
                     }
+
+//                    TouchSlider {
+//                        id: manualGain
+//                        enabled: !enableAGC.checked
+//                        name: qsTr("Manual gain")
+//                        showCurrentValue: qsTr("Value: ") + cppGUI.currentGainValue.toFixed(2)
+//                        Layout.fillHeight: true
+//                        currentValue: manualGainState
+//                        onValueChanged: {
+//                            if(enableAGC.checked == false)
+//                                cppGUI.inputGainChanged(valueGain)
+//                        }
+//                    }
                 }
             }
 
