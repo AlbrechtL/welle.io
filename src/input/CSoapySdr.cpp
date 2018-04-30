@@ -41,6 +41,8 @@ CSoapySdr::CSoapySdr() :
 {
     m_running = false;
     std::clog << "SoapySdr" << std::endl;
+
+    restart();
 }
 
 CSoapySdr::~CSoapySdr()
