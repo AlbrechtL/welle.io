@@ -207,7 +207,7 @@ Item {
                             cppGUI.inputEnableAGCChanged(checked)
 
                             if(checked == false)
-                                cppGUI.inputGainChanged(manualGain.currentValue)
+                                cppGUI.inputGainChanged(manualGain.value)
                         }
                     }
 
@@ -249,7 +249,7 @@ Item {
                             Layout.preferredWidth: parent.width
                             onValueChanged: {
                                 if(enableAGC.checked == false)
-                                    cppGUI.inputGainChanged(manualGainState)
+                                    cppGUI.inputGainChanged(value)
                             }
                         }
                     }
