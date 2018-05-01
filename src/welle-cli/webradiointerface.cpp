@@ -1016,7 +1016,7 @@ void WebRadioInterface::handle_phs()
                     time_carousel_change = chrono::steady_clock::now();
                 }
             }
-            else if (time_carousel_change + chrono::seconds(4) <
+            else if (time_carousel_change + chrono::seconds(40) <
                     chrono::steady_clock::now()) {
                 auto current_it = phs.find(current_carousel_service);
                 if (current_it == phs.end()) {
@@ -1031,6 +1031,7 @@ void WebRadioInterface::handle_phs()
                     }
                     current_carousel_service = current_it->first;
                 }
+                time_carousel_change = chrono::steady_clock::now();
             }
 
             lock.unlock();
