@@ -96,7 +96,7 @@ void Socket::close()
 
 bool Socket::valid() const
 {
-    return sock != INVALID_SOCKET;
+    return sock != (int) INVALID_SOCKET;
 }
 
 ssize_t Socket::recv(void *buffer, size_t length, int flags)
@@ -123,7 +123,11 @@ bool Socket::bind(int port)
     }
 
     int reuse = 1;
+#if defined(_WIN32)
+    if (setsockopt(listensock, SOL_SOCKET, SO_REUSEADDR, (char *) &reuse, sizeof(reuse))
+#else
     if (setsockopt(listensock, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse))
+#endif
             == -1) {
         throw std::runtime_error("Can't reuse address");
     }

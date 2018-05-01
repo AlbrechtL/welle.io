@@ -49,7 +49,7 @@
         <file>src/gui/QML/settingpages/RTLTCPSettings.qml</file>
         <file>src/gui/QML/settingpages/SoapySDRSettings.qml</file>
         <file>src/gui/QML/components/MessagePopup.qml</file>
-        <file>src/gui/QML/components/SettingsFrame.qml</file>
+        <file>src/gui/QML/components/SettingSection.qml</file>
         <file>src/gui/QML/components/StationDelegate.qml</file>
         <file>src/gui/QML/components/Units.qml</file>
         <file>src/gui/QML/components/qmldir</file>
