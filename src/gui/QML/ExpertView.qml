@@ -25,13 +25,13 @@ Item {
         TextExpert {
             id: displayCurrentChannel
             name: qsTr("Current channel") + ":"
-            text: cppGUI.guiData.Channel + " (" + cppGUI.guiData.Frequency/1e6 + " MHz)"
+            text: cppGUI.guiData.Channel + " (" + (cppGUI.guiData.Frequency > 0 ? cppGUI.guiData.Frequency/1e6 :  "N/A") + " MHz)"
         }
 
         TextExpert {
             id: displayFreqCorr
             name: qsTr("Frequency correction") + ":"
-            text: cppRadioController.FrequencyCorrection + " Hz (" + cppRadioController.FrequencyCorrectionPpm.toFixed(2) + " ppm)"
+            text: cppRadioController.FrequencyCorrection + " Hz (" + (cppGUI.guiData.Frequency > 0 ? cppRadioController.FrequencyCorrectionPpm.toFixed(2) : "N/A") + " ppm)"
         }
 
         TextExpert {
