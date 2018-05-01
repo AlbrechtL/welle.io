@@ -51,7 +51,6 @@ CAudioThread::CAudioThread(RingBuffer<int16_t>& buffer, QObject *parent) :
 
 CAudioThread::~CAudioThread(void)
 {
-    qDebug() << "Destructor of CAudioThread: " << QThread::currentThreadId();
 }
 
 void CAudioThread::setRate(int sampleRate)
@@ -61,7 +60,6 @@ void CAudioThread::setRate(int sampleRate)
                  << "Sample rate" << sampleRate << "Hz";
         CardRate = sampleRate;
         // restart audio within thread with new sample rate
-        qDebug() << "Restart Audio with rate " << CardRate << " from Thread: " << QThread::currentThreadId();
         init(CardRate);
     }
 }
@@ -105,12 +103,10 @@ void CAudioThread::init(int sampleRate)
 
 void CAudioThread::run()
 {
-    qDebug() << "Start Audio with rate " << CardRate << " from Thread: " << QThread::currentThreadId();
     // QAudioOutput needs to create within run()
     init(CardRate);
     // start event loop of QThread
     exec();
-    qDebug() << "End of event loop from Thread: " << QThread::currentThreadId();
 }
 
 void CAudioThread::stop(void)
@@ -227,17 +223,14 @@ CAudio::CAudio(RingBuffer<int16_t>& buffer, QObject *parent) :
     audioIODevice(buffer, this),
     _audioThread(NULL)
 {
-    qDebug() << "Create CAudioThread from main thread: " << QThread::currentThreadId();
     _audioThread = new CAudioThread(buffer);
     _audioThread->start();
 }
      
 CAudio::~CAudio(void)
 {
-    qDebug() << "Destructor of CAudio from main thread: " << QThread::currentThreadId();
     if (_audioThread != NULL)
     {
-        qDebug() << "Destructor of CAudio from main thread stops CAudioThread: " << QThread::currentThreadId();
         _audioThread->quit();
         _audioThread->wait();
     }
