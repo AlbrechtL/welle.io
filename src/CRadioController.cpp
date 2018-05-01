@@ -108,7 +108,7 @@ void CRadioController::ResetTechnicalData(void)
     mIsSignal = false;
     mSNR = 0;
     mFrequencyCorrection = 0;
-    mFrequencyCorrectionPpm = 0.0f;
+    mFrequencyCorrectionPpm = NAN;
     mBitRate = 0;
     mAudioSampleRate = 0;
     mIsStereo = true;
@@ -1034,10 +1034,10 @@ void CRadioController::onFrequencyCorrectorChange(int fine, int coarse)
     emit FrequencyCorrectionChanged(mFrequencyCorrection);
 
     if (CurrentFrequency != 0)
-    {
-        mFrequencyCorrectionPpm = -(1e6 * (float)mFrequencyCorrection) / (float)CurrentFrequency;
-        emit FrequencyCorrectionPpmChanged(mFrequencyCorrectionPpm);
-    }
+        mFrequencyCorrectionPpm = -1000000.0f * (float)mFrequencyCorrection / (float)CurrentFrequency;
+    else
+        mFrequencyCorrectionPpm = NAN;
+    emit FrequencyCorrectionPpmChanged(mFrequencyCorrectionPpm);
 }
 
 void CRadioController::onSyncChange(char isSync)
