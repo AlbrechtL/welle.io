@@ -22,7 +22,7 @@ Basically all rtl-sdrs with the Realtek chipset RTL2832U are supported. These ar
 If you start welle.io without any options welle.io will detect the rtl-sdr device automatically. After enabling the "Expert mode" you can check if welle.io detects the device successfully.
 ![welle-io-rtlsdr.png](/images/welle-io-rtlsdr.png)
 
-You can also use the command line option "-d" to force welle.io to use the airspy device.
+You can also use the command line option "-d" to force welle.io to use the rtl-sdr device.
 
 **Windows**
   ```
@@ -36,8 +36,8 @@ welle-io.exe -d rtl_sdr
 
 
 ## Windows set up
-To install the rtl-sdr on you Windows 10 system please follow the steps:
-* Navigate to you welle.io install folder e.g. C:\Program Files (x86)\welle.io
+To install the rtl-sdr on your Windows 10 system please follow the steps:
+* Navigate to your welle.io install folder e.g. C:\Program Files (x86)\welle.io
 * Run "zadig_2.2.exe"
 * Choose "Options" and click to "List All Devices"
 ![Zadig_List_All.png](/images/Zadig_List_All.png)
