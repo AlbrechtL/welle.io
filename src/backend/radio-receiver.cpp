@@ -51,7 +51,7 @@ RadioReceiver::RadioReceiver(
         rci,
         mscHandler,
         ficHandler,
-        3, 3)
+        3)
 { }
 
 void RadioReceiver::restart(bool doScan)
