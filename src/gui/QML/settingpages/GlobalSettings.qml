@@ -58,7 +58,6 @@ Item {
                 text: qsTr("Full screen mode")
                 height: 24
                 Layout.fillWidth: true
-                objectName: "enableFullScreen"
                 checked: false
             }
 
@@ -67,7 +66,6 @@ Item {
                 text: qsTr("Expert mode")
                 height: 24
                 Layout.fillWidth: true
-                objectName: "enableExpertMode"
                 checked: false
             }
         }
@@ -80,7 +78,6 @@ Item {
                 text: qsTr("Automatic RF gain")
                 height: 24
                 Layout.fillWidth: true
-                objectName: "enableAGC"
                 checked: true
                 onClicked: {
                     cppGUI.inputEnableAGCChanged(checked)
@@ -91,18 +88,18 @@ Item {
             }
 
             ColumnLayout {
-                Layout.preferredWidth: parent.width
                 spacing: Units.dp(10)
                 opacity: enabled ? 1 : 0.5
                 enabled: !enableAGC.checked
 
                 RowLayout {
+                    anchors.fill: parent
                     Text {
                         id: nameSliderView
                         font.pixelSize: TextStyle.textStandartSize
                         font.family: TextStyle.textFont
                         color: TextStyle.textColor
-                        Layout.alignment: Qt.AlignLeft
+                        anchors.left: parent.left
                         text: qsTr("Manual gain")
                     }
 
@@ -112,7 +109,7 @@ Item {
                         font.pixelSize: TextStyle.textStandartSize
                         font.family: TextStyle.textFont
                         color: TextStyle.textColor
-                        Layout.alignment: Qt.AlignRight
+                        anchors.right: parent.right
                     }
                 }
 
@@ -122,6 +119,7 @@ Item {
                     to: 100
                     value: manualGainState
                     stepSize: 1
+                    Layout.fillWidth: true
 
                     onValueChanged: {
                         if(enableAGC.checked == false)

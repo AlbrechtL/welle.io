@@ -30,7 +30,7 @@ Item {
         }
 
         onFoundChannelCount:{
-            channelScanProgressBar.text = qsTr("Found stations") + ": " + channelCount;
+            channelCountTextView.text = qsTr("Found stations") + ": " + channelCount;
         }
 
         onGuiDataChanged:{
@@ -50,18 +50,15 @@ Item {
 
         SettingSection {
             isNotFirst: false
+            anchors.left: parent.left
+            anchors.right: parent.right
+
             text: qsTr("Channel scan")
 
             RowLayout {
-                TextStandart {
-                    text: qsTr("Channel scan")
-                    Layout.alignment: Qt.AlignLeft
-                }
-
                 Button {
                     id: startChannelScanButton
                     text: qsTr("Start")
-                    Layout.alignment: Qt.AlignCenter
                     onClicked: {
                         startChannelScanButton.enabled = false
                         stopChannelScanButton.enabled = true
@@ -72,7 +69,6 @@ Item {
                 Button {
                     id: stopChannelScanButton
                     text: qsTr("Stop")
-                    Layout.alignment: Qt.AlignRight
                     enabled: false
                     onClicked: {
                         startChannelScanButton.enabled = true
@@ -82,34 +78,20 @@ Item {
                 }
             }
 
+            TextStandart {
+                id: channelCountTextView
+                text: qsTr("Found stations") + ": 0"
+            }
+
             ProgressBar{
                 id: channelScanProgressBar
                 from: 0
                 to: 54 // 54 channels
-                width: parent.width
-
-                property alias text: textView.text
-
-                Text {
-                    id: textView
-                    font.pixelSize: TextStyle.textStandartSize
-                    font.family: TextStyle.textFont
-                    color: TextStyle.textColor
-                    anchors.centerIn: parent
-                    text: qsTr("Found stations") + ": 0"
-                }
+                Layout.fillWidth: true
             }
 
-            RowLayout {
-                Layout.preferredWidth: parent.width
-
-                Button {
-                    id: clearListButton
-                    text: qsTr("Clear station list")
-                    Layout.preferredWidth: Units.dp(150)
-                    Layout.alignment: Qt.AlignLeft
-                    onClicked: cppGUI.clearStationList()
-                }
+            SettingSection {
+                text: qsTr("Manual channel")
 
                 ComboBox {
                     id: manualChannelBox
@@ -130,7 +112,6 @@ Item {
 
                     Layout.preferredHeight: Units.dp(25)
                     Layout.preferredWidth: Units.dp(130)
-                    Layout.alignment: Qt.AlignRight
                     onActivated: {
                         cppGUI.setManualChannel(model[index])
                     }
@@ -143,12 +124,15 @@ Item {
 
             Switch {
                 id: enableLastPlayedStation
-                text: qsTr("Last played")
+                text: qsTr("Automatic start playing last station")
                 height: 24
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                objectName: "enableLastPlayedStation"
                 checked: false
+            }
+
+            Button {
+                id: clearListButton
+                text: qsTr("Clear station list")
+                onClicked: cppGUI.clearStationList()
             }
         }
     }

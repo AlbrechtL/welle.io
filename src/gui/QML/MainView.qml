@@ -211,6 +211,8 @@ ApplicationWindow {
             delegate: ItemDelegate {
                 width: parent.width
                 text: model.title
+                font.pixelSize: TextStyle.textStandartSize
+                font.family: TextStyle.textFont
                 highlighted: ListView.isCurrentItem
                 onClicked: {
                     if(listView.currentIndex != index) {
