@@ -2,7 +2,6 @@
     <qresource prefix="/">
         <file>src/gui/QML/MainView.qml</file>
         <file>src/gui/QML/RadioView.qml</file>
-        <file>src/gui/QML/SpectrumView.qml</file>
         <file>src/gui/QML/ExpertView.qml</file>
         <file>src/gui/QML/texts/qmldir</file>
         <file>src/gui/QML/texts/TextStyle.qml</file>
@@ -52,6 +51,9 @@
         <file>src/gui/QML/components/SettingSection.qml</file>
         <file>src/gui/QML/components/StationDelegate.qml</file>
         <file>src/gui/QML/components/Units.qml</file>
+        <file>src/gui/QML/components/SpectrumView.qml</file>
         <file>src/gui/QML/components/qmldir</file>
+        <file>src/gui/QML/expertviews/Spectrum.qml</file>
+        <file>src/gui/QML/expertviews/StationInformation.qml</file>
     </qresource>
 </RCC>

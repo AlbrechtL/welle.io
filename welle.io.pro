@@ -28,6 +28,7 @@ SOURCES += src/gui/QML/*.qml \
     src/gui/QML/texts/*.qml \
     src/gui/QML/settingpages/*.qml \
     src/gui/QML/components/*.qml \
+    src/gui/QML/expertviews/*.qml \
 }
 
 

@@ -9,8 +9,8 @@ Item{
     property alias name: nameView.text
     property alias text: textView.text
 
-    Layout.fillWidth: true
     height: textLayout.height
+    width: textLayout.width
 
     RowLayout{
         id: textLayout
