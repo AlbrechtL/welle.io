@@ -38,8 +38,12 @@ if(BUILD_WELLE_IO)
     find_package(Qt5 COMPONENTS Widgets Quick Multimedia Charts REQUIRED)
 endif()
 
+find_package(ALSA)
+if(ALSA_FOUND)
+    add_definitions(-DHAVE_ALSA)
+endif()
+
 if(BUILD_WELLE_CLI)
-    find_package(ALSA REQUIRED)
     find_package(Lame REQUIRED)
 endif()
 

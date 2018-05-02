@@ -41,7 +41,9 @@
 #include <utility>
 #include <cstdio>
 #include <unistd.h>
-#include "welle-cli/alsa-output.h"
+#if defined(HAVE_ALSA)
+#  include "welle-cli/alsa-output.h"
+#endif
 #include "welle-cli/webradiointerface.h"
 #include "backend/radio-receiver.h"
 #include "input/CInputFactory.h"
@@ -56,6 +58,7 @@ using namespace std;
 
 using namespace nlohmann;
 
+#if defined(HAVE_ALSA)
 class AlsaProgrammeHandler: public ProgrammeHandlerInterface {
     public:
         virtual void onFrameErrors(int frameErrors) override { (void)frameErrors; }
@@ -90,6 +93,7 @@ class AlsaProgrammeHandler: public ProgrammeHandlerInterface {
         bool stereo = true;
         unsigned int rate = 48000;
 };
+#endif // defined(HAVE_ALSA)
 
 class WavProgrammeHandler: public ProgrammeHandlerInterface {
     public:
@@ -224,6 +228,7 @@ struct options_t {
 static void usage()
 {
     cerr << "Usage: " << endl <<
+#if defined(HAVE_ALSA)
         "Receive using RTLSDR, and play with ALSA:" << endl <<
         " welle-cli -c channel -p programme" << endl <<
         endl <<
@@ -231,7 +236,8 @@ static void usage()
         "IQ file format is complexf I/Q unless the filename ends with u8.iq" << endl <<
         " welle-cli -f file -p programme" << endl <<
         endl <<
-        "Use -D to dump all programmes to files, do not play to ALSA." << endl <<
+#endif // defined(HAVE_ALSA)
+        "Use -D to dump all programmes to files." << endl <<
         " welle-cli -c channel -D " << endl <<
         endl <<
         "Use -w to enable webserver, decode a programmes on demand." << endl <<
@@ -399,6 +405,7 @@ int main(int argc, char **argv)
             }
         }
         else {
+#if defined(HAVE_ALSA)
             AlsaProgrammeHandler ph;
             while (not service_to_tune.empty()) {
                 cerr << "Service list" << endl;
@@ -445,6 +452,9 @@ int main(int argc, char **argv)
                 }
                 cerr << "**** Trying to tune to " << service_to_tune << endl;
             }
+#else
+            cerr << "Nothing to do, not ALSA support." << endl;
+#endif // defined(HAVE_ALSA)
         }
     }
 

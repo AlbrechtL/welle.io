@@ -23,6 +23,8 @@
  *
  */
 
+#if defined(HAVE_ALSA)
+
 #include <thread>
 #include "welle-cli/alsa-output.h"
 
@@ -133,3 +135,4 @@ void AlsaOutput::playPCM(std::vector<int16_t>&& pcm)
     }
 }
 
+#endif // defined(HAVE_ALSA)

@@ -22,6 +22,7 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
+#if defined(HAVE_ALSA)
 #include <vector>
 #include <cstddef>
 #include <alsa/asoundlib.h>
@@ -44,3 +45,4 @@ class AlsaOutput {
         snd_pcm_hw_params_t *params;
 };
 
+#endif // defined(HAVE_ALSA)
