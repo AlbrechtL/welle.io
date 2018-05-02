@@ -45,30 +45,29 @@ static inline float get_db_over_256(float x)
     return 20 * log10((x + 1.0f) / 256.0f);
 }
 
-static inline float l1_norm(std::complex<float> z)
+static inline float l1_norm(const std::complex<float>& z)
 {
     return std::abs(z.real()) + std::abs(z.imag());
 }
 
-static inline bool check_CRC_bits(const uint8_t* in, int16_t size)
+static inline bool check_CRC_bits(const uint8_t *in, int size)
 {
     static const uint8_t crcPolynome[] = { 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0 }; // MSB .. LSB
-    int16_t i, f;
     uint8_t b[16];
-
     memset(b, 1, 16);
 
-    for (i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++) {
         uint8_t d = in[i];
         if (i >= size - 16) {
             d ^= 1;
         }
 
         if ((b[0] ^ d) == 1) {
-            for (f = 0; f < 15; f++)
+            for (int f = 0; f < 15; f++)
                 b[f] = crcPolynome[f] ^ b[f + 1];
             b[15] = 1;
-        } else {
+        }
+        else {
             memmove(&b[0], &b[1], sizeof(uint8_t) * 15); // Shift
             b[15] = 0;
         }
@@ -80,16 +79,14 @@ static inline bool check_CRC_bits(const uint8_t* in, int16_t size)
     return crc == 0;
 }
 
-static inline bool check_crc_bytes(const uint8_t *msg, int16_t len)
+static inline bool check_crc_bytes(const uint8_t *msg, int len)
 {
-    int i, j;
     uint16_t accumulator = 0xFFFF;
-    uint16_t crc;
-    uint16_t genpoly = 0x1021;
+    const uint16_t genpoly = 0x1021;
 
-    for (i = 0; i < len; i++) {
+    for (int i = 0; i < len; i++) {
         int16_t data = msg[i] << 8;
-        for (j = 8; j > 0; j--) {
+        for (int j = 8; j > 0; j--) {
             if ((data ^ accumulator) & 0x8000)
                 accumulator = ((accumulator << 1) ^ genpoly) & 0xFFFF;
             else
@@ -98,18 +95,17 @@ static inline bool check_crc_bytes(const uint8_t *msg, int16_t len)
         }
     }
     //
-    //	ok, now check with the crc that is contained
-    //	in the au
-    crc = ~((msg[len] << 8) | msg[len + 1]) & 0xFFFF;
+    // ok, now check with the crc that is contained
+    // in the au
+    uint16_t crc = ~((msg[len] << 8) | msg[len + 1]) & 0xFFFF;
     return (crc ^ accumulator) == 0;
 }
 
 static inline uint16_t getBits(const uint8_t* d, int16_t offset, int16_t size)
 {
-    int16_t i;
     uint16_t res = 0;
 
-    for (i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++) {
         res <<= 1;
         res |= d[offset + i];
     }
@@ -223,9 +219,8 @@ static inline uint32_t getLBits(const uint8_t* d,
     int16_t offset, int16_t amount)
 {
     uint32_t res = 0;
-    int16_t i;
 
-    for (i = 0; i < amount; i++) {
+    for (int i = 0; i < amount; i++) {
         res <<= 1;
         res |= (d[offset + i] & 01);
     }
