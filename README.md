@@ -18,7 +18,7 @@ Table of contents
   * [Supported Hardware](#supported-hardware)
   * [Building](#building)
     * [General Information](#general-information)
-    * [Ubuntu Linux 16.04 LTS](#ubuntu-linux-1604-lts)
+    * [Ubuntu Linux 16.04 LTS and 18.04 LTS](#ubuntu-linux-1604-lts-and-1804-lts)
     * [Windows 10](#windows-10)
     * [macOS](#macos)
     * [CMake instead of Qt Creator (Windows, Linux, macOS)](#cmake-instead-of-qt-creator-windows-linux-macos)
@@ -103,17 +103,17 @@ Building
 General Information
 ---
 The following libraries and their development files are needed:
-* QT 5.9 (don't use QT 5.8 because of [this](https://github.com/AlbrechtL/welle.io/issues/35) bug)
+* QT 5.10 (QT 5.9 and below is not supported)
 * FFTW3f
 * libfaad
 * librtlsdr
 * libusb
 
-Ubuntu Linux 16.04 LTS
+Ubuntu Linux 16.04 LTS and 18.04 LTS
 ---
-This sections shows how to compile welle.io on Ubuntu 16.04 LTS. 
+This sections shows how to compile welle.io on Ubuntu 16.04 LTS and Ubuntu 18.04 LTS. 
 
-1. Install QT 5.9 including the QT Charts module by using the the "Qt Online Installer for Linux" https://www.qt.io/download-open-source/
+1. Install QT 5.10 including the QT Charts module by using the the "Qt Online Installer for Linux" https://www.qt.io/download-open-source/
 
 2. Install the following packages
 
@@ -143,7 +143,7 @@ A compiled version can be found at the [release page](https://github.com/Albrech
 
 This sections shows how to compile welle.io on Windows 10. Windows 7 should also be possible but is not tested. 
 
-1. Install QT 5.9 including the QT Charts and mingw modules by using the the "Qt Online Installer for Windows" https://www.qt.io/download-open-source/
+1. Install QT 5.10 including the QT Charts and mingw modules by using the the "Qt Online Installer for Windows" https://www.qt.io/download-open-source/
 2. Clone welle.io https://github.com/AlbrechtL/welle.io.git e.g. by using [TortoiseGit](https://tortoisegit.org).
 3. Clone the welle.io Windows libraries https://github.com/AlbrechtL/welle.io-win-libs.git.
 4. Start QT Creator and open the project file "welle.io.pro" inside the folder "welle.io".
@@ -179,7 +179,7 @@ You need to install the dependencies with MacPorts first, assuming you have [Mac
 # sudo port install fftw-3-single faad2 rtl-sdr libusb
 ```
 
-1. Install Qt 5.9 with Qt Creator directly from Qt website, not through MacPorts.
+1. Install Qt 5.10 with Qt Creator directly from Qt website, not through MacPorts.
 2. Clone welle.io
 
   ```
@@ -230,7 +230,7 @@ welle.io uses the "RTL2832U driver" from Martin Marinov, to be found at the [Goo
 
 This sections shows how to compile welle.io for Android.
 
-1. Install QT 5.9 for Android including the QT Charts and QT Remote Objects modules by using the the "Qt Online Installer for Windows" https://www.qt.io/download-open-source/
+1. Install QT 5.10 for Android including the QT Charts and QT Remote Objects modules by using the the "Qt Online Installer for Windows" https://www.qt.io/download-open-source/
 2. Follow the side https://doc.qt.io/qt-5/androidgs.html to install the Android build enviroment
 3. Clone welle.io https://github.com/AlbrechtL/welle.io.git
 
