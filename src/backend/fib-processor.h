@@ -44,6 +44,7 @@ class FIBProcessor {
         bool    syncReached(void);
 
         // Called from the frontend
+        uint16_t getEnsembleId(void) const;
         std::string getEnsembleName(void) const;
         std::vector<Service> getServiceList(void) const;
         std::list<ServiceComponent> getComponents(const Service& s) const;
@@ -106,6 +107,7 @@ class FIBProcessor {
         bool timeOffsetReceived = false;
         dab_date_time_t dateTime = {};
         mutable std::mutex mutex;
+        uint16_t ensembleId = 0;
         std::string ensembleName;
         std::vector<Subchannel> subChannels;
         std::vector<ServiceComponent> components;

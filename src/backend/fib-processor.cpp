@@ -707,7 +707,7 @@ void    FIBProcessor::process_FIG1 (uint8_t *d)
            return;
            */
         case 0: // ensemble label
-            SId = getBits (d, 16, 16);
+            ensembleId = getBits (d, 16, 16);
             offset  = 32;
             if ((charSet <= 16)) { // EBU Latin based repertoire
                 for (i = 0; i < 16; i ++) {
@@ -943,6 +943,12 @@ Subchannel FIBProcessor::getSubchannel(const ServiceComponent& sc) const
 {
     std::lock_guard<std::mutex> lock(mutex);
     return subChannels.at(sc.subchannelId);
+}
+
+uint16_t FIBProcessor::getEnsembleId() const
+{
+    std::lock_guard<std::mutex> lock(mutex);
+    return ensembleId;
 }
 
 std::string FIBProcessor::getEnsembleName() const

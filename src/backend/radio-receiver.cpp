@@ -115,6 +115,11 @@ bool RadioReceiver::playProgramme(ProgrammeHandlerInterface& handler,
     return false;
 }
 
+uint16_t RadioReceiver::getEnsembleId(void) const
+{
+    return ficHandler.fibProcessor.getEnsembleId();
+}
+
 std::string RadioReceiver::getEnsembleName(void) const
 {
     return ficHandler.fibProcessor.getEnsembleName();

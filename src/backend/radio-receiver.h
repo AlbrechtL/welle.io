@@ -60,6 +60,7 @@ class RadioReceiver {
 
         bool removeServiceToDecode(const Service& s);
 
+        uint16_t getEnsembleId(void) const;
         std::string getEnsembleName(void) const;
         std::vector<Service> getServiceList(void) const;
         std::list<ServiceComponent> getComponents(const Service& s) const;

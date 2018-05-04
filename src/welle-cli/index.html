@@ -90,7 +90,7 @@ var ensembleInfoTimer = setInterval(populateEnsembleinfo, 1000);
 var plotTimer = setInterval(populatePlots, 480);
 
 function ensembleInfoTemplate() {
-    var html = '<p><b>${name}</b> SNR: ${SNR}';
+    var html = '<p><b>${name}</b> EId: ${EId} SNR: ${SNR}';
     html += ' Freq corr: ${FrequencyCorrection}';
     html += ' Date:${year}-${month}-${day} ${hour}:${minutes} UTC</p>';
     html += '<table id="servicetable">'
@@ -198,6 +198,8 @@ function populateEnsembleinfo() {
 
         var ens = {};
         ens["name"] = data["Ensemble"]["Name"];
+        ens["EId"] = data["Ensemble"]["Id"];
+
         ens["year"] = data["UTCTime"]["year"];
         ens["month"] = data["UTCTime"]["month"];
         ens["day"] = data["UTCTime"]["day"];

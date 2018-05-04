@@ -88,14 +88,17 @@ struct DabLabel {
 };
 
 
-//  from FIG1/2
 struct Service {
+    bool programmeNotData = true;
     uint32_t serviceId = 0;
+
     DabLabel serviceLabel;
-    bool     hasPNum = false;
     bool     hasLanguage = false;
     int16_t  language = -1;
     int16_t  programType = 0; // PTy, FIG0/17
+
+    // Programme number from FIG 0/16
+    bool     hasPNum = false;
     uint16_t pNum = 0;
 };
 
