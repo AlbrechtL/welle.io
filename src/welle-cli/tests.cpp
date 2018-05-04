@@ -1,0 +1,254 @@
+/*
+ *    Copyright (C) 2018
+ *    Matthias P. Braendli (matthias.braendli@mpb.li)
+ *
+ *    Copyright (C) 2017
+ *    Albrecht Lohofener (albrechtloh@gmx.de)
+ *
+ *    This file is based on SDR-J
+ *    Copyright (C) 2010, 2011, 2012
+ *    Jan van Katwijk (J.vanKatwijk@gmail.com)
+ *
+ *    This file is part of the welle.io.
+ *    Many of the ideas as implemented in welle.io are derived from
+ *    other work, made available through the GNU general Public License.
+ *    All copyrights of the original authors are recognized.
+ *
+ *    welle.io is free software; you can redistribute it and/or modify
+ *    it under the terms of the GNU General Public License as published by
+ *    the Free Software Foundation; either version 2 of the License, or
+ *    (at your option) any later version.
+ *
+ *    welle.io is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU General Public License for more details.
+ *
+ *    You should have received a copy of the GNU General Public License
+ *    along with welle.io; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
+
+#include "tests.h"
+#include "backend/radio-receiver.h"
+#include "CRAWFile.h"
+#include <algorithm>
+#include <random>
+#include <condition_variable>
+#include <deque>
+#include <iostream>
+#include <utility>
+#include <cstdio>
+
+using namespace std;
+
+static random_device rd;
+static mt19937 random_generator(rd());
+
+class ChannelSimulator : public CVirtualInput
+{
+    private:
+        CVirtualInput* parentInput;
+        normal_distribution<> distr;
+
+    public:
+        size_t num_samps = 0;
+
+        ChannelSimulator(unique_ptr<CVirtualInput>& parent, double stddev) :
+            parentInput(parent.get()),
+            distr(0.0, stddev) {}
+
+        virtual ~ChannelSimulator() {};
+
+        virtual CDeviceID getID(void) { return parentInput->getID(); }
+        virtual void setFrequency(int frequency)
+            { parentInput->setFrequency(frequency); }
+
+        virtual int getFrequency(void) const
+            { return parentInput->getFrequency(); }
+
+        virtual bool restart(void)
+            { return parentInput->restart(); }
+        virtual void stop(void)
+            { return parentInput->stop(); }
+        virtual void reset(void)
+            { return parentInput->reset(); }
+
+        virtual int32_t getSamples(DSPCOMPLEX* buffer, int32_t size)
+        {
+            int32_t r = parentInput->getSamples(buffer, size);
+
+            num_samps += r;
+
+            // Add gaussian noise, with stddev on I and Q
+            // This is not equivalent to complex noise of the same stddev!
+            for (int32_t i = 0; i < size; i++) {
+                buffer[0] += distr(random_generator);
+                buffer[1] += distr(random_generator);
+            }
+
+            return r;
+        }
+
+        virtual int32_t getSpectrumSamples(DSPCOMPLEX* buffer, int32_t size)
+            { return parentInput->getSpectrumSamples(buffer, size); }
+
+        virtual int32_t getSamplesToRead(void)
+            { return parentInput->getSamplesToRead(); }
+
+        virtual float setGain(int gain)
+            { return parentInput->setGain(gain); }
+
+        virtual int getGainCount(void)
+            { return parentInput->getGainCount(); }
+
+        virtual void setAgc(bool agc)
+            { return parentInput->setAgc(agc); }
+
+        virtual void setHwAgc(bool hwAGC)
+            { return parentInput->setHwAgc(hwAGC); }
+
+        virtual bool isHwAgcSupported(void) const
+            { return parentInput->isHwAgcSupported(); }
+
+        virtual std::string getName(void)
+            { return parentInput->getName() + " with ChannelSimulator"; }
+};
+
+class TestRadioInterface : public RadioControllerInterface {
+    public:
+        virtual void onSNR(int snr) override { (void)snr; }
+        virtual void onFrequencyCorrectorChange(int fine, int coarse) override { (void)fine; (void)coarse; }
+        virtual void onSyncChange(char isSync) override { synced = isSync; }
+        virtual void onSignalPresence(bool isSignal) override { (void)isSignal; }
+        virtual void onServiceDetected(uint32_t sId, const std::string& label) override
+        {
+            cout << "New Service: 0x" << hex << sId << dec << " '" << label << "'" << endl;
+        }
+
+        virtual void onNewEnsembleName(const std::string& name) override
+        {
+            cout << "Ensemble name is: " << name << endl;
+        }
+
+        virtual void onDateTimeUpdate(const dab_date_time_t& dateTime) override { (void)dateTime; }
+        virtual void onFIBDecodeSuccess(bool crcCheckOk, const uint8_t* fib) override { (void)crcCheckOk; (void)fib; }
+        virtual void onNewImpulseResponse(std::vector<float>&& data) override { (void)data; }
+        virtual void onNewNullSymbol(std::vector<DSPCOMPLEX>&& data) override { (void)data; }
+        virtual void onConstellationPoints(std::vector<DSPCOMPLEX>&& data) override { (void)data; }
+        virtual void onMessage(message_level_t level, const std::string& text) override
+        {
+            switch (level) {
+                case message_level_t::Information:
+                    cerr << "Info: " << text << endl;
+                    break;
+                case message_level_t::Error:
+                    cerr << "Error: " << text << endl;
+                    break;
+            }
+        }
+
+        virtual void onTIIMeasurement(tii_measurement_t&& m) override { (void)m; }
+        bool synced = false;
+};
+
+class TestProgrammeHandler: public ProgrammeHandlerInterface {
+    private:
+        bool stereo = true;
+        int rate = 0;
+
+    public:
+        vector<int> frameErrorStats;
+        vector<int> aacErrorStats;
+        vector<int> rsErrorStats;
+
+        virtual void onFrameErrors(int frameErrors) override
+        {
+            frameErrorStats.push_back(frameErrors);
+        }
+
+        virtual void onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, bool isStereo) override
+        {
+            if (rate != sampleRate or stereo != isStereo) {
+                cout << "rate " << sampleRate << " stereo " << isStereo << endl;
+            }
+            rate = sampleRate;
+            stereo = isStereo;
+        }
+
+        virtual void onRsErrors(int rsErrors) override { rsErrorStats.push_back(rsErrors); }
+        virtual void onAacErrors(int aacErrors) override { aacErrorStats.push_back(aacErrors); }
+        virtual void onNewDynamicLabel(const std::string& label) override
+        {
+            cout << "DLS: " << label << endl;
+        }
+
+        virtual void onMOT(const std::vector<uint8_t>& data, int subtype) override { (void)data; (void)subtype; }
+};
+
+static void test0_iteration(unique_ptr<CVirtualInput>& interface, double stddev)
+{
+    cerr << "Setup test0" << endl;
+    ChannelSimulator s(interface, stddev);
+    TestRadioInterface ri;
+    RadioReceiver rx(ri, s);
+
+    cerr << "Restart rx" << endl;
+    rx.restart(false);
+
+    TestProgrammeHandler tph;
+
+    bool service_selected = false;
+    string dumpFileName = "";
+
+    while (not service_selected) {
+        this_thread::sleep_for(chrono::seconds(1));
+
+        for (const auto s : rx.getServiceList()) {
+            if (rx.playSingleProgramme(tph, dumpFileName, s) == false) {
+                cerr << "Tune to " << s.serviceLabel.label << " failed" << endl;
+            }
+            else {
+                service_selected = true;
+                break;
+            }
+        }
+    }
+
+    cerr << "Wait for completion" << endl;
+    while (not dynamic_cast<CRAWFile&>(*interface).endWasReached()) {
+        this_thread::sleep_for(chrono::milliseconds(120));
+    }
+
+    cerr << endl;
+    cerr << "STDDEV " << stddev << endl;
+    cerr << "Num samps processed: " << s.num_samps << endl;
+    cerr << "frameErrorStats (" << tph.frameErrorStats.size() << ") : " <<
+        std::accumulate(tph.frameErrorStats.begin(), tph.frameErrorStats.end(), 0)
+        << endl;
+    cerr << "aacErrorStats (" << tph.aacErrorStats.size() << ") : " <<
+        std::accumulate(tph.aacErrorStats.begin(), tph.aacErrorStats.end(), 0)
+        << endl;
+    cerr << "rsErrorStats (" << tph.rsErrorStats.size() << ") : " <<
+        std::accumulate(tph.rsErrorStats.begin(), tph.rsErrorStats.end(), 0)
+        << endl;
+    cerr << endl;
+}
+
+static void test0(unique_ptr<CVirtualInput>& interface)
+{
+    double stddevs[] = {0.001, 0.01, 0.1};
+
+    for (double stddev : stddevs) {
+        test0_iteration(interface, stddev);
+
+        dynamic_cast<CRAWFile&>(*interface).rewind();
+    }
+}
+
+void run_test(int test_id, unique_ptr<CVirtualInput>& interface)
+{
+    if (test_id == 0) test0(interface);
+    else cerr << "Test " << test_id << " does not exist!" << endl;
+}

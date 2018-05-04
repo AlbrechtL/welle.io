@@ -45,6 +45,7 @@
 #  include "welle-cli/alsa-output.h"
 #endif
 #include "welle-cli/webradiointerface.h"
+#include "welle-cli/tests.h"
 #include "backend/radio-receiver.h"
 #include "input/CInputFactory.h"
 #include "input/CRAWFile.h"
@@ -223,6 +224,7 @@ struct options_t {
     bool decode_all_programmes = false;
     bool decode_programmes_carousel = false;
     int web_port = -1; // positive value means enable
+    list<int> tests;
 };
 
 static void usage()
@@ -251,15 +253,19 @@ static void usage()
         "you still want to get an overview of the ensemble." << endl <<
         " welle-cli -c channel -Cw port" << endl <<
         endl <<
+        "Use -t test_number to run a test." << endl <<
+        "To understand what the tests do, please see source code." << endl <<
+        endl <<
         " examples: welle-cli -c 10B -p GRRIF" << endl <<
-        "           welle-cli -f ./ofdm.iq -p GRRIF" << endl;
+        "           welle-cli -f ./ofdm.iq -p GRRIF" << endl <<
+        "           welle-cli -f ./ofdm.iq -t 1" << endl;
 }
 
 options_t parse_cmdline(int argc, char **argv)
 {
     options_t options;
     int opt;
-    while ((opt = getopt(argc, argv, "c:CdDf:hp:w:")) != -1) {
+    while ((opt = getopt(argc, argv, "c:CdDf:hp:t:w:")) != -1) {
         switch (opt) {
             case 'c':
                 options.channel = optarg;
@@ -282,6 +288,9 @@ options_t parse_cmdline(int argc, char **argv)
             case 'h':
                 usage();
                 exit(1);
+            case 't':
+                options.tests.push_back(std::atoi(optarg));
+                break;
             case 'w':
                 options.web_port = std::atoi(optarg);
                 break;
@@ -319,7 +328,10 @@ int main(int argc, char **argv)
         }
     }
     else {
-        auto in_file = make_unique<CRAWFile>(ri);
+        // Run the tests without input throttling for max speed
+        const bool throttle = options.tests.empty();
+        const bool rewind = options.tests.empty();
+        auto in_file = make_unique<CRAWFile>(ri, throttle, rewind);
         if (not in_file) {
             cerr << "Could not prepare CRAWFile" << endl;
             return 1;
@@ -341,7 +353,12 @@ int main(int argc, char **argv)
     in->setFrequency(freq);
     string service_to_tune = options.programme;
 
-    if (options.web_port != -1) {
+    if (not options.tests.empty()) {
+        for (int test : options.tests) {
+            run_test(test, in);
+        }
+    }
+    else if (options.web_port != -1) {
         using DS = WebRadioInterface::DecodeStrategy;
         DS ds = DS::OnDemand;
         if (options.decode_all_programmes) {

@@ -41,16 +41,14 @@
 #include "ringbuffer.h"
 #include "radio-controller.h"
 
-class QLabel;
-class QSettings;
-class fileHulp;
-
 // Enum of available input device
 enum class CRAWFileFormat {U8, S8, S16LE, S16BE, COMPLEXF, Unknown};
 
 class CRAWFile : public CVirtualInput {
 public:
-    CRAWFile(RadioControllerInterface& radioController);
+    CRAWFile(RadioControllerInterface& radioController,
+            bool throttle = true,
+            bool rewind = true);
     ~CRAWFile(void);
 
     // Interface methods
@@ -62,6 +60,7 @@ public:
     bool restart(void);
     void stop(void);
     void reset(void);
+    void rewind(void);
     float setGain(int Gain);
     int getGainCount(void);
     void setAgc(bool AGC);
@@ -72,8 +71,12 @@ public:
     // Specific methods
     void setFileName(const std::string& FileName, const std::string& FileFormat);
 
+    bool endWasReached() const { return endReached; }
+
 private:
     RadioControllerInterface& radioController;
+    bool throttle;
+    bool autoRewind;
     std::string FileName;
     CRAWFileFormat FileFormat;
     uint8_t IQByteSize;
@@ -88,6 +91,7 @@ private:
     FILE* filePointer = nullptr;
     bool readerOK = false;
     bool readerPausing = false;
+    bool endReached = false;
     std::atomic<bool> ExitCondition;
     int64_t currPos = 0;
 
