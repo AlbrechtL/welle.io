@@ -181,11 +181,16 @@ ApplicationWindow {
 
                     MenuItem {
                         text: qsTr("Settings")
-//                        onTriggered: settingsDialog.open()
                         onTriggered:  {
                             listStackView.push(stettingsList, StackView.Immediate)
                             drawer.open()
                         }
+                    }
+                    MenuItem {
+                        text: qsTr("Expert Settings")
+                        visible: isExpertView
+                        height: isExpertView ? implicitHeight : 0
+                        onTriggered: expertView.openSettings()
                     }
                     MenuItem {
                         text: qsTr("About")
@@ -373,6 +378,7 @@ ApplicationWindow {
                     }
 
                     ExpertView{
+                        id: expertView
                         Layout.fillWidth: true
                         Layout.fillHeight: true
                         Layout.preferredWidth: Units.dp(400)
