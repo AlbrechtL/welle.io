@@ -67,6 +67,9 @@ var channels = [ "5A", "5B", "5C", "5D", "6A", "6B", "6C", "6D", "7A", "7B",
 "10C", "10D", "11A", "11B", "11C", "11D", "12A", "12B", "12C", "12D", "13A",
 "13B", "13C", "13D", "13E", "13F"];
 
+var png_cross =
+"iVBORw0KGgoAAAANSUhEUgAAAUAAAADwCAAAAABURuK3AAAFA0lEQVR42u2dy44dIQxEu1D+/5edRaRIiRKpu/Gjii5vRncxd8yhzIABg7hsO7aMwAAN0AAN0GaABmiABmgzQAM0QAO0GaABGqAB2gzQAA3QAG0GaIAGaIA2AzRAAzRAmwEaoAEaoM0ADdAADdBmgEn2480v4dcP35C4rgvxFp8RvgSIPz59HuHa4/f3RyvwIT8dEVaN2wkAFQjWjdsPAf47YkMHX7q3K99Bcn7J3uZMpAEdfskEV5WXvPxIl3KsIkQx0yXT1aTduqS8JezTjHkg64wGHV4uvT7nioenAEOFYJcfjxUoQrDNi+chLEEQbQM1oqJ7g1t/4wBviCyIwzdmQ/ieC/gIv5cKvAUoKPEN5wPpCbZP9BF1fT1AsH+hhBAKF8aF5hZAMhGO9CdC0GkmV3YB0ohwqicRsq5zOJEAkEGEc2nKjHzg/LpkMM2LaAmgUg2OjiEI+UbMjsFZAMdEOP0vDKHdlPEpAEK5NQQzqFSA3XHMMANFXLIEKfaoEc1Bldcujj1+tA9LSS1jyWKgIMXYQZAmCwTJuQVTEq0mSVYrQqZMOKrSZIVtpDohhrI8WZkIuU7YQW2Rz7aRhcpUWYEI+TYCRxN1V4jjK75wnZ2qZjwVhup0WV6bOQ/VoTxflhXGpIcS0ZAxS2k56/UAiGza0l6vQE/SbDOOic8U95Q92VQY85lsdKXN3kPmPtLeVXjnvQbJrwSA/fgZ++U8kJ+ApL/ciN7k2dNQ578ciu7szxOC9DeiBgA+EKECvgGAt8Fo8JsAeEuEIvhmAGYcWKUpLTBSwTLO4TejwG0REpW2mKqhGofwG1Pghgi5asWB+Wo5P77hMsihz29WgY81SFjpcbgQd6jzG69kHuL8pkP4SRhzVmoFg1vQ5ccBkLyQD/UYeFeBtDVaGRR4E05YgXviggFucoEBblKhrBMstZQjHAedjREG+DIiuRAuOX5kI+GcAnc4eE9kU0f4vAL3CcSnFdhw6vxkBd7Cp5Kg6Qd4m4xPZ+1Gr4QIqQ9YKoiwGeBjIvxl+4OaH38cdwKsuefwkYs276ORfErYpsCNwYxagyx35WRvayIE+DEj5LgvHAlDwLlX/rPU89GiE4kNpxThfNWOmPoyDYDJTeYTYTHA9OuqdASXFj++dclo9bZg+lo+gGUNpQrjuQqWhzwnplhDlQrhUBXfhpecmhAuUX40/44rFNhUq4RDg0uWH4kGIf1GynEPsgw87zuNEOpPzEyPhNCPqEOeRbvmKoWNirDxWTS9tEXvNGayUt3+pt64AscfGJz6+zjlhaixpynjDH6X7BPhTJmlCRHuA6R6IWpgIn/QC2Uj7iCO4tcfxwglbwl9QpwkvwGCGwB5j+x1EnwPkPqNij7fcMb7gnMI3wLkfySgKY4RZ/JrE+ErgCpV2jtEuM7l17PviTgyfPs0iOwzomSFccqjZbWHDVkYA80KhBS/ehGuo/V3U4Q0AEkLnUYUEvxxPL5frpXta662bmaOY8wD5MZX6OD6gvwqCa4MPwTwlXm5vhC+lXGy9nGp8KtBuLYFJ8SvwtvdfKAWvv/NWaIZ4G8nBPH9k2A/QG1DYlyvD/JLHcU/qcDMYfyrANOG8e8CpFoLG6DNAA3QAA3QZoAGaIAGaDNAAzRAA7QZoAEaoAHaDNAADdAAbQZogAZogDYDNEADNECbARqgARqgzQAN0AAN0GaABmiA4vYT0KCGE2bgCksAAAAASUVORK5CYII=";
+
 window.onload = function() {
     var ch = document.getElementById("channelselector");
 
@@ -106,14 +109,14 @@ function ensembleInfoTemplate() {
     html += ' Freq corr: ${FrequencyCorrection}';
     html += ' Date:${year}-${month}-${day} ${hour}:${minutes} UTC</p>';
     html += '<table id="servicetable">'
-    html += '<tr><th>Label</th> <th>SId</th> <th>bitrate</th> <th>SAd</th> <th>protection</th> <th>samplerate</th>';
+    html += '<tr><th>Label</th> <th>SId</th> <th>bitrate</th> <th>SAd</th> <th>protection</th> <th>TMid, rate</th>';
     html += '<th>pty</th> <th>language</th> <th>DLS</th> <th>Audio Level</th> <th></th></tr>';
     html += '${services}</table>';
     return html;
 }
 
 function serviceTemplate() {
-    var html = '<tr><td>${label} (${shortlabel})</td> <td>${SId}</td> <td>${bitrate}kbps</td> <td>${sad}</td> <td>${protection}</td> <td>${samplerate}Hz</td> ';
+    var html = '<tr><td>${label} (${shortlabel})</td> <td>${SId}</td> <td>${bitrate}kbps</td> <td>${sad}</td> <td>${protection}</td> <td>${samplerate}</td> ';
     html += '<td>${pty}</td> <td>${language}</td> <td></i>${dls}</i></td>';
     html += '<td><canvas id="${canvasid}" width="64" height="12" style="border:1px solid #d3d3d3;"></canvas></td>';
     html += '<td><button type=button onclick="setPlayerSource(${SId})">Play</button></td>';
@@ -209,17 +212,27 @@ function populateEnsembleinfo() {
             s["shortlabel"] = service.shortlabel;
             s["SId"] = service.sid;
             if (service.components) {
-                var sc = service.components[0].subchannel;
-                s["bitrate"] = sc.bitrate;
-                s["sad"] = sc.sad;
-                s["protection"] = sc.protection;
+                var sc = service.components[0];
+                var sub = sc.subchannel;
+                s["bitrate"] = sub.bitrate;
+                s["sad"] = sub.sad;
+                s["protection"] = sub.protection;
+
+                if (sc.transportmode == "audio") {
+                    s["samplerate"] = sc.ascty + " " + service.samplerate + " Hz";
+                }
+                else {
+                    s["samplerate"] = sc.transportmode;
+                }
+
             }
             else {
                 s["bitrate"] = 0;
                 s["sad"] = -1;
                 s["protection"] = "?";
+                s["samplerate"] = "";
             }
-            s["samplerate"] = service.samplerate;
+
             if (service["dls"]) {
                 s["dls"] = service.dls.label;
             }
@@ -230,10 +243,13 @@ function populateEnsembleinfo() {
             s["language"] = service.languagestring;
             s["canvasid"] = "canvas" + service.sid;
 
-            if (service["mot"]) {
-                imageshtml += ' <img width=128 height=96 src="' +
-                    "data:" + service.mot.type + ";base64," +
+            imageshtml += ' <img width=128 height=96 src="';
+            if (service.mot && service.mot.data) {
+                imageshtml += "data:" + service.mot.type + ";base64," +
                     service.mot.data + '">';
+            }
+            else {
+                imageshtml += "data:image/png;base64," + png_cross + '">';
             }
 
             servicehtml += parseTemplate(serviceTemplate(), s)

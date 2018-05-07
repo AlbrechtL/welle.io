@@ -504,36 +504,74 @@ bool WebRadioInterface::send_mux_json(Socket& s)
 
         nlohmann::json j_services;
         for (const auto& s : rx->getServiceList()) {
-            string urlmp3 = "/mp3/" + to_hex(s.serviceId);
             nlohmann::json j_srv = {
                 {"sid", to_hex(s.serviceId)},
                 {"pty", s.programType},
                 {"ptystring", DABConstants::getProgramTypeName(s.programType)},
                 {"label", s.serviceLabel.utf8_label()},
                 {"shortlabel", s.serviceLabel.utf8_shortlabel()},
-                {"url_mp3", urlmp3},
                 {"language", s.language},
                 {"languagestring", DABConstants::getLanguageName(s.language)}};
 
             nlohmann::json j_components;
 
+            bool hasAudioComponent = false;
             for (const auto& sc : rx->getComponents(s)) {
                 nlohmann::json j_sc = {
                     {"componentnr", sc.componentNr},
-                    {"ascty",
-                        (sc.audioType() == AudioServiceComponentType::DAB ? "DAB" :
-                         sc.audioType() == AudioServiceComponentType::DABPlus ? "DAB+" :
-                         "unknown") } };
+                    {"subchannelid", nullptr},
+                    {"primary", (sc.PS_flag ? true : false)},
+                    {"caflag", (sc.CAflag ? true : false)},
+                    {"scid", nullptr},
+                    {"ascty", nullptr},
+                    {"dscty", nullptr}};
+
 
                 const auto& sub = rx->getSubchannel(sc);
+
+                switch (sc.transportMode()) {
+                    case TransportMode::Audio:
+                        j_sc["transportmode"] = "audio";
+                        j_sc["subchannelid"] = sub.subChId;
+                        j_sc["ascty"] =
+                                (sc.audioType() == AudioServiceComponentType::DAB ? "DAB" :
+                                 sc.audioType() == AudioServiceComponentType::DABPlus ? "DAB+" :
+                                 "unknown");
+                        hasAudioComponent |= (
+                                sc.audioType() == AudioServiceComponentType::DAB or
+                                sc.audioType() == AudioServiceComponentType::DABPlus);
+                        break;
+                    case TransportMode::FIDC:
+                        j_sc["transportmode"] = "fidc";
+                        j_sc["dscty"] = sc.DSCTy;
+                        break;
+                    case TransportMode::PacketData:
+                        j_sc["transportmode"] = "packetdata";
+                        j_sc["scid"] = sc.SCId;
+                        break;
+                    case TransportMode::StreamData:
+                        j_sc["subchannelid"] = sub.subChId;
+                        j_sc["transportmode"] = "streamdata";
+                        j_sc["dscty"] = sc.DSCTy;
+                        break;
+                }
+
                 j_sc["subchannel"] = {
-                    { "subchannelid", sub.subChId},
                     { "bitrate", sub.bitrate()},
                     { "sad", sub.startAddr},
                     { "protection", sub.protection()}};
 
                 j_components.push_back(j_sc);
             }
+
+            if (hasAudioComponent) {
+                string urlmp3 = "/mp3/" + to_hex(s.serviceId);
+                j_srv["url_mp3"] = urlmp3;
+            }
+            else {
+                j_srv["url_mp3"] = nullptr;
+            }
+
             j_srv["components"] = j_components;
 
             try {
