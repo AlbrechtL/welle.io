@@ -51,15 +51,15 @@
 #define abs std::abs     // to suppress warning: using integer absolute value function 'abs' when argument is of floating point type [-Wabsolute-value]
 
 OFDMProcessor::OFDMProcessor(
-        InputInterface& intputInterface,
+        InputInterface& inputInterface,
         const DABParams& params,
         RadioControllerInterface& ri,
         MscHandler& msc,
         FicHandler& fic,
-        int16_t    threshold,
-        uint8_t    freqsyncMethod) :
+        int16_t threshold,
+        FreqsyncMethod freqsyncMethod) :
     radioInterface(ri),
-    input(intputInterface),
+    input(inputInterface),
     params(params),
     ficHandler(fic),
     tiiDecoder(params, ri),
@@ -490,10 +490,11 @@ int16_t OFDMProcessor::processPRS(DSPCOMPLEX *v)
     memcpy(fft_buffer, v, T_u * sizeof(DSPCOMPLEX));
     fft_handler.do_FFT();
 
-    if (freqsyncMethod == 0)
-        return getMiddle(fft_buffer);
-    else
-        if (freqsyncMethod == 1) {
+    switch (freqsyncMethod) {
+        case FreqsyncMethod::GetMiddle:
+            return getMiddle(fft_buffer);
+        case FreqsyncMethod::CorrelatePRS:
+        {
             //  The "best" approach for computing the coarse frequency
             //  offset is to look at the spectrum of symbol 0 and relate that
             //  with the spectrum as it should be, i.e. the refTable
@@ -513,28 +514,22 @@ int16_t OFDMProcessor::processPRS(DSPCOMPLEX *v)
             }
 
             float    MMax    = 0;
-            float    oldMMax = 0;
             for (i = 0; i < SEARCH_RANGE; i ++) {
                 float sum = 0;
                 for (j = 0; j < CORRELATION_LENGTH; j ++) {
                     sum += abs (refArg [j] * correlationVector[i + j]);
                     if (sum > MMax) {
-                        oldMMax = MMax;
                         MMax        = sum;
                         index       = i;
                     }
                 }
             }
 
-            //  to avoid a compiler warning
-            (void)oldMMax;
-            //
             //  Now map the index back to the right carrier
-            //     fprintf (stderr, "index = %d (%f %f)\n",
-            //                  T_u - SEARCH_RANGE / 2 + index - T_u, MMax, oldMMax);
             return T_u - SEARCH_RANGE / 2 + index - T_u;
         }
-        else {
+        case FreqsyncMethod::PatternOfZeros:
+        {
             //  An alternative way is to look at a special pattern consisting
             //  of zeros in the row of args between successive carriers.
             float Mmin   = 1000;
@@ -565,6 +560,8 @@ int16_t OFDMProcessor::processPRS(DSPCOMPLEX *v)
             }
             return index - T_u;
         }
+    }
+    throw std::logic_error("Unimplemented freqsyncMethod");
 }
 
 int16_t OFDMProcessor::getMiddle (DSPCOMPLEX *v)

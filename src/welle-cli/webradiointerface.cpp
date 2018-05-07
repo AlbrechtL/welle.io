@@ -55,12 +55,12 @@ static const char* http_contenttype_html =
 
 static const char* http_nocache = "Cache-Control: no-cache\r\n";
 
-static string sid_to_hex(uint32_t serviceId)
+static string to_hex(uint32_t value)
 {
     std::stringstream sidstream;
     sidstream << "0x" <<
         std::setfill('0') << std::setw(4) <<
-        std::hex << serviceId;
+        std::hex << value;
     return sidstream.str();
 }
 
@@ -176,10 +176,11 @@ void WebProgrammeHandler::onFrameErrors(int frameErrors)
 }
 
 void WebProgrammeHandler::onNewAudio(std::vector<int16_t>&& audioData,
-                int sampleRate, bool isStereo)
+                int sampleRate, bool isStereo, const string& m)
 {
     stereo = isStereo;
     rate = sampleRate;
+    mode = m;
 
     if (audioData.empty()) {
         return;
@@ -299,7 +300,7 @@ void WebRadioInterface::check_decoders_required()
                     programmes_being_decoded[sid] = success;
                 }
                 else {
-                    cerr << "Tune to 0x" << sid_to_hex(s.serviceId) <<
+                    cerr << "Tune to 0x" << to_hex(s.serviceId) <<
                         " failed" << endl;
                 }
             }
@@ -310,14 +311,14 @@ void WebRadioInterface::check_decoders_required()
                     programmes_being_decoded[sid] = false;
                 }
                 else {
-                    cerr << "Stop playing 0x" << sid_to_hex(s.serviceId) <<
+                    cerr << "Stop playing 0x" << to_hex(s.serviceId) <<
                         " failed" << endl;
                 }
             }
 
         }
         catch (const out_of_range&) {
-            cerr << "Cannot tune to 0x" << sid_to_hex(s.serviceId) <<
+            cerr << "Cannot tune to 0x" << to_hex(s.serviceId) <<
                 " because no handler exists!" << endl;
         }
     }
@@ -497,35 +498,82 @@ bool WebRadioInterface::send_mux_json(Socket& s)
     nlohmann::json j;
     {
         lock_guard<mutex> lock(rx_mut);
-        j["Ensemble"]["Name"] = rx->getEnsembleName();
+        const auto ensembleLabel = rx->getEnsembleLabel();
+        j["ensemble"]["label"] = ensembleLabel.utf8_label();
+        j["ensemble"]["shortlabel"] = ensembleLabel.utf8_shortlabel();
+        j["ensemble"]["id"] = to_hex(rx->getEnsembleId());
 
         nlohmann::json j_services;
         for (const auto& s : rx->getServiceList()) {
-            string urlmp3 = "/mp3/" + sid_to_hex(s.serviceId);
             nlohmann::json j_srv = {
-                {"SId", sid_to_hex(s.serviceId)},
-                {"Label", s.serviceLabel.label},
-                {"url_mp3", urlmp3}};
+                {"sid", to_hex(s.serviceId)},
+                {"pty", s.programType},
+                {"ptystring", DABConstants::getProgramTypeName(s.programType)},
+                {"label", s.serviceLabel.utf8_label()},
+                {"shortlabel", s.serviceLabel.utf8_shortlabel()},
+                {"language", s.language},
+                {"languagestring", DABConstants::getLanguageName(s.language)}};
 
             nlohmann::json j_components;
 
+            bool hasAudioComponent = false;
             for (const auto& sc : rx->getComponents(s)) {
                 nlohmann::json j_sc = {
-                    {"ComponentNr", sc.componentNr},
-                    {"ASCTy",
-                        (sc.audioType() == AudioServiceComponentType::DAB ? "DAB" :
-                         sc.audioType() == AudioServiceComponentType::DABPlus ? "DAB+" :
-                         "unknown") } };
+                    {"componentnr", sc.componentNr},
+                    {"subchannelid", nullptr},
+                    {"primary", (sc.PS_flag ? true : false)},
+                    {"caflag", (sc.CAflag ? true : false)},
+                    {"scid", nullptr},
+                    {"ascty", nullptr},
+                    {"dscty", nullptr}};
+
 
                 const auto& sub = rx->getSubchannel(sc);
-                j_sc["Subchannel"] = {
-                    { "Subchannel_id", sub.subChId},
-                    { "Bitrate", sub.bitrate()},
-                    { "SAd", sub.startAddr}};
+
+                switch (sc.transportMode()) {
+                    case TransportMode::Audio:
+                        j_sc["transportmode"] = "audio";
+                        j_sc["subchannelid"] = sub.subChId;
+                        j_sc["ascty"] =
+                                (sc.audioType() == AudioServiceComponentType::DAB ? "DAB" :
+                                 sc.audioType() == AudioServiceComponentType::DABPlus ? "DAB+" :
+                                 "unknown");
+                        hasAudioComponent |= (
+                                sc.audioType() == AudioServiceComponentType::DAB or
+                                sc.audioType() == AudioServiceComponentType::DABPlus);
+                        break;
+                    case TransportMode::FIDC:
+                        j_sc["transportmode"] = "fidc";
+                        j_sc["dscty"] = sc.DSCTy;
+                        break;
+                    case TransportMode::PacketData:
+                        j_sc["transportmode"] = "packetdata";
+                        j_sc["scid"] = sc.SCId;
+                        break;
+                    case TransportMode::StreamData:
+                        j_sc["subchannelid"] = sub.subChId;
+                        j_sc["transportmode"] = "streamdata";
+                        j_sc["dscty"] = sc.DSCTy;
+                        break;
+                }
+
+                j_sc["subchannel"] = {
+                    { "bitrate", sub.bitrate()},
+                    { "sad", sub.startAddr},
+                    { "protection", sub.protection()}};
 
                 j_components.push_back(j_sc);
             }
-            j_srv["Components"] = j_components;
+
+            if (hasAudioComponent) {
+                string urlmp3 = "/mp3/" + to_hex(s.serviceId);
+                j_srv["url_mp3"] = urlmp3;
+            }
+            else {
+                j_srv["url_mp3"] = nullptr;
+            }
+
+            j_srv["components"] = j_components;
 
             try {
                 const auto& wph = phs.at(s.serviceId);
@@ -536,6 +584,7 @@ bool WebRadioInterface::send_mux_json(Socket& s)
 
                 j_srv["channels"] = wph.stereo ? 2 : 1;
                 j_srv["samplerate"] = wph.rate;
+                j_srv["mode"] = wph.mode;
 
                 auto mot = wph.getMOT_base64();
                 nlohmann::json j_mot = {
@@ -570,7 +619,7 @@ bool WebRadioInterface::send_mux_json(Socket& s)
 
             j_services.push_back(j_srv);
         }
-        j["Services"] = j_services;
+        j["services"] = j_services;
     }
 
     {
@@ -584,14 +633,14 @@ bool WebRadioInterface::send_mux_json(Socket& s)
             {"minutes", last_dateTime.minutes}
         };
 
-        j["UTCTime"] = j_utc;
+        j["utctime"] = j_utc;
 
-        j["SNR"] = last_snr;
-        j["FrequencyCorrection"] =
+        j["snr"] = last_snr;
+        j["frequencycorrection"] =
             last_fine_correction + last_coarse_correction;
 
         for (const auto& tii : getTiiStats()) {
-            j["TII"].push_back({
+            j["tii"].push_back({
                     {"comb", tii.comb},
                     {"pattern", tii.pattern},
                     {"delay", tii.delay_samples},
@@ -624,7 +673,7 @@ bool WebRadioInterface::send_mux_json(Socket& s)
 bool WebRadioInterface::send_mp3(Socket& s, const std::string& stream)
 {
     for (const auto& srv : rx->getServiceList()) {
-        if (sid_to_hex(srv.serviceId) == stream or
+        if (to_hex(srv.serviceId) == stream or
                 (uint32_t)std::stoi(stream) == srv.serviceId) {
             try {
                 auto& ph = phs.at(srv.serviceId);
@@ -951,7 +1000,7 @@ void WebRadioInterface::handle_phs()
                                 phs.at(s.serviceId), "", s);
 
                         if (not success) {
-                            cerr << "Tune to 0x" << sid_to_hex(s.serviceId) <<
+                            cerr << "Tune to 0x" << to_hex(s.serviceId) <<
                                 " failed" << endl;
                         }
                     }

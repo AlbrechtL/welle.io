@@ -250,7 +250,7 @@ void CRTL_SDR::AGCTimer(void)
                 // We have to decrease the gain
                 if (currentGainIndex > 0) {
                     setGain(currentGainIndex - 1);
-                    std::clog << "RTL_SDR:" << "Decreased gain to " << (float)currentGain / 10.0f << std::endl;
+                    //std::clog << "RTL_SDR:" << "Decreased gain to " << (float)currentGain / 10.0f << std::endl;
                 }
             }
             else {
@@ -266,7 +266,7 @@ void CRTL_SDR::AGCTimer(void)
                     // We have to increase the gain
                     if(NewMinValue >= 0 && NewMaxValue <= 255) {
                         setGain(currentGainIndex + 1);
-                        std::clog << "RTL_SDR:" << "Increased gain to " << (float) currentGain / 10 << std::endl;
+                        //std::clog << "RTL_SDR:" << "Increased gain to " << (float) currentGain / 10 << std::endl;
                     }
                 }
             }

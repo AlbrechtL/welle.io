@@ -51,8 +51,11 @@ static inline int64_t getMyTime(void)
 
 #define INPUT_FRAMEBUFFERSIZE 8 * 32768
 
-CRAWFile::CRAWFile(RadioControllerInterface& radioController) :
+CRAWFile::CRAWFile(RadioControllerInterface& radioController,
+        bool throttle, bool rewind) :
     radioController(radioController),
+    throttle(throttle),
+    autoRewind(rewind),
     FileName(""),
     FileFormat(CRAWFileFormat::Unknown),
     IQByteSize(1),
@@ -68,7 +71,10 @@ CRAWFile::~CRAWFile(void)
         if (thread.joinable()) {
             thread.join();
         }
-        fclose(filePointer);
+
+        if (filePointer) {
+            fclose(filePointer);
+        }
     }
 }
 
@@ -97,6 +103,14 @@ void CRAWFile::stop(void)
 
 void CRAWFile::reset()
 {
+}
+
+void CRAWFile::rewind()
+{
+    if (filePointer) {
+        fseek(filePointer, 0, SEEK_SET);
+        endReached = false;
+    }
 }
 
 float CRAWFile::setGain(int Gain)
@@ -209,7 +223,7 @@ int32_t CRAWFile::getSamplesToRead(void)
 
 void CRAWFile::run(void)
 {
-    int32_t t, i;
+    int32_t t;
     int32_t bufferSize = 32768;
     int32_t period;
     int64_t nextStop;
@@ -219,7 +233,7 @@ void CRAWFile::run(void)
 
     ExitCondition = false;
 
-    period = (32768 * 1000) / (IQByteSize * 2048); // full IQś read
+    period = (32768 * 1000) / (IQByteSize * 2048); // full IQs read
 
     std::clog << "RAWFile" << "Period =" << period << std::endl;
     std::vector<uint8_t> bi(bufferSize);
@@ -240,13 +254,13 @@ void CRAWFile::run(void)
         nextStop += period;
         t = readBuffer(bi.data(), bufferSize);
         if (t <= 0) {
-            for (i = 0; i < bufferSize; i++)
+            for (int i = 0; i < bufferSize; i++)
                 bi[i] = 0;
             t = bufferSize;
         }
         SampleBuffer.putDataIntoBuffer(bi.data(), t);
         SpectrumSampleBuffer.putDataIntoBuffer(bi.data(), t);
-        if (nextStop - getMyTime() > 0)
+        if (throttle and nextStop - getMyTime() > 0)
             std::this_thread::sleep_for(std::chrono::microseconds(
                         nextStop - getMyTime()));
     }
@@ -261,13 +275,24 @@ int32_t CRAWFile::readBuffer(uint8_t* data, int32_t length)
 {
     int32_t n;
 
+    if (!filePointer) {
+        return 0;
+    }
+
     n = fread(data, sizeof(uint8_t), length, filePointer);
     currPos += n;
     if (n < length) {
-        fseek(filePointer, 0, SEEK_SET);
-        std::clog << "RAWFile:"  << "End of file, restarting" << std::endl;
-        radioController.onMessage(message_level_t::Information,
-                "End of file, restarting");
+        if (autoRewind) {
+            fseek(filePointer, 0, SEEK_SET);
+            std::clog << "RAWFile:"  << "End of file, restarting" << std::endl;
+            radioController.onMessage(message_level_t::Information,
+                    "End of file, restarting");
+        }
+        else {
+            radioController.onMessage(message_level_t::Information, "End of file");
+            endReached = true;
+            return 0;
+        }
     }
     return n & ~01;
 }

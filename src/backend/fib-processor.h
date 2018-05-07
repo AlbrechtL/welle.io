@@ -44,7 +44,8 @@ class FIBProcessor {
         bool    syncReached(void);
 
         // Called from the frontend
-        std::string getEnsembleName(void) const;
+        uint16_t getEnsembleId(void) const;
+        DabLabel getEnsembleLabel(void) const;
         std::vector<Service> getServiceList(void) const;
         std::list<ServiceComponent> getComponents(const Service& s) const;
         Subchannel getSubchannel(const ServiceComponent& sc) const;
@@ -52,7 +53,8 @@ class FIBProcessor {
     private:
         RadioControllerInterface& myRadioInterface;
         Service *findServiceId(uint32_t serviceId);
-        ServiceComponent *find_packetComponent(int16_t SCId);
+        ServiceComponent *findComponent(uint32_t serviceId, int16_t SCIdS);
+        ServiceComponent *findPacketComponent(int16_t SCId);
 
         void bind_audioService(
                 int8_t TMid,
@@ -106,7 +108,8 @@ class FIBProcessor {
         bool timeOffsetReceived = false;
         dab_date_time_t dateTime = {};
         mutable std::mutex mutex;
-        std::string ensembleName;
+        uint16_t ensembleId = 0;
+        DabLabel ensembleLabel;
         std::vector<Subchannel> subChannels;
         std::vector<ServiceComponent> components;
         std::vector<Service> services;

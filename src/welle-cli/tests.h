@@ -2,6 +2,13 @@
  *    Copyright (C) 2018
  *    Matthias P. Braendli (matthias.braendli@mpb.li)
  *
+ *    Copyright (C) 2017
+ *    Albrecht Lohofener (albrechtloh@gmx.de)
+ *
+ *    This file is based on SDR-J
+ *    Copyright (C) 2010, 2011, 2012
+ *    Jan van Katwijk (J.vanKatwijk@gmail.com)
+ *
  *    This file is part of the welle.io.
  *    Many of the ideas as implemented in welle.io are derived from
  *    other work, made available through the GNU general Public License.
@@ -22,27 +29,8 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-#if defined(HAVE_ALSA)
-#include <vector>
-#include <cstddef>
-#include <alsa/asoundlib.h>
 
-#define PCM_DEVICE "default"
+#include "input/CInputFactory.h"
+#include <memory>
 
-class AlsaOutput {
-    public:
-        AlsaOutput(int chans, unsigned int rate);
-        ~AlsaOutput();
-        AlsaOutput(const AlsaOutput& other) = delete;
-        AlsaOutput& operator=(const AlsaOutput& other) = delete;
-
-        void playPCM(std::vector<int16_t>&& pcm);
-
-    private:
-        int channels = 2;
-        snd_pcm_uframes_t period_size;
-        snd_pcm_t *pcm_handle;
-        snd_pcm_hw_params_t *params;
-};
-
-#endif // defined(HAVE_ALSA)
+void run_test(int test_id, std::unique_ptr<CVirtualInput>& interface);

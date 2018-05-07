@@ -235,7 +235,7 @@ int16_t FIBProcessor::HandleFIG0Extension2(
     if (pd == 1) {      // long Sid
         ecc = getBits_8 (d, lOffset);   (void)ecc;
         cId = getBits_4 (d, lOffset + 1);
-        SId = getLBits (d, lOffset, 32);
+        SId = getBits(d, lOffset, 32);
         lOffset += 32;
     }
     else {
@@ -296,7 +296,7 @@ int16_t FIBProcessor::HandleFIG0Extension3(uint8_t *d, int16_t used)
     int16_t packetAddress   = getBits (d, used * 8 + 30, 10);
     //uint16_t        CAOrg   = getBits (d, used * 8 + 40, 16);
 
-    ServiceComponent *packetComp = find_packetComponent(SCId);
+    ServiceComponent *packetComp = findPacketComponent(SCId);
 
     used += 56 / 8;
     if (packetComp == NULL)     // no ServiceComponent yet
@@ -359,7 +359,7 @@ int16_t FIBProcessor::HandleFIG0Extension8(
         uint8_t pdBit)
 {
     int16_t  lOffset = used * 8;
-    uint32_t SId = getLBits (d, lOffset, pdBit == 1 ? 32 : 16);
+    uint32_t SId = getBits(d, lOffset, pdBit == 1 ? 32 : 16);
     uint8_t  lsFlag;
     uint16_t SCIds;
     int16_t  SCid;
@@ -376,7 +376,7 @@ int16_t FIBProcessor::HandleFIG0Extension8(
     if (lsFlag == 1) {
         SCid = getBits (d, lOffset + 4, 12);
         lOffset += 16;
-        //           if (find_packetComponent ((SCIds << 4) | SCid) != NULL) {
+        //           if (findPacketComponent ((SCIds << 4) | SCid) != NULL) {
         //              std::clog << "fib-processor:" << "packet component bestaat !!\n") << std::endl;
         //           }
     }
@@ -411,7 +411,7 @@ void FIBProcessor::FIG0Extension9 (uint8_t *d)
 void FIBProcessor::FIG0Extension10 (uint8_t *fig)
 {
     int16_t     offset = 16;
-    int32_t     mjd = getLBits (fig, offset + 1, 17);
+    int32_t     mjd = getBits(fig, offset + 1, 17);
     // Convert Modified Julian Date (according to wikipedia)
     int32_t J   = mjd + 2400001;
     int32_t j   = J + 32044;
@@ -464,7 +464,7 @@ int16_t FIBProcessor::HandleFIG0Extension13(
         uint8_t pdBit)
 {
     int16_t  lOffset = used * 8;
-    uint32_t SId = getLBits (d, lOffset, pdBit == 1 ? 32 : 16);
+    uint32_t SId = getBits(d, lOffset, pdBit == 1 ? 32 : 16);
     uint16_t SCIds;
     int16_t  NoApplications;
     int16_t  i;
@@ -561,7 +561,6 @@ void FIBProcessor::FIG0Extension17(uint8_t *d)
         if (L_flag) {       // language field present
             Language = getBits_8 (d, offset + 24);
             s->language = Language;
-            s->hasLanguage = true;
             offset += 8;
         }
 
@@ -683,12 +682,12 @@ void    FIBProcessor::process_FIG1 (uint8_t *d)
     uint32_t    SId = 0;
     uint8_t     oe;
     int16_t     offset  = 0;
-    Service    *myIndex;
+    Service    *service;
+    ServiceComponent *component;
     int16_t     i;
     uint8_t     pd_flag;
     uint8_t     SCidS;
     uint8_t     XPAD_aid;
-    uint8_t     flagfield;
     //uint8_t       region_id;
     char        label [17];
     //
@@ -702,26 +701,28 @@ void    FIBProcessor::process_FIG1 (uint8_t *d)
     }
 
     switch (extension) {
-        /*
-           default:
-           return;
-           */
         case 0: // ensemble label
-            SId = getBits (d, 16, 16);
+            ensembleId = getBits (d, 16, 16);
             offset  = 32;
             if ((charSet <= 16)) { // EBU Latin based repertoire
                 for (i = 0; i < 16; i ++) {
-                    label[i] = getBits_8 (d, offset + 8 * i);
+                    label[i] = getBits_8 (d, offset);
+                    offset += 8;
                 }
                 //           std::clog << "fib-processor:" << "Ensemblename: %16s\n", label) << std::endl;
                 if (!oe) {
                     if (firstTime) {
-                        ensembleName = toUtf8StringUsingCharset(
-                                (const char *) label, (CharacterSet) charSet);
-                        myRadioInterface.onNewEnsembleName(ensembleName);
+                        ensembleLabel.flag = getBits(d, offset, 16);
+                        ensembleLabel.raw_label = label;
+                        ensembleLabel.setCharset(charSet);
+
+                        myRadioInterface.onNewEnsembleName(
+                                toUtf8StringUsingCharset(
+                                    (const char *)label,
+                                    (CharacterSet)charSet));
                     }
-                    firstTime   = false;
-                    isSynced    = true;
+                    firstTime = false;
+                    isSynced  = true;
                 }
             }
             //        std::clog << "fib-processor:" <<
@@ -729,17 +730,22 @@ void    FIBProcessor::process_FIG1 (uint8_t *d)
             break;
 
         case 1: // 16 bit Identifier field for service label
-            SId = getBits (d, 16, 16);
+            SId = getBits(d, 16, 16);
             offset  = 32;
-            myIndex = findServiceId (SId);
-            if (myIndex->serviceLabel.label.empty() && charSet <= 16) {
-                for (i = 0; i < 16; i ++) {
-                    label[i] = getBits_8 (d, offset + 8 * i);
+            service = findServiceId(SId);
+            if (service->serviceLabel.raw_label.empty() && charSet <= 16) {
+                for (i = 0; i < 16; i++) {
+                    label[i] = getBits_8(d, offset);
+                    offset += 8;
                 }
-                myIndex->serviceLabel.label = toUtf8StringUsingCharset(
-                        (const char *)label, (CharacterSet) charSet);
+                service->serviceLabel.flag = getBits(d, offset, 16);
+                service->serviceLabel.raw_label = label;
+                service->serviceLabel.setCharset(charSet);
+
                 // std::clog << "fib-processor:" << "FIG1/1: SId = %4x\t%s\n", SId, label) << std::endl;
-                myRadioInterface.onServiceDetected(SId, myIndex->serviceLabel.label);
+                myRadioInterface.onServiceDetected(SId,
+                        toUtf8StringUsingCharset(
+                            (const char *)label, (CharacterSet) charSet));
             }
             break;
 
@@ -755,53 +761,66 @@ void    FIBProcessor::process_FIG1 (uint8_t *d)
             break;
 
         case 4:
-            pd_flag = getLBits (d, 16, 1);
-            SCidS   = getLBits (d, 20, 4);
+            pd_flag = getBits(d, 16, 1);
+            SCidS   = getBits(d, 20, 4);
             if (pd_flag) {  // 32 bit identifier field for service component label
-                SId = getLBits (d, 24, 32);
+                SId = getBits(d, 24, 32);
                 offset  = 56;
             }
             else {  // 16 bit identifier field for service component label
-                SId = getLBits (d, 24, 16);
+                SId = getBits(d, 24, 16);
                 offset  = 40;
             }
 
-            flagfield   = getLBits (d, offset + 128, 16);
-            for (i = 0; i < 16; i ++)
-                label[i] = getBits_8 (d, offset + 8 * i);
+            for (i = 0; i < 16; i ++) {
+                label[i] = getBits_8 (d, offset);
+                offset += 8;
+            }
+
+            component = findComponent(SId, SCidS);
+            if (component) {
+                component->componentLabel.flag = getBits(d, offset, 16);
+                component->componentLabel.setCharset(charSet);
+                component->componentLabel.raw_label = label;
+            }
             //        std::clog << "fib-processor:" << "FIG1/4: Sid = %8x\tp/d=%d\tSCidS=%1X\tflag=%8X\t%s\n",
             //                          SId, pd_flag, SCidS, flagfield, label) << std::endl;
             break;
 
 
         case 5: // 32 bit Identifier field for service label
-            SId = getLBits (d, 16, 32);
+            SId = getBits(d, 16, 32);
             offset  = 48;
-            myIndex = findServiceId (SId);
-            if (myIndex->serviceLabel.label.empty() && charSet <= 16) {
+            service = findServiceId(SId);
+            if (service->serviceLabel.raw_label.empty() && charSet <= 16) {
                 for (i = 0; i < 16; i ++) {
-                    label[i] = getBits_8 (d, offset + 8 * i);
+                    label[i] = getBits_8(d, offset);
+                    offset += 8;
                 }
-                myIndex->serviceLabel.label = toUtf8StringUsingCharset(
-                        (const char *)label, (CharacterSet)charSet);
-                myIndex->serviceLabel.label += " (data)";
+                service->serviceLabel.flag = getBits(d, offset, 16);
+                service->serviceLabel.raw_label = label;
+                service->serviceLabel.setCharset(charSet);
+
 #ifdef  MSC_DATA__
-                myRadioInterface.onServiceDetected(SId, myIndex->serviceLabel.label);
+                string l = toUtf8StringUsingCharset(
+                        (const char *)label, (CharacterSet)charSet);
+                l += " (data)";
+                myRadioInterface.onServiceDetected(SId, l);
 #endif
             }
             break;
 
         case 6: // XPAD label
-            pd_flag = getLBits (d, 16, 1);
-            SCidS   = getLBits (d, 20, 4);
+            pd_flag = getBits(d, 16, 1);
+            SCidS   = getBits(d, 20, 4);
             if (pd_flag) {  // 32 bits identifier for XPAD label
-                SId       = getLBits (d, 24, 32);
-                XPAD_aid  = getLBits (d, 59, 5);
+                SId       = getBits(d, 24, 32);
+                XPAD_aid  = getBits(d, 59, 5);
                 offset    = 64;
             }
             else {  // 16 bit identifier for XPAD label
-                SId       = getLBits (d, 24, 16);
-                XPAD_aid  = getLBits (d, 43, 5);
+                SId       = getBits(d, 24, 16);
+                XPAD_aid  = getBits(d, 43, 5);
                 offset    = 48;
             }
 
@@ -819,7 +838,6 @@ void    FIBProcessor::process_FIG1 (uint8_t *d)
     }
     (void)SCidS;
     (void)XPAD_aid;
-    (void)flagfield;
 }
 
 //  locate - and create if needed - a reference to the entry
@@ -838,7 +856,22 @@ Service *FIBProcessor::findServiceId(uint32_t serviceId)
     return &services.back();
 }
 
-ServiceComponent *FIBProcessor::find_packetComponent(int16_t SCId)
+ServiceComponent *FIBProcessor::findComponent(uint32_t serviceId, int16_t SCIdS)
+{
+    auto comp = std::find_if(components.begin(), components.end(),
+                [&](const ServiceComponent& sc) {
+                    return sc.SId == serviceId && sc.componentNr == SCIdS;
+                });
+
+    if (comp == components.end()) {
+        return nullptr;
+    }
+    else {
+        return &(*comp);
+    }
+}
+
+ServiceComponent *FIBProcessor::findPacketComponent(int16_t SCId)
 {
     for (auto& component : components) {
         if (component.TMid != 03) {
@@ -945,10 +978,16 @@ Subchannel FIBProcessor::getSubchannel(const ServiceComponent& sc) const
     return subChannels.at(sc.subchannelId);
 }
 
-std::string FIBProcessor::getEnsembleName() const
+uint16_t FIBProcessor::getEnsembleId() const
 {
     std::lock_guard<std::mutex> lock(mutex);
-    return ensembleName;
+    return ensembleId;
+}
+
+DabLabel FIBProcessor::getEnsembleLabel() const
+{
+    std::lock_guard<std::mutex> lock(mutex);
+    return ensembleLabel;
 }
 
 bool FIBProcessor::syncReached()

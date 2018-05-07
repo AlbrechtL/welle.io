@@ -810,7 +810,7 @@ void CRadioController::StationTimerTimeout()
         const auto services = my_rx->getServiceList();
 
         for (const auto& s : services) {
-            if (s.serviceLabel.label == CurrentStation.toStdString()) {
+            if (s.serviceLabel.utf8_label() == CurrentStation.toStdString()) {
 
                 const auto comps = my_rx->getComponents(s);
                 for (const auto& sc : comps) {
@@ -1060,12 +1060,13 @@ void CRadioController::onSignalPresence(bool isSignal)
         emit SwitchToNextChannel(isSignal);
 }
 
-void CRadioController::onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, bool isStereo)
+void CRadioController::onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, bool isStereo, const std::string& mode)
 {
     audioBuffer.putDataIntoBuffer(audioData.data(), audioData.size());
 
     if (mAudioSampleRate != sampleRate) {
-        qDebug() << "RadioController: Audio sample rate" <<  sampleRate << "kHz";
+        qDebug() << "RadioController: Audio sample rate" <<  sampleRate << "kHz, mode=" <<
+            QString::fromStdString(mode);
         mAudioSampleRate = sampleRate;
         emit AudioSampleRateChanged(mAudioSampleRate);
 

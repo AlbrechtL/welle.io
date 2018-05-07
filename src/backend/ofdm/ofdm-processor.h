@@ -53,16 +53,19 @@
 //  cannot be handled properly by the underlying system.
 #define DUMPSIZE        4096
 
+enum class FreqsyncMethod { GetMiddle, CorrelatePRS, PatternOfZeros };
+
 class OFDMProcessor
 {
+// Identifier "interface" is already defined in the w32api header basetype.h
     public:
-        OFDMProcessor(InputInterface& intputInterface, // Identifier "interface" is already defined in the w32api header basetype.h
+        OFDMProcessor(InputInterface& inputInterface,
                 const DABParams& params,
                 RadioControllerInterface& ri,
                 MscHandler& msc,
                 FicHandler& fic,
-                int16_t    threshold,
-                uint8_t    freqsyncMethod);
+                int16_t threshold,
+                FreqsyncMethod freqsyncMethod = FreqsyncMethod::PatternOfZeros);
         ~OFDMProcessor(void);
         void reset(void);
         void stop(void);
@@ -95,7 +98,7 @@ class OFDMProcessor
         int attempts = 0;
 
 
-        uint8_t     freqsyncMethod;
+        FreqsyncMethod freqsyncMethod;
         std::vector<DSPCOMPLEX> ofdmBuffer;
         uint32_t    ofdmBufferIndex;
         PhaseReference phaseRef;

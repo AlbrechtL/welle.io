@@ -34,6 +34,7 @@
 #ifndef __DAB_CONSTANTS
 #define __DAB_CONSTANTS
 
+#include "charsets.h"
 #include <complex>
 #include <limits>
 #include <cmath>
@@ -83,19 +84,26 @@ public:
 };
 
 struct DabLabel {
-    std::string label; // UTF-8 encoded
-    uint8_t     mask = 0x00;
+    CharacterSet charset = CharacterSet::EbuLatin;
+    std::string raw_label; // encoded according to charset
+    uint16_t    flag = 0x0000; // describes the short label
+
+    /* If necessary, convert the label to UTF8 */
+    std::string utf8_label() const;
+    std::string utf8_shortlabel() const;
+
+    void setCharset(uint8_t charset_id);
 };
 
-
-//  from FIG1/2
 struct Service {
     uint32_t serviceId = 0;
+
     DabLabel serviceLabel;
-    bool     hasPNum = false;
-    bool     hasLanguage = false;
-    int16_t  language = -1;
+    int16_t  language = 0;
     int16_t  programType = 0; // PTy, FIG0/17
+
+    // Programme number from FIG 0/16
+    bool     hasPNum = false;
     uint16_t pNum = 0;
 };
 
@@ -105,6 +113,8 @@ struct ServiceComponent {
     int8_t       TMid = 0;           // the transport mode
     uint32_t     SId = 0;            // belongs to the service
     int16_t      componentNr = 0;    // component
+
+    DabLabel     componentLabel;
 
     int16_t      ASCTy = 0;          // used for audio
     int16_t      PS_flag = 0;        // use for both audio and packet
@@ -142,6 +152,8 @@ struct Subchannel {
 
     // Calculate the effective subchannel bitrate
     int32_t bitrate(void) const;
+
+    std::string protection(void) const;
 
     inline bool valid() const { return subChId != -1; }
 };

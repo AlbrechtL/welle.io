@@ -60,7 +60,8 @@ class RadioReceiver {
 
         bool removeServiceToDecode(const Service& s);
 
-        std::string getEnsembleName(void) const;
+        uint16_t getEnsembleId(void) const;
+        DabLabel getEnsembleLabel(void) const;
         std::vector<Service> getServiceList(void) const;
         std::list<ServiceComponent> getComponents(const Service& s) const;
 

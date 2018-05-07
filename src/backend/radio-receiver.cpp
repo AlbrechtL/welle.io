@@ -51,7 +51,7 @@ RadioReceiver::RadioReceiver(
         rci,
         mscHandler,
         ficHandler,
-        3, 3)
+        3)
 { }
 
 void RadioReceiver::restart(bool doScan)
@@ -115,9 +115,14 @@ bool RadioReceiver::playProgramme(ProgrammeHandlerInterface& handler,
     return false;
 }
 
-std::string RadioReceiver::getEnsembleName(void) const
+uint16_t RadioReceiver::getEnsembleId(void) const
 {
-    return ficHandler.fibProcessor.getEnsembleName();
+    return ficHandler.fibProcessor.getEnsembleId();
+}
+
+DabLabel RadioReceiver::getEnsembleLabel(void) const
+{
+    return ficHandler.fibProcessor.getEnsembleLabel();
 }
 
 std::vector<Service> RadioReceiver::getServiceList(void) const

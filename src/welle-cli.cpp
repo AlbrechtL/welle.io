@@ -41,8 +41,14 @@
 #include <utility>
 #include <cstdio>
 #include <unistd.h>
-#include "welle-cli/alsa-output.h"
+#ifdef HAVE_SOAPYSDR
+#  include "CSoapySdr.h"
+#endif
+#if defined(HAVE_ALSA)
+#  include "welle-cli/alsa-output.h"
+#endif
 #include "welle-cli/webradiointerface.h"
+#include "welle-cli/tests.h"
 #include "backend/radio-receiver.h"
 #include "input/CInputFactory.h"
 #include "input/CRAWFile.h"
@@ -56,11 +62,13 @@ using namespace std;
 
 using namespace nlohmann;
 
+#if defined(HAVE_ALSA)
 class AlsaProgrammeHandler: public ProgrammeHandlerInterface {
     public:
         virtual void onFrameErrors(int frameErrors) override { (void)frameErrors; }
-        virtual void onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, bool isStereo) override
+        virtual void onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, bool isStereo, const std::string& mode) override
         {
+            (void)mode;
             lock_guard<mutex> lock(aomutex);
 
             bool reset_ao = (sampleRate != (int)rate) or (isStereo != stereo);
@@ -90,6 +98,7 @@ class AlsaProgrammeHandler: public ProgrammeHandlerInterface {
         bool stereo = true;
         unsigned int rate = 48000;
 };
+#endif // defined(HAVE_ALSA)
 
 class WavProgrammeHandler: public ProgrammeHandlerInterface {
     public:
@@ -107,11 +116,11 @@ class WavProgrammeHandler: public ProgrammeHandlerInterface {
         WavProgrammeHandler& operator=(WavProgrammeHandler&& other) = default;
 
         virtual void onFrameErrors(int frameErrors) override { (void)frameErrors; }
-        virtual void onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, bool isStereo) override
+        virtual void onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, bool isStereo, const string& mode) override
         {
             if (rate != sampleRate or stereo != isStereo) {
                 cout << "[0x" << std::hex << SId << std::dec << "] " <<
-                    "rate " << sampleRate << " stereo " << isStereo << endl;
+                    "rate " << sampleRate << " stereo " << isStereo << " mode " << mode << endl;
 
                 string filename = filePrefix + ".wav";
                 if (fd) {
@@ -219,11 +228,13 @@ struct options_t {
     bool decode_all_programmes = false;
     bool decode_programmes_carousel = false;
     int web_port = -1; // positive value means enable
+    list<int> tests;
 };
 
 static void usage()
 {
     cerr << "Usage: " << endl <<
+#if defined(HAVE_ALSA)
         "Receive using RTLSDR, and play with ALSA:" << endl <<
         " welle-cli -c channel -p programme" << endl <<
         endl <<
@@ -231,7 +242,8 @@ static void usage()
         "IQ file format is complexf I/Q unless the filename ends with u8.iq" << endl <<
         " welle-cli -f file -p programme" << endl <<
         endl <<
-        "Use -D to dump all programmes to files, do not play to ALSA." << endl <<
+#endif // defined(HAVE_ALSA)
+        "Use -D to dump all programmes to files." << endl <<
         " welle-cli -c channel -D " << endl <<
         endl <<
         "Use -w to enable webserver, decode a programmes on demand." << endl <<
@@ -245,15 +257,19 @@ static void usage()
         "you still want to get an overview of the ensemble." << endl <<
         " welle-cli -c channel -Cw port" << endl <<
         endl <<
+        "Use -t test_number to run a test." << endl <<
+        "To understand what the tests do, please see source code." << endl <<
+        endl <<
         " examples: welle-cli -c 10B -p GRRIF" << endl <<
-        "           welle-cli -f ./ofdm.iq -p GRRIF" << endl;
+        "           welle-cli -f ./ofdm.iq -p GRRIF" << endl <<
+        "           welle-cli -f ./ofdm.iq -t 1" << endl;
 }
 
 options_t parse_cmdline(int argc, char **argv)
 {
     options_t options;
     int opt;
-    while ((opt = getopt(argc, argv, "c:CdDf:hp:w:")) != -1) {
+    while ((opt = getopt(argc, argv, "c:CdDf:hp:t:w:")) != -1) {
         switch (opt) {
             case 'c':
                 options.channel = optarg;
@@ -276,6 +292,9 @@ options_t parse_cmdline(int argc, char **argv)
             case 'h':
                 usage();
                 exit(1);
+            case 't':
+                options.tests.push_back(std::atoi(optarg));
+                break;
             case 'w':
                 options.web_port = std::atoi(optarg);
                 break;
@@ -311,9 +330,18 @@ int main(int argc, char **argv)
             cerr << "Could not start device" << endl;
             return 1;
         }
+
+#ifdef HAVE_SOAPYSDR
+        if (in->getID() == CDeviceID::SOAPYSDR) {
+            dynamic_cast<CSoapySdr*>(in.get())->setAntenna("TX/RX");
+        }
+#endif
     }
     else {
-        auto in_file = make_unique<CRAWFile>(ri);
+        // Run the tests without input throttling for max speed
+        const bool throttle = options.tests.empty();
+        const bool rewind = options.tests.empty();
+        auto in_file = make_unique<CRAWFile>(ri, throttle, rewind);
         if (not in_file) {
             cerr << "Could not prepare CRAWFile" << endl;
             return 1;
@@ -335,7 +363,12 @@ int main(int argc, char **argv)
     in->setFrequency(freq);
     string service_to_tune = options.programme;
 
-    if (options.web_port != -1) {
+    if (not options.tests.empty()) {
+        for (int test : options.tests) {
+            run_test(test, in);
+        }
+    }
+    else if (options.web_port != -1) {
         using DS = WebRadioInterface::DecodeStrategy;
         DS ds = DS::OnDemand;
         if (options.decode_all_programmes) {
@@ -364,7 +397,7 @@ int main(int argc, char **argv)
             cerr << "Service list" << endl;
             for (const auto& s : rx.getServiceList()) {
                 cerr << "  [0x" << std::hex << s.serviceId << std::dec << "] " <<
-                    s.serviceLabel.label << " ";
+                    s.serviceLabel.utf8_label() << " ";
                 for (const auto& sc : rx.getComponents(s)) {
                     cerr << " [component "  << sc.componentNr <<
                         " ASCTy: " <<
@@ -376,7 +409,7 @@ int main(int argc, char **argv)
                 }
                 cerr << endl;
 
-                string dumpFilePrefix = s.serviceLabel.label;
+                string dumpFilePrefix = s.serviceLabel.utf8_label();
                 dumpFilePrefix.erase(std::find_if(dumpFilePrefix.rbegin(), dumpFilePrefix.rend(),
                             [](int ch) { return !std::isspace(ch); }).base(), dumpFilePrefix.end());
 
@@ -399,12 +432,13 @@ int main(int argc, char **argv)
             }
         }
         else {
+#if defined(HAVE_ALSA)
             AlsaProgrammeHandler ph;
             while (not service_to_tune.empty()) {
                 cerr << "Service list" << endl;
                 for (const auto& s : rx.getServiceList()) {
                     cerr << "  [0x" << std::hex << s.serviceId << std::dec << "] " <<
-                        s.serviceLabel.label << " ";
+                        s.serviceLabel.utf8_label() << " ";
                     for (const auto& sc : rx.getComponents(s)) {
                         cerr << " [component "  << sc.componentNr <<
                             " ASCTy: " <<
@@ -419,11 +453,11 @@ int main(int argc, char **argv)
 
                 bool service_selected = false;
                 for (const auto s : rx.getServiceList()) {
-                    if (s.serviceLabel.label.find(service_to_tune) != string::npos) {
+                    if (s.serviceLabel.utf8_label().find(service_to_tune) != string::npos) {
                         service_selected = true;
                         string dumpFileName;
                         if (options.dump_programme) {
-                            dumpFileName = s.serviceLabel.label;
+                            dumpFileName = s.serviceLabel.utf8_label();
                             dumpFileName.erase(std::find_if(dumpFileName.rbegin(), dumpFileName.rend(),
                                         [](int ch) { return !std::isspace(ch); }).base(), dumpFileName.end());
                             dumpFileName += ".msc";
@@ -445,6 +479,9 @@ int main(int argc, char **argv)
                 }
                 cerr << "**** Trying to tune to " << service_to_tune << endl;
             }
+#else
+            cerr << "Nothing to do, not ALSA support." << endl;
+#endif // defined(HAVE_ALSA)
         }
     }
 
