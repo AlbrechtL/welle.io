@@ -223,7 +223,8 @@ function populateEnsembleinfo() {
                 if (sc.transportmode == "audio") {
                     s["samplerate"] = sc.ascty + ", " +
                         service.samplerate + " Hz, " +
-                        service.mode;
+                        service.mode + ", " +
+                        service.channels;
                 }
                 else {
                     s["samplerate"] = sc.transportmode;
