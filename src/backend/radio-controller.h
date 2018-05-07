@@ -125,8 +125,10 @@ class ProgrammeHandlerInterface {
         virtual void onFrameErrors(int frameErrors) = 0;
 
         /* New audio data is available. The sampleRate and the
-         * stereo indicator may change at any time. */
-        virtual void onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, bool stereo) = 0;
+         * stereo indicator may change at any time.
+         * mode is an information related to the audio encoding
+         * used.  */
+        virtual void onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, bool stereo, const std::string& mode) = 0;
 
         /* (DAB+ only) Reed-Solomon decoding error count.
          * The function will also be called in the absence of errors,

@@ -66,8 +66,9 @@ using namespace nlohmann;
 class AlsaProgrammeHandler: public ProgrammeHandlerInterface {
     public:
         virtual void onFrameErrors(int frameErrors) override { (void)frameErrors; }
-        virtual void onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, bool isStereo) override
+        virtual void onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, bool isStereo, const std::string& mode) override
         {
+            (void)mode;
             lock_guard<mutex> lock(aomutex);
 
             bool reset_ao = (sampleRate != (int)rate) or (isStereo != stereo);
@@ -115,11 +116,11 @@ class WavProgrammeHandler: public ProgrammeHandlerInterface {
         WavProgrammeHandler& operator=(WavProgrammeHandler&& other) = default;
 
         virtual void onFrameErrors(int frameErrors) override { (void)frameErrors; }
-        virtual void onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, bool isStereo) override
+        virtual void onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, bool isStereo, const string& mode) override
         {
             if (rate != sampleRate or stereo != isStereo) {
                 cout << "[0x" << std::hex << SId << std::dec << "] " <<
-                    "rate " << sampleRate << " stereo " << isStereo << endl;
+                    "rate " << sampleRate << " stereo " << isStereo << " mode " << mode << endl;
 
                 string filename = filePrefix + ".wav";
                 if (fd) {

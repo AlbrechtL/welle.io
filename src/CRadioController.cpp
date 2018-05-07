@@ -1048,12 +1048,13 @@ void CRadioController::onSignalPresence(bool isSignal)
         emit SwitchToNextChannel(isSignal);
 }
 
-void CRadioController::onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, bool isStereo)
+void CRadioController::onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, bool isStereo, const std::string& mode)
 {
     audioBuffer.putDataIntoBuffer(audioData.data(), audioData.size());
 
     if (mAudioSampleRate != sampleRate) {
-        qDebug() << "RadioController: Audio sample rate" <<  sampleRate << "kHz";
+        qDebug() << "RadioController: Audio sample rate" <<  sampleRate << "kHz, mode=" <<
+            QString::fromStdString(mode);
         mAudioSampleRate = sampleRate;
         emit AudioSampleRateChanged(mAudioSampleRate);
 

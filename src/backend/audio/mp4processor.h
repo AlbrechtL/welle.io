@@ -42,7 +42,7 @@
 #include "data/pad_decoder.h"
 #include "radio-controller.h"
 
-enum class AACAudioMode { Unknown, Mono, Stereo, ParametricStereo};
+enum class AACAudioMode { Unknown, AAC_LC, AAC_SBR, AAC_PS};
 
 class Mp4Processor : public DabProcessor, public PADDecoderObserver
 {

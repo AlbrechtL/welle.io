@@ -109,14 +109,16 @@ function ensembleInfoTemplate() {
     html += ' Freq corr: ${FrequencyCorrection}';
     html += ' Date:${year}-${month}-${day} ${hour}:${minutes} UTC</p>';
     html += '<table id="servicetable">'
-    html += '<tr><th>Label</th> <th>SId</th> <th>bitrate</th> <th>SAd</th> <th>protection</th> <th>TMid, rate</th>';
+    html += '<tr><th>Label</th> <th>SId</th> <th>bitrate</th> <th>SAd</th> <th>protection</th>';
+    html += '<th>TMid, rate, channels</th>';
     html += '<th>pty</th> <th>language</th> <th>DLS</th> <th>Audio Level</th> <th></th></tr>';
     html += '${services}</table>';
     return html;
 }
 
 function serviceTemplate() {
-    var html = '<tr><td>${label} (${shortlabel})</td> <td>${SId}</td> <td>${bitrate}kbps</td> <td>${sad}</td> <td>${protection}</td> <td>${samplerate}</td> ';
+    var html = '<tr><td>${label} (${shortlabel})</td> <td>${SId}</td> <td>${bitrate}kbps</td> <td>${sad}</td> <td>${protection}</td>';
+    html += '<td>${samplerate}</td>';
     html += '<td>${pty}</td> <td>${language}</td> <td></i>${dls}</i></td>';
     html += '<td><canvas id="${canvasid}" width="64" height="12" style="border:1px solid #d3d3d3;"></canvas></td>';
     html += '<td><button type=button onclick="setPlayerSource(${SId})">Play</button></td>';
@@ -219,7 +221,9 @@ function populateEnsembleinfo() {
                 s["protection"] = sub.protection;
 
                 if (sc.transportmode == "audio") {
-                    s["samplerate"] = sc.ascty + " " + service.samplerate + " Hz";
+                    s["samplerate"] = sc.ascty + " " +
+                        service.samplerate + " Hz, " +
+                        service.mode;
                 }
                 else {
                     s["samplerate"] = sc.transportmode;

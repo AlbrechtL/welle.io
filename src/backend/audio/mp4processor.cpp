@@ -73,7 +73,6 @@ Mp4Processor::Mp4Processor(
     //  error display
     au_count    = 0;
     au_errors   = 0;
-    aacAudioMode = AACAudioMode::Unknown;
 }
 
 void Mp4Processor::PADChangeDynamicLabel(const DL_STATE& dl)
@@ -326,38 +325,21 @@ void Mp4Processor::handleAacFrame(
         *error = audio.empty();
     }
 
-    AACAudioMode aacAudioMode_tmp = AACAudioMode::Unknown;
-
-    if (aacChannelMode == 0 && isParametricStereo == true) // Parametric stereo
-        aacAudioMode_tmp = AACAudioMode::ParametricStereo;
-    else if (aacChannelMode == 1) // Stereo
-        aacAudioMode_tmp = AACAudioMode::Stereo;
-    else if (aacChannelMode == 0) // Mono
-        aacAudioMode_tmp = AACAudioMode::Mono;
-
-    const bool stereo = (aacAudioMode_tmp != AACAudioMode::Mono);
-    myInterface.onNewAudio(move(audio), sampleRate, stereo);
-
-    if (aacAudioMode != aacAudioMode_tmp) {
-        aacAudioMode = aacAudioMode_tmp;
-        switch(aacAudioMode) {
-            case AACAudioMode::Mono:
-                std::clog << "Mp4processor: "
-                    "Detected mono audio signal" << std::endl;
-                break;
-            case AACAudioMode::Stereo:
-                std::clog << "Mp4processor: "
-                    "Detected stereo audio signal" << std::endl;
-                break;
-            case AACAudioMode::ParametricStereo:
-                std::clog << "Mp4processor: "
-                    "Detected parametric stereo audio signal" << std::endl;
-                break;
-            default:
-                std::clog << "Mp4processor: "
-                    "Unknown audio mode" << std::endl;
-        }
+    bool stereo = false;
+    std::string aac_mode = "unknown";
+    if (aacChannelMode == 0 && isParametricStereo == true) { // Parametric stereo
+        aac_mode = "HE-AACv2";
+        stereo = true;
     }
+    else if (sbrFlag) { // Stereo
+        aac_mode = "HE-AAC";
+        stereo = true;
+    }
+    else {
+        aac_mode = "AAC-LC";
+    }
+
+    myInterface.onNewAudio(move(audio), sampleRate, stereo, aac_mode);
 }
 
 void Mp4Processor::processPAD(const uint8_t *data)

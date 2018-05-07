@@ -168,9 +168,10 @@ class TestProgrammeHandler: public ProgrammeHandlerInterface {
             frameErrorStats.push_back(frameErrors);
         }
 
-        virtual void onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, bool isStereo) override
+        virtual void onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, bool isStereo, const string& mode) override
         {
             (void)audioData;
+            (void)mode;
 
             if (rate != sampleRate or stereo != isStereo) {
                 cout << "rate " << sampleRate << " stereo " << isStereo << endl;

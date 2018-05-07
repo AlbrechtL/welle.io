@@ -99,6 +99,7 @@ class WebProgrammeHandler : public ProgrammeHandlerInterface {
     public:
         bool stereo = false;
         int rate = 0;
+        std::string mode;
         int last_audioLevel_L = -1;
         int last_audioLevel_R = -1;
 
@@ -123,7 +124,7 @@ class WebProgrammeHandler : public ProgrammeHandlerInterface {
 
         virtual void onFrameErrors(int frameErrors) override;
         virtual void onNewAudio(std::vector<int16_t>&& audioData,
-                int sampleRate, bool isStereo) override;
+                int sampleRate, bool isStereo, const std::string& mode) override;
         virtual void onRsErrors(int rsErrors) override;
         virtual void onAacErrors(int aacErrors) override;
         virtual void onNewDynamicLabel(const std::string& label) override;

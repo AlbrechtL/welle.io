@@ -642,7 +642,13 @@ void Mp2Processor::addtoFrame(uint8_t *v)
                 std::vector<int16_t> audio(KJMP2_SAMPLES_PER_FRAME * 2);
                 if (mp2decodeFrame(MP2frame.data(), audio.data())) {
                     myInterface.onNewAudio(
-                            std::move(audio), baudRate, mode != MONO);
+                            std::move(audio),
+                            baudRate,
+                            mode != MONO,
+                            (mode == STEREO ? "Stereo" :
+                             mode == JOINT_STEREO ? "Joint Stereo" :
+                             mode == DUAL_CHANNEL ? "Dual Channel" :
+                             mode == MONO ? "Mono" : "Unknown"));
                 }
 
                 MP2Header_OK = 0;

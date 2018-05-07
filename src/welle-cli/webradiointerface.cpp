@@ -176,10 +176,11 @@ void WebProgrammeHandler::onFrameErrors(int frameErrors)
 }
 
 void WebProgrammeHandler::onNewAudio(std::vector<int16_t>&& audioData,
-                int sampleRate, bool isStereo)
+                int sampleRate, bool isStereo, const string& m)
 {
     stereo = isStereo;
     rate = sampleRate;
+    mode = m;
 
     if (audioData.empty()) {
         return;
@@ -583,6 +584,7 @@ bool WebRadioInterface::send_mux_json(Socket& s)
 
                 j_srv["channels"] = wph.stereo ? 2 : 1;
                 j_srv["samplerate"] = wph.rate;
+                j_srv["mode"] = wph.mode;
 
                 auto mot = wph.getMOT_base64();
                 nlohmann::json j_mot = {
