@@ -561,7 +561,6 @@ void FIBProcessor::FIG0Extension17(uint8_t *d)
         if (L_flag) {       // language field present
             Language = getBits_8 (d, offset + 24);
             s->language = Language;
-            s->hasLanguage = true;
             offset += 8;
         }
 

@@ -7,6 +7,7 @@
 body {
     background-color: linen;
     font-family: Verdana, sans-serif;
+    font-size: 8pt;
 }
 table, th, td {
     border: 1px solid black;
@@ -25,6 +26,17 @@ table#servicetable tr:nth-child(odd) {
 table#servicetable th {
     color: white;
     background-color: #444;
+}
+button {
+    background-color: #F44336;
+    border: none;
+    color: white;
+    padding: 2px 4px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 7pt;
+    border-radius: 4px;
 }
 </style>
     </head>
@@ -101,7 +113,7 @@ function ensembleInfoTemplate() {
 
 function serviceTemplate() {
     var html = '<tr><td>${label} (${shortlabel})</td> <td>${SId}</td> <td>${bitrate}kbps</td> <td>${samplerate}Hz</td> <td></i>${dls}</i></td>';
-    html += '<td><canvas id="${canvasid}" width="64" height="24" style="border:1px solid #d3d3d3;"></canvas></td>';
+    html += '<td><canvas id="${canvasid}" width="64" height="12" style="border:1px solid #d3d3d3;"></canvas></td>';
     html += '<td><button type=button onclick="setPlayerSource(${SId})">Play</button></td>';
     html += '</tr>';
     return html;
@@ -151,10 +163,12 @@ function drawAudiolevels(services) {
         var width_l = (level_db_l + 90) * 64/90;
         var width_r = (level_db_r + 90) * 64/90;
 
+        var height = canvas.height / 2;
+
         ctx.fillStyle = "#444444";
-        ctx.fillRect(0,0,width_l,12);
+        ctx.fillRect(0,0,width_l,height);
         ctx.fillStyle = "#DD4444";
-        ctx.fillRect(0,12,width_r,12);
+        ctx.fillRect(0,height,width_r,2*height);
     }
 };
 

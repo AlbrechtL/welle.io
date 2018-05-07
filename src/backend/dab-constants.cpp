@@ -133,7 +133,7 @@ void DabLabel::setCharset(uint8_t charset_id)
 const char* DABConstants::getProgramTypeName(int type)
 {
     const char* typeName = "";
-    switch(type) {
+    switch (type) {
         case 0: typeName = ""; break;
         case 1: typeName = "News"; break;
         case 2: typeName = "Current Affairs"; break;
@@ -166,8 +166,9 @@ const char* DABConstants::getProgramTypeName(int type)
         case 29: typeName = "entry 29 not used"; break;
         case 30: typeName = "entry 30 not used"; break;
         case 31: typeName = "entry 31 not used"; break;
-        default: std::clog << "DABConstants:"
-                 << "Unknown program type" << std::endl;
+        default: typeName = "UNKNOWN";
+                 std::clog << "DABConstants: Unknown program type" << std::endl;
+                 break;
     }
 
     return typeName;
@@ -282,8 +283,10 @@ const char* DABConstants::getLanguageName(int language)
         case 125: languageName = "Armenian"; break;
         case 126: languageName = "Arabic"; break;
         case 127: languageName = "Amharic"; break;
-        default: std::clog << "DABConstants:"
-                 << "Unknown language type: " << language << std::endl;
+        default: languageName = "UNKNOWN";
+                 std::clog << "DABConstants: Unknown language type: "
+                     << language << std::endl;
+                 break;
     }
 
     return languageName;
