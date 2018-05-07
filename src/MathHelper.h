@@ -116,11 +116,6 @@ static inline uint32_t getBits(const uint8_t* d, int16_t offset, uint8_t size)
     return res;
 }
 
-static inline uint32_t getLBits(const uint8_t* d, int16_t offset, uint8_t amount)
-{
-    return getBits(d, offset, amount);
-}
-
 static inline uint16_t getBits_1(const uint8_t* d, int16_t offset)
 {
     return (d[offset] & 0x01);

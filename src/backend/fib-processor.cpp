@@ -235,7 +235,7 @@ int16_t FIBProcessor::HandleFIG0Extension2(
     if (pd == 1) {      // long Sid
         ecc = getBits_8 (d, lOffset);   (void)ecc;
         cId = getBits_4 (d, lOffset + 1);
-        SId = getLBits (d, lOffset, 32);
+        SId = getBits(d, lOffset, 32);
         lOffset += 32;
     }
     else {
@@ -359,7 +359,7 @@ int16_t FIBProcessor::HandleFIG0Extension8(
         uint8_t pdBit)
 {
     int16_t  lOffset = used * 8;
-    uint32_t SId = getLBits (d, lOffset, pdBit == 1 ? 32 : 16);
+    uint32_t SId = getBits(d, lOffset, pdBit == 1 ? 32 : 16);
     uint8_t  lsFlag;
     uint16_t SCIds;
     int16_t  SCid;
@@ -411,7 +411,7 @@ void FIBProcessor::FIG0Extension9 (uint8_t *d)
 void FIBProcessor::FIG0Extension10 (uint8_t *fig)
 {
     int16_t     offset = 16;
-    int32_t     mjd = getLBits (fig, offset + 1, 17);
+    int32_t     mjd = getBits(fig, offset + 1, 17);
     // Convert Modified Julian Date (according to wikipedia)
     int32_t J   = mjd + 2400001;
     int32_t j   = J + 32044;
@@ -464,7 +464,7 @@ int16_t FIBProcessor::HandleFIG0Extension13(
         uint8_t pdBit)
 {
     int16_t  lOffset = used * 8;
-    uint32_t SId = getLBits (d, lOffset, pdBit == 1 ? 32 : 16);
+    uint32_t SId = getBits(d, lOffset, pdBit == 1 ? 32 : 16);
     uint16_t SCIds;
     int16_t  NoApplications;
     int16_t  i;
@@ -762,14 +762,14 @@ void    FIBProcessor::process_FIG1 (uint8_t *d)
             break;
 
         case 4:
-            pd_flag = getLBits (d, 16, 1);
-            SCidS   = getLBits (d, 20, 4);
+            pd_flag = getBits(d, 16, 1);
+            SCidS   = getBits(d, 20, 4);
             if (pd_flag) {  // 32 bit identifier field for service component label
-                SId = getLBits (d, 24, 32);
+                SId = getBits(d, 24, 32);
                 offset  = 56;
             }
             else {  // 16 bit identifier field for service component label
-                SId = getLBits (d, 24, 16);
+                SId = getBits(d, 24, 16);
                 offset  = 40;
             }
 
@@ -790,7 +790,7 @@ void    FIBProcessor::process_FIG1 (uint8_t *d)
 
 
         case 5: // 32 bit Identifier field for service label
-            SId = getLBits(d, 16, 32);
+            SId = getBits(d, 16, 32);
             offset  = 48;
             service = findServiceId(SId);
             if (service->serviceLabel.raw_label.empty() && charSet <= 16) {
@@ -812,16 +812,16 @@ void    FIBProcessor::process_FIG1 (uint8_t *d)
             break;
 
         case 6: // XPAD label
-            pd_flag = getLBits (d, 16, 1);
-            SCidS   = getLBits (d, 20, 4);
+            pd_flag = getBits(d, 16, 1);
+            SCidS   = getBits(d, 20, 4);
             if (pd_flag) {  // 32 bits identifier for XPAD label
-                SId       = getLBits (d, 24, 32);
-                XPAD_aid  = getLBits (d, 59, 5);
+                SId       = getBits(d, 24, 32);
+                XPAD_aid  = getBits(d, 59, 5);
                 offset    = 64;
             }
             else {  // 16 bit identifier for XPAD label
-                SId       = getLBits (d, 24, 16);
-                XPAD_aid  = getLBits (d, 43, 5);
+                SId       = getBits(d, 24, 16);
+                XPAD_aid  = getBits(d, 43, 5);
                 offset    = 48;
             }
 
