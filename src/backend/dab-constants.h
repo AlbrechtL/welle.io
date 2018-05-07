@@ -153,6 +153,8 @@ struct Subchannel {
     // Calculate the effective subchannel bitrate
     int32_t bitrate(void) const;
 
+    std::string protection(void) const;
+
     inline bool valid() const { return subChId != -1; }
 };
 

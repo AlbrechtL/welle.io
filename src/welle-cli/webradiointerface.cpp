@@ -527,7 +527,8 @@ bool WebRadioInterface::send_mux_json(Socket& s)
                 j_sc["subchannel"] = {
                     { "subchannelid", sub.subChId},
                     { "bitrate", sub.bitrate()},
-                    { "sad", sub.startAddr}};
+                    { "sad", sub.startAddr},
+                    { "protection", sub.protection()}};
 
                 j_components.push_back(j_sc);
             }

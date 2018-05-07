@@ -391,6 +391,24 @@ int32_t Subchannel::bitrate() const
     throw std::runtime_error("Unsupported protection");
 }
 
+string Subchannel::protection() const
+{
+    string prot;
+    if (shortForm) {
+        prot = "UEP " + to_string(tableIndex);
+    }
+    else {  // EEP
+        prot = "EEP ";
+        if (protOption == 0) { // EEP-A
+            prot += to_string(protLevel+1) + "-A";
+        }
+        else {
+            prot += to_string(protLevel+1) + "-B";
+        }
+    }
+    return prot;
+}
+
 TransportMode ServiceComponent::transportMode() const
 {
     if (TMid == 0) {

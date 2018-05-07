@@ -106,13 +106,14 @@ function ensembleInfoTemplate() {
     html += ' Freq corr: ${FrequencyCorrection}';
     html += ' Date:${year}-${month}-${day} ${hour}:${minutes} UTC</p>';
     html += '<table id="servicetable">'
-    html += '<tr><th>Label</th> <th>SId</th> <th>bitrate</th> <th>samplerate</th> <th>pty</th> <th>language</th> <th>DLS</th> <th>Audio Level</th> <th></th></tr>';
+    html += '<tr><th>Label</th> <th>SId</th> <th>bitrate</th> <th>SAd</th> <th>protection</th> <th>samplerate</th>';
+    html += '<th>pty</th> <th>language</th> <th>DLS</th> <th>Audio Level</th> <th></th></tr>';
     html += '${services}</table>';
     return html;
 }
 
 function serviceTemplate() {
-    var html = '<tr><td>${label} (${shortlabel})</td> <td>${SId}</td> <td>${bitrate}kbps</td> <td>${samplerate}Hz</td> ';
+    var html = '<tr><td>${label} (${shortlabel})</td> <td>${SId}</td> <td>${bitrate}kbps</td> <td>${sad}</td> <td>${protection}</td> <td>${samplerate}Hz</td> ';
     html += '<td>${pty}</td> <td>${language}</td> <td></i>${dls}</i></td>';
     html += '<td><canvas id="${canvasid}" width="64" height="12" style="border:1px solid #d3d3d3;"></canvas></td>';
     html += '<td><button type=button onclick="setPlayerSource(${SId})">Play</button></td>';
@@ -179,19 +180,44 @@ function populateEnsembleinfo() {
         if (r.readyState != 4 || r.status != 200) return;
         var data = JSON.parse(r.responseText);
 
+        var start_addresses = [];
+        for (key in data.services) {
+            var service = data.services[key];
+            if (service.components) {
+                var sad_ix = {};
+                sad_ix["sad"] = service.components[0].subchannel.sad;
+            }
+            else {
+                // Place them at the end
+                sad_ix["sad"] = 864;
+            }
+            sad_ix["key"] = key;
+            start_addresses.push(sad_ix);
+        }
+
+        start_addresses.sort(function(a, b) {
+            return a.sad - b.sad;
+        });
+
         var servicehtml = "";
         var imageshtml = "";
-        for (key in data.services) {
+        for (ix in start_addresses) {
+            var key = start_addresses[ix].key;
             var service = data.services[key];
             var s = {};
             s["label"] = service.label;
             s["shortlabel"] = service.shortlabel;
             s["SId"] = service.sid;
             if (service.components) {
-                s["bitrate"] = service.components[0].subchannel.bitrate;
+                var sc = service.components[0].subchannel;
+                s["bitrate"] = sc.bitrate;
+                s["sad"] = sc.sad;
+                s["protection"] = sc.protection;
             }
             else {
                 s["bitrate"] = 0;
+                s["sad"] = -1;
+                s["protection"] = "?";
             }
             s["samplerate"] = service.samplerate;
             if (service["dls"]) {
