@@ -1009,7 +1009,8 @@ void WebRadioInterface::handle_phs()
             }
         }
 
-        if (decode_strategy == DecodeStrategy::Carousel) {
+        if (decode_strategy == DecodeStrategy::Carousel10 or
+            decode_strategy == DecodeStrategy::CarouselPAD) {
             using namespace chrono;
 
             if (current_carousel_service == 0) {
@@ -1029,21 +1030,28 @@ void WebRadioInterface::handle_phs()
                 else {
                     // Switch to next programme once both DLS and Slideshow
                     // got decoded, but at most after 40 seconds
+                    bool switchBecausePAD = false;
+                    if (decode_strategy == DecodeStrategy::CarouselPAD) {
+                        const auto now = system_clock::now();
+                        const auto mot = current_it->second.getMOT_base64();
+                        const auto dls = current_it->second.getDLS();
+                        // Slide and DLS received in the last 10 seconds?
+                        if ( (mot.time + seconds(10) > now and
+                              dls.time + seconds(10) > now)) {
+                            switchBecausePAD = true;
+                        }
+                    }
 
-                    const auto now = system_clock::now();
+                    auto maxDuration = seconds(
+                            (decode_strategy == DecodeStrategy::CarouselPAD) ?
+                            80 : 10);
 
-                    const auto mot = current_it->second.getMOT_base64();
-                    const auto dls = current_it->second.getDLS();
-                    // Slide and DLS received in the last 10 seconds?
-                    if ((mot.time + seconds(10) > now and
-                         dls.time + seconds(10) > now) or
-                        (time_carousel_change + seconds(80) < steady_clock::now())) {
+                    if (switchBecausePAD or time_carousel_change + maxDuration < steady_clock::now()) {
                         // Rotate through phs
                         if (++current_it == phs.end()) {
                             current_it = phs.begin();
                         }
                         current_carousel_service = current_it->first;
-                        cerr << "Switching to " << current_carousel_service << endl;
                         time_carousel_change = steady_clock::now();
                     }
                 }

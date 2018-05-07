@@ -227,6 +227,7 @@ struct options_t {
     bool dump_programme = false;
     bool decode_all_programmes = false;
     bool decode_programmes_carousel = false;
+    bool carousel_pad = false;
     int web_port = -1; // positive value means enable
     list<int> tests;
 };
@@ -255,7 +256,11 @@ static void usage()
         "Use -Cw to enable webserver, decode programmes one by one in a carousel." << endl <<
         "This is useful if your machine cannot decode all programmes simultaneously, but" << endl <<
         "you still want to get an overview of the ensemble." << endl <<
+        "Without the -P option, welle-cli will switch every 10 seconds." << endl <<
+        "With the -P option, welle-cli will switch once DLS and a slide were decoded, staying at most" << endl <<
+        "80 seconds on a given programme." << endl <<
         " welle-cli -c channel -Cw port" << endl <<
+        " welle-cli -c channel -PCw port" << endl <<
         endl <<
         "Use -t test_number to run a test." << endl <<
         "To understand what the tests do, please see source code." << endl <<
@@ -269,7 +274,7 @@ options_t parse_cmdline(int argc, char **argv)
 {
     options_t options;
     int opt;
-    while ((opt = getopt(argc, argv, "c:CdDf:hp:t:w:")) != -1) {
+    while ((opt = getopt(argc, argv, "c:CdDf:hp:Pt:w:")) != -1) {
         switch (opt) {
             case 'c':
                 options.channel = optarg;
@@ -288,6 +293,9 @@ options_t parse_cmdline(int argc, char **argv)
                 break;
             case 'p':
                 options.programme = optarg;
+                break;
+            case 'P':
+                options.carousel_pad = true;
                 break;
             case 'h':
                 usage();
@@ -375,7 +383,12 @@ int main(int argc, char **argv)
             ds = DS::All;
         }
         else if (options.decode_programmes_carousel) {
-            ds = DS::Carousel;
+            if (options.carousel_pad) {
+                ds = DS::CarouselPAD;
+            }
+            else {
+                ds = DS::Carousel10;
+            }
         }
         WebRadioInterface wri(*in, options.web_port, ds);
         wri.serve();

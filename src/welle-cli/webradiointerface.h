@@ -134,9 +134,18 @@ class WebProgrammeHandler : public ProgrammeHandlerInterface {
 class WebRadioInterface : public RadioControllerInterface {
     public:
         enum class DecodeStrategy {
-            OnDemand, // Decode services only on-demand
-            All,      // Decode all services simultaneously
-            Carousel  // Decode all services one by one, for 30s
+            /* Decode services only on-demand */
+            OnDemand,
+
+            /* Decode all services simultaneously */
+            All,
+
+            /* Decode all services one by one, for 10s */
+            Carousel10,
+
+            /* Decode all services one by one, switch when
+             * DLS and slide were decoded, stay at most 80s on one service.  */
+            CarouselPAD
         };
         WebRadioInterface(CVirtualInput& in, int port, DecodeStrategy ds);
         ~WebRadioInterface();
