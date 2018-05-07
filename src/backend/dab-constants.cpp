@@ -26,9 +26,10 @@
  *
  */
 
+#include "dab-constants.h"
 #include <iostream>
 #include <exception>
-#include "dab-constants.h"
+#include <sstream>
 
 using namespace std;
 
@@ -100,6 +101,34 @@ const int ProtLevel[64][3] = {
     {280,3,384},
     {416,1,384}};
 
+
+static std::string flag_to_shortlabel(const std::string& label, uint16_t flag)
+{
+    stringstream shortlabel;
+    for (size_t i = 0; i < label.size(); ++i) {
+        if (flag & 0x8000 >> i) {
+            shortlabel << label[i];
+        }
+    }
+
+    return shortlabel.str();
+}
+
+string DabLabel::utf8_label() const
+{
+    return toUtf8StringUsingCharset(raw_label.c_str(), charset);
+}
+
+string DabLabel::utf8_shortlabel() const
+{
+    const string shortlabel = flag_to_shortlabel(raw_label, flag);
+    return toUtf8StringUsingCharset(shortlabel.c_str(), charset);
+}
+
+void DabLabel::setCharset(uint8_t charset_id)
+{
+    charset = static_cast<CharacterSet>(charset_id);
+}
 
 const char* DABConstants::getProgramTypeName(int type)
 {

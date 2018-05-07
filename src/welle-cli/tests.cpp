@@ -170,6 +170,8 @@ class TestProgrammeHandler: public ProgrammeHandlerInterface {
 
         virtual void onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, bool isStereo) override
         {
+            (void)audioData;
+
             if (rate != sampleRate or stereo != isStereo) {
                 cout << "rate " << sampleRate << " stereo " << isStereo << endl;
             }
@@ -207,7 +209,7 @@ static void test0_iteration(unique_ptr<CVirtualInput>& interface, double stddev)
 
         for (const auto s : rx.getServiceList()) {
             if (rx.playSingleProgramme(tph, dumpFileName, s) == false) {
-                cerr << "Tune to " << s.serviceLabel.label << " failed" << endl;
+                cerr << "Tune to " << s.serviceLabel.utf8_label() << " failed" << endl;
             }
             else {
                 service_selected = true;

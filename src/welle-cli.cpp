@@ -396,7 +396,7 @@ int main(int argc, char **argv)
             cerr << "Service list" << endl;
             for (const auto& s : rx.getServiceList()) {
                 cerr << "  [0x" << std::hex << s.serviceId << std::dec << "] " <<
-                    s.serviceLabel.label << " ";
+                    s.serviceLabel.utf8_label() << " ";
                 for (const auto& sc : rx.getComponents(s)) {
                     cerr << " [component "  << sc.componentNr <<
                         " ASCTy: " <<
@@ -408,7 +408,7 @@ int main(int argc, char **argv)
                 }
                 cerr << endl;
 
-                string dumpFilePrefix = s.serviceLabel.label;
+                string dumpFilePrefix = s.serviceLabel.utf8_label();
                 dumpFilePrefix.erase(std::find_if(dumpFilePrefix.rbegin(), dumpFilePrefix.rend(),
                             [](int ch) { return !std::isspace(ch); }).base(), dumpFilePrefix.end());
 
@@ -437,7 +437,7 @@ int main(int argc, char **argv)
                 cerr << "Service list" << endl;
                 for (const auto& s : rx.getServiceList()) {
                     cerr << "  [0x" << std::hex << s.serviceId << std::dec << "] " <<
-                        s.serviceLabel.label << " ";
+                        s.serviceLabel.utf8_label() << " ";
                     for (const auto& sc : rx.getComponents(s)) {
                         cerr << " [component "  << sc.componentNr <<
                             " ASCTy: " <<
@@ -452,11 +452,11 @@ int main(int argc, char **argv)
 
                 bool service_selected = false;
                 for (const auto s : rx.getServiceList()) {
-                    if (s.serviceLabel.label.find(service_to_tune) != string::npos) {
+                    if (s.serviceLabel.utf8_label().find(service_to_tune) != string::npos) {
                         service_selected = true;
                         string dumpFileName;
                         if (options.dump_programme) {
-                            dumpFileName = s.serviceLabel.label;
+                            dumpFileName = s.serviceLabel.utf8_label();
                             dumpFileName.erase(std::find_if(dumpFileName.rbegin(), dumpFileName.rend(),
                                         [](int ch) { return !std::isspace(ch); }).base(), dumpFileName.end());
                             dumpFileName += ".msc";

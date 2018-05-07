@@ -497,36 +497,47 @@ bool WebRadioInterface::send_mux_json(Socket& s)
     nlohmann::json j;
     {
         lock_guard<mutex> lock(rx_mut);
-        j["Ensemble"]["Name"] = rx->getEnsembleName();
-        j["Ensemble"]["Id"] = to_hex(rx->getEnsembleId());
+        const auto ensembleLabel = rx->getEnsembleLabel();
+        j["ensemble"]["label"] = ensembleLabel.utf8_label();
+        j["ensemble"]["shortlabel"] = ensembleLabel.utf8_shortlabel();
+        j["ensemble"]["id"] = to_hex(rx->getEnsembleId());
 
         nlohmann::json j_services;
         for (const auto& s : rx->getServiceList()) {
             string urlmp3 = "/mp3/" + to_hex(s.serviceId);
             nlohmann::json j_srv = {
-                {"SId", to_hex(s.serviceId)},
-                {"Label", s.serviceLabel.label},
+                {"sid", to_hex(s.serviceId)},
+                {"pty", s.programType},
+                {"label", s.serviceLabel.utf8_label()},
+                {"shortlabel", s.serviceLabel.utf8_shortlabel()},
                 {"url_mp3", urlmp3}};
+
+            if (s.hasLanguage) {
+                j_srv["language"] = s.language;
+            }
+            else {
+                j_srv["language"] = nullptr;
+            }
 
             nlohmann::json j_components;
 
             for (const auto& sc : rx->getComponents(s)) {
                 nlohmann::json j_sc = {
-                    {"ComponentNr", sc.componentNr},
-                    {"ASCTy",
+                    {"componentcr", sc.componentNr},
+                    {"ascty",
                         (sc.audioType() == AudioServiceComponentType::DAB ? "DAB" :
                          sc.audioType() == AudioServiceComponentType::DABPlus ? "DAB+" :
                          "unknown") } };
 
                 const auto& sub = rx->getSubchannel(sc);
-                j_sc["Subchannel"] = {
-                    { "Subchannel_id", sub.subChId},
-                    { "Bitrate", sub.bitrate()},
-                    { "SAd", sub.startAddr}};
+                j_sc["subchannel"] = {
+                    { "subchannelid", sub.subChId},
+                    { "bitrate", sub.bitrate()},
+                    { "sad", sub.startAddr}};
 
                 j_components.push_back(j_sc);
             }
-            j_srv["Components"] = j_components;
+            j_srv["components"] = j_components;
 
             try {
                 const auto& wph = phs.at(s.serviceId);
@@ -571,7 +582,7 @@ bool WebRadioInterface::send_mux_json(Socket& s)
 
             j_services.push_back(j_srv);
         }
-        j["Services"] = j_services;
+        j["services"] = j_services;
     }
 
     {
@@ -585,14 +596,14 @@ bool WebRadioInterface::send_mux_json(Socket& s)
             {"minutes", last_dateTime.minutes}
         };
 
-        j["UTCTime"] = j_utc;
+        j["utctime"] = j_utc;
 
-        j["SNR"] = last_snr;
-        j["FrequencyCorrection"] =
+        j["snr"] = last_snr;
+        j["frequencycorrection"] =
             last_fine_correction + last_coarse_correction;
 
         for (const auto& tii : getTiiStats()) {
-            j["TII"].push_back({
+            j["tii"].push_back({
                     {"comb", tii.comb},
                     {"pattern", tii.pattern},
                     {"delay", tii.delay_samples},

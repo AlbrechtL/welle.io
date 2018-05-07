@@ -804,7 +804,7 @@ void CRadioController::StationTimerTimeout()
         const auto services = my_rx->getServiceList();
 
         for (const auto& s : services) {
-            if (s.serviceLabel.label == CurrentStation.toStdString()) {
+            if (s.serviceLabel.utf8_label() == CurrentStation.toStdString()) {
 
                 const auto comps = my_rx->getComponents(s);
                 for (const auto& sc : comps) {

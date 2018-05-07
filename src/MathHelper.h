@@ -101,15 +101,24 @@ static inline bool check_crc_bytes(const uint8_t *msg, int len)
     return (crc ^ accumulator) == 0;
 }
 
-static inline uint16_t getBits(const uint8_t* d, int16_t offset, int16_t size)
+static inline uint32_t getBits(const uint8_t* d, int16_t offset, uint8_t size)
 {
-    uint16_t res = 0;
+    if (size > 32) {
+        throw std::logic_error("getBits called with size>32");
+    }
+
+    uint32_t res = 0;
 
     for (int i = 0; i < size; i++) {
         res <<= 1;
         res |= d[offset + i];
     }
     return res;
+}
+
+static inline uint32_t getLBits(const uint8_t* d, int16_t offset, uint8_t amount)
+{
+    return getBits(d, offset, amount);
 }
 
 static inline uint16_t getBits_1(const uint8_t* d, int16_t offset)
@@ -212,18 +221,6 @@ static inline uint16_t getBits_8(const uint8_t* d, int16_t offset)
     res |= d[offset + 6];
     res <<= 1;
     res |= d[offset + 7];
-    return res;
-}
-
-static inline uint32_t getLBits(const uint8_t* d,
-    int16_t offset, int16_t amount)
-{
-    uint32_t res = 0;
-
-    for (int i = 0; i < amount; i++) {
-        res <<= 1;
-        res |= (d[offset + i] & 01);
-    }
     return res;
 }
 

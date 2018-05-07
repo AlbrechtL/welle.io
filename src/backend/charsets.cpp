@@ -72,7 +72,7 @@ std::string toUtf8StringUsingCharset(const void* buffer,
 {
 
     switch (charset) {
-        case UnicodeUcs2:
+        case CharacterSet::UnicodeUcs2:
             {
                 std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> utf8conv;
 
@@ -89,7 +89,7 @@ std::string toUtf8StringUsingCharset(const void* buffer,
             }
             break;
 
-        case UnicodeUtf8:
+        case CharacterSet::UnicodeUtf8:
             {
                 if (num_bytes == 0) {
                     std::string buffer_char8(reinterpret_cast<const char*>(buffer));
@@ -104,7 +104,7 @@ std::string toUtf8StringUsingCharset(const void* buffer,
             }
             break;
 
-        case EbuLatin:
+        case CharacterSet::EbuLatin:
         default:
             {
                 std::u16string s;

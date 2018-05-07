@@ -120,9 +120,9 @@ uint16_t RadioReceiver::getEnsembleId(void) const
     return ficHandler.fibProcessor.getEnsembleId();
 }
 
-std::string RadioReceiver::getEnsembleName(void) const
+DabLabel RadioReceiver::getEnsembleLabel(void) const
 {
-    return ficHandler.fibProcessor.getEnsembleName();
+    return ficHandler.fibProcessor.getEnsembleLabel();
 }
 
 std::vector<Service> RadioReceiver::getServiceList(void) const

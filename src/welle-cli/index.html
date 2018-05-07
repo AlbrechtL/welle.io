@@ -90,7 +90,7 @@ var ensembleInfoTimer = setInterval(populateEnsembleinfo, 1000);
 var plotTimer = setInterval(populatePlots, 480);
 
 function ensembleInfoTemplate() {
-    var html = '<p><b>${name}</b> EId: ${EId} SNR: ${SNR}';
+    var html = '<p><b>${label}</b>(${shortlabel}) EId: ${EId} SNR: ${SNR}';
     html += ' Freq corr: ${FrequencyCorrection}';
     html += ' Date:${year}-${month}-${day} ${hour}:${minutes} UTC</p>';
     html += '<table id="servicetable">'
@@ -100,7 +100,7 @@ function ensembleInfoTemplate() {
 }
 
 function serviceTemplate() {
-    var html = '<tr><td>${Label}</td> <td>${SId}</td> <td>${bitrate}kbps</td> <td>${samplerate}Hz</td> <td></i>${dls}</i></td>';
+    var html = '<tr><td>${label} (${shortlabel})</td> <td>${SId}</td> <td>${bitrate}kbps</td> <td>${samplerate}Hz</td> <td></i>${dls}</i></td>';
     html += '<td><canvas id="${canvasid}" width="64" height="24" style="border:1px solid #d3d3d3;"></canvas></td>';
     html += '<td><button type=button onclick="setPlayerSource(${SId})">Play</button></td>';
     html += '</tr>';
@@ -132,19 +132,19 @@ function parseTemplate(template, data) {
 function drawAudiolevels(services) {
     for (key in services) {
         var service = services[key];
-        var id = "canvas" + service["SId"];
+        var id = "canvas" + service.sid;
         var canvas = document.getElementById(id);
         var ctx = canvas.getContext("2d");
 
 
         var level_db_l = -90;
         var level_db_r = -90;
-        if (service["audiolevel"]) {
-            if (service["audiolevel"]["left"] > 0) {
-                level_db_l = Math.round(20 * Math.log10(service["audiolevel"]["left"] / 0x7fff));
+        if (service.audiolevel) {
+            if (service.audiolevel.left > 0) {
+                level_db_l = Math.round(20 * Math.log10(service.audiolevel.left / 0x7fff));
             }
-            if (service["audiolevel"]["right"] > 0) {
-                level_db_r = Math.round(20 * Math.log10(service["audiolevel"]["right"] / 0x7fff));
+            if (service.audiolevel.right > 0) {
+                level_db_r = Math.round(20 * Math.log10(service.audiolevel.right / 0x7fff));
             }
         }
 
@@ -166,48 +166,50 @@ function populateEnsembleinfo() {
 
         var servicehtml = "";
         var imageshtml = "";
-        for (key in data["Services"]) {
-            var service = data["Services"][key];
+        for (key in data.services) {
+            var service = data.services[key];
             var s = {};
-            s["Label"] = service["Label"];
-            s["SId"] = service["SId"];
-            if (service["Components"]) {
-                s["bitrate"] = service["Components"][0]["Subchannel"]["Bitrate"];
+            s["label"] = service.label;
+            s["shortlabel"] = service.shortlabel;
+            s["SId"] = service.sid;
+            if (service.components) {
+                s["bitrate"] = service.components[0].subchannel.bitrate;
             }
             else {
                 s["bitrate"] = 0;
             }
-            s["samplerate"] = service["samplerate"];
+            s["samplerate"] = service.samplerate;
             if (service["dls"]) {
-                s["dls"] = service["dls"]["label"];
+                s["dls"] = service.dls.label;
             }
             else {
                 s["dls"] = "";
             }
 
-            s["canvasid"] = "canvas" + service["SId"];
+            s["canvasid"] = "canvas" + service.sid;
 
             if (service["mot"]) {
                 imageshtml += ' <img width=128 height=96 src="' +
-                    "data:" + service["mot"]["type"] + ";base64," +
-                    service["mot"]["data"] + '">';
+                    "data:" + service.mot.type + ";base64," +
+                    service.mot.data + '">';
             }
 
             servicehtml += parseTemplate(serviceTemplate(), s)
         }
 
         var ens = {};
-        ens["name"] = data["Ensemble"]["Name"];
-        ens["EId"] = data["Ensemble"]["Id"];
+        ens["label"] = data.ensemble.label;
+        ens["shortlabel"] = data.ensemble.shortlabel;
+        ens["EId"] = data.ensemble.id;
 
-        ens["year"] = data["UTCTime"]["year"];
-        ens["month"] = data["UTCTime"]["month"];
-        ens["day"] = data["UTCTime"]["day"];
-        ens["hour"] = data["UTCTime"]["hour"];
-        ens["minutes"] = data["UTCTime"]["minutes"];
+        ens["year"] = data.utctime.year;
+        ens["month"] = data.utctime.month;
+        ens["day"] = data.utctime.day;
+        ens["hour"] = data.utctime.hour;
+        ens["minutes"] = data.utctime.minutes;
 
-        ens["SNR"] = data["SNR"];
-        ens["FrequencyCorrection"] = data["FrequencyCorrection"];
+        ens["SNR"] = data.snr;
+        ens["FrequencyCorrection"] = data.frequencycorrection;
         ens["services"] = servicehtml;
 
         var ei = document.getElementById('ensembleinfo');
@@ -216,15 +218,15 @@ function populateEnsembleinfo() {
         document.getElementById('images').innerHTML = imageshtml;
 
         tiihtml = "<ul>";
-        for (key in data["TII"]) {
-            tiihtml += parseTemplate(tiiTemplate(), data["TII"][key])
+        for (key in data.tii) {
+            tiihtml += parseTemplate(tiiTemplate(), data.tii[key])
         }
         tiihtml += "</ul>";
 
         var tii_el = document.getElementById('tiiinfo');
         tii_el.innerHTML = tiihtml;
 
-        drawAudiolevels(data["Services"]);
+        drawAudiolevels(data.services);
     };
     r.open("GET", "/mux.json", true);
     r.send()

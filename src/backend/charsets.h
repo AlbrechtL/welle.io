@@ -24,17 +24,18 @@
 #ifndef __CHARSETS_H
 #define __CHARSETS_H
 
+#include <cstdint>
 #include <string>
 
 /*
  * Codes assigned to character sets, as defined
  * in ETSI TS 101 756 v1.6.1, section 5.2.
  */
-typedef enum {
+enum class CharacterSet : uint8_t {
     EbuLatin = 0x00, // Complete EBU Latin based repertoire - see annex C
     UnicodeUcs2 = 0x06,
     UnicodeUtf8 = 0x0F
-} CharacterSet;
+};
 
 /**
  * Converts the string from the given charset to a UTF-8
