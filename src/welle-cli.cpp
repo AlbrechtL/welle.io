@@ -41,6 +41,9 @@
 #include <utility>
 #include <cstdio>
 #include <unistd.h>
+#ifdef HAVE_SOAPYSDR
+#  include "CSoapySdr.h"
+#endif
 #if defined(HAVE_ALSA)
 #  include "welle-cli/alsa-output.h"
 #endif
@@ -326,6 +329,12 @@ int main(int argc, char **argv)
             cerr << "Could not start device" << endl;
             return 1;
         }
+
+#ifdef HAVE_SOAPYSDR
+        if (in->getID() == CDeviceID::SOAPYSDR) {
+            dynamic_cast<CSoapySdr*>(in.get())->setAntenna("TX/RX");
+        }
+#endif
     }
     else {
         // Run the tests without input throttling for max speed
