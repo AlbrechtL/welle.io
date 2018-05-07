@@ -226,8 +226,8 @@ function populateEnsembleinfo() {
             else {
                 s["dls"] = "";
             }
-            s["pty"] = service.pty;
-            s["language"] = service.language;
+            s["pty"] = service.ptystring;
+            s["language"] = service.languagestring;
             s["canvasid"] = "canvas" + service.sid;
 
             if (service["mot"]) {

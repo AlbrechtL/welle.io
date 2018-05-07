@@ -507,11 +507,13 @@ bool WebRadioInterface::send_mux_json(Socket& s)
             string urlmp3 = "/mp3/" + to_hex(s.serviceId);
             nlohmann::json j_srv = {
                 {"sid", to_hex(s.serviceId)},
-                {"pty", DABConstants::getProgramTypeName(s.programType)},
+                {"pty", s.programType},
+                {"ptystring", DABConstants::getProgramTypeName(s.programType)},
                 {"label", s.serviceLabel.utf8_label()},
                 {"shortlabel", s.serviceLabel.utf8_shortlabel()},
                 {"url_mp3", urlmp3},
-                {"language", DABConstants::getLanguageName(s.language)}};
+                {"language", s.language},
+                {"languagestring", DABConstants::getLanguageName(s.language)}};
 
             nlohmann::json j_components;
 
