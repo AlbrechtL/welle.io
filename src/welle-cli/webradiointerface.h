@@ -113,13 +113,13 @@ class WebProgrammeHandler : public ProgrammeHandlerInterface {
 
         struct dls_t {
             std::string label;
-            time_t time = -1; };
+            std::chrono::time_point<std::chrono::system_clock> time; };
         dls_t getDLS() const;
 
         struct mot_t {
             std::string data;
             MOTType subtype = MOTType::Unknown;
-            time_t time = -1; };
+            std::chrono::time_point<std::chrono::system_clock> time; };
         mot_t getMOT_base64() const;
 
         virtual void onFrameErrors(int frameErrors) override;
