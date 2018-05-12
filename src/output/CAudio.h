@@ -32,6 +32,8 @@
 #include    <QAudioOutput>
 #include    <memory>
 #include    <QTimer>
+#include    <QThread>
+#include    <QMetaObject>
 
 #include	"dab-constants.h"
 #include	"ringbuffer.h"
@@ -56,12 +58,13 @@ private:
     RingBuffer<int16_t>& buffer;
 };
 
-
-class	CAudio: public QObject{
+class	CAudioThread: public QThread {
 Q_OBJECT
 public:
-    CAudio(RingBuffer<int16_t>& buffer);
-    ~CAudio(void);
+    CAudioThread(RingBuffer<int16_t>& buffer, QObject *parent = 0);
+    ~CAudioThread(void);
+    void run();
+public slots:
     void stop (void);
     void reset(void);
     void setRate (int sampleRate);
@@ -79,12 +82,32 @@ private:
     int32_t CardRate;
 
 signals:
-    void rateChanged(int newRate);
 
 private slots:
     void init(int sampleRate);
     void handleStateChanged(QAudio::State newState);
     void checkAudioBufferTimeout();
+};
+
+class CAudio : public QObject
+{
+Q_OBJECT
+public:
+    CAudio(RingBuffer<int16_t>& buffer, QObject *parent = 0);
+    ~CAudio(void);
+         
+signals:
+         
+public slots:
+    void stop(void);
+    void reset(void);
+    void setRate (int sampleRate);
+    void setVolume (qreal volume);
+               
+private:
+    CAudioThread *_audioThread;
+    RingBuffer<int16_t>& buffer;
+    CAudioIODevice audioIODevice;
 };
 #endif
 
