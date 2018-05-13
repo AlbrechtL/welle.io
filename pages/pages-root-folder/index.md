@@ -81,10 +81,7 @@ Support
 ---
 ### Forum
 
-
-If you need help don't hesitate to use one of two options
-* Use the [forum](https://forum.welle.io/) ([forum.welle.io](https://forum.welle.io/))
-* Open a [new issue](https://github.com/AlbrechtL/welle.io/issues) on Github.
+If you need help don't hesitate and open a [new issue](https://github.com/AlbrechtL/welle.io/issues) on Github.
 
 ### FAQ
 Visit the [FAQ list](/faq).
