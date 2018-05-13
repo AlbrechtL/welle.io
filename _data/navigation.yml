@@ -25,7 +25,7 @@
     url: "/devices/rawfile"
 
 - title: Forum
-  url: "https://forum.welle.io/"
+  url: "https://github.com/AlbrechtL/welle.io/issues"
   side: left
 
 - title: FAQ
