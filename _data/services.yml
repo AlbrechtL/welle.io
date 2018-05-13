@@ -4,14 +4,11 @@
   url: "/contact/"
   title: "Contact"
 
-#- name: "RSS"
-#  url: "/feed.xml"
-#  title: "Subscribe to RSS Feed"
+- name: "Impressum"
+  url: "/impressum/"
+  title: "Impressum"
 
-#- name: "Atom"
-#  url: "/atom.xml"
-#  title: "Subscribe to Atom Feed"
+- name: "Datenschutzerklaerung"
+  url: "/datenschutzerklaerung/"
+  title: "Datenschutzerklärung"
 
-#- name: "sitemap.xml"
-#  url: "/sitemap.xml"
-#  title: "Sitemap for Google Webmaster Tools"
