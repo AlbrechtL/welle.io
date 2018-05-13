@@ -2,7 +2,7 @@
 layout: page
 header:
   image_fullwidth: banner5.jpg
-title: "Impressum"
+title: "Datenschutzerklärung"
 meta_title: "Datenschutzerklärung"
 subheadline: ""
 teaser: ""
