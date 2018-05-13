@@ -23,5 +23,16 @@ Die Internetseiten verwenden teilweise so genannte Cookies. Cookies richten auf 
 Die meisten der von uns verwendeten Cookies sind so genannte â€žSession-Cookiesâ€œ. Sie werden nach Ende Ihres Besuchs automatisch gelöscht. Andere Cookies bleiben auf Ihrem Endgerät gespeichert, bis Sie diese löschen. Diese Cookies ermöglichen es uns, Ihren Browser beim nächsten Besuch wiederzuerkennen.
 
 Sie können Ihren Browser so einstellen, dass Sie über das Setzen von Cookies informiert werden und Cookies nur im Einzelfall erlauben, die Annahme von Cookies für bestimmte Fälle oder generell ausschließen sowie das automatische Löschen der Cookies beim Schließen des Browser aktivieren. Bei der Deaktivierung von Cookies kann die Funktionalität dieser Website eingeschränkt sein.
- 
+
+## Server-Log- Files
+Der Provider der Seiten erhebt und speichert automatisch Informationen in so genannten Server-Log Files, die Ihr Browser automatisch an uns übermittelt. Dies sind:
+
+* Browsertyp und Browserversion
+* verwendetes Betriebssystem
+* Referrer URL
+* Hostname des zugreifenden Rechners
+* Uhrzeit der Serveranfrage
+
+Diese Daten sind nicht bestimmten Personen zuordenbar. Eine Zusammenführung dieser Daten mit anderen Datenquellen wird nicht vorgenommen. Wir behalten uns vor, diese Daten nachträglich zu prüfen, wenn uns konkrete Anhaltspunkte für eine rechtswidrige Nutzung bekannt werden.
+
 Quelle: [https://www.e-recht24.de/muster-datenschutzerklaerung.html](https://www.e-recht24.de/muster-datenschutzerklaerung.html)
