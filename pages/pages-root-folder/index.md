@@ -70,7 +70,7 @@ Download
 Stable release are available under the following links.
  * ### [welle.io for Windows, Linux and Android (APK)](http://github.com/AlbrechtL/welle.io/releases)
  * ### [welle.io for Android at Google Play](https://play.google.com/store/apps/details?id=io.welle.welle)
-If you discovered an issue use the [forum](https://forum.welle.io/) or open a new [issue](https://github.com/AlbrechtL/welle.io/issues) please.
+If you discovered an issue open a new [issue](https://github.com/AlbrechtL/welle.io/issues) please.
 
 welle.io is under heavy development. You can also try the latest developer builds. But PLEASE BE WARNED the builds are automatically created and untested.
  * [welle.io nightly builds](https://bintray.com/albrechtl/welle.io/welle.io_nightly#files)
