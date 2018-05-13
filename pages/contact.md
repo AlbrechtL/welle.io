@@ -10,12 +10,13 @@ permalink: "/contact/"
 ---
 
 #### Support
-For support and questions please use the [forum](https://forum.welle.io/) ([forum.welle.io](forum.welle.io)).  
-If you would like to report a bug you can also open a new [issue](https://github.com/AlbrechtL/welle.io/issues).
+For support and questions open a new [issue](https://github.com/AlbrechtL/welle.io/issues), please.
 
 #### Page Owner
 *Name*: Albrecht Lohofener  
 *E-Mail*: albrechtloh@gmx.de  
 *GitHub*: [http://github.com/AlbrechtL](http://github.com/AlbrechtL)
 
-
+Because the page owner is German there is also the following documents online
+* [Impressum](https://www.welle.io/impressum/)
+* [Datenschutzerklärung](https://www.welle.io/datenschutzerklaerung/
