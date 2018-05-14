@@ -35,6 +35,7 @@
         <file>i18n/nb_NO.qm</file>
         <file>i18n/fr_FR.qm</file>
         <file>i18n/pl_PL.qm</file>
+	<file>i18n/ru_RU.qm</file>
         <file>icon.png</file>
         <file>splash.png</file>
         <file>AUTHORS</file>
