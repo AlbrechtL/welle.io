@@ -9,9 +9,9 @@ permalink: /faq
 
 ## Table of contents
 * [What do the three small rectangles in the right above corner mean?](#what-do-the-three-small-rectangles-in-the-right-above-corner-mean)
-* [What are the minimum hardware requirements?](what-are-the-minimum-hardware-requirements)
-* [Where are the settings stored?](where-are-the-settings-stored)
-* [Why is my RTL-SDR showed as RTL2838 and not as RTL2832U?](why-is-my-rtl-sdr-showed-as-rtl2838-and-not-as-rtl2832u)
+* [What are the minimum hardware requirements?](#what-are-the-minimum-hardware-requirements)
+* [Where are the settings stored?](#where-are-the-settings-stored)
+* [Why is my RTL-SDR showed as RTL2838 and not as RTL2832U?](#why-is-my-rtl-sdr-showed-as-rtl2838-and-not-as-rtl2832u)
 
 
 ## What do the three small rectangles in the right above corner mean?
