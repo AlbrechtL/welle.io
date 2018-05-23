@@ -38,7 +38,7 @@ welle-io.exe -d rtl_sdr
 ## Windows set up
 To install the rtl-sdr on your Windows 10 system please follow the steps:
 * Navigate to your welle.io install folder e.g. C:\Program Files (x86)\welle.io
-* Run "zadig_2.2.exe"
+* Run "zadig_2.3.exe"
 * Choose "Options" and click to "List All Devices"
 ![Zadig_List_All.png](/images/Zadig_List_All.png)
 
