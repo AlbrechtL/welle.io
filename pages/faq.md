@@ -48,3 +48,6 @@ The settings are stored at the file `/data/data/io.welle.welle/files/.config/wel
 
 **Android**
 * Just deinstall welle.io from your phone or tablet
+
+## Why is my RTL-SDR showed as RTL2838 in welle.io?
+Some USB dongles with the product ID (PID) 0x2838 showes RTL2838 as chip but Realtek never had a chip with this name. All these devices have also the Realtek RTL2832U inside.
