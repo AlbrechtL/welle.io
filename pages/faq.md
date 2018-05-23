@@ -6,6 +6,14 @@ title: "FAQ"
 teaser: ""
 permalink: /faq
 ---
+
+## Table of contents
+* [What do the three small rectangles in the right above corner mean?](#what-do-the-three-small-rectangles-in-the-right-above-corner-mean)
+* [What are the minimum hardware requirements?](what-are-the-minimum-hardware-requirements)
+* [Where are the settings stored?](where-are-the-settings-stored)
+* [Why is my RTL-SDR showed as RTL2838 and not as RTL2832U?](why-is-my-rtl-sdr-showed-as-rtl2838-and-not-as-rtl2832u)
+
+
 ## What do the three small rectangles in the right above corner mean?
 You can only hear a sound if all three rectangles are green. These three rectangles are an indicator for the signal quality and decoding status.
 
@@ -49,5 +57,5 @@ The settings are stored at the file `/data/data/io.welle.welle/files/.config/wel
 **Android**
 * Just deinstall welle.io from your phone or tablet
 
-## Why is my RTL-SDR showed as RTL2838 in welle.io?
+## Why is my RTL-SDR showed as RTL2838 and not as RTL2832U?]?
 Some USB dongles with the product ID (PID) 0x2838 showes RTL2838 as chip but Realtek never had a chip with this name. All these devices have also the Realtek RTL2832U inside.
