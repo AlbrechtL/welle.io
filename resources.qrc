@@ -58,5 +58,7 @@
         <file>src/gui/QML/expertviews/Spectrum.qml</file>
         <file>src/gui/QML/expertviews/StationInformation.qml</file>
         <file>src/gui/QML/expertviews/ImpulseResponseGraph.qml</file>
+        <file>src/gui/QML/expertviews/ConstellationGraph.qml</file>
+        <file>src/gui/QML/expertviews/NullSymbolGraph.qml</file>
     </qresource>
 </RCC>

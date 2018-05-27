@@ -58,8 +58,14 @@ Item {
 
         ImpulseResponseGraph {
             visible: true
-//            Layout.preferredWidth: Units.dp(400)
-//            Layout.preferredHeight: Units.dp(400)
+        }
+
+        ConstellationGraph {
+            visible: true
+        }
+
+        NullSymbolGraph {
+            visible: true
         }
     }
 }

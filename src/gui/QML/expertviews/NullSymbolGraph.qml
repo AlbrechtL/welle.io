@@ -17,20 +17,20 @@ Item {
         theme: ChartView.ChartThemeLight
         backgroundColor: "#00000000"
         legend.visible: false
-        title: qsTr("Impulse Response")
+        title: qsTr("Null Symbol")
 
         property real maxYAxis: 0
 
         Component.onCompleted: {
             var line = createSeries(ChartView.SeriesTypeLine, "line series", axisX, axisY)
             line.color = "#38ad6b"
-            cppGUI.registerImpulseResonseSeries(series(0));
+            cppGUI.registerNullSymbolSeries(series(0));
         }
 
         Connections{
             target: cppGUI
 
-            onSetImpulseResponseAxis: {
+            onSetNullSymbolAxis: {
                 if(axisY.max < Ymax) // Up scale y axis immediately if y should be bigger
                 {
                     axisY.max = Ymax
@@ -49,7 +49,7 @@ Item {
         ValueAxis {
             id: axisY
             titleText: qsTr("Amplitude")
-            min: -20
+            min: 0
         }
 
         ValueAxis {
@@ -63,7 +63,7 @@ Item {
             running: parent.visible ? true : false // Trigger new data only if spectrum is showed
             repeat: true
             onTriggered: {
-               cppGUI.updateImpulseResponse();
+               cppGUI.updateNullSymbol();
             }
         }
 

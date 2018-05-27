@@ -177,6 +177,8 @@ public:
 
     // Buffer getter
     std::vector<float> &&getImpulseResponse(void);
+    std::vector<DSPCOMPLEX> &&getNullSymbol(void);
+    std::vector<DSPCOMPLEX> &&getConstellationPoint(void);
 
     DABParams& getDABParams(void);
 

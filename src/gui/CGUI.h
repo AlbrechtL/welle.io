@@ -84,10 +84,14 @@ public:
     Q_INVOKABLE void clearStationList(void);
     Q_INVOKABLE void registerSpectrumSeries(QAbstractSeries* series);
     Q_INVOKABLE void registerImpulseResonseSeries(QAbstractSeries* series);
+    Q_INVOKABLE void registerNullSymbolSeries(QAbstractSeries* series);
+    Q_INVOKABLE void registerConstellationSeries(QAbstractSeries* series);
     Q_INVOKABLE void setPlotType(int PlotType);
     Q_INVOKABLE void tryHideWindow(void);
     Q_INVOKABLE void updateSpectrum();
     Q_INVOKABLE void updateImpulseResponse();
+    Q_INVOKABLE void updateNullSymbol();
+    Q_INVOKABLE void updateConstellation();
 
     QVariantMap guiData() const
     {
@@ -111,6 +115,12 @@ private:
     QXYSeries* spectrum_series;
     QXYSeries* impulseResponseSeries;
     QVector<QPointF> impulseResponseSeriesData;
+
+    QXYSeries* nullSymbolSeries;
+    QVector<QPointF> nullSymbolSeriesData;
+
+    QXYSeries* constellationSeries;
+    QVector<QPointF> constellationSeriesData;
 
     const QVariantMap licenses();
 
@@ -153,6 +163,8 @@ signals:
     void setXAxisMinMax(qreal min, qreal max);
 
     void setImpulseResponseAxis(qreal Ymax, qreal Xmin, qreal Xmax);
+    void setNullSymbolAxis(qreal Ymax, qreal Xmin, qreal Xmax);
+    void setConstellationAxis(qreal Xmin, qreal Xmax);
 
     void guiDataChanged(QVariantMap guiData);
     void stationModelChanged();

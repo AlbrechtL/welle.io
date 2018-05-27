@@ -1023,6 +1023,16 @@ std::vector<float> &&CRadioController::getImpulseResponse()
     return std::move(impulseResponseBuffer);
 }
 
+std::vector<DSPCOMPLEX> &&CRadioController::getNullSymbol()
+{
+    return std::move(nullSymbolBuffer);
+}
+
+std::vector<DSPCOMPLEX> &&CRadioController::getConstellationPoint()
+{
+    return std::move(constellationPointBuffer);
+}
+
 DABParams& CRadioController::getDABParams()
 {
     return dabparams;
