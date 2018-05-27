@@ -115,8 +115,6 @@ public:
     void SetManualChannel(QString Channel);
     void StartScan(void);
     void StopScan(void);
-    void UpdateSpectrum(void);
-    void setPlotType(PlotTypeEn PlotType);
     void setAutoPlay(QString Channel, QString Station);
     QList<StationElement*> Stations() const;
     QVariantMap GUIData(void) const;
@@ -177,6 +175,7 @@ public:
 
     // Buffer getter
     std::vector<float> &&getImpulseResponse(void);
+    std::vector<DSPCOMPLEX> &&getSignalProbe(void);
     std::vector<DSPCOMPLEX> &&getNullSymbol(void);
     std::vector<DSPCOMPLEX> &&getConstellationPoint(void);
 
@@ -198,6 +197,8 @@ private:
     std::unique_ptr<RadioReceiver> my_rx;
     RingBuffer<int16_t> audioBuffer;
     CAudio audio;
+    std::mutex signalProbeBufferMutex;
+    std::vector<DSPCOMPLEX> getSignalProbeBuffer;
     std::mutex impulseResponseBufferMutex;
     std::vector<float> impulseResponseBuffer;
     std::mutex nullSymbolBufferMutex;
@@ -256,11 +257,6 @@ private:
     QString autoChannel;
     QString autoStation;
 
-    // Spectrum variables
-    common_fft* spectrum_fft_handler;
-    QVector<QPointF> spectrum_data;
-    PlotTypeEn PlotType;
-
 private slots:
     void StationTimerTimeout(void);
     void ChannelTimerTimeout(void);
@@ -309,7 +305,6 @@ signals:
     void FoundStation(QString Station, QString CurrentChannel);
     void ScanStopped();
     void ScanProgress(int Progress);
-    void SpectrumUpdated(qreal Ymax, qreal Xmin, qreal Xmax, QVector<QPointF> Data);
     void showErrorMessage(QString Text);
     void showInfoMessage(QString Text);
 #endif

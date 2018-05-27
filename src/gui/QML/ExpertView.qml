@@ -52,7 +52,7 @@ Item {
             visible: enableStationInfo.checked
         }
 
-        Spectrum {
+        SpectrumGraph {
             visible: enableSpectrum.checked
         }
 

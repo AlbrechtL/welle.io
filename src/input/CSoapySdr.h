@@ -51,7 +51,7 @@ public:
     virtual void stop(void);
     virtual void reset(void);
     virtual int32_t getSamples(DSPCOMPLEX* Buffer, int32_t Size);
-    virtual int32_t getSpectrumSamples(DSPCOMPLEX* Buffer, int32_t Size);
+    virtual int32_t getSpectrumSamples(std::vector<DSPCOMPLEX> &sampleBuffer, int32_t Size);
     virtual int32_t getSamplesToRead(void);
     virtual float setGain(int gainIndex);
     virtual int getGainCount(void);

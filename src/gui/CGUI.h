@@ -86,7 +86,6 @@ public:
     Q_INVOKABLE void registerImpulseResonseSeries(QAbstractSeries* series);
     Q_INVOKABLE void registerNullSymbolSeries(QAbstractSeries* series);
     Q_INVOKABLE void registerConstellationSeries(QAbstractSeries* series);
-    Q_INVOKABLE void setPlotType(int PlotType);
     Q_INVOKABLE void tryHideWindow(void);
     Q_INVOKABLE void updateSpectrum();
     Q_INVOKABLE void updateImpulseResponse();
@@ -112,7 +111,9 @@ private:
     CRadioController *RadioController;
 #endif
 
-    QXYSeries* spectrum_series;
+    QXYSeries* spectrumSeries;
+    QVector<QPointF> spectrumSeriesData;
+
     QXYSeries* impulseResponseSeries;
     QVector<QPointF> impulseResponseSeriesData;
 
@@ -147,7 +148,6 @@ private slots:
 #endif
     void DeviceClosed();
     void MOTUpdate(QImage MOTImage);
-    void SpectrumUpdate(qreal Ymax, qreal Xmin, qreal Xmax, QVector<QPointF> Data);
     void StationsChange(QList<StationElement *> Stations);
     void showErrorMessage(QString Text);
     void showInfoMessage(QString Text);
@@ -159,9 +159,7 @@ signals:
 
     void currentGainValueChanged();
 
-    void setYAxisMax(qreal max);
-    void setXAxisMinMax(qreal min, qreal max);
-
+    void setSpectrumAxis(qreal Ymax, qreal Xmin, qreal Xmax);
     void setImpulseResponseAxis(qreal Ymax, qreal Xmin, qreal Xmax);
     void setNullSymbolAxis(qreal Ymax, qreal Xmin, qreal Xmax);
     void setConstellationAxis(qreal Xmin, qreal Xmax);

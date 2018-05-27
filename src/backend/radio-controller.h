@@ -161,7 +161,7 @@ class InputInterface {
         virtual void stop(void) = 0;
         virtual void reset(void) = 0;
         virtual int32_t getSamples(DSPCOMPLEX* buffer, int32_t size) = 0;
-        virtual int32_t getSpectrumSamples(DSPCOMPLEX* buffer, int32_t size) = 0;
+        virtual int32_t getSpectrumSamples(std::vector<DSPCOMPLEX> &sampleBuffer, int32_t size) = 0;
         virtual int32_t getSamplesToRead(void) = 0;
         virtual float setGain(int gain) = 0;
         virtual int getGainCount(void) = 0;

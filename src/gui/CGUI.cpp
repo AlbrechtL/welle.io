@@ -50,7 +50,7 @@ CGUI::CGUI(CRadioController *RadioController, QObject *parent)
 #endif
     : QObject(parent)
     , RadioController(RadioController)
-    , spectrum_series(NULL)
+    , spectrumSeries(NULL)
     , impulseResponseSeries(NULL)
 {
     m_currentGainValue = 0;
@@ -72,7 +72,6 @@ CGUI::CGUI(CRadioController *RadioController, QObject *parent)
 #else
     connect(RadioController, &CRadioController::GUIDataChanged, this, &CGUI::guiDataChanged);
     connect(RadioController, &CRadioController::MOTChanged, this, &CGUI::MOTUpdate);
-    connect(RadioController, &CRadioController::SpectrumUpdated, this, &CGUI::SpectrumUpdate);
     connect(RadioController, &CRadioController::StationsChanged, this, &CGUI::StationsChange);
     connect(RadioController, &CRadioController::ScanStopped, this, &CGUI::channelScanStopped);
     connect(RadioController, &CRadioController::ScanProgress, this, &CGUI::channelScanProgress);
@@ -323,7 +322,7 @@ void CGUI::clearStationList()
 
 void CGUI::registerSpectrumSeries(QAbstractSeries* series)
 {
-    spectrum_series = static_cast<QXYSeries*>(series);
+    spectrumSeries = static_cast<QXYSeries*>(series);
 }
 
 void CGUI::registerImpulseResonseSeries(QAbstractSeries* series)
@@ -340,20 +339,6 @@ void CGUI::registerConstellationSeries(QAbstractSeries *series)
 {
     constellationSeries = static_cast<QXYSeries*>(series);
 }
-void CGUI::setPlotType(int PlotType)
-{
-    if(RadioController)
-    {
-        switch(PlotType)
-        {
-        case 0: RadioController->setPlotType(PlotTypeEn::Spectrum); break;
-        case 1: RadioController->setPlotType(PlotTypeEn::ImpulseResponse); break;
-        case 2: RadioController->setPlotType(PlotTypeEn::QPSK); break;
-        case 3: RadioController->setPlotType(PlotTypeEn::Null); break;
-        default: RadioController->setPlotType(PlotTypeEn::Unknown);
-        }
-    }
-}
 
 void CGUI::tryHideWindow()
 {
@@ -369,8 +354,69 @@ void CGUI::tryHideWindow()
 // This function is called by the QML GUI
 void CGUI::updateSpectrum()
 {
-    if (RadioController && spectrum_series)
-        RadioController->UpdateSpectrum();
+    std::vector<DSPCOMPLEX> signalProbeBuffer;
+    int T_u = RadioController->getDABParams().T_u;
+
+    qreal y = 0;
+    qreal x = 0;
+    qreal y_max = 0;
+    qreal x_min = 0;
+    qreal x_max = 0;
+
+    qreal tunedFrequency_MHz = 0;
+    qreal CurrentFrequency = 130e6; // ToDo
+    qreal sampleFrequency_MHz = 2.048; // ToDo
+    qreal dip_MHz = sampleFrequency_MHz / T_u;
+
+    signalProbeBuffer = std::move(RadioController->getSignalProbe());
+
+    if (signalProbeBuffer.size() == (size_t)T_u) {
+        spectrumSeriesData.resize(T_u);
+
+        common_fft FFT(T_u);
+        DSPCOMPLEX* spectrumBuffer = FFT.getVector();
+
+        std::copy(signalProbeBuffer.begin(), signalProbeBuffer.begin() + T_u,
+                spectrumBuffer);
+
+        // Do FFT to get the spectrum
+        FFT.do_FFT();
+
+        tunedFrequency_MHz = CurrentFrequency / 1e6;
+
+        // Process samples one by one
+        for (int i = 0; i < T_u; i++) {
+            int half_Tu = T_u / 2;
+
+            // Shift FFT samples
+            if (i < half_Tu)
+                y = abs(spectrumBuffer[i + half_Tu]);
+            else
+                y = abs(spectrumBuffer[i - half_Tu]);
+
+            // Apply a cumulative moving average filter
+            int avg = 4; // Number of y values to average
+            qreal CMA = spectrumSeriesData[i].y();
+            y = (CMA * avg + y) / (avg + 1);
+
+            // Find maximum value to scale the plotter
+            if (y > y_max)
+                y_max = y;
+
+            // Calc x frequency
+            x = (i * dip_MHz) + (tunedFrequency_MHz - (sampleFrequency_MHz / 2));
+
+            spectrumSeriesData[i]= QPointF(x, y);
+        }
+
+        x_min = tunedFrequency_MHz - (sampleFrequency_MHz / 2);
+        x_max = tunedFrequency_MHz + (sampleFrequency_MHz / 2);
+
+        emit setSpectrumAxis(y_max, x_min, x_max);
+
+        if(spectrumSeries)
+            spectrumSeries->replace(spectrumSeriesData);
+    }
 }
 
 void CGUI::updateImpulseResponse()
@@ -419,8 +465,8 @@ void CGUI::updateNullSymbol()
     qreal x_max = 0;
 
     qreal tunedFrequency_MHz = 0;
-    qreal CurrentFrequency = 130e6;
-    qreal sampleFrequency_MHz = 2.048;
+    qreal CurrentFrequency = 130e6; // ToDo
+    qreal sampleFrequency_MHz = 2.048; // ToDo
     qreal dip_MHz = sampleFrequency_MHz / T_u;
 
     nullSymbolBuffer = std::move(RadioController->getNullSymbol());
@@ -503,20 +549,6 @@ void CGUI::updateConstellation()
     else {
         qDebug() << "IQ" << constellationPointBuffer.size() << num_iqpoints;
     }
-}
-
-void CGUI::SpectrumUpdate(qreal Ymax, qreal Xmin, qreal Xmax, QVector<QPointF> Data)
-{
-    // Set maximum of y-axis
-    if (Ymax > 0.0001)
-        emit setYAxisMax(Ymax);
-
-    // Set x-axis min and max
-    emit setXAxisMinMax(Xmin, Xmax);
-
-    // Set new data
-    if (spectrum_series)
-        spectrum_series->replace(Data);
 }
 
 QTranslator* CGUI::AddTranslator(QString Language, QTranslator *OldTranslator)

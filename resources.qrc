@@ -53,12 +53,11 @@
         <file>src/gui/QML/components/SettingSection.qml</file>
         <file>src/gui/QML/components/StationDelegate.qml</file>
         <file>src/gui/QML/components/Units.qml</file>
-        <file>src/gui/QML/components/SpectrumView.qml</file>
         <file>src/gui/QML/components/qmldir</file>
-        <file>src/gui/QML/expertviews/Spectrum.qml</file>
         <file>src/gui/QML/expertviews/StationInformation.qml</file>
         <file>src/gui/QML/expertviews/ImpulseResponseGraph.qml</file>
         <file>src/gui/QML/expertviews/ConstellationGraph.qml</file>
         <file>src/gui/QML/expertviews/NullSymbolGraph.qml</file>
+        <file>src/gui/QML/expertviews/SpectrumGraph.qml</file>
     </qresource>
 </RCC>

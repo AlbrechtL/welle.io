@@ -211,9 +211,14 @@ int32_t CRAWFile::getSamples(DSPCOMPLEX* V, int32_t size)
     return convertSamples(SampleBuffer, V, size);
 }
 
-int32_t CRAWFile::getSpectrumSamples(DSPCOMPLEX* V, int32_t size)
+int32_t CRAWFile::getSpectrumSamples(std::vector<DSPCOMPLEX> &sampleBuffer, int32_t size)
 {
-    return convertSamples(SpectrumSampleBuffer, V, size);
+    DSPCOMPLEX buffer[size];
+
+    int sizeRead = convertSamples(SpectrumSampleBuffer, buffer, size);
+    std::copy(buffer, buffer + sizeRead, sampleBuffer.begin());
+
+    return sizeRead;
 }
 
 int32_t CRAWFile::getSamplesToRead(void)
