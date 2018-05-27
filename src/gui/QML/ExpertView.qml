@@ -15,8 +15,11 @@ Item {
     Layout.preferredWidth: Units.dp(400)
 
     Settings {
-        property alias enableSpectrumState: enableSpectrum.checked
-        property alias enableStationInfoState: enableStationInfo.checked
+        property alias enableStationInfoDisplayState: enableStationInfoDisplay.checked
+        property alias enableSpectrumDisplayState: enableSpectrumDisplay.checked
+        property alias enableImpulseResponseDisplayState: enableImpulseResponseDisplay.checked
+        property alias enableConstellationDisplayState: enableConstellationDisplay.checked
+        property alias enableNullSymbolDisplayState: enableNullSymbolDisplay.checked
     }
 
     function openSettings() {
@@ -33,13 +36,33 @@ Item {
             spacing: Units.dp(20)
 
             Switch {
-                id: enableSpectrum
-                text: qsTr("Display spectrum")
+                id: enableStationInfoDisplay
+                text: qsTr("Display station info")
+                checked: true
             }
 
             Switch {
-                id: enableStationInfo
-                text: qsTr("Display station info")
+                id: enableSpectrumDisplay
+                text: qsTr("Display spectrum")
+                checked: true
+            }
+
+            Switch {
+                id: enableImpulseResponseDisplay
+                text: qsTr("Display impulse response")
+                checked: false
+            }
+
+            Switch {
+                id: enableConstellationDisplay
+                text: qsTr("Display constellation diagram")
+                checked: false
+            }
+
+            Switch {
+                id: enableNullSymbolDisplay
+                text: qsTr("Display null symbol")
+                checked: false
             }
         }
     }
@@ -49,23 +72,23 @@ Item {
         anchors.fill: parent
 
         StationInformation {
-            visible: enableStationInfo.checked
+            visible: enableStationInfoDisplay.checked
         }
 
         SpectrumGraph {
-            visible: enableSpectrum.checked
+            visible: enableSpectrumDisplay.checked
         }
 
         ImpulseResponseGraph {
-            visible: true
+            visible: enableImpulseResponseDisplay.checked
         }
 
         ConstellationGraph {
-            visible: true
+            visible: enableConstellationDisplay.checked
         }
 
         NullSymbolGraph {
-            visible: true
+            visible: enableNullSymbolDisplay.checked
         }
     }
 }
