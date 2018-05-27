@@ -51,6 +51,7 @@ CGUI::CGUI(CRadioController *RadioController, QObject *parent)
     : QObject(parent)
     , RadioController(RadioController)
     , spectrum_series(NULL)
+    , impulseResponseSeries(NULL)
 {
     m_currentGainValue = 0;
 
@@ -325,6 +326,10 @@ void CGUI::registerSpectrumSeries(QAbstractSeries* series)
     spectrum_series = static_cast<QXYSeries*>(series);
 }
 
+void CGUI::registerImpulseResonseSeries(QAbstractSeries* series)
+{
+    impulseResponseSeries = static_cast<QXYSeries*>(series);
+}
 void CGUI::setPlotType(int PlotType)
 {
     if(RadioController)
@@ -356,6 +361,39 @@ void CGUI::updateSpectrum()
 {
     if (RadioController && spectrum_series)
         RadioController->UpdateSpectrum();
+}
+
+void CGUI::updateImpulseResponse()
+{
+    std::vector<float> impulseResponseBuffer;
+    int T_u = RadioController->getDABParams().T_u;
+
+    qreal y_max = 0;
+    qreal x_min = 0;
+    qreal x_max = 0;
+
+    impulseResponseBuffer = std::move(RadioController->getImpulseResponse());
+
+    if (impulseResponseBuffer.size() == (size_t)T_u) {
+        impulseResponseSeriesData.resize(T_u);
+        for (int i = 0; i < T_u; i++) {
+            qreal y = 10.0f * std::log10(impulseResponseBuffer[i]);
+            qreal x = i;
+
+            // Find maximum value to scale the plotter
+            if (y > y_max)
+                y_max = y;
+            impulseResponseSeriesData[i] = QPointF(x, y);
+        }
+
+        x_min = 0;
+        x_max = T_u;
+
+        emit setImpulseResponseAxis(y_max, x_min, x_max);
+    }
+
+    if(impulseResponseSeries)
+        impulseResponseSeries->replace(impulseResponseSeriesData);
 }
 
 void CGUI::SpectrumUpdate(qreal Ymax, qreal Xmin, qreal Xmax, QVector<QPointF> Data)

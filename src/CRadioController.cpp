@@ -982,19 +982,19 @@ void CRadioController::onFIBDecodeSuccess(bool crcCheckOk, const uint8_t* fib)
 void CRadioController::onNewImpulseResponse(std::vector<float>&& data)
 {
     std::lock_guard<std::mutex> lock(impulseResponseBufferMutex);
-    std::swap(impulseResponseBuffer, data);
+    impulseResponseBuffer = std::move(data);
 }
 
 void CRadioController::onConstellationPoints(std::vector<DSPCOMPLEX>&& data)
 {
     std::lock_guard<std::mutex> lock(constellationPointBufferMutex);
-    std::swap(constellationPointBuffer, data);
+    constellationPointBuffer = std::move(data);
 }
 
 void CRadioController::onNewNullSymbol(std::vector<DSPCOMPLEX>&& data)
 {
     std::lock_guard<std::mutex> lock(nullSymbolBufferMutex);
-    std::swap(nullSymbolBuffer, data);
+    nullSymbolBuffer = std::move(data);
 }
 
 void CRadioController::onTIIMeasurement(tii_measurement_t&& m)
@@ -1016,6 +1016,16 @@ void CRadioController::onMessage(message_level_t level, const std::string& text)
             emit showErrorMessage(tr(text.c_str()));
             break;
     }
+}
+
+std::vector<float> &&CRadioController::getImpulseResponse()
+{
+    return std::move(impulseResponseBuffer);
+}
+
+DABParams& CRadioController::getDABParams()
+{
+    return dabparams;
 }
 
 void CRadioController::onSNR(int snr)

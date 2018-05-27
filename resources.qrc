@@ -56,5 +56,6 @@
         <file>src/gui/QML/components/qmldir</file>
         <file>src/gui/QML/expertviews/Spectrum.qml</file>
         <file>src/gui/QML/expertviews/StationInformation.qml</file>
+        <file>src/gui/QML/expertviews/ImpulseResponseGraph.qml</file>
     </qresource>
 </RCC>

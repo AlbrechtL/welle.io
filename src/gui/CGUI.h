@@ -83,8 +83,11 @@ public:
     Q_INVOKABLE void inputGainChanged(double gain);
     Q_INVOKABLE void clearStationList(void);
     Q_INVOKABLE void registerSpectrumSeries(QAbstractSeries* series);
+    Q_INVOKABLE void registerImpulseResonseSeries(QAbstractSeries* series);
     Q_INVOKABLE void setPlotType(int PlotType);
     Q_INVOKABLE void tryHideWindow(void);
+    Q_INVOKABLE void updateSpectrum();
+    Q_INVOKABLE void updateImpulseResponse();
 
     QVariantMap guiData() const
     {
@@ -106,6 +109,8 @@ private:
 #endif
 
     QXYSeries* spectrum_series;
+    QXYSeries* impulseResponseSeries;
+    QVector<QPointF> impulseResponseSeriesData;
 
     const QVariantMap licenses();
 
@@ -125,7 +130,6 @@ private:
 
 public slots:
     void close();
-    void updateSpectrum();
 
 private slots:
 #ifdef Q_OS_ANDROID
@@ -147,6 +151,8 @@ signals:
 
     void setYAxisMax(qreal max);
     void setXAxisMinMax(qreal min, qreal max);
+
+    void setImpulseResponseAxis(qreal Ymax, qreal Xmin, qreal Xmax);
 
     void guiDataChanged(QVariantMap guiData);
     void stationModelChanged();

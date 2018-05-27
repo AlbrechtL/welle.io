@@ -19,7 +19,7 @@ DISTFILES +=    README.md \
     android/gradlew.bat \
     android/java/io/welle/welle/DabMediaService.java \
     android/java/io/welle/welle/DabService.java \
-    android/java/io/welle/welle/DabDelegate.java
+    android/java/io/welle/welle/DabDelegate.java \
 
 TRANSLATIONS = i18n/de_DE.ts i18n/it_IT.ts i18n/hu_HU.ts i18n/nb_NO.ts i18n/fr_FR.ts i18n/pl_PL.ts
 
@@ -30,7 +30,6 @@ SOURCES += src/gui/QML/*.qml \
     src/gui/QML/components/*.qml \
     src/gui/QML/expertviews/*.qml \
 }
-
 
 DEPENDPATH += \
     src \

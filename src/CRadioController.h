@@ -175,6 +175,11 @@ public:
     virtual void onTIIMeasurement(tii_measurement_t&& m) override;
     virtual void onMessage(message_level_t level, const std::string& text) override;
 
+    // Buffer getter
+    std::vector<float> &&getImpulseResponse(void);
+
+    DABParams& getDABParams(void);
+
 private:
     void Initialise(void);
     void ResetTechnicalData(void);

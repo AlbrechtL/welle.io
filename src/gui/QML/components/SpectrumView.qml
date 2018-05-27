@@ -1,6 +1,7 @@
 import QtQuick 2.0
 import QtCharts 2.1
 
+
 // Import custom styles
 import "../texts"
 
@@ -61,7 +62,7 @@ ChartView {
     Connections{
         target: cppGUI
         onSetYAxisMax:{
-            if(axisY.max < max) // Up scale y axis emidetly if y should be bigger
+            if(axisY.max < max) // Up scale y axis immediately if y should be bigger
             {
                 axisY.max = max
             }

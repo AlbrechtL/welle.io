@@ -55,5 +55,11 @@ Item {
         Spectrum {
             visible: enableSpectrum.checked
         }
+
+        ImpulseResponseGraph {
+            visible: true
+//            Layout.preferredWidth: Units.dp(400)
+//            Layout.preferredHeight: Units.dp(400)
+        }
     }
 }
