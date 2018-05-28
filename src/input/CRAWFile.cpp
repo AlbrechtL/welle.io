@@ -267,9 +267,9 @@ void CRAWFile::run(void)
         }
         SampleBuffer.putDataIntoBuffer(bi.data(), t);
         SpectrumSampleBuffer.putDataIntoBuffer(bi.data(), t);
-        if (throttle and nextStop - getMyTime() > 0)
-            std::this_thread::sleep_for(std::chrono::microseconds(
-                        nextStop - getMyTime()));
+        int64_t t_to_wait = nextStop - getMyTime();
+        if (throttle and t_to_wait > 0)
+            std::this_thread::sleep_for(std::chrono::microseconds(t_to_wait));
     }
 
     std::clog << "RAWFile:" <<  "Read threads ends" << std::endl;

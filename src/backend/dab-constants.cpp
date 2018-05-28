@@ -360,7 +360,7 @@ void DABParams::setMode(int mode)
     }
 }
 
-int32_t Subchannel::bitrate() const
+int Subchannel::bitrate() const
 {
     if (shortForm) {
         return ProtLevel[tableIndex][2];
@@ -389,6 +389,34 @@ int32_t Subchannel::bitrate() const
     }
 
     throw std::runtime_error("Unsupported protection");
+}
+
+int Subchannel::numCU() const
+{
+    if (shortForm) {
+        return ProtLevel[tableIndex][0];
+    }
+    else {
+        switch (protOption) {
+            case 0: // EEP_A:
+                switch (protLevel) {
+                    case 0: return (bitrate() * 12) >> 3;
+                    case 1: return bitrate();
+                    case 2: return (bitrate() * 6) >> 3;
+                    case 3: return (bitrate() >> 1);
+                }
+                break;
+            case 1: //EEP_B:
+                switch (protLevel) {
+                    case 0: return (bitrate() * 27) >> 5;
+                    case 1: return (bitrate() * 21) >> 5;
+                    case 2: return (bitrate() * 18) >> 5;
+                    case 3: return (bitrate() * 15) >> 5;
+                }
+                break;
+        }
+    }
+    return -1;
 }
 
 string Subchannel::protection() const

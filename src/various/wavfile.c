@@ -34,10 +34,10 @@ FILE* wavfile_open(const char *filename, int rate, int channels)
     int samples_per_second = rate;
     int bits_per_sample = 16;
 
-    strncpy(header.riff_tag,"RIFF",4);
-    strncpy(header.wave_tag,"WAVE",4);
-    strncpy(header.fmt_tag,"fmt ",4);
-    strncpy(header.data_tag,"data",4);
+    memcpy(header.riff_tag,"RIFF",4);
+    memcpy(header.wave_tag,"WAVE",4);
+    memcpy(header.fmt_tag,"fmt ",4);
+    memcpy(header.data_tag,"data",4);
 
     header.riff_length = 0;
     header.fmt_length = 16;

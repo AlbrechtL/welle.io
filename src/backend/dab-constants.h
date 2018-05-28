@@ -151,7 +151,10 @@ struct Subchannel {
     int16_t  fecScheme = 0; // 0=no FEC, 1=FEC, 2=Rfu, 3=Rfu
 
     // Calculate the effective subchannel bitrate
-    int32_t bitrate(void) const;
+    int bitrate(void) const;
+
+    // Calculate number of CUs this subchannel consumes
+    int numCU(void) const;
 
     std::string protection(void) const;
 

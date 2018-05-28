@@ -151,7 +151,7 @@ WebProgrammeHandler::dls_t WebProgrammeHandler::getDLS() const
     std::unique_lock<std::mutex> lock(pad_mutex);
     if (last_label_valid) {
         dls.label = last_label;
-        dls.time = std::chrono::system_clock::to_time_t(time_label);
+        dls.time = time_label;
     }
 
     return dls;
@@ -164,7 +164,7 @@ WebProgrammeHandler::mot_t WebProgrammeHandler::getMOT_base64() const
     std::unique_lock<std::mutex> lock(pad_mutex);
     if (last_mot_valid) {
         mot.data = Base64::Encode(last_mot);
-        mot.time = chrono::system_clock::to_time_t(time_mot);
+        mot.time = time_mot;
         mot.subtype = last_subtype;
     }
     return mot;
@@ -559,6 +559,7 @@ bool WebRadioInterface::send_mux_json(Socket& s)
 
                 j_sc["subchannel"] = {
                     { "bitrate", sub.bitrate()},
+                    { "cu", sub.numCU()},
                     { "sad", sub.startAddr},
                     { "protection", sub.protection()}};
 
@@ -589,7 +590,7 @@ bool WebRadioInterface::send_mux_json(Socket& s)
                 auto mot = wph.getMOT_base64();
                 nlohmann::json j_mot = {
                     {"data", mot.data},
-                    {"time", mot.time}};
+                    {"time", chrono::system_clock::to_time_t(mot.time)}};
                 switch (mot.subtype) {
                     case MOTType::Unknown:
                         j_mot["type"] = "application/octet-stream";
@@ -606,7 +607,7 @@ bool WebRadioInterface::send_mux_json(Socket& s)
                 auto dls = wph.getDLS();
                 nlohmann::json j_dls = {
                     {"label", dls.label},
-                    {"time", dls.time}};
+                    {"time", chrono::system_clock::to_time_t(dls.time)}};
                 j_srv["dls"] = j_dls;
             }
             catch (const out_of_range&) {
@@ -1009,11 +1010,14 @@ void WebRadioInterface::handle_phs()
             }
         }
 
-        if (decode_strategy == DecodeStrategy::Carousel) {
+        if (decode_strategy == DecodeStrategy::Carousel10 or
+            decode_strategy == DecodeStrategy::CarouselPAD) {
+            using namespace chrono;
+
             if (current_carousel_service == 0) {
                 if (not serviceList.empty()) {
                     current_carousel_service = serviceList.front().serviceId;
-                    time_carousel_change = chrono::steady_clock::now();
+                    time_carousel_change = steady_clock::now();
                 }
             }
             else if (time_carousel_change + chrono::seconds(40) <
@@ -1023,13 +1027,35 @@ void WebRadioInterface::handle_phs()
                     cerr << "Reset service decoder carousel! Cannot find service "
                         << current_carousel_service << endl;
                     current_carousel_service = 0;
+                    time_carousel_change = steady_clock::now();
                 }
                 else {
-                    // Rotate through phs
-                    if (++current_it == phs.end()) {
-                        current_it = phs.begin();
+                    // Switch to next programme once both DLS and Slideshow
+                    // got decoded, but at most after 40 seconds
+                    bool switchBecausePAD = false;
+                    if (decode_strategy == DecodeStrategy::CarouselPAD) {
+                        const auto now = system_clock::now();
+                        const auto mot = current_it->second.getMOT_base64();
+                        const auto dls = current_it->second.getDLS();
+                        // Slide and DLS received in the last 10 seconds?
+                        if ( (mot.time + seconds(10) > now and
+                              dls.time + seconds(10) > now)) {
+                            switchBecausePAD = true;
+                        }
                     }
-                    current_carousel_service = current_it->first;
+
+                    auto maxDuration = seconds(
+                            (decode_strategy == DecodeStrategy::CarouselPAD) ?
+                            80 : 10);
+
+                    if (switchBecausePAD or time_carousel_change + maxDuration < steady_clock::now()) {
+                        // Rotate through phs
+                        if (++current_it == phs.end()) {
+                            current_it = phs.begin();
+                        }
+                        current_carousel_service = current_it->first;
+                        time_carousel_change = steady_clock::now();
+                    }
                 }
                 time_carousel_change = chrono::steady_clock::now();
             }
