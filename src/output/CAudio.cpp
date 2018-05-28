@@ -34,16 +34,15 @@
 CAudioThread::CAudioThread(RingBuffer<int16_t>& buffer, QObject *parent) :
     QThread(parent),
     buffer(buffer),
-    audioIODevice(buffer, this)
+    audioIODevice(buffer, this),
+    audioOutput(nullptr),
+    cardRate(48000)
 {
-    audioOutput = NULL;
-    CardRate = 48000;
-
-    connect(&CheckAudioBufferTimer, &QTimer::timeout,
+    connect(&checkAudioBufferTimer, &QTimer::timeout,
             this, &CAudioThread::checkAudioBufferTimeout);
 
     // Check audio state every 1 s, start audio if bytes are available
-    CheckAudioBufferTimer.start(1000);
+    checkAudioBufferTimer.start(1000);
 
     // Move event processing of CAudioThread to this thread
     QObject::moveToThread(this);
@@ -51,22 +50,26 @@ CAudioThread::CAudioThread(RingBuffer<int16_t>& buffer, QObject *parent) :
 
 CAudioThread::~CAudioThread(void)
 {
+    if (audioOutput != nullptr) {
+        delete audioOutput;
+        audioOutput = nullptr;
+    }
 }
 
 void CAudioThread::setRate(int sampleRate)
 {
-    if (CardRate != sampleRate) {
+    if (cardRate != sampleRate) {
         qDebug() << "Audio:"
                  << "Sample rate" << sampleRate << "Hz";
-        CardRate = sampleRate;
+        cardRate = sampleRate;
         // restart audio within thread with new sample rate
-        init(CardRate);
+        init(cardRate);
     }
 }
 
 void CAudioThread::setVolume(qreal volume)
 {
-    if (audioOutput != NULL) {
+    if (audioOutput != nullptr) {
         qDebug() << "Audio:"
                  << "Volume" << volume;
         audioOutput->setVolume(volume);
@@ -75,25 +78,25 @@ void CAudioThread::setVolume(qreal volume)
 
 void CAudioThread::init(int sampleRate)
 {
-    if (audioOutput != NULL) {
+    if (audioOutput != nullptr) {
         delete audioOutput;
-        audioOutput = NULL;
+        audioOutput = nullptr;
     }
 
-    AudioFormat.setSampleRate(sampleRate);
-    AudioFormat.setChannelCount(2);
-    AudioFormat.setSampleSize(16);
-    AudioFormat.setCodec("audio/pcm");
-    AudioFormat.setByteOrder(QAudioFormat::LittleEndian);
-    AudioFormat.setSampleType(QAudioFormat::SignedInt);
+    audioFormat.setSampleRate(sampleRate);
+    audioFormat.setChannelCount(2);
+    audioFormat.setSampleSize(16);
+    audioFormat.setCodec("audio/pcm");
+    audioFormat.setByteOrder(QAudioFormat::LittleEndian);
+    audioFormat.setSampleType(QAudioFormat::SignedInt);
 
     QAudioDeviceInfo info(QAudioDeviceInfo::defaultOutputDevice());
-    if (!info.isFormatSupported(AudioFormat)) {
+    if (!info.isFormatSupported(audioFormat)) {
         qDebug() << "Audio:"
                  << "Audio format \"audio/pcm\" 16-bit stereo not supported. Your audio may not work!";
     }
 
-    audioOutput = new QAudioOutput(AudioFormat, this);
+    audioOutput = new QAudioOutput(audioFormat, this);
     audioOutput->setBufferSize(audioOutput->bufferSize()*2);
     connect(audioOutput, &QAudioOutput::stateChanged, this, &CAudioThread::handleStateChanged);
 
@@ -104,7 +107,7 @@ void CAudioThread::init(int sampleRate)
 void CAudioThread::run()
 {
     // QAudioOutput needs to create within run()
-    init(CardRate);
+    init(cardRate);
     // start event loop of QThread
     exec();
 }
@@ -123,7 +126,7 @@ void CAudioThread::reset(void)
 
 void CAudioThread::handleStateChanged(QAudio::State newState)
 {
-    CurrentState = newState;
+    currentState = newState;
 
     switch (newState) {
     case QAudio::ActiveState:
@@ -156,7 +159,7 @@ void CAudioThread::checkAudioBufferTimeout()
     int32_t Bytes = buffer.GetRingBufferReadAvailable();
 
     // Start audio if bytes are available and audio is not active
-    if (audioOutput && Bytes && CurrentState != QAudio::ActiveState) {
+    if (audioOutput && Bytes && currentState != QAudio::ActiveState) {
         audioIODevice.start();
         audioOutput->start(&audioIODevice);
     }
@@ -165,10 +168,6 @@ void CAudioThread::checkAudioBufferTimeout()
 CAudioIODevice::CAudioIODevice(RingBuffer<int16_t>& buffer, QObject* parent) :
     QIODevice(parent),
     buffer(buffer)
-{
-}
-
-CAudioIODevice::~CAudioIODevice()
 {
 }
 
@@ -195,8 +194,7 @@ qint64 CAudioIODevice::readData(char* data, qint64 len)
     total = buffer.getDataFromBuffer(data, len / 2); // we have int16 samples
 
     // If the buffer is empty return zeros.
-    if(total == 0)
-    {
+    if (total == 0) {
         memset(data, 0, len);
         total = len / 2;
     }
@@ -219,46 +217,44 @@ qint64 CAudioIODevice::bytesAvailable() const
 
 CAudio::CAudio(RingBuffer<int16_t>& buffer, QObject *parent) :
     QObject(parent),
+    audioThread(nullptr),
     buffer(buffer),
-    audioIODevice(buffer, this),
-    _audioThread(NULL)
+    audioIODevice(buffer, this)
 {
-    _audioThread = new CAudioThread(buffer);
-    _audioThread->start();
+    audioThread = new CAudioThread(buffer);
+    audioThread->start();
 }
-     
+
 CAudio::~CAudio(void)
 {
-    if (_audioThread != NULL)
-    {
-        _audioThread->quit();
-        _audioThread->wait();
+    if (audioThread != nullptr) {
+        audioThread->quit();
+        audioThread->wait();
     }
-
 }
 
 void CAudio::stop(void)
 {
     // Call stopInternal of CAudioThread (and invoke it in the other thread)
-    QMetaObject::invokeMethod(_audioThread, "stop", Qt::QueuedConnection);
+    QMetaObject::invokeMethod(audioThread, "stop", Qt::QueuedConnection);
 }
 
 void CAudio::reset(void)
 {
     // Call resetInternal of CAudioThread (and invoke it in the other thread)
-    QMetaObject::invokeMethod(_audioThread, "reset", Qt::QueuedConnection);
+    QMetaObject::invokeMethod(audioThread, "reset", Qt::QueuedConnection);
 }
 
 void CAudio::setRate(int sampleRate)
 {
     // Call setRateInternal of CAudioThread (and invoke it in the other thread)
-    QMetaObject::invokeMethod(_audioThread, "setRate", Qt::QueuedConnection, Q_ARG(int, sampleRate));
+    QMetaObject::invokeMethod(audioThread, "setRate", Qt::QueuedConnection, Q_ARG(int, sampleRate));
 }
 
 void CAudio::setVolume(qreal volume)
 {
     // Call setVolumeInternal of CAudioThread (and invoke it in the other thread)
-    QMetaObject::invokeMethod(_audioThread, "setVolume", Qt::QueuedConnection, Q_ARG(qreal, volume));
+    QMetaObject::invokeMethod(audioThread, "setVolume", Qt::QueuedConnection, Q_ARG(qreal, volume));
 }
 
 
