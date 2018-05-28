@@ -297,7 +297,7 @@ int32_t CRTL_SDR::getSamples(DSPCOMPLEX *buffer, int32_t size)
     return amount / 2;
 }
 
-int32_t CRTL_SDR::getSpectrumSamples(std::vector<DSPCOMPLEX> &sampleBuffer, int32_t size)
+int32_t CRTL_SDR::getSpectrumSamples(std::vector<DSPCOMPLEX>& sampleBuffer, int32_t size)
 {
     std::vector<uint8_t> tempBuffer(2 * size);
 

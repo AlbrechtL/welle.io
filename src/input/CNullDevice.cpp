@@ -62,8 +62,8 @@ int32_t CNullDevice::getSamples(DSPCOMPLEX *Buffer, int32_t Size)
     return Size;
 }
 
-int32_t CNullDevice::getSpectrumSamples(std::vector<DSPCOMPLEX> &sampleBuffer, int32_t Size)
-{   
+int32_t CNullDevice::getSpectrumSamples(std::vector<DSPCOMPLEX>& sampleBuffer, int32_t Size)
+{
     std::fill(sampleBuffer.begin(), sampleBuffer.end(), 0);
 
     return Size;

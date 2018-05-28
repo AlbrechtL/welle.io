@@ -141,12 +141,11 @@ int32_t CRTL_TCP_Client::getSamples(DSPCOMPLEX *v, int32_t size)
     return read_convert_from_buffer(sampleBuffer, v, size);
 }
 
-int32_t CRTL_TCP_Client::getSpectrumSamples(std::vector<DSPCOMPLEX> &sampleBuffer, int32_t size)
+int32_t CRTL_TCP_Client::getSpectrumSamples(std::vector<DSPCOMPLEX>& sampleBuffer, int32_t size)
 {
-    DSPCOMPLEX buffer[size];
-    int sizeRead = read_convert_from_buffer(spectrumSampleBuffer, buffer, size);
-
-    std::copy(buffer, buffer+sizeRead, sampleBuffer.begin());
+    std::vector<DSPCOMPLEX> buffer(size);
+    int sizeRead = read_convert_from_buffer(spectrumSampleBuffer, buffer.data(), size);
+    std::copy(buffer.begin(), buffer.begin() + sizeRead, sampleBuffer.begin());
 
     return sizeRead;
 }
