@@ -179,24 +179,22 @@ int16_t FIBProcessor::HandleFIG0Extension1(
         bitOffset += 24;
     }
     else {  // EEP, long form
-        subChannels[subChId].shortForm    = false;
-        int16_t option = getBits_3 (d, bitOffset + 17);
+        subChannels[subChId].shortForm  = false;
+        int16_t option = getBits_3(d, bitOffset + 17);
         subChannels[subChId].protOption = option;
-        if (option == 0) {      // A Level protection
-            int16_t protLevel = getBits (d, bitOffset + 20, 2);
-            //
-            //  we encode the A level protection by adding 0100 to the level
+        if (option == 0 or   // EEP-A protection
+            option == 1) {   // EEP-B protection
+            int16_t protLevel = getBits_2(d, bitOffset + 20);
             subChannels[subChId].protLevel = protLevel;
-            int16_t subChanSize = getBits (d, bitOffset + 22, 10);
-            subChannels[subChId].length   = subChanSize;
+            int16_t subChanSize = getBits(d, bitOffset + 22, 10);
+            subChannels[subChId].length = subChanSize;
         }
-        else            // option should be 001
-            if (option == 001) {        // B Level protection
-                int16_t protLevel = getBits_2 (d, bitOffset + 20);
-                subChannels[subChId].protLevel = protLevel + (1 << 2);
-                int16_t subChanSize = getBits (d, bitOffset + 22, 10);
-                subChannels[subChId].length = subChanSize;
-            }
+        else {
+            subChannels[subChId].protLevel = 0;
+            subChannels[subChId].length = 0;
+            std::clog << "Warning, FIG0/1 for " << subChId <<
+                " has invalid protection option " << option << std::endl;
+        }
 
         bitOffset += 32;
     }
