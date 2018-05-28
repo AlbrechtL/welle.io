@@ -817,7 +817,7 @@ bool WebRadioInterface::send_spectrum(Socket& s)
     auto samples = input.getSpectrumSamples(dabparams.T_u);
 
     // Continue only if we got data
-    if (samples.size() != dabparams.T_u)
+    if (samples.size() != (size_t)dabparams.T_u)
         return false;
 
     std::copy(samples.begin(), samples.end(), spectrumBuffer);
