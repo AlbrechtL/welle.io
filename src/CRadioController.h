@@ -174,10 +174,10 @@ public:
     virtual void onMessage(message_level_t level, const std::string& text) override;
 
     // Buffer getter
-    std::vector<float> &&getImpulseResponse(void);
-    std::vector<DSPCOMPLEX> &&getSignalProbe(void);
-    std::vector<DSPCOMPLEX> &&getNullSymbol(void);
-    std::vector<DSPCOMPLEX> &&getConstellationPoint(void);
+    std::vector<float> getImpulseResponse(void);
+    std::vector<DSPCOMPLEX> getSignalProbe(void);
+    std::vector<DSPCOMPLEX> getNullSymbol(void);
+    std::vector<DSPCOMPLEX> getConstellationPoint(void);
 
     DABParams& getDABParams(void);
 
@@ -197,8 +197,6 @@ private:
     std::unique_ptr<RadioReceiver> my_rx;
     RingBuffer<int16_t> audioBuffer;
     CAudio audio;
-    std::mutex signalProbeBufferMutex;
-    std::vector<DSPCOMPLEX> getSignalProbeBuffer;
     std::mutex impulseResponseBufferMutex;
     std::vector<float> impulseResponseBuffer;
     std::mutex nullSymbolBufferMutex;

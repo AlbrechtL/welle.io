@@ -368,7 +368,7 @@ void CGUI::updateSpectrum()
     qreal sampleFrequency_MHz = 2.048; // ToDo
     qreal dip_MHz = sampleFrequency_MHz / T_u;
 
-    signalProbeBuffer = std::move(RadioController->getSignalProbe());
+    signalProbeBuffer = RadioController->getSignalProbe();
 
     if (signalProbeBuffer.size() == (size_t)T_u) {
         spectrumSeriesData.resize(T_u);

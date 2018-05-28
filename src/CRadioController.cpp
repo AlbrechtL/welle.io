@@ -1015,35 +1015,38 @@ void CRadioController::onMessage(message_level_t level, const std::string& text)
     }
 }
 
-std::vector<float> &&CRadioController::getImpulseResponse()
+std::vector<float> CRadioController::getImpulseResponse()
 {
     std::lock_guard<std::mutex> lock(impulseResponseBufferMutex);
-    return std::move(impulseResponseBuffer);
+    auto buf = std::move(impulseResponseBuffer);
+    return buf;
 }
 
-std::vector<DSPCOMPLEX> &&CRadioController::getSignalProbe()
+std::vector<DSPCOMPLEX> CRadioController::getSignalProbe()
 {
-    std::lock_guard<std::mutex> lock(signalProbeBufferMutex);
     int16_t T_u = dabparams.T_u;
 
-    getSignalProbeBuffer.resize(T_u);
-
-    if (Device)
-        Device->getSpectrumSamples(getSignalProbeBuffer, T_u);
-
-    return std::move(getSignalProbeBuffer);
+    if (Device) {
+        return Device->getSpectrumSamples(T_u);
+    }
+    else {
+        std::vector<DSPCOMPLEX> dummyBuf(T_u);
+        return dummyBuf;
+    }
 }
 
-std::vector<DSPCOMPLEX> &&CRadioController::getNullSymbol()
+std::vector<DSPCOMPLEX> CRadioController::getNullSymbol()
 {
     std::lock_guard<std::mutex> lock(nullSymbolBufferMutex);
-    return std::move(nullSymbolBuffer);
+    auto buf = std::move(nullSymbolBuffer);
+    return buf;
 }
 
-std::vector<DSPCOMPLEX> &&CRadioController::getConstellationPoint()
+std::vector<DSPCOMPLEX> CRadioController::getConstellationPoint()
 {
     std::lock_guard<std::mutex> lock(constellationPointBufferMutex);
-    return std::move(constellationPointBuffer);
+    auto buf = std::move(constellationPointBuffer);
+    return buf;
 }
 
 DABParams& CRadioController::getDABParams()

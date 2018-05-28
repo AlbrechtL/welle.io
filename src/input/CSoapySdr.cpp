@@ -179,11 +179,14 @@ int32_t CSoapySdr::getSamples(DSPCOMPLEX *Buffer, int32_t Size)
     return amount;
 }
 
-int32_t CSoapySdr::getSpectrumSamples(std::vector<DSPCOMPLEX>& sampleBuffer, int32_t Size)
+std::vector<DSPCOMPLEX> CSoapySdr::getSpectrumSamples(int size)
 {
-    int32_t amount = m_spectrumSampleBuffer.getDataFromBuffer(sampleBuffer.data(), Size);
-
-    return amount;
+    std::vector<DSPCOMPLEX> sampleBuffer(size);
+    int32_t amount = m_spectrumSampleBuffer.getDataFromBuffer(sampleBuffer.data(), size);
+    if (amount < size) {
+        sampleBuffer.resize(amount);
+    }
+    return sampleBuffer;
 }
 
 int32_t CSoapySdr::getSamplesToRead()

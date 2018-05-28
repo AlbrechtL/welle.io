@@ -60,7 +60,7 @@ public:
     int getFrequency(void) const;
     bool restart(void);
     int32_t getSamples(DSPCOMPLEX* V, int32_t size);
-    int32_t getSpectrumSamples(std::vector<DSPCOMPLEX>& sampleBuffer, int32_t size);
+    std::vector<DSPCOMPLEX> getSpectrumSamples(int size);
     int32_t getSamplesToRead(void);
     void reset(void);
     float setGain(int gain);

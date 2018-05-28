@@ -271,12 +271,14 @@ int32_t CAirspy::getSamples(DSPCOMPLEX* Buffer, int32_t Size)
     return SampleBuffer.getDataFromBuffer(Buffer, Size);
 }
 
-int32_t CAirspy::getSpectrumSamples(std::vector<DSPCOMPLEX>& sampleBuffer, int32_t size)
+std::vector<DSPCOMPLEX> CAirspy::getSpectrumSamples(int size)
 {
     std::vector<DSPCOMPLEX> buffer(size);
     int sizeRead = SpectrumSampleBuffer.getDataFromBuffer(buffer.data(), size);
-    std::copy(buffer.begin(), buffer.begin() + sizeRead, sampleBuffer.begin());
-    return sizeRead;
+    if (sizeRead < size) {
+        buffer.resize(sizeRead);
+    }
+    return buffer;
 }
 
 int32_t CAirspy::getSamplesToRead(void)

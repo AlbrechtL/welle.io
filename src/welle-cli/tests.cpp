@@ -91,8 +91,8 @@ class ChannelSimulator : public CVirtualInput
             return r;
         }
 
-        virtual int32_t getSpectrumSamples(vector<DSPCOMPLEX>& buffer, int32_t size)
-            { return parentInput->getSpectrumSamples(buffer, size); }
+        virtual vector<DSPCOMPLEX> getSpectrumSamples(int size)
+            { return parentInput->getSpectrumSamples(size); }
 
         virtual int32_t getSamplesToRead(void)
             { return parentInput->getSamplesToRead(); }

@@ -297,7 +297,7 @@ int32_t CRTL_SDR::getSamples(DSPCOMPLEX *buffer, int32_t size)
     return amount / 2;
 }
 
-int32_t CRTL_SDR::getSpectrumSamples(std::vector<DSPCOMPLEX>& sampleBuffer, int32_t size)
+std::vector<DSPCOMPLEX> CRTL_SDR::getSpectrumSamples(int size)
 {
     std::vector<uint8_t> tempBuffer(2 * size);
 
@@ -305,14 +305,16 @@ int32_t CRTL_SDR::getSpectrumSamples(std::vector<DSPCOMPLEX>& sampleBuffer, int3
     int32_t amount = spectrumSampleBuffer.getDataFromBuffer(
             tempBuffer.data(), 2 * size);
 
+    std::vector<DSPCOMPLEX> buffer(amount / 2);
+
     // Convert samples into generic format
     for (int i = 0; i < amount / 2; i++) {
-        sampleBuffer[i] = DSPCOMPLEX(
+        buffer[i] = DSPCOMPLEX(
                 (float(tempBuffer[2 * i] - 128)) / 128.0,
                 (float(tempBuffer[2 * i + 1] - 128)) / 128.0);
     }
 
-    return amount / 2;
+    return buffer;
 }
 
 int32_t CRTL_SDR::getSamplesToRead(void)

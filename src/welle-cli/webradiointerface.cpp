@@ -813,12 +813,13 @@ bool WebRadioInterface::send_spectrum(Socket& s)
 {
     // Get FFT buffer
     DSPCOMPLEX* spectrumBuffer = spectrum_fft_handler.getVector();
-
-    size_t samples = input.getSpectrumSamples(spectrumBuffer, dabparams.T_u);
+    auto samples = input.getSpectrumSamples(dabparams.T_u);
 
     // Continue only if we got data
-    if (samples <= 0)
+    if (samples.size() != dabparams.T_u)
         return false;
+
+    std::copy(samples.begin(), samples.end(), spectrumBuffer);
 
     // Do FFT to get the spectrum
     spectrum_fft_handler.do_FFT();
@@ -945,7 +946,7 @@ WebRadioInterface::WebRadioInterface(CVirtualInput& in,
         int port, DecodeStrategy ds) :
     dabparams(1),
     input(in),
-    spectrum_fft_handler(2048),
+    spectrum_fft_handler(dabparams.T_u),
     decode_strategy(ds)
 {
     bool success = serverSocket.bind(port);

@@ -39,7 +39,7 @@ public:
     void stop(void);
     void reset(void);
     int32_t getSamples(DSPCOMPLEX* Buffer, int32_t Size);
-    int32_t getSpectrumSamples(std::vector<DSPCOMPLEX>& sampleBuffer, int32_t Size);
+    std::vector<DSPCOMPLEX> getSpectrumSamples(int size);
     int32_t getSamplesToRead(void);
     float setGain(int Gain);
     int getGainCount(void);
