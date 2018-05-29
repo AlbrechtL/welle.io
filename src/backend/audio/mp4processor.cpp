@@ -44,7 +44,7 @@ Mp4Processor::Mp4Processor(
         int16_t bitRate,
         const std::string& mscFileName) :
     myInterface(phi),
-    the_rsDecoder(8, 0435, 0, 1, 10),
+    rsDecoder(8, 0435, 0, 1, 10),
     padDecoder(this, true)
 {
     // Open a MSC file (XPADxpert) if the user defined it
@@ -133,7 +133,7 @@ void Mp4Processor::addtoFrame(uint8_t *V)
          * and adjust the buffer here for the next round
          */
         if (fc.check (&frameBytes[blockFillIndex * nbits / 8]) &&
-                (processSuperframe (frameBytes.data(),
+                (processSuperframe(frameBytes.data(),
                                     blockFillIndex * nbits / 8))) {
             //  since we processed a full cycle of 5 blocks, we just start a
             //  new sequence, beginning with block blockFillIndex
@@ -183,7 +183,7 @@ bool Mp4Processor::processSuperframe(uint8_t frameBytes[], int16_t base)
         for (k = 0; k < 120; k ++) {
             rsIn[k] = frameBytes[(base + j + k * RSDims) % (RSDims * 120)];
         }
-        ler = the_rsDecoder. dec (rsIn, rsOut, 135);
+        ler = rsDecoder.dec(rsIn, rsOut, 135);
         if (ler < 0) {
             rsErrors ++;
             return false;

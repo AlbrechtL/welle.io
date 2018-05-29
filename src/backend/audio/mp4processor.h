@@ -83,7 +83,7 @@ class Mp4Processor : public DabProcessor, public PADDecoderObserver
         int16_t     au_errors;
         int16_t     errorRate;
         firecode_checker    fc;
-        reedSolomon the_rsDecoder;
+        ReedSolomon rsDecoder;
         std::vector<uint8_t> outVector;
         //  and for the aac decoder
         CFaadDecoder aacDecoder;
