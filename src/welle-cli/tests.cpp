@@ -117,10 +117,26 @@ class ChannelSimulator : public CVirtualInput
 };
 
 class TestRadioInterface : public RadioControllerInterface {
+    private:
+        struct FILEDeleter{ void operator()(FILE* fd){ if (fd) fclose(fd); }};
+        std::unique_ptr<FILE, FILEDeleter> cirFile;
+
     public:
+        void openCIRdumpfile(const std::string& fname)
+        {
+            FILE *fd = fopen(fname.c_str(), "w");
+            if (fd) {
+                cirFile.reset(fd);
+            }
+        }
+
         virtual void onSNR(int snr) override { (void)snr; }
         virtual void onFrequencyCorrectorChange(int fine, int coarse) override { (void)fine; (void)coarse; }
-        virtual void onSyncChange(char isSync) override { synced = isSync; }
+        virtual void onSyncChange(char isSync) override
+        {
+            if (isSync) num_syncs++;
+            else num_desyncs++;
+        }
         virtual void onSignalPresence(bool isSignal) override { (void)isSignal; }
         virtual void onServiceDetected(uint32_t sId, const std::string& label) override
         {
@@ -134,7 +150,16 @@ class TestRadioInterface : public RadioControllerInterface {
 
         virtual void onDateTimeUpdate(const dab_date_time_t& dateTime) override { (void)dateTime; }
         virtual void onFIBDecodeSuccess(bool crcCheckOk, const uint8_t* fib) override { (void)crcCheckOk; (void)fib; }
-        virtual void onNewImpulseResponse(std::vector<float>&& data) override { (void)data; }
+        virtual void onNewImpulseResponse(std::vector<float>&& data) override
+        {
+            if (data.size() != 2048) {
+                cout << "CIR is not 2048!" << endl;
+            }
+            else if (cirFile) {
+                fwrite(data.data(), sizeof(data[0]), data.size(), cirFile.get());
+            }
+        }
+
         virtual void onNewNullSymbol(std::vector<DSPCOMPLEX>&& data) override { (void)data; }
         virtual void onConstellationPoints(std::vector<DSPCOMPLEX>&& data) override { (void)data; }
         virtual void onMessage(message_level_t level, const std::string& text) override
@@ -150,7 +175,8 @@ class TestRadioInterface : public RadioControllerInterface {
         }
 
         virtual void onTIIMeasurement(tii_measurement_t&& m) override { (void)m; }
-        bool synced = false;
+        size_t num_syncs = 0;
+        size_t num_desyncs = 0;
 };
 
 class TestProgrammeHandler: public ProgrammeHandlerInterface {
@@ -227,6 +253,7 @@ static void test0_iteration(unique_ptr<CVirtualInput>& interface, double stddev)
     cerr << endl;
     cerr << "STDDEV " << stddev << endl;
     cerr << "Num samps processed: " << s.num_samps << endl;
+    cerr << "Num syncs/desyncs: " << ri.num_syncs << "/" << ri.num_desyncs << endl;
     cerr << "frameErrorStats (" << tph.frameErrorStats.size() << ") : " <<
         std::accumulate(tph.frameErrorStats.begin(), tph.frameErrorStats.end(), 0)
         << endl;
@@ -250,8 +277,58 @@ static void test0(unique_ptr<CVirtualInput>& interface)
     }
 }
 
+static void test1(unique_ptr<CVirtualInput>& interface)
+{
+    cerr << "Setup test1" << endl;
+    TestRadioInterface ri;
+    ri.openCIRdumpfile("cir.dat");
+    cerr << "Saving CIR to cir.dat" << endl;
+    RadioReceiver rx(ri, *interface.get());
+
+    cerr << "Restart rx" << endl;
+    rx.restart(false);
+
+    TestProgrammeHandler tph;
+
+    bool service_selected = false;
+    string dumpFileName = "";
+
+    while (not service_selected) {
+        this_thread::sleep_for(chrono::seconds(1));
+
+        for (const auto s : rx.getServiceList()) {
+            if (rx.playSingleProgramme(tph, dumpFileName, s) == false) {
+                cerr << "Tune to " << s.serviceLabel.utf8_label() << " failed" << endl;
+            }
+            else {
+                service_selected = true;
+                break;
+            }
+        }
+    }
+
+    cerr << "Wait for completion" << endl;
+    while (not dynamic_cast<CRAWFile&>(*interface).endWasReached()) {
+        this_thread::sleep_for(chrono::milliseconds(120));
+    }
+
+    cerr << endl;
+    cerr << "Num syncs/desyncs: " << ri.num_syncs << "/" << ri.num_desyncs << endl;
+    cerr << "frameErrorStats (" << tph.frameErrorStats.size() << ") : " <<
+        std::accumulate(tph.frameErrorStats.begin(), tph.frameErrorStats.end(), 0)
+        << endl;
+    cerr << "aacErrorStats (" << tph.aacErrorStats.size() << ") : " <<
+        std::accumulate(tph.aacErrorStats.begin(), tph.aacErrorStats.end(), 0)
+        << endl;
+    cerr << "rsErrorStats (" << tph.rsErrorStats.size() << ") : " <<
+        std::accumulate(tph.rsErrorStats.begin(), tph.rsErrorStats.end(), 0)
+        << endl;
+    cerr << endl;
+}
+
 void run_test(int test_id, unique_ptr<CVirtualInput>& interface)
 {
     if (test_id == 0) test0(interface);
+    else if (test_id == 1) test1(interface);
     else cerr << "Test " << test_id << " does not exist!" << endl;
 }
