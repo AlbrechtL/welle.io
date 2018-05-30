@@ -136,7 +136,6 @@ target_link_libraries (${executableName}
   Qt5::Charts
 )
 
-#qt5_use_modules(${executableName} Widgets Quick Multimedia Charts)
 
 
 INSTALL (TARGETS ${executableName} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
