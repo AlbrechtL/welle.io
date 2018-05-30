@@ -5,3 +5,9 @@ Makefile
 welle-io
 *.o
 moc*cpp
+.qmake.stash
+CMakeCache.txt
+CMakeFiles/
+moc_predefs.h
+qrc_resources.cpp
+welle.io.pro.user
