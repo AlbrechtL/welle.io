@@ -130,9 +130,14 @@ target_link_libraries (${executableName}
   ${FAAD_LIBRARIES}
   ${SoapySDR_LIBRARIES}
   Threads::Threads
+  Qt5::Widgets
+  Qt5::Quick
+  Qt5::Multimedia
+  Qt5::Charts
 )
 
-qt5_use_modules(${executableName} Widgets Quick Multimedia Charts)
+#qt5_use_modules(${executableName} Widgets Quick Multimedia Charts)
+
 
 INSTALL (TARGETS ${executableName} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
