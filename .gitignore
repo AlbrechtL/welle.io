@@ -11,3 +11,6 @@ CMakeFiles/
 moc_predefs.h
 qrc_resources.cpp
 welle.io.pro.user
+cmake_install.cmake
+cmake_uninstall.cmake
+install_manifest.txt
