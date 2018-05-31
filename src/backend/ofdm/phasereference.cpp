@@ -20,6 +20,9 @@
  */
 #include    "phasereference.h"
 #include    "string.h"
+#include <algorithm>
+#include <vector>
+#include <iostream>
 /**
  * \class phaseReference
  * Implements the correlation that is used to identify
@@ -82,28 +85,106 @@ int32_t PhaseReference::findIndex(DSPCOMPLEX *v,
 
     //  and, again, back into the time domain
     res_processor.do_IFFT();
-    /**
-     * We compute the average signal value ...
-     */
-    for (size_t i = 0; i < Tu; i++)
-        sum += abs(res_buffer[i]);
 
-    DSPFLOAT max = -10000;
     impulseResponseBuffer.resize(Tu);
-    for (size_t i = 0; i < Tu; i++) {
-        const float value = abs(res_buffer[i]);
-        impulseResponseBuffer[i] = value;
 
-        if (value > max) {
-            maxIndex = i;
-            max = value;
+    if (threshold >= 0) {
+        /**
+         * We compute the average signal value ...
+         */
+        for (size_t i = 0; i < Tu; i++)
+            sum += abs(res_buffer[i]);
+
+        DSPFLOAT max = -10000;
+        for (size_t i = 0; i < Tu; i++) {
+            const float value = abs(res_buffer[i]);
+            impulseResponseBuffer[i] = value;
+
+            if (value > max) {
+                maxIndex = i;
+                max = value;
+            }
+        }
+        /**
+         * that gives us a basis for defining the threshold
+         */
+        if (max < threshold * sum / Tu)
+            return -std::abs(max * Tu / sum) - 1;
+        else
+            return maxIndex;
+    }
+    else {
+        /* Calculate peaks over bins of 25 samples, keep the
+         * 5 bins with the highest peaks, take the index from the peak
+         * in the earliest bin.
+         *
+         * Goal: avoid that the receiver locks onto the strongest peak
+         * in case earlier peaks are present.
+         * See https://tech.ebu.ch/docs/techreports/tr024.pdf part 2.4
+         * for more details.
+         */
+
+        using namespace std;
+
+        struct peak_t {
+            int index = -1;
+            float value = 0;
+        };
+
+        vector<peak_t> bins;
+        float sum = 0;
+
+        constexpr int bin_size = 20;
+        constexpr size_t num_bins_to_keep = 5;
+        for (size_t i = 0; i + bin_size < Tu; i += bin_size) {
+            peak_t peak;
+            for (size_t j = 0; j < bin_size; j++) {
+                const float value = abs(res_buffer[i + j]);
+                sum += value;
+                impulseResponseBuffer[i + j] = value;
+
+                if (value > peak.value) {
+                    peak.value = value;
+                    peak.index = i + j;
+                }
+            }
+            bins.push_back(move(peak));
+        }
+
+        if (bins.size() < num_bins_to_keep) {
+            throw logic_error("Sync err, not enough bins");
+        }
+
+        // Sort bins by highest peak
+        partial_sort(bins.begin(), bins.begin() + num_bins_to_keep, bins.end(),
+                [&](const peak_t& lhs, const peak_t& rhs) {
+                    return lhs.value > rhs.value;
+                });
+
+        bins.resize(num_bins_to_keep);
+
+        sum /= Tu;
+
+        const auto thresh = 3 * sum;
+
+        // Keep only bins where the peak is above the threshold
+        bins.erase(
+            remove_if(bins.begin(), bins.end(),
+                    [&](const peak_t& p) {
+                        return p.value < thresh;
+                    }), bins.end());
+
+        if (bins.empty()) {
+            return -1;
+        }
+        else {
+            // Take first bin
+            const auto earliest_bin = min_element(bins.begin(), bins.end(),
+                    [&](const peak_t& lhs, const peak_t& rhs) {
+                    return lhs.index < rhs.index;
+                    });
+
+            return earliest_bin->index;
         }
     }
-    /**
-     * that gives us a basis for defining the threshold
-     */
-    if (max < threshold * sum / Tu)
-        return -std::abs(max * Tu / sum) - 1;
-    else
-        return maxIndex;
 }
