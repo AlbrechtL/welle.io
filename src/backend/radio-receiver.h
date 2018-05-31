@@ -44,7 +44,8 @@ class RadioReceiver {
     public:
         RadioReceiver(
                 RadioControllerInterface& rci,
-                InputInterface& input);
+                InputInterface& input,
+                int ofdmProcessorThreshold = 3);
 
         /* Restart the receiver, and specify if we want
          * to scan or receive. */

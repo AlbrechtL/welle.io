@@ -277,13 +277,21 @@ static void test0(unique_ptr<CVirtualInput>& interface)
     }
 }
 
-static void test1(unique_ptr<CVirtualInput>& interface)
+static void test_multipath(unique_ptr<CVirtualInput>& interface, int test_id)
 {
-    cerr << "Setup test1" << endl;
+    cerr << "Setup test_multipath " << test_id << endl;
     TestRadioInterface ri;
-    ri.openCIRdumpfile("cir.dat");
-    cerr << "Saving CIR to cir.dat" << endl;
-    RadioReceiver rx(ri, *interface.get());
+    // Test 1=old variant, test 2=new variant
+    if (not(test_id == 1 or test_id == 2)) {
+        throw logic_error("Invalid test id");
+    }
+    const int prsThreshold = (test_id == 1 ? 3 : -1);
+
+    const char* cirdumpfilename = test_id == 1 ? "cir-old.dat" : "cir.dat";
+    ri.openCIRdumpfile(cirdumpfilename);
+    cerr << "Saving CIR to " << cirdumpfilename << endl;
+
+    RadioReceiver rx(ri, *interface.get(), prsThreshold);
 
     cerr << "Restart rx" << endl;
     rx.restart(false);
@@ -308,27 +316,25 @@ static void test1(unique_ptr<CVirtualInput>& interface)
     }
 
     cerr << "Wait for completion" << endl;
-    while (not dynamic_cast<CRAWFile&>(*interface).endWasReached()) {
+    auto& intf = dynamic_cast<CRAWFile&>(*interface);
+    while (not intf.endWasReached()) {
         this_thread::sleep_for(chrono::milliseconds(120));
     }
 
-    cerr << endl;
-    cerr << "Num syncs/desyncs: " << ri.num_syncs << "/" << ri.num_desyncs << endl;
-    cerr << "frameErrorStats (" << tph.frameErrorStats.size() << ") : " <<
-        std::accumulate(tph.frameErrorStats.begin(), tph.frameErrorStats.end(), 0)
-        << endl;
-    cerr << "aacErrorStats (" << tph.aacErrorStats.size() << ") : " <<
-        std::accumulate(tph.aacErrorStats.begin(), tph.aacErrorStats.end(), 0)
-        << endl;
-    cerr << "rsErrorStats (" << tph.rsErrorStats.size() << ") : " <<
-        std::accumulate(tph.rsErrorStats.begin(), tph.rsErrorStats.end(), 0)
-        << endl;
-    cerr << endl;
+    FILE *fd = fopen("test1.csv", "a");
+    fprintf(fd, "%s,%d,%zu,%zu,%d,%d,%d\n",
+            intf.getFileName().c_str(),
+            prsThreshold,
+            ri.num_syncs, ri.num_desyncs,
+            std::accumulate(tph.frameErrorStats.begin(), tph.frameErrorStats.end(), 0),
+            std::accumulate(tph.aacErrorStats.begin(), tph.aacErrorStats.end(), 0),
+            std::accumulate(tph.rsErrorStats.begin(), tph.rsErrorStats.end(), 0));
+    fclose(fd);
 }
 
 void run_test(int test_id, unique_ptr<CVirtualInput>& interface)
 {
     if (test_id == 0) test0(interface);
-    else if (test_id == 1) test1(interface);
+    else if (test_id == 1 or test_id == 2) test_multipath(interface, test_id);
     else cerr << "Test " << test_id << " does not exist!" << endl;
 }

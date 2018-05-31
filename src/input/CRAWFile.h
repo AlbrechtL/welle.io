@@ -70,6 +70,7 @@ public:
 
     // Specific methods
     void setFileName(const std::string& FileName, const std::string& FileFormat);
+    std::string getFileName(void) const;
 
     bool endWasReached() const { return endReached; }
 
@@ -77,8 +78,8 @@ private:
     RadioControllerInterface& radioController;
     bool throttle;
     bool autoRewind;
-    std::string FileName;
-    CRAWFileFormat FileFormat;
+    std::string fileName;
+    CRAWFileFormat fileFormat;
     uint8_t IQByteSize;
 
     void run(void);

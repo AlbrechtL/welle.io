@@ -41,7 +41,8 @@ static constexpr size_t AUDIOBUFFERSIZE = 32768;
 
 RadioReceiver::RadioReceiver(
                 RadioControllerInterface& rci,
-                InputInterface& input) :
+                InputInterface& input,
+                int ofdmProcessorThreshold) :
     rci(rci),
     input(input),
     mscHandler(params, false),
@@ -51,7 +52,7 @@ RadioReceiver::RadioReceiver(
         rci,
         mscHandler,
         ficHandler,
-        -1)
+        ofdmProcessorThreshold)
 { }
 
 void RadioReceiver::restart(bool doScan)
