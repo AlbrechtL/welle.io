@@ -115,8 +115,8 @@ int32_t PhaseReference::findIndex(DSPCOMPLEX *v,
     }
     else {
         /* Calculate peaks over bins of 25 samples, keep the
-         * 5 bins with the highest peaks, take the index from the peak
-         * in the earliest bin.
+         * 4 bins with the highest peaks, take the index from the peak
+         * in the earliest bin, but not any earlier than 200 samples.
          *
          * Goal: avoid that the receiver locks onto the strongest peak
          * in case earlier peaks are present.
@@ -132,15 +132,15 @@ int32_t PhaseReference::findIndex(DSPCOMPLEX *v,
         };
 
         vector<peak_t> bins;
-        float sum = 0;
+        float mean = 0;
 
         constexpr int bin_size = 20;
-        constexpr size_t num_bins_to_keep = 5;
+        constexpr size_t num_bins_to_keep = 4;
         for (size_t i = 0; i + bin_size < Tu; i += bin_size) {
             peak_t peak;
             for (size_t j = 0; j < bin_size; j++) {
                 const float value = abs(res_buffer[i + j]);
-                sum += value;
+                mean += value;
                 impulseResponseBuffer[i + j] = value;
 
                 if (value > peak.value) {
@@ -151,21 +151,33 @@ int32_t PhaseReference::findIndex(DSPCOMPLEX *v,
             bins.push_back(move(peak));
         }
 
+        mean /= Tu;
+
+
         if (bins.size() < num_bins_to_keep) {
             throw logic_error("Sync err, not enough bins");
         }
 
         // Sort bins by highest peak
-        partial_sort(bins.begin(), bins.begin() + num_bins_to_keep, bins.end(),
+        sort(bins.begin(), bins.end(),
                 [&](const peak_t& lhs, const peak_t& rhs) {
                     return lhs.value > rhs.value;
                 });
 
-        bins.resize(num_bins_to_keep);
+        // Keep only bins that are not too far from highest peak
+        const int peak_index = bins.front().index;
+        constexpr int max_subpeak_distance = 200;
+        bins.erase(
+            remove_if(bins.begin(), bins.end(),
+                    [&](const peak_t& p) {
+                        return abs(p.index - peak_index) > max_subpeak_distance;
+                    }), bins.end());
 
-        sum /= Tu;
+        if (bins.size() > num_bins_to_keep) {
+            bins.resize(num_bins_to_keep);
+        }
 
-        const auto thresh = 3 * sum;
+        const auto thresh = 3 * mean;
 
         // Keep only bins where the peak is above the threshold
         bins.erase(
