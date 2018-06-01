@@ -37,7 +37,7 @@ if(BUILD_WELLE_IO)
     set(CMAKE_AUTOMOC ON)
     set(CMAKE_AUTORCC ON)
 
-    find_package(Qt5 COMPONENTS Widgets Quick Multimedia Charts REQUIRED)
+    find_package(Qt5 COMPONENTS Widgets Quick Multimedia Charts Qml REQUIRED)
 endif()
 
 find_package(ALSA)
@@ -166,9 +166,8 @@ if(BUILD_WELLE_IO)
       ${FAAD_LIBRARIES}
       ${SoapySDR_LIBRARIES}
       Threads::Threads
+      Qt5::Core Qt5::Widgets Qt5::Multimedia Qt5::Charts Qt5::Qml Qt5::Quick
     )
-
-    qt5_use_modules(${executableName} Widgets Quick Multimedia Charts)
 
     INSTALL (TARGETS ${executableName} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
