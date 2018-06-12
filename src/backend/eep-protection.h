@@ -28,18 +28,17 @@
 #include    "protection.h"
 #include    "viterbi.h"
 
-
-class eep_protection: public protection, public viterbi {
+class EEPProtection: public Protection, public Viterbi {
     public:
-        eep_protection(int16_t, int16_t);
-        bool        deconvolve(int16_t*, int32_t, uint8_t*);
+        EEPProtection(int16_t, int16_t);
+        bool deconvolve(int16_t*, int32_t, uint8_t*);
     private:
-        int16_t     L1;
-        int16_t     L2;
-        int8_t      *PI1;
-        int8_t      *PI2;
-        int16_t     bitRate;
-        int32_t     outSize;
+        int16_t L1;
+        int16_t L2;
+        const int8_t *PI1;
+        const int8_t *PI2;
+        int16_t bitRate;
+        int32_t outSize;
         std::vector<int16_t> viterbiBlock;
 };
 

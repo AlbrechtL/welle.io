@@ -20,7 +20,7 @@
  *
  *  The deconvolution for both uep and eep
  */
-#include    "DabConstants.h"
+#include    "dab-constants.h"
 #include    "uep-protection.h"
 #include    "protTables.h"
 
@@ -140,19 +140,17 @@ int16_t findIndex(int16_t bitRate, int16_t protLevel)
  * The bitRate and the protectionLevel determine the
  * depuncturing scheme.
  */
-uep_protection::uep_protection(
+UEPProtection::UEPProtection(
         int16_t bitRate,
         int16_t protLevel) :
-    viterbi(24 * bitRate),
+    Viterbi(24 * bitRate),
+    bitRate(bitRate),
     outSize(24 * bitRate),
     viterbiBlock(outSize * 4 + 24)
 {
-    int16_t index;
-
-    this->bitRate = bitRate;
-    index  = findIndex (bitRate, protLevel);
+    int16_t index = findIndex (bitRate, protLevel);
     if (index == -1) {
-        fprintf (stderr, "%d (%d) has a problem\n", bitRate, protLevel);
+        fprintf(stderr, "UEP: %d (%d) has a problem\n", bitRate, protLevel);
         index = 1;
     }
     L1  = profileTable[index].L1;
@@ -160,16 +158,16 @@ uep_protection::uep_protection(
     L3  = profileTable[index].L3;
     L4  = profileTable[index].L4;
 
-    PI1 = get_PCodes (profileTable[index].PI1 -1);
-    PI2 = get_PCodes (profileTable[index].PI2 -1);
-    PI3 = get_PCodes (profileTable[index].PI3 -1);
+    PI1 = get_PCodes(profileTable[index].PI1 -1);
+    PI2 = get_PCodes(profileTable[index].PI2 -1);
+    PI3 = get_PCodes(profileTable[index].PI3 -1);
     if ((profileTable[index].PI4 - 1) != -1)
-        PI4 = get_PCodes (profileTable[index].PI4 -1);
+        PI4 = get_PCodes(profileTable[index].PI4 -1);
     else
         PI4 = NULL;
 }
 
-bool uep_protection::deconvolve(int16_t *v, int32_t size, uint8_t *outBuffer)
+bool UEPProtection::deconvolve(int16_t *v, int32_t size, uint8_t *outBuffer)
 {
     int16_t i, j;
     int16_t inputCounter    = 0;
@@ -189,7 +187,7 @@ bool uep_protection::deconvolve(int16_t *v, int32_t size, uint8_t *outBuffer)
             if (PI1[j % 32] != 0) {
                 viterbiBlock[viterbiCounter] = v[inputCounter ++];
             }
-            viterbiCounter ++;
+            viterbiCounter++;
         }
     }
 
@@ -198,7 +196,7 @@ bool uep_protection::deconvolve(int16_t *v, int32_t size, uint8_t *outBuffer)
             if (PI2[j % 32] != 0) {
                 viterbiBlock[viterbiCounter] = v[inputCounter ++];
             }
-            viterbiCounter ++;
+            viterbiCounter++;
         }
     }
 
@@ -207,7 +205,7 @@ bool uep_protection::deconvolve(int16_t *v, int32_t size, uint8_t *outBuffer)
             if (PI3[j % 32] != 0) {
                 viterbiBlock[viterbiCounter] = v[inputCounter ++];
             }
-            viterbiCounter ++;
+            viterbiCounter++;
         }
     }
 
@@ -216,7 +214,7 @@ bool uep_protection::deconvolve(int16_t *v, int32_t size, uint8_t *outBuffer)
             if (PI4[j % 32] != 0) {
                 viterbiBlock[viterbiCounter] = v[inputCounter ++];
             }
-            viterbiCounter ++;
+            viterbiCounter++;
         }
     }
 
@@ -228,12 +226,12 @@ bool uep_protection::deconvolve(int16_t *v, int32_t size, uint8_t *outBuffer)
         if (PI_X[i] != 0) {
             viterbiBlock[viterbiCounter] = v[inputCounter ++];
         }
-        viterbiCounter ++;
+        viterbiCounter++;
     }
 
     /// The actual deconvolution is done by the viterbi decoder
 
-    viterbi::deconvolve (viterbiBlock.data(), outBuffer);
+    Viterbi::deconvolve(viterbiBlock.data(), outBuffer);
     return true;
 }
 

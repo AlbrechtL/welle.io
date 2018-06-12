@@ -33,8 +33,9 @@
 #include "CInputFactory.h"
 #include "CGUI.h"
 #include "CAudio.h"
-#include "DabConstants.h"
+#include "dab-constants.h"
 #include "msc-handler.h"
+#include "version.h"
 
 /**
   *	We use the creation function merely to set up the
@@ -49,7 +50,8 @@ CGUI::CGUI(CRadioController *RadioController, QObject *parent)
 #endif
     : QObject(parent)
     , RadioController(RadioController)
-    , spectrum_series(NULL)
+    , spectrumSeries(NULL)
+    , impulseResponseSeries(NULL)
 {
     m_currentGainValue = 0;
 
@@ -70,10 +72,38 @@ CGUI::CGUI(CRadioController *RadioController, QObject *parent)
 #else
     connect(RadioController, &CRadioController::GUIDataChanged, this, &CGUI::guiDataChanged);
     connect(RadioController, &CRadioController::MOTChanged, this, &CGUI::MOTUpdate);
-    connect(RadioController, &CRadioController::SpectrumUpdated, this, &CGUI::SpectrumUpdate);
     connect(RadioController, &CRadioController::StationsChanged, this, &CGUI::StationsChange);
     connect(RadioController, &CRadioController::ScanStopped, this, &CGUI::channelScanStopped);
     connect(RadioController, &CRadioController::ScanProgress, this, &CGUI::channelScanProgress);
+    connect(RadioController, &CRadioController::showErrorMessage, this, &CGUI::showErrorMessage);
+    connect(RadioController, &CRadioController::showInfoMessage, this, &CGUI::showInfoMessage);
+#endif
+
+#ifndef QT_NO_SYSTEMTRAYICON
+    minimizeAction = new QAction(tr("Mi&nimize"), this);
+    connect(minimizeAction, SIGNAL(triggered()), this, SIGNAL(minimizeWindow()));
+
+    maximizeAction = new QAction(tr("Ma&ximize"), this);
+    connect(maximizeAction, SIGNAL(triggered()), this, SIGNAL(maximizeWindow()));
+
+    restoreAction = new QAction(tr("&Restore"), this);
+    connect(restoreAction, SIGNAL(triggered()), this, SIGNAL(restoreWindow()));
+
+    quitAction = new QAction(tr("&Quit"), this);
+    connect(quitAction, &QAction::triggered, qApp, &QCoreApplication::quit);
+
+    trayIconMenu = new QMenu();
+    trayIconMenu->addAction(minimizeAction);
+    trayIconMenu->addAction(maximizeAction);
+    trayIconMenu->addAction(restoreAction);
+    trayIconMenu->addSeparator();
+    trayIconMenu->addAction(quitAction);
+
+    trayIcon = new QSystemTrayIcon();
+    trayIcon->setContextMenu(trayIconMenu);
+
+    trayIcon->setIcon(QIcon(":/icon.png"));
+    trayIcon->show();
 #endif
 }
 
@@ -226,6 +256,24 @@ void CGUI::StationsChange(QList<StationElement*> Stations)
     emit foundChannelCount(Stations.count());
 }
 
+void CGUI::showErrorMessage(QString Text)
+{
+#ifndef QT_NO_SYSTEMTRAYICON
+    trayIcon->showMessage(QCoreApplication::applicationName(), Text, QIcon(":/icon.png"), 5000);
+#else
+    (void)Text;
+#endif
+}
+
+void CGUI::showInfoMessage(QString Text)
+{
+#ifndef QT_NO_SYSTEMTRAYICON
+    trayIcon->showMessage(QCoreApplication::applicationName(), Text, QIcon(":/icon.png"), 5000);
+#else
+    (void)Text;
+#endif
+}
+
 void CGUI::channelClick(QString StationName, QString ChannelName)
 {
     if(RadioController && ChannelName != "")
@@ -274,43 +322,233 @@ void CGUI::clearStationList()
 
 void CGUI::registerSpectrumSeries(QAbstractSeries* series)
 {
-    spectrum_series = static_cast<QXYSeries*>(series);
+    spectrumSeries = static_cast<QXYSeries*>(series);
 }
 
-void CGUI::setPlotType(int PlotType)
+void CGUI::registerImpulseResonseSeries(QAbstractSeries* series)
 {
-    if(RadioController)
-    {
-        switch(PlotType)
-        {
-        case 0: RadioController->setPlotType(PlotTypeEn::Spectrum); break;
-        case 1: RadioController->setPlotType(PlotTypeEn::ImpulseResponse); break;
-        case 2: RadioController->setPlotType(PlotTypeEn::QPSK); break;
-        case 3: RadioController->setPlotType(PlotTypeEn::Null); break;
-        default: RadioController->setPlotType(PlotTypeEn::Unknown);
-        }
-    }
+    impulseResponseSeries = static_cast<QXYSeries*>(series);
+}
+
+void CGUI::registerNullSymbolSeries(QAbstractSeries *series)
+{
+    nullSymbolSeries = static_cast<QXYSeries*>(series);
+}
+
+void CGUI::registerConstellationSeries(QAbstractSeries *series)
+{
+    constellationSeries = static_cast<QXYSeries*>(series);
+}
+
+void CGUI::tryHideWindow()
+{
+#ifndef QT_NO_SYSTEMTRAYICON
+    trayIcon->showMessage(QCoreApplication::applicationName(), tr("The program will keep running in the "
+                                       "system tray. To terminate the program, "
+                                       "choose <b>Quit</b> in the context menu "
+                                       "of the system tray entry."), QIcon(":/icon.png"), 5000);
+    emit minimizeWindow();
+#endif
 }
 
 // This function is called by the QML GUI
 void CGUI::updateSpectrum()
 {
-    if (RadioController && spectrum_series)
-        RadioController->UpdateSpectrum();
+    std::vector<DSPCOMPLEX> signalProbeBuffer;
+    int T_u = RadioController->getDABParams().T_u;
+
+    qreal y = 0;
+    qreal x = 0;
+    qreal y_max = 0;
+    qreal x_min = 0;
+    qreal x_max = 0;
+
+    qreal tunedFrequency_MHz = 0;
+    qreal CurrentFrequency = 130e6; // ToDo
+    qreal sampleFrequency_MHz = 2.048; // ToDo
+    qreal dip_MHz = sampleFrequency_MHz / T_u;
+
+    signalProbeBuffer = RadioController->getSignalProbe();
+
+    if (signalProbeBuffer.size() == (size_t)T_u) {
+        spectrumSeriesData.resize(T_u);
+
+        common_fft FFT(T_u);
+        DSPCOMPLEX* spectrumBuffer = FFT.getVector();
+
+        std::copy(signalProbeBuffer.begin(), signalProbeBuffer.begin() + T_u,
+                spectrumBuffer);
+
+        // Do FFT to get the spectrum
+        FFT.do_FFT();
+
+        tunedFrequency_MHz = CurrentFrequency / 1e6;
+
+        // Process samples one by one
+        for (int i = 0; i < T_u; i++) {
+            int half_Tu = T_u / 2;
+
+            // Shift FFT samples
+            if (i < half_Tu)
+                y = abs(spectrumBuffer[i + half_Tu]);
+            else
+                y = abs(spectrumBuffer[i - half_Tu]);
+
+            // Apply a cumulative moving average filter
+            int avg = 4; // Number of y values to average
+            qreal CMA = spectrumSeriesData[i].y();
+            y = (CMA * avg + y) / (avg + 1);
+
+            // Find maximum value to scale the plotter
+            if (y > y_max)
+                y_max = y;
+
+            // Calc x frequency
+            x = (i * dip_MHz) + (tunedFrequency_MHz - (sampleFrequency_MHz / 2));
+
+            spectrumSeriesData[i]= QPointF(x, y);
+        }
+
+        x_min = tunedFrequency_MHz - (sampleFrequency_MHz / 2);
+        x_max = tunedFrequency_MHz + (sampleFrequency_MHz / 2);
+
+        emit setSpectrumAxis(y_max, x_min, x_max);
+
+        if(spectrumSeries)
+            spectrumSeries->replace(spectrumSeriesData);
+    }
 }
 
-void CGUI::SpectrumUpdate(qreal Ymax, qreal Xmin, qreal Xmax, QVector<QPointF> Data)
+void CGUI::updateImpulseResponse()
 {
-    // Set maximum of y-axis
-    if (Ymax > 0.0001)
-        emit setYAxisMax(Ymax);
+    std::vector<float> impulseResponseBuffer;
+    int T_u = RadioController->getDABParams().T_u;
 
-    // Set x-axis min and max
-    emit setXAxisMinMax(Xmin, Xmax);
+    qreal y_max = 0;
+    qreal x_min = 0;
+    qreal x_max = 0;
 
-    // Set new data
-    if (spectrum_series)
-        spectrum_series->replace(Data);
+    impulseResponseBuffer = std::move(RadioController->getImpulseResponse());
+
+    if (impulseResponseBuffer.size() == (size_t)T_u) {
+        impulseResponseSeriesData.resize(T_u);
+        for (int i = 0; i < T_u; i++) {
+            qreal y = 10.0f * std::log10(impulseResponseBuffer[i]);
+            qreal x = i;
+
+            // Find maximum value to scale the plotter
+            if (y > y_max)
+                y_max = y;
+            impulseResponseSeriesData[i] = QPointF(x, y);
+        }
+
+        x_min = 0;
+        x_max = T_u;
+
+        emit setImpulseResponseAxis(y_max, x_min, x_max);
+
+        if(impulseResponseSeries)
+            impulseResponseSeries->replace(impulseResponseSeriesData);
+    }
+}
+
+void CGUI::updateNullSymbol()
+{
+    std::vector<DSPCOMPLEX> nullSymbolBuffer;
+    int T_u = RadioController->getDABParams().T_u;
+    int T_null = RadioController->getDABParams().T_null;
+
+    qreal y = 0;
+    qreal x = 0;
+    qreal y_max = 0;
+    qreal x_min = 0;
+    qreal x_max = 0;
+
+    qreal tunedFrequency_MHz = 0;
+    qreal CurrentFrequency = 130e6; // ToDo
+    qreal sampleFrequency_MHz = 2.048; // ToDo
+    qreal dip_MHz = sampleFrequency_MHz / T_u;
+
+    nullSymbolBuffer = std::move(RadioController->getNullSymbol());
+
+    if (nullSymbolBuffer.size() == (size_t)T_null) {
+        nullSymbolSeriesData.resize(T_u);
+
+        common_fft FFT(T_u);
+        DSPCOMPLEX* spectrumBuffer = FFT.getVector();
+
+        std::copy(nullSymbolBuffer.begin(), nullSymbolBuffer.begin() + T_u,
+                spectrumBuffer);
+
+        // Do FFT to get the spectrum
+        FFT.do_FFT();
+
+        tunedFrequency_MHz = CurrentFrequency / 1e6;
+
+        // Process samples one by one
+        for (int i = 0; i < T_u; i++) {
+            int half_Tu = T_u / 2;
+
+            // Shift FFT samples
+            if (i < half_Tu)
+                y = abs(spectrumBuffer[i + half_Tu]);
+            else
+                y = abs(spectrumBuffer[i - half_Tu]);
+
+            // Apply a cumulative moving average filter
+            int avg = 4; // Number of y values to average
+            qreal CMA = nullSymbolSeriesData[i].y();
+            y = (CMA * avg + y) / (avg + 1);
+
+            // Find maximum value to scale the plotter
+            if (y > y_max)
+                y_max = y;
+
+            // Calc x frequency
+            x = (i * dip_MHz) + (tunedFrequency_MHz - (sampleFrequency_MHz / 2));
+
+            nullSymbolSeriesData[i]= QPointF(x, y);
+        }
+
+        x_min = tunedFrequency_MHz - (sampleFrequency_MHz / 2);
+        x_max = tunedFrequency_MHz + (sampleFrequency_MHz / 2);
+
+        emit setNullSymbolAxis(y_max, x_min, x_max);
+
+        if(nullSymbolSeries)
+            nullSymbolSeries->replace(nullSymbolSeriesData);
+    }
+}
+
+void CGUI::updateConstellation()
+{
+    std::vector<DSPCOMPLEX> constellationPointBuffer;
+
+    qreal x_min = 0;
+    qreal x_max = 0;
+
+    constellationPointBuffer = std::move(RadioController->getConstellationPoint());
+
+    const size_t decim = OfdmDecoder::constellationDecimation;
+    const size_t num_iqpoints = (RadioController->getDABParams().L-1) * RadioController->getDABParams().K / decim;
+    if (constellationPointBuffer.size() == num_iqpoints) {
+        constellationSeriesData.resize(num_iqpoints);
+        for (size_t i = 0; i < num_iqpoints; i++) {
+            qreal y = 180.0f / (float)M_PI * std::arg(constellationPointBuffer[i]);
+            constellationSeriesData[i] = QPointF(i, y);
+        }
+
+        x_min = 0;
+        x_max = num_iqpoints;
+
+        emit setConstellationAxis(x_min, x_max);
+
+        if(constellationSeries)
+            constellationSeries->replace(constellationSeriesData);
+    }
+    else {
+        qDebug() << "IQ" << constellationPointBuffer.size() << num_iqpoints;
+    }
 }
 
 QTranslator* CGUI::AddTranslator(QString Language, QTranslator *OldTranslator)

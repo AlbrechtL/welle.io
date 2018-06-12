@@ -39,7 +39,8 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 
-#include "DabConstants.h"
+#include "version.h"
+#include "dab-constants.h"
 #include "CRadioController.h"
 #include "CGUI.h"
 #include "CLogFile.h"
@@ -63,6 +64,11 @@ int main(int argc, char** argv)
 
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
+    QStringList themePaths;
+    themePaths << ":/src/gui/icon";
+    QIcon::setThemeSearchPaths(themePaths);
+    QIcon::setThemeName("welle_io_icons");
+
     qRegisterMetaTypeStreamOperators<QList<StationElement*>>("StationList");
 #ifdef Q_OS_ANDROID
 
@@ -74,11 +80,11 @@ int main(int argc, char** argv)
         QCoreApplication app(argc, argv);
 
         // Default values
-        CDABParams DABParams(1);
+        DABParams dabparams(1);
         QVariantMap commandLineOptions;
 
         // Create a new radio interface instance
-        CRadioController* RadioController = new CRadioController(commandLineOptions, DABParams);
+        CRadioController* RadioController = new CRadioController(commandLineOptions, dabparams);
 
         // Enable remoting source
         QRemoteObjectHost srcNode(QUrl(QStringLiteral("local:replica")));
@@ -115,7 +121,7 @@ int main(int argc, char** argv)
     QTranslator *Translator = CGUI::AddTranslator(locale);
 
     // Default values
-    CDABParams DABParams(1);
+    DABParams dabparams(1);
 
     // Handle the command line
     QCommandLineParser optionParser;
@@ -144,22 +150,22 @@ int main(int argc, char** argv)
     optionParser.addOption(RAWFile);
 
     QCommandLineOption RAWFileFormat("raw-format",
-        QCoreApplication::translate("main", "I/Q RAW file format. Possible is: u8 (standard), s8, s16le, s16be. Only valid for input rawfile."),
+        QCoreApplication::translate("main", "I/Q RAW file format. Possible is: u8 (standard), s8, s16le, s16be, cf32. Only valid for input rawfile."),
         QCoreApplication::translate("main", "I/Q RAW file format"));
     optionParser.addOption(RAWFileFormat);
 
 #ifdef HAVE_SOAPYSDR
-    QCommandLineOption SDRDriverArgsOption("soapysdr-driver-args",
+    QCommandLineOption SDRDriverArgsOption("sdr-driver-args",
         QCoreApplication::translate("main", "The value depends on the SDR driver and is directly passed to it (currently only SoapySDR::Device::make(args)). A typical value for SoapySDR is a string like driver=remote,remote=127.0.0.1,remote:driver=rtlsdr,rtl=0"),
         QCoreApplication::translate("main", "args"));
     optionParser.addOption(SDRDriverArgsOption);
 
-    QCommandLineOption SDRAntennaOption("soapysdr-antenna",
+    QCommandLineOption SDRAntennaOption("sdr-antenna",
         QCoreApplication::translate("main", "The value depends on the SDR Hardware, typical values are TX/RX, RX2. Just query it with SoapySDRUtil --probe=driver=uhd"),
         QCoreApplication::translate("main", "antenna"));
     optionParser.addOption(SDRAntennaOption);
 
-    QCommandLineOption SDRClockSourceOption("soapysdr-clock-source",
+    QCommandLineOption SDRClockSourceOption("sdr-clock-source",
         QCoreApplication::translate("main", "The value depends on the SDR Hardware, typical values are internal, external, gpsdo. Just query it with SoapySDRUtil --probe=driver=uhd"),
         QCoreApplication::translate("main", "clock_source"));
     optionParser.addOption(SDRClockSourceOption);
@@ -170,15 +176,10 @@ int main(int argc, char** argv)
         QCoreApplication::translate("main", "Mode"));
     optionParser.addOption(DABModeOption);
 
-    QCommandLineOption MSCFileName("msc-file",
-        QCoreApplication::translate("main", "Records the DAB+ superframes. This file can be used to analyse the X-PAD data with XPADexpert."),
+    QCommandLineOption dumpFileName("dump-file",
+        QCoreApplication::translate("main", "Records DAB frames or DAB+ superframes. This file can be used to analyse the X-PAD data with XPADexpert."),
         QCoreApplication::translate("main", "File name"));
-    optionParser.addOption(MSCFileName);
-
-    QCommandLineOption MP2FileName("mp2-file",
-        QCoreApplication::translate("main", "Records the DAB MP2 frames. This file can be used to analyse the X-PAD data with XPADexpert."),
-        QCoreApplication::translate("main", "File name"));
-    optionParser.addOption(MP2FileName);
+    optionParser.addOption(dumpFileName);
 
     QCommandLineOption LogFileName("log-file",
         QCoreApplication::translate("main", "Redirects all log output texts to a file."),
@@ -189,6 +190,11 @@ int main(int argc, char** argv)
         QCoreApplication::translate("main", "Sets the GUI language according to the ISO country codes (e.g. de_DE)"),
         QCoreApplication::translate("main", "Language"));
     optionParser.addOption(Language);
+
+    QCommandLineOption InitialStation("station",
+        QCoreApplication::translate("main", "Tries to play a station from a previous channel scan on program start."),
+        QCoreApplication::translate("main", "Station name"));
+    optionParser.addOption(InitialStation);
 
     QCommandLineOption DisableSplash("disable-splash",
         QCoreApplication::translate("main", "Disables the splash screen"));
@@ -225,7 +231,7 @@ int main(int argc, char** argv)
         if ((Mode < 1) || (Mode > 4))
             Mode = 1;
 
-        DABParams.setMode(Mode);
+        dabparams.setMode(Mode);
     }
 
 #ifdef Q_OS_ANDROID
@@ -256,14 +262,44 @@ int main(int argc, char** argv)
     commandLineOptions["ipPort"] = optionParser.value(RTL_TCPServerIPPort);
     commandLineOptions["rawFile"] = optionParser.value(RAWFile);
     commandLineOptions["rawFileFormat"] = optionParser.value(RAWFileFormat);
-    commandLineOptions["mscFileName"] = optionParser.value(MSCFileName);
-    commandLineOptions["mp2FileName"] = optionParser.value(MP2FileName);
+    commandLineOptions["dumpFileName"] = optionParser.value(dumpFileName);
+    commandLineOptions["initialStation"] = optionParser.value(InitialStation);
 
     // Create a new radio interface instance
-    CRadioController* RadioController = new CRadioController(commandLineOptions, DABParams);
+    CRadioController* RadioController = new CRadioController(commandLineOptions, dabparams);
     QTimer::singleShot(0, RadioController, SLOT(onEventLoopStarted())); // The timer is used to signal if the QT event lopp is running
 
 #endif
+
+
+    QSettings settings;
+
+    // Should we play the last staiion we have listened to previously?
+    if( settings.value("enableLastPlayedStationState", false).toBool() ) {
+
+        QStringList lastStation = settings.value("lastchannel").toStringList();
+        if( lastStation.count() == 2 )
+            RadioController->setAutoPlay( lastStation[1], lastStation[0]);
+    }
+
+
+    // Should we start with a inital station given on command line?
+    if( RadioController->Stations().count() > 0 && commandLineOptions["initialStation"] != "" ) {
+
+        static QString channelToSearchFor = commandLineOptions["initialStation"].toString().simplified();
+
+        QList<StationElement*> stationList = RadioController->Stations();
+        QList<StationElement*>::iterator it;
+
+        // try to find station name in the station list
+        it = std::find_if(stationList.begin(), stationList.end(), [](StationElement* station) {
+
+                return station->getStationName().simplified().indexOf( channelToSearchFor ) == 0;
+        });
+
+        if(it != stationList.end())
+            RadioController->setAutoPlay((*it)->getChannelName(), (*it)->getStationName());
+    }
 
     CGUI *GUI = new CGUI(RadioController);
 
@@ -276,7 +312,7 @@ int main(int argc, char** argv)
     rootContext->setContextProperty("cppRadioController", RadioController);
 
     // Load main page
-    engine->load(QUrl("qrc:/src/gui/QML/main.qml"));
+    engine->load(QUrl("qrc:/src/gui/QML/MainView.qml"));
 
     // Add MOT slideshow provider
     engine->addImageProvider(QLatin1String("motslideshow"), GUI->MOTImage);

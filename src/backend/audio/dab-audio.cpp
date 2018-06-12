@@ -1,4 +1,7 @@
 /*
+ *    Copyright (C) 2018
+ *    Matthias P. Braendli (matthias.braendli@mpb.li)
+ *
  *    Copyright (C) 2013
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
  *    Lazy Chair Programming
@@ -19,18 +22,13 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <QDebug>
-
-#include    "DabConstants.h"
-#include    "dab-audio.h"
-#include    <QThread>
-#include    <QMutex>
-#include    <QWaitCondition>
-#include    "mp2processor.h"
-#include    "mp4processor.h"
-#include    "eep-protection.h"
-#include    "uep-protection.h"
-#include    "CRadioController.h"
+#include <iostream>
+#include "dab-constants.h"
+#include "dab-audio.h"
+#include "mp2processor.h"
+#include "mp4processor.h"
+#include "eep-protection.h"
+#include "uep-protection.h"
 
 //  As an experiment a version of the backend is created
 //  that will be running in a separate thread. Might be
@@ -44,15 +42,17 @@
 //
 //
 //  fragmentsize == Length * CUSize
-dabAudio::dabAudio(
-        uint8_t dabModus,
+DabAudio::DabAudio(
+        AudioServiceComponentType dabModus,
         int16_t fragmentSize,
         int16_t bitRate,
-        bool   shortForm,
+        bool shortForm,
         int16_t protLevel,
-        CRadioController *mr,
-        std::shared_ptr<RingBuffer<int16_t>> buffer) :
-    Buffer(64 * 32768)
+        ProgrammeHandlerInterface& phi,
+        const std::string& dumpFileName) :
+    myProgrammeHandler(phi),
+    mscBuffer(64 * 32768),
+    dumpFileName(dumpFileName)
 {
     int32_t i;
     this->dabModus         = dabModus;
@@ -60,71 +60,63 @@ dabAudio::dabAudio(
     this->bitRate          = bitRate;
     this->shortForm        = shortForm;
     this->protLevel        = protLevel;
-    this->myRadioInterface = mr;
-    this->audioBuffer      = buffer;
 
     outV.resize(bitRate * 24);
-    interleaveData  = new int16_t*[16]; // max size
     for (i = 0; i < 16; i ++) {
-        interleaveData[i] = new int16_t[fragmentSize];
-        memset (interleaveData[i], 0, fragmentSize * sizeof (int16_t));
+        interleaveData[i].resize(fragmentSize);
     }
+
+    using std::make_unique;
 
     if (shortForm)
-        protectionHandler = std::make_unique<uep_protection>(bitRate, protLevel);
+        protectionHandler = make_unique<UEPProtection>(bitRate, protLevel);
     else
-        protectionHandler = std::make_unique<eep_protection>(bitRate, protLevel);
+        protectionHandler = make_unique<EEPProtection>(bitRate, protLevel);
 
-    if (dabModus == DAB) {
-        our_dabProcessor = new mp2Processor (myRadioInterface, bitRate, audioBuffer);
+    if (dabModus == AudioServiceComponentType::DAB) {
+        our_dabProcessor = make_unique<Mp2Processor>(
+                myProgrammeHandler, bitRate, dumpFileName);
     }
-    else {
-        if (dabModus == DAB_PLUS) {
-            our_dabProcessor = new mp4Processor (myRadioInterface, bitRate, audioBuffer);
-        }
-        else        // cannot happen
-            our_dabProcessor = new dummyProcessor ();
+    else if (dabModus == AudioServiceComponentType::DABPlus) {
+        our_dabProcessor = make_unique<Mp4Processor>(
+                myProgrammeHandler, bitRate, dumpFileName);
     }
 
-    qDebug() << "dab-audio:" << "we have now" << ((dabModus == DAB_PLUS) ? "DAB+" : "DAB");
-    running     = true;
-    start ();
+    running = true;
+    ourThread = std::thread(&DabAudio::run, this);
 }
 
-dabAudio::~dabAudio()
+DabAudio::~DabAudio()
 {
-    int16_t i;
     running = false;
-    while (this->isRunning ()) {
-        usleep(1);
+
+    if (ourThread.joinable()) {
+        mscDataAvailable.notify_all();
+        ourThread.join();
     }
-    for (i = 0; i < 16; i ++) {
-        delete[] interleaveData [i];
-    }
-    delete [] interleaveData;
 }
 
-int32_t dabAudio::process(int16_t *v, int16_t cnt)
+int32_t DabAudio::process(int16_t *v, int16_t cnt)
 {
     int32_t fr;
 
-    if (Buffer.GetRingBufferWriteAvailable () < cnt)
+    if (mscBuffer.GetRingBufferWriteAvailable () < cnt)
         fprintf (stderr, "dab-concurrent: buffer full\n");
 
-    while ((fr = Buffer.GetRingBufferWriteAvailable ()) <= cnt) {
+    while ((fr = mscBuffer.GetRingBufferWriteAvailable ()) <= cnt) {
         if (!running)
             return 0;
-        usleep (1);
+        std::this_thread::sleep_for(std::chrono::microseconds(1));
     }
 
-    Buffer.putDataIntoBuffer (v, cnt);
-    Locker.wakeAll ();
+    mscBuffer.putDataIntoBuffer(v, cnt);
+    mscDataAvailable.notify_all();
     return fr;
 }
 
 const int16_t interleaveMap[] = {0,8,4,12,2,10,6,14,1,9,5,13,3,11,7,15};
 
-void dabAudio::run()
+void DabAudio::run()
 {
     int16_t i, j;
     int16_t countforInterleaver = 0;
@@ -134,18 +126,19 @@ void dabAudio::run()
     int16_t tempX[fragmentSize];
 
     while (running) {
-        while (Buffer.GetRingBufferReadAvailable () <= fragmentSize) {
-            ourMutex.lock ();
-            Locker.wait (&ourMutex, 1);  // 1 msec waiting time
-            ourMutex.unlock ();
-            if (!running)
-                break;
+        std::unique_lock<std::mutex> lock(ourMutex);
+        while (running && mscBuffer.GetRingBufferReadAvailable() <= fragmentSize) {
+            mscDataAvailable.wait(lock);
         }
 
         if (!running)
             break;
 
-        Buffer.getDataFromBuffer (Data, fragmentSize);
+        // mscBuffer is threadsafe to access, no need to keep the lock
+        lock.unlock();
+
+
+        mscBuffer.getDataFromBuffer(Data, fragmentSize);
 
         for (i = 0; i < fragmentSize; i ++) {
             tempX[i] = interleaveData[(interleaverIndex +
@@ -160,11 +153,10 @@ void dabAudio::run()
             continue;
         }
 
-        protectionHandler->deconvolve (tempX, fragmentSize, outV.data());
+        protectionHandler->deconvolve(tempX, fragmentSize, outV.data());
 
-        //
         //  and the inline energy dispersal
-        memset (shiftRegister, 1, 9);
+        memset(shiftRegister, 1, 9);
         for (i = 0; i < bitRate * 24; i ++) {
             uint8_t b = shiftRegister[8] ^ shiftRegister[4];
             for (j = 8; j > 0; j--)
@@ -172,16 +164,10 @@ void dabAudio::run()
             shiftRegister[0] = b;
             outV[i] ^= b;
         }
-        our_dabProcessor->addtoFrame (outV.data());
-    }
-}
 
-//  It might take a msec for the task to stop
-void dabAudio::stopRunning()
-{
-    running = false;
-    while (this->isRunning ())
-        usleep (1);
-    //  myAudioSink->stop ();
+        if (our_dabProcessor) {
+            our_dabProcessor->addtoFrame(outV.data());
+        }
+    }
 }
 

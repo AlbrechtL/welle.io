@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2017
+ *    Copyright (C) 2018
  *    Matthias P. Braendli (matthias.braendli@mpb.li)
  *    Albrecht Lohofener (albrechtloh@gmx.de)
  *
@@ -24,13 +24,13 @@
  *
  */
 
-#include <QDebug>
 #include <vector>
 #include <sstream>
+#include <iostream>
 #include <cassert>
 #include <SoapySDR/Errors.hpp>
 #include "CSoapySdr.h"
-#include "DabConstants.h"
+#include "dab-constants.h"
 #include "unistd.h"
 
 using namespace std;
@@ -40,7 +40,9 @@ CSoapySdr::CSoapySdr() :
     m_spectrumSampleBuffer(8192)
 {
     m_running = false;
-    qDebug() << "SoapySdr";
+    std::clog << "SoapySdr" << std::endl;
+
+    restart();
 }
 
 CSoapySdr::~CSoapySdr()
@@ -49,43 +51,48 @@ CSoapySdr::~CSoapySdr()
 }
 
 
-void CSoapySdr::setDriverArgs(QString args)
+void CSoapySdr::setDriverArgs(const std::string& args)
 {
     m_driver_args = args;
 }
 
-void CSoapySdr::setAntenna(QString antenna)
+void CSoapySdr::setAntenna(const std::string& antenna)
 {
     m_antenna = antenna;
 }
 
-void CSoapySdr::setClockSource(QString clock_source)
+void CSoapySdr::setClockSource(const std::string& clock_source)
 {
     m_clock_source = clock_source;
 }
 
-void CSoapySdr::setFrequency(int32_t Frequency)
+void CSoapySdr::setFrequency(int Frequency)
 {
     m_freq = Frequency;
     if (m_device != nullptr) {
         m_device->setFrequency(SOAPY_SDR_RX, 0, Frequency);
-        Frequency = m_device->getFrequency(SOAPY_SDR_RX, 0);
-        qDebug() << "OutputSoapySDR:Actual frequency: " <<
-            Frequency / 1000.0 <<
-            " kHz.";
+        m_freq = m_device->getFrequency(SOAPY_SDR_RX, 0);
+        std::clog << "OutputSoapySDR:Actual frequency: " <<
+            m_freq / 1000.0 <<
+            " kHz." << std::endl;
     }
+}
+
+int CSoapySdr::getFrequency() const
+{
+    return m_freq;
 }
 
 bool CSoapySdr::restart()
 {
-    if (m_thread != nullptr) {
+    if (m_running) {
         return true;
     }
 
     m_sampleBuffer.FlushRingBuffer();
     m_spectrumSampleBuffer.FlushRingBuffer();
 
-    m_device = SoapySDR::Device::make(m_driver_args.toStdString());
+    m_device = SoapySDR::Device::make(m_driver_args);
     stringstream ss;
     ss << "SoapySDR driver=" << m_device->getDriverKey();
     ss << " hardware=" << m_device->getHardwareKey();
@@ -93,32 +100,57 @@ bool CSoapySdr::restart()
     {
         ss << "  " << it.first << "=" << it.second;
     }
-    qDebug() << ss.str().c_str();
+    std::clog << ss.str().c_str() << std::endl;
 
     m_device->setMasterClockRate(INPUT_RATE*16);
-    qDebug() << "SoapySDR master clock rate set to " <<
-        m_device->getMasterClockRate()/1000.0 << " kHz";
+    std::clog << "SoapySDR master clock rate set to " <<
+        m_device->getMasterClockRate()/1000.0 << " kHz" << std::endl;
 
     m_device->setSampleRate(SOAPY_SDR_RX, 0, INPUT_RATE);
-    qDebug() << "OutputSoapySDR:Actual RX rate: " <<
+    std::clog << "OutputSoapySDR:Actual RX rate: " <<
         m_device->getSampleRate(SOAPY_SDR_RX, 0) / 1000.0 <<
-        " ksps.";
+        " ksps." << std::endl;
 
-    if (!m_antenna.isEmpty())
-        m_device->setAntenna(SOAPY_SDR_RX, 0, m_antenna.toStdString());
 
-    if (!m_clock_source.isEmpty())
-        m_device->setClockSource(m_clock_source.toStdString());
+    if (!m_antenna.empty()) {
+        clog << "Select antenna " << m_antenna << ", supported: ";
+        for (const auto& ant : m_device->listAntennas(SOAPY_SDR_RX, 0)) {
+            clog << " " << ant;
+        }
+        clog << endl;
+
+        m_device->setAntenna(SOAPY_SDR_RX, 0, m_antenna);
+    }
+    else {
+        clog << "Not selecting antenna" << endl;
+    }
+
+    if (!m_clock_source.empty()) {
+        m_device->setClockSource(m_clock_source);
+    }
 
     if (m_freq > 0) {
         setFrequency(m_freq);
     }
 
-    const bool automatic = true;
+    auto range = m_device->getGainRange(SOAPY_SDR_RX, 0);
+    // Ignore step size, as it could be 0. 1dB steps are ok
+    for (double g = range.minimum(); g < range.maximum(); g++) {
+        m_gains.push_back(g);
+    }
+
+    const bool automatic = false;
     m_device->setGainMode(SOAPY_SDR_RX, 0, automatic);
 
+    if (m_device->hasDCOffsetMode(SOAPY_SDR_RX, 0)) {
+        m_device->setDCOffsetMode(SOAPY_SDR_RX, 0, true);
+    }
+    else {
+        clog << "DC offset compensation not supported" << endl;
+    }
+
     m_running = true;
-    m_thread = new CSoapySdr_Thread(this);
+    m_thread = std::thread(&CSoapySdr::workerthread, this);
 
     return true;
 }
@@ -126,12 +158,8 @@ bool CSoapySdr::restart()
 void CSoapySdr::stop()
 {
     m_running = false;
-    if (m_thread != nullptr) {
-        while (!m_thread->isFinished()) {
-            usleep(100);
-        }
-        delete m_thread;
-        m_thread = nullptr;
+    if (m_thread.joinable()) {
+        m_thread.join();
     }
 
     if (m_device != nullptr) {
@@ -151,11 +179,14 @@ int32_t CSoapySdr::getSamples(DSPCOMPLEX *Buffer, int32_t Size)
     return amount;
 }
 
-int32_t CSoapySdr::getSpectrumSamples(DSPCOMPLEX *Buffer, int32_t Size)
+std::vector<DSPCOMPLEX> CSoapySdr::getSpectrumSamples(int size)
 {
-    int32_t amount = m_spectrumSampleBuffer.getDataFromBuffer(Buffer, Size);
-
-    return amount;
+    std::vector<DSPCOMPLEX> sampleBuffer(size);
+    int32_t amount = m_spectrumSampleBuffer.getDataFromBuffer(sampleBuffer.data(), size);
+    if (amount < size) {
+        sampleBuffer.resize(amount);
+    }
+    return sampleBuffer;
 }
 
 int32_t CSoapySdr::getSamplesToRead()
@@ -163,33 +194,66 @@ int32_t CSoapySdr::getSamplesToRead()
     return m_sampleBuffer.GetRingBufferReadAvailable();
 }
 
-float CSoapySdr::setGain(int32_t Gain)
+float CSoapySdr::setGain(int32_t gainIndex)
 {
     if (m_device != nullptr) {
-        m_device->setGain(SOAPY_SDR_RX, 0, Gain);
+        try {
+            m_device->setGain(SOAPY_SDR_RX, 0, m_gains.at(gainIndex));
+        }
+        catch (const out_of_range&) {
+            std::clog << "Soapy gain " << gainIndex << " is out of range" << std::endl;
+        }
         float g = m_device->getGain(SOAPY_SDR_RX, 0);
-        qDebug() << "Soapy gain is " << g;
+        std::clog << "Soapy gain is " << g << std::endl;
         return g;
     }
     return 0;
 }
 
+void CSoapySdr::increaseGain()
+{
+    if (m_device != nullptr) {
+        float current_gain = m_device->getGain(SOAPY_SDR_RX, 0);
+        for (const float g : m_gains) {
+            if (g > current_gain) {
+                m_device->setGain(SOAPY_SDR_RX, 0, g);
+                break;
+            }
+        }
+    }
+}
+
+void CSoapySdr::decreaseGain()
+{
+    if (m_device != nullptr) {
+        float current_gain = m_device->getGain(SOAPY_SDR_RX, 0);
+        for (auto it = m_gains.rbegin(); it != m_gains.rend(); ++it) {
+            if (*it > current_gain) {
+                m_device->setGain(SOAPY_SDR_RX, 0, *it);
+                break;
+            }
+        }
+    }
+}
+
 int32_t CSoapySdr::getGainCount()
 {
-    return 100;
+    return m_gains.size();
 }
 
 void CSoapySdr::setAgc(bool AGC)
 {
-    (void) AGC;
+    m_sw_agc = AGC;
 }
 
 void CSoapySdr::setHwAgc(bool hwAGC)
 {
-    (void) hwAGC;
+    if (m_device != nullptr) {
+        m_device->setGainMode(SOAPY_SDR_RX, 0, hwAGC);
+    }
 }
 
-QString CSoapySdr::getName()
+std::string CSoapySdr::getName()
 {
     return "SoapySDR";
 }
@@ -199,20 +263,12 @@ CDeviceID CSoapySdr::getID()
     return CDeviceID::SOAPYSDR;
 }
 
-CSoapySdr_Thread::CSoapySdr_Thread(CSoapySdr *soapySdr)
-{
-    this->soapySdr = soapySdr;
-    start();
-}
-
-CSoapySdr_Thread::~CSoapySdr_Thread() {}
-
-void CSoapySdr_Thread::run()
+void CSoapySdr::workerthread()
 {
     std::vector<size_t> channels;
     channels.push_back(0);
-    auto device = soapySdr->m_device;
-    qDebug() << " *************** Setup soapy stream";
+    auto device = m_device;
+    std::clog << " *************** Setup soapy stream" << std::endl;
     auto stream = device->setupStream(SOAPY_SDR_RX, "CF32", channels);
     assert(stream != nullptr);
 
@@ -221,21 +277,22 @@ void CSoapySdr_Thread::run()
         process(stream);
     }
     catch (std::exception& e) {
-        qDebug() << " *************** Exception caught in soapy: " << e.what();
+        std::clog << " *************** Exception caught in soapy: " << e.what() << std::endl;
     }
 
-    qDebug() << " *************** Close soapy stream";
+    std::clog << " *************** Close soapy stream" << std::endl;
     device->closeStream(stream);
-    soapySdr->m_running = false;
+    m_running = false;
 }
 
-void CSoapySdr_Thread::process(SoapySDR::Stream *stream)
+void CSoapySdr::process(SoapySDR::Stream *stream)
 {
-    auto device = soapySdr->m_device;
+    size_t frames = 0;
+    while (m_running) {
+        frames++;
 
-    while (soapySdr->m_running) {
         // Stream MTU is in samples, not bytes.
-        const size_t mtu = device->getStreamMTU(stream);
+        const size_t mtu = m_device->getStreamMTU(stream);
 
         const size_t samps_to_read = mtu; // Always read MTU samples
         std::vector<DSPCOMPLEX> buf(samps_to_read);
@@ -245,8 +302,8 @@ void CSoapySdr_Thread::process(SoapySDR::Stream *stream)
 
         int flags = 0;
         long long timeNs = 0;
-        assert(device != nullptr);
-        int ret = device->readStream(
+        assert(m_device != nullptr);
+        int ret = m_device->readStream(
                 stream, buffs, samps_to_read, flags, timeNs);
 
         if (ret == SOAPY_SDR_TIMEOUT) {
@@ -260,15 +317,33 @@ void CSoapySdr_Thread::process(SoapySDR::Stream *stream)
         }
 
         if (ret < 0) {
-            qDebug() << " *************** Unexpected stream error " <<
-                SoapySDR::errToStr(ret);
-            soapySdr->m_running = false;
+            std::clog << " *************** Unexpected stream error " <<
+                SoapySDR::errToStr(ret) << std::endl;
+            m_running = false;
         }
         else {
             buf.resize(ret);
 
-            soapySdr->m_sampleBuffer.putDataIntoBuffer(buf.data(), ret);
-            soapySdr->m_spectrumSampleBuffer.putDataIntoBuffer(buf.data(), ret);
+            if (m_sw_agc and (frames % 200) == 0) {
+                float maxnorm = 0;
+                for (const DSPCOMPLEX& z : buf) {
+                    if (norm(z) > maxnorm) {
+                        maxnorm = norm(z);
+                    }
+                }
+
+                const float maxampl = sqrt(maxnorm);
+
+                if (maxampl > 0.5f) {
+                    decreaseGain();
+                }
+                else if (maxampl < 0.1f) {
+                    increaseGain();
+                }
+            }
+
+            m_sampleBuffer.putDataIntoBuffer(buf.data(), ret);
+            m_spectrumSampleBuffer.putDataIntoBuffer(buf.data(), ret);
         }
     }
 }

@@ -33,18 +33,19 @@ class CNullDevice : public CVirtualInput
 public:
     CNullDevice();
 
-    void setFrequency(int32_t Frequency);
+    void setFrequency(int Frequency);
+    int getFrequency(void) const;
     bool restart(void);
     void stop(void);
     void reset(void);
     int32_t getSamples(DSPCOMPLEX* Buffer, int32_t Size);
-    int32_t getSpectrumSamples(DSPCOMPLEX* Buffer, int32_t Size);
+    std::vector<DSPCOMPLEX> getSpectrumSamples(int size);
     int32_t getSamplesToRead(void);
-    float setGain(int32_t Gain);
-    int32_t getGainCount(void);
+    float setGain(int Gain);
+    int getGainCount(void);
     void setAgc(bool AGC);
     void setHwAgc(bool hwAGC);
-    QString getName(void);
+    std::string getName(void);
     CDeviceID getID(void);
 };
 

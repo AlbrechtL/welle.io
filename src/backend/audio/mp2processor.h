@@ -27,16 +27,14 @@
 #ifndef MP2PROCESSOR
 #define MP2PROCESSOR
 
-#include    <stdio.h>
-#include    <stdint.h>
-#include    <memory>
-#include    <math.h>
-#include    "dab-processor.h"
-#include    <QObject>
-#include    <vector>
-#include    <stdio.h>
-#include    "ringbuffer.h"
-#include    "pad_decoder_adapter.h"
+#include <memory>
+#include <vector>
+#include <cstdint>
+#include <cmath>
+#include <cstdio>
+#include "dab-processor.h"
+#include "data/pad_decoder.h"
+#include "radio-controller.h"
 
 #define KJMP2_MAX_FRAME_SIZE    1440  // the maximum size of a frame
 #define KJMP2_SAMPLES_PER_FRAME 1152  // the number of samples per frame
@@ -49,27 +47,26 @@ struct quantizer_spec
     uint8_t cw_bits;
 };
 
-class CRadioController;
-
-class mp2Processor: public QObject, public dabProcessor
+class Mp2Processor: public DabProcessor, public PADDecoderObserver
 {
-    Q_OBJECT
     public:
-        mp2Processor( CRadioController *mr,
-                      int16_t bitRate,
-                      std::shared_ptr<RingBuffer<int16_t>> buffer);
-        ~mp2Processor(void);
+        Mp2Processor(ProgrammeHandlerInterface& mr,
+                     int16_t bitRate,
+                     const std::string& mp2FileName);
         virtual void addtoFrame(uint8_t *v);
-        void setFile(FILE *);
+
+        // PADDecoderObserver impl
+        void PADChangeDynamicLabel(const DL_STATE& dl);
+        void PADChangeSlide(const MOT_FILE& slide);
 
     private:
         int32_t     mp2sampleRate(uint8_t *frame);
         int32_t     mp2decodeFrame(uint8_t *frame, int16_t *pcm);
 
-        CRadioController    *myRadioInterface;
-        std::shared_ptr<RingBuffer<int16_t>> buffer;
+        ProgrammeHandlerInterface& myInterface;
         int16_t     bitRate;
-        int32_t     baudRate;
+        int32_t     baudRate = 48000;
+        uint32_t    mode = 0;
         void        setSamplerate(int32_t rate);
         struct quantizer_spec *read_allocation(int sb, int b2_table);
         void        read_samples(struct quantizer_spec *q,
@@ -77,7 +74,7 @@ class mp2Processor: public QObject, public dabProcessor
                                 int *sample);
         int32_t     get_bits(int32_t bit_count);
         int16_t     V[2][1024];
-        int16_t     Voffs;
+        int16_t     Voffs = 0;
         int16_t     N[64][32];
         struct quantizer_spec *allocation[2][32];
         int32_t     scfsi[2][32];
@@ -96,15 +93,12 @@ class mp2Processor: public QObject, public dabProcessor
         void        addbittoMP2 (uint8_t *v, uint8_t b, int16_t nm);
         int16_t     numberofFrames;
         int16_t     errorFrames;
-        std::unique_ptr<PADDecoderAdapter> padDecoderAdapter;
 
-        QByteArray  *MP2FileName;
-        FILE *MP2File;
+        struct FILEDeleter{ void operator()(FILE* fd){ if (fd) fclose(fd); }};
+        std::unique_ptr<FILE, FILEDeleter> mp2File;
 
-    signals:
-        void        show_frameErrors(int errorFrames);
-        void        newAudio(int baudRate);
-        void        isStereo(bool isJointStereo);
+        void processPAD(uint8_t *Data, int16_t Length, int16_t ScF_CRC_Length);
+        PADDecoder padDecoder;
 };
 #endif
 

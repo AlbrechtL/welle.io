@@ -1,4 +1,6 @@
 /*
+ *    Copyright (C) 2018
+ *    Matthias P. Braendli (matthias.braendli@mpb.li)
  *
  *    Copyright (C) 2013
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
@@ -28,63 +30,71 @@
 #ifndef MSC_HANDLER
 #define MSC_HANDLER
 
-#include    <QMutex>
-#include    <memory>
-#include    <stdio.h>
-#include    <stdint.h>
-#include    <stdio.h>
-#include    "DabConstants.h"
-#include    "ringbuffer.h"
+#include <mutex>
+#include <list>
+#include <memory>
+#include <vector>
+#include <cstdio>
+#include <cstdint>
+#include <cstdio>
+#include "dab-constants.h"
+#include "ringbuffer.h"
+#include "radio-controller.h"
 
-class   CRadioController;
-class   dabVirtual;
+class DabVirtual;
 
-class mscHandler
+class MscHandler
 {
     public:
-        mscHandler(CRadioController *,
-                CDABParams *,
-                std::shared_ptr<RingBuffer<int16_t> >,
-                bool show_crcErrors);
-        ~mscHandler(void);
-        void process_mscBlock(int16_t *fbits, int16_t blkno);
-        void set_audioChannel(audiodata  *);
-        void set_dataChannel(packetdata *);
+        MscHandler(const DABParams& p, bool show_crcErrors);
+
+        // Stop processing and remove all subchannels
         void stopProcessing(void);
-        void stopHandler(void);
+
+        bool addSubchannel(
+                ProgrammeHandlerInterface& handler,
+                AudioServiceComponentType ascty,
+                const std::string& dumpFileName,
+                const Subchannel& sub);
+
+        bool removeSubchannel(const Subchannel& sub);
+
     private:
-        CRadioController    *myRadioInterface;
-        std::shared_ptr<RingBuffer<int16_t>> buffer;
-        bool        show_crcErrors;
-        QMutex      locker;
-        bool        audioService;
-        dabVirtual *dabHandler;
-        int16_t    *cifVector;
-        int16_t     cifCount;
-        int16_t     blkCount;
-        bool        work_to_be_done;
-        bool        newChannel;
-        int16_t     new_packetAddress;
-        int16_t     new_ASCTy;
-        int16_t     new_DSCTy;
-        int16_t     new_startAddr;
-        int16_t     new_Length;
-        bool        new_shortForm;
-        int16_t     new_protLevel;
-        uint8_t     new_DGflag;
-        int16_t     new_bitRate;
-        int16_t     new_language;
-        int16_t     new_type;
-        int16_t     new_FEC_scheme;
-        int16_t     startAddr;
-        int16_t     Length;
-        int8_t      dabModus;
-        int8_t      new_dabModus;
-        int16_t     BitsperBlock;
-        int16_t     numberofblocksperCIF;
-        int16_t     blockCount;
+        friend class OfdmDecoder;
+        void processMscBlock(int16_t *fbits, int16_t blkno);
+
+        struct SelectedStream {
+            SelectedStream(
+                ProgrammeHandlerInterface& handler,
+                AudioServiceComponentType ascty,
+                const std::string& dumpFileName,
+                const Subchannel& subCh) :
+                    handler(handler),
+                    audioType(ascty),
+                    dumpFileName(dumpFileName),
+                    subCh(subCh) {}
+
+            ProgrammeHandlerInterface& handler;
+
+            AudioServiceComponentType audioType;
+            const std::string dumpFileName;
+            const Subchannel subCh;
+
+            std::shared_ptr<DabVirtual> dabHandler;
+        };
+
+        std::mutex mutex;
+        std::list<SelectedStream> streams;
+
+        const int16_t bitsperBlock;
+        int16_t numberofblocksperCIF;
+        bool show_crcErrors;
+
+        std::vector<int16_t> cifVector;
+        int16_t cifCount = 0; // msc blocks in CIF
+        int16_t blkCount = 0;
+        bool work_to_be_done = false;
 };
 
 #endif
-
 

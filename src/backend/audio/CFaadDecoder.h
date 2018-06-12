@@ -1,4 +1,7 @@
 /*
+ *    Copyright (C) 2018
+ *    Matthias P. Braendli (matthias.braendli@mpb.li)
+ *
  *    Copyright (C) 2017
  *    Albrecht Lohofener (albrechtloh@gmx.de)
  *
@@ -24,33 +27,37 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <vector>
 #include <memory>
 #include "neaacdec.h"
 #include "ringbuffer.h"
 
 class CFaadDecoder
 {
-public:
-    CFaadDecoder (std::shared_ptr<RingBuffer<int16_t>> buffer);
-    ~CFaadDecoder(void);
+    public:
+        CFaadDecoder();
+        ~CFaadDecoder();
+        CFaadDecoder(const CFaadDecoder& other) = delete;
+        CFaadDecoder& operator=(const CFaadDecoder& other) = delete;
 
-    int get_aac_channel_configuration(
-            int16_t m_mpeg_surround_config,
-            uint8_t aacChannelMode);
+        std::vector<int16_t> MP42PCM(
+                uint8_t dacRate,
+                uint8_t sbrFlag,
+                int16_t mpegSurround,
+                uint8_t aacChannelMode,
+                uint8_t buffer[],
+                int16_t bufferLength,
+                uint32_t *sampleRate = nullptr, bool *isParametricStereo = nullptr);
 
-    int16_t MP42PCM(uint8_t dacRate, uint8_t sbrFlag,
-            int16_t mpegSurround,
-            uint8_t aacChannelMode,
-            uint8_t buffer[],
-            int16_t bufferLength,
-            uint32_t *sampleRate = nullptr, bool *isParametricStereo = nullptr);
+    private:
+        int get_aac_channel_configuration(
+                int16_t m_mpeg_surround_config,
+                uint8_t aacChannelMode);
 
-private:
-    bool                     processorOK;
-    bool                     aacInitialized;
-    uint32_t                 aacCap;
-    NeAACDecHandle           aacHandle;
-    NeAACDecConfigurationPtr aacConf;
-    NeAACDecFrameInfo        hInfo;
-    std::shared_ptr<RingBuffer<int16_t>> audioBuffer;
+        bool                     aacInitialized = false;
+
+        uint32_t                 aacCap;
+        NeAACDecHandle           aacHandle;
+        NeAACDecConfigurationPtr aacConf;
+        NeAACDecFrameInfo        hInfo;
 };

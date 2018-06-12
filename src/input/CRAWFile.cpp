@@ -1,4 +1,7 @@
 /*
+ *    Copyright (C) 2018
+ *    Matthias P. Braendli (matthias.braendli@mpb.li)
+ *
  *    Copyright (C) 2017
  *    Albrecht Lohofener (albrechtloh@gmx.de)
  *
@@ -27,7 +30,8 @@
  *
  */
 
-#include <QDebug>
+#include <string>
+#include <iostream>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -47,31 +51,41 @@ static inline int64_t getMyTime(void)
 
 #define INPUT_FRAMEBUFFERSIZE 8 * 32768
 
-CRAWFile::CRAWFile(CRadioController &RadioController) :
-    FileName(""),
-    FileFormat(CRAWFileFormat::Unknown),
+CRAWFile::CRAWFile(RadioControllerInterface& radioController,
+        bool throttle, bool rewind) :
+    radioController(radioController),
+    throttle(throttle),
+    autoRewind(rewind),
+    fileName(""),
+    fileFormat(CRAWFileFormat::Unknown),
     IQByteSize(1),
     SampleBuffer(INPUT_FRAMEBUFFERSIZE),
     SpectrumSampleBuffer(8192)
 {
-    this->RadioController = &RadioController;
-
-    readerOK = false;
 }
 
 CRAWFile::~CRAWFile(void)
 {
     ExitCondition = true;
     if (readerOK) {
-        while (isRunning())
-            usleep(100);
-        fclose(filePointer);
+        if (thread.joinable()) {
+            thread.join();
+        }
+
+        if (filePointer) {
+            fclose(filePointer);
+        }
     }
 }
 
-void CRAWFile::setFrequency(int32_t Frequency)
+void CRAWFile::setFrequency(int Frequency)
 {
     (void)Frequency;
+}
+
+int CRAWFile::getFrequency() const
+{
+    return 0;
 }
 
 bool CRAWFile::restart(void)
@@ -91,14 +105,22 @@ void CRAWFile::reset()
 {
 }
 
-float CRAWFile::setGain(int32_t Gain)
+void CRAWFile::rewind()
+{
+    if (filePointer) {
+        fseek(filePointer, 0, SEEK_SET);
+        endReached = false;
+    }
+}
+
+float CRAWFile::setGain(int Gain)
 {
     (void)Gain;
 
     return 0;
 }
 
-int32_t CRAWFile::getGainCount()
+int CRAWFile::getGainCount()
 {
     return 0;
 }
@@ -113,9 +135,9 @@ void CRAWFile::setHwAgc(bool hwAGC)
     (void)hwAGC;
 }
 
-QString CRAWFile::getName()
+std::string CRAWFile::getName()
 {
-    return "rawfile (" + FileName + ")";
+    return "rawfile (" + fileName + ")";
 }
 
 CDeviceID CRAWFile::getID()
@@ -123,70 +145,82 @@ CDeviceID CRAWFile::getID()
     return CDeviceID::RAWFILE;
 }
 
-void CRAWFile::setFileName(QString FileName, QString FileFormat)
+void CRAWFile::setFileName(const std::string& fileName,
+        const std::string& fileFormat)
 {
-    this->FileName = FileName;
+    this->fileName = fileName;
 
-    if(FileFormat == "u8")
-    {
-        this->FileFormat = CRAWFileFormat::U8;
+    if(fileFormat == "u8") {
+        this->fileFormat = CRAWFileFormat::U8;
         IQByteSize = 2;
     }
-    else if(FileFormat == "s8")
-    {
-        this->FileFormat = CRAWFileFormat::S8;
+    else if(fileFormat == "s8") {
+        this->fileFormat = CRAWFileFormat::S8;
         IQByteSize = 2;
     }
-    else if(FileFormat == "s16le")
-    {
-        this->FileFormat = CRAWFileFormat::S16LE;
+    else if(fileFormat == "s16le") {
+        this->fileFormat = CRAWFileFormat::S16LE;
         IQByteSize = 4;
     }
-    else if(FileFormat == "s16be")
-    {
-        this->FileFormat = CRAWFileFormat::S16BE;
+    else if(fileFormat == "s16be") {
+        this->fileFormat = CRAWFileFormat::S16BE;
         IQByteSize = 4;
     }
-    else
-    {
-        this->FileFormat = CRAWFileFormat::Unknown;
-        QString Text = QObject::tr("Unknown RAW file format") + ": " + FileFormat;
-        qDebug() << "RAWFile:" << Text;
-        RadioController->setErrorMessage(Text);
+    else if(fileFormat == "cf32") {
+        this->fileFormat = CRAWFileFormat::COMPLEXF;
+        IQByteSize = 8;
+    }
+    else {
+        this->fileFormat = CRAWFileFormat::Unknown;
+        std::clog << "RAWFile: unknown file format" << std::endl;
+        radioController.onMessage(message_level_t::Error,
+                "Unknown RAW file format");
     }
 
-    filePointer = fopen(FileName.toLatin1().data(), "rb");
-    if (filePointer == NULL) {
-        QString Text = QObject::tr("Cannot open file") + ": " + FileName;
-        qDebug() << "RAWFile:"  << Text;
-        RadioController->setErrorMessage(Text);
+    filePointer = fopen(fileName.c_str(), "rb");
+    if (filePointer == nullptr) {
+        std::clog << "RAWFile: Cannot open file: " << fileName << std::endl;
+        radioController.onMessage(message_level_t::Error,
+                "Cannot open file" + fileName);
         return;
     }
 
     readerOK = true;
     readerPausing = true;
     currPos = 0;
-    start();
+    thread = std::thread(&CRAWFile::run, this);
+}
+
+std::string CRAWFile::getFileName() const
+{
+    return fileName;
 }
 
 //	size is in I/Q pairs, file contains 8 bits values
 int32_t CRAWFile::getSamples(DSPCOMPLEX* V, int32_t size)
 {
-    if (filePointer == NULL)
+    if (filePointer == nullptr)
         return 0;
 
     while ((int32_t)(SampleBuffer.GetRingBufferReadAvailable()) < IQByteSize * size)
         if (readerPausing)
-            usleep(100000);
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
         else
-            msleep(100);
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     return convertSamples(SampleBuffer, V, size);
 }
 
-int32_t CRAWFile::getSpectrumSamples(DSPCOMPLEX* V, int32_t size)
+std::vector<DSPCOMPLEX> CRAWFile::getSpectrumSamples(int size)
 {
-    return convertSamples(SpectrumSampleBuffer, V, size);
+    std::vector<DSPCOMPLEX> buffer(size);
+
+    int sizeRead = convertSamples(SpectrumSampleBuffer, buffer.data(), size);
+    if (sizeRead < size) {
+        buffer.resize(sizeRead);
+    }
+
+    return buffer;
 }
 
 int32_t CRAWFile::getSamplesToRead(void)
@@ -196,7 +230,7 @@ int32_t CRAWFile::getSamplesToRead(void)
 
 void CRAWFile::run(void)
 {
-    int32_t t, i;
+    int32_t t;
     int32_t bufferSize = 32768;
     int32_t period;
     int64_t nextStop;
@@ -206,15 +240,14 @@ void CRAWFile::run(void)
 
     ExitCondition = false;
 
-    period = (32768 * 1000) / (IQByteSize * 2048); // full IQś read
+    period = (32768 * 1000) / (IQByteSize * 2048); // full IQs read
 
-    qDebug() << "RAWFile"
-             << "Period =" << period;
-    std::vector<uint8_t>bi(bufferSize);
+    std::clog << "RAWFile" << "Period =" << period << std::endl;
+    std::vector<uint8_t> bi(bufferSize);
     nextStop = getMyTime();
     while (!ExitCondition) {
         if (readerPausing) {
-            usleep(1000);
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
             nextStop = getMyTime();
             continue;
         }
@@ -222,23 +255,24 @@ void CRAWFile::run(void)
         while (SampleBuffer.WriteSpace() < bufferSize + 10) {
             if (ExitCondition)
                 break;
-            usleep(100);
+            std::this_thread::sleep_for(std::chrono::microseconds(100));
         }
 
         nextStop += period;
         t = readBuffer(bi.data(), bufferSize);
         if (t <= 0) {
-            for (i = 0; i < bufferSize; i++)
+            for (int i = 0; i < bufferSize; i++)
                 bi[i] = 0;
             t = bufferSize;
         }
         SampleBuffer.putDataIntoBuffer(bi.data(), t);
         SpectrumSampleBuffer.putDataIntoBuffer(bi.data(), t);
-        if (nextStop - getMyTime() > 0)
-            usleep(nextStop - getMyTime());
+        int64_t t_to_wait = nextStop - getMyTime();
+        if (throttle and t_to_wait > 0)
+            std::this_thread::sleep_for(std::chrono::microseconds(t_to_wait));
     }
 
-    qDebug() << "RAWFile:" <<  "Read threads ends";
+    std::clog << "RAWFile:" <<  "Read threads ends" << std::endl;
 }
 
 /*
@@ -248,60 +282,66 @@ int32_t CRAWFile::readBuffer(uint8_t* data, int32_t length)
 {
     int32_t n;
 
+    if (!filePointer) {
+        return 0;
+    }
+
     n = fread(data, sizeof(uint8_t), length, filePointer);
     currPos += n;
     if (n < length) {
-        fseek(filePointer, 0, SEEK_SET);
-        QString Text = QObject::tr("End of file, restarting");
-        qDebug() << "RAWFile:"  << Text;
-        RadioController->setInfoMessage(Text);
+        if (autoRewind) {
+            fseek(filePointer, 0, SEEK_SET);
+            std::clog << "RAWFile:"  << "End of file, restarting" << std::endl;
+            radioController.onMessage(message_level_t::Information,
+                    "End of file, restarting");
+        }
+        else {
+            radioController.onMessage(message_level_t::Information, "End of file");
+            endReached = true;
+            return 0;
+        }
     }
     return n & ~01;
 }
 
 int32_t CRAWFile::convertSamples(RingBuffer<uint8_t>& Buffer, DSPCOMPLEX *V, int32_t size)
 {
-    int32_t amount, i;
+    // Native endianness complex<float> requires no conversion
+    if (fileFormat == CRAWFileFormat::COMPLEXF) {
+        int32_t amount = Buffer.getDataFromBuffer(V, IQByteSize * size);
+        return amount / IQByteSize;
+    }
+
     uint8_t* temp = (uint8_t*)alloca(IQByteSize * size * sizeof(uint8_t));
 
-    amount = Buffer.getDataFromBuffer(temp, IQByteSize * size);
+    int32_t amount = Buffer.getDataFromBuffer(temp, IQByteSize * size);
 
     // Unsigned 8-bit
-    if(FileFormat == CRAWFileFormat::U8)
-    {
-        for (i = 0; i < amount / 2; i++)
-        V[i] = DSPCOMPLEX(float(temp[2 * i] - 128) / 128.0, float(temp[2 * i + 1] - 128) / 128.0);
+    if (fileFormat == CRAWFileFormat::U8) {
+        for (int i = 0; i < amount / 2; i++)
+            V[i] = DSPCOMPLEX(float(temp[2 * i] - 128) / 128.0,
+                              float(temp[2 * i + 1] - 128) / 128.0);
     }
     // Signed 8-bit
-    else if(FileFormat == CRAWFileFormat::S8)
-    {
-        for (i = 0; i < amount / 2; i++)
-        V[i] = DSPCOMPLEX(float((int8_t)temp[2 * i]) / 128.0, float((int8_t)temp[2 * i + 1]) / 128.0);
+    else if (fileFormat == CRAWFileFormat::S8) {
+        for (int i = 0; i < amount / 2; i++)
+            V[i] = DSPCOMPLEX(float((int8_t)temp[2 * i]) / 128.0,
+                              float((int8_t)temp[2 * i + 1]) / 128.0);
     }
     // Signed 16-bit little endian
-    else if(FileFormat == CRAWFileFormat::S16LE)
-    {
-        int j=0;
-        for (i = 0; i < amount / 4; i++)
-        {
-            int16_t IQ_I = (int16_t) (temp[j + 0] << 8) | temp[j + 1];
-            int16_t IQ_Q = (int16_t) (temp[j + 2] << 8) | temp[j + 3];
-            V[i] = DSPCOMPLEX((float) (IQ_I ), (float) (IQ_Q ));
-
-            j +=IQByteSize;
+    else if (fileFormat == CRAWFileFormat::S16LE) {
+        for (int i = 0, j = 0; i < amount / 4; i++, j+= IQByteSize) {
+            int16_t IQ_I = (int16_t)(temp[j + 0] << 8) | temp[j + 1];
+            int16_t IQ_Q = (int16_t)(temp[j + 2] << 8) | temp[j + 3];
+            V[i] = DSPCOMPLEX((float)(IQ_I), (float)(IQ_Q));
         }
     }
     // Signed 16-bit big endian
-    else if(FileFormat == CRAWFileFormat::S16BE)
-    {
-        int j=0;
-        for (i = 0; i < amount / 4; i++)
-        {
-            int16_t IQ_I = (int16_t) (temp[j + 1] << 8) | temp[j + 0];
-            int16_t IQ_Q = (int16_t) (temp[j + 3] << 8) | temp[j + 2];
-            V[i] = DSPCOMPLEX((float) (IQ_I ), (float) (IQ_Q ));
-
-            j +=IQByteSize;
+    else if (fileFormat == CRAWFileFormat::S16BE) {
+        for (int i = 0, j = 0; i < amount / 4; i++, j += IQByteSize) {
+            int16_t IQ_I = (int16_t)(temp[j + 1] << 8) | temp[j + 0];
+            int16_t IQ_Q = (int16_t)(temp[j + 3] << 8) | temp[j + 2];
+            V[i] = DSPCOMPLEX((float)(IQ_I), (float)(IQ_Q));
         }
     }
 

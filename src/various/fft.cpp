@@ -31,7 +31,7 @@ common_fft::common_fft (int32_t fft_size) {
     this->fft_size = fft_size;
 
     vector  = (DSPCOMPLEX *) FFTW_MALLOC (sizeof (DSPCOMPLEX) * fft_size);
-    memset (vector, 0, sizeof (DSPCOMPLEX) * fft_size);
+    memset((void*)vector, 0, sizeof (DSPCOMPLEX) * fft_size);
     plan  = FFTW_PLAN_DFT_1D (fft_size,
             reinterpret_cast <fftwf_complex *>(vector),
             reinterpret_cast <fftwf_complex *>(vector),

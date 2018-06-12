@@ -1,8 +1,12 @@
 import QtQuick 2.2
+import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.1
+import Qt.labs.settings 1.0
 
 // Import custom styles
-import "style"
+import "texts"
+import "components"
+import "expertviews"
 
 Item {
     height: Units.dp(400)
@@ -10,110 +14,81 @@ Item {
     Layout.fillHeight: true
     Layout.preferredWidth: Units.dp(400)
 
-    ColumnLayout {
+    Settings {
+        property alias enableStationInfoDisplayState: enableStationInfoDisplay.checked
+        property alias enableSpectrumDisplayState: enableSpectrumDisplay.checked
+        property alias enableImpulseResponseDisplayState: enableImpulseResponseDisplay.checked
+        property alias enableConstellationDisplayState: enableConstellationDisplay.checked
+        property alias enableNullSymbolDisplayState: enableNullSymbolDisplay.checked
+    }
+
+    function openSettings() {
+        expertViewDrawer.open()
+    }
+
+    Drawer {
+        id: expertViewDrawer
+        edge: Qt.RightEdge
+        y: overlayHeader.height
+        height: mainWindow.height - overlayHeader.height
+
+        ColumnLayout{
+            spacing: Units.dp(20)
+
+            Switch {
+                id: enableStationInfoDisplay
+                text: qsTr("Display station info")
+                checked: true
+            }
+
+            Switch {
+                id: enableSpectrumDisplay
+                text: qsTr("Display spectrum")
+                checked: true
+            }
+
+            Switch {
+                id: enableImpulseResponseDisplay
+                text: qsTr("Display impulse response")
+                checked: false
+            }
+
+            Switch {
+                id: enableConstellationDisplay
+                text: qsTr("Display constellation diagram")
+                checked: false
+            }
+
+            Switch {
+                id: enableNullSymbolDisplay
+                text: qsTr("Display null symbol")
+                checked: false
+            }
+        }
+    }
+
+    Flow {
+        id: layout
         anchors.fill: parent
-        anchors.leftMargin: Units.dp(5)
 
-        TextExpert {
-            id: displayDeviceName
-            name: qsTr("Device") + ":"
-            text: cppGUI.guiData.DeviceName
+        StationInformation {
+            visible: enableStationInfoDisplay.checked
         }
 
-        TextExpert {
-            id: displayCurrentChannel
-            name: qsTr("Current channel") + ":"
-            text: cppGUI.guiData.Channel + " (" + cppGUI.guiData.Frequency/1e6 + " MHz)"
+        SpectrumGraph {
+            visible: enableSpectrumDisplay.checked
         }
 
-        TextExpert {
-            id: displayFreqCorr
-            name: qsTr("Frequency correction") + ":"
-            text: cppRadioController.FrequencyCorrection + " Hz"
+        ImpulseResponseGraph {
+            visible: enableImpulseResponseDisplay.checked
         }
 
-        TextExpert {
-            id: displaySNR
-            name: qsTr("SNR") + ":"
-            text: cppRadioController.SNR + " dB"
+        ConstellationGraph {
+            visible: enableConstellationDisplay.checked
         }
 
-        TextExpert {
-            id: displayFrameErrors
-            name: qsTr("Frame errors") + ":"
-            text: cppRadioController.FrameErrors
-        }
-
-        TextExpert {
-            id: displayRSErrors
-            name: qsTr("RS errors") + ":"
-            text: cppRadioController.RSErrors
-        }
-
-        TextExpert {
-            id: displayAACErrors
-            name: qsTr("AAC errors") + ":"
-            text: cppRadioController.AACErrors
-        }
-
-        TextExpert {
-            id: displaySync
-            name: qsTr("Frame synchronization") + ":"
-            text: cppRadioController.isSync ? qsTr("OK") : qsTr("Not synced")
-        }
-
-        TextExpert {
-            id: displayFIC_CRC
-            name: qsTr("FIC CRC") + ":"
-            text: cppRadioController.isFICCRC ? qsTr("OK") : qsTr("Error")
-        }
-
-        RowLayout {
-            SpectrumView {
-                id: plot
-                Layout.preferredWidth: Units.dp(200)
-                Layout.preferredHeight: Units.dp(200)
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-            }
-
-            ColumnLayout {
-                anchors.topMargin: 10
-                anchors.right: parent.right
-                anchors.top: parent.top
-                TouchButton {
-                    id: buttonSpec
-                    text: qsTr("Spectrum")
-                    onClicked: {
-                        cppGUI.setPlotType(0);
-                        plot.plotType = 0;
-                    }
-                }
-                TouchButton {
-                    id: buttonIR
-                    text: qsTr("IR")
-                    onClicked: {
-                        cppGUI.setPlotType(1);
-                        plot.plotType = 1;
-                    }
-                }
-                TouchButton {
-                    id: buttonQPSK
-                    text: qsTr("QPSK")
-                    onClicked: {
-                        cppGUI.setPlotType(2);
-                        plot.plotType = 2;
-                    }
-                }
-                TouchButton {
-                    id: buttonNull
-                    text: qsTr("Null")
-                    onClicked: {
-                        cppGUI.setPlotType(3);
-                        plot.plotType = 3;
-                    }
-                }
-            }
+        NullSymbolGraph {
+            visible: enableNullSymbolDisplay.checked
         }
     }
 }

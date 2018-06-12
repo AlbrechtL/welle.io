@@ -1,4 +1,7 @@
 /*
+ *    Copyright (C) 2018
+ *    Matthias P. Braendli (matthias.braendli@mpb.li)
+ *
  *    Copyright (C) 2013
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
  *    Lazy Chair Programming
@@ -22,54 +25,59 @@
 #ifndef __DAB_AUDIO
 #define __DAB_AUDIO
 
-#include    "dab-virtual.h"
-#include    <memory>
-#include    <vector>
-#include    <QThread>
-#include    <QMutex>
-#include    <QWaitCondition>
-#include    "ringbuffer.h"
-#include    <stdio.h>
+#include "dab-virtual.h"
+#include <memory>
+#include <atomic>
+#include <vector>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+#include <cstdio>
+#include "ringbuffer.h"
+#include "radio-controller.h"
 
-class dabProcessor;
-class protection;
-class CRadioController;
+class DabProcessor;
+class Protection;
 
-class dabAudio : public QThread, public dabVirtual
+class DabAudio : public DabVirtual
 {
     public:
-        dabAudio(uint8_t dabModus,
+        DabAudio(AudioServiceComponentType dabModus,
                   int16_t fragmentSize,
                   int16_t bitRate,
-                  bool   shortForm,
+                  bool shortForm,
                   int16_t protLevel,
-                  CRadioController *mr,
-                  std::shared_ptr<RingBuffer<int16_t> >);
-        ~dabAudio(void);
+                  ProgrammeHandlerInterface& phi,
+                  const std::string& dumpFileName);
+        ~DabAudio(void);
+        DabAudio(const DabAudio&) = delete;
+        DabAudio& operator=(const DabAudio&) = delete;
+
         int32_t process(int16_t *v, int16_t cnt);
-        void    stopRunning(void);
 
     protected:
-        CRadioController    *myRadioInterface;
-        std::shared_ptr<RingBuffer<int16_t>> audioBuffer;
+        ProgrammeHandlerInterface& myProgrammeHandler;
 
     private:
         void    run(void);
-        volatile bool running;
-        uint8_t     dabModus;
+        std::atomic<bool> running;
+        AudioServiceComponentType dabModus;
         int16_t     fragmentSize;
         int16_t     bitRate;
         bool        shortForm;
         int16_t     protLevel;
         std::vector<uint8_t> outV;
-        int16_t     **interleaveData;
+        std::vector<int16_t> interleaveData[16];
 
-        QWaitCondition  Locker;
-        QMutex          ourMutex;
+        std::condition_variable  mscDataAvailable;
+        std::mutex               ourMutex;
+        std::thread              ourThread;
 
-        std::unique_ptr<protection> protectionHandler;
-        dabProcessor   *our_dabProcessor;
-        RingBuffer<int16_t> Buffer;
+        std::unique_ptr<Protection> protectionHandler;
+        std::unique_ptr<DabProcessor> our_dabProcessor;
+        RingBuffer<int16_t> mscBuffer;
+
+        const std::string dumpFileName;
 };
 
 #endif

@@ -1,4 +1,7 @@
 /*
+ *    Copyright (C) 2018
+ *    Matthias P. Braendli (matthias.braendli@mpb.li)
+ *
  *    Copyright (C) 2017
  *    Albrecht Lohofener (albrechtloh@gmx.de)
  *
@@ -35,16 +38,14 @@
 #include <QDateTime>
 #include <QImage>
 #include <QVariantMap>
+#include <mutex>
 
 #include "CAudio.h"
 #include "CStationList.h"
-#include "DabConstants.h"
-#include "ofdm-processor.h"
+#include "dab-constants.h"
+#include "radio-receiver.h"
 #include "ringbuffer.h"
-#include "DabConstants.h"
-#include "fic-handler.h"
-#include "msc-handler.h"
-#include "CChannels.h"
+#include "channels.h"
 
 class CVirtualInput;
 
@@ -52,11 +53,15 @@ enum class PlotTypeEn { Spectrum, ImpulseResponse, QPSK, Null, Unknown };
 
 #ifdef Q_OS_ANDROID
 #include "rep_CRadioController_source.h"
-class CRadioController : public CRadioControllerSource
+class CRadioController : public CRadioControllerSource,
+                         public RadioControllerInterface
 {
     Q_OBJECT
 #else
-class CRadioController : public QObject
+class CRadioController :
+    public QObject,
+    public RadioControllerInterface,
+    public ProgrammeHandlerInterface
 {
     Q_OBJECT
     Q_PROPERTY(QString DateTime READ DateTime NOTIFY DateTimeChanged)
@@ -67,6 +72,7 @@ class CRadioController : public QObject
     Q_PROPERTY(bool isDAB READ isDAB NOTIFY isDABChanged)
     Q_PROPERTY(int SNR READ SNR NOTIFY SNRChanged)
     Q_PROPERTY(int FrequencyCorrection READ FrequencyCorrection NOTIFY FrequencyCorrectionChanged)
+    Q_PROPERTY(float FrequencyCorrectionPpm READ FrequencyCorrectionPpm NOTIFY FrequencyCorrectionPpmChanged)
     Q_PROPERTY(int BitRate READ BitRate NOTIFY BitRateChanged)
     Q_PROPERTY(int AudioSampleRate READ AudioSampleRate NOTIFY AudioSampleRateChanged)
     Q_PROPERTY(int FrameErrors READ FrameErrors NOTIFY FrameErrorsChanged)
@@ -97,8 +103,7 @@ public:
     };
     Q_ENUMS(DabStatus)
 
-    CRadioController(QVariantMap &commandLineOptions, CDABParams& DABParams, QObject* parent = NULL);
-    ~CRadioController(void);
+    CRadioController(QVariantMap &commandLineOptions, DABParams& params, QObject* parent = NULL);
     void closeDevice();
     void openDevice(CVirtualInput* Dev);
     void Play(QString Channel, QString Station);
@@ -110,8 +115,7 @@ public:
     void SetManualChannel(QString Channel);
     void StartScan(void);
     void StopScan(void);
-    void UpdateSpectrum(void);
-    void setPlotType(PlotTypeEn PlotType);
+    void setAutoPlay(QString Channel, QString Station);
     QList<StationElement*> Stations() const;
     QVariantMap GUIData(void) const;
     QString ErrorMsg() const;
@@ -125,6 +129,7 @@ public:
     bool isDAB() const;
     int SNR() const;
     int FrequencyCorrection() const;
+    float FrequencyCorrectionPpm() const;
     int BitRate() const;
     int AudioSampleRate() const;
     int FrameErrors() const;
@@ -146,30 +151,58 @@ public:
 
     int GainCount() const;
     float GainValue() const;
-    QString GetMscFileName(void);
-    QString GetMP2FileName(void);
+
+    //called from the backend
+    virtual void onFrameErrors(int frameErrors) override;
+    virtual void onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, bool isStereo, const std::string& mode) override;
+    virtual void onRsErrors(int rsErrors) override;
+    virtual void onAacErrors(int aacErrors) override;
+    virtual void onNewDynamicLabel(const std::string& label) override;
+    virtual void onMOT(const std::vector<uint8_t>& data, int subtype) override;
+    virtual void onSNR(int snr) override;
+    virtual void onFrequencyCorrectorChange(int fine, int coarse) override;
+    virtual void onSyncChange(char isSync) override;
+    virtual void onSignalPresence(bool isSignal) override;
+    virtual void onServiceDetected(uint32_t sId, const std::string& label) override;
+    virtual void onNewEnsembleName(const std::string& name) override;
+    virtual void onDateTimeUpdate(const dab_date_time_t& dateTime) override;
+    virtual void onFIBDecodeSuccess(bool crcCheckOk, const uint8_t* fib) override;
+    virtual void onNewImpulseResponse(std::vector<float>&& data) override;
+    virtual void onConstellationPoints(std::vector<DSPCOMPLEX>&& data) override;
+    virtual void onNewNullSymbol(std::vector<DSPCOMPLEX>&& data) override;
+    virtual void onTIIMeasurement(tii_measurement_t&& m) override;
+    virtual void onMessage(message_level_t level, const std::string& text) override;
+
+    // Buffer getter
+    std::vector<float> getImpulseResponse(void);
+    std::vector<DSPCOMPLEX> getSignalProbe(void);
+    std::vector<DSPCOMPLEX> getNullSymbol(void);
+    std::vector<DSPCOMPLEX> getConstellationPoint(void);
+
+    DABParams& getDABParams(void);
 
 private:
     void Initialise(void);
     void ResetTechnicalData(void);
     void DeviceRestart(void);
     void DecoderRestart(bool isScan);
-    void NextChannel(bool isWait);
     void UpdateGUIData();
-    void SetFrequencyCorrection(int FrequencyCorrection);
 
     // Back-end objects
     CVirtualInput* Device;
     QVariantMap commandLineOptions;
-    CDABParams DABParams;
-    CChannels Channels;
+    DABParams dabparams;
+    Channels channels;
 
-    ofdmProcessor* my_ofdmProcessor;
-    ficHandler* my_ficHandler;
-    mscHandler* my_mscHandler;
-    CAudio* Audio;
-    std::shared_ptr<RingBuffer<int16_t>> AudioBuffer;
-    std::shared_ptr<std::vector<float>> ImpuleResponseBuffer;
+    std::unique_ptr<RadioReceiver> my_rx;
+    RingBuffer<int16_t> audioBuffer;
+    CAudio audio;
+    std::mutex impulseResponseBufferMutex;
+    std::vector<float> impulseResponseBuffer;
+    std::mutex nullSymbolBufferMutex;
+    std::vector<DSPCOMPLEX> nullSymbolBuffer;
+    std::mutex constellationPointBufferMutex;
+    std::vector<DSPCOMPLEX> constellationPointBuffer;
 
     // Objects set by the back-end
     QVariantMap mGUIData;
@@ -182,6 +215,7 @@ private:
     bool mIsDAB;
     int mSNR;
     int mFrequencyCorrection;
+    float mFrequencyCorrectionPpm;
     int mBitRate;
     int mAudioSampleRate;
     int mFrameErrors;
@@ -190,7 +224,7 @@ private:
     int mGainCount;
     int mStationCount;
 
-    QImage *MOTImage;
+    QImage motImage;
 
     // Controller objects
     DabStatus Status;
@@ -217,16 +251,23 @@ private:
     bool isChannelScan;
     bool isAGC;
     bool isHwAGC;
-
-    // Spectrum variables
-    common_fft* spectrum_fft_handler;
-    QVector<QPointF> spectrum_data;
-    PlotTypeEn PlotType;
+    bool isAutoPlay;
+    QString autoChannel;
+    QString autoStation;
 
 private slots:
     void StationTimerTimeout(void);
     void ChannelTimerTimeout(void);
     void SyncCheckTimerTimeout(void);
+    void NextChannel(bool isWait);
+    void addtoEnsemble(quint32 SId, const QString &Station);
+    void displayDateTime(const dab_date_time_t& dateTime);
+
+signals:
+    void SwitchToNextChannel(bool isWait);
+    void EnsembleAdded(quint32 SId, const QString& station);
+    void EnsembleNameUpdated(const QString& name);
+    void DateTimeUpdated(const dab_date_time_t& dateTime);
 
 #ifndef Q_OS_ANDROID
 signals:
@@ -238,6 +279,7 @@ signals:
     void isDABChanged(bool);
     void SNRChanged(int);
     void FrequencyCorrectionChanged(int);
+    void FrequencyCorrectionPpmChanged(float);
     void BitRateChanged(int);
     void AudioSampleRateChanged(int);
     void FrameErrorsChanged(int);
@@ -261,32 +303,17 @@ signals:
     void FoundStation(QString Station, QString CurrentChannel);
     void ScanStopped();
     void ScanProgress(int Progress);
-    void SpectrumUpdated(qreal Ymax, qreal Xmin, qreal Xmax, QVector<QPointF> Data);
     void showErrorMessage(QString Text);
     void showInfoMessage(QString Text);
 #endif
 
 public slots:
     // This slots are called from the backend
-    void addtoEnsemble(quint32 SId, const QString &Station);
-    void nameofEnsemble(int id, const QString&v);
-    void changeinConfiguration(void);
-    void displayDateTime(int* DateTime);
-    void show_ficSuccess(bool isFICCRC);
-    void show_snr(int SNR);
-    void set_fineCorrectorDisplay(int FineFrequencyCorr);
-    void set_coarseCorrectorDisplay(int CoarseFreuqencyCorr);
-    void setSynced(char isSync);
-    void setSignalPresent(bool isSignal);
-    void newAudio(int SampleRate);
-    void setStereo(bool isStereo);
-    void show_frameErrors(int FrameErrors);
-    void show_rsErrors(int RSErrors);
-    void show_aacErrors(int AACErrors);
-    void showLabel(QString Label);
-    void showMOT(QByteArray Data, int Subtype, QString s);
+    void nameofEnsemble(const QString&v);
     void onEventLoopStarted(void);
     void setErrorMessage(QString Text);
+    /* head will be translated, text will be left untranslated */
+    void setErrorMessage(const std::string& head, const std::string& text = "");
     void setInfoMessage(QString Text);
 };
 

@@ -28,50 +28,31 @@
  */
 
 #include <cstring>
-#include <QDebug>
+#include <iostream>
 
 #include "mp4processor.h"
-#include "CRadioController.h"
 #include "charsets.h"
 #include "MathHelper.h"
 
 /**
- * \class mp4Processor is the main handler for the aac frames
+ * \class Mp4Processor is the main handler for the aac frames
  * the class proper processes input and extracts the aac frames
  * that are processed by the "faadDecoder" class
  */
-mp4Processor::mp4Processor(
-        CRadioController *mr,
+Mp4Processor::Mp4Processor(
+        ProgrammeHandlerInterface& phi,
         int16_t bitRate,
-        std::shared_ptr<RingBuffer<int16_t>> b) :
-    the_rsDecoder(8, 0435, 0, 1, 10),
-    aacDecoder(b)
+        const std::string& mscFileName) :
+    myInterface(phi),
+    rsDecoder(8, 0435, 0, 1, 10),
+    padDecoder(this, true)
 {
-
-    myRadioInterface    = mr;
-    connect (this, SIGNAL (show_frameErrors (int)),
-            mr, SLOT (show_frameErrors (int)));
-    connect (this, SIGNAL (show_rsErrors (int)),
-            mr, SLOT (show_rsErrors (int)));
-    connect (this, SIGNAL (show_aacErrors (int)),
-            mr, SLOT (show_aacErrors (int)));
-    connect (this, SIGNAL (isStereo (bool)),
-            mr, SLOT (setStereo (bool)));
-    connect (this, SIGNAL (setSampleRate (int)),
-            mr, SLOT (newAudio (int)));
-
     // Open a MSC file (XPADxpert) if the user defined it
-    QString MscFileName_tmp = myRadioInterface->GetMscFileName();
-    if(!MscFileName_tmp.isEmpty())
-    {
-        qDebug() << "mp4processor:" <<  "Enabled writing of MSC data to the file: " << MscFileName_tmp;
-
-        MscFileName = new QByteArray(MscFileName_tmp.toLocal8Bit());
-        MscFile = fopen(MscFileName->data(), "wb");  // w for write, b for binary
-    }
-    else
-    {
-        MscFile = nullptr;
+    if (!mscFileName.empty()) {
+        FILE* fd = fopen(mscFileName.c_str(), "wb");  // w for write, b for binary
+        if (fd != nullptr) {
+            mscFile.reset(fd);
+        }
     }
 
     this->bitRate  = bitRate;  // input rate
@@ -92,14 +73,20 @@ mp4Processor::mp4Processor(
     //  error display
     au_count    = 0;
     au_errors   = 0;
-    padDecoderAdapter = std::make_unique<PADDecoderAdapter>(mr);
-    aacAudioMode = AACAudioMode::Unknown;
 }
 
-mp4Processor::~mp4Processor()
+void Mp4Processor::PADChangeDynamicLabel(const DL_STATE& dl)
 {
-    fclose(MscFile);
-    delete MscFileName;
+    myInterface.onNewDynamicLabel(
+            toUtf8StringUsingCharset(
+                (const char *)&dl.raw[0],
+                (CharacterSet) dl.charset,
+                dl.raw.size()));
+}
+
+void Mp4Processor::PADChangeSlide(const MOT_FILE& slide)
+{
+    myInterface.onMOT(slide.data, slide.content_sub_type);
 }
 
 /**
@@ -112,7 +99,7 @@ mp4Processor::~mp4Processor()
  * per Byte, nbits is the number of Bits (i.e. containing bytes)
  * the function adds nbits bits, packed in bytes, to the frame
  */
-void mp4Processor::addtoFrame(uint8_t *V)
+void Mp4Processor::addtoFrame(uint8_t *V)
 {
     int16_t i, j;
     uint8_t temp    = 0;
@@ -136,7 +123,7 @@ void mp4Processor::addtoFrame(uint8_t *V)
         /// first, we show the "successrate"
         if (++frameCount >= 25) {
             frameCount = 0;
-            show_frameErrors (frameErrors);
+            myInterface.onFrameErrors(frameErrors);
             frameErrors = 0;
         }
 
@@ -146,13 +133,13 @@ void mp4Processor::addtoFrame(uint8_t *V)
          * and adjust the buffer here for the next round
          */
         if (fc.check (&frameBytes[blockFillIndex * nbits / 8]) &&
-                (processSuperframe (frameBytes.data(),
+                (processSuperframe(frameBytes.data(),
                                     blockFillIndex * nbits / 8))) {
             //  since we processed a full cycle of 5 blocks, we just start a
             //  new sequence, beginning with block blockFillIndex
             blocksInBuffer    = 0;
             if (++successFrames > 25) {
-                show_rsErrors (rsErrors);
+                myInterface.onRsErrors(rsErrors);
                 successFrames  = 0;
                 rsErrors   = 0;
             }
@@ -173,7 +160,7 @@ void mp4Processor::addtoFrame(uint8_t *V)
  * First, we know the firecode checker gave green light
  * We correct the errors using RS
  */
-bool mp4Processor::processSuperframe(uint8_t frameBytes[], int16_t base)
+bool Mp4Processor::processSuperframe(uint8_t frameBytes[], int16_t base)
 {
     uint8_t     num_aus;
     int16_t     i, j, k;
@@ -196,7 +183,7 @@ bool mp4Processor::processSuperframe(uint8_t frameBytes[], int16_t base)
         for (k = 0; k < 120; k ++) {
             rsIn[k] = frameBytes[(base + j + k * RSDims) % (RSDims * 120)];
         }
-        ler = the_rsDecoder. dec (rsIn, rsOut, 135);
+        ler = rsDecoder.dec(rsIn, rsOut, 135);
         if (ler < 0) {
             rsErrors ++;
             return false;
@@ -208,8 +195,9 @@ bool mp4Processor::processSuperframe(uint8_t frameBytes[], int16_t base)
     }
 
     // MSC file
-    if(MscFile)
-        fwrite(outVector.data(), outVector.size(), 1, MscFile);
+    if (mscFile) {
+        fwrite(outVector.data(), outVector.size(), 1, mscFile.get());
+    }
 
     //  bits 0 .. 15 is firecode
     //  bit 16 is unused
@@ -284,7 +272,7 @@ bool mp4Processor::processSuperframe(uint8_t frameBytes[], int16_t base)
         //  but first the crc check
         if (check_crc_bytes (&outVector[au_start[i]], aac_frame_length)) {
             bool err;
-            handle_aacFrame (&outVector[au_start[i]],
+            handleAacFrame(&outVector[au_start[i]],
                     aac_frame_length,
                     dacRate,
                     sbrFlag,
@@ -296,76 +284,80 @@ bool mp4Processor::processSuperframe(uint8_t frameBytes[], int16_t base)
             }
 
             if (++aacFrames > 25) {
-                show_aacErrors (aacErrors);
+                myInterface.onAacErrors(aacErrors);
                 aacErrors  = 0;
                 aacFrames  = 0;
             }
         }
         else {
-            qDebug() << "mp4processor:" <<  "CRC failure with dab+ frame" << i << "(" << num_aus << ")";
+            std::clog << "Mp4processor:" <<  "CRC failure with dab+ frame" << i << "(" << num_aus << ")" << std::endl;
         }
     }
     return true;
 }
 
-void  mp4Processor::handle_aacFrame(
+void Mp4Processor::handleAacFrame(
         uint8_t *v,
         int16_t frame_length,
-        uint8_t  dacRate,
-        uint8_t  sbrFlag,
-        uint8_t  mpegSurround,
-        uint8_t  aacChannelMode,
+        uint8_t dacRate,
+        uint8_t sbrFlag,
+        uint8_t mpegSurround,
+        uint8_t aacChannelMode,
         bool *error)
 {
     bool isParametricStereo = false;
     uint32_t sampleRate = 0;
-    uint8_t theAudioUnit[2 * 960 + 10];    // sure, large enough
 
-    memcpy (theAudioUnit, v, frame_length);
-    memset (&theAudioUnit[frame_length], 0, 10);
+    if (((v[0] >> 5) & 07) == 4) {
+        processPAD(v);
+    }
 
-    if (((theAudioUnit[0] >> 5) & 07) == 4)
-        padDecoderAdapter-> processPAD_DABPlus(theAudioUnit);
-
-    int tmp = aacDecoder. MP42PCM (dacRate,
+    auto audio = aacDecoder.MP42PCM(dacRate,
             sbrFlag,
             mpegSurround,
             aacChannelMode,
-            theAudioUnit,
+            v,
             frame_length,
             &sampleRate,
             &isParametricStereo);
-    *error  = tmp == 0;
 
-    AACAudioMode aacAudioMode_tmp = AACAudioMode::Unknown;
-    setSampleRate(sampleRate);
-
-    if(aacChannelMode == 0 && isParametricStereo == true) // Parametric stereo
-        aacAudioMode_tmp = AACAudioMode::ParametricStereo;
-    else if(aacChannelMode == 1) // Stereo
-        aacAudioMode_tmp = AACAudioMode::Stereo;
-    else if(aacChannelMode == 0) // Mono
-        aacAudioMode_tmp = AACAudioMode::Mono;
-
-    if(aacAudioMode != aacAudioMode_tmp)
-    {
-        aacAudioMode = aacAudioMode_tmp;
-        switch(aacAudioMode)
-        {
-        case AACAudioMode::Mono:
-            qDebug() << "mp4processor:" <<  "Detected mono audio signal";
-            emit isStereo (false);
-            break;
-        case AACAudioMode::Stereo:
-            qDebug() << "mp4processor:" <<  "Detected stereo audio signal";
-            emit isStereo (true);
-            break;
-        case AACAudioMode::ParametricStereo:
-            qDebug() << "mp4processor:" <<  "Detected parametric stereo audio signal";
-            emit isStereo (true);
-            break;
-        default: qDebug() << "mp4processor:" <<  "Unknown audio mode";
-        }
+    if (error) {
+        *error = audio.empty();
     }
+
+    bool stereo = false;
+    std::string aac_mode = "unknown";
+    if (aacChannelMode == 0 && isParametricStereo == true) { // Parametric stereo
+        aac_mode = "HE-AACv2";
+        stereo = true;
+    }
+    else if (sbrFlag) { // Stereo
+        aac_mode = "HE-AAC";
+        stereo = true;
+    }
+    else {
+        aac_mode = "AAC-LC";
+    }
+
+    myInterface.onNewAudio(move(audio), sampleRate, stereo, aac_mode);
+}
+
+void Mp4Processor::processPAD(const uint8_t *data)
+{
+    // Get PAD length
+    uint8_t pad_start = 2;
+    uint8_t pad_len = data[1];
+    if (pad_len == 255) {
+        pad_len += data[2];
+        pad_start++;
+    }
+
+    // Adapt to PADDecoder
+    uint8_t FPAD_LEN = 2;
+    size_t xpad_len = pad_len - FPAD_LEN;
+    const uint8_t *fpad = data + pad_start + pad_len - FPAD_LEN;
+
+    // Run PADDecoder
+    padDecoder.Process(data + pad_start, xpad_len, true, fpad);
 }
 

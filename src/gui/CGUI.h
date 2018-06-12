@@ -33,6 +33,13 @@
 #include <QQmlContext>
 #include <QTimer>
 #include <QQmlApplicationEngine>
+
+#define QT_NO_SYSTEMTRAYICON 1
+
+#ifndef QT_NO_SYSTEMTRAYICON
+    #include <QSystemTrayIcon>
+#endif
+
 //#include <QList>
 #include <QtCharts>
 using namespace QtCharts;
@@ -43,7 +50,7 @@ using namespace QtCharts;
 #include "CRadioController.h"
 #endif
 #include "CMOTImageProvider.h"
-#include "DabConstants.h"
+#include "dab-constants.h"
 
 /*
  *	GThe main gui object. It inherits from
@@ -76,7 +83,14 @@ public:
     Q_INVOKABLE void inputGainChanged(double gain);
     Q_INVOKABLE void clearStationList(void);
     Q_INVOKABLE void registerSpectrumSeries(QAbstractSeries* series);
-    Q_INVOKABLE void setPlotType(int PlotType);
+    Q_INVOKABLE void registerImpulseResonseSeries(QAbstractSeries* series);
+    Q_INVOKABLE void registerNullSymbolSeries(QAbstractSeries* series);
+    Q_INVOKABLE void registerConstellationSeries(QAbstractSeries* series);
+    Q_INVOKABLE void tryHideWindow(void);
+    Q_INVOKABLE void updateSpectrum();
+    Q_INVOKABLE void updateImpulseResponse();
+    Q_INVOKABLE void updateNullSymbol();
+    Q_INVOKABLE void updateConstellation();
 
     QVariantMap guiData() const
     {
@@ -97,7 +111,17 @@ private:
     CRadioController *RadioController;
 #endif
 
-    QXYSeries* spectrum_series;
+    QXYSeries* spectrumSeries;
+    QVector<QPointF> spectrumSeriesData;
+
+    QXYSeries* impulseResponseSeries;
+    QVector<QPointF> impulseResponseSeriesData;
+
+    QXYSeries* nullSymbolSeries;
+    QVector<QPointF> nullSymbolSeriesData;
+
+    QXYSeries* constellationSeries;
+    QVector<QPointF> constellationSeriesData;
 
     const QVariantMap licenses();
 
@@ -105,9 +129,18 @@ private:
 
     float m_currentGainValue;
 
+#ifndef QT_NO_SYSTEMTRAYICON
+    QAction *minimizeAction;
+    QAction *maximizeAction;
+    QAction *restoreAction;
+    QAction *quitAction;
+
+    QSystemTrayIcon *trayIcon;
+    QMenu *trayIconMenu;
+#endif
+
 public slots:
     void close();
-    void updateSpectrum();
 
 private slots:
 #ifdef Q_OS_ANDROID
@@ -115,8 +148,9 @@ private slots:
 #endif
     void DeviceClosed();
     void MOTUpdate(QImage MOTImage);
-    void SpectrumUpdate(qreal Ymax, qreal Xmin, qreal Xmax, QVector<QPointF> Data);
     void StationsChange(QList<StationElement *> Stations);
+    void showErrorMessage(QString Text);
+    void showInfoMessage(QString Text);
 
 signals:
     void channelScanStopped(void);
@@ -125,12 +159,20 @@ signals:
 
     void currentGainValueChanged();
 
-    void setYAxisMax(qreal max);
-    void setXAxisMinMax(qreal min, qreal max);
+    void setSpectrumAxis(qreal Ymax, qreal Xmin, qreal Xmax);
+    void setImpulseResponseAxis(qreal Ymax, qreal Xmin, qreal Xmax);
+    void setNullSymbolAxis(qreal Ymax, qreal Xmin, qreal Xmax);
+    void setConstellationAxis(qreal Xmin, qreal Xmax);
 
     void guiDataChanged(QVariantMap guiData);
     void stationModelChanged();
     void motChanged(void);
+
+#ifndef QT_NO_SYSTEMTRAYICON
+    void minimizeWindow(void);
+    void maximizeWindow(void);
+    void restoreWindow(void);
+#endif
 };
 
 #endif

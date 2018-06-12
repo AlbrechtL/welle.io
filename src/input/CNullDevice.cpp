@@ -30,9 +30,14 @@ CNullDevice::CNullDevice()
 
 }
 
-void CNullDevice::setFrequency(int32_t Frequency)
+void CNullDevice::setFrequency(int Frequency)
 {
     (void) Frequency;
+}
+
+int CNullDevice::getFrequency(void) const
+{
+    return 0;
 }
 
 bool CNullDevice::restart()
@@ -52,16 +57,16 @@ void CNullDevice::reset()
 
 int32_t CNullDevice::getSamples(DSPCOMPLEX *Buffer, int32_t Size)
 {
-    memset(Buffer, 0, Size * sizeof(DSPCOMPLEX));
+    memset((void*)Buffer, 0, Size * sizeof(DSPCOMPLEX));
 
     return Size;
 }
 
-int32_t CNullDevice::getSpectrumSamples(DSPCOMPLEX *Buffer, int32_t Size)
+std::vector<DSPCOMPLEX> CNullDevice::getSpectrumSamples(int size)
 {
-    memset(Buffer, 0, Size * sizeof(DSPCOMPLEX));
-
-    return Size;
+    std::vector<DSPCOMPLEX> sampleBuffer(size);
+    std::fill(sampleBuffer.begin(), sampleBuffer.end(), 0);
+    return sampleBuffer;
 }
 
 int32_t CNullDevice::getSamplesToRead()
@@ -69,14 +74,14 @@ int32_t CNullDevice::getSamplesToRead()
     return 0;
 }
 
-float CNullDevice::setGain(int32_t Gain)
+float CNullDevice::setGain(int Gain)
 {
     (void) Gain;
 
     return 0;
 }
 
-int32_t CNullDevice::getGainCount()
+int CNullDevice::getGainCount()
 {
     return 0;
 }
@@ -91,7 +96,7 @@ void CNullDevice::setHwAgc(bool hwAGC)
     (void) hwAGC;
 }
 
-QString CNullDevice::getName()
+std::string CNullDevice::getName()
 {
     return "Null device";
 }

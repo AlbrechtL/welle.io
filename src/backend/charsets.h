@@ -24,26 +24,28 @@
 #ifndef __CHARSETS_H
 #define __CHARSETS_H
 
-#include <QString>
+#include <cstdint>
+#include <string>
 
 /*
  * Codes assigned to character sets, as defined
  * in ETSI TS 101 756 v1.6.1, section 5.2.
  */
-typedef enum {
+enum class CharacterSet : uint8_t {
     EbuLatin = 0x00, // Complete EBU Latin based repertoire - see annex C
     UnicodeUcs2 = 0x06,
     UnicodeUtf8 = 0x0F
-} CharacterSet;
+};
 
 /**
- * Converts the null-terminated character string to QString, using a given character set.
+ * Converts the string from the given charset to a UTF-8
+ * encoded string.
  *
- * @param buffer    null-terminated buffer to convert
- * @param charset   character set used in buffer
- * @return converted QString
+ * If num_bytes is nonzero, the buffer must be zero
+ * terminated.
  */
-QString toQStringUsingCharset(const char* buffer, CharacterSet charset, int size = -1);
+std::string toUtf8StringUsingCharset(const void* buffer,
+        CharacterSet charset, size_t num_bytes = 0);
 
 #endif // CHARSETS_H
 

@@ -1,4 +1,7 @@
 /*
+ *    Copyright (C) 2018
+ *    Matthias P. Braendli (matthias.braendli@mpb.li)
+ *
  *    Copyright (C) 2013
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
  *    Lazy Chair Computing
@@ -21,7 +24,6 @@
  */
 
 #include "fic-handler.h"
-#include "CRadioController.h"
 #include "msc-handler.h"
 #include "protTables.h"
 
@@ -40,29 +42,24 @@ uint8_t PI_X [24] = {
 };
 
 /**
-  * \class ficHandler
+  * \class FicHandler
   *     We get in - through get_ficBlock - the FIC data
   *     in units of 768 bits.
   *     We follow the standard and apply conv coding and
   *     puncturing.
   *     The data is sent through to the fic processor
   */
-ficHandler::ficHandler(CRadioController *mr) :
-    viterbi(768),
+FicHandler::FicHandler(RadioControllerInterface& mr) :
+    Viterbi(768),
+    fibProcessor(mr),
+    myRadioInterface(mr),
     bitBuffer_out(768),
-    ofdm_input(2304),
-    fibProcessor(mr)
+    ofdm_input(2304)
 {
     int16_t i, j;
-    index        = 0;
-    BitsperBlock = 2 * 1536;
-    ficno        = 0;
-    ficBlocks    = 0;
-    ficMissed    = 0;
-    ficRatio     = 0;
     PI_15        = get_PCodes (15 - 1);
     PI_16        = get_PCodes (16 - 1);
-    memset (shiftRegister, 1, 9);
+    memset(shiftRegister, 1, 9);
 
     for (i = 0; i < 768; i ++) {
         PRBS [i] = shiftRegister[8] ^ shiftRegister[4];
@@ -72,9 +69,6 @@ ficHandler::ficHandler(CRadioController *mr) :
 
         shiftRegister[0] = PRBS[i];
     }
-
-    connect (this, SIGNAL (show_ficSuccess (bool)),
-            mr, SLOT (show_ficSuccess (bool)));
 }
 
 /**
@@ -89,7 +83,7 @@ ficHandler::ficHandler(CRadioController *mr) :
  * Note that Mode III is NOT supported
  */
 
-void ficHandler::setBitsperBlock(int16_t b)
+void FicHandler::setBitsperBlock(int16_t b)
 {
     if (  (b == 2 * 384) ||
           (b == 2 * 768) ||
@@ -114,7 +108,7 @@ void ficHandler::setBitsperBlock(int16_t b)
  * The function is called with a blkno. This should be 1, 2 or 3
  * for each time 2304 bits are in, we call process_ficInput
  */
-void ficHandler::process_ficBlock(int16_t *data, int16_t blkno)
+void FicHandler::process_ficBlock(int16_t *data, int16_t blkno)
 {
     int32_t i;
 
@@ -149,7 +143,7 @@ void ficHandler::process_ficBlock(int16_t *data, int16_t blkno)
  * In the next coding step, we will combine this function with the
  * one above
  */
-void ficHandler::process_ficInput(int16_t *ficblock, int16_t ficno)
+void FicHandler::process_ficInput(int16_t *ficblock, int16_t ficno)
 {
     int16_t input_counter = 0;
     int16_t i, k;
@@ -220,63 +214,30 @@ void ficHandler::process_ficInput(int16_t *ficblock, int16_t ficno)
      * each of the fib blocks is protected by a crc
      * (we know that there are three fib blocks each time we are here
      * we keep track of the successrate
-     * and show that per 100 fic blocks
      */
     for (i = ficno * 3; i < ficno * 3 + 3; i ++) {
         uint8_t *p = &bitBuffer_out[(i % 3) * 256];
-        if (!check_CRC_bits (p, 256)) {
-            show_ficSuccess (false);
+        const bool crcvalid = check_CRC_bits(p, 256);
+        myRadioInterface.onFIBDecodeSuccess(crcvalid, p);
+        if (!crcvalid) {
             continue;
         }
-        show_ficSuccess (true);
-        fibProtector.lock ();
-        fibProcessor.process_FIB (p, ficno);
-        fibProtector.unlock ();
+        fibProcessor.process_FIB(p, ficno);
     }
-    //  fibProcessor.printActions (ficno);
 }
 
-void ficHandler::clearEnsemble()
+void FicHandler::clearEnsemble()
 {
-    fibProtector.lock ();
-    fibProcessor.clearEnsemble ();
-    fibProtector.unlock ();
+    fibProcessor.clearEnsemble();
 }
 
-uint8_t ficHandler::kindofService(QString &s)
-{
-    uint8_t result;
-    fibProtector.lock ();
-    result  = fibProcessor.kindofService (s);
-    fibProtector.unlock ();
-    return result;
-}
-
-void ficHandler::dataforAudioService (QString &s, audiodata *d)
-{
-    fibProtector.lock ();
-    fibProcessor.dataforAudioService (s, d);
-    fibProtector.unlock ();
-}
-
-void ficHandler::dataforDataService  (QString &s, packetdata *d)
-{
-    fibProtector.lock ();
-    fibProcessor.dataforDataService (s, d);
-    fibProtector.unlock ();
-}
-
-int16_t ficHandler::get_ficRatio()
+int16_t FicHandler::get_ficRatio()
 {
     return ficRatio;
 }
 
-bool ficHandler::syncReached()
+bool FicHandler::syncReached()
 {
-    bool result;
-    fibProtector.lock ();
-    result = fibProcessor.syncReached ();
-    fibProtector.unlock ();
-    return result;
+    return fibProcessor.syncReached();
 }
 

@@ -15,6 +15,7 @@ class CRadioController
     PROP(bool isDAB READONLY);
     PROP(int SNR READONLY);
     PROP(int FrequencyCorrection READONLY);
+    PROP(float FrequencyCorrectionPpm READONLY);
     PROP(int BitRate READONLY);
     PROP(int AudioSampleRate READONLY);
     PROP(int FrameErrors READONLY);
