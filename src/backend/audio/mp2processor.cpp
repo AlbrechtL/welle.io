@@ -256,11 +256,16 @@ Mp2Processor::Mp2Processor(
 
 void Mp2Processor::PADChangeDynamicLabel(const DL_STATE& dl)
 {
-    myInterface.onNewDynamicLabel(
-            toUtf8StringUsingCharset(
-                &dl.raw[0],
-                (CharacterSet)dl.charset,
-                dl.raw.size()));
+    if (dl.raw.empty()) {
+        myInterface.onNewDynamicLabel("");
+    }
+    else {
+        myInterface.onNewDynamicLabel(
+                toUtf8StringUsingCharset(
+                    dl.raw.data(),
+                    (CharacterSet)dl.charset,
+                    dl.raw.size()));
+    }
 }
 
 void Mp2Processor::PADChangeSlide(const MOT_FILE& slide)

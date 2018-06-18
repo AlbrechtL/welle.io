@@ -70,6 +70,9 @@ static const uint16_t ebuLatinToUcs2[] = {
 std::string toUtf8StringUsingCharset(const void* buffer,
         CharacterSet charset, size_t num_bytes)
 {
+    if (buffer == nullptr) {
+        throw std::logic_error("Cannot convert charset of empty buffer");
+    }
 
     switch (charset) {
         case CharacterSet::UnicodeUcs2:

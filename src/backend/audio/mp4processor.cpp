@@ -77,11 +77,16 @@ Mp4Processor::Mp4Processor(
 
 void Mp4Processor::PADChangeDynamicLabel(const DL_STATE& dl)
 {
-    myInterface.onNewDynamicLabel(
-            toUtf8StringUsingCharset(
-                (const char *)&dl.raw[0],
-                (CharacterSet) dl.charset,
-                dl.raw.size()));
+    if (dl.raw.empty()) {
+        myInterface.onNewDynamicLabel("");
+    }
+    else {
+        myInterface.onNewDynamicLabel(
+                toUtf8StringUsingCharset(
+                    dl.raw.data(),
+                    (CharacterSet)dl.charset,
+                    dl.raw.size()));
+    }
 }
 
 void Mp4Processor::PADChangeSlide(const MOT_FILE& slide)
