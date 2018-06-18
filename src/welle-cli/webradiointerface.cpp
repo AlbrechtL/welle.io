@@ -369,7 +369,7 @@ void WebRadioInterface::retune(const std::string& channel)
     {
         cerr << "Restart RX" << endl;
         lock_guard<mutex> lock(rx_mut);
-        rx = make_unique<RadioReceiver>(*this, input);
+        rx = make_unique<RadioReceiver>(*this, input, 0);
 
         if (not rx) {
             throw runtime_error("Could not initialise WebRadioInterface");
@@ -956,7 +956,7 @@ WebRadioInterface::WebRadioInterface(CVirtualInput& in,
     }
 
     if (success) {
-        rx = make_unique<RadioReceiver>(*this, in);
+        rx = make_unique<RadioReceiver>(*this, in, 0);
     }
 
     if (not rx) {

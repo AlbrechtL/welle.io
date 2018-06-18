@@ -394,7 +394,7 @@ int main(int argc, char **argv)
         wri.serve();
     }
     else {
-        RadioReceiver rx(ri, *in);
+        RadioReceiver rx(ri, *in, 0);
 
         rx.restart(false);
 
