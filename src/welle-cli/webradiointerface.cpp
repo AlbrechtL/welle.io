@@ -172,6 +172,8 @@ bool WebRadioInterface::dispatch_client(Socket&& client)
 {
     Socket s(move(client));
 
+    bool success = false;
+
     vector<char> buf(1025);
     if (not s.valid()) {
         cerr << "socket in dispatcher not valid!" << endl;
@@ -201,53 +203,55 @@ bool WebRadioInterface::dispatch_client(Socket&& client)
         string request(buf.begin(), buf.end());
 
         if (request.find("GET / HTTP") == 0) {
-            return send_index(s);
+            success = send_index(s);
         }
         else if (request.find("GET /mux.json HTTP") == 0) {
-            return send_mux_json(s);
+            success = send_mux_json(s);
         }
         else if (request.find("GET /fic HTTP") == 0) {
-            return send_fic(s);
+            success = send_fic(s);
         }
         else if (request.find("GET /impulseresponse HTTP") == 0) {
-            return send_impulseresponse(s);
+            success = send_impulseresponse(s);
         }
         else if (request.find("GET /spectrum HTTP") == 0) {
-            return send_spectrum(s);
+            success = send_spectrum(s);
         }
         else if (request.find("GET /constellation HTTP") == 0) {
-            return send_constellation(s);
+            success = send_constellation(s);
         }
         else if (request.find("GET /nullspectrum HTTP") == 0) {
-            return send_null_spectrum(s);
+            success = send_null_spectrum(s);
         }
         else if (request.find("GET /channel HTTP") == 0) {
-            return send_channel(s);
+            success = send_channel(s);
         }
         else if (request.find("POST /channel HTTP") == 0) {
-            return handle_channel_post(s, request);
+            success = handle_channel_post(s, request);
         }
         else {
             const regex regex_mp3(R"(^GET [/]mp3[/]([^ ]+) HTTP)");
             std::smatch match_mp3;
             if (regex_search(request, match_mp3, regex_mp3)) {
-                return send_mp3(s, match_mp3[1]);
+                success = send_mp3(s, match_mp3[1]);
             }
             else {
                 cerr << "Could not understand request " << request << endl;
             }
         }
 
-    }
+        if (not success) {
+            string headers = http_404;
+            headers += http_contenttype_text;
+            headers += http_nocache;
+            headers += "\r\n";
+            headers += "404 Not Found\r\n";
+            headers += "Could not understand request.\r\n";
+            s.send(headers.data(), headers.size(), MSG_NOSIGNAL);
+        }
 
-    string headers = http_404;
-    headers += http_contenttype_text;
-    headers += http_nocache;
-    headers += "\r\n";
-    headers += "404 Not Found\r\n";
-    headers += "Sorry\r\n";
-    s.send(headers.data(), headers.size(), MSG_NOSIGNAL);
-    return false;
+        return success;
+    }
 }
 
 bool WebRadioInterface::send_index(Socket& s)
@@ -277,6 +281,14 @@ bool WebRadioInterface::send_index(Socket& s)
         } while (ret > 0);
 
         fclose(fd);
+        return true;
+    }
+    else {
+        string headers = http_500;
+        headers += http_contenttype_text;
+        headers += http_nocache;
+        headers += "\r\n";
+        headers += "index.html file is missing!";
         return true;
     }
     return false;
