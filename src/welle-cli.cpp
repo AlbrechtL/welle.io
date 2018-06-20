@@ -188,7 +188,27 @@ class RadioInterface : public RadioControllerInterface {
             cout << j << endl;
         }
 
-        virtual void onFIBDecodeSuccess(bool crcCheckOk, const uint8_t* fib) override { (void)crcCheckOk; (void)fib; }
+        virtual void onFIBDecodeSuccess(bool crcCheckOk, const uint8_t* fib) override {
+            if (fic_fd) {
+                if (not crcCheckOk) {
+                    return;
+                }
+
+                // convert bitvector to byte vector
+                vector<uint8_t> buf(32);
+                for (size_t i = 0; i < buf.size(); i++) {
+                    uint8_t v = 0;
+                    for (int j = 0; j < 8; j++) {
+                        if (fib[8*i+j]) {
+                            v |= 1 << (7-j);
+                        }
+                    }
+                    buf[i] = v;
+                }
+
+                fwrite(buf.data(), buf.size(), sizeof(buf[0]), fic_fd);
+            }
+        }
         virtual void onNewImpulseResponse(std::vector<float>&& data) override { (void)data; }
         virtual void onNewNullSymbol(std::vector<DSPCOMPLEX>&& data) override { (void)data; }
         virtual void onConstellationPoints(std::vector<DSPCOMPLEX>&& data) override { (void)data; }
@@ -218,6 +238,7 @@ class RadioInterface : public RadioControllerInterface {
         }
 
         bool synced = false;
+        FILE* fic_fd = nullptr;
 };
 
 struct options_t {
@@ -244,7 +265,7 @@ static void usage()
         " welle-cli -f file -p programme" << endl <<
         endl <<
 #endif // defined(HAVE_ALSA)
-        "Use -D to dump all programmes to files." << endl <<
+        "Use -D to dump FIC and all programmes to files." << endl <<
         " welle-cli -c channel -D " << endl <<
         endl <<
         "Use -w to enable webserver, decode a programmes on demand." << endl <<
@@ -395,6 +416,13 @@ int main(int argc, char **argv)
     }
     else {
         RadioReceiver rx(ri, *in, 0);
+        if (options.decode_all_programmes) {
+            FILE* fic_fd = fopen("dump.fic", "w");
+
+            if (fic_fd) {
+                ri.fic_fd = fic_fd;
+            }
+        }
 
         rx.restart(false);
 
@@ -496,6 +524,12 @@ int main(int argc, char **argv)
             cerr << "Nothing to do, not ALSA support." << endl;
 #endif // defined(HAVE_ALSA)
         }
+    }
+
+    if (ri.fic_fd) {
+        FILE* fd = ri.fic_fd;
+        ri.fic_fd = nullptr;
+        fclose(fd);
     }
 
     return 0;
