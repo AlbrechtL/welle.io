@@ -37,6 +37,9 @@
 
 using namespace std;
 
+constexpr bool decodeTII = true;
+constexpr int prsThreshold = 0; // Use the new time sync method
+
 static const char* http_ok = "HTTP/1.0 200 OK\r\n";
 static const char* http_404 = "HTTP/1.0 404 Not Found\r\n";
 static const char* http_500 = "HTTP/1.0 500 Internal Server Error\r\n";
@@ -155,7 +158,7 @@ void WebRadioInterface::retune(const std::string& channel)
     {
         cerr << "Restart RX" << endl;
         lock_guard<mutex> lock(rx_mut);
-        rx = make_unique<RadioReceiver>(*this, input, 0);
+        rx = make_unique<RadioReceiver>(*this, input, prsThreshold, decodeTII);
 
         if (not rx) {
             throw runtime_error("Could not initialise WebRadioInterface");
@@ -748,7 +751,7 @@ WebRadioInterface::WebRadioInterface(CVirtualInput& in,
     }
 
     if (success) {
-        rx = make_unique<RadioReceiver>(*this, in, 0);
+        rx = make_unique<RadioReceiver>(*this, in, prsThreshold, decodeTII);
     }
 
     if (not rx) {

@@ -166,7 +166,7 @@ int32_t PhaseReference::findIndex(DSPCOMPLEX *v,
 
         // Keep only bins that are not too far from highest peak
         const int peak_index = bins.front().index;
-        constexpr int max_subpeak_distance = 200;
+        constexpr int max_subpeak_distance = 100;
         bins.erase(
             remove_if(bins.begin(), bins.end(),
                     [&](const peak_t& p) {

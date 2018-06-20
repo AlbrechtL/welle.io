@@ -65,6 +65,7 @@ class OFDMProcessor
                 MscHandler& msc,
                 FicHandler& fic,
                 int16_t threshold,
+                bool decodeTII = false,
                 FreqsyncMethod freqsyncMethod = FreqsyncMethod::PatternOfZeros);
         ~OFDMProcessor(void);
         void reset(void);
@@ -82,6 +83,7 @@ class OFDMProcessor
         const DABParams& params;
         FicHandler& ficHandler;
         std::vector<float> impulseResponseBuffer;
+        bool decodeTII;
         TIIDecoder tiiDecoder;
 
         std::atomic<bool> running;

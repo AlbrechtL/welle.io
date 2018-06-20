@@ -45,7 +45,8 @@ class RadioReceiver {
         RadioReceiver(
                 RadioControllerInterface& rci,
                 InputInterface& input,
-                int ofdmProcessorThreshold = 3);
+                int ofdmProcessorThreshold = 3,
+                bool decodeTII = false);
 
         /* Restart the receiver, and specify if we want
          * to scan or receive. */

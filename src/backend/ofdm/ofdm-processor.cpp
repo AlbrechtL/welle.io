@@ -57,11 +57,13 @@ OFDMProcessor::OFDMProcessor(
         MscHandler& msc,
         FicHandler& fic,
         int16_t threshold,
+        bool decodeTII,
         FreqsyncMethod freqsyncMethod) :
     radioInterface(ri),
     input(inputInterface),
     params(params),
     ficHandler(fic),
+    decodeTII(decodeTII),
     tiiDecoder(params, ri),
     phaseRef(params, threshold),
     ofdmDecoder(params, ri, fic, msc),
@@ -428,7 +430,9 @@ SyncOnPhase:
         // The NULL is interesting to save because it carries the TII.
         std::vector<DSPCOMPLEX> nullSymbol(T_null);
         getSamples(nullSymbol.data(), T_null, coarseCorrector + fineCorrector);
-        tiiDecoder.pushSymbols(nullSymbol, prs);
+        if (decodeTII) {
+            tiiDecoder.pushSymbols(nullSymbol, prs);
+        }
         radioInterface.onNewNullSymbol(std::move(nullSymbol));
 
         /**
