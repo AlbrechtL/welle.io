@@ -322,7 +322,7 @@ options_t parse_cmdline(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
-    cerr << "Hello this is welle-cli" << endl;
+    cerr << "Hello this is welle-cli " << GITDESCRIBE << endl;
     auto options = parse_cmdline(argc, argv);
 
     RadioInterface ri;

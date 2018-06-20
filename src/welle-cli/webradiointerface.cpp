@@ -282,6 +282,12 @@ bool WebRadioInterface::send_index(Socket& s)
 bool WebRadioInterface::send_mux_json(Socket& s)
 {
     nlohmann::json j;
+
+    j["receiver"]["software"] = "welle.io";
+    j["receiver"]["version"] = GITDESCRIBE;
+    j["receiver"]["hardware"]["name"] = input.getName();
+    j["receiver"]["hardware"]["gain"] = input.getGain();
+
     {
         lock_guard<mutex> lock(rx_mut);
         const auto ensembleLabel = rx->getEnsembleLabel();

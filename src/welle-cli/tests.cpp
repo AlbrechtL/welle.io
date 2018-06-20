@@ -97,6 +97,9 @@ class ChannelSimulator : public CVirtualInput
         virtual int32_t getSamplesToRead(void)
             { return parentInput->getSamplesToRead(); }
 
+        virtual float getGain() const
+            { return parentInput->getGain(); }
+
         virtual float setGain(int gain)
             { return parentInput->setGain(gain); }
 

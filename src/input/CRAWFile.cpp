@@ -113,6 +113,11 @@ void CRAWFile::rewind()
     }
 }
 
+float CRAWFile::getGain() const
+{
+    return 0;
+}
+
 float CRAWFile::setGain(int Gain)
 {
     (void)Gain;

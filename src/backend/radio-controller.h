@@ -164,6 +164,7 @@ class InputInterface {
         virtual std::vector<DSPCOMPLEX> getSpectrumSamples(int size) = 0;
         virtual int32_t getSamplesToRead(void) = 0;
         virtual float setGain(int gain) = 0;
+        virtual float getGain(void) const = 0;
         virtual int getGainCount(void) = 0;
         virtual void setAgc(bool agc) = 0;
         virtual void setHwAgc(bool hwAGC) = 0;

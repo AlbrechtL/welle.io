@@ -62,6 +62,7 @@ public:
     int32_t getSamplesToRead(void);
     void setFrequency(int Frequency);
     int getFrequency(void) const;
+    float getGain(void) const;
     float setGain(int gain_index);
     int getGainCount(void);
     void setAgc(bool AGC);

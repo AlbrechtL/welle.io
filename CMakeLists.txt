@@ -157,6 +157,17 @@ if(GIT_COMMIT_HASH)
   add_definitions("-DGITHASH=\"${GIT_COMMIT_HASH}\"")
 endif()
 
+execute_process(
+  COMMAND git describe --tags --long
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+  OUTPUT_VARIABLE GIT_DESCRIBE
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+if(GIT_DESCRIBE)
+  add_definitions("-DGITDESCRIBE=\"${GIT_DESCRIBE}\"")
+endif()
+
 if(BUILD_WELLE_IO)
     set(executableName welle-io)
     add_executable (${executableName} ${welle_io_sources} ${backend_sources} ${input_sources} ${EXTRA_MOCS} resources.qrc)

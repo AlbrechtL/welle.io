@@ -61,6 +61,7 @@ public:
     void stop(void);
     void reset(void);
     void rewind(void);
+    float getGain(void) const;
     float setGain(int Gain);
     int getGainCount(void);
     void setAgc(bool AGC);

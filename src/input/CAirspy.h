@@ -55,6 +55,7 @@ public:
     int32_t getSamples(DSPCOMPLEX* Buffer, int32_t Size);
     std::vector<DSPCOMPLEX> getSpectrumSamples(int size);
     int32_t getSamplesToRead(void);
+    float getGain(void) const;
     float setGain(int gain);
     int getGainCount(void);
     void setAgc(bool AGC);

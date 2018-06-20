@@ -54,6 +54,7 @@ public:
     virtual std::vector<DSPCOMPLEX> getSpectrumSamples(int size);
     virtual int32_t getSamplesToRead(void);
     virtual float setGain(int gainIndex);
+    virtual float getGain(void) const;
     virtual int getGainCount(void);
     virtual void setAgc(bool AGC);
     virtual void setHwAgc(bool hwAGC);

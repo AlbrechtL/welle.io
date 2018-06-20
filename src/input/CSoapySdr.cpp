@@ -194,6 +194,17 @@ int32_t CSoapySdr::getSamplesToRead()
     return m_sampleBuffer.GetRingBufferReadAvailable();
 }
 
+float CSoapySdr::getGain() const
+{
+    if (m_device != nullptr) {
+        float g = m_device->getGain(SOAPY_SDR_RX, 0);
+        return g;
+    }
+    else {
+        return 0;
+    }
+}
+
 float CSoapySdr::setGain(int32_t gainIndex)
 {
     if (m_device != nullptr) {

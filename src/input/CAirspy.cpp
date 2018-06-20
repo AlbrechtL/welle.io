@@ -346,13 +346,16 @@ CDeviceID CAirspy::getID()
     return CDeviceID::AIRSPY;
 }
 
+float CAirspy::getGain() const
+{
+    return currentLinearityGain;
+}
+
 float CAirspy::setGain(int gain)
 {
-    int result = 0;
-
     currentLinearityGain = gain;
 
-    airspy_set_linearity_gain(device, currentLinearityGain);
+    int result = airspy_set_linearity_gain(device, currentLinearityGain);
     if (result != AIRSPY_SUCCESS)
         std::clog  << "Airspy:" <<"airspy_set_mixer_agc() failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")" << std::endl;
 

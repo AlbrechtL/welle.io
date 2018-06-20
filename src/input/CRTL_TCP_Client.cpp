@@ -293,6 +293,11 @@ void CRTL_TCP_Client::setGainMode(int32_t gainMode)
     sendCommand (0x03, gainMode);
 }
 
+float CRTL_TCP_Client::getGain() const
+{
+    return currentGain;
+}
+
 float CRTL_TCP_Client::setGain(int32_t gain)
 {
     currentGainCount = gain;

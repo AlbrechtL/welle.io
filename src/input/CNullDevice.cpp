@@ -74,6 +74,11 @@ int32_t CNullDevice::getSamplesToRead()
     return 0;
 }
 
+float CNullDevice::getGain() const
+{
+    return 0;
+}
+
 float CNullDevice::setGain(int Gain)
 {
     (void) Gain;
