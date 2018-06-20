@@ -30,6 +30,8 @@
  *
  */
 
+#pragma once
+
 #include <string>
 #include <cstddef>
 
