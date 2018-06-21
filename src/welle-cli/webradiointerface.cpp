@@ -66,6 +66,38 @@ static string to_hex(uint32_t value)
     return sidstream.str();
 }
 
+WebRadioInterface::WebRadioInterface(CVirtualInput& in, int port, DecodeStrategy ds) :
+    dabparams(1),
+    input(in),
+    spectrum_fft_handler(dabparams.T_u),
+    decode_strategy(ds)
+{
+    bool success = serverSocket.bind(port);
+    if (success) {
+        success = serverSocket.listen();
+    }
+
+    if (success) {
+        rx = make_unique<RadioReceiver>(*this, in, prsThreshold, decodeTII);
+    }
+
+    if (not rx) {
+        throw runtime_error("Could not initialise WebRadioInterface");
+    }
+
+    rx->restart(false);
+
+    programme_handler_thread = thread(&WebRadioInterface::handle_phs, this);
+}
+
+WebRadioInterface::~WebRadioInterface()
+{
+    running = false;
+    if (programme_handler_thread.joinable()) {
+        programme_handler_thread.join();
+    }
+}
+
 
 void WebRadioInterface::check_decoders_required()
 {
@@ -104,7 +136,6 @@ void WebRadioInterface::check_decoders_required()
                         " failed" << endl;
                 }
             }
-
         }
         catch (const out_of_range&) {
             cerr << "Cannot tune to 0x" << to_hex(s.serviceId) <<
@@ -793,17 +824,40 @@ void WebRadioInterface::handle_phs()
             }
         }
 
-        if (decode_strategy == DecodeStrategy::Carousel10 or
-            decode_strategy == DecodeStrategy::CarouselPAD) {
-            using namespace chrono;
-
+        using namespace chrono;
+        if (decode_strategy == DecodeStrategy::Carousel10) {
             if (current_carousel_service == 0) {
                 if (not serviceList.empty()) {
                     current_carousel_service = serviceList.front().serviceId;
                     time_carousel_change = steady_clock::now();
                 }
             }
-            else if (time_carousel_change + chrono::seconds(40) <
+            else if (time_carousel_change + chrono::seconds(10) <
+                    chrono::steady_clock::now()) {
+                auto current_it = phs.find(current_carousel_service);
+                if (current_it == phs.end()) {
+                    cerr << "Reset service decoder carousel! Cannot find service "
+                        << current_carousel_service << endl;
+                    current_carousel_service = 0;
+                }
+                else {
+                    // Rotate through phs
+                    if (++current_it == phs.end()) {
+                        current_it = phs.begin();
+                    }
+                    current_carousel_service = current_it->first;
+                }
+                time_carousel_change = steady_clock::now();
+            }
+        }
+        else if (decode_strategy == DecodeStrategy::CarouselPAD) {
+            if (current_carousel_service == 0) {
+                if (not serviceList.empty()) {
+                    current_carousel_service = serviceList.front().serviceId;
+                    time_carousel_change = steady_clock::now();
+                }
+            }
+            else if (time_carousel_change + chrono::seconds(5) <
                     chrono::steady_clock::now()) {
                 auto current_it = phs.find(current_carousel_service);
                 if (current_it == phs.end()) {
@@ -814,24 +868,20 @@ void WebRadioInterface::handle_phs()
                 }
                 else {
                     // Switch to next programme once both DLS and Slideshow
-                    // got decoded, but at most after 40 seconds
+                    // got decoded, but at most after 80 seconds
                     bool switchBecausePAD = false;
-                    if (decode_strategy == DecodeStrategy::CarouselPAD) {
-                        const auto now = system_clock::now();
-                        const auto mot = current_it->second.getMOT_base64();
-                        const auto dls = current_it->second.getDLS();
-                        // Slide and DLS received in the last 10 seconds?
-                        if ( (mot.time + seconds(10) > now and
-                              dls.time + seconds(10) > now)) {
-                            switchBecausePAD = true;
-                        }
+
+                    const auto now = system_clock::now();
+                    const auto mot = current_it->second.getMOT_base64();
+                    const auto dls = current_it->second.getDLS();
+                    // Slide and DLS received in the last 60 seconds?
+                    if ( (now - mot.time < seconds(60) and
+                          now - dls.time < seconds(60))) {
+                        switchBecausePAD = true;
                     }
 
-                    auto maxDuration = seconds(
-                            (decode_strategy == DecodeStrategy::CarouselPAD) ?
-                            80 : 10);
-
-                    if (switchBecausePAD or time_carousel_change + maxDuration < steady_clock::now()) {
+                    if (switchBecausePAD or
+                        time_carousel_change + seconds(80) < steady_clock::now()) {
                         // Rotate through phs
                         if (++current_it == phs.end()) {
                             current_it = phs.begin();
@@ -840,12 +890,10 @@ void WebRadioInterface::handle_phs()
                         time_carousel_change = steady_clock::now();
                     }
                 }
-                time_carousel_change = chrono::steady_clock::now();
             }
-
-            lock.unlock();
-            check_decoders_required();
         }
+        lock.unlock();
+        check_decoders_required();
     }
 }
 

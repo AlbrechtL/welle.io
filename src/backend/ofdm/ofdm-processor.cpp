@@ -468,7 +468,7 @@ void OFDMProcessor::reset()
         running = false;
         threadHandle.join ();
     }
-    start ();
+    start();
 }
 
 void OFDMProcessor::stop()
@@ -483,7 +483,7 @@ void OFDMProcessor::coarseCorrectorOn (void)
 
 void    OFDMProcessor::set_scanMode (bool b)
 {
-    scanMode    = b;
+    scanMode = b;
 }
 
 #define RANGE 36

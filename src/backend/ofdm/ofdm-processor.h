@@ -70,7 +70,6 @@ class OFDMProcessor
         ~OFDMProcessor(void);
         void reset(void);
         void stop(void);
-        void setOffset(int32_t);
         void coarseCorrectorOn(void);
         void set_scanMode(bool);
         void start(void);
