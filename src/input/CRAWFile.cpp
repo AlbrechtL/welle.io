@@ -60,7 +60,7 @@ CRAWFile::CRAWFile(RadioControllerInterface& radioController,
     fileFormat(CRAWFileFormat::Unknown),
     IQByteSize(1),
     SampleBuffer(INPUT_FRAMEBUFFERSIZE),
-    SpectrumSampleBuffer(8192)
+    SpectrumSampleBuffer(8*2048)
 {
 }
 
