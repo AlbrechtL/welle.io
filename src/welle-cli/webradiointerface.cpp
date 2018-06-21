@@ -191,7 +191,7 @@ bool WebRadioInterface::dispatch_client(Socket&& client)
     }
     else {
         while (true) {
-            unique_lock<mutex> lock(data_mut);
+            unique_lock<mutex> lock(rx_mut);
             if (rx) {
                 break;
             }
@@ -760,51 +760,17 @@ bool WebRadioInterface::handle_channel_post(Socket& s, const std::string& reques
     return false;
 }
 
-WebRadioInterface::WebRadioInterface(CVirtualInput& in,
-        int port, DecodeStrategy ds) :
-    dabparams(1),
-    input(in),
-    spectrum_fft_handler(dabparams.T_u),
-    decode_strategy(ds)
-{
-    bool success = serverSocket.bind(port);
-    if (success) {
-        success = serverSocket.listen();
-    }
-
-    if (success) {
-        rx = make_unique<RadioReceiver>(*this, in, prsThreshold, decodeTII);
-    }
-
-    if (not rx) {
-        throw runtime_error("Could not initialise WebRadioInterface");
-    }
-
-    rx->restart(false);
-
-    programme_handler_thread = thread(&WebRadioInterface::handle_phs, this);
-}
-
-WebRadioInterface::~WebRadioInterface()
-{
-    running = false;
-    if (programme_handler_thread.joinable()) {
-        programme_handler_thread.join();
-    }
-}
-
 void WebRadioInterface::handle_phs()
 {
     while (running) {
         this_thread::sleep_for(chrono::seconds(2));
-        {
-            lock_guard<mutex> lock_data(data_mut);
-            if (not rx) {
-                continue;
-            }
-        }
 
         unique_lock<mutex> lock(rx_mut);
+        if (not rx) {
+            lock.unlock();
+            continue;
+        }
+
         auto serviceList = rx->getServiceList();
         for (auto& s : serviceList) {
             if (phs.count(s.serviceId) == 0) {
