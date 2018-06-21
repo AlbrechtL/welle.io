@@ -56,7 +56,7 @@ button {
             <div id="tiiinfo"></div>
         </div>
         <div>
-            <audio id="player" controls>
+            <audio id="player">
                 <!--<source src="/mp3/0x4f57" type="audio/mpeg"> -->
             </audio>
         </div>
@@ -105,9 +105,12 @@ var ensembleInfoTimer = setInterval(populateEnsembleinfo, 1000);
 var plotTimer = setInterval(populatePlots, 480);
 
 function ensembleInfoTemplate() {
-    var html = '<p><b>${label}</b>(${shortlabel}) EId: ${EId} SNR: ${SNR}';
+    var html = '<p>';
+    html += ' <b>${label}</b>(${shortlabel}) EId: ${EId} SNR: ${SNR}';
     html += ' Freq corr: ${FrequencyCorrection}';
-    html += ' Date:${year}-${month}-${day} ${hour}:${minutes} UTC</p>';
+    html += ' Date:${year}-${month}-${day} ${hour}:${minutes} UTC';
+    html += ' <button type=button onclick="stopPlayer()">Stop</button>';
+    html += '</p>';
     html += '<table id="servicetable">'
     html += '<tr><th>Label</th> <th>SId</th> <th>bitrate</th> <th>SAd, CUs</th> <th>protection</th>';
     html += '<th>TMid, rate, channels</th>';
@@ -132,10 +135,19 @@ function tiiTemplate() {
     return html;
 }
 
-function setPlayerSource(sid) {
-    document.getElementById("player").src = "/mp3/" + sid;
+function playerLoad() {
     document.getElementById("player").load();
     document.getElementById("player").play();
+}
+
+function setPlayerSource(sid) {
+    document.getElementById("player").src = "/mp3/" + sid;
+    playerLoad();
+}
+
+function stopPlayer() {
+    document.getElementById("player").src = "";
+    playerLoad();
 }
 
 function parseTemplate(template, data) {
