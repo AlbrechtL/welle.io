@@ -94,6 +94,12 @@ void Mp4Processor::PADChangeSlide(const MOT_FILE& slide)
     myInterface.onMOT(slide.data, slide.content_sub_type);
 }
 
+void Mp4Processor::PADLengthError(size_t announced_xpad_len, size_t xpad_len)
+{
+    myInterface.onPADLengthError(announced_xpad_len, xpad_len);
+}
+
+
 /**
  * \brief addtoFrame
  *

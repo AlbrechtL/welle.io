@@ -273,6 +273,11 @@ void Mp2Processor::PADChangeSlide(const MOT_FILE& slide)
     myInterface.onMOT(slide.data, slide.content_sub_type);
 }
 
+void Mp2Processor::PADLengthError(size_t announced_xpad_len, size_t xpad_len)
+{
+    myInterface.onPADLengthError(announced_xpad_len, xpad_len);
+}
+
 #define valid(x)    ((x == 48000) || (x == 24000))
 void Mp2Processor::setSamplerate (int32_t rate)
 {

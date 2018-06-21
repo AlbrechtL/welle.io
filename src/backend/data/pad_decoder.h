@@ -175,6 +175,8 @@ public:
 
 	virtual void PADChangeDynamicLabel(const DL_STATE& /*dl*/) {};
 	virtual void PADChangeSlide(const MOT_FILE& /*slide*/) {};
+
+	virtual void PADLengthError(size_t /*announced_xpad_len*/, size_t /*xpad_len*/) {};
 };
 
 

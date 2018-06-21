@@ -134,6 +134,13 @@ WebProgrammeHandler::mot_t WebProgrammeHandler::getMOT_base64() const
     return mot;
 }
 
+WebProgrammeHandler::xpad_error_t WebProgrammeHandler::getXPADErrors() const
+{
+    std::unique_lock<std::mutex> lock(pad_mutex);
+    xpad_error_t r(xpad_error);
+    return r;
+}
+
 void WebProgrammeHandler::onFrameErrors(int frameErrors)
 {
     last_frameErrors = frameErrors;
@@ -240,5 +247,14 @@ void WebProgrammeHandler::onMOT(const std::vector<uint8_t>& data, int subtype)
     else {
         last_subtype = MOTType::Unknown;
     }
+}
+
+void WebProgrammeHandler::onPADLengthError(size_t announced_xpad_len, size_t xpad_len)
+{
+    std::unique_lock<std::mutex> lock(pad_mutex);
+    xpad_error.has_error = true;
+    xpad_error.time = chrono::system_clock::now();
+    xpad_error.announced_xpad_len = announced_xpad_len;
+    xpad_error.xpad_len = xpad_len;
 }
 

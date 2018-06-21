@@ -91,6 +91,10 @@ class AlsaProgrammeHandler: public ProgrammeHandlerInterface {
         }
 
         virtual void onMOT(const std::vector<uint8_t>& data, int subtype) override { (void)data; (void)subtype; }
+        virtual void onPADLengthError(size_t announced_xpad_len, size_t xpad_len) override
+        {
+            cout << "X-PAD length mismatch, expected: " << announced_xpad_len << " got: " << xpad_len << endl;
+        }
 
     private:
         mutex aomutex;
@@ -149,6 +153,10 @@ class WavProgrammeHandler: public ProgrammeHandlerInterface {
         }
 
         virtual void onMOT(const std::vector<uint8_t>& data, int subtype) override { (void)data; (void)subtype; }
+        virtual void onPADLengthError(size_t announced_xpad_len, size_t xpad_len) override
+        {
+            cout << "X-PAD length mismatch, expected: " << announced_xpad_len << " got: " << xpad_len << endl;
+        }
 
     private:
         uint32_t SId;

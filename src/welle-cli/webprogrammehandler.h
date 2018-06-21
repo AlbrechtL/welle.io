@@ -70,6 +70,12 @@ enum class MOTType { JPEG, PNG, Unknown };
 
 
 class WebProgrammeHandler : public ProgrammeHandlerInterface {
+    public:
+        struct xpad_error_t {
+            bool has_error = false;
+            size_t announced_xpad_len = 0;
+            size_t xpad_len = 0;
+            std::chrono::time_point<std::chrono::system_clock> time; };
     private:
         uint32_t serviceId;
 
@@ -93,6 +99,8 @@ class WebProgrammeHandler : public ProgrammeHandlerInterface {
         std::chrono::time_point<std::chrono::system_clock> time_mot;
         std::vector<uint8_t> last_mot;
         MOTType last_subtype = MOTType::Unknown;
+
+        xpad_error_t xpad_error;
 
     public:
         bool stereo = false;
@@ -120,6 +128,8 @@ class WebProgrammeHandler : public ProgrammeHandlerInterface {
             std::chrono::time_point<std::chrono::system_clock> time; };
         mot_t getMOT_base64() const;
 
+        xpad_error_t getXPADErrors() const;
+
         virtual void onFrameErrors(int frameErrors) override;
         virtual void onNewAudio(std::vector<int16_t>&& audioData,
                 int sampleRate, bool isStereo, const std::string& mode) override;
@@ -127,5 +137,6 @@ class WebProgrammeHandler : public ProgrammeHandlerInterface {
         virtual void onAacErrors(int aacErrors) override;
         virtual void onNewDynamicLabel(const std::string& label) override;
         virtual void onMOT(const std::vector<uint8_t>& data, int subtype) override;
+        virtual void onPADLengthError(size_t announced_xpad_len, size_t xpad_len) override;
 };
 

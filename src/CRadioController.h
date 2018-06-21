@@ -159,6 +159,7 @@ public:
     virtual void onAacErrors(int aacErrors) override;
     virtual void onNewDynamicLabel(const std::string& label) override;
     virtual void onMOT(const std::vector<uint8_t>& data, int subtype) override;
+    virtual void onPADLengthError(size_t announced_xpad_len, size_t xpad_len) override;
     virtual void onSNR(int snr) override;
     virtual void onFrequencyCorrectorChange(int fine, int coarse) override;
     virtual void onSyncChange(char isSync) override;

@@ -56,8 +56,9 @@ class Mp2Processor: public DabProcessor, public PADDecoderObserver
         virtual void addtoFrame(uint8_t *v);
 
         // PADDecoderObserver impl
-        void PADChangeDynamicLabel(const DL_STATE& dl);
-        void PADChangeSlide(const MOT_FILE& slide);
+        virtual void PADChangeDynamicLabel(const DL_STATE& dl);
+        virtual void PADChangeSlide(const MOT_FILE& slide);
+        virtual void PADLengthError(size_t announced_xpad_len, size_t xpad_len);
 
     private:
         int32_t     mp2sampleRate(uint8_t *frame);

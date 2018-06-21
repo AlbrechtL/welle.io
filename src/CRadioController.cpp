@@ -1157,6 +1157,11 @@ void CRadioController::onMOT(const std::vector<uint8_t>& Data, int subtype)
     emit MOTChanged(motImage);
 }
 
+void CRadioController::onPADLengthError(size_t announced_xpad_len, size_t xpad_len)
+{
+    qDebug() << "X-PAD length mismatch, expected:" << announced_xpad_len << " effective:" << xpad_len;
+}
+
 void CRadioController::setAutoPlay(QString Channel, QString Station)
 {
     isAutoPlay = true;

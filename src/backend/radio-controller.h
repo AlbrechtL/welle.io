@@ -149,6 +149,10 @@ class ProgrammeHandlerInterface {
          * 0x01 for JPEG, 0x03 for PNG */
         virtual void onMOT(const std::vector<uint8_t>& data, int subtype) = 0;
 
+        /* Called when the PAD decoder notices a mismatch between announced
+         * and effective X-PAD length.
+         */
+        virtual void onPADLengthError(size_t announced_xpad_len, size_t xpad_len) = 0;
 };
 
 /* Definition of the interface all input devices must implement */

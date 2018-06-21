@@ -416,6 +416,16 @@ bool WebRadioInterface::send_mux_json(Socket& s)
                     {"label", dls.label},
                     {"time", chrono::system_clock::to_time_t(dls.time)}};
                 j_srv["dls"] = j_dls;
+
+                auto xpad_err = wph.getXPADErrors();
+                nlohmann::json j_xpad_err;
+                j_xpad_err["haserror"] = xpad_err.has_error;
+                if (xpad_err.has_error) {
+                    j_xpad_err["announcedlen"] = xpad_err.announced_xpad_len;
+                    j_xpad_err["len"] = xpad_err.xpad_len;
+                    j_xpad_err["time"] = chrono::system_clock::to_time_t(xpad_err.time);
+                }
+                j_srv["xpaderror"] = j_xpad_err;
             }
             catch (const out_of_range&) {
                 j_srv["audiolevel"] = nullptr;
