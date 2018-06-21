@@ -111,6 +111,7 @@ function ensembleInfoTemplate() {
     html += ' <b>${label}</b>(${shortlabel}) EId: ${EId} SNR: ${SNR}';
     html += ' Freq corr: ${FrequencyCorrection}';
     html += ' Date:${year}-${month}-${day} ${hour}:${minutes} UTC';
+    html += ' FIC CRC Errors: ${ficcrcerrors}';
     html += ' <button type=button onclick="stopPlayer()">Stop</button>';
     html += '</p>';
     html += '<table id="servicetable">'
@@ -306,6 +307,7 @@ function populateEnsembleinfo() {
         ens["SNR"] = data.snr;
         ens["FrequencyCorrection"] = data.frequencycorrection;
         ens["services"] = servicehtml;
+        ens["ficcrcerrors"] = data.ensemble.fic.numcrcerrors;
 
         var ei = document.getElementById('ensembleinfo');
         ei.innerHTML = parseTemplate(ensembleInfoTemplate(), ens);

@@ -335,6 +335,11 @@ bool WebRadioInterface::send_mux_json(Socket& s)
     j["receiver"]["hardware"]["gain"] = input.getGain();
 
     {
+        lock_guard<mutex> lock(fib_mut);
+        j["ensemble"]["fic"]["numcrcerrors"] = num_fic_crc_errors;
+    }
+
+    {
         lock_guard<mutex> lock(rx_mut);
         const auto ensembleLabel = rx->getEnsembleLabel();
         j["ensemble"]["label"] = ensembleLabel.utf8_label();
@@ -507,7 +512,6 @@ bool WebRadioInterface::send_mux_json(Socket& s)
                     {"error", tii.error}});
         }
     }
-
 
     string headers = http_ok;
     headers += http_contenttype_json;
@@ -971,10 +975,10 @@ void WebRadioInterface::onDateTimeUpdate(const dab_date_time_t& dateTime)
 void WebRadioInterface::onFIBDecodeSuccess(bool crcCheckOk, const uint8_t* fib)
 {
     if (not crcCheckOk) {
+        lock_guard<mutex> lock(fib_mut);
+        num_fic_crc_errors++;
         return;
     }
-
-    lock_guard<mutex> lock(fib_mut);
 
     // Convert the fib bitvector to bytes
     vector<uint8_t> buf(32);
@@ -987,10 +991,14 @@ void WebRadioInterface::onFIBDecodeSuccess(bool crcCheckOk, const uint8_t* fib)
         }
         buf[i] = v;
     }
-    fib_blocks.push_back(move(buf));
 
-    if (fib_blocks.size() > 3*250) { // six seconds
-        fib_blocks.pop_front();
+    {
+        lock_guard<mutex> lock(fib_mut);
+        fib_blocks.push_back(move(buf));
+
+        if (fib_blocks.size() > 3*250) { // six seconds
+            fib_blocks.pop_front();
+        }
     }
 
     new_fib_block_available.notify_one();

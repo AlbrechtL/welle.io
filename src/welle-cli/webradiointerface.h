@@ -139,6 +139,7 @@ class WebRadioInterface : public RadioControllerInterface {
         std::vector<DSPCOMPLEX> last_constellation;
 
         mutable std::mutex fib_mut;
+        size_t num_fic_crc_errors = 0;
         std::condition_variable new_fib_block_available;
         std::deque<std::vector<uint8_t> > fib_blocks;
 
