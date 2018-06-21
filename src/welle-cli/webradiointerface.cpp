@@ -450,6 +450,14 @@ bool WebRadioInterface::send_mux_json(Socket& s)
                     {"time", chrono::system_clock::to_time_t(dls.time)}};
                 j_srv["dls"] = j_dls;
 
+                auto errorcounters = wph.getErrorCounters();
+                nlohmann::json j_errorcounters = {
+                    {"frameerrors", errorcounters.num_frameErrors},
+                    {"rserrors", errorcounters.num_rsErrors},
+                    {"aacerrors", errorcounters.num_aacErrors},
+                    {"time", chrono::system_clock::to_time_t(dls.time)}};
+                j_srv["errorcounters"] = j_errorcounters;
+
                 auto xpad_err = wph.getXPADErrors();
                 nlohmann::json j_xpad_err;
                 j_xpad_err["haserror"] = xpad_err.has_error;

@@ -148,9 +148,18 @@ WebProgrammeHandler::audiolevels_t WebProgrammeHandler::getAudioLevels() const
     return r;
 }
 
+WebProgrammeHandler::errorcounters_t WebProgrammeHandler::getErrorCounters() const
+{
+    std::unique_lock<std::mutex> lock(stats_mutex);
+    errorcounters_t r(errorcounters);
+    return r;
+}
+
 void WebProgrammeHandler::onFrameErrors(int frameErrors)
 {
-    last_frameErrors = frameErrors;
+    std::unique_lock<std::mutex> lock(stats_mutex);
+    errorcounters.num_frameErrors += frameErrors;
+    errorcounters.time = chrono::system_clock::now();
 }
 
 void WebProgrammeHandler::onNewAudio(std::vector<int16_t>&& audioData,
@@ -232,12 +241,16 @@ void WebProgrammeHandler::onNewAudio(std::vector<int16_t>&& audioData,
 
 void WebProgrammeHandler::onRsErrors(int rsErrors)
 {
-    last_rsErrors = rsErrors;
+    std::unique_lock<std::mutex> lock(stats_mutex);
+    errorcounters.num_rsErrors += rsErrors;
+    errorcounters.time = chrono::system_clock::now();
 }
 
 void WebProgrammeHandler::onAacErrors(int aacErrors)
 {
-    last_aacErrors = aacErrors;
+    std::unique_lock<std::mutex> lock(stats_mutex);
+    errorcounters.num_aacErrors += aacErrors;
+    errorcounters.time = chrono::system_clock::now();
 }
 
 void WebProgrammeHandler::onNewDynamicLabel(const string& label)

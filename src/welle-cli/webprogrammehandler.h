@@ -83,20 +83,25 @@ class WebProgrammeHandler : public ProgrammeHandlerInterface {
             int last_audioLevel_L = -1;
             int last_audioLevel_R = -1;
         };
+
+        struct errorcounters_t {
+            std::chrono::time_point<std::chrono::system_clock> time;
+            size_t num_frameErrors = 0;
+            size_t num_rsErrors = 0;
+            size_t num_aacErrors = 0;
+        };
     private:
         uint32_t serviceId;
 
         bool lame_initialised = false;
         Lame lame;
 
-        int last_frameErrors = -1;
-        int last_rsErrors = -1;
-        int last_aacErrors = -1;
-
         mutable std::mutex senders_mutex;
         std::list<ProgrammeSender*> senders;
 
         mutable std::mutex stats_mutex;
+
+        errorcounters_t errorcounters;
 
         bool last_label_valid = false;
         std::chrono::time_point<std::chrono::system_clock> time_label;
@@ -137,6 +142,7 @@ class WebProgrammeHandler : public ProgrammeHandlerInterface {
 
         xpad_error_t getXPADErrors() const;
         audiolevels_t getAudioLevels() const;
+        errorcounters_t getErrorCounters() const;
 
         virtual void onFrameErrors(int frameErrors) override;
         virtual void onNewAudio(std::vector<int16_t>&& audioData,

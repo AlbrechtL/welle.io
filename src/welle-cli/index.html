@@ -116,7 +116,7 @@ function ensembleInfoTemplate() {
     html += '<table id="servicetable">'
     html += '<tr><th>Label</th> <th>SId</th> <th>bitrate</th> <th>SAd, CUs</th> <th>protection</th>';
     html += '<th>TMid, rate, channels</th>';
-    html += '<th>pty</th> <th>language</th> <th>DLS</th> <th>Audio Level</th> <th></th></tr>';
+    html += '<th>pty</th> <th>language</th> <th>DLS</th> <th>Frame,RS,AAC errors</th> <th>Audio Level</th> <th></th></tr>';
     html += '${services}</table>';
     return html;
 }
@@ -125,6 +125,7 @@ function serviceTemplate() {
     var html = '<tr><td>${label} (${shortlabel})</td> <td>${SId}</td> <td>${bitrate}kbps</td> <td>${sad_cu}</td> <td>${protection}</td>';
     html += '<td>${samplerate}</td>';
     html += '<td>${pty}</td> <td>${language}</td> <td></i>${dls}</i></td>';
+    html += '<td>${errorcounters}</td>';
     html += '<td><canvas id="${canvasid}" width="64" height="12" style="border:1px solid #d3d3d3;"></canvas></td>';
     html += '<td><button type=button onclick="setPlayerSource(${SId})">Play</button></td>';
     html += '</tr>';
@@ -283,6 +284,10 @@ function populateEnsembleinfo() {
             else {
                 imageshtml += "data:image/png;base64," + png_cross + '">';
             }
+
+            s["errorcounters"] = service.errorcounters.frameerrors + "," +
+                                 service.errorcounters.rserrors + "," +
+                                 service.errorcounters.aacerrors;
 
             servicehtml += parseTemplate(serviceTemplate(), s)
         }
