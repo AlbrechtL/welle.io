@@ -44,10 +44,18 @@ freq_corr.label Freq corr
 multigraph snr
 graph_title Signal-to-Noise Ratio
 graph_args --base 1000
-graph_vlabel SNR 
+graph_vlabel SNR
 graph_category welleio
 graph_info This graph shows the receiver SNR
 snr.label SNR
+
+multigraph fic
+graph_title FIC CRC error counter
+graph_args --base 1000
+graph_vlabel FIC CRC error
+graph_category welleio
+graph_info This graph shows the FIC CRC errors
+crcerr.label FIC CRC Err
 """
 
 conf_audio_level_template = """
@@ -70,6 +78,23 @@ left.max 0
 left.type GAUGE
 """
 
+conf_errors_template = """
+multigraph errors_{sid}
+graph_title {sid} {label} error counters
+graph_order frame rs aac
+graph_args --base 1000
+graph_vlabel frame, rs and aac error counters
+graph_category welleio
+graph_info This graph shows Frame, Reed-Solomon and AAC errors for {label}
+
+frame.label Frame err
+frame.type DERIVE
+rs.label RS errors
+rs.type DERIVE
+aac.label AAC errors
+aac.type DERIVE
+"""
+
 url = 'http://localhost:7979/mux.json'
 conn = urllib.request.urlopen(url)
 bdata = conn.read()
@@ -80,6 +105,7 @@ if len(sys.argv) > 1 and sys.argv[1] == "config":
     if "services" in muxdata:
         for service in muxdata["services"]:
             print(conf_audio_level_template.format(**service))
+            print(conf_errors_template.format(**service))
     sys.exit(0)
 
 def lin_to_db(level):
@@ -88,16 +114,40 @@ def lin_to_db(level):
     else:
         return -90
 
-if "frequencycorrection" in muxdata:
+try:
     print("multigraph freqcorr")
     print("freq_corr.value {}".format(muxdata["frequencycorrection"]))
-if "snr" in muxdata:
+except:
+    print("freq_corr.value U")
+
+try:
     print("multigraph snr")
     print("snr.value {}".format(muxdata["snr"]))
+except:
+    print("snr.value U")
+
+try:
+    print("multigraph fic")
+    print("crcerr.value {}".format(muxdata["ensemble"]["fic"]["numcrcerrors"]))
+except:
+    print("crcerr.value U")
+
+service_values_template = """
+multigraph audio_level_{sid}
+left.value {left}
+right.value {right}
+multigraph errors_{sid}
+frame.value {frame}
+rs.value {rs}
+aac.value {aac}"""
+
 if "services" in muxdata:
     for service in muxdata["services"]:
         values = {'sid': service['sid'],
                 'left': lin_to_db(service['audiolevel']['left']),
-                'right': lin_to_db(service['audiolevel']['right'])}
-        print("multigraph audio_level_{sid}\nleft.value {left}\nright.value {right}".format(**values))
+                'right': lin_to_db(service['audiolevel']['right']),
+                'frame': service['errorcounters']['frameerrors'],
+                'rs': service['errorcounters']['rserrors'],
+                'aac': service['errorcounters']['aacerrors']}
+        print(service_values_template.format(**values))
 
