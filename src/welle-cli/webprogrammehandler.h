@@ -75,7 +75,14 @@ class WebProgrammeHandler : public ProgrammeHandlerInterface {
             bool has_error = false;
             size_t announced_xpad_len = 0;
             size_t xpad_len = 0;
-            std::chrono::time_point<std::chrono::system_clock> time; };
+            std::chrono::time_point<std::chrono::system_clock> time;
+        };
+
+        struct audiolevels_t {
+            std::chrono::time_point<std::chrono::system_clock> time;
+            int last_audioLevel_L = -1;
+            int last_audioLevel_R = -1;
+        };
     private:
         uint32_t serviceId;
 
@@ -89,7 +96,7 @@ class WebProgrammeHandler : public ProgrammeHandlerInterface {
         mutable std::mutex senders_mutex;
         std::list<ProgrammeSender*> senders;
 
-        mutable std::mutex pad_mutex;
+        mutable std::mutex stats_mutex;
 
         bool last_label_valid = false;
         std::chrono::time_point<std::chrono::system_clock> time_label;
@@ -102,12 +109,12 @@ class WebProgrammeHandler : public ProgrammeHandlerInterface {
 
         xpad_error_t xpad_error;
 
+        audiolevels_t audiolevels;
+
     public:
         bool stereo = false;
         int rate = 0;
         std::string mode;
-        int last_audioLevel_L = -1;
-        int last_audioLevel_R = -1;
 
         WebProgrammeHandler(uint32_t serviceId);
         WebProgrammeHandler(WebProgrammeHandler&& other);
@@ -129,6 +136,7 @@ class WebProgrammeHandler : public ProgrammeHandlerInterface {
         mot_t getMOT_base64() const;
 
         xpad_error_t getXPADErrors() const;
+        audiolevels_t getAudioLevels() const;
 
         virtual void onFrameErrors(int frameErrors) override;
         virtual void onNewAudio(std::vector<int16_t>&& audioData,

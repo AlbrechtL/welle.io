@@ -416,9 +416,11 @@ bool WebRadioInterface::send_mux_json(Socket& s)
 
             try {
                 const auto& wph = phs.at(s.serviceId);
+                const auto al = wph.getAudioLevels();
                 nlohmann::json j_audio = {
-                    {"left", wph.last_audioLevel_L},
-                    {"right", wph.last_audioLevel_R}};
+                    {"time", chrono::system_clock::to_time_t(al.time)},
+                    {"left", al.last_audioLevel_L},
+                    {"right", al.last_audioLevel_R}};
                 j_srv["audiolevel"] = j_audio;
 
                 j_srv["channels"] = wph.stereo ? 2 : 1;

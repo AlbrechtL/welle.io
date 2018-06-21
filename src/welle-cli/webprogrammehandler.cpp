@@ -112,7 +112,7 @@ WebProgrammeHandler::dls_t WebProgrammeHandler::getDLS() const
 {
     dls_t dls;
 
-    std::unique_lock<std::mutex> lock(pad_mutex);
+    std::unique_lock<std::mutex> lock(stats_mutex);
     if (last_label_valid) {
         dls.label = last_label;
         dls.time = time_label;
@@ -125,7 +125,7 @@ WebProgrammeHandler::mot_t WebProgrammeHandler::getMOT_base64() const
 {
     mot_t mot;
 
-    std::unique_lock<std::mutex> lock(pad_mutex);
+    std::unique_lock<std::mutex> lock(stats_mutex);
     if (last_mot_valid) {
         mot.data = Base64::Encode(last_mot);
         mot.time = time_mot;
@@ -136,8 +136,15 @@ WebProgrammeHandler::mot_t WebProgrammeHandler::getMOT_base64() const
 
 WebProgrammeHandler::xpad_error_t WebProgrammeHandler::getXPADErrors() const
 {
-    std::unique_lock<std::mutex> lock(pad_mutex);
+    std::unique_lock<std::mutex> lock(stats_mutex);
     xpad_error_t r(xpad_error);
+    return r;
+}
+
+WebProgrammeHandler::audiolevels_t WebProgrammeHandler::getAudioLevels() const
+{
+    std::unique_lock<std::mutex> lock(stats_mutex);
+    audiolevels_t r(audiolevels);
     return r;
 }
 
@@ -159,6 +166,8 @@ void WebProgrammeHandler::onNewAudio(std::vector<int16_t>&& audioData,
 
     const int channels = stereo ? 2 : 1;
 
+    int last_audioLevel_L = 0;
+    int last_audioLevel_R = 0;
     if (stereo) {
         int16_t max_L = 0;
         int16_t max_R = 0;
@@ -178,6 +187,13 @@ void WebProgrammeHandler::onNewAudio(std::vector<int16_t>&& audioData,
 
         last_audioLevel_L = max_mono;
         last_audioLevel_R = max_mono;
+    }
+
+    {
+        std::unique_lock<std::mutex> lock(stats_mutex);
+        audiolevels.time = chrono::system_clock::now();
+        audiolevels.last_audioLevel_L = last_audioLevel_L;
+        audiolevels.last_audioLevel_R = last_audioLevel_R;
     }
 
     if (not lame_initialised) {
@@ -226,7 +242,7 @@ void WebProgrammeHandler::onAacErrors(int aacErrors)
 
 void WebProgrammeHandler::onNewDynamicLabel(const string& label)
 {
-    std::unique_lock<std::mutex> lock(pad_mutex);
+    std::unique_lock<std::mutex> lock(stats_mutex);
     last_label_valid = true;
     time_label = chrono::system_clock::now();
     last_label = label;
@@ -234,7 +250,7 @@ void WebProgrammeHandler::onNewDynamicLabel(const string& label)
 
 void WebProgrammeHandler::onMOT(const std::vector<uint8_t>& data, int subtype)
 {
-    std::unique_lock<std::mutex> lock(pad_mutex);
+    std::unique_lock<std::mutex> lock(stats_mutex);
     last_mot_valid = true;
     time_mot = chrono::system_clock::now();
     last_mot = data;
@@ -251,7 +267,7 @@ void WebProgrammeHandler::onMOT(const std::vector<uint8_t>& data, int subtype)
 
 void WebProgrammeHandler::onPADLengthError(size_t announced_xpad_len, size_t xpad_len)
 {
-    std::unique_lock<std::mutex> lock(pad_mutex);
+    std::unique_lock<std::mutex> lock(stats_mutex);
     xpad_error.has_error = true;
     xpad_error.time = chrono::system_clock::now();
     xpad_error.announced_xpad_len = announced_xpad_len;

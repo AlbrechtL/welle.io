@@ -169,7 +169,6 @@ function drawAudiolevels(services) {
         var canvas = document.getElementById(id);
         var ctx = canvas.getContext("2d");
 
-
         var level_db_l = -90;
         var level_db_r = -90;
         if (service.audiolevel) {
@@ -179,6 +178,9 @@ function drawAudiolevels(services) {
             if (service.audiolevel.right > 0) {
                 level_db_r = Math.round(20 * Math.log10(service.audiolevel.right / 0x7fff));
             }
+
+            var last_update = new Date(service.audiolevel.time * 1000);
+            canvas.setAttribute("title", "Updated " + last_update);
         }
 
         var width_l = (level_db_l + 90) * 64/90;
@@ -253,7 +255,8 @@ function populateEnsembleinfo() {
             }
 
             if (service.dls) {
-                s["dls"] = service.dls.label;
+                var last_update = new Date(service.dls.time * 1000);
+                s["dls"] = '<span title="Updated ' + last_update + '">' + service.dls.label + '</span>';
             }
             else {
                 s["dls"] = "";
