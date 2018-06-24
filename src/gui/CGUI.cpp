@@ -546,9 +546,9 @@ void CGUI::updateConstellation()
         if(constellationSeries)
             constellationSeries->replace(constellationSeriesData);
     }
-    else {
-        qDebug() << "IQ" << constellationPointBuffer.size() << num_iqpoints;
-    }
+//    else {
+//        qDebug() << "IQ" << constellationPointBuffer.size() << num_iqpoints;
+//    }
 }
 
 QTranslator* CGUI::AddTranslator(QString Language, QTranslator *OldTranslator)
