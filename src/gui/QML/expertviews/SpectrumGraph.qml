@@ -1,13 +1,17 @@
 import QtQuick 2.0
 import QtCharts 2.1
+import QtQuick.Layouts 1.1
+
 
 // Import custom styles
 import "../texts"
 import "../components"
 
 Item {
-    height: Units.dp(400)
-    width: Units.dp(400)
+    Layout.fillWidth: true
+    Layout.fillHeight: true
+    Layout.preferredWidth: Units.dp(400)
+    Layout.preferredHeight: Units.dp(400)
 
     ChartView {
         id: chart
@@ -73,7 +77,7 @@ Item {
             interval: 1 * 1000 // 1 s
             repeat: false
             onTriggered: {
-               axisY.max = maxYAxis
+               axisY.max = chart.maxYAxis
             }
         }
     }

@@ -7,7 +7,6 @@ import "components"
 
 Item{
     id: item
-    height: Units.dp(180)
     Layout.preferredWidth: Units.dp(320)
     Layout.minimumWidth: Units.dp(150)
     Layout.preferredHeight: Units.dp(180)

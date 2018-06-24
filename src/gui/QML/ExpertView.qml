@@ -9,10 +9,11 @@ import "components"
 import "expertviews"
 
 Item {
-    height: Units.dp(400)
+    implicitHeight: layout.implicitHeight
+    Layout.preferredHeight: Units.dp(400)
+    Layout.preferredWidth: Units.dp(400)
     Layout.fillWidth: true
     Layout.fillHeight: true
-    Layout.preferredWidth: Units.dp(400)
 
     Settings {
         property alias enableStationInfoDisplayState: enableStationInfoDisplay.checked
@@ -67,11 +68,14 @@ Item {
         }
     }
 
-    Flow {
+    GridLayout {
         id: layout
         anchors.fill: parent
+        flow: GridLayout.LeftToRight
+        columns: (parent.width / Units.dp(400)).toFixed(0)
 
         StationInformation {
+            Layout.alignment: Qt.AlignTop
             visible: enableStationInfoDisplay.checked
         }
 

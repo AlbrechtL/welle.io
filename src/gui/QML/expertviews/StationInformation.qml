@@ -7,8 +7,8 @@ import "../texts"
 import "../components"
 
 Item {
-    height: layout.height
-    width: layout.width
+     Layout.preferredHeight: layout.height
+     Layout.preferredWidth: layout.width
 
     ColumnLayout {
         id: layout

@@ -162,7 +162,6 @@ ApplicationWindow {
             Label {
                 id: titleLabel
                 text: getTitle()
-//                text:  "welle.io"
                 font.pixelSize: 20
                 elide: Label.ElideRight
                 horizontalAlignment: Qt.AlignHCenter
@@ -322,10 +321,17 @@ ApplicationWindow {
     }
 
     Flickable {
+        id: flickable
         anchors.fill: parent
         anchors.leftMargin: !inPortrait ? drawer.width: undefined
-        contentHeight: stackView.currentItem.implicitHeight > parent.height ? stackView.currentItem.implicitHeight : parent.height
-        contentWidth: parent.width - anchors.leftMargin
+
+        function setContentHeight() {
+            contentHeight = stackView.currentItem.implicitHeight > parent.height ? stackView.currentItem.implicitHeight : parent.height
+        }
+
+        onHeightChanged: setContentHeight()
+        onWidthChanged: setContentHeight()
+        Component.onCompleted: setContentHeight()
 
         ScrollBar.vertical: ScrollBar { }
 
@@ -338,20 +344,28 @@ ApplicationWindow {
             focus: true
 
             initialItem: Item {
+                id: firstItem
                 // Necessary for Flickable
-                implicitHeight: gridLayout.implicitHeight
+                implicitHeight: isExpertView ?
+                                    inPortrait ?
+                                        expertView.implicitHeight + columnLayout.implicitHeight :
+                                        expertView.implicitHeight
+                                    : undefined
 
                 GridLayout {
                     id: gridLayout
                     anchors.fill: parent
-
                     flow: inPortrait ? GridLayout.TopToBottom : GridLayout.LeftToRight
                     columnSpacing: Units.dp(10)
                     rowSpacing: Units.dp(10)
 
-                    ColumnLayout {                        
+                    ColumnLayout {
+                        id: columnLayout
+                        Layout.alignment: Qt.AlignTop
+
                         // Radio information
                         RadioView {
+                            id: radioView
                             Layout.fillWidth: (!isExpertView || inPortrait) ? true : false
                         }
 
@@ -359,18 +373,21 @@ ApplicationWindow {
                         Rectangle {
                            id: motImageRec
                            Layout.preferredWidth: Units.dp(320)
-                           Layout.fillHeight: true
+                           Layout.preferredHeight: width * 0.75
+                           Layout.maximumWidth: Layout.preferredWidth * 2
                            Layout.fillWidth: (!isExpertView || inPortrait) ? true : false
 
                            Image {
                                id: motImage
                                anchors.fill: parent
                                fillMode: Image.PreserveAspectFit
+                               source: motImage.source = "file:///home/albrecht/Schreibtisch/test-mod.jpg"
 
                                Connections{
                                    target: cppGUI
                                    onMotChanged:{
                                        motImage.source = "image://motslideshow/image_" + Math.random()
+
                                    }
                                }
                            }
@@ -379,10 +396,6 @@ ApplicationWindow {
 
                     ExpertView{
                         id: expertView
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-                        Layout.preferredWidth: Units.dp(400)
-                        width: Units.dp(400)
                         visible: isExpertView
                     }
                 }
