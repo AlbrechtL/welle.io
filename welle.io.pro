@@ -183,7 +183,9 @@ win32 {
 
 macx {
     INCLUDEPATH	+= /opt/local/include
+    INCLUDEPATH	+= /usr/local/include
     LIBS    += -L/opt/local/lib
+    LIBS    += -L/usr/local/lib
     LIBS    += -lfftw3f
     LIBS    += -lusb-1.0
     LIBS    += -ldl
@@ -380,6 +382,9 @@ unix:!macx { # macOS is not tested, exclude it
 
 win32 {
     GITHASHSTRING = $$system(git.exe rev-parse --short HEAD)
+} else:macx {
+    ICON = icon.icns
+    QMAKE_INFO_PLIST = $$(PWD)/welle-io.plist
 }
 
 !isEmpty(GITHASHSTRING) {
