@@ -34,8 +34,6 @@
 #include <QTimer>
 #include <QQmlApplicationEngine>
 
-#define QT_NO_SYSTEMTRAYICON 1
-
 #ifndef QT_NO_SYSTEMTRAYICON
     #include <QSystemTrayIcon>
 #endif
