@@ -381,7 +381,6 @@ ApplicationWindow {
                                id: motImage
                                anchors.fill: parent
                                fillMode: Image.PreserveAspectFit
-                               source: motImage.source = "file:///home/albrecht/Schreibtisch/test-mod.jpg"
 
                                Connections{
                                    target: cppGUI
