@@ -63,11 +63,7 @@ int main(int argc, char** argv)
     QCoreApplication::setApplicationVersion(Version);
 
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-
-    QStringList themePaths;
-    themePaths << ":/src/gui/icon";
-    QIcon::setThemeSearchPaths(themePaths);
-    QIcon::setThemeName("welle_io_icons");
+//    QCoreApplication::setAttribute(Qt::AA_UseSoftwareOpenGL);
 
     qRegisterMetaTypeStreamOperators<QList<StationElement*>>("StationList");
 #ifdef Q_OS_ANDROID
@@ -113,7 +109,13 @@ int main(int argc, char** argv)
     // Create new QT application
     QApplication app(argc, argv);
 
-    // Set ICON
+    // Set icon path
+    QStringList themePaths;
+    themePaths << ":/src/gui/icon";
+    QIcon::setThemeSearchPaths(themePaths);
+    QIcon::setThemeName("welle_io_icons");
+
+    // Set icon
     app.setWindowIcon(QIcon(":/icon.png"));
 
     // Init translations
