@@ -255,7 +255,7 @@ struct options_t {
     string programme = "GRRIF";
     bool dump_programme = false;
     bool decode_all_programmes = false;
-    bool decode_programmes_carousel = false;
+    int num_decoders_in_carousel = 0;
     bool carousel_pad = false;
     int web_port = -1; // positive value means enable
     list<int> tests;
@@ -282,14 +282,15 @@ static void usage()
         "Use -Dw to enable webserver, decode all programmes." << endl <<
         " welle-cli -c channel -Dw port" << endl <<
         endl <<
-        "Use -Cw to enable webserver, decode programmes one by one in a carousel." << endl <<
+        "Use -C 1 -w to enable webserver, decode programmes one by one in a carousel." << endl <<
+        "Use -C N -w to enable webserver, decode programmes N by N in a carousel." << endl <<
         "This is useful if your machine cannot decode all programmes simultaneously, but" << endl <<
         "you still want to get an overview of the ensemble." << endl <<
         "Without the -P option, welle-cli will switch every 10 seconds." << endl <<
         "With the -P option, welle-cli will switch once DLS and a slide were decoded, staying at most" << endl <<
         "80 seconds on a given programme." << endl <<
-        " welle-cli -c channel -Cw port" << endl <<
-        " welle-cli -c channel -PCw port" << endl <<
+        " welle-cli -c channel -C 1 -w port" << endl <<
+        " welle-cli -c channel -PC 1 -w port" << endl <<
         endl <<
         "Use -t test_number to run a test." << endl <<
         "To understand what the tests do, please see source code." << endl <<
@@ -303,13 +304,13 @@ options_t parse_cmdline(int argc, char **argv)
 {
     options_t options;
     int opt;
-    while ((opt = getopt(argc, argv, "c:CdDf:hp:Pt:w:")) != -1) {
+    while ((opt = getopt(argc, argv, "c:C:dDf:hp:Pt:w:")) != -1) {
         switch (opt) {
             case 'c':
                 options.channel = optarg;
                 break;
             case 'C':
-                options.decode_programmes_carousel = true;
+                options.num_decoders_in_carousel = std::atoi(optarg);
                 break;
             case 'd':
                 options.dump_programme = true;
@@ -341,7 +342,7 @@ options_t parse_cmdline(int argc, char **argv)
         }
     }
 
-    if (options.decode_all_programmes and options.decode_programmes_carousel) {
+    if (options.decode_all_programmes and options.num_decoders_in_carousel > 0) {
         cerr << "Cannot select both -C and -D" << endl;
         exit(1);
     }
@@ -407,17 +408,18 @@ int main(int argc, char **argv)
     }
     else if (options.web_port != -1) {
         using DS = WebRadioInterface::DecodeStrategy;
-        DS ds = DS::OnDemand;
+        WebRadioInterface::DecodeSettings ds;
         if (options.decode_all_programmes) {
-            ds = DS::All;
+            ds.strategy = DS::All;
         }
-        else if (options.decode_programmes_carousel) {
+        else if (options.num_decoders_in_carousel > 0) {
             if (options.carousel_pad) {
-                ds = DS::CarouselPAD;
+                ds.strategy = DS::CarouselPAD;
             }
             else {
-                ds = DS::Carousel10;
+                ds.strategy = DS::Carousel10;
             }
+            ds.num_decoders_in_carousel = options.num_decoders_in_carousel;
         }
         WebRadioInterface wri(*in, options.web_port, ds);
         wri.serve();

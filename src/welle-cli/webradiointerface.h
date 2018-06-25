@@ -54,7 +54,13 @@ class WebRadioInterface : public RadioControllerInterface {
              * DLS and slide were decoded, stay at most 80s on one service.  */
             CarouselPAD
         };
-        WebRadioInterface(CVirtualInput& in, int port, DecodeStrategy ds);
+
+        struct DecodeSettings {
+            DecodeStrategy strategy = DecodeStrategy::OnDemand;
+            int num_decoders_in_carousel = 0;
+        };
+
+        WebRadioInterface(CVirtualInput& in, int port, DecodeSettings cs);
         ~WebRadioInterface();
         WebRadioInterface(const WebRadioInterface&) = delete;
         WebRadioInterface& operator=(const WebRadioInterface&) = delete;
@@ -123,7 +129,7 @@ class WebRadioInterface : public RadioControllerInterface {
         CVirtualInput& input;
         common_fft spectrum_fft_handler;
 
-        DecodeStrategy decode_strategy = DecodeStrategy::OnDemand;
+        DecodeSettings decode_settings;
 
         mutable std::mutex data_mut;
         bool synced = 0;
@@ -158,6 +164,13 @@ class WebRadioInterface : public RadioControllerInterface {
         std::map<SId_t, bool> programmes_being_decoded;
         std::condition_variable phs_changed;
 
-        SId_t current_carousel_service = 0;
-        std::chrono::time_point<std::chrono::steady_clock> time_carousel_change;
+        std::list<SId_t> carousel_services_available;
+        struct ActiveCarouselService {
+            explicit ActiveCarouselService(SId_t sid) : sid(sid) {
+                time_change = std::chrono::steady_clock::now();
+            }
+            SId_t sid;
+            std::chrono::time_point<std::chrono::steady_clock> time_change;
+        };
+        std::list<ActiveCarouselService> carousel_services_active;
 };

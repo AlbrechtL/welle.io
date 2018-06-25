@@ -66,11 +66,12 @@ static string to_hex(uint32_t value)
     return sidstream.str();
 }
 
-WebRadioInterface::WebRadioInterface(CVirtualInput& in, int port, DecodeStrategy ds) :
+WebRadioInterface::WebRadioInterface(CVirtualInput& in, int port,
+        DecodeSettings ds) :
     dabparams(1),
     input(in),
     spectrum_fft_handler(dabparams.T_u),
-    decode_strategy(ds)
+    decode_settings(ds)
 {
     bool success = serverSocket.bind(port);
     if (success) {
@@ -101,7 +102,7 @@ WebRadioInterface::~WebRadioInterface()
 
 void WebRadioInterface::check_decoders_required()
 {
-    if (decode_strategy == DecodeStrategy::All) {
+    if (decode_settings.strategy == DecodeStrategy::All) {
         return;
     }
 
@@ -111,7 +112,12 @@ void WebRadioInterface::check_decoders_required()
 
         try {
             bool require = phs.at(sid).needsToBeDecoded() or
-                sid == current_carousel_service;
+                std::find_if(
+                    carousel_services_active.cbegin(),
+                    carousel_services_active.cend(),
+                    [&](const ActiveCarouselService& acs){
+                        return acs.sid == sid;
+                    }) != carousel_services_active.cend();
             bool is_decoded = programmes_being_decoded[sid];
 
             if (require and not is_decoded) {
@@ -180,7 +186,8 @@ void WebRadioInterface::retune(const std::string& channel)
         phs.clear();
         programmes_being_decoded.clear();
         tiis.clear();
-        current_carousel_service = 0;
+        carousel_services_active.clear();
+        carousel_services_available.clear();
 
         cerr << "Set frequency" << endl;
         input.setFrequency(freq);
@@ -818,12 +825,24 @@ void WebRadioInterface::handle_phs()
 
         auto serviceList = rx->getServiceList();
         for (auto& s : serviceList) {
+            auto scs = rx->getComponents(s);
+
+            if (std::find(
+                        carousel_services_available.cbegin(),
+                        carousel_services_available.cend(),
+                        s.serviceId) == carousel_services_available.cend()) {
+                for (auto& sc : scs) {
+                    if (sc.transportMode() == TransportMode::Audio) {
+                        carousel_services_available.push_back(s.serviceId);
+                    }
+                }
+            }
+
             if (phs.count(s.serviceId) == 0) {
                 WebProgrammeHandler ph(s.serviceId);
                 phs.emplace(std::make_pair(s.serviceId, move(ph)));
             }
-            else if (decode_strategy == DecodeStrategy::All) {
-                auto scs = rx->getComponents(s);
+            else if (decode_settings.strategy == DecodeStrategy::All) {
                 for (auto& sc : scs) {
                     if (sc.transportMode() == TransportMode::Audio) {
                         bool success = rx->addServiceToDecode(
@@ -839,73 +858,84 @@ void WebRadioInterface::handle_phs()
         }
 
         using namespace chrono;
-        if (decode_strategy == DecodeStrategy::Carousel10) {
-            if (current_carousel_service == 0) {
-                if (not serviceList.empty()) {
-                    current_carousel_service = serviceList.front().serviceId;
-                    time_carousel_change = steady_clock::now();
-                }
+        size_t max_services_in_carousel = std::min(
+                carousel_services_available.size(),
+                (size_t)decode_settings.num_decoders_in_carousel);
+
+        if (decode_settings.strategy == DecodeStrategy::Carousel10) {
+            while (carousel_services_active.size() < max_services_in_carousel) {
+                carousel_services_active.emplace_back(
+                        carousel_services_available.front());
+                carousel_services_available.pop_front();
             }
-            else if (time_carousel_change + chrono::seconds(10) <
-                    chrono::steady_clock::now()) {
-                auto current_it = phs.find(current_carousel_service);
-                if (current_it == phs.end()) {
-                    cerr << "Reset service decoder carousel! Cannot find service "
-                        << current_carousel_service << endl;
-                    current_carousel_service = 0;
-                }
-                else {
-                    // Rotate through phs
-                    if (++current_it == phs.end()) {
-                        current_it = phs.begin();
+
+            for (auto& acs : carousel_services_active) {
+                if (acs.time_change + chrono::seconds(10) <
+                        chrono::steady_clock::now()) {
+                    acs.sid = 0;
+
+                    if (not carousel_services_available.empty()) {
+                        carousel_services_active.emplace_back(
+                                carousel_services_available.front());
+                        carousel_services_available.pop_front();
                     }
-                    current_carousel_service = current_it->first;
                 }
-                time_carousel_change = steady_clock::now();
             }
         }
-        else if (decode_strategy == DecodeStrategy::CarouselPAD) {
-            if (current_carousel_service == 0) {
+        else if (decode_settings.strategy == DecodeStrategy::CarouselPAD) {
+            while (carousel_services_active.size() < max_services_in_carousel) {
                 if (not serviceList.empty()) {
-                    current_carousel_service = serviceList.front().serviceId;
-                    time_carousel_change = steady_clock::now();
+                    carousel_services_active.emplace_back(
+                            carousel_services_available.front());
+                    carousel_services_available.pop_front();
                 }
             }
-            else if (time_carousel_change + chrono::seconds(5) <
-                    chrono::steady_clock::now()) {
-                auto current_it = phs.find(current_carousel_service);
-                if (current_it == phs.end()) {
-                    cerr << "Reset service decoder carousel! Cannot find service "
-                        << current_carousel_service << endl;
-                    current_carousel_service = 0;
-                    time_carousel_change = steady_clock::now();
-                }
-                else {
-                    // Switch to next programme once both DLS and Slideshow
-                    // got decoded, but at most after 80 seconds
-                    bool switchBecausePAD = false;
 
-                    const auto now = system_clock::now();
-                    const auto mot = current_it->second.getMOT_base64();
-                    const auto dls = current_it->second.getDLS();
-                    // Slide and DLS received in the last 60 seconds?
-                    if ( (now - mot.time < seconds(60) and
-                          now - dls.time < seconds(60))) {
-                        switchBecausePAD = true;
+            for (auto& acs : carousel_services_active) {
+                if (acs.time_change + chrono::seconds(5) <
+                        chrono::steady_clock::now()) {
+                    auto current_it = phs.find(acs.sid);
+                    if (current_it == phs.end()) {
+                        cerr << "Reset service decoder carousel!"
+                            "Cannot find service "
+                            << acs.sid << endl;
+                        acs.sid = 0;
                     }
+                    else {
+                        // Switch to next programme once both DLS and Slideshow
+                        // got decoded, but at most after 80 seconds
+                        const auto now = system_clock::now();
+                        const auto mot = current_it->second.getMOT_base64();
+                        const auto dls = current_it->second.getDLS();
+                        // Slide and DLS received in the last 60 seconds?
+                        const bool switchBecausePAD = (
+                                now - mot.time < seconds(60) and
+                                now - dls.time < seconds(60));
 
-                    if (switchBecausePAD or
-                        time_carousel_change + seconds(80) < steady_clock::now()) {
-                        // Rotate through phs
-                        if (++current_it == phs.end()) {
-                            current_it = phs.begin();
+                        const bool switchBecauseLate =
+                            acs.time_change + seconds(80) < steady_clock::now();
+
+                        if (switchBecausePAD or switchBecauseLate) {
+                            acs.sid = 0;
+
+                            if (not carousel_services_available.empty()) {
+                                carousel_services_active.emplace_back(
+                                        carousel_services_available.front());
+                                carousel_services_available.pop_front();
+                            }
                         }
-                        current_carousel_service = current_it->first;
-                        time_carousel_change = steady_clock::now();
                     }
                 }
             }
         }
+
+        carousel_services_active.erase(
+                remove_if(
+                    carousel_services_active.begin(),
+                    carousel_services_active.end(),
+                    [](const ActiveCarouselService& acs){
+                        return acs.sid == 0;
+                    }), carousel_services_active.end());
         lock.unlock();
         check_decoders_required();
     }
