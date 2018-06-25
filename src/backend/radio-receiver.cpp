@@ -53,8 +53,8 @@ RadioReceiver::RadioReceiver(
         rci,
         mscHandler,
         ficHandler,
-        decodeTII,
-        ofdmProcessorThreshold)
+        ofdmProcessorThreshold,
+        decodeTII)
 { }
 
 void RadioReceiver::restart(bool doScan)
