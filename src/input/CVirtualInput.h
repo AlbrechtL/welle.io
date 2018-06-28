@@ -38,7 +38,7 @@ enum class CDeviceID {
 
 class CVirtualInput : public InputInterface {
     public:
-        virtual ~CVirtualInput() {};
+        virtual ~CVirtualInput() {}
         virtual CDeviceID getID(void) = 0;
 };
 
