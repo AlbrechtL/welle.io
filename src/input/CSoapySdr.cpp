@@ -31,7 +31,6 @@
 #include <SoapySDR/Errors.hpp>
 #include "CSoapySdr.h"
 #include "dab-constants.h"
-#include "unistd.h"
 
 using namespace std;
 

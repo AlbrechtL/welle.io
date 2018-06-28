@@ -27,8 +27,6 @@
  *
  */
 
-#include <unistd.h>
-
 #include <QApplication>
 #include <QCoreApplication>
 #include <QCommandLineParser>

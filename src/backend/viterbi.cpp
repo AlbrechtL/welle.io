@@ -24,7 +24,7 @@
 #include    "viterbi.h"
 #include    <cstring>
 
-#ifdef  __MINGW32__
+#ifdef _WIN32
 #  include <intrin.h>
 #  include <malloc.h>
 #  include <windows.h>
@@ -128,7 +128,7 @@ Viterbi::Viterbi(int16_t wordlength)
 {
     int polys[RATE] = POLYS;
     int16_t i, state;
-#ifdef  __MINGW32__
+#ifdef _WIN32
     uint32_t    size;
 #endif
 
@@ -139,7 +139,7 @@ Viterbi::Viterbi(int16_t wordlength)
     // However, the application then crashes, so something is not OK
     // By doubling the size, the problem disappears. It is not solved though
     // and not further investigation.
-#ifdef __MINGW32__
+#ifdef _WIN32
     size    = 2 * ((wordlength + (K - 1)) / 8 + 1 + 16) & ~0xF;
     data    = (uint8_t *)_aligned_malloc (size, 16);
     size    = 2 * (RATE * (wordlength + (K - 1)) * sizeof(COMPUTETYPE) + 16) & ~0xF;
@@ -177,7 +177,7 @@ Viterbi::Viterbi(int16_t wordlength)
 
 Viterbi::~Viterbi()
 {
-#ifdef  __MINGW32__
+#ifdef _WIN32
     _aligned_free (vp. decisions);
     _aligned_free (data);
     _aligned_free (symbols);
