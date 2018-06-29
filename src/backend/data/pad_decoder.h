@@ -54,7 +54,7 @@ protected:
 	size_t dg_size;
 	size_t dg_size_needed;
 
-	virtual size_t GetInitialNeededSize() {return 0;};
+	virtual size_t GetInitialNeededSize() {return 0;}
 	virtual bool DecodeDataGroup() = 0;
 	bool EnsureDataGroupSize(size_t desired_dg_size);
 	bool CheckCRC(size_t len);
@@ -171,12 +171,12 @@ typedef std::list<XPAD_CI> xpad_cis_t;
 // --- PADDecoderObserver -----------------------------------------------------------------
 class PADDecoderObserver {
 public:
-	virtual ~PADDecoderObserver() {};
+	virtual ~PADDecoderObserver() {}
 
-	virtual void PADChangeDynamicLabel(const DL_STATE& /*dl*/) {};
-	virtual void PADChangeSlide(const MOT_FILE& /*slide*/) {};
+	virtual void PADChangeDynamicLabel(const DL_STATE& /*dl*/) {}
+	virtual void PADChangeSlide(const MOT_FILE& /*slide*/) {}
 
-	virtual void PADLengthError(size_t /*announced_xpad_len*/, size_t /*xpad_len*/) {};
+	virtual void PADLengthError(size_t /*announced_xpad_len*/, size_t /*xpad_len*/) {}
 };
 
 

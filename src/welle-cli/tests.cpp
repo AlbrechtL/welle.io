@@ -59,7 +59,7 @@ class ChannelSimulator : public CVirtualInput
             parentInput(parent.get()),
             distr(0.0, stddev) {}
 
-        virtual ~ChannelSimulator() {};
+        virtual ~ChannelSimulator() {}
 
         virtual CDeviceID getID(void) { return parentInput->getID(); }
         virtual void setFrequency(int frequency)

@@ -29,7 +29,7 @@
 
 class DabVirtual {
     public:
-        virtual ~DabVirtual() {};
+        virtual ~DabVirtual() {}
         virtual int32_t process(int16_t *v, int16_t cnt) = 0;
 };
 #endif
