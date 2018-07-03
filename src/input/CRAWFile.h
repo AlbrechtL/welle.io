@@ -89,7 +89,6 @@ private:
 
     RingBuffer<uint8_t> SampleBuffer;
     RingBuffer<uint8_t> SpectrumSampleBuffer;
-    int32_t bufferSize = 0;
     FILE* filePointer = nullptr;
     bool readerOK = false;
     bool readerPausing = false;

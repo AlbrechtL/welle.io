@@ -79,9 +79,6 @@ class RadioReceiver {
                 const std::string& dumpFileName,
                 bool unique);
 
-        RadioControllerInterface& rci;
-        InputInterface& input;
-
         DABParams params; // Defaults to TM1 parameters
 
         MscHandler mscHandler;

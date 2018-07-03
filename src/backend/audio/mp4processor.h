@@ -42,8 +42,6 @@
 #include "data/pad_decoder.h"
 #include "radio-controller.h"
 
-enum class AACAudioMode { Unknown, AAC_LC, AAC_SBR, AAC_PS};
-
 class Mp4Processor : public DabProcessor, public PADDecoderObserver
 {
     public:
@@ -72,17 +70,13 @@ class Mp4Processor : public DabProcessor, public PADDecoderObserver
         int16_t     superFramesize;
         int16_t     blockFillIndex;
         int16_t     blocksInBuffer;
-        int16_t     blockCount;
         int16_t     bitRate;
         std::vector<uint8_t> frameBytes;
-        uint8_t   **RSMatrix;
         int16_t     RSDims;
         int16_t     au_start[10];
-        int32_t     baudRate;
 
         int32_t     au_count;
         int16_t     au_errors;
-        int16_t     errorRate;
         firecode_checker    fc;
         ReedSolomon rsDecoder;
         std::vector<uint8_t> outVector;
@@ -94,12 +88,9 @@ class Mp4Processor : public DabProcessor, public PADDecoderObserver
         int16_t     rsErrors;
         int16_t     aacErrors;
         int16_t     aacFrames;
-        int16_t     charSet;
 
         struct FILEDeleter{ void operator()(FILE* fd){ if (fd) fclose(fd); }};
         std::unique_ptr<FILE, FILEDeleter> mscFile;
-
-        AACAudioMode aacAudioMode;
 
         PADDecoder padDecoder;
 };

@@ -37,15 +37,11 @@
 
 using namespace std;
 
-static constexpr size_t AUDIOBUFFERSIZE = 32768;
-
 RadioReceiver::RadioReceiver(
                 RadioControllerInterface& rci,
                 InputInterface& input,
                 int ofdmProcessorThreshold,
                 bool decodeTII) :
-    rci(rci),
-    input(input),
     mscHandler(params, false),
     ficHandler(rci),
     ofdmProcessor(input,
