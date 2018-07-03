@@ -428,7 +428,7 @@ void CGUI::updateImpulseResponse()
     qreal x_min = 0;
     qreal x_max = 0;
 
-    impulseResponseBuffer = std::move(RadioController->getImpulseResponse());
+    impulseResponseBuffer = RadioController->getImpulseResponse();
 
     if (impulseResponseBuffer.size() == (size_t)T_u) {
         impulseResponseSeriesData.resize(T_u);
@@ -469,7 +469,7 @@ void CGUI::updateNullSymbol()
     qreal sampleFrequency_MHz = 2.048; // ToDo
     qreal dip_MHz = sampleFrequency_MHz / T_u;
 
-    nullSymbolBuffer = std::move(RadioController->getNullSymbol());
+    nullSymbolBuffer = RadioController->getNullSymbol();
 
     if (nullSymbolBuffer.size() == (size_t)T_null) {
         nullSymbolSeriesData.resize(T_u);
@@ -527,7 +527,7 @@ void CGUI::updateConstellation()
     qreal x_min = 0;
     qreal x_max = 0;
 
-    constellationPointBuffer = std::move(RadioController->getConstellationPoint());
+    constellationPointBuffer = RadioController->getConstellationPoint();
 
     const size_t decim = OfdmDecoder::constellationDecimation;
     const size_t num_iqpoints = (RadioController->getDABParams().L-1) * RadioController->getDABParams().K / decim;
