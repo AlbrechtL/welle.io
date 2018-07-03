@@ -38,7 +38,6 @@ ReedSolomon::ReedSolomon(
         uint16_t fcr,
         uint16_t prim,
         uint16_t nroots) :
-    symsize(symsize),
     codeLength((1 << symsize) - 1),
     nroots(nroots),
     fcr(fcr),

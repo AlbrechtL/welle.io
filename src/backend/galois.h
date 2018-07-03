@@ -33,7 +33,6 @@ class galois
 {
     private:
         uint16_t mm;        /* Bits per symbol */
-        uint16_t gfpoly;
         uint16_t codeLength;    /* Symbols per block (= (1<<mm)-1) */
         uint16_t d_q;
         std::vector<uint16_t> alpha_to; /* log lookup table */

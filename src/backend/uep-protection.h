@@ -42,7 +42,6 @@ class UEPProtection: public Protection, public Viterbi
         const int8_t *PI2;
         const int8_t *PI3;
         const int8_t *PI4;
-        int16_t bitRate;
         int32_t outSize;
         std::vector<int16_t> viterbiBlock;
 };

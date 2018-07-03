@@ -144,7 +144,6 @@ UEPProtection::UEPProtection(
         int16_t bitRate,
         int16_t protLevel) :
     Viterbi(24 * bitRate),
-    bitRate(bitRate),
     outSize(24 * bitRate),
     viterbiBlock(outSize * 4 + 24)
 {

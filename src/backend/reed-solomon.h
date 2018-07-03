@@ -24,7 +24,6 @@ class ReedSolomon
         void    enc(const uint8_t *data_in, uint8_t *data_out, int16_t cutlen);
 
     private:
-        const uint16_t symsize;   /* Bits per symbol */
         const uint16_t codeLength;/* Symbols per block (= (1<<mm)-1) */
         const uint16_t nroots;    /* Number of generator roots = number of parity symbols */
         const uint8_t  fcr;       /* First consecutive root, index form */

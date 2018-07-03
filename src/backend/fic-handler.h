@@ -57,8 +57,6 @@ class FicHandler: public Viterbi
         int16_t     index = 0;
         int16_t     BitsperBlock = 2 * 1536;
         int16_t     ficno = 0;
-        int16_t     ficBlocks = 0;
-        int16_t     ficMissed = 0;
         int16_t     ficRatio = 0;
         uint8_t     PRBS[768];
         uint8_t     shiftRegister[9];

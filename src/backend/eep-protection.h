@@ -37,7 +37,6 @@ class EEPProtection: public Protection, public Viterbi {
         int16_t L2;
         const int8_t *PI1;
         const int8_t *PI2;
-        int16_t bitRate;
         int32_t outSize;
         std::vector<int16_t> viterbiBlock;
 };

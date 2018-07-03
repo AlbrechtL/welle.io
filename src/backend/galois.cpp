@@ -31,7 +31,6 @@
 
 galois::galois(uint16_t symsize, uint16_t gfpoly) :
     mm(symsize),
-    gfpoly(gfpoly),
     codeLength((1 << mm) - 1),
     d_q(1 << mm),
     alpha_to(codeLength + 1),
@@ -61,11 +60,13 @@ int galois::modnn(int x)
     return x;
 }
 
+/* Unused function, kept for reference
 static inline
 uint16_t round_mod(int16_t a, int16_t n)
 {
     return (a % n < 0) ? (a % n + n) : (a % n);
 }
+*/
 
 uint16_t galois::add_poly(uint16_t a, uint16_t b)
 {

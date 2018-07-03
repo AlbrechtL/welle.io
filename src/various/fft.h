@@ -55,7 +55,6 @@ class   common_fft
     private:
         int32_t     fft_size;
         DSPCOMPLEX  *vector;
-        DSPCOMPLEX  *vector1;
         FFTW_PLAN   plan;
 };
 

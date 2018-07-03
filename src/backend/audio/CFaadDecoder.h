@@ -59,5 +59,4 @@ class CFaadDecoder
         uint32_t                 aacCap;
         NeAACDecHandle           aacHandle;
         NeAACDecConfigurationPtr aacConf;
-        NeAACDecFrameInfo        hInfo;
 };
