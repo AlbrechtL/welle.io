@@ -85,8 +85,10 @@ class WebRadioInterface : public RadioControllerInterface {
         void retune(const std::string& channel);
 
         bool dispatch_client(Socket&& client);
-        // Send the index.html file
-        bool send_index(Socket& s);
+        // Send a file
+        bool send_file(Socket& s,
+                const std::string& filename,
+                const std::string& content_type);
 
         // Generate and send the mux.json
         bool send_mux_json(Socket& s);

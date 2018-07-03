@@ -24,6 +24,7 @@
  */
 
 #include <future>
+#include <array>
 #include <algorithm>
 #include <iomanip>
 #include <iostream>
@@ -51,6 +52,9 @@ static const char* http_contenttype_data =
 
 static const char* http_contenttype_json =
         "Content-Type: application/json; charset=utf-8\r\n";
+
+static const char* http_contenttype_js =
+        "Content-Type: text/javascript; charset=utf-8\r\n";
 
 static const char* http_contenttype_html =
         "Content-Type: Content-Type: text/html; charset=utf-8\r\n";
@@ -241,7 +245,10 @@ bool WebRadioInterface::dispatch_client(Socket&& client)
         string request(buf.begin(), buf.end());
 
         if (request.find("GET / HTTP") == 0) {
-            success = send_index(s);
+            success = send_file(s, "index.html", http_contenttype_html);
+        }
+        else if (request.find("GET /index.js HTTP") == 0) {
+            success = send_file(s, "index.js", http_contenttype_js);
         }
         else if (request.find("GET /mux.json HTTP") == 0) {
             success = send_mux_json(s);
@@ -292,17 +299,19 @@ bool WebRadioInterface::dispatch_client(Socket&& client)
     }
 }
 
-bool WebRadioInterface::send_index(Socket& s)
+bool WebRadioInterface::send_file(Socket& s,
+        const std::string& filename,
+        const std::string& content_type)
 {
-    FILE *fd = fopen("index.html", "r");
+    FILE *fd = fopen(filename.c_str(), "r");
     if (fd) {
         string headers = http_ok;
-        headers += http_contenttype_html;
+        headers += content_type;
         headers += http_nocache;
         headers += "\r\n";
         ssize_t ret = s.send(headers.data(), headers.size(), MSG_NOSIGNAL);
         if (ret == -1) {
-            cerr << "Failed to send index.html headers" << endl;
+            cerr << "Failed to send file headers" << endl;
             return false;
         }
 
@@ -311,7 +320,7 @@ bool WebRadioInterface::send_index(Socket& s)
             ret = fread(data.data(), 1, data.size(), fd);
             ret = s.send(data.data(), ret, MSG_NOSIGNAL);
             if (ret == -1) {
-                cerr << "Failed to send index.html data" << endl;
+                cerr << "Failed to send file data" << endl;
                 fclose(fd);
                 return false;
             }
@@ -326,10 +335,58 @@ bool WebRadioInterface::send_index(Socket& s)
         headers += http_contenttype_text;
         headers += http_nocache;
         headers += "\r\n";
-        headers += "index.html file is missing!";
+        headers += "file '" + filename + "' is missing!";
         return true;
     }
     return false;
+}
+
+struct peak_t {
+    int index = -1;
+    float value = -1e30f;
+};
+
+static void to_json(nlohmann::json& j, const peak_t& peak)
+{
+    j = nlohmann::json{
+        {"index", peak.index},
+            {"value", 10.0f * log10(peak.value)}};
+}
+
+static nlohmann::json calculate_cir_peaks(const vector<float>& cir_linear)
+{
+    constexpr size_t num_peaks = 6;
+
+    list<peak_t> peaks;
+
+    if (not cir_linear.empty()) {
+        vector<float> cir_lin(cir_linear);
+
+        // Every time we find a peak, we attenuate it, including
+        // its surrounding values, and we go search the next peak.
+        for (size_t peak = 0; peak < num_peaks; peak++) {
+            peak_t p;
+            for (size_t i = 1; i < cir_lin.size(); i++) {
+                if (cir_lin[i] > p.value) {
+                    p.value = cir_lin[i];
+                    p.index = i;
+                }
+            }
+
+            const size_t windowsize = 25;
+            for (size_t j = 0; j < windowsize; j++) {
+                const ssize_t i = p.index + j - windowsize/2;
+                if (i >= 0 and i < cir_lin.size()) {
+                    cir_lin[i] *= 0;
+                }
+            }
+
+            peaks.push_back(move(p));
+        }
+    }
+
+    nlohmann::json j = peaks;
+    return j;
 }
 
 bool WebRadioInterface::send_mux_json(Socket& s)
@@ -518,6 +575,11 @@ bool WebRadioInterface::send_mux_json(Socket& s)
                     {"delay_km", tii.getDelayKm()},
                     {"error", tii.error}});
         }
+    }
+
+    {
+        lock_guard<mutex> lock(plotdata_mut);
+        j["cir"] = calculate_cir_peaks(last_CIR);
     }
 
     string headers = http_ok;

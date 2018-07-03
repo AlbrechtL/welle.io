@@ -210,6 +210,11 @@ if(BUILD_WELLE_CLI)
             COMMAND ${CMAKE_COMMAND} -E copy
                     ${CMAKE_SOURCE_DIR}/src/welle-cli/index.html
                     ${CMAKE_CURRENT_BINARY_DIR}/index.html)
+    add_custom_command(
+            TARGET ${cliExecutableName} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy
+                    ${CMAKE_SOURCE_DIR}/src/welle-cli/index.js
+                    ${CMAKE_CURRENT_BINARY_DIR}/index.js)
 endif()
 
 configure_file(
