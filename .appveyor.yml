@@ -42,20 +42,20 @@ after_build:
 #  - cd installer\packages\io.welle.welle\data
 #  - welle-io.exe --version
   
-#deploy:
+deploy:
   # Upload it to BinTray
-  #- provider: BinTray
-  #  username: albrechtl
-  #  api_key:
-  #    secure: i7ksq/PodhXDzjw7trN/y00EA6U4tZ9m4EGOFDv736Nrvb6lpvG8jtXwTV4cPOtV
-  #  subject: albrechtl
-  #  repo: welle.io
-  #  package: welle.io_next_nightly
-  #  version: '%file_version%'
-  #  publish: true
-  #  override: true
-  #  explode: true
+  - provider: BinTray
+    username: albrechtl
+    api_key:
+      secure: i7ksq/PodhXDzjw7trN/y00EA6U4tZ9m4EGOFDv736Nrvb6lpvG8jtXwTV4cPOtV
+    subject: albrechtl
+    repo: welle.io
+    package: welle.io_next_nightly
+    version: '%file_version%'
+    publish: true
+    override: true
+    explode: true
 
 after_deploy:
   # Backup: Upload it to transfer.sh
-  - curl -fsS --upload-file C:\projects\welle.io-win-libs\install\%filename% https://transfer.sh/%filename%
+  # - curl -fsS --upload-file C:\projects\welle.io-win-libs\install\%filename% https://transfer.sh/%filename%
