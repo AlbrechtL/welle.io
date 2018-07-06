@@ -146,23 +146,27 @@ if(SoapySDR_FOUND)
   set(input_sources  ${input_sources} src/input/CSoapySdr.cpp)
 endif()
 
-execute_process(
-  COMMAND git rev-parse --short HEAD
-  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-  OUTPUT_VARIABLE GIT_COMMIT_HASH
-  OUTPUT_STRIP_TRAILING_WHITESPACE
-)
+if(NOT GIT_COMMIT_HASH)
+  execute_process(
+    COMMAND git rev-parse --short HEAD
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    OUTPUT_VARIABLE GIT_COMMIT_HASH
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+endif()
 
 if(GIT_COMMIT_HASH)
   add_definitions("-DGITHASH=\"${GIT_COMMIT_HASH}\"")
 endif()
 
-execute_process(
-  COMMAND git describe --tags --long
-  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-  OUTPUT_VARIABLE GIT_DESCRIBE
-  OUTPUT_STRIP_TRAILING_WHITESPACE
-)
+if(NOT GIT_DESCRIBE)
+  execute_process(
+    COMMAND git describe --tags --long
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    OUTPUT_VARIABLE GIT_DESCRIBE
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+endif()
 
 if(GIT_DESCRIBE)
   add_definitions("-DGITDESCRIBE=\"${GIT_DESCRIBE}\"")
@@ -216,6 +220,22 @@ if(BUILD_WELLE_CLI)
                     ${CMAKE_SOURCE_DIR}/src/welle-cli/index.js
                     ${CMAKE_CURRENT_BINARY_DIR}/index.js)
 endif()
+
+INSTALL (FILES ${PROJECT_SOURCE_DIR}/welle-io.desktop DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/applications)
+
+INSTALL (FILES ${PROJECT_SOURCE_DIR}/icon/16x16/welle-io.png DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/16x16/apps)
+INSTALL (FILES ${PROJECT_SOURCE_DIR}/icon/24x24/welle-io.png DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/24x24/apps)
+INSTALL (FILES ${PROJECT_SOURCE_DIR}/icon/32x32/welle-io.png DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/32x32/apps)
+INSTALL (FILES ${PROJECT_SOURCE_DIR}/icon/48x48/welle-io.png DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/48x48/apps)
+INSTALL (FILES ${PROJECT_SOURCE_DIR}/icon/128x128/welle-io.png DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/128x128/apps)
+INSTALL (FILES ${PROJECT_SOURCE_DIR}/icon/256x256/welle-io.png DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/256x256/apps)
+
+INSTALL (
+  FILES
+    ${PROJECT_SOURCE_DIR}/src/welle-cli/index.html
+    ${PROJECT_SOURCE_DIR}/src/welle-cli/index.js
+  DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/welle-io/html/
+)
 
 configure_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
