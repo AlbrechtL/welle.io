@@ -83,37 +83,44 @@ class OFDMProcessor
         TIIDecoder tiiDecoder;
 
         std::atomic<bool> running = ATOMIC_VAR_INIT(false);
-        int32_t     T_null;
-        int32_t     T_u;
-        int32_t     T_s;
-        int32_t     T_F;
-        float       sLevel = 0;
-        std::vector<DSPCOMPLEX> oscillatorTable;
-        int32_t     localPhase = 0;
-        int16_t     fineCorrector = 0;
-        int32_t     coarseCorrector = 0;
-        bool        disableCoarseCorrector;
-        int attempts = 0;
 
+        int32_t T_null;
+        int32_t T_u;
+        int32_t T_s;
+        int32_t T_F;
+
+        std::vector<DSPCOMPLEX> oscillatorTable;
+
+        int32_t localPhase = 0;
+
+        float sLevel = 0;
+        int32_t sampleCnt = 0;
+
+        int16_t fineCorrector = 0;
+        int32_t coarseCorrector = 0;
+        bool disableCoarseCorrector;
 
         FreqsyncMethod freqsyncMethod;
         std::vector<DSPCOMPLEX> ofdmBuffer;
-        uint32_t    ofdmBufferIndex = 0;
+        uint32_t ofdmBufferIndex = 0;
         PhaseReference phaseRef;
         OfdmDecoder ofdmDecoder;
         std::vector<float> correlationVector;
         std::vector<float> refArg;
-        int32_t     sampleCnt = 0;
-        bool        scanMode = false;
-        int32_t     bufferContent = 0;
-        common_fft  fft_handler;
-        DSPCOMPLEX  *fft_buffer; // of size T_u
 
-        DSPCOMPLEX  getSample(int32_t);
-        void        getSamples(DSPCOMPLEX *, int16_t, int32_t);
-        void        run(void);
-        int16_t     processPRS(DSPCOMPLEX *v);
-        int16_t     getMiddle(DSPCOMPLEX *);
+        bool scanMode = false;
+        int attempts = 0;
+
+        int32_t bufferContent = 0;
+
+        fft::Forward fft_handler;
+        DSPCOMPLEX *fft_buffer; // of size T_u
+
+        DSPCOMPLEX getSample(int32_t);
+        void getSamples(DSPCOMPLEX *, int16_t, int32_t);
+        void run(void);
+        int16_t processPRS(DSPCOMPLEX *v);
+        int16_t getMiddle(DSPCOMPLEX *);
 };
 #endif
 

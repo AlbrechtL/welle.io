@@ -31,25 +31,23 @@
  * The class inherits from the phaseTable.
  */
 PhaseReference::PhaseReference(const DABParams& p, int16_t threshold) :
-    phaseTable(p.dabMode),
+    PhaseTable(p.dabMode),
+    threshold(threshold),
     fft_processor(p.T_u),
     res_processor(p.T_u)
 {
-    int32_t i;
-    DSPFLOAT Phi_k;
-
-    this->threshold = threshold;
+    DSPFLOAT phi_k;
 
     refTable.resize(p.T_u);
-    fft_buffer    = fft_processor.getVector();
-    res_buffer    = res_processor.getVector();
+    fft_buffer = fft_processor.getVector();
+    res_buffer = res_processor.getVector();
 
-    for (i = 1; i <= p.K / 2; i ++) {
-        Phi_k = get_Phi(i);
-        refTable[i] = DSPCOMPLEX(cos(Phi_k), sin(Phi_k));
+    for (int i = 1; i <= p.K / 2; i ++) {
+        phi_k = get_Phi(i);
+        refTable[i] = DSPCOMPLEX(cos(phi_k), sin(phi_k));
 
-        Phi_k = get_Phi(-i);
-        refTable[p.T_u - i] = DSPCOMPLEX(cos(Phi_k), sin(Phi_k));
+        phi_k = get_Phi(-i);
+        refTable[p.T_u - i] = DSPCOMPLEX(cos(phi_k), sin(phi_k));
     }
 }
 

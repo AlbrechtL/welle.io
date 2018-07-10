@@ -373,7 +373,7 @@ void CGUI::updateSpectrum()
     if (signalProbeBuffer.size() == (size_t)T_u) {
         spectrumSeriesData.resize(T_u);
 
-        common_fft FFT(T_u);
+        fft::Forward FFT(T_u);
         DSPCOMPLEX* spectrumBuffer = FFT.getVector();
 
         std::copy(signalProbeBuffer.begin(), signalProbeBuffer.begin() + T_u,
@@ -474,7 +474,7 @@ void CGUI::updateNullSymbol()
     if (nullSymbolBuffer.size() == (size_t)T_null) {
         nullSymbolSeriesData.resize(T_u);
 
-        common_fft FFT(T_u);
+        fft::Forward FFT(T_u);
         DSPCOMPLEX* spectrumBuffer = FFT.getVector();
 
         std::copy(nullSymbolBuffer.begin(), nullSymbolBuffer.begin() + T_u,

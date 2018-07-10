@@ -133,7 +133,7 @@ class WebRadioInterface : public RadioControllerInterface {
         Channels channels;
         DABParams dabparams;
         CVirtualInput& input;
-        common_fft spectrum_fft_handler;
+        fft::Forward spectrum_fft_handler;
 
         RadioReceiverOptions rro;
         DecodeSettings decode_settings;

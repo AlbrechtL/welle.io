@@ -21,7 +21,7 @@
  */
 #include    "phasetable.h"
 
-static const struct phasetableElement modeI_table[] = {
+static const PhasetableElement modeI_table[] = {
     {-768, -737, 0, 1},
     {-736, -705, 1, 2},
     {-704, -673, 2, 0},
@@ -74,7 +74,7 @@ static const struct phasetableElement modeI_table[] = {
     { -1000, -1000, 0, 0}
 };
 
-static const struct phasetableElement modeII_table[] = {
+static const PhasetableElement modeII_table[] = {
     {-192,  -161,   0,  2},
     {-160,  -129,   1,  3},
     {-128,  -97,    2,  2},
@@ -90,7 +90,7 @@ static const struct phasetableElement modeII_table[] = {
     {-1000, -1000,  0,  0}
 };
 
-static const struct phasetableElement modeIV_table[] = {
+static const PhasetableElement modeIV_table[] = {
     {-384, -353, 0, 0},
     {-352, -321, 1, 1},
     {-320, -289, 2, 1},
@@ -118,23 +118,21 @@ static const struct phasetableElement modeIV_table[] = {
     {-1000, -1000, 0, 0}
 };
 
-phaseTable::phaseTable(int16_t transmission_mode)
+PhaseTable::PhaseTable(int16_t transmission_mode) :
+    mode(transmission_mode)
 {
-    Mode = transmission_mode;
-    currentTable = modeI_table;
-    switch (Mode) {
-        default:
+    switch (mode) {
         case 1:
-            currentTable  = modeI_table;
+            currentTable = modeI_table;
             break;
-
         case 2:
-            currentTable  = modeII_table;
+            currentTable = modeII_table;
             break;
-
         case 4:
-            currentTable  = modeIV_table;
+            currentTable = modeIV_table;
             break;
+        default:
+            throw std::runtime_error("Invalid mode selected");
     }
 }
 
@@ -155,7 +153,7 @@ static const int8_t h3[] = {
     0, 1, 2, 1, 0, 3, 3, 2, 2, 3, 2, 1, 2, 1, 3, 2,
     0, 1, 2, 1, 0, 3, 3, 2, 2, 3, 2, 1, 2, 1, 3, 2};
 
-int32_t     phaseTable::h_table (int32_t i, int32_t j)
+int32_t PhaseTable::h_table(int32_t i, int32_t j)
 {
     switch (i) {
         case 0:
@@ -164,24 +162,23 @@ int32_t     phaseTable::h_table (int32_t i, int32_t j)
             return h1[j];
         case 2:
             return h2[j];
-        default:
         case 3:
             return h3[j];
+        default:
+            throw std::logic_error("Invalid i in h_table");
     }
 }
 
-DSPFLOAT    phaseTable::get_Phi (int32_t k) {
-    int32_t k_prime, i, j, n = 0;
-
-    for (j = 0; currentTable [j]. kmin != -1000; j ++) {
-        if ((currentTable [j]. kmin <= k) && (k <= currentTable[j].kmax)) {
-            k_prime = currentTable[j].kmin;
-            i       = currentTable[j].i;
-            n       = currentTable[j].n;
-            return M_PI / 2 * (h_table (i, k - k_prime) + n);
+DSPFLOAT PhaseTable::get_Phi(int32_t k)
+{
+    for (int j = 0; currentTable[j].kmin != -1000; j++) {
+        if ((currentTable[j].kmin <= k) && (k <= currentTable[j].kmax)) {
+            int k_prime = currentTable[j].kmin;
+            int i       = currentTable[j].i;
+            int n       = currentTable[j].n;
+            return M_PI / 2.0f * (h_table(i, k - k_prime) + n);
         }
     }
-    fprintf (stderr, "Help with %d\n", k);
-    return 0;
+    throw std::logic_error("Invalid k in get_Phi");
 }
 

@@ -71,7 +71,7 @@ class   OfdmDecoder
 
         int32_t T_g;
         std::vector<DSPCOMPLEX> phaseReference;
-        common_fft  fft_handler;
+        fft::Forward  fft_handler;
         DSPCOMPLEX  *fft_buffer;
         FrequencyInterleaver interleaver;
 

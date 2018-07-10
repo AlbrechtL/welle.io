@@ -1,4 +1,6 @@
 /*
+ *    Copyright (C) 2018
+ *    Matthias P. Braendli (matthias.braendli@mpb.li)
  *
  *    Copyright (C) 2009 .. 2014
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
@@ -28,57 +30,60 @@
 #ifndef _COMMON_FFT
 #define _COMMON_FFT
 
-//  Simple wrapper around fftwf
-#include    "dab-constants.h"
+// Wrappers around fftwf and KISS FFT for both forward and backward FFTs
+#include "dab-constants.h"
 
 #ifndef KISSFFT
-#define FFTW_MALLOC     fftwf_malloc
-#define FFTW_PLAN_DFT_1D    fftwf_plan_dft_1d
-#define FFTW_DESTROY_PLAN   fftwf_destroy_plan
-#define FFTW_FREE       fftwf_free
-#define FFTW_PLAN       fftwf_plan
-#define FFTW_EXECUTE        fftwf_execute
-#include    <fftw3.h>
+#  define FFTW_MALLOC     fftwf_malloc
+#  define FFTW_PLAN_DFT_1D    fftwf_plan_dft_1d
+#  define FFTW_DESTROY_PLAN   fftwf_destroy_plan
+#  define FFTW_FREE       fftwf_free
+#  define FFTW_PLAN       fftwf_plan
+#  define FFTW_EXECUTE        fftwf_execute
+#  include <fftw3.h>
 
-/*
- *  a simple wrapper
- */
+namespace fft {
 
-class   common_fft
+class Forward {
+    public:
+        Forward(int32_t fft_size);
+        Forward(const Forward&) = delete;
+        Forward& operator=(const Forward&) = delete;
+        ~Forward(void);
+        DSPCOMPLEX *getVector(void);
+        void do_FFT(void);
+
+    private:
+        DSPCOMPLEX *vector;
+        FFTW_PLAN plan;
+};
+
+class Backward
 {
     public:
-        common_fft(int32_t);
-        ~common_fft(void);
-        DSPCOMPLEX  *getVector(void);
-        void        do_FFT(void);
+        Backward(int32_t);
+        ~Backward(void);
+        Backward(const Backward&) = delete;
+        Backward& operator=(const Backward&) = delete;
+        DSPCOMPLEX *getVector(void);
+        void do_IFFT(void);
 
     private:
-        int32_t     fft_size;
-        DSPCOMPLEX  *vector;
-        FFTW_PLAN   plan;
+        int32_t fft_size;
+        DSPCOMPLEX *vector;
+        FFTW_PLAN plan;
 };
 
-class   common_ifft {
-    public:
-        common_ifft(int32_t);
-        ~common_ifft(void);
-        DSPCOMPLEX  *getVector(void);
-        void        do_IFFT(void);
-
-    private:
-        int32_t     fft_size;
-        DSPCOMPLEX  *vector;
-        FFTW_PLAN   plan;
-        void        Scale(DSPCOMPLEX *);
-};
 #else
+#  include "kiss_fft.h"
 
-#include "kiss_fft.h"
-
-class   common_fft {
+class Forward
+{
     public:
-        common_fft  (int32_t fft_size);
-        ~common_fft (void);
+        Forward(int32_t fft_size);
+        ~Forward(void);
+        Forward(const Forward&) = delete;
+        Forward& operator=(const Forward&) = delete;
         DSPCOMPLEX  *getVector(void);
         void        do_FFT(void);
 
@@ -90,12 +95,15 @@ class   common_fft {
         DSPCOMPLEX *fout;
 };
 
-class   common_ifft {
+class Backward
+{
     public:
-        common_ifft (int32_t fft_size);
-        ~common_ifft    (void);
-        DSPCOMPLEX  *getVector  (void);
-        void        do_IFFT     (void);
+        Backward(int32_t fft_size);
+        ~Backward(void);
+        Backward(const Backward&) = delete;
+        Backward& operator=(const Backward&) = delete;
+        DSPCOMPLEX *getVector(void);
+        void do_IFFT(void);
 
     private:
         int32_t fft_size;
@@ -106,6 +114,7 @@ class   common_ifft {
 };
 #endif
 
+} // namespace fft
 
 #endif
 

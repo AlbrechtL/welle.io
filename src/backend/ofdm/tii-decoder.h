@@ -92,8 +92,8 @@ class TIIDecoder {
         std::condition_variable m_state_changed;
         State m_state = State::Idle;
 
-        common_fft m_fft_null;
-        common_fft m_fft_prs;
+        fft::Forward m_fft_null;
+        fft::Forward m_fft_prs;
 
         struct cp_error_measurement_t {
             std::unordered_map<float, uint64_t> error_per_correction;

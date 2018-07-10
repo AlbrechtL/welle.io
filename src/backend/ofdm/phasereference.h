@@ -31,7 +31,7 @@
 #include    "phasetable.h"
 #include    "dab-constants.h"
 
-class PhaseReference : public phaseTable
+class PhaseReference : public PhaseTable
 {
     public:
         PhaseReference(const DABParams& p, int16_t threshold);
@@ -43,13 +43,13 @@ class PhaseReference : public phaseTable
     private:
         std::vector<DSPCOMPLEX> refTable;
 
-        int16_t     threshold;
+        int16_t threshold;
 
-        common_fft  fft_processor;
-        DSPCOMPLEX  *fft_buffer;
+        fft::Forward fft_processor;
+        DSPCOMPLEX *fft_buffer;
 
-        common_ifft res_processor;
-        DSPCOMPLEX  *res_buffer;
+        fft::Backward res_processor;
+        DSPCOMPLEX *res_buffer;
 };
 #endif
 

@@ -28,7 +28,7 @@
 #include    <stdint.h>
 #include    "dab-constants.h"
 
-struct phasetableElement
+struct PhasetableElement
 {
     int32_t kmin, kmax;
     int32_t i;
@@ -36,16 +36,16 @@ struct phasetableElement
 };
 
 
-class phaseTable
+class PhaseTable
 {
     public:
-        phaseTable  (int16_t transmission_mode);
-        DSPFLOAT    get_Phi (int32_t);
+        PhaseTable(int16_t transmission_mode);
+        DSPFLOAT get_Phi(int32_t);
 
     private:
-        const struct phasetableElement *currentTable;
-        int16_t     Mode;
-        int32_t     h_table(int32_t i, int32_t j);
+        const PhasetableElement *currentTable;
+        int16_t mode;
+        int32_t h_table(int32_t i, int32_t j);
 };
 #endif
 
