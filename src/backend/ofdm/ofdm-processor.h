@@ -45,6 +45,7 @@
 #include "CVirtualInput.h"
 #include "fft.h"
 #include "radio-controller.h"
+#include "radio-receiver-options.h"
 #include "fic-handler.h"
 #include "msc-handler.h"
 //
@@ -52,8 +53,6 @@
 //  It was found that enlarging the buffersize to e.g. 8192
 //  cannot be handled properly by the underlying system.
 #define DUMPSIZE        4096
-
-enum class FreqsyncMethod { GetMiddle, CorrelatePRS, PatternOfZeros };
 
 class OFDMProcessor
 {
@@ -64,19 +63,17 @@ class OFDMProcessor
                 RadioControllerInterface& ri,
                 MscHandler& msc,
                 FicHandler& fic,
-                int16_t threshold,
-                bool decodeTII = false,
-                FreqsyncMethod freqsyncMethod = FreqsyncMethod::PatternOfZeros);
+                RadioReceiverOptions rro);
         ~OFDMProcessor(void);
         void reset(void);
         void stop(void);
-        void coarseCorrectorOn(void);
+        void resetCoarseCorrector(void);
         void set_scanMode(bool);
         void start(void);
 
     private:
         std::thread threadHandle;
-        int32_t syncBufferIndex;
+        int32_t syncBufferIndex = 0;
         RadioControllerInterface& radioInterface;
         InputInterface& input;
         const DABParams& params;
@@ -85,30 +82,30 @@ class OFDMProcessor
         bool decodeTII;
         TIIDecoder tiiDecoder;
 
-        std::atomic<bool> running;
+        std::atomic<bool> running = ATOMIC_VAR_INIT(false);
         int32_t     T_null;
         int32_t     T_u;
         int32_t     T_s;
-        int32_t     T_g;
         int32_t     T_F;
-        float       sLevel;
+        float       sLevel = 0;
         std::vector<DSPCOMPLEX> oscillatorTable;
-        int32_t     localPhase;
-        int16_t     fineCorrector;
-        int32_t     coarseCorrector;
+        int32_t     localPhase = 0;
+        int16_t     fineCorrector = 0;
+        int32_t     coarseCorrector = 0;
+        bool        disableCoarseCorrector;
         int attempts = 0;
 
 
         FreqsyncMethod freqsyncMethod;
         std::vector<DSPCOMPLEX> ofdmBuffer;
-        uint32_t    ofdmBufferIndex;
+        uint32_t    ofdmBufferIndex = 0;
         PhaseReference phaseRef;
         OfdmDecoder ofdmDecoder;
         std::vector<float> correlationVector;
         std::vector<float> refArg;
-        int32_t     sampleCnt;
-        bool        scanMode;
-        int32_t     bufferContent;
+        int32_t     sampleCnt = 0;
+        bool        scanMode = false;
+        int32_t     bufferContent = 0;
         common_fft  fft_handler;
         DSPCOMPLEX  *fft_buffer; // of size T_u
 

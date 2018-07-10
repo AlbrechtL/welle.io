@@ -259,6 +259,8 @@ struct options_t {
     bool carousel_pad = false;
     int web_port = -1; // positive value means enable
     list<int> tests;
+
+    RadioReceiverOptions rro;
 };
 
 static void usage()
@@ -292,6 +294,9 @@ static void usage()
         " welle-cli -c channel -C 1 -w port" << endl <<
         " welle-cli -c channel -PC 1 -w port" << endl <<
         endl <<
+        "Backend options" << endl <<
+        " -u  disable coarse corrector, for receivers who have a low frequency offset." << endl <<
+        endl <<
         "Use -t test_number to run a test." << endl <<
         "To understand what the tests do, please see source code." << endl <<
         endl <<
@@ -303,8 +308,10 @@ static void usage()
 options_t parse_cmdline(int argc, char **argv)
 {
     options_t options;
+    options.rro.decodeTII = true;
+
     int opt;
-    while ((opt = getopt(argc, argv, "c:C:dDf:hp:Pt:w:")) != -1) {
+    while ((opt = getopt(argc, argv, "c:C:dDf:hp:Pt:w:u")) != -1) {
         switch (opt) {
             case 'c':
                 options.channel = optarg;
@@ -335,6 +342,9 @@ options_t parse_cmdline(int argc, char **argv)
                 break;
             case 'w':
                 options.web_port = std::atoi(optarg);
+                break;
+            case 'u':
+                options.rro.disable_coarse_corrector = true;
                 break;
             default:
                 cerr << "Unknown option. Use -h for help" << endl;
@@ -402,8 +412,9 @@ int main(int argc, char **argv)
     string service_to_tune = options.programme;
 
     if (not options.tests.empty()) {
+        Tests tests(in, options.rro);
         for (int test : options.tests) {
-            run_test(test, in);
+            tests.run_test(test);
         }
     }
     else if (options.web_port != -1) {
@@ -421,11 +432,11 @@ int main(int argc, char **argv)
             }
             ds.num_decoders_in_carousel = options.num_decoders_in_carousel;
         }
-        WebRadioInterface wri(*in, options.web_port, ds);
+        WebRadioInterface wri(*in, options.web_port, ds, options.rro);
         wri.serve();
     }
     else {
-        RadioReceiver rx(ri, *in, 0);
+        RadioReceiver rx(ri, *in, options.rro);
         if (options.decode_all_programmes) {
             FILE* fic_fd = fopen("dump.fic", "w");
 

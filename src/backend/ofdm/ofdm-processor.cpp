@@ -56,31 +56,25 @@ OFDMProcessor::OFDMProcessor(
         RadioControllerInterface& ri,
         MscHandler& msc,
         FicHandler& fic,
-        int16_t threshold,
-        bool decodeTII,
-        FreqsyncMethod freqsyncMethod) :
+        RadioReceiverOptions rro) :
     radioInterface(ri),
     input(inputInterface),
     params(params),
     ficHandler(fic),
-    decodeTII(decodeTII),
+    decodeTII(rro.decodeTII),
     tiiDecoder(params, ri),
-    phaseRef(params, threshold),
+    T_null(params.T_null),
+    T_u(params.T_u),
+    T_s(params.T_s),
+    T_F(params.T_F),
+    disableCoarseCorrector(rro.disable_coarse_corrector),
+    freqsyncMethod(rro.freqsyncMethod),
+    phaseRef(params, rro.ofdmProcessorThreshold),
     ofdmDecoder(params, ri, fic, msc),
-    fft_handler(params.T_u)
+    fft_handler(params.T_u),
+    fft_buffer(fft_handler.getVector())
 {
-        int32_t i;
-        this->freqsyncMethod   = freqsyncMethod;
-        this->T_null           = params.T_null;
-        this->T_s              = params.T_s;
-        this->T_u              = params.T_u;
-        this->T_g              = T_s - T_u;
-        this->T_F              = params.T_F;
-        fft_buffer             = fft_handler.getVector();
         ofdmBuffer.resize(76 * T_s);
-        ofdmBufferIndex        = 0;
-        sampleCnt              = 0;
-        scanMode               = false;
         /**
          * the class phaseReference will take a number of samples
          * and indicate - using some threshold - whether there is
@@ -95,26 +89,20 @@ OFDMProcessor::OFDMProcessor(
          * map the result on (soft) bits and hand over control for handling
          * the decoded symbols
          */
-        running             = false;
-        fineCorrector       = 0;
-        coarseCorrector     = 0;
         oscillatorTable.resize(INPUT_RATE);
-        localPhase          = 0;
 
-        for (i = 0; i < INPUT_RATE; i ++)
-            oscillatorTable [i] = DSPCOMPLEX (cos (2.0 * M_PI * i / INPUT_RATE),
-                    sin (2.0 * M_PI * i / INPUT_RATE));
+        for (int i = 0; i < INPUT_RATE; i ++)
+            oscillatorTable[i] = DSPCOMPLEX(cos(2.0 * M_PI * i / INPUT_RATE),
+                    sin(2.0 * M_PI * i / INPUT_RATE));
 
-        bufferContent   = 0;
-        //
         //  and for the correlation
         refArg.resize(CORRELATION_LENGTH);
-        correlationVector.resize(SEARCH_RANGE + CORRELATION_LENGTH);
-        for (i = 0; i < CORRELATION_LENGTH; i ++)  {
+        for (int i = 0; i < CORRELATION_LENGTH; i ++)  {
             refArg[i] = arg(phaseRef[(T_u + i) % T_u] *
                         conj(phaseRef[(T_u + i + 1) % T_u]));
         }
-        //start ();
+
+        correlationVector.resize(SEARCH_RANGE + CORRELATION_LENGTH);
     }
 
 OFDMProcessor::~OFDMProcessor()
@@ -373,10 +361,10 @@ SyncOnPhase:
         //  Here we look only at the PRS when we need a coarse
         //  frequency synchronization.
         //  The width is limited to 2 * 35 kHz (i.e. positive and negative)
-        if (!ficHandler.syncReached()) {
+        if (!disableCoarseCorrector and !ficHandler.syncReached()) {
             int correction = processPRS(ofdmBuffer.data());
             if (correction != 100) {
-                coarseCorrector    += correction * params.carrierDiff;
+                coarseCorrector += correction * params.carrierDiff;
                 if (abs (coarseCorrector) > kHz(35))
                     coarseCorrector = 0;
             }
@@ -466,7 +454,7 @@ void OFDMProcessor::reset()
 {
     if (running) {
         running = false;
-        threadHandle.join ();
+        threadHandle.join();
     }
     start();
 }
@@ -476,7 +464,7 @@ void OFDMProcessor::stop()
     running = false;
 }
 
-void OFDMProcessor::coarseCorrectorOn (void)
+void OFDMProcessor::resetCoarseCorrector(void)
 {
     coarseCorrector = 0;
 }
@@ -513,18 +501,18 @@ int16_t OFDMProcessor::processPRS(DSPCOMPLEX *v)
             for (i = 0; i < SEARCH_RANGE + CORRELATION_LENGTH; i ++) {
                 int16_t baseIndex = T_u - SEARCH_RANGE / 2 + i;
                 correlationVector[i] =
-                    arg (fft_buffer [baseIndex % T_u] *
-                            conj (fft_buffer [(baseIndex + 1) % T_u]));
+                    arg(fft_buffer[baseIndex % T_u] *
+                    conj(fft_buffer[(baseIndex + 1) % T_u]));
             }
 
             float    MMax    = 0;
             for (i = 0; i < SEARCH_RANGE; i ++) {
                 float sum = 0;
                 for (j = 0; j < CORRELATION_LENGTH; j ++) {
-                    sum += abs (refArg [j] * correlationVector[i + j]);
+                    sum += abs(refArg [j] * correlationVector[i + j]);
                     if (sum > MMax) {
-                        MMax        = sum;
-                        index       = i;
+                        MMax = sum;
+                        index = i;
                     }
                 }
             }

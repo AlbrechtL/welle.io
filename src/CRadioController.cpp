@@ -265,7 +265,8 @@ void CRadioController::Initialise(void)
 
     audio.setVolume(CurrentVolume);
 
-    my_rx = std::make_unique<RadioReceiver>(*this, *Device);
+    RadioReceiverOptions rro; // Use default configuration
+    my_rx = std::make_unique<RadioReceiver>(*this, *Device, rro);
 
     Status = Initialised;
     emit DeviceReady();

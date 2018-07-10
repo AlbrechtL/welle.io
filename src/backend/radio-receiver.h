@@ -36,6 +36,7 @@
 #include <memory>
 #include <string>
 #include "radio-controller.h"
+#include "radio-receiver-options.h"
 #include "fic-handler.h"
 #include "msc-handler.h"
 #include "ofdm/ofdm-processor.h"
@@ -45,8 +46,7 @@ class RadioReceiver {
         RadioReceiver(
                 RadioControllerInterface& rci,
                 InputInterface& input,
-                int ofdmProcessorThreshold = 3,
-                bool decodeTII = false);
+                RadioReceiverOptions rro);
 
         /* Restart the receiver, and specify if we want
          * to scan or receive. */

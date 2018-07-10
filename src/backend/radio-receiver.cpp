@@ -40,8 +40,7 @@ using namespace std;
 RadioReceiver::RadioReceiver(
                 RadioControllerInterface& rci,
                 InputInterface& input,
-                int ofdmProcessorThreshold,
-                bool decodeTII) :
+                RadioReceiverOptions rro) :
     mscHandler(params, false),
     ficHandler(rci),
     ofdmProcessor(input,
@@ -49,8 +48,7 @@ RadioReceiver::RadioReceiver(
         rci,
         mscHandler,
         ficHandler,
-        ofdmProcessorThreshold,
-        decodeTII)
+        rro)
 { }
 
 void RadioReceiver::restart(bool doScan)
@@ -58,7 +56,6 @@ void RadioReceiver::restart(bool doScan)
     ofdmProcessor.set_scanMode(doScan);
     mscHandler.stopProcessing();
     ficHandler.clearEnsemble();
-    ofdmProcessor.coarseCorrectorOn();
     ofdmProcessor.reset();
 }
 

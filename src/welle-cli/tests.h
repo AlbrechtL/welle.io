@@ -31,6 +31,21 @@
  */
 
 #include "input/CInputFactory.h"
+#include "radio-receiver-options.h"
 #include <memory>
 
-void run_test(int test_id, std::unique_ptr<CVirtualInput>& interface);
+class Tests {
+    public:
+        Tests(std::unique_ptr<CVirtualInput>& interface,
+                RadioReceiverOptions rro);
+
+        void run_test(int test_id);
+
+    private:
+        void test_with_noise();
+        void test_with_noise_iteration(double stddev);
+        void test_multipath(int test_id);
+
+        std::unique_ptr<CVirtualInput>& interface;
+        RadioReceiverOptions rro;
+};

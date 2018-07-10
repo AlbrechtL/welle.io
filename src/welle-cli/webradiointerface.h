@@ -60,7 +60,11 @@ class WebRadioInterface : public RadioControllerInterface {
             int num_decoders_in_carousel = 0;
         };
 
-        WebRadioInterface(CVirtualInput& in, int port, DecodeSettings cs);
+        WebRadioInterface(
+                CVirtualInput& in,
+                int port,
+                DecodeSettings cs,
+                RadioReceiverOptions rro);
         ~WebRadioInterface();
         WebRadioInterface(const WebRadioInterface&) = delete;
         WebRadioInterface& operator=(const WebRadioInterface&) = delete;
@@ -131,6 +135,7 @@ class WebRadioInterface : public RadioControllerInterface {
         CVirtualInput& input;
         common_fft spectrum_fft_handler;
 
+        RadioReceiverOptions rro;
         DecodeSettings decode_settings;
 
         mutable std::mutex data_mut;

@@ -223,12 +223,16 @@ class TestProgrammeHandler: public ProgrammeHandlerInterface {
         }
 };
 
-static void test0_iteration(unique_ptr<CVirtualInput>& interface, double stddev)
+Tests::Tests(std::unique_ptr<CVirtualInput>& interface, RadioReceiverOptions rro) :
+    interface(interface),
+    rro(rro) {}
+
+void Tests::test_with_noise_iteration(double stddev)
 {
     cerr << "Setup test0" << endl;
     ChannelSimulator s(interface, stddev);
     TestRadioInterface ri;
-    RadioReceiver rx(ri, s);
+    RadioReceiver rx(ri, s, rro);
 
     cerr << "Restart rx" << endl;
     rx.restart(false);
@@ -273,18 +277,17 @@ static void test0_iteration(unique_ptr<CVirtualInput>& interface, double stddev)
     cerr << endl;
 }
 
-static void test0(unique_ptr<CVirtualInput>& interface)
+void Tests::test_with_noise()
 {
     double stddevs[] = {0.001, 0.01, 0.1};
 
     for (double stddev : stddevs) {
-        test0_iteration(interface, stddev);
-
+        test_with_noise_iteration(stddev);
         dynamic_cast<CRAWFile&>(*interface).rewind();
     }
 }
 
-static void test_multipath(unique_ptr<CVirtualInput>& interface, int test_id)
+void Tests::test_multipath(int test_id)
 {
     cerr << "Setup test_multipath " << test_id << endl;
     TestRadioInterface ri;
@@ -292,13 +295,13 @@ static void test_multipath(unique_ptr<CVirtualInput>& interface, int test_id)
     if (not(test_id == 1 or test_id == 2)) {
         throw logic_error("Invalid test id");
     }
-    const int prsThreshold = (test_id == 1 ? 3 : -1);
 
     const char* cirdumpfilename = test_id == 1 ? "cir-old.dat" : "cir.dat";
     ri.openCIRdumpfile(cirdumpfilename);
     cerr << "Saving CIR to " << cirdumpfilename << endl;
 
-    RadioReceiver rx(ri, *interface.get(), prsThreshold);
+    rro.ofdmProcessorThreshold = (test_id == 1 ? 3 : -1);
+    RadioReceiver rx(ri, *interface.get(), rro);
 
     cerr << "Restart rx" << endl;
     rx.restart(false);
@@ -331,7 +334,7 @@ static void test_multipath(unique_ptr<CVirtualInput>& interface, int test_id)
     FILE *fd = fopen("test1.csv", "a");
     fprintf(fd, "%s,%d,%zu,%zu,%d,%d,%d\n",
             intf.getFileName().c_str(),
-            prsThreshold,
+            rro.ofdmProcessorThreshold,
             ri.num_syncs, ri.num_desyncs,
             std::accumulate(tph.frameErrorStats.begin(), tph.frameErrorStats.end(), 0),
             std::accumulate(tph.aacErrorStats.begin(), tph.aacErrorStats.end(), 0),
@@ -339,9 +342,11 @@ static void test_multipath(unique_ptr<CVirtualInput>& interface, int test_id)
     fclose(fd);
 }
 
-void run_test(int test_id, unique_ptr<CVirtualInput>& interface)
+void Tests::run_test(int test_id)
 {
-    if (test_id == 0) test0(interface);
-    else if (test_id == 1 or test_id == 2) test_multipath(interface, test_id);
+    rro.ofdmProcessorThreshold = DEFAULT_OFDM_PROCESSOR_THRESHOLD;
+
+    if (test_id == 0) test_with_noise();
+    else if (test_id == 1 or test_id == 2) test_multipath(test_id);
     else cerr << "Test " << test_id << " does not exist!" << endl;
 }
