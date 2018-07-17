@@ -6,7 +6,7 @@
 # WARNING: This is the next branch and heavy under development! It may not to compile or work!
 
 This repository contains the implementation of a SDR DAB/DAB+ receiver.  
-Please see the project website https://www.welle.io for a user oriented documentation. You can also use the forum https://forum.welle.io to get in contact with us.
+Please see the project website https://www.welle.io for a user oriented documentation. 
 
 welle.io is fork from dab-rpi and sdr-j-dab which is now qt-dab https://github.com/JvanKatwijk/qt-dab.
 
@@ -33,7 +33,7 @@ Stable release can be found here:
  * ### [welle.io for Windows, Linux and Android (APK)](http://github.com/AlbrechtL/welle.io/releases)
  * ### [welle.io for Android at Google Play](https://play.google.com/store/apps/details?id=io.welle.welle)
 
-If you discovered an issue use the [forum](https://forum.welle.io/) or open a new [issue](https://github.com/AlbrechtL/welle.io/issues) please.
+If you discovered an issue please open a new [issue](https://github.com/AlbrechtL/welle.io/issues).
 
 welle.io is under heavy development. You can also try the latest developer builds. But PLEASE BE WARNED the builds are automatically created and untested.
  * [welle.io next nightly builds](https://bintray.com/albrechtl/welle.io/welle.io_next_nightly#files)
@@ -42,27 +42,27 @@ To use it on macOS or on a Raspberry Pi you have to compile welle.io direct from
 
 Usage
 =====
-The command line parameter are:
+The command line parameters are:
 
 Parameter | Description
 ------ | ----------
 -h, --help | Show help 
 -v, --version | Show version 
--d, --device | Input device. Possible is: auto (default), airspy, rtl_tcp, rtl_sdr, rawfile, soapysdr
+-d, --device | Input device. Possible values are: auto (default), airspy, rtl_tcp, rtl_sdr, rawfile, soapysdr
 --rtl_tcp-address | rtl_tcp server IP address. Only valid for input rtl_tcp 
 --rtl_tcp-port | rtl_tcp server IP port. Only valid for input rtl_tcp
 --raw-file | I/Q RAW file. Only valid for input rawfile.
 --raw-format | I/Q RAW format. Possible is:<ul><li>u8 (unsigned int 8 bit, [qt-dab](https://github.com/JvanKatwijk/qt-dab) RAW files)</li><li>s8 (signed 8 bit, [ODR](https://www.welle.io/devices/rawfile#odr-dabmod) files)</li><li>s16le (signed int 16 bit little endian, [qt-dab](https://github.com/JvanKatwijk/qt-dab) SDR files)</li><li>s16be (signed int 16 bit big endian, [qt-dab](https://github.com/JvanKatwijk/qt-dab) SDR files)</li><li>cf32 (complex float, native endianness)</li><li>Default: u8. Only valid for input rawfile.</li></ul>
---soapysdr-driver-args | The value depends on the soapySDR driver and is directly passed to it (currently only SoapySDR::Device::make(args)). A typical value for SoapySDR is a string like driver=remote,remote=127.0.0.1,remote:driver=rtlsdr,rtl=0
---soapysdr-antenna | The value depends on the soapySDR Hardware, typical values are TX/RX, RX2. Just query it with SoapySDRUtil --probe=driver=uhd
---soapysdr-clock-source | The value depends on the soapySDR Hardware, typical values are internal, external, gpsdo. Just query it with SoapySDRUtil --probe=driver=uhd
---dab-mode | DAB mode. Possible is: 1,2,3 or 4, Default: 1 
---msc-file | MSC file name. Records the DAB+ superframes. This file can be used to analyse zu X-PAD data with XPADexpert (https://www.basicmaster.de/xpadxpert).
---mp2-file | MP2 file name. Records the DAB MP2 frames. This file can be used to analyse zu X-PAD data with XPADexpert (https://www.basicmaster.de/xpadxpert).
+--soapysdr-driver-args | The value depends on the SoapySDR driver and is directly passed to it (currently only SoapySDR::Device::make(args)). A typical value for SoapySDR is a string like driver=remote,remote=127.0.0.1,remote:driver=rtlsdr,rtl=0
+--soapysdr-antenna | The value depends on the SoapySDR Hardware, typical values are TX/RX, RX2. Just query it with SoapySDRUtil --probe=driver=uhd
+--soapysdr-clock-source | The value depends on the SoapySDR Hardware, typical values are internal, external, gpsdo. Just query it with SoapySDRUtil --probe=driver=uhd
+--dab-mode | DAB mode. Possible values are: 1,2,3, or 4, Default: 1 
+--msc-file | MSC file name. Records the DAB+ superframes. This file can be used to analyse X-PAD data with XPADxpert (https://www.basicmaster.de/xpadxpert).
+--mp2-file | MP2 file name. Records the DAB MP2 frames. This file can be used to analyse X-PAD data with XPADxpert (https://www.basicmaster.de/xpadxpert).
 --log-file | Log file name. Redirects all log output texts to a file.
 --language | Sets the GUI language according to the ISO country codes e.g. de_DE
---station  | Tries to play a station from a previous channel scan on program start.
---disable-splash | Disables the splash screen
+--station  | Tries to play a station from a previous channel scan on programme start.
+--disable-splash | Disables the splash screen.
 
 
 Example usage:
@@ -77,7 +77,7 @@ Example usage:
 Supported Hardware
 ====================
 The following SDR devices are supported
-* airspy (http://airspy.com/)
+* Airspy R2 and Airspy Mini (http://airspy.com/)
 * rtl_sdr (http://osmocom.org/projects/sdr/wiki/rtl-sdr)
 * rtl_tcp (http://osmocom.org/projects/sdr/wiki/rtl-sdr#rtl_tcp)
 * I/Q RAW file (https://www.welle.io/devices/rawfile)
@@ -91,11 +91,11 @@ SoapySDR Notes
 
 ### LimeSDR
 
-Connect the Antenna to the RX1_W port and start welle-io with the options -d soapysdr --soapysdr-antenna LNAW. SoapySDRUtil --probe=driver=lime may show other possible options.
+Connect the antenna to the RX1_W port and start welle-io with the options `-d soapysdr --soapysdr-antenna LNAW`. `SoapySDRUtil --probe=driver=lime` may show other possible options.
 
 ### USRP
 
-Start welle-io with -d soapysdr --soapysdr-driver-args driver=uhd --soapysdr-antenna <antenna> --soapysdr-clock-source <clock source>. To list possible values for antenna and clock source use the command "SoapySDRUtil --probe=driver=uhd".
+Start welle-io with `-d soapysdr --soapysdr-driver-args driver=uhd --soapysdr-antenna <antenna> --soapysdr-clock-source <clock source>`. To list possible values for antenna and clock source use the command `SoapySDRUtil --probe=driver=uhd`.
 
 Building
 ====================
@@ -103,7 +103,7 @@ Building
 General Information
 ---
 The following libraries and their development files are needed:
-* QT 5.10 (QT 5.9 and below is not supported)
+* Qt 5.10 (Qt 5.9 and below is not supported)
 * FFTW3f
 * libfaad
 * librtlsdr
@@ -111,9 +111,9 @@ The following libraries and their development files are needed:
 
 Ubuntu Linux 16.04 LTS and 18.04 LTS
 ---
-This sections shows how to compile welle.io on Ubuntu 16.04 LTS and Ubuntu 18.04 LTS. 
+This section shows how to compile welle.io on Ubuntu 16.04 LTS and Ubuntu 18.04 LTS. 
 
-1. Install QT 5.10 including the QT Charts module by using the the "Qt Online Installer for Linux" https://www.qt.io/download-open-source/
+1. Install Qt 5.10 including the Qt Charts module by using the the "Qt Online Installer for Linux" https://www.qt.io/download-open-source/
 
 2. Install the following packages
 
@@ -121,11 +121,12 @@ This sections shows how to compile welle.io on Ubuntu 16.04 LTS and Ubuntu 18.04
 # sudo apt install libfaad-dev libfftw3-dev librtlsdr-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev
   ```
 
-3. (optional) Compile and install the airspy library. For details please see https://github.com/airspy/host/#how-to-build-the-host-software-on-linux.  
-If you don't install the airspy library you have to disable the airspy for the welle.io build. Open welle.io.pro and outcomment the following line.
-  ```
+3. (optional) Compile and install the Airspy library. For details please see https://github.com/airspy/host/#how-to-build-the-host-software-on-linux.  
+If you don't install the Airspy library you have to disable the Airspy for the welle.io build. Open `welle.io.pro` and outcomment the following line:
+
+```
 #CONFIG += airspy
-  ```
+```
 
 4. Clone welle.io
 
@@ -133,7 +134,7 @@ If you don't install the airspy library you have to disable the airspy for the w
 # git clone https://github.com/AlbrechtL/welle.io.git
   ```
 
-5. Start QT Creator and open the project file "welle.io.pro" inside the folder "welle.io".
+5. Start Qt Creator and open the project file `welle.io.pro` inside the folder "welle.io".
 6. Build welle.io
 7. Run welle.io and enjoy it
 
@@ -143,10 +144,10 @@ A compiled version can be found at the [release page](https://github.com/Albrech
 
 This sections shows how to compile welle.io on Windows 10. Windows 7 should also be possible but is not tested. 
 
-1. Install QT 5.10 including the QT Charts and mingw modules by using the the "Qt Online Installer for Windows" https://www.qt.io/download-open-source/
+1. Install Qt 5.10 including the Qt Charts and mingw modules by using the the "Qt Online Installer for Windows" https://www.qt.io/download-open-source/
 2. Clone welle.io https://github.com/AlbrechtL/welle.io.git e.g. by using [TortoiseGit](https://tortoisegit.org).
 3. Clone the welle.io Windows libraries https://github.com/AlbrechtL/welle.io-win-libs.git.
-4. Start QT Creator and open the project file "welle.io.pro" inside the folder "welle.io".
+4. Start Qt Creator and open the project file `welle.io.pro` inside the folder "welle.io".
 5. Build welle.io
 6. Run welle.io and enjoy it
 
@@ -186,7 +187,7 @@ You need to install the dependencies with MacPorts first, assuming you have [Mac
 # git clone https://github.com/AlbrechtL/welle.io.git
   ```
 
-3. Open welle.io.pro with QT Creator.
+3. Open welle.io.pro with Qt Creator.
 4. Make sure in Qt Creator, "Projects, Build&Run, Run" that the checkbox "Add build library path to DYLD..." is off.
 5. Build and run.
 
@@ -202,7 +203,7 @@ As an alternative to Qt Creator, CMake can be used for building welle.io after i
 # cd build
   ```
 
-2. Run CMake. To enable support for RTL-SDR add the flag `-DRTLSDR=1` (requires librtlsdr) and for SoapySDR add `-DSOAPYSDR=1` (requires SoapySDR compiled with support for each desired hardware like the AirSpy or HackRF). By default, CMake will build both welle-io and welle-cli. Use `-DBUILD_WELLE_IO=OFF` or `-DBUILD_WELLE_CLI=OFF` to compile only the one you need.
+2. Run CMake. To enable support for RTL-SDR add the flag `-DRTLSDR=1` (requires librtlsdr) and for SoapySDR add `-DSOAPYSDR=1` (requires SoapySDR compiled with support for each desired hardware like the Airspy or HackRF). By default, CMake will build both welle-io and welle-cli. Use `-DBUILD_WELLE_IO=OFF` or `-DBUILD_WELLE_CLI=OFF` to compile only the one you need.
 
   ```
 # cmake ..
@@ -230,7 +231,7 @@ welle.io uses the "RTL2832U driver" from Martin Marinov, to be found at the [Goo
 
 This sections shows how to compile welle.io for Android.
 
-1. Install QT 5.10 for Android including the QT Charts and QT Remote Objects modules by using the the "Qt Online Installer for Windows" https://www.qt.io/download-open-source/
+1. Install Qt 5.10 for Android including the Qt Charts and Qt Remote Objects modules by using the the "Qt Online Installer for Windows" https://www.qt.io/download-open-source/
 2. Follow the side https://doc.qt.io/qt-5/androidgs.html to install the Android build enviroment
 3. Clone welle.io https://github.com/AlbrechtL/welle.io.git
 
@@ -238,7 +239,7 @@ This sections shows how to compile welle.io for Android.
 # git clone https://github.com/AlbrechtL/welle.io.git
   ```
   
-4. Start QT Creator and open the project file "welle.io.pro" inside the folder "welle.io".
+4. Start Qt Creator and open the project file `welle.io.pro` inside the folder "welle.io".
 5. Build welle.io
 6. Run welle.io and enjoy it
 
