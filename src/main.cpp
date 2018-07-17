@@ -157,29 +157,29 @@ int main(int argc, char** argv)
     optionParser.addOption(RAWFileFormat);
 
 #ifdef HAVE_SOAPYSDR
-    QCommandLineOption SDRDriverArgsOption("sdr-driver-args",
-        QCoreApplication::translate("main", "The value depends on the SDR driver and is directly passed to it (currently only SoapySDR::Device::make(args)). A typical value for SoapySDR is a string like driver=remote,remote=127.0.0.1,remote:driver=rtlsdr,rtl=0"),
+    QCommandLineOption SDRDriverArgsOption("soapysdr-driver-args",
+        QCoreApplication::translate("main", "The value depends on the SoapySDR driver and is directly passed to it (currently only SoapySDR::Device::make(args)). A typical value for SoapySDR is a string like driver=remote,remote=127.0.0.1,remote:driver=rtlsdr,rtl=0"),
         QCoreApplication::translate("main", "args"));
     optionParser.addOption(SDRDriverArgsOption);
 
-    QCommandLineOption SDRAntennaOption("sdr-antenna",
-        QCoreApplication::translate("main", "The value depends on the SDR Hardware, typical values are TX/RX, RX2. Just query it with SoapySDRUtil --probe=driver=uhd"),
+    QCommandLineOption SDRAntennaOption("soapysdr-antenna",
+        QCoreApplication::translate("main", "The value depends on the SoapySDR Hardware, typical values are TX/RX, RX2. Just query it with SoapySDRUtil --probe=driver=uhd"),
         QCoreApplication::translate("main", "antenna"));
     optionParser.addOption(SDRAntennaOption);
 
-    QCommandLineOption SDRClockSourceOption("sdr-clock-source",
-        QCoreApplication::translate("main", "The value depends on the SDR Hardware, typical values are internal, external, gpsdo. Just query it with SoapySDRUtil --probe=driver=uhd"),
+    QCommandLineOption SDRClockSourceOption("soapysdr-clock-source",
+        QCoreApplication::translate("main", "The value depends on the SoapySDR Hardware, typical values are internal, external, gpsdo. Just query it with SoapySDRUtil --probe=driver=uhd"),
         QCoreApplication::translate("main", "clock_source"));
     optionParser.addOption(SDRClockSourceOption);
 #endif /* HAVE_SOAPYSDR */
 
     QCommandLineOption DABModeOption("dab-mode",
-        QCoreApplication::translate("main", "DAB mode. Possible is: 1, 2 or 4, default: 1"),
+        QCoreApplication::translate("main", "DAB mode. Possible values are: 1,2,3, or 4, Default: 1"),
         QCoreApplication::translate("main", "Mode"));
     optionParser.addOption(DABModeOption);
 
-    QCommandLineOption dumpFileName("dump-file",
-        QCoreApplication::translate("main", "Records DAB frames or DAB+ superframes. This file can be used to analyse the X-PAD data with XPADexpert."),
+    QCommandLineOption dumpFileName("msc-file",
+        QCoreApplication::translate("main", "Records the DAB+ superframes. This file can be used to analyse X-PAD data with XPADxpert"),
         QCoreApplication::translate("main", "File name"));
     optionParser.addOption(dumpFileName);
 
@@ -194,12 +194,12 @@ int main(int argc, char** argv)
     optionParser.addOption(Language);
 
     QCommandLineOption InitialStation("station",
-        QCoreApplication::translate("main", "Tries to play a station from a previous channel scan on program start."),
+        QCoreApplication::translate("main", "Tries to play a station from a previous channel scan on programme start."),
         QCoreApplication::translate("main", "Station name"));
     optionParser.addOption(InitialStation);
 
     QCommandLineOption DisableSplash("disable-splash",
-        QCoreApplication::translate("main", "Disables the splash screen"));
+        QCoreApplication::translate("main", "Disables the splash screen."));
     optionParser.addOption(DisableSplash);
 
     //	Process the actual command line arguments given by the user
