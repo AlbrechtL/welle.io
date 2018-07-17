@@ -32,6 +32,11 @@ import urllib.request
 import json
 from math import log10
 
+# How many CIR peaks to add to the graph. This depends
+# on the number of SFN transmitters you receive in your
+# location.
+NUM_CIR_PEAKS=2
+
 conf_common = """
 multigraph freqcorr
 graph_title Frequency Correction
@@ -56,7 +61,25 @@ graph_vlabel FIC CRC error
 graph_category welleio
 graph_info This graph shows the FIC CRC errors
 crcerr.label FIC CRC Err
-"""
+
+multigraph cir
+graph_title CIR peaks position
+graph_args --base 1000
+graph_vlabel CIR peaks
+graph_category welleio
+graph_info This graph shows the position of the peaks in the channel impulse response
+graph_order """
+
+for n in range(NUM_CIR_PEAKS):
+    conf_common += "component{} ".format(n)
+
+conf_common += "\n"
+
+for n in range(NUM_CIR_PEAKS):
+    conf_common += "component{}.min = 0\n".format(n)
+    conf_common += "component{}.max = 2048\n".format(n)
+    conf_common += "component{}.label = CIR component {}\n".format(n, n)
+    conf_common += "component{}.type = GAUGE\n".format(n)
 
 conf_audio_level_template = """
 multigraph audio_level_{sid}
@@ -95,7 +118,7 @@ aac.label AAC errors
 aac.type DERIVE
 """
 
-url = 'http://localhost:7979/mux.json'
+url = 'http://172.28.0.2:7979/mux.json'
 conn = urllib.request.urlopen(url)
 bdata = conn.read()
 muxdata = json.loads(bdata.decode())
@@ -131,6 +154,14 @@ try:
     print("crcerr.value {}".format(muxdata["ensemble"]["fic"]["numcrcerrors"]))
 except:
     print("crcerr.value U")
+
+if "cir" in muxdata:
+    print("multigraph cir")
+    for n in range(NUM_CIR_PEAKS):
+        try:
+            print("component{}.value {}".format(n, muxdata["cir"][n]["index"]))
+        except:
+            print("component{}.value U".format(n))
 
 service_values_template = """
 multigraph audio_level_{sid}
