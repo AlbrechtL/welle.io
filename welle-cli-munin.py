@@ -61,6 +61,7 @@ graph_vlabel FIC CRC error
 graph_category welleio
 graph_info This graph shows the FIC CRC errors
 crcerr.label FIC CRC Err
+crcerr.type DERIVE
 
 multigraph cir
 graph_title CIR peaks position
