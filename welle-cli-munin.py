@@ -76,10 +76,10 @@ for n in range(NUM_CIR_PEAKS):
 conf_common += "\n"
 
 for n in range(NUM_CIR_PEAKS):
-    conf_common += "component{}.min = 0\n".format(n)
-    conf_common += "component{}.max = 2048\n".format(n)
-    conf_common += "component{}.label = CIR component {}\n".format(n, n)
-    conf_common += "component{}.type = GAUGE\n".format(n)
+    conf_common += "component{}.min 0\n".format(n)
+    conf_common += "component{}.max 2048\n".format(n)
+    conf_common += "component{}.label CIR component {}\n".format(n, n)
+    conf_common += "component{}.type GAUGE\n".format(n)
 
 conf_audio_level_template = """
 multigraph audio_level_{sid}
