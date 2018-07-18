@@ -118,7 +118,7 @@ aac.label AAC errors
 aac.type DERIVE
 """
 
-url = 'http://172.28.0.2:7979/mux.json'
+url = 'http://localhost:7979/mux.json'
 conn = urllib.request.urlopen(url)
 bdata = conn.read()
 muxdata = json.loads(bdata.decode())
