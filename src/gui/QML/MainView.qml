@@ -152,9 +152,19 @@ ApplicationWindow {
                     }
                     else {
                         if (drawer.visible)
+                        {
                             drawer.close()
+                        }
                         else
+                        {
+                            // Workaround for touch displays. (Discovered with Windows 10)
+                            // For some reason the dawer will be closed before it is openend
+                            // Enable the closing again
+                            drawer.closePolicy = Popup.NoAutoClose
+
+                            // Open drawer
                             drawer.open()
+                        }
                     }
                 }
             }
@@ -257,6 +267,11 @@ ApplicationWindow {
         interactive: inPortrait
         position: inPortrait ? 0 : 1
         visible: !inPortrait
+
+        // Workaround for touch displays. (Discovered with Windows 10)
+        // For some reason the dawer will be closed before it is openend
+        // Enable the closing again
+        onOpened: closePolicy = Popup.CloseOnEscape | Popup.CloseOnPressOutside
 
         StackView {
             id: listStackView

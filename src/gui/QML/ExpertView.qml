@@ -23,7 +23,13 @@ Item {
         property alias enableNullSymbolDisplayState: enableNullSymbolDisplay.checked
     }
 
-    function openSettings() {
+    function openSettings() {        
+        // Workaround for touch displays. (Discovered with Windows 10)
+        // For some reason the dawer will be closed before it is openend
+        // Enable the closing again
+        expertViewDrawer.closePolicy = Popup.NoAutoClose
+
+        // Open drawer
         expertViewDrawer.open()
     }
 
@@ -32,6 +38,11 @@ Item {
         edge: Qt.RightEdge
         y: overlayHeader.height
         height: mainWindow.height - overlayHeader.height
+
+        // Workaround for touch displays. (Discovered with Windows 10)
+        // For some reason the dawer will be closed before it is openend
+        // Enable the closing again
+        onOpened: closePolicy = Popup.CloseOnEscape | Popup.CloseOnPressOutside
 
         ColumnLayout{
             spacing: Units.dp(20)
