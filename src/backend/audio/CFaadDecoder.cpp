@@ -70,10 +70,6 @@ vector<int16_t> CFaadDecoder::MP42PCM(
     uint32_t *sampleRate,
     bool *isParametricStereo)
 {
-    uint8_t channels;
-    long unsigned int   sample_rate;
-    NeAACDecFrameInfo hInfo;
-
     if (!aacInitialized) {
         /* AudioSpecificConfig structure (the only way to select 960 transform here!)
          *
@@ -106,11 +102,13 @@ vector<int16_t> CFaadDecoder::MP42PCM(
         uint8_t asc[2];
         asc[0] = 0b00010 << 3 | core_sr_index >> 1;
         asc[1] = (core_sr_index & 0x01) << 7 | core_ch_config << 3 | 0b100;
+        uint8_t ch = 0;
+        long unsigned int sr = 0;
         long int init_result = NeAACDecInit2(aacHandle,
                 asc,
-                sizeof (asc),
-                &sample_rate,
-                &channels);
+                sizeof(asc),
+                &sr,
+                &ch);
         if (init_result != 0) {
             /* If some error initializing occured, skip the file */
             const string errmsg = NeAACDecGetErrorMessage(-init_result);
@@ -121,6 +119,7 @@ vector<int16_t> CFaadDecoder::MP42PCM(
         aacInitialized = true;
     }
 
+    NeAACDecFrameInfo hInfo;
     int16_t *outBuffer;
     outBuffer = (int16_t *)NeAACDecDecode(aacHandle, &hInfo, buffer, bufferLength);
 
@@ -128,48 +127,30 @@ vector<int16_t> CFaadDecoder::MP42PCM(
         *isParametricStereo = (hInfo.ps == 1);
     }
 
-    sample_rate = hInfo.samplerate;
     if (sampleRate) {
-        *sampleRate = sample_rate;
+        *sampleRate = hInfo.samplerate;
     }
 
-    size_t samples = hInfo.samples;
-
     //  fprintf (stderr, "bytes consumed %d\n", (int)(hInfo. bytesconsumed));
-    //  fprintf (stderr, "samplerate = %d, samples = %d, channels = %d, error = %d, sbr = %d\n", sample_rate, samples,
+    //  fprintf (stderr, "samplerate = %d, samples = %d, channels = %d, error = %d, sbr = %d\n", hInfo.samplerate, samples,
     //           hInfo.channels,
     //           hInfo.error,
     //           hInfo.sbr);
     //  fprintf (stderr, "header = %d\n", hInfo.header_type);
-    channels    = hInfo.channels;
 
     // Error check
-    if (hInfo.error != 0)
-    {
+    if (hInfo.error != 0) {
         fprintf(stderr, "CFaadDecoder: warning: %s\n",
                 faacDecGetErrorMessage(hInfo.error));
         return {};
     }
 
+    const size_t samples = hInfo.samples;
+
     // Sometimes it can be 0 samples
     if (samples == 0)
         return {};
 
-    if (channels == 2) {
-        vector<int16_t> audio(outBuffer, outBuffer + samples);
-        return audio;
-    }
-    else {
-        if (channels == 1) {
-            vector<int16_t> audio(2*samples);
-            for (size_t i = 0; i < samples; i ++) {
-                audio[2 * i]     = outBuffer[i];
-                audio[2 * i + 1] = outBuffer[i];
-            }
-            return audio;
-        }
-        else {
-            throw runtime_error("CFaadDecoder: Cannot handle these channels");
-        }
-    }
+    vector<int16_t> audio(outBuffer, outBuffer + samples);
+    return audio;
 }

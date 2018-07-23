@@ -336,7 +336,7 @@ void Mp4Processor::handleAacFrame(
         *error = audio.empty();
     }
 
-    bool stereo = false;
+    bool stereo = aacChannelMode;
     std::string aac_mode = "unknown";
     if (aacChannelMode == 0 && isParametricStereo == true) { // Parametric stereo
         aac_mode = "HE-AACv2";
@@ -344,7 +344,6 @@ void Mp4Processor::handleAacFrame(
     }
     else if (sbrFlag) { // Stereo
         aac_mode = "HE-AAC";
-        stereo = true;
     }
     else {
         aac_mode = "AAC-LC";
