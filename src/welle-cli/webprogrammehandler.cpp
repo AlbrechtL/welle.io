@@ -173,29 +173,20 @@ void WebProgrammeHandler::onNewAudio(std::vector<int16_t>&& audioData,
         return;
     }
 
-    const int channels = stereo ? 2 : 1;
+    // The audio decoders always upconvert to stereo
+    const int channels = 2;
 
     int last_audioLevel_L = 0;
     int last_audioLevel_R = 0;
-    if (stereo) {
+    {
         int16_t max_L = 0;
         int16_t max_R = 0;
         for (size_t i = 0; i < audioData.size()-1; i+=2) {
             max_L = std::max(max_L, audioData[i]);
             max_R = std::max(max_R, audioData[i+1]);
         }
-
         last_audioLevel_L = max_L;
         last_audioLevel_R = max_R;
-    }
-    else {
-        int16_t max_mono = 0;
-        for (size_t i = 0; i < audioData.size(); i++) {
-            max_mono = std::max(max_mono, audioData[i]);
-        }
-
-        last_audioLevel_L = max_mono;
-        last_audioLevel_R = max_mono;
     }
 
     {
