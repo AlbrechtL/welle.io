@@ -53,7 +53,7 @@ function ensembleInfoTemplate() {
     html += '<table id="servicetable">'
     html += '<tr><th>Label</th> <th>SId</th> <th>bitrate</th> <th>SAd, CUs</th> <th>protection</th>';
     html += '<th>TMid, rate, channels</th>';
-    html += '<th>pty</th> <th>language</th> <th>DLS</th> <th>Frame,RS,AAC errors</th> <th>Audio Level</th> <th></th></tr>';
+    html += '<th>pty</th> <th>srv/sub language</th> <th>DLS</th> <th>Frame,RS,AAC errors</th> <th>Audio Level</th> <th></th></tr>';
     html += '${services}</table>';
     return html;
 }
@@ -61,7 +61,7 @@ function ensembleInfoTemplate() {
 function serviceTemplate() {
     var html = '<tr><td>${label} (${shortlabel})</td> <td>${SId}</td> <td>${bitrate}kbps</td> <td>${sad_cu}</td> <td>${protection}</td>';
     html += '<td>${samplerate}</td>';
-    html += '<td>${pty}</td> <td>${language}</td> <td></i>${dls}</i></td>';
+    html += '<td>${pty}</td> <td>${language}/${subchannel_language}</td> <td></i>${dls}</i></td>';
     html += '<td>${errorcounters}</td>';
     html += '<td><canvas id="${canvasid}" width="64" height="12"></canvas></td>';
     html += '<td><button type=button onclick="setPlayerSource(${SId})">Play</button></td>';
@@ -189,6 +189,7 @@ function populateEnsembleinfo() {
                 s["bitrate"] = sub.bitrate;
                 s["sad_cu"] = sub.sad + ", " + sub.cu;
                 s["protection"] = sub.protection;
+                s["subchannel_language"] = sub.languagestring;
 
                 if (sc.transportmode == "audio") {
                     s["samplerate"] = sc.ascty + ", " +

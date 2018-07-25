@@ -477,10 +477,13 @@ bool WebRadioInterface::send_mux_json(Socket& s)
                 }
 
                 j_sc["subchannel"] = {
-                    { "bitrate", sub.bitrate()},
-                    { "cu", sub.numCU()},
-                    { "sad", sub.startAddr},
-                    { "protection", sub.protection()}};
+                    {"bitrate", sub.bitrate()},
+                    {"cu", sub.numCU()},
+                    {"sad", sub.startAddr},
+                    {"protection", sub.protection()},
+                    {"language", sub.language},
+                    {"languagestring", DABConstants::getLanguageName(sub.language)}};
+
 
                 j_components.push_back(j_sc);
             }
