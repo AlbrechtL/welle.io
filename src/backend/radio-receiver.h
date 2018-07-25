@@ -52,6 +52,10 @@ class RadioReceiver {
          * to scan or receive. */
         void restart(bool doScan);
 
+        /* Keep the demodulator running, but clear the data
+         * decoders (both FIC and MSC) */
+        void restart_decoder();
+
         /* Play the audio component of the service. Returns true if an
          * audio subchannel was found and tuned to. */
         bool playSingleProgramme(ProgrammeHandlerInterface& handler,

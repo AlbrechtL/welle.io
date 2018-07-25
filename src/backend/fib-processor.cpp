@@ -40,7 +40,7 @@ FIBProcessor::FIBProcessor(RadioControllerInterface& mr) :
 //  FIB's are segments of 256 bits. When here, we already
 //  passed the crc and we start unpacking into FIGs
 //  This is merely a dispatcher
-void FIBProcessor::process_FIB (uint8_t *p, uint16_t fib)
+void FIBProcessor::process_FIB(uint8_t *p, uint16_t fib)
 {
     int8_t  processedBytes  = 0;
     uint8_t *d = p;

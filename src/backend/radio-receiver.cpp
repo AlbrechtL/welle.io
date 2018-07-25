@@ -59,6 +59,12 @@ void RadioReceiver::restart(bool doScan)
     ofdmProcessor.reset();
 }
 
+void RadioReceiver::restart_decoder()
+{
+    mscHandler.stopProcessing();
+    ficHandler.clearEnsemble();
+}
+
 bool RadioReceiver::playSingleProgramme(ProgrammeHandlerInterface& handler,
         const std::string& dumpFileName, const Service& s)
 {

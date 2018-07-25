@@ -39,14 +39,14 @@ class FIBProcessor {
         FIBProcessor(RadioControllerInterface& mr);
 
         // called from the demodulator
-        void    process_FIB(uint8_t*, uint16_t);
-        void    clearEnsemble(void);
-        bool    syncReached(void);
+        void process_FIB(uint8_t *p, uint16_t fib);
+        void clearEnsemble();
+        bool syncReached();
 
         // Called from the frontend
-        uint16_t getEnsembleId(void) const;
-        DabLabel getEnsembleLabel(void) const;
-        std::vector<Service> getServiceList(void) const;
+        uint16_t getEnsembleId() const;
+        DabLabel getEnsembleLabel() const;
+        std::vector<Service> getServiceList() const;
         std::list<ServiceComponent> getComponents(const Service& s) const;
         Subchannel getSubchannel(const ServiceComponent& sc) const;
 

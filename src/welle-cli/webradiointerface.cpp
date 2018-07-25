@@ -103,54 +103,66 @@ WebRadioInterface::~WebRadioInterface()
     }
 }
 
+class TuneFailed {};
 
 void WebRadioInterface::check_decoders_required()
 {
-    if (decode_settings.strategy == DecodeStrategy::All) {
-        return;
-    }
-
     lock_guard<mutex> lock(rx_mut);
-    for (auto& s : rx->getServiceList()) {
-        const auto sid = s.serviceId;
+    try {
+        for (auto& s : rx->getServiceList()) {
+            const auto sid = s.serviceId;
 
-        try {
-            bool require = phs.at(sid).needsToBeDecoded() or
-                std::find_if(
-                    carousel_services_active.cbegin(),
-                    carousel_services_active.cend(),
-                    [&](const ActiveCarouselService& acs){
+            try {
+                const bool is_active = std::find_if(
+                        carousel_services_active.cbegin(),
+                        carousel_services_active.cend(),
+                        [&](const ActiveCarouselService& acs){
                         return acs.sid == sid;
-                    }) != carousel_services_active.cend();
-            bool is_decoded = programmes_being_decoded[sid];
+                        }) != carousel_services_active.cend();
 
-            if (require and not is_decoded) {
-                bool success = rx->addServiceToDecode(phs.at(sid), "", s);
+                const bool require =
+                    decode_settings.strategy == DecodeStrategy::All or
+                    phs.at(sid).needsToBeDecoded() or
+                    is_active;
+                const bool is_decoded = programmes_being_decoded[sid];
 
-                if (success) {
-                    programmes_being_decoded[sid] = success;
+                if (require and not is_decoded) {
+                    bool success = rx->addServiceToDecode(phs.at(sid), "", s);
+
+                    if (success) {
+                        programmes_being_decoded[sid] = success;
+                    }
+                    else {
+                        cerr << "Tune to 0x" << to_hex(s.serviceId) <<
+                            " failed" << endl;
+                        throw TuneFailed();
+                    }
                 }
-                else {
-                    cerr << "Tune to 0x" << to_hex(s.serviceId) <<
-                        " failed" << endl;
+                else if (is_decoded and not require) {
+                    bool success = rx->removeServiceToDecode(s);
+
+                    if (success) {
+                        programmes_being_decoded[sid] = false;
+                    }
+                    else {
+                        cerr << "Stop playing 0x" << to_hex(s.serviceId) <<
+                            " failed" << endl;
+                        throw TuneFailed();
+                    }
                 }
             }
-            else if (is_decoded and not require) {
-                bool success = rx->removeServiceToDecode(s);
-
-                if (success) {
-                    programmes_being_decoded[sid] = false;
-                }
-                else {
-                    cerr << "Stop playing 0x" << to_hex(s.serviceId) <<
-                        " failed" << endl;
-                }
+            catch (const out_of_range&) {
+                cerr << "Cannot tune to 0x" << to_hex(s.serviceId) <<
+                    " because no handler exists!" << endl;
             }
         }
-        catch (const out_of_range&) {
-            cerr << "Cannot tune to 0x" << to_hex(s.serviceId) <<
-                " because no handler exists!" << endl;
-        }
+    }
+    catch (const TuneFailed&) {
+        phs.clear();
+        programmes_being_decoded.clear();
+        rx->restart_decoder();
+        carousel_services_available.clear();
+        carousel_services_active.clear();
     }
     phs_changed.notify_all();
 }
@@ -606,7 +618,7 @@ bool WebRadioInterface::send_mp3(Socket& s, const std::string& stream)
 {
     for (const auto& srv : rx->getServiceList()) {
         if (to_hex(srv.serviceId) == stream or
-                (uint32_t)std::stoi(stream) == srv.serviceId) {
+                (uint32_t)std::stoul(stream) == srv.serviceId) {
             try {
                 auto& ph = phs.at(srv.serviceId);
 
@@ -903,19 +915,6 @@ void WebRadioInterface::handle_phs()
             if (phs.count(s.serviceId) == 0) {
                 WebProgrammeHandler ph(s.serviceId);
                 phs.emplace(std::make_pair(s.serviceId, move(ph)));
-            }
-            else if (decode_settings.strategy == DecodeStrategy::All) {
-                for (auto& sc : scs) {
-                    if (sc.transportMode() == TransportMode::Audio) {
-                        bool success = rx->addServiceToDecode(
-                                phs.at(s.serviceId), "", s);
-
-                        if (not success) {
-                            cerr << "Tune to 0x" << to_hex(s.serviceId) <<
-                                " failed" << endl;
-                        }
-                    }
-                }
             }
         }
 
