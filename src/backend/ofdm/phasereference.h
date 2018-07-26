@@ -40,6 +40,8 @@ class PhaseReference : public PhaseTable
 
         DSPCOMPLEX operator[](size_t ix);
 
+        void setThreshold(int16_t new_threshold);
+
     private:
         std::vector<DSPCOMPLEX> refTable;
 

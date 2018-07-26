@@ -56,6 +56,11 @@ DSPCOMPLEX PhaseReference::operator[](size_t ix)
     return refTable.at(ix);
 }
 
+void PhaseReference::setThreshold(int16_t new_threshold)
+{
+    threshold = new_threshold;
+}
+
 /**
  * \brief findIndex
  * the vector v contains "Tu" samples that are believed to

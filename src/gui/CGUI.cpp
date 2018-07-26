@@ -292,6 +292,30 @@ void CGUI::inputEnableAGCChanged(bool checked)
         RadioController->setAGC(checked);
 }
 
+void CGUI::inputDisableCoarseCorrector(bool checked)
+{
+    if(RadioController)
+        RadioController->disableCoarseCorrector(checked);
+}
+
+void CGUI::inputEnableTIIDecode(bool checked)
+{
+    if(RadioController)
+        RadioController->enableTIIDecode(checked);
+}
+
+void CGUI::inputEnableOldFFTWindowPlacement(bool checked)
+{
+    if(RadioController)
+        RadioController->enableOldFFTWindowPlacement(checked);
+}
+
+void CGUI::inputSetFreqSyncMethod(int fsm_ix)
+{
+    if(RadioController)
+        RadioController->setFreqSyncMethod(fsm_ix);
+}
+
 void CGUI::inputEnableHwAGCChanged(bool checked)
 {
     if(RadioController)

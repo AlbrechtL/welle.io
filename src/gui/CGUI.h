@@ -77,6 +77,10 @@ public:
     Q_INVOKABLE void startChannelScanClick(void);
     Q_INVOKABLE void stopChannelScanClick(void);
     Q_INVOKABLE void inputEnableAGCChanged(bool checked);
+    Q_INVOKABLE void inputDisableCoarseCorrector(bool checked);
+    Q_INVOKABLE void inputEnableTIIDecode(bool checked);
+    Q_INVOKABLE void inputEnableOldFFTWindowPlacement(bool checked);
+    Q_INVOKABLE void inputSetFreqSyncMethod(int fsm_ix);
     Q_INVOKABLE void inputEnableHwAGCChanged(bool checked);
     Q_INVOKABLE void inputGainChanged(double gain);
     Q_INVOKABLE void clearStationList(void);

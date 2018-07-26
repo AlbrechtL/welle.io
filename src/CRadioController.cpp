@@ -260,7 +260,6 @@ void CRadioController::Initialise(void)
 
     audio.setVolume(CurrentVolume);
 
-    RadioReceiverOptions rro; // Use default configuration
     my_rx = std::make_unique<RadioReceiver>(*this, *device, rro);
 
     Status = Initialised;
@@ -642,6 +641,42 @@ void CRadioController::setAGC(bool isAGC)
     }
     emit AGCChanged(isAGC);
 }
+
+void CRadioController::disableCoarseCorrector(bool disable)
+{
+    rro.disable_coarse_corrector = disable;
+    if (my_rx) {
+        my_rx->setReceiverOptions(rro);
+    }
+}
+
+void CRadioController::enableTIIDecode(bool enable)
+{
+    rro.decodeTII = enable;
+    if (my_rx) {
+        my_rx->setReceiverOptions(rro);
+    }
+}
+
+void CRadioController::enableOldFFTWindowPlacement(bool old)
+{
+    rro.ofdmProcessorThreshold = old ?
+        OLD_OFDM_PROCESSOR_THRESHOLD : NEW_OFDM_PROCESSOR_THRESHOLD;
+
+    if (my_rx) {
+        my_rx->setReceiverOptions(rro);
+    }
+}
+
+void CRadioController::setFreqSyncMethod(int fsm_ix)
+{
+    rro.freqsyncMethod = static_cast<FreqsyncMethod>(fsm_ix);
+
+    if (my_rx) {
+        my_rx->setReceiverOptions(rro);
+    }
+}
+
 
 float CRadioController::GainValue() const
 {

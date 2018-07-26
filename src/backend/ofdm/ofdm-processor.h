@@ -64,12 +64,13 @@ class OFDMProcessor
                 MscHandler& msc,
                 FicHandler& fic,
                 RadioReceiverOptions rro);
-        ~OFDMProcessor(void);
-        void reset(void);
-        void stop(void);
-        void resetCoarseCorrector(void);
+        ~OFDMProcessor();
+        void reset();
+        void stop();
+        void resetCoarseCorrector();
+        void setReceiverOptions(const RadioReceiverOptions rro);
         void set_scanMode(bool);
-        void start(void);
+        void start();
 
     private:
         std::thread threadHandle;

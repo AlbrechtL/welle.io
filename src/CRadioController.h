@@ -146,6 +146,11 @@ public:
     bool AGC() const;
     void setAGC(bool isAGC);
 
+    void disableCoarseCorrector(bool disable);
+    void enableTIIDecode(bool enable);
+    void enableOldFFTWindowPlacement(bool old);
+    void setFreqSyncMethod(int fsm_ix);
+
     int Gain() const;
     void setGain(int Gain);
 
@@ -194,6 +199,7 @@ private:
     QVariantMap commandLineOptions;
     DABParams dabparams;
     Channels channels;
+    RadioReceiverOptions rro;
 
     std::unique_ptr<RadioReceiver> my_rx;
     RingBuffer<int16_t> audioBuffer;

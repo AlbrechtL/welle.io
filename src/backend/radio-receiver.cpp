@@ -65,6 +65,23 @@ void RadioReceiver::restart_decoder()
     ficHandler.clearEnsemble();
 }
 
+void RadioReceiver::setReceiverOptions(const RadioReceiverOptions rro)
+{
+    string fsm;
+    switch (rro.freqsyncMethod) {
+        case FreqsyncMethod::GetMiddle: fsm = "GetMiddle"; break;
+        case FreqsyncMethod::CorrelatePRS: fsm = "CorrelatePRS"; break;
+        case FreqsyncMethod::PatternOfZeros: fsm = "PatternOfZeros"; break;
+    }
+
+    clog << "New Receiver Options: " <<
+        "TII: " << rro.decodeTII <<
+        " disable coarse corr: " << rro.disable_coarse_corrector <<
+        " freqsync: " << fsm <<
+        " threshold: " << rro.ofdmProcessorThreshold << endl;
+    ofdmProcessor.setReceiverOptions(rro);
+}
+
 bool RadioReceiver::playSingleProgramme(ProgrammeHandlerInterface& handler,
         const std::string& dumpFileName, const Service& s)
 {

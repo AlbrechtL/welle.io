@@ -56,6 +56,9 @@ class RadioReceiver {
          * decoders (both FIC and MSC) */
         void restart_decoder();
 
+        /* Update the currently running receiver with new configuration */
+        void setReceiverOptions(const RadioReceiverOptions rro);
+
         /* Play the audio component of the service. Returns true if an
          * audio subchannel was found and tuned to. */
         bool playSingleProgramme(ProgrammeHandlerInterface& handler,

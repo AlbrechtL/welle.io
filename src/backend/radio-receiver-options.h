@@ -33,10 +33,12 @@
 #pragma once
 
 // see OFDMProcessor::processPRS() for more information about these methods
-enum class FreqsyncMethod { GetMiddle, CorrelatePRS, PatternOfZeros };
+enum class FreqsyncMethod { GetMiddle = 0, CorrelatePRS = 1, PatternOfZeros = 2 };
 
 // Default uses the old algorithm until the issues of the new one are solved.
+constexpr int OLD_OFDM_PROCESSOR_THRESHOLD = 3;
 constexpr int DEFAULT_OFDM_PROCESSOR_THRESHOLD = 3;
+constexpr int NEW_OFDM_PROCESSOR_THRESHOLD = -1;
 
 // Configuration for the backend
 struct RadioReceiverOptions {

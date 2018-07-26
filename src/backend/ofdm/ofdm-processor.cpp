@@ -48,7 +48,6 @@
   * to the interpreters for FIC and MSC
   */
 
-#define abs std::abs     // to suppress warning: using integer absolute value function 'abs' when argument is of floating point type [-Wabsolute-value]
 
 OFDMProcessor::OFDMProcessor(
         InputInterface& inputInterface,
@@ -74,36 +73,36 @@ OFDMProcessor::OFDMProcessor(
     fft_handler(params.T_u),
     fft_buffer(fft_handler.getVector())
 {
-        ofdmBuffer.resize(76 * T_s);
-        /**
-         * the class phaseReference will take a number of samples
-         * and indicate - using some threshold - whether there is
-         * a strong correlation or not.
-         * It is used to decide on the first non-null sample
-         * of the frame.
-         * The size of the blocks handed over for inspection
-         * is T_u
-         */
-        /**
-         * the ofdmDecoder takes time domain samples, will do an FFT,
-         * map the result on (soft) bits and hand over control for handling
-         * the decoded symbols
-         */
-        oscillatorTable.resize(INPUT_RATE);
+    ofdmBuffer.resize(76 * T_s);
+    /**
+     * the class phaseReference will take a number of samples
+     * and indicate - using some threshold - whether there is
+     * a strong correlation or not.
+     * It is used to decide on the first non-null sample
+     * of the frame.
+     * The size of the blocks handed over for inspection
+     * is T_u
+     */
+    /**
+     * the ofdmDecoder takes time domain samples, will do an FFT,
+     * map the result on (soft) bits and hand over control for handling
+     * the decoded symbols
+     */
+    oscillatorTable.resize(INPUT_RATE);
 
-        for (int i = 0; i < INPUT_RATE; i ++)
-            oscillatorTable[i] = DSPCOMPLEX(cos(2.0 * M_PI * i / INPUT_RATE),
-                    sin(2.0 * M_PI * i / INPUT_RATE));
+    for (int i = 0; i < INPUT_RATE; i ++)
+        oscillatorTable[i] = DSPCOMPLEX(cos(2.0 * M_PI * i / INPUT_RATE),
+                sin(2.0 * M_PI * i / INPUT_RATE));
 
-        //  and for the correlation
-        refArg.resize(CORRELATION_LENGTH);
-        for (int i = 0; i < CORRELATION_LENGTH; i ++)  {
-            refArg[i] = arg(phaseRef[(T_u + i) % T_u] *
-                        conj(phaseRef[(T_u + i + 1) % T_u]));
-        }
-
-        correlationVector.resize(SEARCH_RANGE + CORRELATION_LENGTH);
+    //  and for the correlation
+    refArg.resize(CORRELATION_LENGTH);
+    for (int i = 0; i < CORRELATION_LENGTH; i ++)  {
+        refArg[i] = arg(phaseRef[(T_u + i) % T_u] *
+                conj(phaseRef[(T_u + i + 1) % T_u]));
     }
+
+    correlationVector.resize(SEARCH_RANGE + CORRELATION_LENGTH);
+}
 
 OFDMProcessor::~OFDMProcessor()
 {
@@ -114,7 +113,7 @@ OFDMProcessor::~OFDMProcessor()
     }
 }
 
-void OFDMProcessor::start(void)
+void OFDMProcessor::start()
 {
     std::clog << "OFDM-processor:" <<  "start" << std::endl;
     coarseCorrector    = 0;
@@ -219,7 +218,7 @@ void OFDMProcessor::getSamples(DSPCOMPLEX *v, int16_t n, int32_t phase)
  *    and sending them to the ofdmDecoder who will transfer the results
  *    Finally, estimating the small freqency error
  */
-void OFDMProcessor::run(void)
+void OFDMProcessor::run()
 {
     int32_t     startIndex;
     int32_t     i;
@@ -464,12 +463,20 @@ void OFDMProcessor::stop()
     running = false;
 }
 
-void OFDMProcessor::resetCoarseCorrector(void)
+void OFDMProcessor::resetCoarseCorrector()
 {
     coarseCorrector = 0;
 }
 
-void    OFDMProcessor::set_scanMode (bool b)
+void OFDMProcessor::setReceiverOptions(const RadioReceiverOptions rro)
+{
+    decodeTII = rro.decodeTII;
+    disableCoarseCorrector = rro.disable_coarse_corrector;
+    freqsyncMethod = rro.freqsyncMethod;
+    phaseRef.setThreshold(rro.ofdmProcessorThreshold);
+}
+
+void OFDMProcessor::set_scanMode(bool b)
 {
     scanMode = b;
 }

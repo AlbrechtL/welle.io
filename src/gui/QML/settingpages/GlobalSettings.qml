@@ -70,6 +70,55 @@ Item {
             }
         }
 
+
+        SettingSection {
+            text: qsTr("Backend")
+
+            Switch {
+                id: disableCoarse
+                text: qsTr("Disable Coarse Corrector (for receivers with <1kHz error)")
+                height: 24
+                Layout.fillWidth: true
+                checked: true
+                onClicked: {
+                    cppGUI.inputDisableCoarseCorrector(checked)
+                }
+            }
+
+            Switch {
+                id: decodeTII
+                text: qsTr("Enable TII decoding to console log (increases CPU usage)")
+                height: 24
+                Layout.fillWidth: true
+                checked: false
+                onClicked: {
+                    cppGUI.inputEnableTIIDecode(checked)
+                }
+            }
+
+            Switch {
+                id: oldFFTWindow
+                text: qsTr("Select old FFT placement algorithm (experimental)")
+                height: 24
+                Layout.fillWidth: true
+                checked: false
+                onClicked: {
+                    cppGUI.inputEnableOldFFTWindowPlacement(checked)
+                }
+            }
+
+            ComboBox {
+                id: freqSyncMethodBox
+                enabled: true
+                model: [ "GetMiddle", "CorrelatePRS", "PatternOfZeros" ];
+                Layout.preferredHeight: Units.dp(25)
+                Layout.preferredWidth: Units.dp(330)
+                onActivated: {
+                    cppGUI.inputSetFreqSyncMethod(index)
+                }
+            }
+        }
+
         SettingSection {
             text: qsTr("Gain")
 
