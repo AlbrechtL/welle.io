@@ -55,8 +55,6 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, DABParams& p
     , audioBuffer(2 * AUDIOBUFFERSIZE)
     , audio(audioBuffer)
 {
-    Device = NULL;
-
     // Init the technical data
     ResetTechnicalData();
 
@@ -136,10 +134,7 @@ void CRadioController::closeDevice()
     qDebug() << "RadioController:" << "Close device";
 
     my_rx.reset();
-
-    delete Device;
-    Device = NULL;
-
+    device.reset();
     audio.reset();
 
     SyncCheckTimer.stop();
@@ -151,12 +146,12 @@ void CRadioController::closeDevice()
     emit DeviceClosed();
 }
 
-void CRadioController::openDevice(CVirtualInput* Dev)
+void CRadioController::openDevice(CVirtualInput *new_device)
 {
-    if (Device) {
+    if (device) {
         closeDevice();
     }
-    this->Device = Dev;
+    device.reset(new_device);
     Initialise();
 }
 
@@ -206,26 +201,26 @@ void CRadioController::onEventLoopStarted()
 
     // Init device
     CSplashScreen::ShowMessage(tr("Init radio receiver"));
-    Device = CInputFactory::GetDevice(*this, dabDevice.toStdString());
+    device.reset(CInputFactory::GetDevice(*this, dabDevice.toStdString()));
 
     // Set rtl_tcp settings
-    if (Device->getID() == CDeviceID::RTL_TCP) {
-        CRTL_TCP_Client* RTL_TCP_Client = (CRTL_TCP_Client*)Device;
+    if (device->getID() == CDeviceID::RTL_TCP) {
+        CRTL_TCP_Client* RTL_TCP_Client = (CRTL_TCP_Client*)device.get();
 
         RTL_TCP_Client->setIP(ipAddress.toStdString());
         RTL_TCP_Client->setPort(ipPort);
     }
 
     // Set rawfile settings
-    if (Device->getID() == CDeviceID::RAWFILE) {
-        CRAWFile* RAWFile = (CRAWFile*)Device;
+    if (device->getID() == CDeviceID::RAWFILE) {
+        CRAWFile* RAWFile = (CRAWFile*)device.get();
 
         RAWFile->setFileName(rawFile.toStdString(), rawFileFormat.toStdString());
     }
 
 #ifdef HAVE_SOAPYSDR
-    if (Device->getID() == CDeviceID::SOAPYSDR) {
-        CSoapySdr *sdr = (CSoapySdr*)Device;
+    if (device->getID() == CDeviceID::SOAPYSDR) {
+        CSoapySdr *sdr = (CSoapySdr*)device.get();
 
         if (!sdrDriverArgs.isEmpty()) {
             sdr->setDriverArgs(sdrDriverArgs.toStdString());
@@ -248,25 +243,25 @@ void CRadioController::onEventLoopStarted()
 
 void CRadioController::Initialise(void)
 {
-    mGainCount = Device->getGainCount();
+    mGainCount = device->getGainCount();
     emit GainCountChanged(mGainCount);
 
-    Device->setHwAgc(isHwAGC);
+    device->setHwAgc(isHwAGC);
 
     if (!isAGC) { // Manual AGC
-        Device->setAgc(false);
-        Device->setGain(CurrentManualGain);
+        device->setAgc(false);
+        device->setGain(CurrentManualGain);
         qDebug() << "RadioController:" << "AGC off";
     }
     else {
-        Device->setAgc(true);
+        device->setAgc(true);
         qDebug() << "RadioController:" << "AGC on";
     }
 
     audio.setVolume(CurrentVolume);
 
     RadioReceiverOptions rro; // Use default configuration
-    my_rx = std::make_unique<RadioReceiver>(*this, *Device, rro);
+    my_rx = std::make_unique<RadioReceiver>(*this, *device, rro);
 
     Status = Initialised;
     emit DeviceReady();
@@ -309,8 +304,9 @@ void CRadioController::Play(QString Channel, QString Station)
 
 void CRadioController::Pause()
 {
-    if (Device)
-        Device->stop();
+    if (device) {
+        device->stop();
+    }
 
     audio.reset();
 
@@ -323,8 +319,9 @@ void CRadioController::Pause()
 
 void CRadioController::Stop()
 {
-    if (Device)
-        Device->stop();
+    if (device) {
+        device->stop();
+    }
 
     audio.reset();
 
@@ -366,26 +363,22 @@ void CRadioController::setVolume(qreal Volume)
 
 void CRadioController::SetChannel(QString Channel, bool isScan, bool Force)
 {
-    if(CurrentChannel != Channel || Force == true)
-    {
-        if(Device && Device->getID() == CDeviceID::RAWFILE)
-        {
+    if (CurrentChannel != Channel || Force == true) {
+        if (device && device->getID() == CDeviceID::RAWFILE) {
             CurrentChannel = "File";
             CurrentEnsemble = "";
             CurrentFrequency = 0;
         }
-        else // A real device
-        {
+        else { // A real device
             CurrentChannel = Channel;
             CurrentEnsemble = "";
 
             // Convert channel into a frequency
             CurrentFrequency = channels.getFrequency(Channel.toStdString());
 
-            if(CurrentFrequency != 0 && Device)
-            {
+            if(CurrentFrequency != 0 && device) {
                 qDebug() << "RadioController: Tune to channel" <<  Channel << "->" << CurrentFrequency/1e6 << "MHz";
-                Device->setFrequency(CurrentFrequency);
+                device->setFrequency(CurrentFrequency);
             }
         }
 
@@ -445,8 +438,7 @@ void CRadioController::StartScan(void)
     DeviceRestart();
     startPlayback = false;
 
-    if(Device && Device->getID() == CDeviceID::RAWFILE)
-    {
+    if(device && device->getID() == CDeviceID::RAWFILE) {
         CurrentTitle = tr("RAW File");
         const auto FirstChannel = QString::fromStdString(Channels::firstChannel);
         SetChannel(FirstChannel, false); // Just a dummy
@@ -503,8 +495,8 @@ QVariantMap CRadioController::GUIData(void) const
 
 void CRadioController::UpdateGUIData()
 {
-    mGUIData["DeviceName"] = Device ?
-        QString::fromStdString(Device->getName()) : "";
+    mGUIData["DeviceName"] = device ?
+        QString::fromStdString(device->getName()) : "";
 
     // Init the GUI data map
     mGUIData["Status"] = Status;
@@ -609,7 +601,7 @@ int CRadioController::GainCount() const
 
 bool CRadioController::isHwAGCSupported() const
 {
-    return (this->Device) ? this->Device->isHwAgcSupported() : false;
+    return device ? device->isHwAgcSupported() : false;
 }
 
 bool CRadioController::HwAGC() const
@@ -621,9 +613,8 @@ void CRadioController::setHwAGC(bool isHwAGC)
 {
     this->isHwAGC = isHwAGC;
 
-    if (Device)
-    {
-        Device->setHwAgc(isHwAGC);
+    if (device) {
+        device->setHwAgc(isHwAGC);
         qDebug() << "RadioController:" << (isHwAGC ? "HwAGC on" : "HwAGC off");
     }
     emit HwAGCChanged(isHwAGC);
@@ -638,17 +629,14 @@ void CRadioController::setAGC(bool isAGC)
 {
     this->isAGC = isAGC;
 
-    if (Device)
-    {
-        Device->setAgc(isAGC);
+    if (device) {
+        device->setAgc(isAGC);
 
-        if (!isAGC)
-        {
-            Device->setGain(CurrentManualGain);
+        if (!isAGC) {
+            device->setGain(CurrentManualGain);
             qDebug() << "RadioController:" << "AGC off";
         }
-        else
-        {
+        else {
             qDebug() << "RadioController:" <<  "AGC on";
         }
     }
@@ -669,13 +657,11 @@ void CRadioController::setGain(int Gain)
 {
     CurrentManualGain = Gain;
 
-    if (Device)
-    {
-        CurrentManualGainValue = Device->setGain(Gain);
-        int32_t mGainCount_tmp = Device->getGainCount();
+    if (device) {
+        CurrentManualGainValue = device->setGain(Gain);
+        int32_t mGainCount_tmp = device->getGainCount();
 
-        if(mGainCount != mGainCount_tmp)
-        {
+        if(mGainCount != mGainCount_tmp) {
             mGainCount = mGainCount_tmp;
             emit GainCountChanged(mGainCount);
             UpdateGUIData();
@@ -721,11 +707,11 @@ void CRadioController::DeviceRestart()
 {
     bool isPlay = false;
 
-    if(Device)
-        isPlay = Device->restart();
+    if(device) {
+        isPlay = device->restart();
+    }
 
-    if(!isPlay)
-    {
+    if(!isPlay) {
         qDebug() << "RadioController:" << "Radio device is not ready or does not exist.";
         emit showErrorMessage(tr("Radio device is not ready or does not exist."));
         return;
@@ -1027,8 +1013,8 @@ std::vector<DSPCOMPLEX> CRadioController::getSignalProbe()
 {
     int16_t T_u = dabparams.T_u;
 
-    if (Device) {
-        return Device->getSpectrumSamples(T_u);
+    if (device) {
+        return device->getSpectrumSamples(T_u);
     }
     else {
         std::vector<DSPCOMPLEX> dummyBuf(T_u);

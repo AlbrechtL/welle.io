@@ -74,27 +74,27 @@ public:
 private:
     std::thread agcThread;
     RadioControllerInterface& radioController;
-    int lastFrequency;
+    int lastFrequency = kHz(94700);
     int frequencyOffset = 0;
     int currentGain = 0;
-    bool isAGC;
-    bool isHwAGC;
+    bool isAGC = false;
+    bool isHwAGC = false;
     std::thread rtlsdrThread;
     void rtlsdr_read_async_wrapper(void);
-    std::atomic<bool> rtlsdrRunning;
+    std::atomic<bool> rtlsdrRunning = ATOMIC_VAR_INIT(false);
 
-    bool open;
+    bool open = false;
     std::vector<int> gains;
-    int currentGainIndex;
-    uint8_t minAmplitude;
-    uint8_t maxAmplitude;
+    int currentGainIndex = 0;
+    uint8_t minAmplitude = 255;
+    uint8_t maxAmplitude = 0;
 
     void AGCTimer(void);
 
     RingBuffer<uint8_t> sampleBuffer;
     RingBuffer<uint8_t> spectrumSampleBuffer;
-    struct rtlsdr_dev *device;
-    int32_t sampleCounter;
+    struct rtlsdr_dev *device = nullptr;
+    int32_t sampleCounter = 0;
 
     static void RTLSDRCallBack(uint8_t* buf, uint32_t len, void *ctx);
 };

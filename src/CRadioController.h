@@ -105,7 +105,7 @@ public:
 
     CRadioController(QVariantMap &commandLineOptions, DABParams& params, QObject* parent = NULL);
     void closeDevice();
-    void openDevice(CVirtualInput* Dev);
+    void openDevice(CVirtualInput* new_device);
     void Play(QString Channel, QString Station);
     void Pause();
     void Stop();
@@ -190,7 +190,7 @@ private:
     void UpdateGUIData();
 
     // Back-end objects
-    CVirtualInput* Device;
+    std::shared_ptr<CVirtualInput> device;
     QVariantMap commandLineOptions;
     DABParams dabparams;
     Channels channels;

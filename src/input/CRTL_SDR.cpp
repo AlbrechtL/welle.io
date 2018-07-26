@@ -45,19 +45,6 @@ CRTL_SDR::CRTL_SDR(RadioControllerInterface& radioController) :
 
     std::clog << "RTL_SDR:" << "Open rtl-sdr" << std::endl;
 
-    open = false;
-    isAGC = false;
-    isHwAGC = false;
-    lastFrequency = kHz(94700); // just a dummy
-    sampleCounter = 0;
-    frequencyOffset = 0;
-    currentGain = 0;
-    currentGainIndex = 0;
-    device = NULL;
-    minAmplitude = 255;
-    maxAmplitude = 0;
-    rtlsdrRunning = false;
-
     // Get all devices
     uint32_t deviceCount = rtlsdr_get_device_count();
     if (deviceCount == 0) {
