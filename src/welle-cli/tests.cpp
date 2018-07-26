@@ -123,6 +123,7 @@ class TestRadioInterface : public RadioControllerInterface {
     private:
         struct FILEDeleter{ void operator()(FILE* fd){ if (fd) fclose(fd); }};
         std::unique_ptr<FILE, FILEDeleter> cirFile;
+        bool first_sync_time_set = false;
 
     public:
         void openCIRdumpfile(const std::string& fname)
@@ -137,7 +138,13 @@ class TestRadioInterface : public RadioControllerInterface {
         virtual void onFrequencyCorrectorChange(int fine, int coarse) override { (void)fine; (void)coarse; }
         virtual void onSyncChange(char isSync) override
         {
-            if (isSync) num_syncs++;
+            if (isSync) {
+                num_syncs++;
+
+                if (not first_sync_time_set) {
+                    first_sync_time = chrono::steady_clock::now();
+                }
+            }
             else num_desyncs++;
         }
         virtual void onSignalPresence(bool isSignal) override { (void)isSignal; }
@@ -180,6 +187,7 @@ class TestRadioInterface : public RadioControllerInterface {
         virtual void onTIIMeasurement(tii_measurement_t&& m) override { (void)m; }
         size_t num_syncs = 0;
         size_t num_desyncs = 0;
+        chrono::steady_clock::time_point first_sync_time;
 };
 
 class TestProgrammeHandler: public ProgrammeHandlerInterface {
@@ -301,6 +309,7 @@ void Tests::test_multipath(int test_id)
     cerr << "Saving CIR to " << cirdumpfilename << endl;
 
     rro.ofdmProcessorThreshold = (test_id == 1 ? 3 : -1);
+    const auto start_time = chrono::steady_clock::now();
     RadioReceiver rx(ri, *interface.get(), rro);
 
     cerr << "Restart rx" << endl;
@@ -332,10 +341,19 @@ void Tests::test_multipath(int test_id)
     }
 
     FILE *fd = fopen("test1.csv", "a");
-    fprintf(fd, "%s,%d,%zu,%zu,%d,%d,%d\n",
+    const int pos = ftell(fd);
+    if (pos == -1) {
+        perror("ftell");
+    }
+
+    if (pos == 0) {
+        fprintf(fd, "fname,ofdmthreshold,num_syncs,num_desyncs,time_to_first_sync,frameerrors,aacerrors,rserrors\n");
+    }
+    fprintf(fd, "%s,%d,%zu,%zu,%ld,%d,%d,%d\n",
             intf.getFileName().c_str(),
             rro.ofdmProcessorThreshold,
             ri.num_syncs, ri.num_desyncs,
+            chrono::duration_cast<chrono::milliseconds>(start_time-ri.first_sync_time).count(),
             std::accumulate(tph.frameErrorStats.begin(), tph.frameErrorStats.end(), 0),
             std::accumulate(tph.aacErrorStats.begin(), tph.aacErrorStats.end(), 0),
             std::accumulate(tph.rsErrorStats.begin(), tph.rsErrorStats.end(), 0));
