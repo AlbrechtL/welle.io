@@ -150,30 +150,46 @@ CDeviceID CRAWFile::getID()
     return CDeviceID::RAWFILE;
 }
 
+bool ends_with(const std::string& value, const std::string& ending)
+{
+    if (ending.size() > value.size()) return false;
+    return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
+}
+
 void CRAWFile::setFileName(const std::string& fileName,
         const std::string& fileFormat)
 {
     this->fileName = fileName;
 
-    if(fileFormat == "u8") {
+    if (fileFormat == "u8" or
+            (fileFormat == "auto" and ends_with(fileName, ".u8.iq"))) {
         this->fileFormat = CRAWFileFormat::U8;
         IQByteSize = 2;
     }
-    else if(fileFormat == "s8") {
+    else if (fileFormat == "s8" or
+            (fileFormat == "auto" and ends_with(fileName, ".s8.iq"))) {
         this->fileFormat = CRAWFileFormat::S8;
         IQByteSize = 2;
     }
-    else if(fileFormat == "s16le") {
+    else if(fileFormat == "s16le" or
+            (fileFormat == "auto" and ends_with(fileName, ".s16le.iq"))) {
         this->fileFormat = CRAWFileFormat::S16LE;
         IQByteSize = 4;
     }
-    else if(fileFormat == "s16be") {
+    else if(fileFormat == "s16be" or
+            (fileFormat == "auto" and ends_with(fileName, ".s16be.iq"))) {
         this->fileFormat = CRAWFileFormat::S16BE;
         IQByteSize = 4;
     }
-    else if(fileFormat == "cf32") {
+    else if(fileFormat == "cf32" or
+            (fileFormat == "auto" and ends_with(fileName, ".cf32.iq"))) {
         this->fileFormat = CRAWFileFormat::COMPLEXF;
         IQByteSize = 8;
+    }
+    else if (fileFormat == "auto") {
+        // Default to u8 for backward compatibility
+        this->fileFormat = CRAWFileFormat::U8;
+        IQByteSize = 2;
     }
     else {
         this->fileFormat = CRAWFileFormat::Unknown;

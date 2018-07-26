@@ -171,7 +171,7 @@ void CRadioController::onEventLoopStarted()
     QString ipAddress = "127.0.0.1";
     uint16_t ipPort = 1234;
     QString rawFile = "";
-    QString rawFileFormat = "u8";
+    QString rawFileFormat = "auto";
 
     if(commandLineOptions["dabDevice"] != "")
         dabDevice = commandLineOptions["dabDevice"].toString();

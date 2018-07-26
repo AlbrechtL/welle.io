@@ -152,7 +152,7 @@ int main(int argc, char** argv)
     optionParser.addOption(RAWFile);
 
     QCommandLineOption RAWFileFormat("raw-format",
-        QCoreApplication::translate("main", "I/Q RAW file format. Possible is: u8 (standard), s8, s16le, s16be, cf32. Only valid for input rawfile."),
+        QCoreApplication::translate("main", "I/Q RAW file format. Possible is: auto (depends on filename), u8, s8, s16le, s16be, cf32. Only valid for input rawfile."),
         QCoreApplication::translate("main", "I/Q RAW file format"));
     optionParser.addOption(RAWFileFormat);
 

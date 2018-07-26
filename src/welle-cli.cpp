@@ -271,7 +271,7 @@ static void usage()
         " welle-cli -c channel -p programme" << endl <<
         endl <<
         "Read an IQ file and play with ALSA:" << endl <<
-        "IQ file format is complexf I/Q unless the filename ends with u8.iq" << endl <<
+        "IQ file format is u8, unless the file ends with FORMAT.iq" << endl <<
         " welle-cli -f file -p programme" << endl <<
         endl <<
 #endif // defined(HAVE_ALSA)
@@ -395,12 +395,7 @@ int main(int argc, char **argv)
             return 1;
         }
 
-        if (options.iqsource.find("u8.iq") == string::npos) {
-            in_file->setFileName(options.iqsource, "cf32");
-        }
-        else {
-            in_file->setFileName(options.iqsource, "u8");
-        }
+        in_file->setFileName(options.iqsource, "auto");
         in = move(in_file);
     }
 
