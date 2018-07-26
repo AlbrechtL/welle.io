@@ -119,7 +119,7 @@ int32_t PhaseReference::findIndex(DSPCOMPLEX *v,
     else {
         /* Calculate peaks over bins of 25 samples, keep the
          * 4 bins with the highest peaks, take the index from the peak
-         * in the earliest bin, but not any earlier than 200 samples.
+         * in the earliest bin, but not any earlier than 500 samples.
          *
          * Goal: avoid that the receiver locks onto the strongest peak
          * in case earlier peaks are present.
@@ -169,7 +169,7 @@ int32_t PhaseReference::findIndex(DSPCOMPLEX *v,
 
         // Keep only bins that are not too far from highest peak
         const int peak_index = bins.front().index;
-        constexpr int max_subpeak_distance = 100;
+        constexpr int max_subpeak_distance = 500;
         bins.erase(
             remove_if(bins.begin(), bins.end(),
                     [&](const peak_t& p) {
