@@ -26,7 +26,7 @@ Item {
     function openSettings() {        
         // Workaround for touch displays. (Discovered with Windows 10)
         // For some reason the dawer will be closed before it is openend
-        // Enable the closing again
+        // Disable closing
         expertViewDrawer.closePolicy = Popup.NoAutoClose
 
         // Open drawer
@@ -41,7 +41,7 @@ Item {
 
         // Workaround for touch displays. (Discovered with Windows 10)
         // For some reason the dawer will be closed before it is openend
-        // Enable the closing again
+        // Enable closing again
         onOpened: closePolicy = Popup.CloseOnEscape | Popup.CloseOnPressOutside
 
         ColumnLayout{

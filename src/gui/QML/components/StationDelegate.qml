@@ -39,6 +39,8 @@
 ****************************************************************************/
 
 import QtQuick 2.2
+import QtQuick.Layouts 1.1
+
 
 // Import custom styles
 import "../texts"
@@ -61,21 +63,23 @@ Item {
         visible: mouse.pressed
     }
 
-    TextStandart {
-        id: stationItem
-        text: modelData
-        anchors.verticalCenter: parent.verticalCenter
-        anchors.left: parent.left
-        anchors.leftMargin: Units.dp(15)
-    }
+    RowLayout {
+        anchors.fill: parent
 
-    TextStation {
-        id: channelItem
-        text: modelData
-        anchors.verticalCenter: parent.verticalCenter
-        anchors.right: parent.right
-        anchors.rightMargin: Units.dp(15)
-        opacity: root.showChannelName ? 1 : 0
+        TextStandart {
+            id: stationItem
+            text: modelData
+            Layout.alignment: Qt.AlignVCenter | Qt.AlignLeft
+            Layout.leftMargin: Units.dp(15)
+        }
+
+        TextStation {
+            id: channelItem
+            text: modelData
+            Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
+            Layout.rightMargin: Units.dp(15)
+            opacity: root.showChannelName ? 1 : 0
+        }
     }
 
     MouseArea {

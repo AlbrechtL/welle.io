@@ -144,26 +144,25 @@ ApplicationWindow {
 
             ToolButton {
                 icon.name: listStackView.depth > 1 ? "back" : "drawer"
-                visible: inPortrait || listStackView.depth > 1
                 onClicked: {
                     if(listStackView.depth > 1) {
                         listStackView.pop(StackView.Immediate)
                         stackView.pop(null, StackView.Immediate)
                     }
                     else {
-                        if (drawer.visible)
+                        if (stationDrawer.visible)
                         {
-                            drawer.close()
+                            stationDrawer.close()
                         }
                         else
                         {
                             // Workaround for touch displays. (Discovered with Windows 10)
                             // For some reason the dawer will be closed before it is openend
-                            // Enable the closing again
-                            drawer.closePolicy = Popup.NoAutoClose
+                            // Disbale closing
+                            stationDrawer.closePolicy = Popup.NoAutoClose
 
                             // Open drawer
-                            drawer.open()
+                            stationDrawer.open()
                         }
                     }
                 }
@@ -190,23 +189,27 @@ ApplicationWindow {
 
                     MenuItem {
                         text: qsTr("Settings")
+                        font.pixelSize: TextStyle.textStandartSize
                         onTriggered:  {
                             listStackView.push(stettingsList, StackView.Immediate)
-                            drawer.open()
+                            stationDrawer.open()
                         }
                     }
                     MenuItem {
                         text: qsTr("Expert Settings")
+                        font.pixelSize: TextStyle.textStandartSize
                         visible: isExpertView
                         height: isExpertView ? implicitHeight : 0
                         onTriggered: expertView.openSettings()
                     }
                     MenuItem {
                         text: qsTr("About")
+                        font.pixelSize: TextStyle.textStandartSize
                         onTriggered: aboutDialog.open()
                     }
                     MenuItem {
                         text: qsTr("Exit")
+                        font.pixelSize: TextStyle.textStandartSize
                         onTriggered: cppGUI.close()
                     }
                 }
@@ -242,7 +245,6 @@ ApplicationWindow {
 
             model: ListModel {
                 ListElement { title: qsTr("General"); }
-                ListElement { title: qsTr("Channels");  source: "qrc:/src/gui/QML/settingpages/ChannelSettings.qml" }
                 ListElement { title: qsTr("RTL-SDR"); source: "qrc:/src/gui/QML/settingpages/RTLSDRSettings.qml" }
                 ListElement { title: qsTr("RTL-TCP"); source: "qrc:/src/gui/QML/settingpages/RTLTCPSettings.qml" }
                 ListElement { title: qsTr("SoapySDR"); source: "qrc:/src/gui/QML/settingpages/SoapySDRSettings.qml" }
@@ -257,7 +259,7 @@ ApplicationWindow {
     }
 
     Drawer {
-        id: drawer
+        id: stationDrawer
 
         y: overlayHeader.height
         width: moveDrawer.x
@@ -270,7 +272,7 @@ ApplicationWindow {
 
         // Workaround for touch displays. (Discovered with Windows 10)
         // For some reason the dawer will be closed before it is openend
-        // Enable the closing again
+        // Enable closing again
         onOpened: closePolicy = Popup.CloseOnEscape | Popup.CloseOnPressOutside
 
         StackView {
@@ -287,35 +289,126 @@ ApplicationWindow {
             initialItem: Item {
                 width: parent.width
                 height: parent.height
-                TextStandart {
-                    x: Units.dp(5)
-                    y: Units.dp(5)
-                    text: qsTr("Station list is empty")
-                    visible: stationChannelView.count ? false : true
-                }
 
-                ListView {
-                   id: stationChannelView
-                   model: cppGUI.stationModel
-                   anchors.fill: parent
-                   delegate: StationDelegate {
-                       stationNameText: modelData.stationName
-                       channelNameText: modelData.channelName
-                       showChannelName: isExpertView
-                       onClicked: {
-                           if(modelData.channelName !== "") {
-                               mainWindow.stationClicked()
-                               cppGUI.channelClick(modelData.stationName, modelData.channelName)
+                ColumnLayout {
+                    anchors.fill: parent
+
+                    RowLayout {
+                      anchors.fill: parent
+
+                      TextStandart {
+                          text: qsTr("Stations")
+                          horizontalAlignment: Qt.AlignHCenter
+                          verticalAlignment: Qt.AlignVCenter
+                          Layout.fillWidth: true
+                      }
+
+                      Button {
+                          text: qsTr("⋮")
+                          flat: true
+                          onClicked: stationMenu.open()
+                          implicitWidth: contentItem.implicitWidth + 15
+
+                          Menu {
+                              id: stationMenu
+
+                              MenuItem {
+                                  id: startStationScanItem
+                                  text: qsTr("Start station scan")
+                                  font.pixelSize: TextStyle.textStandartSize
+                                  onTriggered:  {
+                                      startStationScanItem.enabled = false
+                                      stopStationScanItem.enabled = true
+                                      cppGUI.startChannelScanClick()
+                                  }
+                              }
+
+                              MenuItem {
+                                  id: stopStationScanItem
+                                  text: qsTr("Stop station scan")
+                                  font.pixelSize: TextStyle.textStandartSize
+                                  enabled: false
+                                  onTriggered:  {
+                                      startStationScanItem.enabled = true
+                                      stopStationScanItem.enabled = false
+                                      cppGUI.stopChannelScanClick()
+                                  }
+                              }
+
+                              MenuItem {
+                                  id: stationSettingsItem
+                                  text: qsTr("Station settings")
+                                  font.pixelSize: TextStyle.textStandartSize
+                                  onTriggered: stationSettingsDialog.open()
+                              }
+                          }
+                      }
+                    }
+
+                    TextStandart {
+                        text: qsTr("Station list is empty")
+                        visible: stationChannelView.count ? false : true
+                        Layout.margins: 10
+                    }
+
+                    ListView {
+                       id: stationChannelView
+                       model: cppGUI.stationModel
+                       Layout.fillWidth: true
+                       Layout.fillHeight: true
+                       clip: true
+                       delegate: StationDelegate {
+                           stationNameText: modelData.stationName
+                           channelNameText: modelData.channelName
+                           showChannelName: isExpertView
+                           onClicked: {
+                               if(modelData.channelName !== "") {
+                                   mainWindow.stationClicked()
+                                   cppGUI.channelClick(modelData.stationName, modelData.channelName)
+                               }
                            }
                        }
-                   }
 
-                    ScrollIndicator.vertical: ScrollIndicator { }
+                        ScrollIndicator.vertical: ScrollIndicator { }
+                    }
+
+                    RowLayout {
+                        Layout.margins: 10
+                        visible: isExpertView ? true : false
+
+                        TextStandart {
+                            text: qsTr("Manual channel")
+                            Layout.fillWidth: true
+                        }
+
+                        ComboBox {
+                            id: manualChannelBox
+                            model: ["5A", "5B", "5C", "5D",
+                                "6A", "6B", "6C", "6D",
+                                "7A", "7B", "7C", "7D",
+                                "8A", "8B", "8C", "8D",
+                                "9A", "9B", "9C", "9D",
+                                "10A", "10B", "10C", "10D",
+                                "11A", "11B", "11C", "11D",
+                                "12A", "12B", "12C", "12D",
+                                "13A", "13B", "13C", "13D", "13E", "13F",
+                                "LA", "LB", "LC", "LD",
+                                "LE", "LF", "LG", "LH",
+                                "LI", "LJ", "LK", "LL",
+                                "LM", "LN", "LO", "LP"]
+
+                            Layout.preferredHeight: Units.dp(25)
+                            Layout.preferredWidth: Units.dp(130)
+                            onActivated: {
+                                cppGUI.setManualChannel(model[index])
+                            }
+                        }
+                    }
                 }
             }
         }
 
-        // Make it possible to change the lists width
+        // Make it possible to change the drawers width
         Rectangle {
             id: moveDrawer
             width: Units.dp(5)
@@ -338,7 +431,7 @@ ApplicationWindow {
     Flickable {
         id: flickable
         anchors.fill: parent
-        anchors.leftMargin: !inPortrait ? drawer.width: undefined
+        anchors.leftMargin: (!inPortrait && stationDrawer.opened) ? stationDrawer.width: undefined
 
         function setContentHeight() {
             contentHeight = stackView.currentItem.implicitHeight > parent.height ? stackView.currentItem.implicitHeight : parent.height
@@ -432,6 +525,21 @@ ApplicationWindow {
         }
     }
 
+    Popup {
+        id: stationSettingsDialog
+        modal: true
+        focus: true
+        x: (parent.width - width) / 2
+        y: (parent.height - height) / 2
+        contentWidth: contentItem.implicitWidth
+        contentHeight: contentItem.implicitHeight
+        clip: true
+
+        contentItem: Loader {
+            source:  "qrc:/src/gui/QML/settingpages/ChannelSettings.qml"
+        }
+    }
+
     MessagePopup {
         id: errorMessagePopup
         x: mainWindow.width/2 - width/2
@@ -481,6 +589,16 @@ ApplicationWindow {
         onRestoreWindow: {
             showNormal()
             raise() // Stay in foreground
+        }
+
+        onChannelScanStopped:{
+            startStationScanItem.enabled = true
+            stopStationScanItem.enabled = false
+        }
+
+        onChannelScanProgress:{
+            startStationScanItem.enabled = false
+            stopStationScanItem.enabled = true
         }
     }
 
