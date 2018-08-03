@@ -15,69 +15,11 @@ Item {
     Layout.fillWidth: true
     Layout.fillHeight: true
 
-    Settings {
-        property alias enableStationInfoDisplayState: enableStationInfoDisplay.checked
-        property alias enableSpectrumDisplayState: enableSpectrumDisplay.checked
-        property alias enableImpulseResponseDisplayState: enableImpulseResponseDisplay.checked
-        property alias enableConstellationDisplayState: enableConstellationDisplay.checked
-        property alias enableNullSymbolDisplayState: enableNullSymbolDisplay.checked
-    }
-
-    function openSettings() {        
-        // Workaround for touch displays. (Discovered with Windows 10)
-        // For some reason the dawer will be closed before it is openend
-        // Disable closing
-        expertViewDrawer.closePolicy = Popup.NoAutoClose
-
-        // Open drawer
-        expertViewDrawer.open()
-    }
-
-    Drawer {
-        id: expertViewDrawer
-        edge: Qt.RightEdge
-        y: overlayHeader.height
-        height: mainWindow.height - overlayHeader.height
-
-        // Workaround for touch displays. (Discovered with Windows 10)
-        // For some reason the dawer will be closed before it is openend
-        // Enable closing again
-        onOpened: closePolicy = Popup.CloseOnEscape | Popup.CloseOnPressOutside
-
-        ColumnLayout{
-            spacing: Units.dp(20)
-
-            Switch {
-                id: enableStationInfoDisplay
-                text: qsTr("Display station info")
-                checked: true
-            }
-
-            Switch {
-                id: enableSpectrumDisplay
-                text: qsTr("Display spectrum")
-                checked: true
-            }
-
-            Switch {
-                id: enableImpulseResponseDisplay
-                text: qsTr("Display impulse response")
-                checked: false
-            }
-
-            Switch {
-                id: enableConstellationDisplay
-                text: qsTr("Display constellation diagram")
-                checked: false
-            }
-
-            Switch {
-                id: enableNullSymbolDisplay
-                text: qsTr("Display null symbol")
-                checked: false
-            }
-        }
-    }
+    property bool enableStationInfoDisplay: true
+    property bool enableSpectrumDisplay: true
+    property bool enableImpulseResponseDisplay: false
+    property bool enableConstellationDisplay: false
+    property bool enableNullSymbolDisplay: false
 
     GridLayout {
         id: layout
@@ -87,23 +29,23 @@ Item {
 
         StationInformation {
             Layout.alignment: Qt.AlignTop
-            visible: enableStationInfoDisplay.checked
+            visible: enableStationInfoDisplay
         }
 
         SpectrumGraph {
-            visible: enableSpectrumDisplay.checked
+            visible: enableSpectrumDisplay
         }
 
         ImpulseResponseGraph {
-            visible: enableImpulseResponseDisplay.checked
+            visible: enableImpulseResponseDisplay
         }
 
         ConstellationGraph {
-            visible: enableConstellationDisplay.checked
+            visible: enableConstellationDisplay
         }
 
         NullSymbolGraph {
-            visible: enableNullSymbolDisplay.checked
+            visible: enableNullSymbolDisplay
         }
     }
 }

@@ -49,8 +49,11 @@
         <file>src/gui/QML/settingpages/RTLSDRSettings.qml</file>
         <file>src/gui/QML/settingpages/RTLTCPSettings.qml</file>
         <file>src/gui/QML/settingpages/SoapySDRSettings.qml</file>
+        <file>src/gui/QML/settingpages/ExpertSettings.qml</file>
         <file>src/gui/QML/components/MessagePopup.qml</file>
+        <file>src/gui/QML/components/SettingsPopup.qml</file>
         <file>src/gui/QML/components/SettingSection.qml</file>
+        <file>src/gui/QML/components/SettingSwitch.qml</file>
         <file>src/gui/QML/components/StationDelegate.qml</file>
         <file>src/gui/QML/components/Units.qml</file>
         <file>src/gui/QML/components/qmldir</file>

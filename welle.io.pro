@@ -20,6 +20,9 @@ DISTFILES +=    README.md \
     android/java/io/welle/welle/DabMediaService.java \
     android/java/io/welle/welle/DabService.java \
     android/java/io/welle/welle/DabDelegate.java \
+    src/gui/QML/components/SettingsPopup.qml \
+    src/gui/QML/settingpages/ExpertSettings.qml \
+    src/gui/QML/components/SettingSwitch.qml
 
 TRANSLATIONS = i18n/de_DE.ts i18n/it_IT.ts i18n/hu_HU.ts i18n/nb_NO.ts i18n/fr_FR.ts i18n/pl_PL.ts i18n/ru_RU.ts
 

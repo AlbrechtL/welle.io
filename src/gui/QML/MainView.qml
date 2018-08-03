@@ -52,19 +52,15 @@ import "components"
 
 ApplicationWindow {
     id: mainWindow
-    visible: true
 
     signal stationClicked()
-    property alias isExpertView: globalSettings.enableExpertModeState
 
-    function getTitle(){
-        if(listStackView.depth > 1  && listStackView.currentItem.currentItem)
-            return listStackView.currentItem.currentItem.text + " " + qsTr("Settings")
-        else
-            return "welle.io"
-    }
+    // Default values
+    property bool isExpertView: false
+    property bool isFullScreen: false
 
-//    property bool isLandscape: true
+    readonly property bool inPortrait: mainWindow.width < mainWindow.height
+
     function getWidth() {
         if(Screen.desktopAvailableWidth < Units.dp(700)
                 || Screen.desktopAvailableHeight < Units.dp(500)
@@ -86,15 +82,13 @@ ApplicationWindow {
     width: getWidth()
     height: getHeight()
 
-    readonly property bool inPortrait: mainWindow.width < mainWindow.height
-
     onWidthChanged: {
         // Set drawer width to half of windows width
         if(moveDrawer.x > width)
             moveDrawer.x = width / 2;
     }
 
-    visibility: globalSettings.enableFullScreenState ? Window.FullScreen : Window.Windowed
+    visibility: isFullScreen ? Window.FullScreen : Window.Windowed
 
     Component.onCompleted: {
         console.debug("os: " + Qt.platform.os)
@@ -121,17 +115,10 @@ ApplicationWindow {
             moveDrawer.x = mainWindow.width / 2;
     }
 
-//    Keys.onEscapePressed: stackView.pop(null);
-
     Settings {
         property alias width : mainWindow.width
         property alias height : mainWindow.height
         property alias leftDrawerWidth: moveDrawer.x
-    }
-
-    GlobalSettings {
-        id: globalSettings
-        visible: false
     }
 
     header: ToolBar {
@@ -143,34 +130,28 @@ ApplicationWindow {
             anchors.fill: parent
 
             ToolButton {
-                icon.name: listStackView.depth > 1 ? "back" : "drawer"
+                icon.name:  "drawer"
                 onClicked: {
-                    if(listStackView.depth > 1) {
-                        listStackView.pop(StackView.Immediate)
-                        stackView.pop(null, StackView.Immediate)
+                    if (stationDrawer.visible)
+                    {
+                        stationDrawer.close()
                     }
-                    else {
-                        if (stationDrawer.visible)
-                        {
-                            stationDrawer.close()
-                        }
-                        else
-                        {
-                            // Workaround for touch displays. (Discovered with Windows 10)
-                            // For some reason the dawer will be closed before it is openend
-                            // Disbale closing
-                            stationDrawer.closePolicy = Popup.NoAutoClose
+                    else
+                    {
+                        // Workaround for touch displays. (Discovered with Windows 10)
+                        // For some reason the dawer will be closed before it is openend
+                        // Disbale closing
+                        stationDrawer.closePolicy = Popup.NoAutoClose
 
-                            // Open drawer
-                            stationDrawer.open()
-                        }
+                        // Open drawer
+                        stationDrawer.open()
                     }
                 }
             }
 
             Label {
                 id: titleLabel
-                text: getTitle()
+                text: "welle.io"
                 font.pixelSize: 20
                 elide: Label.ElideRight
                 horizontalAlignment: Qt.AlignHCenter
@@ -190,17 +171,12 @@ ApplicationWindow {
                     MenuItem {
                         text: qsTr("Settings")
                         font.pixelSize: TextStyle.textStandartSize
-                        onTriggered:  {
-                            listStackView.push(stettingsList, StackView.Immediate)
-                            stationDrawer.open()
-                        }
+                        onTriggered: globalSettingsDialog.open()
                     }
                     MenuItem {
                         text: qsTr("Expert Settings")
                         font.pixelSize: TextStyle.textStandartSize
-                        visible: isExpertView
-                        height: isExpertView ? implicitHeight : 0
-                        onTriggered: expertView.openSettings()
+                        onTriggered: expertSettingsDialog.open()
                     }
                     MenuItem {
                         text: qsTr("About")
@@ -213,47 +189,6 @@ ApplicationWindow {
                         onTriggered: cppGUI.close()
                     }
                 }
-            }
-        }
-    }
-
-    Component {
-        id: stettingsList
-
-        ListView {
-            id: listView
-            focus: true
-            currentIndex: -1
-
-            delegate: ItemDelegate {
-                width: parent.width
-                text: model.title
-                font.pixelSize: TextStyle.textStandartSize
-                font.family: TextStyle.textFont
-                highlighted: ListView.isCurrentItem
-                onClicked: {
-                    if(listView.currentIndex != index) {
-                        listView.currentIndex = index
-
-                        switch(index) {
-                            case 0: stackView.replace(globalSettings);  break
-                            default: stackView.replace(model.source);
-                        }
-                    }
-                }
-            }
-
-            model: ListModel {
-                ListElement { title: qsTr("General"); }
-                ListElement { title: qsTr("RTL-SDR"); source: "qrc:/src/gui/QML/settingpages/RTLSDRSettings.qml" }
-                ListElement { title: qsTr("RTL-TCP"); source: "qrc:/src/gui/QML/settingpages/RTLTCPSettings.qml" }
-                ListElement { title: qsTr("SoapySDR"); source: "qrc:/src/gui/QML/settingpages/SoapySDRSettings.qml" }
-            }
-
-            Component.onCompleted: {
-                // Load first settings page
-                listView.currentIndex = 0
-                stackView.push(globalSettings, StackView.Immediate)
             }
         }
     }
@@ -275,141 +210,124 @@ ApplicationWindow {
         // Enable closing again
         onOpened: closePolicy = Popup.CloseOnEscape | Popup.CloseOnPressOutside
 
-        StackView {
-            id: listStackView
+        ColumnLayout {
             anchors.fill: parent
 
-            // Implements back key navigation
-            focus: true
-            Keys.onReleased: if (event.key === Qt.Key_Back && listStackView.depth > 1) {
-                                 listStackView.pop();
-                                 event.accepted = true;
-                             }
+            RowLayout {
+              anchors.fill: parent
 
-            initialItem: Item {
-                width: parent.width
-                height: parent.height
+              TextStandart {
+                  text: qsTr("Stations")
+                  horizontalAlignment: Qt.AlignHCenter
+                  verticalAlignment: Qt.AlignVCenter
+                  Layout.fillWidth: true
+              }
 
-                ColumnLayout {
-                    anchors.fill: parent
+              Button {
+                  text: qsTr("⋮")
+                  font.pixelSize: TextStyle.textHeadingSize
+                  font.family: TextStyle.textFont
+                  flat: true
+                  onClicked: stationMenu.open()
+                  implicitWidth: contentItem.implicitWidth + Units.dp(15)
 
-                    RowLayout {
-                      anchors.fill: parent
+                  Menu {
+                      id: stationMenu
 
-                      TextStandart {
-                          text: qsTr("Stations")
-                          horizontalAlignment: Qt.AlignHCenter
-                          verticalAlignment: Qt.AlignVCenter
-                          Layout.fillWidth: true
-                      }
-
-                      Button {
-                          text: qsTr("⋮")
-                          font.pixelSize: TextStyle.textHeadingSize
+                      MenuItem {
+                          id: startStationScanItem
+                          text: qsTr("Start station scan")
+                          font.pixelSize: TextStyle.textStandartSize
                           font.family: TextStyle.textFont
-                          flat: true
-                          onClicked: stationMenu.open()
-                          implicitWidth: contentItem.implicitWidth + Units.dp(15)
-
-                          Menu {
-                              id: stationMenu
-
-                              MenuItem {
-                                  id: startStationScanItem
-                                  text: qsTr("Start station scan")
-                                  font.pixelSize: TextStyle.textStandartSize
-                                  font.family: TextStyle.textFont
-                                  onTriggered:  {
-                                      startStationScanItem.enabled = false
-                                      stopStationScanItem.enabled = true
-                                      cppGUI.startChannelScanClick()
-                                  }
-                              }
-
-                              MenuItem {
-                                  id: stopStationScanItem
-                                  text: qsTr("Stop station scan")
-                                  font.pixelSize: TextStyle.textStandartSize
-                                  font.family: TextStyle.textFont
-                                  enabled: false
-                                  onTriggered:  {
-                                      startStationScanItem.enabled = true
-                                      stopStationScanItem.enabled = false
-                                      cppGUI.stopChannelScanClick()
-                                  }
-                              }
-
-                              MenuItem {
-                                  id: stationSettingsItem
-                                  text: qsTr("Station settings")
-                                  font.pixelSize: TextStyle.textStandartSize
-                                  font.family: TextStyle.textFont
-                                  onTriggered: stationSettingsDialog.open()
-                              }
+                          onTriggered:  {
+                              startStationScanItem.enabled = false
+                              stopStationScanItem.enabled = true
+                              cppGUI.startChannelScanClick()
                           }
                       }
-                    }
 
-                    TextStandart {
-                        text: qsTr("Station list is empty")
-                        visible: stationChannelView.count ? false : true
-                        Layout.margins: Units.dp(10)
-                    }
+                      MenuItem {
+                          id: stopStationScanItem
+                          text: qsTr("Stop station scan")
+                          font.pixelSize: TextStyle.textStandartSize
+                          font.family: TextStyle.textFont
+                          enabled: false
+                          onTriggered:  {
+                              startStationScanItem.enabled = true
+                              stopStationScanItem.enabled = false
+                              cppGUI.stopChannelScanClick()
+                          }
+                      }
 
-                    ListView {
-                       id: stationChannelView
-                       model: cppGUI.stationModel
-                       Layout.fillWidth: true
-                       Layout.fillHeight: true
-                       clip: true
-                       delegate: StationDelegate {
-                           stationNameText: modelData.stationName
-                           channelNameText: modelData.channelName
-                           showChannelName: isExpertView
-                           onClicked: {
-                               if(modelData.channelName !== "") {
-                                   mainWindow.stationClicked()
-                                   cppGUI.channelClick(modelData.stationName, modelData.channelName)
-                               }
-                           }
+                      MenuItem {
+                          id: stationSettingsItem
+                          text: qsTr("Station settings")
+                          font.pixelSize: TextStyle.textStandartSize
+                          font.family: TextStyle.textFont
+                          onTriggered: stationSettingsDialog.open()
+                      }
+                  }
+              }
+            }
+
+            TextStandart {
+                text: qsTr("Station list is empty")
+                visible: stationChannelView.count ? false : true
+                Layout.margins: Units.dp(10)
+            }
+
+            ListView {
+               id: stationChannelView
+               model: cppGUI.stationModel
+               Layout.fillWidth: true
+               Layout.fillHeight: true
+               clip: true
+               delegate: StationDelegate {
+                   stationNameText: modelData.stationName
+                   channelNameText: modelData.channelName
+                   showChannelName: isExpertView
+                   onClicked: {
+                       if(modelData.channelName !== "") {
+                           mainWindow.stationClicked()
+                           cppGUI.channelClick(modelData.stationName, modelData.channelName)
                        }
+                   }
+               }
 
-                        ScrollIndicator.vertical: ScrollIndicator { }
-                    }
+                ScrollIndicator.vertical: ScrollIndicator { }
+            }
 
-                    RowLayout {
-                        Layout.margins: Units.dp(10)
-                        visible: isExpertView ? true : false
+            RowLayout {
+                Layout.margins: Units.dp(10)
+                visible: isExpertView ? true : false
 
-                        TextStandart {
-                            text: qsTr("Manual channel")
-                            Layout.fillWidth: true
-                        }
+                TextStandart {
+                    text: qsTr("Manual channel")
+                    Layout.fillWidth: true
+                }
 
-                        ComboBox {
-                            id: manualChannelBox
-                            font.pixelSize: TextStyle.textStandartSize
-                            font.family: TextStyle.textFont
-                            model: ["5A", "5B", "5C", "5D",
-                                "6A", "6B", "6C", "6D",
-                                "7A", "7B", "7C", "7D",
-                                "8A", "8B", "8C", "8D",
-                                "9A", "9B", "9C", "9D",
-                                "10A", "10B", "10C", "10D",
-                                "11A", "11B", "11C", "11D",
-                                "12A", "12B", "12C", "12D",
-                                "13A", "13B", "13C", "13D", "13E", "13F",
-                                "LA", "LB", "LC", "LD",
-                                "LE", "LF", "LG", "LH",
-                                "LI", "LJ", "LK", "LL",
-                                "LM", "LN", "LO", "LP"]
+                ComboBox {
+                    id: manualChannelBox
+                    font.pixelSize: TextStyle.textStandartSize
+                    font.family: TextStyle.textFont
+                    model: ["5A", "5B", "5C", "5D",
+                        "6A", "6B", "6C", "6D",
+                        "7A", "7B", "7C", "7D",
+                        "8A", "8B", "8C", "8D",
+                        "9A", "9B", "9C", "9D",
+                        "10A", "10B", "10C", "10D",
+                        "11A", "11B", "11C", "11D",
+                        "12A", "12B", "12C", "12D",
+                        "13A", "13B", "13C", "13D", "13E", "13F",
+                        "LA", "LB", "LC", "LD",
+                        "LE", "LF", "LG", "LH",
+                        "LI", "LJ", "LK", "LL",
+                        "LM", "LN", "LO", "LP"]
 
-                            Layout.preferredHeight: Units.dp(25)
-                            Layout.preferredWidth: Units.dp(130)
-                            onActivated: {
-                                cppGUI.setManualChannel(model[index])
-                            }
-                        }
+                    Layout.preferredHeight: Units.dp(25)
+                    Layout.preferredWidth: Units.dp(130)
+                    onActivated: {
+                        cppGUI.setManualChannel(model[index])
                     }
                 }
             }
@@ -511,6 +429,12 @@ ApplicationWindow {
                     ExpertView{
                         id: expertView
                         visible: isExpertView
+
+                        enableStationInfoDisplay : expertSettingsLoader.item.enableStationInfoDisplayState
+                        enableSpectrumDisplay : expertSettingsLoader.item.enableSpectrumDisplayState
+                        enableImpulseResponseDisplay : expertSettingsLoader.item.enableImpulseResponseDisplayState
+                        enableConstellationDisplay : expertSettingsLoader.item.enableConstellationDisplayState
+                        enableNullSymbolDisplay : expertSettingsLoader.item.enableNullSymbolDisplayState
                     }
                 }
             }
@@ -532,18 +456,38 @@ ApplicationWindow {
         }
     }
 
-    Popup {
+    SettingsPopup {
         id: stationSettingsDialog
-        modal: true
-        focus: true
-        x: (parent.width - width) / 2
-        y: (parent.height - height) / 2
-        contentWidth: contentItem.implicitWidth
-        contentHeight: contentItem.implicitHeight
-        clip: true
-
         contentItem: Loader {
             source:  "qrc:/src/gui/QML/settingpages/ChannelSettings.qml"
+        }
+    }
+
+    SettingsPopup {
+        id: globalSettingsDialog
+        contentItem: Loader {
+            id: globalSettingsLoader
+            source:  "qrc:/src/gui/QML/settingpages/GlobalSettings.qml"
+            onLoaded : isFullScreen = globalSettingsLoader.item.enableFullScreenState
+        }
+
+        Connections {
+            target: globalSettingsLoader.item
+            onEnableFullScreenStateChanged : isFullScreen = globalSettingsLoader.item.enableFullScreenState
+        }
+    }
+
+    SettingsPopup {
+        id: expertSettingsDialog
+        contentItem: Loader {
+            id: expertSettingsLoader
+            source:  "qrc:/src/gui/QML/settingpages/ExpertSettings.qml"
+            onLoaded: isExpertView = expertSettingsLoader.item.enableExpertModeState
+        }
+
+        Connections {
+            target: expertSettingsLoader.item
+            onEnableExpertModeStateChanged : isExpertView = expertSettingsLoader.item.enableExpertModeState
         }
     }
 

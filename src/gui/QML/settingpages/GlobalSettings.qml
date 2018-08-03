@@ -10,17 +10,15 @@ import "../components"
 Item {
     id: settingsPage
 
-    // Necessary for Flickable
     implicitHeight: layout.implicitHeight
+    implicitWidth:  layout.implicitWidth
 
     property alias enableFullScreenState : enableFullScreen.checked   
-    property alias enableExpertModeState : enableExpertMode.checked
     property alias enableAGCState : enableAGC.checked 
     property alias manualGainState : manualGain.value
 
     Settings {
         property alias enableFullScreenState : settingsPage.enableFullScreenState
-        property alias enableExpertModeState : settingsPage.enableExpertModeState
         property alias manualGainState : settingsPage.manualGainState
         property alias manualGainValue: valueSliderView.text
         property alias enableAGCState : settingsPage.enableAGCState     
@@ -30,7 +28,6 @@ Item {
         console.debug("Apply settings initially")
         cppGUI.inputGainChanged(manualGainState)
         cppGUI.inputEnableAGCChanged(enableAGCState)
-        console.debug("width: " + width)
     }
 
     Connections{
@@ -60,67 +57,25 @@ Item {
                 Layout.fillWidth: true
                 checked: false
             }
-
-            Switch {
-                id: enableExpertMode
-                text: qsTr("Expert mode")
-                height: 24
-                Layout.fillWidth: true
-                checked: false
-            }
         }
 
-
         SettingSection {
-            text: qsTr("Backend")
-
-            Switch {
-                id: disableCoarse
-                text: qsTr("Disable Coarse Corrector (for receivers with <1kHz error)")
-                height: 24
-                Layout.fillWidth: true
-                checked: true
-                onClicked: {
-                    cppGUI.inputDisableCoarseCorrector(checked)
-                }
-            }
-
-            Switch {
-                id: decodeTII
-                text: qsTr("Enable TII decoding to console log (increases CPU usage)")
-                height: 24
-                Layout.fillWidth: true
-                checked: false
-                onClicked: {
-                    cppGUI.inputEnableTIIDecode(checked)
-                }
-            }
-
-            Switch {
-                id: oldFFTWindow
-                text: qsTr("Select old FFT placement algorithm (experimental)")
-                height: 24
-                Layout.fillWidth: true
-                checked: false
-                onClicked: {
-                    cppGUI.inputEnableOldFFTWindowPlacement(checked)
-                }
-            }
+            text: qsTr("SDR receiver")
 
             ComboBox {
-                id: freqSyncMethodBox
-                enabled: true
-                model: [ "GetMiddle", "CorrelatePRS", "PatternOfZeros" ];
-                Layout.preferredHeight: Units.dp(25)
-                Layout.preferredWidth: Units.dp(330)
+                id: manualChannelBox
+                Layout.fillWidth: true
+                font.pixelSize: TextStyle.textStandartSize
+                font.family: TextStyle.textFont
+                model: [ "rtl-sdr", "rtl-tcp", "SoapySDR" ];
                 onActivated: {
-                    cppGUI.inputSetFreqSyncMethod(index)
+                    switch(index) {
+                        case 0: sdrSpecificSettings.source = "qrc:/src/gui/QML/settingpages/RTLSDRSettings.qml"; break
+                        case 1: sdrSpecificSettings.source = "qrc:/src/gui/QML/settingpages/RTLTCPSettings.qml"; break
+                        case 2: sdrSpecificSettings.source = "qrc:/src/gui/QML/settingpages/SoapySDRSettings.qml"; break
+                    }
                 }
             }
-        }
-
-        SettingSection {
-            text: qsTr("Gain")
 
             Switch {
                 id: enableAGC
@@ -142,13 +97,12 @@ Item {
                 enabled: !enableAGC.checked
 
                 RowLayout {
-                    anchors.fill: parent
                     Text {
                         id: nameSliderView
                         font.pixelSize: TextStyle.textStandartSize
                         font.family: TextStyle.textFont
                         color: TextStyle.textColor
-                        anchors.left: parent.left
+                        Layout.fillWidth: true
                         text: qsTr("Manual gain")
                     }
 
@@ -158,7 +112,6 @@ Item {
                         font.pixelSize: TextStyle.textStandartSize
                         font.family: TextStyle.textFont
                         color: TextStyle.textColor
-                        anchors.right: parent.right
                     }
                 }
 
@@ -176,6 +129,11 @@ Item {
                     }
                 }
             }
+        }
+
+        Loader {
+            id: sdrSpecificSettings
+            source : "qrc:/src/gui/QML/settingpages/RTLSDRSettings.qml"
         }
     }
 }

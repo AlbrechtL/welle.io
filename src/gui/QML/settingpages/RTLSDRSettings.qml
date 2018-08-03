@@ -3,12 +3,13 @@ import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.1
 import Qt.labs.settings 1.0
 
+// Import custom styles
 import "../texts"
 import "../components"
 
 Item {
-    // Necessary for Flickable
     implicitHeight: layout.implicitHeight
+    implicitWidth:  layout.implicitWidth
 
     Settings {
         property alias enableHwAGCState: enableHwAGC.checked

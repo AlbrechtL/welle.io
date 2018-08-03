@@ -22,12 +22,9 @@ Item {
         anchors.right: parent.right
         spacing: Units.dp(20)
 
-        Switch {
+        SettingSwitch {
             id: enableLastPlayedStation
             text: qsTr("Automatic start playing last station")
-            font.pixelSize: TextStyle.textStandartSize
-            font.family: TextStyle.textFont
-            height: Units.dp(24)
             checked: false
         }
 
