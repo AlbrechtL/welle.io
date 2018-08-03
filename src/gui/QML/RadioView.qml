@@ -11,6 +11,14 @@ Item{
     Layout.minimumWidth: Units.dp(150)
     Layout.preferredHeight: Units.dp(180)
 
+    TextRadioInfo {
+        id: ensembleText
+        anchors.top: parent.top
+        anchors.topMargin: Units.dp(5)
+        anchors.horizontalCenter: parent.horizontalCenter
+        text: cppGUI.guiData.Ensemble
+    }
+
     RowLayout{
         anchors.top: parent.top
         anchors.topMargin: Units.dp(5)
@@ -55,14 +63,6 @@ Item{
                 width: Units.dp(4)
                 color: (cppRadioController.SNR > 15) ? "green" : "grey"
             }
-        }
-
-        TextRadioInfo {
-            id: ensembleText
-            Layout.alignment: Qt.AlignHCenter
-            Layout.leftMargin: Units.dp(5)
-            Layout.rightMargin: Units.dp(5)
-            text: cppGUI.guiData.Ensemble
         }
 
         /* Flags */
