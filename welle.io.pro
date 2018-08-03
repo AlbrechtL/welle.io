@@ -22,7 +22,24 @@ DISTFILES +=    README.md \
     android/java/io/welle/welle/DabDelegate.java \
     src/gui/QML/components/SettingsPopup.qml \
     src/gui/QML/settingpages/ExpertSettings.qml \
-    src/gui/QML/components/SettingSwitch.qml
+    src/gui/QML/components/SettingSwitch.qml \
+    src/gui/QML/settingpages/GlobalSettings.qml \
+    src/gui/QML/settingpages/ChannelSettings.qml \
+    src/gui/QML/settingpages/RTLSDRSettings.qml \
+    src/gui/QML/settingpages/RTLTCPSettings.qml \
+    src/gui/QML/settingpages/SoapySDRSettings.qml \
+    src/gui/QML/settingpages/ExpertSettings.qml \
+    src/gui/QML/components/MessagePopup.qml \
+    src/gui/QML/components/SettingsPopup.qml \
+    src/gui/QML/components/SettingSection.qml \
+    src/gui/QML/components/SettingSwitch.qml \
+    src/gui/QML/components/StationDelegate.qml \
+    src/gui/QML/components/Units.qml \
+    src/gui/QML/expertviews/StationInformation.qml \
+    src/gui/QML/expertviews/ImpulseResponseGraph.qml \
+    src/gui/QML/expertviews/ConstellationGraph.qml \
+    src/gui/QML/expertviews/NullSymbolGraph.qml \
+    src/gui/QML/expertviews/SpectrumGraph.qml
 
 TRANSLATIONS = i18n/de_DE.ts i18n/it_IT.ts i18n/hu_HU.ts i18n/nb_NO.ts i18n/fr_FR.ts i18n/pl_PL.ts i18n/ru_RU.ts
 
