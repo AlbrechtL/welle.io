@@ -214,8 +214,6 @@ ApplicationWindow {
             anchors.fill: parent
 
             RowLayout {
-              anchors.fill: parent
-
               TextStandart {
                   text: qsTr("Stations")
                   horizontalAlignment: Qt.AlignHCenter

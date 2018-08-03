@@ -21,8 +21,7 @@ Item{
         RowLayout{
             Layout.fillWidth : true
             Layout.fillHeight: true
-            anchors.left: parent.left
-            anchors.leftMargin: Units.dp(5)
+            Layout.leftMargin: Units.dp(5)
             spacing: Units.dp(2)
 
             Rectangle{
@@ -60,10 +59,9 @@ Item{
 
         TextRadioInfo {
             id: ensembleText
-            horizontalAlignment: Text.AlignHCenter
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.leftMargin: Units.dp(5)
-            anchors.rightMargin: Units.dp(5)
+            Layout.alignment: Qt.AlignHCenter
+            Layout.leftMargin: Units.dp(5)
+            Layout.rightMargin: Units.dp(5)
             text: cppGUI.guiData.Ensemble
         }
 
@@ -72,8 +70,8 @@ Item{
             id: flags
             Layout.fillWidth : true
             Layout.fillHeight: true
-            anchors.right: parent.right
-            anchors.rightMargin: Units.dp(5)
+            Layout.rightMargin: Units.dp(5)
+            Layout.alignment: Qt.AlignRight
             spacing: 2
 
             Rectangle{
@@ -105,14 +103,14 @@ Item{
         /* Station Name */
         TextRadioStation {
             id: stationTitle
-            anchors.horizontalCenter: parent.horizontalCenter
+            Layout.alignment: Qt.AlignHCenter
             text: cppGUI.guiData.Title
         }
 
         /* Station Text */
         TextRadioInfo {
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.margins: Units.dp(10)
+            Layout.alignment: Qt.AlignHCenter
+            Layout.margins: Units.dp(10)
             id: stationText
             Layout.maximumWidth: parent.parent.width
             width: parent.parent.width
@@ -135,16 +133,16 @@ Item{
         TextRadioInfo {
             id: stationTypeText
             visible: stationInfo.visible
-            anchors.left: parent.left
-            anchors.leftMargin: Units.dp(5)
+            Layout.alignment: Qt.AlignLeft
+            Layout.leftMargin: Units.dp(5)
             text: cppGUI.guiData.StationType
         }
 
         TextRadioInfo {
             id: stationDetails
             visible: stationInfo.visible
-            anchors.right: parent.right
-            anchors.rightMargin: Units.dp(5)
+            Layout.alignment: Qt.AlignRight
+            Layout.rightMargin: Units.dp(5)
             text: cppRadioController.BitRate + " kbps, "
                   + (cppRadioController.isStereo ? "Stereo" : "Mono")
                   + (cppRadioController.isDAB ? ", DAB" : ", DAB+")
