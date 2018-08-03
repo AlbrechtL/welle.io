@@ -48,7 +48,7 @@ Item {
         }
 
         SettingSection {
-            text: qsTr("Modules")
+            text: qsTr("Views")
             enabled: enableExpertMode.checked
 
             SettingSwitch {
