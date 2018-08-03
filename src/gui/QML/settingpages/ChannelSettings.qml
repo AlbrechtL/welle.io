@@ -25,13 +25,17 @@ Item {
         Switch {
             id: enableLastPlayedStation
             text: qsTr("Automatic start playing last station")
-            height: 24
+            font.pixelSize: TextStyle.textStandartSize
+            font.family: TextStyle.textFont
+            height: Units.dp(24)
             checked: false
         }
 
         Button {
             id: clearListButton
             text: qsTr("Clear station list")
+            font.pixelSize: TextStyle.textStandartSize
+            font.family: TextStyle.textFont
             onClicked: cppGUI.clearStationList()
         }
     }

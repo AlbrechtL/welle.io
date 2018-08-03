@@ -305,9 +305,11 @@ ApplicationWindow {
 
                       Button {
                           text: qsTr("⋮")
+                          font.pixelSize: TextStyle.textHeadingSize
+                          font.family: TextStyle.textFont
                           flat: true
                           onClicked: stationMenu.open()
-                          implicitWidth: contentItem.implicitWidth + 15
+                          implicitWidth: contentItem.implicitWidth + Units.dp(15)
 
                           Menu {
                               id: stationMenu
@@ -316,6 +318,7 @@ ApplicationWindow {
                                   id: startStationScanItem
                                   text: qsTr("Start station scan")
                                   font.pixelSize: TextStyle.textStandartSize
+                                  font.family: TextStyle.textFont
                                   onTriggered:  {
                                       startStationScanItem.enabled = false
                                       stopStationScanItem.enabled = true
@@ -327,6 +330,7 @@ ApplicationWindow {
                                   id: stopStationScanItem
                                   text: qsTr("Stop station scan")
                                   font.pixelSize: TextStyle.textStandartSize
+                                  font.family: TextStyle.textFont
                                   enabled: false
                                   onTriggered:  {
                                       startStationScanItem.enabled = true
@@ -339,6 +343,7 @@ ApplicationWindow {
                                   id: stationSettingsItem
                                   text: qsTr("Station settings")
                                   font.pixelSize: TextStyle.textStandartSize
+                                  font.family: TextStyle.textFont
                                   onTriggered: stationSettingsDialog.open()
                               }
                           }
@@ -348,7 +353,7 @@ ApplicationWindow {
                     TextStandart {
                         text: qsTr("Station list is empty")
                         visible: stationChannelView.count ? false : true
-                        Layout.margins: 10
+                        Layout.margins: Units.dp(10)
                     }
 
                     ListView {
@@ -373,7 +378,7 @@ ApplicationWindow {
                     }
 
                     RowLayout {
-                        Layout.margins: 10
+                        Layout.margins: Units.dp(10)
                         visible: isExpertView ? true : false
 
                         TextStandart {
@@ -383,6 +388,8 @@ ApplicationWindow {
 
                         ComboBox {
                             id: manualChannelBox
+                            font.pixelSize: TextStyle.textStandartSize
+                            font.family: TextStyle.textFont
                             model: ["5A", "5B", "5C", "5D",
                                 "6A", "6B", "6C", "6D",
                                 "7A", "7B", "7C", "7D",
