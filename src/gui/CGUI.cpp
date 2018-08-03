@@ -388,8 +388,8 @@ void CGUI::updateSpectrum()
     qreal x_max = 0;
 
     qreal tunedFrequency_MHz = 0;
-    qreal CurrentFrequency = 130e6; // ToDo
-    qreal sampleFrequency_MHz = 2.048; // ToDo
+    qreal CurrentFrequency = RadioController->getCurrentFrequency();
+    qreal sampleFrequency_MHz = INPUT_RATE / 1e6;
     qreal dip_MHz = sampleFrequency_MHz / T_u;
 
     signalProbeBuffer = RadioController->getSignalProbe();
@@ -489,8 +489,8 @@ void CGUI::updateNullSymbol()
     qreal x_max = 0;
 
     qreal tunedFrequency_MHz = 0;
-    qreal CurrentFrequency = 130e6; // ToDo
-    qreal sampleFrequency_MHz = 2.048; // ToDo
+    qreal CurrentFrequency = RadioController->getCurrentFrequency();
+    qreal sampleFrequency_MHz = INPUT_RATE / 1e6;
     qreal dip_MHz = sampleFrequency_MHz / T_u;
 
     nullSymbolBuffer = RadioController->getNullSymbol();

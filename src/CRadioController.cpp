@@ -1076,6 +1076,11 @@ DABParams& CRadioController::getDABParams()
     return dabparams;
 }
 
+int CRadioController::getCurrentFrequency()
+{
+    return CurrentFrequency;
+}
+
 void CRadioController::onSNR(int snr)
 {
     if (mSNR == snr)

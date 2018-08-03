@@ -186,6 +186,7 @@ public:
     std::vector<DSPCOMPLEX> getConstellationPoint(void);
 
     DABParams& getDABParams(void);
+    int getCurrentFrequency();
 
 private:
     void Initialise(void);
