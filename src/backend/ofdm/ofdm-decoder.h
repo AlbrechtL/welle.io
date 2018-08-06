@@ -24,6 +24,7 @@
 #ifndef __OFDM_DECODER
 #define __OFDM_DECODER
 
+#include <cstddef>
 #include <vector>
 #include <thread>
 #include <condition_variable>

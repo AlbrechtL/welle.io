@@ -30,8 +30,9 @@
  *
  */
 
-#include <iostream>
+#include <cstddef>
 #include "ofdm-processor.h"
+#include <iostream>
 //
 #define SEARCH_RANGE        (2 * 36)
 #define CORRELATION_LENGTH  24
