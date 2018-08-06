@@ -18,6 +18,7 @@
  *    along with welle.io; if not, write to the Free Software
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+#include <cstddef>
 #include "dab-constants.h"
 #include <unordered_map>
 #include <unordered_set>
@@ -27,7 +28,6 @@
 #include <thread>
 #include <condition_variable>
 #include <complex>
-#include <cstddef>
 #include "fft.h"
 #include "radio-controller.h"
 

@@ -32,8 +32,8 @@
 
 #pragma once
 
-#include <string>
 #include <cstddef>
+#include <string>
 
 #if defined(_WIN32)
     #include <winsock2.h>

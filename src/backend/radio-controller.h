@@ -33,10 +33,10 @@
 #ifndef RADIOCONTROLLER_H
 #define RADIOCONTROLLER_H
 
+#include <cstddef>
 #include <vector>
 #include <string>
 #include <complex>
-#include <cstddef>
 #include "dab-constants.h"
 
 struct dab_date_time_t {

@@ -23,8 +23,8 @@
  *
  */
 #if defined(HAVE_ALSA)
-#include <vector>
 #include <cstddef>
+#include <vector>
 #include <alsa/asoundlib.h>
 
 #define PCM_DEVICE "default"
