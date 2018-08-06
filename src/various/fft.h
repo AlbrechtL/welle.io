@@ -33,6 +33,8 @@
 // Wrappers around fftwf and KISS FFT for both forward and backward FFTs
 #include "dab-constants.h"
 
+namespace fft {
+
 #ifndef KISSFFT
 #  define FFTW_MALLOC     fftwf_malloc
 #  define FFTW_PLAN_DFT_1D    fftwf_plan_dft_1d
@@ -41,8 +43,6 @@
 #  define FFTW_PLAN       fftwf_plan
 #  define FFTW_EXECUTE        fftwf_execute
 #  include <fftw3.h>
-
-namespace fft {
 
 class Forward {
     public:
