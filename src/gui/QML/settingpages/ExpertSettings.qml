@@ -11,7 +11,6 @@ Item {
     implicitHeight: layout.implicitHeight
     implicitWidth:  layout.implicitWidth
 
-
     Settings {
         property alias enableExpertModeState : enableExpertMode.checked
         property alias enableStationInfoDisplayState: enableStationInfoDisplay.checked
@@ -20,6 +19,10 @@ Item {
         property alias enableConstellationDisplayState: enableConstellationDisplay.checked
         property alias enableNullSymbolDisplayState: enableNullSymbolDisplay.checked
         property alias enableConsoleOutputState: enableConsoleOutput.checked
+        property alias disableCoarseState: disableCoarse.checked
+        property alias enableDecodeTIIState: enableDecodeTII.checked
+        property alias enableOldFFTWindowState: enableOldFFTWindow.checked
+        property alias freqSyncMethodBoxState: freqSyncMethodBox.currentIndex
     }
 
     property alias enableExpertModeState : enableExpertMode.checked
@@ -97,25 +100,25 @@ Item {
                 id: disableCoarse
                 text: qsTr("Disable Coarse Corrector (for receivers with <1kHz error)")
                 checked: true
-                onClicked: {
+                onCheckedChanged: {
                     cppGUI.inputDisableCoarseCorrector(checked)
                 }
             }
 
             SettingSwitch {
-                id: decodeTII
+                id: enableDecodeTII
                 text: qsTr("Enable TII decoding to console log (increases CPU usage)")
                 checked: false
-                onClicked: {
+                onCheckedChanged: {
                     cppGUI.inputEnableTIIDecode(checked)
                 }
             }
 
             SettingSwitch {
-                id: oldFFTWindow
+                id: enableOldFFTWindow
                 text: qsTr("Select old FFT placement algorithm (experimental)")
                 checked: false
-                onClicked: {
+                onCheckedChanged: {
                     cppGUI.inputEnableOldFFTWindowPlacement(checked)
                 }
             }
@@ -127,8 +130,8 @@ Item {
                 model: [ "GetMiddle", "CorrelatePRS", "PatternOfZeros" ];
                 Layout.preferredHeight: Units.dp(25)
                 Layout.preferredWidth: Units.dp(330)
-                onActivated: {
-                    cppGUI.inputSetFreqSyncMethod(index)
+                onCurrentIndexChanged: {
+                    cppGUI.inputSetFreqSyncMethod(currentIndex)
                 }
             }
         }
