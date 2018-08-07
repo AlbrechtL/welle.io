@@ -18,6 +18,7 @@ Item {
         anchors.fill: parent
 
         Flickable {
+            id: flick
             anchors.fill: parent
             //flickableDirection: Flickable.VerticalFlick
 
@@ -26,7 +27,7 @@ Item {
                 font.family: "Monospace"
                 font.pixelSize: Units.em(0.9)
                 color: "white"
-                width: parent.width
+                width: flick.width
                 wrapMode: TextEdit.Wrap
             }
 
@@ -38,7 +39,7 @@ Item {
         target: cppGUI
 
         onNewDebugOutput: {
-            textField.append(text)
+            textField.insert(textField.length,text)
         }
     }
 }

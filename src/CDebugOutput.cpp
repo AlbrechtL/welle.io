@@ -55,7 +55,7 @@ void CDebugOutput::customMessageHandler(QtMsgType type, const QMessageLogContext
     case QtFatalMsg: txt = QString("Fatal: %1").arg(str); abort();
     }
 
-    handleMessage(txt);
+    handleMessage(txt + "\n");
 }
 
 void CDebugOutput::clogMessageHandler(std::string &str)
@@ -74,7 +74,7 @@ void CDebugOutput::handleMessage(QString str)
         QFile outFile(fileName);
         outFile.open(QIODevice::WriteOnly | QIODevice::Append);
         QTextStream ts(&outFile);
-        ts << message << endl;
+        ts << message;
     }
 
     if(cGuiObject != nullptr)
