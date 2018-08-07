@@ -433,6 +433,7 @@ ApplicationWindow {
                         enableImpulseResponseDisplay : expertSettingsLoader.item.enableImpulseResponseDisplayState
                         enableConstellationDisplay : expertSettingsLoader.item.enableConstellationDisplayState
                         enableNullSymbolDisplay : expertSettingsLoader.item.enableNullSymbolDisplayState
+                        enableConsoleOutput : expertSettingsLoader.item.enableConsoleOutputState
                     }
                 }
             }

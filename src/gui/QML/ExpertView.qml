@@ -20,6 +20,8 @@ Item {
     property bool enableImpulseResponseDisplay: false
     property bool enableConstellationDisplay: false
     property bool enableNullSymbolDisplay: false
+    property bool enableConsoleOutput: false
+
 
     GridLayout {
         id: layout
@@ -46,6 +48,10 @@ Item {
 
         NullSymbolGraph {
             visible: enableNullSymbolDisplay
+        }
+
+        TextOutputView {
+            visible: enableConsoleOutput
         }
     }
 }

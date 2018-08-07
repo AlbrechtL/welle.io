@@ -104,6 +104,8 @@ public:
         return p_stationModel;
     }
 
+    void setNewDebugOutput(QString text);
+
     CMOTImageProvider* MOTImage; // ToDo: Must be a getter
 
 private:
@@ -169,6 +171,8 @@ signals:
     void guiDataChanged(QVariantMap guiData);
     void stationModelChanged();
     void motChanged(void);
+
+    void newDebugOutput(QString text);
 
 #ifndef QT_NO_SYSTEMTRAYICON
     void minimizeWindow(void);

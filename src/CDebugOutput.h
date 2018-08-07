@@ -23,21 +23,36 @@
  *
  */
 
-#ifndef CLOGFILE_H
-#define CLOGFILE_H
+#ifndef CDEBUGOUTPUT_H
+#define CDEBUGOUTPUT_H
 
 #include <QString>
+#include "CGUI.h"
 
-class CLogFile
+class CLogStringStream;
+
+class CDebugOutput
 {
 public:
-    //CLogFile();
-    static void CustomMessageHandler(QtMsgType type, const QMessageLogContext &, const QString & str);
-    static void SetFileName(QString FileName);
+    static void init(void);
+    static void customMessageHandler(QtMsgType type, const QMessageLogContext &, const QString & str);
+    static void clogMessageHandler(std::string & str);
+    static void handleMessage(QString str);
+    static void setFileName(QString fileName);
+    static void setCGUI(CGUI *cGuiObject);
 
 private:
-    static QString FileName;
-
+    static QString fileName;
+    static CGUI *cGuiObject;
 };
 
-#endif // CLOGFILE_H
+class CLogStringStream : public std::basic_streambuf<char, std::char_traits<char> > {
+protected:
+    int sync();
+    int overflow(int c);
+
+private:
+    std::string buffer_;
+};
+
+#endif // CDEBUGOUTPUT_H

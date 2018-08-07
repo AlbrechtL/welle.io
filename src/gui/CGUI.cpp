@@ -30,6 +30,7 @@
 #include <QDebug>
 #include <QSettings>
 
+#include "CDebugOutput.h"
 #include "CInputFactory.h"
 #include "CGUI.h"
 #include "CAudio.h"
@@ -105,6 +106,8 @@ CGUI::CGUI(CRadioController *RadioController, QObject *parent)
     trayIcon->setIcon(QIcon(":/icon.png"));
     trayIcon->show();
 #endif
+
+    CDebugOutput::setCGUI(this);
 }
 
 CGUI::~CGUI()
@@ -572,7 +575,12 @@ void CGUI::updateConstellation()
     }
 //    else {
 //        qDebug() << "IQ" << constellationPointBuffer.size() << num_iqpoints;
-//    }
+    //    }
+}
+
+void CGUI::setNewDebugOutput(QString text)
+{
+    emit newDebugOutput(text);
 }
 
 QTranslator* CGUI::AddTranslator(QString Language, QTranslator *OldTranslator)

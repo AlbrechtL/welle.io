@@ -19,6 +19,7 @@ Item {
         property alias enableImpulseResponseDisplayState: enableImpulseResponseDisplay.checked
         property alias enableConstellationDisplayState: enableConstellationDisplay.checked
         property alias enableNullSymbolDisplayState: enableNullSymbolDisplay.checked
+        property alias enableConsoleOutputState: enableConsoleOutput.checked
     }
 
     property alias enableExpertModeState : enableExpertMode.checked
@@ -27,6 +28,7 @@ Item {
     property alias enableImpulseResponseDisplayState: enableImpulseResponseDisplay.checked
     property alias enableConstellationDisplayState: enableConstellationDisplay.checked
     property alias enableNullSymbolDisplayState: enableNullSymbolDisplay.checked
+    property alias enableConsoleOutputState: enableConsoleOutput.checked
 
     ColumnLayout{
         id: layout
@@ -78,6 +80,11 @@ Item {
             SettingSwitch {
                 id: enableNullSymbolDisplay
                 text: qsTr("Display null symbol")
+                checked: false
+            }
+            SettingSwitch {
+                id: enableConsoleOutput
+                text: qsTr("Display debug console")
                 checked: false
             }
         }

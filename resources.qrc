@@ -62,5 +62,6 @@
         <file>src/gui/QML/expertviews/ConstellationGraph.qml</file>
         <file>src/gui/QML/expertviews/NullSymbolGraph.qml</file>
         <file>src/gui/QML/expertviews/SpectrumGraph.qml</file>
+        <file>src/gui/QML/expertviews/TextOutputView.qml</file>
     </qresource>
 </RCC>

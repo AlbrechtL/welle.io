@@ -43,7 +43,7 @@
 #include "dab-constants.h"
 #include "CRadioController.h"
 #include "CGUI.h"
-#include "CLogFile.h"
+#include "CDebugOutput.h"
 #include "CSplashScreen.h"
 
 #ifdef Q_OS_ANDROID
@@ -64,6 +64,9 @@ int main(int argc, char** argv)
 
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 //    QCoreApplication::setAttribute(Qt::AA_UseSoftwareOpenGL);
+
+    // Handle debug output
+    CDebugOutput::init();
 
     qRegisterMetaTypeStreamOperators<QList<StationElement*>>("StationList");
 #ifdef Q_OS_ANDROID
@@ -216,8 +219,7 @@ int main(int argc, char** argv)
     QString LogFileNameValue = optionParser.value(LogFileName);
     if (LogFileNameValue != "")
     {
-        CLogFile::SetFileName(LogFileNameValue);
-        qInstallMessageHandler(CLogFile::CustomMessageHandler);
+        CDebugOutput::setFileName(LogFileNameValue);
         qDebug() << "main: Version:" << Version;
     }
 

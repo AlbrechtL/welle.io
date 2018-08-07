@@ -20,6 +20,17 @@ DISTFILES +=    README.md \
     android/java/io/welle/welle/DabMediaService.java \
     android/java/io/welle/welle/DabService.java \
     android/java/io/welle/welle/DabDelegate.java \
+    src/gui/QML/MainView.qml \
+    src/gui/QML/RadioView.qml \
+    src/gui/QML/ExpertView.qml \
+    src/gui/QML/texts/TextStyle.qml \
+    src/gui/QML/texts/TextTitle.qml \
+    src/gui/QML/texts/TextStandart.qml \
+    src/gui/QML/texts/TextStation.qml \
+    src/gui/QML/texts/TextRadioInfo.qml \
+    src/gui/QML/texts/TextRadioStation.qml \
+    src/gui/QML/texts/TextExpert.qml \
+    src/gui/QML/InfoPage.qml \
     src/gui/QML/components/SettingsPopup.qml \
     src/gui/QML/settingpages/ExpertSettings.qml \
     src/gui/QML/components/SettingSwitch.qml \
@@ -39,7 +50,8 @@ DISTFILES +=    README.md \
     src/gui/QML/expertviews/ImpulseResponseGraph.qml \
     src/gui/QML/expertviews/ConstellationGraph.qml \
     src/gui/QML/expertviews/NullSymbolGraph.qml \
-    src/gui/QML/expertviews/SpectrumGraph.qml
+    src/gui/QML/expertviews/SpectrumGraph.qml \
+    src/gui/QML/expertviews/TextOutputView.qml
 
 TRANSLATIONS = i18n/de_DE.ts i18n/it_IT.ts i18n/hu_HU.ts i18n/nb_NO.ts i18n/fr_FR.ts i18n/pl_PL.ts i18n/ru_RU.ts
 
@@ -121,8 +133,8 @@ HEADERS += \
     src/gui/CStationList.h \
     src/gui/CGUI.h \
     src/CRadioController.h \
-    src/CLogFile.h \
-    src/CSplashScreen.h
+    src/CSplashScreen.h \
+    src/CDebugOutput.h
 
 SOURCES += \
     src/main.cpp \
@@ -166,8 +178,8 @@ SOURCES += \
     src/gui/CStationList.cpp \
     src/gui/CGUI.cpp \
     src/CRadioController.cpp \
-    src/CLogFile.cpp \
-    src/CSplashScreen.cpp
+    src/CSplashScreen.cpp \
+    src/CDebugOutput.cpp
 
 unix:!macx:!android: {
     INCLUDEPATH	+= /usr/local/include
