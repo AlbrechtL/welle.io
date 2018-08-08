@@ -98,10 +98,27 @@ Item {
 
             SettingSwitch {
                 id: disableCoarse
-                text: qsTr("Disable Coarse Corrector (for receivers with <1kHz error)")
+                text: qsTr("Disable coarse corrector (for receivers with <1kHz error)")
                 checked: true
                 onCheckedChanged: {
                     cppGUI.inputDisableCoarseCorrector(checked)
+                }
+            }
+
+            RowLayout {
+                enabled: !disableCoarse.checked
+                ComboBox {
+                    id: freqSyncMethodBox
+                    font.pixelSize: TextStyle.textStandartSize
+                    font.family: TextStyle.textFont
+                    model: [ "GetMiddle", "CorrelatePRS", "PatternOfZeros" ];
+                    onCurrentIndexChanged: {
+                        cppGUI.inputSetFreqSyncMethod(currentIndex)
+                    }
+                }
+
+                TextStandart {
+                    text: qsTr("Coarse corrector algorithm")
                 }
             }
 
@@ -120,18 +137,6 @@ Item {
                 checked: false
                 onCheckedChanged: {
                     cppGUI.inputEnableOldFFTWindowPlacement(checked)
-                }
-            }
-
-            ComboBox {
-                id: freqSyncMethodBox
-                font.pixelSize: TextStyle.textStandartSize
-                font.family: TextStyle.textFont
-                model: [ "GetMiddle", "CorrelatePRS", "PatternOfZeros" ];
-                Layout.preferredHeight: Units.dp(25)
-                Layout.preferredWidth: Units.dp(330)
-                onCurrentIndexChanged: {
-                    cppGUI.inputSetFreqSyncMethod(currentIndex)
                 }
             }
         }
