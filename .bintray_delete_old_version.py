@@ -36,7 +36,7 @@ for version in delete_versions:
 
     # Check status
     if r.status_code != 200:
-        print(f'Error while deleting. Status {r.status_code}')
+        print('Error while deleting. Status {}'.format(r.status_code))
     else:
         delete_status = json.loads(r.text)
         print('Status: ' + delete_status['message'])
