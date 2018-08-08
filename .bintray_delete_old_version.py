@@ -5,15 +5,17 @@ import sys
 bintray_api = 'https://api.bintray.com'
 #bintray_user = 'albrechtl'
 #bintray_pass = '<secret>'
-bintray_package = '/packages/albrechtl/welle.io/welle.io_next_nightly'
-keep_last_version = 20
+#bintray_package = '/packages/albrechtl/welle.io/welle.io_next_nightly'
+#keep_last_version = 20
 
-if len(sys.argv) != 2 + 1:
+if len(sys.argv) != 4 + 1:
     print('Error: The number of parameters is != 4')
     exit(-1)
 
 bintray_user = sys.argv[1]
 bintray_pass = sys.argv[2]
+bintray_package = sys.argv[3]
+keep_last_version = sys.argv[4]
 
 # Get all versions
 r = requests.get(bintray_api + bintray_package, auth=(bintray_user, bintray_pass))
