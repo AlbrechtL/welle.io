@@ -76,4 +76,4 @@ after_deploy:
   # Delete old builds on bintray
   # python .bintray_delete_old_version.py albrechtl <secret>
   #- secure: "Ww4241FCsFbnixfBhDmvOQbC4J12f7zQSuou8146WM66uaDgg7IxIFTZ6JYHFSJHChVFSxUQX53fIhvcuAaBVOV6o3xPuA0vSrl/wz6VuLJ/1xCXZ+lzsdXu+DwOtWz7cp8CRK1WHcTfwrPBlb8c2OPXhdDWCxCzS/1+wt+F7TxbN0+4hVTNVwJzX77VMhDmZ/367adYAKN4c0MRyK4eMCSrKuUogy8VLzLnXJWLfqCZfql1CM2/ED2ucoYL3jI/W9mmRXcuAE0j9tKzbK9Es9l9hgKHWNnRSRUTZyc96l0r+fJvodl+SwNrTE2BnDaACepj5ko8gJPyku7lghCpS/LvcQsFhazUZqplm3xnmRGg980O260l2QBQWQxtkjapZFZegDYz7nLtudmcjuoey3o6MWHk2csEhyafUtGuGnOLzpJi4CAFaNmobA9QaNFpXal62+q9BIqFCp9XWqAlliSvBbv2YEzH8F3sfOXXA6PjPqC/aReNSh8c6OdzjdSjDajx9lwpPuuO3EKGY5wr+FjxEP7ZtckAF5cz7ASHhagZ7kJEFvmpOvfVWK+REO4ohM6BmoTMOAiNQQVhV+Z55O8Fs+u1uWYmD8xqskDc4h8MyMDp0iIL0FiIi0oip5Epx4FAtb6RiliWpwdhElMXgswkRzApMBDYvdAw53/Rg/Q="
-  - python .bintray_delete_old_version.py albrechtl $BINTRAY_KEY
+  - python .bintray_delete_old_version.py albrechtl $BINTRAY_KEY /packages/albrechtl/welle.io/welle.io_next_nightly 20
