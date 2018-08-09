@@ -37,7 +37,7 @@ if len(sys.argv) != 4 + 1:
 bintray_user = sys.argv[1]
 bintray_pass = sys.argv[2]
 bintray_package = sys.argv[3]
-keep_last_version = sys.argv[4]
+keep_last_version = int(sys.argv[4])
 
 # Get all versions
 r = requests.get(bintray_api + bintray_package, auth=(bintray_user, bintray_pass))
