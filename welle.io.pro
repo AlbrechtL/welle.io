@@ -95,6 +95,7 @@ HEADERS += \
     src/backend/data/mot_manager.h \
     src/backend/data/pad_decoder.h \
     src/backend/eep-protection.h \
+    src/backend/energy_dispersal.h \
     src/backend/fib-processor.h \
     src/backend/fic-handler.h \
     src/backend/firecode-checker.h \

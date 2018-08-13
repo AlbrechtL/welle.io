@@ -118,10 +118,9 @@ const int16_t interleaveMap[] = {0,8,4,12,2,10,6,14,1,9,5,13,3,11,7,15};
 
 void DabAudio::run()
 {
-    int16_t i, j;
+    int16_t i;
     int16_t countforInterleaver = 0;
     int16_t interleaverIndex    = 0;
-    uint8_t shiftRegister[9];
     int16_t Data[fragmentSize];
     int16_t tempX[fragmentSize];
 
@@ -155,15 +154,8 @@ void DabAudio::run()
 
         protectionHandler->deconvolve(tempX, fragmentSize, outV.data());
 
-        //  and the inline energy dispersal
-        memset(shiftRegister, 1, 9);
-        for (i = 0; i < bitRate * 24; i ++) {
-            uint8_t b = shiftRegister[8] ^ shiftRegister[4];
-            for (j = 8; j > 0; j--)
-                shiftRegister[j] = shiftRegister[j - 1];
-            shiftRegister[0] = b;
-            outV[i] ^= b;
-        }
+        // and the inline energy dispersal
+        energyDispersal.dedisperse(outV);
 
         if (our_dabProcessor) {
             our_dabProcessor->addtoFrame(outV.data());

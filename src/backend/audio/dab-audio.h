@@ -34,6 +34,7 @@
 #include <condition_variable>
 #include <cstdio>
 #include "ringbuffer.h"
+#include "energy_dispersal.h"
 #include "radio-controller.h"
 
 class DabProcessor;
@@ -68,6 +69,7 @@ class DabAudio : public DabVirtual
         int16_t     protLevel;
         std::vector<uint8_t> outV;
         std::vector<int16_t> interleaveData[16];
+        EnergyDispersal energyDispersal;
 
         std::condition_variable  mscDataAvailable;
         std::mutex               ourMutex;
