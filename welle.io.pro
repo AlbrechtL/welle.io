@@ -131,10 +131,10 @@ HEADERS += \
     src/MathHelper.h \
     src/gui/CMOTImageProvider.h \
     src/gui/CStationList.h \
-    src/gui/CGUI.h \
     src/CRadioController.h \
     src/CSplashScreen.h \
-    src/CDebugOutput.h
+    src/CDebugOutput.h \
+    src/gui/CGUIHelper.h
 
 SOURCES += \
     src/main.cpp \
@@ -176,10 +176,10 @@ SOURCES += \
     src/input/CRTL_TCP_Client.cpp \
     src/gui/CMOTImageProvider.cpp \
     src/gui/CStationList.cpp \
-    src/gui/CGUI.cpp \
     src/CRadioController.cpp \
     src/CSplashScreen.cpp \
-    src/CDebugOutput.cpp
+    src/CDebugOutput.cpp \
+    src/gui/CGUIHelper.cpp
 
 unix:!macx:!android: {
     INCLUDEPATH	+= /usr/local/include

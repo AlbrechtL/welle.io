@@ -28,11 +28,11 @@ Item {
             var scatter = createSeries(ChartView.SeriesTypeScatter, "scatter series", axisX, axisY)
             scatter.markerSize = 1.0
             scatter.borderColor = "#38ad6b";
-            cppGUI.registerConstellationSeries(series(0));
+            guiHelper.registerConstellationSeries(series(0));
         }
 
         Connections{
-            target: cppGUI
+            target: guiHelper
 
             onSetConstellationAxis: {
                 axisX.min = Xmin
@@ -58,7 +58,7 @@ Item {
             running: parent.visible ? true : false // Trigger new data only if spectrum is showed
             repeat: true
             onTriggered: {
-               cppGUI.updateConstellation();
+               guiHelper.updateConstellation();
             }
         }
 

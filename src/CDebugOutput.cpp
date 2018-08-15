@@ -31,7 +31,7 @@
 #include <QDateTime>
 
 QString CDebugOutput::fileName = "";
-CGUI *CDebugOutput::cGuiObject = nullptr;
+CGUIHelper *CDebugOutput::cGuiObject = nullptr;
 
 void CDebugOutput::init(void)
 {
@@ -91,7 +91,7 @@ void CDebugOutput::setFileName(QString FileName)
     CDebugOutput::fileName = FileName;
 }
 
-void CDebugOutput::setCGUI(CGUI *CGuiObject)
+void CDebugOutput::setCGUI(CGUIHelper *CGuiObject)
 {
     CDebugOutput::cGuiObject = CGuiObject;
 }

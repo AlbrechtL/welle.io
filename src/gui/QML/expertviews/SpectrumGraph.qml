@@ -28,11 +28,11 @@ Item {
         Component.onCompleted: {
             var line = createSeries(ChartView.SeriesTypeLine, "line series", axisX, axisY)
             line.color = "#38ad6b"
-            cppGUI.registerSpectrumSeries(chart.series(0));
+            guiHelper.registerSpectrumSeries(chart.series(0));
         }
 
         Connections{
-            target: cppGUI
+            target: guiHelper
 
             onSetSpectrumAxis: {
                 if(axisY.max < Ymax) // Up scale y axis immediately if y should be bigger
@@ -68,7 +68,7 @@ Item {
             running: parent.visible ? true : false // Trigger new data only if spectrum is showed
             repeat: true
             onTriggered: {
-               cppGUI.updateSpectrum();
+               guiHelper.updateSpectrum();
             }
         }
 

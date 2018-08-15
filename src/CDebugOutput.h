@@ -27,7 +27,7 @@
 #define CDEBUGOUTPUT_H
 
 #include <QString>
-#include "CGUI.h"
+#include "CGUIHelper.h"
 
 class CLogStringStream;
 
@@ -39,11 +39,11 @@ public:
     static void clogMessageHandler(std::string & str);
     static void handleMessage(QString str);
     static void setFileName(QString fileName);
-    static void setCGUI(CGUI *cGuiObject);
+    static void setCGUI(CGUIHelper *cGuiObject);
 
 private:
     static QString fileName;
-    static CGUI *cGuiObject;
+    static CGUIHelper *cGuiObject;
 };
 
 class CLogStringStream : public std::basic_streambuf<char, std::char_traits<char> > {

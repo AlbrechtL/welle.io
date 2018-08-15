@@ -16,7 +16,7 @@ Item{
         anchors.top: parent.top
         anchors.topMargin: Units.dp(5)
         anchors.horizontalCenter: parent.horizontalCenter
-        text: cppGUI.guiData.Ensemble
+        text: guiHelper.guiData.Ensemble
     }
 
     RowLayout{
@@ -36,32 +36,32 @@ Item{
                 id: signalBar1
                 height: Units.dp(4)
                 width: Units.dp(4)
-                color: (cppRadioController.SNR > 2) ? "green" : "grey"
+                color: (radioController.SNR > 2) ? "green" : "grey"
             }
             Rectangle{
                 id: signalBar2
                 height: Units.dp(8)
                 width: Units.dp(4)
-                color: (cppRadioController.SNR > 5) ? "green" : "grey"
+                color: (radioController.SNR > 5) ? "green" : "grey"
             }
             Rectangle{
                 id: signalBar3
                 height: Units.dp(12)
                 width: Units.dp(4)
-                color: (cppRadioController.SNR > 8) ? "green" : "grey"
+                color: (radioController.SNR > 8) ? "green" : "grey"
             }
             Rectangle{
                 id: signalBar4
                 height: Units.dp(16)
                 width: Units.dp(4)
-                color: (cppRadioController.SNR > 11) ? "green" : "grey"
+                color: (radioController.SNR > 11) ? "green" : "grey"
             }
 
             Rectangle{
                 id: signalBar5
                 height: Units.dp(20)
                 width: Units.dp(4)
-                color: (cppRadioController.SNR > 15) ? "green" : "grey"
+                color: (radioController.SNR > 15) ? "green" : "grey"
             }
         }
 
@@ -78,21 +78,21 @@ Item{
                 id: sync
                 height: Units.dp(16)
                 width: Units.dp(16)
-                color: cppRadioController.isSync ? "green" : "red"
+                color: radioController.isSync ? "green" : "red"
             }
             Rectangle{
                 id: fic
                 height: Units.dp(16)
                 width: Units.dp(16)
-                color: cppRadioController.isFICCRC ? "green" : "red"
+                color: radioController.isFICCRC ? "green" : "red"
             }
             Rectangle{
                 id: frameSucess
                 height: Units.dp(16)
                 width: Units.dp(16)
-                color: (cppRadioController.FrameErrors === 0
-                        && cppRadioController.isSync
-                        && cppRadioController.isFICCRC) ? "green" : "red"
+                color: (radioController.FrameErrors === 0
+                        && radioController.isSync
+                        && radioController.isFICCRC) ? "green" : "red"
             }
         }
     }
@@ -104,7 +104,7 @@ Item{
         TextRadioStation {
             id: stationTitle
             Layout.alignment: Qt.AlignHCenter
-            text: cppGUI.guiData.Title
+            text: guiHelper.guiData.Title
         }
 
         /* Station Text */
@@ -116,14 +116,14 @@ Item{
             width: parent.parent.width
             wrapMode: Text.WordWrap
             horizontalAlignment: Text.AlignHCenter
-            text: cppGUI.guiData.Text
+            text: guiHelper.guiData.Text
         }
     }
 
     RowLayout{
         id: stationInfo
-        visible: (cppGUI.guiData.Status === 2 /* Playing */
-                  || cppGUI.guiData.Status === 3 /* Paused */)
+        visible: (guiHelper.guiData.Status === 2 /* Playing */
+                  || guiHelper.guiData.Status === 3 /* Paused */)
         anchors.bottom: parent.bottom
         anchors.bottomMargin: Units.dp(5)
         Layout.fillWidth : true
@@ -135,7 +135,7 @@ Item{
             visible: stationInfo.visible
             Layout.alignment: Qt.AlignLeft
             Layout.leftMargin: Units.dp(5)
-            text: cppGUI.guiData.StationType
+            text: guiHelper.guiData.StationType
         }
 
         TextRadioInfo {
@@ -143,9 +143,9 @@ Item{
             visible: stationInfo.visible
             Layout.alignment: Qt.AlignRight
             Layout.rightMargin: Units.dp(5)
-            text: cppRadioController.BitRate + " kbps, "
-                  + (cppRadioController.isStereo ? "Stereo" : "Mono")
-                  + (cppRadioController.isDAB ? ", DAB" : ", DAB+")
+            text: radioController.BitRate + " kbps, "
+                  + (radioController.isStereo ? "Stereo" : "Mono")
+                  + (radioController.isDAB ? ", DAB" : ", DAB+")
         }
     }
 }

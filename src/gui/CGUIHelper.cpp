@@ -32,7 +32,7 @@
 
 #include "CDebugOutput.h"
 #include "CInputFactory.h"
-#include "CGUI.h"
+#include "CGUIHelper.h"
 #include "CAudio.h"
 #include "dab-constants.h"
 #include "msc-handler.h"
@@ -47,7 +47,7 @@
 #ifdef Q_OS_ANDROID
 CGUI::CGUI(CRadioControllerReplica *RadioController, QObject *parent)
 #else
-CGUI::CGUI(CRadioController *RadioController, QObject *parent)
+CGUIHelper::CGUIHelper(CRadioController *RadioController, QObject *parent)
 #endif
     : QObject(parent)
     , RadioController(RadioController)
@@ -71,13 +71,13 @@ CGUI::CGUI(CRadioController *RadioController, QObject *parent)
     connect(RadioController, &CRadioControllerReplica::ScanStopped, this, &CGUI::channelScanStopped);
     connect(RadioController, &CRadioControllerReplica::ScanProgress, this, &CGUI::channelScanProgress);
 #else
-    connect(RadioController, &CRadioController::GUIDataChanged, this, &CGUI::guiDataChanged);
-    connect(RadioController, &CRadioController::MOTChanged, this, &CGUI::MOTUpdate);
-    connect(RadioController, &CRadioController::StationsChanged, this, &CGUI::StationsChange);
-    connect(RadioController, &CRadioController::ScanStopped, this, &CGUI::channelScanStopped);
-    connect(RadioController, &CRadioController::ScanProgress, this, &CGUI::channelScanProgress);
-    connect(RadioController, &CRadioController::showErrorMessage, this, &CGUI::showErrorMessage);
-    connect(RadioController, &CRadioController::showInfoMessage, this, &CGUI::showInfoMessage);
+    connect(RadioController, &CRadioController::GUIDataChanged, this, &CGUIHelper::guiDataChanged);
+    connect(RadioController, &CRadioController::MOTChanged, this, &CGUIHelper::MOTUpdate);
+    connect(RadioController, &CRadioController::StationsChanged, this, &CGUIHelper::StationsChange);
+    connect(RadioController, &CRadioController::ScanStopped, this, &CGUIHelper::channelScanStopped);
+    connect(RadioController, &CRadioController::ScanProgress, this, &CGUIHelper::channelScanProgress);
+    connect(RadioController, &CRadioController::showErrorMessage, this, &CGUIHelper::showErrorMessage);
+    connect(RadioController, &CRadioController::showInfoMessage, this, &CGUIHelper::showInfoMessage);
 #endif
 
 #ifndef QT_NO_SYSTEMTRAYICON
@@ -110,12 +110,12 @@ CGUI::CGUI(CRadioController *RadioController, QObject *parent)
     CDebugOutput::setCGUI(this);
 }
 
-CGUI::~CGUI()
+CGUIHelper::~CGUIHelper()
 {
     qDebug() << "GUI:" <<  "deleting radioInterface";
 }
 
-void CGUI::close()
+void CGUIHelper::close()
 {
 #ifdef Q_OS_ANDROID
     if (RadioController) {
@@ -140,7 +140,7 @@ void CGUI::stateChanged(QRemoteObjectReplica::State state, QRemoteObjectReplica:
 }
 #endif
 
-void CGUI::DeviceClosed()
+void CGUIHelper::DeviceClosed()
 {
 #ifdef Q_OS_ANDROID
     qDebug() << "GUI:" <<  "device closed => closing application";
@@ -151,7 +151,7 @@ void CGUI::DeviceClosed()
 /**
  * \brief returns the licenses for all the relative libraries plus application version information
  */
-const QVariantMap CGUI::licenses()
+const QVariantMap CGUIHelper::licenses()
 {
     QVariantMap ret;
     QFile *File;
@@ -227,19 +227,19 @@ const QVariantMap CGUI::licenses()
     return ret;
 }
 
-void CGUI::startChannelScanClick(void)
+void CGUIHelper::startChannelScanClick(void)
 {
     if(RadioController)
         RadioController->StartScan();
 }
 
-void CGUI::stopChannelScanClick(void)
+void CGUIHelper::stopChannelScanClick(void)
 {
     if(RadioController)
         RadioController->StopScan();
 }
 
-void CGUI::MOTUpdate(QImage MOTImage)
+void CGUIHelper::MOTUpdate(QImage MOTImage)
 {
     if (MOTImage.isNull()) {
         MOTImage = QImage(320, 240, QImage::Format_Alpha8);
@@ -249,7 +249,7 @@ void CGUI::MOTUpdate(QImage MOTImage)
     emit motChanged();
 }
 
-void CGUI::StationsChange(QList<StationElement*> Stations)
+void CGUIHelper::StationsChange(QList<StationElement*> Stations)
 {
     //qDebug() << "CGUI:" <<  "StationsChange";
     QList<QObject*> *stationList = reinterpret_cast<QList<QObject*>*>(&Stations);
@@ -259,7 +259,7 @@ void CGUI::StationsChange(QList<StationElement*> Stations)
     emit foundChannelCount(Stations.count());
 }
 
-void CGUI::showErrorMessage(QString Text)
+void CGUIHelper::showErrorMessage(QString Text)
 {
 #ifndef QT_NO_SYSTEMTRAYICON
     trayIcon->showMessage(QCoreApplication::applicationName(), Text, QIcon(":/icon.png"), 5000);
@@ -268,7 +268,7 @@ void CGUI::showErrorMessage(QString Text)
 #endif
 }
 
-void CGUI::showInfoMessage(QString Text)
+void CGUIHelper::showInfoMessage(QString Text)
 {
 #ifndef QT_NO_SYSTEMTRAYICON
     trayIcon->showMessage(QCoreApplication::applicationName(), Text, QIcon(":/icon.png"), 5000);
@@ -277,55 +277,55 @@ void CGUI::showInfoMessage(QString Text)
 #endif
 }
 
-void CGUI::channelClick(QString StationName, QString ChannelName)
+void CGUIHelper::channelClick(QString StationName, QString ChannelName)
 {
     if(RadioController && ChannelName != "")
         RadioController->Play(ChannelName, StationName);
 }
 
-void CGUI::setManualChannel(QString ChannelName)
+void CGUIHelper::setManualChannel(QString ChannelName)
 {
     if(RadioController)
         RadioController->SetManualChannel(ChannelName);
 }
 
-void CGUI::inputEnableAGCChanged(bool checked)
+void CGUIHelper::inputEnableAGCChanged(bool checked)
 {
     if(RadioController)
         RadioController->setAGC(checked);
 }
 
-void CGUI::inputDisableCoarseCorrector(bool checked)
+void CGUIHelper::inputDisableCoarseCorrector(bool checked)
 {
     if(RadioController)
         RadioController->disableCoarseCorrector(checked);
 }
 
-void CGUI::inputEnableTIIDecode(bool checked)
+void CGUIHelper::inputEnableTIIDecode(bool checked)
 {
     if(RadioController)
         RadioController->enableTIIDecode(checked);
 }
 
-void CGUI::inputEnableOldFFTWindowPlacement(bool checked)
+void CGUIHelper::inputEnableOldFFTWindowPlacement(bool checked)
 {
     if(RadioController)
         RadioController->enableOldFFTWindowPlacement(checked);
 }
 
-void CGUI::inputSetFreqSyncMethod(int fsm_ix)
+void CGUIHelper::inputSetFreqSyncMethod(int fsm_ix)
 {
     if(RadioController)
         RadioController->setFreqSyncMethod(fsm_ix);
 }
 
-void CGUI::inputEnableHwAGCChanged(bool checked)
+void CGUIHelper::inputEnableHwAGCChanged(bool checked)
 {
     if(RadioController)
         RadioController->setHwAGC(checked);
 }
 
-void CGUI::inputGainChanged(double gain)
+void CGUIHelper::inputGainChanged(double gain)
 {
     if(RadioController)
     {
@@ -339,7 +339,7 @@ void CGUI::inputGainChanged(double gain)
     }
 }
 
-void CGUI::clearStationList()
+void CGUIHelper::clearStationList()
 {
     if(RadioController)
     {
@@ -347,27 +347,27 @@ void CGUI::clearStationList()
     }
 }
 
-void CGUI::registerSpectrumSeries(QAbstractSeries* series)
+void CGUIHelper::registerSpectrumSeries(QAbstractSeries* series)
 {
     spectrumSeries = static_cast<QXYSeries*>(series);
 }
 
-void CGUI::registerImpulseResonseSeries(QAbstractSeries* series)
+void CGUIHelper::registerImpulseResonseSeries(QAbstractSeries* series)
 {
     impulseResponseSeries = static_cast<QXYSeries*>(series);
 }
 
-void CGUI::registerNullSymbolSeries(QAbstractSeries *series)
+void CGUIHelper::registerNullSymbolSeries(QAbstractSeries *series)
 {
     nullSymbolSeries = static_cast<QXYSeries*>(series);
 }
 
-void CGUI::registerConstellationSeries(QAbstractSeries *series)
+void CGUIHelper::registerConstellationSeries(QAbstractSeries *series)
 {
     constellationSeries = static_cast<QXYSeries*>(series);
 }
 
-void CGUI::tryHideWindow()
+void CGUIHelper::tryHideWindow()
 {
 #ifndef QT_NO_SYSTEMTRAYICON
     trayIcon->showMessage(QCoreApplication::applicationName(), tr("The program will keep running in the "
@@ -379,7 +379,7 @@ void CGUI::tryHideWindow()
 }
 
 // This function is called by the QML GUI
-void CGUI::updateSpectrum()
+void CGUIHelper::updateSpectrum()
 {
     std::vector<DSPCOMPLEX> signalProbeBuffer;
     int T_u = RadioController->getDABParams().T_u;
@@ -446,7 +446,7 @@ void CGUI::updateSpectrum()
     }
 }
 
-void CGUI::updateImpulseResponse()
+void CGUIHelper::updateImpulseResponse()
 {
     std::vector<float> impulseResponseBuffer;
     int T_u = RadioController->getDABParams().T_u;
@@ -479,7 +479,7 @@ void CGUI::updateImpulseResponse()
     }
 }
 
-void CGUI::updateNullSymbol()
+void CGUIHelper::updateNullSymbol()
 {
     std::vector<DSPCOMPLEX> nullSymbolBuffer;
     int T_u = RadioController->getDABParams().T_u;
@@ -547,7 +547,7 @@ void CGUI::updateNullSymbol()
     }
 }
 
-void CGUI::updateConstellation()
+void CGUIHelper::updateConstellation()
 {
     std::vector<DSPCOMPLEX> constellationPointBuffer;
 
@@ -578,12 +578,12 @@ void CGUI::updateConstellation()
     //    }
 }
 
-void CGUI::setNewDebugOutput(QString text)
+void CGUIHelper::setNewDebugOutput(QString text)
 {
     emit newDebugOutput(text);
 }
 
-QTranslator* CGUI::AddTranslator(QString Language, QTranslator *OldTranslator)
+QTranslator* CGUIHelper::AddTranslator(QString Language, QTranslator *OldTranslator)
 {
     if(OldTranslator)
         QCoreApplication::removeTranslator(OldTranslator);

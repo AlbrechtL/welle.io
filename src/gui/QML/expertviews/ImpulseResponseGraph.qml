@@ -27,11 +27,11 @@ Item {
         Component.onCompleted: {
             var line = createSeries(ChartView.SeriesTypeLine, "line series", axisX, axisY)
             line.color = "#38ad6b"
-            cppGUI.registerImpulseResonseSeries(series(0));
+            guiHelper.registerImpulseResonseSeries(series(0));
         }
 
         Connections{
-            target: cppGUI
+            target: guiHelper
 
             onSetImpulseResponseAxis: {
                 if(axisY.max < Ymax) // Up scale y axis immediately if y should be bigger
@@ -66,7 +66,7 @@ Item {
             running: parent.visible ? true : false // Trigger new data only if spectrum is showed
             repeat: true
             onTriggered: {
-               cppGUI.updateImpulseResponse();
+               guiHelper.updateImpulseResponse();
             }
         }
 

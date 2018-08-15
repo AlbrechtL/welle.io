@@ -101,7 +101,7 @@ Item {
                 text: qsTr("Disable coarse corrector (for receivers with <1kHz error)")
                 checked: true
                 onCheckedChanged: {
-                    cppGUI.inputDisableCoarseCorrector(checked)
+                    guiHelper.inputDisableCoarseCorrector(checked)
                 }
             }
 
@@ -113,7 +113,7 @@ Item {
                     font.family: TextStyle.textFont
                     model: [ "GetMiddle", "CorrelatePRS", "PatternOfZeros" ];
                     onCurrentIndexChanged: {
-                        cppGUI.inputSetFreqSyncMethod(currentIndex)
+                        guiHelper.inputSetFreqSyncMethod(currentIndex)
                     }
                 }
 
@@ -127,7 +127,7 @@ Item {
                 text: qsTr("Enable TII decoding to console log (increases CPU usage)")
                 checked: false
                 onCheckedChanged: {
-                    cppGUI.inputEnableTIIDecode(checked)
+                    guiHelper.inputEnableTIIDecode(checked)
                 }
             }
 
@@ -136,7 +136,7 @@ Item {
                 text: qsTr("Select old FFT placement algorithm (experimental)")
                 checked: false
                 onCheckedChanged: {
-                    cppGUI.inputEnableOldFFTWindowPlacement(checked)
+                    guiHelper.inputEnableOldFFTWindowPlacement(checked)
                 }
             }
         }

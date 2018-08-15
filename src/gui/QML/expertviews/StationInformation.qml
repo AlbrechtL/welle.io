@@ -15,52 +15,52 @@ Item {
 
         TextExpert {
             name: qsTr("Device") + ":"
-            text: cppGUI.guiData.DeviceName
+            text: guiHelper.guiData.DeviceName
         }
 
         TextExpert {
             name: qsTr("Current channel") + ":"
-            text: cppGUI.guiData.Channel + " (" + (cppGUI.guiData.Frequency > 0 ? cppGUI.guiData.Frequency/1e6 :  "N/A") + " MHz)"
+            text: guiHelper.guiData.Channel + " (" + (guiHelper.guiData.Frequency > 0 ? guiHelper.guiData.Frequency/1e6 :  "N/A") + " MHz)"
         }
 
         TextExpert {
             name: qsTr("Frequency correction") + ":"
-            text: cppRadioController.FrequencyCorrection + " Hz (" + (cppGUI.guiData.Frequency > 0 ? cppRadioController.FrequencyCorrectionPpm.toFixed(2) : "N/A") + " ppm)"
+            text: radioController.FrequencyCorrection + " Hz (" + (guiHelper.guiData.Frequency > 0 ? radioController.FrequencyCorrectionPpm.toFixed(2) : "N/A") + " ppm)"
         }
 
         TextExpert {
             name: qsTr("SNR") + ":"
-            text: cppRadioController.SNR + " dB"
+            text: radioController.SNR + " dB"
         }
 
         TextExpert {
             name: qsTr("Frame errors") + ":"
-            text: cppRadioController.FrameErrors
+            text: radioController.FrameErrors
         }
 
         TextExpert {
             name: qsTr("RS errors") + ":"
-            text: cppRadioController.RSErrors
+            text: radioController.RSErrors
         }
 
         TextExpert {
             name: qsTr("AAC errors") + ":"
-            text: cppRadioController.AACErrors
+            text: radioController.AACErrors
         }
 
         TextExpert {
             name: qsTr("Frame synchronization") + ":"
-            text: cppRadioController.isSync ? qsTr("OK") : qsTr("Not synced")
+            text: radioController.isSync ? qsTr("OK") : qsTr("Not synced")
         }
 
         TextExpert {
             name: qsTr("FIC CRC") + ":"
-            text: cppRadioController.isFICCRC ? qsTr("OK") : qsTr("Error")
+            text: radioController.isFICCRC ? qsTr("OK") : qsTr("Error")
         }
 
         TextExpert {
             name: qsTr("DAB date and time") + ":"
-            text: cppRadioController.DateTime
+            text: radioController.DateTime
         }
     }
 }

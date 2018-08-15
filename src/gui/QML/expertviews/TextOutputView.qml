@@ -36,7 +36,7 @@ Item {
     }
 
     Connections{
-        target: cppGUI
+        target: guiHelper
 
         onNewDebugOutput: {
             textField.insert(textField.length,text)

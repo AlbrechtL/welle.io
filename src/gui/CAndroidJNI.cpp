@@ -30,7 +30,7 @@
 #include <QMetaObject>
 #include <android/bitmap.h>
 
-#include "CGUI.h"
+#include "CGUIHelper.h"
 #include "CInputFactory.h"
 #include "CAndroidJNI.h"
 #include "CAudio.h"

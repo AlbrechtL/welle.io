@@ -42,7 +42,7 @@
 #include "version.h"
 #include "dab-constants.h"
 #include "CRadioController.h"
-#include "CGUI.h"
+#include "CGUIHelper.h"
 #include "CDebugOutput.h"
 #include "CSplashScreen.h"
 
@@ -123,7 +123,7 @@ int main(int argc, char** argv)
 
     // Init translations
     QString locale = QLocale::system().name();
-    QTranslator *Translator = CGUI::AddTranslator(locale);
+    QTranslator *Translator = CGUIHelper::AddTranslator(locale);
 
     // Default values
     DABParams dabparams(1);
@@ -226,7 +226,7 @@ int main(int argc, char** argv)
     //	Process language option
     QString languageValue = optionParser.value(Language);
     if (languageValue != "")
-        CGUI::AddTranslator(languageValue, Translator);
+        CGUIHelper::AddTranslator(languageValue, Translator);
 
     //	Process DAB mode option
     QString DABModValue = optionParser.value(DABModeOption);
@@ -270,8 +270,8 @@ int main(int argc, char** argv)
     commandLineOptions["initialStation"] = optionParser.value(InitialStation);
 
     // Create a new radio interface instance
-    CRadioController* RadioController = new CRadioController(commandLineOptions, dabparams);
-    QTimer::singleShot(0, RadioController, SLOT(onEventLoopStarted())); // The timer is used to signal if the QT event lopp is running
+    CRadioController* radioController = new CRadioController(commandLineOptions, dabparams);
+    QTimer::singleShot(0, radioController, SLOT(onEventLoopStarted())); // The timer is used to signal if the QT event lopp is running
 
 #endif
 
@@ -283,16 +283,16 @@ int main(int argc, char** argv)
 
         QStringList lastStation = settings.value("lastchannel").toStringList();
         if( lastStation.count() == 2 )
-            RadioController->setAutoPlay( lastStation[1], lastStation[0]);
+            radioController->setAutoPlay( lastStation[1], lastStation[0]);
     }
 
 
     // Should we start with a inital station given on command line?
-    if( RadioController->Stations().count() > 0 && commandLineOptions["initialStation"] != "" ) {
+    if( radioController->Stations().count() > 0 && commandLineOptions["initialStation"] != "" ) {
 
         static QString channelToSearchFor = commandLineOptions["initialStation"].toString().simplified();
 
-        QList<StationElement*> stationList = RadioController->Stations();
+        QList<StationElement*> stationList = radioController->Stations();
         QList<StationElement*>::iterator it;
 
         // try to find station name in the station list
@@ -302,31 +302,31 @@ int main(int argc, char** argv)
         });
 
         if(it != stationList.end())
-            RadioController->setAutoPlay((*it)->getChannelName(), (*it)->getStationName());
+            radioController->setAutoPlay((*it)->getChannelName(), (*it)->getStationName());
     }
 
-    CGUI *GUI = new CGUI(RadioController);
+    CGUIHelper *guiHelper = new CGUIHelper(radioController);
 
     // Create new QML application, set some requried options and load the QML file
     QQmlApplicationEngine* engine = new QQmlApplicationEngine;
     QQmlContext* rootContext = engine->rootContext();
 
     // Connect C++ code to QML GUI
-    rootContext->setContextProperty("cppGUI", GUI);
-    rootContext->setContextProperty("cppRadioController", RadioController);
+    rootContext->setContextProperty("guiHelper", guiHelper);
+    rootContext->setContextProperty("radioController", radioController);
 
     // Load main page
     engine->load(QUrl("qrc:/src/gui/QML/MainView.qml"));
 
     // Add MOT slideshow provider
-    engine->addImageProvider(QLatin1String("motslideshow"), GUI->MOTImage);
+    engine->addImageProvider(QLatin1String("motslideshow"), guiHelper->MOTImage);
 
     // Run application
     app.exec();
 
     // Delete the RadioController controller to ensure a save shutdown
-    delete GUI;
-    delete RadioController;
+    delete guiHelper;
+    delete radioController;
 
     qDebug() << "main:" <<  "Application closed";
 

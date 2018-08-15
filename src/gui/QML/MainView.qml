@@ -104,9 +104,9 @@ ApplicationWindow {
             mainWindow.height = getHeight()
         }
 
-        if (cppRadioController.GUIData.Status === -1) {
-            console.debug("error: " + cppRadioController.ErrorMsg)
-            errorMessagePopup.text = cppRadioController.ErrorMsg
+        if (radioController.GUIData.Status === -1) {
+            console.debug("error: " + radioController.ErrorMsg)
+            errorMessagePopup.text = radioController.ErrorMsg
             errorMessagePopup.open()
         }
 
@@ -186,7 +186,7 @@ ApplicationWindow {
                     MenuItem {
                         text: qsTr("Exit")
                         font.pixelSize: TextStyle.textStandartSize
-                        onTriggered: cppGUI.close()
+                        onTriggered: guiHelper.close()
                     }
                 }
             }
@@ -240,7 +240,7 @@ ApplicationWindow {
                           onTriggered:  {
                               startStationScanItem.enabled = false
                               stopStationScanItem.enabled = true
-                              cppGUI.startChannelScanClick()
+                              guiHelper.startChannelScanClick()
                           }
                       }
 
@@ -253,7 +253,7 @@ ApplicationWindow {
                           onTriggered:  {
                               startStationScanItem.enabled = true
                               stopStationScanItem.enabled = false
-                              cppGUI.stopChannelScanClick()
+                              guiHelper.stopChannelScanClick()
                           }
                       }
 
@@ -276,7 +276,7 @@ ApplicationWindow {
 
             ListView {
                id: stationChannelView
-               model: cppGUI.stationModel
+               model: guiHelper.stationModel
                Layout.fillWidth: true
                Layout.fillHeight: true
                clip: true
@@ -287,7 +287,7 @@ ApplicationWindow {
                    onClicked: {
                        if(modelData.channelName !== "") {
                            mainWindow.stationClicked()
-                           cppGUI.channelClick(modelData.stationName, modelData.channelName)
+                           guiHelper.channelClick(modelData.stationName, modelData.channelName)
                        }
                    }
                }
@@ -325,7 +325,7 @@ ApplicationWindow {
                     Layout.preferredHeight: Units.dp(25)
                     Layout.preferredWidth: Units.dp(130)
                     onActivated: {
-                        cppGUI.setManualChannel(model[index])
+                        guiHelper.setManualChannel(model[index])
                     }
                 }
             }
@@ -414,7 +414,7 @@ ApplicationWindow {
                                fillMode: Image.PreserveAspectFit
 
                                Connections{
-                                   target: cppGUI
+                                   target: guiHelper
                                    onMotChanged:{
                                        motImage.source = "image://motslideshow/image_" + Math.random()
 
@@ -518,7 +518,7 @@ ApplicationWindow {
     }
 
     Connections{
-        target: cppRadioController
+        target: radioController
 
         onShowErrorMessage:{
             errorMessagePopup.text = Text;
@@ -532,7 +532,7 @@ ApplicationWindow {
     }
 
     Connections {
-        target: cppGUI
+        target: guiHelper
 
         onMinimizeWindow: hide()
         onMaximizeWindow: showMaximized()
@@ -554,6 +554,6 @@ ApplicationWindow {
 
     onVisibilityChanged: {
         if(visibility === Window.Minimized)
-            cppGUI.tryHideWindow()
+            guiHelper.tryHideWindow()
     }
 }

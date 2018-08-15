@@ -115,7 +115,7 @@ set(welle_io_sources
     src/output/CAudio.cpp
     src/gui/CMOTImageProvider.cpp
     src/gui/CStationList.cpp
-    src/gui/CGUI.cpp
+    src/gui/CGUIHelper.cpp
     src/CRadioController.cpp
     src/CLogFile.cpp
     src/CSplashScreen.cpp

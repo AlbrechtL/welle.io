@@ -15,7 +15,7 @@ Item {
 
         TextStandart {
             id: fileContent
-            text: cppGUI.licenses.FileContent
+            text: guiHelper.licenses.FileContent
             Layout.alignment: Qt.AlignLeft
             wrapMode: Text.Wrap
             width: parent.width

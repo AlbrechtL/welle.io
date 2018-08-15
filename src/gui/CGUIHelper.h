@@ -54,7 +54,7 @@ using namespace QtCharts;
  *	GThe main gui object. It inherits from
  *	QDialog and the generated form
  */
-class CGUI : public QObject
+class CGUIHelper : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QVariantMap guiData READ guiData NOTIFY guiDataChanged)
@@ -69,9 +69,9 @@ public:
 #ifdef Q_OS_ANDROID
     CGUI(CRadioControllerReplica *RadioController, QObject* parent = NULL);
 #else
-    CGUI(CRadioController *RadioController, QObject* parent = NULL);
+    CGUIHelper(CRadioController *RadioController, QObject* parent = NULL);
 #endif
-    ~CGUI();
+    ~CGUIHelper();
     Q_INVOKABLE void channelClick(QString StationName, QString ChannelName);
     Q_INVOKABLE void setManualChannel(QString ChannelName);
     Q_INVOKABLE void startChannelScanClick(void);

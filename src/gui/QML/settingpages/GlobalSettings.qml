@@ -26,15 +26,15 @@ Item {
 
     Component.onCompleted: {
         console.debug("Apply settings initially")
-        cppGUI.inputGainChanged(manualGainState)
-        cppGUI.inputEnableAGCChanged(enableAGCState)
+        guiHelper.inputGainChanged(manualGainState)
+        guiHelper.inputEnableAGCChanged(enableAGCState)
     }
 
     Connections{
-        target: cppGUI
+        target: guiHelper
 
         onGuiDataChanged:{
-            manualGain.to = cppRadioController.GainCount
+            manualGain.to = radioController.GainCount
         }
     }
 
@@ -84,10 +84,10 @@ Item {
                 Layout.fillWidth: true
                 checked: true
                 onClicked: {
-                    cppGUI.inputEnableAGCChanged(checked)
+                    guiHelper.inputEnableAGCChanged(checked)
 
                     if(checked == false)
-                        cppGUI.inputGainChanged(manualGain.value)
+                        guiHelper.inputGainChanged(manualGain.value)
                 }
             }
 
@@ -108,7 +108,7 @@ Item {
 
                     Text {
                         id: valueSliderView
-                        text: qsTr("Value: ") + cppGUI.currentGainValue.toFixed(2)
+                        text: qsTr("Value: ") + guiHelper.currentGainValue.toFixed(2)
                         font.pixelSize: TextStyle.textStandartSize
                         font.family: TextStyle.textFont
                         color: TextStyle.textColor
@@ -125,7 +125,7 @@ Item {
 
                     onValueChanged: {
                         if(enableAGC.checked == false)
-                            cppGUI.inputGainChanged(value)
+                            guiHelper.inputGainChanged(value)
                     }
                 }
             }
