@@ -123,7 +123,7 @@ int main(int argc, char** argv)
 
     // Init translations
     QString locale = QLocale::system().name();
-    QTranslator *Translator = CGUIHelper::AddTranslator(locale);
+    QTranslator *Translator = CGUIHelper::addTranslator(locale);
 
     // Default values
     DABParams dabparams(1);
@@ -226,7 +226,7 @@ int main(int argc, char** argv)
     //	Process language option
     QString languageValue = optionParser.value(Language);
     if (languageValue != "")
-        CGUIHelper::AddTranslator(languageValue, Translator);
+        CGUIHelper::addTranslator(languageValue, Translator);
 
     //	Process DAB mode option
     QString DABModValue = optionParser.value(DABModeOption);
@@ -288,11 +288,11 @@ int main(int argc, char** argv)
 
 
     // Should we start with a inital station given on command line?
-    if( radioController->Stations().count() > 0 && commandLineOptions["initialStation"] != "" ) {
+    if( radioController->stations().count() > 0 && commandLineOptions["initialStation"] != "" ) {
 
         static QString channelToSearchFor = commandLineOptions["initialStation"].toString().simplified();
 
-        QList<StationElement*> stationList = radioController->Stations();
+        QList<StationElement*> stationList = radioController->stations();
         QList<StationElement*>::iterator it;
 
         // try to find station name in the station list
@@ -319,7 +319,7 @@ int main(int argc, char** argv)
     engine->load(QUrl("qrc:/src/gui/QML/MainView.qml"));
 
     // Add MOT slideshow provider
-    engine->addImageProvider(QLatin1String("motslideshow"), guiHelper->MOTImage);
+    engine->addImageProvider(QLatin1String("motslideshow"), guiHelper->motImage);
 
     // Run application
     app.exec();

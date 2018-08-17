@@ -56,45 +56,45 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, DABParams& p
     , audio(audioBuffer)
 {
     // Init the technical data
-    ResetTechnicalData();
+    resetTechnicalData();
 
     // Read channels from settings
-    mStationList.loadStations();
-    mStationList.sort();
-    emit StationsChanged(mStationList.getList());
+    stationList.loadStations();
+    stationList.sort();
+    emit stationsChanged(stationList.getList());
 
     // Init timers
-    connect(&StationTimer, &QTimer::timeout, this, &CRadioController::StationTimerTimeout);
-    connect(&ChannelTimer, &QTimer::timeout, this, &CRadioController::ChannelTimerTimeout);
-    connect(&SyncCheckTimer, &QTimer::timeout, this, &CRadioController::SyncCheckTimerTimeout);
+    connect(&stationTimer, &QTimer::timeout, this, &CRadioController::stationTimerTimeout);
+    connect(&channelTimer, &QTimer::timeout, this, &CRadioController::channelTimerTimeout);
+    connect(&syncCheckTimer, &QTimer::timeout, this, &CRadioController::syncCheckTimerTimeout);
 
-    connect(this, &CRadioController::SwitchToNextChannel,
-            this, &CRadioController::NextChannel);
+    connect(this, &CRadioController::switchToNextChannel,
+            this, &CRadioController::nextChannel);
 
-    connect(this, &CRadioController::EnsembleAdded,
+    connect(this, &CRadioController::ensembleAdded,
             this, &CRadioController::addtoEnsemble);
 
-    connect(this, &CRadioController::EnsembleNameUpdated,
+    connect(this, &CRadioController::ensembleNameUpdated,
             this, &CRadioController::nameofEnsemble);
 
     qRegisterMetaType<dab_date_time_t>("dab_date_time_t");
-    connect(this, &CRadioController::DateTimeUpdated,
+    connect(this, &CRadioController::dateTimeUpdated,
             this, &CRadioController::displayDateTime);
 
     isAutoPlay = false;
 }
 
-void CRadioController::ResetTechnicalData(void)
+void CRadioController::resetTechnicalData(void)
 {
-    Status = Unknown;
-    CurrentChannel = tr("Unknown");
-    CurrentEnsemble = "";
-    CurrentFrequency = 0;
-    CurrentStation = "";
-    CurrentStationType = "";
-    CurrentLanguageType = "";
-    CurrentTitle = tr("No Station");
-    CurrentText = "";
+    dabStatus = Unknown;
+    currentChannel = tr("Unknown");
+    currentEnsemble = "";
+    currentFrequency = 0;
+    currentStation = "";
+    currentStationType = "";
+    currentLanguageType = "";
+    currentTitle = tr("No Station");
+    currentText = "";
 
     mErrorMsg = "";
 
@@ -113,20 +113,20 @@ void CRadioController::ResetTechnicalData(void)
     mAACErrors = 0;
     mGainCount = 0;
     mStationCount = 0;
-    CurrentManualGain = 0;
-    CurrentManualGainValue = std::numeric_limits<float>::lowest();
-    CurrentVolume = 1.0;
+    currentManualGain = 0;
+    currentManualGainValue = std::numeric_limits<float>::lowest();
+    currentVolume = 1.0;
 
     startPlayback = false;
     isChannelScan = false;
     isAGC = true;
     isHwAGC = true;
 
-    UpdateGUIData();
+    updateGUIData();
 
     // Clear MOT
     motImage.loadFromData(0, 0, Q_NULLPTR);
-    emit MOTChanged(motImage);
+    emit motChanged(motImage);
 }
 
 void CRadioController::closeDevice()
@@ -137,13 +137,13 @@ void CRadioController::closeDevice()
     device.reset();
     audio.reset();
 
-    SyncCheckTimer.stop();
+    syncCheckTimer.stop();
 
     // Reset the technical data
-    ResetTechnicalData();
+    resetTechnicalData();
 
     emit isHwAGCSupportedChanged(isHwAGCSupported());
-    emit DeviceClosed();
+    emit deviceClosed();
 }
 
 void CRadioController::openDevice(CVirtualInput *new_device)
@@ -152,7 +152,7 @@ void CRadioController::openDevice(CVirtualInput *new_device)
         closeDevice();
     }
     device.reset(new_device);
-    Initialise();
+    initialise();
 }
 
 void CRadioController::onEventLoopStarted()
@@ -236,21 +236,21 @@ void CRadioController::onEventLoopStarted()
     }
 #endif /* HAVE_SOAPYSDR */
 
-    Initialise();
+    initialise();
 
     CSplashScreen::Close();
 }
 
-void CRadioController::Initialise(void)
+void CRadioController::initialise(void)
 {
     mGainCount = device->getGainCount();
-    emit GainCountChanged(mGainCount);
+    emit gainCountChanged(mGainCount);
 
     device->setHwAgc(isHwAGC);
 
     if (!isAGC) { // Manual AGC
         device->setAgc(false);
-        device->setGain(CurrentManualGain);
+        device->setGain(currentManualGain);
         qDebug() << "RadioController:" << "AGC off";
     }
     else {
@@ -258,38 +258,41 @@ void CRadioController::Initialise(void)
         qDebug() << "RadioController:" << "AGC on";
     }
 
-    audio.setVolume(CurrentVolume);
+    audio.setVolume(currentVolume);
 
     my_rx = std::make_unique<RadioReceiver>(*this, *device, rro);
     my_rx->setReceiverOptions(rro);
 
-    Status = Initialised;
-    emit DeviceReady();
+    dabStatus = Initialised;
+    emit deviceReady();
     emit isHwAGCSupportedChanged(isHwAGCSupported());
-    UpdateGUIData();
+    updateGUIData();
 
     if(isAutoPlay) {
-        Play(autoChannel, autoStation);
+        play(autoChannel, autoStation);
     }
 }
 
-void CRadioController::Play(QString Channel, QString Station)
+void CRadioController::play(QString Channel, QString Station)
 {
+    if(Channel == "")
+        return;
+
     qDebug() << "RadioController:" << "Play channel:"
              << Channel << "station:" << Station;
 
-    if (Status == Scanning) {
-        StopScan();
+    if (dabStatus == Scanning) {
+        stopScan();
     }
 
-    DeviceRestart();
+    deviceRestart();
     startPlayback = false;
 
-    SetChannel(Channel, false);
-    SetStation(Station);
+    setChannel(Channel, false);
+    setStation(Station);
 
-    Status = Playing;
-    UpdateGUIData();
+    dabStatus = Playing;
+    updateGUIData();
 
     // Store as last station
     QSettings Settings;
@@ -299,10 +302,10 @@ void CRadioController::Play(QString Channel, QString Station)
     Settings.setValue("lastchannel", StationElement);
 
     // Check every 15 s for a correct sync
-    SyncCheckTimer.start(15000);
+    syncCheckTimer.start(15000);
 }
 
-void CRadioController::Pause()
+void CRadioController::pause()
 {
     if (device) {
         device->stop();
@@ -310,14 +313,14 @@ void CRadioController::Pause()
 
     audio.reset();
 
-    SyncCheckTimer.stop();
+    syncCheckTimer.stop();
 
     startPlayback = false;
-    Status = Paused;
-    UpdateGUIData();
+    dabStatus = Paused;
+    updateGUIData();
 }
 
-void CRadioController::Stop()
+void CRadioController::stop()
 {
     if (device) {
         device->stop();
@@ -325,81 +328,81 @@ void CRadioController::Stop()
 
     audio.reset();
 
-    SyncCheckTimer.stop();
+    syncCheckTimer.stop();
 
     startPlayback = false;
-    Status = Stopped;
-    UpdateGUIData();
+    dabStatus = Stopped;
+    updateGUIData();
 }
 
-void CRadioController::ClearStations()
+void CRadioController::clearStations()
 {
     //	Clear old channels
-    emit StationsCleared();
-    mStationList.reset();
-    emit StationsChanged(mStationList.getList());
+    emit stationsCleared();
+    stationList.reset();
+    emit stationsChanged(stationList.getList());
 
     // Save the channels
-    mStationList.saveStations();
+    stationList.saveStations();
 
     // Clear last station
     QSettings Settings;
     Settings.remove("lastchannel");
 }
 
-qreal CRadioController::Volume() const
+qreal CRadioController::volume() const
 {
-    return CurrentVolume;
+    return currentVolume;
 }
 
 void CRadioController::setVolume(qreal Volume)
 {
-    CurrentVolume = Volume;
+    currentVolume = Volume;
 
     audio.setVolume(Volume);
 
-    emit VolumeChanged(CurrentVolume);
+    emit volumeChanged(currentVolume);
 }
 
-void CRadioController::SetChannel(QString Channel, bool isScan, bool Force)
+void CRadioController::setChannel(QString Channel, bool isScan, bool Force)
 {
-    if (CurrentChannel != Channel || Force == true) {
+    if (currentChannel != Channel || Force == true) {
         if (device && device->getID() == CDeviceID::RAWFILE) {
-            CurrentChannel = "File";
-            CurrentEnsemble = "";
-            CurrentFrequency = 0;
+            currentChannel = "File";
+            currentEnsemble = "";
+            currentFrequency = 0;
         }
         else { // A real device
-            CurrentChannel = Channel;
-            CurrentEnsemble = "";
+            currentChannel = Channel;
+            currentEnsemble = "";
 
             // Convert channel into a frequency
-            CurrentFrequency = channels.getFrequency(Channel.toStdString());
+            currentFrequency = channels.getFrequency(Channel.toStdString());
 
-            if(CurrentFrequency != 0 && device) {
-                qDebug() << "RadioController: Tune to channel" <<  Channel << "->" << CurrentFrequency/1e6 << "MHz";
-                device->setFrequency(CurrentFrequency);
+            if(currentFrequency != 0 && device) {
+                qDebug() << "RadioController: Tune to channel" <<  Channel << "->" << currentFrequency/1e6 << "MHz";
+                device->setFrequency(currentFrequency);
             }
         }
 
-        DecoderRestart(isScan);
+        decoderRestart(isScan);
 
-        StationList.clear();
+        stationListStr.clear();
 
-        UpdateGUIData();
+        updateGUIData();
     }
 }
 
-void CRadioController::SetManualChannel(QString Channel)
+void CRadioController::setManualChannel(QString Channel)
 {
     // Play channel's first station, if available
-    foreach(StationElement* station, mStationList.getList())
+    foreach(StationElement* station, stationList.getList())
     {
         if (station->getChannelName() == Channel)
         {
             QString stationName = station->getStationName();
             qDebug() << "RadioController: Play channel" <<  Channel << "and first station" << stationName;
-            Play(Channel, stationName);
+            play(Channel, stationName);
             return;
         }
     }
@@ -407,123 +410,123 @@ void CRadioController::SetManualChannel(QString Channel)
     // Otherwise tune to channel and play first found station
     qDebug() << "RadioController: Tune to channel" <<  Channel;
 
-    SyncCheckTimer.stop();
-    DeviceRestart();
+    syncCheckTimer.stop();
+    deviceRestart();
 
     startPlayback = true;
-    Status = Playing;
-    CurrentTitle = tr("Tuning") + " ... " + Channel;
+    dabStatus = Playing;
+    currentTitle = tr("Tuning") + " ... " + Channel;
 
     // Clear old data
-    CurrentStation = "";
-    CurrentStationType = "";
-    CurrentLanguageType = "";
-    CurrentText = "";
+    currentStation = "";
+    currentStationType = "";
+    currentLanguageType = "";
+    currentText = "";
 
-    UpdateGUIData();
+    updateGUIData();
 
     // Clear MOT
     motImage.loadFromData(0, 0, Q_NULLPTR);
-    emit MOTChanged(motImage);
+    emit motChanged(motImage);
 
     // Switch channel
-    SetChannel(Channel, false, true);
+    setChannel(Channel, false, true);
 }
 
-void CRadioController::StartScan(void)
+void CRadioController::startScan(void)
 {
     qDebug() << "RadioController:" << "Start channel scan";
 
-    SyncCheckTimer.stop();
-    DeviceRestart();
+    syncCheckTimer.stop();
+    deviceRestart();
     startPlayback = false;
 
     if(device && device->getID() == CDeviceID::RAWFILE) {
-        CurrentTitle = tr("RAW File");
+        currentTitle = tr("RAW File");
         const auto FirstChannel = QString::fromStdString(Channels::firstChannel);
-        SetChannel(FirstChannel, false); // Just a dummy
-        emit ScanStopped();
+        setChannel(FirstChannel, false); // Just a dummy
+        emit scanStopped();
     }
     else
     {
         // Start with lowest frequency
         QString Channel = QString::fromStdString(Channels::firstChannel);
-        SetChannel(Channel, true);
+        setChannel(Channel, true);
 
         isChannelScan = true;
         mStationCount = 0;
-        CurrentTitle = tr("Scanning") + " ... " + Channel
+        currentTitle = tr("Scanning") + " ... " + Channel
                 + " (" + QString::number((int)(1 * 100 / NUMBEROFCHANNELS)) + "%)";
-        CurrentText = tr("Found channels") + ": " + QString::number(mStationCount);
+        currentText = tr("Found channels") + ": " + QString::number(mStationCount);
 
-        Status = Scanning;
+        dabStatus = Scanning;
 
         // Clear old data
-        CurrentStation = "";
-        CurrentStationType = "";
-        CurrentLanguageType = "";
+        currentStation = "";
+        currentStationType = "";
+        currentLanguageType = "";
 
-        UpdateGUIData();
-        emit ScanProgress(0);
+        updateGUIData();
+        emit scanProgress(0);
     }
 
-    ClearStations();
+    clearStations();
 }
 
-void CRadioController::StopScan(void)
+void CRadioController::stopScan(void)
 {
     qDebug() << "RadioController:" << "Stop channel scan";
 
     isChannelScan = false;
-    CurrentTitle = tr("No Station");
-    CurrentText = "";
+    currentTitle = tr("No Station");
+    currentText = "";
 
-    Status = Stopped;
-    UpdateGUIData();
-    emit ScanStopped();
+    dabStatus = Stopped;
+    updateGUIData();
+    emit scanStopped();
 }
 
-QList<StationElement *> CRadioController::Stations() const
+QList<StationElement *> CRadioController::stations() const
 {
-    return mStationList.getList();
+    return stationList.getList();
 }
 
-QVariantMap CRadioController::GUIData(void) const
+QVariantMap CRadioController::guiData(void) const
 {
     return mGUIData;
 }
 
-void CRadioController::UpdateGUIData()
+void CRadioController::updateGUIData()
 {
     mGUIData["DeviceName"] = device ?
         QString::fromStdString(device->getName()) : "";
 
     // Init the GUI data map
-    mGUIData["Status"] = Status;
-    mGUIData["Channel"] = CurrentChannel;
-    mGUIData["Ensemble"] = CurrentEnsemble.trimmed();
-    mGUIData["Frequency"] = CurrentFrequency;
-    mGUIData["Station"] = CurrentStation;
-    mGUIData["StationType"] = CurrentStationType;
-    mGUIData["Title"] = CurrentTitle.simplified();
-    mGUIData["Text"] = CurrentText;
-    mGUIData["LanguageType"] = CurrentLanguageType;
+    mGUIData["Status"] = dabStatus;
+    mGUIData["Channel"] = currentChannel;
+    mGUIData["Ensemble"] = currentEnsemble.trimmed();
+    mGUIData["Frequency"] = currentFrequency;
+    mGUIData["Station"] = currentStation;
+    mGUIData["StationType"] = currentStationType;
+    mGUIData["Title"] = currentTitle.simplified();
+    mGUIData["Text"] = currentText;
+    mGUIData["LanguageType"] = currentLanguageType;
 
     //qDebug() << "RadioController:" <<  "UpdateGUIData";
-    emit GUIDataChanged(mGUIData);
+    emit guiDataChanged(mGUIData);
 }
 
-QImage CRadioController::MOT() const
+QImage CRadioController::mot() const
 {
     return motImage;
 }
 
-QString CRadioController::ErrorMsg() const
+QString CRadioController::errorMsg() const
 {
     return mErrorMsg;
 }
 
-QString CRadioController::DateTime() const
+QString CRadioController::dateTime() const
 {
     QDateTime LocalTime = mCurrentDateTime.toLocalTime();
     return QLocale().toString(LocalTime, QLocale::ShortFormat);
@@ -554,47 +557,47 @@ bool CRadioController::isDAB() const
     return mIsDAB;
 }
 
-int CRadioController::SNR() const
+int CRadioController::snr() const
 {
     return mSNR;
 }
 
-int CRadioController::FrequencyCorrection() const
+int CRadioController::frequencyCorrection() const
 {
     return mFrequencyCorrection;
 }
 
-float CRadioController::FrequencyCorrectionPpm() const
+float CRadioController::frequencyCorrectionPpm() const
 {
     return mFrequencyCorrectionPpm;
 }
 
-int CRadioController::BitRate() const
+int CRadioController::bitRate() const
 {
     return mBitRate;
 }
 
-int CRadioController::AudioSampleRate() const
+int CRadioController::audioSampleRate() const
 {
     return mAudioSampleRate;
 }
 
-int CRadioController::FrameErrors() const
+int CRadioController::frameErrors() const
 {
     return mFrameErrors;
 }
 
-int CRadioController::RSErrors() const
+int CRadioController::rsErrors() const
 {
     return mRSErrors;
 }
 
-int CRadioController::AACErrors() const
+int CRadioController::aacErrors() const
 {
     return mAACErrors;
 }
 
-int CRadioController::GainCount() const
+int CRadioController::gainCount() const
 {
     return mGainCount;
 }
@@ -604,7 +607,7 @@ bool CRadioController::isHwAGCSupported() const
     return device ? device->isHwAgcSupported() : false;
 }
 
-bool CRadioController::HwAGC() const
+bool CRadioController::hwAgc() const
 {
     return this->isHwAGC;
 }
@@ -617,10 +620,10 @@ void CRadioController::setHwAGC(bool isHwAGC)
         device->setHwAgc(isHwAGC);
         qDebug() << "RadioController:" << (isHwAGC ? "HwAGC on" : "HwAGC off");
     }
-    emit HwAGCChanged(isHwAGC);
+    emit hwAgcChanged(isHwAGC);
 }
 
-bool CRadioController::AGC() const
+bool CRadioController::agc() const
 {
     return this->isAGC;
 }
@@ -633,14 +636,14 @@ void CRadioController::setAGC(bool isAGC)
         device->setAgc(isAGC);
 
         if (!isAGC) {
-            device->setGain(CurrentManualGain);
+            device->setGain(currentManualGain);
             qDebug() << "RadioController:" << "AGC off";
         }
         else {
             qDebug() << "RadioController:" <<  "AGC on";
         }
     }
-    emit AGCChanged(isAGC);
+    emit agcChanged(isAGC);
 }
 
 void CRadioController::disableCoarseCorrector(bool disable)
@@ -679,43 +682,43 @@ void CRadioController::setFreqSyncMethod(int fsm_ix)
 }
 
 
-float CRadioController::GainValue() const
+float CRadioController::gainValue() const
 {
-    return CurrentManualGainValue;
+    return currentManualGainValue;
 }
 
-int CRadioController::Gain() const
+int CRadioController::gain() const
 {
-    return CurrentManualGain;
+    return currentManualGain;
 }
 
 void CRadioController::setGain(int Gain)
 {
-    CurrentManualGain = Gain;
+    currentManualGain = Gain;
 
     if (device) {
-        CurrentManualGainValue = device->setGain(Gain);
+        currentManualGainValue = device->setGain(Gain);
         int32_t mGainCount_tmp = device->getGainCount();
 
         if(mGainCount != mGainCount_tmp) {
             mGainCount = mGainCount_tmp;
-            emit GainCountChanged(mGainCount);
-            UpdateGUIData();
+            emit gainCountChanged(mGainCount);
+            updateGUIData();
         }
     }
     else
     {
-        CurrentManualGainValue = std::numeric_limits<float>::lowest();
+        currentManualGainValue = std::numeric_limits<float>::lowest();
     }
 
-    emit GainValueChanged(CurrentManualGainValue);
-    emit GainChanged(CurrentManualGain);
+    emit gainValueChanged(currentManualGainValue);
+    emit gainChanged(currentManualGain);
 }
 
 void CRadioController::setErrorMessage(QString Text)
 {
-    Status = Error;
-    mGUIData["Status"] = Status;
+    dabStatus = Error;
+    mGUIData["Status"] = dabStatus;
     mErrorMsg = Text;
     emit showErrorMessage(Text);
 }
@@ -739,7 +742,7 @@ void CRadioController::setInfoMessage(QString Text)
  * Private methods  *
  ********************/
 
-void CRadioController::DeviceRestart()
+void CRadioController::deviceRestart()
 {
     bool isPlay = false;
 
@@ -754,7 +757,7 @@ void CRadioController::DeviceRestart()
     }
 }
 
-void CRadioController::DecoderRestart(bool isScan)
+void CRadioController::decoderRestart(bool isScan)
 {
     //	The ofdm processor is "conditioned" to send one signal
     //	per "scanning tour". This signal is either "false"
@@ -766,53 +769,53 @@ void CRadioController::DecoderRestart(bool isScan)
     }
 }
 
-void CRadioController::SetStation(QString Station, bool Force)
+void CRadioController::setStation(QString Station, bool Force)
 {
-    if(CurrentStation != Station || Force == true)
+    if(currentStation != Station || Force == true)
     {
-        CurrentStation = Station;
+        currentStation = Station;
 
         qDebug() << "RadioController: Tune to station" <<  Station;
 
-        CurrentTitle = tr("Tuning") + " ... " + Station;
+        currentTitle = tr("Tuning") + " ... " + Station;
 
         // Wait if we found the station inside the signal
-        StationTimer.start(1000);
+        stationTimer.start(1000);
 
         // Clear old data
-        CurrentStationType = "";
-        CurrentLanguageType = "";
-        CurrentText = "";
+        currentStationType = "";
+        currentLanguageType = "";
+        currentText = "";
 
-        UpdateGUIData();
+        updateGUIData();
 
         // Clear MOT
         motImage.loadFromData(0, 0, Q_NULLPTR);
-        emit MOTChanged(motImage);
+        emit motChanged(motImage);
     }
 }
 
-void CRadioController::NextChannel(bool isWait)
+void CRadioController::nextChannel(bool isWait)
 {
     if (isWait) { // It might be a channel, wait 10 seconds
-        ChannelTimer.start(10000);
+        channelTimer.start(10000);
     }
     else {
         auto Channel = QString::fromStdString(channels.getNextChannel());
 
         if(!Channel.isEmpty()) {
-            SetChannel(Channel, true);
+            setChannel(Channel, true);
 
             int index = channels.getCurrentIndex() + 1;
 
-            CurrentTitle = tr("Scanning") + " ... " + Channel
+            currentTitle = tr("Scanning") + " ... " + Channel
                     + " (" + QString::number((int)(index * 100 / NUMBEROFCHANNELS)) + "%)";
 
-            UpdateGUIData();
-            emit ScanProgress(index);
+            updateGUIData();
+            emit scanProgress(index);
         }
         else {
-            StopScan();
+            stopScan();
         }
     }
 }
@@ -821,16 +824,16 @@ void CRadioController::NextChannel(bool isWait)
  * Controller slots *
  ********************/
 
-void CRadioController::StationTimerTimeout()
+void CRadioController::stationTimerTimeout()
 {
     if (!my_rx)
         return;
 
-    if (StationList.contains(CurrentStation)) {
+    if (stationListStr.contains(currentStation)) {
         const auto services = my_rx->getServiceList();
 
         for (const auto& s : services) {
-            if (s.serviceLabel.utf8_label() == CurrentStation.toStdString()) {
+            if (s.serviceLabel.utf8_label() == currentStation.toStdString()) {
 
                 const auto comps = my_rx->getComponents(s);
                 for (const auto& sc : comps) {
@@ -844,7 +847,7 @@ void CRadioController::StationTimerTimeout()
                         }
 
                         // We found the station inside the signal, lets stop the timer
-                        StationTimer.stop();
+                        stationTimer.stop();
 
                         std::string dumpFileName;
                         if (commandLineOptions["dumpFileName"] != "") {
@@ -856,13 +859,13 @@ void CRadioController::StationTimerTimeout()
                             qDebug() << "Selecting service failed";
                         }
                         else {
-                            CurrentTitle = CurrentStation;
+                            currentTitle = currentStation;
 
-                            CurrentStationType = tr(DABConstants::getProgramTypeName(s.programType));
-                            CurrentLanguageType = tr(DABConstants::getLanguageName(s.language));
+                            currentStationType = tr(DABConstants::getProgramTypeName(s.programType));
+                            currentLanguageType = tr(DABConstants::getLanguageName(s.language));
 
                             mBitRate = subch.bitrate();
-                            emit BitRateChanged(mBitRate);
+                            emit bitRateChanged(mBitRate);
 
                             if (sc.audioType() == AudioServiceComponentType::DABPlus)
                                 mIsDAB = false;
@@ -870,8 +873,8 @@ void CRadioController::StationTimerTimeout()
                                 mIsDAB = true;
                             emit isDABChanged(mIsDAB);
 
-                            Status = Playing;
-                            UpdateGUIData();
+                            dabStatus = Playing;
+                            updateGUIData();
                         }
 
                         return;
@@ -882,15 +885,15 @@ void CRadioController::StationTimerTimeout()
     }
 }
 
-void CRadioController::ChannelTimerTimeout(void)
+void CRadioController::channelTimerTimeout(void)
 {
-    ChannelTimer.stop();
+    channelTimer.stop();
 
     if(isChannelScan)
-        NextChannel(false);
+        nextChannel(false);
 }
 
-void CRadioController::SyncCheckTimerTimeout(void)
+void CRadioController::syncCheckTimerTimeout(void)
 {
     // A better approach is to use the MER since it is not implemented we use the this one
 //    if(!mIsSync ||
@@ -912,7 +915,7 @@ void CRadioController::SyncCheckTimerTimeout(void)
 
 void CRadioController::onServiceDetected(uint32_t SId, const std::string& label)
 {
-    emit EnsembleAdded(SId, QString::fromStdString(label));
+    emit ensembleAdded(SId, QString::fromStdString(label));
 }
 
 void CRadioController::addtoEnsemble(quint32 SId, const QString &Station)
@@ -920,54 +923,54 @@ void CRadioController::addtoEnsemble(quint32 SId, const QString &Station)
     qDebug() << "RadioController: Found station" <<  Station
              << "(" << qPrintable(QString::number(SId, 16).toUpper()) << ")";
 
-    if (startPlayback && StationList.isEmpty()) {
+    if (startPlayback && stationListStr.isEmpty()) {
         qDebug() << "RadioController: Start playback of first station" << Station;
         startPlayback = false;
-        Play(CurrentChannel, Station);
+        play(currentChannel, Station);
     }
 
-    StationList.append(Station);
+    stationListStr.append(Station);
 
-    if (Status == Scanning) {
+    if (dabStatus == Scanning) {
         mStationCount++;
-        CurrentText = tr("Found channels") + ": " + QString::number(mStationCount);
-        UpdateGUIData();
+        currentText = tr("Found channels") + ": " + QString::number(mStationCount);
+        updateGUIData();
     }
 
     //	Add new station into list
-    if (!mStationList.contains(Station, CurrentChannel)) {
-        mStationList.append(Station, CurrentChannel);
+    if (!stationList.contains(Station, currentChannel)) {
+        stationList.append(Station, currentChannel);
 
         //	Sort stations
-        mStationList.sort();
+        stationList.sort();
 
-        emit StationsChanged(mStationList.getList());
-        emit FoundStation(Station, CurrentChannel);
+        emit stationsChanged(stationList.getList());
+        emit foundStation(Station, currentChannel);
 
         // Save the channels
-        mStationList.saveStations();
+        stationList.saveStations();
     }
 }
 
 void CRadioController::onNewEnsembleName(const std::string& name)
 {
-    emit EnsembleNameUpdated(QString::fromStdString(name));
+    emit ensembleNameUpdated(QString::fromStdString(name));
 }
 
 void CRadioController::nameofEnsemble(const QString &Ensemble)
 {
     qDebug() << "RadioController: Name of ensemble:" << Ensemble;
 
-    if (CurrentEnsemble == Ensemble)
+    if (currentEnsemble == Ensemble)
         return;
-    CurrentEnsemble = Ensemble;
-    UpdateGUIData();
+    currentEnsemble = Ensemble;
+    updateGUIData();
 }
 
 
 void CRadioController::onDateTimeUpdate(const dab_date_time_t& dateTime)
 {
-    emit DateTimeUpdated(dateTime);
+    emit dateTimeUpdated(dateTime);
 }
 
 void CRadioController::displayDateTime(const dab_date_time_t& dateTime)
@@ -987,7 +990,7 @@ void CRadioController::displayDateTime(const dab_date_time_t& dateTime)
     mCurrentDateTime.setTimeSpec(Qt::OffsetFromUTC);
 
     QDateTime LocalTime = mCurrentDateTime.toLocalTime();
-    emit DateTimeChanged(QLocale().toString(LocalTime, QLocale::ShortFormat));
+    emit dateTimeChanged(QLocale().toString(LocalTime, QLocale::ShortFormat));
 }
 
 void CRadioController::onFIBDecodeSuccess(bool crcCheckOk, const uint8_t* fib)
@@ -1079,7 +1082,7 @@ DABParams& CRadioController::getDABParams()
 
 int CRadioController::getCurrentFrequency()
 {
-    return CurrentFrequency;
+    return currentFrequency;
 }
 
 void CRadioController::onSNR(int snr)
@@ -1087,7 +1090,7 @@ void CRadioController::onSNR(int snr)
     if (mSNR == snr)
         return;
     mSNR = snr;
-    emit SNRChanged(mSNR);
+    emit snrChanged(mSNR);
 }
 
 void CRadioController::onFrequencyCorrectorChange(int fine, int coarse)
@@ -1095,13 +1098,13 @@ void CRadioController::onFrequencyCorrectorChange(int fine, int coarse)
     if (mFrequencyCorrection == coarse + fine)
         return;
     mFrequencyCorrection = coarse + fine;
-    emit FrequencyCorrectionChanged(mFrequencyCorrection);
+    emit frequencyCorrectionChanged(mFrequencyCorrection);
 
-    if (CurrentFrequency != 0)
-        mFrequencyCorrectionPpm = -1000000.0f * (float)mFrequencyCorrection / (float)CurrentFrequency;
+    if (currentFrequency != 0)
+        mFrequencyCorrectionPpm = -1000000.0f * (float)mFrequencyCorrection / (float)currentFrequency;
     else
         mFrequencyCorrectionPpm = NAN;
-    emit FrequencyCorrectionPpmChanged(mFrequencyCorrectionPpm);
+    emit frequencyCorrectionPpmChanged(mFrequencyCorrectionPpm);
 }
 
 void CRadioController::onSyncChange(char isSync)
@@ -1121,7 +1124,7 @@ void CRadioController::onSignalPresence(bool isSignal)
     }
 
     if (isChannelScan)
-        emit SwitchToNextChannel(isSignal);
+        emit switchToNextChannel(isSignal);
 }
 
 void CRadioController::onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, bool isStereo, const std::string& mode)
@@ -1132,7 +1135,7 @@ void CRadioController::onNewAudio(std::vector<int16_t>&& audioData, int sampleRa
         qDebug() << "RadioController: Audio sample rate" <<  sampleRate << "kHz, mode=" <<
             QString::fromStdString(mode);
         mAudioSampleRate = sampleRate;
-        emit AudioSampleRateChanged(mAudioSampleRate);
+        emit audioSampleRateChanged(mAudioSampleRate);
 
         audio.setRate(sampleRate);
     }
@@ -1148,7 +1151,7 @@ void CRadioController::onFrameErrors(int frameErrors)
     if (mFrameErrors == frameErrors)
         return;
     mFrameErrors = frameErrors;
-    emit FrameErrorsChanged(mFrameErrors);
+    emit frameErrorsChanged(mFrameErrors);
 }
 
 void CRadioController::onRsErrors(int rsErrors)
@@ -1156,7 +1159,7 @@ void CRadioController::onRsErrors(int rsErrors)
     if (mRSErrors == rsErrors)
         return;
     mRSErrors = rsErrors;
-    emit RSErrorsChanged(mRSErrors);
+    emit rsErrorsChanged(mRSErrors);
 }
 
 void CRadioController::onAacErrors(int aacErrors)
@@ -1164,15 +1167,15 @@ void CRadioController::onAacErrors(int aacErrors)
     if (mAACErrors == aacErrors)
         return;
     mAACErrors = aacErrors;
-    emit AACErrorsChanged(mAACErrors);
+    emit aacErrorsChanged(mAACErrors);
 }
 
 void CRadioController::onNewDynamicLabel(const std::string& label)
 {
     auto qlabel = QString::fromUtf8(label.c_str());
-    if (this->CurrentText != qlabel) {
-        this->CurrentText = qlabel;
-        UpdateGUIData();
+    if (this->currentText != qlabel) {
+        this->currentText = qlabel;
+        updateGUIData();
     }
 }
 
@@ -1182,7 +1185,7 @@ void CRadioController::onMOT(const std::vector<uint8_t>& Data, int subtype)
 
     motImage.loadFromData(qdata, subtype == 0 ? "GIF" : subtype == 1 ? "JPEG" : subtype == 2 ? "BMP" : "PNG");
 
-    emit MOTChanged(motImage);
+    emit motChanged(motImage);
 }
 
 void CRadioController::onPADLengthError(size_t announced_xpad_len, size_t xpad_len)

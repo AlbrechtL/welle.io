@@ -104,9 +104,9 @@ ApplicationWindow {
             mainWindow.height = getHeight()
         }
 
-        if (radioController.GUIData.Status === -1) {
-            console.debug("error: " + radioController.ErrorMsg)
-            errorMessagePopup.text = radioController.ErrorMsg
+        if (radioController.guiData.Status === -1) {
+            console.debug("error: " + radioController.errorMsg)
+            errorMessagePopup.text = radioController.errorMsg
             errorMessagePopup.open()
         }
 
@@ -240,7 +240,7 @@ ApplicationWindow {
                           onTriggered:  {
                               startStationScanItem.enabled = false
                               stopStationScanItem.enabled = true
-                              guiHelper.startChannelScanClick()
+                              radioController.startScan()
                           }
                       }
 
@@ -253,7 +253,7 @@ ApplicationWindow {
                           onTriggered:  {
                               startStationScanItem.enabled = true
                               stopStationScanItem.enabled = false
-                              guiHelper.stopChannelScanClick()
+                              radioController.stopScan()
                           }
                       }
 
@@ -287,7 +287,7 @@ ApplicationWindow {
                    onClicked: {
                        if(modelData.channelName !== "") {
                            mainWindow.stationClicked()
-                           guiHelper.channelClick(modelData.stationName, modelData.channelName)
+                           radioController.play(modelData.channelName, modelData.stationName)
                        }
                    }
                }
@@ -325,7 +325,7 @@ ApplicationWindow {
                     Layout.preferredHeight: Units.dp(25)
                     Layout.preferredWidth: Units.dp(130)
                     onActivated: {
-                        guiHelper.setManualChannel(model[index])
+                        radioController.setManualChannel(model[index])
                     }
                 }
             }
@@ -529,6 +529,16 @@ ApplicationWindow {
             infoMessagePopup.text = Text;
             infoMessagePopup.open();
         }
+
+        onScanStopped:{
+            startStationScanItem.enabled = true
+            stopStationScanItem.enabled = false
+        }
+
+        onScanProgress:{
+            startStationScanItem.enabled = false
+            stopStationScanItem.enabled = true
+        }
     }
 
     Connections {
@@ -539,16 +549,6 @@ ApplicationWindow {
         onRestoreWindow: {
             showNormal()
             raise() // Stay in foreground
-        }
-
-        onChannelScanStopped:{
-            startStationScanItem.enabled = true
-            stopStationScanItem.enabled = false
-        }
-
-        onChannelScanProgress:{
-            startStationScanItem.enabled = false
-            stopStationScanItem.enabled = true
         }
     }
 

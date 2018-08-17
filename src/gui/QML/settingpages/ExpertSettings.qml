@@ -101,7 +101,7 @@ Item {
                 text: qsTr("Disable coarse corrector (for receivers with <1kHz error)")
                 checked: true
                 onCheckedChanged: {
-                    guiHelper.inputDisableCoarseCorrector(checked)
+                    radioController.disableCoarseCorrector(checked)
                 }
             }
 
@@ -113,7 +113,7 @@ Item {
                     font.family: TextStyle.textFont
                     model: [ "GetMiddle", "CorrelatePRS", "PatternOfZeros" ];
                     onCurrentIndexChanged: {
-                        guiHelper.inputSetFreqSyncMethod(currentIndex)
+                        radioController.setFreqSyncMethod(currentIndex)
                     }
                 }
 
@@ -127,7 +127,7 @@ Item {
                 text: qsTr("Enable TII decoding to console log (increases CPU usage)")
                 checked: false
                 onCheckedChanged: {
-                    guiHelper.inputEnableTIIDecode(checked)
+                    radioController.enableTIIDecode(checked)
                 }
             }
 
@@ -136,7 +136,7 @@ Item {
                 text: qsTr("Select old FFT placement algorithm (experimental)")
                 checked: false
                 onCheckedChanged: {
-                    guiHelper.inputEnableOldFFTWindowPlacement(checked)
+                    radioController.enableOldFFTWindowPlacement(checked)
                 }
             }
         }

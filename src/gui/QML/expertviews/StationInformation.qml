@@ -25,27 +25,27 @@ Item {
 
         TextExpert {
             name: qsTr("Frequency correction") + ":"
-            text: radioController.FrequencyCorrection + " Hz (" + (guiHelper.guiData.Frequency > 0 ? radioController.FrequencyCorrectionPpm.toFixed(2) : "N/A") + " ppm)"
+            text: radioController.frequencyCorrection + " Hz (" + (guiHelper.guiData.Frequency > 0 ? radioController.frequencyCorrectionPpm.toFixed(2) : "N/A") + " ppm)"
         }
 
         TextExpert {
             name: qsTr("SNR") + ":"
-            text: radioController.SNR + " dB"
+            text: radioController.snr + " dB"
         }
 
         TextExpert {
             name: qsTr("Frame errors") + ":"
-            text: radioController.FrameErrors
+            text: radioController.frameErrors
         }
 
         TextExpert {
             name: qsTr("RS errors") + ":"
-            text: radioController.RSErrors
+            text: radioController.rsErrors
         }
 
         TextExpert {
             name: qsTr("AAC errors") + ":"
-            text: radioController.AACErrors
+            text: radioController.aacErrors
         }
 
         TextExpert {
@@ -60,7 +60,7 @@ Item {
 
         TextExpert {
             name: qsTr("DAB date and time") + ":"
-            text: radioController.DateTime
+            text: radioController.dateTime
         }
     }
 }

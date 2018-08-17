@@ -33,7 +33,7 @@ Item {
             text: qsTr("Clear station list")
             font.pixelSize: TextStyle.textStandartSize
             font.family: TextStyle.textFont
-            onClicked: guiHelper.clearStationList()
+            onClicked: radioController.clearStations()
         }
     }
 }

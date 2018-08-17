@@ -64,31 +64,31 @@ class CRadioController :
     public ProgrammeHandlerInterface
 {
     Q_OBJECT
-    Q_PROPERTY(QString DateTime READ DateTime NOTIFY DateTimeChanged)
+    Q_PROPERTY(QString dateTime READ dateTime NOTIFY dateTimeChanged)
     Q_PROPERTY(bool isSync READ isSync NOTIFY isSyncChanged)
     Q_PROPERTY(bool isFICCRC READ isFICCRC NOTIFY isFICCRCChanged)
     Q_PROPERTY(bool isSignal READ isSignal NOTIFY isSignalChanged)
     Q_PROPERTY(bool isStereo READ isStereo NOTIFY isStereoChanged)
     Q_PROPERTY(bool isDAB READ isDAB NOTIFY isDABChanged)
-    Q_PROPERTY(int SNR READ SNR NOTIFY SNRChanged)
-    Q_PROPERTY(int FrequencyCorrection READ FrequencyCorrection NOTIFY FrequencyCorrectionChanged)
-    Q_PROPERTY(float FrequencyCorrectionPpm READ FrequencyCorrectionPpm NOTIFY FrequencyCorrectionPpmChanged)
-    Q_PROPERTY(int BitRate READ BitRate NOTIFY BitRateChanged)
-    Q_PROPERTY(int AudioSampleRate READ AudioSampleRate NOTIFY AudioSampleRateChanged)
-    Q_PROPERTY(int FrameErrors READ FrameErrors NOTIFY FrameErrorsChanged)
-    Q_PROPERTY(int RSErrors READ RSErrors NOTIFY RSErrorsChanged)
-    Q_PROPERTY(int AACErrors READ AACErrors NOTIFY AACErrorsChanged)
+    Q_PROPERTY(int snr READ snr NOTIFY snrChanged)
+    Q_PROPERTY(int frequencyCorrection READ frequencyCorrection NOTIFY frequencyCorrectionChanged)
+    Q_PROPERTY(float frequencyCorrectionPpm READ frequencyCorrectionPpm NOTIFY frequencyCorrectionPpmChanged)
+    Q_PROPERTY(int bitRate READ bitRate NOTIFY bitRateChanged)
+    Q_PROPERTY(int audioSampleRate READ audioSampleRate NOTIFY audioSampleRateChanged)
+    Q_PROPERTY(int frameErrors READ frameErrors NOTIFY frameErrorsChanged)
+    Q_PROPERTY(int rsErrors READ rsErrors NOTIFY rsErrorsChanged)
+    Q_PROPERTY(int aacErrors READ aacErrors NOTIFY aacErrorsChanged)
     Q_PROPERTY(bool isHwAGCSupported READ isHwAGCSupported NOTIFY isHwAGCSupportedChanged)
-    Q_PROPERTY(bool HwAGC READ HwAGC WRITE setHwAGC NOTIFY HwAGCChanged)
-    Q_PROPERTY(bool AGC READ AGC WRITE setAGC NOTIFY AGCChanged)
-    Q_PROPERTY(float GainValue READ GainValue NOTIFY GainValueChanged)
-    Q_PROPERTY(int GainCount READ GainCount NOTIFY GainCountChanged)
-    Q_PROPERTY(int Gain READ Gain WRITE setGain NOTIFY GainChanged)
-    Q_PROPERTY(qreal Volume READ Volume WRITE setVolume NOTIFY VolumeChanged)
-    Q_PROPERTY(QList<StationElement*> Stations READ Stations NOTIFY StationsChanged)
-    Q_PROPERTY(QVariantMap GUIData READ GUIData NOTIFY GUIDataChanged)
-    Q_PROPERTY(QString ErrorMsg READ ErrorMsg NOTIFY showErrorMessage)
-    Q_PROPERTY(QImage MOT READ MOT NOTIFY MOTChanged)
+    Q_PROPERTY(bool hwAgc READ hwAgc WRITE setHwAGC NOTIFY hwAgcChanged)
+    Q_PROPERTY(bool agc READ agc WRITE setAGC NOTIFY agcChanged)
+    Q_PROPERTY(float gainValue READ gainValue NOTIFY gainValueChanged)
+    Q_PROPERTY(int gainCount READ gainCount NOTIFY gainCountChanged)
+    Q_PROPERTY(int gain READ gain WRITE setGain NOTIFY gainChanged)
+    Q_PROPERTY(qreal volume READ volume WRITE setVolume NOTIFY volumeChanged)
+    Q_PROPERTY(QList<StationElement*> stations READ stations NOTIFY stationsChanged)
+    Q_PROPERTY(QVariantMap guiData READ guiData NOTIFY guiDataChanged)
+    Q_PROPERTY(QString errorMsg READ errorMsg NOTIFY showErrorMessage)
+    Q_PROPERTY(QImage mot READ mot NOTIFY motChanged)
 #endif
 
 public:
@@ -106,56 +106,32 @@ public:
     CRadioController(QVariantMap &commandLineOptions, DABParams& params, QObject* parent = NULL);
     void closeDevice();
     void openDevice(CVirtualInput* new_device);
-    void Play(QString Channel, QString Station);
-    void Pause();
-    void Stop();
-    void ClearStations();
-    void SetStation(QString Station, bool Force = false);
-    void SetChannel(QString Channel, bool isScan, bool Force = false);
-    void SetManualChannel(QString Channel);
-    void StartScan(void);
-    void StopScan(void);
-    void setAutoPlay(QString Channel, QString Station);
-    QList<StationElement*> Stations() const;
-    QVariantMap GUIData(void) const;
-    QString ErrorMsg() const;
-    QImage MOT() const;
+    Q_INVOKABLE void play(QString Channel, QString Station);
+    void pause();
+    void stop();
+    Q_INVOKABLE void clearStations();
+    void setStation(QString Station, bool Force = false);
+    void setChannel(QString Channel, bool isScan, bool Force = false);
+    Q_INVOKABLE void setManualChannel(QString Channel);
+    Q_INVOKABLE void startScan(void);
+    Q_INVOKABLE void stopScan(void);
+    void setAutoPlay(QString Channel, QString Station);    
+    void setVolume(qreal volume);
+    Q_INVOKABLE void setAGC(bool isAGC);
+    Q_INVOKABLE void setHwAGC(bool isHwAGC);
+    Q_INVOKABLE void disableCoarseCorrector(bool disable);
+    Q_INVOKABLE void enableTIIDecode(bool enable);
+    Q_INVOKABLE void enableOldFFTWindowPlacement(bool old);
+    Q_INVOKABLE void setFreqSyncMethod(int fsm_ix);
+    void setGain(int gain);
+    DABParams& getDABParams(void);
+    int getCurrentFrequency();
 
-    QString DateTime() const;
-    bool isSync() const;
-    bool isFICCRC() const;
-    bool isSignal() const;
-    bool isStereo() const;
-    bool isDAB() const;
-    int SNR() const;
-    int FrequencyCorrection() const;
-    float FrequencyCorrectionPpm() const;
-    int BitRate() const;
-    int AudioSampleRate() const;
-    int FrameErrors() const;
-    int RSErrors() const;
-    int AACErrors() const;
-
-    qreal Volume() const;
-    void setVolume(qreal Volume);
-
-    bool isHwAGCSupported() const;
-    bool HwAGC() const;
-    void setHwAGC(bool isHwAGC);
-
-    bool AGC() const;
-    void setAGC(bool isAGC);
-
-    void disableCoarseCorrector(bool disable);
-    void enableTIIDecode(bool enable);
-    void enableOldFFTWindowPlacement(bool old);
-    void setFreqSyncMethod(int fsm_ix);
-
-    int Gain() const;
-    void setGain(int Gain);
-
-    int GainCount() const;
-    float GainValue() const;
+    // Buffer getter
+    std::vector<float> getImpulseResponse(void);
+    std::vector<DSPCOMPLEX> getSignalProbe(void);
+    std::vector<DSPCOMPLEX> getNullSymbol(void);
+    std::vector<DSPCOMPLEX> getConstellationPoint(void);
 
     //called from the backend
     virtual void onFrameErrors(int frameErrors) override;
@@ -179,21 +155,38 @@ public:
     virtual void onTIIMeasurement(tii_measurement_t&& m) override;
     virtual void onMessage(message_level_t level, const std::string& text) override;
 
-    // Buffer getter
-    std::vector<float> getImpulseResponse(void);
-    std::vector<DSPCOMPLEX> getSignalProbe(void);
-    std::vector<DSPCOMPLEX> getNullSymbol(void);
-    std::vector<DSPCOMPLEX> getConstellationPoint(void);
-
-    DABParams& getDABParams(void);
-    int getCurrentFrequency();
+    QList<StationElement*> stations() const;
+    QVariantMap guiData(void) const;
+    QString errorMsg() const;
+    QImage mot() const;
+    QString dateTime() const;
+    bool isSync() const;
+    bool isFICCRC() const;
+    bool isSignal() const;
+    bool isStereo() const;
+    bool isDAB() const;
+    int snr() const;
+    int frequencyCorrection() const;
+    float frequencyCorrectionPpm() const;
+    int bitRate() const;
+    int audioSampleRate() const;
+    int frameErrors() const;
+    int rsErrors() const;
+    int aacErrors() const;
+    qreal volume() const;
+    bool isHwAGCSupported() const;
+    bool hwAgc() const;
+    bool agc() const;
+    int gain() const;
+    int gainCount() const;
+    float gainValue() const;
 
 private:
-    void Initialise(void);
-    void ResetTechnicalData(void);
-    void DeviceRestart(void);
-    void DecoderRestart(bool isScan);
-    void UpdateGUIData();
+    void initialise(void);
+    void resetTechnicalData(void);
+    void deviceRestart(void);
+    void decoderRestart(bool isScan);
+    void updateGUIData();
 
     // Back-end objects
     std::shared_ptr<CVirtualInput> device;
@@ -212,7 +205,6 @@ private:
     std::mutex constellationPointBufferMutex;
     std::vector<DSPCOMPLEX> constellationPointBuffer;
 
-    // Objects set by the back-end
     QVariantMap mGUIData;
     QString mErrorMsg;
     QDateTime mCurrentDateTime;
@@ -231,30 +223,27 @@ private:
     int mAACErrors;
     int mGainCount;
     int mStationCount;
-
     QImage motImage;
 
-    // Controller objects
-    DabStatus Status;
-    QString CurrentChannel;
-    QString CurrentEnsemble;
-    int32_t CurrentFrequency;
-    QString CurrentStation;
-    QString CurrentStationType;
-    QString CurrentLanguageType;
-    QString CurrentTitle;
-    QString CurrentText;
-    int32_t CurrentManualGain;
-    float CurrentManualGainValue;
-    qreal CurrentVolume;
+    DabStatus dabStatus;
+    QString currentChannel;
+    QString currentEnsemble;
+    int32_t currentFrequency;
+    QString currentStation;
+    QString currentStationType;
+    QString currentLanguageType;
+    QString currentTitle;
+    QString currentText;
+    int32_t currentManualGain;
+    float currentManualGainValue;
+    qreal currentVolume;
 
-    CStationList mStationList;
-    QList<QString> StationList;
-    QTimer StationTimer;
-    QTimer ChannelTimer;
-    QTimer SyncCheckTimer;
+    CStationList stationList;
+    QList<QString> stationListStr;
+    QTimer stationTimer;
+    QTimer channelTimer;
+    QTimer syncCheckTimer;
 
-    // Handling variables
     bool startPlayback;
     bool isChannelScan;
     bool isAGC;
@@ -264,53 +253,53 @@ private:
     QString autoStation;
 
 private slots:
-    void StationTimerTimeout(void);
-    void ChannelTimerTimeout(void);
-    void SyncCheckTimerTimeout(void);
-    void NextChannel(bool isWait);
+    void stationTimerTimeout(void);
+    void channelTimerTimeout(void);
+    void syncCheckTimerTimeout(void);
+    void nextChannel(bool isWait);
     void addtoEnsemble(quint32 SId, const QString &Station);
     void displayDateTime(const dab_date_time_t& dateTime);
 
 signals:
-    void SwitchToNextChannel(bool isWait);
-    void EnsembleAdded(quint32 SId, const QString& station);
-    void EnsembleNameUpdated(const QString& name);
-    void DateTimeUpdated(const dab_date_time_t& dateTime);
+    void switchToNextChannel(bool isWait);
+    void ensembleAdded(quint32 SId, const QString& station);
+    void ensembleNameUpdated(const QString& name);
+    void dateTimeUpdated(const dab_date_time_t& dateTime);
 
 #ifndef Q_OS_ANDROID
 signals:
-    void DateTimeChanged(QString);
+    void dateTimeChanged(QString);
     void isSyncChanged(bool);
     void isFICCRCChanged(bool);
     void isSignalChanged(bool);
     void isStereoChanged(bool);
     void isDABChanged(bool);
-    void SNRChanged(int);
-    void FrequencyCorrectionChanged(int);
-    void FrequencyCorrectionPpmChanged(float);
-    void BitRateChanged(int);
-    void AudioSampleRateChanged(int);
-    void FrameErrorsChanged(int);
-    void RSErrorsChanged(int);
-    void AACErrorsChanged(int);
-    void GainCountChanged(int);
+    void snrChanged(int);
+    void frequencyCorrectionChanged(int);
+    void frequencyCorrectionPpmChanged(float);
+    void bitRateChanged(int);
+    void audioSampleRateChanged(int);
+    void frameErrorsChanged(int);
+    void rsErrorsChanged(int);
+    void aacErrorsChanged(int);
+    void gainCountChanged(int);
 
     void isHwAGCSupportedChanged(bool);
-    void HwAGCChanged(bool);
-    void AGCChanged(bool);
-    void GainValueChanged(float);
-    void GainChanged(int);
-    void VolumeChanged(qreal);
-    void MOTChanged(QImage MOTImage);
+    void hwAgcChanged(bool);
+    void agcChanged(bool);
+    void gainValueChanged(float);
+    void gainChanged(int);
+    void volumeChanged(qreal);
+    void motChanged(QImage MOTImage);
 
-    void StationsChanged(QList<StationElement*> Stations);
-    void GUIDataChanged(QVariantMap GUIData);
-    void DeviceReady();
-    void DeviceClosed();
-    void StationsCleared();
-    void FoundStation(QString Station, QString CurrentChannel);
-    void ScanStopped();
-    void ScanProgress(int Progress);
+    void stationsChanged(QList<StationElement*> stations);
+    void guiDataChanged(QVariantMap guiData);
+    void deviceReady();
+    void deviceClosed();
+    void stationsCleared();
+    void foundStation(QString Station, QString currentChannel);
+    void scanStopped();
+    void scanProgress(int Progress);
     void showErrorMessage(QString Text);
     void showInfoMessage(QString Text);
 #endif

@@ -16,7 +16,7 @@ Item {
     }
 
     Component.onCompleted: {
-        guiHelper.inputEnableHwAGCChanged(enableHwAGC.checked)
+        radioController.setHwAGC(enableHwAGC.checked)
     }
 
     ColumnLayout{
@@ -35,7 +35,7 @@ Item {
                 id: enableHwAGC
                 text: qsTr("Hardware RF gain (not tested)")
                 onClicked: {
-                    guiHelper.inputEnableHwAGCChanged(checked)
+                    radioController.setHwAGC(enableHwAGC.checked)
                 }
             }
         }

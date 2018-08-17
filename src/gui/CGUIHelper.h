@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2017
+ *    Copyright (C) 2018
  *    Albrecht Lohofener (albrechtloh@gmx.de)
  *
  *    This file is based on SDR-J
@@ -27,28 +27,26 @@
  *
  */
 
-#ifndef _GUI
-#define _GUI
+#ifndef GUIHELPER_H
+#define GUIHELPER_H
 
 #include <QQmlContext>
 #include <QTimer>
 #include <QQmlApplicationEngine>
+#include <QtCharts>
 
 #ifndef QT_NO_SYSTEMTRAYICON
     #include <QSystemTrayIcon>
 #endif
 
-//#include <QList>
-#include <QtCharts>
-using namespace QtCharts;
-
-#ifdef Q_OS_ANDROID
-#include "rep_CRadioController_replica.h"
-#else
-#include "CRadioController.h"
-#endif
 #include "CMOTImageProvider.h"
 #include "dab-constants.h"
+
+#ifdef Q_OS_ANDROID
+    #include "rep_CRadioController_replica.h"
+#else
+    #include "CRadioController.h"
+#endif
 
 /*
  *	GThe main gui object. It inherits from
@@ -63,27 +61,16 @@ class CGUIHelper : public QObject
     Q_PROPERTY(QVariant licenses READ licenses CONSTANT)
 
 public:
-    static QTranslator* AddTranslator(QString Language,
-                                      QTranslator *OldTranslator = NULL);
+    static QTranslator* addTranslator(QString Language,
+                                      QTranslator *OldTranslator = nullptr);
 
 #ifdef Q_OS_ANDROID
     CGUI(CRadioControllerReplica *RadioController, QObject* parent = NULL);
 #else
-    CGUIHelper(CRadioController *RadioController, QObject* parent = NULL);
+    CGUIHelper(CRadioController *radioController, QObject* parent = nullptr);
 #endif
     ~CGUIHelper();
-    Q_INVOKABLE void channelClick(QString StationName, QString ChannelName);
-    Q_INVOKABLE void setManualChannel(QString ChannelName);
-    Q_INVOKABLE void startChannelScanClick(void);
-    Q_INVOKABLE void stopChannelScanClick(void);
-    Q_INVOKABLE void inputEnableAGCChanged(bool checked);
-    Q_INVOKABLE void inputDisableCoarseCorrector(bool checked);
-    Q_INVOKABLE void inputEnableTIIDecode(bool checked);
-    Q_INVOKABLE void inputEnableOldFFTWindowPlacement(bool checked);
-    Q_INVOKABLE void inputSetFreqSyncMethod(int fsm_ix);
-    Q_INVOKABLE void inputEnableHwAGCChanged(bool checked);
     Q_INVOKABLE void inputGainChanged(double gain);
-    Q_INVOKABLE void clearStationList(void);
     Q_INVOKABLE void registerSpectrumSeries(QAbstractSeries* series);
     Q_INVOKABLE void registerImpulseResonseSeries(QAbstractSeries* series);
     Q_INVOKABLE void registerNullSymbolSeries(QAbstractSeries* series);
@@ -96,7 +83,7 @@ public:
 
     QVariantMap guiData() const
     {
-        return RadioController->GUIData();
+        return radioController->guiData();
     }
 
     QVariant stationModel() const
@@ -106,13 +93,13 @@ public:
 
     void setNewDebugOutput(QString text);
 
-    CMOTImageProvider* MOTImage; // ToDo: Must be a getter
+    CMOTImageProvider* motImage; // ToDo: Must be a getter
 
 private:
 #ifdef Q_OS_ANDROID
-    CRadioControllerReplica *RadioController;
+    CRadioControllerReplica *radioController;
 #else
-    CRadioController *RadioController;
+    CRadioController *radioController;
 #endif
 
     QXYSeries* spectrumSeries;
@@ -150,28 +137,22 @@ private slots:
 #ifdef Q_OS_ANDROID
     void stateChanged(QRemoteObjectReplica::State state, QRemoteObjectReplica::State oldState);
 #endif
-    void DeviceClosed();
-    void MOTUpdate(QImage MOTImage);
-    void StationsChange(QList<StationElement *> Stations);
+    void deviceClosed();
+    void motUpdate(QImage motImage);
+    void stationsChange(QList<StationElement *> Stations);
     void showErrorMessage(QString Text);
     void showInfoMessage(QString Text);
 
 signals:
-    void channelScanStopped(void);
-    void channelScanProgress(int progress);
     void foundChannelCount(int channelCount);
-
     void currentGainValueChanged();
-
     void setSpectrumAxis(qreal Ymax, qreal Xmin, qreal Xmax);
     void setImpulseResponseAxis(qreal Ymax, qreal Xmin, qreal Xmax);
     void setNullSymbolAxis(qreal Ymax, qreal Xmin, qreal Xmax);
     void setConstellationAxis(qreal Xmin, qreal Xmax);
-
     void guiDataChanged(QVariantMap guiData);
     void stationModelChanged();
     void motChanged(void);
-
     void newDebugOutput(QString text);
 
 #ifndef QT_NO_SYSTEMTRAYICON
@@ -181,4 +162,4 @@ signals:
 #endif
 };
 
-#endif
+#endif // GUIHELPER_H

@@ -36,32 +36,32 @@ Item{
                 id: signalBar1
                 height: Units.dp(4)
                 width: Units.dp(4)
-                color: (radioController.SNR > 2) ? "green" : "grey"
+                color: (radioController.snr > 2) ? "green" : "grey"
             }
             Rectangle{
                 id: signalBar2
                 height: Units.dp(8)
                 width: Units.dp(4)
-                color: (radioController.SNR > 5) ? "green" : "grey"
+                color: (radioController.snr > 5) ? "green" : "grey"
             }
             Rectangle{
                 id: signalBar3
                 height: Units.dp(12)
                 width: Units.dp(4)
-                color: (radioController.SNR > 8) ? "green" : "grey"
+                color: (radioController.snr > 8) ? "green" : "grey"
             }
             Rectangle{
                 id: signalBar4
                 height: Units.dp(16)
                 width: Units.dp(4)
-                color: (radioController.SNR > 11) ? "green" : "grey"
+                color: (radioController.snr > 11) ? "green" : "grey"
             }
 
             Rectangle{
                 id: signalBar5
                 height: Units.dp(20)
                 width: Units.dp(4)
-                color: (radioController.SNR > 15) ? "green" : "grey"
+                color: (radioController.snr > 15) ? "green" : "grey"
             }
         }
 
@@ -90,7 +90,7 @@ Item{
                 id: frameSucess
                 height: Units.dp(16)
                 width: Units.dp(16)
-                color: (radioController.FrameErrors === 0
+                color: (radioController.frameErrors === 0
                         && radioController.isSync
                         && radioController.isFICCRC) ? "green" : "red"
             }
@@ -143,7 +143,7 @@ Item{
             visible: stationInfo.visible
             Layout.alignment: Qt.AlignRight
             Layout.rightMargin: Units.dp(5)
-            text: radioController.BitRate + " kbps, "
+            text: radioController.bitRate + " kbps, "
                   + (radioController.isStereo ? "Stereo" : "Mono")
                   + (radioController.isDAB ? ", DAB" : ", DAB+")
         }

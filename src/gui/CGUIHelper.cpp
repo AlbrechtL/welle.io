@@ -50,32 +50,27 @@ CGUI::CGUI(CRadioControllerReplica *RadioController, QObject *parent)
 CGUIHelper::CGUIHelper(CRadioController *RadioController, QObject *parent)
 #endif
     : QObject(parent)
-    , RadioController(RadioController)
+    , radioController(RadioController)
     , spectrumSeries(NULL)
     , impulseResponseSeries(NULL)
 {
     m_currentGainValue = 0;
 
-    StationsChange(RadioController->Stations());
+    stationsChange(RadioController->stations());
 
     // Add image provider for the MOT slide show
-    MOTImage = new CMOTImageProvider;
+    motImage = new CMOTImageProvider;
 
 #ifdef Q_OS_ANDROID
     connect(RadioController, &CRadioControllerReplica::stateChanged, this, &CGUI::stateChanged);
-    connect(RadioController, &CRadioControllerReplica::DeviceClosed, this, &CGUI::DeviceClosed);
-    connect(RadioController, &CRadioControllerReplica::GUIDataChanged, this, &CGUI::guiDataChanged);
-    connect(RadioController, &CRadioControllerReplica::MOTChanged, this, &CGUI::MOTUpdate);
-    connect(RadioController, &CRadioControllerReplica::SpectrumUpdated, this, &CGUI::SpectrumUpdate);
-    connect(RadioController, &CRadioControllerReplica::StationsChanged, this, &CGUI::StationsChange);
-    connect(RadioController, &CRadioControllerReplica::ScanStopped, this, &CGUI::channelScanStopped);
-    connect(RadioController, &CRadioControllerReplica::ScanProgress, this, &CGUI::channelScanProgress);
+    connect(RadioController, &CRadioControllerReplica::deviceClosed, this, &CGUI::deviceClosed);
+    connect(RadioController, &CRadioControllerReplica::guiDataChanged, this, &CGUI::guiDataChanged);
+    connect(RadioController, &CRadioControllerReplica::motChanged, this, &CGUI::motUpdate);
+    connect(RadioController, &CRadioControllerReplica::stationsChanged, this, &CGUI::stationsChange);
 #else
-    connect(RadioController, &CRadioController::GUIDataChanged, this, &CGUIHelper::guiDataChanged);
-    connect(RadioController, &CRadioController::MOTChanged, this, &CGUIHelper::MOTUpdate);
-    connect(RadioController, &CRadioController::StationsChanged, this, &CGUIHelper::StationsChange);
-    connect(RadioController, &CRadioController::ScanStopped, this, &CGUIHelper::channelScanStopped);
-    connect(RadioController, &CRadioController::ScanProgress, this, &CGUIHelper::channelScanProgress);
+    connect(RadioController, &CRadioController::guiDataChanged, this, &CGUIHelper::guiDataChanged);
+    connect(RadioController, &CRadioController::motChanged, this, &CGUIHelper::motUpdate);
+    connect(RadioController, &CRadioController::stationsChanged, this, &CGUIHelper::stationsChange);
     connect(RadioController, &CRadioController::showErrorMessage, this, &CGUIHelper::showErrorMessage);
     connect(RadioController, &CRadioController::showInfoMessage, this, &CGUIHelper::showInfoMessage);
 #endif
@@ -140,7 +135,7 @@ void CGUI::stateChanged(QRemoteObjectReplica::State state, QRemoteObjectReplica:
 }
 #endif
 
-void CGUIHelper::DeviceClosed()
+void CGUIHelper::deviceClosed()
 {
 #ifdef Q_OS_ANDROID
     qDebug() << "GUI:" <<  "device closed => closing application";
@@ -227,29 +222,17 @@ const QVariantMap CGUIHelper::licenses()
     return ret;
 }
 
-void CGUIHelper::startChannelScanClick(void)
-{
-    if(RadioController)
-        RadioController->StartScan();
-}
-
-void CGUIHelper::stopChannelScanClick(void)
-{
-    if(RadioController)
-        RadioController->StopScan();
-}
-
-void CGUIHelper::MOTUpdate(QImage MOTImage)
+void CGUIHelper::motUpdate(QImage MOTImage)
 {
     if (MOTImage.isNull()) {
         MOTImage = QImage(320, 240, QImage::Format_Alpha8);
         MOTImage.fill(Qt::transparent);
     }
-    this->MOTImage->setPixmap(QPixmap::fromImage(MOTImage));
+    this->motImage->setPixmap(QPixmap::fromImage(MOTImage));
     emit motChanged();
 }
 
-void CGUIHelper::StationsChange(QList<StationElement*> Stations)
+void CGUIHelper::stationsChange(QList<StationElement*> Stations)
 {
     //qDebug() << "CGUI:" <<  "StationsChange";
     QList<QObject*> *stationList = reinterpret_cast<QList<QObject*>*>(&Stations);
@@ -277,73 +260,17 @@ void CGUIHelper::showInfoMessage(QString Text)
 #endif
 }
 
-void CGUIHelper::channelClick(QString StationName, QString ChannelName)
-{
-    if(RadioController && ChannelName != "")
-        RadioController->Play(ChannelName, StationName);
-}
-
-void CGUIHelper::setManualChannel(QString ChannelName)
-{
-    if(RadioController)
-        RadioController->SetManualChannel(ChannelName);
-}
-
-void CGUIHelper::inputEnableAGCChanged(bool checked)
-{
-    if(RadioController)
-        RadioController->setAGC(checked);
-}
-
-void CGUIHelper::inputDisableCoarseCorrector(bool checked)
-{
-    if(RadioController)
-        RadioController->disableCoarseCorrector(checked);
-}
-
-void CGUIHelper::inputEnableTIIDecode(bool checked)
-{
-    if(RadioController)
-        RadioController->enableTIIDecode(checked);
-}
-
-void CGUIHelper::inputEnableOldFFTWindowPlacement(bool checked)
-{
-    if(RadioController)
-        RadioController->enableOldFFTWindowPlacement(checked);
-}
-
-void CGUIHelper::inputSetFreqSyncMethod(int fsm_ix)
-{
-    if(RadioController)
-        RadioController->setFreqSyncMethod(fsm_ix);
-}
-
-void CGUIHelper::inputEnableHwAGCChanged(bool checked)
-{
-    if(RadioController)
-        RadioController->setHwAGC(checked);
-}
-
 void CGUIHelper::inputGainChanged(double gain)
 {
-    if(RadioController)
+    if(radioController)
     {
-        RadioController->setGain((int) gain);
-        float currentGainValue = RadioController->GainValue();
+        radioController->setGain((int) gain);
+        float currentGainValue = radioController->gainValue();
         if(currentGainValue > std::numeric_limits<float>::lowest())
         {
             m_currentGainValue = currentGainValue;
             emit currentGainValueChanged();
         }
-    }
-}
-
-void CGUIHelper::clearStationList()
-{
-    if(RadioController)
-    {
-        RadioController->ClearStations();
     }
 }
 
@@ -382,7 +309,7 @@ void CGUIHelper::tryHideWindow()
 void CGUIHelper::updateSpectrum()
 {
     std::vector<DSPCOMPLEX> signalProbeBuffer;
-    int T_u = RadioController->getDABParams().T_u;
+    int T_u = radioController->getDABParams().T_u;
 
     qreal y = 0;
     qreal x = 0;
@@ -391,11 +318,11 @@ void CGUIHelper::updateSpectrum()
     qreal x_max = 0;
 
     qreal tunedFrequency_MHz = 0;
-    qreal CurrentFrequency = RadioController->getCurrentFrequency();
+    qreal CurrentFrequency = radioController->getCurrentFrequency();
     qreal sampleFrequency_MHz = INPUT_RATE / 1e6;
     qreal dip_MHz = sampleFrequency_MHz / T_u;
 
-    signalProbeBuffer = RadioController->getSignalProbe();
+    signalProbeBuffer = radioController->getSignalProbe();
 
     if (signalProbeBuffer.size() == (size_t)T_u) {
         spectrumSeriesData.resize(T_u);
@@ -449,13 +376,13 @@ void CGUIHelper::updateSpectrum()
 void CGUIHelper::updateImpulseResponse()
 {
     std::vector<float> impulseResponseBuffer;
-    int T_u = RadioController->getDABParams().T_u;
+    int T_u = radioController->getDABParams().T_u;
 
     qreal y_max = 0;
     qreal x_min = 0;
     qreal x_max = 0;
 
-    impulseResponseBuffer = RadioController->getImpulseResponse();
+    impulseResponseBuffer = radioController->getImpulseResponse();
 
     if (impulseResponseBuffer.size() == (size_t)T_u) {
         impulseResponseSeriesData.resize(T_u);
@@ -482,8 +409,8 @@ void CGUIHelper::updateImpulseResponse()
 void CGUIHelper::updateNullSymbol()
 {
     std::vector<DSPCOMPLEX> nullSymbolBuffer;
-    int T_u = RadioController->getDABParams().T_u;
-    int T_null = RadioController->getDABParams().T_null;
+    int T_u = radioController->getDABParams().T_u;
+    int T_null = radioController->getDABParams().T_null;
 
     qreal y = 0;
     qreal x = 0;
@@ -492,11 +419,11 @@ void CGUIHelper::updateNullSymbol()
     qreal x_max = 0;
 
     qreal tunedFrequency_MHz = 0;
-    qreal CurrentFrequency = RadioController->getCurrentFrequency();
+    qreal CurrentFrequency = radioController->getCurrentFrequency();
     qreal sampleFrequency_MHz = INPUT_RATE / 1e6;
     qreal dip_MHz = sampleFrequency_MHz / T_u;
 
-    nullSymbolBuffer = RadioController->getNullSymbol();
+    nullSymbolBuffer = radioController->getNullSymbol();
 
     if (nullSymbolBuffer.size() == (size_t)T_null) {
         nullSymbolSeriesData.resize(T_u);
@@ -554,10 +481,10 @@ void CGUIHelper::updateConstellation()
     qreal x_min = 0;
     qreal x_max = 0;
 
-    constellationPointBuffer = RadioController->getConstellationPoint();
+    constellationPointBuffer = radioController->getConstellationPoint();
 
     const size_t decim = OfdmDecoder::constellationDecimation;
-    const size_t num_iqpoints = (RadioController->getDABParams().L-1) * RadioController->getDABParams().K / decim;
+    const size_t num_iqpoints = (radioController->getDABParams().L-1) * radioController->getDABParams().K / decim;
     if (constellationPointBuffer.size() == num_iqpoints) {
         constellationSeriesData.resize(num_iqpoints);
         for (size_t i = 0; i < num_iqpoints; i++) {
@@ -583,7 +510,7 @@ void CGUIHelper::setNewDebugOutput(QString text)
     emit newDebugOutput(text);
 }
 
-QTranslator* CGUIHelper::AddTranslator(QString Language, QTranslator *OldTranslator)
+QTranslator* CGUIHelper::addTranslator(QString Language, QTranslator *OldTranslator)
 {
     if(OldTranslator)
         QCoreApplication::removeTranslator(OldTranslator);

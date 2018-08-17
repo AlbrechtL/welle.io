@@ -27,14 +27,14 @@ Item {
     Component.onCompleted: {
         console.debug("Apply settings initially")
         guiHelper.inputGainChanged(manualGainState)
-        guiHelper.inputEnableAGCChanged(enableAGCState)
+        radioController.setAGC(enableAGCState)
     }
 
     Connections{
         target: guiHelper
 
         onGuiDataChanged:{
-            manualGain.to = radioController.GainCount
+            manualGain.to = radioController.gainCount
         }
     }
 

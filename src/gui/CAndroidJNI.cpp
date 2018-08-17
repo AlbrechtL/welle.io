@@ -216,21 +216,21 @@ void CAndroidJNI::setRadioController(CRadioController *radioController)
     qDebug() << "AndroidJNI:" <<  "Set RadioController";
     this->mRadioController = radioController;
 
-    connect(radioController, &CRadioController::GUIDataChanged,
+    connect(radioController, &CRadioController::guiDataChanged,
             this, &CAndroidJNI::updateGuiData);
-    connect(radioController, &CRadioController::MOTChanged,
+    connect(radioController, &CRadioController::motChanged,
             this, &CAndroidJNI::updateMOT);
-    connect(radioController, &CRadioController::DeviceReady,
+    connect(radioController, &CRadioController::deviceReady,
             this, &CAndroidJNI::deviceReady);
-    connect(radioController, &CRadioController::DeviceClosed,
+    connect(radioController, &CRadioController::deviceClosed,
             this, &CAndroidJNI::deviceClosed);
-    connect(radioController, &CRadioController::StationsCleared,
+    connect(radioController, &CRadioController::stationsCleared,
             this, &CAndroidJNI::clearStations);
-    connect(radioController, &CRadioController::FoundStation,
+    connect(radioController, &CRadioController::foundStation,
             this, &CAndroidJNI::foundStation);
-    connect(radioController, &CRadioController::ScanStopped,
+    connect(radioController, &CRadioController::scanStopped,
             this, &CAndroidJNI::channelScanStopped);
-    connect(radioController, &CRadioController::ScanProgress,
+    connect(radioController, &CRadioController::scanProgress,
             this, &CAndroidJNI::channelScanProgress);
     connect(radioController, &CRadioController::showErrorMessage,
             this, &CAndroidJNI::showErrorMessage);
@@ -241,7 +241,7 @@ void CAndroidJNI::setRadioController(CRadioController *radioController)
 
     // Get stations
     clearStations();
-    foreach (StationElement *s, mRadioController->Stations()) {
+    foreach (StationElement *s, mRadioController->stations()) {
         addStation(s->getStationName(), s->getChannelName());
     }
 
@@ -254,10 +254,10 @@ void CAndroidJNI::setRadioController(CRadioController *radioController)
     }
 
     // Update GUI data
-    updateGuiData(mRadioController->GUIData());
+    updateGuiData(mRadioController->guiData());
 
     // Update MOT image
-    updateMOT(mRadioController->MOT());
+    updateMOT(mRadioController->mot());
 }
 
 bool CAndroidJNI::openTcpConnection(QString host, int port)
@@ -308,14 +308,14 @@ void CAndroidJNI::startChannelScan(void)
 {
     qDebug() << "AndroidJNI:" <<  "Start channel scan";
     if(mRadioController)
-        mRadioController->StartScan();
+        mRadioController->startScan();
 }
 
 void CAndroidJNI::stopChannelScan(void)
 {
     qDebug() << "AndroidJNI:" <<  "Stop channel scan";
     if(mRadioController)
-        mRadioController->StopScan();
+        mRadioController->stopScan();
 }
 
 void CAndroidJNI::updateGuiData(QVariantMap GUIData)
@@ -437,7 +437,7 @@ void CAndroidJNI::play(QString station, QString channel)
     qDebug() << "AndroidJNI:" <<  "Play station:" << station
              << "channel:" << channel;
     if(mRadioController)
-        mRadioController->Play(channel, station);
+        mRadioController->play(channel, station);
 }
 
 QString CAndroidJNI::getLastStation(void)
@@ -460,14 +460,14 @@ void CAndroidJNI::pausePlayback()
 {
     qDebug() << "AndroidJNI:" <<  "Pause playback";
     if(mRadioController)
-        mRadioController->Pause();
+        mRadioController->pause();
 }
 
 void CAndroidJNI::stopPlayback()
 {
     qDebug() << "AndroidJNI:" <<  "Stop playback";
     if(mRadioController)
-        mRadioController->Stop();
+        mRadioController->stop();
 }
 
 void CAndroidJNI::nextChannel()
@@ -481,7 +481,7 @@ void CAndroidJNI::setManualChannel(QString channel)
 {
     qDebug() << "AndroidJNI:" <<  "Set channel:" << channel;
     if(mRadioController)
-        mRadioController->SetManualChannel(channel);
+        mRadioController->setManualChannel(channel);
 }
 
 void CAndroidJNI::setErrorMessage(QString text)
@@ -569,7 +569,7 @@ void CAndroidJNI::channelScanProgress(int Progress)
                                               "channelScanProgress",
                                               "(I)V", Progress);
     if (mRadioController)
-        updateGuiData(mRadioController->GUIData());
+        updateGuiData(mRadioController->guiData());
 }
 
 void CAndroidJNI::showErrorMessage(QString Text)
