@@ -202,7 +202,7 @@ As an alternative to Qt Creator, CMake can be used for building welle.io after i
 # cd build
   ```
 
-2. Run CMake. To enable support for RTL-SDR add the flag `-DRTLSDR=1` (requires librtlsdr) and for SoapySDR add `-DSOAPYSDR=1` (requires SoapySDR compiled with support for each desired hardware like the Airspy or HackRF). By default, CMake will build both welle-io and welle-cli. Use `-DBUILD_WELLE_IO=OFF` or `-DBUILD_WELLE_CLI=OFF` to compile only the one you need.
+2. Run CMake. To enable support for RTL-SDR add the flag `-DRTLSDR=1` (requires librtlsdr) and for SoapySDR add `-DSOAPYSDR=1` (requires SoapySDR compiled with support for each desired hardware, e.g. UHD for Ettus USRP, LimeSDR, Airspy or HackRF). By default, CMake will build both welle-io and welle-cli. Use `-DBUILD_WELLE_IO=OFF` or `-DBUILD_WELLE_CLI=OFF` to compile only the one you need.
 
   ```
 # cmake ..
@@ -213,6 +213,8 @@ As an alternative to Qt Creator, CMake can be used for building welle.io after i
   ```
 # cmake .. -DRTLSDR=1 -DSOAPYSDR=1
   ```
+
+  If you wish to use KISS FFT instead of FFTW (e.g. to compare performance), use `-DKISS_FFT=ON`.
 
 3. Run make (or use the created project file depending on the selected generator)
 

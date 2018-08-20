@@ -25,6 +25,10 @@ if(NOT DEFINED BUILD_WELLE_IO)
     set(BUILD_WELLE_IO ON)
 endif()
 
+if(NOT DEFINED KISS_FFT)
+    set(KISS_FFT OFF)
+endif()
+
 if(NOT APPLE)
   if(NOT DEFINED BUILD_WELLE_CLI)
     set(BUILD_WELLE_CLI ON)
@@ -45,12 +49,21 @@ if(ALSA_FOUND)
     add_definitions(-DHAVE_ALSA)
 endif()
 
+if(KISS_FFT)
+    add_definitions(-DKISSFFT)
+    set(fft_sources src/libs/kiss_fft/kiss_fft.c)
+    set(KISS_INCLUDE_DIRS src/libs/kiss_fft)
+else()
+    find_package(FFTW3f REQUIRED)
+    set(fft_sources "")
+    set(KISS_INCLUDE_DIRS "")
+endif()
+
 if(BUILD_WELLE_CLI)
     find_package(Lame REQUIRED)
 endif()
 
 find_package(Threads REQUIRED)
-find_package(FFTW3f REQUIRED)
 find_package(Faad REQUIRED)
 
 if (RTLSDR)
@@ -71,6 +84,7 @@ include_directories(
     src/input
     src/gui
     ${FFTW3F_INCLUDE_DIRS}
+    ${KISS_INCLUDE_DIRS}
     ${FAAD_INCLUDE_DIRS}
     ${LIBRTLSDR_INCLUDE_DIRS}
     ${SoapySDR_INCLUDE_DIRS}
@@ -174,7 +188,7 @@ endif()
 
 if(BUILD_WELLE_IO)
     set(executableName welle-io)
-    add_executable (${executableName} ${welle_io_sources} ${backend_sources} ${input_sources} ${EXTRA_MOCS} resources.qrc)
+    add_executable (${executableName} ${welle_io_sources} ${backend_sources} ${input_sources} ${fft_sources} ${EXTRA_MOCS} resources.qrc)
 
     target_link_libraries (${executableName}
       ${LIBRTLSDR_LIBRARIES}
@@ -190,7 +204,7 @@ endif()
 
 if(BUILD_WELLE_CLI)
     set(cliExecutableName welle-cli)
-    add_executable (${cliExecutableName} ${welle_cli_sources} ${backend_sources} ${input_sources})
+    add_executable (${cliExecutableName} ${welle_cli_sources} ${backend_sources} ${input_sources} ${fft_sources})
 
     if(CMAKE_BUILD_TYPE MATCHES Debug)
       SET_TARGET_PROPERTIES(${cliExecutableName} PROPERTIES COMPILE_FLAGS "-O2 -fno-omit-frame-pointer -fsanitize=address")
