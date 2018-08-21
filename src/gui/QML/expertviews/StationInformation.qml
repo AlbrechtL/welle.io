@@ -15,17 +15,17 @@ Item {
 
         TextExpert {
             name: qsTr("Device") + ":"
-            text: radioController.guiData.DeviceName
+            text: radioController.deviceName
         }
 
         TextExpert {
             name: qsTr("Current channel") + ":"
-            text: radioController.guiData.Channel + " (" + (radioController.guiData.Frequency > 0 ? radioController.guiData.Frequency/1e6 :  "N/A") + " MHz)"
+            text: radioController.channel + " (" + (radioController.frequency > 0 ? radioController.frequency/1e6 :  "N/A") + " MHz)"
         }
 
         TextExpert {
             name: qsTr("Frequency correction") + ":"
-            text: radioController.frequencyCorrection + " Hz (" + (radioController.guiData.Frequency > 0 ? radioController.frequencyCorrectionPpm.toFixed(2) : "N/A") + " ppm)"
+            text: radioController.frequencyCorrection + " Hz (" + (radioController.frequency > 0 ? radioController.frequencyCorrectionPpm.toFixed(2) : "N/A") + " ppm)"
         }
 
         TextExpert {

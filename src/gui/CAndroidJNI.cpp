@@ -215,9 +215,6 @@ void CAndroidJNI::setRadioController(CRadioController *radioController)
 
     qDebug() << "AndroidJNI:" <<  "Set RadioController";
     this->mRadioController = radioController;
-
-    connect(radioController, &CRadioController::guiDataChanged,
-            this, &CAndroidJNI::updateGuiData);
     connect(radioController, &CRadioController::motChanged,
             this, &CAndroidJNI::updateMOT);
     connect(radioController, &CRadioController::deviceReady,
@@ -254,7 +251,7 @@ void CAndroidJNI::setRadioController(CRadioController *radioController)
     }
 
     // Update GUI data
-    updateGuiData(mRadioController->guiData());
+    //ToDo updateGuiData(mRadioController->guiData());
 
     // Update MOT image
     updateMOT(mRadioController->mot());
@@ -460,7 +457,7 @@ void CAndroidJNI::pausePlayback()
 {
     qDebug() << "AndroidJNI:" <<  "Pause playback";
     if(mRadioController)
-        mRadioController->pause();
+        mRadioController->stop();
 }
 
 void CAndroidJNI::stopPlayback()
@@ -568,8 +565,8 @@ void CAndroidJNI::channelScanProgress(int Progress)
     QAndroidJniObject::callStaticMethod<void>("io/welle/welle/DabService",
                                               "channelScanProgress",
                                               "(I)V", Progress);
-    if (mRadioController)
-        updateGuiData(mRadioController->guiData());
+    //if (mRadioController)
+        //ToDo updateGuiData(mRadioController->guiData());
 }
 
 void CAndroidJNI::showErrorMessage(QString Text)

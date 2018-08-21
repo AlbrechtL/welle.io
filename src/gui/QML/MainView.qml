@@ -104,12 +104,6 @@ ApplicationWindow {
             mainWindow.height = getHeight()
         }
 
-        if (radioController.guiData.Status === -1) {
-            console.debug("error: " + radioController.errorMsg)
-            errorMessagePopup.text = radioController.errorMsg
-            errorMessagePopup.open()
-        }
-
         // Set drawer width to half of windows width if it is not defined
         if(moveDrawer.x === 0)
             moveDrawer.x = mainWindow.width / 2;

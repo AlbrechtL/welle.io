@@ -33,7 +33,7 @@ Item {
     Connections{
         target: radioController
 
-        onGuiDataChanged:{
+        onGainCountChanged:{
             manualGain.to = radioController.gainCount
         }
     }

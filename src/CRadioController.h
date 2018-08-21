@@ -64,6 +64,7 @@ class CRadioController :
     public ProgrammeHandlerInterface
 {
     Q_OBJECT
+    Q_PROPERTY(QString deviceName MEMBER deviceName NOTIFY deviceNameChanged)
     Q_PROPERTY(QDateTime dateTime MEMBER mCurrentDateTime NOTIFY dateTimeChanged)
     Q_PROPERTY(bool isSync MEMBER mIsSync NOTIFY isSyncChanged)
     Q_PROPERTY(bool isFICCRC MEMBER mIsFICCRC NOTIFY isFICCRCChanged)
@@ -86,28 +87,24 @@ class CRadioController :
     Q_PROPERTY(int gain MEMBER currentManualGain WRITE setGain NOTIFY gainChanged)
     Q_PROPERTY(qreal volume MEMBER currentVolume WRITE setVolume NOTIFY volumeChanged)
     Q_PROPERTY(QList<StationElement*> stations READ stations NOTIFY stationsChanged)
-    Q_PROPERTY(QVariantMap guiData MEMBER mGUIData NOTIFY guiDataChanged)
     Q_PROPERTY(QString errorMsg MEMBER mErrorMsg NOTIFY showErrorMessage)
     Q_PROPERTY(QImage mot MEMBER motImage NOTIFY motChanged)
+
+    Q_PROPERTY(QString channel MEMBER currentChannel NOTIFY channelChanged)
+    Q_PROPERTY(QString ensemble MEMBER currentEnsemble NOTIFY ensembleChanged)
+    Q_PROPERTY(int frequency MEMBER currentFrequency NOTIFY frequencyChanged)
+    Q_PROPERTY(QString station MEMBER currentStation NOTIFY stationChanged)
+    Q_PROPERTY(QString stationType MEMBER currentStationType NOTIFY stationTypChanged)
+    Q_PROPERTY(QString languageType MEMBER currentLanguageType NOTIFY languageTypeChanged)
+    Q_PROPERTY(QString title MEMBER currentTitle NOTIFY titleChanged)
+    Q_PROPERTY(QString text MEMBER currentText NOTIFY textChanged)
 #endif
 
 public:
-    enum DabStatus {
-        Error       = -1,
-        Unknown     = 0,
-        Initialised = 1,
-        Playing     = 2,
-        Paused      = 3,
-        Stopped     = 4,
-        Scanning    = 5,
-    };
-    Q_ENUMS(DabStatus)
-
     CRadioController(QVariantMap &commandLineOptions, DABParams& params, QObject* parent = NULL);
     void closeDevice();
     void openDevice(CVirtualInput* new_device);
     Q_INVOKABLE void play(QString Channel, QString Station);
-    void pause();
     void stop();
     Q_INVOKABLE void clearStations();
     void setStation(QString Station, bool Force = false);
@@ -181,7 +178,6 @@ private:
     std::mutex constellationPointBufferMutex;
     std::vector<DSPCOMPLEX> constellationPointBuffer;
 
-    QVariantMap mGUIData;
     QString mErrorMsg;
     QDateTime mCurrentDateTime;
     bool mIsSync;
@@ -201,7 +197,6 @@ private:
     int mStationCount;
     QImage motImage;
 
-    DabStatus dabStatus;
     QString currentChannel;
     QString currentEnsemble;
     int32_t currentFrequency;
@@ -213,14 +208,13 @@ private:
     int32_t currentManualGain;
     float currentManualGainValue;
     qreal currentVolume;
+    QString deviceName;
 
     CStationList stationList;
     QList<QString> stationListStr;
     QTimer stationTimer;
     QTimer channelTimer;
-    QTimer syncCheckTimer;
 
-    bool startPlayback;
     bool isChannelScan;
     bool isAGC;
     bool isHwAGC;
@@ -232,7 +226,6 @@ private:
 private slots:
     void stationTimerTimeout(void);
     void channelTimerTimeout(void);
-    void syncCheckTimerTimeout(void);
     void nextChannel(bool isWait);
     void addtoEnsemble(quint32 SId, const QString &Station);
     void displayDateTime(const dab_date_time_t& dateTime);
@@ -245,6 +238,7 @@ signals:
 
 #ifndef Q_OS_ANDROID
 signals:
+    void deviceNameChanged();
     void dateTimeChanged(QDateTime);
     void isSyncChanged(bool);
     void isFICCRCChanged(bool);
@@ -269,8 +263,16 @@ signals:
     void volumeChanged(qreal);
     void motChanged(QImage MOTImage);
 
+    void channelChanged();
+    void ensembleChanged();
+    void frequencyChanged();
+    void stationChanged();
+    void stationTypChanged();
+    void titleChanged();
+    void textChanged();
+    void languageTypeChanged();
+
     void stationsChanged(QList<StationElement*> stations);
-    void guiDataChanged(QVariantMap guiData);
     void deviceReady();
     void deviceClosed();
     void stationsCleared();
