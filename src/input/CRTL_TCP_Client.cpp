@@ -425,8 +425,7 @@ void CRTL_TCP_Client::agcTimer(void)
                 // We have to decrease the gain
                 if(currentGainCount > 0) {
                     setGain(currentGainCount - 1);
-                    std::clog << "RTL_TCP_CLIENT: Decrease gain to " <<
-                        (float)currentGain << std::endl;
+                    //std::clog << "RTL_TCP_CLIENT: Decrease gain to " << (float)currentGain << std::endl;
                 }
             }
             else {
@@ -442,8 +441,7 @@ void CRTL_TCP_Client::agcTimer(void)
                     // We have to increase the gain
                     if (newMinValue >=0 && newMaxValue <= 255) {
                         setGain(currentGainCount + 1);
-                        std::clog << "RTL_TCP_CLIENT: Increase gain to " <<
-                            currentGain << std::endl;
+                        //std::clog << "RTL_TCP_CLIENT: Increase gain to " << currentGain << std::endl;
                     }
                 }
             }
