@@ -67,6 +67,7 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, DABParams& p
     connect(&stationTimer, &QTimer::timeout, this, &CRadioController::stationTimerTimeout);
     connect(&channelTimer, &QTimer::timeout, this, &CRadioController::channelTimerTimeout);
 
+    // Use the signal slot mechanism is necessary because the backend runs in a different thread
     connect(this, &CRadioController::switchToNextChannel,
             this, &CRadioController::nextChannel);
 
@@ -81,60 +82,6 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, DABParams& p
             this, &CRadioController::displayDateTime);
 
     isAutoPlay = false;
-}
-
-void CRadioController::resetTechnicalData(void)
-{
-    currentChannel = tr("Unknown");
-    emit channelChanged();
-
-    currentEnsemble = "";
-    emit ensembleChanged();
-
-    currentFrequency = 0;
-    emit frequencyChanged();
-
-    currentStation = "";
-    emit stationChanged();
-
-    currentStationType = "";
-    emit stationTypChanged();
-
-    currentLanguageType = "";
-    emit languageTypeChanged();
-
-    currentTitle = tr("No Station");
-    emit titleChanged();
-
-    currentText = "";
-    emit textChanged();
-
-    mErrorMsg = "";
-    mIsSync = false;
-    mIsFICCRC = false;
-    mIsSignal = false;
-    mSNR = 0;
-    mFrequencyCorrection = 0;
-    mFrequencyCorrectionPpm = NAN;
-    mBitRate = 0;
-    mAudioSampleRate = 0;
-    mIsStereo = true;
-    mIsDAB = true;
-    mFrameErrors = 0;
-    mRSErrors = 0;
-    mAACErrors = 0;
-    mGainCount = 0;
-    mStationCount = 0;
-    currentManualGain = 0;
-    currentManualGainValue = std::numeric_limits<float>::lowest();
-    currentVolume = 1.0;
-    isChannelScan = false;
-    isAGC = true;
-    isHwAGC = true;
-    isHwAGCSupported = false;
-
-    motImage.loadFromData(nullptr, 0);
-    emit motChanged(motImage);
 }
 
 void CRadioController::closeDevice()
@@ -160,126 +107,6 @@ void CRadioController::openDevice(CVirtualInput *new_device)
     initialise();
 }
 
-void CRadioController::onEventLoopStarted()
-{
-#ifdef Q_OS_ANDROID
-    QString dabDevice = "rtl_tcp";
-#else
-    QString dabDevice = "auto";
-#endif
-
-#ifdef HAVE_SOAPYSDR
-    QString sdrDriverArgs;
-    QString sdrAntenna;
-    QString sdrClockSource;
-#endif /* HAVE_SOAPYSDR */
-    QString ipAddress = "127.0.0.1";
-    uint16_t ipPort = 1234;
-    QString rawFile = "";
-    QString rawFileFormat = "auto";
-
-    if(commandLineOptions["dabDevice"] != "")
-        dabDevice = commandLineOptions["dabDevice"].toString();
-
-#ifdef HAVE_SOAPYSDR
-    if(commandLineOptions["sdr-driver-args"] != "")
-        sdrDriverArgs = commandLineOptions["sdr-driver-args"].toString();
-
-    if(commandLineOptions["sdr-antenna"] != "")
-        sdrAntenna = commandLineOptions["sdr-antenna"].toString();
-
-    if(commandLineOptions["sdr-clock-source"] != "")
-        sdrClockSource = commandLineOptions["sdr-clock-source"].toString();
-#endif /* HAVE_SOAPYSDR */
-
-    if(commandLineOptions["ipAddress"] != "")
-        ipAddress = commandLineOptions["ipAddress"].toString();
-
-    if(commandLineOptions["ipPort"] != "")
-        ipPort = static_cast<unsigned short>(commandLineOptions["ipPort"].toUInt());
-
-    if(commandLineOptions["rawFile"] != "")
-        rawFile = commandLineOptions["rawFile"].toString();
-
-    if(commandLineOptions["rawFileFormat"] != "")
-        rawFileFormat = commandLineOptions["rawFileFormat"].toString();
-
-    // Init device
-    CSplashScreen::ShowMessage(tr("Init radio receiver"));
-    device.reset(CInputFactory::GetDevice(*this, dabDevice.toStdString()));
-
-    // Set rtl_tcp settings
-    if (device->getID() == CDeviceID::RTL_TCP) {
-        CRTL_TCP_Client* RTL_TCP_Client = static_cast<CRTL_TCP_Client*>(device.get());
-
-        RTL_TCP_Client->setIP(ipAddress.toStdString());
-        RTL_TCP_Client->setPort(ipPort);
-    }
-
-    // Set rawfile settings
-    if (device->getID() == CDeviceID::RAWFILE) {
-        CRAWFile* RAWFile = static_cast<CRAWFile*>(device.get());
-
-        RAWFile->setFileName(rawFile.toStdString(), rawFileFormat.toStdString());
-    }
-
-#ifdef HAVE_SOAPYSDR
-    if (device->getID() == CDeviceID::SOAPYSDR) {
-        CSoapySdr *sdr = (CSoapySdr*)device.get();
-
-        if (!sdrDriverArgs.isEmpty()) {
-            sdr->setDriverArgs(sdrDriverArgs.toStdString());
-        }
-
-        if (!sdrAntenna.isEmpty()) {
-            sdr->setAntenna(sdrAntenna.toStdString());
-        }
-
-        if (!sdrClockSource.isEmpty()) {
-            sdr->setClockSource(sdrClockSource.toStdString());
-        }
-    }
-#endif /* HAVE_SOAPYSDR */
-
-    initialise();
-
-    CSplashScreen::Close();
-}
-
-void CRadioController::initialise(void)
-{
-    mGainCount = device->getGainCount();
-    emit gainCountChanged(mGainCount);
-
-    device->setHwAgc(isHwAGC);
-
-    if (!isAGC) { // Manual AGC
-        device->setAgc(false);
-        device->setGain(currentManualGain);
-        qDebug() << "RadioController:" << "AGC off";
-    }
-    else {
-        device->setAgc(true);
-        qDebug() << "RadioController:" << "AGC on";
-    }
-
-    audio.setVolume(currentVolume);
-
-    my_rx = std::make_unique<RadioReceiver>(*this, *device, rro);
-    my_rx->setReceiverOptions(rro);
-
-    emit deviceReady();
-
-    isHwAGCSupported = device->isHwAgcSupported();
-    emit isHwAGCSupportedChanged(isHwAGCSupported);
-
-    deviceName = QString::fromStdString(device->getName());
-    emit deviceNameChanged();
-
-    if(isAutoPlay) {
-        play(autoChannel, autoStation);
-    }
-}
 
 void CRadioController::play(QString Channel, QString Station)
 {
@@ -327,6 +154,43 @@ void CRadioController::clearStations()
     // Clear last station
     QSettings Settings;
     Settings.remove("lastchannel");
+}
+
+void CRadioController::setStation(QString Station, bool Force)
+{
+    if(currentStation != Station || Force == true)
+    {
+        currentStation = Station;
+        emit stationChanged();
+
+        qDebug() << "RadioController: Tune to station" <<  Station;
+
+        currentTitle = tr("Tuning") + " ... " + Station;
+        emit titleChanged();
+
+        // Wait if we found the station inside the signal
+        stationTimer.start(1000);
+
+        // Clear old data
+        currentStationType = "";
+        emit stationTypChanged();
+
+        currentLanguageType = "";
+        emit languageTypeChanged();
+
+        currentText = "";
+        emit textChanged();
+
+        motImage.loadFromData(nullptr, 0);
+        emit motChanged(motImage);
+    }
+}
+
+void CRadioController::setAutoPlay(QString Channel, QString Station)
+{
+    isAutoPlay = true;
+    autoChannel = Channel;
+    autoStation = Station;
 }
 
 void CRadioController::setVolume(qreal Volume)
@@ -557,30 +421,141 @@ void CRadioController::setGain(int Gain)
     emit gainChanged(currentManualGain);
 }
 
-void CRadioController::setErrorMessage(QString Text)
+DABParams& CRadioController::getDABParams()
 {
-    mErrorMsg = Text;
-    emit showErrorMessage(Text);
+    return dabparams;
 }
 
-void CRadioController::setErrorMessage(const std::string& head, const std::string& text)
+int CRadioController::getCurrentFrequency()
 {
-    if (text.empty()) {
-        setErrorMessage(tr(head.c_str()));
+    return currentFrequency;
+}
+
+std::vector<float> CRadioController::getImpulseResponse()
+{
+    std::lock_guard<std::mutex> lock(impulseResponseBufferMutex);
+    auto buf = std::move(impulseResponseBuffer);
+    return buf;
+}
+
+std::vector<DSPCOMPLEX> CRadioController::getSignalProbe()
+{
+    int16_t T_u = dabparams.T_u;
+
+    if (device) {
+        return device->getSpectrumSamples(T_u);
     }
     else {
-        setErrorMessage(tr(head.c_str()) + ": " + QString::fromStdString(text));
+        std::vector<DSPCOMPLEX> dummyBuf(static_cast<std::vector<DSPCOMPLEX>::size_type>(T_u));
+        return dummyBuf;
     }
 }
 
-void CRadioController::setInfoMessage(QString Text)
+std::vector<DSPCOMPLEX> CRadioController::getNullSymbol()
 {
-    emit showInfoMessage(Text);
+    std::lock_guard<std::mutex> lock(nullSymbolBufferMutex);
+    auto buf = std::move(nullSymbolBuffer);
+    return buf;
+}
+
+std::vector<DSPCOMPLEX> CRadioController::getConstellationPoint()
+{
+    std::lock_guard<std::mutex> lock(constellationPointBufferMutex);
+    auto buf = std::move(constellationPointBuffer);
+    return buf;
 }
 
 /********************
  * Private methods  *
  ********************/
+void CRadioController::initialise(void)
+{
+    mGainCount = device->getGainCount();
+    emit gainCountChanged(mGainCount);
+
+    device->setHwAgc(isHwAGC);
+
+    if (!isAGC) { // Manual AGC
+        device->setAgc(false);
+        device->setGain(currentManualGain);
+        qDebug() << "RadioController:" << "AGC off";
+    }
+    else {
+        device->setAgc(true);
+        qDebug() << "RadioController:" << "AGC on";
+    }
+
+    audio.setVolume(currentVolume);
+
+    my_rx = std::make_unique<RadioReceiver>(*this, *device, rro);
+    my_rx->setReceiverOptions(rro);
+
+    emit deviceReady();
+
+    isHwAGCSupported = device->isHwAgcSupported();
+    emit isHwAGCSupportedChanged(isHwAGCSupported);
+
+    deviceName = QString::fromStdString(device->getName());
+    emit deviceNameChanged();
+
+    if(isAutoPlay) {
+        play(autoChannel, autoStation);
+    }
+}
+
+void CRadioController::resetTechnicalData(void)
+{
+    currentChannel = tr("Unknown");
+    emit channelChanged();
+
+    currentEnsemble = "";
+    emit ensembleChanged();
+
+    currentFrequency = 0;
+    emit frequencyChanged();
+
+    currentStation = "";
+    emit stationChanged();
+
+    currentStationType = "";
+    emit stationTypChanged();
+
+    currentLanguageType = "";
+    emit languageTypeChanged();
+
+    currentTitle = tr("No Station");
+    emit titleChanged();
+
+    currentText = "";
+    emit textChanged();
+
+    mErrorMsg = "";
+    mIsSync = false;
+    mIsFICCRC = false;
+    mIsSignal = false;
+    mSNR = 0;
+    mFrequencyCorrection = 0;
+    mFrequencyCorrectionPpm = NAN;
+    mBitRate = 0;
+    mAudioSampleRate = 0;
+    mIsStereo = true;
+    mIsDAB = true;
+    mFrameErrors = 0;
+    mRSErrors = 0;
+    mAACErrors = 0;
+    mGainCount = 0;
+    mStationCount = 0;
+    currentManualGain = 0;
+    currentManualGainValue = std::numeric_limits<float>::lowest();
+    currentVolume = 1.0;
+    isChannelScan = false;
+    isAGC = true;
+    isHwAGC = true;
+    isHwAGCSupported = false;
+
+    motImage.loadFromData(nullptr, 0);
+    emit motChanged(motImage);
+}
 
 void CRadioController::deviceRestart()
 {
@@ -609,65 +584,129 @@ void CRadioController::decoderRestart(bool isScan)
     }
 }
 
-void CRadioController::setStation(QString Station, bool Force)
+/*****************
+ * Public slots *
+ *****************/
+void CRadioController::nameofEnsemble(const QString &Ensemble)
 {
-    if(currentStation != Station || Force == true)
-    {
-        currentStation = Station;
-        emit stationChanged();
+    qDebug() << "RadioController: Name of ensemble:" << Ensemble;
 
-        qDebug() << "RadioController: Tune to station" <<  Station;
+    if (currentEnsemble == Ensemble)
+        return;
+    currentEnsemble = Ensemble;
+    emit ensembleChanged();
+}
 
-        currentTitle = tr("Tuning") + " ... " + Station;
-        emit titleChanged();
+void CRadioController::onEventLoopStarted()
+{
+#ifdef Q_OS_ANDROID
+    QString dabDevice = "rtl_tcp";
+#else
+    QString dabDevice = "auto";
+#endif
 
-        // Wait if we found the station inside the signal
-        stationTimer.start(1000);
+#ifdef HAVE_SOAPYSDR
+    QString sdrDriverArgs;
+    QString sdrAntenna;
+    QString sdrClockSource;
+#endif /* HAVE_SOAPYSDR */
+    QString ipAddress = "127.0.0.1";
+    uint16_t ipPort = 1234;
+    QString rawFile = "";
+    QString rawFileFormat = "auto";
 
-        // Clear old data
-        currentStationType = "";
-        emit stationTypChanged();
+    if(commandLineOptions["dabDevice"] != "")
+        dabDevice = commandLineOptions["dabDevice"].toString();
 
-        currentLanguageType = "";
-        emit languageTypeChanged();
+#ifdef HAVE_SOAPYSDR
+    if(commandLineOptions["sdr-driver-args"] != "")
+        sdrDriverArgs = commandLineOptions["sdr-driver-args"].toString();
 
-        currentText = "";
-        emit textChanged();
+    if(commandLineOptions["sdr-antenna"] != "")
+        sdrAntenna = commandLineOptions["sdr-antenna"].toString();
 
-        motImage.loadFromData(nullptr, 0);
-        emit motChanged(motImage);
+    if(commandLineOptions["sdr-clock-source"] != "")
+        sdrClockSource = commandLineOptions["sdr-clock-source"].toString();
+#endif /* HAVE_SOAPYSDR */
+
+    if(commandLineOptions["ipAddress"] != "")
+        ipAddress = commandLineOptions["ipAddress"].toString();
+
+    if(commandLineOptions["ipPort"] != "")
+        ipPort = static_cast<unsigned short>(commandLineOptions["ipPort"].toUInt());
+
+    if(commandLineOptions["rawFile"] != "")
+        rawFile = commandLineOptions["rawFile"].toString();
+
+    if(commandLineOptions["rawFileFormat"] != "")
+        rawFileFormat = commandLineOptions["rawFileFormat"].toString();
+
+    // Init device
+    CSplashScreen::ShowMessage(tr("Init radio receiver"));
+    device.reset(CInputFactory::GetDevice(*this, dabDevice.toStdString()));
+
+    // Set rtl_tcp settings
+    if (device->getID() == CDeviceID::RTL_TCP) {
+        CRTL_TCP_Client* RTL_TCP_Client = static_cast<CRTL_TCP_Client*>(device.get());
+
+        RTL_TCP_Client->setIP(ipAddress.toStdString());
+        RTL_TCP_Client->setPort(ipPort);
+    }
+
+    // Set rawfile settings
+    if (device->getID() == CDeviceID::RAWFILE) {
+        CRAWFile* RAWFile = static_cast<CRAWFile*>(device.get());
+
+        RAWFile->setFileName(rawFile.toStdString(), rawFileFormat.toStdString());
+    }
+
+#ifdef HAVE_SOAPYSDR
+    if (device->getID() == CDeviceID::SOAPYSDR) {
+        CSoapySdr *sdr = (CSoapySdr*)device.get();
+
+        if (!sdrDriverArgs.isEmpty()) {
+            sdr->setDriverArgs(sdrDriverArgs.toStdString());
+        }
+
+        if (!sdrAntenna.isEmpty()) {
+            sdr->setAntenna(sdrAntenna.toStdString());
+        }
+
+        if (!sdrClockSource.isEmpty()) {
+            sdr->setClockSource(sdrClockSource.toStdString());
+        }
+    }
+#endif /* HAVE_SOAPYSDR */
+
+    initialise();
+
+    CSplashScreen::Close();
+}
+
+void CRadioController::setErrorMessage(QString Text)
+{
+    mErrorMsg = Text;
+    emit showErrorMessage(Text);
+}
+
+void CRadioController::setErrorMessage(const std::string& head, const std::string& text)
+{
+    if (text.empty()) {
+        setErrorMessage(tr(head.c_str()));
+    }
+    else {
+        setErrorMessage(tr(head.c_str()) + ": " + QString::fromStdString(text));
     }
 }
 
-void CRadioController::nextChannel(bool isWait)
+void CRadioController::setInfoMessage(QString Text)
 {
-    if (isWait) { // It might be a channel, wait 10 seconds
-        channelTimer.start(10000);
-    }
-    else {
-        auto Channel = QString::fromStdString(channels.getNextChannel());
-
-        if(!Channel.isEmpty()) {
-            setChannel(Channel, true);
-
-            int index = channels.getCurrentIndex() + 1;
-
-            currentTitle = tr("Scanning") + " ... " + Channel
-                    + " (" + QString::number(index * 100 / NUMBEROFCHANNELS) + "%)";
-            emit titleChanged();
-
-            emit scanProgress(index);
-        }
-        else {
-            stopScan();
-        }
-    }
+    emit showInfoMessage(Text);
 }
 
 /********************
- * Controller slots *
+ * private slots *
  ********************/
-
 void CRadioController::stationTimerTimeout()
 {
     if (!my_rx)
@@ -738,13 +777,48 @@ void CRadioController::channelTimerTimeout(void)
         nextChannel(false);
 }
 
-/*****************
- * Backend slots *
- *****************/
-
-void CRadioController::onServiceDetected(uint32_t SId, const std::string& label)
+void CRadioController::displayDateTime(const dab_date_time_t& dateTime)
 {
-    emit ensembleAdded(SId, QString::fromStdString(label));
+    QDate Date;
+    QTime Time;
+
+    Time.setHMS(dateTime.hour, dateTime.minutes, dateTime.seconds);
+    mCurrentDateTime.setTime(Time);
+
+    Date.setDate(dateTime.year, dateTime.month, dateTime.day);
+    mCurrentDateTime.setDate(Date);
+
+    int OffsetFromUtc = dateTime.hourOffset * 3600 +
+                        dateTime.minuteOffset * 60;
+    mCurrentDateTime.setOffsetFromUtc(OffsetFromUtc);
+    mCurrentDateTime.setTimeSpec(Qt::OffsetFromUTC);
+
+    emit dateTimeChanged(mCurrentDateTime);
+}
+
+void CRadioController::nextChannel(bool isWait)
+{
+    if (isWait) { // It might be a channel, wait 10 seconds
+        channelTimer.start(10000);
+    }
+    else {
+        auto Channel = QString::fromStdString(channels.getNextChannel());
+
+        if(!Channel.isEmpty()) {
+            setChannel(Channel, true);
+
+            int index = channels.getCurrentIndex() + 1;
+
+            currentTitle = tr("Scanning") + " ... " + Channel
+                    + " (" + QString::number(index * 100 / NUMBEROFCHANNELS) + "%)";
+            emit titleChanged();
+
+            emit scanProgress(index);
+        }
+        else {
+            stopScan();
+        }
+    }
 }
 
 void CRadioController::addtoEnsemble(quint32 SId, const QString &Station)
@@ -775,44 +849,22 @@ void CRadioController::addtoEnsemble(quint32 SId, const QString &Station)
     }
 }
 
+/*********************
+ * Backend callbacks *
+ *********************/
+void CRadioController::onServiceDetected(uint32_t SId, const std::string& label)
+{
+    emit ensembleAdded(SId, QString::fromStdString(label));
+}
+
 void CRadioController::onNewEnsembleName(const std::string& name)
 {
     emit ensembleNameUpdated(QString::fromStdString(name));
 }
 
-void CRadioController::nameofEnsemble(const QString &Ensemble)
-{
-    qDebug() << "RadioController: Name of ensemble:" << Ensemble;
-
-    if (currentEnsemble == Ensemble)
-        return;
-    currentEnsemble = Ensemble;
-    emit ensembleChanged();
-}
-
-
 void CRadioController::onDateTimeUpdate(const dab_date_time_t& dateTime)
 {
     emit dateTimeUpdated(dateTime);
-}
-
-void CRadioController::displayDateTime(const dab_date_time_t& dateTime)
-{
-    QDate Date;
-    QTime Time;
-
-    Time.setHMS(dateTime.hour, dateTime.minutes, dateTime.seconds);
-    mCurrentDateTime.setTime(Time);
-
-    Date.setDate(dateTime.year, dateTime.month, dateTime.day);
-    mCurrentDateTime.setDate(Date);
-
-    int OffsetFromUtc = dateTime.hourOffset * 3600 +
-                        dateTime.minuteOffset * 60;
-    mCurrentDateTime.setOffsetFromUtc(OffsetFromUtc);
-    mCurrentDateTime.setTimeSpec(Qt::OffsetFromUTC);
-
-    emit dateTimeChanged(mCurrentDateTime);
 }
 
 void CRadioController::onFIBDecodeSuccess(bool crcCheckOk, const uint8_t* fib)
@@ -861,50 +913,6 @@ void CRadioController::onMessage(message_level_t level, const std::string& text)
             emit showErrorMessage(tr(text.c_str()));
             break;
     }
-}
-
-std::vector<float> CRadioController::getImpulseResponse()
-{
-    std::lock_guard<std::mutex> lock(impulseResponseBufferMutex);
-    auto buf = std::move(impulseResponseBuffer);
-    return buf;
-}
-
-std::vector<DSPCOMPLEX> CRadioController::getSignalProbe()
-{
-    int16_t T_u = dabparams.T_u;
-
-    if (device) {
-        return device->getSpectrumSamples(T_u);
-    }
-    else {
-        std::vector<DSPCOMPLEX> dummyBuf(static_cast<std::vector<DSPCOMPLEX>::size_type>(T_u));
-        return dummyBuf;
-    }
-}
-
-std::vector<DSPCOMPLEX> CRadioController::getNullSymbol()
-{
-    std::lock_guard<std::mutex> lock(nullSymbolBufferMutex);
-    auto buf = std::move(nullSymbolBuffer);
-    return buf;
-}
-
-std::vector<DSPCOMPLEX> CRadioController::getConstellationPoint()
-{
-    std::lock_guard<std::mutex> lock(constellationPointBufferMutex);
-    auto buf = std::move(constellationPointBuffer);
-    return buf;
-}
-
-DABParams& CRadioController::getDABParams()
-{
-    return dabparams;
-}
-
-int CRadioController::getCurrentFrequency()
-{
-    return currentFrequency;
 }
 
 void CRadioController::onSNR(int snr)
@@ -1015,9 +1023,3 @@ void CRadioController::onPADLengthError(size_t announced_xpad_len, size_t xpad_l
     qDebug() << "X-PAD length mismatch, expected:" << announced_xpad_len << " effective:" << xpad_len;
 }
 
-void CRadioController::setAutoPlay(QString Channel, QString Station)
-{
-    isAutoPlay = true;
-    autoChannel = Channel;
-    autoStation = Station;
-}

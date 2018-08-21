@@ -101,10 +101,11 @@ class CRadioController :
 #endif
 
 public:
-    CRadioController(QVariantMap &commandLineOptions, DABParams& params, QObject* parent = NULL);
+    CRadioController(QVariantMap &commandLineOptions, DABParams& params, QObject* parent = nullptr);
     void closeDevice();
     void openDevice(CVirtualInput* new_device);
     Q_INVOKABLE void play(QString Channel, QString Station);
+    void pause();
     void stop();
     Q_INVOKABLE void clearStations();
     void setStation(QString Station, bool Force = false);
@@ -159,9 +160,7 @@ private:
     void resetTechnicalData(void);
     void deviceRestart(void);
     void decoderRestart(bool isScan);
-    void updateGUIData();
 
-    // Back-end objects
     std::shared_ptr<CVirtualInput> device;
     QVariantMap commandLineOptions;
     DABParams dabparams;
@@ -223,6 +222,13 @@ private:
     QString autoChannel;
     QString autoStation;
 
+public slots:
+    void nameofEnsemble(const QString&v);
+    void onEventLoopStarted(void);
+    void setErrorMessage(QString Text);
+    void setErrorMessage(const std::string& head, const std::string& text = "");
+    void setInfoMessage(QString Text);
+
 private slots:
     void stationTimerTimeout(void);
     void channelTimerTimeout(void);
@@ -282,15 +288,6 @@ signals:
     void showErrorMessage(QString Text);
     void showInfoMessage(QString Text);
 #endif
-
-public slots:
-    // This slots are called from the backend
-    void nameofEnsemble(const QString&v);
-    void onEventLoopStarted(void);
-    void setErrorMessage(QString Text);
-    /* head will be translated, text will be left untranslated */
-    void setErrorMessage(const std::string& head, const std::string& text = "");
-    void setInfoMessage(QString Text);
 };
 
 #endif // CRADIOCONTROLLER_H
