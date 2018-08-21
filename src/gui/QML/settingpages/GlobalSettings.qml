@@ -26,7 +26,7 @@ Item {
 
     Component.onCompleted: {
         console.debug("Apply settings initially")
-        guiHelper.inputGainChanged(manualGainState)
+        radioController.setGain(manualGainState)
         radioController.setAGC(enableAGCState)
     }
 

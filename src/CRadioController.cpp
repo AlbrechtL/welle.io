@@ -1012,7 +1012,6 @@ void CRadioController::onNewDynamicLabel(const std::string& label)
 void CRadioController::onMOT(const std::vector<uint8_t>& Data, int subtype)
 {
     QByteArray qdata(reinterpret_cast<const char*>(Data.data()), static_cast<int>(Data.size()));
-
     motImage.loadFromData(qdata, subtype == 0 ? "GIF" : subtype == 1 ? "JPEG" : subtype == 2 ? "BMP" : "PNG");
 
     emit motChanged(motImage);
@@ -1022,4 +1021,3 @@ void CRadioController::onPADLengthError(size_t announced_xpad_len, size_t xpad_l
 {
     qDebug() << "X-PAD length mismatch, expected:" << announced_xpad_len << " effective:" << xpad_len;
 }
-
