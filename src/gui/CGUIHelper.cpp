@@ -51,11 +51,9 @@ CGUIHelper::CGUIHelper(CRadioController *RadioController, QObject *parent)
 #endif
     : QObject(parent)
     , radioController(RadioController)
-    , spectrumSeries(NULL)
-    , impulseResponseSeries(NULL)
+    , spectrumSeries(nullptr)
+    , impulseResponseSeries(nullptr)
 {
-    m_currentGainValue = 0;
-
     stationsChange(RadioController->stations());
 
     // Add image provider for the MOT slide show
@@ -256,22 +254,6 @@ void CGUIHelper::showInfoMessage(QString Text)
 #else
     (void)Text;
 #endif
-}
-
-// ToDo Need to be moved into RadioController
-void CGUIHelper::inputGainChanged(double gain)
-{
-    // ToDo Needs to be moved into RadioController
-   /* if(radioController)
-    {
-        radioController->setGain((int) gain);
-        float currentGainValue = radioController->gainValue();
-        if(currentGainValue > std::numeric_limits<float>::lowest())
-        {
-            m_currentGainValue = currentGainValue;
-            emit currentGainValueChanged();
-        }
-    }*/
 }
 
 void CGUIHelper::registerSpectrumSeries(QAbstractSeries* series)

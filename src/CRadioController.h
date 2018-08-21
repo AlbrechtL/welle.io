@@ -121,7 +121,7 @@ public:
     Q_INVOKABLE void enableTIIDecode(bool enable);
     Q_INVOKABLE void enableOldFFTWindowPlacement(bool old);
     Q_INVOKABLE void setFreqSyncMethod(int fsm_ix);
-    void setGain(int gain);
+    Q_INVOKABLE void setGain(int gain);
     DABParams& getDABParams(void);
     int getCurrentFrequency();
 

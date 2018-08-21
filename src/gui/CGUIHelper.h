@@ -56,7 +56,6 @@ class CGUIHelper : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QVariant stationModel READ stationModel NOTIFY stationModelChanged)
-    Q_PROPERTY(float currentGainValue MEMBER m_currentGainValue NOTIFY currentGainValueChanged)
     Q_PROPERTY(QVariant licenses READ licenses CONSTANT)
 
 public:
@@ -69,7 +68,6 @@ public:
     CGUIHelper(CRadioController *radioController, QObject* parent = nullptr);
 #endif
     ~CGUIHelper();
-    Q_INVOKABLE void inputGainChanged(double gain);
     Q_INVOKABLE void registerSpectrumSeries(QAbstractSeries* series);
     Q_INVOKABLE void registerImpulseResonseSeries(QAbstractSeries* series);
     Q_INVOKABLE void registerNullSymbolSeries(QAbstractSeries* series);
@@ -112,7 +110,6 @@ private:
 
     QVariant p_stationModel;
 
-    float m_currentGainValue;
 
 #ifndef QT_NO_SYSTEMTRAYICON
     QAction *minimizeAction;
@@ -139,7 +136,6 @@ private slots:
 
 signals:
     void foundChannelCount(int channelCount);
-    void currentGainValueChanged();
     void setSpectrumAxis(qreal Ymax, qreal Xmin, qreal Xmax);
     void setImpulseResponseAxis(qreal Ymax, qreal Xmin, qreal Xmax);
     void setNullSymbolAxis(qreal Ymax, qreal Xmin, qreal Xmax);

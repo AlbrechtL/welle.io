@@ -84,10 +84,10 @@ Item {
                 Layout.fillWidth: true
                 checked: true
                 onClicked: {
-                    guiHelper.inputEnableAGCChanged(checked)
+                    radioController.setAGC(checked)
 
                     if(checked == false)
-                        guiHelper.inputGainChanged(manualGain.value)
+                        radioController.setGain(manualGain.value)
                 }
             }
 
@@ -108,7 +108,7 @@ Item {
 
                     Text {
                         id: valueSliderView
-                        text: qsTr("Value: ") + guiHelper.currentGainValue.toFixed(2)
+                        text: qsTr("Value: ") + radioController.gainValue.toFixed(2)
                         font.pixelSize: TextStyle.textStandartSize
                         font.family: TextStyle.textFont
                         color: TextStyle.textColor
@@ -125,7 +125,7 @@ Item {
 
                     onValueChanged: {
                         if(enableAGC.checked == false)
-                            guiHelper.inputGainChanged(value)
+                            radioController.setGain(value)
                     }
                 }
             }
