@@ -64,11 +64,9 @@ CGUIHelper::CGUIHelper(CRadioController *RadioController, QObject *parent)
 #ifdef Q_OS_ANDROID
     connect(RadioController, &CRadioControllerReplica::stateChanged, this, &CGUI::stateChanged);
     connect(RadioController, &CRadioControllerReplica::deviceClosed, this, &CGUI::deviceClosed);
-    connect(RadioController, &CRadioControllerReplica::guiDataChanged, this, &CGUI::guiDataChanged);
     connect(RadioController, &CRadioControllerReplica::motChanged, this, &CGUI::motUpdate);
     connect(RadioController, &CRadioControllerReplica::stationsChanged, this, &CGUI::stationsChange);
 #else
-    connect(RadioController, &CRadioController::guiDataChanged, this, &CGUIHelper::guiDataChanged);
     connect(RadioController, &CRadioController::motChanged, this, &CGUIHelper::motUpdate);
     connect(RadioController, &CRadioController::stationsChanged, this, &CGUIHelper::stationsChange);
     connect(RadioController, &CRadioController::showErrorMessage, this, &CGUIHelper::showErrorMessage);
@@ -260,9 +258,11 @@ void CGUIHelper::showInfoMessage(QString Text)
 #endif
 }
 
+// ToDo Need to be moved into RadioController
 void CGUIHelper::inputGainChanged(double gain)
 {
-    if(radioController)
+    // ToDo Needs to be moved into RadioController
+   /* if(radioController)
     {
         radioController->setGain((int) gain);
         float currentGainValue = radioController->gainValue();
@@ -271,7 +271,7 @@ void CGUIHelper::inputGainChanged(double gain)
             m_currentGainValue = currentGainValue;
             emit currentGainValueChanged();
         }
-    }
+    }*/
 }
 
 void CGUIHelper::registerSpectrumSeries(QAbstractSeries* series)

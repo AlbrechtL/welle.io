@@ -16,7 +16,7 @@ Item{
         anchors.top: parent.top
         anchors.topMargin: Units.dp(5)
         anchors.horizontalCenter: parent.horizontalCenter
-        text: guiHelper.guiData.Ensemble
+        text: radioController.guiData.Ensemble
     }
 
     RowLayout{
@@ -104,7 +104,7 @@ Item{
         TextRadioStation {
             id: stationTitle
             Layout.alignment: Qt.AlignHCenter
-            text: guiHelper.guiData.Title
+            text: radioController.guiData.Title
         }
 
         /* Station Text */
@@ -116,14 +116,14 @@ Item{
             width: parent.parent.width
             wrapMode: Text.WordWrap
             horizontalAlignment: Text.AlignHCenter
-            text: guiHelper.guiData.Text
+            text: radioController.guiData.Text
         }
     }
 
     RowLayout{
         id: stationInfo
-        visible: (guiHelper.guiData.Status === 2 /* Playing */
-                  || guiHelper.guiData.Status === 3 /* Paused */)
+        visible: (radioController.guiData.Status === 2 /* Playing */
+                  || radioController.guiData.Status === 3 /* Paused */)
         anchors.bottom: parent.bottom
         anchors.bottomMargin: Units.dp(5)
         Layout.fillWidth : true
@@ -135,7 +135,7 @@ Item{
             visible: stationInfo.visible
             Layout.alignment: Qt.AlignLeft
             Layout.leftMargin: Units.dp(5)
-            text: guiHelper.guiData.StationType
+            text: radioController.guiData.StationType
         }
 
         TextRadioInfo {

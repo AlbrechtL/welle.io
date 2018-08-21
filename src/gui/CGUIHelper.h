@@ -55,7 +55,6 @@
 class CGUIHelper : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QVariantMap guiData READ guiData NOTIFY guiDataChanged)
     Q_PROPERTY(QVariant stationModel READ stationModel NOTIFY stationModelChanged)
     Q_PROPERTY(float currentGainValue MEMBER m_currentGainValue NOTIFY currentGainValueChanged)
     Q_PROPERTY(QVariant licenses READ licenses CONSTANT)
@@ -80,11 +79,6 @@ public:
     Q_INVOKABLE void updateImpulseResponse();
     Q_INVOKABLE void updateNullSymbol();
     Q_INVOKABLE void updateConstellation();
-
-    QVariantMap guiData() const
-    {
-        return radioController->guiData();
-    }
 
     QVariant stationModel() const
     {
@@ -150,7 +144,6 @@ signals:
     void setImpulseResponseAxis(qreal Ymax, qreal Xmin, qreal Xmax);
     void setNullSymbolAxis(qreal Ymax, qreal Xmin, qreal Xmax);
     void setConstellationAxis(qreal Xmin, qreal Xmax);
-    void guiDataChanged(QVariantMap guiData);
     void stationModelChanged();
     void motChanged(void);
     void newDebugOutput(QString text);

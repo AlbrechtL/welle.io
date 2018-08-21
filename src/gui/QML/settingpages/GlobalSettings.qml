@@ -31,7 +31,7 @@ Item {
     }
 
     Connections{
-        target: guiHelper
+        target: radioController
 
         onGuiDataChanged:{
             manualGain.to = radioController.gainCount

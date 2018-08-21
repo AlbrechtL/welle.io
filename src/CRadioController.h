@@ -64,31 +64,31 @@ class CRadioController :
     public ProgrammeHandlerInterface
 {
     Q_OBJECT
-    Q_PROPERTY(QString dateTime READ dateTime NOTIFY dateTimeChanged)
-    Q_PROPERTY(bool isSync READ isSync NOTIFY isSyncChanged)
-    Q_PROPERTY(bool isFICCRC READ isFICCRC NOTIFY isFICCRCChanged)
-    Q_PROPERTY(bool isSignal READ isSignal NOTIFY isSignalChanged)
-    Q_PROPERTY(bool isStereo READ isStereo NOTIFY isStereoChanged)
-    Q_PROPERTY(bool isDAB READ isDAB NOTIFY isDABChanged)
-    Q_PROPERTY(int snr READ snr NOTIFY snrChanged)
-    Q_PROPERTY(int frequencyCorrection READ frequencyCorrection NOTIFY frequencyCorrectionChanged)
-    Q_PROPERTY(float frequencyCorrectionPpm READ frequencyCorrectionPpm NOTIFY frequencyCorrectionPpmChanged)
-    Q_PROPERTY(int bitRate READ bitRate NOTIFY bitRateChanged)
-    Q_PROPERTY(int audioSampleRate READ audioSampleRate NOTIFY audioSampleRateChanged)
-    Q_PROPERTY(int frameErrors READ frameErrors NOTIFY frameErrorsChanged)
-    Q_PROPERTY(int rsErrors READ rsErrors NOTIFY rsErrorsChanged)
-    Q_PROPERTY(int aacErrors READ aacErrors NOTIFY aacErrorsChanged)
-    Q_PROPERTY(bool isHwAGCSupported READ isHwAGCSupported NOTIFY isHwAGCSupportedChanged)
-    Q_PROPERTY(bool hwAgc READ hwAgc WRITE setHwAGC NOTIFY hwAgcChanged)
-    Q_PROPERTY(bool agc READ agc WRITE setAGC NOTIFY agcChanged)
-    Q_PROPERTY(float gainValue READ gainValue NOTIFY gainValueChanged)
-    Q_PROPERTY(int gainCount READ gainCount NOTIFY gainCountChanged)
-    Q_PROPERTY(int gain READ gain WRITE setGain NOTIFY gainChanged)
-    Q_PROPERTY(qreal volume READ volume WRITE setVolume NOTIFY volumeChanged)
+    Q_PROPERTY(QDateTime dateTime MEMBER mCurrentDateTime NOTIFY dateTimeChanged)
+    Q_PROPERTY(bool isSync MEMBER mIsSync NOTIFY isSyncChanged)
+    Q_PROPERTY(bool isFICCRC MEMBER mIsFICCRC NOTIFY isFICCRCChanged)
+    Q_PROPERTY(bool isSignal MEMBER mIsSignal NOTIFY isSignalChanged)
+    Q_PROPERTY(bool isStereo MEMBER mIsStereo NOTIFY isStereoChanged)
+    Q_PROPERTY(bool isDAB MEMBER mIsDAB NOTIFY isDABChanged)
+    Q_PROPERTY(int snr MEMBER mSNR NOTIFY snrChanged)
+    Q_PROPERTY(int frequencyCorrection MEMBER mFrequencyCorrection NOTIFY frequencyCorrectionChanged)
+    Q_PROPERTY(float frequencyCorrectionPpm MEMBER mFrequencyCorrectionPpm NOTIFY frequencyCorrectionPpmChanged)
+    Q_PROPERTY(int bitRate MEMBER mBitRate NOTIFY bitRateChanged)
+    Q_PROPERTY(int audioSampleRate MEMBER mAudioSampleRate NOTIFY audioSampleRateChanged)
+    Q_PROPERTY(int frameErrors MEMBER mFrameErrors NOTIFY frameErrorsChanged)
+    Q_PROPERTY(int rsErrors MEMBER mRSErrors NOTIFY rsErrorsChanged)
+    Q_PROPERTY(int aacErrors MEMBER mAACErrors NOTIFY aacErrorsChanged)
+    Q_PROPERTY(bool isHwAGCSupported MEMBER isHwAGCSupported NOTIFY isHwAGCSupportedChanged)
+    Q_PROPERTY(bool hwAgc MEMBER isHwAGC WRITE setHwAGC NOTIFY hwAgcChanged)
+    Q_PROPERTY(bool agc MEMBER isAGC WRITE setAGC NOTIFY agcChanged)
+    Q_PROPERTY(float gainValue MEMBER currentManualGainValue NOTIFY gainValueChanged)
+    Q_PROPERTY(int gainCount MEMBER mGainCount NOTIFY gainCountChanged)
+    Q_PROPERTY(int gain MEMBER currentManualGain WRITE setGain NOTIFY gainChanged)
+    Q_PROPERTY(qreal volume MEMBER currentVolume WRITE setVolume NOTIFY volumeChanged)
     Q_PROPERTY(QList<StationElement*> stations READ stations NOTIFY stationsChanged)
-    Q_PROPERTY(QVariantMap guiData READ guiData NOTIFY guiDataChanged)
-    Q_PROPERTY(QString errorMsg READ errorMsg NOTIFY showErrorMessage)
-    Q_PROPERTY(QImage mot READ mot NOTIFY motChanged)
+    Q_PROPERTY(QVariantMap guiData MEMBER mGUIData NOTIFY guiDataChanged)
+    Q_PROPERTY(QString errorMsg MEMBER mErrorMsg NOTIFY showErrorMessage)
+    Q_PROPERTY(QImage mot MEMBER motImage NOTIFY motChanged)
 #endif
 
 public:
@@ -156,30 +156,6 @@ public:
     virtual void onMessage(message_level_t level, const std::string& text) override;
 
     QList<StationElement*> stations() const;
-    QVariantMap guiData(void) const;
-    QString errorMsg() const;
-    QImage mot() const;
-    QString dateTime() const;
-    bool isSync() const;
-    bool isFICCRC() const;
-    bool isSignal() const;
-    bool isStereo() const;
-    bool isDAB() const;
-    int snr() const;
-    int frequencyCorrection() const;
-    float frequencyCorrectionPpm() const;
-    int bitRate() const;
-    int audioSampleRate() const;
-    int frameErrors() const;
-    int rsErrors() const;
-    int aacErrors() const;
-    qreal volume() const;
-    bool isHwAGCSupported() const;
-    bool hwAgc() const;
-    bool agc() const;
-    int gain() const;
-    int gainCount() const;
-    float gainValue() const;
 
 private:
     void initialise(void);
@@ -248,6 +224,7 @@ private:
     bool isChannelScan;
     bool isAGC;
     bool isHwAGC;
+    bool isHwAGCSupported;
     bool isAutoPlay;
     QString autoChannel;
     QString autoStation;
@@ -268,7 +245,7 @@ signals:
 
 #ifndef Q_OS_ANDROID
 signals:
-    void dateTimeChanged(QString);
+    void dateTimeChanged(QDateTime);
     void isSyncChanged(bool);
     void isFICCRCChanged(bool);
     void isSignalChanged(bool);

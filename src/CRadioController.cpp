@@ -121,6 +121,7 @@ void CRadioController::resetTechnicalData(void)
     isChannelScan = false;
     isAGC = true;
     isHwAGC = true;
+    isHwAGCSupported = false;
 
     updateGUIData();
 
@@ -142,7 +143,6 @@ void CRadioController::closeDevice()
     // Reset the technical data
     resetTechnicalData();
 
-    emit isHwAGCSupportedChanged(isHwAGCSupported());
     emit deviceClosed();
 }
 
@@ -265,7 +265,9 @@ void CRadioController::initialise(void)
 
     dabStatus = Initialised;
     emit deviceReady();
-    emit isHwAGCSupportedChanged(isHwAGCSupported());
+
+    isHwAGCSupported = device->isHwAgcSupported();
+    emit isHwAGCSupportedChanged(isHwAGCSupported);
     updateGUIData();
 
     if(isAutoPlay) {
@@ -348,11 +350,6 @@ void CRadioController::clearStations()
     // Clear last station
     QSettings Settings;
     Settings.remove("lastchannel");
-}
-
-qreal CRadioController::volume() const
-{
-    return currentVolume;
 }
 
 void CRadioController::setVolume(qreal Volume)
@@ -491,11 +488,6 @@ QList<StationElement *> CRadioController::stations() const
     return stationList.getList();
 }
 
-QVariantMap CRadioController::guiData(void) const
-{
-    return mGUIData;
-}
-
 void CRadioController::updateGUIData()
 {
     mGUIData["DeviceName"] = device ?
@@ -516,102 +508,6 @@ void CRadioController::updateGUIData()
     emit guiDataChanged(mGUIData);
 }
 
-QImage CRadioController::mot() const
-{
-    return motImage;
-}
-
-QString CRadioController::errorMsg() const
-{
-    return mErrorMsg;
-}
-
-QString CRadioController::dateTime() const
-{
-    QDateTime LocalTime = mCurrentDateTime.toLocalTime();
-    return QLocale().toString(LocalTime, QLocale::ShortFormat);
-}
-
-bool CRadioController::isSync() const
-{
-    return mIsSync;
-}
-
-bool CRadioController::isFICCRC() const
-{
-    return mIsFICCRC;
-}
-
-bool CRadioController::isSignal() const
-{
-    return mIsSignal;
-}
-
-bool CRadioController::isStereo() const
-{
-    return mIsStereo;
-}
-
-bool CRadioController::isDAB() const
-{
-    return mIsDAB;
-}
-
-int CRadioController::snr() const
-{
-    return mSNR;
-}
-
-int CRadioController::frequencyCorrection() const
-{
-    return mFrequencyCorrection;
-}
-
-float CRadioController::frequencyCorrectionPpm() const
-{
-    return mFrequencyCorrectionPpm;
-}
-
-int CRadioController::bitRate() const
-{
-    return mBitRate;
-}
-
-int CRadioController::audioSampleRate() const
-{
-    return mAudioSampleRate;
-}
-
-int CRadioController::frameErrors() const
-{
-    return mFrameErrors;
-}
-
-int CRadioController::rsErrors() const
-{
-    return mRSErrors;
-}
-
-int CRadioController::aacErrors() const
-{
-    return mAACErrors;
-}
-
-int CRadioController::gainCount() const
-{
-    return mGainCount;
-}
-
-bool CRadioController::isHwAGCSupported() const
-{
-    return device ? device->isHwAgcSupported() : false;
-}
-
-bool CRadioController::hwAgc() const
-{
-    return this->isHwAGC;
-}
-
 void CRadioController::setHwAGC(bool isHwAGC)
 {
     this->isHwAGC = isHwAGC;
@@ -621,11 +517,6 @@ void CRadioController::setHwAGC(bool isHwAGC)
         qDebug() << "RadioController:" << (isHwAGC ? "HwAGC on" : "HwAGC off");
     }
     emit hwAgcChanged(isHwAGC);
-}
-
-bool CRadioController::agc() const
-{
-    return this->isAGC;
 }
 
 void CRadioController::setAGC(bool isAGC)
@@ -679,17 +570,6 @@ void CRadioController::setFreqSyncMethod(int fsm_ix)
     if (my_rx) {
         my_rx->setReceiverOptions(rro);
     }
-}
-
-
-float CRadioController::gainValue() const
-{
-    return currentManualGainValue;
-}
-
-int CRadioController::gain() const
-{
-    return currentManualGain;
 }
 
 void CRadioController::setGain(int Gain)
@@ -989,8 +869,7 @@ void CRadioController::displayDateTime(const dab_date_time_t& dateTime)
     mCurrentDateTime.setOffsetFromUtc(OffsetFromUtc);
     mCurrentDateTime.setTimeSpec(Qt::OffsetFromUTC);
 
-    QDateTime LocalTime = mCurrentDateTime.toLocalTime();
-    emit dateTimeChanged(QLocale().toString(LocalTime, QLocale::ShortFormat));
+    emit dateTimeChanged(mCurrentDateTime);
 }
 
 void CRadioController::onFIBDecodeSuccess(bool crcCheckOk, const uint8_t* fib)
