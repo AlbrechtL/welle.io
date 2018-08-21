@@ -65,29 +65,29 @@ class CRadioController :
 {
     Q_OBJECT
     Q_PROPERTY(QString deviceName MEMBER deviceName NOTIFY deviceNameChanged)
-    Q_PROPERTY(QDateTime dateTime MEMBER mCurrentDateTime NOTIFY dateTimeChanged)
-    Q_PROPERTY(bool isSync MEMBER mIsSync NOTIFY isSyncChanged)
-    Q_PROPERTY(bool isFICCRC MEMBER mIsFICCRC NOTIFY isFICCRCChanged)
-    Q_PROPERTY(bool isSignal MEMBER mIsSignal NOTIFY isSignalChanged)
-    Q_PROPERTY(bool isStereo MEMBER mIsStereo NOTIFY isStereoChanged)
-    Q_PROPERTY(bool isDAB MEMBER mIsDAB NOTIFY isDABChanged)
-    Q_PROPERTY(int snr MEMBER mSNR NOTIFY snrChanged)
-    Q_PROPERTY(int frequencyCorrection MEMBER mFrequencyCorrection NOTIFY frequencyCorrectionChanged)
-    Q_PROPERTY(float frequencyCorrectionPpm MEMBER mFrequencyCorrectionPpm NOTIFY frequencyCorrectionPpmChanged)
-    Q_PROPERTY(int bitRate MEMBER mBitRate NOTIFY bitRateChanged)
-    Q_PROPERTY(int audioSampleRate MEMBER mAudioSampleRate NOTIFY audioSampleRateChanged)
-    Q_PROPERTY(int frameErrors MEMBER mFrameErrors NOTIFY frameErrorsChanged)
-    Q_PROPERTY(int rsErrors MEMBER mRSErrors NOTIFY rsErrorsChanged)
-    Q_PROPERTY(int aacErrors MEMBER mAACErrors NOTIFY aacErrorsChanged)
+    Q_PROPERTY(QDateTime dateTime MEMBER currentDateTime NOTIFY dateTimeChanged)
+    Q_PROPERTY(bool isSync MEMBER isSync NOTIFY isSyncChanged)
+    Q_PROPERTY(bool isFICCRC MEMBER isFICCRC NOTIFY isFICCRCChanged)
+    Q_PROPERTY(bool isSignal MEMBER isSignal NOTIFY isSignalChanged)
+    Q_PROPERTY(bool isStereo MEMBER isStereo NOTIFY isStereoChanged)
+    Q_PROPERTY(bool isDAB MEMBER isDAB NOTIFY isDABChanged)
+    Q_PROPERTY(int snr MEMBER snr NOTIFY snrChanged)
+    Q_PROPERTY(int frequencyCorrection MEMBER frequencyCorrection NOTIFY frequencyCorrectionChanged)
+    Q_PROPERTY(float frequencyCorrectionPpm MEMBER frequencyCorrectionPpm NOTIFY frequencyCorrectionPpmChanged)
+    Q_PROPERTY(int bitRate MEMBER bitRate NOTIFY bitRateChanged)
+    Q_PROPERTY(int audioSampleRate MEMBER audioSampleRate NOTIFY audioSampleRateChanged)
+    Q_PROPERTY(int frameErrors MEMBER frameErrors NOTIFY frameErrorsChanged)
+    Q_PROPERTY(int rsErrors MEMBER rsErrors NOTIFY rsErrorsChanged)
+    Q_PROPERTY(int aacErrors MEMBER aaErrors NOTIFY aacErrorsChanged)
     Q_PROPERTY(bool isHwAGCSupported MEMBER isHwAGCSupported NOTIFY isHwAGCSupportedChanged)
     Q_PROPERTY(bool hwAgc MEMBER isHwAGC WRITE setHwAGC NOTIFY hwAgcChanged)
     Q_PROPERTY(bool agc MEMBER isAGC WRITE setAGC NOTIFY agcChanged)
     Q_PROPERTY(float gainValue MEMBER currentManualGainValue NOTIFY gainValueChanged)
-    Q_PROPERTY(int gainCount MEMBER mGainCount NOTIFY gainCountChanged)
+    Q_PROPERTY(int gainCount MEMBER gainCount NOTIFY gainCountChanged)
     Q_PROPERTY(int gain MEMBER currentManualGain WRITE setGain NOTIFY gainChanged)
     Q_PROPERTY(qreal volume MEMBER currentVolume WRITE setVolume NOTIFY volumeChanged)
     Q_PROPERTY(QList<StationElement*> stations READ stations NOTIFY stationsChanged)
-    Q_PROPERTY(QString errorMsg MEMBER mErrorMsg NOTIFY showErrorMessage)
+    Q_PROPERTY(QString errorMsg MEMBER errorMsg NOTIFY showErrorMessage)
     Q_PROPERTY(QImage mot MEMBER motImage NOTIFY motChanged)
 
     Q_PROPERTY(QString channel MEMBER currentChannel NOTIFY channelChanged)
@@ -177,23 +177,23 @@ private:
     std::mutex constellationPointBufferMutex;
     std::vector<DSPCOMPLEX> constellationPointBuffer;
 
-    QString mErrorMsg;
-    QDateTime mCurrentDateTime;
-    bool mIsSync;
-    bool mIsFICCRC;
-    bool mIsSignal;
-    bool mIsStereo;
-    bool mIsDAB;
-    int mSNR;
-    int mFrequencyCorrection;
-    float mFrequencyCorrectionPpm;
-    int mBitRate;
-    int mAudioSampleRate;
-    int mFrameErrors;
-    int mRSErrors;
-    int mAACErrors;
-    int mGainCount;
-    int mStationCount;
+    QString errorMsg;
+    QDateTime currentDateTime;
+    bool isSync;
+    bool isFICCRC;
+    bool isSignal;
+    bool isStereo;
+    bool isDAB;
+    int snr;
+    int frequencyCorrection;
+    float frequencyCorrectionPpm;
+    int bitRate;
+    int audioSampleRate;
+    int frameErrors;
+    int rsErrors;
+    int aaErrors;
+    int gainCount;
+    int stationCount;
     QImage motImage;
 
     QString currentChannel;

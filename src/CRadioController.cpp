@@ -293,12 +293,12 @@ void CRadioController::startScan(void)
         setChannel(Channel, true);
 
         isChannelScan = true;
-        mStationCount = 0;
+        stationCount = 0;
         currentTitle = tr("Scanning") + " ... " + Channel
                 + " (" + QString::number((1 * 100 / NUMBEROFCHANNELS)) + "%)";
         emit titleChanged();
 
-        currentText = tr("Found channels") + ": " + QString::number(mStationCount);
+        currentText = tr("Found channels") + ": " + QString::number(stationCount);
         emit textChanged();
 
         currentStation = "";
@@ -405,11 +405,11 @@ void CRadioController::setGain(int Gain)
 
     if (device) {
         currentManualGainValue = device->setGain(Gain);
-        int32_t mGainCount_tmp = device->getGainCount();
+        int32_t gainCount_tmp = device->getGainCount();
 
-        if(mGainCount != mGainCount_tmp) {
-            mGainCount = mGainCount_tmp;
-            emit gainCountChanged(mGainCount);
+        if(gainCount != gainCount_tmp) {
+            gainCount = gainCount_tmp;
+            emit gainCountChanged(gainCount);
         }
     }
     else
@@ -470,8 +470,8 @@ std::vector<DSPCOMPLEX> CRadioController::getConstellationPoint()
  ********************/
 void CRadioController::initialise(void)
 {
-    mGainCount = device->getGainCount();
-    emit gainCountChanged(mGainCount);
+    gainCount = device->getGainCount();
+    emit gainCountChanged(gainCount);
 
     device->setHwAgc(isHwAGC);
 
@@ -529,22 +529,22 @@ void CRadioController::resetTechnicalData(void)
     currentText = "";
     emit textChanged();
 
-    mErrorMsg = "";
-    mIsSync = false;
-    mIsFICCRC = false;
-    mIsSignal = false;
-    mSNR = 0;
-    mFrequencyCorrection = 0;
-    mFrequencyCorrectionPpm = NAN;
-    mBitRate = 0;
-    mAudioSampleRate = 0;
-    mIsStereo = true;
-    mIsDAB = true;
-    mFrameErrors = 0;
-    mRSErrors = 0;
-    mAACErrors = 0;
-    mGainCount = 0;
-    mStationCount = 0;
+    errorMsg = "";
+    isSync = false;
+    isFICCRC = false;
+    isSignal = false;
+    snr = 0;
+    frequencyCorrection = 0;
+    frequencyCorrectionPpm = NAN;
+    bitRate = 0;
+    audioSampleRate = 0;
+    isStereo = true;
+    isDAB = true;
+    frameErrors = 0;
+    rsErrors = 0;
+    aaErrors = 0;
+    gainCount = 0;
+    stationCount = 0;
     currentManualGain = 0;
     currentManualGainValue = std::numeric_limits<float>::lowest();
     currentVolume = 1.0;
@@ -685,7 +685,7 @@ void CRadioController::onEventLoopStarted()
 
 void CRadioController::setErrorMessage(QString Text)
 {
-    mErrorMsg = Text;
+    errorMsg = Text;
     emit showErrorMessage(Text);
 }
 
@@ -751,14 +751,14 @@ void CRadioController::stationTimerTimeout()
                             currentLanguageType = tr(DABConstants::getLanguageName(s.language));
                             emit languageTypeChanged();
 
-                            mBitRate = subch.bitrate();
-                            emit bitRateChanged(mBitRate);
+                            bitRate = subch.bitrate();
+                            emit bitRateChanged(bitRate);
 
                             if (sc.audioType() == AudioServiceComponentType::DABPlus)
-                                mIsDAB = false;
+                                isDAB = false;
                             else
-                                mIsDAB = true;
-                            emit isDABChanged(mIsDAB);
+                                isDAB = true;
+                            emit isDABChanged(isDAB);
                         }
 
                         return;
@@ -783,17 +783,17 @@ void CRadioController::displayDateTime(const dab_date_time_t& dateTime)
     QTime Time;
 
     Time.setHMS(dateTime.hour, dateTime.minutes, dateTime.seconds);
-    mCurrentDateTime.setTime(Time);
+    currentDateTime.setTime(Time);
 
     Date.setDate(dateTime.year, dateTime.month, dateTime.day);
-    mCurrentDateTime.setDate(Date);
+    currentDateTime.setDate(Date);
 
     int OffsetFromUtc = dateTime.hourOffset * 3600 +
                         dateTime.minuteOffset * 60;
-    mCurrentDateTime.setOffsetFromUtc(OffsetFromUtc);
-    mCurrentDateTime.setTimeSpec(Qt::OffsetFromUTC);
+    currentDateTime.setOffsetFromUtc(OffsetFromUtc);
+    currentDateTime.setTimeSpec(Qt::OffsetFromUTC);
 
-    emit dateTimeChanged(mCurrentDateTime);
+    emit dateTimeChanged(currentDateTime);
 }
 
 void CRadioController::nextChannel(bool isWait)
@@ -829,8 +829,8 @@ void CRadioController::addtoEnsemble(quint32 SId, const QString &Station)
     stationListStr.append(Station);
 
     if (isChannelScan == true) {
-        mStationCount++;
-        currentText = tr("Found channels") + ": " + QString::number(mStationCount);
+        stationCount++;
+        currentText = tr("Found channels") + ": " + QString::number(stationCount);
         emit textChanged();
     }
 
@@ -870,10 +870,10 @@ void CRadioController::onDateTimeUpdate(const dab_date_time_t& dateTime)
 void CRadioController::onFIBDecodeSuccess(bool crcCheckOk, const uint8_t* fib)
 {
     (void)fib;
-    if (mIsFICCRC == crcCheckOk)
+    if (isFICCRC == crcCheckOk)
         return;
-    mIsFICCRC = crcCheckOk;
-    emit isFICCRCChanged(mIsFICCRC);
+    isFICCRC = crcCheckOk;
+    emit isFICCRCChanged(isFICCRC);
 }
 
 void CRadioController::onNewImpulseResponse(std::vector<float>&& data)
@@ -917,40 +917,40 @@ void CRadioController::onMessage(message_level_t level, const std::string& text)
 
 void CRadioController::onSNR(int snr)
 {
-    if (mSNR == snr)
+    if (this->snr == snr)
         return;
-    mSNR = snr;
-    emit snrChanged(mSNR);
+    this->snr = snr;
+    emit snrChanged(this->snr);
 }
 
 void CRadioController::onFrequencyCorrectorChange(int fine, int coarse)
 {
-    if (mFrequencyCorrection == coarse + fine)
+    if (frequencyCorrection == coarse + fine)
         return;
-    mFrequencyCorrection = coarse + fine;
-    emit frequencyCorrectionChanged(mFrequencyCorrection);
+    frequencyCorrection = coarse + fine;
+    emit frequencyCorrectionChanged(frequencyCorrection);
 
     if (currentFrequency != 0)
-        mFrequencyCorrectionPpm = -1000000.0f * static_cast<float>(mFrequencyCorrection) / static_cast<float>(currentFrequency);
+        frequencyCorrectionPpm = -1000000.0f * static_cast<float>(frequencyCorrection) / static_cast<float>(currentFrequency);
     else
-        mFrequencyCorrectionPpm = NAN;
-    emit frequencyCorrectionPpmChanged(mFrequencyCorrectionPpm);
+        frequencyCorrectionPpm = NAN;
+    emit frequencyCorrectionPpmChanged(frequencyCorrectionPpm);
 }
 
 void CRadioController::onSyncChange(char isSync)
 {
     bool sync = (isSync == SYNCED) ? true : false;
-    if (mIsSync == sync)
+    if (this->isSync == sync)
         return;
-    mIsSync = sync;
-    emit isSyncChanged(mIsSync);
+    this->isSync = sync;
+    emit isSyncChanged(isSync);
 }
 
 void CRadioController::onSignalPresence(bool isSignal)
 {
-    if (mIsSignal != isSignal) {
-        mIsSignal = isSignal;
-        emit isSignalChanged(mIsSignal);
+    if (this->isSignal != isSignal) {
+        this->isSignal = isSignal;
+        emit isSignalChanged(isSignal);
     }
 
     if (isChannelScan)
@@ -961,43 +961,43 @@ void CRadioController::onNewAudio(std::vector<int16_t>&& audioData, int sampleRa
 {
     audioBuffer.putDataIntoBuffer(audioData.data(), static_cast<int32_t>(audioData.size()));
 
-    if (mAudioSampleRate != sampleRate) {
+    if (audioSampleRate != sampleRate) {
         qDebug() << "RadioController: Audio sample rate" <<  sampleRate << "kHz, mode=" <<
             QString::fromStdString(mode);
-        mAudioSampleRate = sampleRate;
-        emit audioSampleRateChanged(mAudioSampleRate);
+        audioSampleRate = sampleRate;
+        emit audioSampleRateChanged(audioSampleRate);
 
         audio.setRate(sampleRate);
     }
 
-    if (mIsStereo != isStereo) {
-        mIsStereo = isStereo;
-        emit isStereoChanged(mIsStereo);
+    if (this->isStereo != isStereo) {
+        this->isStereo = isStereo;
+        emit isStereoChanged(this->isStereo);
     }
 }
 
 void CRadioController::onFrameErrors(int frameErrors)
 {
-    if (mFrameErrors == frameErrors)
+    if (this->frameErrors == frameErrors)
         return;
-    mFrameErrors = frameErrors;
-    emit frameErrorsChanged(mFrameErrors);
+    this->frameErrors = frameErrors;
+    emit frameErrorsChanged(this->frameErrors);
 }
 
 void CRadioController::onRsErrors(int rsErrors)
 {
-    if (mRSErrors == rsErrors)
+    if (this->rsErrors == rsErrors)
         return;
-    mRSErrors = rsErrors;
-    emit rsErrorsChanged(mRSErrors);
+    this->rsErrors = rsErrors;
+    emit rsErrorsChanged(this->rsErrors);
 }
 
 void CRadioController::onAacErrors(int aacErrors)
 {
-    if (mAACErrors == aacErrors)
+    if (this->aaErrors == aacErrors)
         return;
-    mAACErrors = aacErrors;
-    emit aacErrorsChanged(mAACErrors);
+    this->aaErrors = aacErrors;
+    emit aacErrorsChanged(this->aaErrors);
 }
 
 void CRadioController::onNewDynamicLabel(const std::string& label)
