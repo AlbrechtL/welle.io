@@ -64,7 +64,7 @@ public:
                                       QTranslator *OldTranslator = nullptr);
 
 #ifdef Q_OS_ANDROID
-    CGUI(CRadioControllerReplica *RadioController, QObject* parent = NULL);
+    CGUIHelper(CRadioControllerReplica *RadioController, QObject* parent = nullptr);
 #else
     CGUIHelper(CRadioController *radioController, QObject* parent = nullptr);
 #endif

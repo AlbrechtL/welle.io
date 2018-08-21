@@ -83,19 +83,19 @@ int main(int argc, char** argv)
         QVariantMap commandLineOptions;
 
         // Create a new radio interface instance
-        CRadioController* RadioController = new CRadioController(commandLineOptions, dabparams);
+        CRadioController* radioController = new CRadioController(commandLineOptions, dabparams);
 
         // Enable remoting source
         QRemoteObjectHost srcNode(QUrl(QStringLiteral("local:replica")));
-        srcNode.enableRemoting(RadioController);
+        srcNode.enableRemoting(radioController);
 
-        CAndroidJNI::getInstance().setRadioController(RadioController);
+        CAndroidJNI::getInstance().setRadioController(radioController);
 
         // Run application
         app.exec();
 
         // Delete the RadioController controller to ensure a save shutdown
-        delete RadioController;
+        delete radioController;
 
         qDebug() << "main:" <<  "Service closed";
 
