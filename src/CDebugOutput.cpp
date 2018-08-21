@@ -52,7 +52,7 @@ void CDebugOutput::customMessageHandler(QtMsgType type, const QMessageLogContext
     case QtDebugMsg: txt = QString("Debug: %1").arg(str); break;
     case QtWarningMsg: txt = QString("Warning: %1").arg(str); break;
     case QtCriticalMsg: txt = QString("Critical: %1").arg(str); break;
-    case QtFatalMsg: txt = QString("Fatal: %1").arg(str); abort();
+    case QtFatalMsg: txt = QString("Fatal: %1").arg(str); break;
     }
 
     handleMessage(txt + "\n");
