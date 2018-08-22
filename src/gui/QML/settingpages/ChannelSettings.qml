@@ -14,7 +14,6 @@ Item {
         property alias enableLastPlayedStationState : enableLastPlayedStation.checked
     }
 
-
     ColumnLayout{
         id: layout
         anchors.top: parent.top
@@ -26,14 +25,6 @@ Item {
             id: enableLastPlayedStation
             text: qsTr("Automatic start playing last station")
             checked: false
-        }
-
-        Button {
-            id: clearListButton
-            text: qsTr("Clear station list")
-            font.pixelSize: TextStyle.textStandartSize
-            font.family: TextStyle.textFont
-            onClicked: radioController.clearStations()
         }
     }
 }

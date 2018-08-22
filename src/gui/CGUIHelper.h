@@ -55,7 +55,6 @@
 class CGUIHelper : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QVariant stationModel READ stationModel NOTIFY stationModelChanged)
     Q_PROPERTY(QVariant licenses READ licenses CONSTANT)
 
 public:
@@ -77,11 +76,6 @@ public:
     Q_INVOKABLE void updateImpulseResponse();
     Q_INVOKABLE void updateNullSymbol();
     Q_INVOKABLE void updateConstellation();
-
-    QVariant stationModel() const
-    {
-        return p_stationModel;
-    }
 
     void setNewDebugOutput(QString text);
 
@@ -108,9 +102,6 @@ private:
 
     const QVariantMap licenses();
 
-    QVariant p_stationModel;
-
-
 #ifndef QT_NO_SYSTEMTRAYICON
     QAction *minimizeAction;
     QAction *maximizeAction;
@@ -130,7 +121,6 @@ private slots:
 #endif
     void deviceClosed();
     void motUpdate(QImage motImage);
-    void stationsChange(QList<StationElement *> Stations);
     void showErrorMessage(QString Text);
     void showInfoMessage(QString Text);
 
@@ -140,7 +130,6 @@ signals:
     void setImpulseResponseAxis(qreal Ymax, qreal Xmin, qreal Xmax);
     void setNullSymbolAxis(qreal Ymax, qreal Xmin, qreal Xmax);
     void setConstellationAxis(qreal Xmin, qreal Xmax);
-    void stationModelChanged();
     void motChanged(void);
     void newDebugOutput(QString text);
 

@@ -54,8 +54,6 @@ CGUIHelper::CGUIHelper(CRadioController *RadioController, QObject *parent)
     , spectrumSeries(nullptr)
     , impulseResponseSeries(nullptr)
 {
-    stationsChange(RadioController->stations());
-
     // Add image provider for the MOT slide show
     motImage = new CMOTImageProvider;
 
@@ -66,7 +64,6 @@ CGUIHelper::CGUIHelper(CRadioController *RadioController, QObject *parent)
     connect(RadioController, &CRadioControllerReplica::stationsChanged, this, &CGUI::stationsChange);
 #else
     connect(RadioController, &CRadioController::motChanged, this, &CGUIHelper::motUpdate);
-    connect(RadioController, &CRadioController::stationsChanged, this, &CGUIHelper::stationsChange);
     connect(RadioController, &CRadioController::showErrorMessage, this, &CGUIHelper::showErrorMessage);
     connect(RadioController, &CRadioController::showInfoMessage, this, &CGUIHelper::showInfoMessage);
 #endif
@@ -226,16 +223,6 @@ void CGUIHelper::motUpdate(QImage MOTImage)
     }
     this->motImage->setPixmap(QPixmap::fromImage(MOTImage));
     emit motChanged();
-}
-
-void CGUIHelper::stationsChange(QList<StationElement*> Stations)
-{
-    //qDebug() << "CGUI:" <<  "StationsChange";
-    QList<QObject*> *stationList = reinterpret_cast<QList<QObject*>*>(&Stations);
-    p_stationModel = QVariant::fromValue(*stationList);
-
-    emit stationModelChanged();
-    emit foundChannelCount(Stations.count());
 }
 
 void CGUIHelper::showErrorMessage(QString Text)

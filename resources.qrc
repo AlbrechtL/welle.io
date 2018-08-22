@@ -55,6 +55,7 @@
         <file>src/gui/QML/components/SettingSection.qml</file>
         <file>src/gui/QML/components/SettingSwitch.qml</file>
         <file>src/gui/QML/components/StationDelegate.qml</file>
+        <file>src/gui/QML/components/StationListModel.qml</file>
         <file>src/gui/QML/components/Units.qml</file>
         <file>src/gui/QML/components/qmldir</file>
         <file>src/gui/QML/expertviews/StationInformation.qml</file>

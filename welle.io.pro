@@ -51,7 +51,8 @@ DISTFILES +=    README.md \
     src/gui/QML/expertviews/ConstellationGraph.qml \
     src/gui/QML/expertviews/NullSymbolGraph.qml \
     src/gui/QML/expertviews/SpectrumGraph.qml \
-    src/gui/QML/expertviews/TextOutputView.qml
+    src/gui/QML/expertviews/TextOutputView.qml \
+    src/gui/QML/components/StationListModel.qml
 
 TRANSLATIONS = i18n/de_DE.ts i18n/it_IT.ts i18n/hu_HU.ts i18n/nb_NO.ts i18n/fr_FR.ts i18n/pl_PL.ts i18n/ru_RU.ts
 
@@ -131,7 +132,6 @@ HEADERS += \
     src/input/CRTL_TCP_Client.h \
     src/MathHelper.h \
     src/gui/CMOTImageProvider.h \
-    src/gui/CStationList.h \
     src/CRadioController.h \
     src/CSplashScreen.h \
     src/CDebugOutput.h \
@@ -176,7 +176,6 @@ SOURCES += \
     src/input/CRAWFile.cpp \
     src/input/CRTL_TCP_Client.cpp \
     src/gui/CMOTImageProvider.cpp \
-    src/gui/CStationList.cpp \
     src/CRadioController.cpp \
     src/CSplashScreen.cpp \
     src/CDebugOutput.cpp \

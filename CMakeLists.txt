@@ -128,7 +128,6 @@ set(welle_io_sources
     src/main.cpp
     src/output/CAudio.cpp
     src/gui/CMOTImageProvider.cpp
-    src/gui/CStationList.cpp
     src/gui/CGUIHelper.cpp
     src/CRadioController.cpp
     src/CDebugOutput.cpp

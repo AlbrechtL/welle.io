@@ -53,11 +53,11 @@ import "components"
 ApplicationWindow {
     id: mainWindow
 
-    signal stationClicked()
-
-    // Default values
     property bool isExpertView: false
     property bool isFullScreen: false
+
+    StationListModel { id: stationList }
+    StationListModel { id: favoritsList }
 
     readonly property bool inPortrait: mainWindow.width < mainWindow.height
 
@@ -113,6 +113,9 @@ ApplicationWindow {
         property alias width : mainWindow.width
         property alias height : mainWindow.height
         property alias leftDrawerWidth: moveDrawer.x
+        property alias stationListSerialize: stationList.serialized
+        property alias favoritsListSerialize: favoritsList.serialized
+        property alias stationListBoxIndex: stationListBox.currentIndex
     }
 
     header: ToolBar {
@@ -208,10 +211,23 @@ ApplicationWindow {
             anchors.fill: parent
 
             RowLayout {
-              TextStandart {
-                  text: qsTr("Stations")
-                  horizontalAlignment: Qt.AlignHCenter
-                  verticalAlignment: Qt.AlignVCenter
+              ComboBox {
+                  id: stationListBox
+                  font.pixelSize: TextStyle.textStandartSize
+                  font.family: TextStyle.textFont
+                  background: Rectangle { color: "white" }
+                  Layout.preferredWidth: Units.dp(200)
+
+                  model:  [qsTr("All stations"), qsTr("Favorites")]
+                  onCurrentIndexChanged: {
+                      switch(currentIndex) {
+                      case 0: stationChannelView.model = stationList; break;
+                      case 1: stationChannelView.model = favoritsList; break;
+                      }
+                  }
+              }
+
+              Item { // Dummy element for filling
                   Layout.fillWidth: true
               }
 
@@ -252,6 +268,13 @@ ApplicationWindow {
                       }
 
                       MenuItem {
+                          text: qsTr("Clear station list")
+                          font.pixelSize: TextStyle.textStandartSize
+                          font.family: TextStyle.textFont
+                          onTriggered: stationList.clearStations()
+                      }
+
+                      MenuItem {
                           id: stationSettingsItem
                           text: qsTr("Station settings")
                           font.pixelSize: TextStyle.textStandartSize
@@ -263,27 +286,22 @@ ApplicationWindow {
             }
 
             TextStandart {
-                text: qsTr("Station list is empty")
+                text: qsTr("No stations in list")
                 visible: stationChannelView.count ? false : true
                 Layout.margins: Units.dp(10)
             }
 
             ListView {
                id: stationChannelView
-               model: guiHelper.stationModel
+               model: stationList
                Layout.fillWidth: true
                Layout.fillHeight: true
                clip: true
                delegate: StationDelegate {
-                   stationNameText: modelData.stationName
-                   channelNameText: modelData.channelName
+                   stationNameText: stationName
+                   channelNameText: channelName
                    showChannelName: isExpertView
-                   onClicked: {
-                       if(modelData.channelName !== "") {
-                           mainWindow.stationClicked()
-                           radioController.play(modelData.channelName, modelData.stationName)
-                       }
-                   }
+                   onClicked: radioController.play(channelName, stationName)
                }
 
                 ScrollIndicator.vertical: ScrollIndicator { }
@@ -533,6 +551,8 @@ ApplicationWindow {
             startStationScanItem.enabled = false
             stopStationScanItem.enabled = true
         }
+
+        onNewStationNameReceived: stationList.addStation(station, channel)
     }
 
     Connections {

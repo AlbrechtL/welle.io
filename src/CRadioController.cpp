@@ -58,11 +58,6 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, DABParams& p
     // Init the technical data
     resetTechnicalData();
 
-    // Read channels from settings
-    stationList.loadStations();
-    stationList.sort();
-    emit stationsChanged(stationList.getList());
-
     // Init timers
     connect(&stationTimer, &QTimer::timeout, this, &CRadioController::stationTimerTimeout);
     connect(&channelTimer, &QTimer::timeout, this, &CRadioController::channelTimerTimeout);
@@ -123,13 +118,6 @@ void CRadioController::play(QString Channel, QString Station)
     deviceRestart();
     setChannel(Channel, false);
     setStation(Station);
-
-    // Store as last station
-    QSettings Settings;
-    QStringList StationElement;
-    StationElement. append (Station);
-    StationElement. append (Channel);
-    Settings.setValue("lastchannel", StationElement);
 }
 
 void CRadioController::stop()
@@ -139,21 +127,6 @@ void CRadioController::stop()
     }
 
     audio.reset();
-}
-
-void CRadioController::clearStations()
-{
-    //	Clear old channels
-    emit stationsCleared();
-    stationList.reset();
-    emit stationsChanged(stationList.getList());
-
-    // Save the channels
-    stationList.saveStations();
-
-    // Clear last station
-    QSettings Settings;
-    Settings.remove("lastchannel");
 }
 
 void CRadioController::setStation(QString Station, bool Force)
@@ -225,7 +198,6 @@ void CRadioController::setChannel(QString Channel, bool isScan, bool Force)
 
         decoderRestart(isScan);
 
-        stationListStr.clear();
         emit channelChanged();
         emit ensembleChanged();
         emit frequencyChanged();
@@ -234,18 +206,6 @@ void CRadioController::setChannel(QString Channel, bool isScan, bool Force)
 
 void CRadioController::setManualChannel(QString Channel)
 {
-    // Play channel's first station, if available
-    foreach(StationElement* station, stationList.getList())
-    {
-        if (station->getChannelName() == Channel)
-        {
-            QString stationName = station->getStationName();
-            qDebug() << "RadioController: Play channel" <<  Channel << "and first station" << stationName;
-            play(Channel, stationName);
-            return;
-        }
-    }
-
     // Otherwise tune to channel and play first found station
     qDebug() << "RadioController: Tune to channel" <<  Channel;
 
@@ -312,8 +272,6 @@ void CRadioController::startScan(void)
 
         emit scanProgress(0);
     }
-
-    clearStations();
 }
 
 void CRadioController::stopScan(void)
@@ -328,11 +286,6 @@ void CRadioController::stopScan(void)
 
     isChannelScan = false;
     emit scanStopped();
-}
-
-QList<StationElement *> CRadioController::stations() const
-{
-    return stationList.getList();
 }
 
 void CRadioController::setHwAGC(bool isHwAGC)
@@ -712,57 +665,55 @@ void CRadioController::stationTimerTimeout()
     if (!my_rx)
         return;
 
-    if (stationListStr.contains(currentStation)) {
-        const auto services = my_rx->getServiceList();
+    const auto services = my_rx->getServiceList();
 
-        for (const auto& s : services) {
-            if (s.serviceLabel.utf8_label() == currentStation.toStdString()) {
+    for (const auto& s : services) {
+        if (s.serviceLabel.utf8_label() == currentStation.toStdString()) {
 
-                const auto comps = my_rx->getComponents(s);
-                for (const auto& sc : comps) {
-                    if (sc.transportMode() == TransportMode::Audio && (
-                            sc.audioType() == AudioServiceComponentType::DAB ||
-                            sc.audioType() == AudioServiceComponentType::DABPlus) ) {
-                        const auto& subch = my_rx->getSubchannel(sc);
+            const auto comps = my_rx->getComponents(s);
+            for (const auto& sc : comps) {
+                if (sc.transportMode() == TransportMode::Audio && (
+                        sc.audioType() == AudioServiceComponentType::DAB ||
+                        sc.audioType() == AudioServiceComponentType::DABPlus) ) {
+                    const auto& subch = my_rx->getSubchannel(sc);
 
-                        if (not subch.valid()) {
-                            return;
-                        }
-
-                        // We found the station inside the signal, lets stop the timer
-                        stationTimer.stop();
-
-                        std::string dumpFileName;
-                        if (commandLineOptions["dumpFileName"] != "") {
-                            dumpFileName = commandLineOptions["dumpFileName"].toString().toStdString();
-                        }
-
-                        bool success = my_rx->playSingleProgramme(*this, dumpFileName, s);
-                        if (!success) {
-                            qDebug() << "Selecting service failed";
-                        }
-                        else {
-                            currentTitle = currentStation;
-                            emit titleChanged();
-
-                            currentStationType = tr(DABConstants::getProgramTypeName(s.programType));
-                            emit stationTypChanged();
-
-                            currentLanguageType = tr(DABConstants::getLanguageName(s.language));
-                            emit languageTypeChanged();
-
-                            bitRate = subch.bitrate();
-                            emit bitRateChanged(bitRate);
-
-                            if (sc.audioType() == AudioServiceComponentType::DABPlus)
-                                isDAB = false;
-                            else
-                                isDAB = true;
-                            emit isDABChanged(isDAB);
-                        }
-
+                    if (not subch.valid()) {
                         return;
                     }
+
+                    // We found the station inside the signal, lets stop the timer
+                    stationTimer.stop();
+
+                    std::string dumpFileName;
+                    if (commandLineOptions["dumpFileName"] != "") {
+                        dumpFileName = commandLineOptions["dumpFileName"].toString().toStdString();
+                    }
+
+                    bool success = my_rx->playSingleProgramme(*this, dumpFileName, s);
+                    if (!success) {
+                        qDebug() << "Selecting service failed";
+                    }
+                    else {
+                        currentTitle = currentStation;
+                        emit titleChanged();
+
+                        currentStationType = tr(DABConstants::getProgramTypeName(s.programType));
+                        emit stationTypChanged();
+
+                        currentLanguageType = tr(DABConstants::getLanguageName(s.language));
+                        emit languageTypeChanged();
+
+                        bitRate = subch.bitrate();
+                        emit bitRateChanged(bitRate);
+
+                        if (sc.audioType() == AudioServiceComponentType::DABPlus)
+                            isDAB = false;
+                        else
+                            isDAB = true;
+                        emit isDABChanged(isDAB);
+                    }
+
+                    return;
                 }
             }
         }
@@ -826,27 +777,13 @@ void CRadioController::addtoEnsemble(quint32 SId, const QString &Station)
     qDebug() << "RadioController: Found station" <<  Station
              << "(" << qPrintable(QString::number(SId, 16).toUpper()) << ")";
 
-    stationListStr.append(Station);
-
     if (isChannelScan == true) {
         stationCount++;
         currentText = tr("Found channels") + ": " + QString::number(stationCount);
         emit textChanged();
     }
 
-    //	Add new station into list
-    if (!stationList.contains(Station, currentChannel)) {
-        stationList.append(Station, currentChannel);
-
-        //	Sort stations
-        stationList.sort();
-
-        emit stationsChanged(stationList.getList());
-        emit foundStation(Station, currentChannel);
-
-        // Save the channels
-        stationList.saveStations();
-    }
+    emit newStationNameReceived(Station, currentChannel);
 }
 
 /*********************

@@ -41,7 +41,6 @@
 #include <mutex>
 
 #include "CAudio.h"
-#include "CStationList.h"
 #include "dab-constants.h"
 #include "radio-receiver.h"
 #include "ringbuffer.h"
@@ -86,7 +85,6 @@ class CRadioController :
     Q_PROPERTY(int gainCount MEMBER gainCount NOTIFY gainCountChanged)
     Q_PROPERTY(int gain MEMBER currentManualGain WRITE setGain NOTIFY gainChanged)
     Q_PROPERTY(qreal volume MEMBER currentVolume WRITE setVolume NOTIFY volumeChanged)
-    Q_PROPERTY(QList<StationElement*> stations READ stations NOTIFY stationsChanged)
     Q_PROPERTY(QString errorMsg MEMBER errorMsg NOTIFY showErrorMessage)
     Q_PROPERTY(QImage mot MEMBER motImage NOTIFY motChanged)
 
@@ -107,7 +105,6 @@ public:
     Q_INVOKABLE void play(QString Channel, QString Station);
     void pause();
     void stop();
-    Q_INVOKABLE void clearStations();
     void setStation(QString Station, bool Force = false);
     void setChannel(QString Channel, bool isScan, bool Force = false);
     Q_INVOKABLE void setManualChannel(QString Channel);
@@ -152,8 +149,6 @@ public:
     virtual void onNewNullSymbol(std::vector<DSPCOMPLEX>&& data) override;
     virtual void onTIIMeasurement(tii_measurement_t&& m) override;
     virtual void onMessage(message_level_t level, const std::string& text) override;
-
-    QList<StationElement*> stations() const;
 
 private:
     void initialise(void);
@@ -209,8 +204,6 @@ private:
     qreal currentVolume;
     QString deviceName;
 
-    CStationList stationList;
-    QList<QString> stationListStr;
     QTimer stationTimer;
     QTimer channelTimer;
 
@@ -278,11 +271,11 @@ signals:
     void textChanged();
     void languageTypeChanged();
 
-    void stationsChanged(QList<StationElement*> stations);
     void deviceReady();
     void deviceClosed();
     void stationsCleared();
     void foundStation(QString Station, QString currentChannel);
+    void newStationNameReceived(QString station, QString channel);
     void scanStopped();
     void scanProgress(int Progress);
     void showErrorMessage(QString Text);

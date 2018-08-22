@@ -60,7 +60,6 @@ Parameter | Description
 --dump-file | Records DAB frames or DAB+ superframes. This file can be used to analyse X-PAD data with XPADxpert (https://www.basicmaster.de/xpadxpert).
 --log-file | Log file name. Redirects all log output texts to a file.
 --language | Sets the GUI language according to the ISO country codes e.g. de_DE
---station  | Tries to play a station from a previous channel scan on programme start.
 --disable-splash | Disables the splash screen.
 
 
