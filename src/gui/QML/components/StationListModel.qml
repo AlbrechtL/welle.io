@@ -1,50 +1,49 @@
 import QtQuick 2.0
 
 ListModel {
-    id: listModel
-
     property string serialized: ""
-
-    // ToDo not working
-    function sortModel()  {
-        for(var i=0; i<count; i++) {
-            for(var j=0; j<i; j++) {
-                if(get(i).stationName.localeCompare(get(j).stationName) === 1)
-                    move(i,j,1)
-                break
-            }
-        }
-    }
 
     function addStation(station, channel) {
         // Check if station already exits
-        for(var i=0; i<listModel.count; i++)
-            if(listModel.get(i).stationName === station)
-                return
+        for(var i=0; i<count; i++)
+            if(get(i).stationName === station)
+                return // Break if station exists
 
-        listModel.append({"stationName": station, "channelName": channel})
+        append({"stationName": station, "channelName": channel})
+        sort()
         serialize()
     }
 
     function clearStations() {
-        listModel.clear()
+        clear()
         serialize()
+    }
+
+    function sort() {
+        // Simple basic bubble sort implementation
+        for(var n=count; n>1; --n) {
+            for(var i=0; i<n-1; ++i) {
+                // Sort in alphabetical order
+                if(get(i).stationName.localeCompare(get(i+1).stationName) === 1)
+                    move(i,i+1,1)
+            }
+        }
     }
 
     // Necessary workaround because the settings component doesn't saves models
     function serialize() {
-        var listModel_tmp = []
-        for (var i = 0; i < listModel.count; ++i)
-            listModel_tmp.push(listModel.get(i))
-        serialized = JSON.stringify(listModel_tmp)
+        var tmp = []
+        for (var i = 0; i < count; ++i)
+            tmp.push(get(i))
+        serialized = JSON.stringify(tmp)
     }
 
     function deSerialize() {
-        listModel.clear()
+        clear()
         if(serialized != "") {
-            var listModel_tmp = JSON.parse(serialized)
-            for (var i = 0; i < listModel_tmp.length; ++i)
-                listModel.append(listModel_tmp[i])
+            var tmp = JSON.parse(serialized)
+            for (var i = 0; i < tmp.length; ++i)
+                append(tmp[i])
         }
     }
 
