@@ -783,7 +783,7 @@ void CRadioController::addtoEnsemble(quint32 SId, const QString &Station)
         emit textChanged();
     }
 
-    emit newStationNameReceived(Station, currentChannel);
+    emit newStationNameReceived(Station, SId, currentChannel);
 }
 
 /*********************

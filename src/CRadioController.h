@@ -275,7 +275,7 @@ signals:
     void deviceClosed();
     void stationsCleared();
     void foundStation(QString Station, QString currentChannel);
-    void newStationNameReceived(QString station, QString channel);
+    void newStationNameReceived(QString station, quint32 sId, QString channel);
     void scanStopped();
     void scanProgress(int Progress);
     void showErrorMessage(QString Text);

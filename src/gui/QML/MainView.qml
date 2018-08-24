@@ -299,8 +299,9 @@ ApplicationWindow {
                clip: true
                delegate: StationDelegate {
                    stationNameText: stationName
+                   stationSIdValue: stationSId
                    channelNameText: channelName
-                   showChannelName: isExpertView
+                   isExpert: isExpertView
                    onClicked: radioController.play(channelName, stationName)
                }
 
@@ -552,7 +553,7 @@ ApplicationWindow {
             stopStationScanItem.enabled = true
         }
 
-        onNewStationNameReceived: stationList.addStation(station, channel)
+        onNewStationNameReceived: stationList.addStation(station, sId, channel)
     }
 
     Connections {

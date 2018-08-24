@@ -3,13 +3,13 @@ import QtQuick 2.0
 ListModel {
     property string serialized: ""
 
-    function addStation(station, channel) {
+    function addStation(station, sId, channel) {
         // Check if station already exits
         for(var i=0; i<count; i++)
             if(get(i).stationName === station)
                 return // Break if station exists
 
-        append({"stationName": station, "channelName": channel})
+        append({"stationName": station, "stationSId": sId, "channelName": channel})
         sort()
         serialize()
     }

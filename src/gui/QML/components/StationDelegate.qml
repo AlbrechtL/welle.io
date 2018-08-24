@@ -53,7 +53,8 @@ Item {
 
     property alias stationNameText: stationItem.text
     property alias channelNameText: channelItem.text
-    property bool showChannelName
+    property int stationSIdValue
+    property bool isExpert
 
     signal clicked
 
@@ -66,19 +67,25 @@ Item {
     RowLayout {
         anchors.fill: parent
 
-        TextStandart {
-            id: stationItem
-            text: modelData
-            Layout.alignment: Qt.AlignVCenter | Qt.AlignLeft
+        ColumnLayout {
             Layout.leftMargin: Units.dp(15)
-        }
 
-        TextStation {
-            id: channelItem
-            text: modelData
-            Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
-            Layout.rightMargin: Units.dp(15)
-            opacity: root.showChannelName ? 1 : 0
+            TextStandart {
+                id: stationItem
+            }
+
+            RowLayout {
+                TextStation {
+                    id: channelItem
+                    visible: root.isExpert ? 1 : 0
+                }
+
+                TextStation {
+                    id: stationSIdItem
+                    visible: root.isExpert ? 1 : 0
+                    text: "0x" + stationSIdValue.toString(16).toUpperCase()
+                }
+            }
         }
     }
 
