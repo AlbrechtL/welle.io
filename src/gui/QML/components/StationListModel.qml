@@ -6,7 +6,7 @@ ListModel {
     function addStation(station, sId, channel, favorit) {
         // Check if station already exits
         for(var i=0; i<count; i++)
-            if(get(i).stationName === station)
+            if(get(i).stationSId === sId)
                 return // Break if station exists
 
         append({"stationName": station, "stationSId": sId, "channelName": channel, "favorit": favorit})
