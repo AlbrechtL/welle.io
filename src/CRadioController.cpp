@@ -118,6 +118,9 @@ void CRadioController::play(QString Channel, QString Station)
     deviceRestart();
     setChannel(Channel, false);
     setStation(Station);
+
+    QSettings settings;
+    settings.setValue("lastchannel", QStringList() << Station << Channel);
 }
 
 void CRadioController::stop()

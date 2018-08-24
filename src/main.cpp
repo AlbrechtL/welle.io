@@ -271,7 +271,7 @@ int main(int argc, char** argv)
 
     QSettings settings;
 
-    // Should we play the last staiion we have listened to previously?
+    // Should we play the last station we have listened to previously?
     if( settings.value("enableLastPlayedStationState", false).toBool() ) {
 
         QStringList lastStation = settings.value("lastchannel").toStringList();
