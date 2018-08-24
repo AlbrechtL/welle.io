@@ -3,20 +3,38 @@ import QtQuick 2.0
 ListModel {
     property string serialized: ""
 
-    function addStation(station, sId, channel) {
+    function addStation(station, sId, channel, favorit) {
         // Check if station already exits
         for(var i=0; i<count; i++)
             if(get(i).stationName === station)
                 return // Break if station exists
 
-        append({"stationName": station, "stationSId": sId, "channelName": channel})
+        append({"stationName": station, "stationSId": sId, "channelName": channel, "favorit": favorit})
         sort()
         serialize()
+    }
+
+    function removeStation(sId) {
+        for(var i=0; i<count; i++)
+            if(get(i).stationSId === sId) {
+                remove(i)
+                serialize()
+                return
+            }
     }
 
     function clearStations() {
         clear()
         serialize()
+    }
+
+    function setFavorit(sId, favorit) {
+        for(var i=0; i<count; i++)
+            if(get(i).stationSId === sId) {
+                get(i).favorit = favorit
+                serialize()
+                return
+            }
     }
 
     function sort() {

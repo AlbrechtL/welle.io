@@ -40,7 +40,7 @@
 
 import QtQuick 2.2
 import QtQuick.Layouts 1.1
-
+import QtQuick.Controls 2.3
 
 // Import custom styles
 import "../texts"
@@ -54,21 +54,27 @@ Item {
     property alias stationNameText: stationItem.text
     property alias channelNameText: channelItem.text
     property int stationSIdValue
-    property bool isExpert
+    property bool isExpert: false
+    property bool isFavorit: false
 
     signal clicked
+    signal favoritClicked
 
     Rectangle {
         anchors.fill: parent
-        color: "#11ffffff"
+        color: "lightgrey"
         visible: mouse.pressed
     }
 
-    RowLayout {
+    MouseArea {
+        id: mouse
+        onClicked: root.clicked()
         anchors.fill: parent
 
-        ColumnLayout {
-            Layout.leftMargin: Units.dp(15)
+        Column {
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.left: parent.left
+            anchors.leftMargin: Units.dp(10)
 
             TextStandart {
                 id: stationItem
@@ -89,9 +95,12 @@ Item {
         }
     }
 
-    MouseArea {
-        id: mouse
-        anchors.fill: parent
-        onClicked: root.clicked()
+    Button {
+        anchors.right: parent.right
+        icon.name: isFavorit ? "star_yellow" : "star"
+        icon.color: "transparent"
+        implicitWidth: contentItem.implicitWidth + Units.dp(20)
+        flat: true
+        onClicked: root.favoritClicked()
     }
 }

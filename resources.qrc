@@ -17,18 +17,26 @@
         <file>src/gui/icon/welle_io_icons/20x20/drawer.png</file>
         <file>src/gui/icon/welle_io_icons/20x20/menu.png</file>
         <file>src/gui/icon/welle_io_icons/20x20/exit.png</file>
+        <file>src/gui/icon/welle_io_icons/20x20/star.png</file>
+        <file>src/gui/icon/welle_io_icons/20x20/star_yellow.png</file>
         <file>src/gui/icon/welle_io_icons/20x20@2/back.png</file>
         <file>src/gui/icon/welle_io_icons/20x20@2/drawer.png</file>
         <file>src/gui/icon/welle_io_icons/20x20@2/menu.png</file>
         <file>src/gui/icon/welle_io_icons/20x20@2/exit.png</file>
+        <file>src/gui/icon/welle_io_icons/20x20@2/star.png</file>
+        <file>src/gui/icon/welle_io_icons/20x20@2/star_yellow.png</file>
         <file>src/gui/icon/welle_io_icons/20x20@3/back.png</file>
         <file>src/gui/icon/welle_io_icons/20x20@3/drawer.png</file>
         <file>src/gui/icon/welle_io_icons/20x20@3/menu.png</file>
         <file>src/gui/icon/welle_io_icons/20x20@3/exit.png</file>
+        <file>src/gui/icon/welle_io_icons/20x20@3/star.png</file>
+        <file>src/gui/icon/welle_io_icons/20x20@3/star_yellow.png</file>
         <file>src/gui/icon/welle_io_icons/20x20@4/back.png</file>
         <file>src/gui/icon/welle_io_icons/20x20@4/drawer.png</file>
         <file>src/gui/icon/welle_io_icons/20x20@4/menu.png</file>
         <file>src/gui/icon/welle_io_icons/20x20@4/exit.png</file>
+        <file>src/gui/icon/welle_io_icons/20x20@4/star.png</file>
+        <file>src/gui/icon/welle_io_icons/20x20@4/star_yellow.png</file>
         <file>i18n/de_DE.qm</file>
         <file>i18n/it_IT.qm</file>
         <file>i18n/hu_HU.qm</file>

@@ -301,8 +301,18 @@ ApplicationWindow {
                    stationNameText: stationName
                    stationSIdValue: stationSId
                    channelNameText: channelName
+                   isFavorit: favorit
                    isExpert: isExpertView
                    onClicked: radioController.play(channelName, stationName)
+                   onFavoritClicked: {
+                       var favoritInvert = !favorit
+                       stationList.setFavorit(stationSId, favoritInvert) // Invert favorit
+
+                       if(favoritInvert)
+                           favoritsList.addStation(stationName, stationSId, channelName, true)
+                       else
+                           favoritsList.removeStation(stationSId);
+                   }
                }
 
                 ScrollIndicator.vertical: ScrollIndicator { }
@@ -553,7 +563,7 @@ ApplicationWindow {
             stopStationScanItem.enabled = true
         }
 
-        onNewStationNameReceived: stationList.addStation(station, sId, channel)
+        onNewStationNameReceived: stationList.addStation(station, sId, channel, false)
     }
 
     Connections {
