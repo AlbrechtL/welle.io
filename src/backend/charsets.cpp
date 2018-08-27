@@ -66,32 +66,36 @@ static const unsigned short ebuLatinToUcs2[] = {
 
 
 //The above table can be automatically generated from the table in ODR-PadEnc (ODR-PadEnc/src/charset.cpp) using the following source code:
-//#include <iostream>
-//#include <string>
-//#include <locale>
-//#include <codecvt>
-//#include <iomanip>
+#ifdef ODRTABLE
 
-//#include "../../../ODR-PadEnc/src/charset.cpp"
+#include <iostream>
+#include <string>
+#include <locale>
+#include <codecvt>
+#include <iomanip>
 
-//int main(){
-//  std::wstring_convert<std::codecvt_utf8<char16_t>, char16_t> ucs2conv;
-//  std::cout << "/* 0x00 - 0x07 */   0x00, ";
-//  std::cout << std::setbase(16) << std::setfill(' ');
-//  for (int i=0;i<CHARSET_TABLE_ENTRIES;i++){
-//    std::u16string ucs2 = ucs2conv.from_bytes(utf8_encoded_EBU_Latin[i]);
-//    std::cout << std::showbase << std::setw(6) << ucs2[0];
-//    if ((i+2) % 8) {
-//      std::cout << ", ";
-//    }
-//    else{
-//      if (i == (CHARSET_TABLE_ENTRIES - 1)) std::cout << "\n";
-//      else {
-//        std::cout <<  ",\n/* "    << std::setw(4) << i+2 << " - " << std::setw(4) <<  i + 1 + 8 <<  " */ ";
-//      }
-//    }
-//  }
-//}
+#include "../../../ODR-PadEnc/src/charset.cpp"
+
+int main(){
+  std::wstring_convert<std::codecvt_utf8<char16_t>, char16_t> ucs2conv;
+  std::cout << "/* 0x00 - 0x07 */   0x00, ";
+  std::cout << std::setbase(16) << std::setfill(' ');
+  for (int i=0;i<CHARSET_TABLE_ENTRIES;i++){
+    std::u16string ucs2 = ucs2conv.from_bytes(utf8_encoded_EBU_Latin[i]);
+    std::cout << std::showbase << std::setw(6) << ucs2[0];
+    if ((i+2) % 8) {
+      std::cout << ", ";
+    }
+    else{
+      if (i == (CHARSET_TABLE_ENTRIES - 1)) std::cout << "\n";
+      else {
+        std::cout <<  ",\n/* "    << std::setw(4) << i+2 << " - " << std::setw(4) <<  i + 1 + 8 <<  " */ ";
+      }
+    }
+  }
+}
+
+#endif
 
 
  
