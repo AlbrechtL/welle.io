@@ -554,8 +554,7 @@ bool WebRadioInterface::send_mux_json(Socket& s)
                 j_srv["audiolevel"] = nullptr;
                 j_srv["channels"] = 0;
                 j_srv["samplerate"] = 0;
-                j_srv["mot"] = nullptr;
-                j_srv["dls"] = nullptr;
+                j_srv["mode"] = "invalid";
             }
 
             j_services.push_back(j_srv);

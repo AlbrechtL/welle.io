@@ -231,7 +231,7 @@ function populateEnsembleinfo() {
                 s["dls"] = "";
             }
 
-            if (service.xpaderror.haserror) {
+            if (service.xpaderror && service.xpaderror.haserror) {
                 var alerthtml = ' <img width=16 height=16 src="data:image/png;base64,' + png_alert + '" ';
                 var tooltip = "X-PAD Length error, expected " + service.xpaderror.announcedlen +
                     " got " + service.xpaderror.len;
@@ -253,9 +253,14 @@ function populateEnsembleinfo() {
                 imageshtml += "data:image/png;base64," + png_noslide + '">';
             }
 
-            s["errorcounters"] = service.errorcounters.frameerrors + "," +
-                                 service.errorcounters.rserrors + "," +
-                                 service.errorcounters.aacerrors;
+            if (service.errorcounters) {
+                s["errorcounters"] = service.errorcounters.frameerrors + "," +
+                                     service.errorcounters.rserrors + "," +
+                                     service.errorcounters.aacerrors;
+            }
+            else {
+                s["errorcounters"] = "";
+            }
 
             servicehtml += parseTemplate(serviceTemplate(), s)
         }
