@@ -85,16 +85,17 @@ Item{
 
                 // Use a button to display a icon
                 Button  {
+                    property bool isSignal: false
                     id: antennaSymbol
                     x: parent.width + Units.dp(5)
                     y: (parent.height / 2) - (height / 2)
 
                     visible: opacity == 0 ? false : true
                     opacity: 100
-                    icon.name: "antenna_no_signal"
+                    icon.name: isSignal ? "antenna" : "antenna_no_signal"
                     icon.width: Units.dp(30)
                     icon.height: Units.dp(30)
-                    icon.color: "red"
+                    icon.color: isSignal ? "transparent" : "red"
                     background: Rectangle { } // Hack to disable the pressed color
                     implicitWidth: contentItem.implicitWidth + Units.dp(20)
                     implicitHeight: implicitWidth
@@ -110,13 +111,11 @@ Item{
                         target: radioController
                         onIsFICCRCChanged: {
                             if(radioController.isFICCRC) {
-                                antennaSymbol.icon.name = "antenna"
-                                antennaSymbol.icon.color = "transparent"
+                                antennaSymbol.isSignal = true
                                 effect.restart()
                             }
                             else {
-                                antennaSymbol.icon.name = "antenna_no_signal"
-                                antennaSymbol.icon.color = "red"
+                                antennaSymbol.isSignal = false
                                 antennaSymbol.opacity = 100
                                 effect.stop()
                             }
@@ -124,12 +123,11 @@ Item{
 
                         onIsSyncChanged: {
                             if(radioController.isSync) {
-                                antennaSymbol.icon.name = "antenna"
-                                antennaSymbol.icon.color = "transparent"
+                                antennaSymbol.isSignal = true
+                                effect.restart()
                             }
                             else {
-                                antennaSymbol.icon.name = "antenna_no_signal"
-                                antennaSymbol.icon.color = "red"
+                                antennaSymbol.isSignal = false
                                 antennaSymbol.opacity = 100
                                 effect.stop()
                             }
