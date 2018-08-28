@@ -388,7 +388,7 @@ static nlohmann::json calculate_cir_peaks(const vector<float>& cir_linear)
             const size_t windowsize = 25;
             for (size_t j = 0; j < windowsize; j++) {
                 const ssize_t i = p.index + j - windowsize/2;
-                if (i >= 0 and i < cir_lin.size()) {
+                if (i >= 0 and i < (ssize_t)cir_lin.size()) {
                     cir_lin[i] *= 0;
                 }
             }
