@@ -111,7 +111,7 @@ public:
     Q_INVOKABLE void startScan(void);
     Q_INVOKABLE void stopScan(void);
     void setAutoPlay(QString Channel, QString Station);    
-    void setVolume(qreal volume);
+    Q_INVOKABLE void setVolume(qreal volume);
     Q_INVOKABLE void setAGC(bool isAGC);
     Q_INVOKABLE void setHwAGC(bool isHwAGC);
     Q_INVOKABLE void disableCoarseCorrector(bool disable);

@@ -35,6 +35,8 @@ Item{
 
         implicitWidth: contentItem.implicitWidth + Units.dp(21)
         implicitHeight: implicitWidth
+
+        onCheckedChanged: checked ? radioController.setVolume(0) : radioController.setVolume(100)
     }
 
     RowLayout{
