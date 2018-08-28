@@ -141,7 +141,7 @@ void CRadioController::setStation(QString Station, bool Force)
 
         qDebug() << "RadioController: Tune to station" <<  Station;
 
-        currentTitle = tr("Tuning") + " ... " + Station;
+        currentTitle = Station;
         emit titleChanged();
 
         // Wait if we found the station inside the signal
@@ -214,7 +214,7 @@ void CRadioController::setManualChannel(QString Channel)
 
     deviceRestart();
 
-    currentTitle = tr("Tuning") + " ... " + Channel;
+    currentTitle = Channel;
     emit titleChanged();
 
     currentStation = "";
@@ -697,9 +697,6 @@ void CRadioController::stationTimerTimeout()
                         qDebug() << "Selecting service failed";
                     }
                     else {
-                        currentTitle = currentStation;
-                        emit titleChanged();
-
                         currentStationType = tr(DABConstants::getProgramTypeName(s.programType));
                         emit stationTypChanged();
 
