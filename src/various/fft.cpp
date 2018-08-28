@@ -103,8 +103,8 @@ Forward::Forward(int32_t fft_size) :
     fin = (DSPCOMPLEX*)malloc(fft_size * sizeof(DSPCOMPLEX));
     fout = (DSPCOMPLEX*)malloc(fft_size * sizeof(DSPCOMPLEX));
 
-    memset(fin, 0, fft_size * sizeof(DSPCOMPLEX));
-    memset(fout, 0, fft_size * sizeof(DSPCOMPLEX));
+    memset((void*)fin, 0, fft_size * sizeof(DSPCOMPLEX));
+    memset((void*)fout, 0, fft_size * sizeof(DSPCOMPLEX));
 }
 
 Forward::~Forward()
@@ -133,8 +133,8 @@ Backward::Backward(int32_t fft_size) :
     fin = (DSPCOMPLEX*)malloc(fft_size * sizeof(DSPCOMPLEX));
     fout = (DSPCOMPLEX*)malloc(fft_size * sizeof(DSPCOMPLEX));
 
-    memset(fin, 0, fft_size * sizeof(DSPCOMPLEX));
-    memset(fout, 0, fft_size * sizeof(DSPCOMPLEX));
+    memset((void*)fin, 0, fft_size * sizeof(DSPCOMPLEX));
+    memset((void*)fout, 0, fft_size * sizeof(DSPCOMPLEX));
 }
 
 Backward::~Backward()
