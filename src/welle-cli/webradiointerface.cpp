@@ -133,8 +133,6 @@ void WebRadioInterface::check_decoders_required()
                         programmes_being_decoded[sid] = success;
                     }
                     else {
-                        cerr << "Tune to 0x" << to_hex(s.serviceId) <<
-                            " failed" << endl;
                         throw TuneFailed();
                     }
                 }
