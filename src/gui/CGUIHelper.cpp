@@ -476,6 +476,7 @@ void CGUIHelper::updateConstellation()
 
 void CGUIHelper::setNewDebugOutput(QString text)
 {
+    text = text.remove('\n');
     emit newDebugOutput(text);
 }
 

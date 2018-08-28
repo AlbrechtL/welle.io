@@ -29,6 +29,24 @@ Item {
                 color: "white"
                 width: flick.width
                 wrapMode: TextEdit.Wrap
+
+                onLineCountChanged: {
+                    // Count total number of lines
+                    var lines = 0
+                    for(var i = 0; i<length; ++i) {
+                        if(getText(i, i+1) === '\n')
+                            lines++;
+                    }
+
+                    // Remove first line, keep tha last 100 lines
+                    if(lines > 100 ) {
+                        var j = 0
+                        while (getText(j, j+1) !== '\n') {
+                            j++
+                        }
+                        text = text.slice(j+1)
+                    }
+                }
             }
 
             ScrollBar.vertical: ScrollBar { }
@@ -39,7 +57,7 @@ Item {
         target: guiHelper
 
         onNewDebugOutput: {
-            textField.insert(textField.length,text)
+            textField.append(text)
         }
     }
 }
