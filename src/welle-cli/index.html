@@ -17,6 +17,9 @@ th, td {
     padding: 5px;
     text-align: left;
 }
+th#dls {
+     width: 300px;
+}
 table#servicetable tr:nth-child(even) {
     background-color: #eee;
 }
@@ -48,19 +51,21 @@ canvas {
             <div>Channel: <select id="channelselector" name="channel"></select></div>
             <div id="ensembleinfo"></div>
             <div id="images"></div>
-            <div>Spectrum <canvas width="512" height="150" id="spectrum"></canvas></div>
-            CIR:
+            <div>
+                <h2>Spectrum</h2> <canvas width="512" height="150" id="spectrum"></canvas>
+            </div>
+            <h2>CIR</h2>
             <div style="position: relative;">
                 <canvas id="cir" width="512" height="150"
-                    style="position: absolute; left: 0; top: 0; z-index: 0;">
+                    style="position: relative; left: 0; top: 0; z-index: 0;">
                 </canvas>
                 <canvas id="cirpeaks" width="512" height="150"
-                    style="position: absolute; left: 0; top: 0; z-index: 1;">
+                    style="position: relative; left: 0; top: 0; z-index: 1;">
                 </canvas>
             </div>
-            <div>Constellation <canvas width="512" height="150" id="constellation"></canvas>
+            <div><h2>Constellation</h2> <canvas width="512" height="150" id="constellation"></canvas>
             </div>
-            <div id="tiiinfo"></div>
+            <div id="tiiinfo"><h2>TII Info</h2></div>
         </div>
         <div>
             <audio id="player">
