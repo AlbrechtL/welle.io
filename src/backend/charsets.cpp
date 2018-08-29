@@ -66,6 +66,7 @@ static const unsigned short ebuLatinToUcs2[] = {
 
 
 //The above table can be automatically generated from the table in ODR-PadEnc (ODR-PadEnc/src/charset.cpp) using the following source code:
+// Compile like this: g++ -fPIC -DODRTABLE  -I  /usr/include/x86_64-linux-gnu/qt5/  -I /usr/include/x86_64-linux-gnu/qt5/QtCore/ -lQt5Core -o chartable charsets.cpp
 #ifdef ODRTABLE
 
 #include <iostream>
