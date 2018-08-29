@@ -44,7 +44,7 @@ var plotTimer = setInterval(populatePlots, 480);
 function ensembleInfoTemplate() {
     var html = '';
     html += ' <h1>${label} (${shortlabel})</h1>';
-    html += ' <table id="servicetable"';
+    html += ' <table id="servicetable">';
     html += ' <tr><th>Ensemble ID: </th>';
     html += ' <th>SNR: </th>';
     html += ' <th>Freq corr:</th>';
