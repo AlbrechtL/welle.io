@@ -16,6 +16,7 @@
         <file>src/gui/icon/welle_io_icons/20x20/back.png</file>
         <file>src/gui/icon/welle_io_icons/20x20/drawer.png</file>
         <file>src/gui/icon/welle_io_icons/20x20/menu.png</file>
+		<file>src/gui/icon/welle_io_icons/20x20/exit.png</file>
         <file>src/gui/icon/welle_io_icons/20x20/star.png</file>
         <file>src/gui/icon/welle_io_icons/20x20/star_yellow.png</file>
         <file>src/gui/icon/welle_io_icons/20x20/antenna.png</file>
@@ -25,6 +26,7 @@
         <file>src/gui/icon/welle_io_icons/20x20@2/back.png</file>
         <file>src/gui/icon/welle_io_icons/20x20@2/drawer.png</file>
         <file>src/gui/icon/welle_io_icons/20x20@2/menu.png</file>
+        <file>src/gui/icon/welle_io_icons/20x20@2/exit.png</file>
         <file>src/gui/icon/welle_io_icons/20x20@2/star.png</file>
         <file>src/gui/icon/welle_io_icons/20x20@2/star_yellow.png</file>
         <file>src/gui/icon/welle_io_icons/20x20@2/antenna.png</file>
@@ -34,6 +36,7 @@
         <file>src/gui/icon/welle_io_icons/20x20@3/back.png</file>
         <file>src/gui/icon/welle_io_icons/20x20@3/drawer.png</file>
         <file>src/gui/icon/welle_io_icons/20x20@3/menu.png</file>
+        <file>src/gui/icon/welle_io_icons/20x20@3/exit.png</file>
         <file>src/gui/icon/welle_io_icons/20x20@3/star.png</file>
         <file>src/gui/icon/welle_io_icons/20x20@3/star_yellow.png</file>
         <file>src/gui/icon/welle_io_icons/20x20@3/antenna.png</file>
@@ -43,6 +46,7 @@
         <file>src/gui/icon/welle_io_icons/20x20@4/back.png</file>
         <file>src/gui/icon/welle_io_icons/20x20@4/drawer.png</file>
         <file>src/gui/icon/welle_io_icons/20x20@4/menu.png</file>
+        <file>src/gui/icon/welle_io_icons/20x20@4/exit.png</file>
         <file>src/gui/icon/welle_io_icons/20x20@4/star.png</file>
         <file>src/gui/icon/welle_io_icons/20x20@4/star_yellow.png</file>
         <file>src/gui/icon/welle_io_icons/20x20@4/antenna.png</file>
