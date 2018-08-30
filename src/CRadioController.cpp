@@ -83,7 +83,7 @@ void CRadioController::closeDevice()
 {
     qDebug() << "RadioController:" << "Close device";
 
-    my_rx.reset();
+    radioReceiver.reset();
     device.reset();
     audio.reset();
 
@@ -172,9 +172,7 @@ void CRadioController::setAutoPlay(QString Channel, QString Station)
 void CRadioController::setVolume(qreal Volume)
 {
     currentVolume = Volume;
-
     audio.setVolume(Volume);
-
     emit volumeChanged(currentVolume);
 }
 
@@ -323,16 +321,16 @@ void CRadioController::setAGC(bool isAGC)
 void CRadioController::disableCoarseCorrector(bool disable)
 {
     rro.disable_coarse_corrector = disable;
-    if (my_rx) {
-        my_rx->setReceiverOptions(rro);
+    if (radioReceiver) {
+        radioReceiver->setReceiverOptions(rro);
     }
 }
 
 void CRadioController::enableTIIDecode(bool enable)
 {
     rro.decodeTII = enable;
-    if (my_rx) {
-        my_rx->setReceiverOptions(rro);
+    if (radioReceiver) {
+        radioReceiver->setReceiverOptions(rro);
     }
 }
 
@@ -341,8 +339,8 @@ void CRadioController::enableOldFFTWindowPlacement(bool old)
     rro.ofdmProcessorThreshold = old ?
         OLD_OFDM_PROCESSOR_THRESHOLD : NEW_OFDM_PROCESSOR_THRESHOLD;
 
-    if (my_rx) {
-        my_rx->setReceiverOptions(rro);
+    if (radioReceiver) {
+        radioReceiver->setReceiverOptions(rro);
     }
 }
 
@@ -350,8 +348,8 @@ void CRadioController::setFreqSyncMethod(int fsm_ix)
 {
     rro.freqsyncMethod = static_cast<FreqsyncMethod>(fsm_ix);
 
-    if (my_rx) {
-        my_rx->setReceiverOptions(rro);
+    if (radioReceiver) {
+        radioReceiver->setReceiverOptions(rro);
     }
 }
 
@@ -443,8 +441,8 @@ void CRadioController::initialise(void)
 
     audio.setVolume(currentVolume);
 
-    my_rx = std::make_unique<RadioReceiver>(*this, *device, rro);
-    my_rx->setReceiverOptions(rro);
+    radioReceiver = std::make_unique<RadioReceiver>(*this, *device, rro);
+    radioReceiver->setReceiverOptions(rro);
 
     emit deviceReady();
 
@@ -535,8 +533,8 @@ void CRadioController::decoderRestart(bool isScan)
     //	if we are pretty certain that the channel does not contain
     //	a signal, or "true" if there is a fair chance that the
     //	channel contains useful data
-    if (my_rx) {
-        my_rx->restart(isScan);
+    if (radioReceiver) {
+        radioReceiver->restart(isScan);
     }
 }
 
@@ -665,20 +663,20 @@ void CRadioController::setInfoMessage(QString Text)
  ********************/
 void CRadioController::stationTimerTimeout()
 {
-    if (!my_rx)
+    if (!radioReceiver)
         return;
 
-    const auto services = my_rx->getServiceList();
+    const auto services = radioReceiver->getServiceList();
 
     for (const auto& s : services) {
         if (s.serviceLabel.utf8_label() == currentStation.toStdString()) {
 
-            const auto comps = my_rx->getComponents(s);
+            const auto comps = radioReceiver->getComponents(s);
             for (const auto& sc : comps) {
                 if (sc.transportMode() == TransportMode::Audio && (
                         sc.audioType() == AudioServiceComponentType::DAB ||
                         sc.audioType() == AudioServiceComponentType::DABPlus) ) {
-                    const auto& subch = my_rx->getSubchannel(sc);
+                    const auto& subch = radioReceiver->getSubchannel(sc);
 
                     if (not subch.valid()) {
                         return;
@@ -692,7 +690,7 @@ void CRadioController::stationTimerTimeout()
                         dumpFileName = commandLineOptions["dumpFileName"].toString().toStdString();
                     }
 
-                    bool success = my_rx->playSingleProgramme(*this, dumpFileName, s);
+                    bool success = radioReceiver->playSingleProgramme(*this, dumpFileName, s);
                     if (!success) {
                         qDebug() << "Selecting service failed";
                     }

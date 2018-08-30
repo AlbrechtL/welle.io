@@ -162,7 +162,7 @@ private:
     Channels channels;
     RadioReceiverOptions rro;
 
-    std::unique_ptr<RadioReceiver> my_rx;
+    std::unique_ptr<RadioReceiver> radioReceiver;
     RingBuffer<int16_t> audioBuffer;
     CAudio audio;
     std::mutex impulseResponseBufferMutex;
