@@ -73,6 +73,9 @@ Mp4Processor::Mp4Processor(
     //  error display
     au_count    = 0;
     au_errors   = 0;
+
+    // MOT, start of X-PAD data group, see EN 301 234
+    padDecoder.SetMOTAppType(12);
 }
 
 void Mp4Processor::PADChangeDynamicLabel(const DL_STATE& dl)

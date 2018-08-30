@@ -1,6 +1,6 @@
 /*
     DABlin - capital DAB experience
-    Copyright (C) 2015-2017 Stefan Pöschel
+    Copyright (C) 2015-2018 Stefan Pöschel
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,9 +21,9 @@
 
 #include <stdint.h>
 #include <string.h>
+#include <atomic>
 #include <list>
 #include <map>
-#include <mutex>
 #include <string>
 #include <vector>
 
@@ -150,7 +150,6 @@ struct XPAD_CI {
 	int type;
 
 	static const size_t lens[];
-	static int GetContinuedLastCIType(int last_ci_type);
 
 	XPAD_CI() {Reset();}
 	XPAD_CI(uint8_t ci_raw) {
@@ -185,6 +184,7 @@ class PADDecoder {
 private:
 	PADDecoderObserver *observer;
 	bool loose;
+	std::atomic<int> mot_app_type;
 
 	uint8_t xpad[196];	// longest possible X-PAD
 	XPAD_CI last_xpad_ci;
@@ -194,8 +194,9 @@ private:
 	MOTDecoder mot_decoder;
 	MOTManager mot_manager;
 public:
-	PADDecoder(PADDecoderObserver *observer, bool loose) : observer(observer), loose(loose) {}
+	PADDecoder(PADDecoderObserver *observer, bool loose) : observer(observer), loose(loose), mot_app_type(-1) {}
 
+	void SetMOTAppType(int mot_app_type) {this-> mot_app_type = mot_app_type;}
 	void Process(const uint8_t *xpad_data, size_t xpad_len, bool exact_xpad_len, const uint8_t* fpad_data);
 	void Reset();
 };
