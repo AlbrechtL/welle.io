@@ -42,25 +42,40 @@ var ensembleInfoTimer = setInterval(populateEnsembleinfo, 1000);
 var plotTimer = setInterval(populatePlots, 480);
 
 function ensembleInfoTemplate() {
-    var html = '<p>';
-    html += ' <b>${label}</b>(${shortlabel}) EId: ${EId} SNR: ${SNR}';
-    html += ' Freq corr: ${FrequencyCorrection}';
-    html += ' Date:${year}-${month}-${day} ${hour}:${minutes} UTC';
-    html += ' FIC CRC Errors: ${ficcrcerrors}';
-    html += ' <button type=button onclick="stopPlayer()">Stop</button>';
-    html += '</p>';
-    html += '<table id="servicetable">'
-    html += '<tr><th>Label</th> <th>SId</th> <th>bitrate</th> <th>SAd, CUs</th> <th>protection</th>';
-    html += '<th>TMid, rate, channels</th>';
-    html += '<th>pty</th> <th>srv/sub language</th> <th>DLS</th> <th>Frame,RS,AAC errors</th> <th>Audio Level</th> <th></th></tr>';
+    var html = '';
+    html += ' <h1>${label} (${shortlabel})</h1>';
+    html += ' <table id="servicetable">';
+    html += ' <tr><th>Ensemble ID: </th>';
+    html += ' <th>SNR: </th>';
+    html += ' <th>Freq corr:</th>';
+    html += ' <th>Date:</th></th>';
+    html += ' <th>FIC CRC Errors:</th>';
+    html += ' </tr>';
+    html += ' <tr><td>${EId}</td>';
+    html += ' <td>${SNR}</td>';
+    html += ' <td> ${FrequencyCorrection}</td>';
+    html += ' <td>${year}-${month}-${day} ${hour}:${minutes} UTC</td>';
+    html += ' <td> ${ficcrcerrors}</td></tr>';
+    html += ' </table><br>    <button type=button onclick="stopPlayer()">Stop</button><br><br>';
+    html += '';
+    html += '<table id="servicetable">';
+    html += '<tr><th>Label<br>(Short label)</th> ';
+    html += '<th><abbr title="Service ID">SId</abbr></th> ';
+    html += '<th>Bitrate</th> <th><abbr title="Start CU Address, used CUs">CU info</abbr></th> ';
+    html += '<th><abbr title="Protection level">Prot.Lev.</abbr></th>';
+    html += '<th><abbr title="Transmission Mode, rate, channels">Technical details</abbr></th>';
+    html += '<th><abbr title="Programme type">PTy</abbr></th>'; 
+    html += '<th><abbr title="Service language, Subchannel language">Languages</abbr></th> <th id="dls">DLS</th>';
+    html += '<th><abbr title="Frame, Reed Solomon, AAC errors">Errors</abbr></th>';
+    html += '<th><abbr title="red: right, black: left">Audio Level</abbr></th> <th></th></tr>';
     html += '${services}</table>';
     return html;
 }
 
 function serviceTemplate() {
-    var html = '<tr><td>${label} (${shortlabel})</td> <td>${SId}</td> <td>${bitrate}kbps</td> <td>${sad_cu}</td> <td>${protection}</td>';
+    var html = '<tr><td>${label} <br>(${shortlabel})</td> <td>${SId}</td> <td>${bitrate}&nbsp;kbps</td> <td>${sad_cu}</td> <td>${protection}</td>';
     html += '<td>${samplerate}</td>';
-    html += '<td>${pty}</td> <td>${language}/${subchannel_language}</td> <td></i>${dls}</i></td>';
+    html += '<td>${pty}</td> <td>${language}<br>${subchannel_language}</td> <td></i>${dls}</i></td>';
     html += '<td>${errorcounters}</td>';
     html += '<td><canvas id="${canvasid}" width="64" height="12"></canvas></td>';
     html += '<td><button type=button onclick="setPlayerSource(${SId})">Play</button></td>';
