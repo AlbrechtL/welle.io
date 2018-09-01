@@ -24,6 +24,10 @@ Table of contents
     * [CMake instead of Qt Creator (Windows, Linux, macOS)](#cmake-instead-of-qt-creator-windows-linux-macos)
     * [Android](#android)
     * [Raspberry Pi 2 and 3](#raspberry-pi-2-and-3)
+  * [welle-cli](#welle-cli)
+    * [Usage](#usage)
+    * [Backend options](#backend-options)
+    * [Examples](#examples)
   * [Limitations](#limitations)
   * [Development](#development)
 
@@ -192,7 +196,7 @@ You need to install the dependencies with MacPorts first, assuming you have [Mac
 CMake instead of Qt Creator (Windows, Linux, macOS)
 ---
 
-As an alternative to Qt Creator, CMake can be used for building welle.io after installing dependencies and cloning the repository. On Linux, you can also use CMake to build welle-cli, the command-line backend testing tool that does not require Qt.
+As an alternative to Qt Creator, CMake can be used for building welle.io after installing dependencies and cloning the repository. On Linux, you can also use CMake to build [**welle-cli**](#welle-cli), the command-line backend testing tool that does not require Qt.
 
 1. Create a build directory inside the repository and change into it
 
@@ -221,7 +225,13 @@ As an alternative to Qt Creator, CMake can be used for building welle.io after i
 # make
   ```
 
-4. Run welle.io and enjoy it
+4. Install it (as super-user)
+
+  ```
+# make install
+  ```
+
+5. Run welle.io and enjoy it
 
 Android
 ---
@@ -246,6 +256,57 @@ This sections shows how to compile welle.io for Android.
 Raspberry Pi 2 and 3
 ---
 To build and run welle.io on a Raspberry Pi 2 and 3 with GPU acceleration, please read [this guide](https://github.com/AlbrechtL/welle.io/blob/master/RASPBERRY-PI.md).
+
+welle-cli
+==
+
+If you compile welle-io with `cmake` (followed by `make` and `(sudo) make install` you will also get an executable called **welle-cli** which stands for a client version of welle-io. 
+
+Usage: 
+---
+
+Receive using RTLSDR, and play with ALSA:
+
+    welle-cli -c channel -p programme
+
+Read an IQ file and play with ALSA: (IQ file format is u8, unless the file ends with FORMAT.iq)
+
+    welle-cli -f file -p programme
+
+Use -D to dump FIC and all programmes to files:
+ 
+    welle-cli -c channel -D 
+
+Use -w to enable webserver, decode a programmes on demand:
+    
+    welle-cli -c channel -w port
+
+Use -Dw to enable webserver, decode all programmes:
+    
+    welle-cli -c channel -Dw port
+
+Use `-C 1 -w` to enable webserver, decode programmes one by one in a carousel.
+Use `-C N -w` to enable webserver, decode programmes N by N in a carousel.
+This is useful if your machine cannot decode all programmes simultaneously, but you still want to get an overview of the ensemble.
+Without the `-P` option, welle-cli will switch every 10 seconds.
+With the `-P` option, welle-cli will switch once DLS and a slide were decoded, staying at most 80 seconds on a given programme.
+
+    welle-cli -c channel -C 1 -w port
+    welle-cli -c channel -PC 1 -w port
+
+Backend options
+---
+
+`-u` disable coarse corrector, for receivers who have a low frequency offset.
+
+Use `-t [test_number]` to run a test. To understand what the tests do, please see source code.
+
+Examples: 
+---
+
+    welle-cli -c 10B -p GRRIF
+    welle-cli -f ./ofdm.iq -p GRRIF
+    welle-cli -f ./ofdm.iq -t 1
 
 Limitations
 ===
