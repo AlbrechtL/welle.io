@@ -25,7 +25,7 @@ Table of contents
     * [Android](#android)
     * [Raspberry Pi 2 and 3](#raspberry-pi-2-and-3)
   * [welle-cli](#welle-cli)
-    * [Usage](#usage)
+    * [Usage](#usage-of-welle-cli)
     * [Backend options](#backend-options)
     * [Examples](#examples)
   * [Limitations](#limitations)
@@ -262,7 +262,7 @@ welle-cli
 
 If you compile welle-io with [`cmake`](#cmake-instead-of-qt-creator-windows-linux-macos) you will also get an executable called **welle-cli** which stands for a client version of welle-io. 
 
-Usage: 
+Usage of welle-cli 
 ---
 
 Receive using RTLSDR, and play with ALSA:
@@ -277,7 +277,7 @@ Use -D to dump FIC and all programmes to files:
  
     welle-cli -c channel -D 
 
-Use -w to enable webserver, decode a programmes on demand:
+Use -w to enable webserver, decode a programme on demand:
     
     welle-cli -c channel -w port
 
@@ -288,11 +288,13 @@ Use -Dw to enable webserver, decode all programmes:
 Use `-C 1 -w` to enable webserver, decode programmes one by one in a carousel.
 Use `-C N -w` to enable webserver, decode programmes N by N in a carousel.
 This is useful if your machine cannot decode all programmes simultaneously, but you still want to get an overview of the ensemble.
-Without the `-P` option, welle-cli will switch every 10 seconds.
-With the `-P` option, welle-cli will switch once DLS and a slide were decoded, staying at most 80 seconds on a given programme.
+By default welle-cli will switch every 10 seconds.
+With the `-P` option, welle-cli will switch once DLS and a slide were decoded, staying at most for 80 seconds on a given programme.
 
     welle-cli -c channel -C 1 -w port
     welle-cli -c channel -PC 1 -w port
+    
+Example: `welle-cli -c 12A -C 1 -w 7979` enables the webserver on channel 12A, please then go to http://localhost:7979/ where you can observe all necessary details for every service ID in the ensemble, see the slideshows, stream the audio (by clicking on the Play-Button), check spectrum, constellation, TII information and CIR peak diagramme.
 
 Backend options
 ---
