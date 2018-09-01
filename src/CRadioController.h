@@ -154,7 +154,6 @@ private:
     void initialise(void);
     void resetTechnicalData(void);
     void deviceRestart(void);
-    void decoderRestart(bool isScan);
 
     std::shared_ptr<CVirtualInput> device;
     QVariantMap commandLineOptions;
@@ -226,12 +225,11 @@ private slots:
     void stationTimerTimeout(void);
     void channelTimerTimeout(void);
     void nextChannel(bool isWait);
-    void addtoEnsemble(quint32 SId, const QString &Station);
     void displayDateTime(const dab_date_time_t& dateTime);
 
 signals:
     void switchToNextChannel(bool isWait);
-    void ensembleAdded(quint32 SId, const QString& station);
+    void ensembleAdded(quint32 serviceID, const QString& station, QString channel);
     void ensembleNameUpdated(const QString& name);
     void dateTimeUpdated(const dab_date_time_t& dateTime);
 

@@ -66,9 +66,6 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, DABParams& p
     connect(this, &CRadioController::switchToNextChannel,
             this, &CRadioController::nextChannel);
 
-    connect(this, &CRadioController::ensembleAdded,
-            this, &CRadioController::addtoEnsemble);
-
     connect(this, &CRadioController::ensembleNameUpdated,
             this, &CRadioController::nameofEnsemble);
 
@@ -194,10 +191,14 @@ void CRadioController::setChannel(QString Channel, bool isScan, bool Force)
             if(currentFrequency != 0 && device) {
                 qDebug() << "RadioController: Tune to channel" <<  Channel << "->" << currentFrequency/1e6 << "MHz";
                 device->setFrequency(currentFrequency);
+                device->reset(); // Clear buffer
             }
         }
 
-        decoderRestart(isScan);
+        // Restart demodulator and decoder
+        radioReceiver.reset(new RadioReceiver(*this, *device, rro));
+        radioReceiver->setReceiverOptions(rro);
+        radioReceiver->restart(isScan);
 
         emit channelChanged();
         emit ensembleChanged();
@@ -426,6 +427,7 @@ void CRadioController::initialise(void)
 {
     gainCount = device->getGainCount();
     emit gainCountChanged(gainCount);
+    emit deviceReady();
 
     device->setHwAgc(isHwAGC);
 
@@ -440,11 +442,6 @@ void CRadioController::initialise(void)
     }
 
     audio.setVolume(currentVolume);
-
-    radioReceiver = std::make_unique<RadioReceiver>(*this, *device, rro);
-    radioReceiver->setReceiverOptions(rro);
-
-    emit deviceReady();
 
     isHwAGCSupported = device->isHwAgcSupported();
     emit isHwAGCSupportedChanged(isHwAGCSupported);
@@ -523,18 +520,6 @@ void CRadioController::deviceRestart()
         qDebug() << "RadioController:" << "Radio device is not ready or does not exist.";
         emit showErrorMessage(tr("Radio device is not ready or does not exist."));
         return;
-    }
-}
-
-void CRadioController::decoderRestart(bool isScan)
-{
-    //	The ofdm processor is "conditioned" to send one signal
-    //	per "scanning tour". This signal is either "false"
-    //	if we are pretty certain that the channel does not contain
-    //	a signal, or "true" if there is a fair chance that the
-    //	channel contains useful data
-    if (radioReceiver) {
-        radioReceiver->restart(isScan);
     }
 }
 
@@ -770,9 +755,14 @@ void CRadioController::nextChannel(bool isWait)
     }
 }
 
-void CRadioController::addtoEnsemble(quint32 SId, const QString &Station)
+/*********************
+ * Backend callbacks *
+ *********************/
+void CRadioController::onServiceDetected(uint32_t SId, const std::string& label)
 {
-    qDebug() << "RadioController: Found station" <<  Station
+    //emit ensembleAdded(SId, QString::fromStdString(label), currentChannel);
+
+    qDebug() << "RadioController: Found station" <<  QString::fromStdString(label)
              << "(" << qPrintable(QString::number(SId, 16).toUpper()) << ")";
 
     if (isChannelScan == true) {
@@ -781,15 +771,7 @@ void CRadioController::addtoEnsemble(quint32 SId, const QString &Station)
         emit textChanged();
     }
 
-    emit newStationNameReceived(Station, SId, currentChannel);
-}
-
-/*********************
- * Backend callbacks *
- *********************/
-void CRadioController::onServiceDetected(uint32_t SId, const std::string& label)
-{
-    emit ensembleAdded(SId, QString::fromStdString(label));
+    emit newStationNameReceived(QString::fromStdString(label), SId, currentChannel);
 }
 
 void CRadioController::onNewEnsembleName(const std::string& name)
