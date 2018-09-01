@@ -1,6 +1,6 @@
 /*
     DABlin - capital DAB experience
-    Copyright (C) 2015-2017 Stefan Pöschel
+    Copyright (C) 2015-2018 Stefan Pöschel
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -22,25 +22,11 @@
 // --- XPAD_CI -----------------------------------------------------------------
 const size_t XPAD_CI::lens[] = {4, 6, 8, 12, 16, 24, 32, 48};
 
-int XPAD_CI::GetContinuedLastCIType(int last_ci_type) {
-	switch(last_ci_type) {
-	case 1:		// Data group length indicator
-		return 1;
-	case 2:		// Dynamic Label segment
-	case 3:
-		return 3;
-	case 12:	// MOT, X-PAD data group
-	case 13:
-		return 13;
-	case -1:
-	default:
-		return -1;
-	}
-}
-
 
 // --- PADDecoder -----------------------------------------------------------------
 void PADDecoder::Reset() {
+	mot_app_type = -1;
+
 	last_xpad_ci.Reset();
 
 	dl_decoder.Reset();
@@ -124,20 +110,19 @@ void PADDecoder::Process(const uint8_t *xpad_data, size_t xpad_len, bool exact_x
 	if(announced_xpad_len > xpad_len)
 		return;
 
-	if(exact_xpad_len && announced_xpad_len < xpad_len) {
+	if(exact_xpad_len && !loose && announced_xpad_len < xpad_len) {
 		/* If the announced X-PAD len falls below the available one (which can
 		 * only happen with DAB+), a decoder shall discard the X-PAD (see §5.4.3
 		 * in ETSI TS 102 563).
 		 * This behaviour can be disabled in order to process the X-PAD anyhow.
 		 */
 		observer->PADLengthError(announced_xpad_len, xpad_len);
-		if (not loose) {
-			return;
-		}
+		return;
 	}
 
 	// process CIs
 	size_t xpad_offset = xpad_cis_len;
+	int xpad_ci_type_continued = -1;
 	for(xpad_cis_t::const_iterator it = xpad_cis.cbegin(); it != xpad_cis.cend(); it++) {
 		// len only valid for the *immediate* next data group after the DGLI!
 		size_t dgli_len = dgli_decoder.GetDGLILen();
@@ -146,6 +131,8 @@ void PADDecoder::Process(const uint8_t *xpad_data, size_t xpad_len, bool exact_x
 		switch(it->type) {
 		case 1:		// Data Group Length Indicator
 			dgli_decoder.ProcessDataSubfield(ci_flag, xpad + xpad_offset, it->len);
+
+			xpad_ci_type_continued = 1;
 			break;
 
 		case 2:		// Dynamic Label segment (start)
@@ -153,35 +140,44 @@ void PADDecoder::Process(const uint8_t *xpad_data, size_t xpad_len, bool exact_x
 			// if new label available, append it
 			if(dl_decoder.ProcessDataSubfield(it->type == 2, xpad + xpad_offset, it->len))
 				observer->PADChangeDynamicLabel(dl_decoder.GetLabel());
+
+			xpad_ci_type_continued = 3;
 			break;
 
-		// TODO: don't use hardcoded X-PAD Application Types for MOT
-		case 12:	// MOT, X-PAD data group (start)
-			mot_decoder.SetLen(dgli_len);
-			[[fallthrough]]; // Warning, might not be supported by all compilers!
-		case 13:	// MOT, X-PAD data group (continuation)
-			// if new Data Group available, append it
-			if(mot_decoder.ProcessDataSubfield(it->type == 12, xpad + xpad_offset, it->len)) {
-				// if new slide available, show it
-				if(mot_manager.HandleMOTDataGroup(mot_decoder.GetMOTDataGroup())) {
-					const MOT_FILE new_slide = mot_manager.GetFile();
+		default:
+			// MOT, X-PAD data group (start/continuation)
+			if(mot_app_type != -1 && (it->type == mot_app_type || it->type == mot_app_type + 1)) {
+				bool start = it->type == mot_app_type;
 
-					// check file type
-					bool show_slide = true;
-					if(new_slide.content_type != MOT_FILE::CONTENT_TYPE_IMAGE)
-						show_slide = false;
-					switch(new_slide.content_sub_type) {
-					case MOT_FILE::CONTENT_SUB_TYPE_JFIF:
-					case MOT_FILE::CONTENT_SUB_TYPE_PNG:
-						break;
-					default:
-						show_slide = false;
+				if(start)
+					mot_decoder.SetLen(dgli_len);
+
+				// if new Data Group available, append it
+				if(mot_decoder.ProcessDataSubfield(start, xpad + xpad_offset, it->len)) {
+					// if new slide available, show it
+					if(mot_manager.HandleMOTDataGroup(mot_decoder.GetMOTDataGroup())) {
+						const MOT_FILE new_slide = mot_manager.GetFile();
+
+						// check file type
+						bool show_slide = true;
+						if(new_slide.content_type != MOT_FILE::CONTENT_TYPE_IMAGE)
+							show_slide = false;
+						switch(new_slide.content_sub_type) {
+						case MOT_FILE::CONTENT_SUB_TYPE_JFIF:
+						case MOT_FILE::CONTENT_SUB_TYPE_PNG:
+							break;
+						default:
+							show_slide = false;
+						}
+
+						if(show_slide)
+							observer->PADChangeSlide(new_slide);
 					}
-
-					if(show_slide)
-						observer->PADChangeSlide(new_slide);
 				}
+
+				xpad_ci_type_continued = mot_app_type + 1;
 			}
+
 			break;
 		}
 //		fprintf(stderr, "PADDecoder: Data Subfield: type: %2d, len: %2zu\n", it->type, it->len);
@@ -191,7 +187,7 @@ void PADDecoder::Process(const uint8_t *xpad_data, size_t xpad_len, bool exact_x
 
 	// set last CI
 	last_xpad_ci.len = xpad_offset;
-	last_xpad_ci.type = XPAD_CI::GetContinuedLastCIType(xpad_cis.back().type);
+	last_xpad_ci.type = xpad_ci_type_continued;
 }
 
 
@@ -325,8 +321,7 @@ bool DynamicLabelDecoder::DecodeDataGroup() {
 
 	// on Remove Label command, display empty label
 	if(cmd_remove_label) {
-		label.raw.clear();
-		label.charset = 0;	// EBU Latin based (though it doesn't matter)
+		label.Reset();
 		return true;
 	}
 

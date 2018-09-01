@@ -252,6 +252,9 @@ Mp2Processor::Mp2Processor(
             mp2File.reset(fd);
         }
     }
+
+    // MOT, start of X-PAD data group, see EN 301 234
+    padDecoder.SetMOTAppType(12);
 }
 
 void Mp2Processor::PADChangeDynamicLabel(const DL_STATE& dl)
