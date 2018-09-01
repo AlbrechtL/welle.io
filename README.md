@@ -5,10 +5,10 @@
 
 # WARNING: This is the next branch and heavy under development! It may not to compile or work!
 
-This repository contains the implementation of a SDR DAB/DAB+ receiver.  
+This repository contains the implementation of an SDR DAB/DAB+ receiver.  
 Please see the project website https://www.welle.io for a user oriented documentation. 
 
-welle.io is fork from dab-rpi and sdr-j-dab which is now qt-dab https://github.com/JvanKatwijk/qt-dab.
+welle.io is a fork from dab-rpi and sdr-j-dab which is now qt-dab https://github.com/JvanKatwijk/qt-dab.
 
 Table of contents
 ====
@@ -38,11 +38,11 @@ If you discovered an issue please open a new [issue](https://github.com/Albrecht
 welle.io is under heavy development. You can also try the latest developer builds. But PLEASE BE WARNED the builds are automatically created and untested.
  * [welle.io next nightly builds](https://bintray.com/albrechtl/welle.io/welle.io_next_nightly#files)
 
-To use it on macOS or on a Raspberry Pi you have to compile welle.io direct from the sources. See below for more information.
+To use it on macOS or on a Raspberry Pi you have to compile welle.io directly from the sources. See below for more information.
 
 Usage
 =====
-The command line parameters are:
+The command-line parameters are:
 
 Parameter | Description
 ------ | ----------
