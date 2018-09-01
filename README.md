@@ -260,7 +260,7 @@ To build and run welle.io on a Raspberry Pi 2 and 3 with GPU acceleration, pleas
 welle-cli
 ==
 
-If you compile welle-io with [`cmake`](#cmake-instead-of-qt-creator-windows-linux-macos) you will also get an executable called **welle-cli** which stands for a client version of welle-io. 
+If you compile welle-io with [`cmake`](#cmake-instead-of-qt-creator-windows-linux-macos) you will also get an executable called **welle-cli** which stands for welle-io **c**ommand **l**ine **i**nterface. 
 
 Usage of welle-cli 
 ---
