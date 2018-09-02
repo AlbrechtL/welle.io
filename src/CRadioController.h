@@ -110,7 +110,7 @@ public:
     Q_INVOKABLE void setManualChannel(QString Channel);
     Q_INVOKABLE void startScan(void);
     Q_INVOKABLE void stopScan(void);
-    void setAutoPlay(QString Channel, QString Station);    
+    void setAutoPlay(QString Channel, QString Station);
     Q_INVOKABLE void setVolume(qreal volume);
     Q_INVOKABLE void setAGC(bool isAGC);
     Q_INVOKABLE void setHwAGC(bool isHwAGC);
@@ -119,6 +119,7 @@ public:
     Q_INVOKABLE void enableOldFFTWindowPlacement(bool old);
     Q_INVOKABLE void setFreqSyncMethod(int fsm_ix);
     Q_INVOKABLE void setGain(int gain);
+    Q_INVOKABLE void setLoOffset(double lo_offset /* Hz */);
     DABParams& getDABParams(void);
     int getCurrentFrequency();
 
@@ -193,6 +194,7 @@ private:
     QString currentChannel;
     QString currentEnsemble;
     int32_t currentFrequency;
+    double  currentLoOffset = 0.0;
     QString currentStation;
     QString currentStationType;
     QString currentLanguageType;

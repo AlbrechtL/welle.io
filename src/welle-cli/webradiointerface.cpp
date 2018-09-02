@@ -204,7 +204,7 @@ void WebRadioInterface::retune(const std::string& channel)
         carousel_services_available.clear();
 
         cerr << "Set frequency" << endl;
-        input.setFrequency(freq);
+        input.setFrequency(freq, lo_offset);
     }
 
     {

@@ -56,7 +56,7 @@ public:
     ~CRTL_TCP_Client(void);
 
     // Interface methods
-    void setFrequency(int);
+    void setFrequency(double frequency, double lo_offset);
     int getFrequency(void) const;
     bool restart(void);
     int32_t getSamples(DSPCOMPLEX* V, int32_t size);

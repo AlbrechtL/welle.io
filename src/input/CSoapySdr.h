@@ -45,7 +45,7 @@ public:
     CSoapySdr(const CSoapySdr&) = delete;
     CSoapySdr operator=(const CSoapySdr&) = delete;
 
-    virtual void setFrequency(int Frequency);
+    virtual void setFrequency(double frequency, double lo_offset);
     virtual int getFrequency(void) const;
     virtual bool restart(void);
     virtual void stop(void);

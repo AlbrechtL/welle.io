@@ -189,9 +189,11 @@ void CRadioController::setChannel(QString Channel, bool isScan, bool Force)
             currentFrequency = channels.getFrequency(Channel.toStdString());
 
             if(currentFrequency != 0 && device) {
-                qDebug() << "RadioController: Tune to channel" <<  Channel << "->" << currentFrequency/1e6 << "MHz";
-                device->setFrequency(currentFrequency);
-                device->reset(); // Clear buffer
+                qDebug() << "RadioController: Tune to " <<
+                    currentFrequency/1e6 << "MHz with LO offset" <<
+                    currentLoOffset/1e3 << "kHz";
+                device->setFrequency(currentFrequency, currentLoOffset);
+		device->reset(); // Clear buffer
             }
         }
 
@@ -374,6 +376,18 @@ void CRadioController::setGain(int Gain)
 
     emit gainValueChanged(currentManualGainValue);
     emit gainChanged(currentManualGain);
+}
+
+void CRadioController::setLoOffset(double lo_offset)
+{
+    currentLoOffset = lo_offset;
+
+    if (currentFrequency != 0 && device) {
+        qDebug() << "RadioController: Tune to " <<
+            currentFrequency/1e6 << "MHz with LO offset" <<
+            currentLoOffset/1e3 << "kHz";
+        device->setFrequency(currentFrequency, currentLoOffset);
+    }
 }
 
 DABParams& CRadioController::getDABParams()

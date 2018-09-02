@@ -67,10 +67,14 @@ CRTL_TCP_Client::~CRTL_TCP_Client(void)
     stop();
 }
 
-void CRTL_TCP_Client::setFrequency(int newFrequency)
+void CRTL_TCP_Client::setFrequency(double frequency, double lo_offset)
 {
-    frequency = newFrequency;
-    sendVFO(newFrequency);
+    this->frequency = frequency;
+    sendVFO(this->frequency);
+
+    if (lo_offset) {
+        std::clog << "RTL_TCP does not support lo offset" << std::endl;
+    }
 }
 
 int CRTL_TCP_Client::getFrequency() const

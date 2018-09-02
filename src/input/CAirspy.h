@@ -47,7 +47,7 @@ public:
     CAirspy();
     ~CAirspy(void);
 
-    void setFrequency(int nf);
+    void setFrequency(double frequency, double lo_offset);
     int getFrequency(void) const;
     bool restart(void);
     void stop(void);

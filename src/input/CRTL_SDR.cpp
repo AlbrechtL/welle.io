@@ -108,10 +108,16 @@ CRTL_SDR::~CRTL_SDR(void)
     open = false;
 }
 
-void CRTL_SDR::setFrequency(int frequency)
+void CRTL_SDR::setFrequency(double frequency, double lo_offset)
 {
     lastFrequency = frequency;
-    (void)(rtlsdr_set_center_freq(device, frequency + frequencyOffset));
+    (void)(rtlsdr_set_center_freq(device, frequency));
+
+    int enable_offset_tuning =  (lo_offset != 0.0) ? 1 : 0;
+    int r = rtlsdr_set_offset_tuning(device, enable_offset_tuning);
+    if (r != 0) {
+        std::clog << "Failed to enable offset tuning on RTLSDR" << std::endl;
+    }
 }
 
 int CRTL_SDR::getFrequency(void) const
@@ -133,7 +139,7 @@ bool CRTL_SDR::restart(void)
     if (ret < 0)
         return false;
 
-    rtlsdr_set_center_freq(device, lastFrequency + frequencyOffset);
+    rtlsdr_set_center_freq(device, lastFrequency);
     rtlsdrRunning = true;
 
     rtlsdrThread = std::thread(&CRTL_SDR::rtlsdr_read_async_wrapper, this);

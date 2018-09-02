@@ -62,8 +62,8 @@ class ChannelSimulator : public CVirtualInput
         virtual ~ChannelSimulator() {}
 
         virtual CDeviceID getID(void) { return parentInput->getID(); }
-        virtual void setFrequency(int frequency)
-            { parentInput->setFrequency(frequency); }
+        virtual void setFrequency(double frequency, double lo_offset)
+            { parentInput->setFrequency(frequency, lo_offset); }
 
         virtual int getFrequency(void) const
             { return parentInput->getFrequency(); }

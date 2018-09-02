@@ -129,6 +129,31 @@ Item {
                     }
                 }
             }
+            ColumnLayout {
+                spacing: Units.dp(10)
+
+                Text {
+                    id: nameLoOffset
+                    font.pixelSize: TextStyle.textStandartSize
+                    font.family: TextStyle.textFont
+                    color: TextStyle.textColor
+                    Layout.fillWidth: true
+                    text: qsTr("LO Offset in MHz")
+                }
+
+                Slider {
+                    id: loOffset
+                    from: 0
+                    to: 8
+                    value: 0
+                    stepSize: 1
+                    Layout.fillWidth: true
+
+                    onValueChanged: {
+                        radioController.setLoOffset((value - 4) * 1e6)
+                    }
+                }
+            }
         }
 
         Loader {
