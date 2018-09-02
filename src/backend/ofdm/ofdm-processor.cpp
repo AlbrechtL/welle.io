@@ -471,10 +471,16 @@ void OFDMProcessor::resetCoarseCorrector()
 
 void OFDMProcessor::setReceiverOptions(const RadioReceiverOptions rro)
 {
+    bool need_reset = (disableCoarseCorrector != rro.disable_coarse_corrector);
+
     decodeTII = rro.decodeTII;
     disableCoarseCorrector = rro.disable_coarse_corrector;
     freqsyncMethod = rro.freqsyncMethod;
     phaseRef.setThreshold(rro.ofdmProcessorThreshold);
+
+    if (need_reset) {
+        reset();
+    }
 }
 
 void OFDMProcessor::set_scanMode(bool b)
