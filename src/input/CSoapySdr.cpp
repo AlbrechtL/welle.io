@@ -59,6 +59,15 @@ void CSoapySdr::setDriverArgs(const std::string& args)
 void CSoapySdr::setAntenna(const std::string& antenna)
 {
     m_antenna = antenna;
+    if (!m_antenna.empty() && m_device != nullptr) {
+        clog << "Select antenna " << m_antenna << ", supported: ";
+        for (const auto& ant : m_device->listAntennas(SOAPY_SDR_RX, 0)) {
+            clog << " " << ant;
+        }
+        clog << endl;
+
+        m_device->setAntenna(SOAPY_SDR_RX, 0, m_antenna);
+    }
 }
 
 void CSoapySdr::setClockSource(const std::string& clock_source)
@@ -119,13 +128,14 @@ bool CSoapySdr::restart()
         " ksps." << std::endl;
 
 
-    if (!m_antenna.empty()) {
-        clog << "Select antenna " << m_antenna << ", supported: ";
-        for (const auto& ant : m_device->listAntennas(SOAPY_SDR_RX, 0)) {
-            clog << " " << ant;
-        }
-        clog << endl;
+    clog << "Supported antenna: ";
+    for (const auto& ant : m_device->listAntennas(SOAPY_SDR_RX, 0)) {
+        clog << " " << ant;
+    }
+    clog << endl;
 
+    if (!m_antenna.empty()) {
+        clog << "Select antenna " << m_antenna << endl;
         m_device->setAntenna(SOAPY_SDR_RX, 0, m_antenna);
     }
     else {
