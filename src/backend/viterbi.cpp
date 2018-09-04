@@ -20,7 +20,6 @@
  */
 #include    <stdio.h>
 #include    <stdlib.h>
-#include    "mm_malloc.h"
 #include    "viterbi.h"
 #include    <cstring>
 
