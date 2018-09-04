@@ -236,13 +236,13 @@ void OfdmDecoder::decodeFICblock (int32_t blkno)
          * The carrier of a block is the reference for the carrier
          * on the same position in the next block
          */
-        DSPCOMPLEX r1 = fft_buffer[index] * conj (phaseReference[index]);
+        const DSPCOMPLEX r1 = fft_buffer[index] * conj (phaseReference[index]);
         phaseReference[index] = fft_buffer[index];
-        DSPFLOAT ab1 = l1_norm(r1);
+        const DSPFLOAT ab1 = 127.0f / l1_norm(r1);
         /// split the real and the imaginary part and scale it
 
-        ibits[i]            =  - real (r1) / ab1 * 127.0;
-        ibits[params.K + i] =  - imag (r1) / ab1 * 127.0;
+        ibits[i]            =  - real (r1) * ab1;
+        ibits[params.K + i] =  - imag (r1) * ab1;
 
         if (i % constellationDecimation == 0) {
             constellationPoints.push_back(r1);
