@@ -121,9 +121,10 @@ void WebRadioInterface::check_decoders_required()
                         }) != carousel_services_active.cend();
 
                 const bool require =
-                    decode_settings.strategy == DecodeStrategy::All or
-                    phs.at(sid).needsToBeDecoded() or
-                    is_active;
+                    rx->serviceHasAudioComponent(s) and
+                    (decode_settings.strategy == DecodeStrategy::All or
+                     phs.at(sid).needsToBeDecoded() or
+                     is_active);
                 const bool is_decoded = programmes_being_decoded[sid];
 
                 if (require and not is_decoded) {

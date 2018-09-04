@@ -73,6 +73,7 @@ class RadioReceiver {
         DabLabel getEnsembleLabel(void) const;
         std::vector<Service> getServiceList(void) const;
         std::list<ServiceComponent> getComponents(const Service& s) const;
+        bool serviceHasAudioComponent(const Service& s) const;
 
         /* Return the subchannel corresponding to the given component.
          * This can fail, in which case the Subchannel returned has

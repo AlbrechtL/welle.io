@@ -154,6 +154,19 @@ std::list<ServiceComponent> RadioReceiver::getComponents(const Service& s) const
     return ficHandler.fibProcessor.getComponents(s);
 }
 
+bool RadioReceiver::serviceHasAudioComponent(const Service& s) const
+{
+    for (const auto& sc : getComponents(s)) {
+        if (sc.transportMode() == TransportMode::Audio and
+                (sc.audioType() == AudioServiceComponentType::DAB or
+                 sc.audioType() == AudioServiceComponentType::DABPlus)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 Subchannel RadioReceiver::getSubchannel(const ServiceComponent& sc) const
 {
     return ficHandler.fibProcessor.getSubchannel(sc);
