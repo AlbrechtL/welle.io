@@ -138,8 +138,6 @@ class WebRadioInterface : public RadioControllerInterface {
         RadioReceiverOptions rro;
         DecodeSettings decode_settings;
 
-        const double lo_offset = 0.0; // TODO add to configuration
-
         mutable std::mutex data_mut;
         bool synced = 0;
         int last_snr = 0;

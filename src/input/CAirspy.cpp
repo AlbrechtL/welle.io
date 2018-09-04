@@ -131,15 +131,10 @@ CAirspy::~CAirspy(void)
     airspy_exit();
 }
 
-void CAirspy::setFrequency(double frequency, double lo_offset)
+void CAirspy::setFrequency(int nf)
 {
-    freq = std::round(frequency);
-
-    if (lo_offset != 0.0) {
-        std::clog << "Airspy doesn't support LO offset" << std::endl;
-    }
-
-    int result = airspy_set_freq(device, freq);
+    freq = nf;
+    int result = airspy_set_freq(device, nf);
 
     if (result != AIRSPY_SUCCESS) {
         std::clog  << "Airspy:" <<"airspy_set_freq() failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")" << std::endl;

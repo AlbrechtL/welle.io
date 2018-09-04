@@ -251,7 +251,6 @@ class RadioInterface : public RadioControllerInterface {
 
 struct options_t {
     string channel = "10B";
-    double lo_offset = 0.0;
     string iqsource = "";
     string programme = "GRRIF";
     bool dump_programme = false;
@@ -295,9 +294,8 @@ static void usage()
         " welle-cli -c channel -C 1 -w port" << endl <<
         " welle-cli -c channel -PC 1 -w port" << endl <<
         endl <<
-        "Backend and input options" << endl <<
-        " -u           disable coarse corrector, for receivers who have a low frequency offset." << endl <<
-        " -l offset    set an LO offset" << endl <<
+        "Backend options" << endl <<
+        " -u  disable coarse corrector, for receivers who have a low frequency offset." << endl <<
         endl <<
         "Use -t test_number to run a test." << endl <<
         "To understand what the tests do, please see source code." << endl <<
@@ -313,7 +311,7 @@ options_t parse_cmdline(int argc, char **argv)
     options.rro.decodeTII = true;
 
     int opt;
-    while ((opt = getopt(argc, argv, "c:C:dDf:hl:p:Pt:w:u")) != -1) {
+    while ((opt = getopt(argc, argv, "c:C:dDf:hp:Pt:w:u")) != -1) {
         switch (opt) {
             case 'c':
                 options.channel = optarg;
@@ -339,9 +337,6 @@ options_t parse_cmdline(int argc, char **argv)
             case 'h':
                 usage();
                 exit(1);
-            case 'l':
-                options.lo_offset = std::atof(optarg);
-                break;
             case 't':
                 options.tests.push_back(std::atoi(optarg));
                 break;
@@ -408,7 +403,7 @@ int main(int argc, char **argv)
     in->setAgc(true);
 
     auto freq = channels.getFrequency(options.channel);
-    in->setFrequency(freq, options.lo_offset);
+    in->setFrequency(freq);
     string service_to_tune = options.programme;
 
     if (not options.tests.empty()) {

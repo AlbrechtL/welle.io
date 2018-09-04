@@ -75,18 +75,11 @@ void CSoapySdr::setClockSource(const std::string& clock_source)
     m_clock_source = clock_source;
 }
 
-void CSoapySdr::setFrequency(double frequency, double lo_offset)
+void CSoapySdr::setFrequency(int Frequency)
 {
-    m_freq = frequency;
+    m_freq = Frequency;
     if (m_device != nullptr) {
-        if (lo_offset != 0.0) {
-            SoapySDR::Kwargs kwargs;
-            kwargs["OFFSET"] = lo_offset;
-            m_device->setFrequency(SOAPY_SDR_RX, 0, frequency, kwargs);
-        }
-        else {
-            m_device->setFrequency(SOAPY_SDR_RX, 0, frequency);
-        }
+        m_device->setFrequency(SOAPY_SDR_RX, 0, Frequency);
         m_freq = m_device->getFrequency(SOAPY_SDR_RX, 0);
         std::clog << "OutputSoapySDR:Actual frequency: " <<
             m_freq / 1000.0 <<
@@ -144,6 +137,10 @@ bool CSoapySdr::restart()
 
     if (!m_clock_source.empty()) {
         m_device->setClockSource(m_clock_source);
+    }
+
+    if (m_freq > 0) {
+        setFrequency(m_freq);
     }
 
     auto range = m_device->getGainRange(SOAPY_SDR_RX, 0);

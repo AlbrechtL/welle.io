@@ -52,7 +52,7 @@ public:
     ~CRAWFile(void);
 
     // Interface methods
-    void setFrequency(double frequency, double lo_offset);
+    void setFrequency(int Frequency);
     int getFrequency(void) const;
     int32_t getSamples(DSPCOMPLEX*, int32_t);
     std::vector<DSPCOMPLEX> getSpectrumSamples(int size);

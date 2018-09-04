@@ -78,10 +78,9 @@ CRAWFile::~CRAWFile(void)
     }
 }
 
-void CRAWFile::setFrequency(double frequency, double lo_offset)
+void CRAWFile::setFrequency(int Frequency)
 {
-    (void)frequency;
-    (void)lo_offset;
+    (void)Frequency;
 }
 
 int CRAWFile::getFrequency() const

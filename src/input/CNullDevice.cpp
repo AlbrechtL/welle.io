@@ -30,10 +30,9 @@ CNullDevice::CNullDevice()
 
 }
 
-void CNullDevice::setFrequency(double frequency, double lo_offset)
+void CNullDevice::setFrequency(int Frequency)
 {
-    (void)frequency;
-    (void)lo_offset;
+    (void) Frequency;
 }
 
 int CNullDevice::getFrequency(void) const

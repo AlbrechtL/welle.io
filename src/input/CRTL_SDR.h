@@ -60,7 +60,7 @@ public:
     int32_t getSamples(DSPCOMPLEX *buffer, int32_t size);
     std::vector<DSPCOMPLEX> getSpectrumSamples(int size);
     int32_t getSamplesToRead(void);
-    void setFrequency(double frequency, double lo_offset);
+    void setFrequency(int Frequency);
     int getFrequency(void) const;
     float getGain(void) const;
     float setGain(int gain_index);
@@ -75,6 +75,7 @@ private:
     std::thread agcThread;
     RadioControllerInterface& radioController;
     int lastFrequency = kHz(94700);
+    int frequencyOffset = 0;
     int currentGain = 0;
     bool isAGC = false;
     bool isHwAGC = false;

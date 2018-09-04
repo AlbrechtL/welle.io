@@ -33,7 +33,7 @@ class CNullDevice : public CVirtualInput
 public:
     CNullDevice();
 
-    void setFrequency(double frequency, double lo_offset);
+    void setFrequency(int Frequency);
     int getFrequency(void) const;
     bool restart(void);
     void stop(void);

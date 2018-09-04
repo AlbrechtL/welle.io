@@ -159,7 +159,7 @@ class ProgrammeHandlerInterface {
 class InputInterface {
     public:
         virtual ~InputInterface() {}
-        virtual void setFrequency(double frequency, double lo_offset) = 0;
+        virtual void setFrequency(int frequency) = 0;
         virtual int getFrequency(void) const = 0;
         virtual bool restart(void) = 0;
         virtual void stop(void) = 0;
