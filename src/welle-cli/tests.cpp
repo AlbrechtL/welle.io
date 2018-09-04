@@ -34,6 +34,7 @@
 #include "backend/radio-receiver.h"
 #include "CRAWFile.h"
 #include <algorithm>
+#include <numeric>
 #include <random>
 #include <condition_variable>
 #include <deque>
