@@ -469,9 +469,11 @@ void CGUIHelper::updateConstellation()
         if(constellationSeries)
             constellationSeries->replace(constellationSeriesData);
     }
-//    else {
-//        qDebug() << "IQ" << constellationPointBuffer.size() << num_iqpoints;
-    //    }
+    /*
+    else {
+        qDebug() << "IQ" << constellationPointBuffer.size() << num_iqpoints;
+    }
+    */
 }
 
 void CGUIHelper::setNewDebugOutput(QString text)

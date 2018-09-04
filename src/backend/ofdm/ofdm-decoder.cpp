@@ -112,8 +112,8 @@ void OfdmDecoder::workerthread(void)
 
         if (currentBlock == 0) {
             constellationPoints.clear();
-            constellationPoints.reserve(
-                    params.L * params.K / constellationDecimation);
+            constellationPoints.resize(
+                    (params.L-1) * params.K / constellationDecimation);
         }
 
         while (amount > 0 && running) {
@@ -131,6 +131,8 @@ void OfdmDecoder::workerthread(void)
                 radioInterface.onConstellationPoints(
                         std::move(constellationPoints));
                 constellationPoints.clear();
+                constellationPoints.resize(
+                        (params.L-1) * params.K / constellationDecimation);
             }
         }
     }
@@ -245,7 +247,9 @@ void OfdmDecoder::decodeFICblock (int32_t blkno)
         ibits[params.K + i] =  - imag (r1) * ab1;
 
         if (i % constellationDecimation == 0) {
-            constellationPoints.push_back(r1);
+            const size_t ix = (blkno-1) +
+                (params.L-1) * (i / constellationDecimation);
+            constellationPoints.at(ix) = r1;
         }
     }
     //handlerLabel:
@@ -278,7 +282,9 @@ void OfdmDecoder::decodeMscblock (int32_t blkno)
         ibits[params.K + i] =  - imag (r1) / ab1 * 127.0;
 
         if (i % constellationDecimation == 0) {
-            constellationPoints.push_back(r1);
+            const size_t ix = (blkno-1) +
+                (params.L-1) * (i / constellationDecimation);
+            constellationPoints.at(ix) = r1;
         }
     }
     //handlerLabel:
