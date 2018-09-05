@@ -1,4 +1,7 @@
 /*
+ *    Copyright (C) 2018
+ *    Matthias P. Braendli (matthias.braendli@mpb.li)
+ *
  *    Copyright (C) 2017
  *    Albrecht Lohofener (albrechtloh@gmx.de)
  *
@@ -39,10 +42,6 @@ CAirspy::CAirspy() :
     SampleBuffer(256 * 1024),
     SpectrumSampleBuffer(8192)
 {
-    int distance = 10000000;
-    uint32_t myBuffer[20];
-    uint32_t samplerate_count;
-
     std::clog << "Airspy:" << "Open airspy" << std::endl;
 
     device = {};
@@ -60,43 +59,13 @@ CAirspy::CAirspy() :
         throw 0;
     }
 
-    airspy_set_sample_type(device, AIRSPY_SAMPLE_INT16_IQ);
-    airspy_get_samplerates(device, &samplerate_count, 0);
-    std::clog  << "Airspy:" << samplerate_count << "sample rates are supported" << std::endl;
-    airspy_get_samplerates(device, myBuffer, samplerate_count);
+    airspy_set_sample_type(device, AIRSPY_SAMPLE_FLOAT32_IQ);
 
-    for (uint32_t i = 0; i < samplerate_count; i++) {
-        std::clog  << "Airspy:" << "sample rates:" << i << myBuffer[i] << std::endl;
-        if (abs((int32_t) myBuffer[i] - 2048000) < distance) {
-            distance = abs((int32_t) myBuffer[i] - 2048000);
-            selectedRate = myBuffer[i];
-        }
-    }
-
-    if (selectedRate == 0) {
-        std::clog  << "Airspy:" << "Sorry. cannot help you" << std::endl;
-        throw 0;
-    } else
-        std::clog  << "Airspy:" << "selected samplerate" << selectedRate << std::endl;
-
-    result = airspy_set_samplerate(device, selectedRate);
+    result = airspy_set_samplerate(device, AIRSPY_SAMPLERATE);
     if (result != AIRSPY_SUCCESS) {
         std::clog  << "Airspy:" <<"airspy_set_samplerate() failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")" << std::endl;
         throw 0;
     }
-
-    //	The sizes of the mapTable and the convTable are
-    //	predefined and follow from the input and output rate
-    //	(selectedRate / 1000) vs (2048000 / 1000)
-    convBufferSize = selectedRate / 1000;
-    for (uint32_t i = 0; i < 2048; i++) {
-        float inVal = float(selectedRate / 1000);
-        mapTable_int[i] = int(floor(i * (inVal / 2048.0)));
-        mapTable_float[i] = i * (inVal / 2048.0) - mapTable_int[i];
-    }
-    convIndex = 0;
-    convBuffer = new DSPCOMPLEX[convBufferSize + 1];
-
 
     if (isAGC) {
         setAgc(true);
@@ -116,18 +85,15 @@ CAirspy::~CAirspy(void)
     if (device) {
         int result = airspy_stop_rx(device);
         if (result != AIRSPY_SUCCESS) {
-            std::clog  << "Airspy:" <<"airspy_stop_rx () failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")" << std::endl;
+            std::clog  << "Airspy: airspy_stop_rx () failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")" << std::endl;
         }
 
         result = airspy_close(device);
         if (result != AIRSPY_SUCCESS) {
-            std::clog  << "Airspy:" <<"airspy_close () failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")" << std::endl;
+            std::clog  << "Airspy: airspy_close () failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")" << std::endl;
         }
     }
 
-    if (buffer) {
-        delete[] buffer;
-    }
     airspy_exit();
 }
 
@@ -137,7 +103,7 @@ void CAirspy::setFrequency(int nf)
     int result = airspy_set_freq(device, nf);
 
     if (result != AIRSPY_SUCCESS) {
-        std::clog  << "Airspy:" <<"airspy_set_freq() failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")" << std::endl;
+        std::clog  << "Airspy: airspy_set_freq() failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")" << std::endl;
     }
 }
 
@@ -155,20 +121,19 @@ bool CAirspy::restart(void)
 
     SampleBuffer.FlushRingBuffer();
     SpectrumSampleBuffer.FlushRingBuffer();
-    result = airspy_set_sample_type(device, AIRSPY_SAMPLE_INT16_IQ);
+    result = airspy_set_sample_type(device, AIRSPY_SAMPLE_FLOAT32_IQ);
     if (result != AIRSPY_SUCCESS) {
-        std::clog  << "Airspy:" <<"airspy_set_sample_type () failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")" << std::endl;
+        std::clog  << "Airspy: airspy_set_sample_type () failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")" << std::endl;
         return false;
     }
 
-    result = airspy_start_rx(device,
-        (airspy_sample_block_cb_fn)callback, this);
+    result = airspy_start_rx(device, (airspy_sample_block_cb_fn)callback, this);
     if (result != AIRSPY_SUCCESS) {
-        std::clog  << "Airspy:" <<"airspy_start_rx () failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")" << std::endl;
+        std::clog  << "Airspy: airspy_start_rx () failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")" << std::endl;
         return false;
     }
 
-    buffer = new uint8_t[bufSize];
+    buffer.resize(bufSize);
     bs_ = bufSize;
     bl_ = 0;
     running = true;
@@ -182,11 +147,10 @@ void CAirspy::stop(void)
     int result = airspy_stop_rx(device);
 
     if (result != AIRSPY_SUCCESS) {
-        std::clog  << "Airspy:" <<"airspy_stop_rx() failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")" << std::endl;
+        std::clog  << "Airspy: airspy_stop_rx() failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")" << std::endl;
     }
     else {
-        delete[] buffer;
-        buffer = nullptr;
+        buffer.clear();
         bs_ = bl_ = 0;
     }
     running = false;
@@ -194,68 +158,36 @@ void CAirspy::stop(void)
 
 int CAirspy::callback(airspy_transfer* transfer)
 {
-    CAirspy* p;
-
     if (!transfer)
         return 0; // should not happen
-    p = static_cast<CAirspy*>(transfer->ctx);
+    auto *p = static_cast<CAirspy*>(transfer->ctx);
 
     // AIRSPY_SAMPLE_FLOAT32_IQ:
-    uint32_t bytes_to_write = transfer->sample_count * sizeof(int16_t) * 2;
-    uint8_t* pt_rx_buffer = (uint8_t*)transfer->samples;
-
-    while (bytes_to_write > 0) {
-        int spaceleft = p->bs_ - p->bl_;
-        int to_copy = std::min((int)spaceleft, (int)bytes_to_write);
-        ::memcpy(p->buffer + p->bl_, pt_rx_buffer, to_copy);
-        bytes_to_write -= to_copy;
-        pt_rx_buffer += to_copy;
-        //
-        //	   bs (i.e. buffersize) in bytes
-        if (p->bl_ == p->bs_) {
-            p->data_available((void*)p->buffer, p->bl_);
-            p->bl_ = 0;
-        }
-        p->bl_ += to_copy;
-    }
+    p->data_available(reinterpret_cast<const DSPCOMPLEX*>(transfer->samples),
+            transfer->sample_count);
     return 0;
 }
 
-//	called from AIRSPY data callback
-//	this method is declared in airspyHandler class
-//	The buffer received from hardware contains
-//	32-bit floating point IQ samples (8 bytes per sample)
-//
-//	recoded for the sdr-j framework
-//	2*2 = 4 bytes for sample, as per AirSpy USB data stream format
-//	we do the rate conversion here, read in groups of 2 * 625 samples
-//	and transform them into groups of 2 * 512 samples
-int CAirspy::data_available(void* buf, int buf_size)
+//  called from AirSpy data callback which gives us interleaved float32
+//  I and Q according to setting given to airspy_set_sample_type() above.
+//  The AirSpy runs at 4096ksps, we need to decimate by two.
+int CAirspy::data_available(const DSPCOMPLEX* buf, size_t num_samples)
 {
-    int16_t* sbuf = (int16_t*)buf;
-    int nSamples = buf_size / (sizeof(int16_t) * 2);
-    DSPCOMPLEX temp[2048];
-    int32_t i, j;
-
-    for (i = 0; i < nSamples; i++) {
-        convBuffer[convIndex++] = DSPCOMPLEX(sbuf[2 * i] / (float)2048,
-            sbuf[2 * i + 1] / (float)2048);
-        if (convIndex > convBufferSize) {
-            for (j = 0; j < 2048; j++) {
-                int16_t inpBase = mapTable_int[j];
-                float inpRatio = mapTable_float[j];
-                temp[j] = convBuffer[inpBase + 1] * inpRatio + convBuffer[inpBase] * (1 - inpRatio);
-            }
-
-            SampleBuffer.putDataIntoBuffer(temp, 2048);
-            SpectrumSampleBuffer.putDataIntoBuffer(temp, 2048);
-            //
-            //	shift the sample at the end to the beginning, it is needed
-            //	as the starting sample for the next time
-            convBuffer[0] = convBuffer[convBufferSize];
-            convIndex = 1;
-        }
+    if (num_samples % 2 != 0) {
+        throw std::runtime_error("CAirspy::data_available() needs an even number of IQ samples to be able to decimate");
     }
+
+    const DSPCOMPLEX* sbuf = reinterpret_cast<const DSPCOMPLEX*>(buf);
+
+    std::vector<DSPCOMPLEX> temp(num_samples/2);
+
+    for (size_t i = 0; i < num_samples/2; i++) {
+        temp[i] = 0.5f * (sbuf[2*i] + sbuf[2*i+1]);
+    }
+
+    SampleBuffer.putDataIntoBuffer(temp.data(), num_samples/2);
+    SpectrumSampleBuffer.putDataIntoBuffer(temp.data(), num_samples/2);
+
     return 0;
 }
 
@@ -267,18 +199,17 @@ void CAirspy::reset(void)
 
 int32_t CAirspy::getSamples(DSPCOMPLEX* Buffer, int32_t Size)
 {
-
     return SampleBuffer.getDataFromBuffer(Buffer, Size);
 }
 
 std::vector<DSPCOMPLEX> CAirspy::getSpectrumSamples(int size)
 {
-    std::vector<DSPCOMPLEX> buffer(size);
-    int sizeRead = SpectrumSampleBuffer.getDataFromBuffer(buffer.data(), size);
+    std::vector<DSPCOMPLEX> buf(size);
+    int sizeRead = SpectrumSampleBuffer.getDataFromBuffer(buf.data(), size);
     if (sizeRead < size) {
-        buffer.resize(sizeRead);
+        buf.resize(sizeRead);
     }
-    return buffer;
+    return buf;
 }
 
 int32_t CAirspy::getSamplesToRead(void)
@@ -295,23 +226,24 @@ void CAirspy::setAgc(bool AGC)
 {
     int result = 0;
 
-    if(AGC)
-    {
+    if (AGC) {
         result = airspy_set_lna_agc(device, 1);
         if (result != AIRSPY_SUCCESS)
-            std::clog  << "Airspy:" <<"airspy_set_lna_agc() failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")" << std::endl;
+            std::clog  << "Airspy: airspy_set_lna_agc() failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")" << std::endl;
 
         result = airspy_set_mixer_agc(device, 1);
         if (result != AIRSPY_SUCCESS)
-            std::clog  << "Airspy:" <<"airspy_set_mixer_agc() failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")" << std::endl;
+            std::clog  << "Airspy: airspy_set_mixer_agc() failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")" << std::endl;
 
         result = airspy_set_vga_gain(device, 15); // Maximum gain. I don't know if we can do this
         if (result != AIRSPY_SUCCESS)
-           std::clog  << "Airspy:" <<"airspy_set_vga_gain () failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")" << std::endl;
+           std::clog  << "Airspy: airspy_set_vga_gain () failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")" << std::endl;
     }
-    else
-    {
-        airspy_set_linearity_gain(device, currentLinearityGain);
+    else {
+        int result = airspy_set_linearity_gain(device, currentLinearityGain);
+        if (result != AIRSPY_SUCCESS)
+            std::clog  << "Airspy: airspy_set_mixer_agc() failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")" << std::endl;
+
     }
 
     isAGC = AGC;
@@ -319,7 +251,7 @@ void CAirspy::setAgc(bool AGC)
 
 void CAirspy::setHwAgc(bool hwAGC)
 {
-    (void) hwAGC;
+    (void)hwAGC;
 }
 
 std::string CAirspy::getName()
@@ -357,7 +289,7 @@ float CAirspy::setGain(int gain)
 
     int result = airspy_set_linearity_gain(device, currentLinearityGain);
     if (result != AIRSPY_SUCCESS)
-        std::clog  << "Airspy:" <<"airspy_set_mixer_agc() failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")" << std::endl;
+        std::clog  << "Airspy: airspy_set_mixer_agc() failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")" << std::endl;
 
     return currentLinearityGain;
 }

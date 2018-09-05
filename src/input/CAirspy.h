@@ -1,4 +1,7 @@
 /*
+ *    Copyright (C) 2018
+ *    Matthias P. Braendli (matthias.braendli@mpb.li)
+ *
  *    Copyright (C) 2017
  *    Albrecht Lohofener (albrechtloh@gmx.de)
  *
@@ -36,6 +39,8 @@
 #include "MathHelper.h"
 #include "ringbuffer.h"
 
+#include <vector>
+
 #ifndef __MINGW32__
 #include "libairspy/airspy.h"
 #else
@@ -46,6 +51,8 @@ class CAirspy : public CVirtualInput {
 public:
     CAirspy();
     ~CAirspy(void);
+    CAirspy(const CAirspy&) = delete;
+    CAirspy& operator=(const CAirspy&) = delete;
 
     void setFrequency(int nf);
     int getFrequency(void) const;
@@ -64,17 +71,13 @@ public:
     CDeviceID getID(void);
 
 private:
+    const int AIRSPY_SAMPLERATE = 4096000;
+
     bool running = false;
     int freq = 0;
 
     bool isAGC = true;
     int8_t currentLinearityGain = 0;
-    int32_t selectedRate = 0;
-    DSPCOMPLEX* convBuffer;
-    int16_t convBufferSize = 0;
-    int16_t convIndex = 0;
-    int16_t mapTable_int[4 * 512];
-    float mapTable_float[4 * 512];
     RingBuffer<DSPCOMPLEX> SampleBuffer;
     RingBuffer<DSPCOMPLEX> SpectrumSampleBuffer;
     int32_t inputRate;
@@ -83,11 +86,11 @@ private:
     char serial[128];
     // callback buffer
     int bs_ = 0;
-    uint8_t *buffer;
+    std::vector<uint8_t> buffer;
     int bl_ = 0;
 
     static int callback(airspy_transfer_t*);
-    int data_available(void* buf, int buf_size);
+    int data_available(const DSPCOMPLEX* buf, size_t num_samples);
 };
 
 #endif
