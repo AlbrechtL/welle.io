@@ -80,14 +80,7 @@ private:
     int8_t currentLinearityGain = 0;
     RingBuffer<DSPCOMPLEX> SampleBuffer;
     RingBuffer<DSPCOMPLEX> SpectrumSampleBuffer;
-    int32_t inputRate;
     struct airspy_device *device;
-    uint64_t serialNumber = 0;
-    char serial[128];
-    // callback buffer
-    int bs_ = 0;
-    std::vector<uint8_t> buffer;
-    int bl_ = 0;
 
     static int callback(airspy_transfer_t*);
     int data_available(const DSPCOMPLEX* buf, size_t num_samples);

@@ -46,7 +46,6 @@ CAirspy::CAirspy() :
 
     device = {};
 
-    strcpy(serial, "");
     int result = airspy_init();
     if (result != AIRSPY_SUCCESS) {
         std::clog  << "Airspy:" << "airspy_init () failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")" << std::endl;
@@ -115,7 +114,6 @@ int CAirspy::getFrequency() const
 bool CAirspy::restart(void)
 {
     int result;
-    int32_t bufSize = EXTIO_NS * EXTIO_BASE_TYPE_SIZE * 2;
     if (running)
         return true;
 
@@ -133,9 +131,6 @@ bool CAirspy::restart(void)
         return false;
     }
 
-    buffer.resize(bufSize);
-    bs_ = bufSize;
-    bl_ = 0;
     running = true;
     return true;
 }
@@ -148,10 +143,6 @@ void CAirspy::stop(void)
 
     if (result != AIRSPY_SUCCESS) {
         std::clog  << "Airspy: airspy_stop_rx() failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")" << std::endl;
-    }
-    else {
-        buffer.clear();
-        bs_ = bl_ = 0;
     }
     running = false;
 }
