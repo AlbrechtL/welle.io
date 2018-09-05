@@ -101,7 +101,6 @@ HEADERS += \
     src/backend/fic-handler.h \
     src/backend/firecode-checker.h \
     src/backend/galois.h \
-    src/backend/mm_malloc.h \
     src/backend/msc-handler.h \
     src/backend/ofdm/freq-interleaver.h \
     src/backend/ofdm/ofdm-decoder.h \
