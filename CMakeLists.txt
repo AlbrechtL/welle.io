@@ -67,7 +67,11 @@ find_package(Threads REQUIRED)
 find_package(Faad REQUIRED)
 
 if (RTLSDR)
-  find_package(LibRTLSDR REQUIRED)
+    find_package(LibRTLSDR REQUIRED)
+endif()
+
+if (AIRSPY)
+    find_package(LibAIRSPY REQUIRED)
 endif()
 
 if (SOAPYSDR)
@@ -150,13 +154,18 @@ set(input_sources
 )
 
 if(LIBRTLSDR_FOUND)
-  add_definitions (-DHAVE_RTLSDR)
-  set(input_sources  ${input_sources} src/input/CRTL_SDR.cpp)
+    add_definitions (-DHAVE_RTLSDR)
+    set(input_sources  ${input_sources} src/input/CRTL_SDR.cpp)
+endif()
+
+if(LIBAIRSPY_FOUND)
+    add_definitions (-DHAVE_AIRSPY)
+    set(input_sources  ${input_sources} src/input/CAirspy.cpp)
 endif()
 
 if(SoapySDR_FOUND)
-  add_definitions (-DHAVE_SOAPYSDR)
-  set(input_sources  ${input_sources} src/input/CSoapySdr.cpp)
+    add_definitions (-DHAVE_SOAPYSDR)
+    set(input_sources  ${input_sources} src/input/CSoapySdr.cpp)
 endif()
 
 if(NOT GIT_COMMIT_HASH)
@@ -191,6 +200,7 @@ if(BUILD_WELLE_IO)
 
     target_link_libraries (${executableName}
       ${LIBRTLSDR_LIBRARIES}
+      ${LIBAIRSPY_LIBRARIES}
       ${FFTW3F_LIBRARIES}
       ${FAAD_LIBRARIES}
       ${SoapySDR_LIBRARIES}
@@ -212,6 +222,7 @@ if(BUILD_WELLE_CLI)
 
     target_link_libraries (${cliExecutableName}
       ${LIBRTLSDR_LIBRARIES}
+      ${LIBAIRSPY_LIBRARIES}
       ${FFTW3F_LIBRARIES}
       ${FAAD_LIBRARIES}
       ${ALSA_LIBRARIES}
