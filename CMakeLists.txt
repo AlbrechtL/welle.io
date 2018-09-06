@@ -129,17 +129,17 @@ set(backend_sources
 )
 
 set(welle_io_sources
-    src/main.cpp
-    src/output/CAudio.cpp
-    src/gui/CMOTImageProvider.cpp
-    src/gui/CGUIHelper.cpp
-    src/CRadioController.cpp
-    src/CDebugOutput.cpp
-    src/CSplashScreen.cpp
+    src/welle-gui/main.cpp
+    src/welle-gui/CAudio.cpp
+    src/welle-gui/CMOTImageProvider.cpp
+    src/welle-gui/CGUIHelper.cpp
+    src/welle-gui/CRadioController.cpp
+    src/welle-gui/CDebugOutput.cpp
+    src/welle-gui/CSplashScreen.cpp
 )
 
 set(welle_cli_sources
-    src/welle-cli.cpp
+    src/welle-cli/welle-cli.cpp
     src/welle-cli/alsa-output.cpp
     src/welle-cli/webradiointerface.cpp
     src/welle-cli/webprogrammehandler.cpp
@@ -196,7 +196,7 @@ endif()
 
 if(BUILD_WELLE_IO)
     set(executableName welle-io)
-    add_executable (${executableName} ${welle_io_sources} ${backend_sources} ${input_sources} ${fft_sources} ${EXTRA_MOCS} resources.qrc)
+    add_executable (${executableName} ${welle_io_sources} ${backend_sources} ${input_sources} ${fft_sources} ${EXTRA_MOCS} src/welle-gui/resources.qrc)
 
     target_link_libraries (${executableName}
       ${LIBRTLSDR_LIBRARIES}
