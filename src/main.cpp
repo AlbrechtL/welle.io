@@ -118,7 +118,7 @@ int main(int argc, char** argv)
     QIcon::setThemeName("welle_io_icons");
 
     // Set icon
-    app.setWindowIcon(QIcon(":/icon.png"));
+    app.setWindowIcon(QIcon(":/icon/icon.png"));
 
     // Init translations
     QString locale = QLocale::system().name();

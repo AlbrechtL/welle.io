@@ -60,8 +60,8 @@
         <file>i18n/fr_FR.qm</file>
         <file>i18n/pl_PL.qm</file>
 	<file>i18n/ru_RU.qm</file>
-        <file>icon.png</file>
-        <file>splash.png</file>
+        <file>icon/icon.png</file>
+        <file>icon/splash.png</file>
         <file>AUTHORS</file>
         <file>THANKS</file>
         <file>COPYING</file>

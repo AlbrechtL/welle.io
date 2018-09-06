@@ -36,7 +36,7 @@ void CSplashScreen::Show(void)
 #ifndef Q_OS_ANDROID
     if(!isLoad)
     {
-        Pixmap = new QPixmap(":/splash.png");
+        Pixmap = new QPixmap(":/icon/splash.png");
         Splash = new QSplashScreen(*Pixmap, Qt::WindowStaysOnTopHint);
 
         isLoad = true;

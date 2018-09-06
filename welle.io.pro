@@ -7,7 +7,7 @@ Release: QMAKE_CFLAGS	+=  -flto -ffast-math -O3
 Release: QMAKE_CXXFLAGS	+=  -flto -ffast-math -O3
 Release: QMAKE_LFLAGS	+=  -flto -O3
 
-RC_ICONS   =    icon.ico
+RC_ICONS   =    icon/icon.ico
 RESOURCES +=    resources.qrc
 DISTFILES +=    README.md \
     android/AndroidManifest.xml \
@@ -414,7 +414,7 @@ unix:!macx { # macOS is not tested, exclude it
 win32 {
     GITHASHSTRING = $$system(git.exe rev-parse --short HEAD)
 } else:macx {
-    ICON = icon.icns
+    ICON = icon/icon.icns
     QMAKE_INFO_PLIST = $$(PWD)/welle-io.plist
 }
 
