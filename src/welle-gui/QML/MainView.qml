@@ -481,7 +481,7 @@ ApplicationWindow {
     SettingsPopup {
         id: stationSettingsDialog
         contentItem: Loader {
-            source:  "qrc:/src/gui/QML/settingpages/ChannelSettings.qml"
+            source:  "qrc:/QML/settingpages/ChannelSettings.qml"
         }
     }
 
@@ -489,7 +489,7 @@ ApplicationWindow {
         id: globalSettingsDialog
         contentItem: Loader {
             id: globalSettingsLoader
-            source:  "qrc:/src/gui/QML/settingpages/GlobalSettings.qml"
+            source:  "qrc:/QML/settingpages/GlobalSettings.qml"
             onLoaded : isFullScreen = globalSettingsLoader.item.enableFullScreenState
         }
 
@@ -503,7 +503,7 @@ ApplicationWindow {
         id: expertSettingsDialog
         contentItem: Loader {
             id: expertSettingsLoader
-            source:  "qrc:/src/gui/QML/settingpages/ExpertSettings.qml"
+            source:  "qrc:/QML/settingpages/ExpertSettings.qml"
             onLoaded: isExpertView = expertSettingsLoader.item.enableExpertModeState
         }
 

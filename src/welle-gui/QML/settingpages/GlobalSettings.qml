@@ -70,9 +70,9 @@ Item {
                 model: [ "rtl-sdr", "rtl-tcp", "SoapySDR" ];
                 onActivated: {
                     switch(index) {
-                        case 0: sdrSpecificSettings.source = "qrc:/src/gui/QML/settingpages/RTLSDRSettings.qml"; break
-                        case 1: sdrSpecificSettings.source = "qrc:/src/gui/QML/settingpages/RTLTCPSettings.qml"; break
-                        case 2: sdrSpecificSettings.source = "qrc:/src/gui/QML/settingpages/SoapySDRSettings.qml"; break
+                        case 0: sdrSpecificSettings.source = "qrc:/QML/settingpages/RTLSDRSettings.qml"; break
+                        case 1: sdrSpecificSettings.source = "qrc:/QML/settingpages/RTLTCPSettings.qml"; break
+                        case 2: sdrSpecificSettings.source = "qrc:/QML/settingpages/SoapySDRSettings.qml"; break
                     }
                 }
             }
@@ -133,7 +133,7 @@ Item {
 
         Loader {
             id: sdrSpecificSettings
-            source : "qrc:/src/gui/QML/settingpages/RTLSDRSettings.qml"
+            source : "qrc:/QML/settingpages/RTLSDRSettings.qml"
         }
     }
 }

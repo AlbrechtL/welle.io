@@ -8,7 +8,7 @@ Release: QMAKE_CXXFLAGS	+=  -flto -ffast-math -O3
 Release: QMAKE_LFLAGS	+=  -flto -O3
 
 RC_ICONS   =    icon/icon.ico
-RESOURCES +=    resources.qrc
+RESOURCES +=    src/welle-gui/resources.qrc
 DISTFILES +=    README.md \
     android/AndroidManifest.xml \
     android/gradle/wrapper/gradle-wrapper.jar \
@@ -20,48 +20,54 @@ DISTFILES +=    README.md \
     android/java/io/welle/welle/DabMediaService.java \
     android/java/io/welle/welle/DabService.java \
     android/java/io/welle/welle/DabDelegate.java \
-    src/gui/QML/MainView.qml \
-    src/gui/QML/RadioView.qml \
-    src/gui/QML/ExpertView.qml \
-    src/gui/QML/texts/TextStyle.qml \
-    src/gui/QML/texts/TextTitle.qml \
-    src/gui/QML/texts/TextStandart.qml \
-    src/gui/QML/texts/TextStation.qml \
-    src/gui/QML/texts/TextRadioInfo.qml \
-    src/gui/QML/texts/TextRadioStation.qml \
-    src/gui/QML/texts/TextExpert.qml \
-    src/gui/QML/InfoPage.qml \
-    src/gui/QML/components/SettingsPopup.qml \
-    src/gui/QML/settingpages/ExpertSettings.qml \
-    src/gui/QML/components/SettingSwitch.qml \
-    src/gui/QML/settingpages/GlobalSettings.qml \
-    src/gui/QML/settingpages/ChannelSettings.qml \
-    src/gui/QML/settingpages/RTLSDRSettings.qml \
-    src/gui/QML/settingpages/RTLTCPSettings.qml \
-    src/gui/QML/settingpages/SoapySDRSettings.qml \
-    src/gui/QML/settingpages/ExpertSettings.qml \
-    src/gui/QML/components/MessagePopup.qml \
-    src/gui/QML/components/SettingsPopup.qml \
-    src/gui/QML/components/SettingSection.qml \
-    src/gui/QML/components/SettingSwitch.qml \
-    src/gui/QML/components/StationDelegate.qml \
-    src/gui/QML/components/Units.qml \
-    src/gui/QML/expertviews/StationInformation.qml \
-    src/gui/QML/expertviews/ImpulseResponseGraph.qml \
-    src/gui/QML/expertviews/ConstellationGraph.qml \
-    src/gui/QML/expertviews/NullSymbolGraph.qml \
-    src/gui/QML/expertviews/SpectrumGraph.qml \
-    src/gui/QML/expertviews/TextOutputView.qml \
-    src/gui/QML/components/StationListModel.qml
+    src/welle-gui/QML/MainView.qml \
+    src/welle-gui/QML/RadioView.qml \
+    src/welle-gui/QML/ExpertView.qml \
+    src/welle-gui/QML/texts/TextStyle.qml \
+    src/welle-gui/QML/texts/TextTitle.qml \
+    src/welle-gui/QML/texts/TextStandart.qml \
+    src/welle-gui/QML/texts/TextStation.qml \
+    src/welle-gui/QML/texts/TextRadioInfo.qml \
+    src/welle-gui/QML/texts/TextRadioStation.qml \
+    src/welle-gui/QML/texts/TextExpert.qml \
+    src/welle-gui/QML/InfoPage.qml \
+    src/welle-gui/QML/components/SettingsPopup.qml \
+    src/welle-gui/QML/settingpages/ExpertSettings.qml \
+    src/welle-gui/QML/components/SettingSwitch.qml \
+    src/welle-gui/QML/settingpages/GlobalSettings.qml \
+    src/welle-gui/QML/settingpages/ChannelSettings.qml \
+    src/welle-gui/QML/settingpages/RTLSDRSettings.qml \
+    src/welle-gui/QML/settingpages/RTLTCPSettings.qml \
+    src/welle-gui/QML/settingpages/SoapySDRSettings.qml \
+    src/welle-gui/QML/settingpages/ExpertSettings.qml \
+    src/welle-gui/QML/components/MessagePopup.qml \
+    src/welle-gui/QML/components/SettingsPopup.qml \
+    src/welle-gui/QML/components/SettingSection.qml \
+    src/welle-gui/QML/components/SettingSwitch.qml \
+    src/welle-gui/QML/components/StationDelegate.qml \
+    src/welle-gui/QML/components/Units.qml \
+    src/welle-gui/QML/expertviews/StationInformation.qml \
+    src/welle-gui/QML/expertviews/ImpulseResponseGraph.qml \
+    src/welle-gui/QML/expertviews/ConstellationGraph.qml \
+    src/welle-gui/QML/expertviews/NullSymbolGraph.qml \
+    src/welle-gui/QML/expertviews/SpectrumGraph.qml \
+    src/welle-gui/QML/expertviews/TextOutputView.qml \
+    src/welle-gui/QML/components/StationListModel.qml
 
-TRANSLATIONS = i18n/de_DE.ts i18n/it_IT.ts i18n/hu_HU.ts i18n/nb_NO.ts i18n/fr_FR.ts i18n/pl_PL.ts i18n/ru_RU.ts
+TRANSLATIONS = src/welle-gui/i18n/de_DE.ts \
+    src/welle-gui/i18n/it_IT.ts \
+    src/welle-gui/i18n/hu_HU.ts \
+    src/welle-gui/i18n/nb_NO.ts \
+    src/welle-gui/i18n/fr_FR.ts \
+    src/welle-gui/i18n/pl_PL.ts \
+    src/welle-gui/i18n/ru_RU.ts
 
 lupdate_only{ # Workaround for lupdate to scan QML files
-SOURCES += src/gui/QML/*.qml \
-    src/gui/QML/texts/*.qml \
-    src/gui/QML/settingpages/*.qml \
-    src/gui/QML/components/*.qml \
-    src/gui/QML/expertviews/*.qml \
+SOURCES += src/welle-gui/QML/*.qml \
+    src/welle-gui/QML/texts/*.qml \
+    src/welle-gui/QML/settingpages/*.qml \
+    src/welle-gui/QML/components/*.qml \
+    src/welle-gui/QML/expertviews/*.qml \
 }
 
 DEPENDPATH += \
@@ -71,17 +77,15 @@ DEPENDPATH += \
     src/backend/data \
     src/backend/ofdm \
     src/input \
-    src/output \
     src/various \
-    src/gui
+    src/welle-gui
 
 INCLUDEPATH += \
     src \
     src/backend \
-    src/output \
     src/various \
     src/input \
-    src/gui
+    src/welle-gui
 
 HEADERS += \
     src/backend/audio/CFaadDecoder.h \
@@ -117,7 +121,7 @@ HEADERS += \
     src/backend/tools.h \
     src/backend/uep-protection.h \
     src/backend/viterbi.h \
-    src/output/CAudio.h \
+    src/welle-gui/CAudio.h \
     src/various/fft.h \
     src/various/ringbuffer.h \
     src/various/Xtan2.h \
@@ -129,15 +133,15 @@ HEADERS += \
     src/input/CNullDevice.h \
     src/input/CRAWFile.h \
     src/input/CRTL_TCP_Client.h \
-    src/MathHelper.h \
-    src/gui/CMOTImageProvider.h \
-    src/CRadioController.h \
-    src/CSplashScreen.h \
-    src/CDebugOutput.h \
-    src/gui/CGUIHelper.h
+    src/various/MathHelper.h \
+    src/welle-gui/CMOTImageProvider.h \
+    src/welle-gui/CRadioController.h \
+    src/welle-gui/CSplashScreen.h \
+    src/welle-gui/CDebugOutput.h \
+    src/welle-gui/CGUIHelper.h
 
 SOURCES += \
-    src/main.cpp \
+    src/welle-gui/main.cpp \
     src/backend/audio/CFaadDecoder.cpp \
     src/backend/audio/dab-audio.cpp \
     src/backend/audio/mp2processor.cpp \
@@ -169,16 +173,16 @@ SOURCES += \
     src/various/fft.cpp \
     src/various/wavfile.c \
     src/various/Socket.cpp \
-    src/output/CAudio.cpp \
+    src/welle-gui/CAudio.cpp \
     src/input/CInputFactory.cpp \
     src/input/CNullDevice.cpp \
     src/input/CRAWFile.cpp \
     src/input/CRTL_TCP_Client.cpp \
-    src/gui/CMOTImageProvider.cpp \
-    src/CRadioController.cpp \
-    src/CSplashScreen.cpp \
-    src/CDebugOutput.cpp \
-    src/gui/CGUIHelper.cpp
+    src/welle-gui/CMOTImageProvider.cpp \
+    src/welle-gui/CRadioController.cpp \
+    src/welle-gui/CSplashScreen.cpp \
+    src/welle-gui/CDebugOutput.cpp \
+    src/welle-gui/CGUIHelper.cpp
 
 unix:!macx:!android: {
     INCLUDEPATH	+= /usr/local/include
@@ -234,8 +238,8 @@ android {
     CONFIG  += kiss_fft_builtin
     CONFIG  += libfaad_builtin
 
-    HEADERS      += src/gui/CAndroidJNI.h
-    SOURCES      += src/gui/CAndroidJNI.cpp
+    HEADERS      += src/welle-gui/CAndroidJNI.h
+    SOURCES      += src/welle-gui/CAndroidJNI.cpp
     REPC_SOURCE  += src/CRadioController.rep
     REPC_REPLICA += src/CRadioController.rep
 }

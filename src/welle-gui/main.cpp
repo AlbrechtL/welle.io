@@ -113,7 +113,7 @@ int main(int argc, char** argv)
 
     // Set icon path
     QStringList themePaths;
-    themePaths << ":/src/gui/icon";
+    themePaths << ":/icon";
     QIcon::setThemeSearchPaths(themePaths);
     QIcon::setThemeName("welle_io_icons");
 
@@ -290,7 +290,7 @@ int main(int argc, char** argv)
     rootContext->setContextProperty("radioController", radioController);
 
     // Load main page
-    engine->load(QUrl("qrc:/src/gui/QML/MainView.qml"));
+    engine->load(QUrl("qrc:/QML/MainView.qml"));
 
     // Add MOT slideshow provider
     engine->addImageProvider(QLatin1String("motslideshow"), guiHelper->motImage);

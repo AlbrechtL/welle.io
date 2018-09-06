@@ -91,7 +91,7 @@ CGUIHelper::CGUIHelper(CRadioController *RadioController, QObject *parent)
     trayIcon = new QSystemTrayIcon();
     trayIcon->setContextMenu(trayIconMenu);
 
-    trayIcon->setIcon(QIcon(":/icon.png"));
+    trayIcon->setIcon(QIcon(":/icon/icon.png"));
     trayIcon->show();
 #endif
 
@@ -185,7 +185,7 @@ const QVariantMap CGUIHelper::licenses()
     // Read COPYING
     InfoContent.append("QT COPYING (LGPL-2.1)\n");
     InfoContent.append("-------\n");
-    File = new QFile(":/src/libs/COPYING.QT.LGPL-2.1");
+    File = new QFile(":/libs/COPYING.QT.LGPL-2.1");
     File->open(QFile::ReadOnly);
     InfoContent.append(File->readAll());
     InfoContent.append("\n");
@@ -194,7 +194,7 @@ const QVariantMap CGUIHelper::licenses()
     // Read COPYING
     InfoContent.append("kjmp2 COPYING (zlib)\n");
     InfoContent.append("-------\n");
-    File = new QFile(":/src/libs/COPYING.kjmp2.zlib");
+    File = new QFile(":/libs/COPYING.kjmp2.zlib");
     File->open(QFile::ReadOnly);
     InfoContent.append(File->readAll());
     InfoContent.append("\n");
@@ -203,7 +203,7 @@ const QVariantMap CGUIHelper::licenses()
     // Read COPYING
     InfoContent.append("kiss_fft COPYING (BSD 3-clause)\n");
     InfoContent.append("-------\n");
-    File = new QFile(":/src/libs/kiss_fft/COPYING");
+    File = new QFile(":/libs/kiss_fft/COPYING");
     File->open(QFile::ReadOnly);
     InfoContent.append(File->readAll());
     InfoContent.append("\n");
