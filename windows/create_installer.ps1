@@ -40,7 +40,7 @@ Copy-Item $WelleExe installer\packages\io.welle.welle\data\welle-io.exe
 # Deploy QT and related plugins
 Write-Host "*** Deploy QT and related plugins ***" -ForegroundColor Red
 & windeployqt installer\packages\io.welle.welle\data\welle-io.exe --plugindir installer\packages\io.welle.welle\data\plugins\ --no-translations
-& windeployqt installer\packages\io.welle.welle\data\welle-io.exe --dir installer\packages\io.welle.welle\data\qml\ --qmldir ..\src\gui\QML\ --no-translations --no-plugins
+& windeployqt installer\packages\io.welle.welle\data\welle-io.exe --dir installer\packages\io.welle.welle\data\qml\ --qmldir ..\src\welle-gui\QML\ --no-translations --no-plugins
 
 Copy-Item installer\packages\io.welle.welle\data\qml\Qt5QuickControls2.dll installer\packages\io.welle.welle\data
 Copy-Item installer\packages\io.welle.welle\data\qml\Qt5QuickTemplates2.dll installer\packages\io.welle.welle\data
