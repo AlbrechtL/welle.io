@@ -44,7 +44,7 @@ script:
   - mkdir -p ./appdir/usr/share/applications
   - cp welle-io.desktop ./appdir/usr/share/applications
   - mkdir -p ./appdir/usr/bin
-  - cp build/welle-io ./appdir/usr/bin
+  - cp build/src/welle-gui/welle-io ./appdir/usr/bin
   - mkdir -p ./appdir/usr/lib
   - mkdir -p ./appdir/usr/share/icons/hicolor/512x512/apps/
   - cp src/welle-gui/icon/icon.png appdir/usr/share/icons/hicolor/512x512/apps/welle-io.png
