@@ -24,10 +24,6 @@ unix:!macx:!android: {
     LIBS    += -lmp3lame
     CONFIG  += airspy
     CONFIG  += rtl_sdr
-    #CONFIG  += soapysdr
-
-    #CONFIG  += kiss_fft_builtin
-    #CONFIG  += libfaad_builtin
 }
 
 
@@ -43,8 +39,6 @@ win32 {
     LIBS    += -llibfaad
     LIBS    += -lusb-1.0
     LIBS    += -lws2_32
-    CONFIG  += rtl_sdr
-    CONFIG  += airspy
 }
 
 
@@ -57,9 +51,6 @@ macx { # not tested
     LIBS    += -lusb-1.0
     LIBS    += -ldl
     LIBS    += -lfaad
-    CONFIG  += airspy
-    CONFIG  += rtl_sdr
-    #CONFIG  += soapysdr        # not tested
 }
 
 # Include git hash into build

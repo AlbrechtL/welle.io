@@ -4,6 +4,30 @@ Release: QMAKE_CFLAGS	+=  -flto -ffast-math -O3
 Release: QMAKE_CXXFLAGS	+=  -flto -ffast-math -O3
 Release: QMAKE_LFLAGS	+=  -flto -O3
 
+unix:!macx:!android: {
+    CONFIG  += airspy
+    CONFIG  += rtl_sdr
+    #CONFIG  += soapysdr
+}
+
+win32: {
+    CONFIG  += airspy
+    CONFIG  += rtl_sdr
+    #CONFIG  += soapysdr
+}
+
+macx {
+    CONFIG  += airspy
+    CONFIG  += rtl_sdr
+    #CONFIG  += soapysdr
+}
+
+android {
+    CONFIG  += kiss_fft_builtin
+    CONFIG  += libfaad_builtin
+}
+
+
 DEPENDPATH += \
     .. \
     ../backend \
