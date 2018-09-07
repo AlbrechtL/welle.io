@@ -32,8 +32,8 @@ unix:!macx:!android: {
 
 
 win32 {
-    INCLUDEPATH += ../welle.io-win-libs/include
-    LIBS    += -L../welle.io-win-libs/x86
+    INCLUDEPATH += ../../../welle.io-win-libs/include
+    LIBS    += -L../../../welle.io-win-libs/x86
     LIBS    += -lfftw3f-3
     LIBS    += -lole32
     LIBS    += -lwinpthread

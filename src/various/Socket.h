@@ -39,6 +39,10 @@
     #include <winsock2.h>
     #include <ws2tcpip.h>
     #include <windows.h>
+
+    #ifndef MSG_NOSIGNAL
+    # define MSG_NOSIGNAL 0
+    #endif
 #else
     #include <sys/socket.h>
     #include <netinet/in.h>
