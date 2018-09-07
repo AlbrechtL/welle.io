@@ -2,6 +2,7 @@ include(../backend.pri)
 
 TEMPLATE = app
 TARGET = welle-cli
+CONFIG += console
 
 HEADERS += \
     alsa-output.h  \
