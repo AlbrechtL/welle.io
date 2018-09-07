@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Installer>
     <Name>welle.io</Name>
-    <Version>1.0</Version>
+    <Version>2.0</Version>
     <Title>welle.io</Title>
     <Publisher>Albrecht Lohofener</Publisher>
     <StartMenuDir>welle.io</StartMenuDir>
