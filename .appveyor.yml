@@ -31,7 +31,7 @@ build_script:
 after_build:
   # Create installer
   - cd ..\welle-io\windows\
-  - ps: .\create_installer.ps1 -welleExe ..\..\build\src\welle-gui\release\welle-io.exe -QTPath C:\Qt\5.11\mingw53_32\bin -ToolsPath C:\Qt\Tools\mingw530_32\bin -InstallerPath C:\Qt\Tools\QtInstallerFramework\2.0\bin
+  - ps: .\create_installer.ps1 -welleExe ..\..\build\src\welle-gui\release\welle-io.exe -QTPath C:\Qt\5.11\mingw53_32\bin -ToolsPath C:\Qt\Tools\mingw530_32\bin -InstallerPath C:\Qt\Tools\QtInstallerFramework\3.0\bin
 
   # Add to artifact list
   - set PATH=%PATHORIG%
