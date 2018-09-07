@@ -37,6 +37,7 @@ win32 {
     LIBS    += -lstdc++
     LIBS    += -lws2_32
     LIBS    += -llibfaad
+    LIBS    += -lmp3lame
     LIBS    += -lusb-1.0
     LIBS    += -lws2_32
 }

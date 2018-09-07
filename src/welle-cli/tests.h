@@ -36,7 +36,7 @@
 
 class Tests {
     public:
-        Tests(std::unique_ptr<CVirtualInput>& interface,
+        Tests(std::unique_ptr<CVirtualInput>& input_interface,
                 RadioReceiverOptions rro);
 
         void run_test(int test_id);
@@ -46,6 +46,6 @@ class Tests {
         void test_with_noise_iteration(double stddev);
         void test_multipath(int test_id);
 
-        std::unique_ptr<CVirtualInput>& interface;
+        std::unique_ptr<CVirtualInput>& input_interface;
         RadioReceiverOptions rro;
 };

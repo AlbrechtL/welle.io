@@ -233,13 +233,13 @@ class TestProgrammeHandler: public ProgrammeHandlerInterface {
 };
 
 Tests::Tests(std::unique_ptr<CVirtualInput>& interface, RadioReceiverOptions rro) :
-    interface(interface),
+    input_interface(interface),
     rro(rro) {}
 
 void Tests::test_with_noise_iteration(double stddev)
 {
     cerr << "Setup test0" << endl;
-    ChannelSimulator s(interface, stddev);
+    ChannelSimulator s(input_interface, stddev);
     TestRadioInterface ri;
     RadioReceiver rx(ri, s, rro);
 
@@ -266,7 +266,7 @@ void Tests::test_with_noise_iteration(double stddev)
     }
 
     cerr << "Wait for completion" << endl;
-    while (not dynamic_cast<CRAWFile&>(*interface).endWasReached()) {
+    while (not dynamic_cast<CRAWFile&>(*input_interface).endWasReached()) {
         this_thread::sleep_for(chrono::milliseconds(120));
     }
 
@@ -292,7 +292,7 @@ void Tests::test_with_noise()
 
     for (double stddev : stddevs) {
         test_with_noise_iteration(stddev);
-        dynamic_cast<CRAWFile&>(*interface).rewind();
+        dynamic_cast<CRAWFile&>(*input_interface).rewind();
     }
 }
 
@@ -311,7 +311,7 @@ void Tests::test_multipath(int test_id)
 
     rro.ofdmProcessorThreshold = (test_id == 1 ? 3 : -1);
     const auto start_time = chrono::steady_clock::now();
-    RadioReceiver rx(ri, *interface.get(), rro);
+    RadioReceiver rx(ri, *input_interface.get(), rro);
 
     cerr << "Restart rx" << endl;
     rx.restart(false);
@@ -336,7 +336,7 @@ void Tests::test_multipath(int test_id)
     }
 
     cerr << "Wait for completion" << endl;
-    auto& intf = dynamic_cast<CRAWFile&>(*interface);
+    auto& intf = dynamic_cast<CRAWFile&>(*input_interface);
     while (not intf.endWasReached()) {
         this_thread::sleep_for(chrono::milliseconds(120));
     }
