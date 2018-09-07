@@ -40,7 +40,7 @@ Stable release can be found here:
 If you discovered an issue please open a new [issue](https://github.com/AlbrechtL/welle.io/issues).
 
 welle.io is under heavy development. You can also try the latest developer builds. But PLEASE BE WARNED the builds are automatically created and untested.
- * [welle.io next nightly builds](https://bintray.com/albrechtl/welle.io/welle.io_next_nightly#files)
+ * [welle.io nightly builds](https://bintray.com/albrechtl/welle.io/welle.io_nightly#files)
 
 To use it on macOS or on a Raspberry Pi you have to compile welle.io directly from the sources. See below for more information.
 
