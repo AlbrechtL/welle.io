@@ -26,12 +26,19 @@ before_build:
 build_script:
   - cd build
   - qmake ..\welle-io
-  - mingw32-make sub-src-welle-gui-all -j4
+  - mingw32-make -j4
 
 after_build:
+  # Prepare welle binary files
+  - md bin
+  - copy src\welle-cli\release\welle-cli.exe bin
+  - copy src\welle-gui\release\welle-io.exe bin
+  - copy ..\welle-io\src\welle-cli\index.html bin
+  - copy ..\welle-io\src\welle-cli\index.js bin
+  
   # Create installer
   - cd ..\welle-io\windows\
-  - ps: .\create_installer.ps1 -welleExe ..\..\build\src\welle-gui\release\welle-io.exe -QTPath C:\Qt\5.11\mingw53_32\bin -ToolsPath C:\Qt\Tools\mingw530_32\bin -InstallerPath C:\Qt\Tools\QtInstallerFramework\3.0\bin
+  - ps: .\create_installer.ps1 -welleExePath ..\..\build\bin -QTPath C:\Qt\5.11\mingw53_32\bin -ToolsPath C:\Qt\Tools\mingw530_32\bin -InstallerPath C:\Qt\Tools\QtInstallerFramework\3.0\bin
 
   # Add to artifact list
   - set PATH=%PATHORIG%
