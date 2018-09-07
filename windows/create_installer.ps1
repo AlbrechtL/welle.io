@@ -57,7 +57,7 @@ Write-Host "*** Copy non QT DLLs from welle.io-win-libs repository ***" -Foregro
 Copy-Item ..\..\welle.io-win-libs\x86_install\* installer\packages\io.welle.welle\data  -recurse
 
 Write-Host "*** Copy welle-io binary files ***" -ForegroundColor Red
-Copy-Item $welleExePath  installer\packages\io.welle.welle\data\ -recurse
+Copy-Item $welleExePath + "\*" installer\packages\io.welle.welle\data\ -recurse
 
 # Deploy QT and related plugins
 Write-Host "*** Deploy QT and related plugins ***" -ForegroundColor Red
