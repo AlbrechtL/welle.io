@@ -32,9 +32,7 @@
 
 #ifndef __OFDM_PROCESSOR__
 #define __OFDM_PROCESSOR__
-/*
- *
- */
+
 #include "dab-constants.h"
 #include <thread>
 #include <atomic>
@@ -48,11 +46,6 @@
 #include "radio-receiver-options.h"
 #include "fic-handler.h"
 #include "msc-handler.h"
-//
-//  Note:
-//  It was found that enlarging the buffersize to e.g. 8192
-//  cannot be handled properly by the underlying system.
-#define DUMPSIZE        4096
 
 class OFDMProcessor
 {

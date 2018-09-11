@@ -22,7 +22,7 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *  Once the bits are "in", interpretation and manipulation
- *  should reconstruct the data blocks.
+ *  should reconstruct the data symbols.
  *  Ofdm_decoder is called once every Ts samples, and
  *  its invocation results in 2 * Tu bits
  */
@@ -47,36 +47,24 @@ OfdmDecoder::OfdmDecoder(
     radioInterface(mr),
     ficHandler(ficHandler),
     mscHandler(mscHandler),
+    pending_symbols(params.L),
+    phaseReference(params.T_u),
     fft_handler(p.T_u),
-    interleaver(p)
+    interleaver(p),
+    ibits(2 * params.K)
 {
-    ibits.resize(2 * params.K);
-
     T_g = params.T_s - params.T_u;
     fft_buffer = fft_handler.getVector();
-    phaseReference.resize(params.T_u);
-
-    snrCount    = 0;
-    snr         = 0;
 
     /**
      * When implemented in a thread, the thread controls the
      * reading in of the data and processing the data through
-     * functions for handling block 0, FIC blocks and MSC blocks.
-     *
-     * We just create a large buffer where index i refers to block i.
-     *
+     * functions for handling symbol 0, FIC symbols and MSC symbols.
      */
-    pending_symbols.resize(params.L);
     thread = std::thread(&OfdmDecoder::workerthread, this);
 }
 
-OfdmDecoder::~OfdmDecoder(void)
-{
-    stop();
-}
-
-void OfdmDecoder::stop(void)
+OfdmDecoder::~OfdmDecoder()
 {
     running = false;
     pending_symbols_cv.notify_all();
@@ -85,16 +73,25 @@ void OfdmDecoder::stop(void)
     }
 }
 
+void OfdmDecoder::reset()
+{
+    running = false;
+    pending_symbols_cv.notify_all();
+    if (thread.joinable()) {
+        thread.join();
+    }
+
+    thread = std::thread(&OfdmDecoder::workerthread, this);
+}
+
 /**
  * The code in the thread executes a simple loop,
- * waiting for the next block and executing the interpretation
- * operation for that block.
- * In our original code the block count was 1 higher than
- * our count here.
+ * waiting for the next symbols and executing the interpretation
+ * operation for that symbols.
  */
-void OfdmDecoder::workerthread(void)
+void OfdmDecoder::workerthread()
 {
-    int16_t currentBlock = 0;
+    int currentSym = 0;
 
     running = true;
 
@@ -102,22 +99,22 @@ void OfdmDecoder::workerthread(void)
         std::unique_lock<std::mutex> lock(mutex);
         pending_symbols_cv.wait_for(lock, std::chrono::milliseconds(100));
 
-        if (currentBlock == 0) {
+        if (currentSym == 0) {
             constellationPoints.clear();
             constellationPoints.resize(
                     (params.L-1) * params.K / constellationDecimation);
         }
 
         while (num_pending_symbols > 0 && running) {
-            if (currentBlock == 0)
+            if (currentSym == 0)
                 processPRS();
             else
-                decodeDataSymbol(currentBlock);
+                decodeDataSymbol(currentSym);
 
-            currentBlock = (currentBlock + 1) % (params.L);
+            currentSym = (currentSym + 1) % (params.L);
             num_pending_symbols -= 1;
 
-            if (currentBlock == 0) {
+            if (currentSym == 0) {
                 radioInterface.onConstellationPoints(
                         std::move(constellationPoints));
                 constellationPoints.clear();
@@ -160,9 +157,9 @@ void OfdmDecoder::pushSymbol(std::vector<DSPCOMPLEX>&& vi, int sym_ix)
  */
 
 /**
- * handle block 0 as collected from the buffer
+ * handle symbol 0 as collected from the buffer
  */
-void OfdmDecoder::processPRS (void)
+void OfdmDecoder::processPRS()
 {
     memcpy (fft_buffer,
             pending_symbols[0].data(),
@@ -173,7 +170,7 @@ void OfdmDecoder::processPRS (void)
      * within the signal region and bits outside.
      * It is just an indication
      */
-    snr = 0.7 * snr + 0.3 * get_snr (fft_buffer);
+    snr = 0.7 * snr + 0.3 * get_snr(fft_buffer);
     if (++snrCount > 10) {
         radioInterface.onSNR(snr);
         snrCount = 0;
@@ -182,17 +179,15 @@ void OfdmDecoder::processPRS (void)
      * we are now in the frequency domain, and we keep the carriers
      * as coming from the FFT as phase reference.
      */
-    memcpy (phaseReference.data(), fft_buffer, params.T_u * sizeof (DSPCOMPLEX));
+    memcpy(phaseReference.data(), fft_buffer, params.T_u * sizeof (DSPCOMPLEX));
 }
 
 /**
- * for the other blocks of data, the first step is to go from
+ * For the other symbols, the first step is to go from
  * time to frequency domain, to get the carriers.
- * we distinguish between FIC blocks and other blocks,
- * only to spare a test. Tthe mapping code is the same
  *
- * \brief decodeFICblock
- * do the transforms and hand over the result to the fichandler
+ * \brief decodeDataSymbol
+ * do the transforms and hand over the result to the fichandler or mschandler
  */
 void OfdmDecoder::decodeDataSymbol(int32_t sym_ix)
 {
@@ -204,15 +199,16 @@ void OfdmDecoder::decodeDataSymbol(int32_t sym_ix)
      * first step: do the FFT
      */
     fft_handler.do_FFT();
+
     /**
      * a little optimization: we do not interchange the
      * positive/negative frequencies to their right positions.
      * The de-interleaving understands this
      */
-    //toBitsLabel:
+
     /**
      * Note that from here on, we are only interested in the
-     * "carriers" useful carriers of the FFT output
+     * K useful carriers of the FFT output
      */
     for (int16_t i = 0; i < params.K; i ++) {
         int16_t index = interleaver.mapIn(i);
@@ -220,17 +216,17 @@ void OfdmDecoder::decodeDataSymbol(int32_t sym_ix)
             index += params.T_u;
         /**
          * decoding is computing the phase difference between
-         * carriers with the same index in subsequent blocks.
-         * The carrier of a block is the reference for the carrier
-         * on the same position in the next block
+         * carriers with the same index in subsequent symbols.
+         * The carrier of a symbols is the reference for the carrier
+         * on the same position in the next symbols
          */
         const DSPCOMPLEX r1 = fft_buffer[index] * conj (phaseReference[index]);
         phaseReference[index] = fft_buffer[index];
         const DSPFLOAT ab1 = 127.0f / l1_norm(r1);
         /// split the real and the imaginary part and scale it
 
-        ibits[i]            =  - real (r1) * ab1;
-        ibits[params.K + i] =  - imag (r1) * ab1;
+        ibits[i]            = -real (r1) * ab1;
+        ibits[params.K + i] = -imag (r1) * ab1;
 
         if (i % constellationDecimation == 0) {
             const size_t ix = (sym_ix-1) +
@@ -251,7 +247,7 @@ void OfdmDecoder::decodeDataSymbol(int32_t sym_ix)
  * Just get the strength from the selected carriers compared
  * to the strength of the carriers outside that region
  */
-int16_t OfdmDecoder::get_snr (DSPCOMPLEX *v)
+int16_t OfdmDecoder::get_snr(DSPCOMPLEX *v)
 {
     int16_t i;
     DSPFLOAT    noise   = 0;

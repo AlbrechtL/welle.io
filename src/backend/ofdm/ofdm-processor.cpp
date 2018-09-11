@@ -67,21 +67,22 @@ OFDMProcessor::OFDMProcessor(
     T_u(params.T_u),
     T_s(params.T_s),
     T_F(params.T_F),
+    oscillatorTable(INPUT_RATE),
     disableCoarseCorrector(rro.disable_coarse_corrector),
     freqsyncMethod(rro.freqsyncMethod),
+    ofdmBuffer(params.L * params.T_s),
     phaseRef(params, rro.ofdmProcessorThreshold),
     ofdmDecoder(params, ri, fic, msc),
     fft_handler(params.T_u),
     fft_buffer(fft_handler.getVector())
 {
-    ofdmBuffer.resize(76 * T_s);
     /**
      * the class phaseReference will take a number of samples
      * and indicate - using some threshold - whether there is
      * a strong correlation or not.
      * It is used to decide on the first non-null sample
      * of the frame.
-     * The size of the blocks handed over for inspection
+     * The size of the symbols handed over for inspection
      * is T_u
      */
     /**
@@ -89,7 +90,6 @@ OFDMProcessor::OFDMProcessor(
      * map the result on (soft) bits and hand over control for handling
      * the decoded symbols
      */
-    oscillatorTable.resize(INPUT_RATE);
 
     for (int i = 0; i < INPUT_RATE; i ++)
         oscillatorTable[i] = DSPCOMPLEX(cos(2.0 * M_PI * i / INPUT_RATE),
@@ -338,7 +338,7 @@ SyncOnPhase:
         /**
          * Once here, we are synchronized, we need to copy the data we
          * used for synchronization for the PRS */
-        memmove (ofdmBuffer.data(), &ofdmBuffer[startIndex],
+        memmove(ofdmBuffer.data(), &ofdmBuffer[startIndex],
                 (params.T_u - startIndex) * sizeof (DSPCOMPLEX));
         ofdmBufferIndex  = params.T_u - startIndex;
 
@@ -346,11 +346,11 @@ SyncOnPhase:
         /**
          * Symbol 0 is special in that it is used for fine time synchronization
          * and its content is used as a reference for decoding the
-         * first datablock.
+         * first data symbol.
          * We read the missing samples in the ofdm buffer
          */
         radioInterface.onSyncChange(true);
-        getSamples (&ofdmBuffer[ofdmBufferIndex],
+        getSamples(&ofdmBuffer[ofdmBufferIndex],
                 T_u - ofdmBufferIndex,
                 coarseCorrector + fineCorrector);
 
@@ -374,9 +374,9 @@ SyncOnPhase:
          */
         //Data_symbols:
         /**
-         * The first ones are the FIC symbols. We immediately
-         * start with building up an average of the phase difference
-         * between the samples in the cyclic prefix and the
+         * The first ones are the FIC symbols, followed by all MSC
+         * symbols.  We immediately start with building up an average of the
+         * phase difference between the samples in the cyclic prefix and the
          * corresponding samples in the datapart.
          */
         DSPCOMPLEX FreqCorr = DSPCOMPLEX(0, 0);
@@ -392,7 +392,7 @@ SyncOnPhase:
         //NewOffset:
         /// we integrate the newly found frequency error with the
         /// existing frequency error.
-        fineCorrector += 0.1 * arg (FreqCorr) / M_PI *
+        fineCorrector += 0.1 * arg(FreqCorr) / M_PI *
             (params.carrierDiff / 2);
         //
         /**

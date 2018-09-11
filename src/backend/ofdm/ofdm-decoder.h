@@ -38,7 +38,7 @@
 #include "fic-handler.h"
 #include "msc-handler.h"
 
-class   OfdmDecoder
+class OfdmDecoder
 {
     public:
         OfdmDecoder(
@@ -46,12 +46,13 @@ class   OfdmDecoder
                 RadioControllerInterface& mr,
                 FicHandler& ficHandler,
                 MscHandler& mscHandler);
-        ~OfdmDecoder(void);
+        ~OfdmDecoder();
         void    pushPRS(std::vector<DSPCOMPLEX>& sym);
         void    pushSymbol(std::vector<DSPCOMPLEX>&& sym, int sym_ix);
-        int16_t get_snr         (DSPCOMPLEX *);
-        void    stop            (void);
+        void    reset();
     private:
+        int16_t get_snr(DSPCOMPLEX *);
+
         const DABParams& params;
         RadioControllerInterface& radioInterface;
         FicHandler& ficHandler;
@@ -70,13 +71,16 @@ class   OfdmDecoder
 
         int32_t T_g;
         std::vector<DSPCOMPLEX> phaseReference;
-        fft::Forward  fft_handler;
-        DSPCOMPLEX  *fft_buffer;
+        fft::Forward fft_handler;
+        DSPCOMPLEX   *fft_buffer;
         FrequencyInterleaver interleaver;
 
         std::vector<int16_t> ibits;
-        int16_t     snrCount;
-        int16_t     snr;
+        int16_t snrCount = 0;
+        int16_t snr = 0;
+
+        const double mer_alpha = 1e-7;
+        std::atomic<double> mer = ATOMIC_VAR_INIT(0.0);
 
     public:
         // Plotting all points is too costly, we decimate the number of points.
