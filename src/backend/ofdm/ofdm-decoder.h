@@ -47,9 +47,8 @@ class   OfdmDecoder
                 FicHandler& ficHandler,
                 MscHandler& mscHandler);
         ~OfdmDecoder(void);
-        void    processPRS(DSPCOMPLEX *);
-        void    decodeFICblock(DSPCOMPLEX *, int32_t n);
-        void    decodeMscblock(DSPCOMPLEX *, int32_t n);
+        void    pushPRS(std::vector<DSPCOMPLEX>& sym);
+        void    pushSymbol(std::vector<DSPCOMPLEX>&& sym, int sym_ix);
         int16_t get_snr         (DSPCOMPLEX *);
         void    stop            (void);
     private:
@@ -59,16 +58,15 @@ class   OfdmDecoder
         MscHandler& mscHandler;
         std::atomic<bool> running;
 
-        std::condition_variable commandHandler;
+        std::condition_variable pending_symbols_cv;
         std::mutex mutex;
-        int16_t amount;
-        DSPCOMPLEX **command;
+        int num_pending_symbols = 0;
+        std::vector<std::vector<DSPCOMPLEX> > pending_symbols;
 
         std::thread thread;
         void workerthread(void);
-        void processPRS(void);
-        void decodeFICblock(int32_t n);
-        void decodeMscblock(int32_t n);
+        void processPRS();
+        void decodeDataSymbol(int32_t n);
 
         int32_t T_g;
         std::vector<DSPCOMPLEX> phaseReference;

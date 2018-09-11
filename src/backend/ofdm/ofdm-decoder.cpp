@@ -67,27 +67,19 @@ OfdmDecoder::OfdmDecoder(
      * We just create a large buffer where index i refers to block i.
      *
      */
-    command = new DSPCOMPLEX*[params.L];
-    for (int16_t i = 0; i < params.L; i ++) {
-        command[i] = new DSPCOMPLEX[params.T_u];
-    }
-    amount = 0;
+    pending_symbols.resize(params.L);
     thread = std::thread(&OfdmDecoder::workerthread, this);
 }
 
 OfdmDecoder::~OfdmDecoder(void)
 {
     stop();
-
-    for (int16_t i = 0; i < params.L; i ++)
-        delete[] command[i];
-    delete[] command;
 }
 
 void OfdmDecoder::stop(void)
 {
     running = false;
-    commandHandler.notify_all();
+    pending_symbols_cv.notify_all();
     if (thread.joinable()) {
         thread.join();
     }
@@ -108,7 +100,7 @@ void OfdmDecoder::workerthread(void)
 
     while (running) {
         std::unique_lock<std::mutex> lock(mutex);
-        commandHandler.wait_for(lock, std::chrono::milliseconds(100));
+        pending_symbols_cv.wait_for(lock, std::chrono::milliseconds(100));
 
         if (currentBlock == 0) {
             constellationPoints.clear();
@@ -116,16 +108,14 @@ void OfdmDecoder::workerthread(void)
                     (params.L-1) * params.K / constellationDecimation);
         }
 
-        while (amount > 0 && running) {
+        while (num_pending_symbols > 0 && running) {
             if (currentBlock == 0)
                 processPRS();
             else
-                if (currentBlock < 4)
-                    decodeFICblock(currentBlock);
-                else
-                    decodeMscblock(currentBlock);
+                decodeDataSymbol(currentBlock);
+
             currentBlock = (currentBlock + 1) % (params.L);
-            amount -= 1;
+            num_pending_symbols -= 1;
 
             if (currentBlock == 0) {
                 radioInterface.onConstellationPoints(
@@ -144,32 +134,24 @@ void OfdmDecoder::workerthread(void)
  * We need some functions to enter the ofdmProcessor data
  * in the buffer.
  */
-void OfdmDecoder::processPRS (DSPCOMPLEX *vi)
+void OfdmDecoder::pushPRS(std::vector<DSPCOMPLEX> &vi)
 {
     std::unique_lock<std::mutex> lock(mutex);
 
-    memcpy(command[0], vi, sizeof (DSPCOMPLEX) * params.T_u);
-    amount++;
-    commandHandler.notify_one();
+    pending_symbols[0] = vi;
+    num_pending_symbols++;
+    pending_symbols_cv.notify_one();
 }
 
-void OfdmDecoder::decodeFICblock (DSPCOMPLEX *vi, int32_t blkno)
+void OfdmDecoder::pushSymbol(std::vector<DSPCOMPLEX>&& vi, int sym_ix)
 {
     std::unique_lock<std::mutex> lock(mutex);
 
-    memcpy (command[blkno], &vi[T_g], sizeof (DSPCOMPLEX) * params.T_u);
-    amount++;
-    commandHandler.notify_one();
+    pending_symbols[sym_ix] = std::move(vi);
+    num_pending_symbols++;
+    pending_symbols_cv.notify_one();
 }
 
-void OfdmDecoder::decodeMscblock (DSPCOMPLEX *vi, int32_t blkno)
-{
-    std::unique_lock<std::mutex> lock(mutex);
-
-    memcpy (command[blkno], &vi[T_g], sizeof (DSPCOMPLEX) * params.T_u);
-    amount++;
-    commandHandler.notify_one();
-}
 
 /**
  * Note that the distinction, made in the ofdmProcessor class
@@ -182,7 +164,9 @@ void OfdmDecoder::decodeMscblock (DSPCOMPLEX *vi, int32_t blkno)
  */
 void OfdmDecoder::processPRS (void)
 {
-    memcpy (fft_buffer, command[0], params.T_u * sizeof (DSPCOMPLEX));
+    memcpy (fft_buffer,
+            pending_symbols[0].data(),
+            params.T_u * sizeof(DSPCOMPLEX));
     fft_handler.do_FFT ();
     /**
      * The SNR is determined by looking at a segment of bins
@@ -210,9 +194,11 @@ void OfdmDecoder::processPRS (void)
  * \brief decodeFICblock
  * do the transforms and hand over the result to the fichandler
  */
-void OfdmDecoder::decodeFICblock (int32_t blkno)
+void OfdmDecoder::decodeDataSymbol(int32_t sym_ix)
 {
-    memcpy (fft_buffer, command[blkno], params.T_u * sizeof (DSPCOMPLEX));
+    memcpy (fft_buffer,
+            pending_symbols[sym_ix].data() + T_g,
+            params.T_u * sizeof (DSPCOMPLEX));
     //fftlabel:
     /**
      * first step: do the FFT
@@ -247,48 +233,16 @@ void OfdmDecoder::decodeFICblock (int32_t blkno)
         ibits[params.K + i] =  - imag (r1) * ab1;
 
         if (i % constellationDecimation == 0) {
-            const size_t ix = (blkno-1) +
+            const size_t ix = (sym_ix-1) +
                 (params.L-1) * (i / constellationDecimation);
             constellationPoints.at(ix) = r1;
         }
     }
-    //handlerLabel:
-    ficHandler.process_ficBlock(ibits.data(), blkno);
-}
 
-/**
- * Msc block decoding is equal to FIC block decoding,
- */
-void OfdmDecoder::decodeMscblock (int32_t blkno)
-{
-    memcpy (fft_buffer, command[blkno], params.T_u * sizeof (DSPCOMPLEX));
-    //fftLabel:
-    fft_handler.do_FFT ();
-
-    //  Note that "mapIn" maps to -carriers / 2 .. carriers / 2
-    //  we did not set the fft output to low .. high
-    //toBitsLabel:
-    for (int16_t i = 0; i < params.K; i ++) {
-        int16_t index = interleaver.mapIn(i);
-        if (index < 0)
-            index += params.T_u;
-
-        DSPCOMPLEX   r1 = fft_buffer[index] * conj (phaseReference[index]);
-        phaseReference[index] = fft_buffer[index];
-        DSPFLOAT ab1 = l1_norm(r1);
-        //  Recall:  the viterbi decoder wants 127 max pos, - 127 max neg
-        //  we make the bits into softbits in the range -127 .. 127
-        ibits[i]            =  - real (r1) / ab1 * 127.0;
-        ibits[params.K + i] =  - imag (r1) / ab1 * 127.0;
-
-        if (i % constellationDecimation == 0) {
-            const size_t ix = (blkno-1) +
-                (params.L-1) * (i / constellationDecimation);
-            constellationPoints.at(ix) = r1;
-        }
-    }
-    //handlerLabel:
-    mscHandler.processMscBlock(ibits.data(), blkno);
+    if (sym_ix < 4)
+        ficHandler.process_ficBlock(ibits.data(), sym_ix);
+    else
+        mscHandler.processMscBlock(ibits.data(), sym_ix);
 }
 
 /**

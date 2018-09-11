@@ -357,7 +357,7 @@ SyncOnPhase:
         std::vector<complexf> prs(T_u);
         std::copy(ofdmBuffer.begin(), ofdmBuffer.begin() + T_u, prs.begin());
 
-        ofdmDecoder.processPRS(ofdmBuffer.data());
+        ofdmDecoder.pushPRS(ofdmBuffer);
         //  Here we look only at the PRS when we need a coarse
         //  frequency synchronization.
         //  The width is limited to 2 * 35 kHz (i.e. positive and negative)
@@ -372,8 +372,6 @@ SyncOnPhase:
         /**
          * after symbol 0, we will just read in the other (params.L - 1) symbols
          */
-        uint32_t ofdmSymbolCount = 0;
-
         //Data_symbols:
         /**
          * The first ones are the FIC symbols. We immediately
@@ -382,24 +380,13 @@ SyncOnPhase:
          * corresponding samples in the datapart.
          */
         DSPCOMPLEX FreqCorr = DSPCOMPLEX(0, 0);
-        for (ofdmSymbolCount = 1;
-                ofdmSymbolCount < 4; ofdmSymbolCount ++) {
-            getSamples (ofdmBuffer.data(), T_s, coarseCorrector + fineCorrector);
-            for (i = (int)T_u; i < (int)T_s; i ++)
-                FreqCorr += ofdmBuffer[i] * conj (ofdmBuffer[i - T_u]);
+        for (int sym = 1; sym < params.L; sym ++) {
+            std::vector<DSPCOMPLEX> buf(T_s);
+            getSamples(buf.data(), T_s, coarseCorrector + fineCorrector);
+            for (int i = T_u; i < T_s; i ++)
+                FreqCorr += buf[i] * conj(buf[i - T_u]);
 
-            ofdmDecoder.decodeFICblock(ofdmBuffer.data(), ofdmSymbolCount);
-        }
-
-        /// and similar for the (params.L - 4) MSC symbols
-        for (ofdmSymbolCount = 4;
-                ofdmSymbolCount <  (uint16_t)params.L;
-                ofdmSymbolCount ++) {
-            getSamples(ofdmBuffer.data(), T_s, coarseCorrector + fineCorrector);
-            for (i = (int32_t)T_u; i < (int32_t)T_s; i ++)
-                FreqCorr += ofdmBuffer[i] * conj (ofdmBuffer[i - T_u]);
-
-            ofdmDecoder.decodeMscblock(ofdmBuffer.data(), ofdmSymbolCount);
+            ofdmDecoder.pushSymbol(std::move(buf), sym);
         }
 
         //NewOffset:
