@@ -52,6 +52,8 @@ HEADERS += \
     ../backend/audio/mp2processor.h \
     ../backend/audio/mp4processor.h \
     ../backend/audio/neaacdec.h \
+    ../backend/audio/dab_decoder.h \
+    ../backend/audio/subchannel_sink.h \
     ../backend/charsets.h \
     ../backend/dab-constants.h \
     ../backend/dab-processor.h \
@@ -105,6 +107,7 @@ SOURCES += \
     ../backend/audio/dab-audio.cpp \
     ../backend/audio/mp2processor.cpp \
     ../backend/audio/mp4processor.cpp \
+    ../backend/audio/dab_decoder.cpp \
     ../backend/charsets.cpp \
     ../backend/dab-constants.cpp \
     ../backend/data/mot_manager.cpp \

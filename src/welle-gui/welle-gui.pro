@@ -90,6 +90,7 @@ unix:!macx:!android: {
     LIBS    += -lusb-1.0
     LIBS    += -ldl
     LIBS    += -lfaad
+    LIBS    += -lmpg123
 }
 
 

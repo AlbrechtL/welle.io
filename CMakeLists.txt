@@ -65,6 +65,7 @@ endif()
 
 find_package(Threads REQUIRED)
 find_package(Faad REQUIRED)
+find_package(MPG123 REQUIRED)
 
 if (RTLSDR)
     find_package(LibRTLSDR REQUIRED)
@@ -99,6 +100,7 @@ set(backend_sources
     src/backend/audio/dab-audio.cpp
     src/backend/audio/mp2processor.cpp
     src/backend/audio/mp4processor.cpp
+    src/backend/audio/dab_decoder.cpp
     src/backend/charsets.cpp
     src/backend/dab-constants.cpp
     src/backend/data/mot_manager.cpp
@@ -204,6 +206,7 @@ if(BUILD_WELLE_IO)
       ${FFTW3F_LIBRARIES}
       ${FAAD_LIBRARIES}
       ${SoapySDR_LIBRARIES}
+      ${MPG123_LIBRARIES}
       Threads::Threads
       Qt5::Core Qt5::Widgets Qt5::Multimedia Qt5::Charts Qt5::Qml Qt5::Quick
     )
@@ -228,6 +231,7 @@ if(BUILD_WELLE_CLI)
       ${ALSA_LIBRARIES}
       ${LAME_LIBRARIES}
       ${SoapySDR_LIBRARIES}
+      ${MPG123_LIBRARIES}
       Threads::Threads
     )
 

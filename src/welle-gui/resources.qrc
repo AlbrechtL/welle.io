@@ -65,8 +65,7 @@
         <file>../../AUTHORS</file>
         <file>../../THANKS</file>
         <file>../../COPYING</file>
-        <file>../libs/COPYING.kjmp2.zlib</file>
-        <file>../libs/COPYING.QT.LGPL-2.1</file>
+        <file>../libs/COPYING.LGPL-2.1</file>
         <file>../libs/kiss_fft/COPYING</file>
         <file>QML/settingpages/GlobalSettings.qml</file>
         <file>QML/settingpages/ChannelSettings.qml</file>

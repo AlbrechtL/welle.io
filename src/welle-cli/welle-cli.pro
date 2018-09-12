@@ -23,6 +23,7 @@ unix:!macx:!android: {
     LIBS    += -ldl
     LIBS    += -lfaad
     LIBS    += -lmp3lame
+    LIBS    += -lmpg123
     CONFIG  += airspy
     CONFIG  += rtl_sdr
 }

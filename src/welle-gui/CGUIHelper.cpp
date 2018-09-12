@@ -183,9 +183,9 @@ const QVariantMap CGUIHelper::licenses()
     delete File;
 
     // Read COPYING
-    InfoContent.append("QT COPYING (LGPL-2.1)\n");
+    InfoContent.append("COPYING (LGPL-2.1)\n");
     InfoContent.append("-------\n");
-    File = new QFile(":/libs/COPYING.QT.LGPL-2.1");
+    File = new QFile(":/libs/COPYING.LGPL-2.1");
     File->open(QFile::ReadOnly);
     InfoContent.append(File->readAll());
     InfoContent.append("\n");

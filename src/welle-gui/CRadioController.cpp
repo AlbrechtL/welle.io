@@ -879,7 +879,7 @@ void CRadioController::onNewAudio(std::vector<int16_t>&& audioData, int sampleRa
     audioBuffer.putDataIntoBuffer(audioData.data(), static_cast<int32_t>(audioData.size()));
 
     if (audioSampleRate != sampleRate) {
-        qDebug() << "RadioController: Audio sample rate" <<  sampleRate << "kHz, mode=" <<
+        qDebug() << "RadioController: Audio sample rate" <<  sampleRate << "Hz, mode=" <<
             QString::fromStdString(mode);
         audioSampleRate = sampleRate;
         emit audioSampleRateChanged(audioSampleRate);
