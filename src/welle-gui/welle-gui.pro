@@ -104,6 +104,7 @@ win32 {
     LIBS    += -lstdc++
     LIBS    += -lws2_32
     LIBS    += -llibfaad
+    LIBS    += -lmpg123-0
     LIBS    += -lusb-1.0
     LIBS    += -lws2_32
 }

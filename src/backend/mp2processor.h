@@ -43,13 +43,14 @@ class Mp2Processor: public DabProcessor, public SubchannelSinkObserver, public P
         Mp2Processor(ProgrammeHandlerInterface& mr,
                      int16_t bitRate,
                      const std::string& mp2FileName);
+
         virtual void addtoFrame(uint8_t *v);
 
         // SubchannelSinkObserver impl
-        void FormatChange(const std::string& /*format*/);
-        void StartAudio(int /*samplerate*/, int /*channels*/, bool /*float32*/);
-        void PutAudio(const uint8_t* /*data*/, size_t /*len*/);
-        void ProcessPAD(const uint8_t* /*xpad_data*/, size_t /*xpad_len*/, bool /*exact_xpad_len*/, const uint8_t* /*fpad_data*/);
+        virtual void FormatChange(const std::string& /*format*/);
+        virtual void StartAudio(int /*samplerate*/, int /*channels*/, bool /*float32*/);
+        virtual void PutAudio(const uint8_t* /*data*/, size_t /*len*/);
+        virtual void ProcessPAD(const uint8_t* /*xpad_data*/, size_t /*xpad_len*/, bool /*exact_xpad_len*/, const uint8_t* /*fpad_data*/);
 
         // PADDecoderObserver impl
         virtual void PADChangeDynamicLabel(const DL_STATE& dl);

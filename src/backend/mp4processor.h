@@ -49,7 +49,7 @@ class Mp4Processor : public DabProcessor, public PADDecoderObserver
                 int16_t bitRate,
                 const std::string& mscFileName);
 
-        void addtoFrame(uint8_t *v);
+        virtual void addtoFrame(uint8_t *v);
 
         // PADDecoderObserver impl
         virtual void PADChangeDynamicLabel(const DL_STATE& dl);
