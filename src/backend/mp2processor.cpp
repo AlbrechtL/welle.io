@@ -26,7 +26,7 @@
 #include <iostream>
 #include "mp2processor.h"
 
-Mp2Processor::Mp2Processor(ProgrammeHandlerInterface &mr, int16_t bitRate, const std::__cxx11::string &mp2FileName):
+Mp2Processor::  Mp2Processor(ProgrammeHandlerInterface &mr, int16_t bitRate, const std::string &mp2FileName):
     bitRate(bitRate),
     myInterface(mr),
     padDecoder(this, true)
