@@ -1,8 +1,8 @@
 CONFIG += c++14
 
-Release: QMAKE_CFLAGS	+=  -flto -ffast-math -O3
-Release: QMAKE_CXXFLAGS	+=  -flto -ffast-math -O3
-Release: QMAKE_LFLAGS	+=  -flto -O3
+Release: QMAKE_CFLAGS	+=  -ffast-math -O3
+Release: QMAKE_CXXFLAGS	+=  -ffast-math -O3
+Release: QMAKE_LFLAGS	+=  -O3
 
 unix:!macx:!android: {
     CONFIG  += airspy
