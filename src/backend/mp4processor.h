@@ -39,7 +39,7 @@
 #include "CFaadDecoder.h"
 #include "firecode-checker.h"
 #include "reed-solomon.h"
-#include "data/pad_decoder.h"
+#include "pad_decoder.h"
 #include "radio-controller.h"
 
 class Mp4Processor : public DabProcessor, public PADDecoderObserver

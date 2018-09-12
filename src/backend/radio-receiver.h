@@ -39,7 +39,7 @@
 #include "radio-receiver-options.h"
 #include "fic-handler.h"
 #include "msc-handler.h"
-#include "ofdm/ofdm-processor.h"
+#include "ofdm-processor.h"
 
 class RadioReceiver {
     public:

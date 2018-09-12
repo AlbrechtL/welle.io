@@ -28,7 +28,7 @@
  */
 
 #include <cstddef>
-#include "ofdm/ofdm-decoder.h"
+#include "ofdm-decoder.h"
 #include <iostream>
 
 /**

@@ -47,19 +47,19 @@ INCLUDEPATH += \
     ../input
 
 HEADERS += \
-    ../backend/audio/CFaadDecoder.h \
-    ../backend/audio/dab-audio.h \
-    ../backend/audio/mp2processor.h \
-    ../backend/audio/mp4processor.h \
-    ../backend/audio/neaacdec.h \
-    ../backend/audio/dab_decoder.h \
-    ../backend/audio/subchannel_sink.h \
+    ../backend/CFaadDecoder.h \
+    ../backend/dab-audio.h \
+    ../backend/mp2processor.h \
+    ../backend/mp4processor.h \
+    ../backend/neaacdec.h \
+    ../backend/dab_decoder.h \
+    ../backend/subchannel_sink.h \
     ../backend/charsets.h \
     ../backend/dab-constants.h \
     ../backend/dab-processor.h \
     ../backend/dab-virtual.h \
-    ../backend/data/mot_manager.h \
-    ../backend/data/pad_decoder.h \
+    ../backend/mot_manager.h \
+    ../backend/pad_decoder.h \
     ../backend/eep-protection.h \
     ../backend/energy_dispersal.h \
     ../backend/fib-processor.h \
@@ -67,12 +67,12 @@ HEADERS += \
     ../backend/firecode-checker.h \
     ../backend/galois.h \
     ../backend/msc-handler.h \
-    ../backend/ofdm/freq-interleaver.h \
-    ../backend/ofdm/ofdm-decoder.h \
-    ../backend/ofdm/ofdm-processor.h \
-    ../backend/ofdm/phasereference.h \
-    ../backend/ofdm/phasetable.h \
-    ../backend/ofdm/tii-decoder.h \
+    ../backend/freq-interleaver.h \
+    ../backend/ofdm-decoder.h \
+    ../backend/ofdm-processor.h \
+    ../backend/phasereference.h \
+    ../backend/phasetable.h \
+    ../backend/tii-decoder.h \
     ../backend/parity.h \
     ../backend/protTables.h \
     ../backend/protection.h \
@@ -103,27 +103,27 @@ HEADERS += \
     ../various/MathHelper.h \
 
 SOURCES += \
-    ../backend/audio/CFaadDecoder.cpp \
-    ../backend/audio/dab-audio.cpp \
-    ../backend/audio/mp2processor.cpp \
-    ../backend/audio/mp4processor.cpp \
-    ../backend/audio/dab_decoder.cpp \
+    ../backend/CFaadDecoder.cpp \
+    ../backend/dab-audio.cpp \
+    ../backend/mp2processor.cpp \
+    ../backend/mp4processor.cpp \
+    ../backend/dab_decoder.cpp \
     ../backend/charsets.cpp \
     ../backend/dab-constants.cpp \
-    ../backend/data/mot_manager.cpp \
-    ../backend/data/pad_decoder.cpp \
+    ../backend/mot_manager.cpp \
+    ../backend/pad_decoder.cpp \
     ../backend/eep-protection.cpp \
     ../backend/fib-processor.cpp \
     ../backend/fic-handler.cpp \
     ../backend/firecode-checker.cpp \
     ../backend/galois.cpp \
     ../backend/msc-handler.cpp \
-    ../backend/ofdm/freq-interleaver.cpp \
-    ../backend/ofdm/ofdm-decoder.cpp \
-    ../backend/ofdm/ofdm-processor.cpp \
-    ../backend/ofdm/phasereference.cpp \
-    ../backend/ofdm/phasetable.cpp \
-    ../backend/ofdm/tii-decoder.cpp \
+    ../backend/freq-interleaver.cpp \
+    ../backend/ofdm-decoder.cpp \
+    ../backend/ofdm-processor.cpp \
+    ../backend/phasereference.cpp \
+    ../backend/phasetable.cpp \
+    ../backend/tii-decoder.cpp \
     ../backend/protTables.cpp \
     ../backend/reed-solomon.cpp \
     ../backend/radio-receiver.cpp \

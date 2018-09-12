@@ -96,27 +96,27 @@ include_directories(
 )
 
 set(backend_sources
-    src/backend/audio/CFaadDecoder.cpp
-    src/backend/audio/dab-audio.cpp
-    src/backend/audio/mp2processor.cpp
-    src/backend/audio/mp4processor.cpp
-    src/backend/audio/dab_decoder.cpp
+    src/backend/CFaadDecoder.cpp
+    src/backend/dab-audio.cpp
+    src/backend/mp2processor.cpp
+    src/backend/mp4processor.cpp
+    src/backend/dab_decoder.cpp
     src/backend/charsets.cpp
     src/backend/dab-constants.cpp
-    src/backend/data/mot_manager.cpp
-    src/backend/data/pad_decoder.cpp
+    src/backend/mot_manager.cpp
+    src/backend/pad_decoder.cpp
     src/backend/eep-protection.cpp
     src/backend/fib-processor.cpp
     src/backend/fic-handler.cpp
     src/backend/firecode-checker.cpp
     src/backend/galois.cpp
     src/backend/msc-handler.cpp
-    src/backend/ofdm/freq-interleaver.cpp
-    src/backend/ofdm/ofdm-decoder.cpp
-    src/backend/ofdm/ofdm-processor.cpp
-    src/backend/ofdm/phasereference.cpp
-    src/backend/ofdm/phasetable.cpp
-    src/backend/ofdm/tii-decoder.cpp
+    src/backend/freq-interleaver.cpp
+    src/backend/ofdm-decoder.cpp
+    src/backend/ofdm-processor.cpp
+    src/backend/phasereference.cpp
+    src/backend/phasetable.cpp
+    src/backend/tii-decoder.cpp
     src/backend/protTables.cpp
     src/backend/reed-solomon.cpp
     src/backend/radio-receiver.cpp

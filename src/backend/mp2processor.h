@@ -32,7 +32,7 @@
 #include <cmath>
 #include <cstdio>
 #include "dab-processor.h"
-#include "data/pad_decoder.h"
+#include "pad_decoder.h"
 #include "radio-controller.h"
 #include "subchannel_sink.h"
 #include "dab_decoder.h"

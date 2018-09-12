@@ -33,7 +33,7 @@
 #include <cstdint>
 #include "fft.h"
 #include "dab-constants.h"
-#include "ofdm/freq-interleaver.h"
+#include "freq-interleaver.h"
 #include "radio-controller.h"
 #include "fic-handler.h"
 #include "msc-handler.h"
