@@ -206,11 +206,9 @@ void WebRadioInterface::retune(const std::string& channel)
 
         cerr << "Set frequency" << endl;
         input.setFrequency(freq);
-    }
+        input.reset(); // Clear buffer
 
-    {
         cerr << "Restart RX" << endl;
-        lock_guard<mutex> lock(rx_mut);
         rx = make_unique<RadioReceiver>(*this, input, rro);
 
         if (not rx) {
