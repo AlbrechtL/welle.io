@@ -61,7 +61,7 @@ Parameter | Description
 --soapysdr-antenna | The value depends on the SoapySDR Hardware, typical values are TX/RX, RX2. Just query it with SoapySDRUtil --probe=driver=uhd
 --soapysdr-clock-source | The value depends on the SoapySDR Hardware, typical values are internal, external, gpsdo. Just query it with SoapySDRUtil --probe=driver=uhd
 --dab-mode | DAB mode. Possible values are: 1,2,3, or 4, Default: 1 
---dump-file | Records DAB frames or DAB+ superframes. This file can be used to analyse X-PAD data with XPADxpert (https://www.basicmaster.de/xpadxpert).
+--dump-file | Records DAB frames (*.mp2) or DAB+ superframes with RS coding (*.dab). This file can be used to analyse X-PAD data with XPADxpert (https://www.basicmaster.de/xpadxpert).
 --log-file | Log file name. Redirects all log output texts to a file.
 --language | Sets the GUI language according to the ISO country codes e.g. de_DE
 --disable-splash | Disables the splash screen.

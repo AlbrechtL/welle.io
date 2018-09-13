@@ -181,7 +181,7 @@ int main(int argc, char** argv)
     optionParser.addOption(DABModeOption);
 
     QCommandLineOption dumpFileName("dump-file",
-        QCoreApplication::translate("main", "Records DAB frames or DAB+ superframes. This file can be used to analyse X-PAD data with XPADxpert"),
+        QCoreApplication::translate("main", "Records DAB frames (*.mp2) or DAB+ superframes with RS coding (*.dab). This file can be used to analyse X-PAD data with XPADxpert"),
         QCoreApplication::translate("main", "File name"));
     optionParser.addOption(dumpFileName);
 
