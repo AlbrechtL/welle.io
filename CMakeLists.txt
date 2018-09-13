@@ -98,8 +98,7 @@ include_directories(
 
 set(backend_sources
     src/backend/dab-audio.cpp
-    src/backend/mp2processor.cpp
-    src/backend/mp4processor.cpp
+    src/backend/decoder_adapter.cpp
     src/backend/dab_decoder.cpp
     src/backend/dabplus_decoder.cpp
     src/backend/charsets.cpp

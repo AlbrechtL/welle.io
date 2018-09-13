@@ -23,30 +23,28 @@
  *
  */
 
-#ifndef MP4PROCESSOR
-#define MP4PROCESSOR
-/*
- *  Handling superframes for DAB+ and delivering
- *  frames into the ffmpeg or faad decoding library
- */
-//
-#include <vector>
+#ifndef MP2PROCESSOR
+#define MP2PROCESSOR
+
 #include <memory>
-#include <cstdio>
+#include <vector>
 #include <cstdint>
-#include "dab-constants.h"
+#include <cmath>
+#include <cstdio>
 #include "dab-processor.h"
 #include "pad_decoder.h"
 #include "radio-controller.h"
 #include "subchannel_sink.h"
+#include "dab_decoder.h"
 #include "dabplus_decoder.h"
 
-class Mp4Processor : public DabProcessor,  public SubchannelSinkObserver, public PADDecoderObserver
+class DecoderAdapter: public DabProcessor, public SubchannelSinkObserver, public PADDecoderObserver
 {
     public:
-        Mp4Processor(ProgrammeHandlerInterface& phi,
-                int16_t bitRate,
-                const std::string& mscFileName);
+        DecoderAdapter(ProgrammeHandlerInterface& mr,
+                     int16_t bitRate,
+                     AudioServiceComponentType &dabModus,
+                     const std::string& dumpFileName);
 
         virtual void addtoFrame(uint8_t *v);
 
@@ -62,20 +60,17 @@ class Mp4Processor : public DabProcessor,  public SubchannelSinkObserver, public
         virtual void PADLengthError(size_t announced_xpad_len, size_t xpad_len);
 
     private:
+        int16_t bitRate;
         ProgrammeHandlerInterface& myInterface;
+        std::unique_ptr<SubchannelSink> decoder;
+        PADDecoder padDecoder;
 
         struct FILEDeleter{ void operator()(FILE* fd){ if (fd) fclose(fd); }};
-        std::unique_ptr<FILE, FILEDeleter> mscFile;
+        std::unique_ptr<FILE, FILEDeleter> dumpFile;
 
-        PADDecoder padDecoder;
-        std::unique_ptr<SuperframeFilter> mp4Decoder;
-
-        int16_t bitRate;
         int audioSamplerate;
         int audioChannels;
         int audioSampleSize;
 };
-
 #endif
-
 

@@ -30,131 +30,129 @@ android {
 
 DEPENDPATH += \
     .. \
-    ../backend \
-    ../audio \
-    ../data \
-    ../ofdm \
-    ../various \
-    ../input \
-    ../libs/fec
+    $$PWD/backend \
+    $$PWD/audio \
+    $$PWD/data \
+    $$PWD/ofdm \
+    $$PWD/various \
+    $$PWD/input \
+    $$PWD/libs/fec
 
 INCLUDEPATH += \
     .. \
-    ../backend \
-    ../audio \
-    ../data \
-    ../ofdm \
-    ../various \
-    ../input \
-    ../libs/fec
+    $$PWD/backend \
+    $$PWD/audio \
+    $$PWD/data \
+    $$PWD/ofdm \
+    $$PWD/various \
+    $$PWD/input \
+    $$PWD/libs/fec
 
 HEADERS += \
-    ../backend/dab-audio.h \
-    ../backend/mp2processor.h \
-    ../backend/mp4processor.h \
-    ../backend/dab_decoder.h \
-    ../backend/dabplus_decoder.h \
-    ../backend/subchannel_sink.h \
-    ../backend/charsets.h \
-    ../backend/dab-constants.h \
-    ../backend/dab-processor.h \
-    ../backend/dab-virtual.h \
-    ../backend/mot_manager.h \
-    ../backend/pad_decoder.h \
-    ../backend/eep-protection.h \
-    ../backend/energy_dispersal.h \
-    ../backend/fib-processor.h \
-    ../backend/fic-handler.h \
-    ../backend/msc-handler.h \
-    ../backend/freq-interleaver.h \
-    ../backend/ofdm-decoder.h \
-    ../backend/ofdm-processor.h \
-    ../backend/phasereference.h \
-    ../backend/phasetable.h \
-    ../backend/tii-decoder.h \
-    ../backend/protTables.h \
-    ../backend/protection.h \
-    ../backend/radio-controller.h \
-    ../backend/radio-receiver.h \
-    ../backend/tools.h \
-    ../backend/uep-protection.h \
-    ../backend/viterbi.h \\
-    ../various/fft.h \
-    ../various/ringbuffer.h \
-    ../various/Xtan2.h \
-    ../various/channels.h \
-    ../various/wavfile.h \
-    ../various/Socket.h \
-    ../various/MathHelper.h \
-    ../various/fft.h \
-    ../various/ringbuffer.h \
-    ../various/Xtan2.h \
-    ../various/channels.h \
-    ../various/wavfile.h \
-    ../various/Socket.h \
-    ../input/CVirtualInput.h \
-    ../input/CInputFactory.h \
-    ../input/CNullDevice.h \
-    ../input/CRAWFile.h \
-    ../input/CRTL_TCP_Client.h \
-    ../various/MathHelper.h \
-    ../libs/fec/char.h \
-    ../libs/fec/decode_rs.h \
-    ../libs/fec/encode_rs.h \
-    ../libs/fec/fec.h \
-    ../libs/fec/init_rs.h \
-    ../libs/fec/rs_common.h
+    $$PWD/backend/dab-audio.h \
+    $$PWD/backend/dab_decoder.h \
+    $$PWD/backend/dabplus_decoder.h \
+    $$PWD/backend/subchannel_sink.h \
+    $$PWD/backend/charsets.h \
+    $$PWD/backend/dab-constants.h \
+    $$PWD/backend/dab-processor.h \
+    $$PWD/backend/dab-virtual.h \
+    $$PWD/backend/mot_manager.h \
+    $$PWD/backend/pad_decoder.h \
+    $$PWD/backend/eep-protection.h \
+    $$PWD/backend/energy_dispersal.h \
+    $$PWD/backend/fib-processor.h \
+    $$PWD/backend/fic-handler.h \
+    $$PWD/backend/msc-handler.h \
+    $$PWD/backend/freq-interleaver.h \
+    $$PWD/backend/ofdm-decoder.h \
+    $$PWD/backend/ofdm-processor.h \
+    $$PWD/backend/phasereference.h \
+    $$PWD/backend/phasetable.h \
+    $$PWD/backend/tii-decoder.h \
+    $$PWD/backend/protTables.h \
+    $$PWD/backend/protection.h \
+    $$PWD/backend/radio-controller.h \
+    $$PWD/backend/radio-receiver.h \
+    $$PWD/backend/tools.h \
+    $$PWD/backend/uep-protection.h \
+    $$PWD/backend/viterbi.h \\
+    $$PWD/various/fft.h \
+    $$PWD/various/ringbuffer.h \
+    $$PWD/various/Xtan2.h \
+    $$PWD/various/channels.h \
+    $$PWD/various/wavfile.h \
+    $$PWD/various/Socket.h \
+    $$PWD/various/MathHelper.h \
+    $$PWD/various/fft.h \
+    $$PWD/various/ringbuffer.h \
+    $$PWD/various/Xtan2.h \
+    $$PWD/various/channels.h \
+    $$PWD/various/wavfile.h \
+    $$PWD/various/Socket.h \
+    $$PWD/input/CVirtualInput.h \
+    $$PWD/input/CInputFactory.h \
+    $$PWD/input/CNullDevice.h \
+    $$PWD/input/CRAWFile.h \
+    $$PWD/input/CRTL_TCP_Client.h \
+    $$PWD/various/MathHelper.h \
+    $$PWD/libs/fec/char.h \
+    $$PWD/libs/fec/decode_rs.h \
+    $$PWD/libs/fec/encode_rs.h \
+    $$PWD/libs/fec/fec.h \
+    $$PWD/libs/fec/init_rs.h \
+    $$PWD/libs/fec/rs_common.h \
+    $$PWD/backend/decoder_adapter.h
 
 SOURCES += \
-    ../backend/dab-audio.cpp \
-    ../backend/mp2processor.cpp \
-    ../backend/mp4processor.cpp \
-    ../backend/dab_decoder.cpp \
-    ../backend/dabplus_decoder.cpp \
-    ../backend/charsets.cpp \
-    ../backend/dab-constants.cpp \
-    ../backend/mot_manager.cpp \
-    ../backend/pad_decoder.cpp \
-    ../backend/eep-protection.cpp \
-    ../backend/fib-processor.cpp \
-    ../backend/fic-handler.cpp \
-    ../backend/msc-handler.cpp \
-    ../backend/freq-interleaver.cpp \
-    ../backend/ofdm-decoder.cpp \
-    ../backend/ofdm-processor.cpp \
-    ../backend/phasereference.cpp \
-    ../backend/phasetable.cpp \
-    ../backend/tii-decoder.cpp \
-    ../backend/protTables.cpp \
-    ../backend/radio-receiver.cpp \
-    ../backend/tools.cpp \
-    ../backend/uep-protection.cpp \
-    ../backend/viterbi.cpp \
-    ../various/Xtan2.cpp \
-    ../various/channels.cpp \
-    ../various/fft.cpp \
-    ../various/wavfile.c \
-    ../various/Socket.cpp \
-    ../input/CInputFactory.cpp \
-    ../input/CNullDevice.cpp \
-    ../input/CRAWFile.cpp \
-    ../input/CRTL_TCP_Client.cpp \
-    ../libs/fec/encode_rs_char.c \
-    ../libs/fec/decode_rs_char.c \
-    ../libs/fec/init_rs_char.c \
+    $$PWD/backend/dab-audio.cpp \
+    $$PWD/backend/dab_decoder.cpp \
+    $$PWD/backend/dabplus_decoder.cpp \
+    $$PWD/backend/charsets.cpp \
+    $$PWD/backend/dab-constants.cpp \
+    $$PWD/backend/mot_manager.cpp \
+    $$PWD/backend/pad_decoder.cpp \
+    $$PWD/backend/eep-protection.cpp \
+    $$PWD/backend/fib-processor.cpp \
+    $$PWD/backend/fic-handler.cpp \
+    $$PWD/backend/msc-handler.cpp \
+    $$PWD/backend/freq-interleaver.cpp \
+    $$PWD/backend/ofdm-decoder.cpp \
+    $$PWD/backend/ofdm-processor.cpp \
+    $$PWD/backend/phasereference.cpp \
+    $$PWD/backend/phasetable.cpp \
+    $$PWD/backend/tii-decoder.cpp \
+    $$PWD/backend/protTables.cpp \
+    $$PWD/backend/radio-receiver.cpp \
+    $$PWD/backend/tools.cpp \
+    $$PWD/backend/uep-protection.cpp \
+    $$PWD/backend/viterbi.cpp \
+    $$PWD/various/Xtan2.cpp \
+    $$PWD/various/channels.cpp \
+    $$PWD/various/fft.cpp \
+    $$PWD/various/wavfile.c \
+    $$PWD/various/Socket.cpp \
+    $$PWD/input/CInputFactory.cpp \
+    $$PWD/input/CNullDevice.cpp \
+    $$PWD/input/CRAWFile.cpp \
+    $$PWD/input/CRTL_TCP_Client.cpp \
+    $$PWD/libs/fec/encode_rs_char.c \
+    $$PWD/libs/fec/decode_rs_char.c \
+    $$PWD/libs/fec/init_rs_char.c \
+    $$PWD/backend/decoder_adapter.cpp
 
 
 #### Built-in libraries ####
 kiss_fft_builtin {
     DEFINES   += KISSFFT
 
-    INCLUDEPATH += ../libs/kiss_fft
+    INCLUDEPATH += $$PWD/libs/kiss_fft
 
     HEADERS    += \
-    ../libs/kiss_fft/kiss_fft.h \
-    ../libs/kiss_fft/_kiss_fft_guts.h
+    $$PWD/libs/kiss_fft/kiss_fft.h \
+    $$PWD/libs/kiss_fft/_kiss_fft_guts.h
 
-    SOURCES    += ../libs/kiss_fft/kiss_fft.c
+    SOURCES    += $$PWD/libs/kiss_fft/kiss_fft.c
 }
 
 libfaad_builtin {
@@ -169,122 +167,122 @@ libfaad_builtin {
     QMAKE_CFLAGS += -Wno-missing-braces
 
     INCLUDEPATH += \
-    ../libs/faad2 \
-    ../libs/faad2/libfaad \
-    ../libs/faad2/libfaad/codebook \
-    ../libs/faad2/include
+    $$PWD/libs/faad2 \
+    $$PWD/libs/faad2/libfaad \
+    $$PWD/libs/faad2/libfaad/codebook \
+    $$PWD/libs/faad2/include
 
     HEADERS += \
-    ../libs/faad2/config.h \
-    ../libs/faad2/include/faad.h \
-    ../libs/faad2/include/neaacdec.h \
-    ../libs/faad2/libfaad/analysis.h \
-    ../libs/faad2/libfaad/bits.h \
-    ../libs/faad2/libfaad/cfft.h \
-    ../libs/faad2/libfaad/cfft_tab.h \
-    ../libs/faad2/libfaad/common.h \
-    ../libs/faad2/libfaad/drc.h \
-    ../libs/faad2/libfaad/drm_dec.h \
-    ../libs/faad2/libfaad/error.h \
-    ../libs/faad2/libfaad/filtbank.h \
-    ../libs/faad2/libfaad/fixed.h \
-    ../libs/faad2/libfaad/huffman.h \
-    ../libs/faad2/libfaad/ic_predict.h \
-    ../libs/faad2/libfaad/iq_table.h \
-    ../libs/faad2/libfaad/is.h \
-    ../libs/faad2/libfaad/kbd_win.h \
-    ../libs/faad2/libfaad/lt_predict.h \
-    ../libs/faad2/libfaad/mdct.h \
-    ../libs/faad2/libfaad/mdct_tab.h \
-    ../libs/faad2/libfaad/mp4.h \
-    ../libs/faad2/libfaad/ms.h \
-    ../libs/faad2/libfaad/output.h \
-    ../libs/faad2/libfaad/pns.h \
-    ../libs/faad2/libfaad/ps_dec.h \
-    ../libs/faad2/libfaad/ps_tables.h \
-    ../libs/faad2/libfaad/pulse.h \
-    ../libs/faad2/libfaad/rvlc.h \
-    ../libs/faad2/libfaad/sbr_dct.h \
-    ../libs/faad2/libfaad/sbr_dec.h \
-    ../libs/faad2/libfaad/sbr_e_nf.h \
-    ../libs/faad2/libfaad/sbr_fbt.h \
-    ../libs/faad2/libfaad/sbr_hfadj.h \
-    ../libs/faad2/libfaad/sbr_hfgen.h \
-    ../libs/faad2/libfaad/sbr_huff.h \
-    ../libs/faad2/libfaad/sbr_noise.h \
-    ../libs/faad2/libfaad/sbr_qmf_c.h \
-    ../libs/faad2/libfaad/sbr_qmf.h \
-    ../libs/faad2/libfaad/sbr_syntax.h \
-    ../libs/faad2/libfaad/sbr_tf_grid.h \
-    ../libs/faad2/libfaad/sine_win.h \
-    ../libs/faad2/libfaad/specrec.h \
-    ../libs/faad2/libfaad/ssr_fb.h \
-    ../libs/faad2/libfaad/ssr.h \
-    ../libs/faad2/libfaad/ssr_ipqf.h \
-    ../libs/faad2/libfaad/ssr_win.h \
-    ../libs/faad2/libfaad/structs.h \
-    ../libs/faad2/libfaad/syntax.h \
-    ../libs/faad2/libfaad/tns.h \
-    ../libs/faad2/libfaad/codebook/hcb_10.h \
-    ../libs/faad2/libfaad/codebook/hcb_11.h \
-    ../libs/faad2/libfaad/codebook/hcb_1.h \
-    ../libs/faad2/libfaad/codebook/hcb_2.h \
-    ../libs/faad2/libfaad/codebook/hcb_3.h \
-    ../libs/faad2/libfaad/codebook/hcb_4.h \
-    ../libs/faad2/libfaad/codebook/hcb_5.h \
-    ../libs/faad2/libfaad/codebook/hcb_6.h \
-    ../libs/faad2/libfaad/codebook/hcb_7.h \
-    ../libs/faad2/libfaad/codebook/hcb_8.h \
-    ../libs/faad2/libfaad/codebook/hcb_9.h \
-    ../libs/faad2/libfaad/codebook/hcb.h \
-    ../libs/faad2/libfaad/codebook/hcb_sf.h
+    $$PWD/libs/faad2/config.h \
+    $$PWD/libs/faad2/include/faad.h \
+    $$PWD/libs/faad2/include/neaacdec.h \
+    $$PWD/libs/faad2/libfaad/analysis.h \
+    $$PWD/libs/faad2/libfaad/bits.h \
+    $$PWD/libs/faad2/libfaad/cfft.h \
+    $$PWD/libs/faad2/libfaad/cfft_tab.h \
+    $$PWD/libs/faad2/libfaad/common.h \
+    $$PWD/libs/faad2/libfaad/drc.h \
+    $$PWD/libs/faad2/libfaad/drm_dec.h \
+    $$PWD/libs/faad2/libfaad/error.h \
+    $$PWD/libs/faad2/libfaad/filtbank.h \
+    $$PWD/libs/faad2/libfaad/fixed.h \
+    $$PWD/libs/faad2/libfaad/huffman.h \
+    $$PWD/libs/faad2/libfaad/ic_predict.h \
+    $$PWD/libs/faad2/libfaad/iq_table.h \
+    $$PWD/libs/faad2/libfaad/is.h \
+    $$PWD/libs/faad2/libfaad/kbd_win.h \
+    $$PWD/libs/faad2/libfaad/lt_predict.h \
+    $$PWD/libs/faad2/libfaad/mdct.h \
+    $$PWD/libs/faad2/libfaad/mdct_tab.h \
+    $$PWD/libs/faad2/libfaad/mp4.h \
+    $$PWD/libs/faad2/libfaad/ms.h \
+    $$PWD/libs/faad2/libfaad/output.h \
+    $$PWD/libs/faad2/libfaad/pns.h \
+    $$PWD/libs/faad2/libfaad/ps_dec.h \
+    $$PWD/libs/faad2/libfaad/ps_tables.h \
+    $$PWD/libs/faad2/libfaad/pulse.h \
+    $$PWD/libs/faad2/libfaad/rvlc.h \
+    $$PWD/libs/faad2/libfaad/sbr_dct.h \
+    $$PWD/libs/faad2/libfaad/sbr_dec.h \
+    $$PWD/libs/faad2/libfaad/sbr_e_nf.h \
+    $$PWD/libs/faad2/libfaad/sbr_fbt.h \
+    $$PWD/libs/faad2/libfaad/sbr_hfadj.h \
+    $$PWD/libs/faad2/libfaad/sbr_hfgen.h \
+    $$PWD/libs/faad2/libfaad/sbr_huff.h \
+    $$PWD/libs/faad2/libfaad/sbr_noise.h \
+    $$PWD/libs/faad2/libfaad/sbr_qmf_c.h \
+    $$PWD/libs/faad2/libfaad/sbr_qmf.h \
+    $$PWD/libs/faad2/libfaad/sbr_syntax.h \
+    $$PWD/libs/faad2/libfaad/sbr_tf_grid.h \
+    $$PWD/libs/faad2/libfaad/sine_win.h \
+    $$PWD/libs/faad2/libfaad/specrec.h \
+    $$PWD/libs/faad2/libfaad/ssr_fb.h \
+    $$PWD/libs/faad2/libfaad/ssr.h \
+    $$PWD/libs/faad2/libfaad/ssr_ipqf.h \
+    $$PWD/libs/faad2/libfaad/ssr_win.h \
+    $$PWD/libs/faad2/libfaad/structs.h \
+    $$PWD/libs/faad2/libfaad/syntax.h \
+    $$PWD/libs/faad2/libfaad/tns.h \
+    $$PWD/libs/faad2/libfaad/codebook/hcb_10.h \
+    $$PWD/libs/faad2/libfaad/codebook/hcb_11.h \
+    $$PWD/libs/faad2/libfaad/codebook/hcb_1.h \
+    $$PWD/libs/faad2/libfaad/codebook/hcb_2.h \
+    $$PWD/libs/faad2/libfaad/codebook/hcb_3.h \
+    $$PWD/libs/faad2/libfaad/codebook/hcb_4.h \
+    $$PWD/libs/faad2/libfaad/codebook/hcb_5.h \
+    $$PWD/libs/faad2/libfaad/codebook/hcb_6.h \
+    $$PWD/libs/faad2/libfaad/codebook/hcb_7.h \
+    $$PWD/libs/faad2/libfaad/codebook/hcb_8.h \
+    $$PWD/libs/faad2/libfaad/codebook/hcb_9.h \
+    $$PWD/libs/faad2/libfaad/codebook/hcb.h \
+    $$PWD/libs/faad2/libfaad/codebook/hcb_sf.h
 
     SOURCES    += \
-    ../libs/faad2/libfaad/bits.c \
-    ../libs/faad2/libfaad/cfft.c \
-    ../libs/faad2/libfaad/common.c \
-    ../libs/faad2/libfaad/decoder.c \
-    ../libs/faad2/libfaad/drc.c \
-    ../libs/faad2/libfaad/drm_dec.c \
-    ../libs/faad2/libfaad/error.c \
-    ../libs/faad2/libfaad/filtbank.c \
-    ../libs/faad2/libfaad/hcr.c \
-    ../libs/faad2/libfaad/huffman.c \
-    ../libs/faad2/libfaad/ic_predict.c \
-    ../libs/faad2/libfaad/is.c \
-    ../libs/faad2/libfaad/lt_predict.c \
-    ../libs/faad2/libfaad/mdct.c \
-    ../libs/faad2/libfaad/mp4.c \
-    ../libs/faad2/libfaad/ms.c \
-    ../libs/faad2/libfaad/output.c \
-    ../libs/faad2/libfaad/pns.c \
-    ../libs/faad2/libfaad/ps_dec.c \
-    ../libs/faad2/libfaad/ps_syntax.c \
-    ../libs/faad2/libfaad/pulse.c \
-    ../libs/faad2/libfaad/rvlc.c \
-    ../libs/faad2/libfaad/sbr_dct.c \
-    ../libs/faad2/libfaad/sbr_dec.c \
-    ../libs/faad2/libfaad/sbr_e_nf.c \
-    ../libs/faad2/libfaad/sbr_fbt.c \
-    ../libs/faad2/libfaad/sbr_hfadj.c \
-    ../libs/faad2/libfaad/sbr_hfgen.c \
-    ../libs/faad2/libfaad/sbr_huff.c \
-    ../libs/faad2/libfaad/sbr_qmf.c \
-    ../libs/faad2/libfaad/sbr_syntax.c \
-    ../libs/faad2/libfaad/sbr_tf_grid.c \
-    ../libs/faad2/libfaad/specrec.c \
-    ../libs/faad2/libfaad/ssr.c \
-    ../libs/faad2/libfaad/ssr_fb.c \
-    ../libs/faad2/libfaad/ssr_ipqf.c \
-    ../libs/faad2/libfaad/syntax.c \
-    ../libs/faad2/libfaad/tns.c
+    $$PWD/libs/faad2/libfaad/bits.c \
+    $$PWD/libs/faad2/libfaad/cfft.c \
+    $$PWD/libs/faad2/libfaad/common.c \
+    $$PWD/libs/faad2/libfaad/decoder.c \
+    $$PWD/libs/faad2/libfaad/drc.c \
+    $$PWD/libs/faad2/libfaad/drm_dec.c \
+    $$PWD/libs/faad2/libfaad/error.c \
+    $$PWD/libs/faad2/libfaad/filtbank.c \
+    $$PWD/libs/faad2/libfaad/hcr.c \
+    $$PWD/libs/faad2/libfaad/huffman.c \
+    $$PWD/libs/faad2/libfaad/ic_predict.c \
+    $$PWD/libs/faad2/libfaad/is.c \
+    $$PWD/libs/faad2/libfaad/lt_predict.c \
+    $$PWD/libs/faad2/libfaad/mdct.c \
+    $$PWD/libs/faad2/libfaad/mp4.c \
+    $$PWD/libs/faad2/libfaad/ms.c \
+    $$PWD/libs/faad2/libfaad/output.c \
+    $$PWD/libs/faad2/libfaad/pns.c \
+    $$PWD/libs/faad2/libfaad/ps_dec.c \
+    $$PWD/libs/faad2/libfaad/ps_syntax.c \
+    $$PWD/libs/faad2/libfaad/pulse.c \
+    $$PWD/libs/faad2/libfaad/rvlc.c \
+    $$PWD/libs/faad2/libfaad/sbr_dct.c \
+    $$PWD/libs/faad2/libfaad/sbr_dec.c \
+    $$PWD/libs/faad2/libfaad/sbr_e_nf.c \
+    $$PWD/libs/faad2/libfaad/sbr_fbt.c \
+    $$PWD/libs/faad2/libfaad/sbr_hfadj.c \
+    $$PWD/libs/faad2/libfaad/sbr_hfgen.c \
+    $$PWD/libs/faad2/libfaad/sbr_huff.c \
+    $$PWD/libs/faad2/libfaad/sbr_qmf.c \
+    $$PWD/libs/faad2/libfaad/sbr_syntax.c \
+    $$PWD/libs/faad2/libfaad/sbr_tf_grid.c \
+    $$PWD/libs/faad2/libfaad/specrec.c \
+    $$PWD/libs/faad2/libfaad/ssr.c \
+    $$PWD/libs/faad2/libfaad/ssr_fb.c \
+    $$PWD/libs/faad2/libfaad/ssr_ipqf.c \
+    $$PWD/libs/faad2/libfaad/syntax.c \
+    $$PWD/libs/faad2/libfaad/tns.c
 }
 
 #### Devices ####
 airspy {
     DEFINES    += HAVE_AIRSPY
-    HEADERS    += ../input/CAirspy.h
-    SOURCES    += ../input/CAirspy.cpp
+    HEADERS    += $$PWD/input/CAirspy.h
+    SOURCES    += $$PWD/input/CAirspy.cpp
 
     # The same lib for unix and Windows
     LIBS       += -lairspy
@@ -292,8 +290,8 @@ airspy {
 
 rtl_sdr {
     DEFINES    += HAVE_RTLSDR
-    HEADERS    += ../input/CRTL_SDR.h
-    SOURCES    += ../input/CRTL_SDR.cpp
+    HEADERS    += $$PWD/input/CRTL_SDR.h
+    SOURCES    += $$PWD/input/CRTL_SDR.cpp
 
     # The same lib for unix and Windows
     LIBS       += -lrtlsdr
@@ -301,8 +299,8 @@ rtl_sdr {
 
 soapysdr {
     DEFINES    += HAVE_SOAPYSDR
-    HEADERS    += ../input/CSoapySdr.h
-    SOURCES    += ../input/CSoapySdr.cpp
+    HEADERS    += $$PWD/input/CSoapySdr.h
+    SOURCES    += $$PWD/input/CSoapySdr.cpp
 
     # The same lib for unix and Windows
     LIBS       += -lSoapySDR

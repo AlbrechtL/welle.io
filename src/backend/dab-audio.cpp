@@ -25,8 +25,7 @@
 #include <iostream>
 #include "dab-constants.h"
 #include "dab-audio.h"
-#include "mp2processor.h"
-#include "mp4processor.h"
+#include "decoder_adapter.h"
 #include "eep-protection.h"
 #include "uep-protection.h"
 
@@ -73,14 +72,7 @@ DabAudio::DabAudio(
     else
         protectionHandler = make_unique<EEPProtection>(bitRate, protLevel);
 
-    if (dabModus == AudioServiceComponentType::DAB) {
-        our_dabProcessor = make_unique<Mp2Processor>(
-                myProgrammeHandler, bitRate, dumpFileName);
-    }
-    else if (dabModus == AudioServiceComponentType::DABPlus) {
-        our_dabProcessor = make_unique<Mp4Processor>(
-                myProgrammeHandler, bitRate, dumpFileName);
-    }
+    our_dabProcessor = make_unique<DecoderAdapter>(myProgrammeHandler, bitRate, dabModus, dumpFileName);
 
     running = true;
     ourThread = std::thread(&DabAudio::run, this);

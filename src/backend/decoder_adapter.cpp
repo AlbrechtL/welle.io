@@ -23,31 +23,29 @@
  *
  */
 
-#include <cstring>
 #include <iostream>
+#include "decoder_adapter.h"
 
-#include "mp4processor.h"
-
-/**
- * \class Mp4Processor is the main handler for the aac frames
- * the class proper processes input and extracts the aac frames
- * that are processed by the "faadDecoder" class
- */
-Mp4Processor::Mp4Processor(
-        ProgrammeHandlerInterface& phi,
-        int16_t bitRate,
-        const std::string& mscFileName) :
-    myInterface(phi),
-    padDecoder(this, true),
-    bitRate(bitRate)
+DecoderAdapter::  DecoderAdapter(ProgrammeHandlerInterface &mr, int16_t bitRate, AudioServiceComponentType &dabModus, const std::string &dumpFileName):
+    bitRate(bitRate),
+    myInterface(mr),
+    padDecoder(this, true)
 {
-    mp4Decoder = std::make_unique<SuperframeFilter>(this, true);
+    if(dabModus == AudioServiceComponentType::DAB)
+        decoder = std::make_unique<MP2Decoder>(this);
+    else if (dabModus == AudioServiceComponentType::DABPlus)
+        decoder = std::make_unique<SuperframeFilter>(this, true);
+    else
+        throw std::runtime_error("DecoderAdapter: Unkonwn service component");
 
-    // Open a MSC file (XPADxpert) if the user defined it
-    if (!mscFileName.empty()) {
-        FILE* fd = fopen(mscFileName.c_str(), "wb");  // w for write, b for binary
-        if (fd != nullptr) {
-            mscFile.reset(fd);
+    // Open a dump file (XPADxpert) if the user defined it
+    if (!dumpFileName.empty())
+    {
+        FILE *fd = fopen(dumpFileName.c_str(), "wb");
+        // w for write, b for binary
+        if (fd != nullptr)
+        {
+            dumpFile.reset(fd);
         }
     }
 
@@ -55,31 +53,7 @@ Mp4Processor::Mp4Processor(
     padDecoder.SetMOTAppType(12);
 }
 
-void Mp4Processor::PADChangeDynamicLabel(const DL_STATE& dl)
-{
-    if (dl.raw.empty()) {
-        myInterface.onNewDynamicLabel("");
-    }
-    else {
-        myInterface.onNewDynamicLabel(
-                toUtf8StringUsingCharset(
-                    dl.raw.data(),
-                    (CharacterSet)dl.charset,
-                    dl.raw.size()));
-    }
-}
-
-void Mp4Processor::PADChangeSlide(const MOT_FILE& slide)
-{
-    myInterface.onMOT(slide.data, slide.content_sub_type);
-}
-
-void Mp4Processor::PADLengthError(size_t announced_xpad_len, size_t xpad_len)
-{
-    myInterface.onPADLengthError(announced_xpad_len, xpad_len);
-}
-
-void Mp4Processor::addtoFrame(uint8_t *v)
+void DecoderAdapter::addtoFrame(uint8_t *v)
 {
     size_t	length	= 24 * bitRate / 8;
     uint8_t	data [24 * bitRate / 8];
@@ -95,22 +69,25 @@ void Mp4Processor::addtoFrame(uint8_t *v)
            }
     }
 
-    mp4Decoder->Feed(data, length);
-}
+    decoder->Feed(data, length);
 
-void Mp4Processor::FormatChange(const std::string &format)
+    if (dumpFile)
+        fwrite(data, length, 1, dumpFile.get());
+};
+
+void DecoderAdapter::FormatChange(const std::string &format)
 {
-    std::clog << "mp4processor: " << format << std::endl;
+    std::clog << "DecoderAdapter: " << format << std::endl;
 }
 
-void Mp4Processor::StartAudio(int samplerate, int channels, bool float32)
+void DecoderAdapter::StartAudio(int samplerate, int channels, bool float32)
 {
     audioSamplerate = samplerate;
     audioChannels = channels;
     audioSampleSize = float32 == true ? 32 : 16;
 }
 
-void Mp4Processor::PutAudio(const uint8_t *data, size_t len)
+void DecoderAdapter::PutAudio(const uint8_t *data, size_t len)
 {
     // Then len is given in bytes. For stereo it is the double times of mono.
     // But we need two channels even if we have mono.
@@ -137,7 +114,31 @@ void Mp4Processor::PutAudio(const uint8_t *data, size_t len)
         audioChannels != 2 ? "Mono" : "Stereo");
 }
 
-void Mp4Processor::ProcessPAD(const uint8_t *xpad_data, size_t xpad_len, bool exact_xpad_len, const uint8_t *fpad_data)
+void DecoderAdapter::ProcessPAD(const uint8_t *xpad_data, size_t xpad_len, bool exact_xpad_len, const uint8_t *fpad_data)
 {
     padDecoder.Process(xpad_data, xpad_len, exact_xpad_len, fpad_data);
+}
+
+void DecoderAdapter::PADChangeDynamicLabel(const DL_STATE &dl)
+{
+    if (dl.raw.empty()) {
+        myInterface.onNewDynamicLabel("");
+    }
+    else {
+        myInterface.onNewDynamicLabel(
+                toUtf8StringUsingCharset(
+                    dl.raw.data(),
+                    (CharacterSet)dl.charset,
+                    dl.raw.size()));
+}
+}
+
+void DecoderAdapter::PADChangeSlide(const MOT_FILE &slide)
+{
+    myInterface.onMOT(slide.data, slide.content_sub_type);
+}
+
+void DecoderAdapter::PADLengthError(size_t announced_xpad_len, size_t xpad_len)
+{
+    myInterface.onPADLengthError(announced_xpad_len, xpad_len);
 }
