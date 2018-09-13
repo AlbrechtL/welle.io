@@ -8,6 +8,7 @@ MPG123 - Copyright (c) 1995-2018 by Michael Hipp and others - LGPL Version 2.1
 FAAD2 - Copyright (c) Nero AG, www.nero.com" - GPLv2 license or later
 rtl-sdr - https://osmocom.org/projects/sdr/wiki/rtl-sdr - GPLv2 license or later
 airspy - https://github.com/airspy/airspyone_host - GPLv2 or later and BSD 3-clause license
+fec - Copyright 2003 Phil Karn, KA9Q - LGPL Version 2.1
 
 welle.io uses parts from the following programs 
 - qt-dab

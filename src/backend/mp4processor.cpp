@@ -1,38 +1,32 @@
 /*
- *    Copyright (C) 2013
- *    Jan van Katwijk (J.vanKatwijk@gmail.com)
- *    Lazy Chair Computing
+ *    Copyright (C) 2018
+ *    Albrecht Lohofener (albrechtloh@gmx.de)
  *
- *    This file is part of the SDR-J (JSDR).
- *    SDR-J is free software; you can redistribute it and/or modify
+ *    This file is part of the welle.io.
+ *    Many of the ideas as implemented in welle.io are derived from
+ *    other work, made available through the GNU general Public License.
+ *    All copyrights of the original authors are recognized.
+ *
+ *    welle.io is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
  *    the Free Software Foundation; either version 2 of the License, or
  *    (at your option) any later version.
  *
- *    SDR-J is distributed in the hope that it will be useful,
+ *    welle.io is distributed in the hope that it will be useful,
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
  *
  *    You should have received a copy of the GNU General Public License
- *    along with SDR-J; if not, write to the Free Software
+ *    along with welle.io; if not, write to the Free Software
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- *  superframer for the SDR-J DAB+ receiver
- *  This processor handles the whole DAB+ specific part
- ************************************************************************
- *  may 15 2015. A real improvement on the code
- *  is the addition from Stefan Poeschel to create a
- *  header for the aac that matches, really a big help!!!!
- ************************************************************************
  */
 
 #include <cstring>
 #include <iostream>
 
 #include "mp4processor.h"
-#include "charsets.h"
-#include "MathHelper.h"
 
 /**
  * \class Mp4Processor is the main handler for the aac frames
@@ -44,9 +38,11 @@ Mp4Processor::Mp4Processor(
         int16_t bitRate,
         const std::string& mscFileName) :
     myInterface(phi),
-    rsDecoder(8, 0435, 0, 1, 10),
-    padDecoder(this, true)
+    padDecoder(this, true),
+    bitRate(bitRate)
 {
+    mp4Decoder = std::make_unique<SuperframeFilter>(this, true);
+
     // Open a MSC file (XPADxpert) if the user defined it
     if (!mscFileName.empty()) {
         FILE* fd = fopen(mscFileName.c_str(), "wb");  // w for write, b for binary
@@ -54,25 +50,6 @@ Mp4Processor::Mp4Processor(
             mscFile.reset(fd);
         }
     }
-
-    this->bitRate  = bitRate;  // input rate
-
-    superFramesize = 110 * (bitRate / 8);
-    RSDims         = bitRate / 8;
-    frameBytes.resize(RSDims * 120);   // input
-    outVector.resize(RSDims * 110);
-    blockFillIndex = 0;
-    blocksInBuffer = 0;
-    frameCount     = 0;
-    frameErrors    = 0;
-    aacErrors      = 0;
-    aacFrames      = 0;
-    successFrames  = 0;
-    rsErrors       = 0;
-    //
-    //  error display
-    au_count    = 0;
-    au_errors   = 0;
 
     // MOT, start of X-PAD data group, see EN 301 234
     padDecoder.SetMOTAppType(12);
@@ -102,275 +79,65 @@ void Mp4Processor::PADLengthError(size_t announced_xpad_len, size_t xpad_len)
     myInterface.onPADLengthError(announced_xpad_len, xpad_len);
 }
 
-
-/**
- * \brief addtoFrame
- *
- * a DAB+ superframe consists of 5 consecutive DAB frames
- * we add vector for vector to the superframe. Once we have
- * 5 lengths of "old" frames, we check
- * Note that the packing in the entry vector is still one bit
- * per Byte, nbits is the number of Bits (i.e. containing bytes)
- * the function adds nbits bits, packed in bytes, to the frame
- */
-void Mp4Processor::addtoFrame(uint8_t *V)
+void Mp4Processor::addtoFrame(uint8_t *v)
 {
-    int16_t i, j;
-    uint8_t temp    = 0;
-    int16_t nbits   = 24 * bitRate;
+    size_t	length	= 24 * bitRate / 8;
+    uint8_t	data [24 * bitRate / 8];
 
-    for (i = 0; i < nbits / 8; i ++) {  // in bytes
-        temp = 0;
-        for (j = 0; j < 8; j ++) {
-            temp = (temp << 1) | (V[i * 8 + j] & 01);
-        }
-        frameBytes[blockFillIndex * nbits / 8 + i] = temp;
+    // Convert 8 bits (stored in one uint8) into one uint8
+    for (int i = 0; i < 24 * bitRate / 8; i ++)
+    {
+           data [i] = 0;
+           for (int j = 0; j < 8; j ++)
+           {
+              data [i] <<= 1;
+              data [i] |= v [8 * i + j] & 01;
+           }
     }
 
-    blocksInBuffer ++;
-    blockFillIndex = (blockFillIndex + 1) % 5;
-
-    /**
-     * we take the last five blocks to look at
-     */
-    if (blocksInBuffer >= 5) {
-        /// first, we show the "successrate"
-        if (++frameCount >= 25) {
-            frameCount = 0;
-            myInterface.onFrameErrors(frameErrors);
-            frameErrors = 0;
-        }
-
-        /**
-         * starting for real: check the fire code
-         * if the firecode is OK, we handle the frame
-         * and adjust the buffer here for the next round
-         */
-        if (fc.check (&frameBytes[blockFillIndex * nbits / 8]) &&
-                (processSuperframe(frameBytes.data(),
-                                    blockFillIndex * nbits / 8))) {
-            //  since we processed a full cycle of 5 blocks, we just start a
-            //  new sequence, beginning with block blockFillIndex
-            blocksInBuffer    = 0;
-            if (++successFrames > 25) {
-                myInterface.onRsErrors(rsErrors);
-                successFrames  = 0;
-                rsErrors   = 0;
-            }
-        }
-        else {
-            /**
-             * we were wrong, virtual shift to left in block sizes
-             */
-            blocksInBuffer  = 4;
-            frameErrors ++;
-        }
-    }
+    mp4Decoder->Feed(data, length);
 }
 
-/**
- * \brief processSuperframe
- *
- * First, we know the firecode checker gave green light
- * We correct the errors using RS
- */
-bool Mp4Processor::processSuperframe(uint8_t frameBytes[], int16_t base)
+void Mp4Processor::FormatChange(const std::string &format)
 {
-    uint8_t     num_aus;
-    int16_t     i, j, k;
-    uint8_t     rsIn[120];
-    uint8_t     rsOut[110];
-    uint8_t     dacRate;
-    uint8_t     sbrFlag;
-    uint8_t     aacChannelMode;
-    //uint8_t     psFlag;
-    uint16_t    mpegSurround;
-
-    /**
-     * apply reed-solomon error repar
-     * OK, what we now have is a vector with RSDims * 120 uint8_t's
-     * the superframe, containing parity bytes for error repair
-     * take into account the interleaving that is applied.
-     */
-    for (j = 0; j < RSDims; j ++) {
-        int16_t ler  = 0;
-        for (k = 0; k < 120; k ++) {
-            rsIn[k] = frameBytes[(base + j + k * RSDims) % (RSDims * 120)];
-        }
-        ler = rsDecoder.dec(rsIn, rsOut, 135);
-        if (ler < 0) {
-            rsErrors ++;
-            return false;
-        }
-
-        for (k = 0; k < 110; k ++) {
-            outVector[j + k * RSDims] = rsOut[k];
-        }
-    }
-
-    // MSC file
-    if (mscFile) {
-        fwrite(outVector.data(), outVector.size(), 1, mscFile.get());
-    }
-
-    //  bits 0 .. 15 is firecode
-    //  bit 16 is unused
-    dacRate     = (outVector[2] >> 6) & 01;    // bit 17
-    sbrFlag     = (outVector[2] >> 5) & 01;    // bit 18
-    aacChannelMode  = (outVector[2] >> 4) & 01;    // bit 19
-    //  psFlag      = (outVector[2] >> 3) & 01;    // bit 20
-    mpegSurround    = (outVector[2] & 07);     // bits 21 .. 23
-
-    switch (2 * dacRate + sbrFlag) {
-        default:      // cannot happen
-        case 0:
-            num_aus = 4;
-            au_start[0] = 8;
-            au_start[1] = outVector[3] * 16 + (outVector[4] >> 4);
-            au_start[2] = (outVector[4] & 0xf) * 256 +
-                outVector[5];
-            au_start[3] = outVector[6] * 16 +
-                (outVector[7] >> 4);
-            au_start[4] = 110 *  (bitRate / 8);
-            break;
-            //
-        case 1:
-            num_aus = 2;
-            au_start[0] = 5;
-            au_start[1] = outVector[3] * 16 +
-                (outVector[4] >> 4);
-            au_start[2] = 110 *  (bitRate / 8);
-            break;
-            //
-        case 2:
-            num_aus = 6;
-            au_start[0] = 11;
-            au_start[1] = outVector[3] * 16 + (outVector[4] >> 4);
-            au_start[2] = (outVector[4] & 0xf) * 256 + outVector[ 5];
-            au_start[3] = outVector[6] * 16 + (outVector[7] >> 4);
-            au_start[4] = (outVector[7] & 0xf) * 256 + outVector[8];
-            au_start[5] = outVector[9] * 16 + (outVector[10] >> 4);
-            au_start[6] = 110 *  (bitRate / 8);
-            break;
-            //
-        case 3:
-            num_aus = 3;
-            au_start[0] = 6;
-            au_start[1] = outVector[3] * 16 + (outVector[4] >> 4);
-            au_start[2] = (outVector[4] & 0xf) * 256 + outVector[5];
-            au_start[3] = 110 * (bitRate / 8);
-            break;
-    }
-    /**
-     * OK, the result is N * 110 * 8 bits (still single bit per byte!!!)
-     * extract the AU's, and prepare a buffer,  with the sufficient
-     * lengthy for conversion to PCM samples
-     */
-    for (i = 0; i < num_aus; i ++) {
-        int16_t  aac_frame_length;
-        au_count ++;
-
-        /// sanity check 1
-        if (au_start[i + 1] < au_start[i]) {
-            //  should not happen, all errors were corrected
-            fprintf (stderr, "%d %d\n", au_start[i + 1], au_start[i]);
-            return false;
-        }
-
-        aac_frame_length = au_start[i + 1] - au_start[i] - 2;
-        //  just a sanity check
-        if ((aac_frame_length >=  960) || (aac_frame_length < 0)) {
-            return false;
-        }
-
-        //  but first the crc check
-        if (check_crc_bytes (&outVector[au_start[i]], aac_frame_length)) {
-            bool err;
-            handleAacFrame(&outVector[au_start[i]],
-                    aac_frame_length,
-                    dacRate,
-                    sbrFlag,
-                    mpegSurround,
-                    aacChannelMode,
-                    &err);
-            if (err) {
-                aacErrors ++;
-            }
-
-            if (++aacFrames > 25) {
-                myInterface.onAacErrors(aacErrors);
-                aacErrors  = 0;
-                aacFrames  = 0;
-            }
-        }
-        else {
-            std::clog << "Mp4processor:" <<  "CRC failure with dab+ frame" << i << "(" << num_aus << ")" << std::endl;
-        }
-    }
-    return true;
+    std::clog << "mp4processor: " << format << std::endl;
 }
 
-void Mp4Processor::handleAacFrame(
-        uint8_t *v,
-        int16_t frame_length,
-        uint8_t dacRate,
-        uint8_t sbrFlag,
-        uint8_t mpegSurround,
-        uint8_t aacChannelMode,
-        bool *error)
+void Mp4Processor::StartAudio(int samplerate, int channels, bool float32)
 {
-    bool isParametricStereo = false;
-    uint32_t sampleRate = 0;
-
-    if (((v[0] >> 5) & 07) == 4) {
-        processPAD(v);
-    }
-
-    auto audio = aacDecoder.MP42PCM(dacRate,
-            sbrFlag,
-            mpegSurround,
-            aacChannelMode,
-            v,
-            frame_length,
-            &sampleRate,
-            &isParametricStereo);
-
-    if (error) {
-        *error = audio.empty();
-    }
-
-    bool stereo = aacChannelMode;
-    std::string aac_mode = "unknown";
-    if (aacChannelMode == 0 && isParametricStereo == true) { // Parametric stereo
-        aac_mode = "HE-AACv2";
-        stereo = true;
-    }
-    else if (sbrFlag) { // Stereo
-        aac_mode = "HE-AAC";
-    }
-    else {
-        aac_mode = "AAC-LC";
-    }
-
-    myInterface.onNewAudio(move(audio), sampleRate, stereo, aac_mode);
+    audioSamplerate = samplerate;
+    audioChannels = channels;
+    audioSampleSize = float32 == true ? 32 : 16;
 }
 
-void Mp4Processor::processPAD(const uint8_t *data)
+void Mp4Processor::PutAudio(const uint8_t *data, size_t len)
 {
-    // Get PAD length
-    uint8_t pad_start = 2;
-    uint8_t pad_len = data[1];
-    if (pad_len == 255) {
-        pad_len += data[2];
-        pad_start++;
+    // Then len is given in bytes. For stereo it is the double times of mono.
+    // But we need two channels even if we have mono.
+    // Mono: len = len / 2 * 2 We have len to devide by 2 and for two channels we have multiply by two
+    // Stereo: len = len / 2 We just need to devide by 2 because it is stereo
+    size_t bufferSize = audioChannels == 2 ? len/2 : len;
+    std::vector<int16_t> audio(bufferSize);
+
+    // Convert two uint8 into a int16 sample
+    for(size_t i=0; i<len/2; ++i)
+    {
+        int16_t sample =  ((int16_t) data[i * 2 +1] << 8) | ((int16_t) data[i * 2]);
+
+        if(audioChannels == 2)
+            audio[i] = sample;
+        else
+            audio[i*2] = sample;
     }
 
-    // Adapt to PADDecoder
-    uint8_t FPAD_LEN = 2;
-    size_t xpad_len = pad_len - FPAD_LEN;
-    const uint8_t *fpad = data + pad_start + pad_len - FPAD_LEN;
-
-    // Run PADDecoder
-    padDecoder.Process(data + pad_start, xpad_len, true, fpad);
+    myInterface.onNewAudio(
+        std::move(audio),
+        audioSamplerate,
+        audioChannels == 2,
+        audioChannels != 2 ? "Mono" : "Stereo");
 }
 
+void Mp4Processor::ProcessPAD(const uint8_t *xpad_data, size_t xpad_len, bool exact_xpad_len, const uint8_t *fpad_data)
+{
+    padDecoder.Process(xpad_data, xpad_len, exact_xpad_len, fpad_data);
+}

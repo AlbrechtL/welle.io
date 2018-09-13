@@ -35,7 +35,8 @@ DEPENDPATH += \
     ../data \
     ../ofdm \
     ../various \
-    ../input
+    ../input \
+    ../libs/fec
 
 INCLUDEPATH += \
     .. \
@@ -44,15 +45,15 @@ INCLUDEPATH += \
     ../data \
     ../ofdm \
     ../various \
-    ../input
+    ../input \
+    ../libs/fec
 
 HEADERS += \
-    ../backend/CFaadDecoder.h \
     ../backend/dab-audio.h \
     ../backend/mp2processor.h \
     ../backend/mp4processor.h \
-    ../backend/neaacdec.h \
     ../backend/dab_decoder.h \
+    ../backend/dabplus_decoder.h \
     ../backend/subchannel_sink.h \
     ../backend/charsets.h \
     ../backend/dab-constants.h \
@@ -64,8 +65,6 @@ HEADERS += \
     ../backend/energy_dispersal.h \
     ../backend/fib-processor.h \
     ../backend/fic-handler.h \
-    ../backend/firecode-checker.h \
-    ../backend/galois.h \
     ../backend/msc-handler.h \
     ../backend/freq-interleaver.h \
     ../backend/ofdm-decoder.h \
@@ -73,12 +72,10 @@ HEADERS += \
     ../backend/phasereference.h \
     ../backend/phasetable.h \
     ../backend/tii-decoder.h \
-    ../backend/parity.h \
     ../backend/protTables.h \
     ../backend/protection.h \
     ../backend/radio-controller.h \
     ../backend/radio-receiver.h \
-    ../backend/reed-solomon.h \
     ../backend/tools.h \
     ../backend/uep-protection.h \
     ../backend/viterbi.h \\
@@ -101,13 +98,19 @@ HEADERS += \
     ../input/CRAWFile.h \
     ../input/CRTL_TCP_Client.h \
     ../various/MathHelper.h \
+    ../libs/fec/char.h \
+    ../libs/fec/decode_rs.h \
+    ../libs/fec/encode_rs.h \
+    ../libs/fec/fec.h \
+    ../libs/fec/init_rs.h \
+    ../libs/fec/rs_common.h
 
 SOURCES += \
-    ../backend/CFaadDecoder.cpp \
     ../backend/dab-audio.cpp \
     ../backend/mp2processor.cpp \
     ../backend/mp4processor.cpp \
     ../backend/dab_decoder.cpp \
+    ../backend/dabplus_decoder.cpp \
     ../backend/charsets.cpp \
     ../backend/dab-constants.cpp \
     ../backend/mot_manager.cpp \
@@ -115,8 +118,6 @@ SOURCES += \
     ../backend/eep-protection.cpp \
     ../backend/fib-processor.cpp \
     ../backend/fic-handler.cpp \
-    ../backend/firecode-checker.cpp \
-    ../backend/galois.cpp \
     ../backend/msc-handler.cpp \
     ../backend/freq-interleaver.cpp \
     ../backend/ofdm-decoder.cpp \
@@ -125,7 +126,6 @@ SOURCES += \
     ../backend/phasetable.cpp \
     ../backend/tii-decoder.cpp \
     ../backend/protTables.cpp \
-    ../backend/reed-solomon.cpp \
     ../backend/radio-receiver.cpp \
     ../backend/tools.cpp \
     ../backend/uep-protection.cpp \
@@ -139,6 +139,10 @@ SOURCES += \
     ../input/CNullDevice.cpp \
     ../input/CRAWFile.cpp \
     ../input/CRTL_TCP_Client.cpp \
+    ../libs/fec/encode_rs_char.c \
+    ../libs/fec/decode_rs_char.c \
+    ../libs/fec/init_rs_char.c \
+
 
 #### Built-in libraries ####
 kiss_fft_builtin {

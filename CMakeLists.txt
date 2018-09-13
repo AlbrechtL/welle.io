@@ -88,6 +88,7 @@ include_directories(
     src/various
     src/input
     src/gui
+    src/libs/fec
     ${FFTW3F_INCLUDE_DIRS}
     ${KISS_INCLUDE_DIRS}
     ${FAAD_INCLUDE_DIRS}
@@ -96,11 +97,11 @@ include_directories(
 )
 
 set(backend_sources
-    src/backend/CFaadDecoder.cpp
     src/backend/dab-audio.cpp
     src/backend/mp2processor.cpp
     src/backend/mp4processor.cpp
     src/backend/dab_decoder.cpp
+    src/backend/dabplus_decoder.cpp
     src/backend/charsets.cpp
     src/backend/dab-constants.cpp
     src/backend/mot_manager.cpp
@@ -108,8 +109,6 @@ set(backend_sources
     src/backend/eep-protection.cpp
     src/backend/fib-processor.cpp
     src/backend/fic-handler.cpp
-    src/backend/firecode-checker.cpp
-    src/backend/galois.cpp
     src/backend/msc-handler.cpp
     src/backend/freq-interleaver.cpp
     src/backend/ofdm-decoder.cpp
@@ -118,7 +117,6 @@ set(backend_sources
     src/backend/phasetable.cpp
     src/backend/tii-decoder.cpp
     src/backend/protTables.cpp
-    src/backend/reed-solomon.cpp
     src/backend/radio-receiver.cpp
     src/backend/tools.cpp
     src/backend/uep-protection.cpp
@@ -128,6 +126,9 @@ set(backend_sources
     src/various/Xtan2.cpp
     src/various/wavfile.c
     src/various/Socket.cpp
+    src/libs/fec/decode_rs_char.c
+    src/libs/fec/encode_rs_char.c
+    src/libs/fec/init_rs_char.c
 )
 
 set(welle_io_sources
