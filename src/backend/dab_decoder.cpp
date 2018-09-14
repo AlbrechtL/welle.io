@@ -48,8 +48,11 @@ const int MP2Decoder::sblimits[] = {
 };
 
 
-MP2Decoder::MP2Decoder(SubchannelSinkObserver* observer) : SubchannelSink(observer, "mp2") {
+MP2Decoder::MP2Decoder(SubchannelSinkObserver* observer, bool float32) : SubchannelSink(observer, "mp2") {
+	this->float32 = float32;
+
 	scf_crc_len = -1;
+
 
 	int mpg_result;
 
@@ -76,11 +79,11 @@ MP2Decoder::MP2Decoder(SubchannelSinkObserver* observer) : SubchannelSink(observ
 	if(mpg_result != MPG123_OK)
 		throw std::runtime_error("MP2Decoder: error while mpg123_format_none: " + std::string(mpg123_plain_strerror(mpg_result)));
 
-    mpg_result = mpg123_format(handle, 48000, MPG123_MONO | MPG123_STEREO, MPG123_ENC_SIGNED_16);
+	mpg_result = mpg123_format(handle, 48000, MPG123_MONO | MPG123_STEREO, float32 ? MPG123_ENC_FLOAT_32 : MPG123_ENC_SIGNED_16);
 	if(mpg_result != MPG123_OK)
 		throw std::runtime_error("MP2Decoder: error while mpg123_format #1: " + std::string(mpg123_plain_strerror(mpg_result)));
 
-    mpg_result = mpg123_format(handle, 24000, MPG123_MONO | MPG123_STEREO, MPG123_ENC_SIGNED_16);
+	mpg_result = mpg123_format(handle, 24000, MPG123_MONO | MPG123_STEREO, float32 ? MPG123_ENC_FLOAT_32 : MPG123_ENC_SIGNED_16);
 	if(mpg_result != MPG123_OK)
 		throw std::runtime_error("MP2Decoder: error while mpg123_format #2: " + std::string(mpg123_plain_strerror(mpg_result)));
 
@@ -98,7 +101,7 @@ MP2Decoder::~MP2Decoder() {
 	if(handle) {
 		int mpg_result = mpg123_close(handle);
 		if(mpg_result != MPG123_OK)
-			fprintf(stderr, "MP2Decoder: error while mpg123_close: %s\n", mpg123_plain_strerror(mpg_result));
+			throw std::runtime_error("MP2Decoder: error while mpg123_close: " + std::string(mpg123_plain_strerror(mpg_result)));
 	}
 
 	mpg123_delete(handle);
@@ -151,7 +154,7 @@ size_t MP2Decoder::DecodeFrame(uint8_t **data) {
 
 	// check CRC (MP2's CRC only - not DAB's ScF-CRC)
 	if(!CheckCRC(header, body_data, body_bytes)) {
-		fprintf(stderr, "\x1B[31m" "(CRC)" "\x1B[0m" " ");
+		observer->AudioError("CRC");
 		// no PAD reset, as not covered by CRC
 		return 0;
 	}
@@ -303,5 +306,5 @@ void MP2Decoder::ProcessFormat() {
 	ss << "@ " << info.bitrate << " kbit/s";
 	observer->FormatChange(ss.str());
 
-    observer->StartAudio(info.rate, info.mode != MPG123_M_MONO ? 2 : 1, false);
+	observer->StartAudio(info.rate, info.mode != MPG123_M_MONO ? 2 : 1, float32);
 }

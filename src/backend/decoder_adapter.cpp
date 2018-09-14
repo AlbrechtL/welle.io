@@ -32,9 +32,9 @@ DecoderAdapter::  DecoderAdapter(ProgrammeHandlerInterface &mr, int16_t bitRate,
     padDecoder(this, true)
 {
     if(dabModus == AudioServiceComponentType::DAB)
-        decoder = std::make_unique<MP2Decoder>(this);
+        decoder = std::make_unique<MP2Decoder>(this, false);
     else if (dabModus == AudioServiceComponentType::DABPlus)
-        decoder = std::make_unique<SuperframeFilter>(this, true);
+        decoder = std::make_unique<SuperframeFilter>(this, true, false);
     else
         throw std::runtime_error("DecoderAdapter: Unkonwn service component");
 
@@ -82,9 +82,11 @@ void DecoderAdapter::FormatChange(const std::string &format)
 
 void DecoderAdapter::StartAudio(int samplerate, int channels, bool float32)
 {
+    if(float32 == true)
+        throw std::runtime_error("DecoderAdapter: Float32 audio samples are not supported");
+
     audioSamplerate = samplerate;
     audioChannels = channels;
-    audioSampleSize = float32 == true ? 32 : 16;
 }
 
 void DecoderAdapter::PutAudio(const uint8_t *data, size_t len)
@@ -117,6 +119,22 @@ void DecoderAdapter::PutAudio(const uint8_t *data, size_t len)
 void DecoderAdapter::ProcessPAD(const uint8_t *xpad_data, size_t xpad_len, bool exact_xpad_len, const uint8_t *fpad_data)
 {
     padDecoder.Process(xpad_data, xpad_len, exact_xpad_len, fpad_data);
+}
+
+void DecoderAdapter::AudioError(const std::string &hint)
+{
+    std::clog << "DecoderAdapter: Audio error " << hint << std::endl;
+}
+
+void DecoderAdapter::AudioWarning(const std::string &hint)
+{
+    std::clog << "DecoderAdapter: Audio warning " << hint << std::endl;
+}
+
+void DecoderAdapter::FECInfo(int total_corr_count, bool uncorr_errors)
+{
+    std::clog << "DecoderAdapter: total_corr_count " << total_corr_count << " uncorr_errors " << uncorr_errors << std::endl;
+    myInterface.onRsErrors(total_corr_count);
 }
 
 void DecoderAdapter::PADChangeDynamicLabel(const DL_STATE &dl)

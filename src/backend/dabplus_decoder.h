@@ -26,9 +26,6 @@
 #include <sstream>
 #include <string>
 
-// Just for testing
-#define DABLIN_AAC_FAAD2
-
 #if !(defined(DABLIN_AAC_FAAD2) ^ defined(DABLIN_AAC_FDKAAC))
 #error "You must select a AAC decoder by defining either DABLIN_AAC_FAAD2 or DABLIN_AAC_FDKAAC!"
 #endif
@@ -81,7 +78,7 @@ public:
 	RSDecoder();
 	~RSDecoder();
 
-	void DecodeSuperframe(uint8_t *sf, size_t sf_len);
+	void DecodeSuperframe(uint8_t *sf, size_t sf_len, int& total_corr_count, bool& uncorr_errors);
 };
 
 
@@ -104,10 +101,11 @@ public:
 // --- AACDecoderFAAD2 -----------------------------------------------------------------
 class AACDecoderFAAD2 : public AACDecoder {
 private:
+	bool float32;
 	NeAACDecHandle handle;
 	NeAACDecFrameInfo dec_frameinfo;
 public:
-	AACDecoderFAAD2(SubchannelSinkObserver* observer, SuperframeFormat sf_format);
+	AACDecoderFAAD2(SubchannelSinkObserver* observer, SuperframeFormat sf_format, bool float32);
 	~AACDecoderFAAD2();
 
 	void DecodeFrame(uint8_t *data, size_t len);
@@ -135,6 +133,7 @@ public:
 class SuperframeFilter : public SubchannelSink {
 private:
 	bool decode_audio;
+	bool enable_float32;
 
 	RSDecoder rs_dec;
 	AACDecoder *aac_dec;
@@ -162,7 +161,7 @@ private:
 	void CheckForPAD(const uint8_t *data, size_t len);
 	void ResetPAD();
 public:
-	SuperframeFilter(SubchannelSinkObserver* observer, bool decode_audio);
+	SuperframeFilter(SubchannelSinkObserver* observer, bool decode_audio, bool enable_float32);
 	~SuperframeFilter();
 
 	void Feed(const uint8_t *data, size_t len);

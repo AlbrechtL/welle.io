@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD 14)
 
 add_definitions(-Wall)
 add_definitions(-g)
+add_definitions(-DDABLIN_AAC_FAAD2)
 
 if(MINGW)
     add_definitions(-municode)

@@ -4,6 +4,8 @@ Release: QMAKE_CFLAGS	+=  -ffast-math -O3
 Release: QMAKE_CXXFLAGS	+=  -ffast-math -O3
 Release: QMAKE_LFLAGS	+=  -O3
 
+DEFINES += DABLIN_AAC_FAAD2
+
 unix:!macx:!android: {
     CONFIG  += airspy
     CONFIG  += rtl_sdr

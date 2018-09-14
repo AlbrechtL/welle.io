@@ -40,6 +40,7 @@
 // --- MP2Decoder -----------------------------------------------------------------
 class MP2Decoder : public SubchannelSink {
 private:
+	bool float32;
 	mpg123_handle *handle;
 
 	int scf_crc_len;
@@ -56,7 +57,7 @@ private:
 	static const int* tables_nbal[];
 	static const int sblimits[];
 public:
-	MP2Decoder(SubchannelSinkObserver* observer);
+	MP2Decoder(SubchannelSinkObserver* observer, bool float32);
 	~MP2Decoder();
 
 	void Feed(const uint8_t *data, size_t len);
