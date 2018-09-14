@@ -123,12 +123,12 @@ void DecoderAdapter::ProcessPAD(const uint8_t *xpad_data, size_t xpad_len, bool 
 
 void DecoderAdapter::AudioError(const std::string &hint)
 {
-    std::clog << "DecoderAdapter: Audio error " << hint << std::endl;
+    std::clog << "DecoderAdapter: Audio error \"" << hint << "\"" << std::endl;
 }
 
 void DecoderAdapter::AudioWarning(const std::string &hint)
 {
-    std::clog << "DecoderAdapter: Audio warning " << hint << std::endl;
+    std::clog << "DecoderAdapter: Audio warning \"" << hint << "\""  << std::endl;
 }
 
 void DecoderAdapter::FECInfo(int total_corr_count, bool uncorr_errors)
