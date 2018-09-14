@@ -191,7 +191,7 @@ class TestRadioInterface : public RadioControllerInterface {
         chrono::steady_clock::time_point first_sync_time;
 };
 
-class TestProgrammeHandler: public ProgrammeHandlerInterface {
+class   TestProgrammeHandler: public ProgrammeHandlerInterface {
     private:
         bool stereo = true;
         int rate = 0;

@@ -7,18 +7,46 @@ Release: QMAKE_LFLAGS	+=  -O3
 DEFINES += DABLIN_AAC_FAAD2
 
 unix:!macx:!android: {
+    INCLUDEPATH	+= /usr/local/include
+    LIBS    += -lfftw3f
+    LIBS    += -lusb-1.0
+    LIBS    += -ldl
+    LIBS    += -lfaad
+    LIBS    += -lmp3lame
+    LIBS    += -lmpg123
     CONFIG  += airspy
     CONFIG  += rtl_sdr
     #CONFIG  += soapysdr
 }
 
 win32: {
+    INCLUDEPATH += ../../../welle.io-win-libs/include
+    LIBS    += -L../../../welle.io-win-libs/x86
+    LIBS    += -lfftw3f-3
+    LIBS    += -lole32
+    LIBS    += -lwinpthread
+    LIBS    += -lwinmm
+    LIBS    += -lstdc++
+    LIBS    += -lws2_32
+    LIBS    += -llibfaad
+    LIBS    += -lmp3lame
+    LIBS    += -lmpg123-0
+    LIBS    += -lusb-1.0
+    LIBS    += -lws2_32
     CONFIG  += airspy
     CONFIG  += rtl_sdr
     #CONFIG  += soapysdr
 }
 
 macx {
+    INCLUDEPATH	+= /opt/local/include
+    INCLUDEPATH	+= /usr/local/include
+    LIBS    += -L/opt/local/lib
+    LIBS    += -L/usr/local/lib
+    LIBS    += -lfftw3f
+    LIBS    += -lusb-1.0
+    LIBS    += -ldl
+    LIBS    += -lfaad
     CONFIG  += airspy
     CONFIG  += rtl_sdr
     #CONFIG  += soapysdr
