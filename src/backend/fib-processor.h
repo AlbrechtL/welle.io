@@ -45,6 +45,7 @@ class FIBProcessor {
 
         // Called from the frontend
         uint16_t getEnsembleId() const;
+        uint8_t getEnsembleEcc() const;
         DabLabel getEnsembleLabel() const;
         std::vector<Service> getServiceList() const;
         std::list<ServiceComponent> getComponents(const Service& s) const;
@@ -109,6 +110,7 @@ class FIBProcessor {
         dab_date_time_t dateTime = {};
         mutable std::mutex mutex;
         uint16_t ensembleId = 0;
+        uint8_t ensembleEcc = 0;
         DabLabel ensembleLabel;
         std::vector<Subchannel> subChannels;
         std::vector<ServiceComponent> components;

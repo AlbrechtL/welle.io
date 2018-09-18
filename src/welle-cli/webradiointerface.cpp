@@ -58,11 +58,12 @@ static const char* http_contenttype_html =
 
 static const char* http_nocache = "Cache-Control: no-cache\r\n";
 
+template <int W>
 static string to_hex(uint32_t value)
 {
     std::stringstream sidstream;
     sidstream << "0x" <<
-        std::setfill('0') << std::setw(4) <<
+        std::setfill('0') << std::setw(W) <<
         std::hex << value;
     return sidstream.str();
 }
@@ -144,14 +145,14 @@ void WebRadioInterface::check_decoders_required()
                         programmes_being_decoded[sid] = false;
                     }
                     else {
-                        cerr << "Stop playing 0x" << to_hex(s.serviceId) <<
+                        cerr << "Stop playing 0x" << to_hex<4>(s.serviceId) <<
                             " failed" << endl;
                         throw TuneFailed();
                     }
                 }
             }
             catch (const out_of_range&) {
-                cerr << "Cannot tune to 0x" << to_hex(s.serviceId) <<
+                cerr << "Cannot tune to 0x" << to_hex<4>(s.serviceId) <<
                     " because no handler exists!" << endl;
             }
         }
@@ -422,12 +423,13 @@ bool WebRadioInterface::send_mux_json(Socket& s)
         const auto ensembleLabel = rx->getEnsembleLabel();
         j["ensemble"]["label"] = ensembleLabel.utf8_label();
         j["ensemble"]["shortlabel"] = ensembleLabel.utf8_shortlabel();
-        j["ensemble"]["id"] = to_hex(rx->getEnsembleId());
+        j["ensemble"]["id"] = to_hex<4>(rx->getEnsembleId());
+        j["ensemble"]["ecc"] = to_hex<2>(rx->getEnsembleEcc());
 
         nlohmann::json j_services;
         for (const auto& s : rx->getServiceList()) {
             nlohmann::json j_srv = {
-                {"sid", to_hex(s.serviceId)},
+                {"sid", to_hex<4>(s.serviceId)},
                 {"pty", s.programType},
                 {"ptystring", DABConstants::getProgramTypeName(s.programType)},
                 {"label", s.serviceLabel.utf8_label()},
@@ -491,7 +493,7 @@ bool WebRadioInterface::send_mux_json(Socket& s)
             }
 
             if (hasAudioComponent) {
-                string urlmp3 = "/mp3/" + to_hex(s.serviceId);
+                string urlmp3 = "/mp3/" + to_hex<4>(s.serviceId);
                 j_srv["url_mp3"] = urlmp3;
             }
             else {
@@ -574,7 +576,8 @@ bool WebRadioInterface::send_mux_json(Socket& s)
             {"month", last_dateTime.month},
             {"day", last_dateTime.day},
             {"hour", last_dateTime.hour},
-            {"minutes", last_dateTime.minutes}
+            {"minutes", last_dateTime.minutes},
+            {"lto", last_dateTime.hourOffset + ((double)last_dateTime.minuteOffset / 30.0)},
         };
 
         j["utctime"] = j_utc;
@@ -621,7 +624,7 @@ bool WebRadioInterface::send_mux_json(Socket& s)
 bool WebRadioInterface::send_mp3(Socket& s, const std::string& stream)
 {
     for (const auto& srv : rx->getServiceList()) {
-        if (to_hex(srv.serviceId) == stream or
+        if (to_hex<4>(srv.serviceId) == stream or
                 (uint32_t)std::stoul(stream) == srv.serviceId) {
             try {
                 auto& ph = phs.at(srv.serviceId);

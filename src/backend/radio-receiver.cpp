@@ -139,6 +139,11 @@ uint16_t RadioReceiver::getEnsembleId(void) const
     return ficHandler.fibProcessor.getEnsembleId();
 }
 
+uint8_t RadioReceiver::getEnsembleEcc(void) const
+{
+    return ficHandler.fibProcessor.getEnsembleEcc();
+}
+
 DabLabel RadioReceiver::getEnsembleLabel(void) const
 {
     return ficHandler.fibProcessor.getEnsembleLabel();

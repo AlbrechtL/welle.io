@@ -250,6 +250,8 @@ class RadioInterface : public RadioControllerInterface {
 };
 
 struct options_t {
+    string antenna = "";
+    int gain = -1;
     string channel = "10B";
     string iqsource = "";
     string programme = "GRRIF";
@@ -294,8 +296,10 @@ static void usage()
         " welle-cli -c channel -C 1 -w port" << endl <<
         " welle-cli -c channel -PC 1 -w port" << endl <<
         endl <<
-        "Backend options" << endl <<
-        " -u  disable coarse corrector, for receivers who have a low frequency offset." << endl <<
+        "Backend and input options" << endl <<
+        " -u      disable coarse corrector, for receivers who have a low frequency offset." << endl <<
+        " -g GAIN set input gain to GAIN or -1 for auto gain." << endl <<
+        " -A ANT  set input antenna to ANT (for SoapySDR input only)." << endl <<
         endl <<
         "Use -t test_number to run a test." << endl <<
         "To understand what the tests do, please see source code." << endl <<
@@ -311,8 +315,11 @@ options_t parse_cmdline(int argc, char **argv)
     options.rro.decodeTII = true;
 
     int opt;
-    while ((opt = getopt(argc, argv, "c:C:dDf:hp:Pt:w:u")) != -1) {
+    while ((opt = getopt(argc, argv, "A:c:C:dDf:g:hp:Pt:w:u")) != -1) {
         switch (opt) {
+            case 'A':
+                options.antenna = optarg;
+                break;
             case 'c':
                 options.channel = optarg;
                 break;
@@ -327,6 +334,9 @@ options_t parse_cmdline(int argc, char **argv)
                 break;
             case 'f':
                 options.iqsource = optarg;
+                break;
+            case 'g':
+                options.gain = std::atoi(optarg);
                 break;
             case 'p':
                 options.programme = optarg;
@@ -378,12 +388,6 @@ int main(int argc, char **argv)
             cerr << "Could not start device" << endl;
             return 1;
         }
-
-#ifdef HAVE_SOAPYSDR
-        if (in->getID() == CDeviceID::SOAPYSDR) {
-            dynamic_cast<CSoapySdr*>(in.get())->setAntenna("TX/RX");
-        }
-#endif
     }
     else {
         // Run the tests without input throttling for max speed
@@ -399,8 +403,19 @@ int main(int argc, char **argv)
         in = move(in_file);
     }
 
-    in->setGain(6);
-    in->setAgc(true);
+    if (options.gain == -1) {
+        in->setAgc(true);
+    }
+    else {
+        in->setGain(options.gain);
+    }
+
+
+#ifdef HAVE_SOAPYSDR
+    if (not options.antenna.empty() and in->getID() == CDeviceID::SOAPYSDR) {
+        dynamic_cast<CSoapySdr*>(in.get())->setAntenna(options.antenna);
+    }
+#endif
 
     auto freq = channels.getFrequency(options.channel);
     in->setFrequency(freq);

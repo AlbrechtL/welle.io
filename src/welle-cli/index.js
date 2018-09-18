@@ -45,16 +45,22 @@ function ensembleInfoTemplate() {
     var html = '';
     html += ' <h1>${label} (${shortlabel})</h1>';
     html += ' <table id="servicetable">';
-    html += ' <tr><th>Ensemble ID: </th>';
-    html += ' <th>SNR: </th>';
-    html += ' <th>Freq corr:</th>';
-    html += ' <th>Date:</th></th>';
-    html += ' <th>FIC CRC Errors:</th>';
+    html += ' <tr><th>Ensemble ID </th>';
+    html += ' <th>ECC </th>';
+    html += ' <th>SNR </th>';
+    html += ' <th>RX gain </th>';
+    html += ' <th>Freq corr</th>';
+    html += ' <th>Date</th></th>';
+    html += ' <th><abbr title="Local Time Offset">LTO</abbr></th></th>';
+    html += ' <th>FIC CRC Errors</th>';
     html += ' </tr>';
     html += ' <tr><td>${EId}</td>';
+    html += ' <td>${ecc}</td>';
     html += ' <td>${SNR}</td>';
+    html += ' <td>${gain}</td>';
     html += ' <td> ${FrequencyCorrection}</td>';
     html += ' <td>${year}-${month}-${day} ${hour}:${minutes} UTC</td>';
+    html += ' <td>${lto}</td>';
     html += ' <td> ${ficcrcerrors}</td></tr>';
     html += ' </table><br>    <button type=button onclick="stopPlayer()">Stop</button><br><br>';
     html += '';
@@ -269,13 +275,16 @@ function populateEnsembleinfo() {
         ens["label"] = data.ensemble.label;
         ens["shortlabel"] = data.ensemble.shortlabel;
         ens["EId"] = data.ensemble.id;
+        ens["ecc"] = data.ensemble.ecc;
 
         ens["year"] = data.utctime.year;
         ens["month"] = data.utctime.month;
         ens["day"] = data.utctime.day;
         ens["hour"] = data.utctime.hour;
         ens["minutes"] = data.utctime.minutes;
+        ens["lto"] = data.utctime.lto;
 
+        ens["gain"] = data.receiver.hardware.gain;
         ens["SNR"] = data.snr;
         ens["FrequencyCorrection"] = data.frequencycorrection;
         ens["services"] = servicehtml;

@@ -109,19 +109,18 @@ void FIBProcessor::process_FIG0 (uint8_t *d)
 //  control to the init
 void FIBProcessor::FIG0Extension0 (uint8_t *d)
 {
-    uint16_t    EId;
     uint8_t     changeflag;
     uint16_t    highpart, lowpart;
     int16_t     occurrenceChange;
     uint8_t CN  = getBits_1 (d, 8 + 0);
     (void)CN;
 
+    ensembleId  = getBits(d, 16, 16);
+
     changeflag  = getBits_2 (d, 16 + 16);
     if (changeflag == 0)
         return;
 
-    EId         = getBits (d, 16, 16);
-    (void)EId;
     highpart        = getBits_5 (d, 16 + 19) % 20;
     (void)highpart;
     lowpart         = getBits_8 (d, 16 + 24) % 250;
@@ -395,7 +394,7 @@ int16_t FIBProcessor::HandleFIG0Extension8(
 
 //  FIG0/9 and FIG0/10 are copied from the work of
 //  Michael Hoehn
-void FIBProcessor::FIG0Extension9 (uint8_t *d)
+void FIBProcessor::FIG0Extension9(uint8_t *d)
 {
     int16_t offset  = 16;
 
@@ -404,9 +403,11 @@ void FIBProcessor::FIG0Extension9 (uint8_t *d)
         getBits_4 (d, offset + 3);
     dateTime.minuteOffset = (getBits_1 (d, offset + 7) == 1) ? 30 : 0;
     timeOffsetReceived = true;
+
+    ensembleEcc = getBits(d, offset + 8, 8);
 }
 
-void FIBProcessor::FIG0Extension10 (uint8_t *fig)
+void FIBProcessor::FIG0Extension10(uint8_t *fig)
 {
     int16_t     offset = 16;
     int32_t     mjd = getBits(fig, offset + 1, 17);
@@ -700,7 +701,10 @@ void    FIBProcessor::process_FIG1 (uint8_t *d)
 
     switch (extension) {
         case 0: // ensemble label
-            ensembleId = getBits (d, 16, 16);
+            {
+                uint32_t EId = getBits(d, 16, 16);
+                (void)EId;
+            }
             offset  = 32;
             if ((charSet <= 16)) { // EBU Latin based repertoire
                 for (i = 0; i < 16; i ++) {
@@ -980,6 +984,12 @@ uint16_t FIBProcessor::getEnsembleId() const
 {
     std::lock_guard<std::mutex> lock(mutex);
     return ensembleId;
+}
+
+uint8_t FIBProcessor::getEnsembleEcc() const
+{
+    std::lock_guard<std::mutex> lock(mutex);
+    return ensembleEcc;
 }
 
 DabLabel FIBProcessor::getEnsembleLabel() const
