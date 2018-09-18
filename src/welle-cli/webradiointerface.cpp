@@ -345,6 +345,11 @@ bool WebRadioInterface::send_file(Socket& s,
         headers += http_nocache;
         headers += "\r\n";
         headers += "file '" + filename + "' is missing!";
+        ssize_t ret = s.send(headers.data(), headers.size(), MSG_NOSIGNAL);
+        if (ret == -1) {
+            cerr << "Failed to send file headers" << endl;
+            return false;
+        }
         return true;
     }
     return false;
