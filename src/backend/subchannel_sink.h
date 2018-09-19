@@ -47,7 +47,7 @@ class UntouchedStreamConsumer {
 public:
 	virtual ~UntouchedStreamConsumer() {}
 
-	virtual void ProcessUntouchedStream(const uint8_t* /*data*/, size_t /*len*/) {}
+	virtual void ProcessUntouchedStream(const uint8_t* /*data*/, size_t /*len*/, size_t /*duration_ms*/) {}
 };
 
 
@@ -60,10 +60,10 @@ protected:
 	std::mutex uscs_mutex;
 	std::set<UntouchedStreamConsumer*> uscs;
 
-	void ForwardUntouchedStream(const uint8_t *data, size_t len) {
+	void ForwardUntouchedStream(const uint8_t *data, size_t len, size_t duration_ms) {
 		// mutex must already be locked!
 		for(UntouchedStreamConsumer* usc : uscs)
-			usc->ProcessUntouchedStream(data, len);
+			usc->ProcessUntouchedStream(data, len, duration_ms);
 	}
 public:
 	SubchannelSink(SubchannelSinkObserver* observer, std::string untouched_stream_file_extension) :

@@ -318,7 +318,7 @@ void SuperframeFilter::ProcessUntouchedStream(const uint8_t *data, size_t len) {
 	au_bw.WriteAudioMuxLengthBytes();
 
 	const std::vector<uint8_t> latm_data = au_bw.GetData();
-	ForwardUntouchedStream(&latm_data[0], latm_data.size());
+	ForwardUntouchedStream(&latm_data[0], latm_data.size(), sf_format.GetAULengthMs());
 }
 
 

@@ -44,6 +44,7 @@ private:
 	mpg123_handle *handle;
 
 	int scf_crc_len;
+	bool lsf;
 	std::vector<uint8_t> frame;
 
 	void ProcessFormat();

@@ -65,6 +65,9 @@ struct SuperframeFormat {
 	bool IsSBR() {
 		return sbr_flag;
 	}
+	size_t GetAULengthMs() {
+		return dac_rate ? (sbr_flag ? 40 : 20) : (sbr_flag ? 60 : 30);	// 24/48/16/32 kHz
+	}
 };
 
 
