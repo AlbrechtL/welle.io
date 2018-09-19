@@ -192,15 +192,6 @@ const QVariantMap CGUIHelper::licenses()
     delete File;
 
     // Read COPYING
-    InfoContent.append("kjmp2 COPYING (zlib)\n");
-    InfoContent.append("-------\n");
-    File = new QFile(":/libs/COPYING.kjmp2.zlib");
-    File->open(QFile::ReadOnly);
-    InfoContent.append(File->readAll());
-    InfoContent.append("\n");
-    delete File;
-
-    // Read COPYING
     InfoContent.append("kiss_fft COPYING (BSD 3-clause)\n");
     InfoContent.append("-------\n");
     File = new QFile(":/libs/kiss_fft/COPYING");
