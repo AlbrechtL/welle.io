@@ -7,7 +7,81 @@ var png_noslide = "iVBORw0KGgoAAAANSUhEUgAAAUAAAADwCAYAAABxLb1rAAAPM0lEQVR4nO3dL
 
 var png_alert = "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAk1BMVEWgAAD/AAD/////+/v/+Pj/2tr/T0//1NT/5eX/mJj/pKT/8/P/7Oz/y8v/4eH/Dg7/19f/R0f/vb3/Xl7/eHj/Njb/6+v/sbH/fHz/iYn/QUH/cXH/nZ3/HBz/JSX/bGz/jo7/xMT/KSn/ra3/Zmb/PT3/sLD/hIT/YGD/hob/VVX/Fhb/t7f/yMj/TU3/OTn/oqILUJpfAAAAAXRSTlMAQObYZgAAAFVJREFUOMuV0EEOACEIA0Dn/5/em8kqWumxTAJhjGZI8yAEIQDugiASIIgE5uAg/IE2sAJNYAdaQAU0gBqonlwCxzyCtdlEAlKxbnUH+5lCMnh51DUfEC4CA1JxhXIAAAAASUVORK5CYII="
 
+var png_chevron_right = "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAOxAAADsQBlSsOGwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAABpSURBVEiJ7c4xDoJAEEbhL8rtPICVHQ3XoaLQ2sSzcA6OQEgIrI3FVmaNbmPm1f+8NwTBX3HGgEMt+YqEa41IHki4ReQdfRZIaH8pP2HJ5A80IYcO+0t+x7H0sHQ4YsKMC7YPHwyCL3gCWFcmgwfCKVwAAAAASUVORK5CYII="
+
+var png_chevron_down = "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAOxAAADsQBlSsOGwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAB0SURBVEiJ7Y87CoAwEAVHD2khqIUgCF5HUPBzUL9NgiGoSKKN7MAW4cEMAUEQnlAAycUWA6WPPAcWdZm1RcAErEDlGmiATd3M8ZNYvfXWuQYCoLUijSXvgdA1oCO1ITRv8JXfRV6Tn0XGt+VmJP1KLgh/ZQd6AiOdJgUioQAAAABJRU5ErkJggg=="
+
 window.onload = function() {
+    var chevron_right = '<img width=24 height=24 src="data:image/png;base64,'+png_chevron_right+'" />'
+    var chevron_down = '<img width=24 height=24 src="data:image/png;base64,'+png_chevron_down+'" />'
+    
+    document.getElementById('block_sls').getElementsByClassName('title')[0].getElementsByClassName('chevron')[0].innerHTML = chevron_right
+    document.getElementById('block_spectrum').getElementsByClassName('title')[0].getElementsByClassName('chevron')[0].innerHTML = chevron_right
+    document.getElementById('block_cir').getElementsByClassName('title')[0].getElementsByClassName('chevron')[0].innerHTML = chevron_right
+    document.getElementById('block_constellation').getElementsByClassName('title')[0].getElementsByClassName('chevron')[0].innerHTML = chevron_right
+    document.getElementById('block_tii').getElementsByClassName('title')[0].getElementsByClassName('chevron')[0].innerHTML = chevron_right
+    
+    document.getElementById('block_sls').onclick = function() {
+        console.log('sls');
+        if (document.getElementById('block_sls').getElementsByClassName('data')[0].style.display != "none") {
+            document.getElementById('block_sls').getElementsByClassName('data')[0].style.display = 'none';
+            document.getElementById('block_sls').getElementsByClassName('title')[0].getElementsByClassName('chevron')[0].innerHTML = chevron_right
+        } else {
+            document.getElementById('block_sls').getElementsByClassName('data')[0].style.display = 'block';
+            document.getElementById('block_sls').getElementsByClassName('title')[0].getElementsByClassName('chevron')[0].innerHTML = chevron_down
+        }
+    };
+    
+    document.getElementById('block_spectrum').onclick = function() {
+        console.log('spectrum');
+        if (document.getElementById('block_spectrum').getElementsByClassName('data')[0].style.display != "none") {
+            document.getElementById('block_spectrum').getElementsByClassName('data')[0].style.display = 'none';
+            document.getElementById('block_spectrum').getElementsByClassName('title')[0].getElementsByClassName('chevron')[0].innerHTML = chevron_right
+            clearInterval(plotSpectrumTimer);
+        } else {
+            document.getElementById('block_spectrum').getElementsByClassName('data')[0].style.display = 'block';
+            document.getElementById('block_spectrum').getElementsByClassName('title')[0].getElementsByClassName('chevron')[0].innerHTML = chevron_down
+            populateSpectrumPlots(480);
+        }
+    };
+    
+    document.getElementById('block_cir').onclick = function() {
+        console.log('cir');
+        if (document.getElementById('block_cir').getElementsByClassName('data')[0].style.display != "none") {
+            document.getElementById('block_cir').getElementsByClassName('data')[0].style.display = 'none';
+            document.getElementById('block_cir').getElementsByClassName('title')[0].getElementsByClassName('chevron')[0].innerHTML = chevron_right
+            clearInterval(plotCIRTimer);
+        } else {
+            document.getElementById('block_cir').getElementsByClassName('data')[0].style.display = 'block';
+            document.getElementById('block_cir').getElementsByClassName('title')[0].getElementsByClassName('chevron')[0].innerHTML = chevron_down
+            populateCIRPlots(480);
+        }
+    };
+    
+    document.getElementById('block_constellation').onclick = function() {
+        console.log('constellation');
+        if (document.getElementById('block_constellation').getElementsByClassName('data')[0].style.display != "none") {
+            document.getElementById('block_constellation').getElementsByClassName('data')[0].style.display = 'none';
+            document.getElementById('block_constellation').getElementsByClassName('title')[0].getElementsByClassName('chevron')[0].innerHTML = chevron_right
+            clearInterval(plotConstellationTimer);
+        } else {
+            document.getElementById('block_constellation').getElementsByClassName('data')[0].style.display = 'block';
+            document.getElementById('block_constellation').getElementsByClassName('title')[0].getElementsByClassName('chevron')[0].innerHTML = chevron_down
+            populateConstellationPlots(480);
+        }
+    };
+    
+    document.getElementById('block_tii').onclick = function() {
+        console.log('tii');
+        if (document.getElementById('block_tii').getElementsByClassName('data')[0].style.display != "none") {
+            document.getElementById('block_tii').getElementsByClassName('data')[0].style.display = 'none';
+            document.getElementById('block_tii').getElementsByClassName('title')[0].getElementsByClassName('chevron')[0].innerHTML = chevron_right
+        } else {
+            document.getElementById('block_tii').getElementsByClassName('data')[0].style.display = 'block';
+            document.getElementById('block_tii').getElementsByClassName('title')[0].getElementsByClassName('chevron')[0].innerHTML = chevron_down
+        }
+    };
+    
     var ch = document.getElementById("channelselector");
 
     for (c in channels) {
@@ -38,8 +112,6 @@ function refreshChannel() {
 var channelRefreshTimer = setInterval(refreshChannel, 2000);
 
 var ensembleInfoTimer = setInterval(populateEnsembleinfo, 1000);
-
-var plotTimer = setInterval(populatePlots, 480);
 
 function ensembleInfoTemplate() {
     var html = '';
@@ -352,10 +424,25 @@ function plot(data, id, scalefactor, shiftfactor, plot_ix) {
     ctx.stroke();
 };
 
-function populatePlots() {
+function populateSpectrumPlots(interval) {
     populateSpectrum();
+    if (interval > 0) {
+        plotSpectrumTimer = setTimeout(function() { populateSpectrumPlots( interval); }, interval);
+    }
+};
+
+function populateCIRPlots(interval) {
     populateCIR();
+    if  (interval > 0) {
+        plotCIRTimer = setTimeout(function() { populateCIRPlots( interval); }, interval);
+    }
+};
+
+function populateConstellationPlots(interval) {
     populateConstellation();
+    if  (interval > 0) {
+        plotConstellationTimer = setTimeout(function() { populateConstellationPlots( interval); }, interval);
+    }
 };
 
 function populateSpectrum() {
