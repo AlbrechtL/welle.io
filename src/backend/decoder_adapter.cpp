@@ -26,12 +26,12 @@
 #include <iostream>
 #include "decoder_adapter.h"
 
-DecoderAdapter::  DecoderAdapter(ProgrammeHandlerInterface &mr, int16_t bitRate, AudioServiceComponentType &dabModus, const std::string &dumpFileName):
+DecoderAdapter::DecoderAdapter(ProgrammeHandlerInterface &mr, int16_t bitRate, AudioServiceComponentType &dabModus, const std::string &dumpFileName):
     bitRate(bitRate),
     myInterface(mr),
     padDecoder(this, true)
 {
-    if(dabModus == AudioServiceComponentType::DAB)
+    if (dabModus == AudioServiceComponentType::DAB)
         decoder = std::make_unique<MP2Decoder>(this, false);
     else if (dabModus == AudioServiceComponentType::DABPlus)
         decoder = std::make_unique<SuperframeFilter>(this, true, false);
@@ -39,12 +39,10 @@ DecoderAdapter::  DecoderAdapter(ProgrammeHandlerInterface &mr, int16_t bitRate,
         throw std::runtime_error("DecoderAdapter: Unkonwn service component");
 
     // Open a dump file (XPADxpert) if the user defined it
-    if (!dumpFileName.empty())
-    {
+    if (!dumpFileName.empty()) {
         FILE *fd = fopen(dumpFileName.c_str(), "wb");
         // w for write, b for binary
-        if (fd != nullptr)
-        {
+        if (fd != nullptr) {
             dumpFile.reset(fd);
         }
     }
@@ -55,25 +53,24 @@ DecoderAdapter::  DecoderAdapter(ProgrammeHandlerInterface &mr, int16_t bitRate,
 
 void DecoderAdapter::addtoFrame(uint8_t *v)
 {
-    size_t	length	= 24 * bitRate / 8;
-    uint8_t	data [24 * bitRate / 8];
+    size_t  length  = 24 * bitRate / 8;
+    uint8_t data [24 * bitRate / 8];
 
     // Convert 8 bits (stored in one uint8) into one uint8
-    for (int i = 0; i < 24 * bitRate / 8; i ++)
-    {
-           data [i] = 0;
-           for (int j = 0; j < 8; j ++)
-           {
-              data [i] <<= 1;
-              data [i] |= v [8 * i + j] & 01;
-           }
+    for (int i = 0; i < 24 * bitRate / 8; i ++) {
+        data [i] = 0;
+        for (int j = 0; j < 8; j ++) {
+            data [i] <<= 1;
+            data [i] |= v [8 * i + j] & 01;
+        }
     }
 
     decoder->Feed(data, length);
 
-    if (dumpFile)
+    if (dumpFile) {
         fwrite(data, length, 1, dumpFile.get());
-};
+    }
+}
 
 void DecoderAdapter::FormatChange(const std::string &format)
 {
@@ -82,7 +79,7 @@ void DecoderAdapter::FormatChange(const std::string &format)
 
 void DecoderAdapter::StartAudio(int samplerate, int channels, bool float32)
 {
-    if(float32 == true)
+    if (float32 == true)
         throw std::runtime_error("DecoderAdapter: Float32 audio samples are not supported");
 
     audioSamplerate = samplerate;
@@ -99,14 +96,15 @@ void DecoderAdapter::PutAudio(const uint8_t *data, size_t len)
     std::vector<int16_t> audio(bufferSize);
 
     // Convert two uint8 into a int16 sample
-    for(size_t i=0; i<len/2; ++i)
-    {
+    for(size_t i=0; i<len/2; ++i) {
         int16_t sample =  ((int16_t) data[i * 2 +1] << 8) | ((int16_t) data[i * 2]);
 
-        if(audioChannels == 2)
+        if (audioChannels == 2) {
             audio[i] = sample;
-        else
+        }
+        else {
             audio[i*2] = sample;
+        }
     }
 
     myInterface.onNewAudio(
@@ -148,7 +146,7 @@ void DecoderAdapter::PADChangeDynamicLabel(const DL_STATE &dl)
                     dl.raw.data(),
                     (CharacterSet)dl.charset,
                     dl.raw.size()));
-}
+    }
 }
 
 void DecoderAdapter::PADChangeSlide(const MOT_FILE &slide)
