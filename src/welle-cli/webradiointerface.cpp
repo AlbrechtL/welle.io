@@ -443,7 +443,6 @@ bool WebRadioInterface::send_mux_json(Socket& s)
             for (const auto& sc : rx->getComponents(s)) {
                 nlohmann::json j_sc = {
                     {"componentnr", sc.componentNr},
-                    {"subchannelid", nullptr},
                     {"primary", (sc.PS_flag ? true : false)},
                     {"caflag", (sc.CAflag ? true : false)},
                     {"scid", nullptr},
@@ -456,7 +455,6 @@ bool WebRadioInterface::send_mux_json(Socket& s)
                 switch (sc.transportMode()) {
                     case TransportMode::Audio:
                         j_sc["transportmode"] = "audio";
-                        j_sc["subchannelid"] = sub.subChId;
                         j_sc["ascty"] =
                                 (sc.audioType() == AudioServiceComponentType::DAB ? "DAB" :
                                  sc.audioType() == AudioServiceComponentType::DABPlus ? "DAB+" :
@@ -474,13 +472,13 @@ bool WebRadioInterface::send_mux_json(Socket& s)
                         j_sc["scid"] = sc.SCId;
                         break;
                     case TransportMode::StreamData:
-                        j_sc["subchannelid"] = sub.subChId;
                         j_sc["transportmode"] = "streamdata";
                         j_sc["dscty"] = sc.DSCTy;
                         break;
                 }
 
                 j_sc["subchannel"] = {
+                    {"subchid", sub.subChId},
                     {"bitrate", sub.bitrate()},
                     {"cu", sub.numCU()},
                     {"sad", sub.startAddr},
