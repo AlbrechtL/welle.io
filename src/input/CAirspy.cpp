@@ -66,7 +66,7 @@ CAirspy::CAirspy() :
         throw 0;
     }
 
-    if (isAGC) {
+    if (sw_agc) {
         setAgc(true);
     }
     else {
@@ -159,9 +159,9 @@ int CAirspy::callback(airspy_transfer* transfer)
     return 0;
 }
 
-//  called from AirSpy data callback which gives us interleaved float32
-//  I and Q according to setting given to airspy_set_sample_type() above.
-//  The AirSpy runs at 4096ksps, we need to decimate by two.
+// Called from AirSpy data callback which gives us interleaved float32
+// I and Q according to setting given to airspy_set_sample_type() above.
+// The AirSpy runs at 4096ksps, we need to decimate by two.
 int CAirspy::data_available(const DSPCOMPLEX* buf, size_t num_samples)
 {
     if (num_samples % 2 != 0) {
@@ -172,9 +172,37 @@ int CAirspy::data_available(const DSPCOMPLEX* buf, size_t num_samples)
 
     std::vector<DSPCOMPLEX> temp(num_samples/2);
 
+    float maxnorm = 0;
+
     for (size_t i = 0; i < num_samples/2; i++) {
-        temp[i] = 0.5f * (sbuf[2*i] + sbuf[2*i+1]);
+        const auto z = 0.5f * (sbuf[2*i] + sbuf[2*i+1]);
+        temp[i] = z;
+
+        if (sw_agc and (num_frames % 200) == 0) {
+            if (norm(z) > maxnorm) {
+                maxnorm = norm(z);
+            }
+        }
     }
+
+    if (sw_agc and (num_frames % 200) == 0) {
+        const float maxampl = sqrt(maxnorm);
+
+        if (maxampl > 0.2f) {
+            const int newgain = currentLinearityGain--;
+            if (newgain >= AIRSPY_GAIN_MIN) {
+                setGain(newgain);
+            }
+        }
+        else if (maxampl < 0.02f) {
+            const int newgain = currentLinearityGain++;
+            if (newgain <= AIRSPY_GAIN_MAX) {
+                setGain(newgain);
+            }
+        }
+    }
+
+    num_frames++;
 
     SampleBuffer.putDataIntoBuffer(temp.data(), num_samples/2);
     SpectrumSampleBuffer.putDataIntoBuffer(temp.data(), num_samples/2);
@@ -213,31 +241,16 @@ int CAirspy::getGainCount()
     return 21;
 }
 
-void CAirspy::setAgc(bool AGC)
+void CAirspy::setAgc(bool agc)
 {
-    int result = 0;
-
-    if (AGC) {
-        result = airspy_set_lna_agc(device, 1);
-        if (result != AIRSPY_SUCCESS)
-            std::clog  << "Airspy: airspy_set_lna_agc() failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")" << std::endl;
-
-        result = airspy_set_mixer_agc(device, 1);
-        if (result != AIRSPY_SUCCESS)
-            std::clog  << "Airspy: airspy_set_mixer_agc() failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")" << std::endl;
-
-        result = airspy_set_vga_gain(device, 15); // Maximum gain. I don't know if we can do this
-        if (result != AIRSPY_SUCCESS)
-           std::clog  << "Airspy: airspy_set_vga_gain () failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")" << std::endl;
-    }
-    else {
+    if (not agc) {
         int result = airspy_set_linearity_gain(device, currentLinearityGain);
         if (result != AIRSPY_SUCCESS)
             std::clog  << "Airspy: airspy_set_mixer_agc() failed:" << airspy_error_name((airspy_error)result) << "(" << result << ")" << std::endl;
 
     }
 
-    isAGC = AGC;
+    sw_agc = agc;
 }
 
 void CAirspy::setHwAgc(bool hwAGC)
@@ -257,7 +270,7 @@ std::string CAirspy::getName()
 
     std::string ver = Version;
 
-    ver += "[...], lib. v" +
+    ver += "AirSpy, lib. v" +
         std::to_string(lib_version.major_version) + "." +
         std::to_string(lib_version.minor_version) + "." +
         std::to_string(lib_version.revision);

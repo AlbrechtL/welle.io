@@ -65,7 +65,7 @@ public:
     float getGain(void) const;
     float setGain(int gain);
     int getGainCount(void);
-    void setAgc(bool AGC);
+    void setAgc(bool agc);
     void setHwAgc(bool hwAGC);
     std::string getName(void);
     CDeviceID getID(void);
@@ -73,11 +73,16 @@ public:
 private:
     const int AIRSPY_SAMPLERATE = 4096000;
 
+    const int AIRSPY_GAIN_MIN = 0;
+    const int AIRSPY_GAIN_MAX = 21;
+
     bool running = false;
     int freq = 0;
 
-    bool isAGC = true;
-    int8_t currentLinearityGain = 0;
+    size_t num_frames = 0;
+
+    bool sw_agc = false;
+    int currentLinearityGain = 10;
     RingBuffer<DSPCOMPLEX> SampleBuffer;
     RingBuffer<DSPCOMPLEX> SpectrumSampleBuffer;
     struct airspy_device *device;
