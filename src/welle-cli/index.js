@@ -12,76 +12,83 @@ var png_chevron_right = "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABHNCSVQ
 var png_chevron_down = "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAOxAAADsQBlSsOGwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAB0SURBVEiJ7Y87CoAwEAVHD2khqIUgCF5HUPBzUL9NgiGoSKKN7MAW4cEMAUEQnlAAycUWA6WPPAcWdZm1RcAErEDlGmiATd3M8ZNYvfXWuQYCoLUijSXvgdA1oCO1ITRv8JXfRV6Tn0XGt+VmJP1KLgh/ZQd6AiOdJgUioQAAAABJRU5ErkJggg=="
 
 window.onload = function() {
-    var chevron_right = '<img width=24 height=24 src="data:image/png;base64,'+png_chevron_right+'" />'
-    var chevron_down = '<img width=24 height=24 src="data:image/png;base64,'+png_chevron_down+'" />'
-    
-    document.getElementById('block_sls').getElementsByClassName('title')[0].getElementsByClassName('chevron')[0].innerHTML = chevron_right
-    document.getElementById('block_spectrum').getElementsByClassName('title')[0].getElementsByClassName('chevron')[0].innerHTML = chevron_right
-    document.getElementById('block_cir').getElementsByClassName('title')[0].getElementsByClassName('chevron')[0].innerHTML = chevron_right
-    document.getElementById('block_constellation').getElementsByClassName('title')[0].getElementsByClassName('chevron')[0].innerHTML = chevron_right
-    document.getElementById('block_tii').getElementsByClassName('title')[0].getElementsByClassName('chevron')[0].innerHTML = chevron_right
-    
-    document.getElementById('block_sls').onclick = function() {
-        console.log('sls');
-        if (document.getElementById('block_sls').getElementsByClassName('data')[0].style.display != "none") {
-            document.getElementById('block_sls').getElementsByClassName('data')[0].style.display = 'none';
-            document.getElementById('block_sls').getElementsByClassName('title')[0].getElementsByClassName('chevron')[0].innerHTML = chevron_right
-        } else {
-            document.getElementById('block_sls').getElementsByClassName('data')[0].style.display = 'block';
-            document.getElementById('block_sls').getElementsByClassName('title')[0].getElementsByClassName('chevron')[0].innerHTML = chevron_down
+    var chevron_right = '<img width=24 height=24 src="data:image/png;base64,' +
+        png_chevron_right + '" />';
+    var chevron_down = '<img width=24 height=24 src="data:image/png;base64,' +
+        png_chevron_down + '" />';
+
+    var sls_block = document.getElementById('block_sls');
+    sls_block.getElementsByClassName('title')[0]
+        .getElementsByClassName('chevron')[0]
+        .innerHTML = chevron_right;
+
+    var spectrum_block = document.getElementById('block_spectrum');
+    spectrum_block.getElementsByClassName('title')[0]
+        .getElementsByClassName('chevron')[0]
+        .innerHTML = chevron_right;
+
+    var cir_block = document.getElementById('block_cir');
+    cir_block.getElementsByClassName('title')[0]
+        .getElementsByClassName('chevron')[0]
+        .innerHTML = chevron_right;
+
+    var constellation_block = document.getElementById('block_constellation');
+    constellation_block.getElementsByClassName('title')[0]
+        .getElementsByClassName('chevron')[0]
+        .innerHTML = chevron_right;
+
+    var tii_block = document.getElementById('block_tii');
+    tii_block.getElementsByClassName('title')[0]
+        .getElementsByClassName('chevron')[0]
+        .innerHTML = chevron_right;
+
+    toggle_func = function(block) {
+        var fold = block.getElementsByClassName('title')[0]
+            .getElementsByClassName('chevron')[0];
+        var style = block.getElementsByClassName('data')[0].style;
+        if (style.display != "none") {
+            style.display = 'none';
+            fold.innerHTML = chevron_right;
+            return false;
+        }
+        else {
+            style.display = 'block';
+            fold.innerHTML = chevron_down;
+            return true;
         }
     };
-    
-    document.getElementById('block_spectrum').onclick = function() {
-        console.log('spectrum');
-        if (document.getElementById('block_spectrum').getElementsByClassName('data')[0].style.display != "none") {
-            document.getElementById('block_spectrum').getElementsByClassName('data')[0].style.display = 'none';
-            document.getElementById('block_spectrum').getElementsByClassName('title')[0].getElementsByClassName('chevron')[0].innerHTML = chevron_right
-            clearInterval(plotSpectrumTimer);
-        } else {
-            document.getElementById('block_spectrum').getElementsByClassName('data')[0].style.display = 'block';
-            document.getElementById('block_spectrum').getElementsByClassName('title')[0].getElementsByClassName('chevron')[0].innerHTML = chevron_down
+
+    sls_block.onclick = function() { toggle_func(sls_block); };
+
+    spectrum_block.onclick = function() {
+        if (toggle_func(spectrum_block)) {
             populateSpectrumPlots(480);
         }
+        else {
+            clearInterval(plotSpectrumTimer);
+        }
     };
-    
-    document.getElementById('block_cir').onclick = function() {
-        console.log('cir');
-        if (document.getElementById('block_cir').getElementsByClassName('data')[0].style.display != "none") {
-            document.getElementById('block_cir').getElementsByClassName('data')[0].style.display = 'none';
-            document.getElementById('block_cir').getElementsByClassName('title')[0].getElementsByClassName('chevron')[0].innerHTML = chevron_right
-            clearInterval(plotCIRTimer);
-        } else {
-            document.getElementById('block_cir').getElementsByClassName('data')[0].style.display = 'block';
-            document.getElementById('block_cir').getElementsByClassName('title')[0].getElementsByClassName('chevron')[0].innerHTML = chevron_down
+
+    cir_block.onclick = function() {
+        if (toggle_func(cir_block)) {
             populateCIRPlots(480);
         }
+        else {
+            clearInterval(plotCIRTimer);
+        }
     };
-    
-    document.getElementById('block_constellation').onclick = function() {
-        console.log('constellation');
-        if (document.getElementById('block_constellation').getElementsByClassName('data')[0].style.display != "none") {
-            document.getElementById('block_constellation').getElementsByClassName('data')[0].style.display = 'none';
-            document.getElementById('block_constellation').getElementsByClassName('title')[0].getElementsByClassName('chevron')[0].innerHTML = chevron_right
-            clearInterval(plotConstellationTimer);
-        } else {
-            document.getElementById('block_constellation').getElementsByClassName('data')[0].style.display = 'block';
-            document.getElementById('block_constellation').getElementsByClassName('title')[0].getElementsByClassName('chevron')[0].innerHTML = chevron_down
+
+    constellation_block.onclick = function() {
+        if (toggle_func(constellation_block)) {
             populateConstellationPlots(480);
         }
-    };
-    
-    document.getElementById('block_tii').onclick = function() {
-        console.log('tii');
-        if (document.getElementById('block_tii').getElementsByClassName('data')[0].style.display != "none") {
-            document.getElementById('block_tii').getElementsByClassName('data')[0].style.display = 'none';
-            document.getElementById('block_tii').getElementsByClassName('title')[0].getElementsByClassName('chevron')[0].innerHTML = chevron_right
-        } else {
-            document.getElementById('block_tii').getElementsByClassName('data')[0].style.display = 'block';
-            document.getElementById('block_tii').getElementsByClassName('title')[0].getElementsByClassName('chevron')[0].innerHTML = chevron_down
+        else {
+            clearInterval(plotConstellationTimer);
         }
     };
-    
+
+    tii_block.onclick = function() { toggle_func(tii_block); };
+
     var ch = document.getElementById("channelselector");
 
     for (c in channels) {
@@ -142,7 +149,7 @@ function ensembleInfoTemplate() {
     html += '<th>Bitrate</th> <th><abbr title="Start CU Address, used CUs">CU info</abbr></th> ';
     html += '<th><abbr title="Protection level">Prot.Lev.</abbr></th>';
     html += '<th><abbr title="Transmission Mode, rate, channels">Technical details</abbr></th>';
-    html += '<th><abbr title="Programme type">PTy</abbr></th>'; 
+    html += '<th><abbr title="Programme type">PTy</abbr></th>';
     html += '<th><abbr title="Service language, Subchannel language">Languages</abbr></th> <th id="dls">DLS</th>';
     html += '<th><abbr title="Frame, Reed Solomon, AAC errors">Errors</abbr></th>';
     html += '<th><abbr title="red: right, black: left">Audio Level</abbr></th> <th></th></tr>';
@@ -292,7 +299,6 @@ function populateEnsembleinfo() {
                 else {
                     s["samplerate"] = sc.transportmode;
                 }
-
             }
             else {
                 s["bitrate"] = 0;
