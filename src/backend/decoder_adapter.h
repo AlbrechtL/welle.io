@@ -71,8 +71,9 @@ class DecoderAdapter: public DabProcessor, public SubchannelSinkObserver, public
         struct FILEDeleter{ void operator()(FILE* fd){ if (fd) fclose(fd); }};
         std::unique_ptr<FILE, FILEDeleter> dumpFile;
 
-        int audioSamplerate;
-        int audioChannels;
+        int audioSamplerate = 0;
+        int audioChannels = 0;
+        std::string audioFormat;
 };
 #endif
 

@@ -64,8 +64,11 @@ public:
 
     virtual void onFrameErrors(int frameErrors) override { (void)frameErrors; }
 
-    virtual void onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, bool isStereo, const std::string& mode) override { (void) audioData; (void)sampleRate; (void)isStereo; (void)mode;}
-    virtual void onRsErrors(int rsErrors) override { (void)rsErrors; }
+    virtual void onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, bool isStereo, const std::string& mode) override {
+        (void) audioData; (void)sampleRate; (void)isStereo; (void)mode;}
+
+    virtual void onRsErrors(bool uncorrectedErrors, int numCorrectedErrors) override {
+        (void)uncorrectedErrors; (void)numCorrectedErrors; }
     virtual void onAacErrors(int aacErrors) override { (void)aacErrors; }
     virtual void onNewDynamicLabel(const std::string& label) override
     {

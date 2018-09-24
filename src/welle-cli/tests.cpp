@@ -201,13 +201,11 @@ class   TestProgrammeHandler: public ProgrammeHandlerInterface {
         vector<int> aacErrorStats;
         vector<int> rsErrorStats;
 
-        virtual void onFrameErrors(int frameErrors) override
-        {
+        virtual void onFrameErrors(int frameErrors) override {
             frameErrorStats.push_back(frameErrors);
         }
 
-        virtual void onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, bool isStereo, const string& mode) override
-        {
+        virtual void onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, bool isStereo, const string& mode) override {
             (void)audioData;
             (void)mode;
 
@@ -218,16 +216,18 @@ class   TestProgrammeHandler: public ProgrammeHandlerInterface {
             stereo = isStereo;
         }
 
-        virtual void onRsErrors(int rsErrors) override { rsErrorStats.push_back(rsErrors); }
+        virtual void onRsErrors(bool uncorrectedErrors, int numCorrectedErrors) override {
+            rsErrorStats.push_back(uncorrectedErrors);
+            (void)numCorrectedErrors;
+        }
+
         virtual void onAacErrors(int aacErrors) override { aacErrorStats.push_back(aacErrors); }
-        virtual void onNewDynamicLabel(const std::string& label) override
-        {
+        virtual void onNewDynamicLabel(const std::string& label) override {
             cout << "DLS: " << label << endl;
         }
 
         virtual void onMOT(const std::vector<uint8_t>& data, int subtype) override { (void)data; (void)subtype; }
-        virtual void onPADLengthError(size_t announced_xpad_len, size_t xpad_len) override
-        {
+        virtual void onPADLengthError(size_t announced_xpad_len, size_t xpad_len) override {
             cout << "X-PAD length mismatch, expected: " << announced_xpad_len << " got: " << xpad_len << endl;
         }
 };

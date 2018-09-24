@@ -119,9 +119,7 @@ class RadioControllerInterface {
 class ProgrammeHandlerInterface {
     public:
         /* Count the number of frame errors from the MP2, AAC or data
-         * decoder.
-         * The function will also be called in the absence of errors,
-         * with an count of 0. */
+         * decoder.  */
         virtual void onFrameErrors(int frameErrors) = 0;
 
         /* New audio data is available. The sampleRate and the
@@ -130,14 +128,13 @@ class ProgrammeHandlerInterface {
          * used.  */
         virtual void onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, bool stereo, const std::string& mode) = 0;
 
-        /* (DAB+ only) Reed-Solomon decoding error count.
+        /* (DAB+ only) Reed-Solomon decoding error indicator, and
+         * number of corrected errors.
          * The function will also be called in the absence of errors,
          * with an count of 0. */
-        virtual void onRsErrors(int rsErrors) = 0;
+        virtual void onRsErrors(bool uncorrectedErrors, int numCorrectedErrors) = 0;
 
-        /* (DAB+ only) Firecode check error count.
-         * The function will also be called in the absence of errors,
-         * with an count of 0. */
+        /* (DAB+ only) Audio Decoder error */
         virtual void onAacErrors(int aacErrors) = 0;
 
         /* A new Dynamic Label was decoded.

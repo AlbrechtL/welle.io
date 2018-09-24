@@ -230,10 +230,11 @@ void WebProgrammeHandler::onNewAudio(std::vector<int16_t>&& audioData,
     }
 }
 
-void WebProgrammeHandler::onRsErrors(int rsErrors)
+void WebProgrammeHandler::onRsErrors(bool uncorrectedErrors, int numCorrectedErrors)
 {
+    (void)numCorrectedErrors; // TODO calculate BER before Reed-Solomon
     std::unique_lock<std::mutex> lock(stats_mutex);
-    errorcounters.num_rsErrors += rsErrors;
+    errorcounters.num_rsErrors += (uncorrectedErrors ? 1 : 0);
     errorcounters.time = chrono::system_clock::now();
 }
 

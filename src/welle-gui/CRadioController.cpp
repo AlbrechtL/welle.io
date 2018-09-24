@@ -901,11 +901,13 @@ void CRadioController::onFrameErrors(int frameErrors)
     emit frameErrorsChanged(this->frameErrors);
 }
 
-void CRadioController::onRsErrors(int rsErrors)
+void CRadioController::onRsErrors(bool uncorrectedErrors, int numCorrectedErrors)
 {
-    if (this->rsErrors == rsErrors)
+    (void)numCorrectedErrors;
+
+    if (this->rsErrors == uncorrectedErrors ? 1 : 0)
         return;
-    this->rsErrors = rsErrors;
+    this->rsErrors = uncorrectedErrors ? 1 : 0;
     emit rsErrorsChanged(this->rsErrors);
 }
 

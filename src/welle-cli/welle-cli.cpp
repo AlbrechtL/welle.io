@@ -83,7 +83,8 @@ class AlsaProgrammeHandler: public ProgrammeHandlerInterface {
             ao->playPCM(move(audioData));
         }
 
-        virtual void onRsErrors(int rsErrors) override { (void)rsErrors; }
+        virtual void onRsErrors(bool uncorrectedErrors, int numCorrectedErrors) override {
+            (void)uncorrectedErrors; (void)numCorrectedErrors; }
         virtual void onAacErrors(int aacErrors) override { (void)aacErrors; }
         virtual void onNewDynamicLabel(const std::string& label) override
         {
@@ -144,7 +145,8 @@ class WavProgrammeHandler: public ProgrammeHandlerInterface {
             }
         }
 
-        virtual void onRsErrors(int rsErrors) override { (void)rsErrors; }
+        virtual void onRsErrors(bool uncorrectedErrors, int numCorrectedErrors) override {
+            (void)uncorrectedErrors; (void)numCorrectedErrors; }
         virtual void onAacErrors(int aacErrors) override { (void)aacErrors; }
         virtual void onNewDynamicLabel(const std::string& label) override
         {

@@ -74,7 +74,7 @@ void DecoderAdapter::addtoFrame(uint8_t *v)
 
 void DecoderAdapter::FormatChange(const std::string &format)
 {
-    std::clog << "DecoderAdapter: " << format << std::endl;
+    audioFormat = format;
 }
 
 void DecoderAdapter::StartAudio(int samplerate, int channels, bool float32)
@@ -111,7 +111,7 @@ void DecoderAdapter::PutAudio(const uint8_t *data, size_t len)
         std::move(audio),
         audioSamplerate,
         audioChannels == 2,
-        audioChannels != 2 ? "Mono" : "Stereo");
+        audioFormat);
 }
 
 void DecoderAdapter::ProcessPAD(const uint8_t *xpad_data, size_t xpad_len, bool exact_xpad_len, const uint8_t *fpad_data)
@@ -121,18 +121,19 @@ void DecoderAdapter::ProcessPAD(const uint8_t *xpad_data, size_t xpad_len, bool 
 
 void DecoderAdapter::AudioError(const std::string &hint)
 {
-    std::clog << "DecoderAdapter: Audio error \"" << hint << "\"" << std::endl;
+    (void)hint;
+    myInterface.onFrameErrors(1);
 }
 
 void DecoderAdapter::AudioWarning(const std::string &hint)
 {
-    std::clog << "DecoderAdapter: Audio warning \"" << hint << "\""  << std::endl;
+    (void)hint;
+    myInterface.onAacErrors(1);
 }
 
 void DecoderAdapter::FECInfo(int total_corr_count, bool uncorr_errors)
 {
-    std::clog << "DecoderAdapter: total_corr_count " << total_corr_count << " uncorr_errors " << uncorr_errors << std::endl;
-    myInterface.onRsErrors(total_corr_count);
+    myInterface.onRsErrors(uncorr_errors, total_corr_count);
 }
 
 void DecoderAdapter::PADChangeDynamicLabel(const DL_STATE &dl)
