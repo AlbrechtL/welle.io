@@ -70,6 +70,9 @@ void DecoderAdapter::addtoFrame(uint8_t *v)
     if (dumpFile) {
         fwrite(data, length, 1, dumpFile.get());
     }
+
+    myInterface.onFrameErrors(frameErrorCounter);
+    frameErrorCounter = 0;
 }
 
 void DecoderAdapter::FormatChange(const std::string &format)
@@ -122,7 +125,7 @@ void DecoderAdapter::ProcessPAD(const uint8_t *xpad_data, size_t xpad_len, bool 
 void DecoderAdapter::AudioError(const std::string &hint)
 {
     (void)hint;
-    myInterface.onFrameErrors(1);
+    frameErrorCounter++;
 }
 
 void DecoderAdapter::AudioWarning(const std::string &hint)

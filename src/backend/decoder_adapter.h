@@ -64,6 +64,7 @@ class DecoderAdapter: public DabProcessor, public SubchannelSinkObserver, public
 
     private:
         int16_t bitRate;
+        int frameErrorCounter = 0;
         ProgrammeHandlerInterface& myInterface;
         std::unique_ptr<SubchannelSink> decoder;
         PADDecoder padDecoder;
