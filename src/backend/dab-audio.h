@@ -46,8 +46,7 @@ class DabAudio : public DabVirtual
         DabAudio(AudioServiceComponentType dabModus,
                   int16_t fragmentSize,
                   int16_t bitRate,
-                  bool shortForm,
-                  int16_t protLevel,
+                  ProtectionSettings protection,
                   ProgrammeHandlerInterface& phi,
                   const std::string& dumpFileName);
         ~DabAudio(void);
@@ -63,10 +62,8 @@ class DabAudio : public DabVirtual
         void    run(void);
         std::atomic<bool> running;
         AudioServiceComponentType dabModus;
-        int16_t     fragmentSize;
-        int16_t     bitRate;
-        bool        shortForm;
-        int16_t     protLevel;
+        int16_t fragmentSize;
+        int16_t bitRate;
         std::vector<uint8_t> outV;
         std::vector<int16_t> interleaveData[16];
         EnergyDispersal energyDispersal;

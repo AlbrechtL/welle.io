@@ -29,22 +29,21 @@
  * equal error protection, bitRate and protLevel
  * define the puncturing table
  */
-EEPProtection::EEPProtection(int16_t bitRate,
-        int16_t protLevel) :
+EEPProtection::EEPProtection(int16_t bitRate, bool profile_is_eep_a, int level) :
     Viterbi(24 * bitRate),
     outSize(24 * bitRate),
     viterbiBlock(outSize * 4 + 24)
 {
-    if ((protLevel & (1 << 2)) == 0) {  // set A profiles
-        switch (protLevel & 03) {
-            case 0:           // actually level 1
+    if (profile_is_eep_a) {
+        switch (level) {
+            case 1:
                 L1 = 6 * bitRate / 8 - 3;
                 L2 = 3;
                 PI1 = get_PCodes(24 - 1);
                 PI2 = get_PCodes(23 - 1);
                 break;
 
-            case 1:           // actually level 2
+            case 2:
                 if (bitRate == 8) {
                     L1  = 5;
                     L2  = 1;
@@ -59,53 +58,58 @@ EEPProtection::EEPProtection(int16_t bitRate,
                 }
                 break;
 
-            case 2:           // actually level 3
+            case 3:
                 L1 = 6 * bitRate / 8 - 3;
                 L2 = 3;
                 PI1 = get_PCodes(8 - 1);
                 PI2 = get_PCodes(7 - 1);
                 break;
 
-            case 3:           // actually level 4
+            case 4:
                 L1 = 4 * bitRate / 8 - 3;
                 L2 = 2 * bitRate / 8 + 3;
                 PI1 = get_PCodes(3 - 1);
                 PI2 = get_PCodes(2 - 1);
                 break;
+
+            default:
+                throw std::logic_error("Invalid EEP_A level");
         }
     }
-    else
-        if ((protLevel & (1 << 2)) != 0) {      // B series
-            switch ((protLevel & 03)) {
-                case 3:                   // actually level 4
-                    L1 = 24 * bitRate / 32 - 3;
-                    L2 = 3;
-                    PI1 = get_PCodes(2 - 1);
-                    PI2 = get_PCodes(1 - 1);
-                    break;
+    else {
+        switch (level) {
+            case 4:
+                L1 = 24 * bitRate / 32 - 3;
+                L2 = 3;
+                PI1 = get_PCodes(2 - 1);
+                PI2 = get_PCodes(1 - 1);
+                break;
 
-                case 2:                   // actually level 3
-                    L1 = 24 * bitRate / 32 - 3;
-                    L2 = 3;
-                    PI1 = get_PCodes(4 - 1);
-                    PI2 = get_PCodes(3 - 1);
-                    break;
+            case 3:
+                L1 = 24 * bitRate / 32 - 3;
+                L2 = 3;
+                PI1 = get_PCodes(4 - 1);
+                PI2 = get_PCodes(3 - 1);
+                break;
 
-                case 1:                   // actually level 2
-                    L1 = 24 * bitRate / 32 - 3;
-                    L2 = 3;
-                    PI1 = get_PCodes(6 - 1);
-                    PI2 = get_PCodes(5 - 1);
-                    break;
+            case 2:
+                L1 = 24 * bitRate / 32 - 3;
+                L2 = 3;
+                PI1 = get_PCodes(6 - 1);
+                PI2 = get_PCodes(5 - 1);
+                break;
 
-                case 0:                   // actually level 1
-                    L1 = 24 * bitRate / 32 - 3;
-                    L2 = 3;
-                    PI1 = get_PCodes(10 - 1);
-                    PI2 = get_PCodes(9 - 1);
-                    break;
-            }
+            case 1:
+                L1 = 24 * bitRate / 32 - 3;
+                L2 = 3;
+                PI1 = get_PCodes(10 - 1);
+                PI2 = get_PCodes(9 - 1);
+                break;
+
+            default:
+                throw std::logic_error("Invalid EEP_A level");
         }
+    }
 }
 
 bool EEPProtection::deconvolve(

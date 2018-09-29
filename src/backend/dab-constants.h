@@ -129,21 +129,37 @@ struct ServiceComponent {
     AudioServiceComponentType audioType(void) const;
 };
 
+enum class EEPProtectionProfile {
+    EEP_A,
+    EEP_B,
+};
+
+enum class EEPProtectionLevel {
+    EEP_1 = 1,
+    EEP_2 = 2,
+    EEP_3 = 3,
+    EEP_4 = 4,
+};
+
+struct ProtectionSettings {
+    bool     shortForm = false;
+
+    // when short-form, UEP:
+    int16_t  uepTableIndex = 0;
+    int16_t  uepLevel = 0;
+
+    // when long-form, EEP:
+    EEPProtectionProfile eepProfile = EEPProtectionProfile::EEP_A;
+    EEPProtectionLevel eepLevel = EEPProtectionLevel::EEP_3;
+};
+
 struct Subchannel {
     int32_t  subChId = -1;
     int32_t  startAddr = 0;
     int32_t  length = 0;
-    bool     shortForm = false;
     bool     programmeNotData = true;
 
-    // when short-form, UEP:
-    int16_t  tableIndex = 0;
-
-    // when long-form:
-    // Option 0: EEP-A
-    // Option 1: EEP-B
-    int32_t  protOption = 0;
-    int32_t  protLevel = 0;
+    ProtectionSettings protectionSettings;
 
     int16_t  language = 0;
 

@@ -362,29 +362,36 @@ void DABParams::setMode(int mode)
 
 int Subchannel::bitrate() const
 {
-    if (shortForm) {
-        return ProtLevel[tableIndex][2];
+    const auto& ps = protectionSettings;
+    if (ps.shortForm) {
+        return ProtLevel[ps.uepTableIndex][2];
     }
     else {  // EEP
-        if (protOption == 0) { // EEP-A
-            if (protLevel == 0)
-                return length / 12 * 8;
-            if (protLevel == 1)
-                return length / 8 * 8;
-            if (protLevel == 2)
-                return length / 6 * 8;
-            if (protLevel == 3)
-                return length / 4 * 8;
-        }
-        else { // EEP-B
-            if (protLevel == 0)
-                return length / 27 * 32;
-            if (protLevel == 1)
-                return length / 21 * 32;
-            if (protLevel == 2)
-                return length / 18 * 32;
-            if (protLevel == 3)
-                return length / 15 * 32;
+        switch (ps.eepProfile) {
+            case EEPProtectionProfile::EEP_A:
+                switch (ps.eepLevel) {
+                    case EEPProtectionLevel::EEP_1:
+                        return length / 12 * 8;
+                    case EEPProtectionLevel::EEP_2:
+                        return length / 8 * 8;
+                    case EEPProtectionLevel::EEP_3:
+                        return length / 6 * 8;
+                    case EEPProtectionLevel::EEP_4:
+                        return length / 4 * 8;
+                }
+                break;
+            case EEPProtectionProfile::EEP_B:
+                switch (ps.eepLevel) {
+                    case EEPProtectionLevel::EEP_1:
+                        return length / 27 * 32;
+                    case EEPProtectionLevel::EEP_2:
+                        return length / 21 * 32;
+                    case EEPProtectionLevel::EEP_3:
+                        return length / 18 * 32;
+                    case EEPProtectionLevel::EEP_4:
+                        return length / 15 * 32;
+                }
+                break;
         }
     }
 
@@ -393,25 +400,34 @@ int Subchannel::bitrate() const
 
 int Subchannel::numCU() const
 {
-    if (shortForm) {
-        return ProtLevel[tableIndex][0];
+    const auto& ps = protectionSettings;
+    if (ps.shortForm) {
+        return ProtLevel[ps.uepTableIndex][0];
     }
     else {
-        switch (protOption) {
-            case 0: // EEP_A:
-                switch (protLevel) {
-                    case 0: return (bitrate() * 12) >> 3;
-                    case 1: return bitrate();
-                    case 2: return (bitrate() * 6) >> 3;
-                    case 3: return (bitrate() >> 1);
+        switch (ps.eepProfile) {
+            case EEPProtectionProfile::EEP_A:
+                switch (ps.eepLevel) {
+                    case EEPProtectionLevel::EEP_1:
+                        return (bitrate() * 12) >> 3;
+                    case EEPProtectionLevel::EEP_2:
+                        return bitrate();
+                    case EEPProtectionLevel::EEP_3:
+                        return (bitrate() * 6) >> 3;
+                    case EEPProtectionLevel::EEP_4:
+                        return (bitrate() >> 1);
                 }
                 break;
-            case 1: //EEP_B:
-                switch (protLevel) {
-                    case 0: return (bitrate() * 27) >> 5;
-                    case 1: return (bitrate() * 21) >> 5;
-                    case 2: return (bitrate() * 18) >> 5;
-                    case 3: return (bitrate() * 15) >> 5;
+            case EEPProtectionProfile::EEP_B:
+                switch (ps.eepLevel) {
+                    case EEPProtectionLevel::EEP_1:
+                        return (bitrate() * 27) >> 5;
+                    case EEPProtectionLevel::EEP_2:
+                        return (bitrate() * 21) >> 5;
+                    case EEPProtectionLevel::EEP_3:
+                        return (bitrate() * 18) >> 5;
+                    case EEPProtectionLevel::EEP_4:
+                        return (bitrate() * 15) >> 5;
                 }
                 break;
         }
@@ -422,16 +438,19 @@ int Subchannel::numCU() const
 string Subchannel::protection() const
 {
     string prot;
-    if (shortForm) {
-        prot = "UEP " + to_string(tableIndex);
+    const auto& ps = protectionSettings;
+    if (ps.shortForm) {
+        prot = "UEP " + to_string(ps.uepTableIndex);
     }
     else {  // EEP
         prot = "EEP ";
-        if (protOption == 0) { // EEP-A
-            prot += to_string(protLevel+1) + "-A";
-        }
-        else {
-            prot += to_string(protLevel+1) + "-B";
+        switch (ps.eepProfile) {
+            case EEPProtectionProfile::EEP_A:
+                prot += to_string((int)ps.eepLevel) + "-A";
+                break;
+            case EEPProtectionProfile::EEP_B:
+                prot += to_string((int)ps.eepLevel) + "-B";
+                break;
         }
     }
     return prot;

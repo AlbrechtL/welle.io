@@ -79,8 +79,7 @@ bool MscHandler::addSubchannel(
                 ascty,
                 sub.length * CUSize,
                 sub.bitrate(),
-                sub.shortForm,
-                sub.protLevel,
+                sub.protectionSettings,
                 handler,
                 dumpFileName);
 

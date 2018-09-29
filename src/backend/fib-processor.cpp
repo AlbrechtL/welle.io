@@ -171,26 +171,52 @@ int16_t FIBProcessor::HandleFIG0Extension1(
     subChannels[subChId].startAddr = startAdr;
     if (getBits_1 (d, bitOffset + 16) == 0) {   // UEP, short form
         int16_t tableIx = getBits_6 (d, bitOffset + 18);
-        subChannels[subChId].tableIndex = tableIx;
-        subChannels[subChId].length     = ProtLevel[tableIx][0];
-        subChannels[subChId].shortForm  = true;
-        subChannels[subChId].protLevel  = ProtLevel[tableIx][1];
+        auto& ps = subChannels[subChId].protectionSettings;
+        ps.uepTableIndex = tableIx;
+        ps.shortForm = true;
+        ps.uepLevel = ProtLevel[tableIx][1];
+
+        subChannels[subChId].length = ProtLevel[tableIx][0];
         bitOffset += 24;
     }
     else {  // EEP, long form
-        subChannels[subChId].shortForm  = false;
+        auto& ps = subChannels[subChId].protectionSettings;
+        ps.shortForm  = false;
         int16_t option = getBits_3(d, bitOffset + 17);
-        subChannels[subChId].protOption = option;
+        if (option == 0) {
+            ps.eepProfile = EEPProtectionProfile::EEP_A;
+        }
+        else if (option == 1) {
+            ps.eepProfile = EEPProtectionProfile::EEP_B;
+        }
+
         if (option == 0 or   // EEP-A protection
             option == 1) {   // EEP-B protection
             int16_t protLevel = getBits_2(d, bitOffset + 20);
-            subChannels[subChId].protLevel = protLevel;
+            switch (protLevel) {
+                case 0:
+                    ps.eepLevel = EEPProtectionLevel::EEP_1;
+                    break;
+                case 1:
+                    ps.eepLevel = EEPProtectionLevel::EEP_2;
+                    break;
+                case 2:
+                    ps.eepLevel = EEPProtectionLevel::EEP_3;
+                    break;
+                case 3:
+                    ps.eepLevel = EEPProtectionLevel::EEP_4;
+                    break;
+                default:
+                    std::clog << "Warning, FIG0/1 for " << subChId <<
+                        " has invalid EEP protection level " << protLevel <<
+                        std::endl;
+                    break;
+            }
+
             int16_t subChanSize = getBits(d, bitOffset + 22, 10);
             subChannels[subChId].length = subChanSize;
         }
         else {
-            subChannels[subChId].protLevel = 0;
-            subChannels[subChId].length = 0;
             std::clog << "Warning, FIG0/1 for " << subChId <<
                 " has invalid protection option " << option << std::endl;
         }

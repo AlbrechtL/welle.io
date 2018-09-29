@@ -45,34 +45,36 @@ DabAudio::DabAudio(
         AudioServiceComponentType dabModus,
         int16_t fragmentSize,
         int16_t bitRate,
-        bool shortForm,
-        int16_t protLevel,
+        ProtectionSettings protection,
         ProgrammeHandlerInterface& phi,
         const std::string& dumpFileName) :
     myProgrammeHandler(phi),
     mscBuffer(64 * 32768),
     dumpFileName(dumpFileName)
 {
-    int32_t i;
     this->dabModus         = dabModus;
     this->fragmentSize     = fragmentSize;
     this->bitRate          = bitRate;
-    this->shortForm        = shortForm;
-    this->protLevel        = protLevel;
 
     outV.resize(bitRate * 24);
-    for (i = 0; i < 16; i ++) {
+    for (int i = 0; i < 16; i ++) {
         interleaveData[i].resize(fragmentSize);
     }
 
     using std::make_unique;
 
-    if (shortForm)
-        protectionHandler = make_unique<UEPProtection>(bitRate, protLevel);
-    else
-        protectionHandler = make_unique<EEPProtection>(bitRate, protLevel);
+    if (protection.shortForm) {
+        protectionHandler = make_unique<UEPProtection>(bitRate, protection.uepLevel);
+    }
+    else {
+        const bool profile_is_eep_a =
+            protection.eepProfile == EEPProtectionProfile::EEP_A;
+        protectionHandler = make_unique<EEPProtection>(
+                bitRate, profile_is_eep_a, (int)protection.eepLevel);
+    }
 
-    our_dabProcessor = make_unique<DecoderAdapter>(myProgrammeHandler, bitRate, dabModus, dumpFileName);
+    our_dabProcessor = make_unique<DecoderAdapter>(
+            myProgrammeHandler, bitRate, dabModus, dumpFileName);
 
     running = true;
     ourThread = std::thread(&DabAudio::run, this);
