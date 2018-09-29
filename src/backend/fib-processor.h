@@ -65,6 +65,14 @@ class FIBProcessor {
                 int16_t ps_flag,
                 int16_t ASCTy);
 
+        void bind_dataStreamService(
+                int8_t TMid,
+                uint32_t SId,
+                int16_t compnr,
+                int16_t subChId,
+                int16_t ps_flag,
+                int16_t DSCTy);
+
         void bind_packetService(
                 int8_t TMid,
                 uint32_t SId,

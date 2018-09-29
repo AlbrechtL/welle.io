@@ -159,7 +159,7 @@ function ensembleInfoTemplate() {
 
 function serviceTemplate() {
     var html = '<tr><td>${label} <br>(${shortlabel})</td> <td>${SId}</td> <td>${bitrate}&nbsp;kbps</td> <td>${sad_cu}</td> <td>${protection}</td>';
-    html += '<td>${samplerate}</td>';
+    html += '<td>${techdetails}</td>';
     html += '<td>${pty}</td> <td>${language}<br>${subchannel_language}</td> <td></i>${dls}</i></td>';
     html += '<td>${errorcounters}</td>';
     html += '<td><canvas id="${canvasid}" width="64" height="12"></canvas></td>';
@@ -291,20 +291,20 @@ function populateEnsembleinfo() {
                 s["subchannel_language"] = sub.languagestring;
 
                 if (sc.transportmode == "audio") {
-                    s["samplerate"] = sc.ascty + ", " +
+                    s["techdetails"] = sc.ascty + ", " +
                         service.samplerate + " Hz, " +
                         service.mode + ", " +
                         service.channels;
                 }
                 else {
-                    s["samplerate"] = sc.transportmode;
+                    s["techdetails"] = sc.transportmode + ", DSCTy=" + sc.dscty;
                 }
             }
             else {
                 s["bitrate"] = 0;
                 s["sad"] = -1;
                 s["protection"] = "?";
-                s["samplerate"] = "";
+                s["techdetails"] = "";
             }
 
             if (service.dls) {

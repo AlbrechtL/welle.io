@@ -277,19 +277,23 @@ int16_t FIBProcessor::HandleFIG0Extension2(
             uint8_t ASCTy   = getBits_6 (d, lOffset + 2);
             uint8_t SubChId = getBits_6 (d, lOffset + 8);
             uint8_t PS_flag = getBits_1 (d, lOffset + 14);
-            bind_audioService (TMid, SId, i, SubChId, PS_flag, ASCTy);
+            bind_audioService(TMid, SId, i, SubChId, PS_flag, ASCTy);
         }
-        else
-            if (TMid == 3) { // MSC packet data
-                int16_t SCId    = getBits (d, lOffset + 2, 12);
-                uint8_t PS_flag = getBits_1 (d, lOffset + 14);
-                uint8_t CA_flag = getBits_1 (d, lOffset + 15);
-                bind_packetService (TMid, SId, i, SCId, PS_flag, CA_flag);
-            }
-            else
-            {
-                // TODO
-            }
+        else if (TMid == 1) { // MSC stream data
+            uint8_t DSCTy   = getBits_6 (d, lOffset + 2);
+            uint8_t SubChId = getBits_6 (d, lOffset + 8);
+            uint8_t PS_flag = getBits_1 (d, lOffset + 14);
+            bind_dataStreamService(TMid, SId, i, SubChId, PS_flag, DSCTy);
+        }
+        else if (TMid == 3) { // MSC packet data
+            int16_t SCId    = getBits (d, lOffset + 2, 12);
+            uint8_t PS_flag = getBits_1 (d, lOffset + 14);
+            uint8_t CA_flag = getBits_1 (d, lOffset + 15);
+            bind_packetService(TMid, SId, i, SCId, PS_flag, CA_flag);
+        }
+        else {
+            // reserved
+        }
         lOffset += 16;
     }
     return lOffset / 8;     // in Bytes
@@ -938,6 +942,32 @@ void FIBProcessor::bind_audioService(
         components.push_back(newcomp);
 
         //  std::clog << "fib-processor:" << "service %8x (comp %d) is audio\n", SId, compnr) << std::endl;
+    }
+}
+
+void FIBProcessor::bind_dataStreamService(
+        int8_t TMid,
+        uint32_t SId,
+        int16_t compnr,
+        int16_t subChId,
+        int16_t ps_flag,
+        int16_t DSCTy)
+{
+    Service *s = findServiceId (SId);
+    if (std::find_if(components.begin(), components.end(),
+                [&](const ServiceComponent& sc) {
+                    return sc.SId == s->serviceId && sc.componentNr == compnr;
+                }) == components.end()) {
+        ServiceComponent newcomp;
+        newcomp.TMid         = TMid;
+        newcomp.SId          = SId;
+        newcomp.subchannelId = subChId;
+        newcomp.componentNr  = compnr;
+        newcomp.PS_flag      = ps_flag;
+        newcomp.DSCTy        = DSCTy;
+        components.push_back(newcomp);
+
+        //  std::clog << "fib-processor:" << "service %8x (comp %d) is packet\n", SId, compnr) << std::endl;
     }
 }
 
