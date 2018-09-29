@@ -257,8 +257,8 @@ function populateEnsembleinfo() {
         var start_addresses = [];
         for (key in data.services) {
             var service = data.services[key];
+            var sad_ix = {};
             if (service.components) {
-                var sad_ix = {};
                 sad_ix["sad"] = service.components[0].subchannel.sad;
             }
             else {
