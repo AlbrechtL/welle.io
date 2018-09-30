@@ -27,7 +27,7 @@
 #define CDEBUGOUTPUT_H
 
 #include <QString>
-#include "CGUIHelper.h"
+#include "gui_helper.h"
 
 class CLogStringStream;
 

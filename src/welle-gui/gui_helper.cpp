@@ -30,10 +30,10 @@
 #include <QDebug>
 #include <QSettings>
 
-#include "CDebugOutput.h"
+#include "debug_output.h"
 #include "input_factory.h"
-#include "CGUIHelper.h"
-#include "CAudio.h"
+#include "gui_helper.h"
+#include "audio_output.h"
 #include "dab-constants.h"
 #include "msc-handler.h"
 #include "version.h"

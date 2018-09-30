@@ -68,21 +68,21 @@ SOURCES += QML/*.qml \
 }
 
 HEADERS += \
-    CAudio.h \
-    CMOTImageProvider.h \
-    CRadioController.h \
-    CSplashScreen.h \
-    CDebugOutput.h \
-    CGUIHelper.h
+    audio_output.h \
+    debug_output.h \
+    gui_helper.h \
+    mot_image_provider.h \
+    radio_controller.h \
+    splash_screen.h
 
 SOURCES += \
     main.cpp \
-    CAudio.cpp \
-    CMOTImageProvider.cpp \
-    CRadioController.cpp \
-    CSplashScreen.cpp \
-    CDebugOutput.cpp \
-    CGUIHelper.cpp
+    audio_output.cpp \
+    debug_output.cpp \
+    gui_helper.cpp \
+    mot_image_provider.cpp \
+    radio_controller.cpp \
+    splash_screen.cpp
 
 android {
     QT += androidextras
@@ -92,10 +92,10 @@ android {
     CONFIG  += kiss_fft_builtin
     CONFIG  += libfaad_builtin
 
-    HEADERS      += CAndroidJNI.h
-    SOURCES      += CAndroidJNI.cpp
-    REPC_SOURCE  += CRadioController.rep
-    REPC_REPLICA += CRadioController.rep
+    HEADERS      += android_jni.h
+    SOURCES      += android_jni.cpp
+    REPC_SOURCE  += radio_controller.rep
+    REPC_REPLICA += radio_controller.rep
 }
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android

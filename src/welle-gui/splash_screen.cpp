@@ -23,7 +23,7 @@
  *
  */
 
-#include "CSplashScreen.h"
+#include "splash_screen.h"
 
 #ifndef Q_OS_ANDROID
 bool CSplashScreen::isLoad = false;

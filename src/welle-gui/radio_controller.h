@@ -40,7 +40,7 @@
 #include <QVariantMap>
 #include <mutex>
 
-#include "CAudio.h"
+#include "audio_output.h"
 #include "dab-constants.h"
 #include "radio-receiver.h"
 #include "ringbuffer.h"

@@ -133,12 +133,12 @@ set(backend_sources
 
 set(welle_io_sources
     src/welle-gui/main.cpp
-    src/welle-gui/CAudio.cpp
-    src/welle-gui/CMOTImageProvider.cpp
-    src/welle-gui/CGUIHelper.cpp
-    src/welle-gui/CRadioController.cpp
-    src/welle-gui/CDebugOutput.cpp
-    src/welle-gui/CSplashScreen.cpp
+    src/welle-gui/audio_output.cpp
+    src/welle-gui/mot_image_provider.cpp
+    src/welle-gui/gui_helper.cpp
+    src/welle-gui/radio_controller.cpp
+    src/welle-gui/debug_output.cpp
+    src/welle-gui/splash_screen.cpp
 )
 
 set(welle_cli_sources
@@ -150,25 +150,25 @@ set(welle_cli_sources
 )
 
 set(input_sources
-    src/input/CInputFactory.cpp
-    src/input/CNullDevice.cpp
-    src/input/CRAWFile.cpp
-    src/input/CRTL_TCP_Client.cpp
+    src/input/input_factory.cpp
+    src/input/null_device.cpp
+    src/input/raw_file.cpp
+    src/input/rtl_tcp.cpp
 )
 
 if(LIBRTLSDR_FOUND)
     add_definitions (-DHAVE_RTLSDR)
-    set(input_sources  ${input_sources} src/input/CRTL_SDR.cpp)
+    set(input_sources  ${input_sources} src/input/rtl_sdr.cpp)
 endif()
 
 if(LIBAIRSPY_FOUND)
     add_definitions (-DHAVE_AIRSPY)
-    set(input_sources  ${input_sources} src/input/CAirspy.cpp)
+    set(input_sources  ${input_sources} src/input/airspy.cpp)
 endif()
 
 if(SoapySDR_FOUND)
     add_definitions (-DHAVE_SOAPYSDR)
-    set(input_sources  ${input_sources} src/input/CSoapySdr.cpp)
+    set(input_sources  ${input_sources} src/input/soapy_sdr.cpp)
 endif()
 
 if(NOT GIT_COMMIT_HASH)

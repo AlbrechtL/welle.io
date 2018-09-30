@@ -30,10 +30,10 @@
 #include <QMetaObject>
 #include <android/bitmap.h>
 
-#include "CGUIHelper.h"
+#include "gui_helper.h"
 #include "input_factory.h"
-#include "CAndroidJNI.h"
-#include "CAudio.h"
+#include "android_jni.h"
+#include "audio_output.h"
 #include "rtl_tcp.h"
 #include "dab-constants.h"
 #include "msc-handler.h"

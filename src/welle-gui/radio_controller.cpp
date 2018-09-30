@@ -33,14 +33,14 @@
 #include <QDebug>
 #include <QSettings>
 
-#include "CRadioController.h"
+#include "radio_controller.h"
 #ifdef HAVE_SOAPYSDR
 #include "CSoapySdr.h"
 #endif /* HAVE_SOAPYSDR */
 #include "input_factory.h"
 #include "raw_file.h"
 #include "rtl_tcp.h"
-#include "CSplashScreen.h"
+#include "splash_screen.h"
 
 #define AUDIOBUFFERSIZE 32768
 

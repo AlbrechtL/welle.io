@@ -29,7 +29,7 @@
 #include <QDebug>
 #include <stdio.h>
 
-#include "CAudio.h"
+#include "audio_output.h"
 
 CAudioThread::CAudioThread(RingBuffer<int16_t>& buffer, QObject *parent) :
     QThread(parent),

@@ -39,13 +39,13 @@
     #include <QSystemTrayIcon>
 #endif
 
-#include "CMOTImageProvider.h"
+#include "mot_image_provider.h"
 #include "dab-constants.h"
 
 #ifdef Q_OS_ANDROID
     #include "rep_CRadioController_replica.h"
 #else
-    #include "CRadioController.h"
+    #include "radio_controller.h"
 #endif
 
 /*

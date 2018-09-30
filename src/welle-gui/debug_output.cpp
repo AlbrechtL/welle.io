@@ -23,7 +23,7 @@
  *
  */
 
-#include "CDebugOutput.h"
+#include "debug_output.h"
 
 #include <iostream>
 #include <QFile>

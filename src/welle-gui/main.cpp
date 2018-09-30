@@ -41,10 +41,10 @@
 
 #include "version.h"
 #include "dab-constants.h"
-#include "CRadioController.h"
-#include "CGUIHelper.h"
-#include "CDebugOutput.h"
-#include "CSplashScreen.h"
+#include "radio_controller.h"
+#include "gui_helper.h"
+#include "debug_output.h"
+#include "splash_screen.h"
 
 #ifdef Q_OS_ANDROID
 #include <QtAndroid>

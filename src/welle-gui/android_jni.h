@@ -28,7 +28,7 @@
 
 #include <QTimer>
 
-#include "CRadioController.h"
+#include "radio_controller.h"
 #include "CStationList.h"
 
 class CAndroidJNI : public QObject {
