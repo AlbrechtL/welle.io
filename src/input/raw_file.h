@@ -6,7 +6,7 @@
  *    Albrecht Lohofener (albrechtloh@gmx.de)
  *
  *    This file is based on SDR-J
- *    Copyright (C) 2010, 2011, 2012, 2013
+ *    Copyright (C) 2010, 2011, 2012
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
  *
  *    This file is part of the welle.io.
@@ -30,73 +30,73 @@
  *
  */
 
-#ifndef _CRTLSDR_H
-#define _CRTLSDR_H
+#ifndef __RAW_FILES
+#define __RAW_FILES
 
-#include <vector>
 #include <thread>
-#include <string>
 #include <atomic>
-#include <rtl-sdr.h>
 
-#include "CVirtualInput.h"
+#include "virtual_input.h"
 #include "dab-constants.h"
-#include "MathHelper.h"
 #include "ringbuffer.h"
 #include "radio-controller.h"
 
-// This class is a simple wrapper around the
-// rtlsdr library that is read is as dll
-// It does not do any processing
-class CRTL_SDR : public CVirtualInput {
+// Enum of available input device
+enum class CRAWFileFormat {U8, S8, S16LE, S16BE, COMPLEXF, Unknown};
+
+class CRAWFile : public CVirtualInput {
 public:
-    CRTL_SDR(RadioControllerInterface& radioController);
-    ~CRTL_SDR(void);
+    CRAWFile(RadioControllerInterface& radioController,
+            bool throttle = true,
+            bool rewind = true);
+    ~CRAWFile(void);
 
     // Interface methods
+    void setFrequency(int Frequency);
+    int getFrequency(void) const;
+    int32_t getSamples(DSPCOMPLEX*, int32_t);
+    std::vector<DSPCOMPLEX> getSpectrumSamples(int size);
+    int32_t getSamplesToRead(void);
     bool restart(void);
     void stop(void);
     void reset(void);
-    int32_t getSamples(DSPCOMPLEX *buffer, int32_t size);
-    std::vector<DSPCOMPLEX> getSpectrumSamples(int size);
-    int32_t getSamplesToRead(void);
-    void setFrequency(int Frequency);
-    int getFrequency(void) const;
+    void rewind(void);
     float getGain(void) const;
-    float setGain(int gain_index);
+    float setGain(int Gain);
     int getGainCount(void);
     void setAgc(bool AGC);
     void setHwAgc(bool hwAGC);
-    bool isHwAgcSupported() const;
     std::string getName(void);
     CDeviceID getID(void);
 
+    // Specific methods
+    void setFileName(const std::string& FileName, const std::string& FileFormat);
+    std::string getFileName(void) const;
+
+    bool endWasReached() const { return endReached; }
+
 private:
-    std::thread agcThread;
     RadioControllerInterface& radioController;
-    int lastFrequency = kHz(94700);
-    int frequencyOffset = 0;
-    int currentGain = 0;
-    bool isAGC = false;
-    bool isHwAGC = false;
-    std::thread rtlsdrThread;
-    void rtlsdr_read_async_wrapper(void);
-    std::atomic<bool> rtlsdrRunning = ATOMIC_VAR_INIT(false);
+    bool throttle;
+    bool autoRewind;
+    std::string fileName;
+    CRAWFileFormat fileFormat;
+    uint8_t IQByteSize;
 
-    bool open = false;
-    std::vector<int> gains;
-    int currentGainIndex = 0;
-    uint8_t minAmplitude = 255;
-    uint8_t maxAmplitude = 0;
+    void run(void);
+    int32_t readBuffer(uint8_t*, int32_t);
+    int32_t convertSamples(RingBuffer<uint8_t>& Buffer, DSPCOMPLEX* V, int32_t size);
 
-    void AGCTimer(void);
+    RingBuffer<uint8_t> SampleBuffer;
+    RingBuffer<uint8_t> SpectrumSampleBuffer;
+    FILE* filePointer = nullptr;
+    bool readerOK = false;
+    bool readerPausing = false;
+    bool endReached = false;
+    std::atomic<bool> ExitCondition;
+    int64_t currPos = 0;
 
-    RingBuffer<uint8_t> sampleBuffer;
-    RingBuffer<uint8_t> spectrumSampleBuffer;
-    struct rtlsdr_dev *device = nullptr;
-    int32_t sampleCounter = 0;
-
-    static void RTLSDRCallBack(uint8_t* buf, uint32_t len, void *ctx);
+    std::thread thread;
 };
 
 #endif

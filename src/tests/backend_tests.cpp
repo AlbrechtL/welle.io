@@ -35,7 +35,7 @@
 #include <cstdio>
 
 #include "radio-receiver.h"
-#include "CRAWFile.h"
+#include "raw_file.h"
 
 class TestRadioInterface : public RadioControllerInterface {
     public:

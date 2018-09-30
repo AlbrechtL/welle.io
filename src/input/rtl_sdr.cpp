@@ -32,7 +32,7 @@
 
 #include <iostream>
 
-#include "CRTL_SDR.h"
+#include "rtl_sdr.h"
 
 #define READLEN_DEFAULT 8192
 

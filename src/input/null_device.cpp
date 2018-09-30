@@ -23,7 +23,7 @@
  *
  */
 
-#include "CNullDevice.h"
+#include "null_device.h"
 
 CNullDevice::CNullDevice()
 {

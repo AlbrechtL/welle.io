@@ -28,7 +28,7 @@
 
 #include <atomic>
 #include <thread>
-#include "CVirtualInput.h"
+#include "virtual_input.h"
 #include "ringbuffer.h"
 #include <SoapySDR/Version.hpp>
 #include <SoapySDR/Modules.hpp>

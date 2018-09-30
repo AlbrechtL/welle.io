@@ -37,9 +37,9 @@
 #ifdef HAVE_SOAPYSDR
 #include "CSoapySdr.h"
 #endif /* HAVE_SOAPYSDR */
-#include "CInputFactory.h"
-#include "CRAWFile.h"
-#include "CRTL_TCP_Client.h"
+#include "input_factory.h"
+#include "raw_file.h"
+#include "rtl_tcp.h"
 #include "CSplashScreen.h"
 
 #define AUDIOBUFFERSIZE 32768

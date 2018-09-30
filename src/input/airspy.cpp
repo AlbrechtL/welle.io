@@ -33,7 +33,7 @@
 */
 
 #include <iostream>
-#include "CAirspy.h"
+#include "airspy.h"
 
 static const int EXTIO_NS = 8192;
 static const int EXTIO_BASE_TYPE_SIZE = sizeof(float);

@@ -32,7 +32,7 @@
 
 #include "tests.h"
 #include "backend/radio-receiver.h"
-#include "CRAWFile.h"
+#include "raw_file.h"
 #include <algorithm>
 #include <numeric>
 #include <random>

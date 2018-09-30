@@ -50,8 +50,8 @@
 #include "welle-cli/webradiointerface.h"
 #include "welle-cli/tests.h"
 #include "backend/radio-receiver.h"
-#include "input/CInputFactory.h"
-#include "input/CRAWFile.h"
+#include "input/input_factory.h"
+#include "input/raw_file.h"
 #include "various/channels.h"
 #include "libs/json.hpp"
 extern "C" {

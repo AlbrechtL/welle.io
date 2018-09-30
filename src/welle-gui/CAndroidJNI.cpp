@@ -31,10 +31,10 @@
 #include <android/bitmap.h>
 
 #include "CGUIHelper.h"
-#include "CInputFactory.h"
+#include "input_factory.h"
 #include "CAndroidJNI.h"
 #include "CAudio.h"
-#include "CRTL_TCP_Client.h"
+#include "rtl_tcp.h"
 #include "dab-constants.h"
 #include "msc-handler.h"
 

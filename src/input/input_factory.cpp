@@ -28,17 +28,17 @@
 
 #include <iostream>
 
-#include "CInputFactory.h"
-#include "CNullDevice.h"
-#include "CRTL_TCP_Client.h"
-#include "CRAWFile.h"
+#include "input_factory.h"
+#include "null_device.h"
+#include "rtl_tcp.h"
+#include "raw_file.h"
 
 #ifdef HAVE_RTLSDR
-#include "CRTL_SDR.h"
+#include "rtl_sdr.h"
 #endif
 
 #ifdef HAVE_AIRSPY
-#include "CAirspy.h"
+#include "airspy.h"
 #endif
 
 #ifdef HAVE_SOAPYSDR

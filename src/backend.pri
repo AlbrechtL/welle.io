@@ -120,11 +120,6 @@ HEADERS += \
     $$PWD/various/channels.h \
     $$PWD/various/wavfile.h \
     $$PWD/various/Socket.h \
-    $$PWD/input/CVirtualInput.h \
-    $$PWD/input/CInputFactory.h \
-    $$PWD/input/CNullDevice.h \
-    $$PWD/input/CRAWFile.h \
-    $$PWD/input/CRTL_TCP_Client.h \
     $$PWD/various/MathHelper.h \
     $$PWD/libs/fec/char.h \
     $$PWD/libs/fec/decode_rs.h \
@@ -132,7 +127,12 @@ HEADERS += \
     $$PWD/libs/fec/fec.h \
     $$PWD/libs/fec/init_rs.h \
     $$PWD/libs/fec/rs_common.h \
-    $$PWD/backend/decoder_adapter.h
+    $$PWD/backend/decoder_adapter.h \
+    $$PWD/input/input_factory.h \
+    $$PWD/input/null_device.h \
+    $$PWD/input/raw_file.h \
+    $$PWD/input/virtual_input.h \
+    $$PWD/input/rtl_tcp.h
 
 SOURCES += \
     $$PWD/backend/dab-audio.cpp \
@@ -162,14 +162,14 @@ SOURCES += \
     $$PWD/various/fft.cpp \
     $$PWD/various/wavfile.c \
     $$PWD/various/Socket.cpp \
-    $$PWD/input/CInputFactory.cpp \
-    $$PWD/input/CNullDevice.cpp \
-    $$PWD/input/CRAWFile.cpp \
-    $$PWD/input/CRTL_TCP_Client.cpp \
     $$PWD/libs/fec/encode_rs_char.c \
     $$PWD/libs/fec/decode_rs_char.c \
     $$PWD/libs/fec/init_rs_char.c \
-    $$PWD/backend/decoder_adapter.cpp
+    $$PWD/backend/decoder_adapter.cpp \
+    $$PWD/input/input_factory.cpp \
+    $$PWD/input/null_device.cpp \
+    $$PWD/input/raw_file.cpp \
+    $$PWD/input/rtl_tcp.cpp
 
 
 #### Built-in libraries ####
@@ -311,8 +311,8 @@ libfaad_builtin {
 #### Devices ####
 airspy {
     DEFINES    += HAVE_AIRSPY
-    HEADERS    += $$PWD/input/CAirspy.h
-    SOURCES    += $$PWD/input/CAirspy.cpp
+    HEADERS    += $$PWD/input/airspy.h
+    SOURCES    += $$PWD/input/airspy.cpp
 
     # The same lib for unix and Windows
     LIBS       += -lairspy
@@ -320,8 +320,8 @@ airspy {
 
 rtl_sdr {
     DEFINES    += HAVE_RTLSDR
-    HEADERS    += $$PWD/input/CRTL_SDR.h
-    SOURCES    += $$PWD/input/CRTL_SDR.cpp
+    HEADERS    += $$PWD/input/rtl_sdr.h
+    SOURCES    += $$PWD/input/rtl_sdr.cpp
 
     # The same lib for unix and Windows
     LIBS       += -lrtlsdr
@@ -329,8 +329,8 @@ rtl_sdr {
 
 soapysdr {
     DEFINES    += HAVE_SOAPYSDR
-    HEADERS    += $$PWD/input/CSoapySdr.h
-    SOURCES    += $$PWD/input/CSoapySdr.cpp
+    HEADERS    += $$PWD/input/soapy_sdr.h
+    SOURCES    += $$PWD/input/soapy_sdr.cpp
 
     # The same lib for unix and Windows
     LIBS       += -lSoapySDR

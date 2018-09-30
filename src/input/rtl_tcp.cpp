@@ -31,7 +31,7 @@
  */
 
 #include <iostream>
-#include "CRTL_TCP_Client.h"
+#include "rtl_tcp.h"
 
 // commands are packed in 5 bytes, one "command byte"
 // and an integer parameter

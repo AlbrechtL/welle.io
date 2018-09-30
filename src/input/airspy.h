@@ -1,6 +1,14 @@
 /*
+ *    Copyright (C) 2018
+ *    Matthias P. Braendli (matthias.braendli@mpb.li)
+ *
  *    Copyright (C) 2017
  *    Albrecht Lohofener (albrechtloh@gmx.de)
+ *
+ *    This file is based on SDR-J
+ *    Copyright 2015 by Andrea Montefusco IW0HDV
+ *    Copyright (C) 2010, 2011, 2012, 2013
+ *    Jan van Katwijk (J.vanKatwijk@gmail.com)
  *
  *    This file is part of the welle.io.
  *    Many of the ideas as implemented in welle.io are derived from
@@ -17,23 +25,36 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
  *
- *    You should have received a copy of the GNU General Public License
+ *    You should have received a copy of the GNU General Public License 3.0+
  *    along with welle.io; if not, write to the Free Software
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- */
+ *
+*/
+#ifndef __AIRSPY_RADIO__
+#define __AIRSPY_RADIO__
 
-#ifndef CNULLDEVICE_H
-#define CNULLDEVICE_H
+#include "virtual_input.h"
+#include "dab-constants.h"
+#include "MathHelper.h"
+#include "ringbuffer.h"
 
-#include "CVirtualInput.h"
+#include <vector>
 
-class CNullDevice : public CVirtualInput
-{
+#ifndef __MINGW32__
+#include "libairspy/airspy.h"
+#else
+#include "airspy.h"
+#endif
+
+class CAirspy : public CVirtualInput {
 public:
-    CNullDevice();
+    CAirspy();
+    ~CAirspy(void);
+    CAirspy(const CAirspy&) = delete;
+    CAirspy& operator=(const CAirspy&) = delete;
 
-    void setFrequency(int Frequency);
+    void setFrequency(int nf);
     int getFrequency(void) const;
     bool restart(void);
     void stop(void);
@@ -42,12 +63,32 @@ public:
     std::vector<DSPCOMPLEX> getSpectrumSamples(int size);
     int32_t getSamplesToRead(void);
     float getGain(void) const;
-    float setGain(int Gain);
+    float setGain(int gain);
     int getGainCount(void);
-    void setAgc(bool AGC);
+    void setAgc(bool agc);
     void setHwAgc(bool hwAGC);
     std::string getName(void);
     CDeviceID getID(void);
+
+private:
+    const int AIRSPY_SAMPLERATE = 4096000;
+
+    const int AIRSPY_GAIN_MIN = 0;
+    const int AIRSPY_GAIN_MAX = 21;
+
+    bool running = false;
+    int freq = 0;
+
+    size_t num_frames = 0;
+
+    bool sw_agc = false;
+    int currentLinearityGain = 10;
+    RingBuffer<DSPCOMPLEX> SampleBuffer;
+    RingBuffer<DSPCOMPLEX> SpectrumSampleBuffer;
+    struct airspy_device *device;
+
+    static int callback(airspy_transfer_t*);
+    int data_available(const DSPCOMPLEX* buf, size_t num_samples);
 };
 
-#endif // CNULLDEVICE_H
+#endif

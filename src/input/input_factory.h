@@ -5,10 +5,6 @@
  *    Copyright (C) 2017
  *    Albrecht Lohofener (albrechtloh@gmx.de)
  *
- *    This file is based on SDR-J
- *    Copyright (C) 2010, 2011, 2012
- *    Jan van Katwijk (J.vanKatwijk@gmail.com)
- *
  *    This file is part of the welle.io.
  *    Many of the ideas as implemented in welle.io are derived from
  *    other work, made available through the GNU general Public License.
@@ -30,22 +26,22 @@
  *
  */
 
-#include "input/input_factory.h"
-#include "radio-receiver-options.h"
-#include <memory>
+#ifndef CINPUTFACTORY_H
+#define CINPUTFACTORY_H
 
-class Tests {
-    public:
-        Tests(std::unique_ptr<CVirtualInput>& input_interface,
-                RadioReceiverOptions rro);
+#include <string>
 
-        void run_test(int test_id);
+#include "virtual_input.h"
+#include "radio-controller.h"
 
-    private:
-        void test_with_noise();
-        void test_with_noise_iteration(double stddev);
-        void test_multipath(int test_id);
+class CInputFactory
+{
+public:
+    static CVirtualInput* GetDevice(RadioControllerInterface& RadioController, const std::string& Device);
 
-        std::unique_ptr<CVirtualInput>& input_interface;
-        RadioReceiverOptions rro;
+private:
+    static CVirtualInput* GetAutoDevice(RadioControllerInterface& RadioController);
+    static CVirtualInput* GetManualDevice(RadioControllerInterface& RadioController, const std::string& Device);
 };
+
+#endif // CINPUTFACTORY_H

@@ -39,7 +39,7 @@
 #include <time.h>
 #include <unistd.h>
 
-#include "CRAWFile.h"
+#include "raw_file.h"
 
 static inline int64_t getMyTime(void)
 {

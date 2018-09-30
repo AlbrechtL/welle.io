@@ -40,7 +40,7 @@
 #include "phasereference.h"
 #include "ofdm-decoder.h"
 #include "tii-decoder.h"
-#include "CVirtualInput.h"
+#include "virtual_input.h"
 #include "fft.h"
 #include "radio-controller.h"
 #include "radio-receiver-options.h"

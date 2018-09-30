@@ -38,7 +38,7 @@
 #include <thread>
 #include <mutex>
 #include "Socket.h"
-#include "CVirtualInput.h"
+#include "virtual_input.h"
 #include "dab-constants.h"
 #include "MathHelper.h"
 #include "ringbuffer.h"

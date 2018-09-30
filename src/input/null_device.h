@@ -1,7 +1,4 @@
 /*
- *    Copyright (C) 2018
- *    Matthias P. Braendli (matthias.braendli@mpb.li)
- *
  *    Copyright (C) 2017
  *    Albrecht Lohofener (albrechtloh@gmx.de)
  *
@@ -26,22 +23,31 @@
  *
  */
 
-#ifndef CINPUTFACTORY_H
-#define CINPUTFACTORY_H
+#ifndef CNULLDEVICE_H
+#define CNULLDEVICE_H
 
-#include <string>
+#include "virtual_input.h"
 
-#include "CVirtualInput.h"
-#include "radio-controller.h"
-
-class CInputFactory
+class CNullDevice : public CVirtualInput
 {
 public:
-    static CVirtualInput* GetDevice(RadioControllerInterface& RadioController, const std::string& Device);
+    CNullDevice();
 
-private:
-    static CVirtualInput* GetAutoDevice(RadioControllerInterface& RadioController);
-    static CVirtualInput* GetManualDevice(RadioControllerInterface& RadioController, const std::string& Device);
+    void setFrequency(int Frequency);
+    int getFrequency(void) const;
+    bool restart(void);
+    void stop(void);
+    void reset(void);
+    int32_t getSamples(DSPCOMPLEX* Buffer, int32_t Size);
+    std::vector<DSPCOMPLEX> getSpectrumSamples(int size);
+    int32_t getSamplesToRead(void);
+    float getGain(void) const;
+    float setGain(int Gain);
+    int getGainCount(void);
+    void setAgc(bool AGC);
+    void setHwAgc(bool hwAGC);
+    std::string getName(void);
+    CDeviceID getID(void);
 };
 
-#endif // CINPUTFACTORY_H
+#endif // CNULLDEVICE_H

@@ -29,7 +29,7 @@
 #include <iostream>
 #include <cassert>
 #include <SoapySDR/Errors.hpp>
-#include "CSoapySdr.h"
+#include "soapy_sdr.h"
 #include "dab-constants.h"
 #include "unistd.h"
 

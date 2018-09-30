@@ -31,7 +31,7 @@
 #include <QSettings>
 
 #include "CDebugOutput.h"
-#include "CInputFactory.h"
+#include "input_factory.h"
 #include "CGUIHelper.h"
 #include "CAudio.h"
 #include "dab-constants.h"
