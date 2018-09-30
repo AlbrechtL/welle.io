@@ -23,8 +23,8 @@
  *
  */
 
-#ifndef MP2PROCESSOR
-#define MP2PROCESSOR
+#ifndef DECODER_ADAPTER_H
+#define DECODER_ADAPTER_H
 
 #include <memory>
 #include <vector>
@@ -76,5 +76,5 @@ class DecoderAdapter: public DabProcessor, public SubchannelSinkObserver, public
         int audioChannels = 0;
         std::string audioFormat;
 };
-#endif
+#endif // DECODER_ADAPTER_H
 
