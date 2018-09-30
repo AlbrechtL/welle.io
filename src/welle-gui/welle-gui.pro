@@ -72,8 +72,7 @@ HEADERS += \
     debug_output.h \
     gui_helper.h \
     mot_image_provider.h \
-    radio_controller.h \
-    splash_screen.h
+    radio_controller.h
 
 SOURCES += \
     main.cpp \
@@ -81,8 +80,7 @@ SOURCES += \
     debug_output.cpp \
     gui_helper.cpp \
     mot_image_provider.cpp \
-    radio_controller.cpp \
-    splash_screen.cpp
+    radio_controller.cpp
 
 android {
     QT += androidextras

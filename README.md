@@ -64,7 +64,6 @@ Parameter | Description
 --dump-file | Records DAB frames (*.mp2) or DAB+ superframes with RS coding (*.dab). This file can be used to analyse X-PAD data with XPADxpert (https://www.basicmaster.de/xpadxpert).
 --log-file | Log file name. Redirects all log output texts to a file.
 --language | Sets the GUI language according to the ISO country codes e.g. de_DE
---disable-splash | Disables the splash screen.
 
 
 Example usage:

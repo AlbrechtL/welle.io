@@ -138,7 +138,6 @@ set(welle_io_sources
     src/welle-gui/gui_helper.cpp
     src/welle-gui/radio_controller.cpp
     src/welle-gui/debug_output.cpp
-    src/welle-gui/splash_screen.cpp
 )
 
 set(welle_cli_sources

@@ -40,7 +40,6 @@
 #include "input_factory.h"
 #include "raw_file.h"
 #include "rtl_tcp.h"
-#include "splash_screen.h"
 
 #define AUDIOBUFFERSIZE 32768
 
@@ -581,7 +580,6 @@ void CRadioController::onEventLoopStarted()
         rawFileFormat = commandLineOptions["rawFileFormat"].toString();
 
     // Init device
-    CSplashScreen::ShowMessage(tr("Init radio receiver"));
     device.reset(CInputFactory::GetDevice(*this, dabDevice.toStdString()));
 
     // Set rtl_tcp settings
@@ -618,8 +616,6 @@ void CRadioController::onEventLoopStarted()
 #endif /* HAVE_SOAPYSDR */
 
     initialise();
-
-    CSplashScreen::Close();
 }
 
 void CRadioController::setErrorMessage(QString Text)

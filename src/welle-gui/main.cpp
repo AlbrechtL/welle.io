@@ -44,7 +44,6 @@
 #include "radio_controller.h"
 #include "gui_helper.h"
 #include "debug_output.h"
-#include "splash_screen.h"
 
 #ifdef Q_OS_ANDROID
 #include <QtAndroid>
@@ -195,19 +194,8 @@ int main(int argc, char** argv)
         QCoreApplication::translate("main", "Language"));
     optionParser.addOption(Language);
 
-    QCommandLineOption DisableSplash("disable-splash",
-        QCoreApplication::translate("main", "Disables the splash screen."));
-    optionParser.addOption(DisableSplash);
-
     //	Process the actual command line arguments given by the user
     optionParser.process(app);
-
-    bool isDisableSplash = optionParser.isSet(DisableSplash);
-    if (!isDisableSplash)
-    {
-        CSplashScreen::Show();
-        CSplashScreen::ShowMessage(QCoreApplication::translate("main","Starting welle.io"));
-    }
 
     // First of all process the log file
     QString LogFileNameValue = optionParser.value(LogFileName);
