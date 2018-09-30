@@ -126,14 +126,14 @@ HEADERS += \
     $$PWD/libs/fec/encode_rs.h \
     $$PWD/libs/fec/fec.h \
     $$PWD/libs/fec/init_rs.h \
-    $$PWD/libs/fec/rs_common.h \
+    $$PWD/libs/fec/rs-common.h \
     $$PWD/backend/decoder_adapter.h \
     $$PWD/input/input_factory.h \
     $$PWD/input/null_device.h \
     $$PWD/input/raw_file.h \
     $$PWD/input/virtual_input.h \
     $$PWD/input/rtl_tcp.h
-
+	
 SOURCES += \
     $$PWD/backend/dab-audio.cpp \
     $$PWD/backend/dab_decoder.cpp \
@@ -311,8 +311,8 @@ libfaad_builtin {
 #### Devices ####
 airspy {
     DEFINES    += HAVE_AIRSPY
-    HEADERS    += $$PWD/input/airspy.h
-    SOURCES    += $$PWD/input/airspy.cpp
+    HEADERS    += $$PWD/input/airspy_sdr.h
+    SOURCES    += $$PWD/input/airspy_sdr.cpp
 
     # The same lib for unix and Windows
     LIBS       += -lairspy

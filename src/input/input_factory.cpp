@@ -38,7 +38,7 @@
 #endif
 
 #ifdef HAVE_AIRSPY
-#include "airspy.h"
+#include "airspy_sdr.h"
 #endif
 
 #ifdef HAVE_SOAPYSDR
