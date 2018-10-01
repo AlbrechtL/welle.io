@@ -176,34 +176,19 @@ void WebRadioInterface::retune(const std::string& channel)
     }
 
     cerr << "Retune to " << freq << endl;
+
+    cerr << "Kill programme handler" << freq << endl;
+    running = false;
+    if (programme_handler_thread.joinable()) {
+        programme_handler_thread.join();
+    }
+
+    cerr << "Take ownership of RX" << endl;
     {
         unique_lock<mutex> lock(rx_mut);
 
         cerr << "Destroy RX" << endl;
         rx.reset();
-
-        for (auto& ph : phs) {
-            cerr << "Cancel ph " << ph.first << endl;
-            ph.second.cancelAll();
-        }
-
-        for (auto& ph : phs) {
-            cerr << "Wait on ph " << ph.first << endl;
-            while (ph.second.needsToBeDecoded() and
-                    programmes_being_decoded[ph.first]) {
-                phs_changed.wait_for(lock, chrono::seconds(1));
-            }
-        }
-
-        this_thread::sleep_for(chrono::seconds(2));
-
-        cerr << "Clearing" << endl;
-
-        phs.clear();
-        programmes_being_decoded.clear();
-        tiis.clear();
-        carousel_services_active.clear();
-        carousel_services_available.clear();
 
         cerr << "Set frequency" << endl;
         input.setFrequency(freq);
@@ -217,6 +202,9 @@ void WebRadioInterface::retune(const std::string& channel)
         }
 
         rx->restart(false);
+
+        cerr << "Start programme handler" << endl;
+        programme_handler_thread = thread(&WebRadioInterface::handle_phs, this);
     }
 }
 
@@ -420,6 +408,9 @@ bool WebRadioInterface::send_mux_json(Socket& s)
 
     {
         lock_guard<mutex> lock(rx_mut);
+        if (!rx) {
+            return false;
+        }
         const auto ensembleLabel = rx->getEnsembleLabel();
         j["ensemble"]["label"] = ensembleLabel.utf8_label();
         j["ensemble"]["shortlabel"] = ensembleLabel.utf8_shortlabel();
@@ -1005,6 +996,11 @@ void WebRadioInterface::handle_phs()
         lock.unlock();
         check_decoders_required();
     }
+
+    phs.clear();
+    programmes_being_decoded.clear();
+    carousel_services_available.clear();
+    carousel_services_active.clear();
 }
 
 
