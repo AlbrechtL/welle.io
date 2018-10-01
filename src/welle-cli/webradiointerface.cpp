@@ -998,6 +998,19 @@ void WebRadioInterface::handle_phs()
         check_decoders_required();
     }
 
+    {
+        unique_lock<mutex> lock(rx_mut);
+        if (rx) {
+            for (auto& s : rx->getServiceList()) {
+                const auto sid = s.serviceId;
+                const bool is_decoded = programmes_being_decoded[sid];
+                if (is_decoded) {
+                    (void)rx->removeServiceToDecode(s);
+                }
+            }
+        }
+    }
+
     phs.clear();
     programmes_being_decoded.clear();
     carousel_services_available.clear();
