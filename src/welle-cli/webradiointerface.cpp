@@ -204,6 +204,7 @@ void WebRadioInterface::retune(const std::string& channel)
         rx->restart(false);
 
         cerr << "Start programme handler" << endl;
+        running = true;
         programme_handler_thread = thread(&WebRadioInterface::handle_phs, this);
     }
 }
