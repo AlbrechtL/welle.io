@@ -35,7 +35,7 @@
 
 #include "radio_controller.h"
 #ifdef HAVE_SOAPYSDR
-#include "CSoapySdr.h"
+#include "soapy_sdr.h"
 #endif /* HAVE_SOAPYSDR */
 #include "input_factory.h"
 #include "raw_file.h"

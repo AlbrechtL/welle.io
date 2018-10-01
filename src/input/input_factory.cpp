@@ -42,7 +42,7 @@
 #endif
 
 #ifdef HAVE_SOAPYSDR
-#include "CSoapySdr.h"
+#include "soapy_sdr.h"
 #endif
 
 CVirtualInput *CInputFactory::GetDevice(RadioControllerInterface& radioController, const std::string& device)

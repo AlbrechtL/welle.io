@@ -162,7 +162,7 @@ endif()
 
 if(LIBAIRSPY_FOUND)
     add_definitions (-DHAVE_AIRSPY)
-    set(input_sources  ${input_sources} src/input/airspy.cpp)
+    set(input_sources  ${input_sources} src/input/airspy_sdr.cpp)
 endif()
 
 if(SoapySDR_FOUND)

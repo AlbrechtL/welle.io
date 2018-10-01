@@ -42,7 +42,7 @@
 #include <cstdio>
 #include <unistd.h>
 #ifdef HAVE_SOAPYSDR
-#  include "CSoapySdr.h"
+#  include "soapy_sdr.h"
 #endif
 #if defined(HAVE_ALSA)
 #  include "welle-cli/alsa-output.h"
