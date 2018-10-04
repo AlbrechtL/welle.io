@@ -82,12 +82,6 @@ ApplicationWindow {
     width: getWidth()
     height: getHeight()
 
-    onWidthChanged: {
-        // Set drawer width to half of windows width
-        if(moveDrawer.x > width)
-            moveDrawer.x = width / 2;
-    }
-
     visibility: isFullScreen ? Window.FullScreen : Window.Windowed
 
     Component.onCompleted: {
@@ -103,16 +97,11 @@ ApplicationWindow {
             mainWindow.width = getWidth()
             mainWindow.height = getHeight()
         }
-
-        // Set drawer width to half of windows width if it is not defined
-        if(moveDrawer.x === 0)
-            moveDrawer.x = mainWindow.width / 2;
     }
 
     Settings {
         property alias width : mainWindow.width
         property alias height : mainWindow.height
-        property alias leftDrawerWidth: moveDrawer.x
         property alias stationListSerialize: stationList.serialized
         property alias favoritsListSerialize: favoritsList.serialized
         property alias stationListBoxIndex: stationListBox.currentIndex
@@ -149,7 +138,7 @@ ApplicationWindow {
             Label {
                 id: titleLabel
                 text: "welle.io"
-                font.pixelSize: 20
+                font.pixelSize: Units.dp(20)
                 elide: Label.ElideRight
                 horizontalAlignment: Qt.AlignHCenter
                 verticalAlignment: Qt.AlignVCenter
@@ -194,7 +183,7 @@ ApplicationWindow {
         id: stationDrawer
 
         y: overlayHeader.height
-        width: moveDrawer.x
+        width: mainWindow.width < 1.5 * implicitWidth ? mainWindow.width : implicitWidth * 1.2
         height: mainWindow.height - overlayHeader.height
 
         modal: inPortrait
@@ -211,78 +200,78 @@ ApplicationWindow {
             anchors.fill: parent
 
             RowLayout {
-              ComboBox {
-                  id: stationListBox
-                  font.pixelSize: TextStyle.textStandartSize
-                  font.family: TextStyle.textFont
-                  background: Rectangle { color: "white" }
-                  Layout.preferredWidth: Units.dp(200)
+                ComboBox {
+                    id: stationListBox
+                    font.pixelSize: TextStyle.textStandartSize
+                    font.family: TextStyle.textFont
+                    background: Rectangle { color: "white" }
+                    Layout.preferredWidth: Units.dp(200)
 
-                  model:  [qsTr("All stations"), qsTr("Favorites")]
-                  onCurrentIndexChanged: {
-                      switch(currentIndex) {
-                      case 0: stationChannelView.model = stationList; break;
-                      case 1: stationChannelView.model = favoritsList; break;
-                      }
-                  }
-              }
+                    model:  [qsTr("All stations"), qsTr("Favorites")]
+                    onCurrentIndexChanged: {
+                        switch(currentIndex) {
+                        case 0: stationChannelView.model = stationList; break;
+                        case 1: stationChannelView.model = favoritsList; break;
+                        }
+                    }
+                }
 
-              Item { // Dummy element for filling
-                  Layout.fillWidth: true
-              }
+                Item { // Dummy element for filling
+                    Layout.fillWidth: true
+                }
 
-              Button {
-                  text: qsTr("⋮")
-                  font.pixelSize: TextStyle.textHeadingSize
-                  font.family: TextStyle.textFont
-                  flat: true
-                  onClicked: stationMenu.open()
-                  implicitWidth: contentItem.implicitWidth + Units.dp(15)
+                Button {
+                    text: qsTr("⋮")
+                    font.pixelSize: TextStyle.textHeadingSize
+                    font.family: TextStyle.textFont
+                    flat: true
+                    onClicked: stationMenu.open()
+                    implicitWidth: contentItem.implicitWidth + Units.dp(15)
 
-                  Menu {
-                      id: stationMenu
+                    Menu {
+                        id: stationMenu
 
-                      MenuItem {
-                          id: startStationScanItem
-                          text: qsTr("Start station scan")
-                          font.pixelSize: TextStyle.textStandartSize
-                          font.family: TextStyle.textFont
-                          onTriggered:  {
-                              startStationScanItem.enabled = false
-                              stopStationScanItem.enabled = true
-                              radioController.startScan()
-                          }
-                      }
+                        MenuItem {
+                            id: startStationScanItem
+                            text: qsTr("Start station scan")
+                            font.pixelSize: TextStyle.textStandartSize
+                            font.family: TextStyle.textFont
+                            onTriggered:  {
+                                startStationScanItem.enabled = false
+                                stopStationScanItem.enabled = true
+                                radioController.startScan()
+                            }
+                        }
 
-                      MenuItem {
-                          id: stopStationScanItem
-                          text: qsTr("Stop station scan")
-                          font.pixelSize: TextStyle.textStandartSize
-                          font.family: TextStyle.textFont
-                          enabled: false
-                          onTriggered:  {
-                              startStationScanItem.enabled = true
-                              stopStationScanItem.enabled = false
-                              radioController.stopScan()
-                          }
-                      }
+                        MenuItem {
+                            id: stopStationScanItem
+                            text: qsTr("Stop station scan")
+                            font.pixelSize: TextStyle.textStandartSize
+                            font.family: TextStyle.textFont
+                            enabled: false
+                            onTriggered:  {
+                                startStationScanItem.enabled = true
+                                stopStationScanItem.enabled = false
+                                radioController.stopScan()
+                            }
+                        }
 
-                      MenuItem {
-                          text: qsTr("Clear station list")
-                          font.pixelSize: TextStyle.textStandartSize
-                          font.family: TextStyle.textFont
-                          onTriggered: stationList.clearStations()
-                      }
+                        MenuItem {
+                            text: qsTr("Clear station list")
+                            font.pixelSize: TextStyle.textStandartSize
+                            font.family: TextStyle.textFont
+                            onTriggered: stationList.clearStations()
+                        }
 
-                      MenuItem {
-                          id: stationSettingsItem
-                          text: qsTr("Station settings")
-                          font.pixelSize: TextStyle.textStandartSize
-                          font.family: TextStyle.textFont
-                          onTriggered: stationSettingsDialog.open()
-                      }
-                  }
-              }
+                        MenuItem {
+                            id: stationSettingsItem
+                            text: qsTr("Station settings")
+                            font.pixelSize: TextStyle.textStandartSize
+                            font.family: TextStyle.textFont
+                            onTriggered: stationSettingsDialog.open()
+                        }
+                    }
+                }
             }
 
             TextStandart {
@@ -292,28 +281,28 @@ ApplicationWindow {
             }
 
             ListView {
-               id: stationChannelView
-               model: stationList
-               Layout.fillWidth: true
-               Layout.fillHeight: true
-               clip: true
-               delegate: StationDelegate {
-                   stationNameText: stationName
-                   stationSIdValue: stationSId
-                   channelNameText: channelName
-                   isFavorit: favorit
-                   isExpert: isExpertView
-                   onClicked: radioController.play(channelName, stationName)
-                   onFavoritClicked: {
-                       var favoritInvert = !favorit
-                       stationList.setFavorit(stationSId, favoritInvert) // Invert favorit
+                id: stationChannelView
+                model: stationList
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                clip: true
+                delegate: StationDelegate {
+                    stationNameText: stationName
+                    stationSIdValue: stationSId
+                    channelNameText: channelName
+                    isFavorit: favorit
+                    isExpert: isExpertView
+                    onClicked: radioController.play(channelName, stationName)
+                    onFavoritClicked: {
+                        var favoritInvert = !favorit
+                        stationList.setFavorit(stationSId, favoritInvert) // Invert favorit
 
-                       if(favoritInvert)
-                           favoritsList.addStation(stationName, stationSId, channelName, true)
-                       else
-                           favoritsList.removeStation(stationSId);
-                   }
-               }
+                        if(favoritInvert)
+                            favoritsList.addStation(stationName, stationSId, channelName, true)
+                        else
+                            favoritsList.removeStation(stationSId);
+                    }
+                }
 
                 ScrollIndicator.vertical: ScrollIndicator { }
             }
@@ -353,25 +342,6 @@ ApplicationWindow {
                 }
             }
         }
-
-        // Make it possible to change the drawers width
-        Rectangle {
-            id: moveDrawer
-            width: Units.dp(5)
-            height: parent.height
-//          color: "red"
-//          border.color: "red"
-            opacity: 0
-
-            MouseArea {
-                anchors.fill: parent
-                cursorShape : Qt.SizeHorCursor
-                drag.target: moveDrawer
-                drag.axis: Drag.XAxis
-                drag.minimumX: 0
-                drag.maximumX: mainWindow.width
-            }
-        }
     }
 
     Flickable {
@@ -379,86 +349,71 @@ ApplicationWindow {
         anchors.fill: parent
         anchors.leftMargin: (!inPortrait && stationDrawer.opened) ? stationDrawer.width: undefined
 
-        function setContentHeight() {
-            contentHeight = stackView.currentItem.implicitHeight > parent.height ? stackView.currentItem.implicitHeight : parent.height
+        GeneralView {
+            id: generalView
+            isExpert: isExpertView
+            isPortrait: inPortrait
         }
+    }
 
-        onHeightChanged: setContentHeight()
-        onWidthChanged: setContentHeight()
-        Component.onCompleted: setContentHeight()
+    RoundButton {
+        text: "\u002b" // Unicode character '+'
+        onClicked: viewMenu.open()
+        x: parent.width - width - Units.dp(5)
+        y: parent.height - height - Units.dp(5)
+        visible: isExpertView
+        palette.button: "darkorange"
 
-        ScrollBar.vertical: ScrollBar { }
+        Menu {
+            id: viewMenu
+            transformOrigin: Menu.TopRight
 
-        StackView {
-            id: stackView
-            anchors.fill: parent
-            anchors.margins: Units.dp(10)
+            MenuItem {
+                text: qsTr("Service Overview")
+                font.pixelSize: TextStyle.textStandartSize
+                onTriggered: generalView.addComponent("qrc:/QML/RadioView.qml")
+            }
 
-            // Implements back key navigation
-            focus: true
+            MenuItem {
+                text: qsTr("MOT Slide Show")
+                font.pixelSize: TextStyle.textStandartSize
+                onTriggered: generalView.addComponent("qrc:/QML/MotView.qml")
+            }
 
-            initialItem: Item {
-                id: firstItem
-                // Necessary for Flickable
-                implicitHeight: isExpertView ?
-                                    inPortrait ?
-                                        expertView.implicitHeight + columnLayout.implicitHeight :
-                                        expertView.implicitHeight
-                                    : undefined
+            MenuItem {
+                text: qsTr("Service Information")
+                font.pixelSize: TextStyle.textStandartSize
+                onTriggered: generalView.addComponent("qrc:/QML/expertviews/StationInformation.qml")
+            }
 
-                GridLayout {
-                    id: gridLayout
-                    anchors.fill: parent
-                    flow: inPortrait ? GridLayout.TopToBottom : GridLayout.LeftToRight
-                    columnSpacing: Units.dp(10)
-                    rowSpacing: Units.dp(10)
+            MenuItem {
+                text: qsTr("Spectrum")
+                font.pixelSize: TextStyle.textStandartSize
+                onTriggered: generalView.addComponent("qrc:/QML/expertviews/SpectrumGraph.qml")
+            }
 
-                    ColumnLayout {
-                        id: columnLayout
-                        Layout.alignment: Qt.AlignTop
+            MenuItem {
+                text: qsTr("Impulse Response")
+                font.pixelSize: TextStyle.textStandartSize
+                onTriggered: generalView.addComponent("qrc:/QML/expertviews/ImpulseResponseGraph.qml")
+            }
 
-                        // Radio information
-                        RadioView {
-                            id: radioView
-                            Layout.fillWidth: (!isExpertView || inPortrait) ? true : false
-                        }
+            MenuItem {
+                text: qsTr("Constellation Diagram")
+                font.pixelSize: TextStyle.textStandartSize
+                onTriggered: generalView.addComponent("qrc:/QML/expertviews/ConstellationGraph.qml")
+            }
 
-                        // MOT image
-                        Rectangle {
-                           id: motImageRec
-                           Layout.preferredWidth: Units.dp(320)
-                           Layout.preferredHeight: width * 0.75
-                           Layout.maximumWidth: Layout.preferredWidth * 2
-                           Layout.fillWidth: (!isExpertView || inPortrait) ? true : false
+            MenuItem {
+                text: qsTr("Null Symbol")
+                font.pixelSize: TextStyle.textStandartSize
+                onTriggered: generalView.addComponent("qrc:/QML/expertviews/NullSymbolGraph.qml")
+            }
 
-                           Image {
-                               id: motImage
-                               anchors.fill: parent
-                               fillMode: Image.PreserveAspectFit
-
-                               Connections{
-                                   target: guiHelper
-                                   onMotChanged:{
-                                       motImage.source = "image://motslideshow/image_" + Math.random()
-
-                                   }
-                               }
-                           }
-                        }
-                    }
-
-                    ExpertView{
-                        id: expertView
-                        visible: isExpertView
-
-                        enableStationInfoDisplay : expertSettingsLoader.item.enableStationInfoDisplayState
-                        enableSpectrumDisplay : expertSettingsLoader.item.enableSpectrumDisplayState
-                        enableImpulseResponseDisplay : expertSettingsLoader.item.enableImpulseResponseDisplayState
-                        enableConstellationDisplay : expertSettingsLoader.item.enableConstellationDisplayState
-                        enableNullSymbolDisplay : expertSettingsLoader.item.enableNullSymbolDisplayState
-                        enableConsoleOutput : expertSettingsLoader.item.enableConsoleOutputState
-                    }
-                }
+            MenuItem {
+                text: qsTr("Console Output")
+                font.pixelSize: TextStyle.textStandartSize
+                onTriggered: generalView.addComponent("qrc:/QML/expertviews/TextOutputView.qml")
             }
         }
     }
@@ -535,7 +490,7 @@ ApplicationWindow {
             interval: 1 * 5000 // 5 s
             repeat: false
             onTriggered: {
-              infoMessagePopup.close()
+                infoMessagePopup.close()
             }
         }
     }

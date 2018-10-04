@@ -1,7 +1,6 @@
 import QtQuick 2.2
-import QtQuick.Controls 2.0
+import QtQuick.Controls 2.4
 import QtQuick.Layouts 1.1
-import Qt.labs.settings 1.0
 
 // Import custom styles
 import "texts"
@@ -15,43 +14,61 @@ Item {
     Layout.fillWidth: true
     Layout.fillHeight: true
 
-    property bool enableStationInfoDisplay: true
-    property bool enableSpectrumDisplay: true
-    property bool enableImpulseResponseDisplay: false
-    property bool enableConstellationDisplay: false
-    property bool enableNullSymbolDisplay: false
-    property bool enableConsoleOutput: false
-
-
     GridLayout {
         id: layout
-        anchors.fill: parent
+        anchors.top: parent.top
         flow: GridLayout.LeftToRight
         columns: (parent.width / Units.dp(400)).toFixed(0)
 
-        StationInformation {
-            Layout.alignment: Qt.AlignTop
-            visible: enableStationInfoDisplay
-        }
+//        RoundButton {
+//            text: "\u002b" // Unicode character '+'
+//            onClicked: optionsMenu.open()
 
-        SpectrumGraph {
-            visible: enableSpectrumDisplay
-        }
+//            Menu {
+//                id: optionsMenu
+//                transformOrigin: Menu.TopRight
 
-        ImpulseResponseGraph {
-            visible: enableImpulseResponseDisplay
-        }
+//                MenuItem {
+//                    text: qsTr("Service Information")
+//                    font.pixelSize: TextStyle.textStandartSize
+//                    onTriggered: __addComponent("qrc:/QML/expertviews/StationInformation.qml")
+//                }
 
-        ConstellationGraph {
-            visible: enableConstellationDisplay
-        }
+//                MenuItem {
+//                    text: qsTr("Spectrum")
+//                    font.pixelSize: TextStyle.textStandartSize
+//                    onTriggered: __addComponent("qrc:/QML/expertviews/SpectrumGraph.qml")
+//                }
 
-        NullSymbolGraph {
-            visible: enableNullSymbolDisplay
-        }
+//                MenuItem {
+//                    text: qsTr("Impulse Response")
+//                    font.pixelSize: TextStyle.textStandartSize
+//                    onTriggered: __addComponent("qrc:/QML/expertviews/ImpulseResponseGraph.qml")
+//                }
 
-        TextOutputView {
-            visible: enableConsoleOutput
-        }
+//                MenuItem {
+//                    text: qsTr("Constellation Diagram")
+//                    font.pixelSize: TextStyle.textStandartSize
+//                    onTriggered: __addComponent("qrc:/QML/expertviews/ConstellationGraph.qml")
+//                }
+
+//                MenuItem {
+//                    text: qsTr("Null Symbol")
+//                    font.pixelSize: TextStyle.textStandartSize
+//                    onTriggered: __addComponent("qrc:/QML/expertviews/NullSymbolGraph.qml")
+//                }
+
+//                MenuItem {
+//                    text: qsTr("Console Output")
+//                    font.pixelSize: TextStyle.textStandartSize
+//                    onTriggered: __addComponent("qrc:/QML/expertviews/TextOutputView.qml")
+//                }
+//            }
+//        }
+    }
+
+    function __addComponent(path) {
+        var component = Qt.createComponent(path);
+        var object = component.createObject(layout);
     }
 }

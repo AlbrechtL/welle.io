@@ -49,7 +49,10 @@ DISTFILES +=    ../../README.md \
     QML/expertviews/NullSymbolGraph.qml \
     QML/expertviews/SpectrumGraph.qml \
     QML/expertviews/TextOutputView.qml \
-    QML/components/StationListModel.qml
+    QML/components/StationListModel.qml \
+    QML/MotView.qml \
+    QML/components/ViewBaseFrame.qml \
+    QML/GeneralView.qml
 
 TRANSLATIONS = i18n/de_DE.ts \
     i18n/it_IT.ts \

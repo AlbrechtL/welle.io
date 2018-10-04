@@ -2,26 +2,20 @@ import QtQuick 2.0
 import QtCharts 2.1
 import QtQuick.Layouts 1.1
 
-
 // Import custom styles
 import "../texts"
 import "../components"
 
-Item {
-    Layout.fillWidth: true
-    Layout.fillHeight: true
-    Layout.preferredWidth: Units.dp(400)
-    Layout.preferredHeight: Units.dp(400)
+ViewBaseFrame {
+    labelText: qsTr("Spectrum")
 
-    ChartView {
+    content: ChartView {
         id: chart
         anchors.fill: parent
-
         animationOptions: ChartView.NoAnimation
         theme: ChartView.ChartThemeLight
         backgroundColor: "#00000000"
         legend.visible: false
-        title: qsTr("Spectrum")
 
         property real maxYAxis: 0
 

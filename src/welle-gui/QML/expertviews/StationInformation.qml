@@ -1,17 +1,17 @@
 import QtQuick 2.2
-import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.1
 
 // Import custom styles
 import "../texts"
 import "../components"
 
-Item {
-     Layout.preferredHeight: layout.height
-     Layout.preferredWidth: layout.width
 
-    ColumnLayout {
-        id: layout
+ViewBaseFrame {
+    labelText: qsTr("Service Information")
+
+    content: ColumnLayout {
+        anchors.fill: parent
+        Layout.margins: Units.dp(50)
 
         TextExpert {
             name: qsTr("Device") + ":"
@@ -97,4 +97,3 @@ Item {
         }
     }
 }
-

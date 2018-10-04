@@ -13,12 +13,6 @@ Item {
 
     Settings {
         property alias enableExpertModeState : enableExpertMode.checked
-        property alias enableStationInfoDisplayState: enableStationInfoDisplay.checked
-        property alias enableSpectrumDisplayState: enableSpectrumDisplay.checked
-        property alias enableImpulseResponseDisplayState: enableImpulseResponseDisplay.checked
-        property alias enableConstellationDisplayState: enableConstellationDisplay.checked
-        property alias enableNullSymbolDisplayState: enableNullSymbolDisplay.checked
-        property alias enableConsoleOutputState: enableConsoleOutput.checked
         property alias disableCoarseState: disableCoarse.checked
         property alias enableDecodeTIIState: enableDecodeTII.checked
         property alias enableOldFFTWindowState: enableOldFFTWindow.checked
@@ -26,12 +20,6 @@ Item {
     }
 
     property alias enableExpertModeState : enableExpertMode.checked
-    property alias enableStationInfoDisplayState : enableStationInfoDisplay.checked
-    property alias enableSpectrumDisplayState: enableSpectrumDisplay.checked
-    property alias enableImpulseResponseDisplayState: enableImpulseResponseDisplay.checked
-    property alias enableConstellationDisplayState: enableConstellationDisplay.checked
-    property alias enableNullSymbolDisplayState: enableNullSymbolDisplay.checked
-    property alias enableConsoleOutputState: enableConsoleOutput.checked
 
     ColumnLayout{
         id: layout
@@ -48,46 +36,6 @@ Item {
             SettingSwitch {
                 id: enableExpertMode
                 text: qsTr("Expert mode")
-                checked: false
-            }
-        }
-
-        SettingSection {
-            text: qsTr("Views")
-            enabled: enableExpertMode.checked
-
-            SettingSwitch {
-                id: enableStationInfoDisplay
-                text: qsTr("Display station info")
-                checked: true
-            }
-
-            SettingSwitch {
-                id: enableSpectrumDisplay
-                text: qsTr("Display spectrum")
-                checked: true
-            }
-
-            SettingSwitch {
-                id: enableImpulseResponseDisplay
-                text: qsTr("Display impulse response")
-                checked: false
-            }
-
-            SettingSwitch {
-                id: enableConstellationDisplay
-                text: qsTr("Display constellation diagram")
-                checked: false
-            }
-
-            SettingSwitch {
-                id: enableNullSymbolDisplay
-                text: qsTr("Display null symbol")
-                checked: false
-            }
-            SettingSwitch {
-                id: enableConsoleOutput
-                text: qsTr("Display debug console")
                 checked: false
             }
         }

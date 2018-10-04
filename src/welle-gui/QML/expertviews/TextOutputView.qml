@@ -7,16 +7,12 @@ import QtQuick.Layouts 1.1
 import "../texts"
 import "../components"
 
-Item {
-    Layout.fillWidth: true
-    Layout.fillHeight: true
-    Layout.preferredWidth: Units.dp(400)
-    Layout.preferredHeight: Units.dp(400)
+ViewBaseFrame {
+    labelText: qsTr("Console Output")
 
-    Rectangle {
+    content:  Rectangle {
         color: "black"
         anchors.fill: parent
-
         Flickable {
             id: flick
             anchors.fill: parent

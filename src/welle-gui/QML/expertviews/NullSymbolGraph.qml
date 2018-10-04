@@ -6,21 +6,16 @@ import QtQuick.Layouts 1.1
 import "../texts"
 import "../components"
 
-Item {
-    Layout.fillWidth: true
-    Layout.fillHeight: true
-    Layout.preferredWidth: Units.dp(400)
-    Layout.preferredHeight: Units.dp(400)
+ViewBaseFrame {
+    labelText: qsTr("Null Symbol")
 
-    ChartView {
+    content: ChartView {
         id: chart
         anchors.fill: parent
-
         animationOptions: ChartView.NoAnimation
         theme: ChartView.ChartThemeLight
         backgroundColor: "#00000000"
         legend.visible: false
-        title: qsTr("Null Symbol")
 
         property real maxYAxis: 0
 

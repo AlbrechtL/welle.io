@@ -6,10 +6,11 @@ import QtQuick.Controls 2.3
 import "texts"
 import "components"
 
-Item{
-    Layout.preferredWidth: Units.dp(320)
-    Layout.minimumWidth: Units.dp(150)
-    Layout.preferredHeight: Units.dp(180)
+ViewBaseFrame {
+    labelText: qsTr("Radio")
+
+//    Layout.minimumHeight: Units.dp(150)
+    Layout.maximumHeight: Units.dp(230)
 
     TextRadioInfo {
         anchors.top: parent.top
@@ -153,8 +154,6 @@ Item{
         id: stationInfo
         anchors.bottom: parent.bottom
         anchors.bottomMargin: Units.dp(5)
-        Layout.fillWidth : true
-        Layout.fillHeight: true
         width: parent.width
 
         TextRadioInfo {
