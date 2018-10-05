@@ -87,16 +87,13 @@ SOURCES += \
 
 android {
     QT += androidextras
-    QT += remoteobjects
-    LIBS += -ljnigraphics
+#    QT += remoteobjects
+#    LIBS += -ljnigraphics
 
-    CONFIG  += kiss_fft_builtin
-    CONFIG  += libfaad_builtin
-
-    HEADERS      += android_jni.h
-    SOURCES      += android_jni.cpp
-    REPC_SOURCE  += radio_controller.rep
-    REPC_REPLICA += radio_controller.rep
+#    HEADERS      += android_jni.h
+#    SOURCES      += android_jni.cpp
+#    REPC_SOURCE  += radio_controller.rep
+#    REPC_REPLICA += radio_controller.rep
 }
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android

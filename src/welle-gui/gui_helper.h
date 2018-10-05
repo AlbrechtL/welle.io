@@ -42,11 +42,11 @@
 #include "mot_image_provider.h"
 #include "dab-constants.h"
 
-#ifdef Q_OS_ANDROID
-    #include "rep_CRadioController_replica.h"
-#else
+//#ifdef Q_OS_ANDROID
+//    #include "rep_radio_controller_replica.h"
+//#else
     #include "radio_controller.h"
-#endif
+//#endif
 
 /*
  *	GThe main gui object. It inherits from
@@ -61,11 +61,11 @@ public:
     static QTranslator* addTranslator(QString Language,
                                       QTranslator *OldTranslator = nullptr);
 
-#ifdef Q_OS_ANDROID
-    CGUIHelper(CRadioControllerReplica *RadioController, QObject* parent = nullptr);
-#else
+//#ifdef Q_OS_ANDROID
+//    CGUIHelper(CRadioControllerReplica *RadioController, QObject* parent = nullptr);
+//#else
     CGUIHelper(CRadioController *radioController, QObject* parent = nullptr);
-#endif
+//#endif
     ~CGUIHelper();
     Q_INVOKABLE void registerSpectrumSeries(QAbstractSeries* series);
     Q_INVOKABLE void registerImpulseResonseSeries(QAbstractSeries* series);
@@ -82,11 +82,11 @@ public:
     CMOTImageProvider* motImage; // ToDo: Must be a getter
 
 private:
-#ifdef Q_OS_ANDROID
-    CRadioControllerReplica *radioController;
-#else
+//#ifdef Q_OS_ANDROID
+//    CRadioControllerReplica *radioController;
+//#else
     CRadioController *radioController;
-#endif
+//#endif
 
     QXYSeries* spectrumSeries;
     QVector<QPointF> spectrumSeriesData;
@@ -116,9 +116,9 @@ public slots:
     void close();
 
 private slots:
-#ifdef Q_OS_ANDROID
-    void stateChanged(QRemoteObjectReplica::State state, QRemoteObjectReplica::State oldState);
-#endif
+//#ifdef Q_OS_ANDROID
+//    void stateChanged(QRemoteObjectReplica::State state, QRemoteObjectReplica::State oldState);
+//#endif
     void deviceClosed();
     void motUpdate(QImage motImage);
     void showErrorMessage(QString Text);

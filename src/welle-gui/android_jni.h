@@ -29,7 +29,7 @@
 #include <QTimer>
 
 #include "radio_controller.h"
-#include "CStationList.h"
+//#include "CStationList.h"
 
 class CAndroidJNI : public QObject {
     Q_OBJECT
@@ -66,7 +66,7 @@ public:
 private:
     CAndroidJNI(QObject* parent = NULL);
     CRadioController *mRadioController;
-    CStationList mFavoriteList;
+//    CStationList mFavoriteList;
     void addStation(QString station, QString channel);
     void addFavoriteStation(QString station, QString channel);
     void removeFavoriteStation(QString station, QString channel);

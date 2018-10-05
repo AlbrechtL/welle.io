@@ -47,9 +47,10 @@
 
 #ifdef Q_OS_ANDROID
 #include <QtAndroid>
-#include <QAndroidJniObject>
-#include "CAndroidJNI.h"
-#include "rep_CRadioController_replica.h"
+//#include <QAndroidService>
+//#include <QAndroidJniObject>
+//#include "android_jni.h"
+//#include "rep_radio_controller_replica.h"
 #endif
 
 int main(int argc, char** argv)
@@ -67,42 +68,42 @@ int main(int argc, char** argv)
     // Handle debug output
     CDebugOutput::init();
 
-#ifdef Q_OS_ANDROID
+//#ifdef Q_OS_ANDROID
 
-    //  Process Android Service
-    if (argc == 2 && qstrcmp(argv[1], "-S") == 0) {
-        qDebug() << "main:" <<  "Run as service, pid:" << QCoreApplication::applicationPid();
+//    //  Process Android Service
+//    if (argc == 2 && qstrcmp(argv[1], "-S") == 0) {
+//        qDebug() << "main:" <<  "Run as service, pid:" << QCoreApplication::applicationPid();
 
-        // Create new QT core application
-        QCoreApplication app(argc, argv);
+//        // Create new QT core application
+//        QAndroidService app(argc, argv);
 
-        // Default values
-        DABParams dabparams(1);
-        QVariantMap commandLineOptions;
+//        // Default values
+//        DABParams dabparams(1);
+//        QVariantMap commandLineOptions;
 
-        // Create a new radio interface instance
-        CRadioController* radioController = new CRadioController(commandLineOptions, dabparams);
+//        // Create a new radio interface instance
+//        CRadioController* radioController = new CRadioController(commandLineOptions, dabparams);
 
-        // Enable remoting source
-        QRemoteObjectHost srcNode(QUrl(QStringLiteral("local:replica")));
-        srcNode.enableRemoting(radioController);
+//        // Enable remoting source
+//        QRemoteObjectHost srcNode(QUrl(QStringLiteral("local:replica")));
+//        srcNode.enableRemoting(radioController);
 
-        CAndroidJNI::getInstance().setRadioController(radioController);
+//        CAndroidJNI::getInstance().setRadioController(radioController);
 
-        // Run application
-        app.exec();
+//        // Run application
+//        app.exec();
 
-        // Delete the RadioController controller to ensure a save shutdown
-        delete radioController;
+//        // Delete the RadioController controller to ensure a save shutdown
+//        delete radioController;
 
-        qDebug() << "main:" <<  "Service closed";
+//        qDebug() << "main:" <<  "Service closed";
 
-        return 0;
-    } else {
-        qDebug() << "main:" <<  "Run as application, pid:" << QCoreApplication::applicationPid();
-    }
+//        return 0;
+//    } else {
+//        qDebug() << "main:" <<  "Run as application, pid:" << QCoreApplication::applicationPid();
+//    }
 
-#endif
+//#endif
 
     // Before printing anything, we set
     setlocale(LC_ALL, "");
@@ -220,22 +221,22 @@ int main(int argc, char** argv)
         dabparams.setMode(Mode);
     }
 
-#ifdef Q_OS_ANDROID
+//#ifdef Q_OS_ANDROID
 
-    // Start background service
-    QAndroidJniObject::callStaticMethod<void>("io/welle/welle/DabDelegate",
-                                              "startDab",
-                                              "(Landroid/content/Context;)V",
-                                              QtAndroid::androidActivity().object());
+//    // Start background service
+//    QAndroidJniObject::callStaticMethod<void>("io/welle/welle/DabDelegate",
+//                                              "startDab",
+//                                              "(Landroid/content/Context;)V",
+//                                              QtAndroid::androidActivity().object());
 
-    // Create a radio interface replica and connect to source
-    QRemoteObjectNode repNode;
-    repNode.connectToNode(QUrl(QStringLiteral("local:replica")));
-    CRadioControllerReplica* RadioController = repNode.acquire<CRadioControllerReplica>();
-    bool res = RadioController->waitForSource();
-    Q_ASSERT(res);
+//    // Create a radio interface replica and connect to source
+//    QRemoteObjectNode repNode;
+//    repNode.connectToNode(QUrl(QStringLiteral("local:replica")));
+//    CRadioControllerReplica* radioController = repNode.acquire<CRadioControllerReplica>();
+//    bool res = radioController->waitForSource();
+//    Q_ASSERT(res);
 
-#else
+//#else
 
     QVariantMap commandLineOptions;
     commandLineOptions["dabDevice"] = optionParser.value(InputOption);
@@ -254,7 +255,7 @@ int main(int argc, char** argv)
     CRadioController* radioController = new CRadioController(commandLineOptions, dabparams);
     QTimer::singleShot(0, radioController, SLOT(onEventLoopStarted())); // The timer is used to signal if the QT event lopp is running
 
-#endif
+//#endif
 
 
     QSettings settings;
@@ -264,7 +265,7 @@ int main(int argc, char** argv)
 
         QStringList lastStation = settings.value("lastchannel").toStringList();
         if( lastStation.count() == 2 )
-            radioController->setAutoPlay( lastStation[1], lastStation[0]);
+            radioController->setAutoPlay(lastStation[1], lastStation[0]);
     }
 
     CGUIHelper *guiHelper = new CGUIHelper(radioController);

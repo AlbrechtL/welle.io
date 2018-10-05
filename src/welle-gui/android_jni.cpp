@@ -52,7 +52,7 @@ JNIEXPORT void JNICALL Java_io_welle_welle_DabService_setLanguage(JNIEnv *env, j
     QString language(env->GetStringUTFChars(jLang, 0));
     qDebug() << "AndroidJNI:" <<  "setLanguage" << ":" << language;
 
-    CGUI::AddTranslator(language);
+    CGUIHelper::addTranslator(language);
 }
 
 JNIEXPORT void JNICALL Java_io_welle_welle_DabService_openTcpConnection(JNIEnv *env, jobject, jstring host, jint port)
@@ -198,7 +198,7 @@ CAndroidJNI& CAndroidJNI::getInstance()
 CAndroidJNI::CAndroidJNI(QObject *parent)
     : QObject(parent)
     , mRadioController(NULL)
-    , mFavoriteList("favorite")
+//    , mFavoriteList("favorite")
 {
     qDebug() << "AndroidJNI:" <<  "Created";
 }
@@ -238,17 +238,17 @@ void CAndroidJNI::setRadioController(CRadioController *radioController)
 
     // Get stations
     clearStations();
-    foreach (StationElement *s, mRadioController->stations()) {
-        addStation(s->getStationName(), s->getChannelName());
-    }
+//    foreach (StationElement *s, mRadioController->stations()) {
+//        addStation(s->getStationName(), s->getChannelName());
+//    }
 
     // Read favorite stations from settings
     clearFavoriteStations();
-    mFavoriteList.reset();
-    mFavoriteList.loadStations();
-    foreach (StationElement *s, mFavoriteList.getList()) {
-        addFavoriteStation(s->getStationName(), s->getChannelName());
-    }
+//    mFavoriteList.reset();
+//    mFavoriteList.loadStations();
+//    foreach (StationElement *s, mFavoriteList.getList()) {
+//        addFavoriteStation(s->getStationName(), s->getChannelName());
+//    }
 
     // Update GUI data
     //ToDo updateGuiData(mRadioController->guiData());
@@ -262,7 +262,7 @@ bool CAndroidJNI::openTcpConnection(QString host, int port)
     qDebug() << "AndroidJNI:" <<  "Open TCP connection:" << host << ":" << port;
     if(mRadioController) {
         CRTL_TCP_Client *device = new CRTL_TCP_Client(*mRadioController);
-        device->setIP(host);
+        device->setIP(host.toStdString());
         device->setPort(port);
         mRadioController->openDevice(device);
         return true;
@@ -284,21 +284,22 @@ bool CAndroidJNI::isFavoriteStation(QString station, QString channel)
 {
     qDebug() << "AndroidJNI:" <<  "Is favorite station:" << station
              << "channel:" << channel;
-    return mFavoriteList.contains(station, channel);
+//    return mFavoriteList.contains(station, channel);
+    return false;
 }
 
 void CAndroidJNI::setFavoriteStation(QString station, QString channel, bool value)
 {
     qDebug() << "AndroidJNI:" <<  "Set favorite station:" << station
              << "channel:" << channel << "value:" << value;
-    if (value) {
-        mFavoriteList.append(station, channel);
-        addFavoriteStation(station, channel);
-    } else {
-        mFavoriteList.remove(station, channel);
-        removeFavoriteStation(station, channel);
-    }
-    mFavoriteList.saveStations();
+//    if (value) {
+//        mFavoriteList.append(station, channel);
+//        addFavoriteStation(station, channel);
+//    } else {
+//        mFavoriteList.remove(station, channel);
+//        removeFavoriteStation(station, channel);
+//    }
+//    mFavoriteList.saveStations();
 }
 
 void CAndroidJNI::startChannelScan(void)

@@ -44,11 +44,11 @@
 #define AUDIOBUFFERSIZE 32768
 
 CRadioController::CRadioController(QVariantMap& commandLineOptions, DABParams& params, QObject *parent)
-#ifdef Q_OS_ANDROID
-    : CRadioControllerSource(parent)
-#else
+//#ifdef Q_OS_ANDROID
+//    : CRadioControllerSource(parent)
+//#else
     : QObject(parent)
-#endif
+//#endif
     , commandLineOptions(commandLineOptions)
     , dabparams(params)
     , audioBuffer(2 * AUDIOBUFFERSIZE)
