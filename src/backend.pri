@@ -55,11 +55,11 @@ macx {
 android {
     CONFIG  += kiss_fft_builtin
     CONFIG  += libfaad_builtin
+    CONFIG  += mpg123_builtin
 }
 
-
 DEPENDPATH += \
-    .. \
+    $$PWD \
     $$PWD/backend \
     $$PWD/audio \
     $$PWD/data \
@@ -69,7 +69,7 @@ DEPENDPATH += \
     $$PWD/libs/fec
 
 INCLUDEPATH += \
-    .. \
+    $$PWD \
     $$PWD/backend \
     $$PWD/audio \
     $$PWD/data \
@@ -306,6 +306,41 @@ libfaad_builtin {
     $$PWD/libs/faad2/libfaad/ssr_ipqf.c \
     $$PWD/libs/faad2/libfaad/syntax.c \
     $$PWD/libs/faad2/libfaad/tns.c
+}
+
+mpg123_builtin {
+#    DEFINES   += MPG123
+    DEFINES += OPT_GENERIC
+
+    INCLUDEPATH += $$PWD/libs/mpg123
+
+    HEADERS    += \
+    $$PWD/libs/mpg123/mpg123.h
+
+    SOURCES    += \
+    $$PWD/libs/mpg123/compat.c \
+    $$PWD/libs/mpg123/parse.c \
+    $$PWD/libs/mpg123/frame.c \
+    $$PWD/libs/mpg123/format.c \
+    $$PWD/libs/mpg123/dct64.c \
+    $$PWD/libs/mpg123/equalizer.c \
+    $$PWD/libs/mpg123/id3.c \
+    $$PWD/libs/mpg123/icy.c \
+    $$PWD/libs/mpg123/icy2utf8.c \
+    $$PWD/libs/mpg123/optimize.c \
+    $$PWD/libs/mpg123/readers.c \
+    $$PWD/libs/mpg123/tabinit.c \
+    $$PWD/libs/mpg123/libmpg123.c \
+    $$PWD/libs/mpg123/index.c \
+    $$PWD/libs/mpg123/layer1.c \
+    $$PWD/libs/mpg123/layer2.c \
+    $$PWD/libs/mpg123/layer3.c \
+    $$PWD/libs/mpg123/dither.c \
+    $$PWD/libs/mpg123/feature.c \
+    $$PWD/libs/mpg123/synth.c \
+    $$PWD/libs/mpg123/ntom.c \
+    $$PWD/libs/mpg123/synth_8bit.c \
+    $$PWD/libs/mpg123/stringbuf.c
 }
 
 #### Devices ####
