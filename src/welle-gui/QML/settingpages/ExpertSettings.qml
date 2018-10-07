@@ -51,6 +51,8 @@ Item {
                 onCheckedChanged: {
                     radioController.disableCoarseCorrector(checked)
                 }
+
+                Component.onCompleted: radioController.disableCoarseCorrector(checked)
             }
 
             RowLayout {
@@ -63,6 +65,8 @@ Item {
                     onCurrentIndexChanged: {
                         radioController.setFreqSyncMethod(currentIndex)
                     }
+
+                    Component.onCompleted: radioController.setFreqSyncMethod(currentIndex)
                 }
 
                 TextStandart {
@@ -77,6 +81,8 @@ Item {
                 onCheckedChanged: {
                     radioController.enableTIIDecode(checked)
                 }
+
+                Component.onCompleted: radioController.enableTIIDecode(checked)
             }
 
             SettingSwitch {
@@ -86,6 +92,8 @@ Item {
                 onCheckedChanged: {
                     radioController.enableOldFFTWindowPlacement(checked)
                 }
+
+                Component.onCompleted: radioController.enableOldFFTWindowPlacement(checked)
             }
         }
     }

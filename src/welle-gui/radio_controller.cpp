@@ -32,6 +32,7 @@
 
 #include <QDebug>
 #include <QSettings>
+#include <stdexcept>
 
 #include "radio_controller.h"
 #ifdef HAVE_SOAPYSDR
@@ -93,9 +94,11 @@ void CRadioController::openDevice(CVirtualInput *new_device)
 {
     if (device) {
         closeDevice();
+        device.reset(new_device);
+        initialise();
     }
-    device.reset(new_device);
-    initialise();
+    else
+        throw std::runtime_error("device is null in file " + std::string(__FILE__) +":"+ std::to_string(__LINE__));
 }
 
 
@@ -124,6 +127,8 @@ void CRadioController::stop()
     if (device) {
         device->stop();
     }
+    else
+        throw std::runtime_error("device is null in file " + std::string(__FILE__) +":"+ std::to_string(__LINE__));
 
     audio.reset();
 }
@@ -297,6 +302,7 @@ void CRadioController::setHwAGC(bool isHwAGC)
         device->setHwAgc(isHwAGC);
         qDebug() << "RadioController:" << (isHwAGC ? "HwAGC on" : "HwAGC off");
     }
+
     emit hwAgcChanged(isHwAGC);
 }
 
@@ -315,6 +321,7 @@ void CRadioController::setAGC(bool isAGC)
             qDebug() << "RadioController:" <<  "AGC on";
         }
     }
+
     emit agcChanged(isAGC);
 }
 
