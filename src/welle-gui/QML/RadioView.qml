@@ -7,6 +7,7 @@ import "texts"
 import "components"
 
 ViewBaseFrame {
+    id: frame
     labelText: qsTr("Service Overview")
 
 //    Layout.minimumHeight: Units.dp(150)
@@ -23,9 +24,10 @@ ViewBaseFrame {
     Button {
         anchors.top: parent.top
         anchors.right: parent.right
-        anchors.topMargin: Units.dp(-10) // ToDo Hack!
+        anchors.topMargin: Units.dp(-20) // ToDo Hack!
+        anchors.rightMargin: Units.dp(-10) // ToDo Hack!
 
-        background: Rectangle { } // Hack to disable the pressed color
+        background: Rectangle { opacity: 0} // Hack to disable the pressed color
         checkable: true
         flat: true
 
@@ -34,7 +36,7 @@ ViewBaseFrame {
         icon.height: Units.dp(30)
         icon.color: checked ? "red" : "transparent"
 
-        implicitWidth: contentItem.implicitWidth + Units.dp(21)
+        implicitWidth: contentItem.implicitWidth + Units.dp(30)
         implicitHeight: implicitWidth
 
         onCheckedChanged: checked ? radioController.setVolume(0) : radioController.setVolume(100)
@@ -97,7 +99,7 @@ ViewBaseFrame {
                     icon.width: Units.dp(30)
                     icon.height: Units.dp(30)
                     icon.color: isSignal ? "transparent" : "red"
-                    background: Rectangle { } // Hack to disable the pressed color
+                    background: Rectangle { opacity: 0 } // Hack to disable the pressed color
                     implicitWidth: contentItem.implicitWidth + Units.dp(20)
                     implicitHeight: implicitWidth
 
@@ -143,7 +145,7 @@ ViewBaseFrame {
             Layout.alignment: Qt.AlignHCenter
             Layout.margins: Units.dp(10)
             Layout.maximumWidth: parent.parent.width
-            width: parent.parent.width
+            width: frame.width
             wrapMode: Text.WordWrap
             horizontalAlignment: Text.AlignHCenter
             text: radioController.text.trim()
