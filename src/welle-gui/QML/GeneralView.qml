@@ -24,6 +24,11 @@ GridLayout {
 
 
     function addComponent(path) {
+        // Check of component already exisits
+        for (var i = 0; i < children.length; ++i)
+            if(children[i].sourcePath === path)
+                return;
+
         var component = Qt.createComponent(path);
         var object = component.createObject(gridLayout);
         object.sourcePath = path; // Save path inside component to make a saving possible
@@ -31,12 +36,14 @@ GridLayout {
         __serialize()
     }
 
-//    onIsExpertChanged: {
-//        if(!isExpert) {
-//            __clear()
-//            __initComponents()
-//        }
-//    }
+    onIsExpertChanged: {
+        if(!isExpert) {
+            // Delete everything except RadioView and MotView
+            for (var i = 0; i < children.length; ++i)
+                if(!children[i].sourcePath.includes("RadioView") && !children[i].sourcePath.includes("MotView"))
+                    children[i].destroy()
+        }
+    }
 
     onChildrenChanged: {
         __serialize()
@@ -63,11 +70,6 @@ GridLayout {
         else {
             __initComponents()
         }
-    }
-
-    function __clear() {
-        for (var i = 0; i < children.length; ++i)
-            children[i].destroy()
     }
 
     function __initComponents() {

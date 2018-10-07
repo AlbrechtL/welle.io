@@ -7,7 +7,7 @@ import "texts"
 import "components"
 
 ViewBaseFrame {
-    labelText: qsTr("Radio")
+    labelText: qsTr("Service Overview")
 
 //    Layout.minimumHeight: Units.dp(150)
     Layout.maximumHeight: Units.dp(230)
