@@ -91,7 +91,6 @@ void FIBProcessor::process_FIG0 (uint8_t *d)
         case 10: FIG0Extension10 (d); break;
         case 14: FIG0Extension14 (d); break;
         case 13: FIG0Extension13 (d); break;
-        case 16: FIG0Extension16 (d); break;
         case 17: FIG0Extension17 (d); break;
         case 18: FIG0Extension18 (d); break;
         case 19: FIG0Extension19 (d); break;
@@ -551,26 +550,6 @@ void FIBProcessor::FIG0Extension14 (uint8_t *d)
             }
         }
 
-    }
-}
-
-void FIBProcessor::FIG0Extension16 (uint8_t *d)
-{
-    int16_t length = getBits_5 (d, 3); // in bytes
-    int16_t offset = 16;           // in bits
-    Service *s;
-
-    while (offset < length * 8) {
-        uint16_t    SId = getBits (d, offset, 16);
-        s   = findServiceId (SId);
-        if (!s -> hasPNum) {
-            uint8_t PNum = getBits (d, offset + 16, 16);
-            s -> pNum       = PNum;
-            s -> hasPNum    = true;
-            //        std::clog << "fib-processor:" << "Program number info SId = %.8X, PNum = %d\n",
-            //                                         SId, PNum) << std::endl;
-        }
-        offset += 72;
     }
 }
 

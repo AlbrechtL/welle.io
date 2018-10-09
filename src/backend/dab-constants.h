@@ -101,10 +101,6 @@ struct Service {
     DabLabel serviceLabel;
     int16_t  language = 0;
     int16_t  programType = 0; // PTy, FIG0/17
-
-    // Programme number from FIG 0/16
-    bool     hasPNum = false;
-    uint16_t pNum = 0;
 };
 
 //      The service component describes the actual service
