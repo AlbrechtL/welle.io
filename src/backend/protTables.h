@@ -25,7 +25,7 @@
 #define PROTTABLES
 #include    <stdint.h>
 
-const int8_t *get_PCodes(int16_t);
+const int8_t *getPCodes(int16_t);
 
 #endif
 

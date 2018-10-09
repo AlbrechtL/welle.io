@@ -157,13 +157,13 @@ UEPProtection::UEPProtection(
     L3  = profileTable[index].L3;
     L4  = profileTable[index].L4;
 
-    PI1 = get_PCodes(profileTable[index].PI1 -1);
-    PI2 = get_PCodes(profileTable[index].PI2 -1);
-    PI3 = get_PCodes(profileTable[index].PI3 -1);
+    PI1 = getPCodes(profileTable[index].PI1 -1);
+    PI2 = getPCodes(profileTable[index].PI2 -1);
+    PI3 = getPCodes(profileTable[index].PI3 -1);
     if ((profileTable[index].PI4 - 1) != -1)
-        PI4 = get_PCodes(profileTable[index].PI4 -1);
+        PI4 = getPCodes(profileTable[index].PI4 -1);
     else
-        PI4 = NULL;
+        PI4 = nullptr;
 }
 
 bool UEPProtection::deconvolve(int16_t *v, int32_t size, uint8_t *outBuffer)
@@ -209,6 +209,10 @@ bool UEPProtection::deconvolve(int16_t *v, int32_t size, uint8_t *outBuffer)
     }
 
     for (i = 0; i < L4; i ++) {
+        if (PI4 == nullptr) {
+            throw std::logic_error("Invalid usage of NULL PI4");
+        }
+
         for (j = 0; j < 128; j ++) {
             if (PI4[j % 32] != 0) {
                 viterbiBlock[viterbiCounter] = v[inputCounter ++];

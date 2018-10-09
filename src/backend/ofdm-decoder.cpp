@@ -236,7 +236,7 @@ void OfdmDecoder::decodeDataSymbol(int32_t sym_ix)
     }
 
     if (sym_ix < 4)
-        ficHandler.process_ficBlock(ibits.data(), sym_ix);
+        ficHandler.processFicBlock(ibits.data(), sym_ix);
     else
         mscHandler.processMscBlock(ibits.data(), sym_ix);
 }

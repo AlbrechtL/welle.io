@@ -39,37 +39,37 @@ EEPProtection::EEPProtection(int16_t bitRate, bool profile_is_eep_a, int level) 
             case 1:
                 L1 = 6 * bitRate / 8 - 3;
                 L2 = 3;
-                PI1 = get_PCodes(24 - 1);
-                PI2 = get_PCodes(23 - 1);
+                PI1 = getPCodes(24 - 1);
+                PI2 = getPCodes(23 - 1);
                 break;
 
             case 2:
                 if (bitRate == 8) {
                     L1  = 5;
                     L2  = 1;
-                    PI1 = get_PCodes(13 - 1);
-                    PI2 = get_PCodes(12 - 1);
+                    PI1 = getPCodes(13 - 1);
+                    PI2 = getPCodes(12 - 1);
                 }
                 else {
                     L1  = 2 * bitRate / 8 - 3;
                     L2  = 4 * bitRate / 8 + 3;
-                    PI1 = get_PCodes(14 - 1);
-                    PI2 = get_PCodes(13 - 1);
+                    PI1 = getPCodes(14 - 1);
+                    PI2 = getPCodes(13 - 1);
                 }
                 break;
 
             case 3:
                 L1 = 6 * bitRate / 8 - 3;
                 L2 = 3;
-                PI1 = get_PCodes(8 - 1);
-                PI2 = get_PCodes(7 - 1);
+                PI1 = getPCodes(8 - 1);
+                PI2 = getPCodes(7 - 1);
                 break;
 
             case 4:
                 L1 = 4 * bitRate / 8 - 3;
                 L2 = 2 * bitRate / 8 + 3;
-                PI1 = get_PCodes(3 - 1);
-                PI2 = get_PCodes(2 - 1);
+                PI1 = getPCodes(3 - 1);
+                PI2 = getPCodes(2 - 1);
                 break;
 
             default:
@@ -81,29 +81,29 @@ EEPProtection::EEPProtection(int16_t bitRate, bool profile_is_eep_a, int level) 
             case 4:
                 L1 = 24 * bitRate / 32 - 3;
                 L2 = 3;
-                PI1 = get_PCodes(2 - 1);
-                PI2 = get_PCodes(1 - 1);
+                PI1 = getPCodes(2 - 1);
+                PI2 = getPCodes(1 - 1);
                 break;
 
             case 3:
                 L1 = 24 * bitRate / 32 - 3;
                 L2 = 3;
-                PI1 = get_PCodes(4 - 1);
-                PI2 = get_PCodes(3 - 1);
+                PI1 = getPCodes(4 - 1);
+                PI2 = getPCodes(3 - 1);
                 break;
 
             case 2:
                 L1 = 24 * bitRate / 32 - 3;
                 L2 = 3;
-                PI1 = get_PCodes(6 - 1);
-                PI2 = get_PCodes(5 - 1);
+                PI1 = getPCodes(6 - 1);
+                PI2 = getPCodes(5 - 1);
                 break;
 
             case 1:
                 L1 = 24 * bitRate / 32 - 3;
                 L2 = 3;
-                PI1 = get_PCodes(10 - 1);
-                PI2 = get_PCodes(9 - 1);
+                PI1 = getPCodes(10 - 1);
+                PI2 = getPCodes(9 - 1);
                 break;
 
             default:

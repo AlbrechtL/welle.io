@@ -56,14 +56,13 @@ FicHandler::FicHandler(RadioControllerInterface& mr) :
     bitBuffer_out(768),
     ofdm_input(2304)
 {
-    int16_t i, j;
-    PI_15        = get_PCodes (15 - 1);
-    PI_16        = get_PCodes (16 - 1);
+    PI_15 = getPCodes(15 - 1);
+    PI_16 = getPCodes(16 - 1);
     memset(shiftRegister, 1, 9);
 
-    for (i = 0; i < 768; i ++) {
-        PRBS [i] = shiftRegister[8] ^ shiftRegister[4];
-        for (j = 8; j > 0; j --) {
+    for (int i = 0; i < 768; i++) {
+        PRBS[i] = shiftRegister[8] ^ shiftRegister[4];
+        for (int j = 8; j > 0; j--) {
             shiftRegister[j] = shiftRegister[j - 1];
         }
 
@@ -88,14 +87,14 @@ void FicHandler::setBitsperBlock(int16_t b)
     if (  (b == 2 * 384) ||
           (b == 2 * 768) ||
           (b == 2 * 1536)) {
-        BitsperBlock    = b;
+        bitsperBlock    = b;
     }
     index = 0;
     ficno = 0;
 }
 
 /**
- * \brief process_ficBlock
+ * \brief processFicBlock
  * The number of bits to be processed per incoming block
  * is 2 * p -> K, which still depends on the Mode.
  * for Mode I it is 2 * 1536, for Mode II, it is 2 * 384,
@@ -106,9 +105,9 @@ void FicHandler::setBitsperBlock(int16_t b)
  * Note that Mode III is NOT supported
  * 
  * The function is called with a blkno. This should be 1, 2 or 3
- * for each time 2304 bits are in, we call process_ficInput
+ * for each time 2304 bits are in, we call processFicInput
  */
-void FicHandler::process_ficBlock(int16_t *data, int16_t blkno)
+void FicHandler::processFicBlock(int16_t *data, int16_t blkno)
 {
     int32_t i;
 
@@ -118,10 +117,10 @@ void FicHandler::process_ficBlock(int16_t *data, int16_t blkno)
     }
 
     if ((1 <= blkno) && (blkno <= 3)) {
-        for (i = 0; i < BitsperBlock; i ++) {
+        for (i = 0; i < bitsperBlock; i ++) {
             ofdm_input[index ++] = data[i];
             if (index >= 2304) {
-                process_ficInput (ofdm_input.data(), ficno);
+                processFicInput(ofdm_input.data(), ficno);
                 index = 0;
                 ficno++;
             }
@@ -135,7 +134,7 @@ void FicHandler::process_ficBlock(int16_t *data, int16_t blkno)
 }
 
 /**
- * \brief process_ficInput
+ * \brief processFicInput
  * we have a vector of 2304 (0 .. 2303) soft bits that has
  * to be de-punctured and de-conv-ed into a block of 768 bits
  * In this approach we first create the full 3072 block (i.e.
@@ -143,7 +142,7 @@ void FicHandler::process_ficBlock(int16_t *data, int16_t blkno)
  * In the next coding step, we will combine this function with the
  * one above
  */
-void FicHandler::process_ficInput(int16_t *ficblock, int16_t ficno)
+void FicHandler::processFicInput(int16_t *ficblock, int16_t ficno)
 {
     int16_t input_counter = 0;
     int16_t i, k;
@@ -222,7 +221,7 @@ void FicHandler::process_ficInput(int16_t *ficblock, int16_t ficno)
         if (!crcvalid) {
             continue;
         }
-        fibProcessor.process_FIB(p, ficno);
+        fibProcessor.processFIB(p, ficno);
     }
 }
 
@@ -231,7 +230,7 @@ void FicHandler::clearEnsemble()
     fibProcessor.clearEnsemble();
 }
 
-int16_t FicHandler::get_ficRatio()
+int16_t FicHandler::getFicRatio()
 {
     return ficRatio;
 }

@@ -40,7 +40,7 @@ FIBProcessor::FIBProcessor(RadioControllerInterface& mr) :
 //  FIB's are segments of 256 bits. When here, we already
 //  passed the crc and we start unpacking into FIGs
 //  This is merely a dispatcher
-void FIBProcessor::process_FIB(uint8_t *p, uint16_t fib)
+void FIBProcessor::processFIB(uint8_t *p, uint16_t fib)
 {
     int8_t  processedBytes  = 0;
     uint8_t *d = p;
@@ -280,19 +280,19 @@ int16_t FIBProcessor::HandleFIG0Extension2(
             uint8_t ASCTy   = getBits_6 (d, lOffset + 2);
             uint8_t SubChId = getBits_6 (d, lOffset + 8);
             uint8_t PS_flag = getBits_1 (d, lOffset + 14);
-            bind_audioService(TMid, SId, i, SubChId, PS_flag, ASCTy);
+            bindAudioService(TMid, SId, i, SubChId, PS_flag, ASCTy);
         }
         else if (TMid == 1) { // MSC stream data
             uint8_t DSCTy   = getBits_6 (d, lOffset + 2);
             uint8_t SubChId = getBits_6 (d, lOffset + 8);
             uint8_t PS_flag = getBits_1 (d, lOffset + 14);
-            bind_dataStreamService(TMid, SId, i, SubChId, PS_flag, DSCTy);
+            bindDataStreamService(TMid, SId, i, SubChId, PS_flag, DSCTy);
         }
         else if (TMid == 3) { // MSC packet data
             int16_t SCId    = getBits (d, lOffset + 2, 12);
             uint8_t PS_flag = getBits_1 (d, lOffset + 14);
             uint8_t CA_flag = getBits_1 (d, lOffset + 15);
-            bind_packetService(TMid, SId, i, SCId, PS_flag, CA_flag);
+            bindPacketService(TMid, SId, i, SCId, PS_flag, CA_flag);
         }
         else {
             // reserved
@@ -903,9 +903,9 @@ ServiceComponent *FIBProcessor::findPacketComponent(int16_t SCId)
     return nullptr;
 }
 
-//  bind_audioService is the main processor for - what the name suggests -
+//  bindAudioService is the main processor for - what the name suggests -
 //  connecting the description of audioservices to a SID
-void FIBProcessor::bind_audioService(
+void FIBProcessor::bindAudioService(
         int8_t TMid,
         uint32_t SId,
         int16_t compnr,
@@ -933,7 +933,7 @@ void FIBProcessor::bind_audioService(
     }
 }
 
-void FIBProcessor::bind_dataStreamService(
+void FIBProcessor::bindDataStreamService(
         int8_t TMid,
         uint32_t SId,
         int16_t compnr,
@@ -961,10 +961,10 @@ void FIBProcessor::bind_dataStreamService(
     }
 }
 
-//      bind_packetService is the main processor for - what the name suggests -
+//      bindPacketService is the main processor for - what the name suggests -
 //      connecting the service component defining the service to the SId,
 ///     Note that the subchannel is assigned through a FIG0/3
-void FIBProcessor::bind_packetService(
+void FIBProcessor::bindPacketService(
         int8_t TMid,
         uint32_t SId,
         int16_t compnr,

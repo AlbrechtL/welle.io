@@ -39,7 +39,7 @@ class FIBProcessor {
         FIBProcessor(RadioControllerInterface& mr);
 
         // called from the demodulator
-        void process_FIB(uint8_t *p, uint16_t fib);
+        void processFIB(uint8_t *p, uint16_t fib);
         void clearEnsemble();
         bool syncReached();
 
@@ -57,7 +57,7 @@ class FIBProcessor {
         ServiceComponent *findComponent(uint32_t serviceId, int16_t SCIdS);
         ServiceComponent *findPacketComponent(int16_t SCId);
 
-        void bind_audioService(
+        void bindAudioService(
                 int8_t TMid,
                 uint32_t SId,
                 int16_t compnr,
@@ -65,7 +65,7 @@ class FIBProcessor {
                 int16_t ps_flag,
                 int16_t ASCTy);
 
-        void bind_dataStreamService(
+        void bindDataStreamService(
                 int8_t TMid,
                 uint32_t SId,
                 int16_t compnr,
@@ -73,7 +73,7 @@ class FIBProcessor {
                 int16_t ps_flag,
                 int16_t DSCTy);
 
-        void bind_packetService(
+        void bindPacketService(
                 int8_t TMid,
                 uint32_t SId,
                 int16_t compnr,

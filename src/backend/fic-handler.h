@@ -39,23 +39,23 @@ class FicHandler: public Viterbi
 {
     public:
         FicHandler(RadioControllerInterface& mr);
-        void    process_ficBlock    (int16_t *data, int16_t blkno);
-        void    setBitsperBlock     (int16_t b);
-        void    clearEnsemble       (void);
-        bool    syncReached         (void);
-        int16_t get_ficRatio        (void);
+        void    processFicBlock(int16_t *data, int16_t blkno);
+        void    setBitsperBlock(int16_t b);
+        void    clearEnsemble();
+        bool    syncReached();
+        int16_t getFicRatio();
 
         FIBProcessor fibProcessor;
 
     private:
         RadioControllerInterface& myRadioInterface;
-        void        process_ficInput(int16_t *ficblock, int16_t ficno);
+        void        processFicInput(int16_t *ficblock, int16_t ficno);
         const int8_t *PI_15;
         const int8_t *PI_16;
         std::vector<uint8_t> bitBuffer_out;
         std::vector<int16_t> ofdm_input;
         int16_t     index = 0;
-        int16_t     BitsperBlock = 2 * 1536;
+        int16_t     bitsperBlock = 2 * 1536;
         int16_t     ficno = 0;
         int16_t     ficRatio = 0;
         uint8_t     PRBS[768];
