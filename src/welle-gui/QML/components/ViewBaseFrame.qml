@@ -20,8 +20,10 @@ Rectangle {
 
     ColumnLayout {
         anchors.fill: parent
+
         ToolBar {
             Layout.fillWidth: true
+            Layout.topMargin: Units.dp(5)
             visible: isExpert
 
             background: Rectangle {

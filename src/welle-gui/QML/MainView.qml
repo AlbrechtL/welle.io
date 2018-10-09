@@ -183,7 +183,7 @@ ApplicationWindow {
         id: stationDrawer
 
         y: overlayHeader.height
-        width: mainWindow.width < 1.5 * implicitWidth ? mainWindow.width : implicitWidth * 1.2
+        width: mainWindow.width < 1.5 * implicitWidth ? mainWindow.width : Units.dp(320)
         height: mainWindow.height - overlayHeader.height
 
         modal: inPortrait
@@ -198,6 +198,7 @@ ApplicationWindow {
 
         ColumnLayout {
             anchors.fill: parent
+            anchors.topMargin: Units.dp(5)
 
             RowLayout {
                 ComboBox {
@@ -221,10 +222,14 @@ ApplicationWindow {
                 }
 
                 Button {
-                    text: qsTr("⋮")
-                    font.pixelSize: TextStyle.textHeadingSize
-                    font.family: TextStyle.textFont
-                    flat: true
+                    id: menuButton
+                    icon.name: "menu"
+                    icon.height: Units.dp(15)
+                    icon.width: Units.dp(15)
+                    background: Rectangle {
+                        color: menuButton.pressed ? "lightgrey" : "white"
+                        opacity: menuButton.pressed ? 100 : 0
+                    }
                     onClicked: stationMenu.open()
                     implicitWidth: contentItem.implicitWidth + Units.dp(15)
 
@@ -359,8 +364,8 @@ ApplicationWindow {
     RoundButton {
         text: "\u002b" // Unicode character '+'
         onClicked: viewMenu.open()
-        x: parent.width - width - Units.dp(5)
-        y: parent.height - height - Units.dp(5)
+        x: parent.width - width - Units.dp(10)
+        y: parent.height - height - Units.dp(10)
         visible: isExpertView
         palette.button: "darkorange"
 
