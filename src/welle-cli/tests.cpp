@@ -368,5 +368,6 @@ void Tests::run_test(int test_id)
 
     if (test_id == 0) test_with_noise();
     else if (test_id == 1 or test_id == 2) test_multipath(test_id);
+    else if (test_id == 3) test_with_noise_iteration(0);
     else cerr << "Test " << test_id << " does not exist!" << endl;
 }

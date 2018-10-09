@@ -234,7 +234,7 @@ void FIBProcessor::FIG0Extension2 (uint8_t *d)
     uint8_t CN      = getBits_1 (d, 8 + 0);
 
     while (used < Length) {
-        used = HandleFIG0Extension2 (d, used, CN, PD_bit);
+        used = HandleFIG0Extension2(d, used, CN, PD_bit);
     }
 }
 
@@ -246,7 +246,7 @@ int16_t FIBProcessor::HandleFIG0Extension2(
         uint8_t cn,
         uint8_t pd)
 {
-    (void) cn;
+    (void)cn;
     int16_t     lOffset = 8 * offset;
     int16_t     i;
     uint8_t     ecc;
@@ -255,19 +255,23 @@ int16_t FIBProcessor::HandleFIG0Extension2(
     int16_t     numberofComponents;
 
     if (pd == 1) {      // long Sid
-        ecc = getBits_8 (d, lOffset);   (void)ecc;
-        cId = getBits_4 (d, lOffset + 1);
+        ecc = getBits_8(d, lOffset);   (void)ecc;
+        cId = getBits_4(d, lOffset + 1);
         SId = getBits(d, lOffset, 32);
         lOffset += 32;
     }
     else {
-        cId = getBits_4 (d, lOffset);   (void)cId;
-        SId = getBits (d, lOffset + 4, 12);
-        SId = getBits (d, lOffset, 16);
+        cId = getBits_4(d, lOffset);   (void)cId;
+        SId = getBits(d, lOffset + 4, 12);
+        SId = getBits(d, lOffset, 16);
         lOffset += 16;
     }
 
-    numberofComponents  = getBits_4 (d, lOffset + 4);
+    if (findServiceId(SId) == nullptr) {
+        services.emplace_back(SId);
+    }
+
+    numberofComponents = getBits_4 (d, lOffset + 4);
     lOffset += 8;
 
     for (i = 0; i < numberofComponents; i ++) {
@@ -565,15 +569,19 @@ void FIBProcessor::FIG0Extension17(uint8_t *d)
         bool    CC_flag = getBits_1 (d, offset + 19);
         int16_t type;
         int16_t Language = 0x00;    // init with unknown language
-        s = findServiceId (SId);
+        s = findServiceId(SId);
         if (L_flag) {       // language field present
             Language = getBits_8 (d, offset + 24);
-            s->language = Language;
+            if (s) {
+                s->language = Language;
+            }
             offset += 8;
         }
 
         type = getBits_5 (d, offset + 27);
-        s->programType = type;
+        if (s) {
+            s->programType = type;
+        }
         if (CC_flag) {          // cc flag
             offset += 40;
         }
@@ -744,6 +752,8 @@ void    FIBProcessor::process_FIG1 (uint8_t *d)
             SId = getBits(d, 16, 16);
             offset  = 32;
             service = findServiceId(SId);
+            if (!service) break;
+
             if (service->serviceLabel.raw_label.empty() && charSet <= 16) {
                 for (i = 0; i < 16; i++) {
                     label[i] = getBits_8(d, offset);
@@ -803,6 +813,8 @@ void    FIBProcessor::process_FIG1 (uint8_t *d)
             SId = getBits(d, 16, 32);
             offset  = 48;
             service = findServiceId(SId);
+            if (!service) break;
+
             if (service->serviceLabel.raw_label.empty() && charSet <= 16) {
                 for (i = 0; i < 16; i ++) {
                     label[i] = getBits_8(d, offset);
@@ -851,8 +863,7 @@ void    FIBProcessor::process_FIG1 (uint8_t *d)
     (void)XPAD_aid;
 }
 
-//  locate - and create if needed - a reference to the entry
-//  for the Service serviceId
+// locate a reference to the entry for the Service serviceId
 Service *FIBProcessor::findServiceId(uint32_t serviceId)
 {
     for (size_t i = 0; i < services.size(); i++) {
@@ -861,10 +872,7 @@ Service *FIBProcessor::findServiceId(uint32_t serviceId)
         }
     }
 
-    Service serv;
-    serv.serviceId = serviceId;
-    services.push_back(serv);
-    return &services.back();
+    return nullptr;
 }
 
 ServiceComponent *FIBProcessor::findComponent(uint32_t serviceId, int16_t SCIdS)
@@ -906,6 +914,7 @@ void FIBProcessor::bind_audioService(
         int16_t ASCTy)
 {
     Service *s = findServiceId(SId);
+    if (!s) return;
 
     if (std::find_if(components.begin(), components.end(),
                 [&](const ServiceComponent& sc) {
@@ -932,7 +941,9 @@ void FIBProcessor::bind_dataStreamService(
         int16_t ps_flag,
         int16_t DSCTy)
 {
-    Service *s = findServiceId (SId);
+    Service *s = findServiceId(SId);
+    if (!s) return;
+
     if (std::find_if(components.begin(), components.end(),
                 [&](const ServiceComponent& sc) {
                     return sc.SId == s->serviceId && sc.componentNr == compnr;
@@ -961,7 +972,9 @@ void FIBProcessor::bind_packetService(
         int16_t ps_flag,
         int16_t CAflag)
 {
-    Service *s = findServiceId (SId);
+    Service *s = findServiceId(SId);
+    if (!s) return;
+
     if (std::find_if(components.begin(), components.end(),
                 [&](const ServiceComponent& sc) {
                     return sc.SId == s->serviceId && sc.componentNr == compnr;

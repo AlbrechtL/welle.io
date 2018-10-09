@@ -96,6 +96,8 @@ struct DabLabel {
 };
 
 struct Service {
+    Service(uint32_t sid) : serviceId(sid) {}
+
     uint32_t serviceId = 0;
 
     DabLabel serviceLabel;
