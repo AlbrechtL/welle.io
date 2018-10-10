@@ -37,6 +37,7 @@ DISTFILES +=    ../../README.md \
     QML/settingpages/RTLTCPSettings.qml \
     QML/settingpages/SoapySDRSettings.qml \
     QML/settingpages/ExpertSettings.qml \
+    QML/settingpages/NullSettings.qml \
     QML/components/MessagePopup.qml \
     QML/components/SettingsPopup.qml \
     QML/components/SettingSection.qml \
@@ -52,7 +53,8 @@ DISTFILES +=    ../../README.md \
     QML/components/StationListModel.qml \
     QML/MotView.qml \
     QML/components/ViewBaseFrame.qml \
-    QML/GeneralView.qml
+    QML/GeneralView.qml \
+    QML/components/SettingTumbler.qml
 
 TRANSLATIONS = i18n/de_DE.ts \
     i18n/it_IT.ts \

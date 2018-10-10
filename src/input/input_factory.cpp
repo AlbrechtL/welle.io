@@ -72,6 +72,42 @@ CVirtualInput *CInputFactory::GetDevice(RadioControllerInterface& radioControlle
     return InputDevice;
 }
 
+CVirtualInput *CInputFactory::GetDevice(RadioControllerInterface &radioController, const CDeviceID deviceId)
+{
+    CVirtualInput *InputDevice = nullptr;
+
+    try {
+        switch(deviceId) {
+#ifdef HAVE_AIRSPY
+        case CDeviceID::AIRSPY: InputDevice = new CAirspy(); break;
+#endif
+        case CDeviceID::RTL_TCP: InputDevice = new CRTL_TCP_Client(radioController); break;
+#ifdef HAVE_RTLSDR
+        case CDeviceID::RTL_SDR: InputDevice = new CRTL_SDR(radioController); break;
+#endif
+        case CDeviceID::RAWFILE: InputDevice = new CRAWFile(radioController); break;
+#ifdef HAVE_SOAPYSDR
+        case CDeviceID::NULLDEVICE: InputDevice = new CSoapySdr(); break;
+#endif
+        case CDeviceID::NULLDEVICE: InputDevice = new CNullDevice(); break;
+        default: throw std::runtime_error("unknown device ID " + std::string(__FILE__) +":"+ std::to_string(__LINE__));
+        }
+    }
+    catch (...) {
+        std::clog << "InputFactory:"
+            "Error while opening device \"" << static_cast<int>(deviceId) << "\"." << std::endl;
+    }
+
+    // Fallback if no device is found or an error occured
+    if (InputDevice == nullptr) {
+        std::string text = "Error while opening device";
+        radioController.onMessage(message_level_t::Error, text);
+        InputDevice = new CNullDevice();
+    }
+
+    return InputDevice;
+}
+
 CVirtualInput* CInputFactory::GetAutoDevice(RadioControllerInterface& radioController)
 {
     (void)radioController;

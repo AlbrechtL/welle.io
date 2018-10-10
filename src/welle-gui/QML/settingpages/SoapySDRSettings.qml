@@ -5,20 +5,11 @@ import QtQuick.Layouts 1.1
 import "../texts"
 import "../components"
 
-Item {
-    implicitHeight: layout.implicitHeight
-    implicitWidth:  layout.implicitWidth
+SettingSection {
+    text: qsTr("SoapySDR settings")
+    spacing: Units.dp(20)
 
-    ColumnLayout{
-        id: layout
-        anchors.top: parent.top
-        anchors.left: parent.left
-        anchors.right: parent.right
-        Layout.preferredWidth: Units.dp(100)
-        spacing: Units.dp(20)
-
-        TextStandart {
-            text: qsTr("Not implemented yet")
-        }
+    TextStandart {
+        text: qsTr("Not implemented yet")
     }
 }

@@ -7,9 +7,9 @@ import Qt.labs.settings 1.0
 import "../texts"
 import "../components"
 
-Item {
-    implicitHeight: layout.implicitHeight
-    implicitWidth:  layout.implicitWidth
+SettingSection {
+    spacing: Units.dp(20)
+    text: qsTr("rtl-sdr settings")
 
     Settings {
         property alias enableHwAGCState: enableHwAGC.checked
@@ -19,25 +19,11 @@ Item {
         radioController.setHwAGC(enableHwAGC.checked)
     }
 
-    ColumnLayout{
-        id: layout
-        anchors.top: parent.top
-        anchors.left: parent.left
-        anchors.right: parent.right
-        Layout.preferredWidth: Units.dp(100)
-        spacing: Units.dp(20)
-
-        SettingSection {
-            text: qsTr("Gain")
-            isNotFirst: false
-
-            Switch {
-                id: enableHwAGC
-                text: qsTr("Hardware RF gain (not tested)")
-                onClicked: {
-                    radioController.setHwAGC(enableHwAGC.checked)
-                }
-            }
+    Switch {
+        id: enableHwAGC
+        text: qsTr("Hardware RF gain (not tested)")
+        onClicked: {
+            radioController.setHwAGC(enableHwAGC.checked)
         }
     }
 }

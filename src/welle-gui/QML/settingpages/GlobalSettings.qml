@@ -21,7 +21,8 @@ Item {
         property alias enableFullScreenState : settingsPage.enableFullScreenState
         property alias manualGainState : settingsPage.manualGainState
         property alias manualGainValue: valueSliderView.text
-        property alias enableAGCState : settingsPage.enableAGCState     
+        property alias enableAGCState : settingsPage.enableAGCState
+        property alias enableAutoSdr : enableAutoSdr.checked
     }
 
     Component.onCompleted: {
@@ -40,15 +41,13 @@ Item {
 
     ColumnLayout{
         id: layout
-        anchors.top: parent.top
-        anchors.left: parent.left
-        anchors.right: parent.right
+        anchors.fill: parent
         spacing: Units.dp(20)
 
         SettingSection {
             id: settingsFrame
             isNotFirst: false
-            text: qsTr("Global")
+            text: qsTr("Global settings")
 
             Switch {
                 id: enableFullScreen
@@ -60,22 +59,11 @@ Item {
         }
 
         SettingSection {
-            text: qsTr("SDR receiver")
+            text: qsTr("Global receiver settings")
 
-            ComboBox {
-                id: manualChannelBox
-                Layout.fillWidth: true
-                font.pixelSize: TextStyle.textStandartSize
-                font.family: TextStyle.textFont
-                model: [ "rtl-sdr", "rtl-tcp", "SoapySDR" ];
-                onActivated: {
-                    switch(index) {
-                        case 0: sdrSpecificSettings.source = "qrc:/QML/settingpages/RTLSDRSettings.qml"; break
-                        case 1: sdrSpecificSettings.source = "qrc:/QML/settingpages/RTLTCPSettings.qml"; break
-                        case 2: sdrSpecificSettings.source = "qrc:/QML/settingpages/SoapySDRSettings.qml"; break
-                    }
-                }
-            }
+//            TextStandart {
+//                text: Number(radioController.deviceId)
+//            }
 
             Switch {
                 id: enableAGC
@@ -97,21 +85,15 @@ Item {
                 enabled: !enableAGC.checked
 
                 RowLayout {
-                    Text {
+                    TextStandart {
                         id: nameSliderView
-                        font.pixelSize: TextStyle.textStandartSize
-                        font.family: TextStyle.textFont
-                        color: TextStyle.textColor
                         Layout.fillWidth: true
                         text: qsTr("Manual gain")
                     }
 
-                    Text {
+                    TextStandart {
                         id: valueSliderView
                         text: qsTr("Value: ") + radioController.gainValue.toFixed(2)
-                        font.pixelSize: TextStyle.textStandartSize
-                        font.family: TextStyle.textFont
-                        color: TextStyle.textColor
                     }
                 }
 
@@ -129,11 +111,43 @@ Item {
                     }
                 }
             }
+
+            Switch {
+                id: enableAutoSdr
+                text: qsTr("Auto detect")
+                height: 24
+                Layout.fillWidth: true
+                checked: true
+            }
+
+            ComboBox {
+                id: manualChannelBox
+                enabled: !enableAutoSdr.checked
+                Layout.fillWidth: true
+                font.pixelSize: TextStyle.textStandartSize
+                font.family: TextStyle.textFont
+                currentIndex: radioController.deviceId
+                model: [ "Null", "Airspy", "RAW file", "rtl-sdr", "rtl-tcp", "SoapySDR" ];
+                onCurrentIndexChanged: {
+                    // Load appropriate settings
+                    switch(currentIndex) {
+                        case 3: sdrSpecificSettings.source = "qrc:/QML/settingpages/RTLSDRSettings.qml"; break
+                        case 4: sdrSpecificSettings.source = "qrc:/QML/settingpages/RTLTCPSettings.qml"; break
+                        case 5: sdrSpecificSettings.source = "qrc:/QML/settingpages/SoapySDRSettings.qml"; break
+                        default: sdrSpecificSettings.source = "qrc:/QML/settingpages/NullSettings.qml"; break
+                    }
+
+                    // Load new device
+                    if(!enableAutoSdr.checked
+                            && currentIndex != 4) // rtl-tcp is openend in RTLTCPSettings.qml because we need the IP address and IP port
+                        radioController.openDevice(currentIndex)
+                }
+            }
         }
 
         Loader {
             id: sdrSpecificSettings
-            source : "qrc:/QML/settingpages/RTLSDRSettings.qml"
+            Layout.fillWidth: true
         }
     }
 }

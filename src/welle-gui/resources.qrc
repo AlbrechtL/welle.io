@@ -72,10 +72,12 @@
         <file>QML/settingpages/RTLTCPSettings.qml</file>
         <file>QML/settingpages/SoapySDRSettings.qml</file>
         <file>QML/settingpages/ExpertSettings.qml</file>
+        <file>QML/settingpages/NullSettings.qml</file>
         <file>QML/components/MessagePopup.qml</file>
         <file>QML/components/SettingsPopup.qml</file>
         <file>QML/components/SettingSection.qml</file>
         <file>QML/components/SettingSwitch.qml</file>
+        <file>QML/components/SettingTumbler.qml</file>
         <file>QML/components/StationDelegate.qml</file>
         <file>QML/components/StationListModel.qml</file>
         <file>QML/components/Units.qml</file>

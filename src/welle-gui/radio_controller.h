@@ -50,6 +50,8 @@ class CVirtualInput;
 
 enum class PlotTypeEn { Spectrum, ImpulseResponse, QPSK, Null, Unknown };
 
+Q_DECLARE_METATYPE(CDeviceID)
+
 //#ifdef Q_OS_ANDROID
 //#include "rep_radio_controller_source.h"
 //class CRadioController : public CRadioControllerSource,
@@ -65,6 +67,7 @@ class CRadioController :
 {
     Q_OBJECT
     Q_PROPERTY(QString deviceName MEMBER deviceName NOTIFY deviceNameChanged)
+    Q_PROPERTY(CDeviceID deviceId  MEMBER deviceId NOTIFY deviceIdChanged)
     Q_PROPERTY(QDateTime dateTime MEMBER currentDateTime NOTIFY dateTimeChanged)
     Q_PROPERTY(bool isSync MEMBER isSync NOTIFY isSyncChanged)
     Q_PROPERTY(bool isFICCRC MEMBER isFICCRC NOTIFY isFICCRCChanged)
@@ -102,7 +105,7 @@ class CRadioController :
 public:
     CRadioController(QVariantMap &commandLineOptions, DABParams& params, QObject* parent = nullptr);
     void closeDevice();
-    void openDevice(CVirtualInput* new_device);
+    Q_INVOKABLE void openDevice(CDeviceID deviceId, bool force = false, QVariant param1 = QVariant(), QVariant param2 = QVariant());
     Q_INVOKABLE void play(QString Channel, QString Station);
     void pause();
     void stop();
@@ -203,6 +206,7 @@ private:
     float currentManualGainValue;
     qreal currentVolume;
     QString deviceName;
+    CDeviceID deviceId;
 
     QTimer stationTimer;
     QTimer channelTimer;
@@ -237,6 +241,7 @@ signals:
 //#ifndef Q_OS_ANDROID
 signals:
     void deviceNameChanged();
+    void deviceIdChanged();
     void dateTimeChanged(QDateTime);
     void isSyncChanged(bool);
     void isFICCRCChanged(bool);

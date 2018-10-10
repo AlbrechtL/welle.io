@@ -90,15 +90,23 @@ void CRadioController::closeDevice()
     emit deviceClosed();
 }
 
-void CRadioController::openDevice(CVirtualInput *new_device)
+void CRadioController::openDevice(CDeviceID deviceId, bool force, QVariant param1, QVariant param2)
 {
-    if (device) {
-        closeDevice();
-        device.reset(new_device);
-        initialise();
+    if(device) {
+        if(this->deviceId != deviceId || force) {
+            closeDevice();
+            device.reset(CInputFactory::GetDevice(*this, deviceId));
+
+            // Set rtl_tcp settings
+            if (device->getID() == CDeviceID::RTL_TCP) {
+                CRTL_TCP_Client* RTL_TCP_Client = static_cast<CRTL_TCP_Client*>(device.get());
+
+                RTL_TCP_Client->setIP(param1.toString().toStdString());
+                RTL_TCP_Client->setPort(param2.toInt());
+            }
+            initialise();
+        }
     }
-    else
-        throw std::runtime_error("device is null in file " + std::string(__FILE__) +":"+ std::to_string(__LINE__));
 }
 
 
@@ -454,6 +462,9 @@ void CRadioController::initialise(void)
 
     deviceName = QString::fromStdString(device->getName());
     emit deviceNameChanged();
+
+    deviceId = device->getID();
+    emit deviceIdChanged();
 
     if(isAutoPlay) {
         play(autoChannel, autoStation);

@@ -34,7 +34,7 @@
 #include "radio-controller.h"
 
 enum class CDeviceID {
-    AIRSPY, NULLDEVICE, RAWFILE, RTL_SDR, RTL_TCP, SOAPYSDR};
+    NULLDEVICE, AIRSPY, RAWFILE, RTL_SDR, RTL_TCP, SOAPYSDR};
 
 class CVirtualInput : public InputInterface {
     public:
