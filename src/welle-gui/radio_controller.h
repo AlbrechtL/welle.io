@@ -105,7 +105,8 @@ class CRadioController :
 public:
     CRadioController(QVariantMap &commandLineOptions, DABParams& params, QObject* parent = nullptr);
     void closeDevice();
-    Q_INVOKABLE void openDevice(CDeviceID deviceId, bool force = false, QVariant param1 = QVariant(), QVariant param2 = QVariant());
+    void openDevice(CDeviceID deviceId, bool force = false, QVariant param1 = QVariant(), QVariant param2 = QVariant());
+    void openDevice();
     Q_INVOKABLE void play(QString Channel, QString Station);
     void pause();
     void stop();
@@ -177,21 +178,21 @@ private:
 
     QString errorMsg;
     QDateTime currentDateTime;
-    bool isSync;
-    bool isFICCRC;
-    bool isSignal;
-    bool isStereo;
-    bool isDAB;
-    int snr;
-    int frequencyCorrection;
-    float frequencyCorrectionPpm;
-    int bitRate;
-    int audioSampleRate;
-    int frameErrors;
-    int rsErrors;
-    int aaErrors;
-    int gainCount;
-    int stationCount;
+    bool isSync = false;
+    bool isFICCRC = false;
+    bool isSignal = false;
+    bool isStereo = false;
+    bool isDAB = false;
+    int snr = 0;
+    int frequencyCorrection = 0;
+    float frequencyCorrectionPpm = 0.0;
+    int bitRate = 0;
+    int audioSampleRate = 0;
+    int frameErrors = 0;
+    int rsErrors = 0;
+    int aaErrors = 0;
+    int gainCount = 0;
+    int stationCount = 0;
     QImage motImage;
 
     QString currentChannel;
@@ -203,19 +204,19 @@ private:
     QString currentTitle;
     QString currentText;
     int32_t currentManualGain;
-    float currentManualGainValue;
+    float currentManualGainValue = 0.0;
     qreal currentVolume;
     QString deviceName;
-    CDeviceID deviceId;
+    CDeviceID deviceId = CDeviceID::UNKNOWN;
 
     QTimer stationTimer;
     QTimer channelTimer;
 
-    bool isChannelScan;
-    bool isAGC;
-    bool isHwAGC;
-    bool isHwAGCSupported;
-    bool isAutoPlay;
+    bool isChannelScan = false;
+    bool isAGC = false;
+    bool isHwAGC = false;
+    bool isHwAGCSupported = false;
+    bool isAutoPlay = false;
     QString autoChannel;
     QString autoStation;
 

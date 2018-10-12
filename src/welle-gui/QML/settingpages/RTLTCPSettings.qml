@@ -1,6 +1,7 @@
 import QtQuick 2.0
 import QtQuick.Layouts 1.1
 import QtQuick.Controls 2.2
+import Qt.labs.settings 1.0
 
 // Import custom styles
 import "../texts"
@@ -8,6 +9,14 @@ import "../components"
 
 SettingSection {
     text: qsTr("rtl-tcp settings")
+
+    Settings {
+        property alias ipByte1: ipAddress1.currentIndex
+        property alias ipByte2: ipAddress2.currentIndex
+        property alias ipByte3: ipAddress3.currentIndex
+        property alias ipByte4: ipAddress4.currentIndex
+        property alias ipPort: ipPort.currentIndex
+    }
 
     RowLayout {
         spacing: Units.dp(20)
@@ -54,17 +63,26 @@ SettingSection {
         }
 
         Button {
+            id: applyButton
             text: qsTr("Apply")
             Layout.fillWidth: true
             onClicked: {
-                var ipAdress =
-                        ipAddress1.currentIndex + "."
-                        + ipAddress2.currentIndex + "."
-                        + ipAddress3.currentIndex + "."
-                        + ipAddress4.currentIndex
-                radioController.openDevice(4, true, ipAdress, ipPort.currentIndex)
+                __openDevice()
             }
         }
+    }
+
+    Component.onCompleted: {
+        __openDevice()
+    }
+
+    function __openDevice() {
+        var ipAdress =
+                ipAddress1.currentIndex + "."
+                + ipAddress2.currentIndex + "."
+                + ipAddress3.currentIndex + "."
+                + ipAddress4.currentIndex
+        guiHelper.openRtlTcp(ipAdress, ipPort.currentIndex, true)
     }
 }
 

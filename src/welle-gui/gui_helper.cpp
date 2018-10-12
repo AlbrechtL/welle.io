@@ -467,6 +467,36 @@ void CGUIHelper::updateConstellation()
     */
 }
 
+void CGUIHelper::openAutoDevice()
+{
+    radioController->openDevice();
+}
+
+void CGUIHelper::openAirspy()
+{
+    radioController->openDevice(CDeviceID::AIRSPY);
+}
+
+void CGUIHelper::openRtlSdr()
+{
+    radioController->openDevice(CDeviceID::RTL_SDR);
+}
+
+void CGUIHelper::openSoapySdr()
+{
+    radioController->openDevice(CDeviceID::SOAPYSDR);
+}
+
+void CGUIHelper::openRtlTcp(QString IpAddress, int IpPort, bool force)
+{
+    radioController->openDevice(CDeviceID::RTL_TCP, force, IpAddress, IpPort);
+}
+
+void CGUIHelper::openRawFile(QString filename, QString fileFormat)
+{
+    radioController->openDevice(CDeviceID::RAWFILE, true, filename, fileFormat);
+}
+
 void CGUIHelper::setNewDebugOutput(QString text)
 {
     text = text.remove('\n');

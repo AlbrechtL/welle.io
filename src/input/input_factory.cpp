@@ -87,7 +87,7 @@ CVirtualInput *CInputFactory::GetDevice(RadioControllerInterface &radioControlle
 #endif
         case CDeviceID::RAWFILE: InputDevice = new CRAWFile(radioController); break;
 #ifdef HAVE_SOAPYSDR
-        case CDeviceID::NULLDEVICE: InputDevice = new CSoapySdr(); break;
+        case CDeviceID::SOAPYSDR: InputDevice = new CSoapySdr(); break;
 #endif
         case CDeviceID::NULLDEVICE: InputDevice = new CNullDevice(); break;
         default: throw std::runtime_error("unknown device ID " + std::string(__FILE__) +":"+ std::to_string(__LINE__));

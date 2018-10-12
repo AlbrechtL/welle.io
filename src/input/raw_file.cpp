@@ -202,7 +202,7 @@ void CRAWFile::setFileName(const std::string& fileName,
     if (filePointer == nullptr) {
         std::clog << "RAWFile: Cannot open file: " << fileName << std::endl;
         radioController.onMessage(message_level_t::Error,
-                "Cannot open file" + fileName);
+                "Cannot open file " + fileName);
         return;
     }
 

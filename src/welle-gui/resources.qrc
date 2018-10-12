@@ -72,6 +72,7 @@
         <file>QML/settingpages/RTLTCPSettings.qml</file>
         <file>QML/settingpages/SoapySDRSettings.qml</file>
         <file>QML/settingpages/ExpertSettings.qml</file>
+        <file>QML/settingpages/RawFileSettings.qml</file>
         <file>QML/settingpages/NullSettings.qml</file>
         <file>QML/components/MessagePopup.qml</file>
         <file>QML/components/SettingsPopup.qml</file>

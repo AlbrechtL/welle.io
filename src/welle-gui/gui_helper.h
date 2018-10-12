@@ -77,6 +77,13 @@ public:
     Q_INVOKABLE void updateNullSymbol();
     Q_INVOKABLE void updateConstellation();
 
+    Q_INVOKABLE void openAutoDevice();
+    Q_INVOKABLE void openAirspy();
+    Q_INVOKABLE void openRtlSdr();
+    Q_INVOKABLE void openSoapySdr();
+    Q_INVOKABLE void openRtlTcp(QString IpAddress, int IpPort, bool force);
+    Q_INVOKABLE void openRawFile(QString filename, QString fileFormat);
+
     void setNewDebugOutput(QString text);
 
     CMOTImageProvider* motImage; // ToDo: Must be a getter

@@ -72,8 +72,6 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, DABParams& p
     qRegisterMetaType<dab_date_time_t>("dab_date_time_t");
     connect(this, &CRadioController::dateTimeUpdated,
             this, &CRadioController::displayDateTime);
-
-    isAutoPlay = false;
 }
 
 void CRadioController::closeDevice()
@@ -92,23 +90,35 @@ void CRadioController::closeDevice()
 
 void CRadioController::openDevice(CDeviceID deviceId, bool force, QVariant param1, QVariant param2)
 {
-    if(device) {
-        if(this->deviceId != deviceId || force) {
-            closeDevice();
-            device.reset(CInputFactory::GetDevice(*this, deviceId));
+    if(this->deviceId != deviceId || force) {
+        closeDevice();
+        device.reset(CInputFactory::GetDevice(*this, deviceId));
 
-            // Set rtl_tcp settings
-            if (device->getID() == CDeviceID::RTL_TCP) {
-                CRTL_TCP_Client* RTL_TCP_Client = static_cast<CRTL_TCP_Client*>(device.get());
+        // Set rtl_tcp settings
+        if (device->getID() == CDeviceID::RTL_TCP) {
+            CRTL_TCP_Client* RTL_TCP_Client = static_cast<CRTL_TCP_Client*>(device.get());
 
-                RTL_TCP_Client->setIP(param1.toString().toStdString());
-                RTL_TCP_Client->setPort(param2.toInt());
-            }
-            initialise();
+            RTL_TCP_Client->setIP(param1.toString().toStdString());
+            RTL_TCP_Client->setPort(param2.toInt());
         }
+
+        // Set rtl_tcp settings
+        if (device->getID() == CDeviceID::RAWFILE) {
+            CRAWFile* rawFile = static_cast<CRAWFile*>(device.get());
+
+            rawFile->setFileName(param1.toString().toStdString(), param2.toString().toStdString());
+        }
+
+        initialise();
     }
 }
 
+void CRadioController::openDevice()
+{
+    closeDevice();
+    device.reset(CInputFactory::GetDevice(*this, "auto"));
+    initialise();
+}
 
 void CRadioController::play(QString Channel, QString Station)
 {
@@ -555,85 +565,85 @@ void CRadioController::nameofEnsemble(const QString &Ensemble)
 
 void CRadioController::onEventLoopStarted()
 {
-#ifdef Q_OS_ANDROID
-    QString dabDevice = "rtl_tcp";
-#else
-    QString dabDevice = "auto";
-#endif
+//#ifdef Q_OS_ANDROID
+//    QString dabDevice = "rtl_tcp";
+//#else
+//    QString dabDevice = "auto";
+//#endif
 
-#ifdef HAVE_SOAPYSDR
-    QString sdrDriverArgs;
-    QString sdrAntenna;
-    QString sdrClockSource;
-#endif /* HAVE_SOAPYSDR */
-    QString ipAddress = "127.0.0.1";
-    uint16_t ipPort = 1234;
-    QString rawFile = "";
-    QString rawFileFormat = "auto";
+//#ifdef HAVE_SOAPYSDR
+//    QString sdrDriverArgs;
+//    QString sdrAntenna;
+//    QString sdrClockSource;
+//#endif /* HAVE_SOAPYSDR */
+//    QString ipAddress = "127.0.0.1";
+//    uint16_t ipPort = 1234;
+//    QString rawFile = "";
+//    QString rawFileFormat = "auto";
 
-    if(commandLineOptions["dabDevice"] != "")
-        dabDevice = commandLineOptions["dabDevice"].toString();
+//    if(commandLineOptions["dabDevice"] != "")
+//        dabDevice = commandLineOptions["dabDevice"].toString();
 
-#ifdef HAVE_SOAPYSDR
-    if(commandLineOptions["sdr-driver-args"] != "")
-        sdrDriverArgs = commandLineOptions["sdr-driver-args"].toString();
+//#ifdef HAVE_SOAPYSDR
+//    if(commandLineOptions["sdr-driver-args"] != "")
+//        sdrDriverArgs = commandLineOptions["sdr-driver-args"].toString();
 
-    if(commandLineOptions["sdr-antenna"] != "")
-        sdrAntenna = commandLineOptions["sdr-antenna"].toString();
+//    if(commandLineOptions["sdr-antenna"] != "")
+//        sdrAntenna = commandLineOptions["sdr-antenna"].toString();
 
-    if(commandLineOptions["sdr-clock-source"] != "")
-        sdrClockSource = commandLineOptions["sdr-clock-source"].toString();
-#endif /* HAVE_SOAPYSDR */
+//    if(commandLineOptions["sdr-clock-source"] != "")
+//        sdrClockSource = commandLineOptions["sdr-clock-source"].toString();
+//#endif /* HAVE_SOAPYSDR */
 
-    if(commandLineOptions["ipAddress"] != "")
-        ipAddress = commandLineOptions["ipAddress"].toString();
+//    if(commandLineOptions["ipAddress"] != "")
+//        ipAddress = commandLineOptions["ipAddress"].toString();
 
-    if(commandLineOptions["ipPort"] != "")
-        ipPort = static_cast<unsigned short>(commandLineOptions["ipPort"].toUInt());
+//    if(commandLineOptions["ipPort"] != "")
+//        ipPort = static_cast<unsigned short>(commandLineOptions["ipPort"].toUInt());
 
-    if(commandLineOptions["rawFile"] != "")
-        rawFile = commandLineOptions["rawFile"].toString();
+//    if(commandLineOptions["rawFile"] != "")
+//        rawFile = commandLineOptions["rawFile"].toString();
 
-    if(commandLineOptions["rawFileFormat"] != "")
-        rawFileFormat = commandLineOptions["rawFileFormat"].toString();
+//    if(commandLineOptions["rawFileFormat"] != "")
+//        rawFileFormat = commandLineOptions["rawFileFormat"].toString();
 
-    // Init device
-    device.reset(CInputFactory::GetDevice(*this, dabDevice.toStdString()));
+//    // Init device
+//    device.reset(CInputFactory::GetDevice(*this, dabDevice.toStdString()));
 
-    // Set rtl_tcp settings
-    if (device->getID() == CDeviceID::RTL_TCP) {
-        CRTL_TCP_Client* RTL_TCP_Client = static_cast<CRTL_TCP_Client*>(device.get());
+//    // Set rtl_tcp settings
+//    if (device->getID() == CDeviceID::RTL_TCP) {
+//        CRTL_TCP_Client* RTL_TCP_Client = static_cast<CRTL_TCP_Client*>(device.get());
 
-        RTL_TCP_Client->setIP(ipAddress.toStdString());
-        RTL_TCP_Client->setPort(ipPort);
-    }
+//        RTL_TCP_Client->setIP(ipAddress.toStdString());
+//        RTL_TCP_Client->setPort(ipPort);
+//    }
 
-    // Set rawfile settings
-    if (device->getID() == CDeviceID::RAWFILE) {
-        CRAWFile* RAWFile = static_cast<CRAWFile*>(device.get());
+//    // Set rawfile settings
+//    if (device->getID() == CDeviceID::RAWFILE) {
+//        CRAWFile* RAWFile = static_cast<CRAWFile*>(device.get());
 
-        RAWFile->setFileName(rawFile.toStdString(), rawFileFormat.toStdString());
-    }
+//        RAWFile->setFileName(rawFile.toStdString(), rawFileFormat.toStdString());
+//    }
 
-#ifdef HAVE_SOAPYSDR
-    if (device->getID() == CDeviceID::SOAPYSDR) {
-        CSoapySdr *sdr = (CSoapySdr*)device.get();
+//#ifdef HAVE_SOAPYSDR
+//    if (device->getID() == CDeviceID::SOAPYSDR) {
+//        CSoapySdr *sdr = (CSoapySdr*)device.get();
 
-        if (!sdrDriverArgs.isEmpty()) {
-            sdr->setDriverArgs(sdrDriverArgs.toStdString());
-        }
+//        if (!sdrDriverArgs.isEmpty()) {
+//            sdr->setDriverArgs(sdrDriverArgs.toStdString());
+//        }
 
-        if (!sdrAntenna.isEmpty()) {
-            sdr->setAntenna(sdrAntenna.toStdString());
-        }
+//        if (!sdrAntenna.isEmpty()) {
+//            sdr->setAntenna(sdrAntenna.toStdString());
+//        }
 
-        if (!sdrClockSource.isEmpty()) {
-            sdr->setClockSource(sdrClockSource.toStdString());
-        }
-    }
-#endif /* HAVE_SOAPYSDR */
+//        if (!sdrClockSource.isEmpty()) {
+//            sdr->setClockSource(sdrClockSource.toStdString());
+//        }
+//    }
+//#endif /* HAVE_SOAPYSDR */
 
-    initialise();
+//    initialise();
 }
 
 void CRadioController::setErrorMessage(QString Text)
