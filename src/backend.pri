@@ -17,6 +17,9 @@ unix:!macx:!android: {
     CONFIG  += airspy
     CONFIG  += rtl_sdr
     #CONFIG  += soapysdr
+
+#    CONFIG  += mpg123_builtin
+#    CONFIG  += libfaad_builtin
 }
 
 win32: {
@@ -205,67 +208,7 @@ libfaad_builtin {
     HEADERS += \
     $$PWD/libs/faad2/config.h \
     $$PWD/libs/faad2/include/faad.h \
-    $$PWD/libs/faad2/include/neaacdec.h \
-    $$PWD/libs/faad2/libfaad/analysis.h \
-    $$PWD/libs/faad2/libfaad/bits.h \
-    $$PWD/libs/faad2/libfaad/cfft.h \
-    $$PWD/libs/faad2/libfaad/cfft_tab.h \
-    $$PWD/libs/faad2/libfaad/common.h \
-    $$PWD/libs/faad2/libfaad/drc.h \
-    $$PWD/libs/faad2/libfaad/drm_dec.h \
-    $$PWD/libs/faad2/libfaad/error.h \
-    $$PWD/libs/faad2/libfaad/filtbank.h \
-    $$PWD/libs/faad2/libfaad/fixed.h \
-    $$PWD/libs/faad2/libfaad/huffman.h \
-    $$PWD/libs/faad2/libfaad/ic_predict.h \
-    $$PWD/libs/faad2/libfaad/iq_table.h \
-    $$PWD/libs/faad2/libfaad/is.h \
-    $$PWD/libs/faad2/libfaad/kbd_win.h \
-    $$PWD/libs/faad2/libfaad/lt_predict.h \
-    $$PWD/libs/faad2/libfaad/mdct.h \
-    $$PWD/libs/faad2/libfaad/mdct_tab.h \
-    $$PWD/libs/faad2/libfaad/mp4.h \
-    $$PWD/libs/faad2/libfaad/ms.h \
-    $$PWD/libs/faad2/libfaad/output.h \
-    $$PWD/libs/faad2/libfaad/pns.h \
-    $$PWD/libs/faad2/libfaad/ps_dec.h \
-    $$PWD/libs/faad2/libfaad/ps_tables.h \
-    $$PWD/libs/faad2/libfaad/pulse.h \
-    $$PWD/libs/faad2/libfaad/rvlc.h \
-    $$PWD/libs/faad2/libfaad/sbr_dct.h \
-    $$PWD/libs/faad2/libfaad/sbr_dec.h \
-    $$PWD/libs/faad2/libfaad/sbr_e_nf.h \
-    $$PWD/libs/faad2/libfaad/sbr_fbt.h \
-    $$PWD/libs/faad2/libfaad/sbr_hfadj.h \
-    $$PWD/libs/faad2/libfaad/sbr_hfgen.h \
-    $$PWD/libs/faad2/libfaad/sbr_huff.h \
-    $$PWD/libs/faad2/libfaad/sbr_noise.h \
-    $$PWD/libs/faad2/libfaad/sbr_qmf_c.h \
-    $$PWD/libs/faad2/libfaad/sbr_qmf.h \
-    $$PWD/libs/faad2/libfaad/sbr_syntax.h \
-    $$PWD/libs/faad2/libfaad/sbr_tf_grid.h \
-    $$PWD/libs/faad2/libfaad/sine_win.h \
-    $$PWD/libs/faad2/libfaad/specrec.h \
-    $$PWD/libs/faad2/libfaad/ssr_fb.h \
-    $$PWD/libs/faad2/libfaad/ssr.h \
-    $$PWD/libs/faad2/libfaad/ssr_ipqf.h \
-    $$PWD/libs/faad2/libfaad/ssr_win.h \
-    $$PWD/libs/faad2/libfaad/structs.h \
-    $$PWD/libs/faad2/libfaad/syntax.h \
-    $$PWD/libs/faad2/libfaad/tns.h \
-    $$PWD/libs/faad2/libfaad/codebook/hcb_10.h \
-    $$PWD/libs/faad2/libfaad/codebook/hcb_11.h \
-    $$PWD/libs/faad2/libfaad/codebook/hcb_1.h \
-    $$PWD/libs/faad2/libfaad/codebook/hcb_2.h \
-    $$PWD/libs/faad2/libfaad/codebook/hcb_3.h \
-    $$PWD/libs/faad2/libfaad/codebook/hcb_4.h \
-    $$PWD/libs/faad2/libfaad/codebook/hcb_5.h \
-    $$PWD/libs/faad2/libfaad/codebook/hcb_6.h \
-    $$PWD/libs/faad2/libfaad/codebook/hcb_7.h \
-    $$PWD/libs/faad2/libfaad/codebook/hcb_8.h \
-    $$PWD/libs/faad2/libfaad/codebook/hcb_9.h \
-    $$PWD/libs/faad2/libfaad/codebook/hcb.h \
-    $$PWD/libs/faad2/libfaad/codebook/hcb_sf.h
+    $$PWD/libs/faad2/include/neaacdec.h
 
     SOURCES    += \
     $$PWD/libs/faad2/libfaad/bits.c \
@@ -319,6 +262,7 @@ mpg123_builtin {
 
     SOURCES    += \
     $$PWD/libs/mpg123/compat.c \
+    $$PWD/libs/mpg123/compat_str.c \
     $$PWD/libs/mpg123/parse.c \
     $$PWD/libs/mpg123/frame.c \
     $$PWD/libs/mpg123/format.c \
@@ -338,8 +282,10 @@ mpg123_builtin {
     $$PWD/libs/mpg123/dither.c \
     $$PWD/libs/mpg123/feature.c \
     $$PWD/libs/mpg123/synth.c \
+    $$PWD/libs/mpg123/synth_real.c \
     $$PWD/libs/mpg123/ntom.c \
     $$PWD/libs/mpg123/synth_8bit.c \
+    $$PWD/libs/mpg123/synth_s32.c \
     $$PWD/libs/mpg123/stringbuf.c
 }
 
