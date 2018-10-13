@@ -121,7 +121,9 @@ void CAudioThread::stop(void)
 void CAudioThread::reset(void)
 {
     audioIODevice.flush();
-    audioOutput->reset();
+
+    // For some reason audio under Windows stops working if reset() is used
+    //audioOutput->reset();
 }
 
 void CAudioThread::handleStateChanged(QAudio::State newState)
