@@ -57,10 +57,8 @@ Item {
 
             RowLayout {
                 enabled: !disableCoarse.checked
-                ComboBox {
+                WComboBox {
                     id: freqSyncMethodBox
-                    font.pixelSize: TextStyle.textStandartSize
-                    font.family: TextStyle.textFont
                     model: [ "GetMiddle", "CorrelatePRS", "PatternOfZeros" ];
                     onCurrentIndexChanged: {
                         radioController.setFreqSyncMethod(currentIndex)

@@ -82,6 +82,8 @@
         <file>QML/components/StationDelegate.qml</file>
         <file>QML/components/StationListModel.qml</file>
         <file>QML/components/Units.qml</file>
+        <file>QML/components/WComboBox.qml</file>
+		<file>QML/components/WButton.qml</file>
         <file>QML/components/qmldir</file>
         <file>QML/expertviews/StationInformation.qml</file>
         <file>QML/expertviews/ImpulseResponseGraph.qml</file>

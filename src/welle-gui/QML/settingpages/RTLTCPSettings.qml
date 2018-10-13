@@ -62,7 +62,7 @@ SettingSection {
             }
         }
 
-        Button {
+        WButton {
             id: applyButton
             text: qsTr("Apply")
             Layout.fillWidth: true

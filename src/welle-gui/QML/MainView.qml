@@ -92,7 +92,7 @@ ApplicationWindow {
         console.debug("devicePixelRatio: " + Screen.devicePixelRatio)
         console.debug("pixelDensity: " + Screen.pixelDensity)
 
-        // Reset window settings if OS is Android (it is a little hacky)
+        // Reset window settings if OS is Android (it is a little bit hacky)
         if(Qt.platform.os == "android") {
             mainWindow.width = getWidth()
             mainWindow.height = getHeight()
@@ -201,14 +201,13 @@ ApplicationWindow {
             anchors.topMargin: Units.dp(5)
 
             RowLayout {
-                ComboBox {
+                WComboBox {
                     id: stationListBox
-                    font.pixelSize: TextStyle.textStandartSize
-                    font.family: TextStyle.textFont
-                    background: Rectangle { color: "white" }
                     Layout.preferredWidth: Units.dp(200)
+                    background: Rectangle { color: "white" }
 
                     model:  [qsTr("All stations"), qsTr("Favorites")]
+
                     onCurrentIndexChanged: {
                         switch(currentIndex) {
                         case 0: stationChannelView.model = stationList; break;
@@ -321,10 +320,8 @@ ApplicationWindow {
                     Layout.fillWidth: true
                 }
 
-                ComboBox {
+                WComboBox {
                     id: manualChannelBox
-                    font.pixelSize: TextStyle.textStandartSize
-                    font.family: TextStyle.textFont
                     model: ["5A", "5B", "5C", "5D",
                         "6A", "6B", "6C", "6D",
                         "7A", "7B", "7C", "7D",

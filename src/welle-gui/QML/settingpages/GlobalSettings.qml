@@ -50,10 +50,9 @@ Item {
             isNotFirst: false
             text: qsTr("Global settings")
 
-            Switch {
+            SettingSwitch {
                 id: enableFullScreen
                 text: qsTr("Full screen mode")
-                height: 24
                 Layout.fillWidth: true
                 checked: false
             }
@@ -66,10 +65,9 @@ Item {
             //                text: Number(radioController.deviceId)
             //            }
 
-            Switch {
+            SettingSwitch {
                 id: enableAGC
                 text: qsTr("Automatic RF gain")
-                height: 24
                 Layout.fillWidth: true
                 checked: true
                 onClicked: {
@@ -113,20 +111,17 @@ Item {
                 }
             }
 
-            Switch {
+            SettingSwitch {
                 id: enableAutoSdr
                 text: qsTr("Auto detect")
-                height: 24
                 Layout.fillWidth: true
                 checked: true
             }
 
-            ComboBox {
+            WComboBox {
                 id: deviceBox
                 enabled: !enableAutoSdr.checked
                 Layout.fillWidth: true
-                font.pixelSize: TextStyle.textStandartSize
-                font.family: TextStyle.textFont
                 model: [ "Airspy", "rtl-sdr", "SoapySDR", "rtl-tcp", "RAW file"];
                 onCurrentIndexChanged: {
                     // Load appropriate settings

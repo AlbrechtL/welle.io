@@ -55,7 +55,9 @@ DISTFILES +=    ../../README.md \
     QML/components/ViewBaseFrame.qml \
     QML/GeneralView.qml \
     QML/components/SettingTumbler.qml \
-    QML/settingpages/RawFileSettings.qml
+    QML/settingpages/RawFileSettings.qml \
+    QML/components/WComboBox.qml \
+    QML/components/WButton.qml
 
 TRANSLATIONS = i18n/de_DE.ts \
     i18n/it_IT.ts \

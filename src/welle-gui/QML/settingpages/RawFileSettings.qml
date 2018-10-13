@@ -32,7 +32,7 @@ SettingSection {
 
         RowLayout {
             spacing: Units.dp(5)
-            Button {
+            WButton {
                 id: openFile
                 text: qsTr("Open RAW file")
                 Layout.fillWidth: true
@@ -41,7 +41,7 @@ SettingSection {
                 }
             }
 
-            ComboBox {
+            WComboBox {
                 id: fileFormat
                 model: [ "auto", "u8", "s8", "s16le", "s16be", "cf32"];
             }
@@ -59,7 +59,7 @@ SettingSection {
         }
 
 
-        Button {
+        WButton {
             id: applyButton
             text: qsTr("Apply")
             Layout.fillWidth: true
