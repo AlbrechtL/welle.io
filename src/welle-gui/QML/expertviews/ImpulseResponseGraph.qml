@@ -52,7 +52,7 @@ ViewBaseFrame {
 
         ValueAxis {
             id: axisX
-            titleText: qsTr("Frequency") + " [MHz]"
+            titleText: qsTr("Samples")
         }
 
         Timer {
