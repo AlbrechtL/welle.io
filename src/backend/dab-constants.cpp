@@ -440,7 +440,7 @@ string Subchannel::protection() const
     string prot;
     const auto& ps = protectionSettings;
     if (ps.shortForm) {
-        prot = "UEP " + to_string(ps.uepTableIndex);
+        prot = "UEP " + to_string((int)ps.uepLevel);
     }
     else {  // EEP
         prot = "EEP ";
