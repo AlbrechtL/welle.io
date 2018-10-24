@@ -6,17 +6,7 @@ QT += network qml quick charts multimedia
 
 RC_ICONS   =    icon/icon.ico
 RESOURCES +=    resources.qrc
-DISTFILES +=    ../../README.md \
-    ../../android/AndroidManifest.xml \
-    ../../android/gradle/wrapper/gradle-wrapper.jar \
-    ../../android/gradlew \
-    ../../android/res/values/libs.xml \
-    ../../android/build.gradle \
-    ../../android/gradle/wrapper/gradle-wrapper.properties \
-    ../../android/gradlew.bat \
-    ../../android/java/io/welle/welle/DabMediaService.java \
-    ../../android/java/io/welle/welle/DabService.java \
-    ../../android/java/io/welle/welle/DabDelegate.java \
+DISTFILES +=    \
     QML/MainView.qml \
     QML/RadioView.qml \
     QML/ExpertView.qml \
@@ -57,7 +47,19 @@ DISTFILES +=    ../../README.md \
     QML/components/SettingTumbler.qml \
     QML/settingpages/RawFileSettings.qml \
     QML/components/WComboBox.qml \
-    QML/components/WButton.qml
+    QML/components/WButton.qml \
+    android/AndroidManifest.xml \
+    android/gradle/wrapper/gradle-wrapper.jar \
+    android/gradlew \
+    android/res/values/libs.xml \
+    android/build.gradle \
+    android/gradle/wrapper/gradle-wrapper.properties \
+    android/gradlew.bat \
+    android/java/io/welle/welle/DabMediaService.java \
+    android/java/io/welle/welle/DabService.java \
+    android/java/io/welle/welle/DabDelegate.java
+
+ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 
 TRANSLATIONS = i18n/de_DE.ts \
     i18n/it_IT.ts \
@@ -101,8 +103,6 @@ android {
 #    REPC_REPLICA += radio_controller.rep
 }
 
-ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
-
 # Include git hash into build
 unix:!macx { # macOS is not tested, exclude it
     GITHASHSTRING = $$system(git rev-parse --short HEAD)
@@ -112,7 +112,6 @@ win32 {
     GITHASHSTRING = $$system(git.exe rev-parse --short HEAD)
 } else:macx {
     ICON = icon/icon.icns
-    QMAKE_INFO_PLIST = $$(PWD)/welle-io.plist
 }
 
 !isEmpty(GITHASHSTRING) {
