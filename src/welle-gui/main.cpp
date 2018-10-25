@@ -287,11 +287,11 @@ int main(int argc, char** argv)
     // Run application
     app.exec();
 
+    qDebug() << "main:" <<  "Application closed";
+
     // Delete the RadioController controller to ensure a save shutdown
     delete guiHelper;
     delete radioController;
-
-    qDebug() << "main:" <<  "Application closed";
 
     return 0;
 }
