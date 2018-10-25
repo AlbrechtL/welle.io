@@ -102,6 +102,11 @@ class WebRadioInterface : public RadioControllerInterface {
         // in decimal
         bool send_mp3(Socket& s, const std::string& stream);
 
+        // Send the slide for the selected programme.
+        // stream is a service id, either in hex with 0x prefix or
+        // in decimal
+        bool send_slide(Socket& s, const std::string& stream);
+
         // Send the Fast Information Channel as a stream.
         // Every FIB is 32 bytes long, there three FIBs per 24ms interval,
         // which gives 32000 bits/s

@@ -23,7 +23,6 @@
  *
  */
 #include "webprogrammehandler.h"
-#include "libs/base64.h"
 #include <iostream>
 
 using namespace std;
@@ -121,13 +120,13 @@ WebProgrammeHandler::dls_t WebProgrammeHandler::getDLS() const
     return dls;
 }
 
-WebProgrammeHandler::mot_t WebProgrammeHandler::getMOT_base64() const
+WebProgrammeHandler::mot_t WebProgrammeHandler::getMOT() const
 {
     mot_t mot;
 
     std::unique_lock<std::mutex> lock(stats_mutex);
     if (last_mot_valid) {
-        mot.data = Base64::Encode(last_mot);
+        mot.data = last_mot;
         mot.time = time_mot;
         mot.subtype = last_subtype;
     }

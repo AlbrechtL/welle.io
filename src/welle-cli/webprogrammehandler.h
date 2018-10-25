@@ -135,10 +135,10 @@ class WebProgrammeHandler : public ProgrammeHandlerInterface {
         dls_t getDLS() const;
 
         struct mot_t {
-            std::string data;
+            std::vector<uint8_t> data;
             MOTType subtype = MOTType::Unknown;
             std::chrono::time_point<std::chrono::system_clock> time; };
-        mot_t getMOT_base64() const;
+        mot_t getMOT() const;
 
         xpad_error_t getXPADErrors() const;
         audiolevels_t getAudioLevels() const;

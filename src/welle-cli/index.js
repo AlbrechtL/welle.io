@@ -17,11 +17,6 @@ window.onload = function() {
     var chevron_down = '<img width=24 height=24 src="data:image/png;base64,' +
         png_chevron_down + '" />';
 
-    var sls_block = document.getElementById('block_sls');
-    sls_block.getElementsByClassName('title')[0]
-        .getElementsByClassName('chevron')[0]
-        .innerHTML = chevron_right;
-
     var spectrum_block = document.getElementById('block_spectrum');
     spectrum_block.getElementsByClassName('title')[0]
         .getElementsByClassName('chevron')[0]
@@ -57,8 +52,6 @@ window.onload = function() {
             return true;
         }
     };
-
-    sls_block.onclick = function() { toggle_func(sls_block); };
 
     spectrum_block.onclick = function() {
         if (toggle_func(spectrum_block)) {
@@ -189,6 +182,22 @@ function stopPlayer() {
     playerLoad();
 }
 
+var slide_modal = document.getElementById('mySlideModal');
+var slideimg = document.getElementById("slideimg");
+var slidecaption = document.getElementById("slidecaption");
+
+function showSlide(sid, last_update_time) {
+    slideimg.src = "slide/" + sid;
+    var last_update = new Date(last_update_time * 1000);
+    slidecaption.innerHTML = last_update;
+    slide_modal.style.display = "block";
+}
+
+var slideclose = document.getElementsByClassName("slideclose")[0];
+slideclose.onclick = function() {
+    slide_modal.style.display = "none";
+}
+
 function parseTemplate(template, data) {
    return template.replace(/\$\{(\w+)\}/gi, function(match, parensMatch) {
      if (data[parensMatch] !== undefined) {
@@ -274,7 +283,6 @@ function populateEnsembleinfo() {
         });
 
         var servicehtml = "";
-        var imageshtml = "";
         for (ix in start_addresses) {
             var key = start_addresses[ix].key;
             var service = data.services[key];
@@ -307,12 +315,17 @@ function populateEnsembleinfo() {
                 s["techdetails"] = "";
             }
 
+            s["dls"] = "";
+
+            if (service.mot && service.mot.time > 0) {
+                s["dls"] += '<button type=button onclick="showSlide(';
+                s["dls"] += service.sid + ', ' + service.mot.time;
+                s["dls"] += ')">SLS</button>';
+            }
+
             if (service.dls) {
                 var last_update = new Date(service.dls.time * 1000);
-                s["dls"] = '<span title="Updated ' + last_update + '">' + service.dls.label + '</span>';
-            }
-            else {
-                s["dls"] = "";
+                s["dls"] += ' <span title="Updated ' + last_update + '">' + service.dls.label + '</span>';
             }
 
             if (service.xpaderror && service.xpaderror.haserror) {
@@ -323,19 +336,11 @@ function populateEnsembleinfo() {
                 alerthtml += 'alt="' + tooltip + '">';
                 s["dls"] += alerthtml;
             }
+            s["dls"] += "</td>";
 
             s["pty"] = service.ptystring;
             s["language"] = service.languagestring;
             s["canvasid"] = "canvas" + service.sid;
-
-            imageshtml += ' <img width=128 height=96 src="';
-            if (service.mot && service.mot.data) {
-                imageshtml += "data:" + service.mot.type + ";base64," +
-                    service.mot.data + '">';
-            }
-            else {
-                imageshtml += "data:image/png;base64," + png_noslide + '">';
-            }
 
             if (service.errorcounters) {
                 s["errorcounters"] = service.errorcounters.frameerrors + "," +
@@ -370,8 +375,6 @@ function populateEnsembleinfo() {
 
         var ei = document.getElementById('ensembleinfo');
         ei.innerHTML = parseTemplate(ensembleInfoTemplate(), ens);
-
-        document.getElementById('images').innerHTML = imageshtml;
 
         tiihtml = "<ul>";
         for (key in data.tii) {

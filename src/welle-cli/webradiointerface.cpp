@@ -274,10 +274,16 @@ bool WebRadioInterface::dispatch_client(Socket&& client)
             success = handle_channel_post(s, request);
         }
         else {
+            const regex regex_slide(R"(^GET [/]slide[/]([^ ]+) HTTP)");
+            std::smatch match_slide;
+
             const regex regex_mp3(R"(^GET [/]mp3[/]([^ ]+) HTTP)");
             std::smatch match_mp3;
             if (regex_search(request, match_mp3, regex_mp3)) {
                 success = send_mp3(s, match_mp3[1]);
+            }
+            else if (regex_search(request, match_slide, regex_slide)) {
+                success = send_slide(s, match_slide[1]);
             }
             else {
                 cerr << "Could not understand request " << request << endl;
@@ -505,21 +511,9 @@ bool WebRadioInterface::send_mux_json(Socket& s)
                 j_srv["samplerate"] = wph.rate;
                 j_srv["mode"] = wph.mode;
 
-                auto mot = wph.getMOT_base64();
+                auto mot = wph.getMOT();
                 nlohmann::json j_mot = {
-                    {"data", mot.data},
                     {"time", chrono::system_clock::to_time_t(mot.time)}};
-                switch (mot.subtype) {
-                    case MOTType::Unknown:
-                        j_mot["type"] = "application/octet-stream";
-                        break;
-                    case MOTType::JPEG:
-                        j_mot["type"] = "image/jpeg";
-                        break;
-                    case MOTType::PNG:
-                        j_mot["type"] = "image/png";
-                        break;
-                }
                 j_srv["mot"] = j_mot;
 
                 auto dls = wph.getDLS();
@@ -656,6 +650,55 @@ bool WebRadioInterface::send_mp3(Socket& s, const std::string& stream)
                 s.send(headers.data(), headers.size(), MSG_NOSIGNAL);
                 return false;
             }
+        }
+    }
+    return false;
+}
+
+bool WebRadioInterface::send_slide(Socket& s, const std::string& stream)
+{
+    for (const auto& wph : phs) {
+        if (to_hex<4>(wph.first) == stream or
+                (uint32_t)std::stoul(stream) == wph.first) {
+            const auto mot = wph.second.getMOT();
+
+            if (mot.data.empty()) {
+                string headers = http_404;
+                headers += http_contenttype_text;
+                headers += http_nocache;
+                headers += "\r\n";
+                headers += "404 Not Found\r\n";
+                headers += "Slide not available.\r\n";
+                s.send(headers.data(), headers.size(), MSG_NOSIGNAL);
+                return true;
+            }
+
+            stringstream headers;
+            headers << http_ok;
+
+            headers << "Content-Type: ";
+            switch (mot.subtype) {
+                case MOTType::Unknown:
+                    headers << "application/octet-stream";
+                    break;
+                case MOTType::JPEG:
+                    headers << "image/jpeg";
+                    break;
+                case MOTType::PNG:
+                    headers << "image/png";
+                    break;
+            }
+            headers << "\r\n";
+
+            headers << "Last-Modified: ";
+            std::time_t t = chrono::system_clock::to_time_t(mot.time);
+            headers << put_time(std::gmtime(&t), "%a, %d %b %Y %T GMT");
+            headers << "\r\n";
+            headers << "\r\n";
+            const auto headers_str = headers.str();
+            s.send(headers_str.data(), headers_str.size(), MSG_NOSIGNAL);
+            s.send(mot.data.data(), mot.data.size(), MSG_NOSIGNAL);
+            return true;
         }
     }
     return false;
@@ -963,7 +1006,7 @@ void WebRadioInterface::handle_phs()
                         // Switch to next programme once both DLS and Slideshow
                         // got decoded, but at most after 80 seconds
                         const auto now = system_clock::now();
-                        const auto mot = current_it->second.getMOT_base64();
+                        const auto mot = current_it->second.getMOT();
                         const auto dls = current_it->second.getDLS();
                         // Slide and DLS received in the last 60 seconds?
                         const bool switchBecausePAD = (
