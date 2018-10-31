@@ -435,14 +435,14 @@ ApplicationWindow {
         }
     }
 
-    SettingsPopup {
+    WPopup {
         id: stationSettingsDialog
         contentItem: Loader {
             source:  "qrc:/QML/settingpages/ChannelSettings.qml"
         }
     }
 
-    SettingsPopup {
+    WPopup {
         id: globalSettingsDialog
         contentItem: Loader {
             id: globalSettingsLoader
@@ -456,7 +456,7 @@ ApplicationWindow {
         }
     }
 
-    SettingsPopup {
+    WPopup {
         id: expertSettingsDialog
         contentItem: Loader {
             id: expertSettingsLoader

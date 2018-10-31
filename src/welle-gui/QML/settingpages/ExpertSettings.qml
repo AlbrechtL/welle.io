@@ -33,7 +33,7 @@ Item {
             isNotFirst: false
             text: qsTr("Global")
 
-            SettingSwitch {
+            WSwitch {
                 id: enableExpertMode
                 text: qsTr("Expert mode")
                 checked: false
@@ -44,7 +44,7 @@ Item {
             text: qsTr("Backend")
             enabled: enableExpertMode.checked
 
-            SettingSwitch {
+            WSwitch {
                 id: disableCoarse
                 text: qsTr("Disable coarse corrector (for receivers with <1kHz error)")
                 checked: true
@@ -72,7 +72,7 @@ Item {
                 }
             }
 
-            SettingSwitch {
+            WSwitch {
                 id: enableDecodeTII
                 text: qsTr("Enable TII decoding to console log (increases CPU usage)")
                 checked: false
@@ -83,7 +83,7 @@ Item {
                 Component.onCompleted: radioController.enableTIIDecode(checked)
             }
 
-            SettingSwitch {
+            WSwitch {
                 id: enableOldFFTWindow
                 text: qsTr("Select old FFT placement algorithm (experimental)")
                 checked: false

@@ -21,7 +21,7 @@ Item {
         anchors.right: parent.right
         spacing: Units.dp(20)
 
-        SettingSwitch {
+        WSwitch {
             id: enableLastPlayedStation
             text: qsTr("Automatic start playing last station")
             checked: false

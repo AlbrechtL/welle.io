@@ -7,6 +7,16 @@ QT += network qml quick charts multimedia
 RC_ICONS   =    icon/icon.ico
 RESOURCES +=    resources.qrc
 DISTFILES +=    \
+    android/AndroidManifest.xml \
+    android/gradle/wrapper/gradle-wrapper.jar \
+    android/gradlew \
+    android/res/values/libs.xml \
+    android/build.gradle \
+    android/gradle/wrapper/gradle-wrapper.properties \
+    android/gradlew.bat \
+    android/java/io/welle/welle/DabMediaService.java \
+    android/java/io/welle/welle/DabService.java \
+    android/java/io/welle/welle/DabDelegate.java \
     QML/MainView.qml \
     QML/RadioView.qml \
     QML/ExpertView.qml \
@@ -18,9 +28,7 @@ DISTFILES +=    \
     QML/texts/TextRadioStation.qml \
     QML/texts/TextExpert.qml \
     QML/InfoPage.qml \
-    QML/components/SettingsPopup.qml \
     QML/settingpages/ExpertSettings.qml \
-    QML/components/SettingSwitch.qml \
     QML/settingpages/GlobalSettings.qml \
     QML/settingpages/ChannelSettings.qml \
     QML/settingpages/RTLSDRSettings.qml \
@@ -29,9 +37,7 @@ DISTFILES +=    \
     QML/settingpages/ExpertSettings.qml \
     QML/settingpages/NullSettings.qml \
     QML/components/MessagePopup.qml \
-    QML/components/SettingsPopup.qml \
     QML/components/SettingSection.qml \
-    QML/components/SettingSwitch.qml \
     QML/components/StationDelegate.qml \
     QML/components/Units.qml \
     QML/expertviews/StationInformation.qml \
@@ -44,20 +50,12 @@ DISTFILES +=    \
     QML/MotView.qml \
     QML/components/ViewBaseFrame.qml \
     QML/GeneralView.qml \
-    QML/components/SettingTumbler.qml \
     QML/settingpages/RawFileSettings.qml \
     QML/components/WComboBox.qml \
     QML/components/WButton.qml \
-    android/AndroidManifest.xml \
-    android/gradle/wrapper/gradle-wrapper.jar \
-    android/gradlew \
-    android/res/values/libs.xml \
-    android/build.gradle \
-    android/gradle/wrapper/gradle-wrapper.properties \
-    android/gradlew.bat \
-    android/java/io/welle/welle/DabMediaService.java \
-    android/java/io/welle/welle/DabService.java \
-    android/java/io/welle/welle/DabDelegate.java
+    QML/components/WPopup.qml \
+    QML/components/WSwitch.qml \
+    QML/components/WTumbler.qml
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 

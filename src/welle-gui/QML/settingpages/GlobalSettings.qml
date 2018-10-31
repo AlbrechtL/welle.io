@@ -63,7 +63,7 @@ Item {
             isNotFirst: false
             text: qsTr("Global settings")
 
-            SettingSwitch {
+            WSwitch {
                 id: enableFullScreen
                 text: qsTr("Full screen mode")
                 Layout.fillWidth: true
@@ -78,7 +78,7 @@ Item {
             //                text: Number(radioController.deviceId)
             //            }
 
-            SettingSwitch {
+            WSwitch {
                 id: enableAGC
                 text: qsTr("Automatic RF gain")
                 Layout.fillWidth: true
@@ -123,7 +123,7 @@ Item {
                 }
             }
 
-            SettingSwitch {
+            WSwitch {
                 id: enableAutoSdr
                 text: qsTr("Auto detect")
                 Layout.fillWidth: true

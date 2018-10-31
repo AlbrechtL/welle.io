@@ -31,19 +31,19 @@ SettingSection {
                 height: Units.dp(120)
                 spacing: Units.dp(5)
 
-                SettingTumbler {
+                WTumbler {
                     id: ipAddress1
                     currentIndex: 192
                 }
-                SettingTumbler {
+                WTumbler {
                     id: ipAddress2
                     currentIndex: 168
                 }
-                SettingTumbler {
+                WTumbler {
                     id: ipAddress3
                     currentIndex: 1
                 }
-                SettingTumbler {
+                WTumbler {
                     id: ipAddress4
                     currentIndex: 10
                 }
@@ -55,7 +55,7 @@ SettingSection {
                 text: qsTr("IP port")
             }
 
-            SettingTumbler {
+            WTumbler {
                 id: ipPort
                 model: 65536
                 currentIndex: 1234

@@ -76,15 +76,15 @@
         <file>QML/settingpages/NullSettings.qml</file>
         <file>QML/settingpages/AirspySettings.qml</file>
         <file>QML/components/MessagePopup.qml</file>
-        <file>QML/components/SettingsPopup.qml</file>
+        <file>QML/components/WPopup.qml</file>
         <file>QML/components/SettingSection.qml</file>
-        <file>QML/components/SettingSwitch.qml</file>
-        <file>QML/components/SettingTumbler.qml</file>
+        <file>QML/components/WSwitch.qml</file>
+        <file>QML/components/WTumbler.qml</file>
         <file>QML/components/StationDelegate.qml</file>
         <file>QML/components/StationListModel.qml</file>
         <file>QML/components/Units.qml</file>
         <file>QML/components/WComboBox.qml</file>
-		<file>QML/components/WButton.qml</file>
+        <file>QML/components/WButton.qml</file>
         <file>QML/components/qmldir</file>
         <file>QML/expertviews/StationInformation.qml</file>
         <file>QML/expertviews/ImpulseResponseGraph.qml</file>
