@@ -46,20 +46,21 @@ Item {
 
             WSwitch {
                 id: disableCoarse
-                text: qsTr("Disable coarse corrector (for receivers with <1kHz error)")
+                text: qsTr("Enable coarse corrector (for receivers with >1kHz error)")
                 checked: true
                 onCheckedChanged: {
-                    radioController.disableCoarseCorrector(checked)
+                    radioController.disableCoarseCorrector(!checked)
                 }
 
-                Component.onCompleted: radioController.disableCoarseCorrector(checked)
+                Component.onCompleted: radioController.disableCoarseCorrector(!checked)
             }
 
             RowLayout {
-                enabled: !disableCoarse.checked
+                enabled: disableCoarse.checked
                 WComboBox {
                     id: freqSyncMethodBox
                     model: [ "GetMiddle", "CorrelatePRS", "PatternOfZeros" ];
+                    currentIndex: 1
                     onCurrentIndexChanged: {
                         radioController.setFreqSyncMethod(currentIndex)
                     }
