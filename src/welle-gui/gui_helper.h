@@ -139,6 +139,7 @@ signals:
     void setConstellationAxis(qreal Xmin, qreal Xmax);
     void motChanged(void);
     void newDebugOutput(QString text);
+    void newDeviceId(int deviceId);
 
 #ifndef QT_NO_SYSTEMTRAYICON
     void minimizeWindow(void);

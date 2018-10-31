@@ -14,29 +14,42 @@ Item {
     implicitWidth:  layout.implicitWidth
 
     property alias enableFullScreenState : enableFullScreen.checked
-    property alias enableAGCState : enableAGC.checked
-    property alias manualGainState : manualGain.value
 
     Settings {
-        property alias enableFullScreenState : settingsPage.enableFullScreenState
-        property alias manualGainState : settingsPage.manualGainState
-        property alias manualGainValue: valueSliderView.text
-        property alias enableAGCState : settingsPage.enableAGCState
-        property alias enableAutoSdr : enableAutoSdr.checked
         property alias device: deviceBox.currentIndex
+        property alias enableAGCState : enableAGC.checked
+        property alias enableFullScreenState : settingsPage.enableFullScreenState
+        property alias manualGainState : manualGain.value
+        property alias manualGainValue: valueSliderView.text
+        property alias enableAutoSdr : enableAutoSdr.checked
     }
 
     Component.onCompleted: {
         console.debug("Apply settings initially")
-        radioController.setGain(manualGainState)
-        radioController.setAGC(enableAGCState)
+        radioController.setGain(manualGain.value)
+        radioController.setAGC(enableAGC.checked)
     }
 
     Connections{
         target: radioController
 
-        onGainCountChanged:{
-            manualGain.to = radioController.gainCount
+        onGainCountChanged: manualGain.to = radioController.gainCount
+    }
+
+    Connections {
+        target: guiHelper
+
+        onNewDeviceId: {
+            switch(deviceId) {
+            case 0: deviceBox.currentIndex = 99; break; // UNKNOWN
+            case 1: deviceBox.currentIndex = 99; break; // NULLDEVICE
+            case 2: deviceBox.currentIndex = 0; break; // AIRSPY
+            case 3: deviceBox.currentIndex = 4; break; // RAWFILE
+            case 4: deviceBox.currentIndex = 1; break; // RTL_SDR
+            case 5: deviceBox.currentIndex = 3; break; // RTL_TCP
+            case 6: deviceBox.currentIndex = 2; break; // SOAPYSDR
+            default: deviceBox.currentIndex = 99;
+            }
         }
     }
 
@@ -100,7 +113,6 @@ Item {
                     id: manualGain
                     from: 0
                     to: 100
-                    value: manualGainState
                     stepSize: 1
                     Layout.fillWidth: true
 
@@ -126,6 +138,7 @@ Item {
                 onCurrentIndexChanged: {
                     // Load appropriate settings
                     switch(currentIndex) {
+                    case 0: sdrSpecificSettings.source = "qrc:/QML/settingpages/AirspySettings.qml"; break
                     case 1: sdrSpecificSettings.source = "qrc:/QML/settingpages/RTLSDRSettings.qml"; break
                     case 2: sdrSpecificSettings.source = "qrc:/QML/settingpages/SoapySDRSettings.qml"; break
                     case 3: sdrSpecificSettings.source = "qrc:/QML/settingpages/RTLTCPSettings.qml"; break

@@ -74,6 +74,7 @@
         <file>QML/settingpages/ExpertSettings.qml</file>
         <file>QML/settingpages/RawFileSettings.qml</file>
         <file>QML/settingpages/NullSettings.qml</file>
+        <file>QML/settingpages/AirspySettings.qml</file>
         <file>QML/components/MessagePopup.qml</file>
         <file>QML/components/SettingsPopup.qml</file>
         <file>QML/components/SettingSection.qml</file>

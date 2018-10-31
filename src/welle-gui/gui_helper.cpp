@@ -480,7 +480,9 @@ void CGUIHelper::updateConstellation()
 
 void CGUIHelper::openAutoDevice()
 {
-    radioController->openDevice();
+    CDeviceID deviceId;
+    deviceId = radioController->openDevice();
+    emit newDeviceId(static_cast<int>(deviceId));
 }
 
 void CGUIHelper::openAirspy()

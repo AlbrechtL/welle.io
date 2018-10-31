@@ -105,8 +105,8 @@ class CRadioController :
 public:
     CRadioController(QVariantMap &commandLineOptions, DABParams& params, QObject* parent = nullptr);
     void closeDevice();
-    void openDevice(CDeviceID deviceId, bool force = false, QVariant param1 = QVariant(), QVariant param2 = QVariant());
-    void openDevice();
+    CDeviceID openDevice(CDeviceID deviceId, bool force = false, QVariant param1 = QVariant(), QVariant param2 = QVariant());
+    CDeviceID openDevice();
     Q_INVOKABLE void play(QString Channel, QString Station);
     void pause();
     void stop();
@@ -205,8 +205,8 @@ private:
     QString currentText;
     int32_t currentManualGain;
     float currentManualGainValue = 0.0;
-    qreal currentVolume;
-    QString deviceName;
+    qreal currentVolume = 1.0;
+    QString deviceName = "Unknown";
     CDeviceID deviceId = CDeviceID::UNKNOWN;
 
     QTimer stationTimer;

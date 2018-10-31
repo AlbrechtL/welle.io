@@ -88,7 +88,7 @@ void CRadioController::closeDevice()
     emit deviceClosed();
 }
 
-void CRadioController::openDevice(CDeviceID deviceId, bool force, QVariant param1, QVariant param2)
+CDeviceID CRadioController::openDevice(CDeviceID deviceId, bool force, QVariant param1, QVariant param2)
 {
     if(this->deviceId != deviceId || force) {
         closeDevice();
@@ -111,13 +111,17 @@ void CRadioController::openDevice(CDeviceID deviceId, bool force, QVariant param
 
         initialise();
     }
+
+    return device->getID();
 }
 
-void CRadioController::openDevice()
+CDeviceID CRadioController::openDevice()
 {
     closeDevice();
     device.reset(CInputFactory::GetDevice(*this, "auto"));
     initialise();
+
+    return device->getID();
 }
 
 void CRadioController::play(QString Channel, QString Station)
@@ -381,23 +385,19 @@ void CRadioController::setFreqSyncMethod(int fsm_ix)
 void CRadioController::setGain(int Gain)
 {
     currentManualGain = Gain;
+    emit gainChanged(currentManualGain);
 
     if (device) {
         currentManualGainValue = device->setGain(Gain);
+        emit gainValueChanged(currentManualGainValue);
+
         int32_t gainCount_tmp = device->getGainCount();
 
         if(gainCount != gainCount_tmp) {
             gainCount = gainCount_tmp;
             emit gainCountChanged(gainCount);
         }
-    }
-    else
-    {
-        currentManualGainValue = std::numeric_limits<float>::lowest();
-    }
-
-    emit gainValueChanged(currentManualGainValue);
-    emit gainChanged(currentManualGain);
+    }  
 }
 
 DABParams& CRadioController::getDABParams()
@@ -457,7 +457,9 @@ void CRadioController::initialise(void)
 
     if (!isAGC) { // Manual AGC
         device->setAgc(false);
-        device->setGain(currentManualGain);
+        currentManualGainValue = device->setGain(currentManualGain);
+        emit gainValueChanged(currentManualGainValue);
+
         qDebug() << "RadioController:" << "AGC off";
     }
     else {
@@ -521,15 +523,6 @@ void CRadioController::resetTechnicalData(void)
     frameErrors = 0;
     rsErrors = 0;
     aaErrors = 0;
-    gainCount = 0;
-    stationCount = 0;
-    currentManualGain = 0;
-    currentManualGainValue = std::numeric_limits<float>::lowest();
-    currentVolume = 1.0;
-    isChannelScan = false;
-    isAGC = true;
-    isHwAGC = true;
-    isHwAGCSupported = false;
 
     motImage.loadFromData(nullptr, 0);
     emit motChanged(motImage);
