@@ -444,16 +444,27 @@ void CGUIHelper::updateConstellation()
     constellationPointBuffer = radioController->getConstellationPoint();
 
     const size_t decim = OfdmDecoder::constellationDecimation;
-    const size_t num_iqpoints = (radioController->getDABParams().L-1) * radioController->getDABParams().K / decim;
+    const auto& params = radioController->getDABParams();
+    const size_t num_iqpoints = (params.L-1) * params.K / decim;
     if (constellationPointBuffer.size() == num_iqpoints) {
         constellationSeriesData.resize(num_iqpoints);
-        for (size_t i = 0; i < num_iqpoints; i++) {
-            qreal y = 180.0f / (float)M_PI * std::arg(constellationPointBuffer[i]);
-            constellationSeriesData[i] = QPointF(i, y);
+
+        size_t i = 0;
+        for (int l = 1; l < params.L; l++) {
+            size_t ix = (l-1) * params.K/decim;
+            for (int k = 0; k < params.K; k += decim) {
+                qreal y = 180.0f / (float)M_PI *
+                    std::arg(constellationPointBuffer.at(ix++));
+
+                qreal x = k - params.K/2.0 + (l-1)/((qreal)params.L/decim);
+                constellationSeriesData[i++] = QPointF(x, y);
+            }
         }
 
-        x_min = 0;
-        x_max = num_iqpoints;
+        // TM I:
+        // k from -768 to 768, but not counting 0 gives a total of 1536 carriers
+        x_min = -params.K / 2;
+        x_max = params.K / 2;
 
         emit setConstellationAxis(x_min, x_max);
 

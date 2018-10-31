@@ -101,7 +101,7 @@ void OfdmDecoder::workerthread()
 
         if (currentSym == 0) {
             constellationPoints.clear();
-            constellationPoints.resize(
+            constellationPoints.reserve(
                     (params.L-1) * params.K / constellationDecimation);
         }
 
@@ -118,7 +118,7 @@ void OfdmDecoder::workerthread()
                 radioInterface.onConstellationPoints(
                         std::move(constellationPoints));
                 constellationPoints.clear();
-                constellationPoints.resize(
+                constellationPoints.reserve(
                         (params.L-1) * params.K / constellationDecimation);
             }
         }
@@ -229,9 +229,7 @@ void OfdmDecoder::decodeDataSymbol(int32_t sym_ix)
         ibits[params.K + i] = -imag (r1) * ab1;
 
         if (i % constellationDecimation == 0) {
-            const size_t ix = (sym_ix-1) +
-                (params.L-1) * (i / constellationDecimation);
-            constellationPoints.at(ix) = r1;
+            constellationPoints.push_back(r1);
         }
     }
 
