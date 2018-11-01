@@ -73,5 +73,49 @@ ViewBaseFrame {
                axisY.max = chart.maxYAxis
             }
         }
+
+        MouseArea {
+            anchors.fill: parent
+            hoverEnabled: true
+            onPositionChanged: {
+                // Move text to mouse position
+                xConversation.x = mouse.x + Units.dp(10)
+                xConversation.y = mouse.y + Units.dp(10)
+
+                // Get x axis value
+                var mousePos = Qt.point(mouse.x, mouse.y);
+                var valuePoint = chart.mapToValue(mousePos);
+                var us = (valuePoint.x / 2.048).toPrecision(2)
+                var km = (us * 3e5).toPrecision(2)
+
+                xDisplaySample.text = "sample: " + (valuePoint.x).toFixed()
+                xDisplaySecond.text = us + " µs";
+                xDisplayKm.text = km + " km";
+            }
+        }
+
+        Rectangle {
+            id: xConversation
+            width: xConvLayout.implicitWidth
+            height: xConvLayout.implicitHeight
+            color: "lightgrey"
+
+            ColumnLayout {
+                anchors.margins: 10
+
+                id: xConvLayout
+                Text {
+                    id: xDisplaySample
+                }
+
+                Text {
+                    id: xDisplaySecond
+                }
+
+                Text {
+                    id: xDisplayKm
+                }
+            }
+        }
     }
 }
