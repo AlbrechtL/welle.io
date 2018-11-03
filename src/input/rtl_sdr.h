@@ -45,6 +45,10 @@
 #include "ringbuffer.h"
 #include "radio-controller.h"
 
+enum class CRTL_SDR_IOCTL {
+    SET_BIAS_TEE
+};
+
 // This class is a simple wrapper around the
 // rtlsdr library that is read is as dll
 // It does not do any processing
@@ -67,6 +71,8 @@ public:
     int getGainCount(void);
     void setAgc(bool AGC);
     std::string getDescription(void);
+    std::any setIOCTL(std::any ioctl, std::any param1);
+
     CDeviceID getID(void);
 
 private:
@@ -93,6 +99,8 @@ private:
     RingBuffer<uint8_t> spectrumSampleBuffer;
     struct rtlsdr_dev *device = nullptr;
     int32_t sampleCounter = 0;
+
+    void setBiasTee(int on);
 
     static void RTLSDRCallBack(uint8_t* buf, uint32_t len, void *ctx);
 };

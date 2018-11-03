@@ -37,6 +37,8 @@
 #include "dab-constants.h"
 #include "msc-handler.h"
 #include "version.h"
+#include "rtl_sdr.h"
+#include "airspy_sdr.h"
 
 /**
   *	We use the creation function merely to set up the
@@ -490,9 +492,19 @@ void CGUIHelper::openAirspy()
     radioController->openDevice(CDeviceID::AIRSPY);
 }
 
+void CGUIHelper::setBiasTeeAirspy(bool isOn)
+{
+    radioController->setDeviceIOCL(std::make_any<CAirspy_IOCTL>(CAirspy_IOCTL::SET_BIAS_TEE), std::make_any<int>(isOn));
+}
+
 void CGUIHelper::openRtlSdr()
 {
     radioController->openDevice(CDeviceID::RTL_SDR);
+}
+
+void CGUIHelper::setBiasTeeRtlSdr(bool isOn)
+{
+    radioController->setDeviceIOCL(std::make_any<CRTL_SDR_IOCTL>(CRTL_SDR_IOCTL::SET_BIAS_TEE), std::make_any<int>(isOn));
 }
 
 void CGUIHelper::openSoapySdr()

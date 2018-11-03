@@ -12,18 +12,19 @@ SettingSection {
     text: qsTr("rtl-sdr settings")
 
     Settings {
-        property alias enableHwAGCState: enableHwAGC.checked
+        property alias rtlSdrEnableBiasTeeState: enableBiasTee.checked
     }
 
     Component.onCompleted: {
-        radioController.setHwAGC(enableHwAGC.checked)
+        guiHelper.openRtlSdr()
+        guiHelper.setBiasTeeRtlSdr(enableBiasTee.checked)
     }
 
     Switch {
-        id: enableHwAGC
-        text: qsTr("Hardware RF gain (not tested)")
+        id: enableBiasTee
+        text: qsTr("Enable bias tee (not from all dongles supported)")
         onClicked: {
-            //radioController.setHwAGC(enableHwAGC.checked)
+            guiHelper.setBiasTeeRtlSdr(checked)
         }
     }
 }

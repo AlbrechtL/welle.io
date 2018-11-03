@@ -1,4 +1,4 @@
-CONFIG += c++14
+CONFIG += c++17
 
 Release: QMAKE_CFLAGS	+=  -ffast-math -O3
 Release: QMAKE_CXXFLAGS	+=  -ffast-math -O3

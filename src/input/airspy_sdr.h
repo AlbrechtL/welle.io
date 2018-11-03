@@ -47,6 +47,10 @@
 #include "airspy.h"
 #endif
 
+enum class CAirspy_IOCTL {
+    SET_BIAS_TEE
+};
+
 class CAirspy : public CVirtualInput {
 public:
     CAirspy();
@@ -67,6 +71,8 @@ public:
     int getGainCount(void);
     void setAgc(bool agc);
     std::string getDescription(void);
+    std::any setIOCTL(std::any ioctl, std::any param1);
+
     CDeviceID getID(void);
 
 private:
@@ -88,6 +94,7 @@ private:
 
     static int callback(airspy_transfer_t*);
     int data_available(const DSPCOMPLEX* buf, size_t num_samples);
+    void setBiasTee(int on);
 };
 
 #endif

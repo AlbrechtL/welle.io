@@ -124,6 +124,11 @@ CDeviceID CRadioController::openDevice()
     return device->getID();
 }
 
+void CRadioController::setDeviceIOCL(std::any ioctl, std::any param1)
+{
+    device->setIOCTL(ioctl, param1);
+}
+
 void CRadioController::play(QString Channel, QString Station)
 {
     if(Channel == "")

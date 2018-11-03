@@ -37,6 +37,7 @@
 #include <vector>
 #include <string>
 #include <complex>
+#include <any>
 #include "dab-constants.h"
 
 struct dab_date_time_t {
@@ -169,6 +170,7 @@ class InputInterface {
         virtual int getGainCount(void) = 0;
         virtual void setAgc(bool agc) = 0;
         virtual std::string getDescription(void) = 0;
+        virtual std::any setIOCTL([[maybe_unused]] std::any ioctl, [[maybe_unused]] std::any param1) { return 0; }
 };
 
 #endif

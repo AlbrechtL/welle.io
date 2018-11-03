@@ -31,6 +31,7 @@
  */
 
 #include <iostream>
+#include <exception>
 
 #include "rtl_sdr.h"
 
@@ -201,6 +202,19 @@ void CRTL_SDR::setAgc(bool AGC)
 //    rtlsdr_set_agc_mode(device, hwAGC ? 1 : 0);
 //}
 
+std::any CRTL_SDR::setIOCTL(std::any ioctl, std::any param1)
+{
+    CRTL_SDR_IOCTL op = std::any_cast<CRTL_SDR_IOCTL>(ioctl);
+
+    switch(op)
+    {
+    case CRTL_SDR_IOCTL::SET_BIAS_TEE: setBiasTee(std::any_cast<int>(param1)); break;
+    default: throw std::invalid_argument("Unknown IOCTL");
+    }
+
+    return 0;
+}
+
 std::string CRTL_SDR::getDescription()
 {
     char manufact[256] = {0};
@@ -263,6 +277,12 @@ void CRTL_SDR::AGCTimer(void)
             }
         }
     }
+}
+
+void CRTL_SDR::setBiasTee(int on)
+{
+    std::clog << "RTL_SDR: Set bias tee to " << on << std::endl;
+    rtlsdr_set_bias_tee(device, on);
 }
 
 int32_t CRTL_SDR::getSamples(DSPCOMPLEX *buffer, int32_t size)
