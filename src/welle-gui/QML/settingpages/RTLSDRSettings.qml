@@ -23,7 +23,7 @@ SettingSection {
         id: enableHwAGC
         text: qsTr("Hardware RF gain (not tested)")
         onClicked: {
-            radioController.setHwAGC(enableHwAGC.checked)
+            //radioController.setHwAGC(enableHwAGC.checked)
         }
     }
 }

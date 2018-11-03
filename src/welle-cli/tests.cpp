@@ -110,12 +110,6 @@ class ChannelSimulator : public CVirtualInput
         virtual void setAgc(bool agc)
             { return parentInput->setAgc(agc); }
 
-        virtual void setHwAgc(bool hwAGC)
-            { return parentInput->setHwAgc(hwAGC); }
-
-        virtual bool isHwAgcSupported(void) const
-            { return parentInput->isHwAgcSupported(); }
-
         virtual std::string getName(void)
             { return parentInput->getName() + " with ChannelSimulator"; }
 };

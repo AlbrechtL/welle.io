@@ -57,7 +57,6 @@ public:
     virtual float getGain(void) const;
     virtual int getGainCount(void);
     virtual void setAgc(bool AGC);
-    virtual void setHwAgc(bool hwAGC);
     virtual std::string getName(void);
     virtual CDeviceID getID(void);
     virtual void setDriverArgs(const std::string& args);

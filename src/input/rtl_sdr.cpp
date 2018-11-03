@@ -91,9 +91,6 @@ CRTL_SDR::CRTL_SDR(RadioControllerInterface& radioController) :
     // Always use manual gain, the AGC is implemented in software
     rtlsdr_set_tuner_gain_mode(device, 1);
 
-    // Disable hardware AGC by default
-    setHwAgc(false);
-
     // Enable AGC by default
     setAgc(true);
 }
@@ -198,16 +195,11 @@ void CRTL_SDR::setAgc(bool AGC)
     }
 }
 
-void CRTL_SDR::setHwAgc(bool hwAGC)
-{
-    isHwAGC = hwAGC;
-    rtlsdr_set_agc_mode(device, hwAGC ? 1 : 0);
-}
-
-bool CRTL_SDR::isHwAgcSupported() const
-{
-    return true;
-}
+//void CRTL_SDR::setHwAgc(bool hwAGC)
+//{
+//    isHwAGC = hwAGC;
+//    rtlsdr_set_agc_mode(device, hwAGC ? 1 : 0);
+//}
 
 std::string CRTL_SDR::getName()
 {

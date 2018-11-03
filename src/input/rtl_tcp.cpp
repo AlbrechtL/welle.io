@@ -330,16 +330,11 @@ void CRTL_TCP_Client::setAgc(bool AGC)
     isAGC = AGC;
 }
 
-void CRTL_TCP_Client::setHwAgc(bool hwAGC)
-{
-    isHwAGC = hwAGC;
-    sendCommand(0x08, hwAGC ? 1 : 0);
-}
-
-bool CRTL_TCP_Client::isHwAgcSupported() const
-{
-    return true;
-}
+//void CRTL_TCP_Client::setHwAgc(bool hwAGC)
+//{
+//    isHwAGC = hwAGC;
+//    sendCommand(0x08, hwAGC ? 1 : 0);
+//}
 
 std::string CRTL_TCP_Client::getName()
 {
@@ -380,7 +375,6 @@ void CRTL_TCP_Client::receiveAndReconnect()
 
                 // Always use manual gain, the AGC is implemented in software
                 setGainMode(1);
-                setHwAgc(isHwAGC);
                 setGain(currentGainCount);
                 sendRate(INPUT_RATE);
                 sendVFO(frequency);

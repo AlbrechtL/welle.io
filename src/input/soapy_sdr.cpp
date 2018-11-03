@@ -267,12 +267,12 @@ void CSoapySdr::setAgc(bool AGC)
     m_sw_agc = AGC;
 }
 
-void CSoapySdr::setHwAgc(bool hwAGC)
-{
-    if (m_device != nullptr) {
-        m_device->setGainMode(SOAPY_SDR_RX, 0, hwAGC);
-    }
-}
+//void CSoapySdr::setHwAgc(bool hwAGC)
+//{
+//    if (m_device != nullptr) {
+//        m_device->setGainMode(SOAPY_SDR_RX, 0, hwAGC);
+//    }
+//}
 
 std::string CSoapySdr::getName()
 {

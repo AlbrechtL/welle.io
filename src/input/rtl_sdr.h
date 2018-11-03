@@ -66,8 +66,6 @@ public:
     float setGain(int gain_index);
     int getGainCount(void);
     void setAgc(bool AGC);
-    void setHwAgc(bool hwAGC);
-    bool isHwAgcSupported() const;
     std::string getName(void);
     CDeviceID getID(void);
 

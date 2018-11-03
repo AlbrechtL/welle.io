@@ -82,8 +82,6 @@ class CRadioController :
     Q_PROPERTY(int frameErrors MEMBER frameErrors NOTIFY frameErrorsChanged)
     Q_PROPERTY(int rsErrors MEMBER rsErrors NOTIFY rsErrorsChanged)
     Q_PROPERTY(int aacErrors MEMBER aaErrors NOTIFY aacErrorsChanged)
-    Q_PROPERTY(bool isHwAGCSupported MEMBER isHwAGCSupported NOTIFY isHwAGCSupportedChanged)
-    Q_PROPERTY(bool hwAgc MEMBER isHwAGC WRITE setHwAGC NOTIFY hwAgcChanged)
     Q_PROPERTY(bool agc MEMBER isAGC WRITE setAGC NOTIFY agcChanged)
     Q_PROPERTY(float gainValue MEMBER currentManualGainValue NOTIFY gainValueChanged)
     Q_PROPERTY(int gainCount MEMBER gainCount NOTIFY gainCountChanged)
@@ -118,7 +116,6 @@ public:
     void setAutoPlay(QString Channel, QString Station);    
     Q_INVOKABLE void setVolume(qreal volume);
     Q_INVOKABLE void setAGC(bool isAGC);
-    Q_INVOKABLE void setHwAGC(bool isHwAGC);
     Q_INVOKABLE void disableCoarseCorrector(bool disable);
     Q_INVOKABLE void enableTIIDecode(bool enable);
     Q_INVOKABLE void enableOldFFTWindowPlacement(bool old);
@@ -214,8 +211,6 @@ private:
 
     bool isChannelScan = false;
     bool isAGC = false;
-    bool isHwAGC = false;
-    bool isHwAGCSupported = false;
     bool isAutoPlay = false;
     QString autoChannel;
     QString autoStation;

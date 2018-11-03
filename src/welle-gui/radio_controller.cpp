@@ -316,18 +316,6 @@ void CRadioController::stopScan(void)
     emit scanStopped();
 }
 
-void CRadioController::setHwAGC(bool isHwAGC)
-{
-    this->isHwAGC = isHwAGC;
-
-    if (device) {
-        device->setHwAgc(isHwAGC);
-        qDebug() << "RadioController:" << (isHwAGC ? "HwAGC on" : "HwAGC off");
-    }
-
-    emit hwAgcChanged(isHwAGC);
-}
-
 void CRadioController::setAGC(bool isAGC)
 {
     this->isAGC = isAGC;
@@ -453,8 +441,6 @@ void CRadioController::initialise(void)
     emit gainCountChanged(gainCount);
     emit deviceReady();
 
-    device->setHwAgc(isHwAGC);
-
     if (!isAGC) { // Manual AGC
         device->setAgc(false);
         currentManualGainValue = device->setGain(currentManualGain);
@@ -468,9 +454,6 @@ void CRadioController::initialise(void)
     }
 
     audio.setVolume(currentVolume);
-
-    isHwAGCSupported = device->isHwAgcSupported();
-    emit isHwAGCSupportedChanged(isHwAGCSupported);
 
     deviceName = QString::fromStdString(device->getName());
     emit deviceNameChanged();

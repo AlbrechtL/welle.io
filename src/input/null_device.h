@@ -45,7 +45,6 @@ public:
     float setGain(int Gain);
     int getGainCount(void);
     void setAgc(bool AGC);
-    void setHwAgc(bool hwAGC);
     std::string getName(void);
     CDeviceID getID(void);
 };

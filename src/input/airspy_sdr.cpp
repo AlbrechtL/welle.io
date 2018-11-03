@@ -253,11 +253,6 @@ void CAirspy::setAgc(bool agc)
     sw_agc = agc;
 }
 
-void CAirspy::setHwAgc(bool hwAGC)
-{
-    (void)hwAGC;
-}
-
 std::string CAirspy::getName()
 {
     // Get airspy device name and version

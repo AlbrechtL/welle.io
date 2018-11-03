@@ -168,8 +168,6 @@ class InputInterface {
         virtual float getGain(void) const = 0;
         virtual int getGainCount(void) = 0;
         virtual void setAgc(bool agc) = 0;
-        virtual void setHwAgc(bool hwAGC) = 0;
-        virtual bool isHwAgcSupported(void) const { return false; }
         virtual std::string getName(void) = 0;
 };
 
