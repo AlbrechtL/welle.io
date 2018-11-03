@@ -67,7 +67,7 @@ public:
     float setGain(int gain);
     int getGainCount(void);
     void setAgc(bool AGC);
-    std::string getName(void);
+    std::string getDescription(void);
     CDeviceID getID(void);
 
     // Specific methods

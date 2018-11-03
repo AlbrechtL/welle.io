@@ -455,7 +455,7 @@ void CRadioController::initialise(void)
 
     audio.setVolume(currentVolume);
 
-    deviceName = QString::fromStdString(device->getName());
+    deviceName = QString::fromStdString(device->getDescription());
     emit deviceNameChanged();
 
     deviceId = device->getID();

@@ -336,7 +336,7 @@ void CRTL_TCP_Client::setAgc(bool AGC)
 //    sendCommand(0x08, hwAGC ? 1 : 0);
 //}
 
-std::string CRTL_TCP_Client::getName()
+std::string CRTL_TCP_Client::getDescription()
 {
     return "rtl_tcp_client (server: " +
         serverAddress + ":" +

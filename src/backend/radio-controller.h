@@ -168,7 +168,7 @@ class InputInterface {
         virtual float getGain(void) const = 0;
         virtual int getGainCount(void) = 0;
         virtual void setAgc(bool agc) = 0;
-        virtual std::string getName(void) = 0;
+        virtual std::string getDescription(void) = 0;
 };
 
 #endif

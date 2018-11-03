@@ -135,7 +135,7 @@ void CRAWFile::setAgc(bool AGC)
     (void)AGC;
 }
 
-std::string CRAWFile::getName()
+std::string CRAWFile::getDescription()
 {
     return "rawfile (" + fileName + ")";
 }

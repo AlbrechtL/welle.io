@@ -96,7 +96,7 @@ void CNullDevice::setAgc(bool AGC)
     (void) AGC;
 }
 
-std::string CNullDevice::getName()
+std::string CNullDevice::getDescription()
 {
     return "Null device";
 }

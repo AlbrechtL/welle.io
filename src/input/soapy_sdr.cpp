@@ -274,7 +274,7 @@ void CSoapySdr::setAgc(bool AGC)
 //    }
 //}
 
-std::string CSoapySdr::getName()
+std::string CSoapySdr::getDescription()
 {
     return "SoapySDR";
 }

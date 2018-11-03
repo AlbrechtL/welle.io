@@ -57,7 +57,7 @@ public:
     virtual float getGain(void) const;
     virtual int getGainCount(void);
     virtual void setAgc(bool AGC);
-    virtual std::string getName(void);
+    virtual std::string getDescription(void);
     virtual CDeviceID getID(void);
     virtual void setDriverArgs(const std::string& args);
     virtual void setAntenna(const std::string& antenna);

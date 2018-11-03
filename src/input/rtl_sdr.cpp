@@ -201,7 +201,7 @@ void CRTL_SDR::setAgc(bool AGC)
 //    rtlsdr_set_agc_mode(device, hwAGC ? 1 : 0);
 //}
 
-std::string CRTL_SDR::getName()
+std::string CRTL_SDR::getDescription()
 {
     char manufact[256] = {0};
     char product[256] = {0};

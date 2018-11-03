@@ -405,7 +405,7 @@ bool WebRadioInterface::send_mux_json(Socket& s)
 
     j["receiver"]["software"]["name"] = "welle.io";
     j["receiver"]["software"]["version"] = GITDESCRIBE;
-    j["receiver"]["hardware"]["name"] = input.getName();
+    j["receiver"]["hardware"]["name"] = input.getDescription();
     j["receiver"]["hardware"]["gain"] = input.getGain();
 
     {

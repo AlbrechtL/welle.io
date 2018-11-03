@@ -110,8 +110,8 @@ class ChannelSimulator : public CVirtualInput
         virtual void setAgc(bool agc)
             { return parentInput->setAgc(agc); }
 
-        virtual std::string getName(void)
-            { return parentInput->getName() + " with ChannelSimulator"; }
+        virtual std::string getDescription(void)
+            { return parentInput->getDescription() + " with ChannelSimulator"; }
 };
 
 class TestRadioInterface : public RadioControllerInterface {
