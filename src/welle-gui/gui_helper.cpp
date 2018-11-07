@@ -494,7 +494,7 @@ void CGUIHelper::openAirspy()
 
 void CGUIHelper::setBiasTeeAirspy(bool isOn)
 {
-    radioController->setDeviceIOCL(std::make_any<CAirspy_IOCTL>(CAirspy_IOCTL::SET_BIAS_TEE), std::make_any<int>(isOn));
+    radioController->setDeviceParam("biastee", isOn ? 1 : 0);
 }
 
 void CGUIHelper::openRtlSdr()
@@ -504,7 +504,7 @@ void CGUIHelper::openRtlSdr()
 
 void CGUIHelper::setBiasTeeRtlSdr(bool isOn)
 {
-    radioController->setDeviceIOCL(std::make_any<CRTL_SDR_IOCTL>(CRTL_SDR_IOCTL::SET_BIAS_TEE), std::make_any<int>(isOn));
+    radioController->setDeviceParam("biastee", isOn ? 1 : 0);
 }
 
 void CGUIHelper::openSoapySdr()

@@ -210,12 +210,6 @@ int CAirspy::data_available(const DSPCOMPLEX* buf, size_t num_samples)
     return 0;
 }
 
-void CAirspy::setBiasTee(int on)
-{
-    std::clog << "Airspy: Set bias tee to " << on << std::endl;
-    airspy_set_rf_bias(device, on);
-}
-
 void CAirspy::reset(void)
 {
     SampleBuffer.FlushRingBuffer();
@@ -278,17 +272,16 @@ std::string CAirspy::getDescription()
     return ver;
 }
 
-std::any CAirspy::setIOCTL(std::any ioctl, std::any param1)
+bool CAirspy::setDeviceParam(DeviceParam param, int value)
 {
-    CAirspy_IOCTL op = std::any_cast<CAirspy_IOCTL>(ioctl);
-
-    switch(op)
-    {
-    case CAirspy_IOCTL::SET_BIAS_TEE: setBiasTee(std::any_cast<int>(param1)); break;
-    default: throw std::invalid_argument("Unknown IOCTL");
+    switch(param) {
+        case DeviceParam::BiasTee:
+            std::clog << "Airspy: Set bias tee to " << value << std::endl;
+            airspy_set_rf_bias(device, value);
+            return true;
     }
 
-    return 0;
+    return false;
 }
 
 CDeviceID CAirspy::getID()

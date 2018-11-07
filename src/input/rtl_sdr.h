@@ -71,7 +71,7 @@ public:
     int getGainCount(void);
     void setAgc(bool AGC);
     std::string getDescription(void);
-    std::any setIOCTL(std::any ioctl, std::any param1);
+    bool setDeviceParam(DeviceParam param, int value);
 
     CDeviceID getID(void);
 
@@ -99,8 +99,6 @@ private:
     RingBuffer<uint8_t> spectrumSampleBuffer;
     struct rtlsdr_dev *device = nullptr;
     int32_t sampleCounter = 0;
-
-    void setBiasTee(int on);
 
     static void RTLSDRCallBack(uint8_t* buf, uint32_t len, void *ctx);
 };

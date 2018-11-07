@@ -71,7 +71,7 @@ public:
     int getGainCount(void);
     void setAgc(bool agc);
     std::string getDescription(void);
-    std::any setIOCTL(std::any ioctl, std::any param1);
+    bool setDeviceParam(DeviceParam param, int value);
 
     CDeviceID getID(void);
 
@@ -94,7 +94,6 @@ private:
 
     static int callback(airspy_transfer_t*);
     int data_available(const DSPCOMPLEX* buf, size_t num_samples);
-    void setBiasTee(int on);
 };
 
 #endif

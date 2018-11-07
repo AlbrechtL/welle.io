@@ -37,7 +37,6 @@
 #include <vector>
 #include <string>
 #include <complex>
-#include <any>
 #include "dab-constants.h"
 
 struct dab_date_time_t {
@@ -153,6 +152,10 @@ class ProgrammeHandlerInterface {
         virtual void onPADLengthError(size_t announced_xpad_len, size_t xpad_len) = 0;
 };
 
+enum class DeviceParam {
+    BiasTee,
+};
+
 /* Definition of the interface all input devices must implement */
 class InputInterface {
     public:
@@ -170,7 +173,10 @@ class InputInterface {
         virtual int getGainCount(void) = 0;
         virtual void setAgc(bool agc) = 0;
         virtual std::string getDescription(void) = 0;
-        virtual std::any setIOCTL([[maybe_unused]] std::any ioctl, [[maybe_unused]] std::any param1) { return 0; }
+        virtual bool setDeviceParam(DeviceParam param, int value) {
+            (void)param; (void)value;
+            return false;
+        }
 };
 
 #endif

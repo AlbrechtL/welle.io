@@ -124,9 +124,14 @@ CDeviceID CRadioController::openDevice()
     return device->getID();
 }
 
-void CRadioController::setDeviceIOCL(std::any ioctl, std::any param1)
+void CRadioController::setDeviceParam(QString param, int value)
 {
-    device->setIOCTL(ioctl, param1);
+    if (param == "biastee") {
+        device->setDeviceParam(DeviceParam::BiasTee, value);
+    }
+    else {
+        qDebug() << "Invalid device parameter setting:" << param;
+    }
 }
 
 void CRadioController::play(QString Channel, QString Station)

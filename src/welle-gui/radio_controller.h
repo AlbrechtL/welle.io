@@ -105,7 +105,7 @@ public:
     void closeDevice();
     CDeviceID openDevice(CDeviceID deviceId, bool force = false, QVariant param1 = QVariant(), QVariant param2 = QVariant());
     CDeviceID openDevice();
-    void setDeviceIOCL(std::any ioctl, std::any param1);
+    void setDeviceParam(QString param, int value);
     Q_INVOKABLE void play(QString Channel, QString Station);
     void pause();
     void stop();
