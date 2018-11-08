@@ -190,6 +190,14 @@ void WebRadioInterface::retune(const std::string& channel)
         cerr << "Destroy RX" << endl;
         rx.reset();
 
+        last_dateTime = {};
+        synced = false;
+        last_snr = 0;
+        last_fine_correction = 0;
+        last_coarse_correction = 0;
+        num_fic_crc_errors = 0;
+        tiis.clear();
+
         cerr << "Set frequency" << endl;
         input.setFrequency(freq);
         input.reset(); // Clear buffer
