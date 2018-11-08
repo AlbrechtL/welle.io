@@ -105,10 +105,12 @@ class WebProgrammeHandler : public ProgrammeHandlerInterface {
 
         bool last_label_valid = false;
         std::chrono::time_point<std::chrono::system_clock> time_label;
+        std::chrono::time_point<std::chrono::system_clock> time_label_change;
         std::string last_label;
 
         bool last_mot_valid = false;
         std::chrono::time_point<std::chrono::system_clock> time_mot;
+        std::chrono::time_point<std::chrono::system_clock> time_mot_change;
         std::vector<uint8_t> last_mot;
         MOTType last_subtype = MOTType::Unknown;
 
@@ -131,13 +133,15 @@ class WebProgrammeHandler : public ProgrammeHandlerInterface {
 
         struct dls_t {
             std::string label;
-            std::chrono::time_point<std::chrono::system_clock> time; };
+            std::chrono::time_point<std::chrono::system_clock> time;
+            std::chrono::time_point<std::chrono::system_clock> last_changed; };
         dls_t getDLS() const;
 
         struct mot_t {
             std::vector<uint8_t> data;
             MOTType subtype = MOTType::Unknown;
-            std::chrono::time_point<std::chrono::system_clock> time; };
+            std::chrono::time_point<std::chrono::system_clock> time;
+            std::chrono::time_point<std::chrono::system_clock> last_changed; };
         mot_t getMOT() const;
 
         xpad_error_t getXPADErrors() const;

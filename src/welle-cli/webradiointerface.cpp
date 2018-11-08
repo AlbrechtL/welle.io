@@ -521,13 +521,15 @@ bool WebRadioInterface::send_mux_json(Socket& s)
 
                 auto mot = wph.getMOT();
                 nlohmann::json j_mot = {
-                    {"time", chrono::system_clock::to_time_t(mot.time)}};
+                    {"time", chrono::system_clock::to_time_t(mot.time)},
+                    {"lastchange", chrono::system_clock::to_time_t(mot.last_changed)}};
                 j_srv["mot"] = j_mot;
 
                 auto dls = wph.getDLS();
                 nlohmann::json j_dls = {
                     {"label", dls.label},
-                    {"time", chrono::system_clock::to_time_t(dls.time)}};
+                    {"time", chrono::system_clock::to_time_t(dls.time)},
+                    {"lastchange", chrono::system_clock::to_time_t(mot.last_changed)}};
                 j_srv["dls"] = j_dls;
 
                 auto errorcounters = wph.getErrorCounters();

@@ -69,16 +69,22 @@ void ProgrammeSender::wait_for_termination()
 WebProgrammeHandler::WebProgrammeHandler(uint32_t serviceId) :
     serviceId(serviceId)
 {
-    time_label = chrono::system_clock::now();
-    time_mot = chrono::system_clock::now();
+    const auto now = chrono::system_clock::now();
+    time_label = now;
+    time_label_change = now;
+    time_mot = now;
+    time_mot_change = now;
 }
 
 WebProgrammeHandler::WebProgrammeHandler(WebProgrammeHandler&& other) :
     serviceId(other.serviceId),
     senders(move(other.senders))
 {
-    time_label = chrono::system_clock::now();
-    time_mot = chrono::system_clock::now();
+    const auto now = chrono::system_clock::now();
+    time_label = now;
+    time_label_change = now;
+    time_mot = now;
+    time_mot_change = now;
 }
 
 void WebProgrammeHandler::registerSender(ProgrammeSender *sender)
@@ -115,6 +121,7 @@ WebProgrammeHandler::dls_t WebProgrammeHandler::getDLS() const
     if (last_label_valid) {
         dls.label = last_label;
         dls.time = time_label;
+        dls.last_changed = time_label_change;
     }
 
     return dls;
@@ -128,6 +135,7 @@ WebProgrammeHandler::mot_t WebProgrammeHandler::getMOT() const
     if (last_mot_valid) {
         mot.data = last_mot;
         mot.time = time_mot;
+        mot.last_changed = time_mot_change;
         mot.subtype = last_subtype;
     }
     return mot;
@@ -248,7 +256,11 @@ void WebProgrammeHandler::onNewDynamicLabel(const string& label)
 {
     std::unique_lock<std::mutex> lock(stats_mutex);
     last_label_valid = true;
-    time_label = chrono::system_clock::now();
+    const auto now = chrono::system_clock::now();
+    time_label = now;
+    if (last_label != label) {
+        time_label_change = now;
+    }
     last_label = label;
 }
 
@@ -256,7 +268,11 @@ void WebProgrammeHandler::onMOT(const std::vector<uint8_t>& data, int subtype)
 {
     std::unique_lock<std::mutex> lock(stats_mutex);
     last_mot_valid = true;
-    time_mot = chrono::system_clock::now();
+    const auto now = chrono::system_clock::now();
+    time_mot = now;
+    if (last_mot != data) {
+        time_mot_change = now;
+    }
     last_mot = data;
     if (subtype == 0x01) {
         last_subtype = MOTType::JPEG;
