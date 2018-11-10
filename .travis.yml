@@ -15,13 +15,15 @@ before_install:
 
 install:
     - sudo apt-get -y install gcc-7 g++-7
-    - sudo apt-get -y install libusb-1.0-0-dev pkg-config libmp3lame-dev libmpg123-dev qt510base qt510declarative qt510quickcontrols qt510quickcontrols2 qt510charts-no-lgpl qt510multimedia libpulse0 libfaad-dev libfftw3-dev librtlsdr-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev
+    - sudo apt-get -y install libusb-1.0-0-dev pkg-config libmp3lame-dev libmpg123-dev qt510base qt510declarative qt510quickcontrols qt510quickcontrols2 qt510charts-no-lgpl qt510multimedia libpulse0 libfaad-dev libfftw3-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev
     - source /opt/qt510/bin/qt510-env.sh
     - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 90 --slave /usr/bin/g++ g++ /usr/bin/g++-7
 
 script:
   - DATE=`date +%Y%m%d`
   - GIT_HASH=`git rev-parse --short HEAD`
+  
+  # Compile airspy
   - # https://github.com/airspy/airspyone_host#how-to-build-the-host-software-on-linux
   - wget https://github.com/airspy/host/archive/master.zip
   - unzip master.zip
@@ -29,10 +31,23 @@ script:
   - mkdir build
   - cd build
   - cmake ../ -DINSTALL_UDEV_RULES=ON -DCMAKE_INSTALL_PREFIX=/usr
-  - make
+  - make -j 4
   - sudo make install
   - sudo ldconfig
   - cd ../..
+  
+  # Compile librtlsdr
+  - git clone https://github.com/steve-m/librtlsdr.git
+  - cd librtlsdr
+  - mkdir build
+  - cd build
+  - cmake ../  -DDETACH_KERNEL_DRIVER=ON
+  - make -j 4
+  - sudo make install
+  - sudo ldconfig
+  - cd ../..
+  
+  # Compile welle.io
   - mkdir build
   - cd build
   - qmake PREFIX=/usr ..
