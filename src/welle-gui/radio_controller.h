@@ -122,6 +122,8 @@ public:
     Q_INVOKABLE void enableOldFFTWindowPlacement(bool old);
     Q_INVOKABLE void setFreqSyncMethod(int fsm_ix);
     Q_INVOKABLE void setGain(int gain);
+    Q_INVOKABLE void initRecorder(int size);
+    Q_INVOKABLE void triggerRecorder(QString filename);
     DABParams& getDABParams(void);
     int getCurrentFrequency();
 

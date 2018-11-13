@@ -30,16 +30,62 @@
 #ifndef __VIRTUAL_INPUT
 #define __VIRTUAL_INPUT
 
+#include <memory>
+#include <fstream>
+#include <iostream>
+
 #include "dab-constants.h"
 #include "radio-controller.h"
+#include "ringbuffer.h"
 
 enum class CDeviceID {
     UNKNOWN, NULLDEVICE, AIRSPY, RAWFILE, RTL_SDR, RTL_TCP, SOAPYSDR};
 
 class CVirtualInput : public InputInterface {
-    public:
-        virtual ~CVirtualInput() {}
-        virtual CDeviceID getID(void) = 0;
+public:
+    virtual ~CVirtualInput() {}
+    virtual CDeviceID getID(void) = 0;
+
+    void writeRecordBufferToFile(std::string &fileanme) {
+        if(!recordBuffer)
+            return;
+
+        std::ofstream rawStream(fileanme, std::ios::binary);
+        int test = recordBuffer->GetRingBufferReadAvailable();
+
+        while(recordBuffer->GetRingBufferReadAvailable() > 0) {
+            size_t data_tmpSize = 0;
+            if(recordBuffer->GetRingBufferReadAvailable() > 1024)
+                data_tmpSize = 1024;
+            else
+                data_tmpSize = static_cast<size_t>(recordBuffer->GetRingBufferReadAvailable());
+
+            uint8_t data_tmp[data_tmpSize];
+            recordBuffer->getDataFromBuffer(data_tmp, data_tmpSize);
+            rawStream.write((char *) data_tmp, data_tmpSize);
+        }
+        rawStream.close();
+    }
+
+    void initRecordBuffer(uint32_t size) {
+        // The ring buffer size has to be power of 2
+        uint32_t bitCount = ceil(log2(size));
+        uint32_t bufferSize = pow(2, bitCount);
+
+        recordBuffer.reset(new RingBuffer<uint8_t>(bufferSize));
+    }
+
+protected:
+    void putIntoRecordBuffer(uint8_t &data, uint32_t size) {
+        if(!recordBuffer)
+            return;
+
+        recordBuffer->putDataIntoBuffer(&data, static_cast<int>(size));
+        std::clog << "CVirtualInput: GetRingBufferReadAvailable() " << recordBuffer->GetRingBufferReadAvailable() << std::endl;
+    }
+
+private:
+    std::unique_ptr<RingBuffer<uint8_t>> recordBuffer;
 };
 
 #endif

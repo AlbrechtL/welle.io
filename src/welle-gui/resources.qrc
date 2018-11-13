@@ -92,6 +92,7 @@
         <file>QML/expertviews/NullSymbolGraph.qml</file>
         <file>QML/expertviews/SpectrumGraph.qml</file>
         <file>QML/expertviews/TextOutputView.qml</file>
+        <file>QML/expertviews/RawRecorder.qml</file>
         <file>QML/components/ViewBaseFrame.qml</file>
         <file>QML/MotView.qml</file>
         <file>QML/GeneralView.qml</file>

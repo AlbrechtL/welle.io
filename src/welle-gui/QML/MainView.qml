@@ -417,6 +417,12 @@ ApplicationWindow {
                 font.pixelSize: TextStyle.textStandartSize
                 onTriggered: generalView.addComponent("qrc:/QML/expertviews/TextOutputView.qml")
             }
+
+            MenuItem {
+                text: qsTr("RAW Recorder")
+                font.pixelSize: TextStyle.textStandartSize
+                onTriggered: generalView.addComponent("qrc:/QML/expertviews/RawRecorder.qml")
+            }
         }
     }
 

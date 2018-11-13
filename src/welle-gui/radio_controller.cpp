@@ -32,6 +32,7 @@
 
 #include <QDebug>
 #include <QSettings>
+#include <QStandardPaths>
 #include <stdexcept>
 
 #include "radio_controller.h"
@@ -395,7 +396,20 @@ void CRadioController::setGain(int Gain)
             gainCount = gainCount_tmp;
             emit gainCountChanged(gainCount);
         }
-    }  
+    }
+}
+
+void CRadioController::initRecorder(int size)
+{
+    device->initRecordBuffer(size);
+}
+
+void CRadioController::triggerRecorder(QString filename)
+{
+    // TODO just for testing
+    filename = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) + "/welle-io-record.iq";
+    std::string filename_tmp = filename.toStdString();
+    device->writeRecordBufferToFile(filename_tmp);
 }
 
 DABParams& CRadioController::getDABParams()

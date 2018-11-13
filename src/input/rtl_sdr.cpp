@@ -343,6 +343,7 @@ void CRTL_SDR::RTLSDRCallBack(uint8_t* buf, uint32_t len, void* ctx)
             rtlsdr->sampleCounter += len - tmp;
 
         rtlsdr->spectrumSampleBuffer.putDataIntoBuffer(buf, len);
+        rtlsdr->putIntoRecordBuffer(*buf, len);
 
         // Check if device is overloaded
         rtlsdr->minAmplitude = 255;
