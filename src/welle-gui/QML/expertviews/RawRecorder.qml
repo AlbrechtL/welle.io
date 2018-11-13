@@ -25,7 +25,7 @@ ViewBaseFrame {
             }
 
             WButton {
-                text: isStart ? qsTr("Save ringe buffer") : qsTr("Init")
+                text: isStart ? qsTr("Save ring buffer") : qsTr("Init")
 
                 onPressed: {
                     ringeBufferSize = parseInt(ringeBufferSetting.currentItem.text) * 2048 * 1024
@@ -41,7 +41,7 @@ ViewBaseFrame {
         }
 
         TextStandart {
-            text: "Ringe buffer size [MB]: " + (ringeBufferSize / 1000000)
+            text: "Ring buffer size (roughly): " + (ringeBufferSize / 1000000).toFixed(0) + " MB"
         }
     }
 }

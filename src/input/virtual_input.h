@@ -81,7 +81,7 @@ protected:
             return;
 
         recordBuffer->putDataIntoBuffer(&data, static_cast<int>(size));
-        std::clog << "CVirtualInput: GetRingBufferReadAvailable() " << recordBuffer->GetRingBufferReadAvailable() << std::endl;
+        //std::clog << "CVirtualInput: GetRingBufferReadAvailable() " << recordBuffer->GetRingBufferReadAvailable() << std::endl;
     }
 
 private:
