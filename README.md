@@ -18,7 +18,7 @@ Table of contents
   * [Supported Hardware](#supported-hardware)
   * [Building](#building)
     * [General Information](#general-information)
-    * [Ubuntu Linux 16.04 LTS and 18.04 LTS](#ubuntu-linux-1604-lts-and-1804-lts)
+    * [Ubuntu Linux 18.04 LTS](#ubuntu-linux-1804-lts)
     * [Windows 10](#windows-10)
     * [macOS](#macos)
     * [CMake instead of Qt Creator (Windows, Linux, macOS)](#cmake-instead-of-qt-creator-windows-linux-macos)
@@ -52,34 +52,15 @@ Parameter | Description
 ------ | ----------
 -h, --help | Show help 
 -v, --version | Show version 
--d, --device | Input device. Possible values are: auto (default), airspy, rtl_tcp, rtl_sdr, rawfile, soapysdr
---rtl_tcp-address | rtl_tcp server IP address. Only valid for input rtl_tcp 
---rtl_tcp-port | rtl_tcp server IP port. Only valid for input rtl_tcp
---raw-file | I/Q RAW file. Only valid for input rawfile.
---raw-format | I/Q RAW format. Possible is:<ul><li>u8 (unsigned int 8 bit, [qt-dab](https://github.com/JvanKatwijk/qt-dab) RAW files)</li><li>s8 (signed 8 bit, [ODR](https://www.welle.io/devices/rawfile#odr-dabmod) files)</li><li>s16le (signed int 16 bit little endian, [qt-dab](https://github.com/JvanKatwijk/qt-dab) SDR files)</li><li>s16be (signed int 16 bit big endian, [qt-dab](https://github.com/JvanKatwijk/qt-dab) SDR files)</li><li>cf32 (complex float, native endianness)</li><li>Default: u8. Only valid for input rawfile.</li></ul>
---soapysdr-driver-args | The value depends on the SoapySDR driver and is directly passed to it (currently only SoapySDR::Device::make(args)). A typical value for SoapySDR is a string like driver=remote,remote=127.0.0.1,remote:driver=rtlsdr,rtl=0
---soapysdr-antenna | The value depends on the SoapySDR Hardware, typical values are TX/RX, RX2. Just query it with SoapySDRUtil --probe=driver=uhd
---soapysdr-clock-source | The value depends on the SoapySDR Hardware, typical values are internal, external, gpsdo. Just query it with SoapySDRUtil --probe=driver=uhd
---dab-mode | DAB mode. Possible values are: 1,2,3, or 4, Default: 1 
 --dump-file | Records DAB frames (*.mp2) or DAB+ superframes with RS coding (*.dab). This file can be used to analyse X-PAD data with XPADxpert (https://www.basicmaster.de/xpadxpert).
 --log-file | Log file name. Redirects all log output texts to a file.
 --language | Sets the GUI language according to the ISO country codes e.g. de_DE
-
-
-Example usage:
-  
-  ```
-# welle.io -d rtl_tcp --rtl_tcp-address 192.168.1.1 --rtl_tcp-port 1000
-  ```
-  ```
-# welle.io -d rawfile --raw-file test.sdr --raw-format s16le
-  ```
 
 Supported Hardware
 ====================
 The following SDR devices are supported
 * Airspy R2 and Airspy Mini (http://airspy.com/)
-* rtl_sdr (http://osmocom.org/projects/sdr/wiki/rtl-sdr)
+* rtl-sdr (http://osmocom.org/projects/sdr/wiki/rtl-sdr)
 * rtl_tcp (http://osmocom.org/projects/sdr/wiki/rtl-sdr#rtl_tcp)
 * I/Q RAW file (https://www.welle.io/devices/rawfile)
 * All SDR-devices that are supported by SoapySDR, gr-osmosdr and uhd. These are too many devices to list them all. To see if your SDR is supported, have a look at the lists at [SoapySDR](https://github.com/pothosware/SoapySDR/wiki) and [SoapyOsmo](https://github.com/pothosware/SoapyOsmo/wiki).
@@ -92,11 +73,11 @@ SoapySDR Notes
 
 ### LimeSDR
 
-Connect the antenna to the RX1_W port and start welle-io with the options `-d soapysdr --soapysdr-antenna LNAW`. `SoapySDRUtil --probe=driver=lime` may show other possible options.
+Connect the antenna to the RX1_W port and configured SoapySDR antenna option to `LNAW`. `SoapySDRUtil --probe=driver=lime` may show other possible options.
 
 ### USRP
 
-Start welle-io with `-d soapysdr --soapysdr-driver-args driver=uhd --soapysdr-antenna <antenna> --soapysdr-clock-source <clock source>`. To list possible values for antenna and clock source use the command `SoapySDRUtil --probe=driver=uhd`.
+Configured SoapySDR driver arguments option to `driver=uhd`. Configure also antenna and clock source option. To list possible values for antenna and clock source use the command `SoapySDRUtil --probe=driver=uhd`.
 
 Building
 ====================
@@ -110,7 +91,7 @@ The following libraries and their development files are needed:
 * librtlsdr
 * libusb
 
-Ubuntu Linux 16.04 LTS and 18.04 LTS
+Ubuntu Linux 18.04 LTS
 ---
 This section shows how to compile welle.io on Ubuntu 16.04 LTS and Ubuntu 18.04 LTS. 
 
@@ -119,25 +100,18 @@ This section shows how to compile welle.io on Ubuntu 16.04 LTS and Ubuntu 18.04 
 2. Install the following packages
 
   ```
-# sudo apt install libfaad-dev mpg123.h libmpg123-dev libfftw3-dev librtlsdr-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev
+# sudo apt install libfaad-dev mpg123.h libmpg123-dev libfftw3-dev librtlsdr-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev libsoapysdr-dev
   ```
 
-3. (optional) Compile and install the Airspy library. For details please see https://github.com/airspy/host/#how-to-build-the-host-software-on-linux.  
-If you don't install the Airspy library you have to disable the Airspy for the welle.io build. Open `welle.io.pro` and outcomment the following line:
-
-```
-#CONFIG += airspy
-```
-
-4. Clone welle.io
+3. Clone welle.io
 
   ```
 # git clone https://github.com/AlbrechtL/welle.io.git
   ```
 
-5. Start Qt Creator and open the project file `welle.io.pro` inside the folder "welle.io".
-6. Build welle.io
-7. Run welle.io and enjoy it
+4. Start Qt Creator and open the project file `welle.io.pro` inside the folder "welle.io".
+5. Build welle.io
+6. Run welle.io and enjoy it
 
 Windows 10
 ---

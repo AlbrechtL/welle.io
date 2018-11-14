@@ -154,29 +154,38 @@ class ProgrammeHandlerInterface {
 
 enum class DeviceParam {
     BiasTee,
+    SoapySDRAntenna,
+    SoapySDRDriverArgs,
+    SoapySDRClockSource,
 };
 
 /* Definition of the interface all input devices must implement */
 class InputInterface {
-    public:
-        virtual ~InputInterface() {}
-        virtual void setFrequency(int frequency) = 0;
-        virtual int getFrequency(void) const = 0;
-        virtual bool restart(void) = 0;
-        virtual void stop(void) = 0;
-        virtual void reset(void) = 0;
-        virtual int32_t getSamples(DSPCOMPLEX* buffer, int32_t size) = 0;
-        virtual std::vector<DSPCOMPLEX> getSpectrumSamples(int size) = 0;
-        virtual int32_t getSamplesToRead(void) = 0;
-        virtual float setGain(int gain) = 0;
-        virtual float getGain(void) const = 0;
-        virtual int getGainCount(void) = 0;
-        virtual void setAgc(bool agc) = 0;
-        virtual std::string getDescription(void) = 0;
-        virtual bool setDeviceParam(DeviceParam param, int value) {
-            (void)param; (void)value;
-            return false;
-        }
+public:
+    virtual ~InputInterface() {}
+    virtual void setFrequency(int frequency) = 0;
+    virtual int getFrequency(void) const = 0;
+    virtual bool restart(void) = 0;
+    virtual void stop(void) = 0;
+    virtual void reset(void) = 0;
+    virtual int32_t getSamples(DSPCOMPLEX* buffer, int32_t size) = 0;
+    virtual std::vector<DSPCOMPLEX> getSpectrumSamples(int size) = 0;
+    virtual int32_t getSamplesToRead(void) = 0;
+    virtual float setGain(int gain) = 0;
+    virtual float getGain(void) const = 0;
+    virtual int getGainCount(void) = 0;
+    virtual void setAgc(bool agc) = 0;
+    virtual std::string getDescription(void) = 0;
+
+    virtual bool setDeviceParam(DeviceParam param, int value) {
+        (void)param; (void)value;
+        return false;
+    }
+
+    virtual bool setDeviceParam(DeviceParam param, std::string &value) {
+        (void)param; (void)value;
+        return false;
+    }
 };
 
 #endif

@@ -37,13 +37,6 @@
 #include "dab-constants.h"
 #include "msc-handler.h"
 #include "version.h"
-#ifdef HAVE_RTLSDR
-#include "rtl_sdr.h"
-#endif
-
-#ifdef HAVE_AIRSPY
-#include "airspy_sdr.h"
-#endif
 
 /**
   *	We use the creation function merely to set up the
@@ -515,6 +508,21 @@ void CGUIHelper::setBiasTeeRtlSdr(bool isOn)
 void CGUIHelper::openSoapySdr()
 {
     radioController->openDevice(CDeviceID::SOAPYSDR);
+}
+
+void CGUIHelper::setAntennaSoapySdr(QString text)
+{
+    radioController->setDeviceParam("SoapySDRAntenna", text);
+}
+
+void CGUIHelper::setDriverArgsSoapySdr(QString text)
+{
+    radioController->setDeviceParam("SoapySDRDriverArgs", text);
+}
+
+void CGUIHelper::setClockSourceSoapySdr(QString text)
+{
+    radioController->setDeviceParam("SoapySDRClockSource", text);
 }
 
 void CGUIHelper::openRtlTcp(QString IpAddress, int IpPort, bool force)

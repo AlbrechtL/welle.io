@@ -416,7 +416,7 @@ int main(int argc, char **argv)
 
 #ifdef HAVE_SOAPYSDR
     if (not options.antenna.empty() and in->getID() == CDeviceID::SOAPYSDR) {
-        dynamic_cast<CSoapySdr*>(in.get())->setAntenna(options.antenna);
+        dynamic_cast<CSoapySdr*>(in.get())->setDeviceParam(DeviceParam::SoapySDRAntenna, options.antenna);
     }
 #endif
 

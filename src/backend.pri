@@ -16,7 +16,7 @@ unix:!macx:!android: {
     LIBS    += -lmpg123
     CONFIG  += airspy
     CONFIG  += rtl_sdr
-    #CONFIG  += soapysdr
+    CONFIG  += soapysdr
 
 #    CONFIG  += mpg123_builtin
 #    CONFIG  += libfaad_builtin

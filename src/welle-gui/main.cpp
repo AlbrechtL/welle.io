@@ -133,53 +133,6 @@ int main(int argc, char** argv)
     optionParser.addHelpOption();
     optionParser.addVersionOption();
 
-    QCommandLineOption InputOption(QStringList() << "d" << "device",
-        QCoreApplication::translate("main", "Input device. Possible is: auto (default), airspy, rtl_tcp, rtl_sdr, rawfile, soapysdr"),
-        QCoreApplication::translate("main", "Name"));
-    optionParser.addOption(InputOption);
-
-    QCommandLineOption RTL_TCPServerIPOption("rtl_tcp-address",
-        QCoreApplication::translate("main", "rtl_tcp server IP address. Only valid for input rtl_tcp."),
-        QCoreApplication::translate("main", "IP address"));
-    optionParser.addOption(RTL_TCPServerIPOption);
-
-    QCommandLineOption RTL_TCPServerIPPort("rtl_tcp-port",
-        QCoreApplication::translate("main", "rtl_tcp server IP port. Only valid for input rtl_tcp."),
-        QCoreApplication::translate("main", "Port"));
-    optionParser.addOption(RTL_TCPServerIPPort);
-
-    QCommandLineOption RAWFile("raw-file",
-        QCoreApplication::translate("main", "I/Q RAW file. Only valid for input rawfile."),
-        QCoreApplication::translate("main", "I/Q RAW file"));
-    optionParser.addOption(RAWFile);
-
-    QCommandLineOption RAWFileFormat("raw-format",
-        QCoreApplication::translate("main", "I/Q RAW file format. Possible is: auto (depends on filename), u8, s8, s16le, s16be, cf32. Only valid for input rawfile."),
-        QCoreApplication::translate("main", "I/Q RAW file format"));
-    optionParser.addOption(RAWFileFormat);
-
-#ifdef HAVE_SOAPYSDR
-    QCommandLineOption SDRDriverArgsOption("soapysdr-driver-args",
-        QCoreApplication::translate("main", "The value depends on the SoapySDR driver and is directly passed to it (currently only SoapySDR::Device::make(args)). A typical value for SoapySDR is a string like driver=remote,remote=127.0.0.1,remote:driver=rtlsdr,rtl=0"),
-        QCoreApplication::translate("main", "args"));
-    optionParser.addOption(SDRDriverArgsOption);
-
-    QCommandLineOption SDRAntennaOption("soapysdr-antenna",
-        QCoreApplication::translate("main", "The value depends on the SoapySDR Hardware, typical values are TX/RX, RX2. Just query it with SoapySDRUtil --probe=driver=uhd"),
-        QCoreApplication::translate("main", "antenna"));
-    optionParser.addOption(SDRAntennaOption);
-
-    QCommandLineOption SDRClockSourceOption("soapysdr-clock-source",
-        QCoreApplication::translate("main", "The value depends on the SoapySDR Hardware, typical values are internal, external, gpsdo. Just query it with SoapySDRUtil --probe=driver=uhd"),
-        QCoreApplication::translate("main", "clock_source"));
-    optionParser.addOption(SDRClockSourceOption);
-#endif /* HAVE_SOAPYSDR */
-
-    QCommandLineOption DABModeOption("dab-mode",
-        QCoreApplication::translate("main", "DAB mode. Possible values are: 1,2,3, or 4, Default: 1"),
-        QCoreApplication::translate("main", "Mode"));
-    optionParser.addOption(DABModeOption);
-
     QCommandLineOption dumpFileName("dump-file",
         QCoreApplication::translate("main", "Records DAB frames (*.mp2) or DAB+ superframes with RS coding (*.dab). This file can be used to analyse X-PAD data with XPADxpert"),
         QCoreApplication::translate("main", "File name"));
@@ -211,16 +164,6 @@ int main(int argc, char** argv)
     if (languageValue != "")
         CGUIHelper::addTranslator(languageValue, Translator);
 
-    //	Process DAB mode option
-    QString DABModValue = optionParser.value(DABModeOption);
-    if (DABModValue != "") {
-        int Mode = DABModValue.toInt();
-        if ((Mode < 1) || (Mode > 4))
-            Mode = 1;
-
-        dabparams.setMode(Mode);
-    }
-
 //#ifdef Q_OS_ANDROID
 
 //    // Start background service
@@ -239,24 +182,11 @@ int main(int argc, char** argv)
 //#else
 
     QVariantMap commandLineOptions;
-    commandLineOptions["dabDevice"] = optionParser.value(InputOption);
-#ifdef HAVE_SOAPYSDR
-    commandLineOptions["sdr-driver-args"] = optionParser.value(SDRDriverArgsOption);
-    commandLineOptions["sdr-antenna"] = optionParser.value(SDRAntennaOption);
-    commandLineOptions["sdr-clock-source"] = optionParser.value(SDRClockSourceOption);
-#endif /* HAVE_SOAPYSDR */
-    commandLineOptions["ipAddress"] = optionParser.value(RTL_TCPServerIPOption);
-    commandLineOptions["ipPort"] = optionParser.value(RTL_TCPServerIPPort);
-    commandLineOptions["rawFile"] = optionParser.value(RAWFile);
-    commandLineOptions["rawFileFormat"] = optionParser.value(RAWFileFormat);
     commandLineOptions["dumpFileName"] = optionParser.value(dumpFileName);
 
     // Create a new radio interface instance
     CRadioController* radioController = new CRadioController(commandLineOptions, dabparams);
-    QTimer::singleShot(0, radioController, SLOT(onEventLoopStarted())); // The timer is used to signal if the QT event lopp is running
-
 //#endif
-
 
     QSettings settings;
 

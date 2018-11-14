@@ -59,11 +59,12 @@ public:
     virtual void setAgc(bool AGC);
     virtual std::string getDescription(void);
     virtual CDeviceID getID(void);
-    virtual void setDriverArgs(const std::string& args);
-    virtual void setAntenna(const std::string& antenna);
-    virtual void setClockSource(const std::string& clock_source);
+    virtual bool setDeviceParam(DeviceParam param, std::string &value);
 
 private:
+    void setDriverArgs(const std::string& args);
+    void setAntenna(const std::string& antenna);
+    void setClockSource(const std::string& clock_source);
     void decreaseGain();
     void increaseGain();
 

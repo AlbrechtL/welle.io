@@ -106,6 +106,7 @@ public:
     CDeviceID openDevice(CDeviceID deviceId, bool force = false, QVariant param1 = QVariant(), QVariant param2 = QVariant());
     CDeviceID openDevice();
     void setDeviceParam(QString param, int value);
+    void setDeviceParam(QString param, QString value);
     Q_INVOKABLE void play(QString Channel, QString Station);
     void pause();
     void stop();
@@ -220,7 +221,6 @@ private:
 
 public slots:
     void nameofEnsemble(const QString&v);
-    void onEventLoopStarted(void);
     void setErrorMessage(QString Text);
     void setErrorMessage(const std::string& head, const std::string& text = "");
     void setInfoMessage(QString Text);

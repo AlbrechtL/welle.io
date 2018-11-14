@@ -50,31 +50,6 @@ CSoapySdr::~CSoapySdr()
     stop();
 }
 
-
-void CSoapySdr::setDriverArgs(const std::string& args)
-{
-    m_driver_args = args;
-}
-
-void CSoapySdr::setAntenna(const std::string& antenna)
-{
-    m_antenna = antenna;
-    if (!m_antenna.empty() && m_device != nullptr) {
-        clog << "Select antenna " << m_antenna << ", supported: ";
-        for (const auto& ant : m_device->listAntennas(SOAPY_SDR_RX, 0)) {
-            clog << " " << ant;
-        }
-        clog << endl;
-
-        m_device->setAntenna(SOAPY_SDR_RX, 0, m_antenna);
-    }
-}
-
-void CSoapySdr::setClockSource(const std::string& clock_source)
-{
-    m_clock_source = clock_source;
-}
-
 void CSoapySdr::setFrequency(int Frequency)
 {
     m_freq = Frequency;
@@ -231,6 +206,31 @@ float CSoapySdr::setGain(int32_t gainIndex)
     return 0;
 }
 
+void CSoapySdr::setDriverArgs(const std::string& args)
+{
+    m_driver_args = args;
+}
+
+void CSoapySdr::setAntenna(const std::string& antenna)
+{
+    m_antenna = antenna;
+    if (!m_antenna.empty() && m_device != nullptr) {
+        clog << "Select antenna " << m_antenna << ", supported: ";
+        for (const auto& ant : m_device->listAntennas(SOAPY_SDR_RX, 0)) {
+            clog << " " << ant;
+        }
+        clog << endl;
+
+        m_device->setAntenna(SOAPY_SDR_RX, 0, m_antenna);
+    }
+}
+
+void CSoapySdr::setClockSource(const std::string& clock_source)
+{
+    m_clock_source = clock_source;
+}
+
+
 void CSoapySdr::increaseGain()
 {
     if (m_device != nullptr) {
@@ -276,12 +276,24 @@ void CSoapySdr::setAgc(bool AGC)
 
 std::string CSoapySdr::getDescription()
 {
-    return "SoapySDR";
+    return "SoapySDR (" + m_device->getDriverKey() + ")";
 }
 
 CDeviceID CSoapySdr::getID()
 {
     return CDeviceID::SOAPYSDR;
+}
+
+bool CSoapySdr::setDeviceParam(DeviceParam param, std::string &value)
+{
+    switch(param) {
+        case DeviceParam::SoapySDRAntenna: setAntenna(value); return true;
+        case DeviceParam::SoapySDRClockSource: setClockSource(value); return true;
+        case DeviceParam::SoapySDRDriverArgs: setDriverArgs(value); return true;
+        default: std::runtime_error("Unsupported device parameter");
+    }
+
+    return false;
 }
 
 void CSoapySdr::workerthread()
@@ -291,7 +303,7 @@ void CSoapySdr::workerthread()
     auto device = m_device;
     std::clog << " *************** Setup soapy stream" << std::endl;
     auto stream = device->setupStream(SOAPY_SDR_RX, "CF32", channels);
-    assert(stream != nullptr);
+//    assert(stream != nullptr);
 
     device->activateStream(stream);
     try {
