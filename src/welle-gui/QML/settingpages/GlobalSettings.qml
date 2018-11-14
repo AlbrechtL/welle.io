@@ -41,14 +41,14 @@ Item {
 
         onNewDeviceId: {
             switch(deviceId) {
-            case 0: deviceBox.currentIndex = 99; break; // UNKNOWN
-            case 1: deviceBox.currentIndex = 99; break; // NULLDEVICE
-            case 2: deviceBox.currentIndex = 0; break; // AIRSPY
-            case 3: deviceBox.currentIndex = 4; break; // RAWFILE
-            case 4: deviceBox.currentIndex = 1; break; // RTL_SDR
-            case 5: deviceBox.currentIndex = 3; break; // RTL_TCP
-            case 6: deviceBox.currentIndex = 2; break; // SOAPYSDR
-            default: deviceBox.currentIndex = 99;
+            case 0: deviceBox.currentIndex = 0; break; // UNKNOWN
+            case 1: deviceBox.currentIndex = 0; break; // NULLDEVICE
+            case 2: deviceBox.currentIndex = 1; break; // AIRSPY
+            case 3: deviceBox.currentIndex = 5; break; // RAWFILE
+            case 4: deviceBox.currentIndex = 2; break; // RTL_SDR
+            case 5: deviceBox.currentIndex = 4; break; // RTL_TCP
+            case 6: deviceBox.currentIndex = 3; break; // SOAPYSDR
+            default: deviceBox.currentIndex = 0;
             }
         }
     }
@@ -134,15 +134,15 @@ Item {
                 id: deviceBox
                 enabled: !enableAutoSdr.checked
                 Layout.fillWidth: true
-                model: [ "Airspy", "rtl-sdr", "SoapySDR", "rtl-tcp", "RAW file"];
+                model: [ "None", "Airspy", "rtl-sdr", "SoapySDR", "rtl-tcp", "RAW file"];
                 onCurrentIndexChanged: {
                     // Load appropriate settings
                     switch(currentIndex) {
-                    case 0: sdrSpecificSettings.source = "qrc:/QML/settingpages/AirspySettings.qml"; break
-                    case 1: sdrSpecificSettings.source = "qrc:/QML/settingpages/RTLSDRSettings.qml"; break
-                    case 2: sdrSpecificSettings.source = "qrc:/QML/settingpages/SoapySDRSettings.qml"; break
-                    case 3: sdrSpecificSettings.source = "qrc:/QML/settingpages/RTLTCPSettings.qml"; break
-                    case 4: sdrSpecificSettings.source = "qrc:/QML/settingpages/RawFileSettings.qml"; break
+                    case 1: sdrSpecificSettings.source = "qrc:/QML/settingpages/AirspySettings.qml"; break
+                    case 2: sdrSpecificSettings.source = "qrc:/QML/settingpages/RTLSDRSettings.qml"; break
+                    case 3: sdrSpecificSettings.source = "qrc:/QML/settingpages/SoapySDRSettings.qml"; break
+                    case 4: sdrSpecificSettings.source = "qrc:/QML/settingpages/RTLTCPSettings.qml"; break
+                    case 5: sdrSpecificSettings.source = "qrc:/QML/settingpages/RawFileSettings.qml"; break
                     default: sdrSpecificSettings.source = "qrc:/QML/settingpages/NullSettings.qml"; break
                     }
                 }
