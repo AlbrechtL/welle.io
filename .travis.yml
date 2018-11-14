@@ -20,7 +20,7 @@ before_install:
 
 install:
     - sudo apt-get -y install gcc-7 g++-7
-    - sudo apt-get -y install libusb-1.0-0-dev pkg-config libmp3lame-dev libmpg123-dev qt510base qt510declarative qt510quickcontrols qt510quickcontrols2 qt510charts-no-lgpl qt510multimedia libpulse0 libfaad-dev libfftw3-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev libsoapysdr-dev soapysdr-modules-all
+    - sudo apt-get -y install libusb-1.0-0-dev pkg-config libmp3lame-dev libmpg123-dev qt510base qt510declarative qt510quickcontrols qt510quickcontrols2 qt510charts-no-lgpl qt510multimedia libpulse0 libfaad-dev libfftw3-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev libsoapysdr-dev
     - source /opt/qt510/bin/qt510-env.sh
     - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 90 --slave /usr/bin/g++ g++ /usr/bin/g++-7
 
