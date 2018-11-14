@@ -51,7 +51,6 @@ public:
             return;
 
         std::ofstream rawStream(fileanme, std::ios::binary);
-        int test = recordBuffer->GetRingBufferReadAvailable();
 
         while(recordBuffer->GetRingBufferReadAvailable() > 0) {
             size_t data_tmpSize = 0;

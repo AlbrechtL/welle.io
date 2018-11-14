@@ -45,10 +45,6 @@
 #include "ringbuffer.h"
 #include "radio-controller.h"
 
-enum class CRTL_SDR_IOCTL {
-    SET_BIAS_TEE
-};
-
 // This class is a simple wrapper around the
 // rtlsdr library that is read is as dll
 // It does not do any processing

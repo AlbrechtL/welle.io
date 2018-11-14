@@ -212,7 +212,9 @@ bool CRTL_SDR::setDeviceParam(DeviceParam param, int value)
         {
             std::clog << "RTL_SDR: " << "Error: rtlsdr_set_bias_tee() not defined!" << std::endl;
         }
-            return true;
+        return true;
+
+        default: std::runtime_error("Unsupported device parameter");
     }
 
     return false;
