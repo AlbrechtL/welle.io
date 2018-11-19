@@ -267,11 +267,51 @@ int16_t FIBProcessor::HandleFIG0Extension2(
         lOffset += 16;
     }
 
-    if (findServiceId(SId) == nullptr) {
+    // Keep track how often we see a service using a saturating counter.
+    // Every time a service is signalled, we increment the counter.
+    // If the counter is >= 2, we consider the service. Every second, we
+    // decrement all counters by one.
+    // This avoids that misdecoded services appear and stay in the list.
+    using namespace std::chrono;
+    const auto now = steady_clock::now();
+    if (timeLastServiceDecrement + seconds(1) < now) {
+
+        auto it = serviceRepeatCount.begin();
+        while (it != serviceRepeatCount.end()) {
+            if (it->second > 0) {
+                it->second--;
+                ++it;
+            }
+            else if (it->second == 0) {
+                dropService(it->second);
+                it = serviceRepeatCount.erase(it);
+            }
+            else {
+                ++it;
+            }
+        }
+
+        timeLastServiceDecrement = now;
+
+#if 0
+        std::stringstream ss;
+        ss << "Counters: ";
+        for (auto& c : serviceRepeatCount) {
+            ss << " " << c.first << ":" << (int)c.second;
+        }
+        std::cerr << ss.str() << std::endl;
+#endif
+    }
+
+    if (serviceRepeatCount[SId] < 4) {
+        serviceRepeatCount[SId]++;
+    }
+
+    if (findServiceId(SId) == nullptr and serviceRepeatCount[SId] >= 2) {
         services.emplace_back(SId);
     }
 
-    numberofComponents = getBits_4 (d, lOffset + 4);
+    numberofComponents = getBits_4(d, lOffset + 4);
     lOffset += 8;
 
     for (i = 0; i < numberofComponents; i ++) {
@@ -992,12 +1032,56 @@ void FIBProcessor::bindPacketService(
     }
 }
 
+void FIBProcessor::dropService(uint32_t SId)
+{
+    std::stringstream ss;
+    ss << "Dropping service " << SId;
+
+    services.erase(std::remove_if(services.begin(), services.end(),
+                [&](const Service& s) {
+                    return s.serviceId == SId;
+                }
+                ), services.end());
+
+    components.erase(std::remove_if(components.begin(), components.end(),
+                [&](const ServiceComponent& c) {
+                    const bool drop = c.SId == SId;
+                    if (drop) {
+                        ss << ", comp " << c.componentNr;
+                    }
+                    return drop;
+                }
+                ), components.end());
+
+    // Check for orphaned subchannels
+    for (auto& sub : subChannels) {
+        if (sub.subChId == -1) {
+            continue;
+        }
+
+        auto c_it = std::find_if(components.begin(), components.end(),
+                [&](const ServiceComponent& c) {
+                    return c.subchannelId == sub.subChId;
+                });
+
+        const bool drop = c_it == components.end();
+        if (drop) {
+            ss << ", subch " << sub.subChId;
+            sub.subChId = -1;
+        }
+    }
+
+    std::clog << ss.str() << std::endl;
+}
+
 void FIBProcessor::clearEnsemble()
 {
     std::lock_guard<std::mutex> lock(mutex);
     components.clear();
     subChannels.resize(64);
     services.clear();
+    serviceRepeatCount.clear();
+    timeLastServiceDecrement = std::chrono::steady_clock::now();
 
     firstTime   = true;
     isSynced    = false;

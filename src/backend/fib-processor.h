@@ -27,6 +27,8 @@
 
 #include <vector>
 #include <list>
+#include <unordered_map>
+#include <chrono>
 #include <array>
 #include <mutex>
 #include <cstdint>
@@ -81,6 +83,8 @@ class FIBProcessor {
                 int16_t ps_flag,
                 int16_t CAflag);
 
+        void dropService(uint32_t SId);
+
         void process_FIG0(uint8_t *);
         void process_FIG1(uint8_t *);
         void FIG0Extension0(uint8_t *);
@@ -123,6 +127,8 @@ class FIBProcessor {
         std::vector<Subchannel> subChannels;
         std::vector<ServiceComponent> components;
         std::vector<Service> services;
+        std::unordered_map<uint32_t, uint8_t> serviceRepeatCount;
+        std::chrono::steady_clock::time_point timeLastServiceDecrement;
         bool firstTime = true;
         bool isSynced = false;
 };
