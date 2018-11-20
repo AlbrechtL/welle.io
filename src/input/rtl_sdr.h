@@ -45,6 +45,12 @@
 #include "ringbuffer.h"
 #include "radio-controller.h"
 
+class CRTL_SDR_RingBuffer : public RingBuffer<uint8_t> {
+    using RingBuffer :: RingBuffer;
+
+    void onNoSpaceAvailable(int32_t missedElements);
+};
+
 // This class is a simple wrapper around the
 // rtlsdr library that is read is as dll
 // It does not do any processing
@@ -91,12 +97,14 @@ private:
 
     void AGCTimer(void);
 
-    RingBuffer<uint8_t> sampleBuffer;
+    CRTL_SDR_RingBuffer sampleBuffer;
     RingBuffer<uint8_t> spectrumSampleBuffer;
     struct rtlsdr_dev *device = nullptr;
     int32_t sampleCounter = 0;
 
     static void RTLSDRCallBack(uint8_t* buf, uint32_t len, void *ctx);
 };
+
+
 
 #endif

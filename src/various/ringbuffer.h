@@ -136,6 +136,8 @@ class RingBuffer
         uint32_t    smallMask;
         std::vector<char> buffer;
 
+        virtual void onNoSpaceAvailable(int32_t missedElements) { (void) missedElements; };
+
     public:
         RingBuffer (uint32_t elementCount) {
             if (((elementCount - 1) & elementCount) != 0)
@@ -270,6 +272,11 @@ class RingBuffer
             int32_t size1, size2, numWritten;
             void    *data1;
             void    *data2;
+
+            int32_t freeSpace = GetRingBufferWriteAvailable();
+            int32_t missedElements = elementCount - freeSpace;
+            if(missedElements > 0)
+                onNoSpaceAvailable(missedElements);
 
             numWritten = GetRingBufferWriteRegions (elementCount,
                     &data1, &size1,
