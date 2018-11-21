@@ -86,7 +86,7 @@ private:
     int32_t readBuffer(uint8_t*, int32_t);
     int32_t convertSamples(RingBuffer<uint8_t>& Buffer, DSPCOMPLEX* V, int32_t size);
 
-    RingBuffer<uint8_t> SampleBuffer;
+    IQRingBuffer<uint8_t> SampleBuffer;
     RingBuffer<uint8_t> SpectrumSampleBuffer;
     FILE* filePointer = nullptr;
     bool readerOK = false;

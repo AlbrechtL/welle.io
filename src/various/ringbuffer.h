@@ -37,6 +37,8 @@
  */
 
 /*
+ *    Copyright (C) 2018
+ *    Albrecht Lohofener (albrechtloh@gmx.de)
  *
  *    Copyright (C) 2008, 2009, 2010
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
@@ -44,17 +46,17 @@
  *
  *    The ringbuffer here is a rewrite of the ringbuffer used in the PA code
  *    All rights remain with their owners
- *    This file is part of the SDR-J.
- *    Many of the ideas as implemented in SDR-J are derived from
+ *    This file is part of the welle.io.
+ *    Many of the ideas as implemented in welle.io are derived from
  *    other work, made available through the GNU general Public License.
  *    All copyrights of the original authors are recognized.
  *
- *    SDR-J is free software; you can redistribute it and/or modify
+ *    welle.io is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
  *    the Free Software Foundation; either version 2 of the License, or
  *    (at your option) any later version.
  *
- *    SDR-J is distributed in the hope that it will be useful,
+ *    welle.io is distributed in the hope that it will be useful,
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
@@ -64,14 +66,15 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#ifndef RING_BUFFER_H
+#define RING_BUFFER_H
 
-#ifndef __RINGBUFFER
-#define __RINGBUFFER
 #include    <stdlib.h>
 #include    <vector>
 #include    <stdio.h>
 #include    <string.h>
 #include    <stdint.h>
+#include    <iostream>
 
 /*
  *  a simple ringbuffer, lockfree, however only for a
@@ -126,7 +129,34 @@
 #endif
 
 template <class elementtype>
-class RingBuffer
+class RingBufferBase;
+
+// Ring buffer for IQ input
+template <class elementtype>
+class IQRingBuffer : public RingBufferBase<elementtype> {
+public:
+    using RingBufferBase<elementtype>::RingBufferBase;
+
+    virtual void onDroppedData(int32_t droppedElements) {
+        std::clog << "IQRingBuffer: Dropped " << droppedElements * sizeof(elementtype) << " bytes" << std::endl;;
+    }
+};
+
+// Fallback
+template <class elementtype>
+class RingBuffer : public RingBufferBase<elementtype> {
+public:
+    using RingBufferBase<elementtype>::RingBufferBase;
+
+    virtual void onDroppedData(int32_t droppedElements) {
+        (void) droppedElements;
+        // Do nothing
+    }
+};
+
+// Base implementation
+template <class elementtype>
+class RingBufferBase
 {
     private:
         uint32_t    bufferSize;
@@ -136,10 +166,10 @@ class RingBuffer
         uint32_t    smallMask;
         std::vector<char> buffer;
 
-        virtual void onNoSpaceAvailable(int32_t missedElements) { (void) missedElements; };
+        virtual void onDroppedData(int32_t droppedElements) = 0;
 
     public:
-        RingBuffer (uint32_t elementCount) {
+        RingBufferBase (uint32_t elementCount) {
             if (((elementCount - 1) & elementCount) != 0)
                 elementCount = 2 * 16384;   /* default  */
 
@@ -274,9 +304,9 @@ class RingBuffer
             void    *data2;
 
             int32_t freeSpace = GetRingBufferWriteAvailable();
-            int32_t missedElements = elementCount - freeSpace;
-            if(missedElements > 0)
-                onNoSpaceAvailable(missedElements);
+            int32_t droppedElements = elementCount - freeSpace;
+            if(droppedElements > 0)
+                onDroppedData(droppedElements);
 
             numWritten = GetRingBufferWriteRegions (elementCount,
                     &data1, &size1,
@@ -323,5 +353,5 @@ class RingBuffer
         }
 
 };
-#endif
 
+#endif // RING_BUFFER_H

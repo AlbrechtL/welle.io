@@ -224,7 +224,7 @@ int32_t CRAWFile::getSamples(DSPCOMPLEX* V, int32_t size)
         else
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
-    return convertSamples(SampleBuffer, V, size);
+    return convertSamples(reinterpret_cast<RingBuffer<uint8_t>&>(SampleBuffer), V, size);
 }
 
 std::vector<DSPCOMPLEX> CRAWFile::getSpectrumSamples(int size)

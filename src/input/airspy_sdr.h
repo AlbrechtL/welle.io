@@ -88,7 +88,7 @@ private:
 
     bool sw_agc = false;
     int currentLinearityGain = 10;
-    RingBuffer<DSPCOMPLEX> SampleBuffer;
+    IQRingBuffer<DSPCOMPLEX> SampleBuffer;
     RingBuffer<DSPCOMPLEX> SpectrumSampleBuffer;
     struct airspy_device *device;
 

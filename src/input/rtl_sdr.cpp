@@ -375,8 +375,3 @@ void CRTL_SDR::rtlsdr_read_async_wrapper()
 
     rtlsdrRunning = false;
 }
-
-void CRTL_SDR_RingBuffer::onNoSpaceAvailable(int32_t missedElements)
-{
-    std::clog << "CRTL_SDR_RingBuffer: Missed " << missedElements << " bytes" << std::endl;
-}
