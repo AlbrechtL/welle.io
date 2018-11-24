@@ -40,7 +40,6 @@ DISTFILES +=    \
     QML/components/SettingSection.qml \
     QML/components/StationDelegate.qml \
     QML/components/Units.qml \
-    QML/expertviews/StationInformation.qml \
     QML/expertviews/ImpulseResponseGraph.qml \
     QML/expertviews/ConstellationGraph.qml \
     QML/expertviews/NullSymbolGraph.qml \
@@ -56,7 +55,8 @@ DISTFILES +=    \
     QML/components/WButton.qml \
     QML/components/WPopup.qml \
     QML/components/WSwitch.qml \
-    QML/components/WTumbler.qml
+    QML/components/WTumbler.qml \
+    QML/expertviews/ServiceDetails.qml
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 

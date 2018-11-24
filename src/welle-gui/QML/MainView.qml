@@ -377,15 +377,15 @@ ApplicationWindow {
             }
 
             MenuItem {
-                text: qsTr("MOT Slide Show")
+                text: qsTr("Service Details")
                 font.pixelSize: TextStyle.textStandartSize
-                onTriggered: generalView.addComponent("qrc:/QML/MotView.qml")
+                onTriggered: generalView.addComponent("qrc:/QML/expertviews/ServiceDetails.qml")
             }
 
             MenuItem {
-                text: qsTr("Service Information")
+                text: qsTr("MOT Slide Show")
                 font.pixelSize: TextStyle.textStandartSize
-                onTriggered: generalView.addComponent("qrc:/QML/expertviews/StationInformation.qml")
+                onTriggered: generalView.addComponent("qrc:/QML/MotView.qml")
             }
 
             MenuItem {

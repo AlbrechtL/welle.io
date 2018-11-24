@@ -86,7 +86,7 @@
         <file>QML/components/WComboBox.qml</file>
         <file>QML/components/WButton.qml</file>
         <file>QML/components/qmldir</file>
-        <file>QML/expertviews/StationInformation.qml</file>
+        <file>QML/expertviews/ServiceDetails.qml</file>
         <file>QML/expertviews/ImpulseResponseGraph.qml</file>
         <file>QML/expertviews/ConstellationGraph.qml</file>
         <file>QML/expertviews/NullSymbolGraph.qml</file>

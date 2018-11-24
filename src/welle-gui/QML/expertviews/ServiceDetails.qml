@@ -7,7 +7,7 @@ import "../components"
 
 
 ViewBaseFrame {
-    labelText: qsTr("Service Information")
+    labelText: qsTr("Service Details")
 
     content: ColumnLayout {
         anchors.fill: parent
