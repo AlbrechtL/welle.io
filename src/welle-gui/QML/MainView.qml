@@ -443,15 +443,17 @@ ApplicationWindow {
 
     WPopup {
         id: stationSettingsDialog
-        contentItem: Loader {
+        content: Loader {
+            Layout.fillWidth: true
             source:  "qrc:/QML/settingpages/ChannelSettings.qml"
         }
     }
 
     WPopup {
         id: globalSettingsDialog
-        contentItem: Loader {
+        content: Loader {
             id: globalSettingsLoader
+            Layout.fillWidth: true
             source:  "qrc:/QML/settingpages/GlobalSettings.qml"
             onLoaded : isFullScreen = globalSettingsLoader.item.enableFullScreenState
         }
@@ -464,8 +466,9 @@ ApplicationWindow {
 
     WPopup {
         id: expertSettingsDialog
-        contentItem: Loader {
+        content: Loader {
             id: expertSettingsLoader
+            Layout.fillWidth: true
             source:  "qrc:/QML/settingpages/ExpertSettings.qml"
             onLoaded: isExpertView = expertSettingsLoader.item.enableExpertModeState
         }
