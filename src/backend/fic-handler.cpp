@@ -216,7 +216,7 @@ void FicHandler::processFicInput(int16_t *ficblock, int16_t ficno)
      */
     for (i = ficno * 3; i < ficno * 3 + 3; i ++) {
         uint8_t *p = &bitBuffer_out[(i % 3) * 256];
-        const bool crcvalid = check_CRC_bits(p, 256);
+        crcvalid = check_CRC_bits(p, 256);
         myRadioInterface.onFIBDecodeSuccess(crcvalid, p);
         if (!crcvalid) {
             continue;
@@ -235,8 +235,8 @@ int16_t FicHandler::getFicRatio()
     return ficRatio;
 }
 
-bool FicHandler::syncReached()
+bool FicHandler::getIsCrcValid()
 {
-    return fibProcessor.syncReached();
+    return crcvalid;
 }
 

@@ -781,7 +781,10 @@ void    FIBProcessor::process_FIG1 (uint8_t *d)
                                     (CharacterSet)charSet));
                     }
                     firstTime = false;
-                    isSynced  = true;
+                }
+                else
+                {
+                    std::clog << "fib-processor: " << " not synced " << std::endl;
                 }
             }
             //        std::clog << "fib-processor:" <<
@@ -1084,7 +1087,6 @@ void FIBProcessor::clearEnsemble()
     timeLastServiceDecrement = std::chrono::steady_clock::now();
 
     firstTime   = true;
-    isSynced    = false;
 }
 
 std::vector<Service> FIBProcessor::getServiceList() const
@@ -1129,9 +1131,3 @@ DabLabel FIBProcessor::getEnsembleLabel() const
     std::lock_guard<std::mutex> lock(mutex);
     return ensembleLabel;
 }
-
-bool FIBProcessor::syncReached()
-{
-    return isSynced;
-}
-

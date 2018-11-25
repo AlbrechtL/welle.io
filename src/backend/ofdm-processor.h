@@ -82,6 +82,7 @@ class OFDMProcessor
         int32_t T_u;
         int32_t T_s;
         int32_t T_F;
+        int32_t corseSyncCounter = 0;
 
         std::vector<DSPCOMPLEX> oscillatorTable;
 

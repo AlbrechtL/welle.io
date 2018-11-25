@@ -42,7 +42,7 @@ class FicHandler: public Viterbi
         void    processFicBlock(int16_t *data, int16_t blkno);
         void    setBitsperBlock(int16_t b);
         void    clearEnsemble();
-        bool    syncReached();
+        bool    getIsCrcValid();
         int16_t getFicRatio();
 
         FIBProcessor fibProcessor;
@@ -60,6 +60,7 @@ class FicHandler: public Viterbi
         int16_t     ficRatio = 0;
         uint8_t     PRBS[768];
         uint8_t     shiftRegister[9];
+        bool        crcvalid = false;
 };
 
 #endif

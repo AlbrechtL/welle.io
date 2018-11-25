@@ -43,7 +43,6 @@ class FIBProcessor {
         // called from the demodulator
         void processFIB(uint8_t *p, uint16_t fib);
         void clearEnsemble();
-        bool syncReached();
 
         // Called from the frontend
         uint16_t getEnsembleId() const;
@@ -130,7 +129,6 @@ class FIBProcessor {
         std::unordered_map<uint32_t, uint8_t> serviceRepeatCount;
         std::chrono::steady_clock::time_point timeLastServiceDecrement;
         bool firstTime = true;
-        bool isSynced = false;
 };
 
 #endif

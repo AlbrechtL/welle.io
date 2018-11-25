@@ -361,13 +361,20 @@ SyncOnPhase:
         //  Here we look only at the PRS when we need a coarse
         //  frequency synchronization.
         //  The width is limited to 2 * 35 kHz (i.e. positive and negative)
-        if (!disableCoarseCorrector and !ficHandler.syncReached()) {
+        if (!disableCoarseCorrector and !ficHandler.getIsCrcValid()) {
+            corseSyncCounter++;
             int correction = processPRS(ofdmBuffer.data());
             if (correction != 100) {
                 coarseCorrector += correction * params.carrierDiff;
                 if (abs (coarseCorrector) > kHz(35))
                     coarseCorrector = 0;
             }
+        }
+        else {
+            if(corseSyncCounter) {
+                 std::clog << "ofdm-processor: " << "Found coarse frequency offset after " << corseSyncCounter << " frames" << std::endl;
+            }
+            corseSyncCounter = 0;
         }
         /**
          * after symbol 0, we will just read in the other (params.L - 1) symbols
