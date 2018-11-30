@@ -372,7 +372,7 @@ SyncOnPhase:
         }
         else {
             if(corseSyncCounter) {
-                 std::clog << "ofdm-processor: " << "Found coarse frequency offset after " << corseSyncCounter << " frames" << std::endl;
+                 std::clog << "ofdm-processor: " << "Found coarse frequency offset " << coarseCorrector << " kHz after " << corseSyncCounter << " frames. " << std::endl;
             }
             corseSyncCounter = 0;
         }
