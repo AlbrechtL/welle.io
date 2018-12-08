@@ -72,6 +72,30 @@ Channels::Channels()
     frequencyMap["12B"] = 225648000;
     frequencyMap["12C"] = 227360000;
     frequencyMap["12D"] = 229072000;
+    frequencyMap["13A"] = 230784000;
+    frequencyMap["13B"] = 232496000;
+    frequencyMap["13C"] = 234208000;
+    frequencyMap["13D"] = 235776000;
+    frequencyMap["13E"] = 237488000;
+    frequencyMap["13F"] = 239200000;
+
+    // Band L
+    frequencyMap["LA"] = 1452960000;
+    frequencyMap["LB"] = 1454672000;
+    frequencyMap["LC"] = 1456384000;
+    frequencyMap["LD"] = 1458096000;
+    frequencyMap["LE"] = 1459808000;
+    frequencyMap["LF"] = 1461520000;
+    frequencyMap["LG"] = 1463232000;
+    frequencyMap["LH"] = 1464944000;
+    frequencyMap["LI"] = 1466656000;
+    frequencyMap["LJ"] = 1468368000;
+    frequencyMap["LK"] = 1470080000;
+    frequencyMap["LL"] = 1471792000;
+    frequencyMap["LM"] = 1473504000;
+    frequencyMap["LN"] = 1475216000;
+    frequencyMap["LO"] = 1476928000;
+    frequencyMap["LP"] = 1478640000;
 
     // Init with first frequency
     currentChannel = firstChannel;
@@ -168,7 +192,30 @@ string Channels::getChannelNameAtIndex(int index)
     case 29: channelName = "12B"; break;
     case 30: channelName = "12C"; break;
     case 31: channelName = "12D"; break;
+    case 32: channelName = "13A"; break;
+    case 33: channelName = "13B"; break;
+    case 34: channelName = "13C"; break;
+    case 35: channelName = "13D"; break;
+    case 36: channelName = "13E"; break;
+    case 37: channelName = "13F"; break;
 
+    // Band L
+    case 38: channelName = "LA"; break;
+    case 39: channelName = "LB"; break;
+    case 40: channelName = "LC"; break;
+    case 41: channelName = "LD"; break;
+    case 42: channelName = "LE"; break;
+    case 43: channelName = "LF"; break;
+    case 44: channelName = "LG"; break;
+    case 45: channelName = "LH"; break;
+    case 46: channelName = "LI"; break;
+    case 47: channelName = "LJ"; break;
+    case 48: channelName = "LK"; break;
+    case 49: channelName = "LL"; break;
+    case 50: channelName = "LM"; break;
+    case 51: channelName = "LN"; break;
+    case 52: channelName = "LO"; break;
+    case 53: channelName = "LP"; break;
     default: clog << "DABConstants:"
                       << "No channel name at index" <<
                           to_string(index) << endl;
