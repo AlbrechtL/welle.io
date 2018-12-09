@@ -3,8 +3,6 @@
 - Linux (Travis): [![Travis Build Status](https://travis-ci.org/AlbrechtL/welle.io.svg?branch=master)](https://travis-ci.org/AlbrechtL/welle.io)
 - Windows (AppVeyor): [![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/yipsu95pb4ecdofe?svg=true)](https://ci.appveyor.com/project/AlbrechtL/welle-io)
 
-# WARNING: This is the next branch and heavy under development! It may not to compile or work!
-
 This repository contains the implementation of an SDR DAB/DAB+ receiver.  
 Please see the project website https://www.welle.io for a user oriented documentation. 
 
@@ -214,7 +212,7 @@ welle.io uses the "RTL2832U driver" from Martin Marinov, to be found at the [Goo
 
 This sections shows how to compile welle.io for Android.
 
-1. Install Qt 5.10 for Android including the Qt Charts and Qt Remote Objects modules by using the the "Qt Online Installer for Windows" https://www.qt.io/download-open-source/
+1. Install Qt 5.12 for Android including the Qt Charts and Qt Remote Objects modules by using the the "Qt Online Installer for Windows" https://www.qt.io/download-open-source/
 2. Follow the side https://doc.qt.io/qt-5/androidgs.html to install the Android build enviroment
 3. Clone welle.io https://github.com/AlbrechtL/welle.io.git
 
