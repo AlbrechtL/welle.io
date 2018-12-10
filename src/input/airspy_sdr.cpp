@@ -274,14 +274,14 @@ std::string CAirspy::getDescription()
 
 bool CAirspy::setDeviceParam(DeviceParam param, int value)
 {
-    switch(param) {
+    switch (param) {
         case DeviceParam::BiasTee:
             std::clog << "Airspy: Set bias tee to " << value << std::endl;
             airspy_set_rf_bias(device, value);
             return true;
+        default:
+            return false;
     }
-
-    return false;
 }
 
 CDeviceID CAirspy::getID()
