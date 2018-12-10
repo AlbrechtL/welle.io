@@ -122,7 +122,7 @@ void CRTL_TCP_Client::stop(void)
 }
 
 static int32_t read_convert_from_buffer(
-        RingBuffer<uint8_t>& buffer,
+        RingBufferBase<uint8_t>& buffer,
         DSPCOMPLEX *v, int32_t size)
 {
     int32_t amount, i;
@@ -138,7 +138,7 @@ static int32_t read_convert_from_buffer(
 
 int32_t CRTL_TCP_Client::getSamples(DSPCOMPLEX *v, int32_t size)
 {
-    return read_convert_from_buffer(reinterpret_cast<RingBuffer<uint8_t>&>(sampleBuffer), v, size);
+    return read_convert_from_buffer(sampleBuffer, v, size);
 }
 
 std::vector<DSPCOMPLEX> CRTL_TCP_Client::getSpectrumSamples(int size)
