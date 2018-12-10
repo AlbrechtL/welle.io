@@ -293,11 +293,6 @@ const char* DABConstants::getLanguageName(int language)
 }
 
 
-DABParams::DABParams()
-{
-    setMode(1);
-}
-
 DABParams::DABParams(int mode)
 {
     setMode(mode);

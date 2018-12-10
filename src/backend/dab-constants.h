@@ -67,7 +67,6 @@ extern const int ProtLevel[64][3];
 
 class DABParams {
 public:
-    DABParams();
     DABParams(int mode);
     void setMode(int mode);
 

@@ -40,7 +40,9 @@ using namespace std;
 RadioReceiver::RadioReceiver(
                 RadioControllerInterface& rci,
                 InputInterface& input,
-                RadioReceiverOptions rro) :
+                RadioReceiverOptions rro,
+                int transmission_mode) :
+    params(transmission_mode),
     mscHandler(params, false),
     ficHandler(rci),
     ofdmProcessor(input,

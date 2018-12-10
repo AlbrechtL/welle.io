@@ -46,7 +46,8 @@ class RadioReceiver {
         RadioReceiver(
                 RadioControllerInterface& rci,
                 InputInterface& input,
-                RadioReceiverOptions rro);
+                RadioReceiverOptions rro,
+                int transmission_mode = 1);
 
         /* Restart the receiver, and specify if we want
          * to scan or receive. */
