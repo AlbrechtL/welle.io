@@ -325,6 +325,7 @@ bool WebRadioInterface::send_file(Socket& s,
         ssize_t ret = s.send(headers.data(), headers.size(), MSG_NOSIGNAL);
         if (ret == -1) {
             cerr << "Failed to send file headers" << endl;
+            fclose(fd);
             return false;
         }
 
