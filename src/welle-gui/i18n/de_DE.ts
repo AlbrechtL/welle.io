@@ -161,7 +161,7 @@
     </message>
     <message>
         <location filename="../src/DabConstants.cpp" line="66"/>
-        <source>entry 29 not used</source>
+        <source>Documentary</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
