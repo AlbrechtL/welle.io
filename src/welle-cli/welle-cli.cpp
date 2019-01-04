@@ -58,6 +58,12 @@ extern "C" {
 #include "various/wavfile.h"
 }
 
+#ifdef GITDESCRIBE
+#define VERSION GITDESCRIBE
+#else
+#define VERSION "unknown"
+#endif
+
 using namespace std;
 
 using namespace nlohmann;
@@ -375,7 +381,7 @@ options_t parse_cmdline(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
-    cerr << "Hello this is welle-cli " << GITDESCRIBE << endl;
+    cerr << "Hello this is welle-cli " << VERSION << endl;
     auto options = parse_cmdline(argc, argv);
 
     RadioInterface ri;
