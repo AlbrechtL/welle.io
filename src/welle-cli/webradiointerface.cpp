@@ -36,6 +36,16 @@
 #include "welle-cli/webradiointerface.h"
 #include "libs/json.hpp"
 
+#ifndef MSG_NOSIGNAL
+#define MSG_NOSIGNAL 0
+#endif
+
+#ifdef GITDESCRIBE
+#define VERSION GITDESCRIBE
+#else
+#define VERSION "unknown"
+#endif
+
 using namespace std;
 
 static const char* http_ok = "HTTP/1.0 200 OK\r\n";
@@ -54,7 +64,7 @@ static const char* http_contenttype_js =
         "Content-Type: text/javascript; charset=utf-8\r\n";
 
 static const char* http_contenttype_html =
-        "Content-Type: Content-Type: text/html; charset=utf-8\r\n";
+        "Content-Type: text/html; charset=utf-8\r\n";
 
 static const char* http_nocache = "Cache-Control: no-cache\r\n";
 
@@ -413,7 +423,7 @@ bool WebRadioInterface::send_mux_json(Socket& s)
     nlohmann::json j;
 
     j["receiver"]["software"]["name"] = "welle.io";
-    j["receiver"]["software"]["version"] = GITDESCRIBE;
+    j["receiver"]["software"]["version"] = VERSION;
     j["receiver"]["hardware"]["name"] = input.getDescription();
     j["receiver"]["hardware"]["gain"] = input.getGain();
 

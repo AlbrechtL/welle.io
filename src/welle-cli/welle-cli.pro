@@ -17,7 +17,7 @@ SOURCES += \
     welle-cli.cpp
 
 # Include git hash into build
-unix:!macx { # macOS is not tested, exclude it
+unix: {
     GITHASHSTRING = $$system(git rev-parse --short HEAD)
 }
 

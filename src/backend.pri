@@ -50,6 +50,8 @@ macx {
     LIBS    += -lusb-1.0
     LIBS    += -ldl
     LIBS    += -lfaad
+    LIBS    += -lmpg123
+    LIBS    += -lmp3lame
     CONFIG  += airspy
     CONFIG  += rtl_sdr
     #CONFIG  += soapysdr

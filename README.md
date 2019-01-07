@@ -150,7 +150,7 @@ Assuming that you have [Homebrew](https://brew.sh/) installed, execute the follo
 You need to install the dependencies with MacPorts first, assuming you have [MacPorts](https://www.macports.org/) installed:
 
 ```
-# sudo port install fftw-3-single faad2 rtl-sdr libusb
+# sudo port install fftw-3-single faad2 rtl-sdr libusb mpg123 lame
 ```
 
 1. Install Qt 5.10 with Qt Creator directly from Qt website, not through MacPorts.
