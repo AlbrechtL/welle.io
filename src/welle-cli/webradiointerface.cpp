@@ -64,7 +64,7 @@ static const char* http_contenttype_js =
         "Content-Type: text/javascript; charset=utf-8\r\n";
 
 static const char* http_contenttype_html =
-        "Content-Type: Content-Type: text/html; charset=utf-8\r\n";
+        "Content-Type: text/html; charset=utf-8\r\n";
 
 static const char* http_nocache = "Cache-Control: no-cache\r\n";
 
