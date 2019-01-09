@@ -220,8 +220,8 @@ int main(int argc, char** argv)
     qDebug() << "main:" <<  "Application closed";
 
     // Delete the RadioController controller to ensure a save shutdown
-    delete guiHelper;
     delete radioController;
+    delete guiHelper;
 
     return 0;
 }
