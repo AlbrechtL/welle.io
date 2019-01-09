@@ -72,13 +72,12 @@ class CRadioController :
     Q_PROPERTY(bool isSync MEMBER isSync NOTIFY isSyncChanged)
     Q_PROPERTY(bool isFICCRC MEMBER isFICCRC NOTIFY isFICCRCChanged)
     Q_PROPERTY(bool isSignal MEMBER isSignal NOTIFY isSignalChanged)
-    Q_PROPERTY(bool isStereo MEMBER isStereo NOTIFY isStereoChanged)
+    Q_PROPERTY(QString audioMode MEMBER audioMode NOTIFY audioModeChanged)
     Q_PROPERTY(bool isDAB MEMBER isDAB NOTIFY isDABChanged)
     Q_PROPERTY(int snr MEMBER snr NOTIFY snrChanged)
     Q_PROPERTY(int frequencyCorrection MEMBER frequencyCorrection NOTIFY frequencyCorrectionChanged)
     Q_PROPERTY(float frequencyCorrectionPpm MEMBER frequencyCorrectionPpm NOTIFY frequencyCorrectionPpmChanged)
     Q_PROPERTY(int bitRate MEMBER bitRate NOTIFY bitRateChanged)
-    Q_PROPERTY(int audioSampleRate MEMBER audioSampleRate NOTIFY audioSampleRateChanged)
     Q_PROPERTY(int frameErrors MEMBER frameErrors NOTIFY frameErrorsChanged)
     Q_PROPERTY(int rsErrors MEMBER rsErrors NOTIFY rsErrorsChanged)
     Q_PROPERTY(int aacErrors MEMBER aaErrors NOTIFY aacErrorsChanged)
@@ -136,7 +135,7 @@ public:
 
     //called from the backend
     virtual void onFrameErrors(int frameErrors) override;
-    virtual void onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, bool isStereo, const std::string& mode) override;
+    virtual void onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, const std::string& mode) override;
     virtual void onRsErrors(bool uncorrectedErrors, int numCorrectedErrors) override;
     virtual void onAacErrors(int aacErrors) override;
     virtual void onNewDynamicLabel(const std::string& label) override;
@@ -182,8 +181,8 @@ private:
     bool isSync = false;
     bool isFICCRC = false;
     bool isSignal = false;
-    bool isStereo = false;
     bool isDAB = false;
+    QString audioMode = "";
     int snr = 0;
     int frequencyCorrection = 0;
     float frequencyCorrectionPpm = 0.0;
@@ -245,13 +244,12 @@ signals:
     void isSyncChanged(bool);
     void isFICCRCChanged(bool);
     void isSignalChanged(bool);
-    void isStereoChanged(bool);
     void isDABChanged(bool);
+    void audioModeChanged(QString);
     void snrChanged(int);
     void frequencyCorrectionChanged(int);
     void frequencyCorrectionPpmChanged(float);
     void bitRateChanged(int);
-    void audioSampleRateChanged(int);
     void frameErrorsChanged(int);
     void rsErrorsChanged(int);
     void aacErrorsChanged(int);

@@ -542,7 +542,6 @@ void CRadioController::resetTechnicalData(void)
     frequencyCorrectionPpm = NAN;
     bitRate = 0;
     audioSampleRate = 0;
-    isStereo = true;
     isDAB = true;
     frameErrors = 0;
     rsErrors = 0;
@@ -832,7 +831,7 @@ void CRadioController::onSignalPresence(bool isSignal)
         emit switchToNextChannel(isSignal);
 }
 
-void CRadioController::onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, bool isStereo, const std::string& mode)
+void CRadioController::onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, const std::string& mode)
 {
     audioBuffer.putDataIntoBuffer(audioData.data(), static_cast<int32_t>(audioData.size()));
 
@@ -840,14 +839,13 @@ void CRadioController::onNewAudio(std::vector<int16_t>&& audioData, int sampleRa
         qDebug() << "RadioController: Audio sample rate" <<  sampleRate << "Hz, mode=" <<
             QString::fromStdString(mode);
         audioSampleRate = sampleRate;
-        emit audioSampleRateChanged(audioSampleRate);
 
         audio.setRate(sampleRate);
     }
 
-    if (this->isStereo != isStereo) {
-        this->isStereo = isStereo;
-        emit isStereoChanged(this->isStereo);
+    if (audioMode != QString::fromStdString(mode)) {
+        audioMode = QString::fromStdString(mode);
+        emit audioModeChanged(audioMode);
     }
 }
 

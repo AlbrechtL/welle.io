@@ -187,7 +187,6 @@ class TestRadioInterface : public RadioControllerInterface {
 
 class   TestProgrammeHandler: public ProgrammeHandlerInterface {
     private:
-        bool stereo = true;
         int rate = 0;
 
     public:
@@ -199,15 +198,14 @@ class   TestProgrammeHandler: public ProgrammeHandlerInterface {
             frameErrorStats.push_back(frameErrors);
         }
 
-        virtual void onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, bool isStereo, const string& mode) override {
+        virtual void onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, const string& mode) override {
             (void)audioData;
             (void)mode;
 
-            if (rate != sampleRate or stereo != isStereo) {
-                cout << "rate " << sampleRate << " stereo " << isStereo << endl;
+            if (rate != sampleRate) {
+                cout << "rate " << sampleRate << endl;
             }
             rate = sampleRate;
-            stereo = isStereo;
         }
 
         virtual void onRsErrors(bool uncorrectedErrors, int numCorrectedErrors) override {

@@ -174,9 +174,8 @@ void WebProgrammeHandler::onFrameErrors(int frameErrors)
 }
 
 void WebProgrammeHandler::onNewAudio(std::vector<int16_t>&& audioData,
-                int sampleRate, bool isStereo, const string& m)
+                int sampleRate, const string& m)
 {
-    stereo = isStereo;
     rate = sampleRate;
     mode = m;
 

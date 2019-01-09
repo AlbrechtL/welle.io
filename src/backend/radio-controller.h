@@ -126,7 +126,7 @@ class ProgrammeHandlerInterface {
          * stereo indicator may change at any time.
          * mode is an information related to the audio encoding
          * used.  */
-        virtual void onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, bool stereo, const std::string& mode) = 0;
+        virtual void onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, const std::string& mode) = 0;
 
         /* (DAB+ only) Reed-Solomon decoding error indicator, and
          * number of corrected errors.

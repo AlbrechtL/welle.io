@@ -169,9 +169,8 @@ ViewBaseFrame {
             visible: stationInfo.visible
             Layout.alignment: Qt.AlignRight
             Layout.rightMargin: Units.dp(5)
-            text: radioController.bitRate + " kbps, "
-                  + (radioController.isStereo ? "Stereo" : "Mono")
-                  + (radioController.isDAB ? ", DAB" : ", DAB+")
+            text: (radioController.isDAB ? "DAB" : "DAB+")
+                + " " + radioController.audioMode
         }
     }
 }

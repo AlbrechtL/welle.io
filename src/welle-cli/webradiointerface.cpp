@@ -526,7 +526,7 @@ bool WebRadioInterface::send_mux_json(Socket& s)
                     {"right", al.last_audioLevel_R}};
                 j_srv["audiolevel"] = j_audio;
 
-                j_srv["channels"] = wph.stereo ? 2 : 1;
+                j_srv["channels"] = 2;
                 j_srv["samplerate"] = wph.rate;
                 j_srv["mode"] = wph.mode;
 

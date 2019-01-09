@@ -115,7 +115,6 @@ void DecoderAdapter::PutAudio(const uint8_t *data, size_t len)
     myInterface.onNewAudio(
         std::move(audio),
         audioSamplerate,
-        audioChannels == 2,
         audioFormat);
 }
 
