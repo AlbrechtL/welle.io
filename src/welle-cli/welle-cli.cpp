@@ -72,18 +72,17 @@ using namespace nlohmann;
 class AlsaProgrammeHandler: public ProgrammeHandlerInterface {
     public:
         virtual void onFrameErrors(int frameErrors) override { (void)frameErrors; }
-        virtual void onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, bool isStereo, const std::string& mode) override
+        virtual void onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, const std::string& mode) override
         {
             (void)mode;
             lock_guard<mutex> lock(aomutex);
 
-            bool reset_ao = (sampleRate != (int)rate) or (isStereo != stereo);
+            bool reset_ao = sampleRate != (int)rate;
             rate = sampleRate;
-            stereo = isStereo;
 
             if (!ao or reset_ao) {
-                cerr << "Create audio output with stereo " << stereo << " and rate " << rate << endl;
-                ao = make_unique<AlsaOutput>(stereo ? 2 : 1, rate);
+                cerr << "Create audio output rate " << rate << endl;
+                ao = make_unique<AlsaOutput>(2, rate);
             }
 
             ao->playPCM(move(audioData));
