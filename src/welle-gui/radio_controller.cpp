@@ -30,6 +30,7 @@
  *
  */
 
+#include <QCoreApplication>
 #include <QDebug>
 #include <QSettings>
 #include <QStandardPaths>
@@ -637,10 +638,10 @@ void CRadioController::stationTimerTimeout()
                         qDebug() << "Selecting service failed";
                     }
                     else {
-                        currentStationType = tr(DABConstants::getProgramTypeName(s.programType));
+                        currentStationType = QCoreApplication::translate("DABConstants",(DABConstants::getProgramTypeName(s.programType)));
                         emit stationTypChanged();
 
-                        currentLanguageType = tr(DABConstants::getLanguageName(s.language));
+                        currentLanguageType = QCoreApplication::translate("DABConstants",(DABConstants::getLanguageName(s.language)));
                         emit languageTypeChanged();
 
                         bitRate = subch.bitrate();
