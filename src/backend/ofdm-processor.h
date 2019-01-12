@@ -82,7 +82,7 @@ class OFDMProcessor
         int32_t T_u;
         int32_t T_s;
         int32_t T_F;
-        int32_t corseSyncCounter = 0;
+        int32_t coarseSyncCounter = 0;
 
         std::vector<DSPCOMPLEX> oscillatorTable;
 
@@ -91,6 +91,8 @@ class OFDMProcessor
         float sLevel = 0;
         int32_t sampleCnt = 0;
 
+        int16_t lastValidFineCorrector = 0;
+        int32_t lastValidCoarseCorrector = 0;
         int16_t fineCorrector = 0;
         int32_t coarseCorrector = 0;
         bool disableCoarseCorrector;

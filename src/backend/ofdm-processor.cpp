@@ -279,6 +279,7 @@ notSynced:
             counter ++;
             if (counter > T_F) { // hopeless
                 //           fprintf (stderr, "%f %f\n", currentStrength / 50, sLevel);
+                std::clog << "ofdm-processor: " << "SyncOnNull failed" << std::endl;
                 goto notSynced;
             }
         }
@@ -298,6 +299,7 @@ notSynced:
             counter   ++;
             //
             if (counter > T_null + 50) { // hopeless
+                std::clog << "ofdm-processor: " << "SyncOnEndNull failed" << std::endl;
                 goto notSynced;
             }
         }
@@ -327,6 +329,7 @@ SyncOnPhase:
         impulseResponseBuffer.clear();
 
         if (startIndex < 0) { // no sync, try again
+            std::clog << "ofdm-processor: " << "SyncOnPhase failed" << std::endl;
             goto notSynced;
         }
         if (scanMode) {
@@ -362,7 +365,10 @@ SyncOnPhase:
         //  frequency synchronization.
         //  The width is limited to 2 * 35 kHz (i.e. positive and negative)
         if (!disableCoarseCorrector and !ficHandler.getIsCrcValid()) {
-            corseSyncCounter++;
+            if(!coarseSyncCounter)
+                std::clog << "ofdm-processor: " << "Lost coarse sync (coarseCorrector: " << lastValidCoarseCorrector << "; fineCorrector: " <<  lastValidFineCorrector << ")" << std::endl;
+
+            coarseSyncCounter++;
             int correction = processPRS(ofdmBuffer.data());
             if (correction != 100) {
                 coarseCorrector += correction * params.carrierDiff;
@@ -371,10 +377,13 @@ SyncOnPhase:
             }
         }
         else {
-            if(corseSyncCounter) {
-                 std::clog << "ofdm-processor: " << "Found coarse frequency offset " << coarseCorrector << " kHz after " << corseSyncCounter << " frames. " << std::endl;
+            if(coarseSyncCounter) {
+                 std::clog << "ofdm-processor: " << "Found sync (coarseCorrector: " << lastValidCoarseCorrector << "; fineCorrector: " <<  lastValidFineCorrector << " after " << coarseSyncCounter << " frames)" << std::endl;
             }
-            corseSyncCounter = 0;
+            coarseSyncCounter = 0;
+
+            lastValidFineCorrector = fineCorrector;
+            lastValidCoarseCorrector = coarseCorrector;
         }
         /**
          * after symbol 0, we will just read in the other (params.L - 1) symbols
