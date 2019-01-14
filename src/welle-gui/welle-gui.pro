@@ -82,7 +82,8 @@ HEADERS += \
     debug_output.h \
     gui_helper.h \
     mot_image_provider.h \
-    radio_controller.h
+    radio_controller.h \
+    waterfallitem.h
 
 SOURCES += \
     main.cpp \
@@ -90,7 +91,8 @@ SOURCES += \
     debug_output.cpp \
     gui_helper.cpp \
     mot_image_provider.cpp \
-    radio_controller.cpp
+    radio_controller.cpp \
+    waterfallitem.cpp
 
 android {
     QT += androidextras

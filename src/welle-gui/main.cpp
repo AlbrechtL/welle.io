@@ -44,6 +44,7 @@
 #include "radio_controller.h"
 #include "gui_helper.h"
 #include "debug_output.h"
+#include "waterfallitem.h"
 
 #ifdef Q_OS_ANDROID
 #include <QtAndroid>
@@ -110,6 +111,9 @@ int main(int argc, char** argv)
 
     // Create new QT application
     QApplication app(argc, argv);
+
+    // Register waterfall diagram
+    qmlRegisterType<WaterfallItem>("io.welle", 1, 0, "Waterfall");
 
     // Set icon path
     QStringList themePaths;

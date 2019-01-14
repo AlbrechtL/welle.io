@@ -37,6 +37,7 @@
 #include "dab-constants.h"
 #include "msc-handler.h"
 #include "version.h"
+#include "waterfallitem.h"
 
 /**
   *	We use the creation function merely to set up the
@@ -252,6 +253,12 @@ void CGUIHelper::registerNullSymbolSeries(QAbstractSeries *series)
 void CGUIHelper::registerConstellationSeries(QAbstractSeries *series)
 {
     constellationSeries = static_cast<QXYSeries*>(series);
+}
+
+void CGUIHelper::registerWaterfall(QObject *obj)
+{
+    WaterfallItem *item = qobject_cast<WaterfallItem*>(obj);
+    spectrumSeries = static_cast<QXYSeries*>(item->getDataSeries());
 }
 
 void CGUIHelper::tryHideWindow()
