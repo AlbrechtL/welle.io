@@ -29,8 +29,6 @@ class WaterfallItem : public QQuickPaintedItem
 {
     Q_OBJECT
     Q_PROPERTY(bool isStarted READ isStarted NOTIFY isStartedChanged)
-    Q_PROPERTY(float minFrequency READ minFrequency NOTIFY minFrequencyChanged)
-    Q_PROPERTY(float maxFrequency READ maxFrequency NOTIFY maxFrequencyChanged)
     Q_PROPERTY(float sensitivity READ sensitivity WRITE setSensitivity NOTIFY sensitivityChanged)
 
     QImage _image;
@@ -43,8 +41,6 @@ public:
     explicit WaterfallItem(QQuickItem *parent = 0);
     void paint(QPainter *painter);
     bool isStarted() const;
-    float minFrequency() const;
-    float maxFrequency() const;
     float sensitivity() const;
     void setSensitivity(float value);
     QLineSeries* getDataSeries();
@@ -59,8 +55,6 @@ private slots:
 
 signals:
     void isStartedChanged();
-    void minFrequencyChanged();
-    void maxFrequencyChanged();
     void sensitivityChanged();
 
 };

@@ -108,15 +108,6 @@ void WaterfallItem::clear() {
     _image.fill(QColor(255, 255, 255));
 }
 
-float WaterfallItem::minFrequency() const {
-    return 0.0f;
-}
-
-float WaterfallItem::maxFrequency() const {
-//    return (float)(_sampler.samplingFrequency() / 10);
-    return 1;
-}
-
 float WaterfallItem::sensitivity() const {
     return _sensitivity;
 }

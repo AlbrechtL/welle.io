@@ -12,6 +12,8 @@ ViewBaseFrame {
     labelText: qsTr("Spectrum")
 
     property bool isWaterfall: false
+    property real freqMin: 0
+    property real freqMax: 0
 
     content:
         ColumnLayout {
@@ -51,7 +53,7 @@ ViewBaseFrame {
                         id: minFreq
                         anchors.centerIn: parent
                         color: "#fff"
-                        text: "← " + plot.minFrequency + " Hz"
+                        text: "← " + freqMin + " Hz"
                     }
                 }
 
@@ -68,7 +70,7 @@ ViewBaseFrame {
                         id: maxFreq
                         anchors.centerIn: parent
                         color: "#fff"
-                        text: plot.maxFrequency + " Hz →"
+                        text: freqMax + " Hz →"
                     }
                 }
             }
@@ -89,7 +91,7 @@ ViewBaseFrame {
                     from: 0.005
                     to: 0.1
                     stepSize: 0.0001
-                    value: 0.05
+                    value: 0.02
                 }
             }
         }
@@ -121,6 +123,8 @@ ViewBaseFrame {
             ValueAxis {
                 id: axisX
                 titleText: qsTr("Frequency") + " [MHz]"
+                min: freqMin
+                max: freqMax
             }
 
             Timer {
@@ -148,8 +152,8 @@ ViewBaseFrame {
                 chart.maxYAxis = Ymax
             }
 
-            axisX.min = Xmin
-            axisX.max = Xmax
+            freqMin = Xmin
+            freqMax = Xmax
         }
     }
 
