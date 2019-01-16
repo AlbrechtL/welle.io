@@ -2,6 +2,7 @@ import QtQuick 2.0
 import QtCharts 2.1
 import QtQuick.Layouts 1.1
 import QtQuick.Controls 2.1
+import Qt.labs.settings 1.0
 import io.welle 1.0
 
 // Import custom styles
@@ -9,11 +10,16 @@ import "../texts"
 import "../components"
 
 ViewBaseFrame {
+    id: test
     labelText: qsTr("Spectrum")
 
     property bool isWaterfall: false
     property real freqMin: 0
     property real freqMax: 0
+
+    Settings {
+        property alias isSpectrumWaterfall: test.isWaterfall
+    }
 
     content:
         ColumnLayout {
@@ -22,9 +28,15 @@ ViewBaseFrame {
             WSwitch {
                 Layout.fillWidth: true
                 text: qsTr("Waterfall") + " (experimental)"
+                checked: isWaterfall
                 onCheckedChanged: {
-                    isWaterfall = !isWaterfall
-                    __registerSeries()
+                    if(checked) {
+                        isWaterfall = true
+                        __registerSeries()
+                    }
+                    else {
+                        isWaterfall = false
+                    }
                 }
             }
 
