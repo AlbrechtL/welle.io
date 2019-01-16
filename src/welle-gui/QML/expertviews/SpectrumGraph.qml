@@ -167,6 +167,32 @@ ViewBaseFrame {
             freqMin = Xmin
             freqMax = Xmax
         }
+
+        onNewDebugOutput: {
+            plot.plotMessage(text)
+        }
+    }
+
+    Connections{
+        target: radioController
+
+//        onIsSyncChanged: {
+//            if(radioController.isSync)
+//                plot.plotMessage(qsTr("Sync found"))
+//            else
+//                plot.plotMessage(qsTr("Sync lost"))
+//        }
+
+//        onIsFICCRCChanged: {
+//            if(radioController.isFICCRC)
+//                plot.plotMessage(qsTr("CRC error"))
+//        }
+
+
+//        onFrameErrorsChanged: {
+//            if(radioController.frameErrors > 0)
+//                plot.plotMessage(qsTr("Frame errors: " + radioController.frameErrors))
+//        }
     }
 
     Timer {

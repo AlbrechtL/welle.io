@@ -36,6 +36,7 @@ class WaterfallItem : public QQuickPaintedItem
     bool _samplesUpdated;
     double _sensitivity;
     QLineSeries dataSeries;
+    QString messageToPlot;
 
 public:
     explicit WaterfallItem(QQuickItem *parent = 0);
@@ -48,6 +49,7 @@ public:
     Q_INVOKABLE bool start();
     Q_INVOKABLE void stop();
     Q_INVOKABLE void clear();
+    Q_INVOKABLE void plotMessage(QString message);
 
 private slots:
     void samplesCollected();

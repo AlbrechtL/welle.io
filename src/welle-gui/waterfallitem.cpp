@@ -108,6 +108,11 @@ void WaterfallItem::clear() {
     _image.fill(QColor(255, 255, 255));
 }
 
+void WaterfallItem::plotMessage(QString message)
+{
+    messageToPlot = message;
+}
+
 float WaterfallItem::sensitivity() const {
     return _sensitivity;
 }
@@ -147,6 +152,22 @@ void WaterfallItem::samplesCollected() {
     // Draw old values
     if (!_image.isNull()) {
         painter.drawImage(QRect(0, 6, width(), height()), _image, QRect(0, 0, _image.width(), _image.height()));
+    }
+
+    // Draw message into the plot
+    if(!messageToPlot.isEmpty()) {
+        // Draw everthing in black
+        painter.setPen(QColor("black"));
+
+        // Draw horizontal line
+        painter.drawLine(0,14, img.width(), 14);
+
+        // Put text above the line
+        painter.setFont(QFont("Arial", 12));
+        painter.drawText(2,12, messageToPlot);
+
+        // Reset message
+        messageToPlot.clear();
     }
 
     painter.end();
