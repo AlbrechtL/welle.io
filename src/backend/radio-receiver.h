@@ -74,6 +74,11 @@ class RadioReceiver {
         uint8_t getEnsembleEcc(void) const;
         DabLabel getEnsembleLabel(void) const;
         std::vector<Service> getServiceList(void) const;
+
+        /* Returns a service with sid 0 in case it is missing */
+        // TODO use std::optional<Service> once using C++17 makes sense
+        Service getService(uint32_t sId) const;
+
         std::list<ServiceComponent> getComponents(const Service& s) const;
         bool serviceHasAudioComponent(const Service& s) const;
 

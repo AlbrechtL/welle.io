@@ -75,8 +75,8 @@ class WebRadioInterface : public RadioControllerInterface {
         virtual void onFrequencyCorrectorChange(int fine, int coarse) override;
         virtual void onSyncChange(char isSync) override;
         virtual void onSignalPresence(bool isSignal) override;
-        virtual void onServiceDetected(uint32_t sId, const std::string& label) override;
-        virtual void onNewEnsembleName(const std::string& name) override;
+        virtual void onServiceDetected(uint32_t sId) override;
+        virtual void onNewEnsemble(uint16_t eId) override;
         virtual void onDateTimeUpdate(const dab_date_time_t& dateTime) override;
         virtual void onFIBDecodeSuccess(bool crcCheckOk, const uint8_t* fib) override;
         virtual void onNewImpulseResponse(std::vector<float>&& data) override;

@@ -174,18 +174,18 @@ class WavProgrammeHandler: public ProgrammeHandlerInterface {
 
 class RadioInterface : public RadioControllerInterface {
     public:
-        virtual void onSNR(int snr) override { (void)snr; }
-        virtual void onFrequencyCorrectorChange(int fine, int coarse) override { (void)fine; (void)coarse; }
+        virtual void onSNR(int /*snr*/) override { }
+        virtual void onFrequencyCorrectorChange(int /*fine*/, int /*coarse*/) override { }
         virtual void onSyncChange(char isSync) override { synced = isSync; }
-        virtual void onSignalPresence(bool isSignal) override { (void)isSignal; }
-        virtual void onServiceDetected(uint32_t sId, const std::string& label) override
+        virtual void onSignalPresence(bool /*isSignal*/) override { }
+        virtual void onServiceDetected(uint32_t sId) override
         {
-            cout << "New Service: 0x" << hex << sId << dec << " '" << label << "'" << endl;
+            cout << "New Service: 0x" << hex << sId << dec << endl;
         }
 
-        virtual void onNewEnsembleName(const std::string& name) override
+        virtual void onNewEnsemble(uint16_t eId) override
         {
-            cout << "Ensemble name is: " << name << endl;
+            cout << "Ensemble name id: " << hex << eId << dec << endl;
         }
 
         virtual void onDateTimeUpdate(const dab_date_time_t& dateTime) override

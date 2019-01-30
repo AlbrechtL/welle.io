@@ -143,14 +143,14 @@ class TestRadioInterface : public RadioControllerInterface {
             else num_desyncs++;
         }
         virtual void onSignalPresence(bool isSignal) override { (void)isSignal; }
-        virtual void onServiceDetected(uint32_t sId, const std::string& label) override
+        virtual void onServiceDetected(uint32_t sId) override
         {
-            cout << "New Service: 0x" << hex << sId << dec << " '" << label << "'" << endl;
+            cout << "New Service: 0x" << hex << sId << dec << endl;
         }
 
-        virtual void onNewEnsembleName(const std::string& name) override
+        virtual void onNewEnsemble(uint16_t eId) override
         {
-            cout << "Ensemble name is: " << name << endl;
+            cout << "Ensemble id is: " << eId << endl;
         }
 
         virtual void onDateTimeUpdate(const dab_date_time_t& dateTime) override { (void)dateTime; }

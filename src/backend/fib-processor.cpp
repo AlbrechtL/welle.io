@@ -760,36 +760,32 @@ void    FIBProcessor::process_FIG1 (uint8_t *d)
         case 0: // ensemble label
             {
                 uint32_t EId = getBits(d, 16, 16);
-                (void)EId;
-            }
-            offset  = 32;
-            if ((charSet <= 16)) { // EBU Latin based repertoire
-                for (i = 0; i < 16; i ++) {
-                    label[i] = getBits_8 (d, offset);
-                    offset += 8;
-                }
-                //           std::clog << "fib-processor:" << "Ensemblename: %16s\n", label) << std::endl;
-                if (!oe) {
-                    if (firstTime) {
-                        ensembleLabel.flag = getBits(d, offset, 16);
-                        ensembleLabel.raw_label = label;
-                        ensembleLabel.setCharset(charSet);
-
-                        myRadioInterface.onNewEnsembleName(
-                                toUtf8StringUsingCharset(
-                                    (const char *)label,
-                                    (CharacterSet)charSet));
+                offset  = 32;
+                if ((charSet <= 16)) { // EBU Latin based repertoire
+                    for (i = 0; i < 16; i ++) {
+                        label[i] = getBits_8 (d, offset);
+                        offset += 8;
                     }
-                    firstTime = false;
+                    //           std::clog << "fib-processor:" << "Ensemblename: %16s\n", label) << std::endl;
+                    if (!oe) {
+                        if (firstTime) {
+                            ensembleLabel.flag = getBits(d, offset, 16);
+                            ensembleLabel.raw_label = label;
+                            ensembleLabel.setCharset(charSet);
+
+                            myRadioInterface.onNewEnsemble(EId);
+                        }
+                        firstTime = false;
+                    }
+                    else
+                    {
+                        std::clog << "fib-processor: " << " not synced " << std::endl;
+                    }
                 }
-                else
-                {
-                    std::clog << "fib-processor: " << " not synced " << std::endl;
-                }
+                //        std::clog << "fib-processor:" <<
+                //                 "charset %d is used for ensemblename\n", charSet) << std::endl;
+                break;
             }
-            //        std::clog << "fib-processor:" <<
-            //                 "charset %d is used for ensemblename\n", charSet) << std::endl;
-            break;
 
         case 1: // 16 bit Identifier field for service label
             SId = getBits(d, 16, 16);
@@ -807,9 +803,7 @@ void    FIBProcessor::process_FIG1 (uint8_t *d)
                 service->serviceLabel.setCharset(charSet);
 
                 // std::clog << "fib-processor:" << "FIG1/1: SId = %4x\t%s\n", SId, label) << std::endl;
-                myRadioInterface.onServiceDetected(SId,
-                        toUtf8StringUsingCharset(
-                            (const char *)label, (CharacterSet) charSet));
+                myRadioInterface.onServiceDetected(SId);
             }
             break;
 
@@ -1093,6 +1087,23 @@ std::vector<Service> FIBProcessor::getServiceList() const
 {
     std::lock_guard<std::mutex> lock(mutex);
     return services;
+}
+
+Service FIBProcessor::getService(uint32_t sId) const
+{
+    std::lock_guard<std::mutex> lock(mutex);
+
+    auto srv = std::find_if(services.begin(), services.end(),
+                [&](const Service& s) {
+                    return s.serviceId == sId;
+                });
+
+    if (srv != services.end()) {
+        return *srv;
+    }
+    else {
+        return Service(0);
+    }
 }
 
 std::list<ServiceComponent> FIBProcessor::getComponents(const Service& s) const

@@ -49,6 +49,7 @@ class FIBProcessor {
         uint8_t getEnsembleEcc() const;
         DabLabel getEnsembleLabel() const;
         std::vector<Service> getServiceList() const;
+        Service getService(uint32_t sId) const;
         std::list<ServiceComponent> getComponents(const Service& s) const;
         Subchannel getSubchannel(const ServiceComponent& sc) const;
 

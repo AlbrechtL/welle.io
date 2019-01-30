@@ -86,11 +86,12 @@ class RadioControllerInterface {
          * This is useful to accelerate the scan. */
         virtual void onSignalPresence(bool isSignal) = 0;
 
-        /* A new service with service ID sId and label was detected. The
-         * label is encoded in utf-8 and is unique in the ensemble. */
-        virtual void onServiceDetected(uint32_t sId, const std::string& label) = 0;
-        /* When the ensemble label changes */
-        virtual void onNewEnsembleName(const std::string& name) = 0;
+        /* A new service with service ID sId was detected. */
+        virtual void onServiceDetected(uint32_t sId) = 0;
+
+        /* When the ensemble changes */
+        virtual void onNewEnsemble(uint16_t eId) = 0;
+
         virtual void onDateTimeUpdate(const dab_date_time_t& dateTime) = 0;
 
         /* For every FIB, tell if the CRC check passed. fib points to a bit-vector with 256 bits of FIB data  */

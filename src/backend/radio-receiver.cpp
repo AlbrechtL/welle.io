@@ -156,6 +156,11 @@ std::vector<Service> RadioReceiver::getServiceList(void) const
     return ficHandler.fibProcessor.getServiceList();
 }
 
+Service RadioReceiver::getService(uint32_t sId) const
+{
+    return ficHandler.fibProcessor.getService(sId);
+}
+
 std::list<ServiceComponent> RadioReceiver::getComponents(const Service& s) const
 {
     return ficHandler.fibProcessor.getComponents(s);

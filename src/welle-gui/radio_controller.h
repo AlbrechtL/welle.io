@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2018
+ *    Copyright (C) 2019
  *    Matthias P. Braendli (matthias.braendli@mpb.li)
  *
  *    Copyright (C) 2017
@@ -90,7 +90,7 @@ class CRadioController :
     Q_PROPERTY(QImage mot MEMBER motImage NOTIFY motChanged)
 
     Q_PROPERTY(QString channel MEMBER currentChannel NOTIFY channelChanged)
-    Q_PROPERTY(QString ensemble MEMBER currentEnsemble NOTIFY ensembleChanged)
+    Q_PROPERTY(QString ensemble MEMBER currentEnsembleLabel NOTIFY ensembleChanged)
     Q_PROPERTY(int frequency MEMBER currentFrequency NOTIFY frequencyChanged)
     Q_PROPERTY(QString station MEMBER currentStation NOTIFY stationChanged)
     Q_PROPERTY(QString stationType MEMBER currentStationType NOTIFY stationTypChanged)
@@ -145,8 +145,8 @@ public:
     virtual void onFrequencyCorrectorChange(int fine, int coarse) override;
     virtual void onSyncChange(char isSync) override;
     virtual void onSignalPresence(bool isSignal) override;
-    virtual void onServiceDetected(uint32_t sId, const std::string& label) override;
-    virtual void onNewEnsembleName(const std::string& name) override;
+    virtual void onServiceDetected(uint32_t sId) override;
+    virtual void onNewEnsemble(uint16_t eId) override;
     virtual void onDateTimeUpdate(const dab_date_time_t& dateTime) override;
     virtual void onFIBDecodeSuccess(bool crcCheckOk, const uint8_t* fib) override;
     virtual void onNewImpulseResponse(std::vector<float>&& data) override;
@@ -196,7 +196,8 @@ private:
     QImage motImage;
 
     QString currentChannel;
-    QString currentEnsemble;
+    QString currentEnsembleLabel;
+    uint16_t currentEId;
     int32_t currentFrequency;
     QString currentStation;
     QString currentStationType;
@@ -219,7 +220,7 @@ private:
     QString autoStation;
 
 public slots:
-    void nameofEnsemble(const QString&v);
+    void ensembleId(uint16_t);
     void setErrorMessage(QString Text);
     void setErrorMessage(const std::string& head, const std::string& text = "");
     void setInfoMessage(QString Text);
@@ -233,7 +234,7 @@ private slots:
 signals:
     void switchToNextChannel(bool isWait);
     void ensembleAdded(quint32 serviceID, const QString& station, QString channel);
-    void ensembleNameUpdated(const QString& name);
+    void ensembleIdUpdated(uint16_t eId);
     void dateTimeUpdated(const dab_date_time_t& dateTime);
 
 //#ifndef Q_OS_ANDROID

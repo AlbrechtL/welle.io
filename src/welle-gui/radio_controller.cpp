@@ -68,8 +68,8 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, DABParams& p
     connect(this, &CRadioController::switchToNextChannel,
             this, &CRadioController::nextChannel);
 
-    connect(this, &CRadioController::ensembleNameUpdated,
-            this, &CRadioController::nameofEnsemble);
+    connect(this, &CRadioController::ensembleIdUpdated,
+            this, &CRadioController::ensembleId);
 
     qRegisterMetaType<dab_date_time_t>("dab_date_time_t");
     connect(this, &CRadioController::dateTimeUpdated,
@@ -233,12 +233,14 @@ void CRadioController::setChannel(QString Channel, bool isScan, bool Force)
     if (currentChannel != Channel || Force == true) {
         if (device && device->getID() == CDeviceID::RAWFILE) {
             currentChannel = "File";
-            currentEnsemble = "";
+            currentEId = 0;
+            currentEnsembleLabel = "";
             currentFrequency = 0;
         }
         else { // A real device
             currentChannel = Channel;
-            currentEnsemble = "";
+            currentEId = 0;
+            currentEnsembleLabel = "";
 
             // Convert channel into a frequency
             currentFrequency = channels.getFrequency(Channel.toStdString());
@@ -513,7 +515,8 @@ void CRadioController::resetTechnicalData(void)
     currentChannel = tr("Unknown");
     emit channelChanged();
 
-    currentEnsemble = "";
+    currentEId = 0;
+    currentEnsembleLabel = "";
     emit ensembleChanged();
 
     currentFrequency = 0;
@@ -570,13 +573,18 @@ void CRadioController::deviceRestart()
 /*****************
  * Public slots *
  *****************/
-void CRadioController::nameofEnsemble(const QString &Ensemble)
+void CRadioController::ensembleId(uint16_t eId)
 {
-    qDebug() << "RadioController: Name of ensemble:" << Ensemble;
+    qDebug() << "RadioController: ID of ensemble:" << eId;
 
-    if (currentEnsemble == Ensemble)
+    if (currentEId == eId)
         return;
-    currentEnsemble = Ensemble;
+
+    currentEId = eId;
+
+    auto label = radioReceiver->getEnsembleLabel();
+    currentEnsembleLabel = QString::fromStdString(label.utf8_label());
+
     emit ensembleChanged();
 }
 
@@ -716,12 +724,9 @@ void CRadioController::nextChannel(bool isWait)
 /*********************
  * Backend callbacks *
  *********************/
-void CRadioController::onServiceDetected(uint32_t SId, const std::string& label)
+void CRadioController::onServiceDetected(uint32_t SId)
 {
-    //emit ensembleAdded(SId, QString::fromStdString(label), currentChannel);
-
-    qDebug() << "RadioController: Found station" <<  QString::fromStdString(label)
-             << "(" << qPrintable(QString::number(SId, 16).toUpper()) << ")";
+    qDebug() << "RadioController: Found service " << qPrintable(QString::number(SId, 16).toUpper());
 
     if (isChannelScan == true) {
         stationCount++;
@@ -729,12 +734,17 @@ void CRadioController::onServiceDetected(uint32_t SId, const std::string& label)
         emit textChanged();
     }
 
-    emit newStationNameReceived(QString::fromStdString(label), SId, currentChannel);
+    auto srv = radioReceiver->getService(SId);
+
+    if (srv.serviceId != 0) {
+        emit newStationNameReceived(QString::fromStdString(srv.serviceLabel.utf8_label()),
+                SId, currentChannel);
+    }
 }
 
-void CRadioController::onNewEnsembleName(const std::string& name)
+void CRadioController::onNewEnsemble(uint16_t eId)
 {
-    emit ensembleNameUpdated(QString::fromStdString(name));
+    emit ensembleIdUpdated(eId);
 }
 
 void CRadioController::onDateTimeUpdate(const dab_date_time_t& dateTime)
