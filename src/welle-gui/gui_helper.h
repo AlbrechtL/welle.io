@@ -68,10 +68,12 @@ public:
 //#endif
     ~CGUIHelper();
     Q_INVOKABLE void registerSpectrumSeries(QAbstractSeries* series);
+    Q_INVOKABLE void registerSpectrumWaterfall(QObject * obj);
     Q_INVOKABLE void registerImpulseResonseSeries(QAbstractSeries* series);
+    Q_INVOKABLE void registerImpulseResonseWaterfall(QObject * obj);
     Q_INVOKABLE void registerNullSymbolSeries(QAbstractSeries* series);
+    Q_INVOKABLE void registerNullSymbolWaterfall(QObject * obj);
     Q_INVOKABLE void registerConstellationSeries(QAbstractSeries* series);
-    Q_INVOKABLE void registerWaterfall(QObject * obj);
     Q_INVOKABLE void tryHideWindow(void);
     Q_INVOKABLE void updateSpectrum();
     Q_INVOKABLE void updateImpulseResponse();

@@ -122,6 +122,17 @@ void WaterfallItem::setSensitivity(float value) {
     emit this->sensitivityChanged();
 }
 
+float WaterfallItem::minValue() const
+{
+    return _minValue;
+}
+
+void WaterfallItem::setMinValue(float value)
+{
+    _minValue = value;
+    emit this->minMinValueChanged();
+}
+
 QLineSeries *WaterfallItem::getDataSeries()
 {
     return &dataSeries;
@@ -138,7 +149,7 @@ void WaterfallItem::samplesCollected() {
     // Draw 1st pixel row: new values
     for (int x = 0; x < img.width(); x++) {
         unsigned i1 = x * _sampleNumber / img.width();
-        float amplitude = dataSeries.at(i1).y();
+        float amplitude = dataSeries.at(i1).y() - _minValue;
         int value = (int)(amplitude * (float)_sensitivity * (float)_colors.length());
         if (value < 0)
             value = 0;

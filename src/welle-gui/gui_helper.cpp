@@ -240,9 +240,21 @@ void CGUIHelper::registerSpectrumSeries(QAbstractSeries* series)
     spectrumSeries = static_cast<QXYSeries*>(series);
 }
 
+void CGUIHelper::registerSpectrumWaterfall(QObject *obj)
+{
+    WaterfallItem *item = qobject_cast<WaterfallItem*>(obj);
+    spectrumSeries = static_cast<QXYSeries*>(item->getDataSeries());
+}
+
 void CGUIHelper::registerImpulseResonseSeries(QAbstractSeries* series)
 {
     impulseResponseSeries = static_cast<QXYSeries*>(series);
+}
+
+void CGUIHelper::registerImpulseResonseWaterfall(QObject *obj)
+{
+    WaterfallItem *item = qobject_cast<WaterfallItem*>(obj);
+    impulseResponseSeries = static_cast<QXYSeries*>(item->getDataSeries());
 }
 
 void CGUIHelper::registerNullSymbolSeries(QAbstractSeries *series)
@@ -250,15 +262,15 @@ void CGUIHelper::registerNullSymbolSeries(QAbstractSeries *series)
     nullSymbolSeries = static_cast<QXYSeries*>(series);
 }
 
+void CGUIHelper::registerNullSymbolWaterfall(QObject *obj)
+{
+    WaterfallItem *item = qobject_cast<WaterfallItem*>(obj);
+    nullSymbolSeries = static_cast<QXYSeries*>(item->getDataSeries());
+}
+
 void CGUIHelper::registerConstellationSeries(QAbstractSeries *series)
 {
     constellationSeries = static_cast<QXYSeries*>(series);
-}
-
-void CGUIHelper::registerWaterfall(QObject *obj)
-{
-    WaterfallItem *item = qobject_cast<WaterfallItem*>(obj);
-    spectrumSeries = static_cast<QXYSeries*>(item->getDataSeries());
 }
 
 void CGUIHelper::tryHideWindow()
