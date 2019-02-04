@@ -87,6 +87,7 @@ class FIBProcessor {
 
         void process_FIG0(uint8_t *);
         void process_FIG1(uint8_t *);
+        void process_FIG2(uint8_t *);
         void FIG0Extension0(uint8_t *);
         void FIG0Extension1(uint8_t *);
         void FIG0Extension2(uint8_t *);

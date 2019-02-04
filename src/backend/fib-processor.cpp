@@ -25,6 +25,7 @@
  */
 #include <iostream>
 #include <algorithm>
+#include <iomanip>
 #include <cstring>
 
 #include "fib-processor.h"
@@ -52,11 +53,15 @@ void FIBProcessor::processFIB(uint8_t *p, uint16_t fib)
         const uint8_t FIGtype = getBits_3 (d, 0);
         switch (FIGtype) {
             case 0:
-                process_FIG0 (d);
+                process_FIG0(d);
                 break;
 
             case 1:
-                process_FIG1 (d);
+                process_FIG1(d);
+                break;
+
+            case 2:
+                process_FIG2(d);
                 break;
 
             case 7:
@@ -114,7 +119,12 @@ void FIBProcessor::FIG0Extension0 (uint8_t *d)
     uint8_t CN  = getBits_1 (d, 8 + 0);
     (void)CN;
 
-    ensembleId  = getBits(d, 16, 16);
+    uint16_t eId  = getBits(d, 16, 16);
+
+    if (ensembleId != eId) {
+        ensembleId = eId;
+        myRadioInterface.onNewEnsemble(ensembleId);
+    }
 
     changeflag  = getBits_2 (d, 16 + 16);
     if (changeflag == 0)
@@ -138,8 +148,6 @@ void FIBProcessor::FIG0Extension0 (uint8_t *d)
     //     std::clog << "fib-processor:" << "Change happening in %d CIFs\n", occurrenceChange) << std::endl;
     //  }
     std::clog << "fib-processor: " << "changes in config not supported, choose again" << std::endl;
-    // Were, the signal ensembleChanged was called, which was ignored by the
-    // frontend
 }
 
 //  FIG0 extension 1 creates a mapping between the
@@ -759,7 +767,7 @@ void    FIBProcessor::process_FIG1 (uint8_t *d)
     switch (extension) {
         case 0: // ensemble label
             {
-                uint32_t EId = getBits(d, 16, 16);
+                const uint32_t EId = getBits(d, 16, 16);
                 offset  = 32;
                 if ((charSet <= 16)) { // EBU Latin based repertoire
                     for (i = 0; i < 16; i ++) {
@@ -767,13 +775,11 @@ void    FIBProcessor::process_FIG1 (uint8_t *d)
                         offset += 8;
                     }
                     //           std::clog << "fib-processor:" << "Ensemblename: %16s\n", label) << std::endl;
-                    if (!oe) {
+                    if (!oe and EId == ensembleId) {
                         if (firstTime) {
-                            ensembleLabel.flag = getBits(d, offset, 16);
-                            ensembleLabel.raw_label = label;
+                            ensembleLabel.fig1_flag = getBits(d, offset, 16);
+                            ensembleLabel.fig1_label = label;
                             ensembleLabel.setCharset(charSet);
-
-                            myRadioInterface.onNewEnsemble(EId);
                         }
                         firstTime = false;
                     }
@@ -793,13 +799,13 @@ void    FIBProcessor::process_FIG1 (uint8_t *d)
             service = findServiceId(SId);
             if (!service) break;
 
-            if (service->serviceLabel.raw_label.empty() && charSet <= 16) {
+            if (service->serviceLabel.fig1_label.empty() && charSet <= 16) {
                 for (i = 0; i < 16; i++) {
                     label[i] = getBits_8(d, offset);
                     offset += 8;
                 }
-                service->serviceLabel.flag = getBits(d, offset, 16);
-                service->serviceLabel.raw_label = label;
+                service->serviceLabel.fig1_flag = getBits(d, offset, 16);
+                service->serviceLabel.fig1_label = label;
                 service->serviceLabel.setCharset(charSet);
 
                 // std::clog << "fib-processor:" << "FIG1/1: SId = %4x\t%s\n", SId, label) << std::endl;
@@ -837,9 +843,9 @@ void    FIBProcessor::process_FIG1 (uint8_t *d)
 
             component = findComponent(SId, SCidS);
             if (component) {
-                component->componentLabel.flag = getBits(d, offset, 16);
+                component->componentLabel.fig1_flag = getBits(d, offset, 16);
                 component->componentLabel.setCharset(charSet);
-                component->componentLabel.raw_label = label;
+                component->componentLabel.fig1_label = label;
             }
             //        std::clog << "fib-processor:" << "FIG1/4: Sid = %8x\tp/d=%d\tSCidS=%1X\tflag=%8X\t%s\n",
             //                          SId, pd_flag, SCidS, flagfield, label) << std::endl;
@@ -852,13 +858,13 @@ void    FIBProcessor::process_FIG1 (uint8_t *d)
             service = findServiceId(SId);
             if (!service) break;
 
-            if (service->serviceLabel.raw_label.empty() && charSet <= 16) {
+            if (service->serviceLabel.fig1_label.empty() && charSet <= 16) {
                 for (i = 0; i < 16; i ++) {
                     label[i] = getBits_8(d, offset);
                     offset += 8;
                 }
-                service->serviceLabel.flag = getBits(d, offset, 16);
-                service->serviceLabel.raw_label = label;
+                service->serviceLabel.fig1_flag = getBits(d, offset, 16);
+                service->serviceLabel.fig1_label = label;
                 service->serviceLabel.setCharset(charSet);
 
 #ifdef  MSC_DATA__
@@ -898,6 +904,189 @@ void    FIBProcessor::process_FIG1 (uint8_t *d)
     }
     (void)SCidS;
     (void)XPAD_aid;
+}
+
+static void handle_ext_label_data_field(const uint8_t *f, uint8_t len_bytes,
+        bool toggle_flag, uint8_t segment_index, uint8_t rfu,
+        DabLabel& label)
+{
+    if (label.toggle_flag != toggle_flag) {
+        label.segments.clear();
+        label.extended_label_charset = CharacterSet::Undefined;
+        label.toggle_flag = toggle_flag;
+    }
+
+    size_t len_character_field = len_bytes;
+
+    if (segment_index == 0) {
+        // Only if it's the first segment
+        const uint8_t encoding_flag = (f[0] & 0x80) >> 7;
+        const uint8_t segment_count = (f[0] & 0x70) >> 4;
+        label.segment_count = segment_count + 1;
+
+        if (encoding_flag) {
+            label.extended_label_charset = CharacterSet::UnicodeUcs2;
+        }
+        else {
+            label.extended_label_charset = CharacterSet::UnicodeUtf8;
+        }
+
+        if (rfu == 0) {
+            // const uint8_t rfa = (f[0] & 0x0F);
+            // const uint16_t char_flag = f[1] * 256 + f[2];
+
+            if (len_bytes <= 3) {
+                throw std::runtime_error("FIG2 label length too short");
+            }
+
+            f += 3;
+            len_character_field -= 3;
+        }
+        else {
+            // ETSI TS 103 176 draft V2.2.1 (2018-08) gives a new meaning to rfu
+            // TODO const uint8_t text_control = (f[0] & 0x0F);
+
+            if (len_bytes <= 1) {
+                throw std::runtime_error("FIG2 label length too short");
+            }
+
+            f += 1;
+            len_character_field -= 1;
+        }
+
+        label.fig2_rfu = rfu;
+    }
+
+    std::vector<uint8_t> labelbytes(f, f + len_character_field);
+    label.segments[segment_index] = labelbytes;
+}
+
+// UTF-8 or UCS2 Labels
+void FIBProcessor::process_FIG2(uint8_t *d)
+{
+    // In order to reuse code with etisnoop, convert
+    // the bit-vector into a byte-vector
+    std::vector<uint8_t> fig_bytes;
+    for (size_t i = 0; i < 30; i++) {
+        fig_bytes.push_back(getBits_8(d, 8*i));
+    }
+
+    uint8_t *f = fig_bytes.data();
+
+    const uint8_t figlen = f[0] & 0x1F;
+    f++;
+
+    const uint8_t toggle_flag = (f[0] & 0x80) >> 7;
+    const uint8_t segment_index = (f[0] & 0x70) >> 4;
+    const uint16_t rfu = (f[0] & 0x08) >> 3;
+    const uint16_t ext = f[0] & 0x07;
+
+    size_t identifier_len;
+    switch (ext) {
+        case 0: // Ensemble label
+            identifier_len = 2;
+            break;
+        case 1: // Programme service label
+            identifier_len = 2;
+            break;
+        case 4: // Service component label
+            {
+                uint8_t pd = (f[1] & 0x80) >> 7;
+                identifier_len = (pd == 0) ? 3 : 5;
+                break;
+            }
+        case 5: // Data service label
+            identifier_len = 4;
+            break;
+        default:
+            return; // Unsupported
+    }
+
+    const size_t header_length = 1; // FIG data field header
+
+    const uint8_t *figdata = f + header_length + identifier_len;
+    const size_t data_len_bytes = figlen - header_length - identifier_len;
+
+    // ext is followed by Identifier field of Type 2 field,
+    // whose length depends on ext
+    switch (ext) {
+        case 0: // Ensemble label
+            {   // ETSI EN 300 401 8.1.13
+                uint16_t eid = f[1] * 256 + f[2];
+                if (figlen <= header_length + identifier_len) {
+                    std::clog << "FIG2/0 length error " << (int)figlen << std::endl;
+                }
+                else if (eid == ensembleId) {
+                    handle_ext_label_data_field(figdata, data_len_bytes,
+                            toggle_flag, segment_index, rfu, ensembleLabel);
+                }
+            }
+            break;
+
+        case 1: // Programme service label
+            {   // ETSI EN 300 401 8.1.14.1
+                uint16_t sid = f[1] * 256 + f[2];
+                if (figlen <= header_length + identifier_len) {
+                    std::clog << "FIG2/1 length error " << (int)figlen << std::endl;
+                }
+                else {
+                    auto *service = findServiceId(sid);
+                    if (service) {
+                        handle_ext_label_data_field(figdata, data_len_bytes,
+                                toggle_flag, segment_index, rfu, service->serviceLabel);
+                    }
+                }
+            }
+            break;
+
+        case 4: // Service component label
+            {   // ETSI EN 300 401 8.1.14.3
+                uint32_t sid;
+                uint8_t pd    = (f[1] & 0x80) >> 7;
+                uint8_t SCIdS =  f[1] & 0x0F;
+                if (pd == 0) {
+                    sid = f[2] * 256 + \
+                          f[3];
+                }
+                else {
+                    sid = f[2] * 256 * 256 * 256 + \
+                          f[3] * 256 * 256 + \
+                          f[4] * 256 + \
+                          f[5];
+                }
+                if (figlen <= header_length + identifier_len) {
+                    std::clog << "FIG2/4 length error " << (int)figlen << std::endl;
+                }
+                else {
+                    auto *component = findComponent(sid, SCIdS);
+                    if (component) {
+                        handle_ext_label_data_field(figdata, data_len_bytes,
+                                toggle_flag, segment_index, rfu, component->componentLabel);
+                    }
+                }
+            }
+            break;
+
+        case 5: // Data service label
+            {   // ETSI EN 300 401 8.1.14.2
+                uint32_t sid = f[1] * 256 * 256 * 256 + \
+                      f[2] * 256 * 256 + \
+                      f[3] * 256 + \
+                      f[4];
+
+                if (figlen <= header_length + identifier_len) {
+                    std::clog << "FIG2/5 length error " << (int)figlen << std::endl;
+                }
+                else {
+                    auto *service = findServiceId(sid);
+                    if (service) {
+                        handle_ext_label_data_field(figdata, data_len_bytes,
+                                toggle_flag, segment_index, rfu, service->serviceLabel);
+                    }
+                }
+            }
+            break;
+    }
 }
 
 // locate a reference to the entry for the Service serviceId

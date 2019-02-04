@@ -123,18 +123,57 @@ static std::string flag_to_shortlabel(const std::string& label, uint16_t flag)
 
 string DabLabel::utf8_label() const
 {
-    return toUtf8StringUsingCharset(raw_label.c_str(), charset);
+    const auto fig2 = fig2_label();
+    if (not fig2.empty()) {
+        return fig2;
+    }
+    else {
+        return fig1_label_utf8();
+    }
 }
 
-string DabLabel::utf8_shortlabel() const
+string DabLabel::fig1_label_utf8() const
 {
-    const string shortlabel = flag_to_shortlabel(raw_label, flag);
+    return toUtf8StringUsingCharset(fig1_label.c_str(), charset);
+}
+
+string DabLabel::fig1_shortlabel_utf8() const
+{
+    const string shortlabel = flag_to_shortlabel(fig1_label, fig1_flag);
     return toUtf8StringUsingCharset(shortlabel.c_str(), charset);
 }
 
 void DabLabel::setCharset(uint8_t charset_id)
 {
     charset = static_cast<CharacterSet>(charset_id);
+}
+
+string DabLabel::fig2_label() const
+{
+    vector<uint8_t> segments_cat;
+    for (size_t i = 0; i < segment_count; i++) {
+        if (segments.count(i) == 0) {
+            return "";
+        }
+        else {
+            const auto& s = segments.at(i);
+            copy(s.begin(), s.end(), back_inserter(segments_cat));
+        }
+    }
+
+    switch (extended_label_charset) {
+        case CharacterSet::EbuLatin:
+            std::clog << "DABConstants: FIG2 label encoded in EBU Latin is not allowed." << std::endl;
+            return ""; // Fallback to FIG1
+        case CharacterSet::UnicodeUtf8:
+            return string(segments_cat.begin(), segments_cat.end());
+        case CharacterSet::UnicodeUcs2:
+            return toUtf8StringUsingCharset(
+                    segments_cat.data(), CharacterSet::UnicodeUcs2, segments_cat.size());
+        case CharacterSet::Undefined:
+            return "";
+    }
+    throw logic_error("invalid extended label charset " + to_string((int)extended_label_charset));
 }
 
 const char* DABConstants::getProgramTypeName(int type)

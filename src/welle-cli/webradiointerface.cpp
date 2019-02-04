@@ -418,6 +418,22 @@ static nlohmann::json calculate_cir_peaks(const vector<float>& cir_linear)
     return j;
 }
 
+static void set_label_json(nlohmann::json& j, const DabLabel& l)
+{
+    j["label"] = l.fig1_label_utf8();
+    j["shortlabel"] = l.fig1_shortlabel_utf8();
+    j["fig2label"] = l.fig2_label();
+    j["fig2rfu"] = l.fig2_rfu;
+    string extended_label_charset = "Unknown";
+    switch (l.extended_label_charset) {
+        case CharacterSet::EbuLatin: extended_label_charset = "EBU Latin (not allowed in FIG 2)"; break;
+        case CharacterSet::UnicodeUcs2: extended_label_charset = "UCS2"; break;
+        case CharacterSet::UnicodeUtf8: extended_label_charset = "UTF-8"; break;
+        case CharacterSet::Undefined: extended_label_charset = "Undefined"; break;
+    }
+    j["fig2charset"] = extended_label_charset;
+}
+
 bool WebRadioInterface::send_mux_json(Socket& s)
 {
     nlohmann::json j;
@@ -438,8 +454,8 @@ bool WebRadioInterface::send_mux_json(Socket& s)
             return false;
         }
         const auto ensembleLabel = rx->getEnsembleLabel();
-        j["ensemble"]["label"] = ensembleLabel.utf8_label();
-        j["ensemble"]["shortlabel"] = ensembleLabel.utf8_shortlabel();
+        set_label_json(j["ensemble"], rx->getEnsembleLabel());
+
         j["ensemble"]["id"] = to_hex<4>(rx->getEnsembleId());
         j["ensemble"]["ecc"] = to_hex<2>(rx->getEnsembleEcc());
 
@@ -449,10 +465,10 @@ bool WebRadioInterface::send_mux_json(Socket& s)
                 {"sid", to_hex<4>(s.serviceId)},
                 {"pty", s.programType},
                 {"ptystring", DABConstants::getProgramTypeName(s.programType)},
-                {"label", s.serviceLabel.utf8_label()},
-                {"shortlabel", s.serviceLabel.utf8_shortlabel()},
                 {"language", s.language},
                 {"languagestring", DABConstants::getLanguageName(s.language)}};
+
+            set_label_json(j_srv, s.serviceLabel);
 
             nlohmann::json j_components;
 
@@ -466,6 +482,7 @@ bool WebRadioInterface::send_mux_json(Socket& s)
                     {"ascty", nullptr},
                     {"dscty", nullptr}};
 
+                set_label_json(j_sc, sc.componentLabel);
 
                 const auto& sub = rx->getSubchannel(sc);
 

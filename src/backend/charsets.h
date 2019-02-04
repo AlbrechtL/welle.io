@@ -34,7 +34,8 @@
 enum class CharacterSet : uint8_t {
     EbuLatin = 0x00, // Complete EBU Latin based repertoire - see annex C
     UnicodeUcs2 = 0x06,
-    UnicodeUtf8 = 0x0F
+    UnicodeUtf8 = 0x0F,
+    Undefined,
 };
 
 /**
