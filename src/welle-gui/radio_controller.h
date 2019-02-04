@@ -220,12 +220,13 @@ private:
     QString autoStation;
 
 public slots:
-    void ensembleId(uint16_t);
     void setErrorMessage(QString Text);
     void setErrorMessage(const std::string& head, const std::string& text = "");
     void setInfoMessage(QString Text);
 
 private slots:
+    void ensembleId(quint16);
+    void serviceId(quint32);
     void stationTimerTimeout(void);
     void channelTimerTimeout(void);
     void nextChannel(bool isWait);
@@ -233,8 +234,8 @@ private slots:
 
 signals:
     void switchToNextChannel(bool isWait);
-    void ensembleAdded(quint32 serviceID, const QString& station, QString channel);
-    void ensembleIdUpdated(uint16_t eId);
+    void serviceDetected(quint32 sId);
+    void ensembleIdUpdated(quint16 eId);
     void dateTimeUpdated(const dab_date_time_t& dateTime);
 
 //#ifndef Q_OS_ANDROID

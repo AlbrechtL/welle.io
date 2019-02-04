@@ -71,6 +71,9 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, DABParams& p
     connect(this, &CRadioController::ensembleIdUpdated,
             this, &CRadioController::ensembleId);
 
+    connect(this, &CRadioController::serviceDetected,
+            this, &CRadioController::serviceId);
+
     qRegisterMetaType<dab_date_time_t>("dab_date_time_t");
     connect(this, &CRadioController::dateTimeUpdated,
             this, &CRadioController::displayDateTime);
@@ -573,7 +576,7 @@ void CRadioController::deviceRestart()
 /*****************
  * Public slots *
  *****************/
-void CRadioController::ensembleId(uint16_t eId)
+void CRadioController::ensembleId(quint16 eId)
 {
     qDebug() << "RadioController: ID of ensemble:" << eId;
 
@@ -583,7 +586,7 @@ void CRadioController::ensembleId(uint16_t eId)
     currentEId = eId;
 
     auto label = radioReceiver->getEnsembleLabel();
-    currentEnsembleLabel = QString::fromStdString(label.utf8_label());
+    currentEnsembleLabel = QString::fromStdString(label.fig1_label_utf8());
 
     emit ensembleChanged();
 }
@@ -620,7 +623,7 @@ void CRadioController::stationTimerTimeout()
     const auto services = radioReceiver->getServiceList();
 
     for (const auto& s : services) {
-        if (s.serviceLabel.utf8_label() == currentStation.toStdString()) {
+        if (s.serviceLabel.fig1_label_utf8() == currentStation.toStdString()) {
 
             const auto comps = radioReceiver->getComponents(s);
             for (const auto& sc : comps) {
@@ -724,9 +727,15 @@ void CRadioController::nextChannel(bool isWait)
 /*********************
  * Backend callbacks *
  *********************/
-void CRadioController::onServiceDetected(uint32_t SId)
+void CRadioController::onServiceDetected(uint32_t sId)
 {
-    qDebug() << "RadioController: Found service " << qPrintable(QString::number(SId, 16).toUpper());
+    // you may not call radioReceiver->getService() because it internally holds the FIG mutex.
+    emit serviceDetected(sId);
+}
+
+void CRadioController::serviceId(quint32 sId)
+{
+    qDebug() << "RadioController: Found service " << qPrintable(QString::number(sId, 16).toUpper());
 
     if (isChannelScan == true) {
         stationCount++;
@@ -734,15 +743,15 @@ void CRadioController::onServiceDetected(uint32_t SId)
         emit textChanged();
     }
 
-    auto srv = radioReceiver->getService(SId);
+    auto srv = radioReceiver->getService(sId);
 
     if (srv.serviceId != 0) {
-        emit newStationNameReceived(QString::fromStdString(srv.serviceLabel.utf8_label()),
-                SId, currentChannel);
+        const auto label = QString::fromStdString(srv.serviceLabel.fig1_label_utf8());
+        emit newStationNameReceived(label, sId, currentChannel);
     }
 }
 
-void CRadioController::onNewEnsemble(uint16_t eId)
+void CRadioController::onNewEnsemble(quint16 eId)
 {
     emit ensembleIdUpdated(eId);
 }

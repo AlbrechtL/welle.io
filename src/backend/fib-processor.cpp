@@ -868,10 +868,7 @@ void    FIBProcessor::process_FIG1 (uint8_t *d)
                 service->serviceLabel.setCharset(charSet);
 
 #ifdef  MSC_DATA__
-                string l = toUtf8StringUsingCharset(
-                        (const char *)label, (CharacterSet)charSet);
-                l += " (data)";
-                myRadioInterface.onServiceDetected(SId, l);
+                myRadioInterface.onServiceDetected(SId);
 #endif
             }
             break;

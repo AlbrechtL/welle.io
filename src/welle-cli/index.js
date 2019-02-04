@@ -115,7 +115,7 @@ var ensembleInfoTimer = setInterval(populateEnsembleinfo, 1000);
 
 function ensembleInfoTemplate() {
     var html = '';
-    html += ' <h1>${label} (${shortlabel})</h1>';
+    html += ' <h1>FIG1: ${label} (${shortlabel}) FIG2: ${fig2label}</h1>';
     html += ' <table id="servicetable">';
     html += ' <tr><th>Ensemble ID </th>';
     html += ' <th>ECC </th>';
@@ -137,7 +137,7 @@ function ensembleInfoTemplate() {
     html += ' </table><br>    <button type=button onclick="stopPlayer()">Stop</button><br><br>';
     html += '';
     html += '<table id="servicetable">';
-    html += '<tr><th>Label<br>(Short label)</th> ';
+    html += '<tr><th>FIG1 Label (Short label)<br>FIG2 Label</th> ';
     html += '<th><abbr title="Service ID">SId</abbr></th> ';
     html += '<th>Bitrate</th> <th><abbr title="Start CU Address, used CUs">CU info</abbr></th> ';
     html += '<th><abbr title="Protection level">Prot.Lev.</abbr></th>';
@@ -151,7 +151,7 @@ function ensembleInfoTemplate() {
 }
 
 function serviceTemplate() {
-    var html = '<tr><td>${label} <br>(${shortlabel})</td> <td>${SId}</td> <td>${bitrate}&nbsp;kbps</td> <td>${sad_cu}</td> <td>${protection}</td>';
+    var html = '<tr><td>${label} (${shortlabel})<br>${fig2label}</td> <td>${SId}</td> <td>${bitrate}&nbsp;kbps</td> <td>${sad_cu}</td> <td>${protection}</td>';
     html += '<td>${techdetails}</td>';
     html += '<td>${pty}</td> <td>${language}<br>${subchannel_language}</td> <td></i>${dls}</i></td>';
     html += '<td>${errorcounters}</td>';
@@ -288,6 +288,7 @@ function populateEnsembleinfo() {
             var service = data.services[key];
             var s = {};
             s["label"] = service.label;
+            s["fig2label"] = service.fig2label;
             s["shortlabel"] = service.shortlabel;
             s["SId"] = service.sid;
             if (service.components) {
@@ -356,6 +357,7 @@ function populateEnsembleinfo() {
 
         var ens = {};
         ens["label"] = data.ensemble.label;
+        ens["fig2label"] = data.ensemble.fig2label;
         ens["shortlabel"] = data.ensemble.shortlabel;
         ens["EId"] = data.ensemble.id;
         ens["ecc"] = data.ensemble.ecc;
