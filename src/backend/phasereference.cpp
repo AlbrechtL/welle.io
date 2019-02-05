@@ -116,7 +116,7 @@ int32_t PhaseReference::findIndex(DSPCOMPLEX *v,
         else
             return maxIndex;
     }
-    else {
+    else if (threshold == 0) {
         /* Calculate peaks over bins of 25 samples, keep the
          * 4 bins with the highest peaks, take the index from the peak
          * in the earliest bin, but not any earlier than 500 samples.
@@ -201,5 +201,43 @@ int32_t PhaseReference::findIndex(DSPCOMPLEX *v,
 
             return earliest_bin->index;
         }
+    }
+    else {
+        using namespace std;
+
+        for (size_t i = 0; i < Tu; i++) {
+            const float v = abs(res_buffer[i]);
+            impulseResponseBuffer[i] = v;
+            sum += v;
+        }
+
+        const size_t windowsize = 100;
+
+        vector<float> peak_averages(Tu);
+        float global_max = -10000;
+        for (size_t i = 0; i + windowsize < Tu; i++) {
+            float max = -10000;
+            for (size_t j = 0; j < windowsize; j++) {
+                const float value = impulseResponseBuffer[i + j];
+
+                if (value > max) {
+                    max = value;
+                }
+            }
+            peak_averages[i] = max;
+
+            if (max > global_max) {
+                global_max = max;
+            }
+        }
+
+        const float thresh = global_max / 2;
+
+        for (size_t i = 0; i + windowsize < Tu; i++) {
+            if (peak_averages[i + windowsize] > thresh) {
+                return i;
+            }
+        }
+        return -1;
     }
 }
