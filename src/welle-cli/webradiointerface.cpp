@@ -227,25 +227,160 @@ void WebRadioInterface::retune(const std::string& channel)
     }
 }
 
+static string recv_line(Socket& s) {
+    string line;
+    bool cr_seen = false;
+
+    while (true) {
+        char c = 0;
+        ssize_t ret = s.recv(&c, 1, 0);
+        if (ret == 0) {
+            return "";
+        }
+        else if (ret == -1) {
+            string errstr = strerror(errno);
+            cerr << "recv error " << errstr << endl;
+            return "";
+        }
+
+        line += c;
+
+        if (c == '\r') {
+            cr_seen = true;
+        }
+        else if (cr_seen and c == '\n') {
+            return line;
+        }
+    }
+}
+
+static vector<char> recv_exactly(Socket& s, size_t num_bytes)
+{
+    vector<char> buf(num_bytes);
+    size_t rx = 0;
+
+    while (rx < num_bytes) {
+        const size_t remain = num_bytes - rx;
+        ssize_t ret = s.recv(buf.data() + rx, remain, 0);
+
+        if (ret == 0) {
+            break;
+        }
+        else if (ret == -1) {
+            string errstr = strerror(errno);
+            cerr << "recv error " << errstr << endl;
+            return {};
+        }
+        else {
+            rx += ret;
+        }
+    }
+
+    return buf;
+}
+
+static vector<string> split(const string& str, char c = ' ')
+{
+    const char *s = str.data();
+    vector<string> result;
+    do {
+        const char *begin = s;
+        while (*s != c && *s)
+            s++;
+        result.push_back(string(begin, s));
+    } while (0 != *s++);
+    return result;
+}
+
+struct http_request_t {
+    bool valid = false;
+
+    bool is_get = false;
+    bool is_post = false;
+    string url;
+    map<string, string> headers;
+    string post_data;
+};
+
+
+static http_request_t parse_http_headers(Socket& s) {
+    http_request_t r;
+
+    const auto first_line = recv_line(s);
+    const auto request_type = split(first_line);
+
+    if (request_type.size() != 3) {
+        cerr << "Malformed request: " << first_line;
+        return r;
+    }
+    else if (request_type[0] == "GET") {
+        r.is_get = true;
+    }
+    else if (request_type[0] == "POST") {
+        r.is_post = true;
+    }
+    else {
+        return r;
+    }
+
+    r.url = request_type[1];
+
+    while (true) {
+        string header_line = recv_line(s);
+
+        if (header_line == "\r\n") {
+            break;
+        }
+
+        const auto header = split(header_line, ':');
+
+        if (header.size() == 2) {
+            r.headers.emplace(header[0], header[1]);
+        }
+    }
+
+    if (r.is_post) {
+        constexpr auto CL = "Content-Length";
+        if (r.headers.count(CL) == 1) {
+            try {
+                const int content_length = std::stoi(r.headers[CL]);
+                if (content_length > 1024 * 1024) {
+                    cerr << "Unreasonable POST Content-Length: " << content_length;
+                    return r;
+                }
+
+                const auto buf = recv_exactly(s, content_length);
+                r.post_data = string(buf.begin(), buf.end());
+            }
+            catch (const invalid_argument&) {
+                cerr << "Cannot parse POST Content-Length: " << r.headers[CL];
+                return r;
+            }
+            catch (const out_of_range&) {
+                cerr << "Cannot represent POST Content-Length: " << r.headers[CL];
+                return r;
+            }
+        }
+    }
+
+    r.valid = true;
+    return r;
+}
+
 bool WebRadioInterface::dispatch_client(Socket&& client)
 {
     Socket s(move(client));
 
     bool success = false;
 
-    vector<char> buf(1025);
     if (not s.valid()) {
         cerr << "socket in dispatcher not valid!" << endl;
         return false;
     }
-    ssize_t ret = s.recv(buf.data(), buf.size()-1, 0);
 
-    if (ret == 0) {
-        return false;
-    }
-    else if (ret == -1) {
-        string errstr = strerror(errno);
-        cerr << "recv error " << errstr << endl;
+    const auto req = parse_http_headers(s);
+
+    if (not req.valid) {
         return false;
     }
     else {
@@ -258,54 +393,61 @@ bool WebRadioInterface::dispatch_client(Socket&& client)
             this_thread::sleep_for(chrono::seconds(1));
         }
 
-        buf.resize(ret);
-        string request(buf.begin(), buf.end());
-
-        if (request.find("GET / HTTP") == 0) {
-            success = send_file(s, "index.html", http_contenttype_html);
-        }
-        else if (request.find("GET /index.js HTTP") == 0) {
-            success = send_file(s, "index.js", http_contenttype_js);
-        }
-        else if (request.find("GET /mux.json HTTP") == 0) {
-            success = send_mux_json(s);
-        }
-        else if (request.find("GET /fic HTTP") == 0) {
-            success = send_fic(s);
-        }
-        else if (request.find("GET /impulseresponse HTTP") == 0) {
-            success = send_impulseresponse(s);
-        }
-        else if (request.find("GET /spectrum HTTP") == 0) {
-            success = send_spectrum(s);
-        }
-        else if (request.find("GET /constellation HTTP") == 0) {
-            success = send_constellation(s);
-        }
-        else if (request.find("GET /nullspectrum HTTP") == 0) {
-            success = send_null_spectrum(s);
-        }
-        else if (request.find("GET /channel HTTP") == 0) {
-            success = send_channel(s);
-        }
-        else if (request.find("POST /channel HTTP") == 0) {
-            success = handle_channel_post(s, request);
-        }
-        else {
-            const regex regex_slide(R"(^GET [/]slide[/]([^ ]+) HTTP)");
-            std::smatch match_slide;
-
-            const regex regex_mp3(R"(^GET [/]mp3[/]([^ ]+) HTTP)");
-            std::smatch match_mp3;
-            if (regex_search(request, match_mp3, regex_mp3)) {
-                success = send_mp3(s, match_mp3[1]);
+        if (req.is_get) {
+            if (req.url == "/") {
+                success = send_file(s, "index.html", http_contenttype_html);
             }
-            else if (regex_search(request, match_slide, regex_slide)) {
-                success = send_slide(s, match_slide[1]);
+            else if (req.url == "/index.js") {
+                success = send_file(s, "index.js", http_contenttype_js);
+            }
+            else if (req.url == "/mux.json") {
+                success = send_mux_json(s);
+            }
+            else if (req.url == "/fic") {
+                success = send_fic(s);
+            }
+            else if (req.url == "/impulseresponse") {
+                success = send_impulseresponse(s);
+            }
+            else if (req.url == "/spectrum") {
+                success = send_spectrum(s);
+            }
+            else if (req.url == "/constellation") {
+                success = send_constellation(s);
+            }
+            else if (req.url == "/nullspectrum") {
+                success = send_null_spectrum(s);
+            }
+            else if (req.url == "/channel") {
+                success = send_channel(s);
             }
             else {
-                cerr << "Could not understand request " << request << endl;
+                const regex regex_slide(R"(^[/]slide[/]([^ ]+))");
+                std::smatch match_slide;
+
+                const regex regex_mp3(R"(^[/]mp3[/]([^ ]+))");
+                std::smatch match_mp3;
+                if (regex_search(req.url, match_mp3, regex_mp3)) {
+                    success = send_mp3(s, match_mp3[1]);
+                }
+                else if (regex_search(req.url, match_slide, regex_slide)) {
+                    success = send_slide(s, match_slide[1]);
+                }
+                else {
+                    cerr << "Could not understand GET request " << req.url << endl;
+                }
             }
+        }
+        else if (req.is_post) {
+            if (req.url == "/channel") {
+                success = handle_channel_post(s, req.post_data);
+            }
+            else {
+                cerr << "Could not understand POST request " << req.url << endl;
+            }
+        }
+        else {
+            throw logic_error("valid req is neither GET nor POST!");
         }
 
         if (not success) {
@@ -939,29 +1081,23 @@ bool WebRadioInterface::send_channel(Socket& s)
     return true;
 }
 
-bool WebRadioInterface::handle_channel_post(Socket& s, const std::string& request)
+bool WebRadioInterface::handle_channel_post(Socket& s, const std::string& channel)
 {
-    auto header_end_ix = request.find("\r\n\r\n");
-    if (header_end_ix != string::npos) {
-        auto channel = request.substr(header_end_ix + 4);
+    cerr << "POST channel: " << channel << endl;
 
-        cerr << "POST channel: " << channel << endl;
+    retune(channel);
 
-        retune(channel);
-
-        string response = http_ok;
-        response += http_contenttype_text;
-        response += http_nocache;
-        response += "\r\n";
-        response += "Retuning...";
-        ssize_t ret = s.send(response.data(), response.size(), MSG_NOSIGNAL);
-        if (ret == -1) {
-            cerr << "Failed to send frequency" << endl;
-            return false;
-        }
-        return true;
+    string response = http_ok;
+    response += http_contenttype_text;
+    response += http_nocache;
+    response += "\r\n";
+    response += "Retuning...";
+    ssize_t ret = s.send(response.data(), response.size(), MSG_NOSIGNAL);
+    if (ret == -1) {
+        cerr << "Failed to send frequency" << endl;
+        return false;
     }
-    return false;
+    return true;
 }
 
 void WebRadioInterface::handle_phs()
