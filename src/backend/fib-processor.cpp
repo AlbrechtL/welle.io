@@ -776,15 +776,11 @@ void    FIBProcessor::process_FIG1 (uint8_t *d)
                     }
                     //           std::clog << "fib-processor:" << "Ensemblename: %16s\n", label) << std::endl;
                     if (!oe and EId == ensembleId) {
-                        if (firstTime) {
-                            ensembleLabel.fig1_flag = getBits(d, offset, 16);
-                            ensembleLabel.fig1_label = label;
-                            ensembleLabel.setCharset(charSet);
-                        }
-                        firstTime = false;
+                        ensembleLabel.fig1_flag = getBits(d, offset, 16);
+                        ensembleLabel.fig1_label = label;
+                        ensembleLabel.setCharset(charSet);
                     }
-                    else
-                    {
+                    else {
                         std::clog << "fib-processor: " << " not synced " << std::endl;
                     }
                 }
