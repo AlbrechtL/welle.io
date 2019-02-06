@@ -444,7 +444,10 @@ bool WebRadioInterface::dispatch_client(Socket&& client)
                 success = handle_channel_post(s, req.post_data);
             }
             else if (req.url == "/fftwindowplacement") {
-                success = handle_fft_window_placement(s, req.post_data);
+                success = handle_fft_window_placement_post(s, req.post_data);
+            }
+            else if (req.url == "/enablecoarsecorrector") {
+                success = handle_coarse_corrector_post(s, req.post_data);
             }
             else {
                 cerr << "Could not understand POST request " << req.url << endl;
@@ -1088,7 +1091,7 @@ bool WebRadioInterface::send_channel(Socket& s)
     return true;
 }
 
-bool WebRadioInterface::handle_fft_window_placement(Socket& s, const std::string& fft_window_placement)
+bool WebRadioInterface::handle_fft_window_placement_post(Socket& s, const std::string& fft_window_placement)
 {
     cerr << "POST fft window: " << fft_window_placement << endl;
 
@@ -1128,6 +1131,51 @@ bool WebRadioInterface::handle_fft_window_placement(Socket& s, const std::string
     response += http_nocache;
     response += "\r\n";
     response += "Switched FFT Window Placement.";
+    ssize_t ret = s.send(response.data(), response.size(), MSG_NOSIGNAL);
+    if (ret == -1) {
+        cerr << "Failed to send frequency" << endl;
+        return false;
+    }
+    return true;
+}
+
+bool WebRadioInterface::handle_coarse_corrector_post(Socket& s, const std::string& coarseCorrector)
+{
+    cerr << "POST coarse : " << coarseCorrector << endl;
+
+    if (coarseCorrector == "0") {
+        rro.disable_coarse_corrector = true;
+    }
+    else if (coarseCorrector == "1") {
+        rro.disable_coarse_corrector = false;
+    }
+    else {
+        string response = http_400;
+        response += http_contenttype_text;
+        response += http_nocache;
+        response += "\r\n";
+        response += "Invalid coarse corrector selected";
+        ssize_t ret = s.send(response.data(), response.size(), MSG_NOSIGNAL);
+        if (ret == -1) {
+            cerr << "Failed to send frequency" << endl;
+            return false;
+        }
+        return true;
+    }
+
+    {
+        lock_guard<mutex> lock(rx_mut);
+        if (!rx) {
+            return false;
+        }
+        rx->setReceiverOptions(rro);
+    }
+
+    string response = http_ok;
+    response += http_contenttype_text;
+    response += http_nocache;
+    response += "\r\n";
+    response += "Switched Coarse corrector.";
     ssize_t ret = s.send(response.data(), response.size(), MSG_NOSIGNAL);
     if (ret == -1) {
         cerr << "Failed to send frequency" << endl;

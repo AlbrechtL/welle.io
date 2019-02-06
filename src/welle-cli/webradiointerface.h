@@ -125,8 +125,9 @@ class WebRadioInterface : public RadioControllerInterface {
         // Send the currently tuned channel
         bool send_channel(Socket& s);
 
-        // Handle a POST to /fftwindowplacemen
-        bool handle_fft_window_placement(Socket& s, const std::string& request);
+        // Handle a POSTs
+        bool handle_fft_window_placement_post(Socket& s, const std::string& request);
+        bool handle_coarse_corrector_post(Socket& s, const std::string& request);
 
         // Handle a POST to /channel that will tune the receiver
         bool handle_channel_post(Socket& s, const std::string& request);

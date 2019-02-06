@@ -115,6 +115,19 @@ window.onload = function() {
         xhr.setRequestHeader("Content-type", "text/plain");
         xhr.send(fft_window);
     };
+
+    document.getElementById("coarsecheckbox").onclick = function() {
+        var fft_window = document.getElementById("fftwindowselector").value;
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", '/enablecoarsecorrector', true);
+        xhr.setRequestHeader("Content-type", "text/plain");
+        if (document.getElementById("coarsecheckbox").checked) {
+            xhr.send(1);
+        }
+        else {
+            xhr.send(0);
+        }
+    }
 };
 
 function refreshChannel() {
@@ -389,6 +402,7 @@ function populateEnsembleinfo() {
 
         ens["gain"] = data.receiver.hardware.gain;
         document.getElementById("fftwindowselector").value = data.receiver.software.fftwindowplacement;
+        document.getElementById("coarsecheckbox").checked = data.receiver.software.coarsecorrectorenabled;
 
         ens["SNR"] = data.snr;
         ens["FrequencyCorrection"] = data.frequencycorrection;
