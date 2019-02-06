@@ -130,7 +130,6 @@ class FIBProcessor {
         std::vector<Service> services;
         std::unordered_map<uint32_t, uint8_t> serviceRepeatCount;
         std::chrono::steady_clock::time_point timeLastServiceDecrement;
-        bool firstTime = true;
 };
 
 #endif

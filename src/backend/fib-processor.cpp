@@ -317,6 +317,7 @@ int16_t FIBProcessor::HandleFIG0Extension2(
 
     if (findServiceId(SId) == nullptr and serviceRepeatCount[SId] >= 2) {
         services.emplace_back(SId);
+        myRadioInterface.onServiceDetected(SId);
     }
 
     numberofComponents = getBits_4(d, lOffset + 4);
@@ -788,9 +789,7 @@ void FIBProcessor::process_FIG1(uint8_t *d)
                 service->serviceLabel.fig1_flag = getBits(d, offset, 16);
                 service->serviceLabel.fig1_label = label;
                 service->serviceLabel.setCharset(charSet);
-
                 // std::clog << "fib-processor:" << "FIG1/1: SId = %4x\t%s\n", SId, label) << std::endl;
-                myRadioInterface.onServiceDetected(SId);
             }
             break;
 
@@ -1247,8 +1246,6 @@ void FIBProcessor::clearEnsemble()
     services.clear();
     serviceRepeatCount.clear();
     timeLastServiceDecrement = std::chrono::steady_clock::now();
-
-    firstTime   = true;
 }
 
 std::vector<Service> FIBProcessor::getServiceList() const
