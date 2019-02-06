@@ -51,6 +51,7 @@ using namespace std;
 static const char* http_ok = "HTTP/1.0 200 OK\r\n";
 static const char* http_400 = "HTTP/1.0 400 Bad Request\r\n";
 static const char* http_404 = "HTTP/1.0 404 Not Found\r\n";
+static const char* http_405 = "HTTP/1.0 405 Method Not Allowed\r\n";
 static const char* http_500 = "HTTP/1.0 500 Internal Server Error\r\n";
 static const char* http_503 = "HTTP/1.0 503 Service Unavailable\r\n";
 static const char* http_contenttype_mp3 = "Content-Type: audio/mpeg\r\n";
@@ -435,6 +436,11 @@ bool WebRadioInterface::dispatch_client(Socket&& client)
             }
             else if (req.url == "/channel") {
                 success = send_channel(s);
+            }
+            else if (req.url == "/fftwindowplacement" or req.url == "/enablecoarsecorrector") {
+                send_http_response(s, http_405,
+                        "405 Method Not Allowed\r\n" + req.url + " is POST-only");
+                return false;
             }
             else {
                 const regex regex_slide(R"(^[/]slide[/]([^ ]+))");
