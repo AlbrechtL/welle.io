@@ -738,28 +738,22 @@ int16_t FIBProcessor::HandleFIG0Extension22(uint8_t *d, int16_t used)
     return used;
 }
 
-//  FIG 1
-//
-void    FIBProcessor::process_FIG1 (uint8_t *d)
+//  FIG 1 - Labels
+void FIBProcessor::process_FIG1(uint8_t *d)
 {
-    uint8_t     charSet, extension;
     uint32_t    SId = 0;
-    uint8_t     oe;
-    int16_t     offset  = 0;
+    int16_t     offset = 0;
     Service    *service;
     ServiceComponent *component;
-    int16_t     i;
     uint8_t     pd_flag;
     uint8_t     SCidS;
-    uint8_t     XPAD_aid;
-    //uint8_t       region_id;
-    char        label [17];
-    //
-    //  from byte 1 we deduce:
-    charSet     = getBits_4 (d, 8);
-    oe      = getBits_1 (d, 8 + 4);
-    extension   = getBits_3 (d, 8 + 5);
-    label [16]  = 0x00;
+    char        label[17];
+
+    // FIG 1 first byte
+    const uint8_t charSet = getBits_4(d, 8);
+    const uint8_t oe = getBits_1(d, 8 + 4);
+    const uint8_t extension = getBits_3(d, 8 + 5);
+    label[16]  = 0x00;
     if (oe == 1) {
         return;
     }
@@ -768,24 +762,17 @@ void    FIBProcessor::process_FIG1 (uint8_t *d)
         case 0: // ensemble label
             {
                 const uint32_t EId = getBits(d, 16, 16);
-                offset  = 32;
-                if ((charSet <= 16)) { // EBU Latin based repertoire
-                    for (i = 0; i < 16; i ++) {
-                        label[i] = getBits_8 (d, offset);
-                        offset += 8;
-                    }
-                    //           std::clog << "fib-processor:" << "Ensemblename: %16s\n", label) << std::endl;
-                    if (!oe and EId == ensembleId) {
-                        ensembleLabel.fig1_flag = getBits(d, offset, 16);
-                        ensembleLabel.fig1_label = label;
-                        ensembleLabel.setCharset(charSet);
-                    }
-                    else {
-                        std::clog << "fib-processor: " << " not synced " << std::endl;
-                    }
+                offset = 32;
+                for (int i = 0; i < 16; i ++) {
+                    label[i] = getBits_8 (d, offset);
+                    offset += 8;
                 }
-                //        std::clog << "fib-processor:" <<
-                //                 "charset %d is used for ensemblename\n", charSet) << std::endl;
+                // std::clog << "fib-processor:" << "Ensemblename: %16s\n", label) << std::endl;
+                if (!oe and EId == ensembleId) {
+                    ensembleLabel.fig1_flag = getBits(d, offset, 16);
+                    ensembleLabel.fig1_label = label;
+                    ensembleLabel.setCharset(charSet);
+                }
                 break;
             }
 
@@ -793,10 +780,8 @@ void    FIBProcessor::process_FIG1 (uint8_t *d)
             SId = getBits(d, 16, 16);
             offset  = 32;
             service = findServiceId(SId);
-            if (!service) break;
-
-            if (service->serviceLabel.fig1_label.empty() && charSet <= 16) {
-                for (i = 0; i < 16; i++) {
+            if (service) {
+                for (int i = 0; i < 16; i++) {
                     label[i] = getBits_8(d, offset);
                     offset += 8;
                 }
@@ -809,18 +794,19 @@ void    FIBProcessor::process_FIG1 (uint8_t *d)
             }
             break;
 
-        case 3:
-            // region label
-            //        region_id = getBits_6 (d, 16 + 2);
+        /*
+        case 3: // Region label
+            //uint8_t region_id = getBits_6 (d, 16 + 2);
             offset = 24;
-            for (i = 0; i < 16; i ++) {
+            for (int i = 0; i < 16; i ++) {
                 label[i] = getBits_8 (d, offset + 8 * i);
             }
 
             //        std::clog << "fib-processor:" << "FIG1/3: RegionID = %2x\t%s\n", region_id, label) << std::endl;
             break;
+        */
 
-        case 4:
+        case 4: // Component label
             pd_flag = getBits(d, 16, 1);
             SCidS   = getBits(d, 20, 4);
             if (pd_flag) {  // 32 bit identifier field for service component label
@@ -832,7 +818,7 @@ void    FIBProcessor::process_FIG1 (uint8_t *d)
                 offset  = 40;
             }
 
-            for (i = 0; i < 16; i ++) {
+            for (int i = 0; i < 16; i ++) {
                 label[i] = getBits_8 (d, offset);
                 offset += 8;
             }
@@ -852,10 +838,8 @@ void    FIBProcessor::process_FIG1 (uint8_t *d)
             SId = getBits(d, 16, 32);
             offset  = 48;
             service = findServiceId(SId);
-            if (!service) break;
-
-            if (service->serviceLabel.fig1_label.empty() && charSet <= 16) {
-                for (i = 0; i < 16; i ++) {
+            if (service) {
+                for (int i = 0; i < 16; i ++) {
                     label[i] = getBits_8(d, offset);
                     offset += 8;
                 }
@@ -869,7 +853,9 @@ void    FIBProcessor::process_FIG1 (uint8_t *d)
             }
             break;
 
+        /*
         case 6: // XPAD label
+            uint8_t XPAD_aid;
             pd_flag = getBits(d, 16, 1);
             SCidS   = getBits(d, 20, 4);
             if (pd_flag) {  // 32 bits identifier for XPAD label
@@ -883,20 +869,20 @@ void    FIBProcessor::process_FIG1 (uint8_t *d)
                 offset    = 48;
             }
 
-            for (i = 0; i < 16; i ++) {
+            for (int i = 0; i < 16; i ++) {
                 label[i] = getBits_8 (d, offset + 8 * i);
             }
 
-            //        std::clog << "fib-processor:" << "FIG1/6: SId = %8x\tp/d = %d\t SCidS = %1X\tXPAD_aid = %2u\t%s\n",
-            //             SId, pd_flag, SCidS, XPAD_aid, label) << std::endl;
+            // fprintf(stderr, "fib-processor:"
+            //   "FIG1/6: SId = %8x\tp/d = %d\t SCidS = %1X\tXPAD_aid = %2u\t%s\n",
+            //   SId, pd_flag, SCidS, XPAD_aid, label) << std::endl;
             break;
+        */
 
         default:
-            //        std::clog << "fib-processor:" << "FIG1/%d: not handled now\n", extension) << std::endl;
+            // std::clog << "fib-processor:" << "FIG1/%d: not handled now\n", extension) << std::endl;
             break;
     }
-    (void)SCidS;
-    (void)XPAD_aid;
 }
 
 static void handle_ext_label_data_field(const uint8_t *f, uint8_t len_bytes,
