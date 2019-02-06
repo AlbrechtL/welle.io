@@ -30,22 +30,23 @@
 #include    <cstdint>
 #include    "phasetable.h"
 #include    "dab-constants.h"
+#include    "radio-receiver-options.h"
 
 class PhaseReference : public PhaseTable
 {
     public:
-        PhaseReference(const DABParams& p, int16_t threshold);
+        PhaseReference(const DABParams& p, FFTPlacementMethod fft_placement_method);
         int32_t findIndex(DSPCOMPLEX *v,
                 std::vector<float>& impulseResponseBuffer);
 
         DSPCOMPLEX operator[](size_t ix);
 
-        void setThreshold(int16_t new_threshold);
+        void selectFFTWindowPlacement(FFTPlacementMethod new_fft_placement);
 
     private:
         std::vector<DSPCOMPLEX> refTable;
 
-        int16_t threshold;
+        FFTPlacementMethod fft_placement;
 
         fft::Forward fft_processor;
         DSPCOMPLEX *fft_buffer;

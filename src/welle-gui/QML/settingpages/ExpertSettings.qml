@@ -15,8 +15,8 @@ Item {
         property alias enableExpertModeState : enableExpertMode.checked
         property alias disableCoarseState: disableCoarse.checked
         property alias enableDecodeTIIState: enableDecodeTII.checked
-        property alias enableOldFFTWindowState: enableOldFFTWindow.checked
         property alias freqSyncMethodBoxState: freqSyncMethodBox.currentIndex
+        property alias fftWindowPlacement: fftPlacementBox.currentIndex
     }
 
     property alias enableExpertModeState : enableExpertMode.checked
@@ -84,15 +84,21 @@ Item {
                 Component.onCompleted: radioController.enableTIIDecode(checked)
             }
 
-            WSwitch {
-                id: enableOldFFTWindow
-                text: qsTr("Select old FFT placement algorithm (experimental)")
-                checked: false
-                onCheckedChanged: {
-                    radioController.enableOldFFTWindowPlacement(checked)
+            RowLayout {
+                WComboBox {
+                    id: fftPlacementBox
+                    model: [ "Strongest Peak", "Earliest Peak With Binning", "Threshold Before Peak" ];
+                    currentIndex: 1
+                    onCurrentIndexChanged: {
+                        radioController.selectFFTWindowPlacement(currentIndex)
+                    }
+
+                    Component.onCompleted: radioController.selectFFTWindowPlacement(currentIndex)
                 }
 
-                Component.onCompleted: radioController.enableOldFFTWindowPlacement(checked)
+                TextStandart {
+                    text: qsTr("FFT Window placement algorithm")
+                }
             }
         }
     }

@@ -385,10 +385,22 @@ void CRadioController::enableTIIDecode(bool enable)
     }
 }
 
-void CRadioController::enableOldFFTWindowPlacement(bool old)
+void CRadioController::selectFFTWindowPlacement(int fft_window_placement_ix)
 {
-    rro.ofdmProcessorThreshold = old ?
-        OLD_OFDM_PROCESSOR_THRESHOLD : NEW_OFDM_PROCESSOR_THRESHOLD;
+    if (fft_window_placement_ix == 0) {
+        rro.fftPlacementMethod = FFTPlacementMethod::StrongestPeak;
+    }
+    else if (fft_window_placement_ix == 1) {
+        rro.fftPlacementMethod = FFTPlacementMethod::EarliestPeakWithBinning;
+    }
+    else if (fft_window_placement_ix == 2) {
+        rro.fftPlacementMethod = FFTPlacementMethod::ThresholdBeforePeak;
+    }
+    else {
+        std::clog << "Invalid FFT window placement " <<
+            fft_window_placement_ix << " chosen" << std::endl;
+        return;
+    }
 
     if (radioReceiver) {
         radioReceiver->setReceiverOptions(rro);

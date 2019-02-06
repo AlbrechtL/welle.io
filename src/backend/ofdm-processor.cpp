@@ -71,7 +71,7 @@ OFDMProcessor::OFDMProcessor(
     disableCoarseCorrector(rro.disable_coarse_corrector),
     freqsyncMethod(rro.freqsyncMethod),
     ofdmBuffer(params.L * params.T_s),
-    phaseRef(params, rro.ofdmProcessorThreshold),
+    phaseRef(params, rro.fftPlacementMethod),
     ofdmDecoder(params, ri, fic, msc),
     fft_handler(params.T_u),
     fft_buffer(fft_handler.getVector())
@@ -479,7 +479,7 @@ void OFDMProcessor::setReceiverOptions(const RadioReceiverOptions rro)
     decodeTII = rro.decodeTII;
     disableCoarseCorrector = rro.disable_coarse_corrector;
     freqsyncMethod = rro.freqsyncMethod;
-    phaseRef.setThreshold(rro.ofdmProcessorThreshold);
+    phaseRef.selectFFTWindowPlacement(rro.fftPlacementMethod);
 
     if (need_reset) {
         reset();

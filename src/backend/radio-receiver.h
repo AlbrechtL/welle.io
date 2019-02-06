@@ -41,6 +41,8 @@
 #include "msc-handler.h"
 #include "ofdm-processor.h"
 
+const char* fftPlacementMethodToString(FFTPlacementMethod fft_placement);
+
 class RadioReceiver {
     public:
         RadioReceiver(

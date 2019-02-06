@@ -318,7 +318,6 @@ options_t parse_cmdline(int argc, char **argv)
 {
     options_t options;
     options.rro.decodeTII = true;
-    options.rro.ofdmProcessorThreshold = NEW_OFDM_PROCESSOR_THRESHOLD;
 
     int opt;
     while ((opt = getopt(argc, argv, "A:c:C:dDf:g:hp:Pt:w:u")) != -1) {

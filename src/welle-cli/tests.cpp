@@ -301,7 +301,7 @@ void Tests::test_multipath(int test_id)
     ri.openCIRdumpfile(cirdumpfilename);
     cerr << "Saving CIR to " << cirdumpfilename << endl;
 
-    rro.ofdmProcessorThreshold = (test_id == 1 ? 3 : -1);
+    rro.fftPlacementMethod = (test_id == 1 ? FFTPlacementMethod::StrongestPeak : FFTPlacementMethod::EarliestPeakWithBinning);
     const auto start_time = chrono::steady_clock::now();
     RadioReceiver rx(ri, *input_interface.get(), rro);
 
@@ -342,9 +342,10 @@ void Tests::test_multipath(int test_id)
     if (pos == 0) {
         fprintf(fd, "fname,ofdmthreshold,with_coarse,num_syncs,num_desyncs,time_to_first_sync,frameerrors,aacerrors,rserrors\n");
     }
-    fprintf(fd, "%s,%d,%d,%zu,%zu,%ld,%d,%d,%d\n",
+
+    fprintf(fd, "%s,%s,%d,%zu,%zu,%ld,%d,%d,%d\n",
             intf.getFileName().c_str(),
-            rro.ofdmProcessorThreshold,
+            fftPlacementMethodToString(rro.fftPlacementMethod),
             rro.disable_coarse_corrector ? 0 : 1,
             ri.num_syncs, ri.num_desyncs,
             chrono::duration_cast<chrono::milliseconds>(start_time-ri.first_sync_time).count(),
@@ -356,7 +357,7 @@ void Tests::test_multipath(int test_id)
 
 void Tests::run_test(int test_id)
 {
-    rro.ofdmProcessorThreshold = DEFAULT_OFDM_PROCESSOR_THRESHOLD;
+    rro.fftPlacementMethod = DEFAULT_FFT_PLACEMENT;
 
     if (test_id == 0) test_with_noise();
     else if (test_id == 1 or test_id == 2) test_multipath(test_id);

@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2018
+ *    Copyright (C) 2019
  *    Matthias P. Braendli (matthias.braendli@mpb.li)
  *
  *    Copyright (C) 2017
@@ -35,21 +35,40 @@
 // see OFDMProcessor::processPRS() for more information about these methods
 enum class FreqsyncMethod { GetMiddle = 0, CorrelatePRS = 1, PatternOfZeros = 2 };
 
+enum class FFTPlacementMethod {
+    /* Old method: places the FFT on the strongest peak, which must be at least
+     * 3 times as high as the average.
+     *
+     * Issues: can lock on a peak that is not the earlisest peak (multipath)
+     */
+    StrongestPeak,
+
+    /* Calculate peaks over bins of 25 samples, keep the 4 bins with the
+     * highest peaks, take the index from the peak in the earliest bin, but not
+     * any earlier than 500 samples.
+     *
+     * Issues: sometimes loses lock even in good receive conditions.
+     */
+    EarliestPeakWithBinning,
+
+    /* Apply a windowing function that selects the peak correlation, then
+     * place the FFT where the correlation goes above a threshold earliest.
+     *
+     * Issues: performance not yet assessed.
+     */
+    ThresholdBeforePeak,
+};
+
 // Default uses the old algorithm until the issues of the new one are solved.
-constexpr int OLD_OFDM_PROCESSOR_THRESHOLD = 3;
-constexpr int DEFAULT_OFDM_PROCESSOR_THRESHOLD = 3;
-constexpr int NEW_OFDM_PROCESSOR_THRESHOLD = -1;
+constexpr auto DEFAULT_FFT_PLACEMENT = FFTPlacementMethod::ThresholdBeforePeak;
 
 // Configuration for the backend
 struct RadioReceiverOptions {
     // Select the algorithm used in the OFDMProcessor PRS sync logic
-    // to place the FFT window for demodulation. Set to 3 for the original
-    // implementation that locks onto the peak if it is at least 3 times as
-    // high as the average. Issues: can lock on a secondary peak.
+    // to place the FFT window for demodulation.
     //
-    // Set to 0 to use the new algorithm that locks onto the first peak.
     // Issues: initial lock can take longer than with original algorithm.
-    int ofdmProcessorThreshold = DEFAULT_OFDM_PROCESSOR_THRESHOLD;
+    FFTPlacementMethod fftPlacementMethod = DEFAULT_FFT_PLACEMENT;
 
     // Set to true to enable the TII decoder. Default is false because it is
     // consumes CPU resources.

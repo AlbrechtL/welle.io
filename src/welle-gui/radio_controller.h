@@ -119,7 +119,7 @@ public:
     Q_INVOKABLE void setAGC(bool isAGC);
     Q_INVOKABLE void disableCoarseCorrector(bool disable);
     Q_INVOKABLE void enableTIIDecode(bool enable);
-    Q_INVOKABLE void enableOldFFTWindowPlacement(bool old);
+    Q_INVOKABLE void selectFFTWindowPlacement(int fft_window_placement_ix);
     Q_INVOKABLE void setFreqSyncMethod(int fsm_ix);
     Q_INVOKABLE void setGain(int gain);
     Q_INVOKABLE void initRecorder(int size);

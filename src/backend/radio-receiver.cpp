@@ -37,6 +37,24 @@
 
 using namespace std;
 
+const char* fftPlacementMethodToString(FFTPlacementMethod fft_placement)
+{
+    const char *fftpm = "unknown";
+    switch (fft_placement) {
+        case FFTPlacementMethod::EarliestPeakWithBinning:
+            fftpm = "EarliestPeakWithBinning";
+            break;
+        case FFTPlacementMethod::StrongestPeak:
+            fftpm = "StrongestPeak";
+            break;
+        case FFTPlacementMethod::ThresholdBeforePeak:
+            fftpm = "ThresholdBeforePeak";
+            break;
+    }
+    return fftpm;
+}
+
+
 RadioReceiver::RadioReceiver(
                 RadioControllerInterface& rci,
                 InputInterface& input,
@@ -80,7 +98,7 @@ void RadioReceiver::setReceiverOptions(const RadioReceiverOptions rro)
         "TII: " << rro.decodeTII <<
         " disable coarse corr: " << rro.disable_coarse_corrector <<
         " freqsync: " << fsm <<
-        " threshold: " << rro.ofdmProcessorThreshold << endl;
+        " fft placement: " << fftPlacementMethodToString(rro.fftPlacementMethod) << endl;
     ofdmProcessor.setReceiverOptions(rro);
 }
 
