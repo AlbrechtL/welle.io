@@ -39,21 +39,29 @@ using namespace std;
 
 const char* fftPlacementMethodToString(FFTPlacementMethod fft_placement)
 {
-    const char *fftpm = "unknown";
     switch (fft_placement) {
         case FFTPlacementMethod::EarliestPeakWithBinning:
-            fftpm = "EarliestPeakWithBinning";
-            break;
+            return "EarliestPeakWithBinning";
         case FFTPlacementMethod::StrongestPeak:
-            fftpm = "StrongestPeak";
-            break;
+            return "StrongestPeak";
         case FFTPlacementMethod::ThresholdBeforePeak:
-            fftpm = "ThresholdBeforePeak";
-            break;
+            return "ThresholdBeforePeak";
     }
-    return fftpm;
+    throw std::logic_error("Unhandled fft placement");
 }
 
+const char* freqSyncMethodToString(FreqsyncMethod method)
+{
+    switch (method) {
+        case FreqsyncMethod::CorrelatePRS:
+            return "CorrelatePRS";
+        case FreqsyncMethod::GetMiddle:
+            return "GetMiddle";
+        case FreqsyncMethod::PatternOfZeros:
+            return "PatternOfZeros";
+    }
+    throw std::logic_error("Unhandled freqsyncMethod placement");
+}
 
 RadioReceiver::RadioReceiver(
                 RadioControllerInterface& rci,

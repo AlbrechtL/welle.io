@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2018
+ *    Copyright (C) 2019
  *    Matthias P. Braendli (matthias.braendli@mpb.li)
  *
  *    This file is part of the welle.io.
@@ -49,6 +49,7 @@
 using namespace std;
 
 static const char* http_ok = "HTTP/1.0 200 OK\r\n";
+static const char* http_400 = "HTTP/1.0 400 Bad Request\r\n";
 static const char* http_404 = "HTTP/1.0 404 Not Found\r\n";
 static const char* http_500 = "HTTP/1.0 500 Internal Server Error\r\n";
 static const char* http_503 = "HTTP/1.0 503 Service Unavailable\r\n";
@@ -442,6 +443,9 @@ bool WebRadioInterface::dispatch_client(Socket&& client)
             if (req.url == "/channel") {
                 success = handle_channel_post(s, req.post_data);
             }
+            else if (req.url == "/fftwindowplacement") {
+                success = handle_fft_window_placement(s, req.post_data);
+            }
             else {
                 cerr << "Could not understand POST request " << req.url << endl;
             }
@@ -582,6 +586,9 @@ bool WebRadioInterface::send_mux_json(Socket& s)
 
     j["receiver"]["software"]["name"] = "welle.io";
     j["receiver"]["software"]["version"] = VERSION;
+    j["receiver"]["software"]["fftwindowplacement"] = fftPlacementMethodToString(rro.fftPlacementMethod);
+    j["receiver"]["software"]["coarsecorrectorenabled"] = not rro.disable_coarse_corrector;
+    j["receiver"]["software"]["freqsyncmethod"] = freqSyncMethodToString(rro.freqsyncMethod);
     j["receiver"]["hardware"]["name"] = input.getDescription();
     j["receiver"]["hardware"]["gain"] = input.getGain();
 
@@ -1077,6 +1084,54 @@ bool WebRadioInterface::send_channel(Socket& s)
             cerr << "Failed to send frequency 500" << endl;
             return false;
         }
+    }
+    return true;
+}
+
+bool WebRadioInterface::handle_fft_window_placement(Socket& s, const std::string& fft_window_placement)
+{
+    cerr << "POST fft window: " << fft_window_placement << endl;
+
+    if (fft_window_placement == "EarliestPeakWithBinning") {
+        rro.fftPlacementMethod = FFTPlacementMethod::EarliestPeakWithBinning;
+    }
+    else if (fft_window_placement == "StrongestPeak") {
+        rro.fftPlacementMethod = FFTPlacementMethod::StrongestPeak;
+    }
+    else if (fft_window_placement == "ThresholdBeforePeak") {
+        rro.fftPlacementMethod = FFTPlacementMethod::ThresholdBeforePeak;
+    }
+    else {
+        string response = http_400;
+        response += http_contenttype_text;
+        response += http_nocache;
+        response += "\r\n";
+        response += "Invalid FFT Window Placement requested.";
+        ssize_t ret = s.send(response.data(), response.size(), MSG_NOSIGNAL);
+        if (ret == -1) {
+            cerr << "Failed to send frequency" << endl;
+            return false;
+        }
+        return true;
+    }
+
+    {
+        lock_guard<mutex> lock(rx_mut);
+        if (!rx) {
+            return false;
+        }
+        rx->setReceiverOptions(rro);
+    }
+
+    string response = http_ok;
+    response += http_contenttype_text;
+    response += http_nocache;
+    response += "\r\n";
+    response += "Switched FFT Window Placement.";
+    ssize_t ret = s.send(response.data(), response.size(), MSG_NOSIGNAL);
+    if (ret == -1) {
+        cerr << "Failed to send frequency" << endl;
+        return false;
     }
     return true;
 }

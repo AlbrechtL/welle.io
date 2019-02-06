@@ -42,6 +42,7 @@
 #include "ofdm-processor.h"
 
 const char* fftPlacementMethodToString(FFTPlacementMethod fft_placement);
+const char* freqSyncMethodToString(FreqsyncMethod method);
 
 class RadioReceiver {
     public:
