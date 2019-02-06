@@ -79,6 +79,20 @@ static string to_hex(uint32_t value)
     return sidstream.str();
 }
 
+static bool send_http_response(Socket& s, const string& statuscode,
+        const string& data, const string& content_type = http_contenttype_text) {
+    string headers = statuscode;
+    headers += content_type;
+    headers += http_nocache;
+    headers += "\r\n";
+    headers += data;
+    ssize_t ret = s.send(headers.data(), headers.size(), MSG_NOSIGNAL);
+    if (ret == -1) {
+        cerr << "Failed to send response " << statuscode << " " << data << endl;
+    }
+    return ret != -1;
+}
+
 WebRadioInterface::WebRadioInterface(CVirtualInput& in,
         int port,
         DecodeSettings ds,
@@ -458,13 +472,7 @@ bool WebRadioInterface::dispatch_client(Socket&& client)
         }
 
         if (not success) {
-            string headers = http_404;
-            headers += http_contenttype_text;
-            headers += http_nocache;
-            headers += "\r\n";
-            headers += "404 Not Found\r\n";
-            headers += "Could not understand request.\r\n";
-            s.send(headers.data(), headers.size(), MSG_NOSIGNAL);
+            send_http_response(s, http_404, "Could not understand request.\r\n");
         }
 
         return success;
@@ -477,18 +485,14 @@ bool WebRadioInterface::send_file(Socket& s,
 {
     FILE *fd = fopen(filename.c_str(), "r");
     if (fd) {
-        string headers = http_ok;
-        headers += content_type;
-        headers += http_nocache;
-        headers += "\r\n";
-        ssize_t ret = s.send(headers.data(), headers.size(), MSG_NOSIGNAL);
-        if (ret == -1) {
+        if (not send_http_response(s, http_ok, "", content_type)) {
             cerr << "Failed to send file headers" << endl;
             fclose(fd);
             return false;
         }
 
         vector<char> data(1024);
+        ssize_t ret = 0;
         do {
             ret = fread(data.data(), 1, data.size(), fd);
             ret = s.send(data.data(), ret, MSG_NOSIGNAL);
@@ -504,17 +508,7 @@ bool WebRadioInterface::send_file(Socket& s,
         return true;
     }
     else {
-        string headers = http_500;
-        headers += http_contenttype_text;
-        headers += http_nocache;
-        headers += "\r\n";
-        headers += "file '" + filename + "' is missing!";
-        ssize_t ret = s.send(headers.data(), headers.size(), MSG_NOSIGNAL);
-        if (ret == -1) {
-            cerr << "Failed to send file headers" << endl;
-            return false;
-        }
-        return true;
+        return send_http_response(s, http_500, "file '" + filename + "' is missing!");
     }
     return false;
 }
@@ -775,19 +769,13 @@ bool WebRadioInterface::send_mux_json(Socket& s)
         j["cir"] = calculate_cir_peaks(last_CIR);
     }
 
-    string headers = http_ok;
-    headers += http_contenttype_json;
-    headers += http_nocache;
-    headers += "\r\n";
-    ssize_t ret = s.send(headers.data(), headers.size(), MSG_NOSIGNAL);
-    if (ret == -1) {
-        cerr << "Failed to send mux.json headers" << endl;
+    if (not send_http_response(s, http_ok, "", http_contenttype_json)) {
         return false;
     }
 
     const auto json_str = j.dump();
 
-    ret = s.send(json_str.c_str(), json_str.size(), MSG_NOSIGNAL);
+    ssize_t ret = s.send(json_str.c_str(), json_str.size(), MSG_NOSIGNAL);
     if (ret == -1) {
         cerr << "Failed to send mux.json data" << endl;
         return false;
@@ -803,12 +791,7 @@ bool WebRadioInterface::send_mp3(Socket& s, const std::string& stream)
             try {
                 auto& ph = phs.at(srv.serviceId);
 
-                string headers = http_ok;
-                headers += http_contenttype_mp3;
-                headers += http_nocache;
-                headers += "\r\n";
-                ssize_t ret = s.send(headers.data(), headers.size(), MSG_NOSIGNAL);
-                if (ret == -1) {
+                if (not send_http_response(s, http_ok, "", http_contenttype_mp3)) {
                     cerr << "Failed to send mp3 headers" << endl;
                     return false;
                 }
@@ -830,14 +813,7 @@ bool WebRadioInterface::send_mp3(Socket& s, const std::string& stream)
                 cerr << "Could not setup mp3 sender for " <<
                     srv.serviceId << ": " << e.what() << endl;
 
-                string headers = http_503;
-                headers += http_contenttype_text;
-                headers += http_nocache;
-                headers += "\r\n";
-                headers += "503 Service Unavailable\r\n";
-                headers += e.what();
-                headers += "\r\n";
-                s.send(headers.data(), headers.size(), MSG_NOSIGNAL);
+                send_http_response(s, http_503, e.what());
                 return false;
             }
         }
@@ -853,13 +829,7 @@ bool WebRadioInterface::send_slide(Socket& s, const std::string& stream)
             const auto mot = wph.second.getMOT();
 
             if (mot.data.empty()) {
-                string headers = http_404;
-                headers += http_contenttype_text;
-                headers += http_nocache;
-                headers += "\r\n";
-                headers += "404 Not Found\r\n";
-                headers += "Slide not available.\r\n";
-                s.send(headers.data(), headers.size(), MSG_NOSIGNAL);
+                send_http_response(s, http_404, "404 Not Found\r\nSlide not available.\r\n");
                 return true;
             }
 
@@ -896,12 +866,7 @@ bool WebRadioInterface::send_slide(Socket& s, const std::string& stream)
 
 bool WebRadioInterface::send_fic(Socket& s)
 {
-    string headers = http_ok;
-    headers += http_contenttype_data;
-    headers += http_nocache;
-    headers += "\r\n";
-    ssize_t ret = s.send(headers.data(), headers.size(), MSG_NOSIGNAL);
-    if (ret == -1) {
+    if (not send_http_response(s, http_ok, "", http_contenttype_data)) {
         cerr << "Failed to send FIC headers" << endl;
         return false;
     }
@@ -911,7 +876,7 @@ bool WebRadioInterface::send_fic(Socket& s)
         while (fib_blocks.empty()) {
             new_fib_block_available.wait_for(lock, chrono::seconds(1));
         }
-        ret = s.send(fib_blocks.front().data(),
+        ssize_t ret = s.send(fib_blocks.front().data(),
                 fib_blocks.front().size(), MSG_NOSIGNAL);
         if (ret == -1) {
             cerr << "Failed to send FIC data" << endl;
@@ -925,12 +890,7 @@ bool WebRadioInterface::send_fic(Socket& s)
 
 bool WebRadioInterface::send_impulseresponse(Socket& s)
 {
-    string headers = http_ok;
-    headers += http_contenttype_data;
-    headers += http_nocache;
-    headers += "\r\n";
-    ssize_t ret = s.send(headers.data(), headers.size(), MSG_NOSIGNAL);
-    if (ret == -1) {
+    if (not send_http_response(s, http_ok, "", http_contenttype_data)) {
         cerr << "Failed to send CIR headers" << endl;
         return false;
     }
@@ -941,7 +901,7 @@ bool WebRadioInterface::send_impulseresponse(Socket& s)
             [](float y) { return 10.0f * log10(y); });
 
     size_t lengthBytes = cir_db.size() * sizeof(float);
-    ret = s.send(cir_db.data(), lengthBytes, MSG_NOSIGNAL);
+    ssize_t ret = s.send(cir_db.data(), lengthBytes, MSG_NOSIGNAL);
     if (ret == -1) {
         cerr << "Failed to send CIR data" << endl;
         return false;
@@ -963,18 +923,13 @@ static bool send_fft_data(Socket& s, DSPCOMPLEX *spectrumBuffer, size_t T_u)
         spectrum[i] = abs(spectrumBuffer[i - half_Tu]);
     }
 
-    string headers = http_ok;
-    headers += http_contenttype_data;
-    headers += http_nocache;
-    headers += "\r\n";
-    ssize_t ret = s.send(headers.data(), headers.size(), MSG_NOSIGNAL);
-    if (ret == -1) {
+    if (not send_http_response(s, http_ok, "", http_contenttype_data)) {
         cerr << "Failed to send spectrum headers" << endl;
         return false;
     }
 
     size_t lengthBytes = spectrum.size() * sizeof(float);
-    ret = s.send(spectrum.data(), lengthBytes, MSG_NOSIGNAL);
+    ssize_t ret = s.send(spectrum.data(), lengthBytes, MSG_NOSIGNAL);
     if (ret == -1) {
         cerr << "Failed to send spectrum data" << endl;
         return false;
@@ -1034,18 +989,13 @@ bool WebRadioInterface::send_constellation(Socket& s)
             phases[i] = y;
         }
 
-        string headers = http_ok;
-        headers += http_contenttype_data;
-        headers += http_nocache;
-        headers += "\r\n";
-        ssize_t ret = s.send(headers.data(), headers.size(), MSG_NOSIGNAL);
-        if (ret == -1) {
+        if (not send_http_response(s, http_ok, "", http_contenttype_data)) {
             cerr << "Failed to send constellation headers" << endl;
             return false;
         }
 
         size_t lengthBytes = phases.size() * sizeof(float);
-        ret = s.send(phases.data(), lengthBytes, MSG_NOSIGNAL);
+        ssize_t ret = s.send(phases.data(), lengthBytes, MSG_NOSIGNAL);
         if (ret == -1) {
             cerr << "Failed to send constellation data" << endl;
             return false;
