@@ -6,12 +6,12 @@
     <message>
         <location filename="../QML/settingpages/AirspySettings.qml" line="12"/>
         <source>Airspy settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Airspy-Einstellungen</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/AirspySettings.qml" line="25"/>
         <source>Enable bias tee</source>
-        <translation type="unfinished"></translation>
+        <translation>Bias tee aktivieren</translation>
     </message>
 </context>
 <context>
@@ -322,49 +322,49 @@
 <context>
     <name>CGUIHelper</name>
     <message>
-        <location filename="../gui_helper.cpp" line="72"/>
+        <location filename="../gui_helper.cpp" line="73"/>
         <source>Mi&amp;nimize</source>
-        <translation type="unfinished"></translation>
+        <translation>Mi&amp;nimieren</translation>
     </message>
     <message>
-        <location filename="../gui_helper.cpp" line="75"/>
+        <location filename="../gui_helper.cpp" line="76"/>
         <source>Ma&amp;ximize</source>
-        <translation type="unfinished"></translation>
+        <translation>Ma&amp;ximieren</translation>
     </message>
     <message>
-        <location filename="../gui_helper.cpp" line="78"/>
+        <location filename="../gui_helper.cpp" line="79"/>
         <source>&amp;Restore</source>
-        <translation type="unfinished"></translation>
+        <translation>Wiede&amp;rherstellen</translation>
     </message>
     <message>
-        <location filename="../gui_helper.cpp" line="81"/>
+        <location filename="../gui_helper.cpp" line="82"/>
         <source>&amp;Quit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui_helper.cpp" line="149"/>
-        <source>version</source>
-        <translation type="unfinished">Version</translation>
+        <translation type="unfinished">Beenden (&amp;Quit)</translation>
     </message>
     <message>
         <location filename="../gui_helper.cpp" line="150"/>
-        <source>Git revision</source>
-        <translation type="unfinished">Git Revision</translation>
+        <source>version</source>
+        <translation>Version</translation>
     </message>
     <message>
         <location filename="../gui_helper.cpp" line="151"/>
-        <source>Build on</source>
-        <translation type="unfinished">Übersetzt am</translation>
+        <source>Git revision</source>
+        <translation>Git-Revision</translation>
     </message>
     <message>
         <location filename="../gui_helper.cpp" line="152"/>
-        <source>QT version</source>
-        <translation type="unfinished">QT Version</translation>
+        <source>Build on</source>
+        <translation>Übersetzt am</translation>
     </message>
     <message>
-        <location filename="../gui_helper.cpp" line="260"/>
+        <location filename="../gui_helper.cpp" line="153"/>
+        <source>QT version</source>
+        <translation>Qt-Version</translation>
+    </message>
+    <message>
+        <location filename="../gui_helper.cpp" line="279"/>
         <source>The program will keep running in the system tray. To terminate the program, choose &lt;b&gt;Quit&lt;/b&gt; in the context menu of the system tray entry.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Programm bleibt im Hintergrund aktiv. Um es gänzlich zu schließen, wählen Sie &lt;b&gt;Beenden&lt;/b&gt;.</translation>
     </message>
 </context>
 <context>
@@ -460,7 +460,7 @@
     <message>
         <location filename="../QML/settingpages/ChannelSettings.qml" line="26"/>
         <source>Automatic start playing last station</source>
-        <translation type="unfinished"></translation>
+        <translation>Spielt das zuletzt gehörte Programm</translation>
     </message>
 </context>
 <context>
@@ -468,17 +468,17 @@
     <message>
         <location filename="../QML/expertviews/ConstellationGraph.qml" line="10"/>
         <source>Constellation Diagram</source>
-        <translation type="unfinished"></translation>
+        <translation>Konstellationsdiagramm</translation>
     </message>
     <message>
         <location filename="../QML/expertviews/ConstellationGraph.qml" line="40"/>
         <source>DQPSK Angle [Degree]</source>
-        <translation type="unfinished"></translation>
+        <translation>DQPSK Winkel [Grad]</translation>
     </message>
     <message>
         <location filename="../QML/expertviews/ConstellationGraph.qml" line="47"/>
         <source>Subcarrier</source>
-        <translation type="unfinished"></translation>
+        <translation>Unterträger</translation>
     </message>
 </context>
 <context>
@@ -486,47 +486,47 @@
     <message>
         <location filename="../../backend/dab-constants.cpp" line="145"/>
         <source>News</source>
-        <translation type="unfinished">Nachrichten</translation>
+        <translation>Nachrichten</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="146"/>
         <source>Current Affairs</source>
-        <translation type="unfinished">Aktuelle Nachrichten</translation>
+        <translation>Aktuelle Nachrichten</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="147"/>
         <source>Information</source>
-        <translation type="unfinished">Informationen</translation>
+        <translation>Informationen</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="148"/>
         <source>Sport</source>
-        <translation type="unfinished">Sport</translation>
+        <translation>Sport</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="149"/>
         <source>Education</source>
-        <translation type="unfinished">Bildung</translation>
+        <translation>Bildung</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="150"/>
         <source>Drama</source>
-        <translation type="unfinished">Drama</translation>
+        <translation>Drama</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="151"/>
         <source>Arts</source>
-        <translation type="unfinished">Kunst</translation>
+        <translation>Kunst</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="152"/>
         <source>Science</source>
-        <translation type="unfinished">Forschung</translation>
+        <translation>Forschung</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="153"/>
         <source>Talk</source>
-        <translation type="unfinished">Talk</translation>
+        <translation>Talk</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="154"/>
@@ -556,22 +556,22 @@
     <message>
         <location filename="../../backend/dab-constants.cpp" line="159"/>
         <source>Other Music</source>
-        <translation type="unfinished"></translation>
+        <translation>Andere Musik</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="160"/>
         <source>Weather</source>
-        <translation type="unfinished">Wetter</translation>
+        <translation>Wetter</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="161"/>
         <source>Finance</source>
-        <translation type="unfinished">Finanzen</translation>
+        <translation>Finanzen</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="162"/>
         <source>Children&apos;s</source>
-        <translation type="unfinished">Kinder</translation>
+        <translation>Kinder</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="163"/>
@@ -581,7 +581,7 @@
     <message>
         <location filename="../../backend/dab-constants.cpp" line="164"/>
         <source>Religion</source>
-        <translation type="unfinished">Religion</translation>
+        <translation>Religion</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="165"/>
@@ -591,22 +591,22 @@
     <message>
         <location filename="../../backend/dab-constants.cpp" line="166"/>
         <source>Travel</source>
-        <translation type="unfinished">Reise</translation>
+        <translation>Reise</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="167"/>
         <source>Leisure</source>
-        <translation type="unfinished">Freizeit</translation>
+        <translation>Freizeit</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="168"/>
         <source>Jazz and Blues</source>
-        <translation type="unfinished">Jazz und Blues</translation>
+        <translation>Jazz und Blues</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="169"/>
         <source>Country Music</source>
-        <translation type="unfinished">Country</translation>
+        <translation>Country</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="170"/>
@@ -616,283 +616,283 @@
     <message>
         <location filename="../../backend/dab-constants.cpp" line="171"/>
         <source>Oldies Music</source>
-        <translation type="unfinished">Oldies</translation>
+        <translation>Oldies</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="172"/>
         <source>Folk Music</source>
-        <translation type="unfinished"></translation>
+        <translation>Volksmusik</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="173"/>
         <source>Documentary</source>
-        <translation type="unfinished"></translation>
+        <translation>Dokumentation</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="174"/>
         <source>entry 30 not used</source>
-        <translation type="unfinished"></translation>
+        <translation>Eintrag 30 nicht verwendet</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="175"/>
         <source>entry 31 not used</source>
-        <translation type="unfinished"></translation>
+        <translation>Eintrag 31 nicht verwendet</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="176"/>
         <location filename="../../backend/dab-constants.cpp" line="293"/>
         <source>UNKNOWN</source>
-        <translation type="unfinished"></translation>
+        <translation>UNBEKANNT</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="190"/>
         <source>Albanian</source>
-        <translation type="unfinished">Albanisch</translation>
+        <translation>Albanisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="191"/>
         <source>Breton</source>
-        <translation type="unfinished">Bretonisch</translation>
+        <translation>Bretonisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="192"/>
         <source>Catalan</source>
-        <translation type="unfinished">Katalanisch</translation>
+        <translation>Katalanisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="193"/>
         <source>Croatian</source>
-        <translation type="unfinished">Kroatisch</translation>
+        <translation>Kroatisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="194"/>
         <source>Welsh</source>
-        <translation type="unfinished">Wallisisch</translation>
+        <translation>Wallisisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="195"/>
         <source>Czech</source>
-        <translation type="unfinished">Tschechisch</translation>
+        <translation>Tschechisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="196"/>
         <source>Danish</source>
-        <translation type="unfinished">Dänisch</translation>
+        <translation>Dänisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="197"/>
         <source>German</source>
-        <translation type="unfinished">Deutsch</translation>
+        <translation>Deutsch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="198"/>
         <source>English</source>
-        <translation type="unfinished">Englisch</translation>
+        <translation>Englisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="199"/>
         <source>Spanish</source>
-        <translation type="unfinished">Spanisch</translation>
+        <translation>Spanisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="200"/>
         <source>Esperanto</source>
-        <translation type="unfinished">Esperanto</translation>
+        <translation>Esperanto</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="201"/>
         <source>Estonian</source>
-        <translation type="unfinished">Estnisch</translation>
+        <translation>Estnisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="202"/>
         <source>Basque</source>
-        <translation type="unfinished">Baskisch</translation>
+        <translation>Baskisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="203"/>
         <source>Faroese</source>
-        <translation type="unfinished">Färöisch</translation>
+        <translation>Färöisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="204"/>
         <source>French</source>
-        <translation type="unfinished">Französisch</translation>
+        <translation>Französisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="205"/>
         <source>Frisian</source>
-        <translation type="unfinished">Friesisch</translation>
+        <translation>Friesisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="206"/>
         <source>Irish</source>
-        <translation type="unfinished">Irisch</translation>
+        <translation>Irisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="207"/>
         <source>Gaelic</source>
-        <translation type="unfinished">Gälisch</translation>
+        <translation>Gälisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="208"/>
         <source>Galician</source>
-        <translation type="unfinished">Galicisch</translation>
+        <translation>Galizisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="209"/>
         <source>Icelandic</source>
-        <translation type="unfinished">Isländisch</translation>
+        <translation>Isländisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="210"/>
         <source>Italian</source>
-        <translation type="unfinished">Italienisch</translation>
+        <translation>Italienisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="211"/>
         <source>Lappish</source>
-        <translation type="unfinished">Lappisch</translation>
+        <translation>Lappländisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="212"/>
         <source>Latin</source>
-        <translation type="unfinished">Latein</translation>
+        <translation>Latein</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="213"/>
         <source>Latvian</source>
-        <translation type="unfinished">Lettisch</translation>
+        <translation>Lettisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="214"/>
         <source>Luxembourgian</source>
-        <translation type="unfinished">Luxemburgisch</translation>
+        <translation>Luxemburgisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="215"/>
         <source>Lithuanian</source>
-        <translation type="unfinished">Litauisch</translation>
+        <translation>Litauisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="216"/>
         <source>Hungarian</source>
-        <translation type="unfinished">Ungarisch</translation>
+        <translation>Ungarisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="217"/>
         <source>Maltese</source>
-        <translation type="unfinished">Maltesisch</translation>
+        <translation>Maltesisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="218"/>
         <source>Dutch</source>
-        <translation type="unfinished">Niederländisch</translation>
+        <translation>Niederländisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="219"/>
         <source>Norwegian</source>
-        <translation type="unfinished">Norwegisch</translation>
+        <translation>Norwegisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="220"/>
         <source>Occitan</source>
-        <translation type="unfinished">Okzitanisch</translation>
+        <translation>Provenzalisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="221"/>
         <source>Polish</source>
-        <translation type="unfinished">Polnisch</translation>
+        <translation>Polnisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="222"/>
         <source>Portuguese</source>
-        <translation type="unfinished">Portugiesisch</translation>
+        <translation>Portugiesisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="223"/>
         <source>Romanian</source>
-        <translation type="unfinished">Rumänisch</translation>
+        <translation>Rumänisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="224"/>
         <source>Romansh</source>
-        <translation type="unfinished">Rätoromanisch</translation>
+        <translation>Rätoromanisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="225"/>
         <source>Serbian</source>
-        <translation type="unfinished">Serbisch</translation>
+        <translation>Serbisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="226"/>
         <source>Slovak</source>
-        <translation type="unfinished">Slowakisch</translation>
+        <translation>Slowakisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="227"/>
         <source>Slovene</source>
-        <translation type="unfinished">Slowenisch</translation>
+        <translation>Slowenisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="228"/>
         <source>Finnish</source>
-        <translation type="unfinished">Finnisch</translation>
+        <translation>Finnisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="229"/>
         <source>Swedish</source>
-        <translation type="unfinished">Schwedisch</translation>
+        <translation>Schwedisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="230"/>
         <source>Turkish</source>
-        <translation type="unfinished">Türkisch</translation>
+        <translation>Türkisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="231"/>
         <source>Flemish</source>
-        <translation type="unfinished">Flämisch</translation>
+        <translation>Flämisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="232"/>
         <source>Walloon</source>
-        <translation type="unfinished">Wallonisch</translation>
+        <translation>Wallonisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="233"/>
         <source>Background sound/clean feed</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Hintergrundaudio/Original</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="234"/>
         <source>Zulu</source>
-        <translation type="unfinished"></translation>
+        <translation>Zulu</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="235"/>
         <source>Vietnamese</source>
-        <translation type="unfinished"></translation>
+        <translation>Vietnamesisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="236"/>
         <source>Uzbek</source>
-        <translation type="unfinished"></translation>
+        <translation>Usbekisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="237"/>
         <source>Urdu</source>
-        <translation type="unfinished"></translation>
+        <translation>Urdu</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="238"/>
         <source>Ukranian</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukrainisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="239"/>
         <source>Thai</source>
-        <translation type="unfinished"></translation>
+        <translation>Thailändisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="240"/>
@@ -902,82 +902,82 @@
     <message>
         <location filename="../../backend/dab-constants.cpp" line="241"/>
         <source>Tatar</source>
-        <translation type="unfinished"></translation>
+        <translation>Tatarisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="242"/>
         <source>Tamil</source>
-        <translation type="unfinished"></translation>
+        <translation>Tamil</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="243"/>
         <source>Tadzhik</source>
-        <translation type="unfinished"></translation>
+        <translation>Tadschikisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="244"/>
         <source>Swahili</source>
-        <translation type="unfinished"></translation>
+        <translation>Suaheli</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="245"/>
         <source>Sranan Tongo</source>
-        <translation type="unfinished"></translation>
+        <translation>Sranan Tongo</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="246"/>
         <source>Somali</source>
-        <translation type="unfinished"></translation>
+        <translation>Somalisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="247"/>
         <source>Sinhalese</source>
-        <translation type="unfinished"></translation>
+        <translation>Singhalesisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="248"/>
         <source>Shona</source>
-        <translation type="unfinished"></translation>
+        <translation>Shona</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="249"/>
         <source>Serbo-Croat</source>
-        <translation type="unfinished"></translation>
+        <translation>Serbo-Kroatisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="250"/>
         <source>Rusyn</source>
-        <translation type="unfinished"></translation>
+        <translation>Ruthenisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="251"/>
         <source>Russian</source>
-        <translation type="unfinished"></translation>
+        <translation>Russisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="252"/>
         <source>Quechua</source>
-        <translation type="unfinished"></translation>
+        <translation>Ketschua</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="253"/>
         <source>Pushtu</source>
-        <translation type="unfinished"></translation>
+        <translation>Paschtunisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="254"/>
         <source>Punjabi</source>
-        <translation type="unfinished"></translation>
+        <translation>Pandschabisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="255"/>
         <source>Persian</source>
-        <translation type="unfinished"></translation>
+        <translation>Persisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="256"/>
         <source>Papiamento</source>
-        <translation type="unfinished"></translation>
+        <translation>Papiamento</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="257"/>
@@ -987,87 +987,87 @@
     <message>
         <location filename="../../backend/dab-constants.cpp" line="258"/>
         <source>Nepali</source>
-        <translation type="unfinished"></translation>
+        <translation>Napalesisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="259"/>
         <source>Ndebele</source>
-        <translation type="unfinished"></translation>
+        <translation>Ndebele</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="260"/>
         <source>Marathi</source>
-        <translation type="unfinished"></translation>
+        <translation>Marathi</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="261"/>
         <source>Moldavian</source>
-        <translation type="unfinished"></translation>
+        <translation>Moldawisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="262"/>
         <source>Malaysian</source>
-        <translation type="unfinished"></translation>
+        <translation>Malaysisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="263"/>
         <source>Malagasay</source>
-        <translation type="unfinished"></translation>
+        <translation>Madagassisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="264"/>
         <source>Macedonian</source>
-        <translation type="unfinished"></translation>
+        <translation>Mazedonisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="265"/>
         <source>Laotian</source>
-        <translation type="unfinished"></translation>
+        <translation>Laotisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="266"/>
         <source>Korean</source>
-        <translation type="unfinished"></translation>
+        <translation>Koreanisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="267"/>
         <source>Khmer</source>
-        <translation type="unfinished"></translation>
+        <translation>Khmer</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="268"/>
         <source>Kazakh</source>
-        <translation type="unfinished"></translation>
+        <translation>Kasachisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="269"/>
         <source>Kannada</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Kannada</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="270"/>
         <source>Japanese</source>
-        <translation type="unfinished"></translation>
+        <translation>Japanisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="271"/>
         <source>Indonesian</source>
-        <translation type="unfinished"></translation>
+        <translation>Indonesisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="272"/>
         <source>Hindi</source>
-        <translation type="unfinished"></translation>
+        <translation>Hindi</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="273"/>
         <source>Hebrew</source>
-        <translation type="unfinished"></translation>
+        <translation>Hebräisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="274"/>
         <source>Hausa</source>
-        <translation type="unfinished"></translation>
+        <translation>Hausa</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="275"/>
@@ -1082,12 +1082,12 @@
     <message>
         <location filename="../../backend/dab-constants.cpp" line="277"/>
         <source>Greek</source>
-        <translation type="unfinished"></translation>
+        <translation>Griechisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="278"/>
         <source>Georgian</source>
-        <translation type="unfinished"></translation>
+        <translation>Georgisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="279"/>
@@ -1107,27 +1107,27 @@
     <message>
         <location filename="../../backend/dab-constants.cpp" line="282"/>
         <source>Chinese</source>
-        <translation type="unfinished"></translation>
+        <translation>Chinesisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="283"/>
         <source>Burmese</source>
-        <translation type="unfinished"></translation>
+        <translation>Burmesisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="284"/>
         <source>Bulgarian</source>
-        <translation type="unfinished"></translation>
+        <translation>Bulgarisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="285"/>
         <source>Bengali</source>
-        <translation type="unfinished"></translation>
+        <translation>Bengali</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="286"/>
         <source>Belorussian</source>
-        <translation type="unfinished"></translation>
+        <translation>Weißrussisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="287"/>
@@ -1137,7 +1137,7 @@
     <message>
         <location filename="../../backend/dab-constants.cpp" line="288"/>
         <source>Azerbaijani</source>
-        <translation type="unfinished"></translation>
+        <translation>Aserbeidschanisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="289"/>
@@ -1147,12 +1147,12 @@
     <message>
         <location filename="../../backend/dab-constants.cpp" line="290"/>
         <source>Armenian</source>
-        <translation type="unfinished"></translation>
+        <translation>Armenisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="291"/>
         <source>Arabic</source>
-        <translation type="unfinished"></translation>
+        <translation>Arabisch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="292"/>
@@ -1165,12 +1165,12 @@
     <message>
         <location filename="../QML/settingpages/ExpertSettings.qml" line="34"/>
         <source>Global</source>
-        <translation type="unfinished"></translation>
+        <translation>Global</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/ExpertSettings.qml" line="38"/>
         <source>Expert mode</source>
-        <translation type="unfinished">Expertenmodus</translation>
+        <translation>Expertenmodus</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/ExpertSettings.qml" line="44"/>
@@ -1190,7 +1190,7 @@
     <message>
         <location filename="../QML/settingpages/ExpertSettings.qml" line="78"/>
         <source>Enable TII decoding to console log (increases CPU usage)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">TII-Dekoder-Log auf der Konsole aktivieren (erhöht CPU-Last)</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/ExpertSettings.qml" line="89"/>
@@ -1254,22 +1254,22 @@
     <message>
         <location filename="../QML/settingpages/GlobalSettings.qml" line="64"/>
         <source>Global settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Globale Einstellungen</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/GlobalSettings.qml" line="68"/>
         <source>Full screen mode</source>
-        <translation type="unfinished">Vollbildmodus</translation>
+        <translation>Vollbildmodus</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/GlobalSettings.qml" line="75"/>
         <source>Global receiver settings</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Allgemeine Geräteeinstellungen</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/GlobalSettings.qml" line="83"/>
         <source>Automatic RF gain</source>
-        <translation type="unfinished">Auto HF-Verstärkung</translation>
+        <translation type="unfinished">Automatische HF-Verstärkung</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/GlobalSettings.qml" line="103"/>
@@ -1284,25 +1284,25 @@
     <message>
         <location filename="../QML/settingpages/GlobalSettings.qml" line="128"/>
         <source>Auto detect</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Automatische Erkennung</translation>
     </message>
 </context>
 <context>
     <name>ImpulseResponseGraph</name>
     <message>
-        <location filename="../QML/expertviews/ImpulseResponseGraph.qml" line="10"/>
+        <location filename="../QML/expertviews/ImpulseResponseGraph.qml" line="12"/>
         <source>Impulse Response</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/expertviews/ImpulseResponseGraph.qml" line="49"/>
+        <location filename="../QML/expertviews/ImpulseResponseGraph.qml" line="20"/>
         <source>Amplitude</source>
         <translation type="unfinished">Amplitude</translation>
     </message>
     <message>
-        <location filename="../QML/expertviews/ImpulseResponseGraph.qml" line="55"/>
+        <location filename="../QML/expertviews/ImpulseResponseGraph.qml" line="21"/>
         <source>Samples</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Samples</translation>
     </message>
 </context>
 <context>
@@ -1310,82 +1310,82 @@
     <message>
         <location filename="../QML/MainView.qml" line="158"/>
         <source>Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Einstellungen</translation>
     </message>
     <message>
         <location filename="../QML/MainView.qml" line="163"/>
         <source>Expert Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Experteneinstellungen</translation>
     </message>
     <message>
         <location filename="../QML/MainView.qml" line="168"/>
         <source>About</source>
-        <translation type="unfinished"></translation>
+        <translation>Über</translation>
     </message>
     <message>
         <location filename="../QML/MainView.qml" line="173"/>
         <source>Exit</source>
-        <translation type="unfinished"></translation>
+        <translation>Beenden</translation>
     </message>
     <message>
         <location filename="../QML/MainView.qml" line="209"/>
         <source>All stations</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Stationen</translation>
     </message>
     <message>
         <location filename="../QML/MainView.qml" line="209"/>
         <source>Favorites</source>
-        <translation type="unfinished"></translation>
+        <translation>Favoriten</translation>
     </message>
     <message>
         <location filename="../QML/MainView.qml" line="240"/>
         <source>Start station scan</source>
-        <translation type="unfinished"></translation>
+        <translation>Suchlauf starten</translation>
     </message>
     <message>
         <location filename="../QML/MainView.qml" line="252"/>
         <source>Stop station scan</source>
-        <translation type="unfinished"></translation>
+        <translation>Suchlauf stoppen</translation>
     </message>
     <message>
         <location filename="../QML/MainView.qml" line="264"/>
         <source>Clear station list</source>
-        <translation type="unfinished">Lösche Senderliste</translation>
+        <translation>Lösche Senderliste</translation>
     </message>
     <message>
         <location filename="../QML/MainView.qml" line="272"/>
         <source>Station settings</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sendereinstellungen</translation>
     </message>
     <message>
         <location filename="../QML/MainView.qml" line="282"/>
         <source>No stations in list</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Keine Sender vorhanden</translation>
     </message>
     <message>
         <location filename="../QML/MainView.qml" line="319"/>
         <source>Manual channel</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Manueller Kanal</translation>
     </message>
     <message>
         <location filename="../QML/MainView.qml" line="374"/>
         <source>Service Overview</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Senderübersicht</translation>
     </message>
     <message>
         <location filename="../QML/MainView.qml" line="380"/>
         <source>Service Details</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Senderdetails</translation>
     </message>
     <message>
         <location filename="../QML/MainView.qml" line="386"/>
         <source>MOT Slide Show</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">MOT Slideshow</translation>
     </message>
     <message>
         <location filename="../QML/MainView.qml" line="392"/>
         <source>Spectrum</source>
-        <translation type="unfinished">Spektrum</translation>
+        <translation>Spektrum</translation>
     </message>
     <message>
         <location filename="../QML/MainView.qml" line="398"/>
@@ -1395,22 +1395,22 @@
     <message>
         <location filename="../QML/MainView.qml" line="404"/>
         <source>Constellation Diagram</source>
-        <translation type="unfinished"></translation>
+        <translation>Konstellationsdiagramm</translation>
     </message>
     <message>
         <location filename="../QML/MainView.qml" line="410"/>
         <source>Null Symbol</source>
-        <translation type="unfinished"></translation>
+        <translation>Nullsymbol</translation>
     </message>
     <message>
         <location filename="../QML/MainView.qml" line="416"/>
         <source>Console Output</source>
-        <translation type="unfinished"></translation>
+        <translation>Konsolenausgabe</translation>
     </message>
     <message>
         <location filename="../QML/MainView.qml" line="422"/>
         <source>RAW Recorder</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Rohdatenaufzeichnung</translation>
     </message>
 </context>
 <context>
@@ -1418,7 +1418,7 @@
     <message>
         <location filename="../QML/MotView.qml" line="8"/>
         <source>MOT Slide Show</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">MOT Slideshow</translation>
     </message>
 </context>
 <context>
@@ -1426,17 +1426,16 @@
     <message>
         <location filename="../QML/expertviews/NullSymbolGraph.qml" line="10"/>
         <source>Null Symbol</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nullsymbol</translation>
     </message>
     <message>
-        <location filename="../QML/expertviews/NullSymbolGraph.qml" line="49"/>
+        <location filename="../QML/expertviews/NullSymbolGraph.qml" line="18"/>
         <source>Amplitude</source>
-        <translation type="unfinished">Amplitude</translation>
+        <translation>Amplitude</translation>
     </message>
     <message>
-        <location filename="../QML/expertviews/NullSymbolGraph.qml" line="55"/>
         <source>Frequency</source>
-        <translation type="unfinished">Frequenz</translation>
+        <translation type="obsolete">Frequenz</translation>
     </message>
 </context>
 <context>
@@ -1483,12 +1482,12 @@
     <message>
         <location filename="../QML/settingpages/RTLSDRSettings.qml" line="12"/>
         <source>rtl-sdr settings</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">rtl-sdr Einstellungen</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/RTLSDRSettings.qml" line="25"/>
         <source>Enable bias tee (not from all dongles supported)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Bias Tee aktivieren (nicht von allen Geräten unterstützt)</translation>
     </message>
 </context>
 <context>
@@ -1496,22 +1495,22 @@
     <message>
         <location filename="../QML/settingpages/RTLTCPSettings.qml" line="11"/>
         <source>rtl-tcp settings</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">rtl-tcp Einstellungen</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/RTLTCPSettings.qml" line="25"/>
         <source>IP address</source>
-        <translation type="unfinished">IP-Adresse</translation>
+        <translation>IP-Adresse</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/RTLTCPSettings.qml" line="55"/>
         <source>IP port</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">IP-Port</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/RTLTCPSettings.qml" line="67"/>
         <source>Apply</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Übernehmen</translation>
     </message>
 </context>
 <context>
@@ -1527,22 +1526,22 @@
     <message>
         <location filename="../QML/settingpages/RawFileSettings.qml" line="12"/>
         <source>RAW file settings</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Einstellungen für Rohdaten</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/RawFileSettings.qml" line="37"/>
         <source>Open RAW file</source>
-        <translation type="unfinished"></translation>
+        <translation>Öffne Rohdatendatei</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/RawFileSettings.qml" line="53"/>
         <source>Selected file:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgewählte Datei:</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/RawFileSettings.qml" line="64"/>
         <source>Apply</source>
-        <translation type="unfinished"></translation>
+        <translation>Übernehmen</translation>
     </message>
 </context>
 <context>
@@ -1550,12 +1549,12 @@
     <message>
         <location filename="../QML/expertviews/RawRecorder.qml" line="11"/>
         <source>I/Q RAW Recorder (experimental)</source>
-        <translation type="unfinished"></translation>
+        <translation>Rohdaten (I/O) aufnehmen (experimentell)</translation>
     </message>
     <message>
         <location filename="../QML/expertviews/RawRecorder.qml" line="19"/>
         <source>Ring buffer length [s]</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ring buffer Länge [s]</translation>
     </message>
     <message>
         <location filename="../QML/expertviews/RawRecorder.qml" line="28"/>
@@ -1578,7 +1577,7 @@
     <message>
         <location filename="../QML/expertviews/ServiceDetails.qml" line="17"/>
         <source>Device</source>
-        <translation type="unfinished">Radioempfänger</translation>
+        <translation type="unfinished">Gerät</translation>
     </message>
     <message>
         <location filename="../QML/expertviews/ServiceDetails.qml" line="22"/>
@@ -1639,7 +1638,7 @@
     <message>
         <location filename="../QML/expertviews/ServiceDetails.qml" line="95"/>
         <source>DAB date and time</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">DAB Datum und Uhrzeit</translation>
     </message>
 </context>
 <context>
@@ -1702,12 +1701,12 @@
     <message>
         <location filename="../QML/settingpages/SoapySDRSettings.qml" line="11"/>
         <source>SoapySDR settings</source>
-        <translation type="unfinished"></translation>
+        <translation>SoapySDR Einstellungen</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/SoapySDRSettings.qml" line="24"/>
         <source>Antenna</source>
-        <translation type="unfinished"></translation>
+        <translation>Antenne</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/SoapySDRSettings.qml" line="30"/>
@@ -1737,25 +1736,24 @@
     <message>
         <location filename="../QML/settingpages/SoapySDRSettings.qml" line="60"/>
         <source>Apply</source>
-        <translation type="unfinished"></translation>
+        <translation>Übernehmen</translation>
     </message>
 </context>
 <context>
     <name>SpectrumGraph</name>
     <message>
-        <location filename="../QML/expertviews/SpectrumGraph.qml" line="10"/>
+        <location filename="../QML/expertviews/SpectrumGraph.qml" line="12"/>
         <source>Spectrum</source>
-        <translation type="unfinished">Spektrum</translation>
+        <translation>Spektrum</translation>
     </message>
     <message>
-        <location filename="../QML/expertviews/SpectrumGraph.qml" line="50"/>
+        <location filename="../QML/expertviews/SpectrumGraph.qml" line="21"/>
         <source>Amplitude</source>
-        <translation type="unfinished">Amplitude</translation>
+        <translation>Amplitude</translation>
     </message>
     <message>
-        <location filename="../QML/expertviews/SpectrumGraph.qml" line="56"/>
         <source>Frequency</source>
-        <translation type="unfinished">Frequenz</translation>
+        <translation type="obsolete">Frequenz</translation>
     </message>
 </context>
 <context>
@@ -1778,7 +1776,7 @@
     <message>
         <location filename="../QML/expertviews/TextOutputView.qml" line="11"/>
         <source>Console Output</source>
-        <translation type="unfinished"></translation>
+        <translation>Konsolenausgabe</translation>
     </message>
 </context>
 <context>
@@ -1797,7 +1795,35 @@
     <message>
         <location filename="../QML/components/ViewBaseFrame.qml" line="60"/>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>Entfernen</translation>
+    </message>
+</context>
+<context>
+    <name>WSpectrum</name>
+    <message>
+        <location filename="../QML/components/WSpectrum.qml" line="15"/>
+        <source>Amplitude</source>
+        <translation>Amplitude</translation>
+    </message>
+    <message>
+        <location filename="../QML/components/WSpectrum.qml" line="16"/>
+        <source>Frequency</source>
+        <translation>Frequenz</translation>
+    </message>
+    <message>
+        <location filename="../QML/components/WSpectrum.qml" line="39"/>
+        <source>Waterfall</source>
+        <translation>Wasserfall</translation>
+    </message>
+    <message>
+        <location filename="../QML/components/WSpectrum.qml" line="39"/>
+        <source>experimental</source>
+        <translation>experimentell</translation>
+    </message>
+    <message>
+        <location filename="../QML/components/WSpectrum.qml" line="101"/>
+        <source>Sensitivity</source>
+        <translation>Empfindlichkeit</translation>
     </message>
 </context>
 <context>
@@ -1807,28 +1833,28 @@
         <translation type="vanished">GUI Sprache festlegen</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="137"/>
+        <location filename="../main.cpp" line="141"/>
         <source>Records DAB frames (*.mp2) or DAB+ superframes with RS coding (*.dab). This file can be used to analyse X-PAD data with XPADxpert</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main.cpp" line="138"/>
-        <location filename="../main.cpp" line="143"/>
-        <source>File name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Speichert DAB Frames (*.mp2) oder DAB+ Superframes mit RS Kodierung (*.dab). Diese Datei kann zur Analyse der X-PAD-Daten in XPADxpert verwendet werden</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="142"/>
-        <source>Redirects all log output texts to a file.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../main.cpp" line="147"/>
-        <source>Sets the GUI language according to the ISO country codes (e.g. de_DE)</source>
-        <translation type="unfinished"></translation>
+        <source>File name</source>
+        <translation>Dateiname</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="148"/>
+        <location filename="../main.cpp" line="146"/>
+        <source>Redirects all log output texts to a file.</source>
+        <translation type="unfinished">Leitet alle Log-Meldungen in eine Datei um</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="151"/>
+        <source>Sets the GUI language according to the ISO country codes (e.g. de_DE)</source>
+        <translation>GUI-Sprache gemäß ISO Ländercode setzen (zB de_DE)</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="152"/>
         <source>Language</source>
         <translation>Sprache</translation>
     </message>
