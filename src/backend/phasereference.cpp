@@ -237,11 +237,14 @@ int32_t PhaseReference::findIndex(DSPCOMPLEX *v,
                 }
             }
 
-            const float thresh = global_max / 2;
-
-            for (size_t i = 0; i + windowsize < Tu; i++) {
-                if (peak_averages[i + windowsize] > thresh) {
-                    return i;
+            // First verify that there is a peak
+            const float required_peak_over_average = 3;
+            if (global_max > required_peak_over_average * sum / Tu) {
+                const float thresh = global_max / 2;
+                for (size_t i = 0; i + windowsize < Tu; i++) {
+                    if (peak_averages[i + windowsize] > thresh) {
+                        return i;
+                    }
                 }
             }
             return -1;
