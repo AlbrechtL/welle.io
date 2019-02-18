@@ -46,6 +46,34 @@
 
 #define AUDIOBUFFERSIZE 32768
 
+static QString serialise_serviceid(quint32 serviceid) {
+    return QString::asprintf("%x", serviceid);
+}
+
+static quint32 deserialise_serviceid(const char *input)
+{
+    long value = 0;
+    errno = 0;
+
+    char* endptr = nullptr;
+    value = strtol(input, &endptr, 16);
+
+    if ((value == LONG_MIN or value == LONG_MAX) and errno == ERANGE) {
+        return 0;
+    }
+    else if (value == 0 and errno != 0) {
+        return 0;
+    }
+    else if (input == endptr) {
+        return 0;
+    }
+    else if (*endptr != '\0') {
+        return 0;
+    }
+
+    return value;
+}
+
 CRadioController::CRadioController(QVariantMap& commandLineOptions, DABParams& params, QObject *parent)
 //#ifdef Q_OS_ANDROID
 //    : CRadioControllerSource(parent)
@@ -61,6 +89,7 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, DABParams& p
     resetTechnicalData();
 
     // Init timers
+    connect(&labelTimer, &QTimer::timeout, this, &CRadioController::labelTimerTimeout);
     connect(&stationTimer, &QTimer::timeout, this, &CRadioController::stationTimerTimeout);
     connect(&channelTimer, &QTimer::timeout, this, &CRadioController::channelTimerTimeout);
 
@@ -156,24 +185,25 @@ void CRadioController::setDeviceParam(QString param, QString value)
     }
 }
 
-void CRadioController::play(QString Channel, QString Station)
+void CRadioController::play(QString channel, quint32 service)
 {
-    if(Channel == "")
+    if (channel == "") {
         return;
+    }
 
     qDebug() << "RadioController:" << "Play channel:"
-             << Channel << "station:" << Station;
+             << channel << "station:" << service;
 
     if (isChannelScan == true) {
         stopScan();
     }
 
     deviceRestart();
-    setChannel(Channel, false);
-    setStation(Station);
+    setChannel(channel, false);
+    setService(service);
 
     QSettings settings;
-    settings.setValue("lastchannel", QStringList() << Station << Channel);
+    settings.setValue("lastchannel", QStringList() << serialise_serviceid(service) << channel);
 }
 
 void CRadioController::stop()
@@ -185,18 +215,18 @@ void CRadioController::stop()
         throw std::runtime_error("device is null in file " + std::string(__FILE__) +":"+ std::to_string(__LINE__));
 
     audio.reset();
+    labelTimer.stop();
 }
 
-void CRadioController::setStation(QString Station, bool Force)
+void CRadioController::setService(uint32_t service, bool force)
 {
-    if(currentStation != Station || Force == true)
-    {
-        currentStation = Station;
+    if (currentService != service or force) {
+        currentService = service;
         emit stationChanged();
 
-        qDebug() << "RadioController: Tune to station" <<  Station;
+        qDebug() << "RadioController: Tune to station" << serialise_serviceid(service);
 
-        currentTitle = Station;
+        currentTitle = "";
         emit titleChanged();
 
         // Wait if we found the station inside the signal
@@ -217,11 +247,11 @@ void CRadioController::setStation(QString Station, bool Force)
     }
 }
 
-void CRadioController::setAutoPlay(QString Channel, QString Station)
+void CRadioController::setAutoPlay(QString channel, QString service)
 {
     isAutoPlay = true;
-    autoChannel = Channel;
-    autoStation = Station;
+    autoChannel = channel;
+    autoService = deserialise_serviceid(service.toStdString().c_str());
 }
 
 void CRadioController::setVolume(qreal Volume)
@@ -276,7 +306,7 @@ void CRadioController::setManualChannel(QString Channel)
     currentTitle = Channel;
     emit titleChanged();
 
-    currentStation = "";
+    currentService = 0;
     emit stationChanged();
 
     currentStationType = "";
@@ -323,7 +353,7 @@ void CRadioController::startScan(void)
         currentText = tr("Found channels") + ": " + QString::number(stationCount);
         emit textChanged();
 
-        currentStation = "";
+        currentService = 0;
         emit stationChanged();
 
         currentStationType = "";
@@ -521,7 +551,7 @@ void CRadioController::initialise(void)
     emit deviceIdChanged();
 
     if(isAutoPlay) {
-        play(autoChannel, autoStation);
+        play(autoChannel, autoService);
     }
 }
 
@@ -537,7 +567,7 @@ void CRadioController::resetTechnicalData(void)
     currentFrequency = 0;
     emit frequencyChanged();
 
-    currentStation = "";
+    currentService = 0;
     emit stationChanged();
 
     currentStationType = "";
@@ -583,6 +613,8 @@ void CRadioController::deviceRestart()
         emit showErrorMessage(tr("Radio device is not ready or does not exist."));
         return;
     }
+
+    labelTimer.start(40);
 }
 
 /*****************
@@ -627,6 +659,30 @@ void CRadioController::setInfoMessage(QString Text)
 /********************
  * private slots *
  ********************/
+void CRadioController::labelTimerTimeout()
+{
+    if (radioReceiver and not pendingLabels.empty()) {
+        const auto sId = pendingLabels.front();
+        pendingLabels.pop_front();
+
+        std::string label;
+
+        auto srv = radioReceiver->getService(sId);
+        if (srv.serviceId != 0) {
+            label = srv.serviceLabel.fig1_label_utf8();
+        }
+
+        if (not label.empty()) {
+            const auto qlabel = QString::fromStdString(label);
+            emit newStationNameReceived(qlabel, sId, currentChannel);
+        }
+        else {
+            // Rotate pending labels to avoid getting stuck on a failing one
+            pendingLabels.push_back(sId);
+        }
+    }
+}
+
 void CRadioController::stationTimerTimeout()
 {
     if (!radioReceiver)
@@ -635,8 +691,7 @@ void CRadioController::stationTimerTimeout()
     const auto services = radioReceiver->getServiceList();
 
     for (const auto& s : services) {
-        if (s.serviceLabel.fig1_label_utf8() == currentStation.toStdString()) {
-
+        if (s.serviceId == currentService) {
             const auto comps = radioReceiver->getComponents(s);
             for (const auto& sc : comps) {
                 if (sc.transportMode() == TransportMode::Audio && (
@@ -755,11 +810,9 @@ void CRadioController::serviceId(quint32 sId)
         emit textChanged();
     }
 
-    auto srv = radioReceiver->getService(sId);
-
-    if (srv.serviceId != 0) {
-        const auto label = QString::fromStdString(srv.serviceLabel.fig1_label_utf8());
-        emit newStationNameReceived(label, sId, currentChannel);
+    if (sId <= 0xFFFF) {
+        // Exclude data services from the list
+        pendingLabels.push_back(sId);
     }
 }
 

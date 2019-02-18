@@ -39,6 +39,7 @@
 #include <QImage>
 #include <QVariantMap>
 #include <mutex>
+#include <list>
 
 #include "audio_output.h"
 #include "dab-constants.h"
@@ -92,7 +93,7 @@ class CRadioController :
     Q_PROPERTY(QString channel MEMBER currentChannel NOTIFY channelChanged)
     Q_PROPERTY(QString ensemble MEMBER currentEnsembleLabel NOTIFY ensembleChanged)
     Q_PROPERTY(int frequency MEMBER currentFrequency NOTIFY frequencyChanged)
-    Q_PROPERTY(QString station MEMBER currentStation NOTIFY stationChanged)
+    Q_PROPERTY(quint32 service MEMBER currentService NOTIFY stationChanged)
     Q_PROPERTY(QString stationType MEMBER currentStationType NOTIFY stationTypChanged)
     Q_PROPERTY(QString languageType MEMBER currentLanguageType NOTIFY languageTypeChanged)
     Q_PROPERTY(QString title MEMBER currentTitle NOTIFY titleChanged)
@@ -106,15 +107,15 @@ public:
     CDeviceID openDevice();
     void setDeviceParam(QString param, int value);
     void setDeviceParam(QString param, QString value);
-    Q_INVOKABLE void play(QString Channel, QString Station);
+    Q_INVOKABLE void play(QString channel, quint32 service);
     void pause();
     void stop();
-    void setStation(QString Station, bool Force = false);
+    void setService(uint32_t service, bool force = false);
     void setChannel(QString Channel, bool isScan, bool Force = false);
     Q_INVOKABLE void setManualChannel(QString Channel);
     Q_INVOKABLE void startScan(void);
     Q_INVOKABLE void stopScan(void);
-    void setAutoPlay(QString Channel, QString Station);    
+    void setAutoPlay(QString channel, QString serviceid_as_string);
     Q_INVOKABLE void setVolume(qreal volume);
     Q_INVOKABLE void setAGC(bool isAGC);
     Q_INVOKABLE void disableCoarseCorrector(bool disable);
@@ -196,10 +197,11 @@ private:
     QImage motImage;
 
     QString currentChannel;
+    std::list<uint32_t> pendingLabels;
     QString currentEnsembleLabel;
     uint16_t currentEId;
     int32_t currentFrequency;
-    QString currentStation;
+    uint32_t currentService;
     QString currentStationType;
     QString currentLanguageType;
     QString currentTitle;
@@ -210,6 +212,7 @@ private:
     QString deviceName = "Unknown";
     CDeviceID deviceId = CDeviceID::UNKNOWN;
 
+    QTimer labelTimer;
     QTimer stationTimer;
     QTimer channelTimer;
 
@@ -217,7 +220,7 @@ private:
     bool isAGC = false;
     bool isAutoPlay = false;
     QString autoChannel;
-    QString autoStation;
+    quint32 autoService;
 
 public slots:
     void setErrorMessage(QString Text);
@@ -227,6 +230,7 @@ public slots:
 private slots:
     void ensembleId(quint16);
     void serviceId(quint32);
+    void labelTimerTimeout(void);
     void stationTimerTimeout(void);
     void channelTimerTimeout(void);
     void nextChannel(bool isWait);

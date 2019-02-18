@@ -296,7 +296,7 @@ ApplicationWindow {
                     channelNameText: channelName
                     isFavorit: favorit
                     isExpert: isExpertView
-                    onClicked: radioController.play(channelName, stationName)
+                    onClicked: radioController.play(channelName, stationSId)
                     onFavoritClicked: {
                         var favoritInvert = !favorit
                         stationList.setFavorit(stationSId, favoritInvert) // Invert favorit

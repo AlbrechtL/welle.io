@@ -4,10 +4,13 @@ ListModel {
     property string serialized: ""
 
     function addStation(station, sId, channel, favorit) {
-        // Check if station already exits
-        for(var i=0; i<count; i++)
-            if(get(i).stationSId === sId)
-                return // Break if station exists
+        // Check if station already exists
+        for (var i=0; i<count; i++) {
+            if (get(i).stationSId === sId && get(i).channelName === channel) {
+                get(i).stationName = station;
+                return;
+            }
+        }
 
         append({"stationName": station, "stationSId": sId, "channelName": channel, "favorit": favorit})
         sort()
