@@ -9,6 +9,7 @@ class WelleIo < Formula
   depends_on "qt"
   depends_on "fftw"
   depends_on "faad2"
+  depends_on "librtlsdr"
   depends_on "soapysdr"
   depends_on "soapyuhd"
   depends_on "libusb"
