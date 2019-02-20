@@ -72,7 +72,7 @@ ColumnLayout {
                     id: minFreq
                     anchors.centerIn: parent
                     color: "#fff"
-                    text: "← " + freqMin + " Hz"
+                    text: "← " + freqMin
                 }
             }
 
@@ -89,7 +89,7 @@ ColumnLayout {
                     id: maxFreq
                     anchors.centerIn: parent
                     color: "#fff"
-                    text: freqMax + " Hz →"
+                    text: freqMax + " →"
                     }
                 }
         }
