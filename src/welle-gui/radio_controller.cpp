@@ -630,7 +630,7 @@ void CRadioController::ensembleId(quint16 eId)
     currentEId = eId;
 
     auto label = radioReceiver->getEnsembleLabel();
-    currentEnsembleLabel = QString::fromStdString(label.fig1_label_utf8());
+    currentEnsembleLabel = QString::fromStdString(label.utf8_label());
 
     emit ensembleChanged();
 }
@@ -669,7 +669,7 @@ void CRadioController::labelTimerTimeout()
 
         auto srv = radioReceiver->getService(sId);
         if (srv.serviceId != 0) {
-            label = srv.serviceLabel.fig1_label_utf8();
+            label = srv.serviceLabel.utf8_label();
         }
 
         if (not label.empty()) {
