@@ -15,7 +15,7 @@ class WelleIo < Formula
   depends_on "libusb"
 
   def install
-    system "cmake", ".", "-DSOAPYSDR=TRUE", "-DBUILD_WELLE_CLI=OFF", *std_cmake_args
+    system "cmake", ".", "-DRTLSDR=TRUE", "-DSOAPYSDR=TRUE", "-DBUILD_WELLE_CLI=OFF", *std_cmake_args
     system "make", "install"
   end
 
