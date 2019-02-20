@@ -185,14 +185,17 @@ void CRadioController::setDeviceParam(QString param, QString value)
     }
 }
 
-void CRadioController::play(QString channel, quint32 service)
+void CRadioController::play(QString channel, QString title, quint32 service)
 {
     if (channel == "") {
         return;
     }
 
-    qDebug() << "RadioController:" << "Play channel:"
-             << channel << "station:" << service;
+    currentTitle = title;
+    emit titleChanged();
+
+
+    qDebug() << "RadioController:" << "Play:" << title << serialise_serviceid(service) << "on channel" << channel;
 
     if (isChannelScan == true) {
         stopScan();
@@ -223,11 +226,6 @@ void CRadioController::setService(uint32_t service, bool force)
     if (currentService != service or force) {
         currentService = service;
         emit stationChanged();
-
-        qDebug() << "RadioController: Tune to station" << serialise_serviceid(service);
-
-        currentTitle = "";
-        emit titleChanged();
 
         // Wait if we found the station inside the signal
         stationTimer.start(1000);
@@ -551,7 +549,7 @@ void CRadioController::initialise(void)
     emit deviceIdChanged();
 
     if(isAutoPlay) {
-        play(autoChannel, autoService);
+        play(autoChannel, tr("Playing last station"), autoService);
     }
 }
 
@@ -675,6 +673,12 @@ void CRadioController::labelTimerTimeout()
         if (not label.empty()) {
             const auto qlabel = QString::fromStdString(label);
             emit newStationNameReceived(qlabel, sId, currentChannel);
+            qDebug() << "RadioController: Found service " << qPrintable(QString::number(sId, 16).toUpper()) << qlabel;
+
+            if (currentService == sId) {
+                currentTitle = qlabel;
+                emit titleChanged();
+            }
         }
         else {
             // Rotate pending labels to avoid getting stuck on a failing one
@@ -802,8 +806,6 @@ void CRadioController::onServiceDetected(uint32_t sId)
 
 void CRadioController::serviceId(quint32 sId)
 {
-    qDebug() << "RadioController: Found service " << qPrintable(QString::number(sId, 16).toUpper());
-
     if (isChannelScan == true) {
         stationCount++;
         currentText = tr("Found channels") + ": " + QString::number(stationCount);

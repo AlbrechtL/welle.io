@@ -107,7 +107,7 @@ public:
     CDeviceID openDevice();
     void setDeviceParam(QString param, int value);
     void setDeviceParam(QString param, QString value);
-    Q_INVOKABLE void play(QString channel, quint32 service);
+    Q_INVOKABLE void play(QString channel, QString title, quint32 service);
     void pause();
     void stop();
     void setService(uint32_t service, bool force = false);
