@@ -125,6 +125,685 @@
     </message>
 </context>
 <context>
+    <name>DABConstants</name>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="145"/>
+        <source>News</source>
+        <translation>Nieuws</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="146"/>
+        <source>Current Affairs</source>
+        <translation>Lopende zaken</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="147"/>
+        <source>Information</source>
+        <translation>Informatie</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="148"/>
+        <source>Sport</source>
+        <translation>Sport</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="149"/>
+        <source>Education</source>
+        <translation>Educatie</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="150"/>
+        <source>Drama</source>
+        <translation>Drama</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="151"/>
+        <source>Arts</source>
+        <translation>Kunst</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="152"/>
+        <source>Science</source>
+        <translation>Wetenschap</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="153"/>
+        <source>Talk</source>
+        <translation>Praatprogramma</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="154"/>
+        <source>Pop Music</source>
+        <translation>Pop muziek</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="155"/>
+        <source>Rock Music</source>
+        <translation>Rock Muziek</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="156"/>
+        <source>Easy Listening</source>
+        <translation>Lichte muziek</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="157"/>
+        <source>Light classical</source>
+        <translation>Licht klassiek</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="158"/>
+        <source>Classical Music</source>
+        <translation>Klassieke Muziek</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="159"/>
+        <source>Other Music</source>
+        <translation>Overige Muziek</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="160"/>
+        <source>Weather</source>
+        <translation>Weer</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="161"/>
+        <source>Finance</source>
+        <translation>Financieel</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="162"/>
+        <source>Children&apos;s</source>
+        <translation>Kinderen</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="163"/>
+        <source>Factual</source>
+        <translation>Feitelijk</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="164"/>
+        <source>Religion</source>
+        <translation>Religie</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="165"/>
+        <source>Phone In</source>
+        <translation>Inbellen</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="166"/>
+        <source>Travel</source>
+        <translation>Reizen</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="167"/>
+        <source>Leisure</source>
+        <translation>Ontspanning</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="168"/>
+        <source>Jazz and Blues</source>
+        <translation>Jazz en Blues</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="169"/>
+        <source>Country Music</source>
+        <translation>Country Muziek</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="170"/>
+        <source>National Music</source>
+        <translation>Nationale Muziek</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="171"/>
+        <source>Oldies Music</source>
+        <translation>Oldies Muziek</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="172"/>
+        <source>Folk Music</source>
+        <translation>Volksmuziek</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="173"/>
+        <source>Documentary</source>
+        <translation>Documenataire</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="174"/>
+        <source>entry 30 not used</source>
+        <translation>invoer 30 ongebruikt</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="175"/>
+        <source>entry 31 not used</source>
+        <translation>invoer 31 niet gebruikt</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="176"/>
+        <location filename="../../backend/dab-constants.cpp" line="293"/>
+        <source>UNKNOWN</source>
+        <translation>ONBEKEND</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="190"/>
+        <source>Albanian</source>
+        <translation>Albanees</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="191"/>
+        <source>Breton</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="192"/>
+        <source>Catalan</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="193"/>
+        <source>Croatian</source>
+        <translation>Kroatisch</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="194"/>
+        <source>Welsh</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="195"/>
+        <source>Czech</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="196"/>
+        <source>Danish</source>
+        <translation>Deens</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="197"/>
+        <source>German</source>
+        <translation>Duits</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="198"/>
+        <source>English</source>
+        <translation>Engels</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="199"/>
+        <source>Spanish</source>
+        <translation>Spaans</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="200"/>
+        <source>Esperanto</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="201"/>
+        <source>Estonian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="202"/>
+        <source>Basque</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="203"/>
+        <source>Faroese</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="204"/>
+        <source>French</source>
+        <translation>Frans</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="205"/>
+        <source>Frisian</source>
+        <translation>Fries</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="206"/>
+        <source>Irish</source>
+        <translation>Iers</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="207"/>
+        <source>Gaelic</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="208"/>
+        <source>Galician</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="209"/>
+        <source>Icelandic</source>
+        <translation>IJslands</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="210"/>
+        <source>Italian</source>
+        <translation>Italiaans</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="211"/>
+        <source>Lappish</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="212"/>
+        <source>Latin</source>
+        <translation>Latijn</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="213"/>
+        <source>Latvian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="214"/>
+        <source>Luxembourgian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="215"/>
+        <source>Lithuanian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="216"/>
+        <source>Hungarian</source>
+        <translation>Hongaars</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="217"/>
+        <source>Maltese</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="218"/>
+        <source>Dutch</source>
+        <translation>Nederlands</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="219"/>
+        <source>Norwegian</source>
+        <translation>Noors</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="220"/>
+        <source>Occitan</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="221"/>
+        <source>Polish</source>
+        <translation>Pools</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="222"/>
+        <source>Portuguese</source>
+        <translation>Portugees</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="223"/>
+        <source>Romanian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="224"/>
+        <source>Romansh</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="225"/>
+        <source>Serbian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="226"/>
+        <source>Slovak</source>
+        <translation>Slowaaks</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="227"/>
+        <source>Slovene</source>
+        <translation>Sloveens</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="228"/>
+        <source>Finnish</source>
+        <translation>Fins</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="229"/>
+        <source>Swedish</source>
+        <translation>Zweeds</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="230"/>
+        <source>Turkish</source>
+        <translation>Turks</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="231"/>
+        <source>Flemish</source>
+        <translation>Vlaams</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="232"/>
+        <source>Walloon</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="233"/>
+        <source>Background sound/clean feed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="234"/>
+        <source>Zulu</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="235"/>
+        <source>Vietnamese</source>
+        <translation>Vietnamees</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="236"/>
+        <source>Uzbek</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="237"/>
+        <source>Urdu</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="238"/>
+        <source>Ukranian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="239"/>
+        <source>Thai</source>
+        <translation>Thais</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="240"/>
+        <source>Telugu</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="241"/>
+        <source>Tatar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="242"/>
+        <source>Tamil</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="243"/>
+        <source>Tadzhik</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="244"/>
+        <source>Swahili</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="245"/>
+        <source>Sranan Tongo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="246"/>
+        <source>Somali</source>
+        <translation>Somalisch</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="247"/>
+        <source>Sinhalese</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="248"/>
+        <source>Shona</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="249"/>
+        <source>Serbo-Croat</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="250"/>
+        <source>Rusyn</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="251"/>
+        <source>Russian</source>
+        <translation>Russisch</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="252"/>
+        <source>Quechua</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="253"/>
+        <source>Pushtu</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="254"/>
+        <source>Punjabi</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="255"/>
+        <source>Persian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="256"/>
+        <source>Papiamento</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="257"/>
+        <source>Oriya</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="258"/>
+        <source>Nepali</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="259"/>
+        <source>Ndebele</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="260"/>
+        <source>Marathi</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="261"/>
+        <source>Moldavian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="262"/>
+        <source>Malaysian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="263"/>
+        <source>Malagasay</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="264"/>
+        <source>Macedonian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="265"/>
+        <source>Laotian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="266"/>
+        <source>Korean</source>
+        <translation>Koreaans</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="267"/>
+        <source>Khmer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="268"/>
+        <source>Kazakh</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="269"/>
+        <source>Kannada</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="270"/>
+        <source>Japanese</source>
+        <translation>Japans</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="271"/>
+        <source>Indonesian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="272"/>
+        <source>Hindi</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="273"/>
+        <source>Hebrew</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="274"/>
+        <source>Hausa</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="275"/>
+        <source>Gurani</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="276"/>
+        <source>Gujurati</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="277"/>
+        <source>Greek</source>
+        <translation>Grieks</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="278"/>
+        <source>Georgian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="279"/>
+        <source>Fulani</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="280"/>
+        <source>Dari</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="281"/>
+        <source>Chuvash</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="282"/>
+        <source>Chinese</source>
+        <translation>Chinees</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="283"/>
+        <source>Burmese</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="284"/>
+        <source>Bulgarian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="285"/>
+        <source>Bengali</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="286"/>
+        <source>Belorussian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="287"/>
+        <source>Bambora</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="288"/>
+        <source>Azerbaijani</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="289"/>
+        <source>Assamese</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="290"/>
+        <source>Armenian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="291"/>
+        <source>Arabic</source>
+        <translation>Arabisch</translation>
+    </message>
+    <message>
+        <location filename="../../backend/dab-constants.cpp" line="292"/>
+        <source>Amharic</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ExpertSettings</name>
     <message>
         <location filename="../QML/settingpages/ExpertSettings.qml" line="34"/>
@@ -568,6 +1247,11 @@
     </message>
     <message>
         <location filename="../QML/expertviews/SpectrumGraph.qml" line="50"/>
+        <source>Waterfall</source>
+        <translation>Waterval</translation>
+    </message>
+    <message>
+        <location filename="../QML/expertviews/SpectrumGraph.qml" line="131"/>
         <source>Amplitude</source>
         <translation>Amplitude</translation>
     </message>
