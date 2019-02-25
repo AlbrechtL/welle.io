@@ -117,6 +117,7 @@ WebRadioInterface::WebRadioInterface(CVirtualInput& in,
         throw runtime_error("Could not initialise WebRadioInterface");
     }
 
+    time_rx_created = chrono::system_clock::now();
     rx->restart(false);
 
     programme_handler_thread = thread(&WebRadioInterface::handle_phs, this);
@@ -143,8 +144,8 @@ void WebRadioInterface::check_decoders_required()
                 const bool is_active = std::find_if(
                         carousel_services_active.cbegin(),
                         carousel_services_active.cend(),
-                        [&](const ActiveCarouselService& acs){
-                        return acs.sid == sid;
+                        [&](const ActiveCarouselService& acs) {
+                            return acs.sid == sid;
                         }) != carousel_services_active.cend();
 
                 const bool require =
@@ -230,11 +231,11 @@ void WebRadioInterface::retune(const std::string& channel)
 
         cerr << "Restart RX" << endl;
         rx = make_unique<RadioReceiver>(*this, input, rro);
-
         if (not rx) {
             throw runtime_error("Could not initialise WebRadioInterface");
         }
 
+        time_rx_created = chrono::system_clock::now();
         rx->restart(false);
 
         cerr << "Start programme handler" << endl;
@@ -592,6 +593,7 @@ bool WebRadioInterface::send_mux_json(Socket& s)
     j["receiver"]["software"]["fftwindowplacement"] = fftPlacementMethodToString(rro.fftPlacementMethod);
     j["receiver"]["software"]["coarsecorrectorenabled"] = not rro.disable_coarse_corrector;
     j["receiver"]["software"]["freqsyncmethod"] = freqSyncMethodToString(rro.freqsyncMethod);
+    j["receiver"]["software"]["lastchannelchange"] = chrono::system_clock::to_time_t(time_rx_created);
     j["receiver"]["hardware"]["name"] = input.getDescription();
     j["receiver"]["hardware"]["gain"] = input.getGain();
 

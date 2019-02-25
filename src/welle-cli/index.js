@@ -156,15 +156,17 @@ function ensembleInfoTemplate() {
     html += ' <th>Date</th></th>';
     html += ' <th><abbr title="Local Time Offset">LTO</abbr></th></th>';
     html += ' <th>FIC CRC Errors</th>';
+    html += ' <th>Tuned at</th>';
     html += ' </tr>';
     html += ' <tr><td>${EId}</td>';
     html += ' <td>${ecc}</td>';
     html += ' <td>${SNR}</td>';
     html += ' <td>${gain}</td>';
-    html += ' <td> ${FrequencyCorrection}</td>';
+    html += ' <td>${FrequencyCorrection}</td>';
     html += ' <td>${year}-${month}-${day} ${hour}:${minutes} UTC</td>';
     html += ' <td>${lto}</td>';
-    html += ' <td> ${ficcrcerrors}</td></tr>';
+    html += ' <td>${ficcrcerrors}</td>';
+    html += ' <td>${lastchannelchange}</td></tr>';
     html += ' </table><br>    <button type=button onclick="stopPlayer()">Stop</button><br><br>';
     html += '';
     html += '<table id="servicetable">';
@@ -408,6 +410,8 @@ function populateEnsembleinfo() {
         ens["FrequencyCorrection"] = data.frequencycorrection;
         ens["services"] = servicehtml;
         ens["ficcrcerrors"] = data.ensemble.fic.numcrcerrors;
+        var lcc = new Date(data.receiver.software.lastchannelchange * 1000);
+        ens["lastchannelchange"] = lcc.toISOString();
 
         var ei = document.getElementById('ensembleinfo');
         ei.innerHTML = parseTemplate(ensembleInfoTemplate(), ens);
