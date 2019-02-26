@@ -86,6 +86,7 @@ class WebRadioInterface : public RadioControllerInterface {
         virtual void onTIIMeasurement(tii_measurement_t&& m) override;
 
     private:
+        std::mutex retune_mut;
         void retune(const std::string& channel);
 
         bool dispatch_client(Socket&& client);

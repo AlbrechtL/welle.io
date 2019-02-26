@@ -196,6 +196,9 @@ void WebRadioInterface::check_decoders_required()
 
 void WebRadioInterface::retune(const std::string& channel)
 {
+    // Ensure two closely occurring retune() calls don't get stuck
+    unique_lock<mutex> retune_lock(retune_mut);
+
     auto freq = channels.getFrequency(channel);
     if (freq == 0) {
         cerr << "Invalid channel: " << channel << endl;
@@ -1276,7 +1279,7 @@ void WebRadioInterface::handle_phs()
         check_decoders_required();
     }
 
-    {
+    if (running) {
         unique_lock<mutex> lock(rx_mut);
         if (rx) {
             for (auto& s : rx->getServiceList()) {
