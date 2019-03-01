@@ -1,8 +1,8 @@
 class WelleIo < Formula
   desc "DAB/DAB+ Software Radio"
   homepage "https://www.welle.io"
-  url "https://github.com/AlbrechtL/welle.io/archive/V1.0.tar.gz"
-  sha256 "669ae5d471f723c32622cbf6ee37b66c3aefd8e02d6334b55d1fb60b3c22a883"
+  url  "https://github.com/AlbrechtL/welle.io/archive/v2.0-beta1.tar.gz"
+  sha256 "b81df164fcf74ec58629afa1e00911d63a1f8abdc875dd7dda3a04d975db83d4"
   head "https://github.com/AlbrechtL/welle.io.git"
 
   depends_on "cmake" => :build
@@ -10,10 +10,12 @@ class WelleIo < Formula
   depends_on "fftw"
   depends_on "faad2"
   depends_on "librtlsdr"
+  depends_on "soapysdr"
+  depends_on "soapyuhd"
   depends_on "libusb"
 
   def install
-    system "cmake", ".", "-DRTLSDR=TRUE", "-DBUILD_WELLE_CLI=OFF", *std_cmake_args
+    system "cmake", ".", "-DRTLSDR=TRUE", "-DSOAPYSDR=TRUE", "-DBUILD_WELLE_CLI=OFF", *std_cmake_args
     system "make", "install"
   end
 
