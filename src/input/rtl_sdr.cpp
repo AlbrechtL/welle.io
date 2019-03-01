@@ -124,6 +124,10 @@ bool CRTL_SDR::restart(void)
 {
     int ret;
 
+    if(rtlsdrUnplugged) {
+        return false;
+    }
+
     if (rtlsdrRunning) {
         return true;
     }
@@ -244,7 +248,7 @@ CDeviceID CRTL_SDR::getID()
 
 void CRTL_SDR::AGCTimer(void)
 {
-    while (rtlsdrRunning) {
+    while (rtlsdrRunning && not rtlsdrUnplugged) {
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
         if (isAGC) {
@@ -373,5 +377,6 @@ void CRTL_SDR::rtlsdr_read_async_wrapper()
 
     radioController.onMessage(message_level_t::Error, "RTL-SDR is unplugged.");
 
-    rtlsdrRunning = false;
+    rtlsdrUnplugged = true;
+    std::clog << "End RTLSDR thread" << std::endl;
 }

@@ -82,6 +82,8 @@ private:
     std::thread rtlsdrThread;
     void rtlsdr_read_async_wrapper(void);
     std::atomic<bool> rtlsdrRunning = ATOMIC_VAR_INIT(false);
+    std::atomic<bool> rtlsdrUnplugged = ATOMIC_VAR_INIT(false);
+
 
     bool open = false;
     std::vector<int> gains;
