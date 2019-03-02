@@ -49,6 +49,10 @@
     #include <unistd.h>
     #include <netdb.h>
     #include <arpa/inet.h>
+    #include <sys/wait.h>
+    #include <sys/types.h>
+    #include <sys/time.h>
+    #include <fcntl.h>
 
     #define INVALID_SOCKET (-1)
 #endif
@@ -69,7 +73,7 @@ class Socket {
         bool bind(int port);
         bool listen();
         Socket accept();
-        bool connect(const std::string& address, int port);
+        bool connect(const std::string& address, int port, int timeout);
 
         ssize_t recv(void *buffer, size_t length, int flags);
         ssize_t send(const void *buffer, size_t length, int flags);

@@ -174,8 +174,16 @@ Socket Socket::accept()
     return s;
 }
 
-bool Socket::connect(const std::string& address, int port)
+bool Socket::connect(const std::string& address, int port, int timeout)
 {
+#if defined(_WIN32)
+    TIMEVAL Timeout;
+#else
+    timeval Timeout;
+#endif
+    Timeout.tv_sec = timeout;
+    Timeout.tv_usec = 0;
+
     bool ret = false;
     struct addrinfo hints;
     memset(&hints, 0, sizeof(hints));
@@ -210,10 +218,49 @@ bool Socket::connect(const std::string& address, int port)
         if (sfd == -1)
             continue;
 
-        if (::connect(sfd, rp->ai_addr, rp->ai_addrlen) != -1) {
+        // set the socket in non-blocking mode
+#ifdef _WIN32
+        unsigned long mode = 1;
+        int iResult = ioctlsocket(sfd, FIONBIO, &mode);
+#else
+        int oldflags = fcntl(sfd, F_GETFL, 0);
+        if (oldflags == -1) return false;
+        int flags = oldflags | O_NONBLOCK;
+        int iResult = fcntl(sfd, F_SETFL, flags);
+#endif
+        if (iResult != 0)
+        {
+            std::clog << "Socket: Failed to put socket into non-blocking mode with error: " << iResult << std::endl;
+        }
+
+        ::connect(sfd, rp->ai_addr, rp->ai_addrlen);
+
+        // set the socket back in blocking mode
+#ifdef _WIN32
+        unsigned long mode = 0;
+        int iResult = ioctlsocket(sfd, FIONBIO, &mode);
+#else
+        iResult = fcntl(sfd, F_SETFL, oldflags);
+#endif
+        if (iResult != 0)
+        {
+             std::clog << "Socket: Failed to put socket into blocking mode with error: " << iResult << std::endl;
+        }
+
+        fd_set Write, Err;
+        FD_ZERO(&Write);
+        FD_ZERO(&Err);
+        FD_SET(sfd, &Write);
+        FD_SET(sfd, &Err);
+
+        // check if the socket is ready
+        int sel_value = select(sfd+1, nullptr, &Write, &Err, &Timeout);
+        if(FD_ISSET(sfd, &Write) && sel_value > 0)
+        {
             sock = sfd;
             break;                  /* Success */
         }
+
 #if defined(_WIN32)
         closesocket(sfd);
 #else

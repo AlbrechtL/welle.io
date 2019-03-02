@@ -87,6 +87,7 @@ bool CRTL_TCP_Client::restart(void)
     rtlsdrRunning = true;
 
     receiveThread = std::thread(&CRTL_TCP_Client::receiveAndReconnect, this);
+    receiveThread.detach();
 
     // Wait so that the other thread has a chance to establish the connection
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
@@ -176,10 +177,13 @@ void CRTL_TCP_Client::receiveData(void)
             handleDisconnect();
         }
         else if (ret == -1) {
-            if (errno == EINTR) {
+            if (errno == EAGAIN) {
                 continue;
             }
-            else if (errno == ECONNRESET) {
+            else if (errno == EINTR) {
+                continue;
+            }
+            else if (errno == ECONNRESET || errno == EBADF) {
                 handleDisconnect();
             }
             else {
@@ -360,6 +364,8 @@ void CRTL_TCP_Client::setPort(uint16_t Port)
 
 void CRTL_TCP_Client::receiveAndReconnect()
 {
+    std::clog << "RTL_TCP_CLIENT: Thread receiveAndReconnect start " << std::endl;
+
     while (rtlsdrRunning) {
         std::unique_lock<std::mutex> lock(mutex);
 
@@ -367,7 +373,12 @@ void CRTL_TCP_Client::receiveAndReconnect()
             std::clog << "RTL_TCP_CLIENT: Try to connect to server " <<
                 serverAddress << ":" << serverPort << std::endl;
 
-            connected = sock.connect(serverAddress, serverPort);
+            try {
+                connected = sock.connect(serverAddress, serverPort, 5);
+            }
+            catch(std::runtime_error e) {
+                std::clog << "RTL_TCP_CLIENT: " << e.what() << std::endl;
+            }
 
             if (connected) {
                 std::clog << "RTL_TCP_CLIENT: Successful connected to server " <<
@@ -406,6 +417,8 @@ void CRTL_TCP_Client::receiveAndReconnect()
             receiveData();
         }
     }
+
+    std::clog << "RTL_TCP_CLIENT: Thread receiveAndReconnect exit " << std::endl;
 }
 
 void CRTL_TCP_Client::agcTimer(void)
