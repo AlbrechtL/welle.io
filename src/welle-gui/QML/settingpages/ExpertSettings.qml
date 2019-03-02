@@ -8,8 +8,8 @@ import "../components"
 
 Item {
     id: expertSettings
-    implicitHeight: layout.implicitHeight
-    implicitWidth:  layout.implicitWidth
+
+    anchors.fill: parent
 
     Settings {
         property alias enableExpertModeState : enableExpertMode.checked
@@ -23,9 +23,7 @@ Item {
 
     ColumnLayout{
         id: layout
-        anchors.top: parent.top
-        anchors.left: parent.left
-        anchors.right: parent.right
+        anchors.fill: parent
         spacing: Units.dp(20)
 
         SettingSection {
@@ -46,6 +44,8 @@ Item {
 
             WSwitch {
                 id: disableCoarse
+                Layout.fillWidth: true
+
                 text: qsTr("Enable coarse corrector (for receivers with >1kHz error)")
                 checked: true
                 onCheckedChanged: {
@@ -57,6 +57,7 @@ Item {
 
             RowLayout {
                 enabled: disableCoarse.checked
+
                 WComboBox {
                     id: freqSyncMethodBox
                     model: [ "GetMiddle", "CorrelatePRS", "PatternOfZeros" ];
@@ -70,11 +71,13 @@ Item {
 
                 TextStandart {
                     text: qsTr("Coarse corrector algorithm")
+                    Layout.fillWidth: true
                 }
             }
 
             WSwitch {
                 id: enableDecodeTII
+                Layout.fillWidth: true
                 text: qsTr("Enable TII decoding to console log (increases CPU usage)")
                 checked: false
                 onCheckedChanged: {
@@ -85,6 +88,7 @@ Item {
             }
 
             RowLayout {
+                Layout.fillWidth: true
                 WComboBox {
                     id: fftPlacementBox
                     model: [ "Strongest Peak", "Earliest Peak With Binning", "Threshold Before Peak" ];
@@ -98,6 +102,7 @@ Item {
 
                 TextStandart {
                     text: qsTr("FFT Window placement algorithm")
+                    Layout.fillWidth: true
                 }
             }
         }

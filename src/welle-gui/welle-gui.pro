@@ -53,11 +53,11 @@ DISTFILES +=    \
     QML/settingpages/RawFileSettings.qml \
     QML/components/WComboBox.qml \
     QML/components/WButton.qml \
-    QML/components/WPopup.qml \
     QML/components/WSwitch.qml \
     QML/components/WTumbler.qml \
     QML/components/WSpectrum.qml \
-    QML/expertviews/ServiceDetails.qml
+    QML/expertviews/ServiceDetails.qml \
+    QML/components/WDialog.qml
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 

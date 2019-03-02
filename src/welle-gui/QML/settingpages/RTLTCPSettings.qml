@@ -10,6 +10,8 @@ import "../components"
 SettingSection {
     text: qsTr("rtl-tcp settings")
 
+    property bool isLoaded : false
+
     Settings {
         property alias ipByte1: ipAddress1.currentIndex
         property alias ipByte2: ipAddress2.currentIndex
@@ -61,19 +63,16 @@ SettingSection {
                 currentIndex: 1234
             }
         }
+    }
 
-        WButton {
-            id: applyButton
-            text: qsTr("Apply")
-            Layout.fillWidth: true
-            onClicked: {
-                __openDevice()
-            }
-        }
+    onVisibleChanged: {
+        if(!visible && isLoaded)
+            __openDevice()
     }
 
     Component.onCompleted: {
-        __openDevice()
+         __openDevice()
+        isLoaded = true
     }
 
     function __openDevice() {

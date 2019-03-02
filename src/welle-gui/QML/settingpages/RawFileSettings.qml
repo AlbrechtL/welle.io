@@ -12,6 +12,7 @@ SettingSection {
     text: qsTr("RAW file settings")
 
     property string filePath
+    property bool isLoaded : false
 
     Settings {
         property alias rawFile: filePath.text
@@ -32,6 +33,7 @@ SettingSection {
 
         RowLayout {
             spacing: Units.dp(5)
+
             WButton {
                 id: openFile
                 text: qsTr("Open RAW file")
@@ -55,22 +57,20 @@ SettingSection {
 
             TextStandart {
                 id: filePath
-            }
-        }
-
-
-        WButton {
-            id: applyButton
-            text: qsTr("Apply")
-            Layout.fillWidth: true
-            onClicked: {
-                __openDevice()
+                Layout.fillWidth: true
+                wrapMode: Text.WrapAnywhere
             }
         }
     }
 
     Component.onCompleted: {
         __openDevice()
+        isLoaded = true
+    }
+
+    onVisibleChanged: {
+        if(visible == false && isLoaded)
+            __openDevice()
     }
 
     function __openDevice() {

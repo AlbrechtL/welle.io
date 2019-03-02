@@ -7,4 +7,5 @@ Text {
     font.pixelSize: TextStyle.textStandartSize
     font.family: TextStyle.textFont
     color: TextStyle.textColor
+    wrapMode: Text.WordWrap
 }

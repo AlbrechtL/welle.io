@@ -8,7 +8,7 @@ ColumnLayout{
     property alias text : text.text
 
     spacing: Units.dp(20)
-    Layout.fillWidth: true
+//    Layout.fillWidth: true
 
     ColumnLayout{
         Rectangle {

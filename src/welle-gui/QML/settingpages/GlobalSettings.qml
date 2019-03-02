@@ -10,10 +10,9 @@ import "../components"
 Item {
     id: settingsPage
 
-    implicitHeight: layout.implicitHeight
-    implicitWidth:  layout.implicitWidth
-
     property alias enableFullScreenState : enableFullScreen.checked
+
+    anchors.fill: parent
 
     Settings {
         property alias device: deviceBox.currentIndex

@@ -76,7 +76,7 @@
         <file>QML/settingpages/NullSettings.qml</file>
         <file>QML/settingpages/AirspySettings.qml</file>
         <file>QML/components/MessagePopup.qml</file>
-        <file>QML/components/WPopup.qml</file>
+        <file>QML/components/WDialog.qml</file>
         <file>QML/components/SettingSection.qml</file>
         <file>QML/components/WSwitch.qml</file>
         <file>QML/components/WTumbler.qml</file>

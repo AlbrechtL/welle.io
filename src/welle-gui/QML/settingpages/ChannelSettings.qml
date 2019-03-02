@@ -25,6 +25,7 @@ Item {
             id: enableLastPlayedStation
             text: qsTr("Automatic start playing last station")
             checked: false
+            Layout.fillWidth: true
         }
     }
 }

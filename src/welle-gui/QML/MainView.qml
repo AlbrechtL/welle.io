@@ -157,17 +157,26 @@ ApplicationWindow {
                     MenuItem {
                         text: qsTr("Settings")
                         font.pixelSize: TextStyle.textStandartSize
-                        onTriggered: globalSettingsDialog.open()
+                        onTriggered: {
+                            globalSettingsDialog.title = text
+                            globalSettingsDialog.open()
+                        }
                     }
                     MenuItem {
                         text: qsTr("Expert Settings")
                         font.pixelSize: TextStyle.textStandartSize
-                        onTriggered: expertSettingsDialog.open()
+                        onTriggered: {
+                            expertSettingsDialog.title = text
+                            expertSettingsDialog.open()
+                        }
                     }
                     MenuItem {
                         text: qsTr("About")
                         font.pixelSize: TextStyle.textStandartSize
-                        onTriggered: aboutDialog.open()
+                        onTriggered: {
+                            aboutDialog.title = text
+                            aboutDialog.open()
+                        }
                     }
                     MenuItem {
                         text: qsTr("Exit")
@@ -272,7 +281,10 @@ ApplicationWindow {
                             text: qsTr("Station settings")
                             font.pixelSize: TextStyle.textStandartSize
                             font.family: TextStyle.textFont
-                            onTriggered: stationSettingsDialog.open()
+                            onTriggered: {
+                                stationSettingsDialog.title = text
+                                stationSettingsDialog.open()
+                            }
                         }
                     }
                 }
@@ -426,34 +438,28 @@ ApplicationWindow {
         }
     }
 
-    Popup {
+    WDialog {
         id: aboutDialog
-        modal: true
-        focus: true
-        x: (mainWindow.width - width) / 2
-        y: 0
-        width: Math.min(mainWindow.width, mainWindow.height) / 3 * 2
-        contentHeight: mainWindow.height - (overlayHeader.height * 2)
-        clip: true
 
         contentItem: InfoPage{
             id: infoPage
         }
     }
 
-    WPopup {
+    WDialog {
         id: stationSettingsDialog
         content: Loader {
-            Layout.fillWidth: true
+            anchors.fill: parent
             source:  "qrc:/QML/settingpages/ChannelSettings.qml"
         }
     }
 
-    WPopup {
+    WDialog {
         id: globalSettingsDialog
+
         content: Loader {
             id: globalSettingsLoader
-            Layout.fillWidth: true
+            anchors.fill: parent
             source:  "qrc:/QML/settingpages/GlobalSettings.qml"
             onLoaded : isFullScreen = globalSettingsLoader.item.enableFullScreenState
         }
@@ -464,11 +470,12 @@ ApplicationWindow {
         }
     }
 
-    WPopup {
+    WDialog {
         id: expertSettingsDialog
+
         content: Loader {
             id: expertSettingsLoader
-            Layout.fillWidth: true
+            anchors.fill: parent
             source:  "qrc:/QML/settingpages/ExpertSettings.qml"
             onLoaded: isExpertView = expertSettingsLoader.item.enableExpertModeState
         }
