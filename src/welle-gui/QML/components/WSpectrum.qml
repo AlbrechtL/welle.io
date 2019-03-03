@@ -155,4 +155,8 @@ ColumnLayout {
             }
         }
     }
+
+    function mapToValue(position) {
+        return spectrumPlot.mapToValue(position)
+    }
 }
