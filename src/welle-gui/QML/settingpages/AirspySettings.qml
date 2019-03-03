@@ -16,7 +16,7 @@ SettingSection {
     }
 
     Component.onCompleted: {
-        guiHelper.openAirspy()()
+        guiHelper.openAirspy()
         guiHelper.setBiasTeeAirspy(enableBiasTee.checked)
     }
 
