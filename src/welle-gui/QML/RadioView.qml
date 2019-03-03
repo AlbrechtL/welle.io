@@ -9,8 +9,6 @@ import "components"
 ViewBaseFrame {
     id: frame
     labelText: qsTr("Service Overview")
-
-//    Layout.minimumHeight: Units.dp(150)
     Layout.maximumHeight: Units.dp(230)
 
     TextRadioInfo {
@@ -113,27 +111,17 @@ ViewBaseFrame {
                     Connections {
                         target: radioController
                         onIsFICCRCChanged: {
-                            if(radioController.isFICCRC) {
-                                antennaSymbol.isSignal = true
-                                effect.restart()
-                            }
-                            else {
-                                antennaSymbol.isSignal = false
-                                antennaSymbol.opacity = 100
-                                effect.stop()
-                            }
+                            if(radioController.isFICCRC)
+                                __setIsSignal(true)
+                            else
+                                __setIsSignal(false)
                         }
 
                         onIsSyncChanged: {
-                            if(radioController.isSync) {
-                                antennaSymbol.isSignal = true
-                                effect.restart()
-                            }
-                            else {
-                                antennaSymbol.isSignal = false
-                                antennaSymbol.opacity = 100
-                                effect.stop()
-                            }
+                            if(radioController.isSync)
+                                __setIsSignal(true)
+                            else
+                                __setIsSignal(false)
                         }
                     }
                 }
@@ -171,6 +159,24 @@ ViewBaseFrame {
             Layout.rightMargin: Units.dp(5)
             text: (radioController.isDAB ? "DAB" : "DAB+")
                 + " " + radioController.audioMode
+        }
+    }
+
+    Component.onCompleted: {
+        if(radioController.isFICCRC &&
+                radioController.isSync)
+            __setIsSignal(true)
+    }
+
+    function __setIsSignal(value) {
+        if(value) {
+            antennaSymbol.isSignal = true
+            effect.restart()
+        }
+        else {
+            antennaSymbol.isSignal = false
+            antennaSymbol.opacity = 100
+            effect.stop()
         }
     }
 }
