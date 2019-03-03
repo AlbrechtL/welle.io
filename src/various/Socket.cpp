@@ -237,8 +237,8 @@ bool Socket::connect(const std::string& address, int port, int timeout)
 
         // set the socket back in blocking mode
 #ifdef _WIN32
-        unsigned long mode = 0;
-        int iResult = ioctlsocket(sfd, FIONBIO, &mode);
+        mode = 0;
+        iResult = ioctlsocket(sfd, FIONBIO, &mode);
 #else
         iResult = fcntl(sfd, F_SETFL, oldflags);
 #endif
