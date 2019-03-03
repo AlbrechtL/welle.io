@@ -179,7 +179,7 @@ bool Socket::connect(const std::string& address, int port, int timeout)
 #if defined(_WIN32)
     TIMEVAL Timeout;
 #else
-    timeval Timeout;
+    struct timeval Timeout;
 #endif
     Timeout.tv_sec = timeout;
     Timeout.tv_usec = 0;
@@ -247,18 +247,29 @@ bool Socket::connect(const std::string& address, int port, int timeout)
              std::clog << "Socket: Failed to put socket into blocking mode with error: " << iResult << std::endl;
         }
 
-        fd_set Write, Err;
+        fd_set Write;
         FD_ZERO(&Write);
-        FD_ZERO(&Err);
         FD_SET(sfd, &Write);
-        FD_SET(sfd, &Err);
 
         // check if the socket is ready
-        int sel_value = select(sfd+1, nullptr, &Write, &Err, &Timeout);
+        int sel_value = ::select(sfd+1, nullptr, &Write, nullptr, &Timeout);
         if(FD_ISSET(sfd, &Write) && sel_value > 0)
         {
-            sock = sfd;
-            break;                  /* Success */
+            int error=0; socklen_t size=sizeof(error);
+            iResult = 0;
+
+#ifndef _WIN32
+            iResult = ::getsockopt(sfd, SOL_SOCKET, SO_ERROR, &error, &size);
+#endif
+            if(error > 0 && iResult == 0)
+            {
+                std::clog << "Socket: Connection failed: \"" << strerror(error) << "\"" << std::endl;
+            }
+            else
+            {
+                sock = sfd;
+                break; /* Success */
+            }
         }
 
 #if defined(_WIN32)
@@ -269,7 +280,7 @@ bool Socket::connect(const std::string& address, int port, int timeout)
     }
 
     if (rp == NULL) {               /* No address succeeded */
-        std::clog << "Could not connect" << std::endl;
+        std::clog << "Socket: Could not connect" << std::endl;
         goto out;
     }
 

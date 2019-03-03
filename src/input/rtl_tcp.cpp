@@ -364,8 +364,6 @@ void CRTL_TCP_Client::setPort(uint16_t Port)
 
 void CRTL_TCP_Client::receiveAndReconnect()
 {
-    std::clog << "RTL_TCP_CLIENT: Thread receiveAndReconnect start " << std::endl;
-
     while (rtlsdrRunning) {
         std::unique_lock<std::mutex> lock(mutex);
 
@@ -374,7 +372,7 @@ void CRTL_TCP_Client::receiveAndReconnect()
                 serverAddress << ":" << serverPort << std::endl;
 
             try {
-                connected = sock.connect(serverAddress, serverPort, 5);
+                connected = sock.connect(serverAddress, serverPort, 2);
             }
             catch(std::runtime_error e) {
                 std::clog << "RTL_TCP_CLIENT: " << e.what() << std::endl;
@@ -417,8 +415,6 @@ void CRTL_TCP_Client::receiveAndReconnect()
             receiveData();
         }
     }
-
-    std::clog << "RTL_TCP_CLIENT: Thread receiveAndReconnect exit " << std::endl;
 }
 
 void CRTL_TCP_Client::agcTimer(void)
