@@ -2,6 +2,10 @@ import QtQuick 2.0
 import QtQuick.Controls 2.3
 import QtQuick.Layouts 1.1
 
+// Import custom styles
+import "../texts"
+import "../components"
+
 Dialog {
     id: popup
     default property alias content: placeholder.data
@@ -22,10 +26,16 @@ Dialog {
            RowLayout {
                anchors.fill: parent
                ToolButton {
+                   font.pixelSize: TextStyle.textStandartSize
+                   font.family: TextStyle.textFont
+
                    text: qsTr("‹")
                    onClicked: popup.close()
                }
                Label {
+                   font.pixelSize: TextStyle.textStandartSize
+                   font.family: TextStyle.textFont
+
                    text: title
                    elide: Label.ElideRight
                    horizontalAlignment: Qt.AlignHCenter

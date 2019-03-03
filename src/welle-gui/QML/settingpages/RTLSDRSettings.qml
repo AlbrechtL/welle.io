@@ -20,8 +20,9 @@ SettingSection {
         guiHelper.setBiasTeeRtlSdr(enableBiasTee.checked)
     }
 
-    Switch {
+    WSwitch {
         id: enableBiasTee
+        Layout.fillWidth: true
         text: qsTr("Enable bias tee (not from all dongles supported)")
         onClicked: {
             guiHelper.setBiasTeeRtlSdr(checked)
