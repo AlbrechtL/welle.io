@@ -1,4 +1,4 @@
-/****************************************************************************
+﻿/****************************************************************************
 **
 ** Copyright (C) 2015 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
@@ -55,6 +55,7 @@ ApplicationWindow {
 
     property bool isExpertView: false
     property bool isFullScreen: false
+    property bool isLoaded: false
 
     StationListModel { id: stationList }
     StationListModel { id: favoritsList }
@@ -97,6 +98,12 @@ ApplicationWindow {
             mainWindow.width = getWidth()
             mainWindow.height = getHeight()
         }
+
+        // Show error message if one occured during startup
+        if(errorMessagePopup.text != "")
+            errorMessagePopup.open();
+
+        isLoaded = true
     }
 
     Settings {
@@ -518,7 +525,9 @@ ApplicationWindow {
 
         onShowErrorMessage:{
             errorMessagePopup.text = Text;
-            errorMessagePopup.open();
+
+            if(mainWindow.isLoaded)
+                errorMessagePopup.open();
         }
 
         onShowInfoMessage:{

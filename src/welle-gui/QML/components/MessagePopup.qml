@@ -14,7 +14,7 @@ Popup {
     height: (textView.paintedHeight + Units.dp(10)) < Units.dp(50) ? Units.dp(50) : (textView.paintedHeight + Units.dp(10))
     closePolicy: Popup.NoAutoClose
     enter:  Transition {
-        NumberAnimation { property: "y"; from: hiddenY ; to: revealedY;}
+        NumberAnimation { property: "y"; from: hiddenY; to: revealedY;}
     }
     exit: Transition {
         NumberAnimation { property: "y"; from: revealedY; to: hiddenY;}
@@ -27,7 +27,7 @@ Popup {
     contentItem: Item {
         TextStandart {
             id: textView
-            text: "Message Popup"
+            text: ""
             anchors.verticalCenter: parent.verticalCenter
             anchors.right: parent.right
             wrapMode: Text.WordWrap
