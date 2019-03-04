@@ -456,7 +456,9 @@ ApplicationWindow {
     WDialog {
         id: stationSettingsDialog
         content: Loader {
-            anchors.fill: parent
+            anchors.right: parent.right
+            anchors.left: parent.left
+            height: item.implicitHeight
             source:  "qrc:/QML/settingpages/ChannelSettings.qml"
         }
     }
@@ -466,7 +468,9 @@ ApplicationWindow {
 
         content: Loader {
             id: globalSettingsLoader
-            anchors.fill: parent
+            anchors.right: parent.right
+            anchors.left: parent.left
+            height: item.implicitHeight
             source:  "qrc:/QML/settingpages/GlobalSettings.qml"
             onLoaded : isFullScreen = globalSettingsLoader.item.enableFullScreenState
         }
@@ -482,7 +486,9 @@ ApplicationWindow {
 
         content: Loader {
             id: expertSettingsLoader
-            anchors.fill: parent
+            anchors.right: parent.right
+            anchors.left: parent.left
+            height: item.implicitHeight
             source:  "qrc:/QML/settingpages/ExpertSettings.qml"
             onLoaded: isExpertView = expertSettingsLoader.item.enableExpertModeState
         }

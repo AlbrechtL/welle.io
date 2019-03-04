@@ -13,6 +13,7 @@ Item {
     property alias enableFullScreenState : enableFullScreen.checked
 
     anchors.fill: parent
+    implicitHeight: layout.implicitHeight
 
     Settings {
         property alias device: deviceBox.currentIndex
@@ -72,10 +73,6 @@ Item {
 
         SettingSection {
             text: qsTr("Global receiver settings")
-
-            //            TextStandart {
-            //                text: Number(radioController.deviceId)
-            //            }
 
             WSwitch {
                 id: enableAGC

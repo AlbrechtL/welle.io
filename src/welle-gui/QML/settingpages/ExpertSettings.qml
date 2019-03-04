@@ -10,6 +10,7 @@ Item {
     id: expertSettings
 
     anchors.fill: parent
+    implicitHeight: layout.childrenRect.height
 
     Settings {
         property alias enableExpertModeState : enableExpertMode.checked

@@ -48,7 +48,7 @@ Dialog {
     Flickable {
         id: flick
         anchors.fill: parent
-        contentHeight: placeholder.height
+        contentHeight: placeholder.childrenRect.height
 
         Item {
             id: placeholder

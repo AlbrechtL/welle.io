@@ -8,7 +8,6 @@ import "../components"
 
 Item {
     implicitHeight: layout.implicitHeight
-    implicitWidth:  layout.implicitWidth
 
     Settings {
         property alias enableLastPlayedStationState : enableLastPlayedStation.checked
