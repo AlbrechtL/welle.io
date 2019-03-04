@@ -374,7 +374,7 @@ void CRTL_TCP_Client::receiveAndReconnect()
             try {
                 connected = sock.connect(serverAddress, serverPort, 2);
             }
-            catch(std::runtime_error e) {
+            catch(const std::runtime_error& e) {
                 std::clog << "RTL_TCP_CLIENT: " << e.what() << std::endl;
             }
 
