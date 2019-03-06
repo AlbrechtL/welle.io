@@ -616,7 +616,7 @@ bool WebRadioInterface::send_mux_json(Socket& s)
         j["ensemble"]["id"] = to_hex<4>(rx->getEnsembleId());
         j["ensemble"]["ecc"] = to_hex<2>(rx->getEnsembleEcc());
 
-        nlohmann::json j_services;
+        nlohmann::json j_services = nlohmann::json::array();
         for (const auto& s : rx->getServiceList()) {
             nlohmann::json j_srv = {
                 {"sid", to_hex<4>(s.serviceId)},
