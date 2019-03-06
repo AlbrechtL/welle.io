@@ -602,7 +602,7 @@ bool WebRadioInterface::send_mux_json(Socket& s)
 
     {
         lock_guard<mutex> lock(fib_mut);
-        j["ensemble"]["fic"]["numcrcerrors"] = num_fic_crc_errors;
+        j["demodulator"]["fic"]["numcrcerrors"] = num_fic_crc_errors;
     }
 
     {
@@ -761,8 +761,8 @@ bool WebRadioInterface::send_mux_json(Socket& s)
 
         j["utctime"] = j_utc;
 
-        j["snr"] = last_snr;
-        j["frequencycorrection"] =
+        j["demodulator"]["snr"] = last_snr;
+        j["demodulator"]["frequencycorrection"] =
             last_fine_correction + last_coarse_correction;
 
         for (const auto& tii : getTiiStats()) {

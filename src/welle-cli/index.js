@@ -406,10 +406,10 @@ function populateEnsembleinfo() {
         document.getElementById("fftwindowselector").value = data.receiver.software.fftwindowplacement;
         document.getElementById("coarsecheckbox").checked = data.receiver.software.coarsecorrectorenabled;
 
-        ens["SNR"] = data.snr;
-        ens["FrequencyCorrection"] = data.frequencycorrection;
+        ens["SNR"] = data.demodulator.snr;
+        ens["FrequencyCorrection"] = data.demodulator.frequencycorrection;
         ens["services"] = servicehtml;
-        ens["ficcrcerrors"] = data.ensemble.fic.numcrcerrors;
+        ens["ficcrcerrors"] = data.demodulator.fic.numcrcerrors;
         var lcc = new Date(data.receiver.software.lastchannelchange * 1000);
         ens["lastchannelchange"] = lcc.toISOString();
 
