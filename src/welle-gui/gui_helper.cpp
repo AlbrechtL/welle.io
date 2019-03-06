@@ -288,7 +288,7 @@ void CGUIHelper::tryHideWindow()
 void CGUIHelper::updateSpectrum()
 {
     std::vector<DSPCOMPLEX> signalProbeBuffer;
-    int T_u = radioController->getDABParams().T_u;
+    int T_u = radioController->getParams().T_u;
 
     qreal y = 0;
     qreal x = 0;
@@ -355,7 +355,7 @@ void CGUIHelper::updateSpectrum()
 void CGUIHelper::updateImpulseResponse()
 {
     std::vector<float> impulseResponseBuffer;
-    int T_u = radioController->getDABParams().T_u;
+    int T_u = radioController->getParams().T_u;
 
     qreal y_max = 0;
     qreal x_min = 0;
@@ -388,8 +388,8 @@ void CGUIHelper::updateImpulseResponse()
 void CGUIHelper::updateNullSymbol()
 {
     std::vector<DSPCOMPLEX> nullSymbolBuffer;
-    int T_u = radioController->getDABParams().T_u;
-    int T_null = radioController->getDABParams().T_null;
+    int T_u = radioController->getParams().T_u;
+    int T_null = radioController->getParams().T_null;
 
     qreal y = 0;
     qreal x = 0;
@@ -463,7 +463,7 @@ void CGUIHelper::updateConstellation()
     constellationPointBuffer = radioController->getConstellationPoint();
 
     const size_t decim = OfdmDecoder::constellationDecimation;
-    const auto& params = radioController->getDABParams();
+    const auto& params = radioController->getParams();
     const size_t num_iqpoints = (params.L-1) * params.K / decim;
     if (constellationPointBuffer.size() == num_iqpoints) {
         constellationSeriesData.resize(num_iqpoints);

@@ -74,14 +74,13 @@ static quint32 deserialise_serviceid(const char *input)
     return value;
 }
 
-CRadioController::CRadioController(QVariantMap& commandLineOptions, DABParams& params, QObject *parent)
+CRadioController::CRadioController(QVariantMap& commandLineOptions, QObject *parent)
 //#ifdef Q_OS_ANDROID
 //    : CRadioControllerSource(parent)
 //#else
     : QObject(parent)
 //#endif
     , commandLineOptions(commandLineOptions)
-    , dabparams(params)
     , audioBuffer(2 * AUDIOBUFFERSIZE)
     , audio(audioBuffer)
 {
@@ -284,7 +283,7 @@ void CRadioController::setChannel(QString Channel, bool isScan, bool Force)
         }
 
         // Restart demodulator and decoder
-        radioReceiver = std::make_unique<RadioReceiver>(*this, *device, rro);
+        radioReceiver = std::make_unique<RadioReceiver>(*this, *device, rro, 1);
         radioReceiver->setReceiverOptions(rro);
         radioReceiver->restart(isScan);
 
@@ -475,9 +474,14 @@ void CRadioController::triggerRecorder(QString filename)
     device->writeRecordBufferToFile(filename_tmp);
 }
 
-DABParams& CRadioController::getDABParams()
+DABParams& CRadioController::getParams()
 {
-    return dabparams;
+    static DABParams dummyParams(1);
+
+    if(radioReceiver)
+        return radioReceiver->getParams();
+    else
+        return dummyParams;
 }
 
 int CRadioController::getCurrentFrequency()
@@ -494,7 +498,7 @@ std::vector<float> CRadioController::getImpulseResponse()
 
 std::vector<DSPCOMPLEX> CRadioController::getSignalProbe()
 {
-    int16_t T_u = dabparams.T_u;
+    int16_t T_u = getParams().T_u;
 
     if (device) {
         return device->getSpectrumSamples(T_u);

@@ -128,9 +128,6 @@ int main(int argc, char** argv)
     QString locale = QLocale::system().name();
     QTranslator *Translator = CGUIHelper::addTranslator(locale);
 
-    // Default values
-    DABParams dabparams(1);
-
     // Handle the command line
     QCommandLineParser optionParser;
     optionParser.setApplicationDescription("welle.io Help");
@@ -189,7 +186,7 @@ int main(int argc, char** argv)
     commandLineOptions["dumpFileName"] = optionParser.value(dumpFileName);
 
     // Create a new radio interface instance
-    CRadioController* radioController = new CRadioController(commandLineOptions, dabparams);
+    CRadioController* radioController = new CRadioController(commandLineOptions);
 //#endif
 
     QSettings settings;

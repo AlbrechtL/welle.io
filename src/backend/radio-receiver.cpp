@@ -209,3 +209,8 @@ Subchannel RadioReceiver::getSubchannel(const ServiceComponent& sc) const
 {
     return ficHandler.fibProcessor.getSubchannel(sc);
 }
+
+DABParams& RadioReceiver::getParams()
+{
+    return params;
+}

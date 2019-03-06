@@ -91,6 +91,8 @@ class RadioReceiver {
          */
         Subchannel getSubchannel(const ServiceComponent& sc) const;
 
+        DABParams& getParams(void);
+
     private:
         bool playProgramme(ProgrammeHandlerInterface& handler,
                 const Service& s,

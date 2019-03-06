@@ -101,7 +101,7 @@ class CRadioController :
 //#endif
 
 public:
-    CRadioController(QVariantMap &commandLineOptions, DABParams& params, QObject* parent = nullptr);
+    CRadioController(QVariantMap &commandLineOptions, QObject* parent = nullptr);
     void closeDevice();
     CDeviceID openDevice(CDeviceID deviceId, bool force = false, QVariant param1 = QVariant(), QVariant param2 = QVariant());
     CDeviceID openDevice();
@@ -125,7 +125,7 @@ public:
     Q_INVOKABLE void setGain(int gain);
     Q_INVOKABLE void initRecorder(int size);
     Q_INVOKABLE void triggerRecorder(QString filename);
-    DABParams& getDABParams(void);
+    DABParams& getParams(void);
     int getCurrentFrequency();
 
     // Buffer getter
@@ -163,7 +163,6 @@ private:
 
     std::shared_ptr<CVirtualInput> device;
     QVariantMap commandLineOptions;
-    DABParams dabparams;
     Channels channels;
     RadioReceiverOptions rro;
 
