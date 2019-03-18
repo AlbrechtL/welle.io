@@ -71,7 +71,6 @@ OFDMProcessor::OFDMProcessor(
     oscillatorTable(INPUT_RATE),
     disableCoarseCorrector(rro.disable_coarse_corrector),
     freqsyncMethod(rro.freqsyncMethod),
-    ofdmBuffer(params.L * params.T_s),
     phaseRef(params, rro.fftPlacementMethod),
     ofdmDecoder(params, ri, fic, msc),
     fft_handler(params.T_u),
@@ -231,6 +230,9 @@ void OFDMProcessor::run()
     int32_t     syncBufferMask  = syncBufferSize - 1;
     float       envBuffer   [syncBufferSize];
 
+    std::vector<DSPCOMPLEX> ofdmBuffer(params.L * params.T_s);
+    std::vector<std::vector<DSPCOMPLEX> > allSymbols;
+
     /*running       = true;
       fineCorrector   = 0;
       sLevel      = 0;*/
@@ -363,10 +365,12 @@ SyncOnPhase:
                 T_u - ofdmBufferIndex,
                 coarseCorrector + fineCorrector);
 
-        std::vector<complexf> prs(T_u);
-        std::copy(ofdmBuffer.begin(), ofdmBuffer.begin() + T_u, prs.begin());
+        std::vector<complexf> prs;
+        if (decodeTII) {
+            prs.resize(T_u);
+            std::copy(ofdmBuffer.begin(), ofdmBuffer.begin() + T_u, prs.begin());
+        }
 
-        ofdmDecoder.pushPRS(ofdmBuffer);
         //  Here we look only at the PRS when we need a coarse
         //  frequency synchronization.
         //  The width is limited to 2 * 35 kHz (i.e. positive and negative)
@@ -391,6 +395,11 @@ SyncOnPhase:
             lastValidFineCorrector = fineCorrector;
             lastValidCoarseCorrector = coarseCorrector;
         }
+
+        allSymbols.resize(params.L);
+        allSymbols[0] = move(ofdmBuffer);
+        ofdmBuffer.resize(params.L * params.T_s),
+
         /**
          * after symbol 0, we will just read in the other (params.L - 1) symbols
          */
@@ -404,13 +413,15 @@ SyncOnPhase:
          */
         DSPCOMPLEX FreqCorr = DSPCOMPLEX(0, 0);
         for (int sym = 1; sym < params.L; sym ++) {
-            std::vector<DSPCOMPLEX> buf(T_s);
+            auto& buf = allSymbols[sym];
+            buf.resize(T_s);
             getSamples(buf.data(), T_s, coarseCorrector + fineCorrector);
             for (int i = T_u; i < T_s; i ++)
                 FreqCorr += buf[i] * conj(buf[i - T_u]);
-
-            ofdmDecoder.pushSymbol(std::move(buf), sym);
         }
+
+        PROFILE(PushAllSymbols);
+        ofdmDecoder.pushAllSymbols(move(allSymbols));
 
         //NewOffset:
         /// we integrate the newly found frequency error with the

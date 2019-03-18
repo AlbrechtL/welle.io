@@ -129,34 +129,14 @@ void OfdmDecoder::workerthread()
     std::clog << "OFDM-decoder:" <<  "closing down now" << std::endl;
 }
 
-/**
- * We need some functions to enter the ofdmProcessor data
- * in the buffer.
- */
-void OfdmDecoder::pushPRS(std::vector<DSPCOMPLEX> &vi)
+void OfdmDecoder::pushAllSymbols(std::vector<std::vector<DSPCOMPLEX> >&& syms)
 {
     std::unique_lock<std::mutex> lock(mutex);
 
-    pending_symbols[0] = vi;
-    num_pending_symbols++;
+    pending_symbols = std::move(syms);
+    num_pending_symbols = pending_symbols.size();
     pending_symbols_cv.notify_one();
 }
-
-void OfdmDecoder::pushSymbol(std::vector<DSPCOMPLEX>&& vi, int sym_ix)
-{
-    std::unique_lock<std::mutex> lock(mutex);
-
-    pending_symbols[sym_ix] = std::move(vi);
-    num_pending_symbols++;
-    pending_symbols_cv.notify_one();
-}
-
-
-/**
- * Note that the distinction, made in the ofdmProcessor class
- * does not add much here, iff we decide to choose the multi core
- * option definitely, then code may be simplified there.
- */
 
 /**
  * handle symbol 0 as collected from the buffer
