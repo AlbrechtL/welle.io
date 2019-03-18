@@ -1311,7 +1311,7 @@ void WebRadioInterface::handle_phs()
 
 #if HAVE_SIGACTION
 static volatile sig_atomic_t sig_caught = 0;
-static void handler(int signum)
+static void handler(int /*signum*/)
 {
     sig_caught = 1;
 }

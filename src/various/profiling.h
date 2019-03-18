@@ -23,6 +23,7 @@
  *
  */
 
+
 #if defined(WITH_PROFILING)
 
 #include <cstdint>
@@ -32,15 +33,8 @@
 #include <thread>
 #include <mutex>
 
-
-#if defined(WITH_PROFILING)
-#  define PROFILE(m) get_profiler().save_time(ProfilingMark::m);
-#  define PROFILE_FRAME_DECODED() get_profiler().frame_decoded();
-#else
-#  define PROFILE(m)
-#  define PROFILE_FRAME_DECODED()
-#endif
-
+#define PROFILE(m) get_profiler().save_time(ProfilingMark::m);
+#define PROFILE_FRAME_DECODED() get_profiler().frame_decoded();
 
 enum class ProfilingMark {
     NotSynced,
@@ -101,4 +95,8 @@ class Profiler
 
 Profiler& get_profiler(void);
 
+#else
+# define PROFILE(m)
+# define PROFILE_FRAME_DECODED()
 #endif // defined(WITH_PROFILING)
+
