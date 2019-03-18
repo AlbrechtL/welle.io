@@ -32,6 +32,7 @@
 
 #include <cstddef>
 #include "ofdm-processor.h"
+#include "various/profiling.h"
 #include <iostream>
 //
 #define SEARCH_RANGE        (2 * 36)
@@ -211,6 +212,7 @@ void OFDMProcessor::getSamples(DSPCOMPLEX *v, int16_t n, int32_t phase)
     }
 }
 
+
 /***
  *    \brief run
  *    The main thread, reading samples,
@@ -241,6 +243,7 @@ void OFDMProcessor::run()
             l1_norm(getSample (0));
         }
 notSynced:
+        PROFILE(NotSynced);
         if (scanMode && ++attempts > 5) {
             radioInterface.onSignalPresence(false);
             scanMode  = false;
@@ -289,6 +292,7 @@ notSynced:
          */
         counter  = 0;
         //SyncOnEndNull:
+        PROFILE(SyncOnEndNull);
         while (currentStrength / 50 < 0.75 * sLevel) {
             DSPCOMPLEX sample = getSample (coarseCorrector + fineCorrector);
             envBuffer [syncBufferIndex] = l1_norm(sample);
@@ -308,6 +312,7 @@ notSynced:
          * samples earlier.
          */
 SyncOnPhase:
+        PROFILE(SyncOnPhase);
         /**
          * We now have to find the exact first sample of the non-null period.
          * We use a correlation that will find the first sample after the
@@ -325,6 +330,7 @@ SyncOnPhase:
         /// the real "first" sample
         startIndex = phaseRef.findIndex(ofdmBuffer.data(),
                 impulseResponseBuffer);
+        PROFILE(FindIndex);
         radioInterface.onNewImpulseResponse(std::move(impulseResponseBuffer));
         impulseResponseBuffer.clear();
 
@@ -389,6 +395,7 @@ SyncOnPhase:
          * after symbol 0, we will just read in the other (params.L - 1) symbols
          */
         //Data_symbols:
+        PROFILE(DataSymbols);
         /**
          * The first ones are the FIC symbols, followed by all MSC
          * symbols.  We immediately start with building up an average of the
@@ -418,12 +425,15 @@ SyncOnPhase:
         syncBufferIndex  = 0;
         currentStrength  = 0;
 
+        PROFILE(DecodeTII);
         // The NULL is interesting to save because it carries the TII.
         std::vector<DSPCOMPLEX> nullSymbol(T_null);
         getSamples(nullSymbol.data(), T_null, coarseCorrector + fineCorrector);
         if (decodeTII) {
             tiiDecoder.pushSymbols(nullSymbol, prs);
         }
+
+        PROFILE(OnNewNull);
         radioInterface.onNewNullSymbol(std::move(nullSymbol));
 
         /**
@@ -445,6 +455,7 @@ SyncOnPhase:
             }
         //ReadyForNewFrame:
         /// and off we go, up to the next frame
+        PROFILE_FRAME_DECODED()
         goto SyncOnPhase;
     }
     catch (int e) {

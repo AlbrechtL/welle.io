@@ -33,6 +33,7 @@
 #include "tests.h"
 #include "backend/radio-receiver.h"
 #include "raw_file.h"
+#include "various/profiling.h"
 #include <algorithm>
 #include <numeric>
 #include <random>
@@ -185,7 +186,7 @@ class TestRadioInterface : public RadioControllerInterface {
         chrono::steady_clock::time_point first_sync_time;
 };
 
-class   TestProgrammeHandler: public ProgrammeHandlerInterface {
+class TestProgrammeHandler: public ProgrammeHandlerInterface {
     private:
         int rate = 0;
 

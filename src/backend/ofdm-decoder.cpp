@@ -29,6 +29,7 @@
 
 #include <cstddef>
 #include "ofdm-decoder.h"
+#include "various/profiling.h"
 #include <iostream>
 
 /**
@@ -106,6 +107,7 @@ void OfdmDecoder::workerthread()
         }
 
         while (num_pending_symbols > 0 && running) {
+
             if (currentSym == 0)
                 processPRS();
             else
@@ -161,6 +163,7 @@ void OfdmDecoder::pushSymbol(std::vector<DSPCOMPLEX>&& vi, int sym_ix)
  */
 void OfdmDecoder::processPRS()
 {
+    PROFILE(ProcessPRS)
     memcpy (fft_buffer,
             pending_symbols[0].data(),
             params.T_u * sizeof(DSPCOMPLEX));
@@ -191,6 +194,7 @@ void OfdmDecoder::processPRS()
  */
 void OfdmDecoder::decodeDataSymbol(int32_t sym_ix)
 {
+    PROFILE(ProcessSymbol)
     memcpy (fft_buffer,
             pending_symbols[sym_ix].data() + T_g,
             params.T_u * sizeof (DSPCOMPLEX));
@@ -206,6 +210,7 @@ void OfdmDecoder::decodeDataSymbol(int32_t sym_ix)
      * The de-interleaving understands this
      */
 
+    PROFILE(Deinterleaver)
     /**
      * Note that from here on, we are only interested in the
      * K useful carriers of the FFT output
@@ -233,10 +238,15 @@ void OfdmDecoder::decodeDataSymbol(int32_t sym_ix)
         }
     }
 
-    if (sym_ix < 4)
+    if (sym_ix < 4) {
+        PROFILE(FICHandler)
         ficHandler.processFicBlock(ibits.data(), sym_ix);
-    else
+    }
+    else {
+        PROFILE(MSCHandler)
         mscHandler.processMscBlock(ibits.data(), sym_ix);
+    }
+    PROFILE(SymbolProcessed)
 }
 
 /**
