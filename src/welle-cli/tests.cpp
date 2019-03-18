@@ -232,14 +232,14 @@ Tests::Tests(std::unique_ptr<CVirtualInput>& interface, RadioReceiverOptions rro
 void Tests::test_with_noise_iteration(double stddev)
 {
     cerr << "Setup test0" << endl;
+    TestProgrammeHandler tph;
+
     ChannelSimulator s(input_interface, stddev);
     TestRadioInterface ri;
     RadioReceiver rx(ri, s, rro);
 
     cerr << "Restart rx" << endl;
     rx.restart(false);
-
-    TestProgrammeHandler tph;
 
     bool service_selected = false;
     string dumpFileName = "";
@@ -293,6 +293,8 @@ void Tests::test_multipath(int test_id)
 {
     cerr << "Setup test_multipath " << test_id << endl;
     TestRadioInterface ri;
+    TestProgrammeHandler tph;
+
     // Test 1=old variant, test 2=new variant
     if (not(test_id == 1 or test_id == 2)) {
         throw logic_error("Invalid test id");
@@ -308,8 +310,6 @@ void Tests::test_multipath(int test_id)
 
     cerr << "Restart rx" << endl;
     rx.restart(false);
-
-    TestProgrammeHandler tph;
 
     bool service_selected = false;
     string dumpFileName = "";
