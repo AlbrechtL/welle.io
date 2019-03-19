@@ -33,8 +33,8 @@
 #include <thread>
 #include <mutex>
 
-#define PROFILE(m) get_profiler().save_time(ProfilingMark::m);
-#define PROFILE_FRAME_DECODED() get_profiler().frame_decoded();
+#define PROFILE(m) get_profiler().save_time(ProfilingMark::m)
+#define PROFILE_FRAME_DECODED() get_profiler().frame_decoded()
 
 enum class ProfilingMark {
     NotSynced,

@@ -190,9 +190,10 @@ Profiler::~Profiler() {
 void Profiler::save_time(const ProfilingMark m) {
     const auto id = this_thread::get_id();
 
-    lock_guard<mutex> lock(m_mutex);
     struct timespec now;
     clock_gettime(CLOCK_THREAD_CPUTIME_ID, &now);
+
+    lock_guard<mutex> lock(m_mutex);
     m_timepoints[id].emplace_back(now, m);
 }
 

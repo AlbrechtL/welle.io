@@ -398,7 +398,7 @@ SyncOnPhase:
 
         allSymbols.resize(params.L);
         allSymbols[0] = move(ofdmBuffer);
-        ofdmBuffer.resize(params.L * params.T_s),
+        ofdmBuffer.resize(params.L * params.T_s);
 
         /**
          * after symbol 0, we will just read in the other (params.L - 1) symbols
@@ -466,7 +466,7 @@ SyncOnPhase:
             }
         //ReadyForNewFrame:
         /// and off we go, up to the next frame
-        PROFILE_FRAME_DECODED()
+        PROFILE_FRAME_DECODED();
         goto SyncOnPhase;
     }
     catch (int e) {
