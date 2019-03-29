@@ -66,12 +66,18 @@ public:
         rawStream.close();
     }
 
-    void initRecordBuffer(uint32_t size) {
+    void initRecordBuffer(uint32_t size) {       
         // The ring buffer size has to be power of 2
         uint32_t bitCount = ceil(log2(size));
         uint32_t bufferSize = pow(2, bitCount);
 
-        recordBuffer.reset(new RingBuffer<uint8_t>(bufferSize));
+        try {
+            recordBuffer.reset(new RingBuffer<uint8_t>(bufferSize));
+        }
+
+        catch (const std::bad_alloc& e) {
+                std::clog << "CVirtualInput: recordBuffer allocation failed (size " << bufferSize * sizeof(uint8_t) << " bytes) : " << e.what() << std::endl;
+        }
     }
 
 protected:
