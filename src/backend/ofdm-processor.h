@@ -98,7 +98,7 @@ class OFDMProcessor
         bool disableCoarseCorrector;
 
         FreqsyncMethod freqsyncMethod;
-        std::vector<DSPCOMPLEX> ofdmBuffer;
+
         uint32_t ofdmBufferIndex = 0;
         PhaseReference phaseRef;
         OfdmDecoder ofdmDecoder;

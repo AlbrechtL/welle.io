@@ -288,3 +288,9 @@ Limitations
 Development
 ===
 You can join the welle.io development. Please visit the [wiki](https://github.com/AlbrechtL/welle.io/wiki) to find more information.
+
+Profiling
+---
+If you build with cmake and add `-DPROFILING=ON`, welle-io will generate a few `.csv` files and a graphviz `.dot` file that can be used
+to analyse and understand which parts of the backend use CPU resources. Use `dot -Tpdf profiling.dot > profiling.pdf` to generate a graph
+visualisation. Search source code for the `PROFILE()` macro to see where the profiling marks are placed.

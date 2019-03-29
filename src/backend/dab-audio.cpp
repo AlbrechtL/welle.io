@@ -28,6 +28,7 @@
 #include "decoder_adapter.h"
 #include "eep-protection.h"
 #include "uep-protection.h"
+#include "profiling.h"
 
 //  As an experiment a version of the backend is created
 //  that will be running in a separate thread. Might be
@@ -123,16 +124,16 @@ void DabAudio::run()
         while (running && mscBuffer.GetRingBufferReadAvailable() <= fragmentSize) {
             mscDataAvailable.wait(lock);
         }
-
         if (!running)
             break;
 
         // mscBuffer is threadsafe to access, no need to keep the lock
         lock.unlock();
 
-
+        PROFILE(DAGetMSCData);
         mscBuffer.getDataFromBuffer(Data, fragmentSize);
 
+        PROFILE(DADeinterleave);
         for (i = 0; i < fragmentSize; i ++) {
             tempX[i] = interleaveData[(interleaverIndex +
                     interleaveMap[i & 017]) & 017][i];
@@ -146,14 +147,18 @@ void DabAudio::run()
             continue;
         }
 
+        PROFILE(DADeconvolve);
         protectionHandler->deconvolve(tempX, fragmentSize, outV.data());
 
+        PROFILE(DADispersal);
         // and the inline energy dispersal
         energyDispersal.dedisperse(outV);
 
         if (our_dabProcessor) {
+            PROFILE(DADecode);
             our_dabProcessor->addtoFrame(outV.data());
         }
+        PROFILE(DADone);
     }
 }
 

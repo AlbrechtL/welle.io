@@ -305,6 +305,7 @@ static void usage()
         " -u      disable coarse corrector, for receivers who have a low frequency offset." << endl <<
         " -g GAIN set input gain to GAIN or -1 for auto gain." << endl <<
         " -A ANT  set input antenna to ANT (for SoapySDR input only)." << endl <<
+        " -T      disable TII decoding to reduce CPU usage." << endl <<
         endl <<
         "Use -t test_number to run a test." << endl <<
         "To understand what the tests do, please see source code." << endl <<
@@ -320,7 +321,7 @@ options_t parse_cmdline(int argc, char **argv)
     options.rro.decodeTII = true;
 
     int opt;
-    while ((opt = getopt(argc, argv, "A:c:C:dDf:g:hp:Pt:w:u")) != -1) {
+    while ((opt = getopt(argc, argv, "A:c:C:dDf:g:hp:PTt:w:u")) != -1) {
         switch (opt) {
             case 'A':
                 options.antenna = optarg;
@@ -354,6 +355,9 @@ options_t parse_cmdline(int argc, char **argv)
                 exit(1);
             case 't':
                 options.tests.push_back(std::atoi(optarg));
+                break;
+            case 'T':
+                options.rro.decodeTII = false;
                 break;
             case 'w':
                 options.web_port = std::atoi(optarg);

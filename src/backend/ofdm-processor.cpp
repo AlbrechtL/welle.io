@@ -32,6 +32,7 @@
 
 #include <cstddef>
 #include "ofdm-processor.h"
+#include "various/profiling.h"
 #include <iostream>
 //
 #define SEARCH_RANGE        (2 * 36)
@@ -70,7 +71,6 @@ OFDMProcessor::OFDMProcessor(
     oscillatorTable(INPUT_RATE),
     disableCoarseCorrector(rro.disable_coarse_corrector),
     freqsyncMethod(rro.freqsyncMethod),
-    ofdmBuffer(params.L * params.T_s),
     phaseRef(params, rro.fftPlacementMethod),
     ofdmDecoder(params, ri, fic, msc),
     fft_handler(params.T_u),
@@ -211,6 +211,7 @@ void OFDMProcessor::getSamples(DSPCOMPLEX *v, int16_t n, int32_t phase)
     }
 }
 
+
 /***
  *    \brief run
  *    The main thread, reading samples,
@@ -229,6 +230,9 @@ void OFDMProcessor::run()
     int32_t     syncBufferMask  = syncBufferSize - 1;
     float       envBuffer   [syncBufferSize];
 
+    std::vector<DSPCOMPLEX> ofdmBuffer(params.L * params.T_s);
+    std::vector<std::vector<DSPCOMPLEX> > allSymbols;
+
     /*running       = true;
       fineCorrector   = 0;
       sLevel      = 0;*/
@@ -241,6 +245,7 @@ void OFDMProcessor::run()
             l1_norm(getSample (0));
         }
 notSynced:
+        PROFILE(NotSynced);
         if (scanMode && ++attempts > 5) {
             radioInterface.onSignalPresence(false);
             scanMode  = false;
@@ -289,6 +294,7 @@ notSynced:
          */
         counter  = 0;
         //SyncOnEndNull:
+        PROFILE(SyncOnEndNull);
         while (currentStrength / 50 < 0.75 * sLevel) {
             DSPCOMPLEX sample = getSample (coarseCorrector + fineCorrector);
             envBuffer [syncBufferIndex] = l1_norm(sample);
@@ -308,6 +314,7 @@ notSynced:
          * samples earlier.
          */
 SyncOnPhase:
+        PROFILE(SyncOnPhase);
         /**
          * We now have to find the exact first sample of the non-null period.
          * We use a correlation that will find the first sample after the
@@ -325,6 +332,7 @@ SyncOnPhase:
         /// the real "first" sample
         startIndex = phaseRef.findIndex(ofdmBuffer.data(),
                 impulseResponseBuffer);
+        PROFILE(FindIndex);
         radioInterface.onNewImpulseResponse(std::move(impulseResponseBuffer));
         impulseResponseBuffer.clear();
 
@@ -357,10 +365,12 @@ SyncOnPhase:
                 T_u - ofdmBufferIndex,
                 coarseCorrector + fineCorrector);
 
-        std::vector<complexf> prs(T_u);
-        std::copy(ofdmBuffer.begin(), ofdmBuffer.begin() + T_u, prs.begin());
+        std::vector<complexf> prs;
+        if (decodeTII) {
+            prs.resize(T_u);
+            std::copy(ofdmBuffer.begin(), ofdmBuffer.begin() + T_u, prs.begin());
+        }
 
-        ofdmDecoder.pushPRS(ofdmBuffer);
         //  Here we look only at the PRS when we need a coarse
         //  frequency synchronization.
         //  The width is limited to 2 * 35 kHz (i.e. positive and negative)
@@ -385,10 +395,16 @@ SyncOnPhase:
             lastValidFineCorrector = fineCorrector;
             lastValidCoarseCorrector = coarseCorrector;
         }
+
+        allSymbols.resize(params.L);
+        allSymbols[0] = move(ofdmBuffer);
+        ofdmBuffer.resize(params.L * params.T_s);
+
         /**
          * after symbol 0, we will just read in the other (params.L - 1) symbols
          */
         //Data_symbols:
+        PROFILE(DataSymbols);
         /**
          * The first ones are the FIC symbols, followed by all MSC
          * symbols.  We immediately start with building up an average of the
@@ -397,13 +413,15 @@ SyncOnPhase:
          */
         DSPCOMPLEX FreqCorr = DSPCOMPLEX(0, 0);
         for (int sym = 1; sym < params.L; sym ++) {
-            std::vector<DSPCOMPLEX> buf(T_s);
+            auto& buf = allSymbols[sym];
+            buf.resize(T_s);
             getSamples(buf.data(), T_s, coarseCorrector + fineCorrector);
             for (int i = T_u; i < T_s; i ++)
                 FreqCorr += buf[i] * conj(buf[i - T_u]);
-
-            ofdmDecoder.pushSymbol(std::move(buf), sym);
         }
+
+        PROFILE(PushAllSymbols);
+        ofdmDecoder.pushAllSymbols(move(allSymbols));
 
         //NewOffset:
         /// we integrate the newly found frequency error with the
@@ -418,12 +436,15 @@ SyncOnPhase:
         syncBufferIndex  = 0;
         currentStrength  = 0;
 
+        PROFILE(DecodeTII);
         // The NULL is interesting to save because it carries the TII.
         std::vector<DSPCOMPLEX> nullSymbol(T_null);
         getSamples(nullSymbol.data(), T_null, coarseCorrector + fineCorrector);
         if (decodeTII) {
             tiiDecoder.pushSymbols(nullSymbol, prs);
         }
+
+        PROFILE(OnNewNull);
         radioInterface.onNewNullSymbol(std::move(nullSymbol));
 
         /**
@@ -445,6 +466,7 @@ SyncOnPhase:
             }
         //ReadyForNewFrame:
         /// and off we go, up to the next frame
+        PROFILE_FRAME_DECODED();
         goto SyncOnPhase;
     }
     catch (int e) {

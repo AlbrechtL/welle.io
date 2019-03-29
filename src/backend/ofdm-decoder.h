@@ -47,8 +47,7 @@ class OfdmDecoder
                 FicHandler& ficHandler,
                 MscHandler& mscHandler);
         ~OfdmDecoder();
-        void    pushPRS(std::vector<DSPCOMPLEX>& sym);
-        void    pushSymbol(std::vector<DSPCOMPLEX>&& sym, int sym_ix);
+        void    pushAllSymbols(std::vector<std::vector<DSPCOMPLEX> >&& sym);
         void    reset();
     private:
         int16_t get_snr(DSPCOMPLEX *);

@@ -29,6 +29,7 @@
 
 #include <cstddef>
 #include "ofdm-decoder.h"
+#include "various/profiling.h"
 #include <iostream>
 
 /**
@@ -106,6 +107,7 @@ void OfdmDecoder::workerthread()
         }
 
         while (num_pending_symbols > 0 && running) {
+
             if (currentSym == 0)
                 processPRS();
             else
@@ -127,40 +129,21 @@ void OfdmDecoder::workerthread()
     std::clog << "OFDM-decoder:" <<  "closing down now" << std::endl;
 }
 
-/**
- * We need some functions to enter the ofdmProcessor data
- * in the buffer.
- */
-void OfdmDecoder::pushPRS(std::vector<DSPCOMPLEX> &vi)
+void OfdmDecoder::pushAllSymbols(std::vector<std::vector<DSPCOMPLEX> >&& syms)
 {
     std::unique_lock<std::mutex> lock(mutex);
 
-    pending_symbols[0] = vi;
-    num_pending_symbols++;
+    pending_symbols = std::move(syms);
+    num_pending_symbols = pending_symbols.size();
     pending_symbols_cv.notify_one();
 }
-
-void OfdmDecoder::pushSymbol(std::vector<DSPCOMPLEX>&& vi, int sym_ix)
-{
-    std::unique_lock<std::mutex> lock(mutex);
-
-    pending_symbols[sym_ix] = std::move(vi);
-    num_pending_symbols++;
-    pending_symbols_cv.notify_one();
-}
-
-
-/**
- * Note that the distinction, made in the ofdmProcessor class
- * does not add much here, iff we decide to choose the multi core
- * option definitely, then code may be simplified there.
- */
 
 /**
  * handle symbol 0 as collected from the buffer
  */
 void OfdmDecoder::processPRS()
 {
+    PROFILE(ProcessPRS);
     memcpy (fft_buffer,
             pending_symbols[0].data(),
             params.T_u * sizeof(DSPCOMPLEX));
@@ -191,6 +174,7 @@ void OfdmDecoder::processPRS()
  */
 void OfdmDecoder::decodeDataSymbol(int32_t sym_ix)
 {
+    PROFILE(ProcessSymbol);
     memcpy (fft_buffer,
             pending_symbols[sym_ix].data() + T_g,
             params.T_u * sizeof (DSPCOMPLEX));
@@ -206,6 +190,7 @@ void OfdmDecoder::decodeDataSymbol(int32_t sym_ix)
      * The de-interleaving understands this
      */
 
+    PROFILE(Deinterleaver);
     /**
      * Note that from here on, we are only interested in the
      * K useful carriers of the FFT output
@@ -233,10 +218,15 @@ void OfdmDecoder::decodeDataSymbol(int32_t sym_ix)
         }
     }
 
-    if (sym_ix < 4)
+    if (sym_ix < 4) {
+        PROFILE(FICHandler);
         ficHandler.processFicBlock(ibits.data(), sym_ix);
-    else
+    }
+    else {
+        PROFILE(MSCHandler);
         mscHandler.processMscBlock(ibits.data(), sym_ix);
+    }
+    PROFILE(SymbolProcessed);
 }
 
 /**

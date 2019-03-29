@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.2)
 
 project(Welle.Io VERSION 0.0.0 LANGUAGES C CXX)
 
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 14)
 
 add_definitions(-Wall)
@@ -30,6 +31,10 @@ if(NOT DEFINED KISS_FFT)
     set(KISS_FFT OFF)
 endif()
 
+if(NOT DEFINED PROFILING)
+    set(PROFILING OFF)
+endif()
+
 if(NOT APPLE)
   if(NOT DEFINED BUILD_WELLE_CLI)
     set(BUILD_WELLE_CLI ON)
@@ -43,6 +48,10 @@ if(BUILD_WELLE_IO)
     set(CMAKE_AUTORCC ON)
 
     find_package(Qt5 COMPONENTS Widgets Quick Multimedia Charts Qml REQUIRED)
+endif()
+
+if(PROFILING)
+    add_definitions(-DWITH_PROFILING)
 endif()
 
 find_package(ALSA)
@@ -121,11 +130,12 @@ set(backend_sources
     src/backend/tools.cpp
     src/backend/uep-protection.cpp
     src/backend/viterbi.cpp
+    src/various/Socket.cpp
+    src/various/Xtan2.cpp
     src/various/channels.cpp
     src/various/fft.cpp
-    src/various/Xtan2.cpp
+    src/various/profiling.cpp
     src/various/wavfile.c
-    src/various/Socket.cpp
     src/libs/fec/decode_rs_char.c
     src/libs/fec/encode_rs_char.c
     src/libs/fec/init_rs_char.c

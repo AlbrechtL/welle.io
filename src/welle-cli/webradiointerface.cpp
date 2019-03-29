@@ -33,6 +33,17 @@
 #include <utility>
 #include <cstdio>
 #include <errno.h>
+
+#ifdef __unix__
+# include <unistd.h>
+# if _POSIX_VERSION >= 200809L
+#  define HAVE_SIGACTION 1
+#  include <signal.h>
+# else
+#  define HAVE_SIGACTION 0
+# endif
+#endif
+
 #include "welle-cli/webradiointerface.h"
 #include "libs/json.hpp"
 
@@ -1298,12 +1309,28 @@ void WebRadioInterface::handle_phs()
     carousel_services_active.clear();
 }
 
+#if HAVE_SIGACTION
+static volatile sig_atomic_t sig_caught = 0;
+static void handler(int /*signum*/)
+{
+    sig_caught = 1;
+}
+#endif
 
 void WebRadioInterface::serve()
 {
     deque<future<bool> > running_connections;
 
-    while (true) {
+#if HAVE_SIGACTION
+    struct sigaction sa;
+    sa.sa_handler = handler;
+    sigemptyset(&sa.sa_mask);
+    if (sigaction(SIGINT, &sa, NULL) == -1) {
+        cerr << "Failed to set up signal handler" << endl;
+    }
+#endif
+
+    while (sig_caught == 0) {
         auto client = serverSocket.accept();
 
         running_connections.push_back(async(launch::async,
