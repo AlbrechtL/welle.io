@@ -22,14 +22,17 @@ ViewBaseFrame {
             WTumbler {
                 id: ringeBufferSetting
                 model: [5, 10, 60, 120, 240]
+
+
+                onCurrentIndexChanged: {
+                     ringeBufferSize = parseInt(ringeBufferSetting.currentItem.text) * 2048 * 1024
+                }
             }
 
             WButton {
                 text: isStart ? qsTr("Save ring buffer") : qsTr("Init")
 
                 onPressed: {
-                    ringeBufferSize = parseInt(ringeBufferSetting.currentItem.text) * 2048 * 1024
-
                     if(!isStart)
                         radioController.initRecorder(ringeBufferSize)
                     else
@@ -41,7 +44,7 @@ ViewBaseFrame {
         }
 
         TextStandart {
-            text: "Ring buffer size (roughly): " + (ringeBufferSize / 1000000).toFixed(0) + " MB"
+            text: "Ring buffer size (roughly): " + (ringeBufferSize / 1000000 * 2).toFixed(0) + " MB"
         }
     }
 }
