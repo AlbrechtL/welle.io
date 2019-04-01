@@ -1315,6 +1315,8 @@ static void handler(int /*signum*/)
 {
     sig_caught = 1;
 }
+#else
+const int sig_caught = 0;
 #endif
 
 void WebRadioInterface::serve()
