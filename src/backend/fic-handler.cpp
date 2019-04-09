@@ -54,7 +54,8 @@ FicHandler::FicHandler(RadioControllerInterface& mr) :
     fibProcessor(mr),
     myRadioInterface(mr),
     bitBuffer_out(768),
-    ofdm_input(2304)
+    ofdm_input(2304),
+    viterbiBlock(3072 + 24)
 {
     PI_15 = getPCodes(15 - 1);
     PI_16 = getPCodes(16 - 1);
@@ -107,17 +108,15 @@ void FicHandler::setBitsperBlock(int16_t b)
  * The function is called with a blkno. This should be 1, 2 or 3
  * for each time 2304 bits are in, we call processFicInput
  */
-void FicHandler::processFicBlock(int16_t *data, int16_t blkno)
+void FicHandler::processFicBlock(const softbit_t *data, int16_t blkno)
 {
-    int32_t i;
-
     if (blkno == 1) {
         index = 0;
         ficno = 0;
     }
 
     if ((1 <= blkno) && (blkno <= 3)) {
-        for (i = 0; i < bitsperBlock; i ++) {
+        for (int i = 0; i < bitsperBlock; i ++) {
             ofdm_input[index ++] = data[i];
             if (index >= 2304) {
                 processFicInput(ofdm_input.data(), ficno);
@@ -142,12 +141,13 @@ void FicHandler::processFicBlock(int16_t *data, int16_t blkno)
  * In the next coding step, we will combine this function with the
  * one above
  */
-void FicHandler::processFicInput(int16_t *ficblock, int16_t ficno)
+void FicHandler::processFicInput(const softbit_t *ficblock, int16_t ficno)
 {
     int16_t input_counter = 0;
     int16_t i, k;
     int32_t local         = 0;
-    int16_t viterbiBlock [3072 + 24];
+
+    memset(viterbiBlock.data(), 0, viterbiBlock.size() * sizeof(*viterbiBlock.data()));
 
     /**
      * a block of 2304 bits is considered to be a codeword
@@ -155,8 +155,6 @@ void FicHandler::processFicInput(int16_t *ficblock, int16_t ficno)
      * each 128 bit block contains 4 subblocks of 32 bits
      * on which the given puncturing is applied
      */
-    memset (viterbiBlock, 0, (3072 + 24) * sizeof (int16_t));
-
     for (i = 0; i < 21; i ++) {
         for (k = 0; k < 32 * 4; k ++) {
             if (PI_16 [k % 32] != 0) {
@@ -196,7 +194,7 @@ void FicHandler::processFicInput(int16_t *ficblock, int16_t ficno)
      * Now we have the full word ready for deconvolution
      * deconvolution is according to DAB standard section 11.2
      */
-    deconvolve (viterbiBlock, bitBuffer_out.data());
+    deconvolve(viterbiBlock.data(), bitBuffer_out.data());
 
     /**
      * if everything worked as planned, we now have a

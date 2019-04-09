@@ -126,7 +126,7 @@ bool MscHandler::removeSubchannel(const Subchannel& sub)
 //
 //  Any change in the selected service will only be active
 //  during te next processMscBlock call.
-void MscHandler::processMscBlock(int16_t *fbits, int16_t blkno)
+void MscHandler::processMscBlock(const softbit_t *fbits, int16_t blkno)
 {
     std::lock_guard<std::mutex> lock(mutex);
 
@@ -136,8 +136,7 @@ void MscHandler::processMscBlock(int16_t *fbits, int16_t blkno)
     int16_t currentblk = (blkno - 4) % numberofblocksperCIF;
 
     //  and the normal operation is:
-    memcpy(&cifVector[currentblk * bitsperBlock],
-            fbits, bitsperBlock * sizeof (int16_t));
+    memcpy(&cifVector[currentblk * bitsperBlock], fbits, bitsperBlock * sizeof(softbit_t));
 
     if (currentblk < numberofblocksperCIF - 1)
         return;
@@ -147,7 +146,7 @@ void MscHandler::processMscBlock(int16_t *fbits, int16_t blkno)
     cifCount = (cifCount + 1) & 03;
 
     for (auto& stream : streams) {
-        int16_t *myBegin = &cifVector[stream.subCh.startAddr * CUSize];
+        softbit_t *myBegin = &cifVector[stream.subCh.startAddr * CUSize];
 
         if (stream.dabHandler) {
             (void)stream.dabHandler->process(myBegin, stream.subCh.length * CUSize);

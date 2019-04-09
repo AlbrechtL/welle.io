@@ -32,7 +32,7 @@ class UEPProtection: public Protection, public Viterbi
 {
     public:
         UEPProtection(int16_t bitRate, int16_t protLevel);
-        bool deconvolve(int16_t *v, int32_t size, uint8_t *outBuffer);
+        bool deconvolve(const softbit_t *v, int32_t size, uint8_t *outBuffer);
     private:
         int16_t L1;
         int16_t L2;
@@ -43,7 +43,7 @@ class UEPProtection: public Protection, public Viterbi
         const int8_t *PI3;
         const int8_t *PI4;
         int32_t outSize;
-        std::vector<int16_t> viterbiBlock;
+        std::vector<softbit_t> viterbiBlock;
 };
 
 #endif

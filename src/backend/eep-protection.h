@@ -31,14 +31,14 @@
 class EEPProtection: public Protection, public Viterbi {
     public:
         EEPProtection(int16_t bitRate, bool profile_is_eep_a, int level);
-        bool deconvolve(int16_t *v, int32_t size, uint8_t *outBuffer);
+        bool deconvolve(const softbit_t *v, int32_t size, uint8_t *outBuffer);
     private:
         int16_t L1;
         int16_t L2;
         const int8_t *PI1;
         const int8_t *PI2;
         int32_t outSize;
-        std::vector<int16_t> viterbiBlock;
+        std::vector<softbit_t> viterbiBlock;
 };
 
 #endif

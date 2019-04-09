@@ -22,15 +22,15 @@
 #ifndef _DAB_VIRTUAL
 #define _DAB_VIRTUAL
 
-#include    <stdint.h>
-#include    <stdio.h>
+#include <cstdint>
+#include "dab-constants.h"
 
 #define CUSize  (4 * 16)
 
 class DabVirtual {
     public:
         virtual ~DabVirtual() {}
-        virtual int32_t process(int16_t *v, int16_t cnt) = 0;
+        virtual int32_t process(const softbit_t *v, int16_t cnt) = 0;
 };
 #endif
 

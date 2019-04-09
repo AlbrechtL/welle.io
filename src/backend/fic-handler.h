@@ -39,7 +39,7 @@ class FicHandler: public Viterbi
 {
     public:
         FicHandler(RadioControllerInterface& mr);
-        void    processFicBlock(int16_t *data, int16_t blkno);
+        void    processFicBlock(const softbit_t *data, int16_t blkno);
         void    setBitsperBlock(int16_t b);
         void    clearEnsemble();
         bool    getIsCrcValid();
@@ -49,11 +49,12 @@ class FicHandler: public Viterbi
 
     private:
         RadioControllerInterface& myRadioInterface;
-        void        processFicInput(int16_t *ficblock, int16_t ficno);
+        void        processFicInput(const softbit_t *ficblock, int16_t ficno);
         const int8_t *PI_15;
         const int8_t *PI_16;
         std::vector<uint8_t> bitBuffer_out;
-        std::vector<int16_t> ofdm_input;
+        std::vector<softbit_t> ofdm_input;
+        std::vector<softbit_t> viterbiBlock;
         int16_t     index = 0;
         int16_t     bitsperBlock = 2 * 1536;
         int16_t     ficno = 0;

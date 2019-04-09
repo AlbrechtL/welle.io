@@ -112,16 +112,13 @@ EEPProtection::EEPProtection(int16_t bitRate, bool profile_is_eep_a, int level) 
     }
 }
 
-bool EEPProtection::deconvolve(
-        int16_t *v,
-        int32_t size,
-        uint8_t *outBuffer)
+bool EEPProtection::deconvolve(const softbit_t *v, int32_t size, uint8_t *outBuffer)
 {
     int16_t i, j;
     int32_t inputCounter    = 0;
     int32_t viterbiCounter  = 0;
     (void)size;         // currently unused
-    memset(viterbiBlock.data(), 0, (outSize * 4 + 24) * sizeof(int16_t));
+    memset(viterbiBlock.data(), 0, (outSize * 4 + 24) * sizeof(softbit_t));
     //
     //  according to the standard we process the logical frame
     //  with a pair of tuples

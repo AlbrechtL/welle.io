@@ -91,7 +91,7 @@ DabAudio::~DabAudio()
     }
 }
 
-int32_t DabAudio::process(int16_t *v, int16_t cnt)
+int32_t DabAudio::process(const softbit_t *v, int16_t cnt)
 {
     int32_t fr;
 
@@ -116,8 +116,8 @@ void DabAudio::run()
     int16_t i;
     int16_t countforInterleaver = 0;
     int16_t interleaverIndex    = 0;
-    int16_t Data[fragmentSize];
-    int16_t tempX[fragmentSize];
+    softbit_t Data[fragmentSize];
+    softbit_t tempX[fragmentSize];
 
     while (running) {
         std::unique_lock<std::mutex> lock(ourMutex);

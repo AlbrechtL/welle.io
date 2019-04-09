@@ -61,7 +61,7 @@ class MscHandler
 
     private:
         friend class OfdmDecoder;
-        void processMscBlock(int16_t *fbits, int16_t blkno);
+        void processMscBlock(const softbit_t *fbits, int16_t blkno);
 
         struct SelectedStream {
             SelectedStream(
@@ -90,7 +90,7 @@ class MscHandler
         int16_t numberofblocksperCIF;
         bool show_crcErrors;
 
-        std::vector<int16_t> cifVector;
+        std::vector<softbit_t> cifVector;
         int16_t cifCount = 0; // msc blocks in CIF
         int16_t blkCount = 0;
         bool work_to_be_done = false;

@@ -24,7 +24,8 @@
 #ifndef __PROTECTION
 #define __PROTECTION
 
-#include    <stdint.h>
+#include <cstdint>
+#include "dab-constants.h"
 
 extern uint8_t PI_X[];
 
@@ -32,7 +33,7 @@ class Protection
 {
     public:
         virtual ~Protection() = default;
-        virtual bool deconvolve(int16_t *, int32_t, uint8_t *) = 0;
+        virtual bool deconvolve(const softbit_t *, int32_t, uint8_t *) = 0;
 };
 #endif
 

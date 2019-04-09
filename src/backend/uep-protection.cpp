@@ -166,7 +166,7 @@ UEPProtection::UEPProtection(
         PI4 = nullptr;
 }
 
-bool UEPProtection::deconvolve(int16_t *v, int32_t size, uint8_t *outBuffer)
+bool UEPProtection::deconvolve(const softbit_t *v, int32_t size, uint8_t *outBuffer)
 {
     int16_t i, j;
     int16_t inputCounter    = 0;
@@ -179,7 +179,7 @@ bool UEPProtection::deconvolve(int16_t *v, int32_t size, uint8_t *outBuffer)
 
     /// clear the bits in the viterbiBlock,
     /// only the non-punctured ones are set
-    memset (viterbiBlock.data(), 0, (outSize * 4 + 24) * sizeof (int16_t));
+    memset(viterbiBlock.data(), 0, (outSize * 4 + 24) * sizeof(softbit_t));
 
     for (i = 0; i < L1; i ++) {
         for (j = 0; j < 128; j ++) {

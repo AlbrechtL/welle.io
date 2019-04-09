@@ -53,7 +53,7 @@ class DabAudio : public DabVirtual
         DabAudio(const DabAudio&) = delete;
         DabAudio& operator=(const DabAudio&) = delete;
 
-        int32_t process(int16_t *v, int16_t cnt);
+        int32_t process(const softbit_t *v, int16_t cnt);
 
     protected:
         ProgrammeHandlerInterface& myProgrammeHandler;
@@ -65,7 +65,7 @@ class DabAudio : public DabVirtual
         int16_t fragmentSize;
         int16_t bitRate;
         std::vector<uint8_t> outV;
-        std::vector<int16_t> interleaveData[16];
+        std::vector<softbit_t> interleaveData[16];
         EnergyDispersal energyDispersal;
 
         std::condition_variable  mscDataAvailable;
@@ -74,7 +74,7 @@ class DabAudio : public DabVirtual
 
         std::unique_ptr<Protection> protectionHandler;
         std::unique_ptr<DabProcessor> our_dabProcessor;
-        RingBuffer<int16_t> mscBuffer;
+        RingBuffer<softbit_t> mscBuffer;
 
         const std::string dumpFileName;
 };

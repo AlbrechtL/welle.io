@@ -224,13 +224,13 @@ uint8_t getbit (uint8_t v, int32_t o)
 //  Note that our DAB environment maps the softbits to -127 .. 127
 //  we have to map that onto 0 .. 255
 
-void Viterbi::deconvolve(int16_t *input, uint8_t *output)
+void Viterbi::deconvolve(softbit_t *input, uint8_t *output)
 {
     uint32_t    i;
 
     init_viterbi (&vp, 0);
     for (i = 0; i < (uint16_t)(frameBits + (K - 1)) * RATE; i ++) {
-        int16_t temp = input[i] + 127;
+        COMPUTETYPE temp = (COMPUTETYPE)input[i] + 127;
         if (temp < 0) temp = 0;
         if (temp > 255) temp = 255;
         symbols[i] = temp;

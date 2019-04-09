@@ -47,7 +47,7 @@ class Viterbi
         ~Viterbi(void);
         Viterbi(const Viterbi& other) = delete;
         Viterbi& operator=(const Viterbi& other) = delete;
-        void deconvolve(int16_t *input, uint8_t *output);
+        void deconvolve(softbit_t *input, uint8_t *output);
 
     private:
         struct v    vp;
