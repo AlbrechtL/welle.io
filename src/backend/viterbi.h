@@ -10,10 +10,8 @@
 #define RATE    4
 #define NUMSTATES 64
 #define DECISIONTYPE uint32_t
-//#define DECISIONTYPE uint8_t
-//#define DECISIONTYPE_BITSIZE 8
-#define DECISIONTYPE_BITSIZE 32
-#define COMPUTETYPE uint32_t
+#define DECISIONTYPE_BITSIZE (sizeof(DECISIONTYPE) * 8)
+#define COMPUTETYPE uint16_t
 
 //decision_t is a BIT vector
 typedef union {

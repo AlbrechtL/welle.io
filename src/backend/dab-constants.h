@@ -47,7 +47,7 @@
 
 using DSPFLOAT = float;
 using DSPCOMPLEX = std::complex<DSPFLOAT>;
-using softbit_t = int16_t;
+using softbit_t = int8_t;
 
 enum class AudioServiceComponentType { DAB, DABPlus, Unknown };
 
