@@ -23,51 +23,45 @@ ViewBaseFrame {
             text: radioController.channel + " (" + (radioController.frequency > 0 ? radioController.frequency/1e6 :  "N/A") + " MHz)"
         }
 
-        GridLayout {
-            columns: 3
-
-            TextExpert {
-                name: qsTr("Frame sync")
-            }
-
-            TextExpert {
-                name: qsTr("FIC CRC")
-            }
-
-            TextExpert {
-                name: qsTr("Frame errors")
-            }
-
-            TextExpert {
-                text: radioController.isSync ? qsTr("OK") : qsTr("Not synced")
-            }
-
-            TextExpert {
-                text: radioController.isFICCRC ? qsTr("OK") : qsTr("Error")
-            }
-
-            TextExpert {
-                text: radioController.frameErrors
-            }
-
+        RowLayout {
             Rectangle{
                 height: Units.dp(16)
                 width: Units.dp(16)
                 color: radioController.isSync ? "green" : "red"
             }
 
+            TextExpert {
+                name: qsTr("Frame sync")  + ":"
+                text: radioController.isSync ? qsTr("OK") : qsTr("Not synced")
+            }
+
+        }
+
+        RowLayout {
             Rectangle{
                 height: Units.dp(16)
                 width: Units.dp(16)
                 color: radioController.isFICCRC ? "green" : "red"
             }
 
+            TextExpert {
+                name: qsTr("FIC CRC")  + ":"
+                text: radioController.isFICCRC ? qsTr("OK") : qsTr("Error")
+            }
+        }
+
+        RowLayout {
             Rectangle{
                 height: Units.dp(16)
                 width: Units.dp(16)
                 color: (radioController.frameErrors === 0
                         && radioController.isSync
                         && radioController.isFICCRC) ? "green" : "red"
+            }
+
+            TextExpert {
+                name: qsTr("Frame errors")  + ":"
+                text: radioController.frameErrors
             }
         }
 
