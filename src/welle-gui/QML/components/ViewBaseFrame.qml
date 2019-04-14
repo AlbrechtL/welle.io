@@ -17,6 +17,20 @@ Rectangle {
     property alias labelText: label.text
     property string sourcePath
     property bool isExpert: false
+    property int index: -1
+
+    signal requestPositionChange(var sender, int row, int column)
+
+    Component.onCompleted: {
+        requestPositionChange.connect(parent.onRequestPositionChange)
+    }
+
+    Rectangle {
+        id: rootBox
+        anchors.fill: parent
+        color: "lightgrey"
+        visible: mouseArea.pressed
+    }
 
     ColumnLayout {
         anchors.fill: parent
@@ -25,6 +39,33 @@ Rectangle {
             Layout.fillWidth: true
             Layout.topMargin: Units.dp(5)
             visible: isExpert
+
+            MouseArea {
+                id: mouseArea
+                anchors.fill: parent
+                acceptedButtons: Qt.LeftButton
+                hoverEnabled: true
+
+                drag.target: root
+                drag.axis: Drag.XAxis | Drag.YAxis
+                drag.minimumX: 0
+                drag.minimumY: 0
+
+                onPressed: {
+                    // Bring item to front
+                    root.z = 1
+                }
+
+                onReleased: {
+                    // Calculate row and column from current size
+                    var column = (root.x / root.width)
+                    var row = (root.y / root.height)
+                    requestPositionChange(root, row.toFixed(0), column.toFixed(0))
+
+                    // Reset stacking order
+                    root.z = 0
+                }
+            }
 
             background: Rectangle {
                 implicitHeight: menuButton.height
