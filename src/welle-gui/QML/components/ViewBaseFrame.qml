@@ -17,12 +17,16 @@ Rectangle {
     property alias labelText: label.text
     property string sourcePath
     property bool isExpert: false
-    property int index: -1
+    property bool isMaximize: false
 
     signal requestPositionChange(var sender, int row, int column)
+    signal requestMaximize(var sender, bool isMaximize)
+    signal itemRemove(var sender)
 
     Component.onCompleted: {
         requestPositionChange.connect(parent.onRequestPositionChange)
+        requestMaximize.connect(parent.onRequestMaximize)
+        itemRemove.connect(parent.onItemRemove)
     }
 
     Rectangle {
@@ -98,9 +102,21 @@ Rectangle {
                     transformOrigin: Menu.TopRight
 
                     MenuItem {
+                        text: isMaximize ? qsTr("Minimize") : qsTr("Maximize")
+                        font.pixelSize: TextStyle.textStandartSize
+                        onTriggered: {
+                            isMaximize = !isMaximize
+                            requestMaximize(root, isMaximize)
+                        }
+                    }
+
+                    MenuItem {
                         text: qsTr("Remove")
                         font.pixelSize: TextStyle.textStandartSize
-                        onTriggered: root.destroy()
+                        onTriggered: {
+                            itemRemove(root)
+                            root.destroy()
+                        }
                     }
                 }
             }

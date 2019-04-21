@@ -15,70 +15,90 @@ GridLayout {
     property string serialized: ""
     property bool isExpert: false
     property bool isPortrait: false
-    property int viewCount: 0
 
     Settings {
         property alias viewComponents: gridLayout.serialized
     }
 
-    function addComponent(path, index = -1) {
+    function addComponent(path, row = -1, column = -1) {
         // Check of component already exisits
         for (var i = 0; i < children.length; ++i)
             if(children[i].sourcePath === path)
                 return;
 
+        var rows = Math.ceil(Math.sqrt(children.length + 1)) -  1
+        var foundCell = false
+
+        var rowIndex = 0
+        var columnIndex = 0
+
+        if(row === -1 && column === -1) {
+            // Find next free cell
+            while(!foundCell) {
+                 if(__checkCell(rowIndex, columnIndex) === undefined) {
+//                     console.debug("Found cell row: " + rowIndex + " column: " + columnIndex)
+                     foundCell = true
+                     break
+                 }
+
+                rowIndex++
+
+               // Use next column
+               if(rowIndex > rows && !isPortrait) {
+                   columnIndex++
+                   rowIndex = 0
+               }
+            }
+        }
+        else {
+            rowIndex = row
+            columnIndex = column
+        }
+
+        // Create new view
         var component = Qt.createComponent(path);
         var object = component.createObject(gridLayout);
         object.sourcePath = path; // Save path inside component to make a saving possible
         object.isExpert = Qt.binding(function() { return isExpert })
 
-        if(index === -1)
-            object.index = viewCount
-        else
-            object.index = index
+        // Assign cell
+        object.Layout.row = rowIndex
+        object.Layout.column = columnIndex
 
-        viewCount = viewCount + 1;
-
-        if(index === -1)
-            __placeObjects()
-
+        // Save view
         __serialize()
     }
 
     function onRequestPositionChange(sender, row, column) {
-        var index = 0
+        var cellChild = __checkCell(row, column)
 
-        // Find object in occupied cell
-        for (var i = 0; i < children.length; ++i) {
-            var child = children[i]
-            if(row === child.Layout.row && column === child.Layout.column) {
-               index = child.index
-               break
-            }
+        // Flip position if cell is used
+        if(cellChild !== undefined) {
+            cellChild.Layout.row = sender.Layout.row
+            cellChild.Layout.column = sender.Layout.column
         }
 
-        // Remove sender index from list
-        for (var i = 0; i < children.length; ++i) {
-            var child = children[i]
-            if(child.index > sender.index)
-                child.index--
-        }
+        sender.Layout.row = row
+        sender.Layout.column = column
 
-        // Move items down from new index
-        for (var i = 0; i < children.length; ++i) {
-            var child = children[i]
-            if(child.index >= index)
-                child.index++
-        }
-
-        // Give sender object the new index
-        sender.index = index
-
-        // Finally reorder the items
-        __placeObjects()
-
-        // Save it
+        // Save view
         __serialize()
+    }
+
+    function onItemRemove(sender) {
+
+    }
+
+    function onRequestMaximize(sender, isMaximize) {
+        if(isMaximize === true) {
+            for(var i = 0; i < children.length; ++i)
+                if(children[i] !== sender)
+                   children[i].visible = false
+        }
+        else {
+            for(var i = 0; i < children.length; ++i)
+                children[i].visible = true
+        }
     }
 
     onIsExpertChanged: {
@@ -100,12 +120,14 @@ GridLayout {
 
     function __serialize() {
         var pathList = []
-        var indexList = []
+        var rowList = []
+        var columnList = []
         for (var i = 0; i < children.length; ++i) {
             pathList.push(children[i].sourcePath)
-            indexList.push(children[i].index)
+            rowList.push(children[i].Layout.row)
+            columnList.push(children[i].Layout.column)
         }
-        serialized = JSON.stringify([pathList, indexList])
+        serialized = JSON.stringify([pathList, rowList, columnList])
     }
 
     function __deserialize() {
@@ -113,14 +135,13 @@ GridLayout {
             var tmp = JSON.parse(serialized)
 
             var pathList = tmp[0]
-            var indexList = tmp[1]
+            var rowList = tmp[1]
+            var columnList = tmp[2]
 
             if(Array.isArray(pathList)) {
                 for (var i = 0; i < pathList.length; ++i)
                     if(pathList !== "")
-                        addComponent(pathList[i], indexList[i])
-
-                __placeObjects()
+                        addComponent(pathList[i], rowList[i], columnList[i])
             }
             else { // Fall back for old settings
                 for (var i = 0; i < tmp.length; ++i)
@@ -138,37 +159,13 @@ GridLayout {
         addComponent("qrc:/QML/MotView.qml")
     }
 
-    function __placeObjects(){
-        // Distribute rows and columns equaly
-        var rows = Math.ceil(Math.sqrt(viewCount)) - 1
-
-        var rowIndex = 0
-        var columnIndex = 0
-
+    function __checkCell(row, column) {
+        // Check if cell is already in use
         for (var i = 0; i < children.length; ++i) {
-            var child = __getObjectByIndex(i)
-
-            if(child === undefined)
-                for (var j = 0; j < children.length; ++j)
-                    console.debug("child undefined with index " + children[j].index)
-
-            // Assign cell to each visual elememnt
-            child.Layout.row = rowIndex
-            child.Layout.column = columnIndex
-
-            rowIndex++
-
-            // Use next column
-            if(rowIndex > rows) {
-                columnIndex++
-                rowIndex = 0
-            }
-        }
-    }
-
-    function __getObjectByIndex(index) {
-        for (var i = 0; i < children.length; ++i)
-            if(index === children[i].index)
+            if(row === children[i].Layout.row && column === children[i].Layout.column)
                 return children[i]
+        }
+
+        return undefined
     }
 }
