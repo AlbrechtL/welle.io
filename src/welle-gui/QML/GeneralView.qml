@@ -20,8 +20,8 @@ GridLayout {
         property alias viewComponents: gridLayout.serialized
     }
 
-    function addComponent(path, row = -1, column = -1) {
-        // Check of component already exisits
+    function addComponent(path, row, column) {
+        // Check of component already exists
         for (var i = 0; i < children.length; ++i)
             if(children[i].sourcePath === path)
                 return;
@@ -146,7 +146,7 @@ GridLayout {
             else { // Fall back for old settings
                 for (var i = 0; i < tmp.length; ++i)
                     if(tmp !== "")
-                        addComponent(tmp[i])
+                        addComponent(tmp[i], -1, -1)
                 }
         }
         else {
@@ -155,8 +155,8 @@ GridLayout {
     }
 
     function __initComponents() {
-        addComponent("qrc:/QML/RadioView.qml")
-        addComponent("qrc:/QML/MotView.qml")
+        addComponent("qrc:/QML/RadioView.qml", -1)
+        addComponent("qrc:/QML/MotView.qml", -1)
     }
 
     function __checkCell(row, column) {

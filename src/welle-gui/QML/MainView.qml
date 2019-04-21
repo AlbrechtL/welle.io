@@ -392,55 +392,55 @@ ApplicationWindow {
             MenuItem {
                 text: qsTr("Service Overview")
                 font.pixelSize: TextStyle.textStandartSize
-                onTriggered: generalView.addComponent("qrc:/QML/RadioView.qml")
+                onTriggered: generalView.addComponent("qrc:/QML/RadioView.qml", -1 ,-1)
             }
 
             MenuItem {
                 text: qsTr("Service Details")
                 font.pixelSize: TextStyle.textStandartSize
-                onTriggered: generalView.addComponent("qrc:/QML/expertviews/ServiceDetails.qml")
+                onTriggered: generalView.addComponent("qrc:/QML/expertviews/ServiceDetails.qml", -1 ,-1)
             }
 
             MenuItem {
                 text: qsTr("MOT Slide Show")
                 font.pixelSize: TextStyle.textStandartSize
-                onTriggered: generalView.addComponent("qrc:/QML/MotView.qml")
+                onTriggered: generalView.addComponent("qrc:/QML/MotView.qml", -1 ,-1)
             }
 
             MenuItem {
                 text: qsTr("Spectrum")
                 font.pixelSize: TextStyle.textStandartSize
-                onTriggered: generalView.addComponent("qrc:/QML/expertviews/SpectrumGraph.qml")
+                onTriggered: generalView.addComponent("qrc:/QML/expertviews/SpectrumGraph.qml", -1 ,-1)
             }
 
             MenuItem {
                 text: qsTr("Impulse Response")
                 font.pixelSize: TextStyle.textStandartSize
-                onTriggered: generalView.addComponent("qrc:/QML/expertviews/ImpulseResponseGraph.qml")
+                onTriggered: generalView.addComponent("qrc:/QML/expertviews/ImpulseResponseGraph.qml", -1 ,-1)
             }
 
             MenuItem {
                 text: qsTr("Constellation Diagram")
                 font.pixelSize: TextStyle.textStandartSize
-                onTriggered: generalView.addComponent("qrc:/QML/expertviews/ConstellationGraph.qml")
+                onTriggered: generalView.addComponent("qrc:/QML/expertviews/ConstellationGraph.qml", -1 ,-1)
             }
 
             MenuItem {
                 text: qsTr("Null Symbol")
                 font.pixelSize: TextStyle.textStandartSize
-                onTriggered: generalView.addComponent("qrc:/QML/expertviews/NullSymbolGraph.qml")
+                onTriggered: generalView.addComponent("qrc:/QML/expertviews/NullSymbolGraph.qml", -1 ,-1)
             }
 
             MenuItem {
                 text: qsTr("Console Output")
                 font.pixelSize: TextStyle.textStandartSize
-                onTriggered: generalView.addComponent("qrc:/QML/expertviews/TextOutputView.qml")
+                onTriggered: generalView.addComponent("qrc:/QML/expertviews/TextOutputView.qml", -1 ,-1)
             }
 
             MenuItem {
                 text: qsTr("RAW Recorder")
                 font.pixelSize: TextStyle.textStandartSize
-                onTriggered: generalView.addComponent("qrc:/QML/expertviews/RawRecorder.qml")
+                onTriggered: generalView.addComponent("qrc:/QML/expertviews/RawRecorder.qml", -1 ,-1)
             }
         }
     }
