@@ -25,6 +25,7 @@ ViewBaseFrame {
                 color: "white"
                 width: flick.width
                 wrapMode: TextEdit.Wrap
+                readOnly: true
 
                 onLineCountChanged: {
                     // Count total number of lines ("\n")
