@@ -374,9 +374,16 @@ SyncOnPhase:
         //  Here we look only at the PRS when we need a coarse
         //  frequency synchronization.
         //  The width is limited to 2 * 35 kHz (i.e. positive and negative)
-        if (!disableCoarseCorrector and !ficHandler.getIsCrcValid()) {
-            if(!coarseSyncCounter)
+        //
+        //  We inhibit touching the coarse corrector if more than 50% of
+        //  FICs had correct CRC, because enabling the coarse corrector during a short
+        //  reception glitch might provoke a long delay until it resyncs properly.
+        //  As long as some FICs have correct CRC, we assume the coarse corrector cannot
+        //  be off.
+        if (!disableCoarseCorrector and ficHandler.getFicDecodeRatioPercent() < 50) {
+            if (!coarseSyncCounter) {
                 std::clog << "ofdm-processor: " << "Lost coarse sync (coarseCorrector: " << lastValidCoarseCorrector << "; fineCorrector: " <<  lastValidFineCorrector << ")" << std::endl;
+            }
 
             coarseSyncCounter++;
             int correction = processPRS(ofdmBuffer.data());
@@ -387,7 +394,7 @@ SyncOnPhase:
             }
         }
         else {
-            if(coarseSyncCounter) {
+            if (coarseSyncCounter) {
                  std::clog << "ofdm-processor: " << "Found sync (coarseCorrector: " << lastValidCoarseCorrector << "; fineCorrector: " <<  lastValidFineCorrector << " after " << coarseSyncCounter << " frames)" << std::endl;
             }
             coarseSyncCounter = 0;

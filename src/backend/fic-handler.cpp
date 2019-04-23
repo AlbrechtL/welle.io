@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2018
+ *    Copyright (C) 2019
  *    Matthias P. Braendli (matthias.braendli@mpb.li)
  *
  *    Copyright (C) 2013
@@ -59,7 +59,7 @@ FicHandler::FicHandler(RadioControllerInterface& mr) :
 {
     PI_15 = getPCodes(15 - 1);
     PI_16 = getPCodes(16 - 1);
-    memset(shiftRegister, 1, 9);
+    std::vector<uint8_t> shiftRegister(9, 1);
 
     for (int i = 0; i < 768; i++) {
         PRBS[i] = shiftRegister[8] ^ shiftRegister[4];
@@ -214,12 +214,18 @@ void FicHandler::processFicInput(const softbit_t *ficblock, int16_t ficno)
      */
     for (i = ficno * 3; i < ficno * 3 + 3; i ++) {
         uint8_t *p = &bitBuffer_out[(i % 3) * 256];
-        crcvalid = check_CRC_bits(p, 256);
+        const bool crcvalid = check_CRC_bits(p, 256);
         myRadioInterface.onFIBDecodeSuccess(crcvalid, p);
-        if (!crcvalid) {
-            continue;
+        if (crcvalid) {
+            fibProcessor.processFIB(p, ficno);
+
+            if (fic_decode_success_ratio < 10) {
+                fic_decode_success_ratio++;
+            }
         }
-        fibProcessor.processFIB(p, ficno);
+        else if (fic_decode_success_ratio > 0) {
+            fic_decode_success_ratio--;
+        }
     }
 }
 
@@ -228,13 +234,8 @@ void FicHandler::clearEnsemble()
     fibProcessor.clearEnsemble();
 }
 
-int16_t FicHandler::getFicRatio()
+int FicHandler::getFicDecodeRatioPercent()
 {
-    return ficRatio;
-}
-
-bool FicHandler::getIsCrcValid()
-{
-    return crcvalid;
+    return fic_decode_success_ratio * 10;
 }
 
