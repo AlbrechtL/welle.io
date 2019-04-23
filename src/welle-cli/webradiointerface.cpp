@@ -1451,6 +1451,11 @@ void WebRadioInterface::onTIIMeasurement(tii_measurement_t&& m)
     }
 }
 
+void WebRadioInterface::onShutdown()
+{
+    std::exit(1);
+}
+
 list<tii_measurement_t> WebRadioInterface::getTiiStats()
 {
     list<tii_measurement_t> l;

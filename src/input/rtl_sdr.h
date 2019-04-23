@@ -55,6 +55,7 @@ public:
 
     // Interface methods
     bool restart(void);
+    bool is_ok(void);
     void stop(void);
     void reset(void);
     int32_t getSamples(DSPCOMPLEX *buffer, int32_t size);

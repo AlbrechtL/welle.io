@@ -113,6 +113,10 @@ class RadioControllerInterface {
 
         /* When a information or warning message should be printed */
         virtual void onMessage(message_level_t level, const std::string& text) = 0;
+
+        /* The receiver has shutdown */
+        virtual void onShutdown(void) { };
+
 };
 
 /* A Programme Hander is associated to each tuned programme in the ensemble.

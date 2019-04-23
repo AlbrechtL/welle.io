@@ -127,6 +127,8 @@ void OFDMProcessor::start()
     threadHandle       = std::thread(&OFDMProcessor::run, this);
 }
 
+class InputFailure { };
+class NotRunningAnymore { };
 
 /**
  * \brief getSample
@@ -136,22 +138,25 @@ void OFDMProcessor::start()
  * and getting a vector full of samples
  */
 
-DSPCOMPLEX OFDMProcessor::getSample (int32_t phase)
+DSPCOMPLEX OFDMProcessor::getSample(int32_t phase)
 {
     DSPCOMPLEX temp;
     if (!running)
-        throw 21;
+        throw NotRunningAnymore();
     /// bufferContent is an indicator for the value of ...->Samples ()
     if (bufferContent == 0) {
         bufferContent = input.getSamplesToRead ();
         while ((bufferContent == 0) && running) {
+            if (not input.is_ok()) {
+                throw InputFailure();
+            }
             std::this_thread::sleep_for(std::chrono::microseconds(10));
             bufferContent = input.getSamplesToRead ();
         }
     }
 
     if (!running)
-        throw 20;
+        throw NotRunningAnymore();
     //
     //  so here, bufferContent > 0
     input.getSamples (&temp, 1);
@@ -179,16 +184,19 @@ void OFDMProcessor::getSamples(DSPCOMPLEX *v, int16_t n, int32_t phase)
     int32_t     i;
 
     if (!running)
-        throw 21;
+        throw NotRunningAnymore();
     if (n > bufferContent) {
         bufferContent = input.getSamplesToRead ();
         while ((bufferContent < n) && running) {
+            if (not input.is_ok()) {
+                throw InputFailure();
+            }
             std::this_thread::sleep_for(std::chrono::microseconds(10));
-            bufferContent = input.getSamplesToRead ();
+            bufferContent = input.getSamplesToRead();
         }
     }
     if (!running)
-        throw 20;
+        throw NotRunningAnymore();
     //
     //  so here, bufferContent >= n
     n = input.getSamples (v, n);
@@ -460,7 +468,6 @@ SyncOnPhase:
          * Here we just check the fineCorrector
          */
         counter  = 0;
-        //
 
         if (fineCorrector > params.carrierDiff / 2) {
             coarseCorrector += params.carrierDiff;
@@ -476,10 +483,14 @@ SyncOnPhase:
         PROFILE_FRAME_DECODED();
         goto SyncOnPhase;
     }
-    catch (int e) {
-        // TODO replace this
+    catch (const NotRunningAnymore&) {
+        std::clog << "OFDM-processor: closing down" << std::endl;
     }
-    std::clog << "OFDM-processor:" <<  "closing down" << std::endl;
+    catch (const InputFailure&) {
+        std::clog << "OFDM-processor: input not ok, closing down" << std::endl;
+    }
+    running = false;
+    radioInterface.onShutdown();
 }
 
 void OFDMProcessor::reset()

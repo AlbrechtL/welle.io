@@ -154,8 +154,9 @@ void CAirspy::stop(void)
 
 int CAirspy::callback(airspy_transfer* transfer)
 {
-    if (!transfer)
-        return 0; // should not happen
+    if (!transfer) {
+        throw std::logic_error("AIRSPY: no transfer");
+    }
     auto *p = static_cast<CAirspy*>(transfer->ctx);
 
     // AIRSPY_SAMPLE_FLOAT32_IQ:
