@@ -59,6 +59,7 @@ public:
     void setFrequency(int);
     int getFrequency(void) const;
     bool restart(void);
+    bool is_ok(void);
     int32_t getSamples(DSPCOMPLEX* V, int32_t size);
     std::vector<DSPCOMPLEX> getSpectrumSamples(int size);
     int32_t getSamplesToRead(void);

@@ -48,6 +48,7 @@ public:
     virtual void setFrequency(int Frequency);
     virtual int getFrequency(void) const;
     virtual bool restart(void);
+    virtual bool is_ok(void);
     virtual void stop(void);
     virtual void reset(void);
     virtual int32_t getSamples(DSPCOMPLEX* Buffer, int32_t Size);

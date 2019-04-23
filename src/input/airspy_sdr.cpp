@@ -135,6 +135,11 @@ bool CAirspy::restart(void)
     return true;
 }
 
+bool CAirspy::is_ok()
+{
+    return running;
+}
+
 void CAirspy::stop(void)
 {
     if (!running)

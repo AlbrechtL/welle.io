@@ -166,6 +166,7 @@ public:
     virtual ~InputInterface() {}
     virtual void setFrequency(int frequency) = 0;
     virtual int getFrequency(void) const = 0;
+    virtual bool is_ok(void) = 0;
     virtual bool restart(void) = 0;
     virtual void stop(void) = 0;
     virtual void reset(void) = 0;

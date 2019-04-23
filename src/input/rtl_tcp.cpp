@@ -96,6 +96,11 @@ bool CRTL_TCP_Client::restart(void)
     return connected;
 }
 
+bool CRTL_TCP_Client::is_ok()
+{
+    return rtlsdrRunning;
+}
+
 void CRTL_TCP_Client::stop(void)
 {
 #ifdef Q_OS_ANDROID

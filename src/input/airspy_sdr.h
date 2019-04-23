@@ -61,6 +61,7 @@ public:
     void setFrequency(int nf);
     int getFrequency(void) const;
     bool restart(void);
+    bool is_ok(void);
     void stop(void);
     void reset(void);
     int32_t getSamples(DSPCOMPLEX* Buffer, int32_t Size);
