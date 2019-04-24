@@ -10,13 +10,11 @@ DISTFILES +=    \
     android/AndroidManifest.xml \
     android/gradle/wrapper/gradle-wrapper.jar \
     android/gradlew \
+    android/java/io/welle/welle/InstallRtlTcpAndro.java \
     android/res/values/libs.xml \
     android/build.gradle \
     android/gradle/wrapper/gradle-wrapper.properties \
     android/gradlew.bat \
-    android/java/io/welle/welle/DabMediaService.java \
-    android/java/io/welle/welle/DabService.java \
-    android/java/io/welle/welle/DabDelegate.java \
     QML/MainView.qml \
     QML/RadioView.qml \
     QML/ExpertView.qml \
@@ -97,13 +95,8 @@ SOURCES += \
 
 android {
     QT += androidextras
-#    QT += remoteobjects
-#    LIBS += -ljnigraphics
-
-#    HEADERS      += android_jni.h
-#    SOURCES      += android_jni.cpp
-#    REPC_SOURCE  += radio_controller.rep
-#    REPC_REPLICA += radio_controller.rep
+    HEADERS += android_rtl_sdr.h
+    SOURCES += android_rtl_sdr.cpp
 }
 
 # Include git hash into build

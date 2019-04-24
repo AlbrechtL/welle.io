@@ -53,14 +53,6 @@ enum class PlotTypeEn { Spectrum, ImpulseResponse, QPSK, Null, Unknown };
 
 Q_DECLARE_METATYPE(CDeviceID)
 
-//#ifdef Q_OS_ANDROID
-//#include "rep_radio_controller_source.h"
-//class CRadioController : public CRadioControllerSource,
-//                         public RadioControllerInterface,
-//                         public ProgrammeHandlerInterface
-//{
-//    Q_OBJECT
-//#else
 class CRadioController :
     public QObject,
     public RadioControllerInterface,
@@ -98,7 +90,6 @@ class CRadioController :
     Q_PROPERTY(QString languageType MEMBER currentLanguageType NOTIFY languageTypeChanged)
     Q_PROPERTY(QString title MEMBER currentTitle NOTIFY titleChanged)
     Q_PROPERTY(QString text MEMBER currentText NOTIFY textChanged)
-//#endif
 
 public:
     CRadioController(QVariantMap &commandLineOptions, QObject* parent = nullptr);
@@ -241,8 +232,6 @@ signals:
     void ensembleIdUpdated(quint16 eId);
     void dateTimeUpdated(const dab_date_time_t& dateTime);
 
-//#ifndef Q_OS_ANDROID
-signals:
     void deviceNameChanged();
     void deviceIdChanged();
     void dateTimeChanged(QDateTime);
@@ -286,7 +275,6 @@ signals:
     void scanProgress(int Progress);
     void showErrorMessage(QString Text);
     void showInfoMessage(QString Text);
-//#endif
 };
 
 #endif // CRADIOCONTROLLER_H

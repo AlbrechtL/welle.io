@@ -42,11 +42,7 @@
 #include "mot_image_provider.h"
 #include "dab-constants.h"
 
-//#ifdef Q_OS_ANDROID
-//    #include "rep_radio_controller_replica.h"
-//#else
-    #include "radio_controller.h"
-//#endif
+#include "radio_controller.h"
 
 /*
  *	GThe main gui object. It inherits from
@@ -61,11 +57,7 @@ public:
     static QTranslator* addTranslator(QString Language,
                                       QTranslator *OldTranslator = nullptr);
 
-//#ifdef Q_OS_ANDROID
-//    CGUIHelper(CRadioControllerReplica *RadioController, QObject* parent = nullptr);
-//#else
     CGUIHelper(CRadioController *radioController, QObject* parent = nullptr);
-//#endif
     ~CGUIHelper();
     Q_INVOKABLE void registerSpectrumSeries(QAbstractSeries* series);
     Q_INVOKABLE void registerSpectrumWaterfall(QObject * obj);
@@ -90,18 +82,14 @@ public:
     Q_INVOKABLE void setDriverArgsSoapySdr(QString text);
     Q_INVOKABLE void setClockSourceSoapySdr(QString text);
     Q_INVOKABLE void openRtlTcp(QString IpAddress, int IpPort, bool force);
-    Q_INVOKABLE void openRawFile(QString filename, QString fileFormat);
+    Q_INVOKABLE void openRawFile(QString filename, QString fileFormat);    
 
     void setNewDebugOutput(QString text);
 
     CMOTImageProvider* motImage; // ToDo: Must be a getter
 
 private:
-//#ifdef Q_OS_ANDROID
-//    CRadioControllerReplica *radioController;
-//#else
     CRadioController *radioController;
-//#endif
 
     QXYSeries* spectrumSeries;
     QVector<QPointF> spectrumSeriesData;
@@ -131,9 +119,6 @@ public slots:
     void close();
 
 private slots:
-//#ifdef Q_OS_ANDROID
-//    void stateChanged(QRemoteObjectReplica::State state, QRemoteObjectReplica::State oldState);
-//#endif
     void deviceClosed();
     void motUpdate(QImage motImage);
     void showErrorMessage(QString Text);

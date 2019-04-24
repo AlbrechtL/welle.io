@@ -98,7 +98,7 @@ bool CRTL_TCP_Client::restart(void)
 
 void CRTL_TCP_Client::stop(void)
 {
-#ifdef Q_OS_ANDROID
+#ifdef __ANDROID__
     // Send TCP_ANDROID_EXIT cmd to explicitly cause the driver to turn off itself
     sendCommand(0x7e, 0);
 #endif
@@ -258,10 +258,6 @@ void CRTL_TCP_Client::handleDisconnect()
     firstData = true;
     radioController.onMessage(message_level_t::Error,
             "RTL-TCP connection closed.");
-#ifdef Q_OS_ANDROID
-    // TODO Why is this done?
-    QTimer::singleShot(0, RadioController, SLOT(closeDevice()));
-#endif
     sock.close();
 }
 

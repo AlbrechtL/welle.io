@@ -45,11 +45,7 @@
   *	gui elements and the handling agents. All real action
   *	is embedded in actions, initiated by gui buttons
   */
-//#ifdef Q_OS_ANDROID
-//CGUIHelper::CGUIHelper(CRadioControllerReplica *RadioController, QObject *parent)
-//#else
 CGUIHelper::CGUIHelper(CRadioController *RadioController, QObject *parent)
-//#endif
     : QObject(parent)
     , radioController(RadioController)
     , spectrumSeries(nullptr)
@@ -58,16 +54,9 @@ CGUIHelper::CGUIHelper(CRadioController *RadioController, QObject *parent)
     // Add image provider for the MOT slide show
     motImage = new CMOTImageProvider;
 
-//#ifdef Q_OS_ANDROID
-//    connect(RadioController, &CRadioControllerReplica::stateChanged, this, &CGUIHelper::stateChanged);
-//    connect(RadioController, &CRadioControllerReplica::deviceClosed, this, &CGUIHelper::deviceClosed);
-//    connect(RadioController, &CRadioControllerReplica::motChanged, this, &CGUIHelper::motUpdate);
-////    connect(RadioController, &CRadioControllerReplica::stationsChanged, this, &CGUIHelper::stationsChange);
-//#else
     connect(RadioController, &CRadioController::motChanged, this, &CGUIHelper::motUpdate);
     connect(RadioController, &CRadioController::showErrorMessage, this, &CGUIHelper::showErrorMessage);
     connect(RadioController, &CRadioController::showInfoMessage, this, &CGUIHelper::showInfoMessage);
-//#endif
 
 #ifndef QT_NO_SYSTEMTRAYICON
     minimizeAction = new QAction(tr("Mi&nimize"), this);
@@ -106,35 +95,12 @@ CGUIHelper::~CGUIHelper()
 
 void CGUIHelper::close()
 {
-//#ifdef Q_OS_ANDROID
-//    if (radioController) {
-//        qDebug() << "GUI:" <<  "close device";
-//        disconnect(radioController, &CRadioControllerReplica::deviceClosed, this, &CGUIHelper::close);
-//        radioController->closeDevice();
-//        return;
-//    }
-//#endif
     qDebug() << "GUI:" <<  "close application";
     QApplication::quit();
 }
 
-//#ifdef Q_OS_ANDROID
-//void CGUIHelper::stateChanged(QRemoteObjectReplica::State state, QRemoteObjectReplica::State oldState)
-//{
-//    qDebug() << "GUI:" <<  "state changed from:" << oldState << "" << state;
-//    if (state == QRemoteObjectReplica::Suspect) {
-//        qDebug() << "GUI:" <<  "closing application";
-//        QApplication::quit();
-//    }
-//}
-//#endif
-
 void CGUIHelper::deviceClosed()
 {
-//#ifdef Q_OS_ANDROID
-//    qDebug() << "GUI:" <<  "device closed => closing application";
-//    QApplication::quit();
-//#endif
 }
 
 /**
@@ -516,7 +482,11 @@ void CGUIHelper::setBiasTeeAirspy(bool isOn)
 
 void CGUIHelper::openRtlSdr()
 {
+#ifdef __ANDROID__
+    radioController->openDevice(CDeviceID::ANDROID_RTL_SDR);
+#else
     radioController->openDevice(CDeviceID::RTL_SDR);
+#endif
 }
 
 void CGUIHelper::setBiasTeeRtlSdr(bool isOn)

@@ -75,11 +75,7 @@ static quint32 deserialise_serviceid(const char *input)
 }
 
 CRadioController::CRadioController(QVariantMap& commandLineOptions, QObject *parent)
-//#ifdef Q_OS_ANDROID
-//    : CRadioControllerSource(parent)
-//#else
     : QObject(parent)
-//#endif
     , commandLineOptions(commandLineOptions)
     , audioBuffer(2 * AUDIOBUFFERSIZE)
     , audio(audioBuffer)

@@ -46,12 +46,8 @@
 #include "debug_output.h"
 #include "waterfallitem.h"
 
-#ifdef Q_OS_ANDROID
-#include <QtAndroid>
-//#include <QAndroidService>
-//#include <QAndroidJniObject>
-//#include "android_jni.h"
-//#include "rep_radio_controller_replica.h"
+#ifdef __ANDROID__
+    #include <QtAndroid>
 #endif
 
 int main(int argc, char** argv)
@@ -68,43 +64,6 @@ int main(int argc, char** argv)
 
     // Handle debug output
     CDebugOutput::init();
-
-//#ifdef Q_OS_ANDROID
-
-//    //  Process Android Service
-//    if (argc == 2 && qstrcmp(argv[1], "-S") == 0) {
-//        qDebug() << "main:" <<  "Run as service, pid:" << QCoreApplication::applicationPid();
-
-//        // Create new QT core application
-//        QAndroidService app(argc, argv);
-
-//        // Default values
-//        DABParams dabparams(1);
-//        QVariantMap commandLineOptions;
-
-//        // Create a new radio interface instance
-//        CRadioController* radioController = new CRadioController(commandLineOptions, dabparams);
-
-//        // Enable remoting source
-//        QRemoteObjectHost srcNode(QUrl(QStringLiteral("local:replica")));
-//        srcNode.enableRemoting(radioController);
-
-//        CAndroidJNI::getInstance().setRadioController(radioController);
-
-//        // Run application
-//        app.exec();
-
-//        // Delete the RadioController controller to ensure a save shutdown
-//        delete radioController;
-
-//        qDebug() << "main:" <<  "Service closed";
-
-//        return 0;
-//    } else {
-//        qDebug() << "main:" <<  "Run as application, pid:" << QCoreApplication::applicationPid();
-//    }
-
-//#endif
 
     // Before printing anything, we set
     setlocale(LC_ALL, "");
@@ -165,29 +124,11 @@ int main(int argc, char** argv)
     if (languageValue != "")
         CGUIHelper::addTranslator(languageValue, Translator);
 
-//#ifdef Q_OS_ANDROID
-
-//    // Start background service
-//    QAndroidJniObject::callStaticMethod<void>("io/welle/welle/DabDelegate",
-//                                              "startDab",
-//                                              "(Landroid/content/Context;)V",
-//                                              QtAndroid::androidActivity().object());
-
-//    // Create a radio interface replica and connect to source
-//    QRemoteObjectNode repNode;
-//    repNode.connectToNode(QUrl(QStringLiteral("local:replica")));
-//    CRadioControllerReplica* radioController = repNode.acquire<CRadioControllerReplica>();
-//    bool res = radioController->waitForSource();
-//    Q_ASSERT(res);
-
-//#else
-
     QVariantMap commandLineOptions;
     commandLineOptions["dumpFileName"] = optionParser.value(dumpFileName);
 
     // Create a new radio interface instance
     CRadioController* radioController = new CRadioController(commandLineOptions);
-//#endif
 
     QSettings settings;
 
