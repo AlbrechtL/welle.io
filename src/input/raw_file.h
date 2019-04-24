@@ -58,6 +58,7 @@ public:
     std::vector<DSPCOMPLEX> getSpectrumSamples(int size);
     int32_t getSamplesToRead(void);
     bool restart(void);
+    bool is_ok(void);
     void stop(void);
     void reset(void);
     void rewind(void);

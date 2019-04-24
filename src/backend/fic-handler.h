@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2018
+ *    Copyright (C) 2019
  *    Matthias P. Braendli (matthias.braendli@mpb.li)
  *
  *    Copyright (C) 2013
@@ -42,8 +42,7 @@ class FicHandler: public Viterbi
         void    processFicBlock(const softbit_t *data, int16_t blkno);
         void    setBitsperBlock(int16_t b);
         void    clearEnsemble();
-        bool    getIsCrcValid();
-        int16_t getFicRatio();
+        int     getFicDecodeRatioPercent();
 
         FIBProcessor fibProcessor;
 
@@ -58,10 +57,11 @@ class FicHandler: public Viterbi
         int16_t     index = 0;
         int16_t     bitsperBlock = 2 * 1536;
         int16_t     ficno = 0;
-        int16_t     ficRatio = 0;
         uint8_t     PRBS[768];
-        uint8_t     shiftRegister[9];
-        bool        crcvalid = false;
+
+        // Saturating up/down-counter in range [0, 10] corresponding
+        // to the number of FICs with correct CRC
+        int         fic_decode_success_ratio = 0;
 };
 
 #endif

@@ -147,6 +147,11 @@ bool CRTL_SDR::restart(void)
     return true;
 }
 
+bool CRTL_SDR::is_ok(void)
+{
+    return rtlsdrRunning and not rtlsdrUnplugged;
+}
+
 void CRTL_SDR::stop(void)
 {
     if (not rtlsdrRunning)

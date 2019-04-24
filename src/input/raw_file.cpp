@@ -95,6 +95,11 @@ bool CRAWFile::restart(void)
     return readerOK;
 }
 
+bool CRAWFile::is_ok()
+{
+    return readerOK;
+}
+
 void CRAWFile::stop(void)
 {
     if (readerOK)

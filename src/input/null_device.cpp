@@ -45,6 +45,11 @@ bool CNullDevice::restart()
     return false;
 }
 
+bool CNullDevice::is_ok()
+{
+    return true;
+}
+
 void CNullDevice::stop()
 {
 

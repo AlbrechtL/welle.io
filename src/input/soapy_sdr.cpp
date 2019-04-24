@@ -140,6 +140,11 @@ bool CSoapySdr::restart()
     return true;
 }
 
+bool CSoapySdr::is_ok()
+{
+    return m_running;
+}
+
 void CSoapySdr::stop()
 {
     m_running = false;

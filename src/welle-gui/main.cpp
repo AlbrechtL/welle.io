@@ -127,8 +127,8 @@ int main(int argc, char** argv)
     QVariantMap commandLineOptions;
     commandLineOptions["dumpFileName"] = optionParser.value(dumpFileName);
 
-    // Create a new radio interface instance
-    CRadioController* radioController = new CRadioController(commandLineOptions);
+    CRadioController radioController(commandLineOptions);
+
 
     QSettings settings;
 
@@ -137,33 +137,29 @@ int main(int argc, char** argv)
 
         QStringList lastStation = settings.value("lastchannel").toStringList();
         if( lastStation.count() == 2 )
-            radioController->setAutoPlay(lastStation[1], lastStation[0]);
+            radioController.setAutoPlay(lastStation[1], lastStation[0]);
     }
 
-    CGUIHelper *guiHelper = new CGUIHelper(radioController);
+    CGUIHelper guiHelper(&radioController);
 
     // Create new QML application, set some requried options and load the QML file
-    QQmlApplicationEngine* engine = new QQmlApplicationEngine;
-    QQmlContext* rootContext = engine->rootContext();
+    QQmlApplicationEngine engine;
+    QQmlContext* rootContext = engine.rootContext();
 
     // Connect C++ code to QML GUI
-    rootContext->setContextProperty("guiHelper", guiHelper);
-    rootContext->setContextProperty("radioController", radioController);
+    rootContext->setContextProperty("guiHelper", &guiHelper);
+    rootContext->setContextProperty("radioController", &radioController);
 
     // Load main page
-    engine->load(QUrl("qrc:/QML/MainView.qml"));
+    engine.load(QUrl("qrc:/QML/MainView.qml"));
 
     // Add MOT slideshow provider
-    engine->addImageProvider(QLatin1String("motslideshow"), guiHelper->motImage);
+    engine.addImageProvider(QLatin1String("motslideshow"), guiHelper.motImage);
 
     // Run application
     app.exec();
 
     qDebug() << "main:" <<  "Application closed";
-
-    // Delete the RadioController controller to ensure a save shutdown
-    delete radioController;
-    delete guiHelper;
 
     return 0;
 }

@@ -72,6 +72,8 @@ class ChannelSimulator : public CVirtualInput
 
         virtual bool restart(void)
             { return parentInput->restart(); }
+        virtual bool is_ok(void)
+            { return parentInput->is_ok(); }
         virtual void stop(void)
             { return parentInput->stop(); }
         virtual void reset(void)
