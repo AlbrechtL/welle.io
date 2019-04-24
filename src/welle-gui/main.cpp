@@ -129,7 +129,6 @@ int main(int argc, char** argv)
 
     CRadioController radioController(commandLineOptions);
 
-
     QSettings settings;
 
     // Should we play the last station we have listened to previously?
