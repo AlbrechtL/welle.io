@@ -71,6 +71,7 @@ public:
 
     // Specific methods
     void setFileName(const std::string& FileName, const std::string& FileFormat);
+    void setFileHandle(int handle, const std::string& fileFormat);
     std::string getFileName(void) const;
 
     bool endWasReached() const { return endReached; }
@@ -86,6 +87,7 @@ private:
     void run(void);
     int32_t readBuffer(uint8_t*, int32_t);
     int32_t convertSamples(RingBufferBase<uint8_t>& Buffer, DSPCOMPLEX* V, int32_t size);
+    void setFileFormat(const std::string& fileFormat);
 
     IQRingBuffer<uint8_t> SampleBuffer;
     RingBuffer<uint8_t> SpectrumSampleBuffer;

@@ -76,4 +76,5 @@
 
 <uses-permission android:name="android.permission.INTERNET"/>
 <!-- %%INSERT_PERMISSIONS -->
+<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 </manifest>

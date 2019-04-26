@@ -161,44 +161,29 @@ void CRAWFile::setFileName(const std::string& fileName,
 {
     this->fileName = fileName;
 
-    if (fileFormat == "u8" or
-            (fileFormat == "auto" and ends_with(fileName, ".u8.iq"))) {
-        this->fileFormat = CRAWFileFormat::U8;
-        IQByteSize = 2;
-    }
-    else if (fileFormat == "s8" or
-            (fileFormat == "auto" and ends_with(fileName, ".s8.iq"))) {
-        this->fileFormat = CRAWFileFormat::S8;
-        IQByteSize = 2;
-    }
-    else if(fileFormat == "s16le" or
-            (fileFormat == "auto" and ends_with(fileName, ".s16le.iq"))) {
-        this->fileFormat = CRAWFileFormat::S16LE;
-        IQByteSize = 4;
-    }
-    else if(fileFormat == "s16be" or
-            (fileFormat == "auto" and ends_with(fileName, ".s16be.iq"))) {
-        this->fileFormat = CRAWFileFormat::S16BE;
-        IQByteSize = 4;
-    }
-    else if(fileFormat == "cf32" or
-            (fileFormat == "auto" and ends_with(fileName, ".cf32.iq"))) {
-        this->fileFormat = CRAWFileFormat::COMPLEXF;
-        IQByteSize = 8;
-    }
-    else if (fileFormat == "auto") {
-        // Default to u8 for backward compatibility
-        this->fileFormat = CRAWFileFormat::U8;
-        IQByteSize = 2;
-    }
-    else {
-        this->fileFormat = CRAWFileFormat::Unknown;
-        std::clog << "RAWFile: unknown file format" << std::endl;
-        radioController.onMessage(message_level_t::Error,
-                "Unknown RAW file format");
-    }
+    setFileFormat(fileFormat);
 
     filePointer = fopen(fileName.c_str(), "rb");
+    if (filePointer == nullptr) {
+        std::clog << "RAWFile: Cannot open file: " << fileName << std::endl;
+        radioController.onMessage(message_level_t::Error,
+                "Cannot open file " + fileName);
+        return;
+    }
+
+    readerOK = true;
+    readerPausing = true;
+    currPos = 0;
+    thread = std::thread(&CRAWFile::run, this);
+}
+
+void CRAWFile::setFileHandle(int handle, const std::string& fileFormat)
+{
+    this->fileName = "unknown";
+
+    setFileFormat(fileFormat);
+
+    filePointer = fdopen(handle, "rb");
     if (filePointer == nullptr) {
         std::clog << "RAWFile: Cannot open file: " << fileName << std::endl;
         radioController.onMessage(message_level_t::Error,
@@ -368,4 +353,44 @@ int32_t CRAWFile::convertSamples(RingBufferBase<uint8_t>& Buffer, DSPCOMPLEX *V,
     }
 
     return amount / IQByteSize;
+}
+
+void CRAWFile::setFileFormat(const std::string &fileFormat)
+{
+    if (fileFormat == "u8" or
+            (fileFormat == "auto" and ends_with(fileName, ".u8.iq"))) {
+        this->fileFormat = CRAWFileFormat::U8;
+        IQByteSize = 2;
+    }
+    else if (fileFormat == "s8" or
+            (fileFormat == "auto" and ends_with(fileName, ".s8.iq"))) {
+        this->fileFormat = CRAWFileFormat::S8;
+        IQByteSize = 2;
+    }
+    else if(fileFormat == "s16le" or
+            (fileFormat == "auto" and ends_with(fileName, ".s16le.iq"))) {
+        this->fileFormat = CRAWFileFormat::S16LE;
+        IQByteSize = 4;
+    }
+    else if(fileFormat == "s16be" or
+            (fileFormat == "auto" and ends_with(fileName, ".s16be.iq"))) {
+        this->fileFormat = CRAWFileFormat::S16BE;
+        IQByteSize = 4;
+    }
+    else if(fileFormat == "cf32" or
+            (fileFormat == "auto" and ends_with(fileName, ".cf32.iq"))) {
+        this->fileFormat = CRAWFileFormat::COMPLEXF;
+        IQByteSize = 8;
+    }
+    else if (fileFormat == "auto") {
+        // Default to u8 for backward compatibility
+        this->fileFormat = CRAWFileFormat::U8;
+        IQByteSize = 2;
+    }
+    else {
+        this->fileFormat = CRAWFileFormat::Unknown;
+        std::clog << "RAWFile: unknown file format" << std::endl;
+        radioController.onMessage(message_level_t::Error,
+                "Unknown RAW file format");
+    }
 }
