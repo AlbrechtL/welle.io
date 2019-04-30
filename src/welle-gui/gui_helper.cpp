@@ -79,6 +79,7 @@ CGUIHelper::CGUIHelper(CRadioController *RadioController, QObject *parent)
     trayIconMenu->addAction(quitAction);
 
     trayIcon = new QSystemTrayIcon();
+
     trayIcon->setContextMenu(trayIconMenu);
 
     trayIcon->setIcon(QIcon(":/icon/icon.png"));
@@ -242,11 +243,14 @@ void CGUIHelper::registerConstellationSeries(QAbstractSeries *series)
 void CGUIHelper::tryHideWindow()
 {
 #ifndef QT_NO_SYSTEMTRAYICON
-    trayIcon->showMessage(QCoreApplication::applicationName(), tr("The program will keep running in the "
-                                       "system tray. To terminate the program, "
-                                       "choose <b>Quit</b> in the context menu "
-                                       "of the system tray entry."), QIcon(":/icon.png"), 5000);
-    emit minimizeWindow();
+    // Hide only if system tray is available otherwise ignore it. Standard Gnome doesn't have a system tray so user would lost the control.
+    if(trayIcon->isSystemTrayAvailable()) {
+        trayIcon->showMessage(QCoreApplication::applicationName(), tr("The program will keep running in the "
+                                           "system tray. To terminate the program, "
+                                           "choose <b>Quit</b> in the context menu "
+                                           "of the system tray entry."), QIcon(":/icon.png"), 5000);
+        emit minimizeWindow();
+    }
 #endif
 }
 
