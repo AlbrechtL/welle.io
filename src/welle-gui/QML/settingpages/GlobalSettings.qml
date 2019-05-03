@@ -22,6 +22,7 @@ Item {
         property alias manualGainState : manualGain.value
         property alias manualGainValue: valueSliderView.text
         property alias enableAutoSdr : enableAutoSdr.checked
+        property alias languageValue : languageBox.currentIndex
     }
 
     Component.onCompleted: {
@@ -68,6 +69,29 @@ Item {
                 text: qsTr("Full screen mode")
                 Layout.fillWidth: true
                 checked: false
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+                WComboBox {
+                    id: languageBox
+                    model: [ "Auto", "Dutch", "English", "German", "Polish"];
+                    onCurrentIndexChanged: {
+                        // Load appropriate settings
+                        switch(currentIndex) {
+                        case 1: guiHelper.addTranslator("nl_NL", this); break
+                        case 2: guiHelper.addTranslator("en_GB", this); break
+                        case 3: guiHelper.addTranslator("de_DE", this); break
+                        case 4: guiHelper.addTranslator("pl_PL", this); break
+                        default: guiHelper.addTranslator("auto", this); break
+                        }
+                    }
+                }
+
+                TextStandart {
+                    text: qsTr("Language")
+                    Layout.fillWidth: true
+                }
             }
         }
 

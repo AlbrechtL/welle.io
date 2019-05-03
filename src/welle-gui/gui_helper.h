@@ -54,8 +54,7 @@ class CGUIHelper : public QObject
     Q_PROPERTY(QVariant licenses READ licenses CONSTANT)
 
 public:
-    static QTranslator* addTranslator(QString Language,
-                                      QTranslator *OldTranslator = nullptr);
+    Q_INVOKABLE void addTranslator(QString Language, QObject *obj);
 
     CGUIHelper(CRadioController *radioController, QObject* parent = nullptr);
     ~CGUIHelper();
@@ -89,6 +88,8 @@ public:
     CMOTImageProvider* motImage; // ToDo: Must be a getter
 
 private:
+    QTranslator *translator = nullptr;
+
     CRadioController *radioController;
 
     QXYSeries* spectrumSeries;

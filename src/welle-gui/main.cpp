@@ -83,10 +83,6 @@ int main(int argc, char** argv)
     // Set icon
     app.setWindowIcon(QIcon(":/icon/icon.png"));
 
-    // Init translations
-    QString locale = QLocale::system().name();
-    QTranslator *Translator = CGUIHelper::addTranslator(locale);
-
     // Handle the command line
     QCommandLineParser optionParser;
     optionParser.setApplicationDescription("welle.io Help");
@@ -103,11 +99,6 @@ int main(int argc, char** argv)
         QCoreApplication::translate("main", "File name"));
     optionParser.addOption(LogFileName);
 
-    QCommandLineOption Language("language",
-        QCoreApplication::translate("main", "Sets the GUI language according to the ISO country codes (e.g. de_DE)"),
-        QCoreApplication::translate("main", "Language"));
-    optionParser.addOption(Language);
-
     //	Process the actual command line arguments given by the user
     optionParser.process(app);
 
@@ -118,11 +109,6 @@ int main(int argc, char** argv)
         CDebugOutput::setFileName(LogFileNameValue);
         qDebug() << "main: Version:" << Version;
     }
-
-    //	Process language option
-    QString languageValue = optionParser.value(Language);
-    if (languageValue != "")
-        CGUIHelper::addTranslator(languageValue, Translator);
 
     QVariantMap commandLineOptions;
     commandLineOptions["dumpFileName"] = optionParser.value(dumpFileName);

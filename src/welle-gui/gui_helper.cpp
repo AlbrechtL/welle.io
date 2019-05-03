@@ -534,12 +534,20 @@ void CGUIHelper::setNewDebugOutput(QString text)
     emit newDebugOutput(text);
 }
 
-QTranslator* CGUIHelper::addTranslator(QString Language, QTranslator *OldTranslator)
+void CGUIHelper::addTranslator(QString Language, QObject *obj)
 {
-    if(OldTranslator)
-        QCoreApplication::removeTranslator(OldTranslator);
+    if(translator) {
+        QCoreApplication::removeTranslator(translator);
+        delete(translator);
+    }
 
-    QTranslator *Translator = new QTranslator;
+    translator = new QTranslator;
+
+    if(Language == "auto")
+    {
+        QString locale = QLocale::system().name();
+        Language = locale;
+    }
 
     // Special handling for German
     if(Language == "de_AT" || Language ==  "de_CH" || Language ==  "de_BE" || Language ==  "de_IT" || Language ==  "de_LU")
@@ -555,19 +563,23 @@ QTranslator* CGUIHelper::addTranslator(QString Language, QTranslator *OldTransla
         Language = "fr_FR";
     }
 
-    bool isTranslation = Translator->load(QString(":/i18n/") + Language);
-
+    // Set new language
     qDebug() << "main:" <<  "Set language" << Language;
-    QCoreApplication::installTranslator(Translator);
+    bool isTranslation = translator->load(QString(":/i18n/") + Language);
+    QCoreApplication::installTranslator(translator);
 
-    if(!isTranslation)
+    if(!isTranslation && Language != "en_GB")
     {
         qDebug() << "main:" <<  "Error while loading language" << Language << "use English \"en_GB\" instead";
         Language = "en_GB";
     }
 
+    // Set locale e.g. time formarts
     QLocale curLocale(QLocale((const QString&)Language));
     QLocale::setDefault(curLocale);
 
-    return Translator;
+    // Start translation of GUI
+    QQmlContext *currentContext = QQmlEngine::contextForObject(obj);
+    QQmlEngine *engine = currentContext->engine();
+    engine->retranslate();
 }
