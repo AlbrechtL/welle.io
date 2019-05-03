@@ -60,6 +60,7 @@
         <file>i18n/fr_FR.qm</file>
         <file>i18n/pl_PL.qm</file>
 	<file>i18n/ru_RU.qm</file>
+	<file>i18n/nl_NL.qm</file>
         <file>icon/icon.png</file>
         <file>../../AUTHORS</file>
         <file>../../THANKS</file>
