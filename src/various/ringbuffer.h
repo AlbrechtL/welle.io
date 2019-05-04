@@ -138,7 +138,8 @@ public:
     using RingBufferBase<elementtype>::RingBufferBase;
 
     virtual void onDroppedData(int32_t droppedElements) {
-        std::clog << "IQRingBuffer: Dropped " << droppedElements * sizeof(elementtype) << " bytes" << std::endl;;
+        (void) droppedElements;
+        //std::clog << "IQRingBuffer: Dropped " << droppedElements * sizeof(elementtype) << " bytes" << std::endl;;
     }
 };
 
