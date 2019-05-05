@@ -157,6 +157,8 @@ void CRTL_SDR::stop(void)
     if (not rtlsdrRunning)
         return;
 
+    rtlsdrRunning = false;
+
     rtlsdr_cancel_async(device);
     if (rtlsdrThread.joinable()) {
         rtlsdrThread.join();
@@ -380,8 +382,10 @@ void CRTL_SDR::rtlsdr_read_async_wrapper()
                       (rtlsdr_read_async_cb_t)&CRTL_SDR::RTLSDRCallBack,
                       (void*)this, 0, READLEN_DEFAULT);
 
-    radioController.onMessage(message_level_t::Error, "RTL-SDR is unplugged.");
+    if(rtlsdrRunning)
+        radioController.onMessage(message_level_t::Error, "RTL-SDR is unplugged.");
 
     rtlsdrUnplugged = true;
+    rtlsdrRunning = false;
     std::clog << "End RTLSDR thread" << std::endl;
 }
