@@ -116,6 +116,7 @@ int main(int argc, char** argv)
     CRadioController radioController(commandLineOptions);
 
     QSettings settings;
+    settings.setValue("version", QString(CURRENT_VERSION));
 
     // Should we play the last station we have listened to previously?
     if( settings.value("enableLastPlayedStationState", false).toBool() ) {
