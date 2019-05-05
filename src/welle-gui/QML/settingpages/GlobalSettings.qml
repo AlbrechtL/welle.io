@@ -11,6 +11,7 @@ Item {
     id: settingsPage
 
     property alias enableFullScreenState : enableFullScreen.checked
+    property bool isLoaded: false
 
     anchors.fill: parent
     implicitHeight: layout.implicitHeight
@@ -171,12 +172,20 @@ Item {
             Component.onCompleted: {
                 if(enableAutoSdr.checked)
                     guiHelper.openAutoDevice()
+
+                sdrSpecificSettings.item.initDevice(enableAutoSdr.checked)
+                isLoaded = true
             }
         }
 
         Loader {
             id: sdrSpecificSettings
             Layout.fillWidth: true
+
+            onLoaded: {
+                if(isLoaded)
+                    item.initDevice(enableAutoSdr.checked)
+            }
         }
     }
 }

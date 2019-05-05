@@ -63,8 +63,9 @@ SettingSection {
         }
     }
 
-    Component.onCompleted: {
-        __openDevice()
+    function initDevice(isAutoDevice) {
+        if(!isAutoDevice)
+            __openDevice()
         isLoaded = true
     }
 

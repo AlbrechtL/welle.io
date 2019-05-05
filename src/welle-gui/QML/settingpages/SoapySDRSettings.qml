@@ -65,8 +65,9 @@ SettingSection {
         }
     }
 
-    Component.onCompleted: {
-        guiHelper.openSoapySdr()
+    function initDevice(isAutoDevice) {
+        if(!isAutoDevice)
+            guiHelper.openSoapySdr()
         __setParams()
     }
 

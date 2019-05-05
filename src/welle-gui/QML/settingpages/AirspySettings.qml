@@ -15,8 +15,10 @@ SettingSection {
         property alias airspyEnableBiasTeeState: enableBiasTee.checked
     }
 
-    Component.onCompleted: {
-        guiHelper.openAirspy()
+    function initDevice(isAutoDevice) {
+        if(!isAutoDevice)
+            guiHelper.openAirspy()
+
         guiHelper.setBiasTeeAirspy(enableBiasTee.checked)
     }
 

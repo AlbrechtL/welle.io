@@ -15,11 +15,6 @@ SettingSection {
         property alias rtlSdrEnableBiasTeeState: enableBiasTee.checked
     }
 
-    Component.onCompleted: {
-        guiHelper.openRtlSdr()
-        guiHelper.setBiasTeeRtlSdr(enableBiasTee.checked)
-    }
-
     WSwitch {
         id: enableBiasTee
         Layout.fillWidth: true
@@ -27,5 +22,12 @@ SettingSection {
         onClicked: {
             guiHelper.setBiasTeeRtlSdr(checked)
         }
+    }
+
+    function initDevice(isAutoDevice) {
+        if(!isAutoDevice)
+            guiHelper.openRtlSdr()
+
+        guiHelper.setBiasTeeRtlSdr(enableBiasTee.checked)
     }
 }
