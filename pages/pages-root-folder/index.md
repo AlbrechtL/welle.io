@@ -50,7 +50,7 @@ Main Features
 * DAB and DAB+
 * Windows 10, Linux, macOS, Android
 * Runs on small devices like Raspberry Pi 2/3 or mobile phones
-* [airspy](/devices/airspy), [rtl-sdr (RTL2832U)](/devices/rtl_sdr), [rtl_tcp](/devices/rtl_tcp), [SoapySDR](/devices/soapysdr) and [rawfile](/devices/rawfile) support
+* [Airspy R2, Airspy Mini](/devices/airspy), [rtl-sdr (RTL2832U)](/devices/rtl_sdr), [rtl_tcp](/devices/rtl_tcp), [SoapySDR](/devices/soapysdr) and [rawfile](/devices/rawfile) support
 * Touch optimized GUI
 * Channel scan
 * Slide show (MOT slide show)
