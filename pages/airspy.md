@@ -10,11 +10,11 @@ permalink: /devices/airspy
 The [airspy](http://airspy.com/) device is a low cost high performance SDR with better performance compared with the well known rtl-sdr.  
 For more information about the airspy please visit [http://airspy.com/](http://airspy.com/).
 
-The folliwng devices are support
+The following devices are support
 * Airspy R2
 * Airspy Mini
 
-Because of to low bandwidth not supported are
+Because of low bandwidth not supported are
 * Airspy HF+
 * Airspy HF+ Discovery
 
