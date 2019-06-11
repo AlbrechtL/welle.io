@@ -9,9 +9,10 @@ class WelleIo < Formula
   depends_on "qt"
   depends_on "fftw"
   depends_on "faad2"
+  depends_on "mpg123"
   depends_on "librtlsdr"
-  depends_on "soapysdr"
-  depends_on "soapyuhd"
+  depends_on "pothosware/homebrew-pothos/soapysdr"
+  depends_on "pothosware/homebrew-pothos/soapyuhd"
   depends_on "libusb"
 
   def install
