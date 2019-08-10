@@ -136,9 +136,14 @@ CDeviceID CRadioController::openDevice(CDeviceID deviceId, bool force, QVariant 
             CRAWFile* rawFile = static_cast<CRAWFile*>(device.get());
 #ifdef __ANDROID__
             // Using QFile is necessary to get access to com.android.externalstorage.ExternalStorageProvider
-            QFile tmpRAWFile(param1.toString());
-            tmpRAWFile.open(QIODevice::ReadOnly);
-            rawFile->setFileHandle(tmpRAWFile.handle(), param2.toString().toStdString());
+            rawFileAndroid.reset(new QFile(param1.toString()));
+            bool ret = rawFileAndroid->open(QIODevice::ReadOnly);
+            if(!ret) {
+                setErrorMessage(tr("Error while opening file ") + param1.toString());
+            }
+            else {
+                rawFile->setFileHandle(rawFileAndroid->handle(), param2.toString().toStdString());
+            }
 #else
             rawFile->setFileName(param1.toString().toStdString(), param2.toString().toStdString());
 #endif

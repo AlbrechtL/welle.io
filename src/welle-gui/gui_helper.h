@@ -39,10 +39,20 @@
     #include <QSystemTrayIcon>
 #endif
 
+#ifdef __ANDROID__
+    #include <QAndroidJniEnvironment>
+    #include <QtAndroidExtras/QAndroidJniObject>
+    #include <QtAndroidExtras/QtAndroid>
+    #include <QtAndroidExtras/QAndroidActivityResultReceiver>
+#endif
+
 #include "mot_image_provider.h"
 #include "dab-constants.h"
-
 #include "radio_controller.h"
+
+#ifdef __ANDROID__
+    class FileActivityResultReceiver;
+#endif
 
 /*
  *	GThe main gui object. It inherits from
@@ -81,6 +91,7 @@ public:
     Q_INVOKABLE void setDriverArgsSoapySdr(QString text);
     Q_INVOKABLE void setClockSourceSoapySdr(QString text);
     Q_INVOKABLE void openRtlTcp(QString IpAddress, int IpPort, bool force);
+    Q_INVOKABLE void openRawFile(QString fileFormat);
     Q_INVOKABLE void openRawFile(QString filename, QString fileFormat);    
 
     void setNewDebugOutput(QString text);
@@ -116,6 +127,9 @@ private:
     QMenu *trayIconMenu;
 #endif
 
+#ifdef __ANDROID__
+    FileActivityResultReceiver *activityResultReceiver;
+#endif
 public slots:
     void close();
 
@@ -141,5 +155,19 @@ signals:
     void restoreWindow(void);
 #endif
 };
+
+#ifdef __ANDROID__
+class FileActivityResultReceiver : public QAndroidActivityResultReceiver
+{
+public:
+    FileActivityResultReceiver(CGUIHelper *Client, QString fileFormat): guiHelper(Client), fileFormat(fileFormat) {}
+
+    virtual void handleActivityResult(int receiverRequestCode, int resultCode, const QAndroidJniObject &intent);
+
+private:
+    CGUIHelper *guiHelper;
+    QString fileFormat;
+};
+#endif
 
 #endif // GUIHELPER_H

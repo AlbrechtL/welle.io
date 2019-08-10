@@ -212,6 +212,10 @@ private:
     QString autoChannel;
     quint32 autoService;
 
+#ifdef __ANDROID__
+    std::unique_ptr<QFile> rawFileAndroid;
+#endif
+
 public slots:
     void setErrorMessage(QString Text);
     void setErrorMessage(const std::string& head, const std::string& text = "");
