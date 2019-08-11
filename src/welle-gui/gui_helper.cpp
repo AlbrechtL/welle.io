@@ -91,6 +91,9 @@ CGUIHelper::CGUIHelper(CRadioController *RadioController, QObject *parent)
 
 CGUIHelper::~CGUIHelper()
 {
+    // Avoid segmentation fault if a debug message should be displayed after deleting
+    CDebugOutput::setCGUI(nullptr);
+
     qDebug() << "GUI:" <<  "deleting radioInterface";
 }
 
