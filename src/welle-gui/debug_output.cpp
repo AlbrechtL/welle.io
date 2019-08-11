@@ -30,6 +30,10 @@
 #include <QTextStream>
 #include <QDateTime>
 
+#ifdef __ANDROID__
+    #include <android/log.h>
+#endif
+
 QString CDebugOutput::fileName = "";
 CGUIHelper *CDebugOutput::cGuiObject = nullptr;
 
@@ -82,8 +86,13 @@ void CDebugOutput::handleMessage(QString str)
         cGuiObject->setNewDebugOutput(message);
     }
 
-    // Fallback
+    // Console message output
+#ifdef __ANDROID__
+    QByteArray ba = message.toLocal8Bit();
+    __android_log_print(ANDROID_LOG_INFO, "welle.io", "%s", ba.data());
+#else
     std::cerr << message.toStdString();
+#endif
 }
 
 void CDebugOutput::setFileName(QString FileName)
