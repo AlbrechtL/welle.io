@@ -103,7 +103,7 @@ class CAudio : public QObject
         void setVolume(qreal volume);
 
     private:
-        CAudioThread *audioThread;
+        std::unique_ptr<CAudioThread> audioThread;
         RingBuffer<int16_t>& buffer;
         CAudioIODevice audioIODevice;
 };

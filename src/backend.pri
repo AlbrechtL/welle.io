@@ -20,6 +20,7 @@ unix:!macx:!android: {
 
 #    CONFIG  += mpg123_builtin
 #    CONFIG  += libfaad_builtin
+#    CONFIG  += kiss_fft_builtin
 }
 
 win32: {

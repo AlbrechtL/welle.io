@@ -223,7 +223,7 @@ CAudio::CAudio(RingBuffer<int16_t>& buffer, QObject *parent) :
     buffer(buffer),
     audioIODevice(buffer, this)
 {
-    audioThread = new CAudioThread(buffer);
+    audioThread = std::make_unique<CAudioThread>(buffer);
     audioThread->start();
 }
 
@@ -232,34 +232,31 @@ CAudio::~CAudio(void)
     if (audioThread != nullptr) {
         audioThread->quit();
         audioThread->wait();
-
-        delete audioThread;
-        audioThread = nullptr;
     }
 }
 
 void CAudio::stop(void)
 {
     // Call stopInternal of CAudioThread (and invoke it in the other thread)
-    QMetaObject::invokeMethod(audioThread, "stop", Qt::QueuedConnection);
+    QMetaObject::invokeMethod(audioThread.get(), "stop", Qt::QueuedConnection);
 }
 
 void CAudio::reset(void)
 {
     // Call resetInternal of CAudioThread (and invoke it in the other thread)
-    QMetaObject::invokeMethod(audioThread, "reset", Qt::QueuedConnection);
+    QMetaObject::invokeMethod(audioThread.get(), "reset", Qt::QueuedConnection);
 }
 
 void CAudio::setRate(int sampleRate)
 {
     // Call setRateInternal of CAudioThread (and invoke it in the other thread)
-    QMetaObject::invokeMethod(audioThread, "setRate", Qt::QueuedConnection, Q_ARG(int, sampleRate));
+    QMetaObject::invokeMethod(audioThread.get(), "setRate", Qt::QueuedConnection, Q_ARG(int, sampleRate));
 }
 
 void CAudio::setVolume(qreal volume)
 {
     // Call setVolumeInternal of CAudioThread (and invoke it in the other thread)
-    QMetaObject::invokeMethod(audioThread, "setVolume", Qt::QueuedConnection, Q_ARG(qreal, volume));
+    QMetaObject::invokeMethod(audioThread.get(), "setVolume", Qt::QueuedConnection, Q_ARG(qreal, volume));
 }
 
 
