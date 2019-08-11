@@ -52,9 +52,10 @@ public:
     void setOpenInstallDialog(void);
 
 private:
-    ActivityResultReceiver *resultReceiver;
+    std::unique_ptr<ActivityResultReceiver> resultReceiver;
     QString message;
-    bool isLoaded;
+    bool isLoaded = false;
+    bool isPending = false;
 
 signals:
     void showAndroidInstallDialog(QString Title, QString Text);

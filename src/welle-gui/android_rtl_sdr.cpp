@@ -33,7 +33,32 @@
 
 CAndroid_RTL_SDR::CAndroid_RTL_SDR(RadioControllerInterface &RadioController) : CRTL_TCP_Client(RadioController)
 {
-    this->isLoaded = false;
+}
+
+CAndroid_RTL_SDR::~CAndroid_RTL_SDR()
+{
+}
+
+std::string CAndroid_RTL_SDR::getDescription()
+{
+    return "Android rtl-sdr " + message.toStdString();
+}
+
+CDeviceID CAndroid_RTL_SDR::getID()
+{
+    return CDeviceID::ANDROID_RTL_SDR;
+}
+
+bool CAndroid_RTL_SDR::restart()
+{
+    if(isLoaded)
+        return CRTL_TCP_Client::restart();
+
+    if(isPending)
+        return false;
+
+    std::clog << "CAndroid_RTL_SDR: Start Android rtl-sdr driver " << std::endl;
+    isPending = true;
 
     // Start Android rtl_tcp
     QAndroidJniObject path = QAndroidJniObject::fromString("iqsrc://-a 127.0.0.1 -p 1234 -s 2048000");
@@ -57,8 +82,8 @@ CAndroid_RTL_SDR::CAndroid_RTL_SDR(RadioControllerInterface &RadioController) : 
                 "(Landroid/net/Uri;)Landroid/content/Intent;",
                 uri.object<jobject>());
 
-    resultReceiver = new ActivityResultReceiver(this);
-    QtAndroid::startActivity(intent, 1, resultReceiver);
+    resultReceiver = std::make_unique<ActivityResultReceiver>(this);
+    QtAndroid::startActivity(intent, 1, resultReceiver.get());
 
     // Catch exception
     QAndroidJniEnvironment env;
@@ -69,29 +94,8 @@ CAndroid_RTL_SDR::CAndroid_RTL_SDR(RadioControllerInterface &RadioController) : 
     // Configure rtl_tcp_client
     setIP("127.0.0.1");
     setPort(1234);
-}
 
-CAndroid_RTL_SDR::~CAndroid_RTL_SDR()
-{
-    delete resultReceiver;
-}
-
-std::string CAndroid_RTL_SDR::getDescription()
-{
-    return "Android rtl-sdr " + message.toStdString();
-}
-
-CDeviceID CAndroid_RTL_SDR::getID()
-{
-    return CDeviceID::ANDROID_RTL_SDR;
-}
-
-bool CAndroid_RTL_SDR::restart()
-{
-    if(isLoaded)
-        return CRTL_TCP_Client::restart();
-    else
-        return false;
+    return true;
 }
 
 
@@ -104,6 +108,13 @@ void CAndroid_RTL_SDR::setErrorMessage(QString message)
 void CAndroid_RTL_SDR::setLoaded(bool isLoaded)
 {
     this->isLoaded = isLoaded;
+
+    // Try to connect to rtl-tcp
+    if(isLoaded)
+    {
+        isPending = false;
+        CRTL_TCP_Client::restart();
+    }
 }
 
 void CAndroid_RTL_SDR::setOpenInstallDialog()
@@ -136,7 +147,7 @@ void ActivityResultReceiver::handleActivityResult(int receiverRequestCode, int r
     {
         if(resultCode == RESULT_OK)
         {
-            std::clog << "Android RTL_SDR: Successfully opened" << std::endl;
+            std::clog << "CAndroid RTL_SDR: Successfully opened" << std::endl;
             Android_RTL_SDR->setLoaded(true);
         }
         else
