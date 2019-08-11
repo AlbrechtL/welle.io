@@ -232,6 +232,9 @@ CAudio::~CAudio(void)
     if (audioThread != nullptr) {
         audioThread->quit();
         audioThread->wait();
+
+        delete audioThread;
+        audioThread = nullptr;
     }
 }
 
