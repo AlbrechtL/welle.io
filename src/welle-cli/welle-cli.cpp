@@ -471,6 +471,14 @@ int main(int argc, char **argv)
             this_thread::sleep_for(chrono::seconds(3));
         }
 
+        cerr << "Wait for service list" << endl;
+        while (rx.getServiceList().empty()) {
+            this_thread::sleep_for(chrono::seconds(1));
+        }
+
+        // Wait an additional 3 seconds so that the receiver can complete the service list
+        this_thread::sleep_for(chrono::seconds(3));
+
         if (options.decode_all_programmes) {
             using SId_t = uint32_t;
             map<SId_t, WavProgrammeHandler> phs;
