@@ -196,9 +196,14 @@ class RadioInterface : public RadioControllerInterface {
                 {"month", dateTime.month},
                 {"day", dateTime.day},
                 {"hour", dateTime.hour},
-                {"minutes", dateTime.minutes}
+                {"minutes", dateTime.minutes},
+                {"seconds", dateTime.seconds}
             };
-            cout << j << endl;
+
+            if (last_date_time != j) {
+                cout << j << endl;
+                last_date_time = j;
+            }
         }
 
         virtual void onFIBDecodeSuccess(bool crcCheckOk, const uint8_t* fib) override {
@@ -250,6 +255,7 @@ class RadioInterface : public RadioControllerInterface {
             cout << j << endl;
         }
 
+        json last_date_time;
         bool synced = false;
         FILE* fic_fd = nullptr;
 };
