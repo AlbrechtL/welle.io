@@ -6,4 +6,6 @@ import "../texts"
 import "../components"
 
 Item {
+    function initDevice(isAutoDevice) {
+    }
 }
