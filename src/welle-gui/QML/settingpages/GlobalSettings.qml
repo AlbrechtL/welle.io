@@ -76,7 +76,7 @@ Item {
                 Layout.fillWidth: true
                 WComboBox {
                     id: languageBox
-                    model: [ "Auto", "Dutch", "English", "German", "Polish"];
+                    model: [ "Auto", "Dutch", "English", "German", "Polish", "Norwegian"];
                     onCurrentIndexChanged: {
                         // Load appropriate settings
                         switch(currentIndex) {
@@ -84,6 +84,7 @@ Item {
                         case 2: guiHelper.addTranslator("en_GB", this); break
                         case 3: guiHelper.addTranslator("de_DE", this); break
                         case 4: guiHelper.addTranslator("pl_PL", this); break
+                        case 5: guiHelper.addTranslator("nb_NO", this); break
                         default: guiHelper.addTranslator("auto", this); break
                         }
                     }
