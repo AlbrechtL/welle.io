@@ -53,7 +53,7 @@ enum class CAirspy_IOCTL {
 
 class CAirspy : public CVirtualInput {
 public:
-    CAirspy();
+    CAirspy(RadioControllerInterface& radioController);
     ~CAirspy(void);
     CAirspy(const CAirspy&) = delete;
     CAirspy& operator=(const CAirspy&) = delete;
@@ -77,8 +77,9 @@ public:
     CDeviceID getID(void);
 
 private:
-    const int AIRSPY_SAMPLERATE = 4096000;
+    RadioControllerInterface& radioController;
 
+    const int AIRSPY_SAMPLERATE = 4096000;
     const int AIRSPY_GAIN_MIN = 0;
     const int AIRSPY_GAIN_MAX = 21;
 

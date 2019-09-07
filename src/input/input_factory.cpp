@@ -83,7 +83,7 @@ CVirtualInput *CInputFactory::GetDevice(RadioControllerInterface &radioControlle
     try {
         switch(deviceId) {
 #ifdef HAVE_AIRSPY
-        case CDeviceID::AIRSPY: InputDevice = new CAirspy(); break;
+        case CDeviceID::AIRSPY: InputDevice = new CAirspy(radioController); break;
 #endif
         case CDeviceID::RTL_TCP: InputDevice = new CRTL_TCP_Client(radioController); break;
 #ifdef HAVE_RTLSDR
@@ -125,7 +125,7 @@ CVirtualInput* CInputFactory::GetAutoDevice(RadioControllerInterface& radioContr
         try {
             switch(i) {
 #ifdef HAVE_AIRSPY
-            case 0: inputDevice = new CAirspy(); break;
+            case 0: inputDevice = new CAirspy(radioController); break;
 #endif
 #ifdef HAVE_RTLSDR
             case 1: inputDevice = new CRTL_SDR(radioController); break;
@@ -158,7 +158,7 @@ CVirtualInput* CInputFactory::GetManualDevice(RadioControllerInterface& radioCon
     try {
 #ifdef HAVE_AIRSPY
         if (device == "airspy")
-            InputDevice = new CAirspy();
+            InputDevice = new CAirspy(radioController);
         else
 #endif
         if (device == "rtl_tcp")
