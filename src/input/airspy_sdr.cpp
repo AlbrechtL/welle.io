@@ -194,24 +194,25 @@ int CAirspy::data_available(const DSPCOMPLEX* buf, size_t num_samples)
         const auto z = 0.5f * (sbuf[2*i] + sbuf[2*i+1]);
         temp[i] = z;
 
-        if (sw_agc and (num_frames % 200) == 0) {
+        if (sw_agc and (num_frames % 10) == 0) {
             if (norm(z) > maxnorm) {
                 maxnorm = norm(z);
             }
         }
     }
 
-    if (sw_agc and (num_frames % 200) == 0) {
+    if (sw_agc and (num_frames % 10) == 0) {
         const float maxampl = sqrt(maxnorm);
+        //  std::clog  << "Airspy: maxampl: " << maxampl << std::endl;
 
         if (maxampl > 0.2f) {
-            const int newgain = currentLinearityGain--;
+            const int newgain = currentLinearityGain - 1;
             if (newgain >= AIRSPY_GAIN_MIN) {
                 setGain(newgain);
             }
         }
         else if (maxampl < 0.02f) {
-            const int newgain = currentLinearityGain++;
+             const int newgain = currentLinearityGain + 1;
             if (newgain <= AIRSPY_GAIN_MAX) {
                 setGain(newgain);
             }
@@ -312,6 +313,7 @@ float CAirspy::getGain() const
 
 float CAirspy::setGain(int gain)
 {
+    std::clog  << "Airspy: setgain: " << gain << std::endl;
     currentLinearityGain = gain;
 
     int result = airspy_set_linearity_gain(device, currentLinearityGain);
