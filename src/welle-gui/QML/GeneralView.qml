@@ -157,8 +157,8 @@ GridLayout {
     }
 
     function __initComponents() {
-        addComponent("qrc:/QML/RadioView.qml", -1)
-        addComponent("qrc:/QML/MotView.qml", -1)
+        addComponent("qrc:/QML/RadioView.qml", -1, -1)
+        addComponent("qrc:/QML/MotView.qml", -1, -1)
     }
 
     function __checkCell(row, column) {
