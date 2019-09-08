@@ -174,6 +174,8 @@ void ActivityResultReceiver::handleActivityResult(int receiverRequestCode, int r
 
             std::clog << "Android RTL_SDR: " << Message.toStdString() << std::endl;
             Android_RTL_SDR->setErrorMessage(Message);
+
+            Android_RTL_SDR->setLoaded(false);
         }
     }
 }
