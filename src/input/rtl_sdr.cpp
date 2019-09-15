@@ -169,7 +169,6 @@ void CRTL_SDR::stop(void)
     if (agcThread.joinable()) {
         agcThread.join();
     }
-    
 }
 
 float CRTL_SDR::getGain() const
