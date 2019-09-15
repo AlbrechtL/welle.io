@@ -111,8 +111,10 @@ CRTL_SDR::~CRTL_SDR(void)
 
 void CRTL_SDR::setFrequency(int frequency)
 {
+    stop();
+    rtlsdrUnplugged = false;
     lastFrequency = frequency;
-    (void)(rtlsdr_set_center_freq(device, frequency + frequencyOffset));
+    restart();
 }
 
 int CRTL_SDR::getFrequency(void) const
@@ -167,6 +169,7 @@ void CRTL_SDR::stop(void)
     if (agcThread.joinable()) {
         agcThread.join();
     }
+    
 }
 
 float CRTL_SDR::getGain() const
