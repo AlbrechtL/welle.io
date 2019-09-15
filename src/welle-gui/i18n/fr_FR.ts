@@ -425,7 +425,7 @@
         <location line="-192"/>
         <location line="+211"/>
         <source>No Station</source>
-        <translation>Pas de programme</translation>
+        <translation>Pas de station</translation>
     </message>
     <message>
         <location line="-248"/>
@@ -442,12 +442,12 @@
         <location line="-440"/>
         <location line="+465"/>
         <source>Found channels</source>
-        <translation>Programmes trouvés</translation>
+        <translation>Stations trouvées</translation>
     </message>
     <message>
         <location line="-259"/>
         <source>Playing last station</source>
-        <translation>Lecture du dernier programme</translation>
+        <translation>Lecture de la dernière station</translation>
     </message>
     <message>
         <source>Lost signal or bad signal quality, trying to find it again.</source>
@@ -456,7 +456,7 @@
     <message>
         <location line="+59"/>
         <source>Radio device is not ready or does not exist.</source>
-        <translation>Le récepteur radio n&apos;est pas prêt ou n&apos;a pas été trouvé.</translation>
+        <translation>Le récepteur radio n&apos;est pas prêt ou n&apos;existe pas.</translation>
     </message>
     <message>
         <source>Tuning</source>
@@ -516,7 +516,7 @@
     <message>
         <location filename="../QML/settingpages/ChannelSettings.qml" line="+25"/>
         <source>Automatic start playing last station</source>
-        <translation>Lire automatiquement le dernier programme</translation>
+        <translation>Lire automatiquement la dernière station</translation>
     </message>
 </context>
 <context>
@@ -529,12 +529,12 @@
     <message>
         <location line="+30"/>
         <source>DQPSK Angle [Degree]</source>
-        <translation>Angle DQPSK (degrés)</translation>
+        <translation type="unfinished">Angle DQPSK [degrés]</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Subcarrier</source>
-        <translation>sous-porteuse</translation>
+        <translation>Sous-porteuse</translation>
     </message>
 </context>
 <context>
@@ -1268,12 +1268,12 @@
     <message>
         <location line="+7"/>
         <source>Enable coarse corrector (for receivers with &gt;1kHz error)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Activer la correction grossière (pour récepteurs avec erreur &gt;1kHz)</translation>
     </message>
     <message>
         <location line="+24"/>
         <source>Coarse corrector algorithm</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Algorithme de correction grossière</translation>
     </message>
     <message>
         <location line="+8"/>
@@ -1372,7 +1372,7 @@
     <message>
         <location line="+5"/>
         <source>Value: </source>
-        <translation>Valeur: </translation>
+        <translation>Valeur : </translation>
     </message>
     <message>
         <location line="+20"/>
@@ -1423,7 +1423,7 @@
     <message>
         <location line="+36"/>
         <source>All stations</source>
-        <translation>Tous les programmes</translation>
+        <translation>Toutes les stations</translation>
     </message>
     <message>
         <location line="+0"/>
@@ -1433,27 +1433,27 @@
     <message>
         <location line="+31"/>
         <source>Start station scan</source>
-        <translation>Démarrer la recherche de programmes</translation>
+        <translation>Rechercher les stations</translation>
     </message>
     <message>
         <location line="+12"/>
         <source>Stop station scan</source>
-        <translation>Arrêter la recherche de programmes</translation>
+        <translation>Arrêter la recherche</translation>
     </message>
     <message>
         <location line="+12"/>
         <source>Clear station list</source>
-        <translation>Effacer la liste</translation>
+        <translation>Effacer la liste des stations</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>Station settings</source>
-        <translation>Paramètres des programmes</translation>
+        <translation>Paramètres des stations</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>No stations in list</source>
-        <translation>Pas de programmes dans la liste</translation>
+        <translation>Pas de stations dans la liste</translation>
     </message>
     <message>
         <location line="+37"/>
@@ -1499,12 +1499,12 @@
     <message>
         <location line="+6"/>
         <source>Console Output</source>
-        <translation>Sortie de la console</translation>
+        <translation type="unfinished">Sortie console</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>RAW Recorder</source>
-        <translation>Enrégistreur brut (RAW)</translation>
+        <translation type="unfinished">Enregistreur RAW I/Q</translation>
     </message>
 </context>
 <context>
@@ -1616,12 +1616,12 @@
     <message>
         <location filename="../QML/settingpages/RawFileSettings.qml" line="+12"/>
         <source>RAW file settings</source>
-        <translation>Paramètres du fichier brut (RAW)</translation>
+        <translation>Paramètres du fichier RAW</translation>
     </message>
     <message>
         <location line="+27"/>
         <source>Open RAW file</source>
-        <translation>Ouvrir le fichier brut (RAW)</translation>
+        <translation>Ouvrir le fichier RAW</translation>
     </message>
     <message>
         <location line="+16"/>
@@ -1634,7 +1634,7 @@
     <message>
         <location filename="../QML/expertviews/RawRecorder.qml" line="+11"/>
         <source>I/Q RAW Recorder (experimental)</source>
-        <translation type="unfinished">Enregistreur brut I/Q (expérimental)</translation>
+        <translation>Enregistreur RAW I/Q (expérimental)</translation>
     </message>
     <message>
         <location line="+8"/>
@@ -1698,7 +1698,7 @@
     <message>
         <location line="+14"/>
         <source>Frame errors</source>
-        <translation>Erreurs de trames (frames)</translation>
+        <translation>Erreurs de trames</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -1865,7 +1865,7 @@
     <message>
         <location filename="../QML/expertviews/TextOutputView.qml" line="+11"/>
         <source>Console Output</source>
-        <translation>Sortie de la console</translation>
+        <translation>Sortie console</translation>
     </message>
 </context>
 <context>
@@ -2006,7 +2006,7 @@
     <message>
         <location filename="../main.cpp" line="+93"/>
         <source>Records DAB frames (*.mp2) or DAB+ superframes with RS coding (*.dab). This file can be used to analyse X-PAD data with XPADxpert</source>
-        <translation>Enrégistre des trames DAB (*.mp2) ou des supertrames DAB+ avec codage RS (*.dab). Ce fichier peut être utilisé pour analyser des données X-PAD avec XPADxpert</translation>
+        <translation type="unfinished">Enregistre les trames DAB (*.mp2) ou les supertrames DAB+ avec codage RS (*.dab). Ce fichier peut être utilisé pour analyser des données X-PAD avec XPADxpert</translation>
     </message>
     <message>
         <location line="+1"/>
