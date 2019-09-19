@@ -35,6 +35,13 @@
 
 #include "rtl_sdr.h"
 
+// For Qt translation if Qt is exisiting
+#ifdef QT_CORE_LIB
+    #include <QtGlobal>
+#else
+    #define QT_TRANSLATE_NOOP(x,y) (y)
+#endif
+
 #define READLEN_DEFAULT 8192
 
 // Fallback if function is not defined in shared lib
@@ -287,7 +294,7 @@ void CRTL_SDR::AGCTimer(void)
         }
         else { // AGC is off
             if (minAmplitude == 0 || maxAmplitude == 255) {
-                std::string Text = "ADC overload. Maybe you are using a to high gain.";
+                std::string Text = QT_TRANSLATE_NOOP("CRadioController", "ADC overload. Maybe you are using a to high gain.");
                 std::clog << "RTL_SDR:" << Text << std::endl;
                 radioController.onMessage(message_level_t::Information, Text);
             }
@@ -383,7 +390,7 @@ void CRTL_SDR::rtlsdr_read_async_wrapper()
                       (void*)this, 0, READLEN_DEFAULT);
 
     if(rtlsdrRunning)
-        radioController.onMessage(message_level_t::Error, "RTL-SDR is unplugged.");
+        radioController.onMessage(message_level_t::Error, QT_TRANSLATE_NOOP("CRadioController", "RTL-SDR is unplugged."));
 
     rtlsdrUnplugged = true;
     rtlsdrRunning = false;
