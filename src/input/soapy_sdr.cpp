@@ -76,7 +76,7 @@ bool CSoapySdr::restart()
     m_sampleBuffer.FlushRingBuffer();
     m_spectrumSampleBuffer.FlushRingBuffer();
 
-    m_device = SoapySDR::Device::make(m_driver_args);
+    m_device = SoapySDR::Device::make("driver=uhd");
     stringstream ss;
     ss << "SoapySDR driver=" << m_device->getDriverKey();
     ss << " hardware=" << m_device->getHardwareKey();
