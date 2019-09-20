@@ -82,6 +82,10 @@ ViewBaseFrame {
             Layout.alignment: Qt.AlignHCenter
 
             TextRadioStation {
+                Layout.margins: Units.dp(10)
+                Layout.maximumWidth: parent.parent.parent.width
+                wrapMode: Text.WordWrap
+                horizontalAlignment: Text.AlignHCenter
                 text: radioController.title.trim()
 
                 // Use a button to display a icon
