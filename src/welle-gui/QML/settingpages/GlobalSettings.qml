@@ -156,7 +156,7 @@ Item {
                 id: deviceBox
                 enabled: !enableAutoSdr.checked
                 Layout.fillWidth: true
-                model: [ "None", "Airspy", "rtl-sdr", "SoapySDR", "rtl-tcp", "RAW file"];
+                model: [ qsTr("None"), qsTr("Airspy"), qsTr("rtl-sdr"), qsTr("SoapySDR"), qsTr("rtl-tcp"), qsTr("RAW file")];
                 onCurrentIndexChanged: {
                     // Load appropriate settings
                     switch(currentIndex) {
