@@ -460,7 +460,7 @@ void CRTL_TCP_Client::agcTimer(void)
         else { // AGC is off or unknown tuner
             if (minAmplitude == 0 || maxAmplitude == 255) {
                 std::string text = QT_TRANSLATE_NOOP("CRadioController", "ADC overload."
-                    " Maybe you are using a to high gain.");
+                    " Maybe you are using a too high gain.");
                 std::clog << "RTL_TCP_CLIENT:" << text << std::endl;
                 radioController.onMessage(message_level_t::Information, text);
             }
