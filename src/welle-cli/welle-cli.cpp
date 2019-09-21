@@ -240,10 +240,10 @@ class RadioInterface : public RadioControllerInterface {
 
             switch (level) {
                 case message_level_t::Information:
-                    cerr << "Info: " << text << endl;
+                    cerr << "Info: " << fullText << endl;
                     break;
                 case message_level_t::Error:
-                    cerr << "Error: " << text << endl;
+                    cerr << "Error: " << fullText << endl;
                     break;
             }
         }

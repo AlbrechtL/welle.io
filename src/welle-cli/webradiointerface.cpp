@@ -1443,7 +1443,7 @@ void WebRadioInterface::onMessage(message_level_t level, const std::string& text
         fullText = text + text2;
     
     lock_guard<mutex> lock(data_mut);
-    pending_messages.emplace_back(level, text);
+    pending_messages.emplace_back(level, fullText);
 }
 
 void WebRadioInterface::onTIIMeasurement(tii_measurement_t&& m)
