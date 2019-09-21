@@ -52,7 +52,7 @@ class TestRadioInterface : public RadioControllerInterface {
 
         virtual void onNewNullSymbol(std::vector<DSPCOMPLEX>&& data) override { (void)data; }
         virtual void onConstellationPoints(std::vector<DSPCOMPLEX>&& data) override { (void)data; }
-        virtual void onMessage(message_level_t level, const std::string& text, const std::string& text2) override { (void) level; (void)text; (void)text2;}
+        virtual void onMessage(message_level_t level, const std::string& text, const std::string& text2 = std::string()) override { (void) level; (void)text; (void)text2;}
 
         virtual void onTIIMeasurement(tii_measurement_t&& m) override { (void)m; }
 };
