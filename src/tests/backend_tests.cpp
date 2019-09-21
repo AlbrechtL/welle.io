@@ -46,6 +46,8 @@ class TestRadioInterface : public RadioControllerInterface {
         virtual void onServiceDetected(uint32_t sId) override { (void)sId; }
 
         virtual void onNewEnsemble(uint16_t /*eId*/) override { }
+        virtual void onSetEnsembleLabel(DabLabel& /*label*/) override { }
+        virtual void onNewEnsemble(uint16_t /*eId*/) override { }
         virtual void onDateTimeUpdate(const dab_date_time_t& dateTime) override { (void)dateTime; }
         virtual void onFIBDecodeSuccess(bool crcCheckOk, const uint8_t* fib) override { (void)crcCheckOk; (void)fib; }
         virtual void onNewImpulseResponse(std::vector<float>&& data) override { (void)data; }
