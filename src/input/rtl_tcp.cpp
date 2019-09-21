@@ -410,7 +410,7 @@ void CRTL_TCP_Client::receiveAndReconnect()
                 lock.unlock();
 
                 radioController.onMessage(message_level_t::Error,
-                        QT_TRANSLATE_NOOP("CRadioController", "Connection failed to server ") +
+                        QT_TRANSLATE_NOOP("CRadioController", "Connection failed to server "),
                         serverAddress + ":" + std::to_string(serverPort));
             }
         }

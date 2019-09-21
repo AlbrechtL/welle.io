@@ -174,7 +174,7 @@ void CRAWFile::setFileName(const std::string& fileName,
     if (filePointer == nullptr) {
         std::clog << "RAWFile: Cannot open file: " << fileName << std::endl;
         radioController.onMessage(message_level_t::Error,
-                QT_TRANSLATE_NOOP("CRadioController", "Cannot open file ") + fileName);
+                QT_TRANSLATE_NOOP("CRadioController", "Cannot open file "), fileName);
         return;
     }
 
@@ -194,7 +194,7 @@ void CRAWFile::setFileHandle(int handle, const std::string& fileFormat)
     if (filePointer == nullptr) {
         std::clog << "RAWFile: Cannot open file: " << fileName << std::endl;
         radioController.onMessage(message_level_t::Error,
-                QT_TRANSLATE_NOOP("CRadioController", "Cannot open file ") + fileName);
+                QT_TRANSLATE_NOOP("CRadioController", "Cannot open file "), fileName);
         return;
     }
 
