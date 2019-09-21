@@ -41,6 +41,13 @@
 
 #include "raw_file.h"
 
+// For Qt translation if Qt is exisiting
+#ifdef QT_CORE_LIB
+    #include <QtGlobal>
+#else
+    #define QT_TRANSLATE_NOOP(x,y) (y)
+#endif
+
 static inline int64_t getMyTime(void)
 {
     struct timeval tv;
@@ -167,7 +174,7 @@ void CRAWFile::setFileName(const std::string& fileName,
     if (filePointer == nullptr) {
         std::clog << "RAWFile: Cannot open file: " << fileName << std::endl;
         radioController.onMessage(message_level_t::Error,
-                "Cannot open file " + fileName);
+                QT_TRANSLATE_NOOP("CRadioController", "Cannot open file "), fileName);
         return;
     }
 
@@ -187,7 +194,7 @@ void CRAWFile::setFileHandle(int handle, const std::string& fileFormat)
     if (filePointer == nullptr) {
         std::clog << "RAWFile: Cannot open file: " << fileName << std::endl;
         radioController.onMessage(message_level_t::Error,
-                "Cannot open file " + fileName);
+                QT_TRANSLATE_NOOP("CRadioController", "Cannot open file "), fileName);
         return;
     }
 
@@ -300,10 +307,10 @@ int32_t CRAWFile::readBuffer(uint8_t* data, int32_t length)
             fseek(filePointer, 0, SEEK_SET);
             std::clog << "RAWFile:"  << "End of file, restarting" << std::endl;
             radioController.onMessage(message_level_t::Information,
-                    "End of file, restarting");
+                    QT_TRANSLATE_NOOP("CRadioController", "End of file, restarting"));
         }
         else {
-            radioController.onMessage(message_level_t::Information, "End of file");
+            radioController.onMessage(message_level_t::Information, QT_TRANSLATE_NOOP("CRadioController", "End of file"));
             endReached = true;
             return 0;
         }
@@ -391,6 +398,6 @@ void CRAWFile::setFileFormat(const std::string &fileFormat)
         this->fileFormat = CRAWFileFormat::Unknown;
         std::clog << "RAWFile: unknown file format" << std::endl;
         radioController.onMessage(message_level_t::Error,
-                "Unknown RAW file format");
+                QT_TRANSLATE_NOOP("CRadioController", "Unknown RAW file format"));
     }
 }

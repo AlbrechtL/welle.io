@@ -35,6 +35,13 @@
 #include <iostream>
 #include "airspy_sdr.h"
 
+// For Qt translation if Qt is exisiting
+#ifdef QT_CORE_LIB
+    #include <QtGlobal>
+#else
+    #define QT_TRANSLATE_NOOP(x,y) (y)
+#endif
+
 static const int EXTIO_NS = 8192;
 static const int EXTIO_BASE_TYPE_SIZE = sizeof(float);
 
@@ -142,7 +149,7 @@ bool CAirspy::is_ok()
     airspy_error status =  (airspy_error) airspy_is_streaming(device);
     if(status != AIRSPY_TRUE && running == true) {
         std::clog << "Airspy: airspy is not working. Maybe it is unplugged. Code: " << status <<  "running" << running << std::endl;
-        radioController.onMessage(message_level_t::Error, "airspy is unplugged.");
+        radioController.onMessage(message_level_t::Error, QT_TRANSLATE_NOOP("CRadioController", "airspy is unplugged."));
 
         stop();
     }
