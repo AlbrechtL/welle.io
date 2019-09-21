@@ -1377,6 +1377,7 @@ void WebRadioInterface::onSyncChange(char isSync)
 void WebRadioInterface::onSignalPresence(bool /*isSignal*/) { }
 void WebRadioInterface::onServiceDetected(uint32_t /*sId*/) { }
 void WebRadioInterface::onNewEnsemble(uint16_t /*eId*/) { }
+void WebRadioInterface::onSetEnsembleLabel(DabLabel& /*label*/) { }
 
 void WebRadioInterface::onDateTimeUpdate(const dab_date_time_t& dateTime)
 {

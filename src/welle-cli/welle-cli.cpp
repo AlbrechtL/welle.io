@@ -188,6 +188,11 @@ class RadioInterface : public RadioControllerInterface {
             cout << "Ensemble name id: " << hex << eId << dec << endl;
         }
 
+        virtual void onSetEnsembleLabel(DabLabel& label) override
+        {
+            cout << "Ensemble label: " << label.utf8_label() << endl;
+        }
+
         virtual void onDateTimeUpdate(const dab_date_time_t& dateTime) override
         {
             json j;
