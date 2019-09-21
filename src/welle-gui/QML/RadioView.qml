@@ -147,9 +147,11 @@ ViewBaseFrame {
         width: parent.width
 
         TextRadioInfo {
+            id: stationType
             visible: stationInfo.visible
             Layout.alignment: Qt.AlignLeft
             Layout.leftMargin: Units.dp(5)
+            verticalAlignment: Text.AlignBottom
             text: radioController.stationType
         }
 
@@ -157,6 +159,10 @@ ViewBaseFrame {
             visible: stationInfo.visible
             Layout.alignment: Qt.AlignRight
             Layout.rightMargin: Units.dp(5)
+            verticalAlignment: Text.AlignBottom
+            Layout.maximumWidth: parent.parent.width - stationType.width
+            fontSizeMode: Text.Fit
+            minimumPixelSize: 8;
             text: (radioController.isDAB ? "DAB" : "DAB+")
                 + " " + radioController.audioMode
         }
