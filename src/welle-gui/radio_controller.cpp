@@ -875,14 +875,20 @@ void CRadioController::onTIIMeasurement(tii_measurement_t&& m)
         " with error " << m.error;
 }
 
-void CRadioController::onMessage(message_level_t level, const std::string& text)
+void CRadioController::onMessage(message_level_t level, const std::string& text, const std::string& text2)
 {
+    QString fullText;
+    if (text2.empty())
+      fullText = tr(text.c_str());
+    else
+      fullText = tr(text.c_str()) + QString::fromStdString(text2);
+    
     switch (level) {
         case message_level_t::Information:
-            emit showInfoMessage(tr(text.c_str()));
+            emit showInfoMessage(fullText);
             break;
         case message_level_t::Error:
-            emit showErrorMessage(tr(text.c_str()));
+            emit showErrorMessage(fullText);
             break;
     }
 }
