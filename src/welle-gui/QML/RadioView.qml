@@ -82,6 +82,7 @@ ViewBaseFrame {
             Layout.alignment: Qt.AlignHCenter
 
             TextRadioStation {
+                id:textRadioStation
                 Layout.margins: Units.dp(10)
                 Layout.maximumWidth: parent.parent.parent.width
                 wrapMode: Text.WordWrap
@@ -92,8 +93,40 @@ ViewBaseFrame {
                 Button  {
                     property bool isSignal: false
                     id: antennaSymbol
-                    x: parent.width + Units.dp(5)
-                    y: (parent.height / 2) - (height / 2)
+                    property bool isTextTooLongForAntenna: {return (parent.width + implicitWidth + Units.dp(30) > parent.parent.parent.parent.width)}
+
+                    Connections {
+                        target: frame
+                        onWidthChanged: { reanchorAntenna() }
+                    }
+                    
+                    Connections {
+                        target: textRadioStation
+                        onTextChanged: { reanchorAntenna() }
+                    }
+                    
+                    states: [
+                        State {
+                          name: "alignRight"
+                          AnchorChanges {
+                            target: antennaSymbol
+                            anchors.left: textRadioStation.right
+                            anchors.verticalCenter: textRadioStation.verticalCenter
+                            anchors.top: undefined
+                            anchors.horizontalCenter: undefined
+                          }
+                        },
+                        State {
+                          name: "alignBottom"
+                          AnchorChanges {
+                            target: antennaSymbol
+                            anchors.left: undefined
+                            anchors.verticalCenter: undefined
+                            anchors.top: textRadioStation.bottom
+                            anchors.horizontalCenter: textRadioStation.horizontalCenter
+                          }
+                        }
+                    ]
 
                     visible: opacity == 0 ? false : true
                     opacity: 100
@@ -183,4 +216,12 @@ ViewBaseFrame {
             effect.stop()
         }
     }
+
+    function reanchorAntenna() {
+        if (!antennaSymbol.isTextTooLongForAntenna)
+            antennaSymbol.state = "alignRight"
+        else
+            antennaSymbol.state = "alignBottom"
+    }
+    
 }
