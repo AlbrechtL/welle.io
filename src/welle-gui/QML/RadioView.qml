@@ -1,6 +1,7 @@
 ﻿import QtQuick 2.2
 import QtQuick.Layouts 1.1
 import QtQuick.Controls 2.3
+import QtGraphicalEffects 1.0
 
 // Import custom styles
 import "texts"
@@ -89,12 +90,24 @@ ViewBaseFrame {
                 horizontalAlignment: Text.AlignHCenter
                 text: radioController.title.trim()
 
-                // Use a button to display a icon
-                Button  {
+                // Use an Item to display icons as Image
+                Item {
                     property bool isSignal: false
                     id: antennaSymbol
-                    property bool isTextTooLongForAntenna: {return (parent.width + implicitWidth + Units.dp(30) > parent.parent.parent.parent.width)}
-
+                    
+                    anchors.leftMargin: Units.dp(10)
+                    implicitWidth: antennaIcon.width
+                    implicitHeight: implicitWidth
+                    
+                    property bool isTextTooLongForAntenna: {
+                        var maxWidth = parent.parent.parent.parent.width;
+                        var textAndAntennaWidth = parent.width + implicitWidth + Units.dp(30) + anchors.leftMargin;
+                        return ( textAndAntennaWidth > maxWidth )
+                    }
+                    
+                    visible: opacity == 0 ? false : true
+                    opacity: 100
+                    
                     Connections {
                         target: frame
                         onWidthChanged: { reanchorAntenna() }
@@ -106,61 +119,93 @@ ViewBaseFrame {
                     }
                     
                     states: [
-                        State {
-                          name: "alignRight"
-                          AnchorChanges {
+                    State {
+                        name: "alignRight"
+                        AnchorChanges {
                             target: antennaSymbol
                             anchors.left: textRadioStation.right
                             anchors.verticalCenter: textRadioStation.verticalCenter
                             anchors.top: undefined
                             anchors.horizontalCenter: undefined
-                          }
-                        },
-                        State {
-                          name: "alignBottom"
-                          AnchorChanges {
+                        }
+                    },
+                    State {
+                        name: "alignBottom"
+                        AnchorChanges {
                             target: antennaSymbol
                             anchors.left: undefined
                             anchors.verticalCenter: undefined
                             anchors.top: textRadioStation.bottom
                             anchors.horizontalCenter: textRadioStation.horizontalCenter
-                          }
                         }
+                    }
                     ]
-
-                    visible: opacity == 0 ? false : true
-                    opacity: 100
-                    icon.name: isSignal ? "antenna" : "antenna_no_signal"
-                    icon.width: Units.dp(30)
-                    icon.height: Units.dp(30)
-                    icon.color: isSignal ? "transparent" : "red"
-                    background: Rectangle { opacity: 0 } // Hack to disable the pressed color
-                    implicitWidth: contentItem.implicitWidth + Units.dp(20)
-                    implicitHeight: implicitWidth
-
+                    
+                    Image {
+                        id: antennaIcon
+                        width: Units.dp(30)
+                        height: Units.dp(30)
+                        visible: false
+                        source: "qrc:/icon/welle_io_icons/20x20@2/antenna.png"
+                    }
+                    
+                    Image {
+                        id: antennaIconNoSignal
+                        width: antennaIcon.width
+                        height: antennaIcon.height
+                        visible: false
+                        source: "qrc:/icon/welle_io_icons/20x20@2/antenna_no_signal.png"
+                    }
+                    
+                    ColorOverlay {
+                        id: antennaIconNoSignalRed
+                        visible: true
+                        anchors.fill: antennaIconNoSignal
+                        source: antennaIconNoSignal
+                        color: "red"
+                    }
+                    
+                    Connections {
+                        target: antennaSymbol
+                        onIsSignalChanged: { 
+                            console.log("onIsSignalChanged")
+                            if (antennaSymbol.isSignal) {
+                                console.log("isSignal")
+                                antennaIconNoSignalRed.visible = false; 
+                                antennaIcon.visible = true;
+                            } else {
+                                console.log("NoisSignal")
+                                antennaIconNoSignalRed.visible = true; 
+                                antennaIcon.visible = false;
+                            }
+                        }
+                    }
+                    
                     NumberAnimation on opacity {
                         id: effect
                         to: 0;
                         duration: 6000;
                         running: false
                     }
-
+                    
+                    
                     Connections {
                         target: radioController
                         onIsFICCRCChanged: {
                             if(radioController.isFICCRC)
                                 __setIsSignal(true)
-                            else
-                                __setIsSignal(false)
+                                else
+                                    __setIsSignal(false)
                         }
-
+                        
                         onIsSyncChanged: {
                             if(radioController.isSync)
                                 __setIsSignal(true)
-                            else
-                                __setIsSignal(false)
+                                else
+                                    __setIsSignal(false)
                         }
                     }
+                    
                 }
             }
         }
