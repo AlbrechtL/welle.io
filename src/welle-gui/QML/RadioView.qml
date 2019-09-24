@@ -193,7 +193,7 @@ ViewBaseFrame {
                             else
                                 __setIsSignal(false)
                         }
-                        
+
                         onIsSyncChanged: {
                             if(radioController.isSync)
                                 __setIsSignal(true)
@@ -263,5 +263,4 @@ ViewBaseFrame {
         else
             antennaSymbol.state = "alignBottom"
     }
-    
 }
