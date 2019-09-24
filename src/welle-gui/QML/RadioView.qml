@@ -19,48 +19,6 @@ ViewBaseFrame {
         text: radioController.ensemble.trim()
     }
 
-    // Use 2 buttons to switch between speaker & speaker_mute icon (instead of toggle button)
-    /*Button {
-        id: speakerIcon
-        anchors.verticalCenter: signalStrength.verticalCenter
-        anchors.right: parent.right
-        width: Units.dp(50)
-        height: Units.dp(50)
-        visible: true
-        flat: true
-
-        icon.name: "speaker"
-        icon.width: Units.dp(30)
-        icon.height: Units.dp(30)
-        icon.color: "transparent"
-
-        implicitWidth: contentItem.implicitWidth + Units.dp(30)
-        implicitHeight: implicitWidth
-
-        onClicked: {radioController.setVolume(0); speakerIconMutedRed.visible = true; speakerIcon.visible = false}
-    }
-    
-    Button {
-        id: speakerIconMuted
-        anchors.verticalCenter: signalStrength.verticalCenter
-        anchors.right: parent.right
-        width: Units.dp(50)
-        height: Units.dp(50)
-        visible: false
-        flat: true
-
-        icon.name: "speaker_mute"
-        icon.width: Units.dp(30)
-        icon.height: Units.dp(30)
-        icon.color: "red"
-
-        implicitWidth: contentItem.implicitWidth + Units.dp(30)
-        implicitHeight: implicitWidth
-
-        onClicked: {radioController.setVolume(100); speakerIconMuted.visible = false; speakerIcon.visible = true}
-    }
-    */
-
     // Use 2 Images to switch between speaker & speaker_mute icon (instead of toggle button). 
     // Permits use of color with org.kde.desktop style
     Image {
@@ -70,7 +28,6 @@ ViewBaseFrame {
         width: Units.dp(30)
         height: Units.dp(30)
         visible: true
-        //flat: true
         source: "qrc:/icon/welle_io_icons/20x20@2/speaker.png"
 
         MouseArea {
@@ -85,8 +42,6 @@ ViewBaseFrame {
         anchors.right: parent.right
         width: Units.dp(30)
         height: Units.dp(30)
-        //Layout.preferredWidth: Units.dp(40)
-        //Layout.preferredHeight: Units.dp(40)
         visible: false
 
         source: "qrc:/icon/welle_io_icons/20x20@2/speaker_mute.png"
