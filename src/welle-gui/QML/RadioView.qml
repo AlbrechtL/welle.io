@@ -19,29 +19,93 @@ ViewBaseFrame {
         text: radioController.ensemble.trim()
     }
 
-    // Use a button to display a icon
-    Button {
-        anchors.top: parent.top
+    // Use 2 buttons to switch between speaker & speaker_mute icon (instead of toggle button)
+    /*Button {
+        id: speakerIcon
+        anchors.verticalCenter: signalStrength.verticalCenter
         anchors.right: parent.right
-        anchors.topMargin: Units.dp(-20) // ToDo Hack!
-        anchors.rightMargin: Units.dp(-10) // ToDo Hack!
-
-        background: Rectangle { opacity: 0} // Hack to disable the pressed color
-        checkable: true
+        width: Units.dp(50)
+        height: Units.dp(50)
+        visible: true
         flat: true
 
-        icon.name: checked ? "speaker_mute" : "speaker"
+        icon.name: "speaker"
         icon.width: Units.dp(30)
         icon.height: Units.dp(30)
-        icon.color: checked ? "red" : "transparent"
+        icon.color: "transparent"
 
         implicitWidth: contentItem.implicitWidth + Units.dp(30)
         implicitHeight: implicitWidth
 
-        onCheckedChanged: checked ? radioController.setVolume(0) : radioController.setVolume(100)
+        onClicked: {radioController.setVolume(0); speakerIconMutedRed.visible = true; speakerIcon.visible = false}
+    }
+    
+    Button {
+        id: speakerIconMuted
+        anchors.verticalCenter: signalStrength.verticalCenter
+        anchors.right: parent.right
+        width: Units.dp(50)
+        height: Units.dp(50)
+        visible: false
+        flat: true
+
+        icon.name: "speaker_mute"
+        icon.width: Units.dp(30)
+        icon.height: Units.dp(30)
+        icon.color: "red"
+
+        implicitWidth: contentItem.implicitWidth + Units.dp(30)
+        implicitHeight: implicitWidth
+
+        onClicked: {radioController.setVolume(100); speakerIconMuted.visible = false; speakerIcon.visible = true}
+    }
+    */
+
+    // Use 2 Images to switch between speaker & speaker_mute icon (instead of toggle button). 
+    // Permits use of color with org.kde.desktop style
+    Image {
+        id: speakerIcon
+        anchors.verticalCenter: signalStrength.verticalCenter
+        anchors.right: parent.right
+        width: Units.dp(30)
+        height: Units.dp(30)
+        visible: true
+        //flat: true
+        source: "qrc:/icon/welle_io_icons/20x20@2/speaker.png"
+
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {radioController.setVolume(0); speakerIconMutedRed.visible = true; speakerIcon.visible = false}
+        }
+    }
+
+    Image {
+        id: speakerIconMuted
+        anchors.verticalCenter: signalStrength.verticalCenter
+        anchors.right: parent.right
+        width: Units.dp(30)
+        height: Units.dp(30)
+        //Layout.preferredWidth: Units.dp(40)
+        //Layout.preferredHeight: Units.dp(40)
+        visible: false
+
+        source: "qrc:/icon/welle_io_icons/20x20@2/speaker_mute.png"
+    }
+
+    ColorOverlay {
+        id: speakerIconMutedRed
+        visible: false
+        anchors.fill: speakerIconMuted
+        source: speakerIconMuted
+        color: "red"
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {radioController.setVolume(100); speakerIconMutedRed.visible = false; speakerIcon.visible = true}
+        }
     }
 
     RowLayout{
+        id: signalStrength
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.leftMargin: Units.dp(5)
@@ -86,7 +150,7 @@ ViewBaseFrame {
                 id:textRadioStation
                 Layout.margins: Units.dp(10)
                 Layout.maximumWidth: parent.parent.parent.width
-                wrapMode: Text.WordWrap
+                wrapMode: Text.Wrap
                 horizontalAlignment: Text.AlignHCenter
                 text: radioController.title.trim()
 
@@ -224,9 +288,11 @@ ViewBaseFrame {
         width: parent.width
 
         TextRadioInfo {
+            id: stationType
             visible: stationInfo.visible
             Layout.alignment: Qt.AlignLeft
             Layout.leftMargin: Units.dp(5)
+            verticalAlignment: Text.AlignBottom
             text: radioController.stationType
         }
 
@@ -234,6 +300,10 @@ ViewBaseFrame {
             visible: stationInfo.visible
             Layout.alignment: Qt.AlignRight
             Layout.rightMargin: Units.dp(5)
+            verticalAlignment: Text.AlignBottom
+            Layout.maximumWidth: parent.parent.width - stationType.width
+            fontSizeMode: Text.Fit
+            minimumPixelSize: 8;
             text: (radioController.isDAB ? "DAB" : "DAB+")
                 + " " + radioController.audioMode
         }
