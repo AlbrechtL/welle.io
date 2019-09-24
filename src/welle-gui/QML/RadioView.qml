@@ -168,13 +168,10 @@ ViewBaseFrame {
                     Connections {
                         target: antennaSymbol
                         onIsSignalChanged: { 
-                            console.log("onIsSignalChanged")
                             if (antennaSymbol.isSignal) {
-                                console.log("isSignal")
                                 antennaIconNoSignalRed.visible = false; 
                                 antennaIcon.visible = true;
                             } else {
-                                console.log("NoisSignal")
                                 antennaIconNoSignalRed.visible = true; 
                                 antennaIcon.visible = false;
                             }
@@ -187,25 +184,23 @@ ViewBaseFrame {
                         duration: 6000;
                         running: false
                     }
-                    
-                    
+
                     Connections {
                         target: radioController
                         onIsFICCRCChanged: {
                             if(radioController.isFICCRC)
                                 __setIsSignal(true)
-                                else
-                                    __setIsSignal(false)
+                            else
+                                __setIsSignal(false)
                         }
                         
                         onIsSyncChanged: {
                             if(radioController.isSync)
                                 __setIsSignal(true)
-                                else
-                                    __setIsSignal(false)
+                            else
+                                __setIsSignal(false)
                         }
                     }
-                    
                 }
             }
         }
