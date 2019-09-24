@@ -269,6 +269,8 @@ INSTALL (FILES ${PROJECT_SOURCE_DIR}/src/welle-gui/icon/48x48/welle-io.png DESTI
 INSTALL (FILES ${PROJECT_SOURCE_DIR}/src/welle-gui/icon/128x128/welle-io.png DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/128x128/apps)
 INSTALL (FILES ${PROJECT_SOURCE_DIR}/src/welle-gui/icon/256x256/welle-io.png DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/256x256/apps)
 
+INSTALL (DIRECTORY ${PROJECT_SOURCE_DIR}/src/welle-gui/icon/welle_io_icons DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons)
+
 INSTALL (
   FILES
     ${PROJECT_SOURCE_DIR}/src/welle-cli/index.html
