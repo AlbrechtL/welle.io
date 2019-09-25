@@ -83,6 +83,8 @@ ApplicationWindow {
     width: getWidth()
     height: getHeight()
 
+    title: radioController.title.trim()
+
     visibility: isFullScreen ? Window.FullScreen : Window.Windowed
 
     Component.onCompleted: {
