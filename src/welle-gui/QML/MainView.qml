@@ -560,8 +560,14 @@ ApplicationWindow {
         onMinimizeWindow: hide()
         onMaximizeWindow: showMaximized()
         onRestoreWindow: {
+            // On Linux (KDE?): Hide before we restore 
+            // otherwise the window will occasionaly not be brought to the front
+            if (Qt.platform.os === "linux" && !active) // Linux Workaround to display the window
+                hide()
             showNormal()
             raise() // Stay in foreground
+            if (Qt.platform.os === "linux" && !active) // Linux Workaround to display the window
+                requestActivate()
         }
     }
 
