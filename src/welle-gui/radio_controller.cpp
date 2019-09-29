@@ -181,7 +181,14 @@ void CRadioController::setDeviceParam(QString param, QString value)
         device->setDeviceParam(DeviceParam::SoapySDRAntenna, value_tmp);
     }
     else if (param == "SoapySDRDriverArgs") {
-        device->setDeviceParam(DeviceParam::SoapySDRDriverArgs, value_tmp);
+        bool valueChanged = (value_tmp != this->deviceInitArgs[CDeviceID::SOAPYSDR]);
+        if (valueChanged) {
+            if (deviceId == CDeviceID::SOAPYSDR)
+                device->setDeviceParam(DeviceParam::SoapySDRDriverArgs, value_tmp);
+            if (deviceId == CDeviceID::NULLDEVICE)
+                this->deviceInitArgs[CDeviceID::SOAPYSDR] = value_tmp; // In case there was an exception loading the device
+                openDevice(CDeviceID::SOAPYSDR,1);
+        }
     }
     else if (param == "SoapySDRClockSource") {
         device->setDeviceParam(DeviceParam::SoapySDRClockSource, value_tmp);
