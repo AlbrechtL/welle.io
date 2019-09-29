@@ -37,7 +37,15 @@
 #include <vector>
 #include <string>
 #include <complex>
+#include <map>
 #include "dab-constants.h"
+
+#ifndef __CDeviceID
+// Duplication from virtual_input.h. I didn't find how to get it compile without this
+#define __CDeviceID
+enum class CDeviceID {
+    UNKNOWN, NULLDEVICE, AIRSPY, RAWFILE, RTL_SDR, RTL_TCP, SOAPYSDR, ANDROID_RTL_SDR};
+#endif
 
 struct dab_date_time_t {
     int year = 0;
@@ -116,6 +124,8 @@ class RadioControllerInterface {
 
         /* The receiver has shutdown */
         virtual void onShutdown(void) { };
+
+        std::map <CDeviceID, std::string> deviceInitArgs;
 
 };
 
