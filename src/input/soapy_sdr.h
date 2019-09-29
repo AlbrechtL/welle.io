@@ -40,7 +40,7 @@ class CSoapySdr_Thread;
 class CSoapySdr : public CVirtualInput
 {
 public:
-    CSoapySdr();
+    CSoapySdr(RadioControllerInterface& radioController);
     ~CSoapySdr();
     CSoapySdr(const CSoapySdr&) = delete;
     CSoapySdr operator=(const CSoapySdr&) = delete;
@@ -61,6 +61,8 @@ public:
     virtual std::string getDescription(void);
     virtual CDeviceID getID(void);
     virtual bool setDeviceParam(DeviceParam param, std::string &value);
+
+    RadioControllerInterface& radioController;
 
 private:
     void setDriverArgs(const std::string& args);

@@ -33,16 +33,29 @@
 #include "dab-constants.h"
 #include "unistd.h"
 
+// For Qt translation if Qt is exisiting
+#ifdef QT_CORE_LIB
+    #include <QtGlobal>
+#else
+    #define QT_TRANSLATE_NOOP(x,y) (y)
+#endif
+
 using namespace std;
 
-CSoapySdr::CSoapySdr() :
+CSoapySdr::CSoapySdr(RadioControllerInterface& radioController) :
+    radioController(radioController),
     m_sampleBuffer(1024 * 1024),
     m_spectrumSampleBuffer(8192)
 {
     m_running = false;
-    std::clog << "SoapySdr" << std::endl;
+    m_driver_args = radioController.deviceInitArgs[CDeviceID::SOAPYSDR];
+    std::clog << "SoapySdr using device argument: \"" << m_driver_args << "\"" << std::endl;
 
-    restart();
+    bool restart_successul = restart();
+    if (!restart_successul) {
+        std::cerr << "Could not init SoapySdr device using device argument \"" << m_driver_args << "\"" << std::endl;
+        throw std::runtime_error("Could not init SoapySdr device using device argument \"" + m_driver_args + "\"");
+    }
 }
 
 CSoapySdr::~CSoapySdr()
@@ -76,7 +89,17 @@ bool CSoapySdr::restart()
     m_sampleBuffer.FlushRingBuffer();
     m_spectrumSampleBuffer.FlushRingBuffer();
 
-    m_device = SoapySDR::Device::make("driver=uhd");
+    try {
+        m_device = SoapySDR::Device::make(m_driver_args);
+    }
+    catch (std::exception& e) {
+        std::clog << "Exception caught in SoapySDR::Device::make with \"" << m_driver_args << "\" :\n" <<
+            "   " << e.what() << std::endl;
+        stop();
+        radioController.onMessage(message_level_t::Error, 
+                                  QT_TRANSLATE_NOOP("CRadioController", "Could not load SoapySDR with provided device arguments."));
+        return false;
+    }
     stringstream ss;
     ss << "SoapySDR driver=" << m_device->getDriverKey();
     ss << " hardware=" << m_device->getHardwareKey();
@@ -213,7 +236,13 @@ float CSoapySdr::setGain(int32_t gainIndex)
 
 void CSoapySdr::setDriverArgs(const std::string& args)
 {
-    m_driver_args = args;
+    if (m_driver_args != args) {
+        m_driver_args = args;
+        radioController.deviceInitArgs[CDeviceID::SOAPYSDR] = m_driver_args;
+        m_running = false;
+        stop();
+        restart();
+    }
 }
 
 void CSoapySdr::setAntenna(const std::string& antenna)

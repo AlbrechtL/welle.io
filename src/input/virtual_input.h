@@ -38,8 +38,11 @@
 #include "radio-controller.h"
 #include "ringbuffer.h"
 
+#ifndef __CDeviceID
+#define __CDeviceID
 enum class CDeviceID {
     UNKNOWN, NULLDEVICE, AIRSPY, RAWFILE, RTL_SDR, RTL_TCP, SOAPYSDR, ANDROID_RTL_SDR};
+#endif
 
 class CVirtualInput : public InputInterface {
 public:
