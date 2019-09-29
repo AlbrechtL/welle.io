@@ -30,7 +30,6 @@
 #include <unistd.h>
 
 #include <QApplication>
-#include <QQuickStyle>
 #include <QCoreApplication>
 #include <QCommandLineParser>
 #include <QDebug>
@@ -46,6 +45,7 @@
 #include "gui_helper.h"
 #include "debug_output.h"
 #include "waterfallitem.h"
+#include "virtual_input.h" //for CDeviceID
 
 #ifdef __ANDROID__
     #include <QtAndroid>
@@ -83,8 +83,6 @@ int main(int argc, char** argv)
 
     // Set icon
     app.setWindowIcon(QIcon(":/icon/icon.png"));
-
-    QQuickStyle::setStyle("Default");
 
     // Handle the command line
     QCommandLineParser optionParser;
@@ -128,6 +126,10 @@ int main(int argc, char** argv)
         if( lastStation.count() == 2 )
             radioController.setAutoPlay(lastStation[1], lastStation[0]);
     }
+
+    // Load mandatory driver arguments to init input device
+    QString soapyDriverArgs = settings.value("soapyDriverArgs","").toString();
+    radioController.deviceInitArgs[CDeviceID::SOAPYSDR] = soapyDriverArgs.toStdString();
 
     CGUIHelper guiHelper(&radioController);
 

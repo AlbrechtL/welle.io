@@ -501,8 +501,9 @@ void CGUIHelper::setBiasTeeRtlSdr(bool isOn)
     radioController->setDeviceParam("biastee", isOn ? 1 : 0);
 }
 
-void CGUIHelper::openSoapySdr()
+void CGUIHelper::openSoapySdr(QString driverArgs)
 {
+    radioController->deviceInitArgs[CDeviceID::SOAPYSDR] = driverArgs.toStdString();
     radioController->openDevice(CDeviceID::SOAPYSDR);
 }
 

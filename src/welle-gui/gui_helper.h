@@ -86,7 +86,7 @@ public:
     Q_INVOKABLE void setBiasTeeAirspy(bool isOn);
     Q_INVOKABLE void openRtlSdr();
     Q_INVOKABLE void setBiasTeeRtlSdr(bool isOn);
-    Q_INVOKABLE void openSoapySdr();
+    Q_INVOKABLE void openSoapySdr(QString driverArgs);
     Q_INVOKABLE void setAntennaSoapySdr(QString text);
     Q_INVOKABLE void setDriverArgsSoapySdr(QString text);
     Q_INVOKABLE void setClockSourceSoapySdr(QString text);
