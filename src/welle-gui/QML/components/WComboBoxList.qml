@@ -13,7 +13,7 @@ ComboBox {
     delegate: ItemDelegate {
         width: comboBox.width
         contentItem: TextStandart {
-            text: listModel.get(index).label;
+            text: label;
             elide: Text.ElideRight
             verticalAlignment: Text.AlignVCenter
         }
