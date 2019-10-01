@@ -76,16 +76,17 @@ Item {
                 Layout.fillWidth: true
                 WComboBox {
                     id: languageBox
-                    model: [ "Auto", "Dutch", "English", "German", "Polish", "Norwegian"];
+                    model: [ "Auto", "Dutch", "English", "German", "Polish", "Norwegian", "French"];
                     onCurrentIndexChanged: {
                         // Load appropriate settings
                         switch(currentIndex) {
-                        case 1: guiHelper.addTranslator("nl_NL", this); break
-                        case 2: guiHelper.addTranslator("en_GB", this); break
-                        case 3: guiHelper.addTranslator("de_DE", this); break
-                        case 4: guiHelper.addTranslator("pl_PL", this); break
-                        case 5: guiHelper.addTranslator("nb_NO", this); break
-                        default: guiHelper.addTranslator("auto", this); break
+                        case 1: guiHelper.updateTranslator("nl_NL", this); break
+                        case 2: guiHelper.updateTranslator("en_GB", this); break
+                        case 3: guiHelper.updateTranslator("de_DE", this); break
+                        case 4: guiHelper.updateTranslator("pl_PL", this); break
+                        case 5: guiHelper.updateTranslator("nb_NO", this); break
+                        case 6: guiHelper.updateTranslator("fr_FR", this); break
+                        default: guiHelper.updateTranslator("auto", this); break
                         }
                     }
                 }
