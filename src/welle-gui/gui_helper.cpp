@@ -553,15 +553,13 @@ void CGUIHelper::setNewDebugOutput(QString text)
     emit newDebugOutput(text);
 }
 
-void CGUIHelper::addTranslator(QString Language, QObject *obj)
+void CGUIHelper::setTranslator(QTranslator *translator)
 {
-    if(translator) {
-        QCoreApplication::removeTranslator(translator);
-        delete(translator);
-    }
+    this->translator = translator;
+}
 
-    translator = new QTranslator;
-
+QTranslator* CGUIHelper::loadTranslationFile(QTranslator *translator, QString Language)
+{
     if(Language == "auto")
     {
         QString locale = QLocale::system().name();
@@ -585,14 +583,24 @@ void CGUIHelper::addTranslator(QString Language, QObject *obj)
     // Set new language
     qDebug() << "main:" <<  "Set language" << Language;
     bool isTranslation = translator->load(QString(":/i18n/") + Language);
-    QCoreApplication::installTranslator(translator);
 
-    if(!isTranslation && Language != "en_GB")
+    if(!isTranslation)
     {
-        qDebug() << "main:" <<  "Error while loading language" << Language << "use English \"en_GB\" instead";
-        Language = "en_GB";
+        qDebug() << "main:" <<  "Error while loading language" << Language << "use untranslated text (ie. English)";
     }
 
+    return translator;  
+}
+
+void CGUIHelper::updateTranslator(QString Language, QObject *obj)
+{
+    translator = loadTranslationFile(translator, Language);
+
+    translateGUI(Language, obj);
+}
+
+void CGUIHelper::translateGUI(QString Language, QObject *obj)
+{
     // Set locale e.g. time formarts
     QLocale curLocale(QLocale((const QString&)Language));
     QLocale::setDefault(curLocale);
@@ -601,6 +609,14 @@ void CGUIHelper::addTranslator(QString Language, QObject *obj)
     QQmlContext *currentContext = QQmlEngine::contextForObject(obj);
     QQmlEngine *engine = currentContext->engine();
     engine->retranslate();
+
+    // Start translation of non-QML GUI
+#ifndef QT_NO_SYSTEMTRAYICON
+    minimizeAction->setText(tr("Mi&nimize"));
+    maximizeAction->setText(tr("Ma&ximize"));
+    restoreAction->setText(tr("&Restore"));
+    quitAction->setText(tr("&Quit"));
+#endif
 }
 
 #ifdef __ANDROID__
