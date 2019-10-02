@@ -84,6 +84,10 @@ CGUIHelper::CGUIHelper(CRadioController *RadioController, QObject *parent)
 
     trayIcon->setIcon(QIcon(":/icon/icon.png"));
     trayIcon->show();
+
+    connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
+            this, SLOT(showWindow(QSystemTrayIcon::ActivationReason)));
+
 #endif
 
     CDebugOutput::setCGUI(this);
@@ -202,6 +206,14 @@ void CGUIHelper::showInfoMessage(QString Text)
     trayIcon->showMessage(QCoreApplication::applicationName(), Text, QIcon(":/icon.png"), 5000);
 #else
     (void)Text;
+#endif
+}
+
+void CGUIHelper::showWindow(QSystemTrayIcon::ActivationReason r)
+{
+#ifndef QT_NO_SYSTEMTRAYICON
+    if (r == QSystemTrayIcon::Trigger)
+        emit restoreWindow();
 #endif
 }
 
