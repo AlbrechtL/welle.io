@@ -878,8 +878,15 @@ bool WebRadioInterface::send_slide(Socket& s, const std::string& stream)
             headers << "\r\n";
             headers << "\r\n";
             const auto headers_str = headers.str();
-            s.send(headers_str.data(), headers_str.size(), MSG_NOSIGNAL);
-            s.send(mot.data.data(), mot.data.size(), MSG_NOSIGNAL);
+            int ret = s.send(headers_str.data(), headers_str.size(), MSG_NOSIGNAL);
+            if (ret == 0) {
+                ret = s.send(mot.data.data(), mot.data.size(), MSG_NOSIGNAL);
+            }
+
+            if (ret == -1) {
+                cerr << "Failed to send slide" << endl;
+            }
+
             return true;
         }
     }
@@ -1324,7 +1331,7 @@ void WebRadioInterface::serve()
     deque<future<bool> > running_connections;
 
 #if HAVE_SIGACTION
-    struct sigaction sa;
+    struct sigaction sa = {};
     sa.sa_handler = handler;
     sigemptyset(&sa.sa_mask);
     if (sigaction(SIGINT, &sa, NULL) == -1) {
@@ -1480,12 +1487,18 @@ list<tii_measurement_t> WebRadioInterface::getTiiStats()
             len++;
         }
 
-        avg.error = error / len;
+        if (len > 0) {
+            avg.error = error / len;
 
-        // Calculate the median
-        std::nth_element(delays.begin(), delays.begin() + len/2, delays.end());
-        avg.delay_samples = delays[len/2];
-
+            // Calculate the median
+            std::nth_element(delays.begin(), delays.begin() + len/2, delays.end());
+            avg.delay_samples = delays[len/2];
+        }
+        else {
+            // To quiet static analysis check
+            avg.error = 0.0;
+            avg.delay_samples = 0;
+        }
         l.push_back(move(avg));
     }
 

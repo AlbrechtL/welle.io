@@ -319,7 +319,7 @@ int32_t CRAWFile::convertSamples(RingBufferBase<uint8_t>& Buffer, DSPCOMPLEX *V,
         return amount / IQByteSize;
     }
 
-    uint8_t* temp = (uint8_t*)alloca(IQByteSize * size * sizeof(uint8_t));
+    uint8_t *temp = (uint8_t*)alloca((size_t)IQByteSize * (size_t)size * sizeof(uint8_t));
 
     int32_t amount = Buffer.getDataFromBuffer(temp, IQByteSize * size);
 
