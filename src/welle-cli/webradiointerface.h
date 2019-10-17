@@ -139,7 +139,7 @@ class WebRadioInterface : public RadioControllerInterface {
         std::list<tii_measurement_t> getTiiStats();
 
         std::thread programme_handler_thread;
-        bool running = true;
+        std::atomic<bool> running = ATOMIC_VAR_INIT(true);
 
         Channels channels;
         DABParams dabparams;
