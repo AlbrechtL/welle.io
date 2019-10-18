@@ -59,6 +59,8 @@
 
 #define ASSERT_RX if (not rx) throw logic_error("rx does not exist")
 
+constexpr size_t MAX_PENDING_MESSAGES = 512;
+
 using namespace std;
 
 static const char* http_ok = "HTTP/1.0 200 OK\r\n";
@@ -243,12 +245,20 @@ void WebRadioInterface::retune(const std::string& channel)
         cerr << "Destroy RX" << endl;
         rx.reset();
 
-        last_dateTime = {};
+        {
+            lock_guard<mutex> data_lock(data_mut);
+            last_dateTime = {};
+            last_snr = 0;
+            last_fine_correction = 0;
+            last_coarse_correction = 0;
+        }
+
         synced = false;
-        last_snr = 0;
-        last_fine_correction = 0;
-        last_coarse_correction = 0;
-        num_fic_crc_errors = 0;
+
+        {
+            lock_guard<mutex> fib_lock(fib_mut);
+            num_fic_crc_errors = 0;
+        }
         tiis.clear();
 
         cerr << "Set frequency" << endl;
@@ -770,6 +780,37 @@ bool WebRadioInterface::send_mux_json(Socket& s)
             {"minutes", last_dateTime.minutes},
             {"lto", last_dateTime.hourOffset + ((double)last_dateTime.minuteOffset / 30.0)},
         };
+
+        vector<string> msgs;
+        for (const auto& m : pending_messages) {
+            using namespace chrono;
+
+            stringstream ss;
+
+            const auto ms = duration_cast<milliseconds>(
+                    m.timestamp.time_since_epoch());
+
+            const auto s = duration_cast<seconds>(ms);
+            const std::time_t t = s.count();
+            const std::size_t fractional_seconds = ms.count() % 1000;
+
+            ss << std::ctime(&t) << "." << fractional_seconds;
+
+            switch (m.level) {
+                case message_level_t::Information:
+                    ss << " INFO : ";
+                    break;
+                case message_level_t::Error:
+                    ss << " ERROR: ";
+                    break;
+            }
+
+            ss << m.text;
+            msgs.push_back(ss.str());
+        }
+
+        pending_messages.clear();
+        j["messages"] = msgs;
 
         j["utctime"] = j_utc;
 
@@ -1440,7 +1481,13 @@ void WebRadioInterface::onConstellationPoints(std::vector<DSPCOMPLEX>&& data)
 void WebRadioInterface::onMessage(message_level_t level, const std::string& text)
 {
     lock_guard<mutex> lock(data_mut);
-    pending_messages.emplace_back(level, text);
+    const auto now = std::chrono::system_clock::now();
+    pending_message_t m = { .level = level, .text = text, .timestamp = now};
+    pending_messages.emplace_back(move(m));
+
+    if (pending_messages.size() > MAX_PENDING_MESSAGES) {
+        pending_messages.pop_front();
+    }
 }
 
 void WebRadioInterface::onTIIMeasurement(tii_measurement_t&& m)

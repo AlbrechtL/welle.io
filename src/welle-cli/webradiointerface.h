@@ -155,7 +155,14 @@ class WebRadioInterface : public RadioControllerInterface {
         int last_fine_correction = 0;
         int last_coarse_correction = 0;
         dab_date_time_t last_dateTime;
-        std::deque<std::pair<message_level_t, std::string> > pending_messages;
+
+        struct pending_message_t {
+            message_level_t level;
+            std::string text;
+            std::chrono::time_point<std::chrono::system_clock> timestamp;
+        };
+
+        std::deque<pending_message_t> pending_messages;
 
         mutable std::mutex plotdata_mut;
         std::vector<float> last_CIR;
