@@ -57,6 +57,8 @@
 #define VERSION "unknown"
 #endif
 
+#define ASSERT_RX if (not rx) throw logic_error("rx does not exist")
+
 using namespace std;
 
 static const char* http_ok = "HTTP/1.0 200 OK\r\n";
@@ -115,21 +117,26 @@ WebRadioInterface::WebRadioInterface(CVirtualInput& in,
     rro(rro),
     decode_settings(ds)
 {
-    bool success = serverSocket.bind(port);
-    if (success) {
-        success = serverSocket.listen();
-    }
+    {
+        // Ensure that rx always exists when rx_mut is free!
+        lock_guard<mutex> lock(rx_mut);
 
-    if (success) {
-        rx = make_unique<RadioReceiver>(*this, in, rro);
-    }
+        bool success = serverSocket.bind(port);
+        if (success) {
+            success = serverSocket.listen();
+        }
 
-    if (not rx) {
-        throw runtime_error("Could not initialise WebRadioInterface");
-    }
+        if (success) {
+            rx = make_unique<RadioReceiver>(*this, in, rro);
+        }
 
-    time_rx_created = chrono::system_clock::now();
-    rx->restart(false);
+        if (not rx) {
+            throw runtime_error("Could not initialise WebRadioInterface");
+        }
+
+        time_rx_created = chrono::system_clock::now();
+        rx->restart(false);
+    }
 
     programme_handler_thread = thread(&WebRadioInterface::handle_phs, this);
 }
@@ -147,6 +154,8 @@ class TuneFailed {};
 void WebRadioInterface::check_decoders_required()
 {
     lock_guard<mutex> lock(rx_mut);
+    ASSERT_RX;
+
     try {
         for (auto& s : rx->getServiceList()) {
             const auto sid = s.serviceId;
@@ -227,6 +236,9 @@ void WebRadioInterface::retune(const std::string& channel)
     cerr << "Take ownership of RX" << endl;
     {
         unique_lock<mutex> lock(rx_mut);
+        // Even though it would be ok for rx to be inexistent here,
+        // we check to uncover errors.
+        ASSERT_RX;
 
         cerr << "Destroy RX" << endl;
         rx.reset();
@@ -246,7 +258,7 @@ void WebRadioInterface::retune(const std::string& channel)
         cerr << "Restart RX" << endl;
         rx = make_unique<RadioReceiver>(*this, input, rro);
         if (not rx) {
-            throw runtime_error("Could not initialise WebRadioInterface");
+            throw runtime_error("Could not initialise RadioReceiver");
         }
 
         time_rx_created = chrono::system_clock::now();
@@ -415,15 +427,6 @@ bool WebRadioInterface::dispatch_client(Socket&& client)
         return false;
     }
     else {
-        while (true) {
-            unique_lock<mutex> lock(rx_mut);
-            if (rx) {
-                break;
-            }
-            lock.unlock();
-            this_thread::sleep_for(chrono::seconds(1));
-        }
-
         if (req.is_get) {
             if (req.url == "/") {
                 success = send_file(s, "index.html", http_contenttype_html);
@@ -618,9 +621,7 @@ bool WebRadioInterface::send_mux_json(Socket& s)
 
     {
         lock_guard<mutex> lock(rx_mut);
-        if (!rx) {
-            return false;
-        }
+        ASSERT_RX;
         const auto ensembleLabel = rx->getEnsembleLabel();
         set_label_json(j["ensemble"], rx->getEnsembleLabel());
 
@@ -807,6 +808,9 @@ bool WebRadioInterface::send_mux_json(Socket& s)
 
 bool WebRadioInterface::send_mp3(Socket& s, const std::string& stream)
 {
+    unique_lock<mutex> lock(rx_mut);
+    ASSERT_RX;
+
     for (const auto& srv : rx->getServiceList()) {
         if (to_hex<4>(srv.serviceId) == stream or
                 (uint32_t)std::stoul(stream) == srv.serviceId) {
@@ -1099,9 +1103,7 @@ bool WebRadioInterface::handle_fft_window_placement_post(Socket& s, const std::s
 
     {
         lock_guard<mutex> lock(rx_mut);
-        if (!rx) {
-            return false;
-        }
+        ASSERT_RX;
         rx->setReceiverOptions(rro);
     }
 
@@ -1144,9 +1146,7 @@ bool WebRadioInterface::handle_coarse_corrector_post(Socket& s, const std::strin
 
     {
         lock_guard<mutex> lock(rx_mut);
-        if (!rx) {
-            return false;
-        }
+        ASSERT_RX;
         rx->setReceiverOptions(rro);
     }
 
@@ -1188,10 +1188,7 @@ void WebRadioInterface::handle_phs()
         this_thread::sleep_for(chrono::seconds(2));
 
         unique_lock<mutex> lock(rx_mut);
-        if (not rx) {
-            lock.unlock();
-            continue;
-        }
+        ASSERT_RX;
 
         auto serviceList = rx->getServiceList();
         for (auto& s : serviceList) {
@@ -1299,13 +1296,12 @@ void WebRadioInterface::handle_phs()
 
     if (running) {
         unique_lock<mutex> lock(rx_mut);
-        if (rx) {
-            for (auto& s : rx->getServiceList()) {
-                const auto sid = s.serviceId;
-                const bool is_decoded = programmes_being_decoded[sid];
-                if (is_decoded) {
-                    (void)rx->removeServiceToDecode(s);
-                }
+        ASSERT_RX;
+        for (auto& s : rx->getServiceList()) {
+            const auto sid = s.serviceId;
+            const bool is_decoded = programmes_being_decoded[sid];
+            if (is_decoded) {
+                (void)rx->removeServiceToDecode(s);
             }
         }
     }
