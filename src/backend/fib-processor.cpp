@@ -1027,10 +1027,10 @@ void FIBProcessor::process_FIG2(uint8_t *d)
                           f[3];
                 }
                 else {
-                    sid = f[2] * 256 * 256 * 256 + \
-                          f[3] * 256 * 256 + \
-                          f[4] * 256 + \
-                          f[5];
+                    sid = ((uint32_t)f[2] << 24) |
+                          ((uint32_t)f[3] << 16) |
+                          ((uint32_t)f[4] << 8) |
+                          ((uint32_t)f[5]);
                 }
                 if (figlen <= header_length + identifier_len) {
                     std::clog << "FIG2/4 length error " << (int)figlen << std::endl;
@@ -1047,10 +1047,11 @@ void FIBProcessor::process_FIG2(uint8_t *d)
 
         case 5: // Data service label
             {   // ETSI EN 300 401 8.1.14.2
-                uint32_t sid = f[1] * 256 * 256 * 256 + \
-                      f[2] * 256 * 256 + \
-                      f[3] * 256 + \
-                      f[4];
+                const uint32_t sid =
+                    ((uint32_t)f[1] << 24) |
+                    ((uint32_t)f[2] << 16) |
+                    ((uint32_t)f[3] << 8) |
+                    ((uint32_t)f[4]);
 
                 if (figlen <= header_length + identifier_len) {
                     std::clog << "FIG2/5 length error " << (int)figlen << std::endl;
