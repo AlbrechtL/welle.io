@@ -768,11 +768,12 @@ void FIBProcessor::process_FIG1(uint8_t *d)
                     label[i] = getBits_8 (d, offset);
                     offset += 8;
                 }
-                // std::clog << "fib-processor:" << "Ensemblename: %16s\n", label) << std::endl;
+                // std::clog << "fib-processor:" << "Ensemblename: " << label << std::endl;
                 if (!oe and EId == ensembleId) {
                     ensembleLabel.fig1_flag = getBits(d, offset, 16);
                     ensembleLabel.fig1_label = label;
                     ensembleLabel.setCharset(charSet);
+                    myRadioInterface.onSetEnsembleLabel(ensembleLabel);
                 }
                 break;
             }
