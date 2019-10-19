@@ -139,7 +139,11 @@ bool Socket::bind(int port)
     const int bind_ret = ::bind(listensock, (sockaddr*)&addr, sizeof(sockaddr_in));
     if (bind_ret == -1) {
         perror("Could not bind socket");
+#if defined(_WIN32)
+        closesocket(listensock);
+#else
         ::close(listensock);
+#endif
         return false;
     }
 
