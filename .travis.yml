@@ -1,7 +1,7 @@
 language: none
 compiler: gcc
 sudo: require
-dist: trusty
+dist: bionic
 python:
   - "3.6"
 env:
@@ -10,19 +10,19 @@ env:
 
 before_install:
     # QT
-    - sudo add-apt-repository ppa:beineri/opt-qt-5.10.1-trusty -y
+    - sudo add-apt-repository ppa:beineri/opt-qt-5.12.3-bionic -y
     # GCC 7
-    - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+    #- sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
     # SoapySDR
     - sudo add-apt-repository ppa:myriadrf/drivers -y
 
     - sudo apt-get update -qq
 
 install:
-    - sudo apt-get -y install gcc-7 g++-7
-    - sudo apt-get -y install libusb-1.0-0-dev pkg-config libmp3lame-dev libmpg123-dev qt510base qt510declarative qt510quickcontrols qt510quickcontrols2 qt510charts-no-lgpl qt510multimedia libpulse0 libfaad-dev libfftw3-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev libsoapysdr-dev
-    - source /opt/qt510/bin/qt510-env.sh
-    - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 90 --slave /usr/bin/g++ g++ /usr/bin/g++-7
+    - sudo apt-get -y install gcc g++
+    - sudo apt-get -y install libusb-1.0-0-dev pkg-config libmp3lame-dev libmpg123-dev qt512base qt512declarative qt512quickcontrols qt512quickcontrols2 qt512charts-no-lgpl qt512multimedia libpulse0 libfaad-dev libfftw3-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev libsoapysdr-dev
+    - source /opt/qt512/bin/qt512-env.sh
+    #- sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 90 --slave /usr/bin/g++ g++ /usr/bin/g++-7
 
 script:
   - DATE=`date +%Y%m%d`
