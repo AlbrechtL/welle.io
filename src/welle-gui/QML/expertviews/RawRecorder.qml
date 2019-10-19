@@ -44,7 +44,7 @@ ViewBaseFrame {
         }
 
         TextStandart {
-            text: "Ring buffer size (roughly): " + (ringeBufferSize / 1000000 * 2).toFixed(0) + " MB"
+            text: qsTr("Ring buffer size (roughly): ") + (ringeBufferSize / 1000000 * 2).toFixed(0) + " MB"
         }
     }
 }
