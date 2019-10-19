@@ -61,7 +61,7 @@ Item {
 
                 WComboBox {
                     id: freqSyncMethodBox
-                    model: [ "GetMiddle", "CorrelatePRS", "PatternOfZeros" ];
+                    model: [ qsTr("GetMiddle"), qsTr("CorrelatePRS"), qsTr("PatternOfZeros") ];
                     currentIndex: 1
                     onCurrentIndexChanged: {
                         radioController.setFreqSyncMethod(currentIndex)
@@ -92,7 +92,7 @@ Item {
                 Layout.fillWidth: true
                 WComboBox {
                     id: fftPlacementBox
-                    model: [ "Strongest Peak", "Earliest Peak With Binning", "Threshold Before Peak" ];
+                    model: [ qsTr("Strongest Peak"), qsTr("Earliest Peak With Binning"), qsTr("Threshold Before Peak") ];
                     currentIndex: 1
                     onCurrentIndexChanged: {
                         radioController.selectFFTWindowPlacement(currentIndex)
