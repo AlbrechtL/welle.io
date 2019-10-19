@@ -1,7 +1,7 @@
-language: none
+dist: bionic
+language: cpp
 compiler: gcc
 sudo: require
-dist: bionic
 #python:
 #  - "3.6"
 env:
