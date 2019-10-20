@@ -84,8 +84,6 @@ int main(int argc, char** argv)
     // Set icon
     app.setWindowIcon(QIcon(":/icon/icon.png"));
 
-    QQuickStyle::setStyle("Default");
-
     // Handle the command line
     QCommandLineParser optionParser;
     optionParser.setApplicationDescription("welle.io Help");
