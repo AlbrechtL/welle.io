@@ -95,6 +95,10 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, QObject *par
     connect(this, &CRadioController::ensembleIdUpdated,
             this, &CRadioController::ensembleId);
 
+    qRegisterMetaType<DabLabel>("DabLabel&");
+    connect(this, &CRadioController::ensembleLabelUpdated,
+            this, &CRadioController::ensembleLabel);
+        
     connect(this, &CRadioController::serviceDetected,
             this, &CRadioController::serviceId);
 
@@ -645,8 +649,21 @@ void CRadioController::ensembleId(quint16 eId)
 
     currentEId = eId;
 
-    auto label = radioReceiver->getEnsembleLabel();
-    currentEnsembleLabel = QString::fromStdString(label.utf8_label());
+    //auto label = radioReceiver->getEnsembleLabel();
+    //currentEnsembleLabel = QString::fromStdString(label.utf8_label());
+
+    //emit ensembleChanged();
+}
+
+void CRadioController::ensembleLabel(DabLabel& label)
+{
+    QString newLabel = QString::fromStdString(label.utf8_label());
+
+    if (currentEnsembleLabel == newLabel)
+        return;
+
+    qDebug() << "RadioController: Label of ensemble:" << newLabel;
+    currentEnsembleLabel = newLabel;
 
     emit ensembleChanged();
 }
@@ -839,6 +856,11 @@ void CRadioController::serviceId(quint32 sId)
 void CRadioController::onNewEnsemble(quint16 eId)
 {
     emit ensembleIdUpdated(eId);
+}
+
+void CRadioController::onSetEnsembleLabel(DabLabel& label)
+{
+    emit ensembleLabelUpdated(label);
 }
 
 void CRadioController::onDateTimeUpdate(const dab_date_time_t& dateTime)

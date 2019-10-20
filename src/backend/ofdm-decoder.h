@@ -56,7 +56,7 @@ class OfdmDecoder
         RadioControllerInterface& radioInterface;
         FicHandler& ficHandler;
         MscHandler& mscHandler;
-        std::atomic<bool> running;
+        std::atomic<bool> running = ATOMIC_VAR_INIT(false);
 
         std::condition_variable pending_symbols_cv;
         std::mutex mutex;
