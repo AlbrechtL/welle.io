@@ -138,6 +138,7 @@ private slots:
     void motUpdate(QImage motImage);
     void showErrorMessage(QString Text);
     void showInfoMessage(QString Text);
+    void showWindow(QSystemTrayIcon::ActivationReason r);
 
 signals:
     void foundChannelCount(int channelCount);
