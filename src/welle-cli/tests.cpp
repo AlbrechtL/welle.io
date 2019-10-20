@@ -156,6 +156,11 @@ class TestRadioInterface : public RadioControllerInterface {
             cout << "Ensemble id is: " << eId << endl;
         }
 
+        virtual void onSetEnsembleLabel(DabLabel& label) override
+        {
+            cout << "Ensemble label: " << label.utf8_label() << endl;
+        }
+
         virtual void onDateTimeUpdate(const dab_date_time_t& dateTime) override { (void)dateTime; }
         virtual void onFIBDecodeSuccess(bool crcCheckOk, const uint8_t* fib) override { (void)crcCheckOk; (void)fib; }
         virtual void onNewImpulseResponse(std::vector<float>&& data) override

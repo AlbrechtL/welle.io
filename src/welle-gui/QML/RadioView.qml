@@ -1,6 +1,7 @@
 ﻿import QtQuick 2.2
 import QtQuick.Layouts 1.1
 import QtQuick.Controls 2.3
+import QtGraphicalEffects 1.0
 
 // Import custom styles
 import "texts"
@@ -18,29 +19,48 @@ ViewBaseFrame {
         text: radioController.ensemble.trim()
     }
 
-    // Use a button to display a icon
-    Button {
-        anchors.top: parent.top
+    // Use 2 Images to switch between speaker & speaker_mute icon (instead of toggle button). 
+    // Permits use of color with org.kde.desktop style
+    Image {
+        id: speakerIcon
+        anchors.verticalCenter: signalStrength.verticalCenter
         anchors.right: parent.right
-        anchors.topMargin: Units.dp(-20) // ToDo Hack!
-        anchors.rightMargin: Units.dp(-10) // ToDo Hack!
+        width: Units.dp(30)
+        height: Units.dp(30)
+        visible: true
+        source: "qrc:/icon/welle_io_icons/20x20@2/speaker.png"
 
-        background: Rectangle { opacity: 0} // Hack to disable the pressed color
-        checkable: true
-        flat: true
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {radioController.setVolume(0); speakerIconMutedRed.visible = true; speakerIcon.visible = false}
+        }
+    }
 
-        icon.name: checked ? "speaker_mute" : "speaker"
-        icon.width: Units.dp(30)
-        icon.height: Units.dp(30)
-        icon.color: checked ? "red" : "transparent"
+    Image {
+        id: speakerIconMuted
+        anchors.verticalCenter: signalStrength.verticalCenter
+        anchors.right: parent.right
+        width: Units.dp(30)
+        height: Units.dp(30)
+        visible: false
 
-        implicitWidth: contentItem.implicitWidth + Units.dp(30)
-        implicitHeight: implicitWidth
+        source: "qrc:/icon/welle_io_icons/20x20@2/speaker_mute.png"
+    }
 
-        onCheckedChanged: checked ? radioController.setVolume(0) : radioController.setVolume(100)
+    ColorOverlay {
+        id: speakerIconMutedRed
+        visible: false
+        anchors.fill: speakerIconMuted
+        source: speakerIconMuted
+        color: "red"
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {radioController.setVolume(100); speakerIconMutedRed.visible = false; speakerIcon.visible = true}
+        }
     }
 
     RowLayout{
+        id: signalStrength
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.leftMargin: Units.dp(5)
@@ -82,25 +102,101 @@ ViewBaseFrame {
             Layout.alignment: Qt.AlignHCenter
 
             TextRadioStation {
+                id:textRadioStation
+                Layout.margins: Units.dp(10)
+                Layout.maximumWidth: parent.parent.parent.width
+                wrapMode: Text.Wrap
+                horizontalAlignment: Text.AlignHCenter
                 text: radioController.title.trim()
 
-                // Use a button to display a icon
-                Button  {
+                // Use an Item to display icons as Image
+                Item {
                     property bool isSignal: false
                     id: antennaSymbol
-                    x: parent.width + Units.dp(5)
-                    y: (parent.height / 2) - (height / 2)
-
+                    
+                    anchors.leftMargin: Units.dp(10)
+                    implicitWidth: antennaIcon.width
+                    implicitHeight: implicitWidth
+                    
+                    property bool isTextTooLongForAntenna: {
+                        var maxWidth = parent.parent.parent.parent.width;
+                        var textAndAntennaWidth = parent.width + implicitWidth + Units.dp(30) + anchors.leftMargin;
+                        return ( textAndAntennaWidth > maxWidth )
+                    }
+                    
                     visible: opacity == 0 ? false : true
                     opacity: 100
-                    icon.name: isSignal ? "antenna" : "antenna_no_signal"
-                    icon.width: Units.dp(30)
-                    icon.height: Units.dp(30)
-                    icon.color: isSignal ? "transparent" : "red"
-                    background: Rectangle { opacity: 0 } // Hack to disable the pressed color
-                    implicitWidth: contentItem.implicitWidth + Units.dp(20)
-                    implicitHeight: implicitWidth
-
+                    
+                    Connections {
+                        target: frame
+                        onWidthChanged: { reanchorAntenna() }
+                    }
+                    
+                    Connections {
+                        target: textRadioStation
+                        onTextChanged: { reanchorAntenna() }
+                    }
+                    
+                    states: [
+                    State {
+                        name: "alignRight"
+                        AnchorChanges {
+                            target: antennaSymbol
+                            anchors.left: textRadioStation.right
+                            anchors.verticalCenter: textRadioStation.verticalCenter
+                            anchors.top: undefined
+                            anchors.horizontalCenter: undefined
+                        }
+                    },
+                    State {
+                        name: "alignBottom"
+                        AnchorChanges {
+                            target: antennaSymbol
+                            anchors.left: undefined
+                            anchors.verticalCenter: undefined
+                            anchors.top: textRadioStation.bottom
+                            anchors.horizontalCenter: textRadioStation.horizontalCenter
+                        }
+                    }
+                    ]
+                    
+                    Image {
+                        id: antennaIcon
+                        width: Units.dp(30)
+                        height: Units.dp(30)
+                        visible: false
+                        source: "qrc:/icon/welle_io_icons/20x20@2/antenna.png"
+                    }
+                    
+                    Image {
+                        id: antennaIconNoSignal
+                        width: antennaIcon.width
+                        height: antennaIcon.height
+                        visible: false
+                        source: "qrc:/icon/welle_io_icons/20x20@2/antenna_no_signal.png"
+                    }
+                    
+                    ColorOverlay {
+                        id: antennaIconNoSignalRed
+                        visible: true
+                        anchors.fill: antennaIconNoSignal
+                        source: antennaIconNoSignal
+                        color: "red"
+                    }
+                    
+                    Connections {
+                        target: antennaSymbol
+                        onIsSignalChanged: { 
+                            if (antennaSymbol.isSignal) {
+                                antennaIconNoSignalRed.visible = false; 
+                                antennaIcon.visible = true;
+                            } else {
+                                antennaIconNoSignalRed.visible = true; 
+                                antennaIcon.visible = false;
+                            }
+                        }
+                    }
+                    
                     NumberAnimation on opacity {
                         id: effect
                         to: 0;
@@ -147,9 +243,11 @@ ViewBaseFrame {
         width: parent.width
 
         TextRadioInfo {
+            id: stationType
             visible: stationInfo.visible
             Layout.alignment: Qt.AlignLeft
             Layout.leftMargin: Units.dp(5)
+            verticalAlignment: Text.AlignBottom
             text: radioController.stationType
         }
 
@@ -157,6 +255,10 @@ ViewBaseFrame {
             visible: stationInfo.visible
             Layout.alignment: Qt.AlignRight
             Layout.rightMargin: Units.dp(5)
+            verticalAlignment: Text.AlignBottom
+            Layout.maximumWidth: parent.parent.width - stationType.width
+            fontSizeMode: Text.Fit
+            minimumPixelSize: 8;
             text: (radioController.isDAB ? "DAB" : "DAB+")
                 + " " + radioController.audioMode
         }
@@ -178,5 +280,12 @@ ViewBaseFrame {
             antennaSymbol.opacity = 100
             effect.stop()
         }
+    }
+
+    function reanchorAntenna() {
+        if (!antennaSymbol.isTextTooLongForAntenna)
+            antennaSymbol.state = "alignRight"
+        else
+            antennaSymbol.state = "alignBottom"
     }
 }

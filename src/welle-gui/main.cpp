@@ -30,6 +30,7 @@
 #include <unistd.h>
 
 #include <QApplication>
+#include <QQuickStyle>
 #include <QCoreApplication>
 #include <QCommandLineParser>
 #include <QDebug>
@@ -82,6 +83,8 @@ int main(int argc, char** argv)
 
     // Set icon
     app.setWindowIcon(QIcon(":/icon/icon.png"));
+
+    QQuickStyle::setStyle("Default");
 
     // Handle the command line
     QCommandLineParser optionParser;

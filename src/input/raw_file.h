@@ -95,7 +95,7 @@ private:
     bool readerOK = false;
     bool readerPausing = false;
     bool endReached = false;
-    std::atomic<bool> ExitCondition;
+    std::atomic<bool> ExitCondition = ATOMIC_VAR_INIT(false);
     int64_t currPos = 0;
 
     std::thread thread;
