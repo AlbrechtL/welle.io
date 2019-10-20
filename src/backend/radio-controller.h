@@ -92,6 +92,9 @@ class RadioControllerInterface {
         /* When the ensemble changes */
         virtual void onNewEnsemble(uint16_t eId) = 0;
 
+        /* When the ensemble label changes */
+        virtual void onSetEnsembleLabel(DabLabel& label) = 0;
+
         virtual void onDateTimeUpdate(const dab_date_time_t& dateTime) = 0;
 
         /* For every FIB, tell if the CRC check passed. fib points to a bit-vector with 256 bits of FIB data  */

@@ -24,6 +24,7 @@ ViewBaseFrame {
         }
 
         RowLayout {
+            property bool isServiceDetailsRawLayout: true
             Rectangle{
                 height: Units.dp(16)
                 width: Units.dp(16)
@@ -38,6 +39,7 @@ ViewBaseFrame {
         }
 
         RowLayout {
+            property bool isServiceDetailsRawLayout: true
             Rectangle{
                 height: Units.dp(16)
                 width: Units.dp(16)
@@ -51,6 +53,7 @@ ViewBaseFrame {
         }
 
         RowLayout {
+            property bool isServiceDetailsRawLayout: true
             Rectangle{
                 height: Units.dp(16)
                 width: Units.dp(16)

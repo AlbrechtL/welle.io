@@ -318,12 +318,12 @@ ApplicationWindow {
                     onClicked: radioController.play(channelName, stationName, stationSId)
                     onFavoritClicked: {
                         var favoritInvert = !favorit
-                        stationList.setFavorit(stationSId, favoritInvert) // Invert favorit
+                        stationList.setFavorit(stationSId, channelName, favoritInvert) // Invert favorit
 
                         if(favoritInvert)
                             favoritsList.addStation(stationName, stationSId, channelName, true)
                         else
-                            favoritsList.removeStation(stationSId);
+                            favoritsList.removeStation(stationSId, channelName);
                     }
                 }
 
@@ -560,8 +560,14 @@ ApplicationWindow {
         onMinimizeWindow: hide()
         onMaximizeWindow: showMaximized()
         onRestoreWindow: {
+            // On Linux (KDE?): Hide before we restore 
+            // otherwise the window will occasionaly not be brought to the front
+            if (Qt.platform.os === "linux" && !active) // Linux Workaround to display the window
+                hide()
             showNormal()
             raise() // Stay in foreground
+            if (Qt.platform.os === "linux" && !active) // Linux Workaround to display the window
+                requestActivate()
         }
     }
 

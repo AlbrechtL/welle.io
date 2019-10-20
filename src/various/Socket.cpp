@@ -132,13 +132,18 @@ bool Socket::bind(int port)
         throw std::runtime_error("Can't reuse address");
     }
 
-    sockaddr_in addr;
+    sockaddr_in addr = {};
     addr.sin_family = PF_INET;
     addr.sin_addr.s_addr = htons(INADDR_ANY);
     addr.sin_port = htons(port);
     const int bind_ret = ::bind(listensock, (sockaddr*)&addr, sizeof(sockaddr_in));
     if (bind_ret == -1) {
         perror("Could not bind socket");
+#if defined(_WIN32)
+        closesocket(listensock);
+#else
+        ::close(listensock);
+#endif
         return false;
     }
 
@@ -224,7 +229,7 @@ bool Socket::connect(const std::string& address, int port, int timeout)
         int iResult = ioctlsocket(sfd, FIONBIO, &mode);
 #else
         int oldflags = fcntl(sfd, F_GETFL, 0);
-        if (oldflags == -1) return false;
+        if (oldflags == -1) goto out;
         int flags = oldflags | O_NONBLOCK;
         int iResult = fcntl(sfd, F_SETFL, flags);
 #endif
