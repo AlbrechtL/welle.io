@@ -74,20 +74,25 @@ Item {
 
             RowLayout {
                 Layout.fillWidth: true
-                WComboBox {
+                WComboBoxList {
                     id: languageBox
-                    model: [ "Auto", "Dutch", "English", "German", "Polish", "Norwegian", "French"];
+                    textRole: 'label'
+                    model: ListModel {
+                        id: listModel
+                        ListElement { label: "Auto"; langCode: "auto" }
+                        ListElement { label: "Deutsch"; langCode: "de_DE" }
+                        ListElement { label: "English (GB)"; langCode: "en_GB" }
+                        ListElement { label: "Français"; langCode: "fr_FR" }
+                        ListElement { label: "Magyar"; langCode: "hu_HU" }
+                        ListElement { label: "Italiano"; langCode: "it_IT" }
+                        ListElement { label: "Nederlands"; langCode: "nl_NL" }
+                        ListElement { label: "Norsk bokmål"; langCode: "nb_NO" }
+                        ListElement { label: "Polski"; langCode: "pl_PL" }
+                        ListElement { label: "Ру́сский"; langCode: "ru_RU" }
+                    }
                     onCurrentIndexChanged: {
                         // Load appropriate settings
-                        switch(currentIndex) {
-                        case 1: guiHelper.addTranslator("nl_NL", this); break
-                        case 2: guiHelper.addTranslator("en_GB", this); break
-                        case 3: guiHelper.addTranslator("de_DE", this); break
-                        case 4: guiHelper.addTranslator("pl_PL", this); break
-                        case 5: guiHelper.addTranslator("nb_NO", this); break
-                        case 6: guiHelper.addTranslator("fr_FR", this); break
-                        default: guiHelper.addTranslator("auto", this); break
-                        }
+                        guiHelper.addTranslator(listModel.get(currentIndex).langCode, this); 
                     }
                 }
 

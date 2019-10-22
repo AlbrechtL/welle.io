@@ -59,8 +59,8 @@
         <file>i18n/nb_NO.qm</file>
         <file>i18n/fr_FR.qm</file>
         <file>i18n/pl_PL.qm</file>
-	<file>i18n/ru_RU.qm</file>
-	<file>i18n/nl_NL.qm</file>
+        <file>i18n/ru_RU.qm</file>
+        <file>i18n/nl_NL.qm</file>
         <file>icon/icon.png</file>
         <file>../../AUTHORS</file>
         <file>../../THANKS</file>
@@ -85,6 +85,7 @@
         <file>QML/components/StationListModel.qml</file>
         <file>QML/components/Units.qml</file>
         <file>QML/components/WComboBox.qml</file>
+        <file>QML/components/WComboBoxList.qml</file>
         <file>QML/components/WButton.qml</file>
         <file>QML/components/WSpectrum.qml</file>
         <file>QML/components/qmldir</file>
