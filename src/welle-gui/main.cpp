@@ -84,8 +84,6 @@ int main(int argc, char** argv)
     // Set icon
     app.setWindowIcon(QIcon(":/icon/icon.png"));
 
-    QQuickStyle::setStyle("Default");
-
     // Handle the command line
     QCommandLineParser optionParser;
     optionParser.setApplicationDescription("welle.io Help");
@@ -102,6 +100,11 @@ int main(int argc, char** argv)
         QCoreApplication::translate("main", "File name"));
     optionParser.addOption(LogFileName);
 
+    QCommandLineOption styleName("qqc-style",
+        QCoreApplication::translate("main", "Qt Quick Controls Style for the 1st launch"),
+        QCoreApplication::translate("main", "style_name"));
+    optionParser.addOption(styleName);
+
     //	Process the actual command line arguments given by the user
     optionParser.process(app);
 
@@ -117,6 +120,14 @@ int main(int argc, char** argv)
     commandLineOptions["dumpFileName"] = optionParser.value(dumpFileName);
 
     CRadioController radioController(commandLineOptions);
+
+    QString styleNameArg = optionParser.value(styleName);
+    //qDebug() << "Command line style_name: " << styleNameArg ;
+    
+    // Set the Qt Quick Style.
+    QString styleToLoad = CGUIHelper::getQQStyleToLoad(styleNameArg);
+    if (!styleToLoad.isEmpty())
+        QQuickStyle::setStyle(styleToLoad);
 
     QSettings settings;
     settings.setValue("version", QString(CURRENT_VERSION));

@@ -101,6 +101,23 @@ Item {
                     Layout.fillWidth: true
                 }
             }
+            RowLayout {
+                Layout.fillWidth: true
+                WComboBoxList {
+                    id: styleBox
+                    implicitWidth: 250
+                    currentIndex: guiHelper.getIndexOfQQStyle(guiHelper.getQQStyle)
+                    textRole: "label"
+                    model: guiHelper.qQStyleComboModel
+                    onActivated: {
+                        guiHelper.saveQQStyle(currentIndex)
+                    }
+                }
+                TextStandart {
+                    text: qsTr("Qt Quick Style. Restart to apply.")
+                    Layout.fillWidth: true
+                }
+            }
         }
 
         SettingSection {
