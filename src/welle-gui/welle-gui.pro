@@ -50,6 +50,7 @@ DISTFILES +=    \
     QML/GeneralView.qml \
     QML/settingpages/RawFileSettings.qml \
     QML/components/WComboBox.qml \
+    QML/components/WComboBoxList.qml \
     QML/components/WButton.qml \
     QML/components/WSwitch.qml \
     QML/components/WTumbler.qml \

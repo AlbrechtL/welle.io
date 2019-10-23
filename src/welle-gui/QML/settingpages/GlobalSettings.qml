@@ -74,25 +74,47 @@ Item {
 
             RowLayout {
                 Layout.fillWidth: true
-                WComboBox {
+                WComboBoxList {
                     id: languageBox
-                    model: [ "Auto", "Dutch", "English", "German", "Polish", "Norwegian", "French"];
+                    textRole: 'label'
+                    model: ListModel {
+                        id: listModel
+                        ListElement { label: "Auto"; langCode: "auto" }
+                        ListElement { label: "Deutsch"; langCode: "de_DE" }
+                        ListElement { label: "English (GB)"; langCode: "en_GB" }
+                        ListElement { label: "Français"; langCode: "fr_FR" }
+                        ListElement { label: "Magyar"; langCode: "hu_HU" }
+                        ListElement { label: "Italiano"; langCode: "it_IT" }
+                        ListElement { label: "Nederlands"; langCode: "nl_NL" }
+                        ListElement { label: "Norsk bokmål"; langCode: "nb_NO" }
+                        ListElement { label: "Polski"; langCode: "pl_PL" }
+                        ListElement { label: "Ру́сский"; langCode: "ru_RU" }
+                    }
                     onCurrentIndexChanged: {
                         // Load appropriate settings
-                        switch(currentIndex) {
-                        case 1: guiHelper.updateTranslator("nl_NL", this); break
-                        case 2: guiHelper.updateTranslator("en_GB", this); break
-                        case 3: guiHelper.updateTranslator("de_DE", this); break
-                        case 4: guiHelper.updateTranslator("pl_PL", this); break
-                        case 5: guiHelper.updateTranslator("nb_NO", this); break
-                        case 6: guiHelper.updateTranslator("fr_FR", this); break
-                        default: guiHelper.updateTranslator("auto", this); break
-                        }
+                        guiHelper.updateTranslator(listModel.get(currentIndex).langCode, this); 
                     }
                 }
 
                 TextStandart {
                     text: qsTr("Language")
+                    Layout.fillWidth: true
+                }
+            }
+            RowLayout {
+                Layout.fillWidth: true
+                WComboBoxList {
+                    id: styleBox
+                    implicitWidth: 250
+                    currentIndex: guiHelper.getIndexOfQQStyle(guiHelper.getQQStyle)
+                    textRole: "label"
+                    model: guiHelper.qQStyleComboModel
+                    onActivated: {
+                        guiHelper.saveQQStyle(currentIndex)
+                    }
+                }
+                TextStandart {
+                    text: qsTr("Qt Quick Style. Restart to apply.")
                     Layout.fillWidth: true
                 }
             }
