@@ -1275,7 +1275,7 @@
     <message>
         <location filename="../QML/settingpages/ExpertSettings.qml" line="33"/>
         <source>Global</source>
-        <translation>Global</translation>
+        <translation type="unfinished">Allgemein</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/ExpertSettings.qml" line="37"/>
@@ -1409,7 +1409,7 @@
     <message>
         <location filename="../QML/settingpages/GlobalSettings.qml" line="117"/>
         <source>Qt Quick Style. Restart to apply.</source>
-        <translation type="unfinished">Aussehen des Programms (Qt Quick Style). Neustarten zum Übernehmen.</translation>
+        <translation type="unfinished">Stil von Qt Quick. Neustarten zum Übernehmen.</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/GlobalSettings.qml" line="124"/>
@@ -1590,7 +1590,7 @@
     <message>
         <location filename="../QML/MainView.qml" line="441"/>
         <source>RAW Recorder</source>
-        <translation type="unfinished">Rohdatenaufzeichnung</translation>
+        <translation type="unfinished">RAW-Aufzeichnung</translation>
     </message>
 </context>
 <context>
@@ -1667,7 +1667,7 @@
     <message>
         <location filename="../QML/settingpages/RTLSDRSettings.qml" line="21"/>
         <source>Enable bias tee (not from all dongles supported)</source>
-        <translation type="unfinished">Bias Tee aktivieren (nicht von allen Geräten unterstützt)</translation>
+        <translation type="unfinished">Fernspeisung aktivieren (nicht von allen Geräten unterstützt)</translation>
     </message>
 </context>
 <context>
@@ -1826,7 +1826,7 @@
     <message>
         <location filename="../QML/expertviews/ServiceDetails.qml" line="92"/>
         <source>DAB date and time</source>
-        <translation type="unfinished">DAB Datum und Uhrzeit</translation>
+        <translation type="unfinished">DAB Datum/Uhrzeit</translation>
     </message>
 </context>
 <context>
