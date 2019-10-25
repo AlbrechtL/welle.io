@@ -33,6 +33,13 @@
 #include <iostream>
 #include "rtl_tcp.h"
 
+// For Qt translation if Qt is exisiting
+#ifdef QT_CORE_LIB
+    #include <QtGlobal>
+#else
+    #define QT_TRANSLATE_NOOP(x,y) (y)
+#endif
+
 // commands are packed in 5 bytes, one "command byte"
 // and an integer parameter
 struct command
@@ -262,7 +269,7 @@ void CRTL_TCP_Client::handleDisconnect()
     connected = false;
     firstData = true;
     radioController.onMessage(message_level_t::Error,
-            "RTL-TCP connection closed.");
+            QT_TRANSLATE_NOOP("CRadioController", "RTL-TCP connection closed."));
     sock.close();
 }
 
@@ -403,7 +410,7 @@ void CRTL_TCP_Client::receiveAndReconnect()
                 lock.unlock();
 
                 radioController.onMessage(message_level_t::Error,
-                        "Connection failed to server " +
+                        QT_TRANSLATE_NOOP("CRadioController", "Connection failed to server "),
                         serverAddress + ":" + std::to_string(serverPort));
             }
         }
@@ -452,8 +459,8 @@ void CRTL_TCP_Client::agcTimer(void)
         }
         else { // AGC is off or unknown tuner
             if (minAmplitude == 0 || maxAmplitude == 255) {
-                std::string text = "ADC overload."
-                    " Maybe you are using a to high gain.";
+                std::string text = QT_TRANSLATE_NOOP("CRadioController", "ADC overload."
+                    " Maybe you are using a too high gain.");
                 std::clog << "RTL_TCP_CLIENT:" << text << std::endl;
                 radioController.onMessage(message_level_t::Information, text);
             }

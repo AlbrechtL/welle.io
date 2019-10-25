@@ -1479,11 +1479,17 @@ void WebRadioInterface::onConstellationPoints(std::vector<DSPCOMPLEX>&& data)
     last_constellation = move(data);
 }
 
-void WebRadioInterface::onMessage(message_level_t level, const std::string& text)
+void WebRadioInterface::onMessage(message_level_t level, const std::string& text, const std::string& text2)
 {
+    std::string fullText;
+    if (text2.empty())
+        fullText = text;
+    else
+        fullText = text + text2;
+    
     lock_guard<mutex> lock(data_mut);
     const auto now = std::chrono::system_clock::now();
-    pending_message_t m = { .level = level, .text = text, .timestamp = now};
+    pending_message_t m = { .level = level, .text = fullText, .timestamp = now};
     pending_messages.emplace_back(move(m));
 
     if (pending_messages.size() > MAX_PENDING_MESSAGES) {

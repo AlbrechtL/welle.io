@@ -115,7 +115,7 @@ class RadioControllerInterface {
         virtual void onTIIMeasurement(tii_measurement_t&& m) = 0;
 
         /* When a information or warning message should be printed */
-        virtual void onMessage(message_level_t level, const std::string& text) = 0;
+        virtual void onMessage(message_level_t level, const std::string& text, const std::string& text2 = std::string()) = 0;
 
         /* The receiver has shutdown */
         virtual void onShutdown(void) { };
