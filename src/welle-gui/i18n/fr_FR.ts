@@ -1376,7 +1376,7 @@
         <location line="+13"/>
         <source>Frame sync</source>
         <translatorcomment>pluriel ?</translatorcomment>
-        <translation>Synchronistion de trame</translation>
+        <translation>Synchronisation de trame</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -1387,7 +1387,7 @@
     <message>
         <location line="-15"/>
         <source>Not synced</source>
-        <translation>Pas synchronisé</translation>
+        <translation>Pas de sync.</translation>
     </message>
     <message>
         <location line="+14"/>
