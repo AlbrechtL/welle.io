@@ -42,7 +42,7 @@ Popup {
             id:exitImage
             anchors.left: parent.left
             anchors.verticalCenter: parent.verticalCenter
-            source: "qrc:/icon/welle_io_icons/20x20@2/exit.png"
+            source: "qrc:/icons/welle_io_icons/20x20@2/exit.png"
             height: Units.dp(30)
             width: height
         }
