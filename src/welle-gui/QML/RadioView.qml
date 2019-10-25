@@ -28,7 +28,7 @@ ViewBaseFrame {
         width: Units.dp(30)
         height: Units.dp(30)
         visible: true
-        source: "qrc:/icon/welle_io_icons/20x20@2/speaker.png"
+        source: "qrc:/icons/welle_io_icons/20x20@2/speaker.png"
 
         MouseArea {
             anchors.fill: parent
@@ -44,7 +44,7 @@ ViewBaseFrame {
         height: Units.dp(30)
         visible: false
 
-        source: "qrc:/icon/welle_io_icons/20x20@2/speaker_mute.png"
+        source: "qrc:/icons/welle_io_icons/20x20@2/speaker_mute.png"
     }
 
     ColorOverlay {
@@ -165,7 +165,7 @@ ViewBaseFrame {
                         width: Units.dp(30)
                         height: Units.dp(30)
                         visible: false
-                        source: "qrc:/icon/welle_io_icons/20x20@2/antenna.png"
+                        source: "qrc:/icons/welle_io_icons/20x20@2/antenna.png"
                     }
                     
                     Image {
@@ -173,7 +173,7 @@ ViewBaseFrame {
                         width: antennaIcon.width
                         height: antennaIcon.height
                         visible: false
-                        source: "qrc:/icon/welle_io_icons/20x20@2/antenna_no_signal.png"
+                        source: "qrc:/icons/welle_io_icons/20x20@2/antenna_no_signal.png"
                     }
                     
                     ColorOverlay {
