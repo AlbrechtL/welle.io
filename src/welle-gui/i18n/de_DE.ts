@@ -19,7 +19,7 @@
     <message>
         <location filename="../QML/settingpages/AirspySettings.qml" line="27"/>
         <source>Enable bias tee</source>
-        <translation>Bias tee aktivieren</translation>
+        <translation>Fernspeisung aktivieren</translation>
     </message>
 </context>
 <context>
@@ -366,7 +366,7 @@
         <location filename="../gui_helper.cpp" line="73"/>
         <location filename="../gui_helper.cpp" line="632"/>
         <source>&amp;Quit</source>
-        <translation type="unfinished">Beenden (&amp;Quit)</translation>
+        <translation>Beenden (&amp;Quit)</translation>
     </message>
     <message>
         <location filename="../gui_helper.cpp" line="126"/>
@@ -401,12 +401,12 @@
     <message>
         <location filename="../gui_helper.cpp" line="746"/>
         <source>Style of system</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Systemstil</translation>
     </message>
     <message>
         <location filename="../gui_helper.cpp" line="748"/>
         <source> (Recommended)</source>
-        <translation type="unfinished">(empfohlen)</translation>
+        <translation> (empfohlen)</translation>
     </message>
 </context>
 <context>
@@ -425,7 +425,7 @@
     <message>
         <location filename="../radio_controller.cpp" line="146"/>
         <source>Error while opening file </source>
-        <translation type="unfinished">Fehler beim Öffnen der Datei </translation>
+        <translation>Fehler beim Öffnen der Datei </translation>
     </message>
     <message>
         <location filename="../radio_controller.cpp" line="344"/>
@@ -456,7 +456,7 @@
     <message>
         <location filename="../radio_controller.cpp" line="626"/>
         <source>Radio device is not ready or does not exist.</source>
-        <translation>Radioempfänger meldet einen Fehler oder existiert nicht.</translation>
+        <translation type="unfinished">Gerät meldet einen Fehler oder existiert nicht.</translation>
     </message>
     <message>
         <source>Tuning</source>
@@ -470,29 +470,29 @@
     <message>
         <location filename="../../input/input_factory.cpp" line="75"/>
         <source>No valid device found use Null device instead.</source>
-        <translation type="unfinished">Keinen Empfänger gefunden, verwende Standardgerät.</translation>
+        <translation type="unfinished">Kein Gerät gefunden, verwende Standardgerät.</translation>
     </message>
     <message>
         <location filename="../../input/input_factory.cpp" line="77"/>
         <location filename="../../input/input_factory.cpp" line="117"/>
         <source>Error while opening device</source>
-        <translation type="unfinished">Fehler beim Öffnen des Empfängers</translation>
+        <translation type="unfinished">Fehler beim Öffnen des Geräts</translation>
     </message>
     <message>
         <location filename="../../input/raw_file.cpp" line="177"/>
         <location filename="../../input/raw_file.cpp" line="197"/>
         <source>Cannot open file </source>
-        <translation type="unfinished">Kann Datei nicht öffnen</translation>
+        <translation type="unfinished">Kann Datei nicht öffnen </translation>
     </message>
     <message>
         <location filename="../../input/raw_file.cpp" line="310"/>
         <source>End of file, restarting</source>
-        <translation type="unfinished">Datei zu Ende, beginne von vorn</translation>
+        <translation type="unfinished">Datei ist zu Ende, beginne von vorn</translation>
     </message>
     <message>
         <location filename="../../input/raw_file.cpp" line="313"/>
         <source>End of file</source>
-        <translation type="unfinished">Datei zu Ende</translation>
+        <translation type="unfinished">Datei ist zu Ende</translation>
     </message>
     <message>
         <location filename="../../input/raw_file.cpp" line="401"/>
@@ -503,7 +503,7 @@
         <location filename="../../input/rtl_sdr.cpp" line="299"/>
         <location filename="../../input/rtl_tcp.cpp" line="462"/>
         <source>ADC overload. Maybe you are using a too high gain.</source>
-        <translation type="unfinished">ADC überlastet. Evtl. zu starke Verstärkung eingesetzt.</translation>
+        <translation type="unfinished">ADC überlastet. Evtl. Verstärkung zu stark.</translation>
     </message>
     <message>
         <location filename="../../input/rtl_sdr.cpp" line="395"/>
@@ -570,7 +570,7 @@
     <message>
         <location filename="../QML/settingpages/ChannelSettings.qml" line="25"/>
         <source>Automatic start playing last station</source>
-        <translation>Spielt das zuletzt gehörte Programm</translation>
+        <translation type="unfinished">Zuletzt gehörten Sender wiedergeben</translation>
     </message>
 </context>
 <context>
@@ -601,7 +601,7 @@
     <message>
         <location filename="../../backend/dab-constants.cpp" line="185"/>
         <source>Current Affairs</source>
-        <translation>Aktuelle Nachrichten</translation>
+        <translation type="unfinished">Aktuelles</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="186"/>
@@ -626,47 +626,47 @@
     <message>
         <location filename="../../backend/dab-constants.cpp" line="190"/>
         <source>Arts</source>
-        <translation>Kunst</translation>
+        <translation type="unfinished">Kultur</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="191"/>
         <source>Science</source>
-        <translation>Forschung</translation>
+        <translation type="unfinished">Naturwissenschaft</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="192"/>
         <source>Talk</source>
-        <translation>Talk</translation>
+        <translation type="unfinished">Verschiedenes</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="193"/>
         <source>Pop Music</source>
-        <translation>Pop</translation>
+        <translation type="unfinished">Pop-Musik</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="194"/>
         <source>Rock Music</source>
-        <translation>Rock</translation>
+        <translation type="unfinished">Rock-Musik</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="195"/>
         <source>Easy Listening</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Unterhaltungsmusik</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="196"/>
         <source>Light classical</source>
-        <translation type="unfinished">Klassik</translation>
+        <translation type="unfinished">Leichte Klassik</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="197"/>
         <source>Classical Music</source>
-        <translation type="unfinished">Klassik</translation>
+        <translation type="unfinished">Ernste Klassik</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="198"/>
         <source>Other Music</source>
-        <translation>Andere Musik</translation>
+        <translation type="unfinished">Sonstige Musik</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="199"/>
@@ -681,12 +681,12 @@
     <message>
         <location filename="../../backend/dab-constants.cpp" line="201"/>
         <source>Children&apos;s</source>
-        <translation>Kinder</translation>
+        <translation type="unfinished">Kinderprogramme</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="202"/>
         <source>Factual</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sozialwesen</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="203"/>
@@ -696,12 +696,12 @@
     <message>
         <location filename="../../backend/dab-constants.cpp" line="204"/>
         <source>Phone In</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Phone-In</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="205"/>
         <source>Travel</source>
-        <translation>Reise</translation>
+        <translation type="unfinished">Reisen</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="206"/>
@@ -711,22 +711,22 @@
     <message>
         <location filename="../../backend/dab-constants.cpp" line="207"/>
         <source>Jazz and Blues</source>
-        <translation>Jazz und Blues</translation>
+        <translation type="unfinished">Jazz-Musik</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="208"/>
         <source>Country Music</source>
-        <translation>Country</translation>
+        <translation type="unfinished">Country-Musik</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="209"/>
         <source>National Music</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Landesmusik</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="210"/>
         <source>Oldies Music</source>
-        <translation>Oldies</translation>
+        <translation type="unfinished">Oldies-Musik</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="211"/>
@@ -736,7 +736,7 @@
     <message>
         <location filename="../../backend/dab-constants.cpp" line="212"/>
         <source>Documentary</source>
-        <translation>Dokumentation</translation>
+        <translation type="unfinished">Dokumentarprogramm</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="213"/>
@@ -1285,12 +1285,12 @@
     <message>
         <location filename="../QML/settingpages/ExpertSettings.qml" line="43"/>
         <source>Backend</source>
-        <translation type="unfinished">Backend</translation>
+        <translation type="unfinished">Signalverarbeitung</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/ExpertSettings.qml" line="50"/>
         <source>Enable coarse corrector (for receivers with &gt;1kHz error)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Grobe Korrektur aktivieren (für Geräte mit &gt;1kHz Fehler)</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/ExpertSettings.qml" line="64"/>
@@ -1310,7 +1310,7 @@
     <message>
         <location filename="../QML/settingpages/ExpertSettings.qml" line="74"/>
         <source>Coarse corrector algorithm</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Algorithmus für Grobe Korrektur</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/ExpertSettings.qml" line="82"/>
@@ -1320,22 +1320,22 @@
     <message>
         <location filename="../QML/settingpages/ExpertSettings.qml" line="95"/>
         <source>Strongest Peak</source>
-        <translation type="unfinished">Stärkster Wert</translation>
+        <translation type="unfinished">Größter Spitzenwert</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/ExpertSettings.qml" line="95"/>
         <source>Earliest Peak With Binning</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Frühester Spitzenwert mit Binning</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/ExpertSettings.qml" line="95"/>
         <source>Threshold Before Peak</source>
-        <translation type="unfinished">Treshold vor dem Spitzenwert</translation>
+        <translation type="unfinished">Schwelle vor dem Spitzenwert</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/ExpertSettings.qml" line="105"/>
         <source>FFT Window placement algorithm</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Algorithmus für FFT Fensterposition</translation>
     </message>
 </context>
 <context>
@@ -1394,7 +1394,7 @@
     <message>
         <location filename="../QML/settingpages/GlobalSettings.qml" line="66"/>
         <source>Global settings</source>
-        <translation>Globale Einstellungen</translation>
+        <translation type="unfinished">Allgemeine Einstellungen</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/GlobalSettings.qml" line="70"/>
@@ -1409,7 +1409,7 @@
     <message>
         <location filename="../QML/settingpages/GlobalSettings.qml" line="117"/>
         <source>Qt Quick Style. Restart to apply.</source>
-        <translation type="unfinished">Qt Quick Style. Neustarten zum Übernehmen.</translation>
+        <translation type="unfinished">Aussehen des Programms (Qt Quick Style). Neustarten zum Übernehmen.</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/GlobalSettings.qml" line="124"/>
@@ -1482,7 +1482,7 @@
     <message>
         <location filename="../QML/expertviews/ImpulseResponseGraph.qml" line="24"/>
         <source>Samples</source>
-        <translation type="unfinished">Samples</translation>
+        <translation type="unfinished">Abtastwerte</translation>
     </message>
 </context>
 <context>
@@ -1510,7 +1510,7 @@
     <message>
         <location filename="../QML/MainView.qml" line="225"/>
         <source>All stations</source>
-        <translation>Alle Stationen</translation>
+        <translation type="unfinished">Alle Sender</translation>
     </message>
     <message>
         <location filename="../QML/MainView.qml" line="225"/>
@@ -1530,7 +1530,7 @@
     <message>
         <location filename="../QML/MainView.qml" line="280"/>
         <source>Clear station list</source>
-        <translation>Lösche Senderliste</translation>
+        <translation type="unfinished">Lösche Senderliste</translation>
     </message>
     <message>
         <location filename="../QML/MainView.qml" line="288"/>
@@ -1540,7 +1540,7 @@
     <message>
         <location filename="../QML/MainView.qml" line="301"/>
         <source>No stations in list</source>
-        <translation type="unfinished">Keine Sender in der Liste</translation>
+        <translation type="unfinished">Kein Sender in der Liste</translation>
     </message>
     <message>
         <location filename="../QML/MainView.qml" line="338"/>
@@ -1775,7 +1775,7 @@
     <message>
         <location filename="../QML/expertviews/ServiceDetails.qml" line="35"/>
         <source>Frame sync</source>
-        <translation type="unfinished">Synchron mit dem Frame</translation>
+        <translation type="unfinished">Framesynchron</translation>
     </message>
     <message>
         <location filename="../QML/expertviews/ServiceDetails.qml" line="50"/>
