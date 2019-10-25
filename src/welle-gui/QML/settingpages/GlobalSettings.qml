@@ -92,7 +92,7 @@ Item {
                     }
                     onCurrentIndexChanged: {
                         // Load appropriate settings
-                        guiHelper.addTranslator(listModel.get(currentIndex).langCode, this); 
+                        guiHelper.updateTranslator(listModel.get(currentIndex).langCode, this); 
                     }
                 }
 

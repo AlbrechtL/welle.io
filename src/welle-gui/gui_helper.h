@@ -119,7 +119,9 @@ class CGUIHelper : public QObject
     Q_PROPERTY(QString getQQStyle READ getQQStyle CONSTANT)
 
 public:
-    Q_INVOKABLE void addTranslator(QString Language, QObject *obj);
+    Q_INVOKABLE void updateTranslator(QString Language, QObject *obj);
+    void setTranslator(QTranslator *translator);
+    static QTranslator* loadTranslationFile(QTranslator *translator, QString Language);
 
     CGUIHelper(CRadioController *radioController, QObject* parent = nullptr);
     ~CGUIHelper();
@@ -163,7 +165,7 @@ public:
 
 private:
     QTranslator *translator = nullptr;
-
+    void translateGUI(QString Language, QObject *obj);
     CRadioController *radioController;
 
     QXYSeries* spectrumSeries;

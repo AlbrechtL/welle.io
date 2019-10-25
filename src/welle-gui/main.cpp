@@ -72,6 +72,11 @@ int main(int argc, char** argv)
     // Create new QT application
     QApplication app(argc, argv);
 
+    //Initialise translation
+    QTranslator *translator = new QTranslator;
+    translator = CGUIHelper::loadTranslationFile(translator, "auto");
+    QCoreApplication::installTranslator(translator);
+
     // Register waterfall diagram
     qmlRegisterType<WaterfallItem>("io.welle", 1, 0, "Waterfall");
 
@@ -141,6 +146,7 @@ int main(int argc, char** argv)
     }
 
     CGUIHelper guiHelper(&radioController);
+    guiHelper.setTranslator(translator);
 
     // Create new QML application, set some requried options and load the QML file
     QQmlApplicationEngine engine;
