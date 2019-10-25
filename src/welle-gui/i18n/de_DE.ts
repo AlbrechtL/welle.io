@@ -345,49 +345,68 @@
 <context>
     <name>CGUIHelper</name>
     <message>
-        <location filename="../gui_helper.cpp" line="62"/>
+        <location filename="../gui_helper.cpp" line="64"/>
+        <location filename="../gui_helper.cpp" line="629"/>
         <source>Mi&amp;nimize</source>
         <translation>Mi&amp;nimieren</translation>
     </message>
     <message>
-        <location filename="../gui_helper.cpp" line="65"/>
+        <location filename="../gui_helper.cpp" line="67"/>
+        <location filename="../gui_helper.cpp" line="630"/>
         <source>Ma&amp;ximize</source>
         <translation>Ma&amp;ximieren</translation>
     </message>
     <message>
-        <location filename="../gui_helper.cpp" line="68"/>
+        <location filename="../gui_helper.cpp" line="70"/>
+        <location filename="../gui_helper.cpp" line="631"/>
         <source>&amp;Restore</source>
         <translation>Wiede&amp;rherstellen</translation>
     </message>
     <message>
-        <location filename="../gui_helper.cpp" line="71"/>
+        <location filename="../gui_helper.cpp" line="73"/>
+        <location filename="../gui_helper.cpp" line="632"/>
         <source>&amp;Quit</source>
         <translation type="unfinished">Beenden (&amp;Quit)</translation>
     </message>
     <message>
-        <location filename="../gui_helper.cpp" line="124"/>
+        <location filename="../gui_helper.cpp" line="126"/>
         <source>version</source>
         <translation>Version</translation>
     </message>
     <message>
-        <location filename="../gui_helper.cpp" line="125"/>
+        <location filename="../gui_helper.cpp" line="127"/>
         <source>Git revision</source>
         <translation>Git-Revision</translation>
     </message>
     <message>
-        <location filename="../gui_helper.cpp" line="126"/>
+        <location filename="../gui_helper.cpp" line="128"/>
         <source>Build on</source>
         <translation>Übersetzt am</translation>
     </message>
     <message>
-        <location filename="../gui_helper.cpp" line="127"/>
+        <location filename="../gui_helper.cpp" line="129"/>
         <source>QT version</source>
         <translation>Qt-Version</translation>
     </message>
     <message>
-        <location filename="../gui_helper.cpp" line="263"/>
+        <location filename="../gui_helper.cpp" line="265"/>
         <source>The program will keep running in the system tray. To terminate the program, choose &lt;b&gt;Quit&lt;/b&gt; in the context menu of the system tray entry.</source>
-        <translation type="unfinished">Das Programm bleibt im Hintergrund aktiv. Um es gänzlich zu schließen, wählen Sie &lt;b&gt;Beenden&lt;/b&gt;.</translation>
+        <translation type="unfinished">Das Programm bleibt im Hintergrund aktiv. Um es gänzlich zu schließen, wählen Sie &lt;b&gt;Beenden&lt;/b&gt; aus dem Kontextmenü des Icons in der Taskleiste.</translation>
+    </message>
+    <message>
+        <location filename="../gui_helper.cpp" line="742"/>
+        <source> (unavailable, fallback to Default)</source>
+        <translation type="unfinished"> (nicht verfügbar, Rücksetzen auf Standardeinstellung)</translation>
+    </message>
+    <message>
+        <location filename="../gui_helper.cpp" line="746"/>
+        <source>Style of system</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui_helper.cpp" line="748"/>
+        <source> (Recommended)</source>
+        <translation type="unfinished">(empfohlen)</translation>
     </message>
 </context>
 <context>
@@ -428,7 +447,7 @@
     <message>
         <location filename="../radio_controller.cpp" line="567"/>
         <source>Playing last station</source>
-        <translation type="unfinished">Spiele zuletzt gehörten Sender</translation>
+        <translation type="unfinished">Gebe zuletzt gehörten Sender wieder</translation>
     </message>
     <message>
         <source>Lost signal or bad signal quality, trying to find it again.</source>
@@ -442,6 +461,64 @@
     <message>
         <source>Tuning</source>
         <translation type="vanished">Suche</translation>
+    </message>
+    <message>
+        <location filename="../../input/airspy_sdr.cpp" line="152"/>
+        <source>airspy is unplugged.</source>
+        <translation type="unfinished">Airspy wurde entfernt.</translation>
+    </message>
+    <message>
+        <location filename="../../input/input_factory.cpp" line="75"/>
+        <source>No valid device found use Null device instead.</source>
+        <translation type="unfinished">Keinen Empfänger gefunden, verwende Standardgerät.</translation>
+    </message>
+    <message>
+        <location filename="../../input/input_factory.cpp" line="77"/>
+        <location filename="../../input/input_factory.cpp" line="117"/>
+        <source>Error while opening device</source>
+        <translation type="unfinished">Fehler beim Öffnen des Empfängers</translation>
+    </message>
+    <message>
+        <location filename="../../input/raw_file.cpp" line="177"/>
+        <location filename="../../input/raw_file.cpp" line="197"/>
+        <source>Cannot open file </source>
+        <translation type="unfinished">Kann Datei nicht öffnen</translation>
+    </message>
+    <message>
+        <location filename="../../input/raw_file.cpp" line="310"/>
+        <source>End of file, restarting</source>
+        <translation type="unfinished">Datei zu Ende, beginne von vorn</translation>
+    </message>
+    <message>
+        <location filename="../../input/raw_file.cpp" line="313"/>
+        <source>End of file</source>
+        <translation type="unfinished">Datei zu Ende</translation>
+    </message>
+    <message>
+        <location filename="../../input/raw_file.cpp" line="401"/>
+        <source>Unknown RAW file format</source>
+        <translation type="unfinished">Unbekanntes RAW-Dateiformat</translation>
+    </message>
+    <message>
+        <location filename="../../input/rtl_sdr.cpp" line="299"/>
+        <location filename="../../input/rtl_tcp.cpp" line="462"/>
+        <source>ADC overload. Maybe you are using a too high gain.</source>
+        <translation type="unfinished">ADC überlastet. Evtl. zu starke Verstärkung eingesetzt.</translation>
+    </message>
+    <message>
+        <location filename="../../input/rtl_sdr.cpp" line="395"/>
+        <source>RTL-SDR is unplugged.</source>
+        <translation type="unfinished">RTL-SDR wurde entfernt.</translation>
+    </message>
+    <message>
+        <location filename="../../input/rtl_tcp.cpp" line="272"/>
+        <source>RTL-TCP connection closed.</source>
+        <translation type="unfinished">RTL-TCP-Verbindung wurde geschlossen.</translation>
+    </message>
+    <message>
+        <location filename="../../input/rtl_tcp.cpp" line="413"/>
+        <source>Connection failed to server </source>
+        <translation type="unfinished">Verbindungsfehler zu Server </translation>
     </message>
 </context>
 <context>
@@ -1208,7 +1285,7 @@
     <message>
         <location filename="../QML/settingpages/ExpertSettings.qml" line="43"/>
         <source>Backend</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Backend</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/ExpertSettings.qml" line="50"/>
@@ -1243,7 +1320,7 @@
     <message>
         <location filename="../QML/settingpages/ExpertSettings.qml" line="95"/>
         <source>Strongest Peak</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Stärkster Wert</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/ExpertSettings.qml" line="95"/>
@@ -1253,7 +1330,7 @@
     <message>
         <location filename="../QML/settingpages/ExpertSettings.qml" line="95"/>
         <source>Threshold Before Peak</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Treshold vor dem Spitzenwert</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/ExpertSettings.qml" line="105"/>
@@ -1325,62 +1402,67 @@
         <translation>Vollbildmodus</translation>
     </message>
     <message>
-        <location filename="../QML/settingpages/GlobalSettings.qml" line="95"/>
+        <location filename="../QML/settingpages/GlobalSettings.qml" line="100"/>
         <source>Language</source>
         <translation>Sprache</translation>
     </message>
     <message>
-        <location filename="../QML/settingpages/GlobalSettings.qml" line="102"/>
+        <location filename="../QML/settingpages/GlobalSettings.qml" line="117"/>
+        <source>Qt Quick Style. Restart to apply.</source>
+        <translation type="unfinished">Qt Quick Style. Neustarten zum Übernehmen.</translation>
+    </message>
+    <message>
+        <location filename="../QML/settingpages/GlobalSettings.qml" line="124"/>
         <source>Global receiver settings</source>
         <translation>Allgemeine Geräteeinstellungen</translation>
     </message>
     <message>
-        <location filename="../QML/settingpages/GlobalSettings.qml" line="106"/>
+        <location filename="../QML/settingpages/GlobalSettings.qml" line="128"/>
         <source>Automatic RF gain</source>
         <translation>Automatische HF-Verstärkung</translation>
     </message>
     <message>
-        <location filename="../QML/settingpages/GlobalSettings.qml" line="126"/>
+        <location filename="../QML/settingpages/GlobalSettings.qml" line="148"/>
         <source>Manual gain</source>
         <translation>Manuelle Verstärkung</translation>
     </message>
     <message>
-        <location filename="../QML/settingpages/GlobalSettings.qml" line="131"/>
+        <location filename="../QML/settingpages/GlobalSettings.qml" line="153"/>
         <source>Value: </source>
-        <translation type="unfinished">Aktuell: </translation>
+        <translation type="unfinished">Wert: </translation>
     </message>
     <message>
-        <location filename="../QML/settingpages/GlobalSettings.qml" line="151"/>
+        <location filename="../QML/settingpages/GlobalSettings.qml" line="173"/>
         <source>Auto detect</source>
         <translation type="unfinished">Automatische Erkennung</translation>
     </message>
     <message>
-        <location filename="../QML/settingpages/GlobalSettings.qml" line="160"/>
+        <location filename="../QML/settingpages/GlobalSettings.qml" line="182"/>
         <source>None</source>
         <translation type="unfinished">Kein</translation>
     </message>
     <message>
-        <location filename="../QML/settingpages/GlobalSettings.qml" line="160"/>
+        <location filename="../QML/settingpages/GlobalSettings.qml" line="182"/>
         <source>Airspy</source>
         <translation type="unfinished">Airspy</translation>
     </message>
     <message>
-        <location filename="../QML/settingpages/GlobalSettings.qml" line="160"/>
+        <location filename="../QML/settingpages/GlobalSettings.qml" line="182"/>
         <source>rtl-sdr</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">rtl-sdr</translation>
     </message>
     <message>
-        <location filename="../QML/settingpages/GlobalSettings.qml" line="160"/>
+        <location filename="../QML/settingpages/GlobalSettings.qml" line="182"/>
         <source>SoapySDR</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">SoapySDR</translation>
     </message>
     <message>
-        <location filename="../QML/settingpages/GlobalSettings.qml" line="160"/>
+        <location filename="../QML/settingpages/GlobalSettings.qml" line="182"/>
         <source>rtl-tcp</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">rtl-tcp</translation>
     </message>
     <message>
-        <location filename="../QML/settingpages/GlobalSettings.qml" line="160"/>
+        <location filename="../QML/settingpages/GlobalSettings.qml" line="182"/>
         <source>RAW file</source>
         <translation type="unfinished">RAW Datei</translation>
     </message>
@@ -1390,7 +1472,7 @@
     <message>
         <location filename="../QML/expertviews/ImpulseResponseGraph.qml" line="12"/>
         <source>Impulse Response</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impulsantwort</translation>
     </message>
     <message>
         <location filename="../QML/expertviews/ImpulseResponseGraph.qml" line="23"/>
@@ -1458,7 +1540,7 @@
     <message>
         <location filename="../QML/MainView.qml" line="301"/>
         <source>No stations in list</source>
-        <translation type="unfinished">Keine Sender vorhanden</translation>
+        <translation type="unfinished">Keine Sender in der Liste</translation>
     </message>
     <message>
         <location filename="../QML/MainView.qml" line="338"/>
@@ -1488,7 +1570,7 @@
     <message>
         <location filename="../QML/MainView.qml" line="417"/>
         <source>Impulse Response</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impulsantwort</translation>
     </message>
     <message>
         <location filename="../QML/MainView.qml" line="423"/>
@@ -1655,7 +1737,7 @@
     <message>
         <location filename="../QML/expertviews/RawRecorder.qml" line="19"/>
         <source>Ring buffer length [s]</source>
-        <translation type="unfinished">Ring buffer Länge [s]</translation>
+        <translation type="unfinished">Ringpufferlänge [s]</translation>
     </message>
     <message>
         <location filename="../QML/expertviews/RawRecorder.qml" line="33"/>
@@ -1693,7 +1775,7 @@
     <message>
         <location filename="../QML/expertviews/ServiceDetails.qml" line="35"/>
         <source>Frame sync</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Synchron mit dem Frame</translation>
     </message>
     <message>
         <location filename="../QML/expertviews/ServiceDetails.qml" line="50"/>
@@ -1739,7 +1821,7 @@
     <message>
         <location filename="../QML/expertviews/ServiceDetails.qml" line="87"/>
         <source>AAC errors</source>
-        <translation type="unfinished">AAC Framefehler</translation>
+        <translation type="unfinished">AAC Fehler</translation>
     </message>
     <message>
         <location filename="../QML/expertviews/ServiceDetails.qml" line="92"/>
@@ -1817,27 +1899,27 @@
     <message>
         <location filename="../QML/settingpages/SoapySDRSettings.qml" line="30"/>
         <source>Enter antenna</source>
-        <translation type="unfinished">Antenne wählen</translation>
+        <translation type="unfinished">Antenne eingeben</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/SoapySDRSettings.qml" line="36"/>
         <source>Clock source</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Taktquelle</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/SoapySDRSettings.qml" line="42"/>
         <source>Enter clock source</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Taktquelle eingeben</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/SoapySDRSettings.qml" line="48"/>
         <source>Driver arguments</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Treiberargumente</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/SoapySDRSettings.qml" line="54"/>
         <source>Enter driver arguments</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Treiberargumente eingeben</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/SoapySDRSettings.qml" line="60"/>
@@ -1957,20 +2039,30 @@
         <translation type="vanished">GUI Sprache festlegen</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="96"/>
+        <location filename="../main.cpp" line="99"/>
         <source>Records DAB frames (*.mp2) or DAB+ superframes with RS coding (*.dab). This file can be used to analyse X-PAD data with XPADxpert</source>
         <translation type="unfinished">Speichert DAB Frames (*.mp2) oder DAB+ Superframes mit RS Kodierung (*.dab). Diese Datei kann zur Analyse der X-PAD-Daten in XPADxpert verwendet werden</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="97"/>
-        <location filename="../main.cpp" line="102"/>
+        <location filename="../main.cpp" line="100"/>
+        <location filename="../main.cpp" line="105"/>
         <source>File name</source>
         <translation>Dateiname</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="101"/>
+        <location filename="../main.cpp" line="104"/>
         <source>Redirects all log output texts to a file.</source>
-        <translation type="unfinished">Leitet alle Log-Meldungen in eine Datei um</translation>
+        <translation type="unfinished">Leitet alle Log-Meldungen in eine Datei um.</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="109"/>
+        <source>Qt Quick Controls Style for the 1st launch</source>
+        <translation type="unfinished">Qt Quick Controls Vorlage für den ersten Start</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="110"/>
+        <source>style_name</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sets the GUI language according to the ISO country codes (e.g. de_DE)</source>
