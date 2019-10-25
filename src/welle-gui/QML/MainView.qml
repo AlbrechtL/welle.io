@@ -154,6 +154,8 @@ ApplicationWindow {
 
             ToolButton {
                 icon.name: "menu"
+                icon.width: Units.dp(20)
+                icon.height: Units.dp(20)
                 onClicked: optionsMenu.open()
 
                 Menu {
@@ -220,8 +222,8 @@ ApplicationWindow {
                 WComboBox {
                     id: stationListBox
                     Layout.preferredWidth: Units.dp(200)
-                    background: Rectangle { color: "white" }
-
+                    Layout.preferredHeight: Units.dp(25)
+                    
                     model:  [qsTr("All stations"), qsTr("Favorites")]
 
                     onCurrentIndexChanged: {
@@ -241,10 +243,7 @@ ApplicationWindow {
                     icon.name: "menu"
                     icon.height: Units.dp(15)
                     icon.width: Units.dp(15)
-                    background: Rectangle {
-                        color: menuButton.pressed ? "lightgrey" : "white"
-                        opacity: menuButton.pressed ? 100 : 0
-                    }
+                    flat:true
                     onClicked: stationMenu.open()
                     implicitWidth: contentItem.implicitWidth + Units.dp(15)
 
