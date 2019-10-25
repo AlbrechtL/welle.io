@@ -11,7 +11,6 @@ ViewBaseFrame {
     labelText: qsTr("Console Output")
 
     content:  Rectangle {
-        color: "black"
         anchors.fill: parent
         Flickable {
             id: flick
@@ -22,6 +21,7 @@ ViewBaseFrame {
                 id: textField
                 font.family: "Monospace"
                 font.pixelSize: Units.em(0.9)
+                background: Rectangle { color: "black" }
                 color: "white"
                 width: flick.width
                 wrapMode: TextEdit.Wrap

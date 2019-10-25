@@ -41,9 +41,11 @@ Rectangle {
 
         ToolBar {
             Layout.fillWidth: true
+            Layout.margins: Units.dp(1)
             Layout.topMargin: Units.dp(5)
             visible: isExpert
-
+            implicitHeight: Units.dp(20)
+            
             MouseArea {
                 id: mouseArea
                 anchors.fill: parent
@@ -71,28 +73,32 @@ Rectangle {
                 }
             }
 
+            //Uncomment if we want the header of the View to be black text over white background
+/*
             background: Rectangle {
                 implicitHeight: menuButton.height
-                opacity: 0
+                color: "white"
             }
-
+*/
             Label {
                 id: label
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.verticalCenter: parent.verticalCenter
                 font.pixelSize: TextStyle.textStandartSize
+                //color: TextStyle.textColor //Uncomment if we want the header of the View to be black text over white background
             }
 
-            ToolButton {
+            Button {
                 id: menuButton
                 anchors.right: parent.right
+                anchors.verticalCenter: parent.verticalCenter
+                implicitWidth: icon.width + Units.dp(20)
+
                 icon.name: "menu"
                 icon.height: Units.dp(10)
                 icon.width: Units.dp(10)
-                background: Rectangle {
-                    color: menuButton.pressed ? "lightgrey" : "white"
-                    opacity: menuButton.pressed ? 100 : 0
-                }
+                //icon.color: "black"  //Uncomment if we want the header of the View to be black text over white background
+                flat:true
 
                 onClicked: optionsMenu.open()
 
