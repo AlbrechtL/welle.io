@@ -601,12 +601,12 @@
     <message>
         <location filename="../../backend/dab-constants.cpp" line="185"/>
         <source>Current Affairs</source>
-        <translation type="unfinished">Aktuelles</translation>
+        <translation type="unfinished">Aktuelle Info</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="186"/>
         <source>Information</source>
-        <translation>Informationen</translation>
+        <translation type="unfinished">Service_Programm</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="187"/>
@@ -621,37 +621,37 @@
     <message>
         <location filename="../../backend/dab-constants.cpp" line="189"/>
         <source>Drama</source>
-        <translation>Drama</translation>
+        <translation type="unfinished">Hörspiel + Lit</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="190"/>
         <source>Arts</source>
-        <translation type="unfinished">Kultur</translation>
+        <translation type="unfinished">Kultur + Gesellsch</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="191"/>
         <source>Science</source>
-        <translation type="unfinished">Naturwissenschaft</translation>
+        <translation type="unfinished">Wissenschaft</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="192"/>
         <source>Talk</source>
-        <translation type="unfinished">Verschiedenes</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="193"/>
         <source>Pop Music</source>
-        <translation type="unfinished">Pop-Musik</translation>
+        <translation type="unfinished">Pop Musik</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="194"/>
         <source>Rock Music</source>
-        <translation type="unfinished">Rock-Musik</translation>
+        <translation type="unfinished">Rock Musik</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="195"/>
         <source>Easy Listening</source>
-        <translation type="unfinished">Unterhaltungsmusik</translation>
+        <translation type="unfinished">Unterhalt Musik</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="196"/>
@@ -666,7 +666,7 @@
     <message>
         <location filename="../../backend/dab-constants.cpp" line="198"/>
         <source>Other Music</source>
-        <translation type="unfinished">Sonstige Musik</translation>
+        <translation type="unfinished">Spezielle Musik</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="199"/>
@@ -676,12 +676,12 @@
     <message>
         <location filename="../../backend/dab-constants.cpp" line="200"/>
         <source>Finance</source>
-        <translation>Finanzen</translation>
+        <translation type="unfinished">Wirtschaft</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="201"/>
         <source>Children&apos;s</source>
-        <translation type="unfinished">Kinderprogramme</translation>
+        <translation type="unfinished">Kinderprogramm</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="202"/>
@@ -696,12 +696,12 @@
     <message>
         <location filename="../../backend/dab-constants.cpp" line="204"/>
         <source>Phone In</source>
-        <translation type="unfinished">Phone-In</translation>
+        <translation type="unfinished">Anrufsendung</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="205"/>
         <source>Travel</source>
-        <translation type="unfinished">Reisen</translation>
+        <translation type="unfinished">Reiseinformation</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="206"/>
@@ -711,12 +711,12 @@
     <message>
         <location filename="../../backend/dab-constants.cpp" line="207"/>
         <source>Jazz and Blues</source>
-        <translation type="unfinished">Jazz-Musik</translation>
+        <translation type="unfinished">Jazz</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="208"/>
         <source>Country Music</source>
-        <translation type="unfinished">Country-Musik</translation>
+        <translation type="unfinished">Country Musik</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="209"/>
@@ -726,17 +726,17 @@
     <message>
         <location filename="../../backend/dab-constants.cpp" line="210"/>
         <source>Oldies Music</source>
-        <translation type="unfinished">Oldies-Musik</translation>
+        <translation type="unfinished">Oldies Musik</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="211"/>
         <source>Folk Music</source>
-        <translation>Volksmusik</translation>
+        <translation type="unfinished">Folklore</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="212"/>
         <source>Documentary</source>
-        <translation type="unfinished">Dokumentarprogramm</translation>
+        <translation type="unfinished">Feature</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="213"/>
