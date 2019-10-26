@@ -2,7 +2,7 @@ include(../backend.pri)
 
 TEMPLATE = app
 TARGET = welle-io
-QT += quickcontrols2 network qml quick charts multimedia
+QT += quickcontrols2 network qml quick charts multimedia graphicaleffects
 
 RC_ICONS   =    icon/icon.ico
 RESOURCES +=    resources.qrc
