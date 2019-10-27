@@ -5,6 +5,7 @@ image: Visual Studio 2017
 init:
   - set PATHORIG=%PATH%
   - set PATH=C:\Qt\5.13\mingw73_32\bin;C:\Qt\Tools\mingw730_32\bin;%PATH%
+  - gcc -v
 
 before_build:
   # Create datetime
