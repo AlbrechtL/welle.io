@@ -258,7 +258,7 @@ void MP2Decoder::ProcessFormat() {
 	scf_crc_len = (info.version == MPG123_1_0 && info.bitrate < (info.mode == MPG123_M_MONO ? 56 : 112)) ? 2 : 4;
 
 	// output format
-	const char* version = "unknown";
+	std::string version = "unknown";
 	switch(info.version) {
 	case MPG123_1_0:
 		version = "1.0";
@@ -272,7 +272,7 @@ void MP2Decoder::ProcessFormat() {
 	}
 	lsf = info.version != MPG123_1_0;
 
-	const char* layer = "unknown";
+	std::string layer = "unknown";
 	switch(info.layer) {
 	case 1:
 		layer = "I";
@@ -285,7 +285,7 @@ void MP2Decoder::ProcessFormat() {
 		break;
 	}
 
-	const char* mode = "unknown";
+	std::string mode = "unknown";
 	switch(info.mode) {
 	case MPG123_M_STEREO:
 		mode = "Stereo";
@@ -301,12 +301,12 @@ void MP2Decoder::ProcessFormat() {
 		break;
 	}
 
-	std::stringstream ss;
-	ss << "MPEG " << version << " Layer " << layer << ", ";
-	ss << (info.rate / 1000) << " kHz ";
-	ss << mode << " ";
-	ss << "@ " << info.bitrate << " kbit/s";
-	observer->FormatChange(ss.str());
+	AUDIO_SERVICE_FORMAT format;
+	format.codec = "MPEG " + version + " Layer " + layer;
+	format.samplerate_khz = info.rate / 1000;
+	format.mode = mode;
+	format.bitrate_kbps = info.bitrate;
+	observer->FormatChange(format);
 
 	observer->StartAudio(info.rate, info.mode != MPG123_M_MONO ? 2 : 1, float32);
 }

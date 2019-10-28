@@ -1,6 +1,6 @@
 /*
     DABlin - capital DAB experience
-    Copyright (C) 2016-2017 Stefan Pöschel
+    Copyright (C) 2016-2018 Stefan Pöschel
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -41,6 +41,7 @@ struct MOT_FILE {
 
 	// from header extension
 	std::string content_name;
+	std::string content_name_charset;
 	std::string category_title;
 	std::string click_through_url;
 	bool trigger_time_now;

@@ -1,6 +1,6 @@
 /*
     DABlin - capital DAB experience
-    Copyright (C) 2015-2018 Stefan Pöschel
+    Copyright (C) 2015-2019 Stefan Pöschel
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -26,12 +26,27 @@
 
 #define FPAD_LEN 2
 
+
+// --- AUDIO_SERVICE_FORMAT -----------------------------------------------------------------
+struct AUDIO_SERVICE_FORMAT {
+	std::string codec;
+	size_t samplerate_khz;
+	std::string mode;
+	size_t bitrate_kbps;
+
+	AUDIO_SERVICE_FORMAT() : samplerate_khz(0), bitrate_kbps(0) {}
+	std::string GetSummary() const {
+		return codec + ", " + std::to_string(samplerate_khz) + " kHz " + mode + " @ " + std::to_string(bitrate_kbps) + " kBit/s";
+	}
+};
+
+
 // --- SubchannelSinkObserver -----------------------------------------------------------------
 class SubchannelSinkObserver {
 public:
 	virtual ~SubchannelSinkObserver() {}
 
-	virtual void FormatChange(const std::string& /*format*/) {}
+	virtual void FormatChange(const AUDIO_SERVICE_FORMAT& /*format*/) {}
 	virtual void StartAudio(int /*samplerate*/, int /*channels*/, bool /*float32*/) {}
 	virtual void PutAudio(const uint8_t* /*data*/, size_t /*len*/) {}
 	virtual void ProcessPAD(const uint8_t* /*xpad_data*/, size_t /*xpad_len*/, bool /*exact_xpad_len*/, const uint8_t* /*fpad_data*/) {}
@@ -47,7 +62,7 @@ class UntouchedStreamConsumer {
 public:
 	virtual ~UntouchedStreamConsumer() {}
 
-	virtual void ProcessUntouchedStream(const uint8_t* /*data*/, size_t /*len*/, size_t /*duration_ms*/) {}
+	virtual void ProcessUntouchedStream(const uint8_t* /*data*/, size_t /*len*/, size_t /*duration_ms*/) = 0;
 };
 
 

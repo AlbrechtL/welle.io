@@ -107,7 +107,6 @@ void SuperframeFilter::Feed(const uint8_t *data, size_t len) {
 	if(sync_frames) {
 		fprintf(stderr, "SuperframeFilter: Superframe sync succeeded after %d frame(s)\n", sync_frames);
 		sync_frames = 0;
-		ResetPAD();
 	}
 
 
@@ -128,7 +127,6 @@ void SuperframeFilter::Feed(const uint8_t *data, size_t len) {
 		uint16_t au_crc_calced = CalcCRC::CalcCRC_CRC16_CCITT.Calc(au_data, au_len - 2);
 		if(au_crc_stored != au_crc_calced) {
 			observer->AudioError("AU #" + std::to_string(i));
-			ResetPAD();
 			continue;
 		}
 
@@ -162,14 +160,11 @@ void SuperframeFilter::CheckForPAD(const uint8_t *data, size_t len) {
 		}
 	}
 
-	if(!present)
-		ResetPAD();
-}
-
-void SuperframeFilter::ResetPAD() {
-	// required to reset internal state of PAD parser (in case of omitted CI list)
-	uint8_t zero_fpad[FPAD_LEN] = {0x00};
-	observer->ProcessPAD(nullptr, 0, true, zero_fpad);
+	// assume zero bytes F-PAD, if no DSE present
+	if(!present) {
+		uint8_t zero_fpad[FPAD_LEN] = {0x00};
+		observer->ProcessPAD(nullptr, 0, true, zero_fpad);
+	}
 }
 
 
@@ -222,12 +217,12 @@ bool SuperframeFilter::CheckSync() {
 
 void SuperframeFilter::ProcessFormat() {
 	// output format
-	const char *stereo_mode = (sf_format.aac_channel_mode || sf_format.ps_flag) ? "Stereo" : "Mono";
-	const char *surround_mode;
+	std::string core_mode = (sf_format.aac_channel_mode || sf_format.ps_flag) ? "Stereo" : "Mono";
+	std::string surround_mode;
 
 	switch(sf_format.mpeg_surround_config) {
 	case 0:
-		surround_mode = nullptr;
+		// no surround
 		break;
 	case 1:
 		surround_mode = "Surround 5.1";
@@ -240,17 +235,12 @@ void SuperframeFilter::ProcessFormat() {
 		break;
 	}
 
-	int bitrate = sf_len / 120 * 8;
-
-	std::stringstream ss;
-	ss << (sf_format.sbr_flag ? (sf_format.ps_flag ? "HE-AAC v2" : "HE-AAC") : "AAC-LC") << ", ";
-	ss << (sf_format.dac_rate ? 48 : 32) << " kHz ";
-	if(surround_mode)
-		ss << surround_mode << " (" << stereo_mode << " core) ";
-	else
-		ss << stereo_mode << " ";
-	ss << "@ " << bitrate << " kBit/s";
-	observer->FormatChange(ss.str());
+	AUDIO_SERVICE_FORMAT format;
+	format.codec = sf_format.sbr_flag ? (sf_format.ps_flag ? "HE-AAC v2" : "HE-AAC") : "AAC-LC";
+	format.samplerate_khz = sf_format.dac_rate ? 48 : 32;
+	format.mode = !surround_mode.empty() ? (surround_mode + " (" + core_mode + " core)") : core_mode;
+	format.bitrate_kbps = sf_len / 120 * 8;
+	observer->FormatChange(format);
 
 	if(decode_audio) {
 		delete aac_dec;

@@ -1,6 +1,6 @@
 /*
     DABlin - capital DAB experience
-    Copyright (C) 2015-2018 Stefan Pöschel
+    Copyright (C) 2015-2019 Stefan Pöschel
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -29,9 +29,6 @@
 
 #include "mot_manager.h"
 #include "tools.h"
-
-#define DL_MAX_LEN 128
-#define DL_CMD_REMOVE_LABEL 0x01
 
 
 

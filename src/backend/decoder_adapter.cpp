@@ -75,9 +75,9 @@ void DecoderAdapter::addtoFrame(uint8_t *v)
     frameErrorCounter = 0;
 }
 
-void DecoderAdapter::FormatChange(const std::string &format)
+void DecoderAdapter::FormatChange(const AUDIO_SERVICE_FORMAT& format)
 {
-    audioFormat = format;
+    audioFormat = format.GetSummary();
 }
 
 void DecoderAdapter::StartAudio(int samplerate, int channels, bool float32)

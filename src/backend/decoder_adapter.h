@@ -49,7 +49,7 @@ class DecoderAdapter: public DabProcessor, public SubchannelSinkObserver, public
         virtual void addtoFrame(uint8_t *v);
 
         // SubchannelSinkObserver impl
-        virtual void FormatChange(const std::string& /*format*/);
+        virtual void FormatChange(const AUDIO_SERVICE_FORMAT& /*format*/);
         virtual void StartAudio(int /*samplerate*/, int /*channels*/, bool /*float32*/);
         virtual void PutAudio(const uint8_t* /*data*/, size_t /*len*/);
         virtual void ProcessPAD(const uint8_t* /*xpad_data*/, size_t /*xpad_len*/, bool /*exact_xpad_len*/, const uint8_t* /*fpad_data*/);
