@@ -66,14 +66,14 @@ SettingSection {
     }
 
     function initDevice(isAutoDevice) {
+        __setParams()
         if(!isAutoDevice)
             guiHelper.openSoapySdr()
-        __setParams()
     }
 
     function __setParams() {
+        guiHelper.setDriverArgsSoapySdr(driverArgs.text)
         guiHelper.setAntennaSoapySdr(antenna.text)
-        guiHelper.setDriverArgsSoapySdr(clockSource.text)
-        guiHelper.setClockSourceSoapySdr(driverArgs.text)
+        guiHelper.setClockSourceSoapySdr(clockSource.text)
     }
 }

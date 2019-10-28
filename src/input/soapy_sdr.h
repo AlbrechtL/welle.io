@@ -40,7 +40,7 @@ class CSoapySdr_Thread;
 class CSoapySdr : public CVirtualInput
 {
 public:
-    CSoapySdr();
+    CSoapySdr(RadioControllerInterface& radioController);
     ~CSoapySdr();
     CSoapySdr(const CSoapySdr&) = delete;
     CSoapySdr operator=(const CSoapySdr&) = delete;
@@ -60,7 +60,7 @@ public:
     virtual void setAgc(bool AGC);
     virtual std::string getDescription(void);
     virtual CDeviceID getID(void);
-    virtual bool setDeviceParam(DeviceParam param, std::string &value);
+    virtual bool setDeviceParam(DeviceParam param, const std::string& value);
 
 private:
     void setDriverArgs(const std::string& args);
@@ -69,12 +69,13 @@ private:
     void decreaseGain();
     void increaseGain();
 
+    RadioControllerInterface& radioController;
     int m_freq = 0;
     std::string m_driver_args;
     std::string m_antenna;
     std::string m_clock_source;
     SoapySDR::Device *m_device = nullptr;
-    std::atomic<bool> m_running;
+    std::atomic<bool> m_running = ATOMIC_VAR_INIT(false);
     bool m_sw_agc = true;
 
     IQRingBuffer<DSPCOMPLEX> m_sampleBuffer;

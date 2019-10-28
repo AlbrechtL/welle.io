@@ -155,6 +155,8 @@ private:
 
     std::shared_ptr<CVirtualInput> device;
     QVariantMap commandLineOptions;
+    std::map<DeviceParam, std::string> deviceParametersString;
+    std::map<DeviceParam, int> deviceParametersInt;
     Channels channels;
     RadioReceiverOptions rro;
 

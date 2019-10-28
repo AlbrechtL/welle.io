@@ -145,6 +145,11 @@ int main(int argc, char** argv)
             radioController.setAutoPlay(lastStation[1], lastStation[0]);
     }
 
+    // Load mandatory driver arguments to init input device
+    radioController.setDeviceParam("SoapySDRDriverArgs", settings.value("soapyDriverArgs","").toString());
+    radioController.setDeviceParam("SoapySDRAntenna", settings.value("soapyDriverAntenna","").toString());
+    radioController.setDeviceParam("SoapySDRClockSource", settings.value("soapyDriverClockSource","").toString());
+
     CGUIHelper guiHelper(&radioController);
     guiHelper.setTranslator(translator);
 

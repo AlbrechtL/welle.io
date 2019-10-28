@@ -119,7 +119,6 @@ class RadioControllerInterface {
 
         /* The receiver has shutdown */
         virtual void onShutdown(void) { };
-
 };
 
 /* A Programme Hander is associated to each tuned programme in the ensemble.
@@ -191,7 +190,7 @@ public:
         return false;
     }
 
-    virtual bool setDeviceParam(DeviceParam param, std::string &value) {
+    virtual bool setDeviceParam(DeviceParam param, const std::string& value) {
         (void)param; (void)value;
         return false;
     }

@@ -171,27 +171,39 @@ CDeviceID CRadioController::openDevice()
 void CRadioController::setDeviceParam(QString param, int value)
 {
     if (param == "biastee") {
-        device->setDeviceParam(DeviceParam::BiasTee, value);
+        deviceParametersInt[DeviceParam::BiasTee] = value;
     }
     else {
         qDebug() << "Invalid device parameter setting: " << param;
+    }
+
+    if (device) {
+        device->setDeviceParam(DeviceParam::BiasTee, value);
     }
 }
 
 void CRadioController::setDeviceParam(QString param, QString value)
 {
-    std::string value_tmp = value.toStdString();
+    DeviceParam dp;
     if (param == "SoapySDRAntenna") {
-        device->setDeviceParam(DeviceParam::SoapySDRAntenna, value_tmp);
+        dp = DeviceParam::SoapySDRAntenna;
     }
     else if (param == "SoapySDRDriverArgs") {
-        device->setDeviceParam(DeviceParam::SoapySDRDriverArgs, value_tmp);
+        dp = DeviceParam::SoapySDRDriverArgs;
     }
     else if (param == "SoapySDRClockSource") {
-        device->setDeviceParam(DeviceParam::SoapySDRClockSource, value_tmp);
+        dp = DeviceParam::SoapySDRClockSource;
     }
     else {
         qDebug() << "Invalid device parameter setting: " << param;
+        return;
+    }
+
+    std::string v = value.toStdString();
+    deviceParametersString[dp] = v;
+
+    if (device) {
+        device->setDeviceParam(dp, v);
     }
 }
 
@@ -539,6 +551,14 @@ std::vector<DSPCOMPLEX> CRadioController::getConstellationPoint()
  ********************/
 void CRadioController::initialise(void)
 {
+    for (const auto param_value : deviceParametersString) {
+        device->setDeviceParam(param_value.first, param_value.second);
+    }
+
+    for (const auto param_value : deviceParametersInt) {
+        device->setDeviceParam(param_value.first, param_value.second);
+    }
+
     gainCount = device->getGainCount();
     emit gainCountChanged(gainCount);
     emit deviceReady();

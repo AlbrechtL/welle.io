@@ -33,16 +33,20 @@
 #include "dab-constants.h"
 #include "unistd.h"
 
+// For Qt translation if Qt is existing
+#ifdef QT_CORE_LIB
+    #include <QtGlobal>
+#else
+    #define QT_TRANSLATE_NOOP(x,y) (y)
+#endif
+
 using namespace std;
 
-CSoapySdr::CSoapySdr() :
+CSoapySdr::CSoapySdr(RadioControllerInterface& radioController) :
+    radioController(radioController),
     m_sampleBuffer(1024 * 1024),
     m_spectrumSampleBuffer(8192)
 {
-    m_running = false;
-    std::clog << "SoapySdr" << std::endl;
-
-    restart();
 }
 
 CSoapySdr::~CSoapySdr()
@@ -76,7 +80,18 @@ bool CSoapySdr::restart()
     m_sampleBuffer.FlushRingBuffer();
     m_spectrumSampleBuffer.FlushRingBuffer();
 
-    m_device = SoapySDR::Device::make(m_driver_args);
+    try {
+        m_device = SoapySDR::Device::make(m_driver_args);
+    }
+    catch (std::exception& e) {
+        std::clog << "Exception caught in SoapySDR::Device::make with \"" << m_driver_args << "\" :\n" <<
+            "   " << e.what() << std::endl;
+        stop();
+        radioController.onMessage(message_level_t::Error,
+                QT_TRANSLATE_NOOP("CRadioController",
+                    "Could not load SoapySDR with provided device arguments."));
+        return false;
+    }
     stringstream ss;
     ss << "SoapySDR driver=" << m_device->getDriverKey();
     ss << " hardware=" << m_device->getHardwareKey();
@@ -213,20 +228,33 @@ float CSoapySdr::setGain(int32_t gainIndex)
 
 void CSoapySdr::setDriverArgs(const std::string& args)
 {
-    m_driver_args = args;
+    if (m_driver_args != args) {
+        m_driver_args = args;
+        m_running = false;
+        stop();
+        restart();
+    }
 }
 
 void CSoapySdr::setAntenna(const std::string& antenna)
 {
-    m_antenna = antenna;
-    if (!m_antenna.empty() && m_device != nullptr) {
-        clog << "Select antenna " << m_antenna << ", supported: ";
+    if (!antenna.empty() && m_device != nullptr) {
+        clog << "Select antenna " << antenna << ", supported: ";
         for (const auto& ant : m_device->listAntennas(SOAPY_SDR_RX, 0)) {
             clog << " " << ant;
         }
         clog << endl;
 
-        m_device->setAntenna(SOAPY_SDR_RX, 0, m_antenna);
+        try {
+            m_device->setAntenna(SOAPY_SDR_RX, 0, antenna);
+            m_antenna = antenna;
+        }
+        catch (...) {
+            clog << "Could not set antenna to " << antenna << endl;
+        }
+    }
+    else if (m_device == nullptr) {
+        m_antenna = antenna;
     }
 }
 
@@ -289,7 +317,7 @@ CDeviceID CSoapySdr::getID()
     return CDeviceID::SOAPYSDR;
 }
 
-bool CSoapySdr::setDeviceParam(DeviceParam param, std::string &value)
+bool CSoapySdr::setDeviceParam(DeviceParam param, const std::string& value)
 {
     switch(param) {
         case DeviceParam::SoapySDRAntenna: setAntenna(value); return true;
