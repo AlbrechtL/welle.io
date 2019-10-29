@@ -272,6 +272,7 @@ class RadioInterface : public RadioControllerInterface {
 };
 
 struct options_t {
+    string soapySDRDriverArgs = "";
     string antenna = "";
     int gain = -1;
     string channel = "10B";
@@ -321,6 +322,7 @@ static void usage()
         "Backend and input options" << endl <<
         " -u      disable coarse corrector, for receivers who have a low frequency offset." << endl <<
         " -g GAIN set input gain to GAIN or -1 for auto gain." << endl <<
+        " -s ARGS SoapySDR Driver arguments." << endl <<
         " -A ANT  set input antenna to ANT (for SoapySDR input only)." << endl <<
         " -T      disable TII decoding to reduce CPU usage." << endl <<
         endl <<
@@ -338,7 +340,7 @@ options_t parse_cmdline(int argc, char **argv)
     options.rro.decodeTII = true;
 
     int opt;
-    while ((opt = getopt(argc, argv, "A:c:C:dDf:g:hp:PTt:w:u")) != -1) {
+    while ((opt = getopt(argc, argv, "A:c:C:dDf:g:hp:PTs:t:w:u")) != -1) {
         switch (opt) {
             case 'A':
                 options.antenna = optarg;
@@ -370,6 +372,9 @@ options_t parse_cmdline(int argc, char **argv)
             case 'h':
                 usage();
                 exit(1);
+            case 's':
+                options.soapySDRDriverArgs = optarg;
+                break;
             case 't':
                 options.tests.push_back(std::atoi(optarg));
                 break;
@@ -440,6 +445,10 @@ int main(int argc, char **argv)
 #ifdef HAVE_SOAPYSDR
     if (not options.antenna.empty() and in->getID() == CDeviceID::SOAPYSDR) {
         dynamic_cast<CSoapySdr*>(in.get())->setDeviceParam(DeviceParam::SoapySDRAntenna, options.antenna);
+    }
+
+    if (not options.soapySDRDriverArgs.empty() and in->getID() == CDeviceID::SOAPYSDR) {
+        dynamic_cast<CSoapySdr*>(in.get())->setDeviceParam(DeviceParam::SoapySDRDriverArgs, options.soapySDRDriverArgs);
     }
 #endif
 
