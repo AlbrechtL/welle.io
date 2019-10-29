@@ -292,7 +292,6 @@ notSynced:
             counter ++;
             if (counter > T_F) { // hopeless
                 //           fprintf (stderr, "%f %f\n", currentStrength / 50, sLevel);
-                std::clog << "ofdm-processor: " << "SyncOnNull failed" << std::endl;
                 goto notSynced;
             }
         }
