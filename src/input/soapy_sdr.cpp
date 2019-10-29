@@ -309,7 +309,12 @@ void CSoapySdr::setAgc(bool AGC)
 
 std::string CSoapySdr::getDescription()
 {
-    return "SoapySDR (" + m_device->getDriverKey() + ")";
+    if (m_device != nullptr) {
+        return "SoapySDR (" + m_device->getDriverKey() + ")";
+    }
+    else {
+        return "SoapySDR (uninitialised)";
+    }
 }
 
 CDeviceID CSoapySdr::getID()
