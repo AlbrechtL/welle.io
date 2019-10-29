@@ -338,12 +338,10 @@ void CSoapySdr::workerthread()
 {
     std::vector<size_t> channels;
     channels.push_back(0);
-    auto device = m_device;
     std::clog << " *************** Setup soapy stream" << std::endl;
-    auto stream = device->setupStream(SOAPY_SDR_RX, "CF32", channels);
-//    assert(stream != nullptr);
+    auto stream = m_device->setupStream(SOAPY_SDR_RX, "CF32", channels);
 
-    device->activateStream(stream);
+    m_device->activateStream(stream);
     try {
         process(stream);
     }
@@ -352,7 +350,7 @@ void CSoapySdr::workerthread()
     }
 
     std::clog << " *************** Close soapy stream" << std::endl;
-    device->closeStream(stream);
+    m_device->closeStream(stream);
     m_running = false;
 }
 
