@@ -1036,7 +1036,10 @@ bool WebRadioInterface::send_null_spectrum(Socket& s)
     DSPCOMPLEX* spectrumBuffer = spectrum_fft_handler.getVector();
 
     lock_guard<mutex> lock(plotdata_mut);
-    if (last_NULL.size() != (size_t)dabparams.T_null) {
+    if (last_NULL.empty()) {
+        return false;
+    }
+    else if (last_NULL.size() != (size_t)dabparams.T_null) {
         cerr << "Invalid NULL size " << last_NULL.size() << endl;
         return false;
     }
