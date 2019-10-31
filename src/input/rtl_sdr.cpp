@@ -168,13 +168,13 @@ void CRTL_SDR::stop(void)
 
     rtlsdrRunning = false;
 
+    if (agcThread.joinable()) {
+        agcThread.join();
+    }
+
     rtlsdr_cancel_async(device);
     if (rtlsdrThread.joinable()) {
         rtlsdrThread.join();
-    }
-
-    if (agcThread.joinable()) {
-        agcThread.join();
     }
 }
 
