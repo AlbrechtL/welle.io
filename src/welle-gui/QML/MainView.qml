@@ -56,6 +56,7 @@ ApplicationWindow {
     property bool isExpertView: false
     property bool isFullScreen: false
     property bool isLoaded: false
+    property bool isStationNameInWindowTitle: false
 
     StationListModel { id: stationList }
     StationListModel { id: favoritsList }
@@ -82,6 +83,8 @@ ApplicationWindow {
 
     width: getWidth()
     height: getHeight()
+
+    title: isStationNameInWindowTitle ? radioController.title.trim() + " - welle.io" : "welle.io"
 
     visibility: isFullScreen ? Window.FullScreen : Window.Windowed
 
@@ -456,10 +459,16 @@ ApplicationWindow {
     WDialog {
         id: stationSettingsDialog
         content: Loader {
+            id: stationSettingsLoader
             anchors.right: parent.right
             anchors.left: parent.left
             height: item.implicitHeight
             source:  "qrc:/QML/settingpages/ChannelSettings.qml"
+            onLoaded: isStationNameInWindowTitle = stationSettingsLoader.item.addStationNameToWindowTitleState
+        }
+        Connections {
+            target: stationSettingsLoader.item
+            onAddStationNameToWindowTitleStateChanged : isStationNameInWindowTitle = stationSettingsLoader.item.addStationNameToWindowTitleState
         }
     }
 
