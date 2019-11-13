@@ -7,10 +7,14 @@ import "../texts"
 import "../components"
 
 Item {
+    id: channelSettingsPage
     implicitHeight: layout.implicitHeight
+
+    property alias addStationNameToWindowTitleState : addStationNameToWindowTitle.checked
 
     Settings {
         property alias enableLastPlayedStationState : enableLastPlayedStation.checked
+        property alias addStationNameToWindowTitleState : channelSettingsPage.addStationNameToWindowTitleState
     }
 
     ColumnLayout{
@@ -23,6 +27,13 @@ Item {
         WSwitch {
             id: enableLastPlayedStation
             text: qsTr("Automatic start playing last station")
+            checked: false
+            Layout.fillWidth: true
+        }
+
+        WSwitch {
+            id: addStationNameToWindowTitle
+            text: qsTr("Display station name in the window title")
             checked: false
             Layout.fillWidth: true
         }
