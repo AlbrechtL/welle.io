@@ -84,7 +84,7 @@ CGUIHelper::CGUIHelper(CRadioController *RadioController, QObject *parent)
 
     trayIcon->setContextMenu(trayIconMenu);
 
-    trayIcon->setIcon(QIcon(":/icon/icon.png"));
+    trayIcon->setIcon(QIcon(":/icons/icon.png"));
     trayIcon->show();
 
     connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),

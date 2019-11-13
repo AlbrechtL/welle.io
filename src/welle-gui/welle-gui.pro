@@ -4,7 +4,7 @@ TEMPLATE = app
 TARGET = welle-io
 QT += quickcontrols2 network qml quick charts multimedia
 
-RC_ICONS   =    icon/icon.ico
+RC_ICONS   =    icons/icon.ico
 RESOURCES +=    resources.qrc
 DISTFILES +=    \
     android/AndroidManifest.xml \
@@ -108,7 +108,7 @@ unix: {
 win32 {
     GITHASHSTRING = $$system(git.exe rev-parse --short HEAD)
 } else:macx {
-    ICON = icon/icon.icns
+    ICON = icons/icon.icns
 }
 
 !isEmpty(GITHASHSTRING) {

@@ -87,7 +87,7 @@ int main(int argc, char** argv)
     QIcon::setThemeName("welle_io_icons");
 
     // Set icon
-    app.setWindowIcon(QIcon(":/icon/icon.png"));
+    app.setWindowIcon(QIcon(":/icons/icon.png"));
 
     // Handle the command line
     QCommandLineParser optionParser;

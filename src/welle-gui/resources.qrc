@@ -12,47 +12,47 @@
         <file>QML/texts/TextRadioStation.qml</file>
         <file>QML/texts/TextExpert.qml</file>
         <file>QML/InfoPage.qml</file>
-        <file>icon/welle_io_icons/index.theme</file>
-        <file>icon/welle_io_icons/20x20/back.png</file>
-        <file>icon/welle_io_icons/20x20/drawer.png</file>
-        <file>icon/welle_io_icons/20x20/menu.png</file>
-        <file>icon/welle_io_icons/20x20/exit.png</file>
-        <file>icon/welle_io_icons/20x20/star.png</file>
-        <file>icon/welle_io_icons/20x20/star_yellow.png</file>
-        <file>icon/welle_io_icons/20x20/antenna.png</file>
-        <file>icon/welle_io_icons/20x20/antenna_no_signal.png</file>
-        <file>icon/welle_io_icons/20x20/speaker.png</file>
-        <file>icon/welle_io_icons/20x20/speaker_mute.png</file>
-        <file>icon/welle_io_icons/20x20@2/back.png</file>
-        <file>icon/welle_io_icons/20x20@2/drawer.png</file>
-        <file>icon/welle_io_icons/20x20@2/menu.png</file>
-        <file>icon/welle_io_icons/20x20@2/exit.png</file>
-        <file>icon/welle_io_icons/20x20@2/star.png</file>
-        <file>icon/welle_io_icons/20x20@2/star_yellow.png</file>
-        <file>icon/welle_io_icons/20x20@2/antenna.png</file>
-        <file>icon/welle_io_icons/20x20@2/antenna_no_signal.png</file>
-        <file>icon/welle_io_icons/20x20@2/speaker.png</file>
-        <file>icon/welle_io_icons/20x20@2/speaker_mute.png</file>
-        <file>icon/welle_io_icons/20x20@3/back.png</file>
-        <file>icon/welle_io_icons/20x20@3/drawer.png</file>
-        <file>icon/welle_io_icons/20x20@3/menu.png</file>
-        <file>icon/welle_io_icons/20x20@3/exit.png</file>
-        <file>icon/welle_io_icons/20x20@3/star.png</file>
-        <file>icon/welle_io_icons/20x20@3/star_yellow.png</file>
-        <file>icon/welle_io_icons/20x20@3/antenna.png</file>
-        <file>icon/welle_io_icons/20x20@3/antenna_no_signal.png</file>
-        <file>icon/welle_io_icons/20x20@3/speaker.png</file>
-        <file>icon/welle_io_icons/20x20@3/speaker_mute.png</file>
-        <file>icon/welle_io_icons/20x20@4/back.png</file>
-        <file>icon/welle_io_icons/20x20@4/drawer.png</file>
-        <file>icon/welle_io_icons/20x20@4/menu.png</file>
-        <file>icon/welle_io_icons/20x20@4/exit.png</file>
-        <file>icon/welle_io_icons/20x20@4/star.png</file>
-        <file>icon/welle_io_icons/20x20@4/star_yellow.png</file>
-        <file>icon/welle_io_icons/20x20@4/antenna.png</file>
-        <file>icon/welle_io_icons/20x20@4/antenna_no_signal.png</file>
-        <file>icon/welle_io_icons/20x20@4/speaker.png</file>
-        <file>icon/welle_io_icons/20x20@4/speaker_mute.png</file>
+        <file>icons/welle_io_icons/index.theme</file>
+        <file>icons/welle_io_icons/20x20/back.png</file>
+        <file>icons/welle_io_icons/20x20/drawer.png</file>
+        <file>icons/welle_io_icons/20x20/menu.png</file>
+        <file>icons/welle_io_icons/20x20/exit.png</file>
+        <file>icons/welle_io_icons/20x20/star.png</file>
+        <file>icons/welle_io_icons/20x20/star_yellow.png</file>
+        <file>icons/welle_io_icons/20x20/antenna.png</file>
+        <file>icons/welle_io_icons/20x20/antenna_no_signal.png</file>
+        <file>icons/welle_io_icons/20x20/speaker.png</file>
+        <file>icons/welle_io_icons/20x20/speaker_mute.png</file>
+        <file>icons/welle_io_icons/20x20@2/back.png</file>
+        <file>icons/welle_io_icons/20x20@2/drawer.png</file>
+        <file>icons/welle_io_icons/20x20@2/menu.png</file>
+        <file>icons/welle_io_icons/20x20@2/exit.png</file>
+        <file>icons/welle_io_icons/20x20@2/star.png</file>
+        <file>icons/welle_io_icons/20x20@2/star_yellow.png</file>
+        <file>icons/welle_io_icons/20x20@2/antenna.png</file>
+        <file>icons/welle_io_icons/20x20@2/antenna_no_signal.png</file>
+        <file>icons/welle_io_icons/20x20@2/speaker.png</file>
+        <file>icons/welle_io_icons/20x20@2/speaker_mute.png</file>
+        <file>icons/welle_io_icons/20x20@3/back.png</file>
+        <file>icons/welle_io_icons/20x20@3/drawer.png</file>
+        <file>icons/welle_io_icons/20x20@3/menu.png</file>
+        <file>icons/welle_io_icons/20x20@3/exit.png</file>
+        <file>icons/welle_io_icons/20x20@3/star.png</file>
+        <file>icons/welle_io_icons/20x20@3/star_yellow.png</file>
+        <file>icons/welle_io_icons/20x20@3/antenna.png</file>
+        <file>icons/welle_io_icons/20x20@3/antenna_no_signal.png</file>
+        <file>icons/welle_io_icons/20x20@3/speaker.png</file>
+        <file>icons/welle_io_icons/20x20@3/speaker_mute.png</file>
+        <file>icons/welle_io_icons/20x20@4/back.png</file>
+        <file>icons/welle_io_icons/20x20@4/drawer.png</file>
+        <file>icons/welle_io_icons/20x20@4/menu.png</file>
+        <file>icons/welle_io_icons/20x20@4/exit.png</file>
+        <file>icons/welle_io_icons/20x20@4/star.png</file>
+        <file>icons/welle_io_icons/20x20@4/star_yellow.png</file>
+        <file>icons/welle_io_icons/20x20@4/antenna.png</file>
+        <file>icons/welle_io_icons/20x20@4/antenna_no_signal.png</file>
+        <file>icons/welle_io_icons/20x20@4/speaker.png</file>
+        <file>icons/welle_io_icons/20x20@4/speaker_mute.png</file>
         <file>i18n/de_DE.qm</file>
         <file>i18n/it_IT.qm</file>
         <file>i18n/hu_HU.qm</file>
@@ -61,7 +61,7 @@
         <file>i18n/pl_PL.qm</file>
         <file>i18n/ru_RU.qm</file>
         <file>i18n/nl_NL.qm</file>
-        <file>icon/icon.png</file>
+        <file>icons/icon.png</file>
         <file>../../AUTHORS</file>
         <file>../../THANKS</file>
         <file>../../COPYING</file>
