@@ -1,5 +1,6 @@
 import QtQuick 2.5
 import QtQuick.Controls 2.3
+import QtGraphicalEffects 1.0
 
 import "../texts"
 
@@ -37,17 +38,19 @@ Popup {
             }
         }
 
-        Button {
+        Image {
+            id:exitImage
             anchors.left: parent.left
             anchors.verticalCenter: parent.verticalCenter
-            icon.name: "exit"
-            icon.width: width
-            icon.height: width
-            icon.color: "white"
-            padding: 0
-            background: null
+            source: "qrc:/icons/welle_io_icons/20x20@2/exit.png"
             height: Units.dp(30)
             width: height
+        }
+        
+        ColorOverlay {
+            anchors.fill: exitImage
+            source: exitImage
+            color: "white"
         }
 
         MouseArea {
