@@ -82,7 +82,7 @@ int main(int argc, char** argv)
 
     // Set icon path
     QStringList themePaths;
-    themePaths << ":/icon";
+    themePaths << ":/icons";
     QIcon::setThemeSearchPaths(themePaths);
     QIcon::setThemeName("welle_io_icons");
 
