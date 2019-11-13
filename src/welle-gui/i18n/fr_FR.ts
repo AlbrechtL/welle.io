@@ -4,7 +4,7 @@
 <context>
     <name>ActivityResultReceiver</name>
     <message>
-        <location filename="../android_rtl_sdr.cpp" line="+159"/>
+        <location filename="../android_rtl_sdr.cpp" line="+170"/>
         <source>Android RTL-SDR driver is not installed</source>
         <translation>Le pilote RTL-SDR Android n&apos;est pas installé</translation>
     </message>
@@ -25,14 +25,6 @@
 <context>
     <name>CAndroid_RTL_SDR</name>
     <message>
-        <source>Android RTL-SDR driver is not installed</source>
-        <translation type="vanished">Le pilote Android RTL-SDR n&apos;est pas installé</translation>
-    </message>
-    <message>
-        <source>Would you like to install it? Start welle.io again after install.</source>
-        <translation type="vanished">Voulez-vous l&apos;installer ? Vous devrez redémarrer welle.io après l&apos;installation.</translation>
-    </message>
-    <message>
         <location filename="../android_rtl_sdr.cpp" line="-41"/>
         <source>OK</source>
         <translation></translation>
@@ -49,347 +41,33 @@
     </message>
 </context>
 <context>
-    <name>CDABConstants</name>
-    <message>
-        <source>none</source>
-        <translation type="vanished">Aucun</translation>
-    </message>
-    <message>
-        <source>News</source>
-        <translation type="vanished">Actualités</translation>
-    </message>
-    <message>
-        <source>Current Affairs</source>
-        <translation type="vanished">Magazine d&apos;affaires</translation>
-    </message>
-    <message>
-        <source>Information</source>
-        <translation type="vanished">Informations</translation>
-    </message>
-    <message>
-        <source>Sport</source>
-        <translation type="vanished">Sport</translation>
-    </message>
-    <message>
-        <source>Education</source>
-        <translation type="vanished">Education</translation>
-    </message>
-    <message>
-        <source>Drama</source>
-        <translation type="vanished">Fiction</translation>
-    </message>
-    <message>
-        <source>Arts</source>
-        <translation type="vanished">Arts</translation>
-    </message>
-    <message>
-        <source>Science</source>
-        <translation type="vanished">Science</translation>
-    </message>
-    <message>
-        <source>Talk</source>
-        <translation type="vanished">Débats</translation>
-    </message>
-    <message>
-        <source>Pop Music</source>
-        <translation type="vanished">Pop Music</translation>
-    </message>
-    <message>
-        <source>Rock Music</source>
-        <translation type="vanished">Rock Music</translation>
-    </message>
-    <message>
-        <source>Easy Listening</source>
-        <translation type="vanished">Musique variée</translation>
-    </message>
-    <message>
-        <source>Light classical</source>
-        <translation type="vanished">Classique</translation>
-    </message>
-    <message>
-        <source>Classical Music</source>
-        <translation type="vanished">Musique classique</translation>
-    </message>
-    <message>
-        <source>Other Music</source>
-        <translation type="vanished">Autres musiques</translation>
-    </message>
-    <message>
-        <source>Weather</source>
-        <translation type="vanished">Météo</translation>
-    </message>
-    <message>
-        <source>Finance</source>
-        <translation type="vanished">Economie</translation>
-    </message>
-    <message>
-        <source>Children&apos;s</source>
-        <translation type="vanished">Enfants</translation>
-    </message>
-    <message>
-        <source>Factual</source>
-        <translation type="vanished">Société</translation>
-    </message>
-    <message>
-        <source>Religion</source>
-        <translation type="vanished">Religion</translation>
-    </message>
-    <message>
-        <source>Phone In</source>
-        <translation type="vanished">Débats</translation>
-    </message>
-    <message>
-        <source>Travel</source>
-        <translation type="vanished">Voyage</translation>
-    </message>
-    <message>
-        <source>Leisure</source>
-        <translation type="vanished">Loisirs</translation>
-    </message>
-    <message>
-        <source>Jazz and Blues</source>
-        <translation type="vanished">Jazz</translation>
-    </message>
-    <message>
-        <source>Country Music</source>
-        <translation type="vanished">Country</translation>
-    </message>
-    <message>
-        <source>National Music</source>
-        <translation type="vanished">Musiques du pays</translation>
-    </message>
-    <message>
-        <source>Oldies Music</source>
-        <translation type="vanished">Oldies</translation>
-    </message>
-    <message>
-        <source>Folk Music</source>
-        <translation type="vanished">Folk</translation>
-    </message>
-    <message>
-        <source>Unknown</source>
-        <translation type="vanished">Inconnu</translation>
-    </message>
-    <message>
-        <source>Albanian</source>
-        <translation type="vanished">Albanais</translation>
-    </message>
-    <message>
-        <source>Breton</source>
-        <translation type="vanished">Breton</translation>
-    </message>
-    <message>
-        <source>Catalan</source>
-        <translation type="vanished">Catalan</translation>
-    </message>
-    <message>
-        <source>Croatian</source>
-        <translation type="vanished">Croate</translation>
-    </message>
-    <message>
-        <source>Welsh</source>
-        <translation type="vanished">Gallois</translation>
-    </message>
-    <message>
-        <source>Czech</source>
-        <translation type="vanished">Tchèque</translation>
-    </message>
-    <message>
-        <source>Danish</source>
-        <translation type="vanished">Danois</translation>
-    </message>
-    <message>
-        <source>German</source>
-        <translation type="vanished">Allemand</translation>
-    </message>
-    <message>
-        <source>English</source>
-        <translation type="vanished">Anglais</translation>
-    </message>
-    <message>
-        <source>Spanish</source>
-        <translation type="vanished">Espagnol</translation>
-    </message>
-    <message>
-        <source>Esperanto</source>
-        <translation type="vanished">Esperanto</translation>
-    </message>
-    <message>
-        <source>Estonian</source>
-        <translation type="vanished">Estonien</translation>
-    </message>
-    <message>
-        <source>Basque</source>
-        <translation type="vanished">Basque</translation>
-    </message>
-    <message>
-        <source>Faroese</source>
-        <translation type="vanished">Féroïen</translation>
-    </message>
-    <message>
-        <source>French</source>
-        <translation type="vanished">Français</translation>
-    </message>
-    <message>
-        <source>Frisian</source>
-        <translation type="vanished">Frison</translation>
-    </message>
-    <message>
-        <source>Irish</source>
-        <translation type="vanished">Irlandais</translation>
-    </message>
-    <message>
-        <source>Gaelic</source>
-        <translation type="vanished">Gaelique</translation>
-    </message>
-    <message>
-        <source>Galician</source>
-        <translation type="vanished">Galicien</translation>
-    </message>
-    <message>
-        <source>Icelandic</source>
-        <translation type="vanished">Islandais</translation>
-    </message>
-    <message>
-        <source>Italian</source>
-        <translation type="vanished">Italien</translation>
-    </message>
-    <message>
-        <source>Lappish</source>
-        <translation type="vanished">Lapon</translation>
-    </message>
-    <message>
-        <source>Latin</source>
-        <translation type="vanished">Latin</translation>
-    </message>
-    <message>
-        <source>Latvian</source>
-        <translation type="vanished">Leton</translation>
-    </message>
-    <message>
-        <source>Luxembourgian</source>
-        <translation type="vanished">Luxembourgeois</translation>
-    </message>
-    <message>
-        <source>Lithuanian</source>
-        <translation type="vanished">Lituanien</translation>
-    </message>
-    <message>
-        <source>Hungarian</source>
-        <translation type="vanished">Hongrois</translation>
-    </message>
-    <message>
-        <source>Maltese</source>
-        <translation type="vanished">Maltais</translation>
-    </message>
-    <message>
-        <source>Dutch</source>
-        <translation type="vanished">Néerlandais</translation>
-    </message>
-    <message>
-        <source>Norwegian</source>
-        <translation type="vanished">Norvégien</translation>
-    </message>
-    <message>
-        <source>Occitan</source>
-        <translation type="vanished">Occitan</translation>
-    </message>
-    <message>
-        <source>Polish</source>
-        <translation type="vanished">Polonais</translation>
-    </message>
-    <message>
-        <source>Portuguese</source>
-        <translation type="vanished">Portugais</translation>
-    </message>
-    <message>
-        <source>Romanian</source>
-        <translation type="vanished">Roumain</translation>
-    </message>
-    <message>
-        <source>Romansh</source>
-        <translation type="vanished">Romanche</translation>
-    </message>
-    <message>
-        <source>Serbian</source>
-        <translation type="vanished">Serbe</translation>
-    </message>
-    <message>
-        <source>Slovak</source>
-        <translation type="vanished">Slovaque</translation>
-    </message>
-    <message>
-        <source>Slovene</source>
-        <translation type="vanished">Slovène</translation>
-    </message>
-    <message>
-        <source>Finnish</source>
-        <translation type="vanished">Finlandais</translation>
-    </message>
-    <message>
-        <source>Swedish</source>
-        <translation type="vanished">Suédois</translation>
-    </message>
-    <message>
-        <source>Turkish</source>
-        <translation type="vanished">Turc</translation>
-    </message>
-    <message>
-        <source>Flemish</source>
-        <translation type="vanished">Flamand</translation>
-    </message>
-    <message>
-        <source>Walloon</source>
-        <translation type="vanished">Wallon</translation>
-    </message>
-</context>
-<context>
-    <name>CGUI</name>
-    <message>
-        <source>Station list is empty</source>
-        <translation type="vanished">Liste des programmes vide</translation>
-    </message>
-    <message>
-        <source>version</source>
-        <translation type="vanished">Version</translation>
-    </message>
-    <message>
-        <source>Git revision</source>
-        <translation type="vanished">Révision Git</translation>
-    </message>
-    <message>
-        <source>Build on</source>
-        <translation type="vanished">Compilé le</translation>
-    </message>
-    <message>
-        <source>QT version</source>
-        <translation type="vanished">Version QT</translation>
-    </message>
-</context>
-<context>
     <name>CGUIHelper</name>
     <message>
-        <location filename="../gui_helper.cpp" line="+62"/>
+        <location filename="../gui_helper.cpp" line="+64"/>
+        <location line="+566"/>
         <source>Mi&amp;nimize</source>
         <translation>Mi&amp;nimiser</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="-563"/>
+        <location line="+564"/>
         <source>Ma&amp;ximize</source>
         <translation>Ma&amp;ximiser</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="-561"/>
+        <location line="+562"/>
         <source>&amp;Restore</source>
         <translation>&amp;Restaurer</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="-559"/>
+        <location line="+560"/>
         <source>&amp;Quit</source>
         <translation>&amp;Quitter</translation>
     </message>
     <message>
-        <location line="+46"/>
+        <location line="-507"/>
         <source>version</source>
         <translation>version</translation>
     </message>
@@ -409,15 +87,30 @@
         <translation>Version QT</translation>
     </message>
     <message>
-        <location line="+128"/>
+        <location line="+136"/>
         <source>The program will keep running in the system tray. To terminate the program, choose &lt;b&gt;Quit&lt;/b&gt; in the context menu of the system tray entry.</source>
-        <translation>Le programme continuera de tourner dans la boite à miniatuers. Pour terminer le programme, choisir &lt;b&gt;Quitter&lt;/b&gt; dans le menu contextuel de la boîte à miniatures.</translation>
+        <translation>Le programme continue de tourner dans la boite à miniatures. Pour le terminer, choisir &quot;Quitter&quot; dans le menu contextuel de la boîte à miniatures.</translation>
+    </message>
+    <message>
+        <location line="+478"/>
+        <source> (unavailable, fallback to Default)</source>
+        <translation> (non disponible, utilise &quot;Default&quot; à la place)</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Style of system</source>
+        <translation>Style du système</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source> (Recommended)</source>
+        <translation> (Recommandé)</translation>
     </message>
 </context>
 <context>
     <name>CRadioController</name>
     <message>
-        <location filename="../radio_controller.cpp" line="+564"/>
+        <location filename="../radio_controller.cpp" line="+580"/>
         <source>Unknown</source>
         <translation>Inconnu</translation>
     </message>
@@ -428,30 +121,32 @@
         <translation>Pas de station</translation>
     </message>
     <message>
-        <location line="-248"/>
+        <location line="-453"/>
+        <source>Error while opening file </source>
+        <translation>Erreur à l&apos;ouverture du fichier </translation>
+    </message>
+    <message>
+        <location line="+205"/>
         <source>RAW File</source>
         <translation>Fichier RAW</translation>
     </message>
     <message>
         <location line="+13"/>
-        <location line="+444"/>
+        <location line="+457"/>
         <source>Scanning</source>
         <translation>Recherche</translation>
     </message>
     <message>
-        <location line="-440"/>
-        <location line="+465"/>
+        <location line="-453"/>
+        <location line="+478"/>
         <source>Found channels</source>
+        <translatorcomment>Contexte: nombre stations trouvées durant la recherche de stations en scannant tous les canaux. Donc c&apos;est bien &quot;station&quot; qu&apos;il faut mettre, et pas &quot;canal&quot;</translatorcomment>
         <translation>Stations trouvées</translation>
     </message>
     <message>
-        <location line="-259"/>
+        <location line="-272"/>
         <source>Playing last station</source>
         <translation>Lecture de la dernière station</translation>
-    </message>
-    <message>
-        <source>Lost signal or bad signal quality, trying to find it again.</source>
-        <translation type="vanished">Signal perdu ou de mauvaise qualité. Essayez une nouvelle recherche</translation>
     </message>
     <message>
         <location line="+59"/>
@@ -459,56 +154,70 @@
         <translation>Le récepteur radio n&apos;est pas prêt ou n&apos;existe pas.</translation>
     </message>
     <message>
-        <source>Tuning</source>
-        <translation type="vanished">Accord</translation>
-    </message>
-</context>
-<context>
-    <name>ChannelBrowser</name>
-    <message>
-        <location filename="../src/gui/QML/ChannelBrowser.qml" line="+289"/>
-        <source></source>
-        <translation></translation>
+        <location filename="../../input/airspy_sdr.cpp" line="+152"/>
+        <source>airspy is unplugged.</source>
+        <translation>Airspay est débranché.</translation>
     </message>
     <message>
-        <source>Found channels</source>
-        <translation type="vanished">Programmes trouvés</translation>
+        <location filename="../../input/input_factory.cpp" line="+75"/>
+        <source>No valid device found use Null device instead.</source>
+        <translatorcomment>traduction &quot;null device&quot; ?</translatorcomment>
+        <translation type="unfinished">Aucun récepteur valide trouvé. Utilisation de &quot;Null device&quot; à la place.</translation>
     </message>
     <message>
-        <source>Automatic RF gain</source>
-        <translation type="vanished">Gain RF automatique</translation>
+        <location line="+2"/>
+        <location line="+40"/>
+        <source>Error while opening device</source>
+        <translation>Erreur à l&apos;ouverture du récepteur</translation>
     </message>
     <message>
-        <source>Manual gain</source>
-        <translation type="vanished">Gain RF manuel</translation>
+        <location filename="../../input/raw_file.cpp" line="+177"/>
+        <location line="+20"/>
+        <source>Cannot open file </source>
+        <translation>Ouverture du fichier impossible </translation>
     </message>
     <message>
-        <source>Value: </source>
-        <translation type="vanished">Valeur : </translation>
+        <location line="+113"/>
+        <source>End of file, restarting</source>
+        <translatorcomment>doute sur la traduction de &quot;lecture en boucle&quot;</translatorcomment>
+        <translation type="unfinished">Fin du fichier, lecture en boucle</translation>
     </message>
     <message>
-        <source>Select channel manually</source>
-        <translation type="obsolete">Manuelle Kanalwahl</translation>
+        <location line="+3"/>
+        <source>End of file</source>
+        <translation>Fin du fichier</translation>
     </message>
     <message>
-        <source>Clear station list</source>
-        <translation type="vanished">Effacer la liste</translation>
+        <location line="+88"/>
+        <source>Unknown RAW file format</source>
+        <translation>Format de fichier RAW inconnu</translation>
     </message>
     <message>
-        <source>Full screen mode</source>
-        <translation type="vanished">Plein écran</translation>
+        <location filename="../../input/rtl_sdr.cpp" line="+299"/>
+        <location filename="../../input/rtl_tcp.cpp" line="+462"/>
+        <source>ADC overload. Maybe you are using a too high gain.</source>
+        <translatorcomment>ADC ou AGC ? Saturation ou Surcharge ? Saturation semble préférable.</translatorcomment>
+        <translation type="unfinished">Saturation ADC. Peut-être le gain est trop élevé.</translation>
     </message>
     <message>
-        <source>Channel list layout</source>
-        <translation type="vanished">Liste des programmes</translation>
+        <location line="+96"/>
+        <source>RTL-SDR is unplugged.</source>
+        <translation>RTL-SDR est débranché.</translation>
     </message>
     <message>
-        <source>Expert mode</source>
-        <translation type="vanished">Mode expert</translation>
+        <location filename="../../input/rtl_tcp.cpp" line="-190"/>
+        <source>RTL-TCP connection closed.</source>
+        <translation>Connexion RTL-TCP fermée.</translation>
     </message>
     <message>
-        <source>Exit welle.io</source>
-        <translation type="vanished">Quitter</translation>
+        <location line="+141"/>
+        <source>Connection failed to server </source>
+        <translation>Echec de connexion au serveur </translation>
+    </message>
+    <message>
+        <location filename="../../input/soapy_sdr.cpp" line="+100"/>
+        <source>Could not load SoapySDR with provided device arguments.</source>
+        <translation>Chargement de SoapySDR impossible avec les paramètres de périphérique renseignés.</translation>
     </message>
 </context>
 <context>
@@ -529,7 +238,7 @@
     <message>
         <location line="+30"/>
         <source>DQPSK Angle [Degree]</source>
-        <translation type="unfinished">Angle DQPSK [degrés]</translation>
+        <translation>Angle DQPSK [degrés]</translation>
     </message>
     <message>
         <location line="+7"/>
@@ -1263,16 +972,36 @@
     <message>
         <location line="+6"/>
         <source>Backend</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sous-système (Backend)</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Enable coarse corrector (for receivers with &gt;1kHz error)</source>
+        <translatorcomment>coarse corrector = correction grossière ?</translatorcomment>
         <translation type="unfinished">Activer la correction grossière (pour récepteurs avec erreur &gt;1kHz)</translation>
     </message>
     <message>
-        <location line="+24"/>
+        <location line="+14"/>
+        <source>GetMiddle</source>
+        <translatorcomment>doute sur la traduction : &quot;Obtenir le milieu ?&quot; Moyen ? Centre</translatorcomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>CorrelatePRS</source>
+        <translatorcomment>doute sur la traduction : &quot;Corréler PRS&quot;</translatorcomment>
+        <translation type="unfinished">Corréler PRS</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>PatternOfZeros</source>
+        <translatorcomment>doute sur la traduction : &quot;Motif de zéros&quot;</translatorcomment>
+        <translation type="unfinished">Motif de zéros</translation>
+    </message>
+    <message>
+        <location line="+10"/>
         <source>Coarse corrector algorithm</source>
+        <translatorcomment>coarse corrector = correction grossière ?</translatorcomment>
         <translation type="unfinished">Algorithme de correction grossière</translation>
     </message>
     <message>
@@ -1281,60 +1010,27 @@
         <translation>Activer le décodage TII vers le log de la console (augmente l&apos;utilisation CPU)</translation>
     </message>
     <message>
-        <location line="+23"/>
+        <location line="+13"/>
+        <source>Strongest Peak</source>
+        <translatorcomment>doute sur la traduction : &quot;Pic le plus fort&quot; pour Peak utiliser Crête ou Pic</translatorcomment>
+        <translation type="unfinished">Crête la plus forte</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Earliest Peak With Binning</source>
+        <translatorcomment>doute sur la traduction pour Peak utiliser Crête ou Pic. Pour binning: Compartimentage</translatorcomment>
+        <translation type="unfinished">Crête la plus tôt avec compartimentage</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Threshold Before Peak</source>
+        <translatorcomment>doute sur la traduction : &quot;Seuil avant pic&quot; pour Peak utiliser Crête ou Pic. Pour threshold : Seuil</translatorcomment>
+        <translation type="unfinished">Seuil avant crête</translation>
+    </message>
+    <message>
+        <location line="+10"/>
         <source>FFT Window placement algorithm</source>
         <translation>Algorithme de placement de la fenêtre FFT</translation>
-    </message>
-</context>
-<context>
-    <name>ExpertView</name>
-    <message>
-        <source>Device</source>
-        <translation type="vanished">Récepteur</translation>
-    </message>
-    <message>
-        <source>Current channel</source>
-        <translation type="vanished">Bloc actuel</translation>
-    </message>
-    <message>
-        <source>Frequency correction</source>
-        <translation type="vanished">Correction de fréquence</translation>
-    </message>
-    <message>
-        <source>SNR</source>
-        <translation type="vanished">SNR</translation>
-    </message>
-    <message>
-        <source>Frame errors</source>
-        <translation type="vanished">Erreurs de frames</translation>
-    </message>
-    <message>
-        <source>RS errors</source>
-        <translation type="vanished">Erreurs RS</translation>
-    </message>
-    <message>
-        <source>AAC errors</source>
-        <translation type="vanished">Erreurs AAC</translation>
-    </message>
-    <message>
-        <source>Frame synchronization</source>
-        <translation type="vanished">Synchronisation</translation>
-    </message>
-    <message>
-        <source>FIC CRC</source>
-        <translation type="vanished">FIC CRC</translation>
-    </message>
-    <message>
-        <source>OK</source>
-        <translation type="vanished">OK</translation>
-    </message>
-    <message>
-        <source>Not synced</source>
-        <translation type="vanished">Pas de synchronisation</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation type="vanished">Erreur</translation>
     </message>
 </context>
 <context>
@@ -1350,9 +1046,14 @@
         <translation>Mode plein écran</translation>
     </message>
     <message>
-        <location line="+23"/>
+        <location line="+30"/>
         <source>Language</source>
         <translation>Langue (Language)</translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Qt Quick Style. Restart to apply.</source>
+        <translation>Style Qt Quick. Redémarrez pour appliquer.</translation>
     </message>
     <message>
         <location line="+7"/>
@@ -1378,6 +1079,38 @@
         <location line="+20"/>
         <source>Auto detect</source>
         <translation>Détection automatique</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>None</source>
+        <translation>Aucun</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Airspy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>rtl-sdr</source>
+        <translatorcomment>minuscules ? majuscules ? Mis en majuscules pour harmoniser tout le logiciel</translatorcomment>
+        <translation type="unfinished">RTL-SDR</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>SoapySDR</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>rtl-tcp</source>
+        <translatorcomment>minuscules ? majuscules ? Mis en majuscules pour harmoniser tout le logiciel</translatorcomment>
+        <translation type="unfinished">RTL-TCP</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>RAW file</source>
+        <translation type="unfinished">Fichier RAW</translation>
     </message>
 </context>
 <context>
@@ -1499,12 +1232,12 @@
     <message>
         <location line="+6"/>
         <source>Console Output</source>
-        <translation type="unfinished">Sortie console</translation>
+        <translation>Sortie console</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>RAW Recorder</source>
-        <translation type="unfinished">Enregistreur RAW I/Q</translation>
+        <translation>Enregistreur RAW I/Q</translation>
     </message>
 </context>
 <context>
@@ -1520,8 +1253,8 @@
     <message>
         <location filename="../QML/expertviews/NullSymbolGraph.qml" line="+10"/>
         <source>Null Symbol</source>
-        <translatorcomment>?</translatorcomment>
-        <translation>Null Symbol</translation>
+        <translatorcomment>Traduction de NULL selon : http://www.btb.termiumplus.gc.ca/tpv2alpha/alpha-fra.html Mais peut etre laisser tel quel car Null Symbol a un sens précis dans le signal DAB+</translatorcomment>
+        <translation type="unfinished">Null Symbol</translation>
     </message>
     <message>
         <location line="+8"/>
@@ -1530,59 +1263,16 @@
     </message>
 </context>
 <context>
-    <name>QObject</name>
-    <message>
-        <source>No valid device found, using Null device instead.</source>
-        <translation type="vanished">Aucun récepteur trouvé</translation>
-    </message>
-    <message>
-        <source>Error while opening device</source>
-        <translation type="vanished">Erreur à l&apos;ouverture du récepteur</translation>
-    </message>
-    <message>
-        <source>Unknown RAW file format</source>
-        <translation type="vanished">Format de fichier RAW inconnu</translation>
-    </message>
-    <message>
-        <source>Cannot open file</source>
-        <translation type="vanished">Ouverture impossible</translation>
-    </message>
-    <message>
-        <source>End of file, restarting</source>
-        <translation type="vanished">Fin du fichier, lecture en boucle</translation>
-    </message>
-    <message>
-        <source>AGC overload. Maybe you are using a to high gain.</source>
-        <translation type="obsolete">HF-Eingangsverstärkung ist zu groß (AGC ist übersteuert).</translation>
-    </message>
-    <message>
-        <source>ADC overload. Maybe you are using a to high gain.</source>
-        <translation type="vanished">Gain trop haut</translation>
-    </message>
-    <message>
-        <source>RTL-SDR is unplugged.</source>
-        <translation type="vanished">Clé RTL-SDR déconnectée</translation>
-    </message>
-    <message>
-        <source>RTL-TCP connection closed.</source>
-        <translation type="vanished">Connection RTL-TCP fermée</translation>
-    </message>
-    <message>
-        <source>Connection failed to server </source>
-        <translation type="vanished">Impossible de se connecter au serveur</translation>
-    </message>
-</context>
-<context>
     <name>RTLSDRSettings</name>
     <message>
         <location filename="../QML/settingpages/RTLSDRSettings.qml" line="+12"/>
         <source>rtl-sdr settings</source>
-        <translation>Paramètres rlt-sdr</translation>
+        <translation>Paramètres RTL-SDR</translation>
     </message>
     <message>
         <location line="+9"/>
         <source>Enable bias tee (not from all dongles supported)</source>
-        <translation>Activer le té de polarisation (non pris en charge pour tous les récepteurs)</translation>
+        <translation>Activer le té de polarisation (non pris en charge par tous les récepteurs)</translation>
     </message>
 </context>
 <context>
@@ -1590,7 +1280,7 @@
     <message>
         <location filename="../QML/settingpages/RTLTCPSettings.qml" line="+11"/>
         <source>rtl-tcp settings</source>
-        <translation>Paramètres rtl-tcp</translation>
+        <translation>Paramètres RTL-TCP</translation>
     </message>
     <message>
         <location line="+16"/>
@@ -1606,7 +1296,7 @@
 <context>
     <name>RadioView</name>
     <message>
-        <location filename="../QML/RadioView.qml" line="+11"/>
+        <location filename="../QML/RadioView.qml" line="+12"/>
         <source>Service Overview</source>
         <translation>Aperçu du service</translation>
     </message>
@@ -1624,9 +1314,14 @@
         <translation>Ouvrir le fichier RAW</translation>
     </message>
     <message>
-        <location line="+16"/>
+        <location line="+4"/>
+        <source>Currently shown under Android</source>
+        <translation>Actuellement affiché sur Android</translation>
+    </message>
+    <message>
+        <location line="+18"/>
         <source>Selected file:</source>
-        <translation>Fichier sélectionné:</translation>
+        <translation>Fichier sélectionné :</translation>
     </message>
 </context>
 <context>
@@ -1639,7 +1334,7 @@
     <message>
         <location line="+8"/>
         <source>Ring buffer length [s]</source>
-        <translation type="unfinished">Longueur du buffer circulaire [s]</translation>
+        <translation>Longueur du buffer circulaire [s]</translation>
     </message>
     <message>
         <location line="+14"/>
@@ -1649,7 +1344,14 @@
     <message>
         <location line="+0"/>
         <source>Init</source>
+        <translatorcomment>?</translatorcomment>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>Ring buffer size (roughly): </source>
+        <translatorcomment>Un peu trop long ?</translatorcomment>
+        <translation type="unfinished">Taille du buffer circulaire (grosso-modo) : </translation>
     </message>
 </context>
 <context>
@@ -1667,26 +1369,28 @@
     <message>
         <location line="+5"/>
         <source>Current channel</source>
+        <translatorcomment>une ancienne traduction proposait Bloc actuel</translatorcomment>
         <translation>Canal actuel</translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+13"/>
         <source>Frame sync</source>
-        <translation>Synchronistion des trames</translation>
+        <translatorcomment>pluriel ?</translatorcomment>
+        <translation>Synchronisation de trame</translation>
     </message>
     <message>
         <location line="+1"/>
-        <location line="+14"/>
+        <location line="+15"/>
         <source>OK</source>
         <translation>OK</translation>
     </message>
     <message>
-        <location line="-14"/>
+        <location line="-15"/>
         <source>Not synced</source>
-        <translation>Pas de synchronisation</translation>
+        <translation>Pas de sync.</translation>
     </message>
     <message>
-        <location line="+13"/>
+        <location line="+14"/>
         <source>FIC CRC</source>
         <translation>FIC CRC</translation>
     </message>
@@ -1696,9 +1400,10 @@
         <translation>Erreur</translation>
     </message>
     <message>
-        <location line="+14"/>
+        <location line="+15"/>
         <source>Frame errors</source>
-        <translation>Erreurs de trames</translation>
+        <translatorcomment>pluriel ?</translatorcomment>
+        <translation>Erreurs de trame</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -1724,69 +1429,6 @@
         <location line="+5"/>
         <source>DAB date and time</source>
         <translation>Date et heure DAB</translation>
-    </message>
-</context>
-<context>
-    <name>SettingsPage</name>
-    <message>
-        <source>Channel scan</source>
-        <translation type="vanished">Recherche sur le bloc</translation>
-    </message>
-    <message>
-        <source>Start</source>
-        <translation type="vanished">Démarrage</translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation type="vanished">Arrêt</translation>
-    </message>
-    <message>
-        <source>Found channels</source>
-        <translation type="vanished">Programmes trouvés</translation>
-    </message>
-    <message>
-        <source>Found stations</source>
-        <translation type="vanished">Programmes trouvés</translation>
-    </message>
-    <message>
-        <source>Hardware RF gain</source>
-        <translation type="vanished">Gain RF hardware</translation>
-    </message>
-    <message>
-        <source>Automatic RF gain</source>
-        <translation type="vanished">Gain RF automatique</translation>
-    </message>
-    <message>
-        <source>Manual gain</source>
-        <translation type="vanished">Gain RF manuel</translation>
-    </message>
-    <message>
-        <source>Value: </source>
-        <translation type="vanished">Valeur: </translation>
-    </message>
-    <message>
-        <source>Full screen mode</source>
-        <translation type="vanished">Plein écran</translation>
-    </message>
-    <message>
-        <source>Channel list layout (experimental)</source>
-        <translation type="vanished">List des chaines (expérimental)</translation>
-    </message>
-    <message>
-        <source>Expert mode</source>
-        <translation type="vanished">Mode expert</translation>
-    </message>
-    <message>
-        <source>Select channel manually</source>
-        <translation type="vanished">Manuelle Kanalwahl</translation>
-    </message>
-    <message>
-        <source>Clear station list</source>
-        <translation type="vanished">Effacer la liste</translation>
-    </message>
-    <message>
-        <source>Exit welle.io</source>
-        <translation type="vanished">Quitter</translation>
     </message>
 </context>
 <context>
@@ -1846,37 +1488,11 @@
     </message>
 </context>
 <context>
-    <name>SpectrumView</name>
-    <message>
-        <source>Spectrum</source>
-        <translation type="vanished">Spectre</translation>
-    </message>
-    <message>
-        <source>Amplitude</source>
-        <translation type="vanished">Amplitude</translation>
-    </message>
-    <message>
-        <source>Frequency</source>
-        <translation type="vanished">Fréquence</translation>
-    </message>
-</context>
-<context>
     <name>TextOutputView</name>
     <message>
         <location filename="../QML/expertviews/TextOutputView.qml" line="+11"/>
         <source>Console Output</source>
         <translation>Sortie console</translation>
-    </message>
-</context>
-<context>
-    <name>TouchSwitch</name>
-    <message>
-        <source>ON</source>
-        <translation type="vanished">On</translation>
-    </message>
-    <message>
-        <source>OFF</source>
-        <translation type="vanished">OFF</translation>
     </message>
 </context>
 <context>
@@ -1920,7 +1536,8 @@
     <message>
         <location line="+23"/>
         <source>Waterfall</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Adapté de la traduction &quot;WATERFALL DISPLAY&quot; proposée par: http://www.btb.termiumplus.gc.ca/tpv2alpha/alpha-fra.html?lang=fra&amp;i=1&amp;srchtxt=WATERFALL+DISPLAY&amp;index=alt&amp;codom2nd_wet=KB#resultrecs</translatorcomment>
+        <translation type="unfinished">Ecriture ligne par ligne</translation>
     </message>
     <message>
         <location line="+0"/>
@@ -1936,77 +1553,9 @@
 <context>
     <name>main</name>
     <message>
-        <source>Set the GUI language (e.g. de-DE)</source>
-        <translation type="vanished">Régler la langue</translation>
-    </message>
-    <message>
-        <source>Language</source>
-        <translation type="vanished">Langue</translation>
-    </message>
-    <message>
-        <source>Input device</source>
-        <translation type="vanished">Radioempfänger</translation>
-    </message>
-    <message>
-        <source>Input device. Possible is: auto (default), airspy, rtl_tcp, rtl_sdr, rawfile, soapysdr</source>
-        <translation type="vanished">Périphérique d&apos;entrée. Options possibles : Auto (défaut), airspy, rtl_tcp, rtl_sdr; rawfile, soapysdr</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="vanished">Nom</translation>
-    </message>
-    <message>
-        <source>DAB mode. Possible is: 1, 2 or 4, default: 1</source>
-        <translation type="vanished">Mode DAB. Options : 1 (défaut), 2 ou 4</translation>
-    </message>
-    <message>
-        <source>Mode</source>
-        <translation type="vanished">Mode</translation>
-    </message>
-    <message>
-        <source>rtl_tcp server IP address. Only valid for input rtl_tcp.</source>
-        <translation type="vanished">Adresse IP du serveur RTL_TCP. IP valide</translation>
-    </message>
-    <message>
-        <source>IP address</source>
-        <translation type="vanished">Adresse IP</translation>
-    </message>
-    <message>
-        <source>rtl_tcp server IP port. Only valid for input rtl_tcp.</source>
-        <translation type="vanished">Port RTL_TCP</translation>
-    </message>
-    <message>
-        <source>Port</source>
-        <translation type="vanished">Port</translation>
-    </message>
-    <message>
-        <source>I/Q RAW file. Only valid for input rawfile.</source>
-        <translation type="vanished">Fichier RAW. </translation>
-    </message>
-    <message>
-        <source>I/Q RAW file</source>
-        <translation type="vanished">Fichier I/Q RAW</translation>
-    </message>
-    <message>
-        <source>I/Q RAW file format. Possible is: u8 (standard), s8, s16le, s16be. Only valid for input rawfile.</source>
-        <translation type="vanished">Fichier I/Q RAW. Formats disponibles : u8 (Standard), s8, s16le, s16be. Fichiers raw valides.</translation>
-    </message>
-    <message>
-        <source>I/Q RAW file format</source>
-        <translation type="vanished">Format de fichiers I/Q RAW</translation>
-    </message>
-    <message>
-        <source>Expert mode is enabled</source>
-        <translation type="vanished">Mode expert activé</translation>
-    </message>
-    <message>
-        <source>Expert mode is disabled</source>
-        <translation type="vanished">Mode expert désactivé</translation>
-    </message>
-    <message>
-        <location filename="../main.cpp" line="+93"/>
+        <location filename="../main.cpp" line="+100"/>
         <source>Records DAB frames (*.mp2) or DAB+ superframes with RS coding (*.dab). This file can be used to analyse X-PAD data with XPADxpert</source>
-        <translation type="unfinished">Enregistre les trames DAB (*.mp2) ou les supertrames DAB+ avec codage RS (*.dab). Ce fichier peut être utilisé pour analyser des données X-PAD avec XPADxpert</translation>
+        <translation>Enregistre les trames DAB (*.mp2) ou les supertrames DAB+ avec codage RS (*.dab). Ce fichier peut être utilisé pour analyser des données X-PAD avec XPADxpert</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -2017,7 +1566,18 @@
     <message>
         <location line="-1"/>
         <source>Redirects all log output texts to a file.</source>
-        <translation>Rediriger tout les textes de log de sortie vers un fichier.</translation>
+        <translatorcomment>Traduction incertaine</translatorcomment>
+        <translation type="unfinished">Redirige tous les textes de sortie log vers un fichier.</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Qt Quick Controls Style for the 1st launch</source>
+        <translation type="unfinished">Style Qt Quick Controls pour le 1er lancement</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>style_name</source>
+        <translation type="unfinished">nom_du_style</translation>
     </message>
 </context>
 </TS>
