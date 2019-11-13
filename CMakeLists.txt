@@ -9,7 +9,14 @@ endif()
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 14)
 
-option(WITH_APP_BUNDLE "Enable Application Bundle for macOS" ON)
+option(BUILD_WELLE_IO    "Build Welle.io"                        ON  )
+option(BUILD_WELLE_CLI   "Build welle-cli"                       ON  )
+option(WITH_APP_BUNDLE   "Enable Application Bundle for macOS"   ON  )
+option(KISS_FFT          "KISS FFT instead of FFTW"              OFF )
+option(PROFILING         "Enable profiling (see README.md)"      OFF )
+option(AIRSPY            "Compile with Airspy support"           OFF )
+option(RTLSDR            "Compile with RTL-SDR support"          OFF )
+option(SOAPYSDR          "Compile with SoapySDR support"         OFF )
 
 add_definitions(-Wall)
 add_definitions(-g)
@@ -28,22 +35,6 @@ set(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "")
 #enable_testing()
 
 list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
-
-if(NOT DEFINED BUILD_WELLE_IO)
-    set(BUILD_WELLE_IO ON)
-endif()
-
-if(NOT DEFINED KISS_FFT)
-    set(KISS_FFT OFF)
-endif()
-
-if(NOT DEFINED PROFILING)
-    set(PROFILING OFF)
-endif()
-
-if(NOT DEFINED BUILD_WELLE_CLI)
-  set(BUILD_WELLE_CLI ON)
-endif()
 
 if(APPLE AND WITH_APP_BUNDLE)
     if(NOT DEFINED BUNDLE_INSTALL_DIR)
