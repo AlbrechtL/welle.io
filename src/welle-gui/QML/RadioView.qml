@@ -69,28 +69,28 @@ ViewBaseFrame {
         Rectangle{
             height: Units.dp(4)
             width: Units.dp(4)
-            color: (radioController.snr > 2) ? "green" : "grey"
+            color: (radioController.snr > 2) ? "green" : "dimgrey"
         }
         Rectangle{
             height: Units.dp(8)
             width: Units.dp(4)
-            color: (radioController.snr > 5) ? "green" : "grey"
+            color: (radioController.snr > 5) ? "green" : "dimgrey"
         }
         Rectangle{
             height: Units.dp(12)
             width: Units.dp(4)
-            color: (radioController.snr > 8) ? "green" : "grey"
+            color: (radioController.snr > 8) ? "green" : "dimgrey"
         }
         Rectangle{
             height: Units.dp(16)
             width: Units.dp(4)
-            color: (radioController.snr > 11) ? "green" : "grey"
+            color: (radioController.snr > 11) ? "green" : "dimgrey"
         }
 
         Rectangle{
             height: Units.dp(20)
             width: Units.dp(4)
-            color: (radioController.snr > 15) ? "green" : "grey"
+            color: (radioController.snr > 15) ? "green" : "dimgrey"
         }
     }
 

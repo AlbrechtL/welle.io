@@ -6,5 +6,5 @@ import "."
 Text {
     font.pixelSize: TextStyle.textRadioInfo
     font.family: TextStyle.textFont
-    color: TextStyle.textColor
+    //color: TextStyle.textColor
 }

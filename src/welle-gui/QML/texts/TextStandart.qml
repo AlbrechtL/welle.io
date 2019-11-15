@@ -6,6 +6,6 @@ import "."
 Text {
     font.pixelSize: TextStyle.textStandartSize
     font.family: TextStyle.textFont
-    color: TextStyle.textColor
+    //color: TextStyle.textColor
     wrapMode: Text.WordWrap
 }

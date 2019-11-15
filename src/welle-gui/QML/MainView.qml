@@ -121,7 +121,6 @@ ApplicationWindow {
 
     header: ToolBar {
         id: overlayHeader
-        Material.foreground: "white"
 
         RowLayout {
             spacing: 20
@@ -227,7 +226,6 @@ ApplicationWindow {
                 WComboBox {
                     id: stationListBox
                     Layout.preferredWidth: Units.dp(200)
-                    Layout.preferredHeight: Units.dp(25)
                     
                     model:  [qsTr("All stations"), qsTr("Favorites")]
 
@@ -359,7 +357,6 @@ ApplicationWindow {
                         "LI", "LJ", "LK", "LL",
                         "LM", "LN", "LO", "LP"]
 
-                    Layout.preferredHeight: Units.dp(25)
                     Layout.preferredWidth: Units.dp(130)
                     onActivated: {
                         radioController.setManualChannel(model[index])
