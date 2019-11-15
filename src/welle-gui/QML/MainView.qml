@@ -106,6 +106,8 @@ ApplicationWindow {
         if(errorMessagePopup.text != "")
             errorMessagePopup.open();
 
+        updateTheme()
+
         isLoaded = true
     }
 
@@ -486,6 +488,7 @@ ApplicationWindow {
         Connections {
             target: globalSettingsLoader.item
             onEnableFullScreenStateChanged : isFullScreen = globalSettingsLoader.item.enableFullScreenState
+            onQQStyleThemeChanged: updateTheme()
         }
     }
 
@@ -582,5 +585,22 @@ ApplicationWindow {
     onVisibilityChanged: {
         if(visibility === Window.Minimized)
             guiHelper.tryHideWindow()
+    }
+
+    function updateTheme() {
+        if (guiHelper.getQQStyle === "Universal") {
+            switch(globalSettingsLoader.item.qQStyleTheme) {
+                case 0: mainWindow.Universal.theme = Universal.Light; break;
+                case 1: mainWindow.Universal.theme = Universal.Dark; break;
+                case 2: mainWindow.Universal.theme = Universal.System; break;
+            }
+        }
+        else if (guiHelper.getQQStyle === "Material") {
+            switch(globalSettingsLoader.item.qQStyleTheme) {
+                case 0: mainWindow.Material.theme = Material.Light; break;
+                case 1: mainWindow.Material.theme = Material.Dark; break;
+                case 2: mainWindow.Material.theme = Material.System; break;
+            }
+        }
     }
 }

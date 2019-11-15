@@ -159,6 +159,7 @@ public:
     StyleModel* qQStyleComboModel();
     QString getQQStyle();
     Q_INVOKABLE int getIndexOfQQStyle(QString);
+    Q_INVOKABLE bool isThemableStyle(QString);
     Q_INVOKABLE void saveQQStyle(int);
 
     CMOTImageProvider* motImage; // ToDo: Must be a getter
@@ -220,6 +221,7 @@ signals:
     void motChanged(void);
     void newDebugOutput(QString text);
     void newDeviceId(int deviceId);
+    void styleChanged(void);
 
 #ifndef QT_NO_SYSTEMTRAYICON
     void minimizeWindow(void);

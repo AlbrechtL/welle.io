@@ -11,6 +11,7 @@ Item {
     id: settingsPage
 
     property alias enableFullScreenState : enableFullScreen.checked
+    property alias qQStyleTheme : qQStyleTheme.currentIndex
     property bool isLoaded: false
 
     anchors.fill: parent
@@ -24,6 +25,7 @@ Item {
         property alias manualGainValue: valueSliderView.text
         property alias enableAutoSdr : enableAutoSdr.checked
         property alias languageValue : languageBox.currentIndex
+        property alias qQStyleTheme: qQStyleTheme.currentIndex
     }
 
     Component.onCompleted: {
@@ -116,6 +118,30 @@ Item {
                 TextStandart {
                     text: qsTr("Qt Quick Style. Restart to apply.")
                     Layout.fillWidth: true
+                }
+            }
+            RowLayout {
+                Layout.fillWidth: true
+                WComboBoxList {
+                    id: qQStyleTheme
+                    enabled: guiHelper.isThemableStyle(guiHelper.getQQStyle)
+                    textRole: 'label'
+                    model: ListModel {
+                        id: themeListModel
+                        ListElement { label: qsTr("Light"); themeCode: "Light" }
+                        ListElement { label: qsTr("Dark"); themeCode: "Dark" }
+                        ListElement { label: qsTr("System"); themeCode: "System" }
+                    }
+                }
+                TextStandart {
+                    text: qsTr("Theme")
+                    Layout.fillWidth: true
+                }
+                Connections {
+                    target: guiHelper
+                    onStyleChanged: {
+                        qQStyleTheme.enabled = guiHelper.isThemableStyle(guiHelper.getQQStyle)
+                    }
                 }
             }
         }
