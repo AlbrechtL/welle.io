@@ -84,6 +84,7 @@ private:
 class StyleModel : public QAbstractListModel
 {
     Q_OBJECT
+    Q_PROPERTY(int count READ rowCount NOTIFY countChanged)
 
 public:
     enum StyleRoles {
@@ -92,12 +93,17 @@ public:
     };
 
     StyleModel(QObject *parent = 0);
-    
+
     void addStyle(const Style &style);
-    
+
     int rowCount(const QModelIndex & parent = QModelIndex()) const;
 
     QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const;
+
+    Q_INVOKABLE QVariantMap get(int index) const;
+
+signals:
+    void countChanged(int c);
 
 protected:
     QHash<int, QByteArray> roleNames() const;

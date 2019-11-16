@@ -92,6 +92,7 @@ Item {
                         ListElement { label: "Polski"; langCode: "pl_PL" }
                         ListElement { label: "Ру́сский"; langCode: "ru_RU" }
                     }
+                    sizeToContents: true
                     onCurrentIndexChanged: {
                         // Load appropriate settings
                         guiHelper.updateTranslator(listModel.get(currentIndex).langCode, this); 
@@ -107,7 +108,7 @@ Item {
                 Layout.fillWidth: true
                 WComboBoxList {
                     id: styleBox
-                    implicitWidth: 250
+                    sizeToContents: true
                     currentIndex: guiHelper.getIndexOfQQStyle(guiHelper.getQQStyle)
                     textRole: "label"
                     model: guiHelper.qQStyleComboModel
@@ -124,6 +125,7 @@ Item {
                 Layout.fillWidth: true
                 WComboBoxList {
                     id: qQStyleTheme
+                    sizeToContents: true
                     enabled: guiHelper.isThemableStyle(guiHelper.getQQStyle)
                     textRole: 'label'
                     model: ListModel {

@@ -51,6 +51,7 @@ SettingSection {
 
             WComboBox {
                 id: fileFormat
+                sizeToContents: true
                 model: [ "auto", "u8", "s8", "s16le", "s16be", "cf32"];
             }
         }

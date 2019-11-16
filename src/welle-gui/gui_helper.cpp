@@ -798,6 +798,20 @@ int StyleModel::rowCount(const QModelIndex & parent) const
     return m_styles.count();
 }
 
+QVariantMap StyleModel::get(int row) const
+{
+    QHash<int,QByteArray> names = roleNames();
+    QHashIterator<int, QByteArray> i(names);
+    QVariantMap res;
+    QModelIndex idx = index(row, 0);
+    while (i.hasNext()) {
+        i.next();
+        QVariant data = idx.data(i.key());
+        res[i.value()] = data;
+    }
+    return res;
+}
+
 QVariant StyleModel::data(const QModelIndex & index, int role) const
 {
     if (index.row() < 0 || index.row() >= m_styles.count())
