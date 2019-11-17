@@ -88,6 +88,7 @@
         <file>QML/components/WComboBoxList.qml</file>
         <file>QML/components/WButton.qml</file>
         <file>QML/components/WSpectrum.qml</file>
+        <file>QML/components/WMenu.qml</file>
         <file>QML/components/qmldir</file>
         <file>QML/expertviews/ServiceDetails.qml</file>
         <file>QML/expertviews/ImpulseResponseGraph.qml</file>

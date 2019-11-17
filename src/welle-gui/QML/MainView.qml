@@ -161,8 +161,9 @@ ApplicationWindow {
                 icon.height: Units.dp(20)
                 onClicked: optionsMenu.open()
 
-                Menu {
+                WMenu {
                     id: optionsMenu
+                    sizeToContents: true
                     x: parent.width - width
                     transformOrigin: Menu.TopRight
 
@@ -250,8 +251,9 @@ ApplicationWindow {
                     onClicked: stationMenu.open()
                     implicitWidth: contentItem.implicitWidth + Units.dp(15)
 
-                    Menu {
+                    WMenu {
                         id: stationMenu
+                        sizeToContents: true
 
                         MenuItem {
                             id: startStationScanItem
@@ -387,8 +389,9 @@ ApplicationWindow {
         visible: isExpertView
         palette.button: "darkorange"
 
-        Menu {
+        WMenu {
             id: viewMenu
+            sizeToContents: true
             transformOrigin: Menu.TopRight
 
             MenuItem {

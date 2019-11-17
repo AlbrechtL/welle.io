@@ -55,6 +55,7 @@ DISTFILES +=    \
     QML/components/WSwitch.qml \
     QML/components/WTumbler.qml \
     QML/components/WSpectrum.qml \
+    QML/components/WMenu.qml \
     QML/expertviews/ServiceDetails.qml \
     QML/components/WDialog.qml
 

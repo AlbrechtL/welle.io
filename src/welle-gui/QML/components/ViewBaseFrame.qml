@@ -102,8 +102,9 @@ Rectangle {
 
                 onClicked: optionsMenu.open()
 
-                Menu {
+                WMenu {
                     id: optionsMenu
+                    sizeToContents: true
                     x: parent.width - width
                     transformOrigin: Menu.TopRight
 
