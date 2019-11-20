@@ -189,7 +189,7 @@ function serviceTemplate() {
     html += '<td>${pty}</td> <td>${language}<br>${subchannel_language}</td> <td></i>${dls}</i></td>';
     html += '<td>${errorcounters}</td>';
     html += '<td><canvas id="${canvasid}" width="64" height="12"></canvas></td>';
-    html += '<td><button type=button ${buttondisabled} onclick="setPlayerSource(${SId})">Play</button></td>';
+    html += '<td><button type=button ${buttondisabled} class="${buttonclass}" onclick="setPlayerSource(${SId})">Play</button></td>';
     html += '</tr>';
     return html;
 }
@@ -325,6 +325,7 @@ function populateEnsembleinfo() {
             s["shortlabel"] = service.shortlabel;
             s["SId"] = service.sid;
             s["buttondisabled"] = "disabled";
+            s["buttonclass"] = "disabled";
             if (service.components) {
                 var sc = service.components[0];
                 var sub = sc.subchannel;
@@ -339,6 +340,7 @@ function populateEnsembleinfo() {
                         service.mode + ", " +
                         service.channels;
                     s["buttondisabled"] = "";
+                    s["buttonclass"] = "";
                 }
                 else {
                     s["techdetails"] = sc.transportmode + ", DSCTy=" + sc.dscty;
