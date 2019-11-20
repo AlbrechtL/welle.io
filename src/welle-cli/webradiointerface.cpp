@@ -1185,7 +1185,7 @@ bool WebRadioInterface::handle_coarse_corrector_post(Socket& s, const std::strin
         response += "Invalid coarse corrector selected";
         ssize_t ret = s.send(response.data(), response.size(), MSG_NOSIGNAL);
         if (ret == -1) {
-            cerr << "Failed to send frequency" << endl;
+            cerr << "Failed to set response" << endl;
             return false;
         }
         return true;
@@ -1204,7 +1204,7 @@ bool WebRadioInterface::handle_coarse_corrector_post(Socket& s, const std::strin
     response += "Switched Coarse corrector.";
     ssize_t ret = s.send(response.data(), response.size(), MSG_NOSIGNAL);
     if (ret == -1) {
-        cerr << "Failed to send frequency" << endl;
+        cerr << "Failed to send coarse switch confirmation" << endl;
         return false;
     }
     return true;
@@ -1514,7 +1514,7 @@ void WebRadioInterface::onTIIMeasurement(tii_measurement_t&& m)
     }
 }
 
-void WebRadioInterface::onShutdown()
+void WebRadioInterface::onInputFailure()
 {
     std::exit(1);
 }

@@ -487,13 +487,14 @@ SyncOnPhase:
     }
     catch (const InputFailure&) {
         std::clog << "OFDM-processor: input not ok, closing down" << std::endl;
+        radioInterface.onInputFailure();
     }
     running = false;
-    radioInterface.onShutdown();
 }
 
 void OFDMProcessor::reset()
 {
+    std::clog << "OFDM-processor: reset (" << running << ")" << std::endl;
     if (running) {
         running = false;
         threadHandle.join();
