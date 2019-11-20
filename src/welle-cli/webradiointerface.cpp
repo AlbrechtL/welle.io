@@ -858,6 +858,8 @@ bool WebRadioInterface::send_mp3(Socket& s, const std::string& stream)
             try {
                 auto& ph = phs.at(srv.serviceId);
 
+                lock.unlock();
+
                 if (not send_http_response(s, http_ok, "", http_contenttype_mp3)) {
                     cerr << "Failed to send mp3 headers" << endl;
                     return false;
