@@ -853,8 +853,9 @@ bool WebRadioInterface::send_mp3(Socket& s, const std::string& stream)
     ASSERT_RX;
 
     for (const auto& srv : rx->getServiceList()) {
-        if (to_hex<4>(srv.serviceId) == stream or
-                (uint32_t)std::stoul(stream) == srv.serviceId) {
+        if (rx->serviceHasAudioComponent(srv) and
+                (to_hex<4>(srv.serviceId) == stream or
+                (uint32_t)std::stoul(stream) == srv.serviceId)) {
             try {
                 auto& ph = phs.at(srv.serviceId);
 

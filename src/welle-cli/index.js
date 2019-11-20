@@ -189,7 +189,7 @@ function serviceTemplate() {
     html += '<td>${pty}</td> <td>${language}<br>${subchannel_language}</td> <td></i>${dls}</i></td>';
     html += '<td>${errorcounters}</td>';
     html += '<td><canvas id="${canvasid}" width="64" height="12"></canvas></td>';
-    html += '<td><button type=button onclick="setPlayerSource(${SId})">Play</button></td>';
+    html += '<td><button type=button ${buttondisabled} onclick="setPlayerSource(${SId})">Play</button></td>';
     html += '</tr>';
     return html;
 }
@@ -324,6 +324,7 @@ function populateEnsembleinfo() {
             s["fig2label"] = service.fig2label;
             s["shortlabel"] = service.shortlabel;
             s["SId"] = service.sid;
+            s["buttondisabled"] = "disabled";
             if (service.components) {
                 var sc = service.components[0];
                 var sub = sc.subchannel;
@@ -337,6 +338,7 @@ function populateEnsembleinfo() {
                         service.samplerate + " Hz, " +
                         service.mode + ", " +
                         service.channels;
+                    s["buttondisabled"] = "";
                 }
                 else {
                     s["techdetails"] = sc.transportmode + ", DSCTy=" + sc.dscty;
