@@ -149,8 +149,14 @@ Item {
                     }
 
                     TextStandart {
+                        id: labelSliderView
+                        Layout.alignment : Qt.AlignRight
+                        text: qsTr("Value: ")
+                    }
+
+                    TextStandart {
                         id: valueSliderView
-                        text: qsTr("Value: ") + radioController.gainValue.toFixed(2)
+                        text: radioController.gainValue.toFixed(2)
                     }
                 }
 
