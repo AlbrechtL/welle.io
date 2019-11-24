@@ -69,6 +69,10 @@ Copy-Item installer\packages\io.welle.welle\data\qml\Qt5QuickControls2.dll insta
 Copy-Item installer\packages\io.welle.welle\data\qml\Qt5QuickTemplates2.dll installer\packages\io.welle.welle\data
 Remove-Item installer\packages\io.welle.welle\data\qml\*.dll
 
+# For some reason windeployqt deploys the wrong DLL on AppVeyor
+Copy-Item $QTPath\libgcc_s_dw2-1.dll installer\packages\io.welle.welle\data
+Copy-Item $QTPath\libstdc++-6.dll installer\packages\io.welle.welle\data
+
 # Run binarycreator.exe
 $Filename = $Date + "_" + $gitHash + "_Windows_welle-io-setup.exe"
 
