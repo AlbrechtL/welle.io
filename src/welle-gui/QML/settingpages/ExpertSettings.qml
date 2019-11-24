@@ -61,6 +61,7 @@ Item {
 
                 WComboBox {
                     id: freqSyncMethodBox
+                    sizeToContents: true
                     model: [ qsTr("GetMiddle"), qsTr("CorrelatePRS"), qsTr("PatternOfZeros") ];
                     currentIndex: 1
                     onCurrentIndexChanged: {
@@ -92,6 +93,7 @@ Item {
                 Layout.fillWidth: true
                 WComboBox {
                     id: fftPlacementBox
+                    sizeToContents: true
                     model: [ qsTr("Strongest Peak"), qsTr("Earliest Peak With Binning"), qsTr("Threshold Before Peak") ];
                     currentIndex: 1
                     onCurrentIndexChanged: {

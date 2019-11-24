@@ -106,6 +106,8 @@ ApplicationWindow {
         if(errorMessagePopup.text != "")
             errorMessagePopup.open();
 
+        updateTheme()
+
         isLoaded = true
     }
 
@@ -119,7 +121,6 @@ ApplicationWindow {
 
     header: ToolBar {
         id: overlayHeader
-        Material.foreground: "white"
 
         RowLayout {
             spacing: 20
@@ -224,9 +225,8 @@ ApplicationWindow {
             RowLayout {
                 WComboBox {
                     id: stationListBox
-                    Layout.preferredWidth: Units.dp(200)
-                    Layout.preferredHeight: Units.dp(25)
-                    
+                    sizeToContents: true
+
                     model:  [qsTr("All stations"), qsTr("Favorites")]
 
                     onCurrentIndexChanged: {
@@ -343,6 +343,7 @@ ApplicationWindow {
 
                 WComboBox {
                     id: manualChannelBox
+                    sizeToContents: true
                     model: ["5A", "5B", "5C", "5D",
                         "6A", "6B", "6C", "6D",
                         "7A", "7B", "7C", "7D",
@@ -357,8 +358,6 @@ ApplicationWindow {
                         "LI", "LJ", "LK", "LL",
                         "LM", "LN", "LO", "LP"]
 
-                    Layout.preferredHeight: Units.dp(25)
-                    Layout.preferredWidth: Units.dp(130)
                     onActivated: {
                         radioController.setManualChannel(model[index])
                     }
@@ -486,6 +485,7 @@ ApplicationWindow {
         Connections {
             target: globalSettingsLoader.item
             onEnableFullScreenStateChanged : isFullScreen = globalSettingsLoader.item.enableFullScreenState
+            onQQStyleThemeChanged: updateTheme()
         }
     }
 
@@ -582,5 +582,22 @@ ApplicationWindow {
     onVisibilityChanged: {
         if(visibility === Window.Minimized)
             guiHelper.tryHideWindow()
+    }
+
+    function updateTheme() {
+        if (guiHelper.getQQStyle === "Universal") {
+            switch(globalSettingsLoader.item.qQStyleTheme) {
+                case 0: mainWindow.Universal.theme = Universal.Light; break;
+                case 1: mainWindow.Universal.theme = Universal.Dark; break;
+                case 2: mainWindow.Universal.theme = Universal.System; break;
+            }
+        }
+        else if (guiHelper.getQQStyle === "Material") {
+            switch(globalSettingsLoader.item.qQStyleTheme) {
+                case 0: mainWindow.Material.theme = Material.Light; break;
+                case 1: mainWindow.Material.theme = Material.Dark; break;
+                case 2: mainWindow.Material.theme = Material.System; break;
+            }
+        }
     }
 }

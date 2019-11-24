@@ -655,16 +655,16 @@ void FileActivityResultReceiver::handleActivityResult(int receiverRequestCode, i
 QString CGUIHelper::getQQStyleToLoad(QString styleNameArg)  // Static
 {
     QSettings settings;
-    QString settingStyle = settings.value("QQStyle","").toString();
+    QString settingStyle = settings.value("qQStyle","").toString();
 
     // In case this is a first launch where the setting in the config file is not set
     if (settingStyle.isEmpty()) {
         if (styleNameArg.isEmpty()) {
-            settings.setValue("QQStyle", "Default");
+            settings.setValue("qQStyle", "Default");
             return "Default";
         }
         else {
-            settings.setValue("QQStyle", styleNameArg);
+            settings.setValue("qQStyle", styleNameArg);
             return styleNameArg;
         }
     }
@@ -692,7 +692,7 @@ const QStringList CGUIHelper::qQStyleComboList()
     m_comboList.move(position, 0);
     m_comboList.insert(1, "System_Auto");
 
-    QString settingStyle = settings.value("QQStyle","").toString();
+    QString settingStyle = settings.value("qQStyle","").toString();
     settingsStyleInAvailableStyles = false;
 
     for ( const auto& style : m_comboList ) {
@@ -708,18 +708,27 @@ const QStringList CGUIHelper::qQStyleComboList()
     return m_comboList;
 }
 
-int CGUIHelper::getIndexOfQQStyle(QString style){
+bool CGUIHelper::isThemableStyle(QString style)
+{
+    return (style == "Universal" || style == "Material");
+}
+
+int CGUIHelper::getIndexOfQQStyle(QString style)
+{
     //qDebug() << "getIndexOfQQStyle: " << style;
     return m_comboList.indexOf(style);
 }
 
-QString CGUIHelper::getQQStyle(){
-    return settings.value("QQStyle","").toString();
+QString CGUIHelper::getQQStyle()
+{
+    return settings.value("qQStyle","").toString();
 }
 
-void CGUIHelper::saveQQStyle(int index) {
+void CGUIHelper::saveQQStyle(int index)
+{
     //qDebug() << "saveQQStyle : " << index;
-    settings.setValue("QQStyle",m_comboList.value(index));
+    settings.setValue("qQStyle",m_comboList.value(index));
+    emit styleChanged();
 }
 
 StyleModel::StyleModel(QObject *parent)
@@ -732,7 +741,7 @@ StyleModel* CGUIHelper::qQStyleComboModel()
     if (m_styleModel != nullptr)
         m_styleModel = nullptr;
 
-    QString settingStyle = settings.value("QQStyle","").toString();
+    QString settingStyle = settings.value("qQStyle","").toString();
 
     QStringList styleList = qQStyleComboList();
 
@@ -787,6 +796,20 @@ int StyleModel::rowCount(const QModelIndex & parent) const
 {
     Q_UNUSED(parent);
     return m_styles.count();
+}
+
+QVariantMap StyleModel::get(int row) const
+{
+    QHash<int,QByteArray> names = roleNames();
+    QHashIterator<int, QByteArray> i(names);
+    QVariantMap res;
+    QModelIndex idx = index(row, 0);
+    while (i.hasNext()) {
+        i.next();
+        QVariant data = idx.data(i.key());
+        res[i.value()] = data;
+    }
+    return res;
 }
 
 QVariant StyleModel::data(const QModelIndex & index, int role) const

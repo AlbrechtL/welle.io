@@ -1,6 +1,8 @@
 import QtQuick 2.0
 import QtQuick.Layouts 1.1
 import QtQuick.Controls 2.0
+import QtQuick.Controls.Material 2.1
+import QtQuick.Controls.Universal 2.1
 
 // Import custom styles
 import "../texts"
@@ -8,7 +10,9 @@ import "../components"
 
 Rectangle {
     id: root
+    color: (Material.theme === Material.Dark || Universal.theme === Universal.Dark) ? "grey" : "white"
     border.color: isExpert ? "lightgrey": "white"
+
     Layout.fillHeight: true
     Layout.fillWidth: true
     Layout.alignment: Qt.AlignTop | Qt.AlignLeft
@@ -32,7 +36,7 @@ Rectangle {
     Rectangle {
         id: rootBox
         anchors.fill: parent
-        color: "lightgrey"
+        color: (Material.theme === Material.Dark || Universal.theme === Universal.Dark) ? "darkgrey" : "lightgrey"
         visible: mouseArea.pressed
     }
 
@@ -73,19 +77,11 @@ Rectangle {
                 }
             }
 
-            //Uncomment if we want the header of the View to be black text over white background
-/*
-            background: Rectangle {
-                implicitHeight: menuButton.height
-                color: "white"
-            }
-*/
             Label {
                 id: label
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.verticalCenter: parent.verticalCenter
                 font.pixelSize: TextStyle.textStandartSize
-                //color: TextStyle.textColor //Uncomment if we want the header of the View to be black text over white background
             }
 
             Button {
@@ -97,7 +93,6 @@ Rectangle {
                 icon.name: "menu"
                 icon.height: Units.dp(10)
                 icon.width: Units.dp(10)
-                //icon.color: "black"  //Uncomment if we want the header of the View to be black text over white background
                 flat:true
 
                 onClicked: optionsMenu.open()

@@ -84,6 +84,7 @@ private:
 class StyleModel : public QAbstractListModel
 {
     Q_OBJECT
+    Q_PROPERTY(int count READ rowCount NOTIFY countChanged)
 
 public:
     enum StyleRoles {
@@ -92,12 +93,17 @@ public:
     };
 
     StyleModel(QObject *parent = 0);
-    
+
     void addStyle(const Style &style);
-    
+
     int rowCount(const QModelIndex & parent = QModelIndex()) const;
 
     QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const;
+
+    Q_INVOKABLE QVariantMap get(int index) const;
+
+signals:
+    void countChanged(int c);
 
 protected:
     QHash<int, QByteArray> roleNames() const;
@@ -159,6 +165,7 @@ public:
     StyleModel* qQStyleComboModel();
     QString getQQStyle();
     Q_INVOKABLE int getIndexOfQQStyle(QString);
+    Q_INVOKABLE bool isThemableStyle(QString);
     Q_INVOKABLE void saveQQStyle(int);
 
     CMOTImageProvider* motImage; // ToDo: Must be a getter
@@ -220,6 +227,7 @@ signals:
     void motChanged(void);
     void newDebugOutput(QString text);
     void newDeviceId(int deviceId);
+    void styleChanged(void);
 
 #ifndef QT_NO_SYSTEMTRAYICON
     void minimizeWindow(void);
