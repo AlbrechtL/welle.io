@@ -104,48 +104,6 @@ Item {
                     Layout.fillWidth: true
                 }
             }
-            RowLayout {
-                Layout.fillWidth: true
-                WComboBoxList {
-                    id: styleBox
-                    sizeToContents: true
-                    currentIndex: guiHelper.getIndexOfQQStyle(guiHelper.getQQStyle)
-                    textRole: "label"
-                    model: guiHelper.qQStyleComboModel
-                    onActivated: {
-                        guiHelper.saveQQStyle(currentIndex)
-                    }
-                }
-                TextStandart {
-                    text: qsTr("Qt Quick Style. Restart to apply.")
-                    Layout.fillWidth: true
-                }
-            }
-            RowLayout {
-                Layout.fillWidth: true
-                WComboBoxList {
-                    id: qQStyleTheme
-                    sizeToContents: true
-                    enabled: guiHelper.isThemableStyle(guiHelper.getQQStyle)
-                    textRole: 'label'
-                    model: ListModel {
-                        id: themeListModel
-                        ListElement { label: qsTr("Light"); themeCode: "Light" }
-                        ListElement { label: qsTr("Dark"); themeCode: "Dark" }
-                        ListElement { label: qsTr("System"); themeCode: "System" }
-                    }
-                }
-                TextStandart {
-                    text: qsTr("Theme")
-                    Layout.fillWidth: true
-                }
-                Connections {
-                    target: guiHelper
-                    onStyleChanged: {
-                        qQStyleTheme.enabled = guiHelper.isThemableStyle(guiHelper.getQQStyle)
-                    }
-                }
-            }
         }
 
         SettingSection {
@@ -218,6 +176,8 @@ Item {
                     case 5: sdrSpecificSettings.source = "qrc:/QML/settingpages/RawFileSettings.qml"; break
                     default: sdrSpecificSettings.source = "qrc:/QML/settingpages/NullSettings.qml"; break
                     }
+
+                    console.debug("Used input device: " + currentIndex)
                 }
             }
 
@@ -239,5 +199,56 @@ Item {
                     item.initDevice(enableAutoSdr.checked)
             }
         }
+
+        SettingSection {
+            text: qsTr("Style settings")
+
+            RowLayout {
+                Layout.fillWidth: true
+                WComboBoxList {
+                    id: styleBox
+                    sizeToContents: true
+                    currentIndex: guiHelper.getIndexOfQQStyle(guiHelper.getQQStyle)
+                    textRole: "label"
+                    model: guiHelper.qQStyleComboModel
+                    onActivated: {
+                        guiHelper.saveQQStyle(currentIndex)
+                        infoMessagePopup.text = qsTr("Style changed. Please restart welle.io");
+                        infoMessagePopup.open();
+                    }
+                }
+                TextStandart {
+                    text: qsTr("Style. Restart to apply.")
+                    Layout.fillWidth: true
+                }
+            }
+            RowLayout {
+                Layout.fillWidth: true
+                WComboBoxList {
+                    id: qQStyleTheme
+                    sizeToContents: true
+                    enabled: guiHelper.isThemableStyle(guiHelper.getQQStyle)
+                    textRole: 'label'
+                    model: ListModel {
+                        id: themeListModel
+                        ListElement { label: qsTr("Light"); themeCode: "Light" }
+                        ListElement { label: qsTr("Dark"); themeCode: "Dark" }
+                        ListElement { label: qsTr("System"); themeCode: "System" }
+                    }
+                }
+                TextStandart {
+                    text: qsTr("Theme")
+                    Layout.fillWidth: true
+                }
+                Connections {
+                    target: guiHelper
+                    onStyleChanged: {
+                        qQStyleTheme.enabled = guiHelper.isThemableStyle(guiHelper.getQQStyle)
+                    }
+                }
+            }
+        }
+
+
     }
 }
