@@ -35,7 +35,6 @@ CAudioThread::CAudioThread(RingBuffer<int16_t>& buffer, QObject *parent) :
     QThread(parent),
     buffer(buffer),
     audioIODevice(buffer, this),
-    audioOutput(nullptr),
     cardRate(48000)
 {
     connect(&checkAudioBufferTimer, &QTimer::timeout,
@@ -53,6 +52,11 @@ CAudioThread::~CAudioThread(void)
     if (audioOutput != nullptr) {
         delete audioOutput;
         audioOutput = nullptr;
+    }
+
+    if (info != nullptr) {
+        delete info;
+        info = nullptr;
     }
 }
 
@@ -90,13 +94,18 @@ void CAudioThread::init(int sampleRate)
     audioFormat.setByteOrder(QAudioFormat::LittleEndian);
     audioFormat.setSampleType(QAudioFormat::SignedInt);
 
-    QAudioDeviceInfo info(QAudioDeviceInfo::defaultOutputDevice());
-    if (!info.isFormatSupported(audioFormat)) {
+    info = new QAudioDeviceInfo(QAudioDeviceInfo::defaultOutputDevice());
+    if (!info->isFormatSupported(audioFormat)) {
         qDebug() << "Audio:"
                  << "Audio format \"audio/pcm\" 16-bit stereo not supported. Your audio may not work!";
     }
 
-    audioOutput = new QAudioOutput(audioFormat, this);
+    qDebug() << "Audio: Current sound output" << info->deviceName();
+
+//    foreach (const QAudioDeviceInfo &deviceInfo, QAudioDeviceInfo::availableDevices(QAudio::AudioOutput))
+//        qDebug() << "Audio:" << "Available sound output device: " << deviceInfo.deviceName();
+
+    audioOutput = new QAudioOutput(*info, audioFormat, this);
     audioOutput->setBufferSize(audioOutput->bufferSize()*2);
     connect(audioOutput, &QAudioOutput::stateChanged, this, &CAudioThread::handleStateChanged);
 

@@ -76,7 +76,8 @@ class CAudioThread: public QThread
         RingBuffer<int16_t>& buffer;
         CAudioIODevice audioIODevice;
         QAudioFormat audioFormat;
-        QAudioOutput *audioOutput;
+        QAudioOutput *audioOutput = nullptr;
+        QAudioDeviceInfo *info = nullptr;
         QTimer checkAudioBufferTimer;
         QAudio::State currentState;
         int32_t cardRate;
