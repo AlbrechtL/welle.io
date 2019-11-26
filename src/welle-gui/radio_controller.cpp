@@ -306,9 +306,11 @@ void CRadioController::setChannel(QString Channel, bool isScan, bool Force)
         }
 
         // Restart demodulator and decoder
-        radioReceiver = std::make_unique<RadioReceiver>(*this, *device, rro, 1);
-        radioReceiver->setReceiverOptions(rro);
-        radioReceiver->restart(isScan);
+        if(device) {
+            radioReceiver = std::make_unique<RadioReceiver>(*this, *device, rro, 1);
+            radioReceiver->setReceiverOptions(rro);
+            radioReceiver->restart(isScan);
+        }
 
         emit channelChanged();
         emit ensembleChanged();
