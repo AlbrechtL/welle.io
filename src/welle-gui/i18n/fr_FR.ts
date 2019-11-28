@@ -44,30 +44,30 @@
     <name>CGUIHelper</name>
     <message>
         <location filename="../gui_helper.cpp" line="+64"/>
-        <location line="+566"/>
+        <location line="+565"/>
         <source>Mi&amp;nimize</source>
         <translation>Mi&amp;nimiser</translation>
     </message>
     <message>
-        <location line="-563"/>
-        <location line="+564"/>
+        <location line="-562"/>
+        <location line="+563"/>
         <source>Ma&amp;ximize</source>
         <translation>Ma&amp;ximiser</translation>
     </message>
     <message>
-        <location line="-561"/>
-        <location line="+562"/>
+        <location line="-560"/>
+        <location line="+561"/>
         <source>&amp;Restore</source>
         <translation>&amp;Restaurer</translation>
     </message>
     <message>
-        <location line="-559"/>
-        <location line="+560"/>
+        <location line="-558"/>
+        <location line="+559"/>
         <source>&amp;Quit</source>
         <translation>&amp;Quitter</translation>
     </message>
     <message>
-        <location line="-507"/>
+        <location line="-506"/>
         <source>version</source>
         <translation>version</translation>
     </message>
@@ -92,7 +92,7 @@
         <translation>Le programme continue de tourner dans la boite à miniatures. Pour le terminer, choisir &quot;Quitter&quot; dans le menu contextuel de la boîte à miniatures.</translation>
     </message>
     <message>
-        <location line="+478"/>
+        <location line="+486"/>
         <source> (unavailable, fallback to Default)</source>
         <translation> (non disponible, utilise &quot;Default&quot; à la place)</translation>
     </message>
@@ -110,35 +110,35 @@
 <context>
     <name>CRadioController</name>
     <message>
-        <location filename="../radio_controller.cpp" line="+580"/>
+        <location filename="../radio_controller.cpp" line="+593"/>
         <source>Unknown</source>
         <translation>Inconnu</translation>
     </message>
     <message>
-        <location line="-192"/>
-        <location line="+211"/>
+        <location line="-200"/>
+        <location line="+219"/>
         <source>No Station</source>
         <translation>Pas de station</translation>
     </message>
     <message>
-        <location line="-453"/>
+        <location line="-466"/>
         <source>Error while opening file </source>
         <translation>Erreur à l&apos;ouverture du fichier </translation>
     </message>
     <message>
-        <location line="+205"/>
+        <location line="+210"/>
         <source>RAW File</source>
         <translation>Fichier RAW</translation>
     </message>
     <message>
         <location line="+13"/>
-        <location line="+457"/>
+        <location line="+465"/>
         <source>Scanning</source>
         <translation>Recherche</translation>
     </message>
     <message>
-        <location line="-453"/>
-        <location line="+478"/>
+        <location line="-461"/>
+        <location line="+486"/>
         <source>Found channels</source>
         <translatorcomment>Contexte: nombre stations trouvées durant la recherche de stations en scannant tous les canaux. Donc c&apos;est bien &quot;station&quot; qu&apos;il faut mettre, et pas &quot;canal&quot;</translatorcomment>
         <translation>Stations trouvées</translation>
@@ -215,7 +215,7 @@
         <translation>Echec de connexion au serveur </translation>
     </message>
     <message>
-        <location filename="../../input/soapy_sdr.cpp" line="+100"/>
+        <location filename="../../input/soapy_sdr.cpp" line="+91"/>
         <source>Could not load SoapySDR with provided device arguments.</source>
         <translation>Chargement de SoapySDR impossible avec les paramètres de périphérique renseignés.</translation>
     </message>
@@ -223,9 +223,14 @@
 <context>
     <name>ChannelSettings</name>
     <message>
-        <location filename="../QML/settingpages/ChannelSettings.qml" line="+25"/>
+        <location filename="../QML/settingpages/ChannelSettings.qml" line="+29"/>
         <source>Automatic start playing last station</source>
         <translation>Lire automatiquement la dernière station</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Display station name in the window title</source>
+        <translation>Afficher le nom de la station dans le titre de la fenêtre</translation>
     </message>
 </context>
 <context>
@@ -981,7 +986,7 @@
         <translation type="unfinished">Activer la correction grossière (pour récepteurs avec erreur &gt;1kHz)</translation>
     </message>
     <message>
-        <location line="+14"/>
+        <location line="+15"/>
         <source>GetMiddle</source>
         <translatorcomment>doute sur la traduction : &quot;Obtenir le milieu ?&quot; Moyen ? Centre</translatorcomment>
         <translation type="unfinished"></translation>
@@ -1010,7 +1015,7 @@
         <translation>Activer le décodage TII vers le log de la console (augmente l&apos;utilisation CPU)</translation>
     </message>
     <message>
-        <location line="+13"/>
+        <location line="+14"/>
         <source>Strongest Peak</source>
         <translatorcomment>doute sur la traduction : &quot;Pic le plus fort&quot; pour Peak utiliser Crête ou Pic</translatorcomment>
         <translation type="unfinished">Crête la plus forte</translation>
@@ -1036,7 +1041,7 @@
 <context>
     <name>GlobalSettings</name>
     <message>
-        <location filename="../QML/settingpages/GlobalSettings.qml" line="+66"/>
+        <location filename="../QML/settingpages/GlobalSettings.qml" line="+68"/>
         <source>Global settings</source>
         <translation>Paramètres globaux</translation>
     </message>
@@ -1046,7 +1051,7 @@
         <translation>Mode plein écran</translation>
     </message>
     <message>
-        <location line="+30"/>
+        <location line="+31"/>
         <source>Language</source>
         <translation>Langue (Language)</translation>
     </message>
@@ -1056,7 +1061,27 @@
         <translation>Style Qt Quick. Redémarrez pour appliquer.</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+13"/>
+        <source>Light</source>
+        <translation>Clair</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Dark</source>
+        <translation>Sombre</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>System</source>
+        <translation>Système</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Theme</source>
+        <translation>Thème</translation>
+    </message>
+    <message>
+        <location line="+13"/>
         <source>Global receiver settings</source>
         <translation>Paramètres globaux du récepteur</translation>
     </message>
@@ -1134,7 +1159,7 @@
 <context>
     <name>MainView</name>
     <message>
-        <location filename="../QML/MainView.qml" line="+165"/>
+        <location filename="../QML/MainView.qml" line="+171"/>
         <source>Settings</source>
         <translation>Paramètres</translation>
     </message>
@@ -1154,7 +1179,7 @@
         <translation>Quitter</translation>
     </message>
     <message>
-        <location line="+36"/>
+        <location line="+35"/>
         <source>All stations</source>
         <translation>Toutes les stations</translation>
     </message>
@@ -1164,7 +1189,7 @@
         <translation>Favoris</translation>
     </message>
     <message>
-        <location line="+31"/>
+        <location line="+28"/>
         <source>Start station scan</source>
         <translation>Rechercher les stations</translation>
     </message>
@@ -1194,7 +1219,7 @@
         <translation>Canal manuel</translation>
     </message>
     <message>
-        <location line="+55"/>
+        <location line="+54"/>
         <source>Service Overview</source>
         <translation>Aperçu du service</translation>
     </message>
@@ -1319,7 +1344,7 @@
         <translation>Actuellement affiché sur Android</translation>
     </message>
     <message>
-        <location line="+18"/>
+        <location line="+19"/>
         <source>Selected file:</source>
         <translation>Fichier sélectionné :</translation>
     </message>
@@ -1498,7 +1523,7 @@
 <context>
     <name>ViewBaseFrame</name>
     <message>
-        <location filename="../QML/components/ViewBaseFrame.qml" line="+105"/>
+        <location filename="../QML/components/ViewBaseFrame.qml" line="+106"/>
         <source>Minimize</source>
         <translation>Minimiser</translation>
     </message>
@@ -1553,7 +1578,7 @@
 <context>
     <name>main</name>
     <message>
-        <location filename="../main.cpp" line="+100"/>
+        <location filename="../main.cpp" line="+99"/>
         <source>Records DAB frames (*.mp2) or DAB+ superframes with RS coding (*.dab). This file can be used to analyse X-PAD data with XPADxpert</source>
         <translation>Enregistre les trames DAB (*.mp2) ou les supertrames DAB+ avec codage RS (*.dab). Ce fichier peut être utilisé pour analyser des données X-PAD avec XPADxpert</translation>
     </message>
