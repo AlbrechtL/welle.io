@@ -146,6 +146,19 @@ Assuming that you have [Homebrew](https://brew.sh/) installed, execute the follo
 
 ### MacPorts
 
+You can either use the welle.io port available in macports, or compile with QT Creator.
+
+#### use welle.io port
+
+This is the easiest way and will manage the dependencies for you. There are 3 variants all three being enabled by default. Each variant enables compilation with that specific input device library : "airspy" "rtlsdr" "soapysdr".
+
+```
+# sudo port install welle.io
+```
+With MacPorts, welle.io is installed as a bundle app in `/Applications/MacPorts`.
+
+#### compile with QT Creator
+
 You need to install the dependencies with MacPorts first, assuming you have [MacPorts](https://www.macports.org/) installed:
 
 ```
