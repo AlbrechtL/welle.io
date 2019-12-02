@@ -227,6 +227,9 @@ ApplicationWindow {
                 WComboBox {
                     id: stationListBox
                     sizeToContents: true
+//                    background: Rectangle {
+//                        color: "white"
+//                    }
 
                     model:  [qsTr("All stations"), qsTr("Favorites")]
 
