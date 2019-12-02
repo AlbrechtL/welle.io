@@ -171,7 +171,8 @@ Item {
                 id: deviceBox
                 enabled: !enableAutoSdr.checked
                 Layout.fillWidth: true
-                model: [ qsTr("None"), qsTr("Airspy"), qsTr("rtl-sdr"), qsTr("SoapySDR"), qsTr("rtl-tcp"), qsTr("RAW file")];
+                // Note: Adding the translation option qsTr() into the device names are forcing to change the model which results in a currentIndex of 0 (Null device)
+                model: [ "None", "Airspy", "rtl-sdr", "SoapySDR", "rtl-tcp", "RAW file"];
                 onCurrentIndexChanged: {
                     // Load appropriate settings
                     switch(currentIndex) {
