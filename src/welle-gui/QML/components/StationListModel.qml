@@ -45,7 +45,7 @@ ListModel {
         for(var n=count; n>1; --n) {
             for(var i=0; i<n-1; ++i) {
                 // Sort in alphabetical order
-                if(get(i).stationName.localeCompare(get(i+1).stationName) === 1)
+                if(get(i).stationName.localeCompare(get(i+1).stationName) >= 1)
                     move(i,i+1,1)
             }
         }
