@@ -38,6 +38,7 @@
 #include <QDateTime>
 #include <QImage>
 #include <QVariantMap>
+#include <QFile>
 #include <mutex>
 #include <list>
 
