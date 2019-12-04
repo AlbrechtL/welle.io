@@ -98,6 +98,14 @@ bool CAndroid_RTL_SDR::restart()
     return true;
 }
 
+bool CAndroid_RTL_SDR::is_ok()
+{
+    if(isPending)
+        return true;
+    else
+        return CRTL_TCP_Client::is_ok();
+}
+
 
 void CAndroid_RTL_SDR::setErrorMessage(QString message)
 {

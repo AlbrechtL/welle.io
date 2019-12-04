@@ -46,6 +46,7 @@ public:
     std::string getDescription(void);
     CDeviceID getID(void);
     bool restart(void);
+    bool is_ok(void);
 
     void setErrorMessage(QString message);
     void setLoaded(bool isLoaded);
