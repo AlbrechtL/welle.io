@@ -66,7 +66,7 @@ ViewBaseFrame {
 
     Component.onCompleted: {
         if(Qt.platform.os == "android") {
-            infoMessagePopup.text = qsTr("Warning: The console view can be slow down the complete app!");
+            infoMessagePopup.text = qsTr("Warning: The console view can slow down the complete app!");
             infoMessagePopup.open();
         }
     }
