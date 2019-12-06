@@ -100,12 +100,12 @@ CGUIHelper::~CGUIHelper()
     // Avoid segmentation fault if a debug message should be displayed after deleting
     CDebugOutput::setCGUI(nullptr);
 
-    qDebug() << "GUI:" <<  "deleting radioInterface";
+    qDebug() << "GUI:" <<  "Deleting CGUIHelper";
 }
 
 void CGUIHelper::close()
 {
-    qDebug() << "GUI:" <<  "close application";
+    qDebug() << "GUI:" <<  "Close application";
     QApplication::quit();
 }
 

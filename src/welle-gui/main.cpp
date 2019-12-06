@@ -170,6 +170,10 @@ int main(int argc, char** argv)
     // Run application
     app.exec();
 
+    // Disconnect all signals and slots
+    guiHelper.disconnect();
+    radioController.disconnect();
+
     qDebug() << "main:" <<  "Application closed";
 
     return 0;

@@ -107,6 +107,11 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, QObject *par
             this, &CRadioController::displayDateTime);
 }
 
+CRadioController::~CRadioController()
+{
+    qDebug() << "RadioController:" << "Deleting CRadioController";
+}
+
 void CRadioController::closeDevice()
 {
     qDebug() << "RadioController:" << "Close device";
