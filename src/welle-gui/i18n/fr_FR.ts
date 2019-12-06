@@ -4,7 +4,7 @@
 <context>
     <name>ActivityResultReceiver</name>
     <message>
-        <location filename="../android_rtl_sdr.cpp" line="+170"/>
+        <location filename="../android_rtl_sdr.cpp" line="+178"/>
         <source>Android RTL-SDR driver is not installed</source>
         <translation>Le pilote RTL-SDR Android n&apos;est pas installé</translation>
     </message>
@@ -110,7 +110,7 @@
 <context>
     <name>CRadioController</name>
     <message>
-        <location filename="../radio_controller.cpp" line="+593"/>
+        <location filename="../radio_controller.cpp" line="+595"/>
         <source>Unknown</source>
         <translation>Inconnu</translation>
     </message>
@@ -121,12 +121,12 @@
         <translation>Pas de station</translation>
     </message>
     <message>
-        <location line="-466"/>
+        <location line="-468"/>
         <source>Error while opening file </source>
         <translation>Erreur à l&apos;ouverture du fichier </translation>
     </message>
     <message>
-        <location line="+210"/>
+        <location line="+212"/>
         <source>RAW File</source>
         <translation>Fichier RAW</translation>
     </message>
@@ -1056,12 +1056,7 @@
         <translation>Langue (Language)</translation>
     </message>
     <message>
-        <location line="+17"/>
-        <source>Qt Quick Style. Restart to apply.</source>
-        <translation>Style Qt Quick. Redémarrez pour appliquer.</translation>
-    </message>
-    <message>
-        <location line="+13"/>
+        <location line="+138"/>
         <source>Light</source>
         <translation>Clair</translation>
     </message>
@@ -1081,7 +1076,7 @@
         <translation>Thème</translation>
     </message>
     <message>
-        <location line="+13"/>
+        <location line="-137"/>
         <source>Global receiver settings</source>
         <translation>Paramètres globaux du récepteur</translation>
     </message>
@@ -1096,46 +1091,47 @@
         <translation>Gain RF manuel</translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="+6"/>
         <source>Value: </source>
         <translation>Valeur : </translation>
     </message>
     <message>
-        <location line="+20"/>
+        <location line="+25"/>
         <source>Auto detect</source>
         <translation>Détection automatique</translation>
     </message>
     <message>
-        <location line="+9"/>
+        <location line="+46"/>
+        <source>Style settings</source>
+        <translation>Paramètres de style</translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Style changed. Please restart welle.io</source>
+        <translation>Style changé. Veuillez redémarrer welle.io</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Style. Restart to apply.</source>
+        <translation>Style. Redémarrez pour appliquer.</translation>
+    </message>
+    <message>
         <source>None</source>
-        <translation>Aucun</translation>
+        <translation type="vanished">Aucun</translation>
     </message>
     <message>
-        <location line="+0"/>
-        <source>Airspy</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+0"/>
         <source>rtl-sdr</source>
         <translatorcomment>minuscules ? majuscules ? Mis en majuscules pour harmoniser tout le logiciel</translatorcomment>
-        <translation type="unfinished">RTL-SDR</translation>
+        <translation type="obsolete">RTL-SDR</translation>
     </message>
     <message>
-        <location line="+0"/>
-        <source>SoapySDR</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+0"/>
         <source>rtl-tcp</source>
         <translatorcomment>minuscules ? majuscules ? Mis en majuscules pour harmoniser tout le logiciel</translatorcomment>
-        <translation type="unfinished">RTL-TCP</translation>
+        <translation type="obsolete">RTL-TCP</translation>
     </message>
     <message>
-        <location line="+0"/>
         <source>RAW file</source>
-        <translation type="unfinished">Fichier RAW</translation>
+        <translation type="obsolete">Fichier RAW</translation>
     </message>
 </context>
 <context>
@@ -1159,7 +1155,7 @@
 <context>
     <name>MainView</name>
     <message>
-        <location filename="../QML/MainView.qml" line="+171"/>
+        <location filename="../QML/MainView.qml" line="+172"/>
         <source>Settings</source>
         <translation>Paramètres</translation>
     </message>
@@ -1179,7 +1175,7 @@
         <translation>Quitter</translation>
     </message>
     <message>
-        <location line="+35"/>
+        <location line="+38"/>
         <source>All stations</source>
         <translation>Toutes les stations</translation>
     </message>
@@ -1189,7 +1185,7 @@
         <translation>Favoris</translation>
     </message>
     <message>
-        <location line="+28"/>
+        <location line="+29"/>
         <source>Start station scan</source>
         <translation>Rechercher les stations</translation>
     </message>
@@ -1219,7 +1215,7 @@
         <translation>Canal manuel</translation>
     </message>
     <message>
-        <location line="+54"/>
+        <location line="+55"/>
         <source>Service Overview</source>
         <translation>Aperçu du service</translation>
     </message>
@@ -1519,11 +1515,16 @@
         <source>Console Output</source>
         <translation>Sortie console</translation>
     </message>
+    <message>
+        <location line="+58"/>
+        <source>Warning: The console view can slow down the complete app!</source>
+        <translation>Avertissement: la sortie console peut ralentir toute l&apos;appli !</translation>
+    </message>
 </context>
 <context>
     <name>ViewBaseFrame</name>
     <message>
-        <location filename="../QML/components/ViewBaseFrame.qml" line="+106"/>
+        <location filename="../QML/components/ViewBaseFrame.qml" line="+107"/>
         <source>Minimize</source>
         <translation>Minimiser</translation>
     </message>
