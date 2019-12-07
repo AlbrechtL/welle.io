@@ -109,6 +109,7 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, QObject *par
 
 CRadioController::~CRadioController()
 {
+    closeDevice();
     qDebug() << "RadioController:" << "Deleting CRadioController";
 }
 
