@@ -360,9 +360,9 @@ CDeviceID CRTL_TCP_Client::getID()
     return CDeviceID::RTL_TCP;
 }
 
-void CRTL_TCP_Client::setIP(const std::string& ipAddress)
+void CRTL_TCP_Client::setServerAddress(const std::string& serverAddress)
 {
-    serverAddress = ipAddress;
+    this->serverAddress = serverAddress;
 }
 
 void CRTL_TCP_Client::setPort(uint16_t Port)

@@ -535,9 +535,9 @@ void CGUIHelper::setClockSourceSoapySdr(QString text)
     radioController->setDeviceParam("SoapySDRClockSource", text);
 }
 
-void CGUIHelper::openRtlTcp(QString IpAddress, int IpPort, bool force)
+void CGUIHelper::openRtlTcp(QString serverAddress, int IpPort, bool force)
 {
-    radioController->openDevice(CDeviceID::RTL_TCP, force, IpAddress, IpPort);
+    radioController->openDevice(CDeviceID::RTL_TCP, force, serverAddress, IpPort);
 }
 
 void CGUIHelper::openRawFile(QString fileFormat)

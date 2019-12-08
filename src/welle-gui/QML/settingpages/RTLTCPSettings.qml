@@ -18,10 +18,20 @@ SettingSection {
         property alias ipByte3: ipAddress3.currentIndex
         property alias ipByte4: ipAddress4.currentIndex
         property alias ipPort: ipPort.currentIndex
+        property alias rtlTcpEnableHostName: enableHostName.checked
+        property alias rtlTcpHostName: hostName.text
+    }
+
+    WSwitch {
+        id: enableHostName
+        text: qsTr("Use host name")
+        Layout.fillWidth: true
+        checked: false
     }
 
     RowLayout {
         spacing: Units.dp(20)
+
         ColumnLayout {
             TextStandart {
                 text: qsTr("IP address")
@@ -32,6 +42,7 @@ SettingSection {
                 id:layout
                 height: Units.dp(120)
                 spacing: Units.dp(5)
+                enabled: !enableHostName.checked
 
                 WTumbler {
                     id: ipAddress1
@@ -65,6 +76,20 @@ SettingSection {
         }
     }
 
+    RowLayout {
+        enabled: enableHostName.checked
+
+        TextField {
+            id: hostName
+            placeholderText: qsTr("Enter host name")
+        }
+
+        TextStandart {
+            text: qsTr("Host name")
+            Layout.fillWidth: true
+        }
+    }
+
     onVisibleChanged: {
         if(!visible && isLoaded)
             __openDevice()
@@ -78,12 +103,18 @@ SettingSection {
     }
 
     function __openDevice() {
-        var ipAdress =
+        var serverAddress = "";
+
+        if(!enableHostName.checked)
+            serverAddress =
                 ipAddress1.currentIndex + "."
                 + ipAddress2.currentIndex + "."
                 + ipAddress3.currentIndex + "."
                 + ipAddress4.currentIndex
-        guiHelper.openRtlTcp(ipAdress, ipPort.currentIndex, true)
+        else
+            serverAddress = hostName.text
+
+        guiHelper.openRtlTcp(serverAddress, ipPort.currentIndex, true)
     }
 }
 

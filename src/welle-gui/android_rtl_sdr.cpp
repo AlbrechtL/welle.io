@@ -92,7 +92,7 @@ bool CAndroid_RTL_SDR::restart()
     }
 
     // Configure rtl_tcp_client
-    setIP("127.0.0.1");
+    setServerAddress("127.0.0.1");
     setPort(1234);
 
     return true;

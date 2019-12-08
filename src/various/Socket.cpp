@@ -238,6 +238,8 @@ bool Socket::connect(const std::string& address, int port, int timeout)
             std::clog << "Socket: Failed to put socket into non-blocking mode with error: " << iResult << std::endl;
         }
 
+        struct sockaddr_in *sa = (struct sockaddr_in *) rp->ai_addr;
+        std::clog << "Try to connect to: " << inet_ntoa(sa->sin_addr) << std::endl;
         ::connect(sfd, rp->ai_addr, rp->ai_addrlen);
 
         // set the socket back in blocking mode

@@ -137,7 +137,7 @@ CDeviceID CRadioController::openDevice(CDeviceID deviceId, bool force, QVariant 
         if (device->getID() == CDeviceID::RTL_TCP) {
             CRTL_TCP_Client* RTL_TCP_Client = static_cast<CRTL_TCP_Client*>(device.get());
 
-            RTL_TCP_Client->setIP(param1.toString().toStdString());
+            RTL_TCP_Client->setServerAddress(param1.toString().toStdString());
             RTL_TCP_Client->setPort(param2.toInt());
         }
 

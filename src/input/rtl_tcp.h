@@ -72,7 +72,7 @@ public:
     CDeviceID getID(void);
 
     // Specific methods
-    void setIP(const std::string& ipAddress);
+    void setServerAddress(const std::string& serverAddress);
     void setPort(uint16_t Port);
 
     RadioControllerInterface& radioController;
