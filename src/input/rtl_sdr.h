@@ -92,14 +92,14 @@ private:
     uint8_t minAmplitude = 255;
     uint8_t maxAmplitude = 0;
 
-    void AGCTimer(void);
+    void agc_timer_thread(void);
 
     IQRingBuffer<uint8_t> sampleBuffer;
     RingBuffer<uint8_t> spectrumSampleBuffer;
     struct rtlsdr_dev *device = nullptr;
     int32_t sampleCounter = 0;
 
-    static void RTLSDRCallBack(uint8_t* buf, uint32_t len, void *ctx);
+    static void rtlsdr_read_callback(uint8_t* buf, uint32_t len, void *ctx);
 };
 
 

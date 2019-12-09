@@ -146,7 +146,7 @@ bool CRTL_SDR::restart(void)
     rtlsdrRunning = true;
 
     rtlsdrThread = std::thread(&CRTL_SDR::rtlsdr_read_async_wrapper, this);
-    agcThread = std::thread(&CRTL_SDR::AGCTimer, this);
+    agcThread = std::thread(&CRTL_SDR::agc_timer_thread, this);
 
     return true;
 }
@@ -257,7 +257,7 @@ CDeviceID CRTL_SDR::getID()
     return CDeviceID::RTL_SDR;
 }
 
-void CRTL_SDR::AGCTimer(void)
+void CRTL_SDR::agc_timer_thread(void)
 {
     while (rtlsdrRunning && not rtlsdrUnplugged) {
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
@@ -345,7 +345,7 @@ void CRTL_SDR::reset(void)
     sampleBuffer.FlushRingBuffer();
 }
 
-void CRTL_SDR::RTLSDRCallBack(uint8_t* buf, uint32_t len, void* ctx)
+void CRTL_SDR::rtlsdr_read_callback(uint8_t* buf, uint32_t len, void* ctx)
 {
     if (ctx) {
         CRTL_SDR *rtlsdr = (CRTL_SDR*)ctx;
@@ -383,7 +383,7 @@ void CRTL_SDR::rtlsdr_read_async_wrapper()
 {
     std::clog << "RTL_SDR: " << "Start rtlsdr_read_async_wrapper() thread" << std::endl;
     rtlsdr_read_async(device,
-                      (rtlsdr_read_async_cb_t)&CRTL_SDR::RTLSDRCallBack,
+                      (rtlsdr_read_async_cb_t)&CRTL_SDR::rtlsdr_read_callback,
                       (void*)this, 0, READLEN_DEFAULT);
 
     if(rtlsdrRunning)
