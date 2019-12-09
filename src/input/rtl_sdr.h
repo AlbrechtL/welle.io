@@ -52,6 +52,8 @@ class CRTL_SDR : public CVirtualInput {
 public:
     CRTL_SDR(RadioControllerInterface& radioController);
     ~CRTL_SDR(void);
+    CRTL_SDR(const CRTL_SDR&) = delete;
+    void operator=(const CRTL_SDR&) = delete;
 
     // Interface methods
     bool restart(void);
@@ -85,8 +87,6 @@ private:
     std::atomic<bool> rtlsdrRunning = ATOMIC_VAR_INIT(false);
     std::atomic<bool> rtlsdrUnplugged = ATOMIC_VAR_INIT(false);
 
-
-    bool open = false;
     std::vector<int> gains;
     int currentGainIndex = 0;
     uint8_t minAmplitude = 255;

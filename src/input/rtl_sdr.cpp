@@ -80,8 +80,6 @@ CRTL_SDR::CRTL_SDR(RadioControllerInterface& radioController) :
         throw 0;
     }
 
-    open = true;
-
     // Set sample rate
     ret = rtlsdr_set_sample_rate(device, INPUT_RATE);
     if (ret < 0) {
@@ -110,10 +108,7 @@ CRTL_SDR::~CRTL_SDR(void)
 {
     stop();
 
-    if (open)
-        rtlsdr_close(device);
-
-    open = false;
+    rtlsdr_close(device);
 }
 
 void CRTL_SDR::setFrequency(int frequency)
@@ -395,6 +390,5 @@ void CRTL_SDR::rtlsdr_read_async_wrapper()
         radioController.onMessage(message_level_t::Error, QT_TRANSLATE_NOOP("CRadioController", "RTL-SDR is unplugged."));
 
     rtlsdrUnplugged = true;
-    rtlsdrRunning = false;
     std::clog << "End RTLSDR thread" << std::endl;
 }

@@ -95,6 +95,9 @@ class CRadioController :
 public:
     CRadioController(QVariantMap &commandLineOptions, QObject* parent = nullptr);
     ~CRadioController();
+    CRadioController(const CRadioController&) = delete;
+    void operator=(const CRadioController&) = delete;
+
     void closeDevice();
     CDeviceID openDevice(CDeviceID deviceId, bool force = false, QVariant param1 = QVariant(), QVariant param2 = QVariant());
     CDeviceID openDevice();
