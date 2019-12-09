@@ -115,13 +115,13 @@ void CRTL_SDR::setFrequency(int frequency)
 {
     stop();
     rtlsdrUnplugged = false;
-    lastFrequency = frequency;
+    this->frequency = frequency;
     restart();
 }
 
 int CRTL_SDR::getFrequency(void) const
 {
-    return lastFrequency;
+    return frequency;
 }
 
 bool CRTL_SDR::restart(void)
@@ -142,7 +142,7 @@ bool CRTL_SDR::restart(void)
     if (ret < 0)
         return false;
 
-    rtlsdr_set_center_freq(device, lastFrequency + frequencyOffset);
+    rtlsdr_set_center_freq(device, frequency + frequencyOffset);
     rtlsdrRunning = true;
 
     rtlsdrThread = std::thread(&CRTL_SDR::rtlsdr_read_async_wrapper, this);
@@ -153,7 +153,7 @@ bool CRTL_SDR::restart(void)
 
 bool CRTL_SDR::is_ok(void)
 {
-    return rtlsdrRunning and not rtlsdrUnplugged;
+    return not rtlsdrUnplugged;
 }
 
 void CRTL_SDR::stop(void)
@@ -386,9 +386,10 @@ void CRTL_SDR::rtlsdr_read_async_wrapper()
                       (rtlsdr_read_async_cb_t)&CRTL_SDR::rtlsdr_read_callback,
                       (void*)this, 0, READLEN_DEFAULT);
 
-    if(rtlsdrRunning)
+    if(rtlsdrRunning) {
         radioController.onMessage(message_level_t::Error, QT_TRANSLATE_NOOP("CRadioController", "RTL-SDR is unplugged."));
+        rtlsdrUnplugged = true;
+    }
 
-    rtlsdrUnplugged = true;
     std::clog << "RTL_SDR: " << "End rtlsdr_read_async_wrapper() thread" << std::endl;
 }

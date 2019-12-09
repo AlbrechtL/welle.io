@@ -77,7 +77,7 @@ public:
 private:
     std::thread agcThread;
     RadioControllerInterface& radioController;
-    int lastFrequency = kHz(94700);
+    int frequency = kHz(174928);
     int frequencyOffset = 0;
     int currentGain = 0;
     bool isAGC = false;
