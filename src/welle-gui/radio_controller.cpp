@@ -406,6 +406,8 @@ void CRadioController::stopScan(void)
 
     isChannelScan = false;
     emit scanStopped();
+
+    stop();
 }
 
 void CRadioController::setAGC(bool isAGC)
