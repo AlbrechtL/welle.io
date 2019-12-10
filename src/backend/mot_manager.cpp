@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <string>
+#include <iostream>
 #include "mot_manager.h"
 
 
@@ -101,6 +103,7 @@ bool MOTObject::ParseCheckHeader(MOT_FILE& target_file) {
 	std::string old_content_name = file.content_name;
 	std::string new_content_name;
 
+    uint8_t category_title_counter = 0;
 	// parse/check header extension
 	for(size_t offset = 7; offset < data.size();) {
 		int pli = data[offset] >> 6;
@@ -153,14 +156,26 @@ bool MOTObject::ParseCheckHeader(MOT_FILE& target_file) {
 			//file.content_name = CharsetTools::ConvertTextToUTF8(&data[offset + 1], data_len - 1, data[offset] >> 4, true, &file.content_name_charset);
             file.content_name = toUtf8StringUsingCharset ( (const char *)&data[offset + 1], (CharacterSet) (data[offset] >> 4), data_len - 1);
 			new_content_name = file.content_name;
+            std::clog  << "SLS ContentName: " << new_content_name << std::endl;
 //			fprintf(stderr, "ContentName: '%s'\n", file.content_name.c_str());
 			break;
+        case 0x25:  // Category/SlideID
+            std::clog  << "catSLS Category: " << std::to_string(data[offset]) << " SlideID: " << std::to_string(data[offset+1]) << std::endl;
 		case 0x26:	// CategoryTitle
-			file.category_title = std::string((char*) &data[offset], data_len);	// already UTF-8
+            if(category_title_counter == 1) {
+                file.category_title = std::string((char*) &data[offset], data_len);	// already UTF-8
+                std::clog  << "catSLS CategoryTitle: " << file.category_title << std::endl;
+            }
+            else if(category_title_counter == 0) {
+                std::clog  << "catSLS CategoryTitle Category: " << std::to_string(data[offset]) << std::endl;
+            }
+            category_title_counter++;
+            category_title_counter = category_title_counter%2;
 //			fprintf(stderr, "CategoryTitle: '%s'\n", file.category_title.c_str());
 			break;
 		case 0x27:	// ClickThroughURL
 			file.click_through_url = std::string((char*) &data[offset], data_len);	// already UTF-8
+            std::clog  << "ClickThroughURL: " << file.click_through_url << std::endl;
 //			fprintf(stderr, "ClickThroughURL: '%s'\n", file.click_through_url.c_str());
 			break;
 		}
