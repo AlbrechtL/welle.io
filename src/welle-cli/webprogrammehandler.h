@@ -153,7 +153,7 @@ class WebProgrammeHandler : public ProgrammeHandlerInterface {
         virtual void onRsErrors(bool uncorrectedErrors, int numCorrectedErrors) override;
         virtual void onAacErrors(int aacErrors) override;
         virtual void onNewDynamicLabel(const std::string& label) override;
-        virtual void onMOT(const std::vector<uint8_t>& data, int subtype) override;
+        virtual void onMOT(const mot_file_t& mot_file) override;
         virtual void onPADLengthError(size_t announced_xpad_len, size_t xpad_len) override;
 };
 

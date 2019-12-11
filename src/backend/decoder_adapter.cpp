@@ -156,7 +156,17 @@ void DecoderAdapter::PADChangeDynamicLabel(const DL_STATE &dl)
 
 void DecoderAdapter::PADChangeSlide(const MOT_FILE &slide)
 {
-    myInterface.onMOT(slide.data, slide.content_sub_type);
+    mot_file_t mot_file;
+
+    mot_file.data = slide.data;
+    mot_file.content_sub_type = slide.content_sub_type;
+    mot_file.content_name = slide.content_name;
+    mot_file.click_through_url = slide.click_through_url;
+    mot_file.category = slide.category;
+    mot_file.slide_id = slide.slide_id;
+    mot_file.category_title = slide.category_title;
+
+    myInterface.onMOT(mot_file);
 }
 
 void DecoderAdapter::PADLengthError(size_t announced_xpad_len, size_t xpad_len)

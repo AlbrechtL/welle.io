@@ -76,7 +76,7 @@ public:
         this->label = label;
     }
 
-    virtual void onMOT(const std::vector<uint8_t>& data, int subtype) override { (void)data; (void)subtype; }
+    virtual void onMOT(const mot_file_t& mot_file) override { (void)mot_file;}
     virtual void onPADLengthError(size_t announced_xpad_len, size_t xpad_len) override { (void)announced_xpad_len; (void) xpad_len;}
 };
 

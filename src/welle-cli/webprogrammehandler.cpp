@@ -267,20 +267,20 @@ void WebProgrammeHandler::onNewDynamicLabel(const string& label)
     last_label = label;
 }
 
-void WebProgrammeHandler::onMOT(const std::vector<uint8_t>& data, int subtype)
+void WebProgrammeHandler::onMOT(const mot_file_t& mot_file)
 {
     std::unique_lock<std::mutex> lock(stats_mutex);
     last_mot_valid = true;
     const auto now = chrono::system_clock::now();
     time_mot = now;
-    if (last_mot != data) {
+    if (last_mot != mot_file.data) {
         time_mot_change = now;
     }
-    last_mot = data;
-    if (subtype == 0x01) {
+    last_mot = mot_file.data;
+    if (mot_file.content_sub_type == 0x01) {
         last_subtype = MOTType::JPEG;
     }
-    else if (subtype == 0x03) {
+    else if (mot_file.content_sub_type == 0x03) {
         last_subtype = MOTType::PNG;
     }
     else {

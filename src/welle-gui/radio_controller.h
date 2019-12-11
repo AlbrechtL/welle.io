@@ -136,7 +136,7 @@ public:
     virtual void onRsErrors(bool uncorrectedErrors, int numCorrectedErrors) override;
     virtual void onAacErrors(int aacErrors) override;
     virtual void onNewDynamicLabel(const std::string& label) override;
-    virtual void onMOT(const std::vector<uint8_t>& data, int subtype) override;
+    virtual void onMOT(const mot_file_t& mot_file) override;
     virtual void onPADLengthError(size_t announced_xpad_len, size_t xpad_len) override;
     virtual void onSNR(int snr) override;
     virtual void onFrequencyCorrectorChange(int fine, int coarse) override;
@@ -270,6 +270,7 @@ signals:
     void gainChanged(int);
     void volumeChanged(qreal);
     void motChanged(QImage MOTImage);
+    void categoryTitleChanged(QString title, int id);
 
     void channelChanged();
     void ensembleChanged();

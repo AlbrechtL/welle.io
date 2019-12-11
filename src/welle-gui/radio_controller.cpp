@@ -1040,12 +1040,18 @@ void CRadioController::onNewDynamicLabel(const std::string& label)
     }
 }
 
-void CRadioController::onMOT(const std::vector<uint8_t>& Data, int subtype)
+void CRadioController::onMOT(const mot_file_t& mot_file)
 {
-    QByteArray qdata(reinterpret_cast<const char*>(Data.data()), static_cast<int>(Data.size()));
-    motImage.loadFromData(qdata, subtype == 0 ? "GIF" : subtype == 1 ? "JPEG" : subtype == 2 ? "BMP" : "PNG");
+    QByteArray qdata(reinterpret_cast<const char*>(mot_file.data.data()), static_cast<int>(mot_file.data.size()));
+    motImage.loadFromData(qdata, mot_file.content_sub_type == 0 ? "GIF" : mot_file.content_sub_type == 1 ? "JPEG" : mot_file.content_sub_type == 2 ? "BMP" : "PNG");
+
+    std::clog  << "SLS ContentName: " << mot_file.content_name << std::endl;
+    std::clog  << "catSLS Category: " << std::to_string(mot_file.category) << " SlideID: " << std::to_string(mot_file.slide_id) << std::endl;
+    std::clog  << "catSLS CategoryTitle: " << mot_file.category_title << std::endl;
+    std::clog  << "ClickThroughURL: " << mot_file.click_through_url << std::endl;
 
     emit motChanged(motImage);
+    emit categoryTitleChanged(QString::fromStdString(mot_file.category_title), mot_file.category);
 }
 
 void CRadioController::onPADLengthError(size_t announced_xpad_len, size_t xpad_len)

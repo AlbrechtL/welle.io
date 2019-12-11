@@ -62,6 +62,17 @@ struct tii_measurement_t {
     float getDelayKm(void) const;
 };
 
+struct mot_file_t {
+    std::vector<uint8_t> data;
+    int content_sub_type;
+
+    std::string content_name;
+    std::string click_through_url;
+    uint8_t category;
+    uint8_t slide_id;
+    std::string category_title;
+};
+
 enum class message_level_t { Information, Error };
 
 /* Definition of the interface all radio controllers must implement.
@@ -151,7 +162,7 @@ class ProgrammeHandlerInterface {
         /* A slide was decoded. data contains the raw bytes, and subtype
          * defines the data format:
          * 0x01 for JPEG, 0x03 for PNG */
-        virtual void onMOT(const std::vector<uint8_t>& data, int subtype) = 0;
+        virtual void onMOT(const mot_file_t& mot_file) = 0;
 
         /* Called when the PAD decoder notices a mismatch between announced
          * and effective X-PAD length.

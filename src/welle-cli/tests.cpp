@@ -232,7 +232,7 @@ class TestProgrammeHandler: public ProgrammeHandlerInterface {
             cout << "DLS: " << label << endl;
         }
 
-        virtual void onMOT(const std::vector<uint8_t>& data, int subtype) override { (void)data; (void)subtype; }
+        virtual void onMOT(const mot_file_t& mot_file) override { (void)mot_file;}
         virtual void onPADLengthError(size_t announced_xpad_len, size_t xpad_len) override {
             cout << "X-PAD length mismatch, expected: " << announced_xpad_len << " got: " << xpad_len << endl;
         }

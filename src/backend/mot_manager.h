@@ -41,10 +41,12 @@ struct MOT_FILE {
 
 	// from header extension
 	std::string content_name;
-	std::string content_name_charset;
-	std::string category_title;
+	std::string content_name_charset;	
 	std::string click_through_url;
 	bool trigger_time_now;
+    uint8_t category = 0;
+    uint8_t slide_id = 0;
+    std::string category_title;
 
 	static const int CONTENT_TYPE_IMAGE			= 0x02;
 	static const int CONTENT_TYPE_MOT_TRANSPORT	= 0x05;
@@ -56,7 +58,7 @@ struct MOT_FILE {
 		body_size(-1),
 		content_type(-1),
 		content_sub_type(-1),
-		trigger_time_now(false)
+        trigger_time_now(false)
 	{}
 };
 
