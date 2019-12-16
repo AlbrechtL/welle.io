@@ -40,7 +40,7 @@ QPixmap CMOTImageProvider::requestPixmap(const QString &id, QSize *size, const Q
     if (size)
         *size = QSize(this->Pixmap_.width(), this->Pixmap_.height());
 
-    return this->Pixmap_; // not working for some reason
+    return this->Pixmap_;
 }
 
 void CMOTImageProvider::setPixmap(QPixmap Pixmap)

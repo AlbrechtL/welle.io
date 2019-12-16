@@ -28,7 +28,6 @@ ViewBaseFrame {
 
             Image {
                 id: motImage
-    //            anchors.fill: parent
                 fillMode: Image.PreserveAspectFit
                 Layout.fillWidth: true
 
@@ -36,15 +35,18 @@ ViewBaseFrame {
                 Connections{
                     target: guiHelper
                     onMotChanged:{
-                        motImage.source = "image://motslideshow/image_" + Math.random()
+                        //motImage.source = "image://motslideshow/image_" + Math.random()
+                        motImage.source = "image://motslideshow/" + content_name
                     }
-                }
 
-                Connections{
-                    target: radioController
                     onCategoryTitleChanged: {
-                        // WIP
-                        bar.addItem(myTabButton.createObject(bar , {"text": title}))
+                        var foundCategory = false
+                        for (var i = 0; i < bar.contentChildren.length; ++i) {
+                            if(bar.contentChildren[i].text === title)
+                                foundCategory = true;
+                        }
+                        if(!foundCategory)
+                            bar.addItem(myTabButton.createObject(bar , {"text": title}))
                     }
                 }
             }

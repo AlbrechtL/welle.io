@@ -213,7 +213,7 @@ public slots:
 
 private slots:
     void deviceClosed();
-    void motUpdate(QImage motImage);
+    void motUpdate(mot_file_t mot_file);
     void showErrorMessage(QString Text);
     void showInfoMessage(QString Text);
     void showWindow(QSystemTrayIcon::ActivationReason r);
@@ -224,7 +224,8 @@ signals:
     void setImpulseResponseAxis(qreal Ymax, qreal Xmin, qreal Xmax);
     void setNullSymbolAxis(qreal Ymax, qreal Xmin, qreal Xmax);
     void setConstellationAxis(qreal Xmin, qreal Xmax);
-    void motChanged(void);
+    void motChanged(QString content_name);
+    void categoryTitleChanged(QString title, int id);
     void newDebugOutput(QString text);
     void newDeviceId(int deviceId);
     void styleChanged(void);

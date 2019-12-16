@@ -183,14 +183,27 @@ const QVariantMap CGUIHelper::licenses()
     return ret;
 }
 
-void CGUIHelper::motUpdate(QImage MOTImage)
+void CGUIHelper::motUpdate(mot_file_t mot_file)
 {
-    if (MOTImage.isNull()) {
-        MOTImage = QImage(320, 240, QImage::Format_Alpha8);
-        MOTImage.fill(Qt::transparent);
+    QImage motImage;
+
+    std::clog  << "SLS ContentName: " << mot_file.content_name << std::endl;
+    std::clog  << "catSLS Category: " << std::to_string(mot_file.category) << " SlideID: " << std::to_string(mot_file.slide_id) << std::endl;
+    std::clog  << "catSLS CategoryTitle: " << mot_file.category_title << std::endl;
+    std::clog  << "ClickThroughURL: " << mot_file.click_through_url << std::endl;
+
+    QByteArray qdata(reinterpret_cast<const char*>(mot_file.data.data()), static_cast<int>(mot_file.data.size()));
+    motImage.loadFromData(qdata, mot_file.content_sub_type == 0 ? "GIF" : mot_file.content_sub_type == 1 ? "JPEG" : mot_file.content_sub_type == 2 ? "BMP" : "PNG");
+
+    if (motImage.isNull()) {
+        motImage = QImage(320, 240, QImage::Format_Alpha8);
+        motImage.fill(Qt::transparent);
     }
-    this->motImage->setPixmap(QPixmap::fromImage(MOTImage));
-    emit motChanged();
+
+    this->motImage->setPixmap(QPixmap::fromImage(motImage));
+
+    emit motChanged(QString::fromStdString(mot_file.content_name));
+    emit categoryTitleChanged(QString::fromStdString(mot_file.category_title), mot_file.category);
 }
 
 void CGUIHelper::showErrorMessage(QString Text)
@@ -553,6 +566,8 @@ void CGUIHelper::openRawFile(QString fileFormat)
     // Open file dialog
     activityResultReceiver = new FileActivityResultReceiver(this, fileFormat);
     QtAndroid::startActivity( intent.object<jobject>(), 12, activityResultReceiver);
+#else
+    (void) fileFormat;
 #endif
 }
 

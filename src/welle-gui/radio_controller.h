@@ -81,7 +81,6 @@ class CRadioController :
     Q_PROPERTY(int gain MEMBER currentManualGain WRITE setGain NOTIFY gainChanged)
     Q_PROPERTY(qreal volume MEMBER currentVolume WRITE setVolume NOTIFY volumeChanged)
     Q_PROPERTY(QString errorMsg MEMBER errorMsg NOTIFY showErrorMessage)
-    Q_PROPERTY(QImage mot MEMBER motImage NOTIFY motChanged)
 
     Q_PROPERTY(QString channel MEMBER currentChannel NOTIFY channelChanged)
     Q_PROPERTY(QString ensemble MEMBER currentEnsembleLabel NOTIFY ensembleChanged)
@@ -192,7 +191,6 @@ private:
     int aaErrors = 0;
     int gainCount = 0;
     int stationCount = 0;
-    QImage motImage;
 
     QString currentChannel;
     std::list<uint32_t> pendingLabels;
@@ -269,8 +267,7 @@ signals:
     void gainValueChanged(float);
     void gainChanged(int);
     void volumeChanged(qreal);
-    void motChanged(QImage MOTImage);
-    void categoryTitleChanged(QString title, int id);
+    void motChanged(mot_file_t mot_file);
 
     void channelChanged();
     void ensembleChanged();

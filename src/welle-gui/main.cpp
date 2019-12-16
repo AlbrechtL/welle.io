@@ -77,8 +77,9 @@ int main(int argc, char** argv)
     translator = CGUIHelper::loadTranslationFile(translator, "auto");
     QCoreApplication::installTranslator(translator);
 
-    // Register waterfall diagram
+    // Register custiom types
     qmlRegisterType<WaterfallItem>("io.welle", 1, 0, "Waterfall");
+    qRegisterMetaType<mot_file_t>("mot_file_t");
 
     // Set icon path
     QStringList themePaths;
