@@ -31,16 +31,29 @@
 #include <QObject>
 #include <QQuickImageProvider>
 
+class motPicture;
+
 class CMOTImageProvider : public QQuickImageProvider
 {
 public:
     CMOTImageProvider();
     QPixmap requestPixmap(const QString &id, QSize *size, const QSize &requestedSize);
 
-    void setPixmap(QPixmap Pixmap_);
+    void setPixmap(QPixmap Pixmap, QString pictureName);
+    void clear();
 
 private:
-    QPixmap Pixmap_;
+    std::list<std::shared_ptr<motPicture>> pictureList;
+};
+
+
+class motPicture
+{
+public:
+    motPicture(QPixmap data, QString name);
+
+    QPixmap data;
+    QString name;
 };
 
 #endif // MOTIMAGEPROVIDER_H

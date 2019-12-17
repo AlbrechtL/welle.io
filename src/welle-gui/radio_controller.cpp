@@ -268,8 +268,7 @@ void CRadioController::setService(uint32_t service, bool force)
         currentText = "";
         emit textChanged();
 
-        //motImage.loadFromData(nullptr, 0);
-        //emit motChanged(motImage);
+        emit motReseted();
     }
 }
 
@@ -346,9 +345,7 @@ void CRadioController::setManualChannel(QString Channel)
     currentText = "";
     emit textChanged();
 
-    // Clear MOT
-    //motImage.loadFromData(nullptr, 0);
-    //emit motChanged(motImage);
+    emit motReseted();
 
     // Switch channel
     setChannel(Channel, false, true);
@@ -639,8 +636,7 @@ void CRadioController::resetTechnicalData(void)
     rsErrors = 0;
     aaErrors = 0;
 
-    //motImage.loadFromData(nullptr, 0);
-    //emit motChanged(motImage);
+    emit motReseted();
 }
 
 void CRadioController::deviceRestart()

@@ -168,7 +168,7 @@ public:
     Q_INVOKABLE bool isThemableStyle(QString);
     Q_INVOKABLE void saveQQStyle(int);
 
-    CMOTImageProvider* motImage; // ToDo: Must be a getter
+    CMOTImageProvider* motImageProvider; // ToDo: Must be a getter
 
 private:
     QTranslator *translator = nullptr;
@@ -214,6 +214,7 @@ public slots:
 private slots:
     void deviceClosed();
     void motUpdate(mot_file_t mot_file);
+    void motReset();
     void showErrorMessage(QString Text);
     void showInfoMessage(QString Text);
     void showWindow(QSystemTrayIcon::ActivationReason r);

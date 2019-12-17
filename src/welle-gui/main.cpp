@@ -166,7 +166,7 @@ int main(int argc, char** argv)
     engine.load(QUrl("qrc:/QML/MainView.qml"));
 
     // Add MOT slideshow provider
-    engine.addImageProvider(QLatin1String("motslideshow"), guiHelper.motImage);
+    engine.addImageProvider(QLatin1String("motslideshow"), guiHelper.motImageProvider);
 
     // Run application
     app.exec();

@@ -35,15 +35,35 @@ CMOTImageProvider::CMOTImageProvider(): QQuickImageProvider(QQuickImageProvider:
 
 QPixmap CMOTImageProvider::requestPixmap(const QString &id, QSize *size, const QSize &requestedSize)
 {
-    (void) id;
     (void) requestedSize;
-    if (size)
-        *size = QSize(this->Pixmap_.width(), this->Pixmap_.height());
 
-    return this->Pixmap_;
+    // Find the corresponding picture in list
+    for (auto const& picture : pictureList) {
+        if(picture->name == id) { // found picture
+            *size = QSize(picture->data.width(), picture->data.height());
+            return picture->data;
+        }
+    }
+
+    // There should be a better solution
+    QImage emptyImage;
+    emptyImage = QImage(320, 240, QImage::Format_Alpha8);
+    emptyImage.fill(Qt::transparent);
+    return QPixmap::fromImage(emptyImage);
 }
 
-void CMOTImageProvider::setPixmap(QPixmap Pixmap)
+void CMOTImageProvider::setPixmap(QPixmap pictureData, QString pictureName)
 {
-    this->Pixmap_ = Pixmap;
+    pictureList.push_front(std::make_shared<motPicture>(pictureData, pictureName));
+}
+
+void CMOTImageProvider::clear()
+{
+    pictureList.clear();
+}
+
+motPicture::motPicture(QPixmap data, QString name)
+{
+    this->data = data;
+    this->name = name;
 }

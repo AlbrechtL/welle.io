@@ -53,10 +53,11 @@ CGUIHelper::CGUIHelper(CRadioController *RadioController, QObject *parent)
     , impulseResponseSeries(nullptr)
 {
     // Add image provider for the MOT slide show
-    motImage = new CMOTImageProvider;
+    motImageProvider = new CMOTImageProvider;
 
     QSettings settings;
     connect(RadioController, &CRadioController::motChanged, this, &CGUIHelper::motUpdate);
+    connect(RadioController, &CRadioController::motReseted, this, &CGUIHelper::motReset);
     connect(RadioController, &CRadioController::showErrorMessage, this, &CGUIHelper::showErrorMessage);
     connect(RadioController, &CRadioController::showInfoMessage, this, &CGUIHelper::showInfoMessage);
 
@@ -185,25 +186,30 @@ const QVariantMap CGUIHelper::licenses()
 
 void CGUIHelper::motUpdate(mot_file_t mot_file)
 {
-    QImage motImage;
-
     std::clog  << "SLS ContentName: " << mot_file.content_name << std::endl;
     std::clog  << "catSLS Category: " << std::to_string(mot_file.category) << " SlideID: " << std::to_string(mot_file.slide_id) << std::endl;
     std::clog  << "catSLS CategoryTitle: " << mot_file.category_title << std::endl;
     std::clog  << "ClickThroughURL: " << mot_file.click_through_url << std::endl;
 
+    QString pictureName =
+            "/" + QString::number(mot_file.category) +
+            "/" + QString::fromStdString(mot_file.category_title) +
+            "/" + QString::number(mot_file.slide_id) +
+            "/" + QString::fromStdString(mot_file.content_name);
+
     QByteArray qdata(reinterpret_cast<const char*>(mot_file.data.data()), static_cast<int>(mot_file.data.size()));
+    QImage motImage;
     motImage.loadFromData(qdata, mot_file.content_sub_type == 0 ? "GIF" : mot_file.content_sub_type == 1 ? "JPEG" : mot_file.content_sub_type == 2 ? "BMP" : "PNG");
+    motImageProvider->setPixmap(QPixmap::fromImage(motImage), pictureName);
 
-    if (motImage.isNull()) {
-        motImage = QImage(320, 240, QImage::Format_Alpha8);
-        motImage.fill(Qt::transparent);
-    }
-
-    this->motImage->setPixmap(QPixmap::fromImage(motImage));
-
-    emit motChanged(QString::fromStdString(mot_file.content_name));
+    emit motChanged(pictureName);
     emit categoryTitleChanged(QString::fromStdString(mot_file.category_title), mot_file.category);
+}
+
+void CGUIHelper::motReset()
+{
+    motImageProvider->clear();
+    emit motChanged("");
 }
 
 void CGUIHelper::showErrorMessage(QString Text)

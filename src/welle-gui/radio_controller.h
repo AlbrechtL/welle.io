@@ -267,7 +267,8 @@ signals:
     void gainValueChanged(float);
     void gainChanged(int);
     void volumeChanged(qreal);
-    void motChanged(mot_file_t mot_file);
+    void motChanged(mot_file_t);
+    void motReseted(void);
 
     void channelChanged();
     void ensembleChanged();

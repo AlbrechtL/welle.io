@@ -35,7 +35,6 @@ ViewBaseFrame {
                 Connections{
                     target: guiHelper
                     onMotChanged:{
-                        //motImage.source = "image://motslideshow/image_" + Math.random()
                         motImage.source = "image://motslideshow/" + content_name
                     }
 
