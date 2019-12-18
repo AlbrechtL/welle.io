@@ -225,8 +225,8 @@ signals:
     void setImpulseResponseAxis(qreal Ymax, qreal Xmin, qreal Xmax);
     void setNullSymbolAxis(qreal Ymax, qreal Xmin, qreal Xmax);
     void setConstellationAxis(qreal Xmin, qreal Xmax);
-    void motChanged(QString content_name);
-    void categoryTitleChanged(QString title, int id);
+    void motChanged(QString pictureName, QString categoryTitle, int categoryId, int slideId);
+    void motReseted(void);
     void newDebugOutput(QString text);
     void newDeviceId(int deviceId);
     void styleChanged(void);

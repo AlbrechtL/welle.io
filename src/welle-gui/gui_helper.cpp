@@ -202,14 +202,13 @@ void CGUIHelper::motUpdate(mot_file_t mot_file)
     motImage.loadFromData(qdata, mot_file.content_sub_type == 0 ? "GIF" : mot_file.content_sub_type == 1 ? "JPEG" : mot_file.content_sub_type == 2 ? "BMP" : "PNG");
     motImageProvider->setPixmap(QPixmap::fromImage(motImage), pictureName);
 
-    emit motChanged(pictureName);
-    emit categoryTitleChanged(QString::fromStdString(mot_file.category_title), mot_file.category);
+    emit motChanged(pictureName, QString::fromStdString(mot_file.category_title), mot_file.category, mot_file.slide_id);
 }
 
 void CGUIHelper::motReset()
 {
     motImageProvider->clear();
-    emit motChanged("");
+    emit motReseted();
 }
 
 void CGUIHelper::showErrorMessage(QString Text)

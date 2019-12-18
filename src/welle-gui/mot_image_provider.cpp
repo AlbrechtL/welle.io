@@ -27,6 +27,7 @@
 \******************************************************************************/
 #include "mot_image_provider.h"
 
+#include <iostream>
 #include <stdio.h>
 
 CMOTImageProvider::CMOTImageProvider(): QQuickImageProvider(QQuickImageProvider::Pixmap)
@@ -41,11 +42,14 @@ QPixmap CMOTImageProvider::requestPixmap(const QString &id, QSize *size, const Q
     for (auto const& picture : pictureList) {
         if(picture->name == id) { // found picture
             *size = QSize(picture->data.width(), picture->data.height());
+//            std::clog  << "SLS name: " << id.toStdString() << std::endl;
             return picture->data;
         }
     }
 
-    // There should be a better solution
+//    std::clog  << "SLS name: Cannot find " << id.toStdString() << std::endl;
+
+    // TODO: There should be a better solution
     QImage emptyImage;
     emptyImage = QImage(320, 240, QImage::Format_Alpha8);
     emptyImage.fill(Qt::transparent);
@@ -54,6 +58,11 @@ QPixmap CMOTImageProvider::requestPixmap(const QString &id, QSize *size, const Q
 
 void CMOTImageProvider::setPixmap(QPixmap pictureData, QString pictureName)
 {
+    // Check if picture is already in list
+    for (auto const& picture : pictureList)
+        if(picture->name == pictureName)
+            return;
+
     pictureList.push_front(std::make_shared<motPicture>(pictureData, pictureName));
 }
 

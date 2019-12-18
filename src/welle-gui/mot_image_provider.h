@@ -28,6 +28,8 @@
 #ifndef MOTIMAGEPROVIDER_H
 #define MOTIMAGEPROVIDER_H
 
+#include <memory>
+#include <list>
 #include <QObject>
 #include <QQuickImageProvider>
 
