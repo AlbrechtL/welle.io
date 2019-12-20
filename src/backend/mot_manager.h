@@ -44,6 +44,7 @@ struct MOT_FILE {
 	std::string content_name_charset;	
 	std::string click_through_url;
 	bool trigger_time_now;
+    uint32_t expire_time = 0;
     uint8_t category = 0;
     uint8_t slide_id = 0;
     std::string category_title;

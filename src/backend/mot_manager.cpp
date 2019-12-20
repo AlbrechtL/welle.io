@@ -142,6 +142,9 @@ bool MOTObject::ParseCheckHeader(MOT_FILE& target_file) {
 
 		// process parameter
 		switch(param_id) {
+        case 0x04:	// ExpireTime
+            file.expire_time = data[offset]; // TODO not tested
+            break;
 		case 0x05:	// TriggerTime
 			if(data_len < 4)
 				return false;

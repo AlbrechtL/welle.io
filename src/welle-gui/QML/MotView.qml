@@ -39,9 +39,9 @@ ViewBaseFrame {
 
                 onCurrentIndexChanged: {
                     if(currentIndex > 0)
-                        motImage.source = "image://motslideshow/" + currentItem.pictureList[0]
+                        motImage.source = "image://SLS/" + currentItem.pictureList[0]
                     else
-                        motImage.source = "image://motslideshow/" + currentItem.pictureName
+                        motImage.source = "image://SLS/" + currentItem.pictureName
                 }
             }
 
@@ -60,7 +60,7 @@ ViewBaseFrame {
 
                             // Display slide show only of latest tab is select
                             if(bar.currentIndex === 0)
-                                motImage.source = "image://motslideshow/" + pictureName
+                                motImage.source = "image://SLS/" + pictureName
 
                             if(categoryTitle !== "" && categoryId !== 0) {
                                 // Check if category exists, if not create it
@@ -102,7 +102,7 @@ ViewBaseFrame {
                                 bar.contentChildren[i].destroy()
                             }
 
-                            motImage.source = "image://motslideshow/empty"
+                            motImage.source = "image://SLS/empty"
                         }
                     }
                 }
@@ -119,11 +119,21 @@ ViewBaseFrame {
                             text: idx
 
                             onPressed: {
-                                motImage.source = "image://motslideshow/" + bar.currentItem.pictureList[idx]
+                                motImage.source = "image://SLS/" + bar.currentItem.pictureList[idx]
                             }
                         }
                     }
                 }
+            }
+
+            Text {
+                visible: mainWindow.isExpertView
+                text: "image://SLS/CategoryID/CategoryTitle/SlideID/ContentName"
+            }
+
+            Text {
+                visible: mainWindow.isExpertView
+                text: motImage.source
             }
         }
     }
