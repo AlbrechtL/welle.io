@@ -43,31 +43,31 @@
 <context>
     <name>CGUIHelper</name>
     <message>
-        <location filename="../gui_helper.cpp" line="+64"/>
-        <location line="+565"/>
+        <location filename="../gui_helper.cpp" line="+65"/>
+        <location line="+584"/>
         <source>Mi&amp;nimize</source>
         <translation>Mi&amp;nimiser</translation>
     </message>
     <message>
-        <location line="-562"/>
-        <location line="+563"/>
+        <location line="-581"/>
+        <location line="+582"/>
         <source>Ma&amp;ximize</source>
         <translation>Ma&amp;ximiser</translation>
     </message>
     <message>
-        <location line="-560"/>
-        <location line="+561"/>
+        <location line="-579"/>
+        <location line="+580"/>
         <source>&amp;Restore</source>
         <translation>&amp;Restaurer</translation>
     </message>
     <message>
-        <location line="-558"/>
-        <location line="+559"/>
+        <location line="-577"/>
+        <location line="+578"/>
         <source>&amp;Quit</source>
         <translation>&amp;Quitter</translation>
     </message>
     <message>
-        <location line="-506"/>
+        <location line="-525"/>
         <source>version</source>
         <translation>version</translation>
     </message>
@@ -87,12 +87,12 @@
         <translation>Version QT</translation>
     </message>
     <message>
-        <location line="+136"/>
+        <location line="+153"/>
         <source>The program will keep running in the system tray. To terminate the program, choose &lt;b&gt;Quit&lt;/b&gt; in the context menu of the system tray entry.</source>
         <translation>Le programme continue de tourner dans la boite à miniatures. Pour le terminer, choisir &quot;Quitter&quot; dans le menu contextuel de la boîte à miniatures.</translation>
     </message>
     <message>
-        <location line="+486"/>
+        <location line="+488"/>
         <source> (unavailable, fallback to Default)</source>
         <translation> (non disponible, utilise &quot;Default&quot; à la place)</translation>
     </message>
@@ -110,46 +110,46 @@
 <context>
     <name>CRadioController</name>
     <message>
-        <location filename="../radio_controller.cpp" line="+595"/>
+        <location filename="../radio_controller.cpp" line="+600"/>
         <source>Unknown</source>
         <translation>Inconnu</translation>
     </message>
     <message>
-        <location line="-200"/>
-        <location line="+219"/>
+        <location line="-202"/>
+        <location line="+221"/>
         <source>No Station</source>
         <translation>Pas de station</translation>
     </message>
     <message>
-        <location line="-468"/>
+        <location line="-467"/>
         <source>Error while opening file </source>
         <translation>Erreur à l&apos;ouverture du fichier </translation>
     </message>
     <message>
-        <location line="+212"/>
+        <location line="+209"/>
         <source>RAW File</source>
         <translation>Fichier RAW</translation>
     </message>
     <message>
         <location line="+13"/>
-        <location line="+465"/>
+        <location line="+466"/>
         <source>Scanning</source>
         <translation>Recherche</translation>
     </message>
     <message>
-        <location line="-461"/>
-        <location line="+486"/>
+        <location line="-462"/>
+        <location line="+487"/>
         <source>Found channels</source>
         <translatorcomment>Contexte: nombre stations trouvées durant la recherche de stations en scannant tous les canaux. Donc c&apos;est bien &quot;station&quot; qu&apos;il faut mettre, et pas &quot;canal&quot;</translatorcomment>
         <translation>Stations trouvées</translation>
     </message>
     <message>
-        <location line="-272"/>
+        <location line="-271"/>
         <source>Playing last station</source>
         <translation>Lecture de la dernière station</translation>
     </message>
     <message>
-        <location line="+59"/>
+        <location line="+58"/>
         <source>Radio device is not ready or does not exist.</source>
         <translation>Le récepteur radio n&apos;est pas prêt ou n&apos;existe pas.</translation>
     </message>
@@ -193,7 +193,7 @@
         <translation>Format de fichier RAW inconnu</translation>
     </message>
     <message>
-        <location filename="../../input/rtl_sdr.cpp" line="+299"/>
+        <location filename="../../input/rtl_sdr.cpp" line="+294"/>
         <location filename="../../input/rtl_tcp.cpp" line="+462"/>
         <source>ADC overload. Maybe you are using a too high gain.</source>
         <translatorcomment>ADC ou AGC ? Saturation ou Surcharge ? Saturation semble préférable.</translatorcomment>
@@ -1264,9 +1264,14 @@
 <context>
     <name>MotView</name>
     <message>
-        <location filename="../QML/MotView.qml" line="+8"/>
+        <location filename="../QML/MotView.qml" line="+9"/>
         <source>MOT Slide Show</source>
         <translation>Diaporama MOT</translation>
+    </message>
+    <message>
+        <location line="+28"/>
+        <source>Latest</source>
+        <translation type="unfinished">Le plus récent</translation>
     </message>
 </context>
 <context>
@@ -1305,13 +1310,28 @@
     </message>
     <message>
         <location line="+16"/>
+        <source>Use host name</source>
+        <translation type="unfinished">Utiliser le nom d&apos;hôte</translation>
+    </message>
+    <message>
+        <location line="+10"/>
         <source>IP address</source>
         <translation>Adresse IP</translation>
     </message>
     <message>
-        <location line="+30"/>
+        <location line="+31"/>
         <source>IP port</source>
         <translation>Port IP</translation>
+    </message>
+    <message>
+        <location line="+16"/>
+        <source>Enter host name</source>
+        <translation type="unfinished">Entrer le nom d&apos;hôte</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Host name</source>
+        <translation type="unfinished">Nom d&apos;hôte</translation>
     </message>
 </context>
 <context>
@@ -1579,7 +1599,7 @@
 <context>
     <name>main</name>
     <message>
-        <location filename="../main.cpp" line="+99"/>
+        <location filename="../main.cpp" line="+100"/>
         <source>Records DAB frames (*.mp2) or DAB+ superframes with RS coding (*.dab). This file can be used to analyse X-PAD data with XPADxpert</source>
         <translation>Enregistre les trames DAB (*.mp2) ou les supertrames DAB+ avec codage RS (*.dab). Ce fichier peut être utilisé pour analyser des données X-PAD avec XPADxpert</translation>
     </message>
