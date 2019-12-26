@@ -31,16 +31,25 @@ Table of contents
 
 Download
 ========
-Stable release can be found here:
- * ### [welle.io for Windows, Linux and Android (APK)](http://github.com/AlbrechtL/welle.io/releases)
- * ### [welle.io for Android at Google Play](https://play.google.com/store/apps/details?id=io.welle.welle)
+##### Stable binaries
+* [welle.io for **Windows**, **Linux** and **Android (APK)**](http://github.com/AlbrechtL/welle.io/releases) 
+* [welle.io for **Android at Google Play**](https://play.google.com/store/apps/details?id=io.welle.welle)
+* welle.io for **macOS**
+  * [through **MacPorts port**](https://ports.macports.org/port/welle.io/summary) (requires [MacPorts](https://www.macports.org/)) 
+    * `sudo port install welle.io`
 
 If you discovered an issue please open a new [issue](https://github.com/AlbrechtL/welle.io/issues).
 
+##### Developer version
 welle.io is under heavy development. You can also try the latest developer builds. But PLEASE BE WARNED the builds are automatically created and untested.
- * [welle.io nightly builds](https://bintray.com/albrechtl/welle.io/welle.io_nightly#files)
+ * [welle.io nightly builds for *Windows* & *Linux AppImage*](https://bintray.com/albrechtl/welle.io/welle.io_nightly#files)
+ * welle.io devel builds on *macOS MacPorts* are updated perdiodically manually and can be installed through [port welle.io-devel](https://ports.macports.org/port/welle.io-devel/summary). The port has no maintainer so please feel free to update it yourself in case you need to use a more recent devel version.
+   * `sudo port install welle.io-devel`
 
-To use it on macOS or on a Raspberry Pi you have to compile welle.io directly from the sources. See below for more information.
+##### Compilation from source
+To use it on a **Raspberry Pi** you have to compile welle.io directly from the sources. See [instructions to compile for Raspberry Pi](https://github.com/AlbrechtL/welle.io#raspberry-pi-2-and-3).  
+Note that welle.io source also ships with a [**Homebrew**](https://brew.sh/) formula for macOS. See [instructions to install with Homebrew](https://github.com/AlbrechtL/welle.io#homebrew).  
+You can find [more instructions to compile welle.io on various systems](https://github.com/AlbrechtL/welle.io#building) below.
 
 Usage
 =====
@@ -156,6 +165,11 @@ This is the easiest way and will manage the dependencies for you. There are 3 va
 # sudo port install welle.io
 ```
 With MacPorts, welle.io is installed as a bundle app in `/Applications/MacPorts`.
+
+You can also use welle.io-devel port if you prefer:
+```
+# sudo port install welle.io-devel
+```
 
 #### compile with QT Creator
 
