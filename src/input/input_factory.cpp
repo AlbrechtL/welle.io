@@ -128,7 +128,7 @@ CVirtualInput* CInputFactory::GetAutoDevice(RadioControllerInterface& radioContr
     CVirtualInput *inputDevice = nullptr;
 
     // Try to find a input device
-    for (int i = 0; i <= 3; i++) {
+    for (int i = 0; i <= 4; i++) {
         try {
             switch(i) {
 #ifdef HAVE_AIRSPY
@@ -142,6 +142,23 @@ CVirtualInput* CInputFactory::GetAutoDevice(RadioControllerInterface& radioContr
 #endif
 #ifdef __ANDROID__
             case 3: inputDevice = new CAndroid_RTL_SDR(radioController); break;
+#endif
+#ifdef __CLI__
+            case 4: {
+                    inputDevice = new CRTL_TCP_Client(radioController);
+                    CRTL_TCP_Client* RTL_TCP_Client = static_cast<CRTL_TCP_Client*>(inputDevice);
+                    std::string server_addr(getenv("RTL_TCP_IP"));
+                    if (server_addr.empty()) {
+                           server_addr = "127.0.0.1";
+                    }
+                    int server_port = 1234;
+                    if (getenv("RTL_TCP_PORT")) {
+                        server_port = atoi(getenv("RTL_TCP_PORT"));
+                    }
+                    RTL_TCP_Client->setIP(server_addr);
+                    RTL_TCP_Client->setPort(server_port);
+                    break;
+                    }
 #endif
             }
         }

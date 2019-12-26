@@ -262,6 +262,7 @@ endif()
 if(BUILD_WELLE_CLI)
     set(cliExecutableName welle-cli)
     add_executable (${cliExecutableName} ${welle_cli_sources} ${backend_sources} ${input_sources} ${fft_sources})
+    add_definitions(-D__CLI__)
 
     if(CMAKE_BUILD_TYPE MATCHES Debug)
       SET_TARGET_PROPERTIES(${cliExecutableName} PROPERTIES COMPILE_FLAGS "-O2 -fno-omit-frame-pointer -fsanitize=address")
