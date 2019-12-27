@@ -47,9 +47,9 @@ welle.io is under heavy development. You can also try the latest developer build
    * `sudo port install welle.io-devel`
 
 ##### Compilation from source
-To use it on a **Raspberry Pi** you have to compile welle.io directly from the sources. See [instructions to compile for Raspberry Pi](https://github.com/AlbrechtL/welle.io#raspberry-pi-2-and-3).  
-Note that welle.io source also ships with a [**Homebrew**](https://brew.sh/) formula for macOS. See [instructions to install with Homebrew](https://github.com/AlbrechtL/welle.io#homebrew).  
-You can find [more instructions to compile welle.io on various systems](https://github.com/AlbrechtL/welle.io#building) below.
+To use it on a **Raspberry Pi** you have to compile welle.io directly from the sources. See [instructions to compile for Raspberry Pi](#raspberry-pi-2-and-3).  
+Note that welle.io source also ships with a [**Homebrew**](https://brew.sh/) formula for macOS. See [instructions to install with Homebrew](#homebrew).  
+You can find [more instructions to compile welle.io on various systems](#building) below.
 
 Usage
 =====
