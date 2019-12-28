@@ -44,6 +44,7 @@
 #ifdef HAVE_SOAPYSDR
 #  include "soapy_sdr.h"
 #endif
+#include "rtl_tcp.h"
 #if defined(HAVE_ALSA)
 #  include "welle-cli/alsa-output.h"
 #endif
@@ -278,6 +279,8 @@ struct options_t {
     string channel = "10B";
     string iqsource = "";
     string programme = "GRRIF";
+    string frontend = "auto";
+    string frontend_args = "";
     bool dump_programme = false;
     bool decode_all_programmes = false;
     int num_decoders_in_carousel = 0;
@@ -322,6 +325,22 @@ static void usage()
         "Backend and input options" << endl <<
         " -u      disable coarse corrector, for receivers who have a low frequency offset." << endl <<
         " -g GAIN set input gain to GAIN or -1 for auto gain." << endl <<
+        " -F DRV  set input driver and arguments. Default: \"auto\"." << endl <<
+        "         valid drivers: " <<
+#ifdef HAVE_AIRSPY
+        "\"airspy\", " <<
+#endif
+#ifdef HAVE_RTLSDR
+        "\"rtl_sdr\", " <<
+#endif
+#ifdef HAVE_SOAPYSDR
+        "\"soapysdr\", " <<
+#endif
+#ifdef __ANDROID__
+        "\"android_rtl_sdr\", " <<
+#endif
+        "\"rtl_tcp\"." << endl <<
+        "         rtl_tcp host IP and port can be specified as \"rtl_tcp,<HOST_IP>:<PORT>\"." << endl <<
         " -s ARGS SoapySDR Driver arguments." << endl <<
         " -A ANT  set input antenna to ANT (for SoapySDR input only)." << endl <<
         " -T      disable TII decoding to reduce CPU usage." << endl <<
@@ -337,10 +356,11 @@ static void usage()
 options_t parse_cmdline(int argc, char **argv)
 {
     options_t options;
+    string fe_opt = "";
     options.rro.decodeTII = true;
 
     int opt;
-    while ((opt = getopt(argc, argv, "A:c:C:dDf:g:hp:PTs:t:w:u")) != -1) {
+    while ((opt = getopt(argc, argv, "A:c:C:dDf:F:g:hp:PTs:t:w:u")) != -1) {
         switch (opt) {
             case 'A':
                 options.antenna = optarg;
@@ -359,6 +379,9 @@ options_t parse_cmdline(int argc, char **argv)
                 break;
             case 'f':
                 options.iqsource = optarg;
+                break;
+            case 'F':
+                fe_opt = optarg;
                 break;
             case 'g':
                 options.gain = std::atoi(optarg);
@@ -393,6 +416,15 @@ options_t parse_cmdline(int argc, char **argv)
         }
     }
 
+    if (!fe_opt.empty()) {
+        size_t comma = fe_opt.find(',');
+        if (comma != string::npos) {
+            options.frontend      = fe_opt.substr(0,comma);
+            options.frontend_args = fe_opt.substr(comma+1);
+        } else {
+            options.frontend = fe_opt;
+        }
+    }
     if (options.decode_all_programmes and options.num_decoders_in_carousel > 0) {
         cerr << "Cannot select both -C and -D" << endl;
         exit(1);
@@ -413,7 +445,7 @@ int main(int argc, char **argv)
     unique_ptr<CVirtualInput> in = nullptr;
 
     if (options.iqsource.empty()) {
-        in.reset(CInputFactory::GetDevice(ri, "auto"));
+        in.reset(CInputFactory::GetDevice(ri, options.frontend));
 
         if (not in) {
             cerr << "Could not start device" << endl;
@@ -451,7 +483,25 @@ int main(int argc, char **argv)
         dynamic_cast<CSoapySdr*>(in.get())->setDeviceParam(DeviceParam::SoapySDRDriverArgs, options.soapySDRDriverArgs);
     }
 #endif
-
+    if (options.frontend == "rtl_tcp" && !options.frontend_args.empty()) {
+        string args = options.frontend_args;
+        size_t colon = args.find(':');
+        if (colon == string::npos) {
+            cerr << "I need a colon ':' to parse rtl_tcp options!" << endl;
+            return 1;
+        }
+        else {
+            string host = args.substr(0, colon);
+            string port = args.substr(colon + 1);
+            if (!host.empty()) {
+                dynamic_cast<CRTL_TCP_Client*>(in.get())->setServerAddress(host);
+            }
+            if (!port.empty()) {
+                dynamic_cast<CRTL_TCP_Client*>(in.get())->setPort(atoi(port.c_str()));
+            }
+            // cout << "setting rtl_tcp host to '" << host << "', port to '" << atoi(port.c_str()) << "'" << endl;
+        }
+    }
     auto freq = channels.getFrequency(options.channel);
     in->setFrequency(freq);
     string service_to_tune = options.programme;
