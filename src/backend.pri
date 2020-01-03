@@ -17,6 +17,7 @@ unix:!macx:!android: {
     CONFIG  += airspy
     CONFIG  += rtl_sdr
     CONFIG  += soapysdr
+#    CONFIG  += limesdr // Experimental
 
 #    CONFIG  += mpg123_builtin
 #    CONFIG  += libfaad_builtin
@@ -195,12 +196,12 @@ libfaad_builtin {
     DEFINES += HAVE_CONFIG_H
 
     # Dangerous but libfaad produces a lot of warnings
-    QMAKE_CFLAGS += -Wno-unused-parameter
-    QMAKE_CFLAGS += -Wno-unused-function
-    QMAKE_CFLAGS += -Wno-unused-variable
-    QMAKE_CFLAGS += -Wno-unused-but-set-variable
+    #QMAKE_CFLAGS += -Wno-unused-parameter
+    #QMAKE_CFLAGS += -Wno-unused-function
+    #QMAKE_CFLAGS += -Wno-unused-variable
+    #QMAKE_CFLAGS += -Wno-unused-but-set-variable
     #QMAKE_CFLAGS += -Wno-old-style-declaration
-    QMAKE_CFLAGS += -Wno-missing-braces
+    #QMAKE_CFLAGS += -Wno-missing-braces
 
     INCLUDEPATH += \
     $$PWD/libs/faad2 \
@@ -318,4 +319,13 @@ soapysdr {
 
     # The same lib for unix and Windows
     LIBS       += -lSoapySDR
+}
+
+limesdr {
+    DEFINES    += HAVE_LIMESDR
+    HEADERS    += $$PWD/input/limesdr.h
+    SOURCES    += $$PWD/input/limesdr.cpp
+
+    # The same lib for unix and Windows
+    LIBS       += -lLimeSuite
 }

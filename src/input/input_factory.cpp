@@ -52,6 +52,10 @@
 #include "soapy_sdr.h"
 #endif
 
+#ifdef HAVE_LIMESDR
+#include "limesdr.h"
+#endif
+
 #ifdef __ANDROID__
 #include "android_rtl_sdr.h"
 #endif
@@ -99,6 +103,9 @@ CVirtualInput *CInputFactory::GetDevice(RadioControllerInterface &radioControlle
         case CDeviceID::RAWFILE: InputDevice = new CRAWFile(radioController); break;
 #ifdef HAVE_SOAPYSDR
         case CDeviceID::SOAPYSDR: InputDevice = new CSoapySdr(radioController); break;
+#endif
+#ifdef HAVE_LIMESDR
+        case CDeviceID::LIMESDR: InputDevice = new CLimeSDR(radioController); break;
 #endif
 #ifdef __ANDROID__
         case CDeviceID::ANDROID_RTL_SDR: InputDevice = new CAndroid_RTL_SDR(radioController); break;
@@ -179,6 +186,11 @@ CVirtualInput* CInputFactory::GetManualDevice(RadioControllerInterface& radioCon
 #ifdef HAVE_SOAPYSDR
         if (device == "soapysdr")
             InputDevice = new CSoapySdr(radioController);
+        else
+#endif
+#ifdef HAVE_LIMESDR
+        if (device == "limesdr")
+            InputDevice = new CLimeSDR(radioController);
         else
 #endif
 #ifdef __ANDROID__
