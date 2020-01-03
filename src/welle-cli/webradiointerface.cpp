@@ -927,7 +927,7 @@ bool WebRadioInterface::send_slide(Socket& s, const std::string& stream)
             headers << "\r\n";
             const auto headers_str = headers.str();
             int ret = s.send(headers_str.data(), headers_str.size(), MSG_NOSIGNAL);
-            if (ret == 0) {
+            if (ret == (ssize_t)headers_str.size()) {
                 ret = s.send(mot.data.data(), mot.data.size(), MSG_NOSIGNAL);
             }
 
