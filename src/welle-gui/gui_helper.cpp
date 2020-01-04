@@ -502,6 +502,11 @@ void CGUIHelper::updateConstellation()
     */
 }
 
+void CGUIHelper::saveMotImages()
+{
+    motImageProvider->saveAll();
+}
+
 void CGUIHelper::openAutoDevice()
 {
     CDeviceID deviceId;

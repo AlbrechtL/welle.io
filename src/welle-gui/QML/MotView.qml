@@ -2,6 +2,7 @@ import QtQuick 2.0
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.3
 
+import "texts"
 import "components"
 
 // MOT image
@@ -22,11 +23,19 @@ ViewBaseFrame {
         }
     }
 
+    Component.onCompleted: {
+        addEntry( qsTr("Save all images"),
+                  function() {
+                    guiHelper.saveMotImages()
+                })
+    }
+
     content: Item {
         anchors.fill: parent
 
         ColumnLayout {
             anchors.fill: parent
+
             TabBar {
                 Layout.fillWidth: true
                 id: bar

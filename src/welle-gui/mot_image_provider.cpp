@@ -29,6 +29,7 @@
 
 #include <iostream>
 #include <stdio.h>
+#include <QStandardPaths>
 
 CMOTImageProvider::CMOTImageProvider(): QQuickImageProvider(QQuickImageProvider::Pixmap)
 {
@@ -71,7 +72,7 @@ void CMOTImageProvider::clear()
     pictureList.clear();
 }
 
-void CMOTImageProvider::save()
+void CMOTImageProvider::saveAll()
 {
     for (auto const& picture : pictureList)
         picture->save();
@@ -85,7 +86,14 @@ motPicture::motPicture(QPixmap data, QString name)
 
 void motPicture::save()
 {
-    QString filename = "test.png";
-    std::clog  << "SLS name: Saving picture " << filename.toStdString() << std::endl;
+    QString homePath = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
+
+    // Replace all "/" by "_"
+    QString filename = name.replace("/", "_");
+
+    // Add home directory and "MOT" preffix
+    filename = homePath + "/MOT" + filename;
+
+    std::clog  << "SLS: Saving picture \"" << filename.toStdString() << "\"" << std::endl;
     data.save(filename);
 }

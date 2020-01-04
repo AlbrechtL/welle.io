@@ -143,6 +143,7 @@ public:
     Q_INVOKABLE void updateImpulseResponse();
     Q_INVOKABLE void updateNullSymbol();
     Q_INVOKABLE void updateConstellation();
+    Q_INVOKABLE void saveMotImages();
 
     Q_INVOKABLE void openAutoDevice();
     Q_INVOKABLE void openAirspy();

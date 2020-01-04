@@ -43,7 +43,7 @@ public:
 
     void setPixmap(QPixmap Pixmap, QString pictureName);
     void clear();
-    void save();
+    void saveAll();
 
 private:
     std::list<std::shared_ptr<motPicture>> pictureList;

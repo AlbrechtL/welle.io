@@ -27,11 +27,26 @@ Rectangle {
     signal requestMaximize(var sender, bool isMaximize)
     signal itemRemove(var sender)
 
+    Component {
+        id: menuItem
+        MenuItem {
+            font.pixelSize: TextStyle.textStandartSize
+        }
+    }
+
+    // Posibility to add options entries dynamically
+    function addEntry(title, onTriggered) {
+        var obj = menuItem.createObject(menu, {text: title})
+        obj.triggered.connect(onTriggered)
+        menu.insertItem(0, obj) // Put it to first position
+    }
+
     Component.onCompleted: {
         requestPositionChange.connect(parent.onRequestPositionChange)
         requestMaximize.connect(parent.onRequestMaximize)
         itemRemove.connect(parent.onItemRemove)
     }
+
 
     Rectangle {
         id: rootBox
@@ -95,10 +110,10 @@ Rectangle {
                 icon.width: Units.dp(10)
                 flat:true
 
-                onClicked: optionsMenu.open()
+                onClicked: menu.open()
 
                 WMenu {
-                    id: optionsMenu
+                    id: menu
                     sizeToContents: true
                     x: parent.width - width
                     transformOrigin: Menu.TopRight
