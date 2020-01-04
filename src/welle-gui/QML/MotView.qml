@@ -17,6 +17,7 @@ ViewBaseFrame {
             property int categoryId: 0
             property var pictureList: []
             property var slideIdList: []
+            property int currentPictureIndex: 0
             text: categoryTitle
         }
     }
@@ -46,6 +47,22 @@ ViewBaseFrame {
             }
 
             RowLayout {
+                WButton {
+                    icon.name: "back"
+                    visible: bar.currentIndex > 0 && bar.currentItem.pictureList.length > 1 // visible only if we have more then one picture
+
+                    onPressed: {
+                        if(bar.currentIndex > 0) {
+                            bar.currentItem.currentPictureIndex--
+
+                            if(bar.currentItem.currentPictureIndex < 0)
+                                bar.currentItem.currentPictureIndex = bar.currentItem.pictureList.length - 1
+
+                            motImage.source = "image://SLS/" + bar.currentItem.pictureList[bar.currentItem.currentPictureIndex]
+                        }
+                    }
+                }
+
                 Image {
                     id: motImage
 
@@ -105,35 +122,49 @@ ViewBaseFrame {
                             motImage.source = "image://SLS/empty"
                         }
                     }
-                }
 
-                ColumnLayout {
-                    id: buttonBox
-                    Layout.fillHeight: true
-                    visible: pictureButtons.count > 1
-                    Repeater {
-                        id: pictureButtons
-                        model: bar.currentIndex === 0 ? 0: bar.currentItem.pictureList.length
-                        WButton {
-                            property int idx: index
-                            text: idx
+                    ColumnLayout {
+                        anchors.fill: parent
 
-                            onPressed: {
-                                motImage.source = "image://SLS/" + bar.currentItem.pictureList[idx]
-                            }
+                        Item {
+                            Layout.fillHeight: true
+                        }
+
+                        Label {
+                            visible: mainWindow.isExpertView
+                            text: bar.currentIndex != 0 ?
+                                       "Picture: " + (bar.currentItem.currentPictureIndex+1) + " / " + bar.currentItem.pictureList.length
+                                       : " "
+                            background: Rectangle { opacity: 0.6; color: "white" }
+                        }
+
+                        Label {
+                            visible: mainWindow.isExpertView && motImage.source != ""
+                            text: "image://sls/CategoryID/CategoryTitle/SlideID/ContentName"
+                            background: Rectangle { opacity: 0.6; color: "white" }
+                        }
+
+                        Label {
+                            visible: mainWindow.isExpertView
+                            text: motImage.source
+                            background: Rectangle { opacity: 0.6; color: "white" }
                         }
                     }
                 }
-            }
 
-            Text {
-                visible: mainWindow.isExpertView
-                text: "image://SLS/CategoryID/CategoryTitle/SlideID/ContentName"
-            }
+                WButton {
+                    icon.name: "next"
+                    visible: bar.currentIndex > 0 && bar.currentItem.pictureList.length > 1 // visible only if we have more then one picture
 
-            Text {
-                visible: mainWindow.isExpertView
-                text: motImage.source
+                    onPressed: {
+                        if(bar.currentIndex > 0) {
+                            bar.currentItem.currentPictureIndex++
+                            bar.currentItem.currentPictureIndex = bar.currentItem.currentPictureIndex % bar.currentItem.pictureList.length
+
+                            motImage.source = "image://SLS/" + bar.currentItem.pictureList[bar.currentItem.currentPictureIndex]
+                        }
+                    }
+                }
             }
         }
     }
