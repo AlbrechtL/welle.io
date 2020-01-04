@@ -300,6 +300,19 @@ Backend options
 
 Use `-t [test_number]` to run a test. To understand what the tests do, please see source code.
 
+Driver options
+---
+
+By default, `welle-cli` tries all enabled drivers in turn and uses the first device it can successfully open.
+
+Use `-F [driver][,driver_args]` to select a specific driver and optionally pass arguments to the driver.
+This allows to select the `rtl_tcp` driver (which is not autodetected) and pass the hostname or IP address and port of the rtl_tcp server to it:
+
+    welle-cli -C 10B -p GRRIF -F rtl_tcp,192.168.12.34:1234
+    welle-cli -C 10B -P GRRIF -F rtl_tcp,my.rtl-tcp.local:9876
+
+Right now, `rtl_tcp` is the only driver that accepts options from the command line.
+
 Examples: 
 ---
 
