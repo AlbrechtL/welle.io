@@ -89,7 +89,8 @@ void motPicture::save()
     QString homePath = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
 
     // Replace all "/" by "_"
-    QString filename = name.replace("/", "_");
+    QString filename = name;
+    filename.replace("/", "_");
 
     // Add home directory and "MOT" preffix
     filename = homePath + "/MOT" + filename;
