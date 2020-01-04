@@ -84,7 +84,7 @@ void RadioReceiver::restart(bool doScan)
     ofdmProcessor.set_scanMode(doScan);
     mscHandler.stopProcessing();
     ficHandler.clearEnsemble();
-    ofdmProcessor.reset();
+    ofdmProcessor.restart();
 }
 
 void RadioReceiver::restart_decoder()

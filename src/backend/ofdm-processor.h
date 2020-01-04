@@ -58,12 +58,14 @@ class OFDMProcessor
                 FicHandler& fic,
                 RadioReceiverOptions rro);
         ~OFDMProcessor();
-        void reset();
+
+        /* Start or restart the OFDMProcessor */
+        void restart();
+
         void stop();
         void resetCoarseCorrector();
         void setReceiverOptions(const RadioReceiverOptions rro);
         void set_scanMode(bool);
-        void start();
 
     private:
         std::thread threadHandle;

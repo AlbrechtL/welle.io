@@ -114,9 +114,15 @@ OFDMProcessor::~OFDMProcessor()
     }
 }
 
-void OFDMProcessor::start()
+void OFDMProcessor::restart()
 {
-    std::clog << "OFDM-processor:" <<  "start" << std::endl;
+    std::clog << "OFDM-processor:restart" << std::endl;
+
+    running = false;
+    if (threadHandle.joinable()) {
+        threadHandle.join();
+    }
+
     coarseCorrector    = 0;
     fineCorrector      = 0;
     syncBufferIndex    = 0;
@@ -241,9 +247,6 @@ void OFDMProcessor::run()
     std::vector<DSPCOMPLEX> ofdmBuffer(params.L * params.T_s);
     std::vector<std::vector<DSPCOMPLEX> > allSymbols;
 
-    /*running       = true;
-      fineCorrector   = 0;
-      sLevel      = 0;*/
     try {
 
         //Initing:
@@ -492,19 +495,12 @@ SyncOnPhase:
     running = false;
 }
 
-void OFDMProcessor::reset()
-{
-    std::clog << "OFDM-processor: reset (" << running << ")" << std::endl;
-    if (running) {
-        running = false;
-        threadHandle.join();
-    }
-    start();
-}
-
 void OFDMProcessor::stop()
 {
     running = false;
+    if (threadHandle.joinable()) {
+        threadHandle.join();
+    }
 }
 
 void OFDMProcessor::resetCoarseCorrector()
@@ -522,7 +518,7 @@ void OFDMProcessor::setReceiverOptions(const RadioReceiverOptions rro)
     phaseRef.selectFFTWindowPlacement(rro.fftPlacementMethod);
 
     if (need_reset) {
-        reset();
+        restart();
     }
 }
 
