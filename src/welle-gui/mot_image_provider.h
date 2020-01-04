@@ -43,6 +43,7 @@ public:
 
     void setPixmap(QPixmap Pixmap, QString pictureName);
     void clear();
+    void save();
 
 private:
     std::list<std::shared_ptr<motPicture>> pictureList;
@@ -53,6 +54,7 @@ class motPicture
 {
 public:
     motPicture(QPixmap data, QString name);
+    void save();
 
     QPixmap data;
     QString name;

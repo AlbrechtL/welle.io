@@ -71,8 +71,21 @@ void CMOTImageProvider::clear()
     pictureList.clear();
 }
 
+void CMOTImageProvider::save()
+{
+    for (auto const& picture : pictureList)
+        picture->save();
+}
+
 motPicture::motPicture(QPixmap data, QString name)
 {
     this->data = data;
     this->name = name;
+}
+
+void motPicture::save()
+{
+    QString filename = "test.png";
+    std::clog  << "SLS name: Saving picture " << filename.toStdString() << std::endl;
+    data.save(filename);
 }
