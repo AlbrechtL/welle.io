@@ -230,7 +230,7 @@ void Viterbi::deconvolve(softbit_t *input, uint8_t *output)
 
     init_viterbi (&vp, 0);
     for (i = 0; i < (uint16_t)(frameBits + (K - 1)) * RATE; i ++) {
-        COMPUTETYPE temp = (COMPUTETYPE)input[i] + 127;
+        int16_t temp = ((int16_t)input[i]) + 127;
         if (temp < 0) temp = 0;
         if (temp > 255) temp = 255;
         symbols[i] = temp;
