@@ -61,9 +61,13 @@ void CMOTImageProvider::setPixmap(QPixmap pictureData, QString pictureName)
 {
     // Check if picture is already in list
     for (auto const& picture : pictureList)
-        if(picture->name == pictureName)
+        if(picture->name == pictureName) {
+            // Replace picture
+            picture->setData(pictureData);
             return;
+        }
 
+    // New picture
     pictureList.push_front(std::make_shared<motPicture>(pictureData, pictureName));
 }
 
@@ -82,6 +86,11 @@ motPicture::motPicture(QPixmap data, QString name)
 {
     this->data = data;
     this->name = name;
+}
+
+void motPicture::setData(QPixmap data)
+{
+    this->data = data;
 }
 
 void motPicture::save()

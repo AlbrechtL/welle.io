@@ -54,6 +54,7 @@ class motPicture
 {
 public:
     motPicture(QPixmap data, QString name);
+    void setData(QPixmap data);
     void save();
 
     QPixmap data;
