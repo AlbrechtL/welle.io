@@ -191,6 +191,8 @@ void CRadioController::setDeviceParam(QString param, int value)
 void CRadioController::setDeviceParam(QString param, QString value)
 {
     DeviceParam dp;
+    bool deviceParamChanged = false;
+
     if (param == "SoapySDRAntenna") {
         dp = DeviceParam::SoapySDRAntenna;
     }
@@ -206,10 +208,16 @@ void CRadioController::setDeviceParam(QString param, QString value)
     }
 
     std::string v = value.toStdString();
-    deviceParametersString[dp] = v;
 
-    if (device) {
+    if (deviceParametersString[dp] != v) {
+        deviceParamChanged = true;
+        deviceParametersString[dp] = v;
+    }
+
+    if (device && deviceParamChanged) {
         device->setDeviceParam(dp, v);
+        if (dp == DeviceParam::SoapySDRDriverArgs)
+            openDevice(CDeviceID::SOAPYSDR,1);
     }
 }
 
