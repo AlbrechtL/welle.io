@@ -1404,6 +1404,11 @@ void WebRadioInterface::serve()
         }
         running_connections = move(still_running_connections);
     }
+
+    running = false;
+    if (programme_handler_thread.joinable()) {
+        programme_handler_thread.join();
+    }
 }
 
 void WebRadioInterface::onSNR(int snr)
