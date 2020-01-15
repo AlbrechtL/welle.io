@@ -39,6 +39,10 @@ ProgrammeSender::ProgrammeSender(Socket&& s) :
 void ProgrammeSender::cancel()
 {
     s.close();
+
+    std::unique_lock<std::mutex> lock(mutex);
+    running = false;
+    lock.unlock();
 }
 
 bool ProgrammeSender::send_mp3(const std::vector<uint8_t>& mp3Data)
@@ -109,7 +113,7 @@ bool WebProgrammeHandler::needsToBeDecoded() const
     return not senders.empty();
 }
 
-void WebProgrammeHandler::cancelAll()
+WebProgrammeHandler::~WebProgrammeHandler()
 {
     std::unique_lock<std::mutex> lock(senders_mutex);
     for (auto& s : senders) {

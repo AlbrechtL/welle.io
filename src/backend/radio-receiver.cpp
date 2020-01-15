@@ -93,6 +93,13 @@ void RadioReceiver::restart_decoder()
     ficHandler.clearEnsemble();
 }
 
+void RadioReceiver::stop()
+{
+    ofdmProcessor.stop();
+    mscHandler.stopProcessing();
+    ficHandler.clearEnsemble();
+}
+
 void RadioReceiver::setReceiverOptions(const RadioReceiverOptions rro)
 {
     string fsm;

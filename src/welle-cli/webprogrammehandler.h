@@ -124,11 +124,15 @@ class WebProgrammeHandler : public ProgrammeHandlerInterface {
 
         WebProgrammeHandler(uint32_t serviceId);
         WebProgrammeHandler(WebProgrammeHandler&& other);
+        WebProgrammeHandler(const WebProgrammeHandler& other) = delete;
+        WebProgrammeHandler& operator=(const WebProgrammeHandler& other) = delete;
+        WebProgrammeHandler& operator=(WebProgrammeHandler&& other) = delete;
+        ~WebProgrammeHandler();
+
 
         void registerSender(ProgrammeSender *sender);
         void removeSender(ProgrammeSender *sender);
         bool needsToBeDecoded() const;
-        void cancelAll();
 
         struct dls_t {
             std::string label;

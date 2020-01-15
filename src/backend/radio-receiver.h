@@ -60,6 +60,8 @@ class RadioReceiver {
          * decoders (both FIC and MSC) */
         void restart_decoder();
 
+        void stop();
+
         /* Update the currently running receiver with new configuration */
         void setReceiverOptions(const RadioReceiverOptions rro);
 

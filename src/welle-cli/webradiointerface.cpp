@@ -149,6 +149,11 @@ WebRadioInterface::~WebRadioInterface()
     if (programme_handler_thread.joinable()) {
         programme_handler_thread.join();
     }
+
+    {
+        lock_guard<mutex> lock(rx_mut);
+        rx.reset();
+    }
 }
 
 class TuneFailed {};
@@ -207,9 +212,9 @@ void WebRadioInterface::check_decoders_required()
         }
     }
     catch (const TuneFailed&) {
+        rx->restart_decoder();
         phs.clear();
         programmes_being_decoded.clear();
-        rx->restart_decoder();
         carousel_services_available.clear();
         carousel_services_active.clear();
     }
@@ -1351,6 +1356,11 @@ void WebRadioInterface::handle_phs()
                 (void)rx->removeServiceToDecode(s);
             }
         }
+    }
+
+    {
+        unique_lock<mutex> lock(rx_mut);
+        rx->stop();
     }
 
     phs.clear();
