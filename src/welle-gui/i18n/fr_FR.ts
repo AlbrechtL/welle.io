@@ -44,30 +44,30 @@
     <name>CGUIHelper</name>
     <message>
         <location filename="../gui_helper.cpp" line="+65"/>
-        <location line="+584"/>
+        <location line="+589"/>
         <source>Mi&amp;nimize</source>
         <translation>Mi&amp;nimiser</translation>
     </message>
     <message>
-        <location line="-581"/>
-        <location line="+582"/>
+        <location line="-586"/>
+        <location line="+587"/>
         <source>Ma&amp;ximize</source>
         <translation>Ma&amp;ximiser</translation>
     </message>
     <message>
-        <location line="-579"/>
-        <location line="+580"/>
+        <location line="-584"/>
+        <location line="+585"/>
         <source>&amp;Restore</source>
         <translation>&amp;Restaurer</translation>
     </message>
     <message>
-        <location line="-577"/>
-        <location line="+578"/>
+        <location line="-582"/>
+        <location line="+583"/>
         <source>&amp;Quit</source>
         <translation>&amp;Quitter</translation>
     </message>
     <message>
-        <location line="-525"/>
+        <location line="-530"/>
         <source>version</source>
         <translation>version</translation>
     </message>
@@ -92,7 +92,7 @@
         <translation>Le programme continue de tourner dans la boite à miniatures. Pour le terminer, choisir &quot;Quitter&quot; dans le menu contextuel de la boîte à miniatures.</translation>
     </message>
     <message>
-        <location line="+488"/>
+        <location line="+493"/>
         <source> (unavailable, fallback to Default)</source>
         <translation> (non disponible, utilise &quot;Default&quot; à la place)</translation>
     </message>
@@ -110,7 +110,7 @@
 <context>
     <name>CRadioController</name>
     <message>
-        <location filename="../radio_controller.cpp" line="+600"/>
+        <location filename="../radio_controller.cpp" line="+608"/>
         <source>Unknown</source>
         <translation>Inconnu</translation>
     </message>
@@ -121,12 +121,12 @@
         <translation>Pas de station</translation>
     </message>
     <message>
-        <location line="-467"/>
+        <location line="-475"/>
         <source>Error while opening file </source>
         <translation>Erreur à l&apos;ouverture du fichier </translation>
     </message>
     <message>
-        <location line="+209"/>
+        <location line="+217"/>
         <source>RAW File</source>
         <translation>Fichier RAW</translation>
     </message>
@@ -159,14 +159,14 @@
         <translation>Airspay est débranché.</translation>
     </message>
     <message>
-        <location filename="../../input/input_factory.cpp" line="+75"/>
+        <location filename="../../input/input_factory.cpp" line="+79"/>
         <source>No valid device found use Null device instead.</source>
         <translatorcomment>traduction &quot;null device&quot; ?</translatorcomment>
         <translation type="unfinished">Aucun récepteur valide trouvé. Utilisation de &quot;Null device&quot; à la place.</translation>
     </message>
     <message>
         <location line="+2"/>
-        <location line="+40"/>
+        <location line="+43"/>
         <source>Error while opening device</source>
         <translation>Erreur à l&apos;ouverture du récepteur</translation>
     </message>
@@ -1264,12 +1264,17 @@
 <context>
     <name>MotView</name>
     <message>
-        <location filename="../QML/MotView.qml" line="+9"/>
+        <location filename="../QML/MotView.qml" line="+10"/>
         <source>MOT Slide Show</source>
         <translation>Diaporama MOT</translation>
     </message>
     <message>
-        <location line="+28"/>
+        <location line="+17"/>
+        <source>Save all images</source>
+        <translation>Sauvegarder toutes les images</translation>
+    </message>
+    <message>
+        <location line="+20"/>
         <source>Latest</source>
         <translation type="unfinished">Le plus récent</translation>
     </message>
@@ -1544,7 +1549,7 @@
 <context>
     <name>ViewBaseFrame</name>
     <message>
-        <location filename="../QML/components/ViewBaseFrame.qml" line="+107"/>
+        <location filename="../QML/components/ViewBaseFrame.qml" line="+122"/>
         <source>Minimize</source>
         <translation>Minimiser</translation>
     </message>
