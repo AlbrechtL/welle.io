@@ -16,5 +16,5 @@ QtObject {
     property string textFont: "Arial"
     //property string textFont: "Times"
     //property color textColor: "white"
-    //property color textColor: "black"
+    property color textColor: "black"
 }

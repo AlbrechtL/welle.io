@@ -41,6 +41,8 @@
 import QtQuick 2.2
 import QtQuick.Layouts 1.1
 import QtQuick.Controls 2.3
+import QtQuick.Controls.Material 2.1
+import QtQuick.Controls.Universal 2.1
 
 // Import custom styles
 import "../texts"
@@ -62,7 +64,7 @@ Item {
 
     Rectangle {
         anchors.fill: parent
-        color: "lightgrey"
+        color: (mainWindow.Material.theme === Material.Dark ) ? "dimgrey" : (mainWindow.Universal.theme === Universal.Dark ) ? "dimgrey" : "lightgrey"
         visible: mouse.pressed
     }
 
