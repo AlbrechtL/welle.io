@@ -21,7 +21,7 @@ before_install:
 install:
     - sudo apt-get -y install gcc g++
     - sudo apt-get -y install libusb-1.0-0-dev pkg-config libmp3lame-dev libmpg123-dev qt514base qt514declarative qt514quickcontrols qt514quickcontrols2 qt514charts-no-lgpl qt514graphicaleffects qt514multimedia libpulse0 libfaad-dev libfftw3-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev libsoapysdr-dev
-    - source /opt/qt512/bin/qt514-env.sh
+    - source /opt/qt514/bin/qt514-env.sh
     #- sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 90 --slave /usr/bin/g++ g++ /usr/bin/g++-7
 
 script:
