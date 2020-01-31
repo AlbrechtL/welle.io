@@ -72,7 +72,7 @@ You can use the command line tool "rtl_sdr" to record a file with a rtl_sdr devi
   ```
 # rtl_sdr -f frequency -s 2048000 -n samplecount yourfile
 e.g.
-# rtl_sdr -f 174928 -s 2048000 -n 10000 yourfile.iq
+# rtl_sdr -f 174928000 -s 2048000 -n 10000 yourfile.iq
   ```
 To have a more convenient way you can use the script ["dab_raw_record.sh"](../download/dab_raw_record.sh).  
 The following command records a 10 s file from the channel "5C" with the file name "CurrentDataAndTime_5C.iq"
@@ -90,6 +90,6 @@ The input file has to be "DabMux.eti" and the output file is "DabMod.iq".
 
 ### Other tools
 You can also use the following tools to record a RAW file
- * [QT-DAB](https://www.sdr-j.tk/index.html)
- * [QIRX](http://softsyst.com/qirx)
+ * [Qt-DAB](https://www.sdr-j.tk/index.html)
+ * [QIRX](https://qirx.softsyst.com/)
  * [SDR#](https://airspy.com/)
