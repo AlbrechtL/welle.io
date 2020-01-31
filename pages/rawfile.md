@@ -90,6 +90,6 @@ The input file has to be "DabMux.eti" and the output file is "DabMod.iq".
 
 ### Other tools
 You can also use the following tools to record a RAW file
- * [QT-DAB](https://www.sdr-j.tk/index.html)
- * [QIRX](http://softsyst.com/qirx)
+ * [Qt-DAB](https://www.sdr-j.tk/index.html)
+ * [QIRX](https://qirx.softsyst.com/)
  * [SDR#](https://airspy.com/)
