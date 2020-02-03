@@ -160,6 +160,7 @@ set(welle_cli_sources
     src/welle-cli/welle-cli.cpp
     src/welle-cli/alsa-output.cpp
     src/welle-cli/webradiointerface.cpp
+    src/welle-cli/jsonconvert.cpp
     src/welle-cli/webprogrammehandler.cpp
     src/welle-cli/tests.cpp
 )

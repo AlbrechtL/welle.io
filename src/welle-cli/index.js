@@ -320,9 +320,9 @@ function populateEnsembleinfo() {
             var key = start_addresses[ix].key;
             var service = data.services[key];
             var s = {};
-            s["label"] = service.label;
-            s["fig2label"] = service.fig2label;
-            s["shortlabel"] = service.shortlabel;
+            s["label"] = service.label.label;
+            s["fig2label"] = service.label.fig2label;
+            s["shortlabel"] = service.label.shortlabel;
             s["SId"] = service.sid;
             s["buttondisabled"] = "disabled";
             s["buttonclass"] = "disabled";
@@ -393,9 +393,9 @@ function populateEnsembleinfo() {
         }
 
         var ens = {};
-        ens["label"] = data.ensemble.label;
-        ens["fig2label"] = data.ensemble.fig2label;
-        ens["shortlabel"] = data.ensemble.shortlabel;
+        ens["label"] = data.ensemble.label.label;
+        ens["fig2label"] = data.ensemble.label.fig2label;
+        ens["shortlabel"] = data.ensemble.label.shortlabel;
         ens["EId"] = data.ensemble.id;
         ens["ecc"] = data.ensemble.ecc;
 

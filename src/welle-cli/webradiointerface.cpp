@@ -45,7 +45,7 @@
 #endif
 
 #include "welle-cli/webradiointerface.h"
-#include "libs/json.hpp"
+#include "welle-cli/jsonconvert.h"
 
 #ifndef MSG_NOSIGNAL
 #define MSG_NOSIGNAL 0
@@ -551,23 +551,11 @@ bool WebRadioInterface::send_file(Socket& s,
     return false;
 }
 
-struct peak_t {
-    int index = -1;
-    float value = -1e30f;
-};
-
-static void to_json(nlohmann::json& j, const peak_t& peak)
-{
-    j = nlohmann::json{
-        {"index", peak.index},
-            {"value", 10.0f * log10(peak.value)}};
-}
-
-static nlohmann::json calculate_cir_peaks(const vector<float>& cir_linear)
+static vector<PeakJson> calculate_cir_peaks(const vector<float>& cir_linear)
 {
     constexpr size_t num_peaks = 6;
 
-    list<peak_t> peaks;
+    vector<PeakJson> peaks;
 
     if (not cir_linear.empty()) {
         vector<float> cir_lin(cir_linear);
@@ -575,7 +563,7 @@ static nlohmann::json calculate_cir_peaks(const vector<float>& cir_linear)
         // Every time we find a peak, we attenuate it, including
         // its surrounding values, and we go search the next peak.
         for (size_t peak = 0; peak < num_peaks; peak++) {
-            peak_t p;
+            PeakJson p;
             for (size_t i = 1; i < cir_lin.size(); i++) {
                 if (cir_lin[i] > p.value) {
                     p.value = cir_lin[i];
@@ -595,197 +583,144 @@ static nlohmann::json calculate_cir_peaks(const vector<float>& cir_linear)
         }
     }
 
-    nlohmann::json j = peaks;
-    return j;
-}
-
-static void set_label_json(nlohmann::json& j, const DabLabel& l)
-{
-    j["label"] = l.fig1_label_utf8();
-    j["shortlabel"] = l.fig1_shortlabel_utf8();
-    j["fig2label"] = l.fig2_label();
-    j["fig2rfu"] = l.fig2_rfu;
-    string extended_label_charset = "Unknown";
-    switch (l.extended_label_charset) {
-        case CharacterSet::EbuLatin: extended_label_charset = "EBU Latin (not allowed in FIG 2)"; break;
-        case CharacterSet::UnicodeUcs2: extended_label_charset = "UCS2"; break;
-        case CharacterSet::UnicodeUtf8: extended_label_charset = "UTF-8"; break;
-        case CharacterSet::Undefined: extended_label_charset = "Undefined"; break;
-    }
-    j["fig2charset"] = extended_label_charset;
+    return peaks;
 }
 
 bool WebRadioInterface::send_mux_json(Socket& s)
 {
-    nlohmann::json j;
+    MuxJson mux_json;
 
-    j["receiver"]["software"]["name"] = "welle.io";
-    j["receiver"]["software"]["version"] = VERSION;
-    j["receiver"]["software"]["fftwindowplacement"] = fftPlacementMethodToString(rro.fftPlacementMethod);
-    j["receiver"]["software"]["coarsecorrectorenabled"] = not rro.disable_coarse_corrector;
-    j["receiver"]["software"]["freqsyncmethod"] = freqSyncMethodToString(rro.freqsyncMethod);
-    j["receiver"]["software"]["lastchannelchange"] = chrono::system_clock::to_time_t(time_rx_created);
-    j["receiver"]["hardware"]["name"] = input.getDescription();
-    j["receiver"]["hardware"]["gain"] = input.getGain();
+    mux_json.receiver.software.name = "welle.io";
+    mux_json.receiver.software.version = VERSION;
+    mux_json.receiver.software.fftwindowplacement = fftPlacementMethodToString(rro.fftPlacementMethod);
+    mux_json.receiver.software.coarsecorrectorenabled = not rro.disable_coarse_corrector;
+    mux_json.receiver.software.freqsyncmethod = freqSyncMethodToString(rro.freqsyncMethod);
+    mux_json.receiver.software.lastchannelchange = chrono::system_clock::to_time_t(time_rx_created);
+    mux_json.receiver.hardware.name = input.getDescription();
+    mux_json.receiver.hardware.gain = input.getGain();
 
     {
         lock_guard<mutex> lock(fib_mut);
-        j["demodulator"]["fic"]["numcrcerrors"] = num_fic_crc_errors;
+        mux_json.demodulator_fic_numcrcerrors = num_fic_crc_errors;
     }
 
     {
         lock_guard<mutex> lock(rx_mut);
         ASSERT_RX;
-        const auto ensembleLabel = rx->getEnsembleLabel();
-        set_label_json(j["ensemble"], rx->getEnsembleLabel());
 
-        j["ensemble"]["id"] = to_hex(rx->getEnsembleId(), 4);
-        j["ensemble"]["ecc"] = to_hex(rx->getEnsembleEcc(), 2);
+        mux_json.ensemble.label = rx->getEnsembleLabel();
 
-        nlohmann::json j_services = nlohmann::json::array();
+        mux_json.ensemble.id = to_hex(rx->getEnsembleId(), 4);
+        mux_json.ensemble.ecc = to_hex(rx->getEnsembleEcc(), 2);
+
         for (const auto& s : rx->getServiceList()) {
-            nlohmann::json j_srv = {
-                {"sid", to_hex(s.serviceId, 4)},
-                {"pty", s.programType},
-                {"ptystring", DABConstants::getProgramTypeName(s.programType)},
-                {"language", s.language},
-                {"languagestring", DABConstants::getLanguageName(s.language)}};
+            ServiceJson service;
+            service.sid = to_hex(s.serviceId, 4);
+            service.programType = s.programType;
+            service.ptystring = DABConstants::getProgramTypeName(s.programType);
+            service.language = s.language;
+            service.languagestring = DABConstants::getLanguageName(s.language);
+            service.label = s.serviceLabel;
+            service.url_mp3 = "";
 
-            set_label_json(j_srv, s.serviceLabel);
-
-            nlohmann::json j_components;
-
-            bool hasAudioComponent = false;
             for (const auto& sc : rx->getComponents(s)) {
-                nlohmann::json j_sc = {
-                    {"componentnr", sc.componentNr},
-                    {"primary", (sc.PS_flag ? true : false)},
-                    {"caflag", (sc.CAflag ? true : false)},
-                    {"scid", nullptr},
-                    {"ascty", nullptr},
-                    {"dscty", nullptr}};
+                ComponentJson component;
+                component.componentnr = sc.componentNr;
+                component.primary = (sc.PS_flag ? true : false);
+                component.caflag = (sc.CAflag ? true : false);
+                component.label = sc.componentLabel;
 
-                set_label_json(j_sc, sc.componentLabel);
-
-                const auto& sub = rx->getSubchannel(sc);
+                const auto sub = rx->getSubchannel(sc);
 
                 switch (sc.transportMode()) {
                     case TransportMode::Audio:
-                        j_sc["transportmode"] = "audio";
-                        j_sc["ascty"] =
-                                (sc.audioType() == AudioServiceComponentType::DAB ? "DAB" :
-                                 sc.audioType() == AudioServiceComponentType::DABPlus ? "DAB+" :
-                                 "unknown");
-                        hasAudioComponent |= (
-                                sc.audioType() == AudioServiceComponentType::DAB or
-                                sc.audioType() == AudioServiceComponentType::DABPlus);
+                        component.transportmode = "audio";
+                        component.ascty = make_unique<string>(
+                                string{
+                                    (sc.audioType() == AudioServiceComponentType::DAB ? "DAB" :
+                                     sc.audioType() == AudioServiceComponentType::DABPlus ? "DAB+" :
+                                     "unknown")});
+                        if (sc.audioType() == AudioServiceComponentType::DAB or
+                            sc.audioType() == AudioServiceComponentType::DABPlus) {
+                            string urlmp3 = "/mp3/" + to_hex(s.serviceId, 4);
+                            service.url_mp3 = urlmp3;
+                        }
                         break;
                     case TransportMode::FIDC:
-                        j_sc["transportmode"] = "fidc";
-                        j_sc["dscty"] = sc.DSCTy;
+                        component.transportmode = "fidc";
+                        component.dscty = make_unique<uint16_t>(sc.DSCTy);
                         break;
                     case TransportMode::PacketData:
-                        j_sc["transportmode"] = "packetdata";
-                        j_sc["scid"] = sc.SCId;
+                        component.transportmode = "packetdata";
+                        component.scid = make_unique<uint16_t>(sc.SCId);
                         break;
                     case TransportMode::StreamData:
-                        j_sc["transportmode"] = "streamdata";
-                        j_sc["dscty"] = sc.DSCTy;
+                        component.transportmode = "streamdata";
+                        component.dscty = make_unique<uint16_t>(sc.DSCTy);
                         break;
                 }
 
-                j_sc["subchannel"] = {
-                    {"subchid", sub.subChId},
-                    {"bitrate", sub.bitrate()},
-                    {"cu", sub.numCU()},
-                    {"sad", sub.startAddr},
-                    {"protection", sub.protection()},
-                    {"language", sub.language},
-                    {"languagestring", DABConstants::getLanguageName(sub.language)}};
+                component.subchannel = sub;
 
-
-                j_components.push_back(j_sc);
+                service.components.push_back(move(component));
             }
-
-            if (hasAudioComponent) {
-                string urlmp3 = "/mp3/" + to_hex(s.serviceId, 4);
-                j_srv["url_mp3"] = urlmp3;
-            }
-            else {
-                j_srv["url_mp3"] = nullptr;
-            }
-
-            j_srv["components"] = j_components;
 
             try {
                 const auto& wph = phs.at(s.serviceId);
                 const auto al = wph.getAudioLevels();
-                nlohmann::json j_audio = {
-                    {"time", chrono::system_clock::to_time_t(al.time)},
-                    {"left", al.last_audioLevel_L},
-                    {"right", al.last_audioLevel_R}};
-                j_srv["audiolevel"] = j_audio;
+                service.audiolevel_present = true;
+                service.audiolevel_time = chrono::system_clock::to_time_t(al.time);
+                service.audiolevel_left = al.last_audioLevel_L;
+                service.audiolevel_right = al.last_audioLevel_R;
 
-                j_srv["channels"] = 2;
-                j_srv["samplerate"] = wph.rate;
-                j_srv["mode"] = wph.mode;
+                service.channels = 2;
+                service.samplerate = wph.rate;
+                service.mode = wph.mode;
 
                 auto mot = wph.getMOT();
-                nlohmann::json j_mot = {
-                    {"time", chrono::system_clock::to_time_t(mot.time)},
-                    {"lastchange", chrono::system_clock::to_time_t(mot.last_changed)}};
-                j_srv["mot"] = j_mot;
+                service.mot_time = chrono::system_clock::to_time_t(mot.time);
+                service.mot_lastchange = chrono::system_clock::to_time_t(mot.last_changed);
 
                 auto dls = wph.getDLS();
-                nlohmann::json j_dls = {
-                    {"label", dls.label},
-                    {"time", chrono::system_clock::to_time_t(dls.time)},
-                    {"lastchange", chrono::system_clock::to_time_t(mot.last_changed)}};
-                j_srv["dls"] = j_dls;
+                service.dls_label = dls.label;
+                service.dls_time = chrono::system_clock::to_time_t(dls.time);
+                service.dls_lastchange = chrono::system_clock::to_time_t(mot.last_changed);
 
                 auto errorcounters = wph.getErrorCounters();
-                nlohmann::json j_errorcounters = {
-                    {"frameerrors", errorcounters.num_frameErrors},
-                    {"rserrors", errorcounters.num_rsErrors},
-                    {"aacerrors", errorcounters.num_aacErrors},
-                    {"time", chrono::system_clock::to_time_t(dls.time)}};
-                j_srv["errorcounters"] = j_errorcounters;
+                service.errorcounters_frameerrors = errorcounters.num_frameErrors;
+                service.errorcounters_rserrors = errorcounters.num_rsErrors;
+                service.errorcounters_aacerrors = errorcounters.num_aacErrors;
+                service.errorcounters_time = chrono::system_clock::to_time_t(dls.time);
 
                 auto xpad_err = wph.getXPADErrors();
-                nlohmann::json j_xpad_err;
-                j_xpad_err["haserror"] = xpad_err.has_error;
+                service.xpaderror_haserror = xpad_err.has_error;
                 if (xpad_err.has_error) {
-                    j_xpad_err["announcedlen"] = xpad_err.announced_xpad_len;
-                    j_xpad_err["len"] = xpad_err.xpad_len;
-                    j_xpad_err["time"] = chrono::system_clock::to_time_t(xpad_err.time);
+                    service.xpaderror_announcedlen = xpad_err.announced_xpad_len;
+                    service.xpaderror_len = xpad_err.xpad_len;
+                    service.xpaderror_time = chrono::system_clock::to_time_t(xpad_err.time);
                 }
-                j_srv["xpaderror"] = j_xpad_err;
             }
             catch (const out_of_range&) {
-                j_srv["audiolevel"] = nullptr;
-                j_srv["channels"] = 0;
-                j_srv["samplerate"] = 0;
-                j_srv["mode"] = "invalid";
+                service.audiolevel_present = false;
+                service.channels = 0;
+                service.samplerate = 0;
+                service.mode = "invalid";
             }
 
-            j_services.push_back(j_srv);
+            mux_json.services.push_back(move(service));
         }
-        j["services"] = j_services;
     }
 
     {
         lock_guard<mutex> lock(data_mut);
 
-        nlohmann::json j_utc = {
-            {"year", last_dateTime.year},
-            {"month", last_dateTime.month},
-            {"day", last_dateTime.day},
-            {"hour", last_dateTime.hour},
-            {"minutes", last_dateTime.minutes},
-            {"lto", last_dateTime.hourOffset + ((double)last_dateTime.minuteOffset / 30.0)},
-        };
+        mux_json.utctime.year = last_dateTime.year;
+        mux_json.utctime.month = last_dateTime.month;
+        mux_json.utctime.day = last_dateTime.day;
+        mux_json.utctime.hour = last_dateTime.hour;
+        mux_json.utctime.minutes = last_dateTime.minutes;
+        mux_json.utctime.lto = last_dateTime.hourOffset + ((double)last_dateTime.minuteOffset / 30.0);
 
-        vector<string> msgs;
         for (const auto& m : pending_messages) {
             using namespace chrono;
 
@@ -810,38 +745,28 @@ bool WebRadioInterface::send_mux_json(Socket& s)
             }
 
             ss << m.text;
-            msgs.push_back(ss.str());
+            mux_json.messages.push_back(ss.str());
         }
 
         pending_messages.clear();
-        j["messages"] = msgs;
 
-        j["utctime"] = j_utc;
-
-        j["demodulator"]["snr"] = last_snr;
-        j["demodulator"]["frequencycorrection"] =
+        mux_json.demodulator_snr = last_snr;
+        mux_json.demodulator_frequencycorrection =
             last_fine_correction + last_coarse_correction;
 
-        for (const auto& tii : getTiiStats()) {
-            j["tii"].push_back({
-                    {"comb", tii.comb},
-                    {"pattern", tii.pattern},
-                    {"delay", tii.delay_samples},
-                    {"delay_km", tii.getDelayKm()},
-                    {"error", tii.error}});
-        }
+        mux_json.tii= getTiiStats();
     }
 
     {
         lock_guard<mutex> lock(plotdata_mut);
-        j["cir"] = calculate_cir_peaks(last_CIR);
+        mux_json.peaks = calculate_cir_peaks(last_CIR);
     }
 
     if (not send_http_response(s, http_ok, "", http_contenttype_json)) {
         return false;
     }
 
-    const auto json_str = j.dump();
+    const auto json_str = build_mux_json(mux_json);
 
     ssize_t ret = s.send(json_str.c_str(), json_str.size(), MSG_NOSIGNAL);
     if (ret == -1) {
