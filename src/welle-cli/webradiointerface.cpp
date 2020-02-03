@@ -751,10 +751,9 @@ bool WebRadioInterface::send_mux_json(Socket& s)
         pending_messages.clear();
 
         mux_json.demodulator_snr = last_snr;
-        mux_json.demodulator_frequencycorrection =
-            last_fine_correction + last_coarse_correction;
+        mux_json.demodulator_frequencycorrection = last_fine_correction + last_coarse_correction;
 
-        mux_json.tii= getTiiStats();
+        mux_json.tii = getTiiStats();
     }
 
     {

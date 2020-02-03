@@ -36,14 +36,14 @@ struct SoftwareJson {
     std::string name;
     std::string version;
     std::string fftwindowplacement;
-    bool coarsecorrectorenabled;
+    bool coarsecorrectorenabled = false;
     std::string freqsyncmethod;
-    std::time_t lastchannelchange;
+    std::time_t lastchannelchange = 0;
 };
 
 struct HardwareJson {
     std::string name;
-    float gain;
+    float gain = 0.0f;
 };
 
 struct ReceiverJson {
@@ -53,9 +53,9 @@ struct ReceiverJson {
 
 
 struct ComponentJson {
-    int16_t componentnr;
-    bool primary;
-    bool caflag;
+    int16_t componentnr = 0;
+    bool primary = false;
+    bool caflag = false;
 
     // std::optional would be preferable
     std::unique_ptr<uint16_t> scid;
@@ -70,9 +70,9 @@ struct ComponentJson {
 
 struct ServiceJson {
     std::string sid;
-    int16_t programType;
+    int16_t programType = 0;
     std::string ptystring;
-    int16_t language;
+    int16_t language = 0;
     std::string languagestring;
     DabLabel label;
 
@@ -80,31 +80,31 @@ struct ServiceJson {
 
     std::string url_mp3;
 
-    bool audiolevel_present;
-    std::time_t audiolevel_time;
-    int audiolevel_left;
-    int audiolevel_right;
+    bool audiolevel_present = false;
+    std::time_t audiolevel_time = 0;
+    int audiolevel_left = -1;
+    int audiolevel_right = -1;
 
-    int channels;
-    int samplerate;
+    int channels = 0;
+    int samplerate = 0;
     std::string mode;
 
-    std::time_t mot_time;
-    std::time_t mot_lastchange;
+    std::time_t mot_time = 0;
+    std::time_t mot_lastchange = 0;
 
     std::string dls_label;
-    std::time_t dls_time;
-    std::time_t dls_lastchange;
+    std::time_t dls_time = 0;
+    std::time_t dls_lastchange = 0;
 
-    size_t errorcounters_frameerrors;
-    size_t errorcounters_rserrors;
-    size_t errorcounters_aacerrors;
-    std::time_t errorcounters_time;
+    size_t errorcounters_frameerrors = 0;
+    size_t errorcounters_rserrors = 0;
+    size_t errorcounters_aacerrors = 0;
+    std::time_t errorcounters_time = 0;
 
-    bool xpaderror_haserror;
-    size_t xpaderror_announcedlen;
-    size_t xpaderror_len;
-    std::time_t xpaderror_time;
+    bool xpaderror_haserror = false;
+    size_t xpaderror_announcedlen = 0;
+    size_t xpaderror_len = 0;
+    std::time_t xpaderror_time = 0;
 };
 
 struct EnsembleJson {
@@ -114,12 +114,12 @@ struct EnsembleJson {
 };
 
 struct UTCJson {
-    int year;
-    int month;
-    int day;
-    int hour;
-    int minutes;
-    double lto;
+    int year = 0;
+    int month = 0;
+    int day = 0;
+    int hour = 0;
+    int minutes = 0;
+    double lto = 0.0;
 };
 
 struct PeakJson {
@@ -131,12 +131,12 @@ struct MuxJson {
     ReceiverJson receiver;
     EnsembleJson ensemble;
     std::vector<ServiceJson> services;
-    size_t demodulator_fic_numcrcerrors;
+    size_t demodulator_fic_numcrcerrors = 0;
     UTCJson utctime;
     std::vector<std::string> messages;
 
-    double demodulator_snr;
-    double demodulator_frequencycorrection;
+    double demodulator_snr = 0.0;
+    double demodulator_frequencycorrection = 0.0;
 
     std::list<tii_measurement_t> tii;
     std::vector<PeakJson> peaks;
