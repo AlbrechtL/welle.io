@@ -82,7 +82,7 @@ private:
     int currentLinearityGain = 10;
 
     bool sw_agc = false;
-    IQRingBuffer<DSPCOMPLEX> SampleBuffer;
+    RingBuffer<DSPCOMPLEX> SampleBuffer;
     RingBuffer<DSPCOMPLEX> SpectrumSampleBuffer;
 };
 

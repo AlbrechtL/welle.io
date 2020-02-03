@@ -128,36 +128,9 @@
 #   endif
 #endif
 
-template <class elementtype>
-class RingBufferBase;
-
-// Ring buffer for IQ input
-template <class elementtype>
-class IQRingBuffer : public RingBufferBase<elementtype> {
-public:
-    using RingBufferBase<elementtype>::RingBufferBase;
-
-    virtual void onDroppedData(int32_t droppedElements) {
-        (void) droppedElements;
-        //std::clog << "IQRingBuffer: Dropped " << droppedElements * sizeof(elementtype) << " bytes" << std::endl;;
-    }
-};
-
-// Fallback
-template <class elementtype>
-class RingBuffer : public RingBufferBase<elementtype> {
-public:
-    using RingBufferBase<elementtype>::RingBufferBase;
-
-    virtual void onDroppedData(int32_t droppedElements) {
-        (void) droppedElements;
-        // Do nothing
-    }
-};
-
 // Base implementation
 template <class elementtype>
-class RingBufferBase
+class RingBuffer
 {
     private:
         uint32_t    bufferSize;
@@ -167,10 +140,14 @@ class RingBufferBase
         uint32_t    smallMask;
         std::vector<char> buffer;
 
-        virtual void onDroppedData(int32_t droppedElements) = 0;
+    protected:
+        void onDroppedData(int32_t droppedElements) {
+            (void) droppedElements;
+            // In case a warning should be output, do it here
+        }
 
     public:
-        RingBufferBase (uint32_t elementCount) {
+        RingBuffer(uint32_t elementCount) {
             if (((elementCount - 1) & elementCount) != 0)
                 elementCount = 2 * 16384;   /* default  */
 

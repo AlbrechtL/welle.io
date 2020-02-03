@@ -78,7 +78,7 @@ private:
     std::atomic<bool> m_running = ATOMIC_VAR_INIT(false);
     bool m_sw_agc = false;
 
-    IQRingBuffer<DSPCOMPLEX> m_sampleBuffer;
+    RingBuffer<DSPCOMPLEX> m_sampleBuffer;
     RingBuffer<DSPCOMPLEX> m_spectrumSampleBuffer;
 
     std::vector<double> m_gains;

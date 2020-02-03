@@ -135,7 +135,7 @@ void CRTL_TCP_Client::stop(void)
 }
 
 static int32_t read_convert_from_buffer(
-        RingBufferBase<uint8_t>& buffer,
+        RingBuffer<uint8_t>& buffer,
         DSPCOMPLEX *v, int32_t size)
 {
     int32_t amount, i;

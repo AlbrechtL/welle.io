@@ -94,7 +94,7 @@ private:
 
     void agc_timer_thread(void);
 
-    IQRingBuffer<uint8_t> sampleBuffer;
+    RingBuffer<uint8_t> sampleBuffer;
     RingBuffer<uint8_t> spectrumSampleBuffer;
     struct rtlsdr_dev *device = nullptr;
     int32_t sampleCounter = 0;

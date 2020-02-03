@@ -318,7 +318,7 @@ int32_t CRAWFile::readBuffer(uint8_t* data, int32_t length)
     return n & ~01;
 }
 
-int32_t CRAWFile::convertSamples(RingBufferBase<uint8_t>& Buffer, DSPCOMPLEX *V, int32_t size)
+int32_t CRAWFile::convertSamples(RingBuffer<uint8_t>& Buffer, DSPCOMPLEX *V, int32_t size)
 {
     // Native endianness complex<float> requires no conversion
     if (fileFormat == CRAWFileFormat::COMPLEXF) {

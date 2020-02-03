@@ -97,7 +97,7 @@ private:
     bool isAGC = true;
     bool isHwAGC = false;
     int frequency = kHz(220000);
-    IQRingBuffer<uint8_t> sampleBuffer;
+    RingBuffer<uint8_t> sampleBuffer;
     RingBuffer<uint8_t> spectrumSampleBuffer;
     bool connected = false;
     bool rtlsdrRunning = false;
