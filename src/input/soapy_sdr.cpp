@@ -119,7 +119,12 @@ bool CSoapySdr::restart()
 
     if (!m_antenna.empty()) {
         clog << "Select antenna " << m_antenna << endl;
-        m_device->setAntenna(SOAPY_SDR_RX, 0, m_antenna);
+        try {
+            m_device->setAntenna(SOAPY_SDR_RX, 0, m_antenna);
+        }
+        catch (const runtime_error& e) {
+            clog << "ERROR! could not select antenna:" << e.what() << endl;
+        }
     }
     else {
         clog << "Not selecting antenna" << endl;
