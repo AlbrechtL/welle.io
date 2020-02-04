@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2018
+ *    Copyright (C) 2020
  *    Matthias P. Braendli (matthias.braendli@mpb.li)
  *
  *    This file is part of the welle.io.
@@ -24,6 +24,7 @@
  */
 #include "webprogrammehandler.h"
 #include <iostream>
+#include <algorithm>
 
 using namespace std;
 
@@ -36,13 +37,16 @@ ProgrammeSender::ProgrammeSender(Socket&& s) :
 {
 }
 
-void ProgrammeSender::cancel()
+ProgrammeSender::ProgrammeSender(ProgrammeSender&& other) :
+    s(move(other.s))
 {
-    s.close();
+}
 
-    std::unique_lock<std::mutex> lock(mutex);
-    running = false;
-    lock.unlock();
+ProgrammeSender& ProgrammeSender::operator=(ProgrammeSender&& other)
+{
+    s = move(other.s);
+    other.running = false;
+    return *this;
 }
 
 bool ProgrammeSender::send_mp3(const std::vector<uint8_t>& mp3Data)
@@ -66,12 +70,18 @@ bool ProgrammeSender::send_mp3(const std::vector<uint8_t>& mp3Data)
     return true;
 }
 
-void ProgrammeSender::wait_for_termination()
+void ProgrammeSender::wait_for_termination() const
 {
     std::unique_lock<std::mutex> lock(mutex);
     while (running) {
         cv.wait_for(lock, chrono::seconds(2));
     }
+}
+
+void ProgrammeSender::cancel()
+{
+    s.close();
+    running = false;
 }
 
 WebProgrammeHandler::WebProgrammeHandler(uint32_t serviceId) :
@@ -88,6 +98,9 @@ WebProgrammeHandler::WebProgrammeHandler(WebProgrammeHandler&& other) :
     serviceId(other.serviceId),
     senders(move(other.senders))
 {
+    other.senders.clear();
+    other.serviceId = 0;
+
     const auto now = chrono::system_clock::now();
     time_label = now;
     time_label_change = now;
@@ -113,7 +126,7 @@ bool WebProgrammeHandler::needsToBeDecoded() const
     return not senders.empty();
 }
 
-WebProgrammeHandler::~WebProgrammeHandler()
+void WebProgrammeHandler::cancelAll()
 {
     std::unique_lock<std::mutex> lock(senders_mutex);
     for (auto& s : senders) {
@@ -235,8 +248,9 @@ void WebProgrammeHandler::onNewAudio(std::vector<int16_t>&& audioData,
         mp3buf.resize(written);
 
         std::unique_lock<std::mutex> lock(senders_mutex);
-        for (auto *sender : senders) {
-            bool success = sender->send_mp3(mp3buf);
+
+        for (auto& s : senders) {
+            bool success = s->send_mp3(mp3buf);
             if (not success) {
                 cerr << "Failed to send audio for " << serviceId << endl;
             }

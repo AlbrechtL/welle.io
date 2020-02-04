@@ -49,7 +49,7 @@ class DabAudio : public DabVirtual
                   ProtectionSettings protection,
                   ProgrammeHandlerInterface& phi,
                   const std::string& dumpFileName);
-        ~DabAudio(void);
+        virtual ~DabAudio(void);
         DabAudio(const DabAudio&) = delete;
         DabAudio& operator=(const DabAudio&) = delete;
 

@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2018
+ *    Copyright (C) 2020
  *    Matthias P. Braendli (matthias.braendli@mpb.li)
  *
  *    This file is part of the welle.io.
@@ -24,6 +24,9 @@
  */
 #pragma once
 
+#include <atomic>
+#include <thread>
+#include <utility>
 #include <chrono>
 #include <condition_variable>
 #include <deque>
@@ -32,11 +35,19 @@
 #include <memory>
 #include <mutex>
 #include <vector>
+#include <string>
 #include <cstdint>
-#include "backend/radio-receiver.h"
+#include <cstddef>
+#include "backend/dab-constants.h"
+#include "backend/radio-controller.h"
+#include "various/fft.h"
 #include "various/Socket.h"
 #include "various/channels.h"
 #include "webprogrammehandler.h"
+#include "radio-receiver-options.h"
+
+class CVirtualInput; // from input/virtual_input.h
+class RadioReceiver; // from backend/radio_receiver.h
 
 class WebRadioInterface : public RadioControllerInterface {
     public:

@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2018
+ *    Copyright (C) 2020
  *    Matthias P. Braendli (matthias.braendli@mpb.li)
  *
  *    This file is part of the welle.io.
@@ -32,19 +32,22 @@
 #include <mutex>
 #include <chrono>
 #include <string>
+#include <atomic>
 
 class ProgrammeSender {
     private:
         Socket s;
 
-        bool running = true;
-        std::condition_variable cv;
-        std::mutex mutex;
+        std::atomic<bool> running = ATOMIC_VAR_INIT(true);
+        mutable std::condition_variable cv;
+        mutable std::mutex mutex;
 
     public:
         ProgrammeSender(Socket&& s);
+        ProgrammeSender(ProgrammeSender&& other);
+        ProgrammeSender& operator=(ProgrammeSender&& other);
         bool send_mp3(const std::vector<uint8_t>& mp3data);
-        void wait_for_termination();
+        void wait_for_termination() const;
         void cancel();
 };
 
@@ -124,15 +127,11 @@ class WebProgrammeHandler : public ProgrammeHandlerInterface {
 
         WebProgrammeHandler(uint32_t serviceId);
         WebProgrammeHandler(WebProgrammeHandler&& other);
-        WebProgrammeHandler(const WebProgrammeHandler& other) = delete;
-        WebProgrammeHandler& operator=(const WebProgrammeHandler& other) = delete;
-        WebProgrammeHandler& operator=(WebProgrammeHandler&& other) = delete;
-        ~WebProgrammeHandler();
-
 
         void registerSender(ProgrammeSender *sender);
         void removeSender(ProgrammeSender *sender);
         bool needsToBeDecoded() const;
+        void cancelAll();
 
         struct dls_t {
             std::string label;

@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2019
+ *    Copyright (C) 2020
  *    Matthias P. Braendli (matthias.braendli@mpb.li)
  *
  *    This file is part of the welle.io.
@@ -23,16 +23,30 @@
  *
  */
 
-#include <future>
-#include <array>
+#include "welle-cli/webradiointerface.h"
 #include <algorithm>
+#include <cmath>
+#include <complex>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <ctime>
+#include <errno.h>
+#include <future>
 #include <iomanip>
 #include <iostream>
 #include <regex>
-#include <sstream>
+#include <signal.h>
+#include <stdexcept>
+#include <sys/socket.h>
 #include <utility>
-#include <cstdio>
-#include <errno.h>
+#include "Socket.h"
+#include "channels.h"
+#include "ofdm-decoder.h"
+#include "radio-receiver.h"
+#include "virtual_input.h"
+#include "welle-cli/jsonconvert.h"
+#include "welle-cli/webprogrammehandler.h"
 
 #ifdef __unix__
 # include <unistd.h>
@@ -43,9 +57,6 @@
 #  define HAVE_SIGACTION 0
 # endif
 #endif
-
-#include "welle-cli/webradiointerface.h"
-#include "welle-cli/jsonconvert.h"
 
 #ifndef MSG_NOSIGNAL
 #define MSG_NOSIGNAL 0
@@ -227,26 +238,25 @@ void WebRadioInterface::retune(const std::string& channel)
 
     auto freq = channels.getFrequency(channel);
     if (freq == 0) {
-        cerr << "Invalid channel: " << channel << endl;
+        cerr << "RETUNE Invalid channel: " << channel << endl;
         return;
     }
 
-    cerr << "Retune to " << freq << endl;
+    cerr << "RETUNE: Retune to " << freq << endl;
 
-    cerr << "Kill programme handler" << freq << endl;
     running = false;
     if (programme_handler_thread.joinable()) {
         programme_handler_thread.join();
     }
 
-    cerr << "Take ownership of RX" << endl;
+    cerr << "RETUNE Take ownership of RX" << endl;
     {
         unique_lock<mutex> lock(rx_mut);
         // Even though it would be ok for rx to be inexistent here,
         // we check to uncover errors.
         ASSERT_RX;
 
-        cerr << "Destroy RX" << endl;
+        cerr << "RETUNE Destroy RX" << endl;
         rx.reset();
 
         {
@@ -265,11 +275,11 @@ void WebRadioInterface::retune(const std::string& channel)
         }
         tiis.clear();
 
-        cerr << "Set frequency" << endl;
+        cerr << "RETUNE Set frequency" << endl;
         input.setFrequency(freq);
         input.reset(); // Clear buffer
 
-        cerr << "Restart RX" << endl;
+        cerr << "RETUNE Restart RX" << endl;
         rx = make_unique<RadioReceiver>(*this, input, rro);
         if (not rx) {
             throw runtime_error("Could not initialise RadioReceiver");
@@ -278,7 +288,7 @@ void WebRadioInterface::retune(const std::string& channel)
         time_rx_created = chrono::system_clock::now();
         rx->restart(false);
 
-        cerr << "Start programme handler" << endl;
+        cerr << "RETUNE Start programme handler" << endl;
         running = true;
         programme_handler_thread = thread(&WebRadioInterface::handle_phs, this);
     }
@@ -367,7 +377,7 @@ static http_request_t parse_http_headers(Socket& s) {
     const auto request_type = split(first_line);
 
     if (request_type.size() != 3) {
-        cerr << "Malformed request: " << first_line;
+        cerr << "Malformed request: " << first_line << endl;
         return r;
     }
     else if (request_type[0] == "GET") {
@@ -402,7 +412,7 @@ static http_request_t parse_http_headers(Socket& s) {
             try {
                 const int content_length = std::stoi(r.headers[CL]);
                 if (content_length > 1024 * 1024) {
-                    cerr << "Unreasonable POST Content-Length: " << content_length;
+                    cerr << "Unreasonable POST Content-Length: " << content_length << endl;
                     return r;
                 }
 
@@ -410,11 +420,11 @@ static http_request_t parse_http_headers(Socket& s) {
                 r.post_data = string(buf.begin(), buf.end());
             }
             catch (const invalid_argument&) {
-                cerr << "Cannot parse POST Content-Length: " << r.headers[CL];
+                cerr << "Cannot parse POST Content-Length: " << r.headers[CL] << endl;
                 return r;
             }
             catch (const out_of_range&) {
-                cerr << "Cannot represent POST Content-Length: " << r.headers[CL];
+                cerr << "Cannot represent POST Content-Length: " << r.headers[CL] << endl;
                 return r;
             }
         }
@@ -1269,27 +1279,24 @@ void WebRadioInterface::handle_phs()
         check_decoders_required();
     }
 
-    if (running) {
-        unique_lock<mutex> lock(rx_mut);
-        ASSERT_RX;
-        for (auto& s : rx->getServiceList()) {
-            const auto sid = s.serviceId;
-            const bool is_decoded = programmes_being_decoded[sid];
-            if (is_decoded) {
-                (void)rx->removeServiceToDecode(s);
+    cerr << "TEARDOWN Cancel all PHs and remove services" << endl;
+    {
+        lock_guard<mutex> lock(rx_mut);
+        for (auto& ph : phs) {
+            ph.second.cancelAll();
+
+            const auto srv = rx->getService(ph.first);
+            if (srv.serviceId != 0) {
+                (void)rx->removeServiceToDecode(srv);
             }
         }
     }
 
+    cerr << "TEARDOWN Stop rx" << endl;
     {
         unique_lock<mutex> lock(rx_mut);
         rx->stop();
     }
-
-    phs.clear();
-    programmes_being_decoded.clear();
-    carousel_services_available.clear();
-    carousel_services_active.clear();
 }
 
 #if HAVE_SIGACTION
@@ -1338,10 +1345,37 @@ void WebRadioInterface::serve()
         running_connections = move(still_running_connections);
     }
 
+    cerr << "SERVE No more connections running" << endl;
+
     running = false;
     if (programme_handler_thread.joinable()) {
         programme_handler_thread.join();
     }
+
+    cerr << "SERVE Wait for all futures to clear" << endl;
+    while (running_connections.size() > 0) {
+        deque<future<bool> > still_running_connections;
+        for (auto& fut : running_connections) {
+            if (fut.valid()) {
+                switch (fut.wait_for(chrono::milliseconds(1))) {
+                    case future_status::deferred:
+                    case future_status::timeout:
+                        still_running_connections.push_back(move(fut));
+                        break;
+                    case future_status::ready:
+                        fut.get();
+                        break;
+                }
+            }
+        }
+        running_connections = move(still_running_connections);
+    }
+
+    cerr << "SERVE clear remaining data structures" << endl;
+    phs.clear();
+    programmes_being_decoded.clear();
+    carousel_services_available.clear();
+    carousel_services_active.clear();
 }
 
 void WebRadioInterface::onSNR(int snr)
