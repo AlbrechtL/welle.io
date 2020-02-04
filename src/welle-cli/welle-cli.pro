@@ -7,13 +7,15 @@ CONFIG += console
 HEADERS += \
     alsa-output.h  \
     webprogrammehandler.h \
-    webradiointerface.h
+    webradiointerface.h \
+    jsonconvert.h
 
 SOURCES += \
     alsa-output.cpp \
     tests.cpp \
     webprogrammehandler.cpp \
     webradiointerface.cpp \
+    jsonconvert.h \
     welle-cli.cpp
 
 # Include git hash into build
