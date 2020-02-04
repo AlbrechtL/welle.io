@@ -15,7 +15,7 @@ SOURCES += \
     tests.cpp \
     webprogrammehandler.cpp \
     webradiointerface.cpp \
-    jsonconvert.h \
+    jsonconvert.cpp \
     welle-cli.cpp
 
 # Include git hash into build
