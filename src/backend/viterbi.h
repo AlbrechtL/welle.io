@@ -10,16 +10,13 @@
 #define RATE    4
 #define NUMSTATES 64
 #define DECISIONTYPE uint32_t
+#define DECISIONALIGN 32
 #define DECISIONTYPE_BITSIZE (sizeof(DECISIONTYPE) * 8)
 #define COMPUTETYPE uint16_t
 
-//decision_t is a BIT vector
-typedef union {
-    DECISIONTYPE t[NUMSTATES/DECISIONTYPE_BITSIZE];
-    uint32_t w[NUMSTATES/32];
-    uint16_t s[NUMSTATES/16];
-    uint8_t c[NUMSTATES/8];
-} decision_t __attribute__ ((aligned (16)));
+typedef struct {
+    DECISIONTYPE w[NUMSTATES/32];
+} decision_t;
 
 typedef union {
     COMPUTETYPE t[NUMSTATES];

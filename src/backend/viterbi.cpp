@@ -145,7 +145,7 @@ Viterbi::Viterbi(int16_t wordlength)
     symbols = (COMPUTETYPE *)_aligned_malloc (size, 16);
     size    = 2 * (wordlength + (K - 1)) * sizeof (decision_t);
     size    = (size + 16) & ~0xF;
-    vp. decisions = (decision_t  *)_aligned_malloc (size, 16);
+    vp. decisions = (decision_t  *)_aligned_malloc (size, DECISIONALIGN);
 #else
     if (posix_memalign ((void**)&data, 16,
                 (wordlength + (K - 1))/ 8 + 1)){
@@ -156,7 +156,7 @@ Viterbi::Viterbi(int16_t wordlength)
         printf("Allocation of symbols array failed\n");
     }
     if (posix_memalign ((void**)&(vp. decisions),
-                16,
+                DECISIONALIGN,
                 2 * (wordlength + (K - 1)) * sizeof (decision_t))){
         printf ("Allocation of vp decisions failed\n");
     }
