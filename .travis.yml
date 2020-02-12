@@ -58,14 +58,14 @@ script:
   - qmake PREFIX=/usr ..
   - make -j4
   - cd ..
-  #- find build/
-  #- mkdir -p ./appdir/usr/share/applications
-  #- cp welle-io.desktop ./appdir/usr/share/applications
-  #- mkdir -p ./appdir/usr/bin
-  #- cp build/src/welle-gui/welle-io ./appdir/usr/bin
-  #- mkdir -p ./appdir/usr/lib
-  #- mkdir -p ./appdir/usr/share/icons/hicolor/512x512/apps/
-  #- cp src/welle-gui/icons/icon.png appdir/usr/share/icons/hicolor/512x512/apps/welle-io.png
+  - find build/
+  - mkdir -p ./appdir/usr/share/applications
+  - cp welle-io.desktop ./appdir/usr/share/applications
+  - mkdir -p ./appdir/usr/bin
+  - cp build/src/welle-gui/welle-io ./appdir/usr/bin
+  - mkdir -p ./appdir/usr/lib
+  - mkdir -p ./appdir/usr/share/icons/hicolor/512x512/apps/
+  - cp src/welle-gui/icons/icon.png appdir/usr/share/icons/hicolor/512x512/apps/welle-io.png
 
 after_success:
   #- wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
@@ -78,7 +78,7 @@ after_success:
   - sudo chmod +x /usr/local/bin/linuxdeploy-x86_64.AppImage
   - sudo wget https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage -P /usr/local/bin
   - sudo chmod +x /usr/local/bin/linuxdeploy-plugin-qt-x86_64.AppImage
-  - QML_SOURCES_PATHS=. linuxdeploy-x86_64.AppImage --appdir build/src/welle-gui/welle-io --plugin qt --output "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.AppImage
+  - QML_SOURCES_PATHS=. linuxdeploy-x86_64.AppImage --appdir ./appdir/usr/share/applications --plugin qt --output "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.AppImage
   
   # Rename
   #- mv welle.io-"$GIT_HASH"-x86_64.AppImage "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.AppImage
@@ -96,4 +96,4 @@ deploy:
 
 after_deploy:
   # Delete old builds on bintray. Keep only the last 20 builds
-  - python .bintray_delete_old_version.py albrechtl $BINTRAY_KEY /packages/albrechtl/welle.io/welle.io_nightly 20
+  #- python .bintray_delete_old_version.py albrechtl $BINTRAY_KEY /packages/albrechtl/welle.io/welle.io_nightly 20
