@@ -77,8 +77,8 @@ script:
 
   # Prepare welle-cli AppImage
   - find build-cli/
-  - mkdir -p ./appdir/usr/share/applications
-  - cp welle-io.desktop ./appdir/usr/share/applications
+  - mkdir -p ./appdir-cli/usr/share/applications
+  - cp welle-io.desktop ./appdir-cli/usr/share/applications
   - mkdir -p ./appdir-cli/usr/bin
   - cp build-cli/welle-cli ./appdir-cli/usr/bin
   
