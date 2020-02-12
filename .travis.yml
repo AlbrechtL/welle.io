@@ -57,28 +57,31 @@ script:
   - cd build
   - qmake PREFIX=/usr ..
   - make -j4
-  - # sudo make INSTALL_ROOT=../appdir install ; sudo chown -R $USER appdir ; find appdir/
-  - # "make install" seems not implemented, hence going though the following steps manually:
   - cd ..
-  - find build/
-  - mkdir -p ./appdir/usr/share/applications
-  - cp welle-io.desktop ./appdir/usr/share/applications
-  - mkdir -p ./appdir/usr/bin
-  - cp build/src/welle-gui/welle-io ./appdir/usr/bin
-  - mkdir -p ./appdir/usr/lib
-  - mkdir -p ./appdir/usr/share/icons/hicolor/512x512/apps/
-  - cp src/welle-gui/icons/icon.png appdir/usr/share/icons/hicolor/512x512/apps/welle-io.png
+  #- find build/
+  #- mkdir -p ./appdir/usr/share/applications
+  #- cp welle-io.desktop ./appdir/usr/share/applications
+  #- mkdir -p ./appdir/usr/bin
+  #- cp build/src/welle-gui/welle-io ./appdir/usr/bin
+  #- mkdir -p ./appdir/usr/lib
+  #- mkdir -p ./appdir/usr/share/icons/hicolor/512x512/apps/
+  #- cp src/welle-gui/icons/icon.png appdir/usr/share/icons/hicolor/512x512/apps/welle-io.png
 
 after_success:
-  - wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
-  - chmod a+x linuxdeployqt*.AppImage
-  - unset QTDIR; unset QT_PLUGIN_PATH ; unset LD_LIBRARY_PATH
-  - ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -qmldir=. -bundle-non-qt-libs
-  - ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -qmldir=. -appimage
-  - find ./appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq
-  #- curl --upload-file ./welle*.AppImage https://transfer.sh/welle_io-git."$GIT_HASH"-x86_64.AppImage
+  #- wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
+  #- chmod a+x linuxdeployqt*.AppImage
+  #- unset QTDIR; unset QT_PLUGIN_PATH ; unset LD_LIBRARY_PATH
+  #- ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -qmldir=. -bundle-non-qt-libs
+  #- ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -qmldir=. -appimage
+  #- find ./appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq
+  - wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage -P /usr/local/bin
+  - chmod +x /usr/local/bin/linuxdeploy-x86_64.AppImage
+  - wget -q https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage -P /usr/local/bin
+  - chmod +x /usr/local/bin/linuxdeploy-plugin-qt-x86_64.AppImage
+  - QML_SOURCES_PATHS=. linuxdeploy-x86_64.AppImage --appdir build/src/welle-gui/welle-io --plugin qt --output "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.AppImage
+  
   # Rename
-  - mv welle.io-"$GIT_HASH"-x86_64.AppImage "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.AppImage
+  #- mv welle.io-"$GIT_HASH"-x86_64.AppImage "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.AppImage
   # Prepare bintray deploy
   - sed -e "s/\${VERSION}/"$DATE"_"$GIT_HASH"/" .travis-bintray-deploy.json.template >travis-bintray-deploy.json
 
