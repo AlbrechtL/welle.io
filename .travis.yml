@@ -2,8 +2,7 @@ dist: bionic
 language: cpp
 compiler: gcc
 sudo: require
-#python:
-#  - "3.6"
+
 env:
   # "BINTRAY_KEY=<secure>"
   - secure: "AjycfSfIztFeat6AO3SETSFW9Xd0AUt17hg87sEo8pSPO3SILq6bKS5Pfe4Bdo3Za32BvGzeJaOZ9EEVtzweuYJwsBejVfk2lxiBH5RKoBVrHpJLXDNj7MUt2ezb734bjFFt3+lMG84vSCqioNMcYwlHcqCChiTT529NZhaGMsDFzF5NimJZl0LGcEQlaTxTfeCKwSk+apHw5rQes2I2Jf9icweUGe/VOOVmYjDTiPWKcBEwBvfV5vabr5btCgUY8zK5451x/35API2Hbq7o0hNxqvwQUFI54jZwqfR4DOA1V/Nk7rdc34Fe+xgKSoBmHC0RgCIbXw1erEkn31Y0+tLBVxa971FB+y7L+5ZEaqw9UolT0PM5LHZmWUA60A5JlvsFOr0urid8lk0g5mdGF4aHEy2O5rDOMbwE11MpTEkDDbgE6uSD0/aubTJYPu24yMlBrP1lz10Sltg+YLi5hshhzRmd4iWTKuEy4jly1SdOKjjdbLCzlAnsF9Ta0a/lfumOd2lmELhYKhFLuVTCWZFvjpJyziCIFLVs4refDbDrsdfE+CaJedP/uBDGoBp4Hg6aug+66zKPybVzODqR2uIa3I7ACM3l/GdJcGg+1AH1T/ievq4rQ52T3MspevFxQmevuA9vvgOVko79PDrW1xbp+oQPTk0/pODNjVvrZFk="
@@ -11,19 +10,15 @@ env:
 before_install:
     # QT
     - sudo add-apt-repository ppa:beineri/opt-qt-5.14.0-bionic -y
-    # GCC 7
-    #- sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
     # SoapySDR
     - sudo add-apt-repository ppa:myriadrf/drivers -y
-
     - sudo apt-get update -qq
 
 install:
     - sudo apt-get -y install gcc g++
     - sudo apt-get -y install libusb-1.0-0-dev pkg-config libmp3lame-dev libmpg123-dev qt514base qt514declarative qt514quickcontrols qt514quickcontrols2 qt514charts-no-lgpl qt514graphicaleffects qt514multimedia libpulse0 libfaad-dev libfftw3-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev libsoapysdr-dev
     - source /opt/qt514/bin/qt514-env.sh
-    #- sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 90 --slave /usr/bin/g++ g++ /usr/bin/g++-7
-
+    
 script:
   - DATE=`date +%Y%m%d`
   - GIT_HASH=`git rev-parse --short HEAD`
@@ -58,6 +53,20 @@ script:
   - make -j4
   - cd ..
   
+  # Compile welle-cli
+  - mkdir build-cli
+  - cd build-cli
+  - cmake ../
+  - make -j4
+  - cd ..
+  
+after_success:
+  # Get linuxdeploy
+  - sudo wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage -P /usr/local/bin
+  - sudo chmod +x /usr/local/bin/linuxdeploy-x86_64.AppImage
+  - sudo wget https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage -P /usr/local/bin
+  - sudo chmod +x /usr/local/bin/linuxdeploy-plugin-qt-x86_64.AppImage
+  
   # Prepare welle.io AppImage
   - find build/
   - mkdir -p ./appdir/usr/share/applications
@@ -68,12 +77,9 @@ script:
   - mkdir -p ./appdir/usr/share/icons/hicolor/512x512/apps/
   - cp src/welle-gui/icons/icon.png appdir/usr/share/icons/hicolor/512x512/apps/welle-io.png
   
-  # Compile welle-cli
-  - mkdir build-cli
-  - cd build-cli
-  - cmake ../
-  - make -j4
-  - cd ..
+  # Create welle.io AppImage
+  - QML_SOURCES_PATHS=. linuxdeploy-x86_64.AppImage --appdir ./appdir --plugin qt --output appimage
+  - mv welle.io-"$GIT_HASH"-x86_64.AppImage "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.AppImage
 
   # Prepare welle-cli AppImage
   - find build-cli/
@@ -85,24 +91,6 @@ script:
   - mkdir -p ./appdir-cli/usr/share/icons/hicolor/512x512/apps/
   - cp src/welle-gui/icons/icon.png appdir-cli/usr/share/icons/hicolor/512x512/apps/welle-io.png
   
-after_success:
-  #- wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
-  #- chmod a+x linuxdeployqt*.AppImage
-  #- unset QTDIR; unset QT_PLUGIN_PATH ; unset LD_LIBRARY_PATH
-  #- ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -qmldir=. -bundle-non-qt-libs
-  #- ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -qmldir=. -appimage
-  #- find ./appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq
-  
-  # Get linuxdeploy
-  - sudo wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage -P /usr/local/bin
-  - sudo chmod +x /usr/local/bin/linuxdeploy-x86_64.AppImage
-  - sudo wget https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage -P /usr/local/bin
-  - sudo chmod +x /usr/local/bin/linuxdeploy-plugin-qt-x86_64.AppImage
-  
-  # Create welle.io AppImage
-  - QML_SOURCES_PATHS=. linuxdeploy-x86_64.AppImage --appdir ./appdir --plugin qt --output appimage
-  - mv welle.io-"$GIT_HASH"-x86_64.AppImage "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.AppImage
-
   # Create welle-cli AppImage
   - linuxdeploy-x86_64.AppImage --appdir ./appdir-cli --output appimage
   - mv welle.io-cli-"$GIT_HASH"-x86_64.AppImage "$DATE"_"$GIT_HASH"_Linux_welle-io-cli-x86_64.AppImage
@@ -121,4 +109,4 @@ deploy:
 
 after_deploy:
   # Delete old builds on bintray. Keep only the last 20 builds
-  #- python .bintray_delete_old_version.py albrechtl $BINTRAY_KEY /packages/albrechtl/welle.io/welle.io_nightly 20
+  - python .bintray_delete_old_version.py albrechtl $BINTRAY_KEY /packages/albrechtl/welle.io/welle.io_nightly 20
