@@ -78,7 +78,7 @@ script:
   # Prepare welle-cli AppImage
   - find build-cli/
   - mkdir -p ./appdir-cli/usr/bin
-  - cp build-cli/src/welle-cli/welle-cli ./appdir-cli/usr/bin
+  - cp build-cli/welle-cli ./appdir-cli/usr/bin
   
 after_success:
   #- wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
