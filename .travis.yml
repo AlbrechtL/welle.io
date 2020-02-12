@@ -77,6 +77,8 @@ script:
 
   # Prepare welle-cli AppImage
   - find build-cli/
+  - mkdir -p ./appdir/usr/share/applications
+  - cp welle-io.desktop ./appdir/usr/share/applications
   - mkdir -p ./appdir-cli/usr/bin
   - cp build-cli/welle-cli ./appdir-cli/usr/bin
   
@@ -96,12 +98,12 @@ after_success:
   
   # Create welle.io AppImage
   - QML_SOURCES_PATHS=. linuxdeploy-x86_64.AppImage --appdir ./appdir --plugin qt --output appimage
-  
+  - mv welle.io-"$GIT_HASH"-x86_64.AppImage "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.AppImage
+
   # Create welle-cli AppImage
   - linuxdeploy-x86_64.AppImage --appdir ./appdir-cli --output appimage
+  - mv welle-cli-"$GIT_HASH"-x86_64.AppImage "$DATE"_"$GIT_HASH"_Linux_welle-io-cli-x86_64.AppImage
   
-  # Rename
-  - mv welle.io-"$GIT_HASH"-x86_64.AppImage "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.AppImage
   # Prepare bintray deploy
   - sed -e "s/\${VERSION}/"$DATE"_"$GIT_HASH"/" .travis-bintray-deploy.json.template >travis-bintray-deploy.json
 
