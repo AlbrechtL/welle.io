@@ -69,7 +69,7 @@ script:
   - cp src/welle-gui/icons/icon.png appdir/usr/share/icons/hicolor/512x512/apps/welle-io.png
   
   # Compile welle-cli
-  - mkdir built-cli
+  - mkdir build-cli
   - cd build-cli
   - cmake ../
   - make -j4
