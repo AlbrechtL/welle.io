@@ -81,7 +81,7 @@ after_success:
   - QML_SOURCES_PATHS=. linuxdeploy-x86_64.AppImage --appdir ./appdir --plugin qt --output appimage
   
   # Rename
-  #- mv welle.io-"$GIT_HASH"-x86_64.AppImage "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.AppImage
+  - mv welle.io-"$GIT_HASH"-x86_64.AppImage "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.AppImage
   # Prepare bintray deploy
   - sed -e "s/\${VERSION}/"$DATE"_"$GIT_HASH"/" .travis-bintray-deploy.json.template >travis-bintray-deploy.json
 
