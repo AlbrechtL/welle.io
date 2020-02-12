@@ -78,7 +78,7 @@ after_success:
   - sudo chmod +x /usr/local/bin/linuxdeploy-x86_64.AppImage
   - sudo wget https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage -P /usr/local/bin
   - sudo chmod +x /usr/local/bin/linuxdeploy-plugin-qt-x86_64.AppImage
-  - QML_SOURCES_PATHS=. linuxdeploy-x86_64.AppImage --appdir ./appdir --plugin qt --output "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.AppImage
+  - QML_SOURCES_PATHS=. linuxdeploy-x86_64.AppImage --appdir ./appdir --plugin qt --output appimage
   
   # Rename
   #- mv welle.io-"$GIT_HASH"-x86_64.AppImage "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.AppImage
