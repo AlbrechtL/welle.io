@@ -74,9 +74,9 @@ after_success:
   #- ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -qmldir=. -bundle-non-qt-libs
   #- ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -qmldir=. -appimage
   #- find ./appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq
-  - wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage -P /usr/local/bin
+  - wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage -P /usr/local/bin
   - chmod +x /usr/local/bin/linuxdeploy-x86_64.AppImage
-  - wget -q https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage -P /usr/local/bin
+  - wget https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage -P /usr/local/bin
   - chmod +x /usr/local/bin/linuxdeploy-plugin-qt-x86_64.AppImage
   - QML_SOURCES_PATHS=. linuxdeploy-x86_64.AppImage --appdir build/src/welle-gui/welle-io --plugin qt --output "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.AppImage
   
