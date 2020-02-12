@@ -75,6 +75,11 @@ script:
   - make -j4
   - cd ..
 
+  # Prepare welle-cli AppImage
+  - find build-cli/
+  - mkdir -p ./appdir-cli/usr/bin
+  - cp build-cli/src/welle-cli/welle-cli ./appdir-cli/usr/bin
+  
 after_success:
   #- wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
   #- chmod a+x linuxdeployqt*.AppImage
@@ -82,11 +87,18 @@ after_success:
   #- ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -qmldir=. -bundle-non-qt-libs
   #- ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -qmldir=. -appimage
   #- find ./appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq
+  
+  # Get linuxdeploy
   - sudo wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage -P /usr/local/bin
   - sudo chmod +x /usr/local/bin/linuxdeploy-x86_64.AppImage
   - sudo wget https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage -P /usr/local/bin
   - sudo chmod +x /usr/local/bin/linuxdeploy-plugin-qt-x86_64.AppImage
+  
+  # Create welle.io AppImage
   - QML_SOURCES_PATHS=. linuxdeploy-x86_64.AppImage --appdir ./appdir --plugin qt --output appimage
+  
+  # Create welle-cli AppImage
+  - linuxdeploy-x86_64.AppImage --appdir ./appdir-cli --output appimage
   
   # Rename
   - mv welle.io-"$GIT_HASH"-x86_64.AppImage "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.AppImage
