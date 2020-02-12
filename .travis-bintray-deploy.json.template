@@ -8,10 +8,8 @@
     "name": "${VERSION}"
   },
   "files": [
-    {
-      "includePattern": ".(.*welle-io.*.AppImage)",
-      "uploadPattern": "$1"
-    }
+    {"includePattern": ".(.*welle-io.*.AppImage)", "uploadPattern": "$1"}
+    {"includePattern": ".(.*welle-io-cli.*.AppImage)", "uploadPattern": "$1"}
   ],
   "publish": true
 }
