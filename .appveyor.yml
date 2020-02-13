@@ -32,8 +32,8 @@ build_script:
 after_build:
   # Prepare welle binary files
   - md bin
-  - copy src\welle-cli\welle-cli.exe bin
-  - copy src\welle-gui\welle-io.exe bin
+  - copy src\welle-cli\release\welle-cli.exe bin
+  - copy src\welle-gui\release\welle-io.exe bin
   - copy ..\welle-io\src\welle-cli\index.html bin
   - copy ..\welle-io\src\welle-cli\index.js bin
   
