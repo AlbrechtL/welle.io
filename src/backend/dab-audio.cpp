@@ -116,8 +116,8 @@ void DabAudio::run()
     int16_t i;
     int16_t countforInterleaver = 0;
     int16_t interleaverIndex    = 0;
-    softbit_t Data[fragmentSize];
-    softbit_t tempX[fragmentSize];
+    softbit_t *Data  = (softbit_t*) alloca (sizeof(softbit_t)*fragmentSize);
+    softbit_t *tempX = (softbit_t*) alloca (sizeof(softbit_t)*fragmentSize);
 
     while (running) {
         std::unique_lock<std::mutex> lock(ourMutex);
