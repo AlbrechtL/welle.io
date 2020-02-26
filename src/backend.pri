@@ -1,72 +1,8 @@
 CONFIG += c++14
 
-!mingw32: {
-  CONFIG  += rtl_sdr
-
-  #
-  # Use these bundled libraries
-  #
-  CONFIG += mpg123_builtin libfaad_builtin kiss_fft_builtin
-
-  #
-  # The paths to 'rtl-sdr.h' etc. should be here:
-  #
-  INCLUDEPATH += $$IncludePath
-
-  #
-  # Prevent inclusion of '<winsock.h>' in '<windows.h>'
-  # That creates havoc when '<winsock2.h'> gets included.
-  #
-  DEFINES += WIN32_LEAN_AND_MEAN
-
-  #
-  # Disable the use of 'inet_ntop()' and "unsafe" functions.
-  #
-  DEFINES += BUILD_WINDOWS _CRT_SECURE_NO_WARNINGS _CRT_NONSTDC_NO_WARNINGS _ALLOW_KEYWORD_MACROS
-
-  #
-  # Pull in 'M_PI' etc. from '<math.h>'.
-  #
-  DEFINES += _USE_MATH_DEFINES
-
-  #
-  # Storage size type.
-  #
-  DEFINES += ssize_t=int MPG123_DEF_SSIZE_T
-
-  #
-  # But do not pull in the crap in 'libs/mpg123/config.h'
-  #
-  DEFINES += LIBMPG123_CONFIG_H
-
-  #
-  # But define the needed stuff here:
-  #
-  DEFINES += OPT_I486=1 REAL_IS_FLOAT=1 WANT_WIN32_UNICODE=1 \
-             HAVE_SYS_STAT_H=1 HAVE_STDLIB_H=1 HAVE_SIGNAL_H=1 HAVE_STDINT_H=1 HAVE_LIMITS_H=1
-
-  DEFINES += HAVE_STRERROR=1 HAVE_SYS_TYPES_H=1 HAVE_LIMITS_H=1 HAVE_INTTYPES_H=1 inline=__inline
-
-  DEFINES += strcasecmp=_stricmp strncasecmp=_strnicmp
-
-  LIBS += -lws2_32 -lshlwapi
-
-  #
-  # Turn off a heap of warnings
-  #
-  clang-msvc: {
-    QMAKE_CFLAGS   += -Wno-macro-redefined -Wno-unused-function -Wno-unused-variable
-    QMAKE_CXXFLAGS += -Wno-macro-redefined -Wno-unused-function -Wno-unused-variable
-  }
-
-  Release: QMAKE_CFLAGS   += -Ot
-  Release: QMAKE_CXXFLAGS += -Ot
-
-} else {
-  Release: QMAKE_CFLAGS   += -ffast-math -O3
-  Release: QMAKE_CXXFLAGS += -ffast-math -O3
-  Release: QMAKE_LFLAGS   += -O3
-}
+Release: QMAKE_CFLAGS	+=  -ffast-math -O3
+Release: QMAKE_CXXFLAGS	+=  -ffast-math -O3
+Release: QMAKE_LFLAGS	+=  -O3
 
 DEFINES += DABLIN_AAC_FAAD2
 
@@ -88,7 +24,7 @@ unix:!macx:!android: {
 #    CONFIG  += kiss_fft_builtin
 }
 
-mingw32: {
+win32: {
     INCLUDEPATH += ../../../welle.io-win-libs/include
     LIBS    += -L../../../welle.io-win-libs/x86
     LIBS    += -lfftw3f-3
@@ -204,7 +140,7 @@ HEADERS += \
     $$PWD/input/raw_file.h \
     $$PWD/input/virtual_input.h \
     $$PWD/input/rtl_tcp.h
-
+	
 SOURCES += \
     $$PWD/backend/dab-audio.cpp \
     $$PWD/backend/dab_decoder.cpp \
@@ -321,10 +257,7 @@ libfaad_builtin {
 
 mpg123_builtin {
 #    DEFINES   += MPG123
-
-    android {
-      DEFINES += OPT_GENERIC
-    }
+    DEFINES += OPT_GENERIC
 
     INCLUDEPATH += $$PWD/libs/mpg123
 
@@ -358,12 +291,6 @@ mpg123_builtin {
     $$PWD/libs/mpg123/synth_8bit.c \
     $$PWD/libs/mpg123/synth_s32.c \
     $$PWD/libs/mpg123/stringbuf.c
-
-    !android {
-      SOURCES += $$PWD/libs/mpg123/dct64_i386.c \
-                 $$PWD/libs/mpg123/dct64_i486.c \
-                 $$PWD/libs/mpg123/synth_i486.c
-    }
 }
 
 #### Devices ####
