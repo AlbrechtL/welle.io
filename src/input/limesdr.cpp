@@ -287,6 +287,7 @@ std::string CLimeSDR::getDescription()
 bool CLimeSDR::setDeviceParam(DeviceParam param, int value)
 {
     // ToDo
+    return true;
 }
 
 CDeviceID CLimeSDR::getID()
