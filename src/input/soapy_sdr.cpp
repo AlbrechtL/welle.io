@@ -31,7 +31,6 @@
 #include <SoapySDR/Errors.hpp>
 #include "soapy_sdr.h"
 #include "dab-constants.h"
-#include "unistd.h"
 
 // For Qt translation if Qt is existing
 #ifdef QT_CORE_LIB
