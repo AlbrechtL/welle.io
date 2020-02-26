@@ -27,8 +27,6 @@
  *
  */
 
-#include <unistd.h>
-
 #include <QApplication>
 #include <QQuickStyle>
 #include <QCoreApplication>
@@ -129,7 +127,7 @@ int main(int argc, char** argv)
 
     QString styleNameArg = optionParser.value(styleName);
     //qDebug() << "Command line style_name: " << styleNameArg ;
-    
+
     // Set the Qt Quick Style.
     QString styleToLoad = CGUIHelper::getQQStyleToLoad(styleNameArg);
     if (!styleToLoad.isEmpty())

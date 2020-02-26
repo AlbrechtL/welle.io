@@ -40,7 +40,14 @@
 #include <set>
 #include <utility>
 #include <cstdio>
-#include <unistd.h>
+
+#ifdef _MSC_VER
+#  include <getopt.h>
+#  include <cctype>
+#else
+#  include <unistd.h>
+#endif
+
 #ifdef HAVE_SOAPYSDR
 #  include "soapy_sdr.h"
 #endif
@@ -483,6 +490,7 @@ int main(int argc, char **argv)
         dynamic_cast<CSoapySdr*>(in.get())->setDeviceParam(DeviceParam::SoapySDRDriverArgs, options.soapySDRDriverArgs);
     }
 #endif
+
     if (options.frontend == "rtl_tcp" && !options.frontend_args.empty()) {
         string args = options.frontend_args;
         size_t colon = args.find(':');

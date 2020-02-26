@@ -45,6 +45,15 @@
 #include <cstdio>
 #include <cstdlib>
 
+#ifndef _MSC_VER      /* This also covers 'clang-cl' */
+#include <unistd.h>
+#endif
+
+#ifdef _WIN32
+  #include <windows.h>
+  #include <winsock2.h>  /* for 'struct timeval' */
+#endif
+
 using DSPFLOAT = float;
 using DSPCOMPLEX = std::complex<DSPFLOAT>;
 using softbit_t = int8_t;
