@@ -35,11 +35,16 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/time.h>
 #include <time.h>
-#include <unistd.h>
 
 #include "raw_file.h"
+
+#ifdef _MSC_VER
+  #include <sys/timeb.h>
+#else
+  #include <sys/time.h>
+  #include <unistd.h>
+#endif
 
 // For Qt translation if Qt is exisiting
 #ifdef QT_CORE_LIB
@@ -50,10 +55,17 @@
 
 static inline int64_t getMyTime(void)
 {
+#ifdef _MSC_VER /* Does not have 'gettimeofday()' */
+    struct _timeb tb;
+
+    _ftime(&tb);
+    return ((int64_t)tb.time * 1000000 + (int64_t)tb.millitm * 1000);
+#else
     struct timeval tv;
 
     gettimeofday(&tv, NULL);
     return ((int64_t)tv.tv_sec * 1000000 + (int64_t)tv.tv_usec);
+#endif
 }
 
 #define INPUT_FRAMEBUFFERSIZE 8 * 32768
