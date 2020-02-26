@@ -76,6 +76,10 @@
 #include    <stdint.h>
 #include    <iostream>
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 /*
  *  a simple ringbuffer, lockfree, however only for a
  *  single reader and a single writer.
@@ -89,6 +93,12 @@
 #   define PaUtil_FullMemoryBarrier()  OSMemoryBarrier()
 #   define PaUtil_ReadMemoryBarrier()  OSMemoryBarrier()
 #   define PaUtil_WriteMemoryBarrier() OSMemoryBarrier()
+
+#elif defined(_MSC_VER) && !defined(ALLOW_SMP_DANGERS)
+#   define PaUtil_FullMemoryBarrier()   MemoryBarrier()
+#   define PaUtil_ReadMemoryBarrier()   MemoryBarrier()
+#   define PaUtil_WriteMemoryBarrier()  MemoryBarrier()
+
 #elif defined(__GNUC__)
     /* GCC >= 4.1 has built-in intrinsics. We'll use those */
 #   if (__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 1)
@@ -118,8 +128,10 @@
 #   endif
 #else
 #   ifdef ALLOW_SMP_DANGERS
-#      warning Memory barriers not defined on this system or system unknown
-#      warning For SMP safety, you should fix this.
+#      if !defined(_MSC_VER) || defined(__clang__)
+#        warning Memory barriers not defined on this system or system unknown
+#        warning For SMP safety, you should fix this.
+#      endif
 #      define PaUtil_FullMemoryBarrier()
 #      define PaUtil_ReadMemoryBarrier()
 #      define PaUtil_WriteMemoryBarrier()
