@@ -50,8 +50,21 @@
 #endif
 
 #ifdef _WIN32
+  #undef  WIN32_LEAN_AND_MEAN   /* in case it's already defined */
+  #define WIN32_LEAN_AND_MEAN   /* do not include seldom used headers */
+  #include <winsock2.h>         /* for 'struct timeval' */
   #include <windows.h>
-  #include <winsock2.h>  /* for 'struct timeval' */
+#endif
+
+#if defined(_MSC_VER) && !defined(__clang__)
+  #define __attribute__(x)
+  #include <iso646.h>
+#endif
+
+#if defined(_WIN32) && !defined(_SSIZE_T_DEFINED) && !defined(_ssize_t)
+  #define ssize_t int
+  #define _SSIZE_T_DEFINED
+  #define MPG123_DEF_SSIZE_T  /* Use an 'int' for 'libs/mpg123' too */
 #endif
 
 using DSPFLOAT = float;
