@@ -116,8 +116,8 @@ void DabAudio::run()
     int16_t i;
     int16_t countforInterleaver = 0;
     int16_t interleaverIndex    = 0;
-    softbit_t Data[fragmentSize];
-    softbit_t tempX[fragmentSize];
+    std::vector<softbit_t> Data (fragmentSize);
+    std::vector<softbit_t> tempX (fragmentSize);
 
     while (running) {
         std::unique_lock<std::mutex> lock(ourMutex);
@@ -131,7 +131,7 @@ void DabAudio::run()
         lock.unlock();
 
         PROFILE(DAGetMSCData);
-        mscBuffer.getDataFromBuffer(Data, fragmentSize);
+        mscBuffer.getDataFromBuffer(&Data[0], fragmentSize);
 
         PROFILE(DADeinterleave);
         for (i = 0; i < fragmentSize; i ++) {
@@ -148,7 +148,7 @@ void DabAudio::run()
         }
 
         PROFILE(DADeconvolve);
-        protectionHandler->deconvolve(tempX, fragmentSize, outV.data());
+        protectionHandler->deconvolve(&tempX[0], fragmentSize, outV.data());
 
         PROFILE(DADispersal);
         // and the inline energy dispersal

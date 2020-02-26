@@ -242,9 +242,9 @@ void OFDMProcessor::run()
     float       currentStrength;
     int32_t     syncBufferSize  = 32768;
     int32_t     syncBufferMask  = syncBufferSize - 1;
-    float       envBuffer   [syncBufferSize];
 
-    std::vector<DSPCOMPLEX> ofdmBuffer(params.L * params.T_s);
+    std::vector<float>                    envBuffer (syncBufferSize);
+    std::vector<DSPCOMPLEX>               ofdmBuffer(params.L * params.T_s);
     std::vector<std::vector<DSPCOMPLEX> > allSymbols;
 
     try {

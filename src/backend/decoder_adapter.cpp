@@ -54,7 +54,7 @@ DecoderAdapter::DecoderAdapter(ProgrammeHandlerInterface &mr, int16_t bitRate, A
 void DecoderAdapter::addtoFrame(uint8_t *v)
 {
     size_t  length  = 24 * bitRate / 8;
-    uint8_t data [24 * bitRate / 8];
+    std::vector<uint8_t> data(length);
 
     // Convert 8 bits (stored in one uint8) into one uint8
     for (int i = 0; i < 24 * bitRate / 8; i ++) {
@@ -65,10 +65,10 @@ void DecoderAdapter::addtoFrame(uint8_t *v)
         }
     }
 
-    decoder->Feed(data, length);
+    decoder->Feed(&data[0], length);
 
     if (dumpFile) {
-        fwrite(data, length, 1, dumpFile.get());
+        fwrite(&data[0], length, 1, dumpFile.get());
     }
 
     myInterface.onFrameErrors(frameErrorCounter);
