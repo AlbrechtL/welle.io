@@ -44,8 +44,10 @@
 
 #define READLEN_DEFAULT 8192
 
-// Fallback if function is not defined in shared lib
-int __attribute__((weak)) rtlsdr_set_bias_tee(rtlsdr_dev_t *dev, int on);
+#if defined(__GNUC__)
+  // Fallback if function is not defined in shared lib
+  int __attribute__((weak)) rtlsdr_set_bias_tee(rtlsdr_dev_t *dev, int on);
+#endif
 
 CRTL_SDR::CRTL_SDR(RadioControllerInterface& radioController) :
     radioController(radioController),
