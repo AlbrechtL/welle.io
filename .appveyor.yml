@@ -32,11 +32,11 @@ before_build:
 build_script:
   - cd build
   - cmd: if %BUILDER% == clang (
-            qmake -spec win32-clang-msvc ..\welle-io
+            qmake -spec win32-clang-msvc ..\welle-io &
             nmake
          )
          else (
-           qmake ..\welle-io
+           qmake ..\welle-io &
            mingw32-make -j4
          )
 
