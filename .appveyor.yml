@@ -2,11 +2,6 @@ version: 1.0.{build}
 
 image: Visual Studio 2017
 
-environment:
-  matrix:
-    - BUILDER: mingw
-    - BUILDER: clang
-
 init:
   - set PATHORIG=%PATH%
   - set PATH=C:\Qt\5.13\mingw73_32\bin;C:\Qt\Tools\mingw730_32\bin;%PATH%
@@ -31,14 +26,8 @@ before_build:
 
 build_script:
   - cd build
-  - cmd: if %BUILDER% == clang (
-            qmake -spec win32-clang-msvc ..\welle-io &
-            nmake
-         )
-         else (
-           qmake ..\welle-io &
-           mingw32-make -j4
-         )
+  - qmake ..\welle-io
+  - mingw32-make -j4
 
 after_build:
   # Prepare welle binary files
@@ -47,7 +36,7 @@ after_build:
   - copy src\welle-gui\release\welle-io.exe bin
   - copy ..\welle-io\src\welle-cli\index.html bin
   - copy ..\welle-io\src\welle-cli\index.js bin
-
+  
   # Create installer
   - cd ..\welle-io\windows\
   - ps: .\create_installer.ps1 -welleExePath ..\..\build\bin -QTPath C:\Qt\5.13\mingw73_32\bin -ToolsPath C:\Qt\Tools\mingw730_32\bin -InstallerPath C:\Qt\Tools\QtInstallerFramework\3.0\bin
@@ -55,12 +44,12 @@ after_build:
   # Add to artifact list
   - set PATH=%PATHORIG%
   - appveyor PushArtifact %welle_io_filename%
-
+  
 #test_script:
 #  - set PATH=%PATHORIG%
 #  - cd installer\packages\io.welle.welle\data
 #  - welle-io.exe --version
-
+  
 deploy:
   # Upload it to BinTray
   - provider: BinTray
