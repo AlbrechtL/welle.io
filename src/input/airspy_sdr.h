@@ -41,7 +41,7 @@
 
 #include <vector>
 
-#ifndef __MINGW32__
+#ifndef _WIN32
 #include "libairspy/airspy.h"
 #else
 #include "airspy.h"
