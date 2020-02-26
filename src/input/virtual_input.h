@@ -39,7 +39,8 @@
 #include "ringbuffer.h"
 
 enum class CDeviceID {
-    UNKNOWN, NULLDEVICE, AIRSPY, RAWFILE, RTL_SDR, RTL_TCP, SOAPYSDR, ANDROID_RTL_SDR, LIMESDR};
+    UNKNOWN, NULLDEVICE, AIRSPY, RAWFILE, RTL_SDR, RTL_TCP, SOAPYSDR, ANDROID_RTL_SDR, LIMESDR
+  };
 
 class CVirtualInput : public InputInterface {
 public:
@@ -59,14 +60,14 @@ public:
             else
                 data_tmpSize = static_cast<size_t>(recordBuffer->GetRingBufferReadAvailable());
 
-            uint8_t data_tmp[data_tmpSize];
+            uint8_t data_tmp [1024];
             recordBuffer->getDataFromBuffer(data_tmp, data_tmpSize);
             rawStream.write((char *) data_tmp, data_tmpSize);
         }
         rawStream.close();
     }
 
-    void initRecordBuffer(uint32_t size) {       
+    void initRecordBuffer(uint32_t size) {
         // The ring buffer size has to be power of 2
         uint32_t bitCount = ceil(log2(size));
         uint32_t bufferSize = pow(2, bitCount);
