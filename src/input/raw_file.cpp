@@ -326,9 +326,9 @@ int32_t CRAWFile::convertSamples(RingBuffer<uint8_t>& Buffer, DSPCOMPLEX *V, int
         return amount / IQByteSize;
     }
 
-    uint8_t *temp = (uint8_t*)alloca((size_t)IQByteSize * (size_t)size * sizeof(uint8_t));
+    std::vector<uint8_t> temp((size_t)IQByteSize * (size_t)size);
 
-    int32_t amount = Buffer.getDataFromBuffer(temp, IQByteSize * size);
+    int32_t amount = Buffer.getDataFromBuffer(temp.data(), IQByteSize * size);
 
     // Unsigned 8-bit
     if (fileFormat == CRAWFileFormat::U8) {

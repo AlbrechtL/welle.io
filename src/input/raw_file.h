@@ -82,7 +82,7 @@ private:
     bool autoRewind;
     std::string fileName;
     CRAWFileFormat fileFormat;
-    uint8_t IQByteSize;
+    uint8_t IQByteSize = 2;
 
     void run(void);
     int32_t readBuffer(uint8_t*, int32_t);
