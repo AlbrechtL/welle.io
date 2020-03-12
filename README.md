@@ -34,6 +34,8 @@ Download
 ##### Stable binaries
 * [welle.io for **Windows**, **Linux** and **Android (APK)**](http://github.com/AlbrechtL/welle.io/releases) 
 * [welle.io for **Android at Google Play**](https://play.google.com/store/apps/details?id=io.welle.welle)
+* welle.io for **Debian** or **Ubuntu** 19.04+
+  * `apt install welle.io`, see the /usr/share/doc/welle.io/README.Debian for maintainer notes
 * welle.io for **macOS**
   * [through **MacPorts port**](https://ports.macports.org/port/welle.io/summary) (requires [MacPorts](https://www.macports.org/)) 
     * `sudo port install welle.io`
