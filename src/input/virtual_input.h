@@ -52,21 +52,23 @@ public:
 
         std::ofstream rawStream(fileanme, std::ios::binary);
 
-        while(recordBuffer->GetRingBufferReadAvailable() > 0) {
-            size_t data_tmpSize = 0;
-            if(recordBuffer->GetRingBufferReadAvailable() > 1024)
-                data_tmpSize = 1024;
-            else
-                data_tmpSize = static_cast<size_t>(recordBuffer->GetRingBufferReadAvailable());
+        while (1) {
+            uint8_t data_tmp[1024];
+            const auto available = recordBuffer->GetRingBufferReadAvailable();
 
-            uint8_t data_tmp[data_tmpSize];
+            if (available <= 0) {
+                break;
+            }
+
+            const size_t data_tmpSize = std::min(sizeof(data_tmp), (size_t)available);
             recordBuffer->getDataFromBuffer(data_tmp, data_tmpSize);
-            rawStream.write((char *) data_tmp, data_tmpSize);
+            rawStream.write((char*)data_tmp, data_tmpSize);
         }
+
         rawStream.close();
     }
 
-    void initRecordBuffer(uint32_t size) {       
+    void initRecordBuffer(uint32_t size) {
         // The ring buffer size has to be power of 2
         uint32_t bitCount = ceil(log2(size));
         uint32_t bufferSize = pow(2, bitCount);

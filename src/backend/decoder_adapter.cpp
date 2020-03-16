@@ -24,6 +24,7 @@
  */
 
 #include <iostream>
+#include <vector>
 #include "decoder_adapter.h"
 
 DecoderAdapter::DecoderAdapter(ProgrammeHandlerInterface &mr, int16_t bitRate, AudioServiceComponentType &dabModus, const std::string &dumpFileName):
@@ -53,22 +54,22 @@ DecoderAdapter::DecoderAdapter(ProgrammeHandlerInterface &mr, int16_t bitRate, A
 
 void DecoderAdapter::addtoFrame(uint8_t *v)
 {
-    size_t  length  = 24 * bitRate / 8;
-    uint8_t data [24 * bitRate / 8];
+    const size_t length = 24 * bitRate / 8;
+    std::vector<uint8_t> data(length);
 
     // Convert 8 bits (stored in one uint8) into one uint8
-    for (int i = 0; i < 24 * bitRate / 8; i ++) {
-        data [i] = 0;
+    for (size_t i = 0; i < length; i ++) {
+        data[i] = 0;
         for (int j = 0; j < 8; j ++) {
-            data [i] <<= 1;
-            data [i] |= v [8 * i + j] & 01;
+            data[i] <<= 1;
+            data[i] |= v[8 * i + j] & 01;
         }
     }
 
-    decoder->Feed(data, length);
+    decoder->Feed(data.data(), length);
 
     if (dumpFile) {
-        fwrite(data, length, 1, dumpFile.get());
+        fwrite(data.data(), length, 1, dumpFile.get());
     }
 
     myInterface.onFrameErrors(frameErrorCounter);

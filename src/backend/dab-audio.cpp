@@ -23,6 +23,7 @@
  */
 
 #include <iostream>
+#include <vector>
 #include "dab-constants.h"
 #include "dab-audio.h"
 #include "decoder_adapter.h"
@@ -116,8 +117,8 @@ void DabAudio::run()
     int16_t i;
     int16_t countforInterleaver = 0;
     int16_t interleaverIndex    = 0;
-    softbit_t Data[fragmentSize];
-    softbit_t tempX[fragmentSize];
+    std::vector<softbit_t> data(fragmentSize);
+    std::vector<softbit_t> tempX(fragmentSize);
 
     while (running) {
         std::unique_lock<std::mutex> lock(ourMutex);
@@ -131,13 +132,13 @@ void DabAudio::run()
         lock.unlock();
 
         PROFILE(DAGetMSCData);
-        mscBuffer.getDataFromBuffer(Data, fragmentSize);
+        mscBuffer.getDataFromBuffer(data.data(), fragmentSize);
 
         PROFILE(DADeinterleave);
         for (i = 0; i < fragmentSize; i ++) {
             tempX[i] = interleaveData[(interleaverIndex +
                     interleaveMap[i & 017]) & 017][i];
-            interleaveData[interleaverIndex][i] = Data[i];
+            interleaveData[interleaverIndex][i] = data[i];
         }
         interleaverIndex = (interleaverIndex + 1) & 0x0F;
 
@@ -148,7 +149,7 @@ void DabAudio::run()
         }
 
         PROFILE(DADeconvolve);
-        protectionHandler->deconvolve(tempX, fragmentSize, outV.data());
+        protectionHandler->deconvolve(tempX.data(), fragmentSize, outV.data());
 
         PROFILE(DADispersal);
         // and the inline energy dispersal

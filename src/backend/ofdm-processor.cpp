@@ -236,13 +236,13 @@ void OFDMProcessor::getSamples(DSPCOMPLEX *v, int16_t n, int32_t phase)
  */
 void OFDMProcessor::run()
 {
-    int32_t     startIndex;
-    int32_t     i;
-    int32_t     counter;
-    float       currentStrength;
-    int32_t     syncBufferSize  = 32768;
-    int32_t     syncBufferMask  = syncBufferSize - 1;
-    float       envBuffer   [syncBufferSize];
+    int32_t startIndex;
+    int32_t i;
+    int32_t counter;
+    float currentStrength;
+    constexpr int32_t syncBufferSize  = 32768;
+    constexpr int32_t syncBufferMask  = syncBufferSize - 1;
+    float envBuffer[syncBufferSize];
 
     std::vector<DSPCOMPLEX> ofdmBuffer(params.L * params.T_s);
     std::vector<std::vector<DSPCOMPLEX> > allSymbols;
