@@ -172,7 +172,7 @@ ApplicationWindow {
                         text: qsTr("Settings")
                         font.pixelSize: TextStyle.textStandartSize
                         onTriggered: {
-                            globalSettingsDialog.title = text
+                            globalSettingsDialog.title = "Settings"
                             globalSettingsDialog.open()
                         }
                     }
@@ -180,7 +180,7 @@ ApplicationWindow {
                         text: qsTr("Expert Settings")
                         font.pixelSize: TextStyle.textStandartSize
                         onTriggered: {
-                            expertSettingsDialog.title = text
+                            expertSettingsDialog.title = "Expert Settings"
                             expertSettingsDialog.open()
                         }
                     }
@@ -188,7 +188,7 @@ ApplicationWindow {
                         text: qsTr("About")
                         font.pixelSize: TextStyle.textStandartSize
                         onTriggered: {
-                            aboutDialog.title = text
+                            aboutDialog.title = "About"
                             aboutDialog.open()
                         }
                     }
@@ -296,7 +296,7 @@ ApplicationWindow {
                             font.pixelSize: TextStyle.textStandartSize
                             font.family: TextStyle.textFont
                             onTriggered: {
-                                stationSettingsDialog.title = text
+                                stationSettingsDialog.title = "Station settings"
                                 stationSettingsDialog.open()
                             }
                         }
