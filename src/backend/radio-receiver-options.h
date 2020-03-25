@@ -76,7 +76,7 @@ struct RadioReceiverOptions {
 
     // Good receivers with accurate clocks do not need the coarse corrector.
     // Disabling it can accelerate lock.
-    bool disable_coarse_corrector = false;
+    bool disableCoarseCorrector = false;
 
     // Which method to use for the freqsyncmethod used in the coarse corrector.
     // Has no effect when coarse corrector is disabled.

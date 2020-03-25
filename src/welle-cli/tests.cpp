@@ -360,7 +360,7 @@ void Tests::test_multipath(int test_id)
     fprintf(fd, "%s,%s,%d,%zu,%zu,%ld,%d,%d,%d\n",
             intf.getFileName().c_str(),
             fftPlacementMethodToString(rro.fftPlacementMethod),
-            rro.disable_coarse_corrector ? 0 : 1,
+            rro.disableCoarseCorrector ? 0 : 1,
             ri.num_syncs, ri.num_desyncs,
             chrono::duration_cast<chrono::milliseconds>(start_time-ri.first_sync_time).count(),
             std::accumulate(tph.frameErrorStats.begin(), tph.frameErrorStats.end(), 0),

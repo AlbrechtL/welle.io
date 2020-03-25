@@ -611,7 +611,7 @@ bool WebRadioInterface::send_mux_json(Socket& s)
     mux_json.receiver.software.name = "welle.io";
     mux_json.receiver.software.version = VERSION;
     mux_json.receiver.software.fftwindowplacement = fftPlacementMethodToString(rro.fftPlacementMethod);
-    mux_json.receiver.software.coarsecorrectorenabled = not rro.disable_coarse_corrector;
+    mux_json.receiver.software.coarsecorrectorenabled = not rro.disableCoarseCorrector;
     mux_json.receiver.software.freqsyncmethod = freqSyncMethodToString(rro.freqsyncMethod);
     mux_json.receiver.software.lastchannelchange = chrono::system_clock::to_time_t(time_rx_created);
     mux_json.receiver.hardware.name = input.getDescription();
@@ -1118,10 +1118,10 @@ bool WebRadioInterface::handle_coarse_corrector_post(Socket& s, const std::strin
     cerr << "POST coarse : " << coarseCorrector << endl;
 
     if (coarseCorrector == "0") {
-        rro.disable_coarse_corrector = true;
+        rro.disableCoarseCorrector = true;
     }
     else if (coarseCorrector == "1") {
-        rro.disable_coarse_corrector = false;
+        rro.disableCoarseCorrector = false;
     }
     else {
         string response = http_400;

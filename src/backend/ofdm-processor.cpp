@@ -58,19 +58,17 @@ OFDMProcessor::OFDMProcessor(
         MscHandler& msc,
         FicHandler& fic,
         RadioReceiverOptions rro) :
+    receiver_options(rro),
     radioInterface(ri),
     input(inputInterface),
     params(params),
     ficHandler(fic),
-    decodeTII(rro.decodeTII),
     tiiDecoder(params, ri),
     T_null(params.T_null),
     T_u(params.T_u),
     T_s(params.T_s),
     T_F(params.T_F),
     oscillatorTable(INPUT_RATE),
-    disableCoarseCorrector(rro.disable_coarse_corrector),
-    freqsyncMethod(rro.freqsyncMethod),
     phaseRef(params, rro.fftPlacementMethod),
     ofdmDecoder(params, ri, fic, msc),
     fft_handler(params.T_u),
@@ -375,8 +373,14 @@ SyncOnPhase:
                 T_u - ofdmBufferIndex,
                 coarseCorrector + fineCorrector);
 
+        RadioReceiverOptions rro;
+        {
+            std::lock_guard<std::mutex> lock(receiver_options_mutex);
+            rro = receiver_options;
+        }
+
         std::vector<complexf> prs;
-        if (decodeTII) {
+        if (rro.decodeTII) {
             prs.resize(T_u);
             std::copy(ofdmBuffer.begin(), ofdmBuffer.begin() + T_u, prs.begin());
         }
@@ -390,13 +394,13 @@ SyncOnPhase:
         //  reception glitch might provoke a long delay until it resyncs properly.
         //  As long as some FICs have correct CRC, we assume the coarse corrector cannot
         //  be off.
-        if (!disableCoarseCorrector and ficHandler.getFicDecodeRatioPercent() < 50) {
+        if (!rro.disableCoarseCorrector and ficHandler.getFicDecodeRatioPercent() < 50) {
             if (!coarseSyncCounter) {
                 std::clog << "ofdm-processor: " << "Lost coarse sync (coarseCorrector: " << lastValidCoarseCorrector << "; fineCorrector: " <<  lastValidFineCorrector << ")" << std::endl;
             }
 
             coarseSyncCounter++;
-            int correction = processPRS(ofdmBuffer.data());
+            int correction = processPRS(ofdmBuffer.data(), rro.freqsyncMethod);
             if (correction != 100) {
                 coarseCorrector += correction * params.carrierDiff;
                 if (abs (coarseCorrector) > kHz(35))
@@ -457,7 +461,7 @@ SyncOnPhase:
         // The NULL is interesting to save because it carries the TII.
         std::vector<DSPCOMPLEX> nullSymbol(T_null);
         getSamples(nullSymbol.data(), T_null, coarseCorrector + fineCorrector);
-        if (decodeTII) {
+        if (rro.decodeTII) {
             tiiDecoder.pushSymbols(nullSymbol, prs);
         }
 
@@ -510,12 +514,11 @@ void OFDMProcessor::resetCoarseCorrector()
 
 void OFDMProcessor::setReceiverOptions(const RadioReceiverOptions rro)
 {
-    bool need_reset = (disableCoarseCorrector != rro.disable_coarse_corrector);
-
-    decodeTII = rro.decodeTII;
-    disableCoarseCorrector = rro.disable_coarse_corrector;
-    freqsyncMethod = rro.freqsyncMethod;
+    std::unique_lock<std::mutex> lock(receiver_options_mutex);
+    bool need_reset = (receiver_options.disableCoarseCorrector != rro.disableCoarseCorrector);
+    receiver_options = rro;
     phaseRef.selectFFTWindowPlacement(rro.fftPlacementMethod);
+    lock.unlock();
 
     if (need_reset) {
         restart();
@@ -528,7 +531,7 @@ void OFDMProcessor::set_scanMode(bool b)
 }
 
 #define RANGE 36
-int16_t OFDMProcessor::processPRS(DSPCOMPLEX *v)
+int16_t OFDMProcessor::processPRS(DSPCOMPLEX *v, const FreqsyncMethod& freqsyncMethod)
 {
     int16_t i, j, index = 100;
 

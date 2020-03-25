@@ -36,6 +36,7 @@
 #include "dab-constants.h"
 #include <thread>
 #include <atomic>
+#include <mutex>
 #include <vector>
 #include "phasereference.h"
 #include "ofdm-decoder.h"
@@ -68,6 +69,9 @@ class OFDMProcessor
         void set_scanMode(bool);
 
     private:
+        std::mutex receiver_options_mutex;
+        RadioReceiverOptions receiver_options;
+
         std::thread threadHandle;
         int32_t syncBufferIndex = 0;
         RadioControllerInterface& radioInterface;
@@ -75,7 +79,6 @@ class OFDMProcessor
         const DABParams& params;
         FicHandler& ficHandler;
         std::vector<float> impulseResponseBuffer;
-        bool decodeTII;
         TIIDecoder tiiDecoder;
 
         std::atomic<bool> running = ATOMIC_VAR_INIT(false);
@@ -97,9 +100,6 @@ class OFDMProcessor
         int32_t lastValidCoarseCorrector = 0;
         int16_t fineCorrector = 0;
         int32_t coarseCorrector = 0;
-        bool disableCoarseCorrector;
-
-        FreqsyncMethod freqsyncMethod;
 
         uint32_t ofdmBufferIndex = 0;
         PhaseReference phaseRef;
@@ -118,7 +118,7 @@ class OFDMProcessor
         DSPCOMPLEX getSample(int32_t);
         void getSamples(DSPCOMPLEX *, int16_t, int32_t);
         void run(void);
-        int16_t processPRS(DSPCOMPLEX *v);
+        int16_t processPRS(DSPCOMPLEX *v, const FreqsyncMethod& freqsyncMethod);
         int16_t getMiddle(DSPCOMPLEX *);
 };
 #endif

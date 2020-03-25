@@ -111,7 +111,7 @@ void RadioReceiver::setReceiverOptions(const RadioReceiverOptions rro)
 
     clog << "New Receiver Options: " <<
         "TII: " << rro.decodeTII <<
-        " disable coarse corr: " << rro.disable_coarse_corrector <<
+        " disable coarse corr: " << rro.disableCoarseCorrector <<
         " freqsync: " << fsm <<
         " fft placement: " << fftPlacementMethodToString(rro.fftPlacementMethod) << endl;
     ofdmProcessor.setReceiverOptions(rro);

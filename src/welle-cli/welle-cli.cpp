@@ -408,7 +408,7 @@ options_t parse_cmdline(int argc, char **argv)
                 options.web_port = std::atoi(optarg);
                 break;
             case 'u':
-                options.rro.disable_coarse_corrector = true;
+                options.rro.disableCoarseCorrector = true;
                 break;
             default:
                 cerr << "Unknown option. Use -h for help" << endl;

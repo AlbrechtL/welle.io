@@ -436,7 +436,7 @@ void CRadioController::setAGC(bool isAGC)
 
 void CRadioController::disableCoarseCorrector(bool disable)
 {
-    rro.disable_coarse_corrector = disable;
+    rro.disableCoarseCorrector = disable;
     if (radioReceiver) {
         radioReceiver->setReceiverOptions(rro);
     }
