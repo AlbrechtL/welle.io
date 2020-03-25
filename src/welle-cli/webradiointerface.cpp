@@ -866,10 +866,13 @@ bool WebRadioInterface::send_slide(Socket& s, const std::string& stream)
             }
             headers << "\r\n";
 
+            headers << http_nocache;
+
             headers << "Last-Modified: ";
             std::time_t t = chrono::system_clock::to_time_t(mot.time);
             headers << put_time(std::gmtime(&t), "%a, %d %b %Y %T GMT");
             headers << "\r\n";
+
             headers << "\r\n";
             const auto headers_str = headers.str();
             int ret = s.send(headers_str.data(), headers_str.size(), MSG_NOSIGNAL);
