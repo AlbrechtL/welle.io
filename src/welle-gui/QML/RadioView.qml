@@ -248,7 +248,7 @@ ViewBaseFrame {
             Layout.alignment: Qt.AlignLeft
             Layout.leftMargin: Units.dp(5)
             verticalAlignment: Text.AlignBottom
-            text: radioController.stationType
+            text: qsTranslate("DABConstants", radioController.stationType)
         }
 
         TextRadioInfo {
