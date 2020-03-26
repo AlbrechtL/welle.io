@@ -83,11 +83,6 @@ SettingSection {
         isLoaded = true
     }
 
-    onVisibleChanged: {
-        if(visible == false && isLoaded)
-            __openDevice()
-    }
-
     function __openDevice() {
         // Don't use fileFormat.currentText because if __openDevice is called
         // from fileFormat.onCurrentIndexChanged the value of currentText is incorrect
