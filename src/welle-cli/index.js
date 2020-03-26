@@ -220,7 +220,7 @@ var slideimg = document.getElementById("slideimg");
 var slidecaption = document.getElementById("slidecaption");
 
 function showSlide(sid, last_update_time) {
-    slideimg.src = "slide/" + sid;
+    slideimg.src = "slide/" + sid + "?cachebreak=" + last_update_time;
     var last_update = new Date(last_update_time * 1000);
     slidecaption.innerHTML = last_update;
     slide_modal.style.display = "block";
