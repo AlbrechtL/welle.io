@@ -29,6 +29,7 @@ Item {
             text: qsTr("Automatic start playing last station")
             checked: false
             Layout.fillWidth: true
+            onClicked: radioController.setAutoPlay(checked, radioController.lastChannel[1], radioController.lastChannel[0])
         }
 
         WSwitch {

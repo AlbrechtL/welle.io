@@ -83,6 +83,7 @@ class CRadioController :
     Q_PROPERTY(QString errorMsg MEMBER errorMsg NOTIFY showErrorMessage)
 
     Q_PROPERTY(QString channel MEMBER currentChannel NOTIFY channelChanged)
+    Q_PROPERTY(QStringList lastChannel MEMBER currentLastChannel NOTIFY lastChannelChanged)
     Q_PROPERTY(QString ensemble MEMBER currentEnsembleLabel NOTIFY ensembleChanged)
     Q_PROPERTY(int frequency MEMBER currentFrequency NOTIFY frequencyChanged)
     Q_PROPERTY(quint32 service MEMBER currentService NOTIFY stationChanged)
@@ -110,7 +111,7 @@ public:
     Q_INVOKABLE void setManualChannel(QString Channel);
     Q_INVOKABLE void startScan(void);
     Q_INVOKABLE void stopScan(void);
-    void setAutoPlay(QString channel, QString serviceid_as_string);
+    Q_INVOKABLE void setAutoPlay(bool isAutoPlayValue, QString channel, QString serviceid_as_string);
     Q_INVOKABLE void setVolume(qreal volume);
     Q_INVOKABLE void setAGC(bool isAGC);
     Q_INVOKABLE void disableCoarseCorrector(bool disable);
@@ -193,6 +194,7 @@ private:
     int stationCount = 0;
 
     QString currentChannel;
+    QStringList currentLastChannel;
     std::list<uint32_t> pendingLabels;
     QString currentEnsembleLabel;
     uint16_t currentEId;
@@ -271,6 +273,7 @@ signals:
     void motReseted(void);
 
     void channelChanged();
+    void lastChannelChanged();
     void ensembleChanged();
     void frequencyChanged();
     void stationChanged();
