@@ -100,7 +100,7 @@ Item {
                 }
 
                 TextStandart {
-                    text: qsTr("Language")
+                    text: qsTr("Language") == "Language" ? "Language" : qsTr("Language") + " (Language)"
                     Layout.fillWidth: true
                 }
             }
