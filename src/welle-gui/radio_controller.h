@@ -63,6 +63,7 @@ class CRadioController :
     Q_PROPERTY(QString deviceName MEMBER deviceName NOTIFY deviceNameChanged)
     Q_PROPERTY(CDeviceID deviceId  MEMBER deviceId NOTIFY deviceIdChanged)
     Q_PROPERTY(QDateTime dateTime MEMBER currentDateTime NOTIFY dateTimeChanged)
+    Q_PROPERTY(bool isPlaying MEMBER isPlaying NOTIFY isPlayingChanged)
     Q_PROPERTY(bool isSync MEMBER isSync NOTIFY isSyncChanged)
     Q_PROPERTY(bool isFICCRC MEMBER isFICCRC NOTIFY isFICCRCChanged)
     Q_PROPERTY(bool isSignal MEMBER isSignal NOTIFY isSignalChanged)
@@ -106,7 +107,7 @@ public:
     void setDeviceParam(QString param, QString value);
     Q_INVOKABLE void play(QString channel, QString title, quint32 service);
     void pause();
-    void stop();
+    Q_INVOKABLE void stop();
     void setService(uint32_t service, bool force = false);
     void setChannel(QString Channel, bool isScan, bool Force = false);
     Q_INVOKABLE void setManualChannel(QString Channel);
@@ -158,7 +159,7 @@ public:
 private:
     void initialise(void);
     void resetTechnicalData(void);
-    void deviceRestart(void);
+    bool deviceRestart(void);
 
     std::shared_ptr<CVirtualInput> device;
     QVariantMap commandLineOptions;
@@ -179,6 +180,7 @@ private:
 
     QString errorMsg;
     QDateTime currentDateTime;
+    bool isPlaying = false;
     bool isSync = false;
     bool isFICCRC = false;
     bool isSignal = false;
@@ -252,6 +254,7 @@ signals:
     void deviceNameChanged();
     void deviceIdChanged();
     void dateTimeChanged(QDateTime);
+    void isPlayingChanged(bool);
     void isSyncChanged(bool);
     void isFICCRCChanged(bool);
     void isSignalChanged(bool);

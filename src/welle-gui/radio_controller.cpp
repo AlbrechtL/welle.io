@@ -237,30 +237,52 @@ void CRadioController::play(QString channel, QString title, quint32 service)
         stopScan();
     }
 
-    deviceRestart();
+    bool isRestartOk = deviceRestart();
     setChannel(channel, false);
     setService(service);
 
     currentLastChannel = QStringList() << serialise_serviceid(service) << channel;
     QSettings settings;
     settings.setValue("lastchannel", currentLastChannel);
+
+    if (isRestartOk) {
+        isPlaying = true;
+        emit isPlayingChanged(isPlaying);
+    } else {
+        resetTechnicalData();
+        currentTitle = title;
+        emit titleChanged();
+        currentText = tr("Playback failed");
+        emit textChanged();
+    }
 }
 
 void CRadioController::stop()
 {
+    if (radioReceiver) {
+        radioReceiver->stop();
+    }
+
     if (device) {
         device->stop();
     }
     else
         throw std::runtime_error("device is null in file " + std::string(__FILE__) +":"+ std::to_string(__LINE__));
 
-    audio.reset();
+    QString title = currentTitle;
+    resetTechnicalData();
+    currentTitle = title;
+    emit titleChanged();
+    currentText = tr("Playback stopped");
+    emit textChanged();
+
+    audio.stop();
     labelTimer.stop();
 }
 
 void CRadioController::setService(uint32_t service, bool force)
 {
-    if (currentService != service or force) {
+    if (currentService != service or force or isPlaying == false) {
         currentService = service;
         autoService = service;
         emit stationChanged();
@@ -299,17 +321,19 @@ void CRadioController::setVolume(qreal Volume)
 
 void CRadioController::setChannel(QString Channel, bool isScan, bool Force)
 {
-    if (currentChannel != Channel || Force == true) {
+    if (currentChannel != Channel || Force == true || isPlaying == false) {
         if (device && device->getID() == CDeviceID::RAWFILE) {
             currentChannel = "File";
-            autoChannel = currentChannel;
+            if (!isScan)
+                autoChannel = currentChannel;
             currentEId = 0;
             currentEnsembleLabel = "";
             currentFrequency = 0;
         }
         else { // A real device
             currentChannel = Channel;
-            autoChannel = currentChannel;
+            if (!isScan)
+                autoChannel = currentChannel;
             currentEId = 0;
             currentEnsembleLabel = "";
 
@@ -367,6 +391,8 @@ void CRadioController::setManualChannel(QString Channel)
 void CRadioController::startScan(void)
 {
     qDebug() << "RadioController:" << "Start channel scan";
+
+    stop();
 
     deviceRestart();
 
@@ -635,38 +661,56 @@ void CRadioController::resetTechnicalData(void)
     currentText = "";
     emit textChanged();
 
+    isPlaying = false;
+    emit isPlayingChanged(isPlaying);
+
     errorMsg = "";
     isSync = false;
+    emit isSyncChanged(isSync);
     isFICCRC = false;
+    emit isFICCRCChanged(isFICCRC);
     isSignal = false;
+    emit isSignalChanged(isSignal);
     snr = 0;
+    emit snrChanged(snr);
     frequencyCorrection = 0;
+    emit frequencyCorrectionChanged(frequencyCorrection);
     frequencyCorrectionPpm = NAN;
+    emit frequencyCorrectionPpmChanged(frequencyCorrectionPpm);
     bitRate = 0;
+    emit bitRateChanged(bitRate);
     audioSampleRate = 0;
     isDAB = true;
+    emit isDABChanged(isDAB);
     frameErrors = 0;
+    emit frameErrorsChanged(frameErrors);
     rsUncorrectedErrors = 0;
+    emit rsUncorrectedErrorsChanged(this->rsUncorrectedErrors);
+    emit rsCorrectedErrorsChanged(this->rsCorrectedErrors);
     aaErrors = 0;
+    emit aacErrorsChanged(aaErrors);
 
     emit motReseted();
 }
 
-void CRadioController::deviceRestart()
+bool CRadioController::deviceRestart()
 {
     bool isPlay = false;
 
     if(device) {
         isPlay = device->restart();
+    } else {
+        return false;
     }
 
     if(!isPlay) {
         qDebug() << "RadioController:" << "Radio device is not ready or does not exist.";
         emit showErrorMessage(tr("Radio device is not ready or does not exist."));
-        return;
+        return false;
     }
 
     labelTimer.start(40);
+    return true;
 }
 
 /*****************

@@ -332,7 +332,7 @@ ApplicationWindow {
                 Layout.fillHeight: true
                 clip: true
                 delegate: StationDelegate {
-                    stationNameText: stationName
+                    stationNameText: stationName.trim()
                     stationSIdValue: stationSId
                     channelNameText: channelName == "File" ? qsTr("File") : channelName
                     isFavorit: favorit
