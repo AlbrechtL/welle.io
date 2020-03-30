@@ -321,7 +321,7 @@ ApplicationWindow {
                 Layout.fillHeight: true
                 clip: true
                 delegate: StationDelegate {
-                    stationNameText: stationName
+                    stationNameText: stationName.trim()
                     stationSIdValue: stationSId
                     channelNameText: channelName
                     isFavorit: favorit

@@ -19,7 +19,7 @@ ViewBaseFrame {
         text: radioController.ensemble.trim()
     }
 
-    // Use 2 Images to switch between speaker & speaker_mute icon (instead of toggle button). 
+    // Use 2 Images to switch between speaker & speaker_mute icon (instead of toggle button).
     // Permits use of color with org.kde.desktop style
     Image {
         id: speakerIcon
@@ -94,6 +94,68 @@ ViewBaseFrame {
         }
     }
 
+    Image {
+        id: startStopIcon
+        anchors.top: parent.top
+        anchors.right: speakerIcon.left
+        anchors.rightMargin: Units.dp(5)
+        anchors.verticalCenter: signalStrength.verticalCenter
+
+        height: Units.dp(15)
+        fillMode: Image.PreserveAspectFit
+
+        Accessible.role: Accessible.Button
+        Accessible.name: radioController.isPlaying ? qsTr("Stop") : qsTr("Play")
+        Accessible.description: radioController.isPlaying ? qsTr("Stop playback") : qsTr("Start playback")
+        Accessible.onPressAction: startStopIconMouseArea.clicked(mouse)
+
+        WToolTip {
+            text: radioController.isPlaying ? qsTr("Stop") : qsTr("Play")
+            visible: startStopIconMouseArea.containsMouse
+        }
+
+        Component.onCompleted: { startStopIcon.setStartPlayIcon() }
+
+        MouseArea {
+            id: startStopIconMouseArea
+            anchors.fill: parent
+            hoverEnabled: true
+            onClicked: {
+                if (radioController.isPlaying) {
+                    radioController.stop();
+                } else {
+                    var channel = radioController.lastChannel[1]
+                    var sidHex = radioController.lastChannel[0]
+                    var sidDec = parseInt(sidHex,16);
+                    var stationName = stationList.getStationName(sidDec, channel)
+                    //console.debug("stationName: " + stationName + " channel: " + channel + " sidHex: "+ sidHex)
+                    if (!channel || !sidHex || !stationName) {
+                        infoMessagePopup.text = qsTr("Last played station not found.\nSelect a station to start playback.");
+                        infoMessagePopup.open();
+                    } else {
+                        radioController.play(channel, stationName, sidDec)
+                    }
+                }
+            }
+        }
+
+        Connections {
+            target: radioController
+            onIsPlayingChanged: {
+                startStopIcon.setStartPlayIcon()
+            }
+        }
+
+        function setStartPlayIcon() {
+            if (radioController.isPlaying) {
+                startStopIcon.source = "qrc:/icons/welle_io_icons/20x20/stop.png"
+            } else {
+                startStopIcon.source = "qrc:/icons/welle_io_icons/20x20/play.png"
+            }
+        }
+    }
+
+
     ColumnLayout {
         anchors.centerIn: parent
 
@@ -125,7 +187,7 @@ ViewBaseFrame {
                     }
                     
                     visible: opacity == 0 ? false : true
-                    opacity: 100
+                    opacity: 0
                     
                     Connections {
                         target: frame
@@ -187,6 +249,10 @@ ViewBaseFrame {
                     Connections {
                         target: antennaSymbol
                         onIsSignalChanged: { 
+                            if (!radioController.isPlaying) {
+                                hideAntenna()
+                                return
+                            }
                             if (antennaSymbol.isSignal) {
                                 antennaIconNoSignalRed.visible = false; 
                                 antennaIcon.visible = true;
@@ -218,6 +284,11 @@ ViewBaseFrame {
                                 __setIsSignal(true)
                             else
                                 __setIsSignal(false)
+                        }
+
+                        onIsPlayingChanged: {
+                            if (!radioController.isPlaying)
+                                hideAntenna()
                         }
                     }
                 }
@@ -277,7 +348,7 @@ ViewBaseFrame {
         }
         else {
             antennaSymbol.isSignal = false
-            antennaSymbol.opacity = 100
+            antennaSymbol.opacity = 1.0
             effect.stop()
         }
     }
@@ -287,5 +358,10 @@ ViewBaseFrame {
             antennaSymbol.state = "alignRight"
         else
             antennaSymbol.state = "alignBottom"
+    }
+
+    function hideAntenna() {
+        antennaIconNoSignalRed.visible = false;
+        antennaIcon.visible = false;
     }
 }
