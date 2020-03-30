@@ -52,9 +52,9 @@ Dialog {
 
         Item {
             id: placeholder
-            width: parent.width
+            width: parent.width - scrollbar.width
         }
 
-        ScrollBar.vertical: ScrollBar { }
+        ScrollBar.vertical: ScrollBar { id: scrollbar }
     }
 }
