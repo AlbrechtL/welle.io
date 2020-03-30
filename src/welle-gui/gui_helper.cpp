@@ -120,15 +120,10 @@ void CGUIHelper::deviceClosed()
 const QVariantMap CGUIHelper::licenses()
 {
     QVariantMap ret;
-    QFile *File;
     QByteArray InfoContent;
 
     // Set application version
-    InfoContent.append("welle.io " + tr("version") + ": " + QString(CURRENT_VERSION) + "\n");
-    InfoContent.append(tr("Git revision") + ": " + QString(GITHASH) + "\n");
-    InfoContent.append(tr("Build on") + ": " + QString(__TIMESTAMP__) + "\n");
-    InfoContent.append(tr("QT version") + ": " + qVersion() + "\n");
-    InfoContent.append("\n");
+    InfoContent.append(getInfoPage("Versions"));
 
     InfoContent.append("For legal information scroll down, please.\n");
     InfoContent.append("\n");
@@ -136,52 +131,68 @@ const QVariantMap CGUIHelper::licenses()
     // Read AUTHORS
     InfoContent.append("AUTHORS\n");
     InfoContent.append("-------\n");
-    File = new QFile(":/AUTHORS");
-    File->open(QFile::ReadOnly);
-    InfoContent.append(File->readAll());
-    InfoContent.append("\n");
-    delete File;
+    InfoContent.append(getInfoPage("Authors"));
 
     // Read THANKS
     InfoContent.append("THANKS\n");
     InfoContent.append("------\n");
-    File = new QFile(":/THANKS");
-    File->open(QFile::ReadOnly);
-    InfoContent.append(File->readAll());
-    InfoContent.append("\n");
-    delete File;
+    InfoContent.append(getInfoPage("Thanks"));
 
     // Read COPYING
     InfoContent.append("COPYING (GPLv2)\n");
     InfoContent.append("-------\n");
-    File = new QFile(":/COPYING");
-    File->open(QFile::ReadOnly);
-    InfoContent.append(File->readAll());
-    InfoContent.append("\n");
-    delete File;
+    InfoContent.append(getInfoPage("GPL-2"));
 
-    // Read COPYING
     InfoContent.append("COPYING (LGPL-2.1)\n");
     InfoContent.append("-------\n");
-    File = new QFile(":/libs/COPYING.LGPL-2.1");
-    File->open(QFile::ReadOnly);
-    InfoContent.append(File->readAll());
-    InfoContent.append("\n");
-    delete File;
+    InfoContent.append(getInfoPage("LGPL-2.1"));
 
-    // Read COPYING
     InfoContent.append("kiss_fft COPYING (BSD 3-clause)\n");
     InfoContent.append("-------\n");
-    File = new QFile(":/libs/kiss_fft/COPYING");
-    File->open(QFile::ReadOnly);
-    InfoContent.append(File->readAll());
-    InfoContent.append("\n");
-    delete File;
+    InfoContent.append(getInfoPage("BSD-3-Clause"));
 
     // Set graph license content
     ret.insert("FileContent", InfoContent);
 
     return ret;
+}
+
+const QByteArray CGUIHelper::getFileContent(QString filepath)
+{
+    QFile *File;
+    QByteArray InfoContent;
+    File = new QFile(filepath);
+    File->open(QFile::ReadOnly);
+    InfoContent.append(File->readAll());
+    InfoContent.append("\n");
+    delete File;
+    return InfoContent;
+}
+
+const QByteArray CGUIHelper::getInfoPage(QString pageName)
+{
+    QByteArray InfoContent;
+
+    if (pageName == "Versions") {
+        // Set application version
+        InfoContent.append(tr("welle.io version") + ": " + QString(CURRENT_VERSION) + "\n");
+        InfoContent.append(tr("Git revision") + ": " + QString(GITHASH) + "\n");
+        InfoContent.append(tr("Built on") + ": " + QString(__TIMESTAMP__) + "\n");
+        InfoContent.append(tr("QT version") + ": " + qVersion() + "\n");
+        InfoContent.append("\n");
+    } else if (pageName == "Authors") {
+        return getFileContent(":/AUTHORS");
+    } else if (pageName == "Thanks") {
+        return getFileContent(":/THANKS");
+    } else if (pageName == "GPL-2") {
+        return getFileContent(":/COPYING");
+    } else if (pageName == "LGPL-2.1") {
+        return getFileContent(":/libs/COPYING.LGPL-2.1");
+    } else if (pageName == "BSD-3-Clause") {
+       return getFileContent(":/libs/kiss_fft/COPYING");
+    }
+
+    return InfoContent;
 }
 
 void CGUIHelper::motUpdate(mot_file_t mot_file)
@@ -582,7 +593,7 @@ void CGUIHelper::openRawFile(QString fileFormat)
 }
 
 void CGUIHelper::openRawFile(QString filename, QString fileFormat)
-{   
+{
     radioController->openDevice(CDeviceID::RAWFILE, true, filename, fileFormat);
 }
 
@@ -628,7 +639,7 @@ QTranslator* CGUIHelper::loadTranslationFile(QTranslator *translator, QString La
         qDebug() << "main:" <<  "Error while loading language" << Language << "use untranslated text (ie. English)";
     }
 
-    return translator;  
+    return translator;
 }
 
 void CGUIHelper::updateTranslator(QString Language, QObject *obj)
@@ -708,7 +719,7 @@ QString CGUIHelper::getQQStyleToLoad(QString styleNameArg)  // Static
 
 const QStringList CGUIHelper::qQStyleComboList()
 {
-    if ( !m_comboList.isEmpty() ) 
+    if ( !m_comboList.isEmpty() )
         return m_comboList;
 
     m_comboList = QQuickStyle::availableStyles();

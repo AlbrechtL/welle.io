@@ -56,13 +56,13 @@
     class FileActivityResultReceiver;
 #endif
 
-    
+
 /*
  * The Class that described a Style
  * for use in the Style List Model
- * It contains 
+ * It contains
  *  - a label which is displayed to the user
- *  - the technical name of the style for the 
+ *  - the technical name of the style for the
  *    QQuickStyle::setStyle call
  */
 class Style
@@ -156,7 +156,8 @@ public:
     Q_INVOKABLE void setClockSourceSoapySdr(QString text);
     Q_INVOKABLE void openRtlTcp(QString serverAddress, int IpPort, bool force);
     Q_INVOKABLE void openRawFile(QString fileFormat);
-    Q_INVOKABLE void openRawFile(QString filename, QString fileFormat);    
+    Q_INVOKABLE void openRawFile(QString filename, QString fileFormat);
+    Q_INVOKABLE const QByteArray getInfoPage(QString pageName);
 
     void setNewDebugOutput(QString text);
 
@@ -189,6 +190,7 @@ private:
     QVector<QPointF> constellationSeriesData;
 
     const QVariantMap licenses();
+    const QByteArray getFileContent(QString filepath);
 
     // Qt Quick Style Management methods & members
     QSettings settings;
