@@ -224,14 +224,18 @@ ApplicationWindow {
             anchors.topMargin: Units.dp(5)
 
             RowLayout {
-                WComboBox {
+                WComboBoxList {
                     id: stationListBox
+                    textRole: 'trLabel'
+                    model: ListModel {
+                        id: stationListBoxModel
+                        ListElement { label: "All stations"; trLabel: qsTr("All stations"); trContext: "MainView" }
+                        ListElement { label: "Favorites"; trLabel: qsTr("Favorites"); trContext: "MainView" }
+                    }
                     sizeToContents: true
 //                    background: Rectangle {
 //                        color: "white"
 //                    }
-
-                    model:  [qsTr("All stations"), qsTr("Favorites")]
 
                     onCurrentIndexChanged: {
                         switch(currentIndex) {

@@ -167,12 +167,22 @@ Item {
                 checked: true
             }
 
-            WComboBox {
+            WComboBoxList {
                 id: deviceBox
                 enabled: !enableAutoSdr.checked
                 Layout.fillWidth: true
-                // Note: Adding the translation option qsTr() into the device names are forcing to change the model which results in a currentIndex of 0 (Null device)
-                model: [ "None", "Airspy", "rtl-sdr", "SoapySDR", "rtl-tcp", "RAW file"];
+
+                textRole: 'trLabel'
+                model: ListModel {
+                    id: deviceBoxModel
+                    ListElement { label: "None"; trLabel: qsTr("None"); trContext: "GlobalSettings" }
+                    ListElement { label: "Airspy"; trLabel: qsTr("Airspy"); trContext: "GlobalSettings" }
+                    ListElement { label: "rtl-sdr"; trLabel: qsTr("rtl-sdr"); trContext: "GlobalSettings" }
+                    ListElement { label: "SoapySDR"; trLabel: qsTr("SoapySDR"); trContext: "GlobalSettings" }
+                    ListElement { label: "rtl-tcp"; trLabel: qsTr("rtl-tcp"); trContext: "GlobalSettings" }
+                    ListElement { label: "RAW file"; trLabel: qsTr("RAW file"); trContext: "GlobalSettings" }
+                }
+
                 onCurrentIndexChanged: {
                     // Load appropriate settings
                     switch(currentIndex) {
@@ -235,12 +245,12 @@ Item {
                     id: qQStyleTheme
                     sizeToContents: true
                     enabled: guiHelper.isThemableStyle(guiHelper.getQQStyle)
-                    textRole: 'label'
+                    textRole: 'trLabel'
                     model: ListModel {
                         id: themeListModel
-                        ListElement { label: qsTr("Light"); themeCode: "Light" }
-                        ListElement { label: qsTr("Dark"); themeCode: "Dark" }
-                        ListElement { label: qsTr("System"); themeCode: "System" }
+                        ListElement { label: "Light"; trLabel: qsTr("Light"); trContext: "GlobalSettings" }
+                        ListElement { label: "Dark"; trLabel: qsTr("Dark"); trContext: "GlobalSettings" }
+                        ListElement { label: "System"; trLabel: qsTr("System"); trContext: "GlobalSettings" }
                     }
                 }
                 TextStandart {
@@ -255,7 +265,5 @@ Item {
                 }
             }
         }
-
-
     }
 }
