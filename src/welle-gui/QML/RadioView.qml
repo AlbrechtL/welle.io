@@ -2,6 +2,7 @@
 import QtQuick.Layouts 1.1
 import QtQuick.Controls 2.3
 import QtGraphicalEffects 1.0
+import Qt.labs.settings 1.0
 
 // Import custom styles
 import "texts"
@@ -11,6 +12,10 @@ ViewBaseFrame {
     id: frame
     labelText: qsTr("Service Overview")
     Layout.maximumHeight: Units.dp(230)
+
+    Settings {
+        property alias volume : volumeSlider.value
+    }
 
     TextRadioInfo {
         anchors.top: parent.top
@@ -27,15 +32,27 @@ ViewBaseFrame {
         anchors.right: parent.right
         width: Units.dp(30)
         height: Units.dp(30)
-        visible: true
+        visible: false
+
         source: "qrc:/icons/welle_io_icons/20x20@2/speaker.png"
 
-        MouseArea {
-            anchors.fill: parent
-            onClicked: {radioController.setVolume(0); speakerIconMutedRed.visible = true; speakerIcon.visible = false}
+        WToolTip {
+            text: qsTr("Volume")
+            visible: speakerIconMouseArea.containsMouse
         }
+
+        Accessible.role: Accessible.Button
+        Accessible.name: qsTr("Volume")
+        Accessible.description: qsTr("Toggle volume slider")
+        Accessible.onPressAction: speakerIconMouseArea.clicked(mouse)
     }
 
+    MouseArea {
+        id: speakerIconMouseArea
+        anchors.fill: speakerIcon
+        hoverEnabled: true
+        onClicked: volumeSlider.visible = !volumeSlider.visible
+    }
     Image {
         id: speakerIconMuted
         anchors.verticalCenter: signalStrength.verticalCenter
@@ -46,16 +63,103 @@ ViewBaseFrame {
 
         source: "qrc:/icons/welle_io_icons/20x20@2/speaker_mute.png"
     }
-
     ColorOverlay {
         id: speakerIconMutedRed
         visible: false
         anchors.fill: speakerIconMuted
         source: speakerIconMuted
         color: "red"
-        MouseArea {
-            anchors.fill: parent
-            onClicked: {radioController.setVolume(100); speakerIconMutedRed.visible = false; speakerIcon.visible = true}
+    }
+
+    // We don't display the "speakerIcon" item, but the "speakerIconMaskApplied"
+    // item the right part of which is +/- opacified depending on the volume
+    Item {
+        id: hidingRect
+        anchors.fill: speakerIcon
+        visible: false
+        Rectangle {
+            anchors.right: parent.right
+            color: "green" //Could be any
+            width: speakerIcon.width *0.40
+            height: speakerIcon.height
+            opacity: 1 - volumeSlider.value
+        }
+    }
+    OpacityMask {
+        id: speakerIconMaskApplied
+        anchors.fill: speakerIcon
+        source: speakerIcon
+        maskSource: hidingRect
+        invert: true
+    }
+
+    TextRadioInfo {
+        id: volumeLabel
+        anchors.top: speakerIcon.bottom
+        anchors.horizontalCenter: speakerIcon.horizontalCenter
+        //visible: false
+
+        font.pixelSize: Units.em(0.7)
+        text: Math.round(volumeSlider.value*100) + "%"
+
+        Accessible.description: qsTr("Volume set to %1").arg(text)
+    }
+    Slider {
+        id: volumeSlider
+        anchors.top: volumeLabel.bottom
+        anchors.horizontalCenter: speakerIcon.horizontalCenter
+
+        height: parent.height * 0.70
+        orientation: Qt.Vertical
+        snapMode: Slider.SnapAlways
+        visible: false
+
+        from: 0
+        to: 1
+        stepSize: 0.01
+        value: radioController.volume
+
+        onValueChanged: {
+            setVolume(value)
+            if (visible)
+                volumeSliderTrigger.restart()
+        }
+
+        onVisibleChanged: {
+            //volumeLabel.visible = visible
+            if (visible)
+                volumeSliderTrigger.restart()
+            else
+                volumeSliderTrigger.stop()
+        }
+
+        Connections {
+            target: radioController
+            onVolumeChanged: {
+                volumeSlider.value = volume
+            }
+        }
+
+        Timer {
+            id: volumeSliderTrigger
+            interval: 5000
+            running: false
+            repeat: false
+            onTriggered: { volumeSlider.visible = false }
+        }
+
+        function setVolume(value) {
+            if (volumeSlider.value != radioController.volume) {
+                if (value === 0) {
+                    radioController.setVolume(value)
+                    speakerIconMutedRed.visible = true
+                    speakerIconMaskApplied.visible = false
+                } else {
+                    radioController.setVolume(value)
+                    speakerIconMutedRed.visible = false
+                    speakerIconMaskApplied.visible = true
+                }
+            }
         }
     }
 
