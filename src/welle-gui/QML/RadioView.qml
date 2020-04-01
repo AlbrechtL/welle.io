@@ -19,46 +19,6 @@ ViewBaseFrame {
         text: radioController.ensemble.trim()
     }
 
-    // Use 2 Images to switch between speaker & speaker_mute icon (instead of toggle button). 
-    // Permits use of color with org.kde.desktop style
-    Image {
-        id: speakerIcon
-        anchors.verticalCenter: signalStrength.verticalCenter
-        anchors.right: parent.right
-        width: Units.dp(30)
-        height: Units.dp(30)
-        visible: true
-        source: "qrc:/icons/welle_io_icons/20x20@2/speaker.png"
-
-        MouseArea {
-            anchors.fill: parent
-            onClicked: {radioController.setVolume(0); speakerIconMutedRed.visible = true; speakerIcon.visible = false}
-        }
-    }
-
-    Image {
-        id: speakerIconMuted
-        anchors.verticalCenter: signalStrength.verticalCenter
-        anchors.right: parent.right
-        width: Units.dp(30)
-        height: Units.dp(30)
-        visible: false
-
-        source: "qrc:/icons/welle_io_icons/20x20@2/speaker_mute.png"
-    }
-
-    ColorOverlay {
-        id: speakerIconMutedRed
-        visible: false
-        anchors.fill: speakerIconMuted
-        source: speakerIconMuted
-        color: "red"
-        MouseArea {
-            anchors.fill: parent
-            onClicked: {radioController.setVolume(100); speakerIconMutedRed.visible = false; speakerIcon.visible = true}
-        }
-    }
-
     RowLayout{
         id: signalStrength
         anchors.top: parent.top
