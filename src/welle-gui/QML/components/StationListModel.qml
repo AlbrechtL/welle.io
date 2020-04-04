@@ -59,6 +59,53 @@ ListModel {
         }
     }
 
+    function getIndex(sIdDec, channel) {
+        for(var i=0; i<count; i++) {
+            if(get(i).stationSId == sIdDec && get(i).channelName === channel) {
+                return i
+            }
+        }
+    }
+
+    function getIndexPrevious(sIdDec, channel) {
+        for(var i=0; i<count; i++) {
+            if(get(i).stationSId == sIdDec && get(i).channelName === channel) {
+                return Math.max(0, i-1)
+            }
+        }
+        console.debug("Station '" + sIdDec + "' not found in this list. Returning index 0")
+        return 0
+    }
+
+    function getIndexNext(sIdDec, channel) {
+        for(var i=0; i<count; i++) {
+            if(get(i).stationSId == sIdDec && get(i).channelName === channel) {
+                return Math.min(count-1, i+1)
+            }
+        }
+        console.debug("Station '" + sIdDec + "' not found in this list. Returning index 0")
+        return 0
+    }
+
+    function play(channel, sidHex) {
+        var sidDec = parseInt(sidHex,16);
+        var stationName = getStationName(sidDec, channel)
+        //console.debug("stationName: " + stationName + " channel: " + channel + " sidHex: "+ sidHex)
+        if (!channel || !sidHex || !stationName) {
+            infoMessagePopup.text = qsTr("Last played station not found.\nSelect a station to start playback.");
+            infoMessagePopup.open();
+        } else {
+            radioController.play(channel, stationName, sidDec)
+        }
+    }
+
+    function playAtIndex(index) {
+        if (index < count) {
+            //console.debug("stationName: " + get(index).stationName + " channel: " + get(index).channelName + " sidDec: " + get(index).stationSId)
+            radioController.play(get(index).channelName, get(index).stationName, get(index).stationSId)
+        }
+    }
+
     // Necessary workaround because the settings component doesn't saves models
     function serialize() {
         var tmp = []
