@@ -64,6 +64,18 @@ Parameter | Description
 --dump-file | Records DAB frames (*.mp2) or DAB+ superframes with RS coding (*.dab). This file can be used to analyse X-PAD data with XPADxpert (https://www.basicmaster.de/xpadxpert).
 --log-file | Log file name. Redirects all log output texts to a file.
 
+Keyboard shortcuts & hotkeys
+
+Keystroke | Action
+------ | ----------
+F1-F12, 1-9, 0, Ctrl+1-9, Ctrl+0 | Play the station no. 'x' in the stations list: <br />`1` for station no. `1`, <br />`0` for station no. `10`, <br />`Ctrl+1` for station no. `11`...
+S, Media Play, Media Stop, Media Pause, Media Play/Pause | Start playback/Stop
+N, Media next | play next station in list
+P, Media Previous | play previous station
+M, Volume Mute | mute/unmute
+Ctrl+Up, Volume Up | Volume Up
+Ctrl+Down, Volume Down | Volume Down
+
 Supported Hardware
 ====================
 The following SDR devices are supported

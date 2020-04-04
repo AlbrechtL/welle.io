@@ -1,4 +1,4 @@
-﻿import QtQuick 2.2
+﻿import QtQuick 2.9
 import QtQuick.Layouts 1.1
 import QtQuick.Controls 2.3
 import QtGraphicalEffects 1.0
@@ -140,6 +140,36 @@ ViewBaseFrame {
             }
         }
 
+        Shortcut {
+            context: Qt.ApplicationShortcut
+            autoRepeat: true
+            sequences: ["Ctrl+Up", "Volume Up"]
+            onActivated: {
+                volumeSlider.visible = true
+                volumeSlider.value = volumeSlider.value + volumeSlider.stepSize
+            }
+        }
+
+        Shortcut {
+            context: Qt.ApplicationShortcut
+            autoRepeat: true
+            sequences: ["Ctrl+Down", "Volume Down"]
+            onActivated: {
+                volumeSlider.visible = true
+                volumeSlider.value = volumeSlider.value - volumeSlider.stepSize
+            }
+        }
+
+        Shortcut {
+            context: Qt.ApplicationShortcut
+            autoRepeat: false
+            sequences: ["m", "Volume Mute"]
+            onActivated: {
+                volumeSlider.visible = true
+                volumeSlider.value = !(volumeSlider.value)
+            }
+        }
+
         Timer {
             id: volumeSliderTrigger
             interval: 5000
@@ -226,21 +256,30 @@ ViewBaseFrame {
             hoverEnabled: true
             onClicked: {
                 if (radioController.isPlaying) {
-                    radioController.stop();
+                    startStopIcon.stop()
                 } else {
-                    var channel = radioController.lastChannel[1]
-                    var sidHex = radioController.lastChannel[0]
-                    var sidDec = parseInt(sidHex,16);
-                    var stationName = stationList.getStationName(sidDec, channel)
-                    //console.debug("stationName: " + stationName + " channel: " + channel + " sidHex: "+ sidHex)
-                    if (!channel || !sidHex || !stationName) {
-                        infoMessagePopup.text = qsTr("Last played station not found.\nSelect a station to start playback.");
-                        infoMessagePopup.open();
-                    } else {
-                        radioController.play(channel, stationName, sidDec)
-                    }
+                    startStopIcon.play()
                 }
             }
+        }
+
+        Shortcut {
+            context: Qt.ApplicationShortcut
+            autoRepeat: false
+            sequences: ["Media Pause", "Toggle Media Play/Pause", "S"]
+            onActivated: startStopIconMouseArea.clicked(0)
+        }
+        Shortcut {
+            context: Qt.ApplicationShortcut
+            autoRepeat: false
+            sequences: ["Media Stop"]
+            onActivated: if (radioController.isPlaying) startStopIcon.stop()
+        }
+        Shortcut {
+            context: Qt.ApplicationShortcut
+            autoRepeat: false
+            sequences: ["Media Play"]
+            onActivated: if (!radioController.isPlaying) startStopIcon.play()
         }
 
         Connections {
@@ -256,6 +295,16 @@ ViewBaseFrame {
             } else {
                 startStopIcon.source = "qrc:/icons/welle_io_icons/20x20/play.png"
             }
+        }
+
+        function play() {
+            var channel = radioController.lastChannel[1]
+            var sidHex = radioController.lastChannel[0]
+            stationList.play(channel, sidHex)
+        }
+
+        function stop() {
+            radioController.stop();
         }
     }
 
