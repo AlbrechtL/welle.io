@@ -231,6 +231,7 @@ signals:
     void newDebugOutput(QString text);
     void newDeviceId(int deviceId);
     void styleChanged(void);
+    void translationFinished(void);
 
 #ifndef QT_NO_SYSTEMTRAYICON
     void minimizeWindow(void);

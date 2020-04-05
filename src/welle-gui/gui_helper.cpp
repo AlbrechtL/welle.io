@@ -667,6 +667,8 @@ void CGUIHelper::translateGUI(QString Language, QObject *obj)
     restoreAction->setText(tr("&Restore"));
     quitAction->setText(tr("&Quit"));
 #endif
+
+    emit translationFinished();
 }
 
 #ifdef __ANDROID__

@@ -59,10 +59,16 @@ Item {
             RowLayout {
                 enabled: disableCoarse.checked
 
-                WComboBox {
+                WComboBoxList {
                     id: freqSyncMethodBox
+                    textRole: 'trLabel'
+                    model: ListModel {
+                        id: freqSyncMethodBoxModel
+                        ListElement { label: "GetMiddle"; trLabel: qsTr("GetMiddle"); trContext: "ExpertSettings" }
+                        ListElement { label: "CorrelatePRS"; trLabel: qsTr("CorrelatePRS"); trContext: "ExpertSettings" }
+                        ListElement { label: "PatternOfZeros"; trLabel: qsTr("PatternOfZeros"); trContext: "ExpertSettings" }
+                    }
                     sizeToContents: true
-                    model: [ qsTr("GetMiddle"), qsTr("CorrelatePRS"), qsTr("PatternOfZeros") ];
                     currentIndex: 1
                     onCurrentIndexChanged: {
                         radioController.setFreqSyncMethod(currentIndex)
@@ -91,10 +97,16 @@ Item {
 
             RowLayout {
                 Layout.fillWidth: true
-                WComboBox {
+                WComboBoxList {
                     id: fftPlacementBox
+                    textRole: 'trLabel'
+                    model: ListModel {
+                        id: fftPlacementBoxModel
+                        ListElement { label: "Strongest Peak"; trLabel: qsTr("Strongest Peak"); trContext: "ExpertSettings" }
+                        ListElement { label: "Earliest Peak With Binning"; trLabel: qsTr("Earliest Peak With Binning"); trContext: "ExpertSettings" }
+                        ListElement { label: "Threshold Before Peak"; trLabel: qsTr("Threshold Before Peak"); trContext: "ExpertSettings" }
+                    }
                     sizeToContents: true
-                    model: [ qsTr("Strongest Peak"), qsTr("Earliest Peak With Binning"), qsTr("Threshold Before Peak") ];
                     currentIndex: 1
                     onCurrentIndexChanged: {
                         radioController.selectFFTWindowPlacement(currentIndex)
