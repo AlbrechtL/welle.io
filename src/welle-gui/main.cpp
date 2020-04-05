@@ -139,12 +139,10 @@ int main(int argc, char** argv)
     settings.setValue("version", QString(CURRENT_VERSION));
 
     // Should we play the last station we have listened to previously?
-    if( settings.value("enableLastPlayedStationState", false).toBool() ) {
-
-        QStringList lastStation = settings.value("lastchannel").toStringList();
-        if( lastStation.count() == 2 )
-            radioController.setAutoPlay(lastStation[1], lastStation[0]);
-    }
+    bool isAutoPlay = settings.value("enableLastPlayedStationState", false).toBool();
+    QStringList lastStation = settings.value("lastchannel").toStringList();
+    if( lastStation.count() == 2 )
+        radioController.setAutoPlay(isAutoPlay, lastStation[1], lastStation[0]);
 
     // Load mandatory driver arguments to init input device
     radioController.setDeviceParam("SoapySDRDriverArgs", settings.value("soapyDriverArgs","").toString());

@@ -241,8 +241,9 @@ void CRadioController::play(QString channel, QString title, quint32 service)
     setChannel(channel, false);
     setService(service);
 
+    currentLastChannel = QStringList() << serialise_serviceid(service) << channel;
     QSettings settings;
-    settings.setValue("lastchannel", QStringList() << serialise_serviceid(service) << channel);
+    settings.setValue("lastchannel", currentLastChannel);
 }
 
 void CRadioController::stop()
@@ -281,11 +282,12 @@ void CRadioController::setService(uint32_t service, bool force)
     }
 }
 
-void CRadioController::setAutoPlay(QString channel, QString service)
+void CRadioController::setAutoPlay(bool isAutoPlayValue, QString channel, QString service)
 {
-    isAutoPlay = true;
+    isAutoPlay = isAutoPlayValue;
     autoChannel = channel;
     autoService = deserialise_serviceid(service.toStdString().c_str());
+    currentLastChannel = QStringList() << service << channel;
 }
 
 void CRadioController::setVolume(qreal Volume)
