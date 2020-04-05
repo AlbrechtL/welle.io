@@ -9,4 +9,7 @@ Text {
     font.pixelSize: TextStyle.textStation
     font.family: TextStyle.textFont
     color: (mainWindow.Material.theme === Material.Dark ) ? "lightgrey" : (mainWindow.Universal.theme === Universal.Dark ) ? "lightgrey" : TextStyle.textColor
+
+    Accessible.role: Accessible.StaticText
+    Accessible.name: text
 }

@@ -54,8 +54,13 @@ Popup {
         }
 
         MouseArea {
+            id: popupMA
             anchors.fill: parent
             onClicked: popup.close()
         }
+
+        Accessible.role: Accessible.AlertMessage
+        Accessible.name: popup.text
+        Accessible.onPressAction: popupMA.click(mouse)
     }
 }
