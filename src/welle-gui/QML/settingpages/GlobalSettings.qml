@@ -95,7 +95,7 @@ Item {
                     sizeToContents: true
                     onCurrentIndexChanged: {
                         // Load appropriate settings
-                        guiHelper.updateTranslator(listModel.get(currentIndex).langCode, this); 
+                        guiHelper.updateTranslator(listModel.get(currentIndex).langCode, mainWindow);
                     }
                 }
 

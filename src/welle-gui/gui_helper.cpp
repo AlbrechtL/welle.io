@@ -30,6 +30,7 @@
 #include <QDebug>
 #include <QSettings>
 #include <QQuickStyle>
+#include <QQmlProperty>
 
 #include "gui_helper.h"
 #include "debug_output.h"
@@ -644,10 +645,20 @@ void CGUIHelper::translateGUI(QString Language, QObject *obj)
     QLocale curLocale(QLocale((const QString&)Language));
     QLocale::setDefault(curLocale);
 
+    // Save previous width & height
+    // (because they are reset by the call to retranslate())
+    QVariant width = QQmlProperty::read(obj, "width");
+    QVariant height = QQmlProperty::read(obj, "height");
+
     // Start translation of GUI
     QQmlContext *currentContext = QQmlEngine::contextForObject(obj);
     QQmlEngine *engine = currentContext->engine();
     engine->retranslate();
+
+    // Restore previous width & height
+    // (because they are reset by the call to retranslate())
+    QQmlProperty::write(obj, "width", width);
+    QQmlProperty::write(obj, "height", height);
 
     // Start translation of non-QML GUI
 #ifndef QT_NO_SYSTEMTRAYICON

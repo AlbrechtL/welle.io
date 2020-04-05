@@ -782,10 +782,10 @@ void CRadioController::stationTimerTimeout()
                         qDebug() << "Selecting service failed";
                     }
                     else {
-                        currentStationType = QCoreApplication::translate("DABConstants",(DABConstants::getProgramTypeName(s.programType)));
+                        currentStationType = DABConstants::getProgramTypeName(s.programType);
                         emit stationTypChanged();
 
-                        currentLanguageType = QCoreApplication::translate("DABConstants",(DABConstants::getLanguageName(s.language)));
+                        currentLanguageType = DABConstants::getLanguageName(s.language);
                         emit languageTypeChanged();
 
                         bitRate = subch.bitrate();

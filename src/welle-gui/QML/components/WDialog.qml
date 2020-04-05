@@ -36,7 +36,7 @@ Dialog {
                    font.pixelSize: TextStyle.textStandartSize
                    font.family: TextStyle.textFont
 
-                   text: title
+                   text: qsTranslate("MainView", title)
                    elide: Label.ElideRight
                    horizontalAlignment: Qt.AlignHCenter
                    verticalAlignment: Qt.AlignVCenter
