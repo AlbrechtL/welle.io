@@ -43,56 +43,68 @@
 <context>
     <name>CGUIHelper</name>
     <message>
-        <location filename="../gui_helper.cpp" line="+65"/>
-        <location line="+589"/>
+        <location filename="../gui_helper.cpp" line="+66"/>
+        <location line="+614"/>
         <source>Mi&amp;nimize</source>
         <translation>Mi&amp;nimiser</translation>
     </message>
     <message>
-        <location line="-586"/>
-        <location line="+587"/>
+        <location line="-611"/>
+        <location line="+612"/>
         <source>Ma&amp;ximize</source>
         <translation>Ma&amp;ximiser</translation>
     </message>
     <message>
-        <location line="-584"/>
-        <location line="+585"/>
+        <location line="-609"/>
+        <location line="+610"/>
         <source>&amp;Restore</source>
         <translation>&amp;Restaurer</translation>
     </message>
     <message>
-        <location line="-582"/>
-        <location line="+583"/>
+        <location line="-607"/>
+        <location line="+608"/>
         <source>&amp;Quit</source>
         <translation>&amp;Quitter</translation>
     </message>
     <message>
-        <location line="-530"/>
-        <source>version</source>
-        <translation>version</translation>
+        <location line="-504"/>
+        <source>welle.io version</source>
+        <translation>Version de welle.io</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+2"/>
+        <source>Built on</source>
+        <translation>Compilé le</translation>
+    </message>
+    <message>
+        <source>version</source>
+        <translation type="vanished">version</translation>
+    </message>
+    <message>
+        <location line="-1"/>
         <source>Git revision</source>
         <translation>Révision Git</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Build on</source>
-        <translation>Compilé le</translation>
+        <translation type="vanished">Compilé le</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+2"/>
         <source>QT version</source>
         <translation>Version QT</translation>
     </message>
     <message>
-        <location line="+153"/>
+        <source>The program will keep running in the system tray. To terminate the program, choose &quot;Quit&quot; in the context menu of the system tray entry.</source>
+        <translation type="obsolete">Le programme continue de tourner dans la boite à miniatures. Pour le terminer, choisir &quot;Quitter&quot; dans le menu contextuel de la boîte à miniatures.</translation>
+    </message>
+    <message>
+        <location line="+116"/>
         <source>The program will keep running in the system tray. To terminate the program, choose &lt;b&gt;Quit&lt;/b&gt; in the context menu of the system tray entry.</source>
         <translation>Le programme continue de tourner dans la boite à miniatures. Pour le terminer, choisir &quot;Quitter&quot; dans le menu contextuel de la boîte à miniatures.</translation>
     </message>
     <message>
-        <location line="+493"/>
+        <location line="+506"/>
         <source> (unavailable, fallback to Default)</source>
         <translation> (non disponible, utilise &quot;Default&quot; à la place)</translation>
     </message>
@@ -110,7 +122,7 @@
 <context>
     <name>CRadioController</name>
     <message>
-        <location filename="../radio_controller.cpp" line="+608"/>
+        <location filename="../radio_controller.cpp" line="+619"/>
         <source>Unknown</source>
         <translation>Inconnu</translation>
     </message>
@@ -121,12 +133,12 @@
         <translation>Pas de station</translation>
     </message>
     <message>
-        <location line="-475"/>
+        <location line="-486"/>
         <source>Error while opening file </source>
         <translation>Erreur à l&apos;ouverture du fichier </translation>
     </message>
     <message>
-        <location line="+217"/>
+        <location line="+228"/>
         <source>RAW File</source>
         <translation>Fichier RAW</translation>
     </message>
@@ -180,7 +192,7 @@
         <location line="+113"/>
         <source>End of file, restarting</source>
         <translatorcomment>doute sur la traduction de &quot;lecture en boucle&quot;</translatorcomment>
-        <translation type="unfinished">Fin du fichier, lecture en boucle</translation>
+        <translation type="unfinished">Fin du fichier, recommence depuis le début</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -228,7 +240,7 @@
         <translation>Lire automatiquement la dernière station</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+8"/>
         <source>Display station name in the window title</source>
         <translation>Afficher le nom de la station dans le titre de la fenêtre</translation>
     </message>
@@ -986,25 +998,25 @@
         <translation type="unfinished">Activer la correction grossière (pour récepteurs avec erreur &gt;1kHz)</translation>
     </message>
     <message>
-        <location line="+15"/>
+        <location line="+17"/>
         <source>GetMiddle</source>
         <translatorcomment>doute sur la traduction : &quot;Obtenir le milieu ?&quot; Moyen ? Centre</translatorcomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+0"/>
+        <location line="+1"/>
         <source>CorrelatePRS</source>
         <translatorcomment>doute sur la traduction : &quot;Corréler PRS&quot;</translatorcomment>
         <translation type="unfinished">Corréler PRS</translation>
     </message>
     <message>
-        <location line="+0"/>
+        <location line="+1"/>
         <source>PatternOfZeros</source>
         <translatorcomment>doute sur la traduction : &quot;Motif de zéros&quot;</translatorcomment>
         <translation type="unfinished">Motif de zéros</translation>
     </message>
     <message>
-        <location line="+10"/>
+        <location line="+12"/>
         <source>Coarse corrector algorithm</source>
         <translatorcomment>coarse corrector = correction grossière ?</translatorcomment>
         <translation type="unfinished">Algorithme de correction grossière</translation>
@@ -1015,25 +1027,25 @@
         <translation>Activer le décodage TII vers le log de la console (augmente l&apos;utilisation CPU)</translation>
     </message>
     <message>
-        <location line="+14"/>
+        <location line="+16"/>
         <source>Strongest Peak</source>
         <translatorcomment>doute sur la traduction : &quot;Pic le plus fort&quot; pour Peak utiliser Crête ou Pic</translatorcomment>
         <translation type="unfinished">Crête la plus forte</translation>
     </message>
     <message>
-        <location line="+0"/>
+        <location line="+1"/>
         <source>Earliest Peak With Binning</source>
         <translatorcomment>doute sur la traduction pour Peak utiliser Crête ou Pic. Pour binning: Compartimentage</translatorcomment>
         <translation type="unfinished">Crête la plus tôt avec compartimentage</translation>
     </message>
     <message>
-        <location line="+0"/>
+        <location line="+1"/>
         <source>Threshold Before Peak</source>
         <translatorcomment>doute sur la traduction : &quot;Seuil avant pic&quot; pour Peak utiliser Crête ou Pic. Pour threshold : Seuil</translatorcomment>
         <translation type="unfinished">Seuil avant crête</translation>
     </message>
     <message>
-        <location line="+10"/>
+        <location line="+12"/>
         <source>FFT Window placement algorithm</source>
         <translation>Algorithme de placement de la fenêtre FFT</translation>
     </message>
@@ -1053,10 +1065,10 @@
     <message>
         <location line="+31"/>
         <source>Language</source>
-        <translation>Langue (Language)</translation>
+        <translation>Langue</translation>
     </message>
     <message>
-        <location line="+138"/>
+        <location line="+148"/>
         <source>Light</source>
         <translation>Clair</translation>
     </message>
@@ -1076,7 +1088,7 @@
         <translation>Thème</translation>
     </message>
     <message>
-        <location line="-137"/>
+        <location line="-147"/>
         <source>Global receiver settings</source>
         <translation>Paramètres globaux du récepteur</translation>
     </message>
@@ -1101,7 +1113,17 @@
         <translation>Détection automatique</translation>
     </message>
     <message>
-        <location line="+46"/>
+        <location line="+14"/>
+        <source>Airspy</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>SoapySDR</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location line="+40"/>
         <source>Style settings</source>
         <translation>Paramètres de style</translation>
     </message>
@@ -1116,22 +1138,26 @@
         <translation>Style. Redémarrez pour appliquer.</translation>
     </message>
     <message>
+        <location line="-60"/>
         <source>None</source>
-        <translation type="vanished">Aucun</translation>
+        <translation>Aucun</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>rtl-sdr</source>
         <translatorcomment>minuscules ? majuscules ? Mis en majuscules pour harmoniser tout le logiciel</translatorcomment>
-        <translation type="obsolete">RTL-SDR</translation>
+        <translation type="unfinished">RTL-SDR</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>rtl-tcp</source>
         <translatorcomment>minuscules ? majuscules ? Mis en majuscules pour harmoniser tout le logiciel</translatorcomment>
-        <translation type="obsolete">RTL-TCP</translation>
+        <translation type="unfinished">RTL-TCP</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>RAW file</source>
-        <translation type="obsolete">Fichier RAW</translation>
+        <translation>Fichier RAW</translation>
     </message>
 </context>
 <context>
@@ -1150,6 +1176,29 @@
         <location line="+1"/>
         <source>Samples</source>
         <translation>Echantillon</translation>
+    </message>
+</context>
+<context>
+    <name>InfoPage</name>
+    <message>
+        <location filename="../QML/InfoPage.qml" line="+21"/>
+        <source>Versions</source>
+        <translation>Versions</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Authors</source>
+        <translation>Auteurs</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Thanks</source>
+        <translation>Remerciements</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Licenses</source>
+        <translation>Licences</translation>
     </message>
 </context>
 <context>
@@ -1175,17 +1224,17 @@
         <translation>Quitter</translation>
     </message>
     <message>
-        <location line="+38"/>
+        <location line="+36"/>
         <source>All stations</source>
         <translation>Toutes les stations</translation>
     </message>
     <message>
-        <location line="+0"/>
+        <location line="+1"/>
         <source>Favorites</source>
         <translation>Favoris</translation>
     </message>
     <message>
-        <location line="+29"/>
+        <location line="+34"/>
         <source>Start station scan</source>
         <translation>Rechercher les stations</translation>
     </message>
@@ -1210,7 +1259,7 @@
         <translation>Pas de stations dans la liste</translation>
     </message>
     <message>
-        <location line="+37"/>
+        <location line="+108"/>
         <source>Manual channel</source>
         <translation>Canal manuel</translation>
     </message>
@@ -1276,7 +1325,7 @@
     <message>
         <location line="+20"/>
         <source>Latest</source>
-        <translation type="unfinished">Le plus récent</translation>
+        <translation>Le plus récent</translation>
     </message>
 </context>
 <context>
@@ -1284,7 +1333,7 @@
     <message>
         <location filename="../QML/expertviews/NullSymbolGraph.qml" line="+10"/>
         <source>Null Symbol</source>
-        <translatorcomment>Traduction de NULL selon : http://www.btb.termiumplus.gc.ca/tpv2alpha/alpha-fra.html Mais peut etre laisser tel quel car Null Symbol a un sens précis dans le signal DAB+</translatorcomment>
+        <translatorcomment>Traduction de NULL selon : TERMIUM Plus®. Mais peut etre laisser tel quel car Null Symbol a un sens précis dans le signal DAB+</translatorcomment>
         <translation type="unfinished">Null Symbol</translation>
     </message>
     <message>
@@ -1316,7 +1365,8 @@
     <message>
         <location line="+16"/>
         <source>Use host name</source>
-        <translation type="unfinished">Utiliser le nom d&apos;hôte</translation>
+        <translatorcomment>nom d&apos;hôte est la traduction suggérée par TERMIUM Plus®</translatorcomment>
+        <translation>Utiliser le nom d&apos;hôte</translation>
     </message>
     <message>
         <location line="+10"/>
@@ -1331,20 +1381,70 @@
     <message>
         <location line="+16"/>
         <source>Enter host name</source>
-        <translation type="unfinished">Entrer le nom d&apos;hôte</translation>
+        <translatorcomment>nom d&apos;hôte est la traduction suggérée par TERMIUM Plus®</translatorcomment>
+        <translation>Saisir le nom d&apos;hôte</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Host name</source>
-        <translation type="unfinished">Nom d&apos;hôte</translation>
+        <translation>Nom d&apos;hôte</translation>
     </message>
 </context>
 <context>
     <name>RadioView</name>
     <message>
-        <location filename="../QML/RadioView.qml" line="+12"/>
+        <location filename="../QML/RadioView.qml" line="+13"/>
         <source>Service Overview</source>
         <translation>Aperçu du service</translation>
+    </message>
+    <message>
+        <location line="+27"/>
+        <location line="+5"/>
+        <source>Volume</source>
+        <translation>Volume</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Toggle volume slider</source>
+        <translation type="unfinished">Afficher/cacher le curseur du volume</translation>
+    </message>
+    <message>
+        <location line="+59"/>
+        <source>Volume set to %1</source>
+        <translation>Volume fixé à %1</translation>
+    </message>
+    <message>
+        <location line="+128"/>
+        <location line="+5"/>
+        <source>Stop</source>
+        <translation>Stop</translation>
+    </message>
+    <message>
+        <location line="-5"/>
+        <location line="+5"/>
+        <source>Play</source>
+        <translation>Lecture</translation>
+    </message>
+    <message>
+        <location line="-4"/>
+        <source>Stop playback</source>
+        <translation>Arrêter la lecture</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Start playback</source>
+        <translation>Démarrer la lecture</translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Playback stopped</source>
+        <translation>Lecture arrêtée</translation>
+    </message>
+    <message>
+        <source>Last played station not found.
+Select a station to start playback.</source>
+        <translation type="obsolete">Dernière station lue non trouvée.
+Sélectionnez une station pour démarrer la lecture.</translation>
     </message>
 </context>
 <context>
@@ -1355,7 +1455,7 @@
         <translation>Paramètres du fichier RAW</translation>
     </message>
     <message>
-        <location line="+27"/>
+        <location line="+30"/>
         <source>Open RAW file</source>
         <translation>Ouvrir le fichier RAW</translation>
     </message>
@@ -1365,7 +1465,7 @@
         <translation>Actuellement affiché sur Android</translation>
     </message>
     <message>
-        <location line="+19"/>
+        <location line="+23"/>
         <source>Selected file:</source>
         <translation>Fichier sélectionné :</translation>
     </message>
@@ -1534,6 +1634,16 @@
     </message>
 </context>
 <context>
+    <name>StationListModel</name>
+    <message>
+        <location filename="../QML/components/StationListModel.qml" line="+91"/>
+        <source>Last played station not found.
+Select a station to start playback.</source>
+        <translation>Dernière station lue non trouvée.
+Sélectionnez une station pour démarrer la lecture.</translation>
+    </message>
+</context>
+<context>
     <name>TextOutputView</name>
     <message>
         <location filename="../QML/expertviews/TextOutputView.qml" line="+11"/>
@@ -1569,7 +1679,7 @@
     <message>
         <location filename="../QML/components/WDialog.qml" line="+32"/>
         <source>‹</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -1587,7 +1697,7 @@
     <message>
         <location line="+23"/>
         <source>Waterfall</source>
-        <translatorcomment>Adapté de la traduction &quot;WATERFALL DISPLAY&quot; proposée par: http://www.btb.termiumplus.gc.ca/tpv2alpha/alpha-fra.html?lang=fra&amp;i=1&amp;srchtxt=WATERFALL+DISPLAY&amp;index=alt&amp;codom2nd_wet=KB#resultrecs</translatorcomment>
+        <translatorcomment>Adapté de la traduction &quot;WATERFALL DISPLAY&quot; proposée par TERMIUM Plus®</translatorcomment>
         <translation type="unfinished">Ecriture ligne par ligne</translation>
     </message>
     <message>
@@ -1617,18 +1727,18 @@
     <message>
         <location line="-1"/>
         <source>Redirects all log output texts to a file.</source>
-        <translatorcomment>Traduction incertaine</translatorcomment>
-        <translation type="unfinished">Redirige tous les textes de sortie log vers un fichier.</translation>
+        <translatorcomment>J&apos;ai utilisé &quot;journal&quot; pour la traduction de &quot;log&quot; tel que proposé par TERMIUM Plus®</translatorcomment>
+        <translation type="unfinished">Rediriger le journal de sortie vers un fichier.</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Qt Quick Controls Style for the 1st launch</source>
-        <translation type="unfinished">Style Qt Quick Controls pour le 1er lancement</translation>
+        <translation>Style Qt Quick Controls pour le 1er lancement</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>style_name</source>
-        <translation type="unfinished">nom_du_style</translation>
+        <translation>nom_du_style</translation>
     </message>
 </context>
 </TS>
