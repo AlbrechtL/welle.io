@@ -1,5 +1,4 @@
-welle.io uses external and internal libraries and make extensive use of the
-following persons' or companies' code:
+welle.io uses external and internal libraries and make extensive use of the following persons' or companies' code:
 
 QT - Copyright (c) The Qt Company, www.qt.io - LGPL Version 2.1
 FFTW3 - www.fftw.org - GPLv2 license or later
@@ -34,6 +33,4 @@ Icons:
 Other:
 Notice some of these images are derived from Google applications resources.
 They were provided under the following license:
-You may use the materials in this directory without restriction to develop
-your apps and to use in your apps.
-
+You may use the materials in this directory without restriction to develop your apps and to use in your apps.
