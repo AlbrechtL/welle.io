@@ -279,12 +279,16 @@ void CGUIHelper::registerConstellationSeries(QAbstractSeries *series)
 void CGUIHelper::tryHideWindow()
 {
 #ifndef QT_NO_SYSTEMTRAYICON
-    // Hide only if system tray is available otherwise ignore it. Standard Gnome doesn't have a system tray so user would lost the control.
-    if(trayIcon->isSystemTrayAvailable()) {
+    QSettings settings;
+    int count = settings.value("hideWindowTrayMessageDisplayCount",0).toInt();
+
+    // Hide only if system tray is available otherwise ignore it. Standard Gnome doesn't have a system tray so user would lose the control.
+    if(trayIcon->isSystemTrayAvailable() && count < 4) {
         trayIcon->showMessage(QCoreApplication::applicationName(), tr("The program will keep running in the "
                                            "system tray. To terminate the program, "
                                            "choose <b>Quit</b> in the context menu "
                                            "of the system tray entry."), QIcon(":/icon.png"), 5000);
+        settings.setValue("hideWindowTrayMessageDisplayCount", count+1);
         emit minimizeWindow();
     }
 #endif
