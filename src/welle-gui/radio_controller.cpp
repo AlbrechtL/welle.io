@@ -261,6 +261,7 @@ void CRadioController::setService(uint32_t service, bool force)
 {
     if (currentService != service or force) {
         currentService = service;
+        autoService = service;
         emit stationChanged();
 
         // Wait if we found the station inside the signal
@@ -299,12 +300,14 @@ void CRadioController::setChannel(QString Channel, bool isScan, bool Force)
     if (currentChannel != Channel || Force == true) {
         if (device && device->getID() == CDeviceID::RAWFILE) {
             currentChannel = "File";
+            autoChannel = currentChannel;
             currentEId = 0;
             currentEnsembleLabel = "";
             currentFrequency = 0;
         }
         else { // A real device
             currentChannel = Channel;
+            autoChannel = currentChannel;
             currentEId = 0;
             currentEnsembleLabel = "";
 
