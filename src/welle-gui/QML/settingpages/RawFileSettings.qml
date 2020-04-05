@@ -24,7 +24,10 @@ SettingSection {
         title: "Please choose a file"
         onAccepted: {
             var filePath_tmp = fileDialog.fileUrl.toString()
-            filePath.text = __getPath(filePath_tmp)
+            if (filePath.text != __getPath(filePath_tmp)) {
+                filePath.text = __getPath(filePath_tmp)
+                __openDevice()
+            }
         }
     }
 
@@ -53,6 +56,10 @@ SettingSection {
                 id: fileFormat
                 sizeToContents: true
                 model: [ "auto", "u8", "s8", "s16le", "s16be", "cf32"];
+                onCurrentIndexChanged: {
+                     if (isLoaded)
+                         __openDevice()
+                 }
             }
         }
 
@@ -76,16 +83,18 @@ SettingSection {
         isLoaded = true
     }
 
-    onVisibleChanged: {
-        if(visible == false && isLoaded)
-            __openDevice()
-    }
-
     function __openDevice() {
+        // Don't use fileFormat.currentText because if __openDevice is called
+        // from fileFormat.onCurrentIndexChanged the value of currentText is incorrect
+        var fileFormatText = fileFormat.model[fileFormat.currentIndex];
+
         if(Qt.platform.os == "android")
-            guiHelper.openRawFile(fileFormat.currentText)
-        else
-            guiHelper.openRawFile(filePath.text, fileFormat.currentText)
+            guiHelper.openRawFile(fileFormatText)
+        else {
+            console.debug("RAWFile path: " + filePath.text)
+            console.debug("RAWFile format set to: " + fileFormatText)
+            guiHelper.openRawFile(filePath.text, fileFormatText)
+        }
     }
 
     function __getPath(urlString) {
