@@ -42,7 +42,7 @@ ViewBaseFrame {
                 font.pixelSize: Units.em(0.9)
                 background: Rectangle { color: "black" }
                 color: "white"
-                width: flick.width
+                width: flick.width - scrollbar.width
                 wrapMode: TextEdit.Wrap
                 readOnly: true
 
@@ -52,7 +52,7 @@ ViewBaseFrame {
                 }
             }
 
-            ScrollBar.vertical: ScrollBar { }
+            ScrollBar.vertical: ScrollBar { id: scrollbar }
         }
     }
 
