@@ -69,6 +69,7 @@ Download
 ---
 ##### Stable binaries
 * [welle.io for **Windows**, **Linux** and **Android (APK)**](http://github.com/AlbrechtL/welle.io/releases) 
+* [Official distributions binaries](https://repology.org/project/welle.io/versions)
 * [welle.io for **Android at Google Play**](https://play.google.com/store/apps/details?id=io.welle.welle)
 * welle.io for **macOS**
   * [through **MacPorts port**](https://ports.macports.org/port/welle.io/summary) (requires [MacPorts](https://www.macports.org/)) 
