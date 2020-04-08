@@ -146,7 +146,9 @@ var ensembleInfoTimer = setInterval(populateEnsembleinfo, 1000);
 
 function ensembleInfoTemplate() {
     var html = '';
-    html += ' <h1>FIG1: ${label} (${shortlabel}) FIG2: ${fig2label}</h1>';
+    html += ' <h1><abbr title="Ensemble long and short labels defined in FIG1">${label} (${shortlabel})</abbr></h1>';
+    html += ' <h2><abbr title="Ensemble long and short labels defined in FIG2">${fig2label}</abbr></h2>';
+    html += ' <div align="right"><p><abbr title="${hw_name}, ${sw_name}">This is welle-cli build version ${version}</abbr></p></div>';
     html += ' <table id="servicetable">';
     html += ' <tr><th>Ensemble ID </th>';
     html += ' <th>ECC </th>';
@@ -410,6 +412,9 @@ function populateEnsembleinfo() {
         document.getElementById("fftwindowselector").value = data.receiver.software.fftwindowplacement;
         document.getElementById("coarsecheckbox").checked = data.receiver.software.coarsecorrectorenabled;
 
+        ens["version"] = data.receiver.software.version;
+        ens["hw_name"] = data.receiver.hardware.name;
+        ens["sw_name"] = data.receiver.software.name;
         ens["SNR"] = data.demodulator.snr;
         ens["FrequencyCorrection"] = data.demodulator.frequencycorrection;
         ens["services"] = servicehtml;
