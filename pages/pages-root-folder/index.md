@@ -74,6 +74,7 @@ Download
 * welle.io for **macOS**
   * [through **MacPorts port**](https://ports.macports.org/port/welle.io/summary) (requires [MacPorts](https://www.macports.org/)) 
     * `sudo port install welle.io`
+    * or `sudo port install welle.io +cli` (to install also welle-cli in addition to welle.io GUI)
 
 If you discovered an issue please open a new [issue](https://github.com/AlbrechtL/welle.io/issues).
 
