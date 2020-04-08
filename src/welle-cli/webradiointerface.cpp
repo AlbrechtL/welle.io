@@ -776,7 +776,7 @@ bool WebRadioInterface::send_mux_json(Socket& s)
 
     {
         lock_guard<mutex> lock(plotdata_mut);
-        mux_json.peaks = calculate_cir_peaks(last_CIR);
+        mux_json.cir_peaks = calculate_cir_peaks(last_CIR);
     }
 
     if (not send_http_response(s, http_ok, "", http_contenttype_json)) {

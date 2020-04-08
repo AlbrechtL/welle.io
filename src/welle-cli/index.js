@@ -434,7 +434,7 @@ function populateEnsembleinfo() {
         var tii_el = document.getElementById('tiiinfo');
         tii_el.innerHTML = tiihtml;
 
-        drawCIRPeaks(data.cir);
+        drawCIRPeaks(data.cir_peaks);
 
         drawAudiolevels(data.services);
     };

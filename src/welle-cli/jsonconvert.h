@@ -139,7 +139,7 @@ struct MuxJson {
     double demodulator_frequencycorrection = 0.0;
 
     std::list<tii_measurement_t> tii;
-    std::vector<PeakJson> peaks;
+    std::vector<PeakJson> cir_peaks;
 };
 
 std::string build_mux_json(const MuxJson& mux);

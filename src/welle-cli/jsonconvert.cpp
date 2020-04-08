@@ -213,7 +213,7 @@ static void to_json(nlohmann::json& j, const MuxJson& mux) {
         {"utctime", mux.utctime},
         {"messages", mux.messages},
         {"tii", mux.tii},
-        {"peaks", mux.peaks}
+        {"cir_peaks", mux.cir_peaks}
     };
 
     j["demodulator"]["fic"]["numcrcerrors"] = mux.demodulator_fic_numcrcerrors;
