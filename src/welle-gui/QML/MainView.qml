@@ -59,8 +59,8 @@ ApplicationWindow {
     property bool isLoaded: false
     property bool isStationNameInWindowTitle: false
 
-    StationListModel { id: stationList }
-    StationListModel { id: favoritsList }
+    StationListModel { id: stationList ; type: "all"}
+    StationListModel { id: favoritsList ; type: "favorites"}
 
     readonly property bool inPortrait: mainWindow.width < mainWindow.height
 
@@ -108,6 +108,10 @@ ApplicationWindow {
             errorMessagePopup.open();
 
         updateTheme()
+
+        guiHelper.updateMprisStationList(stationChannelView.model.serialized,
+                                         stationChannelView.model.type,
+                                         stationListBox.currentIndex)
 
         isLoaded = true
     }
@@ -466,6 +470,9 @@ ApplicationWindow {
                         case 0: stationChannelView.model = stationList; break;
                         case 1: stationChannelView.model = favoritsList; break;
                         }
+                        guiHelper.updateMprisStationList(stationChannelView.model.serialized,
+                                                         stationChannelView.model.type,
+                                                         stationListBox.currentIndex)
                     }
                 }
 

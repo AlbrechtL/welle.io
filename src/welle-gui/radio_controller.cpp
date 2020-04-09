@@ -309,6 +309,7 @@ void CRadioController::setAutoPlay(bool isAutoPlayValue, QString channel, QStrin
 {
     isAutoPlay = isAutoPlayValue;
     autoChannel = channel;
+    emit autoChannelChanged(autoChannel);
     autoService = deserialise_serviceid(service.toStdString().c_str());
     emit autoServiceChanged(autoService);
     currentLastChannel = QStringList() << service << channel;
@@ -357,6 +358,8 @@ void CRadioController::setChannel(QString Channel, bool isScan, bool Force)
         }
 
         emit channelChanged();
+        if (!isScan)
+            emit autoChannelChanged(autoChannel);
         emit ensembleChanged();
         emit frequencyChanged();
     }

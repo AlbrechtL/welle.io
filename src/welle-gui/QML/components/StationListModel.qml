@@ -2,6 +2,7 @@ import QtQuick 2.0
 
 ListModel {
     property string serialized: ""
+    property string type: ""
 
     function addStation(station, sId, channel, favorit) {
         // Check if station already exists
@@ -65,6 +66,7 @@ ListModel {
         for (var i = 0; i < count; ++i)
             tmp.push(get(i))
         serialized = JSON.stringify(tmp)
+        guiHelper.updateMprisStationList(serialized, type, stationListBox.currentIndex)
     }
 
     function deSerialize() {
