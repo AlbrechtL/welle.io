@@ -178,7 +178,9 @@ const QByteArray CGUIHelper::getInfoPage(QString pageName)
         // Set application version
         InfoContent.append(tr("welle.io version") + ": " + QString(CURRENT_VERSION) + "\n");
         InfoContent.append(tr("Git revision") + ": " + QString(GITHASH) + "\n");
-        InfoContent.append(tr("Built on") + ": " + QString(__TIMESTAMP__) + "\n");
+        QString ts = QString(__TIMESTAMP__).replace("  "," ");
+        QDateTime tsDT = QLocale(QLocale::C).toDateTime(ts, "ddd MMM d hh:mm:ss yyyy");
+        InfoContent.append(tr("Built on") + ": " + tsDT.toString(Qt::ISODate) + "\n");
         InfoContent.append(tr("QT version") + ": " + qVersion() + "\n");
         InfoContent.append("\n");
     } else if (pageName == "Authors") {
@@ -613,7 +615,7 @@ void CGUIHelper::setTranslator(QTranslator *translator)
     this->translator = translator;
 }
 
-QTranslator* CGUIHelper::loadTranslationFile(QTranslator *translator, QString Language)
+QString CGUIHelper::mapToLanguage(QString Language)
 {
     if(Language == "auto")
     {
@@ -637,29 +639,35 @@ QTranslator* CGUIHelper::loadTranslationFile(QTranslator *translator, QString La
 
     // Set new language
     qDebug() << "main:" <<  "Set language" << Language;
-    bool isTranslation = translator->load(QString(":/i18n/") + Language);
+    return Language;
+}
 
-    if(!isTranslation)
+bool CGUIHelper::loadTranslationFile(QTranslator *translator, QString Language)
+{
+    bool isLoaded = translator->load(QString(":/i18n/") + Language);
+
+    if(!isLoaded)
     {
         qDebug() << "main:" <<  "Error while loading language" << Language << "use untranslated text (ie. English)";
     }
 
-    return translator;
+    return isLoaded;
 }
 
 void CGUIHelper::updateTranslator(QString Language, QObject *obj)
 {
-    translator = loadTranslationFile(translator, Language);
+    QString lang = mapToLanguage(Language);
 
-    translateGUI(Language, obj);
-}
-
-void CGUIHelper::translateGUI(QString Language, QObject *obj)
-{
     // Set locale e.g. time formarts
-    QLocale curLocale(QLocale((const QString&)Language));
+    QLocale curLocale(QLocale((const QString&)lang));
     QLocale::setDefault(curLocale);
 
+    loadTranslationFile(translator, lang);
+    translateGUI(obj);
+}
+
+void CGUIHelper::translateGUI(QObject *obj)
+{
     // Save previous width & height
     // (because they are reset by the call to retranslate())
     QVariant width = QQmlProperty::read(obj, "width");
