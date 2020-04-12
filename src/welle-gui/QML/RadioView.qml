@@ -239,12 +239,12 @@ ViewBaseFrame {
         fillMode: Image.PreserveAspectFit
 
         Accessible.role: Accessible.Button
-        Accessible.name: radioController.isPlaying ? qsTr("Stop") : qsTr("Play")
-        Accessible.description: radioController.isPlaying ? qsTr("Stop playback") : qsTr("Start playback")
+        Accessible.name: (radioController.isPlaying || radioController.isChannelScan) ? qsTr("Stop") : qsTr("Play")
+        Accessible.description: radioController.isPlaying ? qsTr("Stop playback") : radioController.isChannelScan ? qsTr("Stop scan") : qsTr("Start playback")
         Accessible.onPressAction: startStopIconMouseArea.clicked(mouse)
 
         WToolTip {
-            text: radioController.isPlaying ? qsTr("Stop") : qsTr("Play")
+            text: (radioController.isPlaying || radioController.isChannelScan) ? qsTr("Stop") : qsTr("Play")
             visible: startStopIconMouseArea.containsMouse
         }
 
@@ -255,7 +255,7 @@ ViewBaseFrame {
             anchors.fill: parent
             hoverEnabled: true
             onClicked: {
-                if (radioController.isPlaying) {
+                if (radioController.isPlaying || radioController.isChannelScan) {
                     startStopIcon.stop()
                 } else {
                     startStopIcon.play()
@@ -273,7 +273,7 @@ ViewBaseFrame {
             context: Qt.ApplicationShortcut
             autoRepeat: false
             sequences: ["Media Stop"]
-            onActivated: if (radioController.isPlaying) startStopIcon.stop()
+            onActivated: if (radioController.isPlaying || radioController.isChannelScan) startStopIcon.stop()
         }
         Shortcut {
             context: Qt.ApplicationShortcut
@@ -287,10 +287,13 @@ ViewBaseFrame {
             onIsPlayingChanged: {
                 startStopIcon.setStartPlayIcon()
             }
+            onIsChannelScanChanged: {
+                startStopIcon.setStartPlayIcon()
+            }
         }
 
         function setStartPlayIcon() {
-            if (radioController.isPlaying) {
+            if (radioController.isPlaying || radioController.isChannelScan) {
                 startStopIcon.source = "qrc:/icons/welle_io_icons/20x20/stop.png"
             } else {
                 startStopIcon.source = "qrc:/icons/welle_io_icons/20x20/play.png"
@@ -304,7 +307,10 @@ ViewBaseFrame {
         }
 
         function stop() {
-            radioController.stop();
+            if (radioController.isPlaying)
+                radioController.stop();
+            else if (radioController.isChannelScan)
+                radioController.stopScan()
         }
     }
 
@@ -401,19 +407,7 @@ ViewBaseFrame {
                     
                     Connections {
                         target: antennaSymbol
-                        onIsSignalChanged: { 
-                            if (!radioController.isPlaying) {
-                                hideAntenna()
-                                return
-                            }
-                            if (antennaSymbol.isSignal) {
-                                antennaIconNoSignalRed.visible = false; 
-                                antennaIcon.visible = true;
-                            } else {
-                                antennaIconNoSignalRed.visible = true; 
-                                antennaIcon.visible = false;
-                            }
-                        }
+                        onIsSignalChanged: setAntennaVisibility()
                     }
                     
                     NumberAnimation on opacity {
@@ -438,11 +432,8 @@ ViewBaseFrame {
                             else
                                 __setIsSignal(false)
                         }
-
-                        onIsPlayingChanged: {
-                            if (!radioController.isPlaying)
-                                hideAntenna()
-                        }
+                        onIsPlayingChanged: setAntennaVisibility()
+                        onIsChannelScanChanged: setAntennaVisibility()
                     }
                 }
             }
@@ -513,8 +504,20 @@ ViewBaseFrame {
             antennaSymbol.state = "alignBottom"
     }
 
-    function hideAntenna() {
-        antennaIconNoSignalRed.visible = false;
-        antennaIcon.visible = false;
+    function setAntennaVisibility() {
+        if (!radioController.isPlaying && !radioController.isChannelScan) {
+            antennaIconNoSignalRed.visible = false;
+            antennaIcon.visible = false;
+            return
+        }
+        if (antennaSymbol.isSignal) {
+            antennaIconNoSignalRed.visible = false;
+            antennaIcon.visible = true;
+        } else {
+            antennaIconNoSignalRed.visible = true;
+            antennaIcon.visible = false;
+            antennaSymbol.opacity = 1.0
+            effect.stop()
+        }
     }
 }
