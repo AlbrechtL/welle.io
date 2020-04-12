@@ -153,19 +153,7 @@ ViewBaseFrame {
                     
                     Connections {
                         target: antennaSymbol
-                        onIsSignalChanged: { 
-                            if (!radioController.isPlaying) {
-                                hideAntenna()
-                                return
-                            }
-                            if (antennaSymbol.isSignal) {
-                                antennaIconNoSignalRed.visible = false; 
-                                antennaIcon.visible = true;
-                            } else {
-                                antennaIconNoSignalRed.visible = true; 
-                                antennaIcon.visible = false;
-                            }
-                        }
+                        onIsSignalChanged: setAntennaVisibility()
                     }
                     
                     NumberAnimation on opacity {
@@ -190,11 +178,8 @@ ViewBaseFrame {
                             else
                                 __setIsSignal(false)
                         }
-
-                        onIsPlayingChanged: {
-                            if (!radioController.isPlaying)
-                                hideAntenna()
-                        }
+                        onIsPlayingChanged: setAntennaVisibility()
+                        onIsChannelScanChanged: setAntennaVisibility()
                     }
                 }
             }
@@ -265,8 +250,20 @@ ViewBaseFrame {
             antennaSymbol.state = "alignBottom"
     }
 
-    function hideAntenna() {
-        antennaIconNoSignalRed.visible = false;
-        antennaIcon.visible = false;
+    function setAntennaVisibility() {
+        if (!radioController.isPlaying && !radioController.isChannelScan) {
+            antennaIconNoSignalRed.visible = false;
+            antennaIcon.visible = false;
+            return
+        }
+        if (antennaSymbol.isSignal) {
+            antennaIconNoSignalRed.visible = false;
+            antennaIcon.visible = true;
+        } else {
+            antennaIconNoSignalRed.visible = true;
+            antennaIcon.visible = false;
+            antennaSymbol.opacity = 1.0
+            effect.stop()
+        }
     }
 }

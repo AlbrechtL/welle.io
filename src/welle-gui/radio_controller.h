@@ -64,6 +64,7 @@ class CRadioController :
     Q_PROPERTY(CDeviceID deviceId  MEMBER deviceId NOTIFY deviceIdChanged)
     Q_PROPERTY(QDateTime dateTime MEMBER currentDateTime NOTIFY dateTimeChanged)
     Q_PROPERTY(bool isPlaying MEMBER isPlaying NOTIFY isPlayingChanged)
+    Q_PROPERTY(bool isChannelScan MEMBER isChannelScan NOTIFY isChannelScanChanged)
     Q_PROPERTY(bool isSync MEMBER isSync NOTIFY isSyncChanged)
     Q_PROPERTY(bool isFICCRC MEMBER isFICCRC NOTIFY isFICCRCChanged)
     Q_PROPERTY(bool isSignal MEMBER isSignal NOTIFY isSignalChanged)
@@ -256,6 +257,7 @@ signals:
     void deviceIdChanged();
     void dateTimeChanged(QDateTime);
     void isPlayingChanged(bool);
+    void isChannelScanChanged(bool isChannelScan);
     void isSyncChanged(bool);
     void isFICCRCChanged(bool);
     void isSignalChanged(bool);
