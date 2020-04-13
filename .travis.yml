@@ -112,7 +112,7 @@ jobs:
         - /usr/local/opt/qt/bin/macdeployqt build/src/welle-gui/welle-io.app -dmg
 
         # Upload DMG
-        curl --upload-file build/src/welle-gui/welle-io.dmg https://transfer.sh/welle-io.dmg
+        - curl --upload-file build/src/welle-gui/welle-io.dmg https://transfer.sh/welle-io.dmg
 
 deploy:
   on:
