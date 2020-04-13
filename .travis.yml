@@ -1,5 +1,6 @@
 os:
   - linux
+  - osx
 dist: bionic
 language: cpp
 compiler: gcc
@@ -21,7 +22,7 @@ script:
   - cmake ../ -DINSTALL_UDEV_RULES=ON -DCMAKE_INSTALL_PREFIX=/usr
   - make -j 4
   - sudo make install
-  - sudo ldconfig
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; sudo ldconfig; fi
   - cd ../..
   
   # Compile librtlsdr
@@ -32,7 +33,7 @@ script:
   - cmake ../  -DDETACH_KERNEL_DRIVER=ON
   - make -j 4
   - sudo make install
-  - sudo ldconfig
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; sudo ldconfig; fi
   - cd ../..
   
   # Compile welle.io
@@ -99,6 +100,12 @@ jobs:
         
         # Prepare bintray deploy
         - sed -e "s/\${VERSION}/"$DATE"_"$GIT_HASH"/" .travis-bintray-deploy.json.template >travis-bintray-deploy.json
+    - os: osx
+      before_install:
+        - brew tap pothosware/homebrew-pothos
+        - brew update
+      install:
+        - brew install qt fftw faad2 mpg123 soapysdr soapyuhd libusb
 
 deploy:
   on:
