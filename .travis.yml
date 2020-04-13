@@ -3,7 +3,6 @@ os:
 dist: bionic
 language: cpp
 compiler: gcc
-sudo: require
 
 env:
   # "BINTRAY_KEY=<secure>"
