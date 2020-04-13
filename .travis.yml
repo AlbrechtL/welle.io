@@ -106,6 +106,13 @@ jobs:
         - brew install fftw faad2 lame mpg123 soapysdr soapyuhd
         - ln -s /usr/local/opt/qt/bin/qmake /usr/local/bin/qmake
         - export LIBRARY_PATH=/usr/local/lib
+      after_success:
+        # Create welle.io DMG
+        - find build/
+        - macdeployqt build/src/welle-gui/welle-io.app -dmg
+
+        # Upload DMG
+        curl --upload-file build/src/welle-gui/welle-io.dmg https://transfer.sh/welle-io.dmg
 
 deploy:
   on:
