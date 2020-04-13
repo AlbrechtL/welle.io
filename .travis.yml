@@ -99,6 +99,7 @@ jobs:
         # Prepare bintray deploy
         - sed -e "s/\${VERSION}/"$DATE"_"$GIT_HASH"/" .travis-bintray-deploy.json.template >travis-bintray-deploy.json
     - os: osx
+      osx_image: xcode11.3
       before_install:
         - brew tap pothosware/homebrew-pothos
         - brew update
