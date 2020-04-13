@@ -102,6 +102,7 @@ jobs:
         - brew update
       install:
         - brew install fftw faad2 lame mpg123 soapysdr soapyuhd
+        - ln -s /usr/local/opt/qt/bin/qmake /usr/local/bin/qmake
 
 deploy:
   on:
