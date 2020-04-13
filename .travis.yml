@@ -103,6 +103,7 @@ jobs:
       install:
         - brew install fftw faad2 lame mpg123 soapysdr soapyuhd
         - ln -s /usr/local/opt/qt/bin/qmake /usr/local/bin/qmake
+        - export LIBRARY_PATH=/usr/local/lib
 
 deploy:
   on:
