@@ -101,7 +101,7 @@ jobs:
         - brew tap pothosware/homebrew-pothos
         - brew update
       install:
-        - brew install fftw faad2 mpg123 soapysdr soapyuhd
+        - brew install fftw faad2 lame mpg123 soapysdr soapyuhd
 
 deploy:
   on:
