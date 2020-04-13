@@ -44,7 +44,7 @@ script:
   # Compile welle-cli
   - mkdir build-cli
   - cd build-cli
-  - cmake ../
+  - cmake ../  -DBUILD_WELLE_IO=OFF -DAIRSPY=TRUE -DRTLSDR=TRUE -DSOAPYSDR=TRUE
   - make -j4
   - cd ..
 
