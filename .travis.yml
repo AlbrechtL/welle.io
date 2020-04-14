@@ -48,16 +48,19 @@ script:
 jobs:
   include:
     - os: linux
+
       before_install:
         # QT
         - sudo add-apt-repository ppa:beineri/opt-qt-5.14.0-bionic -y
         # SoapySDR
         - sudo add-apt-repository ppa:myriadrf/drivers -y
         - sudo apt-get update -qq
+
       install:
         - sudo apt-get -y install gcc g++
         - sudo apt-get -y install libusb-1.0-0-dev pkg-config libmp3lame-dev libmpg123-dev qt514base qt514declarative qt514quickcontrols qt514quickcontrols2 qt514charts-no-lgpl qt514graphicaleffects qt514multimedia libpulse0 libfaad-dev libfftw3-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev libsoapysdr-dev
         - source /opt/qt514/bin/qt514-env.sh
+
       after_success:
         - sudo ldconfig
 
@@ -97,15 +100,19 @@ jobs:
         
         # Prepare bintray deploy
         - sed -e "s/\${VERSION}/"$DATE"_"$GIT_HASH"/" .travis-bintray-deploy.json.template >travis-bintray-deploy.json
+
     - os: osx
       osx_image: xcode11.3
+
       before_install:
         - brew tap pothosware/homebrew-pothos
         - brew update
+
       install:
         - brew install create-dmg fftw faad2 lame mpg123 soapysdr soapyuhd
         - ln -s /usr/local/opt/qt/bin/qmake /usr/local/bin/qmake
         - export LIBRARY_PATH=/usr/local/lib
+
       after_success:
         # Prepare welle.io DMG
         - find build
@@ -118,7 +125,7 @@ jobs:
 
 deploy:
   on:
-   branch: next
+    branch: next
   provider: bintray
   file: "travis-bintray-deploy.json"
   user: "albrechtl"
