@@ -121,7 +121,7 @@ jobs:
         - create-dmg --app-drop-link 350 0 --volname welle.io "$DATE"_"$GIT_HASH"_MacOS_welle.io.dmg welle-io.app
 
         # Upload DMG
-        - curl --upload-file welle-io.dmg https://transfer.sh/welle-io.dmg
+        - curl --upload-file "$DATE"_"$GIT_HASH"_MacOS_welle-io.dmg https://transfer.sh/welle-io.dmg
 
 deploy:
   on:
