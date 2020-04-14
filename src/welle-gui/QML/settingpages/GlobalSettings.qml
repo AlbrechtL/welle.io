@@ -13,6 +13,7 @@ Item {
     property alias enableFullScreenState : enableFullScreen.checked
     property alias qQStyleTheme : qQStyleTheme.currentIndex
     property bool isLoaded: false
+    signal fontChanged()
 
     anchors.fill: parent
     implicitHeight: layout.implicitHeight
@@ -26,6 +27,10 @@ Item {
         property alias enableAutoSdr : enableAutoSdr.checked
         property alias languageValue : languageBox.currentIndex
         property alias qQStyleTheme: qQStyleTheme.currentIndex
+        property alias fontGeneralSystemSwitchState: fontGeneralSystemSwitch.checked
+        property alias fontGeneral: fontSettings.fontGeneralName
+        property alias fontFixedSystemSwitchState: fontFixedSystemSwitch.checked
+        property alias fontFixed: fontSettings.fontFixedName
     }
 
     Component.onCompleted: {
@@ -263,6 +268,97 @@ Item {
                         qQStyleTheme.enabled = guiHelper.isThemableStyle(guiHelper.getQQStyle)
                     }
                 }
+            }
+        }
+        SettingSection {
+            id: fontSettings
+
+            property var fontList: Qt.fontFamilies()
+            property string fontGeneralName
+            property string fontFixedName
+
+            text: qsTr("Font settings")
+
+            WSwitch {
+                id: fontGeneralSystemSwitch
+                text: qsTr("General font: use system font")
+                Layout.fillWidth: true
+                checked: true
+                onCheckedChanged: fontSettings.setFontGeneral()
+            }
+            WComboBox {
+                id: fontGeneralBox
+                sizeToContents: true
+                enabled: !fontGeneralSystemSwitch.checked
+                model: fontSettings.fontList
+                onCurrentIndexChanged: {
+                    if (fontSettings.fontGeneralName === undefined ||
+                        fontSettings.fontGeneralName === "" ||
+                        fontSettings.fontList.indexOf(fontSettings.fontGeneralName) === -1)
+                    {
+                        fontSettings.fontGeneralName = guiHelper.systemFontGeneral
+                        currentIndex = fontSettings.fontList.indexOf(fontSettings.fontGeneralName)
+                    }
+                    else
+                    {
+                        fontSettings.fontGeneralName = model[currentIndex]
+                    }
+                    fontSettings.setFontGeneral()
+                }
+                Component.onCompleted: {
+                    currentIndex = fontSettings.fontList.indexOf(fontSettings.fontGeneralName)
+                    fontSettings.setFontGeneral()
+                }
+            }
+            function setFontGeneral() {
+                if (fontGeneralSystemSwitch.checked) {
+                    TextStyle.textFont = guiHelper.systemFontGeneral
+                } else {
+                    TextStyle.textFont = fontSettings.fontGeneralName
+                }
+                fontChanged()
+                console.debug("General font set to: " + TextStyle.textFont)
+            }
+
+
+            WSwitch {
+                id: fontFixedSystemSwitch
+                text: qsTr("Fixed space font: use system font")
+                Layout.fillWidth: true
+                checked: true
+                onCheckedChanged: fontSettings.setFontFixed()
+            }
+            WComboBox {
+                id: fontFixedBox
+                sizeToContents: true
+                enabled: !fontFixedSystemSwitch.checked
+                model: fontSettings.fontList
+                onCurrentIndexChanged: {
+                    if (fontSettings.fontFixedName === undefined ||
+                        fontSettings.fontFixedName === "" ||
+                        fontSettings.fontList.indexOf(fontSettings.fontFixedName) === -1)
+                    {
+                        fontSettings.fontFixedName = guiHelper.systemFontFixed
+                        currentIndex = fontSettings.fontList.indexOf(fontSettings.fontFixedName)
+                    }
+                    else
+                    {
+                        fontSettings.fontFixedName = model[currentIndex]
+                    }
+                    fontSettings.setFontFixed()
+                }
+                Component.onCompleted: {
+                    currentIndex = fontSettings.fontList.indexOf(fontSettings.fontFixedName)
+                    fontSettings.setFontFixed()
+                }
+            }
+            function setFontFixed() {
+                if (fontFixedSystemSwitch.checked) {
+                    TextStyle.textFontFixed = guiHelper.systemFontFixed
+                } else {
+                    TextStyle.textFontFixed = fontSettings.fontFixedName
+                }
+                console.debug("Fixed font set to: " + TextStyle.textFontFixed)
             }
         }
     }

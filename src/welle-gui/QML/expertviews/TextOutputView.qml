@@ -38,7 +38,7 @@ ViewBaseFrame {
 
             TextArea.flickable: TextArea {
                 id: textField
-                font.family: "Monospace"
+                font.family: TextStyle.textFontFixed
                 font.pixelSize: Units.em(0.9)
                 background: Rectangle { color: "black" }
                 color: "white"

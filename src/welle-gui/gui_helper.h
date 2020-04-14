@@ -123,6 +123,8 @@ class CGUIHelper : public QObject
     Q_PROPERTY(QVariant licenses READ licenses CONSTANT)
     Q_PROPERTY(StyleModel* qQStyleComboModel READ qQStyleComboModel CONSTANT)
     Q_PROPERTY(QString getQQStyle READ getQQStyle CONSTANT)
+    Q_PROPERTY(QString systemFontGeneral MEMBER systemFontGeneral CONSTANT)
+    Q_PROPERTY(QString systemFontFixed MEMBER systemFontFixed CONSTANT)
 
 public:
     Q_INVOKABLE void updateTranslator(QString Language, QObject *obj);
@@ -191,6 +193,9 @@ private:
 
     const QVariantMap licenses();
     const QByteArray getFileContent(QString filepath);
+
+    QString systemFontGeneral;
+    QString systemFontFixed;
 
     // Qt Quick Style Management methods & members
     QSettings settings;

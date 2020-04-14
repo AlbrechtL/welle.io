@@ -13,8 +13,9 @@ QtObject {
     property int textStation: Units.em(0.9)
 
     // Text font and color
-    property string textFont: "Arial"
-    //property string textFont: "Times"
+    property string textFont: "sans serif"
+    property string textFontFixed: "monospace"
     //property color textColor: "white"
     property color textColor: "black"
+
 }

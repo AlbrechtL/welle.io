@@ -9,7 +9,9 @@ ComboBox {
 
     property bool sizeToContents
     property int modelWidth
-    width: (sizeToContents) ? modelWidth + 2*leftPadding + 2*rightPadding : implicitWidth
+    width: (sizeToContents) ?
+        modelWidth + comboBox.leftPadding + comboBox.rightPadding + contentItem.leftPadding + contentItem.rightPadding
+        : implicitWidth
     Layout.preferredWidth: width
 
     font.pixelSize: TextStyle.textStandartSize
@@ -29,6 +31,8 @@ ComboBox {
         id: textMetrics
     }
 
+    Component.onCompleted: computeComboBoxWidth()
+
     onCurrentIndexChanged: {
         // Update the translation of selected item label, otherwise
         // it is not updated (in the case we previously changed the language)
@@ -40,6 +44,7 @@ ComboBox {
     }
 
     function computeComboBoxWidth() {
+        modelWidth = 0
         textMetrics.font = comboBox.font
         for(var i = 0; i < model.count; i++){
             var label;
@@ -68,12 +73,15 @@ ComboBox {
     Connections {
         target: guiHelper
         onTranslationFinished: {
-            modelWidth = 0;
             computeComboBoxWidth()
 
             // Update the translation of selected item label, otherwise
             // it stays in the previous language
             updateTrLabel()
         }
+    }
+    Connections {
+        target: globalSettingsLoader.item
+        onFontChanged: computeComboBoxWidth()
     }
 }
