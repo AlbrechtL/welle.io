@@ -103,14 +103,15 @@ jobs:
         - brew tap pothosware/homebrew-pothos
         - brew update
       install:
-        - brew install fftw faad2 lame mpg123 soapysdr soapyuhd
+        - brew install create-dmg fftw faad2 lame mpg123 soapysdr soapyuhd
         - ln -s /usr/local/opt/qt/bin/qmake /usr/local/bin/qmake
         - export LIBRARY_PATH=/usr/local/lib
       after_success:
         # Prepare welle.io DMG
         - find build
         - cd build/src/welle-gui
-        - /usr/local/opt/qt/bin/macdeployqt welle-io.app -qmldir=$TRAVIS_BUILD_DIR/src/welle-gui/QML -dmg
+        - /usr/local/opt/qt/bin/macdeployqt welle-io.app -qmldir=$TRAVIS_BUILD_DIR/src/welle-gui/QML
+        - create-dmg --app-drop-link 350 0 --volname welle.io "$DATE"_"$GIT_HASH"_MacOS_welle.io.dmg welle-io.app
 
         # Upload DMG
         - curl --upload-file welle-io.dmg https://transfer.sh/welle-io.dmg
