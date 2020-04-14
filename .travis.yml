@@ -107,12 +107,13 @@ jobs:
         - ln -s /usr/local/opt/qt/bin/qmake /usr/local/bin/qmake
         - export LIBRARY_PATH=/usr/local/lib
       after_success:
-        # Create welle.io DMG
+        # Prepare welle.io DMG
         - find build/
-        - /usr/local/opt/qt/bin/macdeployqt build/src/welle-gui/welle-io.app -dmg
+        - cd build/src/welle-gui
+        - /usr/local/opt/qt/bin/macdeployqt welle-io.app -qmldir=$TRAVIS_BUILD_DIR/src/welle-gui/QML -dmg
 
         # Upload DMG
-        - curl --upload-file build/src/welle-gui/welle-io.dmg https://transfer.sh/welle-io.dmg
+        - curl --upload-file welle-io.dmg https://transfer.sh/welle-io.dmg
 
 deploy:
   on:
