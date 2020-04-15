@@ -109,7 +109,7 @@ jobs:
         - brew update
 
       install:
-        - brew install create-dmg fftw faad2 lame mpg123 soapysdr soapyuhd
+        - brew install fftw faad2 lame mpg123 soapysdr soapyuhd
         - ln -s /usr/local/opt/qt/bin/qmake /usr/local/bin/qmake
         - export LIBRARY_PATH=/usr/local/lib
 
@@ -117,10 +117,9 @@ jobs:
         # Prepare welle.io DMG
         - find build
         - cd build/src/welle-gui
-        - /usr/local/opt/qt/bin/macdeployqt welle-io.app -qmldir=$TRAVIS_BUILD_DIR/src/welle-gui/QML
-        - create-dmg --app-drop-link 350 0 --volname welle.io --skip-jenkins "$DATE"_"$GIT_HASH"_MacOS_welle.io.dmg welle-io.app
+        - /usr/local/opt/qt/bin/macdeployqt welle-io.app -qmldir=$TRAVIS_BUILD_DIR/src/welle-gui/QML -DMG
         - cd ../../..
-        - mv build/src/welle-gui/"$DATE"_"$GIT_HASH"_MacOS_welle.io.dmg "$DATE"_"$GIT_HASH"_MacOS_welle.io.dmg
+        - mv build/src/welle-gui/welle.io.dmg "$DATE"_"$GIT_HASH"_MacOS_welle.io.dmg
 
         # Upload DMG
         - curl --upload-file "$DATE"_"$GIT_HASH"_MacOS_welle.io.dmg https://transfer.sh/welle-io.dmg
