@@ -118,7 +118,7 @@ jobs:
         - find build
         - cd build/src/welle-gui
         - /usr/local/opt/qt/bin/macdeployqt welle-io.app -qmldir=$TRAVIS_BUILD_DIR/src/welle-gui/QML
-        - create-dmg --app-drop-link 350 0 --volname welle.io "$DATE"_"$GIT_HASH"_MacOS_welle.io.dmg welle-io.app
+        - create-dmg --app-drop-link 350 0 --volname welle.io --skip-jenkins "$DATE"_"$GIT_HASH"_MacOS_welle.io.dmg welle-io.app
 
         # Upload DMG
         - curl --upload-file "$DATE"_"$GIT_HASH"_MacOS_welle-io.dmg https://transfer.sh/welle-io.dmg
