@@ -36,7 +36,7 @@ struct AUDIO_SERVICE_FORMAT {
 
 	AUDIO_SERVICE_FORMAT() : samplerate_khz(0), bitrate_kbps(0) {}
 	std::string GetSummary() const {
-		return codec + ", " + std::to_string(samplerate_khz) + " kHz " + mode + " @ " + std::to_string(bitrate_kbps) + " kBit/s";
+		return codec + ", " + std::to_string(samplerate_khz) + " kHz " + mode + " @ " + std::to_string(bitrate_kbps) + " kbit/s";
 	}
 };
 
