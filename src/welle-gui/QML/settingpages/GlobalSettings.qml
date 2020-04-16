@@ -165,6 +165,10 @@ Item {
                 text: qsTr("Auto detect")
                 Layout.fillWidth: true
                 checked: true
+                onCheckedChanged: {
+                    if(enableAutoSdr.checked)
+                        guiHelper.openAutoDevice()
+                }
             }
 
             WComboBoxList {
