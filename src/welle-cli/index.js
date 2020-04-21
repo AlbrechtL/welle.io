@@ -408,14 +408,14 @@ function populateEnsembleinfo() {
         ens["minutes"] = data.utctime.minutes;
         ens["lto"] = data.utctime.lto;
 
-        ens["gain"] = data.receiver.hardware.gain;
+        ens["gain"] = data.receiver.hardware.gain.toFixed(1);
         document.getElementById("fftwindowselector").value = data.receiver.software.fftwindowplacement;
         document.getElementById("coarsecheckbox").checked = data.receiver.software.coarsecorrectorenabled;
 
         ens["version"] = data.receiver.software.version;
         ens["hw_name"] = data.receiver.hardware.name;
         ens["sw_name"] = data.receiver.software.name;
-        ens["SNR"] = data.demodulator.snr;
+        ens["SNR"] = data.demodulator.snr.toFixed(1);
         ens["FrequencyCorrection"] = data.demodulator.frequencycorrection;
         ens["services"] = servicehtml;
         ens["ficcrcerrors"] = data.demodulator.fic.numcrcerrors;
