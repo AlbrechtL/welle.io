@@ -152,6 +152,7 @@ public:
     virtual void onNewNullSymbol(std::vector<DSPCOMPLEX>&& data) override;
     virtual void onTIIMeasurement(tii_measurement_t&& m) override;
     virtual void onMessage(message_level_t level, const std::string& text, const std::string& text2 = std::string()) override;
+    virtual void onInputFailure(void) override;
 
 private:
     void initialise(void);
