@@ -295,10 +295,15 @@ void CGUIHelper::tryHideWindow()
 
     // Hide only if system tray is available otherwise ignore it. Standard Gnome doesn't have a system tray so user would lose the control.
     if(trayIcon->isSystemTrayAvailable() && count < 4) {
-        trayIcon->showMessage(QCoreApplication::applicationName(), tr("The program will keep running in the "
-                                           "system tray. To terminate the program, "
-                                           "choose <b>Quit</b> in the context menu "
-                                           "of the system tray entry."), QIcon(":/icon.png"), 5000);
+        trayIcon->showMessage(QCoreApplication::applicationName(),
+                              tr("The program will keep running in the "
+                              "system tray. To terminate the program, "
+                              "choose \"%1\" in the context menu "
+                              "of the system tray entry.").arg(
+                                //: "Quit" translation should be the same as the one of system tray
+                                tr("Quit")
+                              ),
+                              QIcon(":/icon.png"), 5000);
         settings.setValue("hideWindowTrayMessageDisplayCount", count+1);
         emit minimizeWindow();
     }
