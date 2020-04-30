@@ -66,31 +66,38 @@ ViewBaseFrame {
         anchors.leftMargin: Units.dp(5)
         spacing: Units.dp(2)
 
+        Accessible.name: qsTr("Signal noise ratio: " + radioController.snr )
+
         Rectangle{
             height: Units.dp(4)
             width: Units.dp(4)
             color: (radioController.snr > 2) ? "green" : "dimgrey"
+            Accessible.ignored: true
         }
         Rectangle{
             height: Units.dp(8)
             width: Units.dp(4)
             color: (radioController.snr > 5) ? "green" : "dimgrey"
+            Accessible.ignored: true
         }
         Rectangle{
             height: Units.dp(12)
             width: Units.dp(4)
             color: (radioController.snr > 8) ? "green" : "dimgrey"
+            Accessible.ignored: true
         }
         Rectangle{
             height: Units.dp(16)
             width: Units.dp(4)
             color: (radioController.snr > 11) ? "green" : "dimgrey"
+            Accessible.ignored: true
         }
 
         Rectangle{
             height: Units.dp(20)
             width: Units.dp(4)
             color: (radioController.snr > 15) ? "green" : "dimgrey"
+            Accessible.ignored: true
         }
     }
 
