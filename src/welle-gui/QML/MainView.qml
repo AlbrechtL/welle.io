@@ -334,7 +334,7 @@ ApplicationWindow {
                 delegate: StationDelegate {
                     stationNameText: stationName
                     stationSIdValue: stationSId
-                    channelNameText: channelName
+                    channelNameText: channelName == "File" ? qsTr("File") : channelName
                     isFavorit: favorit
                     isExpert: isExpertView
                     onClicked: radioController.play(channelName, stationName, stationSId)
