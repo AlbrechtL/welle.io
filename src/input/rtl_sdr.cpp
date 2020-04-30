@@ -52,6 +52,11 @@ CRTL_SDR::CRTL_SDR(RadioControllerInterface& radioController) :
     sampleBuffer(1024 * 1024),
     spectrumSampleBuffer(8192)
 {
+    open_device();
+}
+
+void CRTL_SDR::open_device()
+{
     int ret = 0;
 
     std::clog << "RTL_SDR: " << "Open rtl-sdr" << std::endl;
@@ -102,6 +107,8 @@ CRTL_SDR::CRTL_SDR(RadioControllerInterface& radioController) :
 
     // Enable AGC by default
     setAgc(true);
+
+    rtlsdrUnplugged = false;
 }
 
 CRTL_SDR::~CRTL_SDR(void)
@@ -114,7 +121,6 @@ CRTL_SDR::~CRTL_SDR(void)
 void CRTL_SDR::setFrequency(int frequency)
 {
     stop();
-    rtlsdrUnplugged = false;
     this->frequency = frequency;
     restart();
 }
@@ -129,7 +135,13 @@ bool CRTL_SDR::restart(void)
     int ret;
 
     if(rtlsdrUnplugged) {
-        return false;
+        try {
+            open_device();
+        } catch (...) {
+            // An error occured. Maybe the device isn't present.
+            radioController.onMessage(message_level_t::Error, QT_TRANSLATE_NOOP("CRadioController", "Error opening RTL-SDR. See log for details."));
+            return false;
+        }
     }
 
     if (rtlsdrRunning) {

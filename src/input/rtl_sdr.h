@@ -100,6 +100,7 @@ private:
     int32_t sampleCounter = 0;
 
     static void rtlsdr_read_callback(uint8_t* buf, uint32_t len, void *ctx);
+    void open_device();
 };
 
 

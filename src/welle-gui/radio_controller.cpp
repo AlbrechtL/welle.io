@@ -1058,3 +1058,8 @@ void CRadioController::onPADLengthError(size_t announced_xpad_len, size_t xpad_l
 {
     qDebug() << "X-PAD length mismatch, expected:" << announced_xpad_len << " effective:" << xpad_len;
 }
+
+void CRadioController::onInputFailure()
+{
+    stop();
+}
