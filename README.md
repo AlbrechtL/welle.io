@@ -39,6 +39,7 @@ Download
 * welle.io for **macOS**
   * [through **MacPorts port**](https://ports.macports.org/port/welle.io/summary) (requires [MacPorts](https://www.macports.org/)) 
     * `sudo port install welle.io`
+    * `sudo port install welle.io +cli` (if you wish to install also welle-cli)
 
 If you discovered an issue please open a new [issue](https://github.com/AlbrechtL/welle.io/issues).
 
@@ -161,11 +162,13 @@ You can either use the welle.io port available in macports, or compile with QT C
 
 #### use welle.io port
 
-This is the easiest way and will manage the dependencies for you. There are 3 variants all three being enabled by default. Each variant enables compilation with that specific input device library : "airspy" "rtlsdr" "soapysdr".
-
+This is the easiest way and will manage the dependencies for you.
+Variants enabled by default are : "airspy" "rtlsdr" "soapysdr". Each enables compilation with that specific input device library.
 ```
 # sudo port install welle.io
 ```
+Additional variants are : "cli" (to install also welle-cli) "profiling" & "kiss_fft".
+
 With MacPorts, welle.io is installed as a bundle app in `/Applications/MacPorts`.
 
 You can also use welle.io-devel port if you prefer:
