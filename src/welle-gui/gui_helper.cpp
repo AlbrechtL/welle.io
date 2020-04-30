@@ -535,6 +535,11 @@ void CGUIHelper::openAutoDevice()
     emit newDeviceId(static_cast<int>(deviceId));
 }
 
+void CGUIHelper::openNull()
+{
+    radioController->openDevice(CDeviceID::NULLDEVICE);
+}
+
 void CGUIHelper::openAirspy()
 {
     radioController->openDevice(CDeviceID::AIRSPY);
