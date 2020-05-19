@@ -119,10 +119,10 @@ jobs:
         - cd build/src/welle-gui
         - /usr/local/opt/qt/bin/macdeployqt welle-io.app -qmldir=$TRAVIS_BUILD_DIR/src/welle-gui/QML -dmg
         - cd ../../..
-        - mv build/src/welle-gui/welle.io.dmg "$DATE"_"$GIT_HASH"_MacOS_welle.io.dmg
+        - mv build/src/welle-gui/welle.io.dmg "$DATE"_"$GIT_HASH"_MacOS_welle-io.dmg
 
-        # Upload DMG
-        - curl --upload-file "$DATE"_"$GIT_HASH"_MacOS_welle.io.dmg https://transfer.sh/welle-io.dmg
+        # Prepare bintray deploy
+        - sed -e "s/\${VERSION}/"$DATE"_"$GIT_HASH"/" .travis-bintray-deploy.json.template >travis-bintray-deploy.json
 
 deploy:
   on:
