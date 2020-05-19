@@ -127,7 +127,8 @@ class CGUIHelper : public QObject
 public:
     Q_INVOKABLE void updateTranslator(QString Language, QObject *obj);
     void setTranslator(QTranslator *translator);
-    static QTranslator* loadTranslationFile(QTranslator *translator, QString Language);
+    static bool loadTranslationFile(QTranslator *translator, QString Language);
+    static QString mapToLanguage(QString);
 
     CGUIHelper(CRadioController *radioController, QObject* parent = nullptr);
     ~CGUIHelper();
@@ -146,6 +147,7 @@ public:
     Q_INVOKABLE void saveMotImages();
 
     Q_INVOKABLE void openAutoDevice();
+    Q_INVOKABLE void openNull();
     Q_INVOKABLE void openAirspy();
     Q_INVOKABLE void setBiasTeeAirspy(bool isOn);
     Q_INVOKABLE void openRtlSdr();
@@ -174,7 +176,7 @@ public:
 
 private:
     QTranslator *translator = nullptr;
-    void translateGUI(QString Language, QObject *obj);
+    void translateGUI(QObject *obj);
     CRadioController *radioController;
 
     QXYSeries* spectrumSeries;

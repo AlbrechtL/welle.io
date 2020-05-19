@@ -64,7 +64,10 @@ Rectangle {
             Layout.topMargin: Units.dp(5)
             visible: isExpert
             implicitHeight: Units.dp(20)
-            
+
+            Accessible.name: qsTr("%1 title bar").arg(qsTr(label.text))
+            Accessible.description: qsTr("%1 title bar to drag the element").arg(qsTr(label.text))
+
             MouseArea {
                 id: mouseArea
                 anchors.fill: parent
@@ -97,6 +100,7 @@ Rectangle {
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.verticalCenter: parent.verticalCenter
                 font.pixelSize: TextStyle.textStandartSize
+                Accessible.ignored: true
             }
 
             Button {
@@ -109,6 +113,9 @@ Rectangle {
                 icon.height: Units.dp(10)
                 icon.width: Units.dp(10)
                 flat:true
+
+                Accessible.name: qsTr("%1 menu").arg(qsTr(label.text))
+                Accessible.description: qsTr("Show %1 menu").arg(qsTr(label.text))
 
                 onClicked: menu.open()
 

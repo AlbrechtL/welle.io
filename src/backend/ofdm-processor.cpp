@@ -494,6 +494,7 @@ SyncOnPhase:
     }
     catch (const InputFailure&) {
         std::clog << "OFDM-processor: input not ok, closing down" << std::endl;
+        running = false; //Needed before onInputFailure, because subsequent calls will call OFDMProcessor::stop()
         radioInterface.onInputFailure();
     }
     running = false;
@@ -501,9 +502,11 @@ SyncOnPhase:
 
 void OFDMProcessor::stop()
 {
-    running = false;
-    if (threadHandle.joinable()) {
-        threadHandle.join();
+    if (running) {
+        running = false;
+        if (threadHandle.joinable()) {
+            threadHandle.join();
+        }
     }
 }
 

@@ -79,7 +79,7 @@ class CAudioThread: public QThread
         QAudioOutput *audioOutput = nullptr;
         QAudioDeviceInfo *info = nullptr;
         QTimer checkAudioBufferTimer;
-        QAudio::State currentState;
+        QAudio::State currentState = QAudio::StoppedState;
         int32_t cardRate;
 
     signals:

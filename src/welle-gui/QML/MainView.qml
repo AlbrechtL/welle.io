@@ -128,6 +128,10 @@ ApplicationWindow {
 
             ToolButton {
                 icon.name:  "drawer"
+
+                Accessible.name: qsTr("Stations list")
+                Accessible.description: qsTr("Display or hide stations list")
+
                 onClicked: {
                     if (stationDrawer.visible)
                     {
@@ -160,6 +164,10 @@ ApplicationWindow {
                 icon.name: "menu"
                 icon.width: Units.dp(20)
                 icon.height: Units.dp(20)
+
+                Accessible.name: qsTr("Main menu")
+                Accessible.description: qsTr("Show the main menu")
+
                 onClicked: optionsMenu.open()
 
                 WMenu {
@@ -258,6 +266,9 @@ ApplicationWindow {
                     onClicked: stationMenu.open()
                     implicitWidth: contentItem.implicitWidth + Units.dp(15)
 
+                    Accessible.name: qsTr("Stations menu")
+                    Accessible.description: qsTr("Show stations menu")
+
                     WMenu {
                         id: stationMenu
                         sizeToContents: true
@@ -323,7 +334,7 @@ ApplicationWindow {
                 delegate: StationDelegate {
                     stationNameText: stationName
                     stationSIdValue: stationSId
-                    channelNameText: channelName
+                    channelNameText: channelName == "File" ? qsTr("File") : channelName
                     isFavorit: favorit
                     isExpert: isExpertView
                     onClicked: radioController.play(channelName, stationName, stationSId)
@@ -345,9 +356,15 @@ ApplicationWindow {
                 Layout.margins: Units.dp(10)
                 visible: isExpertView ? true : false
 
+                Accessible.role: Accessible.ComboBox
+                Accessible.name: manualChannelText.text + " " + manualChannelBox.currentText
+
                 TextStandart {
+                    id: manualChannelText
                     text: qsTr("Manual channel")
                     Layout.fillWidth: true
+
+                    Accessible.ignored: true
                 }
 
                 WComboBox {
@@ -394,6 +411,10 @@ ApplicationWindow {
         y: parent.height - height - Units.dp(10)
         visible: isExpertView
         palette.button: "darkorange"
+
+        Accessible.role: Accessible.Button
+        Accessible.name: qsTr("Add")
+        Accessible.description: qsTr("Add a view")
 
         WMenu {
             id: viewMenu

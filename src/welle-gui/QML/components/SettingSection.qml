@@ -10,6 +10,9 @@ ColumnLayout{
     spacing: Units.dp(20)
 //    Layout.fillWidth: true
 
+    Accessible.role: Accessible.StaticText
+    Accessible.name: text.text
+
     ColumnLayout{
         Rectangle {
             id: line

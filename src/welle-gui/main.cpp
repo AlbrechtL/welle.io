@@ -74,7 +74,8 @@ int main(int argc, char** argv)
 
     //Initialise translation
     QTranslator *translator = new QTranslator;
-    translator = CGUIHelper::loadTranslationFile(translator, "auto");
+    QString lang = CGUIHelper::mapToLanguage("auto");
+    CGUIHelper::loadTranslationFile(translator, lang);
     QCoreApplication::installTranslator(translator);
 
     // Register custiom types

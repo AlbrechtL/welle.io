@@ -7,5 +7,7 @@ import "../components"
 
 Item {
     function initDevice(isAutoDevice) {
+        if(!isAutoDevice)
+            guiHelper.openNull()
     }
 }

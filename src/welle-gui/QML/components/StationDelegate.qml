@@ -104,5 +104,9 @@ Item {
         implicitWidth: contentItem.implicitWidth + Units.dp(20)
         flat: true
         onClicked: root.favoritClicked()
+
+        Accessible.role: Accessible.Button
+        Accessible.name: isFavorit ? qsTr("Remove station from favorites") : qsTr("Add station to favorites")
+        Accessible.onPressAction: click(mouse)
     }
 }
