@@ -66,6 +66,8 @@ after_success:
   - sudo chmod +x /usr/local/bin/linuxdeploy-x86_64.AppImage
   - sudo wget https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage -P /usr/local/bin
   - sudo chmod +x /usr/local/bin/linuxdeploy-plugin-qt-x86_64.AppImage
+  - sudo wget https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage -P /usr/local/bin
+  - sudo chmod a+x /usr/local/bin/linuxdeployqt-continuous-x86_64.AppImage
   
   # Prepare welle.io AppImage
   - find build/
@@ -78,8 +80,8 @@ after_success:
   - cp src/welle-gui/icons/icon.png appdir/usr/share/icons/hicolor/512x512/apps/welle-io.png
   
   # Create welle.io AppImage
-  - QML_SOURCES_PATHS=. linuxdeploy-x86_64.AppImage --appdir ./appdir --plugin qt --output appimage
-  - mv welle.io-"$GIT_HASH"-x86_64.AppImage "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.AppImage
+  #- QML_SOURCES_PATHS=. linuxdeploy-x86_64.AppImage --appdir ./appdir --plugin qt --output appimage
+  #- mv welle.io-"$GIT_HASH"-x86_64.AppImage "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.AppImage
 
   # Prepare welle-cli AppImage
   - find build-cli/
@@ -94,6 +96,13 @@ after_success:
   # Create welle-cli AppImage
   - linuxdeploy-x86_64.AppImage --appdir ./appdir-cli --output appimage
   - mv welle.io-cli-"$GIT_HASH"-x86_64.AppImage "$DATE"_"$GIT_HASH"_Linux_welle-io-cli-x86_64.AppImage
+  
+   # Prepare welle.io AppImage Test 2
+  - unset QTDIR; unset QT_PLUGIN_PATH ; unset LD_LIBRARY_PATH
+  - linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -qmldir=. -bundle-non-qt-libs -unsupported-allow-new-glibc -unsupported-bundle-everything
+  - linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -qmldir=. -appimage -unsupported-allow-new-glibc -unsupported-bundle-everything
+  - find appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq
+  - mv welle.io-"$GIT_HASH"-x86_64.AppImage "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.AppImage
   
   # Prepare bintray deploy
   - sed -e "s/\${VERSION}/"$DATE"_"$GIT_HASH"/" .travis-bintray-deploy.json.template >travis-bintray-deploy.json
