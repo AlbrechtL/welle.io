@@ -1,24 +1,11 @@
 dist: bionic
 language: cpp
 compiler: gcc
-sudo: require
 
 env:
   # "BINTRAY_KEY=<secure>"
   - secure: "AjycfSfIztFeat6AO3SETSFW9Xd0AUt17hg87sEo8pSPO3SILq6bKS5Pfe4Bdo3Za32BvGzeJaOZ9EEVtzweuYJwsBejVfk2lxiBH5RKoBVrHpJLXDNj7MUt2ezb734bjFFt3+lMG84vSCqioNMcYwlHcqCChiTT529NZhaGMsDFzF5NimJZl0LGcEQlaTxTfeCKwSk+apHw5rQes2I2Jf9icweUGe/VOOVmYjDTiPWKcBEwBvfV5vabr5btCgUY8zK5451x/35API2Hbq7o0hNxqvwQUFI54jZwqfR4DOA1V/Nk7rdc34Fe+xgKSoBmHC0RgCIbXw1erEkn31Y0+tLBVxa971FB+y7L+5ZEaqw9UolT0PM5LHZmWUA60A5JlvsFOr0urid8lk0g5mdGF4aHEy2O5rDOMbwE11MpTEkDDbgE6uSD0/aubTJYPu24yMlBrP1lz10Sltg+YLi5hshhzRmd4iWTKuEy4jly1SdOKjjdbLCzlAnsF9Ta0a/lfumOd2lmELhYKhFLuVTCWZFvjpJyziCIFLVs4refDbDrsdfE+CaJedP/uBDGoBp4Hg6aug+66zKPybVzODqR2uIa3I7ACM3l/GdJcGg+1AH1T/ievq4rQ52T3MspevFxQmevuA9vvgOVko79PDrW1xbp+oQPTk0/pODNjVvrZFk="
 
-before_install:
-    # QT
-    - sudo add-apt-repository ppa:beineri/opt-qt-5.14.0-bionic -y
-    # SoapySDR
-    - sudo add-apt-repository ppa:myriadrf/drivers -y
-    - sudo apt-get update -qq
-
-install:
-    - sudo apt-get -y install gcc g++
-    - sudo apt-get -y install libusb-1.0-0-dev pkg-config libmp3lame-dev libmpg123-dev qt514base qt514declarative qt514quickcontrols qt514quickcontrols2 qt514charts-no-lgpl qt514graphicaleffects qt514multimedia libpulse0 libfaad-dev libfftw3-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev libsoapysdr-dev
-    - source /opt/qt514/bin/qt514-env.sh
-    
 script:
   - DATE=`date +%Y%m%d`
   - GIT_HASH=`git rev-parse --short HEAD`
@@ -29,10 +16,9 @@ script:
   - cd airspyone_host-master/
   - mkdir build
   - cd build
-  - cmake ../ -DINSTALL_UDEV_RULES=ON -DCMAKE_INSTALL_PREFIX=/usr
+  - cmake ../ -DINSTALL_UDEV_RULES=ON
   - make -j 4
   - sudo make install
-  - sudo ldconfig
   - cd ../..
   
   # Compile librtlsdr
@@ -43,7 +29,6 @@ script:
   - cmake ../  -DDETACH_KERNEL_DRIVER=ON
   - make -j 4
   - sudo make install
-  - sudo ldconfig
   - cd ../..
   
   # Compile welle.io
@@ -56,51 +41,92 @@ script:
   # Compile welle-cli
   - mkdir build-cli
   - cd build-cli
-  - cmake ../
+  - cmake ../  -DBUILD_WELLE_IO=OFF -DAIRSPY=TRUE -DRTLSDR=TRUE -DSOAPYSDR=TRUE
   - make -j4
   - cd ..
-  
-after_success:
-  # Get linuxdeploy
-  - sudo wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage -P /usr/local/bin
-  - sudo chmod +x /usr/local/bin/linuxdeploy-x86_64.AppImage
-  - sudo wget https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage -P /usr/local/bin
-  - sudo chmod +x /usr/local/bin/linuxdeploy-plugin-qt-x86_64.AppImage
-  
-  # Prepare welle.io AppImage
-  - find build/
-  - mkdir -p ./appdir/usr/share/applications
-  - cp welle-io.desktop ./appdir/usr/share/applications
-  - mkdir -p ./appdir/usr/bin
-  - cp build/src/welle-gui/welle-io ./appdir/usr/bin
-  - mkdir -p ./appdir/usr/lib
-  - mkdir -p ./appdir/usr/share/icons/hicolor/512x512/apps/
-  - cp src/welle-gui/icons/icon.png appdir/usr/share/icons/hicolor/512x512/apps/welle-io.png
-  
-  # Create welle.io AppImage
-  - QML_SOURCES_PATHS=. linuxdeploy-x86_64.AppImage --appdir ./appdir --plugin qt --output appimage
-  - mv welle.io-"$GIT_HASH"-x86_64.AppImage "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.AppImage
 
-  # Prepare welle-cli AppImage
-  - find build-cli/
-  - mkdir -p ./appdir-cli/usr/share/applications
-  - cp welle-cli.desktop ./appdir-cli/usr/share/applications
-  - mkdir -p ./appdir-cli/usr/bin
-  - cp build-cli/welle-cli ./appdir-cli/usr/bin
-  - mkdir -p ./appdir-cli/usr/lib
-  - mkdir -p ./appdir-cli/usr/share/icons/hicolor/512x512/apps/
-  - cp src/welle-gui/icons/icon.png appdir-cli/usr/share/icons/hicolor/512x512/apps/welle-io.png
-  
-  # Create welle-cli AppImage
-  - linuxdeploy-x86_64.AppImage --appdir ./appdir-cli --output appimage
-  - mv welle.io-cli-"$GIT_HASH"-x86_64.AppImage "$DATE"_"$GIT_HASH"_Linux_welle-io-cli-x86_64.AppImage
-  
-  # Prepare bintray deploy
-  - sed -e "s/\${VERSION}/"$DATE"_"$GIT_HASH"/" .travis-bintray-deploy.json.template >travis-bintray-deploy.json
+jobs:
+  include:
+    - os: linux
+
+      before_install:
+        # QT
+        - sudo add-apt-repository ppa:beineri/opt-qt-5.14.0-bionic -y
+        # SoapySDR
+        - sudo add-apt-repository ppa:myriadrf/drivers -y
+        - sudo apt-get update -qq
+
+      install:
+        - sudo apt-get -y install gcc g++
+        - sudo apt-get -y install libusb-1.0-0-dev pkg-config libmp3lame-dev libmpg123-dev qt514base qt514declarative qt514quickcontrols qt514quickcontrols2 qt514charts-no-lgpl qt514graphicaleffects qt514multimedia libpulse0 libfaad-dev libfftw3-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev libsoapysdr-dev
+        - source /opt/qt514/bin/qt514-env.sh
+
+      after_success:
+        - sudo ldconfig
+
+        # Get linuxdeploy
+        - sudo wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage -P /usr/local/bin
+        - sudo chmod +x /usr/local/bin/linuxdeploy-x86_64.AppImage
+        - sudo wget https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage -P /usr/local/bin
+        - sudo chmod +x /usr/local/bin/linuxdeploy-plugin-qt-x86_64.AppImage
+        
+        # Prepare welle.io AppImage
+        - find build/
+        - mkdir -p ./appdir/usr/share/applications
+        - cp welle-io.desktop ./appdir/usr/share/applications
+        - mkdir -p ./appdir/usr/bin
+        - cp build/src/welle-gui/welle-io ./appdir/usr/bin
+        - mkdir -p ./appdir/usr/lib
+        - mkdir -p ./appdir/usr/share/icons/hicolor/512x512/apps/
+        - cp src/welle-gui/icons/icon.png appdir/usr/share/icons/hicolor/512x512/apps/welle-io.png
+        
+        # Create welle.io AppImage
+        - QML_SOURCES_PATHS=. linuxdeploy-x86_64.AppImage --appdir ./appdir --plugin qt --output appimage
+        - mv welle.io-"$GIT_HASH"-x86_64.AppImage "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.AppImage
+
+        # Prepare welle-cli AppImage
+        - find build-cli/
+        - mkdir -p ./appdir-cli/usr/share/applications
+        - cp welle-cli.desktop ./appdir-cli/usr/share/applications
+        - mkdir -p ./appdir-cli/usr/bin
+        - cp build-cli/welle-cli ./appdir-cli/usr/bin
+        - mkdir -p ./appdir-cli/usr/lib
+        - mkdir -p ./appdir-cli/usr/share/icons/hicolor/512x512/apps/
+        - cp src/welle-gui/icons/icon.png appdir-cli/usr/share/icons/hicolor/512x512/apps/welle-io.png
+        
+        # Create welle-cli AppImage
+        - linuxdeploy-x86_64.AppImage --appdir ./appdir-cli --output appimage
+        - mv welle.io-cli-"$GIT_HASH"-x86_64.AppImage "$DATE"_"$GIT_HASH"_Linux_welle-io-cli-x86_64.AppImage
+        
+        # Prepare bintray deploy
+        - sed -e "s/\${VERSION}/"$DATE"_"$GIT_HASH"/" .travis-bintray-deploy.json.template >travis-bintray-deploy.json
+
+    - os: osx
+      osx_image: xcode11.3
+
+      before_install:
+        - brew tap pothosware/homebrew-pothos
+        - brew update
+
+      install:
+        - brew install fftw faad2 lame mpg123 soapysdr soapyuhd
+        - ln -s /usr/local/opt/qt/bin/qmake /usr/local/bin/qmake
+        - export LIBRARY_PATH=/usr/local/lib
+
+      after_success:
+        # Prepare welle.io DMG
+        - find build
+        - cd build/src/welle-gui
+        - /usr/local/opt/qt/bin/macdeployqt welle-io.app -qmldir=$TRAVIS_BUILD_DIR/src/welle-gui/QML -dmg
+        - cd ../../..
+        - mv build/src/welle-gui/welle.io.dmg "$DATE"_"$GIT_HASH"_MacOS_welle-io.dmg
+
+        # Prepare bintray deploy
+        - sed -e "s/\${VERSION}/"$DATE"_"$GIT_HASH"/" .travis-bintray-deploy.json.template >travis-bintray-deploy.json
 
 deploy:
   on:
-   branch: next
+    branch: next
   provider: bintray
   file: "travis-bintray-deploy.json"
   user: "albrechtl"
