@@ -124,6 +124,9 @@ jobs:
         # Prepare bintray deploy
         - sed -e "s/\${VERSION}/"$DATE"_"$GIT_HASH"/" .travis-bintray-deploy.json.template >travis-bintray-deploy.json
 
+        # Upload DMG
+        - curl --upload-file "$DATE"_"$GIT_HASH"_MacOS_welle-io.dmg https://transfer.sh/welle-io.dmg
+
 deploy:
   on:
     branch: next
