@@ -117,7 +117,7 @@ jobs:
         # Prepare welle.io DMG
         - find build
         - cd build/src/welle-gui
-        - /usr/local/opt/qt/bin/macdeployqt welle-io.app -qmldir=$TRAVIS_BUILD_DIR/src/welle-gui/QML -dmg
+        - /usr/local/opt/qt/bin/macdeployqt welle-io.app -qmldir=$TRAVIS_BUILD_DIR/src/welle-gui/QML -libpath=/usr/local/lib -dmg
         - cd ../../..
         - mv build/src/welle-gui/welle-io.dmg "$DATE"_"$GIT_HASH"_MacOS_welle-io.dmg
 
