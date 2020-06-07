@@ -131,9 +131,6 @@ jobs:
         - hdiutil convert welle-io.dmg -format UDZO -o "$DATE"_"$GIT_HASH"_MacOS_welle-io.dmg
         - rm welle-io.dmg
 
-        # Upload DMG
-        - curl --upload-file "$DATE"_"$GIT_HASH"_MacOS_welle-io.dmg https://transfer.sh/welle-io.dmg
-
 before_deploy:
   # Prepare bintray deploy
   - sed -e "s/\${VERSION}/"$DATE"_"$GIT_HASH"/" .travis-bintray-deploy.json.template >travis-bintray-deploy.json
