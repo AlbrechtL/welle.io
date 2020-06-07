@@ -97,9 +97,6 @@ jobs:
         # Create welle-cli AppImage
         - linuxdeploy-x86_64.AppImage --appdir ./appdir-cli --output appimage
         - mv welle.io-cli-"$GIT_HASH"-x86_64.AppImage "$DATE"_"$GIT_HASH"_Linux_welle-io-cli-x86_64.AppImage
-        
-        # Prepare bintray deploy
-        - sed -e "s/\${VERSION}/"$DATE"_"$GIT_HASH"/" .travis-bintray-deploy.json.template >travis-bintray-deploy.json
 
     - os: osx
       osx_image: xcode11.3
@@ -134,11 +131,12 @@ jobs:
         - hdiutil convert welle-io.dmg -format UDZO -o "$DATE"_"$GIT_HASH"_MacOS_welle-io.dmg
         - rm welle-io.dmg
 
-        # Prepare bintray deploy
-        - sed -e "s/\${VERSION}/"$DATE"_"$GIT_HASH"/" .travis-bintray-deploy.json.template >travis-bintray-deploy.json
-
         # Upload DMG
         - curl --upload-file "$DATE"_"$GIT_HASH"_MacOS_welle-io.dmg https://transfer.sh/welle-io.dmg
+
+before_deploy:
+  # Prepare bintray deploy
+  - sed -e "s/\${VERSION}/"$DATE"_"$GIT_HASH"/" .travis-bintray-deploy.json.template >travis-bintray-deploy.json
 
 deploy:
   on:
