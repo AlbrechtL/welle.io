@@ -114,6 +114,9 @@ jobs:
         - export LIBRARY_PATH=/usr/local/lib
 
       after_success:
+        # Get macdeployqtfix
+        - curl -O https://raw.githubusercontent.com/arl/macdeployqtfix/master/macdeployqtfix.py
+
         # Prepare welle.io app
         - find build
         - mkdir appdir
@@ -121,6 +124,7 @@ jobs:
         - /usr/local/opt/qt/bin/macdeployqt appdir/welle.io.app -qmldir=$TRAVIS_BUILD_DIR/src/welle-gui/QML
         - cp /usr/local/lib/librtlsdr.0.dylib appdir/welle.io.app/Contents/Frameworks/librtlsdr.0.dylib
         - install_name_tool -change @rpath/librtlsdr.0.dylib @executable_path/../Frameworks/librtlsdr.0.dylib appdir/welle.io.app/Contents/MacOS/welle-io
+        - python macdeployqtfix.py appdir/welle.io.app/Contents/MacOS/welle.io /usr/local/opt/qt
 
         # Add shortcut to Applications
         - ln -s /Applications appdir/Applications
