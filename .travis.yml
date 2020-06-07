@@ -114,12 +114,16 @@ jobs:
         - export LIBRARY_PATH=/usr/local/lib
 
       after_success:
-        # Prepare welle.io DMG
+        # Prepare welle.io app
         - find build
-        - cd build/src/welle-gui
-        - /usr/local/opt/qt/bin/macdeployqt welle-io.app -qmldir=$TRAVIS_BUILD_DIR/src/welle-gui/QML -dmg
-        - cd ../../..
-        - mv build/src/welle-gui/welle-io.dmg "$DATE"_"$GIT_HASH"_MacOS_welle-io.dmg
+        - mkdir appdir
+        - cp -R build/src/welle-gui/welle-io.app appdir/welle.io.app
+        - /usr/local/opt/qt/bin/macdeployqt appdir/welle.io.app -qmldir=$TRAVIS_BUILD_DIR/src/welle-gui/QML
+
+        # Build DMG
+        - hdiutil create welle-io.dmg -ov -volname "Install welle.io" -fs HFS+ -srcfolder appdir
+        - hdiutil convert welle-io.dmg -format UDZO -o "$DATE"_"$GIT_HASH"_MacOS_welle-io.dmg
+        - rm welle-io.dmg
 
         # Prepare bintray deploy
         - sed -e "s/\${VERSION}/"$DATE"_"$GIT_HASH"/" .travis-bintray-deploy.json.template >travis-bintray-deploy.json
