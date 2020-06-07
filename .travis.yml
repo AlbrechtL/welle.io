@@ -120,6 +120,9 @@ jobs:
         - cp -R build/src/welle-gui/welle-io.app appdir/welle.io.app
         - /usr/local/opt/qt/bin/macdeployqt appdir/welle.io.app -qmldir=$TRAVIS_BUILD_DIR/src/welle-gui/QML
 
+        # Add shortcut to Applications
+        - ln -s /Applications appdir/Applications
+
         # Build DMG
         - hdiutil create welle-io.dmg -ov -volname "Install welle.io" -fs HFS+ -srcfolder appdir
         - hdiutil convert welle-io.dmg -format UDZO -o "$DATE"_"$GIT_HASH"_MacOS_welle-io.dmg
