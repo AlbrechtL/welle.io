@@ -43,6 +43,36 @@ For the LimeSDR connect your receiving antenna to the `RX1_W` port.
 
 Then compile welle.io with soapysdr support enabled in the project file `welle.io.pro` or `-DSOAPYSDR=1` when building with CMake. Run welle.io with the `-d soapysdr` option.
 
+### Example Configuration (HackRF)
+
+You need to fill out all the fields (Antenna, Clock source, Driver arguments) in the configuration dialog for SoapySDR.
+To check for valid configuration values run e.g. `SoapySDRUtil --probe="driver=hackrf"` (HackRF in my case):
+```
+$ SoapySDRUtil --probe="driver=hackrf"
+(...)
+----------------------------------------------------
+-- Device identification
+----------------------------------------------------
+  driver=HackRF
+  hardware=HackRF One
+  clock source=internal
+(...)
+----------------------------------------------------
+-- RX Channel 0
+----------------------------------------------------
+  Full-duplex: NO
+  Supports AGC: NO
+  Stream formats: CS8, CS16, CF32, CF64
+  Native format: CS8 [full-scale=128]
+  Stream args:
+     * Buffer Count - Number of buffers per read.
+       [key=buffers, units=buffers, default=15, type=int]
+  Antennas: TX/RX
+(...)
+```
+The corresponding values are entered in your SoapySDR dialog and you're ready to start. 
+Please make sure you enter the **full** driver argument string `driver=hackrf` into the field.
+
 ## Known limitations
 
    * Automatic gain mode behaves erratically.
