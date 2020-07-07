@@ -51,7 +51,7 @@ jobs:
 
       before_install:
         # QT
-        - sudo add-apt-repository ppa:beineri/opt-qt-5.14.0-bionic -y
+        - sudo add-apt-repository ppa:beineri/opt-qt-5.14.2-bionic -y
         # SoapySDR
         - sudo add-apt-repository ppa:myriadrf/drivers -y
         - sudo apt-get update -qq
