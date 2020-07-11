@@ -84,7 +84,8 @@ HEADERS += \
     gui_helper.h \
     mot_image_provider.h \
     radio_controller.h \
-    waterfallitem.h
+    waterfallitem.h \
+    version.h
 
 SOURCES += \
     main.cpp \
