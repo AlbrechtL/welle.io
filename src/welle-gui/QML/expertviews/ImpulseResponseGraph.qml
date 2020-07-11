@@ -20,7 +20,6 @@ ViewBaseFrame {
 
         WSpectrum {
             id: spectrum
-            yAxisText: qsTr("Amplitude")
             xAxisText: qsTr("Samples")
             yMin: -20
         }

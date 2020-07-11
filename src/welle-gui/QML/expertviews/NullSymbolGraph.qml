@@ -15,7 +15,6 @@ ViewBaseFrame {
 
     content: WSpectrum {
         id: spectrum
-        yAxisText: qsTr("Amplitude")
     }
 
     Connections{

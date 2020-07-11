@@ -12,7 +12,7 @@ import "../components"
 ColumnLayout {
     anchors.fill: parent
 
-    property string yAxisText: qsTr("Amplitude")
+    property string yAxisText: qsTr("Amplitude")  + " [dB]"
     property string xAxisText: qsTr("Frequency")  + " [MHz]"
     property bool isWaterfall: false
     property real freqMin: 0
