@@ -555,32 +555,51 @@ int16_t FIBProcessor::HandleFIG0Extension13(
     NoApplications = getBits_4 (d, lOffset + 4);
     lOffset += 8;
 
+//    std::clog << "fib-processor: HandleFIG0Extension13 NoApplications " << NoApplications << " ";
+
     for (i = 0; i < NoApplications; i++) {
         int16_t appType = getBits (d, lOffset, 11);
         int16_t length  = getBits_5 (d, lOffset + 11);
         lOffset += (11 + 5 + 8 * length);
+//        std::clog << " ";
         switch (appType) {
             case 0x000:     // reserved for future use
             case 0x001:     // not used
                 break;
 
             case 0x002:     // MOT slideshow
+//            std::clog << "MOT slideshow"; break;
             case 0x003:     // MOT Broadcast Web Site
+//            std::clog << "MOT Broadcast Web Site "; break;
             case 0x004:     // TPEG
+//            std::clog << "TPEG length " << length; break;
             case 0x005:     // DGPS
+//            std::clog << "DGPS"; break;
             case 0x006:     // TMC
+//            std::clog << "TMC "; break;
             case 0x007:     // EPG
+//            std::clog << "EPG length " << length; break;
             case 0x008:     // DAB Java
-                break;
-
+//            std::clog << "DAB Java"; break;
+            case 0x009:     // DMB
+//            std::clog << "DMB"; break;
+            case 0x00a:     // IPDC services
+//            std::clog << "IPDC services"; break;
+            case 0x00b:     // Voice applications
+//            std::clog << "Voice applications"; break;
+            case 0x00c:     // Middleware
+//            std::clog << "Middleware"; break;
+            case 0x00d:     // Filecasting
+//            std::clog << "Filecasting"; break;
             case 0x44a:     // Journaline
-                //           std::clog << "fib-processor:" << "Journaline\n") << std::endl;
-                break;
+//            std::clog << "Journaline"; break;
 
             default:
                 break;
         }
     }
+
+//    std::clog << std::endl;
 
     (void)SId;
     (void)SCIds;
