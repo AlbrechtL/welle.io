@@ -89,22 +89,25 @@
     <message>
         <location filename="../gui_helper.cpp" line="283"/>
         <source>The program will keep running in the system tray. To terminate the program, choose &lt;b&gt;Quit&lt;/b&gt; in the context menu of the system tray entry.</source>
-        <translation></translation>
+        <translatorcomment>Rough translation, should be refined.</translatorcomment>
+        <translation>Programmet vil kjøre i bakgrunnen som et ikon på oppgavelinjen. For å avslutte programmet, velg &lt;b&gt;Avslutt&lt;/b&gt; i filmenyen for ikonet på oppgavelinjen.</translation>
     </message>
     <message>
         <location filename="../gui_helper.cpp" line="778"/>
         <source> (unavailable, fallback to Default)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>inaccurate translation</translatorcomment>
+        <translation> (utilgjengelig, bruker standardinnstillinger)</translation>
     </message>
     <message>
         <location filename="../gui_helper.cpp" line="782"/>
         <source>Style of system</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Inaccurate translation</translatorcomment>
+        <translation>Systemutseende</translation>
     </message>
     <message>
         <location filename="../gui_helper.cpp" line="784"/>
         <source> (Recommended)</source>
-        <translation type="unfinished"></translation>
+        <translation> (Anbefalt)</translation>
     </message>
 </context>
 <context>
@@ -123,7 +126,7 @@
     <message>
         <location filename="../radio_controller.cpp" line="152"/>
         <source>Error while opening file </source>
-        <translation type="unfinished"></translation>
+        <translation>Feil ved åpning av fil </translation>
     </message>
     <message>
         <location filename="../radio_controller.cpp" line="369"/>
@@ -150,70 +153,73 @@
     <message>
         <location filename="../radio_controller.cpp" line="660"/>
         <source>Radio device is not ready or does not exist.</source>
-        <translation>Radiomottaker er ikke klar eller er ikke tilkoblet</translation>
+        <translation>Radiomottaker er ikke klar eller er ikke tilkoblet.</translation>
     </message>
     <message>
         <location filename="../../input/airspy_sdr.cpp" line="152"/>
         <source>airspy is unplugged.</source>
-        <translation type="unfinished"></translation>
+        <translation>airspy er ikke tilkoblet.</translation>
     </message>
     <message>
         <location filename="../../input/input_factory.cpp" line="79"/>
         <source>No valid device found use Null device instead.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Refine translation</translatorcomment>
+        <translation>Ingen gyldig enhet funnet, bruker NULL enhet.</translation>
     </message>
     <message>
         <location filename="../../input/input_factory.cpp" line="81"/>
         <location filename="../../input/input_factory.cpp" line="124"/>
         <source>Error while opening device</source>
-        <translation type="unfinished">Feil ved oppstart av enhet</translation>
+        <translation>Feil ved oppstart av enhet</translation>
     </message>
     <message>
         <location filename="../../input/raw_file.cpp" line="177"/>
         <location filename="../../input/raw_file.cpp" line="197"/>
         <source>Cannot open file </source>
-        <translation type="unfinished"></translation>
+        <translation>Kan ikke åpne fil </translation>
     </message>
     <message>
         <location filename="../../input/raw_file.cpp" line="310"/>
         <source>End of file, restarting</source>
-        <translation type="unfinished">Slutt på fil, restarter</translation>
+        <translation>Slutten av filen, restarter</translation>
     </message>
     <message>
         <location filename="../../input/raw_file.cpp" line="313"/>
         <source>End of file</source>
-        <translation type="unfinished"></translation>
+        <translation>Slutten av filen</translation>
     </message>
     <message>
         <location filename="../../input/raw_file.cpp" line="401"/>
         <source>Unknown RAW file format</source>
-        <translation type="unfinished">Ukjent RAW filformat</translation>
+        <translation>Ukjent RAW filformat</translation>
     </message>
     <message>
         <location filename="../../input/rtl_sdr.cpp" line="294"/>
         <location filename="../../input/rtl_tcp.cpp" line="462"/>
         <source>ADC overload. Maybe you are using a too high gain.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Refine translation.</translatorcomment>
+        <translation>ADC overbelastning. Gain muligens satt for høyt.</translation>
     </message>
     <message>
         <location filename="../../input/rtl_sdr.cpp" line="390"/>
         <source>RTL-SDR is unplugged.</source>
-        <translation type="unfinished">RTL-SDR er frakoblet.</translation>
+        <translation>RTL-SDR er frakoblet.</translation>
     </message>
     <message>
         <location filename="../../input/rtl_tcp.cpp" line="272"/>
         <source>RTL-TCP connection closed.</source>
-        <translation type="unfinished">RTL-TCP tilkobling avsluttet.</translation>
+        <translation>RTL-TCP tilkobling avsluttet.</translation>
     </message>
     <message>
         <location filename="../../input/rtl_tcp.cpp" line="413"/>
         <source>Connection failed to server </source>
-        <translation type="unfinished">Tilkobling til server mislyktes </translation>
+        <translation>Tilkobling til server mislyktes </translation>
     </message>
     <message>
         <location filename="../../input/soapy_sdr.cpp" line="91"/>
         <source>Could not load SoapySDR with provided device arguments.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>refine translation</translatorcomment>
+        <translation>Kunne ikke aktivere SoapySDR med gitte enhetsargumeter.</translation>
     </message>
 </context>
 <context>
@@ -234,7 +240,8 @@
     <message>
         <location filename="../QML/settingpages/ChannelSettings.qml" line="36"/>
         <source>Display station name in the window title</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Unsure about translation.</translatorcomment>
+        <translation>Vis kanalnavn i tittelvinduet</translation>
     </message>
 </context>
 <context>
@@ -956,28 +963,29 @@
         <location filename="../QML/settingpages/ExpertSettings.qml" line="50"/>
         <source>Enable coarse corrector (for receivers with &gt;1kHz error)</source>
         <translatorcomment>difficult to translate coarse corrector</translatorcomment>
-        <translation>Aktiver coarse corrector (For mottakere med større enn 1khz feilrate)</translation>
+        <translation>Aktiver grovkorrigerer (For mottakere med større enn 1khz feilrate)</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/ExpertSettings.qml" line="67"/>
         <source>GetMiddle</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Bad translation</translatorcomment>
+        <translation>MottaMidt</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/ExpertSettings.qml" line="68"/>
         <source>CorrelatePRS</source>
-        <translation type="unfinished"></translation>
+        <translation>KorrelerePRS</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/ExpertSettings.qml" line="69"/>
         <source>PatternOfZeros</source>
-        <translation type="unfinished"></translation>
+        <translation>Nullmønster</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/ExpertSettings.qml" line="81"/>
         <source>Coarse corrector algorithm</source>
         <translatorcomment>Difficult to translate coarse corrector</translatorcomment>
-        <translation>Coarse corrector-algoritme</translation>
+        <translation>Grovkorrigerer-algoritme</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/ExpertSettings.qml" line="89"/>
@@ -987,17 +995,20 @@
     <message>
         <location filename="../QML/settingpages/ExpertSettings.qml" line="105"/>
         <source>Strongest Peak</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Unsure if &quot;strongest&quot; should be translated into &quot;highest&quot; or &quot;most powerful&quot; since both terms are used</translatorcomment>
+        <translation>Høyeste Topp</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/ExpertSettings.qml" line="106"/>
         <source>Earliest Peak With Binning</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Unsure if the word &quot;binning&quot; can be translated</translatorcomment>
+        <translation>Tidligste Topp Med Binning</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/ExpertSettings.qml" line="107"/>
         <source>Threshold Before Peak</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Unsure about the proper terminology of the word &quot;before&quot;</translatorcomment>
+        <translation>Terskel Før Topp</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/ExpertSettings.qml" line="119"/>
@@ -1050,67 +1061,67 @@
     <message>
         <location filename="../QML/settingpages/GlobalSettings.qml" line="178"/>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Ingen</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/GlobalSettings.qml" line="179"/>
         <source>Airspy</source>
-        <translation type="unfinished"></translation>
+        <translation>Airspy</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/GlobalSettings.qml" line="180"/>
         <source>rtl-sdr</source>
-        <translation type="unfinished"></translation>
+        <translation>rtl-sdr</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/GlobalSettings.qml" line="181"/>
         <source>SoapySDR</source>
-        <translation type="unfinished"></translation>
+        <translation>SoapySDR</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/GlobalSettings.qml" line="182"/>
         <source>rtl-tcp</source>
-        <translation type="unfinished"></translation>
+        <translation>rtl-tcp</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/GlobalSettings.qml" line="183"/>
         <source>RAW file</source>
-        <translation type="unfinished"></translation>
+        <translation>RAW fil</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/GlobalSettings.qml" line="221"/>
         <source>Style settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Temainnstillinger</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/GlobalSettings.qml" line="233"/>
         <source>Style changed. Please restart welle.io</source>
-        <translation type="unfinished"></translation>
+        <translation>Tema forandret. Start welle.io på nytt for å bruke</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/GlobalSettings.qml" line="238"/>
         <source>Style. Restart to apply.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tema. Start på nytt for å bruke.</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/GlobalSettings.qml" line="251"/>
         <source>Light</source>
-        <translation type="unfinished"></translation>
+        <translation>Lys</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/GlobalSettings.qml" line="252"/>
         <source>Dark</source>
-        <translation type="unfinished"></translation>
+        <translation>Mørk</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/GlobalSettings.qml" line="253"/>
         <source>System</source>
-        <translation type="unfinished"></translation>
+        <translation>System</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/GlobalSettings.qml" line="257"/>
         <source>Theme</source>
-        <translation type="unfinished"></translation>
+        <translation>Tema</translation>
     </message>
 </context>
 <context>
@@ -1129,7 +1140,7 @@
         <location filename="../QML/expertviews/ImpulseResponseGraph.qml" line="24"/>
         <source>Samples</source>
         <translatorcomment>Needs a better translation</translatorcomment>
-        <translation>Enheter</translation>
+        <translation>Prøver</translation>
     </message>
 </context>
 <context>
@@ -1252,12 +1263,12 @@
     <message>
         <location filename="../QML/MotView.qml" line="27"/>
         <source>Save all images</source>
-        <translation type="unfinished"></translation>
+        <translation>Lagre alle bilder</translation>
     </message>
     <message>
         <location filename="../QML/MotView.qml" line="47"/>
         <source>Latest</source>
-        <translation type="unfinished"></translation>
+        <translation>Nyeste bilde</translation>
     </message>
 </context>
 <context>
@@ -1296,7 +1307,7 @@
     <message>
         <location filename="../QML/settingpages/RTLTCPSettings.qml" line="27"/>
         <source>Use host name</source>
-        <translation type="unfinished"></translation>
+        <translation>Bruk vertsnavn</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/RTLTCPSettings.qml" line="37"/>
@@ -1311,12 +1322,12 @@
     <message>
         <location filename="../QML/settingpages/RTLTCPSettings.qml" line="84"/>
         <source>Enter host name</source>
-        <translation type="unfinished"></translation>
+        <translation>Tast inn vertsnavn</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/RTLTCPSettings.qml" line="88"/>
         <source>Host name</source>
-        <translation type="unfinished"></translation>
+        <translation>Vertsnavn</translation>
     </message>
 </context>
 <context>
@@ -1342,7 +1353,8 @@
     <message>
         <location filename="../QML/settingpages/RawFileSettings.qml" line="43"/>
         <source>Currently shown under Android</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>inaccurate translation</translatorcomment>
+        <translation>Nå vist under Android</translation>
     </message>
     <message>
         <location filename="../QML/settingpages/RawFileSettings.qml" line="62"/>
@@ -1370,12 +1382,13 @@
     <message>
         <location filename="../QML/expertviews/RawRecorder.qml" line="33"/>
         <source>Init</source>
+        <translatorcomment>Bad translation</translatorcomment>
         <translation>Initsiell</translation>
     </message>
     <message>
         <location filename="../QML/expertviews/RawRecorder.qml" line="47"/>
         <source>Ring buffer size (roughly): </source>
-        <translation type="unfinished"></translation>
+        <translation>Ringbuffer-størrelse (cirka): </translation>
     </message>
 </context>
 <context>
@@ -1398,7 +1411,7 @@
     <message>
         <location filename="../QML/expertviews/ServiceDetails.qml" line="35"/>
         <source>Frame sync</source>
-        <translation>Frame-synkronisering</translation>
+        <translation>Pakke-synkronisering</translation>
     </message>
     <message>
         <location filename="../QML/expertviews/ServiceDetails.qml" line="36"/>
@@ -1518,7 +1531,8 @@
     <message>
         <location filename="../QML/expertviews/TextOutputView.qml" line="69"/>
         <source>Warning: The console view can slow down the complete app!</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Refine translation</translatorcomment>
+        <translation>Advarsel: Konsollvinduet kan gjøre programmet tregt!</translation>
     </message>
 </context>
 <context>
@@ -1580,7 +1594,7 @@
     <message>
         <location filename="../main.cpp" line="100"/>
         <source>Records DAB frames (*.mp2) or DAB+ superframes with RS coding (*.dab). This file can be used to analyse X-PAD data with XPADxpert</source>
-        <translation>Lagrer DAB-frames (*.mp2) eller Dab+ superframes med RS-koding (*.dab) Denne filen kan brukes til å analysere X-PAD-data med XPADxpert</translation>
+        <translation>Lagrer DAB-pakker (*.mp2) eller Dab+ superpakker med RS-koding (*.dab) Denne filen kan brukes til å analysere X-PAD-data med XPADxpert</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="101"/>
@@ -1591,17 +1605,18 @@
     <message>
         <location filename="../main.cpp" line="105"/>
         <source>Redirects all log output texts to a file.</source>
-        <translation>Omdirigerer all konsolltekst til en fil.</translation>
+        <translation>Lagrer all konsolltekst til en fil.</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="110"/>
         <source>Qt Quick Controls Style for the 1st launch</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Quick Controls Style for førstegangs kjøring</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="111"/>
         <source>style_name</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Unsure if this is supposed to be translated</translatorcomment>
+        <translation>style_name</translation>
     </message>
 </context>
 </TS>
