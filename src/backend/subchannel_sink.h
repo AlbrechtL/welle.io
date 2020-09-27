@@ -52,7 +52,7 @@ public:
 	virtual void ProcessPAD(const uint8_t* /*xpad_data*/, size_t /*xpad_len*/, bool /*exact_xpad_len*/, const uint8_t* /*fpad_data*/) {}
 
 	virtual void AudioError(const std::string& /*hint*/) {}
-	virtual void AudioWarning(const std::string& /*hint*/) {}
+    virtual void ACCFrameError(const unsigned char /* error*/) {}
 	virtual void FECInfo(int /*total_corr_count*/, bool /*uncorr_errors*/) {}
 };
 

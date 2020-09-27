@@ -646,7 +646,7 @@ void CRadioController::resetTechnicalData(void)
     audioSampleRate = 0;
     isDAB = true;
     frameErrors = 0;
-    rsErrors = 0;
+    rsUncorrectedErrors = 0;
     aaErrors = 0;
 
     emit motReseted();
@@ -1024,12 +1024,17 @@ void CRadioController::onFrameErrors(int frameErrors)
 
 void CRadioController::onRsErrors(bool uncorrectedErrors, int numCorrectedErrors)
 {
-    (void)numCorrectedErrors;
+    if (this->rsUncorrectedErrors != uncorrectedErrors)
+    {
+        this->rsUncorrectedErrors = uncorrectedErrors;
+        emit rsUncorrectedErrorsChanged(this->rsUncorrectedErrors);
+    }
 
-    if (this->rsErrors == uncorrectedErrors ? 1 : 0)
-        return;
-    this->rsErrors = uncorrectedErrors ? 1 : 0;
-    emit rsErrorsChanged(this->rsErrors);
+    if (this->rsCorrectedErrors != numCorrectedErrors)
+    {
+        this->rsCorrectedErrors = numCorrectedErrors;
+        emit rsCorrectedErrorsChanged(this->rsCorrectedErrors);
+    }
 }
 
 void CRadioController::onAacErrors(int aacErrors)

@@ -93,7 +93,7 @@ void SuperframeFilter::Feed(const uint8_t *data, size_t len) {
 	rs_dec.DecodeSuperframe(sf, sf_len, total_corr_count, uncorr_errors);
 
 	// forward statistics if errors present
-	if(total_corr_count || uncorr_errors)
+    //if(total_corr_count || uncorr_errors)
 		observer->FECInfo(total_corr_count, uncorr_errors);
 
 
@@ -451,8 +451,7 @@ AACDecoderFAAD2::~AACDecoderFAAD2() {
 void AACDecoderFAAD2::DecodeFrame(uint8_t *data, size_t len) {
 	// decode audio
 	uint8_t* output_frame = (uint8_t*) NeAACDecDecode(handle, &dec_frameinfo, data, len);
-	if(dec_frameinfo.error)
-		observer->AudioWarning("AAC");
+    observer->ACCFrameError(dec_frameinfo.error);
 
 	// abort, if no output at all
 	if(dec_frameinfo.bytesconsumed == 0 && dec_frameinfo.samples == 0)

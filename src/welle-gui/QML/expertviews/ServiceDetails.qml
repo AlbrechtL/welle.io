@@ -23,8 +23,17 @@ ViewBaseFrame {
             text: radioController.channel + " (" + (radioController.frequency > 0 ? radioController.frequency/1e6 :  "N/A") + " MHz)"
         }
 
+        TextExpert {
+            name: qsTr("Frequency correction") + ":"
+            text: radioController.frequencyCorrection + " Hz (" + (radioController.frequency > 0 ? radioController.frequencyCorrectionPpm.toFixed(2) : "N/A") + " ppm)"
+        }
+
+        TextExpert {
+            name: qsTr("SNR") + ":"
+            text: radioController.snr + " dB"
+        }
+
         RowLayout {
-            property bool isServiceDetailsRawLayout: true
             Rectangle{
                 height: Units.dp(16)
                 width: Units.dp(16)
@@ -39,7 +48,6 @@ ViewBaseFrame {
         }
 
         RowLayout {
-            property bool isServiceDetailsRawLayout: true
             Rectangle{
                 height: Units.dp(16)
                 width: Units.dp(16)
@@ -53,7 +61,6 @@ ViewBaseFrame {
         }
 
         RowLayout {
-            property bool isServiceDetailsRawLayout: true
             Rectangle{
                 height: Units.dp(16)
                 width: Units.dp(16)
@@ -68,24 +75,36 @@ ViewBaseFrame {
             }
         }
 
-        TextExpert {
-            name: qsTr("Frequency correction") + ":"
-            text: radioController.frequencyCorrection + " Hz (" + (radioController.frequency > 0 ? radioController.frequencyCorrectionPpm.toFixed(2) : "N/A") + " ppm)"
+        RowLayout {
+            Rectangle{
+                height: Units.dp(16)
+                width: Units.dp(16)
+                color: (radioController.rsCorrectedErrors === 0
+                        && radioController.rsUncorrectedErrors === 0)
+                        ? "green" : (radioController.rsCorrectedErrors >= 0
+                                     && radioController.rsUncorrectedErrors === 0) ? "yellow" : "red"
+            }
+
+            TextExpert {
+                name: qsTr("RS errors")  + ":"
+                text: (radioController.rsCorrectedErrors === 0
+                       && radioController.rsUncorrectedErrors === 0)
+                       ? qsTr("OK") : (radioController.rsCorrectedErrors >= 0
+                                    && radioController.rsUncorrectedErrors === 0) ? qsTr("Corrected Error") : qsTr("Uncorrected Error")
+            }
         }
 
-        TextExpert {
-            name: qsTr("SNR") + ":"
-            text: radioController.snr + " dB"
-        }
+        RowLayout {
+            Rectangle{
+                height: Units.dp(16)
+                width: Units.dp(16)
+                color: radioController.aacErrors === 0 ? "green" : "red"
+            }
 
-        TextExpert {
-            name: qsTr("RS errors") + ":"
-            text: radioController.rsErrors
-        }
-
-        TextExpert {
-            name: qsTr("AAC errors") + ":"
-            text: radioController.aacErrors
+            TextExpert {
+                name: qsTr("AAC errors")  + ":"
+                text: radioController.aacErrors
+            }
         }
 
         TextExpert {

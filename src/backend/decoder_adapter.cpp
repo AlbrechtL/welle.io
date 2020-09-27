@@ -130,10 +130,9 @@ void DecoderAdapter::AudioError(const std::string &hint)
     frameErrorCounter++;
 }
 
-void DecoderAdapter::AudioWarning(const std::string &hint)
+void DecoderAdapter::ACCFrameError(const unsigned char error)
 {
-    (void)hint;
-    myInterface.onAacErrors(1);
+    myInterface.onAacErrors(error);
 }
 
 void DecoderAdapter::FECInfo(int total_corr_count, bool uncorr_errors)

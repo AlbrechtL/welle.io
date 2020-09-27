@@ -73,7 +73,8 @@ class CRadioController :
     Q_PROPERTY(float frequencyCorrectionPpm MEMBER frequencyCorrectionPpm NOTIFY frequencyCorrectionPpmChanged)
     Q_PROPERTY(int bitRate MEMBER bitRate NOTIFY bitRateChanged)
     Q_PROPERTY(int frameErrors MEMBER frameErrors NOTIFY frameErrorsChanged)
-    Q_PROPERTY(int rsErrors MEMBER rsErrors NOTIFY rsErrorsChanged)
+    Q_PROPERTY(int rsUncorrectedErrors MEMBER rsUncorrectedErrors NOTIFY rsUncorrectedErrorsChanged)
+    Q_PROPERTY(int rsCorrectedErrors MEMBER rsCorrectedErrors NOTIFY rsCorrectedErrorsChanged)
     Q_PROPERTY(int aacErrors MEMBER aaErrors NOTIFY aacErrorsChanged)
     Q_PROPERTY(bool agc MEMBER isAGC WRITE setAGC NOTIFY agcChanged)
     Q_PROPERTY(float gainValue MEMBER currentManualGainValue NOTIFY gainValueChanged)
@@ -189,7 +190,8 @@ private:
     int bitRate = 0;
     int audioSampleRate = 0;
     int frameErrors = 0;
-    int rsErrors = 0;
+    int rsUncorrectedErrors = 0;
+    int rsCorrectedErrors = 0;
     int aaErrors = 0;
     int gainCount = 0;
     int stationCount = 0;
@@ -260,7 +262,8 @@ signals:
     void frequencyCorrectionPpmChanged(float);
     void bitRateChanged(int);
     void frameErrorsChanged(int);
-    void rsErrorsChanged(int);
+    void rsUncorrectedErrorsChanged(int);
+    void rsCorrectedErrorsChanged(int);
     void aacErrorsChanged(int);
     void gainCountChanged(int);
 
