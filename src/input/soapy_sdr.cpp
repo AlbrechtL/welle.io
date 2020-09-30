@@ -47,6 +47,24 @@ CSoapySdr::CSoapySdr(RadioControllerInterface& radioController) :
     m_sampleBuffer(1024 * 1024),
     m_spectrumSampleBuffer(8192)
 {
+    //enumerate devices
+    const std::string args ="";
+    const auto foundDevices = SoapySDR::Device::enumerate("");
+
+    int nonAudioDeviceCount = 0;
+    for(auto found: foundDevices)
+    {
+        std::clog << "SoapySDR: Found device \"" << found.at("driver") << " \'" << found.at("label") << "\' \"" << std::endl;
+
+        if(found.at("driver").compare("audio") != 0)
+            nonAudioDeviceCount++;
+    }
+
+    if(nonAudioDeviceCount == 0)
+    {
+        std::clog << "SoapySDR: " << "No usable SDR device found" << std::endl;
+        throw 0;
+    }
 }
 
 CSoapySdr::~CSoapySdr()
@@ -60,7 +78,7 @@ void CSoapySdr::setFrequency(int Frequency)
     if (m_device != nullptr) {
         m_device->setFrequency(SOAPY_SDR_RX, 0, Frequency);
         m_freq = m_device->getFrequency(SOAPY_SDR_RX, 0);
-        std::clog << "OutputSoapySDR:Actual frequency: " <<
+        std::clog << "SoapySDR:Actual frequency: " <<
             m_freq / 1000.0 <<
             " kHz." << std::endl;
     }
@@ -106,7 +124,7 @@ bool CSoapySdr::restart()
         m_device->getMasterClockRate()/1000.0 << " kHz" << std::endl;
 
     m_device->setSampleRate(SOAPY_SDR_RX, 0, INPUT_RATE);
-    std::clog << "OutputSoapySDR:Actual RX rate: " <<
+    std::clog << "SoapySDR:Actual RX rate: " <<
         m_device->getSampleRate(SOAPY_SDR_RX, 0) / 1000.0 <<
         " ksps." << std::endl;
 
