@@ -525,9 +525,9 @@ void CGUIHelper::updateConstellation()
     */
 }
 
-void CGUIHelper::saveMotImages()
+void CGUIHelper::saveMotImages(QString folder)
 {
-    motImageProvider->saveAll();
+    motImageProvider->saveAll(folder);
 }
 
 void CGUIHelper::openAutoDevice()
