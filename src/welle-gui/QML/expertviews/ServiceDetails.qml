@@ -30,7 +30,7 @@ ViewBaseFrame {
 
         TextExpert {
             name: qsTr("SNR") + ":"
-            text: radioController.snr + " dB"
+            text: radioController.snr.toFixed(2) + " dB"
         }
 
         RowLayout {

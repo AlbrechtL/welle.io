@@ -954,7 +954,7 @@ void CRadioController::onMessage(message_level_t level, const std::string& text,
     }
 }
 
-void CRadioController::onSNR(int snr)
+void CRadioController::onSNR(float snr)
 {
     if (this->snr == snr)
         return;

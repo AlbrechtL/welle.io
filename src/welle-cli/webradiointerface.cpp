@@ -1389,7 +1389,7 @@ void WebRadioInterface::serve()
     carousel_services_active.clear();
 }
 
-void WebRadioInterface::onSNR(int snr)
+void WebRadioInterface::onSNR(float snr)
 {
     lock_guard<mutex> lock(data_mut);
     last_snr = snr;

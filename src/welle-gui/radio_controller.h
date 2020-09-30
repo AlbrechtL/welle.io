@@ -68,7 +68,7 @@ class CRadioController :
     Q_PROPERTY(bool isSignal MEMBER isSignal NOTIFY isSignalChanged)
     Q_PROPERTY(QString audioMode MEMBER audioMode NOTIFY audioModeChanged)
     Q_PROPERTY(bool isDAB MEMBER isDAB NOTIFY isDABChanged)
-    Q_PROPERTY(int snr MEMBER snr NOTIFY snrChanged)
+    Q_PROPERTY(float snr MEMBER snr NOTIFY snrChanged)
     Q_PROPERTY(int frequencyCorrection MEMBER frequencyCorrection NOTIFY frequencyCorrectionChanged)
     Q_PROPERTY(float frequencyCorrectionPpm MEMBER frequencyCorrectionPpm NOTIFY frequencyCorrectionPpmChanged)
     Q_PROPERTY(int bitRate MEMBER bitRate NOTIFY bitRateChanged)
@@ -139,7 +139,7 @@ public:
     virtual void onNewDynamicLabel(const std::string& label) override;
     virtual void onMOT(const mot_file_t& mot_file) override;
     virtual void onPADLengthError(size_t announced_xpad_len, size_t xpad_len) override;
-    virtual void onSNR(int snr) override;
+    virtual void onSNR(float snr) override;
     virtual void onFrequencyCorrectorChange(int fine, int coarse) override;
     virtual void onSyncChange(char isSync) override;
     virtual void onSignalPresence(bool isSignal) override;
@@ -184,7 +184,7 @@ private:
     bool isSignal = false;
     bool isDAB = false;
     QString audioMode = "";
-    int snr = 0;
+    float snr = 0;
     int frequencyCorrection = 0;
     float frequencyCorrectionPpm = 0.0;
     int bitRate = 0;
@@ -257,7 +257,7 @@ signals:
     void isSignalChanged(bool);
     void isDABChanged(bool);
     void audioModeChanged(QString);
-    void snrChanged(int);
+    void snrChanged(float);
     void frequencyCorrectionChanged(int);
     void frequencyCorrectionPpmChanged(float);
     void bitRateChanged(int);

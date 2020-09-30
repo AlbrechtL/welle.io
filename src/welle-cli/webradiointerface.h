@@ -82,7 +82,7 @@ class WebRadioInterface : public RadioControllerInterface {
 
         void serve();
 
-        virtual void onSNR(int snr) override;
+        virtual void onSNR(float snr) override;
         virtual void onFrequencyCorrectorChange(int fine, int coarse) override;
         virtual void onSyncChange(char isSync) override;
         virtual void onSignalPresence(bool isSignal) override;
