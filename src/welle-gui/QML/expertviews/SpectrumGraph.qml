@@ -30,9 +30,9 @@ ViewBaseFrame {
             spectrum.freqMax = Xmax
         }
 
-        onNewDebugOutput: {
-            spectrum.waterfallObject.plotMessage(text)
-        }
+//        onNewDebugOutput: {
+//            spectrum.waterfallObject.plotMessage(text)
+//        }
     }
 
     Connections {

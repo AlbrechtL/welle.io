@@ -54,7 +54,6 @@ ColumnLayout {
 
         Waterfall {
             id: waterfallPlot
-            sensitivity: sensitivitySlider.value
             minValue: yMin
             Layout.fillHeight: true
             Layout.fillWidth: true
@@ -92,26 +91,6 @@ ColumnLayout {
                     text: freqMax + " →"
                     }
                 }
-        }
-
-        Column {
-            spacing: 10
-
-            Text {
-                text: qsTr("Sensitivity")
-                anchors.horizontalCenter: parent.horizontalCenter
-            }
-            Slider {
-                id: sensitivitySlider
-                anchors.horizontalCenter: parent.horizontalCenter
-                height: 180
-                orientation: Qt.Vertical
-
-                from: 0.005
-                to: 0.1
-                stepSize: 0.0001
-                value: 0.02
-            }
         }
     }
 
