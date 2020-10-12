@@ -58,7 +58,7 @@ AlsaOutput::AlsaOutput(int chans, unsigned int rate) :
         fprintf(stderr, "ERROR: Can't set rate. %s\n", snd_strerror(err));
 
     if ((err = snd_pcm_hw_params(pcm_handle, params)) < 0)
-        fprintf(stderr, "ERROR: Can't set harware parameters. %s\n",
+        fprintf(stderr, "ERROR: Can't set hardware parameters. %s\n",
                 snd_strerror(err));
 
     fprintf(stderr, "PCM name: '%s'\n", snd_pcm_name(pcm_handle));
