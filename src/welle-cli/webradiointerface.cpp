@@ -621,7 +621,6 @@ bool WebRadioInterface::send_mux_json(Socket& s)
         lock_guard<mutex> lock(fib_mut);
         mux_json.demodulator_fic_numcrcerrors = num_fic_crc_errors;
     }
-    mux_json.demodulator_timelastfct0frame = rx->getReceiverStats().timeLastFCT0Frame;
 
     {
         lock_guard<mutex> lock(rx_mut);
@@ -771,6 +770,7 @@ bool WebRadioInterface::send_mux_json(Socket& s)
 
         mux_json.demodulator_snr = last_snr;
         mux_json.demodulator_frequencycorrection = last_fine_correction + last_coarse_correction;
+        mux_json.demodulator_timelastfct0frame = rx->getReceiverStats().timeLastFCT0Frame;
 
         mux_json.tii = getTiiStats();
     }
