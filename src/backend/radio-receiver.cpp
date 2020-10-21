@@ -221,3 +221,10 @@ DABParams& RadioReceiver::getParams()
 {
     return params;
 }
+
+RadioReceiverStats RadioReceiver::getReceiverStats() const
+{
+    RadioReceiverStats s;
+    s.timeLastFCT0Frame = ficHandler.fibProcessor.getTimeLastFCT0Frame();
+    return s;
+}

@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2018
+ *    Copyright (C) 2020
  *    Matthias P. Braendli (matthias.braendli@mpb.li)
  *
  *    Copyright (C) 2014
@@ -108,7 +108,7 @@ void FIBProcessor::process_FIG0 (uint8_t *d)
 }
 
 
-//  FOG0/0 indicated a change in channel organization
+//  FIG0/0 indicated a change in channel organization
 //  we are not equipped for that, so we just return
 //  control to the init
 void FIBProcessor::FIG0Extension0 (uint8_t *d)
@@ -127,8 +127,6 @@ void FIBProcessor::FIG0Extension0 (uint8_t *d)
     }
 
     changeflag  = getBits_2 (d, 16 + 16);
-    if (changeflag == 0)
-        return;
 
     highpart        = getBits_5 (d, 16 + 19) % 20;
     (void)highpart;
@@ -137,7 +135,15 @@ void FIBProcessor::FIG0Extension0 (uint8_t *d)
     occurrenceChange    = getBits_8 (d, 16 + 32);
     (void)occurrenceChange;
 
-    //  if (changeflag == 1) {
+    // In transmission mode I, because four ETI frames make one transmission frame, we will
+    // see lowpart == 0 only every twelve seconds, and not 6 as expected by the 250 overflow value.
+    if (lowpart == 0) {
+        timeLastFCT0Frame = std::chrono::system_clock::now();
+    }
+
+    if (changeflag == 0)
+        return;
+    // else if (changeflag == 1) {
     //     std::clog << "fib-processor:" << "Changes in sub channel organization\n") << std::endl;
     //     std::clog << "fib-processor:" << "cifcount = %d\n", highpart * 250 + lowpart) << std::endl;
     //     std::clog << "fib-processor:" << "Change happening in %d CIFs\n", occurrenceChange) << std::endl;
@@ -1267,6 +1273,7 @@ void FIBProcessor::clearEnsemble()
     services.clear();
     serviceRepeatCount.clear();
     timeLastServiceDecrement = std::chrono::steady_clock::now();
+    timeLastFCT0Frame = std::chrono::system_clock::now();
 }
 
 std::vector<Service> FIBProcessor::getServiceList() const
@@ -1327,4 +1334,9 @@ DabLabel FIBProcessor::getEnsembleLabel() const
 {
     std::lock_guard<std::mutex> lock(mutex);
     return ensembleLabel;
+}
+
+std::chrono::system_clock::time_point FIBProcessor::getTimeLastFCT0Frame() const
+{
+    return timeLastFCT0Frame;
 }

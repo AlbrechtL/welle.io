@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2018
+ *    Copyright (C) 2020
  *    Matthias P. Braendli (matthias.braendli@mpb.li)
  *
  *    Copyright (C) 2017
@@ -33,6 +33,7 @@
 #ifndef RADIO_RECEIVER_H
 #define RADIO_RECEIVER_H
 
+#include <chrono>
 #include <memory>
 #include <string>
 #include "radio-controller.h"
@@ -43,6 +44,10 @@
 
 const char* fftPlacementMethodToString(FFTPlacementMethod fft_placement);
 const char* freqSyncMethodToString(FreqsyncMethod method);
+
+struct RadioReceiverStats {
+    std::chrono::system_clock::time_point timeLastFCT0Frame;
+};
 
 class RadioReceiver {
     public:
@@ -93,7 +98,9 @@ class RadioReceiver {
          */
         Subchannel getSubchannel(const ServiceComponent& sc) const;
 
-        DABParams& getParams(void);
+        DABParams& getParams();
+
+        RadioReceiverStats getReceiverStats() const;
 
     private:
         bool playProgramme(ProgrammeHandlerInterface& handler,
