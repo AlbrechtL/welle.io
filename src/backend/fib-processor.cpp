@@ -1338,5 +1338,6 @@ DabLabel FIBProcessor::getEnsembleLabel() const
 
 std::chrono::system_clock::time_point FIBProcessor::getTimeLastFCT0Frame() const
 {
+    std::lock_guard<std::mutex> lock(mutex);
     return timeLastFCT0Frame;
 }

@@ -25,7 +25,6 @@
 #ifndef FIB_PROCESSOR
 #define FIB_PROCESSOR
 
-#include <atomic>
 #include <vector>
 #include <list>
 #include <unordered_map>
@@ -132,7 +131,7 @@ class FIBProcessor {
         std::vector<Service> services;
         std::unordered_map<uint32_t, uint8_t> serviceRepeatCount;
         std::chrono::steady_clock::time_point timeLastServiceDecrement;
-        std::atomic<std::chrono::system_clock::time_point> timeLastFCT0Frame;
+        std::chrono::system_clock::time_point timeLastFCT0Frame;
 };
 
 #endif
