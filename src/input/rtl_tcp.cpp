@@ -62,7 +62,7 @@ enum rtlsdr_tuner {
 
 CRTL_TCP_Client::CRTL_TCP_Client(RadioControllerInterface& radioController) :
     radioController(radioController),
-    sampleBuffer(32 * 32768),
+    sampleBuffer(256 * 32768),
     spectrumSampleBuffer(8192)
 {
     memset(&dongleInfo, 0, sizeof(dongle_info_t));
