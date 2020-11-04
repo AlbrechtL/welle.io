@@ -82,6 +82,7 @@ private:
     void agcTimer(void);
     void receiveData(void);
     void receiveAndReconnect(void);
+    void networkBufferCopy(void);
     void handleDisconnect(void);
 
     std::mutex mutex;
@@ -89,6 +90,7 @@ private:
     std::thread receiveThread;
     bool agcRunning = false;
     std::thread agcThread;
+    std::thread networkBufferThread;
 
     float currentGain = 0;
     uint16_t currentGainCount = 0;
@@ -98,6 +100,7 @@ private:
     bool isHwAGC = false;
     int frequency = kHz(220000);
     RingBuffer<uint8_t> sampleBuffer;
+    RingBuffer<uint8_t> sampleNetworkBuffer;
     RingBuffer<uint8_t> spectrumSampleBuffer;
     bool connected = false;
     bool rtlsdrRunning = false;
@@ -105,6 +108,9 @@ private:
     uint16_t serverPort = 1234;
 
     bool firstData = true;
+    bool firstFilledNetworkBuffer = false;
+    int64_t oldTime_us = 0;
+    int64_t nextStop_us = 0;
     dongle_info_t dongleInfo;
 
     // Gain values for the different tuners
