@@ -158,17 +158,17 @@ ViewBaseFrame {
                             background: Rectangle { opacity: 0.6; color: "white" }
                         }
 
-                        Label {
-                            visible: mainWindow.isExpertView && motImage.source != ""
-                            text: "image://sls/CategoryID/CategoryTitle/SlideID/ContentName"
-                            background: Rectangle { opacity: 0.6; color: "white" }
-                        }
+//                        Label {
+//                            visible: mainWindow.isExpertView && motImage.source != ""
+//                            text: "image://sls/CategoryID/CategoryTitle/SlideID/ContentName"
+//                            background: Rectangle { opacity: 0.6; color: "white" }
+//                        }
 
-                        Label {
-                            visible: mainWindow.isExpertView
-                            text: motImage.source
-                            background: Rectangle { opacity: 0.6; color: "white" }
-                        }
+//                        Label {
+//                            visible: mainWindow.isExpertView
+//                            text: motImage.source
+//                            background: Rectangle { opacity: 0.6; color: "white" }
+//                        }
                     }
                 }
 
