@@ -366,8 +366,9 @@ void FIBProcessor::FIG0Extension3 (uint8_t *d)
     int16_t used    = 2;
     int16_t Length  = getBits_5 (d, 3);
 
-    while (used < Length)
+    while (used < Length) {
         used = HandleFIG0Extension3 (d, used);
+    }
 }
 
 //      DSCTy   DataService Component Type
@@ -384,12 +385,12 @@ int16_t FIBProcessor::HandleFIG0Extension3(uint8_t *d, int16_t used)
     ServiceComponent *packetComp = findPacketComponent(SCId);
 
     used += 56 / 8;
-    if (packetComp == NULL)     // no ServiceComponent yet
-        return used;
-    packetComp->subchannelId = SubChId;
-    packetComp->DSCTy = DSCTy;
-    packetComp->DGflag = DGflag;
-    packetComp->packetAddress = packetAddress;
+    if (packetComp) {
+        packetComp->subchannelId = SubChId;
+        packetComp->DSCTy = DSCTy;
+        packetComp->DGflag = DGflag;
+        packetComp->packetAddress = packetAddress;
+    }
     return used;
 }
 
@@ -445,38 +446,32 @@ int16_t FIBProcessor::HandleFIG0Extension8(
 {
     int16_t  lOffset = used * 8;
     uint32_t SId = getBits(d, lOffset, pdBit == 1 ? 32 : 16);
-    uint8_t  lsFlag;
-    uint16_t SCIds;
-    int16_t  SCid;
-    int16_t  MSCflag;
-    int16_t  SubChId;
+    lOffset += (pdBit == 1 ? 32 : 16);
+
     uint8_t  extensionFlag;
 
-    lOffset += pdBit == 1 ? 32 : 16;
-    extensionFlag   = getBits_1 (d, lOffset);
-    SCIds   = getBits_4 (d, lOffset + 4);
-    lOffset += 8;
+    extensionFlag   = getBits_1(d, lOffset);
+    uint16_t SCIds   = getBits_4(d, lOffset + 4);
+    lOffset += 4;
 
-    lsFlag  = getBits_1 (d, lOffset + 8);
+    uint8_t lsFlag  = getBits_1(d, lOffset);
     if (lsFlag == 1) {
-        SCid = getBits (d, lOffset + 4, 12);
+        int16_t SCid = getBits(d, lOffset + 4, 12);
         lOffset += 16;
         //           if (findPacketComponent ((SCIds << 4) | SCid) != NULL) {
         //              std::clog << "fib-processor:" << "packet component bestaat !!\n") << std::endl;
         //           }
     }
     else {
-        MSCflag = getBits_1 (d, lOffset + 1);
-        SubChId = getBits_6 (d, lOffset + 2);
+        int16_t SubChId = getBits_6(d, lOffset + 4);
         lOffset += 8;
     }
-    if (extensionFlag)
+
+    if (extensionFlag) {
         lOffset += 8;   // skip Rfa
+    }
     (void)SId;
     (void)SCIds;
-    (void)SCid;
-    (void)SubChId;
-    (void)MSCflag;
     return lOffset / 8;
 }
 
