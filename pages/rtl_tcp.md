@@ -13,17 +13,11 @@ The rtl_tcp input is for advanced users how runs the tool "[rtl_tcp](http://osmo
 
 Please note that the sample rate is 2048000 samples/s. Each sample consists of a 8-bit I and a 8-bit Q part. So the data rate would be 32.768e6 bit/s = 4.096 MB/s. Please ensure that your network are able to transport this data rate stable.
 
-**Windows**
-  ```
-welle-io.exe -d rtl_tcp --rtl_tcp-address YourIP --rtl_tcp-port YourPort
-e.g.
-welle-io.exe -d rtl_tcp --rtl_tcp-address 10.10.1.10 --rtl_tcp-port 1235
-  ```
+**Setup**
 
-**Linux**
-  ```
-# welle-io -d rtl_tcp --rtl_tcp-address YourIP --rtl_tcp-port YourPort
-e.g.
-# welle-io -d rtl_tcp --rtl_tcp-address 10.10.1.10 --rtl_tcp-port 1235
-  ```
+To set up the rtl-tcp input navigate to the settings, disable `Auto detect` and enable `rtl-tcp` (see picture below). Afterwards you can set the IP address or set the hostname.
+![rtl_tcp_input.png](/images/rtl_tcp_input.png)
+
+**Hint**
+
 If you need to start rtl_tcp as a deamon you can use this init.d script "[rtl_tcp_server](../download/rtl_tcp-server)". This script starts rtl_tcp with listen on all Ethernet interfaces on port 1235.
