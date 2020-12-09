@@ -16,6 +16,7 @@ Please note that the sample rate is 2048000 samples/s. Each sample consists of a
 **Setup**
 
 To set up the rtl-tcp input navigate to the settings, disable `Auto detect` and enable `rtl-tcp` (see picture below). Afterwards you can set the IP address or set the hostname.
+
 ![rtl_tcp_input.png](/images/rtl_tcp_input.png)
 
 **Hint**
