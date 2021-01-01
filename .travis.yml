@@ -58,16 +58,21 @@ jobs:
 
       install:
         - sudo apt-get -y install gcc g++
+        
+        # For AppImage
         - sudo apt-get -y install libusb-1.0-0-dev pkg-config libmp3lame-dev libmpg123-dev qt514base qt514declarative qt514quickcontrols qt514quickcontrols2 qt514charts-no-lgpl qt514graphicaleffects qt514multimedia libpulse0 libfaad-dev libfftw3-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev libsoapysdr-dev
         - source /opt/qt514/bin/qt514-env.sh
+        
+        # For Flatpak
+        - sudo apt-get -y install flatpak-builder
+        - sudo flatpak -y remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+        - sudo flatpak -y install flathub org.kde.Sdk//5.15 org.kde.Platform//5.15
 
       after_success:
         - sudo ldconfig
 
         # Get linuxdeploy
-        # Seems to be that current 22. August 2020 linuxdeploy version is buggy
         - sudo wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage -P /usr/local/bin
-        #- sudo wget https://artifacts.assassinate-you.net/artifactory/list/linuxdeploy/travis-456/linuxdeploy-x86_64.AppImage  -P /usr/local/bin
         - sudo chmod +x /usr/local/bin/linuxdeploy-x86_64.AppImage
         - sudo wget https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage -P /usr/local/bin
         - sudo chmod +x /usr/local/bin/linuxdeploy-plugin-qt-x86_64.AppImage
@@ -99,6 +104,13 @@ jobs:
         # Create welle-cli AppImage
         - linuxdeploy-x86_64.AppImage --appdir ./appdir-cli --output appimage
         - mv welle.io-cli-"$GIT_HASH"-x86_64.AppImage "$DATE"_"$GIT_HASH"_Linux_welle-io-cli-x86_64.AppImage
+        
+        # Create welle-gui Flatpak
+        - flatpak-builder --repo=wellerepo --force-clean fp_build io.welle.welle-gui.json
+        - flatpak --user remote-add --no-gpg-verify welle-repo wellerepo
+        - flatpak --user install welle-repo io.welle.welle-gui
+        - flatpak build-bundle wellerepo welle-io.flatpak io.welle.welle-gui
+        - mv welle-io.flatpak "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.flatpak
 
     - os: osx
       osx_image: xcode11.3
