@@ -65,8 +65,8 @@ jobs:
         
         # For Flatpak
         - sudo apt-get -y install flatpak-builder
-        - sudo flatpak -y remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-        - sudo flatpak -y install flathub org.kde.Sdk//5.15 org.kde.Platform//5.15
+        - sudo flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+        - sudo flatpak install -y flathub org.kde.Sdk//5.15 org.kde.Platform//5.15
 
       after_success:
         - sudo ldconfig
