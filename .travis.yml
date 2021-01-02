@@ -64,6 +64,8 @@ jobs:
         - source /opt/qt514/bin/qt514-env.sh
         
         # For Flatpak
+        - sudo add-apt-repository ppa:alexlarsson/flatpak
+        - sudo apt-get update -qq
         - sudo apt-get -y install flatpak-builder
         - sudo flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
         - sudo flatpak install -y flathub org.kde.Sdk//5.15 org.kde.Platform//5.15
@@ -106,9 +108,9 @@ jobs:
         - mv welle.io-cli-"$GIT_HASH"-x86_64.AppImage "$DATE"_"$GIT_HASH"_Linux_welle-io-cli-x86_64.AppImage
         
         # Create welle-gui Flatpak
-        - flatpak-builder --repo=wellerepo --force-clean fp_build io.welle.welle-gui.json
-        - flatpak --user remote-add --no-gpg-verify welle-repo wellerepo
-        - flatpak --user install welle-repo io.welle.welle-gui
+        - sudo flatpak-builder --repo=wellerepo --force-clean fp_build io.welle.welle-gui.json
+        - sudo flatpak --user remote-add --no-gpg-verify welle-repo wellerepo
+        - sudo flatpak --user install welle-repo io.welle.welle-gui
         - flatpak build-bundle wellerepo welle-io.flatpak io.welle.welle-gui
         - mv welle-io.flatpak "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.flatpak
 
