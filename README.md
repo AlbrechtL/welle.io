@@ -42,7 +42,7 @@ Download
     * `sudo port install welle.io +cli` (if you wish to install also welle-cli)
 * welle.io for **FreeBSD**
   * Building from sources (requires ports tree to be checked out at `/usr/ports/`)
-    ```console
+    ```
     # cd /usr/ports/audio/welle.io/
     # make install clean
     ```
@@ -209,9 +209,9 @@ This section describes how to build welle.io from sources on FreeBSD 12.2 and 13
 
 1. You will need the following dependencies, either built from the
    ports or installed as a binary package. You may also build them
-   yourself:
+   yourself.
 
-   ```console
+   ```
    # pkg install alsa-lib faad lame mpg123 pkgconf cmake qt5-charts \
      qt5-core qt5-declarative qt5-gui qt5-multimedia qt5-network \
      qt5-quickcontrols2 qt5-widgets qt5-buildtools qt5-qmake \
