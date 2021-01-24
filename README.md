@@ -203,7 +203,26 @@ You need to install the dependencies with MacPorts first, assuming you have [Mac
 4. Make sure in Qt Creator, "Projects, Build&Run, Run" that the checkbox "Add build library path to DYLD..." is off.
 5. Build and run.
 
-CMake instead of Qt Creator (Windows, Linux, macOS)
+FreeBSD
+---
+This section describes how to build welle.io from sources on FreeBSD 12.2 and 13.0.
+
+1. You will need the following dependencies, either built from the
+   ports or installed as a binary package. You may also build them
+   yourself:
+
+   ```console
+   # pkg install alsa-lib faad lame mpg123 pkgconf cmake qt5-charts \
+     qt5-core qt5-declarative qt5-gui qt5-multimedia qt5-network \
+     qt5-quickcontrols2 qt5-widgets qt5-buildtools qt5-qmake \
+     rtl-sdr fftw3-float fftw3
+   ```
+   For SoapySDR support, you will also need `soapysdr`. For AirSpy support, you will need `airspy`.
+
+2. Now follow the build instructions for CMake as indicated below.
+
+
+CMake instead of Qt Creator (Windows, Linux, macOS, FreeBSD)
 ---
 
 As an alternative to Qt Creator, CMake can be used for building welle.io after installing dependencies and cloning the repository. On Linux, you can also use CMake to build [**welle-cli**](#welle-cli), the command-line backend testing tool that does not require Qt.
