@@ -40,6 +40,14 @@ Download
   * [through **MacPorts port**](https://ports.macports.org/port/welle.io/summary) (requires [MacPorts](https://www.macports.org/)) 
     * `sudo port install welle.io`
     * `sudo port install welle.io +cli` (if you wish to install also welle-cli)
+* welle.io for **FreeBSD**
+  * Building from sources (requires ports tree to be checked out at `/usr/ports/`)
+    ```console
+    # cd /usr/ports/audio/welle.io/
+    # make install clean
+    ```
+  * Installing the binary package
+    * `pkg install welle.io`
 
 If you discovered an issue please open a new [issue](https://github.com/AlbrechtL/welle.io/issues).
 
