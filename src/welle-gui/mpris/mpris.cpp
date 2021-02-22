@@ -40,7 +40,7 @@
 #include <QtCore/QStringList>
 #include <QtCore/QVariant>
 
-#ifdef __unix__
+#if defined __unix__ || defined __APPLE__
     #include <unistd.h>
     #define GETPID getpid
 #endif
