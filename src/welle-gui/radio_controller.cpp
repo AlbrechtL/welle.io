@@ -286,6 +286,7 @@ void CRadioController::setService(uint32_t service, bool force)
         currentService = service;
         autoService = service;
         emit stationChanged();
+        emit autoServiceChanged(autoService);
 
         // Wait if we found the station inside the signal
         stationTimer.start(1000);
@@ -309,6 +310,7 @@ void CRadioController::setAutoPlay(bool isAutoPlayValue, QString channel, QStrin
     isAutoPlay = isAutoPlayValue;
     autoChannel = channel;
     autoService = deserialise_serviceid(service.toStdString().c_str());
+    emit autoServiceChanged(autoService);
     currentLastChannel = QStringList() << service << channel;
 }
 

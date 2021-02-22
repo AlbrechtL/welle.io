@@ -89,6 +89,7 @@ class CRadioController :
     Q_PROPERTY(QString ensemble MEMBER currentEnsembleLabel NOTIFY ensembleChanged)
     Q_PROPERTY(int frequency MEMBER currentFrequency NOTIFY frequencyChanged)
     Q_PROPERTY(quint32 service MEMBER currentService NOTIFY stationChanged)
+    Q_PROPERTY(quint32 autoService MEMBER autoService NOTIFY autoServiceChanged)
     Q_PROPERTY(QString stationType MEMBER currentStationType NOTIFY stationTypChanged)
     Q_PROPERTY(QString languageType MEMBER currentLanguageType NOTIFY languageTypeChanged)
     Q_PROPERTY(QString title MEMBER currentTitle NOTIFY titleChanged)
@@ -284,6 +285,7 @@ signals:
     void ensembleChanged();
     void frequencyChanged();
     void stationChanged();
+    void autoServiceChanged(quint32 autoService);
     void stationTypChanged();
     void titleChanged();
     void textChanged();
