@@ -24,6 +24,8 @@
         <file>icons/welle_io_icons/20x20/antenna_no_signal.png</file>
         <file>icons/welle_io_icons/20x20/speaker.png</file>
         <file>icons/welle_io_icons/20x20/speaker_mute.png</file>
+        <file>icons/welle_io_icons/20x20/play.png</file>
+        <file>icons/welle_io_icons/20x20/stop.png</file>
         <file>icons/welle_io_icons/20x20@2/back.png</file>
         <file>icons/welle_io_icons/20x20@2/next.png</file>
         <file>icons/welle_io_icons/20x20@2/drawer.png</file>
@@ -35,6 +37,8 @@
         <file>icons/welle_io_icons/20x20@2/antenna_no_signal.png</file>
         <file>icons/welle_io_icons/20x20@2/speaker.png</file>
         <file>icons/welle_io_icons/20x20@2/speaker_mute.png</file>
+        <file>icons/welle_io_icons/20x20@2/play.png</file>
+        <file>icons/welle_io_icons/20x20@2/stop.png</file>
         <file>icons/welle_io_icons/20x20@3/back.png</file>
         <file>icons/welle_io_icons/20x20@3/next.png</file>
         <file>icons/welle_io_icons/20x20@3/drawer.png</file>
@@ -46,6 +50,8 @@
         <file>icons/welle_io_icons/20x20@3/antenna_no_signal.png</file>
         <file>icons/welle_io_icons/20x20@3/speaker.png</file>
         <file>icons/welle_io_icons/20x20@3/speaker_mute.png</file>
+        <file>icons/welle_io_icons/20x20@3/play.png</file>
+        <file>icons/welle_io_icons/20x20@3/stop.png</file>
         <file>icons/welle_io_icons/20x20@4/back.png</file>
         <file>icons/welle_io_icons/20x20@4/next.png</file>
         <file>icons/welle_io_icons/20x20@4/drawer.png</file>
@@ -57,6 +63,8 @@
         <file>icons/welle_io_icons/20x20@4/antenna_no_signal.png</file>
         <file>icons/welle_io_icons/20x20@4/speaker.png</file>
         <file>icons/welle_io_icons/20x20@4/speaker_mute.png</file>
+        <file>icons/welle_io_icons/20x20@4/play.png</file>
+        <file>icons/welle_io_icons/20x20@4/stop.png</file>
         <file>i18n/de_DE.qm</file>
         <file>i18n/it_IT.qm</file>
         <file>i18n/hu_HU.qm</file>
@@ -93,6 +101,7 @@
         <file>QML/components/WButton.qml</file>
         <file>QML/components/WSpectrum.qml</file>
         <file>QML/components/WMenu.qml</file>
+        <file>QML/components/WToolTip.qml</file>
         <file>QML/components/qmldir</file>
         <file>QML/expertviews/ServiceDetails.qml</file>
         <file>QML/expertviews/ImpulseResponseGraph.qml</file>

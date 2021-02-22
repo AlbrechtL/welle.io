@@ -92,7 +92,7 @@ ViewBaseFrame {
                     }
                     
                     visible: opacity == 0 ? false : true
-                    opacity: 100
+                    opacity: 0
                     
                     Connections {
                         target: frame
@@ -154,6 +154,10 @@ ViewBaseFrame {
                     Connections {
                         target: antennaSymbol
                         onIsSignalChanged: { 
+                            if (!radioController.isPlaying) {
+                                hideAntenna()
+                                return
+                            }
                             if (antennaSymbol.isSignal) {
                                 antennaIconNoSignalRed.visible = false; 
                                 antennaIcon.visible = true;
@@ -185,6 +189,11 @@ ViewBaseFrame {
                                 __setIsSignal(true)
                             else
                                 __setIsSignal(false)
+                        }
+
+                        onIsPlayingChanged: {
+                            if (!radioController.isPlaying)
+                                hideAntenna()
                         }
                     }
                 }
@@ -244,7 +253,7 @@ ViewBaseFrame {
         }
         else {
             antennaSymbol.isSignal = false
-            antennaSymbol.opacity = 100
+            antennaSymbol.opacity = 1.0
             effect.stop()
         }
     }
@@ -254,5 +263,10 @@ ViewBaseFrame {
             antennaSymbol.state = "alignRight"
         else
             antennaSymbol.state = "alignBottom"
+    }
+
+    function hideAntenna() {
+        antennaIconNoSignalRed.visible = false;
+        antennaIcon.visible = false;
     }
 }
