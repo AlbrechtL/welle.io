@@ -276,7 +276,7 @@ signals:
     void agcChanged(bool);
     void gainValueChanged(float);
     void gainChanged(int);
-    void volumeChanged(qreal);
+    void volumeChanged(qreal volume);
     void motChanged(mot_file_t);
     void motReseted(void);
 

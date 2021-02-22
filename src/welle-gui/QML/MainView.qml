@@ -44,6 +44,7 @@ import QtQuick.Controls 2.3
 import QtQuick.Controls.Material 2.1
 import QtQuick.Controls.Universal 2.1
 import QtQuick.Window 2.2
+import QtGraphicalEffects 1.0
 import Qt.labs.settings 1.0
 
 import "texts"
@@ -117,13 +118,14 @@ ApplicationWindow {
         property alias stationListSerialize: stationList.serialized
         property alias favoritsListSerialize: favoritsList.serialized
         property alias stationListBoxIndex: stationListBox.currentIndex
+        property alias volume: volumeSlider.value
     }
 
     header: ToolBar {
         id: overlayHeader
 
         RowLayout {
-            spacing: 20
+            spacing: 5
             anchors.fill: parent
 
             ToolButton {
@@ -221,6 +223,159 @@ ApplicationWindow {
                 }
             }
 
+            ToolButton {
+                id: speakerIconContainer
+
+                contentItem: Item {
+                    // Use 2 Images to switch between speaker & speaker_mute icon (instead of toggle button).
+                    // Permits use of color with org.kde.desktop style
+                    Image {
+                        id: speakerIcon
+
+                        height: speakerIconContainer.availableHeight
+                        width: speakerIconContainer.availableHeight
+
+                        visible: false
+
+                        source: "qrc:/icons/welle_io_icons/20x20@2/speaker.png"
+
+                        WToolTip {
+                            text: qsTr("Volume (%1)").arg(volumeLabel.text)
+                            visible: speakerIconMouseArea.containsMouse
+                        }
+
+                        Accessible.role: Accessible.Button
+                        Accessible.name: qsTr("Volume")
+                        Accessible.description: qsTr("Toggle volume slider")
+                        Accessible.onPressAction: speakerIconMouseArea.clicked(mouse)
+                    }
+                    MouseArea {
+                        id: speakerIconMouseArea
+                        anchors.fill: speakerIcon
+                        hoverEnabled: true
+                        onClicked: volumePopup.open()
+                        onDoubleClicked: (radioController.volume != 0) ? volumeSlider.value = 0 : volumeSlider.value = 1
+                        onWheel: (wheel.angleDelta.y > 0) ? volumeSlider.value = volumeSlider.value + 0.1 :  volumeSlider.value = volumeSlider.value - 0.1
+                    }
+                    Image {
+                        id: speakerIconMuted
+                        anchors.top: speakerIcon.top
+                        anchors.left: speakerIcon.left
+                        width: speakerIcon.width
+                        height: speakerIcon.height
+                        visible: false
+
+                        source: "qrc:/icons/welle_io_icons/20x20@2/speaker_mute.png"
+                    }
+                    ColorOverlay {
+                        id: speakerIconMutedRed
+                        visible: false
+                        anchors.fill: speakerIconMuted
+                        source: speakerIconMuted
+                        color: "red"
+                    }
+
+                    // We don't display the "speakerIcon" item, but the "speakerIconMaskApplied"
+                    // item the right part of which is +/- opacified depending on the volume
+                    Item {
+                        id: hidingRect
+                        anchors.fill: speakerIcon
+                        visible: false
+                        Rectangle {
+                            anchors.right: parent.right
+                            color: "green" //Could be any
+                            width: speakerIcon.width *0.40
+                            height: speakerIcon.height
+                            opacity: 1 - volumeSlider.value
+                        }
+                    }
+                    OpacityMask {
+                        id: speakerIconMaskApplied
+                        anchors.fill: speakerIcon
+                        source: speakerIcon
+                        maskSource: hidingRect
+                        invert: true
+                    }
+
+                    Popup {
+                        id: volumePopup
+                        y: speakerIconContainer.y + speakerIconContainer.height
+                        x: Math.round(speakerIconContainer.x + (speakerIconContainer.width / 2) - volumePopup.width/2 )
+
+                        parent: Overlay.overlay
+
+                        //modal: true  //if 'true', double click on the speaker icon will not be catched
+                        focus: true
+                        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+
+                        onOpened: volumeSliderTrigger.restart()
+                        onClosed: volumeSliderTrigger.stop()
+
+                        ColumnLayout{
+                            Slider {
+                                id: volumeSlider
+
+                                Layout.alignment: Qt.AlignCenter
+
+                                height: 100
+                                orientation: Qt.Vertical
+                                snapMode: Slider.SnapAlways
+                                wheelEnabled: true
+
+                                from: 0
+                                to: 1
+                                stepSize: 0.01
+                                value: radioController.volume
+
+                                onValueChanged: {
+                                    setVolume(value)
+                                    if (visible)
+                                        volumeSliderTrigger.restart()
+                                }
+
+                                Connections {
+                                    target: radioController
+                                    onVolumeChanged: {
+                                        volumeSlider.value = volume
+                                    }
+                                }
+
+                                Timer {
+                                    id: volumeSliderTrigger
+                                    interval: 3000
+                                    running: false
+                                    repeat: false
+                                    onTriggered: { volumePopup.close() }
+                                }
+
+                                function setVolume(value) {
+                                    if (volumeSlider.value != radioController.volume) {
+                                        if (value === 0) {
+                                            radioController.setVolume(value)
+                                            speakerIconMutedRed.visible = true
+                                            speakerIconMaskApplied.visible = false
+                                        } else {
+                                            radioController.setVolume(value)
+                                            speakerIconMutedRed.visible = false
+                                            speakerIconMaskApplied.visible = true
+                                        }
+                                    }
+                                }
+                            }
+
+                            TextRadioInfo {
+                                id: volumeLabel
+                                Layout.alignment: Qt.AlignCenter
+
+                                font.pixelSize: Units.em(0.8)
+                                text: Math.round(volumeSlider.value*100) + "%"
+
+                                Accessible.description: qsTr("Volume set to %1").arg(text)
+                            }
+                        }
+                    }
+                }
+            }
             ToolButton {
                 icon.name: "menu"
                 icon.width: Units.dp(20)
