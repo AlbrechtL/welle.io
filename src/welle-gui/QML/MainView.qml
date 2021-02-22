@@ -160,6 +160,67 @@ ApplicationWindow {
                 Layout.fillWidth: true
             }
 
+            Image {
+                id: startStopIcon
+                //anchors.top: parent.top
+                //anchors.right: speakerIcon.left
+                //anchors.rightMargin: Units.dp(5)
+                //anchors.verticalCenter: signalStrength.verticalCenter
+
+                height: Units.dp(15)
+                fillMode: Image.PreserveAspectFit
+
+                Accessible.role: Accessible.Button
+                Accessible.name: radioController.isPlaying ? qsTr("Stop") : qsTr("Play")
+                Accessible.description: radioController.isPlaying ? qsTr("Stop playback") : qsTr("Start playback")
+                Accessible.onPressAction: startStopIconMouseArea.clicked(mouse)
+
+                WToolTip {
+                    text: radioController.isPlaying ? qsTr("Stop") : qsTr("Play")
+                    visible: startStopIconMouseArea.containsMouse
+                }
+
+                Component.onCompleted: { startStopIcon.setStartPlayIcon() }
+
+                MouseArea {
+                    id: startStopIconMouseArea
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    onClicked: {
+                        if (radioController.isPlaying) {
+                            radioController.stop();
+                        } else {
+                            var channel = radioController.lastChannel[1]
+                            var sidHex = radioController.lastChannel[0]
+                            var sidDec = parseInt(sidHex,16);
+                            var stationName = stationList.getStationName(sidDec, channel)
+                            //console.debug("stationName: " + stationName + " channel: " + channel + " sidHex: "+ sidHex)
+                            if (!channel || !sidHex || !stationName) {
+                                infoMessagePopup.text = qsTr("Last played station not found.\nSelect a station to start playback.");
+                                infoMessagePopup.open();
+                            } else {
+                                radioController.play(channel, stationName, sidDec)
+                            }
+                        }
+                    }
+                }
+
+                Connections {
+                    target: radioController
+                    onIsPlayingChanged: {
+                        startStopIcon.setStartPlayIcon()
+                    }
+                }
+
+                function setStartPlayIcon() {
+                    if (radioController.isPlaying) {
+                        startStopIcon.source = "qrc:/icons/welle_io_icons/20x20/stop.png"
+                    } else {
+                        startStopIcon.source = "qrc:/icons/welle_io_icons/20x20/play.png"
+                    }
+                }
+            }
+
             ToolButton {
                 icon.name: "menu"
                 icon.width: Units.dp(20)
@@ -332,7 +393,7 @@ ApplicationWindow {
                 Layout.fillHeight: true
                 clip: true
                 delegate: StationDelegate {
-                    stationNameText: stationName
+                    stationNameText: stationName.trim()
                     stationSIdValue: stationSId
                     channelNameText: channelName == "File" ? qsTr("File") : channelName
                     isFavorit: favorit

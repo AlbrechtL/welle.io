@@ -51,6 +51,14 @@ ListModel {
         }
     }
 
+    function getStationName(sIdDec, channel) {
+        for(var i=0; i<count; i++) {
+            if(get(i).stationSId == sIdDec && get(i).channelName === channel) {
+                return get(i).stationName
+            }
+        }
+    }
+
     // Necessary workaround because the settings component doesn't saves models
     function serialize() {
         var tmp = []
