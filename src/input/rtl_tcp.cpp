@@ -133,6 +133,8 @@ void CRTL_TCP_Client::stop(void)
 
     agcRunning = false;
     rtlsdrRunning = false;
+    connected = false;
+    firstData = true;
 
     // Close connection
     sock.close();
