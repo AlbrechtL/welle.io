@@ -56,7 +56,7 @@ macx {
     LIBS    += -lmp3lame
     CONFIG  += airspy
     CONFIG  += rtl_sdr
-    #CONFIG  += soapysdr
+    CONFIG  += soapysdr
 }
 
 android {
