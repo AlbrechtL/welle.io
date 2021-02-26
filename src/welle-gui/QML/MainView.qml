@@ -190,21 +190,30 @@ ApplicationWindow {
                     hoverEnabled: true
                     onClicked: {
                         if (radioController.isPlaying) {
-                            radioController.stop();
+                            startStopIcon.stop()
                         } else {
-                            var channel = radioController.lastChannel[1]
-                            var sidHex = radioController.lastChannel[0]
-                            var sidDec = parseInt(sidHex,16);
-                            var stationName = stationList.getStationName(sidDec, channel)
-                            //console.debug("stationName: " + stationName + " channel: " + channel + " sidHex: "+ sidHex)
-                            if (!channel || !sidHex || !stationName) {
-                                infoMessagePopup.text = qsTr("Last played station not found.\nSelect a station to start playback.");
-                                infoMessagePopup.open();
-                            } else {
-                                radioController.play(channel, stationName, sidDec)
-                            }
+                            startStopIcon.play()
                         }
                     }
+                }
+
+                Shortcut {
+                    context: Qt.ApplicationShortcut
+                    autoRepeat: false
+                    sequences: ["Media Pause", "Toggle Media Play/Pause", "S"]
+                    onActivated: startStopIconMouseArea.clicked(0)
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut
+                    autoRepeat: false
+                    sequences: ["Media Stop"]
+                    onActivated: if (radioController.isPlaying) startStopIcon.stop()
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut
+                    autoRepeat: false
+                    sequences: ["Media Play"]
+                    onActivated: if (!radioController.isPlaying) startStopIcon.play()
                 }
 
                 Connections {
@@ -220,6 +229,16 @@ ApplicationWindow {
                     } else {
                         startStopIcon.source = "qrc:/icons/welle_io_icons/20x20/play.png"
                     }
+                }
+
+                function play() {
+                    var channel = radioController.lastChannel[1]
+                    var sidHex = radioController.lastChannel[0]
+                    stationList.play(channel, sidHex)
+                }
+
+                function stop() {
+                    radioController.stop();
                 }
             }
 
@@ -371,6 +390,36 @@ ApplicationWindow {
                                 text: Math.round(volumeSlider.value*100) + "%"
 
                                 Accessible.description: qsTr("Volume set to %1").arg(text)
+                            }
+
+                            Shortcut {
+                                context: Qt.ApplicationShortcut
+                                autoRepeat: true
+                                sequences: ["Ctrl+Up", "Volume Up"]
+                                onActivated: {
+                                    volumeSlider.visible = true
+                                    volumeSlider.value = volumeSlider.value + volumeSlider.stepSize
+                                }
+                            }
+
+                            Shortcut {
+                                context: Qt.ApplicationShortcut
+                                autoRepeat: true
+                                sequences: ["Ctrl+Down", "Volume Down"]
+                                onActivated: {
+                                    volumeSlider.visible = true
+                                    volumeSlider.value = volumeSlider.value - volumeSlider.stepSize
+                                }
+                            }
+
+                            Shortcut {
+                                context: Qt.ApplicationShortcut
+                                autoRepeat: false
+                                sequences: ["m", "Volume Mute"]
+                                onActivated: {
+                                    volumeSlider.visible = true
+                                    volumeSlider.value = !(volumeSlider.value)
+                                }
                             }
                         }
                     }
@@ -566,6 +615,109 @@ ApplicationWindow {
                 }
 
                 ScrollIndicator.vertical: ScrollIndicator { }
+
+                Shortcut {
+                    context: Qt.ApplicationShortcut
+                    autoRepeat: false
+                    sequences: ["n", "Media Next"]
+                    onActivated: {
+                        var channel = radioController.lastChannel[1]
+                        var sidHex = radioController.lastChannel[0]
+                        var index = stationChannelView.model.getIndexNext(parseInt(sidHex,16), channel)
+                        stationChannelView.model.playAtIndex(index)
+                    }
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut
+                    autoRepeat: false
+                    sequences: ["p", "Media Previous"]
+                    onActivated: {
+                        var channel = radioController.lastChannel[1]
+                        var sidHex = radioController.lastChannel[0]
+                        var index = stationChannelView.model.getIndexPrevious(parseInt(sidHex,16), channel)
+                        stationChannelView.model.playAtIndex(index)
+                    }
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut; autoRepeat: false; sequences: ["F1", "1"]
+                    onActivated: stationChannelView.model.playAtIndex(0)
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut; autoRepeat: false; sequences: ["F2", "2"]
+                    onActivated: stationChannelView.model.playAtIndex(1)
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut; autoRepeat: false; sequences: ["F3", "3"]
+                    onActivated: stationChannelView.model.playAtIndex(2)
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut; autoRepeat: false; sequences: ["F4", "4"]
+                    onActivated: stationChannelView.model.playAtIndex(3)
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut; autoRepeat: false; sequences: ["F5", "5"]
+                    onActivated: stationChannelView.model.playAtIndex(4)
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut; autoRepeat: false; sequences: ["F6", "6"]
+                    onActivated: stationChannelView.model.playAtIndex(5)
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut; autoRepeat: false; sequences: ["F7", "7"]
+                    onActivated: stationChannelView.model.playAtIndex(6)
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut; autoRepeat: false; sequences: ["F8", "8"]
+                    onActivated: stationChannelView.model.playAtIndex(7)
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut; autoRepeat: false; sequences: ["F9", "9"]
+                    onActivated: stationChannelView.model.playAtIndex(8)
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut; autoRepeat: false; sequences: ["F10", "0"]
+                    onActivated: stationChannelView.model.playAtIndex(9)
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut; autoRepeat: false; sequences: ["F11", "Ctrl+1"]
+                    onActivated: stationChannelView.model.playAtIndex(10)
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut; autoRepeat: false; sequences: ["F12", "Ctrl+2"]
+                    onActivated: stationChannelView.model.playAtIndex(11)
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut; autoRepeat: false; sequences: ["Ctrl+3"]
+                    onActivated: stationChannelView.model.playAtIndex(12)
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut; autoRepeat: false; sequences: ["Ctrl+4"]
+                    onActivated: stationChannelView.model.playAtIndex(13)
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut; autoRepeat: false; sequences: ["Ctrl+5"]
+                    onActivated: stationChannelView.model.playAtIndex(14)
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut; autoRepeat: false; sequences: ["Ctrl+6"]
+                    onActivated: stationChannelView.model.playAtIndex(15)
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut; autoRepeat: false; sequences: ["Ctrl+7"]
+                    onActivated: stationChannelView.model.playAtIndex(16)
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut; autoRepeat: false; sequences: ["Ctrl+8"]
+                    onActivated: stationChannelView.model.playAtIndex(17)
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut; autoRepeat: false; sequences: ["Ctrl+9"]
+                    onActivated: stationChannelView.model.playAtIndex(18)
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut; autoRepeat: false; sequences: ["Ctrl+0"]
+                    onActivated: stationChannelView.model.playAtIndex(19)
+                }
             }
 
             RowLayout {
@@ -829,6 +981,13 @@ ApplicationWindow {
     onVisibilityChanged: {
         if(visibility === Window.Minimized)
             guiHelper.tryHideWindow()
+    }
+
+    Shortcut {
+        context: Qt.ApplicationShortcut
+        autoRepeat: false
+        sequences: [StandardKey.Quit]
+        onActivated: guiHelper.close()
     }
 
     function updateTheme() {

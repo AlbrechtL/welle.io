@@ -25,6 +25,11 @@ ComboBox {
         highlighted: comboBox.highlightedIndex === index
     }
 
+    Keys.onShortcutOverride: {
+        if (event.key == Qt.Key_M || event.key == Qt.Key_S || event.key == Qt.Key_P || event.key == Qt.Key_N)
+            event.accepted = true
+    }
+
     TextMetrics {
         id: textMetrics
     }
