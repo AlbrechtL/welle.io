@@ -11,7 +11,8 @@ import "../components"
 Rectangle {
     id: root
     color: (Material.theme === Material.Dark || Universal.theme === Universal.Dark) ? "grey" : "white"
-    border.color: isExpert ? "lightgrey": "white"
+    //border.color: isExpert ? "lightgrey": "white"
+    border.color: "lightgrey"
 
     Layout.fillHeight: true
     Layout.fillWidth: true
