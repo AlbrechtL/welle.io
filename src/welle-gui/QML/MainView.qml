@@ -162,14 +162,15 @@ ApplicationWindow {
                 Layout.fillWidth: true
             }
 
+            ToolButton {
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
             Image {
                 id: startStopIcon
-                //anchors.top: parent.top
-                //anchors.right: speakerIcon.left
-                //anchors.rightMargin: Units.dp(5)
-                //anchors.verticalCenter: signalStrength.verticalCenter
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.verticalCenter: parent.verticalCenter
 
-                height: Units.dp(15)
+                height: parent.availableHeight - parent.padding
                 fillMode: Image.PreserveAspectFit
 
                 Accessible.role: Accessible.Button
@@ -241,18 +242,29 @@ ApplicationWindow {
                     radioController.stop();
                 }
             }
+            ColorOverlay {
+                id: startStopIconOverlay
+                anchors.fill: startStopIcon
+                source: startStopIcon
+                color: (mainWindow.Material.theme === Material.Dark ) ? "lightgrey" : (mainWindow.Universal.theme === Universal.Dark ) ? "lightgrey" : TextStyle.textColor
+            }
+            }
 
             ToolButton {
                 id: speakerIconContainer
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
 
                 contentItem: Item {
                     // Use 2 Images to switch between speaker & speaker_mute icon (instead of toggle button).
                     // Permits use of color with org.kde.desktop style
                     Image {
                         id: speakerIcon
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.verticalCenter: parent.verticalCenter
 
-                        height: speakerIconContainer.availableHeight
-                        width: speakerIconContainer.availableHeight
+                        height: speakerIconContainer.availableHeight - speakerIconContainer.padding
+                        fillMode: Image.PreserveAspectFit
 
                         visible: false
 
@@ -314,6 +326,13 @@ ApplicationWindow {
                         source: speakerIcon
                         maskSource: hidingRect
                         invert: true
+                        visible: false
+                    }
+                    ColorOverlay {
+                        id: speakerIconMaskAppliedOverlay
+                        anchors.fill: speakerIconMaskApplied
+                        source: speakerIconMaskApplied
+                        color: (mainWindow.Material.theme === Material.Dark ) ? "lightgrey" : (mainWindow.Universal.theme === Universal.Dark ) ? "lightgrey" : TextStyle.textColor
                     }
 
                     Popup {
@@ -372,17 +391,17 @@ ApplicationWindow {
                                         if (value === 0) {
                                             radioController.setVolume(value)
                                             speakerIconMutedRed.visible = true
-                                            speakerIconMaskApplied.visible = false
+                                            speakerIconMaskAppliedOverlay.visible = false
                                         } else {
                                             radioController.setVolume(value)
                                             speakerIconMutedRed.visible = false
-                                            speakerIconMaskApplied.visible = true
+                                            speakerIconMaskAppliedOverlay.visible = true
                                         }
                                     }
                                 }
                             }
 
-                            TextRadioInfo {
+                            TextStandart {
                                 id: volumeLabel
                                 Layout.alignment: Qt.AlignCenter
 
