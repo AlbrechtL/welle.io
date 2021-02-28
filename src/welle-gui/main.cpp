@@ -78,7 +78,7 @@ int main(int argc, char** argv)
     CGUIHelper::loadTranslationFile(translator, lang);
     QCoreApplication::installTranslator(translator);
 
-    // Register custiom types
+    // Register custom types
     qmlRegisterType<WaterfallItem>("io.welle", 1, 0, "Waterfall");
     qRegisterMetaType<mot_file_t>("mot_file_t");
 
