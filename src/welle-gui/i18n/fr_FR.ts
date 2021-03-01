@@ -36,8 +36,12 @@
     </message>
     <message>
         <location line="+1"/>
-        <source>Android RTL-SDR driver is not installed. Do you would like to install it? After install start welle.io again.</source>
+        <source>Android RTL-SDR driver is not installed. Would you like to install it? After install start welle.io again.</source>
         <translation>Le pilote RTL-SDR Android n&apos;est pas installé. Voulez-vous l&apos;installer ? Redémarrez welle.io après l&apos;installation.</translation>
+    </message>
+    <message>
+        <source>Android RTL-SDR driver is not installed. Do you would like to install it? After install start welle.io again.</source>
+        <translation type="vanished">Le pilote RTL-SDR Android n&apos;est pas installé. Voulez-vous l&apos;installer ? Redémarrez welle.io après l&apos;installation.</translation>
     </message>
 </context>
 <context>
@@ -1101,7 +1105,12 @@
         <translation>Langue</translation>
     </message>
     <message>
-        <location line="+152"/>
+        <location line="+134"/>
+        <source>Style changed. Please restart welle.io.</source>
+        <translation>Style changé. Veuillez redémarrer welle.io.</translation>
+    </message>
+    <message>
+        <location line="+18"/>
         <source>Light</source>
         <translation>Clair</translation>
     </message>
@@ -1161,12 +1170,11 @@
         <translation>Paramètres de style</translation>
     </message>
     <message>
-        <location line="+12"/>
         <source>Style changed. Please restart welle.io</source>
-        <translation>Style changé. Veuillez redémarrer welle.io</translation>
+        <translation type="vanished">Style changé. Veuillez redémarrer welle.io</translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="+17"/>
         <source>Style. Restart to apply.</source>
         <translation>Style. Redémarrez pour appliquer.</translation>
     </message>
@@ -1258,7 +1266,7 @@
         <translation>Afficher ou cacher la liste des stations</translation>
     </message>
     <message>
-        <location line="+41"/>
+        <location line="+42"/>
         <location line="+5"/>
         <source>Stop</source>
         <translation type="unfinished">Stop</translation>
@@ -1285,7 +1293,7 @@
         <translation type="unfinished">Démarrer la lecture</translation>
     </message>
     <message>
-        <location line="+91"/>
+        <location line="+102"/>
         <source>Volume (%1)</source>
         <translation type="unfinished">Volume (%1)</translation>
     </message>
@@ -1300,7 +1308,7 @@
         <translation type="unfinished">Afficher/cacher le curseur du volume</translation>
     </message>
     <message>
-        <location line="+124"/>
+        <location line="+131"/>
         <source>Volume set to %1</source>
         <translation type="unfinished">Volume fixé à %1</translation>
     </message>
@@ -1485,8 +1493,12 @@
     </message>
     <message>
         <location line="+9"/>
-        <source>Enable bias tee (not from all dongles supported)</source>
+        <source>Enable bias tee (not supported by all dongles)</source>
         <translation>Activer le té de polarisation (non pris en charge par tous les récepteurs)</translation>
+    </message>
+    <message>
+        <source>Enable bias tee (not from all dongles supported)</source>
+        <translation type="vanished">Activer le té de polarisation (non pris en charge par tous les récepteurs)</translation>
     </message>
 </context>
 <context>
@@ -1910,8 +1922,12 @@ Sélectionnez une station pour démarrer la lecture.</translation>
     </message>
     <message>
         <location line="+1"/>
+        <source>Style name</source>
+        <translation>Nom du style</translation>
+    </message>
+    <message>
         <source>style_name</source>
-        <translation>nom_du_style</translation>
+        <translation type="vanished">nom_du_style</translation>
     </message>
 </context>
 </TS>
