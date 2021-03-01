@@ -109,7 +109,7 @@ int main(int argc, char** argv)
 
     QCommandLineOption styleName("qqc-style",
         QCoreApplication::translate("main", "Qt Quick Controls Style for the 1st launch"),
-        QCoreApplication::translate("main", "style_name"));
+        QCoreApplication::translate("main", "Style name"));
     optionParser.addOption(styleName);
 
     //	Process the actual command line arguments given by the user
