@@ -362,7 +362,8 @@ void CSoapySdr::workerthread()
     std::vector<size_t> channels;
     channels.push_back(0);
     std::clog << " *************** Setup soapy stream" << std::endl;
-    auto stream = m_device->setupStream(SOAPY_SDR_RX, "CF32", channels);
+    auto args = SoapySDR::KwargsFromString(m_driver_args);
+    auto stream = m_device->setupStream(SOAPY_SDR_RX, "CF32", channels, args);
 
     m_device->activateStream(stream);
     try {
