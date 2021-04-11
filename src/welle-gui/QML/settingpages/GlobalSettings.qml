@@ -234,7 +234,7 @@ Item {
                     model: guiHelper.qQStyleComboModel
                     onActivated: {
                         guiHelper.saveQQStyle(currentIndex)
-                        infoMessagePopup.text = qsTr("Style changed. Please restart welle.io");
+                        infoMessagePopup.text = qsTr("Style changed. Please restart welle.io.");
                         infoMessagePopup.open();
                     }
                 }
