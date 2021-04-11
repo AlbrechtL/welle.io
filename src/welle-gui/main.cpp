@@ -63,6 +63,16 @@ int main(int argc, char** argv)
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 //    QCoreApplication::setAttribute(Qt::AA_UseSoftwareOpenGL);
 
+    // Disable a lot of new Qml warnings since Qt 5.15:
+    //
+    // Warning: qrc:/QML/settingpages/GlobalSettings.qml:37:5:
+    //   QML Connections: Implicitly defined onFoo properties in Connections are deprecated.
+    //   Use this syntax instead: function onFoo(<arguments>) { ... }
+    //
+    // Ref: https://zren.github.io/2020/06/19/qml-connections-onfoo-warnings-will-get-logging-category-in-qt-5151
+    //
+    qputenv("QT_LOGGING_RULES", "qt.qml.connections=false");
+    
     // Handle debug output
     CDebugOutput::init();
 
