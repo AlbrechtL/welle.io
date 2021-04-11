@@ -87,6 +87,7 @@ class CRadioController :
 
     Q_PROPERTY(QString channel MEMBER currentChannel NOTIFY channelChanged)
     Q_PROPERTY(QStringList lastChannel MEMBER currentLastChannel NOTIFY lastChannelChanged)
+    Q_PROPERTY(QString autoChannel MEMBER autoChannel NOTIFY autoChannelChanged)
     Q_PROPERTY(QString ensemble MEMBER currentEnsembleLabel NOTIFY ensembleChanged)
     Q_PROPERTY(int frequency MEMBER currentFrequency NOTIFY frequencyChanged)
     Q_PROPERTY(quint32 service MEMBER currentService NOTIFY stationChanged)
@@ -284,6 +285,7 @@ signals:
 
     void channelChanged();
     void lastChannelChanged();
+    void autoChannelChanged(QString autoChannel);
     void ensembleChanged();
     void frequencyChanged();
     void stationChanged();

@@ -52,7 +52,7 @@ if(BUILD_WELLE_IO)
     set(CMAKE_AUTOMOC ON)
     set(CMAKE_AUTORCC ON)
 
-    find_package(Qt5 COMPONENTS Widgets Quick QuickControls2 Multimedia Charts Qml REQUIRED)
+    find_package(Qt5 COMPONENTS Widgets Quick QuickControls2 Multimedia Charts Qml DBus REQUIRED)
 endif()
 
 if(PROFILING)
@@ -152,6 +152,9 @@ set(welle_io_sources
     src/welle-gui/mot_image_provider.cpp
     src/welle-gui/gui_helper.cpp
     src/welle-gui/radio_controller.cpp
+    src/welle-gui/mpris/mpris.cpp
+    src/welle-gui/mpris/mpris_mp2.cpp
+    src/welle-gui/mpris/mpris_mp2_player.cpp
     src/welle-gui/debug_output.cpp
     src/welle-gui/waterfallitem.cpp
 )
@@ -225,7 +228,7 @@ if(BUILD_WELLE_IO)
       ${SoapySDR_LIBRARIES}
       ${MPG123_LIBRARIES}
       Threads::Threads
-      Qt5::Core Qt5::Widgets Qt5::Multimedia Qt5::Charts Qt5::Qml Qt5::Quick Qt5::QuickControls2
+      Qt5::Core Qt5::Widgets Qt5::Multimedia Qt5::Charts Qt5::Qml Qt5::Quick Qt5::QuickControls2 Qt5::DBus
     )
 
     if(APPLE AND WITH_APP_BUNDLE)

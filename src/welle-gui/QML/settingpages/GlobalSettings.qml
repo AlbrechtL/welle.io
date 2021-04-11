@@ -55,6 +55,9 @@ Item {
             default: deviceBox.currentIndex = 0;
             }
         }
+        onSetFullScreen: {
+            enableFullScreen.checked = isFullScreen
+        }
     }
 
     ColumnLayout{
@@ -72,6 +75,8 @@ Item {
                 text: qsTr("Full screen mode")
                 Layout.fillWidth: true
                 checked: false
+                onCheckedChanged: guiHelper.setMprisFullScreenState(checked)
+                Component.onCompleted: guiHelper.setMprisFullScreenState(checked)
             }
 
             RowLayout {
