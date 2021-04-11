@@ -273,7 +273,7 @@ void CRadioController::stop()
     resetTechnicalData();
     currentTitle = title;
     emit titleChanged();
-    currentText = tr("Playback stopped");
+    currentText = tr("Stopped");
     emit textChanged();
 
     audio.stop();
@@ -411,6 +411,7 @@ void CRadioController::startScan(void)
         setChannel(Channel, true);
 
         isChannelScan = true;
+        emit isChannelScanChanged(isChannelScan);
         stationCount = 0;
         currentTitle = tr("Scanning") + " ... " + Channel
                 + " (" + QString::number((1 * 100 / NUMBEROFCHANNELS)) + "%)";
@@ -443,6 +444,7 @@ void CRadioController::stopScan(void)
     emit textChanged();
 
     isChannelScan = false;
+    emit isChannelScanChanged(isChannelScan);
     emit scanStopped();
 
     stop();

@@ -174,12 +174,12 @@ ApplicationWindow {
                 fillMode: Image.PreserveAspectFit
 
                 Accessible.role: Accessible.Button
-                Accessible.name: radioController.isPlaying ? qsTr("Stop") : qsTr("Play")
-                Accessible.description: radioController.isPlaying ? qsTr("Stop playback") : qsTr("Start playback")
+                Accessible.name: (radioController.isPlaying || radioController.isChannelScan) ? qsTr("Stop") : qsTr("Play")
+                Accessible.description: radioController.isPlaying ? qsTr("Stop playback") : radioController.isChannelScan ? qsTr("Stop scan") : qsTr("Start playback")
                 Accessible.onPressAction: startStopIconMouseArea.clicked(mouse)
 
                 WToolTip {
-                    text: radioController.isPlaying ? qsTr("Stop") : qsTr("Play")
+                    text: (radioController.isPlaying || radioController.isChannelScan) ? qsTr("Stop") : qsTr("Play")
                     visible: startStopIconMouseArea.containsMouse
                 }
 
@@ -190,7 +190,7 @@ ApplicationWindow {
                     anchors.fill: parent
                     hoverEnabled: true
                     onClicked: {
-                        if (radioController.isPlaying) {
+                        if (radioController.isPlaying || radioController.isChannelScan) {
                             startStopIcon.stop()
                         } else {
                             startStopIcon.play()
@@ -208,7 +208,7 @@ ApplicationWindow {
                     context: Qt.ApplicationShortcut
                     autoRepeat: false
                     sequences: ["Media Stop"]
-                    onActivated: if (radioController.isPlaying) startStopIcon.stop()
+                    onActivated: if (radioController.isPlaying || radioController.isChannelScan) startStopIcon.stop()
                 }
                 Shortcut {
                     context: Qt.ApplicationShortcut
@@ -222,10 +222,13 @@ ApplicationWindow {
                     onIsPlayingChanged: {
                         startStopIcon.setStartPlayIcon()
                     }
+                    onIsChannelScanChanged: {
+                        startStopIcon.setStartPlayIcon()
+                    }
                 }
 
                 function setStartPlayIcon() {
-                    if (radioController.isPlaying) {
+                    if (radioController.isPlaying || radioController.isChannelScan) {
                         startStopIcon.source = "qrc:/icons/welle_io_icons/20x20/stop.png"
                     } else {
                         startStopIcon.source = "qrc:/icons/welle_io_icons/20x20/play.png"
@@ -239,7 +242,10 @@ ApplicationWindow {
                 }
 
                 function stop() {
-                    radioController.stop();
+                    if (radioController.isPlaying)
+                        radioController.stop();
+                    else if (radioController.isChannelScan)
+                        radioController.stopScan()
                 }
             }
             ColorOverlay {
