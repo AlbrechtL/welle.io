@@ -36,37 +36,33 @@
     </message>
     <message>
         <location line="+1"/>
-        <source>Android RTL-SDR driver is not installed. Would you like to install it? After install start welle.io again.</source>
+        <source>Android RTL-SDR driver is not installed. Would you like to install it? After installation start welle.io again.</source>
         <translation>Le pilote RTL-SDR Android n&apos;est pas installé. Voulez-vous l&apos;installer ? Redémarrez welle.io après l&apos;installation.</translation>
-    </message>
-    <message>
-        <source>Android RTL-SDR driver is not installed. Do you would like to install it? After install start welle.io again.</source>
-        <translation type="vanished">Le pilote RTL-SDR Android n&apos;est pas installé. Voulez-vous l&apos;installer ? Redémarrez welle.io après l&apos;installation.</translation>
     </message>
 </context>
 <context>
     <name>CGUIHelper</name>
     <message>
         <location filename="../gui_helper.cpp" line="+66"/>
-        <location line="+632"/>
+        <location line="+633"/>
         <source>Mi&amp;nimize</source>
         <translation>Mi&amp;nimiser</translation>
     </message>
     <message>
-        <location line="-629"/>
-        <location line="+630"/>
+        <location line="-630"/>
+        <location line="+631"/>
         <source>Ma&amp;ximize</source>
         <translation>Ma&amp;ximiser</translation>
     </message>
     <message>
-        <location line="-627"/>
-        <location line="+628"/>
+        <location line="-628"/>
+        <location line="+629"/>
         <source>&amp;Restore</source>
         <translation>&amp;Restaurer</translation>
     </message>
     <message>
-        <location line="-625"/>
-        <location line="+626"/>
+        <location line="-626"/>
+        <location line="+627"/>
         <source>&amp;Quit</source>
         <translation>&amp;Quitter</translation>
     </message>
@@ -92,30 +88,14 @@
         <translation>Quitter</translation>
     </message>
     <message>
-        <source>version</source>
-        <translation type="vanished">version</translation>
-    </message>
-    <message>
         <location line="-126"/>
         <source>Git revision</source>
         <translation>Révision Git</translation>
     </message>
     <message>
-        <source>Build on</source>
-        <translation type="vanished">Compilé le</translation>
-    </message>
-    <message>
         <location line="+4"/>
         <source>QT version</source>
         <translation>Version QT</translation>
-    </message>
-    <message>
-        <source>The program will keep running in the system tray. To terminate the program, choose &quot;Quit&quot; in the context menu of the system tray entry.</source>
-        <translation type="vanished">Le programme continue de tourner dans la boite à miniatures. Pour le terminer, choisir &quot;Quitter&quot; dans le menu contextuel de la boîte à miniatures.</translation>
-    </message>
-    <message>
-        <source>The program will keep running in the system tray. To terminate the program, choose &lt;b&gt;Quit&lt;/b&gt; in the context menu of the system tray entry.</source>
-        <translation type="vanished">Le programme continue de tourner dans la boite à miniatures. Pour le terminer, choisir &quot;Quitter&quot; dans le menu contextuel de la boîte à miniatures.</translation>
     </message>
     <message>
         <location line="+638"/>
@@ -136,7 +116,7 @@
 <context>
     <name>CRadioController</name>
     <message>
-        <location filename="../radio_controller.cpp" line="+643"/>
+        <location filename="../radio_controller.cpp" line="+646"/>
         <source>Unknown</source>
         <translation>Inconnu</translation>
     </message>
@@ -147,13 +127,9 @@
         <translation>Pas de station</translation>
     </message>
     <message>
-        <location line="-510"/>
+        <location line="-513"/>
         <source>Error while opening file </source>
         <translation>Erreur à l&apos;ouverture du fichier </translation>
-    </message>
-    <message>
-        <source>Playback stopped</source>
-        <translation type="vanished">Lecture arrêtée</translation>
     </message>
     <message>
         <location line="+103"/>
@@ -166,11 +142,7 @@
         <translation>Arrêté</translation>
     </message>
     <message>
-        <source>File</source>
-        <translation type="vanished">Fichier</translation>
-    </message>
-    <message>
-        <location line="+126"/>
+        <location line="+129"/>
         <source>RAW File</source>
         <translation>Fichier RAW</translation>
     </message>
@@ -223,7 +195,7 @@
     <message>
         <location line="+113"/>
         <source>End of file, restarting</source>
-        <translatorcomment>doute sur la traduction de &quot;lecture en boucle&quot;</translatorcomment>
+        <translatorcomment>doute sur la traduction précédente de &quot;lecture en boucle&quot;</translatorcomment>
         <translation type="unfinished">Fin du fichier, recommence depuis le début</translation>
     </message>
     <message>
@@ -245,7 +217,7 @@
         <location line="+164"/>
         <location filename="../../input/rtl_tcp.cpp" line="+549"/>
         <source>ADC overload. Maybe you are using a too high gain.</source>
-        <translatorcomment>ADC ou AGC ? Saturation ou Surcharge ? Saturation semble préférable.</translatorcomment>
+        <translatorcomment>Saturation ou Surcharge ? Saturation semble préférable.</translatorcomment>
         <translation type="unfinished">Saturation ADC. Peut-être le gain est trop élevé.</translation>
     </message>
     <message>
@@ -1090,7 +1062,7 @@
 <context>
     <name>GlobalSettings</name>
     <message>
-        <location filename="../QML/settingpages/GlobalSettings.qml" line="+68"/>
+        <location filename="../QML/settingpages/GlobalSettings.qml" line="+71"/>
         <source>Global settings</source>
         <translation>Paramètres globaux</translation>
     </message>
@@ -1100,7 +1072,7 @@
         <translation>Mode plein écran</translation>
     </message>
     <message>
-        <location line="+31"/>
+        <location line="+33"/>
         <source>Language</source>
         <translation>Langue</translation>
     </message>
@@ -1170,10 +1142,6 @@
         <translation>Paramètres de style</translation>
     </message>
     <message>
-        <source>Style changed. Please restart welle.io</source>
-        <translation type="vanished">Style changé. Veuillez redémarrer welle.io</translation>
-    </message>
-    <message>
         <location line="+17"/>
         <source>Style. Restart to apply.</source>
         <translation>Style. Redémarrez pour appliquer.</translation>
@@ -1221,10 +1189,6 @@
         <translation>Réponse impulsionnelle</translation>
     </message>
     <message>
-        <source>Amplitude</source>
-        <translation type="vanished">Amplitude</translation>
-    </message>
-    <message>
         <location line="+11"/>
         <source>Samples</source>
         <translation>Echantillon</translation>
@@ -1256,7 +1220,7 @@
 <context>
     <name>MainView</name>
     <message>
-        <location filename="../QML/MainView.qml" line="+134"/>
+        <location filename="../QML/MainView.qml" line="+138"/>
         <source>Stations list</source>
         <translation>Liste des stations</translation>
     </message>
@@ -1269,48 +1233,48 @@
         <location line="+42"/>
         <location line="+5"/>
         <source>Stop</source>
-        <translation type="unfinished">Stop</translation>
+        <translation>Stop</translation>
     </message>
     <message>
         <location line="-5"/>
         <location line="+5"/>
         <source>Play</source>
-        <translation type="unfinished">Lecture</translation>
+        <translation>Lecture</translation>
     </message>
     <message>
         <location line="-4"/>
         <source>Stop playback</source>
-        <translation type="unfinished">Arrêter la lecture</translation>
+        <translation>Arrêter la lecture</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Stop scan</source>
-        <translation type="unfinished">Arrêter la recherche</translation>
+        <translation>Arrêter la recherche</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Start playback</source>
-        <translation type="unfinished">Démarrer la lecture</translation>
+        <translation>Démarrer la lecture</translation>
     </message>
     <message>
         <location line="+102"/>
         <source>Volume (%1)</source>
-        <translation type="unfinished">Volume (%1)</translation>
+        <translation>Volume (%1)</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Volume</source>
-        <translation type="unfinished">Volume</translation>
+        <translation>Volume</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Toggle volume slider</source>
-        <translation type="unfinished">Afficher/cacher le curseur du volume</translation>
+        <translation>Afficher/cacher le curseur du volume</translation>
     </message>
     <message>
         <location line="+131"/>
         <source>Volume set to %1</source>
-        <translation type="unfinished">Volume fixé à %1</translation>
+        <translation>Volume fixé à %1</translation>
     </message>
     <message>
         <location line="+41"/>
@@ -1353,7 +1317,7 @@
         <translation>Favoris</translation>
     </message>
     <message>
-        <location line="+28"/>
+        <location line="+31"/>
         <source>Stations menu</source>
         <translation>Menu des stations</translation>
     </message>
@@ -1466,10 +1430,6 @@
         <source>Save all images</source>
         <translation>Sauvegarder toutes les images</translation>
     </message>
-    <message>
-        <source>Latest</source>
-        <translation type="vanished">Le plus récent</translation>
-    </message>
 </context>
 <context>
     <name>NullSymbolGraph</name>
@@ -1478,10 +1438,6 @@
         <source>Null Symbol</source>
         <translatorcomment>Traduction de NULL selon : TERMIUM Plus®. Mais peut etre laisser tel quel car Null Symbol a un sens précis dans le signal DAB+</translatorcomment>
         <translation type="unfinished">Null Symbol</translation>
-    </message>
-    <message>
-        <source>Amplitude</source>
-        <translation type="vanished">Amplitude</translation>
     </message>
 </context>
 <context>
@@ -1495,10 +1451,6 @@
         <location line="+9"/>
         <source>Enable bias tee (not supported by all dongles)</source>
         <translation>Activer le té de polarisation (non pris en charge par tous les récepteurs)</translation>
-    </message>
-    <message>
-        <source>Enable bias tee (not from all dongles supported)</source>
-        <translation type="vanished">Activer le té de polarisation (non pris en charge par tous les récepteurs)</translation>
     </message>
 </context>
 <context>
@@ -1542,48 +1494,6 @@
         <location filename="../QML/RadioView.qml" line="+12"/>
         <source>Service Overview</source>
         <translation>Aperçu du service</translation>
-    </message>
-    <message>
-        <source>Volume</source>
-        <translation type="vanished">Volume</translation>
-    </message>
-    <message>
-        <source>Toggle volume slider</source>
-        <translation type="obsolete">Afficher/cacher le curseur du volume</translation>
-    </message>
-    <message>
-        <source>Volume set to %1</source>
-        <translation type="vanished">Volume fixé à %1</translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation type="vanished">Stop</translation>
-    </message>
-    <message>
-        <source>Play</source>
-        <translation type="vanished">Lecture</translation>
-    </message>
-    <message>
-        <source>Stop playback</source>
-        <translation type="vanished">Arrêter la lecture</translation>
-    </message>
-    <message>
-        <source>Start playback</source>
-        <translation type="vanished">Démarrer la lecture</translation>
-    </message>
-    <message>
-        <source>Stop scan</source>
-        <translation type="vanished">Arrêter la recherche</translation>
-    </message>
-    <message>
-        <source>Playback stopped</source>
-        <translation type="vanished">Lecture arrêtée</translation>
-    </message>
-    <message>
-        <source>Last played station not found.
-Select a station to start playback.</source>
-        <translation type="obsolete">Dernière station lue non trouvée.
-Sélectionnez une station pour démarrer la lecture.</translation>
     </message>
 </context>
 <context>
@@ -1709,12 +1619,12 @@ Sélectionnez une station pour démarrer la lecture.</translation>
     <message>
         <location line="+4"/>
         <source>Corrected Error</source>
-        <translation type="unfinished">Erreurs corrigées</translation>
+        <translation type="unfinished">Erreur corrigée</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Uncorrected Error</source>
-        <translation type="unfinished">Erreurs non corrigées</translation>
+        <translation type="unfinished">Erreur non corrigée</translation>
     </message>
     <message>
         <location line="+12"/>
@@ -1777,10 +1687,6 @@ Sélectionnez une station pour démarrer la lecture.</translation>
         <source>Spectrum</source>
         <translation>Spectre</translation>
     </message>
-    <message>
-        <source>Amplitude</source>
-        <translation type="vanished">Amplitude</translation>
-    </message>
 </context>
 <context>
     <name>StationDelegate</name>
@@ -1794,15 +1700,11 @@ Sélectionnez une station pour démarrer la lecture.</translation>
         <source>Add station to favorites</source>
         <translation>Ajouter la station aux favoris</translation>
     </message>
-    <message>
-        <source>stopped</source>
-        <translation type="vanished">arrêté</translation>
-    </message>
 </context>
 <context>
     <name>StationListModel</name>
     <message>
-        <location filename="../QML/components/StationListModel.qml" line="+95"/>
+        <location filename="../QML/components/StationListModel.qml" line="+96"/>
         <source>Last played station not found.
 Select a station to start playback.</source>
         <translation>Dernière station lue non trouvée.
@@ -1891,15 +1793,11 @@ Sélectionnez une station pour démarrer la lecture.</translation>
         <source>experimental</source>
         <translation>expérimental</translation>
     </message>
-    <message>
-        <source>Sensitivity</source>
-        <translation type="vanished">Sensibilité</translation>
-    </message>
 </context>
 <context>
     <name>main</name>
     <message>
-        <location filename="../main.cpp" line="+101"/>
+        <location filename="../main.cpp" line="+111"/>
         <source>Records DAB frames (*.mp2) or DAB+ superframes with RS coding (*.dab). This file can be used to analyse X-PAD data with XPADxpert</source>
         <translation>Enregistre les trames DAB (*.mp2) ou les supertrames DAB+ avec codage RS (*.dab). Ce fichier peut être utilisé pour analyser des données X-PAD avec XPADxpert</translation>
     </message>
@@ -1924,10 +1822,6 @@ Sélectionnez une station pour démarrer la lecture.</translation>
         <location line="+1"/>
         <source>Style name</source>
         <translation>Nom du style</translation>
-    </message>
-    <message>
-        <source>style_name</source>
-        <translation type="vanished">nom_du_style</translation>
     </message>
 </context>
 </TS>
