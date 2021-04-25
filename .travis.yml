@@ -170,6 +170,3 @@ jobs:
 #after_deploy:
   # Delete old builds on bintray. Keep only the last 20 builds
   #- python .bintray_delete_old_version.py albrechtl $BINTRAY_KEY /packages/albrechtl/welle.io/welle.io_nightly 20
-
-#after_sucess:
-#  - find . -type f -exec curl -u $FTP_USER:$FTP_PASS --ftp-create-dirs -T {} ftp://welle-io-nightlies.albrechtloh.de/{} \;
