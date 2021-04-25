@@ -113,6 +113,10 @@ jobs:
         - sudo flatpak --user install welle-repo io.welle.welle-gui
         - flatpak build-bundle wellerepo welle-io.flatpak io.welle.welle-gui
         - mv welle-io.flatpak "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.flatpak
+        
+        # Upload
+         - find . -name "*.AppImage" -exec curl -u $FTP_USER:$FTP_PASS --ftp-create-dirs -T {} ftp://welle-io-nightlies.albrechtloh.de/{} \;
+         - find . -name "*.flatpak" -exec curl -u $FTP_USER:$FTP_PASS --ftp-create-dirs -T {} ftp://welle-io-nightlies.albrechtloh.de/{} \;
 
     - os: osx
       osx_image: xcode11.3
@@ -146,6 +150,9 @@ jobs:
         - hdiutil create welle-io.dmg -ov -volname "Install welle.io" -fs HFS+ -srcfolder appdir
         - hdiutil convert welle-io.dmg -format UDZO -o "$DATE"_"$GIT_HASH"_MacOS_welle-io.dmg
         - rm welle-io.dmg
+       
+        # Upload
+        - - find . -name "*.dmg" -exec curl -u $FTP_USER:$FTP_PASS --ftp-create-dirs -T {} ftp://welle-io-nightlies.albrechtloh.de/{} \;
 
 #before_deploy:
 #  # Prepare bintray deploy
@@ -164,5 +171,5 @@ jobs:
   # Delete old builds on bintray. Keep only the last 20 builds
   #- python .bintray_delete_old_version.py albrechtl $BINTRAY_KEY /packages/albrechtl/welle.io/welle.io_nightly 20
 
-after_sucess:
-  - find . -type f -exec curl -u $FTP_USER:$FTP_PASS --ftp-create-dirs -T {} ftp://welle-io-nightlies.albrechtloh.de/{} \;
+#after_sucess:
+#  - find . -type f -exec curl -u $FTP_USER:$FTP_PASS --ftp-create-dirs -T {} ftp://welle-io-nightlies.albrechtloh.de/{} \;
