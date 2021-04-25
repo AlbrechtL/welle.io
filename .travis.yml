@@ -115,8 +115,8 @@ jobs:
         - mv welle-io.flatpak "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.flatpak
         
         # Upload
-        - find . -name "*.AppImage" -exec curl -u $FTP_USER:$FTP_PASS --ftp-create-dirs -T {} ftps://welle-io-nightlies.albrechtloh.de/{} \;
-        - find . -name "*.flatpak" -exec curl -u $FTP_USER:$FTP_PASS --ftp-create-dirs -T {} ftps://welle-io-nightlies.albrechtloh.de/{} \;
+        - find . -name "*.AppImage" -exec curl -u $FTP_USER:$FTP_PASS -k --ftp-ssl --ftp-create-dirs -T {} ftp://welle-io-nightlies.albrechtloh.de/{} \;
+        - find . -name "*.flatpak" -exec curl -u $FTP_USER:$FTP_PASS -k --ftp-ssl --ftp-create-dirs -T {} ftp://welle-io-nightlies.albrechtloh.de/{} \;
 
     - os: osx
       osx_image: xcode11.3
@@ -152,7 +152,7 @@ jobs:
         - rm welle-io.dmg
        
         # Upload
-        - find . -name "*.dmg" -exec curl -u $FTP_USER:$FTP_PASS --ftp-create-dirs -T {} ftps://welle-io-nightlies.albrechtloh.de/{} \;
+        - find . -name "*.dmg" -exec curl -u $FTP_USER:$FTP_PASS -k --ftp-ssl --ftp-create-dirs -T {} ftps://welle-io-nightlies.albrechtloh.de/{} \;
 
 #before_deploy:
 #  # Prepare bintray deploy
