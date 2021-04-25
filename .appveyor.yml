@@ -52,17 +52,23 @@ after_build:
   
 deploy:
   # Upload it to BinTray
-  - provider: BinTray
-    username: albrechtl
-    api_key:
-      secure: i7ksq/PodhXDzjw7trN/y00EA6U4tZ9m4EGOFDv736Nrvb6lpvG8jtXwTV4cPOtV
-    subject: albrechtl
-    repo: welle.io
-    package: welle.io_nightly
-    version: '%file_version%'
-    publish: true
-    override: true
-    explode: true
+  #- provider: BinTray
+  #  username: albrechtl
+  #  api_key:
+  #    secure: i7ksq/PodhXDzjw7trN/y00EA6U4tZ9m4EGOFDv736Nrvb6lpvG8jtXwTV4cPOtV
+  #  subject: albrechtl
+  #  repo: welle.io
+  #  package: welle.io_nightly
+  #  version: '%file_version%'
+  #  publish: true
+  #  override: true
+  #  explode: true
+  provider: FTP
+  protocol: ftps
+  host: welle-io-nightlies.albrechtloh.de
+  username: welle-ci
+  password:
+    secure: Hu/HfMhc0Uhq0WOFM49YTUqoBvbXx49fMg93bOPKVhI=
 
 after_deploy:
   # Backup: Upload it to transfer.sh
