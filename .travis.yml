@@ -57,7 +57,7 @@ jobs:
         - sudo apt-get update -qq
 
       install:
-        - sudo apt-get -y install gcc g++ sshpass openssh-client
+        - sudo apt-get -y install sshpass
         
         # For AppImage
         - sudo apt-get -y install libusb-1.0-0-dev pkg-config libmp3lame-dev libmpg123-dev qt515base qt515declarative qt515quickcontrols qt515quickcontrols2 qt515charts-no-lgpl qt515graphicaleffects qt515multimedia libpulse0 libfaad-dev libfftw3-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev libsoapysdr-dev
@@ -115,8 +115,9 @@ jobs:
         - mv welle-io.flatpak "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.flatpak
         
         # Upload
-        - find . -name "*.AppImage" -exec sshpass '${SFTP_PASSWORD}' scp '{}' ${SFTP_USER}@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/ ';'
-        - find . -name "*.flatpak" -exec sshpass '${SFTP_PASSWORD}' scp '{}' ${SFTP_USER}@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/ ';'
+        - sshpass '${SFTP_PASSWORD}' scp "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.AppImage ${SFTP_USER}@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/
+        - sshpass '${SFTP_PASSWORD}' scp "$DATE"_"$GIT_HASH"_Linux_welle-io-cli-x86_64.AppImage ${SFTP_USER}@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/
+        - sshpass '${SFTP_PASSWORD}' scp "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.flatpak ${SFTP_USER}@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/
 
     - os: osx
       osx_image: xcode11.3
@@ -126,7 +127,7 @@ jobs:
         - brew update
 
       install:
-        - brew install fftw faad2 lame mpg123 soapysdr soapyuhd
+        - brew install fftw faad2 lame mpg123 soapysdr soapyuhd sshpass
         - ln -s /usr/local/opt/qt/bin/qmake /usr/local/bin/qmake
         - export LIBRARY_PATH=/usr/local/lib
 
@@ -152,7 +153,7 @@ jobs:
         - rm welle-io.dmg
        
         # Upload
-        - find . -name "*.dmg" -exec sshpass '${SFTP_PASSWORD}' scp '{}' ${SFTP_USER}@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/ ';'
+        - sshpass '${SFTP_PASSWORD}' scp "$DATE"_"$GIT_HASH"_MacOS_welle-io.dmg ${SFTP_USER}@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/
 
 #before_deploy:
 #  # Prepare bintray deploy
