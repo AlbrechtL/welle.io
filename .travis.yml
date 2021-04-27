@@ -115,9 +115,9 @@ jobs:
         - mv welle-io.flatpak "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.flatpak
         
         # Upload
-        - sshpass '${SFTP_PASSWORD}' scp "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.AppImage ${SFTP_USER}@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/
-        - sshpass '${SFTP_PASSWORD}' scp "$DATE"_"$GIT_HASH"_Linux_welle-io-cli-x86_64.AppImage ${SFTP_USER}@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/
-        - sshpass '${SFTP_PASSWORD}' scp "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.flatpak ${SFTP_USER}@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/
+        - sshpass -p '${SFTP_PASSWORD}' scp "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.AppImage ${SFTP_USER}@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/
+        - sshpass -p '${SFTP_PASSWORD}' scp "$DATE"_"$GIT_HASH"_Linux_welle-io-cli-x86_64.AppImage ${SFTP_USER}@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/
+        - sshpass -p '${SFTP_PASSWORD}' scp "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.flatpak ${SFTP_USER}@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/
 
     - os: osx
       osx_image: xcode11.3
@@ -127,7 +127,7 @@ jobs:
         - brew update
 
       install:
-        - brew install fftw faad2 lame mpg123 soapysdr soapyuhd sshpass
+        - brew install fftw faad2 lame mpg123 soapysdr soapyuhd esolitos/ipa/sshpass
         - ln -s /usr/local/opt/qt/bin/qmake /usr/local/bin/qmake
         - export LIBRARY_PATH=/usr/local/lib
 
@@ -153,7 +153,7 @@ jobs:
         - rm welle-io.dmg
        
         # Upload
-        - sshpass '${SFTP_PASSWORD}' scp "$DATE"_"$GIT_HASH"_MacOS_welle-io.dmg ${SFTP_USER}@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/
+        - sshpass -p '${SFTP_PASSWORD}' scp "$DATE"_"$GIT_HASH"_MacOS_welle-io.dmg ${SFTP_USER}@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/
 
 #before_deploy:
 #  # Prepare bintray deploy
