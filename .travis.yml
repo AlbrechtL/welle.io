@@ -57,7 +57,7 @@ jobs:
         - sudo apt-get update -qq
 
       install:
-        - sudo apt-get -y install gcc g++ sshpass
+        - sudo apt-get -y install gcc g++ sshpass openssh-client
         
         # For AppImage
         - sudo apt-get -y install libusb-1.0-0-dev pkg-config libmp3lame-dev libmpg123-dev qt515base qt515declarative qt515quickcontrols qt515quickcontrols2 qt515charts-no-lgpl qt515graphicaleffects qt515multimedia libpulse0 libfaad-dev libfftw3-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev libsoapysdr-dev
