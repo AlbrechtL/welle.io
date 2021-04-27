@@ -57,7 +57,7 @@ jobs:
         - sudo apt-get update -qq
 
       install:
-        - sudo apt-get -y install gcc g++
+        - sudo apt-get -y install gcc g++ sshpass
         
         # For AppImage
         - sudo apt-get -y install libusb-1.0-0-dev pkg-config libmp3lame-dev libmpg123-dev qt515base qt515declarative qt515quickcontrols qt515quickcontrols2 qt515charts-no-lgpl qt515graphicaleffects qt515multimedia libpulse0 libfaad-dev libfftw3-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev libsoapysdr-dev
@@ -115,8 +115,8 @@ jobs:
         - mv welle-io.flatpak "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.flatpak
         
         # Upload
-        - find . -name "*.AppImage" -exec curl -v -T {} sftp://${SFTP_USER}:${SFTP_PASSWORD}@welle-io-nightlies.albrechtloh.de/welle-io-nightlies.albrechtloh.de/{} \;
-        - find . -name "*.flatpak" -exec curl -v -T {} sftp://${SFTP_USER}:${SFTP_PASSWORD}@welle-io-nightlies.albrechtloh.de/welle-io-nightlies.albrechtloh.de/{} \;
+        - find . -name "*.AppImage" -exec sshpass '${SFTP_PASSWORD}' scp '{}' ${SFTP_USER}@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/ ';'
+        - find . -name "*.flatpak" -exec sshpass '${SFTP_PASSWORD}' scp '{}' ${SFTP_USER}@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/ ';'
 
     - os: osx
       osx_image: xcode11.3
@@ -152,7 +152,7 @@ jobs:
         - rm welle-io.dmg
        
         # Upload
-        - find . -name "*.dmg" -exec curl -v -T {} sftp://${SFTP_USER}:${SFTP_PASSWORD}@welle-io-nightlies.albrechtloh.de/welle-io-nightlies.albrechtloh.de/{} \;
+        - find . -name "*.dmg" -exec sshpass '${SFTP_PASSWORD}' scp '{}' ${SFTP_USER}@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/ ';'
 
 #before_deploy:
 #  # Prepare bintray deploy
