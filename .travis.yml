@@ -115,9 +115,9 @@ jobs:
         - mv welle-io.flatpak "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.flatpak
         
         # Upload
-        - sshpass -p '${SFTP_PASSWORD}' scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.AppImage ${SFTP_USER}@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/
-        - sshpass -p '${SFTP_PASSWORD}' scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$DATE"_"$GIT_HASH"_Linux_welle-io-cli-x86_64.AppImage ${SFTP_USER}@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/
-        - sshpass -p '${SFTP_PASSWORD}' scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.flatpak ${SFTP_USER}@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/
+        - sshpass -p ${SFTP_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.AppImage ${SFTP_USER}@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/
+        - sshpass -p ${SFTP_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$DATE"_"$GIT_HASH"_Linux_welle-io-cli-x86_64.AppImage ${SFTP_USER}@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/
+        - sshpass -p ${SFTP_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.flatpak ${SFTP_USER}@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/
 
     - os: osx
       osx_image: xcode11.3
@@ -153,7 +153,7 @@ jobs:
         - rm welle-io.dmg
        
         # Upload
-        - sshpass -p '${SFTP_PASSWORD}' scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$DATE"_"$GIT_HASH"_MacOS_welle-io.dmg ${SFTP_USER}@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/
+        - sshpass -p ${SFTP_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$DATE"_"$GIT_HASH"_MacOS_welle-io.dmg ${SFTP_USER}@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/
 
 #before_deploy:
 #  # Prepare bintray deploy
