@@ -80,7 +80,7 @@ If you discovered an issue please open a new [issue](https://github.com/Albrecht
 
 ##### Developer version
 welle.io is under heavy development. You can also try the latest developer builds. But PLEASE BE WARNED the builds are automatically created and untested.
- * [welle.io nightly builds for *Windows* & *Linux AppImage*](https://bintray.com/albrechtl/welle.io/welle.io_nightly#files)
+ * [welle.io nightly builds for *Windows*, *Linux AppImage* & *macOS*](https://welle-io-nightlies.albrechtloh.de/)
  * welle.io devel builds on *macOS MacPorts* are updated perdiodically manually and can be installed through [port welle.io-devel](https://ports.macports.org/port/welle.io-devel/summary). The port has no maintainer so please feel free to update it yourself in case you need to use a more recent devel version.
    * `sudo port install welle.io-devel`
 
