@@ -82,6 +82,7 @@ CRTL_TCP_Client::CRTL_TCP_Client(RadioControllerInterface& radioController) :
 
 CRTL_TCP_Client::~CRTL_TCP_Client(void)
 {
+    std::clog << "RTL_TCP_CLIENT: deleting ..." << std::endl;
     stop();
 }
 
