@@ -334,6 +334,8 @@ void CRadioController::setChannel(QString Channel, bool isScan, bool Force)
             currentFrequency = 0;
         }
         else { // A real device
+            if(radioReceiver)
+                radioReceiver->stop(); // Stop the demodulator in order to avoid working with old data
             currentChannel = Channel;
             if (!isScan)
                 autoChannel = currentChannel;
