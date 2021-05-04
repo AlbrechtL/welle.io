@@ -153,7 +153,6 @@ void CRTL_TCP_Client::stop(void)
     }
 
     connected = false;
-    firstData = true;
 }
 
 static int32_t read_convert_from_buffer(
@@ -439,6 +438,8 @@ void CRTL_TCP_Client::receiveAndReconnect()
                     agcRunning = true;
                     agcThread = std::thread(&CRTL_TCP_Client::agcTimer, this);
                 }
+                firstData = true;
+                reset(); // Clear buffers
             }
             else {
                 std::clog << "RTL_TCP_CLIENT: Could not connect to server" <<
