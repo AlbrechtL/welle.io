@@ -325,7 +325,7 @@ ApplicationWindow {
                         Rectangle {
                             anchors.right: parent.right
                             color: "green" //Could be any
-                            width: speakerIcon.width *0.40
+                            width: speakerIcon.width *0.30
                             height: speakerIcon.height
                             opacity: 1 - volumeSlider.value
                         }
