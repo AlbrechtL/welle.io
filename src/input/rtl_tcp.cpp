@@ -132,13 +132,11 @@ void CRTL_TCP_Client::stop(void)
 
     std::unique_lock<std::mutex> lock(mutex);
 
-    agcRunning = false;
-    rtlsdrRunning = false;
-    connected = false;
-    firstData = true;
-
     // Close connection
     sock.close();
+
+    agcRunning = false;
+    rtlsdrRunning = false;
 
     lock.unlock();
 
@@ -153,6 +151,9 @@ void CRTL_TCP_Client::stop(void)
     if (networkBufferThread.joinable()) {
         networkBufferThread.join();
     }
+
+    connected = false;
+    firstData = true;
 }
 
 static int32_t read_convert_from_buffer(
