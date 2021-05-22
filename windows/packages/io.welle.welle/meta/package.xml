@@ -2,8 +2,8 @@
 <Package>
     <DisplayName>welle.io</DisplayName>
     <Description>welle.io</Description>
-    <Version>2.0</Version>
-    <ReleaseDate>2018-09-07</ReleaseDate>
+    <Version>2.3</Version>
+    <ReleaseDate>2021-05-22</ReleaseDate>
     <Licenses>
         <License name="GNU GENERAL PUBLIC LICENSE" file="COPYING" />
     </Licenses>
