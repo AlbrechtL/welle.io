@@ -656,9 +656,11 @@ bool CGUIHelper::loadTranslationFile(QTranslator *translator, QString Language)
 {
     bool isLoaded = translator->load(QString(":/i18n/") + Language);
 
-    if(!isLoaded)
+    // Don't warn if language is already English
+    if(!isLoaded && !Language.startsWith("en_"))
     {
-        qDebug() << "main:" <<  "Error while loading language" << Language << "use untranslated text (ie. English)";
+        qDebug() << "main:" <<  "Error while loading language" << Language
+                 << "; using untranslated text (ie. English)";
     }
 
     return isLoaded;
