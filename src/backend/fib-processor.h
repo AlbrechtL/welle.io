@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2018
+ *    Copyright (C) 2020
  *    Matthias P. Braendli (matthias.braendli@mpb.li)
  *
  *    Copyright (C) 2013
@@ -52,6 +52,7 @@ class FIBProcessor {
         Service getService(uint32_t sId) const;
         std::list<ServiceComponent> getComponents(const Service& s) const;
         Subchannel getSubchannel(const ServiceComponent& sc) const;
+        std::chrono::system_clock::time_point getTimeLastFCT0Frame() const;
 
     private:
         RadioControllerInterface& myRadioInterface;
@@ -130,6 +131,7 @@ class FIBProcessor {
         std::vector<Service> services;
         std::unordered_map<uint32_t, uint8_t> serviceRepeatCount;
         std::chrono::steady_clock::time_point timeLastServiceDecrement;
+        std::chrono::system_clock::time_point timeLastFCT0Frame;
 };
 
 #endif

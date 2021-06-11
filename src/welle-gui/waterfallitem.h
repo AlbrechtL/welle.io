@@ -29,13 +29,11 @@ class WaterfallItem : public QQuickPaintedItem
 {
     Q_OBJECT
     Q_PROPERTY(bool isStarted READ isStarted NOTIFY isStartedChanged)
-    Q_PROPERTY(float sensitivity READ sensitivity WRITE setSensitivity NOTIFY sensitivityChanged)
     Q_PROPERTY(float minValue READ minValue WRITE setMinValue NOTIFY minMinValueChanged)
 
     QImage _image;
     QList<QRgb> _colors;
     bool _samplesUpdated;
-    float _sensitivity;
     float _minValue;
     QLineSeries dataSeries;
     QString messageToPlot;
@@ -44,7 +42,6 @@ public:
     explicit WaterfallItem(QQuickItem *parent = 0);
     void paint(QPainter *painter);
     bool isStarted() const;
-    float sensitivity() const;
     void setSensitivity(float value);
     float minValue() const;
     void setMinValue(float value);

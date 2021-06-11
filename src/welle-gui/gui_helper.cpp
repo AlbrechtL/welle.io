@@ -94,6 +94,7 @@ CGUIHelper::CGUIHelper(CRadioController *RadioController, QObject *parent)
 
 #endif
 
+    mpris = new Mpris(radioController, this);
     CDebugOutput::setCGUI(this);
 }
 
@@ -525,9 +526,9 @@ void CGUIHelper::updateConstellation()
     */
 }
 
-void CGUIHelper::saveMotImages()
+void CGUIHelper::saveMotImages(QString folder)
 {
-    motImageProvider->saveAll();
+    motImageProvider->saveAll(folder);
 }
 
 void CGUIHelper::openAutoDevice()
@@ -896,4 +897,14 @@ QVariant StyleModel::data(const QModelIndex & index, int role) const
     else if (role == StyleRole)
         return style.style();
     return QVariant();
+}
+
+void CGUIHelper::updateMprisStationList(QString serializedJson, QString listType, int index)
+{
+    mpris->setStationArray(serializedJson, listType, index);
+}
+
+void CGUIHelper::setMprisFullScreenState(bool isFullscreen)
+{
+    mpris->setFullscreenState(isFullscreen);
 }

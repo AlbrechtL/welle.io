@@ -1,0 +1,57 @@
+{
+    "app-id": "io.welle.welle-gui",
+    "runtime": "org.kde.Platform",
+    "runtime-version": "5.15",
+    "sdk": "org.kde.Sdk",
+    "command": "welle-io",
+    "finish-args": [
+        "--share=network",
+        "--filesystem=host",
+        "--socket=pulseaudio",
+        "--socket=wayland",
+        "--socket=x11",
+        "--device=dri"
+    ],
+    "modules": [
+        {
+		"name": "fftw",
+		"buildsystem": "autotools",
+		"config-opts": ["--enable-float","--enable-sse"],
+		"sources": [ {"type": "archive", "url": "http://fftw.org/fftw-3.3.9.tar.gz", "md5":"50145bb68a8510b5d77605f11cadf8dc" } ]
+        },
+        {
+		"name": "libfaad",
+		"buildsystem": "autotools",
+		"sources": [ {"type": "git", "url": "https://salsa.debian.org/multimedia-team/faad2.git" } ]
+        },
+	{
+		"name": "libusb",
+		"buildsystem": "autotools",
+		"sources": [ {"type": "git", "url": "https://github.com/libusb/libusb.git" } ]
+	},
+	{
+		"name": "librtlsdr",
+		"buildsystem": "cmake",
+		"sources": [ {"type": "git", "url": "git://git.osmocom.org/rtl-sdr.git" } ]
+	},
+	{
+		"name": "libairspy",
+		"buildsystem": "cmake",
+		"sources": [ {"type": "git", "url": "https://github.com/airspy/airspyone_host.git" } ]
+	},
+	{
+		"name": "SoapySDR",
+		"buildsystem": "cmake",
+		"config-opts": ["-DCMAKE_BUILD_TYPE=Release"],
+		"sources": [ {"type": "git", "url": "https://github.com/pothosware/SoapySDR.git" } ]
+        },
+        {
+		"name": "welle.io",
+		"buildsystem": "qmake",
+		"build-commands" : ["cp src/welle-gui/welle-io /app/bin"],
+		"config-opts": [ "LIBS+=-L/app/lib"],
+		"sources": [ {"type": "dir", "path": "."} ]
+        }
+    ]
+}
+

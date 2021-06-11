@@ -1,11 +1,11 @@
 TEMPLATE = subdirs
 SUBDIRS = src/welle-gui
 
-!android: {
-SUBDIRS += \
-    src/welle-cli \
-    src/tests
-}
+#!android: {
+#SUBDIRS += \
+#    src/welle-cli \
+#    src/tests
+#}
 
 DISTFILES += $$PWD/README.md
 

@@ -51,6 +51,7 @@
 #include "mot_image_provider.h"
 #include "dab-constants.h"
 #include "radio_controller.h"
+#include "mpris/mpris.h"
 
 #ifdef __ANDROID__
     class FileActivityResultReceiver;
@@ -144,7 +145,7 @@ public:
     Q_INVOKABLE void updateImpulseResponse();
     Q_INVOKABLE void updateNullSymbol();
     Q_INVOKABLE void updateConstellation();
-    Q_INVOKABLE void saveMotImages();
+    Q_INVOKABLE void saveMotImages(QString folder);
 
     Q_INVOKABLE void openAutoDevice();
     Q_INVOKABLE void openNull();
@@ -171,6 +172,8 @@ public:
     Q_INVOKABLE int getIndexOfQQStyle(QString);
     Q_INVOKABLE bool isThemableStyle(QString);
     Q_INVOKABLE void saveQQStyle(int);
+    Q_INVOKABLE void updateMprisStationList(QString, QString, int);
+    Q_INVOKABLE void setMprisFullScreenState(bool isFullscreen);
 
     CMOTImageProvider* motImageProvider; // ToDo: Must be a getter
 
@@ -199,6 +202,8 @@ private:
     QStringList m_comboList;
     StyleModel *m_styleModel = nullptr;
     bool settingsStyleInAvailableStyles = false;
+
+    Mpris *mpris;
 
 #ifndef QT_NO_SYSTEMTRAYICON
     QAction *minimizeAction;
@@ -236,11 +241,16 @@ signals:
     void newDeviceId(int deviceId);
     void styleChanged(void);
     void translationFinished(void);
+    void setFullScreen(bool isFullScreen);
 
 #ifndef QT_NO_SYSTEMTRAYICON
     void minimizeWindow(void);
     void maximizeWindow(void);
     void restoreWindow(void);
+#else
+    #ifndef QT_NO_DBUS
+    void restoreWindow(void);
+    #endif
 #endif
 };
 

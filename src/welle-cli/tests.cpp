@@ -132,7 +132,7 @@ class TestRadioInterface : public RadioControllerInterface {
             }
         }
 
-        virtual void onSNR(int snr) override { (void)snr; }
+        virtual void onSNR(float snr) override { (void)snr; }
         virtual void onFrequencyCorrectorChange(int fine, int coarse) override { (void)fine; (void)coarse; }
         virtual void onSyncChange(char isSync) override
         {

@@ -1,42 +1,27 @@
-﻿/****************************************************************************
-**
-** Copyright (C) 2015 The Qt Company Ltd.
-** Contact: http://www.qt.io/licensing/
-**
-** This file is part of the examples of the Qt Toolkit.
-**
-** $QT_BEGIN_LICENSE:BSD$
-** You may use this file under the terms of the BSD license as follows:
-**
-** "Redistribution and use in source and binary forms, with or without
-** modification, are permitted provided that the following conditions are
-** met:
-**   * Redistributions of source code must retain the above copyright
-**     notice, this list of conditions and the following disclaimer.
-**   * Redistributions in binary form must reproduce the above copyright
-**     notice, this list of conditions and the following disclaimer in
-**     the documentation and/or other materials provided with the
-**     distribution.
-**   * Neither the name of The Qt Company Ltd nor the names of its
-**     contributors may be used to endorse or promote products derived
-**     from this software without specific prior written permission.
-**
-**
-** THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-** "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-** LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-** A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-** OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-** SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-** LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-** DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-** THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-** (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
-**
-** $QT_END_LICENSE$
-**
-****************************************************************************/
+/*
+ *    Copyright (C) 2017 - 2021
+ *    Albrecht Lohofener (albrechtloh@gmx.de)
+ *
+ *    This file is part of the welle.io.
+ *    Many of the ideas as implemented in welle.io are derived from
+ *    other work, made available through the GNU general Public License.
+ *    All copyrights of the original authors are recognized.
+ *
+ *    welle.io is free software; you can redistribute it and/or modify
+ *    it under the terms of the GNU General Public License as published by
+ *    the Free Software Foundation; either version 2 of the License, or
+ *    (at your option) any later version.
+ *
+ *    welle.io is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU General Public License for more details.
+ *
+ *    You should have received a copy of the GNU General Public License
+ *    along with welle.io; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
 
 import QtQuick 2.9
 import QtQuick.Layouts 1.3
@@ -44,6 +29,7 @@ import QtQuick.Controls 2.3
 import QtQuick.Controls.Material 2.1
 import QtQuick.Controls.Universal 2.1
 import QtQuick.Window 2.2
+import QtGraphicalEffects 1.0
 import Qt.labs.settings 1.0
 
 import "texts"
@@ -58,8 +44,8 @@ ApplicationWindow {
     property bool isLoaded: false
     property bool isStationNameInWindowTitle: false
 
-    StationListModel { id: stationList }
-    StationListModel { id: favoritsList }
+    StationListModel { id: stationList ; type: "all"}
+    StationListModel { id: favoritsList ; type: "favorites"}
 
     readonly property bool inPortrait: mainWindow.width < mainWindow.height
 
@@ -108,6 +94,10 @@ ApplicationWindow {
 
         updateTheme()
 
+        guiHelper.updateMprisStationList(stationChannelView.model.serialized,
+                                         stationChannelView.model.type,
+                                         stationListBox.currentIndex)
+
         isLoaded = true
     }
 
@@ -117,13 +107,14 @@ ApplicationWindow {
         property alias stationListSerialize: stationList.serialized
         property alias favoritsListSerialize: favoritsList.serialized
         property alias stationListBoxIndex: stationListBox.currentIndex
+        property alias volume: volumeSlider.value
     }
 
     header: ToolBar {
         id: overlayHeader
 
         RowLayout {
-            spacing: 20
+            spacing: 5
             anchors.fill: parent
 
             ToolButton {
@@ -160,6 +151,294 @@ ApplicationWindow {
                 Layout.fillWidth: true
             }
 
+            ToolButton {
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+            Image {
+                id: startStopIcon
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.verticalCenter: parent.verticalCenter
+
+                height: parent.availableHeight - parent.padding
+                fillMode: Image.PreserveAspectFit
+
+                Accessible.role: Accessible.Button
+                Accessible.name: (radioController.isPlaying || radioController.isChannelScan) ? qsTr("Stop") : qsTr("Play")
+                Accessible.description: radioController.isPlaying ? qsTr("Stop playback") : radioController.isChannelScan ? qsTr("Stop scan") : qsTr("Start playback")
+                Accessible.onPressAction: startStopIconMouseArea.clicked(mouse)
+
+                WToolTip {
+                    text: (radioController.isPlaying || radioController.isChannelScan) ? qsTr("Stop") : qsTr("Play")
+                    visible: startStopIconMouseArea.containsMouse
+                }
+
+                Component.onCompleted: { startStopIcon.setStartPlayIcon() }
+
+                MouseArea {
+                    id: startStopIconMouseArea
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    onClicked: {
+                        if (radioController.isPlaying || radioController.isChannelScan) {
+                            startStopIcon.stop()
+                        } else {
+                            startStopIcon.play()
+                        }
+                    }
+                }
+
+                Shortcut {
+                    context: Qt.ApplicationShortcut
+                    autoRepeat: false
+                    sequences: ["Media Pause", "Toggle Media Play/Pause", "S"]
+                    onActivated: startStopIconMouseArea.clicked(0)
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut
+                    autoRepeat: false
+                    sequences: ["Media Stop"]
+                    onActivated: if (radioController.isPlaying || radioController.isChannelScan) startStopIcon.stop()
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut
+                    autoRepeat: false
+                    sequences: ["Media Play"]
+                    onActivated: if (!radioController.isPlaying) startStopIcon.play()
+                }
+
+                Connections {
+                    target: radioController
+                    onIsPlayingChanged: {
+                        startStopIcon.setStartPlayIcon()
+                    }
+                    onIsChannelScanChanged: {
+                        startStopIcon.setStartPlayIcon()
+                    }
+                }
+
+                function setStartPlayIcon() {
+                    if (radioController.isPlaying || radioController.isChannelScan) {
+                        startStopIcon.source = "qrc:/icons/welle_io_icons/20x20/stop.png"
+                    } else {
+                        startStopIcon.source = "qrc:/icons/welle_io_icons/20x20/play.png"
+                    }
+                }
+
+                function play() {
+                    var channel = radioController.lastChannel[1]
+                    var sidHex = radioController.lastChannel[0]
+                    stationList.play(channel, sidHex)
+                }
+
+                function stop() {
+                    if (radioController.isPlaying)
+                        radioController.stop();
+                    else if (radioController.isChannelScan)
+                        radioController.stopScan()
+                }
+            }
+            ColorOverlay {
+                id: startStopIconOverlay
+                anchors.fill: startStopIcon
+                source: startStopIcon
+                color: (mainWindow.Material.theme === Material.Dark ) ? "lightgrey" : (mainWindow.Universal.theme === Universal.Dark ) ? "lightgrey" : TextStyle.textColor
+            }
+            }
+
+            ToolButton {
+                id: speakerIconContainer
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+
+                contentItem: Item {
+                    // Use 2 Images to switch between speaker & speaker_mute icon (instead of toggle button).
+                    // Permits use of color with org.kde.desktop style
+                    Image {
+                        id: speakerIcon
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        height: speakerIconContainer.availableHeight - speakerIconContainer.padding
+                        fillMode: Image.PreserveAspectFit
+
+                        visible: false
+
+                        source: "qrc:/icons/welle_io_icons/20x20@2/speaker.png"
+
+                        WToolTip {
+                            text: qsTr("Volume (%1)").arg(volumeLabel.text)
+                            visible: speakerIconMouseArea.containsMouse
+                        }
+
+                        Accessible.role: Accessible.Button
+                        Accessible.name: qsTr("Volume")
+                        Accessible.description: qsTr("Toggle volume slider")
+                        Accessible.onPressAction: speakerIconMouseArea.clicked(mouse)
+                    }
+                    MouseArea {
+                        id: speakerIconMouseArea
+                        anchors.fill: speakerIcon
+                        hoverEnabled: true
+                        onClicked: volumePopup.open()
+                        onDoubleClicked: (radioController.volume != 0) ? volumeSlider.value = 0 : volumeSlider.value = 1
+                        onWheel: (wheel.angleDelta.y > 0) ? volumeSlider.value = volumeSlider.value + 0.1 :  volumeSlider.value = volumeSlider.value - 0.1
+                    }
+                    Image {
+                        id: speakerIconMuted
+                        anchors.top: speakerIcon.top
+                        anchors.left: speakerIcon.left
+                        width: speakerIcon.width
+                        height: speakerIcon.height
+                        visible: false
+
+                        source: "qrc:/icons/welle_io_icons/20x20@2/speaker_mute.png"
+                    }
+                    ColorOverlay {
+                        id: speakerIconMutedRed
+                        visible: false
+                        anchors.fill: speakerIconMuted
+                        source: speakerIconMuted
+                        color: "red"
+                    }
+
+                    // We don't display the "speakerIcon" item, but the "speakerIconMaskApplied"
+                    // item the right part of which is +/- opacified depending on the volume
+                    Item {
+                        id: hidingRect
+                        anchors.fill: speakerIcon
+                        visible: false
+                        Rectangle {
+                            anchors.right: parent.right
+                            color: "green" //Could be any
+                            width: speakerIcon.width *0.30
+                            height: speakerIcon.height
+                            opacity: 1 - volumeSlider.value
+                        }
+                    }
+                    OpacityMask {
+                        id: speakerIconMaskApplied
+                        anchors.fill: speakerIcon
+                        source: speakerIcon
+                        maskSource: hidingRect
+                        invert: true
+                        visible: false
+                    }
+                    ColorOverlay {
+                        id: speakerIconMaskAppliedOverlay
+                        anchors.fill: speakerIconMaskApplied
+                        source: speakerIconMaskApplied
+                        color: (mainWindow.Material.theme === Material.Dark ) ? "lightgrey" : (mainWindow.Universal.theme === Universal.Dark ) ? "lightgrey" : TextStyle.textColor
+                    }
+
+                    Popup {
+                        id: volumePopup
+                        y: speakerIconContainer.y + speakerIconContainer.height
+                        x: Math.round(speakerIconContainer.x + (speakerIconContainer.width / 2) - volumePopup.width/2 )
+
+                        parent: Overlay.overlay
+
+                        //modal: true  //if 'true', double click on the speaker icon will not be catched
+                        focus: true
+                        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+
+                        onOpened: volumeSliderTrigger.restart()
+                        onClosed: volumeSliderTrigger.stop()
+
+                        ColumnLayout{
+                            Slider {
+                                id: volumeSlider
+
+                                Layout.alignment: Qt.AlignCenter
+
+                                height: 100
+                                orientation: Qt.Vertical
+                                snapMode: Slider.SnapAlways
+                                wheelEnabled: true
+
+                                from: 0
+                                to: 1
+                                stepSize: 0.01
+                                value: radioController.volume
+
+                                onValueChanged: {
+                                    setVolume(value)
+                                    if (visible)
+                                        volumeSliderTrigger.restart()
+                                }
+
+                                Connections {
+                                    target: radioController
+                                    onVolumeChanged: {
+                                        volumeSlider.value = volume
+                                    }
+                                }
+
+                                Timer {
+                                    id: volumeSliderTrigger
+                                    interval: 3000
+                                    running: false
+                                    repeat: false
+                                    onTriggered: { volumePopup.close() }
+                                }
+
+                                function setVolume(value) {
+                                    if (volumeSlider.value != radioController.volume) {
+                                        if (value === 0) {
+                                            radioController.setVolume(value)
+                                            speakerIconMutedRed.visible = true
+                                            speakerIconMaskAppliedOverlay.visible = false
+                                        } else {
+                                            radioController.setVolume(value)
+                                            speakerIconMutedRed.visible = false
+                                            speakerIconMaskAppliedOverlay.visible = true
+                                        }
+                                    }
+                                }
+                            }
+
+                            TextStandart {
+                                id: volumeLabel
+                                Layout.alignment: Qt.AlignCenter
+
+                                font.pixelSize: Units.em(0.8)
+                                text: Math.round(volumeSlider.value*100) + "%"
+
+                                Accessible.description: qsTr("Volume set to %1").arg(text)
+                            }
+
+                            Shortcut {
+                                context: Qt.ApplicationShortcut
+                                autoRepeat: true
+                                sequences: ["Ctrl+Up", "Volume Up"]
+                                onActivated: {
+                                    volumeSlider.visible = true
+                                    volumeSlider.value = volumeSlider.value + volumeSlider.stepSize
+                                }
+                            }
+
+                            Shortcut {
+                                context: Qt.ApplicationShortcut
+                                autoRepeat: true
+                                sequences: ["Ctrl+Down", "Volume Down"]
+                                onActivated: {
+                                    volumeSlider.visible = true
+                                    volumeSlider.value = volumeSlider.value - volumeSlider.stepSize
+                                }
+                            }
+
+                            Shortcut {
+                                context: Qt.ApplicationShortcut
+                                autoRepeat: false
+                                sequences: ["m", "Volume Mute"]
+                                onActivated: {
+                                    volumeSlider.visible = true
+                                    volumeSlider.value = !(volumeSlider.value)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             ToolButton {
                 icon.name: "menu"
                 icon.width: Units.dp(20)
@@ -250,6 +529,9 @@ ApplicationWindow {
                         case 0: stationChannelView.model = stationList; break;
                         case 1: stationChannelView.model = favoritsList; break;
                         }
+                        guiHelper.updateMprisStationList(stationChannelView.model.serialized,
+                                                         stationChannelView.model.type,
+                                                         stationListBox.currentIndex)
                     }
                 }
 
@@ -332,7 +614,7 @@ ApplicationWindow {
                 Layout.fillHeight: true
                 clip: true
                 delegate: StationDelegate {
-                    stationNameText: stationName
+                    stationNameText: stationName.trim()
                     stationSIdValue: stationSId
                     channelNameText: channelName == "File" ? qsTr("File") : channelName
                     isFavorit: favorit
@@ -350,6 +632,109 @@ ApplicationWindow {
                 }
 
                 ScrollIndicator.vertical: ScrollIndicator { }
+
+                Shortcut {
+                    context: Qt.ApplicationShortcut
+                    autoRepeat: false
+                    sequences: ["n", "Media Next"]
+                    onActivated: {
+                        var channel = radioController.lastChannel[1]
+                        var sidHex = radioController.lastChannel[0]
+                        var index = stationChannelView.model.getIndexNext(parseInt(sidHex,16), channel)
+                        stationChannelView.model.playAtIndex(index)
+                    }
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut
+                    autoRepeat: false
+                    sequences: ["p", "Media Previous"]
+                    onActivated: {
+                        var channel = radioController.lastChannel[1]
+                        var sidHex = radioController.lastChannel[0]
+                        var index = stationChannelView.model.getIndexPrevious(parseInt(sidHex,16), channel)
+                        stationChannelView.model.playAtIndex(index)
+                    }
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut; autoRepeat: false; sequences: ["F1", "1"]
+                    onActivated: stationChannelView.model.playAtIndex(0)
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut; autoRepeat: false; sequences: ["F2", "2"]
+                    onActivated: stationChannelView.model.playAtIndex(1)
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut; autoRepeat: false; sequences: ["F3", "3"]
+                    onActivated: stationChannelView.model.playAtIndex(2)
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut; autoRepeat: false; sequences: ["F4", "4"]
+                    onActivated: stationChannelView.model.playAtIndex(3)
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut; autoRepeat: false; sequences: ["F5", "5"]
+                    onActivated: stationChannelView.model.playAtIndex(4)
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut; autoRepeat: false; sequences: ["F6", "6"]
+                    onActivated: stationChannelView.model.playAtIndex(5)
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut; autoRepeat: false; sequences: ["F7", "7"]
+                    onActivated: stationChannelView.model.playAtIndex(6)
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut; autoRepeat: false; sequences: ["F8", "8"]
+                    onActivated: stationChannelView.model.playAtIndex(7)
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut; autoRepeat: false; sequences: ["F9", "9"]
+                    onActivated: stationChannelView.model.playAtIndex(8)
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut; autoRepeat: false; sequences: ["F10", "0"]
+                    onActivated: stationChannelView.model.playAtIndex(9)
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut; autoRepeat: false; sequences: ["F11", "Ctrl+1"]
+                    onActivated: stationChannelView.model.playAtIndex(10)
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut; autoRepeat: false; sequences: ["F12", "Ctrl+2"]
+                    onActivated: stationChannelView.model.playAtIndex(11)
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut; autoRepeat: false; sequences: ["Ctrl+3"]
+                    onActivated: stationChannelView.model.playAtIndex(12)
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut; autoRepeat: false; sequences: ["Ctrl+4"]
+                    onActivated: stationChannelView.model.playAtIndex(13)
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut; autoRepeat: false; sequences: ["Ctrl+5"]
+                    onActivated: stationChannelView.model.playAtIndex(14)
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut; autoRepeat: false; sequences: ["Ctrl+6"]
+                    onActivated: stationChannelView.model.playAtIndex(15)
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut; autoRepeat: false; sequences: ["Ctrl+7"]
+                    onActivated: stationChannelView.model.playAtIndex(16)
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut; autoRepeat: false; sequences: ["Ctrl+8"]
+                    onActivated: stationChannelView.model.playAtIndex(17)
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut; autoRepeat: false; sequences: ["Ctrl+9"]
+                    onActivated: stationChannelView.model.playAtIndex(18)
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut; autoRepeat: false; sequences: ["Ctrl+0"]
+                    onActivated: stationChannelView.model.playAtIndex(19)
+                }
             }
 
             RowLayout {
@@ -613,6 +998,13 @@ ApplicationWindow {
     onVisibilityChanged: {
         if(visibility === Window.Minimized)
             guiHelper.tryHideWindow()
+    }
+
+    Shortcut {
+        context: Qt.ApplicationShortcut
+        autoRepeat: false
+        sequences: [StandardKey.Quit]
+        onActivated: guiHelper.close()
     }
 
     function updateTheme() {

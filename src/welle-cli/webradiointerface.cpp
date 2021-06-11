@@ -613,7 +613,7 @@ bool WebRadioInterface::send_mux_json(Socket& s)
     mux_json.receiver.software.fftwindowplacement = fftPlacementMethodToString(rro.fftPlacementMethod);
     mux_json.receiver.software.coarsecorrectorenabled = not rro.disableCoarseCorrector;
     mux_json.receiver.software.freqsyncmethod = freqSyncMethodToString(rro.freqsyncMethod);
-    mux_json.receiver.software.lastchannelchange = chrono::system_clock::to_time_t(time_rx_created);
+    mux_json.receiver.software.lastchannelchange = time_rx_created;
     mux_json.receiver.hardware.name = input.getDescription();
     mux_json.receiver.hardware.gain = input.getGain();
 
@@ -770,6 +770,7 @@ bool WebRadioInterface::send_mux_json(Socket& s)
 
         mux_json.demodulator_snr = last_snr;
         mux_json.demodulator_frequencycorrection = last_fine_correction + last_coarse_correction;
+        mux_json.demodulator_timelastfct0frame = rx->getReceiverStats().timeLastFCT0Frame;
 
         mux_json.tii = getTiiStats();
     }
@@ -1389,7 +1390,7 @@ void WebRadioInterface::serve()
     carousel_services_active.clear();
 }
 
-void WebRadioInterface::onSNR(int snr)
+void WebRadioInterface::onSNR(float snr)
 {
     lock_guard<mutex> lock(data_mut);
     last_snr = snr;

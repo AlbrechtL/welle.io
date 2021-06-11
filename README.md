@@ -40,12 +40,20 @@ Download
   * [through **MacPorts port**](https://ports.macports.org/port/welle.io/summary) (requires [MacPorts](https://www.macports.org/)) 
     * `sudo port install welle.io`
     * `sudo port install welle.io +cli` (if you wish to install also welle-cli)
+* welle.io for **FreeBSD**
+  * Building from sources (requires ports tree to be checked out at `/usr/ports/`)
+    ```
+    # cd /usr/ports/audio/welle.io/
+    # make install clean
+    ```
+  * Installing the binary package
+    * `pkg install welle.io`
 
 If you discovered an issue please open a new [issue](https://github.com/AlbrechtL/welle.io/issues).
 
 ##### Developer version
 welle.io is under heavy development. You can also try the latest developer builds. But PLEASE BE WARNED the builds are automatically created and untested.
- * [welle.io nightly builds for *Windows* & *Linux AppImage*](https://bintray.com/albrechtl/welle.io/welle.io_nightly#files)
+ * [welle.io nightly builds for *Windows* & *Linux AppImage*](https://welle-io-nightlies.albrechtloh.de/)
  * welle.io devel builds on *macOS MacPorts* are updated perdiodically manually and can be installed through [port welle.io-devel](https://ports.macports.org/port/welle.io-devel/summary). The port has no maintainer so please feel free to update it yourself in case you need to use a more recent devel version.
    * `sudo port install welle.io-devel`
 
@@ -64,6 +72,18 @@ Parameter | Description
 -v, --version | Show version 
 --dump-file | Records DAB frames (*.mp2) or DAB+ superframes with RS coding (*.dab). This file can be used to analyse X-PAD data with XPADxpert (https://www.basicmaster.de/xpadxpert).
 --log-file | Log file name. Redirects all log output texts to a file.
+
+Keyboard shortcuts & hotkeys
+
+Keystroke | Action
+------ | ----------
+F1-F12, 1-9, 0, Ctrl+1-9, Ctrl+0 | Play the station no. 'x' in the stations list: <br />`1` for station no. `1`, <br />`0` for station no. `10`, <br />`Ctrl+1` for station no. `11`...
+S, Media Play, Media Stop, Media Pause, Media Play/Pause | Start playback/Stop
+N, Media next | play next station in list
+P, Media Previous | play previous station
+M, Volume Mute | mute/unmute
+Ctrl+Up, Volume Up | Volume Up
+Ctrl+Down, Volume Down | Volume Down
 
 Supported Hardware
 ====================
@@ -195,7 +215,26 @@ You need to install the dependencies with MacPorts first, assuming you have [Mac
 4. Make sure in Qt Creator, "Projects, Build&Run, Run" that the checkbox "Add build library path to DYLD..." is off.
 5. Build and run.
 
-CMake instead of Qt Creator (Windows, Linux, macOS)
+FreeBSD
+---
+This section describes how to build welle.io from sources on FreeBSD 12.2 and 13.0.
+
+1. You will need the following dependencies, either built from the
+   ports or installed as a binary package. You may also build them
+   yourself.
+
+   ```
+   # pkg install alsa-lib faad lame mpg123 pkgconf cmake qt5-charts \
+     qt5-core qt5-declarative qt5-gui qt5-multimedia qt5-network \
+     qt5-quickcontrols2 qt5-widgets qt5-buildtools qt5-qmake \
+     rtl-sdr fftw3-float fftw3
+   ```
+   For SoapySDR support, you will also need `soapysdr`. For AirSpy support, you will need `airspy`.
+
+2. Now follow the build instructions for CMake as indicated below.
+
+
+CMake instead of Qt Creator (Windows, Linux, macOS, FreeBSD)
 ---
 
 As an alternative to Qt Creator, CMake can be used for building welle.io after installing dependencies and cloning the repository. On Linux, you can also use CMake to build [**welle-cli**](#welle-cli), the command-line backend testing tool that does not require Qt.

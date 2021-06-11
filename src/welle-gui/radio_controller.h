@@ -63,17 +63,20 @@ class CRadioController :
     Q_PROPERTY(QString deviceName MEMBER deviceName NOTIFY deviceNameChanged)
     Q_PROPERTY(CDeviceID deviceId  MEMBER deviceId NOTIFY deviceIdChanged)
     Q_PROPERTY(QDateTime dateTime MEMBER currentDateTime NOTIFY dateTimeChanged)
+    Q_PROPERTY(bool isPlaying MEMBER isPlaying NOTIFY isPlayingChanged)
+    Q_PROPERTY(bool isChannelScan MEMBER isChannelScan NOTIFY isChannelScanChanged)
     Q_PROPERTY(bool isSync MEMBER isSync NOTIFY isSyncChanged)
     Q_PROPERTY(bool isFICCRC MEMBER isFICCRC NOTIFY isFICCRCChanged)
     Q_PROPERTY(bool isSignal MEMBER isSignal NOTIFY isSignalChanged)
     Q_PROPERTY(QString audioMode MEMBER audioMode NOTIFY audioModeChanged)
     Q_PROPERTY(bool isDAB MEMBER isDAB NOTIFY isDABChanged)
-    Q_PROPERTY(int snr MEMBER snr NOTIFY snrChanged)
+    Q_PROPERTY(float snr MEMBER snr NOTIFY snrChanged)
     Q_PROPERTY(int frequencyCorrection MEMBER frequencyCorrection NOTIFY frequencyCorrectionChanged)
     Q_PROPERTY(float frequencyCorrectionPpm MEMBER frequencyCorrectionPpm NOTIFY frequencyCorrectionPpmChanged)
     Q_PROPERTY(int bitRate MEMBER bitRate NOTIFY bitRateChanged)
     Q_PROPERTY(int frameErrors MEMBER frameErrors NOTIFY frameErrorsChanged)
-    Q_PROPERTY(int rsErrors MEMBER rsErrors NOTIFY rsErrorsChanged)
+    Q_PROPERTY(int rsUncorrectedErrors MEMBER rsUncorrectedErrors NOTIFY rsUncorrectedErrorsChanged)
+    Q_PROPERTY(int rsCorrectedErrors MEMBER rsCorrectedErrors NOTIFY rsCorrectedErrorsChanged)
     Q_PROPERTY(int aacErrors MEMBER aaErrors NOTIFY aacErrorsChanged)
     Q_PROPERTY(bool agc MEMBER isAGC WRITE setAGC NOTIFY agcChanged)
     Q_PROPERTY(float gainValue MEMBER currentManualGainValue NOTIFY gainValueChanged)
@@ -84,9 +87,11 @@ class CRadioController :
 
     Q_PROPERTY(QString channel MEMBER currentChannel NOTIFY channelChanged)
     Q_PROPERTY(QStringList lastChannel MEMBER currentLastChannel NOTIFY lastChannelChanged)
+    Q_PROPERTY(QString autoChannel MEMBER autoChannel NOTIFY autoChannelChanged)
     Q_PROPERTY(QString ensemble MEMBER currentEnsembleLabel NOTIFY ensembleChanged)
     Q_PROPERTY(int frequency MEMBER currentFrequency NOTIFY frequencyChanged)
     Q_PROPERTY(quint32 service MEMBER currentService NOTIFY stationChanged)
+    Q_PROPERTY(quint32 autoService MEMBER autoService NOTIFY autoServiceChanged)
     Q_PROPERTY(QString stationType MEMBER currentStationType NOTIFY stationTypChanged)
     Q_PROPERTY(QString languageType MEMBER currentLanguageType NOTIFY languageTypeChanged)
     Q_PROPERTY(QString title MEMBER currentTitle NOTIFY titleChanged)
@@ -105,7 +110,7 @@ public:
     void setDeviceParam(QString param, QString value);
     Q_INVOKABLE void play(QString channel, QString title, quint32 service);
     void pause();
-    void stop();
+    Q_INVOKABLE void stop();
     void setService(uint32_t service, bool force = false);
     void setChannel(QString Channel, bool isScan, bool Force = false);
     Q_INVOKABLE void setManualChannel(QString Channel);
@@ -138,7 +143,7 @@ public:
     virtual void onNewDynamicLabel(const std::string& label) override;
     virtual void onMOT(const mot_file_t& mot_file) override;
     virtual void onPADLengthError(size_t announced_xpad_len, size_t xpad_len) override;
-    virtual void onSNR(int snr) override;
+    virtual void onSNR(float snr) override;
     virtual void onFrequencyCorrectorChange(int fine, int coarse) override;
     virtual void onSyncChange(char isSync) override;
     virtual void onSignalPresence(bool isSignal) override;
@@ -157,7 +162,7 @@ public:
 private:
     void initialise(void);
     void resetTechnicalData(void);
-    void deviceRestart(void);
+    bool deviceRestart(void);
 
     std::shared_ptr<CVirtualInput> device;
     QVariantMap commandLineOptions;
@@ -178,18 +183,20 @@ private:
 
     QString errorMsg;
     QDateTime currentDateTime;
+    bool isPlaying = false;
     bool isSync = false;
     bool isFICCRC = false;
     bool isSignal = false;
     bool isDAB = false;
     QString audioMode = "";
-    int snr = 0;
+    float snr = 0;
     int frequencyCorrection = 0;
     float frequencyCorrectionPpm = 0.0;
     int bitRate = 0;
     int audioSampleRate = 0;
     int frameErrors = 0;
-    int rsErrors = 0;
+    int rsUncorrectedErrors = 0;
+    int rsCorrectedErrors = 0;
     int aaErrors = 0;
     int gainCount = 0;
     int stationCount = 0;
@@ -250,17 +257,20 @@ signals:
     void deviceNameChanged();
     void deviceIdChanged();
     void dateTimeChanged(QDateTime);
+    void isPlayingChanged(bool);
+    void isChannelScanChanged(bool isChannelScan);
     void isSyncChanged(bool);
     void isFICCRCChanged(bool);
     void isSignalChanged(bool);
     void isDABChanged(bool);
     void audioModeChanged(QString);
-    void snrChanged(int);
+    void snrChanged(float);
     void frequencyCorrectionChanged(int);
     void frequencyCorrectionPpmChanged(float);
     void bitRateChanged(int);
     void frameErrorsChanged(int);
-    void rsErrorsChanged(int);
+    void rsUncorrectedErrorsChanged(int);
+    void rsCorrectedErrorsChanged(int);
     void aacErrorsChanged(int);
     void gainCountChanged(int);
 
@@ -269,15 +279,17 @@ signals:
     void agcChanged(bool);
     void gainValueChanged(float);
     void gainChanged(int);
-    void volumeChanged(qreal);
+    void volumeChanged(qreal volume);
     void motChanged(mot_file_t);
     void motReseted(void);
 
     void channelChanged();
     void lastChannelChanged();
+    void autoChannelChanged(QString autoChannel);
     void ensembleChanged();
     void frequencyChanged();
     void stationChanged();
+    void autoServiceChanged(quint32 autoService);
     void stationTypChanged();
     void titleChanged();
     void textChanged();

@@ -1,4 +1,29 @@
-﻿import QtQuick 2.2
+﻿/*
+ *    Copyright (C) 2017 - 2021
+ *    Albrecht Lohofener (albrechtloh@gmx.de)
+ *
+ *    This file is part of the welle.io.
+ *    Many of the ideas as implemented in welle.io are derived from
+ *    other work, made available through the GNU general Public License.
+ *    All copyrights of the original authors are recognized.
+ *
+ *    welle.io is free software; you can redistribute it and/or modify
+ *    it under the terms of the GNU General Public License as published by
+ *    the Free Software Foundation; either version 2 of the License, or
+ *    (at your option) any later version.
+ *
+ *    welle.io is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU General Public License for more details.
+ *
+ *    You should have received a copy of the GNU General Public License
+ *    along with welle.io; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
+
+import QtQuick 2.9
 import QtQuick.Layouts 1.1
 import QtQuick.Controls 2.3
 import QtGraphicalEffects 1.0
@@ -17,46 +42,6 @@ ViewBaseFrame {
         anchors.topMargin: Units.dp(5)
         anchors.horizontalCenter: parent.horizontalCenter
         text: radioController.ensemble.trim()
-    }
-
-    // Use 2 Images to switch between speaker & speaker_mute icon (instead of toggle button). 
-    // Permits use of color with org.kde.desktop style
-    Image {
-        id: speakerIcon
-        anchors.verticalCenter: signalStrength.verticalCenter
-        anchors.right: parent.right
-        width: Units.dp(30)
-        height: Units.dp(30)
-        visible: true
-        source: "qrc:/icons/welle_io_icons/20x20@2/speaker.png"
-
-        MouseArea {
-            anchors.fill: parent
-            onClicked: {radioController.setVolume(0); speakerIconMutedRed.visible = true; speakerIcon.visible = false}
-        }
-    }
-
-    Image {
-        id: speakerIconMuted
-        anchors.verticalCenter: signalStrength.verticalCenter
-        anchors.right: parent.right
-        width: Units.dp(30)
-        height: Units.dp(30)
-        visible: false
-
-        source: "qrc:/icons/welle_io_icons/20x20@2/speaker_mute.png"
-    }
-
-    ColorOverlay {
-        id: speakerIconMutedRed
-        visible: false
-        anchors.fill: speakerIconMuted
-        source: speakerIconMuted
-        color: "red"
-        MouseArea {
-            anchors.fill: parent
-            onClicked: {radioController.setVolume(100); speakerIconMutedRed.visible = false; speakerIcon.visible = true}
-        }
     }
 
     RowLayout{
@@ -132,7 +117,7 @@ ViewBaseFrame {
                     }
                     
                     visible: opacity == 0 ? false : true
-                    opacity: 100
+                    opacity: 0
                     
                     Connections {
                         target: frame
@@ -193,15 +178,7 @@ ViewBaseFrame {
                     
                     Connections {
                         target: antennaSymbol
-                        onIsSignalChanged: { 
-                            if (antennaSymbol.isSignal) {
-                                antennaIconNoSignalRed.visible = false; 
-                                antennaIcon.visible = true;
-                            } else {
-                                antennaIconNoSignalRed.visible = true; 
-                                antennaIcon.visible = false;
-                            }
-                        }
+                        onIsSignalChanged: setAntennaVisibility()
                     }
                     
                     NumberAnimation on opacity {
@@ -226,6 +203,8 @@ ViewBaseFrame {
                             else
                                 __setIsSignal(false)
                         }
+                        onIsPlayingChanged: setAntennaVisibility()
+                        onIsChannelScanChanged: setAntennaVisibility()
                     }
                 }
             }
@@ -284,7 +263,7 @@ ViewBaseFrame {
         }
         else {
             antennaSymbol.isSignal = false
-            antennaSymbol.opacity = 100
+            antennaSymbol.opacity = 1.0
             effect.stop()
         }
     }
@@ -294,5 +273,22 @@ ViewBaseFrame {
             antennaSymbol.state = "alignRight"
         else
             antennaSymbol.state = "alignBottom"
+    }
+
+    function setAntennaVisibility() {
+        if (!radioController.isPlaying && !radioController.isChannelScan) {
+            antennaIconNoSignalRed.visible = false;
+            antennaIcon.visible = false;
+            return
+        }
+        if (antennaSymbol.isSignal) {
+            antennaIconNoSignalRed.visible = false;
+            antennaIcon.visible = true;
+        } else {
+            antennaIconNoSignalRed.visible = true;
+            antennaIcon.visible = false;
+            antennaSymbol.opacity = 1.0
+            effect.stop()
+        }
     }
 }
