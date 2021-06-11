@@ -40,7 +40,6 @@ WaterfallItem::WaterfallItem(QQuickItem *parent)
     _samplesUpdated = false;
     _image = QImage((int)this->width(), (int)this->height(), QImage::Format_ARGB32);
     _image.fill(QColor(255, 255, 255));
-    _sensitivity = 0.05;
 
     // Generate displayable colors
     QImage img(500, 1, QImage::Format_ARGB32);
@@ -113,15 +112,6 @@ void WaterfallItem::plotMessage(QString message)
     messageToPlot = message;
 }
 
-float WaterfallItem::sensitivity() const {
-    return _sensitivity;
-}
-
-void WaterfallItem::setSensitivity(float value) {
-    _sensitivity = value;
-    emit this->sensitivityChanged();
-}
-
 float WaterfallItem::minValue() const
 {
     return _minValue;
@@ -146,11 +136,21 @@ void WaterfallItem::samplesCollected() {
     QPainter painter;
     painter.begin(&img);
 
+    // Find max value
+    float maxValue = 0;
+    for(int x = 0; x < _sampleNumber; x++)
+    {
+        float amplitude = (dataSeries.at(x).y() - _minValue);
+        if(maxValue < amplitude)
+            maxValue = amplitude;
+    }
+
     // Draw 1st pixel row: new values
     for (int x = 0; x < img.width(); x++) {
         unsigned i1 = x * _sampleNumber / img.width();
-        float amplitude = dataSeries.at(i1).y() - _minValue;
-        int value = (int)(amplitude * (float)_sensitivity * (float)_colors.length());
+        float amplitude = (dataSeries.at(i1).y() - _minValue);
+
+        int value = (int)(amplitude / maxValue * 256); // Scale to max value
         if (value < 0)
             value = 0;
         if (value >= _colors.length())

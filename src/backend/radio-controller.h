@@ -83,7 +83,7 @@ enum class message_level_t { Information, Error };
 class RadioControllerInterface {
     public:
         /* Signal-to-Noise Ratio was calculated. snr is a value in dB. */
-        virtual void onSNR(int snr) = 0;
+        virtual void onSNR(float snr) = 0;
 
         /* The frequency corrector estimated a new correction. The frequency
          * correction consists of a coarse and a fine value, both having the

@@ -175,7 +175,7 @@ class WavProgrammeHandler: public ProgrammeHandlerInterface {
 
 class RadioInterface : public RadioControllerInterface {
     public:
-        virtual void onSNR(int /*snr*/) override { }
+        virtual void onSNR(float /*snr*/) override { }
         virtual void onFrequencyCorrectorChange(int /*fine*/, int /*coarse*/) override { }
         virtual void onSyncChange(char isSync) override { synced = isSync; }
         virtual void onSignalPresence(bool /*isSignal*/) override { }

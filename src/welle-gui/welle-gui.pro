@@ -2,7 +2,7 @@ include(../backend.pri)
 
 TEMPLATE = app
 TARGET = welle-io
-QT += quickcontrols2 qml quick charts multimedia
+QT += quickcontrols2 qml quick charts multimedia dbus
 
 RC_ICONS   =    icons/icon.ico
 RESOURCES +=    resources.qrc
@@ -84,6 +84,9 @@ HEADERS += \
     gui_helper.h \
     mot_image_provider.h \
     radio_controller.h \
+    mpris/mpris.h \
+    mpris/mpris_mp2.h \
+    mpris/mpris_mp2_player.h \
     waterfallitem.h \
     version.h
 
@@ -94,6 +97,9 @@ SOURCES += \
     gui_helper.cpp \
     mot_image_provider.cpp \
     radio_controller.cpp \
+    mpris/mpris.cpp \
+    mpris/mpris_mp2.cpp \
+    mpris/mpris_mp2_player.cpp \
     waterfallitem.cpp
 
 android {

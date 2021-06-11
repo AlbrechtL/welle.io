@@ -85,6 +85,7 @@ void CAudioThread::init(int sampleRate)
     if (audioOutput != nullptr) {
         delete audioOutput;
         audioOutput = nullptr;
+        currentState = QAudio::StoppedState;
     }
 
     audioFormat.setSampleRate(sampleRate);
@@ -109,7 +110,7 @@ void CAudioThread::init(int sampleRate)
     audioOutput->setBufferSize(audioOutput->bufferSize()*2);
     connect(audioOutput, &QAudioOutput::stateChanged, this, &CAudioThread::handleStateChanged);
 
-    audioIODevice.start();
+    //audioIODevice.start();
 
     // Disable audio at startup. It will be started through "checkAudioBufferTimeout" method when needed
     //audioOutput->start(&audioIODevice);

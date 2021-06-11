@@ -136,7 +136,7 @@ void CAndroid_RTL_SDR::setOpenInstallDialog()
     // Init pop up
     QAndroidJniObject okButtonText = QAndroidJniObject::fromString(QT_TR_NOOP("OK"));
     QAndroidJniObject cancelButtonText = QAndroidJniObject::fromString(QT_TR_NOOP("Cancel"));
-    QAndroidJniObject message = QAndroidJniObject::fromString(QT_TR_NOOP("Android RTL-SDR driver is not installed. Do you would like to install it? After install start welle.io again."));
+    QAndroidJniObject message = QAndroidJniObject::fromString(QT_TR_NOOP("Android RTL-SDR driver is not installed. Would you like to install it? After installation start welle.io again."));
     dialog.callMethod<void>("setMessageText",
                             "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",
                             okButtonText.object<jstring>(), cancelButtonText.object<jstring>(), message.object<jstring>());

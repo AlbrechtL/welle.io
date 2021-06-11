@@ -153,7 +153,7 @@ void OfdmDecoder::processPRS()
      * within the signal region and bits outside.
      * It is just an indication
      */
-    snr = 0.7 * snr + 0.3 * get_snr(fft_buffer);
+    snr = 0.7 * snr + 0.3 * get_snr(fft_buffer, 1);
     if (++snrCount > 10) {
         radioInterface.onSNR(snr);
         snrCount = 0;
@@ -234,26 +234,53 @@ void OfdmDecoder::decodeDataSymbol(int32_t sym_ix)
  * K carriers.
  * Just get the strength from the selected carriers compared
  * to the strength of the carriers outside that region
+ * method:  0 Jans method. This method are originally developed by Jan and is not working if neighbor channels are used because it uses occupied bins for the noise calculation
+ *          1 New method. This method is working also if neighbor channels are used
  */
-int16_t OfdmDecoder::get_snr(DSPCOMPLEX *v)
+int16_t OfdmDecoder::get_snr(DSPCOMPLEX *v, uint8_t method)
 {
     int16_t i;
     DSPFLOAT    noise   = 0;
     DSPFLOAT    signal  = 0;
     const auto T_u = params.T_u;
-    int16_t low = T_u / 2 -  params.K / 2;
-    int16_t high    = low + params.K;
+    const auto K = params.K;
+    int16_t low = T_u / 2 -  K / 2;
+    int16_t high    = low + K;
 
-    for (i = 10; i < low - 20; i ++)
-        noise += abs (v[(T_u / 2 + i) % T_u]);
+    if(method)
+    {
+        for (i = 70; i < low - 20; i ++) // low - 90 samples
+            noise += abs (v[(T_u / 2 + i) % T_u]);
 
-    for (i = high + 20; i < T_u - 10; i ++)
-        noise += abs (v[(T_u / 2 + i) % T_u]);
+        for (i = high + 20; i < high + 120; i ++) // 100 samples
+            noise += abs (v[(T_u / 2 + i) % T_u]);
 
-    noise   /= (low - 30 + T_u - high - 30);
-    for (i = T_u / 2 - params.K / 4;  i < T_u / 2 + params.K / 4; i ++)
-        signal += abs (v[(T_u / 2 + i) % T_u]);
+        noise   /= (low - 90 + 100);
+        for (i = T_u / 2 - K / 4;  i < T_u / 2 + K / 4; i ++)
+            signal += abs (v[(T_u / 2 + i) % T_u]);
 
-    return get_db_over_256(signal / (params.K / 2)) - get_db_over_256(noise);
+        const auto dB_signal_new = get_db_over_256(signal / (K / 2));
+        const auto dB_noise_new = get_db_over_256(noise);
+        const auto snr_new = dB_signal_new - dB_noise_new;
+        return  snr_new;
+    }
+    else
+    {
+        noise   = 0;
+        signal  = 0;
+        for (i = 10; i < low - 20; i ++)
+            noise += abs (v[(T_u / 2 + i) % T_u]);
+
+        for (i = high + 20; i < T_u - 10; i ++)
+            noise += abs (v[(T_u / 2 + i) % T_u]);
+
+        noise   /= (low - 30 + T_u - high - 30);
+        for (i = T_u / 2 - K / 4;  i < T_u / 2 + K / 4; i ++)
+            signal += abs (v[(T_u / 2 + i) % T_u]);
+
+        const auto dB_signal_old = get_db_over_256(signal / (K / 2));
+        const auto dB_noise_old = get_db_over_256(noise);
+        const auto snr_old = dB_signal_old - dB_noise_old;
+        return  snr_old;
+    }
 }
-

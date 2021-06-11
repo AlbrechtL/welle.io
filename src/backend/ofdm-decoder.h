@@ -50,7 +50,7 @@ class OfdmDecoder
         void    pushAllSymbols(std::vector<std::vector<DSPCOMPLEX> >&& sym);
         void    reset();
     private:
-        int16_t get_snr(DSPCOMPLEX *);
+        int16_t get_snr(DSPCOMPLEX *, uint8_t method);
 
         const DABParams& params;
         RadioControllerInterface& radioInterface;
@@ -76,7 +76,7 @@ class OfdmDecoder
 
         std::vector<softbit_t> ibits;
         int16_t snrCount = 0;
-        int16_t snr = 0;
+        float snr = 0;
 
         const double mer_alpha = 1e-7;
         std::atomic<double> mer = ATOMIC_VAR_INIT(0.0);

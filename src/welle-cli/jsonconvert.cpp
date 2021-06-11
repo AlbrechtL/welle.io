@@ -46,13 +46,17 @@ static void to_json(nlohmann::json& j, const DabLabel& l)
 
 
 static void to_json(nlohmann::json& j, const SoftwareJson& s) {
+    uint64_t lastchannelchange_ms =
+        std::chrono::duration_cast<std::chrono::milliseconds>(
+                s.lastchannelchange.time_since_epoch()).count();
+
     j = nlohmann::json{
         {"name", s.name},
         {"version", s.version},
         {"fftwindowplacement", s.fftwindowplacement},
         {"coarsecorrectorenabled", s.coarsecorrectorenabled},
         {"freqsyncmethod", s.freqsyncmethod},
-        {"lastchannelchange", s.lastchannelchange}
+        {"lastchannelchange", lastchannelchange_ms}
     };
 }
 
@@ -217,6 +221,10 @@ static void to_json(nlohmann::json& j, const MuxJson& mux) {
     };
 
     j["demodulator"]["fic"]["numcrcerrors"] = mux.demodulator_fic_numcrcerrors;
+    uint64_t timelastfct0_ms =
+        std::chrono::duration_cast<std::chrono::milliseconds>(
+                mux.demodulator_timelastfct0frame.time_since_epoch()).count();
+    j["demodulator"]["time_last_fct0_frame"] = timelastfct0_ms;
     j["demodulator"]["snr"] = mux.demodulator_snr;
     j["demodulator"]["frequencycorrection"] = mux.demodulator_frequencycorrection;
 }

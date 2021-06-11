@@ -31,6 +31,8 @@
  */
 
 #include <iostream>
+#include <sys/time.h>
+
 #include "rtl_tcp.h"
 
 // For Qt translation if Qt is exisiting
@@ -60,9 +62,18 @@ enum rtlsdr_tuner {
 
 #define ONE_BYTE 8
 
+static inline int64_t getMyTime(void)
+{
+    struct timeval tv;
+
+    gettimeofday(&tv, NULL);
+    return ((int64_t)tv.tv_sec * 1000000 + (int64_t)tv.tv_usec);
+}
+
 CRTL_TCP_Client::CRTL_TCP_Client(RadioControllerInterface& radioController) :
     radioController(radioController),
     sampleBuffer(32 * 32768),
+    sampleNetworkBuffer(256 * 32768),
     spectrumSampleBuffer(8192)
 {
     memset(&dongleInfo, 0, sizeof(dongle_info_t));
@@ -71,6 +82,7 @@ CRTL_TCP_Client::CRTL_TCP_Client(RadioControllerInterface& radioController) :
 
 CRTL_TCP_Client::~CRTL_TCP_Client(void)
 {
+    std::clog << "RTL_TCP_CLIENT: deleting ..." << std::endl;
     stop();
 }
 
@@ -92,6 +104,9 @@ bool CRTL_TCP_Client::restart(void)
     }
 
     rtlsdrRunning = true;
+
+    networkBufferThread = std::thread(&CRTL_TCP_Client::networkBufferCopy, this);
+    networkBufferThread.detach();
 
     receiveThread = std::thread(&CRTL_TCP_Client::receiveAndReconnect, this);
     receiveThread.detach();
@@ -117,11 +132,11 @@ void CRTL_TCP_Client::stop(void)
 
     std::unique_lock<std::mutex> lock(mutex);
 
-    agcRunning = false;
-    rtlsdrRunning = false;
-
     // Close connection
     sock.close();
+
+    agcRunning = false;
+    rtlsdrRunning = false;
 
     lock.unlock();
 
@@ -132,6 +147,12 @@ void CRTL_TCP_Client::stop(void)
     if (receiveThread.joinable()) {
         receiveThread.join();
     }
+
+    if (networkBufferThread.joinable()) {
+        networkBufferThread.join();
+    }
+
+    connected = false;
 }
 
 static int32_t read_convert_from_buffer(
@@ -166,12 +187,15 @@ std::vector<DSPCOMPLEX> CRTL_TCP_Client::getSpectrumSamples(int size)
 
 int32_t CRTL_TCP_Client::getSamplesToRead(void)
 {
-    return sampleBuffer.GetRingBufferReadAvailable () / 2;
+    return sampleBuffer.GetRingBufferReadAvailable() / 2;
 }
 
 void CRTL_TCP_Client::reset(void)
 {
     sampleBuffer.FlushRingBuffer();
+    sampleNetworkBuffer.FlushRingBuffer();
+    spectrumSampleBuffer.FlushRingBuffer();
+    firstFilledNetworkBuffer = false;
 }
 
 void CRTL_TCP_Client::receiveData(void)
@@ -249,8 +273,22 @@ void CRTL_TCP_Client::receiveData(void)
         }
     }
 
-    sampleBuffer.putDataIntoBuffer(buffer.data(), buffer.size());
-    spectrumSampleBuffer.putDataIntoBuffer(buffer.data(), buffer.size());
+    sampleNetworkBuffer.putDataIntoBuffer(buffer.data(), buffer.size());
+
+    // First fill the complete buffer to avoid sound outtages if the stream data rate is not stable e.g. over WIFI
+    if(!firstFilledNetworkBuffer) {
+        float bufferFill = (float) sampleNetworkBuffer.GetRingBufferReadAvailable() / sampleNetworkBuffer.GetBufferSize() * 100;
+
+        // Wait for 50% filled buffer
+        if(bufferFill >= 50)
+            firstFilledNetworkBuffer = true;
+
+        if((getMyTime() - oldTime_us > 100e3) || firstFilledNetworkBuffer) {
+            //std::clog << "RTL_TCP_CLIENT: Fill network buffer " << bufferFill << "%" << std::endl;
+            oldTime_us = getMyTime();
+        }
+    }
+
 
     // Check if device is overloaded
     minAmplitude = 255;
@@ -400,6 +438,8 @@ void CRTL_TCP_Client::receiveAndReconnect()
                     agcRunning = true;
                     agcThread = std::thread(&CRTL_TCP_Client::agcTimer, this);
                 }
+                firstData = true;
+                reset(); // Clear buffers
             }
             else {
                 std::clog << "RTL_TCP_CLIENT: Could not connect to server" <<
@@ -422,6 +462,56 @@ void CRTL_TCP_Client::receiveAndReconnect()
 
             receiveData();
         }
+    }
+}
+
+#define NETWORK_BUFFER_READ_SAMPLES 32768
+void CRTL_TCP_Client::networkBufferCopy()
+{
+    std::vector<uint8_t> tempBuffer(NETWORK_BUFFER_READ_SAMPLES * 2);
+
+    while (rtlsdrRunning) {
+        if(!firstFilledNetworkBuffer) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            nextStop_us = getMyTime();
+            continue;
+        }
+
+        int32_t samples = NETWORK_BUFFER_READ_SAMPLES;
+
+        // Figure out the max samples to read from network buffer
+        int32_t samplesInBuffer = sampleNetworkBuffer.GetRingBufferReadAvailable() / 2;
+        if(samplesInBuffer < samples)
+            samples = samplesInBuffer;
+
+        if(samples == 0) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            nextStop_us = getMyTime();
+            continue;
+        }
+
+        // Read data
+        int32_t amount = sampleNetworkBuffer.getDataFromBuffer(tempBuffer.data(), 2 * samples);
+
+        // Write data to standard buffers
+        sampleBuffer.putDataIntoBuffer(tempBuffer.data(), amount);
+        spectrumSampleBuffer.putDataIntoBuffer(tempBuffer.data(), amount);
+
+        if(getMyTime() - oldTime_us > 500e3) { // 500 ms
+
+            float bufferFill = (float) sampleNetworkBuffer.GetRingBufferReadAvailable() / sampleNetworkBuffer.GetBufferSize() * 100;
+            //std::clog << "RTL_TCP_CLIENT: Network buffer fill level " << bufferFill << "%" << std::endl;
+
+            oldTime_us = getMyTime();
+        }
+
+
+        uint32_t period_us = samples / ((float) INPUT_RATE / 1e6);
+        nextStop_us += period_us;
+        int64_t timeToWait_us = nextStop_us - getMyTime();
+
+        // Send thread to sleep
+        std::this_thread::sleep_for(std::chrono::microseconds(timeToWait_us));
     }
 }
 

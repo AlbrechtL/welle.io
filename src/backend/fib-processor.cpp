@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2018
+ *    Copyright (C) 2020
  *    Matthias P. Braendli (matthias.braendli@mpb.li)
  *
  *    Copyright (C) 2014
@@ -108,7 +108,7 @@ void FIBProcessor::process_FIG0 (uint8_t *d)
 }
 
 
-//  FOG0/0 indicated a change in channel organization
+//  FIG0/0 indicated a change in channel organization
 //  we are not equipped for that, so we just return
 //  control to the init
 void FIBProcessor::FIG0Extension0 (uint8_t *d)
@@ -127,8 +127,6 @@ void FIBProcessor::FIG0Extension0 (uint8_t *d)
     }
 
     changeflag  = getBits_2 (d, 16 + 16);
-    if (changeflag == 0)
-        return;
 
     highpart        = getBits_5 (d, 16 + 19) % 20;
     (void)highpart;
@@ -137,7 +135,15 @@ void FIBProcessor::FIG0Extension0 (uint8_t *d)
     occurrenceChange    = getBits_8 (d, 16 + 32);
     (void)occurrenceChange;
 
-    //  if (changeflag == 1) {
+    // In transmission mode I, because four ETI frames make one transmission frame, we will
+    // see lowpart == 0 only every twelve seconds, and not 6 as expected by the 250 overflow value.
+    if (lowpart == 0) {
+        timeLastFCT0Frame = std::chrono::system_clock::now();
+    }
+
+    if (changeflag == 0)
+        return;
+    // else if (changeflag == 1) {
     //     std::clog << "fib-processor:" << "Changes in sub channel organization\n") << std::endl;
     //     std::clog << "fib-processor:" << "cifcount = %d\n", highpart * 250 + lowpart) << std::endl;
     //     std::clog << "fib-processor:" << "Change happening in %d CIFs\n", occurrenceChange) << std::endl;
@@ -360,8 +366,9 @@ void FIBProcessor::FIG0Extension3 (uint8_t *d)
     int16_t used    = 2;
     int16_t Length  = getBits_5 (d, 3);
 
-    while (used < Length)
+    while (used < Length) {
         used = HandleFIG0Extension3 (d, used);
+    }
 }
 
 //      DSCTy   DataService Component Type
@@ -378,12 +385,12 @@ int16_t FIBProcessor::HandleFIG0Extension3(uint8_t *d, int16_t used)
     ServiceComponent *packetComp = findPacketComponent(SCId);
 
     used += 56 / 8;
-    if (packetComp == NULL)     // no ServiceComponent yet
-        return used;
-    packetComp->subchannelId = SubChId;
-    packetComp->DSCTy = DSCTy;
-    packetComp->DGflag = DGflag;
-    packetComp->packetAddress = packetAddress;
+    if (packetComp) {
+        packetComp->subchannelId = SubChId;
+        packetComp->DSCTy = DSCTy;
+        packetComp->DGflag = DGflag;
+        packetComp->packetAddress = packetAddress;
+    }
     return used;
 }
 
@@ -439,38 +446,32 @@ int16_t FIBProcessor::HandleFIG0Extension8(
 {
     int16_t  lOffset = used * 8;
     uint32_t SId = getBits(d, lOffset, pdBit == 1 ? 32 : 16);
-    uint8_t  lsFlag;
-    uint16_t SCIds;
-    int16_t  SCid;
-    int16_t  MSCflag;
-    int16_t  SubChId;
+    lOffset += (pdBit == 1 ? 32 : 16);
+
     uint8_t  extensionFlag;
 
-    lOffset += pdBit == 1 ? 32 : 16;
-    extensionFlag   = getBits_1 (d, lOffset);
-    SCIds   = getBits_4 (d, lOffset + 4);
-    lOffset += 8;
+    extensionFlag   = getBits_1(d, lOffset);
+    uint16_t SCIds   = getBits_4(d, lOffset + 4);
+    lOffset += 4;
 
-    lsFlag  = getBits_1 (d, lOffset + 8);
+    uint8_t lsFlag  = getBits_1(d, lOffset);
     if (lsFlag == 1) {
-        SCid = getBits (d, lOffset + 4, 12);
+        int16_t SCid = getBits(d, lOffset + 4, 12);
         lOffset += 16;
         //           if (findPacketComponent ((SCIds << 4) | SCid) != NULL) {
         //              std::clog << "fib-processor:" << "packet component bestaat !!\n") << std::endl;
         //           }
     }
     else {
-        MSCflag = getBits_1 (d, lOffset + 1);
-        SubChId = getBits_6 (d, lOffset + 2);
+        int16_t SubChId = getBits_6(d, lOffset + 4);
         lOffset += 8;
     }
-    if (extensionFlag)
+
+    if (extensionFlag) {
         lOffset += 8;   // skip Rfa
+    }
     (void)SId;
     (void)SCIds;
-    (void)SCid;
-    (void)SubChId;
-    (void)MSCflag;
     return lOffset / 8;
 }
 
@@ -1267,6 +1268,7 @@ void FIBProcessor::clearEnsemble()
     services.clear();
     serviceRepeatCount.clear();
     timeLastServiceDecrement = std::chrono::steady_clock::now();
+    timeLastFCT0Frame = std::chrono::system_clock::now();
 }
 
 std::vector<Service> FIBProcessor::getServiceList() const
@@ -1327,4 +1329,10 @@ DabLabel FIBProcessor::getEnsembleLabel() const
 {
     std::lock_guard<std::mutex> lock(mutex);
     return ensembleLabel;
+}
+
+std::chrono::system_clock::time_point FIBProcessor::getTimeLastFCT0Frame() const
+{
+    std::lock_guard<std::mutex> lock(mutex);
+    return timeLastFCT0Frame;
 }

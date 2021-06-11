@@ -159,6 +159,7 @@ function ensembleInfoTemplate() {
     html += ' <th><abbr title="Local Time Offset">LTO</abbr></th></th>';
     html += ' <th>FIC CRC Errors</th>';
     html += ' <th>Tuned at</th>';
+    html += ' <th>FCT0 frame received at</th>';
     html += ' </tr>';
     html += ' <tr><td>${EId}</td>';
     html += ' <td>${ecc}</td>';
@@ -168,7 +169,8 @@ function ensembleInfoTemplate() {
     html += ' <td>${year}-${month}-${day} ${hour}:${minutes} UTC</td>';
     html += ' <td>${lto}</td>';
     html += ' <td>${ficcrcerrors}</td>';
-    html += ' <td>${lastchannelchange}</td></tr>';
+    html += ' <td>${lastchannelchange}</td>';
+    html += ' <td>${lastfct0frame}</td></tr>';
     html += ' </table><br>    <button type=button onclick="stopPlayer()">Stop</button><br><br>';
     html += '';
     html += '<table id="servicetable">';
@@ -419,8 +421,10 @@ function populateEnsembleinfo() {
         ens["FrequencyCorrection"] = data.demodulator.frequencycorrection;
         ens["services"] = servicehtml;
         ens["ficcrcerrors"] = data.demodulator.fic.numcrcerrors;
-        var lcc = new Date(data.receiver.software.lastchannelchange * 1000);
+        var lcc = new Date(data.receiver.software.lastchannelchange);
         ens["lastchannelchange"] = lcc.toISOString();
+        var lfct0 = new Date(data.demodulator.time_last_fct0_frame);
+        ens["lastfct0frame"] = lfct0.toISOString();
 
         var ei = document.getElementById('ensembleinfo');
         ei.innerHTML = parseTemplate(ensembleInfoTemplate(), ens);

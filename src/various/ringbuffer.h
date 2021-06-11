@@ -163,6 +163,10 @@ class RingBuffer
          *  functions for checking available data for reading and space
          *  for writing
          */
+        int32_t GetBufferSize(void) {
+            return bufferSize;
+        }
+
         int32_t GetRingBufferReadAvailable (void) {
             return (writeIndex - readIndex) & bigMask;
         }

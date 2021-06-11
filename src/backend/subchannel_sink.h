@@ -36,7 +36,7 @@ struct AUDIO_SERVICE_FORMAT {
 
 	AUDIO_SERVICE_FORMAT() : samplerate_khz(0), bitrate_kbps(0) {}
 	std::string GetSummary() const {
-		return codec + ", " + std::to_string(samplerate_khz) + " kHz " + mode + " @ " + std::to_string(bitrate_kbps) + " kBit/s";
+		return codec + ", " + std::to_string(samplerate_khz) + " kHz " + mode + " @ " + std::to_string(bitrate_kbps) + " kbit/s";
 	}
 };
 
@@ -52,7 +52,7 @@ public:
 	virtual void ProcessPAD(const uint8_t* /*xpad_data*/, size_t /*xpad_len*/, bool /*exact_xpad_len*/, const uint8_t* /*fpad_data*/) {}
 
 	virtual void AudioError(const std::string& /*hint*/) {}
-	virtual void AudioWarning(const std::string& /*hint*/) {}
+    virtual void ACCFrameError(const unsigned char /* error*/) {}
 	virtual void FECInfo(int /*total_corr_count*/, bool /*uncorr_errors*/) {}
 };
 
