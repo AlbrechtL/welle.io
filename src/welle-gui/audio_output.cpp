@@ -7,7 +7,7 @@
  *
  *    This file is part of the welle.io.
  *    Many of the ideas as implemented in welle.io are derived from
- *    other work, made available through the GNU general Public License. 
+ *    other work, made available through the GNU general Public License.
  *    All copyrights of the original authors are recognized.
  *
  *    welle.io is free software; you can redistribute it and/or modify
@@ -96,14 +96,17 @@ void CAudioThread::init(int sampleRate)
 
     info = new QAudioDeviceInfo(QAudioDeviceInfo::defaultOutputDevice());
     if (!info->isFormatSupported(audioFormat)) {
-        qDebug() << "Audio:"
-                 << "Audio format \"audio/pcm\" 16-bit stereo not supported. Your audio may not work!";
+        qDebug() << "Audio: \"audio/pcm\" 16-bit stereo not supported. "
+                    "Your audio may not work.";
+#ifdef   Q_OS_LINUX
+        qDebug() <<  "Audio: Have you installed AND started PulseAudio?";
+#endif
     }
 
     qDebug() << "Audio: Current sound output" << info->deviceName();
 
-//    foreach (const QAudioDeviceInfo &deviceInfo, QAudioDeviceInfo::availableDevices(QAudio::AudioOutput))
-//        qDebug() << "Audio:" << "Available sound output device: " << deviceInfo.deviceName();
+    //foreach (const QAudioDeviceInfo &deviceInfo, QAudioDeviceInfo::availableDevices(QAudio::AudioOutput))
+    //  qDebug() << "Audio:" << "Available sound output device: " << deviceInfo.deviceName();
 
     audioOutput = new QAudioOutput(*info, audioFormat, this);
     audioOutput->setBufferSize(audioOutput->bufferSize()*2);
