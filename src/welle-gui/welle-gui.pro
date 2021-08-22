@@ -57,7 +57,15 @@ DISTFILES +=    \
     QML/components/WSpectrum.qml \
     QML/components/WMenu.qml \
     QML/expertviews/ServiceDetails.qml \
-    QML/components/WDialog.qml
+    QML/components/WDialog.qml \
+    android/AndroidManifest.xml \
+    android/build.gradle \
+    android/gradle/wrapper/gradle-wrapper.jar \
+    android/gradle/wrapper/gradle-wrapper.properties \
+    android/gradle.properties \
+    android/gradlew \
+    android/gradlew.bat
+    android/res/values/libs.xml \
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 
