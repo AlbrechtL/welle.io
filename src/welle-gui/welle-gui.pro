@@ -64,8 +64,8 @@ DISTFILES +=    \
     android/gradle/wrapper/gradle-wrapper.properties \
     android/gradle.properties \
     android/gradlew \
-    android/gradlew.bat
-    android/res/values/libs.xml \
+    android/gradlew.bat \
+    android/res/values/libs.xml
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 
