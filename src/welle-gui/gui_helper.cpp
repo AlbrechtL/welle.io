@@ -94,7 +94,9 @@ CGUIHelper::CGUIHelper(CRadioController *RadioController, QObject *parent)
 
 #endif
 
+#ifndef __ANDROID__
     mpris = new Mpris(radioController, this);
+#endif
     CDebugOutput::setCGUI(this);
 }
 
@@ -897,6 +899,7 @@ QVariant StyleModel::data(const QModelIndex & index, int role) const
     return QVariant();
 }
 
+#ifndef __ANDROID__
 void CGUIHelper::updateMprisStationList(QString serializedJson, QString listType, int index)
 {
     mpris->setStationArray(serializedJson, listType, index);
@@ -906,3 +909,4 @@ void CGUIHelper::setMprisFullScreenState(bool isFullscreen)
 {
     mpris->setFullscreenState(isFullscreen);
 }
+#endif

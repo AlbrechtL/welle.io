@@ -106,6 +106,17 @@ android {
     QT += androidextras
     HEADERS += android_rtl_sdr.h
     SOURCES += android_rtl_sdr.cpp
+
+    # Remove MPRIS related code since Qt for Android doesn't ship dbus
+    QT -= dbus
+    SOURCES -= \
+        mpris/mpris.cpp \
+        mpris/mpris_mp2.cpp \
+        mpris/mpris_mp2_player.cpp
+    HEADERS -= \
+        mpris/mpris.h \
+        mpris/mpris_mp2.h \
+        mpris/mpris_mp2_player.h
 }
 
 # Include git hash into build
