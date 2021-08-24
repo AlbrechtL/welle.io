@@ -112,6 +112,8 @@ SOURCES += \
 
 android {
     QT += androidextras
+    QT += svg
+
     HEADERS += android_rtl_sdr.h
     SOURCES += android_rtl_sdr.cpp
 
