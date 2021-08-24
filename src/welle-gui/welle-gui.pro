@@ -113,6 +113,7 @@ SOURCES += \
 android {
     QT += androidextras
     QT += svg
+    qtHaveModule(virtualkeyboard): QT += virtualkeyboard
 
     HEADERS += android_rtl_sdr.h
     SOURCES += android_rtl_sdr.cpp
