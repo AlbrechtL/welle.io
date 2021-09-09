@@ -32,8 +32,7 @@ ListModel {
     function addStation(station, sId, channel, favorit) {
         // Check if station already exists
         for (var i=0; i<count; i++) {
-            if (get(i).stationSId === sId && get(i).channelName === channel) {
-                get(i).stationName = station;
+            if (get(i).stationSId === sId) {
                 return;
             }
         }
