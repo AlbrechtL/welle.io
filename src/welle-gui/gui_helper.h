@@ -51,7 +51,10 @@
 #include "mot_image_provider.h"
 #include "dab-constants.h"
 #include "radio_controller.h"
-#include "mpris/mpris.h"
+
+#ifndef __ANDROID__
+    #include "mpris/mpris.h"
+#endif
 
 #ifdef __ANDROID__
     class FileActivityResultReceiver;
@@ -172,8 +175,11 @@ public:
     Q_INVOKABLE int getIndexOfQQStyle(QString);
     Q_INVOKABLE bool isThemableStyle(QString);
     Q_INVOKABLE void saveQQStyle(int);
+
+#ifndef __ANDROID__
     Q_INVOKABLE void updateMprisStationList(QString, QString, int);
     Q_INVOKABLE void setMprisFullScreenState(bool isFullscreen);
+#endif
 
     CMOTImageProvider* motImageProvider; // ToDo: Must be a getter
 
@@ -203,7 +209,9 @@ private:
     StyleModel *m_styleModel = nullptr;
     bool settingsStyleInAvailableStyles = false;
 
+#ifndef __ANDROID__
     Mpris *mpris;
+#endif
 
 #ifndef QT_NO_SYSTEMTRAYICON
     QAction *minimizeAction;
