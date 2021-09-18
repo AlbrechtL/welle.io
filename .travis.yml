@@ -110,7 +110,7 @@ jobs:
         # Create welle-gui Flatpak
         - sudo flatpak-builder --repo=wellerepo --force-clean fp_build io.welle.welle-gui.json
         - sudo flatpak --user remote-add --no-gpg-verify welle-repo wellerepo
-        - sudo flatpak --user install welle-repo io.welle.welle-gui
+        - sudo flatpak --user install welle-repo io.welle.welle-gui --assumeyes
         - flatpak build-bundle wellerepo welle-io.flatpak io.welle.welle-gui
         - mv welle-io.flatpak "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.flatpak
         
