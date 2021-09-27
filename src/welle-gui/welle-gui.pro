@@ -131,13 +131,31 @@ android {
         mpris/mpris_mp2_player.h
 }
 
-# Include git hash into build
+# Include git hash & BUILD_DATE into build
 unix: {
     GITHASHSTRING = $$system(git rev-parse --short HEAD)
+    isEmpty(SOURCE_DATE_EPOCH) {
+        SOURCE_DATE_EPOCH=$$(SOURCE_DATE_EPOCH)
+    }
+    isEmpty(SOURCE_DATE_EPOCH) {
+        SOURCE_DATE_EPOCH=$$system(git log -1 --pretty=%ct)
+    }
+    isEmpty(SOURCE_DATE_EPOCH) {
+        SOURCE_DATE_EPOCH=$$system(date +%s)
+    }
 }
 
 win32 {
     GITHASHSTRING = $$system(git.exe rev-parse --short HEAD)
+    isEmpty(SOURCE_DATE_EPOCH) {
+        SOURCE_DATE_EPOCH=$$(SOURCE_DATE_EPOCH)
+    }
+    isEmpty(SOURCE_DATE_EPOCH) {
+        SOURCE_DATE_EPOCH=$$system(git.exe log -1 --pretty=%ct)
+    }
+    isEmpty(SOURCE_DATE_EPOCH) {
+        SOURCE_DATE_EPOCH=$$system(powershell -Command (Get-Date -UFormat %s -Millisecond 0))
+    }
 } else:macx {
     ICON = icons/icon.icns
 }
@@ -148,4 +166,12 @@ win32 {
 }
 else {
     warning("Can't get git hash.")
+}
+
+!isEmpty(SOURCE_DATE_EPOCH) {
+    message("BUILD_DATE = $$SOURCE_DATE_EPOCH")
+    DEFINES += BUILD_DATE=\\\"$$SOURCE_DATE_EPOCH\\\"
+}
+else {
+    warning("BUILD_DATE could not be set.")
 }
