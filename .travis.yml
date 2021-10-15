@@ -6,6 +6,68 @@ compiler: gcc
 #  # "BINTRAY_KEY=<secure>"
 #  - secure: "AjycfSfIztFeat6AO3SETSFW9Xd0AUt17hg87sEo8pSPO3SILq6bKS5Pfe4Bdo3Za32BvGzeJaOZ9EEVtzweuYJwsBejVfk2lxiBH5RKoBVrHpJLXDNj7MUt2ezb734bjFFt3+lMG84vSCqioNMcYwlHcqCChiTT529NZhaGMsDFzF5NimJZl0LGcEQlaTxTfeCKwSk+apHw5rQes2I2Jf9icweUGe/VOOVmYjDTiPWKcBEwBvfV5vabr5btCgUY8zK5451x/35API2Hbq7o0hNxqvwQUFI54jZwqfR4DOA1V/Nk7rdc34Fe+xgKSoBmHC0RgCIbXw1erEkn31Y0+tLBVxa971FB+y7L+5ZEaqw9UolT0PM5LHZmWUA60A5JlvsFOr0urid8lk0g5mdGF4aHEy2O5rDOMbwE11MpTEkDDbgE6uSD0/aubTJYPu24yMlBrP1lz10Sltg+YLi5hshhzRmd4iWTKuEy4jly1SdOKjjdbLCzlAnsF9Ta0a/lfumOd2lmELhYKhFLuVTCWZFvjpJyziCIFLVs4refDbDrsdfE+CaJedP/uBDGoBp4Hg6aug+66zKPybVzODqR2uIa3I7ACM3l/GdJcGg+1AH1T/ievq4rQ52T3MspevFxQmevuA9vvgOVko79PDrW1xbp+oQPTk0/pODNjVvrZFk="
 
+env:
+  global:
+    - ANDROID_SDK_CMDLINE_TOOLS_ZIP="commandlinetools-linux-7583922_latest.zip"
+    - ANDROID_SDK_CMDLINE_TOOLS_SHA256="124f2d5115eee365df6cf3228ffbca6fc3911d16f8025bebd5b1c6e2fcfa7faf"
+    - ANDROID_BUILD_TOOLS_VER="28.0.3" # Same as buildToolsVersion in src/welle-gui/android/build.gradle
+    - ANDROID_PLATFORM_VER="android-30"
+    - ANDROID_NDK_ZIP="android-ndk-r20b-linux-x86_64.zip"
+    - ANDROID_NDK_SHA1="d903fdf077039ad9331fb6c3bee78aa46d45527b"
+    - ANDROID_NDK_MOUNT_DIR="${HOME}/r20b"
+    - ANDROID_NDK_BASE_DIR="android-ndk-r20b"
+
+.download_ndk: &download_ndk |
+    command -v eatmydata > /dev/null || (sudo apt-get update; sudo apt-get -y install eatmydata)
+    command -v wget > /dev/null || (sudo eatmydata apt-get update; sudo eatmydata apt-get -y install wget)
+    echo "Getting Android NDK..."
+    echo "$ANDROID_NDK_SHA1  $ANDROID_NDK_ZIP" | sha1sum -c || wget -nv -nc https://dl.google.com/android/repository/$ANDROID_NDK_ZIP
+    echo "$ANDROID_NDK_SHA1  $ANDROID_NDK_ZIP" | sha1sum -c
+
+.download_sdk_cmdline_tools: &download_sdk_cmdline_tools |
+    command -v eatmydata > /dev/null || (sudo apt-get update; sudo apt-get -y install eatmydata)
+    command -v wget > /dev/null || (sudo eatmydata apt-get update; sudo eatmydata apt-get -y install wget)
+    echo "Getting Android SDK Command Line Tools..."
+    echo "$ANDROID_SDK_CMDLINE_TOOLS_SHA256  $ANDROID_SDK_CMDLINE_TOOLS_ZIP" | sha256sum -c || wget -nv -nc https://dl.google.com/android/repository/$ANDROID_SDK_CMDLINE_TOOLS_ZIP
+    echo "$ANDROID_SDK_CMDLINE_TOOLS_SHA256  $ANDROID_SDK_CMDLINE_TOOLS_ZIP" | sha256sum -c
+
+.unzip_cmdline_tools: &unzip_cmdline_tools |
+    command -v eatmydata > /dev/null || (sudo apt-get update; sudo apt-get -y install eatmydata)
+    command -v unzip > /dev/null || (sudo eatmydata apt-get update; sudo eatmydata apt-get -y install unzip)
+    echo "Unzip Android Command Line Tools..."
+    mkdir -p ${HOME}/cmdline-tools
+    eatmydata unzip -q $ANDROID_SDK_CMDLINE_TOOLS_ZIP -d ${HOME}/cmdline-tools
+
+.download_sdk_platform_30: &download_sdk_platform_30 |
+    command -v eatmydata > /dev/null || (sudo apt-get update; sudo apt-get -y install eatmydata)
+    command -v java > /dev/null || (sudo eatmydata apt-get update; sudo eatmydata apt-get -y install default-jre-headless)
+    mkdir -p ${HOME}/android-sdk
+    echo "Getting android SDK components"
+    test -e ${HOME}/android-sdk/platforms/$ANDROID_PLATFORM_VER/source.properties || echo "y" | ${HOME}/cmdline-tools/cmdline-tools/bin/sdkmanager "platforms;$ANDROID_PLATFORM_VER" --channel=0 --sdk_root=${HOME}/android-sdk || echo -e "\nfinished with sdk"
+    test -e ${HOME}/android-sdk/build-tools/$ANDROID_BUILD_TOOLS_VER/source.properties || echo "y" | ${HOME}/cmdline-tools/cmdline-tools/bin/sdkmanager "build-tools;$ANDROID_BUILD_TOOLS_VER" --channel=0 --sdk_root=${HOME}/android-sdk || echo -e "\nfinished with sdk"
+    test -e ${HOME}/android-sdk/platform-tools/source.properties || echo "y" | ${HOME}/cmdline-tools/cmdline-tools/bin/sdkmanager "platform-tools" --channel=0 --sdk_root=${HOME}/android-sdk || echo -e "\nfinished with sdk"
+
+.mount_cmdline_tools: &mount_cmdline_tools |
+    # need to symlink /etc/mtab to work around a fusermount(1) deficiency (copied from /usr/lib/python3/dist-packages/reprotest/presets.py)
+    test -c /dev/fuse || mknod -m 666 /dev/fuse c 10 229
+    test -f /etc/mtab || ln -s ../proc/self/mounts /etc/mtab
+    command -v eatmydata > /dev/null || (sudo apt-get update; sudo apt-get -y install eatmydata)
+    command -v fuse-zip > /dev/null || (sudo eatmydata apt-get update; sudo eatmydata apt-get -y install fuse-zip)
+    mkdir -p ${HOME}/cmdline-tools
+    fuse-zip -r $ANDROID_SDK_CMDLINE_TOOLS_ZIP ${HOME}/cmdline-tools
+
+.umount_cmdline_tools: &umount_cmdline_tools |
+    fusermount -u ${HOME}/cmdline-tools || echo "failed"
+
+.mount_ndk: &mount_ndk |
+    # need to symlink /etc/mtab to work around a fusermount(1) deficiency (copied from /usr/lib/python3/dist-packages/reprotest/presets.py)
+    test -c /dev/fuse || mknod -m 666 /dev/fuse c 10 229
+    test -f /etc/mtab || ln -s ../proc/self/mounts /etc/mtab
+    command -v eatmydata > /dev/null || (sudo apt-get update; sudo apt-get -y install eatmydata)
+    command -v fuse-zip > /dev/null || (sudo eatmydata apt-get update; sudo eatmydata apt-get -y install fuse-zip)
+    mkdir -p $ANDROID_NDK_MOUNT_DIR
+    fuse-zip -r $ANDROID_NDK_ZIP $ANDROID_NDK_MOUNT_DIR
+
 script:
   - DATE=`date +%Y%m%d`
   - GIT_HASH=`git rev-parse --short HEAD`
@@ -45,6 +107,20 @@ script:
   - make -j4
   - cd ..
 
+  # Create welle-io apk
+  - export ANDROID_SDK_ROOT=${HOME}/android-sdk
+  - export ANDROID_NDK_ROOT=$ANDROID_NDK_MOUNT_DIR/$ANDROID_NDK_BASE_DIR
+  - export QT_ROOT=/usr/lib/qt-android-5.15
+  - mkdir -p android-build
+  - cd android-build
+  - $QT_ROOT/bin/qmake ../welle.io.pro
+  - make -j$(nproc)
+  - make -j$(nproc) apk_install_target
+  - $QT_ROOT/bin/androiddeployqt --input src/welle-gui/android-welle-io-deployment-settings.json
+    --output src/welle-gui/android-build --android-platform android-30
+    --jdk /usr/lib/jvm/default-java --gradle
+  - cd ..
+
 jobs:
   include:
     - os: linux
@@ -55,6 +131,29 @@ jobs:
         # SoapySDR
         - sudo add-apt-repository ppa:myriadrf/drivers -y
         - sudo apt-get update -qq
+
+        # qt-android 5.15
+        - sudo apt-get -y install ca-certificates
+        - export JOB_ID=2020761
+        - wget https://salsa.debian.org/bastif/qt-android/-/jobs/$JOB_ID/artifacts/raw/aptly/public-key.asc
+        - sudo cp public-key.asc /etc/apt/trusted.gpg.d/
+        - sudo apt-get -y install apt-transport-https
+        - sudo add-apt-repository "deb https://salsa.debian.org/bastif/qt-android/-/jobs/$JOB_ID/artifacts/raw/aptly
+            stretch main" -y
+        - sudo apt-get -y update
+        - dpkg --list qt-android* || echo "error"
+        - apt-cache search qt-android || echo "error"
+        - sudo apt-get -y -t stretch install qt-android-5.15
+
+        # Android SDK & NDK
+        - *download_sdk_cmdline_tools
+        - *mount_cmdline_tools
+        - *download_sdk_platform_30
+        - *umount_cmdline_tools
+        - *download_ndk
+        - *mount_ndk
+        # JDK
+        - sudo apt-get -y install default-jdk
 
       install:
         - sudo apt-get -y install sshpass
@@ -113,11 +212,15 @@ jobs:
         - sudo flatpak --user install welle-repo io.welle.welle-gui --assumeyes
         - flatpak build-bundle wellerepo welle-io.flatpak io.welle.welle-gui
         - mv welle-io.flatpak "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.flatpak
-        
+
+        # welle-io APK
+        - mv android-build/src/welle-gui/android-build/build/outputs/apk/debug/android-build-debug.apk "$DATE"_"$GIT_HASH"_Android_welle-io.apk
+
         # Upload
         - sshpass -p ${SFTP_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.AppImage ${SFTP_USER}@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/
         - sshpass -p ${SFTP_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$DATE"_"$GIT_HASH"_Linux_welle-io-cli-x86_64.AppImage ${SFTP_USER}@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/
         - sshpass -p ${SFTP_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.flatpak ${SFTP_USER}@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/
+        - sshpass -p ${SFTP_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$DATE"_"$GIT_HASH"_Android_welle-io.apk ${SFTP_USER}@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/
 
     - os: osx
       osx_image: xcode11.3
@@ -151,7 +254,7 @@ jobs:
         - hdiutil create welle-io.dmg -ov -volname "Install welle.io" -fs HFS+ -srcfolder appdir
         - hdiutil convert welle-io.dmg -format UDZO -o "$DATE"_"$GIT_HASH"_MacOS_welle-io.dmg
         - rm welle-io.dmg
-       
+
         # Upload
         - sshpass -p ${SFTP_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$DATE"_"$GIT_HASH"_MacOS_welle-io.dmg ${SFTP_USER}@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/
 
