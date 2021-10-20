@@ -77,23 +77,29 @@ MP2Decoder::MP2Decoder(SubchannelSinkObserver* observer, bool float32) : Subchan
 	fprintf(stderr, "MP2Decoder: using decoder '%s'.\n", mpg123_current_decoder(handle));
 
 
-	// set allowed formats
-	mpg_result = mpg123_format_none(handle);
-	if(mpg_result != MPG123_OK)
-		throw std::runtime_error("MP2Decoder: error while mpg123_format_none: " + std::string(mpg123_plain_strerror(mpg_result)));
+    // set allowed formats
+    mpg_result = mpg123_format_none(handle);
+    if(mpg_result != MPG123_OK)
+        throw std::runtime_error("MP2Decoder: error while mpg123_format_none: " + std::string(mpg123_plain_strerror(mpg_result)));
 
-	mpg_result = mpg123_format(handle, 48000, MPG123_MONO | MPG123_STEREO, float32 ? MPG123_ENC_FLOAT_32 : MPG123_ENC_SIGNED_16);
-	if(mpg_result != MPG123_OK)
-		throw std::runtime_error("MP2Decoder: error while mpg123_format #1: " + std::string(mpg123_plain_strerror(mpg_result)));
+    mpg_result = mpg123_format(handle, 48000, MPG123_MONO | MPG123_STEREO, float32 ? MPG123_ENC_FLOAT_32 : MPG123_ENC_SIGNED_16);
+    if(mpg_result != MPG123_OK)
+        throw std::runtime_error("MP2Decoder: error while mpg123_format #1: " + std::string(mpg123_plain_strerror(mpg_result)));
 
-	mpg_result = mpg123_format(handle, 24000, MPG123_MONO | MPG123_STEREO, float32 ? MPG123_ENC_FLOAT_32 : MPG123_ENC_SIGNED_16);
-	if(mpg_result != MPG123_OK)
-		throw std::runtime_error("MP2Decoder: error while mpg123_format #2: " + std::string(mpg123_plain_strerror(mpg_result)));
+    mpg_result = mpg123_format(handle, 24000, MPG123_MONO | MPG123_STEREO, float32 ? MPG123_ENC_FLOAT_32 : MPG123_ENC_SIGNED_16);
+    if(mpg_result != MPG123_OK)
+        throw std::runtime_error("MP2Decoder: error while mpg123_format #2: " + std::string(mpg123_plain_strerror(mpg_result)));
 
-	// disable resync limit
-	mpg_result = mpg123_param(handle, MPG123_RESYNC_LIMIT, -1, 0);
-	if(mpg_result != MPG123_OK)
-		throw std::runtime_error("MP2Decoder: error while mpg123_param: " + std::string(mpg123_plain_strerror(mpg_result)));
+    // disable resync limit
+    mpg_result = mpg123_param(handle, MPG123_RESYNC_LIMIT, -1, 0);
+    if(mpg_result != MPG123_OK)
+        throw std::runtime_error("MP2Decoder: error while mpg123_param: " + std::string(mpg123_plain_strerror(mpg_result)));
+
+#ifdef QUIET_MPG123
+    mpg_result = mpg123_param(handle, MPG123_ADD_FLAGS, MPG123_QUIET, 0);
+    if(mpg_result != MPG123_OK)
+        throw std::runtime_error("MP2Decoder: error while mpg123_param: " + std::string(mpg123_plain_strerror(mpg_result)));
+#endif
 
 	mpg_result = mpg123_open_feed(handle);
 	if(mpg_result != MPG123_OK)

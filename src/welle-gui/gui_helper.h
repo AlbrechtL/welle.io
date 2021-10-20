@@ -227,7 +227,9 @@ private slots:
     void motReset();
     void showErrorMessage(QString Text);
     void showInfoMessage(QString Text);
+#ifndef QT_NO_SYSTEMTRAYICON
     void showWindow(QSystemTrayIcon::ActivationReason r);
+#endif
 
 signals:
     void foundChannelCount(int channelCount);

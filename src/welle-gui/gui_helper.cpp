@@ -244,13 +244,13 @@ void CGUIHelper::showInfoMessage(QString Text)
 #endif
 }
 
+#ifndef QT_NO_SYSTEMTRAYICON
 void CGUIHelper::showWindow(QSystemTrayIcon::ActivationReason r)
 {
-#ifndef QT_NO_SYSTEMTRAYICON
     if (r == QSystemTrayIcon::Trigger)
-        emit restoreWindow();
+
+} emit restoreWindow();
 #endif
-}
 
 void CGUIHelper::registerSpectrumSeries(QAbstractSeries* series)
 {
