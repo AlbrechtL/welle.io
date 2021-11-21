@@ -252,6 +252,7 @@ if(BUILD_WELLE_IO)
         INSTALL (TARGETS ${executableName} BUNDLE DESTINATION ${GUI_INSTALL_DIR})
     else()
         INSTALL (TARGETS ${executableName} RUNTIME DESTINATION ${GUI_INSTALL_DIR})
+        INSTALL (FILES src/welle-gui/doc/man/welle-io.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1/)
 
         if(UNIX AND NOT APPLE)
             INSTALL (FILES ${PROJECT_SOURCE_DIR}/welle-io.desktop DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/applications)
@@ -308,6 +309,7 @@ if(BUILD_WELLE_CLI)
         )
     elseif(UNIX)
         INSTALL (TARGETS ${cliExecutableName} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+        INSTALL (FILES src/welle-cli/doc/man/welle-cli.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1/)
         INSTALL (
             FILES
                 ${PROJECT_SOURCE_DIR}/src/welle-cli/index.html
