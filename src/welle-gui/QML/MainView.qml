@@ -154,25 +154,7 @@ ApplicationWindow {
             ToolButton {
                 anchors.top: parent.top
                 anchors.bottom: parent.bottom
-            Image {
-                id: startStopIcon
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.verticalCenter: parent.verticalCenter
-
-                height: parent.availableHeight - parent.padding
-                fillMode: Image.PreserveAspectFit
-
-                Accessible.role: Accessible.Button
-                Accessible.name: (radioController.isPlaying || radioController.isChannelScan) ? qsTr("Stop") : qsTr("Play")
-                Accessible.description: radioController.isPlaying ? qsTr("Stop playback") : radioController.isChannelScan ? qsTr("Stop scan") : qsTr("Start playback")
-                Accessible.onPressAction: startStopIconMouseArea.clicked(mouse)
-
-                WToolTip {
-                    text: (radioController.isPlaying || radioController.isChannelScan) ? qsTr("Stop") : qsTr("Play")
-                    visible: startStopIconMouseArea.containsMouse
-                }
-
-                Component.onCompleted: { startStopIcon.setStartPlayIcon() }
+                highlighted: startStopIconMouseArea.pressed
 
                 MouseArea {
                     id: startStopIconMouseArea
@@ -187,68 +169,108 @@ ApplicationWindow {
                     }
                 }
 
-                Shortcut {
-                    context: Qt.ApplicationShortcut
-                    autoRepeat: false
-                    sequences: ["Media Pause", "Toggle Media Play/Pause", "S"]
-                    onActivated: startStopIconMouseArea.clicked(0)
-                }
-                Shortcut {
-                    context: Qt.ApplicationShortcut
-                    autoRepeat: false
-                    sequences: ["Media Stop"]
-                    onActivated: if (radioController.isPlaying || radioController.isChannelScan) startStopIcon.stop()
-                }
-                Shortcut {
-                    context: Qt.ApplicationShortcut
-                    autoRepeat: false
-                    sequences: ["Media Play"]
-                    onActivated: if (!radioController.isPlaying) startStopIcon.play()
-                }
+                Image {
+                    id: startStopIcon
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.verticalCenter: parent.verticalCenter
 
-                Connections {
-                    target: radioController
-                    onIsPlayingChanged: {
-                        startStopIcon.setStartPlayIcon()
+                    height: parent.availableHeight - parent.padding
+                    fillMode: Image.PreserveAspectFit
+
+                    Accessible.role: Accessible.Button
+                    Accessible.name: (radioController.isPlaying || radioController.isChannelScan) ? qsTr("Stop") : qsTr("Play")
+                    Accessible.description: radioController.isPlaying ? qsTr("Stop playback") : radioController.isChannelScan ? qsTr("Stop scan") : qsTr("Start playback")
+                    Accessible.onPressAction: startStopIconMouseArea.clicked(mouse)
+
+                    WToolTip {
+                        text: (radioController.isPlaying || radioController.isChannelScan) ? qsTr("Stop") : qsTr("Play")
+                        visible: startStopIconMouseArea.containsMouse
                     }
-                    onIsChannelScanChanged: {
-                        startStopIcon.setStartPlayIcon()
+
+                    Component.onCompleted: { startStopIcon.setStartPlayIcon() }
+
+                    Shortcut {
+                        context: Qt.ApplicationShortcut
+                        autoRepeat: false
+                        sequences: ["Media Pause", "Toggle Media Play/Pause", "S"]
+                        onActivated: startStopIconMouseArea.clicked(0)
+                    }
+                    Shortcut {
+                        context: Qt.ApplicationShortcut
+                        autoRepeat: false
+                        sequences: ["Media Stop"]
+                        onActivated: if (radioController.isPlaying || radioController.isChannelScan) startStopIcon.stop()
+                    }
+                    Shortcut {
+                        context: Qt.ApplicationShortcut
+                        autoRepeat: false
+                        sequences: ["Media Play"]
+                        onActivated: if (!radioController.isPlaying) startStopIcon.play()
+                    }
+
+                    Connections {
+                        target: radioController
+                        onIsPlayingChanged: {
+                            startStopIcon.setStartPlayIcon()
+                        }
+                        onIsChannelScanChanged: {
+                            startStopIcon.setStartPlayIcon()
+                        }
+                    }
+
+                    function setStartPlayIcon() {
+                        if (radioController.isPlaying || radioController.isChannelScan) {
+                            startStopIcon.source = "qrc:/icons/welle_io_icons/20x20/stop.png"
+                        } else {
+                            startStopIcon.source = "qrc:/icons/welle_io_icons/20x20/play.png"
+                        }
+                    }
+
+                    function play() {
+                        var channel = radioController.lastChannel[1]
+                        var sidHex = radioController.lastChannel[0]
+                        stationList.play(channel, sidHex)
+                    }
+
+                    function stop() {
+                        if (radioController.isPlaying)
+                            radioController.stop();
+                        else if (radioController.isChannelScan)
+                            radioController.stopScan()
                     }
                 }
 
-                function setStartPlayIcon() {
-                    if (radioController.isPlaying || radioController.isChannelScan) {
-                        startStopIcon.source = "qrc:/icons/welle_io_icons/20x20/stop.png"
-                    } else {
-                        startStopIcon.source = "qrc:/icons/welle_io_icons/20x20/play.png"
-                    }
+                ColorOverlay {
+                    id: startStopIconOverlay
+                    anchors.fill: startStopIcon
+                    source: startStopIcon
+                    color: (mainWindow.Material.theme === Material.Dark ) ? "lightgrey" : (mainWindow.Universal.theme === Universal.Dark ) ? "lightgrey" : TextStyle.textColor
                 }
-
-                function play() {
-                    var channel = radioController.lastChannel[1]
-                    var sidHex = radioController.lastChannel[0]
-                    stationList.play(channel, sidHex)
-                }
-
-                function stop() {
-                    if (radioController.isPlaying)
-                        radioController.stop();
-                    else if (radioController.isChannelScan)
-                        radioController.stopScan()
-                }
-            }
-            ColorOverlay {
-                id: startStopIconOverlay
-                anchors.fill: startStopIcon
-                source: startStopIcon
-                color: (mainWindow.Material.theme === Material.Dark ) ? "lightgrey" : (mainWindow.Universal.theme === Universal.Dark ) ? "lightgrey" : TextStyle.textColor
-            }
             }
 
             ToolButton {
                 id: speakerIconContainer
                 anchors.top: parent.top
                 anchors.bottom: parent.bottom
+                highlighted: speakerIconMouseArea.pressed
+
+                MouseArea {
+                    id: speakerIconMouseArea
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    acceptedButtons: Qt.LeftButton | Qt.RightButton
+                    onPressAndHold: volumePopup.open()
+                    onClicked: {
+                        if(mouse.button == Qt.RightButton)
+                            volumePopup.open()
+                        else
+                            if(radioController.volume !== 0)
+                                volumeSlider.value = 0
+                            else
+                                volumeSlider.value = 1
+                    }
+                    onWheel: (wheel.angleDelta.y > 0) ? volumeSlider.value = volumeSlider.value + 0.1 :  volumeSlider.value = volumeSlider.value - 0.1
+                }
 
                 contentItem: Item {
                     // Use 2 Images to switch between speaker & speaker_mute icon (instead of toggle button).
@@ -274,14 +296,6 @@ ApplicationWindow {
                         Accessible.name: qsTr("Volume")
                         Accessible.description: qsTr("Toggle volume slider")
                         Accessible.onPressAction: speakerIconMouseArea.clicked(mouse)
-                    }
-                    MouseArea {
-                        id: speakerIconMouseArea
-                        anchors.fill: speakerIcon
-                        hoverEnabled: true
-                        onClicked: volumePopup.open()
-                        onDoubleClicked: (radioController.volume != 0) ? volumeSlider.value = 0 : volumeSlider.value = 1
-                        onWheel: (wheel.angleDelta.y > 0) ? volumeSlider.value = volumeSlider.value + 0.1 :  volumeSlider.value = volumeSlider.value - 0.1
                     }
                     Image {
                         id: speakerIconMuted
