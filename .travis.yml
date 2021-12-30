@@ -127,9 +127,10 @@ jobs:
         - brew update
 
       install:
-        - brew install fftw faad2 lame mpg123 soapysdr esolitos/ipa/sshpass
+        - brew install fftw faad2 lame mpg123 soapysdr esolitos/ipa/sshpass qt@5
         - brew install --HEAD soapyuhd
-        - ln -s /usr/local/opt/qt/bin/qmake /usr/local/bin/qmake
+        - echo 'export PATH="/usr/local/opt/qt/bin:$PATH"' >> ~/.zshrc
+        - source ~/.zshrc
         - export LIBRARY_PATH=/usr/local/lib
 
       after_success:
