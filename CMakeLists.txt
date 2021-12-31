@@ -216,6 +216,9 @@ if(GIT_DESCRIBE)
   add_definitions("-DGITDESCRIBE=\"${GIT_DESCRIBE}\"")
 endif()
 
+STRING(TIMESTAMP BUILD_DATE "%s" UTC)
+add_definitions("-DBUILD_DATE=\"${BUILD_DATE}\"")
+
 if(BUILD_WELLE_IO)
     set(executableName welle-io)
     add_executable (${executableName} ${welle_io_sources} ${backend_sources} ${input_sources} ${fft_sources} ${EXTRA_MOCS} src/welle-gui/resources.qrc)
