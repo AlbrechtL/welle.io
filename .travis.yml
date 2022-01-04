@@ -134,14 +134,17 @@ jobs:
 
       before_install:
         - export JOB_ID=2020761
-        - sudo add-apt-repository "deb https://salsa.debian.org/bastif/qt-android/-/jobs/$JOB_ID/artifacts/raw/aptly stretch main" -y
-
-      install:
-        - sudo apt-get -y install apt-transport-https ca-certificates default-jdk default-jre-headless eatmydata fuse-zip sshpass wget
-
-        # qt-android 5.15
+        - sudo apt-get -y install wget
         - wget https://salsa.debian.org/bastif/qt-android/-/jobs/$JOB_ID/artifacts/raw/aptly/public-key.asc
         - sudo cp public-key.asc /etc/apt/trusted.gpg.d/
+        - sudo add-apt-repository "deb https://salsa.debian.org/bastif/qt-android/-/jobs/$JOB_ID/artifacts/raw/aptly stretch main" -y
+        - sudo apt-get update -qq
+
+      install:
+        - sudo apt-get -y install apt-transport-https ca-certificates default-jdk default-jre-headless eatmydata fuse-zip sshpass
+
+        # qt-android 5.15
+        
         - sudo apt-get -y -t stretch install qt-android-5.15
 
         # Android SDK Command Line Tools
