@@ -204,6 +204,7 @@ jobs:
       before_install:
         - brew tap pothosware/homebrew-pothos
         - brew update
+        - brew pin ansible
 
       install:
         - brew install fftw faad2 lame mpg123 soapysdr esolitos/ipa/sshpass qt@5
