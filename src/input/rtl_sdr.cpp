@@ -35,7 +35,7 @@
 
 #include "rtl_sdr.h"
 
-// For Qt translation if Qt is exisiting
+// For Qt translation if Qt is existing
 #ifdef QT_CORE_LIB
     #include <QtGlobal>
 #else
@@ -71,7 +71,7 @@ void CRTL_SDR::open_device()
         std::clog << "RTL_SDR: " << "Found " << deviceCount << " devices. Uses the first working one" << std::endl;
     }
 
-    //	Iterate over all found rtl-sdr devices and try to open it. Stops if one device is successfull opened.
+    //	Iterate over all found rtl-sdr devices and try to open it. Stops if one device is successful opened.
     for(uint32_t i=0; i<deviceCount; i++) {
         ret = rtlsdr_open(&device, i);
         if (ret >= 0) {
@@ -138,7 +138,7 @@ bool CRTL_SDR::restart(void)
         try {
             open_device();
         } catch (...) {
-            // An error occured. Maybe the device isn't present.
+            // An error occurred. Maybe the device isn't present.
             radioController.onMessage(message_level_t::Error, QT_TRANSLATE_NOOP("CRadioController", "Error opening RTL-SDR. See log for details."));
             return false;
         }

@@ -31,7 +31,7 @@
 #include <exception>
 #include <sstream>
 
-// For Qt translation if Qt is exisiting
+// For Qt translation if Qt is existing
 #ifdef QT_CORE_LIB
     #include <QtGlobal>
 #else
@@ -274,7 +274,7 @@ const char* DABConstants::getLanguageName(int language)
         case 70: languageName = QT_TR_NOOP("Vietnamese"); break;
         case 71: languageName = QT_TR_NOOP("Uzbek"); break;
         case 72: languageName = QT_TR_NOOP("Urdu"); break;
-        case 73: languageName = QT_TR_NOOP("Ukranian"); break;
+        case 73: languageName = QT_TR_NOOP("Ukrainian"); break;
         case 74: languageName = QT_TR_NOOP("Thai"); break;
         case 75: languageName = QT_TR_NOOP("Telugu"); break;
         case 76: languageName = QT_TR_NOOP("Tatar"); break;

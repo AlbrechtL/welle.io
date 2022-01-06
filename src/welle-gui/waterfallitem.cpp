@@ -167,7 +167,7 @@ void WaterfallItem::samplesCollected() {
 
     // Draw message into the plot
     if(!messageToPlot.isEmpty()) {
-        // Draw everthing in black
+        // Draw everything in black
         painter.setPen(QColor("black"));
 
         // Draw horizontal line

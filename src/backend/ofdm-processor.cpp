@@ -230,7 +230,7 @@ void OFDMProcessor::getSamples(DSPCOMPLEX *v, int16_t n, int32_t phase)
  *    time synchronization and frequency synchronization
  *    Identifying symbols in the DAB frame
  *    and sending them to the ofdmDecoder who will transfer the results
- *    Finally, estimating the small freqency error
+ *    Finally, estimating the small frequency error
  */
 void OFDMProcessor::run()
 {

@@ -88,7 +88,7 @@ ApplicationWindow {
             mainWindow.height = getHeight()
         }
 
-        // Show error message if one occured during startup
+        // Show error message if one occurred during startup
         if(errorMessagePopup.text != "")
             errorMessagePopup.open();
 
@@ -131,8 +131,8 @@ ApplicationWindow {
                     else
                     {
                         // Workaround for touch displays. (Discovered with Windows 10)
-                        // For some reason the dawer will be closed before it is openend
-                        // Disbale closing
+                        // For some reason the dawer will be closed before it is opened
+                        // Disable closing
                         stationDrawer.closePolicy = Popup.NoAutoClose
 
                         // Open drawer
@@ -351,7 +351,7 @@ ApplicationWindow {
 
                         parent: Overlay.overlay
 
-                        //modal: true  //if 'true', double click on the speaker icon will not be catched
+                        //modal: true  //if 'true', double click on the speaker icon will not be caught
                         focus: true
                         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
 
@@ -516,7 +516,7 @@ ApplicationWindow {
         visible: !inPortrait
 
         // Workaround for touch displays. (Discovered with Windows 10)
-        // For some reason the dawer will be closed before it is openend
+        // For some reason the dawer will be closed before it is opened
         // Enable closing again
         onOpened: closePolicy = Popup.CloseOnEscape | Popup.CloseOnPressOutside
 
@@ -999,7 +999,7 @@ ApplicationWindow {
         onMaximizeWindow: showMaximized()
         onRestoreWindow: {
             // On Linux (KDE?): Hide before we restore 
-            // otherwise the window will occasionaly not be brought to the front
+            // otherwise the window will occasionally not be brought to the front
             if (Qt.platform.os === "linux" && !active) // Linux Workaround to display the window
                 hide()
             showNormal()

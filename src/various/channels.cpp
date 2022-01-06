@@ -118,7 +118,7 @@ int Channels::getFrequency(const string& channelName)
     currentFrequency = frequency;
     currentChannel = channelName;
 
-    // Get index of current fequency
+    // Get index of current frequency
     for (int i=0; i<NUMBEROFCHANNELS; i++) {
         if (getChannelNameAtIndex(i) == channelName) {
             currentFrequencyIndex = i;

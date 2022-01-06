@@ -283,7 +283,7 @@ welle.io uses the "RTL2832U driver" from Martin Marinov, to be found at the [Goo
 This sections shows how to compile welle.io for Android.
 
 1. Install Qt 5.12 for Android including the Qt Charts and Qt Remote Objects modules by using the the "Qt Online Installer for Windows" https://www.qt.io/download-open-source/
-2. Follow the side https://doc.qt.io/qt-5/androidgs.html to install the Android build enviroment
+2. Follow the side https://doc.qt.io/qt-5/androidgs.html to install the Android build environment
 3. Clone welle.io https://github.com/AlbrechtL/welle.io.git
 
   ```
@@ -366,7 +366,7 @@ Examples:
 
 Limitations
 ===
-* Windows 8 and older are not offically supported
+* Windows 8 and older are not officially supported
 
 Development
 ===
