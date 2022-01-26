@@ -15,9 +15,12 @@ welle-io.exe -d rawfile --raw-file yourfile
   ```
 
 **Linux**
-  ```
-# welle-io -d rawfile --raw-file yourfile
-  ```
+
+Launch ``welle-io`` as a graphical user interface, select Settings in the 
+top-right menu, disable ``Auto detect`` and select ``Open RAW file``. Select
+the binary file encoding, ``u8`` for ``rtl_sdr`` output or ``cf32`` for 
+the File Sink of GNU Radio.
+![rawfile_dialog.png](/images/rawfile_dialog.png)
 
 ## File Format
 welle.io supports different rawfiles formats. You can change the raw file format with the option "--raw-format". Please read the next sections below for more details.
