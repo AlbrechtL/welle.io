@@ -163,7 +163,7 @@ int main(int argc, char** argv)
     CGUIHelper guiHelper(&radioController);
     guiHelper.setTranslator(translator);
 
-    // Create new QML application, set some requried options and load the QML file
+    // Create new QML application, set some required options and load the QML file
     QQmlApplicationEngine engine;
     QQmlContext* rootContext = engine.rootContext();
 

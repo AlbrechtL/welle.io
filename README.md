@@ -54,7 +54,7 @@ If you discovered an issue please open a new [issue](https://github.com/Albrecht
 ##### Developer version
 welle.io is under heavy development. You can also try the latest developer builds. But PLEASE BE WARNED the builds are automatically created and untested.
  * [welle.io nightly builds for *Windows* & *Linux AppImage*](https://welle-io-nightlies.albrechtloh.de/)
- * welle.io devel builds on *macOS MacPorts* are updated perdiodically manually and can be installed through [port welle.io-devel](https://ports.macports.org/port/welle.io-devel/summary). The port has no maintainer so please feel free to update it yourself in case you need to use a more recent devel version.
+ * welle.io devel builds on *macOS MacPorts* are updated periodically manually and can be installed through [port welle.io-devel](https://ports.macports.org/port/welle.io-devel/summary). The port has no maintainer so please feel free to update it yourself in case you need to use a more recent devel version.
    * `sudo port install welle.io-devel`
 
 ##### Compilation from source
@@ -124,12 +124,12 @@ Ubuntu Linux 18.04 LTS
 ---
 This section shows how to compile welle.io on Ubuntu 16.04 LTS and Ubuntu 18.04 LTS. 
 
-1. Install Qt 5.10 including the Qt Charts module by using the the "Qt Online Installer for Linux" https://www.qt.io/download-open-source/
+1. Install Qt 5.10 including the Qt Charts module by using the "Qt Online Installer for Linux" https://www.qt.io/download-open-source/
 
 2. Install the following packages
 
   ```
-# sudo apt install libfaad-dev libmpg123-dev libmpg123-dev libfftw3-dev librtlsdr-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev libsoapysdr-dev libairspy-dev libmp3lame-dev
+# sudo apt install libfaad-dev libmpg123-dev libfftw3-dev librtlsdr-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev libsoapysdr-dev libairspy-dev libmp3lame-dev
   ```
 
 3. Clone welle.io
@@ -148,7 +148,7 @@ A compiled version can be found at the [release page](https://github.com/Albrech
 
 This sections shows how to compile welle.io on Windows 10. Windows 7 should also be possible but is not tested. 
 
-1. Install Qt 5.10 including the Qt Charts and mingw modules by using the the "Qt Online Installer for Windows" https://www.qt.io/download-open-source/
+1. Install Qt 5.10 including the Qt Charts and mingw modules by using the "Qt Online Installer for Windows" https://www.qt.io/download-open-source/
 2. Clone welle.io https://github.com/AlbrechtL/welle.io.git e.g. by using [TortoiseGit](https://tortoisegit.org).
 3. Clone the welle.io Windows libraries https://github.com/AlbrechtL/welle.io-win-libs.git.
 4. Start Qt Creator and open the project file `welle.io.pro` inside the folder "welle.io".
@@ -282,8 +282,8 @@ welle.io uses the "RTL2832U driver" from Martin Marinov, to be found at the [Goo
 
 This sections shows how to compile welle.io for Android.
 
-1. Install Qt 5.12 for Android including the Qt Charts and Qt Remote Objects modules by using the the "Qt Online Installer for Windows" https://www.qt.io/download-open-source/
-2. Follow the side https://doc.qt.io/qt-5/androidgs.html to install the Android build enviroment
+1. Install Qt 5.12 for Android including the Qt Charts and Qt Remote Objects modules by using the "Qt Online Installer for Windows" https://www.qt.io/download-open-source/
+2. Follow the side https://doc.qt.io/qt-5/androidgs.html to install the Android build environment
 3. Clone welle.io https://github.com/AlbrechtL/welle.io.git
 
   ```
@@ -366,7 +366,7 @@ Examples:
 
 Limitations
 ===
-* Windows 8 and older are not offically supported
+* Windows 8 and older are not officially supported
 
 Development
 ===

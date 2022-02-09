@@ -132,7 +132,7 @@ void BackendTests::runRadio(const std::string &rawFileName,
                 }
                 else
                 {
-                    std::cout << "Tune to " << service.serviceLabel.utf8_label() << " succesfully" << std::endl;
+                    std::cout << "Tune to " << service.serviceLabel.utf8_label() << " successfully" << std::endl;
                     service_selected = true;
                 }
                 break;

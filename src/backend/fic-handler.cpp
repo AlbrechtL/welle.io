@@ -181,7 +181,7 @@ void FicHandler::processFicInput(const softbit_t *ficblock, int16_t ficno)
 
     /**
      * we have a final block of 24 bits  with puncturing according to PI_X
-     * This block constitues the 6 * 4 bits of the register itself.
+     * This block constitutes the 6 * 4 bits of the register itself.
      */
     for (k = 0; k < 24; k ++) {
         if (PI_X [k] != 0) {

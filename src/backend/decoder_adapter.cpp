@@ -37,7 +37,7 @@ DecoderAdapter::DecoderAdapter(ProgrammeHandlerInterface &mr, int16_t bitRate, A
     else if (dabModus == AudioServiceComponentType::DABPlus)
         decoder = std::make_unique<SuperframeFilter>(this, true, false);
     else
-        throw std::runtime_error("DecoderAdapter: Unkonwn service component");
+        throw std::runtime_error("DecoderAdapter: Unknown service component");
 
     // Open a dump file (XPADxpert) if the user defined it
     if (!dumpFileName.empty()) {
@@ -94,8 +94,8 @@ void DecoderAdapter::PutAudio(const uint8_t *data, size_t len)
 {
     // Then len is given in bytes. For stereo it is the double times of mono.
     // But we need two channels even if we have mono.
-    // Mono: len = len / 2 * 2 We have len to devide by 2 and for two channels we have multiply by two
-    // Stereo: len = len / 2 We just need to devide by 2 because it is stereo
+    // Mono: len = len / 2 * 2 We have len to divide by 2 and for two channels we have multiply by two
+    // Stereo: len = len / 2 We just need to divide by 2 because it is stereo
     size_t bufferSize = audioChannels == 2 ? len/2 : len;
     std::vector<int16_t> audio(bufferSize);
 
