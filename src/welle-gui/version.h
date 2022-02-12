@@ -5,5 +5,5 @@
 #define GITHASH "unknown"
 #endif
 
-#define CURRENT_VERSION "2.4 dev"
+#define CURRENT_VERSION "2.4"
 
