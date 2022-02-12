@@ -83,6 +83,12 @@ GridLayout {
         // Create new view
         console.debug("Creating component: " + path)
         var component = Qt.createComponent(path);
+        if( component.status !== Component.Ready )
+        {
+            if( component.status === Component.Error )
+                console.debug("Error:"+ component.errorString() );
+            return;
+        }
         var object = component.createObject(gridLayout);
         object.sourcePath = path; // Save path inside component to make a saving possible
         object.isExpert = Qt.binding(function() { return isExpert })
