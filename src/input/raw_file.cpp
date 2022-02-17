@@ -41,7 +41,7 @@
 
 #include "raw_file.h"
 
-// For Qt translation if Qt is exisiting
+// For Qt translation if Qt is existing
 #ifdef QT_CORE_LIB
     #include <QtGlobal>
 #else

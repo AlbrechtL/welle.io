@@ -132,7 +132,7 @@ class RadioControllerInterface {
         virtual void onInputFailure(void) { };
 };
 
-/* A Programme Hander is associated to each tuned programme in the ensemble.
+/* A Programme Handler is associated to each tuned programme in the ensemble.
  */
 class ProgrammeHandlerInterface {
     public:

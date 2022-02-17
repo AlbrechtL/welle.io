@@ -140,7 +140,7 @@ bool EEPProtection::deconvolve(const softbit_t *v, int32_t size, uint8_t *outBuf
         }
     }
     //  we had a final block of 24 bits  with puncturing according to PI_X
-    //  This block constitues the 6 * 4 bits of the register itself.
+    //  This block constitutes the 6 * 4 bits of the register itself.
     for (i = 0; i < 24; i ++) {
         if (PI_X [i] != 0)
             viterbiBlock[viterbiCounter] = v [inputCounter ++];

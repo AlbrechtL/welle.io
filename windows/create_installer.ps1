@@ -79,5 +79,5 @@ $Filename = $Date + "_" + $gitHash + "_Windows_welle-io-setup.exe"
 Write-Host "*** Creating $Filename ***" -ForegroundColor Red
 & "binarycreator" "--offline-only" "--config" "installer\config\config.xml" "--packages" "installer\packages" "$Filename"
 
-# Store file name to a enviroment variable
+# Store file name to a environment variable
 $env:welle_io_filename = $Filename

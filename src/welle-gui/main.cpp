@@ -94,7 +94,7 @@ int main(int argc, char** argv)
 
     // Set icon path
     QStringList themePaths;
-    themePaths << ":/icons";
+    themePaths << ":/icons/welle_io_icons";
     QIcon::setThemeSearchPaths(themePaths);
     QIcon::setThemeName("welle_io_icons");
 
@@ -103,7 +103,7 @@ int main(int argc, char** argv)
 
     // Handle the command line
     QCommandLineParser optionParser;
-    optionParser.setApplicationDescription("welle.io Help");
+    optionParser.setApplicationDescription("welle.io is an open source DAB and DAB+ software defined radio (SDR) with support for rtl-sdr (RTL2832U) and airspy. It supports high DPI and touch displays and it runs even on cheap computers like Raspberry Pi 2/3 and 100€ China Windows 10 tablets.");
     optionParser.addHelpOption();
     optionParser.addVersionOption();
 
@@ -163,7 +163,7 @@ int main(int argc, char** argv)
     CGUIHelper guiHelper(&radioController);
     guiHelper.setTranslator(translator);
 
-    // Create new QML application, set some requried options and load the QML file
+    // Create new QML application, set some required options and load the QML file
     QQmlApplicationEngine engine;
     QQmlContext* rootContext = engine.rootContext();
 

@@ -60,7 +60,7 @@ Rectangle {
         }
     }
 
-    // Posibility to add options entries dynamically
+    // Possibility to add options entries dynamically
     function addEntry(title, onTriggered) {
         var obj = menuItem.createObject(menu, {text: title})
         obj.triggered.connect(onTriggered)

@@ -89,6 +89,7 @@ static const char* http_405 = "HTTP/1.0 405 Method Not Allowed\r\n";
 static const char* http_500 = "HTTP/1.0 500 Internal Server Error\r\n";
 static const char* http_503 = "HTTP/1.0 503 Service Unavailable\r\n";
 static const char* http_contenttype_mp3 = "Content-Type: audio/mpeg\r\n";
+static const char* http_contenttype_m3u = "Content-Type: application/mpegurl\r\n";
 static const char* http_contenttype_text = "Content-Type: text/plain\r\n";
 static const char* http_contenttype_data =
         "Content-Type: application/octet-stream\r\n";
@@ -469,6 +470,9 @@ bool WebRadioInterface::dispatch_client(Socket&& client)
             else if (req.url == "/mux.json") {
                 success = send_mux_json(s);
             }
+            else if (req.url == "/mux.m3u") {
+                success = send_mux_playlist(s);
+            }
             else if (req.url == "/fic") {
                 success = send_fic(s);
             }
@@ -789,6 +793,53 @@ bool WebRadioInterface::send_mux_json(Socket& s)
     ssize_t ret = s.send(json_str.c_str(), json_str.size(), MSG_NOSIGNAL);
     if (ret == -1) {
         cerr << "Failed to send mux.json data" << endl;
+        return false;
+    }
+    return true;
+}
+
+bool WebRadioInterface::send_mux_playlist(Socket& s)
+{
+    stringstream m3u;
+    m3u << "#EXTM3U\n";
+
+    {
+        lock_guard<mutex> lock(rx_mut);
+        ASSERT_RX;
+
+        for (const auto& s : rx->getServiceList()) {
+            auto hex_sid = to_hex(s.serviceId, 4);
+            auto label = s.serviceLabel.utf8_label();
+            string url_mp3 = "";
+
+            for (const auto& sc : rx->getComponents(s)) {
+                switch (sc.transportMode()) {
+                    case TransportMode::Audio:
+                        if (sc.audioType() == AudioServiceComponentType::DAB or
+                            sc.audioType() == AudioServiceComponentType::DABPlus) {
+                            url_mp3 = "/mp3/" + hex_sid;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            if (not url_mp3.empty()) {
+                m3u << "#EXTINF:-1 sid=\"" << hex_sid << "\"," << label << "\n";
+                m3u << url_mp3 << "\n";
+            }
+        }
+    }
+
+    if (not send_http_response(s, http_ok, "", http_contenttype_m3u)) {
+        return false;
+    }
+
+    const auto m3u_str = m3u.str();
+    ssize_t ret = s.send(m3u_str.c_str(), m3u_str.size(), MSG_NOSIGNAL);
+    if (ret == -1) {
+        cerr << "Failed to send mux.m3u data" << endl;
         return false;
     }
     return true;

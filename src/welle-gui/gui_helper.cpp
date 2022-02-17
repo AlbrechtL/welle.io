@@ -94,7 +94,9 @@ CGUIHelper::CGUIHelper(CRadioController *RadioController, QObject *parent)
 
 #endif
 
+#ifndef __ANDROID__
     mpris = new Mpris(radioController, this);
+#endif
     CDebugOutput::setCGUI(this);
 }
 
@@ -179,8 +181,13 @@ const QByteArray CGUIHelper::getInfoPage(QString pageName)
         // Set application version
         InfoContent.append(tr("welle.io version") + ": " + QString(CURRENT_VERSION) + "\n");
         InfoContent.append(tr("Git revision") + ": " + QString(GITHASH) + "\n");
-        QString ts = QString(__TIMESTAMP__).replace("  "," ");
-        QDateTime tsDT = QLocale(QLocale::C).toDateTime(ts, "ddd MMM d hh:mm:ss yyyy");
+        QDateTime tsDT;
+        QString source_date_epoch = BUILD_DATE;
+        if (!source_date_epoch.isEmpty()) {
+            tsDT = QDateTime::fromSecsSinceEpoch(source_date_epoch.toLongLong());
+        } else {
+            tsDT = QDateTime::currentDateTime();
+        }
         InfoContent.append(tr("Built on") + ": " + tsDT.toString(Qt::ISODate) + "\n");
         InfoContent.append(tr("QT version") + ": " + qVersion() + "\n");
         InfoContent.append("\n");
@@ -899,6 +906,7 @@ QVariant StyleModel::data(const QModelIndex & index, int role) const
     return QVariant();
 }
 
+#ifndef __ANDROID__
 void CGUIHelper::updateMprisStationList(QString serializedJson, QString listType, int index)
 {
     mpris->setStationArray(serializedJson, listType, index);
@@ -908,3 +916,4 @@ void CGUIHelper::setMprisFullScreenState(bool isFullscreen)
 {
     mpris->setFullscreenState(isFullscreen);
 }
+#endif

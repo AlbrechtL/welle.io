@@ -28,7 +28,7 @@
 
 #include <iostream>
 
-// For Qt translation if Qt is exisiting
+// For Qt translation if Qt is existing
 #ifdef QT_CORE_LIB
     #include <QtGlobal>
 #else
@@ -71,7 +71,7 @@ CVirtualInput *CInputFactory::GetDevice(RadioControllerInterface& radioControlle
     else
         InputDevice = GetManualDevice(radioController, device);
 
-    // Fallback if no device is found or an error occured
+    // Fallback if no device is found or an error occurred
     if (InputDevice == nullptr) {
         std::string text;
 
@@ -119,7 +119,7 @@ CVirtualInput *CInputFactory::GetDevice(RadioControllerInterface &radioControlle
             "Error while opening device \"" << static_cast<int>(deviceId) << "\"." << std::endl;
     }
 
-    // Fallback if no device is found or an error occured
+    // Fallback if no device is found or an error occurred
     if (InputDevice == nullptr) {
         std::string text = QT_TRANSLATE_NOOP("CRadioController", "Error while opening device");
         radioController.onMessage(message_level_t::Error, text);
@@ -153,7 +153,7 @@ CVirtualInput* CInputFactory::GetAutoDevice(RadioControllerInterface& radioContr
             }
         }
         catch (...) {
-            // An error occured. Maybe the device isn't present.
+            // An error occurred. Maybe the device isn't present.
             // Just try the next input device
         }
 

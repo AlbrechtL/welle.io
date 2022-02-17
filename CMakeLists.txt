@@ -216,6 +216,9 @@ if(GIT_DESCRIBE)
   add_definitions("-DGITDESCRIBE=\"${GIT_DESCRIBE}\"")
 endif()
 
+STRING(TIMESTAMP BUILD_DATE "%s" UTC)
+add_definitions("-DBUILD_DATE=\"${BUILD_DATE}\"")
+
 if(BUILD_WELLE_IO)
     set(executableName welle-io)
     add_executable (${executableName} ${welle_io_sources} ${backend_sources} ${input_sources} ${fft_sources} ${EXTRA_MOCS} src/welle-gui/resources.qrc)
@@ -249,6 +252,7 @@ if(BUILD_WELLE_IO)
         INSTALL (TARGETS ${executableName} BUNDLE DESTINATION ${GUI_INSTALL_DIR})
     else()
         INSTALL (TARGETS ${executableName} RUNTIME DESTINATION ${GUI_INSTALL_DIR})
+        INSTALL (FILES src/welle-gui/doc/man/welle-io.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1/)
 
         if(UNIX AND NOT APPLE)
             INSTALL (FILES ${PROJECT_SOURCE_DIR}/welle-io.desktop DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/applications)
@@ -305,6 +309,7 @@ if(BUILD_WELLE_CLI)
         )
     elseif(UNIX)
         INSTALL (TARGETS ${cliExecutableName} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+        INSTALL (FILES src/welle-cli/doc/man/welle-cli.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1/)
         INSTALL (
             FILES
                 ${PROJECT_SOURCE_DIR}/src/welle-cli/index.html

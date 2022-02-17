@@ -293,64 +293,111 @@ struct options_t {
 
 static void usage()
 {
-    cerr << "Usage: " << endl <<
-#if defined(HAVE_ALSA)
-        "Receive using RTLSDR, and play with ALSA:" << endl <<
-        " welle-cli -c channel -p programme" << endl <<
-        endl <<
-        "Read an IQ file and play with ALSA:" << endl <<
-        "IQ file format is u8, unless the file ends with FORMAT.iq" << endl <<
-        " welle-cli -f file -p programme" << endl <<
-        endl <<
-#endif // defined(HAVE_ALSA)
-        "Use -D to dump FIC and all programmes to files." << endl <<
-        " welle-cli -c channel -D " << endl <<
-        endl <<
-        "Use -w to enable webserver, decode a programmes on demand." << endl <<
-        " welle-cli -c channel -w port" << endl <<
-        endl <<
-        "Use -Dw to enable webserver, decode all programmes." << endl <<
-        " welle-cli -c channel -Dw port" << endl <<
-        endl <<
-        "Use -C 1 -w to enable webserver, decode programmes one by one in a carousel." << endl <<
-        "Use -C N -w to enable webserver, decode programmes N by N in a carousel." << endl <<
-        "This is useful if your machine cannot decode all programmes simultaneously, but" << endl <<
-        "you still want to get an overview of the ensemble." << endl <<
-        "Without the -P option, welle-cli will switch every 10 seconds." << endl <<
-        "With the -P option, welle-cli will switch once DLS and a slide were decoded, staying at most" << endl <<
-        "80 seconds on a given programme." << endl <<
-        " welle-cli -c channel -C 1 -w port" << endl <<
-        " welle-cli -c channel -PC 1 -w port" << endl <<
-        endl <<
-        "Backend and input options" << endl <<
-        " -u      disable coarse corrector, for receivers who have a low frequency offset." << endl <<
-        " -g GAIN set input gain to GAIN or -1 for auto gain." << endl <<
-        " -F DRV  set input driver and arguments. Default: \"auto\"." << endl <<
-        "         valid drivers: " <<
-#ifdef HAVE_AIRSPY
-        "\"airspy\", " <<
-#endif
-#ifdef HAVE_RTLSDR
-        "\"rtl_sdr\", " <<
-#endif
-#ifdef HAVE_SOAPYSDR
-        "\"soapysdr\", " <<
-#endif
-#ifdef __ANDROID__
-        "\"android_rtl_sdr\", " <<
-#endif
-        "\"rtl_tcp\"." << endl <<
-        "         rtl_tcp host IP and port can be specified as \"rtl_tcp,<HOST_IP>:<PORT>\"." << endl <<
-        " -s ARGS SoapySDR Driver arguments." << endl <<
-        " -A ANT  set input antenna to ANT (for SoapySDR input only)." << endl <<
-        " -T      disable TII decoding to reduce CPU usage." << endl <<
-        endl <<
-        "Use -t test_number to run a test." << endl <<
-        "To understand what the tests do, please see source code." << endl <<
-        endl <<
-        " examples: welle-cli -c 10B -p GRRIF" << endl <<
-        "           welle-cli -f ./ofdm.iq -p GRRIF" << endl <<
-        "           welle-cli -f ./ofdm.iq -t 1" << endl;
+    cerr <<
+    "Usage: welle-cli [OPTION]" << endl <<
+    "   or: welle-cli -w <port> [OPTION]" << endl <<
+    endl <<
+    "welle-cli is welle.io's command line interface." << endl <<
+    endl <<
+    "Options:" << endl <<
+    endl <<
+    "Tuning:" << endl <<
+    "    -c channel    Tune to <channel> (eg. 10B, 5A, LD...)." << endl <<
+    "    -p programme  Play <programme> with ALSA (text name of the radio: eg. GRIFF)." << endl <<
+    endl <<
+    "Dumping:" << endl <<
+    "    -D            Dump FIC and all programmes to files (cannot be used with -C)." << endl <<
+    "                  This generates: dump.fic; <programme_name.msc> files;" << endl <<
+    "                  <programme_name.wav> files." << endl <<
+    "    -d            Dump programme to <programme_name.msc> file." << endl <<
+    endl <<
+    "Web server mode:" << endl <<
+    "    -w port       Enable web server on port <port>." << endl <<
+    "    -C number     Number of programmes to decode in a carousel" << endl <<
+    "                  (to be used with -w, cannot be used with -D)." << endl <<
+    "                  This is useful if your machine cannot decode all programmes" << endl <<
+    "                  simultaneously, but you still want to get an overview of" << endl <<
+    "                  the ensemble." << endl <<
+    "    -P            Without the -P option, welle-cli will switch every 10 seconds." << endl <<
+    "                  With the -P option, welle-cli will switch once DLS and a" << endl <<
+    "                  slide were decoded, staying at most 80 seconds on a given" << endl <<
+    "                  programme." << endl <<
+    endl <<
+    "Backend and input options:" << endl <<
+    "    -f file       Read an IQ file <file> and play with ALSA." << endl <<
+    "                  IQ file format is u8, unless the file ends with 'FORMAT.iq'." << endl <<
+    "    -u            Disable coarse corrector, for receivers who have a low " << endl <<
+    "                  frequency offset." << endl <<
+    "    -g gain       Set input gain to <gain> or -1 for auto gain." << endl <<
+    "    -F driver     Set input driver and arguments." << endl <<
+    "                  Please note that some input drivers are available only if" << endl <<
+    "                  they were enabled at build time." << endl <<
+    "                  Possible values are: auto (default), airspy, rtl_sdr," << endl <<
+    "                  android_rtl_sdr, rtl_tcp, soapysdr." << endl <<
+    "                  With \"rtl_tcp\", host IP and port can be specified as " << endl <<
+    "                  \"rtl_tcp,<HOST_IP>:<PORT>\"." << endl <<
+    "    -s args       SoapySDR Driver arguments." << endl <<
+    "    -A antenna    Set input antenna to ANT (for SoapySDR input only)." << endl <<
+    "    -T            Disable TII decoding to reduce CPU usage." << endl <<
+    endl <<
+    "Other options:" << endl <<
+    "    -t test_id    Run test <test_id>." << endl <<
+    "                  To understand what the tests do, please see source code." << endl <<
+    "    -h            Display this help and exit." << endl <<
+    "    -v            Output version information and exit." << endl <<
+    endl <<
+    "Examples:" << endl <<
+    endl <<
+    "welle-cli -c 10B -p GRRIF" << endl <<
+    "    Receive 'GRRIF' on channel '10B' using 'auto' driver, and play with ALSA." << endl <<
+    endl <<
+    "welle-cli -f ./ofdm.iq -p GRRIF" << endl <<
+    "    Read IQ file './ofdm.iq' (in u8 format) and play programme 'GRIFF' with ALSA." << endl <<
+    endl <<
+    "welle-cli -f ./ofdm.iq -t 1" << endl <<
+    "    Read IQ file './ofdm.iq' (in u8 format), and run test 1." << endl <<
+    endl <<
+    "welle-cli -c 10B -p GRRIF -F rtl_tcp,localhost:1234" << endl <<
+    "    Receive 'GRRIF' on channel '10B' using 'rtl_tcp' driver on localhost:1234," << endl <<
+    "    and play with ALSA." << endl <<
+    endl <<
+    "welle-cli -c 10B -D " << endl <<
+    "    Dump FIC and all programmes of channel 10B to files." << endl <<
+    endl <<
+    "welle-cli -c 10B -w 8000" << endl <<
+    "    Enable web server on port 8000, decode programmes on channel 10B on demand" << endl <<
+    "    (http://localhost:8000)." << endl <<
+    endl <<
+    "welle-cli -c 10B -Dw 8000" << endl <<
+    "    Enable web server on port 8000, decode all programmes on channel 10B." << endl <<
+    endl <<
+    "welle-cli -c 10B -C 1 -w 8000" << endl <<
+    "    Enable web server on port 8000, decode programmes one by one in a carousel" << endl <<
+    "    on channel 10B; welle-cli will switch every 10 seconds." << endl <<
+    endl <<
+    "welle-cli -c 10B -PC 1 -w 8000" << endl <<
+    "    Enable web server on port 8000, decode programmes one by one in a carousel" << endl <<
+    "    on channel 10B; welle-cli will switch once DLS and a slide were decoded," << endl <<
+    "    staying at most 80 seconds on a given programme." << endl <<
+    endl <<
+    "Report bugs to: <https://github.com/AlbrechtL/welle.io/issues>" << endl;
+}
+
+static void copyright()
+{
+    cerr <<
+    "Copyright (C) 2018 Matthias P. Braendli." << endl <<
+    "Copyright (C) 2017 Albrecht Lohofener." << endl <<
+    "License GPL-2.0-or-later: GNU General Public License v2.0 or later" << endl <<
+    "<https://www.gnu.org/licenses/old-licenses/gpl-2.0-standalone.html>" << endl <<
+    endl <<
+    "Written by: Albrecht Lohofener & Matthias P. Braendli." << endl <<
+    "Other contributors: <https://github.com/AlbrechtL/welle.io/blob/master/AUTHORS>" << endl;
+}
+
+static void version()
+{
+    cerr << "welle-cli " << VERSION << endl;
 }
 
 options_t parse_cmdline(int argc, char **argv)
@@ -360,7 +407,7 @@ options_t parse_cmdline(int argc, char **argv)
     options.rro.decodeTII = true;
 
     int opt;
-    while ((opt = getopt(argc, argv, "A:c:C:dDf:F:g:hp:PTs:t:w:u")) != -1) {
+    while ((opt = getopt(argc, argv, "A:c:C:dDf:F:g:hp:Ps:Tt:uvw:")) != -1) {
         switch (opt) {
             case 'A':
                 options.antenna = optarg;
@@ -404,6 +451,11 @@ options_t parse_cmdline(int argc, char **argv)
             case 'T':
                 options.rro.decodeTII = false;
                 break;
+            case 'v':
+                version();
+                cerr << endl;
+                copyright();
+                exit(0);
             case 'w':
                 options.web_port = std::atoi(optarg);
                 break;
@@ -435,8 +487,8 @@ options_t parse_cmdline(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
-    cerr << "Hello this is welle-cli " << VERSION << endl;
     auto options = parse_cmdline(argc, argv);
+    version();
 
     RadioInterface ri;
 
