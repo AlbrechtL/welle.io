@@ -213,6 +213,21 @@ void CRTL_TCP_Client::receiveData(void)
             handleDisconnect();
         }
         else if (ret == -1) {
+#if defined(_WIN32)
+            if (WSAGetLastError() == WSAEINTR ||
+                    WSAGetLastError() == WSAECONNABORTED ||
+                    WSAGetLastError() == WSAENOTSOCK) {
+                continue;
+            }
+            else if (WSAGetLastError() == WSAECONNRESET || WSAGetLastError() == WSAEBADF) {
+                handleDisconnect();
+            }
+            else {
+                std::wstring s;
+                int error = WSAGetLastError();
+                throw std::runtime_error("RTL_TCP_CLIENT recv error: " +  std::to_string(error));
+            }
+#else
             if (errno == EAGAIN) {
                 continue;
             }
@@ -224,8 +239,9 @@ void CRTL_TCP_Client::receiveData(void)
             }
             else {
                 std::string errstr = strerror(errno);
-                throw std::runtime_error("recv: " + errstr);
+                throw std::runtime_error("RTL_TCP_CLIENT recv error: " + errstr);
             }
+#endif
         }
         else {
             read += ret;
