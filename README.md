@@ -155,7 +155,7 @@ A compiled version can be found at the [release page](https://github.com/Albrech
 
 This sections shows how to compile welle.io on Windows 10. Windows 7 should also be possible but is not tested. 
 
-1. Install Qt 5.10 including the Qt Charts and mingw modules by using the "Qt Online Installer for Windows" https://www.qt.io/download-open-source/
+1. Install Qt 5.10 including the Qt Charts and mingw (32 bit or 64 bit) modules by using the "Qt Online Installer for Windows" https://www.qt.io/download-open-source/
 2. Clone welle.io https://github.com/AlbrechtL/welle.io.git e.g. by using [TortoiseGit](https://tortoisegit.org).
 3. Clone the welle.io Windows libraries https://github.com/AlbrechtL/welle.io-win-libs.git.
 4. Start Qt Creator and open the project file `welle.io.pro` inside the folder "welle.io".
