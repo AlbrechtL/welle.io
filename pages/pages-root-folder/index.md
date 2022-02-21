@@ -41,20 +41,21 @@ ref: index
 
 permalink: /index.html
 ---
-welle.io is an open source DAB and DAB+ software defined radio (SDR) with support for rtl-sdr (RTL2832U) and airspy. It supports high DPI and touch displays and it runs even on cheap computers like Raspberry Pi 2/3 and 100€ China Windows 10 tablets.
+welle.io is an open source DAB and DAB+ software defined radio (SDR) with support for rtl-sdr (RTL2832U) and airspy. It supports high DPI and touch displays and it runs even on cheap computers like Raspberry Pi 2+ and 100€ China Windows 10 tablets.
 
 ![welle-io_standard_mode.png](images/welle-io_standard_mode.png)
 
 Main Features
 ---
 * DAB and DAB+
-* Windows 10, Linux, macOS, Android
-* Runs on small devices like Raspberry Pi 2/3 or mobile phones
+* Windows 10/11, Linux, macOS, Android
+* Runs on small devices like Raspberry Pi 2+ or mobile phones
 * [Airspy R2, Airspy Mini](/devices/airspy), [rtl-sdr (RTL2832U)](/devices/rtl_sdr), [rtl_tcp](/devices/rtl_tcp), [SoapySDR](/devices/soapysdr) and [rawfile](/devices/rawfile) support
 * Touch optimized GUI
 * Channel scan
 * Slide show (MOT slide show)
 * Radio text (dynamic label)
+* Expert mode with a lot of technical data
 
 Demo Video
 ---
@@ -82,10 +83,7 @@ If you discovered an issue please open a new [issue](https://github.com/Albrecht
 ### Unstable developer version
 welle.io is under development. You can also try the latest developer builds. But PLEASE BE WARNED the builds are automatically created and untested.
 
-* [welle.io nightly builds](https://welle-io-nightlies.albrechtloh.de/) (Windows, Linux, macOS, Android)
-
-* macOS: welle.io devel builds on *macOS MacPorts* are updated periodically manually and can be installed through [port welle.io-devel](https://ports.macports.org/port/welle.io-devel/summary). The port has no maintainer so please feel free to update it yourself in case you need to use a more recent devel version
-  * `sudo port install welle.io-devel`
+* #### [welle.io nightly builds](https://welle-io-nightlies.albrechtloh.de/) (Windows, Linux, macOS, Android)
 
 Support
 ---
