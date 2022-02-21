@@ -34,6 +34,7 @@ Download
 * [**Windows**, **Linux**, **macOS** and **Android**](http://github.com/AlbrechtL/welle.io/releases) 
 * **Debian** or **Ubuntu** 19.04+
   * `apt install welle.io`, see the /usr/share/doc/welle.io/README.Debian for maintainer notes
+* **[List of available packages inside Linux distributions](https://repology.org/project/welle.io/versions)**
 * **macOS** (requires [MacPorts](https://www.macports.org/)) 
    * `sudo port install welle.io`
    * `sudo port install welle.io +cli` (if you wish to install also welle-cli)
