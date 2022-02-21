@@ -48,7 +48,7 @@ welle.io is an open source DAB and DAB+ software defined radio (SDR) with suppor
 Main Features
 ---
 * DAB and DAB+
-* Windows 10/11, Linux, macOS, Android
+* Supports Windows 10/11, Linux, macOS and Android
 * Runs on small devices like Raspberry Pi 2+ or mobile phones
 * [Airspy R2, Airspy Mini](/devices/airspy), [rtl-sdr (RTL2832U)](/devices/rtl_sdr), [rtl_tcp](/devices/rtl_tcp), [SoapySDR](/devices/soapysdr) and [rawfile](/devices/rawfile) support
 * Touch optimized GUI
