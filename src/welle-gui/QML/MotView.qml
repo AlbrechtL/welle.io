@@ -26,7 +26,7 @@
 import QtQuick 2.0
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.3
-import QtQuick.Dialogs 1.0
+import Qt.labs.platform
 
 import "texts"
 import "components"
@@ -44,7 +44,7 @@ ViewBaseFrame {
         id: fileDialog
         title: "Please choose a folder"
         folder: shortcuts.home
-        selectFolder: true
+        //selectFolder: true
         onAccepted: {
             guiHelper.saveMotImages(fileDialog.folder)
         }

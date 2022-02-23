@@ -179,8 +179,8 @@ const QByteArray CGUIHelper::getInfoPage(QString pageName)
 
     if (pageName == "Versions") {
         // Set application version
-        InfoContent.append(tr("welle.io version") + ": " + QString(CURRENT_VERSION) + "\n");
-        InfoContent.append(tr("Git revision") + ": " + QString(GITHASH) + "\n");
+        InfoContent.append((tr("welle.io version") + ": " + QString(CURRENT_VERSION) + "\n").toUtf8());
+        InfoContent.append((tr("Git revision") + ": " + QString(GITHASH) + "\n").toUtf8());
         QDateTime tsDT;
         QString source_date_epoch = BUILD_DATE;
         if (!source_date_epoch.isEmpty()) {
@@ -188,8 +188,8 @@ const QByteArray CGUIHelper::getInfoPage(QString pageName)
         } else {
             tsDT = QDateTime::currentDateTime();
         }
-        InfoContent.append(tr("Built on") + ": " + tsDT.toString(Qt::ISODate) + "\n");
-        InfoContent.append(tr("QT version") + ": " + qVersion() + "\n");
+        InfoContent.append((tr("Built on") + ": " + tsDT.toString(Qt::ISODate) + "\n").toUtf8());
+        InfoContent.append((tr("QT version") + ": " + qVersion() + "\n").toUtf8());
         InfoContent.append("\n");
     } else if (pageName == "Authors") {
         return getFileContent(":/AUTHORS");
@@ -748,7 +748,11 @@ QString CGUIHelper::getQQStyleToLoad(QString styleNameArg)  // Static
         }
     }
 
-    QStringList availableStyle = QQuickStyle::availableStyles();
+    // TODO QT6 changes seomthing see here https://doc-snapshots.qt.io/qt6-dev/qtquickcontrols-changes-qt6.html
+    // TODO START HACK
+    QStringList availableStyle;
+    availableStyle.append("Material");
+    // TODO END HACK
 
     for ( const QString& curStyle : availableStyle ) {
          if (settingStyle == curStyle)
@@ -765,7 +769,13 @@ const QStringList CGUIHelper::qQStyleComboList()
     if ( !m_comboList.isEmpty() )
         return m_comboList;
 
-    m_comboList = QQuickStyle::availableStyles();
+    // TODO QT6 changes seomthing see here https://doc-snapshots.qt.io/qt6-dev/qtquickcontrols-changes-qt6.html
+    // TODO START HACK
+    m_comboList.clear();
+    m_comboList.append("Material");
+    m_comboList.append("Default");
+    // TODO END HACK
+
     m_comboList.sort();
     int position = m_comboList.indexOf("Default");
     m_comboList.move(position, 0);
