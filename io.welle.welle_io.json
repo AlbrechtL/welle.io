@@ -1,5 +1,5 @@
 {
-    "app-id": "io.welle.welle-gui",
+    "app-id": "io.welle.welle_io",
     "runtime": "org.kde.Platform",
     "runtime-version": "5.15",
     "sdk": "org.kde.Sdk",
