@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2022 Albrecht Lohofener <albrechtloh@gmx.de> -->
+<component type="desktop-application">
+  <id>io.welle.welle_io</id>
+  <launchable type="desktop-id">welle-io.desktop</launchable>
+  <name>welle.io</name>
+  <summary>A DAB/DAB+ Software Radio</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-2.0+</project_license>
+  <developer_name>Albrecht Lohofener</developer_name>
+  <url type="homepage">https://www.welle.io</url>
+  <description>
+    <p>
+      welle.io is an open source DAB and DAB+ software defined radio (SDR) with support for rtl-sdr (RTL2832U), airspy and other devices supported by SoapySDR.
+    </p>
+  </description>
+  <screenshots>
+    <screenshot type="default">
+      <image>https://www.welle.io/images/welle-io_standard_mode.png</image>
+    </screenshot>
+  </screenshots>
+  <update_contact>albrechtloh@gmx.de</update_contact>
+  <content_rating type="oars-1.1" />
+</component>
