@@ -43,7 +43,7 @@ after_build:
 
   # Add to artifact list
   - set PATH=%PATHORIG%
-  - appveyor PushArtifact %welle_io_filename%
+  - appveyor PushArtifact %welle_io_filename%.exe
   
 #test_script:
 #  - set PATH=%PATHORIG%
