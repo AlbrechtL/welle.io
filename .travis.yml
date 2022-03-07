@@ -2,6 +2,10 @@ dist: bionic
 language: cpp
 compiler: gcc
 
+branches:
+  except:
+  - qt_6_support
+  
 #env:
 #  # "BINTRAY_KEY=<secure>"
 #  - secure: "AjycfSfIztFeat6AO3SETSFW9Xd0AUt17hg87sEo8pSPO3SILq6bKS5Pfe4Bdo3Za32BvGzeJaOZ9EEVtzweuYJwsBejVfk2lxiBH5RKoBVrHpJLXDNj7MUt2ezb734bjFFt3+lMG84vSCqioNMcYwlHcqCChiTT529NZhaGMsDFzF5NimJZl0LGcEQlaTxTfeCKwSk+apHw5rQes2I2Jf9icweUGe/VOOVmYjDTiPWKcBEwBvfV5vabr5btCgUY8zK5451x/35API2Hbq7o0hNxqvwQUFI54jZwqfR4DOA1V/Nk7rdc34Fe+xgKSoBmHC0RgCIbXw1erEkn31Y0+tLBVxa971FB+y7L+5ZEaqw9UolT0PM5LHZmWUA60A5JlvsFOr0urid8lk0g5mdGF4aHEy2O5rDOMbwE11MpTEkDDbgE6uSD0/aubTJYPu24yMlBrP1lz10Sltg+YLi5hshhzRmd4iWTKuEy4jly1SdOKjjdbLCzlAnsF9Ta0a/lfumOd2lmELhYKhFLuVTCWZFvjpJyziCIFLVs4refDbDrsdfE+CaJedP/uBDGoBp4Hg6aug+66zKPybVzODqR2uIa3I7ACM3l/GdJcGg+1AH1T/ievq4rQ52T3MspevFxQmevuA9vvgOVko79PDrW1xbp+oQPTk0/pODNjVvrZFk="
