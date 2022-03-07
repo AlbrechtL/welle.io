@@ -1,4 +1,4 @@
-# Copyright (C) 2017
+# Copyright (C) 2017 - 2022
 # Albrecht Lohofener (albrechtloh@gmx.de)
 #
 # This file is part of the welle.io.
@@ -22,10 +22,10 @@
 
 # Parameter
 param(
-[string]$welleExePath = "build\bin",
-[string]$QTPath = "C:\Qt\5.9.3\mingw53_32\bin",
-[string]$ToolsPath = "C:\Qt\Tools\mingw530_32\bin",
-[string]$InstallerPath = "C:\Qt\Tools\QtInstallerFramework\2.0\bin\"
+[string]$welleExePath = "..\..\build-welle.io-Desktop_Qt_6_2_3_MinGW_64_bit-Release\src\welle-gui\release",
+[string]$QTPath = "C:\Qt\6.2.3\mingw_64\bin",
+[string]$ToolsPath = "C:\Qt\Tools\mingw900_64\bin",
+[string]$InnoSetupPath = "C:\Program Files (x86)\Inno Setup 6"
 )
 
 # Get current GIT hash and date
@@ -36,48 +36,36 @@ $Date = Get-Date -Format FileDate
 Write-Host "Current date $Date"  -ForegroundColor Green
 
 # Set PATH
-$env:path += "$QTPath;$ToolsPath;$InstallerPath"
+$env:path += "$QTPath;$ToolsPath;$InnoSetupPath;"
 
 # Delete old folder and create a new one
-if(Test-Path installer)
+if(Test-Path bin)
 {
-	Write-Host "*** Delete old installer folder ***" -ForegroundColor Red
-	Remove-Item -Recurse -Force installer
+	Write-Host "*** Delete old bin folder ***" -ForegroundColor Red
+	Remove-Item -Recurse -Force bin
 }
 
-Write-Host "*** Create new installer folder ***" -ForegroundColor Red
-New-Item -ItemType directory -Path installer
-
-# Copy installer data to installer folder
-Write-Host "*** Copy installer data to installer folder ***" -ForegroundColor Red
-Copy-Item config installer\config -recurse
-Copy-Item packages installer\packages -recurse
+Write-Host "*** Create new bin folder ***" -ForegroundColor Red
+New-Item -ItemType directory -Path bin
 
 Write-Host "*** Copy non QT DLLs from welle.io-win-libs repository ***" -ForegroundColor Red
-Copy-Item ..\..\welle.io-win-libs\x86_install\* installer\packages\io.welle.welle\data  -recurse
+Copy-Item ..\..\welle.io-win-libs\x64\*.dll bin  -recurse
 
 Write-Host "*** Copy welle-io binary files ***" -ForegroundColor Red
-$welleExePath = $welleExePath + "\*" 
-Copy-Item $welleExePath installer\packages\io.welle.welle\data\ -recurse
+Copy-Item $welleExePath\welle-io.exe bin
 
 # Deploy QT and related plugins
 Write-Host "*** Deploy QT and related plugins ***" -ForegroundColor Red
-& windeployqt installer\packages\io.welle.welle\data\welle-io.exe --plugindir installer\packages\io.welle.welle\data\plugins\ --no-translations
-& windeployqt installer\packages\io.welle.welle\data\welle-io.exe --dir installer\packages\io.welle.welle\data\qml\ --qmldir ..\src\welle-gui\QML\ --no-translations --no-plugins
-
-Copy-Item installer\packages\io.welle.welle\data\qml\Qt5QuickControls2.dll installer\packages\io.welle.welle\data
-Copy-Item installer\packages\io.welle.welle\data\qml\Qt5QuickTemplates2.dll installer\packages\io.welle.welle\data
-Remove-Item installer\packages\io.welle.welle\data\qml\*.dll
+& windeployqt bin\welle-io.exe --qmldir ..\src\welle-gui\QML\ --no-translations
 
 # For some reason windeployqt deploys the wrong DLL on AppVeyor
-Copy-Item $QTPath\libgcc_s_dw2-1.dll installer\packages\io.welle.welle\data
-Copy-Item $QTPath\libstdc++-6.dll installer\packages\io.welle.welle\data
+Copy-Item $QTPath\libgcc_s_seh-1.dll bin
+Copy-Item $QTPath\libwinpthread-1.dll bin
+Copy-Item $QTPath\libstdc++-6.dll bin
 
-# Run binarycreator.exe
-$Filename = $Date + "_" + $gitHash + "_Windows_welle-io-setup.exe"
-
-Write-Host "*** Creating $Filename ***" -ForegroundColor Red
-& "binarycreator" "--offline-only" "--config" "installer\config\config.xml" "--packages" "installer\packages" "$Filename"
+# Run inno setup.exe
+$Filename = $Date + "_" + $gitHash + "_Windows_welle-io-setup_x64"
+& "ISCC" "/F$Filename" "installer.iss"
 
 # Store file name to a environment variable
 $env:welle_io_filename = $Filename
