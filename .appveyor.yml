@@ -1,10 +1,10 @@
 version: 1.0.{build}
 
-image: Visual Studio 2017
+image: Visual Studio 2022
 
 init:
   - set PATHORIG=%PATH%
-  - set PATH=C:\Qt\5.13\mingw73_32\bin;C:\Qt\Tools\mingw730_32\bin;%PATH%
+  - set PATH=C:\Qt\6.2\mingw_64\bin;C:\Qt\Tools\mingw900_64\bin;%PATH%
   - gcc -v
 
 before_build:
@@ -39,7 +39,7 @@ after_build:
   
   # Create installer
   - cd ..\welle-io\windows\
-  - ps: .\create_installer.ps1 -welleExePath ..\..\build\bin -QTPath C:\Qt\5.13\mingw73_32\bin -ToolsPath C:\Qt\Tools\mingw730_32\bin -InstallerPath C:\Qt\Tools\QtInstallerFramework\3.0\bin
+  - ps: .\create_installer.ps1 -welleExePath ..\..\build\bin -QTPath C:\Qt\6.2\mingw_64\bin -ToolsPath C:\Qt\Tools\mingw900_64\bin -InnoSetupPath "C:\Program Files (x86)\Inno Setup 6"
 
   # Add to artifact list
   - set PATH=%PATHORIG%
