@@ -617,6 +617,16 @@ ApplicationWindow {
                 Layout.margins: Units.dp(10)
             }
 
+            Button {
+                id: startStationScanButton
+                text: qsTr("Start station scan")
+                visible: stationChannelView.count ? false : true
+                onClicked:  {
+                    radioController.startScan()
+                }
+                Layout.margins: Units.dp(10)
+            }
+
             ListView {
                 id: stationChannelView
                 model: stationList
@@ -978,11 +988,13 @@ ApplicationWindow {
         onScanStopped:{
             startStationScanItem.enabled = true
             stopStationScanItem.enabled = false
+            startStationScanButton.enabled = true
         }
 
         onScanProgress:{
             startStationScanItem.enabled = false
             stopStationScanItem.enabled = true
+            startStationScanButton.enabled = false
         }
 
         onNewStationNameReceived: stationList.addStation(station, sId, channel, false)
