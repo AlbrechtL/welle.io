@@ -112,11 +112,13 @@ Building
 General Information
 ---
 The following libraries and their development files are needed:
-* Qt 5.10 (Qt 5.9 and below is not supported)
+* Qt 6.2 (Qt 6.1 and below is not supported)
 * FFTW3f
 * libfaad
 * librtlsdr
 * libusb
+
+# WARNING: The following lines are outdated because of Qt 6.2 porting actives
 
 Debian / Ubuntu Linux
 ---
