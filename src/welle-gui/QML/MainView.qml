@@ -23,14 +23,13 @@
  *
  */
 
-import QtQuick 2.9
-import QtQuick.Layouts 1.3
-import QtQuick.Controls 2.3
-import QtQuick.Controls.Material 2.1
-import QtQuick.Controls.Universal 2.1
-import QtQuick.Window 2.2
+import QtQuick
+import QtQuick.Layouts
+import QtQuick.Controls
+import QtQuick.Controls.Universal
+import QtQuick.Window
 import Qt5Compat.GraphicalEffects
-import Qt.labs.settings 1.0
+import Qt.labs.settings
 
 import "texts"
 import "settingpages"
@@ -66,6 +65,8 @@ ApplicationWindow {
         else
             return Units.dp(500)
     }
+
+    Universal.accent: Universal.Cyan
 
     width: getWidth()
     height: getHeight()
@@ -244,7 +245,7 @@ ApplicationWindow {
                     id: startStopIconOverlay
                     anchors.fill: startStopIcon
                     source: startStopIcon
-                    color: (mainWindow.Material.theme === Material.Dark ) ? "lightgrey" : (mainWindow.Universal.theme === Universal.Dark ) ? "lightgrey" : TextStyle.textColor
+                    color: (mainWindow.Universal.theme === Universal.Dark ) ? "lightgrey" : TextStyle.textColor
                 }
             }
 
@@ -341,7 +342,7 @@ ApplicationWindow {
                         id: speakerIconMaskAppliedOverlay
                         anchors.fill: speakerIconMaskApplied
                         source: speakerIconMaskApplied
-                        color: (mainWindow.Material.theme === Material.Dark ) ? "lightgrey" : (mainWindow.Universal.theme === Universal.Dark ) ? "lightgrey" : TextStyle.textColor
+                        color: (mainWindow.Universal.theme === Universal.Dark ) ? "lightgrey" : TextStyle.textColor
                     }
 
                     Popup {
@@ -573,7 +574,7 @@ ApplicationWindow {
                             id: startStationScanItem
                             text: qsTr("Start station scan")
                             font.pixelSize: TextStyle.textStandartSize
-                            font.family: TextStyle.textFont
+                            //font.family: TextStyle.textFont
                             onTriggered:  {
                                 startStationScanItem.enabled = false
                                 stopStationScanItem.enabled = true
@@ -585,7 +586,7 @@ ApplicationWindow {
                             id: stopStationScanItem
                             text: qsTr("Stop station scan")
                             font.pixelSize: TextStyle.textStandartSize
-                            font.family: TextStyle.textFont
+                            //font.family: TextStyle.textFont
                             enabled: false
                             onTriggered:  {
                                 startStationScanItem.enabled = true
@@ -597,7 +598,7 @@ ApplicationWindow {
                         MenuItem {
                             text: qsTr("Clear station list")
                             font.pixelSize: TextStyle.textStandartSize
-                            font.family: TextStyle.textFont
+                            //font.family: TextStyle.textFont
                             onTriggered: stationList.clearStations()
                         }
 
@@ -605,7 +606,7 @@ ApplicationWindow {
                             id: stationSettingsItem
                             text: qsTr("Station settings")
                             font.pixelSize: TextStyle.textStandartSize
-                            font.family: TextStyle.textFont
+                            //font.family: TextStyle.textFont
                             onTriggered: {
                                 stationSettingsDialog.title = "Station settings"
                                 stationSettingsDialog.open()
@@ -1022,19 +1023,10 @@ ApplicationWindow {
     }
 
     function updateTheme() {
-        if (guiHelper.getQQStyle === "Universal") {
-            switch(globalSettingsLoader.item.qQStyleTheme) {
-                case 0: mainWindow.Universal.theme = Universal.Light; break;
-                case 1: mainWindow.Universal.theme = Universal.Dark; break;
-                case 2: mainWindow.Universal.theme = Universal.System; break;
-            }
-        }
-        else if (guiHelper.getQQStyle === "Material") {
-            switch(globalSettingsLoader.item.qQStyleTheme) {
-                case 0: mainWindow.Material.theme = Material.Light; break;
-                case 1: mainWindow.Material.theme = Material.Dark; break;
-                case 2: mainWindow.Material.theme = Material.System; break;
-            }
+        switch(globalSettingsLoader.item.qQStyleTheme) {
+            case 0: mainWindow.Universal.theme = Universal.Light; break;
+            case 1: mainWindow.Universal.theme = Universal.Dark; break;
+            case 2: mainWindow.Universal.theme = Universal.System; break;
         }
     }
 }

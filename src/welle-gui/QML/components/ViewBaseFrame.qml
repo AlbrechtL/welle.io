@@ -23,11 +23,10 @@
  *
  */
  
-import QtQuick 2.0
-import QtQuick.Layouts 1.1
-import QtQuick.Controls 2.0
-import QtQuick.Controls.Material 2.1
-import QtQuick.Controls.Universal 2.1
+import QtQuick
+import QtQuick.Layouts
+import QtQuick.Controls
+import QtQuick.Controls.Universal
 
 // Import custom styles
 import "../texts"
@@ -35,7 +34,7 @@ import "../components"
 
 Rectangle {
     id: root
-    color: (Material.theme === Material.Dark || Universal.theme === Universal.Dark) ? "grey" : "white"
+    color: (Universal.theme === Universal.Dark) ? "grey" : "white"
     //border.color: isExpert ? "lightgrey": "white"
     border.color: "lightgrey"
 
@@ -77,7 +76,7 @@ Rectangle {
     Rectangle {
         id: rootBox
         anchors.fill: parent
-        color: (Material.theme === Material.Dark || Universal.theme === Universal.Dark) ? "darkgrey" : "lightgrey"
+        color: (Universal.theme === Universal.Dark) ? "darkgrey" : "lightgrey"
         visible: mouseArea.pressed
     }
 

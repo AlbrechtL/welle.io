@@ -23,7 +23,7 @@
  *
  */
  
-import QtQuick 2.0
+import QtQuick
 
 ListModel {
     property string serialized: ""

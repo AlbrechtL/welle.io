@@ -23,8 +23,8 @@
  *
  */
  
-import QtQuick 2.2
-import QtQuick.Layouts 1.1
+import QtQuick
+import QtQuick.Layouts
 
 // Import custom styles
 import "../texts"

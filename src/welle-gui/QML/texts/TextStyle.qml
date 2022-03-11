@@ -25,7 +25,7 @@
  
 pragma Singleton
 
-import QtQuick 2.0
+import QtQuick
 import "../components"
 
 QtObject {
@@ -38,7 +38,7 @@ QtObject {
     property int textStation: Units.em(0.9)
 
     // Text font and color
-    property string textFont: "Arial"
+    //property string textFont: "Arial"
     //property string textFont: "Times"
     //property color textColor: "white"
     property color textColor: "black"

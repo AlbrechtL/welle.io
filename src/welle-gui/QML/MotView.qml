@@ -23,9 +23,9 @@
  *
  */
 
-import QtQuick 2.0
-import QtQuick.Layouts 1.3
-import QtQuick.Controls 2.3
+import QtQuick
+import QtQuick.Layouts
+import QtQuick.Controls
 import Qt.labs.platform
 
 import "texts"

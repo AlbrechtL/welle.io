@@ -23,9 +23,9 @@
  *
  */
  
-import QtQuick 2.0
-import QtCharts 2.1
-import QtQuick.Layouts 1.1
+import QtQuick
+import QtCharts
+import QtQuick.Layouts
 
 // Import custom styles
 import "../texts"

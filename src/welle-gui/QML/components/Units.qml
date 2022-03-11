@@ -25,10 +25,7 @@
  
 pragma Singleton
 
-import QtQuick 2.2
-//import QtQuick.Controls 1.2
-//import QtQuick.Controls.Private 1.0
-//import QtQuick.Layouts 1.1
+import QtQuick
 
 // Source: http://www.mimec.org/node/399 14. May 2016
 

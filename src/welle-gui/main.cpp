@@ -142,9 +142,7 @@ int main(int argc, char** argv)
     //qDebug() << "Command line style_name: " << styleNameArg ;
     
     // Set the Qt Quick Style.
-    QString styleToLoad = CGUIHelper::getQQStyleToLoad(styleNameArg);
-    if (!styleToLoad.isEmpty())
-        QQuickStyle::setStyle(styleToLoad);
+    QQuickStyle::setStyle("Universal");
 
     QSettings settings;
     settings.setValue("version", QString(CURRENT_VERSION));

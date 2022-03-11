@@ -23,11 +23,10 @@
  *
  */
  
-import QtQuick 2.2
-import QtQuick.Layouts 1.1
-import QtQuick.Controls 2.3
-import QtQuick.Controls.Material 2.1
-import QtQuick.Controls.Universal 2.1
+import QtQuick
+import QtQuick.Layouts
+import QtQuick.Controls
+import QtQuick.Controls.Universal
 import Qt5Compat.GraphicalEffects
 
 // Import custom styles
@@ -50,14 +49,14 @@ Item {
 
     Rectangle {
         anchors.fill: parent
-        color: (mainWindow.Material.theme === Material.Dark ) ? "dimgrey" : (mainWindow.Universal.theme === Universal.Dark ) ? "dimgrey" : "lightgrey"
+        color: (mainWindow.Universal.theme === Universal.Dark ) ? "dimgrey" : "lightgrey"
         visible: mouse.pressed
     }
 
     Rectangle {
         id: selectRecangle
         anchors.fill: parent
-        color: (mainWindow.Material.theme === Material.Dark ) ? "dimgrey" : (mainWindow.Universal.theme === Universal.Dark ) ? "dimgrey" : "whitesmoke"
+        color: (mainWindow.Universal.theme === Universal.Dark ) ? "dimgrey" : "whitesmoke"
         visible: false
     }
 
@@ -76,44 +75,6 @@ Item {
                     id: stationItem
                 }
 
-//                Item {
-//                    Layout.preferredHeight: playbackStatusImage.height
-//                    Layout.preferredWidth: playbackStatusImage.width
-//                    Image {
-//                        id: playbackStatusImage
-//                        width: Units.dp(10)
-//                        height: Units.dp(10)
-//                        fillMode: Image.PreserveAspectFit
-//                        visible:false
-//                        source: "qrc:/icons/welle_io_icons/20x20/play.png"
-
-//                        layer {
-//                            enabled: true
-//                            effect: ColorOverlay {
-//                                color: (mainWindow.Material.theme === Material.Dark ) ? "lightgrey" : (mainWindow.Universal.theme === Universal.Dark ) ? "lightgrey" : TextStyle.textColor
-//                            }
-//                        }
-//                    }
-//                    Item {
-//                        id: playbackStatusImageStrikethrough
-//                        anchors.fill: playbackStatusImage
-
-//                        Canvas {
-//                            id: playbackStatusImageStrikethroughCanvas
-//                            anchors.fill: parent
-//                            onPaint: {
-//                                var ctx = getContext("2d");
-//                                ctx.strokeStyle = (mainWindow.Material.theme === Material.Dark ) ? "lightgrey" : (mainWindow.Universal.theme === Universal.Dark ) ? "lightgrey" : TextStyle.textColor
-//                                ctx.lineWidth = 2
-//                                ctx.lineCap = "round"
-//                                ctx.beginPath()
-//                                ctx.moveTo(0, parent.height)
-//                                ctx.lineTo(parent.width, 0)
-//                                ctx.stroke()
-//                            }
-//                        }
-//                    }
-//                }
 
                 TextStation {
                     id: channelPlayStatus
@@ -150,53 +111,12 @@ Item {
 
     Component.onCompleted: { setPlaybackStatus() }
 
-//    SequentialAnimation {
-//        id: playbackStatusImageEffect
-//        running: false
-//        loops: Animation.Infinite
-//        NumberAnimation {
-//            target: playbackStatusImage
-//            property: "opacity"
-//            from: 1
-//            to: 0.2
-//            duration: 1000;
-//        }
-//        NumberAnimation  {
-//            target:playbackStatusImage
-//            property: "opacity"
-//            from: 0.2
-//            to: 1
-//            duration: 1000;
-//        }
-//    }
-
     Connections {
         target: radioController
         onIsPlayingChanged: setPlaybackStatus()
     }
 
     function setPlaybackStatus() {
-//        if (stationSIdValue == radioController.autoService) {
-//            playbackStatusImage.visible = true
-//            if (radioController.isPlaying) {
-//                //channelPlayStatus.text = ""
-//                //playbackStatusImageEffect.start() //Don't use the animation because it consumes CPU
-//                playbackStatusImage.opacity = 1
-//                playbackStatusImageStrikethrough.visible = false
-//            } else {
-//                //channelPlayStatus.text = qsTr("stopped")
-//                //playbackStatusImageEffect.stop() //Don't use the animation because it consumes CPU
-//                playbackStatusImage.opacity = 0.6
-//                playbackStatusImageStrikethrough.visible = true
-//                playbackStatusImageStrikethroughCanvas.requestPaint()
-//            }
-//        }
-//        else {
-//            //channelPlayStatus.text = ""
-//            playbackStatusImage.visible = false
-//            playbackStatusImageStrikethrough.visible = false
-//        }
-
         if (stationSIdValue === radioController.autoService)
             selectRecangle.visible = true
         else
