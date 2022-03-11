@@ -93,7 +93,7 @@ int main(int argc, char** argv)
     qRegisterMetaType<mot_file_t>("mot_file_t");
 
     // Set icon path
-    QStringList themePaths;
+    QStringList themePaths = QIcon::themeSearchPaths();
     themePaths << ":/icons/welle_io_icons";
     QIcon::setThemeSearchPaths(themePaths);
     QIcon::setThemeName("welle_io_icons");
