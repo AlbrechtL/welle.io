@@ -575,8 +575,6 @@ ApplicationWindow {
                             font.pixelSize: TextStyle.textStandartSize
                             font.family: TextStyle.textFont
                             onTriggered:  {
-                                startStationScanItem.enabled = false
-                                stopStationScanItem.enabled = true
                                 radioController.startScan()
                             }
                         }
@@ -588,8 +586,6 @@ ApplicationWindow {
                             font.family: TextStyle.textFont
                             enabled: false
                             onTriggered:  {
-                                startStationScanItem.enabled = true
-                                stopStationScanItem.enabled = false
                                 radioController.stopScan()
                             }
                         }
