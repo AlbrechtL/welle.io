@@ -31,5 +31,4 @@ import "../texts"
 
 Button {
     font.pixelSize: TextStyle.textStandartSize
-    //font.family: TextStyle.textFont
 }

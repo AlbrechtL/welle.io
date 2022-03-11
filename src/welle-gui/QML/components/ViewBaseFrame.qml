@@ -134,7 +134,7 @@ Rectangle {
                 anchors.verticalCenter: parent.verticalCenter
                 implicitWidth: icon.width + Units.dp(20)
 
-                icon.name: "menu"
+                icon.source: "qrc:/icons/welle_io_icons/20x20/menu.png"
                 icon.height: Units.dp(10)
                 icon.width: Units.dp(10)
                 flat:true

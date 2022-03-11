@@ -50,7 +50,6 @@ ColumnLayout{
         Text {
             id: text
             font.pixelSize: TextStyle.textStandartSize
-            //font.family: TextStyle.textFont
             color: "dimgrey"
         }
     }

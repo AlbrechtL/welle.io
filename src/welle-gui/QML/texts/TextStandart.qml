@@ -31,7 +31,6 @@ import "."
 
 Text {
     font.pixelSize: TextStyle.textStandartSize
-    //font.family: TextStyle.textFont
     color: (mainWindow.Universal.theme === Universal.Dark ) ? "lightgrey" : TextStyle.textColor
     wrapMode: Text.WordWrap
 

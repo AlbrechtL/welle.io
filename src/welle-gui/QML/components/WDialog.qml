@@ -52,14 +52,14 @@ Dialog {
                anchors.fill: parent
                ToolButton {
                    font.pixelSize: TextStyle.textStandartSize
-                   //font.family: TextStyle.textFont
 
-                   text: qsTr("‹")
+                   icon.source: "qrc:/icons/welle_io_icons/20x20/back.png"
+                   icon.width: Units.dp(16)
+                   icon.height: Units.dp(16)
                    onClicked: popup.close()
                }
                Label {
                    font.pixelSize: TextStyle.textStandartSize
-                   //font.family: TextStyle.textFont
 
                    text: qsTranslate("MainView", title)
                    elide: Label.ElideRight

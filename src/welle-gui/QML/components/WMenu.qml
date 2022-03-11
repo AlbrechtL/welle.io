@@ -35,7 +35,6 @@ Menu {
     width: (sizeToContents) ? menuWidth + leftPadding + rightPadding : implicitWidth
 
     font.pixelSize: TextStyle.textStandartSize
-    //font.family: TextStyle.textFont
 
     onAboutToShow: {
         var itemwidth = 0;

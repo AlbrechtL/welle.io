@@ -43,21 +43,25 @@ Item {
 
             TabButton {
                 font.capitalization: Font.MixedCase
+                font.pixelSize: TextStyle.textStandartSize
                 text: qsTr("Versions")
                 width: implicitWidth
             }
             TabButton {
                 font.capitalization: Font.MixedCase
+                font.pixelSize: TextStyle.textStandartSize
                 text: qsTr("Authors")
                 width: implicitWidth
             }
             TabButton {
                 font.capitalization: Font.MixedCase
+                font.pixelSize: TextStyle.textStandartSize
                 text: qsTr("Thanks")
                 width: implicitWidth
             }
             TabButton {
                 font.capitalization: Font.MixedCase
+                font.pixelSize: TextStyle.textStandartSize
                 text: qsTr("Licenses")
                 width: implicitWidth
             }
@@ -85,6 +89,7 @@ Item {
                 model: ["GPL-2", "LGPL-2.1", "BSD-3-Clause (kiss_fft)"]
                 TabButton {
                     font.capitalization: Font.MixedCase
+                    font.pixelSize: TextStyle.textStandartSize
                     text: modelData
                     width: implicitWidth
                 }

@@ -35,7 +35,6 @@ Switch {
     id: wSwitch
 
     font.pixelSize: TextStyle.textStandartSize
-    //font.family: TextStyle.textFont
     height: Units.dp(24)
 
     contentItem: Text {

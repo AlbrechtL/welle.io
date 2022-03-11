@@ -38,7 +38,6 @@ ComboBox {
     Layout.preferredWidth: width
 
     font.pixelSize: TextStyle.textStandartSize
-    //font.family: TextStyle.textFont
 
     delegate: ItemDelegate {
         width: comboBox.width
