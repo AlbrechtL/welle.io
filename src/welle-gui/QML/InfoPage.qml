@@ -29,6 +29,7 @@ import QtQuick.Controls 2.0
 
 // Import custom styles
 import "texts"
+import "components"
 
 Item {
     id: infoPage
@@ -106,6 +107,8 @@ Item {
             TextStandart {
                 id: fileContent
                 text: guiHelper.getInfoPage("Versions")
+                font.family: TextStyle.textFontFixed
+                font.pixelSize: Units.em(0.9)
                 Layout.alignment: Qt.AlignLeft
                 wrapMode: Text.Wrap
                 width: parent.width - scrollbar.width

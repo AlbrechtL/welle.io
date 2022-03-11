@@ -62,6 +62,9 @@ CGUIHelper::CGUIHelper(CRadioController *RadioController, QObject *parent)
     connect(RadioController, &CRadioController::showErrorMessage, this, &CGUIHelper::showErrorMessage);
     connect(RadioController, &CRadioController::showInfoMessage, this, &CGUIHelper::showInfoMessage);
 
+    systemFontFixed = QFontDatabase::systemFont(QFontDatabase::FixedFont).family();
+    systemFontGeneral = QFontDatabase::systemFont(QFontDatabase::GeneralFont).family();
+
 #ifndef QT_NO_SYSTEMTRAYICON
     minimizeAction = new QAction(tr("Mi&nimize"), this);
     connect(minimizeAction, SIGNAL(triggered()), this, SIGNAL(minimizeWindow()));
