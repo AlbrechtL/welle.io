@@ -35,7 +35,7 @@ import "../components"
 
 Item {
     id: root
-    width: parent.width
+    width: parent == null ? undefined : parent.width
     height: Units.dp(44)
 
     property alias stationNameText: stationItem.text

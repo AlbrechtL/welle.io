@@ -73,6 +73,7 @@ ApplicationWindow {
 
     title: isStationNameInWindowTitle ? radioController.title.trim() + " - welle.io" : "welle.io"
 
+    visible: true // According to https://bugreports.qt.io/browse/QTBUG-35244
     visibility: isFullScreen ? Window.FullScreen : Window.Windowed
 
     Component.onCompleted: {
@@ -153,9 +154,6 @@ ApplicationWindow {
 
             ToolButton {
                 id: startStopIcon
-                anchors.top: parent.top
-                anchors.bottom: parent.bottom
-                highlighted: startStopIconMouseArea.pressed
                 implicitWidth: icon.width + Units.dp(24)
 
                 icon.source: "qrc:/icons/welle_io_icons/20x20@2/stop.png"
@@ -177,7 +175,7 @@ ApplicationWindow {
 
                 WToolTip {
                     text: (radioController.isPlaying || radioController.isChannelScan) ? qsTr("Stop") : qsTr("Play")
-                    visible: startStopIconMouseArea.containsMouse
+                    visible: startStopIcon.hovered
                 }
 
                 Component.onCompleted: { startStopIcon.setStartPlayIcon() }
@@ -235,9 +233,6 @@ ApplicationWindow {
 
             ToolButton {
                 id: speakerIconContainer
-                anchors.top: parent.top
-                anchors.bottom: parent.bottom
-                highlighted: speakerIconMouseArea.pressed
                 implicitWidth: icon.width + Units.dp(24)
 
                 icon.source: "qrc:/icons/welle_io_icons/20x20@2/speaker.png"
@@ -256,6 +251,11 @@ ApplicationWindow {
                 Accessible.name: qsTr("Volume")
                 Accessible.description: qsTr("Toggle volume slider")
                 Accessible.onPressAction: speakerIconMouseArea.clicked(mouse)
+
+                WToolTip {
+                    text: qsTr("Click for mute, long click for volume slider")
+                    visible: speakerIconContainer.hovered
+                }
 
                 Popup {
                     id: volumePopup
@@ -789,7 +789,7 @@ ApplicationWindow {
             id: stationSettingsLoader
             anchors.right: parent.right
             anchors.left: parent.left
-            height: item.implicitHeight
+            height: progress < 1 ? undefined : item.implicitHeight
             source:  "qrc:/QML/settingpages/ChannelSettings.qml"
             onLoaded: isStationNameInWindowTitle = stationSettingsLoader.item.addStationNameToWindowTitleState
         }
@@ -806,7 +806,7 @@ ApplicationWindow {
             id: globalSettingsLoader
             anchors.right: parent.right
             anchors.left: parent.left
-            height: item.implicitHeight
+            height: progress < 1 ? undefined : item.implicitHeight
             source:  "qrc:/QML/settingpages/GlobalSettings.qml"
             onLoaded : isFullScreen = globalSettingsLoader.item.enableFullScreenState
         }
@@ -825,7 +825,7 @@ ApplicationWindow {
             id: expertSettingsLoader
             anchors.right: parent.right
             anchors.left: parent.left
-            height: item.implicitHeight
+            height: progress < 1 ? undefined : item.implicitHeight
             source:  "qrc:/QML/settingpages/ExpertSettings.qml"
             onLoaded: isExpertView = expertSettingsLoader.item.enableExpertModeState
         }
@@ -883,12 +883,12 @@ ApplicationWindow {
             stopStationScanItem.enabled = false
         }
 
-        onScanProgress:{
+        function onScanProgress() {
             startStationScanItem.enabled = false
             stopStationScanItem.enabled = true
         }
 
-        onNewStationNameReceived: stationList.addStation(station, sId, channel, false)
+        function onNewStationNameReceived(station, sId, channel) {stationList.addStation(station, sId, channel, false)}
     }
 
     Connections {
@@ -908,7 +908,7 @@ ApplicationWindow {
         }
     }
 
-    onVisibilityChanged: {
+    onVisibilityChanged: function(visibility) {
         if(visibility === Window.Minimized)
             guiHelper.tryHideWindow()
     }

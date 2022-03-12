@@ -43,8 +43,6 @@ ViewBaseFrame {
     FileDialog {
         id: fileDialog
         title: "Please choose a folder"
-        folder: shortcuts.home
-        //selectFolder: true
         onAccepted: {
             guiHelper.saveMotImages(fileDialog.folder)
         }
@@ -82,7 +80,7 @@ ViewBaseFrame {
                     model: categoryListModel
 
                     delegate: Item {
-                        width: parent.width
+                        width: parent == null ? undefined : parent.width
                         height: Units.dp(20)
 
                         Rectangle {
