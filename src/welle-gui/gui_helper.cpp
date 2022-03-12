@@ -31,6 +31,7 @@
 #include <QSettings>
 #include <QQuickStyle>
 #include <QQmlProperty>
+//#include <neaacdec.h>
 
 #include "gui_helper.h"
 #include "debug_output.h"
@@ -190,6 +191,13 @@ const QByteArray CGUIHelper::getInfoPage(QString pageName)
         }
         InfoContent.append((tr("Built on") + ": " + tsDT.toString(Qt::ISODate) + "\n").toUtf8());
         InfoContent.append((tr("QT version") + ": " + qVersion() + "\n").toUtf8());
+
+        /*char *faad_id_string;
+        char *faad_copyright_string;
+        NeAACDecGetVersion(&faad_id_string, &faad_copyright_string);
+        InfoContent.append((tr("faad2 version") + ": " + faad_id_string + "\n").toUtf8());*/
+        //InfoContent.append((tr("faad2 version") + ": " + FAAD2_VERSION + "\n").toUtf8());
+
         InfoContent.append("\n");
     } else if (pageName == "Authors") {
         return getFileContent(":/AUTHORS");

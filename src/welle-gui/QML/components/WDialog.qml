@@ -54,8 +54,8 @@ Dialog {
                    font.pixelSize: TextStyle.textStandartSize
 
                    icon.source: "qrc:/icons/welle_io_icons/20x20/back.png"
-                   icon.width: Units.dp(16)
-                   icon.height: Units.dp(16)
+                   icon.width: Units.dp(12)
+                   icon.height: Units.dp(12)
                    onClicked: popup.close()
                }
                Label {
