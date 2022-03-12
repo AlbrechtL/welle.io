@@ -115,7 +115,6 @@ ApplicationWindow {
         id: overlayHeader
 
         RowLayout {
-            spacing: 5
             anchors.fill: parent
 
             ToolButton {
@@ -157,6 +156,7 @@ ApplicationWindow {
                 anchors.top: parent.top
                 anchors.bottom: parent.bottom
                 highlighted: startStopIconMouseArea.pressed
+                implicitWidth: icon.width + Units.dp(24)
 
                 icon.source: "qrc:/icons/welle_io_icons/20x20@2/stop.png"
                 icon.height: Units.dp(24)
@@ -238,6 +238,7 @@ ApplicationWindow {
                 anchors.top: parent.top
                 anchors.bottom: parent.bottom
                 highlighted: speakerIconMouseArea.pressed
+                implicitWidth: icon.width + Units.dp(24)
 
                 icon.source: "qrc:/icons/welle_io_icons/20x20@2/speaker.png"
                 icon.height: Units.dp(24)
