@@ -96,7 +96,7 @@ ComboBox {
 
     Connections {
         target: guiHelper
-        onTranslationFinished: {
+        function onTranslationFinished() {
             modelWidth = 0;
             computeComboBoxWidth()
 

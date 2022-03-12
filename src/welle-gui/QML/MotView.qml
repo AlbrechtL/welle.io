@@ -170,7 +170,7 @@ ViewBaseFrame {
 
                             Connections{
                                 target: guiHelper
-                                onMotChanged:{
+                                function onMotChanged(pictureName) {
                                     latestPictureName = pictureName
 
                                     // Display slide show only of latest tab is select
@@ -220,7 +220,7 @@ ViewBaseFrame {
                                     }
                                 }
 
-                                onMotReseted:{
+                                function onMotReseted() {
                                     slideList = [];
                                     categoryListModel.clear()
                                     _initCategories()

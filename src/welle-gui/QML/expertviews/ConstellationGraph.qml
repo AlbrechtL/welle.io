@@ -54,7 +54,7 @@ ViewBaseFrame {
         Connections{
             target: guiHelper
 
-            onSetConstellationAxis: {
+            function onSetConstellationAxis(Xmin, Xmax) {
                 axisX.min = Xmin
                 axisX.max = Xmax
             }

@@ -203,10 +203,10 @@ ApplicationWindow {
 
                 Connections {
                     target: radioController
-                    onIsPlayingChanged: {
+                    function onIsPlayingChanged() {
                         startStopIcon.setStartPlayIcon()
                     }
-                    onIsChannelScanChanged: {
+                    function onIsChannelScanChanged() {
                         startStopIcon.setStartPlayIcon()
                     }
                 }
@@ -291,7 +291,7 @@ ApplicationWindow {
 
                             Connections {
                                 target: radioController
-                                onVolumeChanged: {
+                                function onVolumeChanged(volume) {
                                     volumeSlider.value = volume
                                 }
                             }
@@ -795,7 +795,7 @@ ApplicationWindow {
         }
         Connections {
             target: stationSettingsLoader.item
-            onAddStationNameToWindowTitleStateChanged : isStationNameInWindowTitle = stationSettingsLoader.item.addStationNameToWindowTitleState
+            function onAddStationNameToWindowTitleStateChanged() {isStationNameInWindowTitle = stationSettingsLoader.item.addStationNameToWindowTitleState}
         }
     }
 
@@ -813,8 +813,8 @@ ApplicationWindow {
 
         Connections {
             target: globalSettingsLoader.item
-            onEnableFullScreenStateChanged : isFullScreen = globalSettingsLoader.item.enableFullScreenState
-            onQQStyleThemeChanged: updateTheme()
+            function onEnableFullScreenStateChanged() {isFullScreen = globalSettingsLoader.item.enableFullScreenState}
+            function onQQStyleThemeChanged() {updateTheme()}
         }
     }
 
@@ -832,7 +832,7 @@ ApplicationWindow {
 
         Connections {
             target: expertSettingsLoader.item
-            onEnableExpertModeStateChanged : isExpertView = expertSettingsLoader.item.enableExpertModeState
+            function onEnableExpertModeStateChanged() {isExpertView = expertSettingsLoader.item.enableExpertModeState}
         }
     }
 
@@ -866,19 +866,19 @@ ApplicationWindow {
     Connections{
         target: radioController
 
-        onShowErrorMessage:{
+        function onShowErrorMessage(Text) {
             errorMessagePopup.text = Text;
 
             if(mainWindow.isLoaded)
                 errorMessagePopup.open();
         }
 
-        onShowInfoMessage:{
+        function onShowInfoMessage(Text) {
             infoMessagePopup.text = Text;
             infoMessagePopup.open();
         }
 
-        onScanStopped:{
+        function onScanStopped() {
             startStationScanItem.enabled = true
             stopStationScanItem.enabled = false
         }
@@ -894,9 +894,9 @@ ApplicationWindow {
     Connections {
         target: guiHelper
 
-        onMinimizeWindow: hide()
-        onMaximizeWindow: showMaximized()
-        onRestoreWindow: {
+        function onMinimizeWindow() {hide()}
+        function onMaximizeWindow() {showMaximized()}
+        function onRestoreWindow() {
             // On Linux (KDE?): Hide before we restore 
             // otherwise the window will occasionally not be brought to the front
             if (Qt.platform.os === "linux" && !active) // Linux Workaround to display the window

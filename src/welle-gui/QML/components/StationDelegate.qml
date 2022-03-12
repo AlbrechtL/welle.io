@@ -113,7 +113,7 @@ Item {
 
     Connections {
         target: radioController
-        onIsPlayingChanged: setPlaybackStatus()
+        function onIsPlayingChanged(){ setPlaybackStatus()}
     }
 
     function setPlaybackStatus() {

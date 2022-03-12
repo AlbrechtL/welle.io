@@ -84,7 +84,7 @@ ViewBaseFrame {
     Connections{
         target: guiHelper
 
-        onNewDebugOutput: {
+        function onNewDebugOutput(text) {
             textField.append(text)
         }
     }

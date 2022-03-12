@@ -62,13 +62,13 @@ Item {
     Connections{
         target: radioController
 
-        onGainCountChanged: manualGain.to = radioController.gainCount
+        function onGainCountChanged() {manualGain.to = radioController.gainCount}
     }
 
     Connections {
         target: guiHelper
 
-        onNewDeviceId: {
+        function onNewDeviceId(deviceId) {
             switch(deviceId) {
             case 0: deviceBox.currentIndex = 0; break; // UNKNOWN
             case 1: deviceBox.currentIndex = 0; break; // NULLDEVICE
@@ -80,7 +80,7 @@ Item {
             default: deviceBox.currentIndex = 0;
             }
         }
-        onSetFullScreen: {
+        function onSetFullScreen(isFullScreen) {
             enableFullScreen.checked = isFullScreen
         }
     }

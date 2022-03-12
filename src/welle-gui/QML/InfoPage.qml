@@ -72,7 +72,7 @@ Item {
 
             Connections {
                 target: guiHelper
-                onTranslationFinished: {
+                function onTranslationFinished() {
                     // Update the InfoPage otherwise it won't be re-translated
                     // if we change language in the GUI
                     displayPage()

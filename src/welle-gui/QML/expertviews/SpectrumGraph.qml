@@ -49,7 +49,7 @@ ViewBaseFrame {
     Connections{
         target: guiHelper
 
-        onSetSpectrumAxis: {
+        function onSetSpectrumAxis(Ymax, Xmin, Xmax) {
             spectrum.yMax = Ymax
             spectrum.freqMin = Xmin
             spectrum.freqMax = Xmax
@@ -63,7 +63,7 @@ ViewBaseFrame {
     Connections {
         target: spectrum
 
-        onIsWaterfallChanged: {
+        function onIsWaterfallChanged() {
             __registerSeries();
         }
     }
