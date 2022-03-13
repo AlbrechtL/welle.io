@@ -23,12 +23,12 @@
  *
  */
  
-import QtQuick 2.0
-import QtCharts 2.1
-import QtQuick.Layouts 1.1
-import QtQuick.Controls 2.1
-import Qt.labs.settings 1.0
-import io.welle 1.0
+import QtQuick
+import QtCharts
+import QtQuick.Layouts
+import QtQuick.Controls
+import Qt.labs.settings
+import io.welle
 
 // Import custom styles
 import "../texts"

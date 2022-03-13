@@ -23,9 +23,9 @@
  *
  */
  
-import QtQuick 2.0
-import QtQuick.Controls 2.2
-import QtQuick.Layouts 1.1
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 
 Tumbler {
     model: 255

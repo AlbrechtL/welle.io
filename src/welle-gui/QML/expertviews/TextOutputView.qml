@@ -23,9 +23,9 @@
  *
  */
  
-import QtQuick 2.0
-import QtQuick.Controls 2.3
-import QtQuick.Layouts 1.1
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 
 
 // Import custom styles
@@ -84,7 +84,7 @@ ViewBaseFrame {
     Connections{
         target: guiHelper
 
-        onNewDebugOutput: {
+        function onNewDebugOutput(text) {
             textField.append(text)
         }
     }

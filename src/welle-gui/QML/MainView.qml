@@ -23,14 +23,13 @@
  *
  */
 
-import QtQuick 2.9
-import QtQuick.Layouts 1.3
-import QtQuick.Controls 2.3
-import QtQuick.Controls.Material 2.1
-import QtQuick.Controls.Universal 2.1
-import QtQuick.Window 2.2
-import QtGraphicalEffects 1.0
-import Qt.labs.settings 1.0
+import QtQuick
+import QtQuick.Layouts
+import QtQuick.Controls
+import QtQuick.Controls.Universal
+import QtQuick.Window
+import Qt5Compat.GraphicalEffects
+import Qt.labs.settings
 
 import "texts"
 import "settingpages"
@@ -67,11 +66,14 @@ ApplicationWindow {
             return Units.dp(500)
     }
 
+    Universal.accent: Universal.Cyan
+
     width: getWidth()
     height: getHeight()
 
     title: isStationNameInWindowTitle ? radioController.title.trim() + " - welle.io" : "welle.io"
 
+    visible: true // According to https://bugreports.qt.io/browse/QTBUG-35244
     visibility: isFullScreen ? Window.FullScreen : Window.Windowed
 
     Component.onCompleted: {
@@ -114,11 +116,10 @@ ApplicationWindow {
         id: overlayHeader
 
         RowLayout {
-            spacing: 5
             anchors.fill: parent
 
             ToolButton {
-                icon.name:  "drawer"
+                icon.source: "qrc:/icons/welle_io_icons/20x20@2/drawer.png"
 
                 Accessible.name: qsTr("Stations list")
                 Accessible.description: qsTr("Display or hide stations list")
@@ -152,309 +153,206 @@ ApplicationWindow {
             }
 
             ToolButton {
-                anchors.top: parent.top
-                anchors.bottom: parent.bottom
-                highlighted: startStopIconMouseArea.pressed
+                id: startStopIcon
+                implicitWidth: icon.width + Units.dp(24)
 
-                MouseArea {
-                    id: startStopIconMouseArea
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    onClicked: {
-                        if (radioController.isPlaying || radioController.isChannelScan) {
-                            startStopIcon.stop()
-                        } else {
-                            startStopIcon.play()
-                        }
+                icon.source: "qrc:/icons/welle_io_icons/20x20@2/stop.png"
+                icon.height: Units.dp(24)
+                icon.width: Units.dp(24)
+
+                onClicked: {
+                    if (radioController.isPlaying || radioController.isChannelScan) {
+                        startStopIcon.stop()
+                    } else {
+                        startStopIcon.play()
                     }
                 }
 
-                Image {
-                    id: startStopIcon
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.verticalCenter: parent.verticalCenter
+                Accessible.role: Accessible.Button
+                Accessible.name: (radioController.isPlaying || radioController.isChannelScan) ? qsTr("Stop") : qsTr("Play")
+                Accessible.description: radioController.isPlaying ? qsTr("Stop playback") : radioController.isChannelScan ? qsTr("Stop scan") : qsTr("Start playback")
+                Accessible.onPressAction: startStopIconMouseArea.clicked(mouse)
 
-                    height: parent.availableHeight - parent.padding
-                    fillMode: Image.PreserveAspectFit
+                WToolTip {
+                    text: (radioController.isPlaying || radioController.isChannelScan) ? qsTr("Stop") : qsTr("Play")
+                    visible: startStopIcon.hovered
+                }
 
-                    Accessible.role: Accessible.Button
-                    Accessible.name: (radioController.isPlaying || radioController.isChannelScan) ? qsTr("Stop") : qsTr("Play")
-                    Accessible.description: radioController.isPlaying ? qsTr("Stop playback") : radioController.isChannelScan ? qsTr("Stop scan") : qsTr("Start playback")
-                    Accessible.onPressAction: startStopIconMouseArea.clicked(mouse)
+                Component.onCompleted: { startStopIcon.setStartPlayIcon() }
 
-                    WToolTip {
-                        text: (radioController.isPlaying || radioController.isChannelScan) ? qsTr("Stop") : qsTr("Play")
-                        visible: startStopIconMouseArea.containsMouse
+                Shortcut {
+                    context: Qt.ApplicationShortcut
+                    autoRepeat: false
+                    sequences: ["Media Pause", "Toggle Media Play/Pause", "S"]
+                    onActivated: startStopIconMouseArea.clicked(0)
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut
+                    autoRepeat: false
+                    sequences: ["Media Stop"]
+                    onActivated: if (radioController.isPlaying || radioController.isChannelScan) startStopIcon.stop()
+                }
+                Shortcut {
+                    context: Qt.ApplicationShortcut
+                    autoRepeat: false
+                    sequences: ["Media Play"]
+                    onActivated: if (!radioController.isPlaying) startStopIcon.play()
+                }
+
+                Connections {
+                    target: radioController
+                    function onIsPlayingChanged() {
+                        startStopIcon.setStartPlayIcon()
                     }
-
-                    Component.onCompleted: { startStopIcon.setStartPlayIcon() }
-
-                    Shortcut {
-                        context: Qt.ApplicationShortcut
-                        autoRepeat: false
-                        sequences: ["Media Pause", "Toggle Media Play/Pause", "S"]
-                        onActivated: startStopIconMouseArea.clicked(0)
-                    }
-                    Shortcut {
-                        context: Qt.ApplicationShortcut
-                        autoRepeat: false
-                        sequences: ["Media Stop"]
-                        onActivated: if (radioController.isPlaying || radioController.isChannelScan) startStopIcon.stop()
-                    }
-                    Shortcut {
-                        context: Qt.ApplicationShortcut
-                        autoRepeat: false
-                        sequences: ["Media Play"]
-                        onActivated: if (!radioController.isPlaying) startStopIcon.play()
-                    }
-
-                    Connections {
-                        target: radioController
-                        onIsPlayingChanged: {
-                            startStopIcon.setStartPlayIcon()
-                        }
-                        onIsChannelScanChanged: {
-                            startStopIcon.setStartPlayIcon()
-                        }
-                    }
-
-                    function setStartPlayIcon() {
-                        if (radioController.isPlaying || radioController.isChannelScan) {
-                            startStopIcon.source = "qrc:/icons/welle_io_icons/20x20/stop.png"
-                        } else {
-                            startStopIcon.source = "qrc:/icons/welle_io_icons/20x20/play.png"
-                        }
-                    }
-
-                    function play() {
-                        var channel = radioController.lastChannel[1]
-                        var sidHex = radioController.lastChannel[0]
-                        stationList.play(channel, sidHex)
-                    }
-
-                    function stop() {
-                        if (radioController.isPlaying)
-                            radioController.stop();
-                        else if (radioController.isChannelScan)
-                            radioController.stopScan()
+                    function onIsChannelScanChanged() {
+                        startStopIcon.setStartPlayIcon()
                     }
                 }
 
-                ColorOverlay {
-                    id: startStopIconOverlay
-                    anchors.fill: startStopIcon
-                    source: startStopIcon
-                    color: (mainWindow.Material.theme === Material.Dark ) ? "lightgrey" : (mainWindow.Universal.theme === Universal.Dark ) ? "lightgrey" : TextStyle.textColor
+                function setStartPlayIcon() {
+                    if (radioController.isPlaying || radioController.isChannelScan) {
+                        startStopIcon.icon.source = "qrc:/icons/welle_io_icons/20x20@2/stop.png"
+                    } else {
+                        startStopIcon.icon.source = "qrc:/icons/welle_io_icons/20x20@2/play.png"
+                    }
+                }
+
+                function play() {
+                    var channel = radioController.lastChannel[1]
+                    var sidHex = radioController.lastChannel[0]
+                    stationList.play(channel, sidHex)
+                }
+
+                function stop() {
+                    if (radioController.isPlaying)
+                        radioController.stop();
+                    else if (radioController.isChannelScan)
+                        radioController.stopScan()
                 }
             }
 
             ToolButton {
                 id: speakerIconContainer
-                anchors.top: parent.top
-                anchors.bottom: parent.bottom
-                highlighted: speakerIconMouseArea.pressed
+                implicitWidth: icon.width + Units.dp(24)
 
-                MouseArea {
-                    id: speakerIconMouseArea
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    acceptedButtons: Qt.LeftButton | Qt.RightButton
-                    onPressAndHold: volumePopup.open()
-                    onClicked: {
-                        if(mouse.button == Qt.RightButton)
-                            volumePopup.open()
-                        else
-                            if(radioController.volume !== 0)
-                                volumeSlider.value = 0
-                            else
-                                volumeSlider.value = 1
-                    }
-                    onWheel: (wheel.angleDelta.y > 0) ? volumeSlider.value = volumeSlider.value + 0.1 :  volumeSlider.value = volumeSlider.value - 0.1
+                icon.source: "qrc:/icons/welle_io_icons/20x20@2/speaker.png"
+                icon.height: Units.dp(24)
+                icon.width: Units.dp(24)
+
+                onPressAndHold: volumePopup.open()
+                onClicked: {
+                    if(radioController.volume !== 0)
+                        volumeSlider.value = 0
+                    else
+                        volumeSlider.value = 1
                 }
 
-                contentItem: Item {
-                    // Use 2 Images to switch between speaker & speaker_mute icon (instead of toggle button).
-                    // Permits use of color with org.kde.desktop style
-                    Image {
-                        id: speakerIcon
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        anchors.verticalCenter: parent.verticalCenter
+                Accessible.role: Accessible.Button
+                Accessible.name: qsTr("Volume")
+                Accessible.description: qsTr("Toggle volume slider")
+                Accessible.onPressAction: speakerIconMouseArea.clicked(mouse)
 
-                        height: speakerIconContainer.availableHeight - speakerIconContainer.padding
-                        fillMode: Image.PreserveAspectFit
+                WToolTip {
+                    text: qsTr("Click for mute, long click for volume slider")
+                    visible: speakerIconContainer.hovered
+                }
 
-                        visible: false
+                Popup {
+                    id: volumePopup
+                    y: speakerIconContainer.y + speakerIconContainer.height
+                    x: Math.round(speakerIconContainer.x + (speakerIconContainer.width / 2) - volumePopup.width/2 )
 
-                        source: "qrc:/icons/welle_io_icons/20x20@2/speaker.png"
+                    parent: Overlay.overlay
 
-                        WToolTip {
-                            text: qsTr("Volume (%1)").arg(volumeLabel.text)
-                            visible: speakerIconMouseArea.containsMouse
-                        }
+                    focus: true
+                    closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
 
-                        Accessible.role: Accessible.Button
-                        Accessible.name: qsTr("Volume")
-                        Accessible.description: qsTr("Toggle volume slider")
-                        Accessible.onPressAction: speakerIconMouseArea.clicked(mouse)
-                    }
-                    Image {
-                        id: speakerIconMuted
-                        anchors.top: speakerIcon.top
-                        anchors.left: speakerIcon.left
-                        width: speakerIcon.width
-                        height: speakerIcon.height
-                        visible: false
+                    ColumnLayout{
+                        Slider {
+                            id: volumeSlider
 
-                        source: "qrc:/icons/welle_io_icons/20x20@2/speaker_mute.png"
-                    }
-                    ColorOverlay {
-                        id: speakerIconMutedRed
-                        visible: false
-                        anchors.fill: speakerIconMuted
-                        source: speakerIconMuted
-                        color: "red"
-                    }
+                            Layout.alignment: Qt.AlignCenter
 
-                    // We don't display the "speakerIcon" item, but the "speakerIconMaskApplied"
-                    // item the right part of which is +/- opacified depending on the volume
-                    Item {
-                        id: hidingRect
-                        anchors.fill: speakerIcon
-                        visible: false
-                        Rectangle {
-                            anchors.right: parent.right
-                            color: "green" //Could be any
-                            width: speakerIcon.width *0.30
-                            height: speakerIcon.height
-                            opacity: 1 - volumeSlider.value
-                        }
-                    }
-                    OpacityMask {
-                        id: speakerIconMaskApplied
-                        anchors.fill: speakerIcon
-                        source: speakerIcon
-                        maskSource: hidingRect
-                        invert: true
-                        visible: false
-                    }
-                    ColorOverlay {
-                        id: speakerIconMaskAppliedOverlay
-                        anchors.fill: speakerIconMaskApplied
-                        source: speakerIconMaskApplied
-                        color: (mainWindow.Material.theme === Material.Dark ) ? "lightgrey" : (mainWindow.Universal.theme === Universal.Dark ) ? "lightgrey" : TextStyle.textColor
-                    }
+                            height: 100
+                            orientation: Qt.Vertical
+                            snapMode: Slider.SnapAlways
+                            wheelEnabled: true
 
-                    Popup {
-                        id: volumePopup
-                        y: speakerIconContainer.y + speakerIconContainer.height
-                        x: Math.round(speakerIconContainer.x + (speakerIconContainer.width / 2) - volumePopup.width/2 )
+                            from: 0
+                            to: 1
+                            stepSize: 0.01
+                            value: radioController.volume
 
-                        parent: Overlay.overlay
+                            onValueChanged: {
+                                setVolume(value)
+                                //if (visible)
+                                //    volumeSliderTrigger.restart()
+                            }
 
-                        //modal: true  //if 'true', double click on the speaker icon will not be caught
-                        focus: true
-                        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
-
-                        onOpened: volumeSliderTrigger.restart()
-                        onClosed: volumeSliderTrigger.stop()
-
-                        ColumnLayout{
-                            Slider {
-                                id: volumeSlider
-
-                                Layout.alignment: Qt.AlignCenter
-
-                                height: 100
-                                orientation: Qt.Vertical
-                                snapMode: Slider.SnapAlways
-                                wheelEnabled: true
-
-                                from: 0
-                                to: 1
-                                stepSize: 0.01
-                                value: radioController.volume
-
-                                onValueChanged: {
-                                    setVolume(value)
-                                    if (visible)
-                                        volumeSliderTrigger.restart()
+                            Connections {
+                                target: radioController
+                                function onVolumeChanged(volume) {
+                                    volumeSlider.value = volume
                                 }
+                            }
 
-                                Connections {
-                                    target: radioController
-                                    onVolumeChanged: {
-                                        volumeSlider.value = volume
-                                    }
-                                }
-
-                                Timer {
-                                    id: volumeSliderTrigger
-                                    interval: 3000
-                                    running: false
-                                    repeat: false
-                                    onTriggered: { volumePopup.close() }
-                                }
-
-                                function setVolume(value) {
-                                    if (volumeSlider.value != radioController.volume) {
-                                        if (value === 0) {
-                                            radioController.setVolume(value)
-                                            speakerIconMutedRed.visible = true
-                                            speakerIconMaskAppliedOverlay.visible = false
-                                        } else {
-                                            radioController.setVolume(value)
-                                            speakerIconMutedRed.visible = false
-                                            speakerIconMaskAppliedOverlay.visible = true
-                                        }
+                            function setVolume(value) {
+                                if (volumeSlider.value != radioController.volume) {
+                                    if (value === 0) {
+                                        radioController.setVolume(value)
+                                        speakerIconContainer.icon.color = "red"
+                                    } else {
+                                        radioController.setVolume(value)
+                                        speakerIconContainer.icon.color = undefined
                                     }
                                 }
                             }
+                        }
 
-                            TextStandart {
-                                id: volumeLabel
-                                Layout.alignment: Qt.AlignCenter
+                        TextStandart {
+                            id: volumeLabel
+                            Layout.alignment: Qt.AlignCenter
 
-                                font.pixelSize: Units.em(0.8)
-                                text: Math.round(volumeSlider.value*100) + "%"
+                            font.pixelSize: Units.em(0.8)
+                            text: Math.round(volumeSlider.value*100) + "%"
 
-                                Accessible.description: qsTr("Volume set to %1").arg(text)
+                            Accessible.description: qsTr("Volume set to %1").arg(text)
+                        }
+
+                        Shortcut {
+                            context: Qt.ApplicationShortcut
+                            autoRepeat: true
+                            sequences: ["Ctrl+Up", "Volume Up"]
+                            onActivated: {
+                                volumeSlider.visible = true
+                                volumeSlider.value = volumeSlider.value + volumeSlider.stepSize
                             }
+                        }
 
-                            Shortcut {
-                                context: Qt.ApplicationShortcut
-                                autoRepeat: true
-                                sequences: ["Ctrl+Up", "Volume Up"]
-                                onActivated: {
-                                    volumeSlider.visible = true
-                                    volumeSlider.value = volumeSlider.value + volumeSlider.stepSize
-                                }
+                        Shortcut {
+                            context: Qt.ApplicationShortcut
+                            autoRepeat: true
+                            sequences: ["Ctrl+Down", "Volume Down"]
+                            onActivated: {
+                                volumeSlider.visible = true
+                                volumeSlider.value = volumeSlider.value - volumeSlider.stepSize
                             }
+                        }
 
-                            Shortcut {
-                                context: Qt.ApplicationShortcut
-                                autoRepeat: true
-                                sequences: ["Ctrl+Down", "Volume Down"]
-                                onActivated: {
-                                    volumeSlider.visible = true
-                                    volumeSlider.value = volumeSlider.value - volumeSlider.stepSize
-                                }
-                            }
-
-                            Shortcut {
-                                context: Qt.ApplicationShortcut
-                                autoRepeat: false
-                                sequences: ["m", "Volume Mute"]
-                                onActivated: {
-                                    volumeSlider.visible = true
-                                    volumeSlider.value = !(volumeSlider.value)
-                                }
+                        Shortcut {
+                            context: Qt.ApplicationShortcut
+                            autoRepeat: false
+                            sequences: ["m", "Volume Mute"]
+                            onActivated: {
+                                volumeSlider.visible = true
+                                volumeSlider.value = !(volumeSlider.value)
                             }
                         }
                     }
                 }
             }
             ToolButton {
-                icon.name: "menu"
+                icon.source: "qrc:/icons/welle_io_icons/20x20@2/menu.png"
                 icon.width: Units.dp(20)
                 icon.height: Units.dp(20)
 
@@ -520,6 +418,11 @@ ApplicationWindow {
         // Enable closing again
         onOpened: closePolicy = Popup.CloseOnEscape | Popup.CloseOnPressOutside
 
+        Rectangle {
+            anchors.fill: parent
+            color: (mainWindow.Universal.theme === Universal.Dark ) ? "dimgrey" : "white"
+        }
+
         ColumnLayout {
             anchors.fill: parent
             anchors.topMargin: Units.dp(5)
@@ -555,7 +458,7 @@ ApplicationWindow {
 
                 Button {
                     id: menuButton
-                    icon.name: "menu"
+                    icon.source: "qrc:/icons/welle_io_icons/20x20@2/menu.png"
                     icon.height: Units.dp(15)
                     icon.width: Units.dp(15)
                     flat:true
@@ -573,7 +476,6 @@ ApplicationWindow {
                             id: startStationScanItem
                             text: qsTr("Start station scan")
                             font.pixelSize: TextStyle.textStandartSize
-                            font.family: TextStyle.textFont
                             onTriggered:  {
                                 startStationScanItem.enabled = false
                                 stopStationScanItem.enabled = true
@@ -585,7 +487,6 @@ ApplicationWindow {
                             id: stopStationScanItem
                             text: qsTr("Stop station scan")
                             font.pixelSize: TextStyle.textStandartSize
-                            font.family: TextStyle.textFont
                             enabled: false
                             onTriggered:  {
                                 startStationScanItem.enabled = true
@@ -597,7 +498,6 @@ ApplicationWindow {
                         MenuItem {
                             text: qsTr("Clear station list")
                             font.pixelSize: TextStyle.textStandartSize
-                            font.family: TextStyle.textFont
                             onTriggered: stationList.clearStations()
                         }
 
@@ -605,7 +505,6 @@ ApplicationWindow {
                             id: stationSettingsItem
                             text: qsTr("Station settings")
                             font.pixelSize: TextStyle.textStandartSize
-                            font.family: TextStyle.textFont
                             onTriggered: {
                                 stationSettingsDialog.title = "Station settings"
                                 stationSettingsDialog.open()
@@ -804,12 +703,12 @@ ApplicationWindow {
     }
 
     RoundButton {
+        id: addButton
         text: "\u002b" // Unicode character '+'
         onClicked: viewMenu.open()
         x: parent.width - width - Units.dp(10)
         y: parent.height - height - Units.dp(10)
         visible: isExpertView
-        palette.button: "darkorange"
 
         Accessible.role: Accessible.Button
         Accessible.name: qsTr("Add")
@@ -890,13 +789,13 @@ ApplicationWindow {
             id: stationSettingsLoader
             anchors.right: parent.right
             anchors.left: parent.left
-            height: item.implicitHeight
+            height: progress < 1 ? undefined : item.implicitHeight
             source:  "qrc:/QML/settingpages/ChannelSettings.qml"
             onLoaded: isStationNameInWindowTitle = stationSettingsLoader.item.addStationNameToWindowTitleState
         }
         Connections {
             target: stationSettingsLoader.item
-            onAddStationNameToWindowTitleStateChanged : isStationNameInWindowTitle = stationSettingsLoader.item.addStationNameToWindowTitleState
+            function onAddStationNameToWindowTitleStateChanged() {isStationNameInWindowTitle = stationSettingsLoader.item.addStationNameToWindowTitleState}
         }
     }
 
@@ -907,15 +806,15 @@ ApplicationWindow {
             id: globalSettingsLoader
             anchors.right: parent.right
             anchors.left: parent.left
-            height: item.implicitHeight
+            height: progress < 1 ? undefined : item.implicitHeight
             source:  "qrc:/QML/settingpages/GlobalSettings.qml"
             onLoaded : isFullScreen = globalSettingsLoader.item.enableFullScreenState
         }
 
         Connections {
             target: globalSettingsLoader.item
-            onEnableFullScreenStateChanged : isFullScreen = globalSettingsLoader.item.enableFullScreenState
-            onQQStyleThemeChanged: updateTheme()
+            function onEnableFullScreenStateChanged() {isFullScreen = globalSettingsLoader.item.enableFullScreenState}
+            function onQQStyleThemeChanged() {updateTheme()}
         }
     }
 
@@ -926,14 +825,14 @@ ApplicationWindow {
             id: expertSettingsLoader
             anchors.right: parent.right
             anchors.left: parent.left
-            height: item.implicitHeight
+            height: progress < 1 ? undefined : item.implicitHeight
             source:  "qrc:/QML/settingpages/ExpertSettings.qml"
             onLoaded: isExpertView = expertSettingsLoader.item.enableExpertModeState
         }
 
         Connections {
             target: expertSettingsLoader.item
-            onEnableExpertModeStateChanged : isExpertView = expertSettingsLoader.item.enableExpertModeState
+            function onEnableExpertModeStateChanged() {isExpertView = expertSettingsLoader.item.enableExpertModeState}
         }
     }
 
@@ -967,37 +866,37 @@ ApplicationWindow {
     Connections{
         target: radioController
 
-        onShowErrorMessage:{
+        function onShowErrorMessage(Text) {
             errorMessagePopup.text = Text;
 
             if(mainWindow.isLoaded)
                 errorMessagePopup.open();
         }
 
-        onShowInfoMessage:{
+        function onShowInfoMessage(Text) {
             infoMessagePopup.text = Text;
             infoMessagePopup.open();
         }
 
-        onScanStopped:{
+        function onScanStopped() {
             startStationScanItem.enabled = true
             stopStationScanItem.enabled = false
         }
 
-        onScanProgress:{
+        function onScanProgress() {
             startStationScanItem.enabled = false
             stopStationScanItem.enabled = true
         }
 
-        onNewStationNameReceived: stationList.addStation(station, sId, channel, false)
+        function onNewStationNameReceived(station, sId, channel) {stationList.addStation(station, sId, channel, false)}
     }
 
     Connections {
         target: guiHelper
 
-        onMinimizeWindow: hide()
-        onMaximizeWindow: showMaximized()
-        onRestoreWindow: {
+        function onMinimizeWindow() {hide()}
+        function onMaximizeWindow() {showMaximized()}
+        function onRestoreWindow() {
             // On Linux (KDE?): Hide before we restore 
             // otherwise the window will occasionally not be brought to the front
             if (Qt.platform.os === "linux" && !active) // Linux Workaround to display the window
@@ -1009,7 +908,7 @@ ApplicationWindow {
         }
     }
 
-    onVisibilityChanged: {
+    onVisibilityChanged: function(visibility) {
         if(visibility === Window.Minimized)
             guiHelper.tryHideWindow()
     }
@@ -1022,19 +921,10 @@ ApplicationWindow {
     }
 
     function updateTheme() {
-        if (guiHelper.getQQStyle === "Universal") {
-            switch(globalSettingsLoader.item.qQStyleTheme) {
-                case 0: mainWindow.Universal.theme = Universal.Light; break;
-                case 1: mainWindow.Universal.theme = Universal.Dark; break;
-                case 2: mainWindow.Universal.theme = Universal.System; break;
-            }
-        }
-        else if (guiHelper.getQQStyle === "Material") {
-            switch(globalSettingsLoader.item.qQStyleTheme) {
-                case 0: mainWindow.Material.theme = Material.Light; break;
-                case 1: mainWindow.Material.theme = Material.Dark; break;
-                case 2: mainWindow.Material.theme = Material.System; break;
-            }
+        switch(globalSettingsLoader.item.qQStyleTheme) {
+            case 0: mainWindow.Universal.theme = Universal.Light; break;
+            case 1: mainWindow.Universal.theme = Universal.Dark; break;
+            case 2: mainWindow.Universal.theme = Universal.System; break;
         }
     }
 }

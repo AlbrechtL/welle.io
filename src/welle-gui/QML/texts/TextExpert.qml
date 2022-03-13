@@ -23,8 +23,8 @@
  *
  */
  
-import QtQuick 2.0
-import QtQuick.Layouts 1.1
+import QtQuick
+import QtQuick.Layouts
 
 // Import custom styles
 import "."
@@ -43,14 +43,11 @@ Item{
         Text{
             id: nameView
             font.pixelSize: TextStyle.textStandartSize
-            font.family: TextStyle.textFont
-            //color: TextStyle.textColor
         }
         Text{
             id: textView
             font.pixelSize: TextStyle.textStandartSize
-            font.family: TextStyle.textFont
-            //color: TextStyle.textColor
+
             verticalAlignment: Text.AlignVCenter
             Layout.maximumWidth: (parent.parent.parent.isServiceDetailsRawLayout == true) ? 
                 parent.parent.parent.parent.parent.width - nameView.width - 16 :

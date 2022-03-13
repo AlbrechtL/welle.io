@@ -23,9 +23,9 @@
  *
  */
  
-import QtQuick 2.0
-import QtQuick.Layouts 1.1
-import Qt.labs.settings 1.0
+import QtQuick
+import QtQuick.Layouts
+import Qt.labs.settings
 
 // Import custom styles
 import "../texts"
@@ -45,7 +45,7 @@ ViewBaseFrame {
     Connections{
         target: guiHelper
 
-        onSetNullSymbolAxis: {
+        function onSetNullSymbolAxis(Ymax, Xmin, Xmax) {
             spectrum.yMax = Ymax
             spectrum.freqMin = Xmin
             spectrum.freqMax = Xmax
@@ -55,7 +55,7 @@ ViewBaseFrame {
     Connections {
         target: spectrum
 
-        onIsWaterfallChanged: {
+        function onIsWaterfallChanged() {
             __registerSeries();
         }
     }

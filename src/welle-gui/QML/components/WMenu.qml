@@ -23,8 +23,8 @@
  *
  */
  
-import QtQuick 2.0
-import QtQuick.Controls 2.3
+import QtQuick
+import QtQuick.Controls
 
 import "../texts"
 
@@ -35,7 +35,6 @@ Menu {
     width: (sizeToContents) ? menuWidth + leftPadding + rightPadding : implicitWidth
 
     font.pixelSize: TextStyle.textStandartSize
-    font.family: TextStyle.textFont
 
     onAboutToShow: {
         var itemwidth = 0;

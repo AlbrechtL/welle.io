@@ -23,10 +23,10 @@
  *
  */
  
-import QtQuick 2.6
-import QtQuick.Controls 2.0
-import QtQuick.Layouts 1.1
-import Qt.labs.settings 1.0
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+import Qt.labs.settings
 
 // Import custom styles
 import "../texts"
@@ -62,13 +62,13 @@ Item {
     Connections{
         target: radioController
 
-        onGainCountChanged: manualGain.to = radioController.gainCount
+        function onGainCountChanged() {manualGain.to = radioController.gainCount}
     }
 
     Connections {
         target: guiHelper
 
-        onNewDeviceId: {
+        function onNewDeviceId(deviceId) {
             switch(deviceId) {
             case 0: deviceBox.currentIndex = 0; break; // UNKNOWN
             case 1: deviceBox.currentIndex = 0; break; // NULLDEVICE
@@ -80,7 +80,7 @@ Item {
             default: deviceBox.currentIndex = 0;
             }
         }
-        onSetFullScreen: {
+        function onSetFullScreen(isFullScreen) {
             enableFullScreen.checked = isFullScreen
         }
     }
@@ -257,28 +257,8 @@ Item {
             RowLayout {
                 Layout.fillWidth: true
                 WComboBoxList {
-                    id: styleBox
-                    sizeToContents: true
-                    currentIndex: guiHelper.getIndexOfQQStyle(guiHelper.getQQStyle)
-                    textRole: "label"
-                    model: guiHelper.qQStyleComboModel
-                    onActivated: {
-                        guiHelper.saveQQStyle(currentIndex)
-                        infoMessagePopup.text = qsTr("Style changed. Please restart welle.io.");
-                        infoMessagePopup.open();
-                    }
-                }
-                TextStandart {
-                    text: qsTr("Style. Restart to apply.")
-                    Layout.fillWidth: true
-                }
-            }
-            RowLayout {
-                Layout.fillWidth: true
-                WComboBoxList {
                     id: qQStyleTheme
                     sizeToContents: true
-                    enabled: guiHelper.isThemableStyle(guiHelper.getQQStyle)
                     textRole: 'trLabel'
                     model: ListModel {
                         id: themeListModel
@@ -291,12 +271,7 @@ Item {
                     text: qsTr("Theme")
                     Layout.fillWidth: true
                 }
-                Connections {
-                    target: guiHelper
-                    onStyleChanged: {
-                        qQStyleTheme.enabled = guiHelper.isThemableStyle(guiHelper.getQQStyle)
-                    }
-                }
+
             }
         }
     }

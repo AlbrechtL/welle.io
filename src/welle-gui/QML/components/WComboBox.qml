@@ -23,9 +23,9 @@
  *
  */
  
-import QtQuick 2.7
-import QtQuick.Controls 2.3
-import QtQuick.Layouts 1.3
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 
 import "../texts"
 
@@ -38,7 +38,6 @@ ComboBox {
     Layout.preferredWidth: width
 
     font.pixelSize: TextStyle.textStandartSize
-    font.family: TextStyle.textFont
 
     delegate: ItemDelegate {
         width: comboBox.width

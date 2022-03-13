@@ -60,63 +60,6 @@
     class FileActivityResultReceiver;
 #endif
 
-
-/*
- * The Class that described a Style
- * for use in the Style List Model
- * It contains
- *  - a label which is displayed to the user
- *  - the technical name of the style for the
- *    QQuickStyle::setStyle call
- */
-class Style
-{
-public:
-    Style(const QString &label, const QString &style);
-    QString label() const;
-    QString style() const;
-
-private:
-    QString m_label;
-    QString m_style;
-};
-
-/*
- * The Class that stores the ListModel to used to display
- * the list of styles in a QML ComboBox
- */
-class StyleModel : public QAbstractListModel
-{
-    Q_OBJECT
-    Q_PROPERTY(int count READ rowCount NOTIFY countChanged)
-
-public:
-    enum StyleRoles {
-        LabelRole = Qt::UserRole + 1,
-        StyleRole = Qt::UserRole + 2
-    };
-
-    StyleModel(QObject *parent = 0);
-
-    void addStyle(const Style &style);
-
-    int rowCount(const QModelIndex & parent = QModelIndex()) const;
-
-    QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const;
-
-    Q_INVOKABLE QVariantMap get(int index) const;
-
-signals:
-    void countChanged(int c);
-
-protected:
-    QHash<int, QByteArray> roleNames() const;
-
-private:
-    QList<Style> m_styles;
-};
-
-
 /*
  *	GThe main gui object. It inherits from
  *	QDialog and the generated form
@@ -125,8 +68,6 @@ class CGUIHelper : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QVariant licenses READ licenses CONSTANT)
-    Q_PROPERTY(StyleModel* qQStyleComboModel READ qQStyleComboModel CONSTANT)
-    Q_PROPERTY(QString getQQStyle READ getQQStyle CONSTANT)
 
 public:
     Q_INVOKABLE void updateTranslator(QString Language, QObject *obj);
@@ -167,15 +108,6 @@ public:
 
     void setNewDebugOutput(QString text);
 
-    // Qt Quick Style Management methods & members
-    static QString getQQStyleToLoad(QString styleNameArg);
-    const QStringList qQStyleComboList();
-    StyleModel* qQStyleComboModel();
-    QString getQQStyle();
-    Q_INVOKABLE int getIndexOfQQStyle(QString);
-    Q_INVOKABLE bool isThemableStyle(QString);
-    Q_INVOKABLE void saveQQStyle(int);
-
 #ifndef __ANDROID__
     Q_INVOKABLE void updateMprisStationList(QString, QString, int);
     Q_INVOKABLE void setMprisFullScreenState(bool isFullscreen);
@@ -206,8 +138,6 @@ private:
     // Qt Quick Style Management methods & members
     QSettings settings;
     QStringList m_comboList;
-    StyleModel *m_styleModel = nullptr;
-    bool settingsStyleInAvailableStyles = false;
 
 #ifndef __ANDROID__
     Mpris *mpris;

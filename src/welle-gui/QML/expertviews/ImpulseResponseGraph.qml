@@ -23,10 +23,10 @@
  *
  */
  
-import QtQuick 2.0
-import QtCharts 2.1
-import QtQuick.Layouts 1.1
-import Qt.labs.settings 1.0
+import QtQuick
+import QtCharts
+import QtQuick.Layouts
+import Qt.labs.settings
 
 
 // Import custom styles
@@ -99,7 +99,7 @@ ViewBaseFrame {
     Connections{
         target: guiHelper
 
-        onSetImpulseResponseAxis: {
+        function onSetImpulseResponseAxis(Ymax, Xmin, Xmax) {
             spectrum.yMax = Ymax
             spectrum.freqMin = Xmin
             spectrum.freqMax = Xmax
@@ -113,7 +113,7 @@ ViewBaseFrame {
     Connections {
         target: spectrum
 
-        onIsWaterfallChanged: {
+        function onIsWaterfallChanged() {
             __registerSeries();
         }
     }

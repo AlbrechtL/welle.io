@@ -23,10 +23,10 @@
  *
  */
 
-import QtQuick 2.9
-import QtQuick.Layouts 1.1
-import QtQuick.Controls 2.3
-import QtGraphicalEffects 1.0
+import QtQuick
+import QtQuick.Layouts
+import QtQuick.Controls
+import Qt5Compat.GraphicalEffects
 
 // Import custom styles
 import "texts"
@@ -121,12 +121,12 @@ ViewBaseFrame {
                     
                     Connections {
                         target: frame
-                        onWidthChanged: { reanchorAntenna() }
+                        function onWidthChanged() { reanchorAntenna() }
                     }
                     
                     Connections {
                         target: textRadioStation
-                        onTextChanged: { reanchorAntenna() }
+                        function onTextChanged() { reanchorAntenna() }
                     }
                     
                     states: [
@@ -178,7 +178,7 @@ ViewBaseFrame {
                     
                     Connections {
                         target: antennaSymbol
-                        onIsSignalChanged: setAntennaVisibility()
+                        function onIsSignalChanged() {setAntennaVisibility()}
                     }
                     
                     NumberAnimation on opacity {
@@ -190,21 +190,21 @@ ViewBaseFrame {
 
                     Connections {
                         target: radioController
-                        onIsFICCRCChanged: {
+                        function onIsFICCRCChanged() {
                             if(radioController.isFICCRC)
                                 __setIsSignal(true)
                             else
                                 __setIsSignal(false)
                         }
 
-                        onIsSyncChanged: {
+                        function onIsSyncChanged() {
                             if(radioController.isSync)
                                 __setIsSignal(true)
                             else
                                 __setIsSignal(false)
                         }
-                        onIsPlayingChanged: setAntennaVisibility()
-                        onIsChannelScanChanged: setAntennaVisibility()
+                        function onIsPlayingChanged() {setAntennaVisibility()}
+                        function onIsChannelScanChanged() {setAntennaVisibility()}
                     }
                 }
             }

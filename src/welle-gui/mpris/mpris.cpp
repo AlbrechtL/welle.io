@@ -264,7 +264,7 @@ void Mpris::setVolume(double value) { radioController->setVolume(value); }
 
 void Mpris::Next()
 {
-    int next = std::min(stationArray.size()-1, getCurrentStationIndex()+1);
+    int next = std::min((int) stationArray.size()-1, getCurrentStationIndex()+1);
     QJsonObject obj = stationArray.at(next).toObject();
 
     QString autoChannel = obj.value("channelName").toString();

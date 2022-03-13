@@ -23,9 +23,9 @@
  *
  */
  
-import QtQuick 2.0
-import QtQuick.Layouts 1.3
-import QtQuick.Controls 2.0
+import QtQuick
+import QtQuick.Layouts
+import QtQuick.Controls
 
 // Import custom styles
 import "texts"
@@ -43,21 +43,25 @@ Item {
 
             TabButton {
                 font.capitalization: Font.MixedCase
+                font.pixelSize: TextStyle.textStandartSize
                 text: qsTr("Versions")
                 width: implicitWidth
             }
             TabButton {
                 font.capitalization: Font.MixedCase
+                font.pixelSize: TextStyle.textStandartSize
                 text: qsTr("Authors")
                 width: implicitWidth
             }
             TabButton {
                 font.capitalization: Font.MixedCase
+                font.pixelSize: TextStyle.textStandartSize
                 text: qsTr("Thanks")
                 width: implicitWidth
             }
             TabButton {
                 font.capitalization: Font.MixedCase
+                font.pixelSize: TextStyle.textStandartSize
                 text: qsTr("Licenses")
                 width: implicitWidth
             }
@@ -68,7 +72,7 @@ Item {
 
             Connections {
                 target: guiHelper
-                onTranslationFinished: {
+                function onTranslationFinished() {
                     // Update the InfoPage otherwise it won't be re-translated
                     // if we change language in the GUI
                     displayPage()
@@ -85,6 +89,7 @@ Item {
                 model: ["GPL-2", "LGPL-2.1", "BSD-3-Clause (kiss_fft)"]
                 TabButton {
                     font.capitalization: Font.MixedCase
+                    font.pixelSize: TextStyle.textStandartSize
                     text: modelData
                     width: implicitWidth
                 }

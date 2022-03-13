@@ -29,11 +29,13 @@
 #ifndef __CAUDIO__
 #define __CAUDIO__
 #include <stdio.h>
-#include <QAudioOutput>
 #include <memory>
 #include <QTimer>
 #include <QThread>
 #include <QMetaObject>
+#include <QAudioSink>
+#include <QAudioDevice>
+#include <QMediaDevices>
 #include "dab-constants.h"
 #include "ringbuffer.h"
 
@@ -76,8 +78,8 @@ class CAudioThread: public QThread
         RingBuffer<int16_t>& buffer;
         CAudioIODevice audioIODevice;
         QAudioFormat audioFormat;
-        QAudioOutput *audioOutput = nullptr;
-        QAudioDeviceInfo *info = nullptr;
+        QAudioSink *audioOutput = nullptr;
+        QAudioDevice *info = nullptr;
         QTimer checkAudioBufferTimer;
         QAudio::State currentState = QAudio::StoppedState;
         int32_t cardRate;
