@@ -34,6 +34,12 @@ Download
 * [**Windows**, **Linux**, **macOS** and **Android**](http://github.com/AlbrechtL/welle.io/releases) 
 * **Debian** or **Ubuntu** 19.04+
   * `apt install welle.io`, see the /usr/share/doc/welle.io/README.Debian for maintainer notes
+* **Fedora** 34+
+  * Enable [RPM Fusion](https://rpmfusion.org), then install the `welle-io` package:
+    ```shell
+    sudo dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
+    sudo dnf install --refresh welle-io
+    ```
 * **[List of available packages inside Linux distributions](https://repology.org/project/welle.io/versions)**
 * **macOS** (requires [MacPorts](https://www.macports.org/)) 
    * `sudo port install welle.io`
