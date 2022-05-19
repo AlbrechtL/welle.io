@@ -9,13 +9,6 @@ permalink: /devices/rawfile
 
 The RAW files input is for developers how have recorded I/Q samples files. You can use this input to analyse your RAW files or to test welle.io. By default welle.io uses raw file in the u8 format (see below).
 
-**Windows**
-  ```
-welle-io.exe -d rawfile --raw-file yourfile
-  ```
-
-**Linux**
-
 Launch ``welle-io`` as a graphical user interface, select Settings in the 
 top-right menu, disable ``Auto detect`` and select ``Open RAW file``. Select
 the binary file encoding, ``u8`` for ``rtl_sdr`` output or ``cf32`` for 
@@ -31,10 +24,6 @@ The I/Q samples have to be in 8-bit unsigned in the following format.
 * Size: 8-bit unsigned per I and Q sample
 * Sample rate: 2048000 samples/s
 
-**Example**
-  ```
-# welle-io -d rawfile --raw-file yourfile --raw-format u8
-  ```
 
 **Sources**
 * rtl_tcp
@@ -45,10 +34,6 @@ The I/Q samples have to be in 8-bit signed. For the format please see the format
 * Size: 8-bit signed per I and Q sample
 * Sample rate: 2048000 samples/s
 
-**Example**
-  ```
-# welle-io -d rawfile --raw-file yourfile --raw-format s8
-  ```
 
 **Sources**
 * odr-dabmod
@@ -59,10 +44,6 @@ The I/Q samples have to be in 16-bit signed little endian in the following forma
 * Size: 16-bit signed little endian per I and Q sample
 * Sample rate: 2048000 samples/s
 
-**Example**
-  ```
-# welle-io -d rawfile --raw-file yourfile --raw-format s16le
-  ```
 
 **Sources**
 * qt-dab (*.sdr)
