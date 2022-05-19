@@ -22,17 +22,6 @@ Basically all rtl-sdrs with the Realtek chipset RTL2832U are supported. These ar
 If you start welle.io without any options welle.io will detect the rtl-sdr device automatically. After enabling the "Expert mode" you can check if welle.io detects the device successfully.
 ![welle-io-rtlsdr.png](/images/welle-io-rtlsdr.png)
 
-You can also use the command line option "-d" to force welle.io to use the rtl-sdr device.
-
-**Windows**
-  ```
-welle-io.exe -d rtl_sdr
-  ```
-
-**Linux**
-  ```
-# welle-io -d rtl_sdr
-  ```
 
 
 ## Windows set up
@@ -55,7 +44,7 @@ To install the rtl-sdr on your Windows 10 system please follow the steps:
 
 ## Linux set up
 Just install the library librtlsdr.  
-For Ubuntu 16.04 LTS you can use the following command
+For Ubuntu 16.04 LTS or later you can use the following command
   ```
 # sudo apt install librtlsdr0 
   ```
