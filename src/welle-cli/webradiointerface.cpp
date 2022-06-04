@@ -855,9 +855,6 @@ bool WebRadioInterface::send_mux_playlist(Socket& s)
 
 bool WebRadioInterface::send_mp3(Socket& s, const std::string& stream)
 {
-    unique_lock<mutex> lock(rx_mut);
-    ASSERT_RX;
-
     bool is_empty = true;
     while (is_empty) {
         for (const auto& srv : rx->getServiceList()) {
@@ -865,9 +862,16 @@ bool WebRadioInterface::send_mp3(Socket& s, const std::string& stream)
                 (to_hex(srv.serviceId, 4) == stream or
                  (uint32_t)std::stoul(stream) == srv.serviceId)) {
                     is_empty=false;
+                    if (phs.count(srv.serviceId) == 0) {
+                        WebProgrammeHandler ph(srv.serviceId);
+                        phs.emplace(std::make_pair(srv.serviceId, move(ph)));
+                    }
             }
         }
     }
+
+    unique_lock<mutex> lock(rx_mut);
+    ASSERT_RX;
 
     for (const auto& srv : rx->getServiceList()) {
         if (rx->serviceHasAudioComponent(srv) and
