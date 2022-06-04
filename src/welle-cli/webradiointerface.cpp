@@ -860,8 +860,9 @@ bool WebRadioInterface::send_mp3(Socket& s, const std::string& stream)
         for (const auto& srv : rx->getServiceList()) {
             if (rx->serviceHasAudioComponent(srv) and
                 (to_hex(srv.serviceId, 4) == stream or
-                 (uint32_t)std::stoul(stream) == srv.serviceId)) {
+                (uint32_t)std::stoul(stream) == srv.serviceId)) {
                     is_empty=false;
+
                     if (phs.count(srv.serviceId) == 0) {
                         WebProgrammeHandler ph(srv.serviceId);
                         phs.emplace(std::make_pair(srv.serviceId, move(ph)));
