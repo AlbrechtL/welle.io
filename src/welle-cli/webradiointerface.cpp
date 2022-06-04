@@ -502,11 +502,21 @@ bool WebRadioInterface::dispatch_client(Socket&& client)
 
                 const regex regex_mp3(R"(^[/]mp3[/]([^ ]+))");
                 std::smatch match_mp3;
+
+                const regex regex_mp3channel(R"(^[/]mp3-channel[/]([^ ]+)[/]([^ ]+))");
+                std::smatch match_mp3channel;
+
                 if (regex_search(req.url, match_mp3, regex_mp3)) {
                     success = send_mp3(s, match_mp3[1]);
                 }
                 else if (regex_search(req.url, match_slide, regex_slide)) {
                     success = send_slide(s, match_slide[1]);
+                }
+                else if (regex_search(req.url, match_mp3channel, regex_mp3channel)) {
+                    success = handle_channel_post(s, match_mp3channel[1]);
+                    if (success) {
+                        success = send_mp3(s, match_mp3[2]);
+                    }
                 }
                 else {
                     cerr << "Could not understand GET request " << req.url << endl;
