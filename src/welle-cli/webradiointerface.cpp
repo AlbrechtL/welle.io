@@ -502,11 +502,19 @@ bool WebRadioInterface::dispatch_client(Socket&& client)
 
                 const regex regex_mp3(R"(^[/]mp3[/]([^ ]+))");
                 std::smatch match_mp3;
+
+                const regex regex_mp3channel(R"(^[/]mp3-channel[/]([^ ]+)[/]([^ ]+))");
+                std::smatch match_mp3channel;
+
                 if (regex_search(req.url, match_mp3, regex_mp3)) {
                     success = send_mp3(s, match_mp3[1]);
                 }
                 else if (regex_search(req.url, match_slide, regex_slide)) {
                     success = send_slide(s, match_slide[1]);
+                }
+                else if (regex_search(req.url, match_mp3channel, regex_mp3channel)) {
+                    retune(match_mp3channel[1]);
+                    success = send_mp3(s, match_mp3channel[2]);
                 }
                 else {
                     cerr << "Could not understand GET request " << req.url << endl;
@@ -849,6 +857,22 @@ bool WebRadioInterface::send_mp3(Socket& s, const std::string& stream)
 {
     unique_lock<mutex> lock(rx_mut);
     ASSERT_RX;
+
+    bool is_empty = true;
+    while (is_empty) {
+        for (const auto& srv : rx->getServiceList()) {
+            if (rx->serviceHasAudioComponent(srv) and
+                (to_hex(srv.serviceId, 4) == stream or
+                (uint32_t)std::stoul(stream) == srv.serviceId)) {
+                    is_empty=false;
+
+                    if (phs.count(srv.serviceId) == 0) {
+                        WebProgrammeHandler ph(srv.serviceId);
+                        phs.emplace(std::make_pair(srv.serviceId, move(ph)));
+                    }
+            }
+        }
+    }
 
     for (const auto& srv : rx->getServiceList()) {
         if (rx->serviceHasAudioComponent(srv) and
