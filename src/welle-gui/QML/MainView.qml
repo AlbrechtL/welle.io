@@ -477,8 +477,6 @@ ApplicationWindow {
                             text: qsTr("Start station scan")
                             font.pixelSize: TextStyle.textStandartSize
                             onTriggered:  {
-                                startStationScanItem.enabled = false
-                                stopStationScanItem.enabled = true
                                 radioController.startScan()
                             }
                         }
@@ -489,8 +487,6 @@ ApplicationWindow {
                             font.pixelSize: TextStyle.textStandartSize
                             enabled: false
                             onTriggered:  {
-                                startStationScanItem.enabled = true
-                                stopStationScanItem.enabled = false
                                 radioController.stopScan()
                             }
                         }
@@ -517,6 +513,16 @@ ApplicationWindow {
             TextStandart {
                 text: qsTr("No stations in list")
                 visible: stationChannelView.count ? false : true
+                Layout.margins: Units.dp(10)
+            }
+
+            Button {
+                id: startStationScanButton
+                text: qsTr("Start station scan")
+                visible: stationChannelView.count ? false : true
+                onClicked:  {
+                    radioController.startScan()
+                }
                 Layout.margins: Units.dp(10)
             }
 
@@ -881,11 +887,13 @@ ApplicationWindow {
         function onScanStopped() {
             startStationScanItem.enabled = true
             stopStationScanItem.enabled = false
+            startStationScanButton.enabled = true
         }
 
         function onScanProgress() {
             startStationScanItem.enabled = false
             stopStationScanItem.enabled = true
+            startStationScanButton.enabled = false
         }
 
         function onNewStationNameReceived(station, sId, channel) {stationList.addStation(station, sId, channel, false)}
