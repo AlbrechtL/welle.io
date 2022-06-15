@@ -3,13 +3,7 @@ language: cpp
 compiler: gcc
 
 branches:
-  except:
-  - qt_6_support
   
-#env:
-#  # "BINTRAY_KEY=<secure>"
-#  - secure: "AjycfSfIztFeat6AO3SETSFW9Xd0AUt17hg87sEo8pSPO3SILq6bKS5Pfe4Bdo3Za32BvGzeJaOZ9EEVtzweuYJwsBejVfk2lxiBH5RKoBVrHpJLXDNj7MUt2ezb734bjFFt3+lMG84vSCqioNMcYwlHcqCChiTT529NZhaGMsDFzF5NimJZl0LGcEQlaTxTfeCKwSk+apHw5rQes2I2Jf9icweUGe/VOOVmYjDTiPWKcBEwBvfV5vabr5btCgUY8zK5451x/35API2Hbq7o0hNxqvwQUFI54jZwqfR4DOA1V/Nk7rdc34Fe+xgKSoBmHC0RgCIbXw1erEkn31Y0+tLBVxa971FB+y7L+5ZEaqw9UolT0PM5LHZmWUA60A5JlvsFOr0urid8lk0g5mdGF4aHEy2O5rDOMbwE11MpTEkDDbgE6uSD0/aubTJYPu24yMlBrP1lz10Sltg+YLi5hshhzRmd4iWTKuEy4jly1SdOKjjdbLCzlAnsF9Ta0a/lfumOd2lmELhYKhFLuVTCWZFvjpJyziCIFLVs4refDbDrsdfE+CaJedP/uBDGoBp4Hg6aug+66zKPybVzODqR2uIa3I7ACM3l/GdJcGg+1AH1T/ievq4rQ52T3MspevFxQmevuA9vvgOVko79PDrW1xbp+oQPTk0/pODNjVvrZFk="
-
 env:
   global:
     - ANDROID_SDK_CMDLINE_TOOLS_ZIP="commandlinetools-linux-7583922_latest.zip"
@@ -49,7 +43,7 @@ script:
   # Compile welle.io
   - mkdir build
   - cd build
-  - qmake PREFIX=/usr ..
+  - ../6.2.4/gcc_64/bin/qmake PREFIX=/usr ..
   - make -j4
   - cd ..
   
@@ -66,7 +60,7 @@ jobs:
 
       before_install:
         # QT
-        - sudo add-apt-repository ppa:beineri/opt-qt-5.15.2-bionic -y
+        #- sudo add-apt-repository ppa:beineri/opt-qt-5.15.2-bionic -y
         # SoapySDR
         - sudo add-apt-repository ppa:myriadrf/drivers -y
         - sudo apt-get update -qq
@@ -75,15 +69,23 @@ jobs:
         - sudo apt-get -y install sshpass
         
         # For AppImage
-        - sudo apt-get -y install libusb-1.0-0-dev pkg-config libmp3lame-dev libmpg123-dev qt515base qt515declarative qt515quickcontrols qt515quickcontrols2 qt515charts-no-lgpl qt515graphicaleffects qt515multimedia libpulse0 libfaad-dev libfftw3-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev libsoapysdr-dev
-        - source /opt/qt515/bin/qt515-env.sh
+        #- sudo apt-get -y install libusb-1.0-0-dev pkg-config libmp3lame-dev libmpg123-dev qt515base qt515declarative qt515quickcontrols qt515quickcontrols2 qt515charts-no-lgpl qt515graphicaleffects qt515multimedia libpulse0 libfaad-dev libfftw3-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev libsoapysdr-dev
+        - sudo apt-get -y install libusb-1.0-0-dev pkg-config libmp3lame-dev libmpg123-dev libpulse0 libfaad-dev libfftw3-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev libsoapysdr-dev
+        
+        # Install qt-downloader
+        - sudo install python3-pip
+        - sudo pip3 install pipenv
+        - pipenv run pip3 install lxml semantic_version requests py7zr
+        - git clone https://github.com/engnr/qt-downloader.git
+        - pipenv run ./qt-downloader/qt-downloader linux desktop 6.2.4 gcc_64 --addon qtmultimedia qtcharts qt5compat
+        #- source /opt/qt515/bin/qt515-env.sh
         
         # For Flatpak
-        - sudo add-apt-repository ppa:alexlarsson/flatpak -y
-        - sudo apt-get update -qq
-        - sudo apt-get -y install flatpak-builder elfutils
-        - sudo flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-        - sudo flatpak install -y flathub org.kde.Sdk//5.15 org.kde.Platform//5.15
+        #- sudo add-apt-repository ppa:alexlarsson/flatpak -y
+        #- sudo apt-get update -qq
+        #- sudo apt-get -y install flatpak-builder elfutils
+        #- sudo flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+        #- sudo flatpak install -y flathub org.kde.Sdk//5.15 org.kde.Platform//5.15
 
       after_success:
         - sudo ldconfig
@@ -123,17 +125,19 @@ jobs:
         - mv welle.io-cli-"$GIT_HASH"-x86_64.AppImage "$DATE"_"$GIT_HASH"_Linux_welle-io-cli-x86_64.AppImage
         
         # Create welle-gui Flatpak
-        - sudo flatpak-builder --repo=wellerepo --force-clean fp_build io.welle.welle_io.json
-        - sudo flatpak --user remote-add --no-gpg-verify welle-repo wellerepo
-        - sudo flatpak --user install welle-repo io.welle.welle_io --assumeyes
-        - flatpak build-bundle wellerepo welle-io.flatpak io.welle.welle_io
-        - mv welle-io.flatpak "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.flatpak
+        #- sudo flatpak-builder --repo=wellerepo --force-clean fp_build io.welle.welle_io.json
+        #- sudo flatpak --user remote-add --no-gpg-verify welle-repo wellerepo
+        #- sudo flatpak --user install welle-repo io.welle.welle_io --assumeyes
+        #- flatpak build-bundle wellerepo welle-io.flatpak io.welle.welle_io
+        #- mv welle-io.flatpak "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.flatpak
 
         # Upload
         - sshpass -p ${SFTP_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.AppImage ${SFTP_USER}@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/
         - sshpass -p ${SFTP_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$DATE"_"$GIT_HASH"_Linux_welle-io-cli-x86_64.AppImage ${SFTP_USER}@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/
-        - sshpass -p ${SFTP_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.flatpak ${SFTP_USER}@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/
+        #- sshpass -p ${SFTP_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.flatpak ${SFTP_USER}@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/
 
+  # temporary exclude
+  exclude:
     - os: linux
 
       before_install:
@@ -243,20 +247,3 @@ jobs:
 
         # Upload
         - sshpass -p ${SFTP_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$DATE"_"$GIT_HASH"_MacOS_welle-io.dmg ${SFTP_USER}@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/
-
-#before_deploy:
-#  # Prepare bintray deploy
-#  - sed -e "s/\${VERSION}/"$DATE"_"$GIT_HASH"/" .travis-bintray-deploy.json.template >travis-bintray-deploy.json
-
-#deploy:
-#  on:
-#    branch: next
-#  provider: bintray
-#  file: "travis-bintray-deploy.json"
-#  user: "albrechtl"
-#  skip_cleanup: true
-#  key: $BINTRAY_KEY
-
-#after_deploy:
-  # Delete old builds on bintray. Keep only the last 20 builds
-  #- python .bintray_delete_old_version.py albrechtl $BINTRAY_KEY /packages/albrechtl/welle.io/welle.io_nightly 20
