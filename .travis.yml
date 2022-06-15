@@ -3,6 +3,8 @@ language: cpp
 compiler: gcc
 
 branches:
+  except:
+  - gh-pages
   
 env:
   global:
