@@ -72,14 +72,14 @@ jobs:
         
         # For AppImage
         #- sudo apt-get -y install libusb-1.0-0-dev pkg-config libmp3lame-dev libmpg123-dev qt515base qt515declarative qt515quickcontrols qt515quickcontrols2 qt515charts-no-lgpl qt515graphicaleffects qt515multimedia libpulse0 libfaad-dev libfftw3-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev libsoapysdr-dev
-        - sudo apt-get -y install libusb-1.0-0-dev pkg-config libmp3lame-dev libmpg123-dev libpulse0 libfaad-dev libfftw3-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev libsoapysdr-dev
+        - sudo apt-get -y install libusb-1.0-0-dev pkg-config libmp3lame-dev libmpg123-dev libpulse0 libfaad-dev libfftw3-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev libsoapysdr-dev libgstreamer-plugins-base1.0-0
         
         # Install qt-downloader
         - sudo apt-get -y install python3-pip
         - sudo pip3 install pipenv
         - pipenv install lxml semantic_version requests py7zr
         - git clone https://github.com/engnr/qt-downloader.git
-        - pipenv run ./qt-downloader/qt-downloader linux desktop 6.2.4 gcc_64 --addon qtmultimedia qtcharts qt5compat
+        - pipenv run ./qt-downloader/qt-downloader linux desktop 6.2.4 gcc_64 --addon qtmultimedia qtcharts qt5compat --opensource
         #- source /opt/qt515/bin/qt515-env.sh
         
         # For Flatpak
