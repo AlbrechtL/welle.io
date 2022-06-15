@@ -75,7 +75,7 @@ jobs:
         - sudo apt-get -y install libusb-1.0-0-dev pkg-config libmp3lame-dev libmpg123-dev libpulse0 libfaad-dev libfftw3-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev libsoapysdr-dev
         
         # Install qt-downloader
-        - sudo install python3-pip
+        - sudo apt-get -y install python3-pip
         - sudo pip3 install pipenv
         - pipenv run pip3 install lxml semantic_version requests py7zr
         - git clone https://github.com/engnr/qt-downloader.git
