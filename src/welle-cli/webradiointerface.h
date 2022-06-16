@@ -114,6 +114,13 @@ class WebRadioInterface : public RadioControllerInterface {
         // Generate and send a m3u playlist with all services
         bool send_mux_playlist(Socket& s);
 
+        // Send an mp3 stream containing the selected programme
+        // and automatically tunes to the provided channel.
+        // ch is the channel, e.g. 11C
+        // stream is a service id, either in hex with 0x prefix or
+        // in decimal
+        bool send_mp3channel(Socket& s, const std::string& ch, const std::string& stream);
+
         // Send an mp3 stream containing the selected programme.
         // stream is a service id, either in hex with 0x prefix or
         // in decimal
