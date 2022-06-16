@@ -45,7 +45,7 @@ script:
   # Compile welle.io
   - mkdir build
   - cd build
-  - ../6.2.4/gcc_64/bin/qmake PREFIX=/usr ..
+  - $QMAKEBIN PREFIX=/usr ..
   - make -j4
   - cd ..
   - echo $PWD
@@ -77,6 +77,7 @@ jobs:
         - git clone https://github.com/engnr/qt-downloader.git
         - pipenv run ./qt-downloader/qt-downloader linux desktop 6.2.4 gcc_64 --addon qtmultimedia qtcharts qt5compat --opensource
         - echo $PWD
+        - export QMAKEBIN=$PWD/6.2.4/gcc_64/bin/qmake
         
         # For Flatpak
         #- sudo add-apt-repository ppa:alexlarsson/flatpak -y
@@ -106,7 +107,7 @@ jobs:
         
         # Create welle.io AppImage
         - echo $PWD
-        - QML_SOURCES_PATHS=. QMAKE=$HOME/6.2.4/gcc_64/bin/qmake linuxdeploy-x86_64.AppImage --appdir ./appdir --plugin qt --output appimage
+        - QML_SOURCES_PATHS=. QMAKE=$QMAKEBIN linuxdeploy-x86_64.AppImage --appdir ./appdir --plugin qt --output appimage
         - mv welle.io-"$GIT_HASH"-x86_64.AppImage "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.AppImage
 
         # Prepare welle-cli AppImage
