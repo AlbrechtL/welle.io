@@ -107,7 +107,7 @@ jobs:
         
         # Create welle.io AppImage
         - echo $PWD
-        - QML_SOURCES_PATHS=. QMAKE=$QMAKEBIN linuxdeploy-x86_64.AppImage --appdir ./appdir --plugin qt --output appimage
+        - QML_SOURCES_PATHS=. QMAKE=$QMAKEBIN linuxdeploy-x86_64.AppImage --appdir ./appdir --plugin qt --plugin gstreamer --output appimage
         - mv welle.io-"$GIT_HASH"-x86_64.AppImage "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.AppImage
 
         # Prepare welle-cli AppImage
