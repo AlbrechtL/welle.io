@@ -61,17 +61,12 @@ jobs:
     - os: linux
 
       before_install:
-        # QT
-        #- sudo add-apt-repository ppa:beineri/opt-qt-5.15.2-bionic -y
         # SoapySDR
         - sudo add-apt-repository ppa:myriadrf/drivers -y
         - sudo apt-get update -qq
 
       install:
         - sudo apt-get -y install sshpass
-        
-        # For AppImage
-        #- sudo apt-get -y install libusb-1.0-0-dev pkg-config libmp3lame-dev libmpg123-dev qt515base qt515declarative qt515quickcontrols qt515quickcontrols2 qt515charts-no-lgpl qt515graphicaleffects qt515multimedia libpulse0 libfaad-dev libfftw3-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev libsoapysdr-dev
         - sudo apt-get -y install libusb-1.0-0-dev pkg-config libmp3lame-dev libmpg123-dev libpulse0 libfaad-dev libfftw3-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev libsoapysdr-dev libgstreamer-plugins-base1.0-0 libgstreamer-gl1.0-0
         
         # Install qt-downloader
@@ -80,7 +75,6 @@ jobs:
         - pipenv install lxml semantic_version requests py7zr
         - git clone https://github.com/engnr/qt-downloader.git
         - pipenv run ./qt-downloader/qt-downloader linux desktop 6.2.4 gcc_64 --addon qtmultimedia qtcharts qt5compat --opensource
-        #- source /opt/qt515/bin/qt515-env.sh
         
         # For Flatpak
         #- sudo add-apt-repository ppa:alexlarsson/flatpak -y
@@ -109,7 +103,7 @@ jobs:
         - cp src/welle-gui/icons/icon.png appdir/usr/share/icons/hicolor/512x512/apps/welle-io.png
         
         # Create welle.io AppImage
-        - QML_SOURCES_PATHS=. linuxdeploy-x86_64.AppImage --appdir ./appdir --plugin qt --output appimage
+        - QML_SOURCES_PATHS=. QMAKE=$HOME/6.2.4/gcc_64/bin/qmake linuxdeploy-x86_64.AppImage --appdir ./appdir --plugin qt --output appimage
         - mv welle.io-"$GIT_HASH"-x86_64.AppImage "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.AppImage
 
         # Prepare welle-cli AppImage
