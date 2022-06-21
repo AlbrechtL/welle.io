@@ -875,6 +875,7 @@ bool WebRadioInterface::send_mp3channel(Socket& s, const std::string& ch, const 
         }
     }
 
+    lock.unlock();
     send_mp3(s, stream);
 }
 
