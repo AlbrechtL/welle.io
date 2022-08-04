@@ -239,6 +239,7 @@ void WebRadioInterface::check_decoders_required()
     }
     phs_changed.notify_all();
 }
+string chn;
 
 void WebRadioInterface::retune(const std::string& channel)
 {
@@ -250,6 +251,7 @@ void WebRadioInterface::retune(const std::string& channel)
         cerr << "RETUNE Invalid channel: " << channel << endl;
         return;
     }
+    chn = channel;
 
     cerr << "RETUNE: Retune to " << freq << endl;
 
@@ -501,10 +503,20 @@ bool WebRadioInterface::dispatch_client(Socket&& client)
                 std::smatch match_slide;
 
                 const regex regex_mp3(R"(^[/]mp3[/]([^ ]+))");
+                const regex regex_mp3_with_channel (R"(^[/]mp3[/]([^ ]+)[/]([^ ]+))");
                 std::smatch match_mp3;
-                if (regex_search(req.url, match_mp3, regex_mp3)) {
+
+                if (regex_search(req.url, match_mp3, regex_mp3_with_channel)) {
+                    if ( chn.compare(match_mp3[2]) != 0 ) {
+                         chn = match_mp3[2];
+                         retune ( chn );
+                    }
                     success = send_mp3(s, match_mp3[1]);
                 }
+                else if (regex_search(req.url, match_mp3, regex_mp3)) {
+                    success = send_mp3(s, match_mp3[1]);
+                }
+
                 else if (regex_search(req.url, match_slide, regex_slide)) {
                     success = send_slide(s, match_slide[1]);
                 }

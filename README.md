@@ -340,6 +340,11 @@ With the `-P` option, welle-cli will switch once DLS and a slide were decoded, s
     
 Example: `welle-cli -c 12A -C 1 -w 7979` enables the webserver on channel 12A, please then go to http://localhost:7979/ where you can observe all necessary details for every service ID in the ensemble, see the slideshows, stream the audio (by clicking on the Play-Button), check spectrum, constellation, TII information and CIR peak diagramme.
 
+If using the webserver option (-w) the webserver can change channels when a station is choosen over the web with the correct m3u file.
+Such a m3u file can be made with a stationscan of welle.io.gui, make_station_json.sh and make_station_m3us.py. 
+If a streamer on your network activates such a m3u file it streams the station immediately if it is in the current channel (ensemble). If it is not, it changes to the desired channel and streams the station. 
+Such a channel change takes several seconds (up to 20 seconds) and the streamer most likely times out. Then you must try again.
+
 Backend options
 ---
 
