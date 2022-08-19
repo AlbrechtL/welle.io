@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 3.2)
 
-project(Welle.Io VERSION 0.0.0 LANGUAGES C CXX)
+project(Welle.Io LANGUAGES C CXX)
+
+file(READ "src/welle-gui/_current_version" VERSION_FILE)
+string(STRIP ${VERSION_FILE} CURRENT_VERSION)
+set(PROJECT_VERSION ${CURRENT_VERSION})
+
+message ("Building project '${PROJECT_NAME}' version '${PROJECT_VERSION}'...")
 
 if(NOT WELLE-IO_VERSION)
   set(WELLE-IO_VERSION ${PROJECT_VERSION})
