@@ -4,7 +4,8 @@ image: Visual Studio 2022
 
 init:
   - set PATHORIG=%PATH%
-  - set PATH=C:\Qt\6.2\mingw_64\bin;C:\Qt\Tools\mingw900_64\bin;%PATH%
+  - set MINGWPATH=C:\Qt\Tools\mingw1120_64\bin
+  - set PATH=C:\Qt\6.2\mingw_64\bin;%MINGWPATH%;%PATH%
   - gcc -v
 
 before_build:
@@ -39,7 +40,7 @@ after_build:
   
   # Create installer
   - cd ..\welle-io\windows\
-  - ps: .\create_installer.ps1 -welleExePath ..\..\build\bin -QTPath C:\Qt\6.2\mingw_64\bin -ToolsPath C:\Qt\Tools\mingw900_64\bin -InnoSetupPath "C:\Program Files (x86)\Inno Setup 6"
+  - ps: .\create_installer.ps1 -welleExePath ..\..\build\bin -QTPath C:\Qt\6.2\mingw_64\bin -ToolsPath %MINGWPATH% -InnoSetupPath "C:\Program Files (x86)\Inno Setup 6"
 
   # Add to artifact list
   - set PATH=%PATHORIG%
