@@ -47,10 +47,6 @@
 #include "debug_output.h"
 #include "waterfallitem.h"
 
-#ifdef __ANDROID__
-    #include <QtAndroid>
-#endif
-
 int main(int argc, char** argv)
 {
     QString Version = QString(CURRENT_VERSION) + " Git: " + GITHASH;

@@ -58,7 +58,7 @@ if(BUILD_WELLE_IO)
     set(CMAKE_AUTOMOC ON)
     set(CMAKE_AUTORCC ON)
 
-    find_package(Qt5 COMPONENTS Widgets Quick QuickControls2 Multimedia Charts Qml DBus REQUIRED)
+    find_package(Qt6 COMPONENTS Widgets Quick QuickControls2 Multimedia Charts Qml REQUIRED)
 endif()
 
 if(PROFILING)
@@ -222,12 +222,26 @@ if(GIT_DESCRIBE)
   add_definitions("-DGITDESCRIBE=\"${GIT_DESCRIBE}\"")
 endif()
 
+add_definitions("-DCURRENT_VERSION=\"${CURRENT_VERSION}\"")
+
 STRING(TIMESTAMP BUILD_DATE "%s" UTC)
 add_definitions("-DBUILD_DATE=\"${BUILD_DATE}\"")
 
 if(BUILD_WELLE_IO)
     set(executableName welle-io)
     add_executable (${executableName} ${welle_io_sources} ${backend_sources} ${input_sources} ${fft_sources} ${EXTRA_MOCS} src/welle-gui/resources.qrc)
+
+    if(ANDROID)
+        set(QT_ANDROID_VERSION_NAME ${CURRENT_VERSION})
+        set(QT_ANDROID_VERSION_CODE "24")
+        # Additinal requirements when using Android
+        find_package(Qt6 REQUIRED COMPONENTS CorePrivate Svg MultimediaWidgets 3DExtras)
+        target_link_libraries (${executableName} Qt6::CorePrivate Qt6::Svg Qt6::MultimediaWidgets Qt6::3DExtras)
+    else()
+        # Qt6::DBus should not be used for Android
+        find_package(Qt6 REQUIRED COMPONENTS DBus)
+        target_link_libraries (${executableName} Qt6::DBus)
+    endif()
 
     target_link_libraries (${executableName}
       ${LIBRTLSDR_LIBRARIES}
@@ -237,7 +251,7 @@ if(BUILD_WELLE_IO)
       ${SoapySDR_LIBRARIES}
       ${MPG123_LIBRARIES}
       Threads::Threads
-      Qt5::Core Qt5::Widgets Qt5::Multimedia Qt5::Charts Qt5::Qml Qt5::Quick Qt5::QuickControls2 Qt5::DBus
+      Qt6::Core Qt6::Widgets Qt6::Multimedia Qt6::Charts Qt6::Qml Qt6::Quick Qt6::QuickControls2
     )
 
     if(APPLE AND WITH_APP_BUNDLE)

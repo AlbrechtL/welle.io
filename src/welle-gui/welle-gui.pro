@@ -119,9 +119,13 @@ SOURCES += \
     waterfallitem.cpp
 
 android {
-    QT += androidextras
+    ANDROID_VERSION_NAME = "$$CUR_VERSION"
+    ANDROID_VERSION_CODE = "24"
+
+    QT += core-private # For QtAndroidPrivate
     QT += svg
     QT += multimediawidgets
+    QT += 3dextras # To fix "Skipping "..." It has unmet dependencies: lib/libQt63DExtras_arm64-v8a.so"
     qtHaveModule(virtualkeyboard): QT += virtualkeyboard
 
     HEADERS += android_rtl_sdr.h

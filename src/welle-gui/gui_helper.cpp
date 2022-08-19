@@ -611,15 +611,15 @@ void CGUIHelper::openRawFile(QString fileFormat)
 {
 #ifdef __ANDROID__
     // Open file selection dialog
-    const auto ACTION_OPEN_DOCUMENT = QAndroidJniObject::getStaticObjectField<jstring>("android/content/Intent", "ACTION_OPEN_DOCUMENT");
-    QAndroidJniObject intent("android/content/Intent", "(Ljava/lang/String;)V", ACTION_OPEN_DOCUMENT.object());
-    const auto CATEGORY_OPENABLE = QAndroidJniObject::getStaticObjectField<jstring>("android/content/Intent", "CATEGORY_OPENABLE");
+    const auto ACTION_OPEN_DOCUMENT = QJniObject::getStaticObjectField<jstring>("android/content/Intent", "ACTION_OPEN_DOCUMENT");
+    QJniObject intent("android/content/Intent", "(Ljava/lang/String;)V", ACTION_OPEN_DOCUMENT.object());
+    const auto CATEGORY_OPENABLE = QJniObject::getStaticObjectField<jstring>("android/content/Intent", "CATEGORY_OPENABLE");
     intent.callObjectMethod("addCategory", "(Ljava/lang/String;)Landroid/content/Intent;", CATEGORY_OPENABLE.object());
-    intent.callObjectMethod("setType", "(Ljava/lang/String;)Landroid/content/Intent;", QAndroidJniObject::fromString(QStringLiteral("*/*")).object());
+    intent.callObjectMethod("setType", "(Ljava/lang/String;)Landroid/content/Intent;", QJniObject::fromString(QStringLiteral("*/*")).object());
 
     // Open file dialog
     activityResultReceiver = new FileActivityResultReceiver(this, fileFormat);
-    QtAndroid::startActivity( intent.object<jobject>(), 12, activityResultReceiver);
+    QtAndroidPrivate::startActivity( intent.object<jobject>(), 12, activityResultReceiver);
 #else
     (void) fileFormat;
 #endif
@@ -721,7 +721,7 @@ void CGUIHelper::translateGUI(QObject *obj)
 }
 
 #ifdef __ANDROID__
-void FileActivityResultReceiver::handleActivityResult(int receiverRequestCode, int resultCode, const QAndroidJniObject &intent) {
+void FileActivityResultReceiver::handleActivityResult(int receiverRequestCode, int resultCode, const QJniObject &intent) {
     if (!intent.isValid()) {
         return;
     }
