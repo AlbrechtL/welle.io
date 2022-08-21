@@ -101,6 +101,8 @@ SOURCES += \
     waterfallitem.cpp
 
 android {
+    # DEPRECATED. Since Qt6.3, android build is managed by cmake. See CMakeLists.txt
+    # It is possible to produce MULTI ABI apks, only from Qt6.3 and only with cmake
     ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 
     DISTFILES += \
