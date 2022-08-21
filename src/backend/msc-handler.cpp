@@ -125,7 +125,7 @@ bool MscHandler::removeSubchannel(const Subchannel& sub)
 //  gui thread
 //
 //  Any change in the selected service will only be active
-//  during te next processMscBlock call.
+//  during the next processMscBlock call.
 void MscHandler::processMscBlock(const softbit_t *fbits, int16_t blkno)
 {
     std::lock_guard<std::mutex> lock(mutex);
