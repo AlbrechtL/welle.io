@@ -27,9 +27,8 @@
 #ifndef CANDROID_RTL_SDR_H
 #define CANDROID_RTL_SDR_H
 
-#include <QtAndroidExtras/QAndroidJniObject>
-#include <QtAndroidExtras/QtAndroid>
-#include <QtAndroidExtras/QAndroidActivityResultReceiver>
+#include <QJniObject>
+#include <QtCore/private/qandroidextras_p.h>
 
 #include "virtual_input.h"
 #include "rtl_tcp.h"
@@ -67,7 +66,7 @@ class ActivityResultReceiver : public QAndroidActivityResultReceiver
 public:
     ActivityResultReceiver(CAndroid_RTL_SDR *Client): Android_RTL_SDR(Client){}
 
-    virtual void handleActivityResult(int receiverRequestCode, int resultCode, const QAndroidJniObject &data);
+    virtual void handleActivityResult(int receiverRequestCode, int resultCode, const QJniObject &data);
 
 private:
     CAndroid_RTL_SDR *Android_RTL_SDR;

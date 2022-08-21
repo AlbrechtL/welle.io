@@ -24,7 +24,7 @@
  *    Driver for https://github.com/martinmarinov/rtl_tcp_andro-
  */
 
-#include <QAndroidJniEnvironment>
+#include <QJniEnvironment>
 #include <QDesktopServices>
 
 #include "android_rtl_sdr.h"
@@ -61,32 +61,32 @@ bool CAndroid_RTL_SDR::restart()
     isPending = true;
 
     // Start Android rtl_tcp
-    QAndroidJniObject path = QAndroidJniObject::fromString("iqsrc://-a 127.0.0.1 -p 1234 -s 2048000");
+    QJniObject path = QJniObject::fromString("iqsrc://-a 127.0.0.1 -p 1234 -s 2048000");
 
-    QAndroidJniObject uri = QAndroidJniObject::callStaticObjectMethod(
+    QJniObject uri = QJniObject::callStaticObjectMethod(
                 "android/net/Uri",
                 "parse",
                 "(Ljava/lang/String;)Landroid/net/Uri;", path.object<jstring>());
 
-    QAndroidJniObject ACTION_VIEW = QAndroidJniObject::getStaticObjectField<jstring>(
+    QJniObject ACTION_VIEW = QJniObject::getStaticObjectField<jstring>(
                 "android/content/Intent",
                 "ACTION_VIEW");
 
-    QAndroidJniObject intent(
+    QJniObject intent(
                 "android/content/Intent",
                 "(Ljava/lang/String;)V",
                 ACTION_VIEW.object<jstring>());
 
-    QAndroidJniObject result = intent.callObjectMethod(
+    QJniObject result = intent.callObjectMethod(
                 "setData",
                 "(Landroid/net/Uri;)Landroid/content/Intent;",
                 uri.object<jobject>());
 
     resultReceiver = std::make_unique<ActivityResultReceiver>(this);
-    QtAndroid::startActivity(intent, 1, resultReceiver.get());
+    QtAndroidPrivate::startActivity(intent, 1, resultReceiver.get());
 
     // Catch exception
-    QAndroidJniEnvironment env;
+    QJniEnvironment env;
     if (env->ExceptionCheck()) {
         env->ExceptionClear();
     }
@@ -128,28 +128,28 @@ void CAndroid_RTL_SDR::setLoaded(bool isLoaded)
 void CAndroid_RTL_SDR::setOpenInstallDialog()
 {
     // Create pop up
-    QAndroidJniObject dialog("io/welle/welle/InstallRtlTcpAndro");
-    QAndroidJniObject activity = QtAndroid::androidActivity();
-    QAndroidJniObject fm = activity.callObjectMethod("getFragmentManager",
+    QJniObject dialog("io/welle/welle/InstallRtlTcpAndro");
+    QJniObject activity = QJniObject(QtAndroidPrivate::activity());
+    QJniObject fm = activity.callObjectMethod("getFragmentManager",
                                                      "()Landroid/app/FragmentManager;");
 
     // Init pop up
-    QAndroidJniObject okButtonText = QAndroidJniObject::fromString(QT_TR_NOOP("OK"));
-    QAndroidJniObject cancelButtonText = QAndroidJniObject::fromString(QT_TR_NOOP("Cancel"));
-    QAndroidJniObject message = QAndroidJniObject::fromString(QT_TR_NOOP("Android RTL-SDR driver is not installed. Would you like to install it? After installation start welle.io again."));
+    QJniObject okButtonText = QJniObject::fromString(QT_TR_NOOP("OK"));
+    QJniObject cancelButtonText = QJniObject::fromString(QT_TR_NOOP("Cancel"));
+    QJniObject message = QJniObject::fromString(QT_TR_NOOP("Android RTL-SDR driver is not installed. Would you like to install it? After installation start welle.io again."));
     dialog.callMethod<void>("setMessageText",
                             "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",
                             okButtonText.object<jstring>(), cancelButtonText.object<jstring>(), message.object<jstring>());
 
     // Show pop up
-    QAndroidJniObject string = QAndroidJniObject::fromString("Message");
+    QJniObject string = QJniObject::fromString("Message");
     dialog.callMethod<void>("show",
                             "(Landroid/app/FragmentManager;Ljava/lang/String;)V",
                             fm.object(), string.object<jstring>());
 }
 
 
-void ActivityResultReceiver::handleActivityResult(int receiverRequestCode, int resultCode, const QAndroidJniObject &data)
+void ActivityResultReceiver::handleActivityResult(int receiverRequestCode, int resultCode, const QJniObject &data)
 {
     if(receiverRequestCode == 1)
     {
@@ -160,12 +160,12 @@ void ActivityResultReceiver::handleActivityResult(int receiverRequestCode, int r
         }
         else
         {
-            QAndroidJniObject MessageType = QAndroidJniObject::fromString("detailed_exception_message");
+            QJniObject MessageType = QJniObject::fromString("detailed_exception_message");
             QString Message;
 
             if(data.isValid())
             {
-                QAndroidJniObject result = data.callObjectMethod(
+                QJniObject result = data.callObjectMethod(
                             "getStringExtra",
                             "(Ljava/lang/String;)Ljava/lang/String;",
                             MessageType.object<jstring>());

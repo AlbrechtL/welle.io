@@ -42,10 +42,9 @@
 #endif
 
 #ifdef __ANDROID__
-    #include <QAndroidJniEnvironment>
-    #include <QtAndroidExtras/QAndroidJniObject>
-    #include <QtAndroidExtras/QtAndroid>
-    #include <QtAndroidExtras/QAndroidActivityResultReceiver>
+    #include <QJniEnvironment>
+    #include <QJniObject>
+    #include <QtCore/private/qandroidextras_p.h>
 #endif
 
 #include "mot_image_provider.h"
@@ -198,7 +197,7 @@ class FileActivityResultReceiver : public QAndroidActivityResultReceiver
 public:
     FileActivityResultReceiver(CGUIHelper *Client, QString fileFormat): guiHelper(Client), fileFormat(fileFormat) {}
 
-    virtual void handleActivityResult(int receiverRequestCode, int resultCode, const QAndroidJniObject &intent);
+    virtual void handleActivityResult(int receiverRequestCode, int resultCode, const QJniObject &intent);
 
 private:
     CGUIHelper *guiHelper;

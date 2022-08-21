@@ -2,6 +2,14 @@ include(../backend.pri)
 
 TEMPLATE = app
 TARGET = welle-io
+
+CUR_VERSION = $$cat(_current_version, lines)
+if(!contains(CUR_VERSION, .*[a-zA-Z\-\ ].*)) {
+    # Set VERSION only if it respects the format x.y.z.t (otherwise, on windows build would fail
+    VERSION = $$CUR_VERSION
+}
+DEFINES += CURRENT_VERSION=$$shell_quote(\"$$CUR_VERSION\")
+
 QT += quickcontrols2 qml quick charts multimedia dbus
 
 RC_ICONS   =    icons/icon.ico
@@ -111,9 +119,13 @@ SOURCES += \
     waterfallitem.cpp
 
 android {
-    QT += androidextras
+    ANDROID_VERSION_NAME = "$$CUR_VERSION"
+    ANDROID_VERSION_CODE = "24"
+
+    QT += core-private # For QtAndroidPrivate
     QT += svg
     QT += multimediawidgets
+    QT += 3dextras # To fix "Skipping "..." It has unmet dependencies: lib/libQt63DExtras_arm64-v8a.so"
     qtHaveModule(virtualkeyboard): QT += virtualkeyboard
 
     HEADERS += android_rtl_sdr.h
