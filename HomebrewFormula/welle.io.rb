@@ -1,8 +1,8 @@
 class WelleIo < Formula
   desc "DAB/DAB+ Software Radio"
   homepage "https://www.welle.io"
-  url "https://github.com/AlbrechtL/welle.io/archive/v2.2.tar.gz"
-  sha256 "4b72c2984a884cc2f02d1e501ead2a8b0323900f37cebf4aed016e84474e0259"
+  url "https://github.com/AlbrechtL/welle.io/archive/v2.4.tar.gz"
+  sha256 "7c2a2ff7b6e0780aee8a30a2beedfa831ce67683e1d076a73cebc897637d0202"
   license "GPL-2.0-or-later"
   head "https://github.com/AlbrechtL/welle.io.git"
 
@@ -17,8 +17,6 @@ class WelleIo < Formula
   depends_on "librtlsdr"
   depends_on "libusb"
   depends_on "mpg123"
-  depends_on "pothosware/homebrew-pothos/soapysdr"
-  depends_on "pothosware/homebrew-pothos/soapyuhd"
   depends_on "qt@5"
 
   def install
