@@ -63,7 +63,7 @@ jobs:
     - os: linux
 
       install:
-        - sudo apt-get -y install sshpass
+        - sudo apt-get -y install sshpass libfuse2
         - sudo apt-get -y install libusb-1.0-0-dev pkg-config libmp3lame-dev libmpg123-dev libpulse0 libfaad-dev libfftw3-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev libsoapysdr-dev libgstreamer-plugins-base1.0-0 libgstreamer-gl1.0-0 libxkbcommon-x11-0 libxcb-icccm4 libfontconfig1-dev libfreetype6-dev libx11-dev libx11-xcb-dev libxext-dev libxfixes-dev libxi-dev libxrender-dev libxcb1-dev libxcb-glx0-dev libxcb-keysyms1-dev libxcb-image0-dev libxcb-shm0-dev libxcb-icccm4-dev libxcb-sync-dev libxcb-xfixes0-dev libxcb-shape0-dev libxcb-randr0-dev libxcb-render-util0-dev libxcb-util-dev libxcb-xinerama0-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev
         
         # Install qt-downloader
@@ -134,6 +134,8 @@ jobs:
         - sshpass -p ${SFTP_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$DATE"_"$GIT_HASH"_Linux_welle-io-cli-x86_64.AppImage ${SFTP_USER}@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/
         #- sshpass -p ${SFTP_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.flatpak ${SFTP_USER}@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/
 
+  # temporary exclude
+  exclude:
     - os: linux
 
       # Build for Android using Qt 6.2
@@ -216,8 +218,7 @@ jobs:
         # Upload
         - sshpass -p ${SFTP_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$DATE"_"$GIT_HASH"_Android_welle-io.apk ${SFTP_USER}@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/
 
-  # temporary exclude
-  exclude:
+
     - os: osx
       osx_image: xcode13.2
 
