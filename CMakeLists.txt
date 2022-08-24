@@ -70,23 +70,118 @@ if(ALSA_FOUND)
     add_definitions(-DHAVE_ALSA)
 endif()
 
-if(KISS_FFT)
-    add_definitions(-DKISSFFT)
-    set(fft_sources src/libs/kiss_fft/kiss_fft.c)
-    set(KISS_INCLUDE_DIRS src/libs/kiss_fft)
-else()
-    find_package(FFTW3f REQUIRED)
-    set(fft_sources "")
-    set(KISS_INCLUDE_DIRS "")
-endif()
 
-if(BUILD_WELLE_CLI)
+if(BUILD_WELLE_CLI AND NOT ANDROID)
     find_package(Lame REQUIRED)
 endif()
 
 find_package(Threads REQUIRED)
-find_package(Faad REQUIRED)
-find_package(MPG123 REQUIRED)
+
+if(NOT ANDROID)
+    if(KISS_FFT)
+        add_definitions(-DKISSFFT)
+        set(fft_sources src/libs/kiss_fft/kiss_fft.c)
+        set(KISS_INCLUDE_DIRS src/libs/kiss_fft)
+    else()
+        find_package(FFTW3f REQUIRED)
+        set(fft_sources "")
+        set(KISS_INCLUDE_DIRS "")
+    endif()
+    find_package(Faad REQUIRED)
+    find_package(MPG123 REQUIRED)
+else()
+    # For KISSFFT
+    add_definitions(-DKISSFFT)
+    include_directories(
+        src/libs/kiss_fft
+    )
+    set(fft_sources
+        src/libs/kiss_fft/kiss_fft.c
+    )
+
+    # For MPG123
+    add_definitions(-DOPT_GENERIC)
+    include_directories(
+        src/libs/mpg123
+    )
+    set(mpg123_sources
+        src/libs/mpg123/compat.c
+        src/libs/mpg123/compat_str.c
+        src/libs/mpg123/parse.c
+        src/libs/mpg123/frame.c
+        src/libs/mpg123/format.c
+        src/libs/mpg123/dct64.c
+        src/libs/mpg123/equalizer.c
+        src/libs/mpg123/id3.c
+        src/libs/mpg123/icy.c
+        src/libs/mpg123/icy2utf8.c
+        src/libs/mpg123/optimize.c
+        src/libs/mpg123/readers.c
+        src/libs/mpg123/tabinit.c
+        src/libs/mpg123/libmpg123.c
+        src/libs/mpg123/index.c
+        src/libs/mpg123/layer1.c
+        src/libs/mpg123/layer2.c
+        src/libs/mpg123/layer3.c
+        src/libs/mpg123/dither.c
+        src/libs/mpg123/feature.c
+        src/libs/mpg123/synth.c
+        src/libs/mpg123/synth_real.c
+        src/libs/mpg123/ntom.c
+        src/libs/mpg123/synth_8bit.c
+        src/libs/mpg123/synth_s32.c
+        src/libs/mpg123/stringbuf.c
+    )
+
+    # For FAAD
+    add_definitions(-DHAVE_CONFIG_H)
+    include_directories(
+        src/libs/faad2
+        src/libs/faad2/include
+        src/libs/faad2/libfaad
+        src/libs/faad2/libfaad/codebook
+    )
+    set(faad_sources
+        src/libs/faad2/libfaad/bits.c
+        src/libs/faad2/libfaad/cfft.c
+        src/libs/faad2/libfaad/common.c
+        src/libs/faad2/libfaad/decoder.c
+        src/libs/faad2/libfaad/drc.c
+        src/libs/faad2/libfaad/drm_dec.c
+        src/libs/faad2/libfaad/error.c
+        src/libs/faad2/libfaad/filtbank.c
+        src/libs/faad2/libfaad/hcr.c
+        src/libs/faad2/libfaad/huffman.c
+        src/libs/faad2/libfaad/ic_predict.c
+        src/libs/faad2/libfaad/is.c
+        src/libs/faad2/libfaad/lt_predict.c
+        src/libs/faad2/libfaad/mdct.c
+        src/libs/faad2/libfaad/mp4.c
+        src/libs/faad2/libfaad/ms.c
+        src/libs/faad2/libfaad/output.c
+        src/libs/faad2/libfaad/pns.c
+        src/libs/faad2/libfaad/ps_dec.c
+        src/libs/faad2/libfaad/ps_syntax.c
+        src/libs/faad2/libfaad/pulse.c
+        src/libs/faad2/libfaad/rvlc.c
+        src/libs/faad2/libfaad/sbr_dct.c
+        src/libs/faad2/libfaad/sbr_dec.c
+        src/libs/faad2/libfaad/sbr_e_nf.c
+        src/libs/faad2/libfaad/sbr_fbt.c
+        src/libs/faad2/libfaad/sbr_hfadj.c
+        src/libs/faad2/libfaad/sbr_hfgen.c
+        src/libs/faad2/libfaad/sbr_huff.c
+        src/libs/faad2/libfaad/sbr_qmf.c
+        src/libs/faad2/libfaad/sbr_syntax.c
+        src/libs/faad2/libfaad/sbr_tf_grid.c
+        src/libs/faad2/libfaad/specrec.c
+        src/libs/faad2/libfaad/ssr.c
+        src/libs/faad2/libfaad/ssr_fb.c
+        src/libs/faad2/libfaad/ssr_ipqf.c
+        src/libs/faad2/libfaad/syntax.c
+        src/libs/faad2/libfaad/tns.c
+    )
+endif()
 
 if (RTLSDR)
     find_package(LibRTLSDR REQUIRED)
@@ -158,12 +253,26 @@ set(welle_io_sources
     src/welle-gui/mot_image_provider.cpp
     src/welle-gui/gui_helper.cpp
     src/welle-gui/radio_controller.cpp
-    src/welle-gui/mpris/mpris.cpp
-    src/welle-gui/mpris/mpris_mp2.cpp
-    src/welle-gui/mpris/mpris_mp2_player.cpp
     src/welle-gui/debug_output.cpp
     src/welle-gui/waterfallitem.cpp
 )
+
+if(Qt6DBus_FOUND)
+    list(APPEND welle_io_sources
+        src/welle-gui/mpris/mpris.cpp
+        src/welle-gui/mpris/mpris_mp2.cpp
+        src/welle-gui/mpris/mpris_mp2_player.cpp
+    )
+endif()
+
+if(ANDROID)
+    include_directories(
+        src/welle-gui
+    )
+    list(APPEND welle_io_sources
+        src/welle-gui/android_rtl_sdr.cpp
+    )
+endif()
 
 set(welle_cli_sources
     src/welle-cli/welle-cli.cpp
@@ -229,21 +338,44 @@ add_definitions("-DBUILD_DATE=\"${BUILD_DATE}\"")
 
 if(BUILD_WELLE_IO)
     set(executableName welle-io)
-    add_executable (${executableName} ${welle_io_sources} ${backend_sources} ${input_sources} ${fft_sources} ${EXTRA_MOCS} src/welle-gui/resources.qrc)
+
+    qt_add_executable (${executableName} ${welle_io_sources} ${backend_sources} ${input_sources} ${fft_sources} ${mpg123_sources} ${faad_sources} ${EXTRA_MOCS} src/welle-gui/resources.qrc)
 
     if(ANDROID)
+        #set(QT_ANDROID_PACKAGE_SOURCE_DIR src/welle-gui/android)
         set(QT_ANDROID_VERSION_NAME ${CURRENT_VERSION})
         set(QT_ANDROID_VERSION_CODE "24")
+
         # Additinal requirements when using Android
-        find_package(Qt6 REQUIRED COMPONENTS CorePrivate Svg MultimediaWidgets 3DExtras)
-        target_link_libraries (${executableName} Qt6::CorePrivate Qt6::Svg Qt6::MultimediaWidgets Qt6::3DExtras)
+        target_link_libraries (${executableName} PRIVATE
+            Qt6::CorePrivate
+        )
+
+        # Additional components to link to, because otherwise, the builder reports errors like this one:
+        #   Skipping /usr/lib/qt-android-6.3-armeabi-v7a/plugins/platforminputcontexts/libplugins_platforminputcontexts_qtvirtualkeyboardplugin_armeabi-v7a.so. It has unmet dependencies: lib/libQt6VirtualKeyboard_armeabi-v7a.so.
+        find_package(Qt6 COMPONENTS Svg REQUIRED)
+        target_link_libraries (${executableName} PRIVATE
+            Qt6::Svg
+        )
+        find_package(Qt6 COMPONENTS VirtualKeyboard)
+        if(Qt6VirtualKeyboard_FOUND)
+            target_link_libraries (${executableName} PRIVATE
+                Qt6::VirtualKeyboard
+            )
+        endif()
+        if(Qt6Core_VERSION_MAJOR EQUAL 6 AND Qt6Core_VERSION_MINOR GREATER_EQUAL 3)
+            find_package(Qt6 COMPONENTS Quick3DUtils REQUIRED)
+            target_link_libraries (${executableName} PRIVATE
+                Qt6::Quick3DUtils
+            )
+        endif()
     else()
         # Qt6::DBus should not be used for Android
-        find_package(Qt6 REQUIRED COMPONENTS DBus)
-        target_link_libraries (${executableName} Qt6::DBus)
+        find_package(Qt6 COMPONENTS DBus REQUIRED)
+        target_link_libraries (${executableName} PRIVATE Qt6::DBus)
     endif()
 
-    target_link_libraries (${executableName}
+    target_link_libraries (${executableName} PRIVATE
       ${LIBRTLSDR_LIBRARIES}
       ${LIBAIRSPY_LIBRARIES}
       ${FFTW3F_LIBRARIES}
@@ -270,7 +402,7 @@ if(BUILD_WELLE_IO)
         )
 
         INSTALL (TARGETS ${executableName} BUNDLE DESTINATION ${GUI_INSTALL_DIR})
-    else()
+    elseif(NOT ANDROID AND NOT WIN32)
         INSTALL (TARGETS ${executableName} RUNTIME DESTINATION ${GUI_INSTALL_DIR})
         INSTALL (FILES src/welle-gui/doc/man/welle-io.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1/)
 
@@ -288,7 +420,7 @@ if(BUILD_WELLE_IO)
     endif()
 endif()
 
-if(BUILD_WELLE_CLI)
+if(BUILD_WELLE_CLI AND NOT ANDROID)
     set(cliExecutableName welle-cli)
     add_executable (${cliExecutableName} ${welle_cli_sources} ${backend_sources} ${input_sources} ${fft_sources})
 
@@ -347,3 +479,8 @@ configure_file(
 
 add_custom_target(uninstall
     COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+
+if(Qt6Core_FOUND AND CMAKE_VERSION VERSION_LESS "3.19")
+    message("since CMAKE_VERSION=${CMAKE_VERSION}, add qt6_finalize_project")
+    qt6_finalize_project()
+endif()

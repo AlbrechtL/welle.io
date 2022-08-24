@@ -1,7 +1,10 @@
-# qt-android-6.2 requires libclang-cpp11 which is not in Ubuntu focal (20.04), so use jammy (22.04)
+# qt-android-6.3 requires libclang-cpp11 which is not in Ubuntu focal (20.04), so use jammy (22.04)
 dist: jammy
 language: cpp
 compiler: gcc
+
+git:
+  depth: false
 
 branches:
   except:
@@ -12,7 +15,7 @@ env:
     - ANDROID_SDK_CMDLINE_TOOLS_ZIP="commandlinetools-linux-8512546_latest.zip"
     - ANDROID_SDK_CMDLINE_TOOLS_SHA1="5e7bf2dd563d34917d32f3c5920a85562a795c93"
     - ANDROID_BUILD_TOOLS_VER="33.0.0"
-    - ANDROID_PLATFORM_VER="android-33"
+    - ANDROID_PLATFORM_VER="android-31" #Used as compileSdk. It should be supported by the version of gradle shipped in QtAndroid
     - ANDROID_NDK_ZIP="android-ndk-r23c-linux.zip"
     - ANDROID_NDK_SHA1="e5053c126a47e84726d9f7173a04686a71f9a67a"
     - ANDROID_NDK_MOUNT_DIR="${HOME}/r23c"
@@ -141,30 +144,29 @@ jobs:
 
     - os: linux
 
-      # Build for Android using Qt 6.2
-      # Qt 6.2 doesn't support multi-abi anymore, so we build only for arm64-v8a.
-      # Multi-ABI is restored in some way in Qt 6.3 but for cmake only.
+      # Build for Android using qt-android-6.3. Multi-ABI is back again since QT 6.3.
+      # Supports for Multi-ABI is only with cmake (no more multi abi with qmake)
 
       before_install:
-        # Add qt-android-6.2 repo (for qt-android-6.2 package)
-        - export JOB_ID=2434242
+        # Add qt-android-6.3 repo (for qt-android-6.3 package)
+        - export JOB_ID=3141349
         - sudo apt-get -y install wget
         - wget https://salsa.debian.org/bastif/qt-android/-/jobs/$JOB_ID/artifacts/raw/aptly/public-key.asc
         - sudo cp public-key.asc /etc/apt/trusted.gpg.d/
-        - sudo add-apt-repository "deb https://salsa.debian.org/bastif/qt-android/-/jobs/$JOB_ID/artifacts/raw/aptly bullseye main" -y
-        # Add debian bullseye repo (for libjpeg62-turbo package needed by qt-android-6.2) & required keys
-        - sudo add-apt-repository "deb http://deb.debian.org/debian/ bullseye main" -y
+        - sudo add-apt-repository "deb https://salsa.debian.org/bastif/qt-android/-/jobs/$JOB_ID/artifacts/raw/aptly bullseye-backports main" -y
+        # Add debian bullseye repo (for libjpeg62-turbo package needed by qt-android-6.3) & required keys
         - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 648ACFD622F3D138
         - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 0E98404D386FA1D9
         - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 605C66F00D6C9793
+        - sudo add-apt-repository "deb http://deb.debian.org/debian/ bullseye main" -y
         # Update packages list
         - sudo apt-get update -qq
 
       install:
         - sudo apt-get -y install apt-transport-https ca-certificates default-jdk default-jre-headless eatmydata fuse-zip sshpass
 
-        # qt-android 6.2
-        - sudo apt -y --fix-broken install qt-android-6.2-arm64-v8a
+        # qt-android-6.3
+        - sudo apt -y --fix-broken install qt-android-6.3-arm64-v8a qt-android-6.3-armeabi-v7a qt-android-6.3-x86 qt-android-6.3-x86-64
 
         # Android SDK Command Line Tools
         - wget https://dl.google.com/android/repository/$ANDROID_SDK_CMDLINE_TOOLS_ZIP
@@ -202,21 +204,25 @@ jobs:
         # Create welle-io apk
         - export ANDROID_SDK_ROOT=${HOME}/android-sdk
         - export ANDROID_NDK_ROOT=$ANDROID_NDK_MOUNT_DIR/$ANDROID_NDK_BASE_DIR
-        - export QT4ANDROID_ROOT=/usr/lib/qt-android-6.2-arm64-v8a
-        - export QT_ROOT=/usr/lib/qt-android-6.2-host
-        - mkdir -p android-build
-        - cd android-build
-        - $QT4ANDROID_ROOT/bin/qmake ../welle.io.pro
-        - make -j$(nproc)
-        - make -j$(nproc) apk_install_target
-        - $QT_ROOT/bin/androiddeployqt --input src/welle-gui/android-welle-io-deployment-settings.json
-          --output src/welle-gui/android-build --android-platform $ANDROID_PLATFORM_VER
-          --jdk /usr/lib/jvm/default-java --gradle
+        - export QT4ANDROID_ROOT=/usr/lib/qt-android-6.3-arm64-v8a
+        - mkdir -p build
+        - cd build
+        - $QT4ANDROID_ROOT/bin/qt-cmake
+            -DQT_ANDROID_BUILD_ALL_ABIS=TRUE
+            -DQT_PATH_ANDROID_ABI_armeabi-v7a="/usr/lib/qt-android-6.3-armeabi-v7a"
+            -DQT_PATH_ANDROID_ABI_arm64-v8a="/usr/lib/qt-android-6.3-arm64-v8a"
+            -DQT_PATH_ANDROID_ABI_x86="/usr/lib/qt-android-6.3-x86"
+            -DQT_PATH_ANDROID_ABI_x86_64="/usr/lib/qt-android-6.3-x86_64"
+            -DANDROID_SDK_ROOT=$ANDROID_SDK_ROOT
+            -DANDROID_NDK_ROOT=$ANDROID_NDK_ROOT
+            -S .. -B .
+        - make -j$(nproc) apk
         - cd ..
+        - ls -al build/android-build/build/outputs/apk/debug/android-build-debug.apk
 
       after_success:
         # welle-io APK
-        - mv android-build/src/welle-gui/android-build/build/outputs/apk/debug/android-build-debug.apk "$DATE"_"$GIT_HASH"_Android_welle-io.apk
+        - mv build/android-build/build/outputs/apk/debug/android-build-debug.apk "$DATE"_"$GIT_HASH"_Android_welle-io.apk
 
         # Upload
         - sshpass -p ${SFTP_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$DATE"_"$GIT_HASH"_Android_welle-io.apk ${SFTP_USER}@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/

@@ -15,14 +15,6 @@ QT += quickcontrols2 qml quick charts multimedia dbus
 RC_ICONS   =    icons/icon.ico
 RESOURCES +=    resources.qrc
 DISTFILES +=    \
-    android/AndroidManifest.xml \
-    android/gradle/wrapper/gradle-wrapper.jar \
-    android/gradlew \
-    android/java/io/welle/welle/InstallRtlTcpAndro.java \
-    android/res/values/libs.xml \
-    android/build.gradle \
-    android/gradle/wrapper/gradle-wrapper.properties \
-    android/gradlew.bat \
     QML/MainView.qml \
     QML/RadioView.qml \
     QML/ExpertView.qml \
@@ -65,17 +57,7 @@ DISTFILES +=    \
     QML/components/WSpectrum.qml \
     QML/components/WMenu.qml \
     QML/expertviews/ServiceDetails.qml \
-    QML/components/WDialog.qml \
-    android/AndroidManifest.xml \
-    android/build.gradle \
-    android/gradle/wrapper/gradle-wrapper.jar \
-    android/gradle/wrapper/gradle-wrapper.properties \
-    android/gradle.properties \
-    android/gradlew \
-    android/gradlew.bat \
-    android/res/values/libs.xml
-
-ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
+    QML/components/WDialog.qml
 
 TRANSLATIONS = i18n/de_DE.ts \
     i18n/it_IT.ts \
@@ -119,6 +101,18 @@ SOURCES += \
     waterfallitem.cpp
 
 android {
+    # DEPRECATED. Since Qt6.3, android build is managed by cmake. See CMakeLists.txt
+    # It is possible to produce MULTI ABI apks, only from Qt6.3 and only with cmake
+    ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
+
+    DISTFILES += \
+        android/AndroidManifest.xml \
+        android/build.gradle \
+        android/res/values/libs.xml
+
+    DISTFILES += \
+        android/java/io/welle/welle/InstallRtlTcpAndro.java
+
     ANDROID_VERSION_NAME = "$$CUR_VERSION"
     ANDROID_VERSION_CODE = "24"
 
