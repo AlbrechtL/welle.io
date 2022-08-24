@@ -63,7 +63,7 @@ jobs:
     - os: linux
 
       install:
-        - sudo apt-get -y install sshpass libfuse2
+        - sudo apt-get -y install sshpass libfuse2 patchelf
         - sudo apt-get -y install libusb-1.0-0-dev pkg-config libmp3lame-dev libmpg123-dev libpulse0 libfaad-dev libfftw3-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev libsoapysdr-dev libgstreamer-plugins-base1.0-0 libgstreamer-gl1.0-0 libxkbcommon-x11-0 libxcb-icccm4 libfontconfig1-dev libfreetype6-dev libx11-dev libx11-xcb-dev libxext-dev libxfixes-dev libxi-dev libxrender-dev libxcb1-dev libxcb-glx0-dev libxcb-keysyms1-dev libxcb-image0-dev libxcb-shm0-dev libxcb-icccm4-dev libxcb-sync-dev libxcb-xfixes0-dev libxcb-shape0-dev libxcb-randr0-dev libxcb-render-util0-dev libxcb-util-dev libxcb-xinerama0-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev
         
         # Install qt-downloader
@@ -90,8 +90,8 @@ jobs:
         - sudo chmod +x /usr/local/bin/linuxdeploy-x86_64.AppImage
         - sudo wget https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage -P /usr/local/bin
         - sudo chmod +x /usr/local/bin/linuxdeploy-plugin-qt-x86_64.AppImage
-        - sudo wget https://github.com/linuxdeploy/linuxdeploy-plugin-gstreamer/blob/master/linuxdeploy-plugin-gstreamer.sh -P /usr/local/bin
-        #- sudo chmod +x /usr/local/bin/linuxdeploy-plugin-gstreamer.sh
+        - sudo wget https://raw.githubusercontent.com/linuxdeploy/linuxdeploy-plugin-gstreamer/master/linuxdeploy-plugin-gstreamer.sh -P /usr/local/bin
+        - sudo chmod +x /usr/local/bin/linuxdeploy-plugin-gstreamer.sh
         
         # Prepare welle.io AppImage
         - find build/
@@ -102,6 +102,10 @@ jobs:
         - mkdir -p ./appdir/usr/lib
         - mkdir -p ./appdir/usr/share/icons/hicolor/512x512/apps/
         - cp src/welle-gui/icons/icon.png appdir/usr/share/icons/hicolor/512x512/apps/welle-io.png
+        
+        # Create some libraries inside QT6 to workround an expection. Maybe a bug inside linuxdeploy-x86_64.AppImage?
+        - mkdir /home/travis/build/AlbrechtL/welle.io/6.2.4/gcc_64/plugins/mediaservice
+        - mkdir /home/travis/build/AlbrechtL/welle.io/6.2.4/gcc_64/plugins/audio
         
         # Create welle.io AppImage
         - echo $PWD
