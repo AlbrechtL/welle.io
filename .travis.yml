@@ -104,6 +104,7 @@ jobs:
         - cp src/welle-gui/icons/icon.png appdir/usr/share/icons/hicolor/512x512/apps/welle-io.png
         
         # Create some libraries inside QT6 to workround an expection. Maybe a bug inside linuxdeploy-x86_64.AppImage?
+        # See here https://github.com/linuxdeploy/linuxdeploy-plugin-qt/issues/122
         - mkdir /home/travis/build/AlbrechtL/welle.io/6.2.4/gcc_64/plugins/mediaservice
         - mkdir /home/travis/build/AlbrechtL/welle.io/6.2.4/gcc_64/plugins/audio
         
@@ -138,8 +139,6 @@ jobs:
         - sshpass -p ${SFTP_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$DATE"_"$GIT_HASH"_Linux_welle-io-cli-x86_64.AppImage ${SFTP_USER}@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/
         #- sshpass -p ${SFTP_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.flatpak ${SFTP_USER}@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/
 
-  # temporary exclude
-  exclude:
     - os: linux
 
       # Build for Android using Qt 6.2
@@ -222,7 +221,8 @@ jobs:
         # Upload
         - sshpass -p ${SFTP_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$DATE"_"$GIT_HASH"_Android_welle-io.apk ${SFTP_USER}@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/
 
-
+  # temporary exclude
+  exclude:
     - os: osx
       osx_image: xcode13.2
 
