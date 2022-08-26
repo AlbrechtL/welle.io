@@ -547,7 +547,7 @@
     <message>
         <location filename="../../backend/dab-constants.cpp" line="250"/>
         <source>Lappish</source>
-        <translation>Lapón/translation>
+        <translation>Lapón</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="251"/>
@@ -802,7 +802,7 @@
     <message>
         <location filename="../../backend/dab-constants.cpp" line="301"/>
         <source>Malaysian</source>
-        <translation>Malayo<translation>
+        <translation>Malayo</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="302"/>
