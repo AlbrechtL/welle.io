@@ -134,7 +134,7 @@
     <message>
         <location filename="../radio_controller.cpp" line="255"/>
         <source>Playback failed</source>
-        <translation>Reprdoucción fallida</translation>
+        <translation>Reproducción fallida</translation>
     </message>
     <message>
         <location filename="../radio_controller.cpp" line="276"/>
@@ -522,7 +522,7 @@
     <message>
         <location filename="../../backend/dab-constants.cpp" line="245"/>
         <source>Irish</source>
-        <translation>Irlanés</translation>
+        <translation>Irlandés</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="246"/>
@@ -1498,7 +1498,7 @@
     <message>
         <location filename="../QML/expertviews/ServiceDetails.qml" line="10"/>
         <source>Service Details</source>
-        <translation>Dtalles de la estación</translation>
+        <translation>Detalles de la estación</translation>
     </message>
     <message>
         <location filename="../QML/expertviews/ServiceDetails.qml" line="17"/>
