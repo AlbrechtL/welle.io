@@ -66,7 +66,8 @@ TRANSLATIONS = i18n/de_DE.ts \
     i18n/fr_FR.ts \
     i18n/pl_PL.ts \
     i18n/ru_RU.ts \
-    i18n/nl_NL.ts
+    i18n/nl_NL.ts \
+    i18n/es_ES.ts
 
 lupdate_only{ # Workaround for lupdate to scan QML files
 SOURCES += QML/*.qml \
