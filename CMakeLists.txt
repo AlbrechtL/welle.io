@@ -12,8 +12,6 @@ if(NOT WELLE-IO_VERSION)
   set(WELLE-IO_VERSION ${PROJECT_VERSION})
 endif()
 
-set(CURRENT_VERSION_CODE "24")
-
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 14)
 
@@ -344,6 +342,25 @@ if(BUILD_WELLE_IO)
     qt_add_executable (${executableName} MANUAL_FINALIZATION ${welle_io_sources} ${backend_sources} ${input_sources} ${fft_sources} ${mpg123_sources} ${faad_sources} ${EXTRA_MOCS} src/welle-gui/resources.qrc)
 
     if(ANDROID)
+        # Compute version code from CURRENT_VERSION value
+        string(REGEX MATCH
+          "^([0-9]+)\.([0-9]+)\.?([0-9]*)([^0-9]*)"
+          CVC_MATCH
+          "${CURRENT_VERSION}"
+          )
+
+        if(NOT CMAKE_MATCH_3 STREQUAL "")
+          math(EXPR CURRENT_VERSION_CODE "${CMAKE_MATCH_1} * 100 + ${CMAKE_MATCH_2} * 10 + ${CMAKE_MATCH_3}")
+        else()
+          math(EXPR CURRENT_VERSION_CODE "${CMAKE_MATCH_1} * 100 + ${CMAKE_MATCH_2} * 10")
+        endif()
+
+        if(NOT CMAKE_MATCH_4 STREQUAL "")
+          math(EXPR CURRENT_VERSION_CODE "${CURRENT_VERSION_CODE} - 1")
+        endif()
+
+        message (VERBOSE "CURRENT_VERSION_CODE: '${CURRENT_VERSION_CODE}'")
+
         set_property(TARGET ${executableName} PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/welle-gui/android)
         set_property(TARGET ${executableName} PROPERTY QT_ANDROID_VERSION_NAME ${CURRENT_VERSION})
         set_property(TARGET ${executableName} PROPERTY QT_ANDROID_VERSION_CODE ${CURRENT_VERSION_CODE})
