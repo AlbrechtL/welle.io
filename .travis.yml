@@ -149,7 +149,7 @@ jobs:
 
       before_install:
         # Add qt-android-6.3 repo (for qt-android-6.3 package)
-        - export JOB_ID=3141349
+        - export JOB_ID=3172350
         - sudo apt-get -y install wget
         - wget https://salsa.debian.org/bastif/qt-android/-/jobs/$JOB_ID/artifacts/raw/aptly/public-key.asc
         - sudo cp public-key.asc /etc/apt/trusted.gpg.d/
