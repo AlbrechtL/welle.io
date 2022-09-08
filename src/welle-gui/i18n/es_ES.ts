@@ -286,7 +286,7 @@
     <message>
         <location filename="../../backend/dab-constants.cpp" line="185"/>
         <source>Current Affairs</source>
-        <translation>Actualidad</translation>
+        <translation>Magazín</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="186"/>
@@ -336,12 +336,12 @@
     <message>
         <location filename="../../backend/dab-constants.cpp" line="195"/>
         <source>Easy Listening</source>
-        <translation>Música ligera</translation>
+        <translation>Grand éxitos</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="196"/>
         <source>Light classical</source>
-        <translation>Clásico liviano</translation>
+        <translation>Música Ligera</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="197"/>
@@ -356,17 +356,17 @@
     <message>
         <location filename="../../backend/dab-constants.cpp" line="199"/>
         <source>Weather</source>
-        <translation>Tiempo</translation>
+        <translation>Información Metereológica</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="200"/>
         <source>Finance</source>
-        <translation>Finanzas</translation>
+        <translation>Economía</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="201"/>
         <source>Children&apos;s</source>
-        <translation>Programa para niños</translation>
+        <translation>Infancia</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="202"/>
@@ -381,7 +381,7 @@
     <message>
         <location filename="../../backend/dab-constants.cpp" line="204"/>
         <source>Phone In</source>
-        <translation>Participación telefónica</translation>
+        <translation>Opinión</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="205"/>
