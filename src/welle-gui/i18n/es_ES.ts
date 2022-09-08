@@ -356,7 +356,7 @@
     <message>
         <location filename="../../backend/dab-constants.cpp" line="199"/>
         <source>Weather</source>
-        <translation>Información Metereológica</translation>
+        <translation>Información Meteorológica</translation>
     </message>
     <message>
         <location filename="../../backend/dab-constants.cpp" line="200"/>
