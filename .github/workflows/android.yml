@@ -1,0 +1,147 @@
+name: Android build
+
+on:
+  push:
+    branches:
+      - master
+      - next
+      - 'next*'
+    tags:
+      - 'v*'
+
+jobs:
+  android:
+    name: Android build
+    # qt-android-6.3 requires libclang-cpp11 which is not in Ubuntu focal (20.04), so use jammy (22.04)
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: git fetch
+        run: |
+          git fetch --prune --unshallow --tags
+      - name: Set environment variables
+        run: |
+          echo "ANDROID_SDK_CMDLINE_TOOLS_ZIP=commandlinetools-linux-8512546_latest.zip" >> $GITHUB_ENV
+          echo "ANDROID_SDK_CMDLINE_TOOLS_SHA1=5e7bf2dd563d34917d32f3c5920a85562a795c93" >> $GITHUB_ENV
+          echo "ANDROID_BUILD_TOOLS_VER=33.0.0" >> $GITHUB_ENV
+          echo "ANDROID_PLATFORM_VER=android-31" >> $GITHUB_ENV #Used as compileSdk. It should be supported by the version of gradle shipped in QtAndroid
+          echo "ANDROID_NDK_ZIP=android-ndk-r23c-linux.zip" >> $GITHUB_ENV
+          echo "ANDROID_NDK_SHA1=e5053c126a47e84726d9f7173a04686a71f9a67a" >> $GITHUB_ENV
+          echo "ANDROID_NDK_MOUNT_DIR=${HOME}/r23c" >> $GITHUB_ENV
+          echo "ANDROID_NDK_BASE_DIR=android-ndk-r23c" >> $GITHUB_ENV
+
+          echo "LAST_COMMIT_HASH=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+          echo "LAST_COMMIT_DATE=$(git log -1 --date=format:%Y%m%d --format=%cd)" >> $GITHUB_ENV
+          echo "DEBEMAIL=none@domain.tld" >> $GITHUB_ENV
+          echo "DEBFULLNAME='Github Actions Android Builder for welle.io" >> $GITHUB_ENV
+          echo "DATE=`date +%Y%m%d`" >> $GITHUB_ENV
+          cat $GITHUB_ENV
+
+      # Build for Android using qt-android-6.3. Multi-ABI is back again since QT 6.3.
+      # Supports for Multi-ABI is only with cmake (no more multi abi with qmake)
+      - name: Add qt-android-6.3 repo (for qt-android-6.3 package)
+        run: |
+          export JOB_ID=3172350
+          sudo apt-get -y install wget
+          wget https://salsa.debian.org/bastif/qt-android/-/jobs/${JOB_ID}/artifacts/raw/aptly/public-key.asc
+          sudo cp public-key.asc /etc/apt/trusted.gpg.d/
+          sudo add-apt-repository "deb https://salsa.debian.org/bastif/qt-android/-/jobs/${JOB_ID}/artifacts/raw/aptly bullseye-backports main" -y
+          
+      # Add debian bullseye repo for libjpeg62-turbo package needed by qt-android-6.3 and required keys
+      - name: "Add debian bullseye repo and required keys"
+        run: |
+            sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 648ACFD622F3D138
+            sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 0E98404D386FA1D9
+            sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 605C66F00D6C9793
+            sudo add-apt-repository "deb http://deb.debian.org/debian/ bullseye main" -y
+            # Update packages list
+            sudo apt-get update -qq
+
+      - name: Install qt-android-6.3
+        run: |
+            set -x
+            #sudo apt-get -y install apt-transport-https ca-certificates default-jdk default-jre-headless eatmydata fuse-zip sshpass
+
+            # qt-android-6.3
+            sudo apt -y --fix-broken install qt-android-6.3-arm64-v8a qt-android-6.3-armeabi-v7a qt-android-6.3-x86 qt-android-6.3-x86-64
+
+      - name: Install Android tools
+        run: |
+            set -x
+            
+            sudo apt-get -y install fuse-zip
+            
+            # Android SDK Command Line Tools
+            wget https://dl.google.com/android/repository/$ANDROID_SDK_CMDLINE_TOOLS_ZIP
+            echo "$ANDROID_SDK_CMDLINE_TOOLS_SHA1 $ANDROID_SDK_CMDLINE_TOOLS_ZIP" | sha1sum -c
+            # need to symlink /etc/mtab to work around a fusermount(1) deficiency (copied from /usr/lib/python3/dist-packages/reprotest/presets.py)
+            test -c /dev/fuse || mknod -m 666 /dev/fuse c 10 229
+            test -f /etc/mtab || ln -s ../proc/self/mounts /etc/mtab
+            mkdir -p ${HOME}/cmdline-tools
+            fuse-zip -r $ANDROID_SDK_CMDLINE_TOOLS_ZIP ${HOME}/cmdline-tools
+
+            # Android SDK Platform
+            mkdir -p ${HOME}/android-sdk
+            test -e ${HOME}/android-sdk/platforms/$ANDROID_PLATFORM_VER/source.properties || echo "y" | ${HOME}/cmdline-tools/cmdline-tools/bin/sdkmanager "platforms;$ANDROID_PLATFORM_VER" --channel=0 --sdk_root=${HOME}/android-sdk
+            test -e ${HOME}/android-sdk/build-tools/$ANDROID_BUILD_TOOLS_VER/source.properties || echo "y" | ${HOME}/cmdline-tools/cmdline-tools/bin/sdkmanager "build-tools;$ANDROID_BUILD_TOOLS_VER" --channel=0 --sdk_root=${HOME}/android-sdk
+            test -e ${HOME}/android-sdk/platform-tools/source.properties || echo "y" | ${HOME}/cmdline-tools/cmdline-tools/bin/sdkmanager "platform-tools" --channel=0 --sdk_root=${HOME}/android-sdk
+
+            # Unmound Command Line Tools
+            fusermount -u ${HOME}/cmdline-tools
+
+            # Android NDK
+            wget https://dl.google.com/android/repository/$ANDROID_NDK_ZIP
+            echo "$ANDROID_NDK_SHA1 $ANDROID_NDK_ZIP" | sha1sum -c
+
+            # Android SDK & NDK
+            # need to symlink /etc/mtab to work around a fusermount(1) deficiency (copied from /usr/lib/python3/dist-packages/reprotest/presets.py)
+            test -c /dev/fuse || mknod -m 666 /dev/fuse c 10 229
+            test -f /etc/mtab || ln -s ../proc/self/mounts /etc/mtab
+            mkdir -p $ANDROID_NDK_MOUNT_DIR
+            fuse-zip -r $ANDROID_NDK_ZIP $ANDROID_NDK_MOUNT_DIR
+
+      - name: Build apk
+        run: |
+            set -x
+            echo $PWD
+            ls
+            export ANDROID_SDK_ROOT=${HOME}/android-sdk
+            export ANDROID_NDK_ROOT=$ANDROID_NDK_MOUNT_DIR/$ANDROID_NDK_BASE_DIR
+            export QT4ANDROID_ROOT=/usr/lib/qt-android-6.3-arm64-v8a
+            mkdir -p build
+            cd build
+            $QT4ANDROID_ROOT/bin/qt-cmake \
+              -DQT_ANDROID_BUILD_ALL_ABIS=TRUE \
+              -DQT_PATH_ANDROID_ABI_armeabi-v7a="/usr/lib/qt-android-6.3-armeabi-v7a" \
+              -DQT_PATH_ANDROID_ABI_arm64-v8a="/usr/lib/qt-android-6.3-arm64-v8a" \
+              -DQT_PATH_ANDROID_ABI_x86="/usr/lib/qt-android-6.3-x86" \
+              -DQT_PATH_ANDROID_ABI_x86_64="/usr/lib/qt-android-6.3-x86_64" \
+              -DANDROID_SDK_ROOT=$ANDROID_SDK_ROOT \
+              -DANDROID_NDK_ROOT=$ANDROID_NDK_ROOT \
+              -S .. -B .
+            make -j$(nproc) apk
+            cd ..
+            ls -al build/android-build/build/outputs/apk/debug/android-build-debug.apk
+
+      - name: Upload to nightlies server
+        if: success()
+        run: |
+          sudo apt-get -y install sshpass
+          #sshpass -p ${SFTP_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null build/android-build/build/outputs/apk/debug/android-build-debug.apk ${SFTP_USER}@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/${DATE}_${LAST_COMMIT_HASH}_Android_welle-io.apk
+
+      - name: Archive artifacts
+        if: success()
+        uses: actions/upload-artifact@v2
+        with:
+          name: welle.io android apk
+          path: build/android-build/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+
+      - name: Archive artifacts
+        if: failure()
+        uses: actions/upload-artifact@v2
+        with:
+          name: welle.io android build dir
+          path: build/*
+          if-no-files-found: error
