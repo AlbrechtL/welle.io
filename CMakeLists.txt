@@ -339,14 +339,33 @@ add_definitions("-DBUILD_DATE=\"${BUILD_DATE}\"")
 if(BUILD_WELLE_IO)
     set(executableName welle-io)
 
-    qt_add_executable (${executableName} ${welle_io_sources} ${backend_sources} ${input_sources} ${fft_sources} ${mpg123_sources} ${faad_sources} ${EXTRA_MOCS} src/welle-gui/resources.qrc)
+    qt_add_executable (${executableName} MANUAL_FINALIZATION ${welle_io_sources} ${backend_sources} ${input_sources} ${fft_sources} ${mpg123_sources} ${faad_sources} ${EXTRA_MOCS} src/welle-gui/resources.qrc)
 
     if(ANDROID)
-        #set(QT_ANDROID_PACKAGE_SOURCE_DIR src/welle-gui/android)
-        set(QT_ANDROID_VERSION_NAME ${CURRENT_VERSION})
-        set(QT_ANDROID_VERSION_CODE "24")
+        # Compute version code from CURRENT_VERSION value
+        string(REGEX MATCH
+          "^([0-9]+)\.([0-9]+)\.?([0-9]*)([^0-9]*)"
+          CVC_MATCH
+          "${CURRENT_VERSION}"
+          )
 
-        # Additinal requirements when using Android
+        if(NOT CMAKE_MATCH_3 STREQUAL "")
+          math(EXPR CURRENT_VERSION_CODE "${CMAKE_MATCH_1} * 100 + ${CMAKE_MATCH_2} * 10 + ${CMAKE_MATCH_3}")
+        else()
+          math(EXPR CURRENT_VERSION_CODE "${CMAKE_MATCH_1} * 100 + ${CMAKE_MATCH_2} * 10")
+        endif()
+
+        if(NOT CMAKE_MATCH_4 STREQUAL "")
+          math(EXPR CURRENT_VERSION_CODE "${CURRENT_VERSION_CODE} - 1")
+        endif()
+
+        message (VERBOSE "CURRENT_VERSION_CODE: '${CURRENT_VERSION_CODE}'")
+
+        set_property(TARGET ${executableName} PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/welle-gui/android)
+        set_property(TARGET ${executableName} PROPERTY QT_ANDROID_VERSION_NAME ${CURRENT_VERSION})
+        set_property(TARGET ${executableName} PROPERTY QT_ANDROID_VERSION_CODE ${CURRENT_VERSION_CODE})
+
+        # Additional requirements when using Android
         target_link_libraries (${executableName} PRIVATE
             Qt6::CorePrivate
         )
@@ -480,7 +499,12 @@ configure_file(
 add_custom_target(uninstall
     COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 
-if(Qt6Core_FOUND AND CMAKE_VERSION VERSION_LESS "3.19")
+if(Qt6Core_FOUND)
+  if(BUILD_WELLE_IO)
+    qt_finalize_target(welle-io)
+  endif()
+  if(CMAKE_VERSION VERSION_LESS "3.19")
     message("since CMAKE_VERSION=${CMAKE_VERSION}, add qt6_finalize_project")
     qt6_finalize_project()
+  endif()
 endif()
