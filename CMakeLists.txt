@@ -55,10 +55,12 @@ else()
 endif()
 
 if(BUILD_WELLE_IO)
-    set(CMAKE_AUTOMOC ON)
-    set(CMAKE_AUTORCC ON)
-
     find_package(Qt6 COMPONENTS Widgets Quick QuickControls2 Multimedia Charts Qml REQUIRED)
+    set(CMAKE_AUTOMOC ON)
+    if(ANDROID AND Qt6Core_VERSION VERSION_LESS 6.4.0)
+        # Woraround for QTBUG-106466
+        set(CMAKE_AUTORCC ON)
+    endif()
 endif()
 
 if(PROFILING)
@@ -339,7 +341,12 @@ add_definitions("-DBUILD_DATE=\"${BUILD_DATE}\"")
 if(BUILD_WELLE_IO)
     set(executableName welle-io)
 
-    qt_add_executable (${executableName} MANUAL_FINALIZATION ${welle_io_sources} ${backend_sources} ${input_sources} ${fft_sources} ${mpg123_sources} ${faad_sources} ${EXTRA_MOCS} src/welle-gui/resources.qrc)
+    if(CMAKE_AUTORCC)
+        qt_add_executable (${executableName} MANUAL_FINALIZATION ${welle_io_sources} ${backend_sources} ${input_sources} ${fft_sources} ${mpg123_sources} ${faad_sources} ${EXTRA_MOCS} src/welle-gui/resources.qrc)
+    else()
+        qt_add_resources(welle_io_sources src/welle-gui/resources.qrc)
+        qt_add_executable (${executableName} MANUAL_FINALIZATION ${welle_io_sources} ${backend_sources} ${input_sources} ${fft_sources} ${mpg123_sources} ${faad_sources} ${EXTRA_MOCS})
+    endif()
 
     if(ANDROID)
         # Compute version code from CURRENT_VERSION value
@@ -360,6 +367,10 @@ if(BUILD_WELLE_IO)
         endif()
 
         message (VERBOSE "CURRENT_VERSION_CODE: '${CURRENT_VERSION_CODE}'")
+
+        if(CMAKE_AUTORCC)
+            set_property(TARGET ${executableName} PROPERTY AUTORCC_OPTIONS "--no-zstd")
+        endif()
 
         set_property(TARGET ${executableName} PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/welle-gui/android)
         set_property(TARGET ${executableName} PROPERTY QT_ANDROID_VERSION_NAME ${CURRENT_VERSION})
