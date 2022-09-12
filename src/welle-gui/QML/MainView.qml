@@ -119,7 +119,7 @@ ApplicationWindow {
             anchors.fill: parent
 
             ToolButton {
-                icon.source: "qrc:/icons/welle_io_icons/20x20@2/drawer.png"
+                icon.name: "drawer"
 
                 Accessible.name: qsTr("Stations list")
                 Accessible.description: qsTr("Display or hide stations list")
@@ -154,11 +154,8 @@ ApplicationWindow {
 
             ToolButton {
                 id: startStopIcon
-                implicitWidth: icon.width + Units.dp(24)
-
-                icon.source: "qrc:/icons/welle_io_icons/20x20@2/stop.png"
-                icon.height: Units.dp(24)
-                icon.width: Units.dp(24)
+                implicitWidth: icon.width + Units.dp(20)
+                icon.name: "stop"
 
                 onClicked: {
                     if (radioController.isPlaying || radioController.isChannelScan) {
@@ -211,9 +208,9 @@ ApplicationWindow {
 
                 function setStartPlayIcon() {
                     if (radioController.isPlaying || radioController.isChannelScan) {
-                        startStopIcon.icon.source = "qrc:/icons/welle_io_icons/20x20@2/stop.png"
+                        startStopIcon.icon.name = "stop"
                     } else {
-                        startStopIcon.icon.source = "qrc:/icons/welle_io_icons/20x20@2/play.png"
+                        startStopIcon.icon.name = "play"
                     }
                 }
 
@@ -234,10 +231,7 @@ ApplicationWindow {
             ToolButton {
                 id: speakerIconContainer
                 implicitWidth: icon.width + Units.dp(24)
-
-                icon.source: "qrc:/icons/welle_io_icons/20x20@2/speaker.png"
-                icon.height: Units.dp(24)
-                icon.width: Units.dp(24)
+                icon.name: "speaker"
 
                 onPressAndHold: volumePopup.open()
                 onClicked: {
@@ -285,8 +279,6 @@ ApplicationWindow {
 
                             onValueChanged: {
                                 setVolume(value)
-                                //if (visible)
-                                //    volumeSliderTrigger.restart()
                             }
 
                             Connections {
@@ -352,9 +344,8 @@ ApplicationWindow {
                 }
             }
             ToolButton {
-                icon.source: "qrc:/icons/welle_io_icons/20x20@2/menu.png"
-                icon.width: Units.dp(20)
-                icon.height: Units.dp(20)
+                icon.name: "menu"
+                implicitWidth: icon.width + Units.dp(20)
 
                 Accessible.name: qsTr("Main menu")
                 Accessible.description: qsTr("Show the main menu")
@@ -458,7 +449,7 @@ ApplicationWindow {
 
                 Button {
                     id: menuButton
-                    icon.source: "qrc:/icons/welle_io_icons/20x20@2/menu.png"
+                    icon.name: "menu"
                     icon.height: Units.dp(15)
                     icon.width: Units.dp(15)
                     flat:true

@@ -107,6 +107,7 @@ SettingSection {
         TextField {
             id: hostName
             placeholderText: qsTr("Enter host name")
+            implicitWidth: 200
         }
 
         TextStandart {

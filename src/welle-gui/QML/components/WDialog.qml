@@ -53,7 +53,7 @@ Dialog {
                ToolButton {
                    font.pixelSize: TextStyle.textStandartSize
 
-                   icon.source: "qrc:/icons/welle_io_icons/20x20/back.png"
+                   icon.name: "back"
                    icon.width: Units.dp(12)
                    icon.height: Units.dp(12)
                    onClicked: popup.close()
