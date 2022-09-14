@@ -1,0 +1,73 @@
+name: Linux build
+
+on:
+  push:
+    branches:
+      - master
+      - next
+      - 'next*'
+    tags:
+      - 'v*'
+
+jobs:
+  cmake:
+    name: Build with CMake
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - run: git fetch --prune --unshallow --tags
+
+      - name: Set environment variables
+        run: |
+          echo "ANDROID_NDK_MOUNT_DIR=${HOME}/android-ndk" >> $GITHUB_ENV
+          echo "LAST_COMMIT_HASH=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+          echo "LAST_COMMIT_DATE=$(git log -1 --date=format:%Y%m%d --format=%cd)" >> $GITHUB_ENV
+          echo "DEBEMAIL=none@domain.tld" >> $GITHUB_ENV
+          echo "DEBFULLNAME='Github Actions Android Builder for welle.io'" >> $GITHUB_ENV
+          echo "DATE=`date +%Y%m%d`" >> $GITHUB_ENV
+          cat $GITHUB_ENV
+
+      - name: Display environment variables
+        run: env | sort
+
+        # qt6-charts-dev is not available in ubuntu 22.04, neither Debian bullseye.
+        # So we use the packages from Debian testing
+      - name: "Add Debian testing repo and required keys"
+        run: |
+            sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 648ACFD622F3D138
+            sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 0E98404D386FA1D9
+            sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 605C66F00D6C9793
+            sudo add-apt-repository "deb http://deb.debian.org/debian/ testing main" -y
+            # Update packages list
+            sudo apt-get update -qq
+
+      - name: Install build dependencies
+        run: set -x; sudo apt-get -y install build-essential cmake libairspy-dev libasound2-dev libfaad-dev libfftw3-dev libmp3lame-dev libmpg123-dev libpulse-dev libqt6opengl6-dev librtlsdr-dev libsoapysdr-dev qt6-base-dev qt6-declarative-dev qt6-multimedia-dev qt6-charts-dev
+
+      - name: Configure welle.io project
+        run: |
+            set -x
+            echo $PWD
+            mkdir -p build/install_root
+            cd build
+            cmake -DRTLSDR=1 -DSOAPYSDR=1 -DAIRSPY=1 -DCMAKE_INSTALL_PREFIX="$(realpath ./install_root)" ..
+
+      - name: Build
+        id: build
+        run: |
+            set -x
+            cd build
+            make
+            make install
+            ls -lR install_root
+
+      - name: Archive artifacts (welle.io build dir)
+        if: always() && steps.build.outcome == 'failure'
+        uses: actions/upload-artifact@v2
+        with:
+          name: welle.io build dir
+          path: build/*
+          if-no-files-found: error
