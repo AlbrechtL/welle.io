@@ -1,5 +1,31 @@
 name: Android build
 
+#
+# This script uses the Qt for Android packages for Debian & derivatives from
+# https://salsa.debian.org/bastif/qt-android
+#
+# If you want to build welle.io for Android yourself and produce a Multi-ABI
+# APK or AAB you might encouter these issues:
+#
+#  - QTBUG-101353: this is already managed inside welle.io by making different
+#    calls depending on the Qt Version.
+#
+# These issues may get revealed if you need/choose to specify a QT_HOST_PATH
+# and/or need to use QT_HOST_PATH_CMAKE_DIR
+#  - QTBUG-106394: Android Multi ABI honors only for first abi the flag
+#                  -DQT_NO_PACKAGE_VERSION_CHECK=TRUE
+#       Fixed in 6.5.0 Beta1
+#  - QTBUG-106616: androiddeployqt not found on MultiABI android build with
+#                  custom install dir
+#       Suggested patch in bug report
+#
+# All fixes related to these QTBUGs have been backported into qt-android-6.3
+# but not necessarily in the official release of Qt of that version
+#
+# MultiABI build is only available since Qt 6.3. If you use Qt 6.2, you must
+# build each ABI individually.
+#
+
 on:
   push:
     branches:
@@ -11,45 +37,60 @@ on:
 
 jobs:
   android:
-    name: Android build
-    # qt-android-6.3 requires libclang-cpp11 which is not in Ubuntu focal (20.04), so use jammy (22.04)
+    name: Android build job
     runs-on: ubuntu-22.04
+    env:
+      QT_ANDROID_JOB_REPO: bullseye-backports
+      QT_ANDROID_JOB_ID: 3336222 # Qt6.4.0
+
+      #QT_ANDROID_JOB_REPO: testing
+      #QT_ANDROID_JOB_ID: 3206460 # Qt6.3 android-buil with OS's Host Qt (=doesn't provide qt-android-X.Y-host)
+
+      QT_ANDROID_PACKAGE: qt-android-6.4
+      QT_ANDROID_HOST_HAS_CUSTOM_INSTALL_DIR: false # relevant only when not using OS's host Qt
+      USE_OS_QT_AS_HOST: false
+      USE_OS_QT_AS_HOST_FROM_TESTING: true
+
+      ANDROID_SDK_CMDLINE_TOOLS_ZIP: commandlinetools-linux-8512546_latest.zip
+      ANDROID_SDK_CMDLINE_TOOLS_SHA1: 5e7bf2dd563d34917d32f3c5920a85562a795c93
+      ANDROID_BUILD_TOOLS_VER: 33.0.0
+      #Used as compileSdk. It should be supported by the version of gradle shipped in QtAndroid
+      ANDROID_PLATFORM_VER: android-31
+      ANDROID_NDK_ZIP: android-ndk-r23c-linux.zip
+      ANDROID_NDK_VERSION: 23.2.8568313
+      ANDROID_NDK_SHA1: e5053c126a47e84726d9f7173a04686a71f9a67a
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: git fetch
-        run: |
-          git fetch --prune --unshallow --tags
+
+      - run: git fetch --prune --unshallow --tags
+
       - name: Set environment variables
         run: |
-          echo "ANDROID_SDK_CMDLINE_TOOLS_ZIP=commandlinetools-linux-8512546_latest.zip" >> $GITHUB_ENV
-          echo "ANDROID_SDK_CMDLINE_TOOLS_SHA1=5e7bf2dd563d34917d32f3c5920a85562a795c93" >> $GITHUB_ENV
-          echo "ANDROID_BUILD_TOOLS_VER=33.0.0" >> $GITHUB_ENV
-          echo "ANDROID_PLATFORM_VER=android-31" >> $GITHUB_ENV #Used as compileSdk. It should be supported by the version of gradle shipped in QtAndroid
-          echo "ANDROID_NDK_ZIP=android-ndk-r23c-linux.zip" >> $GITHUB_ENV
-          echo "ANDROID_NDK_SHA1=e5053c126a47e84726d9f7173a04686a71f9a67a" >> $GITHUB_ENV
-          echo "ANDROID_NDK_MOUNT_DIR=${HOME}/r23c" >> $GITHUB_ENV
-          echo "ANDROID_NDK_BASE_DIR=android-ndk-r23c" >> $GITHUB_ENV
-
+          echo "ANDROID_NDK_MOUNT_DIR=${HOME}/android-ndk" >> $GITHUB_ENV
           echo "LAST_COMMIT_HASH=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
           echo "LAST_COMMIT_DATE=$(git log -1 --date=format:%Y%m%d --format=%cd)" >> $GITHUB_ENV
           echo "DEBEMAIL=none@domain.tld" >> $GITHUB_ENV
-          echo "DEBFULLNAME='Github Actions Android Builder for welle.io" >> $GITHUB_ENV
+          echo "DEBFULLNAME='Github Actions Android Builder for welle.io'" >> $GITHUB_ENV
           echo "DATE=`date +%Y%m%d`" >> $GITHUB_ENV
           cat $GITHUB_ENV
 
-      # Build for Android using qt-android-6.3. Multi-ABI is back again since QT 6.3.
+      # Build for Android using qt-android-6.4. Multi-ABI is back again since QT 6.3.
       # Supports for Multi-ABI is only with cmake (no more multi abi with qmake)
-      - name: Add qt-android-6.3 repo (for qt-android-6.3 package)
+      - name: Add qt-android repo (for ${{ env.QT_ANDROID_PACKAGE }} packages)
         run: |
-          export JOB_ID=3172350
           sudo apt-get -y install wget
-          wget https://salsa.debian.org/bastif/qt-android/-/jobs/${JOB_ID}/artifacts/raw/aptly/public-key.asc
+          wget https://salsa.debian.org/bastif/qt-android/-/jobs/${QT_ANDROID_JOB_ID}/artifacts/raw/aptly/public-key.asc
           sudo cp public-key.asc /etc/apt/trusted.gpg.d/
-          sudo add-apt-repository "deb https://salsa.debian.org/bastif/qt-android/-/jobs/${JOB_ID}/artifacts/raw/aptly bullseye-backports main" -y
+          sudo add-apt-repository "deb https://salsa.debian.org/bastif/qt-android/-/jobs/${QT_ANDROID_JOB_ID}/artifacts/raw/aptly ${QT_ANDROID_JOB_REPO} main" -y
           
-      # Add debian bullseye repo for libjpeg62-turbo package needed by qt-android-6.3 and required keys
-      - name: "Add debian bullseye repo and required keys"
+      # qt-android-6.2 depends on libjpeg62-turbo which is not shipped by Ubuntu.
+      # So add debian bullseye repo and required keys
+      - name: "Add Debian bullseye repo and required keys"
+        # In later versions of qt-android, jpeg is disabled in host-build, so there is no more dependency to libjpeg.
+        # So this step can be disabled
+        if: false
         run: |
             sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 648ACFD622F3D138
             sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 0E98404D386FA1D9
@@ -58,90 +99,238 @@ jobs:
             # Update packages list
             sudo apt-get update -qq
 
-      - name: Install qt-android-6.3
+      # To use a more recent qt host (Ubuntu Jammy 22.04 has 6.2.4 while debian testing has 6.3)
+      - name: "Add Debian testing repo and required keys"
+        if: ${{ env.USE_OS_QT_AS_HOST == 'true' && env.USE_OS_QT_AS_HOST_FROM_TESTING == 'true' }}
+        run: |
+            sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 648ACFD622F3D138
+            sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 0E98404D386FA1D9
+            sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 605C66F00D6C9793
+            sudo add-apt-repository "deb http://deb.debian.org/debian/ testing main" -y
+            # Update packages list
+            sudo apt-get update -qq
+
+      - name: Install ${{ env.QT_ANDROID_PACKAGE }}
+        run: set -x; sudo apt -y --fix-broken install ${QT_ANDROID_PACKAGE}-arm64-v8a ${QT_ANDROID_PACKAGE}-armeabi-v7a ${QT_ANDROID_PACKAGE}-x86 ${QT_ANDROID_PACKAGE}-x86-64
+
+      - name: Install Debian's host-qt
+        if: ${{ env.USE_OS_QT_AS_HOST == 'true' }}
+        run: |
+            sudo apt -y --fix-broken install qt6-base-dev qt6-declarative-dev qt6-quick3d-dev qt6-remoteobjects-dev qt6-scxml-dev qt6-tools-dev
+            # Remove the ${QT_ANDROID_PACKAGE}-host package so that it doesn't interfere for now
+            #sudo dpkg -r --force-depends ${QT_ANDROID_PACKAGE}-host || true
+
+      - name: Set environment variables for use when configuring the project
+        run: |
+
+            ##### Get the QT_INSTALL_BINDIR
+
+            PACKAGES_ALL="$(dpkg-query -W -f '${Package}\n'  | \
+                grep "${QT_ANDROID_PACKAGE}")" &&
+
+            PACKAGES_FOR_ABI="$(echo "${PACKAGES_ALL}" | \
+                grep -v "${QT_ANDROID_PACKAGE}-common" | \
+                grep -v "${QT_ANDROID_PACKAGE}-host")" &&
+
+            # Expected value format for QT_ANDROID_ABIS: "armeabi-v7a;arm64-v8a"
+            QT_ANDROID_ABIS="$(echo "${PACKAGES_FOR_ABI}" | sed -e "s/${QT_ANDROID_PACKAGE}-//" -e "s/x86-64/x86_64/" | tr '\n' ';' | sed "s/;$//" )" &&
+            echo "QT_ANDROID_ABIS: $QT_ANDROID_ABIS" &&
+
+            # Take the first in the list to build the packages
+            PACKAGE_FOR_BUILD="$(echo "${PACKAGES_FOR_ABI}" | head -n1 )" &&
+
+            # Find the path to the bin folder (qmake, qt-cmake)
+            QT_INSTALL_BINDIR="$(dirname "$(dpkg -S "bin/qmake" | grep "$PACKAGE_FOR_BUILD" | cut -f 2 -d " ")")"
+            echo "QT_INSTALL_BINDIR: $QT_INSTALL_BINDIR" &&
+            echo "QT_INSTALL_BINDIR=${QT_INSTALL_BINDIR}" >> $GITHUB_ENV
+
+
+            ##### Get the QT_PATH_ANDROID_ABI_$abi & QT_PATH_CMAKE_DIR_ANDROID_ABI_$abi
+
+            for abi in $(echo "$QT_ANDROID_ABIS" | tr ';' ' '); do
+                # Create arguments like: -DQT_PATH_ANDROID_ABI_arm64-v8a="/usr/lib/${QT_ANDROID_PACKAGE}-arm64-v8a"
+                if dpkg -S "QtInstallPaths.cmake" > /dev/null; then
+                    QT_CONFIG_FILE_PATH="$(dpkg -S "QtInstallPaths.cmake" | grep "${QT_ANDROID_PACKAGE}-${abi/x86_64/x86-64}:" | cut -f 2 -d " ")"
+                    cat > "$HOME/get_qt_${abi}_prefix.cmake" <<EOF
+            include ("${QT_CONFIG_FILE_PATH}")
+            message("\${QT6_INSTALL_PREFIX}")
+            EOF
+                    QT_INSTALL_PREFIX="$(cmake -P "$HOME/get_qt_${abi}_prefix.cmake" 2>&1)"
+                else
+                    QT_CONFIG_FILE_PATH="$(dpkg -S "Qt6CoreConfigExtras.cmake" | grep "${QT_ANDROID_PACKAGE}-${abi/x86_64/x86-64}:" | cut -f 2 -d " ")"
+                    QT_INSTALL_PREFIX="$(grep "QT6_INSTALL_PREFIX" "$QT_CONFIG_FILE_PATH" | \
+                            sed -e "s|\"||g" -e "s|.*\(QT6_INSTALL_[A-Z]\+\)\s\([_0-9a-zA-Z.\/\${}-]\+\).*)$|\2|")"
+                    QT_INSTALL_PREFIX="$(realpath "$(sed "s|\${CMAKE_CURRENT_LIST_DIR}|$(dirname "$QT_CONFIG_FILE_PATH")|" <<< "$QT_INSTALL_PREFIX")")"
+                fi
+                echo "QT_PATH_ANDROID_ABI_$abi=${QT_INSTALL_PREFIX}" >> $GITHUB_ENV
+
+                # Add QT_PATH_CMAKE_DIR_ANDROID_ABI_%abi% (useful when android-build uses custom install dir) See QTBUG-106533
+                QT_CMAKE_DIR="$(dirname "$(dirname "$(dpkg -S "qt.toolchain.cmake" | grep "${QT_ANDROID_PACKAGE}-${abi/x86_64/x86-64}:" | cut -f 2 -d " ")")")"
+                echo "QT_PATH_CMAKE_DIR_ANDROID_ABI_$abi=${QT_CMAKE_DIR}" >> $GITHUB_ENV
+            done &&
+
+
+            ##### Set additional arguments QT_HOST_PATH QT_HOST_PATH_CMAKE_DIR QT_NO_PACKAGE_VERSION_CHECK
+            if [ "${USE_OS_QT_AS_HOST}" = "true" ]; then
+                HOST_PACKAGE="qt6-base-dev"
+            elif [ "${QT_ANDROID_HOST_HAS_CUSTOM_INSTALL_DIR}" = "true" ]; then
+                HOST_PACKAGE="${QT_ANDROID_PACKAGE}-host"
+            fi
+            if [ "a$HOST_PACKAGE" != "a" ]; then
+                if dpkg -S "QtInstallPaths.cmake" > /dev/null; then
+                    QT_CONFIG_FILE_PATH="$(dpkg -S "QtInstallPaths.cmake" | grep "${HOST_PACKAGE}:" | cut -f 2 -d " ")"
+                    cat > "$HOME/get_qt_${abi}_prefix.cmake" <<EOF
+            include ("${QT_CONFIG_FILE_PATH}")
+            message("\${QT6_INSTALL_PREFIX}")
+            EOF
+                    QT_INSTALL_PREFIX="$(cmake -P "$HOME/get_qt_${abi}_prefix.cmake" 2>&1)"
+                else
+                    QT_CONFIG_FILE_PATH="$(dpkg -S "Qt6CoreConfigExtras.cmake" | grep "${HOST_PACKAGE}:" | cut -f 2 -d " ")"
+                    QT_INSTALL_PREFIX="$(grep "QT6_INSTALL_PREFIX" "$QT_CONFIG_FILE_PATH" | \
+                            sed -e "s|\"||g" -e "s|.*\(QT6_INSTALL_[A-Z]\+\)\s\([_0-9a-zA-Z.\/\${}-]\+\).*)$|\2|")"
+                    QT_INSTALL_PREFIX="$(realpath "$(sed "s|\${CMAKE_CURRENT_LIST_DIR}|$(dirname "$QT_CONFIG_FILE_PATH")|" <<< "$QT_INSTALL_PREFIX")")"
+                fi
+                echo "QT_HOST_PATH=${QT_INSTALL_PREFIX}" >> $GITHUB_ENV
+
+                QT_CMAKE_DIR="$(dirname "$(dirname "$(dpkg -S "qt.toolchain.cmake" | grep "${HOST_PACKAGE}:" | cut -f 2 -d " ")")")"
+                echo "QT_HOST_PATH_CMAKE_DIR=${QT_CMAKE_DIR}" >> $GITHUB_ENV
+
+                echo "QT_NO_PACKAGE_VERSION_CHECK=TRUE" >> $GITHUB_ENV
+            fi
+
+            cat $GITHUB_ENV
+
+      - name: Setup Android SDK & NDK
+        # If the version we request are already on the system, use them, otherwise
+        # download and install them from google's server
         run: |
             set -x
-            #sudo apt-get -y install apt-transport-https ca-certificates default-jdk default-jre-headless eatmydata fuse-zip sshpass
 
-            # qt-android-6.3
-            sudo apt -y --fix-broken install qt-android-6.3-arm64-v8a qt-android-6.3-armeabi-v7a qt-android-6.3-x86 qt-android-6.3-x86-64
-
-      - name: Install Android tools
-        run: |
-            set -x
-            
-            sudo apt-get -y install fuse-zip
-            
-            # Android SDK Command Line Tools
-            wget https://dl.google.com/android/repository/$ANDROID_SDK_CMDLINE_TOOLS_ZIP
-            echo "$ANDROID_SDK_CMDLINE_TOOLS_SHA1 $ANDROID_SDK_CMDLINE_TOOLS_ZIP" | sha1sum -c
-            # need to symlink /etc/mtab to work around a fusermount(1) deficiency (copied from /usr/lib/python3/dist-packages/reprotest/presets.py)
-            test -c /dev/fuse || mknod -m 666 /dev/fuse c 10 229
-            test -f /etc/mtab || ln -s ../proc/self/mounts /etc/mtab
-            mkdir -p ${HOME}/cmdline-tools
-            fuse-zip -r $ANDROID_SDK_CMDLINE_TOOLS_ZIP ${HOME}/cmdline-tools
-
-            # Android SDK Platform
+            # Android SDK
             mkdir -p ${HOME}/android-sdk
-            test -e ${HOME}/android-sdk/platforms/$ANDROID_PLATFORM_VER/source.properties || echo "y" | ${HOME}/cmdline-tools/cmdline-tools/bin/sdkmanager "platforms;$ANDROID_PLATFORM_VER" --channel=0 --sdk_root=${HOME}/android-sdk
-            test -e ${HOME}/android-sdk/build-tools/$ANDROID_BUILD_TOOLS_VER/source.properties || echo "y" | ${HOME}/cmdline-tools/cmdline-tools/bin/sdkmanager "build-tools;$ANDROID_BUILD_TOOLS_VER" --channel=0 --sdk_root=${HOME}/android-sdk
-            test -e ${HOME}/android-sdk/platform-tools/source.properties || echo "y" | ${HOME}/cmdline-tools/cmdline-tools/bin/sdkmanager "platform-tools" --channel=0 --sdk_root=${HOME}/android-sdk
+            if [ -d $ANDROID_SDK_ROOT/build-tools/$ANDROID_BUILD_TOOLS_VER ] && [ -d $ANDROID_SDK_ROOT/platforms/$ANDROID_PLATFORM_VER ]; then
+                mkdir -p ${HOME}/android-sdk/{build-tools,platforms}
+                ln -s $ANDROID_SDK_ROOT/build-tools/$ANDROID_BUILD_TOOLS_VER ${HOME}/android-sdk/build-tools
+                ln -s $ANDROID_SDK_ROOT/platform-tools ${HOME}/android-sdk
+                ln -s $ANDROID_SDK_ROOT/platforms/$ANDROID_PLATFORM_VER ${HOME}/android-sdk/platforms
+            else
+                if [ -d $ANDROID_SDK_ROOT/cmdline-tools/latest ]; then
+                    CMDLINE_TOOLS_ROOT=$ANDROID_SDK_ROOT/cmdline-tools/latest
+                else
+                    if command -v fuse-zip; then sudo apt-get -y install fuse-zip; fi
 
-            # Unmound Command Line Tools
-            fusermount -u ${HOME}/cmdline-tools
+                    # Android SDK Command Line Tools
+                    wget https://dl.google.com/android/repository/$ANDROID_SDK_CMDLINE_TOOLS_ZIP
+                    echo "$ANDROID_SDK_CMDLINE_TOOLS_SHA1 $ANDROID_SDK_CMDLINE_TOOLS_ZIP" | sha1sum -c
+                    # need to symlink /etc/mtab to work around a fusermount(1) deficiency (copied from /usr/lib/python3/dist-packages/reprotest/presets.py)
+                    test -c /dev/fuse || mknod -m 666 /dev/fuse c 10 229
+                    test -f /etc/mtab || ln -s ../proc/self/mounts /etc/mtab
+                    mkdir -p ${HOME}/cmdline-tools
+                    fuse-zip -r $ANDROID_SDK_CMDLINE_TOOLS_ZIP ${HOME}/cmdline-tools
+
+                    CMDLINE_TOOLS_ROOT=$HOME/cmdline-tools/cmdline-tools
+                fi
+
+                test -e ${HOME}/android-sdk/build-tools/$ANDROID_BUILD_TOOLS_VER/source.properties || echo "y" | $CMDLINE_TOOLS_ROOT/bin/sdkmanager "build-tools;$ANDROID_BUILD_TOOLS_VER" --channel=0 --sdk_root=${HOME}/android-sdk
+                test -e ${HOME}/android-sdk/platform-tools/source.properties || echo "y" | $CMDLINE_TOOLS_ROOT/bin/sdkmanager "platform-tools" --channel=0 --sdk_root=${HOME}/android-sdk
+                test -e ${HOME}/android-sdk/platforms/$ANDROID_PLATFORM_VER/source.properties || echo "y" | $CMDLINE_TOOLS_ROOT/bin/sdkmanager "platforms;$ANDROID_PLATFORM_VER" --channel=0 --sdk_root=${HOME}/android-sdk
+
+                if [ -d ${HOME}/cmdline-tools/latest ]; then
+                    # Unmound Command Line Tools
+                    fusermount -u ${HOME}/cmdline-tools
+                fi
+            fi
 
             # Android NDK
-            wget https://dl.google.com/android/repository/$ANDROID_NDK_ZIP
-            echo "$ANDROID_NDK_SHA1 $ANDROID_NDK_ZIP" | sha1sum -c
+            mkdir -p ${HOME}/android-sdk/ndk
+            if [ -e $ANDROID_SDK_ROOT/ndk/$ANDROID_NDK_VERSION ]; then
+                ln -s $ANDROID_SDK_ROOT/ndk/$ANDROID_NDK_VERSION ${HOME}/android-sdk/ndk
+            else
+                if command -v fuse-zip; then sudo apt-get -y install fuse-zip; fi
 
-            # Android SDK & NDK
-            # need to symlink /etc/mtab to work around a fusermount(1) deficiency (copied from /usr/lib/python3/dist-packages/reprotest/presets.py)
-            test -c /dev/fuse || mknod -m 666 /dev/fuse c 10 229
-            test -f /etc/mtab || ln -s ../proc/self/mounts /etc/mtab
-            mkdir -p $ANDROID_NDK_MOUNT_DIR
-            fuse-zip -r $ANDROID_NDK_ZIP $ANDROID_NDK_MOUNT_DIR
+                wget https://dl.google.com/android/repository/$ANDROID_NDK_ZIP
+                echo "$ANDROID_NDK_SHA1 $ANDROID_NDK_ZIP" | sha1sum -c
 
-      - name: Build apk
+                ANDROID_NDK_BASE_DIR=$(unzip -Z -1 $ANDROID_NDK_ZIP | head -1 | cut -d '/' -f 1)
+
+                # need to symlink /etc/mtab to work around a fusermount(1) deficiency (copied from /usr/lib/python3/dist-packages/reprotest/presets.py)
+                test -c /dev/fuse || mknod -m 666 /dev/fuse c 10 229
+                test -f /etc/mtab || ln -s ../proc/self/mounts /etc/mtab
+                mkdir -p $ANDROID_NDK_MOUNT_DIR
+                fuse-zip -r $ANDROID_NDK_ZIP $ANDROID_NDK_MOUNT_DIR
+
+                ln -s $ANDROID_NDK_MOUNT_DIR/$ANDROID_NDK_BASE_DIR ${HOME}/android-sdk/ndk/$ANDROID_NDK_VERSION
+            fi
+
+            # Set env vars
+            export MY_ANDROID_NDK_ROOT=${HOME}/android-sdk/ndk/$ANDROID_NDK_VERSION
+            echo "MY_ANDROID_NDK_ROOT=${HOME}/android-sdk/ndk/$ANDROID_NDK_VERSION" >> $GITHUB_ENV
+            export MY_ANDROID_SDK_ROOT=${HOME}/android-sdk
+            echo "MY_ANDROID_SDK_ROOT=${HOME}/android-sdk" >> $GITHUB_ENV
+
+            cat $GITHUB_ENV
+
+      - name: Display environment variables
+        run: env | sort
+
+      - name: Configure welle.io project
         run: |
             set -x
             echo $PWD
-            ls
-            export ANDROID_SDK_ROOT=${HOME}/android-sdk
-            export ANDROID_NDK_ROOT=$ANDROID_NDK_MOUNT_DIR/$ANDROID_NDK_BASE_DIR
-            export QT4ANDROID_ROOT=/usr/lib/qt-android-6.3-arm64-v8a
+            ARGS=()
+            for var in QT_HOST_PATH QT_HOST_PATH_CMAKE_DIR QT_NO_PACKAGE_VERSION_CHECK ; do
+                if [ ! "a${!var}" = "a" ]; then
+                    ARGS+=(-D${var}=${!var})
+                fi
+            done
             mkdir -p build
             cd build
-            $QT4ANDROID_ROOT/bin/qt-cmake \
+            ${QT_INSTALL_BINDIR}/qt-cmake \
               -DQT_ANDROID_BUILD_ALL_ABIS=TRUE \
-              -DQT_PATH_ANDROID_ABI_armeabi-v7a="/usr/lib/qt-android-6.3-armeabi-v7a" \
-              -DQT_PATH_ANDROID_ABI_arm64-v8a="/usr/lib/qt-android-6.3-arm64-v8a" \
-              -DQT_PATH_ANDROID_ABI_x86="/usr/lib/qt-android-6.3-x86" \
-              -DQT_PATH_ANDROID_ABI_x86_64="/usr/lib/qt-android-6.3-x86_64" \
-              -DANDROID_SDK_ROOT=$ANDROID_SDK_ROOT \
-              -DANDROID_NDK_ROOT=$ANDROID_NDK_ROOT \
+              -DQT_PATH_ANDROID_ABI_armeabi-v7a="${{ env.QT_PATH_ANDROID_ABI_armeabi-v7a }}" \
+              -DQT_PATH_ANDROID_ABI_arm64-v8a="${{ env.QT_PATH_ANDROID_ABI_arm64-v8a }}" \
+              -DQT_PATH_ANDROID_ABI_x86="${{ env.QT_PATH_ANDROID_ABI_x86 }}" \
+              -DQT_PATH_ANDROID_ABI_x86_64="${{ env.QT_PATH_ANDROID_ABI_x86_64 }}" \
+              -DQT_PATH_CMAKE_DIR_ANDROID_ABI_armeabi-v7a="${{ env.QT_PATH_CMAKE_DIR_ANDROID_ABI_armeabi-v7a }}" \
+              -DQT_PATH_CMAKE_DIR_ANDROID_ABI_arm64-v8a="${{ env.QT_PATH_CMAKE_DIR_ANDROID_ABI_arm64-v8a }}" \
+              -DQT_PATH_CMAKE_DIR_ANDROID_ABI_x86="${{ env.QT_PATH_CMAKE_DIR_ANDROID_ABI_x86 }}" \
+              -DQT_PATH_CMAKE_DIR_ANDROID_ABI_x86_64="${{ env.QT_PATH_CMAKE_DIR_ANDROID_ABI_x86_64 }}" \
+              -DANDROID_SDK_ROOT=$MY_ANDROID_SDK_ROOT \
+              -DANDROID_NDK_ROOT=$MY_ANDROID_NDK_ROOT \
+              -DQT_ENABLE_VERBOSE_DEPLOYMENT=ON \
+              "${ARGS[@]}" \
               -S .. -B .
-            make -j$(nproc) apk
+
+      - name: Build apk
+        id: build_apk
+        run: |
+            set -x
+            cd build
+            make VERBOSE=1 -j$(nproc) apk
             cd ..
             ls -al build/android-build/build/outputs/apk/debug/android-build-debug.apk
 
       - name: Upload to nightlies server
-        if: success()
+        env:
+          SFTP_USER: ${{ secrets.SFTP_USER }}
+          SFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD }}
+        if: always() && steps.build_apk.outcome == 'success' && env.SFTP_USER != '' && env.SFTP_PASSWORD != ''
         run: |
           sudo apt-get -y install sshpass
-          #sshpass -p ${SFTP_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null build/android-build/build/outputs/apk/debug/android-build-debug.apk ${SFTP_USER}@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/${DATE}_${LAST_COMMIT_HASH}_Android_welle-io.apk
+          sshpass -p "${SFTP_PASSWORD}" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null build/android-build/build/outputs/apk/debug/android-build-debug.apk "${SFTP_USER}"@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/${DATE}_${LAST_COMMIT_HASH}_Android_welle-io.apk
 
-      - name: Archive artifacts
-        if: success()
+      - name: Archive artifacts (welle.io apk)
+        if: always() && steps.build_apk.outcome == 'success'
         uses: actions/upload-artifact@v2
         with:
-          name: welle.io android apk
+          name: welle.io apk
           path: build/android-build/build/outputs/apk/debug/*.apk
           if-no-files-found: error
 
-      - name: Archive artifacts
-        if: failure()
+      - name: Archive artifacts (welle.io build dir)
+        if: always() && steps.build_apk.outcome == 'failure'
         uses: actions/upload-artifact@v2
         with:
-          name: welle.io android build dir
+          name: welle.io build dir
           path: build/*
           if-no-files-found: error
