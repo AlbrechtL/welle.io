@@ -7,21 +7,6 @@ name: Android build
 # If you want to build welle.io for Android yourself and produce a Multi-ABI
 # APK or AAB you might encouter these issues:
 #
-#  - QTBUG-101353: this is already managed inside welle.io by making different
-#    calls depending on the Qt Version.
-#
-# These issues may get revealed if you need/choose to specify a QT_HOST_PATH
-# and/or need to use QT_HOST_PATH_CMAKE_DIR
-#  - QTBUG-106394: Android Multi ABI honors only for first abi the flag
-#                  -DQT_NO_PACKAGE_VERSION_CHECK=TRUE
-#       Fixed in 6.5.0 Beta1
-#  - QTBUG-106616: androiddeployqt not found on MultiABI android build with
-#                  custom install dir
-#       Suggested patch in bug report
-#
-# All fixes related to these QTBUGs have been backported into qt-android-6.3
-# but not necessarily in the official release of Qt of that version
-#
 # MultiABI build is only available since Qt 6.3. If you use Qt 6.2, you must
 # build each ABI individually.
 #
@@ -41,13 +26,13 @@ jobs:
     runs-on: ubuntu-22.04
     env:
       QT_ANDROID_JOB_REPO: bullseye-backports
-      QT_ANDROID_JOB_ID: 3336222 # Qt6.4.0
+      QT_ANDROID_JOB_ID: 4247878 # Qt6.5.1 + custom install dir
 
       #QT_ANDROID_JOB_REPO: testing
       #QT_ANDROID_JOB_ID: 3206460 # Qt6.3 android-buil with OS's Host Qt (=doesn't provide qt-android-X.Y-host)
 
-      QT_ANDROID_PACKAGE: qt-android-6.4
-      QT_ANDROID_HOST_HAS_CUSTOM_INSTALL_DIR: false # relevant only when not using OS's host Qt
+      QT_ANDROID_PACKAGE: qt-android-6.5
+      QT_ANDROID_HOST_HAS_CUSTOM_INSTALL_DIR: true # relevant only when not using OS's host Qt
       USE_OS_QT_AS_HOST: false
       USE_OS_QT_AS_HOST_FROM_TESTING: true
 
@@ -140,12 +125,12 @@ jobs:
             PACKAGE_FOR_BUILD="$(echo "${PACKAGES_FOR_ABI}" | head -n1 )" &&
 
             # Find the path to the bin folder (qmake, qt-cmake)
-            QT_INSTALL_BINDIR="$(dirname "$(dpkg -S "bin/qmake" | grep "$PACKAGE_FOR_BUILD" | cut -f 2 -d " ")")"
+            QT_INSTALL_BINDIR="$(dirname "$(dpkg -S "bin/qmake" | grep 'bin/qmake$' | grep "$PACKAGE_FOR_BUILD:" | cut -f 2 -d " ")")"
             echo "QT_INSTALL_BINDIR: $QT_INSTALL_BINDIR" &&
             echo "QT_INSTALL_BINDIR=${QT_INSTALL_BINDIR}" >> $GITHUB_ENV
 
 
-            ##### Get the QT_PATH_ANDROID_ABI_$abi & QT_PATH_CMAKE_DIR_ANDROID_ABI_$abi
+            ##### Get the QT_PATH_ANDROID_ABI_$abi & QT_ANDROID_PATH_CMAKE_DIR_$abi
 
             for abi in $(echo "$QT_ANDROID_ABIS" | tr ';' ' '); do
                 # Create arguments like: -DQT_PATH_ANDROID_ABI_arm64-v8a="/usr/lib/${QT_ANDROID_PACKAGE}-arm64-v8a"
@@ -164,9 +149,9 @@ jobs:
                 fi
                 echo "QT_PATH_ANDROID_ABI_$abi=${QT_INSTALL_PREFIX}" >> $GITHUB_ENV
 
-                # Add QT_PATH_CMAKE_DIR_ANDROID_ABI_%abi% (useful when android-build uses custom install dir) See QTBUG-106533
+                # Add QT_ANDROID_PATH_CMAKE_DIR_%abi% (useful when android-build uses custom install dir) See QTBUG-106533
                 QT_CMAKE_DIR="$(dirname "$(dirname "$(dpkg -S "qt.toolchain.cmake" | grep "${QT_ANDROID_PACKAGE}-${abi/x86_64/x86-64}:" | cut -f 2 -d " ")")")"
-                echo "QT_PATH_CMAKE_DIR_ANDROID_ABI_$abi=${QT_CMAKE_DIR}" >> $GITHUB_ENV
+                echo "QT_ANDROID_PATH_CMAKE_DIR_$abi=${QT_CMAKE_DIR}" >> $GITHUB_ENV
             done &&
 
 
@@ -291,10 +276,10 @@ jobs:
               -DQT_PATH_ANDROID_ABI_arm64-v8a="${{ env.QT_PATH_ANDROID_ABI_arm64-v8a }}" \
               -DQT_PATH_ANDROID_ABI_x86="${{ env.QT_PATH_ANDROID_ABI_x86 }}" \
               -DQT_PATH_ANDROID_ABI_x86_64="${{ env.QT_PATH_ANDROID_ABI_x86_64 }}" \
-              -DQT_PATH_CMAKE_DIR_ANDROID_ABI_armeabi-v7a="${{ env.QT_PATH_CMAKE_DIR_ANDROID_ABI_armeabi-v7a }}" \
-              -DQT_PATH_CMAKE_DIR_ANDROID_ABI_arm64-v8a="${{ env.QT_PATH_CMAKE_DIR_ANDROID_ABI_arm64-v8a }}" \
-              -DQT_PATH_CMAKE_DIR_ANDROID_ABI_x86="${{ env.QT_PATH_CMAKE_DIR_ANDROID_ABI_x86 }}" \
-              -DQT_PATH_CMAKE_DIR_ANDROID_ABI_x86_64="${{ env.QT_PATH_CMAKE_DIR_ANDROID_ABI_x86_64 }}" \
+              -DQT_ANDROID_PATH_CMAKE_DIR_armeabi-v7a="${{ env.QT_ANDROID_PATH_CMAKE_DIR_armeabi-v7a }}" \
+              -DQT_ANDROID_PATH_CMAKE_DIR_arm64-v8a="${{ env.QT_ANDROID_PATH_CMAKE_DIR_arm64-v8a }}" \
+              -DQT_ANDROID_PATH_CMAKE_DIR_x86="${{ env.QT_ANDROID_PATH_CMAKE_DIR_x86 }}" \
+              -DQT_ANDROID_PATH_CMAKE_DIR_x86_64="${{ env.QT_ANDROID_PATH_CMAKE_DIR_x86_64 }}" \
               -DANDROID_SDK_ROOT=$MY_ANDROID_SDK_ROOT \
               -DANDROID_NDK_ROOT=$MY_ANDROID_NDK_ROOT \
               -DQT_ENABLE_VERBOSE_DEPLOYMENT=ON \
