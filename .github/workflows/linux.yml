@@ -45,7 +45,12 @@ jobs:
             sudo apt-get update -qq
 
       - name: Install build dependencies
-        run: set -x; sudo apt-get -y install build-essential cmake libairspy-dev libasound2-dev libfaad-dev libfftw3-dev libmp3lame-dev libmpg123-dev libpulse-dev libqt6opengl6-dev librtlsdr-dev libsoapysdr-dev qt6-base-dev qt6-declarative-dev qt6-multimedia-dev qt6-charts-dev
+        run: |
+            set -x
+            sudo apt-get -y install build-essential cmake libairspy-dev libasound2-dev libfaad-dev libfftw3-dev libmp3lame-dev libmpg123-dev libpulse-dev libqt6opengl6-dev librtlsdr-dev libsoapysdr-dev qt6-base-dev qt6-charts-dev qt6-declarative-dev qt6-multimedia-dev
+            if dpkg --compare-versions $(dpkg-query -W qt6-charts-dev | cut -d "	" -f 2) lt 6.4.2-3; then
+              sudo apt-get -y install qml6-module-qtcharts
+            fi
 
       - name: Configure welle.io project
         run: |
