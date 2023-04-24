@@ -522,6 +522,7 @@ int main(int argc, char **argv)
         in->setAgc(true);
     }
     else {
+        in->setAgc(false);
         in->setGain(options.gain);
     }
 
