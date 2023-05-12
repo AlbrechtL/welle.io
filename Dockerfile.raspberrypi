@@ -1,0 +1,18 @@
+# welle-cli Dockerfile for Raspberry Pi
+
+FROM tianon/raspbian:buster-slim AS build
+RUN apt-get update && apt-get install -y build-essential cmake git qt5-default qtquickcontrols2-5-dev qtdeclarative5-dev \
+    qtmultimedia5-dev libqt5charts5-dev libmp3lame-dev libfftw3-dev \
+    libmpg123-dev libsoapysdr-dev librtlsdr-dev libairspy-dev \
+    libasound2-dev libfaad-dev
+RUN apt-get install -y qml-module-qtquick-controls qml-module-qtquick-controls2 qml-module-qtquick-dialogs
+WORKDIR /src
+RUN git clone https://github.com/AlbrechtL/welle.io.git
+RUN cd welle.io && \
+    mkdir build/ && \
+    cd build && \
+    cmake .. -DRTLSDR=1 -DAIRSPY=1 -DSOAPYSDR=1 && \
+    make -j4
+
+FROM scratch AS export
+COPY --from=build /src/welle.io/build ./build
