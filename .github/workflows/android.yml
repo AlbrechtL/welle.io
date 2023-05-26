@@ -303,12 +303,36 @@ jobs:
           sudo apt-get -y install sshpass
           sshpass -p "${SFTP_PASSWORD}" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null build/android-build/build/outputs/apk/debug/android-build-debug.apk "${SFTP_USER}"@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/${DATE}_${LAST_COMMIT_HASH}_Android_welle-io.apk
 
+      - name: Build with qmake
+        id: build_apk_qmake
+        run: |
+            set -x
+            echo $PWD
+
+            mkdir -p qmake-build
+            cd qmake-build
+            ${QT_INSTALL_BINDIR}/qmake \
+              ../welle.io.pro
+
+            make V=1 apk
+            cd ..
+
+            ls -al qmake-build/src/welle-gui/android-build/build/outputs/apk/debug/android-build-debug.apk
+
       - name: Archive artifacts (welle.io apk)
         if: always() && steps.build_apk.outcome == 'success'
         uses: actions/upload-artifact@v2
         with:
-          name: welle.io apk
+          name: welle.io apk (for all android abi)
           path: build/android-build/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+
+      - name: Archive artifacts (welle.io apk built by qmake)
+        if: always() && steps.build_apk_qmake.outcome == 'success'
+        uses: actions/upload-artifact@v2
+        with:
+          name: welle.io apk built by qmake (arm64-v8a only)
+          path: qmake-build/src/welle-gui/android-build/build/outputs/apk/debug/android-build-debug.apk
           if-no-files-found: error
 
       - name: Archive artifacts (welle.io build dir)
