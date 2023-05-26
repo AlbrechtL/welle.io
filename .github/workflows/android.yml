@@ -283,6 +283,7 @@ jobs:
               -DANDROID_SDK_ROOT=$MY_ANDROID_SDK_ROOT \
               -DANDROID_NDK_ROOT=$MY_ANDROID_NDK_ROOT \
               -DQT_ENABLE_VERBOSE_DEPLOYMENT=ON \
+              -DCMAKE_VERBOSE_MAKEFILE=ON \
               "${ARGS[@]}" \
               -S .. -B .
 
@@ -290,9 +291,7 @@ jobs:
         id: build_apk
         run: |
             set -x
-            cd build
-            make VERBOSE=1 -j$(nproc) apk
-            cd ..
+            cmake --build "build" --parallel
             ls -al build/android-build/build/outputs/apk/debug/android-build-debug.apk
 
       - name: Upload to nightlies server
