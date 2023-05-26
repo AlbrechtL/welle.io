@@ -47,7 +47,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - run: git fetch --prune --unshallow --tags
 
@@ -321,7 +321,7 @@ jobs:
 
       - name: Archive artifacts (welle.io apk)
         if: always() && steps.build_apk.outcome == 'success'
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: welle.io apk (for all android abi)
           path: build/android-build/build/outputs/apk/debug/*.apk
@@ -329,7 +329,7 @@ jobs:
 
       - name: Archive artifacts (welle.io apk built by qmake)
         if: always() && steps.build_apk_qmake.outcome == 'success'
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: welle.io apk built by qmake (arm64-v8a only)
           path: qmake-build/src/welle-gui/android-build/build/outputs/apk/debug/android-build-debug.apk
@@ -337,7 +337,7 @@ jobs:
 
       - name: Archive artifacts (welle.io build dir)
         if: always() && steps.build_apk.outcome == 'failure'
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: welle.io build dir
           path: build/*
