@@ -98,8 +98,8 @@ class WebProgrammeHandler : public ProgrammeHandlerInterface {
     private:
         uint32_t serviceId;
 
-        bool lame_initialised = false;
-        Lame lame;
+        //bool lame_initialised = false;
+        //Lame lame;
         std::unique_ptr<FlacEncoder> flacEncoder;
 
         mutable std::mutex senders_mutex;
