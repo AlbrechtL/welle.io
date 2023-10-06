@@ -69,8 +69,10 @@ struct Lame {
     }
 };
 
+
 enum class MOTType { JPEG, PNG, Unknown };
 
+class FlacEncoder;
 
 class WebProgrammeHandler : public ProgrammeHandlerInterface {
     public:
@@ -98,6 +100,7 @@ class WebProgrammeHandler : public ProgrammeHandlerInterface {
 
         bool lame_initialised = false;
         Lame lame;
+        std::unique_ptr<FlacEncoder> flacEncoder;
 
         mutable std::mutex senders_mutex;
         std::list<ProgrammeSender*> senders;
@@ -127,11 +130,13 @@ class WebProgrammeHandler : public ProgrammeHandlerInterface {
 
         WebProgrammeHandler(uint32_t serviceId);
         WebProgrammeHandler(WebProgrammeHandler&& other);
+        ~WebProgrammeHandler();
 
         void registerSender(ProgrammeSender *sender);
         void removeSender(ProgrammeSender *sender);
         bool needsToBeDecoded() const;
         void cancelAll();
+        void send_to_all_clients(const std::vector<uint8_t>& data);
 
         struct dls_t {
             std::string label;

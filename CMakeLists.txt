@@ -76,6 +76,7 @@ endif()
 
 if(BUILD_WELLE_CLI)
     find_package(Lame REQUIRED)
+    find_package(FLACPP REQUIRED) # test if FLAC is installed on the system     
 endif()
 
 find_package(Threads REQUIRED)
@@ -109,6 +110,7 @@ include_directories(
     ${FAAD_INCLUDE_DIRS}
     ${LIBRTLSDR_INCLUDE_DIRS}
     ${SoapySDR_INCLUDE_DIRS}
+    ${FLACPP_INCLUDE_DIRS}
 )
 
 set(backend_sources
@@ -285,6 +287,7 @@ if(BUILD_WELLE_CLI)
       ${LAME_LIBRARIES}
       ${SoapySDR_LIBRARIES}
       ${MPG123_LIBRARIES}
+      ${FLACPP_LIBRARIES}
       Threads::Threads
     )
 

@@ -25,12 +25,45 @@
 #include "webprogrammehandler.h"
 #include <iostream>
 #include <algorithm>
+#include <functional>
+
+#include <FLAC++/encoder.h>
 
 using namespace std;
 
 #ifndef MSG_NOSIGNAL
 #define MSG_NOSIGNAL 0
 #endif
+
+class FlacEncoder : public FLAC::Encoder::Stream
+{
+    public :
+    FlacEncoder(int sample_rate, std::function<void(const std::vector<uint8_t>& data)> handler) : handlerFunc(handler)
+    {
+        set_streamable_subset(true);
+        set_channels(2);
+        set_sample_rate(sample_rate);
+        init_ogg();
+    }
+
+    FLAC__StreamEncoderWriteStatus write_callback(const FLAC__byte buffer[], size_t bytes, uint32_t samples, uint32_t current_frame) override
+    {
+
+        //FLAC__STREAM_ENCODER_WRITE_STATUS_FATAL_ERROR 
+        std::vector<uint8_t> dest(buffer, buffer + bytes);
+        handlerFunc(dest);
+
+        return FLAC__STREAM_ENCODER_WRITE_STATUS_OK;
+    }
+
+    ~FlacEncoder()
+    {
+        finish();
+    }
+
+    std::function<void(const std::vector<uint8_t>& data)> handlerFunc;
+};
+
 
 ProgrammeSender::ProgrammeSender(Socket&& s) :
     s(move(s))
@@ -106,6 +139,11 @@ WebProgrammeHandler::WebProgrammeHandler(WebProgrammeHandler&& other) :
     time_label_change = now;
     time_mot = now;
     time_mot_change = now;
+}
+
+WebProgrammeHandler::~WebProgrammeHandler()
+{
+
 }
 
 void WebProgrammeHandler::registerSender(ProgrammeSender *sender)
@@ -223,6 +261,22 @@ void WebProgrammeHandler::onNewAudio(std::vector<int16_t>&& audioData,
         audiolevels.last_audioLevel_R = last_audioLevel_R;
     }
 
+    if (flacEncoder == nullptr)
+    {
+        flacEncoder = make_unique<FlacEncoder>(rate, [&](const vector<uint8_t>& vectData){send_to_all_clients(vectData);});
+    }
+
+    std::vector<int32_t> pcm_32(audioData.size());
+
+    // Convert 16bit samples to 32bit samples 
+    for(long unsigned int i = 0; i < audioData.size(); i++)
+    {
+        pcm_32[i] = (int)audioData[i];
+    }
+
+    flacEncoder->process_interleaved(pcm_32.data(), pcm_32.size()/channels);
+/*
+
     if (not lame_initialised) {
         lame_set_in_samplerate(lame.lame, rate);
         lame_set_num_channels(lame.lame, channels);
@@ -246,14 +300,20 @@ void WebProgrammeHandler::onNewAudio(std::vector<int16_t>&& audioData,
     }
     else if (written > 0) {
         mp3buf.resize(written);
+        send_to_all_clients(mp3buf);
+    }
 
-        std::unique_lock<std::mutex> lock(senders_mutex);
+    */
+}
 
-        for (auto& s : senders) {
-            bool success = s->send_mp3(mp3buf);
-            if (not success) {
-                cerr << "Failed to send audio for " << serviceId << endl;
-            }
+void WebProgrammeHandler::send_to_all_clients(const std::vector<uint8_t>& data)
+{
+    std::unique_lock<std::mutex> lock(senders_mutex);
+
+    for (auto& s : senders) {
+        bool success = s->send_mp3(data);
+        if (not success) {
+            cerr << "Failed to send audio for " << serviceId << endl;
         }
     }
 }
