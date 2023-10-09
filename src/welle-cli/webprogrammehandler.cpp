@@ -38,20 +38,31 @@ using namespace std;
 class FlacEncoder : public FLAC::Encoder::Stream
 {
     public :
-    FlacEncoder(int sample_rate, std::function<void(const std::vector<uint8_t>& data)> handler) : handlerFunc(handler)
+    FlacEncoder(int sample_rate, std::function<void(const std::vector<uint8_t>& headerData, const std::vector<uint8_t>& data)> handler) : handlerFunc(handler)
     {
         set_streamable_subset(true);
         set_channels(2);
         set_sample_rate(sample_rate);
-        init_ogg();
+        set_compression_level(5);
+        // Header created during this call
+        init();
+        // Header data finished
+        streamHeaderInitialised = true;
+
     }
 
     FLAC__StreamEncoderWriteStatus write_callback(const FLAC__byte buffer[], size_t bytes, uint32_t samples, uint32_t current_frame) override
     {
-
-        //FLAC__STREAM_ENCODER_WRITE_STATUS_FATAL_ERROR 
-        std::vector<uint8_t> dest(buffer, buffer + bytes);
-        handlerFunc(dest);
+        if (!streamHeaderInitialised)
+        {
+            flacHeader.insert(flacHeader.end(), buffer, buffer + bytes);
+        }
+        else
+        {
+            //FLAC__STREAM_ENCODER_WRITE_STATUS_FATAL_ERROR 
+            std::vector<uint8_t> dest(buffer, buffer + bytes);
+            handlerFunc(flacHeader, dest);
+        }
 
         return FLAC__STREAM_ENCODER_WRITE_STATUS_OK;
     }
@@ -61,7 +72,9 @@ class FlacEncoder : public FLAC::Encoder::Stream
         finish();
     }
 
-    std::function<void(const std::vector<uint8_t>& data)> handlerFunc;
+    std::function<void(const std::vector<uint8_t>& headerData, const std::vector<uint8_t>& data)> handlerFunc;
+    std::vector<uint8_t> flacHeader;
+    bool streamHeaderInitialised = false;
 };
 
 
@@ -82,15 +95,23 @@ ProgrammeSender& ProgrammeSender::operator=(ProgrammeSender&& other)
     return *this;
 }
 
-bool ProgrammeSender::send_mp3(const std::vector<uint8_t>& mp3Data)
+bool ProgrammeSender::send_mp3(const std::vector<uint8_t>& headerdata, const std::vector<uint8_t>& mp3Data)
 {
     if (not s.valid()) {
         return false;
     }
 
     const int flags = MSG_NOSIGNAL;
+    ssize_t ret = 0;
 
-    ssize_t ret = s.send(mp3Data.data(), mp3Data.size(), flags);
+    if (!headerSent)
+    {
+        ret = s.send(headerdata.data(), headerdata.size(), flags);
+        headerSent = true;
+    }
+
+    ret = s.send(mp3Data.data(), mp3Data.size(), flags);
+
     if (ret == -1) {
         s.close();
         std::unique_lock<std::mutex> lock(mutex);
@@ -263,7 +284,7 @@ void WebProgrammeHandler::onNewAudio(std::vector<int16_t>&& audioData,
 
     if (flacEncoder == nullptr)
     {
-        flacEncoder = make_unique<FlacEncoder>(rate, [&](const vector<uint8_t>& vectData){send_to_all_clients(vectData);});
+        flacEncoder = make_unique<FlacEncoder>(rate, [&](const vector<uint8_t>& headerData, const vector<uint8_t>& vectData){send_to_all_clients(headerData, vectData);});
     }
 
     std::vector<int32_t> pcm_32(audioData.size());
@@ -306,12 +327,12 @@ void WebProgrammeHandler::onNewAudio(std::vector<int16_t>&& audioData,
     */
 }
 
-void WebProgrammeHandler::send_to_all_clients(const std::vector<uint8_t>& data)
+void WebProgrammeHandler::send_to_all_clients(const std::vector<uint8_t>& headerData, const std::vector<uint8_t>& data)
 {
     std::unique_lock<std::mutex> lock(senders_mutex);
 
     for (auto& s : senders) {
-        bool success = s->send_mp3(data);
+        bool success = s->send_mp3(headerData, data);
         if (not success) {
             cerr << "Failed to send audio for " << serviceId << endl;
         }

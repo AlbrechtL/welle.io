@@ -41,12 +41,13 @@ class ProgrammeSender {
         std::atomic<bool> running = ATOMIC_VAR_INIT(true);
         mutable std::condition_variable cv;
         mutable std::mutex mutex;
+        bool headerSent = false;
 
     public:
         ProgrammeSender(Socket&& s);
         ProgrammeSender(ProgrammeSender&& other);
         ProgrammeSender& operator=(ProgrammeSender&& other);
-        bool send_mp3(const std::vector<uint8_t>& mp3data);
+        bool send_mp3(const std::vector<uint8_t>& headerdata, const std::vector<uint8_t>& mp3data);
         void wait_for_termination() const;
         void cancel();
 };
@@ -136,7 +137,7 @@ class WebProgrammeHandler : public ProgrammeHandlerInterface {
         void removeSender(ProgrammeSender *sender);
         bool needsToBeDecoded() const;
         void cancelAll();
-        void send_to_all_clients(const std::vector<uint8_t>& data);
+        void send_to_all_clients(const std::vector<uint8_t>& headerData, const std::vector<uint8_t>& data);
 
         struct dls_t {
             std::string label;
