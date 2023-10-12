@@ -27,7 +27,7 @@
 #include <algorithm>
 #include <functional>
 
-#include <FLAC++/encoder.h>
+#include <lame/lame.h>
 
 using namespace std;
 
@@ -35,8 +35,24 @@ using namespace std;
 #define MSG_NOSIGNAL 0
 #endif
 
-class FlacEncoder : public FLAC::Encoder::Stream
+class IEncoder 
 {
+    public:
+    virtual bool process_interleaved(std::vector<int16_t>& audioData) = 0;
+    virtual ~IEncoder() = default;
+};
+
+#ifdef HAVE_FLAC
+#include <FLAC++/encoder.h>
+class FlacEncoder : protected FLAC::Encoder::Stream, public IEncoder
+{
+    private:
+    std::function<void(const std::vector<uint8_t>& headerData, const std::vector<uint8_t>& data)> handlerFunc;
+    std::vector<uint8_t> flacHeader;
+    bool streamHeaderInitialised = false;
+    // The audio decoders always upconvert to stereo
+    const int channels = 2;
+
     public :
     FlacEncoder(int sample_rate, std::function<void(const std::vector<uint8_t>& headerData, const std::vector<uint8_t>& data)> handler) : handlerFunc(handler)
     {
@@ -51,6 +67,19 @@ class FlacEncoder : public FLAC::Encoder::Stream
 
     }
 
+    bool process_interleaved(std::vector<int16_t>& audioData) override
+    {
+        std::vector<int32_t> pcm_32(audioData.size());
+
+        // Convert 16bit samples to 32bit samples 
+        for(long unsigned int i = 0; i < audioData.size(); i++)
+        {
+            pcm_32[i] = (int)audioData[i];
+        }
+
+        return FLAC::Encoder::Stream::process_interleaved(pcm_32.data(), pcm_32.size()/channels);
+    }
+
     FLAC__StreamEncoderWriteStatus write_callback(const FLAC__byte buffer[], size_t bytes, uint32_t samples, uint32_t current_frame) override
     {
         if (!streamHeaderInitialised)
@@ -59,9 +88,8 @@ class FlacEncoder : public FLAC::Encoder::Stream
         }
         else
         {
-            //FLAC__STREAM_ENCODER_WRITE_STATUS_FATAL_ERROR 
-            std::vector<uint8_t> dest(buffer, buffer + bytes);
-            handlerFunc(flacHeader, dest);
+            std::vector<uint8_t> vectdata(buffer, buffer + bytes);
+            handlerFunc(flacHeader, vectdata);
         }
 
         return FLAC__STREAM_ENCODER_WRITE_STATUS_OK;
@@ -71,10 +99,58 @@ class FlacEncoder : public FLAC::Encoder::Stream
     {
         finish();
     }
+};
 
+#endif
+
+class LameEncoder : public IEncoder {
     std::function<void(const std::vector<uint8_t>& headerData, const std::vector<uint8_t>& data)> handlerFunc;
-    std::vector<uint8_t> flacHeader;
-    bool streamHeaderInitialised = false;
+    lame_t lame;
+    // The audio decoders always upconvert to stereo
+    const int channels = 2;
+
+    public:
+
+    LameEncoder(int sample_rate, std::function<void(const std::vector<uint8_t>& headerData, const std::vector<uint8_t>& data)> handler) : handlerFunc(handler)
+    {
+        lame = lame_init();
+        lame_set_in_samplerate(lame, sample_rate);
+        lame_set_num_channels(lame, channels);
+        lame_set_VBR(lame, vbr_default);
+        lame_set_VBR_q(lame, 2);
+        lame_init_params(lame);
+    }
+
+    LameEncoder(const LameEncoder& other) = delete;
+    LameEncoder& operator=(const LameEncoder& other) = delete;
+    LameEncoder(LameEncoder&& other) = default;
+    LameEncoder& operator=(LameEncoder&& other) = default;
+
+    bool process_interleaved(std::vector<int16_t>& audioData) override
+    {
+        vector<uint8_t> mp3buf(16384);
+
+        int written = lame_encode_buffer_interleaved(lame,
+                audioData.data(), audioData.size()/channels,
+                mp3buf.data(), mp3buf.size());
+
+        if (written < 0) {
+            cerr << "Failed to encode mp3: " << written << endl;
+        }
+        else if (written > (ssize_t)mp3buf.size()) {
+            cerr << "mp3 encoder wrote more than buffer size!" << endl;
+        }
+        else if (written > 0) {
+            mp3buf.resize(written);
+            handlerFunc(std::vector<uint8_t>(), mp3buf); 
+        }
+
+        return true;
+    }
+
+    ~LameEncoder() {
+        lame_close(lame);
+    }
 };
 
 
@@ -95,7 +171,7 @@ ProgrammeSender& ProgrammeSender::operator=(ProgrammeSender&& other)
     return *this;
 }
 
-bool ProgrammeSender::send_mp3(const std::vector<uint8_t>& headerdata, const std::vector<uint8_t>& mp3Data)
+bool ProgrammeSender::send_stream(const std::vector<uint8_t>& headerdata, const std::vector<uint8_t>& mp3Data)
 {
     if (not s.valid()) {
         return false;
@@ -138,8 +214,8 @@ void ProgrammeSender::cancel()
     running = false;
 }
 
-WebProgrammeHandler::WebProgrammeHandler(uint32_t serviceId) :
-    serviceId(serviceId)
+WebProgrammeHandler::WebProgrammeHandler(uint32_t serviceId, OutputCodec codecID) :
+    serviceId(serviceId), codec(codecID)
 {
     const auto now = chrono::system_clock::now();
     time_label = now;
@@ -150,6 +226,7 @@ WebProgrammeHandler::WebProgrammeHandler(uint32_t serviceId) :
 
 WebProgrammeHandler::WebProgrammeHandler(WebProgrammeHandler&& other) :
     serviceId(other.serviceId),
+    codec(other.codec),
     senders(move(other.senders))
 {
     other.senders.clear();
@@ -259,9 +336,6 @@ void WebProgrammeHandler::onNewAudio(std::vector<int16_t>&& audioData,
         return;
     }
 
-    // The audio decoders always upconvert to stereo
-    const int channels = 2;
-
     int last_audioLevel_L = 0;
     int last_audioLevel_R = 0;
     {
@@ -282,49 +356,26 @@ void WebProgrammeHandler::onNewAudio(std::vector<int16_t>&& audioData,
         audiolevels.last_audioLevel_R = last_audioLevel_R;
     }
 
-    if (flacEncoder == nullptr)
+    if (encoder == nullptr)
     {
-        flacEncoder = make_unique<FlacEncoder>(rate, [&](const vector<uint8_t>& headerData, const vector<uint8_t>& vectData){send_to_all_clients(headerData, vectData);});
+        switch (codec)
+        {
+        case OutputCodec::MP3 :
+            encoder = make_unique<LameEncoder>(rate, [&](const vector<uint8_t>& headerData, const vector<uint8_t>& vectData){send_to_all_clients(headerData, vectData);});
+            break;
+        #ifdef HAVE_FLAC
+        case OutputCodec::FLAC :
+            encoder = make_unique<FlacEncoder>(rate, [&](const vector<uint8_t>& headerData, const vector<uint8_t>& vectData){send_to_all_clients(headerData, vectData);});
+            break;
+        #endif
+        default:
+                throw runtime_error("OutputCodec not handled, did you compile with flac support ?");
+            break;
+        }
     }
 
-    std::vector<int32_t> pcm_32(audioData.size());
+    encoder->process_interleaved(audioData);
 
-    // Convert 16bit samples to 32bit samples 
-    for(long unsigned int i = 0; i < audioData.size(); i++)
-    {
-        pcm_32[i] = (int)audioData[i];
-    }
-
-    flacEncoder->process_interleaved(pcm_32.data(), pcm_32.size()/channels);
-/*
-
-    if (not lame_initialised) {
-        lame_set_in_samplerate(lame.lame, rate);
-        lame_set_num_channels(lame.lame, channels);
-        lame_set_VBR(lame.lame, vbr_default);
-        lame_set_VBR_q(lame.lame, 2);
-        lame_init_params(lame.lame);
-        lame_initialised = true;
-    }
-
-    vector<uint8_t> mp3buf(16384);
-
-    int written = lame_encode_buffer_interleaved(lame.lame,
-            audioData.data(), audioData.size()/channels,
-            mp3buf.data(), mp3buf.size());
-
-    if (written < 0) {
-        cerr << "Failed to encode mp3: " << written << endl;
-    }
-    else if (written > (ssize_t)mp3buf.size()) {
-        cerr << "mp3 encoder wrote more than buffer size!" << endl;
-    }
-    else if (written > 0) {
-        mp3buf.resize(written);
-        send_to_all_clients(mp3buf);
-    }
-
-    */
 }
 
 void WebProgrammeHandler::send_to_all_clients(const std::vector<uint8_t>& headerData, const std::vector<uint8_t>& data)
@@ -332,7 +383,7 @@ void WebProgrammeHandler::send_to_all_clients(const std::vector<uint8_t>& header
     std::unique_lock<std::mutex> lock(senders_mutex);
 
     for (auto& s : senders) {
-        bool success = s->send_mp3(headerData, data);
+        bool success = s->send_stream(headerData, data);
         if (not success) {
             cerr << "Failed to send audio for " << serviceId << endl;
         }

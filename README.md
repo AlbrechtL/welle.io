@@ -130,7 +130,7 @@ sudo apt install git build-essential
 2. Install the following non-Qt packages
 
 ```
-sudo apt install libfaad-dev libmpg123-dev libfftw3-dev librtlsdr-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev libsoapysdr-dev libairspy-dev libmp3lame-dev
+sudo apt install libfaad-dev libmpg123-dev libfftw3-dev librtlsdr-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev libsoapysdr-dev libairspy-dev libmp3lame-dev libflac++-dev
 ```
 
 3. Install the following Qt packages
@@ -339,6 +339,12 @@ With the `-P` option, welle-cli will switch once DLS and a slide were decoded, s
     welle-cli -c channel -PC 1 -w port
     
 Example: `welle-cli -c 12A -C 1 -w 7979` enables the webserver on channel 12A, please then go to http://localhost:7979/ where you can observe all necessary details for every service ID in the ensemble, see the slideshows, stream the audio (by clicking on the Play-Button), check spectrum, constellation, TII information and CIR peak diagramme.
+
+Streaming output options
+---
+
+By default, `welle-cli` will output in mp3 if in webserver mode.
+With the `-O` option, you can choose between mp3 and flac (lossless) if FLAC support is enabled at build time.
 
 Backend options
 ---

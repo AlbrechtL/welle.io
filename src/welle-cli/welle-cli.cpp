@@ -287,6 +287,7 @@ struct options_t {
     bool carousel_pad = false;
     int web_port = -1; // positive value means enable
     list<int> tests;
+    string outputcodec = "";
 
     RadioReceiverOptions rro;
 };
@@ -339,6 +340,7 @@ static void usage()
     "    -s args       SoapySDR Driver arguments." << endl <<
     "    -A antenna    Set input antenna to ANT (for SoapySDR input only)." << endl <<
     "    -T            Disable TII decoding to reduce CPU usage." << endl <<
+    "    -O            Output Codec for web streaming : mp3 (default), flac (lossless)" << endl <<
     endl <<
     "Other options:" << endl <<
     "    -t test_id    Run test <test_id>." << endl <<
@@ -407,7 +409,7 @@ options_t parse_cmdline(int argc, char **argv)
     options.rro.decodeTII = true;
 
     int opt;
-    while ((opt = getopt(argc, argv, "A:c:C:dDf:F:g:hp:Ps:Tt:uvw:")) != -1) {
+    while ((opt = getopt(argc, argv, "A:c:C:dDf:F:g:hp:O:Ps:Tt:uvw:")) != -1) {
         switch (opt) {
             case 'A':
                 options.antenna = optarg;
@@ -435,6 +437,9 @@ options_t parse_cmdline(int argc, char **argv)
                 break;
             case 'p':
                 options.programme = optarg;
+                break;
+            case 'O':
+                options.outputcodec = optarg;
                 break;
             case 'P':
                 options.carousel_pad = true;
@@ -579,6 +584,26 @@ int main(int argc, char **argv)
             }
             ds.num_decoders_in_carousel = options.num_decoders_in_carousel;
         }
+        if (options.outputcodec == "" || options.outputcodec == "mp3")
+        {
+            ds.outputCodec = OutputCodec::MP3;
+
+        }
+        else if (options.outputcodec == "flac")
+        {
+            #ifdef HAS_FLAC
+                ds.outputCodec = OutputCodec::FLAC;
+            #else
+                cerr << "Flac support not compiled. Please enable flac support." << std::endl;
+                return 1;
+            #endif
+        }
+        else
+        {
+            cerr << options.outputcodec << " not valid as an outputcodec." << endl;
+            return 1;
+        }
+
         WebRadioInterface wri(*in, options.web_port, ds, options.rro);
         wri.serve();
     }

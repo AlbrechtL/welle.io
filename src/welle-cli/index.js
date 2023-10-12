@@ -210,7 +210,7 @@ function playerLoad() {
 }
 
 function setPlayerSource(sid) {
-    document.getElementById("player").src = "/mp3/" + sid;
+    document.getElementById("player").src = "/stream/" + sid;
     playerLoad();
 }
 

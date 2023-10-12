@@ -17,6 +17,7 @@ option(PROFILING         "Enable profiling (see README.md)"      OFF )
 option(AIRSPY            "Compile with Airspy support"           OFF )
 option(RTLSDR            "Compile with RTL-SDR support"          OFF )
 option(SOAPYSDR          "Compile with SoapySDR support"         OFF )
+option(FLAC              "Compile with flac support for streaming" OFF )
 
 add_definitions(-Wall)
 add_definitions(-g)
@@ -76,7 +77,9 @@ endif()
 
 if(BUILD_WELLE_CLI)
     find_package(Lame REQUIRED)
+    if (FLAC)
     find_package(FLACPP REQUIRED) # test if FLAC is installed on the system     
+    endif()
 endif()
 
 find_package(Threads REQUIRED)
