@@ -507,11 +507,14 @@ bool WebRadioInterface::dispatch_client(Socket&& client)
                     success = send_stream(s, match_stream[1]);
                 }
 
-                // Just for backward compatibility
-                const regex regex_mp3(R"(^[/]mp3[/]([^ ]+))");
-                std::smatch match_mp3;
-                if (regex_search(req.url, match_mp3, regex_mp3)) {
-                    success = send_stream(s, match_mp3[1]);
+                if (decode_settings.outputCodec == OutputCodec::MP3)
+                {
+                    // Just for backward compatibility
+                    const regex regex_mp3(R"(^[/]mp3[/]([^ ]+))");
+                    std::smatch match_mp3;
+                    if (regex_search(req.url, match_mp3, regex_mp3)) {
+                        success = send_stream(s, match_mp3[1]);
+                    }
                 }
 
                 else if (regex_search(req.url, match_slide, regex_slide)) {
