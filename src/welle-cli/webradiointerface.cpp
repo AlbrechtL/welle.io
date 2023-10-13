@@ -509,11 +509,19 @@ bool WebRadioInterface::dispatch_client(Socket&& client)
 
                 if (decode_settings.outputCodec == OutputCodec::MP3)
                 {
-                    // Just for backward compatibility
                     const regex regex_mp3(R"(^[/]mp3[/]([^ ]+))");
                     std::smatch match_mp3;
                     if (regex_search(req.url, match_mp3, regex_mp3)) {
                         success = send_stream(s, match_mp3[1]);
+                    }
+                }
+
+                if (decode_settings.outputCodec == OutputCodec::FLAC)
+                {
+                    const regex regex_flac(R"(^[/]flac[/]([^ ]+))");
+                    std::smatch match_flac;
+                    if (regex_search(req.url, match_flac, regex_flac)) {
+                        success = send_stream(s, match_flac[1]);
                     }
                 }
 
