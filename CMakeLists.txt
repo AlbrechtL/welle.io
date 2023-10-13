@@ -79,6 +79,7 @@ if(BUILD_WELLE_CLI)
     find_package(Lame REQUIRED)
     if (FLAC)
     find_package(FLACPP REQUIRED) # test if FLAC is installed on the system     
+    add_definitions(-DHAVE_FLAC)
     endif()
 endif()
 

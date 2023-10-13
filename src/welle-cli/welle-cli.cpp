@@ -591,7 +591,7 @@ int main(int argc, char **argv)
         }
         else if (options.outputcodec == "flac")
         {
-            #ifdef HAS_FLAC
+            #ifdef HAVE_FLAC
                 ds.outputCodec = OutputCodec::FLAC;
             #else
                 cerr << "Flac support not compiled. Please enable flac support." << std::endl;
