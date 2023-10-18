@@ -16,7 +16,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - run: git fetch --prune --unshallow --tags
 
@@ -34,18 +34,26 @@ jobs:
         run: env | sort
 
         # qt6-charts-dev is not available in ubuntu 22.04, neither Debian bullseye.
-        # So we use the packages from Debian testing
-      - name: "Add Debian testing repo and required keys"
+        # So we use the packages from a newer repository
+      - name: "Add repo having qt6-charts-dev"
         run: |
-            sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 648ACFD622F3D138
-            sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 0E98404D386FA1D9
-            sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 605C66F00D6C9793
-            sudo add-apt-repository "deb http://deb.debian.org/debian/ testing main" -y
+          if ! dpkg-query -W qt6-charts-dev; then
+            sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu/ lunar main universe" -y
             # Update packages list
             sudo apt-get update -qq
+          fi
 
       - name: Install build dependencies
-        run: set -x; sudo apt-get -y install build-essential cmake libairspy-dev libasound2-dev libfaad-dev libfftw3-dev libmp3lame-dev libmpg123-dev libpulse-dev libqt6opengl6-dev librtlsdr-dev libsoapysdr-dev qt6-base-dev qt6-declarative-dev qt6-multimedia-dev qt6-charts-dev
+        run: |
+            set -x
+            sudo apt-get -y install build-essential cmake libairspy-dev libasound2-dev libfaad-dev libfftw3-dev libmp3lame-dev libmpg123-dev libpulse-dev libqt6opengl6-dev librtlsdr-dev libsoapysdr-dev qt6-base-dev qt6-charts-dev qt6-declarative-dev qt6-multimedia-dev
+            # Workarounds for packaging bugs
+            if dpkg --compare-versions $(dpkg-query -W qt6-charts-dev | cut -d "	" -f 2) lt 6.4.2-3; then
+              sudo apt-get -y install qml6-module-qtcharts
+            fi
+            if dpkg --compare-versions $(dpkg-query -W qt6-multimedia-dev | cut -d "	" -f 2) lt 6.4.2-5; then
+              sudo apt-get -y install qml6-module-qtquick3d-spatialaudio
+            fi
 
       - name: Configure welle.io project
         run: |
@@ -66,7 +74,7 @@ jobs:
 
       - name: Archive artifacts (welle.io build dir)
         if: always() && steps.build.outcome == 'failure'
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: welle.io build dir
           path: build/*
