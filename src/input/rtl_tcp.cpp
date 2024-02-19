@@ -282,6 +282,12 @@ void CRTL_TCP_Client::receiveData(void)
                 dongleInfo.tuner_type << " " << TunerType << std::endl;
             std::clog << "RTL_TCP_CLIENT: Tuner gain count: " <<
                 dongleInfo.tuner_gain_count << std::endl;
+            
+            // Always use manual gain, the AGC is implemented in software
+            setGainMode(1);
+            setGain(currentGainCount);
+            sendRate(INPUT_RATE);
+            sendVFO(frequency);  
         }
         else {
             std::clog << "RTL_TCP_CLIENT: Didn't find the \"RTL0\" magic key." <<
@@ -443,12 +449,6 @@ void CRTL_TCP_Client::receiveAndReconnect()
             if (connected) {
                 std::clog << "RTL_TCP_CLIENT: Successful connected to server " <<
                     std::endl;
-
-                // Always use manual gain, the AGC is implemented in software
-                setGainMode(1);
-                setGain(currentGainCount);
-                sendRate(INPUT_RATE);
-                sendVFO(frequency);
 
                 if (!agcRunning) {
                     agcRunning = true;
