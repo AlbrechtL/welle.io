@@ -1,8 +1,23 @@
 name: Android build
 
 #
-# This script uses the Qt for Android packages for Debian & derivatives from
+# This script can use the Qt for Android packages for Debian & derivatives from
+# any of these sources:
+#  - https://salsa.debian.org/bastif/qt-android
+#  - https://launchpad.net/~bastif/+archive/ubuntu/qt-android
+#
+# This is set by the value of the ORIGIN environment variable.
+#
+# If you modify the version of QT_ANDROID_PACKAGE, you must also update the
+# values of these env var accordingly (preferably the version with which
+# qt-android was built). That information is available on
 # https://salsa.debian.org/bastif/qt-android
+#
+#      ANDROID_BUILD_TOOLS_VER
+#      ANDROID_PLATFORM_VER
+#      ANDROID_NDK_ZIP
+#      ANDROID_NDK_VERSION
+#      ANDROID_NDK_SHA1
 #
 # If you want to build welle.io for Android yourself and produce a Multi-ABI
 # APK or AAB you might encouter these issues:
@@ -25,13 +40,29 @@ jobs:
     name: Android build job
     runs-on: ubuntu-22.04
     env:
-      QT_ANDROID_JOB_REPO: bullseye-backports
-      QT_ANDROID_JOB_ID: 4247878 # Qt6.5.1 + custom install dir
 
-      #QT_ANDROID_JOB_REPO: testing
-      #QT_ANDROID_JOB_ID: 3206460 # Qt6.3 android-buil with OS's Host Qt (=doesn't provide qt-android-X.Y-host)
+      # ORIGIN: the source for the qt-android package. Can be one of
+      #   ppa:bastif/qt-android
+      #   salsa.debian.org
+      ORIGIN: ppa:bastif/qt-android
 
+      # Parameters for both salsa or launchpad (ie. ppa) origins
+      # When changing the version here, also update the Android SDK/NDK versions below.
+      #      ANDROID_BUILD_TOOLS_VER
+      #      ANDROID_PLATFORM_VER
+      #      ANDROID_NDK_ZIP
+      #      ANDROID_NDK_VERSION
+      #      ANDROID_NDK_SHA1
+      # That information is available on https://salsa.debian.org/bastif/qt-android
       QT_ANDROID_PACKAGE: qt-android-6.5
+
+      # Parameters for ORIGIN:salsa.debian.org
+      QT_ANDROID_SALSA_JOB_REPO: bullseye-backports
+      QT_ANDROID_SALSA_JOB_ID: 4921017 # Qt6.5.3
+
+      #QT_ANDROID_SALSA_JOB_REPO: testing
+      #QT_ANDROID_SALSA_JOB_ID: 3206460 # Qt6.3 android-buil with OS's Host Qt (=doesn't provide qt-android-X.Y-host)
+
       QT_ANDROID_HOST_HAS_CUSTOM_INSTALL_DIR: true # relevant only when not using OS's host Qt
       USE_OS_QT_AS_HOST: false
       USE_OS_QT_AS_HOST_FROM_TESTING: true
@@ -40,10 +71,10 @@ jobs:
       ANDROID_SDK_CMDLINE_TOOLS_SHA1: 5e7bf2dd563d34917d32f3c5920a85562a795c93
       ANDROID_BUILD_TOOLS_VER: 33.0.0
       #Used as compileSdk. It should be supported by the version of gradle shipped in QtAndroid
-      ANDROID_PLATFORM_VER: android-31
-      ANDROID_NDK_ZIP: android-ndk-r23c-linux.zip
-      ANDROID_NDK_VERSION: 23.2.8568313
-      ANDROID_NDK_SHA1: e5053c126a47e84726d9f7173a04686a71f9a67a
+      ANDROID_PLATFORM_VER: android-33
+      ANDROID_NDK_ZIP: android-ndk-r25b-linux.zip
+      ANDROID_NDK_VERSION: 25.1.8937393
+      ANDROID_NDK_SHA1: e27dcb9c8bcaa77b78ff68c3f23abcf6867959eb
 
     steps:
       - name: Checkout
@@ -63,19 +94,26 @@ jobs:
 
       # Build for Android using qt-android-6.4. Multi-ABI is back again since QT 6.3.
       # Supports for Multi-ABI is only with cmake (no more multi abi with qmake)
-      - name: Add qt-android repo (for ${{ env.QT_ANDROID_PACKAGE }} packages)
+      - name: Add qt-android repo from 'salsa.debian.org' (for ${{ env.QT_ANDROID_PACKAGE }} packages)
+        if: ${{ env.ORIGIN == 'salsa.debian.org' }}
         run: |
           sudo apt-get -y install wget
-          wget https://salsa.debian.org/bastif/qt-android/-/jobs/${QT_ANDROID_JOB_ID}/artifacts/raw/aptly/public-key.asc
+          wget https://salsa.debian.org/bastif/qt-android/-/jobs/${QT_ANDROID_SALSA_JOB_ID}/artifacts/raw/aptly/public-key.asc
           sudo cp public-key.asc /etc/apt/trusted.gpg.d/
-          sudo add-apt-repository "deb https://salsa.debian.org/bastif/qt-android/-/jobs/${QT_ANDROID_JOB_ID}/artifacts/raw/aptly ${QT_ANDROID_JOB_REPO} main" -y
-          
+          sudo add-apt-repository "deb https://salsa.debian.org/bastif/qt-android/-/jobs/${QT_ANDROID_SALSA_JOB_ID}/artifacts/raw/aptly ${QT_ANDROID_SALSA_JOB_REPO} main" -y
+
+      - name: Add qt-android repo from 'ppa:bastif/qt-android' (for ${{ env.QT_ANDROID_PACKAGE }} packages)
+        if: ${{ env.ORIGIN == 'ppa:bastif/qt-android' }}
+        run: |
+          sudo add-apt-repository "$ORIGIN"
+          sudo apt-get update
+
       # qt-android-6.2 depends on libjpeg62-turbo which is not shipped by Ubuntu.
       # So add debian bullseye repo and required keys
       - name: "Add Debian bullseye repo and required keys"
         # In later versions of qt-android, jpeg is disabled in host-build, so there is no more dependency to libjpeg.
         # So this step can be disabled
-        if: false
+        if: ${{ env.ORIGIN == 'salsa.debian.org' && false }}
         run: |
             sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 648ACFD622F3D138
             sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 0E98404D386FA1D9
