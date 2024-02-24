@@ -44,7 +44,7 @@ jobs:
       # ORIGIN: the source for the qt-android package. Can be one of
       #   ppa:bastif/qt-android
       #   salsa.debian.org
-      ORIGIN: ppa:bastif/qt-android
+      ORIGIN: salsa.debian.org
 
       # Parameters for both salsa or launchpad (ie. ppa) origins
       # When changing the version here, also update the Android SDK/NDK versions below.
