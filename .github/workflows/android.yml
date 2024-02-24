@@ -240,7 +240,7 @@ jobs:
                 if [ -d $ANDROID_SDK_ROOT/cmdline-tools/latest ]; then
                     CMDLINE_TOOLS_ROOT=$ANDROID_SDK_ROOT/cmdline-tools/latest
                 else
-                    if command -v fuse-zip; then sudo apt-get -y install fuse-zip; fi
+                    if ! command -v fuse-zip; then sudo apt-get -y install fuse-zip; fi
 
                     # Android SDK Command Line Tools
                     wget https://dl.google.com/android/repository/$ANDROID_SDK_CMDLINE_TOOLS_ZIP
@@ -269,7 +269,7 @@ jobs:
             if [ -e $ANDROID_SDK_ROOT/ndk/$ANDROID_NDK_VERSION ]; then
                 ln -s $ANDROID_SDK_ROOT/ndk/$ANDROID_NDK_VERSION ${HOME}/android-sdk/ndk
             else
-                if command -v fuse-zip; then sudo apt-get -y install fuse-zip; fi
+                if ! command -v fuse-zip; then sudo apt-get -y install fuse-zip; fi
 
                 wget https://dl.google.com/android/repository/$ANDROID_NDK_ZIP
                 echo "$ANDROID_NDK_SHA1 $ANDROID_NDK_ZIP" | sha1sum -c
