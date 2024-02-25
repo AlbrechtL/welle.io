@@ -89,6 +89,7 @@ static const char* http_405 = "HTTP/1.0 405 Method Not Allowed\r\n";
 static const char* http_500 = "HTTP/1.0 500 Internal Server Error\r\n";
 static const char* http_503 = "HTTP/1.0 503 Service Unavailable\r\n";
 static const char* http_contenttype_mp3 = "Content-Type: audio/mpeg\r\n";
+static const char* http_contenttype_flac = "Content-Type: audio/flac\r\n";
 static const char* http_contenttype_m3u = "Content-Type: application/mpegurl\r\n";
 static const char* http_contenttype_text = "Content-Type: text/plain\r\n";
 static const char* http_contenttype_data =
@@ -500,11 +501,30 @@ bool WebRadioInterface::dispatch_client(Socket&& client)
                 const regex regex_slide(R"(^[/]slide[/]([^ ]+))");
                 std::smatch match_slide;
 
-                const regex regex_mp3(R"(^[/]mp3[/]([^ ]+))");
-                std::smatch match_mp3;
-                if (regex_search(req.url, match_mp3, regex_mp3)) {
-                    success = send_mp3(s, match_mp3[1]);
+                const regex regex_stream(R"(^[/]stream[/]([^ ]+))");
+                std::smatch match_stream;
+                if (regex_search(req.url, match_stream, regex_stream)) {
+                    success = send_stream(s, match_stream[1]);
                 }
+
+                if (decode_settings.outputCodec == OutputCodec::MP3)
+                {
+                    const regex regex_mp3(R"(^[/]mp3[/]([^ ]+))");
+                    std::smatch match_mp3;
+                    if (regex_search(req.url, match_mp3, regex_mp3)) {
+                        success = send_stream(s, match_mp3[1]);
+                    }
+                }
+
+                if (decode_settings.outputCodec == OutputCodec::FLAC)
+                {
+                    const regex regex_flac(R"(^[/]flac[/]([^ ]+))");
+                    std::smatch match_flac;
+                    if (regex_search(req.url, match_flac, regex_flac)) {
+                        success = send_stream(s, match_flac[1]);
+                    }
+                }
+
                 else if (regex_search(req.url, match_slide, regex_slide)) {
                     success = send_slide(s, match_slide[1]);
                 }
@@ -845,7 +865,7 @@ bool WebRadioInterface::send_mux_playlist(Socket& s)
     return true;
 }
 
-bool WebRadioInterface::send_mp3(Socket& s, const std::string& stream)
+bool WebRadioInterface::send_stream(Socket& s, const std::string& stream)
 {
     unique_lock<mutex> lock(rx_mut);
     ASSERT_RX;
@@ -859,7 +879,21 @@ bool WebRadioInterface::send_mp3(Socket& s, const std::string& stream)
 
                 lock.unlock();
 
-                if (not send_http_response(s, http_ok, "", http_contenttype_mp3)) {
+                std::string http_contenttype;
+
+                switch (decode_settings.outputCodec)
+                {
+                case OutputCodec::FLAC:
+                    http_contenttype = http_contenttype_flac;
+                    break;
+                case OutputCodec::MP3:
+                    http_contenttype = http_contenttype_mp3;
+                    break;
+                default:
+                    break;
+                }
+
+                if (not send_http_response(s, http_ok, "", http_contenttype)) {
                     cerr << "Failed to send mp3 headers" << endl;
                     return false;
                 }
@@ -1254,7 +1288,7 @@ void WebRadioInterface::handle_phs()
             }
 
             if (phs.count(s.serviceId) == 0) {
-                WebProgrammeHandler ph(s.serviceId);
+                WebProgrammeHandler ph(s.serviceId, decode_settings.outputCodec);
                 phs.emplace(std::make_pair(s.serviceId, move(ph)));
             }
         }

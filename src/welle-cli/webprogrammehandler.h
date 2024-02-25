@@ -26,7 +26,6 @@
 
 #include "various/Socket.h"
 #include "backend/radio-receiver.h"
-#include <lame/lame.h>
 #include <cstdint>
 #include <memory>
 #include <mutex>
@@ -41,36 +40,23 @@ class ProgrammeSender {
         std::atomic<bool> running = ATOMIC_VAR_INIT(true);
         mutable std::condition_variable cv;
         mutable std::mutex mutex;
+        bool headerSent = false;
 
     public:
         ProgrammeSender(Socket&& s);
         ProgrammeSender(ProgrammeSender&& other);
         ProgrammeSender& operator=(ProgrammeSender&& other);
-        bool send_mp3(const std::vector<uint8_t>& mp3data);
+        bool send_stream(const std::vector<uint8_t>& headerdata, const std::vector<uint8_t>& mp3data);
         void wait_for_termination() const;
         void cancel();
 };
 
 
-struct Lame {
-    lame_t lame;
-
-    Lame() {
-        lame = lame_init();
-    }
-
-    Lame(const Lame& other) = delete;
-    Lame& operator=(const Lame& other) = delete;
-    Lame(Lame&& other) = default;
-    Lame& operator=(Lame&& other) = default;
-
-    ~Lame() {
-        lame_close(lame);
-    }
-};
+enum class OutputCodec {MP3, FLAC};
 
 enum class MOTType { JPEG, PNG, Unknown };
 
+class IEncoder;
 
 class WebProgrammeHandler : public ProgrammeHandlerInterface {
     public:
@@ -95,9 +81,8 @@ class WebProgrammeHandler : public ProgrammeHandlerInterface {
         };
     private:
         uint32_t serviceId;
-
-        bool lame_initialised = false;
-        Lame lame;
+        const OutputCodec codec;
+        std::unique_ptr<IEncoder> encoder;
 
         mutable std::mutex senders_mutex;
         std::list<ProgrammeSender*> senders;
@@ -125,13 +110,15 @@ class WebProgrammeHandler : public ProgrammeHandlerInterface {
         int rate = 0;
         std::string mode;
 
-        WebProgrammeHandler(uint32_t serviceId);
+        WebProgrammeHandler(uint32_t serviceId, OutputCodec codec);
         WebProgrammeHandler(WebProgrammeHandler&& other);
+        ~WebProgrammeHandler();
 
         void registerSender(ProgrammeSender *sender);
         void removeSender(ProgrammeSender *sender);
         bool needsToBeDecoded() const;
         void cancelAll();
+        void send_to_all_clients(const std::vector<uint8_t>& headerData, const std::vector<uint8_t>& data);
 
         struct dls_t {
             std::string label;

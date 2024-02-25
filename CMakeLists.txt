@@ -23,6 +23,7 @@ option(PROFILING         "Enable profiling (see README.md)"      OFF )
 option(AIRSPY            "Compile with Airspy support"           OFF )
 option(RTLSDR            "Compile with RTL-SDR support"          OFF )
 option(SOAPYSDR          "Compile with SoapySDR support"         OFF )
+option(FLAC              "Compile with flac support for streaming" OFF )
 
 add_definitions(-Wall)
 add_definitions(-g)
@@ -75,6 +76,10 @@ endif()
 
 if(BUILD_WELLE_CLI AND NOT ANDROID)
     find_package(Lame REQUIRED)
+    if (FLAC)
+    find_package(FLACPP REQUIRED) # test if FLAC is installed on the system     
+    add_definitions(-DHAVE_FLAC)
+    endif()
 endif()
 
 find_package(Threads REQUIRED)
@@ -212,6 +217,7 @@ include_directories(
     ${FAAD_INCLUDE_DIRS}
     ${LIBRTLSDR_INCLUDE_DIRS}
     ${SoapySDR_INCLUDE_DIRS}
+    ${FLACPP_INCLUDE_DIRS}
 )
 
 set(backend_sources
@@ -468,6 +474,7 @@ if(BUILD_WELLE_CLI AND NOT ANDROID)
       ${LAME_LIBRARIES}
       ${SoapySDR_LIBRARIES}
       ${MPG123_LIBRARIES}
+      ${FLACPP_LIBRARIES}
       Threads::Threads
     )
 

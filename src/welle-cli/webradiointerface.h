@@ -69,6 +69,7 @@ class WebRadioInterface : public RadioControllerInterface {
         struct DecodeSettings {
             DecodeStrategy strategy = DecodeStrategy::OnDemand;
             int num_decoders_in_carousel = 0;
+            OutputCodec outputCodec;
         };
 
         WebRadioInterface(
@@ -114,10 +115,10 @@ class WebRadioInterface : public RadioControllerInterface {
         // Generate and send a m3u playlist with all services
         bool send_mux_playlist(Socket& s);
 
-        // Send an mp3 stream containing the selected programme.
+        // Send a stream containing the selected programme.
         // stream is a service id, either in hex with 0x prefix or
         // in decimal
-        bool send_mp3(Socket& s, const std::string& stream);
+        bool send_stream(Socket& s, const std::string& stream);
 
         // Send the slide for the selected programme.
         // stream is a service id, either in hex with 0x prefix or
