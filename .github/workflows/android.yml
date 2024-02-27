@@ -44,7 +44,7 @@ jobs:
       # ORIGIN: the source for the qt-android package. Can be one of
       #   ppa:bastif/qt-android
       #   salsa.debian.org
-      ORIGIN: salsa.debian.org
+      ORIGIN: ppa:bastif/qt-android
 
       # Parameters for both salsa or launchpad (ie. ppa) origins
       # When changing the version here, also update the Android SDK/NDK versions below.
@@ -380,4 +380,12 @@ jobs:
         with:
           name: welle.io build dir
           path: build/*
+          if-no-files-found: error
+
+      - name: Archive artifacts (welle.io qmake-build dir)
+        if: always() && steps.build_apk_qmake.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: welle.io qmake-build dir
+          path: qmake-build/*
           if-no-files-found: error
