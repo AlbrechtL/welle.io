@@ -29,7 +29,7 @@ import QtQuick.Controls
 import QtQuick.Controls.Universal
 import QtQuick.Window
 import Qt5Compat.GraphicalEffects
-import Qt.labs.settings
+import QtCore
 
 import "texts"
 import "settingpages"

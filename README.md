@@ -119,7 +119,7 @@ General Information
 ---
 The following libraries and their development files are needed:
 
-* Qt 6.2 (Qt 6.1 and below is not supported)
+* Qt 6.5 (Qt 6.4 and below is not supported)
 * FFTW3f
 * libfaad
 * librtlsdr
@@ -145,7 +145,7 @@ sudo apt install libfaad-dev libmpg123-dev libfftw3-dev librtlsdr-dev libusb-1.0
 3. Install the following Qt packages
 
 ```
-sudo apt install libqt6charts6-dev qt6-base-dev qt6-tools-dev-tools qt6-multimedia-dev qt6-wayland-dev libqt6core5compat6-dev libqt63dquick6 libqt6qml6 qt6-declarative-dev qml6-module-qt-labs-settings  qml6-module-qtquick-controls qml6-module-qtquick qml6-module-qt5compat-graphicaleffects qml6-module-qtcharts  qml6-module-qtmultimedia qml6-module-qtquick-window qml6-module-qtquick-layouts qml6-module-qtqml-workerscript qml6-module-qtwayland-compositor qml6-module-qtquick-templates qml6-module-qt-labs-platform qtcreator
+sudo apt install libqt6charts6-dev qt6-base-dev qt6-tools-dev-tools qt6-multimedia-dev qt6-wayland-dev libqt6core5compat6-dev libqt63dquick6 libqt6qml6 qt6-declarative-dev  qml6-module-qtquick-controls qml6-module-qtquick qml6-module-qt5compat-graphicaleffects qml6-module-qtcharts  qml6-module-qtmultimedia qml6-module-qtquick-window qml6-module-qtquick-layouts qml6-module-qtqml-workerscript qml6-module-qtwayland-compositor qml6-module-qtquick-templates qtcreator
 ```
 
 4. Clone welle.io

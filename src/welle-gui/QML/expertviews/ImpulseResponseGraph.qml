@@ -26,7 +26,7 @@
 import QtQuick
 import QtCharts
 import QtQuick.Layouts
-import Qt.labs.settings
+import QtCore
 
 
 // Import custom styles

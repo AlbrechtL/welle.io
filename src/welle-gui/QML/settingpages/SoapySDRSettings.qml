@@ -26,7 +26,7 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
-import Qt.labs.settings
+import QtCore
 
 // Import custom styles
 import "../texts"

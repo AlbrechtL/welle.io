@@ -26,7 +26,7 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
-import Qt.labs.platform
+import QtCore
 
 import "texts"
 import "components"
