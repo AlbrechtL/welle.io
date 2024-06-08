@@ -501,13 +501,19 @@ bool WebRadioInterface::dispatch_client(Socket&& client)
                 return false;
             }
             else {
+                bool url_handled = false;
                 const regex regex_slide(R"(^[/]slide[/]([^ ]+))");
                 std::smatch match_slide;
+                if (regex_search(req.url, match_slide, regex_slide)) {
+                    success = send_slide(s, match_slide[1]);
+                    url_handled = true;
+                }
 
                 const regex regex_stream(R"(^[/]stream[/]([^ ]+))");
                 std::smatch match_stream;
                 if (regex_search(req.url, match_stream, regex_stream)) {
                     success = send_stream(s, match_stream[1]);
+                    url_handled = true;
                 }
 
                 if (decode_settings.outputCodec == OutputCodec::MP3)
@@ -516,6 +522,7 @@ bool WebRadioInterface::dispatch_client(Socket&& client)
                     std::smatch match_mp3;
                     if (regex_search(req.url, match_mp3, regex_mp3)) {
                         success = send_stream(s, match_mp3[1]);
+                        url_handled = true;
                     }
                 }
 
@@ -525,13 +532,11 @@ bool WebRadioInterface::dispatch_client(Socket&& client)
                     std::smatch match_flac;
                     if (regex_search(req.url, match_flac, regex_flac)) {
                         success = send_stream(s, match_flac[1]);
+                        url_handled = true;
                     }
                 }
 
-                else if (regex_search(req.url, match_slide, regex_slide)) {
-                    success = send_slide(s, match_slide[1]);
-                }
-                else {
+                if (not url_handled) {
                     cerr << "Could not understand GET request " << req.url << endl;
                 }
             }
