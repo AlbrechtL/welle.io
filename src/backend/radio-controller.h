@@ -82,6 +82,8 @@ enum class message_level_t { Information, Error };
  */
 class RadioControllerInterface {
     public:
+        virtual ~RadioControllerInterface() { }
+
         /* Signal-to-Noise Ratio was calculated. snr is a value in dB. */
         virtual void onSNR(float snr) = 0;
 
@@ -139,6 +141,8 @@ class RadioControllerInterface {
  */
 class ProgrammeHandlerInterface {
     public:
+        virtual ~ProgrammeHandlerInterface() { }
+
         /* Count the number of frame errors from the MP2, AAC or data
          * decoder.  */
         virtual void onFrameErrors(int frameErrors) = 0;

@@ -78,7 +78,7 @@ class WebRadioInterface : public RadioControllerInterface {
                 const std::string& base_dir,
                 DecodeSettings cs,
                 RadioReceiverOptions rro);
-        ~WebRadioInterface();
+        virtual ~WebRadioInterface();
         WebRadioInterface(const WebRadioInterface&) = delete;
         WebRadioInterface& operator=(const WebRadioInterface&) = delete;
 

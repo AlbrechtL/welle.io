@@ -24,9 +24,11 @@
  */
 #pragma once
 
+#include "radio-controller.h"
 #include "various/Socket.h"
-#include "backend/radio-receiver.h"
+#include <condition_variable>
 #include <cstdint>
+#include <list>
 #include <memory>
 #include <mutex>
 #include <chrono>
@@ -112,7 +114,7 @@ class WebProgrammeHandler : public ProgrammeHandlerInterface {
 
         WebProgrammeHandler(uint32_t serviceId, OutputCodec codec);
         WebProgrammeHandler(WebProgrammeHandler&& other);
-        ~WebProgrammeHandler();
+        virtual ~WebProgrammeHandler();
 
         void registerSender(ProgrammeSender *sender);
         void removeSender(ProgrammeSender *sender);
