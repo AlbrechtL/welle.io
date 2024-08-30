@@ -36,7 +36,7 @@ jobs:
       - name: Install build dependencies
         run: |
             set -x
-            sudo apt-get -y install build-essential sudo apt install libfaad-dev libmpg123-dev libfftw3-dev librtlsdr-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev libsoapysdr-dev libairspy-dev libmp3lame-dev libflac++-dev
+            sudo apt-get -y install build-essential libfaad-dev libmpg123-dev libfftw3-dev librtlsdr-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev libsoapysdr-dev libairspy-dev libmp3lame-dev libflac++-dev
      
       - name: Build
         id: build
