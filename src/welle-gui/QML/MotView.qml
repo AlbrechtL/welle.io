@@ -26,6 +26,7 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
+import QtQuick.Dialogs
 import QtCore
 
 import "texts"
@@ -168,7 +169,7 @@ ViewBaseFrame {
 
                             Connections{
                                 target: guiHelper
-                                function onMotChanged(pictureName) {
+                                function onMotChanged(pictureName, categoryTitle, categoryId, slideId) {
                                     latestPictureName = pictureName
 
                                     // Display slide show only of latest tab is select
