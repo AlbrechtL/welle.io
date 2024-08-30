@@ -10,11 +10,15 @@ on:
       - 'v*'
 
 jobs:
-  cmake:
-    name: Build with CMake
+  qtbuild:
+    name: Build with Qt
     runs-on: ubuntu-22.04
 
     steps:
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.7.2'
       - name: Checkout
         uses: actions/checkout@v3
 
@@ -22,55 +26,27 @@ jobs:
 
       - name: Set environment variables
         run: |
-          echo "ANDROID_NDK_MOUNT_DIR=${HOME}/android-ndk" >> $GITHUB_ENV
-          echo "LAST_COMMIT_HASH=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-          echo "LAST_COMMIT_DATE=$(git log -1 --date=format:%Y%m%d --format=%cd)" >> $GITHUB_ENV
-          echo "DEBEMAIL=none@domain.tld" >> $GITHUB_ENV
-          echo "DEBFULLNAME='Github Actions Android Builder for welle.io'" >> $GITHUB_ENV
           echo "DATE=`date +%Y%m%d`" >> $GITHUB_ENV
+          echo "GIT_HASH=`git rev-parse --short HEAD`" >> $GITHUB_ENV
           cat $GITHUB_ENV
 
       - name: Display environment variables
         run: env | sort
 
-        # qt6-charts-dev is not available in ubuntu 22.04, neither Debian bullseye.
-        # So we use the packages from a newer repository
-      - name: "Add repo having qt6-charts-dev"
-        run: |
-          if ! dpkg-query -W qt6-charts-dev; then
-            sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu/ lunar main universe" -y
-            # Update packages list
-            sudo apt-get update -qq
-          fi
-
       - name: Install build dependencies
         run: |
             set -x
-            sudo apt-get -y install build-essential cmake libairspy-dev libasound2-dev libfaad-dev libfftw3-dev libmp3lame-dev libmpg123-dev libpulse-dev libqt6opengl6-dev librtlsdr-dev libsoapysdr-dev qt6-base-dev qt6-charts-dev qt6-declarative-dev qt6-multimedia-dev
-            # Workarounds for packaging bugs
-            if dpkg --compare-versions $(dpkg-query -W qt6-charts-dev | cut -d "	" -f 2) lt 6.4.2-3; then
-              sudo apt-get -y install qml6-module-qtcharts
-            fi
-            if dpkg --compare-versions $(dpkg-query -W qt6-multimedia-dev | cut -d "	" -f 2) lt 6.4.2-5; then
-              sudo apt-get -y install qml6-module-qtquick3d-spatialaudio
-            fi
-
-      - name: Configure welle.io project
-        run: |
-            set -x
-            echo $PWD
-            mkdir -p build/install_root
-            cd build
-            cmake -DRTLSDR=1 -DSOAPYSDR=1 -DAIRSPY=1 -DCMAKE_INSTALL_PREFIX="$(realpath ./install_root)" ..
-
+            sudo apt-get -y install build-essential sudo apt install libfaad-dev libmpg123-dev libfftw3-dev librtlsdr-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev libsoapysdr-dev libairspy-dev libmp3lame-dev libflac++-dev
+     
       - name: Build
         id: build
         run: |
-            set -x
+            mkdir build
             cd build
+            qmake PREFIX=/usr ..
             make
-            make install
-            ls -lR install_root
+            cd ..
+            echo $PWD
 
       - name: Archive artifacts (welle.io build dir)
         if: always() && steps.build.outcome == 'failure'
