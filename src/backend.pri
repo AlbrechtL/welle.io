@@ -25,15 +25,15 @@ unix:!macx:!android: {
 }
 
 win32: {
-    contains(QT_ARCH, i386) {
-        LIBS    += -L../../../welle.io-win-libs/x86
+    contains(QT_ARCH, i386) { # DEPRECATED
+        LIBS    += -L..\..\..\..\..\welle.io-win-libs\x86
         LIBS    += -llibfaad
     }
     else {
-        LIBS    += -L../../../welle.io-win-libs/x64
+        LIBS    += -L..\..\..\..\..\welle.io-win-libs\x64
         CONFIG  += libfaad_builtin
     }
-    INCLUDEPATH += ../../../welle.io-win-libs/include
+    INCLUDEPATH += ..\..\..\welle.io-win-libs\include
     LIBS    += -lfftw3f-3
     LIBS    += -lole32
     LIBS    += -lwinpthread
