@@ -22,11 +22,11 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
- 
-import QtQuick 2.6
-import QtQuick.Controls 2.0
-import QtQuick.Layouts 1.1
-import QtCore 1.0
+
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+import QtCore
 
 // Import custom styles
 import "../texts"
