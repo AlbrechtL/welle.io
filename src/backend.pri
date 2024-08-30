@@ -26,8 +26,7 @@ unix:!macx:!android: {
 
 win32: {
     contains(QT_ARCH, i386) { # DEPRECATED
-        LIBS    += -L..\..\..\..\..\welle.io-win-libs\x86
-        LIBS    += -llibfaad
+        error("Win32 is not supported anymore")
     }
     else {
         LIBS    += -L..\..\..\..\..\welle.io-win-libs\x64
