@@ -49,6 +49,26 @@ jobs:
             cd ..
             echo $PWD
 
+      - name: Prepare welle-cli AppImage
+        id: prepare_app_image
+        run: |
+            find build/
+            mkdir -p ./appdir/usr/share/applications
+            cp welle-io.desktop ./appdir/usr/share/applications
+            mkdir -p ./appdir/usr/bin
+            cp build/src/welle-gui/welle-io ./appdir/usr/bin
+            mkdir -p ./appdir/usr/lib
+            mkdir -p ./appdir/usr/share/icons/hicolor/512x512/apps/
+            cp src/welle-gui/icons/icon.png appdir/usr/share/icons/hicolor/512x512/apps/welle-io.png
+      
+      - name: Create AppImage
+        id: create_appimage
+        run: |
+          wget -c https://github.com/$(wget -q https://github.com/probonopd/go-appimage/releases/expanded_assets/continuous -O - | grep "appimagetool-.*-x86_64.AppImage" | head -n 1 | cut -d '"' -f 2)
+          chmod +x appimagetool-*.AppImage
+          ./appimagetool-*.AppImage -s deploy ./appdir/usr/share/applications/*.desktop # Bundle EVERYTHING
+          VERSION=1.0 ./appimagetool-*.AppImage ./appdir # turn AppDir into AppImage
+        
       - name: Archive artifacts (welle.io build dir)
         if: always() && steps.build.outcome == 'failure'
         uses: actions/upload-artifact@v3
