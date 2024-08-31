@@ -27,21 +27,18 @@ jobs:
       - run: git fetch --prune --unshallow --tags
         
       - name: Preapre build
-        shell: cmd
         run: |
             echo Create datetime
-            for /f "tokens=2 delims==" %%G in ('wmic os get localdatetime /value') do set datetime=%%G
-            set year=%datetime:~0,4%
-            set month=%datetime:~4,2%
-            set day=%datetime:~6,2%
-            echo current_date=%year%%month%%day% >> $GITHUB_ENV
+            $current_date=$(Get-Date -Format 'yyyyMMdd')
+            "current_date=$current_date" >> $env:GITHUB_ENV
             
             echo Create git hash
-            for /f %%i in ('git -C %GITHUB_WORKSPACE% rev-parse --short HEAD') do set git_hash=%%i
-            echo git_hash=%git_hash% >> $GITHUB_ENV
+            git_hash=$(git -C . rev-parse --short HEAD)
+            "git_hash=$git_hash" >> $env:GITHUB_ENV
             
             echo Create version
-            echo file_version=%current_date%_%git_hash% >> $GITHUB_ENV
+            $file_version=$current_date_$git_hash
+            "file_version=$file_version" >> $$env:GITHUB_ENV
             
             echo Create a build directory
             cd ..\
