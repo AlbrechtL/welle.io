@@ -42,9 +42,11 @@ jobs:
             
             echo "Create a build directory"
             md build
+            cd build
+            md release
             
             echo "Get all headers and DLLs for the build"
-            cd ..
+            cd ../..
             git clone https://github.com/AlbrechtL/welle.io-win-libs.git
 
       - name: Display environment variables
@@ -54,8 +56,8 @@ jobs:
       - name: Build
         id: build
         run: |
-            cd build
-            qmake ..
+            cd build/release
+            qmake ../..
             mingw32-make
         
       - name: Archive artifacts (welle.io build dir)
