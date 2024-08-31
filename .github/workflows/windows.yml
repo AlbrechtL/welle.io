@@ -34,13 +34,13 @@ jobs:
             set year=%datetime:~0,4%
             set month=%datetime:~4,2%
             set day=%datetime:~6,2%
-            set current_date=%year%%month%%day% >> $GITHUB_ENV
+            set current_date=%year%%month%%day% >> $env::GITHUB_ENV
             
             echo Create git hash
-            for /f %%i in ('git -C %GITHUB_WORKSPACE% rev-parse --short HEAD') do set git_hash=%%i >> $GITHUB_ENV
+            for /f %%i in ('git -C %GITHUB_WORKSPACE% rev-parse --short HEAD') do set git_hash=%%i >> $env::GITHUB_ENV
             
             echo Create version
-            set file_version=%current_date%_%git_hash% >> $GITHUB_ENV
+            set file_version=%current_date%_%git_hash% >> $env::GITHUB_ENV
             
             echo Create a build directory
             cd ..\
