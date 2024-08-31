@@ -28,23 +28,23 @@ jobs:
         
       - name: Preapre build
         run: |
-            echo Create datetime
+            echo "Create datetime"
             $current_date=$(Get-Date -Format 'yyyyMMdd')
             "current_date=$current_date" >> $env:GITHUB_ENV
             
-            echo Create git hash
+            echo "Create git hash"
             $git_hash=$(git -C . rev-parse --short HEAD)
             "git_hash=$git_hash" >> $env:GITHUB_ENV
             
-            echo Create version
+            echo "Create version"
             $file_version="$($current_date)_$($git_hash)"
             "file_version=$file_version" >> $env:GITHUB_ENV
             
-            echo Create a build directory
+            echo "Create a build directory"
             cd ..\
             md build
             
-            REM Get all headers and DLLs for the build
+            echo "Get all headers and DLLs for the build"
             git clone https://github.com/AlbrechtL/welle.io-win-libs.git
 
       - name: Display environment variables
