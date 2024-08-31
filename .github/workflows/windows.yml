@@ -41,7 +41,7 @@ jobs:
             set current_date=%year%%month%%day%
             
             echo Create git hash
-            for /f %%i in ('git -C C:\projects\welle-io\ rev-parse --short HEAD') do set git_hash=%%i
+            for /f %%i in ('git -C %RUNNER_WORKSPACE% rev-parse --short HEAD') do set git_hash=%%i
             
             echo Create version
             set file_version=%current_date%_%git_hash%
