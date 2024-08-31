@@ -26,28 +26,36 @@ jobs:
 
       - run: git fetch --prune --unshallow --tags
 
+      - name: Display environment variables
+        run: | 
+          Get-ChildItem Env:
+        
       - name: Preapre build
         shell: cmd
         run: |
-            # Create datetime
+            echo Create datetime
             for /f "tokens=2 delims==" %%G in ('wmic os get localdatetime /value') do set datetime=%%G
             set year=%datetime:~0,4%
             set month=%datetime:~4,2%
             set day=%datetime:~6,2%
             set current_date=%year%%month%%day%
-            # Create git hash
+            
+            echo Create git hash
             for /f %%i in ('git -C C:\projects\welle-io\ rev-parse --short HEAD') do set git_hash=%%i
-            # Create version
+            
+            echo Create version
             set file_version=%current_date%_%git_hash%
-            Create a build directory
+            
+            echo Create a build directory
             cd ..\
             md build
-            # Get all headers and DLLs for the build
+            
+            REM Get all headers and DLLs for the build
             git clone https://github.com/AlbrechtL/welle.io-win-libs.git
-
      
       - name: Build
         id: build
+        shell: cmd
         run: |
             cd build
             qmake ..\welle-io
