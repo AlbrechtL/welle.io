@@ -53,10 +53,9 @@ jobs:
      
       - name: Build
         id: build
-        shell: cmd
         run: |
             cd build
-            qmake ..\welle-io
+            qmake ..
             mingw32-make
         
       - name: Archive artifacts (welle.io build dir)
