@@ -27,6 +27,7 @@ jobs:
       - run: git fetch --prune --unshallow --tags
 
       - name: Preapre build
+        shell: cmd
         run: |
             # Create datetime
             for /f "tokens=2 delims==" %%G in ('wmic os get localdatetime /value') do set datetime=%%G
