@@ -57,7 +57,7 @@ jobs:
         id: build
         run: |
             cd build/release
-            qmake ../..
+            qmake-qt6 ../..
             mingw32-make
         
       - name: Archive artifacts (welle.io build dir)
