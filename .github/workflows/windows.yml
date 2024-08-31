@@ -33,7 +33,7 @@ jobs:
             "current_date=$current_date" >> $env:GITHUB_ENV
             
             echo Create git hash
-            git_hash=$(git -C . rev-parse --short HEAD)
+            $git_hash=$(git -C . rev-parse --short HEAD)
             "git_hash=$git_hash" >> $env:GITHUB_ENV
             
             echo Create version
