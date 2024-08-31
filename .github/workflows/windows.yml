@@ -41,7 +41,6 @@ jobs:
             "file_version=$file_version" >> $env:GITHUB_ENV
             
             echo "Create a build directory"
-            cd ..\
             md build
             
             echo "Get all headers and DLLs for the build"
