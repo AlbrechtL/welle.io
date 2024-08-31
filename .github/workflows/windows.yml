@@ -37,7 +37,7 @@ jobs:
             "git_hash=$git_hash" >> $env:GITHUB_ENV
             
             echo Create version
-            $file_version=$current_date_$git_hash
+            $file_version="$($current_date)_$($git_hash)"
             "file_version=$file_version" >> $$env:GITHUB_ENV
             
             echo Create a build directory
