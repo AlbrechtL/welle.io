@@ -44,6 +44,7 @@ jobs:
             md build
             
             echo "Get all headers and DLLs for the build"
+            cd ..
             git clone https://github.com/AlbrechtL/welle.io-win-libs.git
 
       - name: Display environment variables
