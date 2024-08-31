@@ -1,0 +1,61 @@
+name: Windows build
+
+on:
+  push:
+    branches:
+      - master
+      - next
+      - 'next*'
+    tags:
+      - 'v*'
+
+jobs:
+  qtbuild:
+    name: Build with Qt
+    runs-on: windows-latest
+
+    steps:
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.7.2'
+          modules: 'qtcharts qtmultimedia'
+          arch: 'win64_mingw'
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - run: git fetch --prune --unshallow --tags
+
+      - name: Preapre build
+        run: |
+            # Create datetime
+            for /f "tokens=2 delims==" %%G in ('wmic os get localdatetime /value') do set datetime=%%G
+            set year=%datetime:~0,4%
+            set month=%datetime:~4,2%
+            set day=%datetime:~6,2%
+            set current_date=%year%%month%%day%
+            # Create git hash
+            for /f %%i in ('git -C C:\projects\welle-io\ rev-parse --short HEAD') do set git_hash=%%i
+            # Create version
+            set file_version=%current_date%_%git_hash%
+            Create a build directory
+            cd ..\
+            md build
+            # Get all headers and DLLs for the build
+            git clone https://github.com/AlbrechtL/welle.io-win-libs.git
+
+     
+      - name: Build
+        id: build
+        run: |
+            cd build
+            qmake ..\welle-io
+            mingw32-make
+        
+      - name: Archive artifacts (welle.io build dir)
+        if: always() && steps.build.outcome == 'failure'
+        uses: actions/upload-artifact@v3
+        with:
+          name: welle.io build dir
+          path: build/*
+          if-no-files-found: error
