@@ -10,7 +10,7 @@ if(!contains(CUR_VERSION, .*[a-zA-Z\-\ ].*)) {
 }
 DEFINES += CURRENT_VERSION=$$shell_quote(\"$$CUR_VERSION\")
 
-QT += quickcontrols2 qml quick charts multimedia dbus
+QT += core gui quickcontrols2 qml quick charts multimedia dbus
 
 RC_ICONS   =    icons/icon.ico
 RESOURCES +=    resources.qrc
