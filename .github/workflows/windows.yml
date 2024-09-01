@@ -52,25 +52,31 @@ jobs:
       - name: Create installer
         id: create_installer
         run: |
-            Write-Host "*** Create new bin folder ***" -ForegroundColor Red
+            echo "*** Create new bin folder ***"
             New-Item -ItemType directory -Path installer
             
-            Write-Host "*** Copy non QT DLLs from welle.io-win-libs repository ***" -ForegroundColor Red
+            echo "*** Copy non QT DLLs from welle.io-win-libs repository ***"
             Copy-Item ..\welle.io-win-libs\x64\*.dll installer  -recurse
+            Copy-Item ..\welle.io-win-libs\zadig*.exe installer
             
-            Write-Host "*** Copy welle-io binary files ***" -ForegroundColor Red
+            echo "*** Copy welle-io binary files ***"
             Copy-Item build\release\src\welle-gui\release\welle-io.exe installer
             
             # Deploy QT and related plugins
-            Write-Host "*** Deploy QT and related plugins ***" -ForegroundColor Red
+            echo "*** Deploy QT and related plugins ***"
             & windeployqt installer\welle-io.exe --qmldir src\welle-gui\QML\ --no-translations
 
-            echo "Create filename"
+            # For some reason windeployqt deploys the wrong DLLs
+            Copy-Item $QT_ROOT_DIR\libgcc_s_seh-1.dll installer
+            Copy-Item $QT_ROOT_DIR\libwinpthread-1.dll installer
+            Copy-Item $QT_ROOT_DIR\libstdc++-6.dll installer
+
+            echo ""*** Create filename "***"
             $current_date=$(Get-Date -Format 'yyyyMMdd')
             $git_hash=$(git -C . rev-parse --short HEAD)
             $Filename = $current_date + "_" + $git_hash + "_Windows_welle-io-setup_x64"
 
-            # Run InnoSetup
+            echo ""*** Run InnoSetup "***"
             & ISCC /O.\ /F$Filename windows/installer.iss
 
       - name: Archive artifacts (welle.io Windows installer)
