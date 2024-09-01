@@ -28,19 +28,7 @@ jobs:
       - run: git fetch --prune --unshallow --tags
         
       - name: Preapre build
-        run: |
-            echo "Create datetime"
-            $current_date=$(Get-Date -Format 'yyyyMMdd')
-            "current_date=$current_date" >> $env:GITHUB_ENV
-            
-            echo "Create git hash"
-            $git_hash=$(git -C . rev-parse --short HEAD)
-            "git_hash=$git_hash" >> $env:GITHUB_ENV
-            
-            echo "Create version"
-            $file_version="$($current_date)_$($git_hash)"
-            "file_version=$file_version" >> $env:GITHUB_ENV
-            
+        run: |            
             echo "Create a build directory"
             md build
             cd build
@@ -59,8 +47,31 @@ jobs:
         run: |
             cd build/release
             qmake ../..
-            mingw32-make
-        
+            mingw32-make -j4
+
+      - name: Create installer
+        run: |
+            Write-Host "*** Create new bin folder ***" -ForegroundColor Red
+            New-Item -ItemType directory -Path installer
+            
+            Write-Host "*** Copy non QT DLLs from welle.io-win-libs repository ***" -ForegroundColor Red
+            Copy-Item ..\welle.io-win-libs\x64\*.dll installer  -recurse
+            
+            Write-Host "*** Copy welle-io binary files ***" -ForegroundColor Red
+            Copy-Item build\release\src\welle-gui\welle-io.exe installer
+            
+            # Deploy QT and related plugins
+            Write-Host "*** Deploy QT and related plugins ***" -ForegroundColor Red
+            & windeployqt installer\welle-io.exe --qmldir src\welle-gui\QML\ --no-translations
+
+            echo "Create filename"
+            $current_date=$(Get-Date -Format 'yyyyMMdd')
+            $git_hash=$(git -C . rev-parse --short HEAD)
+            $Filename = $current_date + "_" + $git_hash + "_Windows_welle-io-setup_x64"
+
+            # Run InnoSetup
+            & "ISCC" "/F$Filename" "windows/installer.iss"
+
       - name: Archive artifacts (welle.io build dir)
         if: always() && steps.build.outcome == 'failure'
         uses: actions/upload-artifact@v3
