@@ -60,7 +60,8 @@ jobs:
             cp build/src/welle-gui/welle-io ./appdir/usr/bin
             mkdir -p ./appdir/usr/lib
             mkdir -p ./appdir/usr/share/icons/hicolor/512x512/apps/
-            cp src/welle-gui/icons/icon.png appdir/usr/share/icons/hicolor/512x512/apps/welle-io.png
+            cp src/welle-gui/icons/icon.png ./appdir/usr/share/icons/hicolor/512x512/apps/welle-io.png
+            find appdir/
       
       - name: Create AppImage
         id: create_appimage
