@@ -16,13 +16,14 @@ UninstallDisplayIcon={app}\welle-io.exe
 Compression=lzma2
 SolidCompression=yes
 OutputDir=.
-; "ArchitecturesAllowed=x64" specifies that Setup cannot run on
-; anything but x64.
-ArchitecturesAllowed=x64
-; "ArchitecturesInstallIn64BitMode=x64" requests that the install be
-; done in "64-bit mode" on x64, meaning it should use the native
-; 64-bit Program Files directory and the 64-bit view of the registry.
-ArchitecturesInstallIn64BitMode=x64
+; "ArchitecturesAllowed=x64compatible" specifies that Setup cannot run
+; on anything but x64 and Windows 11 on Arm.
+ArchitecturesAllowed=x64compatible
+; "ArchitecturesInstallIn64BitMode=x64compatible" requests that the
+; install be done in "64-bit mode" on x64 or Windows 11 on Arm,
+; meaning it should use the native 64-bit Program Files directory and
+; the 64-bit view of the registry.
+ArchitecturesInstallIn64BitMode=x64compatible
 OutputBaseFilename=welle-io_install_x64
 LicenseFile=..\COPYING
 SetupIconFile=..\src\welle-gui\icons\icon.ico

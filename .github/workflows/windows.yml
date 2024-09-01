@@ -71,7 +71,10 @@ jobs:
             $Filename = $current_date + "_" + $git_hash + "_Windows_welle-io-setup_x64"
 
             # Run InnoSetup
-            & "ISCC" "/F..\$Filename" "windows/installer.iss"
+            & ISCC /O..\  /F$Filename windows/installer.iss
+
+            # Copy installer ()
+            cp
 
       - name: Archive artifacts (welle.io Windows installer)
         if: always() && steps.create_installer.outcome == 'success'
