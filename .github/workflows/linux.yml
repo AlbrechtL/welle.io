@@ -29,6 +29,7 @@ jobs:
         run: |
           echo "DATE=`date +%Y%m%d`" >> $GITHUB_ENV
           echo "GIT_HASH=`git rev-parse --short HEAD`" >> $GITHUB_ENV
+          echo "QTDIR=$QT_ROOT_DIR" >> $GITHUB_ENV
           cat $GITHUB_ENV
 
       - name: Display environment variables
@@ -45,7 +46,7 @@ jobs:
             mkdir build
             cd build
             qmake PREFIX=/usr ..
-            make
+            make -j4
             cd ..
             echo $PWD
 
