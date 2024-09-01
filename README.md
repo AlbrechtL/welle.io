@@ -1,7 +1,8 @@
 [welle.io](https://www.welle.io)
 =====================
-- Linux, macOS (Travis): [![Travis Build Status](https://app.travis-ci.com/AlbrechtL/welle.io.svg?branch=next)](https://app.travis-ci.com/AlbrechtL/welle.io)
-- Windows (AppVeyor): [![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/yipsu95pb4ecdofe?svg=true)](https://ci.appveyor.com/project/AlbrechtL/welle-io)
+- Linux (AppImage): [![Linux build](https://github.com/AlbrechtL/welle.io/actions/workflows/linux.yml/badge.svg)](https://github.com/AlbrechtL/welle.io/actions/workflows/linux.yml)
+- Windows (Installer): [![Windows build](https://github.com/AlbrechtL/welle.io/actions/workflows/windows.yml/badge.svg)](https://github.com/AlbrechtL/welle.io/actions/workflows/windows.yml)
+- Android (APK): [![Android build](https://github.com/AlbrechtL/welle.io/actions/workflows/android.yml/badge.svg)](https://github.com/AlbrechtL/welle.io/actions/workflows/android.yml)
 
 This repository contains the implementation of an SDR DAB/DAB+ receiver.  
 Please see the project website https://www.welle.io for a user oriented documentation. 
