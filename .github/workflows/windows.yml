@@ -58,7 +58,7 @@ jobs:
             Copy-Item ..\welle.io-win-libs\x64\*.dll installer  -recurse
             
             Write-Host "*** Copy welle-io binary files ***" -ForegroundColor Red
-            Copy-Item build\release\src\welle-gui\welle-io.exe installer
+            Copy-Item build\release\src\welle-gui\release\welle-io.exe installer
             
             # Deploy QT and related plugins
             Write-Host "*** Deploy QT and related plugins ***" -ForegroundColor Red
