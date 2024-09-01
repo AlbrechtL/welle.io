@@ -67,9 +67,9 @@ jobs:
             & windeployqt installer\welle-io.exe --qmldir src\welle-gui\QML\ --no-translations
 
             # For some reason windeployqt deploys the wrong DLLs
-            Copy-Item $Env:QT_ROOT_DIR\libgcc_s_seh-1.dll installer
-            Copy-Item $Env:QT_ROOT_DIR\libwinpthread-1.dll installer
-            Copy-Item $Env:QT_ROOT_DIR\libstdc++-6.dll installer
+            Copy-Item $Env:QT_ROOT_DIR\bin\libgcc_s_seh-1.dll installer
+            Copy-Item $Env:QT_ROOT_DIR\bin\libwinpthread-1.dll installer
+            Copy-Item $Env:QT_ROOT_DIR\bin\libstdc++-6.dll installer
 
             echo ""*** Create filename "***"
             $current_date=$(Get-Date -Format 'yyyyMMdd')

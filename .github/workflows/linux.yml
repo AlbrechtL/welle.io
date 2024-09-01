@@ -50,7 +50,7 @@ jobs:
             cd ..
             echo $PWD
 
-      - name: Prepare welle-cli AppImage
+      - name: Prepare welle-io AppImage
         id: prepare_app_image
         run: |
             find build/
