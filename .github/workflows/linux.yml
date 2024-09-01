@@ -19,7 +19,7 @@ jobs:
         uses: jurplel/install-qt-action@v4
         with:
           version: '6.7.2'
-          modules: 'qtcharts qtmultimedia qt5compat'
+          modules: 'qtcharts qtmultimedia qt5compat qtshadertools'
       - name: Checkout
         uses: actions/checkout@v3
 
