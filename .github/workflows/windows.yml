@@ -50,6 +50,7 @@ jobs:
             mingw32-make -j4
 
       - name: Create installer
+        id: create_installer
         run: |
             Write-Host "*** Create new bin folder ***" -ForegroundColor Red
             New-Item -ItemType directory -Path installer
@@ -73,7 +74,7 @@ jobs:
             & "ISCC" "/F$Filename" "windows/installer.iss"
 
       - name: Archive artifacts (welle.io Windows installer)
-        if: always() && steps.build.outcome == 'failure'
+        if: always() && steps.create_installer.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: welle.io Windows installer
