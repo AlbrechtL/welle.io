@@ -72,10 +72,10 @@ jobs:
             # Run InnoSetup
             & "ISCC" "/F$Filename" "windows/installer.iss"
 
-      - name: Archive artifacts (welle.io build dir)
+      - name: Archive artifacts (welle.io Windows installer)
         if: always() && steps.build.outcome == 'failure'
         uses: actions/upload-artifact@v4
         with:
-          name: welle.io build dir
-          path: *.exe
+          name: welle.io Windows installer
+          path: .\*.exe
           if-no-files-found: error

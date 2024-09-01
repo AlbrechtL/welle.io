@@ -71,10 +71,10 @@ jobs:
           ./appimagetool-*.AppImage -s deploy ./appdir/usr/share/applications/*.desktop # Bundle EVERYTHING
           VERSION=1.0 ./appimagetool-*.AppImage ./appdir # turn AppDir into AppImage
         
-      - name: Archive artifacts (welle.io build dir)
+      - name: Archive artifacts (welle.io AppImage)
         if: always() && steps.build.outcome == 'failure'
         uses: actions/upload-artifact@v4
         with:
-          name: welle.io build dir
-          path: *.AppImage
+          name: welle.io AppImage
+          path: ./*.AppImage
           if-no-files-found: error
