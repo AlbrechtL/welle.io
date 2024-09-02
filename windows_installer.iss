@@ -6,8 +6,6 @@
 
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING .ISS SCRIPT FILES!
 
-#include "CodeDependencies.iss"
-
 [Setup]
 AppName=welle.io
 AppVersion=2.5-dev
