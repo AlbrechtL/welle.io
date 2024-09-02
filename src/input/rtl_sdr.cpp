@@ -45,7 +45,13 @@
 #define READLEN_DEFAULT 8192
 
 // Fallback if function is not defined in shared lib
-int __attribute__((weak)) rtlsdr_set_bias_tee(rtlsdr_dev_t *dev, int on);
+int __attribute__((weak)) rtlsdr_set_bias_tee(rtlsdr_dev_t *dev, int on)
+{
+    (void) dev;
+    (void) on;
+    std::clog << "RTL_SDR: " << "Error: rtlsdr_set_bias_tee() not defined!" << std::endl;
+    return false;
+}
 
 CRTL_SDR::CRTL_SDR(RadioControllerInterface& radioController) :
     radioController(radioController),
@@ -230,14 +236,9 @@ bool CRTL_SDR::setDeviceParam(DeviceParam param, int value)
 {
     switch(param) {
         case DeviceParam::BiasTee:
-        if(rtlsdr_set_bias_tee)
         {
             std::clog << "RTL_SDR: "<< "Set bias tee to " << value << std::endl;
             rtlsdr_set_bias_tee(device, value);
-        }
-        else
-        {
-            std::clog << "RTL_SDR: " << "Error: rtlsdr_set_bias_tee() not defined!" << std::endl;
         }
         return true;
 
