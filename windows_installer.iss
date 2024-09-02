@@ -31,7 +31,7 @@ LicenseFile=COPYING
 SetupIconFile=src\welle-gui\icons\icon.ico
 
 [Files]
-Source: "installer/*"; DestDir: "{app}"; Flags: recursesubdirs
+Source: "installer/*"; DestDir: "{app}"; Flags: recursesubdirs ignoreversion
 
 [Icons]
 Name: "{group}\welle.io"; Filename: "{app}\welle-io.exe"
