@@ -25,8 +25,8 @@ ArchitecturesAllowed=x64compatible
 ; the 64-bit view of the registry.
 ArchitecturesInstallIn64BitMode=x64compatible
 OutputBaseFilename=welle-io_install_x64
-LicenseFile=..\COPYING
-SetupIconFile=..\src\welle-gui\icons\icon.ico
+LicenseFile=COPYING
+SetupIconFile=src\welle-gui\icons\icon.ico
 
 [Files]
 Source: "..\installer/*"; DestDir: "{app}"; Flags: recursesubdirs
