@@ -63,6 +63,7 @@ int main(int argc, char** argv)
 
     // Create new QT application
     QApplication app(argc, argv);
+    qDebug() << "main: Platform name" <<  app.platformName();
 
     //Initialise translation
     QTranslator *translator = new QTranslator;
@@ -85,7 +86,7 @@ int main(int argc, char** argv)
 
     // Handle the command line
     QCommandLineParser optionParser;
-    optionParser.setApplicationDescription("welle.io is an open source DAB and DAB+ software defined radio (SDR) with support for rtl-sdr (RTL2832U) and airspy. It supports high DPI and touch displays and it runs even on cheap computers like Raspberry Pi 2/3 and 100€ China Windows 10 tablets.");
+    optionParser.setApplicationDescription("welle.io is an open source DAB and DAB+ software defined radio (SDR) with support for rtl-sdr (RTL2832U), airspy and SoapySDR.");
     optionParser.addHelpOption();
     optionParser.addVersionOption();
 
