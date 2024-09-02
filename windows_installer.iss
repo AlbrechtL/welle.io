@@ -6,9 +6,11 @@
 
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING .ISS SCRIPT FILES!
 
+#define GitHash "unkonwn_git_hash"
+
 [Setup]
 AppName=welle.io
-AppVersion=2.5-dev
+AppVersion=2.5-{#GitHash}
 WizardStyle=modern
 DefaultDirName={autopf}\welle.io
 DefaultGroupName=welle.io

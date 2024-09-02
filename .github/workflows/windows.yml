@@ -78,7 +78,7 @@ jobs:
             $Filename = $current_date + "_" + $git_hash + "_Windows_welle-io-setup_x64"
 
             echo ""*** Run InnoSetup "***"
-            & ISCC /O.\ /F$Filename windows_installer.iss
+            & ISCC /O.\ /F$Filename /DGitHash=$git_hash windows_installer.iss
 
       - name: Archive artifacts (welle.io Windows installer)
         if: always() && steps.create_installer.outcome == 'success'
