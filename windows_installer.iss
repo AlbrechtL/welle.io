@@ -35,5 +35,6 @@ Source: "installer/*"; DestDir: "{app}"; Flags: recursesubdirs
 Name: "{group}\welle.io"; Filename: "{app}\welle-io.exe"
 
 [Run]
-Filename: "{app}\welle-io.exe"; Description: {cm:LaunchProgram,{cm:AppName}}; Flags: nowait postinstall skipifsilent
+Filename: "{app}\welle-io.exe"; Description: "Start welle.io after finishing installation"; Flags: nowait postinstall skipifsilent
+
 
