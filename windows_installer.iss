@@ -6,6 +6,8 @@
 
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING .ISS SCRIPT FILES!
 
+#include "CodeDependencies.iss"
+
 [Setup]
 AppName=welle.io
 AppVersion=2.5-dev
@@ -35,6 +37,5 @@ Source: "installer/*"; DestDir: "{app}"; Flags: recursesubdirs
 Name: "{group}\welle.io"; Filename: "{app}\welle-io.exe"
 
 [Run]
-Filename: "{app}\welle-io.exe"; Description: "Start welle.io after finishing installation"; Flags: nowait postinstall skipifsilent
-
-
+Filename: {app}\vcredist_x64_2010.exe; Parameters: "/quiet /norestart"; StatusMsg: "Installing VC++ 2010 Redistributables..."
+Filename: "{app}\welle-io.exe"; Description: "Start welle.io after finishing installation."; Flags: nowait postinstall skipifsilent

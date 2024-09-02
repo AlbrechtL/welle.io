@@ -56,7 +56,8 @@ jobs:
             New-Item -ItemType directory -Path installer
             
             echo "*** Copy non QT DLLs from welle.io-win-libs repository ***"
-            Copy-Item ..\welle.io-win-libs\x64\*.dll installer  -recurse
+            Copy-Item ..\welle.io-win-libs\x64\*.dll installer -recurse # Libs
+            Copy-Item ..\welle.io-win-libs\x64\*.exe installer -recurse # Microsoft Visual C++ Redistributable 
             Copy-Item ..\welle.io-win-libs\zadig*.exe installer
             
             echo "*** Copy welle-io binary files ***"
