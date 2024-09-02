@@ -6,7 +6,7 @@
 
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING .ISS SCRIPT FILES!
 
-#define GitHash "unkonwn_git_hash"
+; #define GitHash "unkonwn_git_hash"
 
 [Setup]
 AppName=welle.io
