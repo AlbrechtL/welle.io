@@ -29,7 +29,7 @@ jobs:
         run: |
           echo "DATE=`date +%Y%m%d`" >> $GITHUB_ENV
           echo "GIT_HASH=`git rev-parse --short HEAD`" >> $GITHUB_ENV
-          echo "QTDIR=$QT_ROOT_DIR" >> $GITHUB_ENV
+          #echo "QTDIR=$QT_ROOT_DIR" >> $GITHUB_ENV
           cat $GITHUB_ENV
 
       - name: Display environment variables
@@ -67,7 +67,8 @@ jobs:
         id: create_appimage
         run: |
           # Get appimagetool
-          wget -c https://github.com/$(wget -q https://github.com/probonopd/go-appimage/releases/expanded_assets/continuous -O - | grep "appimagetool-.*-x86_64.AppImage" | head -n 1 | cut -d '"' -f 2)
+          # wget -c https://github.com/$(wget -q https://github.com/probonopd/go-appimage/releases/expanded_assets/continuous -O - | grep "appimagetool-.*-x86_64.AppImage" | head -n 1 | cut -d '"' -f 2)
+          wget https://welle-io-nightlies.albrechtloh.de/appimagetool-841-x86_64.AppImage # just for testing
           chmod +x appimagetool-*.AppImage
 
           # Create AppImage
