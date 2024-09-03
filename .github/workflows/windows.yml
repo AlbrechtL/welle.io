@@ -52,8 +52,9 @@ jobs:
       - name: Create installer
         id: create_installer
         run: |
-            echo "*** Create new bin folder ***"
+            echo "*** Create new folders ***"
             New-Item -ItemType directory -Path installer
+            New-Item -ItemType directory -Path publish
             
             echo "*** Copy non QT DLLs from welle.io-win-libs repository ***"
             Copy-Item ..\welle.io-win-libs\x64\*.dll installer -recurse # Libs
@@ -78,12 +79,21 @@ jobs:
             $Filename = $current_date + "_" + $git_hash + "_Windows_welle-io-setup_x64"
 
             echo ""*** Run InnoSetup "***"
-            & ISCC /O.\ /F$Filename /DGitHash=$git_hash windows_installer.iss
+            & ISCC /Opublish\ /F$Filename /DGitHash=$git_hash windows_installer.iss
 
       - name: Archive artifacts (welle.io Windows installer)
         if: always() && steps.create_installer.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: welle.io Windows installer
-          path: .\*.exe
+          path: publish\*.exe
           if-no-files-found: error
+
+      - name: Upload to nightly server
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: welle-io-nightlies.albrechtloh.de
+          protocol: ftps
+          username: ${{ secrets.SFTP_USER }}
+          password: ${{ secrets.SFTP_PASSWORD }}
+          local-dir: publish\
