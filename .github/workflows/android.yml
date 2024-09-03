@@ -346,7 +346,7 @@ jobs:
           secure: true
           username: ${{ secrets.SFTP_USER }}
           password: ${{ secrets.SFTP_PASSWORD }}
-          local-dir: publish/
+          local_dir: publish/
 
       - name: Build with qmake
         id: build_apk_qmake

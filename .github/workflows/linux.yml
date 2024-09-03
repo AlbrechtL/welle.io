@@ -94,4 +94,4 @@ jobs:
           secure: true
           username: ${{ secrets.SFTP_USER }}
           password: ${{ secrets.SFTP_PASSWORD }}
-          local-dir: publish/
+          local_dir: publish/
