@@ -90,7 +90,7 @@ jobs:
         if: always() && steps.create_appimage.outcome == 'success'
         uses: dennisameling/ftp-upload-action@v1
         with:
-          server: hosting107625.a2f24.netcup.net # welle-io-nightlies.albrechtloh.de is redirected to here
+          server: a2f24.netcup.net # welle-io-nightlies.albrechtloh.de is redirected to here
           secure: true
           username: ${{ secrets.SFTP_USER }}
           password: ${{ secrets.SFTP_PASSWORD }}
