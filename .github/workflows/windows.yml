@@ -91,10 +91,10 @@ jobs:
 
       - name: Upload to nightly server
         if: always() && steps.create_installer.outcome == 'success'
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        uses: dennisameling/ftp-upload-action@v1
         with:
           server: welle-io-nightlies.albrechtloh.de
-          protocol: ftps
+          secure: true
           username: ${{ secrets.SFTP_USER }}
           password: ${{ secrets.SFTP_PASSWORD }}
           local-dir: publish/
