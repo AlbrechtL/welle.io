@@ -333,14 +333,20 @@ jobs:
             cmake --build "build" --parallel
             ls -al build/android-build/build/outputs/apk/*/*.apk
 
-      - name: Upload to nightlies server
-        env:
-          SFTP_USER: ${{ secrets.SFTP_USER }}
-          SFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD }}
-        if: always() && steps.build_apk.outcome == 'success' && env.SFTP_USER != '' && env.SFTP_PASSWORD != ''
-        run: |
-          sudo apt-get -y install sshpass
-          sshpass -p "${SFTP_PASSWORD}" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null build/android-build/build/outputs/apk/*/*.apk "${SFTP_USER}"@welle-io-nightlies.albrechtloh.de:/welle-io-nightlies.albrechtloh.de/${DATE}_${LAST_COMMIT_HASH}_Android_welle-io.apk
+            # prepare the publish
+            mkdir publish
+            cp build/android-build/build/outputs/apk/*/*.apk publish/${DATE}_${LAST_COMMIT_HASH}_Android_welle-io.apk
+            find publish/
+
+      - name: Upload to nightly server
+        if: always() && steps.build_apk.outcome == 'success'
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: welle-io-nightlies.albrechtloh.de
+          protocol: ftps
+          username: ${{ secrets.SFTP_USER }}
+          password: ${{ secrets.SFTP_PASSWORD }}
+          local-dir: publish/
 
       - name: Build with qmake
         id: build_apk_qmake

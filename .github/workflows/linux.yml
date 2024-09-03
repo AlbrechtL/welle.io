@@ -66,16 +66,32 @@ jobs:
       - name: Create AppImage
         id: create_appimage
         run: |
+          # Get appimagetool
           wget -c https://github.com/$(wget -q https://github.com/probonopd/go-appimage/releases/expanded_assets/continuous -O - | grep "appimagetool-.*-x86_64.AppImage" | head -n 1 | cut -d '"' -f 2)
           chmod +x appimagetool-*.AppImage
+
+          # Create AppImage
           ./appimagetool-*.AppImage -s deploy ./appdir/usr/share/applications/*.desktop # Bundle EVERYTHING
           VERSION=1.0 ./appimagetool-*.AppImage ./appdir # turn AppDir into AppImage
-          mv welle.io-1.0-x86_64.AppImage "$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.AppImage
+
+          # Preapre publish
+          mkdir publish
+          mv welle.io-1.0-x86_64.AppImage publish/"$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.AppImage
         
       - name: Archive artifacts (welle.io AppImage)
         if: always() && steps.create_appimage.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: welle.io AppImage
-          path: ./*welle-io-x86_64.AppImage
+          path: publish/*welle-io-x86_64.AppImage
           if-no-files-found: error
+
+      - name: Upload to nightly server
+        if: always() && steps.create_appimage.outcome == 'success'
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: welle-io-nightlies.albrechtloh.de
+          protocol: ftps
+          username: ${{ secrets.SFTP_USER }}
+          password: ${{ secrets.SFTP_PASSWORD }}
+          local-dir: publish/
