@@ -90,10 +90,11 @@ jobs:
           if-no-files-found: error
 
       - name: Upload to nightly server
+        if: always() && steps.create_installer.outcome == 'success'
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: welle-io-nightlies.albrechtloh.de
           protocol: ftps
           username: ${{ secrets.SFTP_USER }}
           password: ${{ secrets.SFTP_PASSWORD }}
-          local-dir: publish\
+          local-dir: publish/
