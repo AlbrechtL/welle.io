@@ -68,7 +68,7 @@ jobs:
         run: |
           # Get appimagetool
           # wget -c https://github.com/$(wget -q https://github.com/probonopd/go-appimage/releases/expanded_assets/continuous -O - | grep "appimagetool-.*-x86_64.AppImage" | head -n 1 | cut -d '"' -f 2)
-          wget https://welle-io-nightlies.albrechtloh.de/appimagetool-841-x86_64.AppImage # just for testing
+          wget https://welle-io-nightlies.albrechtloh.de/appimagetool-843-x86_64.AppImage # just for testing
           chmod +x appimagetool-*.AppImage
 
           # Create AppImage
