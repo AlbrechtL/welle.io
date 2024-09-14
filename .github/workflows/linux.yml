@@ -73,6 +73,8 @@ jobs:
 
           # Create AppImage
           ./appimagetool-*.AppImage -s deploy ./appdir/usr/share/applications/*.desktop # Bundle EVERYTHING
+          find appdir/
+          grep -r 'Could not initialize GLX' ./appdir
           VERSION=1.0 ./appimagetool-*.AppImage ./appdir # turn AppDir into AppImage
 
           # Preapre publish
