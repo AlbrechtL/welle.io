@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.10)
 
 project(Welle.Io LANGUAGES C CXX)
 
@@ -13,7 +13,7 @@ if(NOT WELLE-IO_VERSION)
 endif()
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 option(BUILD_WELLE_IO    "Build Welle.io"                        ON  )
 option(BUILD_WELLE_CLI   "Build welle-cli"                       ON  )
@@ -200,8 +200,8 @@ endif()
 
 if (SOAPYSDR)
   find_package(SoapySDR NO_MODULE REQUIRED)
-  # Note: SoapySDRConfig.cmake sets C++11 standard so it needs to be reset to C++14
-  set(CMAKE_CXX_STANDARD 14)
+  # Note: SoapySDRConfig.cmake sets C++11 standard so it needs to be reset to C++17
+  set(CMAKE_CXX_STANDARD 17)
 endif()
 
 include_directories(
