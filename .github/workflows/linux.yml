@@ -75,7 +75,7 @@ jobs:
           ./appimagetool-*.AppImage -s deploy ./appdir/usr/share/applications/*.desktop # Bundle EVERYTHING
           find appdir/
           grep -r 'Could not initialize GLX' ./appdir
-          ldd Qt/6.7.2/gcc_64/plugins/xcbglintegration/libqxcb-glx-integration.so
+          ldd /home/runner/work/welle.io/Qt/6.7.2/gcc_64/plugins/xcbglintegration/libqxcb-glx-integration.so
           VERSION=1.0 ./appimagetool-*.AppImage ./appdir # turn AppDir into AppImage
 
           # Preapre publish
