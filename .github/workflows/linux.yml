@@ -76,6 +76,7 @@ jobs:
           find appdir/
           grep -r 'Could not initialize GLX' ./appdir
           ldd /home/runner/work/welle.io/Qt/6.7.2/gcc_64/plugins/xcbglintegrations/libqxcb-glx-integration.so
+          grep -r libGLX_indirect.so.0 appdir/
           VERSION=1.0 ./appimagetool-*.AppImage ./appdir # turn AppDir into AppImage
 
           # Preapre publish
