@@ -541,7 +541,7 @@ ApplicationWindow {
                     }
                 }
 
-                ScrollIndicator.vertical: ScrollIndicator { }
+                ScrollBar.vertical: ScrollBar { }
 
                 Shortcut {
                     context: Qt.ApplicationShortcut
