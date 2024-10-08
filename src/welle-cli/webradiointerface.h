@@ -75,6 +75,7 @@ class WebRadioInterface : public RadioControllerInterface {
         WebRadioInterface(
                 CVirtualInput& in,
                 int port,
+                const std::string& base_dir,
                 DecodeSettings cs,
                 RadioReceiverOptions rro);
         ~WebRadioInterface();
@@ -215,4 +216,6 @@ class WebRadioInterface : public RadioControllerInterface {
             std::chrono::time_point<std::chrono::steady_clock> time_change;
         };
         std::list<ActiveCarouselService> carousel_services_active;
+
+        std::string base_dir;
 };

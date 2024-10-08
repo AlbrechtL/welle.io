@@ -24,6 +24,7 @@
  */
 
 #include "welle-cli/webradiointerface.h"
+#include <filesystem>
 #include <algorithm>
 #include <cmath>
 #include <complex>
@@ -131,13 +132,15 @@ static bool send_http_response(Socket& s, const string& statuscode,
 
 WebRadioInterface::WebRadioInterface(CVirtualInput& in,
         int port,
+        const string &base_dir,
         DecodeSettings ds,
         RadioReceiverOptions rro) :
     dabparams(1),
     input(in),
     spectrum_fft_handler(dabparams.T_u),
     rro(rro),
-    decode_settings(ds)
+    decode_settings(ds),
+    base_dir(base_dir)
 {
     {
         // Ensure that rx always exists when rx_mut is free!
@@ -563,7 +566,17 @@ bool WebRadioInterface::send_file(Socket& s,
         const std::string& filename,
         const std::string& content_type)
 {
-    FILE *fd = fopen(filename.c_str(), "r");
+    std::filesystem::path path_name;
+    if (!base_dir.empty())
+    {
+        path_name = base_dir;
+        path_name /= filename;
+    }
+    else
+    {
+        path_name = filename;
+    }
+    FILE *fd = fopen(path_name.c_str(), "r");
     if (fd) {
         if (not send_http_response(s, http_ok, "", content_type)) {
             cerr << "Failed to send file headers" << endl;
