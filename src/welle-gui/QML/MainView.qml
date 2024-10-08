@@ -235,10 +235,13 @@ ApplicationWindow {
 
                 onPressAndHold: volumePopup.open()
                 onClicked: {
-                    if(radioController.volume !== 0)
+                    if(radioController.volume !== 0) {
+                        volumeSlider.valueBeforeMute = volumeSlider.value
                         volumeSlider.value = 0
-                    else
-                        volumeSlider.value = 1
+                    }
+                    else {
+                        volumeSlider.value = volumeSlider.valueBeforeMute
+                    }
                 }
 
                 Accessible.role: Accessible.Button
@@ -264,6 +267,8 @@ ApplicationWindow {
                     ColumnLayout{
                         Slider {
                             id: volumeSlider
+
+                            property real valueBeforeMute: 1
 
                             Layout.alignment: Qt.AlignCenter
 
