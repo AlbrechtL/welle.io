@@ -96,7 +96,7 @@ ColumnLayout {
                     id: minFreq
                     anchors.centerIn: parent
                     color: "#fff"
-                    text: "← " + freqMin
+                    text: "← " + (Math.round((freqMin + Number.EPSILON) * 100) / 100)
                 }
             }
 
@@ -113,7 +113,7 @@ ColumnLayout {
                     id: maxFreq
                     anchors.centerIn: parent
                     color: "#fff"
-                    text: freqMax + " →"
+                    text: (Math.round((freqMax  + Number.EPSILON) * 100) / 100) + " →"
                     }
                 }
         }
