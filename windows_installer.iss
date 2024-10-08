@@ -10,7 +10,7 @@
 
 [Setup]
 AppName=welle.io
-AppVersion=2.5-{#GitHash}
+AppVersion=2.6-unstable-{#GitHash}
 WizardStyle=modern
 DefaultDirName={autopf}\welle.io
 DefaultGroupName=welle.io
