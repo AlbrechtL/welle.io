@@ -308,6 +308,9 @@ int32_t CRAWFile::readBuffer(uint8_t* data, int32_t length)
             std::clog << "RAWFile:"  << "End of file, restarting" << std::endl;
             radioController.onMessage(message_level_t::Information,
                     QT_TRANSLATE_NOOP("CRadioController", "End of file, restarting"));
+            SampleBuffer.FlushRingBuffer();
+            SpectrumSampleBuffer.FlushRingBuffer();
+            radioController.onRestartService();
         }
         else {
             radioController.onMessage(message_level_t::Information, QT_TRANSLATE_NOOP("CRadioController", "End of file"));
