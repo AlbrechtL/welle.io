@@ -158,6 +158,7 @@ public:
     virtual void onTIIMeasurement(tii_measurement_t&& m) override;
     virtual void onMessage(message_level_t level, const std::string& text, const std::string& text2 = std::string()) override;
     virtual void onInputFailure(void) override;
+    virtual void onRestartService(void) override;
 
 private:
     void initialise(void);
@@ -246,6 +247,7 @@ private slots:
     void channelTimerTimeout(void);
     void nextChannel(bool isWait);
     void displayDateTime(const dab_date_time_t& dateTime);
+    void restartService(void);
 
 signals:
     void switchToNextChannel(bool isWait);
@@ -282,6 +284,7 @@ signals:
     void volumeChanged(qreal volume);
     void motChanged(mot_file_t);
     void motReseted(void);
+    void restartServiceRequested(void);
 
     void channelChanged();
     void lastChannelChanged();

@@ -143,17 +143,18 @@ void FIBProcessor::FIG0Extension0 (uint8_t *d)
 
     if (changeflag == 0)
         return;
-    // else if (changeflag == 1) {
-    //     std::clog << "fib-processor:" << "Changes in sub channel organization\n") << std::endl;
-    //     std::clog << "fib-processor:" << "cifcount = %d\n", highpart * 250 + lowpart) << std::endl;
-    //     std::clog << "fib-processor:" << "Change happening in %d CIFs\n", occurrenceChange) << std::endl;
-    //  }
-    //  else if (changeflag == 3) {
-    //     std::clog << "fib-processor:" << "Changes in subchannel and service organization\n") << std::endl;
-    //     std::clog << "fib-processor:" << "cifcount = %d\n", highpart * 250 + lowpart) << std::endl;
-    //     std::clog << "fib-processor:" << "Change happening in %d CIFs\n", occurrenceChange) << std::endl;
-    //  }
-    std::clog << "fib-processor: " << "changes in config not supported, choose again" << std::endl;
+    else if (changeflag == 1) {
+        std::clog << "fib-processor:" << "Changes in sub channel organization" << std::endl;
+        std::clog << "fib-processor:" << "cifcount = " << highpart * 250 + lowpart << std::endl;
+        std::clog << "fib-processor:" << "Change happening in " << occurrenceChange << " CIFs" << std::endl;
+     }
+     else if (changeflag == 3) {
+        std::clog << "fib-processor:" << "Changes in subchannel and service organization" << std::endl;
+        std::clog << "fib-processor:" << "cifcount = " << highpart * 250 + lowpart << std::endl;
+        std::clog << "fib-processor:" << "Change happening in " << occurrenceChange << " CIFs" << std::endl;
+     }
+
+    myRadioInterface.onRestartService();
 }
 
 //  FIG0 extension 1 creates a mapping between the

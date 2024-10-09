@@ -130,6 +130,9 @@ class RadioControllerInterface {
 
         /* The receiver has shutdown due to a failure in the input device */
         virtual void onInputFailure(void) { };
+
+        /* The receiver has to restart due RAW file restart or FIB configuration change*/
+        virtual void onRestartService(void) { };
 };
 
 /* A Programme Handler is associated to each tuned programme in the ensemble.

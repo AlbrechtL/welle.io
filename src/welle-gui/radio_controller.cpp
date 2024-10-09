@@ -105,6 +105,9 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, QObject *par
     qRegisterMetaType<dab_date_time_t>("dab_date_time_t");
     connect(this, &CRadioController::dateTimeUpdated,
             this, &CRadioController::displayDateTime);
+
+    connect(this, &CRadioController::restartServiceRequested,
+            this, &CRadioController::restartService);
 }
 
 CRadioController::~CRadioController()
@@ -1120,4 +1123,14 @@ void CRadioController::onPADLengthError(size_t announced_xpad_len, size_t xpad_l
 void CRadioController::onInputFailure()
 {
     stop();
+}
+
+void CRadioController::onRestartService()
+{
+    emit restartServiceRequested();
+}
+
+void CRadioController::restartService(void)
+{
+    setService(currentService, true);
 }
