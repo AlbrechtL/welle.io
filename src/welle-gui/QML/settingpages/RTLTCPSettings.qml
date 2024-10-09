@@ -34,84 +34,46 @@ import "../components"
 
 SettingSection {
     text: qsTr("rtl-tcp settings")
+    id: rtltcpsettings
 
     property bool isLoaded : false
 
     Settings {
-        property alias ipByte1: ipAddress1.currentIndex
-        property alias ipByte2: ipAddress2.currentIndex
-        property alias ipByte3: ipAddress3.currentIndex
-        property alias ipByte4: ipAddress4.currentIndex
-        property alias ipPort: ipPort.currentIndex
-        property alias rtlTcpEnableHostName: enableHostName.checked
+        id: settings
+
+        // Deprecated: Necessary for migration from version <=2.5, can be removed in future versions
+        property int ipByte1
+        property int ipByte2
+        property int ipByte3
+        property int ipByte4
+
+        property alias ipPort: hostPort.text
         property alias rtlTcpHostName: hostName.text
     }
 
-    WSwitch {
-        id: enableHostName
-        text: qsTr("Use host name")
-        Layout.fillWidth: true
-        checked: false
-    }
-
     RowLayout {
-        spacing: Units.dp(20)
-
-        ColumnLayout {
-            TextStandart {
-                text: qsTr("IP address")
-                Layout.alignment: Qt.AlignHCenter
-            }
-
-            RowLayout {
-                id:layout
-                height: Units.dp(120)
-                spacing: Units.dp(5)
-                enabled: !enableHostName.checked
-
-                WTumbler {
-                    id: ipAddress1
-                    currentIndex: 192
-                }
-                WTumbler {
-                    id: ipAddress2
-                    currentIndex: 168
-                }
-                WTumbler {
-                    id: ipAddress3
-                    currentIndex: 1
-                }
-                WTumbler {
-                    id: ipAddress4
-                    currentIndex: 10
-                }
-            }
-        }
-
-        ColumnLayout {
-            TextStandart {
-                text: qsTr("IP port")
-            }
-
-            WTumbler {
-                id: ipPort
-                model: 65536
-                currentIndex: 1234
-            }
-        }
-    }
-
-    RowLayout {
-        enabled: enableHostName.checked
-
         TextField {
             id: hostName
-            placeholderText: qsTr("Enter host name")
+            placeholderText: qsTr("Enter host name or IP address")
             implicitWidth: 200
         }
 
         TextStandart {
-            text: qsTr("Host name")
+            text: qsTr("Host name or IP-address")
+            Layout.fillWidth: true
+        }
+    }
+
+    RowLayout {
+        TextField {
+            id: hostPort
+            placeholderText: qsTr("Enter IP-port")
+            implicitWidth: 200
+            text: "1234"
+        }
+
+        TextStandart {
+            text: qsTr("IP-Port")
             Layout.fillWidth: true
         }
     }
@@ -131,16 +93,26 @@ SettingSection {
     function __openDevice() {
         var serverAddress = "";
 
-        if(!enableHostName.checked)
+        if(settings.ipByte1) {
+            // Deprecated: Necessary for migration from version <=2.5, can be removed in future versions
             serverAddress =
-                ipAddress1.currentIndex + "."
-                + ipAddress2.currentIndex + "."
-                + ipAddress3.currentIndex + "."
-                + ipAddress4.currentIndex
-        else
-            serverAddress = hostName.text
+                settings.ipByte1 + "."
+                + settings.ipByte2 + "."
+                + settings.ipByte3 + "."
+                + settings.ipByte4
+            hostName.text = serverAddress
 
-        guiHelper.openRtlTcp(serverAddress, ipPort.currentIndex, true)
+            // Clear IP address to avoid further usage
+            settings.ipByte1 = 0
+            settings.ipByte2 = 0
+            settings.ipByte3 = 0
+            settings.ipByte4 = 0
+        }
+        else {
+            serverAddress = hostName.text
+        }
+
+        guiHelper.openRtlTcp(serverAddress, hostPort.text, true)
     }
 }
 
