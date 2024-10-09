@@ -48,7 +48,7 @@ SettingSection {
         id: fileDialog
         title: "Please choose a file"
         onAccepted: {
-            var filePath_tmp = fileDialog.fileUrl.toString()
+            var filePath_tmp = fileDialog.selectedFile.toString()
             if (filePath.text != __getPath(filePath_tmp)) {
                 filePath.text = __getPath(filePath_tmp)
                 __openDevice()
