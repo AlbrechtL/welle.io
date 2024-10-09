@@ -32,8 +32,6 @@ on:
       - master
       - next
       - 'next*'
-    tags:
-      - 'v*'
 
 jobs:
   android:

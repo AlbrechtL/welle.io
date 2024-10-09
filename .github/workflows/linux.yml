@@ -6,8 +6,6 @@ on:
       - master
       - next
       - 'next*'
-    tags:
-      - 'v*'
 
 jobs:
   qtbuild:
@@ -18,7 +16,7 @@ jobs:
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:
-          version: '6.7.2'
+          version: '6.8.0'
           modules: 'qtcharts qtmultimedia qt5compat qtshadertools'
       - name: Checkout
         uses: actions/checkout@v4
@@ -67,7 +65,7 @@ jobs:
         id: create_appimage
         run: |
           # Get appimagetool
-          # wget -c https://github.com/$(wget -q https://github.com/probonopd/go-appimage/releases/expanded_assets/continuous -O - | grep "appimagetool-.*-x86_64.AppImage" | head -n 1 | cut -d '"' -f 2)
+          #wget -c https://github.com/$(wget -q https://github.com/probonopd/go-appimage/releases/expanded_assets/continuous -O - | grep "appimagetool-.*-x86_64.AppImage" | head -n 1 | cut -d '"' -f 2)
           wget https://welle-io-nightlies.albrechtloh.de/appimagetool-843-x86_64.AppImage # just for testing
           chmod +x appimagetool-*.AppImage
 
