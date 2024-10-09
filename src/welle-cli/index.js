@@ -190,7 +190,7 @@ function ensembleInfoTemplate() {
 function serviceTemplate() {
     var html = '<tr><td>${label} (${shortlabel})<br>${fig2label}</td> <td>${SId}</td> <td>${bitrate}&nbsp;kbps</td> <td>${sad_cu}</td> <td>${protection}</td>';
     html += '<td>${techdetails}</td>';
-    html += '<td>${pty}</td> <td>${language}<br>${subchannel_language}</td> <td></i>${dls}</i></td>';
+    html += '<td>${pty}</td> <td>${language}<br>${subchannel_language}</td> <td><i>${dls}</i></td>';
     html += '<td>${errorcounters}</td>';
     html += '<td><canvas id="${canvasid}" width="64" height="12"></canvas></td>';
     html += '<td><button type=button ${buttondisabled} class="${buttonclass}" onclick="setPlayerSource(${SId})">Play</button></td>';
