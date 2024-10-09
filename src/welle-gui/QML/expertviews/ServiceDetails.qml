@@ -133,6 +133,11 @@ ViewBaseFrame {
         }
 
         TextExpert {
+            name: qsTr("Ensemble ID") + ":"
+            text: "0x" + radioController.ensembleId.toString(16)
+        }
+
+        TextExpert {
             name: qsTr("DAB date and time") + ":"
             text: radioController.dateTime.toUTCString()
         }

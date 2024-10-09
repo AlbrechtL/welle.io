@@ -366,6 +366,7 @@ void CRadioController::setChannel(QString Channel, bool isScan, bool Force)
         if (!isScan)
             emit autoChannelChanged(autoChannel);
         emit ensembleChanged();
+        emit ensembleIdChanged();
         emit frequencyChanged();
     }
 }
@@ -654,6 +655,7 @@ void CRadioController::resetTechnicalData(void)
     currentEId = 0;
     currentEnsembleLabel = "";
     emit ensembleChanged();
+    emit ensembleIdChanged();
 
     currentFrequency = 0;
     emit frequencyChanged();
@@ -730,12 +732,13 @@ bool CRadioController::deviceRestart()
  *****************/
 void CRadioController::ensembleId(quint16 eId)
 {
-    qDebug() << "RadioController: ID of ensemble:" << eId;
+    qDebug() << "RadioController: ID of ensemble:" << Qt::hex << eId;
 
     if (currentEId == eId)
         return;
 
     currentEId = eId;
+    emit ensembleIdChanged();
 
     //auto label = radioReceiver->getEnsembleLabel();
     //currentEnsembleLabel = QString::fromStdString(label.utf8_label());
