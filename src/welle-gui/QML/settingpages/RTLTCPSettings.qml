@@ -108,11 +108,8 @@ SettingSection {
             settings.ipByte3 = 0
             settings.ipByte4 = 0
         }
-        else {
-            serverAddress = hostName.text
-        }
 
-        guiHelper.openRtlTcp(serverAddress, hostPort.text, true)
+        guiHelper.openRtlTcp(hostName.text, hostPort.text, true)
     }
 }
 
