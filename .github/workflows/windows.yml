@@ -16,10 +16,10 @@ jobs:
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:
-          version: '6.7.2'
+          version: '6.8.0'
           modules: 'qtcharts qtmultimedia qt5compat qtshadertools'
           arch: 'win64_mingw'
-          tools: 'tools_mingw90'
+          tools: 'tools_mingw1310'
       - name: Checkout
         uses: actions/checkout@v4
 
