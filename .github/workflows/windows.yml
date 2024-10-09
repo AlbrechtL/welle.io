@@ -6,8 +6,6 @@ on:
       - master
       - next
       - 'next*'
-    tags:
-      - 'v*'
 
 jobs:
   qtbuild:
