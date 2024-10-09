@@ -37,6 +37,7 @@ Item {
 
     property alias enableFullScreenState : enableFullScreen.checked
     property alias qQStyleTheme : qQStyleTheme.currentIndex
+    property alias device: deviceBox.currentIndex
     property bool isLoaded: false
 
     anchors.fill: parent

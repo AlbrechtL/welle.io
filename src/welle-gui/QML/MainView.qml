@@ -669,6 +669,7 @@ ApplicationWindow {
 
                 WComboBox {
                     id: manualChannelBox
+                    enabled: globalSettingsLoader.item.device != 5 // disable when RAW file is used
                     sizeToContents: true
                     model: ["5A", "5B", "5C", "5D",
                         "6A", "6B", "6C", "6D",
