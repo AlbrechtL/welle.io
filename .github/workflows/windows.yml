@@ -89,6 +89,7 @@ jobs:
           if-no-files-found: error
 
       - name: Sign installer with SignPath
+        id: signing_installer
         uses: signpath/github-action-submit-signing-request@v1
         with:
           api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
@@ -99,7 +100,7 @@ jobs:
           wait-for-completion: false
 
       - name: Upload to nightly server
-        if: always() && steps.create_installer.outcome == 'success'
+        if: always() && steps.signing_installer.outcome == 'success'
         uses: dennisameling/ftp-upload-action@v1
         with:
           server: a2f24.netcup.net # welle-io-nightlies.albrechtloh.de is redirected to here
