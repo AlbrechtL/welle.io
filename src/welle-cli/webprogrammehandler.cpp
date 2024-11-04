@@ -80,7 +80,7 @@ class FlacEncoder : protected FLAC::Encoder::Stream, public IEncoder
         return FLAC::Encoder::Stream::process_interleaved(pcm_32.data(), pcm_32.size()/channels);
     }
 
-    FLAC__StreamEncoderWriteStatus write_callback(const FLAC__byte buffer[], size_t bytes, uint32_t samples, uint32_t current_frame) override
+    FLAC__StreamEncoderWriteStatus write_callback(const FLAC__byte buffer[], size_t bytes, uint32_t /* samples */, uint32_t /* current_frame */) override
     {
         if (!streamHeaderInitialised)
         {
