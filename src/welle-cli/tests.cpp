@@ -357,12 +357,12 @@ void Tests::test_multipath(int test_id)
         fprintf(fd, "fname,ofdmthreshold,with_coarse,num_syncs,num_desyncs,time_to_first_sync,frameerrors,aacerrors,rserrors\n");
     }
 
-    fprintf(fd, "%s,%s,%d,%zu,%zu,%ld,%d,%d,%d\n",
+    fprintf(fd, "%s,%s,%d,%zu,%zu,%lld,%d,%d,%d\n",
             intf.getFileName().c_str(),
             fftPlacementMethodToString(rro.fftPlacementMethod),
             rro.disableCoarseCorrector ? 0 : 1,
             ri.num_syncs, ri.num_desyncs,
-            chrono::duration_cast<chrono::milliseconds>(start_time-ri.first_sync_time).count(),
+            static_cast<long long>(chrono::duration_cast<chrono::milliseconds>(start_time-ri.first_sync_time).count()),
             std::accumulate(tph.frameErrorStats.begin(), tph.frameErrorStats.end(), 0),
             std::accumulate(tph.aacErrorStats.begin(), tph.aacErrorStats.end(), 0),
             std::accumulate(tph.rsErrorStats.begin(), tph.rsErrorStats.end(), 0));
