@@ -106,7 +106,8 @@ class WebRadioInterface : public RadioControllerInterface {
         bool dispatch_client(Socket&& client);
         // Send a file
         bool send_file(Socket& s,
-                const std::string& filename,
+                const unsigned char *file,
+                const unsigned int file_length,
                 const std::string& content_type);
 
         // Generate and send the mux.json

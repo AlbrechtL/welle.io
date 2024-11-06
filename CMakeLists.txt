@@ -77,7 +77,7 @@ endif()
 if(BUILD_WELLE_CLI AND NOT ANDROID)
     find_package(Lame REQUIRED)
     if (FLAC)
-    find_package(FLACPP REQUIRED) # test if FLAC is installed on the system     
+    find_package(FLACPP REQUIRED) # test if FLAC is installed on the system
     add_definitions(-DHAVE_FLAC)
     endif()
 endif()
@@ -205,6 +205,7 @@ if (SOAPYSDR)
 endif()
 
 include_directories(
+    ${CMAKE_CURRENT_BINARY_DIR}
     src
     src/backend
     src/output
@@ -458,7 +459,13 @@ endif()
 
 if(BUILD_WELLE_CLI AND NOT ANDROID)
     set(cliExecutableName welle-cli)
-    add_executable (${cliExecutableName} ${welle_cli_sources} ${backend_sources} ${input_sources} ${fft_sources})
+    add_executable (${cliExecutableName}
+        ${welle_cli_sources}
+        ${backend_sources}
+        ${input_sources}
+        ${fft_sources}
+        index.html.h
+        index.js.h)
 
     if(CMAKE_BUILD_TYPE MATCHES Debug)
       SET_TARGET_PROPERTIES(${cliExecutableName} PROPERTIES COMPILE_FLAGS "-O2 -fno-omit-frame-pointer -fsanitize=address")
@@ -478,34 +485,24 @@ if(BUILD_WELLE_CLI AND NOT ANDROID)
       Threads::Threads
     )
 
+    find_program(RESOURCE_COMPILER xxd)
     add_custom_command(
-            TARGET ${cliExecutableName} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy
-                    ${CMAKE_SOURCE_DIR}/src/welle-cli/index.html
-                    ${CMAKE_CURRENT_BINARY_DIR}/index.html)
-    add_custom_command(
-            TARGET ${cliExecutableName} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy
-                    ${CMAKE_SOURCE_DIR}/src/welle-cli/index.js
-                    ${CMAKE_CURRENT_BINARY_DIR}/index.js)
+        OUTPUT index.html.h
+        COMMAND ${RESOURCE_COMPILER} -i -n index_html
+                ${CMAKE_SOURCE_DIR}/src/welle-cli/index.html
+                index.html.h
+        DEPENDS ${CMAKE_SOURCE_DIR}/src/welle-cli/index.html)
 
-    if(APPLE AND WITH_APP_BUNDLE)
-        INSTALL (TARGETS ${cliExecutableName} RUNTIME DESTINATION ${GUI_INSTALL_DIR}/${executableName}.app/Contents/MacOS)
-        INSTALL (
-            FILES
-                ${PROJECT_SOURCE_DIR}/src/welle-cli/index.html
-                ${PROJECT_SOURCE_DIR}/src/welle-cli/index.js
-            DESTINATION ${GUI_INSTALL_DIR}/${executableName}.app/Contents/Resources/welle-cli
-        )
-    elseif(UNIX)
+    add_custom_command(
+        OUTPUT index.js.h
+        COMMAND ${RESOURCE_COMPILER} -i -n index_js
+                ${CMAKE_SOURCE_DIR}/src/welle-cli/index.js
+                index.js.h
+        DEPENDS ${CMAKE_SOURCE_DIR}/src/welle-cli/index.js)
+
+    if(UNIX AND NOT APPLE OR NOT WITH_APP_BUNDLE)
         INSTALL (TARGETS ${cliExecutableName} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
         INSTALL (FILES src/welle-cli/doc/man/welle-cli.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1/)
-        INSTALL (
-            FILES
-                ${PROJECT_SOURCE_DIR}/src/welle-cli/index.html
-                ${PROJECT_SOURCE_DIR}/src/welle-cli/index.js
-            DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/welle-io/html/
-        )
     endif()
 endif()
 

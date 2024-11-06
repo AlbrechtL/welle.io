@@ -56,6 +56,9 @@
 #include "welle-cli/jsonconvert.h"
 #include "welle-cli/webprogrammehandler.h"
 
+#include "index.html.h"
+#include "index.js.h"
+
 #ifdef __unix__
 # include <unistd.h>
 # if _POSIX_VERSION >= 200809L
@@ -463,10 +466,10 @@ bool WebRadioInterface::dispatch_client(Socket&& client)
     else {
         if (req.is_get) {
             if (req.url == "/") {
-                success = send_file(s, "index.html", http_contenttype_html);
+                success = send_file(s, index_html, index_html_len, http_contenttype_html);
             }
             else if (req.url == "/index.js") {
-                success = send_file(s, "index.js", http_contenttype_js);
+                success = send_file(s, index_js, index_js_len, http_contenttype_js);
             }
             else if (req.url == "/mux.json") {
                 success = send_mux_json(s);
@@ -565,37 +568,22 @@ bool WebRadioInterface::dispatch_client(Socket&& client)
 }
 
 bool WebRadioInterface::send_file(Socket& s,
-        const std::string& filename,
+        const unsigned char *file,
+        const unsigned int file_length,
         const std::string& content_type)
 {
-    FILE *fd = fopen(filename.c_str(), "r");
-    if (fd) {
-        if (not send_http_response(s, http_ok, "", content_type)) {
-            cerr << "Failed to send file headers" << endl;
-            fclose(fd);
-            return false;
-        }
-
-        vector<char> data(1024);
-        ssize_t ret = 0;
-        do {
-            ret = fread(data.data(), 1, data.size(), fd);
-            ret = s.send(data.data(), ret, MSG_NOSIGNAL);
-            if (ret == -1) {
-                cerr << "Failed to send file data" << endl;
-                fclose(fd);
-                return false;
-            }
-
-        } while (ret > 0);
-
-        fclose(fd);
-        return true;
+    if (not send_http_response(s, http_ok, "", content_type)) {
+        cerr << "Failed to send file headers" << endl;
+        return false;
     }
-    else {
-        return send_http_response(s, http_500, "file '" + filename + "' is missing!");
+
+    ssize_t ret = 0;
+    ret = s.send((void*)file, file_length, MSG_NOSIGNAL);
+    if (ret == -1) {
+        cerr << "Failed to send file data" << endl;
+        return false;
     }
-    return false;
+    return true;
 }
 
 static vector<PeakJson> calculate_cir_peaks(const vector<float>& cir_linear)
