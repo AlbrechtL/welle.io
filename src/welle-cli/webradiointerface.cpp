@@ -58,6 +58,7 @@
 
 #include "index.html.h"
 #include "index.js.h"
+#include "favicon.ico.h"
 
 #ifdef __unix__
 # include <unistd.h>
@@ -106,6 +107,9 @@ static const char* http_contenttype_js =
 
 static const char* http_contenttype_html =
         "Content-Type: text/html; charset=utf-8\r\n";
+
+static const char* http_contenttype_ico =
+        "Content-Type: image/x-icon\r\n";
 
 static const char* http_nocache = "Cache-Control: no-cache\r\n";
 
@@ -470,6 +474,9 @@ bool WebRadioInterface::dispatch_client(Socket&& client)
             }
             else if (req.url == "/index.js") {
                 success = send_file(s, index_js, index_js_len, http_contenttype_js);
+            }
+            else if (req.url == "/favicon.ico") {
+                success = send_file(s, favicon_ico, favicon_ico_len, http_contenttype_ico);
             }
             else if (req.url == "/mux.json") {
                 success = send_mux_json(s);

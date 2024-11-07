@@ -465,7 +465,8 @@ if(BUILD_WELLE_CLI AND NOT ANDROID)
         ${input_sources}
         ${fft_sources}
         index.html.h
-        index.js.h)
+        index.js.h
+        favicon.ico.h)
 
     if(CMAKE_BUILD_TYPE MATCHES Debug)
       SET_TARGET_PROPERTIES(${cliExecutableName} PROPERTIES COMPILE_FLAGS "-O2 -fno-omit-frame-pointer -fsanitize=address")
@@ -499,6 +500,13 @@ if(BUILD_WELLE_CLI AND NOT ANDROID)
                 ${CMAKE_SOURCE_DIR}/src/welle-cli/index.js
                 index.js.h
         DEPENDS ${CMAKE_SOURCE_DIR}/src/welle-cli/index.js)
+
+    add_custom_command(
+        OUTPUT favicon.ico.h
+        COMMAND ${RESOURCE_COMPILER} -i -n favicon_ico
+                ${CMAKE_SOURCE_DIR}/src/welle-cli/favicon.ico
+                favicon.ico.h
+        DEPENDS ${CMAKE_SOURCE_DIR}/src/welle-cli/favicon.ico)
 
     if(UNIX AND NOT APPLE OR NOT WITH_APP_BUNDLE)
         INSTALL (TARGETS ${cliExecutableName} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
