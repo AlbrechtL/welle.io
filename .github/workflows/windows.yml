@@ -82,7 +82,6 @@ jobs:
 
       - name: Archive artifacts (welle.io Windows installer)
         id: upload_artifact
-        if: always() && steps.create_installer.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: welle.io Windows installer
@@ -102,8 +101,7 @@ jobs:
           output-artifact-directory: 'publish'
 
       - name: Archive artifacts (welle.io Windows installer signed)
-        id: upload_artifact
-        if: always() && steps.create_installer.outcome == 'success'
+        id: upload_artifact_signed
         uses: actions/upload-artifact@v4
         with:
           name: welle.io Windows installer signed
@@ -111,7 +109,6 @@ jobs:
           if-no-files-found: error
 
       - name: Upload to nightly server
-        if: always() && steps.signing_installer.outcome == 'success'
         uses: dennisameling/ftp-upload-action@v1
         with:
           server: a2f24.netcup.net # welle-io-nightlies.albrechtloh.de is redirected to here
