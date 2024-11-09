@@ -169,7 +169,7 @@ bool Mpris::canSeek() const { return false; }
 
 QString Mpris::loopStatus() const { return "None"; }
 
-void Mpris::setLoopStatus(const QString &value) {}
+void Mpris::setLoopStatus(const QString & /* value */) {}
 
 double Mpris::maximumRate() const { return 1.0; }
 
@@ -197,7 +197,7 @@ void Mpris::volumeChanged(qreal volume)
     EmitNotification("Volume", volume);
 }
 
-void Mpris::motChanged(QString pictureName, QString categoryTitle, int categoryId, int slideId)
+void Mpris::motChanged(QString pictureName, QString /* categoryTitle */, int /* categoryId */, int /* slideId */)
 {
     //qDebug() << "MPRIS: pictureName: " << pictureName;
 
@@ -252,11 +252,11 @@ qlonglong Mpris::position() const { return 0; }
 
 double Mpris::rate() const { return 1.0; }
 
-void Mpris::setRate(double value) {}
+void Mpris::setRate(double /* value */) {}
 
 bool Mpris::shuffle() const { return false; }
 
-void Mpris::setShuffle(bool value) {}
+void Mpris::setShuffle(bool /* value */) {}
 
 double Mpris::volume() const { return (double) qvariant_cast< qreal >(radioController->property("volume")); }
 
@@ -274,7 +274,7 @@ void Mpris::Next()
         radioController->play(autoChannel, title, autoService);
 }
 
-void Mpris::OpenUri(const QString &Uri) {}
+void Mpris::OpenUri(const QString & /* Uri */) {}
 
 void Mpris::Pause() { Stop(); }
 
@@ -306,9 +306,9 @@ void Mpris::Previous()
         radioController->play(autoChannel, title, autoService);
 }
 
-void Mpris::Seek(qlonglong Offset) {}
+void Mpris::Seek(qlonglong /* Offset */) {}
 
-void Mpris::SetPosition(const QDBusObjectPath &TrackId, qlonglong Position) {}
+void Mpris::SetPosition(const QDBusObjectPath & /* TrackId */, qlonglong /* Position */) {}
 
 void Mpris::Stop() { radioController->stop(); }
 

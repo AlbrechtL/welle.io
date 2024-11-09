@@ -109,10 +109,10 @@ static const char* http_nocache = "Cache-Control: no-cache\r\n";
 
 static string to_hex(uint32_t value, int width)
 {
-    std::stringstream sidstream;
+    stringstream sidstream;
     sidstream << "0x" <<
-        std::setfill('0') << std::setw(width) <<
-        std::hex << value;
+        setfill('0') << setw(width) <<
+        hex << value;
     return sidstream.str();
 }
 
@@ -191,7 +191,7 @@ void WebRadioInterface::check_decoders_required()
             const auto sid = s.serviceId;
 
             try {
-                const bool is_active = std::find_if(
+                const bool is_active = find_if(
                         carousel_services_active.cbegin(),
                         carousel_services_active.cend(),
                         [&](const ActiveCarouselService& acs) {
@@ -244,7 +244,7 @@ void WebRadioInterface::check_decoders_required()
     phs_changed.notify_all();
 }
 
-void WebRadioInterface::retune(const std::string& channel)
+void WebRadioInterface::retune(const string& channel)
 {
     // Ensure two closely occurring retune() calls don't get stuck
     unique_lock<mutex> retune_lock(retune_mut);
@@ -423,7 +423,7 @@ static http_request_t parse_http_headers(Socket& s) {
         constexpr auto CL = "Content-Length";
         if (r.headers.count(CL) == 1) {
             try {
-                const int content_length = std::stoi(r.headers[CL]);
+                const int content_length = stoi(r.headers[CL]);
                 if (content_length > 1024 * 1024) {
                     cerr << "Unreasonable POST Content-Length: " << content_length << endl;
                     return r;
@@ -503,14 +503,14 @@ bool WebRadioInterface::dispatch_client(Socket&& client)
             else {
                 bool url_handled = false;
                 const regex regex_slide(R"(^[/]slide[/]([^ ]+))");
-                std::smatch match_slide;
+                smatch match_slide;
                 if (regex_search(req.url, match_slide, regex_slide)) {
                     success = send_slide(s, match_slide[1]);
                     url_handled = true;
                 }
 
                 const regex regex_stream(R"(^[/]stream[/]([^ ]+))");
-                std::smatch match_stream;
+                smatch match_stream;
                 if (regex_search(req.url, match_stream, regex_stream)) {
                     success = send_stream(s, match_stream[1]);
                     url_handled = true;
@@ -519,7 +519,7 @@ bool WebRadioInterface::dispatch_client(Socket&& client)
                 if (decode_settings.outputCodec == OutputCodec::MP3)
                 {
                     const regex regex_mp3(R"(^[/]mp3[/]([^ ]+))");
-                    std::smatch match_mp3;
+                    smatch match_mp3;
                     if (regex_search(req.url, match_mp3, regex_mp3)) {
                         success = send_stream(s, match_mp3[1]);
                         url_handled = true;
@@ -529,7 +529,7 @@ bool WebRadioInterface::dispatch_client(Socket&& client)
                 if (decode_settings.outputCodec == OutputCodec::FLAC)
                 {
                     const regex regex_flac(R"(^[/]flac[/]([^ ]+))");
-                    std::smatch match_flac;
+                    smatch match_flac;
                     if (regex_search(req.url, match_flac, regex_flac)) {
                         success = send_stream(s, match_flac[1]);
                         url_handled = true;
@@ -568,10 +568,10 @@ bool WebRadioInterface::dispatch_client(Socket&& client)
 }
 
 bool WebRadioInterface::send_file(Socket& s,
-        const std::string& filename,
-        const std::string& content_type)
+        const string& filename,
+        const string& content_type)
 {
-    std::filesystem::path path_name;
+    filesystem::path path_name;
     if (!base_dir.empty())
     {
         path_name = base_dir;
@@ -790,10 +790,10 @@ bool WebRadioInterface::send_mux_json(Socket& s)
                     m.timestamp.time_since_epoch());
 
             const auto s = duration_cast<seconds>(ms);
-            const std::time_t t = s.count();
-            const std::size_t fractional_seconds = ms.count() % 1000;
+            const time_t t = s.count();
+            const size_t fractional_seconds = ms.count() % 1000;
 
-            ss << std::ctime(&t) << "." << fractional_seconds;
+            ss << ctime(&t) << "." << fractional_seconds;
 
             switch (m.level) {
                 case message_level_t::Information:
@@ -883,7 +883,7 @@ bool WebRadioInterface::send_mux_playlist(Socket& s)
     return true;
 }
 
-bool WebRadioInterface::send_stream(Socket& s, const std::string& stream)
+bool WebRadioInterface::send_stream(Socket& s, const string& stream)
 {
     unique_lock<mutex> lock(rx_mut);
     ASSERT_RX;
@@ -891,13 +891,13 @@ bool WebRadioInterface::send_stream(Socket& s, const std::string& stream)
     for (const auto& srv : rx->getServiceList()) {
         if (rx->serviceHasAudioComponent(srv) and
                 (to_hex(srv.serviceId, 4) == stream or
-                (uint32_t)std::stoul(stream) == srv.serviceId)) {
+                (uint32_t)stoul(stream) == srv.serviceId)) {
             try {
                 auto& ph = phs.at(srv.serviceId);
 
                 lock.unlock();
 
-                std::string http_contenttype;
+                string http_contenttype;
 
                 switch (decode_settings.outputCodec)
                 {
@@ -941,11 +941,11 @@ bool WebRadioInterface::send_stream(Socket& s, const std::string& stream)
     return false;
 }
 
-bool WebRadioInterface::send_slide(Socket& s, const std::string& stream)
+bool WebRadioInterface::send_slide(Socket& s, const string& stream)
 {
     for (const auto& wph : phs) {
         if (to_hex(wph.first, 4) == stream or
-                (uint32_t)std::stoul(stream) == wph.first) {
+                (uint32_t)stoul(stream) == wph.first) {
             const auto mot = wph.second.getMOT();
 
             if (mot.data.empty()) {
@@ -973,8 +973,8 @@ bool WebRadioInterface::send_slide(Socket& s, const std::string& stream)
             headers << http_nocache;
 
             headers << "Last-Modified: ";
-            std::time_t t = chrono::system_clock::to_time_t(mot.time);
-            headers << put_time(std::gmtime(&t), "%a, %d %b %Y %T GMT");
+            time_t t = chrono::system_clock::to_time_t(mot.time);
+            headers << put_time(gmtime(&t), "%a, %d %b %Y %T GMT");
             headers << "\r\n";
 
             headers << "\r\n";
@@ -1027,7 +1027,7 @@ bool WebRadioInterface::send_impulseresponse(Socket& s)
 
     lock_guard<mutex> lock(plotdata_mut);
     vector<float> cir_db(last_CIR.size());
-    std::transform(last_CIR.begin(), last_CIR.end(), cir_db.begin(),
+    transform(last_CIR.begin(), last_CIR.end(), cir_db.begin(),
             [](float y) { return 10.0f * log10(y); });
 
     size_t lengthBytes = cir_db.size() * sizeof(float);
@@ -1078,7 +1078,7 @@ bool WebRadioInterface::send_spectrum(Socket& s)
     if (samples.size() != (size_t)dabparams.T_u)
         return false;
 
-    std::copy(samples.begin(), samples.end(), spectrumBuffer);
+    copy(samples.begin(), samples.end(), spectrumBuffer);
 
     // Do FFT to get the spectrum
     spectrum_fft_handler.do_FFT();
@@ -1112,13 +1112,13 @@ bool WebRadioInterface::send_constellation(Socket& s)
 {
     const size_t decim = OfdmDecoder::constellationDecimation;
     const size_t num_iqpoints = (dabparams.L-1) * dabparams.K / decim;
-    std::vector<float> phases(num_iqpoints);
+    vector<float> phases(num_iqpoints);
 
     lock_guard<mutex> lock(plotdata_mut);
     if (last_constellation.size() == num_iqpoints) {
         phases.resize(num_iqpoints);
         for (size_t i = 0; i < num_iqpoints; i++) {
-            const float y = 180.0f / (float)M_PI * std::arg(last_constellation[i]);
+            const float y = 180.0f / (float)M_PI * arg(last_constellation[i]);
             phases[i] = y;
         }
 
@@ -1174,7 +1174,7 @@ bool WebRadioInterface::send_channel(Socket& s)
     return true;
 }
 
-bool WebRadioInterface::handle_fft_window_placement_post(Socket& s, const std::string& fft_window_placement)
+bool WebRadioInterface::handle_fft_window_placement_post(Socket& s, const string& fft_window_placement)
 {
     cerr << "POST fft window: " << fft_window_placement << endl;
 
@@ -1220,7 +1220,7 @@ bool WebRadioInterface::handle_fft_window_placement_post(Socket& s, const std::s
     return true;
 }
 
-bool WebRadioInterface::handle_coarse_corrector_post(Socket& s, const std::string& coarseCorrector)
+bool WebRadioInterface::handle_coarse_corrector_post(Socket& s, const string& coarseCorrector)
 {
     cerr << "POST coarse : " << coarseCorrector << endl;
 
@@ -1263,7 +1263,7 @@ bool WebRadioInterface::handle_coarse_corrector_post(Socket& s, const std::strin
     return true;
 }
 
-bool WebRadioInterface::handle_channel_post(Socket& s, const std::string& channel)
+bool WebRadioInterface::handle_channel_post(Socket& s, const string& channel)
 {
     cerr << "POST channel: " << channel << endl;
 
@@ -1294,7 +1294,7 @@ void WebRadioInterface::handle_phs()
         for (auto& s : serviceList) {
             auto scs = rx->getComponents(s);
 
-            if (std::find(
+            if (find(
                         carousel_services_available.cbegin(),
                         carousel_services_available.cend(),
                         s.serviceId) == carousel_services_available.cend()) {
@@ -1307,12 +1307,12 @@ void WebRadioInterface::handle_phs()
 
             if (phs.count(s.serviceId) == 0) {
                 WebProgrammeHandler ph(s.serviceId, decode_settings.outputCodec);
-                phs.emplace(std::make_pair(s.serviceId, move(ph)));
+                phs.emplace(make_pair(s.serviceId, move(ph)));
             }
         }
 
         using namespace chrono;
-        size_t max_services_in_carousel = std::min(
+        size_t max_services_in_carousel = min(
                 carousel_services_available.size(),
                 (size_t)decode_settings.num_decoders_in_carousel);
 
@@ -1554,34 +1554,34 @@ void WebRadioInterface::onFIBDecodeSuccess(bool crcCheckOk, const uint8_t* fib)
     new_fib_block_available.notify_one();
 }
 
-void WebRadioInterface::onNewImpulseResponse(std::vector<float>&& data)
+void WebRadioInterface::onNewImpulseResponse(vector<float>&& data)
 {
     lock_guard<mutex> lock(plotdata_mut);
     last_CIR = move(data);
 }
 
-void WebRadioInterface::onNewNullSymbol(std::vector<DSPCOMPLEX>&& data)
+void WebRadioInterface::onNewNullSymbol(vector<DSPCOMPLEX>&& data)
 {
     lock_guard<mutex> lock(plotdata_mut);
     last_NULL = move(data);
 }
 
-void WebRadioInterface::onConstellationPoints(std::vector<DSPCOMPLEX>&& data)
+void WebRadioInterface::onConstellationPoints(vector<DSPCOMPLEX>&& data)
 {
     lock_guard<mutex> lock(plotdata_mut);
     last_constellation = move(data);
 }
 
-void WebRadioInterface::onMessage(message_level_t level, const std::string& text, const std::string& text2)
+void WebRadioInterface::onMessage(message_level_t level, const string& text, const string& text2)
 {
-    std::string fullText;
+    string fullText;
     if (text2.empty())
         fullText = text;
     else
         fullText = text + text2;
     
     lock_guard<mutex> lock(data_mut);
-    const auto now = std::chrono::system_clock::now();
+    const auto now = chrono::system_clock::now();
     pending_message_t m = { .level = level, .text = fullText, .timestamp = now};
     pending_messages.emplace_back(move(m));
 
@@ -1603,7 +1603,7 @@ void WebRadioInterface::onTIIMeasurement(tii_measurement_t&& m)
 
 void WebRadioInterface::onInputFailure()
 {
-    std::exit(1);
+    exit(1);
 }
 
 list<tii_measurement_t> WebRadioInterface::getTiiStats()
@@ -1634,7 +1634,7 @@ list<tii_measurement_t> WebRadioInterface::getTiiStats()
             avg.error = error / len;
 
             // Calculate the median
-            std::nth_element(delays.begin(), delays.begin() + len/2, delays.end());
+            nth_element(delays.begin(), delays.begin() + len/2, delays.end());
             avg.delay_samples = delays[len/2];
         }
         else {
@@ -1645,7 +1645,7 @@ list<tii_measurement_t> WebRadioInterface::getTiiStats()
         l.push_back(move(avg));
     }
 
-    using namespace std::chrono;
+    using namespace chrono;
     const auto now = steady_clock::now();
     // Remove a single entry every second to make the flukes
     // disappear

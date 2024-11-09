@@ -2994,7 +2994,7 @@ scan_number_done:
         std::string result;
         for (const auto c : token_string)
         {
-            if ('\x00' <= c and c <= '\x1F')
+            if ('\x00' <= (signed char)c and c <= '\x1F')
             {
                 // escape control characters
                 std::stringstream ss;

@@ -515,7 +515,7 @@ void CRTL_TCP_Client::networkBufferCopy()
 
         if(getMyTime() - oldTime_us > 500e3) { // 500 ms
 
-            float bufferFill = (float) sampleNetworkBuffer.GetRingBufferReadAvailable() / sampleNetworkBuffer.GetBufferSize() * 100;
+            // float bufferFill = (float) sampleNetworkBuffer.GetRingBufferReadAvailable() / sampleNetworkBuffer.GetBufferSize() * 100;
             //std::clog << "RTL_TCP_CLIENT: Network buffer fill level " << bufferFill << "%" << std::endl;
 
             oldTime_us = getMyTime();
