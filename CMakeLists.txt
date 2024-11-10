@@ -493,6 +493,7 @@ if(BUILD_WELLE_CLI AND NOT ANDROID)
                 ${CMAKE_SOURCE_DIR}/src/welle-cli/index.html
                 index.html.h
         DEPENDS ${CMAKE_SOURCE_DIR}/src/welle-cli/index.html)
+    set_property(SOURCE index.html.h PROPERTY SKIP_AUTOMOC ON)
 
     add_custom_command(
         OUTPUT index.js.h
@@ -500,6 +501,7 @@ if(BUILD_WELLE_CLI AND NOT ANDROID)
                 ${CMAKE_SOURCE_DIR}/src/welle-cli/index.js
                 index.js.h
         DEPENDS ${CMAKE_SOURCE_DIR}/src/welle-cli/index.js)
+    set_property(SOURCE index.js.h PROPERTY SKIP_AUTOMOC ON)
 
     add_custom_command(
         OUTPUT favicon.ico.h
@@ -507,6 +509,7 @@ if(BUILD_WELLE_CLI AND NOT ANDROID)
                 ${CMAKE_SOURCE_DIR}/src/welle-cli/favicon.ico
                 favicon.ico.h
         DEPENDS ${CMAKE_SOURCE_DIR}/src/welle-cli/favicon.ico)
+    set_property(SOURCE favicon.ico.h PROPERTY SKIP_AUTOMOC ON)
 
     if(UNIX AND NOT APPLE OR NOT WITH_APP_BUNDLE)
         INSTALL (TARGETS ${cliExecutableName} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
