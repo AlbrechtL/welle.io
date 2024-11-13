@@ -457,14 +457,14 @@ int16_t FIBProcessor::HandleFIG0Extension8(
 
     uint8_t lsFlag  = getBits_1(d, lOffset);
     if (lsFlag == 1) {
-        int16_t SCid = getBits(d, lOffset + 4, 12);
+        /* int16_t SCid = */ getBits(d, lOffset + 4, 12);
         lOffset += 16;
         //           if (findPacketComponent ((SCIds << 4) | SCid) != NULL) {
         //              std::clog << "fib-processor:" << "packet component bestaat !!\n") << std::endl;
         //           }
     }
     else {
-        int16_t SubChId = getBits_6(d, lOffset + 4);
+        /* int16_t SubChId = */ getBits_6(d, lOffset + 4);
         lOffset += 8;
     }
 

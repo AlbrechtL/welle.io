@@ -695,7 +695,7 @@ int main(int argc, char **argv)
                 }
 
                 bool service_selected = false;
-                for (const auto s : rx.getServiceList()) {
+                for (const auto& s : rx.getServiceList()) {
                     if (s.serviceLabel.utf8_label().find(service_to_tune) != string::npos) {
                         service_selected = true;
                         string dumpFileName;

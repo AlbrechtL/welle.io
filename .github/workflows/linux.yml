@@ -71,6 +71,7 @@ jobs:
 
           # Create AppImage
           ./appimagetool-*.AppImage -s deploy ./appdir/usr/share/applications/*.desktop # Bundle EVERYTHING
+          cp /usr/lib/x86_64-linux-gnu/dri/* appdir/usr/lib/x86_64-linux-gnu/ # Copy some additional libs to AppImage. See https://github.com/probonopd/go-appimage/issues/301 for details
           find appdir/
           VERSION=1.0 ./appimagetool-*.AppImage ./appdir # turn AppDir into AppImage
 

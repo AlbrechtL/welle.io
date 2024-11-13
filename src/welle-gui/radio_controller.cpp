@@ -34,6 +34,7 @@
 #include <QDebug>
 #include <QSettings>
 #include <QStandardPaths>
+#include <QTimeZone>
 #include <stdexcept>
 
 #include "radio_controller.h"
@@ -610,7 +611,7 @@ std::vector<DSPCOMPLEX> CRadioController::getConstellationPoint()
  ********************/
 void CRadioController::initialise(void)
 {
-    for (const auto param_value : deviceParametersString) {
+    for (const auto& param_value : deviceParametersString) {
         device->setDeviceParam(param_value.first, param_value.second);
     }
 
@@ -890,8 +891,7 @@ void CRadioController::displayDateTime(const dab_date_time_t& dateTime)
 
     int OffsetFromUtc = dateTime.hourOffset * 3600 +
                         dateTime.minuteOffset * 60;
-    currentDateTime.setOffsetFromUtc(OffsetFromUtc);
-    currentDateTime.setTimeSpec(Qt::OffsetFromUTC);
+    currentDateTime.setTimeZone(QTimeZone(OffsetFromUtc));
 
     emit dateTimeChanged(currentDateTime);
 }
