@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.2)
 
 project(Welle.Io LANGUAGES C CXX)
 
@@ -13,7 +13,7 @@ if(NOT WELLE-IO_VERSION)
 endif()
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 14)
 
 option(BUILD_WELLE_IO    "Build Welle.io"                        ON  )
 option(BUILD_WELLE_CLI   "Build welle-cli"                       ON  )
@@ -77,7 +77,7 @@ endif()
 if(BUILD_WELLE_CLI AND NOT ANDROID)
     find_package(Lame REQUIRED)
     if (FLAC)
-    find_package(FLACPP REQUIRED) # test if FLAC is installed on the system     
+    find_package(FLACPP REQUIRED) # test if FLAC is installed on the system
     add_definitions(-DHAVE_FLAC)
     endif()
 endif()
@@ -200,11 +200,12 @@ endif()
 
 if (SOAPYSDR)
   find_package(SoapySDR NO_MODULE REQUIRED)
-  # Note: SoapySDRConfig.cmake sets C++11 standard so it needs to be reset to C++17
-  set(CMAKE_CXX_STANDARD 17)
+  # Note: SoapySDRConfig.cmake sets C++11 standard so it needs to be reset to C++14
+  set(CMAKE_CXX_STANDARD 14)
 endif()
 
 include_directories(
+    ${CMAKE_CURRENT_BINARY_DIR}
     src
     src/backend
     src/output
@@ -458,7 +459,14 @@ endif()
 
 if(BUILD_WELLE_CLI AND NOT ANDROID)
     set(cliExecutableName welle-cli)
-    add_executable (${cliExecutableName} ${welle_cli_sources} ${backend_sources} ${input_sources} ${fft_sources})
+    add_executable (${cliExecutableName}
+        ${welle_cli_sources}
+        ${backend_sources}
+        ${input_sources}
+        ${fft_sources}
+        index.html.h
+        index.js.h
+        favicon.ico.h)
 
     if(CMAKE_BUILD_TYPE MATCHES Debug)
       SET_TARGET_PROPERTIES(${cliExecutableName} PROPERTIES COMPILE_FLAGS "-O2 -fno-omit-frame-pointer -fsanitize=address")
@@ -478,34 +486,34 @@ if(BUILD_WELLE_CLI AND NOT ANDROID)
       Threads::Threads
     )
 
+    find_program(RESOURCE_COMPILER xxd)
     add_custom_command(
-            TARGET ${cliExecutableName} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy
-                    ${CMAKE_SOURCE_DIR}/src/welle-cli/index.html
-                    ${CMAKE_CURRENT_BINARY_DIR}/index.html)
-    add_custom_command(
-            TARGET ${cliExecutableName} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy
-                    ${CMAKE_SOURCE_DIR}/src/welle-cli/index.js
-                    ${CMAKE_CURRENT_BINARY_DIR}/index.js)
+        OUTPUT index.html.h
+        COMMAND ${RESOURCE_COMPILER} -i -n index_html
+                ${CMAKE_SOURCE_DIR}/src/welle-cli/index.html
+                index.html.h
+        DEPENDS ${CMAKE_SOURCE_DIR}/src/welle-cli/index.html)
+    set_property(SOURCE index.html.h PROPERTY SKIP_AUTOMOC ON)
 
-    if(APPLE AND WITH_APP_BUNDLE)
-        INSTALL (TARGETS ${cliExecutableName} RUNTIME DESTINATION ${GUI_INSTALL_DIR}/${executableName}.app/Contents/MacOS)
-        INSTALL (
-            FILES
-                ${PROJECT_SOURCE_DIR}/src/welle-cli/index.html
-                ${PROJECT_SOURCE_DIR}/src/welle-cli/index.js
-            DESTINATION ${GUI_INSTALL_DIR}/${executableName}.app/Contents/Resources/welle-cli
-        )
-    elseif(UNIX)
+    add_custom_command(
+        OUTPUT index.js.h
+        COMMAND ${RESOURCE_COMPILER} -i -n index_js
+                ${CMAKE_SOURCE_DIR}/src/welle-cli/index.js
+                index.js.h
+        DEPENDS ${CMAKE_SOURCE_DIR}/src/welle-cli/index.js)
+    set_property(SOURCE index.js.h PROPERTY SKIP_AUTOMOC ON)
+
+    add_custom_command(
+        OUTPUT favicon.ico.h
+        COMMAND ${RESOURCE_COMPILER} -i -n favicon_ico
+                ${CMAKE_SOURCE_DIR}/src/welle-cli/favicon.ico
+                favicon.ico.h
+        DEPENDS ${CMAKE_SOURCE_DIR}/src/welle-cli/favicon.ico)
+    set_property(SOURCE favicon.ico.h PROPERTY SKIP_AUTOMOC ON)
+
+    if(UNIX AND NOT APPLE OR NOT WITH_APP_BUNDLE)
         INSTALL (TARGETS ${cliExecutableName} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
         INSTALL (FILES src/welle-cli/doc/man/welle-cli.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1/)
-        INSTALL (
-            FILES
-                ${PROJECT_SOURCE_DIR}/src/welle-cli/index.html
-                ${PROJECT_SOURCE_DIR}/src/welle-cli/index.js
-            DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/welle-io/html/
-        )
     endif()
 endif()
 

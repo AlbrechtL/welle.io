@@ -75,7 +75,6 @@ class WebRadioInterface : public RadioControllerInterface {
         WebRadioInterface(
                 CVirtualInput& in,
                 int port,
-                const std::string& base_dir,
                 DecodeSettings cs,
                 RadioReceiverOptions rro);
         virtual ~WebRadioInterface();
@@ -107,7 +106,8 @@ class WebRadioInterface : public RadioControllerInterface {
         bool dispatch_client(Socket&& client);
         // Send a file
         bool send_file(Socket& s,
-                const std::string& filename,
+                const unsigned char *file,
+                const unsigned int file_length,
                 const std::string& content_type);
 
         // Generate and send the mux.json
@@ -216,6 +216,4 @@ class WebRadioInterface : public RadioControllerInterface {
             std::chrono::time_point<std::chrono::steady_clock> time_change;
         };
         std::list<ActiveCarouselService> carousel_services_active;
-
-        std::string base_dir;
 };

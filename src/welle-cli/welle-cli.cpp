@@ -275,7 +275,6 @@ class RadioInterface : public RadioControllerInterface {
 struct options_t {
     string soapySDRDriverArgs = "";
     string antenna = "";
-    string base_dir = "";
     int gain = -1;
     string channel = "10B";
     string iqsource = "";
@@ -315,7 +314,6 @@ static void usage()
     endl <<
     "Web server mode:" << endl <<
     "    -w port       Enable web server on port <port>." << endl <<
-    "    -b path       Base directory of index.html and index.js files." << endl <<
     "    -C number     Number of programmes to decode in a carousel" << endl <<
     "                  (to be used with -w, cannot be used with -D)." << endl <<
     "                  This is useful if your machine cannot decode all programmes" << endl <<
@@ -411,13 +409,10 @@ options_t parse_cmdline(int argc, char **argv)
     options.rro.decodeTII = true;
 
     int opt;
-    while ((opt = getopt(argc, argv, "A:b:c:C:dDf:F:g:hp:O:Ps:Tt:uvw:")) != -1) {
+    while ((opt = getopt(argc, argv, "A:c:C:dDf:F:g:hp:O:Ps:Tt:uvw:")) != -1) {
         switch (opt) {
             case 'A':
                 options.antenna = optarg;
-                break;
-            case 'b':
-                options.base_dir = optarg;
                 break;
             case 'c':
                 options.channel = optarg;
@@ -610,7 +605,7 @@ int main(int argc, char **argv)
             return 1;
         }
 
-        WebRadioInterface wri(*in, options.web_port, options.base_dir, ds, options.rro);
+        WebRadioInterface wri(*in, options.web_port, ds, options.rro);
         wri.serve();
     }
     else {

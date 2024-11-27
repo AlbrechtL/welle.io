@@ -24,7 +24,6 @@
  */
 
 #include "welle-cli/webradiointerface.h"
-#include <filesystem>
 #include <algorithm>
 #include <cmath>
 #include <complex>
@@ -56,6 +55,10 @@
 #include "virtual_input.h"
 #include "welle-cli/jsonconvert.h"
 #include "welle-cli/webprogrammehandler.h"
+
+#include "index.html.h"
+#include "index.js.h"
+#include "favicon.ico.h"
 
 #ifdef __unix__
 # include <unistd.h>
@@ -105,6 +108,9 @@ static const char* http_contenttype_js =
 static const char* http_contenttype_html =
         "Content-Type: text/html; charset=utf-8\r\n";
 
+static const char* http_contenttype_ico =
+        "Content-Type: image/x-icon\r\n";
+
 static const char* http_nocache = "Cache-Control: no-cache\r\n";
 
 static string to_hex(uint32_t value, int width)
@@ -132,15 +138,13 @@ static bool send_http_response(Socket& s, const string& statuscode,
 
 WebRadioInterface::WebRadioInterface(CVirtualInput& in,
         int port,
-        const string &base_dir,
         DecodeSettings ds,
         RadioReceiverOptions rro) :
     dabparams(1),
     input(in),
     spectrum_fft_handler(dabparams.T_u),
     rro(rro),
-    decode_settings(ds),
-    base_dir(base_dir)
+    decode_settings(ds)
 {
     {
         // Ensure that rx always exists when rx_mut is free!
@@ -466,10 +470,13 @@ bool WebRadioInterface::dispatch_client(Socket&& client)
     else {
         if (req.is_get) {
             if (req.url == "/") {
-                success = send_file(s, "index.html", http_contenttype_html);
+                success = send_file(s, index_html, index_html_len, http_contenttype_html);
             }
             else if (req.url == "/index.js") {
-                success = send_file(s, "index.js", http_contenttype_js);
+                success = send_file(s, index_js, index_js_len, http_contenttype_js);
+            }
+            else if (req.url == "/favicon.ico") {
+                success = send_file(s, favicon_ico, favicon_ico_len, http_contenttype_ico);
             }
             else if (req.url == "/mux.json") {
                 success = send_mux_json(s);
@@ -568,47 +575,22 @@ bool WebRadioInterface::dispatch_client(Socket&& client)
 }
 
 bool WebRadioInterface::send_file(Socket& s,
-        const string& filename,
+        const unsigned char *file,
+        const unsigned int file_length,
         const string& content_type)
 {
-    filesystem::path path_name;
-    if (!base_dir.empty())
-    {
-        path_name = base_dir;
-        path_name /= filename;
+    if (not send_http_response(s, http_ok, "", content_type)) {
+        cerr << "Failed to send file headers" << endl;
+        return false;
     }
-    else
-    {
-        path_name = filename;
-    }
-    FILE *fd = fopen(path_name.c_str(), "r");
-    if (fd) {
-        if (not send_http_response(s, http_ok, "", content_type)) {
-            cerr << "Failed to send file headers" << endl;
-            fclose(fd);
-            return false;
-        }
 
-        vector<char> data(1024);
-        ssize_t ret = 0;
-        do {
-            ret = fread(data.data(), 1, data.size(), fd);
-            ret = s.send(data.data(), ret, MSG_NOSIGNAL);
-            if (ret == -1) {
-                cerr << "Failed to send file data" << endl;
-                fclose(fd);
-                return false;
-            }
-
-        } while (ret > 0);
-
-        fclose(fd);
-        return true;
+    ssize_t ret = 0;
+    ret = s.send((void*)file, file_length, MSG_NOSIGNAL);
+    if (ret == -1) {
+        cerr << "Failed to send file data" << endl;
+        return false;
     }
-    else {
-        return send_http_response(s, http_500, "file '" + filename + "' is missing!");
-    }
-    return false;
+    return true;
 }
 
 static vector<PeakJson> calculate_cir_peaks(const vector<float>& cir_linear)
