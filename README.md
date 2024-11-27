@@ -28,6 +28,7 @@ Table of contents
     * [Examples](#examples)
   * [Limitations](#limitations)
   * [Development](#development)
+  * [Sponsors](#sponsors)
 
 Download
 ========
@@ -401,3 +402,15 @@ Profiling
 If you build with cmake and add `-DPROFILING=ON`, welle-io will generate a few `.csv` files and a graphviz `.dot` file that can be used
 to analyse and understand which parts of the backend use CPU resources. Use `dot -Tpdf profiling.dot > profiling.pdf` to generate a graph
 visualisation. Search source code for the `PROFILE()` macro to see where the profiling marks are placed.
+
+Sponsors
+===
+
+<table>
+ <tbody>
+  <tr>
+   <td align="center"><img alt="[SignPath]" src="https://avatars.githubusercontent.com/u/34448643" height="30"/></td>
+   <td>Free code signing on Windows provided by <a href="https://signpath.io/?utm_source=foundation&utm_medium=github&utm_campaign=welle">SignPath.io</a>, certificate by <a href="https://signpath.org/?utm_source=foundation&utm_medium=github&utm_campaign=welle">SignPath Foundation</a></td>
+  </tr>
+ </tbody>
+</table>
