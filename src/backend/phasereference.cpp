@@ -97,14 +97,13 @@ int32_t PhaseReference::findIndex(DSPCOMPLEX *v,
             const float threshold = 3;
 
             /**
-             * We compute the average signal value ...
+             * We compute the average signal value
+             * and find the peak value
              */
-            for (size_t i = 0; i < Tu; i++)
-                sum += abs(res_buffer[i]);
-
             DSPFLOAT max = -10000;
             for (size_t i = 0; i < Tu; i++) {
                 const float value = abs(res_buffer[i]);
+                sum += value;
                 impulseResponseBuffer[i] = value;
 
                 if (value > max) {
@@ -112,6 +111,9 @@ int32_t PhaseReference::findIndex(DSPCOMPLEX *v,
                     max = value;
                 }
             }
+            /* avoid zero divide in case signal v is 0 */
+            if(sum==0)
+                return -1;
             /**
              * that gives us a basis for defining the threshold
              */
