@@ -36,8 +36,18 @@ jobs:
       - name: Install build dependencies
         run: |
             set -x
-            sudo apt-get -y install build-essential libfaad-dev libmpg123-dev libfftw3-dev librtlsdr-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev libsoapysdr-dev libairspy-dev libmp3lame-dev libflac++-dev
+
+            # Install build dependencies
+            sudo apt-get -y install build-essential libfaad-dev libmpg123-dev libfftw3-dev \
+            librtlsdr-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev \
+            libsoapysdr-dev libairspy-dev libmp3lame-dev libflac++-dev libegl-dev
      
+            # Install sharun dependencies
+            sudo apt install file binutils patchelf findutils grep sed coreutils strace
+
+            # Install virtual graphic display to run welle.io without an display
+            sudo apt install xvfb
+            
       - name: Build
         id: build
         run: |
@@ -64,15 +74,24 @@ jobs:
       - name: Create AppImage
         id: create_appimage
         run: |
-          # Get appimagetool
-          #wget -c https://github.com/$(wget -q https://github.com/probonopd/go-appimage/releases/expanded_assets/continuous -O - | grep "appimagetool-.*-x86_64.AppImage" | head -n 1 | cut -d '"' -f 2)
-          wget https://welle-io-nightlies.albrechtloh.de/appimagetool-843-x86_64.AppImage # just for testing
+          # Get appimagetool 
+          wget -c https://github.com/$(wget -q https://github.com/probonopd/go-appimage/releases/expanded_assets/continuous -O - | grep "appimagetool-.*-x86_64.AppImage" | head -n 1 | cut -d '"' -f 2)
+          #wget https://welle-io-nightlies.albrechtloh.de/appimagetool-843-x86_64.AppImage # just for testing
           chmod +x appimagetool-*.AppImage
 
-          # Create AppImage
+          # Get lib4bin (sharun)
+          wget https://raw.githubusercontent.com/VHSgunzo/sharun/refs/heads/main/lib4bin -O ./lib4bin
+          chmod +x ./lib4bin
+
+          # Dummy run welle in a virtual display to collect graphic libraries with sharun
+          xvfb-run -- ./lib4bin -p -v -r -e ./appdir/usr/bin/welle-io
+          cp shared/lib/* appdir/usr/lib/x86_64-linux-gnu/
+
+          # Collect remaining libraries
           ./appimagetool-*.AppImage -s deploy ./appdir/usr/share/applications/*.desktop # Bundle EVERYTHING
-          cp /usr/lib/x86_64-linux-gnu/dri/* appdir/usr/lib/x86_64-linux-gnu/ # Copy some additional libs to AppImage. See https://github.com/probonopd/go-appimage/issues/301 for details
           find appdir/
+
+          # Create AppImage
           VERSION=1.0 ./appimagetool-*.AppImage ./appdir # turn AppDir into AppImage
 
           # Preapre publish
