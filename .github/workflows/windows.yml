@@ -102,7 +102,7 @@ jobs:
           output-artifact-directory: 'publish'
 
       - name: Archive artifacts (welle.io Windows installer signed)
-        id: upload_artifact_signed
+        id: upload_artifact_self_signed
         uses: actions/upload-artifact@v4
         with:
           name: welle.io Windows installer self-signed
@@ -137,7 +137,7 @@ jobs:
           output-artifact-directory: 'publish_production'
 
       - name: Archive artifacts (welle.io Windows installer signed)
-        id: upload_artifact_signed
+        id: upload_artifact_production_signed
         uses: actions/upload-artifact@v4
         if: always() && steps.production_signing_installer.outcome == 'success'
         with:
