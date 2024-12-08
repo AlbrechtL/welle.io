@@ -137,7 +137,7 @@ jobs:
           organization-id: 'b7a507e8-ab76-445f-bfb5-05944bcbbee9'
           project-slug: 'welle.io'
           signing-policy-slug: 'release-signing'
-          github-artifact-id: '${{qtbuild.steps.upload_artifact.outputs.artifact-id}}'
+          github-artifact-id: '${{needs.qtbuild.upload_artifact.outputs.artifact-id}}'
           wait-for-completion: true
           output-artifact-directory: 'publish_production'
 
