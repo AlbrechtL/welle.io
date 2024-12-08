@@ -47,7 +47,7 @@ jobs:
 
             # Install virtual graphic display to run welle.io without an display
             sudo apt install xvfb
-            
+
       - name: Build
         id: build
         run: |
@@ -83,12 +83,13 @@ jobs:
           wget https://raw.githubusercontent.com/VHSgunzo/sharun/refs/heads/main/lib4bin -O ./lib4bin
           chmod +x ./lib4bin
 
-          # Dummy run welle in a virtual display to collect graphic libraries with sharun
-          xvfb-run -- ./lib4bin -p -v -r -e ./appdir/usr/bin/welle-io
-          cp shared/lib/* appdir/usr/lib/x86_64-linux-gnu/
-
           # Collect remaining libraries
           ./appimagetool-*.AppImage -s deploy ./appdir/usr/share/applications/*.desktop # Bundle EVERYTHING
+
+          # Dummy run welle in a virtual display to collect graphic libraries with sharun
+          xvfb-run -- ./lib4bin -p -v -r -e ./appdir/usr/bin/welle-io
+          cp -r shared/lib/* appdir/usr/lib/x86_64-linux-gnu/
+
           find appdir/
 
           # Create AppImage
