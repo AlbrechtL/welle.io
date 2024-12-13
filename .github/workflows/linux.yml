@@ -33,7 +33,7 @@ jobs:
 
             # Install build dependencies
             sudo apt-get -y install flatpak-builder
-            sudo flatpak remote-add --if-not-exists --user flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+            flatpak remote-add --if-not-exists --user flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 
       - name: Build
         id: build
