@@ -47,7 +47,6 @@ jobs:
             mv welle-io.flatpak publish/"$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.flatpak
         
       - name: Archive artifacts (welle.io AppImage)
-        if: always() && steps.create_appimage.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: welle.io AppImage
@@ -55,7 +54,6 @@ jobs:
           if-no-files-found: error
 
       - name: Upload to nightly server
-        if: always() && steps.create_appimage.outcome == 'success'
         uses: dennisameling/ftp-upload-action@v1
         with:
           server: a2f24.netcup.net # welle-io-nightlies.albrechtloh.de is redirected to here
