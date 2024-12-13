@@ -46,10 +46,10 @@ jobs:
             mkdir publish
             mv welle-io.flatpak publish/"$DATE"_"$GIT_HASH"_Linux_welle-io-x86_64.flatpak
         
-      - name: Archive artifacts (welle.io AppImage)
+      - name: Archive artifacts (welle.io Flatpak)
         uses: actions/upload-artifact@v4
         with:
-          name: welle.io AppImage
+          name: welle.io Flatpak
           path: publish/*.flatpak
           if-no-files-found: error
 
