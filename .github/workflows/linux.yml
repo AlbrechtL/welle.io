@@ -39,7 +39,7 @@ jobs:
         id: build
         run: |
             # Create welle-gui Flatpak
-            flatpak-builder --force-clean --user --install-deps-from=flathub --repo=repo --install builddir io.welle.welle_io.json
+            flatpak-builder --force-clean --user --install-deps-from=flathub --repo=repo --install builddir io.welle.welle_io.yml
             flatpak build-bundle repo welle-io.flatpak io.welle.welle_gui --runtime-repo=https://flathub.org/repo/flathub.flatpakrepo
 
             # Prepare publish
