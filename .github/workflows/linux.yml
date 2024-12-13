@@ -33,16 +33,14 @@ jobs:
 
             # Install build dependencies
             sudo apt-get -y install flatpak-builder
-            sudo flatpak -y remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+            sudo flatpak remote-add --if-not-exists --user flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 
       - name: Build
         id: build
         run: |
             # Create welle-gui Flatpak
-            flatpak-builder --repo=wellerepo --install-deps-from=flathub --force-clean fp_build io.welle.welle_gui.json
-            flatpak --user remote-add --no-gpg-verify welle-repo wellerepo
-            flatpak --user install welle-repo io.welle.welle_gui
-            flatpak build-bundle wellerepo welle-io.flatpak io.welle.welle-gui
+            flatpak-builder --force-clean --user --install-deps-from=flathub --repo=repo --install builddir io.welle.welle_io.json
+            flatpak build-bundle repo welle-io.flatpak io.welle.welle_gui --runtime-repo=https://flathub.org/repo/flathub.flatpakrepo
 
             # Prepare publish
             mkdir publish
