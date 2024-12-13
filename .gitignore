@@ -2,6 +2,9 @@
 /.idea/
 /cmake-build-debug/
 build/
+builddir/
+.flatpak-builder/
+repo/
 Makefile
 welle-io
 *.o
