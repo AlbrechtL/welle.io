@@ -6,11 +6,13 @@
     "command": "welle-io",
     "finish-args": [
         "--share=network",
+  			"--share=ipc",
         "--filesystem=host",
         "--socket=pulseaudio",
         "--socket=wayland",
         "--socket=fallback-x11",
-        "--device=dri"
+        "--device=dri",
+				"--device=all"
     ],
     "modules": [
         {
