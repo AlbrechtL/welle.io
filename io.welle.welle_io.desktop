@@ -2,6 +2,6 @@
 Type=Application
 Name=welle.io
 Exec=welle-io
-Icon=welle-io
+Icon=io.welle.welle_io
 Comment=A DAB/DAB+ Software Radio
 Categories=AudioVideo;

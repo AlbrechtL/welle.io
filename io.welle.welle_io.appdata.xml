@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright 2022 Albrecht Lohofener <albrechtloh@gmx.de> -->
-<component type="desktop-application">
+<!-- Copyright 2024 Albrecht Lohofener <albrechtloh@gmx.de> -->
+<component type="desktop">
   <id>io.welle.welle_io</id>
-  <launchable type="desktop-id">welle-io.desktop</launchable>
+  <launchable type="desktop-id">io.welle.welle_io.desktop</launchable>
   <name>welle.io</name>
   <summary>A DAB/DAB+ Software Radio</summary>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-2.0+</project_license>
-  <developer_name>Albrecht Lohofener</developer_name>
+  <developer id="io.welle.welle_io">
+    <name>Albrecht Lohofener</name>
+  </developer>
   <url type="homepage">https://www.welle.io</url>
   <description>
     <p>
@@ -21,4 +23,7 @@
   </screenshots>
   <update_contact>albrechtloh@gmx.de</update_contact>
   <content_rating type="oars-1.1" />
+  <releases>
+    <release date="1970-01-01" version="0.0.0"/>
+  </releases>
 </component>
