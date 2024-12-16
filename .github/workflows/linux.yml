@@ -27,13 +27,29 @@ jobs:
       - name: Display environment variables
         run: env | sort
 
-      - name: Prepare flatpak build
+      - name: Install flatpak build dependencies
         run: |
             set -x
 
             # Install build dependencies
             sudo apt-get -y install flatpak-builder appstream-compose
             flatpak remote-add --if-not-exists --user flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+
+            # For flatpak-builder-lint
+            flatpak install -y flathub org.flatpak.Builder
+
+      - name: Prepare flatpak build
+        run: |
+            # Add current build date into appdata.xml
+            APPDATA_DATE=`date +%Y-%m-%d`
+            sed -i 's/date="1970-01-01"/'date=\""$APPDATA_DATE"\"'/g' io.welle.welle_io.appdata.xml
+
+            # Add githash into appdata.xml
+            APPDATA_DATE_VERSION="2.6-unstable-$GIT_HASH"
+            sed -i 's/version="0.0.0"/'version=\""$APPDATA_DATE_VERSION"\"'/g' io.welle.welle_io.appdata.xml
+
+            # Check if file "io.welle.welle_io.appdata.xml" is valid
+            flatpak run --command=flatpak-builder-lint org.flatpak.Builder appstream io.welle.welle_io.appdata.xml
 
       - name: Build
         id: build
