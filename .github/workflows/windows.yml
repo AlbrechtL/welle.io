@@ -20,6 +20,7 @@ jobs:
           modules: 'qtcharts qtmultimedia qt5compat qtshadertools'
           arch: 'win64_mingw'
           tools: 'tools_mingw1310'
+          aqtversion: '==3.1.19' # See https://github.com/jurplel/install-qt-action/issues/270
       - name: Checkout
         uses: actions/checkout@v4
 
