@@ -139,7 +139,7 @@ ViewBaseFrame {
 
         TextExpert {
             name: qsTr("DAB date and time") + ":"
-            text: radioController.dateTime.toUTCString()
+            text: radioController.dateTime.toString()
         }
     }
 }
