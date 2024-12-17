@@ -40,7 +40,7 @@ jobs:
 
       - name: Archive artifacts (welle.io build dir)
         if: always() && steps.build.outcome == 'failure'
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: welle.io build dir
           path: build/*
