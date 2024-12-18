@@ -444,8 +444,8 @@ if(BUILD_WELLE_IO)
         INSTALL (FILES src/welle-gui/doc/man/welle-io.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1/)
 
         if(UNIX AND NOT APPLE)
-            INSTALL (FILES ${PROJECT_SOURCE_DIR}/welle-io.desktop DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/applications)
-            INSTALL (FILES ${PROJECT_SOURCE_DIR}/io.welle.welle_io.metainfo.xml DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/metainfo)
+            INSTALL (FILES ${PROJECT_SOURCE_DIR}/io.welle.welle_io.desktop DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/applications)
+            INSTALL (FILES ${PROJECT_SOURCE_DIR}/io.welle.welle_io.appdata.xml DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/metainfo)
 
             INSTALL (FILES ${PROJECT_SOURCE_DIR}/src/welle-gui/icons/16x16/welle-io.png DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/16x16/apps)
             INSTALL (FILES ${PROJECT_SOURCE_DIR}/src/welle-gui/icons/24x24/welle-io.png DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/24x24/apps)
