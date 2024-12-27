@@ -7,7 +7,7 @@
 This repository contains the implementation of an SDR DAB/DAB+ receiver.  
 Please see the project website https://www.welle.io for a user oriented documentation. 
 
-welle.io is a fork from dab-rpi and sdr-j-dab which is now qt-dab https://github.com/JvanKatwijk/qt-dab.
+welle.io is a fork from dab-rpi and sdr-j-dab which is now qt-dab (see https://github.com/JvanKatwijk/qt-dab ).
 
 Table of contents
 ====
@@ -94,7 +94,7 @@ Ctrl+Down, Volume Down | Volume Down
 Supported Hardware
 ====================
 The following SDR devices are supported
-* Airspy R2 and Airspy Mini (http://airspy.com/)
+* Airspy R2 and Airspy Mini (http://airspy.com/); remark: Airspy HF+ is not supported due to limited bandwidth
 * rtl-sdr (http://osmocom.org/projects/sdr/wiki/rtl-sdr)
 * rtl_tcp (http://osmocom.org/projects/sdr/wiki/rtl-sdr#rtl_tcp)
 * I/Q RAW file (https://www.welle.io/devices/rawfile)
@@ -147,7 +147,7 @@ sudo apt install libfaad-dev libmpg123-dev libfftw3-dev librtlsdr-dev libusb-1.0
 3. Install the following Qt packages
 
 ```
-sudo apt install libqt6charts6-dev qt6-base-dev qt6-tools-dev-tools qt6-multimedia-dev qt6-wayland-dev libqt6core5compat6-dev libqt63dquick6 libqt6qml6 qt6-declarative-dev  qml6-module-qtquick-controls qml6-module-qtquick qml6-module-qt5compat-graphicaleffects qml6-module-qtcharts  qml6-module-qtmultimedia qml6-module-qtquick-window qml6-module-qtquick-layouts qml6-module-qtqml-workerscript qml6-module-qtwayland-compositor qml6-module-qtquick-templates qtcreator
+sudo apt install libqt6charts6-dev qt6-base-dev qt6-tools-dev-tools qt6-multimedia-dev qt6-wayland-dev libqt6core5compat6-dev libqt63dquick6 libqt6qml6 qt6-declarative-dev qml6-module-qtquick-controls qml6-module-qtquick qml6-module-qt5compat-graphicaleffects qml6-module-qtcharts qml6-module-qtmultimedia qml6-module-qtquick-window qml6-module-qtquick-layouts qml6-module-qtqml-workerscript qml6-module-qtwayland-compositor qml6-module-qtquick-templates qtcreator qml6-module-qtcore qml6-module-qtquick-dialogs qml6-module-qtquick-dialogs
 ```
 
 4. Clone welle.io
@@ -164,7 +164,7 @@ Windows 10 / 11
 ---
 A compiled version can be found at the [release page](https://github.com/AlbrechtL/welle.io/releases)
 
-This sections shows how to compile welle.io on Windows 10. Windows 7 should also be possible but is not tested. 
+This section shows how to compile welle.io on Windows 10. Windows 7 should also be possible but is not tested. 
 
 1. Install Qt 6.2 (MinGW 64-bit) or newer including "Qt Charts" and "Qt 5 Compatibility Module" modules by using the "Qt Online Installer for Windows" https://www.qt.io/download-open-source/
 2. Clone welle.io https://github.com/AlbrechtL/welle.io.git e.g. by using [TortoiseGit](https://tortoisegit.org).
@@ -177,7 +177,7 @@ macOS
 ---
 **WARNING: Not tested with Qt 6.2!**
 
-To build for macOS, you have have several options: Either you install everything incl. dependencies manually (not covered here and not recommended) or use Homebrew or MacPorts.
+To build for macOS, you have several options: Either you install everything incl. dependencies manually (not covered here and not recommended) or use Homebrew or MacPorts.
 
 ### Homebrew
 
@@ -197,25 +197,28 @@ brew install AlbrechtL/welle_io/welle.io
 
 ### MacPorts
 
-You can either use the welle.io port available in macports, or compile with QT Creator.
+You can either use the welle.io port available in macports, or compile with Qt Creator.
 
 #### use welle.io port
 
 This is the easiest way and will manage the dependencies for you.
 Variants enabled by default are : "airspy" "rtlsdr" "soapysdr". Each enables compilation with that specific input device library.
+
 ```
 sudo port install welle.io
 ```
-Additional variants are : "cli" (to install also welle-cli) "profiling" & "kiss_fft".
+
+Additional variants are: "cli" (to install also welle-cli) "profiling" & "kiss_fft".
 
 With MacPorts, welle.io is installed as a bundle app in `/Applications/MacPorts`.
 
 You can also use welle.io-devel port if you prefer:
+
 ```
 sudo port install welle.io-devel
 ```
 
-#### compile with QT Creator
+#### compile with Qt Creator
 
 You need to install the dependencies with MacPorts first, assuming you have [MacPorts](https://www.macports.org/) installed:
 
@@ -230,7 +233,7 @@ sudo port install fftw-3-single faad2 rtl-sdr libusb mpg123 lame
 git clone https://github.com/AlbrechtL/welle.io.git
 ```
 
-3. Open welle.io.pro with Qt Creator.
+3. Open `welle.io.pro` with Qt Creator.
 4. Make sure in Qt Creator, "Projects, Build&Run, Run" that the checkbox "Add build library path to DYLD..." is off.
 5. Build and run.
 
@@ -306,7 +309,7 @@ welle.io uses the "RTL2832U driver" from Martin Marinov, to be found at the [Goo
 This sections shows how to compile welle.io for Android.
 
 1. Install Qt 5.12 for Android including the Qt Charts and Qt Remote Objects modules by using the "Qt Online Installer for Windows" https://www.qt.io/download-open-source/
-2. Follow the side https://doc.qt.io/qt-5/androidgs.html to install the Android build environment
+2. Follow the site https://doc.qt.io/qt-5/androidgs.html to install the Android build environment
 3. Clone welle.io https://github.com/AlbrechtL/welle.io.git
 
 ```
@@ -327,28 +330,28 @@ Usage of welle-cli
 
 Receive using RTLSDR, and play with ALSA:
 
-    welle-cli -c channel -p programme
+    `welle-cli -c channel -p programme`
 
 Read an IQ file and play with ALSA: (IQ file format is u8, unless the file ends with FORMAT.iq)
 
-    welle-cli -f file -p programme
+    `welle-cli -f file -p programme`
 
 Use -D to dump FIC and all programmes to files:
  
-    welle-cli -c channel -D 
+    `welle-cli -c channel -D` 
 
 Use -w to enable webserver, decode a programme on demand:
     
-    welle-cli -c channel -w port
+    `welle-cli -c channel -w port`
 
 Use -Dw to enable webserver, decode all programmes:
     
-    welle-cli -c channel -Dw port
+    `welle-cli -c channel -Dw port`
 
 Use `-C 1 -w` to enable webserver, decode programmes one by one in a carousel.
 Use `-C N -w` to enable webserver, decode programmes N by N in a carousel.
 This is useful if your machine cannot decode all programmes simultaneously, but you still want to get an overview of the ensemble.
-By default welle-cli will switch every 10 seconds.
+By default, welle-cli will switch every 10 seconds.
 With the `-P` option, welle-cli will switch once DLS and a slide were decoded, staying at most for 80 seconds on a given programme.
 
     welle-cli -c channel -C 1 -w port
@@ -375,7 +378,7 @@ Driver options
 By default, `welle-cli` tries all enabled drivers in turn and uses the first device it can successfully open.
 
 Use `-F [driver][,driver_args]` to select a specific driver and optionally pass arguments to the driver.
-This allows to select the `rtl_tcp` driver (which is not autodetected) and pass the hostname or IP address and port of the rtl_tcp server to it:
+This allows to select the `rtl_tcp` driver (which is not auto-detected) and pass the hostname or IP address and port of the rtl_tcp server to it:
 
     welle-cli -C 10B -p GRRIF -F rtl_tcp,192.168.12.34:1234
     welle-cli -C 10B -P GRRIF -F rtl_tcp,my.rtl-tcp.local:9876
