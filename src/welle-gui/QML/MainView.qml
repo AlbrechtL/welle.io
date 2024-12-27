@@ -515,7 +515,7 @@ ApplicationWindow {
             Button {
                 id: startStationScanButton
                 text: qsTr("Start station scan")
-                visible: stationChannelView.count ? false : true
+                visible: (stationChannelView.count || stationListBox.currentIndex != 0) ? false : true
                 onClicked:  {
                     radioController.startScan()
                 }
