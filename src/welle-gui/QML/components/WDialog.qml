@@ -68,7 +68,7 @@ Dialog {
                    Layout.fillWidth: true
                }
            }
-       }
+    }
 
     Flickable {
         id: flick
@@ -81,5 +81,10 @@ Dialog {
         }
 
         ScrollBar.vertical: ScrollBar { id: scrollbar }
+    }
+
+    background: Rectangle {
+        border.color: "grey"
+        border.width: 1
     }
 }
