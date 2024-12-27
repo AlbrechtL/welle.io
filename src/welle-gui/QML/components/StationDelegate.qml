@@ -39,13 +39,15 @@ Item {
     height: Units.dp(44)
 
     property alias stationNameText: stationItem.text
-    property alias channelNameText: channelItem.text
+    property string channelNameText
+    property string availableChannelNamesText
     property int stationSIdValue
     property bool isExpert: false
     property bool isFavorit: false
 
     signal clicked
     signal favoritClicked
+    signal setDefaultChannel(string newDefaultChannel)
 
     Rectangle {
         anchors.fill: parent
@@ -85,6 +87,7 @@ Item {
                 TextStation {
                     id: channelItem
                     visible: root.isExpert ? 1 : 0
+                    text: availableChannelNamesText.split(',').length > 1 ? channelNameText + " (" + availableChannelNamesText + ")" : channelNameText
                 }
 
                 TextStation {
@@ -96,17 +99,46 @@ Item {
         }
     }
 
-    Button {
+    Row {
         anchors.right: parent.right
-        icon.name: isFavorit ? "star_yellow" : "star"
-        icon.color: "transparent"
-        implicitWidth: contentItem.implicitWidth + Units.dp(20)
-        flat: true
-        onClicked: root.favoritClicked()
 
-        Accessible.role: Accessible.Button
-        Accessible.name: isFavorit ? qsTr("Remove station from favorites") : qsTr("Add station to favorites")
-        Accessible.onPressAction: click(mouse)
+        Button {
+            icon.name: "ensemble_switch"
+            icon.color: "grey"
+            implicitWidth: contentItem.implicitWidth + Units.dp(15)
+            flat: true
+            visible: availableChannelNamesText.split(',').length > 1 ? 1 : 0
+            onClicked: ensembleMenu.open()
+
+            WMenu {
+                id: ensembleMenu
+                sizeToContents: true
+
+                Instantiator {
+                     id: recentFilesInstantiator
+                     model: availableChannelNamesText.split(',')
+                     delegate: MenuItem {
+                         text: modelData
+                         onTriggered: root.setDefaultChannel(modelData)
+                     }
+
+                     onObjectAdded: (index, object) => ensembleMenu.insertItem(index, object)
+                     onObjectRemoved: (index, object) => ensembleMenu.removeItem(object)
+                 }
+            }
+        }
+
+        Button {
+            icon.name: isFavorit ? "star_yellow" : "star"
+            icon.color: "transparent"
+            implicitWidth: contentItem.implicitWidth + Units.dp(20)
+            flat: true
+            onClicked: root.favoritClicked()
+
+            Accessible.role: Accessible.Button
+            Accessible.name: isFavorit ? qsTr("Remove station from favorites") : qsTr("Add station to favorites")
+            Accessible.onPressAction: click(mouse)
+        }
     }
 
     Component.onCompleted: { setPlaybackStatus() }

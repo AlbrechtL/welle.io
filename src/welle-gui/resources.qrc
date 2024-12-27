@@ -26,6 +26,7 @@
         <file>icons/welle_io_icons/20x20/speaker_mute.png</file>
         <file>icons/welle_io_icons/20x20/play.png</file>
         <file>icons/welle_io_icons/20x20/stop.png</file>
+        <file>icons/welle_io_icons/20x20/ensemble_switch.png</file>
         <file>icons/welle_io_icons/20x20@2/back.png</file>
         <file>icons/welle_io_icons/20x20@2/next.png</file>
         <file>icons/welle_io_icons/20x20@2/drawer.png</file>
@@ -39,6 +40,7 @@
         <file>icons/welle_io_icons/20x20@2/speaker_mute.png</file>
         <file>icons/welle_io_icons/20x20@2/play.png</file>
         <file>icons/welle_io_icons/20x20@2/stop.png</file>
+        <file>icons/welle_io_icons/20x20@2/ensemble_switch.png</file>
         <file>icons/welle_io_icons/20x20@3/back.png</file>
         <file>icons/welle_io_icons/20x20@3/next.png</file>
         <file>icons/welle_io_icons/20x20@3/drawer.png</file>
@@ -52,6 +54,7 @@
         <file>icons/welle_io_icons/20x20@3/speaker_mute.png</file>
         <file>icons/welle_io_icons/20x20@3/play.png</file>
         <file>icons/welle_io_icons/20x20@3/stop.png</file>
+        <file>icons/welle_io_icons/20x20@3/ensemble_switch.png</file>
         <file>icons/welle_io_icons/20x20@4/back.png</file>
         <file>icons/welle_io_icons/20x20@4/next.png</file>
         <file>icons/welle_io_icons/20x20@4/drawer.png</file>
@@ -65,6 +68,7 @@
         <file>icons/welle_io_icons/20x20@4/speaker_mute.png</file>
         <file>icons/welle_io_icons/20x20@4/play.png</file>
         <file>icons/welle_io_icons/20x20@4/stop.png</file>
+        <file>icons/welle_io_icons/20x20@4/ensemble_switch.png</file>
         <file>i18n/de_DE.qm</file>
         <file>i18n/it_IT.qm</file>
         <file>i18n/hu_HU.qm</file>

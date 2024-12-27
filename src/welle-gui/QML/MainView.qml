@@ -532,6 +532,7 @@ ApplicationWindow {
                     stationNameText: stationName.trim()
                     stationSIdValue: stationSId
                     channelNameText: channelName == "File" ? qsTr("File") : channelName
+                    availableChannelNamesText: channelName == "File" ? "" : availableChannelNames
                     isFavorit: favorit
                     isExpert: isExpertView
                     onClicked: radioController.play(channelName, stationName, stationSId)
@@ -543,6 +544,10 @@ ApplicationWindow {
                             favoritsList.addStation(stationName, stationSId, channelName, true)
                         else
                             favoritsList.removeStation(stationSId, channelName);
+                    }
+                    onSetDefaultChannel: {
+                        stationList.setDefaultChannel(stationSId, newDefaultChannel)
+                        radioController.play(newDefaultChannel, stationName, stationSId)
                     }
                 }
 
