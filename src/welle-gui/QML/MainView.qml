@@ -66,8 +66,6 @@ ApplicationWindow {
             return Units.dp(500)
     }
 
-    Universal.accent: Universal.Cyan
-
     width: getWidth()
     height: getHeight()
 
@@ -433,9 +431,6 @@ ApplicationWindow {
                         ListElement { label: "Favorites"; trLabel: qsTr("Favorites"); trContext: "MainView" }
                     }
                     sizeToContents: true
-//                    background: Rectangle {
-//                        color: "white"
-//                    }
 
                     onCurrentIndexChanged: {
                         switch(currentIndex) {
@@ -562,6 +557,7 @@ ApplicationWindow {
                         var sidHex = radioController.lastChannel[0]
                         var index = stationChannelView.model.getIndexNext(parseInt(sidHex,16), channel)
                         stationChannelView.model.playAtIndex(index)
+                        stationChannelView.currentIndex = index
                     }
                 }
                 Shortcut {
@@ -573,6 +569,7 @@ ApplicationWindow {
                         var sidHex = radioController.lastChannel[0]
                         var index = stationChannelView.model.getIndexPrevious(parseInt(sidHex,16), channel)
                         stationChannelView.model.playAtIndex(index)
+                        stationChannelView.currentIndex = index
                     }
                 }
                 Shortcut {
