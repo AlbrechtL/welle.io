@@ -35,6 +35,7 @@ jobs:
             set -x
 
             # Install build dependencies
+            sudo apt-get update
             sudo apt-get -y install flatpak-builder appstream-compose
             flatpak remote-add --if-not-exists --user flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 
