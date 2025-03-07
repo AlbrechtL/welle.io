@@ -53,6 +53,7 @@ SettingSection {
             TextField {
                 id: antenna
                 placeholderText: qsTr("Enter antenna")
+                implicitWidth: 300
             }
         }
 
@@ -65,6 +66,7 @@ SettingSection {
             TextField {
                 id: clockSource
                 placeholderText: qsTr("Enter clock source")
+                implicitWidth: 300
             }
         }
 
@@ -77,6 +79,7 @@ SettingSection {
             TextField {
                 id: driverArgs
                 placeholderText: qsTr("Enter driver arguments")
+                implicitWidth: 300
             }
         }
 
