@@ -2,7 +2,12 @@
 =====================
 - Linux (AppImage): [![Linux build](https://github.com/AlbrechtL/welle.io/actions/workflows/linux.yml/badge.svg)](https://github.com/AlbrechtL/welle.io/actions/workflows/linux.yml)
 - Windows (Installer): [![Windows build](https://github.com/AlbrechtL/welle.io/actions/workflows/windows.yml/badge.svg)](https://github.com/AlbrechtL/welle.io/actions/workflows/windows.yml)
-- Android (APK): [![Android build](https://github.com/AlbrechtL/welle.io/actions/workflows/android.yml/badge.svg)](https://github.com/AlbrechtL/welle.io/actions/workflows/android.yml)
+- Android (APK): build workflow is currently disabled because a new, skilled maintainer for Android package is required to fix bug https://github.com/AlbrechtL/welle.io/issues/814# in the workflow
+
+<!--- 
+* comment will not show old code
+[![Android build](https://github.com/AlbrechtL/welle.io/actions/workflows/android.yml/badge.svg)](https://github.com/AlbrechtL/welle.io/actions/workflows/android.yml))
+-->
 
 This repository contains the implementation of an SDR DAB/DAB+ receiver.  
 Please see the project website https://www.welle.io for a user oriented documentation. 
@@ -21,7 +26,10 @@ Table of contents
     * [Windows 10 / 11](#windows-10--11)
     * [macOS](#macos)
     * [CMake instead of Qt Creator (Windows, Linux, macOS)](#cmake-instead-of-qt-creator-windows-linux-macos)
+
+     <!---  comment will not show
     * [Android](#android)
+    -->
   * [welle-cli](#welle-cli)
     * [Usage](#usage-of-welle-cli)
     * [Backend options](#backend-options)
@@ -33,7 +41,10 @@ Table of contents
 Download
 ========
 ### Stable binaries
-* [**Windows**, **Linux**, **macOS** and **Android**](http://github.com/AlbrechtL/welle.io/releases) 
+* [**Windows**, **Linux**, **macOS**
+<!---  comment will not show
+*  and **Android**](http://github.com/AlbrechtL/welle.io/releases) 
+-->
 * **Debian** or **Ubuntu** 19.04+
   * `apt install welle.io`, see the /usr/share/doc/welle.io/README.Debian for maintainer notes
 * **Fedora** 34+
@@ -56,8 +67,10 @@ Download
     ```
     pkg install welle.io`
     ```
+<!---  comment will not show    
 * [**Android at Google Play**](https://play.google.com/store/apps/details?id=io.welle.welle) (outdated)
-
+-->
+  
 If you discovered an issue please open a new [issue](https://github.com/AlbrechtL/welle.io/issues).
 
 ### Unstable developer version
@@ -298,6 +311,7 @@ make install
 
 5. Run welle.io and enjoy it
 
+<!---  comment will not show
 Android
 ---
 **WARNING: Not tested with Qt 6.2!**
@@ -319,6 +333,7 @@ git clone https://github.com/AlbrechtL/welle.io.git
 4. Start Qt Creator and open the project file `welle.io.pro` inside the folder "welle.io".
 5. Build welle.io
 6. Run welle.io and enjoy it
+-->
 
 welle-cli
 ==
