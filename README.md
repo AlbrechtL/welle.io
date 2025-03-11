@@ -148,7 +148,7 @@ This section shows how to compile welle.io on Debian or Ubuntu (tested with Ubun
 1. Install the base requirements
 
 ```
-sudo apt install git build-essential
+sudo apt install git build-essential xxd
 ```
 
 2. Install the following non-Qt packages
