@@ -90,13 +90,13 @@ Download
     $ sudo dnf install --refresh welle-io
     ```
 * **macOS**
-  Unfortunately the macOS welle.io is unmanaged, currently. You still can use the 2.4 version (only Intel processor support).
+  Unfortunately the macOS welle.io is unmaintained, currently. You still can use the 2.4 version (only Intel processor support).
   - [Installer](https://github.com/AlbrechtL/welle.io/releases/tag/v2.4)
   - MacPorts
     ```
     $ sudo port install welle.io
     ```
-* **[Android](https://github.com/AlbrechtL/welle.io/releases/tag/v2.4)** (Unfortunately unmanaged, currently. You still can use the 2.4 version)
+* **[Android](https://github.com/AlbrechtL/welle.io/releases/tag/v2.4)** (Unfortunately unmaintained, currently. You still can use the 2.4 version)
 * **FreeBSD**
   ```
   $ pkg install welle.io
