@@ -74,30 +74,33 @@ Download
 ---
 ### Stable binaries
 * [**Windows**](http://github.com/AlbrechtL/welle.io/releases)
-* **Linux**
-  We recommend to use the welle.io flatpak version because inside the Linux distribution repositories welle.io can be outdated.
+* **Linux** (flatpak version is recommend because Linux distribution packages welle.io can be outdated.
   - [Flatpak](http://github.com/AlbrechtL/welle.io/releases) 
   - [Full list of supported Linux distributions](https://repology.org/project/welle.io/versions)
-  - Debian or Ubuntu 19.04+
-   `$ apt install welle.io`
+  - Debian or Ubuntu 19.04+:
+    ```
+    $ apt install welle.io`
+    ```
   - Fedora 35+ (uses the [RPM Fusion](https://rpmfusion.org) package sources)
     ```
     # Enable the RPM Fusion sources
     $ sudo dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm` 
 
     # Install welle.io
-    $ sudo dnf install --refresh welle-io`
+    $ sudo dnf install --refresh welle-io
     ```
 * **macOS**
   Unfortunately the macOS welle.io is unmanaged, currently. You still can use the 2.4 version (only Intel processor support).
   - [Installer](https://github.com/AlbrechtL/welle.io/releases/tag/v2.4)
   - MacPorts
-   `$ sudo port install welle.io`
-* **Android**
-Unfortunately the Android welle.io is unmanaged, currently. You still can use the 2.4 version.
-  - [APK](https://github.com/AlbrechtL/welle.io/releases/tag/v2.4)
+    ```
+    $ sudo port install welle.io
+    ```
+* **[Android](https://github.com/AlbrechtL/welle.io/releases/tag/v2.4)** (Unfortunately unmanaged, currently. You still can use the 2.4 version)
 * **FreeBSD**
-  * `$ pkg install welle.io`
+  ```
+  $ pkg install welle.io
+  ```
 
 If you discovered an issue please open a new [issue](https://github.com/AlbrechtL/welle.io/issues).
 
