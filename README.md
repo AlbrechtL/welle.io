@@ -99,9 +99,11 @@ Ctrl+Down, Volume Down | Volume Down
 ## Supported Hardware
 
 The following SDR devices are supported
-* Airspy R2 and Airspy Mini (http://airspy.com/); remark: Airspy HF+ is not supported due to limited bandwidth
-* [rtl-sdr](http://osmocom.org/projects/sdr/wiki/rtl-sdr)
-* [rtl_tcp](http://osmocom.org/projects/sdr/wiki/rtl-sdr#rtl_tcp)
+* RTL2832U
+  - [rtl-sdr](http://osmocom.org/projects/sdr/wiki/rtl-sdr)
+  - [rtl_tcp](http://osmocom.org/projects/sdr/wiki/rtl-sdr#rtl_tcp)
+* [Airspy R2 and Airspy Mini ](http://airspy.com/)
+  - Limitation: Airspy HF+ is not supported due to limited bandwidth
 * [I/Q RAW file](https://www.welle.io/devices/rawfile)
 * [SoapySDR](https://github.com/pothosware/SoapySDR/): All SDR-devices that are supported by SoapySDR, gr-osmosdr and uhd. These are too many devices to list them all. To see if your SDR is supported, have a look at the lists at [SoapySDR](https://github.com/pothosware/SoapySDR/wiki) and [SoapyOsmo](https://github.com/pothosware/SoapyOsmo/wiki).
     * Devices supported by gr-osmosdr are supported via [SoapyOsmo](https://github.com/pothosware/SoapyOsmo/wiki)
