@@ -77,12 +77,13 @@ jobs:
             # Prepare publish
             mkdir publish
             mv welle-io.flatpak publish/"$DATE"_"$GIT_HASH"_Linux_welle-"$ARCH_SUFFIX".flatpak
+            cp io.welle.welle_io.appdata.xml publish/
         
       - name: Archive artifacts (welle.io Flatpak)
         uses: actions/upload-artifact@v4
         with:
           name: welle.io Flatpak (${{ env.ARCH_SUFFIX }})
-          path: publish/*.flatpak
+          path: publish/*
           if-no-files-found: error
 
       - name: Upload to nightly server
