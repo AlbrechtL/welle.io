@@ -59,7 +59,7 @@ jobs:
         id: build
         run: |
             # Create welle-gui Flatpak
-            flatpak-builder --force-clean --user --install-deps-from=flathub --repo=repo --install builddir io.welle.welle-gui.yml
+            flatpak run org.flatpak.Builder --force-clean --sandbox --user --install --install-deps-from=flathub --ccache --mirror-screenshots-url=https://dl.flathub.org/media/ --repo=repo builddir io.welle.welle-gui.yml
             flatpak build-bundle repo welle-io.flatpak io.welle.welle-gui --runtime-repo=https://flathub.org/repo/flathub.flatpakrepo
 
             # Detect CPU
@@ -78,6 +78,12 @@ jobs:
             mkdir publish
             mv welle-io.flatpak publish/"$DATE"_"$GIT_HASH"_Linux_welle_"$ARCH_SUFFIX".flatpak
             cp io.welle.welle-gui.appdata.xml publish/
+
+      - name: Check flathub eligibility
+        continue-on-error: true
+        run: |
+          flatpak run --command=flatpak-builder-lint org.flatpak.Builder manifest io.welle.welle-gui.yml
+          flatpak run --command=flatpak-builder-lint org.flatpak.Builder repo repo
         
       - name: Archive artifacts (welle.io Flatpak)
         uses: actions/upload-artifact@v4
