@@ -74,37 +74,32 @@ modules:
   - name: welle.io
     buildsystem: qmake
     build-commands:
+      # Copy welle.io binary
       - cp src/welle-gui/welle-io /app/bin
-      - install -Dm644 io.welle.welle-gui.appdata.xml -t /app/share/metainfo
+
+      # Copy icons
+      - install -Dm644 src/welle-gui/icons/16x16/welle-io.png /app/share/icons/hicolor/16x16/apps/io.welle.welle-gui.png
+      - install -Dm644 src/welle-gui/icons/32x32/welle-io.png /app/share/icons/hicolor/32x32/apps/io.welle.welle-gui.png
+      - install -Dm644 src/welle-gui/icons/48x48/welle-io.png /app/share/icons/hicolor/48x48/apps/io.welle.welle-gui.png
+      - install -Dm644 src/welle-gui/icons/128x128/welle-io.png /app/share/icons/hicolor/128x128/apps/io.welle.welle-gui.png
+      - install -Dm644 src/welle-gui/icons/256x256/welle-io.png /app/share/icons/hicolor/256x256/apps/io.welle.welle-gui.png
       - install -Dm644 io.welle.welle-gui.desktop -t /app/share/applications
-      - install -Dm644 icon_16.png /app/share/icons/hicolor/16x16/apps/io.welle.welle-gui.png
-      - install -Dm644 icon_32.png /app/share/icons/hicolor/32x32/apps/io.welle.welle-gui.png
-      - install -Dm644 icon_48.png /app/share/icons/hicolor/48x48/apps/io.welle.welle-gui.png
-      - install -Dm644 icon_128.png /app/share/icons/hicolor/128x128/apps/io.welle.welle-gui.png
-      - install -Dm644 icon_256.png /app/share/icons/hicolor/256x256/apps/io.welle.welle-gui.png
+
+      # Add current build date into appdata.xml
+      - sed -i 's/date="1970-01-01"/'date=\""$(date +%Y-%m-%d)"\"'/g' io.welle.welle-gui.appdata.xml
+      # Add app version and git hash into appdata.xml
+      - sed -i 's/version="0.0.0"/'version=\""$(cat src/welle-gui/_current_version)-$(git rev-parse --short HEAD)"\"'/g' io.welle.welle-gui.appdata.xml
+      - cat io.welle.welle-gui.appdata.xml
+      # Finally copy the appdata.xml
+      - install -Dm644 io.welle.welle-gui.appdata.xml -t /app/share/metainfo
+
     config-opts:
       - LIBS+=-L/app/lib
       - LIBS+=-L/app/lib64
       - 'QMAKE_LFLAGS+=-Wl,-rpath,/app/lib64'
     sources:
+      # - type: git
+      #   url: https://github.com/AlbrechtL/welle.io.git
+      #   commit: 6e1eb62521fbd1409abc2d57fffff9db27b2a0d3
       - type: dir
         path: .
-      - type: file
-        path: io.welle.welle-gui.appdata.xml
-      - type: file
-        path: io.welle.welle-gui.desktop
-      - type: file
-        path: src/welle-gui/icons/16x16/welle-io.png
-        dest-filename: icon_16.png
-      - type: file
-        path: src/welle-gui/icons/32x32/welle-io.png
-        dest-filename: icon_32.png
-      - type: file
-        path: src/welle-gui/icons/48x48/welle-io.png
-        dest-filename: icon_48.png
-      - type: file
-        path: src/welle-gui/icons/128x128/welle-io.png
-        dest-filename: icon_128.png
-      - type: file
-        path: src/welle-gui/icons/256x256/welle-io.png
-        dest-filename: icon_256.png
