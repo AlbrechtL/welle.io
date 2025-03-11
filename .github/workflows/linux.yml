@@ -76,7 +76,7 @@ jobs:
 
             # Prepare publish
             mkdir publish
-            mv welle-io.flatpak publish/"$DATE"_"$GIT_HASH"_Linux_welle-"$ARCH_SUFFIX".flatpak
+            mv welle-io.flatpak publish/"$DATE"_"$GIT_HASH"_Linux_welle_"$ARCH_SUFFIX".flatpak
             cp io.welle.welle-gui.appdata.xml publish/
         
       - name: Archive artifacts (welle.io Flatpak)
