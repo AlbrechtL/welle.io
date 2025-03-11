@@ -59,7 +59,7 @@ jobs:
         id: build
         run: |
             # Create welle-gui Flatpak
-            flatpak run org.flatpak.Builder --force-clean --sandbox --user --install --install-deps-from=flathub --ccache --mirror-screenshots-url=https://dl.flathub.org/media/ --repo=repo builddir io.welle.welle-gui.yml
+            flatpak-builder --force-clean --user --install-deps-from=flathub --repo=repo --install builddir io.welle.welle-gui.yml
             flatpak build-bundle repo welle-io.flatpak io.welle.welle-gui --runtime-repo=https://flathub.org/repo/flathub.flatpakrepo
 
             # Detect CPU
