@@ -31,6 +31,7 @@ modules:
     sources:
       - type: git
         url: 'https://salsa.debian.org/multimedia-team/faad2.git'
+        tag: debian/2.11.2-1
 
   - name: libusb
     buildsystem: autotools
@@ -39,6 +40,7 @@ modules:
     sources:
       - type: git
         url: 'https://github.com/libusb/libusb.git'
+        tag: v1.0.27
 
   - name: librtlsdr
     buildsystem: cmake
@@ -47,7 +49,8 @@ modules:
       - '-DDETACH_KERNEL_DRIVER=ON'
     sources:
       - type: git
-        url: 'git://git.osmocom.org/rtl-sdr.git'
+        url: 'https://gitea.osmocom.org/sdr/rtl-sdr.git'
+        tag: v2.0.2
 
   - name: libairspy
     buildsystem: cmake
@@ -56,6 +59,7 @@ modules:
     sources:
       - type: git
         url: 'https://github.com/airspy/airspyone_host.git'
+        tag: v1.0.10
 
   - name: SoapySDR
     buildsystem: cmake
@@ -65,6 +69,7 @@ modules:
     sources:
       - type: git
         url: 'https://github.com/pothosware/SoapySDR.git'
+        tag: soapy-sdr-0.8.1
 
   - name: welle.io
     buildsystem: qmake
