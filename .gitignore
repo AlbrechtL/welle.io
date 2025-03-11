@@ -1,2 +1,7 @@
 _site/
 .sass-cache/
+build/
+builddir/
+.flatpak-builder/
+repo/
+*.user
