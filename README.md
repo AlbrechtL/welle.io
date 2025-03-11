@@ -148,13 +148,13 @@ This section shows how to compile welle.io on Debian or Ubuntu (tested with Ubun
 1. Install the base requirements
 
 ```
-sudo apt install git build-essential xxd
+sudo apt install git build-essential
 ```
 
 2. Install the following non-Qt packages
 
 ```
-sudo apt install libfaad-dev libmpg123-dev libfftw3-dev librtlsdr-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev libsoapysdr-dev libairspy-dev libmp3lame-dev libflac++-dev
+sudo apt install libfaad-dev libmpg123-dev libfftw3-dev librtlsdr-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev libsoapysdr-dev libairspy-dev libmp3lame-dev libflac++-dev xxd
 ```
 
 3. Install the following Qt packages
