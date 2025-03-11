@@ -41,15 +41,20 @@ ref: index
 
 permalink: /index.html
 ---
-welle.io is an open source DAB and DAB+ software defined radio (SDR) with support for rtl-sdr (RTL2832U) and airspy. It supports high DPI and touch displays and it runs even on cheap computers like Raspberry Pi 2+ and 100€ China Windows 10 tablets.
+welle.io is an open source DAB and DAB+ software defined radio (SDR) with support for rtl-sdr (RTL2832U) and airspy. It supports high DPI and touch displays and it runs even on cheap computers like Raspberry Pi 2 and newer.
 
 ![welle-io_standard_mode.png](images/welle-io_standard_mode.png)
 
 Main Features
 ---
 * DAB and DAB+
-* Supports Windows 10/11, Linux, macOS and Android
-* Runs on small devices like Raspberry Pi 2+ or mobile phones
+* Supports for the following operating systems
+  - Windows
+  - Linux
+  - macOS (unmaintained)
+  - Android (unmaintained)
+  - FreeBSD (unmaintained)
+* Runs on low power devices like Raspberry Pi 2+ or mobile phones
 * [Airspy R2, Airspy Mini](/devices/airspy), [rtl-sdr (RTL2832U)](/devices/rtl_sdr), [rtl_tcp](/devices/rtl_tcp), [SoapySDR](/devices/soapysdr) and [rawfile](/devices/rawfile) support
 * Touch optimized GUI
 * Channel scan
@@ -68,25 +73,38 @@ Expert Mode
 Download
 ---
 ### Stable binaries
-* ### [**Windows**, **Linux**, **macOS** and **Android**](http://github.com/AlbrechtL/welle.io/releases) 
-* **Debian** or **Ubuntu** 19.04+
-  * `apt install welle.io`
-* **Fedora** 35+ (uses the [RPM Fusion](https://rpmfusion.org) package sources)
-  * `sudo dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm` (to enable the RPM Fusion sources)
-  * `sudo dnf install --refresh welle-io`
-* **macOS** (requires [MacPorts](https://www.macports.org/)) 
-   * `sudo port install welle.io`
-   * `sudo port install welle.io +cli` (if you wish to install also welle-cli)
+* [**Windows**](http://github.com/AlbrechtL/welle.io/releases)
+* **Linux**
+  We recommend to use the welle.io flatpak version because inside the Linux distribution repositories welle.io can be outdated.
+  - [Flatpak](http://github.com/AlbrechtL/welle.io/releases) 
+  - [Full list of supported Linux distributions](https://repology.org/project/welle.io/versions)
+  - Debian or Ubuntu 19.04+
+   `$ apt install welle.io`
+  - Fedora 35+ (uses the [RPM Fusion](https://rpmfusion.org) package sources)
+    ```
+    # Enable the RPM Fusion sources
+    $ sudo dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm` 
+
+    # Install welle.io
+    $ sudo dnf install --refresh welle-io`
+    ```
+* **macOS**
+  Unfortunately the macOS welle.io is unmanaged, currently. You still can use the 2.4 version (only Intel processor support).
+  - [Installer](https://github.com/AlbrechtL/welle.io/releases/tag/v2.4)
+  - MacPorts
+   `$ sudo port install welle.io`
+* **Android**
+Unfortunately the Android welle.io is unmanaged, currently. You still can use the 2.4 version.
+  - [APK](https://github.com/AlbrechtL/welle.io/releases/tag/v2.4)
 * **FreeBSD**
-  * `pkg install welle.io`
-* [**Android at Google Play**](https://play.google.com/store/apps/details?id=io.welle.welle) (outdated)
+  * `$ pkg install welle.io`
 
 If you discovered an issue please open a new [issue](https://github.com/AlbrechtL/welle.io/issues).
 
 ### Unstable developer version
 welle.io is under development. You can also try the latest developer builds. But PLEASE BE WARNED the builds are automatically created and untested.
 
-* #### [welle.io nightly builds](https://welle-io-nightlies.albrechtloh.de/) (Windows, Linux, macOS, Android)
+* #### [welle.io nightly builds](https://welle-io-nightlies.albrechtloh.de/) (Windows, Linux)
 
 Support
 ---
@@ -100,12 +118,12 @@ Visit the [FAQ list](/faq).
 Development
 ----------
 **Any contributions and pull requests are welcome!**  
-Please take a look into the [task list](https://github.com/AlbrechtL/welle.io/wiki/Open-Tasks) and the [issues](https://github.com/AlbrechtL/welle.io/issues). But also any new ideas are welcome!
+Please take a look into the [issues](https://github.com/AlbrechtL/welle.io/issues). But also any new ideas are welcome!
 
 ### Sources
 Please visit the GitHub repository: [https://github.com/albrechtl/welle.io](https://github.com/albrechtl/welle.io)
 
 ### Wiki
-You will find more details inside the [Wiki](http://github.com/AlbrechtL/welle.io/wiki) (under construction).
+You will find more details inside the [Wiki](http://github.com/AlbrechtL/welle.io/wiki).
 
 

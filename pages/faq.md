@@ -14,11 +14,6 @@ permalink: /faq
 * [Why is my RTL-SDR showed as RTL2838 and not as RTL2832U?](#why-is-my-rtl-sdr-showed-as-rtl2838-and-not-as-rtl2832u)
 
 
-## What do the three small rectangles in the right above corner mean?
-You can only hear a sound if all three rectangles are green. These three rectangles are an indicator for the signal quality and decoding status.
-
-![signal_leds.png](/images/signal_leds.png)
-
 ## What are the minimum hardware requirements?
 The main hardware requirement is the CPU because the decoding needs a lot of CPU power.
 
