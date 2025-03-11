@@ -1,21 +1,15 @@
 [welle.io](https://www.welle.io)
 =====================
-- Linux (AppImage): [![Linux build](https://github.com/AlbrechtL/welle.io/actions/workflows/linux.yml/badge.svg)](https://github.com/AlbrechtL/welle.io/actions/workflows/linux.yml)
-- Windows (Installer): [![Windows build](https://github.com/AlbrechtL/welle.io/actions/workflows/windows.yml/badge.svg)](https://github.com/AlbrechtL/welle.io/actions/workflows/windows.yml)
-- Android (APK): build workflow is currently disabled because a new, skilled maintainer for Android package is required to fix bug https://github.com/AlbrechtL/welle.io/issues/814# in the workflow
-
-<!--- 
-* comment will not show old code
-[![Android build](https://github.com/AlbrechtL/welle.io/actions/workflows/android.yml/badge.svg)](https://github.com/AlbrechtL/welle.io/actions/workflows/android.yml))
--->
-
 This repository contains the implementation of an SDR DAB/DAB+ receiver.  
-Please see the project website https://www.welle.io for a user oriented documentation. 
+Please see the project website https://www.welle.io for a user oriented documentation.
 
-welle.io is a fork from dab-rpi and sdr-j-dab which is now qt-dab (see https://github.com/JvanKatwijk/qt-dab ).
+**Build status**
+- Linux (Flatpak x86_64 and arm64): [![Linux build](https://github.com/AlbrechtL/welle.io/actions/workflows/linux.yml/badge.svg)](https://github.com/AlbrechtL/welle.io/actions/workflows/linux.yml)
+- Windows (Installer x86_64): [![Windows build](https://github.com/AlbrechtL/welle.io/actions/workflows/windows.yml/badge.svg)](https://github.com/AlbrechtL/welle.io/actions/workflows/windows.yml)
+- Android (APK): build workflow is currently disabled because a new, skilled maintainer for Android package is required to fix bug https://github.com/AlbrechtL/welle.io/issues/814# in the workflow.
 
-Table of contents
-====
+
+## Table of contents
 
   * [Download](#download)
   * [Usage](#usage)
@@ -23,67 +17,65 @@ Table of contents
   * [Building](#building)
     * [General Information](#general-information)
     * [Debian / Ubuntu Linux](#debian--ubuntu-linux)
-    * [Windows 10 / 11](#windows-10--11)
-    * [macOS](#macos)
-    * [CMake instead of Qt Creator (Windows, Linux, macOS)](#cmake-instead-of-qt-creator-windows-linux-macos)
-
-     <!---  comment will not show
-    * [Android](#android)
-    -->
+    * [Windows 11](#windows-11)
+    * [macOS, Android and FreeBSD](#macos-android-and-freebsd)
+    * [CMake](#cmake)
   * [welle-cli](#welle-cli)
     * [Usage](#usage-of-welle-cli)
     * [Backend options](#backend-options)
     * [Examples](#examples)
   * [Limitations](#limitations)
   * [Development](#development)
+  * [Acknowledgement](#acknowledgement)
   * [Sponsors](#sponsors)
 
-Download
-========
-### Stable binaries
-* [**Windows**, **Linux**, **macOS**
-<!---  comment will not show
-*  and **Android**](http://github.com/AlbrechtL/welle.io/releases) 
--->
-* **Debian** or **Ubuntu** 19.04+
-  * `apt install welle.io`, see the /usr/share/doc/welle.io/README.Debian for maintainer notes
-* **Fedora** 34+
-  * Enable [RPM Fusion](https://rpmfusion.org), then install the `welle-io` package:
-    ```shell
-    sudo dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
-    sudo dnf install --refresh welle-io
+## Download
+
+#### Stable binaries
+
+* [**Windows**](http://github.com/AlbrechtL/welle.io/releases)
+* **Linux** (flatpak version is recommend because Linux distribution packages welle.io can be outdated.
+  - [Flatpak](http://github.com/AlbrechtL/welle.io/releases) 
+  - [Full list of supported Linux distributions](https://repology.org/project/welle.io/versions)
+  - Debian or Ubuntu 19.04+:
     ```
-* **[List of available packages inside Linux distributions](https://repology.org/project/welle.io/versions)**
-* **macOS** (requires [MacPorts](https://www.macports.org/)) 
-   * `sudo port install welle.io`
-   * `sudo port install welle.io +cli` (if you wish to install also welle-cli)
+    $ apt install welle.io`
+    ```
+  - Fedora 35+ (uses the [RPM Fusion](https://rpmfusion.org) package sources)
+    ```
+    # Enable the RPM Fusion sources
+    $ sudo dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm` 
+
+    # Install welle.io
+    $ sudo dnf install --refresh welle-io
+    ```
+* **macOS**
+  Unfortunately the macOS welle.io is unmaintained, currently. You still can use the 2.4 version (only Intel processor support).
+  - [Installer](https://github.com/AlbrechtL/welle.io/releases/tag/v2.4)
+  - MacPorts
+    ```
+    $ sudo port install welle.io
+    ```
+* **[Android](https://github.com/AlbrechtL/welle.io/releases/tag/v2.4)** (Unfortunately unmaintained, currently. You still can use the 2.4 version)
 * **FreeBSD**
-  * Building from sources (requires ports tree to be checked out at `/usr/ports/`)
-    ```
-    cd /usr/ports/audio/welle.io/
-    make install clean
-    ```
-  * Installing the binary package
-    ```
-    pkg install welle.io`
-    ```
-<!---  comment will not show    
-* [**Android at Google Play**](https://play.google.com/store/apps/details?id=io.welle.welle) (outdated)
--->
+  ```
+  $ pkg install welle.io
+  ```
   
 If you discovered an issue please open a new [issue](https://github.com/AlbrechtL/welle.io/issues).
 
-### Unstable developer version
+#### Developer version
+
 welle.io is under development. You can also try the latest developer builds. But PLEASE BE WARNED the builds are automatically created and untested.
+* [welle.io nightly builds](https://welle-io-nightlies.albrechtloh.de/) (Windows, Linux)
+* Build artifacts in [Actions](https://github.com/AlbrechtL/welle.io/actions) runs
 
-* [welle.io nightly builds](https://welle-io-nightlies.albrechtloh.de/) (Windows, Linux, macOS, Android)
 
-* macOS: welle.io devel builds on *macOS MacPorts* are updated periodically manually and can be installed through [port welle.io-devel](https://ports.macports.org/port/welle.io-devel/summary). The port has no maintainer so please feel free to update it yourself in case you need to use a more recent devel version
-  * `sudo port install welle.io-devel`
+## Usage
 
-Usage
-=====
-The command-line parameters are:
+Since welle.io is a GUI program simply start it.
+
+#### Command-line parameters
 
 Parameter | Description
 ------ | ----------
@@ -92,7 +84,7 @@ Parameter | Description
 --dump-file | Records DAB frames (*.mp2) or DAB+ superframes with RS coding (*.dab). This file can be used to analyse X-PAD data with XPADxpert (https://www.basicmaster.de/xpadxpert).
 --log-file | Log file name. Redirects all log output texts to a file.
 
-Keyboard shortcuts & hotkeys
+#### Keyboard shortcuts & hotkeys
 
 Keystroke | Action
 ------ | ----------
@@ -104,46 +96,43 @@ M, Volume Mute | mute/unmute
 Ctrl+Up, Volume Up | Volume Up
 Ctrl+Down, Volume Down | Volume Down
 
-Supported Hardware
-====================
+## Supported Hardware
+
 The following SDR devices are supported
-* Airspy R2 and Airspy Mini (http://airspy.com/); remark: Airspy HF+ is not supported due to limited bandwidth
-* rtl-sdr (http://osmocom.org/projects/sdr/wiki/rtl-sdr)
-* rtl_tcp (http://osmocom.org/projects/sdr/wiki/rtl-sdr#rtl_tcp)
-* I/Q RAW file (https://www.welle.io/devices/rawfile)
-* All SDR-devices that are supported by SoapySDR, gr-osmosdr and uhd. These are too many devices to list them all. To see if your SDR is supported, have a look at the lists at [SoapySDR](https://github.com/pothosware/SoapySDR/wiki) and [SoapyOsmo](https://github.com/pothosware/SoapyOsmo/wiki).
+* RTL2832U
+  - [rtl-sdr](http://osmocom.org/projects/sdr/wiki/rtl-sdr)
+  - [rtl_tcp](http://osmocom.org/projects/sdr/wiki/rtl-sdr#rtl_tcp)
+* [Airspy R2 and Airspy Mini ](http://airspy.com/)
+  - Limitation: Airspy HF+ is not supported due to limited bandwidth
+* [I/Q RAW file](https://www.welle.io/devices/rawfile)
+* [SoapySDR](https://github.com/pothosware/SoapySDR/): All SDR-devices that are supported by SoapySDR, gr-osmosdr and uhd. These are too many devices to list them all. To see if your SDR is supported, have a look at the lists at [SoapySDR](https://github.com/pothosware/SoapySDR/wiki) and [SoapyOsmo](https://github.com/pothosware/SoapyOsmo/wiki).
     * Devices supported by gr-osmosdr are supported via [SoapyOsmo](https://github.com/pothosware/SoapyOsmo/wiki)
     * Devices supported by uhd are supported via [SoapyUHD](https://github.com/pothosware/SoapyUHD/wiki)
-    * One limitation is of course that the SDR devices must be tunable to the DAB+ frequencies.
+    * Notes
+      - LimeSDR: Connect the antenna to the RX1_W port and configured SoapySDR antenna option to `LNAW`. `SoapySDRUtil --probe=driver=lime` may show other possible options.
+      - USRP: Configured SoapySDR driver arguments option to `driver=uhd`. Configure also antenna and clock source option. To list possible values for antenna and clock source use the command `SoapySDRUtil --probe=driver=uhd`.
+      - One limitation is of course that the SDR devices must be tunable to the DAB+ frequencies.
 
-### SoapySDR Notes
+## Building
 
+#### General Information
 
-#### LimeSDR
+The following libraries and their development files are needed.
 
-Connect the antenna to the RX1_W port and configured SoapySDR antenna option to `LNAW`. `SoapySDRUtil --probe=driver=lime` may show other possible options.
-
-#### USRP
-
-Configured SoapySDR driver arguments option to `driver=uhd`. Configure also antenna and clock source option. To list possible values for antenna and clock source use the command `SoapySDRUtil --probe=driver=uhd`.
-
-Building
-====================
-
-General Information
----
-The following libraries and their development files are needed:
-
-* Qt 6.5 (Qt 6.4 and below is not supported)
-* FFTW3f
+* Qt 6.8 or above
+* libfftw3
 * libfaad
 * librtlsdr
 * libusb
+* libmpg123
+* libairspy
+* libmp3lame
+* libsoapysdr
 
 
-Debian / Ubuntu Linux
----
-This section shows how to compile welle.io on Debian or Ubuntu (tested with Ubuntu 22.04).
+#### Debian / Ubuntu Linux
+
+This section shows how to compile welle.io on Debian or Ubuntu (tested with Ubuntu 24.04).
 
 1. Install the base requirements
 
@@ -157,11 +146,10 @@ sudo apt install git build-essential
 sudo apt install libfaad-dev libmpg123-dev libfftw3-dev librtlsdr-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev libsoapysdr-dev libairspy-dev libmp3lame-dev libflac++-dev xxd
 ```
 
-3. Install the following Qt packages
-
-```
-sudo apt install libqt6charts6-dev qt6-base-dev qt6-tools-dev-tools qt6-multimedia-dev qt6-wayland-dev libqt6core5compat6-dev libqt63dquick6 libqt6qml6 qt6-declarative-dev qml6-module-qtquick-controls qml6-module-qtquick qml6-module-qt5compat-graphicaleffects qml6-module-qtcharts qml6-module-qtmultimedia qml6-module-qtquick-window qml6-module-qtquick-layouts qml6-module-qtqml-workerscript qml6-module-qtwayland-compositor qml6-module-qtquick-templates qtcreator qml6-module-qtcore qml6-module-qtquick-dialogs qml6-module-qtquick-dialogs
-```
+3. Install the Qt via the [Qt online installer](https://www.qt.io/download-qt-installer-oss). It is recommend to use the newest Qt version. Besids Qt you need the additional Qt libraries:
+* Qt 5 Compatibility Module
+* Qt Charts
+* Qt Multimedia
 
 4. Clone welle.io
 
@@ -173,106 +161,27 @@ git clone https://github.com/AlbrechtL/welle.io.git
 6. Build welle.io
 7. Run welle.io and enjoy it
 
-Windows 10 / 11
----
-A compiled version can be found at the [release page](https://github.com/AlbrechtL/welle.io/releases)
+#### Windows 11
 
-This section shows how to compile welle.io on Windows 10. Windows 7 should also be possible but is not tested. 
 
-1. Install Qt 6.2 (MinGW 64-bit) or newer including "Qt Charts" and "Qt 5 Compatibility Module" modules by using the "Qt Online Installer for Windows" https://www.qt.io/download-open-source/
+This section shows how to compile welle.io on Windows 11. Windows 10 and 7  should also be possible but is not tested. 
+
+1. Install the Qt via the [Qt online installer](https://www.qt.io/download-qt-installer-oss). It is recommend to use the newest Qt version. Besids Qt you need the additional Qt libraries:
+* Qt 5 Compatibility Module
+* Qt Charts
+* Qt Multimedia
 2. Clone welle.io https://github.com/AlbrechtL/welle.io.git e.g. by using [TortoiseGit](https://tortoisegit.org).
 3. Clone the welle.io Windows libraries https://github.com/AlbrechtL/welle.io-win-libs.git.
 4. Start Qt Creator and open the project file `welle.io.pro` inside the folder "welle.io".
 5. Build welle.io
 6. Run welle.io and enjoy it
 
-macOS
----
-**WARNING: Not tested with Qt 6.2!**
+#### macOS, Android and FreeBSD
 
-To build for macOS, you have several options: Either you install everything incl. dependencies manually (not covered here and not recommended) or use Homebrew or MacPorts.
-
-### Homebrew
-
-Assuming that you have [Homebrew](https://brew.sh/) installed, execute the following steps:
-
-1. Use the welle.io repository as a "tap" (alternative package repository):
-
-```
-brew tap AlbrechtL/welle_io https://github.com/AlbrechtL/welle.io
-```
-
-2. Install welle.io (and dependencies):
-
-```
-brew install AlbrechtL/welle_io/welle.io
-```
-
-### MacPorts
-
-You can either use the welle.io port available in macports, or compile with Qt Creator.
-
-#### use welle.io port
-
-This is the easiest way and will manage the dependencies for you.
-Variants enabled by default are : "airspy" "rtlsdr" "soapysdr". Each enables compilation with that specific input device library.
-
-```
-sudo port install welle.io
-```
-
-Additional variants are: "cli" (to install also welle-cli) "profiling" & "kiss_fft".
-
-With MacPorts, welle.io is installed as a bundle app in `/Applications/MacPorts`.
-
-You can also use welle.io-devel port if you prefer:
-
-```
-sudo port install welle.io-devel
-```
-
-#### compile with Qt Creator
-
-You need to install the dependencies with MacPorts first, assuming you have [MacPorts](https://www.macports.org/) installed:
-
-```
-sudo port install fftw-3-single faad2 rtl-sdr libusb mpg123 lame
-```
-
-1. Install Qt 5.10 with Qt Creator directly from Qt website, not through MacPorts.
-2. Clone welle.io
-
-```
-git clone https://github.com/AlbrechtL/welle.io.git
-```
-
-3. Open `welle.io.pro` with Qt Creator.
-4. Make sure in Qt Creator, "Projects, Build&Run, Run" that the checkbox "Add build library path to DYLD..." is off.
-5. Build and run.
-
-FreeBSD
----
-**WARNING: Not tested with Qt 6.2!**
-
-This section describes how to build welle.io from sources on FreeBSD 12.2 and 13.0.
-
-1. You will need the following dependencies, either built from the
-   ports or installed as a binary package. You may also build them
-   yourself.
-
-```
-pkg install alsa-lib faad lame mpg123 pkgconf cmake qt5-charts \
-    qt5-core qt5-declarative qt5-gui qt5-multimedia qt5-network \
-    qt5-quickcontrols2 qt5-widgets qt5-buildtools qt5-qmake \
-    rtl-sdr fftw3-float fftw3
-```
-   For SoapySDR support, you will also need `soapysdr`. For AirSpy support, you will need `airspy`.
-
-2. Now follow the build instructions for CMake as indicated below.
+These operating systems are not maintain, currently. You can find the original compiling insturections in the old [README.md](https://github.com/AlbrechtL/welle.io/blob/fdcd3c588a6e592b9640aad71648dcf6228fa98f/README.md).
 
 
-CMake instead of Qt Creator (Windows, Linux, macOS, FreeBSD)
----
+#### CMake
 
 As an alternative to Qt Creator, CMake can be used for building welle.io after installing dependencies and cloning the repository. On Linux, you can also use CMake to build [**welle-cli**](#welle-cli), the command-line backend testing tool that does not require Qt.
 
@@ -311,37 +220,13 @@ make install
 
 5. Run welle.io and enjoy it
 
-<!---  comment will not show
-Android
----
-**WARNING: Not tested with Qt 6.2!**
 
-A compiled version of welle.io (APK file) can be found at at the [Google Play store](https://play.google.com/store/apps/details?id=io.welle.welle) or at the [release page](https://github.com/AlbrechtL/welle.io/releases).
-
-welle.io uses the "RTL2832U driver" from Martin Marinov, to be found at the [Google play store](https://play.google.com/store/apps/details?id=marto.rtl_tcp_andro) or at [F-droid](https://f-droid.org/packages/marto.rtl_tcp_andro/). Also see ([sources](https://github.com/martinmarinov/rtl_tcp_andro-) or [APK file](https://github.com/martinmarinov/rtl_tcp_andro-/blob/master/app/app-release.apk)). Please note that a recent version of this driver is needed (v3.06 or above), otherwise welle.io will not find your stick.
-
-This sections shows how to compile welle.io for Android.
-
-1. Install Qt 5.12 for Android including the Qt Charts and Qt Remote Objects modules by using the "Qt Online Installer for Windows" https://www.qt.io/download-open-source/
-2. Follow the site https://doc.qt.io/qt-5/androidgs.html to install the Android build environment
-3. Clone welle.io https://github.com/AlbrechtL/welle.io.git
-
-```
-git clone https://github.com/AlbrechtL/welle.io.git
-```
-  
-4. Start Qt Creator and open the project file `welle.io.pro` inside the folder "welle.io".
-5. Build welle.io
-6. Run welle.io and enjoy it
--->
-
-welle-cli
-==
+## welle-cli
 
 If you compile welle-io with [`cmake`](#cmake-instead-of-qt-creator-windows-linux-macos) you will also get an executable called **welle-cli** which stands for welle-io **c**ommand **l**ine **i**nterface. 
 
-Usage of welle-cli 
----
+#### Usage of welle-cli 
+
 
 Receive using RTLSDR, and play with ALSA:
 
@@ -374,21 +259,18 @@ With the `-P` option, welle-cli will switch once DLS and a slide were decoded, s
     
 Example: `welle-cli -c 12A -C 1 -w 7979` enables the webserver on channel 12A, please then go to http://localhost:7979/ where you can observe all necessary details for every service ID in the ensemble, see the slideshows, stream the audio (by clicking on the Play-Button), check spectrum, constellation, TII information and CIR peak diagramme.
 
-Streaming output options
----
+#### Streaming output options
 
 By default, `welle-cli` will output in mp3 if in webserver mode.
 With the `-O` option, you can choose between mp3 and flac (lossless) if FLAC support is enabled at build time.
 
-Backend options
----
+#### Backend options
 
 `-u` disable coarse corrector, for receivers who have a low frequency offset.
 
 Use `-t [test_number]` to run a test. To understand what the tests do, please see source code.
 
-Driver options
----
+#### Driver options
 
 By default, `welle-cli` tries all enabled drivers in turn and uses the first device it can successfully open.
 
@@ -400,29 +282,39 @@ This allows to select the `rtl_tcp` driver (which is not auto-detected) and pass
 
 Right now, `rtl_tcp` is the only driver that accepts options from the command line.
 
-Examples: 
----
+**Examples**: 
+
 
     welle-cli -c 10B -p GRRIF
     welle-cli -f ./ofdm.iq -p GRRIF
     welle-cli -f ./ofdm.iq -t 1
 
-Limitations
-===
-* Windows 8 and older are not officially supported
+## Limitations
 
-Development
-===
+* Windows 10 and older are not officially supported.
+
+## Development
+
 You can join the welle.io development. Please visit the [wiki](https://github.com/AlbrechtL/welle.io/wiki) to find more information.
 
-Profiling
----
+## Profiling
+
 If you build with cmake and add `-DPROFILING=ON`, welle-io will generate a few `.csv` files and a graphviz `.dot` file that can be used
 to analyse and understand which parts of the backend use CPU resources. Use `dot -Tpdf profiling.dot > profiling.pdf` to generate a graph
 visualisation. Search source code for the `PROFILE()` macro to see where the profiling marks are placed.
 
-Sponsors
-===
+## Acknowledgement
+
+
+I would like to thanks to following open source projects. Without these great works this program would not be possible
+* [qt-dab](https://github.com/JvanKatwijk/qt-dab) (In 2017 we forked welle.io from  qt-dab)
+* [dablin](https://github.com/Opendigitalradio/dablin)
+* [Opendigitalradio](https://www.opendigitalradio.org/)
+* FFTW
+* Qt
+
+## Sponsors
+
 
 <table>
  <tbody>
