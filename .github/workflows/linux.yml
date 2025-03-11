@@ -46,21 +46,21 @@ jobs:
         run: |
             # Add current build date into appdata.xml
             APPDATA_DATE=`date +%Y-%m-%d`
-            sed -i 's/date="1970-01-01"/'date=\""$APPDATA_DATE"\"'/g' io.welle.welle_io.appdata.xml
+            sed -i 's/date="1970-01-01"/'date=\""$APPDATA_DATE"\"'/g' io.welle.welle-gui.appdata.xml
 
             # Add githash into appdata.xml
             APPDATA_DATE_VERSION="2.7-unstable-$GIT_HASH"
-            sed -i 's/version="0.0.0"/'version=\""$APPDATA_DATE_VERSION"\"'/g' io.welle.welle_io.appdata.xml
+            sed -i 's/version="0.0.0"/'version=\""$APPDATA_DATE_VERSION"\"'/g' io.welle.welle-gui.appdata.xml
 
-            # Check if file "io.welle.welle_io.appdata.xml" is valid
-            flatpak run --command=flatpak-builder-lint org.flatpak.Builder appstream io.welle.welle_io.appdata.xml
+            # Check if file "io.welle.welle-gui.appdata.xml" is valid
+            flatpak run --command=flatpak-builder-lint org.flatpak.Builder appstream io.welle.welle-gui.appdata.xml
 
       - name: Build
         id: build
         run: |
             # Create welle-gui Flatpak
-            flatpak-builder --force-clean --user --install-deps-from=flathub --repo=repo --install builddir io.welle.welle_io.yml
-            flatpak build-bundle repo welle-io.flatpak io.welle.welle_io --runtime-repo=https://flathub.org/repo/flathub.flatpakrepo
+            flatpak-builder --force-clean --user --install-deps-from=flathub --repo=repo --install builddir io.welle.welle-gui.yml
+            flatpak build-bundle repo welle-io.flatpak io.welle.welle-gui --runtime-repo=https://flathub.org/repo/flathub.flatpakrepo
 
             # Detect CPU
             ARCH=$(uname -m)
@@ -77,7 +77,7 @@ jobs:
             # Prepare publish
             mkdir publish
             mv welle-io.flatpak publish/"$DATE"_"$GIT_HASH"_Linux_welle-"$ARCH_SUFFIX".flatpak
-            cp io.welle.welle_io.appdata.xml publish/
+            cp io.welle.welle-gui.appdata.xml publish/
         
       - name: Archive artifacts (welle.io Flatpak)
         uses: actions/upload-artifact@v4
