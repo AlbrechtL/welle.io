@@ -58,7 +58,7 @@ endif()
 if(BUILD_WELLE_IO)
     find_package(Qt6 COMPONENTS Widgets Quick QuickControls2 Multimedia Charts Qml REQUIRED)
     set(CMAKE_AUTOMOC ON)
-    if(ANDROID AND Qt6Core_VERSION VERSION_LESS 6.4.0)
+    if(ANDROID AND Qt6Core_VERSION VERSION_LESS 6.8.0)
         # Woraround for QTBUG-106466
         set(CMAKE_AUTORCC ON)
     endif()
