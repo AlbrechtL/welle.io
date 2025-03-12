@@ -41,6 +41,7 @@ Item {
     property alias stationNameText: stationItem.text
     property string channelNameText
     property string availableChannelNamesText
+    property string knownEnsembleNamesSerialized
     property int stationSIdValue
     property bool isExpert: false
     property bool isFavorit: false
@@ -107,7 +108,7 @@ Item {
             icon.color: "grey"
             implicitWidth: contentItem.implicitWidth + Units.dp(15)
             flat: true
-            visible: availableChannelNamesText.split(',').length > 1 ? 1 : 0
+            visible: root.availableChannelNamesText.split(',').length > 1 ? 1 : 0
             onClicked: ensembleMenu.open()
 
             WMenu {
@@ -116,9 +117,20 @@ Item {
 
                 Instantiator {
                      id: recentFilesInstantiator
-                     model: availableChannelNamesText.split(',')
+                     model: root.availableChannelNamesText.split(',')
                      delegate: MenuItem {
-                         text: modelData
+                         text: {
+                             if(root.knownEnsembleNamesSerialized != "") {
+                                 var knownEnsembleNames = JSON.parse(knownEnsembleNamesSerialized)
+                                 for(const ensembleNameChannel in knownEnsembleNames) {
+                                     if(ensembleNameChannel === modelData)
+                                         return knownEnsembleNames[modelData]
+                                 }
+                             }
+
+                             // Fallback if no ensemble name was found
+                             return modelData
+                         }
                          onTriggered: root.setDefaultChannel(modelData)
                      }
 

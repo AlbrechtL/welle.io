@@ -42,6 +42,7 @@ ApplicationWindow {
     property bool isFullScreen: false
     property bool isLoaded: false
     property bool isStationNameInWindowTitle: false
+    property string knownEnsembleNamesSerialized
 
     StationListModel { id: stationList ; type: "all"}
     StationListModel { id: favoritsList ; type: "favorites"}
@@ -108,6 +109,7 @@ ApplicationWindow {
         property alias favoritsListSerialize: favoritsList.serialized
         property alias stationListBoxIndex: stationListBox.currentIndex
         property alias volume: volumeSlider.value
+        property alias knownEnsembleNamesSerialized: mainWindow.knownEnsembleNamesSerialized
     }
 
     header: ToolBar {
@@ -528,6 +530,7 @@ ApplicationWindow {
                     stationSIdValue: stationSId
                     channelNameText: channelName == "File" ? qsTr("File") : channelName
                     availableChannelNamesText: channelName == "File" ? "" : availableChannelNames
+                    knownEnsembleNamesSerialized: mainWindow.knownEnsembleNamesSerialized
                     isFavorit: favorit
                     isExpert: isExpertView
                     onClicked: radioController.play(channelName, stationName, stationSId)
@@ -896,6 +899,21 @@ ApplicationWindow {
         }
 
         function onNewStationNameReceived(station, sId, channel) {stationList.addStation(station, sId, channel, false)}
+
+        function onEnsembleChanged() {
+            var ensemble = radioController.ensemble.trim()
+            var channel = radioController.channel
+            if(ensemble != "") {
+                var knownEnsembleNames = {}
+                if(knownEnsembleNamesSerialized != "")
+                    knownEnsembleNames = JSON.parse(knownEnsembleNamesSerialized)
+
+                if (!(channel in knownEnsembleNames) || knownEnsembleNames[channel] !== ensemble) {
+                    knownEnsembleNames[channel] = ensemble; // Put new name into dict
+                    knownEnsembleNamesSerialized = JSON.stringify(knownEnsembleNames)
+                }
+            }
+        }
     }
 
     Connections {
