@@ -28,6 +28,8 @@ modules:
 
   - name: libfaad
     buildsystem: cmake
+    config-opts:
+      - '-DCMAKE_INSTALL_LIBDIR=lib'
     sources:
       - type: git
         url: 'https://salsa.debian.org/multimedia-team/faad2.git'
@@ -47,6 +49,7 @@ modules:
     config-opts:
       - '-Wno-dev'
       - '-DDETACH_KERNEL_DRIVER=ON'
+      - '-DCMAKE_INSTALL_LIBDIR=lib'
     sources:
       - type: git
         url: 'https://gitea.osmocom.org/sdr/rtl-sdr.git'
@@ -66,6 +69,7 @@ modules:
     config-opts:
       - '-DCMAKE_BUILD_TYPE=Release'
       - '-Wno-dev'
+      - '-DCMAKE_INSTALL_LIBDIR=lib'
     sources:
       - type: git
         url: 'https://github.com/pothosware/SoapySDR.git'
