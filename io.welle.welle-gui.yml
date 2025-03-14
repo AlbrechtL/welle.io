@@ -10,7 +10,7 @@ finish-args:
   - '--socket=pulseaudio'
   - '--socket=wayland'
   - '--socket=fallback-x11'
-  - '--device=dri'
+  - '--talk-name=org.kde.StatusNotifierWatcher'
   - '--device=all'
 
 modules:
