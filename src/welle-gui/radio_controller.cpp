@@ -305,6 +305,9 @@ void CRadioController::setService(uint32_t service, bool force)
         currentText = "";
         emit textChanged();
 
+        audioMode = "";
+        emit audioModeChanged(audioMode);
+
         emit motReseted();
     }
 }

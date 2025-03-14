@@ -245,8 +245,8 @@ ViewBaseFrame {
             Layout.maximumWidth: parent.parent.width - stationType.width
             fontSizeMode: Text.Fit
             minimumPixelSize: 8;
-            text: (radioController.isDAB ? "DAB" : "DAB+")
-                + " " + radioController.audioMode
+            text: (radioController.audioMode !== "") ? ((radioController.isDAB ? "DAB" : "DAB+")
+                + " " + radioController.audioMode) : ""
         }
     }
 
