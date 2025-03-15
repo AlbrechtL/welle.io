@@ -13,6 +13,8 @@ var png_chevron_right = "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABHNCSVQ
 
 var png_chevron_down = "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAOxAAADsQBlSsOGwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAB0SURBVEiJ7Y87CoAwEAVHD2khqIUgCF5HUPBzUL9NgiGoSKKN7MAW4cEMAUEQnlAAycUWA6WPPAcWdZm1RcAErEDlGmiATd3M8ZNYvfXWuQYCoLUijSXvgdA1oCO1ITRv8JXfRV6Tn0XGt+VmJP1KLgh/ZQd6AiOdJgUioQAAAABJRU5ErkJggg=="
 
+var show=0;
+
 window.onload = function() {
     var chevron_right = '<img width=24 height=24 src="data:image/png;base64,' +
         png_chevron_right + '" />';
@@ -210,7 +212,7 @@ function playerLoad() {
 }
 
 function setPlayerSource(sid) {
-    document.getElementById("player").src = "/stream/" + sid;
+    document.getElementById("player").src = "/mp3/" + sid;
     playerLoad();
 }
 
@@ -228,12 +230,17 @@ function showSlide(sid, last_update_time) {
     var last_update = new Date(last_update_time * 1000);
     slidecaption.innerHTML = last_update;
     slide_modal.style.display = "block";
+    show=last_update_time;
+    console.log(slideimg.src)
 }
 
 var slideclose = document.getElementsByClassName("slideclose")[0];
 slideclose.onclick = function() {
     slide_modal.style.display = "none";
+    show=0;
 }
+
+
 
 function parseTemplate(template, data) {
    return template.replace(/\$\{(\w+)\}/gi, function(match, parensMatch) {
@@ -358,6 +365,12 @@ function populateEnsembleinfo() {
             }
 
             s["dls"] = "";
+
+               global_service_mot_time=service.mot.time;
+            if (service.mot.time>show && show ) {
+		var tempo = service.mot.time;
+		showSlide(parseInt(service.sid), service.mot.time);
+	} 
 
             if (service.mot && service.mot.time > 0) {
                 s["dls"] += '<button type=button onclick="showSlide(';
@@ -579,5 +592,4 @@ function populateConstellation() {
     r.responseType = "arraybuffer";
     r.send(null);
 }
-
 
