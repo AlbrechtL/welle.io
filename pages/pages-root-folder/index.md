@@ -75,7 +75,7 @@ Download
 ### Stable binaries
 * [**Windows**](http://github.com/AlbrechtL/welle.io/releases)
 * **Linux** (flatpak version is recommend because Linux distribution packages welle.io can be outdated.
-  - [Flatpak](http://github.com/AlbrechtL/welle.io/releases) 
+  - [Flatpak](https://flathub.org/apps/io.welle.welle-gui) 
   - [Full list of supported Linux distributions](https://repology.org/project/welle.io/versions)
   - Debian or Ubuntu 19.04+:
     ```
