@@ -10,7 +10,6 @@
   <developer id="io.welle.welle-gui">
     <name>Albrecht Lohofener</name>
   </developer>
-  <url type="homepage">https://www.welle.io</url>
   <description>
     <p>
       welle.io is an open source DAB and DAB+ software defined radio (SDR) with support for rtl-sdr (RTL2832U), airspy and other devices supported by SoapySDR.
@@ -26,4 +25,8 @@
   <releases>
     <release date="1970-01-01" version="0.0.0"/>
   </releases>
+  <url type="homepage">https://www.welle.io</url>
+  <url type="help">https://github.com/AlbrechtL/welle.io/discussions</url>
+  <url type="bugtracker">https://github.com/AlbrechtL/welle.io/issues</url>
+  <url type="vcs-browser">https://github.com/AlbrechtL/welle.io/</url>
 </component>
