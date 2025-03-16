@@ -61,16 +61,16 @@ excerpt_separator: "<!--more-->"
 
 # Include additional files and directory
 include:
-    - .well-known/org.flathub.VerifiedApps.txt
+ - .well-known
 
 # Exclude these files from your production _site
 exclude:
-    - .sass-cache
-    - Gemfile
-    - Gemfile.lock
-    - LICENSE
-    - README.md
-    - INSTALL.md
+ - .sass-cache
+ - Gemfile
+ - Gemfile.lock
+ - LICENSE
+ - README.md
+ - INSTALL.md
 
 
 # The language setting is used in /includes/header.html for html-settings
