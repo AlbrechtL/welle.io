@@ -61,8 +61,8 @@ excerpt_separator: "<!--more-->"
 
 # Include additional files and directory
 include:
+    - .well-known/org.flathub.VerifiedApps.txt
     - .htaccess
-    - .well-known
 
 # Exclude these files from your production _site
 exclude:
