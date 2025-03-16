@@ -62,6 +62,7 @@ excerpt_separator: "<!--more-->"
 # Include additional files and directory
 include:
  - .well-known
+ - .well-known/.nojekyll
 
 # Exclude these files from your production _site
 exclude:
