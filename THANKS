@@ -1,5 +1,6 @@
 welle.io uses external and internal libraries and make extensive use of the following persons' or companies' code:
 
+Visual Studio Code - Microsoft
 QT - Copyright (c) The Qt Company, www.qt.io - LGPL Version 2.1
 FFTW3 - www.fftw.org - GPLv2 license or later
 Kiss FFT - www.sourceforge.net/projects/kissfft - Mark Borgerding - BSD 3-clause license
@@ -12,7 +13,7 @@ frequency-analyzer - https://github.com/Venemo/frequency-analyzer, Timur Kristó
 
 welle.io uses parts from the following programs 
 - qt-dab
-  Copyright (c) 2009-2017 Jan van Katwijk Lazy Chair Computing (J.vanKatwijk@gmail.com)
+  Copyright (c) 2009-2024 Jan van Katwijk Lazy Chair Computing (J.vanKatwijk@gmail.com)
   https://github.com/JvanKatwijk/qt-dab
 - dablin
   Copyright (c) 2016 Stefan Pöschel
