@@ -30,22 +30,21 @@
  *
  */
 
-#include "input/input_factory.h"
-#include "radio-receiver-options.h"
-#include <memory>
+#ifndef WELLECLI_H
+#define WELLECLI_H
 
-class Tests {
-    public:
-        Tests(std::unique_ptr<CVirtualInput>& input_interface,
-                RadioReceiverOptions rro);
+#include <string>
 
-        void run_test(int test_id);
 
-    private:
-        void test_with_noise();
-        void test_with_noise_iteration(double stddev);
-        void test_multipath(int test_id);
+class GLOBAL_VARS
+{
+public:
+    GLOBAL_VARS();
+    
+    
+private:
+    
 
-        std::unique_ptr<CVirtualInput>& input_interface;
-        RadioReceiverOptions rro;
 };
+
+#endif // WELLECLI_H

@@ -48,7 +48,7 @@ class FIBProcessor {
         void clearEnsemble();
 
         // Called from the frontend
-        uint32_t getEnsembleId() const;
+        uint16_t getEnsembleId() const;
         uint8_t getEnsembleEcc() const;
         DabLabel getEnsembleLabel() const;
         std::vector<Service> getServiceList() const;

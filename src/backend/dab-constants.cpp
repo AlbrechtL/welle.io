@@ -594,30 +594,3 @@ AudioServiceComponentType ServiceComponent::audioType() const
     }
 }
 
-/*
-TransportDataMode ServiceComponent::DataTType() const
-{
-    if (DSCTy == 1) {
-        return DataServiceComponentType::TMC;
-    }
-    else if (DSCTy == 60) {
-        return DataServiceComponentType::MOT;
-    }
-    else if (DSCTy == 02) {
-        return DataServiceComponentType::EWS;
-    }
-    else if (DSCTy == 59) {
-        return DataServiceComponentType::IPDATA;
-    }
-    else if (DSCTy == 44) {
-        return DataServiceComponentType::Journaline;
-    }
-    else if (DSCTy == 05) {
-        return DataServiceComponentType::TDC;
-    }    
-    else {
-        return DataServiceComponentType::Unknown;
-    }
-}
-
-*/

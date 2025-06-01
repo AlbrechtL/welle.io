@@ -289,7 +289,6 @@ set(welle_cli_sources
     src/welle-cli/webradiointerface.cpp
     src/welle-cli/jsonconvert.cpp
     src/welle-cli/webprogrammehandler.cpp
-    src/welle-cli/tests.cpp
 )
 
 set(input_sources
