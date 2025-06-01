@@ -469,7 +469,7 @@ if(BUILD_WELLE_CLI AND NOT ANDROID)
         favicon.ico.h)
 
     if(CMAKE_BUILD_TYPE MATCHES Debug)
-      SET_TARGET_PROPERTIES(${cliExecutableName} PROPERTIES COMPILE_FLAGS "-O2 -fno-omit-frame-pointer -fsanitize=address")
+      SET_TARGET_PROPERTIES(${cliExecutableName} PROPERTIES COMPILE_FLAGS "-O0 -fno-omit-frame-pointer -fsanitize=address")
       SET_TARGET_PROPERTIES(${cliExecutableName} PROPERTIES LINK_FLAGS "-fno-omit-frame-pointer -fsanitize=address")
     endif(CMAKE_BUILD_TYPE MATCHES Debug)
 
