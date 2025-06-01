@@ -29,18 +29,22 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-
+#include <curses.h>
 #include <algorithm>
 #include <condition_variable>
 #include <deque>
 #include <iostream>
+#include <filesystem>
 #include <memory>
 #include <mutex>
 #include <thread>
+#include <string>
 #include <set>
 #include <utility>
+#include <stdlib.h>
 #include <cstdio>
 #include <unistd.h>
+#include "wellecli.h"
 #ifdef HAVE_SOAPYSDR
 #  include "soapy_sdr.h"
 #endif
@@ -48,13 +52,23 @@
 #if defined(HAVE_ALSA)
 #  include "welle-cli/alsa-output.h"
 #endif
-#include "welle-cli/webradiointerface.h"
-#include "welle-cli/tests.h"
-#include "backend/radio-receiver.h"
-#include "input/input_factory.h"
+
+
 #include "input/raw_file.h"
 #include "various/channels.h"
 #include "libs/json.hpp"
+
+#include "ofdm-processor.h"
+#include "fic-handler.h"
+#include "fib-processor.h"
+#include "webradiointerface.h"
+#include "radio-receiver.h"
+#include "input_factory.h"
+#include "raw_file.h"
+#include "channels.h"
+#include "radio-receiver.h"
+#include "dab-constants.h"
+
 extern "C" {
 #include "various/wavfile.h"
 }
@@ -68,6 +82,44 @@ extern "C" {
 using namespace std;
 
 using namespace nlohmann;
+
+ // county used by programswitch
+int CserviceLabelPos = 0;
+const int menge = 70;
+string CserviceLabel[menge] {};
+string CservicePTY[menge] {};
+string Cservicecomp[menge] {};
+string Cserviceaudio[menge] {};
+int32_t Cservicsub[menge] {};
+int32_t Cservicesub[menge] {};
+int32_t Cservicebitrate[menge] {};
+int32_t CservicebitAddr[menge] {};
+string key_pressed;
+string dumpFileName;
+string playingprog;
+
+string playingdls;
+string playingsnr;
+string playingtii;
+string playingpty;
+string playingRDS;
+string playingDABFREQ;
+int64_t playingSid;
+uint16_t playingDSCTy;
+uint16_t playingnow=0;
+string playingAnnoucment = "";
+string service_to_tune  = "";
+//string dumpFileName  = "";
+int ii=0; //searching for
+char c;
+bool service_selected = false;
+DABFrequenzData DABFrequenzDatas;
+#define CTRL_Z 26
+#define ARROW_UP 72
+#define ARROW_DOWN 80
+#define ARROW_LEFT 75
+#define ARROW_RIGHT 77
+
 
 #if defined(HAVE_ALSA)
 class AlsaProgrammeHandler: public ProgrammeHandlerInterface {
@@ -88,6 +140,19 @@ class AlsaProgrammeHandler: public ProgrammeHandlerInterface {
 
             ao->playPCM(move(audioData));
         }
+        
+        virtual void onNewAnnoucement(std::string name, uint16_t subChId, std::string  announcementId) 
+        {
+          //  cout << "Annoucement = " << name << " subChId = " << subChId << "  announcementId = " << announcementId << endl;
+            playingAnnoucment = "(" + name + " " + announcementId + ")";
+        }
+
+        virtual void onStopAnnoucement(std::string name, uint16_t subChId, std::string  announcementId)
+        {
+            //cout << "Stop Annoucement = " << name << " subChId = " << subChId << "  announcementId = " << announcementId << endl;
+            playingAnnoucment = "";
+        }
+
 
         virtual void onRsErrors(bool uncorrectedErrors, int numCorrectedErrors) override {
             (void)uncorrectedErrors; (void)numCorrectedErrors; }
@@ -175,7 +240,11 @@ class WavProgrammeHandler: public ProgrammeHandlerInterface {
 
 class RadioInterface : public RadioControllerInterface {
     public:
-        virtual void onSNR(float /*snr*/) override { }
+        virtual void onSNR(float snr) override { 
+                       // cout << " | SNR: " << snr << endl;
+         uint ssnr = snr ;
+         playingsnr = to_string(ssnr);
+        }
         virtual void onFrequencyCorrectorChange(int /*fine*/, int /*coarse*/) override { }
         virtual void onSyncChange(char isSync) override { synced = isSync; }
         virtual void onSignalPresence(bool /*isSignal*/) override { }
@@ -183,6 +252,48 @@ class RadioInterface : public RadioControllerInterface {
         {
             cout << "New Service: 0x" << hex << sId << dec << endl;
         }
+
+
+        virtual void onTPEGDetected(uint32_t sId) override
+        {
+          cout << "## New TPEG/EPG : 0x" << hex << sId << dec << "\n" << endl;
+            // ##################### EPG
+          //  int	epgWidth;
+            //	my_ofdmHandler	= new ofdmHandler  (this, inputDevice, &globals, dabSettings);
+	      //  std::vector<epgElement> res =  OFDMProcessor.  find_epgData (channel. currentService. SId);
+	       // for (const auto& element: res)
+	            //my_timeTable -> addElement (element. theTime, epgWidth, element. theText, element. theDescr);
+
+            // ##################### EPG
+        }
+
+        virtual void onNewDABFREQ(std::string  sendername,uint32_t dabfreq, uint16_t idField, std::string  DABText, std::string  chan) override
+        {
+            fprintf(stderr,"\033[0;32mDAB Frequenz (ID=%04x ,\033[0;m", idField) ;
+             fprintf(stderr,"\033[0;32m %06d kHz, %s) \033[0;m", dabfreq, chan.c_str()) ;
+             fprintf(stderr,"\033[0;32m %s \n\033[0;m", DABText.c_str()) ;
+        }
+
+        virtual void onNewAnnoucement(std::string name, uint16_t subChId, std::string  announcementId) override
+        {
+          //  cout << "Annoucement = " << name << " subChId = " << subChId << "  announcementId = " << announcementId << endl;
+            playingAnnoucment = "(" + name + " " + announcementId + ")";
+        }
+
+        virtual void onStopAnnoucement(std::string name, uint16_t subChId, std::string  announcementId) override
+        {
+            //cout << "Stop Annoucement = " << name << " subChId = " << subChId << "  announcementId = " << announcementId << endl;
+            playingAnnoucment = "";
+        }
+
+        /* When the FM RDS PI stopped */
+        virtual void OnFrequencyInformation_1_RDS_PI(uint32_t rds_pi_code, std::string  sendername,uint32_t alt_freq, bool is_time_compensated) override
+        {
+           // fprintf(stderr,"\033[0;32mRDS Sender=%s \033[0;m", sendername.c_str()) ;
+            fprintf(stderr,"\033[0;32mRDS Frequenz (ID=%04x \033[0;m", rds_pi_code) ;
+            fprintf(stderr,"\033[0;32m, % 6d kHz)\n\033[0;m", alt_freq) ;
+        }
+
 
         virtual void onNewEnsemble(uint16_t eId) override
         {
@@ -276,9 +387,9 @@ struct options_t {
     string soapySDRDriverArgs = "";
     string antenna = "";
     int gain = -1;
-    string channel = "10B";
+    string channel = "10A";
     string iqsource = "";
-    string programme = "GRRIF";
+    string programme = "NDR 2";
     string frontend = "auto";
     string frontend_args = "";
     bool dump_programme = false;
@@ -565,9 +676,9 @@ int main(int argc, char **argv)
     string service_to_tune = options.programme;
 
     if (not options.tests.empty()) {
-        Tests tests(in, options.rro);
+    //    Tests tests(in, options.rro);
         for (int test : options.tests) {
-            tests.run_test(test);
+          //  tests.run_test(test);
         }
     }
     else if (options.web_port != -1) {

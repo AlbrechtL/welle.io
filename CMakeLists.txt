@@ -15,13 +15,13 @@ endif()
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 14)
 
-option(BUILD_WELLE_IO    "Build Welle.io"                        ON  )
+option(BUILD_WELLE_IO    "Build Welle.io"                        OFF  )
 option(BUILD_WELLE_CLI   "Build welle-cli"                       ON  )
 option(WITH_APP_BUNDLE   "Enable Application Bundle for macOS"   ON  )
 option(KISS_FFT          "KISS FFT instead of FFTW"              OFF )
 option(PROFILING         "Enable profiling (see README.md)"      OFF )
 option(AIRSPY            "Compile with Airspy support"           OFF )
-option(RTLSDR            "Compile with RTL-SDR support"          OFF )
+option(RTLSDR            "Compile with RTL-SDR support"          ON )
 option(SOAPYSDR          "Compile with SoapySDR support"         OFF )
 option(FLAC              "Compile with flac support for streaming" OFF )
 
@@ -289,7 +289,6 @@ set(welle_cli_sources
     src/welle-cli/webradiointerface.cpp
     src/welle-cli/jsonconvert.cpp
     src/welle-cli/webprogrammehandler.cpp
-    src/welle-cli/tests.cpp
 )
 
 set(input_sources
@@ -469,7 +468,7 @@ if(BUILD_WELLE_CLI AND NOT ANDROID)
         favicon.ico.h)
 
     if(CMAKE_BUILD_TYPE MATCHES Debug)
-      SET_TARGET_PROPERTIES(${cliExecutableName} PROPERTIES COMPILE_FLAGS "-O2 -fno-omit-frame-pointer -fsanitize=address")
+      SET_TARGET_PROPERTIES(${cliExecutableName} PROPERTIES COMPILE_FLAGS "-O0 -fno-omit-frame-pointer -fsanitize=address")
       SET_TARGET_PROPERTIES(${cliExecutableName} PROPERTIES LINK_FLAGS "-fno-omit-frame-pointer -fsanitize=address")
     endif(CMAKE_BUILD_TYPE MATCHES Debug)
 

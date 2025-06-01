@@ -1493,10 +1493,18 @@ void WebRadioInterface::onSyncChange(char isSync)
     synced = isSync;
 }
 
+ // gebe Meldung, das ein Sample weiter verarbeitet wird und brauchbares Signal anliegt
 void WebRadioInterface::onSignalPresence(bool /*isSignal*/) { }
 void WebRadioInterface::onServiceDetected(uint32_t /*sId*/) { }
+void WebRadioInterface::onTPEGDetected(uint32_t /*sId*/) { }
 void WebRadioInterface::onNewEnsemble(uint16_t /*eId*/) { }
+void WebRadioInterface::onNewDABFREQ(std::string  sendername,uint32_t dabfreq, uint16_t idField, std::string  DABText, std::string  chan) { }
+void WebRadioInterface::onNewAnnoucement(std::string name, uint16_t subChId, std::string  announcementId) { }
+void WebRadioInterface::onStopAnnoucement(std::string name, uint16_t subChId, std::string  announcementId) { }
+void WebRadioInterface::OnFrequencyInformation_1_RDS_PI(uint32_t rds_pi_code, std::string  sendername,uint32_t alt_freq, bool is_time_compensated)  { }        
 void WebRadioInterface::onSetEnsembleLabel(DabLabel& /*label*/) { }
+
+
 
 void WebRadioInterface::onDateTimeUpdate(const dab_date_time_t& dateTime)
 {

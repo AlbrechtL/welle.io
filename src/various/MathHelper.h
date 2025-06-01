@@ -219,4 +219,18 @@ static inline uint16_t getBits_8(const uint8_t* d, int16_t offset)
     return res;
 }
 
+static inline
+uint32_t	getLBits	(uint8_t *d,
+	                         int32_t offset, int16_t amount) {
+uint32_t	res	= 0;
+int16_t		i;
+
+	for (i = 0; i < amount; i ++) {
+	   res <<= 1;
+	   res |= (d [offset + i] & 01);
+	}
+	return res;
+}
+
+
 #endif // MATHHELPER_H

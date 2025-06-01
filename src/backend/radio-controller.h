@@ -39,7 +39,7 @@
 #include <complex>
 #include "dab-constants.h"
 
-struct dab_date_time_t {
+/* struct dab_date_time_t {
     int year = 0;
     int month = 0;
     int day = 0;
@@ -50,7 +50,7 @@ struct dab_date_time_t {
     // Information decoded from local time offset in FIG 0/9
     int hourOffset = 0;
     int minuteOffset = 0;
-};
+}; */
 
 
 struct tii_measurement_t {
@@ -92,7 +92,23 @@ class RadioControllerInterface {
          * same units, measured in number of samples. */
         virtual void onFrequencyCorrectorChange(int fine, int coarse) = 0;
 
-        /* Indicate if receive signal synchronisation was acquired or lost. */
+                /* When the DAB-Frequenz addiert */
+        virtual void onNewDABFREQ(std::string  sendername,uint32_t dabfreq, uint16_t idField, std::string  DABText,std::string  chan) = 0;
+
+        /* When the Announcement angezeigt */
+         virtual void onNewAnnoucement(std::string name, uint16_t subChId, std::string  announcementId) = 0;
+    
+         /* A new TPEG/EPG with service ID sId was detected. */
+        virtual void onTPEGDetected(uint32_t sId) = 0;
+
+        /* When the Announcement stopped */
+         virtual void onStopAnnoucement(std::string name, uint16_t subChId, std::string  announcementId) = 0;
+
+        /* When the FM RDS PI stopped */
+         virtual void OnFrequencyInformation_1_RDS_PI(uint32_t rds_pi_code, std::string  sendername,uint32_t alt_freq, bool is_time_compensated) = 0;
+        
+        
+         /* Indicate if receive signal synchronisation was acquired or lost. */
         virtual void onSyncChange(char isSync) = 0;
 
         /* Indicate if a signal is suspected on the currently tuned frequency.

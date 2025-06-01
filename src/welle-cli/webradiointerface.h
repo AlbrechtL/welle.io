@@ -88,7 +88,13 @@ class WebRadioInterface : public RadioControllerInterface {
         virtual void onSyncChange(char isSync) override;
         virtual void onSignalPresence(bool isSignal) override;
         virtual void onServiceDetected(uint32_t sId) override;
+        virtual void onTPEGDetected(uint32_t sId) override;
         virtual void onNewEnsemble(uint16_t eId) override;
+        virtual void onNewDABFREQ(std::string  sendername,uint32_t dabfreq, uint16_t idField, std::string  DABText, std::string  chan) override;
+        virtual void onNewAnnoucement(std::string name, uint16_t subChId, std::string  announcementId) override;
+        virtual void onStopAnnoucement(std::string name, uint16_t subChId, std::string  announcementId) override;
+        virtual void OnFrequencyInformation_1_RDS_PI(uint32_t rds_pi_code, std::string  sendername,uint32_t alt_freq, bool is_time_compensated) override;
+      
         virtual void onSetEnsembleLabel(DabLabel& label) override;
         virtual void onDateTimeUpdate(const dab_date_time_t& dateTime) override;
         virtual void onFIBDecodeSuccess(bool crcCheckOk, const uint8_t* fib) override;
