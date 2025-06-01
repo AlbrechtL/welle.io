@@ -25,7 +25,7 @@ Please see the project website https://www.welle.io for a user oriented document
   * [Limitations](#limitations)
   * [Development](#development)
   * [Acknowledgement](#acknowledgement)
-  * [Sponsors](#sponsors)
+  
 
 ## Download
 
@@ -39,26 +39,7 @@ Please see the project website https://www.welle.io for a user oriented document
     ```
     $ apt install welle.io`
     ```
-  - Fedora 35+ (uses the [RPM Fusion](https://rpmfusion.org) package sources)
-    ```
-    # Enable the RPM Fusion sources
-    $ sudo dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm` 
 
-    # Install welle.io
-    $ sudo dnf install --refresh welle-io
-    ```
-* **macOS**
-  Unfortunately the macOS welle.io is unmaintained, currently. You still can use the 2.4 version (only Intel processor support).
-  - [Installer](https://github.com/AlbrechtL/welle.io/releases/tag/v2.4)
-  - MacPorts
-    ```
-    $ sudo port install welle.io
-    ```
-* **[Android](https://github.com/AlbrechtL/welle.io/releases/tag/v2.4)** (Unfortunately unmaintained, currently. You still can use the 2.4 version)
-* **FreeBSD**
-  ```
-  $ pkg install welle.io
-  ```
   
 If you discovered an issue please open a new [issue](https://github.com/AlbrechtL/welle.io/issues).
 
