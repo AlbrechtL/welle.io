@@ -1,4 +1,4 @@
-[welle.io](https://www.welle.io)
+[welle.io-cli](https://www.welle.io)
 =====================
 This repository contains the implementation of an SDR DAB/DAB+ receiver.  
 Please see the project website https://www.welle.io for a user oriented documentation.
