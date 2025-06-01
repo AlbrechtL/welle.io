@@ -6,7 +6,6 @@ Please see the project website https://www.welle.io for a user oriented document
 **Build status**
 - Linux (Flatpak x86_64 and arm64): [![Linux build](https://github.com/AlbrechtL/welle.io/actions/workflows/linux.yml/badge.svg)](https://github.com/AlbrechtL/welle.io/actions/workflows/linux.yml)
 - Windows (Installer x86_64): [![Windows build](https://github.com/AlbrechtL/welle.io/actions/workflows/windows.yml/badge.svg)](https://github.com/AlbrechtL/welle.io/actions/workflows/windows.yml)
-- Android (APK): build workflow is currently disabled because a new, skilled maintainer for Android package is required to fix bug https://github.com/AlbrechtL/welle.io/issues/814# in the workflow.
 
 
 ## Table of contents
@@ -18,7 +17,6 @@ Please see the project website https://www.welle.io for a user oriented document
     * [General Information](#general-information)
     * [Debian / Ubuntu Linux](#debian--ubuntu-linux)
     * [Windows 11](#windows-11)
-    * [macOS, Android and FreeBSD](#macos-android-and-freebsd)
     * [CMake](#cmake)
   * [welle-cli](#welle-cli)
     * [Usage](#usage-of-welle-cli)
