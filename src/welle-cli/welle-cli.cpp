@@ -276,9 +276,9 @@ struct options_t {
     string soapySDRDriverArgs = "";
     string antenna = "";
     int gain = -1;
-    string channel = "10B";
+    string channel = "10A";
     string iqsource = "";
-    string programme = "GRRIF";
+    string programme = "NDR 2";
     string frontend = "auto";
     string frontend_args = "";
     bool dump_programme = false;
