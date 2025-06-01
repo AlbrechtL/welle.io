@@ -30,6 +30,9 @@
 #include <iostream>
 #include <exception>
 #include <sstream>
+#include "list"
+#include "msc-handler.h"
+#include "MathHelper.h"
 
 // For Qt translation if Qt is existing
 #ifdef QT_CORE_LIB
@@ -39,6 +42,67 @@
 #endif
 
 using namespace std;
+
+uint16_t PlayingCUSize = 0;
+uint32_t Global_SCIds;
+uint32_t Global_SCId;
+uint32_t Global_subchannelId;
+
+int32_t Global_DSCTy = 0;
+int32_t Global_bitDataRate = 0;
+int32_t Global_DGFlag = 0;
+int32_t Global_appType = 0;
+uint32_t Global_SId=0;
+uint32_t Global_data_SId=0;
+int32_t Global_subID=0;
+int32_t Global_theDay=0;
+int Global_year;
+int Global_month;
+int Global_day;
+dab_date_time_t dateTime = {};
+bool Global_audiorunning=false;
+std::string Global_dumpFileName="";
+std::string Global_TPEGFileName="";
+std::string Global_DatenFileName="";
+std::string Global_subName="";
+std::list<uint8_t>  Global_Datastream;
+std::string Global_Prog="";
+
+bool Global_string8b_9b_ab_bb=false;
+bool Global_string_gesamt=false;
+bool start_png=false;
+bool start_name_png=false;
+uint8_t firstSegment_name_png=0;
+uint8_t lastSegment_name_png=0;
+bool start_name_TMC=false;
+uint8_t firstSegment_name_TMC=0;
+uint8_t lastSegment_name_TMC=0;
+uint8_t png[8192];
+int png_zaehler=0;
+ bool start_titel;
+ bool start_data;
+ uint8_t data_len;
+ uint8_t titel[30][40];
+ std::vector<std::string> DAB_titel;
+ uint8_t titel_zaehler=0;
+ uint8_t titel_header_zaehler=0;
+ uint8_t weiter=0;
+ int8_t weiter_anzahl=0;
+uint8_t Global_string80_90_a0_b0[200*72];
+uint8_t Global_string_alle[200*72];
+std::string Global_string_tpeg_name;
+uint8_t temptpeg[6000];
+uint8_t header[48];
+size_t handleDlfJournaline_zaehler ;
+std::vector<uint16_t> DAB_TPEG_location;
+std::vector<std::string> DAB_TPEG_PNG_STR;
+std::unordered_map<uint16_t, int> countMap;
+std::unordered_map<std::string, int> countMapSTR;
+std::unordered_map<uint16_t, int> occurrences;
+std::unordered_map<std::string, int> occurrencesPNG;
+ int32_t	Global_dataPort = 9999;
+ 
+
 
 // Table ETSI EN 300 401 Page 50
 // Table is copied from the work of Michael Hoehn
@@ -439,6 +503,8 @@ int Subchannel::bitrate() const
     throw std::runtime_error("Unsupported protection");
 }
 
+
+
 int Subchannel::numCU() const
 {
     const auto& ps = protectionSettings;
@@ -499,6 +565,7 @@ string Subchannel::protection() const
 
 TransportMode ServiceComponent::transportMode() const
 {
+   
     if (TMid == 0) {
         return TransportMode::Audio;
     }
@@ -527,3 +594,30 @@ AudioServiceComponentType ServiceComponent::audioType() const
     }
 }
 
+/*
+TransportDataMode ServiceComponent::DataTType() const
+{
+    if (DSCTy == 1) {
+        return DataServiceComponentType::TMC;
+    }
+    else if (DSCTy == 60) {
+        return DataServiceComponentType::MOT;
+    }
+    else if (DSCTy == 02) {
+        return DataServiceComponentType::EWS;
+    }
+    else if (DSCTy == 59) {
+        return DataServiceComponentType::IPDATA;
+    }
+    else if (DSCTy == 44) {
+        return DataServiceComponentType::Journaline;
+    }
+    else if (DSCTy == 05) {
+        return DataServiceComponentType::TDC;
+    }    
+    else {
+        return DataServiceComponentType::Unknown;
+    }
+}
+
+*/
