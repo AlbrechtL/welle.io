@@ -401,10 +401,13 @@ if(BUILD_WELLE_IO)
             )
         endif()
         if(Qt6Core_VERSION_MAJOR EQUAL 6 AND Qt6Core_VERSION_MINOR GREATER_EQUAL 3)
-            find_package(Qt6 COMPONENTS Quick3DUtils REQUIRED)
-            target_link_libraries (${executableName} PRIVATE
-                Qt6::Quick3DUtils
-            )
+            # Quick3DUtils is optional on Android; only link if available.
+            find_package(Qt6 COMPONENTS Quick3DUtils)
+            if(Qt6Quick3DUtils_FOUND)
+                target_link_libraries (${executableName} PRIVATE
+                    Qt6::Quick3DUtils
+                )
+            endif()
         endif()
     else()
         # Qt6::DBus should not be used for Android
