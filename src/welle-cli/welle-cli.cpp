@@ -32,14 +32,15 @@
 
 #include <algorithm>
 #include <condition_variable>
+#include <cstdio>
 #include <deque>
 #include <iostream>
+#include <limits>
 #include <memory>
 #include <mutex>
 #include <thread>
 #include <set>
 #include <utility>
-#include <cstdio>
 #include <unistd.h>
 #ifdef HAVE_SOAPYSDR
 #  include "soapy_sdr.h"
@@ -72,8 +73,15 @@ using namespace nlohmann;
 #if defined(HAVE_ALSA)
 class AlsaProgrammeHandler: public ProgrammeHandlerInterface {
     public:
+        AlsaProgrammeHandler(const string& device)
+        {
+            if (!device.empty())
+            {
+                pcm_device = device;
+            }
+        }
         virtual void onFrameErrors(int frameErrors) override { (void)frameErrors; }
-        virtual void onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, const std::string& mode) override
+        virtual void onNewAudio(vector<int16_t>&& audioData, int sampleRate, const string& mode) override
         {
             (void)mode;
             lock_guard<mutex> lock(aomutex);
@@ -83,7 +91,7 @@ class AlsaProgrammeHandler: public ProgrammeHandlerInterface {
 
             if (!ao or reset_ao) {
                 cerr << "Create audio output rate " << rate << endl;
-                ao = make_unique<AlsaOutput>(2, rate);
+                ao = make_unique<AlsaOutput>(pcm_device.c_str(), 2, rate);
             }
 
             ao->playPCM(move(audioData));
@@ -92,7 +100,7 @@ class AlsaProgrammeHandler: public ProgrammeHandlerInterface {
         virtual void onRsErrors(bool uncorrectedErrors, int numCorrectedErrors) override {
             (void)uncorrectedErrors; (void)numCorrectedErrors; }
         virtual void onAacErrors(int aacErrors) override { (void)aacErrors; }
-        virtual void onNewDynamicLabel(const std::string& label) override
+        virtual void onNewDynamicLabel(const string& label) override
         {
             cout << "DLS: " << label << endl;
         }
@@ -108,12 +116,13 @@ class AlsaProgrammeHandler: public ProgrammeHandlerInterface {
         unique_ptr<AlsaOutput> ao;
         bool stereo = true;
         unsigned int rate = 48000;
+        string pcm_device;
 };
 #endif // defined(HAVE_ALSA)
 
 class WavProgrammeHandler: public ProgrammeHandlerInterface {
     public:
-        WavProgrammeHandler(uint32_t SId, const std::string& fileprefix) :
+        WavProgrammeHandler(uint32_t SId, const string& fileprefix) :
             SId(SId),
             filePrefix(fileprefix) {}
         ~WavProgrammeHandler() {
@@ -127,10 +136,10 @@ class WavProgrammeHandler: public ProgrammeHandlerInterface {
         WavProgrammeHandler& operator=(WavProgrammeHandler&& other) = default;
 
         virtual void onFrameErrors(int frameErrors) override { (void)frameErrors; }
-        virtual void onNewAudio(std::vector<int16_t>&& audioData, int sampleRate, const string& mode) override
+        virtual void onNewAudio(vector<int16_t>&& audioData, int sampleRate, const string& mode) override
         {
             if (rate != sampleRate ) {
-                cout << "[0x" << std::hex << SId << std::dec << "] " <<
+                cout << "[0x" << hex << SId << dec << "] " <<
                     "rate " << sampleRate <<  " mode " << mode << endl;
 
                 string filename = filePrefix + ".wav";
@@ -153,9 +162,9 @@ class WavProgrammeHandler: public ProgrammeHandlerInterface {
         virtual void onRsErrors(bool uncorrectedErrors, int numCorrectedErrors) override {
             (void)uncorrectedErrors; (void)numCorrectedErrors; }
         virtual void onAacErrors(int aacErrors) override { (void)aacErrors; }
-        virtual void onNewDynamicLabel(const std::string& label) override
+        virtual void onNewDynamicLabel(const string& label) override
         {
-            cout << "[0x" << std::hex << SId << std::dec << "] " <<
+            cout << "[0x" << hex << SId << dec << "] " <<
                 "DLS: " << label << endl;
         }
 
@@ -233,12 +242,12 @@ class RadioInterface : public RadioControllerInterface {
                 fwrite(buf.data(), buf.size(), sizeof(buf[0]), fic_fd);
             }
         }
-        virtual void onNewImpulseResponse(std::vector<float>&& data) override { (void)data; }
-        virtual void onNewNullSymbol(std::vector<DSPCOMPLEX>&& data) override { (void)data; }
-        virtual void onConstellationPoints(std::vector<DSPCOMPLEX>&& data) override { (void)data; }
-        virtual void onMessage(message_level_t level, const std::string& text, const std::string& text2 = std::string()) override
+        virtual void onNewImpulseResponse(vector<float>&& data) override { (void)data; }
+        virtual void onNewNullSymbol(vector<DSPCOMPLEX>&& data) override { (void)data; }
+        virtual void onConstellationPoints(vector<DSPCOMPLEX>&& data) override { (void)data; }
+        virtual void onMessage(message_level_t level, const string& text, const string& text2 = string()) override
         {
-            std::string fullText;
+            string fullText;
             if (text2.empty())
                 fullText = text;
             else
@@ -288,6 +297,7 @@ struct options_t {
     int web_port = -1; // positive value means enable
     list<int> tests;
     string outputcodec = "";
+    string pcm = PCM_DEVICE;
 
     RadioReceiverOptions rro;
 };
@@ -304,7 +314,9 @@ static void usage()
     endl <<
     "Tuning:" << endl <<
     "    -c channel    Tune to <channel> (eg. 10B, 5A, LD...)." << endl <<
-    "    -p programme  Play <programme> with ALSA (text name of the radio: eg. GRIFF)." << endl <<
+    "    -p programme  Play <programme> with ALSA. The <programme> can be either" << endl <<
+    "                  * a station's label (eg. GRIFF) - or a part of it - or" << endl <<
+    "                  * a station's Service Id (eg. 0x4f57 or 20311)." << endl <<
     endl <<
     "Dumping:" << endl <<
     "    -D            Dump FIC and all programmes to files (cannot be used with -C)." << endl <<
@@ -341,6 +353,7 @@ static void usage()
     "    -A antenna    Set input antenna to ANT (for SoapySDR input only)." << endl <<
     "    -T            Disable TII decoding to reduce CPU usage." << endl <<
     "    -O            Output Codec for web streaming : mp3 (default), flac (lossless)" << endl <<
+    "    -o            Specify alsa PCM device by name" << endl <<
     endl <<
     "Other options:" << endl <<
     "    -t test_id    Run test <test_id>." << endl <<
@@ -409,7 +422,7 @@ options_t parse_cmdline(int argc, char **argv)
     options.rro.decodeTII = true;
 
     int opt;
-    while ((opt = getopt(argc, argv, "A:c:C:dDf:F:g:hp:O:Ps:Tt:uvw:")) != -1) {
+    while ((opt = getopt(argc, argv, "A:c:C:dDf:F:g:hp:O:o:Ps:Tt:uvw:")) != -1) {
         switch (opt) {
             case 'A':
                 options.antenna = optarg;
@@ -418,7 +431,7 @@ options_t parse_cmdline(int argc, char **argv)
                 options.channel = optarg;
                 break;
             case 'C':
-                options.num_decoders_in_carousel = std::atoi(optarg);
+                options.num_decoders_in_carousel = atoi(optarg);
                 break;
             case 'd':
                 options.dump_programme = true;
@@ -433,13 +446,16 @@ options_t parse_cmdline(int argc, char **argv)
                 fe_opt = optarg;
                 break;
             case 'g':
-                options.gain = std::atoi(optarg);
+                options.gain = atoi(optarg);
                 break;
             case 'p':
                 options.programme = optarg;
                 break;
             case 'O':
                 options.outputcodec = optarg;
+                break;
+            case 'o':
+                options.pcm = optarg;
                 break;
             case 'P':
                 options.carousel_pad = true;
@@ -451,7 +467,7 @@ options_t parse_cmdline(int argc, char **argv)
                 options.soapySDRDriverArgs = optarg;
                 break;
             case 't':
-                options.tests.push_back(std::atoi(optarg));
+                options.tests.push_back(atoi(optarg));
                 break;
             case 'T':
                 options.rro.decodeTII = false;
@@ -462,7 +478,7 @@ options_t parse_cmdline(int argc, char **argv)
                 copyright();
                 exit(0);
             case 'w':
-                options.web_port = std::atoi(optarg);
+                options.web_port = atoi(optarg);
                 break;
             case 'u':
                 options.rro.disableCoarseCorrector = true;
@@ -489,6 +505,19 @@ options_t parse_cmdline(int argc, char **argv)
 
     return options;
 }
+
+unsigned parse_service_to_tune(const string& name) {
+    try {
+        unsigned long id = stoul(name, nullptr, 0);
+        if (id <= numeric_limits<unsigned>::max())
+            return (unsigned)id;
+        else
+            return 0;
+    }
+    catch (...) {
+        return 0;
+    }
+};
 
 int main(int argc, char **argv)
 {
@@ -563,6 +592,7 @@ int main(int argc, char **argv)
     auto freq = channels.getFrequency(options.channel);
     in->setFrequency(freq);
     string service_to_tune = options.programme;
+    unsigned service_to_tune_idx = parse_service_to_tune(service_to_tune);
 
     if (not options.tests.empty()) {
         Tests tests(in, options.rro);
@@ -595,7 +625,7 @@ int main(int argc, char **argv)
             #ifdef HAVE_FLAC
                 ds.outputCodec = OutputCodec::FLAC;
             #else
-                cerr << "Flac support not compiled. Please enable flac support." << std::endl;
+                cerr << "Flac support not compiled. Please enable flac support." << endl;
                 return 1;
             #endif
         }
@@ -639,7 +669,7 @@ int main(int argc, char **argv)
 
             cerr << "Service list" << endl;
             for (const auto& s : rx.getServiceList()) {
-                cerr << "  [0x" << std::hex << s.serviceId << std::dec << "] " <<
+                cerr << "  [0x" << hex << s.serviceId << dec << "] " <<
                     s.serviceLabel.utf8_label() << " ";
                 for (const auto& sc : rx.getComponents(s)) {
                     cerr << " [component "  << sc.componentNr <<
@@ -653,11 +683,11 @@ int main(int argc, char **argv)
                 cerr << endl;
 
                 string dumpFilePrefix = s.serviceLabel.utf8_label();
-                dumpFilePrefix.erase(std::find_if(dumpFilePrefix.rbegin(), dumpFilePrefix.rend(),
-                            [](int ch) { return !std::isspace(ch); }).base(), dumpFilePrefix.end());
+                dumpFilePrefix.erase(find_if(dumpFilePrefix.rbegin(), dumpFilePrefix.rend(),
+                            [](int ch) { return !isspace(ch); }).base(), dumpFilePrefix.end());
 
                 WavProgrammeHandler ph(s.serviceId, dumpFilePrefix);
-                phs.emplace(std::make_pair(s.serviceId, move(ph)));
+                phs.emplace(make_pair(s.serviceId, move(ph)));
 
                 auto dumpFileName = dumpFilePrefix + ".msc";
 
@@ -676,11 +706,11 @@ int main(int argc, char **argv)
         }
         else {
 #if defined(HAVE_ALSA)
-            AlsaProgrammeHandler ph;
+            AlsaProgrammeHandler ph(options.pcm);
             while (not service_to_tune.empty()) {
                 cerr << "Service list" << endl;
                 for (const auto& s : rx.getServiceList()) {
-                    cerr << "  [0x" << std::hex << s.serviceId << std::dec << "] " <<
+                    cerr << "  [0x" << hex << s.serviceId << dec << "] " <<
                         s.serviceLabel.utf8_label() << " ";
                     for (const auto& sc : rx.getComponents(s)) {
                         cerr << " [component "  << sc.componentNr <<
@@ -696,13 +726,13 @@ int main(int argc, char **argv)
 
                 bool service_selected = false;
                 for (const auto& s : rx.getServiceList()) {
-                    if (s.serviceLabel.utf8_label().find(service_to_tune) != string::npos) {
+                    if ((service_to_tune_idx && s.serviceId == service_to_tune_idx) || s.serviceLabel.utf8_label().find(service_to_tune) != string::npos) {
                         service_selected = true;
                         string dumpFileName;
                         if (options.dump_programme) {
                             dumpFileName = s.serviceLabel.utf8_label();
-                            dumpFileName.erase(std::find_if(dumpFileName.rbegin(), dumpFileName.rend(),
-                                        [](int ch) { return !std::isspace(ch); }).base(), dumpFileName.end());
+                            dumpFileName.erase(find_if(dumpFileName.rbegin(), dumpFileName.rend(),
+                                        [](int ch) { return !isspace(ch); }).base(), dumpFileName.end());
                             dumpFileName += ".msc";
                         }
                         if (rx.playSingleProgramme(ph, dumpFileName, s) == false) {
@@ -720,6 +750,7 @@ int main(int argc, char **argv)
                 if (service_to_tune == ".") {
                     break;
                 }
+                service_to_tune_idx = parse_service_to_tune(service_to_tune);
                 cerr << "**** Trying to tune to " << service_to_tune << endl;
             }
 #else

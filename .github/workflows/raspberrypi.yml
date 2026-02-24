@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - run: git fetch --prune --unshallow --tags
 
@@ -40,7 +40,7 @@ jobs:
 
       - name: Archive artifacts (welle.io build dir)
         if: always() && steps.build.outcome == 'failure'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: welle.io build dir
           path: build/*

@@ -31,6 +31,7 @@
 
 class AlsaOutput {
     public:
+        AlsaOutput(const char* device, int chans, unsigned int rate);
         AlsaOutput(int chans, unsigned int rate);
         ~AlsaOutput();
         AlsaOutput(const AlsaOutput& other) = delete;

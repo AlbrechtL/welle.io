@@ -16,13 +16,12 @@ jobs:
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:
-          version: '6.8.1'
+          version: '6.10.1'
           modules: 'qtcharts qtmultimedia qt5compat qtshadertools'
           arch: 'win64_mingw'
           tools: 'tools_mingw1310'
-          aqtversion: '==3.1.19' # See https://github.com/jurplel/install-qt-action/issues/270
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - run: git fetch --prune --unshallow --tags
         
@@ -84,7 +83,7 @@ jobs:
 
       - name: Archive artifacts (welle.io Windows installer)
         id: upload_artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: welle.io Windows installer
           path: to_publish\*.exe
@@ -92,7 +91,7 @@ jobs:
 
       - name: Sign installer with self-signed certificate with SignPath
         id: signing_installer
-        uses: signpath/github-action-submit-signing-request@v1
+        uses: signpath/github-action-submit-signing-request@v2
         with:
           api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
           organization-id: 'b7a507e8-ab76-445f-bfb5-05944bcbbee9'
@@ -104,7 +103,7 @@ jobs:
 
       - name: Archive artifacts (welle.io Windows installer signed)
         id: upload_artifact_self_signed
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: welle.io Windows installer self-signed
           path: publish\*.exe
@@ -121,7 +120,7 @@ jobs:
 
       - name: Production sign installer with SignPath
         id: production_signing_installer
-        uses: signpath/github-action-submit-signing-request@v1
+        uses: signpath/github-action-submit-signing-request@v2
 
         # Production signing needs a manual step in SignPath within 5 minutes.
         # During development we don't need each build signed with a production key.
@@ -139,7 +138,7 @@ jobs:
 
       - name: Archive artifacts (welle.io Windows installer signed)
         id: upload_artifact_production_signed
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         if: always() && steps.production_signing_installer.outcome == 'success'
         with:
           name: welle.io Windows installer production-signed

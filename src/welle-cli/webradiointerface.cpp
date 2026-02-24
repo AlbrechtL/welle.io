@@ -363,12 +363,18 @@ static vector<char> recv_exactly(Socket& s, size_t num_bytes)
     return buf;
 }
 
-static vector<string> split(const string& str, char c = ' ')
+static vector<string> split(const string& str, char c = ' ', size_t max_splits = string::npos)
 {
     const char *s = str.data();
     vector<string> result;
     do {
         const char *begin = s;
+
+        if (result.size() >= max_splits) {
+            result.push_back(s);
+            break;
+        }
+
         while (*s != c && *s)
             s++;
         result.push_back(string(begin, s));
@@ -386,6 +392,26 @@ struct http_request_t {
     string post_data;
 };
 
+static string trim(const string& str) {
+    auto start = str.begin();
+    while (start != str.end() && isspace(*start)) ++start;
+    auto end = str.end();
+    do { --end; } while (end != start && isspace(*end));
+    return string(start, end + 1);
+}
+
+static string get_base_uri(const map<string,string>& headers) {
+    if (headers.find("Referer") != headers.end()) {
+        string referer = headers.at("Referer");
+        if (referer.back() != '/')
+            referer += '/';
+        return referer;
+    } else if (headers.find("Host") != headers.end()) {
+        return "http://" + headers.at("Host") + "/";
+    } else {
+        return "/";
+    }
+}
 
 static http_request_t parse_http_headers(Socket& s) {
     http_request_t r;
@@ -416,10 +442,10 @@ static http_request_t parse_http_headers(Socket& s) {
             break;
         }
 
-        const auto header = split(header_line, ':');
+        const auto header = split(header_line, ':', 1);
 
         if (header.size() == 2) {
-            r.headers.emplace(header[0], header[1]);
+            r.headers.emplace(header[0], trim(header[1]));
         }
     }
 
@@ -482,7 +508,7 @@ bool WebRadioInterface::dispatch_client(Socket&& client)
                 success = send_mux_json(s);
             }
             else if (req.url == "/mux.m3u") {
-                success = send_mux_playlist(s);
+                success = send_mux_playlist(s, get_base_uri(req.headers));
             }
             else if (req.url == "/fic") {
                 success = send_fic(s);
@@ -818,7 +844,7 @@ bool WebRadioInterface::send_mux_json(Socket& s)
     return true;
 }
 
-bool WebRadioInterface::send_mux_playlist(Socket& s)
+bool WebRadioInterface::send_mux_playlist(Socket& s, string base_uri)
 {
     stringstream m3u;
     m3u << "#EXTM3U\n";
@@ -837,7 +863,7 @@ bool WebRadioInterface::send_mux_playlist(Socket& s)
                     case TransportMode::Audio:
                         if (sc.audioType() == AudioServiceComponentType::DAB or
                             sc.audioType() == AudioServiceComponentType::DABPlus) {
-                            url_mp3 = "/mp3/" + hex_sid;
+                            url_mp3 = base_uri + "mp3/" + hex_sid;
                         }
                         break;
                     default:

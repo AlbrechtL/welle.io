@@ -17,7 +17,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - run: git fetch --prune --unshallow --tags
 
@@ -44,17 +44,20 @@ jobs:
 
       - name: Prepare flatpak build
         run: |
-            # Add current build date into appdata.xml
+            # Add shared modules
+            git submodule add https://github.com/flathub/shared-modules.git
+            
+            # Add current build date into metainfo.xml
             APPDATA_DATE=`date +%Y-%m-%d`
-            sed -i 's/date="1970-01-01"/'date=\""$APPDATA_DATE"\"'/g' io.welle.welle-gui.appdata.xml
+            sed -i 's/date="1970-01-01"/'date=\""$APPDATA_DATE"\"'/g' io.welle.welle-gui.metainfo.xml
 
-            # Add githash into appdata.xml
+            # Add githash into metainfo.xml
             #APPDATA_DATE_VERSION="2.7-unstable-$GIT_HASH"
             APPDATA_DATE_VERSION="2.7-$GIT_HASH"
-            sed -i 's/version="0.0.0"/'version=\""$APPDATA_DATE_VERSION"\"'/g' io.welle.welle-gui.appdata.xml
+            sed -i 's/version="0.0.0"/'version=\""$APPDATA_DATE_VERSION"\"'/g' io.welle.welle-gui.metainfo.xml
 
-            # Check if file "io.welle.welle-gui.appdata.xml" is valid
-            flatpak run --command=flatpak-builder-lint org.flatpak.Builder appstream io.welle.welle-gui.appdata.xml
+            # Check if file "io.welle.welle-gui.metainfo.xml" is valid
+            flatpak run --command=flatpak-builder-lint org.flatpak.Builder appstream io.welle.welle-gui.metainfo.xml
 
       - name: Build
         id: build
@@ -77,7 +80,7 @@ jobs:
             # Prepare publish
             mkdir publish
             mv welle-io.flatpak publish/"$DATE"_"$GIT_HASH"_Linux_welle_"$ARCH_SUFFIX".flatpak
-            #cp io.welle.welle-gui.appdata.xml publish/
+            #cp io.welle.welle-gui.metainfo.xml publish/
 
       - name: Check flathub eligibility
         continue-on-error: true
@@ -86,7 +89,7 @@ jobs:
           flatpak run --command=flatpak-builder-lint org.flatpak.Builder repo repo
         
       - name: Archive artifacts (welle.io Flatpak)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: welle.io Flatpak (${{ env.ARCH_SUFFIX }})
           path: publish/*

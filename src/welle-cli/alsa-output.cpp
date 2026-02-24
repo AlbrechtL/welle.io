@@ -29,12 +29,14 @@
 #include "welle-cli/alsa-output.h"
 
 using namespace std;
-#define PCM_DEVICE "default"
 
 AlsaOutput::AlsaOutput(int chans, unsigned int rate) :
+    AlsaOutput(PCM_DEVICE, chans, rate) {}
+
+AlsaOutput::AlsaOutput(const char* device, int chans, unsigned int rate) :
     channels(chans)
 {
-    int err = snd_pcm_open(&pcm_handle, PCM_DEVICE, SND_PCM_STREAM_PLAYBACK, 0);
+    int err = snd_pcm_open(&pcm_handle, device, SND_PCM_STREAM_PLAYBACK, 0);
     if (err < 0) {
         fprintf(stderr, "ERROR: Can't open \"%s\" PCM device. %s\n",
                 PCM_DEVICE, snd_strerror(err));
@@ -116,13 +118,10 @@ void AlsaOutput::playPCM(std::vector<int16_t>&& pcm)
 
         snd_pcm_sframes_t ret = snd_pcm_writei(pcm_handle, data, frames_to_send);
 
-        if (ret == -EPIPE) {
-            snd_pcm_prepare(pcm_handle);
-            fprintf(stderr, "XRUN\n");
-            this_thread::sleep_for(chrono::milliseconds(20));
-            break;
+        if (ret < 0) {
+            ret = snd_pcm_recover(pcm_handle, ret, 0);
         }
-        else if (ret < 0) {
+        if (ret < 0) {
             fprintf(stderr, "ERROR: Can't write to PCM device. %s\n",
                     snd_strerror(ret));
             break;

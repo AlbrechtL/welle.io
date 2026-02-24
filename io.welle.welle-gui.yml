@@ -1,6 +1,6 @@
 app-id: io.welle.welle-gui
 runtime: org.kde.Platform
-runtime-version: '6.8'
+runtime-version: '6.10'
 sdk: org.kde.Sdk
 command: welle-io
 finish-args:
@@ -14,20 +14,11 @@ finish-args:
   - '--device=all'
 
 modules:
-  - name: fftw
-    buildsystem: autotools
-    config-opts:
-      - '--enable-shared'
-      - '--disable-static'
-      - '--enable-threads'
-      - '--enable-float'
-    sources:
-      - type: archive
-        url: 'http://fftw.org/fftw-3.3.10.tar.gz'
-        md5: 8ccbf6a5ea78a16dbc3e1306e234cc5c
+  - shared-modules/linux-audio/fftw3f.json
+  - shared-modules/libusb/libusb.json
 
   - name: libfaad
-    buildsystem: cmake
+    buildsystem: cmake-ninja
     config-opts:
       - '-DCMAKE_INSTALL_LIBDIR=lib'
     sources:
@@ -35,53 +26,80 @@ modules:
         url: 'https://salsa.debian.org/multimedia-team/faad2.git'
         tag: debian/2.11.2-1
 
-  - name: libusb
-    buildsystem: autotools
-    config-opts:
-      - '--disable-udev'
-    sources:
-      - type: git
-        url: 'https://github.com/libusb/libusb.git'
-        tag: v1.0.27
-
   - name: librtlsdr
-    buildsystem: cmake
+    buildsystem: cmake-ninja
     config-opts:
-      - '-Wno-dev'
-      - '-DDETACH_KERNEL_DRIVER=ON'
       - '-DCMAKE_INSTALL_LIBDIR=lib'
+      - '-DDETACH_KERNEL_DRIVER=ON'
+      - '-Wno-dev'
     sources:
       - type: git
         url: 'https://gitea.osmocom.org/sdr/rtl-sdr.git'
         tag: v2.0.2
 
   - name: libairspy
-    buildsystem: cmake
+    buildsystem: cmake-ninja
+    build-options:
+      cflags: "-std=gnu17"
     config-opts:
+      - '-DCMAKE_POLICY_VERSION_MINIMUM=3.5'
       - '-Wno-dev'
     sources:
       - type: git
         url: 'https://github.com/airspy/airspyone_host.git'
         tag: v1.0.10
 
+  - name: libhackrf
+    buildsystem: cmake-ninja
+    subdir: host
+    config-opts:
+      - '-DINSTALL_UDEV_RULE=OFF'
+      - '-Wno-dev'
+    sources:
+      - type: git
+        url: 'https://github.com/greatscottgadgets/hackrf.git'
+        tag: v2026.01.3
+
   - name: SoapySDR
-    buildsystem: cmake
+    buildsystem: cmake-ninja
     config-opts:
       - '-DCMAKE_BUILD_TYPE=Release'
-      - '-Wno-dev'
       - '-DCMAKE_INSTALL_LIBDIR=lib'
+      - '-DCMAKE_POLICY_VERSION_MINIMUM=3.5'
+      - '-Wno-dev'
     sources:
       - type: git
         url: 'https://github.com/pothosware/SoapySDR.git'
         tag: soapy-sdr-0.8.1
 
+  - name: SoapyHackRF
+    buildsystem: cmake-ninja
+    config-opts:
+      - '-DCMAKE_INSTALL_LIBDIR=lib'
+      - '-Wno-dev'
+    sources:
+      - type: git
+        url: 'https://github.com/pothosware/SoapyHackRF.git'
+        commit: 143ff5e7e0f786e341df8846c04e8273c5183c26
+
+  - name: SoapyRemote
+    buildsystem: cmake-ninja
+    config-opts:
+      - '-DCMAKE_INSTALL_LIBDIR=lib'
+      - '-Wno-dev'
+    sources:
+      - type: git
+        url: 'https://github.com/pothosware/SoapyRemote.git'
+        commit: 40c3ef9053b63885b7444ce7e9ef00d2c7964c9d
+
   - name: welle.io
     buildsystem: cmake-ninja
     config-opts:
-      - -DBUILD_WELLE_CLI=OFF
-      - -DAIRSPY=ON
-      - -DRTLSDR=ON
-      - -DSOAPYSDR=ON
+      - '-DBUILD_WELLE_CLI=OFF'
+      - '-DCMAKE_POLICY_VERSION_MINIMUM=3.5'
+      - '-DAIRSPY=ON'
+      - '-DRTLSDR=ON'
+      - '-DSOAPYSDR=ON'
     sources:
       - type: dir
         path: .

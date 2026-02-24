@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.16)
 
 project(Welle.Io LANGUAGES C CXX)
 
@@ -17,6 +17,7 @@ set(CMAKE_CXX_STANDARD 14)
 
 option(BUILD_WELLE_IO    "Build Welle.io"                        ON  )
 option(BUILD_WELLE_CLI   "Build welle-cli"                       ON  )
+option(LIBWELLE_STATIC   "Build the welle library as static"     ON  )
 option(WITH_APP_BUNDLE   "Enable Application Bundle for macOS"   ON  )
 option(KISS_FFT          "KISS FFT instead of FFTW"              OFF )
 option(PROFILING         "Enable profiling (see README.md)"      OFF )
@@ -24,10 +25,10 @@ option(AIRSPY            "Compile with Airspy support"           OFF )
 option(RTLSDR            "Compile with RTL-SDR support"          OFF )
 option(SOAPYSDR          "Compile with SoapySDR support"         OFF )
 option(FLAC              "Compile with flac support for streaming" OFF )
+option(FDK_AAC           "Use FDK-AAC instead of FAAD"           OFF )
 
 add_definitions(-Wall)
 add_definitions(-g)
-add_definitions(-DDABLIN_AAC_FAAD2)
 
 if(MINGW)
     add_definitions(-municode)
@@ -94,7 +95,21 @@ if(NOT ANDROID)
         set(fft_sources "")
         set(KISS_INCLUDE_DIRS "")
     endif()
-    find_package(Faad REQUIRED)
+    if (FDK_AAC)
+        find_package(FdkAac REQUIRED)
+        if (FDKAAC_FOUND)
+            add_definitions(-DDABLIN_AAC_FDKAAC)
+            set(AAC_LIBRARIES ${FDKAAC_LIBRARIES})
+            set(AAC_INCLUDE_DIRS ${FDKAAC_INCLUDE_DIRS})
+        endif()
+    else()
+        find_package(Faad REQUIRED)
+        if (FAAD_FOUND)
+            add_definitions(-DDABLIN_AAC_FAAD2)
+            set(AAC_LIBRARIES ${FAAD_LIBRARIES})
+            set(AAC_INCLUDE_DIRS ${FAAD_INCLUDE_DIRS})
+        endif()
+    endif()
     find_package(MPG123 REQUIRED)
 else()
     # For KISSFFT
@@ -141,6 +156,7 @@ else()
     )
 
     # For FAAD
+    add_definitions(-DDABLIN_AAC_FAAD2)
     add_definitions(-DHAVE_CONFIG_H)
     include_directories(
         src/libs/faad2
@@ -215,7 +231,7 @@ include_directories(
     src/libs/fec
     ${FFTW3F_INCLUDE_DIRS}
     ${KISS_INCLUDE_DIRS}
-    ${FAAD_INCLUDE_DIRS}
+    ${AAC_INCLUDE_DIRS}
     ${LIBRTLSDR_INCLUDE_DIRS}
     ${SoapySDR_INCLUDE_DIRS}
     ${FLACPP_INCLUDE_DIRS}
@@ -345,14 +361,61 @@ add_definitions("-DCURRENT_VERSION=\"${CURRENT_VERSION}\"")
 STRING(TIMESTAMP BUILD_DATE "%s" UTC)
 add_definitions("-DBUILD_DATE=\"${BUILD_DATE}\"")
 
+if (LIBWELLE_STATIC)
+  set(STATIC_OR_SHARED STATIC)
+else ()
+  set(STATIC_OR_SHARED SHARED)
+endif()
+
+add_library(welle ${STATIC_OR_SHARED}
+    ${backend_sources}
+    ${faad_sources}
+    ${fft_sources}
+    ${input_sources}
+    ${mpg123_sources}
+)
+
+string(REGEX MATCHALL
+    "([0-9]+)"
+    LIB_MATCH
+    "${CURRENT_VERSION}"
+)
+
+list(POP_FRONT LIB_MATCH LIB_MATCH_1)
+list(POP_FRONT LIB_MATCH LIB_MATCH_2)
+if (NOT LIB_MATCH STREQUAL "")
+    list(POP_FRONT LIB_MATCH LIB_MATCH_3)
+else ()
+    set(LIB_MATCH_3 0)
+endif ()
+
+set_property(TARGET welle PROPERTY VERSION "${LIB_MATCH_1}.${LIB_MATCH_2}.${LIB_MATCH_3}")
+set_property(TARGET welle PROPERTY SOVERSION "${LIB_MATCH_1}")
+set_property(TARGET welle PROPERTY POSITION_INDEPENDENT_CODE ON)
+
+target_link_libraries(welle PRIVATE
+      ${LIBRTLSDR_LIBRARIES}
+      ${LIBAIRSPY_LIBRARIES}
+      ${FFTW3F_LIBRARIES}
+      ${AAC_LIBRARIES}
+      ${SoapySDR_LIBRARIES}
+      ${MPG123_LIBRARIES}
+)
+
+if (NOT LIBWELLE_STATIC)
+install(TARGETS welle
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)
+endif()
+
 if(BUILD_WELLE_IO)
     set(executableName welle-io)
 
     if(CMAKE_AUTORCC)
-        qt_add_executable (${executableName} MANUAL_FINALIZATION ${welle_io_sources} ${backend_sources} ${input_sources} ${fft_sources} ${mpg123_sources} ${faad_sources} ${EXTRA_MOCS} src/welle-gui/resources.qrc)
+        qt_add_executable (${executableName} MANUAL_FINALIZATION ${welle_io_sources} ${EXTRA_MOCS} src/welle-gui/resources.qrc)
     else()
         qt_add_resources(welle_io_sources src/welle-gui/resources.qrc)
-        qt_add_executable (${executableName} MANUAL_FINALIZATION ${welle_io_sources} ${backend_sources} ${input_sources} ${fft_sources} ${mpg123_sources} ${faad_sources} ${EXTRA_MOCS})
+        qt_add_executable (${executableName} MANUAL_FINALIZATION ${welle_io_sources} ${EXTRA_MOCS})
     endif()
 
     if(ANDROID)
@@ -401,10 +464,13 @@ if(BUILD_WELLE_IO)
             )
         endif()
         if(Qt6Core_VERSION_MAJOR EQUAL 6 AND Qt6Core_VERSION_MINOR GREATER_EQUAL 3)
-            find_package(Qt6 COMPONENTS Quick3DUtils REQUIRED)
-            target_link_libraries (${executableName} PRIVATE
-                Qt6::Quick3DUtils
-            )
+            # Quick3DUtils is optional on Android; only link if available.
+            find_package(Qt6 COMPONENTS Quick3DUtils)
+            if(Qt6Quick3DUtils_FOUND)
+                target_link_libraries (${executableName} PRIVATE
+                    Qt6::Quick3DUtils
+                )
+            endif()
         endif()
     else()
         # Qt6::DBus should not be used for Android
@@ -413,12 +479,7 @@ if(BUILD_WELLE_IO)
     endif()
 
     target_link_libraries (${executableName} PRIVATE
-      ${LIBRTLSDR_LIBRARIES}
-      ${LIBAIRSPY_LIBRARIES}
-      ${FFTW3F_LIBRARIES}
-      ${FAAD_LIBRARIES}
-      ${SoapySDR_LIBRARIES}
-      ${MPG123_LIBRARIES}
+      welle
       Threads::Threads
       Qt6::Core Qt6::Widgets Qt6::Multimedia Qt6::Charts Qt6::Qml Qt6::Quick Qt6::QuickControls2
     )
@@ -445,7 +506,7 @@ if(BUILD_WELLE_IO)
 
         if(UNIX AND NOT APPLE)
             INSTALL (FILES ${PROJECT_SOURCE_DIR}/io.welle.welle-gui.desktop DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/applications)
-            INSTALL (FILES ${PROJECT_SOURCE_DIR}/io.welle.welle-gui.appdata.xml DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/metainfo)
+            INSTALL (FILES ${PROJECT_SOURCE_DIR}/io.welle.welle-gui.metainfo.xml DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/metainfo)
 
             INSTALL (FILES ${PROJECT_SOURCE_DIR}/src/welle-gui/icons/16x16/welle-io.png DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/16x16/apps RENAME io.welle.welle-gui.png)
             INSTALL (FILES ${PROJECT_SOURCE_DIR}/src/welle-gui/icons/24x24/welle-io.png DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/24x24/apps RENAME io.welle.welle-gui.png)
@@ -461,9 +522,6 @@ if(BUILD_WELLE_CLI AND NOT ANDROID)
     set(cliExecutableName welle-cli)
     add_executable (${cliExecutableName}
         ${welle_cli_sources}
-        ${backend_sources}
-        ${input_sources}
-        ${fft_sources}
         index.html.h
         index.js.h
         favicon.ico.h)
@@ -474,14 +532,9 @@ if(BUILD_WELLE_CLI AND NOT ANDROID)
     endif(CMAKE_BUILD_TYPE MATCHES Debug)
 
     target_link_libraries (${cliExecutableName}
-      ${LIBRTLSDR_LIBRARIES}
-      ${LIBAIRSPY_LIBRARIES}
-      ${FFTW3F_LIBRARIES}
-      ${FAAD_LIBRARIES}
+      welle
       ${ALSA_LIBRARIES}
       ${LAME_LIBRARIES}
-      ${SoapySDR_LIBRARIES}
-      ${MPG123_LIBRARIES}
       ${FLACPP_LIBRARIES}
       Threads::Threads
     )

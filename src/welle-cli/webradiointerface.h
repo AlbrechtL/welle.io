@@ -114,7 +114,7 @@ class WebRadioInterface : public RadioControllerInterface {
         bool send_mux_json(Socket& s);
 
         // Generate and send a m3u playlist with all services
-        bool send_mux_playlist(Socket& s);
+        bool send_mux_playlist(Socket& s, std::string base_uri);
 
         // Send a stream containing the selected programme.
         // stream is a service id, either in hex with 0x prefix or
