@@ -156,6 +156,7 @@ ApplicationWindow {
                 id: startStopIcon
                 implicitWidth: icon.width + Units.dp(20)
                 icon.name: "stop"
+                hoverEnabled: true
 
                 onClicked: {
                     if (radioController.isPlaying || radioController.isChannelScan) {
@@ -232,6 +233,7 @@ ApplicationWindow {
                 id: speakerIconContainer
                 implicitWidth: icon.width + Units.dp(24)
                 icon.name: "speaker"
+                hoverEnabled: true
 
                 onPressAndHold: volumePopup.open()
                 onClicked: {
