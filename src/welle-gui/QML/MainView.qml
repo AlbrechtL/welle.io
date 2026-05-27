@@ -169,7 +169,7 @@ ApplicationWindow {
                 Accessible.role: Accessible.Button
                 Accessible.name: (radioController.isPlaying || radioController.isChannelScan) ? qsTr("Stop") : qsTr("Play")
                 Accessible.description: radioController.isPlaying ? qsTr("Stop playback") : radioController.isChannelScan ? qsTr("Stop scan") : qsTr("Start playback")
-                Accessible.onPressAction: startStopIconMouseArea.clicked(mouse)
+                Accessible.onPressAction: startStopIcon.clicked()
 
                 WToolTip {
                     text: (radioController.isPlaying || radioController.isChannelScan) ? qsTr("Stop") : qsTr("Play")
@@ -182,7 +182,7 @@ ApplicationWindow {
                     context: Qt.ApplicationShortcut
                     autoRepeat: false
                     sequences: ["Media Pause", "Toggle Media Play/Pause", "S"]
-                    onActivated: startStopIconMouseArea.clicked(0)
+                    onActivated: startStopIcon.clicked()
                 }
                 Shortcut {
                     context: Qt.ApplicationShortcut
