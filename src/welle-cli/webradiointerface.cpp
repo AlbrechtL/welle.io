@@ -33,6 +33,7 @@
 #include <ctime>
 #include <errno.h>
 #include <future>
+#include <sys/select.h>
 #include <iomanip>
 #include <iostream>
 #include <regex>
@@ -1419,17 +1420,50 @@ void WebRadioInterface::serve()
     }
 #endif
 
+    const int server_fd = serverSocket.native_handle();
+
     while (sig_caught == 0) {
-        auto client = serverSocket.accept();
+        // Use select() with a 1-second timeout so we periodically
+        // clean up completed futures even when no new connections
+        // arrive. Without this, std::async eventfd descriptors
+        // accumulate and eventually exhaust the file descriptor limit.
+        fd_set readfds;
+        FD_ZERO(&readfds);
+        FD_SET(server_fd, &readfds);
 
-        running_connections.push_back(async(launch::async,
-                    &WebRadioInterface::dispatch_client, this, move(client)));
+        struct timeval tv;
+        tv.tv_sec = 1;
+        tv.tv_usec = 0;
 
+        int sel_ret = select(server_fd + 1, &readfds, nullptr, nullptr, &tv);
+
+        if (sel_ret > 0 && FD_ISSET(server_fd, &readfds)) {
+            auto client = serverSocket.accept();
+            if (client.valid()) {
+                try {
+                    running_connections.push_back(async(launch::async,
+                                &WebRadioInterface::dispatch_client, this, move(client)));
+                }
+                catch (const std::system_error& e) {
+                    cerr << "Thread creation failed: " << e.what()
+                         << " (connection rejected)" << endl;
+                    // Socket 'client' will close via destructor
+                }
+            }
+        }
+
+        // Clean up completed futures — this now runs every second
+        // regardless of whether a new connection arrived
         deque<future<bool> > still_running_connections;
         for (auto& fut : running_connections) {
             if (fut.valid()) {
                 switch (fut.wait_for(chrono::milliseconds(1))) {
                     case future_status::deferred:
+                        // Force deferred futures to execute so they
+                        // don't sit in the queue forever consuming
+                        // resources
+                        fut.wait();
+                        [[fallthrough]];
                     case future_status::timeout:
                         still_running_connections.push_back(move(fut));
                         break;

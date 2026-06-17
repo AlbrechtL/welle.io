@@ -76,6 +76,9 @@ class Socket {
         bool connect(const std::string& address, int port, int timeout);
 
         ssize_t recv(void *buffer, size_t length, int flags);
+
+        // Expose native fd for select/poll/epoll
+        int native_handle() const { return sock; }
         ssize_t send(const void *buffer, size_t length, int flags);
 
     private:

@@ -34,6 +34,7 @@
 #include <iostream>
 #include <cstring>
 #include "various/Socket.h"
+#include <netinet/tcp.h>
 
 #if defined(_WIN32)
 class SocketInitialiseWrapper {
@@ -173,6 +174,24 @@ Socket Socket::accept()
         perror("accept failed");
         return {};
     }
+
+    // Enable TCP keepalive to detect dead connections.
+    // Without this, CLOSE_WAIT sockets accumulate over days and
+    // eventually exhaust the file descriptor limit.
+    int keepalive = 1;
+    if (setsockopt(conn, SOL_SOCKET, SO_KEEPALIVE,
+                &keepalive, sizeof(keepalive)) == -1) {
+        perror("setsockopt(SO_KEEPALIVE)");
+    }
+#if !defined(_WIN32)
+    // Aggressive timing: detect dead peers in ~90s instead of ~2h default
+    int idle = 60;   // idle seconds before first probe
+    int intvl = 10;  // seconds between probes
+    int cnt = 3;     // failed probes before declaring connection dead
+    setsockopt(conn, IPPROTO_TCP, TCP_KEEPIDLE,  &idle,  sizeof(idle));
+    setsockopt(conn, IPPROTO_TCP, TCP_KEEPINTVL, &intvl, sizeof(intvl));
+    setsockopt(conn, IPPROTO_TCP, TCP_KEEPCNT,   &cnt,   sizeof(cnt));
+#endif
 
     Socket s;
     s.sock = conn;

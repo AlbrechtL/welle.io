@@ -200,10 +200,27 @@ bool ProgrammeSender::send_stream(const std::vector<uint8_t>& headerdata, const 
     return true;
 }
 
-void ProgrammeSender::wait_for_termination() const
+void ProgrammeSender::wait_for_termination()
 {
     std::unique_lock<std::mutex> lock(mutex);
     while (running) {
+        // Drain the socket to detect a disconnected peer.
+        // MSG_PEEK was unreliable: if leftover data (e.g. leftover
+        // HTTP bytes) stayed in the receive buffer, recv(MSG_PEEK)
+        // returned the data length instead of 0 even after the peer
+        // sent FIN. We now drain any stale data into a discard buffer
+        // until recv() returns 0 (peer disconnected) or EAGAIN.
+        if (s.valid()) {
+            char buf[256];
+            ssize_t r = s.recv(buf, sizeof(buf), MSG_DONTWAIT);
+            if (r == 0) {
+                // Peer performed orderly shutdown (FIN received, all data consumed)
+                const_cast<ProgrammeSender*>(this)->cancel();
+                break;
+            }
+            // r > 0: stale data drained, will check again next cycle
+            // r < 0 (EAGAIN): no data, keep waiting
+        }
         cv.wait_for(lock, chrono::seconds(2));
     }
 }

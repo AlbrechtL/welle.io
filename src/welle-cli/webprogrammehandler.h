@@ -49,7 +49,7 @@ class ProgrammeSender {
         ProgrammeSender(ProgrammeSender&& other);
         ProgrammeSender& operator=(ProgrammeSender&& other);
         bool send_stream(const std::vector<uint8_t>& headerdata, const std::vector<uint8_t>& mp3data);
-        void wait_for_termination() const;
+        void wait_for_termination();
         void cancel();
 };
 
