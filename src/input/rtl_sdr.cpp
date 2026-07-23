@@ -162,9 +162,29 @@ bool CRTL_SDR::restart(void)
 
     rtlsdr_set_center_freq(device, frequency + frequencyOffset);
     rtlsdrRunning = true;
+    {
+        std::lock_guard<std::mutex> lock(rtlsdrStartMutex);
+        rtlsdrAsyncStarted = false;
+    }
 
     rtlsdrThread = std::thread(&CRTL_SDR::rtlsdr_read_async_wrapper, this);
     agcThread = std::thread(&CRTL_SDR::agc_timer_thread, this);
+
+    {
+        std::unique_lock<std::mutex> lock(rtlsdrStartMutex);
+        if (!rtlsdrStartCv.wait_for(lock, std::chrono::seconds(1), [this] { return rtlsdrAsyncStarted; })) {
+            std::clog << "RTL_SDR: " << "Async reader did not start in time" << std::endl;
+            rtlsdrRunning = false;
+            rtlsdr_cancel_async(device);
+            if (rtlsdrThread.joinable()) {
+                rtlsdrThread.join();
+            }
+            if (agcThread.joinable()) {
+                agcThread.join();
+            }
+            return false;
+        }
+    }
 
     return true;
 }
@@ -181,13 +201,14 @@ void CRTL_SDR::stop(void)
 
     rtlsdrRunning = false;
 
-    if (agcThread.joinable()) {
-        agcThread.join();
-    }
-
     rtlsdr_cancel_async(device);
+
     if (rtlsdrThread.joinable()) {
         rtlsdrThread.join();
+    }
+
+    if (agcThread.joinable()) {
+        agcThread.join();
     }
 }
 
@@ -202,6 +223,8 @@ float CRTL_SDR::setGain(int gain_index)
         std::clog << "RTL_SDR: " << "Unknown gain count" << gain_index << std::endl;
         return 0;
     }
+
+    std::lock_guard<std::mutex> lock(deviceMutex);
 
     currentGainIndex = gain_index;
     currentGain = gains[gain_index];
@@ -275,9 +298,12 @@ void CRTL_SDR::agc_timer_thread(void)
     while (rtlsdrRunning && not rtlsdrUnplugged) {
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
+        const uint8_t currentMinAmplitude = minAmplitude.load(std::memory_order_relaxed);
+        const uint8_t currentMaxAmplitude = maxAmplitude.load(std::memory_order_relaxed);
+
         if (isAGC) {
             // Check for overloading
-            if (minAmplitude == 0 || maxAmplitude == 255) {
+            if (currentMinAmplitude == 0 || currentMaxAmplitude == 255) {
                 // We have to decrease the gain
                 if (currentGainIndex > 0) {
                     setGain(currentGainIndex - 1);
@@ -291,8 +317,8 @@ void CRTL_SDR::agc_timer_thread(void)
                     float DeltaGain = ((float) NewGain / 10) - ((float) currentGain / 10);
                     float LinGain = pow(10, DeltaGain / 20);
 
-                    int NewMaxValue = (float) maxAmplitude * LinGain;
-                    int NewMinValue = (float) minAmplitude / LinGain;
+                    int NewMaxValue = (float) currentMaxAmplitude * LinGain;
+                    int NewMinValue = (float) currentMinAmplitude / LinGain;
 
                     // We have to increase the gain
                     if(NewMinValue >= 0 && NewMaxValue <= 255) {
@@ -376,15 +402,15 @@ void CRTL_SDR::rtlsdr_read_callback(uint8_t* buf, uint32_t len, void* ctx)
         rtlsdr->putIntoRecordBuffer(*buf, len);
 
         // Check if device is overloaded
-        rtlsdr->minAmplitude = 255;
-        rtlsdr->maxAmplitude = 0;
+        rtlsdr->minAmplitude.store(255, std::memory_order_relaxed);
+        rtlsdr->maxAmplitude.store(0, std::memory_order_relaxed);
 
         for (uint32_t i=0;i<len;i++) {
-            if (rtlsdr->minAmplitude > buf[i])
-                rtlsdr->minAmplitude = buf[i];
+            if (rtlsdr->minAmplitude.load(std::memory_order_relaxed) > buf[i])
+                rtlsdr->minAmplitude.store(buf[i], std::memory_order_relaxed);
 
-            if (rtlsdr->maxAmplitude < buf[i])
-                rtlsdr->maxAmplitude = buf[i];
+            if (rtlsdr->maxAmplitude.load(std::memory_order_relaxed) < buf[i])
+                rtlsdr->maxAmplitude.store(buf[i], std::memory_order_relaxed);
         }
     }
     else {
@@ -395,6 +421,11 @@ void CRTL_SDR::rtlsdr_read_callback(uint8_t* buf, uint32_t len, void* ctx)
 void CRTL_SDR::rtlsdr_read_async_wrapper()
 {
     std::clog << "RTL_SDR: " << "Start rtlsdr_read_async_wrapper() thread" << std::endl;
+    {
+        std::lock_guard<std::mutex> lock(rtlsdrStartMutex);
+        rtlsdrAsyncStarted = true;
+    }
+    rtlsdrStartCv.notify_all();
     rtlsdr_read_async(device,
                       (rtlsdr_read_async_cb_t)&CRTL_SDR::rtlsdr_read_callback,
                       (void*)this, 0, READLEN_DEFAULT);
