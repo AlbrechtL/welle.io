@@ -37,6 +37,8 @@
 #include <thread>
 #include <string>
 #include <atomic>
+#include <mutex>
+#include <condition_variable>
 #include <rtl-sdr.h>
 
 #include "virtual_input.h"
@@ -86,11 +88,15 @@ private:
     void rtlsdr_read_async_wrapper(void);
     std::atomic<bool> rtlsdrRunning = ATOMIC_VAR_INIT(false);
     std::atomic<bool> rtlsdrUnplugged = ATOMIC_VAR_INIT(false);
+    std::mutex rtlsdrStartMutex;
+    std::condition_variable rtlsdrStartCv;
+    bool rtlsdrAsyncStarted = false;
 
     std::vector<int> gains;
     int currentGainIndex = 0;
-    uint8_t minAmplitude = 255;
-    uint8_t maxAmplitude = 0;
+    std::atomic<uint8_t> minAmplitude {255};
+    std::atomic<uint8_t> maxAmplitude {0};
+    std::mutex deviceMutex;
 
     void agc_timer_thread(void);
 
