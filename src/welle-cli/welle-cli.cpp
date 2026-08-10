@@ -506,6 +506,22 @@ options_t parse_cmdline(int argc, char **argv)
     return options;
 }
 
+/* Read the next command from standard input. Standard input is not always a
+ * terminal, and at end of input there is nothing left to read. Asking again
+ * would only spin, so we keep decoding what we are tuned to until we are
+ * interrupted. */
+static void read_command(string& command)
+{
+    if (cin >> command) {
+        return;
+    }
+
+    cerr << "**** End of input, decoding until interrupted." << endl;
+    while (true) {
+        this_thread::sleep_for(chrono::seconds(1));
+    }
+}
+
 unsigned parse_service_to_tune(const string& name) {
     try {
         unsigned long id = stoul(name, nullptr, 0);
@@ -698,7 +714,7 @@ int main(int argc, char **argv)
 
             while (true) {
                 cerr << "**** Enter '.' to quit." << endl;
-                cin >> service_to_tune;
+                read_command(service_to_tune);
                 if (service_to_tune == ".") {
                     break;
                 }
@@ -746,7 +762,7 @@ int main(int argc, char **argv)
 
                 cerr << "**** Please enter programme name. Enter '.' to quit." << endl;
 
-                cin >> service_to_tune;
+                read_command(service_to_tune);
                 if (service_to_tune == ".") {
                     break;
                 }
