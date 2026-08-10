@@ -127,6 +127,8 @@ void RadioReceiver::setReceiverOptions(const RadioReceiverOptions rro)
         " fft placement: " << fftPlacementMethodToString(rro.fftPlacementMethod) << endl;
     // AI: guard setReceiverOptions against ETI mode (no OFDM processor to configure).
     if (!input.isEtiInput()) {
+        ofdmProcessor.setReceiverOptions(rro);
+    }
 }
 
 bool RadioReceiver::playSingleProgramme(ProgrammeHandlerInterface& handler,
