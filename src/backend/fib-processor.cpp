@@ -91,6 +91,7 @@ void FIBProcessor::process_FIG0 (uint8_t *d)
         case 2: FIG0Extension2 (d); break;
         case 3: FIG0Extension3 (d); break;
         case 5: FIG0Extension5 (d); break;
+        case 7: FIG0Extension7 (d); break;
         case 8: FIG0Extension8 (d); break;
         case 9: FIG0Extension9 (d); break;
         case 10: FIG0Extension10 (d); break;
@@ -403,6 +404,24 @@ void FIBProcessor::FIG0Extension5 (uint8_t *d)
     while (used < Length) {
         used = HandleFIG0Extension5 (d, used);
     }
+}
+
+//  FIG0/7 announces how many services the ensemble carries. It lets a
+//  receiver know when it has seen the whole ensemble instead of having to
+//  guess that enough time has passed. The FIG also carries a change count,
+//  which we do not use.
+void FIBProcessor::FIG0Extension7 (uint8_t *d)
+{
+    const uint8_t cn = getBits_1 (d, 8 + 0);
+    const uint8_t oe = getBits_1 (d, 8 + 1);
+
+    //  Only the current configuration of our own ensemble tells us
+    //  something about the services we can decode now.
+    if (cn or oe) {
+        return;
+    }
+
+    announcedServiceCount = getBits (d, 16, 6);
 }
 
 int16_t FIBProcessor::HandleFIG0Extension5(uint8_t* d, int16_t offset)
@@ -1267,6 +1286,7 @@ void FIBProcessor::clearEnsemble()
     components.clear();
     subChannels.resize(64);
     services.clear();
+    announcedServiceCount = 0;
     serviceRepeatCount.clear();
     timeLastServiceDecrement = std::chrono::steady_clock::now();
     timeLastFCT0Frame = std::chrono::system_clock::now();
@@ -1324,6 +1344,12 @@ uint8_t FIBProcessor::getEnsembleEcc() const
 {
     std::lock_guard<std::mutex> lock(mutex);
     return ensembleEcc;
+}
+
+uint8_t FIBProcessor::getAnnouncedServiceCount() const
+{
+    std::lock_guard<std::mutex> lock(mutex);
+    return announcedServiceCount;
 }
 
 DabLabel FIBProcessor::getEnsembleLabel() const

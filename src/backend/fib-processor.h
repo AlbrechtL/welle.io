@@ -47,6 +47,9 @@ class FIBProcessor {
         // Called from the frontend
         uint16_t getEnsembleId() const;
         uint8_t getEnsembleEcc() const;
+        /* Number of services the ensemble announces in FIG0/7, 0 if the
+         * ensemble does not signal it */
+        uint8_t getAnnouncedServiceCount() const;
         DabLabel getEnsembleLabel() const;
         std::vector<Service> getServiceList() const;
         Service getService(uint32_t sId) const;
@@ -94,6 +97,7 @@ class FIBProcessor {
         void FIG0Extension2(uint8_t *);
         void FIG0Extension3(uint8_t *);
         void FIG0Extension5(uint8_t *);
+        void FIG0Extension7(uint8_t *);
         void FIG0Extension8(uint8_t *);
         void FIG0Extension9(uint8_t *);
         void FIG0Extension10(uint8_t *);
@@ -129,6 +133,7 @@ class FIBProcessor {
         std::vector<Subchannel> subChannels;
         std::vector<ServiceComponent> components;
         std::vector<Service> services;
+        uint8_t announcedServiceCount = 0;
         std::unordered_map<uint32_t, uint8_t> serviceRepeatCount;
         std::chrono::steady_clock::time_point timeLastServiceDecrement;
         std::chrono::system_clock::time_point timeLastFCT0Frame;

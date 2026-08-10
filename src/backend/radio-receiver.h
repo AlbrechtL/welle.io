@@ -82,6 +82,10 @@ class RadioReceiver {
 
         uint16_t getEnsembleId(void) const;
         uint8_t getEnsembleEcc(void) const;
+
+        /* Number of services the ensemble announces, 0 if it does not.
+         * Tells whether the service list is complete. */
+        uint8_t getAnnouncedServiceCount(void) const;
         DabLabel getEnsembleLabel(void) const;
         std::vector<Service> getServiceList(void) const;
 

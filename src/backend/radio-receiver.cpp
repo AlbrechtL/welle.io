@@ -179,6 +179,11 @@ uint8_t RadioReceiver::getEnsembleEcc(void) const
     return ficHandler.fibProcessor.getEnsembleEcc();
 }
 
+uint8_t RadioReceiver::getAnnouncedServiceCount(void) const
+{
+    return ficHandler.fibProcessor.getAnnouncedServiceCount();
+}
+
 DabLabel RadioReceiver::getEnsembleLabel(void) const
 {
     return ficHandler.fibProcessor.getEnsembleLabel();
