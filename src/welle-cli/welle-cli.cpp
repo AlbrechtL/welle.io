@@ -49,6 +49,7 @@
 #if defined(HAVE_ALSA)
 #  include "welle-cli/alsa-output.h"
 #endif
+#include "welle-cli/ensemble-wait.h"
 #include "welle-cli/webradiointerface.h"
 #include "welle-cli/tests.h"
 #include "backend/radio-receiver.h"
@@ -668,16 +669,15 @@ int main(int argc, char **argv)
 
         cerr << "Wait for sync" << endl;
         while (not ri.synced) {
-            this_thread::sleep_for(chrono::seconds(3));
+            this_thread::sleep_for(chrono::milliseconds(250));
         }
 
         cerr << "Wait for service list" << endl;
         while (rx.getServiceList().empty()) {
-            this_thread::sleep_for(chrono::seconds(1));
+            this_thread::sleep_for(chrono::milliseconds(250));
         }
 
-        // Wait an additional 3 seconds so that the receiver can complete the service list
-        this_thread::sleep_for(chrono::seconds(3));
+        wait_for_complete_ensemble(rx);
 
         if (options.decode_all_programmes) {
             using SId_t = uint32_t;
