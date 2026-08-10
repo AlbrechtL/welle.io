@@ -250,6 +250,7 @@ set(backend_sources
     src/backend/fib-processor.cpp
     src/backend/fic-handler.cpp
     src/backend/msc-handler.cpp
+    src/backend/eti-processor.cpp
     src/backend/freq-interleaver.cpp
     src/backend/ofdm-decoder.cpp
     src/backend/ofdm-processor.cpp
@@ -312,6 +313,7 @@ set(input_sources
     src/input/input_factory.cpp
     src/input/null_device.cpp
     src/input/raw_file.cpp
+    src/input/eti_file.cpp
     src/input/rtl_tcp.cpp
 )
 

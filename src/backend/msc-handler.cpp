@@ -37,9 +37,11 @@
 //  Note CIF counts from 0 .. 3
 MscHandler::MscHandler(
         const DABParams& p,
-        bool show_crcErrors) :
+        bool show_crcErrors,
+        bool etiMode) :
     bitsperBlock(2 * p.K),
     show_crcErrors(show_crcErrors),
+    etiMode(etiMode),
     cifVector(864 * CUSize)
 {
     if (p.dabMode == 4) {  // 2 CIFS per 76 blocks
@@ -75,13 +77,23 @@ bool MscHandler::addSubchannel(
 
     SelectedStream s(handler, ascty, dumpFileName, sub);
 
-    s.dabHandler = std::make_shared<DabAudio>(
-                ascty,
-                sub.length * CUSize,
-                sub.bitrate(),
-                sub.protectionSettings,
+    if (etiMode) {
+        auto audioType = ascty;
+        s.etiDecoder = std::make_unique<DecoderAdapter>(
                 handler,
+                sub.bitrate(),
+                audioType,
                 dumpFileName);
+    }
+    else {
+        s.dabHandler = std::make_shared<DabAudio>(
+                    ascty,
+                    sub.length * CUSize,
+                    sub.bitrate(),
+                    sub.protectionSettings,
+                    handler,
+                    dumpFileName);
+    }
 
      /* TODO dealing with data
       s.dabHandler = std::make_shared<DabData>(radioInterface,
@@ -128,6 +140,12 @@ bool MscHandler::removeSubchannel(const Subchannel& sub)
 //  during the next processMscBlock call.
 void MscHandler::processMscBlock(const softbit_t *fbits, int16_t blkno)
 {
+    if (etiMode) {
+        (void)fbits;
+        (void)blkno;
+        return;
+    }
+
     std::lock_guard<std::mutex> lock(mutex);
 
     if (!work_to_be_done)
@@ -154,6 +172,55 @@ void MscHandler::processMscBlock(const softbit_t *fbits, int16_t blkno)
         else {
             throw std::logic_error("No dabHandler!");
         }
+    }
+}
+
+// AI: ETI path — dispatches one subchannel's payload from an ETI frame to
+// its registered DecoderAdapter.  Matching is done by subchannel ID (primary)
+// or by start-address + length (fallback).  The STL unit is 64 bits = 8 bytes
+// per ETSI EN 300 799, so expectedBytes = stl * 8.
+void MscHandler::processEtiStream(
+        uint8_t subChId,
+        uint16_t startAddr,
+        uint16_t stl,
+        const uint8_t *data,
+        size_t size)
+{
+    if (!etiMode || data == nullptr || size == 0) {
+        return;
+    }
+
+    std::lock_guard<std::mutex> lock(mutex);
+
+    if (!work_to_be_done) {
+        return;
+    }
+
+    for (auto& stream : streams) {
+        const bool sidMatch = stream.subCh.subChId == subChId;
+        const bool sadLenMatch =
+            (stream.subCh.startAddr == static_cast<int16_t>(startAddr)) &&
+            (stream.subCh.length == static_cast<int16_t>(stl));
+
+        if (!(sidMatch || sadLenMatch)) {
+            continue;
+        }
+
+        if (!stream.etiDecoder) {
+            continue;
+        }
+
+        // ETI stream payload length is STL * 8 bytes (STL unit = 64 bits per ETSI EN 300 799).
+        const size_t expectedBytes = static_cast<size_t>(stl) * 8;
+        if (expectedBytes == 0) {
+            continue;
+        }
+
+        if (size < expectedBytes) {
+            continue;
+        }
+
+        stream.etiDecoder->feedRawFrame(data, expectedBytes);
     }
 }
 

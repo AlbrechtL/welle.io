@@ -183,67 +183,68 @@ WebRadioInterface::~WebRadioInterface()
     }
 }
 
-class TuneFailed {};
-
 void WebRadioInterface::check_decoders_required()
 {
     lock_guard<mutex> lock(rx_mut);
     ASSERT_RX;
 
-    try {
-        for (auto& s : rx->getServiceList()) {
-            const auto sid = s.serviceId;
+    for (auto& s : rx->getServiceList()) {
+        const auto sid = s.serviceId;
 
-            try {
-                const bool is_active = find_if(
-                        carousel_services_active.cbegin(),
-                        carousel_services_active.cend(),
-                        [&](const ActiveCarouselService& acs) {
-                            return acs.sid == sid;
-                        }) != carousel_services_active.cend();
+        try {
+            const bool is_active = find_if(
+                    carousel_services_active.cbegin(),
+                    carousel_services_active.cend(),
+                    [&](const ActiveCarouselService& acs) {
+                        return acs.sid == sid;
+                    }) != carousel_services_active.cend();
 
-                const bool require =
-                    rx->serviceHasAudioComponent(s) and
-                    (decode_settings.strategy == DecodeStrategy::All or
-                     phs.at(sid).needsToBeDecoded() or
-                     is_active);
-                const bool is_decoded = programmes_being_decoded[sid];
+            const bool require =
+                rx->serviceHasAudioComponent(s) and
+                (decode_settings.strategy == DecodeStrategy::All or
+                 phs.at(sid).needsToBeDecoded() or
+                 is_active);
+            const bool is_decoded = programmes_being_decoded[sid];
 
-                if (require and not is_decoded) {
-                    bool success = rx->addServiceToDecode(phs.at(sid), "", s);
-
-                    if (success) {
-                        programmes_being_decoded[sid] = success;
-                    }
-                    else {
-                        throw TuneFailed();
-                    }
+            if (require and not is_decoded) {
+                const bool success = rx->addServiceToDecode(phs.at(sid), "", s);
+                if (success) {
+                    programmes_being_decoded[sid] = true;
                 }
-                else if (is_decoded and not require) {
-                    bool success = rx->removeServiceToDecode(s);
-
+                else {
+                    // Service metadata may still be incomplete (e.g. subchannel not yet available).
+                    // Keep state unchanged and retry on next scheduler cycle.
+                    programmes_being_decoded[sid] = false;
+                }
+            }
+            // AI: In ETI mode the FIC data comes from the multiplex itself;
+            // a transient FIC CRC miss can make serviceHasAudioComponent()
+            // momentarily return false even though the service is still
+            // active.  Tearing down the DecoderAdapter on every such glitch
+            // destroys the SuperframeFilter state and causes audible dropouts
+            // (re-sync takes up to 30+ frames = several hundred ms).
+            // Skip automatic removal in ETI mode; decoders are cleaned up
+            // when the receiver stops.
+            else if (is_decoded and not require) {
+                if (input.isEtiInput()) {
+                    // keep decoder alive
+                }
+                else {
+                    const bool success = rx->removeServiceToDecode(s);
                     if (success) {
                         programmes_being_decoded[sid] = false;
                     }
                     else {
                         cerr << "Stop playing 0x" << to_hex(s.serviceId, 4) <<
                             " failed" << endl;
-                        throw TuneFailed();
                     }
                 }
             }
-            catch (const out_of_range&) {
-                cerr << "Cannot tune to 0x" << to_hex(s.serviceId, 4) <<
-                    " because no handler exists!" << endl;
-            }
         }
-    }
-    catch (const TuneFailed&) {
-        rx->restart_decoder();
-        phs.clear();
-        programmes_being_decoded.clear();
-        carousel_services_available.clear();
-        carousel_services_active.clear();
+        catch (const out_of_range&) {
+            cerr << "Cannot tune to 0x" << to_hex(s.serviceId, 4) <<
+                " because no handler exists!" << endl;
+        }
     }
     phs_changed.notify_all();
 }
@@ -662,9 +663,11 @@ static vector<PeakJson> calculate_cir_peaks(const vector<float>& cir_linear)
 bool WebRadioInterface::send_mux_json(Socket& s)
 {
     MuxJson mux_json;
+    const bool is_live_rf = !input.isEtiInput();
 
     mux_json.receiver.software.name = "welle.io";
     mux_json.receiver.software.version = VERSION;
+    mux_json.receiver.software.inputmode = is_live_rf ? "rf" : "eti";
     mux_json.receiver.software.fftwindowplacement = fftPlacementMethodToString(rro.fftPlacementMethod);
     mux_json.receiver.software.coarsecorrectorenabled = not rro.disableCoarseCorrector;
     mux_json.receiver.software.freqsyncmethod = freqSyncMethodToString(rro.freqsyncMethod);
@@ -763,7 +766,7 @@ bool WebRadioInterface::send_mux_json(Socket& s)
                 service.errorcounters_frameerrors = errorcounters.num_frameErrors;
                 service.errorcounters_rserrors = errorcounters.num_rsErrors;
                 service.errorcounters_aacerrors = errorcounters.num_aacErrors;
-                service.errorcounters_time = chrono::system_clock::to_time_t(dls.time);
+                service.errorcounters_time = chrono::system_clock::to_time_t(errorcounters.time);
 
                 auto xpad_err = wph.getXPADErrors();
                 service.xpaderror_haserror = xpad_err.has_error;
@@ -932,12 +935,12 @@ bool WebRadioInterface::send_stream(Socket& s, const string& stream)
 
                 ProgrammeSender sender(move(s));
 
-                cerr << "Registering mp3 sender" << endl;
+                cerr << "Registering mp3 sender for " << to_hex(srv.serviceId, 4) << endl;
                 ph.registerSender(&sender);
                 check_decoders_required();
                 sender.wait_for_termination();
 
-                cerr << "Removing mp3 sender" << endl;
+                cerr << "Removing mp3 sender for " << to_hex(srv.serviceId, 4) << endl;
                 ph.removeSender(&sender);
                 check_decoders_required();
 
@@ -1299,8 +1302,6 @@ bool WebRadioInterface::handle_channel_post(Socket& s, const string& channel)
 void WebRadioInterface::handle_phs()
 {
     while (running) {
-        this_thread::sleep_for(chrono::seconds(2));
-
         unique_lock<mutex> lock(rx_mut);
         ASSERT_RX;
 
@@ -1406,6 +1407,8 @@ void WebRadioInterface::handle_phs()
                     }), carousel_services_active.end());
         lock.unlock();
         check_decoders_required();
+
+        this_thread::sleep_for(chrono::seconds(2));
     }
 
     cerr << "TEARDOWN Cancel all PHs and remove services" << endl;
@@ -1453,6 +1456,13 @@ void WebRadioInterface::serve()
 
     while (sig_caught == 0) {
         auto client = serverSocket.accept();
+
+        if (!client.valid()) {
+            if (sig_caught != 0) {
+                break;
+            }
+            continue;
+        }
 
         running_connections.push_back(async(launch::async,
                     &WebRadioInterface::dispatch_client, this, move(client)));

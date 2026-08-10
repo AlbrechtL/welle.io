@@ -40,13 +40,15 @@
 #include "dab-constants.h"
 #include "ringbuffer.h"
 #include "radio-controller.h"
+#include "decoder_adapter.h"
 
 class DabVirtual;
 
 class MscHandler
 {
     public:
-        MscHandler(const DABParams& p, bool show_crcErrors);
+        // AI: ETI mode constructor parameter and subchannel dispatch method.
+    MscHandler(const DABParams& p, bool show_crcErrors, bool etiMode = false);
 
         // Stop processing and remove all subchannels
         void stopProcessing(void);
@@ -58,6 +60,15 @@ class MscHandler
                 const Subchannel& sub);
 
         bool removeSubchannel(const Subchannel& sub);
+
+        // Feed one ETI stream payload for a subchannel.
+        // AI: feeds one subchannel payload from an ETI frame to its decoder.
+    void processEtiStream(
+            uint8_t subChId,
+            uint16_t startAddr,
+            uint16_t stl,
+            const uint8_t *data,
+            size_t size);
 
     private:
         friend class OfdmDecoder;
@@ -81,6 +92,7 @@ class MscHandler
             const Subchannel subCh;
 
             std::shared_ptr<DabVirtual> dabHandler;
+            std::unique_ptr<DecoderAdapter> etiDecoder;
         };
 
         std::mutex mutex;
@@ -89,6 +101,7 @@ class MscHandler
         const int16_t bitsperBlock;
         int16_t numberofblocksperCIF;
         bool show_crcErrors;
+        bool etiMode = false;
 
         std::vector<softbit_t> cifVector;
         int16_t cifCount = 0; // msc blocks in CIF

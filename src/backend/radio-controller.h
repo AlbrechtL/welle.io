@@ -197,6 +197,14 @@ public:
     virtual int32_t getSamples(DSPCOMPLEX* buffer, int32_t size) = 0;
     virtual std::vector<DSPCOMPLEX> getSpectrumSamples(int size) = 0;
     virtual int32_t getSamplesToRead(void) = 0;
+    // AI: ETI input extensions — default implementations return false/-1 so
+    // existing RF devices need no changes.
+    virtual bool isEtiInput(void) const { return false; }
+    virtual int32_t getEtiFrame(uint8_t* buffer, size_t size) {
+        (void)buffer;
+        (void)size;
+        return -1;
+    }
     virtual float setGain(int gain) = 0;
     virtual float getGain(void) const = 0;
     virtual int getGainCount(void) = 0;

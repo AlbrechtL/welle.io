@@ -929,8 +929,8 @@ canvas {
 
             <div class="header-card">
                 <div class="controls-bar">
-                    <div class="control-group">
-                        <label for="channelselector">Channel</label>
+                    <!-- AI: id added so applyReceptionMode() can hide this in ETI mode -->
+                    <div class="control-group" id="channelControlGroup">
                         <div class="channel-ctrl">
                             <select id="channelselector" name="channel"></select>
                             <button type="button" class="advanced-toggle" id="advancedToggle" title="Réglages avancés">Param. ⚙</button>

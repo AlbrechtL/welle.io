@@ -170,36 +170,77 @@ var currentPlayingSid = null;
 var currentSlideSid = null;
 var currentSlideLastUpdate = 0;
 var slsCache = {}; // sid -> {time, blobUrl} — slide images stored as local blob URLs
+var liveRfMode = true;
 
-function muxHeaderTemplate() {
+function applyReceptionMode(isLiveRf) {
+    liveRfMode = isLiveRf;
+
+    var advancedControls = document.getElementById('advancedControls');
+    var advancedToggle = document.getElementById('advancedToggle');
+    var channelControlGroup = document.getElementById('channelControlGroup');
+    var blockSpectrum = document.getElementById('block_spectrum');
+    var blockCir = document.getElementById('block_cir');
+    var blockConstellation = document.getElementById('block_constellation');
+    var blockTii = document.getElementById('block_tii');
+
+    var display = isLiveRf ? '' : 'none';
+    if (advancedControls) advancedControls.style.display = display;
+    if (advancedToggle) advancedToggle.style.display = display;
+    if (channelControlGroup) channelControlGroup.style.display = display;
+    if (blockSpectrum) blockSpectrum.style.display = display;
+    if (blockCir) blockCir.style.display = display;
+    if (blockConstellation) blockConstellation.style.display = display;
+    if (blockTii) blockTii.style.display = display;
+}
+
+function muxHeaderTemplate(isLiveRf) {
     var html = '';
     html += '<h1 class="ens-ps8"><abbr title="Ensemble long and short labels defined in FIG1">${label} (${shortlabel})</abbr></h1>';
     html += '<h2 class="ens-ps16"><abbr title="Ensemble long and short labels defined in FIG2">${fig2label}</abbr></h2>';
     html += '<div class="ens-mobile-name">${mobilelabel_ens}</div>';
     html += '<table class="stats-table">';
-    html += '<tr><th>Ensemble ID</th>';
-    html += '<th>ECC</th>';
-    html += '<th>SNR</th>';
-    html += '<th>RX gain</th>';
-    html += '<th>Freq corr</th>';
-    html += '<th>Date</th>';
-    html += '<th><abbr title="Local Time Offset">LTO</abbr></th>';
-    html += '<th>FIC CRC Errors</th>';
-    html += '<th>Tuned at</th>';
-    html += '<th>FCT0 frame received at</th>';
-    html += '</tr>';
-    html += '<tr><td>${EId}</td>';
-    html += '<td>${ecc}</td>';
-    html += '<td>${SNR}</td>';
-    html += '<td>${gain}</td>';
-    html += '<td>${FrequencyCorrection}</td>';
-    html += '<td>${year}-${month}-${day} ${hour}:${minutes} UTC</td>';
-    html += '<td>${lto}</td>';
-    html += '<td>${ficcrcerrors}</td>';
-    html += '<td>${lastchannelchange}</td>';
-    html += '<td>${lastfct0frame}</td></tr>';
+    if (isLiveRf) {
+        html += '<tr><th>Ensemble ID</th>';
+        html += '<th>ECC</th>';
+        html += '<th>SNR</th>';
+        html += '<th>RX gain</th>';
+        html += '<th>Freq corr</th>';
+        html += '<th>Date</th>';
+        html += '<th><abbr title="Local Time Offset">LTO</abbr></th>';
+        html += '<th>FIC CRC Errors</th>';
+        html += '<th>Tuned at</th>';
+        html += '<th>FCT0 frame received at</th>';
+        html += '</tr>';
+        html += '<tr><td>${EId}</td>';
+        html += '<td>${ecc}</td>';
+        html += '<td>${SNR}</td>';
+        html += '<td>${gain}</td>';
+        html += '<td>${FrequencyCorrection}</td>';
+        html += '<td>${year}-${month}-${day} ${hour}:${minutes} UTC</td>';
+        html += '<td>${lto}</td>';
+        html += '<td>${ficcrcerrors}</td>';
+        html += '<td>${lastchannelchange}</td>';
+        html += '<td>${lastfct0frame}</td></tr>';
+    }
+    else {
+        html += '<tr><th>Ensemble ID</th>';
+        html += '<th>ECC</th>';
+        html += '<th>Date</th>';
+        html += '<th><abbr title="Local Time Offset">LTO</abbr></th>';
+        html += '<th>FIC CRC Errors</th>';
+        html += '<th>Input</th>';
+        html += '</tr>';
+        html += '<tr><td>${EId}</td>';
+        html += '<td>${ecc}</td>';
+        html += '<td>${year}-${month}-${day} ${hour}:${minutes} UTC</td>';
+        html += '<td>${lto}</td>';
+        html += '<td>${ficcrcerrors}</td>';
+        html += '<td>ETI</td></tr>';
+    }
     html += '</table>';
-    html += '${snr_widget}';
+    if (isLiveRf) {
+        html += '${snr_widget}';
+    }
     return html;
 }
 
@@ -531,46 +572,54 @@ function populateEnsembleinfo() {
         ens["minutes"] = data.utctime.minutes;
         ens["lto"] = data.utctime.lto;
 
-        ens["gain"] = data.receiver.hardware.gain.toFixed(1);
-        document.getElementById("fftwindowselector").value = data.receiver.software.fftwindowplacement;
-        document.getElementById("coarsecheckbox").checked = data.receiver.software.coarsecorrectorenabled;
+        // AI: detect ETI mode from mux.json and hide RF-only controls.
+        var isLiveRf = !data.receiver.software.inputmode || data.receiver.software.inputmode !== "eti";
+        applyReceptionMode(isLiveRf);
+
+        if (isLiveRf) {
+            ens["gain"] = data.receiver.hardware.gain.toFixed(1);
+            document.getElementById("fftwindowselector").value = data.receiver.software.fftwindowplacement;
+            document.getElementById("coarsecheckbox").checked = data.receiver.software.coarsecorrectorenabled;
+            ens["SNR"] = data.demodulator.snr.toFixed(1);
+            ens["snr_widget"] = buildSNRWidget(data.demodulator.snr);
+            ens["FrequencyCorrection"] = data.demodulator.frequencycorrection;
+            var lfct0 = new Date(data.demodulator.time_last_fct0_frame);
+            ens["lastfct0frame"] = lfct0.toISOString();
+        }
 
         ens["version"] = data.receiver.software.version;
         ens["hw_name"] = data.receiver.hardware.name;
         ens["sw_name"] = data.receiver.software.name;
-        ens["SNR"] = data.demodulator.snr.toFixed(1);
-        ens["snr_widget"] = buildSNRWidget(data.demodulator.snr);
-        ens["FrequencyCorrection"] = data.demodulator.frequencycorrection;
         ens["services"] = servicehtml;
         ens["ficcrcerrors"] = data.demodulator.fic.numcrcerrors;
         var lcc = new Date(data.receiver.software.lastchannelchange);
         ens["lastchannelchange"] = lcc.toISOString();
-        var lfct0 = new Date(data.demodulator.time_last_fct0_frame);
-        ens["lastfct0frame"] = lfct0.toISOString();
 
         var muxInfo = document.getElementById('mux-info');
         if (muxInfo) {
-            muxInfo.innerHTML = parseTemplate(muxHeaderTemplate(), ens);
+            muxInfo.innerHTML = parseTemplate(muxHeaderTemplate(isLiveRf), ens);
         }
 
         var ei = document.getElementById('ensembleinfo');
         ei.innerHTML = parseTemplate(ensembleInfoTemplate(), ens);
 
-        tiihtml = "<ul>";
-        var eid = data.ensemble.id.substring(2).toUpperCase();
-        for (key in data.tii) {
-            var tii = data.tii[key];
-            var tii_key = eid + '_' + tii.pattern.toString().padStart(2,'0') + tii.comb.toString().padStart(2,'0');
-            if (!tii_db[tii_key]) continue;
-            tii.site_name = ' \u2014 ' + tii_db[tii_key];
-            tiihtml += parseTemplate(tiiTemplate(), tii);
+        if (isLiveRf) {
+            tiihtml = "<ul>";
+            var eid = data.ensemble.id.substring(2).toUpperCase();
+            for (key in data.tii) {
+                var tii = data.tii[key];
+                var tii_key = eid + '_' + tii.pattern.toString().padStart(2,'0') + tii.comb.toString().padStart(2,'0');
+                if (!tii_db[tii_key]) continue;
+                tii.site_name = ' \u2014 ' + tii_db[tii_key];
+                tiihtml += parseTemplate(tiiTemplate(), tii);
+            }
+            tiihtml += "</ul>";
+
+            var tii_el = document.getElementById('tiiinfo');
+            tii_el.innerHTML = tiihtml;
+
+            drawCIRPeaks(data.cir_peaks);
         }
-        tiihtml += "</ul>";
-
-        var tii_el = document.getElementById('tiiinfo');
-        tii_el.innerHTML = tiihtml;
-
-        drawCIRPeaks(data.cir_peaks);
 
         drawAudiolevels(data.services);
 

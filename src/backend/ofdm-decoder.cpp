@@ -126,7 +126,9 @@ void OfdmDecoder::workerthread()
         }
     }
 
-    std::clog << "OFDM-decoder:" <<  "closing down now" << std::endl;
+    // AI: renamed from "OFDM-decoder: closing down" so the message is
+    // accurate in ETI mode where there is no OFDM decoder.
+    std::clog << "Decoder: closing down now" << std::endl;
 }
 
 void OfdmDecoder::pushAllSymbols(std::vector<std::vector<DSPCOMPLEX> >&& syms)

@@ -53,6 +53,8 @@ static void to_json(nlohmann::json& j, const SoftwareJson& s) {
     j = nlohmann::json{
         {"name", s.name},
         {"version", s.version},
+        // AI: inputmode field distinguishes rf / eti in the web UI.
+        {"inputmode", s.inputmode},
         {"fftwindowplacement", s.fftwindowplacement},
         {"coarsecorrectorenabled", s.coarsecorrectorenabled},
         {"freqsyncmethod", s.freqsyncmethod},

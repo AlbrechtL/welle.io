@@ -32,6 +32,7 @@
 
 #include <stdexcept>
 #include <iostream>
+#include <cerrno>
 #include <cstring>
 #include "various/Socket.h"
 
@@ -167,7 +168,9 @@ Socket Socket::accept()
     socklen_t remote_addr_len = sizeof(remote_addr);
     int conn = ::accept(sock, (sockaddr*)&remote_addr, &remote_addr_len);
     if (conn == -1) {
-        if (errno == ECONNABORTED) {
+        // AI: EINTR is expected when SIGINT is caught during accept();
+        // return an invalid socket so serve() can exit the loop cleanly.
+        if (errno == EINTR) {
             return {};
         }
         perror("accept failed");

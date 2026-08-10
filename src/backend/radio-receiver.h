@@ -41,6 +41,7 @@
 #include "fic-handler.h"
 #include "msc-handler.h"
 #include "ofdm-processor.h"
+#include "eti-processor.h"
 
 const char* fftPlacementMethodToString(FFTPlacementMethod fft_placement);
 const char* freqSyncMethodToString(FreqsyncMethod method);
@@ -109,10 +110,13 @@ class RadioReceiver {
                 bool unique);
 
         DABParams params; // Defaults to TM1 parameters
+        InputInterface& input;
 
         MscHandler mscHandler;
         FicHandler ficHandler;
         OFDMProcessor ofdmProcessor;
+        // AI: ETIProcessor replaces OFDMProcessor when input.isEtiInput() is true.
+        ETIProcessor etiProcessor;
 };
 
 #endif

@@ -92,20 +92,19 @@ void SuperframeFilter::Feed(const uint8_t *data, size_t len) {
 	memcpy(sf, sf_raw, sf_len);
 	rs_dec.DecodeSuperframe(sf, sf_len, total_corr_count, uncorr_errors);
 
-	// forward statistics if errors present
-    //if(total_corr_count || uncorr_errors)
-		observer->FECInfo(total_corr_count, uncorr_errors);
-
-
+	// AI: moved FECInfo callback to AFTER CheckSync() so that RS errors
+	// accumulated during superframe sync acquisition (sliding window phase)
+	// are not forwarded to the web UI error counters.  Only errors in
+	// successfully synced superframes are meaningful.
 	if(!CheckSync()) {
-		if(sync_frames == 0)
-			fprintf(stderr, "SuperframeFilter: Superframe sync started...\n");
 		sync_frames++;
 		return;
 	}
 
+	// AI: FECInfo only reached when superframe is valid.
+	observer->FECInfo(total_corr_count, uncorr_errors);
+
 	if(sync_frames) {
-		fprintf(stderr, "SuperframeFilter: Superframe sync succeeded after %d frame(s)\n", sync_frames);
 		sync_frames = 0;
 	}
 
@@ -362,7 +361,7 @@ void RSDecoder::DecodeSuperframe(uint8_t *sf, size_t sf_len, int& total_corr_cou
 
 // --- AACDecoder -----------------------------------------------------------------
 AACDecoder::AACDecoder(std::string decoder_name, SubchannelSinkObserver* observer, SuperframeFormat sf_format) {
-	fprintf(stderr, "AACDecoder: using decoder '%s'\n", decoder_name.c_str());
+	(void)decoder_name;
 
 	this->observer = observer;
 
