@@ -24,7 +24,7 @@ body {
     line-height: 1.6;
     min-height: 100vh;
     -webkit-text-size-adjust: 100%;
-}
+    overflow-x: hidden; /* Hiding page-level x overflow */
 
 a {
     color: #6ea8fe;
@@ -54,6 +54,26 @@ h2 {
     max-width: 1100px;
     margin: 0 auto;
     padding: 24px 20px;
+}
+
+@media (max-width: 1200px) {
+    .app-container {
+        padding: 20px 14px;
+    }
+    .servicetable-scroll {
+        padding: 0 12px;
+    }
+    table#servicetable th,
+    table#servicetable td {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+    th#dls {
+        width: 320px;
+    }
+    th#techdetails {
+        width: 190px;
+    }
 }
 
 .app-header {
@@ -173,6 +193,25 @@ input[type="checkbox"] {
 }
 #ensembleinfo {
     margin-bottom: 20px;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    overflow-x: visible;
+}
+
+.servicetable-scroll {
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100dvw;
+    max-width: 100dvw;
+    padding: 0 20px;
+    box-sizing: border-box;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
 }
 
 #mux-info h1 {
@@ -196,11 +235,14 @@ table, th, td {
     border-collapse: collapse;
 }
 table#servicetable {
-    width: 100%;
+    width: max(100%, 1160px);
+    table-layout: auto;
+    box-sizing: border-box;
+    margin-left: 0;
     border-collapse: separate;
     border-spacing: 0;
     border-radius: 12px;
-    overflow: hidden;
+    overflow: visible;
     margin-bottom: 16px;
     border: 1px solid #2a2d3a;
 }
@@ -216,13 +258,22 @@ table#servicetable th {
     border-bottom: 2px solid #2a2d3a;
 }
 th#dls {
-    width: 300px;
+    width: 380px;
+}
+th#techdetails {
+    width: 220px;
+}
+th#playeraudio {
+    width: 150px;
 }
 table#servicetable td {
     padding: 12px 14px;
     font-size: 15px;
     border-bottom: 1px solid #1e2130;
     vertical-align: middle;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 table#servicetable tr:nth-child(even) {
     background-color: #151821;
@@ -232,6 +283,59 @@ table#servicetable tr:nth-child(odd) {
 }
 table#servicetable tr:hover {
     background-color: #1c1f2e;
+}
+
+table#servicetable tr.cu-summary-row {
+    background: #171a24;
+}
+table#servicetable tr.cu-summary-row:hover {
+    background: #171a24;
+}
+table#servicetable tr.cu-summary-row td {
+    border-bottom: none;
+    font-size: 14px;
+    color: #aeb6ce;
+    font-weight: 600;
+}
+
+/* Service table: player + audio stacked in one column */
+.player-audio-cell {
+    min-width: 128px;
+    padding: 8px 10px !important;
+}
+.player-audio-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    align-items: flex-start;
+}
+.audio-level-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    width: 100%;
+    line-height: 1;
+}
+.audio-level-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    line-height: 1;
+}
+.audio-level-row .audio-ch {
+    width: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #9aa0b8;
+    text-transform: uppercase;
+    line-height: 1;
+}
+.audio-level-row canvas {
+    width: 80px;
+    height: 7px;
+    border: none;
+    border-radius: 5px;
+    background: #1a1d28;
 }
 
 /* ── Stats table (Ensemble ID, ECC…) card style ─── */
@@ -338,9 +442,9 @@ button[onclick="stopPlayer()"]::before {
     vertical-align: middle;
 }
 .sls-thumb {
-    width: 70px;
-    height: 70px;
-    object-fit: cover;
+    width: auto;
+    height: 72px;
+    object-fit: contain;
     border-radius: 6px;
     cursor: pointer;
     border: 1px solid #3a3d50;
@@ -597,17 +701,12 @@ canvas {
 /* ── Responsive - Mobile ─────────────────────────── */
 @media (max-width: 900px),
        (orientation: landscape) and (max-height: 600px) and (pointer: coarse) {
-    html {
-        overflow-x: hidden;
-    }
     body {
         font-size: 15px;
-        overflow-x: hidden;
-        max-width: 100vw;
+        max-width: 100%;
     }
     .app-container {
         padding: 14px 12px;
-        overflow-x: hidden;
     }
     .app-header {
         flex-direction: column;
@@ -774,6 +873,28 @@ canvas {
     }
 
     /* ── Services table: CARD LAYOUT ─────────────── */
+    #ensembleinfo {
+        width: 100%;
+        max-width: 100%;
+        position: static;
+        left: auto;
+        transform: none;
+        margin-left: 0;
+        margin-right: 0;
+        padding: 0;
+        overflow-x: visible;
+    }
+    .servicetable-scroll {
+        position: static;
+        left: auto;
+        transform: none;
+        width: 100%;
+        max-width: 100%;
+        padding: 0;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
     #ensembleinfo table {
         display: flex;
         flex-direction: column;
@@ -787,11 +908,28 @@ canvas {
     #ensembleinfo table tr:first-child {
         display: none;
     }
+    #ensembleinfo table tr.cu-summary-row {
+        display: flex;
+        background: #171a24;
+    }
+    #ensembleinfo table tr.cu-summary-row:hover {
+        background: #171a24;
+    }
+    #ensembleinfo table tr.cu-summary-row td {
+        display: block;
+        flex: 1 1 100%;
+        font-size: 14px;
+        color: #aeb6ce;
+        font-weight: 600;
+        border: none;
+        padding: 0;
+        margin: 0;
+    }
     /* Each service row becomes a card */
     #ensembleinfo table tr {
         display: flex;
         flex-wrap: wrap;
-        align-items: center;
+        align-items: stretch;
         width: 100%;
         box-sizing: border-box;
         background: #1a1d28;
@@ -812,27 +950,31 @@ canvas {
     }
     /* Col 1: Station name - top left, takes most width */
     #ensembleinfo table td:nth-child(1) {
-        flex: 1 1 55%;
-        font-weight: 600;
+        flex: 1 1 100%;
+        font-weight: 700;
         font-size: 16px;
         color: #f0f0f5;
         min-width: 0;
         word-break: break-word;
+        padding-bottom: 8px;
+        margin-bottom: 6px;
+        border-bottom: 1px solid #2a2d3a;
     }
-    /* Col 12: Play button - top right */
-    #ensembleinfo table td:nth-child(12) {
+    /* Col 11: Play + audio below header */
+    #ensembleinfo table td:nth-child(11) {
         flex: 0 0 auto;
-        order: -1;
-        margin-left: auto;
+        order: 2;
+        margin-left: 0;
+        align-self: flex-start;
     }
-    /* Col 13: SLS thumbnail - full width at bottom */
-    #ensembleinfo table td:nth-child(13) {
+    /* Col 12: SLS thumbnail - full width at bottom */
+    #ensembleinfo table td:nth-child(12) {
         flex: 1 1 100%;
         order: 4;
         display: flex;
         justify-content: center;
     }
-    #ensembleinfo table td:nth-child(13) .sls-thumb {
+    #ensembleinfo table td:nth-child(12) .sls-thumb {
         width: 100%;
         height: auto;
         max-height: 180px;
@@ -850,16 +992,15 @@ canvas {
         order: 3;
         min-height: 0;
     }
-    /* Hide non-essential columns:
-       col2=SId, col4=CU, col5=Prot, col6=Tech, col7=PTy, col8=Lang, col10=Errors, col11=AudioLevel */
+     /* Hide non-essential columns:
+         col2=SId, col4=CU, col5=Prot, col6=Tech, col7=PTy, col8=Lang, col10=Errors */
     #ensembleinfo table td:nth-child(2),
     #ensembleinfo table td:nth-child(4),
     #ensembleinfo table td:nth-child(5),
     #ensembleinfo table td:nth-child(6),
     #ensembleinfo table td:nth-child(7),
     #ensembleinfo table td:nth-child(8),
-    #ensembleinfo table td:nth-child(10),
-    #ensembleinfo table td:nth-child(11) {
+     #ensembleinfo table td:nth-child(10) {
         display: none;
     }
 
