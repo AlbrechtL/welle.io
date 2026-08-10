@@ -39,10 +39,14 @@ class AlsaOutput {
 
         void playPCM(std::vector<int16_t>&& pcm);
 
+        /* False if the PCM device could not be opened. Such an instance
+         * discards the audio it is given. */
+        bool ok() const { return pcm_handle != nullptr; }
+
     private:
         int channels = 2;
-        snd_pcm_uframes_t period_size;
-        snd_pcm_t *pcm_handle;
+        snd_pcm_uframes_t period_size = 0;
+        snd_pcm_t *pcm_handle = nullptr;
         snd_pcm_hw_params_t *params;
 };
 
