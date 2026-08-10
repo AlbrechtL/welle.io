@@ -39,7 +39,9 @@ AlsaOutput::AlsaOutput(const char* device, int chans, unsigned int rate) :
     int err = snd_pcm_open(&pcm_handle, device, SND_PCM_STREAM_PLAYBACK, 0);
     if (err < 0) {
         fprintf(stderr, "ERROR: Can't open \"%s\" PCM device. %s\n",
-                PCM_DEVICE, snd_strerror(err));
+                device, snd_strerror(err));
+        pcm_handle = nullptr;
+        return;
     }
 
     snd_pcm_hw_params_alloca(&params);
@@ -99,13 +101,20 @@ AlsaOutput::AlsaOutput(const char* device, int chans, unsigned int rate) :
 }
 
 AlsaOutput::~AlsaOutput() {
-    snd_pcm_drain(pcm_handle);
-    snd_pcm_close(pcm_handle);
+    if (pcm_handle) {
+        snd_pcm_drain(pcm_handle);
+        snd_pcm_close(pcm_handle);
+    }
 }
 
 void AlsaOutput::playPCM(std::vector<int16_t>&& pcm)
 {
     if (pcm.empty())
+        return;
+
+    /* Without a device, or without a period size to send the samples in,
+     * there is nothing we can do with the audio. */
+    if (pcm_handle == nullptr or period_size == 0)
         return;
 
     const int16_t *data = pcm.data();
