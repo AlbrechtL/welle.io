@@ -21,7 +21,7 @@ jobs:
           arch: 'win64_mingw'
           tools: 'tools_mingw1310'
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - run: git fetch --prune --unshallow --tags
         
