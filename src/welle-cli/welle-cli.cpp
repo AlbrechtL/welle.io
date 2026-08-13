@@ -49,6 +49,7 @@
 #if defined(HAVE_ALSA)
 #  include "welle-cli/alsa-output.h"
 #endif
+#include "backend/ensemble_wait.h"
 #include "welle-cli/webradiointerface.h"
 #include "welle-cli/tests.h"
 #include "backend/radio-receiver.h"
@@ -506,6 +507,22 @@ options_t parse_cmdline(int argc, char **argv)
     return options;
 }
 
+/* Read the next command from standard input. Standard input is not always a
+ * terminal, and at end of input there is nothing left to read. Asking again
+ * would only spin, so we keep decoding what we are tuned to until we are
+ * interrupted. */
+static void read_command(string& command)
+{
+    if (cin >> command) {
+        return;
+    }
+
+    cerr << "**** End of input, decoding until interrupted." << endl;
+    while (true) {
+        this_thread::sleep_for(chrono::seconds(1));
+    }
+}
+
 unsigned parse_service_to_tune(const string& name) {
     try {
         unsigned long id = stoul(name, nullptr, 0);
@@ -652,16 +669,15 @@ int main(int argc, char **argv)
 
         cerr << "Wait for sync" << endl;
         while (not ri.synced) {
-            this_thread::sleep_for(chrono::seconds(3));
+            this_thread::sleep_for(chrono::milliseconds(250));
         }
 
         cerr << "Wait for service list" << endl;
         while (rx.getServiceList().empty()) {
-            this_thread::sleep_for(chrono::seconds(1));
+            this_thread::sleep_for(chrono::milliseconds(250));
         }
 
-        // Wait an additional 3 seconds so that the receiver can complete the service list
-        this_thread::sleep_for(chrono::seconds(3));
+        wait_for_complete_ensemble(rx);
 
         if (options.decode_all_programmes) {
             using SId_t = uint32_t;
@@ -698,7 +714,7 @@ int main(int argc, char **argv)
 
             while (true) {
                 cerr << "**** Enter '.' to quit." << endl;
-                cin >> service_to_tune;
+                read_command(service_to_tune);
                 if (service_to_tune == ".") {
                     break;
                 }
@@ -746,7 +762,7 @@ int main(int argc, char **argv)
 
                 cerr << "**** Please enter programme name. Enter '.' to quit." << endl;
 
-                cin >> service_to_tune;
+                read_command(service_to_tune);
                 if (service_to_tune == ".") {
                     break;
                 }

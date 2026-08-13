@@ -22,32 +22,18 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-#if defined(HAVE_ALSA)
-#include <cstddef>
-#include <vector>
-#include <alsa/asoundlib.h>
+#pragma once
 
-#define PCM_DEVICE "default"
+#include <functional>
 
-class AlsaOutput {
-    public:
-        AlsaOutput(const char* device, int chans, unsigned int rate);
-        AlsaOutput(int chans, unsigned int rate);
-        ~AlsaOutput();
-        AlsaOutput(const AlsaOutput& other) = delete;
-        AlsaOutput& operator=(const AlsaOutput& other) = delete;
+class RadioReceiver;
 
-        void playPCM(std::vector<int16_t>&& pcm);
-
-        /* False if the PCM device could not be opened. Such an instance
-         * discards the audio it is given. */
-        bool ok() const { return pcm_handle != nullptr; }
-
-    private:
-        int channels = 2;
-        snd_pcm_uframes_t period_size = 0;
-        snd_pcm_t *pcm_handle = nullptr;
-        snd_pcm_hw_params_t *params;
-};
-
-#endif // defined(HAVE_ALSA)
+/* The service identifiers arrive before their labels, so a service list that
+ * is not empty is not necessarily usable yet. Wait until every announced
+ * service is there and carries its label, instead of hoping that a fixed
+ * delay is long enough. Gives up after a few seconds and returns with
+ * whatever the ensemble gave us so far.
+ *
+ * stop_requested, when set, aborts the wait as soon as it returns true. */
+void wait_for_complete_ensemble(RadioReceiver& rx,
+        const std::function<bool()>& stop_requested = nullptr);

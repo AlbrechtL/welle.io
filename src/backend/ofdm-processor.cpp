@@ -174,7 +174,6 @@ DSPCOMPLEX OFDMProcessor::getSample(int32_t phase)
     temp        *= oscillatorTable[localPhase];
     sLevel      = 0.00001 * l1_norm(temp) + (1 - 0.00001) * sLevel;
 #define N   5
-    sampleCnt   ++;
     if (++ sampleCnt > INPUT_RATE / N) {
         radioInterface.onFrequencyCorrectorChange(
                 fineCorrector, coarseCorrector);
