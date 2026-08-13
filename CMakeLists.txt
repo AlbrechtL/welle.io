@@ -238,6 +238,7 @@ include_directories(
 )
 
 set(backend_sources
+    src/backend/ensemble_wait.cpp
     src/backend/dab-audio.cpp
     src/backend/decoder_adapter.cpp
     src/backend/dab_decoder.cpp
@@ -302,7 +303,6 @@ endif()
 set(welle_cli_sources
     src/welle-cli/welle-cli.cpp
     src/welle-cli/alsa-output.cpp
-    src/welle-cli/ensemble-wait.cpp
     src/welle-cli/webradiointerface.cpp
     src/welle-cli/jsonconvert.cpp
     src/welle-cli/webprogrammehandler.cpp

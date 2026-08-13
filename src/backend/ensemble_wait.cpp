@@ -29,7 +29,7 @@
 #include <string>
 #include <thread>
 
-#include "welle-cli/ensemble-wait.h"
+#include "backend/ensemble_wait.h"
 #include "backend/radio-receiver.h"
 
 using namespace std;

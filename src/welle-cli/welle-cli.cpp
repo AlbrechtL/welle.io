@@ -49,7 +49,7 @@
 #if defined(HAVE_ALSA)
 #  include "welle-cli/alsa-output.h"
 #endif
-#include "welle-cli/ensemble-wait.h"
+#include "backend/ensemble_wait.h"
 #include "welle-cli/webradiointerface.h"
 #include "welle-cli/tests.h"
 #include "backend/radio-receiver.h"
