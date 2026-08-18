@@ -35,7 +35,7 @@ modules:
     sources:
       - type: git
         url: 'https://gitea.osmocom.org/sdr/rtl-sdr.git'
-        tag: v2.0.2
+        tag: v2.0.3
 
   - name: libairspy
     buildsystem: cmake-ninja
