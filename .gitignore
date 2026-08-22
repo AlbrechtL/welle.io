@@ -18,3 +18,9 @@ welle.io.pro.user
 cmake_install.cmake
 cmake_uninstall.cmake
 install_manifest.txt
+
+# Android build artifacts
+/build-android-arm64/
+/dist/
+/aqtinstall.log
+/LOG.md
