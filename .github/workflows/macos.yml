@@ -12,9 +12,6 @@ jobs:
   build:
     name: Build on macOS ${{ matrix.macos }} (${{ matrix.architecture }})
     runs-on: ${{ matrix.runner }}
-    env:
-      SFTP_USER: ${{ secrets.SFTP_USER }}
-      SFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD }}
     strategy:
       fail-fast: false
       matrix:
@@ -40,29 +37,8 @@ jobs:
 
       - name: Set package metadata
         run: |
-          case "$(uname -m)" in
-            arm64)
-              arch=arm64
-              ;;
-            x86_64)
-              arch=x86_64
-              ;;
-            *)
-              echo "Unsupported architecture: $(uname -m)" >&2
-              exit 1
-              ;;
-          esac
-
-          if [ "$arch" != "${{ matrix.architecture }}" ]; then
-            echo "Runner architecture $arch does not match expected architecture ${{ matrix.architecture }}" >&2
-            exit 1
-          fi
-
-          {
-            echo "DATE=$(date +%Y%m%d)"
-            echo "GIT_HASH=$(git rev-parse --short HEAD)"
-            echo "ARCH_SUFFIX=$arch"
-          } >> "$GITHUB_ENV"
+          echo "DATE=$(date +%Y%m%d)" >> "$GITHUB_ENV"
+          echo "GIT_HASH=$(git rev-parse --short HEAD)" >> "$GITHUB_ENV"
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
@@ -72,17 +48,17 @@ jobs:
           cache: true
 
       - name: Install dependencies
-        run: |
-          if brew tap | grep -qx 'aws/tap'; then
-            brew untap aws/tap
-          fi
-          brew install cmake ninja fftw faad2 mpg123 lame librtlsdr dylibbundler
+        env:
+          # Skip brew's automatic update, which fails on stale third-party
+          # taps preinstalled on the runner images (e.g. aws/tap).
+          HOMEBREW_NO_AUTO_UPDATE: '1'
+        run: brew install ninja fftw faad2 mpg123 lame librtlsdr dylibbundler
 
       - name: Configure
         run: >-
           cmake -S . -B build -G Ninja
           -DCMAKE_BUILD_TYPE=Release
-          -DCMAKE_PREFIX_PATH="$QT_ROOT"
+          -DCMAKE_PREFIX_PATH="$QT_ROOT_DIR"
           -DRTLSDR=ON
 
       - name: Build
@@ -99,41 +75,33 @@ jobs:
 
       - name: Deploy application bundle
         run: |
-          macdeployqt build/welle-io.app \
-            -qmldir=src/welle-gui/QML \
-            -libpath="$QT_ROOT/lib" \
-            -libpath="$(brew --prefix)/lib"
-          dylibbundler -b \
-            -x build/welle-io.app/Contents/MacOS/welle-io \
-            -d build/welle-io.app/Contents/Frameworks \
-            -p @executable_path/../Frameworks \
-            -cd -of -ns
-          codesign --force --deep --sign - build/welle-io.app
-          codesign --verify --deep --strict build/welle-io.app
-          if otool -L build/welle-io.app/Contents/MacOS/welle-io | grep -Eq '/(opt/homebrew|usr/local)/'; then
-            echo "Application still links to Homebrew libraries" >&2
-            exit 1
-          fi
+          scripts/macos-deploy.sh "$QT_ROOT_DIR"
           build/welle-io.app/Contents/MacOS/welle-io --version
 
       - name: Create distribution package
         run: |
           mkdir publish
-          package_name="${DATE}_${GIT_HASH}_macOS_welle-io_${{ matrix.runner }}_${ARCH_SUFFIX}.zip"
+          package_name="${DATE}_${GIT_HASH}_macOS${{ matrix.macos }}_welle-io_${{ matrix.architecture }}.zip"
           ditto -c -k --sequesterRsrc --keepParent build/welle-io.app "publish/$package_name"
           unzip -tq "publish/$package_name"
 
       - name: Archive artifacts (welle.io macOS application)
         uses: actions/upload-artifact@v7
         with:
-          name: welle.io macOS ${{ matrix.macos }} application (${{ env.ARCH_SUFFIX }})
+          name: welle.io macOS ${{ matrix.macos }} application (${{ matrix.architecture }})
           path: publish/*
           if-no-files-found: error
+          compression-level: 0
 
       - name: Upload to nightly server
+        # The push trigger already restricts refs to master and next*. The
+        # env indirection exists because the secrets context is not allowed
+        # in a step-level if.
+        env:
+          SFTP_USER: ${{ secrets.SFTP_USER }}
+          SFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD }}
         if: >-
           github.event_name == 'push' &&
-          (github.ref_name == 'master' || startsWith(github.ref_name, 'next')) &&
           env.SFTP_USER != '' &&
           env.SFTP_PASSWORD != ''
         uses: dennisameling/ftp-upload-action@v2
