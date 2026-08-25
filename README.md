@@ -212,6 +212,11 @@ codesign --force --deep --sign - build/welle-io.app
 codesign --verify --deep --strict build/welle-io.app
 ```
 
+GitHub Actions performs this build on every supported macOS runner. Each deployed application bundle is archived as
+`YYYYMMDD_GITHASH_macOS_welle-io_RUNNER_ARCH.zip` and retained as a workflow artifact. Pushes to `master`, `next`, or
+a branch starting with `next` also upload the package to the nightly server when its credentials are configured. As
+with the Windows and Linux packages, adding a stable package to a GitHub Release remains a manual release step.
+
 #### Android and FreeBSD
 
 These operating systems are not maintained currently. You can find the original compiling instructions in the old [README.md](https://github.com/AlbrechtL/welle.io/blob/fdcd3c588a6e592b9640aad71648dcf6228fa98f/README.md).
