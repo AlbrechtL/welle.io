@@ -5,6 +5,7 @@ Please see the project website https://www.welle.io for a user oriented document
 
 **Build status**
 - Linux (Flatpak x86_64 and arm64): [![Linux build](https://github.com/AlbrechtL/welle.io/actions/workflows/linux.yml/badge.svg)](https://github.com/AlbrechtL/welle.io/actions/workflows/linux.yml)
+- macOS 14, 15 and 26: [![macOS build](https://github.com/rmens/welle.io/actions/workflows/macos.yml/badge.svg)](https://github.com/rmens/welle.io/actions/workflows/macos.yml)
 - Windows (Installer x86_64): [![Windows build](https://github.com/AlbrechtL/welle.io/actions/workflows/windows.yml/badge.svg)](https://github.com/AlbrechtL/welle.io/actions/workflows/windows.yml)
 - Android (APK): build workflow is currently disabled because a new, skilled maintainer for Android package is required to fix bug https://github.com/AlbrechtL/welle.io/issues/814# in the workflow.
 
@@ -51,8 +52,8 @@ Please see the project website https://www.welle.io for a user oriented document
     $ sudo dnf install --refresh welle-io
     ```
 * **macOS**
-  Unfortunately the macOS welle.io is unmaintained, currently. You still can use the 2.4 version (only Intel processor support).
-  - [Installer](https://github.com/AlbrechtL/welle.io/releases/tag/v2.4)
+  The current source tree builds on both Apple Silicon and Intel Macs. See the [macOS build instructions](#macos) below.
+  - [Legacy 2.4 Intel installer](https://github.com/AlbrechtL/welle.io/releases/tag/v2.4)
   - MacPorts
     ```
     $ sudo port install welle.io
@@ -177,9 +178,39 @@ This section shows how to compile welle.io on Windows 11. Windows 10 and 7  shou
 5. Build welle.io
 6. Run welle.io and enjoy it
 
-#### macOS, Android and FreeBSD
+#### macOS
 
-These operating systems are not maintain, currently. You can find the original compiling insturections in the old [README.md](https://github.com/AlbrechtL/welle.io/blob/fdcd3c588a6e592b9640aad71648dcf6228fa98f/README.md).
+The CMake build is tested on the macOS 14, 15 and 26 GitHub-hosted runners. Install the build dependencies with [Homebrew](https://brew.sh/):
+
+```
+brew install cmake ninja qt fftw faad2 mpg123 lame librtlsdr
+```
+
+Configure and build the application bundle and command-line tool:
+
+```
+cmake -S . -B build -G Ninja \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_PREFIX_PATH="$(brew --prefix qt)" \
+  -DRTLSDR=ON
+cmake --build build --parallel
+```
+
+The resulting application is `build/welle-io.app`. To make a self-contained bundle for another Mac, deploy its Qt and Homebrew libraries and apply an ad-hoc signature:
+
+```
+"$(brew --prefix qt)/bin/macdeployqt" build/welle-io.app \
+  -qmldir=src/welle-gui/QML \
+  -libpath="$(brew --prefix qt)/lib" \
+  -libpath="$(brew --prefix)/lib" \
+  -no-codesign
+codesign --force --deep --sign - build/welle-io.app
+codesign --verify --deep --strict build/welle-io.app
+```
+
+#### Android and FreeBSD
+
+These operating systems are not maintained currently. You can find the original compiling instructions in the old [README.md](https://github.com/AlbrechtL/welle.io/blob/fdcd3c588a6e592b9640aad71648dcf6228fa98f/README.md).
 
 
 #### CMake
