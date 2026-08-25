@@ -5,7 +5,7 @@ Please see the project website https://www.welle.io for a user oriented document
 
 **Build status**
 - Linux (Flatpak x86_64 and arm64): [![Linux build](https://github.com/AlbrechtL/welle.io/actions/workflows/linux.yml/badge.svg)](https://github.com/AlbrechtL/welle.io/actions/workflows/linux.yml)
-- macOS 15 and 26: [![macOS build](https://github.com/rmens/welle.io/actions/workflows/macos.yml/badge.svg)](https://github.com/rmens/welle.io/actions/workflows/macos.yml)
+- macOS 15 and 26: [![macOS build](https://github.com/AlbrechtL/welle.io/actions/workflows/macos.yml/badge.svg)](https://github.com/AlbrechtL/welle.io/actions/workflows/macos.yml)
 - Windows (Installer x86_64): [![Windows build](https://github.com/AlbrechtL/welle.io/actions/workflows/windows.yml/badge.svg)](https://github.com/AlbrechtL/welle.io/actions/workflows/windows.yml)
 - Android (APK): build workflow is currently disabled because a new, skilled maintainer for Android package is required to fix bug https://github.com/AlbrechtL/welle.io/issues/814# in the workflow.
 
@@ -19,7 +19,8 @@ Please see the project website https://www.welle.io for a user oriented document
     * [General Information](#general-information)
     * [Debian / Ubuntu Linux](#debian--ubuntu-linux)
     * [Windows 11](#windows-11)
-    * [macOS, Android and FreeBSD](#macos-android-and-freebsd)
+    * [macOS](#macos)
+    * [Android and FreeBSD](#android-and-freebsd)
     * [CMake](#cmake)
   * [welle-cli](#welle-cli)
     * [Usage](#usage-of-welle-cli)
@@ -69,7 +70,7 @@ If you discovered an issue please open a new [issue](https://github.com/Albrecht
 #### Developer version
 
 welle.io is under development. You can also try the latest developer builds. But PLEASE BE WARNED the builds are automatically created and untested.
-* [welle.io nightly builds](https://welle-io-nightlies.albrechtloh.de/) (Windows, Linux)
+* [welle.io nightly builds](https://welle-io-nightlies.albrechtloh.de/) (Windows, Linux, macOS)
 * Build artifacts in [Actions](https://github.com/AlbrechtL/welle.io/actions) runs
 
 
@@ -216,7 +217,8 @@ codesign --verify --deep --strict build/welle-io.app
 GitHub Actions performs this build on every supported macOS runner. Each deployed application bundle is archived as
 `YYYYMMDD_GITHASH_macOS_welle-io_RUNNER_ARCH.zip` and retained as a workflow artifact. Pushes to `master`, `next`, or
 a branch starting with `next` also upload the package to the nightly server when its credentials are configured. As
-with the Windows and Linux packages, adding a stable package to a GitHub Release remains a manual release step.
+these CI packages use an ad-hoc signature, macOS may require the user to approve them in Privacy & Security before
+opening. A stable release still requires Developer ID signing and Apple notarization and remains a manual release step.
 
 #### Android and FreeBSD
 
