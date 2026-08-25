@@ -70,6 +70,7 @@
 #define RING_BUFFER_H
 
 #include    <stdlib.h>
+#include    <atomic>
 #include    <vector>
 #include    <stdio.h>
 #include    <string.h>
@@ -82,13 +83,11 @@
  *  Mostly used for getting samples from or to the soundcard
  */
 #if defined(__APPLE__)
-#   include <libkern/OSAtomic.h>
-    /* Here are the memory barrier functions. Mac OS X only provides
-       full memory barriers, so the three types of barriers are the same,
-       however, these barriers are superior to compiler-based ones. */
-#   define PaUtil_FullMemoryBarrier()  OSMemoryBarrier()
-#   define PaUtil_ReadMemoryBarrier()  OSMemoryBarrier()
-#   define PaUtil_WriteMemoryBarrier() OSMemoryBarrier()
+    /* Use the standard C++ memory barriers instead of Apple's deprecated
+       OSMemoryBarrier API. */
+#   define PaUtil_FullMemoryBarrier()  std::atomic_thread_fence(std::memory_order_seq_cst)
+#   define PaUtil_ReadMemoryBarrier()  std::atomic_thread_fence(std::memory_order_acquire)
+#   define PaUtil_WriteMemoryBarrier() std::atomic_thread_fence(std::memory_order_release)
 #elif defined(__GNUC__)
     /* GCC >= 4.1 has built-in intrinsics. We'll use those */
 #   if (__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 1)
