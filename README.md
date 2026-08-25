@@ -201,22 +201,12 @@ cmake --build build --parallel
 The resulting application is `build/welle-io.app`. To make a self-contained bundle for another Mac, deploy its Qt and Homebrew libraries and apply an ad-hoc signature:
 
 ```
-"$(brew --prefix qt)/bin/macdeployqt" build/welle-io.app \
-  -qmldir=src/welle-gui/QML \
-  -libpath="$(brew --prefix qt)/lib" \
-  -libpath="$(brew --prefix)/lib"
-dylibbundler -b \
-  -x build/welle-io.app/Contents/MacOS/welle-io \
-  -d build/welle-io.app/Contents/Frameworks \
-  -p @executable_path/../Frameworks \
-  -cd -of -ns
-codesign --force --deep --sign - build/welle-io.app
-codesign --verify --deep --strict build/welle-io.app
+scripts/macos-deploy.sh "$(brew --prefix qt)"
 ```
 
 GitHub Actions performs this build on every supported macOS runner. Each deployed application bundle is archived as
-`YYYYMMDD_GITHASH_macOS_welle-io_RUNNER_ARCH.zip` and retained as a workflow artifact. Pushes to `master`, `next`, or
-a branch starting with `next` also upload the package to the nightly server when its credentials are configured. As
+`YYYYMMDD_GITHASH_macOSVERSION_welle-io_ARCH.zip` and retained as a workflow artifact. Pushes to `master` or branches
+starting with `next` also upload the package to the nightly server when its credentials are configured. As
 these CI packages use an ad-hoc signature, macOS may require the user to approve them in Privacy & Security before
 opening. A stable release still requires Developer ID signing and Apple notarization and remains a manual release step.
 
