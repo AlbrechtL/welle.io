@@ -82,59 +82,18 @@
  *  single reader and a single writer.
  *  Mostly used for getting samples from or to the soundcard
  */
-#if defined(__APPLE__)
-    /* Use the standard C++ memory barriers instead of Apple's deprecated
-       OSMemoryBarrier API. */
-#   define PaUtil_FullMemoryBarrier()  std::atomic_thread_fence(std::memory_order_seq_cst)
-#   define PaUtil_ReadMemoryBarrier()  std::atomic_thread_fence(std::memory_order_acquire)
-#   define PaUtil_WriteMemoryBarrier() std::atomic_thread_fence(std::memory_order_release)
-#elif defined(__GNUC__)
-    /* GCC >= 4.1 has built-in intrinsics. We'll use those */
-#   if (__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 1)
-# define PaUtil_FullMemoryBarrier()  __sync_synchronize()
-# define PaUtil_ReadMemoryBarrier()  __sync_synchronize()
-# define PaUtil_WriteMemoryBarrier() __sync_synchronize()
-    /* as a fallback, GCC understands volatile asm and "memory" to mean it
-     * should not reorder memory read/writes */
-#   elif defined( __PPC__ )
-#      define PaUtil_FullMemoryBarrier()  asm volatile("sync":::"memory")
-#      define PaUtil_ReadMemoryBarrier()  asm volatile("sync":::"memory")
-#      define PaUtil_WriteMemoryBarrier() asm volatile("sync":::"memory")
-#   elif defined( __i386__ ) || defined( __i486__ ) || defined( __i586__ ) || defined( __i686__ ) || defined( __x86_64__ )
-#      define PaUtil_FullMemoryBarrier()  asm volatile("mfence":::"memory")
-#      define PaUtil_ReadMemoryBarrier()  asm volatile("lfence":::"memory")
-#      define PaUtil_WriteMemoryBarrier() asm volatile("sfence":::"memory")
-#   else
-#      ifdef ALLOW_SMP_DANGERS
-#         warning Memory barriers not defined on this system or system unknown
-#         warning For SMP safety, you should fix this.
-#         define PaUtil_FullMemoryBarrier()
-#         define PaUtil_ReadMemoryBarrier()
-#         define PaUtil_WriteMemoryBarrier()
-#      else
-#         error Memory barriers are not defined on this system. You can still compile by defining ALLOW_SMP_DANGERS, but SMP safety will not be guaranteed.
-#      endif
-#   endif
-#else
-#   ifdef ALLOW_SMP_DANGERS
-#      warning Memory barriers not defined on this system or system unknown
-#      warning For SMP safety, you should fix this.
-#      define PaUtil_FullMemoryBarrier()
-#      define PaUtil_ReadMemoryBarrier()
-#      define PaUtil_WriteMemoryBarrier()
-#   else
-#      error Memory barriers are not defined on this system. You can still compile by defining ALLOW_SMP_DANGERS, but SMP safety will not be guaranteed.
-#   endif
-#endif
-
 // Base implementation
 template <class elementtype>
 class RingBuffer
 {
     private:
         uint32_t    bufferSize;
-        volatile    uint32_t    writeIndex;
-        volatile    uint32_t    readIndex;
+        /* All synchronization between the producer and the consumer thread
+           happens through these indices: the data writes/reads are ordered
+           by acquire loads and release stores of the index owned by the
+           other side. */
+        std::atomic<uint32_t>   writeIndex;
+        std::atomic<uint32_t>   readIndex;
         uint32_t    bigMask;
         uint32_t    smallMask;
         std::vector<char> buffer;
@@ -167,7 +126,8 @@ class RingBuffer
         }
 
         int32_t GetRingBufferReadAvailable (void) {
-            return (writeIndex - readIndex) & bigMask;
+            return (writeIndex.load(std::memory_order_acquire) -
+                    readIndex.load(std::memory_order_acquire)) & bigMask;
         }
 
         int32_t ReadSpace   (void){
@@ -183,24 +143,24 @@ class RingBuffer
         }
 
         void    FlushRingBuffer () {
-            writeIndex  = 0;
-            readIndex   = 0;
-        }
-        /* ensure that previous writes are seen before we update the write index
-           (write after write)
-           */
-        int32_t AdvanceRingBufferWriteIndex (int32_t elementCount) {
-            PaUtil_WriteMemoryBarrier();
-            return writeIndex = (writeIndex + elementCount) & bigMask;
+            writeIndex.store(0, std::memory_order_release);
+            readIndex.store(0, std::memory_order_release);
         }
 
-        /* ensure that previous reads (copies out of the ring buffer) are
-         * always completed before updating (writing) the read index.
-         * (write-after-read) => full barrier
-         */
+        /* Producer only: the release store publishes the data written into
+           the buffer before the new write index becomes visible. */
+        int32_t AdvanceRingBufferWriteIndex (int32_t elementCount) {
+            uint32_t index = (writeIndex.load(std::memory_order_relaxed) + elementCount) & bigMask;
+            writeIndex.store(index, std::memory_order_release);
+            return index;
+        }
+
+        /* Consumer only: the release store orders the copies out of the
+           buffer before the space is handed back to the producer. */
         int32_t AdvanceRingBufferReadIndex (int32_t elementCount) {
-            PaUtil_FullMemoryBarrier();
-            return readIndex = (readIndex + elementCount) & bigMask;
+            uint32_t index = (readIndex.load(std::memory_order_relaxed) + elementCount) & bigMask;
+            readIndex.store(index, std::memory_order_release);
+            return index;
         }
 
         /***************************************************************************
@@ -213,13 +173,16 @@ class RingBuffer
                 void **dataPtr1, int32_t *sizePtr1,
                 void **dataPtr2, int32_t *sizePtr2 ) {
             uint32_t   index;
+            /* The acquire load of readIndex (inside the call below) pairs
+               with the consumer's release store, so the space returned here
+               is safe to overwrite. */
             uint32_t   available = GetRingBufferWriteAvailable ();
 
             if (elementCount > available)
                 elementCount = available;
 
             /* Check to see if write is not contiguous. */
-            index = writeIndex & smallMask;
+            index = writeIndex.load(std::memory_order_relaxed) & smallMask;
             if ((index + elementCount) > bufferSize ) {
                 /* Write data in two blocks that wrap the buffer. */
                 int32_t   firstHalf = bufferSize - index;
@@ -235,9 +198,6 @@ class RingBuffer
                 *sizePtr2    = 0;
             }
 
-            if (available > 0)
-                PaUtil_FullMemoryBarrier(); /* (write-after-read) => full barrier */
-
             return elementCount;
         }
 
@@ -251,13 +211,16 @@ class RingBuffer
                 void **dataPtr1, int32_t *sizePtr1,
                 void **dataPtr2, int32_t *sizePtr2) {
             uint32_t   index;
-            uint32_t   available = GetRingBufferReadAvailable (); /* doesn't use memory barrier */
+            /* The acquire load of writeIndex (inside the call below) pairs
+               with the producer's release store, so the data returned here
+               is safe to read. */
+            uint32_t   available = GetRingBufferReadAvailable ();
 
             if (elementCount > available)
                 elementCount = available;
 
             /* Check to see if read is not contiguous. */
-            index = readIndex & smallMask;
+            index = readIndex.load(std::memory_order_relaxed) & smallMask;
             if ((index + elementCount) > bufferSize) {
                 /* Write data in two blocks that wrap the buffer. */
                 int32_t firstHalf = bufferSize - index;
@@ -272,9 +235,6 @@ class RingBuffer
                 *dataPtr2 = NULL;
                 *sizePtr2 = 0;
             }
-
-            if (available)
-                PaUtil_ReadMemoryBarrier(); /* (read-after-read) => read barrier */
 
             return elementCount;
         }
@@ -325,8 +285,6 @@ class RingBuffer
         }
 
         int32_t skipDataInBuffer (int32_t n_values) {
-            //  ensure that we have the correct read and write indices
-            PaUtil_FullMemoryBarrier ();
             if (n_values > GetRingBufferReadAvailable ())
                 n_values = GetRingBufferReadAvailable ();
             AdvanceRingBufferReadIndex (n_values);
