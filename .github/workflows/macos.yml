@@ -11,7 +11,7 @@ on:
 
 jobs:
   build:
-    name: Build on ${{ matrix.runner }}
+    name: Build on macOS ${{ matrix.macos }} (${{ matrix.architecture }})
     runs-on: ${{ matrix.runner }}
     env:
       SFTP_USER: ${{ secrets.SFTP_USER }}
@@ -19,10 +19,25 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runner:
-          - macos-14
-          - macos-15
-          - macos-26
+        include:
+          - macos: '14'
+            architecture: arm64
+            runner: macos-14
+          - macos: '14'
+            architecture: x86_64
+            runner: macos-14-large
+          - macos: '15'
+            architecture: arm64
+            runner: macos-15
+          - macos: '15'
+            architecture: x86_64
+            runner: macos-15-intel
+          - macos: '26'
+            architecture: arm64
+            runner: macos-26
+          - macos: '26'
+            architecture: x86_64
+            runner: macos-26-intel
 
     steps:
       - name: Checkout
@@ -44,6 +59,11 @@ jobs:
               exit 1
               ;;
           esac
+
+          if [ "$arch" != "${{ matrix.architecture }}" ]; then
+            echo "Runner architecture $arch does not match expected architecture ${{ matrix.architecture }}" >&2
+            exit 1
+          fi
 
           {
             echo "DATE=$(date +%Y%m%d)"
@@ -109,7 +129,7 @@ jobs:
       - name: Archive artifacts (welle.io macOS application)
         uses: actions/upload-artifact@v7
         with:
-          name: welle.io macOS application (${{ matrix.runner }}, ${{ env.ARCH_SUFFIX }})
+          name: welle.io macOS ${{ matrix.macos }} application (${{ env.ARCH_SUFFIX }})
           path: publish/*
           if-no-files-found: error
 
