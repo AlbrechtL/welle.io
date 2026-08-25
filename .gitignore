@@ -2,6 +2,7 @@
 /.idea/
 /cmake-build-debug/
 build/
+build-*/
 builddir/
 .flatpak-builder/
 repo/

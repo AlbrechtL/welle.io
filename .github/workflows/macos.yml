@@ -1,0 +1,78 @@
+name: macOS build
+
+on:
+  push:
+    branches:
+      - master
+      - next
+      - fix/macos-build
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build on ${{ matrix.runner }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        runner:
+          - macos-14
+          - macos-15
+          - macos-26
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.10.1'
+          modules: 'qtcharts qtmultimedia qt5compat qtshadertools'
+          cache: true
+
+      - name: Install dependencies
+        run: brew install cmake ninja fftw faad2 mpg123 lame librtlsdr
+
+      - name: Configure
+        run: >-
+          cmake -S . -B build -G Ninja
+          -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_PREFIX_PATH="$QT_ROOT"
+          -DRTLSDR=ON
+
+      - name: Build
+        run: cmake --build build --parallel
+
+      - name: Smoke test
+        run: |
+          test -x build/welle-io.app/Contents/MacOS/welle-io
+          test -x build/welle-cli
+          plutil -lint build/welle-io.app/Contents/Info.plist
+          test "$(plutil -extract CFBundleIdentifier raw build/welle-io.app/Contents/Info.plist)" = "io.welle.welle"
+          build/welle-io.app/Contents/MacOS/welle-io --version
+          build/welle-cli -h 2>&1 | grep -q "Usage: welle-cli"
+
+      - name: Deploy application bundle
+        run: |
+          macdeployqt build/welle-io.app \
+            -qmldir=src/welle-gui/QML \
+            -libpath="$QT_ROOT/lib" \
+            -libpath="$(brew --prefix)/lib" \
+            -no-codesign
+          codesign --force --deep --sign - build/welle-io.app
+          codesign --verify --deep --strict build/welle-io.app
+          build/welle-io.app/Contents/MacOS/welle-io --version
+
+      - name: Archive application bundle
+        run: ditto -c -k --sequesterRsrc --keepParent build/welle-io.app "welle-io-${{ matrix.runner }}.zip"
+
+      - name: Upload application bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: welle.io-${{ matrix.runner }}
+          path: welle-io-${{ matrix.runner }}.zip
+          if-no-files-found: error
