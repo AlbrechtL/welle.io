@@ -180,7 +180,8 @@ This section shows how to compile welle.io on Windows 11. Windows 10 and 7  shou
 
 #### macOS
 
-The CMake build is tested on the macOS 14, 15 and 26 GitHub-hosted runners. Install the build dependencies with [Homebrew](https://brew.sh/):
+The CMake build is tested on the macOS 14, 15 and 26 GitHub-hosted runners for both Apple Silicon (ARM64) and Intel
+(AMD64/x86_64). Install the build dependencies with [Homebrew](https://brew.sh/):
 
 ```
 brew install cmake ninja qt fftw faad2 mpg123 lame librtlsdr dylibbundler
