@@ -23,7 +23,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -35,7 +35,7 @@ jobs:
           cache: true
 
       - name: Install dependencies
-        run: brew install cmake ninja fftw faad2 mpg123 lame librtlsdr
+        run: brew install cmake ninja fftw faad2 mpg123 lame librtlsdr dylibbundler
 
       - name: Configure
         run: >-
@@ -61,17 +61,25 @@ jobs:
           macdeployqt build/welle-io.app \
             -qmldir=src/welle-gui/QML \
             -libpath="$QT_ROOT/lib" \
-            -libpath="$(brew --prefix)/lib" \
-            -no-codesign
+            -libpath="$(brew --prefix)/lib"
+          dylibbundler -b \
+            -x build/welle-io.app/Contents/MacOS/welle-io \
+            -d build/welle-io.app/Contents/Frameworks \
+            -p @executable_path/../Frameworks \
+            -cd -of -ns
           codesign --force --deep --sign - build/welle-io.app
           codesign --verify --deep --strict build/welle-io.app
+          if otool -L build/welle-io.app/Contents/MacOS/welle-io | grep -Eq '/(opt/homebrew|usr/local)/'; then
+            echo "Application still links to Homebrew libraries" >&2
+            exit 1
+          fi
           build/welle-io.app/Contents/MacOS/welle-io --version
 
       - name: Archive application bundle
         run: ditto -c -k --sequesterRsrc --keepParent build/welle-io.app "welle-io-${{ matrix.runner }}.zip"
 
       - name: Upload application bundle
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: welle.io-${{ matrix.runner }}
           path: welle-io-${{ matrix.runner }}.zip
