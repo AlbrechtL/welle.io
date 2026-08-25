@@ -5,7 +5,7 @@ Please see the project website https://www.welle.io for a user oriented document
 
 **Build status**
 - Linux (Flatpak x86_64 and arm64): [![Linux build](https://github.com/AlbrechtL/welle.io/actions/workflows/linux.yml/badge.svg)](https://github.com/AlbrechtL/welle.io/actions/workflows/linux.yml)
-- macOS 14, 15 and 26: [![macOS build](https://github.com/rmens/welle.io/actions/workflows/macos.yml/badge.svg)](https://github.com/rmens/welle.io/actions/workflows/macos.yml)
+- macOS 15 and 26: [![macOS build](https://github.com/rmens/welle.io/actions/workflows/macos.yml/badge.svg)](https://github.com/rmens/welle.io/actions/workflows/macos.yml)
 - Windows (Installer x86_64): [![Windows build](https://github.com/AlbrechtL/welle.io/actions/workflows/windows.yml/badge.svg)](https://github.com/AlbrechtL/welle.io/actions/workflows/windows.yml)
 - Android (APK): build workflow is currently disabled because a new, skilled maintainer for Android package is required to fix bug https://github.com/AlbrechtL/welle.io/issues/814# in the workflow.
 
@@ -180,7 +180,7 @@ This section shows how to compile welle.io on Windows 11. Windows 10 and 7  shou
 
 #### macOS
 
-The CMake build is tested on the macOS 14, 15 and 26 GitHub-hosted runners for both Apple Silicon (ARM64) and Intel
+The CMake build is tested on the macOS 15 and 26 GitHub-hosted runners for both Apple Silicon (ARM64) and Intel
 (AMD64/x86_64). Install the build dependencies with [Homebrew](https://brew.sh/):
 
 ```

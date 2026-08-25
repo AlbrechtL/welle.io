@@ -20,12 +20,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - macos: '14'
-            architecture: arm64
-            runner: macos-14
-          - macos: '14'
-            architecture: x86_64
-            runner: macos-14-large
           - macos: '15'
             architecture: arm64
             runner: macos-15
