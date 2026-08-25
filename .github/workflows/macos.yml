@@ -73,7 +73,11 @@ jobs:
           cache: true
 
       - name: Install dependencies
-        run: brew install cmake ninja fftw faad2 mpg123 lame librtlsdr dylibbundler
+        run: |
+          if brew tap | grep -qx 'aws/tap'; then
+            brew untap aws/tap
+          fi
+          brew install cmake ninja fftw faad2 mpg123 lame librtlsdr dylibbundler
 
       - name: Configure
         run: >-
