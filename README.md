@@ -183,7 +183,7 @@ This section shows how to compile welle.io on Windows 11. Windows 10 and 7  shou
 The CMake build is tested on the macOS 14, 15 and 26 GitHub-hosted runners. Install the build dependencies with [Homebrew](https://brew.sh/):
 
 ```
-brew install cmake ninja qt fftw faad2 mpg123 lame librtlsdr
+brew install cmake ninja qt fftw faad2 mpg123 lame librtlsdr dylibbundler
 ```
 
 Configure and build the application bundle and command-line tool:
@@ -202,8 +202,12 @@ The resulting application is `build/welle-io.app`. To make a self-contained bund
 "$(brew --prefix qt)/bin/macdeployqt" build/welle-io.app \
   -qmldir=src/welle-gui/QML \
   -libpath="$(brew --prefix qt)/lib" \
-  -libpath="$(brew --prefix)/lib" \
-  -no-codesign
+  -libpath="$(brew --prefix)/lib"
+dylibbundler -b \
+  -x build/welle-io.app/Contents/MacOS/welle-io \
+  -d build/welle-io.app/Contents/Frameworks \
+  -p @executable_path/../Frameworks \
+  -cd -of -ns
 codesign --force --deep --sign - build/welle-io.app
 codesign --verify --deep --strict build/welle-io.app
 ```
