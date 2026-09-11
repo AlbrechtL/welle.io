@@ -5,6 +5,7 @@ Please see the project website https://www.welle.io for a user oriented document
 
 **Build status**
 - Linux (Flatpak x86_64 and arm64): [![Linux build](https://github.com/AlbrechtL/welle.io/actions/workflows/linux.yml/badge.svg)](https://github.com/AlbrechtL/welle.io/actions/workflows/linux.yml)
+- macOS 15 and 26: [![macOS build](https://github.com/AlbrechtL/welle.io/actions/workflows/macos.yml/badge.svg)](https://github.com/AlbrechtL/welle.io/actions/workflows/macos.yml)
 - Windows (Installer x86_64): [![Windows build](https://github.com/AlbrechtL/welle.io/actions/workflows/windows.yml/badge.svg)](https://github.com/AlbrechtL/welle.io/actions/workflows/windows.yml)
 - Android (APK): build workflow is currently disabled because a new, skilled maintainer for Android package is required to fix bug https://github.com/AlbrechtL/welle.io/issues/814# in the workflow.
 
@@ -18,7 +19,8 @@ Please see the project website https://www.welle.io for a user oriented document
     * [General Information](#general-information)
     * [Debian / Ubuntu Linux](#debian--ubuntu-linux)
     * [Windows 11](#windows-11)
-    * [macOS, Android and FreeBSD](#macos-android-and-freebsd)
+    * [macOS](#macos)
+    * [Android and FreeBSD](#android-and-freebsd)
     * [CMake](#cmake)
   * [welle-cli](#welle-cli)
     * [Usage](#usage-of-welle-cli)
@@ -51,8 +53,8 @@ Please see the project website https://www.welle.io for a user oriented document
     $ sudo dnf install --refresh welle-io
     ```
 * **macOS**
-  Unfortunately the macOS welle.io is unmaintained, currently. You still can use the 2.4 version (only Intel processor support).
-  - [Installer](https://github.com/AlbrechtL/welle.io/releases/tag/v2.4)
+  The current source tree builds on both Apple Silicon and Intel Macs. See the [macOS build instructions](#macos) below.
+  - [Legacy 2.4 Intel installer](https://github.com/AlbrechtL/welle.io/releases/tag/v2.4)
   - MacPorts
     ```
     $ sudo port install welle.io
@@ -68,7 +70,7 @@ If you discovered an issue please open a new [issue](https://github.com/Albrecht
 #### Developer version
 
 welle.io is under development. You can also try the latest developer builds. But PLEASE BE WARNED the builds are automatically created and untested.
-* [welle.io nightly builds](https://welle-io-nightlies.albrechtloh.de/) (Windows, Linux)
+* [welle.io nightly builds](https://welle-io-nightlies.albrechtloh.de/) (Windows, Linux, macOS)
 * Build artifacts in [Actions](https://github.com/AlbrechtL/welle.io/actions) runs
 
 
@@ -177,9 +179,40 @@ This section shows how to compile welle.io on Windows 11. Windows 10 and 7  shou
 5. Build welle.io
 6. Run welle.io and enjoy it
 
-#### macOS, Android and FreeBSD
+#### macOS
 
-These operating systems are not maintain, currently. You can find the original compiling insturections in the old [README.md](https://github.com/AlbrechtL/welle.io/blob/fdcd3c588a6e592b9640aad71648dcf6228fa98f/README.md).
+The CMake build is tested on the macOS 15 and 26 GitHub-hosted runners for both Apple Silicon (ARM64) and Intel
+(AMD64/x86_64). Install the build dependencies with [Homebrew](https://brew.sh/):
+
+```
+brew install cmake ninja qt fftw faad2 mpg123 lame librtlsdr dylibbundler
+```
+
+Configure and build the application bundle and command-line tool:
+
+```
+cmake -S . -B build -G Ninja \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_PREFIX_PATH="$(brew --prefix qt)" \
+  -DRTLSDR=ON
+cmake --build build --parallel
+```
+
+The resulting application is `build/welle-io.app`. To make a self-contained bundle for another Mac, deploy its Qt and Homebrew libraries and apply an ad-hoc signature:
+
+```
+scripts/macos-deploy.sh "$(brew --prefix qt)"
+```
+
+GitHub Actions performs this build on every supported macOS runner. Each deployed application bundle is archived as
+`YYYYMMDD_GITHASH_macOSVERSION_welle-io_ARCH.zip` and retained as a workflow artifact. Pushes to `master` or branches
+starting with `next` also upload the package to the nightly server when its credentials are configured. As
+these CI packages use an ad-hoc signature, macOS may require the user to approve them in Privacy & Security before
+opening. A stable release still requires Developer ID signing and Apple notarization and remains a manual release step.
+
+#### Android and FreeBSD
+
+These operating systems are not maintained currently. You can find the original compiling instructions in the old [README.md](https://github.com/AlbrechtL/welle.io/blob/fdcd3c588a6e592b9640aad71648dcf6228fa98f/README.md).
 
 
 #### CMake

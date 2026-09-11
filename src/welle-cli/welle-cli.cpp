@@ -297,7 +297,9 @@ struct options_t {
     int web_port = -1; // positive value means enable
     list<int> tests;
     string outputcodec = "";
-    string pcm = PCM_DEVICE;
+    /* ALSA PCM device name; only consumed when HAVE_ALSA is defined
+       (PCM_DEVICE itself is not available without ALSA). */
+    string pcm = "default";
 
     RadioReceiverOptions rro;
 };
