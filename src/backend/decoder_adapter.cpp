@@ -76,6 +76,25 @@ void DecoderAdapter::addtoFrame(uint8_t *v)
     frameErrorCounter = 0;
 }
 
+// AI: ETI path — the subchannel payload extracted from an ETI frame is
+// already Reed-Solomon decoded; feed it directly to the SuperframeFilter
+// (DAB+) or MP2 decoder (DAB), bypassing the Viterbi soft-bit path.
+void DecoderAdapter::feedRawFrame(const uint8_t *data, size_t len)
+{
+    if (!data || len == 0) {
+        return;
+    }
+
+    decoder->Feed(data, len);
+
+    if (dumpFile) {
+        fwrite(data, len, 1, dumpFile.get());
+    }
+
+    myInterface.onFrameErrors(frameErrorCounter);
+    frameErrorCounter = 0;
+}
+
 void DecoderAdapter::FormatChange(const AUDIO_SERVICE_FORMAT& format)
 {
     audioFormat = format.GetSummary();

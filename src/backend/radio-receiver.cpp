@@ -69,18 +69,28 @@ RadioReceiver::RadioReceiver(
                 RadioReceiverOptions rro,
                 int transmission_mode) :
     params(transmission_mode),
-    mscHandler(params, false),
+    input(input),
+    mscHandler(params, false, input.isEtiInput()),
     ficHandler(rci),
     ofdmProcessor(input,
         params,
         rci,
         mscHandler,
         ficHandler,
-        rro)
+        rro),
+    etiProcessor(input, rci, ficHandler, mscHandler)
 { }
 
 void RadioReceiver::restart(bool doScan)
 {
+    // AI: ETI mode bypasses OFDM entirely and drives the ETIProcessor.
+    if (input.isEtiInput()) {
+        mscHandler.stopProcessing();
+        ficHandler.clearEnsemble();
+        etiProcessor.restart();
+        return;
+    }
+
     ofdmProcessor.set_scanMode(doScan);
     mscHandler.stopProcessing();
     ficHandler.clearEnsemble();
@@ -95,6 +105,7 @@ void RadioReceiver::restart_decoder()
 
 void RadioReceiver::stop()
 {
+    etiProcessor.stop();
     ofdmProcessor.stop();
     mscHandler.stopProcessing();
     ficHandler.clearEnsemble();
@@ -114,7 +125,10 @@ void RadioReceiver::setReceiverOptions(const RadioReceiverOptions rro)
         " disable coarse corr: " << rro.disableCoarseCorrector <<
         " freqsync: " << fsm <<
         " fft placement: " << fftPlacementMethodToString(rro.fftPlacementMethod) << endl;
-    ofdmProcessor.setReceiverOptions(rro);
+    // AI: guard setReceiverOptions against ETI mode (no OFDM processor to configure).
+    if (!input.isEtiInput()) {
+        ofdmProcessor.setReceiverOptions(rro);
+    }
 }
 
 bool RadioReceiver::playSingleProgramme(ProgrammeHandlerInterface& handler,

@@ -54,6 +54,7 @@
 #include "backend/radio-receiver.h"
 #include "input/input_factory.h"
 #include "input/raw_file.h"
+#include "input/eti_file.h"
 #include "various/channels.h"
 #include "libs/json.hpp"
 extern "C" {
@@ -287,6 +288,8 @@ struct options_t {
     int gain = -1;
     string channel = "10B";
     string iqsource = "";
+// AI: ETI input file/pipe path (set by -E option).
+    string etisource = "";
     string programme = "GRRIF";
     string frontend = "auto";
     string frontend_args = "";
@@ -339,6 +342,7 @@ static void usage()
     "Backend and input options:" << endl <<
     "    -f file       Read an IQ file <file> and play with ALSA." << endl <<
     "                  IQ file format is u8, unless the file ends with 'FORMAT.iq'." << endl <<
+    "    -E file       Read an ETI-NI file <file> and decode services from ETI stream payload." << endl <<
     "    -u            Disable coarse corrector, for receivers who have a low " << endl <<
     "                  frequency offset." << endl <<
     "    -g gain       Set input gain to <gain> or -1 for auto gain." << endl <<
@@ -422,7 +426,7 @@ options_t parse_cmdline(int argc, char **argv)
     options.rro.decodeTII = true;
 
     int opt;
-    while ((opt = getopt(argc, argv, "A:c:C:dDf:F:g:hp:O:o:Ps:Tt:uvw:")) != -1) {
+    while ((opt = getopt(argc, argv, "A:c:C:dDE:f:F:g:hp:O:o:Ps:Tt:uvw:")) != -1) {
         switch (opt) {
             case 'A':
                 options.antenna = optarg;
@@ -441,6 +445,9 @@ options_t parse_cmdline(int argc, char **argv)
                 break;
             case 'f':
                 options.iqsource = optarg;
+                break;
+            case 'E':
+                options.etisource = optarg;
                 break;
             case 'F':
                 fe_opt = optarg;
@@ -503,6 +510,11 @@ options_t parse_cmdline(int argc, char **argv)
         exit(1);
     }
 
+    if (!options.iqsource.empty() && !options.etisource.empty()) {
+        cerr << "Cannot select both -f (IQ input) and -E (ETI input)" << endl;
+        exit(1);
+    }
+
     return options;
 }
 
@@ -530,7 +542,16 @@ int main(int argc, char **argv)
 
     unique_ptr<CVirtualInput> in = nullptr;
 
-    if (options.iqsource.empty()) {
+    if (!options.etisource.empty()) {
+        auto in_eti = make_unique<CETIFile>(ri);
+        in_eti->setFileName(options.etisource);
+        if (!in_eti->is_ok()) {
+            cerr << "Could not prepare CETIFile" << endl;
+            return 1;
+        }
+        in = move(in_eti);
+    }
+    else if (options.iqsource.empty()) {
         in.reset(CInputFactory::GetDevice(ri, options.frontend));
 
         if (not in) {
@@ -552,12 +573,14 @@ int main(int argc, char **argv)
         in = move(in_file);
     }
 
-    if (options.gain == -1) {
-        in->setAgc(true);
-    }
-    else {
-        in->setAgc(false);
-        in->setGain(options.gain);
+    if (!in->isEtiInput()) {
+        if (options.gain == -1) {
+            in->setAgc(true);
+        }
+        else {
+            in->setAgc(false);
+            in->setGain(options.gain);
+        }
     }
 
 
@@ -570,7 +593,7 @@ int main(int argc, char **argv)
         dynamic_cast<CSoapySdr*>(in.get())->setDeviceParam(DeviceParam::SoapySDRDriverArgs, options.soapySDRDriverArgs);
     }
 #endif
-    if (options.frontend == "rtl_tcp" && !options.frontend_args.empty()) {
+    if (!in->isEtiInput() && options.frontend == "rtl_tcp" && !options.frontend_args.empty()) {
         string args = options.frontend_args;
         size_t colon = args.find(':');
         if (colon == string::npos) {
@@ -589,8 +612,10 @@ int main(int argc, char **argv)
             // cout << "setting rtl_tcp host to '" << host << "', port to '" << atoi(port.c_str()) << "'" << endl;
         }
     }
-    auto freq = channels.getFrequency(options.channel);
-    in->setFrequency(freq);
+    if (!in->isEtiInput()) {
+        auto freq = channels.getFrequency(options.channel);
+        in->setFrequency(freq);
+    }
     string service_to_tune = options.programme;
     unsigned service_to_tune_idx = parse_service_to_tune(service_to_tune);
 

@@ -132,6 +132,38 @@ void FicHandler::processFicBlock(const softbit_t *data, int16_t blkno)
     //  with index = 0
 }
 
+// AI: ETI path — accepts pre-decoded FIB bytes (32 bytes, one FIB) from an
+// ETI frame and feeds them into the existing fibProcessor, bypassing the
+// Viterbi/depuncturing path used for RF signals.
+void FicHandler::processFibBytes(const uint8_t *fibBytes, size_t fibSize)
+{
+    if (!fibBytes || fibSize != 32) {
+        return;
+    }
+
+    uint8_t fibBits[256] = {0};
+
+    for (size_t i = 0; i < 32; i++) {
+        const uint8_t b = fibBytes[i];
+        for (int bit = 0; bit < 8; bit++) {
+            fibBits[i * 8 + bit] = (b >> (7 - bit)) & 0x01;
+        }
+    }
+
+    const bool crcvalid = check_CRC_bits(fibBits, 256);
+    myRadioInterface.onFIBDecodeSuccess(crcvalid, fibBits);
+    if (crcvalid) {
+        fibProcessor.processFIB(fibBits, 0);
+
+        if (fic_decode_success_ratio < 10) {
+            fic_decode_success_ratio++;
+        }
+    }
+    else if (fic_decode_success_ratio > 0) {
+        fic_decode_success_ratio--;
+    }
+}
+
 /**
  * \brief processFicInput
  * we have a vector of 2304 (0 .. 2303) soft bits that has

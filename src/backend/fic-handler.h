@@ -40,6 +40,8 @@ class FicHandler: public Viterbi
     public:
         FicHandler(RadioControllerInterface& mr);
         void    processFicBlock(const softbit_t *data, int16_t blkno);
+        // AI: accepts pre-decoded FIB bytes from an ETI frame (bypasses Viterbi).
+    void    processFibBytes(const uint8_t *fibBytes, size_t fibSize);
         void    setBitsperBlock(int16_t b);
         void    clearEnsemble();
         int     getFicDecodeRatioPercent();

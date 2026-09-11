@@ -39,6 +39,8 @@
 #include "null_device.h"
 #include "rtl_tcp.h"
 #include "raw_file.h"
+// AI: ETI file device.
+#include "eti_file.h"
 
 #ifdef HAVE_RTLSDR
 #include "rtl_sdr.h"
@@ -101,6 +103,7 @@ CVirtualInput *CInputFactory::GetDevice(RadioControllerInterface &radioControlle
         case CDeviceID::RTL_SDR: InputDevice = new CRTL_SDR(radioController); break;
 #endif
         case CDeviceID::RAWFILE: InputDevice = new CRAWFile(radioController); break;
+        case CDeviceID::ETI_FILE: InputDevice = new CETIFile(radioController); break;
 #ifdef HAVE_SOAPYSDR
         case CDeviceID::SOAPYSDR: InputDevice = new CSoapySdr(radioController); break;
 #endif
@@ -200,6 +203,8 @@ CVirtualInput* CInputFactory::GetManualDevice(RadioControllerInterface& radioCon
 #endif
         if (device == "rawfile")
             InputDevice = new CRAWFile(radioController);
+        else if (device == "eti_file")
+            InputDevice = new CETIFile(radioController);
         else
             std::clog << "InputFactory:"
                 "Unknown device \"" << device << "\"." << std::endl;

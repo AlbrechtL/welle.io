@@ -38,8 +38,9 @@
 #include "radio-controller.h"
 #include "ringbuffer.h"
 
+// AI: ETI_FILE added for the CETIFile input device.
 enum class CDeviceID {
-    UNKNOWN, NULLDEVICE, AIRSPY, RAWFILE, RTL_SDR, RTL_TCP, SOAPYSDR, ANDROID_RTL_SDR, LIMESDR};
+    UNKNOWN, NULLDEVICE, AIRSPY, RAWFILE, ETI_FILE, RTL_SDR, RTL_TCP, SOAPYSDR, ANDROID_RTL_SDR, LIMESDR};
 
 class CVirtualInput : public InputInterface {
 public:

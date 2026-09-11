@@ -47,6 +47,8 @@ class DecoderAdapter: public DabProcessor, public SubchannelSinkObserver, public
                      const std::string& dumpFileName);
 
         virtual void addtoFrame(uint8_t *v);
+        // AI: feeds a raw (pre-decoded) ETI subchannel frame to the audio decoder.
+    void feedRawFrame(const uint8_t *data, size_t len);
 
         // SubchannelSinkObserver impl
         virtual void FormatChange(const AUDIO_SERVICE_FORMAT& /*format*/);

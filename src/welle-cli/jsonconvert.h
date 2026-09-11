@@ -36,6 +36,8 @@
 struct SoftwareJson {
     std::string name;
     std::string version;
+    // AI: identifies whether the receiver is in RF or ETI input mode.
+    std::string inputmode;
     std::string fftwindowplacement;
     bool coarsecorrectorenabled = false;
     std::string freqsyncmethod;

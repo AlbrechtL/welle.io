@@ -106,6 +106,7 @@ HEADERS += \
     $$PWD/backend/fib-processor.h \
     $$PWD/backend/fic-handler.h \
     $$PWD/backend/msc-handler.h \
+    $$PWD/backend/eti-processor.h \
     $$PWD/backend/freq-interleaver.h \
     $$PWD/backend/ofdm-decoder.h \
     $$PWD/backend/ofdm-processor.h \
@@ -143,6 +144,7 @@ HEADERS += \
     $$PWD/input/input_factory.h \
     $$PWD/input/null_device.h \
     $$PWD/input/raw_file.h \
+    $$PWD/input/eti_file.h \
     $$PWD/input/virtual_input.h \
     $$PWD/input/rtl_tcp.h
 	
@@ -158,6 +160,7 @@ SOURCES += \
     $$PWD/backend/fib-processor.cpp \
     $$PWD/backend/fic-handler.cpp \
     $$PWD/backend/msc-handler.cpp \
+    $$PWD/backend/eti-processor.cpp \
     $$PWD/backend/freq-interleaver.cpp \
     $$PWD/backend/ofdm-decoder.cpp \
     $$PWD/backend/ofdm-processor.cpp \
@@ -181,6 +184,7 @@ SOURCES += \
     $$PWD/input/input_factory.cpp \
     $$PWD/input/null_device.cpp \
     $$PWD/input/raw_file.cpp \
+    $$PWD/input/eti_file.cpp \
     $$PWD/input/rtl_tcp.cpp
 
 

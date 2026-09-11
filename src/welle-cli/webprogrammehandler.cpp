@@ -25,6 +25,7 @@
 #include "webprogrammehandler.h"
 #include <iostream>
 #include <algorithm>
+#include <cstdlib>
 #include <functional>
 
 #include <lame/lame.h>
@@ -319,8 +320,14 @@ WebProgrammeHandler::errorcounters_t WebProgrammeHandler::getErrorCounters() con
     return r;
 }
 
+// AI: added console logging to make frame/RS/AAC errors visible on the
+// terminal (they were only counted in mux.json before).
 void WebProgrammeHandler::onFrameErrors(int frameErrors)
 {
+    if (frameErrors > 0) {
+        cerr << "Frame errors 0x" << std::hex << serviceId << std::dec
+             << ": " << frameErrors << endl;
+    }
     std::unique_lock<std::mutex> lock(stats_mutex);
     errorcounters.num_frameErrors += frameErrors;
     errorcounters.time = chrono::system_clock::now();
@@ -339,14 +346,16 @@ void WebProgrammeHandler::onNewAudio(std::vector<int16_t>&& audioData,
     int last_audioLevel_L = 0;
     int last_audioLevel_R = 0;
     {
-        int16_t max_L = 0;
-        int16_t max_R = 0;
+        int32_t max_L = 0;
+        int32_t max_R = 0;
+// AI: use absolute peak per channel so negative excursions are counted too.
         for (size_t i = 0; i < audioData.size()-1; i+=2) {
-            max_L = std::max(max_L, audioData[i]);
-            max_R = std::max(max_R, audioData[i+1]);
+            // Use absolute peak to handle both positive and negative excursions.
+            max_L = std::max(max_L, std::abs(static_cast<int>(audioData[i])));
+            max_R = std::max(max_R, std::abs(static_cast<int>(audioData[i+1])));
         }
-        last_audioLevel_L = max_L;
-        last_audioLevel_R = max_R;
+        last_audioLevel_L = static_cast<int>(max_L);
+        last_audioLevel_R = static_cast<int>(max_R);
     }
 
     {
@@ -378,20 +387,31 @@ void WebProgrammeHandler::onNewAudio(std::vector<int16_t>&& audioData,
 
 }
 
+// AI: erase failed senders immediately so a closed browser tab
+// doesn't block the audio delivery loop on future calls.
 void WebProgrammeHandler::send_to_all_clients(const std::vector<uint8_t>& headerData, const std::vector<uint8_t>& data)
 {
     std::unique_lock<std::mutex> lock(senders_mutex);
 
-    for (auto& s : senders) {
-        bool success = s->send_stream(headerData, data);
+    for (auto it = senders.begin(); it != senders.end(); ) {
+        auto* sender = *it;
+        const bool success = sender->send_stream(headerData, data);
         if (not success) {
-            cerr << "Failed to send audio for " << serviceId << endl;
+            cerr << "Audio client disconnected for service 0x" << std::hex << serviceId << std::dec << endl;
+            it = senders.erase(it);
+        }
+        else {
+            ++it;
         }
     }
 }
 
+// AI: console logging for RS and AAC error callbacks.
 void WebProgrammeHandler::onRsErrors(bool uncorrectedErrors, int numCorrectedErrors)
 {
+    if (uncorrectedErrors) {
+        cerr << "RS uncorrectable error 0x" << std::hex << serviceId << std::dec << endl;
+    }
     (void)numCorrectedErrors; // TODO calculate BER before Reed-Solomon
     std::unique_lock<std::mutex> lock(stats_mutex);
     errorcounters.num_rsErrors += (uncorrectedErrors ? 1 : 0);
@@ -400,6 +420,10 @@ void WebProgrammeHandler::onRsErrors(bool uncorrectedErrors, int numCorrectedErr
 
 void WebProgrammeHandler::onAacErrors(int aacErrors)
 {
+    if (aacErrors > 0) {
+        cerr << "AAC errors 0x" << std::hex << serviceId << std::dec
+             << ": " << aacErrors << endl;
+    }
     std::unique_lock<std::mutex> lock(stats_mutex);
     errorcounters.num_aacErrors += aacErrors;
     errorcounters.time = chrono::system_clock::now();
