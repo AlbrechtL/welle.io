@@ -80,7 +80,6 @@ class OfdmDecoder
         int16_t snrCount = 0;
         float snr = 0;
 
-        const double mer_alpha = 1e-7;
         std::atomic<double> mer = ATOMIC_VAR_INIT(0.0);
 
     public:

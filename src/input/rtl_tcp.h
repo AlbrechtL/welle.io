@@ -102,7 +102,6 @@ private:
     // server and network
     RtlAgc agc{500};
     std::atomic<bool> isAGC{true};
-    bool isHwAGC = false;
     int frequency = kHz(220000);
     RingBuffer<uint8_t> sampleBuffer;
     RingBuffer<uint8_t> sampleNetworkBuffer;

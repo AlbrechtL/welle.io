@@ -374,7 +374,7 @@ void TIIDecoder::analyse_phase(const CombPattern& cp)
             m.comb = cp.comb;
             m.pattern = cp.pattern;
 
-            m_radioInterface.onTIIMeasurement(move(m));
+            m_radioInterface.onTIIMeasurement(std::move(m));
         }
 
         meas.error_per_correction.clear();

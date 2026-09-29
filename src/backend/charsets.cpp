@@ -23,8 +23,8 @@
  */
 #include "charsets.h"
 #include <cstdint>
-#include <locale>
-#include <codecvt>
+#include <stdexcept>
+#include <string>
 /**
  * This table maps "EBU Latin" charset to corresponding
  * Unicode (UCS2-encoded) characters.
@@ -73,6 +73,8 @@ static const unsigned short ebuLatinToUcs2[] = {
 #include <iostream>
 #include <string>
 #include <iomanip>
+#include <locale>
+#include <codecvt>
 
 #include "../../../ODR-PadEnc/src/charset.cpp"
 
@@ -97,6 +99,45 @@ int main(){
 
 #endif
 
+// std::wstring_convert/std::codecvt_utf8_utf16 are deprecated since C++17.
+// Invalid surrogates are replaced by U+FFFD instead of throwing.
+static std::string utf16ToUtf8(const std::u16string& in)
+{
+    std::string out;
+    out.reserve(in.size());
+    for (size_t i = 0; i < in.size(); i++) {
+        uint32_t cp = in[i];
+        if (cp >= 0xD800 && cp <= 0xDBFF && i + 1 < in.size() &&
+                in[i+1] >= 0xDC00 && in[i+1] <= 0xDFFF) {
+            cp = 0x10000 + ((cp - 0xD800) << 10) + (in[i+1] - 0xDC00);
+            i++;
+        }
+        else if (cp >= 0xD800 && cp <= 0xDFFF) {
+            cp = 0xFFFD;
+        }
+
+        if (cp < 0x80) {
+            out += static_cast<char>(cp);
+        }
+        else if (cp < 0x800) {
+            out += static_cast<char>(0xC0 | (cp >> 6));
+            out += static_cast<char>(0x80 | (cp & 0x3F));
+        }
+        else if (cp < 0x10000) {
+            out += static_cast<char>(0xE0 | (cp >> 12));
+            out += static_cast<char>(0x80 | ((cp >> 6) & 0x3F));
+            out += static_cast<char>(0x80 | (cp & 0x3F));
+        }
+        else {
+            out += static_cast<char>(0xF0 | (cp >> 18));
+            out += static_cast<char>(0x80 | ((cp >> 12) & 0x3F));
+            out += static_cast<char>(0x80 | ((cp >> 6) & 0x3F));
+            out += static_cast<char>(0x80 | (cp & 0x3F));
+        }
+    }
+    return out;
+}
+
 std::string toUtf8StringUsingCharset(const void* buffer,
         CharacterSet charset, size_t num_bytes)
 {
@@ -107,17 +148,15 @@ std::string toUtf8StringUsingCharset(const void* buffer,
     switch (charset) {
         case CharacterSet::UnicodeUcs2:
             {
-                std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> utf8conv;
-
                 if (num_bytes == 0) {
                     std::u16string buffer_char16(reinterpret_cast<const char16_t*>(buffer));
-                    return utf8conv.to_bytes(buffer_char16);
+                    return utf16ToUtf8(buffer_char16);
                 }
                 else {
                     const char16_t* start = reinterpret_cast<const char16_t*>(buffer);
                     const char16_t* end = start + num_bytes/2;
                     std::u16string buffer_char16(start, end);
-                    return utf8conv.to_bytes(buffer_char16);
+                    return utf16ToUtf8(buffer_char16);
                 }
             }
             break;
@@ -143,8 +182,6 @@ std::string toUtf8StringUsingCharset(const void* buffer,
                 std::u16string s;
                 const uint8_t* buf = reinterpret_cast<const uint8_t*>(buffer);
 
-                std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> utf8conv;
-
                 if (num_bytes == 0) {
                     while (*buf) {
                         s += ebuLatinToUcs2[*buf];
@@ -157,7 +194,7 @@ std::string toUtf8StringUsingCharset(const void* buffer,
                     }
                 }
 
-                return utf8conv.to_bytes(s);
+                return utf16ToUtf8(s);
             }
     }
 }
