@@ -348,16 +348,16 @@ int32_t CRAWFile::convertSamples(RingBuffer<uint8_t>& Buffer, DSPCOMPLEX *V, int
     // Signed 16-bit little endian
     else if (fileFormat == CRAWFileFormat::S16LE) {
         for (int i = 0, j = 0; i < amount / 4; i++, j+= IQByteSize) {
-            int16_t IQ_I = (int16_t)(temp[j + 0] << 8) | temp[j + 1];
-            int16_t IQ_Q = (int16_t)(temp[j + 2] << 8) | temp[j + 3];
+            int16_t IQ_I = (int16_t)(temp[j + 1] << 8) | temp[j + 0];
+            int16_t IQ_Q = (int16_t)(temp[j + 3] << 8) | temp[j + 2];
             V[i] = DSPCOMPLEX((float)(IQ_I), (float)(IQ_Q));
         }
     }
     // Signed 16-bit big endian
     else if (fileFormat == CRAWFileFormat::S16BE) {
         for (int i = 0, j = 0; i < amount / 4; i++, j += IQByteSize) {
-            int16_t IQ_I = (int16_t)(temp[j + 1] << 8) | temp[j + 0];
-            int16_t IQ_Q = (int16_t)(temp[j + 3] << 8) | temp[j + 2];
+            int16_t IQ_I = (int16_t)(temp[j + 0] << 8) | temp[j + 1];
+            int16_t IQ_Q = (int16_t)(temp[j + 2] << 8) | temp[j + 3];
             V[i] = DSPCOMPLEX((float)(IQ_I), (float)(IQ_Q));
         }
     }
