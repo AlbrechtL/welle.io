@@ -44,7 +44,7 @@ ApplicationWindow {
     property bool isStationNameInWindowTitle: false
     property string knownEnsembleNamesSerialized
 
-    StationListModel { id: stationList ; type: "all"}
+    StationListModel { id: stationList ; objectName: "stationList"; type: "all"}
     StationListModel { id: favoritsList ; type: "favorites"}
 
     readonly property bool inPortrait: mainWindow.width < mainWindow.height

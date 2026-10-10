@@ -3,8 +3,7 @@ SUBDIRS = src/welle-gui
 
 #!android: {
 #SUBDIRS += \
-#    src/welle-cli \
-#    src/tests
+#    src/welle-cli
 #}
 
 DISTFILES += $$PWD/README.md

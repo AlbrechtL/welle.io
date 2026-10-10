@@ -1,0 +1,81 @@
+# This file was generated with an AI assistant (Claude Code).
+
+name: Tests
+
+on:
+  push:
+    branches:
+      - master
+      - 'next*'
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Tests on Linux (x86_64)
+    runs-on: ubuntu-24.04
+    env:
+      # Secrets can't be used in if: conditions directly
+      HAS_TEST_DATA_TOKEN: ${{ secrets.WELLE_TEST_DATA_TOKEN != '' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.10.1'
+          modules: 'qtcharts qtmultimedia qt5compat qtshadertools'
+          cache: true
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install ninja-build xxd zstd \
+            libfftw3-dev libfaad-dev libmpg123-dev libmp3lame-dev libasound2-dev \
+            libgl1-mesa-dev libegl1 libxkbcommon0
+
+      # The recordings are in a private repository because they contain
+      # copyrighted content. Without the token (e.g. pull requests from
+      # forks) the tests that need them are skipped.
+      - name: Checkout test data
+        if: env.HAS_TEST_DATA_TOKEN == 'true'
+        uses: actions/checkout@v7
+        with:
+          repository: ${{ vars.WELLE_TEST_DATA_REPO || 'AlbrechtL/welle.io-test-data' }}
+          token: ${{ secrets.WELLE_TEST_DATA_TOKEN }}
+          path: test-data
+
+      - name: Unpack test data
+        if: env.HAS_TEST_DATA_TOKEN == 'true'
+        run: |
+          python3 test-data/scripts/prepare_test_data.py --unpack
+          echo "WELLE_TEST_DATA_DIR=$PWD/test-data" >> "$GITHUB_ENV"
+
+      - name: No test data
+        if: env.HAS_TEST_DATA_TOKEN != 'true'
+        run: echo "::warning::WELLE_TEST_DATA_TOKEN is not available, the tests with recordings are skipped"
+
+      - name: Configure
+        run: >-
+          cmake -S . -B build -G Ninja
+          -DCMAKE_BUILD_TYPE=RelWithDebInfo
+          -DCMAKE_PREFIX_PATH="$QT_ROOT_DIR"
+          -DBUILD_TESTS=ON
+
+      - name: Build
+        run: cmake --build build --parallel
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure --output-junit junit-ctest.xml --parallel 2
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-results
+          path: build/junit-ctest.xml
+          if-no-files-found: ignore

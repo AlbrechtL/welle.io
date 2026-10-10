@@ -26,6 +26,7 @@ option(RTLSDR            "Compile with RTL-SDR support"          OFF )
 option(SOAPYSDR          "Compile with SoapySDR support"         OFF )
 option(FLAC              "Compile with flac support for streaming" OFF )
 option(FDK_AAC           "Use FDK-AAC instead of FAAD"           OFF )
+option(BUILD_TESTS       "Build automated tests (CTest)"         OFF )
 
 add_definitions(-Wall)
 add_definitions(-g)
@@ -40,7 +41,9 @@ if(NOT CMAKE_BUILD_TYPE)
 endif(NOT CMAKE_BUILD_TYPE)
 set(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "")
 
-#enable_testing()
+if(BUILD_TESTS)
+    enable_testing()
+endif()
 
 list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
 
@@ -574,6 +577,10 @@ configure_file(
 
 add_custom_target(uninstall
     COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+
+if(BUILD_TESTS)
+    add_subdirectory(src/tests)
+endif()
 
 if(Qt6Core_FOUND)
   if(BUILD_WELLE_IO)
