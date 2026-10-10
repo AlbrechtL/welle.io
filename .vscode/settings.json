@@ -1,0 +1,16 @@
+{
+    "cmake.sourceDirectory": "${workspaceFolder}",
+    "cmake.buildDirectory": "${workspaceFolder}/build",
+    "cmake.configureArgs": [
+        "-DCMAKE_PREFIX_PATH=${env:HOME}/Qt/6.12.0/gcc_64",
+        "-DRTLSDR=ON"
+    ],
+    "cmake.environment": {
+        "QT_QPA_PLATFORMTHEME": "generic"
+    },
+    "cmake.debugConfig": {
+        "environment": [
+            { "name": "QT_QPA_PLATFORMTHEME", "value": "generic" }
+        ]
+    }
+}
