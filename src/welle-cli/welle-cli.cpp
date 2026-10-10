@@ -551,6 +551,9 @@ int main(int argc, char **argv)
         }
 
         in_file->setFileName(options.iqsource, "auto");
+        if (not in_file->is_ok()) {
+            return 1;
+        }
         in = move(in_file);
     }
 
