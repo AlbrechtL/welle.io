@@ -311,8 +311,10 @@ int32_t CRAWFile::readBuffer(uint8_t* data, int32_t length)
             radioController.onRestartService();
         }
         else {
-            radioController.onMessage(message_level_t::Information, QT_TRANSLATE_NOOP("CRadioController", "End of file"));
-            endReached = true;
+            if (not endReached) {
+                radioController.onMessage(message_level_t::Information, QT_TRANSLATE_NOOP("CRadioController", "End of file"));
+                endReached = true;
+            }
             return 0;
         }
     }
