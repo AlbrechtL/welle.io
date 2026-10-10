@@ -94,6 +94,15 @@ void Socket::close()
     sock = INVALID_SOCKET;
 }
 
+void Socket::shutdown()
+{
+#if defined(_WIN32)
+    ::shutdown(sock, SD_BOTH);
+#else
+    ::shutdown(sock, SHUT_RDWR);
+#endif
+}
+
 bool Socket::valid() const
 {
     return sock != (int) INVALID_SOCKET;

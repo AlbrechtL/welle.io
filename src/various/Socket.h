@@ -39,10 +39,6 @@
     #include <winsock2.h>
     #include <ws2tcpip.h>
     #include <windows.h>
-
-    #ifndef MSG_NOSIGNAL
-    # define MSG_NOSIGNAL 0
-    #endif
 #else
     #include <sys/socket.h>
     #include <netinet/in.h>
@@ -57,6 +53,10 @@
     #define INVALID_SOCKET (-1)
 #endif
 
+#ifndef MSG_NOSIGNAL
+# define MSG_NOSIGNAL 0
+#endif
+
 class Socket {
     public:
         Socket() = default;
@@ -67,6 +67,8 @@ class Socket {
         Socket& operator=(Socket&& other);
 
         void close();
+        // Wakes up a blocking recv() in another thread
+        void shutdown();
         bool valid() const;
 
         // Binds to any address

@@ -34,6 +34,7 @@
 #define __RTL_TCP_CLIENT
 
 #include <array>
+#include <atomic>
 #include <string>
 #include <thread>
 #include <mutex>
@@ -84,11 +85,12 @@ private:
     void receiveAndReconnect(void);
     void networkBufferCopy(void);
     void handleDisconnect(void);
+    void joinThreads(void);
 
     std::mutex mutex;
     Socket sock;
     std::thread receiveThread;
-    bool agcRunning = false;
+    std::atomic<bool> agcRunning{false};
     std::thread agcThread;
     std::thread networkBufferThread;
 
@@ -102,8 +104,8 @@ private:
     RingBuffer<uint8_t> sampleBuffer;
     RingBuffer<uint8_t> sampleNetworkBuffer;
     RingBuffer<uint8_t> spectrumSampleBuffer;
-    bool connected = false;
-    bool rtlsdrRunning = false;
+    std::atomic<bool> connected{false};
+    std::atomic<bool> rtlsdrRunning{false};
     std::string serverAddress = "127.0.0.1";
     uint16_t serverPort = 1234;
 

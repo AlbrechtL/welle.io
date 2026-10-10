@@ -103,13 +103,13 @@ bool CRTL_TCP_Client::restart(void)
         return true;
     }
 
+    // Threads of a previous run that ended by a failed connection
+    joinThreads();
+
     rtlsdrRunning = true;
 
     networkBufferThread = std::thread(&CRTL_TCP_Client::networkBufferCopy, this);
-    networkBufferThread.detach();
-
     receiveThread = std::thread(&CRTL_TCP_Client::receiveAndReconnect, this);
-    receiveThread.detach();
 
     // Wait so that the other thread has a chance to establish the connection
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
@@ -132,27 +132,40 @@ void CRTL_TCP_Client::stop(void)
 
     std::unique_lock<std::mutex> lock(mutex);
 
-    // Close connection
-    sock.close();
-
     agcRunning = false;
     rtlsdrRunning = false;
 
+    // Wake up the receive thread, the socket is closed after it is joined
+    if (sock.valid()) {
+        sock.shutdown();
+    }
+
     lock.unlock();
+
+    // The threads use this object, so they have to end before it is deleted
+    joinThreads();
+
+    if (sock.valid()) {
+        sock.close();
+    }
+
+    connected = false;
+}
+
+void CRTL_TCP_Client::joinThreads(void)
+{
+    // The receive thread starts the AGC thread, so it is joined first
+    if (receiveThread.joinable()) {
+        receiveThread.join();
+    }
 
     if (agcThread.joinable()) {
         agcThread.join();
     }
 
-    if (receiveThread.joinable()) {
-        receiveThread.join();
-    }
-
     if (networkBufferThread.joinable()) {
         networkBufferThread.join();
     }
-
-    connected = false;
 }
 
 static int32_t read_convert_from_buffer(
@@ -328,8 +341,14 @@ void CRTL_TCP_Client::handleDisconnect()
 {
     connected = false;
     firstData = true;
-    radioController.onMessage(message_level_t::Error,
-            QT_TRANSLATE_NOOP("CRadioController", "RTL-TCP connection closed."));
+
+    // No message if the connection is closed by stop()
+    if (rtlsdrRunning) {
+        radioController.onMessage(message_level_t::Error,
+                QT_TRANSLATE_NOOP("CRadioController", "RTL-TCP connection closed."));
+    }
+
+    std::unique_lock<std::mutex> lock(mutex);
     sock.close();
 }
 
@@ -347,7 +366,8 @@ void CRTL_TCP_Client::sendCommand(uint8_t cmd, int32_t param)
     datagram[3] = (param >> ONE_BYTE) & 0xFF;
     datagram[2] = (param >> (2 * ONE_BYTE)) & 0xFF;
     datagram[1] = (param >> (3 * ONE_BYTE)) & 0xFF;
-    sock.send(datagram.data(), datagram.size(), 0);
+    // No SIGPIPE if the socket is shut down by stop() meanwhile
+    sock.send(datagram.data(), datagram.size(), MSG_NOSIGNAL);
 }
 
 void CRTL_TCP_Client::sendVFO(int32_t frequency)
@@ -435,6 +455,11 @@ void CRTL_TCP_Client::receiveAndReconnect()
     while (rtlsdrRunning) {
         std::unique_lock<std::mutex> lock(mutex);
 
+        // stop() may have been called while waiting for the lock
+        if (!rtlsdrRunning) {
+            break;
+        }
+
         if (!connected) {
             std::clog << "RTL_TCP_CLIENT: Try to connect to server " <<
                 serverAddress << ":" << serverPort << std::endl;
@@ -451,6 +476,9 @@ void CRTL_TCP_Client::receiveAndReconnect()
                     std::endl;
 
                 if (!agcRunning) {
+                    if (agcThread.joinable()) {
+                        agcThread.join();
+                    }
                     agcRunning = true;
                     agcThread = std::thread(&CRTL_TCP_Client::agcTimer, this);
                 }
