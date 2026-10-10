@@ -61,7 +61,8 @@ Rectangle {
 
     // Possibility to add options entries dynamically
     function addEntry(title, onTriggered) {
-        var obj = menuItem.createObject(menu, {text: title})
+        // Menu is no Item, insertItem() moves the entry into it
+        var obj = menuItem.createObject(root, {text: title})
         obj.triggered.connect(onTriggered)
         menu.insertItem(0, obj) // Put it to first position
     }
