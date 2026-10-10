@@ -60,7 +60,7 @@ else()
 endif()
 
 if(BUILD_WELLE_IO)
-    find_package(Qt6 COMPONENTS Widgets Quick QuickControls2 Multimedia Charts Qml REQUIRED)
+    find_package(Qt6 COMPONENTS Widgets Quick QuickControls2 Multimedia Charts Qml Svg REQUIRED)
     set(CMAKE_AUTOMOC ON)
     if(ANDROID AND Qt6Core_VERSION VERSION_LESS 6.8.0)
         # Woraround for QTBUG-106466
@@ -277,6 +277,7 @@ set(backend_sources
 
 set(welle_io_sources
     src/welle-gui/main.cpp
+    src/welle-gui/app_setup.cpp
     src/welle-gui/audio_output.cpp
     src/welle-gui/mot_image_provider.cpp
     src/welle-gui/gui_helper.cpp
@@ -482,6 +483,7 @@ if(BUILD_WELLE_IO)
       welle
       Threads::Threads
       Qt6::Core Qt6::Widgets Qt6::Multimedia Qt6::Charts Qt6::Qml Qt6::Quick Qt6::QuickControls2
+      Qt6::Svg # SVG icons, makes the deployment tools ship the SVG plugins
     )
 
     if(APPLE AND WITH_APP_BUNDLE)

@@ -23,41 +23,17 @@
 
 // Starts the complete QML user interface like main.cpp does, with the
 // settings pointing to the synthetic ODR recording, and checks that the
-// stations show up without any QML warnings.
+// stations show up without any QML warnings. The detailed UI tests are in
+// gui/ui.
 
-#include <memory>
-
-#include <QIcon>
 #include <QJSValue>
-#include <QMutex>
-#include <QQmlApplicationEngine>
-#include <QQmlContext>
-#include <QQuickStyle>
-#include <QSettings>
-#include <QTranslator>
 
 #include "expectations.h"
-#include "gui_helper.h"
 #include "gui_test_main.h"
 #include "radio_controller.h"
-#include "waterfallitem.h"
+#include "ui_app.h"
 
 static const QString clipId = "odr_dabmod";
-
-// Collects QML warnings and errors from all threads
-static QMutex qmlMessagesMutex;
-static QStringList qmlMessages;
-static QtMessageHandler previousHandler = nullptr;
-
-static void messageHandler(QtMsgType type, const QMessageLogContext& context, const QString& msg)
-{
-    const bool fromQml = (context.file && QString(context.file).startsWith("qrc:/")) || msg.startsWith("qrc:/");
-    if (type != QtDebugMsg && type != QtInfoMsg && fromQml) {
-        QMutexLocker lock(&qmlMessagesMutex);
-        qmlMessages << msg;
-    }
-    previousHandler(type, context, msg);
-}
 
 class QmlSmokeTests : public QObject
 {
@@ -73,105 +49,47 @@ private slots:
     void noQmlWarnings();
 
 private:
-    QVariantMap commandLineOptions;
-    std::unique_ptr<CRadioController> radioController;
-    std::unique_ptr<CGUIHelper> guiHelper;
-    std::unique_ptr<QQmlApplicationEngine> engine;
-    QTranslator* translator = nullptr;
-    QString clipFile;
-
-    QObject* root() const { return engine->rootObjects().value(0); }
+    UiApp app;
 };
 
 void QmlSmokeTests::initTestCase()
 {
     hideDebugOutput();
 
-    const QString missing = missingTestData();
+    const QString missing = app.useClip(clipId);
     if (!missing.isEmpty())
         QSKIP(qPrintable(missing));
-
-    QJsonObject clip;
-    for (const auto& value : loadManifest()["clips"].toArray()) {
-        if (value.toObject()["id"].toString() == clipId)
-            clip = value.toObject();
-    }
-    if (clip.isEmpty())
-        QFAIL(qPrintable("Clip " + clipId + " is not in the manifest"));
-    if (!missingClip(clip).isEmpty())
-        QSKIP(qPrintable(missingClip(clip)));
-    clipFile = clipPath(clip);
-
-    // What the user would have chosen in the settings: RAW file input
-    QSettings settings;
-    settings.setValue("device", 5);
-    settings.setValue("enableAutoSdr", false);
-    settings.setValue("rawFile", clipFile);
-    settings.setValue("rawFileFormat", 0);  // auto
-    settings.sync();
-
-    previousHandler = qInstallMessageHandler(messageHandler);
-
-    // Same setup as main.cpp
-    translator = new QTranslator;
-    CGUIHelper::loadTranslationFile(translator, CGUIHelper::mapToLanguage("auto"));
-    QCoreApplication::installTranslator(translator);
-
-    qmlRegisterType<WaterfallItem>("io.welle", 1, 0, "Waterfall");
-    qRegisterMetaType<mot_file_t>("mot_file_t");
-
-    QStringList themePaths = QIcon::themeSearchPaths();
-    themePaths << ":/icons/welle_io_icons";
-    QIcon::setThemeSearchPaths(themePaths);
-    QIcon::setThemeName("welle_io_icons");
-
-    radioController = std::make_unique<CRadioController>(commandLineOptions);
-    radioController->setVolume(0);
-    QQuickStyle::setStyle("Universal");
-
-    guiHelper = std::make_unique<CGUIHelper>(radioController.get());
-    guiHelper->setTranslator(translator);
-
-    engine = std::make_unique<QQmlApplicationEngine>();
-    engine->rootContext()->setContextProperty("guiHelper", guiHelper.get());
-    engine->rootContext()->setContextProperty("radioController", radioController.get());
-    engine->addImageProvider(QLatin1String("SLS"), guiHelper->motImageProvider);
 }
 
 void QmlSmokeTests::cleanupTestCase()
 {
-    engine.reset();
-    guiHelper.reset();
-    radioController.reset();
-    if (previousHandler)
-        qInstallMessageHandler(previousHandler);
+    app.stop();
 }
 
 void QmlSmokeTests::loadsMainView()
 {
-    engine->load(QUrl("qrc:/QML/MainView.qml"));
-    QVERIFY(root());
-    QCOMPARE(root()->property("title").toString(), QString("welle.io"));
+    QVERIFY(app.start());
+    QCOMPARE(app.root()->property("title").toString(), QString("welle.io"));
 
     qInfo() << "MainView.qml loaded";
 }
 
 void QmlSmokeTests::opensRawFileFromSettings()
 {
-    QTRY_COMPARE_WITH_TIMEOUT(radioController->property("deviceId").value<CDeviceID>(), CDeviceID::RAWFILE, 5000);
-    QVERIFY(radioController->property("deviceName").toString().contains(QFileInfo(clipFile).fileName()));
+    QTRY_COMPARE_WITH_TIMEOUT(app.radio()->property("deviceId").value<CDeviceID>(), CDeviceID::RAWFILE, 5000);
+    QVERIFY(app.radio()->property("deviceName").toString().contains(QFileInfo(app.clipFile()).fileName()));
 
     qInfo().noquote() << "The settings pages opened the input device:"
-                      << radioController->property("deviceName").toString();
+                      << app.radio()->property("deviceName").toString();
 }
 
 void QmlSmokeTests::showsStations()
 {
-    QObject* stationList = root()->findChild<QObject*>("stationList");
+    QObject* stationList = app.find("stationList");
     QVERIFY(stationList);
 
     // Same as the "Start station scan" menu entry
-    QMetaObject::invokeMethod(radioController.get(), "startScan");
+    QMetaObject::invokeMethod(app.radio(), "startScan");
 
     QTRY_COMPARE_WITH_TIMEOUT(stationList->property("count").toInt(), 2, 20000);
 
@@ -189,8 +107,8 @@ void QmlSmokeTests::showsStations()
 
 void QmlSmokeTests::noQmlWarnings()
 {
-    QMutexLocker lock(&qmlMessagesMutex);
-    QVERIFY2(qmlMessages.isEmpty(), qPrintable(qmlMessages.join("\n")));
+    const QStringList messages = UiApp::takeQmlMessages();
+    QVERIFY2(messages.isEmpty(), qPrintable(messages.join("\n")));
 
     qInfo() << "No QML warnings or errors";
 }

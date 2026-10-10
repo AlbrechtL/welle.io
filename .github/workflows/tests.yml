@@ -70,6 +70,9 @@ jobs:
         run: cmake --build build --parallel
 
       - name: Test
+        env:
+          # Screenshots of the UI tests, for reviewing the user interface
+          WELLE_TEST_SCREENSHOT_DIR: ${{ github.workspace }}/build/ui-screenshots
         run: ctest --test-dir build --output-on-failure --output-junit junit-ctest.xml --parallel 2
 
       - name: Upload test results
@@ -78,4 +81,12 @@ jobs:
         with:
           name: test-results
           path: build/junit-ctest.xml
+          if-no-files-found: ignore
+
+      - name: Upload UI screenshots
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ui-screenshots
+          path: build/ui-screenshots
           if-no-files-found: ignore

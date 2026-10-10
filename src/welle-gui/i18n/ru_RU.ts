@@ -2,6 +2,39 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="ru_RU">
 <context>
+    <name>AboutPage</name>
+    <message>
+        <location filename="../QML/pages/AboutPage.qml" line="+36"/>
+        <source>About</source>
+        <translation type="unfinished">О программе</translation>
+    </message>
+    <message>
+        <location line="+33"/>
+        <source>Open source DAB and DAB+ software defined radio</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+30"/>
+        <source>Versions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Authors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Thanks</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Licenses</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ActivityResultReceiver</name>
     <message>
         <location filename="../android_rtl_sdr.cpp" line="+178"/>
@@ -12,13 +45,105 @@
 <context>
     <name>AirspySettings</name>
     <message>
-        <location filename="../QML/settingpages/AirspySettings.qml" line="+12"/>
+        <location filename="../QML/settings/devices/AirspySettings.qml" line="+35"/>
         <source>Airspy settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+15"/>
         <source>Enable bias tee</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>AppBar</name>
+    <message>
+        <location filename="../QML/app/AppBar.qml" line="+69"/>
+        <source>Main menu</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Open the navigation menu</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Back</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+19"/>
+        <source>Stop</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Play</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Stop playback</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Stop scan</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Start playback</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <location line="+5"/>
+        <location line="+61"/>
+        <source>Volume</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-65"/>
+        <source>Show volume slider</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Mute or unmute</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <location line="+45"/>
+        <source>Unmute</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-45"/>
+        <location line="+45"/>
+        <source>Mute</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>AppearanceSettings</name>
+    <message>
+        <location filename="../QML/settings/AppearanceSettings.qml" line="+38"/>
+        <source>Appearance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <location line="+12"/>
+        <source>Theme</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <location line="+14"/>
+        <source>Accent color</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -43,66 +168,51 @@
 <context>
     <name>CGUIHelper</name>
     <message>
-        <location filename="../gui_helper.cpp" line="+66"/>
-        <location line="+633"/>
+        <location filename="../gui_helper.cpp" line="+67"/>
+        <location line="+647"/>
         <source>Mi&amp;nimize</source>
         <translation type="unfinished">Св&amp;ернуть</translation>
     </message>
     <message>
-        <location line="-630"/>
-        <location line="+631"/>
+        <location line="-644"/>
+        <location line="+645"/>
         <source>Ma&amp;ximize</source>
         <translation type="unfinished">Ра&amp;звернуть</translation>
     </message>
     <message>
-        <location line="-628"/>
-        <location line="+629"/>
+        <location line="-642"/>
+        <location line="+643"/>
         <source>&amp;Restore</source>
         <translation type="unfinished">&amp;Восстановить</translation>
     </message>
     <message>
-        <location line="-626"/>
-        <location line="+627"/>
+        <location line="-640"/>
+        <location line="+641"/>
         <source>&amp;Quit</source>
         <translation type="unfinished">&amp;Выход</translation>
     </message>
     <message>
-        <location line="-521"/>
+        <location line="-533"/>
         <source>Git revision</source>
         <translation type="unfinished">Git ревизия</translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="+9"/>
         <source>QT version</source>
         <translation type="unfinished">Версия QT</translation>
     </message>
     <message>
-        <location line="+638"/>
-        <source> (unavailable, fallback to Default)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+4"/>
-        <source>Style of system</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source> (Recommended)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="-649"/>
+        <location line="-10"/>
         <source>welle.io version</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="+9"/>
         <source>Built on</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+118"/>
+        <location line="+125"/>
         <source>The program will keep running in the system tray. To terminate the program, choose &quot;%1&quot; in the context menu of the system tray entry.</source>
         <translation type="unfinished">Программа будет продолжать работать в системном трее. Чтобы завершить программу, выберите &quot;%1&quot; в контекстном меню программы в системном трее.</translation>
     </message>
@@ -116,30 +226,30 @@
 <context>
     <name>CRadioController</name>
     <message>
-        <location filename="../radio_controller.cpp" line="+646"/>
+        <location filename="../radio_controller.cpp" line="+656"/>
         <source>Unknown</source>
         <translation>Неизвестный</translation>
     </message>
     <message>
         <location line="-203"/>
-        <location line="+222"/>
+        <location line="+223"/>
         <source>No Station</source>
         <translation>Нет каналов</translation>
     </message>
     <message>
-        <location line="-260"/>
+        <location line="-261"/>
         <source>RAW File</source>
         <translation>RAW файл</translation>
     </message>
     <message>
         <location line="+14"/>
-        <location line="+485"/>
+        <location line="+486"/>
         <source>Scanning</source>
         <translation>Сканирование</translation>
     </message>
     <message>
-        <location line="-481"/>
-        <location line="+506"/>
+        <location line="-482"/>
+        <location line="+507"/>
         <source>Found channels</source>
         <translation>Найдено каналов</translation>
     </message>
@@ -171,38 +281,38 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+113"/>
+        <location line="+111"/>
         <source>End of file, restarting</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="+7"/>
         <source>End of file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+88"/>
+        <location line="+89"/>
         <source>Unknown RAW file format</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../input/rtl_sdr.cpp" line="+306"/>
-        <location filename="../../input/rtl_tcp.cpp" line="+549"/>
+        <location filename="../../input/rtl_sdr.cpp" line="+333"/>
+        <location filename="../../input/rtl_tcp.cpp" line="+568"/>
         <source>ADC overload. Maybe you are using a too high gain.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+96"/>
+        <location line="+101"/>
         <source>RTL-SDR is unplugged.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../input/rtl_tcp.cpp" line="-240"/>
+        <location filename="../../input/rtl_tcp.cpp" line="-236"/>
         <source>RTL-TCP connection closed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+141"/>
+        <location line="+137"/>
         <source>Connection failed to server </source>
         <translation type="unfinished"></translation>
     </message>
@@ -212,22 +322,22 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="-563"/>
+        <location filename="../radio_controller.cpp" line="-570"/>
         <source>Error while opening file </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+488"/>
+        <location line="+494"/>
         <source>Playing last station</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../input/rtl_sdr.cpp" line="-260"/>
+        <location filename="../../input/rtl_sdr.cpp" line="-286"/>
         <source>Error opening RTL-SDR. See log for details.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="-385"/>
+        <location filename="../radio_controller.cpp" line="-391"/>
         <source>Playback failed</source>
         <translation type="unfinished"></translation>
     </message>
@@ -240,25 +350,32 @@
 <context>
     <name>ChannelSettings</name>
     <message>
-        <location filename="../QML/settingpages/ChannelSettings.qml" line="+29"/>
         <source>Automatic start playing last station</source>
-        <translation>Автоматически начинать воспроизведение последнего канала</translation>
+        <translation type="vanished">Автоматически начинать воспроизведение последнего канала</translation>
+    </message>
+</context>
+<context>
+    <name>ConsoleCard</name>
+    <message>
+        <location filename="../QML/expert/ConsoleCard.qml" line="+34"/>
+        <source>Console Output</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+8"/>
-        <source>Display station name in the window title</source>
+        <location line="+58"/>
+        <source>Warning: The console view can slow down the complete app!</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>ConstellationGraph</name>
+    <name>ConstellationCard</name>
     <message>
-        <location filename="../QML/expertviews/ConstellationGraph.qml" line="+10"/>
+        <location filename="../QML/expert/ConstellationCard.qml" line="+33"/>
         <source>Constellation Diagram</source>
         <translation type="unfinished">Диаграмма созвездий</translation>
     </message>
     <message>
-        <location line="+30"/>
+        <location line="+45"/>
         <source>DQPSK Angle [Degree]</source>
         <translation type="unfinished">ДКФМ угол (градусы)</translation>
     </message>
@@ -266,6 +383,21 @@
         <location line="+7"/>
         <source>Subcarrier</source>
         <translation type="unfinished">Поднесущая</translation>
+    </message>
+</context>
+<context>
+    <name>ConstellationGraph</name>
+    <message>
+        <source>Constellation Diagram</source>
+        <translation type="obsolete">Диаграмма созвездий</translation>
+    </message>
+    <message>
+        <source>DQPSK Angle [Degree]</source>
+        <translation type="obsolete">ДКФМ угол (градусы)</translation>
+    </message>
+    <message>
+        <source>Subcarrier</source>
+        <translation type="obsolete">Поднесущая</translation>
     </message>
 </context>
 <context>
@@ -673,7 +805,7 @@
     </message>
     <message>
         <location line="+1"/>
-        <source>Ukranian</source>
+        <source>Ukrainian</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -948,29 +1080,665 @@
     </message>
 </context>
 <context>
-    <name>ExpertSettings</name>
+    <name>Dashboard</name>
     <message>
-        <location filename="../QML/settingpages/ExpertSettings.qml" line="+33"/>
-        <source>Global</source>
-        <translation type="unfinished">Основные параметры</translation>
+        <location filename="../QML/expert/Dashboard.qml" line="+52"/>
+        <source>Service Overview</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+4"/>
-        <source>Expert mode</source>
-        <translation type="unfinished">Расширенный режим</translation>
+        <location line="+1"/>
+        <source>Service Details</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+6"/>
-        <source>Backend</source>
+        <location line="+1"/>
+        <source>MOT Slide Show</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Spectrum</source>
+        <translation type="unfinished">Спектральная диаграмма</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Impulse Response</source>
+        <translation type="unfinished">Импульсная характеристика</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Constellation Diagram</source>
+        <translation type="unfinished">Диаграмма созвездий</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Null Symbol</source>
+        <translation type="unfinished">Пустой символ</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Console Output</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>RAW Recorder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+201"/>
+        <source>Add</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Add a view</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>DashboardCard</name>
+    <message>
+        <location filename="../QML/expert/DashboardCard.qml" line="+106"/>
+        <source>%1 menu</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Show %1 menu</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Minimize</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Maximize</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+7"/>
+        <source>Move up</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Move down</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Remove</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ExpertSettings</name>
+    <message>
+        <source>Global</source>
+        <translation type="obsolete">Основные параметры</translation>
+    </message>
+    <message>
+        <location filename="../QML/settings/ExpertSettings.qml" line="+53"/>
+        <source>Expert mode</source>
+        <translation type="unfinished">Расширенный режим</translation>
+    </message>
+    <message>
+        <location line="+10"/>
         <source>Enable coarse corrector (for receivers with &gt;1kHz error)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location line="+10"/>
+        <location line="+19"/>
+        <source>Coarse corrector algorithm</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-54"/>
+        <source>Expert</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+16"/>
+        <source>Technical views like spectrum and constellation diagram, manual channel selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+46"/>
+        <source>Enable TII decoding to console log (increases CPU usage)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <location line="+19"/>
+        <source>FFT Window placement algorithm</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>GeneralSettings</name>
+    <message>
+        <location filename="../QML/settings/GeneralSettings.qml" line="+38"/>
+        <source>General</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+20"/>
+        <source>Full screen mode</source>
+        <translation type="unfinished">Полноэкранный режим</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <location line="+0"/>
+        <location line="+24"/>
+        <source>Language</source>
+        <translation type="unfinished">Язык</translation>
+    </message>
+</context>
+<context>
+    <name>GlobalSettings</name>
+    <message>
+        <source>Full screen mode</source>
+        <translation type="vanished">Полноэкранный режим</translation>
+    </message>
+    <message>
+        <source>Automatic RF gain</source>
+        <translation type="vanished">Автоматический уровень</translation>
+    </message>
+    <message>
+        <source>Manual gain</source>
+        <translation type="vanished">Ручной уровень</translation>
+    </message>
+    <message>
+        <source>Value: </source>
+        <translation type="vanished">Значение: </translation>
+    </message>
+    <message>
+        <source>Language</source>
+        <translation type="obsolete">Язык</translation>
+    </message>
+    <message>
+        <source>SoapySDR</source>
+        <translation type="obsolete">Параметры SoapySDR</translation>
+    </message>
+</context>
+<context>
+    <name>HomePage</name>
+    <message>
+        <location filename="../QML/pages/HomePage.qml" line="+60"/>
+        <source>Expert views</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Now playing</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ImpulseResponseGraph</name>
+    <message>
+        <source>Impulse Response</source>
+        <translation type="obsolete">Импульсная характеристика</translation>
+    </message>
+    <message>
+        <source>Samples</source>
+        <translation type="obsolete">Отсчеты</translation>
+    </message>
+</context>
+<context>
+    <name>MainView</name>
+    <message>
+        <source>Settings</source>
+        <translation type="vanished">Настройки</translation>
+    </message>
+    <message>
+        <source>Expert Settings</source>
+        <translation type="vanished">Расширенные настройки</translation>
+    </message>
+    <message>
+        <source>About</source>
+        <translation type="vanished">О программе</translation>
+    </message>
+    <message>
+        <source>Exit</source>
+        <translation type="vanished">Выход</translation>
+    </message>
+    <message>
+        <source>Clear station list</source>
+        <translation type="obsolete">Очистка списка каналов</translation>
+    </message>
+    <message>
+        <source>Manual channel</source>
+        <translation type="obsolete">Ручной поиск</translation>
+    </message>
+    <message>
+        <source>Spectrum</source>
+        <translation type="obsolete">Спектральная диаграмма</translation>
+    </message>
+    <message>
+        <source>Impulse Response</source>
+        <translation type="obsolete">Импульсная характеристика</translation>
+    </message>
+    <message>
+        <source>Constellation Diagram</source>
+        <translation type="obsolete">Диаграмма созвездий</translation>
+    </message>
+    <message>
+        <source>Null Symbol</source>
+        <translation type="obsolete">Пустой символ</translation>
+    </message>
+</context>
+<context>
+    <name>MiniPlayer</name>
+    <message>
+        <location filename="../QML/home/MiniPlayer.qml" line="+65"/>
+        <source>Now playing: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Open the player</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+59"/>
+        <source>Stop</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Play</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>NavDrawer</name>
+    <message>
+        <location filename="../QML/app/NavDrawer.qml" line="+115"/>
+        <source>All stations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Favorites</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Settings</source>
+        <translation type="unfinished">Настройки</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>About</source>
+        <translation type="unfinished">О программе</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Exit</source>
+        <translation type="unfinished">Выход</translation>
+    </message>
+</context>
+<context>
+    <name>NullSymbolGraph</name>
+    <message>
+        <source>Null Symbol</source>
+        <translation type="obsolete">Пустой символ</translation>
+    </message>
+</context>
+<context>
+    <name>RTLSDRSettings</name>
+    <message>
+        <location filename="../QML/settings/devices/RTLSDRSettings.qml" line="+35"/>
+        <source>rtl-sdr settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Enable bias tee (not supported by all dongles)</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>RTLTCPSettings</name>
+    <message>
+        <location filename="../QML/settings/devices/RTLTCPSettings.qml" line="+36"/>
+        <source>rtl-tcp settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+19"/>
+        <location line="+6"/>
+        <source>Host name or IP-address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-2"/>
+        <source>Enter host name or IP address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <location line="+7"/>
+        <source>IP-Port</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-3"/>
+        <source>Enter IP-port</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>IP address</source>
+        <translation type="obsolete">IP адрес</translation>
+    </message>
+</context>
+<context>
+    <name>RawFileSettings</name>
+    <message>
+        <location filename="../QML/settings/devices/RawFileSettings.qml" line="+38"/>
+        <source>RAW file settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Please choose a file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location line="+17"/>
+        <source>Open RAW file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Currently shown under Android</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <location line="+11"/>
+        <source>Sample format</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-32"/>
+        <source>Selected file:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>RawRecorderCard</name>
+    <message>
+        <location filename="../QML/expert/RawRecorderCard.qml" line="+35"/>
+        <source>I/Q RAW Recorder (experimental)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+18"/>
+        <location line="+12"/>
+        <source>Ring buffer length [s]</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Ring buffer size (roughly): </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Save ring buffer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Init</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ReceiverSettings</name>
+    <message>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="+88"/>
+        <source>Receiver</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Automatic RF gain</source>
+        <translation type="unfinished">Автоматический уровень</translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <location line="+20"/>
+        <source>Manual gain</source>
+        <translation type="unfinished">Ручной уровень</translation>
+    </message>
+    <message>
+        <location line="-19"/>
+        <source>Value: </source>
+        <translation type="unfinished">Значение: </translation>
+    </message>
+    <message>
+        <location line="+26"/>
+        <source>Auto detect</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Use the first receiver that is found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <location line="+30"/>
+        <source>Input device</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SoapySDR</source>
+        <translation type="obsolete">Параметры SoapySDR</translation>
+    </message>
+</context>
+<context>
+    <name>ServiceDetails</name>
+    <message>
+        <source>Device</source>
+        <translation type="obsolete">Устройство</translation>
+    </message>
+    <message>
+        <source>Current channel</source>
+        <translation type="obsolete">Текущий канал</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation type="obsolete">Ок</translation>
+    </message>
+    <message>
+        <source>Not synced</source>
+        <translation type="obsolete">Не синхронизировано</translation>
+    </message>
+    <message>
+        <source>FIC CRC</source>
+        <translation type="obsolete">FIC CRC</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation type="obsolete">Ошибка</translation>
+    </message>
+    <message>
+        <source>Frame errors</source>
+        <translation type="obsolete">Ошибки кадра</translation>
+    </message>
+    <message>
+        <source>Frequency correction</source>
+        <translation type="obsolete">Коррекция частоты</translation>
+    </message>
+    <message>
+        <source>SNR</source>
+        <translation type="obsolete">Шум</translation>
+    </message>
+    <message>
+        <source>RS errors</source>
+        <translation type="obsolete">Ошибки RS</translation>
+    </message>
+    <message>
+        <source>AAC errors</source>
+        <translation type="obsolete">Ошибки AAC</translation>
+    </message>
+</context>
+<context>
+    <name>ServiceDetailsCard</name>
+    <message>
+        <location filename="../QML/expert/ServiceDetailsCard.qml" line="+38"/>
+        <source>Service Details</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+19"/>
+        <source>Device</source>
+        <translation type="unfinished">Устройство</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Current channel</source>
+        <translation type="unfinished">Текущий канал</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Frequency correction</source>
+        <translation type="unfinished">Коррекция частоты</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>SNR</source>
+        <translation type="unfinished">Шум</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Frame sync</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <location line="+5"/>
+        <location line="+10"/>
+        <source>OK</source>
+        <translation type="unfinished">Ок</translation>
+    </message>
+    <message>
+        <location line="-15"/>
+        <source>Not synced</source>
+        <translation type="unfinished">Не синхронизировано</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>FIC CRC</source>
+        <translation type="unfinished">FIC CRC</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Error</source>
+        <translation type="unfinished">Ошибка</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Frame errors</source>
+        <translation type="unfinished">Ошибки кадра</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>RS errors</source>
+        <translation type="unfinished">Ошибки RS</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Corrected Error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Uncorrected Error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>AAC errors</source>
+        <translation type="unfinished">Ошибки AAC</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Ensemble ID</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>DAB date and time</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ServiceOverviewCard</name>
+    <message>
+        <location filename="../QML/expert/ServiceOverviewCard.qml" line="+35"/>
+        <source>Service Overview</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Settings</name>
+    <message>
+        <location filename="../QML/settings/AppearanceSettings.qml" line="-24"/>
+        <source>Light</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Dark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>System</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>Teal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Indigo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Deep Orange</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Purple</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Blue</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Green</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QML/settings/ExpertSettings.qml" line="-48"/>
         <source>GetMiddle</source>
         <translation type="unfinished"></translation>
     </message>
@@ -985,17 +1753,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+12"/>
-        <source>Coarse corrector algorithm</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+8"/>
-        <source>Enable TII decoding to console log (increases CPU usage)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+16"/>
+        <location line="+35"/>
         <source>Strongest Peak</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1010,55 +1768,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+12"/>
-        <source>FFT Window placement algorithm</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>GlobalSettings</name>
-    <message>
-        <location filename="../QML/settingpages/GlobalSettings.qml" line="+75"/>
-        <source>Full screen mode</source>
-        <translation>Полноэкранный режим</translation>
-    </message>
-    <message>
-        <location line="+44"/>
-        <source>Automatic RF gain</source>
-        <translation>Автоматический уровень</translation>
-    </message>
-    <message>
-        <location line="+20"/>
-        <source>Manual gain</source>
-        <translation>Ручной уровень</translation>
-    </message>
-    <message>
-        <location line="+6"/>
-        <source>Value: </source>
-        <translation>Значение: </translation>
-    </message>
-    <message>
-        <location line="-74"/>
-        <source>Global settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+37"/>
-        <source>Language</source>
-        <translation type="unfinished">Язык</translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <source>Global receiver settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+55"/>
-        <source>Auto detect</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+17"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="-22"/>
         <source>None</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1087,625 +1797,181 @@
         <source>RAW file</source>
         <translation type="unfinished"></translation>
     </message>
+</context>
+<context>
+    <name>SettingsPage</name>
     <message>
-        <location line="+38"/>
-        <source>Style settings</source>
+        <location filename="../QML/pages/SettingsPage.qml" line="+40"/>
+        <source>Settings</source>
+        <translation type="unfinished">Настройки</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>General</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+17"/>
-        <source>Style. Restart to apply.</source>
+        <location line="+1"/>
+        <source>Stations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Receiver</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Appearance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Expert</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SignalIndicator</name>
+    <message>
+        <location filename="../QML/home/SignalIndicator.qml" line="+77"/>
+        <source>No signal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Signal %1 of 5 (SNR %2 dB)</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SlideShow</name>
+    <message>
+        <location filename="../QML/home/SlideShow.qml" line="+102"/>
+        <source>Slide show</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+39"/>
+        <source>Latest</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+13"/>
-        <source>Light</source>
+        <source>Previous slide</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>Dark</source>
+        <location line="+8"/>
+        <source>Next slide</source>
         <translation type="unfinished"></translation>
     </message>
+</context>
+<context>
+    <name>SlideShowCard</name>
     <message>
-        <location line="+1"/>
-        <source>System</source>
+        <location filename="../QML/expert/SlideShowCard.qml" line="+34"/>
+        <source>MOT Slide Show</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+4"/>
-        <source>Theme</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="-24"/>
-        <source>Style changed. Please restart welle.io.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ImpulseResponseGraph</name>
-    <message>
-        <location filename="../QML/expertviews/ImpulseResponseGraph.qml" line="+12"/>
-        <source>Impulse Response</source>
-        <translation type="unfinished">Импульсная характеристика</translation>
-    </message>
-    <message>
-        <location line="+11"/>
-        <source>Samples</source>
-        <translation type="unfinished">Отсчеты</translation>
-    </message>
-</context>
-<context>
-    <name>InfoPage</name>
-    <message>
-        <location filename="../QML/InfoPage.qml" line="+21"/>
-        <source>Versions</source>
+        <source>Please choose a folder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+5"/>
-        <source>Authors</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+5"/>
-        <source>Thanks</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+5"/>
-        <source>Licenses</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>MainView</name>
-    <message>
-        <location filename="../QML/MainView.qml" line="+474"/>
-        <source>Settings</source>
-        <translation>Настройки</translation>
-    </message>
-    <message>
-        <location line="+8"/>
-        <source>Expert Settings</source>
-        <translation>Расширенные настройки</translation>
-    </message>
-    <message>
-        <location line="+8"/>
-        <source>About</source>
-        <translation>О программе</translation>
-    </message>
-    <message>
-        <location line="+8"/>
-        <source>Exit</source>
-        <translation>Выход</translation>
-    </message>
-    <message>
-        <location line="+36"/>
-        <source>All stations</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Favorites</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+40"/>
-        <source>Start station scan</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+12"/>
-        <source>Stop station scan</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+12"/>
-        <source>Clear station list</source>
-        <translation type="unfinished">Очистка списка каналов</translation>
-    </message>
-    <message>
-        <location line="+8"/>
-        <source>Station settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+13"/>
-        <source>No stations in list</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+144"/>
-        <source>Manual channel</source>
-        <translation type="unfinished">Ручной поиск</translation>
-    </message>
-    <message>
-        <location line="+61"/>
-        <source>Service Overview</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+6"/>
-        <source>Service Details</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+6"/>
-        <source>MOT Slide Show</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+6"/>
-        <source>Spectrum</source>
-        <translation type="unfinished">Спектральная диаграмма</translation>
-    </message>
-    <message>
-        <location line="+6"/>
-        <source>Impulse Response</source>
-        <translation type="unfinished">Импульсная характеристика</translation>
-    </message>
-    <message>
-        <location line="+6"/>
-        <source>Constellation Diagram</source>
-        <translation type="unfinished">Диаграмма созвездий</translation>
-    </message>
-    <message>
-        <location line="+6"/>
-        <source>Null Symbol</source>
-        <translation type="unfinished">Пустой символ</translation>
-    </message>
-    <message>
-        <location line="+6"/>
-        <source>Console Output</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+6"/>
-        <source>RAW Recorder</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="-735"/>
-        <source>Stations list</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Display or hide stations list</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+42"/>
-        <location line="+5"/>
-        <source>Stop</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="-5"/>
-        <location line="+5"/>
-        <source>Play</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="-4"/>
-        <source>Stop playback</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+0"/>
-        <source>Stop scan</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+0"/>
-        <source>Start playback</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+102"/>
-        <source>Volume (%1)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+5"/>
-        <source>Volume</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Toggle volume slider</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+131"/>
-        <source>Volume set to %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+41"/>
-        <source>Main menu</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Show the main menu</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+103"/>
-        <source>Stations menu</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Show stations menu</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+67"/>
-        <source>File</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+182"/>
-        <source>Add</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Add a view</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>MotView</name>
-    <message>
-        <location filename="../QML/MotView.qml" line="+11"/>
-        <source>MOT Slide Show</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+18"/>
         <source>Save all images</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>NullSymbolGraph</name>
+    <name>Snackbar</name>
     <message>
-        <location filename="../QML/expertviews/NullSymbolGraph.qml" line="+10"/>
-        <source>Null Symbol</source>
-        <translation type="unfinished">Пустой символ</translation>
-    </message>
-</context>
-<context>
-    <name>RTLSDRSettings</name>
-    <message>
-        <location filename="../QML/settingpages/RTLSDRSettings.qml" line="+12"/>
-        <source>rtl-sdr settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+9"/>
-        <source>Enable bias tee (not supported by all dongles)</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>RTLTCPSettings</name>
-    <message>
-        <location filename="../QML/settingpages/RTLTCPSettings.qml" line="+11"/>
-        <source>rtl-tcp settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+16"/>
-        <source>Use host name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+10"/>
-        <source>IP address</source>
-        <translation type="unfinished">IP адрес</translation>
-    </message>
-    <message>
-        <location line="+31"/>
-        <source>IP port</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+16"/>
-        <source>Enter host name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+4"/>
-        <source>Host name</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>RadioView</name>
-    <message>
-        <location filename="../QML/RadioView.qml" line="+12"/>
-        <source>Service Overview</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>RawFileSettings</name>
-    <message>
-        <location filename="../QML/settingpages/RawFileSettings.qml" line="+12"/>
-        <source>RAW file settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+30"/>
-        <source>Open RAW file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+4"/>
-        <source>Currently shown under Android</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+23"/>
-        <source>Selected file:</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>RawRecorder</name>
-    <message>
-        <location filename="../QML/expertviews/RawRecorder.qml" line="+11"/>
-        <source>I/Q RAW Recorder (experimental)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+8"/>
-        <source>Ring buffer length [s]</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+14"/>
-        <source>Save ring buffer</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+0"/>
-        <source>Init</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+14"/>
-        <source>Ring buffer size (roughly): </source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ServiceDetails</name>
-    <message>
-        <location filename="../QML/expertviews/ServiceDetails.qml" line="+10"/>
-        <source>Service Details</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <source>Device</source>
-        <translation type="unfinished">Устройство</translation>
-    </message>
-    <message>
-        <location line="+5"/>
-        <source>Current channel</source>
-        <translation type="unfinished">Текущий канал</translation>
-    </message>
-    <message>
-        <location line="+22"/>
-        <source>Frame sync</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <location line="+14"/>
-        <location line="+33"/>
-        <source>OK</source>
-        <translation type="unfinished">Ок</translation>
-    </message>
-    <message>
-        <location line="-47"/>
-        <source>Not synced</source>
-        <translation type="unfinished">Не синхронизировано</translation>
-    </message>
-    <message>
-        <location line="+13"/>
-        <source>FIC CRC</source>
-        <translation type="unfinished">FIC CRC</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Error</source>
-        <translation type="unfinished">Ошибка</translation>
-    </message>
-    <message>
-        <location line="+14"/>
-        <source>Frame errors</source>
-        <translation type="unfinished">Ошибки кадра</translation>
-    </message>
-    <message>
-        <location line="-46"/>
-        <source>Frequency correction</source>
-        <translation type="unfinished">Коррекция частоты</translation>
-    </message>
-    <message>
-        <location line="+5"/>
-        <source>SNR</source>
-        <translation type="unfinished">Шум</translation>
-    </message>
-    <message>
-        <location line="+57"/>
-        <source>RS errors</source>
-        <translation type="unfinished">Ошибки RS</translation>
-    </message>
-    <message>
-        <location line="+16"/>
-        <source>AAC errors</source>
-        <translation type="unfinished">Ошибки AAC</translation>
-    </message>
-    <message>
-        <location line="+6"/>
-        <source>DAB date and time</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="-18"/>
-        <source>Corrected Error</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+0"/>
-        <source>Uncorrected Error</source>
+        <location filename="../QML/app/Snackbar.qml" line="+132"/>
+        <source>Dismiss</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>SoapySDRSettings</name>
     <message>
-        <location filename="../QML/settingpages/SoapySDRSettings.qml" line="+11"/>
+        <location filename="../QML/settings/devices/SoapySDRSettings.qml" line="+35"/>
         <source>SoapySDR settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+13"/>
+        <location line="+9"/>
+        <location line="+6"/>
         <source>Antenna</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="-2"/>
         <source>Enter antenna</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location line="+7"/>
         <location line="+6"/>
         <source>Clock source</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="-2"/>
         <source>Enter clock source</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location line="+7"/>
         <location line="+6"/>
         <source>Driver arguments</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="-2"/>
         <source>Enter driver arguments</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="+9"/>
         <source>Apply</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>SpectrumGraph</name>
+    <name>SpectrumCard</name>
     <message>
-        <location filename="../QML/expertviews/SpectrumGraph.qml" line="+12"/>
+        <location filename="../QML/expert/SpectrumCard.qml" line="+43"/>
         <source>Spectrum</source>
         <translation type="unfinished">Спектральная диаграмма</translation>
     </message>
-</context>
-<context>
-    <name>StationDelegate</name>
     <message>
-        <location filename="../QML/components/StationDelegate.qml" line="+155"/>
-        <source>Remove station from favorites</source>
-        <translation type="unfinished"></translation>
+        <location line="+1"/>
+        <location line="+4"/>
+        <source>Frequency</source>
+        <translation type="unfinished">Частота</translation>
     </message>
     <message>
-        <location line="+0"/>
-        <source>Add station to favorites</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>StationListModel</name>
-    <message>
-        <location filename="../QML/components/StationListModel.qml" line="+96"/>
-        <source>Last played station not found.
-Select a station to start playback.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>TextOutputView</name>
-    <message>
-        <location filename="../QML/expertviews/TextOutputView.qml" line="+11"/>
-        <source>Console Output</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+58"/>
-        <source>Warning: The console view can slow down the complete app!</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ViewBaseFrame</name>
-    <message>
-        <location filename="../QML/components/ViewBaseFrame.qml" line="+130"/>
-        <source>Minimize</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+0"/>
-        <source>Maximize</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+9"/>
-        <source>Remove</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="-70"/>
-        <source>%1 title bar</source>
-        <translation type="unfinished"></translation>
+        <location line="-3"/>
+        <source>Impulse Response</source>
+        <translation type="unfinished">Импульсная характеристика</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>%1 title bar to drag the element</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+48"/>
-        <source>%1 menu</source>
-        <translation type="unfinished"></translation>
+        <source>Samples</source>
+        <translation type="unfinished">Отсчеты</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Show %1 menu</source>
-        <translation type="unfinished"></translation>
+        <source>Null Symbol</source>
+        <translation type="unfinished">Пустой символ</translation>
     </message>
 </context>
 <context>
-    <name>WDialog</name>
+    <name>SpectrumChart</name>
     <message>
-        <location filename="../QML/components/WDialog.qml" line="+32"/>
-        <source>‹</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>WSpectrum</name>
-    <message>
-        <location filename="../QML/components/WSpectrum.qml" line="+15"/>
+        <location filename="../QML/expert/SpectrumChart.qml" line="+40"/>
         <source>Amplitude</source>
         <translation type="unfinished">Амплитуда</translation>
     </message>
@@ -1726,9 +1992,162 @@ Select a station to start playback.</source>
     </message>
 </context>
 <context>
+    <name>SpectrumGraph</name>
+    <message>
+        <source>Spectrum</source>
+        <translation type="obsolete">Спектральная диаграмма</translation>
+    </message>
+</context>
+<context>
+    <name>StationDelegate</name>
+    <message>
+        <location filename="../QML/home/StationDelegate.qml" line="+139"/>
+        <source>Choose ensemble</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+30"/>
+        <source>Remove station from favorites</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Add station to favorites</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>StationListModel</name>
+    <message>
+        <location filename="../QML/models/StationListModel.qml" line="+139"/>
+        <source>Last played station not found.
+Select a station to start playback.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>StationListPane</name>
+    <message>
+        <location filename="../QML/home/StationListPane.qml" line="+73"/>
+        <source>All stations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Favorites</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+24"/>
+        <source>Stations menu</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Show stations menu</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <location line="+106"/>
+        <source>Start station scan</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-98"/>
+        <source>Stop station scan</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Clear station list</source>
+        <translation type="unfinished">Очистка списка каналов</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Station settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Scanning channel %1 of %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>Station scan progress</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+28"/>
+        <source>No stations in list</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>No favorites yet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Search for stations on all channels.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Mark a station in the list of all stations with the star to add it here.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+24"/>
+        <source>Show all stations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+28"/>
+        <source>File</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+26"/>
+        <location line="+25"/>
+        <source>Manual channel</source>
+        <translation type="unfinished">Ручной поиск</translation>
+    </message>
+</context>
+<context>
+    <name>StationSettings</name>
+    <message>
+        <location filename="../QML/settings/StationSettings.qml" line="+38"/>
+        <source>Stations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Automatic start playing last station</source>
+        <translation type="unfinished">Автоматически начинать воспроизведение последнего канала</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Display station name in the window title</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>WSpectrum</name>
+    <message>
+        <source>Amplitude</source>
+        <translation type="obsolete">Амплитуда</translation>
+    </message>
+    <message>
+        <source>Frequency</source>
+        <translation type="obsolete">Частота</translation>
+    </message>
+</context>
+<context>
     <name>main</name>
     <message>
-        <location filename="../main.cpp" line="+112"/>
+        <location filename="../main.cpp" line="+83"/>
         <location line="+5"/>
         <source>File name</source>
         <translation>Имя файла</translation>
@@ -1741,16 +2160,6 @@ Select a station to start playback.</source>
     <message>
         <location line="-5"/>
         <source>Records DAB frames (*.mp2) or DAB+ superframes with RS coding (*.dab). This file can be used to analyse X-PAD data with XPADxpert</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+10"/>
-        <source>Qt Quick Controls Style for the 1st launch</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Style name</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

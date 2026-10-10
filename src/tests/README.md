@@ -13,6 +13,13 @@ They are built with CMake and run with CTest.
 | `backend.recording.<clip>` | `backend` | Decodes one recording and compares everything with its expectations, see below | yes |
 | `gui.radiocontroller` | `gui` | The C++ part of the GUI: opens a recording, scans, plays DAB+ and DAB, DLS and slide | yes |
 | `gui.qml_smoke` | `gui` | Starts the complete QML user interface, checks the station list and that QML reports no warnings | yes |
+| `gui.ui.playback` | `gui` | Scan with the button of the empty list, play every service by clicking it: station, ensemble, DAB/DAB+, audio format, DLS, slide; play/stop button, keyboard shortcuts, volume | yes |
+| `gui.ui.stations` | `gui` | Empty state, scan from the menu, favorites, lists after a restart, clearing the list, long list of the recording with the most services | yes |
+| `gui.ui.navigation` | `gui` | Navigation drawer: open/close (button, Esc, click outside), station lists, settings and about pages, back, exit | yes |
+| `gui.ui.settings` | `gui` | Settings page: existing settings shown and applied, switches and combo boxes by clicking, expert mode, input device stays open, section index, restart | yes |
+| `gui.ui.dashboard` | `gui` | Expert views: old layout taken over, every view added, graphs get data, maximize, move, remove, restart | yes |
+| `gui.ui.messages` | `gui` | Snackbar: error until dismissed, info disappears, queue, fits a phone sized window | yes |
+| `gui.ui.responsive` | `gui` | Layout from 360 to 1600 px in light and dark theme, mini player and player page | yes |
 
 There is one `backend.recording.<clip>` test per recording, e.g.
 `backend.recording.odr_dabmod` or `backend.recording.uk_11d_2020`. Without
@@ -159,6 +166,92 @@ decoded its first audio.
 The GUI tests use the `offscreen` Qt platform and their own empty settings,
 so they don't need a display and don't touch the settings of an installed
 welle.io. They play audio with volume 0.
+
+## UI tests
+
+The `gui.ui.*` tests (`gui/ui/tst_ui_<area>.cpp`) click through the real user
+interface (`MainView.qml`) while a recording plays as RAW file input, like a
+user would: with mouse clicks and key presses on the window, not by calling
+QML functions. What they expect from the recording (station names, ensemble,
+DAB or DAB+, bitrate, DLS, slides) comes from the manifest.
+
+Every test function also fails if QML printed a warning or an error.
+Generic checks run at many window sizes:
+
+* nothing sticks out of the window (`UiApp::itemsOutsideWindow()`),
+* every visible control has an accessible name for screen readers
+  (`UiApp::controlsWithoutAccessibleName()`),
+* a click only counts if it reaches the item: a test can't click something
+  that is covered by a drawer, a popup or is still moving in.
+
+### How the tests find elements
+
+The QML code sets a fixed, untranslated `objectName` on everything a test
+looks at or clicks, e.g.
+
+| objectName | Element |
+|---|---|
+| `navButton`, `backButton`, `navDrawer`, `navItem.<destination>`, `navBadge.<list>` | App bar and navigation drawer. The drawer chooses the station list (`UiTestCase::showList()`) |
+| `playStopButton`, `volumeButton`, `volumeSlider` | Playback in the app bar |
+| `stationListPane`, `stationListTitle`, `stationListCount`, `stationListView`, `stationRow`, `favoriteButton`, `scanButton` | Station list. A `stationRow` has the properties `sid`, `channel` and `label` |
+| `nowPlaying.station`, `.ensemble`, `.dls`, `.dabType`, `.audioMode`, `.slide`, `.signal` | What plays |
+| `miniPlayer`, `detailPane`, `homePage` (property `layoutMode`) | Responsive layout |
+| `settingsPage`, `setting.<QSettings key>`, `settingsIndex.<section>` | Settings |
+| `dashboard`, `card.<view>`, `cardMenuButton`, `addViewButton`, `addView.<view>` | Expert views |
+| `snackbar`, `snackbar.text`, `snackbar.close` | Messages |
+
+New UI elements that a test should use get an `objectName` in the same way.
+Properties of a delegate must not be named like a role of its model (e.g.
+`stationName`), that hides the role.
+
+### Writing a test
+
+`UiTestCase` (`gui/ui/ui_test_case.h`) is the base class, `UiApp`
+(`gui/ui/ui_app.h`) starts the user interface and drives it:
+
+```cpp
+void UiExampleTests::initTestCase()
+{
+    UI_START_WITH_CLIP(app, "odr_dabmod");   // Skips without test data
+}
+
+void UiExampleTests::playsFirstStation()
+{
+    QVERIFY(scanStations());
+    const QJsonObject service = app.services().first();
+    QVERIFY(app.click(stationRow(service["sid"].toInt())));
+    QTRY_COMPARE_WITH_TIMEOUT(app.text("nowPlaying.station"), service["label"].toString(), 10000);
+    app.resize(360, 640);
+    UI_VERIFY_EMPTY(app.itemsOutsideWindow(), "Items outside the window");
+    app.screenshot("example");
+}
+```
+
+A new file `gui/ui/tst_ui_<area>.cpp` becomes the CTest test `gui.ui.<area>`
+when CMake runs again. `UiApp::restart()` closes and starts the user interface
+again with the same settings, `UiApp::writeSettings()` before `start()`
+simulates an existing installation.
+
+### Running, watching and screenshots
+
+| Command | Result |
+|---|---|
+| `ctest --test-dir build-tests -L gui` | All GUI tests |
+| `ctest --test-dir build-tests -R gui.ui.settings --output-on-failure` | One area |
+| `build-tests/src/tests/tst_ui_playback playsEachService` | One test function |
+| `QT_QPA_PLATFORM=xcb build-tests/src/tests/tst_ui_navigation` | Shows the window while the test clicks through it |
+| `WELLE_TEST_SCREENSHOT_DIR=/tmp/shots ctest --test-dir build-tests -L gui` | Saves screenshots of the important states as PNG |
+| `WELLE_TEST_LANGUAGE=de_DE.UTF-8 build-tests/src/tests/tst_ui_settings` | Runs the user interface in German (default: English) |
+| `QT_QUICK_BACKEND=software ctest --test-dir build-tests -L gui` | Uses the software renderer of Qt Quick |
+
+The screenshots are not compared with references, because fonts differ
+between systems; they are for looking at the user interface, e.g. in a pull
+request. GitHub Actions uploads them as the artifact `ui-screenshots`.
+
+The tests render with OpenGL if the system has it (also without a display,
+e.g. Mesa), so that they look like welle-io on a desktop with shadows.
+Otherwise Qt Quick's software renderer is used, which can't draw shader
+effects; welle-io then shows borders instead of shadows. Both have to pass.
 
 ## GitHub Actions
 

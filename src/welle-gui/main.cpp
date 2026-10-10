@@ -30,7 +30,6 @@
 #include <unistd.h>
 
 #include <QApplication>
-#include <QQuickStyle>
 #include <QCoreApplication>
 #include <QCommandLineParser>
 #include <QDebug>
@@ -38,13 +37,12 @@
 #include <QSettings>
 #include <QIcon>
 #include <QQmlApplicationEngine>
-#include <QQmlContext>
 
 #include "version.h"
+#include "app_setup.h"
 #include "radio_controller.h"
 #include "gui_helper.h"
 #include "debug_output.h"
-#include "waterfallitem.h"
 
 int main(int argc, char** argv)
 {
@@ -66,20 +64,10 @@ int main(int argc, char** argv)
     qDebug() << "main: Platform name" <<  app.platformName();
 
     //Initialise translation
-    QTranslator *translator = new QTranslator;
-    QString lang = CGUIHelper::mapToLanguage("auto");
-    CGUIHelper::loadTranslationFile(translator, lang);
-    QCoreApplication::installTranslator(translator);
+    QTranslator *translator = installTranslator();
 
-    // Register custom types
-    qmlRegisterType<WaterfallItem>("io.welle", 1, 0, "Waterfall");
-    qRegisterMetaType<mot_file_t>("mot_file_t");
-
-    // Set icon path
-    QStringList themePaths = QIcon::themeSearchPaths();
-    themePaths << ":/icons/welle_io_icons";
-    QIcon::setThemeSearchPaths(themePaths);
-    QIcon::setThemeName("welle_io_icons");
+    // QML types, icon theme and style
+    setupQmlEnvironment();
 
     // Set icon
     app.setWindowIcon(QIcon(":/icons/icon.png"));
@@ -115,9 +103,6 @@ int main(int argc, char** argv)
     commandLineOptions["dumpFileName"] = optionParser.value(dumpFileName);
 
     CRadioController radioController(commandLineOptions);
-    
-    // Set the Qt Quick Style.
-    QQuickStyle::setStyle("Universal");
 
     QSettings settings;
     settings.setValue("version", QString(CURRENT_VERSION));
@@ -138,17 +123,10 @@ int main(int argc, char** argv)
 
     // Create new QML application, set some required options and load the QML file
     QQmlApplicationEngine engine;
-    QQmlContext* rootContext = engine.rootContext();
-
-    // Connect C++ code to QML GUI
-    rootContext->setContextProperty("guiHelper", &guiHelper);
-    rootContext->setContextProperty("radioController", &radioController);
+    setupQmlEngine(engine, &guiHelper, &radioController);
 
     // Load main page
     engine.load(QUrl("qrc:/QML/MainView.qml"));
-
-    // Add MOT slideshow provider
-    engine.addImageProvider(QLatin1String("SLS"), guiHelper.motImageProvider);
 
     // Run application
     app.exec();

@@ -65,6 +65,7 @@ class CRadioController :
     Q_PROPERTY(QDateTime dateTime MEMBER currentDateTime NOTIFY dateTimeChanged)
     Q_PROPERTY(bool isPlaying MEMBER isPlaying NOTIFY isPlayingChanged)
     Q_PROPERTY(bool isChannelScan MEMBER isChannelScan NOTIFY isChannelScanChanged)
+    Q_PROPERTY(int numberOfChannels READ getNumberOfChannels CONSTANT) // Channels of a scan, see scanProgress()
     Q_PROPERTY(bool isSync MEMBER isSync NOTIFY isSyncChanged)
     Q_PROPERTY(bool isFICCRC MEMBER isFICCRC NOTIFY isFICCRCChanged)
     Q_PROPERTY(bool isSignal MEMBER isSignal NOTIFY isSignalChanged)
@@ -103,6 +104,8 @@ public:
     ~CRadioController();
     CRadioController(const CRadioController&) = delete;
     void operator=(const CRadioController&) = delete;
+
+    int getNumberOfChannels() const { return NUMBEROFCHANNELS; }
 
     void closeDevice();
     CDeviceID openDevice(CDeviceID deviceId, bool force = false, QVariant param1 = QVariant(), QVariant param2 = QVariant());

@@ -76,9 +76,13 @@ endif()
 
 # GUI tests: the C++ part of welle.io and its QML user interface, without
 # a display (offscreen platform). They are built from the same sources as
-# the welle-io executable, without main.cpp.
+# the welle-io executable, without main.cpp. These sources are compiled
+# once into an object library that every GUI test links.
+#
+# gui.ui.<area>: automated tests of the user interface, which click
+# through MainView.qml while a recording plays (gui/ui/tst_ui_<area>.cpp).
 if(TARGET welle-io)
-    find_package(Qt6 COMPONENTS Widgets Quick QuickControls2 Multimedia Charts Qml REQUIRED)
+    find_package(Qt6 COMPONENTS Widgets Quick QuickControls2 QuickTest Multimedia Charts Qml Svg REQUIRED)
 
     set(gui_test_sources)
     foreach(source ${welle_io_sources})
@@ -89,18 +93,39 @@ if(TARGET welle-io)
     endforeach()
     qt_add_resources(gui_test_sources ${CMAKE_SOURCE_DIR}/src/welle-gui/resources.qrc)
 
-    foreach(name radiocontroller qml_smoke)
-        add_executable(tst_${name} gui/tst_${name}.cpp gui/gui_test_main.h ${gui_test_sources})
-        target_include_directories(tst_${name} PRIVATE ${CMAKE_SOURCE_DIR}/src/welle-gui)
-        target_link_libraries(tst_${name} PRIVATE welle_test_common Qt6::Test
-            Qt6::Widgets Qt6::Multimedia Qt6::Charts Qt6::Qml Qt6::Quick Qt6::QuickControls2)
-        if(TARGET Qt6::DBus)
-            target_link_libraries(tst_${name} PRIVATE Qt6::DBus)
-        endif()
-        add_test(NAME gui.${name} COMMAND tst_${name})
-        set_tests_properties(gui.${name} PROPERTIES
+    add_library(welle_gui_objects OBJECT ${gui_test_sources}
+        gui/gui_test_main.h
+        gui/ui/ui_app.cpp
+        gui/ui/ui_app.h
+        gui/ui/ui_test_case.h)
+    target_include_directories(welle_gui_objects PUBLIC
+        ${CMAKE_SOURCE_DIR}/src/welle-gui
+        ${CMAKE_CURRENT_SOURCE_DIR}/gui
+        ${CMAKE_CURRENT_SOURCE_DIR}/gui/ui)
+    target_link_libraries(welle_gui_objects PUBLIC welle_test_common Qt6::Test Qt6::QuickTest
+        Qt6::Widgets Qt6::Multimedia Qt6::Charts Qt6::Qml Qt6::Quick Qt6::QuickControls2 Qt6::Svg)
+    if(TARGET Qt6::DBus)
+        target_link_libraries(welle_gui_objects PUBLIC Qt6::DBus)
+    endif()
+
+    function(add_gui_test name source)
+        add_executable(tst_${name} ${source})
+        target_link_libraries(tst_${name} PRIVATE welle_gui_objects)
+        string(REPLACE "ui_" "ui." test_name "${name}")
+        add_test(NAME gui.${test_name} COMMAND tst_${name})
+        set_tests_properties(gui.${test_name} PROPERTIES
             LABELS gui
-            TIMEOUT 300
+            TIMEOUT 600
             ENVIRONMENT "QT_QPA_PLATFORM=offscreen;WELLE_TEST_DATA_DIR=${test_data_dir}")
+    endfunction()
+
+    add_gui_test(radiocontroller gui/tst_radiocontroller.cpp)
+    add_gui_test(qml_smoke gui/tst_qml_smoke.cpp)
+
+    file(GLOB ui_tests RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} CONFIGURE_DEPENDS gui/ui/tst_ui_*.cpp)
+    foreach(source ${ui_tests})
+        get_filename_component(name ${source} NAME_WE)
+        string(REPLACE "tst_" "" name "${name}")
+        add_gui_test(${name} ${source})
     endforeach()
 endif()

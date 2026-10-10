@@ -2,6 +2,39 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="fr_FR">
 <context>
+    <name>AboutPage</name>
+    <message>
+        <location filename="../QML/pages/AboutPage.qml" line="+36"/>
+        <source>About</source>
+        <translation type="unfinished">A propos de</translation>
+    </message>
+    <message>
+        <location line="+33"/>
+        <source>Open source DAB and DAB+ software defined radio</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+30"/>
+        <source>Versions</source>
+        <translation type="unfinished">Versions</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Authors</source>
+        <translation type="unfinished">Auteurs</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Thanks</source>
+        <translation type="unfinished">Remerciements</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Licenses</source>
+        <translation type="unfinished">Licences</translation>
+    </message>
+</context>
+<context>
     <name>ActivityResultReceiver</name>
     <message>
         <location filename="../android_rtl_sdr.cpp" line="+178"/>
@@ -12,7 +45,7 @@
 <context>
     <name>AirspySettings</name>
     <message>
-        <location filename="../QML/settingpages/AirspySettings.qml" line="+12"/>
+        <location filename="../QML/settings/devices/AirspySettings.qml" line="+35"/>
         <source>Airspy settings</source>
         <translation>Paramètres Airspy</translation>
     </message>
@@ -20,6 +53,110 @@
         <location line="+15"/>
         <source>Enable bias tee</source>
         <translation>Activer le té de polarisation</translation>
+    </message>
+</context>
+<context>
+    <name>AppBar</name>
+    <message>
+        <location filename="../QML/app/AppBar.qml" line="+69"/>
+        <source>Main menu</source>
+        <translation type="unfinished">Menu principal</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Open the navigation menu</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Back</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+19"/>
+        <source>Stop</source>
+        <translation type="unfinished">Stop</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Play</source>
+        <translation type="unfinished">Lecture</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Stop playback</source>
+        <translation type="unfinished">Arrêter la lecture</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Stop scan</source>
+        <translation type="unfinished">Arrêter la recherche</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Start playback</source>
+        <translation type="unfinished">Démarrer la lecture</translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <location line="+5"/>
+        <location line="+61"/>
+        <source>Volume</source>
+        <translation type="unfinished">Volume</translation>
+    </message>
+    <message>
+        <location line="-65"/>
+        <source>Show volume slider</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Mute or unmute</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <location line="+45"/>
+        <source>Unmute</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-45"/>
+        <location line="+45"/>
+        <source>Mute</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>AppearanceSettings</name>
+    <message>
+        <location filename="../QML/settings/AppearanceSettings.qml" line="+38"/>
+        <source>Appearance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <location line="+12"/>
+        <source>Theme</source>
+        <translation type="unfinished">Thème</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <translation type="obsolete">Clair</translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation type="obsolete">Sombre</translation>
+    </message>
+    <message>
+        <source>System</source>
+        <translation type="obsolete">Système</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <location line="+14"/>
+        <source>Accent color</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -43,41 +180,41 @@
 <context>
     <name>CGUIHelper</name>
     <message>
-        <location filename="../gui_helper.cpp" line="+66"/>
-        <location line="+633"/>
+        <location filename="../gui_helper.cpp" line="+67"/>
+        <location line="+647"/>
         <source>Mi&amp;nimize</source>
         <translation>Mi&amp;nimiser</translation>
     </message>
     <message>
-        <location line="-630"/>
-        <location line="+631"/>
+        <location line="-644"/>
+        <location line="+645"/>
         <source>Ma&amp;ximize</source>
         <translation>Ma&amp;ximiser</translation>
     </message>
     <message>
-        <location line="-628"/>
-        <location line="+629"/>
+        <location line="-642"/>
+        <location line="+643"/>
         <source>&amp;Restore</source>
         <translation>&amp;Restaurer</translation>
     </message>
     <message>
-        <location line="-626"/>
-        <location line="+627"/>
+        <location line="-640"/>
+        <location line="+641"/>
         <source>&amp;Quit</source>
         <translation>&amp;Quitter</translation>
     </message>
     <message>
-        <location line="-522"/>
+        <location line="-534"/>
         <source>welle.io version</source>
         <translation>Version de welle.io</translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="+9"/>
         <source>Built on</source>
         <translation>Compilé le</translation>
     </message>
     <message>
-        <location line="+118"/>
+        <location line="+125"/>
         <source>The program will keep running in the system tray. To terminate the program, choose &quot;%1&quot; in the context menu of the system tray entry.</source>
         <translation>Le programme continue de tourner dans la boite à miniatures. Pour le terminer, choisir &quot;%1&quot; dans le menu contextuel de la boîte à miniatures.</translation>
     </message>
@@ -88,46 +225,43 @@
         <translation>Quitter</translation>
     </message>
     <message>
-        <location line="-126"/>
+        <location line="-138"/>
         <source>Git revision</source>
         <translation>Révision Git</translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="+9"/>
         <source>QT version</source>
         <translation>Version QT</translation>
     </message>
     <message>
-        <location line="+638"/>
         <source> (unavailable, fallback to Default)</source>
-        <translation> (non disponible, utilise &quot;Default&quot; à la place)</translation>
+        <translation type="vanished"> (non disponible, utilise &quot;Default&quot; à la place)</translation>
     </message>
     <message>
-        <location line="+4"/>
         <source>Style of system</source>
-        <translation>Style du système</translation>
+        <translation type="vanished">Style du système</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source> (Recommended)</source>
-        <translation> (Recommandé)</translation>
+        <translation type="vanished"> (Recommandé)</translation>
     </message>
 </context>
 <context>
     <name>CRadioController</name>
     <message>
-        <location filename="../radio_controller.cpp" line="+646"/>
+        <location filename="../radio_controller.cpp" line="+656"/>
         <source>Unknown</source>
         <translation>Inconnu</translation>
     </message>
     <message>
         <location line="-203"/>
-        <location line="+222"/>
+        <location line="+223"/>
         <source>No Station</source>
         <translation>Pas de station</translation>
     </message>
     <message>
-        <location line="-513"/>
+        <location line="-520"/>
         <source>Error while opening file </source>
         <translation>Erreur à l&apos;ouverture du fichier </translation>
     </message>
@@ -142,30 +276,30 @@
         <translation>Arrêté</translation>
     </message>
     <message>
-        <location line="+129"/>
+        <location line="+135"/>
         <source>RAW File</source>
         <translation>Fichier RAW</translation>
     </message>
     <message>
         <location line="+14"/>
-        <location line="+485"/>
+        <location line="+486"/>
         <source>Scanning</source>
         <translation>Recherche</translation>
     </message>
     <message>
-        <location line="-481"/>
-        <location line="+506"/>
+        <location line="-482"/>
+        <location line="+507"/>
         <source>Found channels</source>
         <translatorcomment>Contexte: nombre stations trouvées durant la recherche de stations en scannant tous les canaux. Donc c&apos;est bien &quot;station&quot; qu&apos;il faut mettre, et pas &quot;canal&quot;</translatorcomment>
         <translation>Stations trouvées</translation>
     </message>
     <message>
-        <location line="-289"/>
+        <location line="-290"/>
         <source>Playing last station</source>
         <translation>Lecture de la dernière station</translation>
     </message>
     <message>
-        <location line="+75"/>
+        <location line="+76"/>
         <source>Radio device is not ready or does not exist.</source>
         <translation>Le récepteur radio n&apos;est pas prêt ou n&apos;existe pas.</translation>
     </message>
@@ -193,45 +327,45 @@
         <translation>Ouverture du fichier impossible </translation>
     </message>
     <message>
-        <location line="+113"/>
+        <location line="+111"/>
         <source>End of file, restarting</source>
         <translatorcomment>doute sur la traduction précédente de &quot;lecture en boucle&quot;</translatorcomment>
         <translation type="unfinished">Fin du fichier, recommence depuis le début</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="+7"/>
         <source>End of file</source>
         <translation>Fin du fichier</translation>
     </message>
     <message>
-        <location line="+88"/>
+        <location line="+89"/>
         <source>Unknown RAW file format</source>
         <translation>Format de fichier RAW inconnu</translation>
     </message>
     <message>
-        <location filename="../../input/rtl_sdr.cpp" line="+142"/>
+        <location filename="../../input/rtl_sdr.cpp" line="+148"/>
         <source>Error opening RTL-SDR. See log for details.</source>
         <translation type="unfinished">Erreur à l&apos;ouverture de RTL-SDR. Voir le journal pour les détails.</translation>
     </message>
     <message>
-        <location line="+164"/>
-        <location filename="../../input/rtl_tcp.cpp" line="+549"/>
+        <location line="+185"/>
+        <location filename="../../input/rtl_tcp.cpp" line="+568"/>
         <source>ADC overload. Maybe you are using a too high gain.</source>
         <translatorcomment>Saturation ou Surcharge ? Saturation semble préférable.</translatorcomment>
         <translation type="unfinished">Saturation ADC. Peut-être le gain est trop élevé.</translation>
     </message>
     <message>
-        <location line="+96"/>
+        <location line="+101"/>
         <source>RTL-SDR is unplugged.</source>
         <translation>RTL-SDR est débranché.</translation>
     </message>
     <message>
-        <location filename="../../input/rtl_tcp.cpp" line="-240"/>
+        <location filename="../../input/rtl_tcp.cpp" line="-236"/>
         <source>RTL-TCP connection closed.</source>
         <translation>Connexion RTL-TCP fermée.</translation>
     </message>
     <message>
-        <location line="+141"/>
+        <location line="+137"/>
         <source>Connection failed to server </source>
         <translation>Echec de connexion au serveur </translation>
     </message>
@@ -244,32 +378,58 @@
 <context>
     <name>ChannelSettings</name>
     <message>
-        <location filename="../QML/settingpages/ChannelSettings.qml" line="+29"/>
         <source>Automatic start playing last station</source>
-        <translation>Lire automatiquement la dernière station</translation>
+        <translation type="vanished">Lire automatiquement la dernière station</translation>
     </message>
     <message>
-        <location line="+8"/>
         <source>Display station name in the window title</source>
-        <translation>Afficher le nom de la station dans le titre de la fenêtre</translation>
+        <translation type="vanished">Afficher le nom de la station dans le titre de la fenêtre</translation>
+    </message>
+</context>
+<context>
+    <name>ConsoleCard</name>
+    <message>
+        <location filename="../QML/expert/ConsoleCard.qml" line="+34"/>
+        <source>Console Output</source>
+        <translation type="unfinished">Sortie console</translation>
+    </message>
+    <message>
+        <location line="+58"/>
+        <source>Warning: The console view can slow down the complete app!</source>
+        <translation type="unfinished">Avertissement: la sortie console peut ralentir toute l&apos;appli !</translation>
+    </message>
+</context>
+<context>
+    <name>ConstellationCard</name>
+    <message>
+        <location filename="../QML/expert/ConstellationCard.qml" line="+33"/>
+        <source>Constellation Diagram</source>
+        <translation type="unfinished">Diagramme de constellation</translation>
+    </message>
+    <message>
+        <location line="+45"/>
+        <source>DQPSK Angle [Degree]</source>
+        <translation type="unfinished">Angle DQPSK [degrés]</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Subcarrier</source>
+        <translation type="unfinished">Sous-porteuse</translation>
     </message>
 </context>
 <context>
     <name>ConstellationGraph</name>
     <message>
-        <location filename="../QML/expertviews/ConstellationGraph.qml" line="+10"/>
         <source>Constellation Diagram</source>
-        <translation>Diagramme de constellation</translation>
+        <translation type="vanished">Diagramme de constellation</translation>
     </message>
     <message>
-        <location line="+30"/>
         <source>DQPSK Angle [Degree]</source>
-        <translation>Angle DQPSK [degrés]</translation>
+        <translation type="vanished">Angle DQPSK [degrés]</translation>
     </message>
     <message>
-        <location line="+7"/>
         <source>Subcarrier</source>
-        <translation>Sous-porteuse</translation>
+        <translation type="vanished">Sous-porteuse</translation>
     </message>
 </context>
 <context>
@@ -709,8 +869,12 @@
     </message>
     <message>
         <location line="+1"/>
+        <source>Ukrainian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Ukranian</source>
-        <translation>Ukrainien</translation>
+        <translation type="vanished">Ukrainien</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -984,167 +1148,257 @@
     </message>
 </context>
 <context>
-    <name>ExpertSettings</name>
+    <name>Dashboard</name>
     <message>
-        <location filename="../QML/settingpages/ExpertSettings.qml" line="+33"/>
-        <source>Global</source>
-        <translation>Global</translation>
+        <location filename="../QML/expert/Dashboard.qml" line="+52"/>
+        <source>Service Overview</source>
+        <translation type="unfinished">Aperçu du service</translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="+1"/>
+        <source>Service Details</source>
+        <translation type="unfinished">Détails du service</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>MOT Slide Show</source>
+        <translation type="unfinished">Diaporama MOT</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Spectrum</source>
+        <translation type="unfinished">Spectre</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Impulse Response</source>
+        <translation type="unfinished">Réponse impulsionnelle</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Constellation Diagram</source>
+        <translation type="unfinished">Diagramme de constellation</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Null Symbol</source>
+        <translation type="unfinished">Null Symbol</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Console Output</source>
+        <translation type="unfinished">Sortie console</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>RAW Recorder</source>
+        <translation type="unfinished">Enregistreur RAW I/Q</translation>
+    </message>
+    <message>
+        <location line="+201"/>
+        <source>Add</source>
+        <translation type="unfinished">Ajouter</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Add a view</source>
+        <translation type="unfinished">Ajouter une vue</translation>
+    </message>
+</context>
+<context>
+    <name>DashboardCard</name>
+    <message>
+        <location filename="../QML/expert/DashboardCard.qml" line="+106"/>
+        <source>%1 menu</source>
+        <translation type="unfinished">Menu de %1</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Show %1 menu</source>
+        <translation type="unfinished">Afficher le menu %1</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Minimize</source>
+        <translation type="unfinished">Minimiser</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Maximize</source>
+        <translation type="unfinished">Maximiser</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Move up</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Move down</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Remove</source>
+        <translation type="unfinished">Supprimer</translation>
+    </message>
+</context>
+<context>
+    <name>ExpertSettings</name>
+    <message>
+        <source>Global</source>
+        <translation type="vanished">Global</translation>
+    </message>
+    <message>
+        <location filename="../QML/settings/ExpertSettings.qml" line="+53"/>
         <source>Expert mode</source>
         <translation>Mode expert</translation>
     </message>
     <message>
-        <location line="+6"/>
         <source>Backend</source>
-        <translation type="unfinished">Sous-système (Backend)</translation>
+        <translation type="obsolete">Sous-système (Backend)</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+10"/>
         <source>Enable coarse corrector (for receivers with &gt;1kHz error)</source>
         <translatorcomment>coarse corrector = correction grossière ?</translatorcomment>
         <translation type="unfinished">Activer la correction grossière (pour récepteurs avec erreur &gt;1kHz)</translation>
     </message>
     <message>
-        <location line="+17"/>
-        <source>GetMiddle</source>
-        <translatorcomment>doute sur la traduction : &quot;Obtenir le milieu ?&quot; Moyen ? Centre</translatorcomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
         <source>CorrelatePRS</source>
         <translatorcomment>doute sur la traduction : &quot;Corréler PRS&quot;</translatorcomment>
-        <translation type="unfinished">Corréler PRS</translation>
+        <translation type="obsolete">Corréler PRS</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>PatternOfZeros</source>
         <translatorcomment>doute sur la traduction : &quot;Motif de zéros&quot;</translatorcomment>
-        <translation type="unfinished">Motif de zéros</translation>
+        <translation type="obsolete">Motif de zéros</translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+10"/>
+        <location line="+19"/>
         <source>Coarse corrector algorithm</source>
         <translatorcomment>coarse corrector = correction grossière ?</translatorcomment>
         <translation type="unfinished">Algorithme de correction grossière</translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location line="-54"/>
+        <source>Expert</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+16"/>
+        <source>Technical views like spectrum and constellation diagram, manual channel selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+46"/>
         <source>Enable TII decoding to console log (increases CPU usage)</source>
         <translation>Activer le décodage TII vers le log de la console (augmente l&apos;utilisation CPU)</translation>
     </message>
     <message>
-        <location line="+16"/>
         <source>Strongest Peak</source>
         <translatorcomment>doute sur la traduction : &quot;Pic le plus fort&quot; pour Peak utiliser Crête ou Pic</translatorcomment>
-        <translation type="unfinished">Crête la plus forte</translation>
+        <translation type="obsolete">Crête la plus forte</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Earliest Peak With Binning</source>
         <translatorcomment>doute sur la traduction pour Peak utiliser Crête ou Pic. Pour binning: Compartimentage</translatorcomment>
-        <translation type="unfinished">Crête la plus tôt avec compartimentage</translation>
+        <translation type="obsolete">Crête la plus tôt avec compartimentage</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Threshold Before Peak</source>
         <translatorcomment>doute sur la traduction : &quot;Seuil avant pic&quot; pour Peak utiliser Crête ou Pic. Pour threshold : Seuil</translatorcomment>
-        <translation type="unfinished">Seuil avant crête</translation>
+        <translation type="obsolete">Seuil avant crête</translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+10"/>
+        <location line="+19"/>
         <source>FFT Window placement algorithm</source>
         <translation>Algorithme de placement de la fenêtre FFT</translation>
     </message>
 </context>
 <context>
-    <name>GlobalSettings</name>
+    <name>GeneralSettings</name>
     <message>
-        <location filename="../QML/settingpages/GlobalSettings.qml" line="+71"/>
-        <source>Global settings</source>
-        <translation>Paramètres globaux</translation>
-    </message>
-    <message>
-        <location line="+4"/>
-        <source>Full screen mode</source>
-        <translation>Mode plein écran</translation>
-    </message>
-    <message>
-        <location line="+33"/>
-        <source>Language</source>
-        <translation>Langue</translation>
-    </message>
-    <message>
-        <location line="+134"/>
-        <source>Style changed. Please restart welle.io.</source>
-        <translation>Style changé. Veuillez redémarrer welle.io.</translation>
-    </message>
-    <message>
-        <location line="+18"/>
-        <source>Light</source>
-        <translation>Clair</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Dark</source>
-        <translation>Sombre</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>System</source>
-        <translation>Système</translation>
-    </message>
-    <message>
-        <location line="+4"/>
-        <source>Theme</source>
-        <translation>Thème</translation>
-    </message>
-    <message>
-        <location line="-151"/>
-        <source>Global receiver settings</source>
-        <translation>Paramètres globaux du récepteur</translation>
-    </message>
-    <message>
-        <location line="+4"/>
-        <source>Automatic RF gain</source>
-        <translation>Gain RF automatique</translation>
+        <location filename="../QML/settings/GeneralSettings.qml" line="+38"/>
+        <source>General</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+20"/>
+        <source>Full screen mode</source>
+        <translation type="unfinished">Mode plein écran</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <location line="+0"/>
+        <location line="+24"/>
+        <source>Language</source>
+        <translation type="unfinished">Langue</translation>
+    </message>
+</context>
+<context>
+    <name>GlobalSettings</name>
+    <message>
+        <source>Global settings</source>
+        <translation type="vanished">Paramètres globaux</translation>
+    </message>
+    <message>
+        <source>Full screen mode</source>
+        <translation type="vanished">Mode plein écran</translation>
+    </message>
+    <message>
+        <source>Language</source>
+        <translation type="vanished">Langue</translation>
+    </message>
+    <message>
+        <source>Style changed. Please restart welle.io.</source>
+        <translation type="vanished">Style changé. Veuillez redémarrer welle.io.</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <translation type="vanished">Clair</translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation type="vanished">Sombre</translation>
+    </message>
+    <message>
+        <source>System</source>
+        <translation type="vanished">Système</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation type="vanished">Thème</translation>
+    </message>
+    <message>
+        <source>Global receiver settings</source>
+        <translation type="vanished">Paramètres globaux du récepteur</translation>
+    </message>
+    <message>
+        <source>Automatic RF gain</source>
+        <translation type="vanished">Gain RF automatique</translation>
+    </message>
+    <message>
         <source>Manual gain</source>
-        <translation>Gain RF manuel</translation>
+        <translation type="vanished">Gain RF manuel</translation>
     </message>
     <message>
-        <location line="+6"/>
         <source>Value: </source>
-        <translation>Valeur : </translation>
+        <translation type="vanished">Valeur : </translation>
     </message>
     <message>
-        <location line="+25"/>
         <source>Auto detect</source>
-        <translation>Détection automatique</translation>
+        <translation type="vanished">Détection automatique</translation>
     </message>
     <message>
-        <location line="+18"/>
-        <source>Airspy</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>SoapySDR</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location line="+40"/>
         <source>Style settings</source>
-        <translation>Paramètres de style</translation>
+        <translation type="vanished">Paramètres de style</translation>
     </message>
     <message>
-        <location line="+17"/>
         <source>Style. Restart to apply.</source>
-        <translation>Style. Redémarrez pour appliquer.</translation>
+        <translation type="vanished">Style. Redémarrez pour appliquer.</translation>
     </message>
     <message>
         <source>Font settings</source>
@@ -1159,296 +1413,306 @@
         <translation type="obsolete">Police à chasse fixe : utiliser la police du système</translation>
     </message>
     <message>
-        <location line="-60"/>
         <source>None</source>
-        <translation>Aucun</translation>
+        <translation type="vanished">Aucun</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>rtl-sdr</source>
         <translatorcomment>minuscules ? majuscules ? Mis en majuscules pour harmoniser tout le logiciel</translatorcomment>
-        <translation type="unfinished">RTL-SDR</translation>
+        <translation type="obsolete">RTL-SDR</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>rtl-tcp</source>
         <translatorcomment>minuscules ? majuscules ? Mis en majuscules pour harmoniser tout le logiciel</translatorcomment>
-        <translation type="unfinished">RTL-TCP</translation>
+        <translation type="obsolete">RTL-TCP</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>RAW file</source>
-        <translation>Fichier RAW</translation>
+        <translation type="vanished">Fichier RAW</translation>
+    </message>
+</context>
+<context>
+    <name>HomePage</name>
+    <message>
+        <location filename="../QML/pages/HomePage.qml" line="+60"/>
+        <source>Expert views</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Now playing</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ImpulseResponseGraph</name>
     <message>
-        <location filename="../QML/expertviews/ImpulseResponseGraph.qml" line="+12"/>
         <source>Impulse Response</source>
-        <translation>Réponse impulsionnelle</translation>
+        <translation type="vanished">Réponse impulsionnelle</translation>
     </message>
     <message>
-        <location line="+11"/>
         <source>Samples</source>
-        <translation>Echantillon</translation>
+        <translation type="vanished">Echantillon</translation>
     </message>
 </context>
 <context>
     <name>InfoPage</name>
     <message>
-        <location filename="../QML/InfoPage.qml" line="+21"/>
         <source>Versions</source>
-        <translation>Versions</translation>
+        <translation type="vanished">Versions</translation>
     </message>
     <message>
-        <location line="+5"/>
         <source>Authors</source>
-        <translation>Auteurs</translation>
+        <translation type="vanished">Auteurs</translation>
     </message>
     <message>
-        <location line="+5"/>
         <source>Thanks</source>
-        <translation>Remerciements</translation>
+        <translation type="vanished">Remerciements</translation>
     </message>
     <message>
-        <location line="+5"/>
         <source>Licenses</source>
-        <translation>Licences</translation>
+        <translation type="vanished">Licences</translation>
     </message>
 </context>
 <context>
     <name>MainView</name>
     <message>
-        <location filename="../QML/MainView.qml" line="+138"/>
         <source>Stations list</source>
-        <translation>Liste des stations</translation>
+        <translation type="vanished">Liste des stations</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Display or hide stations list</source>
-        <translation>Afficher ou cacher la liste des stations</translation>
+        <translation type="vanished">Afficher ou cacher la liste des stations</translation>
     </message>
     <message>
-        <location line="+42"/>
-        <location line="+5"/>
         <source>Stop</source>
-        <translation>Stop</translation>
+        <translation type="vanished">Stop</translation>
     </message>
     <message>
-        <location line="-5"/>
-        <location line="+5"/>
         <source>Play</source>
-        <translation>Lecture</translation>
+        <translation type="vanished">Lecture</translation>
     </message>
     <message>
-        <location line="-4"/>
         <source>Stop playback</source>
-        <translation>Arrêter la lecture</translation>
+        <translation type="vanished">Arrêter la lecture</translation>
     </message>
     <message>
-        <location line="+0"/>
         <source>Stop scan</source>
-        <translation>Arrêter la recherche</translation>
+        <translation type="vanished">Arrêter la recherche</translation>
     </message>
     <message>
-        <location line="+0"/>
         <source>Start playback</source>
-        <translation>Démarrer la lecture</translation>
+        <translation type="vanished">Démarrer la lecture</translation>
     </message>
     <message>
-        <location line="+102"/>
         <source>Volume (%1)</source>
-        <translation>Volume (%1)</translation>
+        <translation type="vanished">Volume (%1)</translation>
     </message>
     <message>
-        <location line="+5"/>
         <source>Volume</source>
-        <translation>Volume</translation>
+        <translation type="vanished">Volume</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Toggle volume slider</source>
-        <translation>Afficher/cacher le curseur du volume</translation>
+        <translation type="vanished">Afficher/cacher le curseur du volume</translation>
     </message>
     <message>
-        <location line="+131"/>
         <source>Volume set to %1</source>
-        <translation>Volume fixé à %1</translation>
+        <translation type="vanished">Volume fixé à %1</translation>
     </message>
     <message>
-        <location line="+41"/>
         <source>Main menu</source>
-        <translation>Menu principal</translation>
+        <translation type="vanished">Menu principal</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Show the main menu</source>
-        <translation>Afficher le menu principal</translation>
+        <translation type="vanished">Afficher le menu principal</translation>
     </message>
     <message>
-        <location line="+11"/>
         <source>Settings</source>
-        <translation>Paramètres</translation>
+        <translation type="vanished">Paramètres</translation>
     </message>
     <message>
-        <location line="+8"/>
         <source>Expert Settings</source>
-        <translation>Paramètres expert</translation>
+        <translation type="vanished">Paramètres expert</translation>
     </message>
     <message>
-        <location line="+8"/>
         <source>About</source>
-        <translation>A propos de</translation>
+        <translation type="vanished">A propos de</translation>
     </message>
     <message>
-        <location line="+8"/>
         <source>Exit</source>
-        <translation>Quitter</translation>
+        <translation type="vanished">Quitter</translation>
     </message>
     <message>
-        <location line="+36"/>
         <source>All stations</source>
-        <translation>Toutes les stations</translation>
+        <translation type="vanished">Toutes les stations</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Favorites</source>
-        <translation>Favoris</translation>
+        <translation type="vanished">Favoris</translation>
     </message>
     <message>
-        <location line="+31"/>
         <source>Stations menu</source>
-        <translation>Menu des stations</translation>
+        <translation type="vanished">Menu des stations</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Show stations menu</source>
-        <translation>Afficher le menu des stations</translation>
+        <translation type="vanished">Afficher le menu des stations</translation>
     </message>
     <message>
-        <location line="+8"/>
         <source>Start station scan</source>
-        <translation>Rechercher les stations</translation>
+        <translation type="vanished">Rechercher les stations</translation>
     </message>
     <message>
-        <location line="+12"/>
         <source>Stop station scan</source>
-        <translation>Arrêter la recherche</translation>
+        <translation type="vanished">Arrêter la recherche</translation>
     </message>
     <message>
-        <location line="+12"/>
         <source>Clear station list</source>
-        <translation>Effacer la liste des stations</translation>
+        <translation type="vanished">Effacer la liste des stations</translation>
     </message>
     <message>
-        <location line="+8"/>
         <source>Station settings</source>
-        <translation>Paramètres des stations</translation>
+        <translation type="vanished">Paramètres des stations</translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>No stations in list</source>
-        <translation>Pas de stations dans la liste</translation>
+        <translation type="vanished">Pas de stations dans la liste</translation>
     </message>
     <message>
-        <location line="+14"/>
         <source>File</source>
-        <translation>Fichier</translation>
+        <translation type="vanished">Fichier</translation>
     </message>
     <message>
-        <location line="+130"/>
         <source>Manual channel</source>
-        <translation>Canal manuel</translation>
+        <translation type="vanished">Canal manuel</translation>
     </message>
     <message>
-        <location line="+52"/>
         <source>Add</source>
-        <translation>Ajouter</translation>
+        <translation type="vanished">Ajouter</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Add a view</source>
-        <translation>Ajouter une vue</translation>
+        <translation type="vanished">Ajouter une vue</translation>
     </message>
     <message>
-        <location line="+8"/>
         <source>Service Overview</source>
-        <translation>Aperçu du service</translation>
+        <translation type="vanished">Aperçu du service</translation>
     </message>
     <message>
-        <location line="+6"/>
         <source>Service Details</source>
-        <translation>Détails du service</translation>
+        <translation type="vanished">Détails du service</translation>
     </message>
     <message>
-        <location line="+6"/>
         <source>MOT Slide Show</source>
-        <translation>Diaporama MOT</translation>
+        <translation type="vanished">Diaporama MOT</translation>
     </message>
     <message>
-        <location line="+6"/>
         <source>Spectrum</source>
-        <translation>Spectre</translation>
+        <translation type="vanished">Spectre</translation>
     </message>
     <message>
-        <location line="+6"/>
         <source>Impulse Response</source>
-        <translation>Réponse impulsionnelle</translation>
+        <translation type="vanished">Réponse impulsionnelle</translation>
     </message>
     <message>
-        <location line="+6"/>
         <source>Constellation Diagram</source>
-        <translation>Diagramme de constellation</translation>
+        <translation type="vanished">Diagramme de constellation</translation>
     </message>
     <message>
-        <location line="+6"/>
         <source>Null Symbol</source>
         <translatorcomment>?</translatorcomment>
-        <translation>Null Symbol</translation>
+        <translation type="vanished">Null Symbol</translation>
     </message>
     <message>
-        <location line="+6"/>
         <source>Console Output</source>
-        <translation>Sortie console</translation>
+        <translation type="vanished">Sortie console</translation>
     </message>
     <message>
-        <location line="+6"/>
         <source>RAW Recorder</source>
-        <translation>Enregistreur RAW I/Q</translation>
+        <translation type="vanished">Enregistreur RAW I/Q</translation>
+    </message>
+</context>
+<context>
+    <name>MiniPlayer</name>
+    <message>
+        <location filename="../QML/home/MiniPlayer.qml" line="+65"/>
+        <source>Now playing: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Open the player</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+59"/>
+        <source>Stop</source>
+        <translation type="unfinished">Stop</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Play</source>
+        <translation type="unfinished">Lecture</translation>
     </message>
 </context>
 <context>
     <name>MotView</name>
     <message>
-        <location filename="../QML/MotView.qml" line="+11"/>
         <source>MOT Slide Show</source>
-        <translation>Diaporama MOT</translation>
+        <translation type="vanished">Diaporama MOT</translation>
     </message>
     <message>
-        <location line="+18"/>
         <source>Save all images</source>
-        <translation>Sauvegarder toutes les images</translation>
+        <translation type="vanished">Sauvegarder toutes les images</translation>
+    </message>
+</context>
+<context>
+    <name>NavDrawer</name>
+    <message>
+        <location filename="../QML/app/NavDrawer.qml" line="+115"/>
+        <source>All stations</source>
+        <translation type="unfinished">Toutes les stations</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Favorites</source>
+        <translation type="unfinished">Favoris</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Settings</source>
+        <translation type="unfinished">Paramètres</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>About</source>
+        <translation type="unfinished">A propos de</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Exit</source>
+        <translation type="unfinished">Quitter</translation>
     </message>
 </context>
 <context>
     <name>NullSymbolGraph</name>
     <message>
-        <location filename="../QML/expertviews/NullSymbolGraph.qml" line="+10"/>
         <source>Null Symbol</source>
         <translatorcomment>Traduction de NULL selon : TERMIUM Plus®. Mais peut etre laisser tel quel car Null Symbol a un sens précis dans le signal DAB+</translatorcomment>
-        <translation type="unfinished">Null Symbol</translation>
+        <translation type="obsolete">Null Symbol</translation>
     </message>
 </context>
 <context>
     <name>RTLSDRSettings</name>
     <message>
-        <location filename="../QML/settingpages/RTLSDRSettings.qml" line="+12"/>
+        <location filename="../QML/settings/devices/RTLSDRSettings.qml" line="+35"/>
         <source>rtl-sdr settings</source>
         <translation>Paramètres RTL-SDR</translation>
     </message>
     <message>
-        <location line="+9"/>
+        <location line="+8"/>
         <source>Enable bias tee (not supported by all dongles)</source>
         <translation>Activer le té de polarisation (non pris en charge par tous les récepteurs)</translation>
     </message>
@@ -1456,55 +1720,76 @@
 <context>
     <name>RTLTCPSettings</name>
     <message>
-        <location filename="../QML/settingpages/RTLTCPSettings.qml" line="+11"/>
+        <location filename="../QML/settings/devices/RTLTCPSettings.qml" line="+36"/>
         <source>rtl-tcp settings</source>
         <translation>Paramètres RTL-TCP</translation>
     </message>
     <message>
-        <location line="+16"/>
+        <location line="+19"/>
+        <location line="+6"/>
+        <source>Host name or IP-address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-2"/>
+        <source>Enter host name or IP address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <location line="+7"/>
+        <source>IP-Port</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-3"/>
+        <source>Enter IP-port</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Use host name</source>
         <translatorcomment>nom d&apos;hôte est la traduction suggérée par TERMIUM Plus®</translatorcomment>
-        <translation>Utiliser le nom d&apos;hôte</translation>
+        <translation type="vanished">Utiliser le nom d&apos;hôte</translation>
     </message>
     <message>
-        <location line="+10"/>
         <source>IP address</source>
-        <translation>Adresse IP</translation>
+        <translation type="vanished">Adresse IP</translation>
     </message>
     <message>
-        <location line="+31"/>
         <source>IP port</source>
-        <translation>Port IP</translation>
+        <translation type="vanished">Port IP</translation>
     </message>
     <message>
-        <location line="+16"/>
         <source>Enter host name</source>
         <translatorcomment>nom d&apos;hôte est la traduction suggérée par TERMIUM Plus®</translatorcomment>
-        <translation>Saisir le nom d&apos;hôte</translation>
+        <translation type="vanished">Saisir le nom d&apos;hôte</translation>
     </message>
     <message>
-        <location line="+4"/>
         <source>Host name</source>
-        <translation>Nom d&apos;hôte</translation>
+        <translation type="vanished">Nom d&apos;hôte</translation>
     </message>
 </context>
 <context>
     <name>RadioView</name>
     <message>
-        <location filename="../QML/RadioView.qml" line="+12"/>
         <source>Service Overview</source>
-        <translation>Aperçu du service</translation>
+        <translation type="vanished">Aperçu du service</translation>
     </message>
 </context>
 <context>
     <name>RawFileSettings</name>
     <message>
-        <location filename="../QML/settingpages/RawFileSettings.qml" line="+12"/>
+        <location filename="../QML/settings/devices/RawFileSettings.qml" line="+38"/>
         <source>RAW file settings</source>
         <translation>Paramètres du fichier RAW</translation>
     </message>
     <message>
-        <location line="+30"/>
+        <location line="+12"/>
+        <source>Please choose a file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+17"/>
         <source>Open RAW file</source>
         <translation>Ouvrir le fichier RAW</translation>
     </message>
@@ -1514,7 +1799,13 @@
         <translation>Actuellement affiché sur Android</translation>
     </message>
     <message>
-        <location line="+23"/>
+        <location line="+11"/>
+        <location line="+11"/>
+        <source>Sample format</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-32"/>
         <source>Selected file:</source>
         <translation>Fichier sélectionné :</translation>
     </message>
@@ -1522,102 +1813,244 @@
 <context>
     <name>RawRecorder</name>
     <message>
-        <location filename="../QML/expertviews/RawRecorder.qml" line="+11"/>
         <source>I/Q RAW Recorder (experimental)</source>
-        <translation>Enregistreur RAW I/Q (expérimental)</translation>
+        <translation type="vanished">Enregistreur RAW I/Q (expérimental)</translation>
     </message>
     <message>
-        <location line="+8"/>
         <source>Ring buffer length [s]</source>
-        <translation>Longueur du buffer circulaire [s]</translation>
+        <translation type="vanished">Longueur du buffer circulaire [s]</translation>
     </message>
     <message>
-        <location line="+14"/>
+        <source>Save ring buffer</source>
+        <translation type="obsolete">Sauvegarder le buffer circulaire</translation>
+    </message>
+    <message>
+        <source>Ring buffer size (roughly): </source>
+        <translatorcomment>Un peu trop long ?</translatorcomment>
+        <translation type="obsolete">Taille du buffer circulaire (grosso-modo) : </translation>
+    </message>
+</context>
+<context>
+    <name>RawRecorderCard</name>
+    <message>
+        <location filename="../QML/expert/RawRecorderCard.qml" line="+35"/>
+        <source>I/Q RAW Recorder (experimental)</source>
+        <translation type="unfinished">Enregistreur RAW I/Q (expérimental)</translation>
+    </message>
+    <message>
+        <location line="+18"/>
+        <location line="+12"/>
+        <source>Ring buffer length [s]</source>
+        <translation type="unfinished">Longueur du buffer circulaire [s]</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Ring buffer size (roughly): </source>
+        <translation type="unfinished">Taille du buffer circulaire (grosso-modo) : </translation>
+    </message>
+    <message>
+        <location line="+6"/>
         <source>Save ring buffer</source>
         <translation type="unfinished">Sauvegarder le buffer circulaire</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Init</source>
-        <translatorcomment>?</translatorcomment>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ReceiverSettings</name>
+    <message>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="+88"/>
+        <source>Receiver</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+14"/>
-        <source>Ring buffer size (roughly): </source>
-        <translatorcomment>Un peu trop long ?</translatorcomment>
-        <translation type="unfinished">Taille du buffer circulaire (grosso-modo) : </translation>
+        <location line="+5"/>
+        <source>Automatic RF gain</source>
+        <translation type="unfinished">Gain RF automatique</translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <location line="+20"/>
+        <source>Manual gain</source>
+        <translation type="unfinished">Gain RF manuel</translation>
+    </message>
+    <message>
+        <location line="-19"/>
+        <source>Value: </source>
+        <translation type="unfinished">Valeur : </translation>
+    </message>
+    <message>
+        <location line="+26"/>
+        <source>Auto detect</source>
+        <translation type="unfinished">Détection automatique</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Use the first receiver that is found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <location line="+30"/>
+        <source>Input device</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation type="obsolete">Aucun</translation>
+    </message>
+    <message>
+        <source>rtl-sdr</source>
+        <translation type="obsolete">RTL-SDR</translation>
+    </message>
+    <message>
+        <source>rtl-tcp</source>
+        <translation type="obsolete">RTL-TCP</translation>
+    </message>
+    <message>
+        <source>RAW file</source>
+        <translation type="obsolete">Fichier RAW</translation>
     </message>
 </context>
 <context>
     <name>ServiceDetails</name>
     <message>
-        <location filename="../QML/expertviews/ServiceDetails.qml" line="+10"/>
         <source>Service Details</source>
-        <translation>Détails du service</translation>
+        <translation type="vanished">Détails du service</translation>
     </message>
     <message>
-        <location line="+7"/>
         <source>Device</source>
-        <translation>Récepteur</translation>
+        <translation type="vanished">Récepteur</translation>
     </message>
     <message>
-        <location line="+5"/>
         <source>Current channel</source>
         <translatorcomment>une ancienne traduction proposait Bloc actuel</translatorcomment>
-        <translation>Canal actuel</translation>
+        <translation type="vanished">Canal actuel</translation>
     </message>
     <message>
-        <location line="+22"/>
         <source>Frame sync</source>
         <translatorcomment>pluriel ?</translatorcomment>
-        <translation>Synchronisation de trame</translation>
+        <translation type="vanished">Synchronisation de trame</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation type="vanished">OK</translation>
+    </message>
+    <message>
+        <source>Not synced</source>
+        <translation type="vanished">Pas de sync.</translation>
+    </message>
+    <message>
+        <source>FIC CRC</source>
+        <translation type="vanished">FIC CRC</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation type="vanished">Erreur</translation>
+    </message>
+    <message>
+        <source>Frame errors</source>
+        <translatorcomment>pluriel ?</translatorcomment>
+        <translation type="vanished">Erreurs de trame</translation>
+    </message>
+    <message>
+        <source>Frequency correction</source>
+        <translation type="vanished">Correction de fréquence</translation>
+    </message>
+    <message>
+        <source>SNR</source>
+        <translation type="vanished">SNR (rapport signal/bruit)</translation>
+    </message>
+    <message>
+        <source>RS errors</source>
+        <translation type="vanished">Erreurs RS</translation>
+    </message>
+    <message>
+        <source>Corrected Error</source>
+        <translation type="obsolete">Erreur corrigée</translation>
+    </message>
+    <message>
+        <source>Uncorrected Error</source>
+        <translation type="obsolete">Erreur non corrigée</translation>
+    </message>
+    <message>
+        <source>AAC errors</source>
+        <translation type="vanished">Erreurs AAC</translation>
+    </message>
+    <message>
+        <source>DAB date and time</source>
+        <translation type="vanished">Date et heure DAB</translation>
+    </message>
+</context>
+<context>
+    <name>ServiceDetailsCard</name>
+    <message>
+        <location filename="../QML/expert/ServiceDetailsCard.qml" line="+38"/>
+        <source>Service Details</source>
+        <translation type="unfinished">Détails du service</translation>
+    </message>
+    <message>
+        <location line="+19"/>
+        <source>Device</source>
+        <translation type="unfinished">Récepteur</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Current channel</source>
+        <translation type="unfinished">Canal actuel</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Frequency correction</source>
+        <translation type="unfinished">Correction de fréquence</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>SNR</source>
+        <translation type="unfinished">SNR (rapport signal/bruit)</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Frame sync</source>
+        <translation type="unfinished">Synchronisation de trame</translation>
     </message>
     <message>
         <location line="+1"/>
-        <location line="+14"/>
-        <location line="+33"/>
+        <location line="+5"/>
+        <location line="+10"/>
         <source>OK</source>
-        <translation>OK</translation>
+        <translation type="unfinished">OK</translation>
     </message>
     <message>
-        <location line="-47"/>
+        <location line="-15"/>
         <source>Not synced</source>
-        <translation>Pas de sync.</translation>
+        <translation type="unfinished">Pas de sync.</translation>
     </message>
     <message>
-        <location line="+13"/>
+        <location line="+4"/>
         <source>FIC CRC</source>
-        <translation>FIC CRC</translation>
+        <translation type="unfinished">FIC CRC</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Error</source>
-        <translation>Erreur</translation>
-    </message>
-    <message>
-        <location line="+14"/>
-        <source>Frame errors</source>
-        <translatorcomment>pluriel ?</translatorcomment>
-        <translation>Erreurs de trame</translation>
-    </message>
-    <message>
-        <location line="-46"/>
-        <source>Frequency correction</source>
-        <translation>Correction de fréquence</translation>
-    </message>
-    <message>
-        <location line="+5"/>
-        <source>SNR</source>
-        <translation>SNR (rapport signal/bruit)</translation>
-    </message>
-    <message>
-        <location line="+57"/>
-        <source>RS errors</source>
-        <translation>Erreurs RS</translation>
+        <translation type="unfinished">Erreur</translation>
     </message>
     <message>
         <location line="+4"/>
+        <source>Frame errors</source>
+        <translation type="unfinished">Erreurs de trame</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>RS errors</source>
+        <translation type="unfinished">Erreurs RS</translation>
+    </message>
+    <message>
+        <location line="+1"/>
         <source>Corrected Error</source>
         <translation type="unfinished">Erreur corrigée</translation>
     </message>
@@ -1627,71 +2060,346 @@
         <translation type="unfinished">Erreur non corrigée</translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+4"/>
         <source>AAC errors</source>
-        <translation>Erreurs AAC</translation>
+        <translation type="unfinished">Erreurs AAC</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="+4"/>
+        <source>Ensemble ID</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
         <source>DAB date and time</source>
-        <translation>Date et heure DAB</translation>
+        <translation type="unfinished">Date et heure DAB</translation>
+    </message>
+</context>
+<context>
+    <name>ServiceOverviewCard</name>
+    <message>
+        <location filename="../QML/expert/ServiceOverviewCard.qml" line="+35"/>
+        <source>Service Overview</source>
+        <translation type="unfinished">Aperçu du service</translation>
+    </message>
+</context>
+<context>
+    <name>Settings</name>
+    <message>
+        <location filename="../QML/settings/AppearanceSettings.qml" line="-24"/>
+        <source>Light</source>
+        <translation type="unfinished">Clair</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Dark</source>
+        <translation type="unfinished">Sombre</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>System</source>
+        <translation type="unfinished">Système</translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>Teal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Indigo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Deep Orange</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Purple</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Blue</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Green</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QML/settings/ExpertSettings.qml" line="-48"/>
+        <source>GetMiddle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>CorrelatePRS</source>
+        <translation type="unfinished">Corréler PRS</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>PatternOfZeros</source>
+        <translation type="unfinished">Motif de zéros</translation>
+    </message>
+    <message>
+        <location line="+35"/>
+        <source>Strongest Peak</source>
+        <translation type="unfinished">Crête la plus forte</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Earliest Peak With Binning</source>
+        <translation type="unfinished">Crête la plus tôt avec compartimentage</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Threshold Before Peak</source>
+        <translation type="unfinished">Seuil avant crête</translation>
+    </message>
+    <message>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="-22"/>
+        <source>None</source>
+        <translation type="unfinished">Aucun</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Airspy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>rtl-sdr</source>
+        <translation type="unfinished">RTL-SDR</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>SoapySDR</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>rtl-tcp</source>
+        <translation type="unfinished">RTL-TCP</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>RAW file</source>
+        <translation type="unfinished">Fichier RAW</translation>
+    </message>
+</context>
+<context>
+    <name>SettingsPage</name>
+    <message>
+        <location filename="../QML/pages/SettingsPage.qml" line="+40"/>
+        <source>Settings</source>
+        <translation type="unfinished">Paramètres</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>General</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Stations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Receiver</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Appearance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Expert</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SignalIndicator</name>
+    <message>
+        <location filename="../QML/home/SignalIndicator.qml" line="+77"/>
+        <source>No signal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Signal %1 of 5 (SNR %2 dB)</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SlideShow</name>
+    <message>
+        <location filename="../QML/home/SlideShow.qml" line="+102"/>
+        <source>Slide show</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+39"/>
+        <source>Latest</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>Previous slide</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Next slide</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SlideShowCard</name>
+    <message>
+        <location filename="../QML/expert/SlideShowCard.qml" line="+34"/>
+        <source>MOT Slide Show</source>
+        <translation type="unfinished">Diaporama MOT</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Please choose a folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Save all images</source>
+        <translation type="unfinished">Sauvegarder toutes les images</translation>
+    </message>
+</context>
+<context>
+    <name>Snackbar</name>
+    <message>
+        <location filename="../QML/app/Snackbar.qml" line="+132"/>
+        <source>Dismiss</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>SoapySDRSettings</name>
     <message>
-        <location filename="../QML/settingpages/SoapySDRSettings.qml" line="+11"/>
+        <location filename="../QML/settings/devices/SoapySDRSettings.qml" line="+35"/>
         <source>SoapySDR settings</source>
         <translation>Paramètres SoapySDR</translation>
     </message>
     <message>
-        <location line="+13"/>
+        <location line="+9"/>
+        <location line="+6"/>
         <source>Antenna</source>
         <translation>Antenne</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="-2"/>
         <source>Enter antenna</source>
         <translation>Entrer l&apos;antenne</translation>
     </message>
     <message>
+        <location line="+7"/>
         <location line="+6"/>
         <source>Clock source</source>
         <translation>Source d&apos;horloge</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="-2"/>
         <source>Enter clock source</source>
         <translation>Entrer la source d&apos;horloge</translation>
     </message>
     <message>
+        <location line="+7"/>
         <location line="+6"/>
         <source>Driver arguments</source>
         <translation>Arguments du pilote</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="-2"/>
         <source>Enter driver arguments</source>
         <translation>Entrer les arguments du pilote</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="+9"/>
         <source>Apply</source>
         <translation>Appliquer</translation>
     </message>
 </context>
 <context>
+    <name>SpectrumCard</name>
+    <message>
+        <location filename="../QML/expert/SpectrumCard.qml" line="+43"/>
+        <source>Spectrum</source>
+        <translation type="unfinished">Spectre</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <location line="+4"/>
+        <source>Frequency</source>
+        <translation type="unfinished">Fréquence</translation>
+    </message>
+    <message>
+        <location line="-3"/>
+        <source>Impulse Response</source>
+        <translation type="unfinished">Réponse impulsionnelle</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Samples</source>
+        <translation type="unfinished">Echantillon</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Null Symbol</source>
+        <translation type="unfinished">Null Symbol</translation>
+    </message>
+</context>
+<context>
+    <name>SpectrumChart</name>
+    <message>
+        <location filename="../QML/expert/SpectrumChart.qml" line="+40"/>
+        <source>Amplitude</source>
+        <translation type="unfinished">Amplitude</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Frequency</source>
+        <translation type="unfinished">Fréquence</translation>
+    </message>
+    <message>
+        <location line="+23"/>
+        <source>Waterfall</source>
+        <translation type="unfinished">Ecriture ligne par ligne</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>experimental</source>
+        <translation type="unfinished">expérimental</translation>
+    </message>
+</context>
+<context>
     <name>SpectrumGraph</name>
     <message>
-        <location filename="../QML/expertviews/SpectrumGraph.qml" line="+12"/>
         <source>Spectrum</source>
-        <translation>Spectre</translation>
+        <translation type="vanished">Spectre</translation>
     </message>
 </context>
 <context>
     <name>StationDelegate</name>
     <message>
-        <location filename="../QML/components/StationDelegate.qml" line="+155"/>
+        <location filename="../QML/home/StationDelegate.qml" line="+139"/>
+        <source>Choose ensemble</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+30"/>
         <source>Remove station from favorites</source>
         <translation>Retirer la station des favoris</translation>
     </message>
@@ -1704,7 +2412,7 @@
 <context>
     <name>StationListModel</name>
     <message>
-        <location filename="../QML/components/StationListModel.qml" line="+96"/>
+        <location filename="../QML/models/StationListModel.qml" line="+139"/>
         <source>Last played station not found.
 Select a station to start playback.</source>
         <translation>Dernière station lue non trouvée.
@@ -1712,92 +2420,179 @@ Sélectionnez une station pour démarrer la lecture.</translation>
     </message>
 </context>
 <context>
-    <name>TextOutputView</name>
+    <name>StationListPane</name>
     <message>
-        <location filename="../QML/expertviews/TextOutputView.qml" line="+11"/>
-        <source>Console Output</source>
-        <translation>Sortie console</translation>
+        <location filename="../QML/home/StationListPane.qml" line="+73"/>
+        <source>All stations</source>
+        <translation type="unfinished">Toutes les stations</translation>
     </message>
     <message>
-        <location line="+58"/>
+        <location line="+0"/>
+        <source>Favorites</source>
+        <translation type="unfinished">Favoris</translation>
+    </message>
+    <message>
+        <location line="+24"/>
+        <source>Stations menu</source>
+        <translation type="unfinished">Menu des stations</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Show stations menu</source>
+        <translation type="unfinished">Afficher le menu des stations</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <location line="+106"/>
+        <source>Start station scan</source>
+        <translation type="unfinished">Rechercher les stations</translation>
+    </message>
+    <message>
+        <location line="-98"/>
+        <source>Stop station scan</source>
+        <translation type="unfinished">Arrêter la recherche</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Clear station list</source>
+        <translation type="unfinished">Effacer la liste des stations</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Station settings</source>
+        <translation type="unfinished">Paramètres des stations</translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Scanning channel %1 of %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>Station scan progress</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+28"/>
+        <source>No stations in list</source>
+        <translation type="unfinished">Pas de stations dans la liste</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>No favorites yet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Search for stations on all channels.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Mark a station in the list of all stations with the star to add it here.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+24"/>
+        <source>Show all stations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+28"/>
+        <source>File</source>
+        <translation type="unfinished">Fichier</translation>
+    </message>
+    <message>
+        <location line="+26"/>
+        <location line="+25"/>
+        <source>Manual channel</source>
+        <translation type="unfinished">Canal manuel</translation>
+    </message>
+</context>
+<context>
+    <name>StationSettings</name>
+    <message>
+        <location filename="../QML/settings/StationSettings.qml" line="+38"/>
+        <source>Stations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Automatic start playing last station</source>
+        <translation type="unfinished">Lire automatiquement la dernière station</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Display station name in the window title</source>
+        <translation type="unfinished">Afficher le nom de la station dans le titre de la fenêtre</translation>
+    </message>
+</context>
+<context>
+    <name>TextOutputView</name>
+    <message>
+        <source>Console Output</source>
+        <translation type="vanished">Sortie console</translation>
+    </message>
+    <message>
         <source>Warning: The console view can slow down the complete app!</source>
-        <translation>Avertissement: la sortie console peut ralentir toute l&apos;appli !</translation>
+        <translation type="vanished">Avertissement: la sortie console peut ralentir toute l&apos;appli !</translation>
     </message>
 </context>
 <context>
     <name>ViewBaseFrame</name>
     <message>
-        <location filename="../QML/components/ViewBaseFrame.qml" line="+69"/>
         <source>%1 title bar</source>
-        <translation>Barre de titre %1</translation>
+        <translation type="vanished">Barre de titre %1</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>%1 title bar to drag the element</source>
-        <translation>Barre de titre %1 pour déplacer l&apos;élément</translation>
+        <translation type="vanished">Barre de titre %1 pour déplacer l&apos;élément</translation>
     </message>
     <message>
-        <location line="+48"/>
         <source>%1 menu</source>
-        <translation>Menu de %1</translation>
+        <translation type="vanished">Menu de %1</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Show %1 menu</source>
-        <translation>Afficher le menu %1</translation>
+        <translation type="vanished">Afficher le menu %1</translation>
     </message>
     <message>
-        <location line="+11"/>
         <source>Minimize</source>
-        <translation>Minimiser</translation>
+        <translation type="vanished">Minimiser</translation>
     </message>
     <message>
-        <location line="+0"/>
         <source>Maximize</source>
-        <translation>Maximiser</translation>
+        <translation type="vanished">Maximiser</translation>
     </message>
     <message>
-        <location line="+9"/>
         <source>Remove</source>
-        <translation>Supprimer</translation>
-    </message>
-</context>
-<context>
-    <name>WDialog</name>
-    <message>
-        <location filename="../QML/components/WDialog.qml" line="+32"/>
-        <source>‹</source>
-        <translation></translation>
+        <translation type="vanished">Supprimer</translation>
     </message>
 </context>
 <context>
     <name>WSpectrum</name>
     <message>
-        <location filename="../QML/components/WSpectrum.qml" line="+15"/>
         <source>Amplitude</source>
-        <translation>Amplitude</translation>
+        <translation type="vanished">Amplitude</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Frequency</source>
-        <translation>Fréquence</translation>
+        <translation type="vanished">Fréquence</translation>
     </message>
     <message>
-        <location line="+23"/>
         <source>Waterfall</source>
         <translatorcomment>Adapté de la traduction &quot;WATERFALL DISPLAY&quot; proposée par TERMIUM Plus®</translatorcomment>
-        <translation type="unfinished">Ecriture ligne par ligne</translation>
+        <translation type="obsolete">Ecriture ligne par ligne</translation>
     </message>
     <message>
-        <location line="+0"/>
         <source>experimental</source>
-        <translation>expérimental</translation>
+        <translation type="vanished">expérimental</translation>
     </message>
 </context>
 <context>
     <name>main</name>
     <message>
-        <location filename="../main.cpp" line="+111"/>
+        <location filename="../main.cpp" line="+82"/>
         <source>Records DAB frames (*.mp2) or DAB+ superframes with RS coding (*.dab). This file can be used to analyse X-PAD data with XPADxpert</source>
         <translation>Enregistre les trames DAB (*.mp2) ou les supertrames DAB+ avec codage RS (*.dab). Ce fichier peut être utilisé pour analyser des données X-PAD avec XPADxpert</translation>
     </message>
@@ -1814,14 +2609,12 @@ Sélectionnez une station pour démarrer la lecture.</translation>
         <translation type="unfinished">Rediriger le journal de sortie vers un fichier.</translation>
     </message>
     <message>
-        <location line="+5"/>
         <source>Qt Quick Controls Style for the 1st launch</source>
-        <translation>Style Qt Quick Controls pour le 1er lancement</translation>
+        <translation type="vanished">Style Qt Quick Controls pour le 1er lancement</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Style name</source>
-        <translation>Nom du style</translation>
+        <translation type="vanished">Nom du style</translation>
     </message>
 </context>
 </TS>
