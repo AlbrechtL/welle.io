@@ -240,6 +240,37 @@ cmake .. -DRTLSDR=1 -DSOAPYSDR=1
 
   If you wish to use KISS FFT instead of FFTW (e.g. to compare performance), use `-DKISS_FFT=ON`.
 
+  **Qt installed with the Qt Online Installer:** The online installer does not put Qt into a system path, so CMake
+  fails with `Could not find a package configuration file provided by "Qt6"`. Tell CMake where Qt is installed by
+  setting `CMAKE_PREFIX_PATH` to the kit directory (`<Qt install dir>/<version>/<kit>`). The default install directory
+  is `~/Qt` (Linux and macOS) or `C:\Qt` (Windows).
+
+  Make sure the following components are selected in the installer for your Qt version: *Desktop (gcc_64 / macOS / MSVC or MinGW)*,
+  *Qt Multimedia* and *Qt Charts* (under *Additional Libraries*). You can add missing components later with the
+  *Qt Maintenance Tool*.
+
+  Linux (example for Qt 6.12.0):
+
+```
+cmake .. -DCMAKE_PREFIX_PATH=$HOME/Qt/6.12.0/gcc_64
+```
+
+  macOS (example for Qt 6.12.0):
+
+```
+cmake .. -DCMAKE_PREFIX_PATH=$HOME/Qt/6.12.0/macos
+```
+
+  Windows (example for Qt 6.12.0 with MinGW, run in the *Qt 6.12.0 (MinGW)* command prompt):
+
+```
+cmake .. -G "MinGW Makefiles" -DCMAKE_PREFIX_PATH=C:\Qt\6.12.0\mingw_64
+```
+
+  Alternatively set the environment variable once: `export CMAKE_PREFIX_PATH=$HOME/Qt/6.12.0/gcc_64`. If you have
+  switched the prefix path after a failed run, delete the `build` directory (or `CMakeCache.txt`) first, because
+  CMake caches the failed lookup.
+
 3. Run make (or use the created project file depending on the selected generator)
 
 ```
