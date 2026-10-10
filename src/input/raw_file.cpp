@@ -251,8 +251,6 @@ void CRAWFile::run(void)
     if (!readerOK)
         return;
 
-    ExitCondition = false;
-
     period = (32768 * 1000) / (IQByteSize * 2048); // full IQs read
 
     std::clog << "RAWFile" << "Period =" << period << std::endl;
