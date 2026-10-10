@@ -98,7 +98,9 @@ void OfdmDecoder::workerthread()
 
     while (running) {
         std::unique_lock<std::mutex> lock(mutex);
-        pending_symbols_cv.wait_for(lock, std::chrono::milliseconds(100));
+        // The predicate catches symbols that were pushed before we started waiting
+        pending_symbols_cv.wait_for(lock, std::chrono::milliseconds(100),
+                [this]{ return num_pending_symbols > 0 or not running; });
 
         if (currentSym == 0) {
             constellationPoints.clear();
@@ -124,6 +126,9 @@ void OfdmDecoder::workerthread()
                         (params.L-1) * params.K / constellationDecimation);
             }
         }
+
+        // Wake up pushAllSymbols() if it waits for us to finish
+        pending_symbols_cv.notify_all();
     }
 
     std::clog << "OFDM-decoder:" <<  "closing down now" << std::endl;
@@ -133,9 +138,13 @@ void OfdmDecoder::pushAllSymbols(std::vector<std::vector<DSPCOMPLEX> >&& syms)
 {
     std::unique_lock<std::mutex> lock(mutex);
 
+    // Don't overwrite symbols the worker thread has not decoded yet
+    pending_symbols_cv.wait(lock,
+            [this]{ return num_pending_symbols == 0 or not running; });
+
     pending_symbols = std::move(syms);
     num_pending_symbols = pending_symbols.size();
-    pending_symbols_cv.notify_one();
+    pending_symbols_cv.notify_all();
 }
 
 /**
