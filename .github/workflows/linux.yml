@@ -52,8 +52,8 @@ jobs:
             sed -i 's/date="1970-01-01"/'date=\""$APPDATA_DATE"\"'/g' io.welle.welle-gui.metainfo.xml
 
             # Add githash into metainfo.xml
-            #APPDATA_DATE_VERSION="2.7-unstable-$GIT_HASH"
-            APPDATA_DATE_VERSION="2.7-$GIT_HASH"
+            APPDATA_DATE_VERSION="3.0-unstable-$GIT_HASH"
+            #APPDATA_DATE_VERSION="2.7-$GIT_HASH"
             sed -i 's/version="0.0.0"/'version=\""$APPDATA_DATE_VERSION"\"'/g' io.welle.welle-gui.metainfo.xml
 
             # Check if file "io.welle.welle-gui.metainfo.xml" is valid
