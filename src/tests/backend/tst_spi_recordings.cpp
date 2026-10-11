@@ -81,12 +81,14 @@ void SpiRecordingTests::decodeSpi()
                                         recording["packet_address"].toInt());
     QVERIFY(r.opened);
 
-    qInfo().noquote() << QString("%1: %2 s, %3 packets, %4 CRC errors, %5 data groups, "
-                                 "%6 objects of %7 in the directory, %8 logos")
+    qInfo().noquote() << QString("%1: %2 s, %3 packets, %4 CRC errors, %5 FEC frames with %6 corrected bytes, "
+                                 "%7 data groups, %8 objects of %9 in the directory, %10 logos")
         .arg(recording["id"].toString())
         .arg(r.frames * 24 / 1000)
         .arg(r.packets.packets)
         .arg(r.packets.packetCrcErrors)
+        .arg(r.packets.fecFrames)
+        .arg(r.packets.fecCorrectedBytes)
         .arg(r.packets.dataGroups)
         .arg(r.objects)
         .arg(r.directoryObjects)
@@ -95,6 +97,10 @@ void SpiRecordingTests::decodeSpi()
     const QJsonObject expect = recording["expect"].toObject();
     QCOMPARE(int(r.directoryObjects), expect["directory_objects"].toInt());
     QVERIFY2(int(r.objects) >= expect["min_objects"].toInt(), "Too few complete MOT objects");
+    if (expect.contains("max_packet_crc_errors"))
+        QVERIFY2(int(r.packets.packetCrcErrors) <= expect["max_packet_crc_errors"].toInt(), "Too many packet CRC errors");
+    if (expect.contains("min_fec_corrected_bytes"))
+        QVERIFY2(int(r.packets.fecCorrectedBytes) >= expect["min_fec_corrected_bytes"].toInt(), "The FEC corrected too few bytes");
 
     // The decoding is deterministic: exactly the expected logos
     QMap<uint32_t, QString> expected, actual;

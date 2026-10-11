@@ -19,15 +19,19 @@
  */
 
 // unit.spi: the decoder chain of SPI (station logos) with synthetic data:
-// packet mode (ETSI EN 300 401 clause 5.3.2), MOT directory mode (ETSI EN
-// 301 234), binary encoded service information (ETSI TS 102 371) and the
-// choice of the logo (ETSI TS 102 818).
+// packet mode and its FEC (ETSI EN 300 401 clauses 5.3.2 and 5.3.5), MOT
+// directory mode (ETSI EN 301 234), binary encoded service information
+// (ETSI TS 102 371) and the choice of the logo (ETSI TS 102 818).
 
 #include <QtTest>
 
 #include <cstdint>
 #include <string>
 #include <vector>
+
+extern "C" {
+#include <fec.h>
+}
 
 #include "mot-carousel.h"
 #include "packet-decoder.h"
@@ -189,6 +193,49 @@ std::vector<Bytes> packets(uint16_t address, const Bytes& dg, int& continuityInd
     return result;
 }
 
+// Padding packet of 24 bytes (address 0)
+Bytes paddingPacket()
+{
+    Bytes p{0x0C, 0x00, 0x00};
+    p.resize(22, 0);
+    appendCrc(p);
+    return p;
+}
+
+// FEC frame (ETSI EN 300 401 clause 5.3.5): the packets (filled up to
+// 2256 bytes with padding packets) and nine FEC packets with the RS data
+Bytes fecFrame(const std::vector<Bytes>& dataPackets)
+{
+    Bytes app;
+    for (const Bytes& p : dataPackets)
+        app = cat({app, p});
+    while (app.size() < 2256)
+        app = cat({app, paddingPacket()});
+    if (app.size() != 2256)
+        return Bytes();
+
+    // RS(204, 188) of each row of the Application Data Table (12 x 188,
+    // filled column by column)
+    void* rs = init_rs_char(8, 0x11D, 0, 1, 16, 51);
+    Bytes rsTable(9 * 22, 0);
+    for (int row = 0; row < 12; row++) {
+        uint8_t data[188], parity[16];
+        for (int col = 0; col < 188; col++)
+            data[col] = app[col * 12 + row];
+        encode_rs_char(rs, data, parity);
+        for (int col = 0; col < 16; col++)
+            rsTable[col * 12 + row] = parity[col];
+    }
+    free_rs_char(rs);
+
+    Bytes frame = app;
+    for (int i = 0; i < 9; i++) {
+        frame = cat({frame, Bytes{uint8_t((i << 2) | 0x03), 0xFE},
+                     Bytes(rsTable.begin() + i * 22, rsTable.begin() + (i + 1) * 22)});
+    }
+    return frame;
+}
+
 }
 
 class SpiTests : public QObject
@@ -201,6 +248,7 @@ private slots:
     void ranksLogos();
     void packetDecoder();
     void packetDecoderContinuity();
+    void packetFec();
     void carouselToLogos();
 };
 
@@ -329,6 +377,54 @@ void SpiTests::packetDecoderContinuity()
     QCOMPARE(received.size(), size_t(1));
     QCOMPARE(received[0], dg2);
     QCOMPARE(decoder.GetStats().continuityErrors, size_t(1));
+}
+
+void SpiTests::packetFec()
+{
+    std::vector<Bytes> received;
+    PacketDecoder decoder(1, true, [&](const Bytes& dg) { received.push_back(dg); });
+
+    int ci = 0;
+    const Bytes dg1 = dataGroup(4, 1, 0, true, Bytes(1000, 0x11));
+    const Bytes dg2 = dataGroup(4, 2, 0, true, Bytes(1000, 0x22));
+    const Bytes dg3 = dataGroup(4, 3, 0, true, Bytes(1000, 0x33));
+    const Bytes frame1 = fecFrame(packets(1, dg1, ci));
+    const Bytes frame2 = fecFrame(packets(1, dg2, ci));
+    const Bytes frame3 = fecFrame(packets(1, dg3, ci));
+    QCOMPARE(frame1.size(), size_t(2472));
+
+    // Logical frames of 24 bytes (8 kbit/s)
+    // The first FEC frame synchronises the decoder: no correction yet
+    for (size_t offset = 0; offset < frame1.size(); offset += 24)
+        decoder.ProcessFrame(&frame1[offset], 24);
+    QCOMPARE(received.size(), size_t(1));
+    QCOMPARE(decoder.GetStats().fecFrames, size_t(0));
+
+    // A completely wrong packet of 96 bytes is 8 wrong bytes in each row,
+    // the RS code corrects up to 8. The header of an FEC packet is damaged.
+    Bytes damaged = frame2;
+    for (size_t i = 2 * 96; i < 3 * 96; i++)
+        damaged[i] ^= 0xFF;
+    damaged[2256 + 4 * 24] = 0;
+    for (size_t offset = 0; offset < damaged.size(); offset += 24)
+        decoder.ProcessFrame(&damaged[offset], 24);
+    QCOMPARE(received.size(), size_t(2));
+    QCOMPARE(received[1], dg2);
+    QCOMPARE(decoder.GetStats().fecFrames, size_t(1));
+    QCOMPARE(decoder.GetStats().fecCorrectedBytes, size_t(96));
+    QCOMPARE(decoder.GetStats().packetCrcErrors, size_t(0));
+
+    // Two wrong packets are too many errors
+    damaged = frame3;
+    for (size_t i = 96; i < 3 * 96; i++)
+        damaged[i] ^= 0x55;
+    for (size_t offset = 0; offset < damaged.size(); offset += 24)
+        decoder.ProcessFrame(&damaged[offset], 24);
+    QCOMPARE(received.size(), size_t(2));
+    QCOMPARE(decoder.GetStats().fecFrames, size_t(2));
+    QCOMPARE(decoder.GetStats().fecUncorrectableRows, size_t(12));
+    // The damaged packet headers may also break the following packets
+    QVERIFY(decoder.GetStats().packetCrcErrors >= 2);
 }
 
 void SpiTests::carouselToLogos()

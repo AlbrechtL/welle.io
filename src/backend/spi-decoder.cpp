@@ -465,6 +465,9 @@ void SpiDecoder::addtoFrame(uint8_t *bits) {
 		std::clog << "SPI: packets " << stats.packets <<
 			", packet CRC errors " << stats.packetCrcErrors <<
 			", FEC packets " << stats.fecPackets <<
+			", FEC frames " << stats.fecFrames <<
+			", FEC corrected bytes " << stats.fecCorrectedBytes <<
+			", FEC uncorrectable rows " << stats.fecUncorrectableRows <<
 			", continuity errors " << stats.continuityErrors <<
 			", data groups " << stats.dataGroups <<
 			", data group CRC errors " << stats.dataGroupCrcErrors <<

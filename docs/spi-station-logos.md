@@ -36,9 +36,16 @@ assistant (Claude Code).
 2. **Packet mode.** The subchannel carries packets of 24, 48, 72 or 96
    bytes. Each has a 3-byte header (continuity index, first/last flags,
    10-bit address, useful data length) and a CRC. One subchannel can carry
-   several components with different addresses. Packets of address 1022
-   carry the Reed-Solomon parity of the packet FEC (EN 300 401 clause
-   5.3.5). The packets of one address form MSC data groups.
+   several components with different addresses. The packets of one
+   address form MSC data groups.
+
+   Subchannels with packet FEC (EN 300 401 clause 5.3.5, signalled in FIG
+   0/14) are divided into FEC frames: 2256 bytes of packets, followed by
+   nine FEC packets (24 bytes, address 1022, counter 0 to 8). The packets
+   are written column by column into a table of 12 rows and 188 columns.
+   The FEC packets carry the 16 RS(204,188) parity bytes of each row,
+   which correct up to 8 wrong bytes in each row. Receivers without
+   FEC simply skip the FEC packets.
 3. **MOT directory mode.** The data groups carry a MOT carousel. The MOT
    directory (data group type 6) lists all objects with their headers. The
    bodies (data group type 4) are matched to the entries by their
@@ -66,7 +73,7 @@ and the logos (`d391-….png`). A complete cycle takes several minutes.
 |---|---|
 | `src/backend/fib-processor.cpp` | FIG 0/3 (packet mode), FIG 0/8 (SCIdS), FIG 0/13 (user applications); `getSpiComponents()` |
 | `src/backend/msc-handler.cpp` | `addDataSubchannel()`: channel decoding of the subchannel by `DabAudio`, which hands the logical frames to the `SpiDecoder` |
-| `src/backend/packet-decoder.cpp` | Packets → MSC data groups (CRC, address, continuity) |
+| `src/backend/packet-decoder.cpp` | Packet FEC (RS(204,188) with `libs/fec`), packets → MSC data groups (CRC, address, continuity) |
 | `src/backend/mot-carousel.cpp` | MOT directory mode: directory, bodies, complete objects |
 | `src/backend/spi-decoder.cpp` | `SpiDecoder` (logical frames → packets → MOT → SI and logos), the binary SI decoder, and `SpiLogoCollector`, which picks one logo per service |
 | `src/backend/radio-receiver.cpp` | `startSpiDecoding()`: decodes all SPI components of the ensemble |
@@ -100,8 +107,11 @@ ensembles.
   ensembles don't have one.
 - Logos appear only after the carousel was received, i.e. after a few
   minutes on the ensemble.
-- The packet FEC is not used, so packets with bit errors are lost and their
-  objects arrive in a later cycle.
+- The packet decoder finds the FEC frames by the FEC packets themselves, not
+  by FIG 0/14. Until the first complete set of FEC packets, and if FEC
+  packets are damaged too much, packets are used without correction.
+- Objects with bit errors that the FEC can't correct arrive in a later
+  cycle.
 - SPI carried in the PAD of an audio service is not supported, only packet
   mode.
 - PI and GI documents (the programme schedule) and advanced profile objects
@@ -112,8 +122,8 @@ ensembles.
 ## Tests
 
 - `unit.fib` (`src/tests/unit/tst_fib.cpp`): FIC signalling of packet mode components.
-- `unit.spi` (`src/tests/unit/tst_spi.cpp`): packet decoder, MOT carousel, SI decoder and logo choice, with synthetic data.
-- `backend.spi.<id>` (`src/tests/backend/tst_spi_recordings.cpp`): replays recorded SPI subchannels from welle.io-test-data (`spi/`).
+- `unit.spi` (`src/tests/unit/tst_spi.cpp`): packet decoder with FEC, MOT carousel, SI decoder and logo choice, with synthetic data.
+- `backend.spi.<id>` (`src/tests/backend/tst_spi_recordings.cpp`): replays recorded SPI subchannels from welle.io-test-data (`spi/`), one of them with about 0.8 % damaged packets that the FEC corrects.
 - `gui.ui.stations`: the logo in the station list and after a restart.
 - `gui.ui.dashboard`: the SPI row of the service details.
 

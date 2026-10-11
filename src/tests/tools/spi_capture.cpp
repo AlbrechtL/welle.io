@@ -93,6 +93,8 @@ static int replay(const std::string& file, int bitrate, int address, const std::
 
     std::cout << "Frames " << r.frames << " (" << r.frames * 24 / 1000 << " s), packets " << r.packets.packets
               << ", packet CRC errors " << r.packets.packetCrcErrors << ", FEC packets " << r.packets.fecPackets
+              << ", FEC frames " << r.packets.fecFrames << ", FEC corrected bytes " << r.packets.fecCorrectedBytes
+              << ", FEC uncorrectable rows " << r.packets.fecUncorrectableRows
               << ", continuity errors " << r.packets.continuityErrors << ", data groups " << r.packets.dataGroups
               << ", data group CRC errors " << r.packets.dataGroupCrcErrors
               << ", MOT objects in directory " << r.directoryObjects << ", objects " << r.objects
