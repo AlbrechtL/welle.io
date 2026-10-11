@@ -206,6 +206,8 @@ void UiSettingsTests::enablesExpertMode()
     QVERIFY(app.isVisible("addViewButton"));
     QVERIFY(!app.isVisible("nowPlayingPane"));
     QVERIFY(app.isVisible("manualChannelBox"));
+    // Band III only, 5A to 13F (no L-Band)
+    QCOMPARE(app.item("manualChannelBox")->property("count").toInt(), 38);
 
     QVERIFY(openSettings());
     QVERIFY(app.click(setting("enableExpertModeState")));

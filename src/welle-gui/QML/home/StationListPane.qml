@@ -288,11 +288,7 @@ Pane {
                     "10A", "10B", "10C", "10D",
                     "11A", "11B", "11C", "11D",
                     "12A", "12B", "12C", "12D",
-                    "13A", "13B", "13C", "13D", "13E", "13F",
-                    "LA", "LB", "LC", "LD",
-                    "LE", "LF", "LG", "LH",
-                    "LI", "LJ", "LK", "LL",
-                    "LM", "LN", "LO", "LP"]
+                    "13A", "13B", "13C", "13D", "13E", "13F"]
 
                 popup.Material.elevation: Theme.elevation(8)
                 onActivated: (index) => radioController.setManualChannel(model[index])
