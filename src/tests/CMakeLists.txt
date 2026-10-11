@@ -31,11 +31,15 @@ add_executable(tst_dabconstants unit/tst_dabconstants.cpp)
 target_link_libraries(tst_dabconstants PRIVATE welle_test_common Qt6::Test)
 add_test(NAME unit.dabconstants COMMAND tst_dabconstants)
 
+add_executable(tst_fib unit/tst_fib.cpp)
+target_link_libraries(tst_fib PRIVATE welle_test_common Qt6::Test)
+add_test(NAME unit.fib COMMAND tst_fib)
+
 add_executable(rstest ${CMAKE_SOURCE_DIR}/src/libs/fec/test/rstest.c)
 target_link_libraries(rstest PRIVATE welle)
 add_test(NAME unit.reed_solomon COMMAND rstest)
 
-set_tests_properties(unit.rawfile unit.dabconstants unit.reed_solomon PROPERTIES LABELS unit)
+set_tests_properties(unit.rawfile unit.dabconstants unit.fib unit.reed_solomon PROPERTIES LABELS unit)
 
 # Recordings of the welle.io-test-data repository. Every clip of its
 # manifest becomes one test, backend.recording.<clip id>, which runs

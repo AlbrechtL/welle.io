@@ -298,7 +298,7 @@ int16_t FIBProcessor::HandleFIG0Extension2(
                 ++it;
             }
             else if (it->second == 0) {
-                dropService(it->second);
+                dropService(it->first);
                 it = serviceRepeatCount.erase(it);
             }
             else {
@@ -376,7 +376,7 @@ void FIBProcessor::FIG0Extension3 (uint8_t *d)
 int16_t FIBProcessor::HandleFIG0Extension3(uint8_t *d, int16_t used)
 {
     int16_t SCId            = getBits (d, used * 8, 12);
-    //int16_t CAOrgflag       = getBits_1 (d, used * 8 + 15);
+    int16_t CAOrgflag       = getBits_1 (d, used * 8 + 15);
     int16_t DGflag          = getBits_1 (d, used * 8 + 16);
     int16_t DSCTy           = getBits_6 (d, used * 8 + 18);
     int16_t SubChId         = getBits_6 (d, used * 8 + 24);
@@ -385,7 +385,8 @@ int16_t FIBProcessor::HandleFIG0Extension3(uint8_t *d, int16_t used)
 
     ServiceComponent *packetComp = findPacketComponent(SCId);
 
-    used += 56 / 8;
+    // The CAOrg field is only present if the CAOrg flag is set
+    used += CAOrgflag ? 56 / 8 : 40 / 8;
     if (packetComp) {
         packetComp->subchannelId = SubChId;
         packetComp->DSCTy = DSCTy;
@@ -453,7 +454,7 @@ int16_t FIBProcessor::HandleFIG0Extension8(
 
     extensionFlag   = getBits_1(d, lOffset);
     uint16_t SCIds   = getBits_4(d, lOffset + 4);
-    lOffset += 4;
+    lOffset += 8;
 
     uint8_t lsFlag  = getBits_1(d, lOffset);
     if (lsFlag == 1) {
@@ -464,7 +465,7 @@ int16_t FIBProcessor::HandleFIG0Extension8(
         //           }
     }
     else {
-        /* int16_t SubChId = */ getBits_6(d, lOffset + 4);
+        /* int16_t SubChId = */ getBits_6(d, lOffset + 2);
         lOffset += 8;
     }
 
