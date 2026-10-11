@@ -36,7 +36,7 @@
 #include <map>
 #include <string>
 
-#define NUMBEROFCHANNELS 54
+#define NUMBEROFCHANNELS 38
 
 class Channels
 {

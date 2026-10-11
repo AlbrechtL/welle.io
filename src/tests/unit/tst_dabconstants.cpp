@@ -27,6 +27,7 @@
 #include <string>
 #include <vector>
 
+#include "channels.h"
 #include "charsets.h"
 #include "dab-constants.h"
 
@@ -46,6 +47,10 @@ private slots:
 
     void eepBitrate_data();
     void eepBitrate();
+
+    void bandIIIFrequency();
+    void scanCoversBandIII();
+    void noLBandChannels();
 };
 
 void DabConstantsTests::dabParams_data()
@@ -159,6 +164,40 @@ void DabConstantsTests::eepBitrate()
     QCOMPARE(sc.bitrate(), bitrate);
     QCOMPARE(sc.numCU(), lengthCU);
     QCOMPARE(QString::fromStdString(sc.protection()), protection);
+}
+
+void DabConstantsTests::bandIIIFrequency()
+{
+    Channels channels;
+    QCOMPARE(channels.getFrequency("5A"), 174928000);
+    QCOMPARE(channels.getFrequency("11D"), 222064000);
+    QCOMPARE(channels.getFrequency("13F"), 239200000);
+    QCOMPARE(channels.getChannelForFrequency(222064000), std::string("11D"));
+}
+
+void DabConstantsTests::scanCoversBandIII()
+{
+    // A scan starts at 5A and steps through all Band III channels up to 13F
+    QCOMPARE(NUMBEROFCHANNELS, 38);
+
+    Channels channels;
+    QCOMPARE(channels.getCurrentChannel(), std::string("5A"));
+    std::string last;
+    for (int i = 1; i < NUMBEROFCHANNELS; i++) {
+        last = channels.getNextChannel();
+        QVERIFY(channels.getFrequency(last) != 0);
+    }
+    QCOMPARE(last, std::string("13F"));
+    QCOMPARE(channels.getNextChannel(), std::string(""));
+}
+
+void DabConstantsTests::noLBandChannels()
+{
+    // The L-Band (1452-1479 MHz) is not used for DAB anymore
+    Channels channels;
+    QCOMPARE(channels.getFrequency("LA"), 0);
+    QCOMPARE(channels.getFrequency("LP"), 0);
+    QVERIFY_THROWS_EXCEPTION(std::out_of_range, channels.getChannelForFrequency(1452960000));
 }
 
 QTEST_APPLESS_MAIN(DabConstantsTests)
