@@ -24,7 +24,8 @@
 // gui.ui.dashboard: the expert views. The grid of welle.io 2.7 is taken
 // over, every view can be added and gets data while a station plays,
 // cards are maximized, moved and removed, the layout survives a restart
-// and leaving the expert mode keeps the views of the normal mode.
+// and leaving the expert mode keeps the views of the normal mode. The
+// service details tell whether the ensemble provides station logos (SPI).
 
 #include <QAbstractSeries>
 
@@ -51,6 +52,7 @@ private slots:
 
     void takesOverOldGrid();
     void addsEveryView();
+    void showsSpiStatus();
     void graphsGetData_data();
     void graphsGetData();
     void showsImpulseResponseDelay();
@@ -151,6 +153,21 @@ void UiDashboardTests::addsEveryView()
     app.screenshot("dashboard-all-views");
 
     qInfo().noquote() << "All" << types.size() << "views added";
+}
+
+void UiDashboardTests::showsSpiStatus()
+{
+    // The recording has no SPI service: no station logos from this ensemble
+    QObject* card = app.find("card.serviceDetails");
+    QVERIFY(card);
+    QObject* spi = child(card, "spiDetail");
+    QVERIFY(spi);
+    QTRY_COMPARE_WITH_TIMEOUT(app.radio()->property("spiState").toInt(), int(CRadioController::SpiNotAvailable), 30000);
+    QCOMPARE(spi->property("value").toString(), QString("Not provided by this ensemble"));
+    app.scrollIntoView(qobject_cast<QQuickItem*>(card));
+    app.screenshot("dashboard-spi");
+
+    qInfo().noquote() << "Service details, station logos (SPI):" << spi->property("value").toString();
 }
 
 void UiDashboardTests::graphsGetData_data()

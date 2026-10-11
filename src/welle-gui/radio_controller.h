@@ -39,6 +39,7 @@
 #include <QImage>
 #include <QVariantMap>
 #include <QFile>
+#include <QSet>
 #include <mutex>
 #include <list>
 
@@ -57,7 +58,8 @@ Q_DECLARE_METATYPE(CDeviceID)
 class CRadioController :
     public QObject,
     public RadioControllerInterface,
-    public ProgrammeHandlerInterface
+    public ProgrammeHandlerInterface,
+    public DataServiceHandlerInterface
 {
     Q_OBJECT
     Q_PROPERTY(QString deviceName MEMBER deviceName NOTIFY deviceNameChanged)
@@ -99,7 +101,18 @@ class CRadioController :
     Q_PROPERTY(QString title MEMBER currentTitle NOTIFY titleChanged)
     Q_PROPERTY(QString text MEMBER currentText NOTIFY textChanged)
 
+    // SPI (station logos) of the current ensemble, see SpiState
+    Q_PROPERTY(int spiState MEMBER spiState NOTIFY spiStateChanged)
+    Q_PROPERTY(int spiLogoCount MEMBER spiLogoCount NOTIFY spiLogoCountChanged)
+
 public:
+    enum SpiState {
+        SpiSearching = 0,       // FIC not yet complete
+        SpiNotAvailable = 1,    // the ensemble has no SPI service
+        SpiAvailable = 2,       // SPI is decoded
+    };
+    Q_ENUM(SpiState)
+
     CRadioController(QVariantMap &commandLineOptions, QObject* parent = nullptr);
     ~CRadioController();
     CRadioController(const CRadioController&) = delete;
@@ -147,6 +160,7 @@ public:
     virtual void onNewDynamicLabel(const std::string& label) override;
     virtual void onMOT(const mot_file_t& mot_file) override;
     virtual void onPADLengthError(size_t announced_xpad_len, size_t xpad_len) override;
+    virtual void onServiceLogo(const service_logo_t& logo) override;
     virtual void onSNR(float snr) override;
     virtual void onFrequencyCorrectorChange(int fine, int coarse) override;
     virtual void onSyncChange(char isSync) override;
@@ -191,6 +205,10 @@ private:
     bool isPlaying = false;
     bool isSync = false;
     bool isFICCRC = false;
+    int spiState = SpiSearching;
+    int spiLogoCount = 0;           // services with a logo from the SPI of this ensemble
+    int spiSyncedTicks = 0;         // spiTimer ticks with sync but without SPI
+    QSet<quint32> spiLogoServices;
     bool isSignal = false;
     bool isDAB = false;
     QString audioMode = "";
@@ -226,6 +244,7 @@ private:
     QTimer labelTimer;
     QTimer stationTimer;
     QTimer channelTimer;
+    QTimer spiTimer;
 
     bool isChannelScan = false;
     bool isAGC = false;
@@ -247,6 +266,8 @@ private slots:
     void ensembleLabel(DabLabel&);
     void serviceId(quint32);
     void labelTimerTimeout(void);
+    void spiTimerTimeout(void);
+    void resetSpiState(void);
     void stationTimerTimeout(void);
     void channelTimerTimeout(void);
     void nextChannel(bool isWait);
@@ -287,6 +308,9 @@ signals:
     void gainChanged(int);
     void volumeChanged(qreal volume);
     void motChanged(mot_file_t);
+    void serviceLogoReceived(quint32 sId, QByteArray data);
+    void spiStateChanged();
+    void spiLogoCountChanged();
     void motReseted(void);
     void restartServiceRequested(void);
 

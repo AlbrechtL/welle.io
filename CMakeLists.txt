@@ -283,6 +283,7 @@ set(welle_io_sources
     src/welle-gui/app_setup.cpp
     src/welle-gui/audio_output.cpp
     src/welle-gui/mot_image_provider.cpp
+    src/welle-gui/station_logos.cpp
     src/welle-gui/gui_helper.cpp
     src/welle-gui/radio_controller.cpp
     src/welle-gui/debug_output.cpp

@@ -48,6 +48,7 @@
 #endif
 
 #include "mot_image_provider.h"
+#include "station_logos.h"
 #include "dab-constants.h"
 #include "radio_controller.h"
 
@@ -113,6 +114,7 @@ public:
 #endif
 
     CMOTImageProvider* motImageProvider; // ToDo: Must be a getter
+    CStationLogos* stationLogos;
 
 private:
     QTranslator *translator = nullptr;

@@ -22,9 +22,13 @@
  */
 
 // gui.ui.stations: the station list. Empty state, scan from the menu,
-// favorites, the lists after a restart, clearing the list, and a long
-// list of the real recording with the most services.
+// station logos, favorites, the lists after a restart, clearing the list,
+// and a long list of the real recording with the most services.
 
+#include <QBuffer>
+#include <QImage>
+
+#include "gui_helper.h"
 #include "gui_test_main.h"
 #include "radio_controller.h"
 #include "ui_test_case.h"
@@ -40,6 +44,7 @@ private slots:
 
     void showsEmptyState();
     void scansFromMenu();
+    void showsStationLogos();
     void addsAndRemovesFavorites();
     void keepsListsAfterRestart();
     void clearsList();
@@ -50,6 +55,18 @@ private:
     bool menuEntry(const QString& objectName)
     {
         return app.click("stationListMenuButton") && app.waitVisible(objectName) && app.click(objectName);
+    }
+
+    // The logo image in a station row, if it is shown and loaded
+    static QQuickItem* shownLogo(QQuickItem* row)
+    {
+        if (!row)
+            return nullptr;
+        for (QQuickItem* logo : row->findChildren<QQuickItem*>("stationLogo")) {
+            if (logo->isVisible() && logo->property("status").toInt() == 1) // Image.Ready
+                return logo;
+        }
+        return nullptr;
     }
 
     int count(const QString& model) const
@@ -106,6 +123,35 @@ void UiStationsTests::scansFromMenu()
     QCOMPARE(app.text("navBadge.favorites").toInt(), 0);
 
     qInfo().noquote() << "The scan from the menu found" << shownStations().size() << "stations";
+}
+
+void UiStationsTests::showsStationLogos()
+{
+    // No logos yet: every station has the letter avatar
+    for (const QJsonObject& service : app.services())
+        QVERIFY(!shownLogo(stationRow(service["sid"].toInt())));
+
+    // A logo as the backend delivers it by SPI
+    QImage image(128, 128, QImage::Format_ARGB32);
+    image.fill(Qt::red);
+    QByteArray png;
+    QBuffer buffer(&png);
+    buffer.open(QIODevice::WriteOnly);
+    QVERIFY(image.save(&buffer, "PNG"));
+
+    const quint32 sid = app.services().first()["sid"].toInt();
+    emit app.radio()->serviceLogoReceived(sid, png);
+
+    QTRY_VERIFY(shownLogo(stationRow(sid)));
+    for (const QJsonObject& service : app.services().mid(1))
+        QVERIFY(!shownLogo(stationRow(service["sid"].toInt())));
+
+    // Stored for the next start
+    const QString file = app.gui()->stationLogos->directory() + "/" + QString::number(sid, 16).toUpper() + ".png";
+    QVERIFY2(QFile::exists(file), qPrintable(file));
+    app.screenshot("stations-logo");
+
+    qInfo() << "A received logo is shown left of the station name";
 }
 
 void UiStationsTests::addsAndRemovesFavorites()
@@ -166,7 +212,10 @@ void UiStationsTests::keepsListsAfterRestart()
     QVERIFY(showList("all"));
     QTRY_COMPARE(shownStations().size(), int(app.services().size()));
 
-    qInfo() << "Station list, favorites and the shown list survive a restart";
+    // The logo comes from the disk cache
+    QTRY_VERIFY(shownLogo(stationRow(app.services().first()["sid"].toInt())));
+
+    qInfo() << "Station list, favorites, logos and the shown list survive a restart";
 }
 
 void UiStationsTests::clearsList()

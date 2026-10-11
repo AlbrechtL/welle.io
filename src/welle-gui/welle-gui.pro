@@ -53,6 +53,7 @@ HEADERS += \
     debug_output.h \
     gui_helper.h \
     mot_image_provider.h \
+    station_logos.h \
     radio_controller.h \
     mpris/mpris.h \
     mpris/mpris_mp2.h \
@@ -67,6 +68,7 @@ SOURCES += \
     debug_output.cpp \
     gui_helper.cpp \
     mot_image_provider.cpp \
+    station_logos.cpp \
     radio_controller.cpp \
     mpris/mpris.cpp \
     mpris/mpris_mp2.cpp \

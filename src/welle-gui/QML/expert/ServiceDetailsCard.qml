@@ -32,7 +32,8 @@ import QtQuick.Controls.Material
 import "../controls"
 
 // Technical details of the receiver and the service: device, channel,
-// frequency correction, SNR and the error counters with a status color
+// frequency correction, SNR, the error counters with a status color and
+// whether the ensemble provides station logos (SPI)
 DashboardCard {
     id: card
     labelText: qsTr("Service Details")
@@ -40,6 +41,10 @@ DashboardCard {
 
     readonly property bool rsOk: radioController.rsCorrectedErrors === 0 && radioController.rsUncorrectedErrors === 0
     readonly property bool rsCorrected: radioController.rsCorrectedErrors >= 0 && radioController.rsUncorrectedErrors === 0
+
+    // CRadioController::SpiState
+    readonly property bool spiAvailable: radioController.spiState === 2
+    readonly property bool spiNotAvailable: radioController.spiState === 1
 
     content: Flickable {
         anchors.fill: parent
@@ -91,6 +96,17 @@ DashboardCard {
                 status: radioController.aacErrors === 0 ? Theme.success : Theme.error
             }
             Detail { name: qsTr("Ensemble ID"); value: "0x" + radioController.ensembleId.toString(16) }
+            // Station logos come from the SPI service of an ensemble, many
+            // ensembles don't have one
+            Detail {
+                objectName: "spiDetail"
+                name: qsTr("Station logos (SPI)")
+                value: card.spiAvailable
+                       ? qsTr("Yes, %n logo(s) received", "", radioController.spiLogoCount)
+                       : card.spiNotAvailable ? qsTr("Not provided by this ensemble")
+                                              : radioController.isSync ? qsTr("Searching…") : qsTr("N/A")
+                status: card.spiAvailable ? Theme.success : card.spiNotAvailable ? Theme.warning : "transparent"
+            }
             Detail { name: qsTr("DAB date and time"); value: radioController.dateTime.toString() }
         }
     }

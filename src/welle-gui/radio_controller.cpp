@@ -89,6 +89,19 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, QObject *par
     connect(&stationTimer, &QTimer::timeout, this, &CRadioController::stationTimerTimeout);
     connect(&channelTimer, &QTimer::timeout, this, &CRadioController::channelTimerTimeout);
 
+    // Look for SPI services (station logos) in the received ensemble
+    connect(&spiTimer, &QTimer::timeout, this, &CRadioController::spiTimerTimeout);
+    spiTimer.start(3000);
+
+    // Count the services with a logo (the signal comes from the decoder thread)
+    connect(this, &CRadioController::serviceLogoReceived, this, [this](quint32 sId, QByteArray) {
+        spiLogoServices.insert(sId);
+        if (spiLogoCount != spiLogoServices.size()) {
+            spiLogoCount = spiLogoServices.size();
+            emit spiLogoCountChanged();
+        }
+    });
+
     // Use the signal slot mechanism is necessary because the backend runs in a different thread
     connect(this, &CRadioController::switchToNextChannel,
             this, &CRadioController::nextChannel);
@@ -364,6 +377,7 @@ void CRadioController::setChannel(QString Channel, bool isScan, bool Force)
             radioReceiver = std::make_unique<RadioReceiver>(*this, *device, rro, 1);
             radioReceiver->setReceiverOptions(rro);
             radioReceiver->restart(isScan);
+            resetSpiState();
         }
 
         emit channelChanged();
@@ -817,6 +831,37 @@ void CRadioController::labelTimerTimeout()
     }
 }
 
+void CRadioController::spiTimerTimeout()
+{
+    // The SPI components are known once the FIC is complete. Calling
+    // startSpiDecoding() again does not restart running decoders.
+    if (radioReceiver && !isChannelScan) {
+        int state = spiState;
+        if (radioReceiver->startSpiDecoding(*this) > 0) {
+            state = SpiAvailable;
+        }
+        else if (isSync && ++spiSyncedTicks >= 5) {
+            // 15 s with sync are enough to receive the complete FIC
+            state = SpiNotAvailable;
+        }
+
+        if (spiState != state) {
+            spiState = state;
+            emit spiStateChanged();
+        }
+    }
+}
+
+void CRadioController::resetSpiState()
+{
+    spiState = SpiSearching;
+    spiSyncedTicks = 0;
+    spiLogoServices.clear();
+    spiLogoCount = 0;
+    emit spiStateChanged();
+    emit spiLogoCountChanged();
+}
+
 void CRadioController::stationTimerTimeout()
 {
     if (!radioReceiver)
@@ -1119,6 +1164,14 @@ void CRadioController::onNewDynamicLabel(const std::string& label)
 void CRadioController::onMOT(const mot_file_t& mot_file)
 {
     emit motChanged(mot_file);
+}
+
+void CRadioController::onServiceLogo(const service_logo_t& logo)
+{
+    // Called from the decoder thread, the signal is queued to the GUI thread
+    qDebug() << "RadioController: Logo for service" << qPrintable(QString::number(logo.sId, 16).toUpper())
+             << logo.width << "x" << logo.height << logo.data.size() << "bytes";
+    emit serviceLogoReceived(logo.sId, QByteArray(reinterpret_cast<const char*>(logo.data.data()), logo.data.size()));
 }
 
 void CRadioController::onPADLengthError(size_t announced_xpad_len, size_t xpad_len)

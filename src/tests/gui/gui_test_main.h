@@ -72,9 +72,9 @@ inline void useOffscreenPlatform(const QString& configDir)
 }
 
 // main() for the GUI tests. The tests run without a display and with
-// their own, empty settings, so they neither need nor change the settings
-// of an installed welle.io. The user interface is English, unless
-// WELLE_TEST_LANGUAGE sets a locale (e.g. de_DE.UTF-8).
+// their own, empty settings and data directory, so they neither need nor
+// change the settings of an installed welle.io. The user interface is
+// English, unless WELLE_TEST_LANGUAGE sets a locale (e.g. de_DE.UTF-8).
 #define WELLE_GUI_TEST_MAIN(TestClass) \
 int main(int argc, char** argv) \
 { \
@@ -84,6 +84,8 @@ int main(int argc, char** argv) \
                       ? QByteArray("C.UTF-8") : qgetenv("WELLE_TEST_LANGUAGE")); \
     QTemporaryDir configDir; \
     qputenv("XDG_CONFIG_HOME", configDir.path().toUtf8()); \
+    QTemporaryDir dataDir; /* e.g. the station logos */ \
+    qputenv("XDG_DATA_HOME", dataDir.path().toUtf8()); \
     QCoreApplication::setOrganizationName("welle.io"); \
     QCoreApplication::setOrganizationDomain("welle.io"); \
     QCoreApplication::setApplicationName("welle.io"); \

@@ -33,6 +33,7 @@
 #include "app_setup.h"
 #include "gui_helper.h"
 #include "radio_controller.h"
+#include "station_logos.h"
 #include "waterfallitem.h"
 
 QTranslator* installTranslator()
@@ -74,4 +75,8 @@ void setupQmlEngine(QQmlApplicationEngine& engine, CGUIHelper* guiHelper, CRadio
 
     // Add MOT slideshow provider
     engine.addImageProvider(QLatin1String("SLS"), guiHelper->motImageProvider);
+
+    // Station logos, image://logo/<SId>
+    rootContext->setContextProperty("stationLogos", guiHelper->stationLogos);
+    engine.addImageProvider(QLatin1String("logo"), new CStationLogoImageProvider(guiHelper->stationLogos));
 }

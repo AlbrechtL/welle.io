@@ -60,6 +60,10 @@ CGUIHelper::CGUIHelper(CRadioController *RadioController, QObject *parent)
     QSettings settings;
     connect(RadioController, &CRadioController::motChanged, this, &CGUIHelper::motUpdate);
     connect(RadioController, &CRadioController::motReseted, this, &CGUIHelper::motReset);
+
+    // Station logos received by SPI
+    stationLogos = new CStationLogos(this);
+    connect(RadioController, &CRadioController::serviceLogoReceived, stationLogos, &CStationLogos::addLogo);
     connect(RadioController, &CRadioController::showErrorMessage, this, &CGUIHelper::showErrorMessage);
     connect(RadioController, &CRadioController::showInfoMessage, this, &CGUIHelper::showInfoMessage);
 

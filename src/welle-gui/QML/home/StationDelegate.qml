@@ -69,30 +69,81 @@ ItemDelegate {
     contentItem: RowLayout {
         spacing: Theme.spacingM
 
-        // Avatar: first letter of the station, an equalizer while it plays
-        Rectangle {
+        // Avatar: the station logo (SPI) if there is one, otherwise the first
+        // letter of the station. While the station plays an equalizer is
+        // shown instead of the letter, or as a badge on the logo.
+        Item {
             Layout.preferredWidth: 36
             Layout.preferredHeight: 36
-            radius: 18
-            color: root.isPlaying ? Material.accent : Qt.alpha(Material.accent, 0.14)
 
-            Label {
-                anchors.centerIn: parent
-                visible: !root.isPlaying
-                text: root.stationNameText.trim().charAt(0).toUpperCase()
-                font.pixelSize: Theme.titleMedium
-                font.weight: Font.Medium
-                color: Material.accent
+            // Re-evaluated whenever a new logo was received
+            readonly property bool hasLogo: stationLogos.revision >= 0 && stationLogos.hasLogo(root.stationSIdValue)
+
+            Rectangle {
+                anchors.fill: parent
+                visible: !parent.hasLogo
+                radius: 18
+                color: root.isPlaying ? Material.accent : Qt.alpha(Material.accent, 0.14)
+
+                Label {
+                    anchors.centerIn: parent
+                    visible: !root.isPlaying
+                    text: root.stationNameText.trim().charAt(0).toUpperCase()
+                    font.pixelSize: Theme.titleMedium
+                    font.weight: Font.Medium
+                    color: Material.accent
+                }
+
+                IconImage {
+                    anchors.centerIn: parent
+                    visible: root.isPlaying
+                    name: "graphic_eq"
+                    width: 20
+                    height: 20
+                    sourceSize: Qt.size(width, height)
+                    color: root.Material.theme === Material.Dark ? "black" : "white"
+                }
             }
 
-            IconImage {
-                anchors.centerIn: parent
-                visible: root.isPlaying
-                name: "graphic_eq"
-                width: 20
-                height: 20
-                sourceSize: Qt.size(width, height)
-                color: root.Material.theme === Material.Dark ? "black" : "white"
+            // Logos are made for a light background, also in the dark theme
+            Rectangle {
+                anchors.fill: parent
+                visible: parent.hasLogo
+                radius: Theme.radiusS
+                color: "white"
+                border.width: 1
+                border.color: Qt.alpha(Material.foreground, 0.12)
+
+                Image {
+                    objectName: "stationLogo"
+                    anchors.fill: parent
+                    anchors.margins: 2
+                    source: parent.visible ? "image://logo/" + root.stationSIdValue + "?r=" + stationLogos.revision : ""
+                    sourceSize: Qt.size(64, 64)
+                    fillMode: Image.PreserveAspectFit
+                    asynchronous: true
+                    cache: false
+                }
+            }
+
+            Rectangle {
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+                anchors.margins: -3
+                width: 18
+                height: 18
+                radius: 9
+                visible: parent.hasLogo && root.isPlaying
+                color: Material.accent
+
+                IconImage {
+                    anchors.centerIn: parent
+                    name: "graphic_eq"
+                    width: 12
+                    height: 12
+                    sourceSize: Qt.size(width, height)
+                    color: root.Material.theme === Material.Dark ? "black" : "white"
+                }
             }
         }
 
