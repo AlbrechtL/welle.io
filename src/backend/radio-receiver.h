@@ -80,6 +80,18 @@ class RadioReceiver {
 
         bool removeServiceToDecode(const Service& s);
 
+        /* Decode the SPI services of the ensemble (station logos) in
+         * addition to the audio services. Can be called repeatedly, e.g.
+         * when the FIC is complete. Returns the number of SPI components
+         * being decoded. If dumpFilePrefix is not empty, the logical
+         * frames of each SPI subchannel are written to
+         * <dumpFilePrefix><SubChId>.bin */
+        size_t startSpiDecoding(DataServiceHandlerInterface& handler,
+                const std::string& dumpFilePrefix = std::string());
+
+        /* Packet mode components that carry or may carry SPI */
+        std::vector<ServiceComponent> getSpiComponents(void) const;
+
         uint16_t getEnsembleId(void) const;
         uint8_t getEnsembleEcc(void) const;
         DabLabel getEnsembleLabel(void) const;

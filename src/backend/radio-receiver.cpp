@@ -153,7 +153,7 @@ bool RadioReceiver::playProgramme(ProgrammeHandlerInterface& handler,
 
             if (subch.valid()) {
                 if (unique) {
-                    mscHandler.stopProcessing();
+                    mscHandler.stopAudioProcessing();
                 }
 
                 if (sc.audioType() == AudioServiceComponentType::DAB ||
@@ -167,6 +167,35 @@ bool RadioReceiver::playProgramme(ProgrammeHandlerInterface& handler,
     }
 
     return false;
+}
+
+size_t RadioReceiver::startSpiDecoding(DataServiceHandlerInterface& handler,
+        const std::string& dumpFilePrefix)
+{
+    size_t count = 0;
+    for (const auto& sc : ficHandler.fibProcessor.getSpiComponents()) {
+        const auto subch = ficHandler.fibProcessor.getSubchannel(sc);
+        if (!subch.valid()) {
+            continue;
+        }
+
+        std::string dumpFileName;
+        if (!dumpFilePrefix.empty()) {
+            dumpFileName = dumpFilePrefix + std::to_string(subch.subChId) + ".bin";
+        }
+
+        // DG flag 0: MSC data groups are used
+        if (mscHandler.addDataSubchannel(handler, sc.packetAddress,
+                    sc.DGflag == 0, dumpFileName, subch)) {
+            count++;
+        }
+    }
+    return count;
+}
+
+std::vector<ServiceComponent> RadioReceiver::getSpiComponents() const
+{
+    return ficHandler.fibProcessor.getSpiComponents();
 }
 
 uint16_t RadioReceiver::getEnsembleId(void) const

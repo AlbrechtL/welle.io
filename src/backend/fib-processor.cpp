@@ -392,6 +392,7 @@ int16_t FIBProcessor::HandleFIG0Extension3(uint8_t *d, int16_t used)
         packetComp->DSCTy = DSCTy;
         packetComp->DGflag = DGflag;
         packetComp->packetAddress = packetAddress;
+        packetComp->packetInfoValid = true;
     }
     return used;
 }
@@ -453,27 +454,40 @@ int16_t FIBProcessor::HandleFIG0Extension8(
     uint8_t  extensionFlag;
 
     extensionFlag   = getBits_1(d, lOffset);
-    uint16_t SCIds   = getBits_4(d, lOffset + 4);
+    int16_t SCIdS   = getBits_4(d, lOffset + 4);
     lOffset += 8;
 
+    ServiceComponent *component = nullptr;
     uint8_t lsFlag  = getBits_1(d, lOffset);
     if (lsFlag == 1) {
-        /* int16_t SCid = */ getBits(d, lOffset + 4, 12);
+        int16_t SCId = getBits(d, lOffset + 4, 12);
         lOffset += 16;
-        //           if (findPacketComponent ((SCIds << 4) | SCid) != NULL) {
-        //              std::clog << "fib-processor:" << "packet component bestaat !!\n") << std::endl;
-        //           }
+        component = findPacketComponent(SCId);
+        if (component && component->SId != SId) {
+            component = nullptr;
+        }
     }
     else {
-        /* int16_t SubChId = */ getBits_6(d, lOffset + 2);
+        uint8_t mscFicFlag = getBits_1(d, lOffset + 1);
+        int16_t SubChId = getBits_6(d, lOffset + 2);
         lOffset += 8;
+        if (mscFicFlag == 0) {
+            for (auto& sc : components) {
+                if (sc.SId == SId && sc.TMid != 3 && sc.subchannelId == SubChId) {
+                    component = &sc;
+                    break;
+                }
+            }
+        }
+    }
+
+    if (component) {
+        component->SCIdS = SCIdS;
     }
 
     if (extensionFlag) {
         lOffset += 8;   // skip Rfa
     }
-    (void)SId;
-    (void)SCIds;
     return lOffset / 8;
 }
 
@@ -560,9 +574,16 @@ int16_t FIBProcessor::HandleFIG0Extension13(
 
 //    std::clog << "fib-processor: HandleFIG0Extension13 NoApplications " << NoApplications << " ";
 
+    std::vector<UserApplication> userApplications;
     for (i = 0; i < NoApplications; i++) {
         int16_t appType = getBits (d, lOffset, 11);
         int16_t length  = getBits_5 (d, lOffset + 11);
+        UserApplication ua;
+        ua.type = appType;
+        for (int j = 0; j < length; j++) {
+            ua.data.push_back(getBits_8(d, lOffset + 16 + 8 * j));
+        }
+        userApplications.push_back(std::move(ua));
         lOffset += (11 + 5 + 8 * length);
 //        std::clog << " ";
         switch (appType) {
@@ -604,8 +625,10 @@ int16_t FIBProcessor::HandleFIG0Extension13(
 
 //    std::clog << std::endl;
 
-    (void)SId;
-    (void)SCIds;
+    ServiceComponent *component = findComponent(SId, SCIds);
+    if (component) {
+        component->userApplications = std::move(userApplications);
+    }
     return lOffset / 8;
 }
 
@@ -1107,7 +1130,10 @@ ServiceComponent *FIBProcessor::findComponent(uint32_t serviceId, int16_t SCIdS)
 {
     auto comp = std::find_if(components.begin(), components.end(),
                 [&](const ServiceComponent& sc) {
-                    return sc.SId == serviceId && sc.componentNr == SCIdS;
+                    // Without FIG 0/8 assume that the SCIdS is the
+                    // order of the components in FIG 0/2
+                    const int16_t scids = sc.SCIdS >= 0 ? sc.SCIdS : sc.componentNr;
+                    return sc.SId == serviceId && scids == SCIdS;
                 });
 
     if (comp == components.end()) {
@@ -1307,6 +1333,28 @@ std::list<ServiceComponent> FIBProcessor::getComponents(const Service& s) const
     }
 
     return c;
+}
+
+std::vector<ServiceComponent> FIBProcessor::getSpiComponents() const
+{
+    std::vector<ServiceComponent> spi;
+    std::lock_guard<std::mutex> lock(mutex);
+    for (const auto& sc : components) {
+        // SPI is carried by MOT (DSCTy 60) and signalled with the user
+        // application "EPG" (0x007, ETSI TS 102 371 clause 7.1.1). As long
+        // as FIG 0/13 is not received, any MOT packet component is a
+        // candidate; the SI object then tells if it really is SPI.
+        if (sc.TMid != 3 || !sc.packetInfoValid || sc.DSCTy != 60) {
+            continue;
+        }
+        if (!sc.userApplications.empty() && !sc.hasUserApplication(0x007)) {
+            continue;
+        }
+        if (subChannels.at(sc.subchannelId).valid()) {
+            spi.push_back(sc);
+        }
+    }
+    return spi;
 }
 
 Subchannel FIBProcessor::getSubchannel(const ServiceComponent& sc) const

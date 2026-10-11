@@ -248,7 +248,10 @@ set(backend_sources
     src/backend/charsets.cpp
     src/backend/dab-constants.cpp
     src/backend/mot_manager.cpp
+    src/backend/mot-carousel.cpp
+    src/backend/packet-decoder.cpp
     src/backend/pad_decoder.cpp
+    src/backend/spi-decoder.cpp
     src/backend/eep-protection.cpp
     src/backend/fib-processor.cpp
     src/backend/fic-handler.cpp

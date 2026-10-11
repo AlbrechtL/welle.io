@@ -103,8 +103,28 @@ bool MOTObject::ParseCheckHeader(MOT_FILE& target_file) {
 	std::string old_content_name = file.content_name;
 	std::string new_content_name;
 
+	if(!ParseMOTHeaderExtension(&data[7], data.size() - 7, file, new_content_name))
+		return false;
+
+	if(!header_update) {
+		// ensure actual header is processed only once
+		header_received = true;
+	} else {
+		// ensure matching content name
+		if(new_content_name != old_content_name)
+			return false;
+	}
+
+	target_file = file;
+	return true;
+}
+
+bool ParseMOTHeaderExtension(const uint8_t* ext_data, size_t ext_len, MOT_FILE& file,
+		std::string& new_content_name) {
+	const std::vector<uint8_t> data(ext_data, ext_data + ext_len);
+
     // parse/check header extension
-	for(size_t offset = 7; offset < data.size();) {
+	for(size_t offset = 0; offset < data.size();) {
 		int pli = data[offset] >> 6;
 		int param_id = data[offset] & 0x3F;
 		offset++;
@@ -160,7 +180,26 @@ bool MOTObject::ParseCheckHeader(MOT_FILE& target_file) {
 			new_content_name = file.content_name;
 //			fprintf(stderr, "ContentName: '%s'\n", file.content_name.c_str());
 			break;
+		case 0x10:	// MimeType
+			file.mime_type = std::string((char*) &data[offset], data_len);
+			break;
+		case 0x11:	// CompressionType
+			if(data_len >= 1)
+				file.compression_type = data[offset];
+			break;
+		case 0x21:	// ProfileSubset (SPI: list of profile IDs, 0x02 = advanced)
+			for(size_t i = 0; i < data_len; i++)
+				if(data[offset + i] == 0x02)
+					file.profile_advanced = true;
+			break;
+		case 0x23:	// CAInfo
+			file.ca_info = true;
+			break;
+		// The IDs from 0x25 on are application specific. The following are
+		// the ones of the slideshow; SPI uses them for ScopeStart/End/ID.
         case 0x25:  // Category/SlideID
+            if(data_len < 2)
+                break;
             file.category = data[offset];
             file.slide_id = data[offset+1];
             break;
@@ -175,16 +214,6 @@ bool MOTObject::ParseCheckHeader(MOT_FILE& target_file) {
 		offset += data_len;
 	}
 
-	if(!header_update) {
-		// ensure actual header is processed only once
-		header_received = true;
-	} else {
-		// ensure matching content name
-		if(new_content_name != old_content_name)
-			return false;
-	}
-
-	target_file = file;
 	return true;
 }
 

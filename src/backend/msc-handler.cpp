@@ -26,6 +26,7 @@
 #include "msc-handler.h"
 #include "dab-virtual.h"
 #include "dab-audio.h"
+#include "spi-decoder.h"
 
 //  Interface program for processing the MSC.
 //  Merely a dispatcher for the selected service
@@ -73,7 +74,7 @@ bool MscHandler::addSubchannel(
         }
     }
 
-    SelectedStream s(handler, ascty, dumpFileName, sub);
+    SelectedStream s(sub, true);
 
     s.dabHandler = std::make_shared<DabAudio>(
                 ascty,
@@ -83,18 +84,36 @@ bool MscHandler::addSubchannel(
                 handler,
                 dumpFileName);
 
-     /* TODO dealing with data
-      s.dabHandler = std::make_shared<DabData>(radioInterface,
-                                  new_DSCTy,
-                                  new_packetAddress,
-                                  subChannel.length * CUSize,
-                                  subChannel.bitrate(),
-                                  subChannel.shortForm,
-                                  subChannel.protLevel,
-                                  new_DGflag,
-                                  new_FEC_scheme,
-                                  show_crcErrors);
-      */
+    streams.push_back(std::move(s));
+
+    work_to_be_done = true;
+    return true;
+}
+
+bool MscHandler::addDataSubchannel(
+        DataServiceHandlerInterface& handler,
+        uint16_t packetAddress,
+        bool dataGroups,
+        const std::string& dumpFileName,
+        const Subchannel& sub)
+{
+    std::lock_guard<std::mutex> lock(mutex);
+
+    // check not already in list
+    for (const auto& stream : streams) {
+        if (stream.subCh.subChId == sub.subChId) {
+            return true;
+        }
+    }
+
+    SelectedStream s(sub, false);
+
+    s.dabHandler = std::make_shared<DabAudio>(
+                sub.length * CUSize,
+                sub.bitrate(),
+                sub.protectionSettings,
+                std::make_unique<SpiDecoder>(
+                    sub.bitrate(), packetAddress, dataGroups, handler, dumpFileName));
 
     streams.push_back(std::move(s));
 
@@ -162,5 +181,12 @@ void MscHandler::stopProcessing()
     std::lock_guard<std::mutex> lock(mutex);
     work_to_be_done = false;
     streams.clear();
+}
+
+void MscHandler::stopAudioProcessing()
+{
+    std::lock_guard<std::mutex> lock(mutex);
+    streams.remove_if([](const SelectedStream& stream) { return stream.isAudio; });
+    work_to_be_done = !streams.empty();
 }
 

@@ -50,11 +50,19 @@ DabAudio::DabAudio(
         ProtectionSettings protection,
         ProgrammeHandlerInterface& phi,
         const std::string& dumpFileName) :
-    myProgrammeHandler(phi),
-    mscBuffer(64 * 32768),
-    dumpFileName(dumpFileName)
+    DabAudio(fragmentSize, bitRate, protection,
+            std::make_unique<DecoderAdapter>(phi, bitRate, dabModus, dumpFileName))
 {
-    this->dabModus         = dabModus;
+}
+
+DabAudio::DabAudio(
+        int16_t fragmentSize,
+        int16_t bitRate,
+        ProtectionSettings protection,
+        std::unique_ptr<DabProcessor> processor) :
+    our_dabProcessor(std::move(processor)),
+    mscBuffer(64 * 32768)
+{
     this->fragmentSize     = fragmentSize;
     this->bitRate          = bitRate;
 
@@ -74,9 +82,6 @@ DabAudio::DabAudio(
         protectionHandler = make_unique<EEPProtection>(
                 bitRate, profile_is_eep_a, (int)protection.eepLevel);
     }
-
-    our_dabProcessor = make_unique<DecoderAdapter>(
-            myProgrammeHandler, bitRate, dabModus, dumpFileName);
 
     running = true;
     ourThread = std::thread(&DabAudio::run, this);

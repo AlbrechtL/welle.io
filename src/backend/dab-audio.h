@@ -49,19 +49,21 @@ class DabAudio : public DabVirtual
                   ProtectionSettings protection,
                   ProgrammeHandlerInterface& phi,
                   const std::string& dumpFileName);
+        // Only the channel decoding: the decoded logical frames are given
+        // to processor, e.g. to the SPI decoder of a packet mode subchannel
+        DabAudio(int16_t fragmentSize,
+                  int16_t bitRate,
+                  ProtectionSettings protection,
+                  std::unique_ptr<DabProcessor> processor);
         virtual ~DabAudio(void);
         DabAudio(const DabAudio&) = delete;
         DabAudio& operator=(const DabAudio&) = delete;
 
         int32_t process(const softbit_t *v, int16_t cnt);
 
-    protected:
-        ProgrammeHandlerInterface& myProgrammeHandler;
-
     private:
         void    run(void);
         std::atomic<bool> running;
-        AudioServiceComponentType dabModus;
         int16_t fragmentSize;
         int16_t bitRate;
         std::vector<uint8_t> outV;
@@ -75,8 +77,6 @@ class DabAudio : public DabVirtual
         std::unique_ptr<Protection> protectionHandler;
         std::unique_ptr<DabProcessor> our_dabProcessor;
         RingBuffer<softbit_t> mscBuffer;
-
-        const std::string dumpFileName;
 };
 
 #endif

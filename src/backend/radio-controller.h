@@ -73,6 +73,16 @@ struct mot_file_t {
     std::string category_title;
 };
 
+/* A service logo received by SPI (ETSI TS 102 818 / TS 102 371) */
+struct service_logo_t {
+    uint8_t ecc = 0;        // Extended Country Code, 0 if unknown
+    uint32_t sId = 0;       // Service Identifier
+    std::string mimeType;   // e.g. "image/png", may be empty
+    int width = 0;
+    int height = 0;
+    std::vector<uint8_t> data;
+};
+
 enum class message_level_t { Information, Error };
 
 /* Definition of the interface all radio controllers must implement.
@@ -175,6 +185,18 @@ class ProgrammeHandlerInterface {
          * and effective X-PAD length.
          */
         virtual void onPADLengthError(size_t announced_xpad_len, size_t xpad_len) = 0;
+};
+
+/* A Data Service Handler receives the results of decoded data services,
+ * e.g. of SPI.
+ */
+class DataServiceHandlerInterface {
+    public:
+        virtual ~DataServiceHandlerInterface() { }
+
+        /* A service logo was decoded. It is called from the decoder thread,
+         * and again when a better suited or changed logo is received. */
+        virtual void onServiceLogo(const service_logo_t& logo) = 0;
 };
 
 enum class DeviceParam {

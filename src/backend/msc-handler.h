@@ -51,9 +51,20 @@ class MscHandler
         // Stop processing and remove all subchannels
         void stopProcessing(void);
 
+        // Remove all audio subchannels, data subchannels continue
+        void stopAudioProcessing(void);
+
         bool addSubchannel(
                 ProgrammeHandlerInterface& handler,
                 AudioServiceComponentType ascty,
+                const std::string& dumpFileName,
+                const Subchannel& sub);
+
+        // Add a packet mode subchannel carrying SPI
+        bool addDataSubchannel(
+                DataServiceHandlerInterface& handler,
+                uint16_t packetAddress,
+                bool dataGroups,
                 const std::string& dumpFileName,
                 const Subchannel& sub);
 
@@ -64,21 +75,12 @@ class MscHandler
         void processMscBlock(const softbit_t *fbits, int16_t blkno);
 
         struct SelectedStream {
-            SelectedStream(
-                ProgrammeHandlerInterface& handler,
-                AudioServiceComponentType ascty,
-                const std::string& dumpFileName,
-                const Subchannel& subCh) :
-                    handler(handler),
-                    audioType(ascty),
-                    dumpFileName(dumpFileName),
-                    subCh(subCh) {}
+            SelectedStream(const Subchannel& subCh, bool isAudio) :
+                    subCh(subCh),
+                    isAudio(isAudio) {}
 
-            ProgrammeHandlerInterface& handler;
-
-            AudioServiceComponentType audioType;
-            const std::string dumpFileName;
             const Subchannel subCh;
+            const bool isAudio;
 
             std::shared_ptr<DabVirtual> dabHandler;
         };

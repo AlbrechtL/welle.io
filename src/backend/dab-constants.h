@@ -127,6 +127,13 @@ struct Service {
     int16_t  programType = 0; // PTy, FIG0/17
 };
 
+// A user application of a service component, signalled in FIG 0/13
+// (ETSI TS 101 756 table 16), e.g. 0x002 MOT Slideshow or 0x007 SPI
+struct UserApplication {
+    uint16_t type = 0;
+    std::vector<uint8_t> data;
+};
+
 //      The service component describes the actual service
 //      It really should be a union
 struct ServiceComponent {
@@ -144,6 +151,18 @@ struct ServiceComponent {
     int16_t      DSCTy = 0;          // used in packet
     uint8_t      DGflag = 0;         // used for TDC
     int16_t      packetAddress = 0;  // used in packet
+    bool         packetInfoValid = false; // FIG 0/3 received (packet mode)
+    int16_t      SCIdS = -1;         // from FIG 0/8, -1 while unknown
+    std::vector<UserApplication> userApplications; // from FIG 0/13
+
+    bool hasUserApplication(uint16_t type) const {
+        for (const auto& ua : userApplications) {
+            if (ua.type == type) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     TransportMode transportMode(void) const;
     AudioServiceComponentType audioType(void) const;

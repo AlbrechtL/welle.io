@@ -100,6 +100,9 @@ HEADERS += \
     $$PWD/backend/dab-processor.h \
     $$PWD/backend/dab-virtual.h \
     $$PWD/backend/mot_manager.h \
+    $$PWD/backend/mot-carousel.h \
+    $$PWD/backend/packet-decoder.h \
+    $$PWD/backend/spi-decoder.h \
     $$PWD/backend/pad_decoder.h \
     $$PWD/backend/eep-protection.h \
     $$PWD/backend/energy_dispersal.h \
@@ -153,6 +156,9 @@ SOURCES += \
     $$PWD/backend/charsets.cpp \
     $$PWD/backend/dab-constants.cpp \
     $$PWD/backend/mot_manager.cpp \
+    $$PWD/backend/mot-carousel.cpp \
+    $$PWD/backend/packet-decoder.cpp \
+    $$PWD/backend/spi-decoder.cpp \
     $$PWD/backend/pad_decoder.cpp \
     $$PWD/backend/eep-protection.cpp \
     $$PWD/backend/fib-processor.cpp \

@@ -10,7 +10,8 @@ set(WELLE_TEST_DATA_DIR "" CACHE PATH
 # Shared harness: plays a recording through libwelle and collects the results
 add_library(welle_test_common STATIC
     common/recording_runner.cpp
-    common/expectations.cpp)
+    common/expectations.cpp
+    common/spi_replay.cpp)
 target_include_directories(welle_test_common PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/common)
 target_compile_definitions(welle_test_common PUBLIC
     WELLE_TEST_DATA_DIR_DEFAULT="${WELLE_TEST_DATA_DIR}")
@@ -18,6 +19,11 @@ target_link_libraries(welle_test_common PUBLIC welle Qt6::Core Threads::Threads)
 
 add_executable(welle-test-probe common/welle_test_probe.cpp)
 target_link_libraries(welle-test-probe PRIVATE welle_test_common)
+
+# Captures the SPI subchannels and logos from an rtl_tcp server (test data)
+add_executable(spi_capture tools/spi_capture.cpp)
+target_include_directories(spi_capture PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_link_libraries(spi_capture PRIVATE welle_test_common)
 
 # CTest names the tests <label>.<name>, e.g. unit.rawfile, so that
 # "ctest -L unit" and "ctest -R rawfile" both work.
@@ -35,11 +41,15 @@ add_executable(tst_fib unit/tst_fib.cpp)
 target_link_libraries(tst_fib PRIVATE welle_test_common Qt6::Test)
 add_test(NAME unit.fib COMMAND tst_fib)
 
+add_executable(tst_spi unit/tst_spi.cpp)
+target_link_libraries(tst_spi PRIVATE welle_test_common Qt6::Test)
+add_test(NAME unit.spi COMMAND tst_spi)
+
 add_executable(rstest ${CMAKE_SOURCE_DIR}/src/libs/fec/test/rstest.c)
 target_link_libraries(rstest PRIVATE welle)
 add_test(NAME unit.reed_solomon COMMAND rstest)
 
-set_tests_properties(unit.rawfile unit.dabconstants unit.fib unit.reed_solomon PROPERTIES LABELS unit)
+set_tests_properties(unit.rawfile unit.dabconstants unit.fib unit.spi unit.reed_solomon PROPERTIES LABELS unit)
 
 # Recordings of the welle.io-test-data repository. Every clip of its
 # manifest becomes one test, backend.recording.<clip id>, which runs
@@ -47,6 +57,10 @@ set_tests_properties(unit.rawfile unit.dabconstants unit.fib unit.reed_solomon P
 # CMake runs, so CMake has to know the test data directory.
 add_executable(tst_recordings backend/tst_recordings.cpp)
 target_link_libraries(tst_recordings PRIVATE welle_test_common Qt6::Test)
+
+find_package(Qt6 COMPONENTS Gui REQUIRED)
+add_executable(tst_spi_recordings backend/tst_spi_recordings.cpp)
+target_link_libraries(tst_spi_recordings PRIVATE welle_test_common Qt6::Test Qt6::Gui)
 
 set(test_data_dir "${WELLE_TEST_DATA_DIR}")
 if(NOT test_data_dir)
@@ -71,6 +85,20 @@ if(test_data_dir AND EXISTS "${test_manifest}" AND CMAKE_VERSION VERSION_GREATER
             ENVIRONMENT "WELLE_TEST_DATA_DIR=${test_data_dir}")
     endforeach()
     message(STATUS "Test data: ${clip_count} recordings in ${test_data_dir}")
+
+    # Recorded SPI subchannels: backend.spi.<id>
+    string(JSON spi_count ERROR_VARIABLE spi_error LENGTH "${manifest_json}" spi)
+    if(NOT spi_error AND spi_count GREATER 0)
+        math(EXPR last_spi "${spi_count} - 1")
+        foreach(i RANGE ${last_spi})
+            string(JSON spi_id GET "${manifest_json}" spi ${i} id)
+            add_test(NAME backend.spi.${spi_id}
+                COMMAND tst_spi_recordings decodeSpi:${spi_id})
+            set_tests_properties(backend.spi.${spi_id} PROPERTIES
+                LABELS backend
+                ENVIRONMENT "WELLE_TEST_DATA_DIR=${test_data_dir}")
+        endforeach()
+    endif()
 else()
     # Skips with a message that explains how to get the test data
     add_test(NAME backend.recordings COMMAND tst_recordings)

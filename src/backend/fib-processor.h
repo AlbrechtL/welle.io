@@ -52,6 +52,8 @@ class FIBProcessor {
         Service getService(uint32_t sId) const;
         std::list<ServiceComponent> getComponents(const Service& s) const;
         Subchannel getSubchannel(const ServiceComponent& sc) const;
+        // Packet mode components that carry or may carry SPI
+        std::vector<ServiceComponent> getSpiComponents() const;
         std::chrono::system_clock::time_point getTimeLastFCT0Frame() const;
 
     private:

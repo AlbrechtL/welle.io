@@ -18,8 +18,9 @@
  *
  */
 
-// unit.fib: decoding of the FIC signalling of packet mode data services:
-// FIG 0/1, 0/2 and 0/3 (ETSI EN 300 401 clause 6).
+// unit.fib: decoding of the FIC signalling of packet mode data services,
+// as needed to find the SPI service (station logos) of an ensemble:
+// FIG 0/1, 0/2, 0/3, 0/8 and 0/13 (ETSI EN 300 401 clause 6).
 
 #include <QtTest>
 
@@ -137,19 +138,55 @@ void FibTests::packetModeComponents()
     }
     process(fig0(3, false, packetComponents));
 
-    // All three entries, also the one after the entry with CAOrg
-    for (auto expected : {std::make_tuple(SID_TPEG, 5, 14, 1), std::make_tuple(SID_SPI, 60, 15, 1),
-                          std::make_tuple(SID_TDC, 5, 15, 2)}) {
+    // FIG 0/8: SCIdS 0 for the SPI component (long form with SCId)
+    BitWriter globalDefinition;
+    globalDefinition.put(SID_SPI, 32);
+    globalDefinition.put(0, 1);     // extension flag
+    globalDefinition.put(0, 3);     // Rfa
+    globalDefinition.put(0, 4);     // SCIdS
+    globalDefinition.put(1, 1);     // L/S flag: SCId
+    globalDefinition.put(0, 3);     // Rfa
+    globalDefinition.put(1, 12);    // SCId
+    process(fig0(8, true, globalDefinition));
+
+    // FIG 0/13: SPI (0x007, basic profile) and TPEG (0x004)
+    BitWriter userApplications;
+    for (auto ua : {std::make_pair(SID_SPI, 0x007), std::make_pair(SID_TPEG, 0x004)}) {
+        userApplications.put(ua.first, 32);
+        userApplications.put(0, 4);         // SCIdS
+        userApplications.put(1, 4);         // number of user applications
+        userApplications.put(ua.second, 11);
+        userApplications.put(1, 5);         // length of the data
+        userApplications.put(0x01, 8);      // data: basic profile
+    }
+    process(fig0(13, true, userApplications));
+
+    // Only the SPI component is returned
+    const auto spi = fibProcessor.getSpiComponents();
+    QCOMPARE(spi.size(), size_t(1));
+    const ServiceComponent& sc = spi.front();
+    QCOMPARE(sc.SId, SID_SPI);
+    QCOMPARE(sc.SCId, uint16_t(1));
+    QCOMPARE(sc.SCIdS, int16_t(0));
+    QCOMPARE(sc.subchannelId, int16_t(15));
+    QCOMPARE(sc.DSCTy, int16_t(60));
+    QCOMPARE(sc.packetAddress, int16_t(1));
+    QCOMPARE(sc.DGflag, uint8_t(0));
+    QVERIFY(sc.hasUserApplication(0x007));
+    QCOMPARE(sc.userApplications.front().data, std::vector<uint8_t>{0x01});
+
+    const Subchannel subch = fibProcessor.getSubchannel(sc);
+    QVERIFY(subch.valid());
+    QCOMPARE(subch.bitrate(), 8);
+
+    // The entries before and after the one with CAOrg
+    for (auto expected : {std::make_tuple(SID_TPEG, 14, 1), std::make_tuple(SID_TDC, 15, 2)}) {
         const auto comps = fibProcessor.getComponents(fibProcessor.getService(std::get<0>(expected)));
         QCOMPARE(comps.size(), size_t(1));
-        const ServiceComponent& sc = comps.front();
-        QCOMPARE(int(sc.DSCTy), std::get<1>(expected));
-        QCOMPARE(int(sc.subchannelId), std::get<2>(expected));
-        QCOMPARE(int(sc.packetAddress), std::get<3>(expected));
-        QCOMPARE(sc.DGflag, uint8_t(0));
-        QVERIFY(fibProcessor.getSubchannel(sc).valid());
+        QVERIFY(comps.front().packetInfoValid);
+        QCOMPARE(int(comps.front().subchannelId), std::get<1>(expected));
+        QCOMPARE(int(comps.front().packetAddress), std::get<2>(expected));
     }
-    QCOMPARE(fibProcessor.getSubchannel(fibProcessor.getComponents(fibProcessor.getService(SID_SPI)).front()).bitrate(), 8);
 }
 
 QTEST_GUILESS_MAIN(FibTests)

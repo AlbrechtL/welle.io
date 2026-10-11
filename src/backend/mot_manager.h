@@ -48,6 +48,10 @@ struct MOT_FILE {
     uint8_t category = 0;
     uint8_t slide_id = 0;
     std::string category_title;
+    std::string mime_type;
+    int compression_type = -1;      // -1: not compressed
+    bool profile_advanced = false;  // SPI ProfileSubset contains "advanced"
+    bool ca_info = false;           // object is encrypted on MOT level
 
 	static const int CONTENT_TYPE_IMAGE			= 0x02;
 	static const int CONTENT_TYPE_MOT_TRANSPORT	= 0x05;
@@ -62,6 +66,12 @@ struct MOT_FILE {
         trigger_time_now(false)
 	{}
 };
+
+
+// Parses the parameters of a MOT header extension (ETSI EN 301 234 clause
+// 6.2) into file. new_content_name is set if a ContentName is present.
+bool ParseMOTHeaderExtension(const uint8_t* data, size_t len, MOT_FILE& file,
+		std::string& new_content_name);
 
 
 typedef std::vector<uint8_t> seg_t;
