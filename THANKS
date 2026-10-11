@@ -21,16 +21,12 @@ welle.io uses parts from the following programs
   https://github.com/viktorgino/headunit-desktop
 
 Icons:
-- Navigation icons made by Gregor Cresnar from www.flaticon.com (License CC 3.0 BY)
-  (http://www.flaticon.com/authors/gregor-cresnar)
-- Speaker, play, stop icons made by https://www.freepik.com from https://www.flaticon.com/
-  (https://www.flaticon.com/de/packs/media-and-technology)
-- Antenna icon made by photo3idea_studio from www.flaticon.com (License CC 3.0 BY)
-  (https://www.flaticon.com/authors/photo3idea-studio)
-- Application icon made by Freepik from www.flaticon.com (License CC 3.0 BY)
-  (http://www.freepik.com) 
+- Application icon (radio) made by Freepik from www.flaticon.com (License CC 3.0 BY)
+  (http://www.freepik.com)
+  Used for the application, the favicon of the welle-cli web interface and the
+  Android splash screen.
+- User interface icons: Material Symbols (style "Rounded") by Google
+  (https://fonts.google.com/icons) - Apache License 2.0
+  Used unchanged, see src/welle-gui/icons/welle_io_icons/scalable/README.md.
 
-Other:
-Notice some of these images are derived from Google applications resources.
-They were provided under the following license:
-You may use the materials in this directory without restriction to develop your apps and to use in your apps.
+None of the icons and images is AI generated.
