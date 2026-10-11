@@ -20,7 +20,8 @@
 
 // unit.fib: decoding of the FIC signalling of packet mode data services,
 // as needed to find the SPI service (station logos) of an ensemble:
-// FIG 0/1, 0/2, 0/3, 0/8 and 0/13 (ETSI EN 300 401 clause 6).
+// FIG 0/1, 0/2, 0/3, 0/8 and 0/13 (ETSI EN 300 401 clause 6), and
+// multiplex reconfigurations (FIG 0/0 and C/N flag, clause 6.5).
 
 #include <QtTest>
 
@@ -44,13 +45,13 @@ public:
     std::vector<uint8_t> data; // one bit per byte, like the FIC decoder
 };
 
-// A FIG 0 with the given extension, P/D flag and body
-std::vector<uint8_t> fig0(int extension, bool pd, const BitWriter& body)
+// A FIG 0 with the given extension, P/D flag, body and C/N flag
+std::vector<uint8_t> fig0(int extension, bool pd, const BitWriter& body, bool next = false)
 {
     BitWriter w;
     w.put(0, 3);                    // FIG type 0
     w.put(body.bytes() + 1, 5);     // length
-    w.put(0, 1);                    // C/N
+    w.put(next ? 1 : 0, 1);         // C/N
     w.put(0, 1);                    // OE
     w.put(pd ? 1 : 0, 1);           // P/D
     w.put(extension, 5);
@@ -72,6 +73,34 @@ const uint32_t SID_TPEG = 0xE0D01006;
 const uint32_t SID_SPI = 0xE0D01004;
 const uint32_t SID_TDC = 0xE0D01008;
 
+// FIG 0/0 with the lower part of the CIF count and, if changeFlags is
+// not 0, the CIF count of an announced reconfiguration
+BitWriter ensembleInformation(int cifCountLow, int changeFlags, int occurrenceChange)
+{
+    BitWriter w;
+    w.put(0xCE15, 16);              // EId
+    w.put(changeFlags, 2);
+    w.put(0, 1);                    // AL flag
+    w.put(0, 5);                    // CIF count, high part
+    w.put(cifCountLow, 8);
+    if (changeFlags != 0)
+        w.put(occurrenceChange, 8);
+    return w;
+}
+
+// FIG 0/1 of one subchannel, long form EEP 3-A
+BitWriter subchannelOrganisation(int subChId, int startAddress, int size)
+{
+    BitWriter w;
+    w.put(subChId, 6);
+    w.put(startAddress, 10);
+    w.put(1, 1);                    // long form
+    w.put(0, 3);                    // option: EEP-A
+    w.put(2, 2);                    // protection level 3
+    w.put(size, 10);
+    return w;
+}
+
 }
 
 class FibTests : public QObject
@@ -80,6 +109,8 @@ class FibTests : public QObject
 
 private slots:
     void packetModeComponents();
+    void reconfiguration();
+    void reconfigurationWithoutCifCount();
 };
 
 void FibTests::packetModeComponents()
@@ -187,6 +218,119 @@ void FibTests::packetModeComponents()
         QCOMPARE(int(comps.front().subchannelId), std::get<1>(expected));
         QCOMPARE(int(comps.front().packetAddress), std::get<2>(expected));
     }
+}
+
+// BBC National DAB moves its subchannels at the full hour: the next
+// configuration is signalled with C/N = 1 in advance and has to be used
+// from the CIF given by FIG 0/0 on, also if that frame has no FIG 0/0.
+void FibTests::reconfiguration()
+{
+    NullRadioController controller;
+    FIBProcessor fibProcessor(controller);
+
+    std::vector<std::pair<int, Subchannel>> changes;
+    fibProcessor.setReconfigurationCallback(
+            [&](int16_t cifIndex, const std::vector<Subchannel>& subChannels) {
+                changes.emplace_back(cifIndex, subChannels.at(5));
+            });
+
+    auto process = [&](const std::vector<uint8_t>& fig, int cifIndex) {
+        auto bits = fib(fig);
+        fibProcessor.processFIB(bits.data(), cifIndex);
+    };
+
+    // An audio service on subchannel 5
+    process(fig0(1, false, subchannelOrganisation(5, 404, 48)), 0);
+    BitWriter service;
+    service.put(0xC225, 16);
+    service.put(0, 1);              // local flag
+    service.put(0, 3);              // CAId
+    service.put(1, 4);              // number of components
+    service.put(0, 2);              // TMId: MSC stream audio
+    service.put(0, 6);              // ASCTy: DAB
+    service.put(5, 6);              // SubChId
+    service.put(1, 1);              // primary
+    service.put(0, 1);              // CA flag
+    process(fig0(2, false, service), 0);
+    process(fig0(2, false, service), 0);
+
+    auto startAddress = [&]() {
+        const auto comps = fibProcessor.getComponents(fibProcessor.getService(0xC225));
+        if (comps.size() != 1)
+            return -1;
+        return int(fibProcessor.getSubchannel(comps.front()).startAddr);
+    };
+    QCOMPARE(startAddress(), 404);
+
+    // Frame with the CIF counts 80..83: the change at CIF 90 is announced,
+    // the next configuration doesn't change the current one
+    process(fig0(0, false, ensembleInformation(80, 3, 90)), 0);
+    process(fig0(1, false, subchannelOrganisation(5, 390, 48), true), 0);
+    for (int cif = 0; cif < 4; cif++)
+        fibProcessor.processCifEnd(cif);
+    QCOMPARE(startAddress(), 404);
+
+    // CIF 84..87
+    process(fig0(0, false, ensembleInformation(84, 3, 90)), 0);
+    for (int cif = 0; cif < 4; cif++)
+        fibProcessor.processCifEnd(cif);
+    QVERIFY(changes.empty());
+
+    // CIF 88..91, the FIG 0/0 of this frame is lost: the change is in the
+    // third CIF of the frame
+    fibProcessor.processCifEnd(0);
+    fibProcessor.processCifEnd(1);
+    QVERIFY(changes.empty());
+    QCOMPARE(startAddress(), 404);
+    fibProcessor.processCifEnd(2);
+    QCOMPARE(changes.size(), size_t(1));
+    QCOMPARE(changes.front().first, 2);
+    QCOMPARE(int(changes.front().second.startAddr), 390);
+    QCOMPARE(int(changes.front().second.length), 48);
+    QCOMPARE(startAddress(), 390);
+    fibProcessor.processCifEnd(3);
+
+    // The current configuration after the change: no further change
+    process(fig0(0, false, ensembleInformation(92, 0, 0)), 0);
+    process(fig0(1, false, subchannelOrganisation(5, 390, 48)), 0);
+    for (int cif = 0; cif < 4; cif++)
+        fibProcessor.processCifEnd(cif);
+    QCOMPARE(changes.size(), size_t(1));
+    QCOMPARE(startAddress(), 390);
+}
+
+// Without a known CIF count (e.g. the receiver started during the
+// announcement and FIG 0/0 got lost) the change is made at the latest
+// when the announcement ends.
+void FibTests::reconfigurationWithoutCifCount()
+{
+    NullRadioController controller;
+    FIBProcessor fibProcessor(controller);
+
+    std::vector<int> changes;
+    fibProcessor.setReconfigurationCallback(
+            [&](int16_t cifIndex, const std::vector<Subchannel>& subChannels) {
+                QCOMPARE(int(subChannels.at(7).startAddr), 100);
+                changes.push_back(cifIndex);
+            });
+
+    auto process = [&](const std::vector<uint8_t>& fig, int cifIndex) {
+        auto bits = fib(fig);
+        fibProcessor.processFIB(bits.data(), cifIndex);
+    };
+
+    process(fig0(1, false, subchannelOrganisation(7, 0, 48)), 0);
+    process(fig0(1, false, subchannelOrganisation(7, 100, 48), true), 0);
+
+    // The announcement is seen, but the frame with the change is missed:
+    // the CIF count jumps from 10 to 30
+    process(fig0(0, false, ensembleInformation(10, 1, 20)), 0);
+    fibProcessor.processCifEnd(0);
+    QVERIFY(changes.empty());
+
+    process(fig0(0, false, ensembleInformation(30, 0, 0)), 1);
+    fibProcessor.processCifEnd(1);
+    QCOMPARE(changes, std::vector<int>{1});
 }
 
 QTEST_GUILESS_MAIN(FibTests)

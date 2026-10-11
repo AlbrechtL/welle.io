@@ -30,6 +30,7 @@
 #include <unordered_map>
 #include <chrono>
 #include <array>
+#include <functional>
 #include <mutex>
 #include <cstdint>
 #include <cstdio>
@@ -42,6 +43,8 @@ class FIBProcessor {
 
         // called from the demodulator
         void processFIB(uint8_t *p, uint16_t fib);
+        // called after the FIBs of each CIF, also if their CRC failed
+        void processCifEnd(int16_t cifIndex);
         void clearEnsemble();
 
         // Called from the frontend
@@ -55,6 +58,13 @@ class FIBProcessor {
         // Packet mode components that carry or may carry SPI
         std::vector<ServiceComponent> getSpiComponents() const;
         std::chrono::system_clock::time_point getTimeLastFCT0Frame() const;
+
+        // Called when a multiplex reconfiguration takes effect, with the
+        // index of the first CIF in the current transmission frame that
+        // uses the new subchannel organisation and the new subchannels.
+        using ReconfigurationCallback = std::function<void(
+                int16_t cifIndex, const std::vector<Subchannel>& subChannels)>;
+        void setReconfigurationCallback(ReconfigurationCallback callback);
 
     private:
         RadioControllerInterface& myRadioInterface;
@@ -108,7 +118,9 @@ class FIBProcessor {
         void FIG0Extension21(uint8_t *);
         void FIG0Extension22(uint8_t *);
 
-        int16_t HandleFIG0Extension1(uint8_t *d, int16_t offset, uint8_t pd);
+        int16_t HandleFIG0Extension1(uint8_t *d, int16_t offset, uint8_t pd,
+                std::vector<Subchannel>& subChannels);
+        std::vector<Subchannel> applyReconfiguration();
 
         int16_t HandleFIG0Extension2(
                 uint8_t *d,
@@ -134,6 +146,12 @@ class FIBProcessor {
         std::unordered_map<uint32_t, uint8_t> serviceRepeatCount;
         std::chrono::steady_clock::time_point timeLastServiceDecrement;
         std::chrono::system_clock::time_point timeLastFCT0Frame;
+
+        // Multiplex reconfiguration, EN 300 401 clause 6.5
+        std::vector<Subchannel> nextSubChannels; // FIG 0/1 with C/N = 1
+        int16_t cifCountLow = -1;       // lower part of the CIF count, -1: unknown
+        int16_t changeOccurrence = -1;  // CIF count of an announced change, -1: none
+        ReconfigurationCallback reconfigurationCallback;
 };
 
 #endif

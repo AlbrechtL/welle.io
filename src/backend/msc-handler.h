@@ -33,6 +33,7 @@
 #include <mutex>
 #include <list>
 #include <memory>
+#include <functional>
 #include <vector>
 #include <cstdio>
 #include <cstdint>
@@ -70,6 +71,11 @@ class MscHandler
 
         bool removeSubchannel(const Subchannel& sub);
 
+        // Multiplex reconfiguration: from the CIF with the given index in
+        // the current transmission frame on, the subchannels are moved
+        // to their new position and size.
+        void reconfigure(int16_t cifIndex, const std::vector<Subchannel>& subChannels);
+
     private:
         friend class OfdmDecoder;
         void processMscBlock(const softbit_t *fbits, int16_t blkno);
@@ -79,11 +85,15 @@ class MscHandler
                     subCh(subCh),
                     isAudio(isAudio) {}
 
-            const Subchannel subCh;
+            Subchannel subCh;
             const bool isAudio;
 
             std::shared_ptr<DabVirtual> dabHandler;
+            // Creates the dabHandler again after a reconfiguration
+            std::function<std::shared_ptr<DabVirtual>(const Subchannel&)> createHandler;
         };
+
+        void applyReconfiguration(void);
 
         std::mutex mutex;
         std::list<SelectedStream> streams;
@@ -96,6 +106,9 @@ class MscHandler
         int16_t cifCount = 0; // msc blocks in CIF
         int16_t blkCount = 0;
         bool work_to_be_done = false;
+
+        int16_t reconfigurationCifIndex = -1;
+        std::vector<Subchannel> reconfigurationSubChannels;
 };
 
 #endif

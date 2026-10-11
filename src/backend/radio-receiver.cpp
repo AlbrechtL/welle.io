@@ -77,7 +77,12 @@ RadioReceiver::RadioReceiver(
         mscHandler,
         ficHandler,
         rro)
-{ }
+{
+    ficHandler.fibProcessor.setReconfigurationCallback(
+            [this](int16_t cifIndex, const std::vector<Subchannel>& subChannels) {
+                mscHandler.reconfigure(cifIndex, subChannels);
+            });
+}
 
 void RadioReceiver::restart(bool doScan)
 {

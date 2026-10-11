@@ -22,6 +22,7 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #include <algorithm>
+#include <iostream>
 #include "dab-constants.h"
 #include "msc-handler.h"
 #include "dab-virtual.h"
@@ -76,13 +77,16 @@ bool MscHandler::addSubchannel(
 
     SelectedStream s(sub, true);
 
-    s.dabHandler = std::make_shared<DabAudio>(
+    s.createHandler = [ascty, &handler, dumpFileName](const Subchannel& sub) {
+        return std::make_shared<DabAudio>(
                 ascty,
                 sub.length * CUSize,
                 sub.bitrate(),
                 sub.protectionSettings,
                 handler,
                 dumpFileName);
+    };
+    s.dabHandler = s.createHandler(sub);
 
     streams.push_back(std::move(s));
 
@@ -108,12 +112,15 @@ bool MscHandler::addDataSubchannel(
 
     SelectedStream s(sub, false);
 
-    s.dabHandler = std::make_shared<DabAudio>(
+    s.createHandler = [packetAddress, dataGroups, &handler, dumpFileName](const Subchannel& sub) {
+        return std::make_shared<DabAudio>(
                 sub.length * CUSize,
                 sub.bitrate(),
                 sub.protectionSettings,
                 std::make_unique<SpiDecoder>(
                     sub.bitrate(), packetAddress, dataGroups, handler, dumpFileName));
+    };
+    s.dabHandler = s.createHandler(sub);
 
     streams.push_back(std::move(s));
 
@@ -153,6 +160,7 @@ void MscHandler::processMscBlock(const softbit_t *fbits, int16_t blkno)
         return;
 
     int16_t currentblk = (blkno - 4) % numberofblocksperCIF;
+    int16_t cifIndex = (blkno - 4) / numberofblocksperCIF;
 
     //  and the normal operation is:
     memcpy(&cifVector[currentblk * bitsperBlock], fbits, bitsperBlock * sizeof(softbit_t));
@@ -163,6 +171,10 @@ void MscHandler::processMscBlock(const softbit_t *fbits, int16_t blkno)
     //  OK, now we have a full CIF
     blkCount = 0;
     cifCount = (cifCount + 1) & 03;
+
+    if (cifIndex == reconfigurationCifIndex) {
+        applyReconfiguration();
+    }
 
     for (auto& stream : streams) {
         softbit_t *myBegin = &cifVector[stream.subCh.startAddr * CUSize];
@@ -176,11 +188,59 @@ void MscHandler::processMscBlock(const softbit_t *fbits, int16_t blkno)
     }
 }
 
+void MscHandler::reconfigure(int16_t cifIndex, const std::vector<Subchannel>& subChannels)
+{
+    std::lock_guard<std::mutex> lock(mutex);
+    if (streams.empty()) {
+        return;
+    }
+
+    // The FIC of a transmission frame is processed before its CIFs
+    reconfigurationCifIndex = cifIndex;
+    reconfigurationSubChannels = subChannels;
+}
+
+void MscHandler::applyReconfiguration()
+{
+    for (auto& stream : streams) {
+        const auto newSubCh = std::find_if(
+                reconfigurationSubChannels.begin(), reconfigurationSubChannels.end(),
+                [&](const Subchannel& sub) { return sub.subChId == stream.subCh.subChId; });
+        if (newSubCh == reconfigurationSubChannels.end()) {
+            continue;
+        }
+
+        const auto& oldPs = stream.subCh.protectionSettings;
+        const auto& newPs = newSubCh->protectionSettings;
+        const bool sameCoding = stream.subCh.length == newSubCh->length and
+            oldPs.shortForm == newPs.shortForm and
+            (oldPs.shortForm ?
+                oldPs.uepTableIndex == newPs.uepTableIndex :
+                oldPs.eepProfile == newPs.eepProfile and oldPs.eepLevel == newPs.eepLevel);
+
+        if (not sameCoding) {
+            // The time interleaving and the decoder depend on the
+            // size and protection: start a new decoder
+            std::clog << "msc-handler: subchannel " << stream.subCh.subChId <<
+                " changed from " << stream.subCh.bitrate() << " kbit/s " << stream.subCh.protection() <<
+                " to " << newSubCh->bitrate() << " kbit/s " << newSubCh->protection() << std::endl;
+            stream.dabHandler = stream.createHandler(*newSubCh);
+        }
+
+        stream.subCh = *newSubCh;
+    }
+
+    reconfigurationCifIndex = -1;
+    reconfigurationSubChannels.clear();
+}
+
 void MscHandler::stopProcessing()
 {
     std::lock_guard<std::mutex> lock(mutex);
     work_to_be_done = false;
     streams.clear();
+    reconfigurationCifIndex = -1;
+    reconfigurationSubChannels.clear();
 }
 
 void MscHandler::stopAudioProcessing()

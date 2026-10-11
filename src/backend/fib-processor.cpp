@@ -108,9 +108,9 @@ void FIBProcessor::process_FIG0 (uint8_t *d)
 }
 
 
-//  FIG0/0 indicated a change in channel organization
-//  we are not equipped for that, so we just return
-//  control to the init
+//  FIG0/0 carries the CIF count and announces multiplex
+//  reconfigurations, see EN 300 401 clause 6.5. The change itself
+//  is done in processCifEnd().
 void FIBProcessor::FIG0Extension0 (uint8_t *d)
 {
     uint8_t     changeflag;
@@ -131,9 +131,7 @@ void FIBProcessor::FIG0Extension0 (uint8_t *d)
     highpart        = getBits_5 (d, 16 + 19) % 20;
     (void)highpart;
     lowpart         = getBits_8 (d, 16 + 24) % 250;
-    (void)lowpart;
     occurrenceChange    = getBits_8 (d, 16 + 32);
-    (void)occurrenceChange;
 
     // In transmission mode I, because four ETI frames make one transmission frame, we will
     // see lowpart == 0 only every twelve seconds, and not 6 as expected by the 250 overflow value.
@@ -141,20 +139,20 @@ void FIBProcessor::FIG0Extension0 (uint8_t *d)
         timeLastFCT0Frame = std::chrono::system_clock::now();
     }
 
-    if (changeflag == 0)
-        return;
-    else if (changeflag == 1) {
-        std::clog << "fib-processor:" << "Changes in sub channel organization" << std::endl;
-        std::clog << "fib-processor:" << "cifcount = " << highpart * 250 + lowpart << std::endl;
-        std::clog << "fib-processor:" << "Change happening in " << occurrenceChange << " CIFs" << std::endl;
-     }
-     else if (changeflag == 3) {
-        std::clog << "fib-processor:" << "Changes in subchannel and service organization" << std::endl;
-        std::clog << "fib-processor:" << "cifcount = " << highpart * 250 + lowpart << std::endl;
-        std::clog << "fib-processor:" << "Change happening in " << occurrenceChange << " CIFs" << std::endl;
-     }
+    cifCountLow = lowpart;
 
-    myRadioInterface.onRestartService();
+    if (changeflag != 0) {
+        if (changeOccurrence != occurrenceChange) {
+            std::clog << "fib-processor: " << "Reconfiguration announced at CIF count " <<
+                highpart * 250 + lowpart << ", change at " << occurrenceChange << std::endl;
+        }
+        changeOccurrence = occurrenceChange;
+    }
+    else if (changeOccurrence != -1) {
+        // The announcement ended before the change was seen, e.g. because
+        // the CIF count was unknown: change now
+        changeOccurrence = cifCountLow;
+    }
 }
 
 //  FIG0 extension 1 creates a mapping between the
@@ -165,17 +163,21 @@ void FIBProcessor::FIG0Extension1 (uint8_t *d)
     int16_t used    = 2;        // offset in bytes
     int16_t Length  = getBits_5 (d, 3);
     uint8_t PD_bit  = getBits_1 (d, 8 + 2);
-    //uint8_t   CN  = getBits_1 (d, 8 + 0);
+    uint8_t CN      = getBits_1 (d, 8 + 0);
+
+    // The next configuration (C/N = 1) is only used after the change
+    auto& subchannelTable = CN ? nextSubChannels : subChannels;
 
     while (used < Length - 1)
-        used = HandleFIG0Extension1 (d, used, PD_bit);
+        used = HandleFIG0Extension1 (d, used, PD_bit, subchannelTable);
 }
 
 //  defining the channels
 int16_t FIBProcessor::HandleFIG0Extension1(
         uint8_t *d,
         int16_t offset,
-        uint8_t pd)
+        uint8_t pd,
+        std::vector<Subchannel>& subChannels)
 {
     int16_t bitOffset = offset * 8;
     const int16_t subChId   = getBits_6 (d, bitOffset);
@@ -1288,11 +1290,78 @@ void FIBProcessor::dropService(uint32_t SId)
     std::clog << ss.str() << std::endl;
 }
 
+void FIBProcessor::processCifEnd(int16_t cifIndex)
+{
+    std::vector<Subchannel> newSubChannels;
+    ReconfigurationCallback callback;
+
+    {
+        std::lock_guard<std::mutex> lock(mutex);
+
+        if (cifCountLow == -1) {
+            return;
+        }
+
+        if (changeOccurrence != -1 and cifCountLow == changeOccurrence) {
+            newSubChannels = applyReconfiguration();
+            callback = reconfigurationCallback;
+        }
+
+        cifCountLow = (cifCountLow + 1) % 250;
+    }
+
+    if (callback) {
+        callback(cifIndex, newSubChannels);
+    }
+}
+
+// Takes over the subchannel organisation of the next configuration.
+// Subchannels that were not signalled for the next configuration are
+// kept, the FIG 0/1 of the current configuration will update them.
+std::vector<Subchannel> FIBProcessor::applyReconfiguration()
+{
+    std::stringstream ss;
+    ss << "fib-processor: Reconfiguration at CIF count " << cifCountLow << ":";
+
+    for (const auto& next : nextSubChannels) {
+        if (not next.valid()) {
+            continue;
+        }
+
+        auto& sub = subChannels[next.subChId];
+        if (sub.startAddr != next.startAddr or sub.length != next.length) {
+            ss << " subchannel " << next.subChId << " " << sub.startAddr <<
+                "+" << sub.length << " -> " << next.startAddr << "+" << next.length << ";";
+        }
+
+        sub.subChId = next.subChId;
+        sub.startAddr = next.startAddr;
+        sub.length = next.length;
+        sub.programmeNotData = next.programmeNotData;
+        sub.protectionSettings = next.protectionSettings;
+    }
+
+    std::clog << ss.str() << std::endl;
+
+    nextSubChannels.assign(64, Subchannel());
+    changeOccurrence = -1;
+    return subChannels;
+}
+
+void FIBProcessor::setReconfigurationCallback(ReconfigurationCallback callback)
+{
+    std::lock_guard<std::mutex> lock(mutex);
+    reconfigurationCallback = callback;
+}
+
 void FIBProcessor::clearEnsemble()
 {
     std::lock_guard<std::mutex> lock(mutex);
     components.clear();
     subChannels.resize(64);
+    nextSubChannels.assign(64, Subchannel());
+    cifCountLow = -1;
+    changeOccurrence = -1;
     services.clear();
     serviceRepeatCount.clear();
     timeLastServiceDecrement = std::chrono::steady_clock::now();

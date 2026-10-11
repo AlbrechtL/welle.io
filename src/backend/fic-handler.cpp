@@ -227,6 +227,8 @@ void FicHandler::processFicInput(const softbit_t *ficblock, int16_t ficno)
             fic_decode_success_ratio--;
         }
     }
+
+    fibProcessor.processCifEnd(ficno);
 }
 
 void FicHandler::clearEnsemble()
