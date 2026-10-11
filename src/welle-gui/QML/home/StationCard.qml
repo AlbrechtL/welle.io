@@ -26,8 +26,9 @@ import QtQuick.Controls.Material
 import "../controls"
 
 // The station that plays on a card like the slide show: ensemble and
-// signal at the top, station name and dynamic label (DLS) in the center,
-// chips with DAB/DAB+, audio format and programme type at the bottom
+// signal at the top, station logo (if received by SPI), station name and
+// dynamic label (DLS) in the center, chips with DAB/DAB+, audio format and
+// programme type at the bottom
 Rectangle {
     id: root
     objectName: "stationCard"
@@ -71,23 +72,67 @@ Rectangle {
         }
     }
 
-    // Station name and DLS, centered in the card
+    // Station logo, station name and DLS, centered in the card
     ColumnLayout {
         id: center
         anchors.centerIn: parent
         width: parent.width - 2 * root.margin
         spacing: root.dense ? Theme.spacingXS : Theme.spacingS
 
-        Label {
-            objectName: "nowPlaying.station"
-            Layout.fillWidth: true
-            text: radioController.title.trim()
-            horizontalAlignment: Text.AlignHCenter
-            wrapMode: Text.Wrap
-            maximumLineCount: 2
-            elide: Text.ElideRight
-            font.pixelSize: root.small || root.dense ? Theme.titleLarge : Theme.headlineMedium
-            font.weight: Font.Medium
+        // Station logo and station name in one row, centered together
+        RowLayout {
+            id: nameRow
+            // As wide as logo and name, not the whole width (the default
+            // of a layout in a layout)
+            Layout.fillWidth: false
+            Layout.alignment: Qt.AlignHCenter
+            Layout.maximumWidth: center.width
+            spacing: Theme.spacingM
+
+            // Logos are made for a light background, also in the dark theme
+            Rectangle {
+                id: logo
+                objectName: "nowPlaying.logo"
+
+                // Re-evaluated whenever a new logo was received
+                readonly property bool available: stationLogos.revision >= 0 && radioController.service !== 0
+                                                  && stationLogos.hasLogo(radioController.service)
+                readonly property int size: root.small ? 40 : root.dense ? 48 : 56
+
+                visible: available
+                Layout.preferredWidth: size
+                Layout.preferredHeight: size
+                Layout.alignment: Qt.AlignVCenter
+                radius: Theme.radiusS
+                color: "white"
+                border.width: 1
+                border.color: Qt.alpha(Material.foreground, 0.12)
+
+                Image {
+                    anchors.fill: parent
+                    anchors.margins: Math.round(logo.size / 16)
+                    source: logo.available ? "image://logo/" + radioController.service + "?r=" + stationLogos.revision : ""
+                    sourceSize: Qt.size(2 * logo.size, 2 * logo.size)
+                    fillMode: Image.PreserveAspectFit
+                    asynchronous: true
+                    cache: false
+                }
+            }
+
+            Label {
+                objectName: "nowPlaying.station"
+                // Not wider than the card without the logo, wraps then
+                Layout.maximumWidth: center.width - (logo.visible ? logo.size + nameRow.spacing : 0)
+                Layout.alignment: Qt.AlignVCenter
+                text: radioController.title.trim()
+                // Next to the logo a second line starts at the left
+                horizontalAlignment: logo.visible ? Text.AlignLeft : Text.AlignHCenter
+                wrapMode: Text.Wrap
+                maximumLineCount: 2
+                elide: Text.ElideRight
+                font.pixelSize: root.small || root.dense ? Theme.titleLarge : Theme.headlineMedium
+                font.weight: Font.Medium
+            }
         }
 
         Label {

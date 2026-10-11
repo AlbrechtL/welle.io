@@ -80,6 +80,8 @@ and the logos (`d391-….png`). A complete cycle takes several minutes.
 | `src/welle-gui/radio_controller.cpp` | Starts the SPI decoding every few seconds (it doesn't restart running decoders) and forwards the logos |
 | `src/welle-gui/station_logos.cpp` | Logo cache on disk, and the QML image provider `image://logo/<SId>` |
 | `src/welle-gui/QML/home/StationDelegate.qml` | Shows the logo in the station list |
+| `src/welle-gui/QML/home/StationCard.qml` | Shows the logo of the playing station in one row with its name |
+| `src/welle-gui/QML/home/MiniPlayer.qml` | Shows the logo instead of the slide (phone layout) |
 | `src/welle-gui/QML/expert/ServiceDetailsCard.qml` | Shows whether the ensemble provides station logos |
 
 In expert mode, the "Service Details" view shows in the row "Station logos

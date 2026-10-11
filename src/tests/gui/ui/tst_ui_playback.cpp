@@ -26,6 +26,9 @@
 // checks what the user sees: station name, ensemble, DAB/DAB+, DLS and the
 // slide show. Then the play/stop button and the keyboard shortcuts.
 
+#include <QBuffer>
+#include <QPainter>
+
 #include "gui_test_main.h"
 #include "radio_controller.h"
 #include "ui_test_case.h"
@@ -47,6 +50,7 @@ private slots:
     void scansStations();
     void playsEachService();
     void showsSlides();
+    void showsStationLogo();
     void fitsWithoutScrolling_data();
     void fitsWithoutScrolling();
     void stopsAndPlays();
@@ -160,6 +164,66 @@ void UiPlaybackTests::showsSlides()
     app.screenshot("playback-slide");
 }
 
+static QRectF sceneRect(QQuickItem* item);
+
+void UiPlaybackTests::showsStationLogo()
+{
+    QVERIFY(!app.isVisible("nowPlaying.logo"));
+
+    // A logo for the station that plays, as the backend delivers it by SPI
+    QImage image(128, 128, QImage::Format_ARGB32);
+    image.fill(Qt::transparent);
+    QPainter painter(&image);
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setBrush(QColor("#e6007e"));
+    painter.setPen(Qt::NoPen);
+    painter.drawRoundedRect(QRectF(8, 28, 112, 72), 12, 12);
+    painter.setPen(Qt::white);
+    QFont font = painter.font();
+    font.setPixelSize(36);
+    font.setBold(true);
+    painter.setFont(font);
+    painter.drawText(QRectF(8, 28, 112, 72), Qt::AlignCenter, "DAB+");
+    painter.end();
+    QByteArray png;
+    QBuffer buffer(&png);
+    buffer.open(QIODevice::WriteOnly);
+    QVERIFY(image.save(&buffer, "PNG"));
+    emit app.radio()->serviceLogoReceived(currentService(), png);
+
+    // In one row with the station name, left of it
+    QTRY_VERIFY(app.isVisible("nowPlaying.logo"));
+    UiApp::settle();
+    const QRectF logo = sceneRect(app.item("nowPlaying.logo"));
+    const QRectF name = sceneRect(app.item("nowPlaying.station"));
+    QVERIFY(logo.right() <= name.left());
+    QVERIFY(qAbs(logo.center().y() - name.center().y()) < 2);
+
+    // Side by side with the slide, below each other and on the page of
+    // the phone layout
+    for (const QSize& size : {QSize(1400, 800), QSize(800, 480), QSize(400, 800)}) {
+        app.resize(size.width(), size.height());
+        const bool phoneLayout = app.property("homePage", "layoutMode").toString() == "compact";
+        if (phoneLayout) {
+            // The mini player shows the logo instead of the slide
+            QTRY_VERIFY(app.isVisible("miniPlayer.logo"));
+            QVERIFY(!app.isVisible("miniPlayer.slide"));
+            app.screenshot(QString("playback-logo-miniplayer-%1x%2").arg(size.width()).arg(size.height()));
+
+            QVERIFY(app.click("miniPlayer"));
+            QTRY_VERIFY(app.isVisible("nowPlayingPane"));
+            UiApp::settle();
+        }
+        app.screenshot(QString("playback-logo-%1x%2").arg(size.width()).arg(size.height()));
+        if (phoneLayout) {
+            app.key(Qt::Key_Escape);
+            QTRY_VERIFY(app.isVisible("stationListPane"));
+        }
+    }
+
+    qInfo() << "The logo of the station is shown in one row with the station name";
+}
+
 void UiPlaybackTests::fitsWithoutScrolling_data()
 {
     QTest::addColumn<int>("width");
@@ -225,14 +289,20 @@ void UiPlaybackTests::fitsWithoutScrolling()
                                 .arg(station.top()).arg(slide.bottom()).arg(paneRect.top()).arg(paneRect.bottom())));
     }
 
-    // Station name and DLS are centered in the station card
+    // Station name (in one row with the logo, if there is one) and DLS are
+    // centered in the station card
     const QRectF name = sceneRect(app.item("nowPlaying.station"));
     const QRectF dls = sceneRect(app.item("nowPlaying.dls"));
-    QCOMPARE(app.item("nowPlaying.station")->property("horizontalAlignment").toInt(), int(Qt::AlignHCenter));
+    QQuickItem* logo = app.item("nowPlaying.logo");
+    const QRectF nameRow = logo->isVisible() ? name.united(sceneRect(logo)) : name;
+    const qreal blockTop = nameRow.top();
+    if (!logo->isVisible())
+        QCOMPARE(app.item("nowPlaying.station")->property("horizontalAlignment").toInt(), int(Qt::AlignHCenter));
     QCOMPARE(app.item("nowPlaying.dls")->property("horizontalAlignment").toInt(), int(Qt::AlignHCenter));
-    QVERIFY(qAbs(name.center().x() - station.center().x()) < 2);
+    QVERIFY2(qAbs(nameRow.center().x() - station.center().x()) < 2,
+             qPrintable(QString("Name row center %1, card center %2").arg(nameRow.center().x()).arg(station.center().x())));
     QVERIFY(qAbs(dls.center().x() - station.center().x()) < 2);
-    const qreal blockCenter = (name.top() + dls.bottom()) / 2;
+    const qreal blockCenter = (blockTop + dls.bottom()) / 2;
     QVERIFY2(qAbs(blockCenter - station.center().y()) < 2,
              qPrintable(QString("Text block center %1, card center %2").arg(blockCenter).arg(station.center().y())));
 

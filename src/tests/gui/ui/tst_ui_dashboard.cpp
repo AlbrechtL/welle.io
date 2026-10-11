@@ -28,6 +28,8 @@
 // service details tell whether the ensemble provides station logos (SPI).
 
 #include <QAbstractSeries>
+#include <QBuffer>
+#include <QImage>
 
 #include "gui_test_main.h"
 #include "radio_controller.h"
@@ -53,6 +55,7 @@ private slots:
     void takesOverOldGrid();
     void addsEveryView();
     void showsSpiStatus();
+    void showsStationLogo();
     void graphsGetData_data();
     void graphsGetData();
     void showsImpulseResponseDelay();
@@ -168,6 +171,42 @@ void UiDashboardTests::showsSpiStatus()
     app.screenshot("dashboard-spi");
 
     qInfo().noquote() << "Service details, station logos (SPI):" << spi->property("value").toString();
+}
+
+void UiDashboardTests::showsStationLogo()
+{
+    QImage image(128, 128, QImage::Format_ARGB32);
+    image.fill(QColor("#e6007e"));
+    QByteArray png;
+    QBuffer buffer(&png);
+    buffer.open(QIODevice::WriteOnly);
+    QVERIFY(image.save(&buffer, "PNG"));
+    emit app.radio()->serviceLogoReceived(app.radio()->property("service").toUInt(), png);
+
+    // The small logo on the service overview, left of the station name and
+    // not overlapping the other rows
+    QObject* card = app.find("card.serviceOverview");
+    QVERIFY(card);
+    auto* logo = qobject_cast<QQuickItem*>(child(card, "nowPlaying.logo"));
+    auto* station = qobject_cast<QQuickItem*>(child(card, "nowPlaying.station"));
+    auto* ensemble = qobject_cast<QQuickItem*>(child(card, "nowPlaying.ensemble"));
+    auto* dabType = qobject_cast<QQuickItem*>(child(card, "nowPlaying.dabType"));
+    auto* dls = qobject_cast<QQuickItem*>(child(card, "nowPlaying.dls"));
+    QVERIFY(logo && station && ensemble && dabType && dls);
+    QTRY_VERIFY(logo->isVisible());
+    UiApp::settle();
+    auto top = [](QQuickItem* item) { return item->mapToScene(QPointF(0, 0)).y(); };
+    auto bottom = [](QQuickItem* item) { return item->mapToScene(QPointF(0, item->height())).y(); };
+    QVERIFY(bottom(ensemble) <= top(logo));
+    QVERIFY(logo->mapToScene(QPointF(logo->width(), 0)).x() <= station->mapToScene(QPointF(0, 0)).x());
+    QVERIFY(bottom(logo) <= top(dls) || !dls->isVisible());
+    QVERIFY2(!dls->isVisible() || bottom(dls) <= top(dabType),
+             qPrintable(QString("DLS until %1, chips from %2").arg(bottom(dls)).arg(top(dabType))));
+
+    app.scrollIntoView(qobject_cast<QQuickItem*>(card));
+    app.screenshot("dashboard-logo");
+
+    qInfo() << "The service overview shows the station logo";
 }
 
 void UiDashboardTests::graphsGetData_data()

@@ -28,8 +28,9 @@ import "../app"
 import "../controls"
 import "../models"
 
-// Bar at the bottom of the phone layout with the station that plays.
-// A click opens the full player (or the expert views).
+// Bar at the bottom of the phone layout with the station that plays: its
+// logo (or the slide, if there is no logo), name and DLS. A click opens the
+// full player (or the expert views).
 Pane {
     id: root
 
@@ -66,15 +67,37 @@ Pane {
             spacing: Theme.spacingM
 
             Rectangle {
+                id: thumbnail
+
+                // Re-evaluated whenever a new logo was received
+                readonly property bool hasLogo: stationLogos.revision >= 0 && radioController.service !== 0
+                                                && stationLogos.hasLogo(radioController.service)
+
                 Layout.preferredWidth: 48
                 Layout.preferredHeight: 48
                 radius: Theme.radiusS
-                color: Qt.alpha(Material.foreground, 0.06)
+                // Logos are made for a light background, also in the dark theme
+                color: hasLogo ? "white" : Qt.alpha(Material.foreground, 0.06)
+                border.width: hasLogo ? 1 : 0
+                border.color: Qt.alpha(Material.foreground, 0.12)
                 clip: true
 
                 Image {
+                    objectName: "miniPlayer.logo"
                     anchors.fill: parent
-                    visible: root.slides.source !== ""
+                    anchors.margins: 3
+                    visible: thumbnail.hasLogo
+                    source: visible ? "image://logo/" + radioController.service + "?r=" + stationLogos.revision : ""
+                    sourceSize: Qt.size(96, 96)
+                    fillMode: Image.PreserveAspectFit
+                    asynchronous: true
+                    cache: false
+                }
+
+                Image {
+                    objectName: "miniPlayer.slide"
+                    anchors.fill: parent
+                    visible: !thumbnail.hasLogo && root.slides.source !== ""
                     source: root.slides.source
                     fillMode: Image.PreserveAspectCrop
                     cache: false
@@ -82,7 +105,7 @@ Pane {
 
                 IconImage {
                     anchors.centerIn: parent
-                    visible: root.slides.source === ""
+                    visible: !thumbnail.hasLogo && root.slides.source === ""
                     name: "radio"
                     width: 28
                     height: 28
