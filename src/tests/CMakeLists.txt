@@ -66,6 +66,23 @@ find_package(Qt6 COMPONENTS Gui REQUIRED)
 add_executable(tst_spi_recordings backend/tst_spi_recordings.cpp)
 target_link_libraries(tst_spi_recordings PRIVATE welle_test_common Qt6::Test Qt6::Gui)
 
+# Black box tests of the welle-cli binary (cli/). welle-cli is started with
+# its command line options, the tests only look at its output, the files it
+# writes and its web server.
+if(TARGET welle-cli)
+    find_package(Qt6 COMPONENTS Network REQUIRED)
+    add_library(welle_cli_process STATIC cli/welle_cli_process.cpp)
+    target_include_directories(welle_cli_process PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/cli)
+    target_link_libraries(welle_cli_process PUBLIC welle_test_common Qt6::Test Qt6::Network)
+
+    add_executable(tst_cli cli/tst_cli.cpp)
+    add_executable(tst_cli_recordings cli/tst_cli_recordings.cpp)
+    foreach(target tst_cli tst_cli_recordings)
+        target_link_libraries(${target} PRIVATE welle_cli_process)
+        add_dependencies(${target} welle-cli)
+    endforeach()
+endif()
+
 set(test_data_dir "${WELLE_TEST_DATA_DIR}")
 if(NOT test_data_dir)
     set(test_data_dir "$ENV{WELLE_TEST_DATA_DIR}")
@@ -87,6 +104,14 @@ if(test_data_dir AND EXISTS "${test_manifest}" AND CMAKE_VERSION VERSION_GREATER
             LABELS backend
             TIMEOUT 300
             ENVIRONMENT "WELLE_TEST_DATA_DIR=${test_data_dir}")
+        if(TARGET welle-cli)
+            add_test(NAME cli.recording.${clip_id}
+                COMMAND tst_cli_recordings checkRecording:${clip_id})
+            set_tests_properties(cli.recording.${clip_id} PROPERTIES
+                LABELS cli
+                TIMEOUT 120
+                ENVIRONMENT "WELLE_TEST_DATA_DIR=${test_data_dir};WELLE_CLI=$<TARGET_FILE:welle-cli>")
+        endif()
     endforeach()
     message(STATUS "Test data: ${clip_count} recordings in ${test_data_dir}")
 
@@ -108,6 +133,23 @@ else()
     add_test(NAME backend.recordings COMMAND tst_recordings)
     set_tests_properties(backend.recordings PROPERTIES LABELS backend)
     message(STATUS "Test data: not found, set WELLE_TEST_DATA_DIR to a checkout of welle.io-test-data")
+endif()
+
+# cli.<function>: options (no recording needed) and the features of
+# welle-cli with the recording odr_dabmod, see cli/tst_cli.cpp
+if(TARGET welle-cli)
+    set(cli_test_env "WELLE_CLI=$<TARGET_FILE:welle-cli>")
+    # Otherwise $WELLE_TEST_DATA_DIR of the caller is used
+    if(test_data_dir)
+        list(APPEND cli_test_env "WELLE_TEST_DATA_DIR=${test_data_dir}")
+    endif()
+    foreach(function options webServer webServerFlac carousel dumpAll testMode alsaPlayback)
+        add_test(NAME cli.${function} COMMAND tst_cli ${function})
+        set_tests_properties(cli.${function} PROPERTIES
+            LABELS cli
+            TIMEOUT 300
+            ENVIRONMENT "${cli_test_env}")
+    endforeach()
 endif()
 
 # GUI tests: the C++ part of welle.io and its QML user interface, without

@@ -84,12 +84,15 @@ CTest, details in `src/tests/README.md`.
 | Command | Runs |
 |---|---|
 | `ctest --test-dir build -j8` | Everything |
-| `ctest --test-dir build -L unit` / `-L backend` / `-L gui` | One group |
+| `ctest --test-dir build -L unit` / `-L backend` / `-L cli` / `-L gui` | One group |
 | `ctest --test-dir build -R gui.ui.playback --output-on-failure` | One test |
 | `build/src/tests/tst_ui_settings switchesLanguage` | One test function |
 
 * `backend.recording.<clip>` decodes every recording of the manifest and
   compares it with its expectations.
+* `cli.*` (`src/tests/cli/`) run the built `welle-cli` binary as a black
+  box (options, files it writes, its web server); `cli.recording.<clip>`
+  compares `mux.json` with the manifest.
 * `gui.*` start the real user interface. `gui.ui.<area>`
   (`src/tests/gui/ui/tst_ui_<area>.cpp`) click through `MainView.qml` with
   real mouse and keyboard events while a recording plays as RAW file input,

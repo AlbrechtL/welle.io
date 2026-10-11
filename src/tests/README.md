@@ -1,6 +1,7 @@
 # welle.io tests
 
-Automated tests for the DAB/DAB+ decoder library and the `welle-io` GUI.
+Automated tests for the DAB/DAB+ decoder library, the `welle-io` GUI and the
+command line tool `welle-cli`.
 They are built with CMake and run with CTest.
 
 ## Overview
@@ -12,6 +13,14 @@ They are built with CMake and run with CTest.
 | `unit.reed_solomon` | `unit` | Reed-Solomon codec used for DAB+ | no |
 | `unit.mp2_scf_crc` | `unit` | Scale Factor CRC of MP2 frames: Scale Factors with errors are muted | no |
 | `backend.recording.<clip>` | `backend` | Decodes one recording and compares everything with its expectations, see below | yes |
+| `cli.options` | `cli` | welle-cli command line: help, version, invalid options, missing IQ file | no |
+| `cli.recording.<clip>` | `cli` | welle-cli plays one recording with its web server; ensemble and service list of `mux.json` | yes |
+| `cli.webServer` | `cli` | `-D -w`: audio format, DLS and slide of every service in `mux.json`, MP3 streams, playlist, FIC, measurements, slides, error codes | yes |
+| `cli.webServerFlac` | `cli` | `-O flac`: FLAC stream (skipped if welle-cli was built without FLAC) | yes |
+| `cli.carousel` | `cli` | `-C 1`: one decoder that switches between the services | yes |
+| `cli.dumpAll` | `cli` | `-D` without web server: `dump.fic`, `.msc` and `.wav` file of every service, DLS on stdout, quit with `.` | yes |
+| `cli.testMode` | `cli` | `-t 3`: decodes the recording at full speed and prints error statistics | yes |
+| `cli.alsaPlayback` | `cli` | `-p`: plays with the ALSA `null` device, selects programmes on stdin (skipped without ALSA) | yes |
 | `gui.radiocontroller` | `gui` | The C++ part of the GUI: opens a recording, scans, plays DAB+ and DAB, DLS and slide | yes |
 | `gui.qml_smoke` | `gui` | Starts the complete QML user interface, checks the station list and that QML reports no warnings | yes |
 | `gui.ui.playback` | `gui` | Scan with the button of the empty list, play every service by clicking it: station, ensemble, DAB/DAB+, audio format, DLS, slide; play/stop button, keyboard shortcuts, volume | yes |
@@ -26,7 +35,8 @@ There is one `backend.recording.<clip>` test per recording, e.g.
 `backend.recording.odr_dabmod` or `backend.recording.uk_11d_2020`. Without
 recordings there is a single `backend.recordings` test, which is skipped.
 The GUI tests only exist if welle-io itself is built (`BUILD_WELLE_IO`, on by
-default).
+default), the `cli` tests only if welle-cli is built (`BUILD_WELLE_CLI`, on by
+default). The `cli` tests that need recordings use `odr_dabmod`.
 
 ## Getting the recordings
 
@@ -167,6 +177,28 @@ decoded its first audio.
 The GUI tests use the `offscreen` Qt platform and their own empty settings,
 so they don't need a display and don't touch the settings of an installed
 welle.io. They play audio with volume 0.
+
+## welle-cli tests
+
+The `cli.*` tests (`cli/`) test welle-cli as a black box: they start the
+built `welle-cli` binary (`$WELLE_CLI`, set by CTest) with its normal command
+line options in a temporary directory and only look at its exit code, its
+output, the files it writes and its web server. They don't link welle-cli
+code and don't need any option that exists only for tests. The helper
+`WelleCli` (`cli/welle_cli_process.h`) starts and stops the process, reads
+its output and polls the web server.
+
+welle-cli plays IQ files in real time and starts them again at the end, so
+these tests take 1–30 s each; only `-t 3` runs at full speed.
+`cli.recording.<clip>` waits until `mux.json` matches the manifest (at most
+the length of the recording + 20 s) and shows the last state as
+`[ OK ]`/`[FAIL]` lines. Audio is checked with `odr_dabmod` only
+(`cli.webServer`, `cli.dumpAll`), because decoding and MP3 encoding of every
+service of every recording in real time would need a lot of CPU.
+
+In Debug builds welle-cli uses AddressSanitizer. The tests switch off its
+leak report (`ASAN_OPTIONS=detect_leaks=0`) and fail if it reports a memory
+error.
 
 ## UI tests
 
