@@ -159,10 +159,15 @@ size_t MP2Decoder::DecodeFrame(uint8_t **data) {
 	if(!CheckCRC(header, body_data, body_bytes)) {
 		observer->AudioError("CRC");
 		// no PAD reset, as not covered by CRC
+		scf_crc.reset();
 		return 0;
 	}
 
 	ProcessUntouchedStream(header, body_data, body_bytes);
+
+	// check DAB's ScF-CRC and mute erroneous Scale Factors
+	if(ConcealScaleFactorErrors(body_data, body_bytes))
+		observer->AudioError("ScF-CRC");
 
 	size_t frame_len;
 	mpg_result = mpg123_framebyframe_decode(handle, nullptr, data, &frame_len);
@@ -251,6 +256,24 @@ bool MP2Decoder::CheckCRC(const unsigned long& header, const uint8_t *body_data,
 	return crc_stored == crc_calced;
 }
 
+int MP2Decoder::ConcealScaleFactorErrors(uint8_t *body_data, const size_t& body_bytes) {
+	mpg123_frameinfo info;
+	int mpg_result = mpg123_info(handle, &info);
+	if(mpg_result != MPG123_OK)
+		throw std::runtime_error("MP2Decoder: error while mpg123_info: " + std::string(mpg123_plain_strerror(mpg_result)));
+
+	// same frame layout as in CheckCRC()
+	Mp2ScfCrc::FrameLayout layout;
+	layout.channels = info.mode == MPG123_M_MONO ? 1 : 2;
+	int table_index = info.version == MPG123_1_0 ? ((info.bitrate / layout.channels) >= 56 ? 0 : 1) : 2;
+	layout.nbal = tables_nbal[table_index];
+	layout.sblimit = sblimits[table_index];
+	layout.bound = info.mode == MPG123_M_JOINT ? (info.mode_ext + 1) * 4 : layout.sblimit;
+	layout.scfCrcLen = scf_crc_len;
+
+	return scf_crc.process(layout, body_data, body_bytes, body_bytes - FPAD_LEN);
+}
+
 void MP2Decoder::ProcessFormat() {
 	mpg123_frameinfo info;
 	int mpg_result = mpg123_info(handle, &info);
@@ -258,6 +281,7 @@ void MP2Decoder::ProcessFormat() {
 		throw std::runtime_error("MP2Decoder: error while mpg123_info: " + std::string(mpg123_plain_strerror(mpg_result)));
 
 	scf_crc_len = (info.version == MPG123_1_0 && info.bitrate < (info.mode == MPG123_M_MONO ? 56 : 112)) ? 2 : 4;
+	scf_crc.reset();
 
 	// output format
 	std::string version = "unknown";

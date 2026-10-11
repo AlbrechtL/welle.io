@@ -1,4 +1,4 @@
-# Multiplex reconfiguration
+# Multiplex reconfiguration and MP2 error concealment
 
 Some broadcasters change the layout of their ensemble while it is on air.
 BBC National DAB (12B), for example, moves most of its subchannels at the
@@ -7,8 +7,9 @@ kbit/s, Radio 4 80 ↔ 128 kbit/s). Before welle.io supported this, the
 audio of every moved service stopped or turned into noise after the change
 (issue #587).
 
-This document describes how a reconfiguration is signalled and handled.
-It was written with the help of an AI assistant (Claude Code).
+This document describes how a reconfiguration is signalled and handled,
+and the Scale Factor error check of MPEG Audio Layer II (DAB) frames. It
+was written with the help of an AI assistant (Claude Code).
 
 ## Specifications
 
@@ -16,6 +17,7 @@ It was written with the help of an AI assistant (Claude Code).
 |---|---|
 | ETSI EN 300 401 clause 6.5 | Multiplex reconfiguration |
 | ETSI EN 300 401 clause 6 | FIG 0/0 (CIF count, change flags, occurrence change), C/N flag |
+| ETSI TS 103 466 clauses B.3, C.5 | ScF-CRC of DAB audio frames, error concealment |
 
 ## How a reconfiguration is signalled
 
@@ -66,9 +68,35 @@ fib-processor: Reconfiguration at CIF count 90: subchannel 4 308+96 -> 332+58; .
 msc-handler: subchannel 4 changed from 128 kbit/s UEP 3 to 80 kbit/s UEP 3
 ```
 
+## Scale Factor error check (ScF-CRC)
+
+The CRC of an MPEG Audio Layer II frame covers only the header, the bit
+allocation and the ScFSI. DAB adds the ScF-CRC: 2 or 4 CRC-8 words in
+front of the F-PAD of frame *n − 1*, each covering the 3 MSbs of the Scale
+Factors of one group of sub-bands of frame *n* (sub-bands 0–3, 4–7, 8–15,
+16–26/29).
+
+A Scale Factor step is 2 dB, so a bit error in the MSb of a Scale Factor
+changes the level of a sub-band by 64 dB. Without the check, a weak signal
+therefore sounds like crackling and full scale noise bursts, although the
+MPEG CRC of the frames is correct.
+
+`Mp2ScfCrc` (`mp2_scf_crc.cpp`) checks the Scale Factors of every frame
+before mpg123 decodes it and mutes the Scale Factors of the groups with an
+error (Scale Factor index 62), as recommended by TS 103 466 clause C.5.
+`MP2Decoder::DecodeFrame()` calls it and counts a frame with muted groups
+as frame error. After a frame with an MPEG CRC error, the next frame is
+not checked, because the ScF-CRC words in front of it are missing.
+
+Measured with the BBC recording of issue #587 (SNR about 10 dB): 15 % of
+the frames had Scale Factor errors. With the check, the full scale samples
+per service dropped from 3,600–12,000 to 0–290 in two minutes. Clean
+recordings have practically no ScF-CRC errors (2 of about 22,000 frames).
+
 ## Tests
 
 * `unit.fib`: `reconfiguration` and `reconfigurationWithoutCifCount`.
+* `unit.mp2_scf_crc`: CRC-8 and muting of a group with an error.
 * `backend.recording.uk_12b_reconfig_2024`: 30 s of BBC National DAB
   around the reconfiguration at 17:00; every service has to decode audio
   after the change.

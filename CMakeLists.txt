@@ -244,6 +244,7 @@ set(backend_sources
     src/backend/dab-audio.cpp
     src/backend/decoder_adapter.cpp
     src/backend/dab_decoder.cpp
+    src/backend/mp2_scf_crc.cpp
     src/backend/dabplus_decoder.cpp
     src/backend/charsets.cpp
     src/backend/dab-constants.cpp

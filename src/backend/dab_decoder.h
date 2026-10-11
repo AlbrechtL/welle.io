@@ -34,6 +34,7 @@
 
 #include "subchannel_sink.h"
 #include "tools.h"
+#include "mp2_scf_crc.h"
 
 
 // --- MP2Decoder -----------------------------------------------------------------
@@ -43,6 +44,7 @@ private:
 	mpg123_handle *handle;
 
 	int scf_crc_len;
+	Mp2ScfCrc scf_crc;
 	bool lsf;
 	std::vector<uint8_t> frame;
 
@@ -50,6 +52,7 @@ private:
 	void ProcessUntouchedStream(const unsigned long& header, const uint8_t *body_data, size_t body_bytes);
 	size_t DecodeFrame(uint8_t **data);
 	bool CheckCRC(const unsigned long& header, const uint8_t *body_data, const size_t& body_bytes);
+	int ConcealScaleFactorErrors(uint8_t *body_data, const size_t& body_bytes);
 
 	static const int table_nbal_48a[];
 	static const int table_nbal_48b[];

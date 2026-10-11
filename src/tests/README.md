@@ -10,6 +10,7 @@ They are built with CMake and run with CTest.
 | `unit.rawfile` | `unit` | Reading IQ files in the formats u8, s8, s16le, s16be and cf32 | no |
 | `unit.dabconstants` | `unit` | DAB mode parameters, label character sets, subchannel bitrates | no |
 | `unit.reed_solomon` | `unit` | Reed-Solomon codec used for DAB+ | no |
+| `unit.mp2_scf_crc` | `unit` | Scale Factor CRC of MP2 frames: Scale Factors with errors are muted | no |
 | `backend.recording.<clip>` | `backend` | Decodes one recording and compares everything with its expectations, see below | yes |
 | `gui.radiocontroller` | `gui` | The C++ part of the GUI: opens a recording, scans, plays DAB+ and DAB, DLS and slide | yes |
 | `gui.qml_smoke` | `gui` | Starts the complete QML user interface, checks the station list and that QML reports no warnings | yes |

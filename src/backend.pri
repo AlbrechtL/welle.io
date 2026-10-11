@@ -93,6 +93,7 @@ INCLUDEPATH += \
 HEADERS += \
     $$PWD/backend/dab-audio.h \
     $$PWD/backend/dab_decoder.h \
+    $$PWD/backend/mp2_scf_crc.h \
     $$PWD/backend/dabplus_decoder.h \
     $$PWD/backend/subchannel_sink.h \
     $$PWD/backend/charsets.h \
@@ -152,6 +153,7 @@ HEADERS += \
 SOURCES += \
     $$PWD/backend/dab-audio.cpp \
     $$PWD/backend/dab_decoder.cpp \
+    $$PWD/backend/mp2_scf_crc.cpp \
     $$PWD/backend/dabplus_decoder.cpp \
     $$PWD/backend/charsets.cpp \
     $$PWD/backend/dab-constants.cpp \

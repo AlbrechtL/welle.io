@@ -41,6 +41,10 @@ add_executable(tst_fib unit/tst_fib.cpp)
 target_link_libraries(tst_fib PRIVATE welle_test_common Qt6::Test)
 add_test(NAME unit.fib COMMAND tst_fib)
 
+add_executable(tst_mp2_scf_crc unit/tst_mp2_scf_crc.cpp)
+target_link_libraries(tst_mp2_scf_crc PRIVATE welle_test_common Qt6::Test)
+add_test(NAME unit.mp2_scf_crc COMMAND tst_mp2_scf_crc)
+
 add_executable(tst_spi unit/tst_spi.cpp)
 target_link_libraries(tst_spi PRIVATE welle_test_common Qt6::Test)
 add_test(NAME unit.spi COMMAND tst_spi)
@@ -49,7 +53,7 @@ add_executable(rstest ${CMAKE_SOURCE_DIR}/src/libs/fec/test/rstest.c)
 target_link_libraries(rstest PRIVATE welle)
 add_test(NAME unit.reed_solomon COMMAND rstest)
 
-set_tests_properties(unit.rawfile unit.dabconstants unit.fib unit.spi unit.reed_solomon PROPERTIES LABELS unit)
+set_tests_properties(unit.rawfile unit.dabconstants unit.fib unit.mp2_scf_crc unit.spi unit.reed_solomon PROPERTIES LABELS unit)
 
 # Recordings of the welle.io-test-data repository. Every clip of its
 # manifest becomes one test, backend.recording.<clip id>, which runs
