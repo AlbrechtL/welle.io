@@ -324,6 +324,7 @@ set(input_sources
     src/input/raw_file.cpp
     src/input/rtl_tcp.cpp
     src/input/rtl_agc.cpp
+    src/input/halfband_decimator.cpp
 )
 
 if(LIBRTLSDR_FOUND)

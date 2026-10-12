@@ -127,6 +127,7 @@ bool CAirspy::restart(void)
 
     SampleBuffer.FlushRingBuffer();
     SpectrumSampleBuffer.FlushRingBuffer();
+    decimator.reset();
     result = airspy_set_sample_type(device, AIRSPY_SAMPLE_FLOAT32_IQ);
     if (result != AIRSPY_SUCCESS) {
         std::clog  << "Airspy: airspy_set_sample_type () failed: " << airspy_error_name((airspy_error)result) << "(" << result << ")" << std::endl;
@@ -184,7 +185,8 @@ int CAirspy::callback(airspy_transfer* transfer)
 
 // Called from AirSpy data callback which gives us interleaved float32
 // I and Q according to setting given to airspy_set_sample_type() above.
-// The AirSpy runs at 4096ksps, we need to decimate by two.
+// The AirSpy runs at 4096ksps, we need to decimate by two. The half-band
+// filter keeps the adjacent DAB blocks from aliasing into the wanted block.
 int CAirspy::data_available(const DSPCOMPLEX* buf, size_t num_samples)
 {
     if (num_samples % 2 != 0) {
@@ -197,9 +199,10 @@ int CAirspy::data_available(const DSPCOMPLEX* buf, size_t num_samples)
 
     float maxnorm = 0;
 
+    decimator.process(sbuf, num_samples, temp.data());
+
     for (size_t i = 0; i < num_samples/2; i++) {
-        const auto z = 0.5f * (sbuf[2*i] + sbuf[2*i+1]);
-        temp[i] = z;
+        const auto z = temp[i];
 
         if (sw_agc and (num_frames % 10) == 0) {
             if (norm(z) > maxnorm) {

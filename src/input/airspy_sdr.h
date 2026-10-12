@@ -38,6 +38,7 @@
 #include "dab-constants.h"
 #include "MathHelper.h"
 #include "ringbuffer.h"
+#include "halfband_decimator.h"
 
 #include <vector>
 
@@ -90,6 +91,7 @@ private:
 
     bool sw_agc = false;
     int currentLinearityGain = 10;
+    HalfbandDecimator decimator;
     RingBuffer<DSPCOMPLEX> SampleBuffer;
     RingBuffer<DSPCOMPLEX> SpectrumSampleBuffer;
     struct airspy_device *device;
