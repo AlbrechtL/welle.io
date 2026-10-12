@@ -26,7 +26,7 @@
     <release date="1970-01-01" version="0.0.0"/>
   </releases>
   <url type="homepage">https://www.welle.io</url>
-  <url type="help">https://github.com/AlbrechtL/welle.io/discussions</url>
+  <url type="help">https://github.com/AlbrechtL/welle.io/issues</url>
   <url type="bugtracker">https://github.com/AlbrechtL/welle.io/issues</url>
   <url type="vcs-browser">https://github.com/AlbrechtL/welle.io/</url>
 </component>
