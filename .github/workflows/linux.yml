@@ -66,7 +66,7 @@ jobs:
         id: build
         run: |
             # Create welle-gui Flatpak
-            flatpak-builder --force-clean --sandbox --user --install-deps-from=flathub --repo=repo --install builddir io.welle.welle-gui.yml
+            flatpak-builder --force-clean --sandbox --user --install-deps-from=flathub --repo=repo builddir io.welle.welle-gui.yml
             flatpak build-bundle repo welle-io.flatpak io.welle.welle-gui --runtime-repo=https://flathub.org/repo/flathub.flatpakrepo
             # Detect CPU
             ARCH=$(uname -m)
@@ -87,7 +87,9 @@ jobs:
 
       # Smoke test: install the bundle like a user and play a recording with
       # it (src/tests/smoke/smoke_test.py). The test data is checked out
-      # after the build, otherwise it would end up in the Flatpak.
+      # after the build, otherwise it would end up in the Flatpak. The build
+      # doesn't install the app (no flatpak-builder --install): flatpak
+      # refuses to install a bundle of the version that is already installed.
       - name: Checkout test data
         if: env.HAS_TEST_DATA_TOKEN == 'true'
         uses: actions/checkout@v7
@@ -105,7 +107,7 @@ jobs:
         if: env.HAS_TEST_DATA_TOKEN == 'true'
         run: |
             sudo apt-get -y install xvfb zstd
-            flatpak install --user -y --reinstall --bundle publish/*.flatpak
+            flatpak install --user -y --bundle publish/*.flatpak
             xvfb-run -a python3 src/tests/smoke/smoke_test.py --test-data test-data \
                 --flatpak io.welle.welle-gui --work-dir smoke-test
 
