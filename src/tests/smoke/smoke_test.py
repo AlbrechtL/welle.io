@@ -178,12 +178,20 @@ def run_welle_io(args, clip, path, expect):
     print("  " + " ".join(command), flush=True)
     start = time.monotonic()
     with open(output_file, "w") as out:
+        process = subprocess.Popen(command, stdout=out, stderr=subprocess.STDOUT, env=env)
         try:
-            result = subprocess.run(command, stdout=out, stderr=subprocess.STDOUT, env=env,
-                                    timeout=args.timeout + 60)
-            exit_code = result.returncode
+            exit_code = process.wait(args.timeout + 60)
         except subprocess.TimeoutExpired:
             exit_code = None
+            # welle-io doesn't even stop after its own timeout: record where
+            # it hangs before it is killed
+            if sys.platform == "darwin":
+                sample_file = os.path.join(work, "welle-io.sample.txt")
+                subprocess.run(["sample", str(process.pid), "5", "-file", sample_file],
+                               stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+                print(f"  Hangs, stacks of all threads: {sample_file}")
+            process.kill()
+            process.wait()
     print(f"  Finished after {time.monotonic() - start:.1f} s, exit code {exit_code}")
 
     checks.check(exit_code == 0, f"Exit code {exit_code}")

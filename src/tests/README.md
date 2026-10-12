@@ -342,7 +342,9 @@ src/tests/smoke/smoke_test.py --test-data ../welle.io-test-data --report welle-i
 Without a display it sets `QT_QPA_PLATFORM=offscreen`. The workflows use
 Xvfb instead, so that the platform plugin of the package is tested too.
 The clip is unpacked if needed (needs `zstd`). Exit code 77 means that the
-test data is missing.
+test data is missing. If welle-io doesn't quit 60 s after its own timeout,
+it hangs and is killed; on macOS the stacks of all its threads are saved
+before (`sample`, `welle-io.sample.txt` in the logs).
 
 ## GitHub Actions
 
