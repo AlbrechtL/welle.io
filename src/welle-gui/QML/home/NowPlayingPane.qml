@@ -92,13 +92,15 @@ Item {
                 Layout.preferredHeight: root.sideBySide ? Math.round(root.cardWidth * 3 / 4) : root.stationHeight
             }
 
+            // Below each other the card has the width of the station card,
+            // the slide (scaled to the height) is centered on it
             SlideShow {
                 id: slideShow
                 slides: root.slides
-                readonly property real cardWidth: root.sideBySide ? root.cardWidth : root.slideWidth
                 Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
-                Layout.preferredWidth: cardWidth
-                Layout.preferredHeight: Math.round(cardWidth * 3 / 4) + root.controlsHeight
+                Layout.preferredWidth: root.sideBySide ? root.cardWidth : root.stationWidth
+                Layout.preferredHeight: Math.round((root.sideBySide ? root.cardWidth : root.slideWidth) * 3 / 4)
+                                        + root.controlsHeight
                 Layout.fillWidth: false
                 Layout.fillHeight: false
             }

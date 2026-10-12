@@ -61,6 +61,8 @@ ColumnLayout {
 
             // For the UI tests
             readonly property string source: root.slides.source
+            readonly property real paintedWidth: slideImage.paintedWidth
+            readonly property real paintedHeight: slideImage.paintedHeight
 
             Image {
                 id: slideImage

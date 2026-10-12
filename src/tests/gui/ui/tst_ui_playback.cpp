@@ -271,19 +271,28 @@ void UiPlaybackTests::fitsWithoutScrolling()
                             .arg(slide.x()).arg(slide.y()).arg(slide.width()).arg(slide.height())
                             .arg(paneRect.width()).arg(paneRect.height())));
 
-    // The slide card is 4:3 like the slides
-    QVERIFY(qAbs(slide.width() / slide.height() - 4.0 / 3.0) < 0.02);
+    // The slide is scaled to the card (4:3 like the slides) and centered on it
+    QQuickItem* slideImage = app.item("nowPlaying.slide");
+    const qreal paintedWidth = slideImage->property("paintedWidth").toReal();
+    const qreal paintedHeight = slideImage->property("paintedHeight").toReal();
+    QVERIFY2(qAbs(paintedHeight - slide.height()) < 2 || qAbs(paintedWidth - slide.width()) < 2,
+             qPrintable(QString("Slide %1 x %2 on a card of %3 x %4")
+                            .arg(paintedWidth).arg(paintedHeight).arg(slide.width()).arg(slide.height())));
 
     if (sideBySide) {
-        // Two cards of the same size, the station on the left
+        // Two cards of the same size (4:3), the station on the left
+        QVERIFY(qAbs(slide.width() / slide.height() - 4.0 / 3.0) < 0.02);
         QVERIFY(qAbs(slide.width() - station.width()) < 1 && qAbs(slide.height() - station.height()) < 1);
         QVERIFY(station.right() < slide.left() && qAbs(slide.top() - station.top()) < 1);
     } else {
-        // The station on top, the slide below it scaled to the height left.
-        // Together they fill the height of the pane (margins 16 px); with a
-        // slide of full width the station card takes the rest.
+        // The station on top, the slide card below it with the same width;
+        // the slide is scaled to the height left. Together they fill the
+        // height of the pane (margins 16 px); with a slide of full width the
+        // station card takes the rest.
         QVERIFY(station.bottom() < slide.top());
-        QVERIFY(slide.width() <= station.width() + 1);
+        QVERIFY2(qAbs(slide.width() - station.width()) < 1,
+                 qPrintable(QString("Slide card %1, station card %2 wide").arg(slide.width()).arg(station.width())));
+        QVERIFY(paintedWidth <= slide.width() + 1);
         QVERIFY2(qAbs(station.top() - paneRect.top() - 16) < 2 && qAbs(paneRect.bottom() - slide.bottom() - 16) < 2,
                  qPrintable(QString("Station from %1, slide to %2, pane %3 to %4")
                                 .arg(station.top()).arg(slide.bottom()).arg(paneRect.top()).arg(paneRect.bottom())));
