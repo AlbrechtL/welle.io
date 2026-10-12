@@ -708,6 +708,10 @@ int main(int argc, char **argv)
                     break;
                 }
             }
+
+            // The decoder threads call the handlers in phs, so they have to
+            // end before phs is destroyed
+            rx.stop();
         }
         else {
 #if defined(HAVE_ALSA)
