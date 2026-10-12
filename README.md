@@ -432,7 +432,7 @@ sudo systemctl restart welle-cli
 
 ## Development
 
-You can join the welle.io development. Please visit the [wiki](https://github.com/AlbrechtL/welle.io/wiki) to find more information.
+You can join the welle.io development. Please visit the [documentation](docs/README.md) to find more information.
 
 ## Profiling
 
