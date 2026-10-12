@@ -31,12 +31,17 @@ import QtCore
 
 import "../../controls"
 
-// The server is connected when the settings are closed
+// A changed server is connected when the settings are closed
 SettingSection {
     text: qsTr("rtl-tcp settings")
     id: rtltcpsettings
+    objectName: "rtlTcpSettings"
 
     property bool isLoaded : false
+
+    // "host:port" of the opened server, to keep the connection (and the
+    // playback) if the settings are closed without a change
+    property string openedServer: ""
 
     Settings {
         id: settings
@@ -56,6 +61,7 @@ SettingSection {
 
         TextField {
             id: hostName
+            objectName: "setting.rtlTcpHostName"
             placeholderText: qsTr("Enter host name or IP address")
             Layout.preferredWidth: 240
             Accessible.name: qsTr("Host name or IP-address")
@@ -67,6 +73,7 @@ SettingSection {
 
         TextField {
             id: hostPort
+            objectName: "setting.ipPort"
             placeholderText: qsTr("Enter IP-port")
             Layout.preferredWidth: 240
             text: "1234"
@@ -75,7 +82,7 @@ SettingSection {
     }
 
     onVisibleChanged: {
-        if(!visible && isLoaded)
+        if(!visible && isLoaded && __server() !== openedServer)
             __openDevice()
     }
 
@@ -105,7 +112,12 @@ SettingSection {
             settings.ipByte4 = 0
         }
 
+        openedServer = __server()
         guiHelper.openRtlTcp(hostName.text, hostPort.text, true)
+    }
+
+    function __server() {
+        return hostName.text + ":" + hostPort.text
     }
 }
 
