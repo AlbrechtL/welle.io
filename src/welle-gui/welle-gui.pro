@@ -55,6 +55,7 @@ HEADERS += \
     mot_image_provider.h \
     station_logos.h \
     radio_controller.h \
+    smoke_test.h \
     mpris/mpris.h \
     mpris/mpris_mp2.h \
     mpris/mpris_mp2_player.h \
@@ -70,6 +71,7 @@ SOURCES += \
     mot_image_provider.cpp \
     station_logos.cpp \
     radio_controller.cpp \
+    smoke_test.cpp \
     mpris/mpris.cpp \
     mpris/mpris_mp2.cpp \
     mpris/mpris_mp2_player.cpp \

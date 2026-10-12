@@ -288,6 +288,7 @@ set(welle_io_sources
     src/welle-gui/gui_helper.cpp
     src/welle-gui/radio_controller.cpp
     src/welle-gui/debug_output.cpp
+    src/welle-gui/smoke_test.cpp
     src/welle-gui/waterfallitem.cpp
 )
 

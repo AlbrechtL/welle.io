@@ -12,6 +12,9 @@ jobs:
   build:
     name: Build on macOS ${{ matrix.macos }} (${{ matrix.architecture }})
     runs-on: ${{ matrix.runner }}
+    env:
+      # Secrets can't be used in if: conditions directly
+      HAS_TEST_DATA_TOKEN: ${{ secrets.WELLE_TEST_DATA_TOKEN != '' }}
     strategy:
       fail-fast: false
       matrix:
@@ -84,6 +87,45 @@ jobs:
           package_name="${DATE}_${GIT_HASH}_macOS${{ matrix.macos }}_welle-io_${{ matrix.architecture }}.zip"
           ditto -c -k --sequesterRsrc --keepParent build/welle-io.app "publish/$package_name"
           unzip -tq "publish/$package_name"
+
+      # Smoke test: unpack the package like a user and play a recording with
+      # it (src/tests/smoke/smoke_test.py)
+      - name: Checkout test data
+        if: env.HAS_TEST_DATA_TOKEN == 'true'
+        uses: actions/checkout@v7
+        with:
+          repository: ${{ vars.WELLE_TEST_DATA_REPO || 'AlbrechtL/welle.io-test-data' }}
+          token: ${{ secrets.WELLE_TEST_DATA_TOKEN }}
+          path: test-data
+          sparse-checkout: |
+            manifest.json
+            scripts/
+            clips/odr_dabmod.s8.iq.zst
+          sparse-checkout-cone-mode: false
+
+      - name: Smoke test (unpacked application, welle-cli of the build)
+        if: env.HAS_TEST_DATA_TOKEN == 'true'
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: '1'
+        run: |
+          command -v zstd || brew install zstd
+          mkdir "$RUNNER_TEMP/app"
+          ditto -x -k publish/*.zip "$RUNNER_TEMP/app"
+          python3 src/tests/smoke/smoke_test.py --test-data test-data \
+            --welle-io "$RUNNER_TEMP/app/welle-io.app/Contents/MacOS/welle-io" \
+            --welle-cli build/welle-cli --work-dir smoke-test
+
+      - name: No smoke test
+        if: env.HAS_TEST_DATA_TOKEN != 'true'
+        run: echo "::warning::WELLE_TEST_DATA_TOKEN is not available, the smoke test is skipped"
+
+      - name: Archive smoke test logs
+        if: always() && env.HAS_TEST_DATA_TOKEN == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: smoke-test-macos${{ matrix.macos }}-${{ matrix.architecture }}
+          path: smoke-test/
+          if-no-files-found: ignore
 
       - name: Archive artifacts (welle.io macOS application)
         uses: actions/upload-artifact@v7

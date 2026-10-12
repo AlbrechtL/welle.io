@@ -43,6 +43,7 @@
 #include "radio_controller.h"
 #include "gui_helper.h"
 #include "debug_output.h"
+#include "smoke_test.h"
 
 int main(int argc, char** argv)
 {
@@ -88,6 +89,26 @@ int main(int argc, char** argv)
         QCoreApplication::translate("main", "File name"));
     optionParser.addOption(LogFileName);
 
+    QCommandLineOption rawFileName("raw-file",
+        QCoreApplication::translate("main", "Selects this RAW file as input device, like the settings page does."),
+        QCoreApplication::translate("main", "File name"));
+    optionParser.addOption(rawFileName);
+
+    QCommandLineOption rawFileFormat("raw-format",
+        QCoreApplication::translate("main", "Sample format of the RAW file: %1 (default: auto).").arg(CSmokeTest::rawFileFormats.join(", ")),
+        QCoreApplication::translate("main", "Format"), "auto");
+    optionParser.addOption(rawFileFormat);
+
+    QCommandLineOption smokeTestReport("smoke-test",
+        QCoreApplication::translate("main", "Plays every service of the RAW file with temporary settings, writes the result to a JSON file and quits. Exit code 0 if every service played."),
+        QCoreApplication::translate("main", "Report file"));
+    optionParser.addOption(smokeTestReport);
+
+    QCommandLineOption smokeTestTimeout("smoke-timeout",
+        QCoreApplication::translate("main", "Time limit of the smoke test (default: 120)."),
+        QCoreApplication::translate("main", "Seconds"), "120");
+    optionParser.addOption(smokeTestTimeout);
+
     //	Process the actual command line arguments given by the user
     optionParser.process(app);
 
@@ -97,6 +118,21 @@ int main(int argc, char** argv)
     {
         CDebugOutput::setFileName(LogFileNameValue);
         qDebug() << "main: Version:" << Version;
+    }
+
+    const bool isSmokeTest = optionParser.isSet(smokeTestReport);
+    if (isSmokeTest && !optionParser.isSet(rawFileName)) {
+        qCritical() << "main: --smoke-test needs --raw-file";
+        return 1;
+    }
+    if (isSmokeTest && !CSmokeTest::isolateSettings()) {
+        qCritical() << "main: No temporary directory for the settings of the smoke test";
+        return 1;
+    }
+    if (optionParser.isSet(rawFileName)
+            && !CSmokeTest::selectRawFile(optionParser.value(rawFileName), optionParser.value(rawFileFormat))) {
+        qCritical().noquote() << "main: Unknown RAW file format" << optionParser.value(rawFileFormat);
+        return 1;
     }
 
     QVariantMap commandLineOptions;
@@ -125,11 +161,22 @@ int main(int argc, char** argv)
     QQmlApplicationEngine engine;
     setupQmlEngine(engine, &guiHelper, &radioController);
 
+    // Created before loading, to see the QML warnings while loading
+    std::unique_ptr<CSmokeTest> smokeTest;
+    if (isSmokeTest) {
+        smokeTest = std::make_unique<CSmokeTest>(optionParser.value(smokeTestReport),
+            optionParser.value(smokeTestTimeout).toInt(), &radioController, &engine);
+    }
+
     // Load main page
     engine.load(QUrl("qrc:/QML/MainView.qml"));
 
+    if (smokeTest)
+        smokeTest->start();
+
     // Run application
-    app.exec();
+    int exitCode = app.exec();
+    smokeTest.reset();
 
     // Disconnect all signals and slots
     guiHelper.disconnect();
@@ -137,5 +184,5 @@ int main(int argc, char** argv)
 
     qDebug() << "main:" <<  "Application closed";
 
-    return 0;
+    return exitCode;
 }

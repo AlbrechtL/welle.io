@@ -31,6 +31,7 @@ They are built with CMake and run with CTest.
 | `gui.ui.dashboard` | `gui` | Expert views: old layout taken over, every view added, graphs get data, maximize, move, remove, restart | yes |
 | `gui.ui.messages` | `gui` | Snackbar: error until dismissed, info disappears, queue, fits a phone sized window | yes |
 | `gui.ui.responsive` | `gui` | Layout from 360 to 1600 px in light and dark theme, mini player and player page | yes |
+| `gui.smoke_option` | `gui` | `welle-io --smoke-test` of the build with `smoke/smoke_test.py`, see "Smoke tests of the packages" | yes |
 
 There is one `backend.recording.<clip>` test per recording, e.g.
 `backend.recording.odr_dabmod` or `backend.recording.uk_11d_2020`. Without
@@ -287,13 +288,68 @@ e.g. Mesa), so that they look like welle-io on a desktop with shadows.
 Otherwise Qt Quick's software renderer is used, which can't draw shader
 effects; welle-io then shows borders instead of shadows. Both have to pass.
 
+## Smoke tests of the packages
+
+The tests above check the build tree. The package workflows also check the
+**installed** packages: they install the package the way a user would and
+play the recording `odr_dabmod` (DAB and DAB+, DLS) with it. That finds
+packaging errors such as a missing QML module, Qt plugin or codec library,
+or broken `cmake --install` rules.
+
+| Workflow | What is installed | Tested |
+|---|---|---|
+| `linux.yml`, job `qtbuild` | Flatpak bundle (`flatpak install --bundle`), x86_64 and arm64 | welle-io under Xvfb |
+| `linux.yml`, job `install` | `cmake --install` on Debian 13 (Qt 6.8), build directory removed | welle-io under Xvfb, welle-cli, `.desktop`, AppStream, man pages |
+| `macos.yml` | the published `.app` zip, unpacked | welle-io; welle-cli of the build |
+| `windows.yml` | the InnoSetup installer, silent installation | welle-io |
+
+The smoke test runs before the packages are uploaded, so a broken package
+doesn't reach the nightly server. Its logs are uploaded as artifacts
+`smoke-test-*`.
+
+`welle-io --raw-file <file> --raw-format <format> --smoke-test <report.json>`
+selects the RAW file as input device, compiles every QML file of the user
+interface (parts like the expert views with QtCharts are only loaded when
+opened, so a missing QML module would otherwise go unnoticed), scans the
+recording, plays every audio service
+until audio is decoded (and waits a little for its DLS), then writes a
+JSON report and quits: exit code 0 if every service played, every QML file
+compiled and QML reported no warnings, 1 otherwise, 2 if `MainView.qml` could not be loaded.
+The settings are kept in a temporary directory, so an installed welle.io
+keeps its own (on Linux also the data and cache folders). The report
+contains the ensemble, every service with its audio mode and DLS, the
+stations of the user interface's station list, the QML warnings, and the
+Qt version, platform plugin and graphics API.
+
+`smoke/smoke_test.py` (Python standard library only) runs the installed
+programs and compares the report and welle-cli's `mux.json` and MP3 streams
+with `manifest.json`:
+
+```sh
+# installed welle-io and welle-cli
+src/tests/smoke/smoke_test.py --test-data ../welle.io-test-data \
+    --welle-io /usr/bin/welle-io --welle-cli /usr/bin/welle-cli
+# installed Flatpak
+src/tests/smoke/smoke_test.py --test-data ../welle.io-test-data --flatpak io.welle.welle-gui
+# only check a report, e.g. one copied from another device
+src/tests/smoke/smoke_test.py --test-data ../welle.io-test-data --report welle-io-report.json
+```
+
+Without a display it sets `QT_QPA_PLATFORM=offscreen`. The workflows use
+Xvfb instead, so that the platform plugin of the package is tested too.
+The clip is unpacked if needed (needs `zstd`). Exit code 77 means that the
+test data is missing.
+
 ## GitHub Actions
 
 `.github/workflows/tests.yml` checks out the test data repository with the
 secret `WELLE_TEST_DATA_TOKEN` (read access to that repository). The
 repository variable `WELLE_TEST_DATA_REPO` can point to another location
 than `AlbrechtL/welle.io-test-data`. Without the secret, e.g. for pull
-requests from forks, the tests that need recordings are skipped.
+requests from forks, the tests that need recordings are skipped. The package
+workflows (`linux.yml`, `macos.yml`, `windows.yml`) use the same secret
+for their smoke test and only check out the files of `odr_dabmod`
+(sparse checkout); without it the smoke test is skipped with a warning.
 
 ---
 

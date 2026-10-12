@@ -200,6 +200,21 @@ if(TARGET welle-io)
     add_gui_test(radiocontroller gui/tst_radiocontroller.cpp)
     add_gui_test(qml_smoke gui/tst_qml_smoke.cpp)
 
+    # gui.smoke_option: welle-io --smoke-test with the script that checks
+    # the installed packages in the package workflows (smoke/smoke_test.py)
+    find_package(Python3 COMPONENTS Interpreter)
+    if(Python3_Interpreter_FOUND)
+        add_test(NAME gui.smoke_option
+            COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/smoke/smoke_test.py
+                --welle-io $<TARGET_FILE:welle-io>
+                --work-dir ${CMAKE_CURRENT_BINARY_DIR}/smoke_option)
+        set_tests_properties(gui.smoke_option PROPERTIES
+            LABELS gui
+            TIMEOUT 300
+            SKIP_RETURN_CODE 77
+            ENVIRONMENT "QT_QPA_PLATFORM=offscreen;WELLE_TEST_DATA_DIR=${test_data_dir}")
+    endif()
+
     file(GLOB ui_tests RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} CONFIGURE_DEPENDS gui/ui/tst_ui_*.cpp)
     foreach(source ${ui_tests})
         get_filename_component(name ${source} NAME_WE)

@@ -11,6 +11,9 @@ jobs:
   qtbuild:
     name: Build with Qt
     runs-on: windows-latest
+    env:
+      # Secrets can't be used in if: conditions directly
+      HAS_TEST_DATA_TOKEN: ${{ secrets.WELLE_TEST_DATA_TOKEN != '' }}
 
     steps:
       - name: Install Qt
@@ -80,6 +83,45 @@ jobs:
 
             echo ""*** Run InnoSetup "***"
             & ISCC /Oto_publish\ /F$Filename /DGitHash=$git_hash windows_installer.iss
+
+      # Smoke test: install with the installer like a user and play a
+      # recording with it (src/tests/smoke/smoke_test.py)
+      - name: Checkout test data
+        if: env.HAS_TEST_DATA_TOKEN == 'true'
+        uses: actions/checkout@v7
+        with:
+          repository: ${{ vars.WELLE_TEST_DATA_REPO || 'AlbrechtL/welle.io-test-data' }}
+          token: ${{ secrets.WELLE_TEST_DATA_TOKEN }}
+          path: test-data
+          sparse-checkout: |
+            manifest.json
+            scripts/
+            clips/odr_dabmod.s8.iq.zst
+          sparse-checkout-cone-mode: false
+
+      - name: Smoke test (installed welle.io)
+        if: env.HAS_TEST_DATA_TOKEN == 'true'
+        run: |
+            if (!(Get-Command zstd -ErrorAction SilentlyContinue)) { choco install -y zstandard }
+            $installDir = "$Env:RUNNER_TEMP\welle.io"
+            $installer = Get-ChildItem to_publish\*.exe | Select-Object -First 1
+            $setup = Start-Process -FilePath $installer.FullName -Wait -PassThru `
+                -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/DIR=`"$installDir`"", "/LOG=`"$Env:RUNNER_TEMP\install.log`""
+            if ($setup.ExitCode -ne 0) { Get-Content "$Env:RUNNER_TEMP\install.log"; exit 1 }
+            python src\tests\smoke\smoke_test.py --test-data test-data --welle-io "$installDir\welle-io.exe" --work-dir smoke-test
+            if ($LASTEXITCODE -ne 0) { exit 1 }
+
+      - name: No smoke test
+        if: env.HAS_TEST_DATA_TOKEN != 'true'
+        run: echo "::warning::WELLE_TEST_DATA_TOKEN is not available, the smoke test is skipped"
+
+      - name: Archive smoke test logs
+        if: always() && env.HAS_TEST_DATA_TOKEN == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: smoke-test-windows
+          path: smoke-test/
+          if-no-files-found: ignore
 
       - name: Archive artifacts (welle.io Windows installer)
         id: upload_artifact

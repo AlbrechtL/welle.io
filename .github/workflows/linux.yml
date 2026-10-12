@@ -14,6 +14,9 @@ jobs:
     strategy:
         matrix:
             os: [ubuntu-24.04, ubuntu-24.04-arm]
+    env:
+      # Secrets can't be used in if: conditions directly
+      HAS_TEST_DATA_TOKEN: ${{ secrets.WELLE_TEST_DATA_TOKEN != '' }}
 
     steps:
       - name: Checkout
@@ -82,6 +85,42 @@ jobs:
             mv welle-io.flatpak publish/"$DATE"_"$GIT_HASH"_Linux_welle_"$ARCH_SUFFIX".flatpak
             #cp io.welle.welle-gui.metainfo.xml publish/
 
+      # Smoke test: install the bundle like a user and play a recording with
+      # it (src/tests/smoke/smoke_test.py). The test data is checked out
+      # after the build, otherwise it would end up in the Flatpak.
+      - name: Checkout test data
+        if: env.HAS_TEST_DATA_TOKEN == 'true'
+        uses: actions/checkout@v7
+        with:
+          repository: ${{ vars.WELLE_TEST_DATA_REPO || 'AlbrechtL/welle.io-test-data' }}
+          token: ${{ secrets.WELLE_TEST_DATA_TOKEN }}
+          path: test-data
+          sparse-checkout: |
+            manifest.json
+            scripts/
+            clips/odr_dabmod.s8.iq.zst
+          sparse-checkout-cone-mode: false
+
+      - name: Smoke test (installed Flatpak)
+        if: env.HAS_TEST_DATA_TOKEN == 'true'
+        run: |
+            sudo apt-get -y install xvfb zstd
+            flatpak install --user -y --reinstall --bundle publish/*.flatpak
+            xvfb-run -a python3 src/tests/smoke/smoke_test.py --test-data test-data \
+                --flatpak io.welle.welle-gui --work-dir smoke-test
+
+      - name: No smoke test
+        if: env.HAS_TEST_DATA_TOKEN != 'true'
+        run: echo "::warning::WELLE_TEST_DATA_TOKEN is not available, the smoke test of the Flatpak is skipped"
+
+      - name: Archive smoke test logs
+        if: always() && env.HAS_TEST_DATA_TOKEN == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: smoke-test-flatpak-${{ env.ARCH_SUFFIX }}
+          path: smoke-test/
+          if-no-files-found: ignore
+
       - name: Check flathub eligibility
         continue-on-error: true
         run: |
@@ -103,3 +142,81 @@ jobs:
           username: ${{ secrets.SFTP_USER }}
           password: ${{ secrets.SFTP_PASSWORD }}
           local_dir: publish/
+
+  install:
+    name: Build, install and run on Debian
+    runs-on: ubuntu-24.04
+    # Debian 13 has Qt 6.8, the oldest Qt that welle.io supports
+    container: debian:trixie
+    env:
+      HAS_TEST_DATA_TOKEN: ${{ secrets.WELLE_TEST_DATA_TOKEN != '' }}
+
+    steps:
+      - name: Install dependencies
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+            apt-get update
+            # The QML modules are runtime dependencies that the -dev packages
+            # don't pull in. Xvfb and Mesa: welle-io runs with xcb and OpenGL.
+            apt-get -y install --no-install-recommends \
+              ca-certificates git build-essential cmake ninja-build pkg-config xxd python3 zstd \
+              qt6-base-dev qt6-declarative-dev qt6-multimedia-dev qt6-charts-dev qt6-svg-dev \
+              libfftw3-dev libfaad-dev libmpg123-dev libmp3lame-dev libasound2-dev \
+              qml6-module-qtquick qml6-module-qtquick-controls qml6-module-qtquick-templates \
+              qml6-module-qtquick-layouts qml6-module-qtquick-dialogs qml6-module-qtquick-window \
+              qml6-module-qtquick-effects qml6-module-qtcore qml6-module-qtcharts \
+              qml6-module-qtqml-workerscript qt6-qpa-plugins \
+              xvfb xauth libgl1-mesa-dri desktop-file-utils appstream man-db
+
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Build and install
+        run: |
+            git config --global --add safe.directory "$GITHUB_WORKSPACE"
+            cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr
+            cmake --build build
+            cmake --install build
+            # Only the installed files are left
+            rm -rf build
+
+      - name: Check installed files
+        run: |
+            desktop-file-validate /usr/share/applications/io.welle.welle-gui.desktop
+            appstreamcli validate --no-net /usr/share/metainfo/io.welle.welle-gui.metainfo.xml
+            man -w welle-io welle-cli
+            welle-cli -h 2>&1 | grep -q "Usage: welle-cli"
+
+      - name: Checkout test data
+        if: env.HAS_TEST_DATA_TOKEN == 'true'
+        uses: actions/checkout@v7
+        with:
+          repository: ${{ vars.WELLE_TEST_DATA_REPO || 'AlbrechtL/welle.io-test-data' }}
+          token: ${{ secrets.WELLE_TEST_DATA_TOKEN }}
+          path: test-data
+          sparse-checkout: |
+            manifest.json
+            scripts/
+            clips/odr_dabmod.s8.iq.zst
+          sparse-checkout-cone-mode: false
+
+      - name: Smoke test (installed welle-io and welle-cli)
+        if: env.HAS_TEST_DATA_TOKEN == 'true'
+        run: >-
+          xvfb-run -a python3 src/tests/smoke/smoke_test.py --test-data test-data
+          --welle-io welle-io --welle-cli welle-cli --work-dir smoke-test
+
+      - name: No smoke test
+        if: env.HAS_TEST_DATA_TOKEN != 'true'
+        run: echo "::warning::WELLE_TEST_DATA_TOKEN is not available, the smoke test is skipped"
+
+      - name: Archive smoke test logs
+        if: always() && env.HAS_TEST_DATA_TOKEN == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: smoke-test-debian
+          path: smoke-test/
+          if-no-files-found: ignore

@@ -109,6 +109,10 @@ CTest, details in `src/tests/README.md`.
   runs again.
 * Prove that a new test can fail (e.g. by breaking the code temporarily),
   then restore the code.
+* The package workflows install the packages and run
+  `src/tests/smoke/smoke_test.py` with `welle-io --smoke-test` (CTest
+  `gui.smoke_option` runs it with the build). See "Smoke tests of the
+  packages" in `src/tests/README.md`.
 
 ## Live reception (rtl_tcp)
 
