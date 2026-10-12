@@ -4,32 +4,32 @@
 <context>
     <name>AboutPage</name>
     <message>
-        <location filename="../QML/pages/AboutPage.qml" line="36"/>
+        <location filename="../QML/pages/AboutPage.qml" line="33"/>
         <source>About</source>
         <translation type="unfinished">Acerca de</translation>
     </message>
     <message>
-        <location filename="../QML/pages/AboutPage.qml" line="69"/>
+        <location filename="../QML/pages/AboutPage.qml" line="66"/>
         <source>Open source DAB and DAB+ software defined radio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/pages/AboutPage.qml" line="99"/>
+        <location filename="../QML/pages/AboutPage.qml" line="96"/>
         <source>Versions</source>
         <translation type="unfinished">Versiones</translation>
     </message>
     <message>
-        <location filename="../QML/pages/AboutPage.qml" line="100"/>
+        <location filename="../QML/pages/AboutPage.qml" line="97"/>
         <source>Authors</source>
         <translation type="unfinished">Autores</translation>
     </message>
     <message>
-        <location filename="../QML/pages/AboutPage.qml" line="101"/>
+        <location filename="../QML/pages/AboutPage.qml" line="98"/>
         <source>Thanks</source>
         <translation type="unfinished">Agradecimientos</translation>
     </message>
     <message>
-        <location filename="../QML/pages/AboutPage.qml" line="102"/>
+        <location filename="../QML/pages/AboutPage.qml" line="99"/>
         <source>Licenses</source>
         <translation type="unfinished">Licencia</translation>
     </message>
@@ -58,71 +58,71 @@
 <context>
     <name>AppBar</name>
     <message>
-        <location filename="../QML/app/AppBar.qml" line="69"/>
+        <location filename="../QML/app/AppBar.qml" line="66"/>
         <source>Main menu</source>
         <translation type="unfinished">Menú principal</translation>
     </message>
     <message>
-        <location filename="../QML/app/AppBar.qml" line="70"/>
+        <location filename="../QML/app/AppBar.qml" line="67"/>
         <source>Open the navigation menu</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/app/AppBar.qml" line="79"/>
+        <location filename="../QML/app/AppBar.qml" line="76"/>
         <source>Back</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/app/AppBar.qml" line="98"/>
+        <location filename="../QML/app/AppBar.qml" line="95"/>
         <source>Stop</source>
         <translation type="unfinished">Detener</translation>
     </message>
     <message>
-        <location filename="../QML/app/AppBar.qml" line="98"/>
+        <location filename="../QML/app/AppBar.qml" line="95"/>
         <source>Play</source>
         <translation type="unfinished">Reproducir</translation>
     </message>
     <message>
-        <location filename="../QML/app/AppBar.qml" line="99"/>
+        <location filename="../QML/app/AppBar.qml" line="96"/>
         <source>Stop playback</source>
         <translation type="unfinished">Detener reproducción</translation>
     </message>
     <message>
-        <location filename="../QML/app/AppBar.qml" line="100"/>
+        <location filename="../QML/app/AppBar.qml" line="97"/>
         <source>Stop scan</source>
         <translation type="unfinished">Detener escaneo</translation>
     </message>
     <message>
-        <location filename="../QML/app/AppBar.qml" line="100"/>
+        <location filename="../QML/app/AppBar.qml" line="97"/>
         <source>Start playback</source>
         <translation type="unfinished">Iniciar reproducción</translation>
     </message>
     <message>
-        <location filename="../QML/app/AppBar.qml" line="113"/>
-        <location filename="../QML/app/AppBar.qml" line="118"/>
-        <location filename="../QML/app/AppBar.qml" line="179"/>
+        <location filename="../QML/app/AppBar.qml" line="110"/>
+        <location filename="../QML/app/AppBar.qml" line="115"/>
+        <location filename="../QML/app/AppBar.qml" line="176"/>
         <source>Volume</source>
         <translation type="unfinished">Volumen</translation>
     </message>
     <message>
-        <location filename="../QML/app/AppBar.qml" line="114"/>
+        <location filename="../QML/app/AppBar.qml" line="111"/>
         <source>Show volume slider</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/app/AppBar.qml" line="114"/>
+        <location filename="../QML/app/AppBar.qml" line="111"/>
         <source>Mute or unmute</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/app/AppBar.qml" line="118"/>
-        <location filename="../QML/app/AppBar.qml" line="163"/>
+        <location filename="../QML/app/AppBar.qml" line="115"/>
+        <location filename="../QML/app/AppBar.qml" line="160"/>
         <source>Unmute</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/app/AppBar.qml" line="118"/>
-        <location filename="../QML/app/AppBar.qml" line="163"/>
+        <location filename="../QML/app/AppBar.qml" line="115"/>
+        <location filename="../QML/app/AppBar.qml" line="160"/>
         <source>Mute</source>
         <translation type="unfinished"></translation>
     </message>
@@ -154,7 +154,7 @@
     </message>
     <message>
         <location filename="../QML/settings/AppearanceSettings.qml" line="66"/>
-        <location filename="../QML/settings/AppearanceSettings.qml" line="80"/>
+        <location filename="../QML/settings/AppearanceSettings.qml" line="81"/>
         <source>Accent color</source>
         <translation type="unfinished"></translation>
     </message>
@@ -180,57 +180,57 @@
 <context>
     <name>CGUIHelper</name>
     <message>
-        <location filename="../gui_helper.cpp" line="67"/>
-        <location filename="../gui_helper.cpp" line="714"/>
+        <location filename="../gui_helper.cpp" line="71"/>
+        <location filename="../gui_helper.cpp" line="718"/>
         <source>Mi&amp;nimize</source>
         <translation>Mi&amp;nimizar</translation>
     </message>
     <message>
-        <location filename="../gui_helper.cpp" line="70"/>
-        <location filename="../gui_helper.cpp" line="715"/>
+        <location filename="../gui_helper.cpp" line="74"/>
+        <location filename="../gui_helper.cpp" line="719"/>
         <source>Ma&amp;ximize</source>
         <translation>Ma&amp;ximizar</translation>
     </message>
     <message>
-        <location filename="../gui_helper.cpp" line="73"/>
-        <location filename="../gui_helper.cpp" line="716"/>
+        <location filename="../gui_helper.cpp" line="77"/>
+        <location filename="../gui_helper.cpp" line="720"/>
         <source>&amp;Restore</source>
         <translation>&amp;Restaurar</translation>
     </message>
     <message>
-        <location filename="../gui_helper.cpp" line="76"/>
-        <location filename="../gui_helper.cpp" line="717"/>
+        <location filename="../gui_helper.cpp" line="80"/>
+        <location filename="../gui_helper.cpp" line="721"/>
         <source>&amp;Quit</source>
         <translation>&amp;Cerrar</translation>
     </message>
     <message>
-        <location filename="../gui_helper.cpp" line="183"/>
+        <location filename="../gui_helper.cpp" line="187"/>
         <source>welle.io version</source>
         <translation>Versión de welle.io</translation>
     </message>
     <message>
-        <location filename="../gui_helper.cpp" line="192"/>
+        <location filename="../gui_helper.cpp" line="196"/>
         <source>Built on</source>
         <translation>Compilado el</translation>
     </message>
     <message>
-        <location filename="../gui_helper.cpp" line="317"/>
+        <location filename="../gui_helper.cpp" line="321"/>
         <source>The program will keep running in the system tray. To terminate the program, choose &quot;%1&quot; in the context menu of the system tray entry.</source>
         <translation>El programa seguirá ejecutándose en la bandeja del sistema. Para finalizar el programa, seleccione &quot;%1&quot; en el menú contextual de la entrada de la bandeja del sistema.</translation>
     </message>
     <message>
-        <location filename="../gui_helper.cpp" line="322"/>
+        <location filename="../gui_helper.cpp" line="326"/>
         <source>Quit</source>
         <extracomment>&quot;Quit&quot; translation should be the same as the one of system tray</extracomment>
         <translation>Salir</translation>
     </message>
     <message>
-        <location filename="../gui_helper.cpp" line="184"/>
+        <location filename="../gui_helper.cpp" line="188"/>
         <source>Git revision</source>
         <translation>Revisión de Git</translation>
     </message>
     <message>
-        <location filename="../gui_helper.cpp" line="193"/>
+        <location filename="../gui_helper.cpp" line="197"/>
         <source>QT version</source>
         <translation>Versión de QT</translation>
     </message>
@@ -250,55 +250,55 @@
 <context>
     <name>CRadioController</name>
     <message>
-        <location filename="../radio_controller.cpp" line="656"/>
+        <location filename="../radio_controller.cpp" line="670"/>
         <source>Unknown</source>
         <translation>Desconocido</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="453"/>
-        <location filename="../radio_controller.cpp" line="676"/>
+        <location filename="../radio_controller.cpp" line="467"/>
+        <location filename="../radio_controller.cpp" line="690"/>
         <source>No Station</source>
         <translation>Sin estaciones</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="156"/>
+        <location filename="../radio_controller.cpp" line="169"/>
         <source>Error while opening file </source>
         <translation>Error al abrir el fichero </translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="259"/>
+        <location filename="../radio_controller.cpp" line="272"/>
         <source>Playback failed</source>
         <translation>Reproducción fallida</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="280"/>
+        <location filename="../radio_controller.cpp" line="293"/>
         <source>Stopped</source>
         <translation>Detenido</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="415"/>
+        <location filename="../radio_controller.cpp" line="429"/>
         <source>RAW File</source>
         <translation>Fichero RAW</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="429"/>
-        <location filename="../radio_controller.cpp" line="915"/>
+        <location filename="../radio_controller.cpp" line="443"/>
+        <location filename="../radio_controller.cpp" line="960"/>
         <source>Scanning</source>
         <translation>Escaneando</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="433"/>
-        <location filename="../radio_controller.cpp" line="940"/>
+        <location filename="../radio_controller.cpp" line="447"/>
+        <location filename="../radio_controller.cpp" line="985"/>
         <source>Found channels</source>
         <translation>Estaciones encontradas</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="650"/>
+        <location filename="../radio_controller.cpp" line="664"/>
         <source>Playing last station</source>
         <translation>Reproduciendo la última estación</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="726"/>
+        <location filename="../radio_controller.cpp" line="740"/>
         <source>Radio device is not ready or does not exist.</source>
         <translation>El dispositivo de radio no está presente o disponible.</translation>
     </message>
@@ -346,7 +346,7 @@
     </message>
     <message>
         <location filename="../../input/rtl_sdr.cpp" line="333"/>
-        <location filename="../../input/rtl_tcp.cpp" line="568"/>
+        <location filename="../../input/rtl_tcp.cpp" line="596"/>
         <source>ADC overload. Maybe you are using a too high gain.</source>
         <translation>Sobrecarga de ADC. Quizá esté usando una ganancia demasiado alta.</translation>
     </message>
@@ -356,12 +356,12 @@
         <translation>RTL-SDR está desconectado.</translation>
     </message>
     <message>
-        <location filename="../../input/rtl_tcp.cpp" line="332"/>
+        <location filename="../../input/rtl_tcp.cpp" line="348"/>
         <source>RTL-TCP connection closed.</source>
         <translation>Conexión RTL-TCP cerrada.</translation>
     </message>
     <message>
-        <location filename="../../input/rtl_tcp.cpp" line="469"/>
+        <location filename="../../input/rtl_tcp.cpp" line="497"/>
         <source>Connection failed to server </source>
         <translation>Error de conexión con el servidor </translation>
     </message>
@@ -1114,57 +1114,57 @@
 <context>
     <name>Dashboard</name>
     <message>
-        <location filename="../QML/expert/Dashboard.qml" line="52"/>
+        <location filename="../QML/expert/Dashboard.qml" line="49"/>
         <source>Service Overview</source>
         <translation type="unfinished">Descripción general</translation>
     </message>
     <message>
-        <location filename="../QML/expert/Dashboard.qml" line="53"/>
+        <location filename="../QML/expert/Dashboard.qml" line="50"/>
         <source>Service Details</source>
         <translation type="unfinished">Detalles de la estación</translation>
     </message>
     <message>
-        <location filename="../QML/expert/Dashboard.qml" line="54"/>
+        <location filename="../QML/expert/Dashboard.qml" line="51"/>
         <source>MOT Slide Show</source>
         <translation type="unfinished">Diapositivas MOT</translation>
     </message>
     <message>
-        <location filename="../QML/expert/Dashboard.qml" line="55"/>
+        <location filename="../QML/expert/Dashboard.qml" line="52"/>
         <source>Spectrum</source>
         <translation type="unfinished">Espectro</translation>
     </message>
     <message>
-        <location filename="../QML/expert/Dashboard.qml" line="56"/>
+        <location filename="../QML/expert/Dashboard.qml" line="53"/>
         <source>Impulse Response</source>
         <translation type="unfinished">Respuesta a impulso</translation>
     </message>
     <message>
-        <location filename="../QML/expert/Dashboard.qml" line="57"/>
+        <location filename="../QML/expert/Dashboard.qml" line="54"/>
         <source>Constellation Diagram</source>
         <translation type="unfinished">Diagrama de constelación</translation>
     </message>
     <message>
-        <location filename="../QML/expert/Dashboard.qml" line="58"/>
+        <location filename="../QML/expert/Dashboard.qml" line="55"/>
         <source>Null Symbol</source>
         <translation type="unfinished">Símbolo Null</translation>
     </message>
     <message>
-        <location filename="../QML/expert/Dashboard.qml" line="59"/>
+        <location filename="../QML/expert/Dashboard.qml" line="56"/>
         <source>Console Output</source>
         <translation type="unfinished">Salida de la consola</translation>
     </message>
     <message>
-        <location filename="../QML/expert/Dashboard.qml" line="60"/>
+        <location filename="../QML/expert/Dashboard.qml" line="57"/>
         <source>RAW Recorder</source>
         <translation type="unfinished">Grabadora RAW</translation>
     </message>
     <message>
-        <location filename="../QML/expert/Dashboard.qml" line="261"/>
+        <location filename="../QML/expert/Dashboard.qml" line="258"/>
         <source>Add</source>
         <translation type="unfinished">Agregar</translation>
     </message>
     <message>
-        <location filename="../QML/expert/Dashboard.qml" line="262"/>
+        <location filename="../QML/expert/Dashboard.qml" line="259"/>
         <source>Add a view</source>
         <translation type="unfinished">Agregar vista</translation>
     </message>
@@ -1389,12 +1389,12 @@
 <context>
     <name>HomePage</name>
     <message>
-        <location filename="../QML/pages/HomePage.qml" line="60"/>
+        <location filename="../QML/pages/HomePage.qml" line="57"/>
         <source>Expert views</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/pages/HomePage.qml" line="60"/>
+        <location filename="../QML/pages/HomePage.qml" line="57"/>
         <source>Now playing</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1591,22 +1591,22 @@
 <context>
     <name>MiniPlayer</name>
     <message>
-        <location filename="../QML/home/MiniPlayer.qml" line="65"/>
+        <location filename="../QML/home/MiniPlayer.qml" line="63"/>
         <source>Now playing: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/home/MiniPlayer.qml" line="66"/>
+        <location filename="../QML/home/MiniPlayer.qml" line="64"/>
         <source>Open the player</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/home/MiniPlayer.qml" line="125"/>
+        <location filename="../QML/home/MiniPlayer.qml" line="145"/>
         <source>Stop</source>
         <translation type="unfinished">Detener</translation>
     </message>
     <message>
-        <location filename="../QML/home/MiniPlayer.qml" line="125"/>
+        <location filename="../QML/home/MiniPlayer.qml" line="145"/>
         <source>Play</source>
         <translation type="unfinished">Reproducir</translation>
     </message>
@@ -1625,27 +1625,27 @@
 <context>
     <name>NavDrawer</name>
     <message>
-        <location filename="../QML/app/NavDrawer.qml" line="115"/>
+        <location filename="../QML/app/NavDrawer.qml" line="112"/>
         <source>All stations</source>
         <translation type="unfinished">Todas las estaciones</translation>
     </message>
     <message>
-        <location filename="../QML/app/NavDrawer.qml" line="116"/>
+        <location filename="../QML/app/NavDrawer.qml" line="113"/>
         <source>Favorites</source>
         <translation type="unfinished">Favoritos</translation>
     </message>
     <message>
-        <location filename="../QML/app/NavDrawer.qml" line="120"/>
+        <location filename="../QML/app/NavDrawer.qml" line="117"/>
         <source>Settings</source>
         <translation type="unfinished">Configuración</translation>
     </message>
     <message>
-        <location filename="../QML/app/NavDrawer.qml" line="121"/>
+        <location filename="../QML/app/NavDrawer.qml" line="118"/>
         <source>About</source>
         <translation type="unfinished">Acerca de</translation>
     </message>
     <message>
-        <location filename="../QML/app/NavDrawer.qml" line="125"/>
+        <location filename="../QML/app/NavDrawer.qml" line="122"/>
         <source>Exit</source>
         <translation type="unfinished">Salir</translation>
     </message>
@@ -1678,24 +1678,24 @@
         <translation>Configuración de rtl-tcp</translation>
     </message>
     <message>
-        <location filename="../QML/settings/devices/RTLTCPSettings.qml" line="55"/>
-        <location filename="../QML/settings/devices/RTLTCPSettings.qml" line="61"/>
+        <location filename="../QML/settings/devices/RTLTCPSettings.qml" line="60"/>
+        <location filename="../QML/settings/devices/RTLTCPSettings.qml" line="67"/>
         <source>Host name or IP-address</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/settings/devices/RTLTCPSettings.qml" line="59"/>
+        <location filename="../QML/settings/devices/RTLTCPSettings.qml" line="65"/>
         <source>Enter host name or IP address</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/settings/devices/RTLTCPSettings.qml" line="66"/>
-        <location filename="../QML/settings/devices/RTLTCPSettings.qml" line="73"/>
+        <location filename="../QML/settings/devices/RTLTCPSettings.qml" line="72"/>
+        <location filename="../QML/settings/devices/RTLTCPSettings.qml" line="80"/>
         <source>IP-Port</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/settings/devices/RTLTCPSettings.qml" line="70"/>
+        <location filename="../QML/settings/devices/RTLTCPSettings.qml" line="77"/>
         <source>Enter IP-port</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1947,89 +1947,117 @@
 <context>
     <name>ServiceDetailsCard</name>
     <message>
-        <location filename="../QML/expert/ServiceDetailsCard.qml" line="38"/>
+        <location filename="../QML/expert/ServiceDetailsCard.qml" line="39"/>
         <source>Service Details</source>
         <translation type="unfinished">Detalles de la estación</translation>
     </message>
     <message>
-        <location filename="../QML/expert/ServiceDetailsCard.qml" line="57"/>
+        <location filename="../QML/expert/ServiceDetailsCard.qml" line="62"/>
         <source>Device</source>
         <translation type="unfinished">Dispositivo</translation>
     </message>
     <message>
-        <location filename="../QML/expert/ServiceDetailsCard.qml" line="59"/>
+        <location filename="../QML/expert/ServiceDetailsCard.qml" line="64"/>
         <source>Current channel</source>
         <translation type="unfinished">Estación actual</translation>
     </message>
     <message>
-        <location filename="../QML/expert/ServiceDetailsCard.qml" line="63"/>
+        <location filename="../QML/expert/ServiceDetailsCard.qml" line="68"/>
         <source>Frequency correction</source>
         <translation type="unfinished">Corrección de frecuencia</translation>
     </message>
     <message>
-        <location filename="../QML/expert/ServiceDetailsCard.qml" line="67"/>
+        <location filename="../QML/expert/ServiceDetailsCard.qml" line="72"/>
         <source>SNR</source>
         <translation type="unfinished">Relación señal-ruido</translation>
     </message>
     <message>
-        <location filename="../QML/expert/ServiceDetailsCard.qml" line="69"/>
+        <location filename="../QML/expert/ServiceDetailsCard.qml" line="74"/>
         <source>Frame sync</source>
         <translation type="unfinished">Sincronización de tramas</translation>
     </message>
     <message>
-        <location filename="../QML/expert/ServiceDetailsCard.qml" line="70"/>
         <location filename="../QML/expert/ServiceDetailsCard.qml" line="75"/>
-        <location filename="../QML/expert/ServiceDetailsCard.qml" line="85"/>
+        <location filename="../QML/expert/ServiceDetailsCard.qml" line="80"/>
+        <location filename="../QML/expert/ServiceDetailsCard.qml" line="90"/>
         <source>OK</source>
         <translation type="unfinished">Vale</translation>
     </message>
     <message>
-        <location filename="../QML/expert/ServiceDetailsCard.qml" line="70"/>
+        <location filename="../QML/expert/ServiceDetailsCard.qml" line="75"/>
         <source>Not synced</source>
         <translation type="unfinished">No sincronizado</translation>
     </message>
     <message>
-        <location filename="../QML/expert/ServiceDetailsCard.qml" line="74"/>
+        <location filename="../QML/expert/ServiceDetailsCard.qml" line="79"/>
         <source>FIC CRC</source>
         <translation type="unfinished">FIC CRC</translation>
     </message>
     <message>
-        <location filename="../QML/expert/ServiceDetailsCard.qml" line="75"/>
+        <location filename="../QML/expert/ServiceDetailsCard.qml" line="80"/>
         <source>Error</source>
         <translation type="unfinished">Error</translation>
     </message>
     <message>
-        <location filename="../QML/expert/ServiceDetailsCard.qml" line="79"/>
+        <location filename="../QML/expert/ServiceDetailsCard.qml" line="84"/>
         <source>Frame errors</source>
         <translation type="unfinished">Error de trama</translation>
     </message>
     <message>
-        <location filename="../QML/expert/ServiceDetailsCard.qml" line="84"/>
+        <location filename="../QML/expert/ServiceDetailsCard.qml" line="89"/>
         <source>RS errors</source>
         <translation type="unfinished">Errores de RS</translation>
     </message>
     <message>
-        <location filename="../QML/expert/ServiceDetailsCard.qml" line="85"/>
+        <location filename="../QML/expert/ServiceDetailsCard.qml" line="90"/>
         <source>Corrected Error</source>
         <translation type="unfinished">Error corregido</translation>
     </message>
     <message>
-        <location filename="../QML/expert/ServiceDetailsCard.qml" line="85"/>
+        <location filename="../QML/expert/ServiceDetailsCard.qml" line="90"/>
         <source>Uncorrected Error</source>
         <translation type="unfinished">Error no corregido</translation>
     </message>
     <message>
-        <location filename="../QML/expert/ServiceDetailsCard.qml" line="89"/>
+        <location filename="../QML/expert/ServiceDetailsCard.qml" line="94"/>
         <source>AAC errors</source>
         <translation type="unfinished">Error de AAC</translation>
     </message>
     <message>
-        <location filename="../QML/expert/ServiceDetailsCard.qml" line="93"/>
+        <location filename="../QML/expert/ServiceDetailsCard.qml" line="98"/>
         <source>Ensemble ID</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/expert/ServiceDetailsCard.qml" line="94"/>
+        <location filename="../QML/expert/ServiceDetailsCard.qml" line="103"/>
+        <source>Station logos (SPI)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../QML/expert/ServiceDetailsCard.qml" line="105"/>
+        <source>Yes, %n logo(s) received</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/ServiceDetailsCard.qml" line="106"/>
+        <source>Not provided by this ensemble</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/ServiceDetailsCard.qml" line="107"/>
+        <source>Searching…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/ServiceDetailsCard.qml" line="107"/>
+        <source>N/A</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/ServiceDetailsCard.qml" line="110"/>
         <source>DAB date and time</source>
         <translation type="unfinished">Fecha y hora DAB</translation>
     </message>
@@ -2060,32 +2088,32 @@
         <translation type="unfinished">Sistema</translation>
     </message>
     <message>
-        <location filename="../QML/settings/AppearanceSettings.qml" line="72"/>
+        <location filename="../QML/settings/AppearanceSettings.qml" line="73"/>
         <source>Teal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/settings/AppearanceSettings.qml" line="73"/>
+        <location filename="../QML/settings/AppearanceSettings.qml" line="74"/>
         <source>Indigo</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/settings/AppearanceSettings.qml" line="74"/>
+        <location filename="../QML/settings/AppearanceSettings.qml" line="75"/>
         <source>Deep Orange</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/settings/AppearanceSettings.qml" line="75"/>
+        <location filename="../QML/settings/AppearanceSettings.qml" line="76"/>
         <source>Purple</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/settings/AppearanceSettings.qml" line="76"/>
+        <location filename="../QML/settings/AppearanceSettings.qml" line="77"/>
         <source>Blue</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/settings/AppearanceSettings.qml" line="77"/>
+        <location filename="../QML/settings/AppearanceSettings.qml" line="78"/>
         <source>Green</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2153,32 +2181,32 @@
 <context>
     <name>SettingsPage</name>
     <message>
-        <location filename="../QML/pages/SettingsPage.qml" line="40"/>
+        <location filename="../QML/pages/SettingsPage.qml" line="37"/>
         <source>Settings</source>
         <translation type="unfinished">Configuración</translation>
     </message>
     <message>
-        <location filename="../QML/pages/SettingsPage.qml" line="50"/>
+        <location filename="../QML/pages/SettingsPage.qml" line="47"/>
         <source>General</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/pages/SettingsPage.qml" line="51"/>
+        <location filename="../QML/pages/SettingsPage.qml" line="48"/>
         <source>Stations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/pages/SettingsPage.qml" line="52"/>
+        <location filename="../QML/pages/SettingsPage.qml" line="49"/>
         <source>Receiver</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/pages/SettingsPage.qml" line="53"/>
+        <location filename="../QML/pages/SettingsPage.qml" line="50"/>
         <source>Appearance</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/pages/SettingsPage.qml" line="54"/>
+        <location filename="../QML/pages/SettingsPage.qml" line="51"/>
         <source>Expert</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2186,12 +2214,12 @@
 <context>
     <name>SignalIndicator</name>
     <message>
-        <location filename="../QML/home/SignalIndicator.qml" line="77"/>
+        <location filename="../QML/home/SignalIndicator.qml" line="74"/>
         <source>No signal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/home/SignalIndicator.qml" line="78"/>
+        <location filename="../QML/home/SignalIndicator.qml" line="75"/>
         <source>Signal %1 of 5 (SNR %2 dB)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2199,22 +2227,22 @@
 <context>
     <name>SlideShow</name>
     <message>
-        <location filename="../QML/home/SlideShow.qml" line="102"/>
+        <location filename="../QML/home/SlideShow.qml" line="101"/>
         <source>Slide show</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/home/SlideShow.qml" line="141"/>
+        <location filename="../QML/home/SlideShow.qml" line="140"/>
         <source>Latest</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/home/SlideShow.qml" line="154"/>
+        <location filename="../QML/home/SlideShow.qml" line="153"/>
         <source>Previous slide</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/home/SlideShow.qml" line="162"/>
+        <location filename="../QML/home/SlideShow.qml" line="161"/>
         <source>Next slide</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2240,7 +2268,7 @@
 <context>
     <name>Snackbar</name>
     <message>
-        <location filename="../QML/app/Snackbar.qml" line="132"/>
+        <location filename="../QML/app/Snackbar.qml" line="129"/>
         <source>Dismiss</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2353,17 +2381,17 @@
 <context>
     <name>StationDelegate</name>
     <message>
-        <location filename="../QML/home/StationDelegate.qml" line="139"/>
+        <location filename="../QML/home/StationDelegate.qml" line="190"/>
         <source>Choose ensemble</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/home/StationDelegate.qml" line="169"/>
+        <location filename="../QML/home/StationDelegate.qml" line="220"/>
         <source>Remove station from favorites</source>
         <translation>Quitar estación de favoritos</translation>
     </message>
     <message>
-        <location filename="../QML/home/StationDelegate.qml" line="169"/>
+        <location filename="../QML/home/StationDelegate.qml" line="220"/>
         <source>Add station to favorites</source>
         <translation>Agregar estación a favoritos</translation>
     </message>
@@ -2381,89 +2409,89 @@ Seleccione una estación para iniciar la reproducción.</translation>
 <context>
     <name>StationListPane</name>
     <message>
-        <location filename="../QML/home/StationListPane.qml" line="73"/>
+        <location filename="../QML/home/StationListPane.qml" line="70"/>
         <source>All stations</source>
         <translation type="unfinished">Todas las estaciones</translation>
     </message>
     <message>
-        <location filename="../QML/home/StationListPane.qml" line="73"/>
+        <location filename="../QML/home/StationListPane.qml" line="70"/>
         <source>Favorites</source>
         <translation type="unfinished">Favoritos</translation>
     </message>
     <message>
-        <location filename="../QML/home/StationListPane.qml" line="97"/>
+        <location filename="../QML/home/StationListPane.qml" line="94"/>
         <source>Stations menu</source>
         <translation type="unfinished">Menú de estaciones</translation>
     </message>
     <message>
-        <location filename="../QML/home/StationListPane.qml" line="98"/>
+        <location filename="../QML/home/StationListPane.qml" line="95"/>
         <source>Show stations menu</source>
         <translation type="unfinished">Mostrar menú de estaciones</translation>
     </message>
     <message>
-        <location filename="../QML/home/StationListPane.qml" line="107"/>
-        <location filename="../QML/home/StationListPane.qml" line="213"/>
+        <location filename="../QML/home/StationListPane.qml" line="104"/>
+        <location filename="../QML/home/StationListPane.qml" line="210"/>
         <source>Start station scan</source>
         <translation type="unfinished">Iniciar escaneo de estaciones</translation>
     </message>
     <message>
-        <location filename="../QML/home/StationListPane.qml" line="115"/>
+        <location filename="../QML/home/StationListPane.qml" line="112"/>
         <source>Stop station scan</source>
         <translation type="unfinished">Detener escaneo de estaciones</translation>
     </message>
     <message>
-        <location filename="../QML/home/StationListPane.qml" line="123"/>
+        <location filename="../QML/home/StationListPane.qml" line="120"/>
         <source>Clear station list</source>
         <translation type="unfinished">Borrar lista de estaciones</translation>
     </message>
     <message>
-        <location filename="../QML/home/StationListPane.qml" line="132"/>
+        <location filename="../QML/home/StationListPane.qml" line="129"/>
         <source>Station settings</source>
         <translation type="unfinished">Ajustes de la estación</translation>
     </message>
     <message>
-        <location filename="../QML/home/StationListPane.qml" line="149"/>
+        <location filename="../QML/home/StationListPane.qml" line="146"/>
         <source>Scanning channel %1 of %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/home/StationListPane.qml" line="163"/>
+        <location filename="../QML/home/StationListPane.qml" line="160"/>
         <source>Station scan progress</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/home/StationListPane.qml" line="191"/>
+        <location filename="../QML/home/StationListPane.qml" line="188"/>
         <source>No stations in list</source>
         <translation type="unfinished">No hay estaciones en la lista</translation>
     </message>
     <message>
-        <location filename="../QML/home/StationListPane.qml" line="191"/>
+        <location filename="../QML/home/StationListPane.qml" line="188"/>
         <source>No favorites yet</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/home/StationListPane.qml" line="199"/>
+        <location filename="../QML/home/StationListPane.qml" line="196"/>
         <source>Search for stations on all channels.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/home/StationListPane.qml" line="200"/>
+        <location filename="../QML/home/StationListPane.qml" line="197"/>
         <source>Mark a station in the list of all stations with the star to add it here.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/home/StationListPane.qml" line="224"/>
+        <location filename="../QML/home/StationListPane.qml" line="221"/>
         <source>Show all stations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/home/StationListPane.qml" line="252"/>
+        <location filename="../QML/home/StationListPane.qml" line="249"/>
         <source>File</source>
         <translation type="unfinished">Archivo</translation>
     </message>
     <message>
-        <location filename="../QML/home/StationListPane.qml" line="278"/>
-        <location filename="../QML/home/StationListPane.qml" line="303"/>
+        <location filename="../QML/home/StationListPane.qml" line="275"/>
+        <location filename="../QML/home/StationListPane.qml" line="296"/>
         <source>Manual channel</source>
         <translation type="unfinished">Estación manual</translation>
     </message>
@@ -2557,20 +2585,56 @@ Seleccione una estación para iniciar la reproducción.</translation>
 <context>
     <name>main</name>
     <message>
-        <location filename="../main.cpp" line="82"/>
+        <location filename="../main.cpp" line="83"/>
         <source>Records DAB frames (*.mp2) or DAB+ superframes with RS coding (*.dab). This file can be used to analyse X-PAD data with XPADxpert</source>
         <translation>Graba tramas DAB (*.mp2) o supertramas DAB+ con codificación RS (*.dab). Este archivo se puede utilizar para analizar datos X-PAD con XPADxpert</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="83"/>
-        <location filename="../main.cpp" line="88"/>
+        <location filename="../main.cpp" line="84"/>
+        <location filename="../main.cpp" line="89"/>
+        <location filename="../main.cpp" line="94"/>
         <source>File name</source>
         <translation>Nombre del fichero</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="87"/>
+        <location filename="../main.cpp" line="88"/>
         <source>Redirects all log output texts to a file.</source>
         <translation>Redirige todos los textos de salida del registro a un fichero.</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="93"/>
+        <source>Selects this RAW file as input device, like the settings page does.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="98"/>
+        <source>Sample format of the RAW file: %1 (default: auto).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="99"/>
+        <source>Format</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="103"/>
+        <source>Plays every service of the RAW file with temporary settings, writes the result to a JSON file and quits. Exit code 0 if every service played.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="104"/>
+        <source>Report file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="108"/>
+        <source>Time limit of the smoke test (default: 120).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="109"/>
+        <source>Seconds</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Qt Quick Controls Style for the 1st launch</source>

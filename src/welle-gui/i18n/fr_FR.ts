@@ -4,7 +4,7 @@
 <context>
     <name>AboutPage</name>
     <message>
-        <location filename="../QML/pages/AboutPage.qml" line="+36"/>
+        <location filename="../QML/pages/AboutPage.qml" line="+33"/>
         <source>About</source>
         <translation type="unfinished">A propos de</translation>
     </message>
@@ -58,7 +58,7 @@
 <context>
     <name>AppBar</name>
     <message>
-        <location filename="../QML/app/AppBar.qml" line="+69"/>
+        <location filename="../QML/app/AppBar.qml" line="+66"/>
         <source>Main menu</source>
         <translation type="unfinished">Menu principal</translation>
     </message>
@@ -154,7 +154,7 @@
     </message>
     <message>
         <location line="+5"/>
-        <location line="+14"/>
+        <location line="+15"/>
         <source>Accent color</source>
         <translation type="unfinished"></translation>
     </message>
@@ -180,7 +180,7 @@
 <context>
     <name>CGUIHelper</name>
     <message>
-        <location filename="../gui_helper.cpp" line="+67"/>
+        <location filename="../gui_helper.cpp" line="+71"/>
         <location line="+647"/>
         <source>Mi&amp;nimize</source>
         <translation>Mi&amp;nimiser</translation>
@@ -250,7 +250,7 @@
 <context>
     <name>CRadioController</name>
     <message>
-        <location filename="../radio_controller.cpp" line="+656"/>
+        <location filename="../radio_controller.cpp" line="+670"/>
         <source>Unknown</source>
         <translation>Inconnu</translation>
     </message>
@@ -261,7 +261,7 @@
         <translation>Pas de station</translation>
     </message>
     <message>
-        <location line="-520"/>
+        <location line="-521"/>
         <source>Error while opening file </source>
         <translation>Erreur à l&apos;ouverture du fichier </translation>
     </message>
@@ -276,25 +276,25 @@
         <translation>Arrêté</translation>
     </message>
     <message>
-        <location line="+135"/>
+        <location line="+136"/>
         <source>RAW File</source>
         <translation>Fichier RAW</translation>
     </message>
     <message>
         <location line="+14"/>
-        <location line="+486"/>
+        <location line="+517"/>
         <source>Scanning</source>
         <translation>Recherche</translation>
     </message>
     <message>
-        <location line="-482"/>
-        <location line="+507"/>
+        <location line="-513"/>
+        <location line="+538"/>
         <source>Found channels</source>
         <translatorcomment>Contexte: nombre stations trouvées durant la recherche de stations en scannant tous les canaux. Donc c&apos;est bien &quot;station&quot; qu&apos;il faut mettre, et pas &quot;canal&quot;</translatorcomment>
         <translation>Stations trouvées</translation>
     </message>
     <message>
-        <location line="-290"/>
+        <location line="-321"/>
         <source>Playing last station</source>
         <translation>Lecture de la dernière station</translation>
     </message>
@@ -349,7 +349,7 @@
     </message>
     <message>
         <location line="+185"/>
-        <location filename="../../input/rtl_tcp.cpp" line="+568"/>
+        <location filename="../../input/rtl_tcp.cpp" line="+596"/>
         <source>ADC overload. Maybe you are using a too high gain.</source>
         <translatorcomment>Saturation ou Surcharge ? Saturation semble préférable.</translatorcomment>
         <translation type="unfinished">Saturation ADC. Peut-être le gain est trop élevé.</translation>
@@ -360,12 +360,12 @@
         <translation>RTL-SDR est débranché.</translation>
     </message>
     <message>
-        <location filename="../../input/rtl_tcp.cpp" line="-236"/>
+        <location filename="../../input/rtl_tcp.cpp" line="-248"/>
         <source>RTL-TCP connection closed.</source>
         <translation>Connexion RTL-TCP fermée.</translation>
     </message>
     <message>
-        <location line="+137"/>
+        <location line="+149"/>
         <source>Connection failed to server </source>
         <translation>Echec de connexion au serveur </translation>
     </message>
@@ -1150,7 +1150,7 @@
 <context>
     <name>Dashboard</name>
     <message>
-        <location filename="../QML/expert/Dashboard.qml" line="+52"/>
+        <location filename="../QML/expert/Dashboard.qml" line="+49"/>
         <source>Service Overview</source>
         <translation type="unfinished">Aperçu du service</translation>
     </message>
@@ -1434,7 +1434,7 @@
 <context>
     <name>HomePage</name>
     <message>
-        <location filename="../QML/pages/HomePage.qml" line="+60"/>
+        <location filename="../QML/pages/HomePage.qml" line="+57"/>
         <source>Expert views</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1637,7 +1637,7 @@
 <context>
     <name>MiniPlayer</name>
     <message>
-        <location filename="../QML/home/MiniPlayer.qml" line="+65"/>
+        <location filename="../QML/home/MiniPlayer.qml" line="+63"/>
         <source>Now playing: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1647,7 +1647,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+59"/>
+        <location line="+81"/>
         <source>Stop</source>
         <translation type="unfinished">Stop</translation>
     </message>
@@ -1671,7 +1671,7 @@
 <context>
     <name>NavDrawer</name>
     <message>
-        <location filename="../QML/app/NavDrawer.qml" line="+115"/>
+        <location filename="../QML/app/NavDrawer.qml" line="+112"/>
         <source>All stations</source>
         <translation type="unfinished">Toutes les stations</translation>
     </message>
@@ -1725,8 +1725,8 @@
         <translation>Paramètres RTL-TCP</translation>
     </message>
     <message>
-        <location line="+19"/>
-        <location line="+6"/>
+        <location line="+24"/>
+        <location line="+7"/>
         <source>Host name or IP-address</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1737,7 +1737,7 @@
     </message>
     <message>
         <location line="+7"/>
-        <location line="+7"/>
+        <location line="+8"/>
         <source>IP-Port</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1988,12 +1988,12 @@
 <context>
     <name>ServiceDetailsCard</name>
     <message>
-        <location filename="../QML/expert/ServiceDetailsCard.qml" line="+38"/>
+        <location filename="../QML/expert/ServiceDetailsCard.qml" line="+39"/>
         <source>Service Details</source>
         <translation type="unfinished">Détails du service</translation>
     </message>
     <message>
-        <location line="+19"/>
+        <location line="+23"/>
         <source>Device</source>
         <translation type="unfinished">Récepteur</translation>
     </message>
@@ -2070,7 +2070,35 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location line="+5"/>
+        <source>Station logos (SPI)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <location line="+2"/>
+        <source>Yes, %n logo(s) received</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
         <location line="+1"/>
+        <source>Not provided by this ensemble</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Searching…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>N/A</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
         <source>DAB date and time</source>
         <translation type="unfinished">Date et heure DAB</translation>
     </message>
@@ -2086,7 +2114,7 @@
 <context>
     <name>Settings</name>
     <message>
-        <location filename="../QML/settings/AppearanceSettings.qml" line="-24"/>
+        <location filename="../QML/settings/AppearanceSettings.qml" line="-25"/>
         <source>Light</source>
         <translation type="unfinished">Clair</translation>
     </message>
@@ -2101,7 +2129,7 @@
         <translation type="unfinished">Système</translation>
     </message>
     <message>
-        <location line="+14"/>
+        <location line="+15"/>
         <source>Teal</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2194,7 +2222,7 @@
 <context>
     <name>SettingsPage</name>
     <message>
-        <location filename="../QML/pages/SettingsPage.qml" line="+40"/>
+        <location filename="../QML/pages/SettingsPage.qml" line="+37"/>
         <source>Settings</source>
         <translation type="unfinished">Paramètres</translation>
     </message>
@@ -2227,7 +2255,7 @@
 <context>
     <name>SignalIndicator</name>
     <message>
-        <location filename="../QML/home/SignalIndicator.qml" line="+77"/>
+        <location filename="../QML/home/SignalIndicator.qml" line="+74"/>
         <source>No signal</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2240,7 +2268,7 @@
 <context>
     <name>SlideShow</name>
     <message>
-        <location filename="../QML/home/SlideShow.qml" line="+102"/>
+        <location filename="../QML/home/SlideShow.qml" line="+101"/>
         <source>Slide show</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2281,7 +2309,7 @@
 <context>
     <name>Snackbar</name>
     <message>
-        <location filename="../QML/app/Snackbar.qml" line="+132"/>
+        <location filename="../QML/app/Snackbar.qml" line="+129"/>
         <source>Dismiss</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2394,7 +2422,7 @@
 <context>
     <name>StationDelegate</name>
     <message>
-        <location filename="../QML/home/StationDelegate.qml" line="+139"/>
+        <location filename="../QML/home/StationDelegate.qml" line="+190"/>
         <source>Choose ensemble</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2422,7 +2450,7 @@ Sélectionnez une station pour démarrer la lecture.</translation>
 <context>
     <name>StationListPane</name>
     <message>
-        <location filename="../QML/home/StationListPane.qml" line="+73"/>
+        <location filename="../QML/home/StationListPane.qml" line="+70"/>
         <source>All stations</source>
         <translation type="unfinished">Toutes les stations</translation>
     </message>
@@ -2504,7 +2532,7 @@ Sélectionnez une station pour démarrer la lecture.</translation>
     </message>
     <message>
         <location line="+26"/>
-        <location line="+25"/>
+        <location line="+21"/>
         <source>Manual channel</source>
         <translation type="unfinished">Canal manuel</translation>
     </message>
@@ -2592,21 +2620,57 @@ Sélectionnez une station pour démarrer la lecture.</translation>
 <context>
     <name>main</name>
     <message>
-        <location filename="../main.cpp" line="+82"/>
+        <location filename="../main.cpp" line="+83"/>
         <source>Records DAB frames (*.mp2) or DAB+ superframes with RS coding (*.dab). This file can be used to analyse X-PAD data with XPADxpert</source>
         <translation>Enregistre les trames DAB (*.mp2) ou les supertrames DAB+ avec codage RS (*.dab). Ce fichier peut être utilisé pour analyser des données X-PAD avec XPADxpert</translation>
     </message>
     <message>
         <location line="+1"/>
         <location line="+5"/>
+        <location line="+5"/>
         <source>File name</source>
         <translation>Nom de fichier</translation>
     </message>
     <message>
-        <location line="-1"/>
+        <location line="-6"/>
         <source>Redirects all log output texts to a file.</source>
         <translatorcomment>J&apos;ai utilisé &quot;journal&quot; pour la traduction de &quot;log&quot; tel que proposé par TERMIUM Plus®</translatorcomment>
         <translation type="unfinished">Rediriger le journal de sortie vers un fichier.</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Selects this RAW file as input device, like the settings page does.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Sample format of the RAW file: %1 (default: auto).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Format</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Plays every service of the RAW file with temporary settings, writes the result to a JSON file and quits. Exit code 0 if every service played.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Report file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Time limit of the smoke test (default: 120).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Seconds</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Qt Quick Controls Style for the 1st launch</source>
