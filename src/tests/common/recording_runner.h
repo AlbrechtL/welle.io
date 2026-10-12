@@ -27,6 +27,8 @@
 
 #include <QJsonObject>
 
+#include "channel_model.h"
+
 // Result of decoding one service while a recording was played
 struct ServiceResult {
     uint32_t sid = 0;
@@ -90,6 +92,8 @@ struct RunOptions {
     bool decodeAllServices = true;
     // Abort after this many seconds of wall clock time
     double timeoutSeconds = 300;
+    // Echo and noise between the recording and the receiver
+    ChannelModel channel;
 };
 
 // Plays a recording as fast as possible from the beginning to the end and

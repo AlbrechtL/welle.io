@@ -75,6 +75,8 @@ class OfdmDecoder
         FrequencyInterleaver interleaver;
 
         std::vector<softbit_t> ibits;
+        // Phase differences of the carriers of the current symbol
+        std::vector<DSPCOMPLEX> carrierDiffs;
         int16_t snrCount = 0;
         float snr = 0;
 

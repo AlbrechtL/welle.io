@@ -113,6 +113,7 @@ HEADERS += \
     $$PWD/backend/freq-interleaver.h \
     $$PWD/backend/ofdm-decoder.h \
     $$PWD/backend/ofdm-processor.h \
+    $$PWD/backend/coarse-frequency.h \
     $$PWD/backend/phasereference.h \
     $$PWD/backend/phasetable.h \
     $$PWD/backend/tii-decoder.h \
@@ -171,6 +172,7 @@ SOURCES += \
     $$PWD/backend/freq-interleaver.cpp \
     $$PWD/backend/ofdm-decoder.cpp \
     $$PWD/backend/ofdm-processor.cpp \
+    $$PWD/backend/coarse-frequency.cpp \
     $$PWD/backend/phasereference.cpp \
     $$PWD/backend/phasetable.cpp \
     $$PWD/backend/tii-decoder.cpp \

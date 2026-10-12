@@ -39,6 +39,7 @@
 #include <mutex>
 #include <vector>
 #include "phasereference.h"
+#include "coarse-frequency.h"
 #include "ofdm-decoder.h"
 #include "tii-decoder.h"
 #include "virtual_input.h"
@@ -104,8 +105,8 @@ class OFDMProcessor
         uint32_t ofdmBufferIndex = 0;
         PhaseReference phaseRef;
         OfdmDecoder ofdmDecoder;
-        std::vector<float> correlationVector;
-        std::vector<float> refArg;
+        CoarseFrequencyEstimator coarseEstimator;
+        int prsMismatches = 0;
 
         bool scanMode = false;
         int attempts = 0;

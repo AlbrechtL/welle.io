@@ -36,7 +36,6 @@
 #include <iostream>
 //
 #define SEARCH_RANGE        (2 * 36)
-#define CORRELATION_LENGTH  24
 
 /**
   * \brief OFDMProcessor
@@ -71,6 +70,7 @@ OFDMProcessor::OFDMProcessor(
     oscillatorTable(INPUT_RATE),
     phaseRef(params, rro.fftPlacementMethod),
     ofdmDecoder(params, ri, fic, msc),
+    coarseEstimator(params),
     fft_handler(params.T_u),
     fft_buffer(fft_handler.getVector())
 {
@@ -92,15 +92,6 @@ OFDMProcessor::OFDMProcessor(
     for (int i = 0; i < INPUT_RATE; i ++)
         oscillatorTable[i] = DSPCOMPLEX(cos(2.0 * M_PI * i / INPUT_RATE),
                 sin(2.0 * M_PI * i / INPUT_RATE));
-
-    //  and for the correlation
-    refArg.resize(CORRELATION_LENGTH);
-    for (int i = 0; i < CORRELATION_LENGTH; i ++)  {
-        refArg[i] = arg(phaseRef[(T_u + i) % T_u] *
-                conj(phaseRef[(T_u + i + 1) % T_u]));
-    }
-
-    correlationVector.resize(SEARCH_RANGE + CORRELATION_LENGTH);
 }
 
 OFDMProcessor::~OFDMProcessor()
@@ -373,6 +364,25 @@ SyncOnPhase:
                 T_u - ofdmBufferIndex,
                 coarseCorrector + fineCorrector);
 
+        //  As long as the FIC can't be decoded, check that this is the PRS:
+        //  the time synchronisation can also lock onto the null symbol,
+        //  whose TII carriers have the phases of the PRS. Then all symbols
+        //  are wrong, so search the null symbol again.
+        if (ficHandler.getFicDecodeRatioPercent() < 50) {
+            memcpy(fft_buffer, ofdmBuffer.data(), T_u * sizeof(DSPCOMPLEX));
+            fft_handler.do_FFT();
+            if (coarseEstimator.estimate(fft_buffer) == CoarseFrequencyEstimator::noEstimate) {
+                if (++prsMismatches >= 3) {
+                    std::clog << "ofdm-processor: " << "No PRS, searching the null symbol again" << std::endl;
+                    prsMismatches = 0;
+                    goto notSynced;
+                }
+            }
+            else {
+                prsMismatches = 0;
+            }
+        }
+
         RadioReceiverOptions rro;
         {
             std::lock_guard<std::mutex> lock(receiver_options_mutex);
@@ -447,7 +457,10 @@ SyncOnPhase:
         //NewOffset:
         /// we integrate the newly found frequency error with the
         /// existing frequency error.
-        fineCorrector += 0.1 * arg(FreqCorr) / M_PI *
+        //  While the coarse corrector searches (no FIC yet), the fine
+        //  corrector follows faster, so that the FIC is decoded sooner
+        const float fineGain = coarseSyncCounter ? 0.5 : 0.1;
+        fineCorrector += fineGain * arg(FreqCorr) / M_PI *
             (params.carrierDiff / 2);
         //
         /**
@@ -536,7 +549,7 @@ void OFDMProcessor::set_scanMode(bool b)
 #define RANGE 36
 int16_t OFDMProcessor::processPRS(DSPCOMPLEX *v, const FreqsyncMethod& freqsyncMethod)
 {
-    int16_t i, j, index = 100;
+    int16_t i, index = 100;
 
     memcpy(fft_buffer, v, T_u * sizeof(DSPCOMPLEX));
     fft_handler.do_FFT();
@@ -545,40 +558,9 @@ int16_t OFDMProcessor::processPRS(DSPCOMPLEX *v, const FreqsyncMethod& freqsyncM
         case FreqsyncMethod::GetMiddle:
             return getMiddle(fft_buffer);
         case FreqsyncMethod::CorrelatePRS:
-        {
-            //  The "best" approach for computing the coarse frequency
-            //  offset is to look at the spectrum of symbol 0 and relate that
-            //  with the spectrum as it should be, i.e. the refTable
-            //  However, since there might be
-            //  a pretty large phase offset between the incoming data and
-            //  the reference table data, we correlate the
-            //  phase differences between the subsequent carriers rather
-            //  than the values in the segments themselves.
-            //  It seems to work pretty well
-            //
-            //  The phase differences are computed once
-            for (i = 0; i < SEARCH_RANGE + CORRELATION_LENGTH; i ++) {
-                int16_t baseIndex = T_u - SEARCH_RANGE / 2 + i;
-                correlationVector[i] =
-                    arg(fft_buffer[baseIndex % T_u] *
-                    conj(fft_buffer[(baseIndex + 1) % T_u]));
-            }
-
-            float    MMax    = 0;
-            for (i = 0; i < SEARCH_RANGE; i ++) {
-                float sum = 0;
-                for (j = 0; j < CORRELATION_LENGTH; j ++) {
-                    sum += abs(refArg [j] * correlationVector[i + j]);
-                    if (sum > MMax) {
-                        MMax = sum;
-                        index = i;
-                    }
-                }
-            }
-
-            //  Now map the index back to the right carrier
-            return T_u - SEARCH_RANGE / 2 + index - T_u;
-        }
+            //  Correlates the phase differences between neighbouring
+            //  carriers with those of the PRS, over all carriers
+            return coarseEstimator.estimate(fft_buffer);
         case FreqsyncMethod::PatternOfZeros:
         {
             //  An alternative way is to look at a special pattern consisting

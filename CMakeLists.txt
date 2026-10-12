@@ -260,6 +260,7 @@ set(backend_sources
     src/backend/freq-interleaver.cpp
     src/backend/ofdm-decoder.cpp
     src/backend/ofdm-processor.cpp
+    src/backend/coarse-frequency.cpp
     src/backend/phasereference.cpp
     src/backend/phasetable.cpp
     src/backend/tii-decoder.cpp

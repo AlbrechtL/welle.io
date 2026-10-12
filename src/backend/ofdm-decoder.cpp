@@ -27,6 +27,8 @@
  *  its invocation results in 2 * Tu bits
  */
 
+#include <algorithm>
+#include <cmath>
 #include <cstddef>
 #include "ofdm-decoder.h"
 #include "various/profiling.h"
@@ -52,7 +54,8 @@ OfdmDecoder::OfdmDecoder(
     phaseReference(params.T_u),
     fft_handler(p.T_u),
     interleaver(p),
-    ibits(2 * params.K)
+    ibits(2 * params.K),
+    carrierDiffs(params.K)
 {
     T_g = params.T_s - params.T_u;
     fft_buffer = fft_handler.getVector();
@@ -204,6 +207,7 @@ void OfdmDecoder::decodeDataSymbol(int32_t sym_ix)
      * Note that from here on, we are only interested in the
      * K useful carriers of the FFT output
      */
+    DSPFLOAT sumNorm = 0;
     for (int16_t i = 0; i < params.K; i ++) {
         int16_t index = interleaver.mapIn(i);
         if (index < 0)
@@ -216,15 +220,28 @@ void OfdmDecoder::decodeDataSymbol(int32_t sym_ix)
          */
         const DSPCOMPLEX r1 = fft_buffer[index] * conj (phaseReference[index]);
         phaseReference[index] = fft_buffer[index];
-        const DSPFLOAT ab1 = 127.0f / l1_norm(r1);
-        /// split the real and the imaginary part and scale it
-
-        ibits[i]            = -real (r1) * ab1;
-        ibits[params.K + i] = -imag (r1) * ab1;
+        carrierDiffs[i] = r1;
+        sumNorm += l1_norm(r1);
 
         if (i % constellationDecimation == 0) {
             constellationPoints.push_back(r1);
         }
+    }
+
+    /**
+     * Split the real and the imaginary part and scale them with the square
+     * root of the carrier amplitude relative to the mean of all carriers:
+     * carriers in a notch of the channel or with interference get smaller
+     * soft bits, so that the Viterbi decoder trusts them less. An average
+     * carrier at 45 degrees gives 63, as before.
+     */
+    const DSPFLOAT meanNorm = sumNorm / params.K;
+    for (int16_t i = 0; i < params.K; i ++) {
+        const DSPCOMPLEX r1 = carrierDiffs[i];
+        const DSPFLOAT norm = l1_norm(r1) * meanNorm;
+        const DSPFLOAT scale = norm > 0 ? 127.0f / std::sqrt(norm) : 0;
+        ibits[i]            = std::max(-127.0f, std::min(127.0f, -real (r1) * scale));
+        ibits[params.K + i] = std::max(-127.0f, std::min(127.0f, -imag (r1) * scale));
     }
 
     if (sym_ix < 4) {

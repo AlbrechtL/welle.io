@@ -11,7 +11,8 @@ set(WELLE_TEST_DATA_DIR "" CACHE PATH
 add_library(welle_test_common STATIC
     common/recording_runner.cpp
     common/expectations.cpp
-    common/spi_replay.cpp)
+    common/spi_replay.cpp
+    common/channel_model.cpp)
 target_include_directories(welle_test_common PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/common)
 target_compile_definitions(welle_test_common PUBLIC
     WELLE_TEST_DATA_DIR_DEFAULT="${WELLE_TEST_DATA_DIR}")
@@ -57,11 +58,15 @@ add_executable(tst_halfband_decimator unit/tst_halfband_decimator.cpp)
 target_link_libraries(tst_halfband_decimator PRIVATE welle_test_common Qt6::Test)
 add_test(NAME unit.halfband_decimator COMMAND tst_halfband_decimator)
 
+add_executable(tst_coarse_frequency unit/tst_coarse_frequency.cpp)
+target_link_libraries(tst_coarse_frequency PRIVATE welle_test_common Qt6::Test)
+add_test(NAME unit.coarse_frequency COMMAND tst_coarse_frequency)
+
 add_executable(rstest ${CMAKE_SOURCE_DIR}/src/libs/fec/test/rstest.c)
 target_link_libraries(rstest PRIVATE welle)
 add_test(NAME unit.reed_solomon COMMAND rstest)
 
-set_tests_properties(unit.rawfile unit.dabconstants unit.fib unit.mp2_scf_crc unit.spi unit.rtl_agc unit.halfband_decimator unit.reed_solomon PROPERTIES LABELS unit)
+set_tests_properties(unit.rawfile unit.dabconstants unit.fib unit.mp2_scf_crc unit.spi unit.rtl_agc unit.halfband_decimator unit.coarse_frequency unit.reed_solomon PROPERTIES LABELS unit)
 
 # Recordings of the welle.io-test-data repository. Every clip of its
 # manifest becomes one test, backend.recording.<clip id>, which runs
@@ -69,6 +74,12 @@ set_tests_properties(unit.rawfile unit.dabconstants unit.fib unit.mp2_scf_crc un
 # CMake runs, so CMake has to know the test data directory.
 add_executable(tst_recordings backend/tst_recordings.cpp)
 target_link_libraries(tst_recordings PRIVATE welle_test_common Qt6::Test)
+
+# backend.sensitivity: odr_dabmod through noise and an echo
+add_executable(tst_sensitivity backend/tst_sensitivity.cpp)
+target_link_libraries(tst_sensitivity PRIVATE welle_test_common Qt6::Test)
+add_test(NAME backend.sensitivity COMMAND tst_sensitivity)
+set_tests_properties(backend.sensitivity PROPERTIES LABELS backend)
 
 find_package(Qt6 COMPONENTS Gui REQUIRED)
 add_executable(tst_spi_recordings backend/tst_spi_recordings.cpp)
