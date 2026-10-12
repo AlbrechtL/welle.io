@@ -1,9 +1,6 @@
 /*
- *    Copyright (C) 2026
- *    Albrecht Lohofener (albrechtloh@gmx.de)
- *
  *    This file is part of the welle.io.
- *    This file was generated with an AI assistant (Claude Code).
+ *    This file was generated with the help of an AI assistant (Claude Code).
  *
  *    welle.io is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
