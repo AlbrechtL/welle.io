@@ -104,15 +104,26 @@ void CRTL_SDR::open_device()
     gains.resize(gainsCount);
     gainsCount = rtlsdr_get_tuner_gains(device, gains.data());
 
+    gainsDb.clear();
     for (int i = gainsCount; i > 0; i--) {
         std::clog << "RTL_SDR: " << " gain " << (gains[i - 1] / 10.0) << std::endl;
+    }
+    for (uint32_t i = 0; i < gainsCount; i++) {
+        gainsDb.push_back(gains[i] / 10.0f);
     }
 
     // Always use manual gain, the AGC is implemented in software
     rtlsdr_set_tuner_gain_mode(device, 1);
 
-    // Enable AGC by default
+    // The digital AGC of the RTL2832 would change the level behind the
+    // software AGC
+    rtlsdr_set_agc_mode(device, 0);
+
+    // Enable AGC by default, it starts in the middle of the gain table
     setAgc(true);
+    if (!gains.empty()) {
+        setGain(gains.size() / 2);
+    }
 
     rtlsdrUnplugged = false;
 }
@@ -161,6 +172,7 @@ bool CRTL_SDR::restart(void)
         return false;
 
     rtlsdr_set_center_freq(device, frequency + frequencyOffset);
+    agc.reset();
     rtlsdrRunning = true;
     {
         std::lock_guard<std::mutex> lock(rtlsdrStartMutex);
@@ -235,6 +247,7 @@ float CRTL_SDR::setGain(int gain_index)
     if (ret != 0) {
         std::clog << "RTL_SDR: " << "Setting gain failed" << std::endl;
     }
+    agc.gainChanged();
 
     return currentGain / 10.0;
 }
@@ -298,38 +311,15 @@ void CRTL_SDR::agc_timer_thread(void)
     while (rtlsdrRunning && not rtlsdrUnplugged) {
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
-        const uint8_t currentMinAmplitude = minAmplitude.load(std::memory_order_relaxed);
-        const uint8_t currentMaxAmplitude = maxAmplitude.load(std::memory_order_relaxed);
-
         if (isAGC) {
-            // Check for overloading
-            if (currentMinAmplitude == 0 || currentMaxAmplitude == 255) {
-                // We have to decrease the gain
-                if (currentGainIndex > 0) {
-                    setGain(currentGainIndex - 1);
-                    //std::clog << "RTL_SDR: " << "Decreased gain to " << (float)currentGain / 10.0f << std::endl;
-                }
-            }
-            else {
-                if (currentGainIndex < ((ssize_t)gains.size() - 1)) {
-                    // Calc if a gain increase overloads the device. Calc it from the gain values
-                    int NewGain = gains[currentGainIndex + 1];
-                    float DeltaGain = ((float) NewGain / 10) - ((float) currentGain / 10);
-                    float LinGain = pow(10, DeltaGain / 20);
-
-                    int NewMaxValue = (float) currentMaxAmplitude * LinGain;
-                    int NewMinValue = (float) currentMinAmplitude / LinGain;
-
-                    // We have to increase the gain
-                    if(NewMinValue >= 0 && NewMaxValue <= 255) {
-                        setGain(currentGainIndex + 1);
-                        //std::clog << "RTL_SDR: " << "Increased gain to " << (float) currentGain / 10 << std::endl;
-                    }
-                }
+            const int gainIndex = currentGainIndex;
+            const int newGainIndex = agc.nextGainIndex(gainsDb, gainIndex);
+            if (newGainIndex != gainIndex) {
+                setGain(newGainIndex);
             }
         }
         else { // AGC is off
-            if (minAmplitude == 0 || maxAmplitude == 255) {
+            if (agc.overloaded()) {
                 std::string Text = QT_TRANSLATE_NOOP("CRadioController", "ADC overload. Maybe you are using a too high gain.");
                 std::clog << "RTL_SDR: " << Text << std::endl;
                 radioController.onMessage(message_level_t::Information, Text);
@@ -401,17 +391,8 @@ void CRTL_SDR::rtlsdr_read_callback(uint8_t* buf, uint32_t len, void* ctx)
         rtlsdr->spectrumSampleBuffer.putDataIntoBuffer(buf, len);
         rtlsdr->putIntoRecordBuffer(*buf, len);
 
-        // Check if device is overloaded
-        rtlsdr->minAmplitude.store(255, std::memory_order_relaxed);
-        rtlsdr->maxAmplitude.store(0, std::memory_order_relaxed);
-
-        for (uint32_t i=0;i<len;i++) {
-            if (rtlsdr->minAmplitude.load(std::memory_order_relaxed) > buf[i])
-                rtlsdr->minAmplitude.store(buf[i], std::memory_order_relaxed);
-
-            if (rtlsdr->maxAmplitude.load(std::memory_order_relaxed) < buf[i])
-                rtlsdr->maxAmplitude.store(buf[i], std::memory_order_relaxed);
-        }
+        // Level measurement of the software AGC
+        rtlsdr->agc.process(buf, len);
     }
     else {
         std::clog << "RTL_SDR: " << "ERROR no ctx in RTLSDR callback" << std::endl;

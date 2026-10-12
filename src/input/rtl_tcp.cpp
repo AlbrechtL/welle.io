@@ -90,6 +90,7 @@ void CRTL_TCP_Client::setFrequency(int newFrequency)
 {
     frequency = newFrequency;
     sendVFO(newFrequency);
+    agc.reset();
 }
 
 int CRTL_TCP_Client::getFrequency() const
@@ -298,7 +299,12 @@ void CRTL_TCP_Client::receiveData(void)
             
             // Always use manual gain, the AGC is implemented in software
             setGainMode(1);
-            setGain(currentGainCount);
+            // The digital AGC of the RTL2832 (maybe turned on by a previous
+            // client) would change the level behind the software AGC
+            sendCommand(0x08, 0);
+            // The software AGC starts in the middle of the gain table
+            setGain(isAGC ? getGainCount() / 2 : currentGainCount.load());
+            agc.reset();
             sendRate(INPUT_RATE);
             sendVFO(frequency);  
         }
@@ -325,16 +331,8 @@ void CRTL_TCP_Client::receiveData(void)
     }
 
 
-    // Check if device is overloaded
-    minAmplitude = 255;
-    maxAmplitude = 0;
-
-    for (const auto b : buffer) {
-        if (minAmplitude > b)
-            minAmplitude = b;
-        if (maxAmplitude < b)
-            maxAmplitude = b;
-    }
+    // Level measurement of the software AGC
+    agc.process(buffer.data(), buffer.size());
 }
 
 void CRTL_TCP_Client::handleDisconnect()
@@ -396,25 +394,39 @@ float CRTL_TCP_Client::setGain(int32_t gain)
     float gainValue = getGainValue(gain);
 
     sendCommand(0x04, (int)10 * gainValue);
+    agc.gainChanged();
 
     currentGain = gainValue;
     return gainValue;
 }
 
+std::vector<float> CRTL_TCP_Client::gainTable() const
+{
+    // The gain count of the server tells which rtl-sdr library it uses
+    const uint32_t count = dongleInfo.tuner_gain_count;
+
+    switch (dongleInfo.tuner_type) {
+        case RTLSDR_TUNER_E4000:
+            if (count == e4k_gains_olddab.size())
+                return {e4k_gains_olddab.begin(), e4k_gains_olddab.end()};
+            return {e4k_gains.begin(), e4k_gains.end()};
+        case RTLSDR_TUNER_FC0012: return {fc0012_gains.begin(), fc0012_gains.end()};
+        case RTLSDR_TUNER_FC0013: return {fc0013_gains.begin(), fc0013_gains.end()};
+        case RTLSDR_TUNER_FC2580: return {fc2580_gains.begin(), fc2580_gains.end()};
+        case RTLSDR_TUNER_R820T:
+        case RTLSDR_TUNER_R828D:
+            if (count == r82xx_gains_olddab.size())
+                return {r82xx_gains_olddab.begin(), r82xx_gains_olddab.end()};
+            return {r82xx_gains.begin(), r82xx_gains.end()};
+        default: return {};
+    }
+}
+
 int32_t CRTL_TCP_Client::getGainCount()
 {
-    int32_t MaxGainCount = 0;
-    switch (dongleInfo.tuner_type) {
-        case RTLSDR_TUNER_E4000: MaxGainCount = e4k_gains.size(); break;
-        case RTLSDR_TUNER_FC0012: MaxGainCount = fc0012_gains.size(); break;
-        case RTLSDR_TUNER_FC0013: MaxGainCount = fc0013_gains.size(); break;
-        case RTLSDR_TUNER_FC2580: MaxGainCount = fc2580_gains.size(); break;
-        case RTLSDR_TUNER_R820T: MaxGainCount = r82xx_gains.size(); break;
-        case RTLSDR_TUNER_R828D: MaxGainCount = r82xx_gains.size(); break;
-        default: MaxGainCount = 29; // Most likely it is the R820T tuner
-    }
-
-    return MaxGainCount;
+    const size_t count = gainTable().size();
+    // Without a connection it is most likely the R820T tuner
+    return count > 0 ? count : 29;
 }
 
 void CRTL_TCP_Client::setAgc(bool AGC)
@@ -565,34 +577,14 @@ void CRTL_TCP_Client::agcTimer(void)
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
         if (isAGC && (dongleInfo.tuner_type != RTLSDR_TUNER_UNKNOWN)) {
-            // Check for overloading
-            if (minAmplitude == 0 || maxAmplitude == 255) {
-                // We have to decrease the gain
-                if(currentGainCount > 0) {
-                    setGain(currentGainCount - 1);
-                    //std::clog << "RTL_TCP_CLIENT: Decrease gain to " << (float)currentGain << std::endl;
-                }
-            }
-            else {
-                if (currentGainCount < (getGainCount() - 1)) {
-                    // Calc if a gain increase overloads the device. Calc it
-                    // from the gain values
-                    const float newGain = getGainValue(currentGainCount + 1);
-                    const float deltaGain = newGain - currentGain;
-                    const float linGain = pow(10, deltaGain / 20);
-                    const int newMaxValue = (float)maxAmplitude * linGain;
-                    const int newMinValue = (float)minAmplitude / linGain;
-
-                    // We have to increase the gain
-                    if (newMinValue >=0 && newMaxValue <= 255) {
-                        setGain(currentGainCount + 1);
-                        //std::clog << "RTL_TCP_CLIENT: Increase gain to " << currentGain << std::endl;
-                    }
-                }
+            const int gainCount = currentGainCount;
+            const int newGainCount = agc.nextGainIndex(gainTable(), gainCount);
+            if (newGainCount != gainCount) {
+                setGain(newGainCount);
             }
         }
         else { // AGC is off or unknown tuner
-            if (minAmplitude == 0 || maxAmplitude == 255) {
+            if (agc.overloaded()) {
                 std::string text = QT_TRANSLATE_NOOP("CRadioController", "ADC overload."
                     " Maybe you are using a too high gain.");
                 std::clog << "RTL_TCP_CLIENT:" << text << std::endl;
@@ -604,33 +596,17 @@ void CRTL_TCP_Client::agcTimer(void)
 
 float CRTL_TCP_Client::getGainValue(uint16_t gainCount)
 {
-    float gainValue = 0;
-
     if (dongleInfo.tuner_type == RTLSDR_TUNER_UNKNOWN)
         return 0;
 
-    // Get max gain count
-    uint32_t maxGainCount = getGainCount();
-    if (maxGainCount == 0)
+    const std::vector<float> gains = gainTable();
+    if (gains.empty())
         return 0;
 
     // Check if gainCount is valid
-    if (gainCount < maxGainCount) {
-        // Get gain
-        switch(dongleInfo.tuner_type) {
-            case RTLSDR_TUNER_E4000: gainValue = e4k_gains[gainCount]; break;
-            case RTLSDR_TUNER_FC0012: gainValue = fc0012_gains[gainCount]; break;
-            case RTLSDR_TUNER_FC0013: gainValue = fc0013_gains[gainCount]; break;
-            case RTLSDR_TUNER_FC2580: gainValue = fc2580_gains[gainCount]; break;
-            case RTLSDR_TUNER_R820T: gainValue = r82xx_gains[gainCount]; break;
-            case RTLSDR_TUNER_R828D: gainValue = r82xx_gains[gainCount]; break;
-            default: gainValue = 0;
-        }
-    }
-    else {
-        gainValue = 999.0; // Max gain
-    }
+    if (gainCount < gains.size())
+        return gains[gainCount];
 
-    return gainValue;
+    return 999.0; // Max gain
 }
 

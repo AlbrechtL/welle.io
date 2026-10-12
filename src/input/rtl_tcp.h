@@ -37,6 +37,7 @@
 #include <atomic>
 #include <string>
 #include <thread>
+#include <vector>
 #include <mutex>
 #include "Socket.h"
 #include "virtual_input.h"
@@ -44,6 +45,7 @@
 #include "MathHelper.h"
 #include "ringbuffer.h"
 #include "radio-controller.h"
+#include "rtl_agc.h"
 
 struct dongle_info_t { /* structure size must be multiple of 2 bytes */
     char magic[4];
@@ -94,11 +96,12 @@ private:
     std::thread agcThread;
     std::thread networkBufferThread;
 
-    float currentGain = 0;
-    uint16_t currentGainCount = 0;
-    uint8_t minAmplitude = 255;
-    uint8_t maxAmplitude = 0;
-    bool isAGC = true;
+    std::atomic<float> currentGain{0};
+    std::atomic<int> currentGainCount{0};
+    // The gain changes reach the samples later because of the buffers of
+    // server and network
+    RtlAgc agc{500};
+    std::atomic<bool> isAGC{true};
     bool isHwAGC = false;
     int frequency = kHz(220000);
     RingBuffer<uint8_t> sampleBuffer;
@@ -130,6 +133,16 @@ private:
     const std::array<float, 29>  r82xx_gains{{ 0.0, 0.9, 1.4, 2.7, 3.7, 7.7,
         8.7, 12.5, 14.4, 15.7, 16.6, 19.7, 20.7, 22.9, 25.4, 28.0, 29.7, 32.8,
         33.8, 36.4, 37.2, 38.6, 40.2, 42.1, 43.4, 43.9, 44.5, 48.0, 49.6 }};
+
+    // Servers built with the rtl-sdr library of old-dab report other gains
+    const std::array<float, 20> e4k_gains_olddab{{ 0.0, 2.9, 6.0, 8.9, 11.9,
+        14.7, 17.6, 20.6, 23.5, 26.4, 29.4, 32.3, 35.3, 38.2, 40.8, 43.6, 46.6,
+        49.5, 52.1, 54.8 }};
+
+    const std::array<float, 16> r82xx_gains_olddab{{ 0.0, 3.4, 6.8, 10.2, 13.7,
+        17.1, 20.7, 24.0, 27.8, 31.2, 34.6, 38.2, 41.6, 45.3, 48.8, 52.7 }};
+
+    std::vector<float> gainTable() const;
 
     void sendVFO(int32_t frequency);
     void sendRate(int32_t theRate);

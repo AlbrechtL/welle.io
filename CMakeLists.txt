@@ -323,6 +323,7 @@ set(input_sources
     src/input/null_device.cpp
     src/input/raw_file.cpp
     src/input/rtl_tcp.cpp
+    src/input/rtl_agc.cpp
 )
 
 if(LIBRTLSDR_FOUND)
