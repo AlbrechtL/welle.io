@@ -51,6 +51,7 @@ private slots:
     void opensRawFile();
     void findsStations();
     void playsDabPlus();
+    void switchDropsOldPad();
     void playsDab();
     void stops();
 
@@ -161,6 +162,31 @@ void RadioControllerTests::playsDabPlus()
     qInfo().noquote() << QString("Playing \"%1\": %2, DLS \"%3\", slide %4 (JPEG, %5 bytes)")
         .arg(text("title"), text("audioMode"), text("text"),
              QString::fromStdString(slide.content_name)).arg(slide.data.size());
+}
+
+void RadioControllerTests::switchDropsOldPad()
+{
+    // Issue #912: after a switch within the ensemble, nothing of the previous
+    // service may come back, e.g. its slides. DAB Test 1 has no slides.
+    QSignalSpy slides(radioController.get(), &CRadioController::motChanged);
+    QSignalSpy audioModes(radioController.get(), &CRadioController::audioModeChanged);
+
+    // A slide of DAB+ Test 2 that the decoder delivered just before the switch
+    mot_file_t slide;
+    slide.content_name = "previous.jpg";
+    slide.data = {0xFF, 0xD8};
+    radioController->onMOT(slide);
+
+    radioController->play("File", "DAB Test 1", sidDab);
+    QTest::qWait(3000);
+
+    QCOMPARE(slides.count(), 0);
+
+    // The decoder of DAB+ Test 2 has stopped with the switch
+    QStringList modes;
+    for (const auto& args : audioModes)
+        modes << args.at(0).toString();
+    QVERIFY2(!modes.join("").contains("AAC"), qPrintable(modes.join(" | ")));
 }
 
 void RadioControllerTests::playsDab()

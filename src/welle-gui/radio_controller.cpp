@@ -300,13 +300,19 @@ void CRadioController::stop()
 void CRadioController::setService(uint32_t service, bool force)
 {
     if (currentService != service or force or isPlaying == false) {
+        // Stop the previous service now. Otherwise it is decoded until the
+        // new one starts and its slides appear after the reset (#912).
+        if (radioReceiver) {
+            for (const auto& s : radioReceiver->getServiceList()) {
+                if (s.serviceId == currentService)
+                    radioReceiver->removeServiceToDecode(s);
+            }
+        }
+
         currentService = service;
         autoService = service;
         emit stationChanged();
         emit autoServiceChanged(autoService);
-
-        // Wait if we found the station inside the signal
-        stationTimer.start(1000);
 
         // Clear old data
         currentStationType = "";
@@ -321,7 +327,12 @@ void CRadioController::setService(uint32_t service, bool force)
         audioMode = "";
         emit audioModeChanged(audioMode);
 
-        emit motReseted();
+        resetPad();
+
+        // Start at once if the service is already known (same ensemble),
+        // otherwise wait until it was found inside the signal
+        stationTimer.start(1000);
+        stationTimerTimeout();
     }
 }
 
@@ -411,7 +422,7 @@ void CRadioController::setManualChannel(QString Channel)
     currentText = "";
     emit textChanged();
 
-    emit motReseted();
+    resetPad();
 
     // Switch channel
     setChannel(Channel, false, true);
@@ -722,7 +733,7 @@ void CRadioController::resetTechnicalData(void)
     aaErrors = 0;
     emit aacErrorsChanged(aaErrors);
 
-    emit motReseted();
+    resetPad();
 }
 
 bool CRadioController::deviceRestart()
@@ -1154,16 +1165,25 @@ void CRadioController::onAacErrors(int aacErrors)
 
 void CRadioController::onNewDynamicLabel(const std::string& label)
 {
-    auto qlabel = QString::fromUtf8(label.c_str());
-    if (this->currentText != qlabel) {
-        this->currentText = qlabel;
-        emit textChanged();
-    }
+    // Called from the decoder thread, deliver in the GUI thread
+    const auto qlabel = QString::fromUtf8(label.c_str());
+    const uint32_t generation = padGeneration;
+    QMetaObject::invokeMethod(this, [this, qlabel, generation]() {
+        if (generation == padGeneration && currentText != qlabel) {
+            currentText = qlabel;
+            emit textChanged();
+        }
+    }, Qt::QueuedConnection);
 }
 
 void CRadioController::onMOT(const mot_file_t& mot_file)
 {
-    emit motChanged(mot_file);
+    // Called from the decoder thread, deliver in the GUI thread
+    const uint32_t generation = padGeneration;
+    QMetaObject::invokeMethod(this, [this, mot_file, generation]() {
+        if (generation == padGeneration)
+            emit motChanged(mot_file);
+    }, Qt::QueuedConnection);
 }
 
 void CRadioController::onServiceLogo(const service_logo_t& logo)
@@ -1192,4 +1212,11 @@ void CRadioController::onRestartService()
 void CRadioController::restartService(void)
 {
     setService(currentService, true);
+}
+
+void CRadioController::resetPad(void)
+{
+    // Slides and DLS that are still queued belong to the previous service
+    ++padGeneration;
+    emit motReseted();
 }

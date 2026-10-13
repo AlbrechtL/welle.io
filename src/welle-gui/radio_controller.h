@@ -40,6 +40,7 @@
 #include <QVariantMap>
 #include <QFile>
 #include <QSet>
+#include <atomic>
 #include <mutex>
 #include <list>
 
@@ -231,6 +232,9 @@ private:
     uint16_t currentEId;
     int32_t currentFrequency;
     uint32_t currentService;
+    // Incremented when the slides and the DLS are reset, PAD data of the
+    // previous service that is still queued is dropped (#912)
+    std::atomic<uint32_t> padGeneration = 0;
     QString currentStationType;
     QString currentLanguageType;
     QString currentTitle;
@@ -273,6 +277,7 @@ private slots:
     void nextChannel(bool isWait);
     void displayDateTime(const dab_date_time_t& dateTime);
     void restartService(void);
+    void resetPad(void);
 
 signals:
     void switchToNextChannel(bool isWait);
