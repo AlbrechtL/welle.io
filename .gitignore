@@ -20,3 +20,7 @@ cmake_install.cmake
 cmake_uninstall.cmake
 install_manifest.txt
 .qtcreator/
+
+# MkDocs output of the website (mkdocs build)
+/site/
+/.cache/

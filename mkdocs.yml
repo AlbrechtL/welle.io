@@ -1,0 +1,140 @@
+# Configuration of the welle.io website https://www.welle.io
+# Build: pip install -r docs/requirements.txt && mkdocs build --strict
+# See docs/development/website.md
+
+site_name: welle.io
+site_url: https://www.welle.io/
+site_description: welle.io is an open source DAB and DAB+ software defined radio (SDR) for Windows, Linux, macOS and the Raspberry Pi.
+repo_url: https://github.com/AlbrechtL/welle.io
+repo_name: AlbrechtL/welle.io
+edit_uri: edit/master/docs/
+copyright: >
+  welle.io is free software, licensed under the GNU GPL v2 or later.
+  <a href="/contact/">Contact</a> ·
+  <a href="/impressum/">Legal notice (Impressum)</a> ·
+  <a href="/datenschutzerklaerung/">Privacy policy</a>
+
+docs_dir: docs
+use_directory_urls: true
+
+# README.md is only for people browsing docs/ on GitHub; requirements.txt and
+# the template folder are no pages. The Flathub verification file in
+# .well-known/ has to be published although it starts with a dot.
+exclude_docs: |
+  README.md
+  requirements.txt
+  overrides/
+  !.well-known/
+
+theme:
+  name: material
+  custom_dir: docs/overrides
+  language: en
+  logo: assets/img/welle-io.png
+  favicon: assets/img/favicon.png
+  icon:
+    repo: fontawesome/brands/github
+  palette:
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: custom
+      accent: deep orange
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: custom
+      accent: deep orange
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.indexes
+    - navigation.top
+    - navigation.footer
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.tabs.link
+    - content.action.edit
+    - toc.follow
+
+extra_css:
+  - stylesheets/extra.css
+
+extra:
+  generator: false
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/AlbrechtL/welle.io
+      name: welle.io on GitHub
+    - icon: material/package-down
+      link: https://flathub.org/apps/io.welle.welle-gui
+      name: welle.io on Flathub
+
+plugins:
+  - search
+  # Downloads fonts and other external assets at build time, so that the
+  # browsers of the visitors don't contact Google Fonts or other servers.
+  - privacy
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+
+nav:
+  - Home: index.md
+  - User guide:
+      - user-guide/index.md
+      - Installation: user-guide/installation.md
+      - Usage: user-guide/usage.md
+      - FAQ: faq.md
+      - welle-cli:
+          - welle-cli: user-guide/welle-cli.md
+          - Web interface: user-guide/welle-cli-web-interface.md
+  - Hardware:
+      - devices/index.md
+      - Airspy: devices/airspy.md
+      - rtl-sdr: devices/rtl_sdr.md
+      - rtl_tcp: devices/rtl_tcp.md
+      - SoapySDR: devices/soapysdr.md
+      - Raw files: devices/rawfile.md
+  - Development:
+      - development/index.md
+      - Building: development/building.md
+      - Translating: development/translating-welle-io.md
+      - Code conventions: development/code-conventions.md
+      - Website: development/website.md
+      - Technical documentation:
+          - Backend implementation remarks: development/backend-implementation-remarks.md
+          - Station logos (SPI): development/spi-station-logos.md
+          - Multiplex reconfiguration: development/multiplex-reconfiguration.md
+  - About:
+      - About welle.io: info.md
+      - Contact: contact.md
+      - Legal notice (Impressum): impressum.md
+      - Privacy policy: datenschutzerklaerung.md

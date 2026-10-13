@@ -1,19 +1,19 @@
 # Using the welle-cli web interface
 
-welle-cli (see README for compilation instructions) offers a web interface to the DAB receiver. This wiki page explains how to set it up, and what endpoints it offers.
+welle-cli (see [welle-cli](welle-cli.md) and [Building](../development/building.md) for the compilation instructions) offers a web interface to the DAB receiver. This page explains how to set it up, and what endpoints it offers.
 
 It can be used with the internal webpage, or integrated into another system which accesses data URLs directly.
 
 ## Setup
 
-1. Compile welle-cli according to README instructions;
+1. Compile welle-cli according to the [build instructions](../development/building.md#cmake);
 1. Make sure `index.html` and `index.js` are in the same folder as the `welle-cli` binary, and run `welle-cli` from that folder so that it finds the two files;
 1. Decide how many programmes you want to decode simultaneously. This depends on your system capacity: a modern PC can easily decode all programmes simultaneously (option `-D`), but a single-board ARM computer like the Raspberry Pi might only be able to decode a couple (option `-C 2` for two programmes simultaneously). Find an appropriate number for your system by trial and error.
 1. If you use `-C`, decide if you want to stay 10 seconds on every programme (default, use this for ensembles that don't use slideshow because 10s is a bit short for receiving a slide), or if you want to switch once DLS and a slide were decoded, staying at most 80 seconds on a given programme. (add `-P`)
 1. Run welle-cli with the webserver on port 7979, receiving channel 10A: `welle-cli -c 10A -w 7979 -C 2`
 1. Open http://localhost:7979 in your browser.
 
-From top to botton, the page will show:
+From top to bottom, the page will show:
 * Ensemble and receiver information
 * A table with all services in the ensemble. The 2 programmes being decoded will have the audiolevel indication updated, and DLS will be decoded.
 * All decoded slideshow images

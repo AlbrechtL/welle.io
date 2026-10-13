@@ -1,0 +1,169 @@
+/*
+ * Styles of the welle.io website: colours that match the app icon and the
+ * landing page (hero, feature cards).
+ *
+ * This file was generated with the help of an AI assistant (Claude Code).
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+/* Dark brown grey of the radio in the app icon */
+:root {
+  --md-primary-fg-color: #3e3838;
+  --md-primary-fg-color--light: #5a5252;
+  --md-primary-fg-color--dark: #2a2525;
+  /* Links in the red of the needle in the app icon */
+  --md-typeset-a-color: #c4381a;
+}
+
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color: #2b2727;
+  --md-primary-fg-color--light: #3e3838;
+  --md-primary-fg-color--dark: #1d1a1a;
+  --md-typeset-a-color: #ff8a65;
+}
+
+/* Hero of the landing page */
+.wio-hero {
+  color: #fff;
+  background:
+    linear-gradient(100deg, rgba(30, 26, 26, 0.92) 0%, rgba(30, 26, 26, 0.7) 45%, rgba(30, 26, 26, 0.25) 100%),
+    var(--wio-hero-image) 60% 30% / cover no-repeat,
+    var(--md-primary-fg-color--dark);
+}
+
+.wio-hero__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2.4rem;
+  padding: 3.2rem 0.8rem 3.6rem;
+}
+
+.wio-hero__text {
+  flex: 1 1 18rem;
+}
+
+.wio-hero__icon {
+  width: 4rem;
+  height: 4rem;
+  filter: drop-shadow(0 0.2rem 0.5rem rgba(0, 0, 0, 0.5));
+}
+
+.wio-hero .md-typeset h1 {
+  margin: 0.4rem 0 0.6rem;
+  color: #fff;
+  font-size: 2.6rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.wio-hero .md-typeset .wio-hero__tagline {
+  max-width: 28rem;
+  margin: 0 0 1.4rem;
+  font-size: 1.05rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.wio-hero .md-typeset .wio-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 0;
+}
+
+.wio-hero .md-typeset .wio-hero__actions .md-button {
+  margin: 0;
+}
+
+.wio-hero .md-typeset .wio-hero__primary,
+.wio-hero .md-typeset .wio-hero__primary:hover,
+.wio-hero .md-typeset .wio-hero__primary:focus {
+  color: #fff;
+  background-color: var(--md-accent-fg-color);
+  border-color: var(--md-accent-fg-color);
+}
+
+.wio-hero .md-typeset .wio-hero__secondary {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.7);
+}
+
+.wio-hero .md-typeset .wio-hero__secondary:hover,
+.wio-hero .md-typeset .wio-hero__secondary:focus {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.12);
+  border-color: #fff;
+}
+
+.wio-hero__screenshot {
+  flex: 1 1 20rem;
+  max-width: 34rem;
+}
+
+.wio-hero__screenshot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 0.4rem;
+  box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, 0.55);
+}
+
+@media screen and (max-width: 44.9375em) {
+  .wio-hero__inner {
+    padding: 2rem 0.8rem 2.4rem;
+  }
+
+  .wio-hero .md-typeset h1 {
+    font-size: 2rem;
+  }
+}
+
+/* The landing page has no page title; its sections are separated more */
+.wio-home h2 {
+  margin-top: 2.4rem;
+  font-weight: 600;
+}
+
+.wio-home h2:first-child {
+  margin-top: 0.6rem;
+}
+
+.wio-home .wio-lead {
+  font-size: 0.85rem;
+  color: var(--md-default-fg-color--light);
+}
+
+/* Feature cards: icon in the accent colour */
+.md-typeset .wio-home .grid.cards .twemoji.lg,
+.md-typeset .wio-home .grid.cards .lg {
+  color: var(--md-accent-fg-color);
+}
+
+.md-typeset .wio-home .grid.cards > ul > li,
+.md-typeset .wio-home .grid > .card {
+  border-radius: 0.4rem;
+}
+
+/* Large screenshot on the landing page */
+.md-typeset .wio-screenshot {
+  margin: 1.2rem 0 0.6rem;
+}
+
+.md-typeset .wio-screenshot img {
+  border-radius: 0.3rem;
+  box-shadow: var(--md-shadow-z2);
+}

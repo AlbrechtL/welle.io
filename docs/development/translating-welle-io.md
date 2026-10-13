@@ -26,7 +26,7 @@ Updating 'i18n/new_language.ts'...
 <file>i18n/new_language.qm</file>
   ```
 8. Compile welle.io and test the translation with the command line option "-L"  
-More command line information: https://github.com/albrechtl/welle.io#usage
+More command line information: [Usage](../user-guide/usage.md)
 9. Add both files "i18n/new_language.ts" and "i18n/new_language.qm" the the git repository
 10. Create a pull request to merge the new language into the main branch.
 

@@ -22,8 +22,10 @@ welle.io is a DAB/DAB+ software defined radio: a decoder library
   "This file was generated with the help of an AI assistant (Claude Code)."
   **No copyright line and no author line.** Banners of existing files (also
   copied SDR-J code) stay as they are.
-* Technical documentation of a feature goes into `docs/` (e.g.
-  `docs/spi-station-logos.md`), **not into `README.md`**.
+* Technical documentation of a feature goes into `docs/development/` (e.g.
+  `docs/development/spi-station-logos.md`), user documentation into
+  `docs/user-guide/` or `docs/devices/`, **not into `README.md`**. `docs/` is
+  the source of the website www.welle.io (MkDocs, see "Website" below).
 * Backend changes have to be reviewable: change as few existing files and
   lines as possible, extend existing classes instead of adding new base
   classes or moving code (e.g. the SPI subchannel reuses `DabAudio` with a
@@ -50,6 +52,28 @@ cmake --build build -j$(nproc)
 * New QML files must be added to `src/welle-gui/resources.qrc`; new QML
   folders also to the wildcards in `src/welle-gui/welle-gui.pro` (used by
   lupdate).
+
+## Website
+
+`docs/` and `mkdocs.yml` are the website https://www.welle.io (MkDocs with
+Material for MkDocs, details in `docs/development/website.md`).
+
+```sh
+python3 -m venv /tmp/mkdocs && /tmp/mkdocs/bin/pip install -r docs/requirements.txt
+/tmp/mkdocs/bin/mkdocs build --strict   # or: mkdocs serve
+```
+
+* New pages must be added to `nav` in `mkdocs.yml`; `--strict` fails on
+  broken links. Run it after every change in `docs/`.
+* `.github/workflows/pages.yml` publishes only from `master`. Don't add a
+  trigger for other branches: the website is tested on `next` first.
+* Keep the URLs of the old website: `devices/*.md`, `faq.md`, `info.md`,
+  `contact.md`, `impressum.md`, `datenschutzerklaerung.md`, `images/` and
+  `download/` must not be renamed or moved (the Flathub metainfo uses
+  `images/welle-io_standard_mode.png`). `.well-known/` is the Flathub
+  verification.
+* Don't change the texts of `impressum.md` and `datenschutzerklaerung.md`
+  without the maintainer.
 
 ## Test data
 

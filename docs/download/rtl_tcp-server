@@ -1,0 +1,91 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Source: https://raw.githubusercontent.com/edy555/rtl-sdr/rtltcpFixSegv/rtl_tcp.rc
+# Provides:          rtl_tcp
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:
+# Short-Description: RTL-SDR remote server
+# Description:       RTL-SDR remote server
+### END INIT INFO
+# -*- coding: utf-8 -*-
+# Debian init.d script for RTL-SDR
+
+set -e
+
+DAEMON=/usr/bin/rtl_tcp
+NAME=rtl_tcp
+DAEMONUSER=nobody
+PIDFILE=/var/run/rtl_tcp.pid
+DESC="RTL-SDR remote server"
+
+test -x $DAEMON || exit 0
+
+. /lib/lsb/init-functions
+
+# Source defaults file; edit that file to configure this script.
+RTL_TCP_OPTS="-a 0.0.0.0 -p 1235"
+if [ -e /etc/default/rtl_tcp ]; then
+  . /etc/default/rtl_tcp
+fi
+
+start_it_up()
+{
+  if [ -e $PIDFILE ]; then
+    if $0 status > /dev/null ; then
+      log_success_msg "$DESC already started; not starting."
+      return
+    else
+      log_success_msg "Removing stale PID file $PIDFILE."
+      rm -f $PIDFILE
+    fi
+  fi
+
+  log_daemon_msg "Starting $DESC" "$NAME"
+  start-stop-daemon --background --start --quiet --pidfile $PIDFILE \
+    --make-pidfile --chuid $DAEMONUSER --exec $DAEMON -- $RTL_TCP_OPTS
+  log_end_msg $?
+}
+
+shut_it_down()
+{
+  log_daemon_msg "Stopping $DESC" "$NAME"
+  start-stop-daemon --stop --retry 5 --quiet --oknodo --pidfile $PIDFILE \
+    --user $DAEMONUSER
+  # We no longer include these arguments so that start-stop-daemon
+  # can do its job even given that we may have been upgraded.
+  # We rely on the pidfile being sanely managed
+  # --exec $DAEMON -- --system $PARAMS
+  log_end_msg $?
+  rm -f $PIDFILE
+}
+
+reload_it()
+{
+  echo
+}
+
+case "$1" in
+  start)
+    start_it_up
+  ;;
+  stop)
+    shut_it_down
+  ;;
+  reload|force-reload)
+    reload_it
+  ;;
+  restart)
+    shut_it_down
+    start_it_up
+  ;;
+  status)
+    status_of_proc -p $PIDFILE $DAEMON $NAME && exit 0 || exit $?
+    ;;
+  *)
+    echo "Usage: /etc/init.d/$NAME {start|stop|reload|restart|force-reload|status}" >&2
+    exit 2
+  ;;
+esac
+

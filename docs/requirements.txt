@@ -1,0 +1,6 @@
+# Python packages to build the welle.io website (https://www.welle.io)
+#   pip install -r docs/requirements.txt
+#   mkdocs serve
+# MkDocs 2 changes the plugin and theme system, so stay on 1.x.
+mkdocs>=1.6.1,<2
+mkdocs-material>=9.7,<10

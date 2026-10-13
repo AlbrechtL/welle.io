@@ -1,0 +1,50 @@
+{#-
+  Landing page of the welle.io website: a full-width hero above the content
+  of docs/index.md. Used by pages with "template: home.html".
+
+  This file was generated with the help of an AI assistant (Claude Code).
+
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+-#}
+{% extends "main.html" %}
+
+{% block tabs %}
+  {{ super() }}
+  <section class="wio-hero" style="--wio-hero-image: url('{{ 'images/banner5.jpg' | url }}')">
+    <div class="md-grid md-typeset wio-hero__inner">
+      <div class="wio-hero__text">
+        <img class="wio-hero__icon" src="{{ 'assets/img/welle-io.png' | url }}" alt="" width="96" height="96">
+        <h1>welle.io</h1>
+        <p class="wio-hero__tagline">
+          An open source DAB and DAB+ software defined radio for Windows,
+          Linux, macOS and the Raspberry Pi.
+        </p>
+        <p class="wio-hero__actions">
+          <a href="#download" class="md-button md-button--primary wio-hero__primary">Download</a>
+          <a href="{{ 'user-guide/' | url }}" class="md-button wio-hero__secondary">Documentation</a>
+        </p>
+      </div>
+      <div class="wio-hero__screenshot">
+        <img src="{{ 'images/welle-io_standard_mode.png' | url }}"
+             alt="welle.io playing a DAB+ station with its slideshow"
+             width="809" height="710">
+      </div>
+    </div>
+  </section>
+{% endblock %}
+
+{% block content %}
+  {{ page.content }}
+{% endblock %}
