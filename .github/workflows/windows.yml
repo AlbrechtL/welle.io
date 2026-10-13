@@ -133,7 +133,7 @@ jobs:
 
       - name: Sign installer with self-signed certificate with SignPath
         id: signing_installer
-        uses: signpath/github-action-submit-signing-request@v2
+        uses: signpath/github-action-submit-signing-request@v3
         with:
           api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
           organization-id: 'b7a507e8-ab76-445f-bfb5-05944bcbbee9'
@@ -162,7 +162,7 @@ jobs:
 
       - name: Production sign installer with SignPath
         id: production_signing_installer
-        uses: signpath/github-action-submit-signing-request@v2
+        uses: signpath/github-action-submit-signing-request@v3
 
         # Production signing needs a manual step in SignPath within 5 minutes.
         # During development we don't need each build signed with a production key.
