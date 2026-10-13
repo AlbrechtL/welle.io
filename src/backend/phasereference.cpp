@@ -158,7 +158,7 @@ int32_t PhaseReference::findIndex(DSPCOMPLEX *v,
                         peak.index = i + j;
                     }
                 }
-                bins.push_back(move(peak));
+                bins.push_back(std::move(peak));
             }
 
             mean /= Tu;

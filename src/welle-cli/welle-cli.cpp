@@ -94,7 +94,7 @@ class AlsaProgrammeHandler: public ProgrammeHandlerInterface {
                 ao = make_unique<AlsaOutput>(pcm_device.c_str(), 2, rate);
             }
 
-            ao->playPCM(move(audioData));
+            ao->playPCM(std::move(audioData));
         }
 
         virtual void onRsErrors(bool uncorrectedErrors, int numCorrectedErrors) override {
@@ -554,7 +554,7 @@ int main(int argc, char **argv)
         if (not in_file->is_ok()) {
             return 1;
         }
-        in = move(in_file);
+        in = std::move(in_file);
     }
 
     if (options.gain == -1) {
@@ -692,7 +692,7 @@ int main(int argc, char **argv)
                             [](int ch) { return !isspace(ch); }).base(), dumpFilePrefix.end());
 
                 WavProgrammeHandler ph(s.serviceId, dumpFilePrefix);
-                phs.emplace(make_pair(s.serviceId, move(ph)));
+                phs.emplace(make_pair(s.serviceId, std::move(ph)));
 
                 auto dumpFileName = dumpFilePrefix + ".msc";
 
@@ -763,6 +763,7 @@ int main(int argc, char **argv)
                 cerr << "**** Trying to tune to " << service_to_tune << endl;
             }
 #else
+            (void)service_to_tune_idx;
             cerr << "Nothing to do, not ALSA support." << endl;
 #endif // defined(HAVE_ALSA)
         }

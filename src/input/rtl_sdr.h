@@ -84,7 +84,6 @@ private:
     int frequencyOffset = 0;
     int currentGain = 0;
     bool isAGC = false;
-    bool isHwAGC = false;
     std::thread rtlsdrThread;
     void rtlsdr_read_async_wrapper(void);
     std::atomic<bool> rtlsdrRunning = ATOMIC_VAR_INIT(false);

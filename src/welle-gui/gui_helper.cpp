@@ -171,8 +171,8 @@ const QByteArray CGUIHelper::getFileContent(QString filepath)
     QFile *File;
     QByteArray InfoContent;
     File = new QFile(filepath);
-    File->open(QFile::ReadOnly);
-    InfoContent.append(File->readAll());
+    if (File->open(QFile::ReadOnly))
+        InfoContent.append(File->readAll());
     InfoContent.append("\n");
     delete File;
     return InfoContent;

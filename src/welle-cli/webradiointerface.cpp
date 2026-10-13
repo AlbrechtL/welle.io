@@ -479,7 +479,7 @@ static http_request_t parse_http_headers(Socket& s) {
 
 bool WebRadioInterface::dispatch_client(Socket&& client)
 {
-    Socket s(move(client));
+    Socket s(std::move(client));
 
     bool success = false;
 
@@ -652,7 +652,7 @@ static vector<PeakJson> calculate_cir_peaks(const vector<float>& cir_linear)
                 }
             }
 
-            peaks.push_back(move(p));
+            peaks.push_back(std::move(p));
         }
     }
 
@@ -735,7 +735,7 @@ bool WebRadioInterface::send_mux_json(Socket& s)
 
                 component.subchannel = sub;
 
-                service.components.push_back(move(component));
+                service.components.push_back(std::move(component));
             }
 
             try {
@@ -780,7 +780,7 @@ bool WebRadioInterface::send_mux_json(Socket& s)
                 service.mode = "invalid";
             }
 
-            mux_json.services.push_back(move(service));
+            mux_json.services.push_back(std::move(service));
         }
     }
 
@@ -930,7 +930,7 @@ bool WebRadioInterface::send_stream(Socket& s, const string& stream)
                     return false;
                 }
 
-                ProgrammeSender sender(move(s));
+                ProgrammeSender sender(std::move(s));
 
                 cerr << "Registering mp3 sender" << endl;
                 ph.registerSender(&sender);
@@ -1321,7 +1321,7 @@ void WebRadioInterface::handle_phs()
 
             if (phs.count(s.serviceId) == 0) {
                 WebProgrammeHandler ph(s.serviceId, decode_settings.outputCodec);
-                phs.emplace(make_pair(s.serviceId, move(ph)));
+                phs.emplace(make_pair(s.serviceId, std::move(ph)));
             }
         }
 
@@ -1455,7 +1455,7 @@ void WebRadioInterface::serve()
         auto client = serverSocket.accept();
 
         running_connections.push_back(async(launch::async,
-                    &WebRadioInterface::dispatch_client, this, move(client)));
+                    &WebRadioInterface::dispatch_client, this, std::move(client)));
 
         deque<future<bool> > still_running_connections;
         for (auto& fut : running_connections) {
@@ -1463,15 +1463,15 @@ void WebRadioInterface::serve()
                 switch (fut.wait_for(chrono::milliseconds(1))) {
                     case future_status::deferred:
                     case future_status::timeout:
-                        still_running_connections.push_back(move(fut));
+                        still_running_connections.push_back(std::move(fut));
                         break;
                     case future_status::ready:
-                        fut.get();
+                        (void)fut.get();
                         break;
                 }
             }
         }
-        running_connections = move(still_running_connections);
+        running_connections = std::move(still_running_connections);
     }
 
     cerr << "SERVE No more connections running" << endl;
@@ -1489,15 +1489,15 @@ void WebRadioInterface::serve()
                 switch (fut.wait_for(chrono::milliseconds(1))) {
                     case future_status::deferred:
                     case future_status::timeout:
-                        still_running_connections.push_back(move(fut));
+                        still_running_connections.push_back(std::move(fut));
                         break;
                     case future_status::ready:
-                        fut.get();
+                        (void)fut.get();
                         break;
                 }
             }
         }
-        running_connections = move(still_running_connections);
+        running_connections = std::move(still_running_connections);
     }
 
     cerr << "SERVE clear remaining data structures" << endl;
@@ -1558,7 +1558,7 @@ void WebRadioInterface::onFIBDecodeSuccess(bool crcCheckOk, const uint8_t* fib)
 
     {
         lock_guard<mutex> lock(fib_mut);
-        fib_blocks.push_back(move(buf));
+        fib_blocks.push_back(std::move(buf));
 
         if (fib_blocks.size() > 3*250) { // six seconds
             fib_blocks.pop_front();
@@ -1571,19 +1571,19 @@ void WebRadioInterface::onFIBDecodeSuccess(bool crcCheckOk, const uint8_t* fib)
 void WebRadioInterface::onNewImpulseResponse(vector<float>&& data)
 {
     lock_guard<mutex> lock(plotdata_mut);
-    last_CIR = move(data);
+    last_CIR = std::move(data);
 }
 
 void WebRadioInterface::onNewNullSymbol(vector<DSPCOMPLEX>&& data)
 {
     lock_guard<mutex> lock(plotdata_mut);
-    last_NULL = move(data);
+    last_NULL = std::move(data);
 }
 
 void WebRadioInterface::onConstellationPoints(vector<DSPCOMPLEX>&& data)
 {
     lock_guard<mutex> lock(plotdata_mut);
-    last_constellation = move(data);
+    last_constellation = std::move(data);
 }
 
 void WebRadioInterface::onMessage(message_level_t level, const string& text, const string& text2)
@@ -1597,7 +1597,7 @@ void WebRadioInterface::onMessage(message_level_t level, const string& text, con
     lock_guard<mutex> lock(data_mut);
     const auto now = chrono::system_clock::now();
     pending_message_t m = { .level = level, .text = fullText, .timestamp = now};
-    pending_messages.emplace_back(move(m));
+    pending_messages.emplace_back(std::move(m));
 
     if (pending_messages.size() > MAX_PENDING_MESSAGES) {
         pending_messages.pop_front();
@@ -1608,7 +1608,7 @@ void WebRadioInterface::onTIIMeasurement(tii_measurement_t&& m)
 {
     lock_guard<mutex> lock(data_mut);
     auto& l = tiis[make_pair(m.comb, m.pattern)];
-    l.push_back(move(m));
+    l.push_back(std::move(m));
 
     if (l.size() > 20) {
         l.pop_front();
@@ -1656,7 +1656,7 @@ list<tii_measurement_t> WebRadioInterface::getTiiStats()
             avg.error = 0.0;
             avg.delay_samples = 0;
         }
-        l.push_back(move(avg));
+        l.push_back(std::move(avg));
     }
 
     using namespace chrono;

@@ -76,9 +76,11 @@ void CDebugOutput::handleMessage(QString str)
     if(fileName != "")
     {
         QFile outFile(fileName);
-        outFile.open(QIODevice::WriteOnly | QIODevice::Append);
-        QTextStream ts(&outFile);
-        ts << message;
+        if (outFile.open(QIODevice::WriteOnly | QIODevice::Append))
+        {
+            QTextStream ts(&outFile);
+            ts << message;
+        }
     }
 
     if(cGuiObject != nullptr)

@@ -428,7 +428,7 @@ SyncOnPhase:
         }
 
         allSymbols.resize(params.L);
-        allSymbols[0] = move(ofdmBuffer);
+        allSymbols[0] = std::move(ofdmBuffer);
         ofdmBuffer.resize(params.L * params.T_s);
 
         /**
@@ -452,7 +452,7 @@ SyncOnPhase:
         }
 
         PROFILE(PushAllSymbols);
-        ofdmDecoder.pushAllSymbols(move(allSymbols));
+        ofdmDecoder.pushAllSymbols(std::move(allSymbols));
 
         //NewOffset:
         /// we integrate the newly found frequency error with the

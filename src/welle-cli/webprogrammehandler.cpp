@@ -123,8 +123,8 @@ class LameEncoder : public IEncoder {
 
     LameEncoder(const LameEncoder& other) = delete;
     LameEncoder& operator=(const LameEncoder& other) = delete;
-    LameEncoder(LameEncoder&& other) = default;
-    LameEncoder& operator=(LameEncoder&& other) = default;
+    LameEncoder(LameEncoder&& other) = delete;
+    LameEncoder& operator=(LameEncoder&& other) = delete;
 
     bool process_interleaved(std::vector<int16_t>& audioData) override
     {
@@ -155,18 +155,18 @@ class LameEncoder : public IEncoder {
 
 
 ProgrammeSender::ProgrammeSender(Socket&& s) :
-    s(move(s))
+    s(std::move(s))
 {
 }
 
 ProgrammeSender::ProgrammeSender(ProgrammeSender&& other) :
-    s(move(other.s))
+    s(std::move(other.s))
 {
 }
 
 ProgrammeSender& ProgrammeSender::operator=(ProgrammeSender&& other)
 {
-    s = move(other.s);
+    s = std::move(other.s);
     other.running = false;
     return *this;
 }
@@ -227,7 +227,7 @@ WebProgrammeHandler::WebProgrammeHandler(uint32_t serviceId, OutputCodec codecID
 WebProgrammeHandler::WebProgrammeHandler(WebProgrammeHandler&& other) :
     serviceId(other.serviceId),
     codec(other.codec),
-    senders(move(other.senders))
+    senders(std::move(other.senders))
 {
     other.senders.clear();
     other.serviceId = 0;

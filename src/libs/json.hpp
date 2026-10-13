@@ -8653,6 +8653,19 @@ class serializer
         }
     }
 
+    // avoid tautological "x <= 0 and x != 0" for unsigned types (upstream fix)
+    template<typename NumberType, detail::enable_if_t<std::is_signed<NumberType>::value, int> = 0>
+    static bool is_negative_number(NumberType x)
+    {
+        return x < 0;
+    }
+
+    template<typename NumberType, detail::enable_if_t<std::is_unsigned<NumberType>::value, int> = 0>
+    static bool is_negative_number(NumberType /*unused*/)
+    {
+        return false;
+    }
+
     /*!
     @brief dump an integer
 
@@ -8675,7 +8688,7 @@ class serializer
             return;
         }
 
-        const bool is_negative = (x <= 0) and (x != 0);  // see issue #755
+        const bool is_negative = is_negative_number(x);  // see issue #755
         std::size_t i = 0;
 
         while (x != 0)
@@ -17249,7 +17262,7 @@ if no parse error occurred.
 
 @since version 1.0.0
 */
-inline nlohmann::json operator "" _json(const char* s, std::size_t n)
+inline nlohmann::json operator ""_json(const char* s, std::size_t n)
 {
     return nlohmann::json::parse(s, s + n);
 }
@@ -17267,7 +17280,7 @@ object if no parse error occurred.
 
 @since version 2.0.0
 */
-inline nlohmann::json::json_pointer operator "" _json_pointer(const char* s, std::size_t n)
+inline nlohmann::json::json_pointer operator ""_json_pointer(const char* s, std::size_t n)
 {
     return nlohmann::json::json_pointer(std::string(s, n));
 }
