@@ -20,7 +20,7 @@ jobs:
         uses: jurplel/install-qt-action@v4
         with:
           version: '6.10.1'
-          modules: 'qtcharts qtmultimedia qt5compat qtshadertools'
+          modules: 'qtcharts qtmultimedia qtshadertools'
           arch: 'win64_mingw'
           tools: 'tools_mingw1310'
       - name: Checkout

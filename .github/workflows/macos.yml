@@ -50,7 +50,7 @@ jobs:
         uses: jurplel/install-qt-action@v4
         with:
           version: '6.10.1'
-          modules: 'qtcharts qtmultimedia qt5compat qtshadertools'
+          modules: 'qtcharts qtmultimedia qtshadertools'
           cache: true
 
       - name: Install dependencies

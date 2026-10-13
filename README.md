@@ -150,7 +150,6 @@ sudo apt install libfaad-dev libmpg123-dev libfftw3-dev librtlsdr-dev libusb-1.0
 ```
 
 3. Install the Qt via the [Qt online installer](https://www.qt.io/download-qt-installer-oss). It is recommend to use the newest Qt version. Besids Qt you need the additional Qt libraries:
-* Qt 5 Compatibility Module
 * Qt Charts
 * Qt Multimedia
 
@@ -170,7 +169,6 @@ git clone https://github.com/AlbrechtL/welle.io.git
 This section shows how to compile welle.io on Windows 11. Windows 10 and 7  should also be possible but is not tested. 
 
 1. Install the Qt via the [Qt online installer](https://www.qt.io/download-qt-installer-oss). It is recommend to use the newest Qt version. Besids Qt you need the additional Qt libraries:
-* Qt 5 Compatibility Module
 * Qt Charts
 * Qt Multimedia
 2. Clone welle.io https://github.com/AlbrechtL/welle.io.git e.g. by using [TortoiseGit](https://tortoisegit.org).
