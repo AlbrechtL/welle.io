@@ -31,6 +31,9 @@ jobs:
           - macos: '26'
             architecture: x86_64
             runner: macos-26-intel
+          - macos: '27'
+            architecture: arm64
+            runner: xcode-27
 
     steps:
       - name: Checkout
