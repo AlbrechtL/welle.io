@@ -1,6 +1,6 @@
 if(NOT LIBAIRSPY_FOUND)
 
-  include(FindPkgConfig)
+  find_package(PkgConfig QUIET)
   pkg_check_modules (LIBAIRSPY_PKG libairspy)
   find_path(LIBAIRSPY_INCLUDE_DIR NAMES libairspy/airspy.h
     PATHS

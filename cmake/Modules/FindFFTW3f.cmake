@@ -5,7 +5,7 @@
 
 if(NOT FFTW3F_FOUND)
 
-  include(FindPkgConfig)
+  find_package(PkgConfig QUIET)
   pkg_check_modules(PC_FFTW3F "fftw3f >= 3.0")
 
   find_path(

@@ -42,6 +42,7 @@ modules:
     build-options:
       cflags: "-std=gnu17"
     config-opts:
+      # upstream's CMake minimum version is too old for CMake 4
       - '-DCMAKE_POLICY_VERSION_MINIMUM=3.5'
       - '-Wno-dev'
     sources:
@@ -65,6 +66,7 @@ modules:
     config-opts:
       - '-DCMAKE_BUILD_TYPE=Release'
       - '-DCMAKE_INSTALL_LIBDIR=lib'
+      # upstream's CMake minimum version is too old for CMake 4
       - '-DCMAKE_POLICY_VERSION_MINIMUM=3.5'
       - '-Wno-dev'
     sources:
@@ -96,7 +98,6 @@ modules:
     buildsystem: cmake-ninja
     config-opts:
       - '-DBUILD_WELLE_CLI=OFF'
-      - '-DCMAKE_POLICY_VERSION_MINIMUM=3.5'
       - '-DAIRSPY=ON'
       - '-DRTLSDR=ON'
       - '-DSOAPYSDR=ON'
