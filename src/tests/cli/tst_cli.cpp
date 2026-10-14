@@ -26,6 +26,7 @@
 
 #include <QtTest>
 
+#include <QDataStream>
 #include <QDir>
 #include <QFile>
 #include <QRegularExpression>
@@ -372,11 +373,17 @@ static WavInfo readWav(const QString& path)
         return info;
     const QByteArray d = f.readAll();
     const int data = d.indexOf("data");
-    if (!d.startsWith("RIFF") || d.mid(8, 4) != "WAVE" || data < 0)
+    if (d.size() < 44 || !d.startsWith("RIFF") || d.mid(8, 4) != "WAVE" || data < 0)
         return info;
 
-    info.channels = qFromLittleEndian<uint16_t>(d.constData() + 22);
-    info.sampleRate = qFromLittleEndian<uint32_t>(d.constData() + 24);
+    QDataStream header(d);
+    header.setByteOrder(QDataStream::LittleEndian);
+    header.skipRawData(22);
+    quint16 channels = 0;
+    quint32 sampleRate = 0;
+    header >> channels >> sampleRate;
+    info.channels = channels;
+    info.sampleRate = sampleRate;
     const int samples = (d.size() - data - 8) / 2;
     double sum = 0;
     for (int i = 0; i < samples; i++) {
