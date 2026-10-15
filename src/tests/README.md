@@ -304,12 +304,14 @@ or broken `cmake --install` rules.
 |---|---|---|
 | `linux.yml`, job `qtbuild` | Flatpak bundle (`flatpak install --bundle`), x86_64 and arm64 | welle-io under Xvfb |
 | `linux.yml`, job `install` | `cmake --install` on Debian 13 (Qt 6.8), build directory removed | welle-io under Xvfb, welle-cli, `.desktop`, AppStream, man pages |
-| `macos.yml` | the published `.app` zip, unpacked | welle-io; welle-cli of the build |
+| `macos.yml`, job `build` | the published `.app` zip, unpacked | welle-io; welle-cli of the build |
+| `macos.yml`, job `package-test` | the macOS 15 ARM64 `.app` zip, unpacked on macOS 27 | welle-io |
 | `windows.yml` | the InnoSetup installer, silent installation | welle-io |
 
 The smoke test runs before the packages are uploaded, so a broken package
-doesn't reach the nightly server. Its logs are uploaded as artifacts
-`smoke-test-*`.
+doesn't reach the nightly server (`package-test` only runs after the macOS
+builds, it checks that the macOS 15 package also runs on a newer macOS). Its
+logs are uploaded as artifacts `smoke-test-*`.
 
 `welle-io --raw-file <file> --raw-format <format> --smoke-test <report.json>`
 selects the RAW file as input device, compiles every QML file of the user

@@ -74,8 +74,10 @@ also work but is not tested.
 ## macOS
 
 The CMake build is tested on the macOS 15 and 26 GitHub-hosted runners for
-both Apple Silicon (ARM64) and Intel (AMD64/x86_64). Install the build
-dependencies with [Homebrew](https://brew.sh/):
+both Apple Silicon (ARM64) and Intel (AMD64/x86_64). The macOS 15 Apple
+Silicon package is also started on a macOS 27 runner, the way users run it on
+a newer macOS. Install the build dependencies with
+[Homebrew](https://brew.sh/):
 
 ```sh
 brew install cmake ninja qt fftw faad2 mpg123 lame librtlsdr dylibbundler
