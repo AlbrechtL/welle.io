@@ -125,7 +125,7 @@ jobs:
       - name: Archive artifacts (welle.io macOS application)
         uses: actions/upload-artifact@v7
         with:
-          name: welle.io macOS ${{ matrix.macos }} application (${{ matrix.architecture }})
+          name: welle.io macOS application (${{ matrix.architecture }})
           path: publish/*
           if-no-files-found: error
           compression-level: 0
@@ -184,7 +184,7 @@ jobs:
       - name: Download macOS 15 package
         uses: actions/download-artifact@v8
         with:
-          name: welle.io macOS 15 application (${{ matrix.architecture }})
+          name: welle.io macOS application (${{ matrix.architecture }})
           path: publish
 
       - name: Unpack application
