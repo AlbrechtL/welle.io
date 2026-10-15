@@ -149,9 +149,9 @@ jobs:
           password: ${{ env.SFTP_PASSWORD }}
           local_dir: publish/
 
-  # Users also run the macOS 15 packages on newer macOS: run their smoke test
-  # there. macOS 27 is a public preview runner image (xcode-27) and has no
-  # Intel version.
+  # Users also run the packages on newer macOS: run their smoke test there.
+  # macOS 27 is a public preview runner image (xcode-27) and has no Intel
+  # version.
   package-test:
     name: Run macOS 15 package on macOS ${{ matrix.macos }} (${{ matrix.architecture }})
     needs: build
@@ -181,7 +181,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
-      - name: Download macOS 15 package
+      - name: Download package
         uses: actions/download-artifact@v8
         with:
           name: welle.io macOS application (${{ matrix.architecture }})
