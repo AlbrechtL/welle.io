@@ -168,6 +168,8 @@ jobs:
           - macos: '26'
             architecture: arm64
             runner: macos-26
+          # welle-io hangs on this runner image, see
+          # https://github.com/AlbrechtL/welle.io/issues/955
           - macos: '26'
             architecture: x86_64
             runner: macos-26-intel

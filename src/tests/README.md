@@ -310,7 +310,7 @@ or broken `cmake --install` rules.
 
 The smoke test runs before the packages are uploaded, so a broken package
 doesn't reach the nightly server; only `package-test` runs after the upload.
-Its logs are uploaded as artifacts `smoke-test-*`.
+The logs are uploaded as artifacts `smoke-test-*`.
 
 `welle-io --raw-file <file> --raw-format <format> --smoke-test <report.json>`
 selects the RAW file as input device, compiles every QML file of the user

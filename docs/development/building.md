@@ -99,8 +99,8 @@ ad-hoc signature:
 scripts/macos-deploy.sh "$(brew --prefix qt)"
 ```
 
-GitHub Actions performs this build on macOS 15 and runs the packages on
-macOS 26 and 27 as well. Each deployed application bundle is archived as
+GitHub Actions performs this build and also tests the packages on newer
+macOS versions. Each deployed application bundle is archived as
 `YYYYMMDD_GITHASH_macOSVERSION_welle-io_ARCH.zip` and kept as a workflow
 artifact. Pushes to `master` or branches starting with `next` also upload the
 package to the nightly server when its credentials are configured. As these
