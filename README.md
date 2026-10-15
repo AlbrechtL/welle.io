@@ -6,7 +6,7 @@ The documentation is on the project website **https://www.welle.io**. Its source
 
 **Build status**
 - Linux (Flatpak x86_64 and arm64): [![Linux build](https://github.com/AlbrechtL/welle.io/actions/workflows/linux.yml/badge.svg)](https://github.com/AlbrechtL/welle.io/actions/workflows/linux.yml)
-- macOS 15 and 26: [![macOS build](https://github.com/AlbrechtL/welle.io/actions/workflows/macos.yml/badge.svg)](https://github.com/AlbrechtL/welle.io/actions/workflows/macos.yml)
+- macOS 15 (also tested on 26 and 27): [![macOS build](https://github.com/AlbrechtL/welle.io/actions/workflows/macos.yml/badge.svg)](https://github.com/AlbrechtL/welle.io/actions/workflows/macos.yml)
 - Windows (Installer x86_64): [![Windows build](https://github.com/AlbrechtL/welle.io/actions/workflows/windows.yml/badge.svg)](https://github.com/AlbrechtL/welle.io/actions/workflows/windows.yml)
 - Android (APK): build workflow is currently disabled because a new, skilled maintainer for Android package is required to fix bug https://github.com/AlbrechtL/welle.io/issues/814# in the workflow.
 

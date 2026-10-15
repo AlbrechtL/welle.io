@@ -305,7 +305,7 @@ or broken `cmake --install` rules.
 | `linux.yml`, job `qtbuild` | Flatpak bundle (`flatpak install --bundle`), x86_64 and arm64 | welle-io under Xvfb |
 | `linux.yml`, job `install` | `cmake --install` on Debian 13 (Qt 6.8), build directory removed | welle-io under Xvfb, welle-cli, `.desktop`, AppStream, man pages |
 | `macos.yml`, job `build` | the published `.app` zip, unpacked | welle-io; welle-cli of the build |
-| `macos.yml`, job `package-test` | the macOS 15 ARM64 `.app` zip, unpacked on macOS 27 | welle-io |
+| `macos.yml`, job `package-test` | the macOS 15 `.app` zips, unpacked on macOS 26 (ARM64, Intel) and 27 (ARM64) | welle-io |
 | `windows.yml` | the InnoSetup installer, silent installation | welle-io |
 
 The smoke test runs before the packages are uploaded, so a broken package
