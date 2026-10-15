@@ -127,6 +127,7 @@ jobs:
           path: smoke-test/
           if-no-files-found: ignore
 
+      # The job package-test downloads the macOS 15 arm64 package by this name
       - name: Archive artifacts (welle.io macOS application)
         uses: actions/upload-artifact@v7
         with:
@@ -154,10 +155,9 @@ jobs:
           password: ${{ env.SFTP_PASSWORD }}
           local_dir: publish/
 
-  # Users run the macOS 15 package on newer macOS versions as well. Instead of
-  # building it again, unpack that package on the newest macOS and run the
-  # smoke test with it. macOS 27 is a public preview runner image (label
-  # xcode-27), ARM64 only.
+  # Users also run the macOS 15 package on newer macOS: run its smoke test on
+  # macOS 27 (public preview runner image xcode-27; macOS 27 has no Intel
+  # version).
   package-test:
     name: Run macOS 15 package on macOS 27 (arm64)
     needs: build
@@ -180,7 +180,6 @@ jobs:
 
       - name: Unpack application
         run: |
-          sw_vers
           mkdir "$RUNNER_TEMP/app"
           ditto -x -k publish/*.zip "$RUNNER_TEMP/app"
           "$RUNNER_TEMP/app/welle-io.app/Contents/MacOS/welle-io" --version
@@ -217,6 +216,6 @@ jobs:
         if: always() && env.HAS_TEST_DATA_TOKEN == 'true'
         uses: actions/upload-artifact@v7
         with:
-          name: smoke-test-macos27-arm64-package-macos15
+          name: smoke-test-macos27-arm64
           path: smoke-test/
           if-no-files-found: ignore
