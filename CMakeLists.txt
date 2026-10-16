@@ -241,6 +241,7 @@ include_directories(
 )
 
 set(backend_sources
+    src/backend/ensemble_wait.cpp
     src/backend/dab-audio.cpp
     src/backend/decoder_adapter.cpp
     src/backend/dab_decoder.cpp
