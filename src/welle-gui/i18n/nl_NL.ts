@@ -241,45 +241,45 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="429"/>
+        <location filename="../radio_controller.cpp" line="440"/>
         <source>RAW File</source>
         <translation>RAW bestand</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="443"/>
-        <location filename="../radio_controller.cpp" line="960"/>
+        <location filename="../radio_controller.cpp" line="454"/>
+        <location filename="../radio_controller.cpp" line="971"/>
         <source>Scanning</source>
         <translation>Scannen</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="447"/>
-        <location filename="../radio_controller.cpp" line="985"/>
+        <location filename="../radio_controller.cpp" line="458"/>
+        <location filename="../radio_controller.cpp" line="996"/>
         <source>Found channels</source>
         <translation>Gevonden kanalen</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="467"/>
-        <location filename="../radio_controller.cpp" line="690"/>
+        <location filename="../radio_controller.cpp" line="478"/>
+        <location filename="../radio_controller.cpp" line="701"/>
         <source>No Station</source>
         <translation>Geen station</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="664"/>
+        <location filename="../radio_controller.cpp" line="675"/>
         <source>Playing last station</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="670"/>
+        <location filename="../radio_controller.cpp" line="681"/>
         <source>Unknown</source>
         <translation>Onbekend</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="740"/>
+        <location filename="../radio_controller.cpp" line="751"/>
         <source>Radio device is not ready or does not exist.</source>
         <translation>Radio apparaat is niet klaar of bestaat niet</translation>
     </message>
     <message>
-        <location filename="../../input/airspy_sdr.cpp" line="152"/>
+        <location filename="../../input/airspy_sdr.cpp" line="153"/>
         <source>airspy is unplugged.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -316,28 +316,28 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../input/rtl_sdr.cpp" line="148"/>
+        <location filename="../../input/rtl_sdr.cpp" line="159"/>
         <source>Error opening RTL-SDR. See log for details.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../input/rtl_sdr.cpp" line="333"/>
-        <location filename="../../input/rtl_tcp.cpp" line="596"/>
+        <location filename="../../input/rtl_sdr.cpp" line="323"/>
+        <location filename="../../input/rtl_tcp.cpp" line="588"/>
         <source>ADC overload. Maybe you are using a too high gain.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../input/rtl_sdr.cpp" line="434"/>
+        <location filename="../../input/rtl_sdr.cpp" line="415"/>
         <source>RTL-SDR is unplugged.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../input/rtl_tcp.cpp" line="348"/>
+        <location filename="../../input/rtl_tcp.cpp" line="346"/>
         <source>RTL-TCP connection closed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../input/rtl_tcp.cpp" line="497"/>
+        <location filename="../../input/rtl_tcp.cpp" line="509"/>
         <source>Connection failed to server </source>
         <translation type="unfinished"></translation>
     </message>
@@ -2113,11 +2113,6 @@
         <location filename="../QML/expert/SpectrumChart.qml" line="64"/>
         <source>Waterfall</source>
         <translation type="unfinished">Waterval</translation>
-    </message>
-    <message>
-        <location filename="../QML/expert/SpectrumChart.qml" line="64"/>
-        <source>experimental</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

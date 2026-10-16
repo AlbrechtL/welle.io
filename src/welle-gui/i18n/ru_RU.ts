@@ -226,7 +226,7 @@
 <context>
     <name>CRadioController</name>
     <message>
-        <location filename="../radio_controller.cpp" line="+670"/>
+        <location filename="../radio_controller.cpp" line="+681"/>
         <source>Unknown</source>
         <translation>Неизвестный</translation>
     </message>
@@ -259,7 +259,7 @@
         <translation>Устройство не работает или отключено.</translation>
     </message>
     <message>
-        <location filename="../../input/airspy_sdr.cpp" line="+152"/>
+        <location filename="../../input/airspy_sdr.cpp" line="+153"/>
         <source>airspy is unplugged.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -296,23 +296,23 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../input/rtl_sdr.cpp" line="+333"/>
-        <location filename="../../input/rtl_tcp.cpp" line="+596"/>
+        <location filename="../../input/rtl_sdr.cpp" line="+323"/>
+        <location filename="../../input/rtl_tcp.cpp" line="+588"/>
         <source>ADC overload. Maybe you are using a too high gain.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+101"/>
+        <location line="+92"/>
         <source>RTL-SDR is unplugged.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../input/rtl_tcp.cpp" line="-248"/>
+        <location filename="../../input/rtl_tcp.cpp" line="-242"/>
         <source>RTL-TCP connection closed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+149"/>
+        <location line="+163"/>
         <source>Connection failed to server </source>
         <translation type="unfinished"></translation>
     </message>
@@ -322,22 +322,22 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="-571"/>
+        <location filename="../radio_controller.cpp" line="-582"/>
         <source>Error while opening file </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+495"/>
+        <location line="+506"/>
         <source>Playing last station</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../input/rtl_sdr.cpp" line="-286"/>
+        <location filename="../../input/rtl_sdr.cpp" line="-256"/>
         <source>Error opening RTL-SDR. See log for details.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="-392"/>
+        <location filename="../radio_controller.cpp" line="-403"/>
         <source>Playback failed</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2012,11 +2012,6 @@
     <message>
         <location line="+23"/>
         <source>Waterfall</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+0"/>
-        <source>experimental</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

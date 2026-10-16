@@ -61,7 +61,7 @@ ColumnLayout {
 
     Switch {
         objectName: "waterfallSwitch"
-        text: qsTr("Waterfall") + " (" + qsTr("experimental") + ")"
+        text: qsTr("Waterfall")
         checked: isWaterfall
         onToggled: isWaterfall = checked
     }

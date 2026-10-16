@@ -250,13 +250,13 @@
 <context>
     <name>CRadioController</name>
     <message>
-        <location filename="../radio_controller.cpp" line="670"/>
+        <location filename="../radio_controller.cpp" line="681"/>
         <source>Unknown</source>
         <translation>Desconocido</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="467"/>
-        <location filename="../radio_controller.cpp" line="690"/>
+        <location filename="../radio_controller.cpp" line="478"/>
+        <location filename="../radio_controller.cpp" line="701"/>
         <source>No Station</source>
         <translation>Sin estaciones</translation>
     </message>
@@ -276,34 +276,34 @@
         <translation>Detenido</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="429"/>
+        <location filename="../radio_controller.cpp" line="440"/>
         <source>RAW File</source>
         <translation>Fichero RAW</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="443"/>
-        <location filename="../radio_controller.cpp" line="960"/>
+        <location filename="../radio_controller.cpp" line="454"/>
+        <location filename="../radio_controller.cpp" line="971"/>
         <source>Scanning</source>
         <translation>Escaneando</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="447"/>
-        <location filename="../radio_controller.cpp" line="985"/>
+        <location filename="../radio_controller.cpp" line="458"/>
+        <location filename="../radio_controller.cpp" line="996"/>
         <source>Found channels</source>
         <translation>Estaciones encontradas</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="664"/>
+        <location filename="../radio_controller.cpp" line="675"/>
         <source>Playing last station</source>
         <translation>Reproduciendo la última estación</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="740"/>
+        <location filename="../radio_controller.cpp" line="751"/>
         <source>Radio device is not ready or does not exist.</source>
         <translation>El dispositivo de radio no está presente o disponible.</translation>
     </message>
     <message>
-        <location filename="../../input/airspy_sdr.cpp" line="152"/>
+        <location filename="../../input/airspy_sdr.cpp" line="153"/>
         <source>airspy is unplugged.</source>
         <translation>aispy está desconectado</translation>
     </message>
@@ -340,28 +340,28 @@
         <translation>Formato de fichero RAW desconocido</translation>
     </message>
     <message>
-        <location filename="../../input/rtl_sdr.cpp" line="148"/>
+        <location filename="../../input/rtl_sdr.cpp" line="159"/>
         <source>Error opening RTL-SDR. See log for details.</source>
         <translation>Error al abrir RTL-SDR. Ver registro para más detalles.</translation>
     </message>
     <message>
-        <location filename="../../input/rtl_sdr.cpp" line="333"/>
-        <location filename="../../input/rtl_tcp.cpp" line="596"/>
+        <location filename="../../input/rtl_sdr.cpp" line="323"/>
+        <location filename="../../input/rtl_tcp.cpp" line="588"/>
         <source>ADC overload. Maybe you are using a too high gain.</source>
         <translation>Sobrecarga de ADC. Quizá esté usando una ganancia demasiado alta.</translation>
     </message>
     <message>
-        <location filename="../../input/rtl_sdr.cpp" line="434"/>
+        <location filename="../../input/rtl_sdr.cpp" line="415"/>
         <source>RTL-SDR is unplugged.</source>
         <translation>RTL-SDR está desconectado.</translation>
     </message>
     <message>
-        <location filename="../../input/rtl_tcp.cpp" line="348"/>
+        <location filename="../../input/rtl_tcp.cpp" line="346"/>
         <source>RTL-TCP connection closed.</source>
         <translation>Conexión RTL-TCP cerrada.</translation>
     </message>
     <message>
-        <location filename="../../input/rtl_tcp.cpp" line="497"/>
+        <location filename="../../input/rtl_tcp.cpp" line="509"/>
         <source>Connection failed to server </source>
         <translation>Error de conexión con el servidor </translation>
     </message>
@@ -2366,9 +2366,8 @@
         <translation type="unfinished">Pantalla en cascada</translation>
     </message>
     <message>
-        <location filename="../QML/expert/SpectrumChart.qml" line="64"/>
         <source>experimental</source>
-        <translation type="unfinished">experimental</translation>
+        <translation type="obsolete">experimental</translation>
     </message>
 </context>
 <context>

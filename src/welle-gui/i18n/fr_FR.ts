@@ -250,7 +250,7 @@
 <context>
     <name>CRadioController</name>
     <message>
-        <location filename="../radio_controller.cpp" line="+670"/>
+        <location filename="../radio_controller.cpp" line="+681"/>
         <source>Unknown</source>
         <translation>Inconnu</translation>
     </message>
@@ -261,7 +261,7 @@
         <translation>Pas de station</translation>
     </message>
     <message>
-        <location line="-521"/>
+        <location line="-532"/>
         <source>Error while opening file </source>
         <translation>Erreur à l&apos;ouverture du fichier </translation>
     </message>
@@ -276,7 +276,7 @@
         <translation>Arrêté</translation>
     </message>
     <message>
-        <location line="+136"/>
+        <location line="+147"/>
         <source>RAW File</source>
         <translation>Fichier RAW</translation>
     </message>
@@ -304,7 +304,7 @@
         <translation>Le récepteur radio n&apos;est pas prêt ou n&apos;existe pas.</translation>
     </message>
     <message>
-        <location filename="../../input/airspy_sdr.cpp" line="+152"/>
+        <location filename="../../input/airspy_sdr.cpp" line="+153"/>
         <source>airspy is unplugged.</source>
         <translation>Airspay est débranché.</translation>
     </message>
@@ -343,29 +343,29 @@
         <translation>Format de fichier RAW inconnu</translation>
     </message>
     <message>
-        <location filename="../../input/rtl_sdr.cpp" line="+148"/>
+        <location filename="../../input/rtl_sdr.cpp" line="+159"/>
         <source>Error opening RTL-SDR. See log for details.</source>
         <translation type="unfinished">Erreur à l&apos;ouverture de RTL-SDR. Voir le journal pour les détails.</translation>
     </message>
     <message>
-        <location line="+185"/>
-        <location filename="../../input/rtl_tcp.cpp" line="+596"/>
+        <location line="+164"/>
+        <location filename="../../input/rtl_tcp.cpp" line="+588"/>
         <source>ADC overload. Maybe you are using a too high gain.</source>
         <translatorcomment>Saturation ou Surcharge ? Saturation semble préférable.</translatorcomment>
         <translation type="unfinished">Saturation ADC. Peut-être le gain est trop élevé.</translation>
     </message>
     <message>
-        <location line="+101"/>
+        <location line="+92"/>
         <source>RTL-SDR is unplugged.</source>
         <translation>RTL-SDR est débranché.</translation>
     </message>
     <message>
-        <location filename="../../input/rtl_tcp.cpp" line="-248"/>
+        <location filename="../../input/rtl_tcp.cpp" line="-242"/>
         <source>RTL-TCP connection closed.</source>
         <translation>Connexion RTL-TCP fermée.</translation>
     </message>
     <message>
-        <location line="+149"/>
+        <location line="+163"/>
         <source>Connection failed to server </source>
         <translation>Echec de connexion au serveur </translation>
     </message>
@@ -2407,9 +2407,8 @@
         <translation type="unfinished">Ecriture ligne par ligne</translation>
     </message>
     <message>
-        <location line="+0"/>
         <source>experimental</source>
-        <translation type="unfinished">expérimental</translation>
+        <translation type="obsolete">expérimental</translation>
     </message>
 </context>
 <context>
