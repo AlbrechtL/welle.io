@@ -196,8 +196,8 @@ jobs:
       # forever. Qt asks for the generic application icon when the first
       # window gets the focus (QCocoaIntegration::focusWindowChanged), so
       # welle-io hangs. Without the agent the request fails at once. See
-      # https://github.com/AlbrechtL/welle.io/issues/955 and
-      # https://github.com/actions/runner-images/issues/14751
+      # https://github.com/AlbrechtL/welle.io/issues/955. Remove this step
+      # when https://github.com/actions/runner-images/issues/14751 is fixed.
       - name: Disable iconservicesagent
         if: matrix.runner == 'macos-26-intel'
         run: |
