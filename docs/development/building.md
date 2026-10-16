@@ -73,9 +73,9 @@ also work but is not tested.
 
 ## macOS
 
-The CMake build is tested on the macOS 15 and 26 GitHub-hosted runners for
-both Apple Silicon (ARM64) and Intel (AMD64/x86_64). Install the build
-dependencies with [Homebrew](https://brew.sh/):
+The CMake build is tested on the macOS 15 GitHub-hosted runners for both
+Apple Silicon (ARM64) and Intel (AMD64/x86_64). Install the build dependencies
+with [Homebrew](https://brew.sh/):
 
 ```sh
 brew install cmake ninja qt fftw faad2 mpg123 lame librtlsdr dylibbundler
@@ -99,8 +99,8 @@ ad-hoc signature:
 scripts/macos-deploy.sh "$(brew --prefix qt)"
 ```
 
-GitHub Actions performs this build on every supported macOS runner. Each
-deployed application bundle is archived as
+GitHub Actions performs this build and also tests the packages on newer
+macOS versions. Each deployed application bundle is archived as
 `YYYYMMDD_GITHASH_macOSVERSION_welle-io_ARCH.zip` and kept as a workflow
 artifact. Pushes to `master` or branches starting with `next` also upload the
 package to the nightly server when its credentials are configured. As these
