@@ -168,8 +168,6 @@ jobs:
           - macos: '26'
             architecture: arm64
             runner: macos-26
-          # welle-io hangs on this runner image, see
-          # https://github.com/AlbrechtL/welle.io/issues/955
           - macos: '26'
             architecture: x86_64
             runner: macos-26-intel
@@ -192,6 +190,19 @@ jobs:
           mkdir "$RUNNER_TEMP/app"
           ditto -x -k publish/*.zip "$RUNNER_TEMP/app"
           "$RUNNER_TEMP/app/welle-io.app/Contents/MacOS/welle-io" --version
+
+      # On the macOS 26 Intel image iconservicesagent crash-loops (Metal
+      # assertion on the paravirtualized GPU), so every icon request waits
+      # forever. Qt asks for the generic application icon when the first
+      # window gets the focus (QCocoaIntegration::focusWindowChanged), so
+      # welle-io hangs. Without the agent the request fails at once. See
+      # https://github.com/AlbrechtL/welle.io/issues/955. Remove this step
+      # when https://github.com/actions/runner-images/issues/14751 is fixed.
+      - name: Disable iconservicesagent
+        if: matrix.runner == 'macos-26-intel'
+        run: |
+          launchctl bootout "gui/$(id -u)/com.apple.iconservices.iconservicesagent" || true
+          launchctl disable "gui/$(id -u)/com.apple.iconservices.iconservicesagent"
 
       - name: Checkout test data
         if: env.HAS_TEST_DATA_TOKEN == 'true'
