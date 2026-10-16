@@ -79,12 +79,16 @@ class CAudioThread: public QThread
         CAudioIODevice audioIODevice;
         QAudioFormat audioFormat;
         QAudioSink *audioOutput = nullptr;
-        QAudioDevice *info = nullptr;
+        QAudioDevice device;
         QTimer checkAudioBufferTimer;
         QAudio::State currentState = QAudio::StoppedState;
         int32_t cardRate;
+        qreal volume = 1.0;
 
     signals:
+    public slots:
+        void defaultOutputChanged();
+
     private slots:
         void init(int sampleRate);
         void handleStateChanged(QAudio::State newState);
@@ -109,6 +113,7 @@ class CAudio : public QObject
         std::unique_ptr<CAudioThread> audioThread;
         RingBuffer<int16_t>& buffer;
         CAudioIODevice audioIODevice;
+        QMediaDevices mediaDevices;
 };
 #endif
 

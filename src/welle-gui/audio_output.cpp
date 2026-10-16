@@ -53,11 +53,6 @@ CAudioThread::~CAudioThread(void)
         delete audioOutput;
         audioOutput = nullptr;
     }
-
-    if (info != nullptr) {
-        delete info;
-        info = nullptr;
-    }
 }
 
 void CAudioThread::setRate(int sampleRate)
@@ -73,6 +68,9 @@ void CAudioThread::setRate(int sampleRate)
 
 void CAudioThread::setVolume(qreal volume)
 {
+    // Keep the volume for sinks created later (new sample rate, new device)
+    this->volume = volume;
+
     if (audioOutput != nullptr) {
         qDebug() << "Audio:"
                  << "Volume" << volume;
@@ -80,9 +78,32 @@ void CAudioThread::setVolume(qreal volume)
     }
 }
 
+void CAudioThread::defaultOutputChanged()
+{
+    // A QAudioSink stays on the device it was created for (Qt passes it as
+    // explicit target to PulseAudio/PipeWire), so follow a new default
+    // output by creating a new sink.
+    const QAudioDevice newDevice = QMediaDevices::defaultAudioOutput();
+    if (newDevice.isNull() || newDevice.id() == device.id())
+        return;
+
+    qDebug() << "Audio:"
+             << "Default output changed to" << newDevice.description();
+
+    const bool wasRunning = currentState == QAudio::ActiveState ||
+                            currentState == QAudio::IdleState;
+    init(cardRate);
+
+    if (wasRunning) {
+        audioIODevice.start();
+        audioOutput->start(&audioIODevice);
+    }
+}
+
 void CAudioThread::init(int sampleRate)
 {
     if (audioOutput != nullptr) {
+        audioOutput->stop();
         delete audioOutput;
         audioOutput = nullptr;
         currentState = QAudio::StoppedState;
@@ -92,20 +113,21 @@ void CAudioThread::init(int sampleRate)
     audioFormat.setChannelConfig(QAudioFormat::ChannelConfigStereo);
     audioFormat.setSampleFormat(QAudioFormat::Int16);
 
-    info = new QAudioDevice(QMediaDevices::defaultAudioOutput());
-    if (!info->isFormatSupported(audioFormat)) {
+    device = QMediaDevices::defaultAudioOutput();
+    if (!device.isFormatSupported(audioFormat)) {
         qDebug() << "Audio:"
                  << "Audio format \"audio/pcm\" 16-bit stereo not supported. Your audio may not work!";
     }
 
-    qDebug() << "Audio: Current sound output" << info->description();
+    qDebug() << "Audio: Current sound output" << device.description();
     //qDebug() << "Audio: bytesPerSample: " << audioFormat.bytesPerSample();
     //qDebug() << "Audio: bytesPerFrame: " << audioFormat.bytesPerFrame();
 
 //    foreach (const QAudioDeviceInfo &deviceInfo, QAudioDeviceInfo::availableDevices(QAudio::AudioOutput))
 //        qDebug() << "Audio:" << "Available sound output device: " << deviceInfo.deviceName();
 
-    audioOutput = new QAudioSink(*info, audioFormat, this);
+    audioOutput = new QAudioSink(device, audioFormat, this);
+    audioOutput->setVolume(volume);
     connect(audioOutput, &QAudioSink::stateChanged, this, &CAudioThread::handleStateChanged);
 }
 
@@ -120,7 +142,8 @@ void CAudioThread::run()
 void CAudioThread::stop(void)
 {
     audioIODevice.stop();
-    audioOutput->stop();
+    if (audioOutput != nullptr)
+        audioOutput->stop();
 }
 
 void CAudioThread::reset(void)
@@ -233,6 +256,10 @@ CAudio::CAudio(RingBuffer<int16_t>& buffer, QObject *parent) :
 {
     audioThread = std::make_unique<CAudioThread>(buffer);
     audioThread->start();
+
+    // Queued connection: the slot runs in the audio thread
+    connect(&mediaDevices, &QMediaDevices::audioOutputsChanged,
+            audioThread.get(), &CAudioThread::defaultOutputChanged);
 }
 
 CAudio::~CAudio(void)
