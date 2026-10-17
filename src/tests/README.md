@@ -14,7 +14,7 @@ They are built with CMake and run with CTest.
 | `unit.mp2_scf_crc` | `unit` | Scale Factor CRC of MP2 frames: Scale Factors with errors are muted | no |
 | `unit.rtl_agc` | `unit` | Software AGC of the RTL-SDR and rtl_tcp inputs with a simulated tuner (also the measured gain steps of a real R820T): finds the gain without clipping and keeps it | no |
 | `unit.coarse_frequency` | `unit` | Coarse frequency offset from the phase reference symbol with timing offset, echo and noise; no estimate for noise or a null symbol with TII carriers | no |
-| `unit.halfband_decimator` | `unit` | Decimation 4.096 to 2.048 MS/s of the Airspy input: DAB block unchanged, adjacent blocks suppressed by more than 65 dB | no |
+| `unit.rational_resampler` | `unit` | Resampling of the Airspy input from its native rates (3, 2.5 MS/s; 4.096 MS/s) to 2.048 MS/s: DAB block unchanged, adjacent blocks suppressed by more than 65 dB | no |
 | `backend.recording.<clip>` | `backend` | Decodes one recording and compares everything with its expectations, see below | yes |
 | `backend.sensitivity` | `backend` | `odr_dabmod` through a radio channel (`common/channel_model.h`: echo and noise): FIB and audio frame errors below limits | yes |
 | `cli.options` | `cli` | welle-cli command line: help, version, invalid options, missing IQ file | no |

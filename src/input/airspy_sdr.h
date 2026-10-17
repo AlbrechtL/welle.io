@@ -38,8 +38,9 @@
 #include "dab-constants.h"
 #include "MathHelper.h"
 #include "ringbuffer.h"
-#include "halfband_decimator.h"
+#include "rational_resampler.h"
 
+#include <memory>
 #include <vector>
 
 #ifndef __MINGW32__
@@ -80,7 +81,7 @@ public:
 private:
     RadioControllerInterface& radioController;
 
-    const int AIRSPY_SAMPLERATE = 4096000;
+    int sampleRate = 4096000;
     const int AIRSPY_GAIN_MIN = 0;
     const int AIRSPY_GAIN_MAX = 21;
 
@@ -91,7 +92,8 @@ private:
 
     bool sw_agc = false;
     int currentLinearityGain = 10;
-    HalfbandDecimator decimator;
+    std::unique_ptr<RationalResampler> resampler;
+    std::vector<DSPCOMPLEX> resampled;
     RingBuffer<DSPCOMPLEX> SampleBuffer;
     RingBuffer<DSPCOMPLEX> SpectrumSampleBuffer;
     struct airspy_device *device;

@@ -151,7 +151,7 @@ HEADERS += \
     $$PWD/input/virtual_input.h \
     $$PWD/input/rtl_tcp.h \
     $$PWD/input/rtl_agc.h \
-    $$PWD/input/halfband_decimator.h
+    $$PWD/input/rational_resampler.h
 	
 SOURCES += \
     $$PWD/backend/dab-audio.cpp \
@@ -195,7 +195,7 @@ SOURCES += \
     $$PWD/input/raw_file.cpp \
     $$PWD/input/rtl_tcp.cpp \
     $$PWD/input/rtl_agc.cpp \
-    $$PWD/input/halfband_decimator.cpp
+    $$PWD/input/rational_resampler.cpp
 
 
 #### Built-in libraries ####

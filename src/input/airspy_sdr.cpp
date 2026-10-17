@@ -68,7 +68,28 @@ CAirspy::CAirspy(RadioControllerInterface &radioController) :
 
     airspy_set_sample_type(device, AIRSPY_SAMPLE_FLOAT32_IQ);
 
-    result = airspy_set_samplerate(device, AIRSPY_SAMPLERATE);
+    // Use the lowest native sample rate not below 2.048 MS/s (Mini: 3 MS/s,
+    // R2: 2.5 MS/s). Other rates are possible, but give a clearly worse
+    // signal quality. The resampler converts to 2.048 MS/s.
+    uint32_t rateCount = 0;
+    airspy_get_samplerates(device, &rateCount, 0);
+    std::vector<uint32_t> rates(rateCount);
+    if (rateCount > 0) {
+        airspy_get_samplerates(device, rates.data(), rateCount);
+    }
+    sampleRate = 0;
+    for (const uint32_t rate : rates) {
+        if (rate >= (uint32_t)INPUT_RATE && (sampleRate == 0 || (int)rate < sampleRate)) {
+            sampleRate = rate;
+        }
+    }
+    if (sampleRate == 0) {
+        sampleRate = 4096000;
+    }
+    std::clog << "Airspy: sample rate " << sampleRate << std::endl;
+    resampler = std::make_unique<RationalResampler>(sampleRate, INPUT_RATE);
+
+    result = airspy_set_samplerate(device, sampleRate);
     if (result != AIRSPY_SUCCESS) {
         std::clog  << "Airspy: " <<"airspy_set_samplerate() failed: " << airspy_error_name((airspy_error)result) << "(" << result << ")" << std::endl;
         throw 0;
@@ -127,7 +148,7 @@ bool CAirspy::restart(void)
 
     SampleBuffer.FlushRingBuffer();
     SpectrumSampleBuffer.FlushRingBuffer();
-    decimator.reset();
+    resampler->reset();
     result = airspy_set_sample_type(device, AIRSPY_SAMPLE_FLOAT32_IQ);
     if (result != AIRSPY_SUCCESS) {
         std::clog  << "Airspy: airspy_set_sample_type () failed: " << airspy_error_name((airspy_error)result) << "(" << result << ")" << std::endl;
@@ -185,24 +206,18 @@ int CAirspy::callback(airspy_transfer* transfer)
 
 // Called from AirSpy data callback which gives us interleaved float32
 // I and Q according to setting given to airspy_set_sample_type() above.
-// The AirSpy runs at 4096ksps, we need to decimate by two. The half-band
-// filter keeps the adjacent DAB blocks from aliasing into the wanted block.
+// The AirSpy runs at a native sample rate, the resampler converts it to
+// 2.048 MS/s and keeps the adjacent DAB blocks from aliasing into the
+// wanted block.
 int CAirspy::data_available(const DSPCOMPLEX* buf, size_t num_samples)
 {
-    if (num_samples % 2 != 0) {
-        throw std::runtime_error("CAirspy::data_available() needs an even number of IQ samples to be able to decimate");
-    }
-
-    const DSPCOMPLEX* sbuf = reinterpret_cast<const DSPCOMPLEX*>(buf);
-
-    std::vector<DSPCOMPLEX> temp(num_samples/2);
+    resampled.clear();
+    const size_t count = resampler->process(buf, num_samples, resampled);
 
     float maxnorm = 0;
 
-    decimator.process(sbuf, num_samples, temp.data());
-
-    for (size_t i = 0; i < num_samples/2; i++) {
-        const auto z = temp[i];
+    for (size_t i = 0; i < count; i++) {
+        const auto z = resampled[i];
 
         if (sw_agc and (num_frames % 10) == 0) {
             if (norm(z) > maxnorm) {
@@ -231,8 +246,8 @@ int CAirspy::data_available(const DSPCOMPLEX* buf, size_t num_samples)
 
     num_frames++;
 
-    SampleBuffer.putDataIntoBuffer(temp.data(), num_samples/2);
-    SpectrumSampleBuffer.putDataIntoBuffer(temp.data(), num_samples/2);
+    SampleBuffer.putDataIntoBuffer(resampled.data(), count);
+    SpectrumSampleBuffer.putDataIntoBuffer(resampled.data(), count);
 
     return 0;
 }

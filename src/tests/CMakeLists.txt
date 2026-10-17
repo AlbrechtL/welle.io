@@ -54,9 +54,9 @@ add_executable(tst_rtl_agc unit/tst_rtl_agc.cpp)
 target_link_libraries(tst_rtl_agc PRIVATE welle_test_common Qt6::Test)
 add_test(NAME unit.rtl_agc COMMAND tst_rtl_agc)
 
-add_executable(tst_halfband_decimator unit/tst_halfband_decimator.cpp)
-target_link_libraries(tst_halfband_decimator PRIVATE welle_test_common Qt6::Test)
-add_test(NAME unit.halfband_decimator COMMAND tst_halfband_decimator)
+add_executable(tst_rational_resampler unit/tst_rational_resampler.cpp)
+target_link_libraries(tst_rational_resampler PRIVATE welle_test_common Qt6::Test)
+add_test(NAME unit.rational_resampler COMMAND tst_rational_resampler)
 
 add_executable(tst_coarse_frequency unit/tst_coarse_frequency.cpp)
 target_link_libraries(tst_coarse_frequency PRIVATE welle_test_common Qt6::Test)
@@ -66,7 +66,7 @@ add_executable(rstest ${CMAKE_SOURCE_DIR}/src/libs/fec/test/rstest.c)
 target_link_libraries(rstest PRIVATE welle)
 add_test(NAME unit.reed_solomon COMMAND rstest)
 
-set_tests_properties(unit.rawfile unit.dabconstants unit.fib unit.mp2_scf_crc unit.spi unit.rtl_agc unit.halfband_decimator unit.coarse_frequency unit.reed_solomon PROPERTIES LABELS unit)
+set_tests_properties(unit.rawfile unit.dabconstants unit.fib unit.mp2_scf_crc unit.spi unit.rtl_agc unit.rational_resampler unit.coarse_frequency unit.reed_solomon PROPERTIES LABELS unit)
 
 # Recordings of the welle.io-test-data repository. Every clip of its
 # manifest becomes one test, backend.recording.<clip id>, which runs
