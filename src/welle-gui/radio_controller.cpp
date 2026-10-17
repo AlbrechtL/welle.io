@@ -284,8 +284,11 @@ void CRadioController::play(QString channel, QString title, quint32 service)
     }
 
     bool isRestartOk = deviceRestart();
+    // Same service in another ensemble: setChannel() creates a new receiver,
+    // which has to be told to decode the service again
+    const bool isNewChannel = currentChannel != channel;
     setChannel(channel, false);
-    setService(service);
+    setService(service, isNewChannel);
 
     currentLastChannel = QStringList() << serialise_serviceid(service) << channel;
     QSettings settings;
