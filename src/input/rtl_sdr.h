@@ -46,7 +46,7 @@
 #include "MathHelper.h"
 #include "ringbuffer.h"
 #include "radio-controller.h"
-#include "rtl_agc.h"
+#include "software_agc.h"
 
 // This class is a simple wrapper around the
 // rtlsdr library that is read is as dll
@@ -96,7 +96,7 @@ private:
     std::vector<int> gains;
     std::vector<float> gainsDb;
     std::atomic<int> currentGainIndex {0};
-    RtlAgc agc {100};
+    SoftwareAgc agc {100};
     std::mutex deviceMutex;
 
     void agc_timer_thread(void);

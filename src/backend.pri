@@ -150,7 +150,7 @@ HEADERS += \
     $$PWD/input/raw_file.h \
     $$PWD/input/virtual_input.h \
     $$PWD/input/rtl_tcp.h \
-    $$PWD/input/rtl_agc.h \
+    $$PWD/input/software_agc.h \
     $$PWD/input/rational_resampler.h
 	
 SOURCES += \
@@ -194,7 +194,7 @@ SOURCES += \
     $$PWD/input/null_device.cpp \
     $$PWD/input/raw_file.cpp \
     $$PWD/input/rtl_tcp.cpp \
-    $$PWD/input/rtl_agc.cpp \
+    $$PWD/input/software_agc.cpp \
     $$PWD/input/rational_resampler.cpp
 
 

@@ -18,23 +18,26 @@
  *
  */
 
-// unit.rtl_agc: software AGC of the RTL-SDR and rtl_tcp inputs with a
-// simulated tuner. The signal is Gaussian noise (like OFDM) quantised to
-// 8 bit I/Q samples, the gain table is the one of the R820T. The AGC must
+// unit.software_agc: software AGC of the RTL-SDR, rtl_tcp and Airspy inputs
+// with a simulated tuner. The signal is Gaussian noise (like OFDM) quantised
+// to 8 bit I/Q samples, the gain table is the one of the R820T. The AGC must
 // find a gain without clipping and then keep it instead of toggling
-// between two steps (issue #908).
+// between two steps (issue #908). Float samples are measured like 8 bit ones.
 
 #include <QtTest>
 
 #include <algorithm>
 #include <cmath>
+#include <complex>
 #include <deque>
 #include <random>
 #include <vector>
 
-#include "rtl_agc.h"
+#include "software_agc.h"
 
 namespace {
+
+const float highLevelDb = SoftwareAgc::defaultHighLevelDb;
 
 const std::vector<float> r820tGains = { 0.0, 0.9, 1.4, 2.7, 3.7, 7.7,
     8.7, 12.5, 14.4, 15.7, 16.6, 19.7, 20.7, 22.9, 25.4, 28.0, 29.7, 32.8,
@@ -98,7 +101,7 @@ public:
     // Slow fluctuation of the input level (period 5 s), like a real signal
     double fluctuationDb = 0;
 
-    RtlAgc agc;
+    SoftwareAgc agc;
     int changes = 0;
 
     // Runs the given time, returns the samples of the last 500 ms
@@ -159,7 +162,7 @@ private:
 
 } // namespace
 
-class RtlAgcTests : public QObject
+class SoftwareAgcTests : public QObject
 {
     Q_OBJECT
 
@@ -171,9 +174,10 @@ private slots:
     void learnsRealGainSteps_data();
     void learnsRealGainSteps();
     void reportsOverloadWithManualGain();
+    void measuresFloatSamples();
 };
 
-void RtlAgcTests::findsGainAndKeepsIt_data()
+void SoftwareAgcTests::findsGainAndKeepsIt_data()
 {
     QTest::addColumn<double>("inputDb");
     QTest::addColumn<int>("settleMs");
@@ -188,7 +192,7 @@ void RtlAgcTests::findsGainAndKeepsIt_data()
     QTest::newRow("strong rtl_tcp") << -16.0 << 500 << 300;
 }
 
-void RtlAgcTests::findsGainAndKeepsIt()
+void SoftwareAgcTests::findsGainAndKeepsIt()
 {
     QFETCH(double, inputDb);
     QFETCH(int, settleMs);
@@ -201,12 +205,12 @@ void RtlAgcTests::findsGainAndKeepsIt()
     // Converged within 4 s
     std::vector<uint8_t> samples = sim.run(4);
     const double level = levelDb(samples);
-    QVERIFY2(level <= RtlAgc::highLevelDb + 0.5,
+    QVERIFY2(level <= highLevelDb + 0.5,
              qPrintable(QString("level %1 dBFS too high").arg(level)));
-    QVERIFY2(level >= RtlAgc::highLevelDb - 6 || sim.gainIndex() == int(r820tGains.size()) - 1,
+    QVERIFY2(level >= highLevelDb - 6 || sim.gainIndex() == int(r820tGains.size()) - 1,
              qPrintable(QString("level %1 dBFS too low, gain %2 dB")
                         .arg(level).arg(r820tGains[sim.gainIndex()])));
-    QVERIFY2(clippedRatio(samples) < RtlAgc::overloadRatio,
+    QVERIFY2(clippedRatio(samples) < SoftwareAgc::overloadRatio,
              qPrintable(QString("clipped %1").arg(clippedRatio(samples))));
 
     // Then the gain stays (the old AGC changed it several times a second)
@@ -216,7 +220,7 @@ void RtlAgcTests::findsGainAndKeepsIt()
              qPrintable(QString("%1 gain changes in 20 s").arg(sim.changes - changesBefore)));
 }
 
-void RtlAgcTests::followsLevelChanges()
+void SoftwareAgcTests::followsLevelChanges()
 {
     Simulation sim(100, 20, r820tGains.size() / 2);
     sim.inputDb = -50;
@@ -225,18 +229,18 @@ void RtlAgcTests::followsLevelChanges()
     // 20 dB stronger, e.g. another channel: backs off within 2 s
     sim.inputDb += 20;
     std::vector<uint8_t> samples = sim.run(2);
-    QVERIFY2(levelDb(samples) <= RtlAgc::highLevelDb + 0.5,
+    QVERIFY2(levelDb(samples) <= highLevelDb + 0.5,
              qPrintable(QString("level %1 dBFS").arg(levelDb(samples))));
-    QVERIFY(clippedRatio(samples) < RtlAgc::overloadRatio);
+    QVERIFY(clippedRatio(samples) < SoftwareAgc::overloadRatio);
 
     // 25 dB weaker: back in the band within 3 s, despite the hold-off
     sim.inputDb -= 25;
     samples = sim.run(3);
-    QVERIFY2(levelDb(samples) >= RtlAgc::highLevelDb - 6,
+    QVERIFY2(levelDb(samples) >= highLevelDb - 6,
              qPrintable(QString("level %1 dBFS").arg(levelDb(samples))));
 }
 
-void RtlAgcTests::toleratesInexactGainSteps()
+void SoftwareAgcTests::toleratesInexactGainSteps()
 {
     // The real steps are 20 % larger than in the table
     Simulation sim(100, 20, r820tGains.size() / 2);
@@ -248,10 +252,10 @@ void RtlAgcTests::toleratesInexactGainSteps()
     const std::vector<uint8_t> samples = sim.run(20);
     QVERIFY2(sim.changes - changesBefore <= 2,
              qPrintable(QString("%1 gain changes in 20 s").arg(sim.changes - changesBefore)));
-    QVERIFY(clippedRatio(samples) < RtlAgc::overloadRatio);
+    QVERIFY(clippedRatio(samples) < SoftwareAgc::overloadRatio);
 }
 
-void RtlAgcTests::learnsRealGainSteps_data()
+void SoftwareAgcTests::learnsRealGainSteps_data()
 {
     QTest::addColumn<double>("offsetDb");
     QTest::addColumn<int>("settleMs");
@@ -263,7 +267,7 @@ void RtlAgcTests::learnsRealGainSteps_data()
     }
 }
 
-void RtlAgcTests::learnsRealGainSteps()
+void SoftwareAgcTests::learnsRealGainSteps()
 {
     QFETCH(double, offsetDb);
     QFETCH(int, settleMs);
@@ -281,14 +285,14 @@ void RtlAgcTests::learnsRealGainSteps()
     QVERIFY2(sim.changes - changesBefore <= 1,
              qPrintable(QString("%1 gain changes in 30 s, gain %2 dB")
                         .arg(sim.changes - changesBefore).arg(r820tGains[sim.gainIndex()])));
-    QVERIFY(clippedRatio(samples) < RtlAgc::overloadRatio);
-    QVERIFY2(levelDb(samples) >= RtlAgc::highLevelDb - 6,
+    QVERIFY(clippedRatio(samples) < SoftwareAgc::overloadRatio);
+    QVERIFY2(levelDb(samples) >= highLevelDb - 6,
              qPrintable(QString("level %1 dBFS").arg(levelDb(samples))));
 }
 
-void RtlAgcTests::reportsOverloadWithManualGain()
+void SoftwareAgcTests::reportsOverloadWithManualGain()
 {
-    std::vector<uint8_t> clipped(RtlAgc::windowMs * 4096 + bufferBytes);
+    std::vector<uint8_t> clipped(SoftwareAgc::windowMs * 4096 + bufferBytes);
     std::vector<uint8_t> normal(clipped.size());
     std::mt19937 rng(1);
     std::normal_distribution<float> normalDist(127.5f, 25.0f);
@@ -297,7 +301,7 @@ void RtlAgcTests::reportsOverloadWithManualGain()
         clipped[i] = (i % 100 == 0) ? 255 : normal[i];
     }
 
-    RtlAgc agc(0);
+    SoftwareAgc agc(0);
     agc.process(normal.data(), normal.size());
     QVERIFY(!agc.overloaded());
 
@@ -308,5 +312,40 @@ void RtlAgcTests::reportsOverloadWithManualGain()
     QVERIFY(!agc.overloaded());
 }
 
-QTEST_GUILESS_MAIN(RtlAgcTests)
-#include "tst_rtl_agc.moc"
+void SoftwareAgcTests::measuresFloatSamples()
+{
+    // The same Gaussian signal (-20 dBFS per component) as float samples and
+    // as 8 bit samples gives the same level
+    const size_t n = SoftwareAgc::windowMs * 2048 + 4096;
+    const float sigma = std::pow(10.0f, -20.0f / 20);
+    std::mt19937 rng(3);
+    std::normal_distribution<float> normal(0, sigma);
+    std::vector<std::complex<float>> samples(n);
+    std::vector<uint8_t> bytes(2 * n);
+    for (size_t i = 0; i < n; i++) {
+        samples[i] = { normal(rng), normal(rng) };
+        bytes[2 * i] = std::clamp<long>(std::lround(127.5f + 128 * samples[i].real()), 0, 255);
+        bytes[2 * i + 1] = std::clamp<long>(std::lround(127.5f + 128 * samples[i].imag()), 0, 255);
+    }
+
+    const std::vector<float> gains = { 0, 10, 20 };
+    SoftwareAgc floatAgc(0);
+    floatAgc.process(samples.data(), samples.size());
+    QCOMPARE(floatAgc.nextGainIndex(gains, 1), 1);
+    SoftwareAgc byteAgc(0);
+    byteAgc.process(bytes.data(), bytes.size());
+    QCOMPARE(byteAgc.nextGainIndex(gains, 1), 1);
+    QVERIFY2(std::abs(floatAgc.lastLevelDb() + 20) < 0.1,
+             qPrintable(QString("float %1 dBFS").arg(floatAgc.lastLevelDb())));
+    QVERIFY2(std::abs(byteAgc.lastLevelDb() - floatAgc.lastLevelDb()) < 0.2,
+             qPrintable(QString("8 bit %1 dBFS").arg(byteAgc.lastLevelDb())));
+
+    // Float values at full scale count as clipped
+    for (size_t i = 0; i < n; i += 100)
+        samples[i] = { 1.0f, 0.0f };
+    floatAgc.process(samples.data(), samples.size());
+    QVERIFY(floatAgc.overloaded());
+}
+
+QTEST_GUILESS_MAIN(SoftwareAgcTests)
+#include "tst_software_agc.moc"

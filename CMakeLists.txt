@@ -325,7 +325,7 @@ set(input_sources
     src/input/null_device.cpp
     src/input/raw_file.cpp
     src/input/rtl_tcp.cpp
-    src/input/rtl_agc.cpp
+    src/input/software_agc.cpp
     src/input/rational_resampler.cpp
 )
 

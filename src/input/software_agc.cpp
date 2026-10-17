@@ -1,6 +1,6 @@
 /******************************************************************************\
  * Description:
- * Software AGC of the RTL-SDR and rtl_tcp inputs, see rtl_agc.h.
+ * Software AGC of the RTL-SDR, rtl_tcp and Airspy inputs, see software_agc.h.
  *
  * This file was generated with the help of an AI assistant (Claude Code).
  *
@@ -26,44 +26,41 @@
 #include <cmath>
 #include <cstdlib>
 
-#include "rtl_agc.h"
-#include "dab-constants.h"
+#include "software_agc.h"
 
-// I and Q are one byte each
-static constexpr uint64_t bytesPerMs = INPUT_RATE * 2 / 1000;
-
-RtlAgc::RtlAgc(int settleMs) :
-    settleBytes(settleMs * bytesPerMs),
-    windowBytes(windowMs * bytesPerMs),
-    holdoffBytes(holdoffMs * bytesPerMs)
+SoftwareAgc::SoftwareAgc(int settleMs, int sampleRate, float highLevelDb) :
+    highLevel(highLevelDb),
+    settleValues(uint64_t(settleMs) * sampleRate * 2 / 1000),
+    windowValues(uint64_t(windowMs) * sampleRate * 2 / 1000),
+    holdoffValues(uint64_t(holdoffMs) * sampleRate * 2 / 1000)
 {
     reset();
 }
 
-void RtlAgc::reset()
+void SoftwareAgc::reset()
 {
     std::lock_guard<std::mutex> lock(mutex);
     count = 0;
     sum = 0;
     sumSquares = 0;
     clipped = 0;
-    settleRemaining = settleBytes;
-    bytesSinceReduction = holdoffBytes;
+    settleRemaining = settleValues;
+    valuesSinceReduction = holdoffValues;
     stepsDb.clear();
     stepFrom = -1;
 }
 
-void RtlAgc::gainChanged()
+void SoftwareAgc::gainChanged()
 {
     std::lock_guard<std::mutex> lock(mutex);
     count = 0;
     sum = 0;
     sumSquares = 0;
     clipped = 0;
-    settleRemaining = settleBytes;
+    settleRemaining = settleValues;
 }
 
-void RtlAgc::process(const uint8_t* buf, size_t len)
+void SoftwareAgc::process(const uint8_t* buf, size_t len)
 {
     int64_t bufSum = 0;
     uint64_t bufSquares = 0;
@@ -76,31 +73,53 @@ void RtlAgc::process(const uint8_t* buf, size_t len)
         bufClipped += (buf[i] == 0 || buf[i] == 255);
     }
 
+    add(len, bufSum / 128.0, bufSquares / (128.0 * 128.0), bufClipped);
+}
+
+void SoftwareAgc::process(const std::complex<float>* buf, size_t count)
+{
+    double bufSum = 0;
+    double bufSquares = 0;
+    uint64_t bufClipped = 0;
+
+    for (size_t i = 0; i < count; i++) {
+        const float re = buf[i].real();
+        const float im = buf[i].imag();
+        bufSum += re + im;
+        bufSquares += re * re + im * im;
+        bufClipped += (std::abs(re) >= 0.999f) + (std::abs(im) >= 0.999f);
+    }
+
+    add(2 * count, bufSum, bufSquares, bufClipped);
+}
+
+void SoftwareAgc::add(uint64_t values, double valuesSum, double squares, uint64_t clippedValues)
+{
     std::lock_guard<std::mutex> lock(mutex);
-    bytesSinceReduction += len;
+    valuesSinceReduction += values;
 
     if (settleRemaining > 0) {
-        settleRemaining -= std::min<uint64_t>(settleRemaining, len);
+        settleRemaining -= std::min<uint64_t>(settleRemaining, values);
         return;
     }
 
-    count += len;
-    sum += bufSum;
-    sumSquares += bufSquares;
-    clipped += bufClipped;
+    count += values;
+    sum += valuesSum;
+    sumSquares += squares;
+    clipped += clippedValues;
 }
 
-bool RtlAgc::takeMeasurement(Measurement& m)
+bool SoftwareAgc::takeMeasurement(Measurement& m)
 {
     // mutex is locked by the caller
-    if (count < windowBytes) {
+    if (count < windowValues) {
         return false;
     }
 
-    const double mean = double(sum) / count;
-    const double variance = double(sumSquares) / count - mean * mean;
-    // Full scale is an amplitude of 128
-    levelDb = variance > 0 ? 10 * std::log10(variance / (128.0 * 128.0)) : -100.0f;
+    // sum and sumSquares are relative to full scale
+    const double mean = sum / count;
+    const double variance = sumSquares / count - mean * mean;
+    levelDb = variance > 0 ? 10 * std::log10(variance) : -100.0f;
 
     m.levelDb = levelDb;
     m.clippedRatio = double(clipped) / count;
@@ -112,7 +131,7 @@ bool RtlAgc::takeMeasurement(Measurement& m)
     return true;
 }
 
-int RtlAgc::indexForGain(const std::vector<float>& gainsDb, float gainDb) const
+int SoftwareAgc::indexForGain(const std::vector<float>& gainsDb, float gainDb) const
 {
     // Highest gain that is not above gainDb
     int index = 0;
@@ -124,7 +143,7 @@ int RtlAgc::indexForGain(const std::vector<float>& gainsDb, float gainDb) const
     return index;
 }
 
-int RtlAgc::nextGainIndex(const std::vector<float>& gainsDb, int currentIndex)
+int SoftwareAgc::nextGainIndex(const std::vector<float>& gainsDb, int currentIndex)
 {
     std::lock_guard<std::mutex> lock(mutex);
 
@@ -151,43 +170,43 @@ int RtlAgc::nextGainIndex(const std::vector<float>& gainsDb, int currentIndex)
             stepsDb[lower] = std::max(0.0f, std::min(measured, float(maxStepDb)));
         }
         if (currentIndex > stepFrom &&
-                (m.levelDb > highLevelDb || m.clippedRatio > overloadRatio)) {
+                (m.levelDb > highLevel || m.clippedRatio > overloadRatio)) {
             // The step up overloaded (with clipping the level is too low):
             // try it again only at a clearly lower level
             stepsDb[lower] = std::max(stepsDb[lower],
-                    std::min(highLevelDb - levelBeforeStep + hysteresisDb, float(maxStepDb)));
+                    std::min(highLevel - levelBeforeStep + hysteresisDb, float(maxStepDb)));
         }
     }
     stepFrom = -1;
 
-    if (m.levelDb > highLevelDb + jumpDistanceDb) {
+    if (m.levelDb > highLevel + jumpDistanceDb) {
         // Far too strong, e.g. after a channel change. With clipping the
         // level is too low, the next measurement corrects the rest.
-        next = std::min(indexForGain(gainsDb, gain - (m.levelDb - jumpTargetDb)),
+        next = std::min(indexForGain(gainsDb, gain - (m.levelDb - jumpTargetDb())),
                         currentIndex - 1);
     }
-    else if (m.levelDb > highLevelDb || m.clippedRatio > overloadRatio) {
+    else if (m.levelDb > highLevel || m.clippedRatio > overloadRatio) {
         next = currentIndex - 1;
     }
-    else if (m.levelDb < jumpTargetDb - jumpDistanceDb) {
+    else if (m.levelDb < jumpTargetDb() - jumpDistanceDb) {
         // Far too weak, e.g. at the start
-        next = std::max(indexForGain(gainsDb, gain + (jumpTargetDb - m.levelDb)),
+        next = std::max(indexForGain(gainsDb, gain + (jumpTargetDb() - m.levelDb)),
                         currentIndex + 1);
     }
     else if (currentIndex < last) {
-        // One step up only if the level stays below highLevelDb with some
+        // One step up only if the level stays below the high level with some
         // margin, otherwise the gain would toggle between two steps
         const float stepDb = stepsDb[currentIndex] >= 0 ?
             stepsDb[currentIndex] : gainsDb[currentIndex + 1] - gain;
-        if (m.levelDb + stepDb <= highLevelDb - hysteresisDb &&
-                bytesSinceReduction >= holdoffBytes) {
+        if (m.levelDb + stepDb <= highLevel - hysteresisDb &&
+                valuesSinceReduction >= holdoffValues) {
             next = currentIndex + 1;
         }
     }
 
     next = std::max(0, std::min(next, last));
     if (next < currentIndex) {
-        bytesSinceReduction = 0;
+        valuesSinceReduction = 0;
     }
     if (next != currentIndex && m.clippedRatio <= clippedRatioLimitForSteps) {
         stepFrom = currentIndex;
@@ -196,14 +215,14 @@ int RtlAgc::nextGainIndex(const std::vector<float>& gainsDb, int currentIndex)
     return next;
 }
 
-bool RtlAgc::overloaded()
+bool SoftwareAgc::overloaded()
 {
     std::lock_guard<std::mutex> lock(mutex);
     Measurement m;
     return takeMeasurement(m) && m.clippedRatio > overloadRatio;
 }
 
-float RtlAgc::lastLevelDb() const
+float SoftwareAgc::lastLevelDb() const
 {
     std::lock_guard<std::mutex> lock(mutex);
     return levelDb;

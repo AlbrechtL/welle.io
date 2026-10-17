@@ -45,7 +45,7 @@
 #include "MathHelper.h"
 #include "ringbuffer.h"
 #include "radio-controller.h"
-#include "rtl_agc.h"
+#include "software_agc.h"
 
 struct dongle_info_t { /* structure size must be multiple of 2 bytes */
     char magic[4];
@@ -100,7 +100,7 @@ private:
     std::atomic<int> currentGainCount{0};
     // The gain changes reach the samples later because of the buffers of
     // server and network
-    RtlAgc agc{500};
+    SoftwareAgc agc{500};
     std::atomic<bool> isAGC{true};
     bool isHwAGC = false;
     int frequency = kHz(220000);
