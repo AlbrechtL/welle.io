@@ -432,9 +432,22 @@ void CRadioController::startScan(void)
 {
     qDebug() << "RadioController:" << "Start channel scan";
 
+    if (!device)
+        return;
+
     stop();
 
-    deviceRestart();
+    // Without a working receiver (Null device, rtl_tcp server not reachable)
+    // no channel would ever report a signal and the scan would hang at the
+    // first channel
+    if (!deviceRestart()) {
+        currentTitle = tr("No receiver");
+        emit titleChanged();
+        currentText = "";
+        emit textChanged();
+        emit scanStopped();
+        return;
+    }
 
     if(device && device->getID() == CDeviceID::RAWFILE) {
         currentTitle = tr("RAW File");
