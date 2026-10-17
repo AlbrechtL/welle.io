@@ -94,6 +94,8 @@ ComboBox {
     }
 
     onModelChanged: _measure()
+    // E.g. entries appended to a ListModel
+    onCountChanged: _measure()
     Component.onCompleted: _measure()
 
     Connections {

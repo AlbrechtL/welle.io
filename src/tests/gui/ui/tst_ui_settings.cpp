@@ -118,7 +118,8 @@ void UiSettingsTests::showsExistingSettings()
     QCOMPARE(app.find("receiverSettings")->property("manualGainState").toInt(), 30);
     QCOMPARE(app.property("setting.qQStyleTheme", "currentIndex").toInt(), 1);
     QCOMPARE(app.property("setting.accentColor", "currentIndex").toInt(), 2);
-    QCOMPARE(app.property("setting.device", "currentIndex").toInt(), 5); // RAW file
+    QCOMPARE(app.find("receiverSettings")->property("device").toInt(), 5); // RAW file
+    QCOMPARE(app.property("setting.device", "displayText").toString(), QString("RAW file"));
 
     // Receiver section: the input device comes first, then the gain
     const QStringList receiverOrder = {"setting.enableAutoSdr", "setting.device",

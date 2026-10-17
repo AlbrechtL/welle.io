@@ -15,3 +15,8 @@ The SDR device must be able to tune to the DAB frequencies (Band III,
 If you start welle.io without any options, it tries Airspy, rtl-sdr and
 SoapySDR devices in turn and uses the first one it can open. rtl_tcp and raw
 files are selected in the settings (disable *Auto detect*).
+
+The settings list only the devices that welle.io was built with. Airspy and
+rtl-sdr are included by default, SoapySDR has to be enabled when building
+(CMake options `AIRSPY`, `RTLSDR` and `SOAPYSDR`, see
+[Building](../development/building.md)).

@@ -38,8 +38,34 @@ ColumnLayout {
     id: receiverSettings
     objectName: "receiverSettings"
 
-    property alias device: deviceBox.currentIndex
+    // The chosen input device, saved as its position in the full list of
+    // devices below. The device box shows only the devices of this build.
+    property int device: 0
     property bool isLoaded: false
+
+    // All input devices. "setting" is the saved value and must not change,
+    // "deviceId" is the CDeviceID (src/input/virtual_input.h), "page" the
+    // device settings
+    readonly property var allDevices: [
+        { label: QT_TRANSLATE_NOOP("Settings", "None"), setting: 0, deviceId: 1, page: "NullSettings.qml" },
+        { label: QT_TRANSLATE_NOOP("Settings", "Airspy"), setting: 1, deviceId: 2, page: "AirspySettings.qml" },
+        { label: QT_TRANSLATE_NOOP("Settings", "rtl-sdr"), setting: 2, deviceId: 4, page: "RTLSDRSettings.qml" },
+        { label: QT_TRANSLATE_NOOP("Settings", "SoapySDR"), setting: 3, deviceId: 6, page: "SoapySDRSettings.qml" },
+        { label: QT_TRANSLATE_NOOP("Settings", "rtl-tcp"), setting: 4, deviceId: 5, page: "RTLTCPSettings.qml" },
+        { label: QT_TRANSLATE_NOOP("Settings", "RAW file"), setting: 5, deviceId: 3, page: "RawFileSettings.qml" }
+    ]
+
+    // The saved device, or "None" if this build doesn't support it
+    readonly property var shownDevice: isAvailable(allDevices[device]) ? allDevices[device] : allDevices[0]
+
+    function isAvailable(entry) {
+        if (!entry)
+            return false
+        const available = guiHelper.availableDevices
+        // rtl-sdr is ANDROID_RTL_SDR (7) on Android
+        return available.indexOf(entry.deviceId) >= 0
+                || (entry.deviceId === 4 && available.indexOf(7) >= 0)
+    }
 
     // Saved apart from the slider, whose range depends on the device and
     // would cut the value
@@ -49,7 +75,7 @@ ColumnLayout {
     spacing: Theme.spacingXL
 
     Settings {
-        property alias device: deviceBox.currentIndex
+        property alias device: receiverSettings.device
         property alias enableAGCState : enableAGC.checked
         property alias manualGainState : receiverSettings.manualGainState
         property alias enableAutoSdr : enableAutoSdr.checked
@@ -75,14 +101,14 @@ ColumnLayout {
 
         function onNewDeviceId(deviceId) {
             switch(deviceId) {
-            case 0: deviceBox.currentIndex = 0; break; // UNKNOWN
-            case 1: deviceBox.currentIndex = 0; break; // NULLDEVICE
-            case 2: deviceBox.currentIndex = 1; break; // AIRSPY
-            case 3: deviceBox.currentIndex = 5; break; // RAWFILE
-            case 4: deviceBox.currentIndex = 2; break; // RTL_SDR
-            case 5: deviceBox.currentIndex = 4; break; // RTL_TCP
-            case 6: deviceBox.currentIndex = 3; break; // SOAPYSDR
-            default: deviceBox.currentIndex = 0;
+            case 0: receiverSettings.device = 0; break; // UNKNOWN
+            case 1: receiverSettings.device = 0; break; // NULLDEVICE
+            case 2: receiverSettings.device = 1; break; // AIRSPY
+            case 3: receiverSettings.device = 5; break; // RAWFILE
+            case 4: receiverSettings.device = 2; break; // RTL_SDR
+            case 5: receiverSettings.device = 4; break; // RTL_TCP
+            case 6: receiverSettings.device = 3; break; // SOAPYSDR
+            default: receiverSettings.device = 0;
             }
         }
     }
@@ -109,28 +135,28 @@ ColumnLayout {
             SettingComboBox {
                 id: deviceBox
                 objectName: "setting.device"
+                // Only the devices of this build
                 model: ListModel {
                     id: deviceBoxModel
-                    ListElement { label: QT_TRANSLATE_NOOP("Settings", "None") }
-                    ListElement { label: QT_TRANSLATE_NOOP("Settings", "Airspy") }
-                    ListElement { label: QT_TRANSLATE_NOOP("Settings", "rtl-sdr") }
-                    ListElement { label: QT_TRANSLATE_NOOP("Settings", "SoapySDR") }
-                    ListElement { label: QT_TRANSLATE_NOOP("Settings", "rtl-tcp") }
-                    ListElement { label: QT_TRANSLATE_NOOP("Settings", "RAW file") }
+                    Component.onCompleted: {
+                        for (const entry of receiverSettings.allDevices) {
+                            if (receiverSettings.isAvailable(entry))
+                                append({ label: entry.label, setting: entry.setting })
+                        }
+                    }
                 }
 
-                onCurrentIndexChanged: {
-                    // Load appropriate settings
-                    switch(currentIndex) {
-                    case 1: sdrSpecificSettings.source = "qrc:/QML/settings/devices/AirspySettings.qml"; break
-                    case 2: sdrSpecificSettings.source = "qrc:/QML/settings/devices/RTLSDRSettings.qml"; break
-                    case 3: sdrSpecificSettings.source = "qrc:/QML/settings/devices/SoapySDRSettings.qml"; break
-                    case 4: sdrSpecificSettings.source = "qrc:/QML/settings/devices/RTLTCPSettings.qml"; break
-                    case 5: sdrSpecificSettings.source = "qrc:/QML/settings/devices/RawFileSettings.qml"; break
-                    default: sdrSpecificSettings.source = "qrc:/QML/settings/devices/NullSettings.qml"; break
+                currentIndex: {
+                    for (let i = 0; i < deviceBoxModel.count; i++) {
+                        if (deviceBoxModel.get(i).setting === receiverSettings.shownDevice.setting)
+                            return i
                     }
+                    return -1
+                }
 
-                    console.debug("Used input device: " + currentIndex)
+                onActivated: (index) => {
+                    receiverSettings.device = deviceBoxModel.get(index).setting
+                    console.debug("Used input device: " + receiverSettings.device)
                 }
 
                 Accessible.name: qsTr("Input device")
@@ -188,6 +214,7 @@ ColumnLayout {
         id: sdrSpecificSettings
         objectName: "deviceSettings"
         Layout.fillWidth: true
+        source: "qrc:/QML/settings/devices/" + receiverSettings.shownDevice.page
         visible: item && item.implicitHeight > 0
 
         onLoaded: {

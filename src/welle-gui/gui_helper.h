@@ -68,6 +68,8 @@ class CGUIHelper : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QVariant licenses READ licenses CONSTANT)
+    // The CDeviceID values of the input devices this build supports
+    Q_PROPERTY(QVariantList availableDevices READ availableDevices CONSTANT)
 
 public:
     Q_INVOKABLE void updateTranslator(QString Language, QObject *obj);
@@ -135,6 +137,7 @@ private:
     QVector<QPointF> constellationSeriesData;
 
     const QVariantMap licenses();
+    QVariantList availableDevices() const;
     const QByteArray getFileContent(QString filepath);
 
     // Qt Quick Style Management methods & members

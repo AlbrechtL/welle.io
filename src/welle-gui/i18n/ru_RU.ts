@@ -180,25 +180,25 @@
     <name>CGUIHelper</name>
     <message>
         <location filename="../gui_helper.cpp" line="+71"/>
-        <location line="+652"/>
+        <location line="+660"/>
         <source>Mi&amp;nimize</source>
         <translation type="unfinished">Св&amp;ернуть</translation>
     </message>
     <message>
-        <location line="-649"/>
-        <location line="+650"/>
+        <location line="-657"/>
+        <location line="+658"/>
         <source>Ma&amp;ximize</source>
         <translation type="unfinished">Ра&amp;звернуть</translation>
     </message>
     <message>
-        <location line="-647"/>
-        <location line="+648"/>
+        <location line="-655"/>
+        <location line="+656"/>
         <source>&amp;Restore</source>
         <translation type="unfinished">&amp;Восстановить</translation>
     </message>
     <message>
-        <location line="-645"/>
-        <location line="+646"/>
+        <location line="-653"/>
+        <location line="+654"/>
         <source>&amp;Quit</source>
         <translation type="unfinished">&amp;Выход</translation>
     </message>
@@ -1560,12 +1560,12 @@
 <context>
     <name>ReceiverSettings</name>
     <message>
-        <location filename="../QML/settings/ReceiverSettings.qml" line="+91"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="+117"/>
         <source>Receiver</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="+52"/>
         <source>Automatic RF gain</source>
         <translation type="unfinished">Автоматический уровень</translation>
     </message>
@@ -1581,7 +1581,7 @@
         <translation type="unfinished">Значение: </translation>
     </message>
     <message>
-        <location line="+26"/>
+        <location line="-59"/>
         <source>Auto detect</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1853,7 +1853,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/settings/ReceiverSettings.qml" line="-22"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="-112"/>
         <source>None</source>
         <translation type="unfinished"></translation>
     </message>

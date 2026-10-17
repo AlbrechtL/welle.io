@@ -126,6 +126,14 @@ void CGUIHelper::deviceClosed()
 /**
  * \brief returns the licenses for all the relative libraries plus application version information
  */
+QVariantList CGUIHelper::availableDevices() const
+{
+    QVariantList devices;
+    for (const CDeviceID id : CInputFactory::GetAvailableDevices())
+        devices.append(static_cast<int>(id));
+    return devices;
+}
+
 const QVariantMap CGUIHelper::licenses()
 {
     QVariantMap ret;

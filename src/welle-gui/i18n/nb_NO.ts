@@ -192,57 +192,57 @@
     <name>CGUIHelper</name>
     <message>
         <location filename="../gui_helper.cpp" line="71"/>
-        <location filename="../gui_helper.cpp" line="723"/>
+        <location filename="../gui_helper.cpp" line="731"/>
         <source>Mi&amp;nimize</source>
         <translation>Mi&amp;nimer</translation>
     </message>
     <message>
         <location filename="../gui_helper.cpp" line="74"/>
-        <location filename="../gui_helper.cpp" line="724"/>
+        <location filename="../gui_helper.cpp" line="732"/>
         <source>Ma&amp;ximize</source>
         <translation>Ma&amp;ksimer</translation>
     </message>
     <message>
         <location filename="../gui_helper.cpp" line="77"/>
-        <location filename="../gui_helper.cpp" line="725"/>
+        <location filename="../gui_helper.cpp" line="733"/>
         <source>&amp;Restore</source>
         <translation>&amp;Gjenoprett</translation>
     </message>
     <message>
         <location filename="../gui_helper.cpp" line="80"/>
-        <location filename="../gui_helper.cpp" line="726"/>
+        <location filename="../gui_helper.cpp" line="734"/>
         <source>&amp;Quit</source>
         <translation>&amp;Avslutt</translation>
     </message>
     <message>
-        <location filename="../gui_helper.cpp" line="187"/>
+        <location filename="../gui_helper.cpp" line="195"/>
         <source>welle.io version</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui_helper.cpp" line="196"/>
+        <location filename="../gui_helper.cpp" line="204"/>
         <source>Built on</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui_helper.cpp" line="321"/>
+        <location filename="../gui_helper.cpp" line="329"/>
         <source>The program will keep running in the system tray. To terminate the program, choose &quot;%1&quot; in the context menu of the system tray entry.</source>
         <translatorcomment>Rough translation, should be refined.</translatorcomment>
         <translation type="unfinished">Programmet vil kjøre i bakgrunnen som et ikon på oppgavelinjen. For å avslutte programmet, velg &quot;%1&quot; i filmenyen for ikonet på oppgavelinjen.</translation>
     </message>
     <message>
-        <location filename="../gui_helper.cpp" line="326"/>
+        <location filename="../gui_helper.cpp" line="334"/>
         <source>Quit</source>
         <extracomment>&quot;Quit&quot; translation should be the same as the one of system tray</extracomment>
         <translation type="unfinished">Avslutt</translation>
     </message>
     <message>
-        <location filename="../gui_helper.cpp" line="188"/>
+        <location filename="../gui_helper.cpp" line="196"/>
         <source>Git revision</source>
         <translation>Git-versjon</translation>
     </message>
     <message>
-        <location filename="../gui_helper.cpp" line="197"/>
+        <location filename="../gui_helper.cpp" line="205"/>
         <source>QT version</source>
         <translation>QT-versjon</translation>
     </message>
@@ -1800,39 +1800,39 @@
 <context>
     <name>ReceiverSettings</name>
     <message>
-        <location filename="../QML/settings/ReceiverSettings.qml" line="91"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="117"/>
         <source>Receiver</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/settings/ReceiverSettings.qml" line="96"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="169"/>
         <source>Automatic RF gain</source>
         <translation type="unfinished">Automatisk RF forsterkning</translation>
     </message>
     <message>
-        <location filename="../QML/settings/ReceiverSettings.qml" line="107"/>
-        <location filename="../QML/settings/ReceiverSettings.qml" line="127"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="180"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="200"/>
         <source>Manual gain</source>
         <translation type="unfinished">Manuell forsterkning</translation>
     </message>
     <message>
-        <location filename="../QML/settings/ReceiverSettings.qml" line="108"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="181"/>
         <source>Value: </source>
         <translation type="unfinished">Verdi: </translation>
     </message>
     <message>
-        <location filename="../QML/settings/ReceiverSettings.qml" line="134"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="122"/>
         <source>Auto detect</source>
         <translation type="unfinished">Automatisk gjenkjenning</translation>
     </message>
     <message>
-        <location filename="../QML/settings/ReceiverSettings.qml" line="135"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="123"/>
         <source>Use the first receiver that is found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/settings/ReceiverSettings.qml" line="144"/>
-        <location filename="../QML/settings/ReceiverSettings.qml" line="174"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="132"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="162"/>
         <source>Input device</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2124,32 +2124,32 @@
         <translation type="unfinished">Terskel Før Topp</translation>
     </message>
     <message>
-        <location filename="../QML/settings/ReceiverSettings.qml" line="152"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="50"/>
         <source>None</source>
         <translation type="unfinished">Ingen</translation>
     </message>
     <message>
-        <location filename="../QML/settings/ReceiverSettings.qml" line="153"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="51"/>
         <source>Airspy</source>
         <translation type="unfinished">Airspy</translation>
     </message>
     <message>
-        <location filename="../QML/settings/ReceiverSettings.qml" line="154"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="52"/>
         <source>rtl-sdr</source>
         <translation type="unfinished">rtl-sdr</translation>
     </message>
     <message>
-        <location filename="../QML/settings/ReceiverSettings.qml" line="155"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="53"/>
         <source>SoapySDR</source>
         <translation type="unfinished">SoapySDR</translation>
     </message>
     <message>
-        <location filename="../QML/settings/ReceiverSettings.qml" line="156"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="54"/>
         <source>rtl-tcp</source>
         <translation type="unfinished">rtl-tcp</translation>
     </message>
     <message>
-        <location filename="../QML/settings/ReceiverSettings.qml" line="157"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="55"/>
         <source>RAW file</source>
         <translation type="unfinished">RAW fil</translation>
     </message>

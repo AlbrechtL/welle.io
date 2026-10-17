@@ -20,7 +20,7 @@
 
 // gui.ui.airspy: Airspy as input device. The gain mode (linearity,
 // sensitivity, hybrid) is chosen in the Airspy settings and kept after a
-// restart. Needs no Airspy (nor Airspy support in the build); with one
+// restart. Needs Airspy support in the build, but no Airspy; with one
 // connected, the gain range of the device follows the mode (0..21, hybrid:
 // VGA 0..15).
 
@@ -66,9 +66,9 @@ private:
     {
         return choose("setting.airspyGainMode", index);
     }
-    // Without an Airspy (or without Airspy support) opening it fails, the
-    // device box shows "None" and after a restart the auto detection is on:
-    // choose "Airspy" to see its settings
+    // Without an Airspy opening it fails, the device box shows "None" and
+    // after a restart the auto detection is on: choose "Airspy" (the entry
+    // after "None") to see its settings
     bool showAirspySettings()
     {
         if (app.isVisible("airspySettings"))
@@ -100,6 +100,9 @@ private:
 
 void UiAirspyTests::initTestCase()
 {
+#ifndef HAVE_AIRSPY
+    QSKIP("Built without Airspy support (CMake option AIRSPY)");
+#endif
     hideDebugOutput();
     UiApp::writeSettings({
         {"device", 1}, // Airspy
