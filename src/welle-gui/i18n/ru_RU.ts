@@ -179,31 +179,31 @@
 <context>
     <name>CGUIHelper</name>
     <message>
-        <location filename="../gui_helper.cpp" line="+71"/>
-        <location line="+660"/>
+        <location filename="../gui_helper.cpp" line="+74"/>
+        <location line="+679"/>
         <source>Mi&amp;nimize</source>
         <translation type="unfinished">Св&amp;ернуть</translation>
     </message>
     <message>
-        <location line="-657"/>
-        <location line="+658"/>
+        <location line="-676"/>
+        <location line="+677"/>
         <source>Ma&amp;ximize</source>
         <translation type="unfinished">Ра&amp;звернуть</translation>
     </message>
     <message>
-        <location line="-655"/>
-        <location line="+656"/>
+        <location line="-674"/>
+        <location line="+675"/>
         <source>&amp;Restore</source>
         <translation type="unfinished">&amp;Восстановить</translation>
     </message>
     <message>
-        <location line="-653"/>
-        <location line="+654"/>
+        <location line="-672"/>
+        <location line="+673"/>
         <source>&amp;Quit</source>
         <translation type="unfinished">&amp;Выход</translation>
     </message>
     <message>
-        <location line="-538"/>
+        <location line="-557"/>
         <source>Git revision</source>
         <translation type="unfinished">Git ревизия</translation>
     </message>
@@ -237,7 +237,7 @@
 <context>
     <name>CRadioController</name>
     <message>
-        <location filename="../radio_controller.cpp" line="+709"/>
+        <location filename="../radio_controller.cpp" line="+723"/>
         <source>Unknown</source>
         <translation>Неизвестный</translation>
     </message>
@@ -248,7 +248,12 @@
         <translation>Нет каналов</translation>
     </message>
     <message>
-        <location line="-270"/>
+        <location line="-574"/>
+        <source>Error while opening device </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+304"/>
         <source>No receiver</source>
         <translation type="unfinished"></translation>
     </message>
@@ -280,13 +285,13 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../input/input_factory.cpp" line="+79"/>
+        <location filename="../../input/input_factory.cpp" line="+83"/>
         <source>No valid device found use Null device instead.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+2"/>
-        <location line="+43"/>
+        <location line="+46"/>
         <source>Error while opening device</source>
         <translation type="unfinished"></translation>
     </message>
@@ -315,6 +320,7 @@
         <location filename="../../input/airspy_sdr.cpp" line="+222"/>
         <location filename="../../input/rtl_sdr.cpp" line="+323"/>
         <location filename="../../input/rtl_tcp.cpp" line="+588"/>
+        <location filename="../../input/v4l2_sdr.cpp" line="+1040"/>
         <source>ADC overload. Maybe you are using a too high gain.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -361,6 +367,21 @@
     <message>
         <location line="+21"/>
         <source>Stopped</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../input/v4l2_sdr.cpp" line="-368"/>
+        <source>Error while opening the Linux SDR device. See log for details.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+41"/>
+        <source>The Linux SDR device is used by another program.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+114"/>
+        <source>The Linux SDR device is unplugged.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1560,7 +1581,7 @@
 <context>
     <name>ReceiverSettings</name>
     <message>
-        <location filename="../QML/settings/ReceiverSettings.qml" line="+117"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="+119"/>
         <source>Receiver</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1853,7 +1874,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/settings/ReceiverSettings.qml" line="-112"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="-114"/>
         <source>None</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1883,6 +1904,11 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location line="+1"/>
+        <source>Linux SDR (V4L2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../QML/settings/devices/AirspySettings.qml" line="+7"/>
         <source>Linearity</source>
         <translation type="unfinished"></translation>
@@ -1895,6 +1921,11 @@
     <message>
         <location line="+1"/>
         <source>Hybrid (tuner AGC)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QML/settings/devices/V4L2Settings.qml" line="+51"/>
+        <source>First found</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2235,6 +2266,25 @@ Select a station to start playback.</source>
     <message>
         <location line="+8"/>
         <source>Display station name in the window title</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>V4L2Settings</name>
+    <message>
+        <location filename="../QML/settings/devices/V4L2Settings.qml" line="-16"/>
+        <source>Linux SDR settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+40"/>
+        <location line="+13"/>
+        <source>Device</source>
+        <translation type="unfinished">Устройство</translation>
+    </message>
+    <message>
+        <location line="-12"/>
+        <source>Receivers with a Linux kernel driver, e.g. rtl2832_sdr or airspy</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

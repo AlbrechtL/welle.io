@@ -44,6 +44,9 @@
 #include "input_factory.h"
 #include "raw_file.h"
 #include "rtl_tcp.h"
+#ifdef HAVE_V4L2_SDR
+#include "v4l2_sdr.h"
+#endif
 
 #define AUDIOBUFFERSIZE 32768
 
@@ -157,6 +160,17 @@ CDeviceID CRadioController::openDevice(CDeviceID deviceId, bool force, QVariant 
             RTL_TCP_Client->setServerAddress(param1.toString().toStdString());
             RTL_TCP_Client->setPort(param2.toInt());
         }
+
+#ifdef HAVE_V4L2_SDR
+        // The chosen Linux kernel SDR device, otherwise the first one
+        if (device->getID() == CDeviceID::V4L2 && !param1.toString().isEmpty()) {
+            CV4L2Sdr* v4l2 = static_cast<CV4L2Sdr*>(device.get());
+            if (!v4l2->selectDevice(param1.toString().toStdString())) {
+                setErrorMessage(tr("Error while opening device ") + param1.toString());
+                device.reset(CInputFactory::GetDevice(*this, CDeviceID::NULLDEVICE));
+            }
+        }
+#endif
 
         // Set rtl_tcp settings
         if (device->getID() == CDeviceID::RAWFILE) {

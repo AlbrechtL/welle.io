@@ -41,6 +41,9 @@
 #include "msc-handler.h"
 #include "version.h"
 #include "waterfallitem.h"
+#ifdef HAVE_V4L2_SDR
+#include "v4l2_sdr.h"
+#endif
 
 /**
   *	We use the creation function merely to set up the
@@ -622,6 +625,25 @@ void CGUIHelper::setClockSourceSoapySdr(QString text)
 void CGUIHelper::openRtlTcp(QString serverAddress, int IpPort, bool force)
 {
     radioController->openDevice(CDeviceID::RTL_TCP, force, serverAddress, IpPort);
+}
+
+void CGUIHelper::openV4l2(QString path)
+{
+    radioController->openDevice(CDeviceID::V4L2, true, path);
+}
+
+QVariantList CGUIHelper::v4l2Devices() const
+{
+    QVariantList devices;
+#ifdef HAVE_V4L2_SDR
+    for (const auto& info : CV4L2Sdr::listDevices()) {
+        QVariantMap device;
+        device["path"] = QString::fromStdString(info.path);
+        device["label"] = QString::fromStdString(info.card + " (" + info.path + ")");
+        devices.append(device);
+    }
+#endif
+    return devices;
 }
 
 void CGUIHelper::openRawFile(QString fileFormat)

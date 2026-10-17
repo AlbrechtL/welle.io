@@ -105,6 +105,10 @@ public:
     Q_INVOKABLE void setDriverArgsSoapySdr(QString text);
     Q_INVOKABLE void setClockSourceSoapySdr(QString text);
     Q_INVOKABLE void openRtlTcp(QString serverAddress, int IpPort, bool force);
+    // Linux kernel SDR: path empty for the first device that can be used
+    Q_INVOKABLE void openV4l2(QString path);
+    // The Linux kernel SDR devices, each with "path" and "label"
+    Q_INVOKABLE QVariantList v4l2Devices() const;
     Q_INVOKABLE void openRawFile(QString fileFormat);
     Q_INVOKABLE void openRawFile(QString filename, QString fileFormat);
     Q_INVOKABLE const QByteArray getInfoPage(QString pageName);

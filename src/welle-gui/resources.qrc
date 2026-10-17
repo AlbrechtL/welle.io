@@ -50,6 +50,7 @@
         <file>QML/settings/devices/RTLTCPSettings.qml</file>
         <file>QML/settings/devices/RawFileSettings.qml</file>
         <file>QML/settings/devices/SoapySDRSettings.qml</file>
+        <file>QML/settings/devices/V4L2Settings.qml</file>
         <file>icons/welle_io_icons/index.theme</file>
         <file>icons/welle_io_icons/scalable/add.svg</file>
         <file>icons/welle_io_icons/scalable/antenna.svg</file>

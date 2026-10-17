@@ -123,6 +123,7 @@ nav:
       - rtl_tcp: devices/rtl_tcp.md
       - SoapySDR: devices/soapysdr.md
       - Raw files: devices/rawfile.md
+      - Linux SDR (V4L2): devices/v4l2.md
   - Development:
       - development/index.md
       - Building: development/building.md
@@ -133,6 +134,7 @@ nav:
           - Backend implementation remarks: development/backend-implementation-remarks.md
           - Station logos (SPI): development/spi-station-logos.md
           - Multiplex reconfiguration: development/multiplex-reconfiguration.md
+          - Linux kernel SDR input: development/v4l2-sdr.md
   - About:
       - About welle.io: info.md
       - Contact: contact.md

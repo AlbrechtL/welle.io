@@ -179,57 +179,57 @@
 <context>
     <name>CGUIHelper</name>
     <message>
-        <location filename="../gui_helper.cpp" line="71"/>
-        <location filename="../gui_helper.cpp" line="731"/>
+        <location filename="../gui_helper.cpp" line="74"/>
+        <location filename="../gui_helper.cpp" line="753"/>
         <source>Mi&amp;nimize</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui_helper.cpp" line="74"/>
-        <location filename="../gui_helper.cpp" line="732"/>
+        <location filename="../gui_helper.cpp" line="77"/>
+        <location filename="../gui_helper.cpp" line="754"/>
         <source>Ma&amp;ximize</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui_helper.cpp" line="77"/>
-        <location filename="../gui_helper.cpp" line="733"/>
+        <location filename="../gui_helper.cpp" line="80"/>
+        <location filename="../gui_helper.cpp" line="755"/>
         <source>&amp;Restore</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui_helper.cpp" line="80"/>
-        <location filename="../gui_helper.cpp" line="734"/>
+        <location filename="../gui_helper.cpp" line="83"/>
+        <location filename="../gui_helper.cpp" line="756"/>
         <source>&amp;Quit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui_helper.cpp" line="195"/>
+        <location filename="../gui_helper.cpp" line="198"/>
         <source>welle.io version</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui_helper.cpp" line="204"/>
+        <location filename="../gui_helper.cpp" line="207"/>
         <source>Built on</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui_helper.cpp" line="329"/>
+        <location filename="../gui_helper.cpp" line="332"/>
         <source>The program will keep running in the system tray. To terminate the program, choose &quot;%1&quot; in the context menu of the system tray entry.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui_helper.cpp" line="334"/>
+        <location filename="../gui_helper.cpp" line="337"/>
         <source>Quit</source>
         <extracomment>&quot;Quit&quot; translation should be the same as the one of system tray</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui_helper.cpp" line="196"/>
+        <location filename="../gui_helper.cpp" line="199"/>
         <source>Git revision</source>
         <translation type="unfinished">Git revízió</translation>
     </message>
     <message>
-        <location filename="../gui_helper.cpp" line="205"/>
+        <location filename="../gui_helper.cpp" line="208"/>
         <source>QT version</source>
         <translation type="unfinished">QT verzió</translation>
     </message>
@@ -237,60 +237,65 @@
 <context>
     <name>CRadioController</name>
     <message>
-        <location filename="../radio_controller.cpp" line="709"/>
+        <location filename="../radio_controller.cpp" line="723"/>
         <source>Unknown</source>
         <translation type="unfinished">Ismeretlen</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="506"/>
-        <location filename="../radio_controller.cpp" line="729"/>
+        <location filename="../radio_controller.cpp" line="520"/>
+        <location filename="../radio_controller.cpp" line="743"/>
         <source>No Station</source>
         <translation type="unfinished">Nincs állomás</translation>
     </message>
     <message>
         <location filename="../radio_controller.cpp" line="169"/>
+        <source>Error while opening device </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../radio_controller.cpp" line="183"/>
         <source>Error while opening file </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="287"/>
+        <location filename="../radio_controller.cpp" line="301"/>
         <source>Playback failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="308"/>
+        <location filename="../radio_controller.cpp" line="322"/>
         <source>Stopped</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="459"/>
+        <location filename="../radio_controller.cpp" line="473"/>
         <source>No receiver</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="468"/>
+        <location filename="../radio_controller.cpp" line="482"/>
         <source>RAW File</source>
         <translation type="unfinished">RAW Fájl</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="482"/>
-        <location filename="../radio_controller.cpp" line="999"/>
+        <location filename="../radio_controller.cpp" line="496"/>
+        <location filename="../radio_controller.cpp" line="1013"/>
         <source>Scanning</source>
         <translation type="unfinished">Keresés</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="486"/>
-        <location filename="../radio_controller.cpp" line="1024"/>
+        <location filename="../radio_controller.cpp" line="500"/>
+        <location filename="../radio_controller.cpp" line="1038"/>
         <source>Found channels</source>
         <translation type="unfinished">Megtalált állomások</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="703"/>
+        <location filename="../radio_controller.cpp" line="717"/>
         <source>Playing last station</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="779"/>
+        <location filename="../radio_controller.cpp" line="793"/>
         <source>Radio device is not ready or does not exist.</source>
         <translation type="unfinished">A rádióvevő nem áll készen vagy nincs.</translation>
     </message>
@@ -300,13 +305,13 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../input/input_factory.cpp" line="79"/>
+        <location filename="../../input/input_factory.cpp" line="83"/>
         <source>No valid device found use Null device instead.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../input/input_factory.cpp" line="81"/>
-        <location filename="../../input/input_factory.cpp" line="124"/>
+        <location filename="../../input/input_factory.cpp" line="85"/>
+        <location filename="../../input/input_factory.cpp" line="131"/>
         <source>Error while opening device</source>
         <translation type="unfinished">Hiba az eszköz megnyitásakor</translation>
     </message>
@@ -340,6 +345,7 @@
         <location filename="../../input/airspy_sdr.cpp" line="399"/>
         <location filename="../../input/rtl_sdr.cpp" line="323"/>
         <location filename="../../input/rtl_tcp.cpp" line="588"/>
+        <location filename="../../input/v4l2_sdr.cpp" line="1040"/>
         <source>ADC overload. Maybe you are using a too high gain.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -361,6 +367,21 @@
     <message>
         <location filename="../../input/soapy_sdr.cpp" line="109"/>
         <source>Could not load SoapySDR with provided device arguments.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../input/v4l2_sdr.cpp" line="672"/>
+        <source>Error while opening the Linux SDR device. See log for details.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../input/v4l2_sdr.cpp" line="713"/>
+        <source>The Linux SDR device is used by another program.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../input/v4l2_sdr.cpp" line="827"/>
+        <source>The Linux SDR device is unplugged.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1480,39 +1501,39 @@
 <context>
     <name>ReceiverSettings</name>
     <message>
-        <location filename="../QML/settings/ReceiverSettings.qml" line="117"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="119"/>
         <source>Receiver</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/settings/ReceiverSettings.qml" line="169"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="171"/>
         <source>Automatic RF gain</source>
         <translation type="unfinished">Automatikus RF erősítés</translation>
     </message>
     <message>
-        <location filename="../QML/settings/ReceiverSettings.qml" line="180"/>
-        <location filename="../QML/settings/ReceiverSettings.qml" line="200"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="182"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="202"/>
         <source>Manual gain</source>
         <translation type="unfinished">Kézi RF erősítés</translation>
     </message>
     <message>
-        <location filename="../QML/settings/ReceiverSettings.qml" line="181"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="183"/>
         <source>Value: </source>
         <translation type="unfinished">Érték:</translation>
     </message>
     <message>
-        <location filename="../QML/settings/ReceiverSettings.qml" line="122"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="124"/>
         <source>Auto detect</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/settings/ReceiverSettings.qml" line="123"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="125"/>
         <source>Use the first receiver that is found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/settings/ReceiverSettings.qml" line="132"/>
-        <location filename="../QML/settings/ReceiverSettings.qml" line="162"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="134"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="164"/>
         <source>Input device</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1797,6 +1818,11 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="56"/>
+        <source>Linux SDR (V4L2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../QML/settings/devices/AirspySettings.qml" line="68"/>
         <source>Linearity</source>
         <translation type="unfinished"></translation>
@@ -1809,6 +1835,11 @@
     <message>
         <location filename="../QML/settings/devices/AirspySettings.qml" line="70"/>
         <source>Hybrid (tuner AGC)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QML/settings/devices/V4L2Settings.qml" line="51"/>
+        <source>First found</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2149,6 +2180,25 @@ Select a station to start playback.</source>
     <message>
         <location filename="../QML/settings/StationSettings.qml" line="58"/>
         <source>Display station name in the window title</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>V4L2Settings</name>
+    <message>
+        <location filename="../QML/settings/devices/V4L2Settings.qml" line="35"/>
+        <source>Linux SDR settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QML/settings/devices/V4L2Settings.qml" line="75"/>
+        <location filename="../QML/settings/devices/V4L2Settings.qml" line="88"/>
+        <source>Device</source>
+        <translation type="unfinished">Eszköz</translation>
+    </message>
+    <message>
+        <location filename="../QML/settings/devices/V4L2Settings.qml" line="76"/>
+        <source>Receivers with a Linux kernel driver, e.g. rtl2832_sdr or airspy</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -19,13 +19,17 @@
  */
 
 // gui.ui.devices: the input device box lists only the devices of this build
-// (CMake options AIRSPY, RTLSDR, SOAPYSDR). A saved device the build doesn't
-// support is shown as "None" and kept until another device is chosen. Needs
-// no recording and no receiver.
+// (CMake options AIRSPY, RTLSDR, SOAPYSDR, V4L2_SDR). A saved device the
+// build doesn't support is shown as "None" and kept until another device is
+// chosen. The Linux kernel SDR device has its own device list. Needs no
+// recording and no receiver.
 
 #include "gui_test_main.h"
 #include "radio_controller.h"
 #include "ui_test_case.h"
+#ifdef HAVE_V4L2_SDR
+#include "v4l2_sdr.h"
+#endif
 
 class UiDevicesTests : public UiTestCase
 {
@@ -36,6 +40,7 @@ private slots:
 
     void listsCompiledInDevices();
     void showsUnavailableDeviceAsNone();
+    void choosesLinuxSdrDevice();
 
 private:
     // Labels of the device box in this build
@@ -52,6 +57,9 @@ private:
         devices << "SoapySDR";
 #endif
         devices << "rtl-tcp" << "RAW file";
+#ifdef HAVE_V4L2_SDR
+        devices << "Linux SDR (V4L2)";
+#endif
         return devices;
     }
     bool openSettings()
@@ -143,6 +151,54 @@ void UiDevicesTests::showsUnavailableDeviceAsNone()
     QVERIFY(closeSettings());
 
     qInfo() << "Unavailable device shown as None, rtl-tcp chosen and kept";
+}
+
+void UiDevicesTests::choosesLinuxSdrDevice()
+{
+#ifndef HAVE_V4L2_SDR
+    QSKIP("Built without Linux kernel SDR support (CMake option V4L2_SDR)");
+#else
+    // Without a device (e.g. CI) the Null device is used
+    const auto devices = CV4L2Sdr::listDevices();
+    const CDeviceID expectedId = devices.empty() ? CDeviceID::NULLDEVICE : CDeviceID::V4L2;
+
+    QVERIFY(openSettings());
+    QVERIFY(openDeviceBox());
+    const QString item = "comboItem." + QString::number(compiledInDevices().indexOf("Linux SDR (V4L2)"));
+    QCOMPARE(app.text(item), QString("Linux SDR (V4L2)"));
+    QVERIFY(app.click(item));
+    UiApp::settle();
+    QCOMPARE(savedDevice(), 6);
+    QCOMPARE(deviceSettingsPage(), QString("V4L2Settings.qml"));
+    QVERIFY(app.waitVisible("v4l2Settings"));
+    QTRY_COMPARE(deviceId(), expectedId);
+
+    // "First found" and the devices of the system
+    QCOMPARE(app.property("setting.v4l2Device", "displayText").toString(), QString("First found"));
+    QVERIFY(app.click("setting.v4l2Device"));
+    UiApp::settle(); // Popup animation
+    QVERIFY(app.waitVisible("comboItem.0"));
+    QStringList shown;
+    for (int i = 0; app.isVisible("comboItem." + QString::number(i)); i++)
+        shown << app.text("comboItem." + QString::number(i));
+    QCOMPARE(shown.size(), int(devices.size()) + 1);
+    QCOMPARE(shown.first(), QString("First found"));
+    app.screenshot("v4l2-device-box");
+    app.key(Qt::Key_Escape);
+    QVERIFY(app.waitHidden("comboItem.0"));
+    QVERIFY(closeSettings());
+
+    // Kept after a restart
+    QVERIFY(app.restart());
+    QTRY_COMPARE(deviceId(), expectedId);
+    QVERIFY(openSettings());
+    QCOMPARE(app.property("setting.device", "displayText").toString(), QString("Linux SDR (V4L2)"));
+    QVERIFY(app.waitVisible("v4l2Settings"));
+    QCOMPARE(savedDevice(), 6);
+    QVERIFY(closeSettings());
+
+    qInfo() << "Linux SDR devices:" << shown.join(", ");
+#endif
 }
 
 WELLE_GUI_TEST_MAIN(UiDevicesTests)
