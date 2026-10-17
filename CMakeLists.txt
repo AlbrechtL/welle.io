@@ -274,6 +274,7 @@ set(backend_sources
     src/various/Socket.cpp
     src/various/Xtan2.cpp
     src/various/channels.cpp
+    src/various/library_versions.cpp
     src/various/fft.cpp
     src/various/profiling.cpp
     src/various/wavfile.c

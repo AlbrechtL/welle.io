@@ -136,6 +136,7 @@ HEADERS += \
     $$PWD/various/ringbuffer.h \
     $$PWD/various/Xtan2.h \
     $$PWD/various/channels.h \
+    $$PWD/various/library_versions.h \
     $$PWD/various/wavfile.h \
     $$PWD/various/Socket.h \
     $$PWD/various/MathHelper.h \
@@ -184,6 +185,7 @@ SOURCES += \
     $$PWD/backend/viterbi.cpp \
     $$PWD/various/Xtan2.cpp \
     $$PWD/various/channels.cpp \
+    $$PWD/various/library_versions.cpp \
     $$PWD/various/fft.cpp \
     $$PWD/various/wavfile.c \
     $$PWD/various/Socket.cpp \
