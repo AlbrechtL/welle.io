@@ -129,6 +129,27 @@ CVirtualInput *CInputFactory::GetDevice(RadioControllerInterface &radioControlle
     return InputDevice;
 }
 
+std::vector<CDeviceID> CInputFactory::GetAvailableDevices()
+{
+    std::vector<CDeviceID> devices = {CDeviceID::NULLDEVICE, CDeviceID::RTL_TCP, CDeviceID::RAWFILE};
+#ifdef HAVE_AIRSPY
+    devices.push_back(CDeviceID::AIRSPY);
+#endif
+#ifdef HAVE_RTLSDR
+    devices.push_back(CDeviceID::RTL_SDR);
+#endif
+#ifdef HAVE_SOAPYSDR
+    devices.push_back(CDeviceID::SOAPYSDR);
+#endif
+#ifdef HAVE_LIMESDR
+    devices.push_back(CDeviceID::LIMESDR);
+#endif
+#ifdef __ANDROID__
+    devices.push_back(CDeviceID::ANDROID_RTL_SDR);
+#endif
+    return devices;
+}
+
 CVirtualInput* CInputFactory::GetAutoDevice(RadioControllerInterface& radioController)
 {
     (void)radioController;

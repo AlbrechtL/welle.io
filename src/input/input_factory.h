@@ -30,6 +30,7 @@
 #define CINPUTFACTORY_H
 
 #include <string>
+#include <vector>
 
 #include "virtual_input.h"
 #include "radio-controller.h"
@@ -39,6 +40,8 @@ class CInputFactory
 public:
     static CVirtualInput* GetDevice(RadioControllerInterface& radioController, const std::string& Device);
     static CVirtualInput* GetDevice(RadioControllerInterface& radioController, const CDeviceID deviceId);
+    // The devices this build supports, i.e. that GetDevice() can open
+    static std::vector<CDeviceID> GetAvailableDevices();
 
 private:
     static CVirtualInput* GetAutoDevice(RadioControllerInterface& radioController);
