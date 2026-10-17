@@ -53,23 +53,126 @@ Ubuntu 24.04).
 
 ## Windows 11
 
-This section shows how to compile welle.io on Windows 11. Windows 10 should
-also work but is not tested.
+This section shows how to compile welle.io on Windows 11 (x86_64) with
+qmake and the MinGW compiler that comes with Qt. This is the same build that
+GitHub Actions uses for the Windows installer
+(`.github/workflows/windows.yml`). Windows 10 should also work but is not
+tested. The examples use Qt 6.12.0 in `C:\Qt`; replace the version with the
+one you have installed.
 
-1. Install Qt with the
-   [Qt online installer](https://www.qt.io/download-qt-installer-oss). It is
-   recommended to use the newest Qt version. Besides Qt you need the
-   additional Qt libraries:
-    * Qt Charts
-    * Qt Multimedia
-2. Clone welle.io <https://github.com/AlbrechtL/welle.io.git>, e.g. with
-   [TortoiseGit](https://tortoisegit.org).
-3. Clone the welle.io Windows libraries
-   <https://github.com/AlbrechtL/welle.io-win-libs.git>.
-4. Start Qt Creator and open the project file `welle.io.pro` in the folder
-   `welle.io`.
-5. Build welle.io
-6. Run welle.io and enjoy it
+!!! note "CMake on Windows"
+    The [CMake](#cmake) build is not set up for Windows: it needs a faad2
+    library, which the Windows libraries below don't contain. Use qmake.
+
+### Install the tools
+
+1. Install [Git for Windows](https://git-scm.com/download/win) (or
+   [TortoiseGit](https://tortoisegit.org)).
+2. Install Qt with the
+   [Qt online installer](https://www.qt.io/download-qt-installer-oss). Select
+   these components:
+    * *Qt → Qt 6.12.0 → MinGW 13.1.0 64-bit*
+    * *Qt → Qt 6.12.0 → Additional Libraries → Qt Charts*
+    * *Qt → Qt 6.12.0 → Additional Libraries → Qt Multimedia*
+    * *Qt → Qt 6.12.0 → Qt Shader Tools*
+    * *Qt → Developer and Designer Tools → MinGW 13.1.0 64-bit* (the
+      compiler)
+    * *Qt → Developer and Designer Tools → Qt Creator* (optional)
+
+    You can add missing components later with the *Qt Maintenance Tool*
+    (`C:\Qt\MaintenanceTool.exe`). MSVC is not supported, because the
+    Windows libraries are made for MinGW.
+
+### Get the source code
+
+Clone welle.io and the
+[welle.io Windows libraries](https://github.com/AlbrechtL/welle.io-win-libs)
+(FFTW, libusb, rtl-sdr, Airspy, mpg123, LAME) **into the same folder**:
+
+```powershell
+cd $env:USERPROFILE\Documents\src
+git clone https://github.com/AlbrechtL/welle.io.git
+git clone https://github.com/AlbrechtL/welle.io-win-libs.git
+```
+
+The result must look like this:
+
+```text
+src\
+├── welle.io\
+└── welle.io-win-libs\
+```
+
+!!! warning "Build directory"
+    The project files find `welle.io-win-libs` with relative paths. The
+    build directory must therefore be **two levels below** `welle.io`, e.g.
+    `welle.io\build\release`. Otherwise linking fails with errors like
+    `cannot find -lfftw3f-3`.
+
+### Build with Qt Creator
+
+1. Start Qt Creator and open `welle.io\welle.io.pro`.
+2. Select the kit *Desktop Qt 6.12.0 MinGW 64-bit* and keep the default
+   build directory (`welle.io\build\Desktop_Qt_6_12_0_MinGW_64_bit-Release`
+   or similar, which is two levels deep).
+3. Add the folder with the Windows libraries to the run environment, so that
+   welle.io finds their DLLs: *Projects → Run → Environment → PATH → Edit*,
+   append `;C:\Users\<you>\Documents\src\welle.io-win-libs\x64`.
+4. Build and run welle.io (*Ctrl+R*).
+
+### Build on the command line
+
+The commands are for PowerShell, the default shell of Windows 11.
+
+1. Open PowerShell and put Qt and the MinGW compiler on the `PATH` (this
+   applies to this PowerShell window only)
+
+    ```powershell
+    $env:PATH = "C:\Qt\6.12.0\mingw_64\bin;C:\Qt\Tools\mingw1310_64\bin;$env:PATH"
+    ```
+
+2. Build welle.io
+
+    ```powershell
+    cd $env:USERPROFILE\Documents\src\welle.io
+    mkdir build\release
+    cd build\release
+    qmake ..\..
+    mingw32-make -j8
+    ```
+
+    The program is `build\release\src\welle-gui\release\welle-io.exe`.
+
+3. Run it with the DLLs of the Windows libraries on the `PATH`
+
+    ```powershell
+    $env:PATH = "$env:USERPROFILE\Documents\src\welle.io-win-libs\x64;$env:PATH"
+    .\src\welle-gui\release\welle-io.exe
+    ```
+
+### Make a folder that runs without Qt
+
+To run welle.io on a computer without Qt, copy the program, the Windows
+libraries and the Qt files it needs into one folder (this is what the
+installer contains):
+
+```powershell
+mkdir deploy
+Copy-Item src\welle-gui\release\welle-io.exe deploy
+Copy-Item ..\..\..\welle.io-win-libs\x64\*.dll deploy
+windeployqt deploy\welle-io.exe --qmldir ..\..\src\welle-gui\QML --no-translations
+Copy-Item C:\Qt\6.12.0\mingw_64\bin\libgcc_s_seh-1.dll deploy
+Copy-Item C:\Qt\6.12.0\mingw_64\bin\libwinpthread-1.dll deploy
+Copy-Item C:\Qt\6.12.0\mingw_64\bin\libstdc++-6.dll deploy
+```
+
+The last three lines replace MinGW runtime DLLs that `windeployqt` sometimes
+takes from the wrong place. The installer itself is built with
+[Inno Setup](https://jrsoftware.org/isinfo.php) from `windows_installer.iss`;
+see `.github/workflows/windows.yml` for the exact steps.
+
+To receive with an rtl-sdr stick, Windows needs the WinUSB driver, see
+[rtl-sdr](../devices/rtl_sdr.md#windows-set-up).
 
 ## macOS
 
@@ -155,10 +258,10 @@ line tool that does not require Qt.
         "Qt6"`. Tell CMake where Qt is installed by setting
         `CMAKE_PREFIX_PATH` to the kit directory
         (`<Qt install dir>/<version>/<kit>`). The default install directory
-        is `~/Qt` (Linux and macOS) or `C:\Qt` (Windows).
+        is `~/Qt`. (On Windows, use qmake, see [Windows 11](#windows-11).)
 
         Make sure the following components are selected in the installer for
-        your Qt version: *Desktop (gcc_64 / macOS / MSVC or MinGW)*,
+        your Qt version: *Desktop (gcc_64 / macOS)*,
         *Qt Multimedia* and *Qt Charts* (under *Additional Libraries*). You
         can add missing components later with the *Qt Maintenance Tool*.
 
@@ -172,14 +275,6 @@ line tool that does not require Qt.
 
             ```sh
             cmake .. -DCMAKE_PREFIX_PATH=$HOME/Qt/6.12.0/macos
-            ```
-
-        === "Windows (MinGW)"
-
-            Run in the *Qt 6.12.0 (MinGW)* command prompt:
-
-            ```bat
-            cmake .. -G "MinGW Makefiles" -DCMAKE_PREFIX_PATH=C:\Qt\6.12.0\mingw_64
             ```
 
         Alternatively set the environment variable once:
