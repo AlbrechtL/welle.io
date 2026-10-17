@@ -62,6 +62,24 @@ add_executable(tst_coarse_frequency unit/tst_coarse_frequency.cpp)
 target_link_libraries(tst_coarse_frequency PRIVATE welle_test_common Qt6::Test)
 add_test(NAME unit.coarse_frequency COMMAND tst_coarse_frequency)
 
+if(HAVE_V4L2_SDR)
+    add_executable(tst_real_iq_converter unit/tst_real_iq_converter.cpp)
+    target_link_libraries(tst_real_iq_converter PRIVATE welle_test_common Qt6::Test)
+    add_test(NAME unit.real_iq_converter COMMAND tst_real_iq_converter)
+
+    add_executable(tst_v4l2_formats unit/tst_v4l2_formats.cpp)
+    target_link_libraries(tst_v4l2_formats PRIVATE welle_test_common Qt6::Test)
+    add_test(NAME unit.v4l2_formats COMMAND tst_v4l2_formats)
+
+    set_tests_properties(unit.real_iq_converter unit.v4l2_formats PROPERTIES LABELS unit)
+
+    # Real devices, only with WELLE_TEST_V4L2=1 (otherwise skipped)
+    add_executable(tst_v4l2_device hw/tst_v4l2_device.cpp)
+    target_link_libraries(tst_v4l2_device PRIVATE welle_test_common Qt6::Test)
+    add_test(NAME hw.v4l2 COMMAND tst_v4l2_device)
+    set_tests_properties(hw.v4l2 PROPERTIES LABELS hw)
+endif()
+
 add_executable(rstest ${CMAKE_SOURCE_DIR}/src/libs/fec/test/rstest.c)
 target_link_libraries(rstest PRIVATE welle)
 add_test(NAME unit.reed_solomon COMMAND rstest)
@@ -240,4 +258,13 @@ if(TARGET welle-io)
         string(REPLACE "tst_" "" name "${name}")
         add_gui_test(${name} ${source})
     endforeach()
+
+    # Tests that may open a real receiver must not run at the same time:
+    # libairspy (gui.ui.airspy) takes the Airspy away from its kernel driver
+    # while the Linux SDR input (gui.ui.devices, hw.v4l2) streams from it
+    set(receiver_tests gui.ui.airspy gui.ui.devices)
+    if(HAVE_V4L2_SDR)
+        list(APPEND receiver_tests hw.v4l2)
+    endif()
+    set_tests_properties(${receiver_tests} PROPERTIES RESOURCE_LOCK receiver)
 endif()

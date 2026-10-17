@@ -17,6 +17,7 @@ unix:!macx:!android: {
     CONFIG  += airspy
     CONFIG  += rtl_sdr
     CONFIG  += soapysdr
+    CONFIG  += v4l2_sdr
 #    CONFIG  += limesdr // Experimental
 
 #    CONFIG  += mpg123_builtin
@@ -329,6 +330,13 @@ rtl_sdr {
 
     # The same lib for unix and Windows
     LIBS       += -lrtlsdr
+}
+
+# Linux kernel SDR interface, needs only the kernel headers
+v4l2_sdr {
+    DEFINES    += HAVE_V4L2_SDR
+    HEADERS    += $$PWD/input/v4l2_sdr.h
+    SOURCES    += $$PWD/input/v4l2_sdr.cpp
 }
 
 soapysdr {

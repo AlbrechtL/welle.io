@@ -39,7 +39,7 @@
 #include "ringbuffer.h"
 
 enum class CDeviceID {
-    UNKNOWN, NULLDEVICE, AIRSPY, RAWFILE, RTL_SDR, RTL_TCP, SOAPYSDR, ANDROID_RTL_SDR, LIMESDR};
+    UNKNOWN, NULLDEVICE, AIRSPY, RAWFILE, RTL_SDR, RTL_TCP, SOAPYSDR, ANDROID_RTL_SDR, LIMESDR, V4L2};
 
 class CVirtualInput : public InputInterface {
 public:

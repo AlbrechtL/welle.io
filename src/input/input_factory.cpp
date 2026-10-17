@@ -60,6 +60,10 @@
 #include "android_rtl_sdr.h"
 #endif
 
+#ifdef HAVE_V4L2_SDR
+#include "v4l2_sdr.h"
+#endif
+
 CVirtualInput *CInputFactory::GetDevice(RadioControllerInterface& radioController, const std::string& device)
 {
     CVirtualInput *InputDevice = nullptr;
@@ -110,6 +114,9 @@ CVirtualInput *CInputFactory::GetDevice(RadioControllerInterface &radioControlle
 #ifdef __ANDROID__
         case CDeviceID::ANDROID_RTL_SDR: InputDevice = new CAndroid_RTL_SDR(radioController); break;
 #endif
+#ifdef HAVE_V4L2_SDR
+        case CDeviceID::V4L2: InputDevice = new CV4L2Sdr(radioController); break;
+#endif
         case CDeviceID::NULLDEVICE: InputDevice = new CNullDevice(); break;
         default: throw std::runtime_error("unknown device ID " + std::string(__FILE__) +":"+ std::to_string(__LINE__));
         }
@@ -147,6 +154,9 @@ std::vector<CDeviceID> CInputFactory::GetAvailableDevices()
 #ifdef __ANDROID__
     devices.push_back(CDeviceID::ANDROID_RTL_SDR);
 #endif
+#ifdef HAVE_V4L2_SDR
+    devices.push_back(CDeviceID::V4L2);
+#endif
     return devices;
 }
 
@@ -156,7 +166,7 @@ CVirtualInput* CInputFactory::GetAutoDevice(RadioControllerInterface& radioContr
     CVirtualInput *inputDevice = nullptr;
 
     // Try to find a input device
-    for (int i = 0; i <= 3; i++) {
+    for (int i = 0; i <= 4; i++) {
         try {
             switch(i) {
 #ifdef HAVE_AIRSPY
@@ -170,6 +180,10 @@ CVirtualInput* CInputFactory::GetAutoDevice(RadioControllerInterface& radioContr
 #endif
 #ifdef __ANDROID__
             case 3: inputDevice = new CAndroid_RTL_SDR(radioController); break;
+#endif
+#ifdef HAVE_V4L2_SDR
+            // Last: only if no library could open a device
+            case 4: inputDevice = new CV4L2Sdr(radioController); break;
 #endif
             }
         }
@@ -217,6 +231,11 @@ CVirtualInput* CInputFactory::GetManualDevice(RadioControllerInterface& radioCon
 #ifdef __ANDROID__
         if (device == "android_rtl_sdr")
             InputDevice = new CAndroid_RTL_SDR(radioController);
+        else
+#endif
+#ifdef HAVE_V4L2_SDR
+        if (device == "v4l2")
+            InputDevice = new CV4L2Sdr(radioController);
         else
 #endif
         if (device == "rawfile")
