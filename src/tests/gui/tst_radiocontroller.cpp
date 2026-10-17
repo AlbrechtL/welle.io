@@ -53,6 +53,7 @@ private slots:
     void playsDabPlus();
     void switchDropsOldPad();
     void playsDab();
+    void switchesEnsemble();
     void stops();
 
 private:
@@ -202,6 +203,23 @@ void RadioControllerTests::playsDab()
     QCOMPARE(radioController->property("frameErrors").toInt(), 0);
 
     qInfo().noquote() << QString("Playing \"%1\": %2").arg(text("title"), text("audioMode"));
+}
+
+void RadioControllerTests::switchesEnsemble()
+{
+    // The station list's ensemble menu plays the same service on another
+    // channel. A RAW file plays whatever channel is asked for.
+    QSignalSpy audioModes(radioController.get(), &CRadioController::audioModeChanged);
+
+    radioController->play("5C", "DAB Test 1", sidDab);
+
+    // Reset, then decoded again by the new receiver
+    QTRY_VERIFY_WITH_TIMEOUT(audioModes.count() >= 2
+                             && audioModes.last().at(0).toString().startsWith("MPEG"), timeoutAudio);
+    QVERIFY(radioController->property("isPlaying").toBool());
+    QCOMPARE(radioController->property("service").toUInt(), sidDab);
+
+    qInfo().noquote() << QString("Playing \"%1\" again after the ensemble switch: %2").arg(text("title"), text("audioMode"));
 }
 
 void RadioControllerTests::stops()
