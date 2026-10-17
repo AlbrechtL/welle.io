@@ -32,6 +32,8 @@
  *
 */
 
+#include <algorithm>
+#include <chrono>
 #include <iostream>
 #include "airspy_sdr.h"
 
@@ -89,19 +91,21 @@ CAirspy::CAirspy(RadioControllerInterface &radioController) :
     std::clog << "Airspy: sample rate " << sampleRate << std::endl;
     resampler = std::make_unique<RationalResampler>(sampleRate, INPUT_RATE);
 
+    // The level is measured on the samples of the ADC. Measured with an
+    // Airspy Mini, the SNR doesn't improve any more above about -40 dBFS
+    // in all gain modes, and nothing clips up to the maximum gain; -25 dBFS
+    // keeps the gain in that range with about 20 dB headroom.
+    agc = std::make_unique<SoftwareAgc>(200, sampleRate, -25.0f);
+
     result = airspy_set_samplerate(device, sampleRate);
     if (result != AIRSPY_SUCCESS) {
         std::clog  << "Airspy: " <<"airspy_set_samplerate() failed: " << airspy_error_name((airspy_error)result) << "(" << result << ")" << std::endl;
         throw 0;
     }
 
-    if (sw_agc) {
-        setAgc(true);
-    }
-    else {
-        setAgc(false);
-        setGain(currentLinearityGain);
-    }
+    // Start in the middle of the gain range
+    currentGain = maxGainIndex() / 2;
+    applyGain(currentGain);
 
     running = false;
 
@@ -111,12 +115,9 @@ CAirspy::CAirspy(RadioControllerInterface &radioController) :
 CAirspy::~CAirspy(void)
 {
     if (device) {
-        int result = airspy_stop_rx(device);
-        if (result != AIRSPY_SUCCESS) {
-            std::clog  << "Airspy: airspy_stop_rx () failed: " << airspy_error_name((airspy_error)result) << "(" << result << ")" << std::endl;
-        }
+        stop();
 
-        result = airspy_close(device);
+        int result = airspy_close(device);
         if (result != AIRSPY_SUCCESS) {
             std::clog  << "Airspy: airspy_close () failed: " << airspy_error_name((airspy_error)result) << "(" << result << ")" << std::endl;
         }
@@ -133,6 +134,7 @@ void CAirspy::setFrequency(int nf)
     if (result != AIRSPY_SUCCESS) {
         std::clog  << "Airspy: airspy_set_freq() failed: " << airspy_error_name((airspy_error)result) << "(" << result << ")" << std::endl;
     }
+    agc->reset();
 }
 
 int CAirspy::getFrequency() const
@@ -162,6 +164,7 @@ bool CAirspy::restart(void)
     }
 
     running = true;
+    agcThread = std::thread(&CAirspy::agcTimerThread, this);
     return true;
 }
 
@@ -183,12 +186,16 @@ void CAirspy::stop(void)
 {
     if (!running)
         return;
+    running = false;
     int result = airspy_stop_rx(device);
 
     if (result != AIRSPY_SUCCESS) {
         std::clog  << "Airspy: airspy_stop_rx() failed: " << airspy_error_name((airspy_error)result) << "(" << result << ")" << std::endl;
     }
-    running = false;
+
+    if (agcThread.joinable()) {
+        agcThread.join();
+    }
 }
 
 int CAirspy::callback(airspy_transfer* transfer)
@@ -211,40 +218,11 @@ int CAirspy::callback(airspy_transfer* transfer)
 // wanted block.
 int CAirspy::data_available(const DSPCOMPLEX* buf, size_t num_samples)
 {
+    // Level measurement of the software AGC, on the samples of the ADC
+    agc->process(buf, num_samples);
+
     resampled.clear();
     const size_t count = resampler->process(buf, num_samples, resampled);
-
-    float maxnorm = 0;
-
-    for (size_t i = 0; i < count; i++) {
-        const auto z = resampled[i];
-
-        if (sw_agc and (num_frames % 10) == 0) {
-            if (norm(z) > maxnorm) {
-                maxnorm = norm(z);
-            }
-        }
-    }
-
-    if (sw_agc and (num_frames % 10) == 0) {
-        const float maxampl = sqrt(maxnorm);
-        //  std::clog  << "Airspy: maxampl: " << maxampl << std::endl;
-
-        if (maxampl > 0.2f) {
-            const int newgain = currentLinearityGain - 1;
-            if (newgain >= AIRSPY_GAIN_MIN) {
-                setGain(newgain);
-            }
-        }
-        else if (maxampl < 0.02f) {
-             const int newgain = currentLinearityGain + 1;
-            if (newgain <= AIRSPY_GAIN_MAX) {
-                setGain(newgain);
-            }
-        }
-    }
-
-    num_frames++;
 
     SampleBuffer.putDataIntoBuffer(resampled.data(), count);
     SpectrumSampleBuffer.putDataIntoBuffer(resampled.data(), count);
@@ -280,19 +258,15 @@ int32_t CAirspy::getSamplesToRead(void)
 
 int CAirspy::getGainCount()
 {
-    return 21;
+    return maxGainIndex();
 }
 
 void CAirspy::setAgc(bool agc)
 {
-    if (not agc) {
-        int result = airspy_set_linearity_gain(device, currentLinearityGain);
-        if (result != AIRSPY_SUCCESS)
-            std::clog  << "Airspy: airspy_set_mixer_agc() failed: " << airspy_error_name((airspy_error)result) << "(" << result << ")" << std::endl;
-
-    }
-
     sw_agc = agc;
+    if (not agc) {
+        applyGain(currentGain);
+    }
 }
 
 std::string CAirspy::getDescription()
@@ -321,6 +295,26 @@ bool CAirspy::setDeviceParam(DeviceParam param, int value)
             std::clog << "Airspy: Set bias tee to " << value << std::endl;
             airspy_set_rf_bias(device, value);
             return true;
+        case DeviceParam::AirspyGainMode:
+        {
+            const GainMode mode = value == 1 ? GainMode::Sensitivity :
+                value == 2 ? GainMode::Hybrid : GainMode::Linearity;
+            std::clog << "Airspy: Set gain mode to " << value << std::endl;
+            {
+                std::lock_guard<std::mutex> lock(gainMutex);
+                gainMode = mode;
+                // The linearity and sensitivity gains switch the AGC of LNA
+                // and mixer off themselves
+                if (mode == GainMode::Hybrid) {
+                    airspy_set_lna_agc(device, 1);
+                    airspy_set_mixer_agc(device, 1);
+                }
+            }
+            currentGain = maxGainIndex() / 2;
+            applyGain(currentGain);
+            agc->reset();
+            return true;
+        }
         default:
             return false;
     }
@@ -333,17 +327,78 @@ CDeviceID CAirspy::getID()
 
 float CAirspy::getGain() const
 {
-    return currentLinearityGain;
+    return currentGain;
 }
 
 float CAirspy::setGain(int gain)
 {
-    std::clog  << "Airspy: setgain: " << gain << std::endl;
-    currentLinearityGain = gain;
+    currentGain = std::max(0, std::min(gain, maxGainIndex()));
+    applyGain(currentGain);
+    return currentGain;
+}
 
-    int result = airspy_set_linearity_gain(device, currentLinearityGain);
-    if (result != AIRSPY_SUCCESS)
-        std::clog  << "Airspy: airspy_set_mixer_agc() failed: " << airspy_error_name((airspy_error)result) << "(" << result << ")" << std::endl;
+int CAirspy::maxGainIndex() const
+{
+    return gainMode == GainMode::Hybrid ? 15 : 21;
+}
 
-    return currentLinearityGain;
+std::vector<float> CAirspy::gainTableDb() const
+{
+    // Nominal steps; measured with an Airspy Mini 1.4 to 4.8 dB (linearity,
+    // sensitivity) and 3.3 to 3.7 dB (VGA). The AGC learns the real steps.
+    const float step = gainMode == GainMode::Hybrid ? 3.4f : 3.5f;
+    std::vector<float> table(maxGainIndex() + 1);
+    for (size_t i = 0; i < table.size(); i++) {
+        table[i] = i * step;
+    }
+    return table;
+}
+
+void CAirspy::applyGain(int index)
+{
+    std::lock_guard<std::mutex> lock(gainMutex);
+    index = std::max(0, std::min(index, maxGainIndex()));
+
+    int result;
+    switch (gainMode) {
+        case GainMode::Sensitivity:
+            result = airspy_set_sensitivity_gain(device, index);
+            break;
+        case GainMode::Hybrid:
+            result = airspy_set_vga_gain(device, index);
+            break;
+        default:
+            result = airspy_set_linearity_gain(device, index);
+    }
+    std::clog << "Airspy: Set gain to " << index << std::endl;
+    if (result != AIRSPY_SUCCESS) {
+        std::clog << "Airspy: Setting gain failed: " << airspy_error_name((airspy_error)result) << "(" << result << ")" << std::endl;
+    }
+
+    if (agc) {
+        agc->gainChanged();
+    }
+}
+
+// The gain is changed here and not in the USB callback: the USB control
+// transfers would block the reception
+void CAirspy::agcTimerThread()
+{
+    while (running) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
+        if (sw_agc) {
+            const int index = currentGain;
+            const int next = agc->nextGainIndex(gainTableDb(), index);
+            if (next != index) {
+                currentGain = next;
+                applyGain(next);
+            }
+        }
+        else if (agc->overloaded()) {
+            std::string text = QT_TRANSLATE_NOOP("CRadioController", "ADC overload. Maybe you are using a too high gain.");
+            std::clog << "Airspy: " << text << std::endl;
+            radioController.onMessage(message_level_t::Information, text);
+        }
+    }
 }

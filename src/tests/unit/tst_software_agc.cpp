@@ -160,6 +160,99 @@ private:
     size_t noiseIndex = 0;
 };
 
+// Airspy Mini at 3 MS/s, float samples: level (dBFS per component, raw) at
+// each gain index, measured on 11D and 5D (below index 6 the noise floor)
+const std::vector<float> airspyLinearity11D = { -64.5, -64.5, -64.5, -64.5,
+    -64.5, -64.5, -63.9, -63.1, -62.0, -60.3, -57.1, -52.8, -49.9, -45.7,
+    -41.2, -37.4, -34.5, -31.5, -27.0, -22.2, -17.6, -14.7 };
+const std::vector<float> airspyLinearity5D = { -64.6, -64.6, -64.6, -64.6,
+    -64.6, -64.6, -64.6, -64.5, -64.6, -64.1, -62.5, -59.5, -57.1, -53.0,
+    -48.7, -45.3, -42.4, -39.1, -34.7, -30.0, -25.3, -21.5 };
+const std::vector<float> airspyHybrid11D = { -62.7, -59.8, -56.7, -53.5,
+    -50.2, -46.8, -43.3, -40.0, -36.3, -32.8, -29.4, -25.8, -22.4, -18.8,
+    -15.7, -13.2 };
+const float airspyHighLevelDb = -25;
+
+// Airspy and the AGC thread of its input: buffers of 16384 samples, a
+// decision every 50 ms, a gain change takes effect after 100 ms
+class AirspySimulation {
+public:
+    AirspySimulation(const std::vector<float>& levels, float stepDb) :
+        agc(200, rate, airspyHighLevelDb),
+        levels(levels),
+        appliedIndex(levels.size() / 2),
+        commandedIndex(levels.size() / 2),
+        noise(1 << 20)
+    {
+        std::mt19937 rng(17);
+        std::normal_distribution<float> normal;
+        for (auto& n : noise)
+            n = normal(rng);
+        for (size_t i = 0; i < levels.size(); i++)
+            table.push_back(i * stepDb);
+    }
+
+    static constexpr int rate = 3000000;
+    static constexpr int bufferSamples = 16384;
+    double offsetDb = 0;    // change of the input level
+    SoftwareAgc agc;
+    int changes = 0;
+
+    // Runs the given time, returns the level (dBFS per component) of the
+    // last 500 ms
+    double run(double seconds)
+    {
+        const long buffers = seconds * rate / bufferSamples;
+        const long keep = rate / 2 / bufferSamples;
+        double power = 0;
+        std::vector<std::complex<float>> buf(bufferSamples);
+
+        for (long i = 0; i < buffers; i++) {
+            while (!pending.empty() && pending.front().first <= samples) {
+                appliedIndex = pending.front().second;
+                pending.pop_front();
+            }
+            const float sigma = std::pow(10.0, (levels[appliedIndex] + offsetDb) / 20);
+            double p = 0;
+            for (auto& z : buf) {
+                const float re = sigma * noise[noiseIndex++ & (noise.size() - 1)];
+                const float im = sigma * noise[noiseIndex++ & (noise.size() - 1)];
+                z = { re, im };
+                p += std::norm(z) / 2;
+            }
+            noiseIndex += 7919;
+            agc.process(buf.data(), buf.size());
+            if (i >= buffers - keep)
+                power += p / bufferSamples;
+
+            const long before = samples;
+            samples += bufferSamples;
+            if (samples / (rate / 20) != before / (rate / 20)) {
+                const int next = agc.nextGainIndex(table, commandedIndex);
+                if (next != commandedIndex) {
+                    commandedIndex = next;
+                    pending.emplace_back(samples + rate / 10, next);
+                    agc.gainChanged();
+                    changes++;
+                }
+            }
+        }
+        return 10 * std::log10(power / keep);
+    }
+
+    int gainIndex() const { return commandedIndex; }
+
+private:
+    std::vector<float> levels;
+    std::vector<float> table;
+    int appliedIndex;
+    int commandedIndex;
+    long samples = 0;
+    std::deque<std::pair<long, int>> pending;
+    std::vector<float> noise;
+    size_t noiseIndex = 0;
+};
+
 } // namespace
 
 class SoftwareAgcTests : public QObject
@@ -175,6 +268,8 @@ private slots:
     void learnsRealGainSteps();
     void reportsOverloadWithManualGain();
     void measuresFloatSamples();
+    void airspyFindsGainAndKeepsIt_data();
+    void airspyFindsGainAndKeepsIt();
 };
 
 void SoftwareAgcTests::findsGainAndKeepsIt_data()
@@ -345,6 +440,42 @@ void SoftwareAgcTests::measuresFloatSamples()
         samples[i] = { 1.0f, 0.0f };
     floatAgc.process(samples.data(), samples.size());
     QVERIFY(floatAgc.overloaded());
+}
+
+void SoftwareAgcTests::airspyFindsGainAndKeepsIt_data()
+{
+    QTest::addColumn<std::vector<float>>("levels");
+    QTest::addColumn<float>("stepDb");
+    QTest::addColumn<double>("offsetDb");
+
+    QTest::newRow("linearity 11D") << airspyLinearity11D << 3.5f << 0.0;
+    QTest::newRow("linearity 5D") << airspyLinearity5D << 3.5f << 0.0;
+    QTest::newRow("hybrid 11D") << airspyHybrid11D << 3.4f << 0.0;
+    QTest::newRow("linearity 11D, 3 dB weaker") << airspyLinearity11D << 3.5f << -3.0;
+}
+
+void SoftwareAgcTests::airspyFindsGainAndKeepsIt()
+{
+    QFETCH(std::vector<float>, levels);
+    QFETCH(float, stepDb);
+    QFETCH(double, offsetDb);
+
+    AirspySimulation sim(levels, stepDb);
+    sim.offsetDb = offsetDb;
+
+    // Within 6 s in the target range: at most one step and the hysteresis
+    // below the high level (the SNR doesn't improve above about -40 dBFS)
+    double level = sim.run(6);
+    QVERIFY2(level <= airspyHighLevelDb + 0.5 && level >= airspyHighLevelDb - 7,
+             qPrintable(QString("level %1 dBFS at gain %2").arg(level).arg(sim.gainIndex())));
+
+    // Then the gain stays
+    const int changesBefore = sim.changes;
+    level = sim.run(30);
+    QVERIFY2(sim.changes - changesBefore <= 1,
+             qPrintable(QString("%1 gain changes in 30 s").arg(sim.changes - changesBefore)));
+    QVERIFY2(level <= airspyHighLevelDb + 0.5 && level >= airspyHighLevelDb - 7,
+             qPrintable(QString("level %1 dBFS at gain %2").arg(level).arg(sim.gainIndex())));
 }
 
 QTEST_GUILESS_MAIN(SoftwareAgcTests)

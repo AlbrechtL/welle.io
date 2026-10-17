@@ -39,8 +39,12 @@
 #include "MathHelper.h"
 #include "ringbuffer.h"
 #include "rational_resampler.h"
+#include "software_agc.h"
 
+#include <atomic>
 #include <memory>
+#include <mutex>
+#include <thread>
 #include <vector>
 
 #ifndef __MINGW32__
@@ -55,6 +59,11 @@ enum class CAirspy_IOCTL {
 
 class CAirspy : public CVirtualInput {
 public:
+    // Which gain the software AGC and the manual gain control:
+    // linearity or sensitivity gain (0..21, LNA, mixer and VGA together),
+    // or hybrid: AGC of LNA and mixer in the tuner, VGA gain (0..15)
+    enum class GainMode { Linearity = 0, Sensitivity = 1, Hybrid = 2 };
+
     CAirspy(RadioControllerInterface& radioController);
     ~CAirspy(void);
     CAirspy(const CAirspy&) = delete;
@@ -82,16 +91,16 @@ private:
     RadioControllerInterface& radioController;
 
     int sampleRate = 4096000;
-    const int AIRSPY_GAIN_MIN = 0;
-    const int AIRSPY_GAIN_MAX = 21;
 
-    bool running = false;
+    std::atomic<bool> running{false};
     int freq = 0;
 
-    size_t num_frames = 0;
-
-    bool sw_agc = false;
-    int currentLinearityGain = 10;
+    std::atomic<bool> sw_agc{false};
+    std::atomic<GainMode> gainMode{GainMode::Linearity};
+    std::atomic<int> currentGain{10};   // index in the gain of gainMode
+    std::mutex gainMutex;
+    std::unique_ptr<SoftwareAgc> agc;
+    std::thread agcThread;
     std::unique_ptr<RationalResampler> resampler;
     std::vector<DSPCOMPLEX> resampled;
     RingBuffer<DSPCOMPLEX> SampleBuffer;
@@ -100,6 +109,11 @@ private:
 
     static int callback(airspy_transfer_t*);
     int data_available(const DSPCOMPLEX* buf, size_t num_samples);
+
+    int maxGainIndex() const;
+    std::vector<float> gainTableDb() const;
+    void applyGain(int index);
+    void agcTimerThread();
 };
 
 #endif

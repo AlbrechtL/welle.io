@@ -201,6 +201,7 @@ class DataServiceHandlerInterface {
 
 enum class DeviceParam {
     BiasTee,
+    AirspyGainMode,     // 0 linearity, 1 sensitivity, 2 hybrid (see CAirspy)
     SoapySDRAntenna,
     SoapySDRDriverArgs,
     SoapySDRClockSource,
