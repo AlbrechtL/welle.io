@@ -45,14 +45,25 @@
 <context>
     <name>AirspySettings</name>
     <message>
-        <location filename="../QML/settings/devices/AirspySettings.qml" line="35"/>
+        <location filename="../QML/settings/devices/AirspySettings.qml" line="36"/>
         <source>Airspy settings</source>
         <translation>Airspy-Einstellungen</translation>
     </message>
     <message>
-        <location filename="../QML/settings/devices/AirspySettings.qml" line="50"/>
+        <location filename="../QML/settings/devices/AirspySettings.qml" line="53"/>
         <source>Enable bias tee</source>
         <translation>Fernspeisung aktivieren</translation>
+    </message>
+    <message>
+        <location filename="../QML/settings/devices/AirspySettings.qml" line="60"/>
+        <location filename="../QML/settings/devices/AirspySettings.qml" line="75"/>
+        <source>Gain mode</source>
+        <translation>Verstärkungsmodus</translation>
+    </message>
+    <message>
+        <location filename="../QML/settings/devices/AirspySettings.qml" line="61"/>
+        <source>Which gain of the Airspy the automatic and the manual gain set</source>
+        <translation>Welche Verstärkung des Airspy die automatische und die manuelle Verstärkung einstellen</translation>
     </message>
 </context>
 <context>
@@ -205,25 +216,25 @@
     <name>CGUIHelper</name>
     <message>
         <location filename="../gui_helper.cpp" line="71"/>
-        <location filename="../gui_helper.cpp" line="718"/>
+        <location filename="../gui_helper.cpp" line="723"/>
         <source>Mi&amp;nimize</source>
         <translation>Mi&amp;nimieren</translation>
     </message>
     <message>
         <location filename="../gui_helper.cpp" line="74"/>
-        <location filename="../gui_helper.cpp" line="719"/>
+        <location filename="../gui_helper.cpp" line="724"/>
         <source>Ma&amp;ximize</source>
         <translation>Ma&amp;ximieren</translation>
     </message>
     <message>
         <location filename="../gui_helper.cpp" line="77"/>
-        <location filename="../gui_helper.cpp" line="720"/>
+        <location filename="../gui_helper.cpp" line="725"/>
         <source>&amp;Restore</source>
         <translation>Wiede&amp;rherstellen</translation>
     </message>
     <message>
         <location filename="../gui_helper.cpp" line="80"/>
-        <location filename="../gui_helper.cpp" line="721"/>
+        <location filename="../gui_helper.cpp" line="726"/>
         <source>&amp;Quit</source>
         <translation>Beenden (&amp;Quit)</translation>
     </message>
@@ -274,13 +285,13 @@
 <context>
     <name>CRadioController</name>
     <message>
-        <location filename="../radio_controller.cpp" line="694"/>
+        <location filename="../radio_controller.cpp" line="709"/>
         <source>Unknown</source>
         <translation>Unbekannt</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="491"/>
-        <location filename="../radio_controller.cpp" line="714"/>
+        <location filename="../radio_controller.cpp" line="506"/>
+        <location filename="../radio_controller.cpp" line="729"/>
         <source>No Station</source>
         <translation>Kein Sender gewählt</translation>
     </message>
@@ -290,49 +301,49 @@
         <translation>Fehler beim Öffnen der Datei </translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="272"/>
+        <location filename="../radio_controller.cpp" line="287"/>
         <source>Playback failed</source>
         <translation>Wiedergabe fehlgeschlagen</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="293"/>
+        <location filename="../radio_controller.cpp" line="308"/>
         <source>Stopped</source>
         <translation>Gestoppt</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="444"/>
+        <location filename="../radio_controller.cpp" line="459"/>
         <source>No receiver</source>
         <translation>Kein Empfänger</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="453"/>
+        <location filename="../radio_controller.cpp" line="468"/>
         <source>RAW File</source>
         <translation>RAW Datei</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="467"/>
-        <location filename="../radio_controller.cpp" line="984"/>
+        <location filename="../radio_controller.cpp" line="482"/>
+        <location filename="../radio_controller.cpp" line="999"/>
         <source>Scanning</source>
         <translation>Scanne</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="471"/>
-        <location filename="../radio_controller.cpp" line="1009"/>
+        <location filename="../radio_controller.cpp" line="486"/>
+        <location filename="../radio_controller.cpp" line="1024"/>
         <source>Found channels</source>
         <translation>Gefundene Sender</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="688"/>
+        <location filename="../radio_controller.cpp" line="703"/>
         <source>Playing last station</source>
         <translation>Gebe zuletzt gehörten Sender wieder</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="764"/>
+        <location filename="../radio_controller.cpp" line="779"/>
         <source>Radio device is not ready or does not exist.</source>
         <translation>Gerät meldet einen Fehler oder existiert nicht.</translation>
     </message>
     <message>
-        <location filename="../../input/airspy_sdr.cpp" line="174"/>
+        <location filename="../../input/airspy_sdr.cpp" line="177"/>
         <source>airspy is unplugged.</source>
         <translation>Airspy wurde entfernt.</translation>
     </message>
@@ -374,6 +385,7 @@
         <translation>Fehler beim Öffnen von RTL-SDR. Details stehen im Log.</translation>
     </message>
     <message>
+        <location filename="../../input/airspy_sdr.cpp" line="399"/>
         <location filename="../../input/rtl_sdr.cpp" line="323"/>
         <location filename="../../input/rtl_tcp.cpp" line="588"/>
         <source>ADC overload. Maybe you are using a too high gain.</source>
@@ -2180,6 +2192,21 @@
         <location filename="../QML/settings/ReceiverSettings.qml" line="157"/>
         <source>RAW file</source>
         <translation type="unfinished">RAW Datei</translation>
+    </message>
+    <message>
+        <location filename="../QML/settings/devices/AirspySettings.qml" line="68"/>
+        <source>Linearity</source>
+        <translation>Linearität</translation>
+    </message>
+    <message>
+        <location filename="../QML/settings/devices/AirspySettings.qml" line="69"/>
+        <source>Sensitivity</source>
+        <translation>Empfindlichkeit</translation>
+    </message>
+    <message>
+        <location filename="../QML/settings/devices/AirspySettings.qml" line="70"/>
+        <source>Hybrid (tuner AGC)</source>
+        <translation>Hybrid (Tuner-AGC)</translation>
     </message>
 </context>
 <context>

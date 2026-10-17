@@ -193,15 +193,30 @@ CDeviceID CRadioController::openDevice()
 
 void CRadioController::setDeviceParam(QString param, int value)
 {
+    DeviceParam dp;
     if (param == "biastee") {
-        deviceParametersInt[DeviceParam::BiasTee] = value;
+        dp = DeviceParam::BiasTee;
+    }
+    else if (param == "airspygainmode") {
+        dp = DeviceParam::AirspyGainMode;
     }
     else {
         qDebug() << "Invalid device parameter setting: " << param;
+        return;
     }
 
-    if (device) {
-        device->setDeviceParam(DeviceParam::BiasTee, value);
+    deviceParametersInt[dp] = value;
+
+    if (device && device->setDeviceParam(dp, value) && dp == DeviceParam::AirspyGainMode) {
+        // The gain mode changes the gain range and the gain
+        if (gainCount != device->getGainCount()) {
+            gainCount = device->getGainCount();
+            emit gainCountChanged(gainCount);
+        }
+        if (!isAGC) {
+            currentManualGainValue = device->setGain(currentManualGain);
+            emit gainValueChanged(currentManualGainValue);
+        }
     }
 }
 

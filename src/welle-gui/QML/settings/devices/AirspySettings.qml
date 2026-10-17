@@ -32,10 +32,12 @@ import QtCore
 import "../../controls"
 
 SettingSection {
+    objectName: "airspySettings"
     text: qsTr("Airspy settings")
 
     Settings {
         property alias airspyEnableBiasTeeState: enableBiasTee.checked
+        property alias airspyGainModeState: gainMode.currentIndex
     }
 
     function initDevice(isAutoDevice) {
@@ -43,6 +45,7 @@ SettingSection {
             guiHelper.openAirspy()
 
         guiHelper.setBiasTeeAirspy(enableBiasTee.checked)
+        guiHelper.setAirspyGainMode(gainMode.currentIndex)
     }
 
     SettingSwitch {
@@ -50,6 +53,26 @@ SettingSection {
         text: qsTr("Enable bias tee")
         onClicked: {
             guiHelper.setBiasTeeAirspy(checked)
+        }
+    }
+
+    SettingRow {
+        title: qsTr("Gain mode")
+        description: qsTr("Which gain of the Airspy the automatic and the manual gain set")
+
+        SettingComboBox {
+            id: gainMode
+            objectName: "setting.airspyGainMode"
+            // The order is the value of DeviceParam::AirspyGainMode
+            model: ListModel {
+                ListElement { label: QT_TRANSLATE_NOOP("Settings", "Linearity") }
+                ListElement { label: QT_TRANSLATE_NOOP("Settings", "Sensitivity") }
+                ListElement { label: QT_TRANSLATE_NOOP("Settings", "Hybrid (tuner AGC)") }
+            }
+            currentIndex: 0
+            onActivated: guiHelper.setAirspyGainMode(currentIndex)
+
+            Accessible.name: qsTr("Gain mode")
         }
     }
 }

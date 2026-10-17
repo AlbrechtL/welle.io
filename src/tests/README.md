@@ -32,6 +32,7 @@ They are built with CMake and run with CTest.
 | `gui.ui.navigation` | `gui` | Navigation drawer: open/close (button, Esc, click outside), station lists, settings and about pages, back, exit | yes |
 | `gui.ui.settings` | `gui` | Settings page: existing settings shown and applied, switches and combo boxes by clicking, expert mode, input device stays open, section index, restart | yes |
 | `gui.ui.rtltcp` | `gui` | rtl-tcp input: closing the settings keeps the device open, a changed server is opened (no server needed) | no |
+| `gui.ui.airspy` | `gui` | Airspy settings: gain mode chosen and kept after a restart; with an Airspy connected, the gain range follows the mode (no Airspy needed) | no |
 | `gui.ui.dashboard` | `gui` | Expert views: old layout taken over, every view added, graphs get data, maximize, move, remove, restart | yes |
 | `gui.ui.messages` | `gui` | Snackbar: error until dismissed, info disappears, queue, fits a phone sized window | yes |
 | `gui.ui.responsive` | `gui` | Layout from 360 to 1600 px in light and dark theme, mini player and player page | yes |

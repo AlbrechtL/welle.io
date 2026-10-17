@@ -45,13 +45,24 @@
 <context>
     <name>AirspySettings</name>
     <message>
-        <location filename="../QML/settings/devices/AirspySettings.qml" line="+35"/>
+        <location filename="../QML/settings/devices/AirspySettings.qml" line="+36"/>
         <source>Airspy settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+15"/>
+        <location line="+17"/>
         <source>Enable bias tee</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <location line="+15"/>
+        <source>Gain mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-14"/>
+        <source>Which gain of the Airspy the automatic and the manual gain set</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -169,30 +180,30 @@
     <name>CGUIHelper</name>
     <message>
         <location filename="../gui_helper.cpp" line="+71"/>
-        <location line="+647"/>
+        <location line="+652"/>
         <source>Mi&amp;nimize</source>
         <translation type="unfinished">Св&amp;ернуть</translation>
     </message>
     <message>
-        <location line="-644"/>
-        <location line="+645"/>
+        <location line="-649"/>
+        <location line="+650"/>
         <source>Ma&amp;ximize</source>
         <translation type="unfinished">Ра&amp;звернуть</translation>
     </message>
     <message>
-        <location line="-642"/>
-        <location line="+643"/>
+        <location line="-647"/>
+        <location line="+648"/>
         <source>&amp;Restore</source>
         <translation type="unfinished">&amp;Восстановить</translation>
     </message>
     <message>
-        <location line="-640"/>
-        <location line="+641"/>
+        <location line="-645"/>
+        <location line="+646"/>
         <source>&amp;Quit</source>
         <translation type="unfinished">&amp;Выход</translation>
     </message>
     <message>
-        <location line="-533"/>
+        <location line="-538"/>
         <source>Git revision</source>
         <translation type="unfinished">Git ревизия</translation>
     </message>
@@ -226,7 +237,7 @@
 <context>
     <name>CRadioController</name>
     <message>
-        <location filename="../radio_controller.cpp" line="+694"/>
+        <location filename="../radio_controller.cpp" line="+709"/>
         <source>Unknown</source>
         <translation>Неизвестный</translation>
     </message>
@@ -264,7 +275,7 @@
         <translation>Устройство не работает или отключено.</translation>
     </message>
     <message>
-        <location filename="../../input/airspy_sdr.cpp" line="+174"/>
+        <location filename="../../input/airspy_sdr.cpp" line="+177"/>
         <source>airspy is unplugged.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -301,13 +312,14 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../input/airspy_sdr.cpp" line="+222"/>
         <location filename="../../input/rtl_sdr.cpp" line="+323"/>
         <location filename="../../input/rtl_tcp.cpp" line="+588"/>
         <source>ADC overload. Maybe you are using a too high gain.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+92"/>
+        <location filename="../../input/rtl_sdr.cpp" line="+92"/>
         <source>RTL-SDR is unplugged.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -327,12 +339,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="-595"/>
+        <location filename="../radio_controller.cpp" line="-610"/>
         <source>Error while opening file </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+519"/>
+        <location line="+534"/>
         <source>Playing last station</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1868,6 +1880,21 @@
     <message>
         <location line="+1"/>
         <source>RAW file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QML/settings/devices/AirspySettings.qml" line="+7"/>
+        <source>Linearity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Sensitivity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Hybrid (tuner AGC)</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

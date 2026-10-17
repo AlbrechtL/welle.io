@@ -572,6 +572,11 @@ void CGUIHelper::setBiasTeeAirspy(bool isOn)
     radioController->setDeviceParam("biastee", isOn ? 1 : 0);
 }
 
+void CGUIHelper::setAirspyGainMode(int mode)
+{
+    radioController->setDeviceParam("airspygainmode", mode);
+}
+
 void CGUIHelper::openRtlSdr()
 {
 #ifdef __ANDROID__

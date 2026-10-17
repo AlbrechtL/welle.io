@@ -95,6 +95,7 @@ public:
     Q_INVOKABLE void openNull();
     Q_INVOKABLE void openAirspy();
     Q_INVOKABLE void setBiasTeeAirspy(bool isOn);
+    Q_INVOKABLE void setAirspyGainMode(int mode);
     Q_INVOKABLE void openRtlSdr();
     Q_INVOKABLE void setBiasTeeRtlSdr(bool isOn);
     Q_INVOKABLE void openSoapySdr();
