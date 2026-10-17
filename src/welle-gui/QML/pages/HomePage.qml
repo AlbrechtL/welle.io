@@ -57,6 +57,7 @@ Item {
     readonly property string detailTitle: isExpert ? qsTr("Expert views") : qsTr("Now playing")
 
     signal openStationSettings
+    signal openReceiverSettings
     signal showAllStations
     // A message for the snackbar (kind "info" or "error")
     signal message(string text, string kind)
@@ -71,6 +72,7 @@ Item {
         isExpert: root.isExpert
         stations: root.stations
         onOpenStationSettings: root.openStationSettings()
+        onOpenReceiverSettings: root.openReceiverSettings()
         onShowAllStations: root.showAllStations()
     }
 

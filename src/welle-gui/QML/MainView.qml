@@ -168,6 +168,9 @@ ApplicationWindow {
         case "stationSettings":
             openSettings("stations")
             break
+        case "receiverSettings":
+            openSettings("receiver")
+            break
         case "about":
             openPage(aboutPage)
             break
@@ -238,6 +241,7 @@ ApplicationWindow {
         player: playback
         slides: slideShowModel
         onOpenStationSettings: mainWindow.navigate("stationSettings")
+        onOpenReceiverSettings: mainWindow.navigate("receiverSettings")
         onShowAllStations: mainWindow.navigate("all")
         onMessage: (text, kind) => snackbar.show(text, kind)
     }

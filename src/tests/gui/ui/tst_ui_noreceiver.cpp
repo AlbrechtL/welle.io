@@ -20,7 +20,8 @@
 
 // gui.ui.noreceiver: welle.io without a receiver (input device "None").
 // A station scan must not start: it would wait for a signal at the first
-// channel forever. Needs no recording and no hardware.
+// channel forever. The empty station list explains why and leads to the
+// receiver settings. Needs no recording and no hardware.
 
 #include <QSignalSpy>
 
@@ -35,7 +36,15 @@ class UiNoReceiverTests : public UiTestCase
 private slots:
     void initTestCase();
 
+    void disablesScan();
+    void opensReceiverSettings();
     void scanEndsAtOnce();
+
+private:
+    bool isEnabled(const QString& objectName) const
+    {
+        return app.property(objectName, "enabled").toBool();
+    }
 };
 
 void UiNoReceiverTests::initTestCase()
@@ -47,6 +56,57 @@ void UiNoReceiverTests::initTestCase()
     });
     QVERIFY2(app.start(), "MainView.qml could not be loaded");
     QTRY_COMPARE(app.radio()->property("deviceId").value<CDeviceID>(), CDeviceID::NULLDEVICE);
+}
+
+void UiNoReceiverTests::disablesScan()
+{
+    QVERIFY(app.isVisible("stationListEmpty"));
+    QVERIFY(app.isVisible("scanButton"));
+    QVERIFY(!isEnabled("scanButton"));
+    QVERIFY(app.isVisible("receiverSettingsButton"));
+    QVERIFY(app.text("stationListEmptyText").contains("No receiver found"));
+    UI_VERIFY_EMPTY(app.controlsWithoutAccessibleName(), "Controls without accessible name");
+    app.screenshot("noreceiver-empty");
+
+    app.resize(360, 640);
+    QVERIFY(app.isVisible("receiverSettingsButton"));
+    UI_VERIFY_EMPTY(app.itemsOutsideWindow(), "Items outside the window");
+    app.screenshot("noreceiver-empty-360x640");
+    app.resize(1200, 800);
+
+    // The menu entry is disabled too
+    QVERIFY(app.click("stationListMenuButton"));
+    QVERIFY(app.waitVisible("startScanItem"));
+    QVERIFY(!isEnabled("startScanItem"));
+    QVERIFY(!isEnabled("stopScanItem"));
+    app.key(Qt::Key_Escape);
+    QVERIFY(app.waitHidden("stationListMenu"));
+    QVERIFY(!app.radio()->property("isChannelScan").toBool());
+
+    // The favorites show their own explanation, no receiver hint
+    QVERIFY(showList("favorites"));
+    QTRY_VERIFY(!app.isVisible("receiverSettingsButton"));
+    QVERIFY(!app.text("stationListEmptyText").contains("No receiver found"));
+    QVERIFY(showList("all"));
+    QTRY_VERIFY(app.isVisible("receiverSettingsButton"));
+
+    qInfo() << "Without a receiver the scan is disabled and the list explains why";
+}
+
+void UiNoReceiverTests::opensReceiverSettings()
+{
+    QVERIFY(app.click("receiverSettingsButton"));
+    QVERIFY(app.waitVisible("settingsPage"));
+    QVERIFY(waitForPage());
+    QVERIFY(app.isVisible("receiverSettings"));
+    QTRY_VERIFY(app.isVisible("setting.device"));
+    app.screenshot("noreceiver-settings");
+
+    app.key(Qt::Key_Escape);
+    QVERIFY(app.waitHidden("settingsPage"));
+    QVERIFY(waitForPage());
+
+    qInfo() << "The button of the empty list opens the receiver settings";
 }
 
 void UiNoReceiverTests::scanEndsAtOnce()

@@ -29,7 +29,8 @@ import "../models"
 
 // The station list (all stations or favorites, chosen in the navigation
 // drawer): title, a menu with the station scan, the scan progress, an
-// empty state and, in expert mode, the manual channel selection
+// empty state and, in expert mode, the manual channel selection. Without a
+// receiver the scan and the manual channel are disabled.
 Pane {
     id: root
     objectName: "stationListPane"
@@ -43,8 +44,13 @@ Pane {
     readonly property alias view: stationChannelView
     readonly property bool isScanning: radioController.isChannelScan
     property int scanChannel: 0
+    // The Null device ("None", or nothing found by the auto detection) never
+    // finds a signal: a scan would hang at the first channel
+    readonly property bool hasReceiver: radioController.deviceId !== 0 // CDeviceID::UNKNOWN
+                                        && radioController.deviceId !== 1 // CDeviceID::NULLDEVICE
 
     signal openStationSettings
+    signal openReceiverSettings
     signal showAllStations
 
     padding: 0
@@ -103,7 +109,7 @@ Pane {
                         objectName: "startScanItem"
                         text: qsTr("Start station scan")
                         icon.name: "scan"
-                        enabled: !root.isScanning
+                        enabled: !root.isScanning && root.hasReceiver
                         onTriggered: radioController.startScan()
                     }
 
@@ -190,11 +196,13 @@ Pane {
             }
 
             Label {
+                objectName: "stationListEmptyText"
                 Layout.fillWidth: true
                 horizontalAlignment: Text.AlignHCenter
                 wrapMode: Text.Wrap
-                text: root.listIndex === 0 ? qsTr("Search for stations on all channels.")
-                                           : qsTr("Mark a station in the list of all stations with the star to add it here.")
+                text: root.listIndex === 1 ? qsTr("Mark a station in the list of all stations with the star to add it here.")
+                      : root.hasReceiver ? qsTr("Search for stations on all channels.")
+                      : qsTr("No receiver found. Connect a receiver or choose one in the settings.")
                 font.pixelSize: Theme.bodyMedium
                 color: Material.secondaryTextColor
             }
@@ -203,13 +211,24 @@ Pane {
                 objectName: "scanButton"
                 Layout.alignment: Qt.AlignHCenter
                 visible: root.listIndex === 0
-                enabled: !root.isScanning
+                enabled: !root.isScanning && root.hasReceiver
                 highlighted: true
                 Material.elevation: 0
                 icon.name: "scan"
                 text: qsTr("Start station scan")
                 font.capitalization: Font.MixedCase
                 onClicked: radioController.startScan()
+            }
+
+            Button {
+                objectName: "receiverSettingsButton"
+                Layout.alignment: Qt.AlignHCenter
+                visible: root.listIndex === 0 && !root.hasReceiver
+                flat: true
+                icon.name: "antenna"
+                text: qsTr("Receiver settings")
+                font.capitalization: Font.MixedCase
+                onClicked: root.openReceiverSettings()
             }
 
             Button {
@@ -279,7 +298,7 @@ Pane {
             ComboBox {
                 id: manualChannelBox
                 objectName: "manualChannelBox"
-                enabled: radioController.deviceId !== 3 // CDeviceID::RAWFILE
+                enabled: root.hasReceiver && radioController.deviceId !== 3 // CDeviceID::RAWFILE
                 model: ["5A", "5B", "5C", "5D",
                     "6A", "6B", "6C", "6D",
                     "7A", "7B", "7C", "7D",

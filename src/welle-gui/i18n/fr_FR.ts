@@ -250,7 +250,7 @@
 <context>
     <name>CRadioController</name>
     <message>
-        <location filename="../radio_controller.cpp" line="+681"/>
+        <location filename="../radio_controller.cpp" line="+694"/>
         <source>Unknown</source>
         <translation>Inconnu</translation>
     </message>
@@ -261,7 +261,7 @@
         <translation>Pas de station</translation>
     </message>
     <message>
-        <location line="-532"/>
+        <location line="-545"/>
         <source>Error while opening file </source>
         <translation>Erreur à l&apos;ouverture du fichier </translation>
     </message>
@@ -276,7 +276,12 @@
         <translation>Arrêté</translation>
     </message>
     <message>
-        <location line="+147"/>
+        <location line="+151"/>
+        <source>No receiver</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+9"/>
         <source>RAW File</source>
         <translation>Fichier RAW</translation>
     </message>
@@ -304,7 +309,7 @@
         <translation>Le récepteur radio n&apos;est pas prêt ou n&apos;existe pas.</translation>
     </message>
     <message>
-        <location filename="../../input/airspy_sdr.cpp" line="+153"/>
+        <location filename="../../input/airspy_sdr.cpp" line="+174"/>
         <source>airspy is unplugged.</source>
         <translation>Airspay est débranché.</translation>
     </message>
@@ -2449,7 +2454,7 @@ Sélectionnez une station pour démarrer la lecture.</translation>
 <context>
     <name>StationListPane</name>
     <message>
-        <location filename="../QML/home/StationListPane.qml" line="+70"/>
+        <location filename="../QML/home/StationListPane.qml" line="+76"/>
         <source>All stations</source>
         <translation type="unfinished">Toutes les stations</translation>
     </message>
@@ -2470,12 +2475,12 @@ Sélectionnez une station pour démarrer la lecture.</translation>
     </message>
     <message>
         <location line="+9"/>
-        <location line="+106"/>
+        <location line="+108"/>
         <source>Start station scan</source>
         <translation type="unfinished">Rechercher les stations</translation>
     </message>
     <message>
-        <location line="-98"/>
+        <location line="-100"/>
         <source>Stop station scan</source>
         <translation type="unfinished">Arrêter la recherche</translation>
     </message>
@@ -2510,17 +2515,27 @@ Sélectionnez une station pour démarrer la lecture.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location line="+10"/>
         <source>Search for stations on all channels.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="-1"/>
         <source>Mark a station in the list of all stations with the star to add it here.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location line="+2"/>
+        <source>No receiver found. Connect a receiver or choose one in the settings.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location line="+24"/>
+        <source>Receiver settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+11"/>
         <source>Show all stations</source>
         <translation type="unfinished"></translation>
     </message>

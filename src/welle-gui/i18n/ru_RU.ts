@@ -226,7 +226,7 @@
 <context>
     <name>CRadioController</name>
     <message>
-        <location filename="../radio_controller.cpp" line="+681"/>
+        <location filename="../radio_controller.cpp" line="+694"/>
         <source>Unknown</source>
         <translation>Неизвестный</translation>
     </message>
@@ -237,7 +237,12 @@
         <translation>Нет каналов</translation>
     </message>
     <message>
-        <location line="-261"/>
+        <location line="-270"/>
+        <source>No receiver</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+9"/>
         <source>RAW File</source>
         <translation>RAW файл</translation>
     </message>
@@ -259,7 +264,7 @@
         <translation>Устройство не работает или отключено.</translation>
     </message>
     <message>
-        <location filename="../../input/airspy_sdr.cpp" line="+153"/>
+        <location filename="../../input/airspy_sdr.cpp" line="+174"/>
         <source>airspy is unplugged.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -322,12 +327,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="-582"/>
+        <location filename="../radio_controller.cpp" line="-595"/>
         <source>Error while opening file </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+506"/>
+        <location line="+519"/>
         <source>Playing last station</source>
         <translation type="unfinished"></translation>
     </message>
@@ -337,7 +342,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="-403"/>
+        <location filename="../radio_controller.cpp" line="-416"/>
         <source>Playback failed</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2052,7 +2057,7 @@ Select a station to start playback.</source>
 <context>
     <name>StationListPane</name>
     <message>
-        <location filename="../QML/home/StationListPane.qml" line="+70"/>
+        <location filename="../QML/home/StationListPane.qml" line="+76"/>
         <source>All stations</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2073,12 +2078,12 @@ Select a station to start playback.</source>
     </message>
     <message>
         <location line="+9"/>
-        <location line="+106"/>
+        <location line="+108"/>
         <source>Start station scan</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-98"/>
+        <location line="-100"/>
         <source>Stop station scan</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2113,17 +2118,27 @@ Select a station to start playback.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location line="+10"/>
         <source>Search for stations on all channels.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="-1"/>
         <source>Mark a station in the list of all stations with the star to add it here.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location line="+2"/>
+        <source>No receiver found. Connect a receiver or choose one in the settings.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location line="+24"/>
+        <source>Receiver settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+11"/>
         <source>Show all stations</source>
         <translation type="unfinished"></translation>
     </message>

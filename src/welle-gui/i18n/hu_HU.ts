@@ -226,13 +226,13 @@
 <context>
     <name>CRadioController</name>
     <message>
-        <location filename="../radio_controller.cpp" line="681"/>
+        <location filename="../radio_controller.cpp" line="694"/>
         <source>Unknown</source>
         <translation type="unfinished">Ismeretlen</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="478"/>
-        <location filename="../radio_controller.cpp" line="701"/>
+        <location filename="../radio_controller.cpp" line="491"/>
+        <location filename="../radio_controller.cpp" line="714"/>
         <source>No Station</source>
         <translation type="unfinished">Nincs állomás</translation>
     </message>
@@ -252,34 +252,39 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="440"/>
+        <location filename="../radio_controller.cpp" line="444"/>
+        <source>No receiver</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../radio_controller.cpp" line="453"/>
         <source>RAW File</source>
         <translation type="unfinished">RAW Fájl</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="454"/>
-        <location filename="../radio_controller.cpp" line="971"/>
+        <location filename="../radio_controller.cpp" line="467"/>
+        <location filename="../radio_controller.cpp" line="984"/>
         <source>Scanning</source>
         <translation type="unfinished">Keresés</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="458"/>
-        <location filename="../radio_controller.cpp" line="996"/>
+        <location filename="../radio_controller.cpp" line="471"/>
+        <location filename="../radio_controller.cpp" line="1009"/>
         <source>Found channels</source>
         <translation type="unfinished">Megtalált állomások</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="675"/>
+        <location filename="../radio_controller.cpp" line="688"/>
         <source>Playing last station</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="751"/>
+        <location filename="../radio_controller.cpp" line="764"/>
         <source>Radio device is not ready or does not exist.</source>
         <translation type="unfinished">A rádióvevő nem áll készen vagy nincs.</translation>
     </message>
     <message>
-        <location filename="../../input/airspy_sdr.cpp" line="153"/>
+        <location filename="../../input/airspy_sdr.cpp" line="174"/>
         <source>airspy is unplugged.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1966,89 +1971,99 @@ Select a station to start playback.</source>
 <context>
     <name>StationListPane</name>
     <message>
-        <location filename="../QML/home/StationListPane.qml" line="70"/>
+        <location filename="../QML/home/StationListPane.qml" line="76"/>
         <source>All stations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/home/StationListPane.qml" line="70"/>
+        <location filename="../QML/home/StationListPane.qml" line="76"/>
         <source>Favorites</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/home/StationListPane.qml" line="94"/>
+        <location filename="../QML/home/StationListPane.qml" line="100"/>
         <source>Stations menu</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/home/StationListPane.qml" line="95"/>
+        <location filename="../QML/home/StationListPane.qml" line="101"/>
         <source>Show stations menu</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/home/StationListPane.qml" line="104"/>
-        <location filename="../QML/home/StationListPane.qml" line="210"/>
+        <location filename="../QML/home/StationListPane.qml" line="110"/>
+        <location filename="../QML/home/StationListPane.qml" line="218"/>
         <source>Start station scan</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/home/StationListPane.qml" line="112"/>
+        <location filename="../QML/home/StationListPane.qml" line="118"/>
         <source>Stop station scan</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/home/StationListPane.qml" line="120"/>
+        <location filename="../QML/home/StationListPane.qml" line="126"/>
         <source>Clear station list</source>
         <translation type="unfinished">Állomáslista törlése</translation>
     </message>
     <message>
-        <location filename="../QML/home/StationListPane.qml" line="129"/>
+        <location filename="../QML/home/StationListPane.qml" line="135"/>
         <source>Station settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/home/StationListPane.qml" line="146"/>
+        <location filename="../QML/home/StationListPane.qml" line="152"/>
         <source>Scanning channel %1 of %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/home/StationListPane.qml" line="160"/>
+        <location filename="../QML/home/StationListPane.qml" line="166"/>
         <source>Station scan progress</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/home/StationListPane.qml" line="188"/>
+        <location filename="../QML/home/StationListPane.qml" line="194"/>
         <source>No stations in list</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/home/StationListPane.qml" line="188"/>
+        <location filename="../QML/home/StationListPane.qml" line="194"/>
         <source>No favorites yet</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/home/StationListPane.qml" line="196"/>
+        <location filename="../QML/home/StationListPane.qml" line="204"/>
         <source>Search for stations on all channels.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/home/StationListPane.qml" line="197"/>
+        <location filename="../QML/home/StationListPane.qml" line="203"/>
         <source>Mark a station in the list of all stations with the star to add it here.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/home/StationListPane.qml" line="221"/>
+        <location filename="../QML/home/StationListPane.qml" line="205"/>
+        <source>No receiver found. Connect a receiver or choose one in the settings.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QML/home/StationListPane.qml" line="229"/>
+        <source>Receiver settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QML/home/StationListPane.qml" line="240"/>
         <source>Show all stations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/home/StationListPane.qml" line="249"/>
+        <location filename="../QML/home/StationListPane.qml" line="268"/>
         <source>File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/home/StationListPane.qml" line="275"/>
-        <location filename="../QML/home/StationListPane.qml" line="296"/>
+        <location filename="../QML/home/StationListPane.qml" line="294"/>
+        <location filename="../QML/home/StationListPane.qml" line="315"/>
         <source>Manual channel</source>
         <translation type="unfinished"></translation>
     </message>
