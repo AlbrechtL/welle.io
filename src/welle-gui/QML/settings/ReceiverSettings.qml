@@ -31,7 +31,7 @@ import QtCore
 
 import "../controls"
 
-// Receiver settings: RF gain and input device, followed by the settings of
+// Receiver settings: input device and RF gain, followed by the settings of
 // the selected device (e.g. the RAW file). They are applied when the page
 // is created at startup.
 ColumnLayout {
@@ -91,44 +91,6 @@ ColumnLayout {
         text: qsTr("Receiver")
 
         SettingSwitch {
-            id: enableAGC
-            objectName: "setting.enableAGCState"
-            text: qsTr("Automatic RF gain")
-            checked: true
-            onClicked: {
-                radioController.setAGC(checked)
-
-                if(checked == false)
-                    radioController.setGain(receiverSettings.manualGainState)
-            }
-        }
-
-        SettingRow {
-            title: qsTr("Manual gain")
-            description: qsTr("Value: ") + radioController.gainValue.toFixed(2)
-            wideControl: true
-            enabled: !enableAGC.checked
-
-            Slider {
-                id: manualGain
-                objectName: "setting.manualGainState"
-                Layout.fillWidth: true
-                from: 0
-                to: 100
-                stepSize: 1
-                value: receiverSettings.manualGainState
-
-                onMoved: {
-                    receiverSettings.manualGainState = value
-                    if(enableAGC.checked == false)
-                        radioController.setGain(value)
-                }
-
-                Accessible.name: qsTr("Manual gain")
-            }
-        }
-
-        SettingSwitch {
             id: enableAutoSdr
             objectName: "setting.enableAutoSdr"
             text: qsTr("Auto detect")
@@ -172,6 +134,44 @@ ColumnLayout {
                 }
 
                 Accessible.name: qsTr("Input device")
+            }
+        }
+
+        SettingSwitch {
+            id: enableAGC
+            objectName: "setting.enableAGCState"
+            text: qsTr("Automatic RF gain")
+            checked: true
+            onClicked: {
+                radioController.setAGC(checked)
+
+                if(checked == false)
+                    radioController.setGain(receiverSettings.manualGainState)
+            }
+        }
+
+        SettingRow {
+            title: qsTr("Manual gain")
+            description: qsTr("Value: ") + radioController.gainValue.toFixed(2)
+            wideControl: true
+            enabled: !enableAGC.checked
+
+            Slider {
+                id: manualGain
+                objectName: "setting.manualGainState"
+                Layout.fillWidth: true
+                from: 0
+                to: 100
+                stepSize: 1
+                value: receiverSettings.manualGainState
+
+                onMoved: {
+                    receiverSettings.manualGainState = value
+                    if(enableAGC.checked == false)
+                        radioController.setGain(value)
+                }
+
+                Accessible.name: qsTr("Manual gain")
             }
         }
 

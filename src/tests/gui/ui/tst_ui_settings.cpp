@@ -120,6 +120,17 @@ void UiSettingsTests::showsExistingSettings()
     QCOMPARE(app.property("setting.accentColor", "currentIndex").toInt(), 2);
     QCOMPARE(app.property("setting.device", "currentIndex").toInt(), 5); // RAW file
 
+    // Receiver section: the input device comes first, then the gain
+    const QStringList receiverOrder = {"setting.enableAutoSdr", "setting.device",
+                                       "setting.enableAGCState", "setting.manualGainState"};
+    for (int i = 1; i < receiverOrder.size(); ++i) {
+        QQuickItem *above = app.item(receiverOrder[i - 1]);
+        QQuickItem *below = app.item(receiverOrder[i]);
+        QVERIFY(above && below);
+        QVERIFY2(above->mapToScene(QPointF()).y() < below->mapToScene(QPointF()).y(),
+                 qPrintable(receiverOrder[i - 1] + " is not above " + receiverOrder[i]));
+    }
+
     // ... and applied
     QVERIFY(app.root()->property("darkTheme").toBool());
     QVERIFY(app.root()->property("isStationNameInWindowTitle").toBool());
