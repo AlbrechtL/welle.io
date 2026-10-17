@@ -31,13 +31,13 @@
 #include <QSettings>
 #include <QQuickStyle>
 #include <QQmlProperty>
-//#include <neaacdec.h>
 
 #include "gui_helper.h"
 #include "debug_output.h"
 #include "input_factory.h"
 #include "audio_output.h"
 #include "dab-constants.h"
+#include "library_versions.h"
 #include "msc-handler.h"
 #include "version.h"
 #include "waterfallitem.h"
@@ -207,11 +207,10 @@ const QByteArray CGUIHelper::getInfoPage(QString pageName)
         InfoContent.append((tr("Built on") + ": " + tsDT.toString(Qt::ISODate) + "\n").toUtf8());
         InfoContent.append((tr("QT version") + ": " + qVersion() + "\n").toUtf8());
 
-        /*char *faad_id_string;
-        char *faad_copyright_string;
-        NeAACDecGetVersion(&faad_id_string, &faad_copyright_string);
-        InfoContent.append((tr("faad2 version") + ": " + faad_id_string + "\n").toUtf8());*/
-        //InfoContent.append((tr("faad2 version") + ": " + FAAD2_VERSION + "\n").toUtf8());
+        for (const auto& library : getLibraryVersions()) {
+            InfoContent.append((tr("%1 version").arg(QString::fromStdString(library.first)) + ": "
+                                + QString::fromStdString(library.second) + "\n").toUtf8());
+        }
 
         InfoContent.append("\n");
     } else if (pageName == "Authors") {

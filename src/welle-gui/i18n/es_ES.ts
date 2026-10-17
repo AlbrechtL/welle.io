@@ -192,25 +192,25 @@
     <name>CGUIHelper</name>
     <message>
         <location filename="../gui_helper.cpp" line="74"/>
-        <location filename="../gui_helper.cpp" line="753"/>
+        <location filename="../gui_helper.cpp" line="752"/>
         <source>Mi&amp;nimize</source>
         <translation>Mi&amp;nimizar</translation>
     </message>
     <message>
         <location filename="../gui_helper.cpp" line="77"/>
-        <location filename="../gui_helper.cpp" line="754"/>
+        <location filename="../gui_helper.cpp" line="753"/>
         <source>Ma&amp;ximize</source>
         <translation>Ma&amp;ximizar</translation>
     </message>
     <message>
         <location filename="../gui_helper.cpp" line="80"/>
-        <location filename="../gui_helper.cpp" line="755"/>
+        <location filename="../gui_helper.cpp" line="754"/>
         <source>&amp;Restore</source>
         <translation>&amp;Restaurar</translation>
     </message>
     <message>
         <location filename="../gui_helper.cpp" line="83"/>
-        <location filename="../gui_helper.cpp" line="756"/>
+        <location filename="../gui_helper.cpp" line="755"/>
         <source>&amp;Quit</source>
         <translation>&amp;Cerrar</translation>
     </message>
@@ -225,12 +225,17 @@
         <translation>Compilado el</translation>
     </message>
     <message>
-        <location filename="../gui_helper.cpp" line="332"/>
+        <location filename="../gui_helper.cpp" line="211"/>
+        <source>%1 version</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui_helper.cpp" line="331"/>
         <source>The program will keep running in the system tray. To terminate the program, choose &quot;%1&quot; in the context menu of the system tray entry.</source>
         <translation>El programa seguirá ejecutándose en la bandeja del sistema. Para finalizar el programa, seleccione &quot;%1&quot; en el menú contextual de la entrada de la bandeja del sistema.</translation>
     </message>
     <message>
-        <location filename="../gui_helper.cpp" line="337"/>
+        <location filename="../gui_helper.cpp" line="336"/>
         <source>Quit</source>
         <extracomment>&quot;Quit&quot; translation should be the same as the one of system tray</extracomment>
         <translation>Salir</translation>
@@ -369,7 +374,7 @@
         <location filename="../../input/airspy_sdr.cpp" line="399"/>
         <location filename="../../input/rtl_sdr.cpp" line="323"/>
         <location filename="../../input/rtl_tcp.cpp" line="588"/>
-        <location filename="../../input/v4l2_sdr.cpp" line="1040"/>
+        <location filename="../../input/v4l2_sdr.cpp" line="1155"/>
         <source>ADC overload. Maybe you are using a too high gain.</source>
         <translation>Sobrecarga de ADC. Quizá esté usando una ganancia demasiado alta.</translation>
     </message>
@@ -394,17 +399,17 @@
         <translation>No se pudo cargar SoapySDR con los argumentos de dispositivo proporcionados.</translation>
     </message>
     <message>
-        <location filename="../../input/v4l2_sdr.cpp" line="672"/>
+        <location filename="../../input/v4l2_sdr.cpp" line="785"/>
         <source>Error while opening the Linux SDR device. See log for details.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../input/v4l2_sdr.cpp" line="713"/>
+        <location filename="../../input/v4l2_sdr.cpp" line="826"/>
         <source>The Linux SDR device is used by another program.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../input/v4l2_sdr.cpp" line="827"/>
+        <location filename="../../input/v4l2_sdr.cpp" line="940"/>
         <source>The Linux SDR device is unplugged.</source>
         <translation type="unfinished"></translation>
     </message>

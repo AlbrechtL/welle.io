@@ -180,30 +180,30 @@
     <name>CGUIHelper</name>
     <message>
         <location filename="../gui_helper.cpp" line="+74"/>
-        <location line="+679"/>
+        <location line="+678"/>
         <source>Mi&amp;nimize</source>
         <translation type="unfinished">Св&amp;ернуть</translation>
     </message>
     <message>
-        <location line="-676"/>
-        <location line="+677"/>
+        <location line="-675"/>
+        <location line="+676"/>
         <source>Ma&amp;ximize</source>
         <translation type="unfinished">Ра&amp;звернуть</translation>
     </message>
     <message>
-        <location line="-674"/>
-        <location line="+675"/>
+        <location line="-673"/>
+        <location line="+674"/>
         <source>&amp;Restore</source>
         <translation type="unfinished">&amp;Восстановить</translation>
     </message>
     <message>
-        <location line="-672"/>
-        <location line="+673"/>
+        <location line="-671"/>
+        <location line="+672"/>
         <source>&amp;Quit</source>
         <translation type="unfinished">&amp;Выход</translation>
     </message>
     <message>
-        <location line="-557"/>
+        <location line="-556"/>
         <source>Git revision</source>
         <translation type="unfinished">Git ревизия</translation>
     </message>
@@ -223,7 +223,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+125"/>
+        <location line="+4"/>
+        <source>%1 version</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+120"/>
         <source>The program will keep running in the system tray. To terminate the program, choose &quot;%1&quot; in the context menu of the system tray entry.</source>
         <translation type="unfinished">Программа будет продолжать работать в системном трее. Чтобы завершить программу, выберите &quot;%1&quot; в контекстном меню программы в системном трее.</translation>
     </message>
@@ -320,7 +325,7 @@
         <location filename="../../input/airspy_sdr.cpp" line="+222"/>
         <location filename="../../input/rtl_sdr.cpp" line="+323"/>
         <location filename="../../input/rtl_tcp.cpp" line="+588"/>
-        <location filename="../../input/v4l2_sdr.cpp" line="+1040"/>
+        <location filename="../../input/v4l2_sdr.cpp" line="+1155"/>
         <source>ADC overload. Maybe you are using a too high gain.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -370,7 +375,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../input/v4l2_sdr.cpp" line="-368"/>
+        <location filename="../../input/v4l2_sdr.cpp" line="-370"/>
         <source>Error while opening the Linux SDR device. See log for details.</source>
         <translation type="unfinished"></translation>
     </message>

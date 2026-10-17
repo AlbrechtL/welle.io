@@ -241,6 +241,8 @@ void UiNavigationTests::aboutTabs()
 
     QVERIFY(app.click("aboutTab.versions"));
     QTRY_VERIFY(app.text("aboutContent").contains("welle.io version"));
+    // The versions of the libraries follow the Qt version
+    QVERIFY2(app.text("aboutContent").contains("mpg123 version: "), qPrintable(app.text("aboutContent")));
     QVERIFY(!app.isVisible("licenseChip.0"));
     UiApp::settle();
     app.screenshot(QString("about-versions-%1").arg(width));

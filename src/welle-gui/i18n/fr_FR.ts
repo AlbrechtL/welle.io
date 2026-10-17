@@ -192,30 +192,30 @@
     <name>CGUIHelper</name>
     <message>
         <location filename="../gui_helper.cpp" line="+74"/>
-        <location line="+679"/>
+        <location line="+678"/>
         <source>Mi&amp;nimize</source>
         <translation>Mi&amp;nimiser</translation>
     </message>
     <message>
-        <location line="-676"/>
-        <location line="+677"/>
+        <location line="-675"/>
+        <location line="+676"/>
         <source>Ma&amp;ximize</source>
         <translation>Ma&amp;ximiser</translation>
     </message>
     <message>
-        <location line="-674"/>
-        <location line="+675"/>
+        <location line="-673"/>
+        <location line="+674"/>
         <source>&amp;Restore</source>
         <translation>&amp;Restaurer</translation>
     </message>
     <message>
-        <location line="-672"/>
-        <location line="+673"/>
+        <location line="-671"/>
+        <location line="+672"/>
         <source>&amp;Quit</source>
         <translation>&amp;Quitter</translation>
     </message>
     <message>
-        <location line="-558"/>
+        <location line="-557"/>
         <source>welle.io version</source>
         <translation>Version de welle.io</translation>
     </message>
@@ -225,7 +225,12 @@
         <translation>Compilé le</translation>
     </message>
     <message>
-        <location line="+125"/>
+        <location line="+4"/>
+        <source>%1 version</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+120"/>
         <source>The program will keep running in the system tray. To terminate the program, choose &quot;%1&quot; in the context menu of the system tray entry.</source>
         <translation>Le programme continue de tourner dans la boite à miniatures. Pour le terminer, choisir &quot;%1&quot; dans le menu contextuel de la boîte à miniatures.</translation>
     </message>
@@ -236,7 +241,7 @@
         <translation>Quitter</translation>
     </message>
     <message>
-        <location line="-138"/>
+        <location line="-137"/>
         <source>Git revision</source>
         <translation>Révision Git</translation>
     </message>
@@ -372,7 +377,7 @@
         <location filename="../../input/airspy_sdr.cpp" line="+222"/>
         <location filename="../../input/rtl_sdr.cpp" line="+164"/>
         <location filename="../../input/rtl_tcp.cpp" line="+588"/>
-        <location filename="../../input/v4l2_sdr.cpp" line="+1040"/>
+        <location filename="../../input/v4l2_sdr.cpp" line="+1155"/>
         <source>ADC overload. Maybe you are using a too high gain.</source>
         <translatorcomment>Saturation ou Surcharge ? Saturation semble préférable.</translatorcomment>
         <translation type="unfinished">Saturation ADC. Peut-être le gain est trop élevé.</translation>
@@ -398,7 +403,7 @@
         <translation>Chargement de SoapySDR impossible avec les paramètres de périphérique renseignés.</translation>
     </message>
     <message>
-        <location filename="../../input/v4l2_sdr.cpp" line="-368"/>
+        <location filename="../../input/v4l2_sdr.cpp" line="-370"/>
         <source>Error while opening the Linux SDR device. See log for details.</source>
         <translation type="unfinished"></translation>
     </message>

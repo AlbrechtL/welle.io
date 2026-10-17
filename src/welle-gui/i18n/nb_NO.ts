@@ -192,25 +192,25 @@
     <name>CGUIHelper</name>
     <message>
         <location filename="../gui_helper.cpp" line="74"/>
-        <location filename="../gui_helper.cpp" line="753"/>
+        <location filename="../gui_helper.cpp" line="752"/>
         <source>Mi&amp;nimize</source>
         <translation>Mi&amp;nimer</translation>
     </message>
     <message>
         <location filename="../gui_helper.cpp" line="77"/>
-        <location filename="../gui_helper.cpp" line="754"/>
+        <location filename="../gui_helper.cpp" line="753"/>
         <source>Ma&amp;ximize</source>
         <translation>Ma&amp;ksimer</translation>
     </message>
     <message>
         <location filename="../gui_helper.cpp" line="80"/>
-        <location filename="../gui_helper.cpp" line="755"/>
+        <location filename="../gui_helper.cpp" line="754"/>
         <source>&amp;Restore</source>
         <translation>&amp;Gjenoprett</translation>
     </message>
     <message>
         <location filename="../gui_helper.cpp" line="83"/>
-        <location filename="../gui_helper.cpp" line="756"/>
+        <location filename="../gui_helper.cpp" line="755"/>
         <source>&amp;Quit</source>
         <translation>&amp;Avslutt</translation>
     </message>
@@ -225,13 +225,18 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui_helper.cpp" line="332"/>
+        <location filename="../gui_helper.cpp" line="211"/>
+        <source>%1 version</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui_helper.cpp" line="331"/>
         <source>The program will keep running in the system tray. To terminate the program, choose &quot;%1&quot; in the context menu of the system tray entry.</source>
         <translatorcomment>Rough translation, should be refined.</translatorcomment>
         <translation type="unfinished">Programmet vil kjøre i bakgrunnen som et ikon på oppgavelinjen. For å avslutte programmet, velg &quot;%1&quot; i filmenyen for ikonet på oppgavelinjen.</translation>
     </message>
     <message>
-        <location filename="../gui_helper.cpp" line="337"/>
+        <location filename="../gui_helper.cpp" line="336"/>
         <source>Quit</source>
         <extracomment>&quot;Quit&quot; translation should be the same as the one of system tray</extracomment>
         <translation type="unfinished">Avslutt</translation>
@@ -373,7 +378,7 @@
         <location filename="../../input/airspy_sdr.cpp" line="399"/>
         <location filename="../../input/rtl_sdr.cpp" line="323"/>
         <location filename="../../input/rtl_tcp.cpp" line="588"/>
-        <location filename="../../input/v4l2_sdr.cpp" line="1040"/>
+        <location filename="../../input/v4l2_sdr.cpp" line="1155"/>
         <source>ADC overload. Maybe you are using a too high gain.</source>
         <translatorcomment>Refine translation.</translatorcomment>
         <translation>ADC overbelastning. Gain muligens satt for høyt.</translation>
@@ -400,17 +405,17 @@
         <translation>Kunne ikke aktivere SoapySDR med gitte enhetsargumeter.</translation>
     </message>
     <message>
-        <location filename="../../input/v4l2_sdr.cpp" line="672"/>
+        <location filename="../../input/v4l2_sdr.cpp" line="785"/>
         <source>Error while opening the Linux SDR device. See log for details.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../input/v4l2_sdr.cpp" line="713"/>
+        <location filename="../../input/v4l2_sdr.cpp" line="826"/>
         <source>The Linux SDR device is used by another program.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../input/v4l2_sdr.cpp" line="827"/>
+        <location filename="../../input/v4l2_sdr.cpp" line="940"/>
         <source>The Linux SDR device is unplugged.</source>
         <translation type="unfinished"></translation>
     </message>
