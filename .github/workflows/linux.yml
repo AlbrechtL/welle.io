@@ -165,6 +165,7 @@ jobs:
               ca-certificates git build-essential cmake ninja-build pkg-config xxd python3 zstd \
               qt6-base-dev qt6-declarative-dev qt6-multimedia-dev qt6-charts-dev qt6-svg-dev \
               libfftw3-dev libfaad-dev libmpg123-dev libmp3lame-dev libasound2-dev \
+              librtlsdr-dev libairspy-dev \
               qml6-module-qtquick qml6-module-qtquick-controls qml6-module-qtquick-templates \
               qml6-module-qtquick-layouts qml6-module-qtquick-dialogs qml6-module-qtquick-window \
               qml6-module-qtquick-effects qml6-module-qtcore qml6-module-qtcharts \
