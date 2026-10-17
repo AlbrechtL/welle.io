@@ -56,6 +56,7 @@ private slots:
     void graphsGetData_data();
     void graphsGetData();
     void showsImpulseResponseDelay();
+    void setsGain();
     void maximizesCard();
     void movesCard();
     void removesCard();
@@ -256,6 +257,72 @@ void UiDashboardTests::showsImpulseResponseDelay()
     QVERIFY2(qAbs(km - us * 0.3) < 0.1, qPrintable(lines.join(", ")));
 
     qInfo().noquote() << "Impulse response at the mouse:" << app.text("delayInfo").replace('\n', ", ");
+}
+
+void UiDashboardTests::setsGain()
+{
+    // Added by addsEveryView
+    QQuickItem* card = app.item("card.gain");
+    QVERIFY(card);
+    app.scrollIntoView(card);
+    UiApp::settle();
+    QObject* receiverSettings = app.find("receiverSettings");
+    QVERIFY(receiverSettings);
+
+    // Automatic gain is on: the manual gain can't be changed
+    QVERIFY(app.radio()->property("agc").toBool());
+    QVERIFY(app.property("gainCard.agc", "checked").toBool());
+    QVERIFY(!app.item("gainCard.gain")->isEnabled());
+
+    // Switched off in the card: also off in the settings
+    QVERIFY(app.click("gainCard.agc"));
+    QTRY_VERIFY(!app.radio()->property("agc").toBool());
+    QVERIFY(!app.property("setting.enableAGCState", "checked").toBool());
+
+    // A RAW file has no gain to set: the slider stays disabled, the card
+    // says why
+    QCOMPARE(app.radio()->property("gainCount").toInt(), 0);
+    QVERIFY(!app.item("gainCard.gain")->isEnabled());
+    QVERIFY(app.isVisible("gainCard.noGain"));
+    UiApp::settle();
+    app.screenshot("dashboard-gain");
+    app.resize(800, 480);
+    app.scrollIntoView(card);
+    UiApp::settle();
+    app.screenshot("dashboard-gain-800x480");
+    app.resize(1400, 800);
+    app.scrollIntoView(card);
+    UiApp::settle();
+
+    // A gain set while the settings are closed (as by the slider of the
+    // card) is saved by the settings
+    const int gain = 7;
+    app.radio()->setProperty("gain", gain);
+    QCOMPARE(receiverSettings->property("manualGainState").toInt(), gain);
+
+    // The button opens the receiver settings
+    QVERIFY(app.click("gainCard.openSettings"));
+    QTRY_VERIFY(app.isVisible("settingsPage"));
+    QTRY_COMPARE(app.find("settingsPage")->property("currentSection").toString(), QString("receiver"));
+    app.key(Qt::Key_Escape);
+    QTRY_VERIFY(!app.isVisible("settingsPage"));
+    QVERIFY(waitForPage());
+
+    // Saved
+    QVERIFY(app.restart());
+    QVERIFY(!app.radio()->property("agc").toBool());
+    QCOMPARE(app.radio()->property("gain").toInt(), gain);
+    QVERIFY(!app.property("gainCard.agc", "checked").toBool());
+
+    // Automatic gain again
+    app.scrollIntoView(app.item("card.gain"));
+    UiApp::settle();
+    QVERIFY(app.click("gainCard.agc"));
+    QTRY_VERIFY(app.radio()->property("agc").toBool());
+    QVERIFY(app.property("setting.enableAGCState", "checked").toBool());
+    QVERIFY(!app.item("gainCard.gain")->isEnabled());
+
+    qInfo() << "The gain card switches the automatic gain, the settings save it and the gain, the button opens the receiver settings";
 }
 
 void UiDashboardTests::maximizesCard()

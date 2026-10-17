@@ -1155,7 +1155,7 @@
 <context>
     <name>Dashboard</name>
     <message>
-        <location filename="../QML/expert/Dashboard.qml" line="+49"/>
+        <location filename="../QML/expert/Dashboard.qml" line="+51"/>
         <source>Service Overview</source>
         <translation type="unfinished">Aperçu du service</translation>
     </message>
@@ -1173,6 +1173,11 @@
         <location line="+1"/>
         <source>Spectrum</source>
         <translation type="unfinished">Spectre</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Receiver gain</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
@@ -1321,6 +1326,40 @@
         <location line="+19"/>
         <source>FFT Window placement algorithm</source>
         <translation>Algorithme de placement de la fenêtre FFT</translation>
+    </message>
+</context>
+<context>
+    <name>GainCard</name>
+    <message>
+        <location filename="../QML/expert/GainCard.qml" line="+35"/>
+        <source>Receiver gain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+15"/>
+        <source>Automatic RF gain</source>
+        <translation type="unfinished">Gain RF automatique</translation>
+    </message>
+    <message>
+        <location line="+18"/>
+        <location line="+25"/>
+        <source>Manual gain</source>
+        <translation type="unfinished">Gain RF manuel</translation>
+    </message>
+    <message>
+        <location line="-17"/>
+        <source>Value: </source>
+        <translation type="unfinished">Valeur : </translation>
+    </message>
+    <message>
+        <location line="+26"/>
+        <source>The input device has no adjustable gain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Receiver settings</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1867,7 +1906,7 @@
 <context>
     <name>ReceiverSettings</name>
     <message>
-        <location filename="../QML/settings/ReceiverSettings.qml" line="+88"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="+91"/>
         <source>Receiver</source>
         <translation type="unfinished"></translation>
     </message>

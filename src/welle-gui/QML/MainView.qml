@@ -243,6 +243,7 @@ ApplicationWindow {
         onOpenStationSettings: mainWindow.navigate("stationSettings")
         onOpenReceiverSettings: mainWindow.navigate("receiverSettings")
         onShowAllStations: mainWindow.navigate("all")
+        onOpenSettings: (section) => mainWindow.openSettings(section)
         onMessage: (text, kind) => snackbar.show(text, kind)
     }
 

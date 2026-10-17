@@ -65,6 +65,9 @@ ColumnLayout {
         target: radioController
 
         function onGainCountChanged() {manualGain.to = radioController.gainCount}
+        // Changed elsewhere, e.g. in the gain card of the expert view: saved here
+        function onAgcChanged(agc) {enableAGC.checked = agc}
+        function onGainChanged(gain) {receiverSettings.manualGainState = gain}
     }
 
     Connections {

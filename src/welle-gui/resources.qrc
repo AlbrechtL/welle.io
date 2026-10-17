@@ -19,6 +19,7 @@
         <file>QML/expert/ConstellationCard.qml</file>
         <file>QML/expert/Dashboard.qml</file>
         <file>QML/expert/DashboardCard.qml</file>
+        <file>QML/expert/GainCard.qml</file>
         <file>QML/expert/RawRecorderCard.qml</file>
         <file>QML/expert/ServiceDetailsCard.qml</file>
         <file>QML/expert/ServiceOverviewCard.qml</file>

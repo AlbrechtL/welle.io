@@ -61,6 +61,7 @@ Item {
     signal showAllStations
     // A message for the snackbar (kind "info" or "error")
     signal message(string text, string kind)
+    signal openSettings(string section)
 
     onCompactChanged: if (!compact) detailOpen = false
 
@@ -122,6 +123,7 @@ Item {
             isExpert: root.isExpert
             slides: root.slides
             onMessage: (text, kind) => root.message(text, kind)
+            onOpenSettings: (section) => root.openSettings(section)
         }
     }
 

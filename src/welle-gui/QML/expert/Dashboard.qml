@@ -44,12 +44,15 @@ Item {
 
     // A card shows a message, e.g. a warning (kind "info" or "error")
     signal message(string text, string kind)
+    // A card opens a section of the settings (e.g. "receiver")
+    signal openSettings(string section)
 
     readonly property var viewTypes: [
         { name: "serviceOverview", title: qsTr("Service Overview"), file: "ServiceOverviewCard.qml" },
         { name: "serviceDetails", title: qsTr("Service Details"), file: "ServiceDetailsCard.qml" },
         { name: "slideShow", title: qsTr("MOT Slide Show"), file: "SlideShowCard.qml" },
         { name: "spectrum", title: qsTr("Spectrum"), file: "SpectrumCard.qml", properties: { kind: "spectrum" } },
+        { name: "gain", title: qsTr("Receiver gain"), file: "GainCard.qml" },
         { name: "impulseResponse", title: qsTr("Impulse Response"), file: "SpectrumCard.qml", properties: { kind: "impulseResponse" } },
         { name: "constellation", title: qsTr("Constellation Diagram"), file: "ConstellationCard.qml" },
         { name: "nullSymbol", title: qsTr("Null Symbol"), file: "SpectrumCard.qml", properties: { kind: "nullSymbol" } },

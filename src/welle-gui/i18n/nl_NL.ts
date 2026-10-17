@@ -1087,57 +1087,62 @@
 <context>
     <name>Dashboard</name>
     <message>
-        <location filename="../QML/expert/Dashboard.qml" line="49"/>
+        <location filename="../QML/expert/Dashboard.qml" line="51"/>
         <source>Service Overview</source>
         <translation type="unfinished">Service overzicht</translation>
     </message>
     <message>
-        <location filename="../QML/expert/Dashboard.qml" line="50"/>
+        <location filename="../QML/expert/Dashboard.qml" line="52"/>
         <source>Service Details</source>
         <translation type="unfinished">Service details</translation>
     </message>
     <message>
-        <location filename="../QML/expert/Dashboard.qml" line="51"/>
+        <location filename="../QML/expert/Dashboard.qml" line="53"/>
         <source>MOT Slide Show</source>
         <translation type="unfinished">MOT diashow</translation>
     </message>
     <message>
-        <location filename="../QML/expert/Dashboard.qml" line="52"/>
+        <location filename="../QML/expert/Dashboard.qml" line="54"/>
         <source>Spectrum</source>
         <translation type="unfinished">Spectrum</translation>
     </message>
     <message>
-        <location filename="../QML/expert/Dashboard.qml" line="53"/>
+        <location filename="../QML/expert/Dashboard.qml" line="55"/>
+        <source>Receiver gain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/Dashboard.qml" line="56"/>
         <source>Impulse Response</source>
         <translation type="unfinished">Impulsantwoord</translation>
     </message>
     <message>
-        <location filename="../QML/expert/Dashboard.qml" line="54"/>
+        <location filename="../QML/expert/Dashboard.qml" line="57"/>
         <source>Constellation Diagram</source>
         <translation type="unfinished">Constellatiediagram</translation>
     </message>
     <message>
-        <location filename="../QML/expert/Dashboard.qml" line="55"/>
+        <location filename="../QML/expert/Dashboard.qml" line="58"/>
         <source>Null Symbol</source>
         <translation type="unfinished">Nul symbool</translation>
     </message>
     <message>
-        <location filename="../QML/expert/Dashboard.qml" line="56"/>
+        <location filename="../QML/expert/Dashboard.qml" line="59"/>
         <source>Console Output</source>
         <translation type="unfinished">Console uitvoer</translation>
     </message>
     <message>
-        <location filename="../QML/expert/Dashboard.qml" line="57"/>
+        <location filename="../QML/expert/Dashboard.qml" line="60"/>
         <source>RAW Recorder</source>
         <translation type="unfinished">RAW opname</translation>
     </message>
     <message>
-        <location filename="../QML/expert/Dashboard.qml" line="258"/>
+        <location filename="../QML/expert/Dashboard.qml" line="261"/>
         <source>Add</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/expert/Dashboard.qml" line="259"/>
+        <location filename="../QML/expert/Dashboard.qml" line="262"/>
         <source>Add a view</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1225,6 +1230,40 @@
         <location filename="../QML/settings/ExpertSettings.qml" line="110"/>
         <location filename="../QML/settings/ExpertSettings.qml" line="129"/>
         <source>FFT Window placement algorithm</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>GainCard</name>
+    <message>
+        <location filename="../QML/expert/GainCard.qml" line="35"/>
+        <source>Receiver gain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/GainCard.qml" line="50"/>
+        <source>Automatic RF gain</source>
+        <translation type="unfinished">Automatische RF versterking</translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/GainCard.qml" line="68"/>
+        <location filename="../QML/expert/GainCard.qml" line="93"/>
+        <source>Manual gain</source>
+        <translation type="unfinished">Handmatige versterking</translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/GainCard.qml" line="76"/>
+        <source>Value: </source>
+        <translation type="unfinished">Waarde: </translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/GainCard.qml" line="102"/>
+        <source>The input device has no adjustable gain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/GainCard.qml" line="110"/>
+        <source>Receiver settings</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1602,39 +1641,39 @@
 <context>
     <name>ReceiverSettings</name>
     <message>
-        <location filename="../QML/settings/ReceiverSettings.qml" line="88"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="91"/>
         <source>Receiver</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/settings/ReceiverSettings.qml" line="93"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="96"/>
         <source>Automatic RF gain</source>
         <translation type="unfinished">Automatische RF versterking</translation>
     </message>
     <message>
-        <location filename="../QML/settings/ReceiverSettings.qml" line="104"/>
-        <location filename="../QML/settings/ReceiverSettings.qml" line="124"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="107"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="127"/>
         <source>Manual gain</source>
         <translation type="unfinished">Handmatige versterking</translation>
     </message>
     <message>
-        <location filename="../QML/settings/ReceiverSettings.qml" line="105"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="108"/>
         <source>Value: </source>
         <translation type="unfinished">Waarde: </translation>
     </message>
     <message>
-        <location filename="../QML/settings/ReceiverSettings.qml" line="131"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="134"/>
         <source>Auto detect</source>
         <translation type="unfinished">Automatische detectie</translation>
     </message>
     <message>
-        <location filename="../QML/settings/ReceiverSettings.qml" line="132"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="135"/>
         <source>Use the first receiver that is found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/settings/ReceiverSettings.qml" line="141"/>
-        <location filename="../QML/settings/ReceiverSettings.qml" line="171"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="144"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="174"/>
         <source>Input device</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1902,32 +1941,32 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/settings/ReceiverSettings.qml" line="149"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="152"/>
         <source>None</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/settings/ReceiverSettings.qml" line="150"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="153"/>
         <source>Airspy</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/settings/ReceiverSettings.qml" line="151"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="154"/>
         <source>rtl-sdr</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/settings/ReceiverSettings.qml" line="152"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="155"/>
         <source>SoapySDR</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/settings/ReceiverSettings.qml" line="153"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="156"/>
         <source>rtl-tcp</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/settings/ReceiverSettings.qml" line="154"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="157"/>
         <source>RAW file</source>
         <translation type="unfinished"></translation>
     </message>
