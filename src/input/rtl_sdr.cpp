@@ -179,6 +179,7 @@ bool CRTL_SDR::restart(void)
         rtlsdrAsyncStarted = false;
     }
 
+    rtlsdrReaderActive = true;
     rtlsdrThread = std::thread(&CRTL_SDR::rtlsdr_read_async_wrapper, this);
     agcThread = std::thread(&CRTL_SDR::agc_timer_thread, this);
 
@@ -186,14 +187,8 @@ bool CRTL_SDR::restart(void)
         std::unique_lock<std::mutex> lock(rtlsdrStartMutex);
         if (!rtlsdrStartCv.wait_for(lock, std::chrono::seconds(1), [this] { return rtlsdrAsyncStarted; })) {
             std::clog << "RTL_SDR: " << "Async reader did not start in time" << std::endl;
-            rtlsdrRunning = false;
-            rtlsdr_cancel_async(device);
-            if (rtlsdrThread.joinable()) {
-                rtlsdrThread.join();
-            }
-            if (agcThread.joinable()) {
-                agcThread.join();
-            }
+            lock.unlock();
+            stop();
             return false;
         }
     }
@@ -213,7 +208,12 @@ void CRTL_SDR::stop(void)
 
     rtlsdrRunning = false;
 
-    rtlsdr_cancel_async(device);
+    // rtlsdr_cancel_async() is a no-op until rtlsdr_read_async() runs its
+    // loop; a single call right after restart() is lost and join() hangs
+    while (rtlsdrReaderActive) {
+        rtlsdr_cancel_async(device);
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
 
     if (rtlsdrThread.joinable()) {
         rtlsdrThread.join();
@@ -410,6 +410,7 @@ void CRTL_SDR::rtlsdr_read_async_wrapper()
     rtlsdr_read_async(device,
                       (rtlsdr_read_async_cb_t)&CRTL_SDR::rtlsdr_read_callback,
                       (void*)this, 0, READLEN_DEFAULT);
+    rtlsdrReaderActive = false;
 
     if(rtlsdrRunning) {
         radioController.onMessage(message_level_t::Error, QT_TRANSLATE_NOOP("CRadioController", "RTL-SDR is unplugged."));
