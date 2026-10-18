@@ -123,6 +123,7 @@ Item {
                         ListElement { label: "Polski"; langCode: "pl_PL" }
                         ListElement { label: "Ру́сский"; langCode: "ru_RU" }
                         ListElement { label: "Español"; langCode: "es_ES" }
+                        ListElement { label: "Türkçe"; langCode: "tr_TR" }
                     }
                     sizeToContents: true
                     onCurrentIndexChanged: {
