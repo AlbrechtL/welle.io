@@ -266,13 +266,13 @@
 <context>
     <name>CRadioController</name>
     <message>
-        <location filename="../radio_controller.cpp" line="723"/>
+        <location filename="../radio_controller.cpp" line="726"/>
         <source>Unknown</source>
         <translation>Desconocido</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="520"/>
-        <location filename="../radio_controller.cpp" line="743"/>
+        <location filename="../radio_controller.cpp" line="523"/>
+        <location filename="../radio_controller.cpp" line="746"/>
         <source>No Station</source>
         <translation>Sin estaciones</translation>
     </message>
@@ -287,44 +287,44 @@
         <translation>Error al abrir el fichero </translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="301"/>
+        <location filename="../radio_controller.cpp" line="304"/>
         <source>Playback failed</source>
         <translation>Reproducción fallida</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="322"/>
+        <location filename="../radio_controller.cpp" line="325"/>
         <source>Stopped</source>
         <translation>Detenido</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="473"/>
+        <location filename="../radio_controller.cpp" line="476"/>
         <source>No receiver</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="482"/>
+        <location filename="../radio_controller.cpp" line="485"/>
         <source>RAW File</source>
         <translation>Fichero RAW</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="496"/>
-        <location filename="../radio_controller.cpp" line="1013"/>
+        <location filename="../radio_controller.cpp" line="499"/>
+        <location filename="../radio_controller.cpp" line="1016"/>
         <source>Scanning</source>
         <translation>Escaneando</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="500"/>
-        <location filename="../radio_controller.cpp" line="1038"/>
+        <location filename="../radio_controller.cpp" line="503"/>
+        <location filename="../radio_controller.cpp" line="1041"/>
         <source>Found channels</source>
         <translation>Estaciones encontradas</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="717"/>
+        <location filename="../radio_controller.cpp" line="720"/>
         <source>Playing last station</source>
         <translation>Reproduciendo la última estación</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="793"/>
+        <location filename="../radio_controller.cpp" line="796"/>
         <source>Radio device is not ready or does not exist.</source>
         <translation>El dispositivo de radio no está presente o disponible.</translation>
     </message>
@@ -374,12 +374,12 @@
         <location filename="../../input/airspy_sdr.cpp" line="399"/>
         <location filename="../../input/rtl_sdr.cpp" line="323"/>
         <location filename="../../input/rtl_tcp.cpp" line="588"/>
-        <location filename="../../input/v4l2_sdr.cpp" line="1155"/>
+        <location filename="../../input/v4l2_sdr.cpp" line="1156"/>
         <source>ADC overload. Maybe you are using a too high gain.</source>
         <translation>Sobrecarga de ADC. Quizá esté usando una ganancia demasiado alta.</translation>
     </message>
     <message>
-        <location filename="../../input/rtl_sdr.cpp" line="415"/>
+        <location filename="../../input/rtl_sdr.cpp" line="416"/>
         <source>RTL-SDR is unplugged.</source>
         <translation>RTL-SDR está desconectado.</translation>
     </message>
@@ -1340,23 +1340,28 @@
         <translation type="unfinished">Ganancia de RF automática</translation>
     </message>
     <message>
-        <location filename="../QML/expert/GainCard.qml" line="68"/>
-        <location filename="../QML/expert/GainCard.qml" line="93"/>
+        <location filename="../QML/expert/GainCard.qml" line="51"/>
+        <source>No effect with this input device</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/GainCard.qml" line="69"/>
+        <location filename="../QML/expert/GainCard.qml" line="94"/>
         <source>Manual gain</source>
         <translation type="unfinished">Ganancia manual</translation>
     </message>
     <message>
-        <location filename="../QML/expert/GainCard.qml" line="76"/>
+        <location filename="../QML/expert/GainCard.qml" line="77"/>
         <source>Value: </source>
         <translation type="unfinished">Valor: </translation>
     </message>
     <message>
-        <location filename="../QML/expert/GainCard.qml" line="102"/>
+        <location filename="../QML/expert/GainCard.qml" line="103"/>
         <source>The input device has no adjustable gain</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/expert/GainCard.qml" line="110"/>
+        <location filename="../QML/expert/GainCard.qml" line="111"/>
         <source>Receiver settings</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1908,15 +1913,25 @@
         <translation type="unfinished">Ganancia de RF automática</translation>
     </message>
     <message>
-        <location filename="../QML/settings/ReceiverSettings.qml" line="182"/>
-        <location filename="../QML/settings/ReceiverSettings.qml" line="202"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="172"/>
+        <source>No effect with this input device</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="184"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="208"/>
         <source>Manual gain</source>
         <translation type="unfinished">Ganancia manual</translation>
     </message>
     <message>
-        <location filename="../QML/settings/ReceiverSettings.qml" line="183"/>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="188"/>
         <source>Value: </source>
         <translation type="unfinished">Valor: </translation>
+    </message>
+    <message>
+        <location filename="../QML/settings/ReceiverSettings.qml" line="189"/>
+        <source>The input device has no adjustable gain</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../QML/settings/ReceiverSettings.qml" line="124"/>

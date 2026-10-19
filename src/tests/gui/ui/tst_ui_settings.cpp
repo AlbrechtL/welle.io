@@ -137,6 +137,16 @@ void UiSettingsTests::showsExistingSettings()
     QVERIFY(app.root()->property("isStationNameInWindowTitle").toBool());
     QVERIFY(!app.radio()->property("agc").toBool());
 
+    // A RAW file has no gain to set (like an RTL-SDR stick with the Linux
+    // kernel driver): the manual gain stays disabled although the
+    // automatic gain is off, and the settings say why
+    QCOMPARE(app.radio()->property("gainCount").toInt(), 0);
+    QVERIFY(!app.item("setting.manualGainState")->isEnabled());
+    QCOMPARE(app.property("setting.manualGainRow", "description").toString(),
+             QString("The input device has no adjustable gain"));
+    QCOMPARE(app.property("setting.enableAGCState", "description").toString(),
+             QString("No effect with this input device"));
+
     qInfo() << "The settings of an existing installation are shown and applied";
 }
 

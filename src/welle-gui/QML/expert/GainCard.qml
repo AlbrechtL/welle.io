@@ -48,6 +48,7 @@ DashboardCard {
             leftPadding: Theme.spacingS
             rightPadding: Theme.spacingS
             text: qsTr("Automatic RF gain")
+            description: radioController.gainCount > 0 ? "" : qsTr("No effect with this input device")
             checked: radioController.agc
             onClicked: {
                 radioController.setAGC(checked)

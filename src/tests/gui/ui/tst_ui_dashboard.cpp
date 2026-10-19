@@ -284,6 +284,8 @@ void UiDashboardTests::setsGain()
     QCOMPARE(app.radio()->property("gainCount").toInt(), 0);
     QVERIFY(!app.item("gainCard.gain")->isEnabled());
     QVERIFY(app.isVisible("gainCard.noGain"));
+    QCOMPARE(app.property("gainCard.agc", "description").toString(),
+             QString("No effect with this input device"));
     UiApp::settle();
     app.screenshot("dashboard-gain");
     app.resize(800, 480);

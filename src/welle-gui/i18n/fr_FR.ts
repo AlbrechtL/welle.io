@@ -266,7 +266,7 @@
 <context>
     <name>CRadioController</name>
     <message>
-        <location filename="../radio_controller.cpp" line="+723"/>
+        <location filename="../radio_controller.cpp" line="+726"/>
         <source>Unknown</source>
         <translation>Inconnu</translation>
     </message>
@@ -277,7 +277,7 @@
         <translation>Pas de station</translation>
     </message>
     <message>
-        <location line="-574"/>
+        <location line="-577"/>
         <source>Error while opening device </source>
         <translation type="unfinished"></translation>
     </message>
@@ -287,7 +287,7 @@
         <translation>Erreur à l&apos;ouverture du fichier </translation>
     </message>
     <message>
-        <location line="+118"/>
+        <location line="+121"/>
         <source>Playback failed</source>
         <translation>Lecture en échec</translation>
     </message>
@@ -377,13 +377,13 @@
         <location filename="../../input/airspy_sdr.cpp" line="+222"/>
         <location filename="../../input/rtl_sdr.cpp" line="+164"/>
         <location filename="../../input/rtl_tcp.cpp" line="+588"/>
-        <location filename="../../input/v4l2_sdr.cpp" line="+1155"/>
+        <location filename="../../input/v4l2_sdr.cpp" line="+1156"/>
         <source>ADC overload. Maybe you are using a too high gain.</source>
         <translatorcomment>Saturation ou Surcharge ? Saturation semble préférable.</translatorcomment>
         <translation type="unfinished">Saturation ADC. Peut-être le gain est trop élevé.</translation>
     </message>
     <message>
-        <location filename="../../input/rtl_sdr.cpp" line="+92"/>
+        <location filename="../../input/rtl_sdr.cpp" line="+93"/>
         <source>RTL-SDR is unplugged.</source>
         <translation>RTL-SDR est débranché.</translation>
     </message>
@@ -403,7 +403,7 @@
         <translation>Chargement de SoapySDR impossible avec les paramètres de périphérique renseignés.</translation>
     </message>
     <message>
-        <location filename="../../input/v4l2_sdr.cpp" line="-370"/>
+        <location filename="../../input/v4l2_sdr.cpp" line="-371"/>
         <source>Error while opening the Linux SDR device. See log for details.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1379,6 +1379,11 @@
         <translation type="unfinished">Gain RF automatique</translation>
     </message>
     <message>
+        <location line="+1"/>
+        <source>No effect with this input device</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location line="+18"/>
         <location line="+25"/>
         <source>Manual gain</source>
@@ -1954,18 +1959,28 @@
         <translation type="unfinished">Gain RF automatique</translation>
     </message>
     <message>
-        <location line="+11"/>
-        <location line="+20"/>
+        <location line="+1"/>
+        <source>No effect with this input device</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <location line="+24"/>
         <source>Manual gain</source>
         <translation type="unfinished">Gain RF manuel</translation>
     </message>
     <message>
-        <location line="-19"/>
+        <location line="-20"/>
         <source>Value: </source>
         <translation type="unfinished">Valeur : </translation>
     </message>
     <message>
-        <location line="-59"/>
+        <location line="+1"/>
+        <source>The input device has no adjustable gain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-65"/>
         <source>Auto detect</source>
         <translation type="unfinished">Détection automatique</translation>
     </message>

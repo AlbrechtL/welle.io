@@ -242,7 +242,7 @@
 <context>
     <name>CRadioController</name>
     <message>
-        <location filename="../radio_controller.cpp" line="+723"/>
+        <location filename="../radio_controller.cpp" line="+726"/>
         <source>Unknown</source>
         <translation>Неизвестный</translation>
     </message>
@@ -253,12 +253,12 @@
         <translation>Нет каналов</translation>
     </message>
     <message>
-        <location line="-574"/>
+        <location line="-577"/>
         <source>Error while opening device </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+304"/>
+        <location line="+307"/>
         <source>No receiver</source>
         <translation type="unfinished"></translation>
     </message>
@@ -325,12 +325,12 @@
         <location filename="../../input/airspy_sdr.cpp" line="+222"/>
         <location filename="../../input/rtl_sdr.cpp" line="+323"/>
         <location filename="../../input/rtl_tcp.cpp" line="+588"/>
-        <location filename="../../input/v4l2_sdr.cpp" line="+1155"/>
+        <location filename="../../input/v4l2_sdr.cpp" line="+1156"/>
         <source>ADC overload. Maybe you are using a too high gain.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../input/rtl_sdr.cpp" line="+92"/>
+        <location filename="../../input/rtl_sdr.cpp" line="+93"/>
         <source>RTL-SDR is unplugged.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -350,17 +350,17 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="-610"/>
+        <location filename="../radio_controller.cpp" line="-613"/>
         <source>Error while opening file </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+534"/>
+        <location line="+537"/>
         <source>Playing last station</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../input/rtl_sdr.cpp" line="-256"/>
+        <location filename="../../input/rtl_sdr.cpp" line="-257"/>
         <source>Error opening RTL-SDR. See log for details.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -375,7 +375,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../input/v4l2_sdr.cpp" line="-370"/>
+        <location filename="../../input/v4l2_sdr.cpp" line="-371"/>
         <source>Error while opening the Linux SDR device. See log for details.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1280,6 +1280,11 @@
         <translation type="unfinished">Автоматический уровень</translation>
     </message>
     <message>
+        <location line="+1"/>
+        <source>No effect with this input device</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location line="+18"/>
         <location line="+25"/>
         <source>Manual gain</source>
@@ -1596,18 +1601,28 @@
         <translation type="unfinished">Автоматический уровень</translation>
     </message>
     <message>
-        <location line="+11"/>
-        <location line="+20"/>
+        <location line="+1"/>
+        <source>No effect with this input device</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <location line="+24"/>
         <source>Manual gain</source>
         <translation type="unfinished">Ручной уровень</translation>
     </message>
     <message>
-        <location line="-19"/>
+        <location line="-20"/>
         <source>Value: </source>
         <translation type="unfinished">Значение: </translation>
     </message>
     <message>
-        <location line="-59"/>
+        <location line="+1"/>
+        <source>The input device has no adjustable gain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-65"/>
         <source>Auto detect</source>
         <translation type="unfinished"></translation>
     </message>

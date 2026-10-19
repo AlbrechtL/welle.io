@@ -85,7 +85,14 @@ that `SoftwareAgc` needs no change), with the level of the Airspy input
   airspy: VGA index, nominal 3.4 dB); `SoftwareAgc` learns the real steps.
 * Without IF gain: the LNA gain, else the RF gain.
 * rtl2832_sdr with R820T/R828D has no gain control: `getGainCount()` is 0,
-  the tuner uses its own AGC.
+  the tuner uses its own AGC. The driver registers only the bandwidth
+  controls for these tuners and turns on the IF AGC of the RTL2832; in
+  `r820t.c` the manual gain (`r820t_set_gain_mode()`) is `#if 0`, so the LNA
+  and mixer gain are automatic and the VGA follows the AGC pin of the
+  demodulator. Setting the gain would need a kernel change. With
+  `getGainCount()` 0 the GUI disables the manual gain and says that the
+  automatic RF gain has no effect; the ADC overload message is not shown
+  either, because the user can't lower the gain.
 
 ## Known limitations
 

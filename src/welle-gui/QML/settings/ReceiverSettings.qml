@@ -169,6 +169,7 @@ ColumnLayout {
             id: enableAGC
             objectName: "setting.enableAGCState"
             text: qsTr("Automatic RF gain")
+            description: radioController.gainCount > 0 ? "" : qsTr("No effect with this input device")
             checked: true
             onClicked: {
                 radioController.setAGC(checked)
@@ -179,10 +180,15 @@ ColumnLayout {
         }
 
         SettingRow {
+            objectName: "setting.manualGainRow"
             title: qsTr("Manual gain")
-            description: qsTr("Value: ") + radioController.gainValue.toFixed(2)
+            // RAW files and e.g. RTL-SDR sticks with the Linux kernel driver
+            // have no gain to set
+            description: radioController.gainCount > 0
+                         ? qsTr("Value: ") + radioController.gainValue.toFixed(2)
+                         : qsTr("The input device has no adjustable gain")
             wideControl: true
-            enabled: !enableAGC.checked
+            enabled: !enableAGC.checked && radioController.gainCount > 0
 
             Slider {
                 id: manualGain
