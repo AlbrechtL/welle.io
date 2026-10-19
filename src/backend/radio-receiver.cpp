@@ -118,7 +118,9 @@ void RadioReceiver::setReceiverOptions(const RadioReceiverOptions rro)
         "TII: " << rro.decodeTII <<
         " disable coarse corr: " << rro.disableCoarseCorrector <<
         " freqsync: " << fsm <<
-        " fft placement: " << fftPlacementMethodToString(rro.fftPlacementMethod) << endl;
+        " fft placement: " << fftPlacementMethodToString(rro.fftPlacementMethod) <<
+        " demodulation: " << (rro.demodulationMethod == DemodulationMethod::Coherent ?
+                "coherent" : "differential") << endl;
     ofdmProcessor.setReceiverOptions(rro);
 }
 

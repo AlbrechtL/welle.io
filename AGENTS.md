@@ -113,7 +113,10 @@ CTest, details in `src/tests/README.md`.
 | `build/src/tests/tst_ui_settings switchesLanguage` | One test function |
 
 * `backend.recording.<clip>` decodes every recording of the manifest and
-  compares it with its expectations.
+  compares it with its expectations, `backend.coherent.<clip>` the same with
+  the coherent demodulator (`docs/development/coherent-demodulation.md`).
+  `build/src/tests/demod_compare <out.json>` compares both demodulators on
+  all recordings and in SNR sweeps.
 * `cli.*` (`src/tests/cli/`) run the built `welle-cli` binary as a black
   box (options, files it writes, its web server); `cli.recording.<clip>`
   compares `mux.json` with the manifest.
@@ -264,6 +267,8 @@ add them for new texts.
 * FIG 0/3 entries are 5 bytes, 7 only with the CAOrg flag; FIG 0/8 and
   0/13 carry SCIdS, not the component number. Such parsing errors show up
   as packet mode components without subchannel (subchannel -1).
+* FFTW plans must not be created in parallel threads: several receivers in
+  one process crash. Tools that decode in parallel use processes.
 * Packets with address 1022 are packet FEC data without CRC. Without FEC
   handling they look like a burst of CRC errors every 103 packets.
 * The example in annex C of TS 102 371 uses wrong values for the

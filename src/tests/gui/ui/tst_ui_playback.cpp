@@ -51,6 +51,7 @@ private slots:
     void fitsWithoutScrolling_data();
     void fitsWithoutScrolling();
     void stopsAndPlays();
+    void playsWithCoherentDemodulation();
     void keyboardShortcuts();
     void volumeShortcuts();
     void showsGenreOnTheRight();
@@ -360,6 +361,27 @@ void UiPlaybackTests::stopsAndPlays()
     QTRY_VERIFY_WITH_TIMEOUT(isPlaying() && currentService() == sid, timeoutPlay);
 
     qInfo() << "The play/stop button stops and plays the last station again";
+}
+
+void UiPlaybackTests::playsWithCoherentDemodulation()
+{
+    // As chosen in the expert settings (tst_ui_settings): the receiver
+    // switches while it plays
+    QVERIFY(QMetaObject::invokeMethod(app.radio(), "setDemodulationMethod", Q_ARG(int, 1)));
+    QCOMPARE(app.radio()->property("demodulationMethod").toInt(), 1);
+
+    // Each station starts a new audio decoder, its audio mode is shown after
+    // the first audio frame
+    for (const QJsonObject& service : app.services()) {
+        const QString label = service["label"].toString();
+        QVERIFY2(play(service), qPrintable("Clicking " + label + " doesn't play it"));
+        QTRY_COMPARE_WITH_TIMEOUT(app.text("nowPlaying.dabType"), service["type"].toString(), timeoutPlay);
+        const QString bitrate = QString("@ %1 kbit/s").arg(service["bitrate"].toInt());
+        QTRY_VERIFY_WITH_TIMEOUT(app.text("nowPlaying.audioMode").endsWith(bitrate), timeoutPlay);
+    }
+
+    QVERIFY(QMetaObject::invokeMethod(app.radio(), "setDemodulationMethod", Q_ARG(int, 0)));
+    qInfo() << "All stations play with the coherent demodulation";
 }
 
 void UiPlaybackTests::keyboardShortcuts()

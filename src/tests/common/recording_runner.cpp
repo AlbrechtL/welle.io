@@ -293,8 +293,7 @@ RunResult runRecording(const std::string& fileName,
     InputInterface& input = options.channel.active() ?
         static_cast<InputInterface&>(channel) : rawFile;
 
-    RadioReceiverOptions rro;
-    RadioReceiver receiver(rc, input, rro);
+    RadioReceiver receiver(rc, input, options.receiverOptions);
 
     // Attach the decoders from the receiver thread. That happens at the same
     // position in the signal every time, independent of the machine load.

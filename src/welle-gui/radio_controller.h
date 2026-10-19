@@ -105,6 +105,8 @@ class CRadioController :
     // SPI (station logos) of the current ensemble, see SpiState
     Q_PROPERTY(int spiState MEMBER spiState NOTIFY spiStateChanged)
     Q_PROPERTY(int spiLogoCount MEMBER spiLogoCount NOTIFY spiLogoCountChanged)
+    // 0: differential, 1: coherent (DemodulationMethod)
+    Q_PROPERTY(int demodulationMethod READ demodulationMethod NOTIFY demodulationMethodChanged)
 
 public:
     enum SpiState {
@@ -141,6 +143,8 @@ public:
     Q_INVOKABLE void enableTIIDecode(bool enable);
     Q_INVOKABLE void selectFFTWindowPlacement(int fft_window_placement_ix);
     Q_INVOKABLE void setFreqSyncMethod(int fsm_ix);
+    Q_INVOKABLE void setDemodulationMethod(int method);
+    int demodulationMethod() const { return static_cast<int>(rro.demodulationMethod); }
     Q_INVOKABLE void setGain(int gain);
     Q_INVOKABLE void initRecorder(int size);
     Q_INVOKABLE void triggerRecorder(QString filename);
@@ -297,6 +301,7 @@ signals:
     void isDABChanged(bool);
     void audioModeChanged(QString);
     void snrChanged(float);
+    void demodulationMethodChanged(int);
     void frequencyCorrectionChanged(int);
     void frequencyCorrectionPpmChanged(float);
     void bitRateChanged(int);

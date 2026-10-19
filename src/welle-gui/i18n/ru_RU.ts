@@ -242,18 +242,18 @@
 <context>
     <name>CRadioController</name>
     <message>
-        <location filename="../radio_controller.cpp" line="+726"/>
+        <location filename="../radio_controller.cpp" line="+739"/>
         <source>Unknown</source>
         <translation>Неизвестный</translation>
     </message>
     <message>
-        <location line="-203"/>
-        <location line="+223"/>
+        <location line="-216"/>
+        <location line="+236"/>
         <source>No Station</source>
         <translation>Нет каналов</translation>
     </message>
     <message>
-        <location line="-577"/>
+        <location line="-590"/>
         <source>Error while opening device </source>
         <translation type="unfinished"></translation>
     </message>
@@ -269,13 +269,13 @@
     </message>
     <message>
         <location line="+14"/>
-        <location line="+517"/>
+        <location line="+530"/>
         <source>Scanning</source>
         <translation>Сканирование</translation>
     </message>
     <message>
-        <location line="-513"/>
-        <location line="+538"/>
+        <location line="-526"/>
+        <location line="+551"/>
         <source>Found channels</source>
         <translation>Найдено каналов</translation>
     </message>
@@ -350,12 +350,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="-613"/>
+        <location filename="../radio_controller.cpp" line="-626"/>
         <source>Error while opening file </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+537"/>
+        <location line="+550"/>
         <source>Playing last station</source>
         <translation type="unfinished"></translation>
     </message>
@@ -365,7 +365,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="-416"/>
+        <location filename="../radio_controller.cpp" line="-429"/>
         <source>Playback failed</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1230,7 +1230,7 @@
         <translation type="obsolete">Основные параметры</translation>
     </message>
     <message>
-        <location filename="../QML/settings/ExpertSettings.qml" line="+53"/>
+        <location filename="../QML/settings/ExpertSettings.qml" line="+54"/>
         <source>Expert mode</source>
         <translation type="unfinished">Расширенный режим</translation>
     </message>
@@ -1246,12 +1246,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-54"/>
+        <location line="-55"/>
         <source>Expert</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+16"/>
+        <location line="+17"/>
         <source>Technical views like spectrum and constellation diagram, manual channel selection</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1264,6 +1264,17 @@
         <location line="+10"/>
         <location line="+19"/>
         <source>FFT Window placement algorithm</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <location line="+18"/>
+        <source>Demodulator</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-17"/>
+        <source>Coherent receives weak signals with up to 2 dB less SNR, but only with a stationary antenna</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1864,7 +1875,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QML/settings/ExpertSettings.qml" line="-48"/>
+        <location filename="../QML/settings/ExpertSettings.qml" line="-54"/>
         <source>GetMiddle</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1891,6 +1902,16 @@
     <message>
         <location line="+1"/>
         <source>Threshold Before Peak</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+22"/>
+        <source>Differential</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Coherent</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

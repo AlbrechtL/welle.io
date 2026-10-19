@@ -28,6 +28,7 @@
 #include <QJsonObject>
 
 #include "channel_model.h"
+#include "radio-receiver-options.h"
 
 // Result of decoding one service while a recording was played
 struct ServiceResult {
@@ -94,6 +95,8 @@ struct RunOptions {
     double timeoutSeconds = 300;
     // Echo and noise between the recording and the receiver
     ChannelModel channel;
+    // Options of the receiver, e.g. the demodulation method
+    RadioReceiverOptions receiverOptions;
 };
 
 // Plays a recording as fast as possible from the beginning to the end and

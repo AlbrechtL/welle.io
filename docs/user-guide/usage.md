@@ -27,3 +27,15 @@ device automatically (see [Supported hardware](../devices/index.md)).
 | M, Volume Mute | Mute/unmute |
 | Ctrl+Up, Volume Up | Volume up |
 | Ctrl+Down, Volume Down | Volume down |
+
+## Weak signals
+
+The best help for a weak ensemble is a better antenna or antenna position:
+outdoors, high up, vertical and pointing to the transmitter.
+
+With a stationary antenna, welle.io can also receive weaker signals: in
+the settings, switch on *Expert mode* and set *Demodulator* to
+*Coherent*. It needs up to 2 dB less signal for the station list and the
+audio. Use *Differential* (the default) in a car or
+with a moving antenna: there the coherent demodulator receives worse.
+Details: [Coherent demodulation](../development/coherent-demodulation.md).

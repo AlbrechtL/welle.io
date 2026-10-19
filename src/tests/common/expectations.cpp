@@ -143,6 +143,26 @@ static QString percent(int count, int total)
     return QString::number(total ? 100.0 * count / total : 0, 'f', 1) + " %";
 }
 
+DemodulationMethod testDemodulationMethod()
+{
+    return qEnvironmentVariable("WELLE_TEST_DEMODULATOR") == "coherent" ?
+        DemodulationMethod::Coherent : DemodulationMethod::Differential;
+}
+
+QJsonObject clipForDemodulation(const QJsonObject& clip, DemodulationMethod method)
+{
+    if (method != DemodulationMethod::Coherent || !clip.contains("expect_coherent"))
+        return clip;
+
+    QJsonObject result = clip;
+    QJsonObject expect = clip["expect"].toObject();
+    const QJsonObject coherent = clip["expect_coherent"].toObject();
+    for (auto it = coherent.begin(); it != coherent.end(); ++it)
+        expect[it.key()] = it.value();
+    result["expect"] = expect;
+    return result;
+}
+
 CheckReport checkExpectations(const QJsonObject& clip,
                               const QJsonObject& defaults,
                               const RunResult& r)

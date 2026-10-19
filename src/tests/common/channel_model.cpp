@@ -47,8 +47,14 @@ int32_t ChannelModelInput::getSamples(DSPCOMPLEX* buffer, int32_t size)
             const DSPCOMPLEX delayed = history[historyPos];
             history[historyPos] = z;
             historyPos = (historyPos + 1) % history.size();
-            z += float(model.echoGain) * delayed;
+            DSPCOMPLEX echo = float(model.echoGain) * delayed;
+            if (model.echoDopplerHz != 0) {
+                const double t = double(sampleIndex) / INPUT_RATE;
+                echo *= std::polar(1.0f, float(std::fmod(2 * M_PI * model.echoDopplerHz * t, 2 * M_PI)));
+            }
+            z += echo;
         }
+        sampleIndex++;
 
         if (noise) {
             powerSum += std::norm(z);

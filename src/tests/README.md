@@ -14,9 +14,11 @@ They are built with CMake and run with CTest.
 | `unit.mp2_scf_crc` | `unit` | Scale Factor CRC of MP2 frames: Scale Factors with errors are muted | no |
 | `unit.software_agc` | `unit` | Software AGC of the RTL-SDR, rtl_tcp and Airspy inputs with a simulated tuner (also the measured gain steps of a real R820T): finds the gain without clipping and keeps it | no |
 | `unit.coarse_frequency` | `unit` | Coarse frequency offset from the phase reference symbol with timing offset, echo and noise; no estimate for noise or a null symbol with TII carriers | no |
+| `unit.coherent_demod` | `unit` | Coherent demodulation with synthetic frames: right bits with echo, FFT window and phase changes, frequency offset and clock error; more information per soft bit than the differential demodulation at 2 dB SNR; new channel restarts the estimate | no |
 | `unit.rational_resampler` | `unit` | Resampling of the Airspy input from its native rates (3, 2.5 MS/s; 4.096 MS/s) to 2.048 MS/s: DAB block unchanged, adjacent blocks suppressed by more than 65 dB | no |
 | `backend.recording.<clip>` | `backend` | Decodes one recording and compares everything with its expectations, see below | yes |
-| `backend.sensitivity` | `backend` | `odr_dabmod` through a radio channel (`common/channel_model.h`: echo and noise): FIB and audio frame errors below limits | yes |
+| `backend.coherent.<clip>` | `backend` | The same with the coherent demodulation (`WELLE_TEST_DEMODULATOR=coherent`) | yes |
+| `backend.sensitivity` | `backend` | `odr_dabmod` through a radio channel (`common/channel_model.h`: echo, Doppler and noise) with both demodulations: FIB and audio frame errors below limits | yes |
 | `cli.options` | `cli` | welle-cli command line: help, version, invalid options, missing IQ file | no |
 | `cli.recording.<clip>` | `cli` | welle-cli plays one recording with its web server; ensemble and service list of `mux.json` | yes |
 | `cli.webServer` | `cli` | `-D -w`: audio format, DLS and slide of every service in `mux.json`, MP3 streams, playlist, FIC, measurements, slides, error codes | yes |
@@ -166,14 +168,22 @@ so that the results are readable. To see them, set `WELLE_TEST_VERBOSE`:
 WELLE_TEST_VERBOSE=1 ctest --test-dir build-tests -R odr_dabmod -V
 ```
 
-`welle-test-probe <clip>` prints everything welle.io decoded from a
-recording as JSON, e.g. to investigate a failed test.
+`welle-test-probe <clip> [format] [differential|coherent]` prints
+everything welle.io decoded from a recording as JSON, e.g. to investigate a
+failed test.
+
+`demod_compare <output.json>` decodes every recording with both
+demodulations and sweeps the SNR of some of them through the channel model
+(noise, echo, echo with Doppler shift), see
+[Coherent demodulation](../../docs/development/coherent-demodulation.md).
 
 ## How the recordings are tested
 
 `tst_recordings` decodes a recording as fast as possible, with an audio
 decoder for every service, and compares the result with the `expect` block
-of the recording in the manifest. The expected values and their tolerances
+of the recording in the manifest. For `backend.coherent.<clip>` the keys of
+an `expect_coherent` block replace those of `expect` (e.g. `lu_7d_2026`,
+whose audio only the coherent demodulation decodes). The expected values and their tolerances
 are described in the README of the test data repository.
 
 The decoders are attached from the receiver thread, so they start at the
