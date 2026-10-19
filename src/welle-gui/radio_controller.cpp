@@ -599,6 +599,19 @@ void CRadioController::setFreqSyncMethod(int fsm_ix)
     }
 }
 
+void CRadioController::setDemodulationMethod(int method)
+{
+    const auto m = method == 1 ? DemodulationMethod::Coherent : DemodulationMethod::Differential;
+    if (m == rro.demodulationMethod)
+        return;
+    rro.demodulationMethod = m;
+
+    if (radioReceiver) {
+        radioReceiver->setReceiverOptions(rro);
+    }
+    emit demodulationMethodChanged(static_cast<int>(m));
+}
+
 void CRadioController::setGain(int Gain)
 {
     currentManualGain = Gain;

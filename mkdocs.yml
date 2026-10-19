@@ -135,6 +135,7 @@ nav:
           - Station logos (SPI): development/spi-station-logos.md
           - Multiplex reconfiguration: development/multiplex-reconfiguration.md
           - Linux kernel SDR input: development/v4l2-sdr.md
+          - Coherent demodulation: development/coherent-demodulation.md
   - About:
       - About welle.io: info.md
       - Contact: contact.md

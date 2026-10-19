@@ -47,6 +47,14 @@ QString clipPath(const QJsonObject& clip);
 // Same as missingTestData(), for one clip
 QString missingClip(const QJsonObject& clip);
 
+// Demodulation of the backend tests: WELLE_TEST_DEMODULATOR=coherent selects
+// the coherent demodulation, otherwise differential
+DemodulationMethod testDemodulationMethod();
+
+// The clip with the keys of "expect_coherent" (if any) replacing those of
+// "expect" when the coherent demodulation is used
+QJsonObject clipForDemodulation(const QJsonObject& clip, DemodulationMethod method);
+
 // welle.io writes a lot of log messages (stderr and qDebug), which hide the
 // test results. This discards them, unless the environment variable
 // WELLE_TEST_VERBOSE is set. Warnings are still shown.

@@ -26,6 +26,10 @@ add_executable(spi_capture tools/spi_capture.cpp)
 target_include_directories(spi_capture PRIVATE ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(spi_capture PRIVATE welle_test_common)
 
+# Compares the differential and the coherent demodulation on the test data
+add_executable(demod_compare tools/demod_compare.cpp)
+target_link_libraries(demod_compare PRIVATE welle_test_common)
+
 # CTest names the tests <label>.<name>, e.g. unit.rawfile, so that
 # "ctest -L unit" and "ctest -R rawfile" both work.
 
@@ -62,6 +66,10 @@ add_executable(tst_coarse_frequency unit/tst_coarse_frequency.cpp)
 target_link_libraries(tst_coarse_frequency PRIVATE welle_test_common Qt6::Test)
 add_test(NAME unit.coarse_frequency COMMAND tst_coarse_frequency)
 
+add_executable(tst_coherent_demod unit/tst_coherent_demod.cpp)
+target_link_libraries(tst_coherent_demod PRIVATE welle_test_common Qt6::Test)
+add_test(NAME unit.coherent_demod COMMAND tst_coherent_demod)
+
 if(HAVE_V4L2_SDR)
     add_executable(tst_real_iq_converter unit/tst_real_iq_converter.cpp)
     target_link_libraries(tst_real_iq_converter PRIVATE welle_test_common Qt6::Test)
@@ -84,11 +92,12 @@ add_executable(rstest ${CMAKE_SOURCE_DIR}/src/libs/fec/test/rstest.c)
 target_link_libraries(rstest PRIVATE welle)
 add_test(NAME unit.reed_solomon COMMAND rstest)
 
-set_tests_properties(unit.rawfile unit.dabconstants unit.fib unit.mp2_scf_crc unit.spi unit.software_agc unit.rational_resampler unit.coarse_frequency unit.reed_solomon PROPERTIES LABELS unit)
+set_tests_properties(unit.rawfile unit.dabconstants unit.fib unit.mp2_scf_crc unit.spi unit.software_agc unit.rational_resampler unit.coarse_frequency unit.coherent_demod unit.reed_solomon PROPERTIES LABELS unit)
 
 # Recordings of the welle.io-test-data repository. Every clip of its
 # manifest becomes one test, backend.recording.<clip id>, which runs
-# "tst_recordings decodeRecording:<clip id>". The list of clips is read when
+# "tst_recordings decodeRecording:<clip id>", and backend.coherent.<clip id>,
+# the same with the coherent demodulation. The list of clips is read when
 # CMake runs, so CMake has to know the test data directory.
 add_executable(tst_recordings backend/tst_recordings.cpp)
 target_link_libraries(tst_recordings PRIVATE welle_test_common Qt6::Test)
@@ -141,6 +150,13 @@ if(test_data_dir AND EXISTS "${test_manifest}" AND CMAKE_VERSION VERSION_GREATER
             LABELS backend
             TIMEOUT 300
             ENVIRONMENT "WELLE_TEST_DATA_DIR=${test_data_dir}")
+        # The same with the coherent demodulation
+        add_test(NAME backend.coherent.${clip_id}
+            COMMAND tst_recordings decodeRecording:${clip_id})
+        set_tests_properties(backend.coherent.${clip_id} PROPERTIES
+            LABELS backend
+            TIMEOUT 300
+            ENVIRONMENT "WELLE_TEST_DATA_DIR=${test_data_dir};WELLE_TEST_DEMODULATOR=coherent")
         if(TARGET welle-cli)
             add_test(NAME cli.recording.${clip_id}
                 COMMAND tst_cli_recordings checkRecording:${clip_id})

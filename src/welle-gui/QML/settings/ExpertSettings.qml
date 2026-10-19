@@ -43,6 +43,7 @@ SettingSection {
         property alias enableDecodeTIIState: enableDecodeTII.checked
         property alias freqSyncMethodBoxState: freqSyncMethodBox.currentIndex
         property alias fftWindowPlacement: fftPlacementBox.currentIndex
+        property alias demodulatorMethod: demodulatorBox.currentIndex
     }
 
     property alias enableExpertModeState : enableExpertMode.checked
@@ -127,6 +128,29 @@ SettingSection {
             Component.onCompleted: radioController.selectFFTWindowPlacement(currentIndex)
 
             Accessible.name: qsTr("FFT Window placement algorithm")
+        }
+    }
+
+    SettingRow {
+        title: qsTr("Demodulator")
+        description: qsTr("Coherent receives weak signals with up to 2 dB less SNR, but only with a stationary antenna")
+        enabled: enableExpertMode.checked
+
+        SettingComboBox {
+            id: demodulatorBox
+            objectName: "setting.demodulatorMethod"
+            model: ListModel {
+                ListElement { label: QT_TRANSLATE_NOOP("Settings", "Differential") }
+                ListElement { label: QT_TRANSLATE_NOOP("Settings", "Coherent") }
+            }
+            currentIndex: 0
+            onCurrentIndexChanged: {
+                radioController.setDemodulationMethod(currentIndex)
+            }
+
+            Component.onCompleted: radioController.setDemodulationMethod(currentIndex)
+
+            Accessible.name: qsTr("Demodulator")
         }
     }
 }

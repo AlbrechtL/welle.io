@@ -266,18 +266,18 @@
 <context>
     <name>CRadioController</name>
     <message>
-        <location filename="../radio_controller.cpp" line="+726"/>
+        <location filename="../radio_controller.cpp" line="+739"/>
         <source>Unknown</source>
         <translation>Inconnu</translation>
     </message>
     <message>
-        <location line="-203"/>
-        <location line="+223"/>
+        <location line="-216"/>
+        <location line="+236"/>
         <source>No Station</source>
         <translation>Pas de station</translation>
     </message>
     <message>
-        <location line="-577"/>
+        <location line="-590"/>
         <source>Error while opening device </source>
         <translation type="unfinished"></translation>
     </message>
@@ -308,13 +308,13 @@
     </message>
     <message>
         <location line="+14"/>
-        <location line="+517"/>
+        <location line="+530"/>
         <source>Scanning</source>
         <translation>Recherche</translation>
     </message>
     <message>
-        <location line="-513"/>
-        <location line="+538"/>
+        <location line="-526"/>
+        <location line="+551"/>
         <source>Found channels</source>
         <translatorcomment>Contexte: nombre stations trouvées durant la recherche de stations en scannant tous les canaux. Donc c&apos;est bien &quot;station&quot; qu&apos;il faut mettre, et pas &quot;canal&quot;</translatorcomment>
         <translation>Stations trouvées</translation>
@@ -1298,7 +1298,7 @@
         <translation type="vanished">Global</translation>
     </message>
     <message>
-        <location filename="../QML/settings/ExpertSettings.qml" line="+53"/>
+        <location filename="../QML/settings/ExpertSettings.qml" line="+54"/>
         <source>Expert mode</source>
         <translation>Mode expert</translation>
     </message>
@@ -1330,12 +1330,12 @@
         <translation type="unfinished">Algorithme de correction grossière</translation>
     </message>
     <message>
-        <location line="-54"/>
+        <location line="-55"/>
         <source>Expert</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+16"/>
+        <location line="+17"/>
         <source>Technical views like spectrum and constellation diagram, manual channel selection</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1343,6 +1343,17 @@
         <location line="+46"/>
         <source>Enable TII decoding to console log (increases CPU usage)</source>
         <translation>Activer le décodage TII vers le log de la console (augmente l&apos;utilisation CPU)</translation>
+    </message>
+    <message>
+        <location line="+34"/>
+        <location line="+18"/>
+        <source>Demodulator</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-17"/>
+        <source>Coherent receives weak signals with up to 2 dB less SNR, but only with a stationary antenna</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Strongest Peak</source>
@@ -1360,7 +1371,7 @@
         <translation type="obsolete">Seuil avant crête</translation>
     </message>
     <message>
-        <location line="+10"/>
+        <location line="-25"/>
         <location line="+19"/>
         <source>FFT Window placement algorithm</source>
         <translation>Algorithme de placement de la fenêtre FFT</translation>
@@ -2284,6 +2295,16 @@
         <location line="+1"/>
         <source>Threshold Before Peak</source>
         <translation type="unfinished">Seuil avant crête</translation>
+    </message>
+    <message>
+        <location line="+22"/>
+        <source>Differential</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Coherent</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../QML/settings/ReceiverSettings.qml" line="-114"/>

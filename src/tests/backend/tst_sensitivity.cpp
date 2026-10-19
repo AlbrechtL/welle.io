@@ -23,6 +23,9 @@
 // erroneous audio frames of the MP2 and the DAB+ service must stay below
 // limits. The echo gives notches in the spectrum: the soft bits of the
 // carriers in the notches must not be trusted like the others (issue #908).
+// Every case runs with the differential and with the coherent demodulation
+// (CoherentDemodulator in ofdm-decoder.h), which needs less SNR but a channel that doesn't
+// change quickly.
 
 #include <QtTest>
 
@@ -65,26 +68,40 @@ void SensitivityTests::initTestCase()
 
 void SensitivityTests::decodesThroughChannel_data()
 {
+    QTest::addColumn<bool>("coherent");
     QTest::addColumn<double>("snrDb");
     QTest::addColumn<double>("echoGain");
     QTest::addColumn<int>("echoDelay");
+    QTest::addColumn<double>("dopplerHz");
     // Limits in percent
     QTest::addColumn<double>("maxFibErrors");
     QTest::addColumn<double>("maxFrameErrors");
 
     // Echo of 0.9 after 20 us: a notch every 50 kHz (50 carriers). With soft
     // bits without amplitude information: 1.1 % FIB errors, 24 % MP2 frame
-    // errors; with: 0 %, 0.7 % and 0.5 % (DAB+).
-    QTest::newRow("echo 0.9 20us, 10 dB") << 10.0 << 0.9 << 41 << 0.2 << 2.0;
-    // Before 0.54 % FIB and 3.8 % MP2 frame errors, now 0.13 % and 1.2 %
-    QTest::newRow("noise 4 dB") << 4.0 << 0.0 << 0 << 0.4 << 3.0;
+    // errors; with: 0 %, 0.7 % and 0.5 % (DAB+). Coherent: 0 %, 0.3 %, 0.3 %.
+    QTest::newRow("echo 0.9 20us, 10 dB") << false << 10.0 << 0.9 << 41 << 0.0 << 0.2 << 2.0;
+    QTest::newRow("echo 0.9 20us, 10 dB, coherent") << true << 10.0 << 0.9 << 41 << 0.0 << 0.2 << 1.0;
+    // Before 0.54 % FIB and 3.8 % MP2 frame errors, now 0.13 % and 1.2 %.
+    // Coherent: 0 % and 0 %.
+    QTest::newRow("noise 4 dB") << false << 4.0 << 0.0 << 0 << 0.0 << 0.4 << 3.0;
+    QTest::newRow("noise 4 dB, coherent") << true << 4.0 << 0.0 << 0 << 0.0 << 0.2 << 1.0;
+    // Differential: 1.6 % FIB and 13 % MP2 frame errors, coherent 0.24 % and
+    // 1.8 %
+    QTest::newRow("noise 3 dB, coherent") << true << 3.0 << 0.0 << 0 << 0.0 << 0.6 << 4.0;
+    // Moving receiver: the echo turns 10 times per second. Differential: 0 %
+    // and 0.1 %; coherent 26 % and 20 %, because its channel estimate is from
+    // the beginning of the frame.
+    QTest::newRow("echo with 10 Hz Doppler, 15 dB") << false << 15.0 << 0.9 << 41 << 10.0 << 0.2 << 1.0;
 }
 
 void SensitivityTests::decodesThroughChannel()
 {
+    QFETCH(bool, coherent);
     QFETCH(double, snrDb);
     QFETCH(double, echoGain);
     QFETCH(int, echoDelay);
+    QFETCH(double, dopplerHz);
     QFETCH(double, maxFibErrors);
     QFETCH(double, maxFrameErrors);
 
@@ -93,6 +110,9 @@ void SensitivityTests::decodesThroughChannel()
     options.channel.snrDb = snrDb;
     options.channel.echoGain = echoGain;
     options.channel.echoDelay = echoDelay;
+    options.channel.echoDopplerHz = dopplerHz;
+    options.receiverOptions.demodulationMethod = coherent ?
+        DemodulationMethod::Coherent : DemodulationMethod::Differential;
     const RunResult result = runRecording(path.toStdString(), "auto", options);
 
     const int fibs = result.fibOk + result.fibFailed;

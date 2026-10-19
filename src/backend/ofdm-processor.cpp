@@ -92,6 +92,8 @@ OFDMProcessor::OFDMProcessor(
     for (int i = 0; i < INPUT_RATE; i ++)
         oscillatorTable[i] = DSPCOMPLEX(cos(2.0 * M_PI * i / INPUT_RATE),
                 sin(2.0 * M_PI * i / INPUT_RATE));
+
+    ofdmDecoder.setDemodulationMethod(rro.demodulationMethod);
 }
 
 OFDMProcessor::~OFDMProcessor()
@@ -533,6 +535,7 @@ void OFDMProcessor::setReceiverOptions(const RadioReceiverOptions rro)
     bool need_reset = (receiver_options.disableCoarseCorrector != rro.disableCoarseCorrector);
     receiver_options = rro;
     phaseRef.selectFFTWindowPlacement(rro.fftPlacementMethod);
+    ofdmDecoder.setDemodulationMethod(rro.demodulationMethod);
     lock.unlock();
 
     if (need_reset) {

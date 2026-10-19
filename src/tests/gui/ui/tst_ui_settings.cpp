@@ -43,6 +43,7 @@ private slots:
     void switchesByClickingTheRow();
     void choosesFromComboBox();
     void enablesExpertMode();
+    void choosesDemodulator();
     void keepsInputDeviceOpen();
     void indexScrollsToSection();
     void layout_data();
@@ -237,6 +238,24 @@ void UiSettingsTests::enablesExpertMode()
     qInfo() << "Expert mode switches the home page to the expert views";
 }
 
+void UiSettingsTests::choosesDemodulator()
+{
+    QVERIFY(openSettings());
+    QVERIFY(!app.item("setting.demodulatorMethod")->isEnabled());
+    QCOMPARE(app.radio()->property("demodulationMethod").toInt(), 0);
+
+    QVERIFY(app.click(setting("enableExpertModeState")));
+    QTRY_VERIFY(app.item("setting.demodulatorMethod")->isEnabled());
+    QVERIFY(chooseComboItem("demodulatorMethod", 1)); // coherent
+    QTRY_COMPARE(app.radio()->property("demodulationMethod").toInt(), 1);
+    app.screenshot("settings-demodulator");
+
+    QVERIFY(app.click(setting("enableExpertModeState")));
+    QTRY_VERIFY(!app.root()->property("isExpertView").toBool());
+
+    qInfo() << "The coherent demodulation is chosen in the expert settings";
+}
+
 void UiSettingsTests::keepsInputDeviceOpen()
 {
     for (int i = 0; i < 2; i++) {
@@ -322,13 +341,15 @@ void UiSettingsTests::switchesLanguage()
 
 void UiSettingsTests::keepsChangesAfterRestart()
 {
-    // Changed above: accent blue, AGC on, dark theme
+    // Changed above: accent blue, AGC on, dark theme, coherent demodulation
     QVERIFY(app.restart());
     QVERIFY(openSettings());
     QCOMPARE(app.property("setting.accentColor", "currentIndex").toInt(), 4);
     QVERIFY(app.property("setting.enableAGCState", "checked").toBool());
     QVERIFY(app.root()->property("darkTheme").toBool());
     QTRY_COMPARE(app.radio()->property("deviceId").value<CDeviceID>(), CDeviceID::RAWFILE);
+    QCOMPARE(app.property("setting.demodulatorMethod", "currentIndex").toInt(), 1);
+    QCOMPARE(app.radio()->property("demodulationMethod").toInt(), 1);
 
     qInfo() << "Changed settings survive a restart";
 }

@@ -82,8 +82,14 @@ void RecordingTests::decodeRecording()
         QSKIP(qPrintable(missing));
     const QString path = clipPath(clip);
 
+    // backend.coherent.<clip>: the same with the coherent demodulation
+    const auto method = testDemodulationMethod();
+    clip = clipForDemodulation(clip, method);
+    const bool coherent = method == DemodulationMethod::Coherent;
+
     RunOptions options;
     options.timeoutSeconds = 120;
+    options.receiverOptions.demodulationMethod = method;
     const RunResult result = runRecording(path.toStdString(), "auto", options);
 
     const CheckReport report = checkExpectations(clip, manifest["defaults"].toObject(), result);
@@ -105,7 +111,8 @@ void RecordingTests::decodeRecording()
     (report.ok() ? sampleFormat.passed : sampleFormat.failed)++;
 
     if (!report.ok()) {
-        qInfo().noquote() << "All details of the decoding: welle-test-probe" << path;
+        qInfo().noquote() << "All details of the decoding: welle-test-probe" << path
+            << "auto" << (coherent ? "coherent" : "differential");
         QFAIL(qPrintable(report.failures().join("\n   ")));
     }
 }

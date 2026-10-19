@@ -62,6 +62,17 @@ enum class FFTPlacementMethod {
 // Default uses the old algorithm until the issues of the new one are solved.
 constexpr auto DEFAULT_FFT_PLACEMENT = FFTPlacementMethod::ThresholdBeforePeak;
 
+enum class DemodulationMethod {
+    /* Phase difference to the same carrier of the previous symbol. Needs no
+     * channel estimate, works also with mobile reception. */
+    Differential = 0,
+
+    /* Channel estimate from the phase reference symbol, averaged over frames
+     * (CoherentDemodulator in ofdm-decoder.h). Up to 2 dB more sensitive for weak, stationary
+     * signals, worse if the channel changes quickly. */
+    Coherent = 1,
+};
+
 // Configuration for the backend
 struct RadioReceiverOptions {
     // Select the algorithm used in the OFDMProcessor PRS sync logic
@@ -81,5 +92,8 @@ struct RadioReceiverOptions {
     // Which method to use for the freqsyncmethod used in the coarse corrector.
     // Has no effect when coarse corrector is disabled.
     FreqsyncMethod freqsyncMethod = FreqsyncMethod::CorrelatePRS;
+
+    // How the carriers are demodulated to soft bits
+    DemodulationMethod demodulationMethod = DemodulationMethod::Differential;
 };
 

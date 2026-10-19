@@ -41,6 +41,10 @@ struct ChannelModel {
     // Delay of the echo in samples (2.048 MS/s; the guard interval of
     // transmission mode I is 504 samples)
     int echoDelay = 0;
+    // Doppler shift of the echo in Hz: the phase between the two paths
+    // turns, the notches move through the spectrum like with a moving
+    // receiver (fading with this frequency)
+    double echoDopplerHz = 0;
     unsigned seed = 908;
 
     bool active() const { return snrDb < 99 || echoGain != 0; }
@@ -75,6 +79,7 @@ private:
     std::mt19937 rng;
     std::normal_distribution<float> normal;
     uint64_t position = 0;
+    uint64_t sampleIndex = 0;           // for the Doppler phase
     double powerSum = 0;
     float noiseSigma = 0;               // per real dimension
 };

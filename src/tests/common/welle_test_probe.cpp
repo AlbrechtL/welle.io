@@ -31,13 +31,24 @@
 
 int main(int argc, char** argv)
 {
-    if (argc < 2 || argc > 3) {
-        std::cerr << "Usage: " << argv[0] << " <recording> [u8|s8|s16le|s16be|cf32|auto]" << std::endl;
+    if (argc < 2 || argc > 4) {
+        std::cerr << "Usage: " << argv[0] << " <recording> [u8|s8|s16le|s16be|cf32|auto]"
+            " [differential|coherent]" << std::endl;
         return 2;
     }
 
-    const std::string format = argc == 3 ? argv[2] : "auto";
-    const RunResult result = runRecording(argv[1], format);
+    const std::string format = argc >= 3 ? argv[2] : "auto";
+    RunOptions options;
+    if (argc == 4) {
+        const std::string method = argv[3];
+        if (method == "coherent")
+            options.receiverOptions.demodulationMethod = DemodulationMethod::Coherent;
+        else if (method != "differential") {
+            std::cerr << "Unknown demodulation method " << method << std::endl;
+            return 2;
+        }
+    }
+    const RunResult result = runRecording(argv[1], format, options);
 
     std::cout << QJsonDocument(toJson(result)).toJson().toStdString();
     return result.sync ? 0 : 1;

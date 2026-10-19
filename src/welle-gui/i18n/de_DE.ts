@@ -290,13 +290,13 @@
 <context>
     <name>CRadioController</name>
     <message>
-        <location filename="../radio_controller.cpp" line="726"/>
+        <location filename="../radio_controller.cpp" line="739"/>
         <source>Unknown</source>
         <translation>Unbekannt</translation>
     </message>
     <message>
         <location filename="../radio_controller.cpp" line="523"/>
-        <location filename="../radio_controller.cpp" line="746"/>
+        <location filename="../radio_controller.cpp" line="759"/>
         <source>No Station</source>
         <translation>Kein Sender gewählt</translation>
     </message>
@@ -332,23 +332,23 @@
     </message>
     <message>
         <location filename="../radio_controller.cpp" line="499"/>
-        <location filename="../radio_controller.cpp" line="1016"/>
+        <location filename="../radio_controller.cpp" line="1029"/>
         <source>Scanning</source>
         <translation>Scanne</translation>
     </message>
     <message>
         <location filename="../radio_controller.cpp" line="503"/>
-        <location filename="../radio_controller.cpp" line="1041"/>
+        <location filename="../radio_controller.cpp" line="1054"/>
         <source>Found channels</source>
         <translation>Gefundene Sender</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="720"/>
+        <location filename="../radio_controller.cpp" line="733"/>
         <source>Playing last station</source>
         <translation>Gebe zuletzt gehörten Sender wieder</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="796"/>
+        <location filename="../radio_controller.cpp" line="809"/>
         <source>Radio device is not ready or does not exist.</source>
         <translation>Gerät meldet einen Fehler oder existiert nicht.</translation>
     </message>
@@ -1290,7 +1290,7 @@
         <translation type="obsolete">Allgemein</translation>
     </message>
     <message>
-        <location filename="../QML/settings/ExpertSettings.qml" line="53"/>
+        <location filename="../QML/settings/ExpertSettings.qml" line="54"/>
         <source>Expert mode</source>
         <translation>Expertenmodus</translation>
     </message>
@@ -1299,7 +1299,7 @@
         <translation type="obsolete">Signalverarbeitung</translation>
     </message>
     <message>
-        <location filename="../QML/settings/ExpertSettings.qml" line="63"/>
+        <location filename="../QML/settings/ExpertSettings.qml" line="64"/>
         <source>Enable coarse corrector (for receivers with &gt;1kHz error)</source>
         <translation type="unfinished">Grobe Korrektur aktivieren (für Geräte mit &gt;1kHz Fehler)</translation>
     </message>
@@ -1316,8 +1316,8 @@
         <translation type="vanished">PatternOfZeros</translation>
     </message>
     <message>
-        <location filename="../QML/settings/ExpertSettings.qml" line="73"/>
-        <location filename="../QML/settings/ExpertSettings.qml" line="92"/>
+        <location filename="../QML/settings/ExpertSettings.qml" line="74"/>
+        <location filename="../QML/settings/ExpertSettings.qml" line="93"/>
         <source>Coarse corrector algorithm</source>
         <translation type="unfinished">Algorithmus für Grobe Korrektur</translation>
     </message>
@@ -1327,14 +1327,25 @@
         <translation>Experte</translation>
     </message>
     <message>
-        <location filename="../QML/settings/ExpertSettings.qml" line="54"/>
+        <location filename="../QML/settings/ExpertSettings.qml" line="55"/>
         <source>Technical views like spectrum and constellation diagram, manual channel selection</source>
         <translation>Technische Ansichten wie Spektrum und Konstellationsdiagramm, manuelle Kanalwahl</translation>
     </message>
     <message>
-        <location filename="../QML/settings/ExpertSettings.qml" line="100"/>
+        <location filename="../QML/settings/ExpertSettings.qml" line="101"/>
         <source>Enable TII decoding to console log (increases CPU usage)</source>
         <translation type="unfinished">TII-Dekoder-Log auf der Konsole aktivieren (erhöht die CPU-Last)</translation>
+    </message>
+    <message>
+        <location filename="../QML/settings/ExpertSettings.qml" line="135"/>
+        <location filename="../QML/settings/ExpertSettings.qml" line="153"/>
+        <source>Demodulator</source>
+        <translation>Demodulator</translation>
+    </message>
+    <message>
+        <location filename="../QML/settings/ExpertSettings.qml" line="136"/>
+        <source>Coherent receives weak signals with up to 2 dB less SNR, but only with a stationary antenna</source>
+        <translation>Kohärent empfängt schwache Signale mit bis zu 2 dB weniger SNR, aber nur mit einer feststehenden Antenne</translation>
     </message>
     <message>
         <source>Strongest Peak</source>
@@ -1349,8 +1360,8 @@
         <translation type="obsolete">Schwelle vor dem Spitzenwert</translation>
     </message>
     <message>
-        <location filename="../QML/settings/ExpertSettings.qml" line="110"/>
-        <location filename="../QML/settings/ExpertSettings.qml" line="129"/>
+        <location filename="../QML/settings/ExpertSettings.qml" line="111"/>
+        <location filename="../QML/settings/ExpertSettings.qml" line="130"/>
         <source>FFT Window placement algorithm</source>
         <translation type="unfinished">Algorithmus für FFT Fensterposition</translation>
     </message>
@@ -2175,34 +2186,44 @@
         <translation type="unfinished">Grün</translation>
     </message>
     <message>
-        <location filename="../QML/settings/ExpertSettings.qml" line="81"/>
+        <location filename="../QML/settings/ExpertSettings.qml" line="82"/>
         <source>GetMiddle</source>
         <translation type="unfinished">GetMiddle</translation>
     </message>
     <message>
-        <location filename="../QML/settings/ExpertSettings.qml" line="82"/>
+        <location filename="../QML/settings/ExpertSettings.qml" line="83"/>
         <source>CorrelatePRS</source>
         <translation type="unfinished">CorrelatePRS</translation>
     </message>
     <message>
-        <location filename="../QML/settings/ExpertSettings.qml" line="83"/>
+        <location filename="../QML/settings/ExpertSettings.qml" line="84"/>
         <source>PatternOfZeros</source>
         <translation type="unfinished">PatternOfZeros</translation>
     </message>
     <message>
-        <location filename="../QML/settings/ExpertSettings.qml" line="118"/>
+        <location filename="../QML/settings/ExpertSettings.qml" line="119"/>
         <source>Strongest Peak</source>
         <translation type="unfinished">Größter Spitzenwert</translation>
     </message>
     <message>
-        <location filename="../QML/settings/ExpertSettings.qml" line="119"/>
+        <location filename="../QML/settings/ExpertSettings.qml" line="120"/>
         <source>Earliest Peak With Binning</source>
         <translation type="unfinished">Frühester Spitzenwert mit Binning</translation>
     </message>
     <message>
-        <location filename="../QML/settings/ExpertSettings.qml" line="120"/>
+        <location filename="../QML/settings/ExpertSettings.qml" line="121"/>
         <source>Threshold Before Peak</source>
         <translation type="unfinished">Schwelle vor dem Spitzenwert</translation>
+    </message>
+    <message>
+        <location filename="../QML/settings/ExpertSettings.qml" line="143"/>
+        <source>Differential</source>
+        <translation>Differenziell</translation>
+    </message>
+    <message>
+        <location filename="../QML/settings/ExpertSettings.qml" line="144"/>
+        <source>Coherent</source>
+        <translation>Kohärent</translation>
     </message>
     <message>
         <location filename="../QML/settings/ReceiverSettings.qml" line="50"/>
