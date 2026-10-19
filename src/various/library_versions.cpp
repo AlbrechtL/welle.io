@@ -84,8 +84,10 @@ static std::string fdkAacVersion()
     FDKinitLibInfo(info);
     if (aacDecoder_GetLibInfo(info) == 0) {
         for (const LIB_INFO& module : info) {
-            if (module.module_id == FDK_AACDEC && module.versionStr)
-                return module.versionStr;
+            // char[32] in fdk-aac 2.x, const char* in 0.1.x
+            const char* version = module.versionStr;
+            if (module.module_id == FDK_AACDEC && version && *version)
+                return version;
         }
     }
     return "unknown";
