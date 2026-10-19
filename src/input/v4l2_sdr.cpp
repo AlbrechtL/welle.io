@@ -1151,7 +1151,8 @@ void CV4L2Sdr::agcTimerThread()
                 applyGain(next);
             }
         }
-        else if (!isAgc && agc->overloaded()) {
+        // Without gain control the user can't lower the gain
+        else if (!isAgc && gainControl != 0 && agc->overloaded()) {
             std::string text = QT_TRANSLATE_NOOP("CRadioController", "ADC overload. Maybe you are using a too high gain.");
             std::clog << "V4L2: " << text << std::endl;
             radioController.onMessage(message_level_t::Information, text);
