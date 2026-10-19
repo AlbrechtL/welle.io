@@ -92,6 +92,7 @@ private:
     std::mutex rtlsdrStartMutex;
     std::condition_variable rtlsdrStartCv;
     bool rtlsdrAsyncStarted = false;
+    std::atomic<bool> rtlsdrReaderActive = ATOMIC_VAR_INIT(false);
 
     std::vector<int> gains;
     std::vector<float> gainsDb;
