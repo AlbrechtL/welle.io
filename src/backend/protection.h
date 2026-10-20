@@ -33,7 +33,9 @@ class Protection
 {
     public:
         virtual ~Protection() = default;
-        virtual bool deconvolve(const softbit_t *, int32_t, uint8_t *) = 0;
+        // known: nullptr or per output bit -1 (free), 0 or 1, see Viterbi
+        virtual bool deconvolve(const softbit_t *, int32_t, uint8_t *,
+                                const int8_t *known = nullptr) = 0;
 };
 #endif
 

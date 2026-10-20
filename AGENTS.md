@@ -267,6 +267,11 @@ add them for new texts.
 * FIG 0/3 entries are 5 bytes, 7 only with the CAOrg flag; FIG 0/8 and
   0/13 carry SCIdS, not the component number. Such parsing errors show up
   as packet mode components without subchannel (subchannel -1).
+* The project is C++14: an in-class `static const int` constant that is
+  bound to a reference (e.g. `std::min(x, kConst)`) needs a definition
+  outside the class. Optimised builds hide this, Debug builds fail to link.
+  Build once without optimisation (`CMAKE_BUILD_TYPE=Debug`) before
+  reporting a change as done.
 * FFTW plans must not be created in parallel threads: several receivers in
   one process crash. Tools that decode in parallel use processes.
 * Packets with address 1022 are packet FEC data without CRC. Without FEC

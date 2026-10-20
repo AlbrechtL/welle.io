@@ -15,6 +15,8 @@ They are built with CMake and run with CTest.
 | `unit.software_agc` | `unit` | Software AGC of the RTL-SDR, rtl_tcp and Airspy inputs with a simulated tuner (also the measured gain steps of a real R820T): finds the gain without clipping and keeps it | no |
 | `unit.coarse_frequency` | `unit` | Coarse frequency offset from the phase reference symbol with timing offset, echo and noise; no estimate for noise or a null symbol with TII carriers | no |
 | `unit.coherent_demod` | `unit` | Coherent demodulation with synthetic frames: right bits with echo, FFT window and phase changes, frequency offset and clock error; more information per soft bit than the differential demodulation at 2 dB SNR; new channel restarts the estimate | no |
+| `unit.viterbi` | `unit` | Viterbi decoder of the DAB convolutional code with and without known bits (iterative DAB+ decoding) | no |
+| `unit.superframe` | `unit` | DAB+ superframes with uncorrectable RS codewords: re-decoding with known bytes, only at the known alignment; RS statistics without the shifted sync attempts | no |
 | `unit.rational_resampler` | `unit` | Resampling of the Airspy input from its native rates (3, 2.5 MS/s; 4.096 MS/s) to 2.048 MS/s: DAB block unchanged, adjacent blocks suppressed by more than 65 dB | no |
 | `backend.recording.<clip>` | `backend` | Decodes one recording and compares everything with its expectations, see below | yes |
 | `backend.coherent.<clip>` | `backend` | The same with the coherent demodulation (`WELLE_TEST_DEMODULATOR=coherent`) | yes |

@@ -3,6 +3,9 @@
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
  *    Lazy Chair Computing
  *
+ *    Decoding with known bits (iterative DAB+ decoding) was added with the
+ *    help of an AI assistant (Claude Code).
+ *
  *    This file is part of the Qt-DAB
  *    Qt-DAB is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -224,7 +227,7 @@ uint8_t getbit (uint8_t v, int32_t o)
 //  Note that our DAB environment maps the softbits to -127 .. 127
 //  we have to map that onto 0 .. 255
 
-void Viterbi::deconvolve(softbit_t *input, uint8_t *output)
+void Viterbi::deconvolve(softbit_t *input, uint8_t *output, const int8_t *known)
 {
     uint32_t    i;
 
@@ -236,7 +239,7 @@ void Viterbi::deconvolve(softbit_t *input, uint8_t *output)
         symbols[i] = temp;
     }
 
-    update_viterbi_blk_GENERIC (&vp, symbols, frameBits + (K - 1));
+    update_viterbi_blk_GENERIC (&vp, symbols, frameBits + (K - 1), known);
 
     chainback_viterbi (&vp, data, frameBits, 0);
 
@@ -282,10 +285,31 @@ void Viterbi::BFLY(
  * Note that nbits is the number of decoded data bits, not the number
  * of symbols!
  */
+// Known bit: the new state's lowest bit is the input bit (BFLY writes the
+// states 2i and 2i+1). States with the other bit get the best metric of
+// the allowed states plus a penalty, larger than any difference of the
+// metrics within the constraint length (at most 6 * 1020), so no path
+// through them survives. Not added up, so that several known bits in a row
+// don't overflow the metrics.
+static const COMPUTETYPE knownBitPenalty = 16000;
+
+static inline
+void excludeOtherBit(COMPUTETYPE* X, int bit)
+{
+    COMPUTETYPE best = X[bit];
+    for (int i = bit; i < NUMSTATES; i += 2) {
+        if (X[i] < best)
+            best = X[i];
+    }
+    for (int i = 1 - bit; i < NUMSTATES; i += 2)
+        X[i] = best + knownBitPenalty;
+}
+
 void Viterbi::update_viterbi_blk_GENERIC(
         struct v *vp,
         COMPUTETYPE *syms,
-        int16_t nbits)
+        int16_t nbits,
+        const int8_t *known)
 {
     decision_t *d = (decision_t *)vp->decisions;
     int32_t  s, i;
@@ -298,6 +322,10 @@ void Viterbi::update_viterbi_blk_GENERIC(
         void *tmp;
         for (i = 0; i < NUMSTATES / 2; i++) {
             BFLY (i, s, syms, vp, vp->decisions);
+        }
+
+        if (known && s < frameBits && known[s] >= 0) {
+            excludeOtherBit(vp->new_metrics->t, known[s]);
         }
 
         renormalize (vp->new_metrics -> t, RENORMALIZE_THRESHOLD);

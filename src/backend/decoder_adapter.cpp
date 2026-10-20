@@ -34,8 +34,11 @@ DecoderAdapter::DecoderAdapter(ProgrammeHandlerInterface &mr, int16_t bitRate, A
 {
     if (dabModus == AudioServiceComponentType::DAB)
         decoder = std::make_unique<MP2Decoder>(this, false);
-    else if (dabModus == AudioServiceComponentType::DABPlus)
-        decoder = std::make_unique<SuperframeFilter>(this, true, false);
+    else if (dabModus == AudioServiceComponentType::DABPlus) {
+        auto filter = std::make_unique<SuperframeFilter>(this, true, false);
+        superframeFilter = filter.get();
+        decoder = std::move(filter);
+    }
     else
         throw std::runtime_error("DecoderAdapter: Unknown service component");
 
@@ -50,6 +53,12 @@ DecoderAdapter::DecoderAdapter(ProgrammeHandlerInterface &mr, int16_t bitRate, A
 
     // MOT, start of X-PAD data group, see EN 301 234
     padDecoder.SetMOTAppType(12);
+}
+
+void DecoderAdapter::setFrameRedecoder(FrameRedecoder *redecoder)
+{
+    if (superframeFilter)
+        superframeFilter->SetFrameRedecoder(redecoder);
 }
 
 void DecoderAdapter::addtoFrame(uint8_t *v)

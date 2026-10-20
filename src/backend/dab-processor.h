@@ -24,7 +24,21 @@
 #define DAB_PROCESSOR
 
 #include    <stdint.h>
+#include    <stddef.h>
 #include    <stdio.h>
+
+// Decodes one of the last logical frames of a subchannel again, with
+// known bytes (iterative DAB+ decoding: the bytes of the correct
+// Reed-Solomon codewords help the Viterbi decoder with the others)
+class FrameRedecoder {
+    public:
+        virtual ~FrameRedecoder() = default;
+        // age: 0 = the last frame given to addtoFrame(), 1 = the one before.
+        // known: per byte of the frame 1 if bytes[i] is known.
+        // bytes: in: the known bytes, out: the frame decoded again.
+        // false if the frame is not available any more.
+        virtual bool redecodeFrame(int age, const uint8_t *known, uint8_t *bytes) = 0;
+};
 
 //  virtual class, just for providing a common base
 //  for the real decoder classes
@@ -32,6 +46,8 @@ class DabProcessor {
     public:
         virtual ~DabProcessor() = default;
         virtual void addtoFrame(uint8_t *) = 0;
+        // For decoders that can use it (DAB+)
+        virtual void setFrameRedecoder(FrameRedecoder *) {}
 };
 
 #endif

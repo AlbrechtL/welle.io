@@ -25,7 +25,8 @@
 // carriers in the notches must not be trusted like the others (issue #908).
 // Every case runs with the differential and with the coherent demodulation
 // (CoherentDemodulator in ofdm-decoder.h), which needs less SNR but a channel that doesn't
-// change quickly.
+// change quickly. At the threshold of DAB+ the iterative decoding
+// (SuperframeFilter::Redecode) has to decode the DAB+ service.
 
 #include <QtTest>
 
@@ -76,23 +77,30 @@ void SensitivityTests::decodesThroughChannel_data()
     // Limits in percent
     QTest::addColumn<double>("maxFibErrors");
     QTest::addColumn<double>("maxFrameErrors");
+    // Only the DAB+ service has to keep the limit (its RS code makes it
+    // more robust than the FIC and MP2)
+    QTest::addColumn<bool>("dabPlusOnly");
 
     // Echo of 0.9 after 20 us: a notch every 50 kHz (50 carriers). With soft
     // bits without amplitude information: 1.1 % FIB errors, 24 % MP2 frame
     // errors; with: 0 %, 0.7 % and 0.5 % (DAB+). Coherent: 0 %, 0.3 %, 0.3 %.
-    QTest::newRow("echo 0.9 20us, 10 dB") << false << 10.0 << 0.9 << 41 << 0.0 << 0.2 << 2.0;
-    QTest::newRow("echo 0.9 20us, 10 dB, coherent") << true << 10.0 << 0.9 << 41 << 0.0 << 0.2 << 1.0;
+    QTest::newRow("echo 0.9 20us, 10 dB") << false << 10.0 << 0.9 << 41 << 0.0 << 0.2 << 2.0 << false;
+    QTest::newRow("echo 0.9 20us, 10 dB, coherent") << true << 10.0 << 0.9 << 41 << 0.0 << 0.2 << 1.0 << false;
     // Before 0.54 % FIB and 3.8 % MP2 frame errors, now 0.13 % and 1.2 %.
     // Coherent: 0 % and 0 %.
-    QTest::newRow("noise 4 dB") << false << 4.0 << 0.0 << 0 << 0.0 << 0.4 << 3.0;
-    QTest::newRow("noise 4 dB, coherent") << true << 4.0 << 0.0 << 0 << 0.0 << 0.2 << 1.0;
+    QTest::newRow("noise 4 dB") << false << 4.0 << 0.0 << 0 << 0.0 << 0.4 << 3.0 << false;
+    QTest::newRow("noise 4 dB, coherent") << true << 4.0 << 0.0 << 0 << 0.0 << 0.2 << 1.0 << false;
     // Differential: 1.6 % FIB and 13 % MP2 frame errors, coherent 0.24 % and
     // 1.8 %
-    QTest::newRow("noise 3 dB, coherent") << true << 3.0 << 0.0 << 0 << 0.0 << 0.6 << 4.0;
+    QTest::newRow("noise 3 dB, coherent") << true << 3.0 << 0.0 << 0 << 0.0 << 0.6 << 4.0 << false;
     // Moving receiver: the echo turns 10 times per second. Differential: 0 %
     // and 0.1 %; coherent 26 % and 20 %, because its channel estimate is from
     // the beginning of the frame.
-    QTest::newRow("echo with 10 Hz Doppler, 15 dB") << false << 15.0 << 0.9 << 41 << 10.0 << 0.2 << 1.0;
+    QTest::newRow("echo with 10 Hz Doppler, 15 dB") << false << 15.0 << 0.9 << 41 << 10.0 << 0.2 << 1.0 << false;
+    // DAB+ at its threshold: without iterative decoding 7.4 % (differential,
+    // 1 dB) and 16.3 % (coherent, 0.5 dB) frame errors, with 0.3 % and 0 %
+    QTest::newRow("DAB+ noise 1 dB") << false << 1.0 << 0.0 << 0 << 0.0 << 100.0 << 2.0 << true;
+    QTest::newRow("DAB+ noise 0.5 dB, coherent") << true << 0.5 << 0.0 << 0 << 0.0 << 100.0 << 2.0 << true;
 }
 
 void SensitivityTests::decodesThroughChannel()
@@ -104,6 +112,7 @@ void SensitivityTests::decodesThroughChannel()
     QFETCH(double, dopplerHz);
     QFETCH(double, maxFibErrors);
     QFETCH(double, maxFrameErrors);
+    QFETCH(bool, dabPlusOnly);
 
     RunOptions options;
     options.timeoutSeconds = 120;
@@ -131,7 +140,8 @@ void SensitivityTests::decodesThroughChannel()
             .arg(s.label.c_str(), s.type.c_str())
             .arg(frameErrors, 0, 'f', 2).arg(maxFrameErrors)
             .arg(s.audioSeconds, 0, 'f', 1);
-        ok = ok && frameErrors <= maxFrameErrors;
+        if (!dabPlusOnly || s.type == "DAB+")
+            ok = ok && frameErrors <= maxFrameErrors;
     }
 
     qInfo().noquote() << report;

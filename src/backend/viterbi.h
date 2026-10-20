@@ -42,7 +42,9 @@ class Viterbi
         ~Viterbi(void);
         Viterbi(const Viterbi& other) = delete;
         Viterbi& operator=(const Viterbi& other) = delete;
-        void deconvolve(softbit_t *input, uint8_t *output);
+        // known: nullptr or per output bit -1 (free), 0 or 1 (the decoded
+        // path must have this bit)
+        void deconvolve(softbit_t *input, uint8_t *output, const int8_t *known = nullptr);
 
     private:
         struct v    vp;
@@ -55,7 +57,8 @@ class Viterbi
 
         void update_viterbi_blk_GENERIC( struct v *vp,
                                          COMPUTETYPE *syms,
-                                         int16_t nbits);
+                                         int16_t nbits,
+                                         const int8_t *known);
 
         void chainback_viterbi( struct v *vp,
                                 uint8_t *data, /* Decoded output data */

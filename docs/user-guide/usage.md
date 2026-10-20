@@ -39,3 +39,5 @@ the settings, switch on *Expert mode* and set *Demodulator* to
 audio. Use *Differential* (the default) in a car or
 with a moving antenna: there the coherent demodulator receives worse.
 Details: [Coherent demodulation](../development/coherent-demodulation.md).
+DAB+ stations additionally profit from the [iterative DAB+
+decoding](../development/iterative-dabplus-decoding.md), which is always on.

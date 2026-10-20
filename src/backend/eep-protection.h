@@ -31,7 +31,8 @@
 class EEPProtection: public Protection, public Viterbi {
     public:
         EEPProtection(int16_t bitRate, bool profile_is_eep_a, int level);
-        bool deconvolve(const softbit_t *v, int32_t size, uint8_t *outBuffer);
+        bool deconvolve(const softbit_t *v, int32_t size, uint8_t *outBuffer,
+                        const int8_t *known = nullptr);
     private:
         int16_t L1;
         int16_t L2;

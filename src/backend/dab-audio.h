@@ -36,11 +36,11 @@
 #include "ringbuffer.h"
 #include "energy_dispersal.h"
 #include "radio-controller.h"
+#include "dab-processor.h"
 
-class DabProcessor;
 class Protection;
 
-class DabAudio : public DabVirtual
+class DabAudio : public DabVirtual, public FrameRedecoder
 {
     public:
         DabAudio(AudioServiceComponentType dabModus,
@@ -61,6 +61,9 @@ class DabAudio : public DabVirtual
 
         int32_t process(const softbit_t *v, int16_t cnt);
 
+        // FrameRedecoder: the soft bits of the last frames are kept
+        bool redecodeFrame(int age, const uint8_t *known, uint8_t *bytes) override;
+
     private:
         void    run(void);
         std::atomic<bool> running;
@@ -75,6 +78,16 @@ class DabAudio : public DabVirtual
         std::thread              ourThread;
 
         std::unique_ptr<Protection> protectionHandler;
+
+        // Input of the Viterbi decoder of the last frames (a DAB+ superframe
+        // has 5), for redecodeFrame()
+        static const int historyFrames = 5;
+        std::vector<softbit_t> history[historyFrames];
+        int historyNext = 0;
+        int historyCount = 0;
+        std::vector<uint8_t> dispersalSequence;
+        std::vector<int8_t> knownBits;
+        std::vector<uint8_t> redecodedBits;
         std::unique_ptr<DabProcessor> our_dabProcessor;
         RingBuffer<softbit_t> mscBuffer;
 };

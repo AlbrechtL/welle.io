@@ -24,6 +24,7 @@
 #include <stdio.h>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 #if !(defined(DABLIN_AAC_FAAD2) ^ defined(DABLIN_AAC_FDKAAC))
 #error "You must select a AAC decoder by defining either DABLIN_AAC_FAAD2 or DABLIN_AAC_FDKAAC!"
@@ -42,6 +43,7 @@ extern "C" {
 }
 
 #include "subchannel_sink.h"
+#include "dab-processor.h"
 #include "tools.h"
 
 
@@ -80,7 +82,8 @@ public:
 	RSDecoder();
 	~RSDecoder();
 
-	void DecodeSuperframe(uint8_t *sf, size_t sf_len, int& total_corr_count, bool& uncorr_errors);
+	// codeword_ok (if given): per RS codeword, if it is correct now
+	void DecodeSuperframe(uint8_t *sf, size_t sf_len, int& total_corr_count, bool& uncorr_errors, std::vector<bool> *codeword_ok = nullptr);
 };
 
 
@@ -157,6 +160,18 @@ private:
 
 	BitWriter au_bw;
 
+	// Iterative decoding: a superframe with uncorrectable RS codewords is
+	// decoded again by the Viterbi decoder, with the bytes of the correct
+	// codewords as known bits
+	FrameRedecoder *redecoder = nullptr;
+	// Logical frames since the last superframe with a correct fire code,
+	// -1 before the first one or when the alignment is lost
+	int frames_since_sync = -1;
+	std::vector<bool> codeword_ok;
+	std::vector<uint8_t> known_bytes;
+	std::vector<uint8_t> redecoded_frame;
+	void Redecode(int& total_corr_count, bool& uncorr_errors);
+
 	bool CheckSync();
 	void ProcessFormat();
 	void ProcessUntouchedStream(const uint8_t *data, size_t len);
@@ -166,6 +181,7 @@ public:
 	~SuperframeFilter();
 
 	void Feed(const uint8_t *data, size_t len);
+	void SetFrameRedecoder(FrameRedecoder *redecoder) { this->redecoder = redecoder; }
 };
 
 

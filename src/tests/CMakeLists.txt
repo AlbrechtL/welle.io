@@ -70,6 +70,14 @@ add_executable(tst_coherent_demod unit/tst_coherent_demod.cpp)
 target_link_libraries(tst_coherent_demod PRIVATE welle_test_common Qt6::Test)
 add_test(NAME unit.coherent_demod COMMAND tst_coherent_demod)
 
+add_executable(tst_viterbi unit/tst_viterbi.cpp)
+target_link_libraries(tst_viterbi PRIVATE welle_test_common Qt6::Test)
+add_test(NAME unit.viterbi COMMAND tst_viterbi)
+
+add_executable(tst_superframe unit/tst_superframe.cpp)
+target_link_libraries(tst_superframe PRIVATE welle_test_common Qt6::Test)
+add_test(NAME unit.superframe COMMAND tst_superframe)
+
 if(HAVE_V4L2_SDR)
     add_executable(tst_real_iq_converter unit/tst_real_iq_converter.cpp)
     target_link_libraries(tst_real_iq_converter PRIVATE welle_test_common Qt6::Test)
@@ -92,7 +100,7 @@ add_executable(rstest ${CMAKE_SOURCE_DIR}/src/libs/fec/test/rstest.c)
 target_link_libraries(rstest PRIVATE welle)
 add_test(NAME unit.reed_solomon COMMAND rstest)
 
-set_tests_properties(unit.rawfile unit.dabconstants unit.fib unit.mp2_scf_crc unit.spi unit.software_agc unit.rational_resampler unit.coarse_frequency unit.coherent_demod unit.reed_solomon PROPERTIES LABELS unit)
+set_tests_properties(unit.rawfile unit.dabconstants unit.fib unit.mp2_scf_crc unit.spi unit.software_agc unit.rational_resampler unit.coarse_frequency unit.coherent_demod unit.viterbi unit.superframe unit.reed_solomon PROPERTIES LABELS unit)
 
 # Recordings of the welle.io-test-data repository. Every clip of its
 # manifest becomes one test, backend.recording.<clip id>, which runs

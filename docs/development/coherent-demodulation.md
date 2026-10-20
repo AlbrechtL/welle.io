@@ -224,7 +224,11 @@ recording:
 | Uncorrectable DAB+ superframes | 99.9 % | 84.2 % |
 
 In the clip, the coherent demodulator decodes 13–16 s of audio per station
-(of 30 s), the differential one at most 0.8 s; `backend.coherent.lu_7d_2026`
-requires at least 6 s. This recording also showed that the time domain
+(of 30 s), the differential one at most 0.8 s (before the iterative DAB+
+decoding, see below). This recording also showed that the time domain
 window of the channel estimate was too wide with a threshold of 16 (15 %
 less audio, see [Method](#method)).
+
+The [iterative DAB+ decoding](iterative-dabplus-decoding.md) (added
+later) gives this clip 18.7–20 s of audio per station with the coherent
+demodulator, and the differential one up to 7 s.

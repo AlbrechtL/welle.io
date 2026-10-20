@@ -112,7 +112,8 @@ EEPProtection::EEPProtection(int16_t bitRate, bool profile_is_eep_a, int level) 
     }
 }
 
-bool EEPProtection::deconvolve(const softbit_t *v, int32_t size, uint8_t *outBuffer)
+bool EEPProtection::deconvolve(const softbit_t *v, int32_t size, uint8_t *outBuffer,
+                               const int8_t *known)
 {
     int16_t i, j;
     int32_t inputCounter    = 0;
@@ -147,7 +148,7 @@ bool EEPProtection::deconvolve(const softbit_t *v, int32_t size, uint8_t *outBuf
         viterbiCounter++;
     }
 
-    Viterbi::deconvolve(viterbiBlock.data(), outBuffer);
+    Viterbi::deconvolve(viterbiBlock.data(), outBuffer, known);
     return true;
 }
 

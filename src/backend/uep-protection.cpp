@@ -166,7 +166,8 @@ UEPProtection::UEPProtection(
         PI4 = nullptr;
 }
 
-bool UEPProtection::deconvolve(const softbit_t *v, int32_t size, uint8_t *outBuffer)
+bool UEPProtection::deconvolve(const softbit_t *v, int32_t size, uint8_t *outBuffer,
+                               const int8_t *known)
 {
     int16_t i, j;
     int16_t inputCounter    = 0;
@@ -234,7 +235,7 @@ bool UEPProtection::deconvolve(const softbit_t *v, int32_t size, uint8_t *outBuf
 
     /// The actual deconvolution is done by the viterbi decoder
 
-    Viterbi::deconvolve(viterbiBlock.data(), outBuffer);
+    Viterbi::deconvolve(viterbiBlock.data(), outBuffer, known);
     return true;
 }
 

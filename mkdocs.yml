@@ -136,6 +136,7 @@ nav:
           - Multiplex reconfiguration: development/multiplex-reconfiguration.md
           - Linux kernel SDR input: development/v4l2-sdr.md
           - Coherent demodulation: development/coherent-demodulation.md
+          - Iterative DAB+ decoding: development/iterative-dabplus-decoding.md
   - About:
       - About welle.io: info.md
       - Contact: contact.md

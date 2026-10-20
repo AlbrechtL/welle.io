@@ -47,6 +47,8 @@ class DecoderAdapter: public DabProcessor, public SubchannelSinkObserver, public
                      const std::string& dumpFileName);
 
         virtual void addtoFrame(uint8_t *v);
+        // DAB+: iterative decoding of superframes with RS errors
+        virtual void setFrameRedecoder(FrameRedecoder *redecoder);
 
         // SubchannelSinkObserver impl
         virtual void FormatChange(const AUDIO_SERVICE_FORMAT& /*format*/);
@@ -67,6 +69,7 @@ class DecoderAdapter: public DabProcessor, public SubchannelSinkObserver, public
         int frameErrorCounter = 0;
         ProgrammeHandlerInterface& myInterface;
         std::unique_ptr<SubchannelSink> decoder;
+        SuperframeFilter *superframeFilter = nullptr;   // decoder, if DAB+
         PADDecoder padDecoder;
 
         struct FILEDeleter{ void operator()(FILE* fd){ if (fd) fclose(fd); }};

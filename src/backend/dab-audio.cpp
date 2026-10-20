@@ -6,6 +6,9 @@
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
  *    Lazy Chair Programming
  *
+ *    Decoding a frame again with known bytes (iterative DAB+ decoding) was
+ *    added with the help of an AI assistant (Claude Code).
+ *
  *    This file is part of the SDR-J (JSDR).
  *    SDR-J is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -70,6 +73,14 @@ DabAudio::DabAudio(
     for (int i = 0; i < 16; i ++) {
         interleaveData[i].resize(fragmentSize);
     }
+    for (auto& h : history) {
+        h.resize(fragmentSize);
+    }
+    knownBits.resize(bitRate * 24);
+    redecodedBits.resize(bitRate * 24);
+    // The energy dispersal sequence: the dispersal of zeros
+    dispersalSequence.assign(bitRate * 24, 0);
+    energyDispersal.dedisperse(dispersalSequence);
 
     using std::make_unique;
 
@@ -81,6 +92,10 @@ DabAudio::DabAudio(
             protection.eepProfile == EEPProtectionProfile::EEP_A;
         protectionHandler = make_unique<EEPProtection>(
                 bitRate, profile_is_eep_a, (int)protection.eepLevel);
+    }
+
+    if (our_dabProcessor) {
+        our_dabProcessor->setFrameRedecoder(this);
     }
 
     running = true;
@@ -153,6 +168,12 @@ void DabAudio::run()
             continue;
         }
 
+        // Kept for redecodeFrame(), which is called from addtoFrame()
+        history[historyNext] = tempX;
+        historyNext = (historyNext + 1) % historyFrames;
+        if (historyCount < historyFrames)
+            historyCount++;
+
         PROFILE(DADeconvolve);
         protectionHandler->deconvolve(tempX.data(), fragmentSize, outV.data());
 
@@ -168,3 +189,34 @@ void DabAudio::run()
     }
 }
 
+// Called from addtoFrame() in the thread of run(): the frames are not
+// changed meanwhile
+bool DabAudio::redecodeFrame(int age, const uint8_t *known, uint8_t *bytes)
+{
+    if (age < 0 || age >= historyCount)
+        return false;
+
+    // Known bytes (after the energy dispersal) to known bits of the
+    // Viterbi decoder (before it), most significant bit first
+    const size_t numBytes = knownBits.size() / 8;
+    for (size_t i = 0; i < numBytes; i++) {
+        for (int j = 0; j < 8; j++) {
+            const size_t bit = 8 * i + j;
+            knownBits[bit] = known[i] ?
+                int8_t(((bytes[i] >> (7 - j)) & 1) ^ dispersalSequence[bit]) : -1;
+        }
+    }
+
+    const int index = (historyNext - 1 - age + historyFrames) % historyFrames;
+    protectionHandler->deconvolve(history[index].data(), fragmentSize,
+                                  redecodedBits.data(), knownBits.data());
+    energyDispersal.dedisperse(redecodedBits);
+
+    for (size_t i = 0; i < numBytes; i++) {
+        uint8_t b = 0;
+        for (int j = 0; j < 8; j++)
+            b = (b << 1) | (redecodedBits[8 * i + j] & 1);
+        bytes[i] = b;
+    }
+    return true;
+}

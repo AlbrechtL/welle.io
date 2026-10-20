@@ -14,9 +14,20 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+    Iterative decoding (Viterbi decoder again with the bytes of the correct
+    RS codewords) and the RS statistics of real superframes only were added
+    to welle.io with the help of an AI assistant (Claude Code).
  */
 
 #include "dabplus_decoder.h"
+
+#include <algorithm>
+
+// Iterative decoding: passes of Viterbi and RS decoding per superframe
+static const int max_redecode_passes = 3;
+// Superframes without a correct fire code until the alignment is lost
+static const int max_superframes_without_sync = 10;
 
 
 // --- SuperframeFilter -----------------------------------------------------------------
@@ -81,6 +92,9 @@ void SuperframeFilter::Feed(const uint8_t *data, size_t len) {
 	// copy frame
 	memcpy(sf_raw + (frame_count - 1) * frame_len, data, frame_len);
 
+	if(frames_since_sync >= 0)
+		frames_since_sync++;
+
 	if(frame_count < 5)
 		return;
 
@@ -90,19 +104,32 @@ void SuperframeFilter::Feed(const uint8_t *data, size_t len) {
 
 	// append RS coding on copy
 	memcpy(sf, sf_raw, sf_len);
-	rs_dec.DecodeSuperframe(sf, sf_len, total_corr_count, uncorr_errors);
+	rs_dec.DecodeSuperframe(sf, sf_len, total_corr_count, uncorr_errors, &codeword_ok);
 
-	// forward statistics if errors present
-    //if(total_corr_count || uncorr_errors)
+	// A superframe starts 5 frames after the last correct one (or a
+	// multiple of 5: a broken one is followed by 4 shifted attempts)
+	const bool aligned = frames_since_sync > 0 && frames_since_sync % 5 == 0;
+	if(aligned && uncorr_errors && redecoder)
+		Redecode(total_corr_count, uncorr_errors);
+
+	const bool synced = CheckSync();
+
+	// forward statistics of real superframes, not of the shifted attempts
+	// while searching the alignment
+	if(aligned || synced)
 		observer->FECInfo(total_corr_count, uncorr_errors);
 
 
-	if(!CheckSync()) {
+	if(!synced) {
+		if(frames_since_sync >= 5 * max_superframes_without_sync)
+			frames_since_sync = -1;
 		if(sync_frames == 0)
 			fprintf(stderr, "SuperframeFilter: Superframe sync started...\n");
 		sync_frames++;
 		return;
 	}
+
+	frames_since_sync = 0;
 
 	if(sync_frames) {
 		fprintf(stderr, "SuperframeFilter: Superframe sync succeeded after %d frame(s)\n", sync_frames);
@@ -139,6 +166,42 @@ void SuperframeFilter::Feed(const uint8_t *data, size_t len) {
 
 	// ensure getting a complete new Superframe
 	frame_count = 0;
+}
+
+
+// Decodes the 5 frames of the superframe again with the bytes of the correct
+// RS codewords as known bits: they split the error bursts of the Viterbi
+// decoder, so that more codewords become correctable, which gives more
+// known bytes for the next pass
+void SuperframeFilter::Redecode(int& total_corr_count, bool& uncorr_errors) {
+	const size_t codewords = sf_len / 120;
+	known_bytes.resize(frame_len);
+	redecoded_frame.resize(frame_len);
+
+	for(int pass = 0; pass < max_redecode_passes; pass++) {
+		const long correct_before = std::count(codeword_ok.begin(), codeword_ok.end(), true);
+		if(correct_before == 0)
+			return;
+
+		for(int f = 0; f < 5; f++) {
+			for(size_t i = 0; i < frame_len; i++) {
+				const size_t pos = f * frame_len + i;
+				// byte pos of the superframe is in RS codeword pos % codewords
+				known_bytes[i] = codeword_ok[pos % codewords];
+				redecoded_frame[i] = sf[pos];
+			}
+			if(!redecoder->redecodeFrame(4 - f, known_bytes.data(), redecoded_frame.data()))
+				return;
+			memcpy(sf_raw + f * frame_len, redecoded_frame.data(), frame_len);
+		}
+
+		memcpy(sf, sf_raw, sf_len);
+		rs_dec.DecodeSuperframe(sf, sf_len, total_corr_count, uncorr_errors, &codeword_ok);
+
+		const long correct = std::count(codeword_ok.begin(), codeword_ok.end(), true);
+		if(!uncorr_errors || correct <= correct_before)
+			return;
+	}
 }
 
 
@@ -323,7 +386,7 @@ RSDecoder::~RSDecoder() {
 	free_rs_char(rs_handle);
 }
 
-void RSDecoder::DecodeSuperframe(uint8_t *sf, size_t sf_len, int& total_corr_count, bool& uncorr_errors) {
+void RSDecoder::DecodeSuperframe(uint8_t *sf, size_t sf_len, int& total_corr_count, bool& uncorr_errors, std::vector<bool> *codeword_ok) {
 //	// insert errors for test
 //	sf[0] ^= 0xFF;
 //	sf[10] ^= 0xFF;
@@ -332,6 +395,8 @@ void RSDecoder::DecodeSuperframe(uint8_t *sf, size_t sf_len, int& total_corr_cou
 	int subch_index = sf_len / 120;
 	total_corr_count = 0;
 	uncorr_errors = false;
+	if(codeword_ok)
+		codeword_ok->assign(subch_index, false);
 
 	// process all RS packets
 	for(int i = 0; i < subch_index; i++) {
@@ -344,6 +409,8 @@ void RSDecoder::DecodeSuperframe(uint8_t *sf, size_t sf_len, int& total_corr_cou
 			uncorr_errors = true;
 		else
 			total_corr_count += corr_count;
+		if(codeword_ok && corr_count != -1)
+			(*codeword_ok)[i] = true;
 
 		// correct errors
 		for(int j = 0; j < corr_count; j++) {
