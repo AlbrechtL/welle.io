@@ -441,6 +441,10 @@ AACDecoderFAAD2::AACDecoderFAAD2(SubchannelSinkObserver* observer, SuperframeFor
 	if(init_result != 0)
 		throw std::runtime_error("AACDecoderFAAD2: error while NeAACDecInit2: " + std::string(NeAACDecGetErrorMessage(-init_result)));
 
+	// Parametric stereo reconstructs two channels from the AAC core signal.
+	if(sf_format.sbr_flag && sf_format.ps_flag)
+		output_ch = 2;
+
 	observer->StartAudio(output_sr, output_ch, float32);
 }
 
