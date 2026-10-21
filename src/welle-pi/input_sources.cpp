@@ -21,6 +21,7 @@
 \******************************************************************************/
 #include "input_sources.hpp"
 #include "input_plugin.h"
+#include "plugin_loader.hpp"
 
 #include <dlfcn.h>
 #include <iostream>
@@ -34,6 +35,14 @@ static_assert(int(InputAction::UP) == WELLE_PI_UP && int(InputAction::DOWN) == W
 namespace {
 
 using RunFn = int (*)(const welle_pi_input_host*, const char*);
+
+/* A string member of a JSON object: anything else is taken as absent, a type
+ * error thrown here would escape the caller and end the program. */
+std::string stringMember(const nlohmann::json& object, const char* key)
+{
+    const auto it = object.find(key);
+    return it != object.end() && it->is_string() ? it->get<std::string>() : std::string();
+}
 
 struct PluginCtx {
     InputQueue& queue;
@@ -50,23 +59,12 @@ int pluginStop(void* ctx) {
     return static_cast<PluginCtx*>(ctx)->stop_requested() ? 1 : 0;
 }
 
-RunFn loadPlugin(const std::string& path) {
-    // never dlclose'd: the thread runs until exit
-    void* handle = dlopen(path.c_str(), RTLD_NOW | RTLD_LOCAL);
-    if (!handle) {
-        std::cerr << "Input plugin: " << dlerror() << std::endl;
-        return nullptr;
-    }
-    auto abi = static_cast<const int*>(dlsym(handle, "welle_pi_input_abi"));
+RunFn loadInputPlugin(const std::string& name) {
+    void* handle = loadPlugin("input", name, WELLE_PI_INPUT_ABI);
+    if (!handle) return nullptr;
     auto run = reinterpret_cast<RunFn>(dlsym(handle, "welle_pi_input_run"));
-    if (!abi || !run) {
-        std::cerr << "Input plugin " << path << ": welle_pi_input_abi/welle_pi_input_run missing" << std::endl;
-        return nullptr;
-    }
-    if (*abi != WELLE_PI_INPUT_ABI) {
-        std::cerr << "Input plugin " << path << ": ABI " << *abi << ", need " << WELLE_PI_INPUT_ABI << std::endl;
-        return nullptr;
-    }
+    if (!run)
+        std::cerr << "Input plugin " << name << ": welle_pi_input_run missing" << std::endl;
     return run;
 }
 
@@ -85,21 +83,21 @@ std::vector<std::thread> startInputSources(const nlohmann::json& inputs, InputQu
         return threads;
     }
     for (const auto& entry : list) {
-        const std::string type = entry.is_object() ? entry.value("type", "") : "";
-        if (type == "stdin") {
-            // no terminal under systemd; raw mode would fail anyway
-            if (interactive)
-                threads.emplace_back(runStdinReader, std::ref(queue), stop_requested);
-        } else if (type == "plugin") {
-            const std::string path = entry.value("path", "");
-            RunFn run = loadPlugin(path);
+        const std::string plugin = entry.is_object() ? stringMember(entry, "plugin") : "";
+        const std::string type = entry.is_object() ? stringMember(entry, "type") : "";
+        if (!plugin.empty()) {
+            RunFn run = loadInputPlugin(plugin);
             if (!run) continue;
-            threads.emplace_back([run, path, config = entry.dump(), &queue, stop_requested]() {
+            threads.emplace_back([run, plugin, config = entry.dump(), &queue, stop_requested]() {
                 PluginCtx ctx{queue, stop_requested};
                 const welle_pi_input_host host{&ctx, pluginPush, pluginStop};
                 if (int rc = run(&host, config.c_str()))
-                    std::cerr << "Input plugin " << path << " returned " << rc << std::endl;
+                    std::cerr << "Input plugin " << plugin << " returned " << rc << std::endl;
             });
+        } else if (type == "stdin") {
+            // no terminal under systemd; raw mode would fail anyway
+            if (interactive)
+                threads.emplace_back(runStdinReader, std::ref(queue), stop_requested);
         } else {
             std::cerr << "welle-pi.json: unknown input " << entry.dump() << std::endl;
         }
