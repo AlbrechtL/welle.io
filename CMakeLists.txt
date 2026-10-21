@@ -337,6 +337,8 @@ set(welle_pi_sources
     src/welle-pi/screens.cpp
     src/welle-pi/ui_manager.cpp
     src/welle-pi/tty_display.cpp
+    src/welle-pi/plugin_loader.cpp
+    src/welle-pi/plugin_display.cpp
     src/welle-cli/alsa-output.cpp
 )
 
@@ -632,6 +634,14 @@ if (BUILD_WELLE_PI)
         Threads::Threads
     )
 
+    # Plugins: welle-pi-<kind>-<name>.so, found first in welle-pi-plugins/ next
+    # to the executable (runs from the build tree), then here
+    set(WELLE_PI_PLUGIN_DIR "${CMAKE_INSTALL_FULL_LIBDIR}/welle-pi")
+    set(WELLE_PI_PLUGIN_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/welle-pi-plugins")
+    set_source_files_properties(src/welle-pi/plugin_loader.cpp PROPERTIES
+        COMPILE_DEFINITIONS WELLE_PI_PLUGIN_DIR="${WELLE_PI_PLUGIN_DIR}")
+    add_subdirectory(src/welle-pi/plugins)
+
     if(BUILD_TESTS)
         add_executable(navigation_tests
             src/tests/navigation_tests.cpp
@@ -660,25 +670,37 @@ if (BUILD_WELLE_PI)
         add_test(NAME unit.display COMMAND display_tests)
         set_tests_properties(unit.display PROPERTIES LABELS unit)
 
-        add_library(input_plugin_example MODULE src/tests/input_plugin_example.c)
-        target_include_directories(input_plugin_example PRIVATE src/welle-pi)
         add_executable(input_plugin_tests
             src/tests/input_plugin_tests.cpp
             src/welle-pi/input_sources.cpp
             src/welle-pi/input_stdin.cpp
             src/welle-pi/input_queue.cpp
+            src/welle-pi/plugin_loader.cpp
         )
         target_include_directories(input_plugin_tests PRIVATE src/welle-pi)
-        target_compile_definitions(input_plugin_tests PRIVATE
-            INPUT_PLUGIN_EXAMPLE="$<TARGET_FILE:input_plugin_example>")
         target_compile_options(input_plugin_tests PRIVATE -UNDEBUG)
         target_link_libraries(input_plugin_tests ${CMAKE_DL_LIBS} Threads::Threads)
-        add_dependencies(input_plugin_tests input_plugin_example)
+        add_dependencies(input_plugin_tests welle-pi-input-example)
         add_test(NAME unit.input_plugin COMMAND input_plugin_tests)
         set_tests_properties(unit.input_plugin PROPERTIES LABELS unit)
+
+        add_executable(display_plugin_tests
+            src/tests/display_plugin_tests.cpp
+            src/welle-pi/plugin_display.cpp
+            src/welle-pi/plugin_loader.cpp
+        )
+        target_include_directories(display_plugin_tests PRIVATE src/welle-pi)
+        target_compile_options(display_plugin_tests PRIVATE -UNDEBUG)
+        target_link_libraries(display_plugin_tests ${CMAKE_DL_LIBS})
+        add_dependencies(display_plugin_tests welle-pi-display-example)
+        add_test(NAME unit.display_plugin COMMAND display_plugin_tests)
+        set_tests_properties(unit.display_plugin PROPERTIES LABELS unit)
     endif()
     if(UNIX AND NOT APPLE OR NOT WITH_APP_BUNDLE)
         INSTALL (TARGETS ${piExecutableName} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+        # for plugins built elsewhere
+        INSTALL (FILES src/welle-pi/input_plugin.h src/welle-pi/display_plugin.h
+                 DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/welle-pi)
     endif()
 endif()
 

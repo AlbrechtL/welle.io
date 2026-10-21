@@ -25,7 +25,7 @@ welcome too.
 * [Station logos (SPI)](spi-station-logos.md)
 * [Multiplex reconfiguration](multiplex-reconfiguration.md)
 * [welle-pi input sources](welle-pi-input.md): configuration and plugins
-* [welle-pi displays](welle-pi-display.md): terminal, how screens are drawn
+* [welle-pi displays](welle-pi-display.md): terminal, display plugins, how screens are drawn
 * [welle-cli web interface](../user-guide/welle-cli-web-interface.md)
 
 The automated tests are described in
