@@ -1,0 +1,23 @@
+[Unit]
+Description=welle-pi DAB/DAB+ receiver
+After=sound.target
+
+[Service]
+# systemd supervises welle-pi best when it stays in the foreground. welle-pi
+# notices that it has no terminal and keeps playing until it is stopped.
+ExecStart=/usr/bin/env welle-pi
+
+# Safe, unprivileged runtime environment defaults.
+# Set ALLOW_SHUTDOWN=1 to enable host power-off on clean menu exit.
+Environment=ALLOW_SHUTDOWN=0
+
+# Clean shutdown post-stop hook. Checks if exit code was successful and
+# ALLOW_SHUTDOWN environment variable is set to 1.
+ExecStopPost=/bin/sh -c 'if [ "$SERVICE_RESULT" = "success" ] && [ "$ALLOW_SHUTDOWN" = "1" ]; then systemctl poweroff; fi'
+
+# Automatically restart if the binary crashes, but do not reboot/shutdown.
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

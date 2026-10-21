@@ -88,6 +88,11 @@ if(BUILD_WELLE_CLI AND NOT ANDROID)
     endif()
 endif()
 
+if (BUILD_WELLE_PI)
+    find_package(ALSA REQUIRED)
+    add_definitions(-DHAVE_ALSA)
+endif()
+
 find_package(Threads REQUIRED)
 
 if(NOT ANDROID)
@@ -321,6 +326,18 @@ set(welle_cli_sources
     src/welle-cli/jsonconvert.cpp
     src/welle-cli/webprogrammehandler.cpp
     src/welle-cli/tests.cpp
+)
+
+set(welle_pi_sources
+    src/welle-pi/welle-pi.cpp
+    src/welle-pi/config_manager.cpp
+    src/welle-pi/input_queue.cpp
+    src/welle-pi/input_stdin.cpp
+    src/welle-pi/input_sources.cpp
+    src/welle-pi/screens.cpp
+    src/welle-pi/ui_manager.cpp
+    src/welle-pi/tty_display.cpp
+    src/welle-cli/alsa-output.cpp
 )
 
 set(input_sources
@@ -601,6 +618,20 @@ if(BUILD_WELLE_CLI AND NOT ANDROID)
 endif()
 
 if (BUILD_WELLE_PI)
+    set(piExecutableName welle-pi)
+    add_executable (${piExecutableName} ${welle_pi_sources})
+    if(CMAKE_BUILD_TYPE MATCHES Debug)
+      SET_TARGET_PROPERTIES(${piExecutableName} PROPERTIES COMPILE_FLAGS "-O2 -fno-omit-frame-pointer -fsanitize=address")
+      SET_TARGET_PROPERTIES(${piExecutableName} PROPERTIES LINK_FLAGS "-fno-omit-frame-pointer -fsanitize=address")
+    endif(CMAKE_BUILD_TYPE MATCHES Debug)
+
+    target_link_libraries (${piExecutableName}
+        welle
+        ${ALSA_LIBRARIES}
+        ${CMAKE_DL_LIBS}
+        Threads::Threads
+    )
+
     if(BUILD_TESTS)
         add_executable(navigation_tests
             src/tests/navigation_tests.cpp
@@ -645,6 +676,9 @@ if (BUILD_WELLE_PI)
         add_dependencies(input_plugin_tests input_plugin_example)
         add_test(NAME unit.input_plugin COMMAND input_plugin_tests)
         set_tests_properties(unit.input_plugin PROPERTIES LABELS unit)
+    endif()
+    if(UNIX AND NOT APPLE OR NOT WITH_APP_BUNDLE)
+        INSTALL (TARGETS ${piExecutableName} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
     endif()
 endif()
 
