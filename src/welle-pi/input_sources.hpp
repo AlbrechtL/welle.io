@@ -35,8 +35,8 @@ using StopPredicate = std::function<bool()>;
  * lifetime. */
 void runStdinReader(InputQueue& queue, const StopPredicate& stop_requested);
 
-/* Starts the "input" entries of welle-pi.json ({"type": "stdin"|"plugin",
- * ...}); null means stdin. Bad entries are logged and
+/* Starts the "input" entries of welle-pi.json ({"type": "stdin"} or
+ * {"plugin": "<name>", ...}); null means stdin. Bad entries are logged and
  * skipped: the radio keeps playing without them. Join the threads after
  * stop_requested() turned true. */
 std::vector<std::thread> startInputSources(const nlohmann::json& inputs, InputQueue& queue,

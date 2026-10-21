@@ -1,7 +1,8 @@
 # welle-pi displays
 
 welle-pi shows its screens on a text display. Built in is the terminal,
-which also serves for debugging without hardware. Input is described in
+which also serves for debugging without hardware; hardware displays are
+plugins. Input is described in
 [welle-pi input sources](welle-pi-input.md).
 
 ## Configuration
@@ -15,16 +16,23 @@ The `"display"` entry of `welle-pi.json` (same file as `"input"`, see
 }
 ```
 
-| `type` | Display | Notes |
+| Entry | Display | Notes |
 |---|---|---|
-| `tty` | Terminal | `cols` and `rows`, default 40 x 4. |
+| `{"type": "tty"}` | Terminal | `cols` and `rows`, default 40 x 4. |
+| `{"plugin": "<name>"}` | `welle-pi-display-<name>.so` | Size from the plugin; further keys are the plugin's. Found as described in [Plugins](welle-pi-input.md#plugins). |
 
 An array shows the same screen on several displays, at the smallest size
 of them (`MultiDisplay` in `display_interface.hpp`), e.g. a hardware
-display and the terminal next to it.
+display and the terminal next to it:
 
-An entry that cannot be used (unknown `type`, bad size) is logged and
-skipped. Without `"display"`, or if no entry is left, welle-pi uses the
+```json
+{
+    "display": [{"plugin": "lcd"}, {"type": "tty"}]
+}
+```
+
+An entry that cannot be used (unknown `type`, plugin not found or
+refusing, bad size) is logged and skipped. Without `"display"`, or if no entry is left, welle-pi uses the
 terminal with 40 x 4 if stdout is one, otherwise it shows nothing.
 
 ## Terminal
@@ -65,20 +73,61 @@ terminal display draws nothing.
   is no DLS), on more rows the programme, the channel and the DLS on the
   last row. Lists put the focused item in the middle.
 
-## A new display
+## Writing a display plugin
 
-Implement `IDisplay`: `cols()`, `rows()` and `present(const Frame&)`,
-optionally `backlightOn()`/`backlightOff()`, and add a `type` to
-`makeDisplay()` in `src/welle-pi/welle-pi.cpp`. A graphical display
-(OLED, small TFT) can draw the lines with a fixed font; e.g. an SSD1306
-with 128 x 64 pixels and a 6 x 8 font has 21 x 8 cells.
+The interface is plain C, `src/welle-pi/display_plugin.h`. A plugin exports
+four symbols:
+
+```c
+#include "display_plugin.h"
+
+const int welle_pi_display_abi = WELLE_PI_DISPLAY_ABI;
+
+void* welle_pi_display_open(const char* config, int* cols, int* rows)
+{
+    /* open the device, read the settings from config, switch it on */
+    *cols = 20;
+    *rows = 4;
+    return device;          /* NULL: not usable, the entry is skipped */
+}
+
+void welle_pi_display_present(void* handle, const char* const* lines, int cols, int rows)
+{
+    /* show rows lines of UTF-8, each exactly cols code points */
+}
+
+void welle_pi_display_close(void* handle)
+{
+    /* switch off, close the device */
+}
+```
+
+* `config` is the plugin's own entry as JSON text, including `plugin`.
+* `present()` is only called when the text changed, so a plugin can
+  write the frame as it is. When the display is mirrored next to a smaller
+  one, `cols` and `rows` are that smaller size: pad or centre as needed.
+* All calls come from the UI thread; `present()` should not block for
+  long, the UI ticks every 50 ms.
+* A graphical display (OLED, small TFT) draws the lines with a fixed font;
+  e.g. an SSD1306 with 128 x 64 pixels and a 6 x 8 font has 21 x 8 cells.
+
+Build it like an input plugin, as `welle-pi-display-<name>.so`. A complete
+example is `src/welle-pi/plugins/example_display.c`: 16 x 2 characters, it
+appends every frame to the file given as `"file"`.
+
+A display built into welle-pi instead implements `IDisplay`
+(`display_interface.hpp`) and gets a `type` in `makeOneDisplay()` in
+`src/welle-pi/welle-pi.cpp`; only worth it for displays without external
+dependencies, like the terminal.
 
 ## Tests
 
 `unit.display` (`src/tests/display_tests.cpp`): UTF-8 fitting, the
 marquee timing, list layout, `TtyDisplay` output and the `UIManager`
-loop. `unit.navigation` covers the screen stack.
+loop. `unit.navigation` covers the screen stack. `unit.display_plugin`
+(`src/tests/display_plugin_tests.cpp`) loads the example plugin by name and
+checks that unchanged frames are not passed on and bad entries are refused.
 
 ```sh
-ctest --test-dir build -R 'unit.(display|navigation)' --output-on-failure
+ctest --test-dir build -R 'unit.(display|navigation|display_plugin)' --output-on-failure
 ```

@@ -72,6 +72,7 @@
 #include "screens.hpp"
 #include "ui_manager.hpp"
 #include "tty_display.hpp"
+#include "plugin_display.hpp"
 #include "utils.hpp"
 
 #ifdef GITDESCRIBE
@@ -124,11 +125,23 @@ static const int CORRECTOR_REPORT_HZ = 100;
 // stdout is the log (daemon, -l): no tty frames in it
 static bool stdout_is_log = false;
 
-/* One "display" entry: {"type": "tty", "cols": 40, "rows": 4}. nullptr if
- * unusable. */
+/* A string member of a JSON object: anything else is taken as absent, a type
+ * error thrown here would escape the caller and end the program. */
+static string stringMember(const nlohmann::json& object, const char* key)
+{
+    const auto it = object.find(key);
+    return it != object.end() && it->is_string() ? it->get<string>() : string();
+}
+
+/* One "display" entry: {"type": "tty", "cols": 40, "rows": 4} or
+ * {"plugin": "<name>", ...}. nullptr if unusable. */
 static unique_ptr<IDisplay> makeOneDisplay(const nlohmann::json& cfg)
 {
-    const string type = cfg.is_object() ? cfg.value("type", "") : "";
+    const string plugin = cfg.is_object() ? stringMember(cfg, "plugin") : "";
+    if (!plugin.empty()) {
+        return PluginDisplay::open(plugin, cfg.dump());
+    }
+    const string type = cfg.is_object() ? stringMember(cfg, "type") : "";
     if (type == "tty") {
         try {
             return make_unique<TtyDisplay>(max(1, cfg.value("cols", 40)), max(1, cfg.value("rows", 4)),

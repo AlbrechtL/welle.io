@@ -23,12 +23,14 @@ after each scan.
 {
     "input": [
         {"type": "stdin"},
-        {"type": "plugin", "path": "/usr/lib/welle-pi/buttons.so", "pins": [17, 27]}
+        {"plugin": "buttons", "pins": [17, 27]}
     ]
 }
 ```
 
 * Without the file, or without `"input"`, welle-pi starts `stdin`.
+* `{"type": …}` is a built-in source, `{"plugin": …}` a plugin (see
+  [Plugins](#plugins)).
 * An entry that fails (unknown `type`, plugin not found, wrong ABI) is
   logged on stderr and skipped. welle-pi keeps playing, it is a radio.
 * An empty array `[]` starts no input source at all.
@@ -51,7 +53,31 @@ input threads to return.
 Code: `startInputSources()` in `src/welle-pi/input_sources.cpp`, the
 built-in source in `input_stdin.cpp`.
 
-## Writing a plugin
+## Plugins
+
+Input sources and displays ([welle-pi displays](welle-pi-display.md)) can
+be plugins: shared objects with a plain C interface, built with welle.io or
+separately. `{"plugin": "buttons"}` in the `"input"` array loads
+`welle-pi-input-buttons.so` from the first of
+
+1. `welle-pi-plugins/` next to the welle-pi executable: the plugins built
+   with welle.io land there, so `build/welle-pi` runs without installing
+2. `<libdir>/welle-pi/`, e.g. `/usr/lib64/welle-pi/` (`WELLE_PI_PLUGIN_DIR`)
+
+A name containing `/` is used as a path, e.g. for a plugin built in
+another directory. The plugin is loaded with `dlopen(RTLD_NOW |
+RTLD_LOCAL)` and never unloaded; its `welle_pi_<kind>_abi` must match.
+Code: `src/welle-pi/plugin_loader.cpp`. The headers are installed to
+`<includedir>/welle-pi/`.
+
+Plugins built with welle.io are in `src/welle-pi/plugins/`: single files
+in its root, plugins with their own dependencies in a subdirectory with a
+`CMakeLists.txt` that skips the plugin if a dependency is missing. Each
+calls `welle_pi_plugin(<kind> <name> <sources>...)` from
+`src/welle-pi/plugins/CMakeLists.txt`, which names the shared object, puts
+it into `welle-pi-plugins/` and installs it.
+
+## Writing an input plugin
 
 The interface is plain C, `src/welle-pi/input_plugin.h`, so plugins can be
 written in C or C++ and built separately. A plugin exports two symbols:
@@ -78,22 +104,19 @@ int welle_pi_input_run(const struct welle_pi_input_host* host, const char* confi
   `stop_requested()` regularly and return soon after it is nonzero,
   otherwise welle-pi hangs on exit. A nonzero return value is logged.
 * `config` is the plugin's own entry of the `"input"` array as JSON text,
-  including `type` and `path`. Add whatever keys the plugin needs. C++
+  including `plugin`. Add whatever keys the plugin needs. C++
   plugins can parse it with nlohmann/json (`src/libs/json.hpp`).
 * `push()` accepts the values of `enum welle_pi_action`; other values are
   ignored. Its values are those of `InputAction` (a `static_assert` in
   `input_sources.cpp` checks that) and are never renumbered.
-* The plugin is loaded with `dlopen(RTLD_NOW | RTLD_LOCAL)` and never
-  unloaded. `path` without a slash is searched like any shared library
-  (`LD_LIBRARY_PATH`, `ld.so.conf`).
 
 Build it, for example:
 
 ```sh
-gcc -shared -fPIC -I/path/to/welle.io/src/welle-pi buttons.c -o buttons.so
+gcc -shared -fPIC -I/usr/include/welle-pi buttons.c -o welle-pi-input-buttons.so
 ```
 
-A complete example is `src/tests/input_plugin_example.c`: it pushes the
+A complete example is `src/welle-pi/plugins/example_input.c`: it pushes the
 keys listed in its `"keys"` entry and waits for the stop.
 
 ## Tests

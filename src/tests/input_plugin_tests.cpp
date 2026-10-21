@@ -32,10 +32,12 @@ int main()
     InputQueue queue;
     const StopPredicate stop_requested = [] { return stop.load(); };
 
-    // plugin receives its own JSON object; unknown entries and bad paths are skipped
+    // found by name in welle-pi-plugins/ next to this executable; gets its own
+    // JSON object; unknown entries and plugins are skipped
     nlohmann::json inputs = nlohmann::json::array({
-        {{"type", "plugin"}, {"path", INPUT_PLUGIN_EXAMPLE}, {"keys", "de"}},
-        {{"type", "plugin"}, {"path", "/nonexistent/plugin.so"}},
+        {{"plugin", "example"}, {"keys", "de"}},
+        {{"plugin", "nonexistent"}},
+        {{"plugin", "/nonexistent/plugin.so"}},
         {{"type", "bogus"}},
         {{"type", "stdin"}},  // skipped: not interactive
     });
