@@ -55,6 +55,22 @@ stderr, so stdout carries only the frames. Written to a file, the frames
 follow each other. As a daemon or with `-l`, stdout is the log and the
 terminal display draws nothing.
 
+## LCD plugin
+
+`{"plugin": "lcd"}` (`src/welle-pi/plugins/lcd/`) drives a character LCD
+through [liblcd](https://github.com/fridrich/lcd), which writes to
+`/dev/lcd`, the kernel's `charlcd` driver. The HD44780 is configured as a
+device tree overlay (e.g. `hd44780-i2c-lcd` for a PCF8574 backpack). liblcd
+reads the size from
+`/sys/devices/platform/auxdisplay/of_node/display-{width,height}-chars`
+and converts UTF-8 to the HD44780 character set.
+
+The plugin is built when pkg-config finds `liblcd-0.0`, otherwise CMake
+skips it with a message. It writes only the rows that changed, so the I2C
+bus is not busy with unchanged text, switches the backlight on when
+welle-pi starts and off when it stops. Without an LCD (liblcd reports
+0 x 0) it refuses and the entry is skipped.
+
 ## How screens are drawn
 
 * A screen (`UIScreen`, `src/welle-pi/ui_screen.hpp`) fills a `Frame`

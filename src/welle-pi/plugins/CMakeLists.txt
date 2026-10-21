@@ -18,6 +18,8 @@ function(welle_pi_plugin name)
     endif()
 endfunction()
 
+add_subdirectory(lcd)
+
 # loaded by name in unit.input_plugin and unit.display_plugin
 if(BUILD_TESTS)
     welle_pi_plugin(example NO_INSTALL example.c)
