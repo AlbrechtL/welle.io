@@ -41,7 +41,7 @@ public:
         std::string channel;
         std::string program;
         std::string short_program;
-        uint32_t service_id;
+        uint32_t service_id = 0;
     };
 
     ConfigManager(const std::string& filename = "stations.json");

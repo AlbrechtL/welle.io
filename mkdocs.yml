@@ -136,6 +136,8 @@ nav:
           - Multiplex reconfiguration: development/multiplex-reconfiguration.md
           - Linux kernel SDR input: development/v4l2-sdr.md
           - Coherent demodulation: development/coherent-demodulation.md
+          - welle-pi input sources: development/welle-pi-input.md
+          - welle-pi displays: development/welle-pi-display.md
   - About:
       - About welle.io: info.md
       - Contact: contact.md
