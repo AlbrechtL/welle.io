@@ -1,6 +1,6 @@
 /******************************************************************************\
  * Description:
- * Example welle-pi input plugin, used by input_plugin_tests: pushes the keys listed in its config
+ * Finds and loads welle-pi plugins (shared objects)
  *
  ******************************************************************************
  *
@@ -19,24 +19,16 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
 \******************************************************************************/
-#include "input_plugin.h"
+#ifndef PLUGIN_LOADER_HPP
+#define PLUGIN_LOADER_HPP
 
-#include <string.h>
-#include <unistd.h>
+#include <string>
 
-const int welle_pi_input_abi = WELLE_PI_INPUT_ABI;
+/* kind "input" or "display", name e.g. "buttons": welle-pi-input-buttons.so
+ * in welle-pi-plugins/ next to the executable (build tree), then in
+ * WELLE_PI_PLUGIN_DIR (installed). A name with a '/' is a path. Checks
+ * welle_pi_<kind>_abi == abi. Returns the dlopen() handle, never unloaded;
+ * nullptr after logging why. */
+void* loadPlugin(const std::string& kind, const std::string& name, int abi);
 
-/* config e.g. {"type":"plugin","path":"...","keys":"de"}: d = DOWN, e = ENTER */
-int welle_pi_input_run(const struct welle_pi_input_host* host, const char* config)
-{
-    const char* keys = strstr(config, "\"keys\":\"");
-    if (keys) {
-        for (keys += 8; *keys && *keys != '"'; keys++) {
-            if (*keys == 'd') host->push(host->ctx, WELLE_PI_DOWN);
-            else if (*keys == 'e') host->push(host->ctx, WELLE_PI_ENTER);
-        }
-    }
-    while (!host->stop_requested(host->ctx))
-        usleep(10000);
-    return 0;
-}
+#endif // PLUGIN_LOADER_HPP

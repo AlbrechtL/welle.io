@@ -23,8 +23,9 @@
 #define WELLE_PI_INPUT_PLUGIN_H
 
 /* A plugin is a shared object listed in welle-pi.json:
- *   {"type": "plugin", "path": "/usr/lib/welle-pi/foo.so", ...own keys...}
- * It exports welle_pi_input_abi and welle_pi_input_run. */
+ *   "input": [{"plugin": "foo", ...own keys...}]
+ * welle-pi loads welle-pi-input-foo.so, see plugin_loader.hpp. It exports
+ * welle_pi_input_abi and welle_pi_input_run. */
 
 #ifdef __cplusplus
 extern "C" {
