@@ -628,6 +628,23 @@ if (BUILD_WELLE_PI)
         target_link_libraries(display_tests Threads::Threads)
         add_test(NAME unit.display COMMAND display_tests)
         set_tests_properties(unit.display PROPERTIES LABELS unit)
+
+        add_library(input_plugin_example MODULE src/tests/input_plugin_example.c)
+        target_include_directories(input_plugin_example PRIVATE src/welle-pi)
+        add_executable(input_plugin_tests
+            src/tests/input_plugin_tests.cpp
+            src/welle-pi/input_sources.cpp
+            src/welle-pi/input_stdin.cpp
+            src/welle-pi/input_queue.cpp
+        )
+        target_include_directories(input_plugin_tests PRIVATE src/welle-pi)
+        target_compile_definitions(input_plugin_tests PRIVATE
+            INPUT_PLUGIN_EXAMPLE="$<TARGET_FILE:input_plugin_example>")
+        target_compile_options(input_plugin_tests PRIVATE -UNDEBUG)
+        target_link_libraries(input_plugin_tests ${CMAKE_DL_LIBS} Threads::Threads)
+        add_dependencies(input_plugin_tests input_plugin_example)
+        add_test(NAME unit.input_plugin COMMAND input_plugin_tests)
+        set_tests_properties(unit.input_plugin PROPERTIES LABELS unit)
     endif()
 endif()
 
