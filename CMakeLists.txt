@@ -17,6 +17,7 @@ set(CMAKE_CXX_STANDARD 14)
 
 option(BUILD_WELLE_IO    "Build Welle.io"                        ON  )
 option(BUILD_WELLE_CLI   "Build welle-cli"                       ON  )
+option(BUILD_WELLE_PI    "Build welle-pi"                        OFF )
 option(LIBWELLE_STATIC   "Build the welle library as static"     ON  )
 option(WITH_APP_BUNDLE   "Enable Application Bundle for macOS"   ON  )
 option(KISS_FFT          "KISS FFT instead of FFTW"              OFF )
@@ -596,6 +597,37 @@ if(BUILD_WELLE_CLI AND NOT ANDROID)
     if(UNIX AND NOT APPLE OR NOT WITH_APP_BUNDLE)
         INSTALL (TARGETS ${cliExecutableName} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
         INSTALL (FILES src/welle-cli/doc/man/welle-cli.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1/)
+    endif()
+endif()
+
+if (BUILD_WELLE_PI)
+    if(BUILD_TESTS)
+        add_executable(navigation_tests
+            src/tests/navigation_tests.cpp
+            src/welle-pi/ui_manager.cpp
+        )
+        target_include_directories(navigation_tests PRIVATE
+            src/welle-pi
+        )
+        # checks are assert(); keep them in Release
+        target_compile_options(navigation_tests PRIVATE -UNDEBUG)
+        target_link_libraries(navigation_tests
+            Threads::Threads
+        )
+        add_test(NAME unit.navigation COMMAND navigation_tests)
+        set_tests_properties(unit.navigation PROPERTIES LABELS unit)
+
+        add_executable(display_tests
+            src/tests/display_tests.cpp
+            src/welle-pi/screens.cpp
+            src/welle-pi/tty_display.cpp
+            src/welle-pi/ui_manager.cpp
+        )
+        target_include_directories(display_tests PRIVATE src/welle-pi)
+        target_compile_options(display_tests PRIVATE -UNDEBUG)
+        target_link_libraries(display_tests Threads::Threads)
+        add_test(NAME unit.display COMMAND display_tests)
+        set_tests_properties(unit.display PROPERTIES LABELS unit)
     endif()
 endif()
 
