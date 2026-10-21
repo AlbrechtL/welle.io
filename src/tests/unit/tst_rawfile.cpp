@@ -54,11 +54,21 @@ private slots:
     void unknownFormatReportsError();
     void missingFileReportsError();
 
+    // I/Q recording (CVirtualInput::startRecording()) of the RAW file input
+    void recordsInputInItsFormat_data();
+    void recordsInputInItsFormat();
+    void stopsAfterWholeSamples();
+    void recordsUntilStopped();
+    void inputWithoutFormatCantRecord();
+    void unwritableFileReportsError();
+    void writeErrorEndsRecording();
+
 private:
     QTemporaryDir tmpDir;
 
     QString writeFile(const QString& name, const std::vector<uint8_t>& data);
     std::vector<DSPCOMPLEX> readAll(const QString& path, const std::string& format, size_t numSamples);
+    QByteArray readFile(const QString& path);
 };
 
 // Deterministic, non-symmetric test pattern so that swapped bytes or swapped
@@ -195,6 +205,162 @@ void RawFileTests::missingFileReportsError()
 
     QVERIFY(!rawFile.is_ok());
     QCOMPARE(rc.errors.size(), size_t(1));
+}
+
+QByteArray RawFileTests::readFile(const QString& path)
+{
+    QFile f(path);
+    if (!f.open(QIODevice::ReadOnly))
+        return QByteArray();
+    return f.readAll();
+}
+
+void RawFileTests::recordsInputInItsFormat_data()
+{
+    QTest::addColumn<QString>("format");
+    QTest::addColumn<int>("recordFormat");
+    QTest::addColumn<int>("bytesPerSample");
+
+    QTest::newRow("u8") << "u8" << int(CRecordFormat::U8) << 2;
+    QTest::newRow("s8") << "s8" << int(CRecordFormat::S8) << 2;
+    QTest::newRow("s16le") << "s16le" << int(CRecordFormat::S16LE) << 4;
+    QTest::newRow("s16be") << "s16be" << int(CRecordFormat::S16BE) << 4;
+    QTest::newRow("cf32") << "cf32" << int(CRecordFormat::CF32) << 8;
+}
+
+// The recording is the file as it was read, in its format
+void RawFileTests::recordsInputInItsFormat()
+{
+    QFETCH(QString, format);
+    QFETCH(int, recordFormat);
+    QFETCH(int, bytesPerSample);
+
+    std::vector<uint8_t> data(4 * FILE_SIZE);
+    for (size_t i = 0; i < data.size(); i++)
+        data[i] = patternU8(i);
+    const QString input = writeFile("in." + format + ".iq", data);
+    const QString output = tmpDir.filePath("out." + format + ".iq");
+
+    NullRadioController rc;
+    CRAWFile rawFile(rc, false, false);
+    rawFile.setFileName(input.toStdString(), "auto");
+    QCOMPARE(int(rawFile.recordFormat()), recordFormat);
+    QCOMPARE(QString(CVirtualInput::recordFormatName(rawFile.recordFormat())), format);
+    QCOMPARE(CVirtualInput::recordBytesPerSample(rawFile.recordFormat()), bytesPerSample);
+    QCOMPARE(rawFile.recordBytesPerSecond(), 2048000.0 * bytesPerSample);
+
+    std::string error;
+    QVERIFY(rawFile.startRecording(output.toStdString(), data.size(), error));
+    QVERIFY(rawFile.isRecording());
+    rawFile.restart();
+
+    // Stops by itself after the given size
+    QTRY_VERIFY_WITH_TIMEOUT(!rawFile.isRecording(), 5000);
+    rawFile.stopRecording();
+
+    QCOMPARE(rawFile.recordedBytes(), uint64_t(data.size()));
+    QCOMPARE(rawFile.droppedRecordBytes(), uint64_t(0));
+    QCOMPARE(QString::fromStdString(rawFile.recordError()), QString());
+    QVERIFY(readFile(output) == QByteArray(reinterpret_cast<const char*>(data.data()), int(data.size())));
+}
+
+// The size is rounded down to whole samples, I and Q stay together
+void RawFileTests::stopsAfterWholeSamples()
+{
+    std::vector<uint8_t> data(FILE_SIZE);
+    for (size_t i = 0; i < data.size(); i++)
+        data[i] = patternU8(i);
+    const QString input = writeFile("whole.cf32.iq", data);
+    const QString output = tmpDir.filePath("whole-out.cf32.iq");
+
+    NullRadioController rc;
+    CRAWFile rawFile(rc, false, false);
+    rawFile.setFileName(input.toStdString(), "auto");
+
+    std::string error;
+    QVERIFY(rawFile.startRecording(output.toStdString(), 1001, error));
+    rawFile.restart();
+    QTRY_VERIFY_WITH_TIMEOUT(!rawFile.isRecording(), 5000);
+    rawFile.stopRecording();
+
+    QCOMPARE(rawFile.recordedBytes(), uint64_t(1000)); // 125 samples of 8 bytes
+    QVERIFY(readFile(output) == QByteArray(reinterpret_cast<const char*>(data.data()), 1000));
+}
+
+void RawFileTests::recordsUntilStopped()
+{
+    std::vector<uint8_t> data(2 * FILE_SIZE);
+    for (size_t i = 0; i < data.size(); i++)
+        data[i] = patternU8(i);
+    const QString input = writeFile("until.u8.iq", data);
+    const QString output = tmpDir.filePath("until-out.u8.iq");
+
+    NullRadioController rc;
+    CRAWFile rawFile(rc, false, false);
+    rawFile.setFileName(input.toStdString(), "auto");
+
+    std::string error;
+    QVERIFY(rawFile.startRecording(output.toStdString(), 0, error));
+    rawFile.restart();
+    QTRY_VERIFY_WITH_TIMEOUT(rawFile.recordedBytes() >= data.size(), 5000);
+    QVERIFY(rawFile.isRecording());
+    rawFile.stopRecording();
+    QVERIFY(!rawFile.isRecording());
+
+    // Everything read is in the file, after the end of the file zeros
+    const QByteArray recorded = readFile(output);
+    QCOMPARE(uint64_t(recorded.size()), rawFile.recordedBytes());
+    QVERIFY(recorded.startsWith(QByteArray(reinterpret_cast<const char*>(data.data()), int(data.size()))));
+
+    // Nothing is added after the stop
+    QTest::qWait(100);
+    QCOMPARE(uint64_t(readFile(output).size()), rawFile.recordedBytes());
+}
+
+void RawFileTests::inputWithoutFormatCantRecord()
+{
+    NullRadioController rc;
+    CRAWFile rawFile(rc, false, false);
+    QCOMPARE(int(rawFile.recordFormat()), int(CRecordFormat::None));
+
+    std::string error;
+    QVERIFY(!rawFile.startRecording(tmpDir.filePath("none.iq").toStdString(), 0, error));
+    QVERIFY(!error.empty());
+    QVERIFY(!rawFile.isRecording());
+    QVERIFY(!QFile::exists(tmpDir.filePath("none.iq")));
+}
+
+void RawFileTests::unwritableFileReportsError()
+{
+    const QString input = writeFile("unwritable.u8.iq", std::vector<uint8_t>(FILE_SIZE));
+    NullRadioController rc;
+    CRAWFile rawFile(rc, false, false);
+    rawFile.setFileName(input.toStdString(), "auto");
+
+    std::string error;
+    QVERIFY(!rawFile.startRecording(tmpDir.filePath("missing/folder/out.u8.iq").toStdString(), 0, error));
+    QVERIFY(!error.empty());
+    QVERIFY(!rawFile.isRecording());
+}
+
+// A full disk ends the recording with an error
+void RawFileTests::writeErrorEndsRecording()
+{
+#ifdef Q_OS_LINUX
+    const QString input = writeFile("full.u8.iq", std::vector<uint8_t>(FILE_SIZE));
+    NullRadioController rc;
+    CRAWFile rawFile(rc, false, false);
+    rawFile.setFileName(input.toStdString(), "auto");
+
+    std::string error;
+    QVERIFY(rawFile.startRecording("/dev/full", 0, error));
+    rawFile.restart();
+    QTRY_VERIFY_WITH_TIMEOUT(!rawFile.isRecording(), 5000);
+    rawFile.stopRecording();
+    QVERIFY(!rawFile.recordError().empty());
+#else
+    QSKIP("Needs /dev/full");
+#endif
 }
 
 QTEST_APPLESS_MAIN(RawFileTests)

@@ -157,6 +157,20 @@ CDeviceID CRAWFile::getID()
     return CDeviceID::RAWFILE;
 }
 
+// The file is recorded as it is read, in its own format
+CRecordFormat CRAWFile::recordFormat()
+{
+    switch (fileFormat) {
+        case CRAWFileFormat::U8: return CRecordFormat::U8;
+        case CRAWFileFormat::S8: return CRecordFormat::S8;
+        case CRAWFileFormat::S16LE: return CRecordFormat::S16LE;
+        case CRAWFileFormat::S16BE: return CRecordFormat::S16BE;
+        case CRAWFileFormat::COMPLEXF: return CRecordFormat::CF32;
+        case CRAWFileFormat::Unknown: break;
+    }
+    return CRecordFormat::None;
+}
+
 bool ends_with(const std::string& value, const std::string& ending)
 {
     if (ending.size() > value.size()) return false;

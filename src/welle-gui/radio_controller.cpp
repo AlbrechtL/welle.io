@@ -9,6 +9,9 @@
  *    Copyright (C) 2010, 2011, 2012
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
  *
+ *    The I/Q recording was reworked with the help of an AI assistant
+ *    (Claude Code).
+ *
  *    This file is part of the welle.io.
  *    Many of the ideas as implemented in welle.io are derived from
  *    other work, made available through the GNU general Public License.
@@ -32,8 +35,13 @@
 
 #include <QCoreApplication>
 #include <QDebug>
+#include <QDir>
+#include <QFileInfo>
 #include <QSettings>
 #include <QStandardPaths>
+#include <QStorageInfo>
+#include <QThread>
+#include <QUrl>
 #include <QTimeZone>
 #include <stdexcept>
 
@@ -125,6 +133,8 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, QObject *par
 
     connect(this, &CRadioController::restartServiceRequested,
             this, &CRadioController::restartService);
+
+    connect(&recordTimer, &QTimer::timeout, this, &CRadioController::recordTimerTimeout);
 }
 
 CRadioController::~CRadioController()
@@ -137,14 +147,17 @@ void CRadioController::closeDevice()
 {
     qDebug() << "RadioController:" << "Close device";
 
+    finishRecording(tr("The recording was stopped because the input device was closed."));
     radioReceiver.reset();
     device.reset();
     audio.reset();
+    setInputRunning(false);
 
     // Reset the technical data
     resetTechnicalData();
 
     emit deviceClosed();
+    emit recorderChanged();
 }
 
 CDeviceID CRadioController::openDevice(CDeviceID deviceId, bool force, QVariant param1, QVariant param2)
@@ -193,6 +206,7 @@ CDeviceID CRadioController::openDevice(CDeviceID deviceId, bool force, QVariant 
         initialise();
     }
 
+    emit recorderChanged();
     return device->getID();
 }
 
@@ -202,6 +216,7 @@ CDeviceID CRadioController::openDevice()
     device.reset(CInputFactory::GetDevice(*this, "auto"));
     initialise();
 
+    emit recorderChanged();
     return device->getID();
 }
 
@@ -308,12 +323,15 @@ void CRadioController::play(QString channel, QString title, quint32 service)
 
 void CRadioController::stop()
 {
+    finishRecording(tr("The recording was stopped because the playback stopped."));
+
     if (radioReceiver) {
         radioReceiver->stop();
     }
 
     if (device) {
         device->stop();
+        setInputRunning(false);
     }
     else
         throw std::runtime_error("device is null in file " + std::string(__FILE__) +":"+ std::to_string(__LINE__));
@@ -406,7 +424,11 @@ void CRadioController::setChannel(QString Channel, bool isScan, bool Force)
             currentEnsembleLabel = "";
 
             // Convert channel into a frequency
-            currentFrequency = channels.getFrequency(Channel.toStdString());
+            const int frequency = channels.getFrequency(Channel.toStdString());
+            // A recording holds one channel
+            if (frequency != currentFrequency)
+                finishRecording(tr("The recording was stopped because the channel changed."));
+            currentFrequency = frequency;
 
             if(currentFrequency != 0 && device) {
                 qDebug() << "RadioController: Tune to channel" <<  Channel << "->" << currentFrequency/1e6 << "MHz";
@@ -630,17 +652,143 @@ void CRadioController::setGain(int Gain)
     }
 }
 
-void CRadioController::initRecorder(int size)
+bool CRadioController::recorderAvailable()
 {
-    device->initRecordBuffer(size);
+    return device && device->recordFormat() != CRecordFormat::None;
 }
 
-void CRadioController::triggerRecorder(QString filename)
+QString CRadioController::recorderFormat()
 {
-    // TODO just for testing
-    filename = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) + "/welle-io-record.iq";
-    std::string filename_tmp = filename.toStdString();
-    device->writeRecordBufferToFile(filename_tmp);
+    return device ? QString(CVirtualInput::recordFormatName(device->recordFormat())) : QString();
+}
+
+double CRadioController::recorderBytesPerSecond()
+{
+    return device ? device->recordBytesPerSecond() : 0;
+}
+
+QString CRadioController::recordFolder() const
+{
+    QSettings settings;
+    return settings.value("rawRecorderFolder",
+            QStandardPaths::writableLocation(QStandardPaths::DownloadLocation)).toString();
+}
+
+void CRadioController::setRecordFolder(const QString& folder)
+{
+    // A FolderDialog gives a URL
+    const QUrl url(folder);
+    const QString path = url.isLocalFile() ? url.toLocalFile() : folder;
+    if (path == recordFolder())
+        return;
+
+    QSettings settings;
+    settings.setValue("rawRecorderFolder", path);
+    emit recordFolderChanged();
+}
+
+qint64 CRadioController::freeDiskSpace() const
+{
+    const QStorageInfo storage(recordFolder());
+    return storage.isValid() ? storage.bytesAvailable() : -1;
+}
+
+bool CRadioController::startRecording(int durationSeconds)
+{
+    if (isRecording)
+        return false;
+
+    if (!recorderAvailable()) {
+        emit recordingFinished(QString(), tr("This input can't be recorded."), true);
+        return false;
+    }
+
+    const QString folder = recordFolder();
+    if (!QDir().mkpath(folder)) {
+        emit recordingFinished(QString(), tr("Can't create the folder %1.").arg(folder), true);
+        return false;
+    }
+
+    // welle-io_<channel>_<date>.<format>.iq, the RAW file input recognises the format
+    QString name = "welle-io_";
+    if (!currentChannel.isEmpty() && device->getID() != CDeviceID::RAWFILE)
+        name += currentChannel + "_";
+    name += QDateTime::currentDateTime().toString("yyyyMMdd-HHmmss");
+    const QString extension = "." + recorderFormat() + ".iq";
+
+    QString path = QDir(folder).filePath(name + extension);
+    for (int i = 2; QFileInfo::exists(path); i++)
+        path = QDir(folder).filePath(name + "-" + QString::number(i) + extension);
+
+    const uint64_t maxBytes = uint64_t(std::max(durationSeconds, 0) * recorderBytesPerSecond());
+    std::string error;
+    if (!device->startRecording(path.toStdString(), maxBytes, error)) {
+        emit recordingFinished(path, tr("Recording failed: %1").arg(QString::fromStdString(error)), true);
+        return false;
+    }
+
+    qDebug() << "RadioController: Recording to" << path;
+    isRecording = true;
+    recordDuration = std::max(durationSeconds, 0);
+    recordFile = path;
+    recordedBytes = 0;
+    recordDroppedBytes = 0;
+    recordTimer.start(250);
+    emit recordingChanged();
+    emit recordingProgress();
+    return true;
+}
+
+void CRadioController::stopRecording()
+{
+    finishRecording(QString());
+}
+
+void CRadioController::finishRecording(const QString& reason, bool isError)
+{
+    // stop() is also called from the input thread (onInputFailure())
+    if (QThread::currentThread() != thread()) {
+        QMetaObject::invokeMethod(this, [this, reason, isError]() { finishRecording(reason, isError); },
+                Qt::QueuedConnection);
+        return;
+    }
+
+    if (!isRecording)
+        return;
+
+    QString message = reason;
+    recordTimer.stop();
+    if (device) {
+        device->stopRecording();
+        recordedBytes = qint64(device->recordedBytes());
+        recordDroppedBytes = qint64(device->droppedRecordBytes());
+
+        const std::string error = device->recordError();
+        if (!error.empty()) {
+            message = tr("Recording failed: %1").arg(QString::fromStdString(error));
+            isError = true;
+        }
+    }
+
+    qDebug() << "RadioController: Recording finished" << recordFile << recordedBytes << "bytes";
+    isRecording = false;
+    emit recordingProgress();
+    emit recordingChanged();
+    emit recordingFinished(recordFile, message, isError);
+}
+
+void CRadioController::recordTimerTimeout()
+{
+    if (!device)
+        return;
+
+    recordedBytes = qint64(device->recordedBytes());
+    recordDroppedBytes = qint64(device->droppedRecordBytes());
+    emit recordingProgress();
+
+    // Duration reached or write error
+    if (!device->isRecording())
+        finishRecording(QString());
 }
 
 DABParams& CRadioController::getParams()
@@ -811,7 +959,16 @@ bool CRadioController::deviceRestart()
     }
 
     labelTimer.start(40);
+    setInputRunning(true);
     return true;
+}
+
+void CRadioController::setInputRunning(bool running)
+{
+    if (isInputRunning != running) {
+        isInputRunning = running;
+        emit isInputRunningChanged();
+    }
 }
 
 /*****************

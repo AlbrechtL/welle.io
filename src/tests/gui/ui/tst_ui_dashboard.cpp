@@ -23,11 +23,16 @@
 // cards are maximized, moved and removed, the layout survives a restart
 // and leaving the expert mode keeps the views of the normal mode. The
 // service details tell whether the ensemble provides station logos (SPI).
+// The I/Q recorder records the input into a file that plays again.
 
 #include <QAbstractSeries>
 #include <QBuffer>
 #include <QImage>
+#include <QRegularExpression>
+#include <QSignalSpy>
+#include <QTemporaryDir>
 
+#include "gui_helper.h"
 #include "gui_test_main.h"
 #include "radio_controller.h"
 #include "ui_test_case.h"
@@ -57,6 +62,10 @@ private slots:
     void graphsGetData();
     void showsImpulseResponseDelay();
     void setsGain();
+    void recordsWithDuration();
+    void recordsUntilStopped();
+    void showsRecordingError();
+    void playsRecording();
     void maximizesCard();
     void movesCard();
     void removesCard();
@@ -66,6 +75,44 @@ private slots:
     void leavingExpertModeKeepsNormalViews();
 
 private:
+    QTemporaryDir recordDir;
+    QString recording; // File of recordsWithDuration()
+    quint32 playingSid = 0;
+
+    bool play()
+    {
+        if (!app.radio()->property("isPlaying").toBool())
+            app.radio()->play(app.radio()->property("channel").toString(), "Test", playingSid);
+        return UiApp::waitFor([this]() { return app.radio()->property("isPlaying").toBool(); }, 10000);
+    }
+
+    // Shows the recorder card, records into recordDir
+    bool showRecorder()
+    {
+        QQuickItem* card = app.item("card.rawRecorder"); // Added by addsEveryView
+        if (!card)
+            return false;
+        app.radio()->setProperty("recordFolder", recordDir.path());
+        app.scrollIntoView(card);
+        UiApp::settle();
+        return true;
+    }
+
+    bool selectDuration(int index)
+    {
+        if (!app.click("recorderCard.duration"))
+            return false;
+        UiApp::settle();
+        const bool clicked = app.click("comboItem." + QString::number(index));
+        UiApp::settle();
+        return clicked;
+    }
+
+    QStringList recordings() const
+    {
+        return QDir(recordDir.path()).entryList({"*.iq"}, QDir::Files, QDir::Name);
+    }
+
     QStringList views() const { return app.find("dashboard")->property("views").toStringList(); }
 
     QObject* child(QObject* parent, const QString& objectName) const
@@ -105,8 +152,10 @@ void UiDashboardTests::initTestCase()
     // A station with slide show plays
     QVERIFY(scanStations());
     for (const QJsonObject& service : app.services()) {
-        if (service["type"].toString() == "DAB+")
+        if (service["type"].toString() == "DAB+") {
+            playingSid = quint32(service["sid"].toInt());
             QVERIFY(app.click(stationRow(service["sid"].toInt())));
+        }
     }
     QTRY_VERIFY_WITH_TIMEOUT(app.radio()->property("isPlaying").toBool(), 10000);
 }
@@ -325,6 +374,171 @@ void UiDashboardTests::setsGain()
     QVERIFY(!app.item("gainCard.gain")->isEnabled());
 
     qInfo() << "The gain card switches the automatic gain, the settings save it and the gain, the button opens the receiver settings";
+}
+
+void UiDashboardTests::recordsWithDuration()
+{
+    QVERIFY(recordDir.isValid());
+    QVERIFY(showRecorder());
+    QCOMPARE(app.text("recorderCard.folder"), recordDir.path());
+
+    // The RAW file is recorded in its format, 2.048 MS/s
+    const QString format = app.clip()["format"].toString();
+    QVERIFY(app.radio()->property("recorderAvailable").toBool());
+    QCOMPARE(app.radio()->property("recorderFormat").toString(), format);
+    const double bytesPerSecond = app.radio()->property("recorderBytesPerSecond").toDouble();
+    QCOMPARE(bytesPerSecond, 2048000.0 * (format.contains("16") ? 4 : format == "cf32" ? 8 : 2));
+
+    // Without samples from the input there is nothing to record
+    app.radio()->stop();
+    QTRY_VERIFY(!app.radio()->property("isInputRunning").toBool());
+    QVERIFY(!app.item("recorderCard.record")->isEnabled());
+    QCOMPARE(app.text("recorderCard.format"), QString("Play a station or tune to a channel to record"));
+    QVERIFY(play());
+    QVERIFY(app.radio()->property("isInputRunning").toBool());
+    QVERIFY(app.item("recorderCard.record")->isEnabled());
+    QVERIFY(app.text("recorderCard.format").contains(format));
+
+    // Estimated size of 10 s
+    QVERIFY(selectDuration(1));
+    QCOMPARE(app.find("card.rawRecorder")->property("duration").toInt(), 10);
+    QCOMPARE(app.text("recorderCard.estimate"),
+             QString("Estimated file size: %1 MB").arg(10 * bytesPerSecond / 1e6, 0, 'f', 0));
+    QVERIFY(!app.isVisible("recorderCard.status"));
+
+    // Recording: elapsed time, live size and progress
+    QSignalSpy finished(app.radio(), &CRadioController::recordingFinished);
+    QVERIFY(app.click("recorderCard.record"));
+    QTRY_VERIFY(app.radio()->property("isRecording").toBool());
+    QCOMPARE(app.text("recorderCard.record"), QString("Stop"));
+    QVERIFY(!app.item("recorderCard.duration")->isEnabled());
+    QVERIFY(!app.item("recorderCard.changeFolder")->isEnabled());
+    QTRY_VERIFY_WITH_TIMEOUT(app.radio()->property("recordedBytes").toLongLong() > 1000000, 5000);
+    QVERIFY(app.isVisible("recorderCard.status"));
+    QVERIFY(app.isVisible("recorderCard.progress"));
+    QVERIFY2(app.text("recorderCard.status").contains(" / 0:10"), qPrintable(app.text("recorderCard.status")));
+    QVERIFY(app.text("recorderCard.status").contains(" MB"));
+    app.screenshot("recorder-recording");
+    app.resize(800, 480);
+    app.scrollIntoView(app.item("card.rawRecorder"));
+    UiApp::settle();
+    app.screenshot("recorder-800x480");
+    app.resize(360, 640);
+    QVERIFY(app.click("miniPlayer"));
+    QTRY_VERIFY(app.isVisible("dashboard"));
+    UiApp::settle();
+    app.scrollIntoView(app.item("card.rawRecorder"));
+    UiApp::settle();
+    UI_VERIFY_EMPTY(app.itemsOutsideWindow(), "Items outside the window");
+    UI_VERIFY_EMPTY(app.controlsWithoutAccessibleName(), "Controls without accessible name");
+    app.screenshot("recorder-360x640");
+    app.key(Qt::Key_Escape);
+    UiApp::settle();
+    app.resize(1400, 800);
+    app.scrollIntoView(app.item("card.rawRecorder"));
+    UiApp::settle();
+
+    // Stops by itself after 10 s
+    QTRY_VERIFY_WITH_TIMEOUT(!app.radio()->property("isRecording").toBool(), 20000);
+    QCOMPARE(finished.count(), 1);
+    QCOMPARE(finished[0][1].toString(), QString()); // No reason, as wanted
+    QVERIFY(!finished[0][2].toBool());
+    QCOMPARE(app.text("recorderCard.record"), QString("Record"));
+    QCOMPARE(app.radio()->property("recordDroppedBytes").toLongLong(), 0);
+
+    // welle-io_<date>.<format>.iq (a RAW file has no channel), exactly 10 s
+    QCOMPARE(recordings().size(), 1);
+    const QString name = recordings()[0];
+    QVERIFY2(QRegularExpression("^welle-io_\\d{8}-\\d{6}\\." + format + "\\.iq$").match(name).hasMatch(), qPrintable(name));
+    recording = recordDir.filePath(name);
+    QCOMPARE(finished[0][0].toString(), recording);
+    QCOMPARE(QFileInfo(recording).size(), qint64(10 * bytesPerSecond));
+    QCOMPARE(app.radio()->property("recordedBytes").toLongLong(), qint64(10 * bytesPerSecond));
+    QVERIFY(app.isVisible("recorderCard.lastFile"));
+    QCOMPARE(app.text("recorderCard.lastFile"), "Saved: " + name);
+    QTRY_VERIFY(app.text("snackbar.text").contains(name));
+    app.screenshot("recorder-saved");
+
+    qInfo().noquote() << "Recorded" << name << "with" << QFileInfo(recording).size() << "bytes, stopped after 10 s";
+}
+
+void UiDashboardTests::recordsUntilStopped()
+{
+    QVERIFY(showRecorder());
+    QVERIFY(selectDuration(0));
+    QCOMPARE(app.find("card.rawRecorder")->property("duration").toInt(), 0);
+    QVERIFY(app.text("recorderCard.estimate").endsWith(" per minute"));
+
+    QVERIFY(app.click("recorderCard.record"));
+    QTRY_VERIFY(app.radio()->property("isRecording").toBool());
+    QVERIFY(!app.isVisible("recorderCard.progress"));
+    QTRY_VERIFY_WITH_TIMEOUT(app.radio()->property("recordedBytes").toLongLong() > 4000000, 5000);
+    QVERIFY(!app.text("recorderCard.status").contains("/"));
+    QVERIFY(app.click("recorderCard.record"));
+    QTRY_VERIFY(!app.radio()->property("isRecording").toBool());
+
+    // A second file, as long as recorded
+    QCOMPARE(recordings().size(), 2);
+    const QString file = app.radio()->property("recordFile").toString();
+    QVERIFY(file != recording);
+    QCOMPARE(QFileInfo(file).size(), app.radio()->property("recordedBytes").toLongLong());
+    QVERIFY(QFileInfo(file).size() > 4000000);
+
+    qInfo().noquote() << "Recorded until stopped:" << QFileInfo(file).fileName() << QFileInfo(file).size() << "bytes";
+}
+
+void UiDashboardTests::showsRecordingError()
+{
+    QVERIFY(showRecorder());
+
+    // A folder that can't be created
+    QFile blocker(recordDir.filePath("file"));
+    QVERIFY(blocker.open(QIODevice::WriteOnly));
+    blocker.close();
+    app.radio()->setProperty("recordFolder", recordDir.filePath("file/folder"));
+    QCOMPARE(app.text("recorderCard.folder"), recordDir.filePath("file/folder"));
+
+    // The "Saved" message of the last recording goes first
+    while (app.find("snackbar")->property("visible").toBool()) {
+        app.click("snackbar.close");
+        UiApp::settle();
+    }
+    QVERIFY(app.click("recorderCard.record"));
+    QTRY_VERIFY(app.text("snackbar.text").contains("Can't create the folder"));
+    QCOMPARE(app.find("snackbar")->property("kind").toString(), QString("error"));
+    QVERIFY(!app.radio()->property("isRecording").toBool());
+    QCOMPARE(app.text("recorderCard.record"), QString("Record"));
+    app.screenshot("recorder-error");
+    QVERIFY(app.click("snackbar.close"));
+
+    // A folder from the FolderDialog is a URL
+    app.radio()->setProperty("recordFolder", QUrl::fromLocalFile(recordDir.path()).toString());
+    QCOMPARE(app.radio()->property("recordFolder").toString(), recordDir.path());
+
+    qInfo().noquote() << "Error shown:" << "Can't create the folder";
+}
+
+void UiDashboardTests::playsRecording()
+{
+    // The RAW file input recognises the format from the name and decodes
+    // the recording like the original clip
+    QVERIFY(!recording.isEmpty());
+    const QString ensemble = app.clip()["expect"].toObject()["ensemble_label"].toString();
+    const quint32 sid = playingSid;
+
+    app.gui()->openRawFile(recording, "auto");
+    QVERIFY(app.radio()->property("deviceName").toString().contains(QFileInfo(recording).fileName()));
+    app.radio()->play(app.radio()->property("channel").toString(), "Recording", sid);
+    QTRY_COMPARE_WITH_TIMEOUT(app.radio()->property("ensemble").toString().trimmed(), ensemble, 10000);
+    QTRY_VERIFY_WITH_TIMEOUT(app.radio()->property("isPlaying").toBool(), 10000);
+    QTRY_VERIFY_WITH_TIMEOUT(app.radio()->property("bitRate").toInt() > 0, 10000);
+
+    // Back to the clip
+    app.gui()->openRawFile(app.clipFile(), "auto");
+    app.radio()->play(app.radio()->property("channel").toString(), "Clip", sid);
+    QTRY_VERIFY_WITH_TIMEOUT(app.radio()->property("isPlaying").toBool(), 10000);
+
+    qInfo().noquote() << "The recording plays:" << ensemble;
 }
 
 void UiDashboardTests::maximizesCard()

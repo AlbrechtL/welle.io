@@ -226,6 +226,7 @@ int CAirspy::data_available(const DSPCOMPLEX* buf, size_t num_samples)
 
     SampleBuffer.putDataIntoBuffer(resampled.data(), count);
     SpectrumSampleBuffer.putDataIntoBuffer(resampled.data(), count);
+    putIntoRecordBuffer(resampled.data(), count);
 
     return 0;
 }

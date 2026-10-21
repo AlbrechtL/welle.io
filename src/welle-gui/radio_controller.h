@@ -9,6 +9,9 @@
  *    Copyright (C) 2010, 2011, 2012
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
  *
+ *    The I/Q recording was reworked with the help of an AI assistant
+ *    (Claude Code).
+ *
  *    This file is part of the welle.io.
  *    Many of the ideas as implemented in welle.io are derived from
  *    other work, made available through the GNU general Public License.
@@ -108,6 +111,18 @@ class CRadioController :
     // 0: differential, 1: coherent (DemodulationMethod)
     Q_PROPERTY(int demodulationMethod READ demodulationMethod NOTIFY demodulationMethodChanged)
 
+    // I/Q recording of the input (see CVirtualInput::startRecording())
+    Q_PROPERTY(bool recorderAvailable READ recorderAvailable NOTIFY recorderChanged)
+    Q_PROPERTY(bool isInputRunning MEMBER isInputRunning NOTIFY isInputRunningChanged) // the input delivers samples
+    Q_PROPERTY(QString recorderFormat READ recorderFormat NOTIFY recorderChanged)
+    Q_PROPERTY(double recorderBytesPerSecond READ recorderBytesPerSecond NOTIFY recorderChanged)
+    Q_PROPERTY(QString recordFolder READ recordFolder WRITE setRecordFolder NOTIFY recordFolderChanged)
+    Q_PROPERTY(bool isRecording MEMBER isRecording NOTIFY recordingChanged)
+    Q_PROPERTY(int recordDuration MEMBER recordDuration NOTIFY recordingChanged) // s, 0: until stopped
+    Q_PROPERTY(QString recordFile MEMBER recordFile NOTIFY recordingChanged)
+    Q_PROPERTY(qint64 recordedBytes MEMBER recordedBytes NOTIFY recordingProgress)
+    Q_PROPERTY(qint64 recordDroppedBytes MEMBER recordDroppedBytes NOTIFY recordingProgress)
+
 public:
     enum SpiState {
         SpiSearching = 0,       // FIC not yet complete
@@ -146,8 +161,17 @@ public:
     Q_INVOKABLE void setDemodulationMethod(int method);
     int demodulationMethod() const { return static_cast<int>(rro.demodulationMethod); }
     Q_INVOKABLE void setGain(int gain);
-    Q_INVOKABLE void initRecorder(int size);
-    Q_INVOKABLE void triggerRecorder(QString filename);
+
+    // I/Q recording into recordFolder, durationSeconds 0 records until stopRecording()
+    Q_INVOKABLE bool startRecording(int durationSeconds);
+    Q_INVOKABLE void stopRecording();
+    Q_INVOKABLE qint64 freeDiskSpace() const;
+    bool recorderAvailable();
+    QString recorderFormat();
+    double recorderBytesPerSecond();
+    QString recordFolder() const;
+    void setRecordFolder(const QString& folder);
+
     DABParams& getParams(void);
     int getCurrentFrequency();
 
@@ -187,6 +211,9 @@ private:
     void initialise(void);
     void resetTechnicalData(void);
     bool deviceRestart(void);
+    void setInputRunning(bool running);
+    void finishRecording(const QString& reason, bool isError = false);
+    void recordTimerTimeout(void);
 
     std::shared_ptr<CVirtualInput> device;
     QVariantMap commandLineOptions;
@@ -253,6 +280,14 @@ private:
     QTimer stationTimer;
     QTimer channelTimer;
     QTimer spiTimer;
+    QTimer recordTimer;
+
+    bool isInputRunning = false;
+    bool isRecording = false;
+    int recordDuration = 0;
+    QString recordFile;
+    qint64 recordedBytes = 0;
+    qint64 recordDroppedBytes = 0;
 
     bool isChannelScan = false;
     bool isAGC = false;
@@ -302,6 +337,13 @@ signals:
     void audioModeChanged(QString);
     void snrChanged(float);
     void demodulationMethodChanged(int);
+    void recorderChanged();
+    void isInputRunningChanged();
+    void recordFolderChanged();
+    void recordingChanged();
+    void recordingProgress();
+    // reason is empty if the recording ended as wanted (stopped or duration reached)
+    void recordingFinished(QString file, QString reason, bool isError);
     void frequencyCorrectionChanged(int);
     void frequencyCorrectionPpmChanged(float);
     void bitRateChanged(int);

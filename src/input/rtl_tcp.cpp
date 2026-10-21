@@ -552,6 +552,7 @@ void CRTL_TCP_Client::networkBufferCopy()
         // Write data to standard buffers
         sampleBuffer.putDataIntoBuffer(tempBuffer.data(), amount);
         spectrumSampleBuffer.putDataIntoBuffer(tempBuffer.data(), amount);
+        putIntoRecordBuffer(*tempBuffer.data(), amount);
 
         if(getMyTime() - oldTime_us > 500e3) { // 500 ms
 

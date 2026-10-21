@@ -437,6 +437,7 @@ void CSoapySdr::process(SoapySDR::Stream *stream)
 
             m_sampleBuffer.putDataIntoBuffer(buf.data(), ret);
             m_spectrumSampleBuffer.putDataIntoBuffer(buf.data(), ret);
+            putIntoRecordBuffer(buf.data(), ret);
         }
     }
 }

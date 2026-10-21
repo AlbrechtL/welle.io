@@ -186,6 +186,7 @@ public:
     std::string getDescription(void);
 
     CDeviceID getID(void);
+    CRecordFormat recordFormat(void);
 
 private:
     struct MappedBuffer {

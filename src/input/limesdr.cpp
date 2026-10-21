@@ -211,6 +211,7 @@ void CLimeSDR::limesdr_thread_run()
             }
             SampleBuffer.putDataIntoBuffer (temp.data(), res);
             SpectrumSampleBuffer.putDataIntoBuffer (temp.data(), res);
+            putIntoRecordBuffer(temp.data(), res);
             amountRead += res;
             res = LMS_GetStreamStatus (&stream, &streamStatus);
             underruns += streamStatus. underrun;

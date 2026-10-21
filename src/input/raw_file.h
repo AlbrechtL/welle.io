@@ -68,6 +68,7 @@ public:
     void setAgc(bool AGC);
     std::string getDescription(void);
     CDeviceID getID(void);
+    CRecordFormat recordFormat(void);
 
     // Specific methods
     void setFileName(const std::string& FileName, const std::string& FileFormat);

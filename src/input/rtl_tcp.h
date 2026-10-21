@@ -73,6 +73,7 @@ public:
     void setAgc(bool AGC);
     std::string getDescription(void);
     CDeviceID getID(void);
+    CRecordFormat recordFormat(void) { return CRecordFormat::U8; }
 
     // Specific methods
     void setServerAddress(const std::string& serverAddress);

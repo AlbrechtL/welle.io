@@ -35,3 +35,33 @@ Also, keep in mind it is not an absolute distance measurement! It is a relative 
 Hardware dongles with an accurate clock (less than 100Hz frequency error on the frequency being received) do not need the coarse frequency corrector, which works in 1kHz steps. Disabling it can accelerate lock.
 
 When enabled, the `FreqsyncMethod freqsyncMethod` selects which algorithm is used to find the coarse corrector. The algorithms are explained in `OFDMProcessor::processPRS()`
+
+## I/Q recording
+
+`CVirtualInput::startRecording()` (`src/input/virtual_input.h`) writes the
+samples that an input device passes to the decoder into a file. The GUI uses
+it for the *RAW Recorder* card (`CRadioController::startRecording()`,
+`RawRecorderCard.qml`), the user documentation is in
+[Raw files](../devices/rawfile.md#recording-a-raw-file).
+
+* A device tells its format with `recordFormat()` and calls
+  `putIntoRecordBuffer()` where it puts the samples into its `SampleBuffer`,
+  i.e. at 2.048 MS/s after a resampler. Devices that deliver 8-bit samples
+  (rtl-sdr, rtl_tcp, V4L2 CU8 without resampler) record them unchanged (`u8`),
+  the RAW file input records the bytes it read in the format of the file, all
+  other devices record `DSPCOMPLEX` as `cf32`.
+* `putIntoRecordBuffer()` only copies into a FIFO of about 2 s. A writer
+  thread writes the FIFO into the file. If the FIFO is full (slow disk), the
+  whole block is dropped and counted (`droppedRecordBytes()`): a partial
+  block would mix up I and Q. The device thread never waits for the disk.
+* With `maxBytes` the writer stops by itself after that size (rounded down to
+  whole samples). `isRecording()` turns false after the stop, after
+  `maxBytes` and after a write error (`recordError()`); `stopRecording()`
+  writes the rest of the FIFO and closes the file.
+* `CRadioController` stops a recording when the frequency changes, when the
+  playback stops and when the device is closed, so that a file contains one
+  channel. A file name `welle-io_<channel>_<date>-<time>.<format>.iq` lets
+  the RAW file input detect the format.
+* Tests: `unit.rawfile` (recording of the RAW file input in every format,
+  `maxBytes`, write errors) and `gui.ui.dashboard` (card, duration, file
+  size, playing the recording again).

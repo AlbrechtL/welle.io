@@ -269,65 +269,96 @@
 <context>
     <name>CRadioController</name>
     <message>
-        <location filename="../radio_controller.cpp" line="739"/>
+        <location filename="../radio_controller.cpp" line="887"/>
         <source>Unknown</source>
         <translation>Ukjent</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="523"/>
-        <location filename="../radio_controller.cpp" line="759"/>
+        <location filename="../radio_controller.cpp" line="545"/>
+        <location filename="../radio_controller.cpp" line="907"/>
         <source>No Station</source>
         <translation>Ingen radiokanal valgt</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="169"/>
+        <location filename="../radio_controller.cpp" line="150"/>
+        <source>The recording was stopped because the input device was closed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../radio_controller.cpp" line="182"/>
         <source>Error while opening device </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="183"/>
+        <location filename="../radio_controller.cpp" line="196"/>
         <source>Error while opening file </source>
         <translation>Feil ved åpning av fil </translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="304"/>
+        <location filename="../radio_controller.cpp" line="319"/>
         <source>Playback failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="325"/>
+        <location filename="../radio_controller.cpp" line="326"/>
+        <source>The recording was stopped because the playback stopped.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../radio_controller.cpp" line="343"/>
         <source>Stopped</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="476"/>
+        <location filename="../radio_controller.cpp" line="430"/>
+        <source>The recording was stopped because the channel changed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../radio_controller.cpp" line="498"/>
         <source>No receiver</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="485"/>
+        <location filename="../radio_controller.cpp" line="507"/>
         <source>RAW File</source>
         <translation>RAW-fil</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="499"/>
-        <location filename="../radio_controller.cpp" line="1029"/>
+        <location filename="../radio_controller.cpp" line="521"/>
+        <location filename="../radio_controller.cpp" line="1186"/>
         <source>Scanning</source>
         <translation>Søker</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="503"/>
-        <location filename="../radio_controller.cpp" line="1054"/>
+        <location filename="../radio_controller.cpp" line="525"/>
+        <location filename="../radio_controller.cpp" line="1211"/>
         <source>Found channels</source>
         <translation>Radiokanaler funnet</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="733"/>
+        <location filename="../radio_controller.cpp" line="702"/>
+        <source>This input can&apos;t be recorded.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../radio_controller.cpp" line="708"/>
+        <source>Can&apos;t create the folder %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../radio_controller.cpp" line="726"/>
+        <location filename="../radio_controller.cpp" line="768"/>
+        <source>Recording failed: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../radio_controller.cpp" line="881"/>
         <source>Playing last station</source>
         <translation>Spiller sist valgte radiokanal</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="809"/>
+        <location filename="../radio_controller.cpp" line="957"/>
         <source>Radio device is not ready or does not exist.</source>
         <translation>Radiomottaker er ikke klar eller er ikke tilkoblet.</translation>
     </message>
@@ -349,23 +380,23 @@
         <translation>Feil ved oppstart av enhet</translation>
     </message>
     <message>
-        <location filename="../../input/raw_file.cpp" line="177"/>
-        <location filename="../../input/raw_file.cpp" line="197"/>
+        <location filename="../../input/raw_file.cpp" line="191"/>
+        <location filename="../../input/raw_file.cpp" line="211"/>
         <source>Cannot open file </source>
         <translation>Kan ikke åpne fil </translation>
     </message>
     <message>
-        <location filename="../../input/raw_file.cpp" line="308"/>
+        <location filename="../../input/raw_file.cpp" line="322"/>
         <source>End of file, restarting</source>
         <translation>Slutten av filen, restarter</translation>
     </message>
     <message>
-        <location filename="../../input/raw_file.cpp" line="315"/>
+        <location filename="../../input/raw_file.cpp" line="329"/>
         <source>End of file</source>
         <translation>Slutten av filen</translation>
     </message>
     <message>
-        <location filename="../../input/raw_file.cpp" line="404"/>
+        <location filename="../../input/raw_file.cpp" line="418"/>
         <source>Unknown RAW file format</source>
         <translation>Ukjent RAW filformat</translation>
     </message>
@@ -375,10 +406,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../input/airspy_sdr.cpp" line="399"/>
+        <location filename="../../input/airspy_sdr.cpp" line="400"/>
         <location filename="../../input/rtl_sdr.cpp" line="323"/>
-        <location filename="../../input/rtl_tcp.cpp" line="588"/>
-        <location filename="../../input/v4l2_sdr.cpp" line="1156"/>
+        <location filename="../../input/rtl_tcp.cpp" line="589"/>
+        <location filename="../../input/v4l2_sdr.cpp" line="1158"/>
         <source>ADC overload. Maybe you are using a too high gain.</source>
         <translatorcomment>Refine translation.</translatorcomment>
         <translation>ADC overbelastning. Gain muligens satt for høyt.</translation>
@@ -1813,30 +1844,121 @@
 <context>
     <name>RawRecorderCard</name>
     <message>
-        <location filename="../QML/expert/RawRecorderCard.qml" line="35"/>
         <source>I/Q RAW Recorder (experimental)</source>
-        <translation type="unfinished">I/Q RAW-opptaker (eksperimentell)</translation>
+        <translation type="obsolete">I/Q RAW-opptaker (eksperimentell)</translation>
     </message>
     <message>
-        <location filename="../QML/expert/RawRecorderCard.qml" line="53"/>
-        <location filename="../QML/expert/RawRecorderCard.qml" line="65"/>
         <source>Ring buffer length [s]</source>
-        <translation type="unfinished">Ring-buffer lengde [s]</translation>
+        <translation type="obsolete">Ring-buffer lengde [s]</translation>
     </message>
     <message>
-        <location filename="../QML/expert/RawRecorderCard.qml" line="70"/>
         <source>Ring buffer size (roughly): </source>
-        <translation type="unfinished">Ringbuffer-størrelse (cirka): </translation>
+        <translation type="obsolete">Ringbuffer-størrelse (cirka): </translation>
     </message>
     <message>
-        <location filename="../QML/expert/RawRecorderCard.qml" line="76"/>
         <source>Save ring buffer</source>
-        <translation type="unfinished">Lagre ring-buffer</translation>
+        <translation type="obsolete">Lagre ring-buffer</translation>
     </message>
     <message>
-        <location filename="../QML/expert/RawRecorderCard.qml" line="76"/>
         <source>Init</source>
-        <translation type="unfinished">Initsiell</translation>
+        <translation type="obsolete">Initsiell</translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/RawRecorderCard.qml" line="43"/>
+        <source>RAW Recorder</source>
+        <translation type="unfinished">RAW-opptaker</translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/RawRecorderCard.qml" line="67"/>
+        <source>Please choose a folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/RawRecorderCard.qml" line="82"/>
+        <location filename="../QML/expert/RawRecorderCard.qml" line="283"/>
+        <source>Saved: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/RawRecorderCard.qml" line="87"/>
+        <source>Open folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/RawRecorderCard.qml" line="109"/>
+        <source>Until stopped</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/RawRecorderCard.qml" line="110"/>
+        <source>%1 s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/RawRecorderCard.qml" line="110"/>
+        <source>%1 min</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/RawRecorderCard.qml" line="125"/>
+        <source>The input device can&apos;t be recorded</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/RawRecorderCard.qml" line="127"/>
+        <source>Format %1, 2.048 MS/s, %2 per second</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/RawRecorderCard.qml" line="129"/>
+        <source>Play a station or tune to a channel to record</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/RawRecorderCard.qml" line="144"/>
+        <location filename="../QML/expert/RawRecorderCard.qml" line="157"/>
+        <source>Duration</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/RawRecorderCard.qml" line="168"/>
+        <source>Estimated file size: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/RawRecorderCard.qml" line="169"/>
+        <source>Estimated file size: %1 per minute</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/RawRecorderCard.qml" line="181"/>
+        <source>Only %1 free in the folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/RawRecorderCard.qml" line="193"/>
+        <source>Stop</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/RawRecorderCard.qml" line="193"/>
+        <source>Record</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/RawRecorderCard.qml" line="235"/>
+        <source>%1 lost, the disk is too slow</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/RawRecorderCard.qml" line="252"/>
+        <source>Folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/RawRecorderCard.qml" line="269"/>
+        <source>Change</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

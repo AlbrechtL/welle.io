@@ -37,6 +37,7 @@ renamed to the icon names used in the QML code (`icon.name`):
 | play | play_arrow (filled) |
 | previous | chevron_left |
 | radio | radio |
+| record | fiber_manual_record (filled) |
 | save | save |
 | scan | radar |
 | settings | settings |

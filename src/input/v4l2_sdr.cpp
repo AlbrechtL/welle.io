@@ -1055,6 +1055,8 @@ void CV4L2Sdr::process(const uint8_t* data, size_t bytes)
 
     sampleBuffer.putDataIntoBuffer(iq, int32_t(count));
     spectrumSampleBuffer.putDataIntoBuffer(iq, int32_t(count));
+    if (recordFormat() == CRecordFormat::CF32)
+        putIntoRecordBuffer(iq, count);
 }
 
 void CV4L2Sdr::reset(void)
@@ -1168,4 +1170,11 @@ std::string CV4L2Sdr::getDescription(void)
 CDeviceID CV4L2Sdr::getID(void)
 {
     return CDeviceID::V4L2;
+}
+
+// CU8 at 2.048 MS/s is recorded as it comes from the device, everything else
+// as the complex samples passed to the decoder
+CRecordFormat CV4L2Sdr::recordFormat(void)
+{
+    return (format == SdrFormat::CU8 && !resampler) ? CRecordFormat::U8 : CRecordFormat::CF32;
 }

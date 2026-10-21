@@ -290,65 +290,96 @@
 <context>
     <name>CRadioController</name>
     <message>
-        <location filename="../radio_controller.cpp" line="739"/>
+        <location filename="../radio_controller.cpp" line="887"/>
         <source>Unknown</source>
         <translation>Unbekannt</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="523"/>
-        <location filename="../radio_controller.cpp" line="759"/>
+        <location filename="../radio_controller.cpp" line="545"/>
+        <location filename="../radio_controller.cpp" line="907"/>
         <source>No Station</source>
         <translation>Kein Sender gewählt</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="169"/>
+        <location filename="../radio_controller.cpp" line="150"/>
+        <source>The recording was stopped because the input device was closed.</source>
+        <translation>Die Aufnahme wurde beendet, weil das Eingabegerät geschlossen wurde.</translation>
+    </message>
+    <message>
+        <location filename="../radio_controller.cpp" line="182"/>
         <source>Error while opening device </source>
         <translation>Fehler beim Öffnen des Geräts </translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="183"/>
+        <location filename="../radio_controller.cpp" line="196"/>
         <source>Error while opening file </source>
         <translation>Fehler beim Öffnen der Datei </translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="304"/>
+        <location filename="../radio_controller.cpp" line="319"/>
         <source>Playback failed</source>
         <translation>Wiedergabe fehlgeschlagen</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="325"/>
+        <location filename="../radio_controller.cpp" line="326"/>
+        <source>The recording was stopped because the playback stopped.</source>
+        <translation>Die Aufnahme wurde beendet, weil die Wiedergabe gestoppt wurde.</translation>
+    </message>
+    <message>
+        <location filename="../radio_controller.cpp" line="343"/>
         <source>Stopped</source>
         <translation>Gestoppt</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="476"/>
+        <location filename="../radio_controller.cpp" line="430"/>
+        <source>The recording was stopped because the channel changed.</source>
+        <translation>Die Aufnahme wurde beendet, weil der Kanal gewechselt wurde.</translation>
+    </message>
+    <message>
+        <location filename="../radio_controller.cpp" line="498"/>
         <source>No receiver</source>
         <translation>Kein Empfänger</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="485"/>
+        <location filename="../radio_controller.cpp" line="507"/>
         <source>RAW File</source>
         <translation>RAW Datei</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="499"/>
-        <location filename="../radio_controller.cpp" line="1029"/>
+        <location filename="../radio_controller.cpp" line="521"/>
+        <location filename="../radio_controller.cpp" line="1186"/>
         <source>Scanning</source>
         <translation>Scanne</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="503"/>
-        <location filename="../radio_controller.cpp" line="1054"/>
+        <location filename="../radio_controller.cpp" line="525"/>
+        <location filename="../radio_controller.cpp" line="1211"/>
         <source>Found channels</source>
         <translation>Gefundene Sender</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="733"/>
+        <location filename="../radio_controller.cpp" line="702"/>
+        <source>This input can&apos;t be recorded.</source>
+        <translation>Dieses Eingabegerät kann nicht aufgenommen werden.</translation>
+    </message>
+    <message>
+        <location filename="../radio_controller.cpp" line="708"/>
+        <source>Can&apos;t create the folder %1.</source>
+        <translation>Der Ordner %1 kann nicht angelegt werden.</translation>
+    </message>
+    <message>
+        <location filename="../radio_controller.cpp" line="726"/>
+        <location filename="../radio_controller.cpp" line="768"/>
+        <source>Recording failed: %1</source>
+        <translation>Aufnahme fehlgeschlagen: %1</translation>
+    </message>
+    <message>
+        <location filename="../radio_controller.cpp" line="881"/>
         <source>Playing last station</source>
         <translation>Gebe zuletzt gehörten Sender wieder</translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="809"/>
+        <location filename="../radio_controller.cpp" line="957"/>
         <source>Radio device is not ready or does not exist.</source>
         <translation>Gerät meldet einen Fehler oder existiert nicht.</translation>
     </message>
@@ -369,23 +400,23 @@
         <translation>Fehler beim Öffnen des Geräts</translation>
     </message>
     <message>
-        <location filename="../../input/raw_file.cpp" line="177"/>
-        <location filename="../../input/raw_file.cpp" line="197"/>
+        <location filename="../../input/raw_file.cpp" line="191"/>
+        <location filename="../../input/raw_file.cpp" line="211"/>
         <source>Cannot open file </source>
         <translation type="unfinished">Kann Datei nicht öffnen </translation>
     </message>
     <message>
-        <location filename="../../input/raw_file.cpp" line="308"/>
+        <location filename="../../input/raw_file.cpp" line="322"/>
         <source>End of file, restarting</source>
         <translation>Datei ist zu Ende, beginne von vorn</translation>
     </message>
     <message>
-        <location filename="../../input/raw_file.cpp" line="315"/>
+        <location filename="../../input/raw_file.cpp" line="329"/>
         <source>End of file</source>
         <translation>Datei ist zu Ende</translation>
     </message>
     <message>
-        <location filename="../../input/raw_file.cpp" line="404"/>
+        <location filename="../../input/raw_file.cpp" line="418"/>
         <source>Unknown RAW file format</source>
         <translation>Unbekanntes RAW-Dateiformat</translation>
     </message>
@@ -395,10 +426,10 @@
         <translation>Fehler beim Öffnen von RTL-SDR. Details stehen im Log.</translation>
     </message>
     <message>
-        <location filename="../../input/airspy_sdr.cpp" line="399"/>
+        <location filename="../../input/airspy_sdr.cpp" line="400"/>
         <location filename="../../input/rtl_sdr.cpp" line="323"/>
-        <location filename="../../input/rtl_tcp.cpp" line="588"/>
-        <location filename="../../input/v4l2_sdr.cpp" line="1156"/>
+        <location filename="../../input/rtl_tcp.cpp" line="589"/>
+        <location filename="../../input/v4l2_sdr.cpp" line="1158"/>
         <source>ADC overload. Maybe you are using a too high gain.</source>
         <translation type="unfinished">ADC überlastet. Evtl. Verstärkung zu stark.</translation>
     </message>
@@ -1232,7 +1263,7 @@
     <message>
         <location filename="../QML/expert/Dashboard.qml" line="60"/>
         <source>RAW Recorder</source>
-        <translation type="unfinished">RAW-Aufzeichnung</translation>
+        <translation>RAW Recorder</translation>
     </message>
     <message>
         <location filename="../QML/expert/Dashboard.qml" line="261"/>
@@ -1841,30 +1872,121 @@
 <context>
     <name>RawRecorderCard</name>
     <message>
-        <location filename="../QML/expert/RawRecorderCard.qml" line="35"/>
         <source>I/Q RAW Recorder (experimental)</source>
-        <translation type="unfinished">Rohdaten (I/O) aufnehmen (experimentell)</translation>
+        <translation type="obsolete">Rohdaten (I/O) aufnehmen (experimentell)</translation>
     </message>
     <message>
-        <location filename="../QML/expert/RawRecorderCard.qml" line="53"/>
-        <location filename="../QML/expert/RawRecorderCard.qml" line="65"/>
         <source>Ring buffer length [s]</source>
-        <translation type="unfinished">Ringpufferlänge [s]</translation>
+        <translation type="obsolete">Ringpufferlänge [s]</translation>
     </message>
     <message>
-        <location filename="../QML/expert/RawRecorderCard.qml" line="70"/>
         <source>Ring buffer size (roughly): </source>
-        <translation type="unfinished">Ringpuffergröße (ca.): </translation>
+        <translation type="obsolete">Ringpuffergröße (ca.): </translation>
     </message>
     <message>
-        <location filename="../QML/expert/RawRecorderCard.qml" line="76"/>
         <source>Save ring buffer</source>
-        <translation type="unfinished">Ringpuffer speichern</translation>
+        <translation type="obsolete">Ringpuffer speichern</translation>
     </message>
     <message>
-        <location filename="../QML/expert/RawRecorderCard.qml" line="76"/>
         <source>Init</source>
-        <translation type="unfinished">Initialisieren</translation>
+        <translation type="obsolete">Initialisieren</translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/RawRecorderCard.qml" line="43"/>
+        <source>RAW Recorder</source>
+        <translation>RAW Recorder</translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/RawRecorderCard.qml" line="67"/>
+        <source>Please choose a folder</source>
+        <translation>Bitte einen Ordner wählen</translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/RawRecorderCard.qml" line="82"/>
+        <location filename="../QML/expert/RawRecorderCard.qml" line="283"/>
+        <source>Saved: %1</source>
+        <translation>Gespeichert: %1</translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/RawRecorderCard.qml" line="87"/>
+        <source>Open folder</source>
+        <translation>Ordner öffnen</translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/RawRecorderCard.qml" line="109"/>
+        <source>Until stopped</source>
+        <translation>Bis zum Stopp</translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/RawRecorderCard.qml" line="110"/>
+        <source>%1 s</source>
+        <translation>%1 s</translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/RawRecorderCard.qml" line="110"/>
+        <source>%1 min</source>
+        <translation>%1 min</translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/RawRecorderCard.qml" line="125"/>
+        <source>The input device can&apos;t be recorded</source>
+        <translation>Dieses Eingabegerät kann nicht aufgenommen werden</translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/RawRecorderCard.qml" line="127"/>
+        <source>Format %1, 2.048 MS/s, %2 per second</source>
+        <translation>Format %1, 2,048 MS/s, %2 pro Sekunde</translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/RawRecorderCard.qml" line="129"/>
+        <source>Play a station or tune to a channel to record</source>
+        <translation>Für eine Aufnahme einen Sender abspielen oder einen Kanal einstellen</translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/RawRecorderCard.qml" line="144"/>
+        <location filename="../QML/expert/RawRecorderCard.qml" line="157"/>
+        <source>Duration</source>
+        <translation>Dauer</translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/RawRecorderCard.qml" line="168"/>
+        <source>Estimated file size: %1</source>
+        <translation>Voraussichtliche Dateigröße: %1</translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/RawRecorderCard.qml" line="169"/>
+        <source>Estimated file size: %1 per minute</source>
+        <translation>Voraussichtliche Dateigröße: %1 pro Minute</translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/RawRecorderCard.qml" line="181"/>
+        <source>Only %1 free in the folder</source>
+        <translation>Nur noch %1 frei im Ordner</translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/RawRecorderCard.qml" line="193"/>
+        <source>Stop</source>
+        <translation>Stopp</translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/RawRecorderCard.qml" line="193"/>
+        <source>Record</source>
+        <translation>Aufnehmen</translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/RawRecorderCard.qml" line="235"/>
+        <source>%1 lost, the disk is too slow</source>
+        <translation>%1 verloren, der Datenträger ist zu langsam</translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/RawRecorderCard.qml" line="252"/>
+        <source>Folder</source>
+        <translation>Ordner</translation>
+    </message>
+    <message>
+        <location filename="../QML/expert/RawRecorderCard.qml" line="269"/>
+        <source>Change</source>
+        <translation>Ändern</translation>
     </message>
 </context>
 <context>

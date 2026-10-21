@@ -54,6 +54,38 @@ File Sink of GNU Radio.
 
 ## Recording a raw file
 
+### welle.io (all input devices)
+
+welle.io records the I/Q samples of the selected input device itself. Enable
+the expert mode in the settings and add the view *RAW Recorder* to the
+dashboard with the *+* button.
+
+1. Play a station or tune to a channel with *Manual channel*.
+2. Choose a *Duration*. With *Until stopped* the recording runs until you
+   press *Stop*, otherwise it stops by itself. The card shows the estimated
+   file size and warns if the folder has less space.
+3. Press *Record*. While recording the card shows the elapsed time and the
+   current file size.
+
+The file is saved in the folder shown in the card (by default the Downloads
+folder, *Change* selects another one) with the name
+`welle-io_<channel>_<date>-<time>.<format>.iq`, e.g.
+`welle-io_11D_20261021-153000.u8.iq`. Because the format is part of the name,
+the RAW file input opens it with the format `auto`.
+
+The format depends on the input device, the sample rate is always
+2048000 samples/s:
+
+| Input device | Format | Size |
+|---|---|---|
+| rtl-sdr, rtl_tcp, Linux kernel SDR with an RTL-SDR | `u8` | 4.1 MB/s, 246 MB/min |
+| RAW file | the format of the file | |
+| Airspy, SoapySDR, LimeSDR, other Linux kernel SDR devices | `cf32` | 16.4 MB/s, 983 MB/min |
+
+The recording stops when you change the channel, stop the playback or select
+another input device: one file always contains one channel. If the disk is
+too slow, the card shows how much data was lost.
+
 ### rtl_sdr (format u8)
 
 You can use the command line tool `rtl_sdr` to record a file with an rtl-sdr

@@ -60,6 +60,7 @@ public:
     virtual void setAgc(bool AGC);
     virtual std::string getDescription(void);
     virtual CDeviceID getID(void);
+    CRecordFormat recordFormat(void) { return CRecordFormat::CF32; }
     virtual bool setDeviceParam(DeviceParam param, const std::string& value);
 
 private:

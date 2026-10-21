@@ -76,6 +76,7 @@ public:
     bool setDeviceParam(DeviceParam param, int value);
 
     CDeviceID getID(void);
+    CRecordFormat recordFormat(void) { return CRecordFormat::U8; }
 
 private:
     std::thread agcThread;

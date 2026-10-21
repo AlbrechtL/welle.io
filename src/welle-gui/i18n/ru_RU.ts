@@ -242,23 +242,38 @@
 <context>
     <name>CRadioController</name>
     <message>
-        <location filename="../radio_controller.cpp" line="+739"/>
+        <location filename="../radio_controller.cpp" line="+887"/>
         <source>Unknown</source>
         <translation>Неизвестный</translation>
     </message>
     <message>
-        <location line="-216"/>
-        <location line="+236"/>
+        <location line="-342"/>
+        <location line="+362"/>
         <source>No Station</source>
         <translation>Нет каналов</translation>
     </message>
     <message>
-        <location line="-590"/>
+        <location line="-757"/>
+        <source>The recording was stopped because the input device was closed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+32"/>
         <source>Error while opening device </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+307"/>
+        <location line="+144"/>
+        <source>The recording was stopped because the playback stopped.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+104"/>
+        <source>The recording was stopped because the channel changed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+68"/>
         <source>No receiver</source>
         <translation type="unfinished"></translation>
     </message>
@@ -269,18 +284,34 @@
     </message>
     <message>
         <location line="+14"/>
-        <location line="+530"/>
+        <location line="+665"/>
         <source>Scanning</source>
         <translation>Сканирование</translation>
     </message>
     <message>
-        <location line="-526"/>
-        <location line="+551"/>
+        <location line="-661"/>
+        <location line="+686"/>
         <source>Found channels</source>
         <translation>Найдено каналов</translation>
     </message>
     <message>
-        <location line="-245"/>
+        <location line="-509"/>
+        <source>This input can&apos;t be recorded.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Can&apos;t create the folder %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+18"/>
+        <location line="+42"/>
+        <source>Recording failed: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+189"/>
         <source>Radio device is not ready or does not exist.</source>
         <translation>Устройство не работает или отключено.</translation>
     </message>
@@ -301,7 +332,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../input/raw_file.cpp" line="+177"/>
+        <location filename="../../input/raw_file.cpp" line="+191"/>
         <location line="+20"/>
         <source>Cannot open file </source>
         <translation type="unfinished"></translation>
@@ -322,10 +353,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../input/airspy_sdr.cpp" line="+222"/>
+        <location filename="../../input/airspy_sdr.cpp" line="+223"/>
         <location filename="../../input/rtl_sdr.cpp" line="+323"/>
-        <location filename="../../input/rtl_tcp.cpp" line="+588"/>
-        <location filename="../../input/v4l2_sdr.cpp" line="+1156"/>
+        <location filename="../../input/rtl_tcp.cpp" line="+589"/>
+        <location filename="../../input/v4l2_sdr.cpp" line="+1158"/>
         <source>ADC overload. Maybe you are using a too high gain.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -335,7 +366,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../input/rtl_tcp.cpp" line="-242"/>
+        <location filename="../../input/rtl_tcp.cpp" line="-243"/>
         <source>RTL-TCP connection closed.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -350,12 +381,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="-626"/>
+        <location filename="../radio_controller.cpp" line="-761"/>
         <source>Error while opening file </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+550"/>
+        <location line="+685"/>
         <source>Playing last station</source>
         <translation type="unfinished"></translation>
     </message>
@@ -365,17 +396,17 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../radio_controller.cpp" line="-429"/>
+        <location filename="../radio_controller.cpp" line="-562"/>
         <source>Playback failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+21"/>
+        <location line="+24"/>
         <source>Stopped</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../input/v4l2_sdr.cpp" line="-371"/>
+        <location filename="../../input/v4l2_sdr.cpp" line="-373"/>
         <source>Error while opening the Linux SDR device. See log for details.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1573,29 +1604,100 @@
 <context>
     <name>RawRecorderCard</name>
     <message>
-        <location filename="../QML/expert/RawRecorderCard.qml" line="+35"/>
-        <source>I/Q RAW Recorder (experimental)</source>
+        <location filename="../QML/expert/RawRecorderCard.qml" line="+43"/>
+        <source>RAW Recorder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+18"/>
-        <location line="+12"/>
-        <source>Ring buffer length [s]</source>
+        <location line="+24"/>
+        <source>Please choose a folder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+5"/>
-        <source>Ring buffer size (roughly): </source>
+        <location line="+15"/>
+        <location line="+201"/>
+        <source>Saved: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+6"/>
-        <source>Save ring buffer</source>
+        <location line="-196"/>
+        <source>Open folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+22"/>
+        <source>Until stopped</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>%1 s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+0"/>
-        <source>Init</source>
+        <source>%1 min</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+15"/>
+        <source>The input device can&apos;t be recorded</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Format %1, 2.048 MS/s, %2 per second</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Play a station or tune to a channel to record</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+15"/>
+        <location line="+13"/>
+        <source>Duration</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <source>Estimated file size: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Estimated file size: %1 per minute</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Only %1 free in the folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Stop</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Record</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+42"/>
+        <source>%1 lost, the disk is too slow</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Change</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -64,6 +64,7 @@ public:
     bool setDeviceParam(DeviceParam param, int value);
 
     CDeviceID getID(void);
+    CRecordFormat recordFormat(void) { return CRecordFormat::CF32; }
     void setVFOFrequency(int32_t);
     int32_t	getVFOFrequency();
 
