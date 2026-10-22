@@ -93,8 +93,12 @@ public:
     bool isSelected() const;
     void resetSelected();
 
+    // focused name longer than the line: start and end take turns
+    static constexpr uint64_t NAME_SWITCH_MS = 1000;
+
 private:
     std::vector<ConfigManager::Station> m_stations;
+    std::vector<bool> m_showChannel;   // program name not unique
     UIManager* m_uiManager;
     std::atomic<size_t> m_index;
     bool m_selected;
