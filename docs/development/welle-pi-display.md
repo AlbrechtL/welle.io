@@ -18,7 +18,7 @@ The `"display"` entry of `welle-pi.json` (same file as `"input"`, see
 
 | Entry | Display | Notes |
 |---|---|---|
-| `{"type": "tty"}` | Terminal | `cols` and `rows`, default 40 x 4. |
+| `{"type": "tty"}` | Terminal | `cols` and `rows`, default 78 x 22 (80 x 25 with the border). |
 | `{"plugin": "<name>"}` | `welle-pi-<name>.so` | Size from the plugin; further keys are the plugin's. Found as described in [Plugins](welle-pi-input.md#plugins). |
 
 An array shows the same screen on several displays, at the smallest size
@@ -33,7 +33,7 @@ display and the terminal next to it:
 
 An entry that cannot be used (unknown `type`, plugin not found or
 refusing, bad size) is logged and skipped. Without `"display"`, or if no entry is left, welle-pi uses the
-terminal with 40 x 4 if stdout is one, otherwise it shows nothing.
+terminal with 78 x 22 if stdout is one, otherwise it shows nothing.
 
 ## Terminal
 
