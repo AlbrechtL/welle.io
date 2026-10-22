@@ -123,10 +123,13 @@ static const uint64_t AO_RETRY_MS = 5000;
 static const uint64_t CORRECTOR_REPORT_MS = 60000;
 static const int CORRECTOR_REPORT_HZ = 100;
 
+// terminal default: 80 x 25 with the border; mirroring shrinks it to the smallest display
+static const int TTY_COLS = 78, TTY_ROWS = 22;
+
 // stdout is the log (daemon, -l): no tty frames in it
 static bool stdout_is_log = false;
 
-/* One "display" entry: {"type": "tty", "cols": 40, "rows": 4} or
+/* One "display" entry: {"type": "tty", "cols": 78, "rows": 22} or
  * {"plugin": "<name>", ...}. nullptr if unusable. */
 static unique_ptr<IDisplay> makeOneDisplay(const nlohmann::json& cfg)
 {
@@ -137,7 +140,7 @@ static unique_ptr<IDisplay> makeOneDisplay(const nlohmann::json& cfg)
     const string type = cfg.is_object() ? cfg.value("type", "") : "";
     if (type == "tty") {
         try {
-            return make_unique<TtyDisplay>(max(1, cfg.value("cols", 40)), max(1, cfg.value("rows", 4)),
+            return make_unique<TtyDisplay>(max(1, cfg.value("cols", TTY_COLS)), max(1, cfg.value("rows", TTY_ROWS)),
                                            stdout_is_log ? nullptr : stdout);
         } catch (const nlohmann::json::exception& e) {
             cerr << "welle-pi.json: display: " << e.what() << endl;
@@ -168,7 +171,7 @@ static unique_ptr<IDisplay> makeDisplay(const nlohmann::json& cfg)
     }
     const bool tty = isatty(STDOUT_FILENO);
     cerr << (tty ? "Showing the display on the terminal" : "No display") << endl;
-    return make_unique<TtyDisplay>(40, 4, tty ? stdout : nullptr);
+    return make_unique<TtyDisplay>(TTY_COLS, TTY_ROWS, tty ? stdout : nullptr);
 }
 
 class AlsaProgrammeHandler: public ProgrammeHandlerInterface {
