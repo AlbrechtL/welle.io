@@ -1,6 +1,6 @@
 /******************************************************************************\
  * Description:
- * Example welle-pi input plugin, used by input_plugin_tests: pushes the keys listed in its config
+ * Symbols every welle-pi plugin exports (C, stable)
  *
  ******************************************************************************
  *
@@ -19,24 +19,25 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
 \******************************************************************************/
-#include "input_plugin.h"
+#ifndef WELLE_PI_PLUGIN_H
+#define WELLE_PI_PLUGIN_H
 
-#include <string.h>
-#include <unistd.h>
+/* welle-pi-<name>.so exports, besides the symbols of each kind it
+ * implements (input_plugin.h, display_plugin.h):
+ *   const char welle_pi_plugin_name[] = "<name>";
+ *   const char welle_pi_plugin_description[] = "...";
+ * One file can implement several kinds, e.g. a board with a display and
+ * buttons; both entries of welle-pi.json then get the same dlopen handle. */
 
-const int welle_pi_input_abi = WELLE_PI_INPUT_ABI;
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-/* config e.g. {"plugin":"example","keys":"de"}: d = DOWN, e = ENTER */
-int welle_pi_input_run(const struct welle_pi_input_host* host, const char* config)
-{
-    const char* keys = strstr(config, "\"keys\":\"");
-    if (keys) {
-        for (keys += 8; *keys && *keys != '"'; keys++) {
-            if (*keys == 'd') host->push(host->ctx, WELLE_PI_DOWN);
-            else if (*keys == 'e') host->push(host->ctx, WELLE_PI_ENTER);
-        }
-    }
-    while (!host->stop_requested(host->ctx))
-        usleep(10000);
-    return 0;
+extern const char welle_pi_plugin_name[];
+extern const char welle_pi_plugin_description[];
+
+#ifdef __cplusplus
 }
+#endif
+
+#endif /* WELLE_PI_PLUGIN_H */

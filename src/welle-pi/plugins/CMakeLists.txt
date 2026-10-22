@@ -3,12 +3,12 @@
 
 set(WELLE_PI_PLUGIN_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/..")
 
-# welle_pi_plugin(<kind> <name> [NO_INSTALL] <sources>...): builds
-# welle-pi-<kind>-<name>.so into welle-pi-plugins/ next to welle-pi, where it
-# looks first, and installs it into WELLE_PI_PLUGIN_DIR
-function(welle_pi_plugin kind name)
+# welle_pi_plugin(<name> [NO_INSTALL] <sources>...): builds welle-pi-<name>.so
+# into welle-pi-plugins/ next to welle-pi, where it looks first, and installs
+# it into WELLE_PI_PLUGIN_DIR
+function(welle_pi_plugin name)
     cmake_parse_arguments(PLUGIN "NO_INSTALL" "" "" ${ARGN})
-    set(target welle-pi-${kind}-${name})
+    set(target welle-pi-${name})
     add_library(${target} MODULE ${PLUGIN_UNPARSED_ARGUMENTS})
     target_include_directories(${target} PRIVATE "${WELLE_PI_PLUGIN_INCLUDE_DIR}")
     set_target_properties(${target} PROPERTIES PREFIX ""
@@ -20,6 +20,5 @@ endfunction()
 
 # loaded by name in unit.input_plugin and unit.display_plugin
 if(BUILD_TESTS)
-    welle_pi_plugin(input example NO_INSTALL example_input.c)
-    welle_pi_plugin(display example NO_INSTALL example_display.c)
+    welle_pi_plugin(example NO_INSTALL example.c)
 endif()
