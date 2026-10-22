@@ -577,7 +577,7 @@ static void usage()
     "Options:" << endl <<
     endl <<
     "Tuning:" << endl <<
-    "    -c channel    Tune to <channel> (eg. 10B, 5A, LD...)." << endl <<
+    "    -c channel    Tune to <channel> (eg. 10B, 5A, 12C...)." << endl <<
     "    -p programme  Play <programme> with ALSA. The <programme> can be either" << endl <<
     "                  * a station's label (eg. GRIFF) - or a part of it - or" << endl <<
     "                  * a station's Service Id (eg. 0x4f57 or 20311)." << endl <<
@@ -782,8 +782,7 @@ static void runAutoScanner(RadioReceiver& rx, CVirtualInput* in, RadioInterface&
         "10A", "10B", "10C", "10D",
         "11A", "11B", "11C", "11D",
         "12A", "12B", "12C", "12D",
-        "13A", "13B", "13C", "13D", "13E", "13F",
-        "LA", "LB", "LC", "LD", "LE", "LF", "LG", "LH", "LI", "LJ", "LK", "LL", "LM", "LN", "LO", "LP"
+        "13A", "13B", "13C", "13D", "13E", "13F"
     };
 
     config.clearStations();
