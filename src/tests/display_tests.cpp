@@ -69,13 +69,34 @@ static void testRadioMarquee() {
     assert(render(radio, 8, 2, again)[1] == "01234567");
     assert(render(radio, 8, 2, again + STEP)[1] == "12345678");
 
-    // 4 rows: channel on row 1, DLS on the last row
+    // 4 rows: channel on row 1, DLS marquee on the last row
     lines = render(radio, 20, 4, again);
-    assert(lines[1] == "11D" && lines[2].empty());
+    assert(lines[1] == "11D" && lines[2].empty() && lines[3] == "0123456789AB");
 
     // a new programme drops the DLS of the old one
     radio.setProgramName("Other");
     assert(render(radio, 8, 2, again)[1] == "11D");
+}
+
+static void testRadioWrap() {
+    const uint64_t T = 10000, LINE = RadioScreen::DLS_LINE_MS, REST = RadioScreen::DLS_REST_MS;
+    RadioScreen radio;
+    radio.setProgramName("P");
+    radio.setChannelName("11D");
+    // 8 columns: "one two" / "three" / "four" / "five six" / "abcdefgh" / "ij Grüße"
+    radio.setDLS("one two three four five six abcdefghij Grüße");
+    radio.setDLS("next");
+    auto dls = [&](uint64_t t) {
+        auto lines = render(radio, 8, 6, t);   // blank row, 3 DLS rows
+        assert(lines[0] == "P" && lines[1] == "11D" && lines[2].empty());
+        return lines[3] + "|" + lines[4] + "|" + lines[5];
+    };
+    assert(dls(T) == "one two|three|four");
+    assert(dls(T + 3 * LINE - 1) == "one two|three|four");   // until the 3 lines are read
+    assert(dls(T + 3 * LINE) == "three|four|five six");    // then one line up per LINE
+    assert(dls(T + 5 * LINE) == "five six|abcdefgh|ij Grüße");
+    assert(dls(T + 6 * LINE + REST - 1) == "five six|abcdefgh|ij Grüße");   // last lines stay
+    assert(dls(T + 6 * LINE + REST) == "||next");   // from the bottom
 }
 
 static void testMenu() {
@@ -164,6 +185,7 @@ static void testUIManager() {
 int main() {
     testUtf8();
     testRadioMarquee();
+    testRadioWrap();
     testMenu();
     testTty();
     testMirror();
