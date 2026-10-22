@@ -88,6 +88,9 @@ static void testMenu() {
     menu.handleInput(InputAction::DOWN);
     assert(render(menu, 20, 4, 0)[2] == ">Back to Radio     <");
     assert(render(menu, 12, 2, 0)[1] == ">Back to Radio");   // narrow: no padding, display cuts
+    // 7 lines, 3 items: each once around the focus
+    const std::vector<std::string> tall = {"Settings Menu", "", "", "Manual Rescan", ">Back to Radio     <", "Exit", "", ""};
+    assert(render(menu, 20, 8, 0) == tall);
 }
 
 static void testTty() {
