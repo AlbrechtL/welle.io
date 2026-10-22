@@ -77,7 +77,11 @@ terminal display draws nothing.
   DLS marquee on the last row, on more rows the programme, the channel,
   a blank row and the wrapped DLS.
   Lists put the focused item in the middle; with fewer items than rows
-  each item is shown once.
+  each item is shown once. A station whose name is in the list more than
+  once (the same service in several ensembles, or different services
+  with the same label) shows its channel at the right. A focused name
+  longer than its line shows its start and its end in turns, 1 s each
+  (`NAME_SWITCH_MS`).
 
 ## Writing a display plugin
 
