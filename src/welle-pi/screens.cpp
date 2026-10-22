@@ -27,6 +27,32 @@
 #include "utils.hpp"
 #include <algorithm>
 #include <functional>
+#include <vector>
+
+// Lines of at most width code points, broken at spaces; longer words are cut.
+static std::vector<std::string> wrapWords(const std::string& text, size_t width)
+{
+    std::vector<std::string> lines;
+    std::string line;
+    size_t start = 0;
+    while (start < text.size()) {
+        size_t end = text.find(' ', start);
+        if (end == std::string::npos) end = text.size();
+        std::string word = text.substr(start, end - start);
+        start = end + 1;
+        while (utf8Length(word) > width) {
+            if (!line.empty()) lines.push_back(line), line.clear();
+            lines.push_back(utf8Substr(word, 0, width));
+            word = utf8Substr(word, width, std::string::npos);
+        }
+        if (word.empty()) continue;
+        if (line.empty()) line = word;
+        else if (utf8Length(line) + 1 + utf8Length(word) <= width) line += " " + word;
+        else lines.push_back(line), line = word;
+    }
+    if (!line.empty()) lines.push_back(line);
+    return lines;
+}
 
 // Header on row 0, the list below with the focused item in the middle.
 static void renderList(Frame& frame,
@@ -131,13 +157,18 @@ void RadioScreen::render(Frame& frame) {
         return;
     }
 
-    // Steps until the start of the message is back at column 0.
-    auto cycleSteps = [&]() {
+    // 5+ rows: the DLS word-wrapped one blank row below the channel, else a one-row marquee
+    const size_t area = frame.rows > 4 ? frame.rows - 3 : 1;
+    // One pass of the message: the marquee once round, or one DLS_LINE_MS per line
+    auto passMs = [&]() -> uint64_t {
+        if (area > 1) {
+            return wrapWords(m_dls, cols).size() * DLS_LINE_MS;   // time to read, also if it fits
+        }
         const size_t len = utf8Length(m_dls);
-        return len > cols ? len + utf8Length(DLS_GAP) : 0;
+        return len > cols ? (len + utf8Length(DLS_GAP)) * DLS_STEP_MS : 0;
     };
     // The next message waits until the current one went round once.
-    if (!lost && (m_dls.empty() || frame.now - m_dlsStart >= cycleSteps() * DLS_STEP_MS + DLS_REST_MS)) {
+    if (!lost && (m_dls.empty() || frame.now - m_dlsStart >= passMs() + DLS_REST_MS)) {
         if (!m_dlsQueue.empty()) {
             m_dls = m_dlsQueue.front();
             m_dlsQueue.pop_front();
@@ -145,13 +176,30 @@ void RadioScreen::render(Frame& frame) {
         m_dlsStart = frame.now;
     }
 
+    if (area > 1) {
+        if (lost) {
+            frame.set(frame.rows - 1, NO_SIGNAL_TEXT);
+            return;
+        }
+        // first window stays until its lines are read, then one line up per DLS_LINE_MS
+        const auto lines = wrapWords(m_dls, cols);
+        const size_t read = (frame.now - m_dlsStart) / DLS_LINE_MS + 1;
+        const size_t last = lines.size() > area ? lines.size() - area : 0;
+        const size_t first = std::min(read > area ? read - area : 0, last);
+        const size_t shown = std::min(area, lines.size());
+        for (size_t i = 0; i < shown; ++i) {   // bottom-aligned
+            frame.set(frame.rows - shown + i, lines[first + i]);
+        }
+        return;
+    }
+
     std::string text;
     if (lost) {
         text = NO_SIGNAL_TEXT;
-    } else if (cycleSteps() == 0) {
+    } else if (passMs() == 0) {
         text = m_dls;
     } else {
-        const size_t step = std::min<uint64_t>((frame.now - m_dlsStart) / DLS_STEP_MS, cycleSteps());
+        const size_t step = std::min<uint64_t>((frame.now - m_dlsStart) / DLS_STEP_MS, utf8Length(m_dls) + utf8Length(DLS_GAP));
         text = utf8Substr(m_dls + DLS_GAP + m_dls, step, cols);
     }
     // two lines: the channel only while there is no DLS
