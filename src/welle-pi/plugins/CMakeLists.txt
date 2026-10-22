@@ -18,6 +18,7 @@ function(welle_pi_plugin name)
     endif()
 endfunction()
 
+add_subdirectory(fb)
 add_subdirectory(lcd)
 
 # loaded by name in unit.input_plugin and unit.display_plugin

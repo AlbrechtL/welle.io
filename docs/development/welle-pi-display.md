@@ -71,6 +71,26 @@ bus is not busy with unchanged text, switches the backlight on when
 welle-pi starts and off when it stops. Without an LCD (liblcd reports
 0 x 0) it refuses and the entry is skipped.
 
+## Framebuffer plugin
+
+`{"plugin": "fb", "device": "/dev/fb1"}` (`src/welle-pi/plugins/fb/`,
+default device `/dev/fb0`) draws the text with an 8x8 font
+([font8x8](https://github.com/dhepper/font8x8), public domain; U+0020 to
+U+007F and U+00A0 to U+00FF, `?` for the rest) on any framebuffer with 16
+or 32 bits per pixel, e.g. a 128 x 64 SSD1306 OLED gives 16 x 8
+characters. The kernel drives the panel; for an I2C SSD1306 on a Raspberry
+Pi:
+
+```
+dtparam=i2c_arm=on
+dtoverlay=ssd1306          # ,inverted if the picture is mirrored
+```
+
+The `ssd130x` DRM driver then shows up as `ssd130xdrmfb` in
+`/sys/class/graphics/fb*/name`. When it is the only framebuffer, the
+kernel console draws on it too; `fbcon=map:1` in `cmdline.txt` keeps the
+console off `fb0`.
+
 ## How screens are drawn
 
 * A screen (`UIScreen`, `src/welle-pi/ui_screen.hpp`) fills a `Frame`
