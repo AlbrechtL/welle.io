@@ -46,9 +46,14 @@ static void renderList(Frame& frame,
     const int list_lines = std::max(frame.rows - 1, 1);
     const int focused_line = list_lines / 2; // e.g. for height=4 (list_lines=3), focused_line=1
     const int count = (int)itemsCount;
+    // Center the focused item, but keep the whole list inside the rows: with
+    // fewer items than lines each appears once, not repeated by the wrap round.
+    const int first_offset = std::max(-focused_line,
+            std::min(-(count - 1) / 2, list_lines - focused_line - count));
 
     for (int line = 0; line < list_lines; ++line) {
         const int offset = line - focused_line;
+        if (offset < first_offset || offset >= first_offset + count) continue;
         const size_t item_index = (((int)selectedIndex + offset) % count + count) % count;
 
         std::string option = getItemString(item_index, offset == 0, width);
