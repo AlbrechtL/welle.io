@@ -48,7 +48,7 @@ void* loadPlugin(const std::string& kind, const std::string& name, int abi) {
     if (name.find('/') != std::string::npos) {
         paths.push_back(name);
     } else {
-        const std::string file = "welle-pi-" + kind + "-" + name + ".so";
+        const std::string file = "welle-pi-" + name + ".so";
         paths.push_back(exeDir() + "/welle-pi-plugins/" + file);
         paths.push_back(std::string(WELLE_PI_PLUGIN_DIR) + "/" + file);
     }
@@ -66,6 +66,14 @@ void* loadPlugin(const std::string& kind, const std::string& name, int abi) {
             dlclose(handle);
             return nullptr;
         }
+        auto pluginName = static_cast<const char*>(dlsym(handle, "welle_pi_plugin_name"));
+        auto description = static_cast<const char*>(dlsym(handle, "welle_pi_plugin_description"));
+        if (!pluginName || !description) {
+            std::cerr << "Plugin " << path << ": welle_pi_plugin_name/description missing" << std::endl;
+            dlclose(handle);
+            return nullptr;
+        }
+        std::cerr << kind << " plugin " << pluginName << " (" << description << "): " << path << std::endl;
         return handle;
     }
     std::cerr << "Plugin " << name << " not found:";
