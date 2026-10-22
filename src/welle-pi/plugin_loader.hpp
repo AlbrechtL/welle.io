@@ -24,11 +24,11 @@
 
 #include <string>
 
-/* kind "input" or "display", name e.g. "buttons": welle-pi-input-buttons.so
- * in welle-pi-plugins/ next to the executable (build tree), then in
+/* kind "input" or "display", name e.g. "buttons": welle-pi-buttons.so in
+ * welle-pi-plugins/ next to the executable (build tree), then in
  * WELLE_PI_PLUGIN_DIR (installed). A name with a '/' is a path. Checks
- * welle_pi_<kind>_abi == abi. Returns the dlopen() handle, never unloaded;
- * nullptr after logging why. */
+ * welle_pi_<kind>_abi == abi, logs name and description. Returns the
+ * dlopen() handle, never unloaded; nullptr after logging why. */
 void* loadPlugin(const std::string& kind, const std::string& name, int abi);
 
 #endif // PLUGIN_LOADER_HPP
