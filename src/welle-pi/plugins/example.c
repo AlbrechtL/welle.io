@@ -1,6 +1,7 @@
 /******************************************************************************\
  * Description:
- * Example welle-pi display plugin: appends every frame to a file
+ * Example welle-pi plugin, input and display in one file, used by
+ * input_plugin_tests and display_plugin_tests
  *
  ******************************************************************************
  *
@@ -20,12 +21,33 @@
  *
 \******************************************************************************/
 #include "display_plugin.h"
+#include "input_plugin.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
+const char welle_pi_plugin_name[] = "example";
+const char welle_pi_plugin_description[] = "keys from the config, frames to a file";
+
+const int welle_pi_input_abi = WELLE_PI_INPUT_ABI;
 const int welle_pi_display_abi = WELLE_PI_DISPLAY_ABI;
+
+/* config e.g. {"plugin":"example","keys":"de"}: d = DOWN, e = ENTER */
+int welle_pi_input_run(const struct welle_pi_input_host* host, const char* config)
+{
+    const char* keys = strstr(config, "\"keys\":\"");
+    if (keys) {
+        for (keys += 8; *keys && *keys != '"'; keys++) {
+            if (*keys == 'd') host->push(host->ctx, WELLE_PI_DOWN);
+            else if (*keys == 'e') host->push(host->ctx, WELLE_PI_ENTER);
+        }
+    }
+    while (!host->stop_requested(host->ctx))
+        usleep(10000);
+    return 0;
+}
 
 /* config e.g. {"plugin":"example","file":"/tmp/frames.txt"}: 16 x 2 */
 void* welle_pi_display_open(const char* config, int* cols, int* rows)

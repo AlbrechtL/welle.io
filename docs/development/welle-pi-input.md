@@ -58,7 +58,7 @@ built-in source in `input_stdin.cpp`.
 Input sources and displays ([welle-pi displays](welle-pi-display.md)) can
 be plugins: shared objects with a plain C interface, built with welle.io or
 separately. `{"plugin": "buttons"}` in the `"input"` array loads
-`welle-pi-input-buttons.so` from the first of
+`welle-pi-buttons.so` from the first of
 
 1. `welle-pi-plugins/` next to the welle-pi executable: the plugins built
    with welle.io land there, so `build/welle-pi` runs without installing
@@ -67,23 +67,30 @@ separately. `{"plugin": "buttons"}` in the `"input"` array loads
 A name containing `/` is used as a path, e.g. for a plugin built in
 another directory. The plugin is loaded with `dlopen(RTLD_NOW |
 RTLD_LOCAL)` and never unloaded; its `welle_pi_<kind>_abi` must match.
+One file can implement several kinds, e.g. a board with a display and
+buttons: `{"plugin": "board"}` in `"input"` and in `"display"` loads the
+same `welle-pi-board.so` once, so both parts can share their state.
 Code: `src/welle-pi/plugin_loader.cpp`. The headers are installed to
 `<includedir>/welle-pi/`.
 
 Plugins built with welle.io are in `src/welle-pi/plugins/`: single files
 in its root, plugins with their own dependencies in a subdirectory with a
 `CMakeLists.txt` that skips the plugin if a dependency is missing. Each
-calls `welle_pi_plugin(<kind> <name> <sources>...)` from
+calls `welle_pi_plugin(<name> <sources>...)` from
 `src/welle-pi/plugins/CMakeLists.txt`, which names the shared object, puts
 it into `welle-pi-plugins/` and installs it.
 
 ## Writing an input plugin
 
 The interface is plain C, `src/welle-pi/input_plugin.h`, so plugins can be
-written in C or C++ and built separately. A plugin exports two symbols:
+written in C or C++ and built separately. A plugin exports its name and
+a description (`plugin.h`, every plugin) and two input symbols:
 
 ```c
 #include "input_plugin.h"
+
+const char welle_pi_plugin_name[] = "buttons";
+const char welle_pi_plugin_description[] = "push buttons on GPIO lines";
 
 const int welle_pi_input_abi = WELLE_PI_INPUT_ABI;
 
@@ -113,10 +120,10 @@ int welle_pi_input_run(const struct welle_pi_input_host* host, const char* confi
 Build it, for example:
 
 ```sh
-gcc -shared -fPIC -I/usr/include/welle-pi buttons.c -o welle-pi-input-buttons.so
+gcc -shared -fPIC -I/usr/include/welle-pi buttons.c -o welle-pi-buttons.so
 ```
 
-A complete example is `src/welle-pi/plugins/example_input.c`: it pushes the
+A complete example is `src/welle-pi/plugins/example.c`: it pushes the
 keys listed in its `"keys"` entry and waits for the stop.
 
 ## Tests

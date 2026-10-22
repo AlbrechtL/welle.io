@@ -19,7 +19,7 @@ The `"display"` entry of `welle-pi.json` (same file as `"input"`, see
 | Entry | Display | Notes |
 |---|---|---|
 | `{"type": "tty"}` | Terminal | `cols` and `rows`, default 40 x 4. |
-| `{"plugin": "<name>"}` | `welle-pi-display-<name>.so` | Size from the plugin; further keys are the plugin's. Found as described in [Plugins](welle-pi-input.md#plugins). |
+| `{"plugin": "<name>"}` | `welle-pi-<name>.so` | Size from the plugin; further keys are the plugin's. Found as described in [Plugins](welle-pi-input.md#plugins). |
 
 An array shows the same screen on several displays, at the smallest size
 of them (`MultiDisplay` in `display_interface.hpp`), e.g. a hardware
@@ -75,11 +75,15 @@ terminal display draws nothing.
 
 ## Writing a display plugin
 
-The interface is plain C, `src/welle-pi/display_plugin.h`. A plugin exports
-four symbols:
+The interface is plain C, `src/welle-pi/display_plugin.h`. Besides its name
+and description (see [Writing an input plugin](welle-pi-input.md#writing-an-input-plugin))
+a plugin exports four symbols:
 
 ```c
 #include "display_plugin.h"
+
+const char welle_pi_plugin_name[] = "oled";
+const char welle_pi_plugin_description[] = "SSD1306 128 x 64 on I2C";
 
 const int welle_pi_display_abi = WELLE_PI_DISPLAY_ABI;
 
@@ -111,8 +115,8 @@ void welle_pi_display_close(void* handle)
 * A graphical display (OLED, small TFT) draws the lines with a fixed font;
   e.g. an SSD1306 with 128 x 64 pixels and a 6 x 8 font has 21 x 8 cells.
 
-Build it like an input plugin, as `welle-pi-display-<name>.so`. A complete
-example is `src/welle-pi/plugins/example_display.c`: 16 x 2 characters, it
+Build it like an input plugin, as `welle-pi-<name>.so`. A complete
+example is `src/welle-pi/plugins/example.c`: 16 x 2 characters, it
 appends every frame to the file given as `"file"`.
 
 A display built into welle-pi instead implements `IDisplay`

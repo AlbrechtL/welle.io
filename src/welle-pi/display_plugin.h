@@ -24,8 +24,11 @@
 
 /* A plugin is a shared object listed in welle-pi.json:
  *   "display": {"plugin": "foo", ...own keys...}
- * welle-pi loads welle-pi-display-foo.so, see plugin_loader.hpp. All calls
- * come from the UI thread. */
+ * welle-pi loads welle-pi-foo.so, see plugin_loader.hpp. It exports the
+ * symbols of plugin.h and the ones below. All calls come from the UI
+ * thread. */
+
+#include "plugin.h"
 
 #ifdef __cplusplus
 extern "C" {

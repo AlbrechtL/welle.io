@@ -634,7 +634,7 @@ if (BUILD_WELLE_PI)
         Threads::Threads
     )
 
-    # Plugins: welle-pi-<kind>-<name>.so, found first in welle-pi-plugins/ next
+    # Plugins: welle-pi-<name>.so, found first in welle-pi-plugins/ next
     # to the executable (runs from the build tree), then here
     set(WELLE_PI_PLUGIN_DIR "${CMAKE_INSTALL_FULL_LIBDIR}/welle-pi")
     set(WELLE_PI_PLUGIN_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/welle-pi-plugins")
@@ -680,7 +680,7 @@ if (BUILD_WELLE_PI)
         target_include_directories(input_plugin_tests PRIVATE src/welle-pi)
         target_compile_options(input_plugin_tests PRIVATE -UNDEBUG)
         target_link_libraries(input_plugin_tests ${CMAKE_DL_LIBS} Threads::Threads)
-        add_dependencies(input_plugin_tests welle-pi-input-example)
+        add_dependencies(input_plugin_tests welle-pi-example)
         add_test(NAME unit.input_plugin COMMAND input_plugin_tests)
         set_tests_properties(unit.input_plugin PROPERTIES LABELS unit)
 
@@ -692,14 +692,14 @@ if (BUILD_WELLE_PI)
         target_include_directories(display_plugin_tests PRIVATE src/welle-pi)
         target_compile_options(display_plugin_tests PRIVATE -UNDEBUG)
         target_link_libraries(display_plugin_tests ${CMAKE_DL_LIBS})
-        add_dependencies(display_plugin_tests welle-pi-display-example)
+        add_dependencies(display_plugin_tests welle-pi-example)
         add_test(NAME unit.display_plugin COMMAND display_plugin_tests)
         set_tests_properties(unit.display_plugin PROPERTIES LABELS unit)
     endif()
     if(UNIX AND NOT APPLE OR NOT WITH_APP_BUNDLE)
         INSTALL (TARGETS ${piExecutableName} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
         # for plugins built elsewhere
-        INSTALL (FILES src/welle-pi/input_plugin.h src/welle-pi/display_plugin.h
+        INSTALL (FILES src/welle-pi/plugin.h src/welle-pi/input_plugin.h src/welle-pi/display_plugin.h
                  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/welle-pi)
     endif()
 endif()
