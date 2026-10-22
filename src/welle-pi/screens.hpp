@@ -59,7 +59,9 @@ public:
 
     // DLS marquee: text, gap, text again, one
     // step per DLS_STEP_MS. Each message runs once, then rests DLS_REST_MS.
+    // 5+ rows: word-wrapped, DLS_LINE_MS per line, scrolls up if it overflows.
     static constexpr uint64_t DLS_STEP_MS = 200;
+    static constexpr uint64_t DLS_LINE_MS = 1000;
     static constexpr uint64_t DLS_REST_MS = 1000;
     static constexpr const char* DLS_GAP = "     ";
     static constexpr const char* NO_SIGNAL_TEXT = "-- no signal --";

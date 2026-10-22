@@ -68,10 +68,16 @@ terminal display draws nothing.
   `RadioScreen`: text, five spaces, text again, one step per 200 ms
   (`DLS_STEP_MS`). Each message runs round
   once and rests 1 s (`DLS_REST_MS`) before the next one; the last one
-  keeps running round.
+  keeps running round. From five rows on, the DLS is word-wrapped
+  instead, filling the rows from the bottom: 1 s per line
+  (`DLS_LINE_MS`), the first lines stay until they are read, then a
+  longer message moves up one line per second.
 * Layout: on two rows the programme and the DLS (the channel while there
-  is no DLS), on more rows the programme, the channel and the DLS on the
-  last row. Lists put the focused item in the middle.
+  is no DLS), on three and four rows the programme, the channel and the
+  DLS marquee on the last row, on more rows the programme, the channel,
+  a blank row and the wrapped DLS.
+  Lists put the focused item in the middle; with fewer items than rows
+  each item is shown once.
 
 ## Writing a display plugin
 
