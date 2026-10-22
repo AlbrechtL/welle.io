@@ -99,6 +99,25 @@ static void testRadioWrap() {
     assert(dls(T + 6 * LINE + REST) == "||next");   // from the bottom
 }
 
+static void testStationList() {
+    const uint64_t SWITCH = StationListScreen::NAME_SWITCH_MS;
+    StationListScreen list({{"5C", "VM1", "", 1}, {"8A", "VM1", "", 1}, {"5C", "Other", "", 2},
+                            {"10B", "*Musiksender*GÖD", "Musik", 3}, {"12C", "*Musiksender*GÖD", "Musik", 3},
+                            {"11D", "Radio SRF 1 BE FR VS", "SRF 1", 4}}, nullptr);
+    auto lines = render(list, 16, 4, 0);
+    assert(lines[1] == "Radio SRF 1 BE FR VS");      // unique: name only, the display cuts
+    assert(lines[2] == ">VM1         5C<");          // twice: channel right-aligned
+    assert(lines[3] == "VM1           8A");
+    // focused and too long: start, end, start, channel stays
+    list.setIndex(3);
+    assert(render(list, 16, 2, 0)[1] == ">*Musiksend 10B<");
+    assert(render(list, 16, 2, SWITCH)[1] == ">sender*GÖD 10B<");
+    assert(render(list, 16, 2, 2 * SWITCH)[1] == ">*Musiksend 10B<");
+    assert(render(list, 12, 2, SWITCH)[1] == ">Musik   10B");   // narrow: short label, ">" only
+    list.setIndex(5);
+    assert(render(list, 16, 2, SWITCH)[1] == ">SRF 1 BE FR VS<");
+}
+
 static void testMenu() {
     MenuScreen menu(nullptr);
     auto lines = render(menu, 20, 4, 0);
@@ -186,6 +205,7 @@ int main() {
     testUtf8();
     testRadioMarquee();
     testRadioWrap();
+    testStationList();
     testMenu();
     testTty();
     testMirror();

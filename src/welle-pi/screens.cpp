@@ -27,6 +27,7 @@
 #include "utils.hpp"
 #include <algorithm>
 #include <functional>
+#include <map>
 #include <vector>
 
 // Lines of at most width code points, broken at spaces; longer words are cut.
@@ -218,7 +219,12 @@ void RadioScreen::setInputCallback(std::function<void(InputAction)> cb) {
 
 // StationListScreen implementation
 StationListScreen::StationListScreen(const std::vector<ConfigManager::Station>& stations, UIManager* uiManager)
-    : m_stations(stations), m_uiManager(uiManager), m_index(0), m_selected(false) {}
+    : m_stations(stations), m_uiManager(uiManager), m_index(0), m_selected(false)
+{
+    std::map<std::string, int> count;
+    for (const auto& s : m_stations) ++count[s.program];
+    for (const auto& s : m_stations) m_showChannel.push_back(count[s.program] > 1);
+}
 
 void StationListScreen::render(Frame& frame) {
     const size_t index = m_index;
@@ -230,10 +236,19 @@ void StationListScreen::render(Frame& frame) {
     }
 
     renderList(frame, header, m_stations.size(), index, [&](size_t idx, bool isFocused, int w) {
-        if (isFocused && w < 16 && !m_stations[idx].short_program.empty()) {
-            return m_stations[idx].short_program;
+        const auto& station = m_stations[idx];
+        std::string name = isFocused && w < 16 && !station.short_program.empty() ? station.short_program : station.program;
+        const size_t room = !isFocused ? w : w >= 16 ? w - 2 : w - 1;   // focused: ">name<" or ">name"
+        // name listed more than once, whatever the SIDs: channel right-aligned
+        const std::string channel = m_showChannel[idx] ? " " + station.channel : "";
+        if (room <= channel.size()) return name;
+        const size_t nameRoom = room - channel.size();
+        const size_t len = utf8Length(name);
+        // focused and too long: its end every other NAME_SWITCH_MS
+        if (isFocused && len > nameRoom && frame.now / NAME_SWITCH_MS % 2) {
+            name = utf8Substr(name, len - nameRoom, nameRoom);
         }
-        return m_stations[idx].program;
+        return channel.empty() ? name : utf8Fit(name, nameRoom) + channel;
     });
 }
 
