@@ -58,18 +58,19 @@ terminal display draws nothing.
 ## LCD plugin
 
 `{"plugin": "lcd"}` (`src/welle-pi/plugins/lcd/`) drives a character LCD
-through [liblcd](https://github.com/fridrich/lcd), which writes to
-`/dev/lcd`, the kernel's `charlcd` driver. The HD44780 is configured as a
-device tree overlay (e.g. `hd44780-i2c-lcd` for a PCF8574 backpack). liblcd
-reads the size from
+through `/dev/lcd`, the kernel's `charlcd` driver. The HD44780 is
+configured as a device tree overlay (e.g. `hd44780-i2c-lcd` for a PCF8574
+backpack). The plugin reads the size from
 `/sys/devices/platform/auxdisplay/of_node/display-{width,height}-chars`
-and converts UTF-8 to the HD44780 character set.
+and converts UTF-8 to the HD44780 character set (ROM A00,
+`hd44780_charset.h`; accented letters without their own code become the
+plain letter, the rest `?`). The code comes from
+[liblcd](https://github.com/fridrich/lcd).
 
-The plugin is built when pkg-config finds `liblcd-0.0`, otherwise CMake
-skips it with a message. It writes only the rows that changed, so the I2C
-bus is not busy with unchanged text, switches the backlight on when
-welle-pi starts and off when it stops. Without an LCD (liblcd reports
-0 x 0) it refuses and the entry is skipped.
+It writes only the rows that changed, so the I2C bus is not busy with
+unchanged text, switches the backlight on when welle-pi starts and off
+when it stops. Without an LCD (no size in the device tree or no
+`/dev/lcd`) it refuses and the entry is skipped.
 
 ## Framebuffer plugin
 
