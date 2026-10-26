@@ -24,6 +24,7 @@
  *
  */
 
+#include <cmath>
 #include <vector>
 #include <sstream>
 #include <iostream>
@@ -231,6 +232,21 @@ float CSoapySdr::getGain() const
     else {
         return 0;
     }
+}
+
+int CSoapySdr::getGainIndex() const
+{
+    if (m_device == nullptr || m_gains.empty())
+        return -1;
+
+    // The AGC sets the gains of m_gains, the device may round them
+    const double gain = m_device->getGain(SOAPY_SDR_RX, 0);
+    size_t index = 0;
+    for (size_t i = 1; i < m_gains.size(); i++) {
+        if (std::abs(m_gains[i] - gain) < std::abs(m_gains[index] - gain))
+            index = i;
+    }
+    return int(index);
 }
 
 float CSoapySdr::setGain(int32_t gainIndex)

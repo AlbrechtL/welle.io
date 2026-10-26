@@ -9,8 +9,8 @@
  *    Copyright (C) 2010, 2011, 2012
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
  *
- *    The I/Q recording was reworked with the help of an AI assistant
- *    (Claude Code).
+ *    The I/Q recording was reworked and the gain of the AGC (deviceGain)
+ *    added with the help of an AI assistant (Claude Code).
  *
  *    This file is part of the welle.io.
  *    Many of the ideas as implemented in welle.io are derived from
@@ -103,6 +103,10 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, QObject *par
     // Look for SPI services (station logos) in the received ensemble
     connect(&spiTimer, &QTimer::timeout, this, &CRadioController::spiTimerTimeout);
     spiTimer.start(3000);
+
+    // The AGC of the device changes the gain without telling it
+    connect(&gainTimer, &QTimer::timeout, this, &CRadioController::gainTimerTimeout);
+    gainTimer.start(500);
 
     // Count the services with a logo (the signal comes from the decoder thread)
     connect(this, &CRadioController::serviceLogoReceived, this, [this](quint32 sId, QByteArray) {
@@ -1054,6 +1058,21 @@ void CRadioController::labelTimerTimeout()
             // Rotate pending labels to avoid getting stuck on a failing one
             pendingLabels.push_back(sId);
         }
+    }
+}
+
+void CRadioController::gainTimerTimeout()
+{
+    const int index = device ? device->getGainIndex() : -1;
+    const float value = index >= 0 ? device->getGain() : 0.0f;
+
+    if (currentDeviceGain != index) {
+        currentDeviceGain = index;
+        emit deviceGainChanged(currentDeviceGain);
+    }
+    if (currentDeviceGainValue != value) {
+        currentDeviceGainValue = value;
+        emit deviceGainValueChanged(currentDeviceGainValue);
     }
 }
 

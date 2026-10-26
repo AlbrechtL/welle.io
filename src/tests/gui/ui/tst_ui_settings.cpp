@@ -189,6 +189,25 @@ void UiSettingsTests::switchesByClickingTheRow()
     QTRY_VERIFY(app.radio()->property("agc").toBool());
     QVERIFY(!app.item("setting.manualGainState")->isEnabled());
 
+    // The slider shows the gain the AGC has set. A RAW file has none: set
+    // it like the device would (checked before the gain timer of the radio
+    // controller asks the device again)
+    QObject* radio = app.radio();
+    radio->setProperty("gainCount", 28);
+    radio->setProperty("deviceGain", 12);
+    radio->setProperty("deviceGainValue", 19.7);
+    QCOMPARE(app.property("setting.manualGainState", "value").toInt(), 12);
+    QCOMPARE(app.property("setting.manualGainState", "to").toInt(), 28);
+    QCOMPARE(app.property("setting.manualGainRow", "title").toString(), QString("Automatic gain"));
+    QCOMPARE(app.property("setting.manualGainRow", "description").toString(), QString("Value: 19.70"));
+
+    // Gain unknown: the saved manual gain
+    radio->setProperty("deviceGain", -1);
+    const int manualGain = app.find("receiverSettings")->property("manualGainState").toInt();
+    QCOMPARE(app.property("setting.manualGainState", "value").toInt(), qMin(manualGain, 28));
+    QCOMPARE(app.property("setting.manualGainRow", "title").toString(), QString("Manual gain"));
+    radio->setProperty("gainCount", 0);
+
     qInfo() << "Clicking a switch row changes the setting";
 }
 

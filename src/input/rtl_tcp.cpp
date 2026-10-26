@@ -395,6 +395,13 @@ float CRTL_TCP_Client::getGain() const
     return currentGain;
 }
 
+int CRTL_TCP_Client::getGainIndex() const
+{
+    if (dongleInfo.tuner_type == RTLSDR_TUNER_UNKNOWN)
+        return -1;
+    return currentGainCount;
+}
+
 float CRTL_TCP_Client::setGain(int32_t gain)
 {
     currentGainCount = gain;

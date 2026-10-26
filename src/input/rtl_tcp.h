@@ -68,6 +68,7 @@ public:
     int32_t getSamplesToRead(void);
     void reset(void);
     float getGain(void) const;
+    int getGainIndex(void) const;
     float setGain(int gain);
     int getGainCount(void);
     void setAgc(bool AGC);

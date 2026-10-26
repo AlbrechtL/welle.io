@@ -37,6 +37,8 @@ DashboardCard {
 
     // RAW files and the null device have no gain to set
     readonly property bool canSetGain: !radioController.agc && radioController.gainCount > 0
+    // With automatic gain the slider shows the gain the AGC has set
+    readonly property bool showsAgcGain: radioController.agc && radioController.deviceGain >= 0
 
     content: ColumnLayout {
         anchors.left: parent.left
@@ -66,7 +68,7 @@ DashboardCard {
 
             Label {
                 Layout.fillWidth: true
-                text: qsTr("Manual gain")
+                text: card.showsAgcGain ? qsTr("Automatic gain") : qsTr("Manual gain")
                 elide: Text.ElideRight
                 font.pixelSize: Theme.bodyLarge
                 color: parent.enabled ? Material.foreground : Material.hintTextColor
@@ -74,7 +76,8 @@ DashboardCard {
 
             Label {
                 objectName: "gainCard.value"
-                text: qsTr("Value: ") + radioController.gainValue.toFixed(2)
+                text: qsTr("Value: ") + (card.showsAgcGain ? radioController.deviceGainValue
+                                                           : radioController.gainValue).toFixed(2)
                 font.pixelSize: Theme.bodyMedium
                 color: parent.enabled ? Material.secondaryTextColor : Material.hintTextColor
             }
@@ -88,10 +91,10 @@ DashboardCard {
             from: 0
             to: radioController.gainCount
             stepSize: 1
-            value: radioController.gain
+            value: card.showsAgcGain ? radioController.deviceGain : radioController.gain
             onMoved: radioController.setGain(value)
 
-            Accessible.name: qsTr("Manual gain")
+            Accessible.name: card.showsAgcGain ? qsTr("Automatic gain") : qsTr("Manual gain")
         }
 
         Label {

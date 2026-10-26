@@ -9,8 +9,8 @@
  *    Copyright (C) 2010, 2011, 2012
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
  *
- *    The I/Q recording was reworked with the help of an AI assistant
- *    (Claude Code).
+ *    The I/Q recording was reworked and the gain of the AGC (deviceGain)
+ *    added with the help of an AI assistant (Claude Code).
  *
  *    This file is part of the welle.io.
  *    Many of the ideas as implemented in welle.io are derived from
@@ -89,6 +89,9 @@ class CRadioController :
     Q_PROPERTY(float gainValue MEMBER currentManualGainValue NOTIFY gainValueChanged)
     Q_PROPERTY(int gainCount MEMBER gainCount NOTIFY gainCountChanged)
     Q_PROPERTY(int gain MEMBER currentManualGain WRITE setGain NOTIFY gainChanged)
+    // Gain the device uses now, also the one set by the AGC (index -1: unknown)
+    Q_PROPERTY(int deviceGain MEMBER currentDeviceGain NOTIFY deviceGainChanged)
+    Q_PROPERTY(float deviceGainValue MEMBER currentDeviceGainValue NOTIFY deviceGainValueChanged)
     Q_PROPERTY(qreal volume MEMBER currentVolume WRITE setVolume NOTIFY volumeChanged)
     Q_PROPERTY(QString errorMsg MEMBER errorMsg NOTIFY showErrorMessage)
 
@@ -272,6 +275,8 @@ private:
     QString currentText;
     int32_t currentManualGain;
     float currentManualGainValue = 0.0;
+    int currentDeviceGain = -1;
+    float currentDeviceGainValue = 0.0;
     qreal currentVolume = 1.0;
     QString deviceName = "Unknown";
     CDeviceID deviceId = CDeviceID::UNKNOWN;
@@ -280,6 +285,7 @@ private:
     QTimer stationTimer;
     QTimer channelTimer;
     QTimer spiTimer;
+    QTimer gainTimer;
     QTimer recordTimer;
 
     bool isInputRunning = false;
@@ -310,6 +316,7 @@ private slots:
     void serviceId(quint32);
     void labelTimerTimeout(void);
     void spiTimerTimeout(void);
+    void gainTimerTimeout(void);
     void resetSpiState(void);
     void stationTimerTimeout(void);
     void channelTimerTimeout(void);
@@ -358,6 +365,8 @@ signals:
     void agcChanged(bool);
     void gainValueChanged(float);
     void gainChanged(int);
+    void deviceGainChanged(int);
+    void deviceGainValueChanged(float);
     void volumeChanged(qreal volume);
     void motChanged(mot_file_t);
     void serviceLogoReceived(quint32 sId, QByteArray data);

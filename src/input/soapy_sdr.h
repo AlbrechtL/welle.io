@@ -56,6 +56,7 @@ public:
     virtual int32_t getSamplesToRead(void);
     virtual float setGain(int gainIndex);
     virtual float getGain(void) const;
+    virtual int getGainIndex(void) const;
     virtual int getGainCount(void);
     virtual void setAgc(bool AGC);
     virtual std::string getDescription(void);

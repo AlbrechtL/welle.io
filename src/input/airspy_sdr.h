@@ -79,6 +79,7 @@ public:
     std::vector<DSPCOMPLEX> getSpectrumSamples(int size);
     int32_t getSamplesToRead(void);
     float getGain(void) const;
+    int getGainIndex(void) const;
     float setGain(int gain);
     int getGainCount(void);
     void setAgc(bool agc);

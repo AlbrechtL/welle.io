@@ -180,12 +180,17 @@ ColumnLayout {
         }
 
         SettingRow {
+            id: manualGainRow
             objectName: "setting.manualGainRow"
-            title: qsTr("Manual gain")
+            // With automatic gain the slider shows the gain the AGC has set
+            readonly property bool showsAgcGain: enableAGC.checked && radioController.deviceGain >= 0
+
+            title: showsAgcGain ? qsTr("Automatic gain") : qsTr("Manual gain")
             // RAW files and e.g. RTL-SDR sticks with the Linux kernel driver
             // have no gain to set
             description: radioController.gainCount > 0
-                         ? qsTr("Value: ") + radioController.gainValue.toFixed(2)
+                         ? qsTr("Value: ") + (showsAgcGain ? radioController.deviceGainValue
+                                                           : radioController.gainValue).toFixed(2)
                          : qsTr("The input device has no adjustable gain")
             wideControl: true
             enabled: !enableAGC.checked && radioController.gainCount > 0
@@ -195,9 +200,10 @@ ColumnLayout {
                 objectName: "setting.manualGainState"
                 Layout.fillWidth: true
                 from: 0
-                to: 100
+                to: radioController.gainCount
                 stepSize: 1
-                value: receiverSettings.manualGainState
+                value: manualGainRow.showsAgcGain ? radioController.deviceGain
+                                                  : receiverSettings.manualGainState
 
                 onMoved: {
                     receiverSettings.manualGainState = value
@@ -205,7 +211,7 @@ ColumnLayout {
                         radioController.setGain(value)
                 }
 
-                Accessible.name: qsTr("Manual gain")
+                Accessible.name: manualGainRow.title
             }
         }
 

@@ -331,6 +331,11 @@ float CAirspy::getGain() const
     return currentGain;
 }
 
+int CAirspy::getGainIndex() const
+{
+    return currentGain;
+}
+
 float CAirspy::setGain(int gain)
 {
     currentGain = std::max(0, std::min(gain, maxGainIndex()));

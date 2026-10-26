@@ -373,7 +373,24 @@ void UiDashboardTests::setsGain()
     QVERIFY(app.property("setting.enableAGCState", "checked").toBool());
     QVERIFY(!app.item("gainCard.gain")->isEnabled());
 
-    qInfo() << "The gain card switches the automatic gain, the settings save it and the gain, the button opens the receiver settings";
+    // The slider shows the gain the AGC has set. A RAW file has none: set
+    // it like the device would (checked before the gain timer of the radio
+    // controller asks the device again)
+    QObject* radio = app.radio();
+    radio->setProperty("gainCount", 28);
+    radio->setProperty("deviceGain", 12);
+    radio->setProperty("deviceGainValue", 19.7);
+    QCOMPARE(app.property("gainCard.gain", "value").toInt(), 12);
+    QCOMPARE(app.text("gainCard.value"), QString("Value: 19.70"));
+    app.screenshot("dashboard-gain-agc");
+
+    // Gain unknown: the manual gain
+    radio->setProperty("deviceGain", -1);
+    QCOMPARE(app.property("gainCard.gain", "value").toInt(), gain);
+    QCOMPARE(app.text("gainCard.value"), QString("Value: 0.00"));
+    radio->setProperty("gainCount", 0);
+
+    qInfo() << "The gain card switches the automatic gain, the settings save it and the gain, the button opens the receiver settings, the slider shows the gain of the AGC";
 }
 
 void UiDashboardTests::recordsWithDuration()

@@ -23,6 +23,7 @@
 // server sends samples of the old frequency for another 100 ms after a
 // retune. The client must not pass them on: a much stronger previous channel
 // made the channel scan miss a weak one (10A after 9D).
+// The gain the AGC sets is reported by getGainIndex() (shown by the GUI).
 
 #include <QtTest>
 
@@ -73,6 +74,9 @@ public:
     }
 
     int port = 0;
+    // Alternate the old value with its mirror around 128: a signal of about
+    // -5 dBFS for the AGC, which measures the level without DC
+    bool alternate = false;
 
 private:
     void run()
@@ -94,6 +98,12 @@ private:
             const bool retuned = retunedAt.load() != Clock::time_point() &&
                 Clock::now() - retunedAt.load() > staleTime;
             std::fill(chunk.begin(), chunk.end(), retuned ? newValue : oldValue);
+            if (alternate) {
+                for (size_t i = 0; i < chunk.size(); i += 4) {
+                    chunk[i + 2] = 256 - chunk[i];
+                    chunk[i + 3] = 256 - chunk[i + 1];
+                }
+            }
             if (client.send(chunk.data(), chunk.size(), MSG_NOSIGNAL) <= 0)
                 break;
             sent += chunk.size();
@@ -139,6 +149,7 @@ class RtlTcpTests : public QObject
 private slots:
     void initTestCase() { hideDebugOutput(); }
     void dropsSamplesOfOldFrequency();
+    void reportsGainOfAgc();
 };
 
 void RtlTcpTests::dropsSamplesOfOldFrequency()
@@ -187,6 +198,51 @@ void RtlTcpTests::dropsSamplesOfOldFrequency()
     QVERIFY2(oldSamples == 0,
              qPrintable(QString("%1 ms of the old frequency after the retune")
                         .arg(1000.0 * oldSamples / INPUT_RATE)));
+}
+
+void RtlTcpTests::reportsGainOfAgc()
+{
+    // R820T gain table of the client
+    const std::vector<float> gains = { 0.0, 0.9, 1.4, 2.7, 3.7, 7.7, 8.7,
+        12.5, 14.4, 15.7, 16.6, 19.7, 20.7, 22.9, 25.4, 28.0, 29.7, 32.8,
+        33.8, 36.4, 37.2, 38.6, 40.2, 42.1, 43.4, 43.9, 44.5, 48.0, 49.6 };
+    const int maxIndex = int(gains.size()) - 1;
+
+    FakeRtlTcpServer server;
+    server.alternate = true;
+    QVERIFY2(server.start(), "No free port for the rtl_tcp server");
+
+    NullRadioController rc;
+    CRTL_TCP_Client input(rc);
+    input.setServerAddress("127.0.0.1");
+    input.setPort(server.port);
+    input.setFrequency(oldFrequency);
+    // Manual gain: the client doesn't set a gain of its own after connecting
+    input.setAgc(false);
+    QVERIFY2(input.restart(), "No connection to the rtl_tcp server");
+
+    // Unknown until the server has told the tuner type
+    std::vector<DSPCOMPLEX> buffer(8192);
+    for (auto t = Clock::now(); input.getGainIndex() == -1 &&
+            Clock::now() - t < std::chrono::seconds(5); )
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    QCOMPARE(input.getGainIndex(), 0);
+
+    input.setGain(maxIndex);
+    QCOMPARE(input.getGainIndex(), maxIndex);
+    QCOMPARE(input.getGain(), gains[maxIndex]);
+
+    // The samples are too strong for the AGC: it reduces the gain, and the
+    // index tells which one
+    input.setAgc(true);
+    for (auto t = Clock::now(); input.getGainIndex() == maxIndex &&
+            Clock::now() - t < std::chrono::seconds(5); ) {
+        input.getSamples(buffer.data(), buffer.size());
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+    const int index = input.getGainIndex();
+    QVERIFY2(index >= 0 && index < maxIndex, qPrintable(QString("Gain index %1").arg(index)));
+    QCOMPARE(input.getGain(), gains[index]);
 }
 
 QTEST_GUILESS_MAIN(RtlTcpTests)

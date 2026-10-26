@@ -1090,6 +1090,11 @@ float CV4L2Sdr::getGain(void) const
     return (index >= 0 && size_t(index) < gainsDb.size()) ? gainsDb[index] : 0.0f;
 }
 
+int CV4L2Sdr::getGainIndex(void) const
+{
+    return gainControl != 0 ? currentGain.load() : -1;
+}
+
 float CV4L2Sdr::setGain(int gain)
 {
     if (gainControl == 0) {

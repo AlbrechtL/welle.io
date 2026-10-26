@@ -229,6 +229,11 @@ float CRTL_SDR::getGain() const
     return currentGain / 10.0;
 }
 
+int CRTL_SDR::getGainIndex() const
+{
+    return currentGainIndex;
+}
+
 float CRTL_SDR::setGain(int gain_index)
 {
     if ((size_t)gain_index >= gains.size()) {

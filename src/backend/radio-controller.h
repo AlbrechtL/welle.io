@@ -222,6 +222,8 @@ public:
     virtual int32_t getSamplesToRead(void) = 0;
     virtual float setGain(int gain) = 0;
     virtual float getGain(void) const = 0;
+    // Gain index currently set (also by the AGC), -1 if unknown
+    virtual int getGainIndex(void) const { return -1; }
     virtual int getGainCount(void) = 0;
     virtual void setAgc(bool agc) = 0;
     virtual std::string getDescription(void) = 0;
