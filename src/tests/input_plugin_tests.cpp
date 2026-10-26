@@ -50,6 +50,21 @@ int main()
 
     assert(startInputSources(nlohmann::json::object(), queue, stop_requested, false).empty());
 
+    // a daemon without "-p" can only start when something can pick a
+    // programme: a plugin, or the terminal when welle-pi has one
+    nlohmann::json stdin_source = nlohmann::json::array();
+    stdin_source.push_back({{"type", "stdin"}});
+    nlohmann::json plugin_source = nlohmann::json::array();
+    plugin_source.push_back({{"plugin", "evdev"}});
+
+    assert(!hasInputSources(nlohmann::json(), false));      // default, no terminal
+    assert(hasInputSources(nlohmann::json(), true));
+    assert(!hasInputSources(nlohmann::json::array(), false));
+    assert(hasInputSources(stdin_source, true));
+    assert(!hasInputSources(stdin_source, false));
+    assert(hasInputSources(plugin_source, false));
+    assert(!hasInputSources(nlohmann::json::object(), false));
+
     std::cout << "input_plugin_tests: OK" << std::endl;
     return 0;
 }
