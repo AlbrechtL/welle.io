@@ -119,6 +119,7 @@ void OFDMProcessor::restart()
     syncBufferIndex    = 0;
     sLevel             = 0;
     localPhase         = 0;
+    scanSamples        = 0;
     input.restart();
     running            = true;
     threadHandle       = std::thread(&OFDMProcessor::run, this);
@@ -158,6 +159,7 @@ DSPCOMPLEX OFDMProcessor::getSample(int32_t phase)
     //  so here, bufferContent > 0
     input.getSamples (&temp, 1);
     bufferContent --;
+    scanSamples ++;
 
     //
     //  OK, we have a sample!!
@@ -197,6 +199,7 @@ void OFDMProcessor::getSamples(DSPCOMPLEX *v, int16_t n, int32_t phase)
     //  so here, bufferContent >= n
     n = input.getSamples (v, n);
     bufferContent -= n;
+    scanSamples += n;
 
     //  OK, we have samples!!
     //  first: adjust frequency. We need Hz accuracy
@@ -247,10 +250,14 @@ void OFDMProcessor::run()
         }
 notSynced:
         PROFILE(NotSynced);
-        if (scanMode && ++attempts > 5) {
+        //  No signal if there is no sync after 5 frames, as long as
+        //  5 failed searches for the null symbol take. Not after a number
+        //  of attempts: after a level jump (samples of the previous channel
+        //  after a retune, a gain step) sLevel is too high and the search
+        //  for the end of the null symbol fails within a few ms.
+        if (scanMode && scanSamples > 5 * T_F) {
             radioInterface.onSignalPresence(false);
             scanMode  = false;
-            attempts  = 0;
         }
         syncBufferIndex  = 0;
         currentStrength  = 0;
@@ -343,7 +350,6 @@ SyncOnPhase:
         if (scanMode) {
             radioInterface.onSignalPresence(true);
             scanMode  = false;
-            attempts  = 0;
         }
 
         /**

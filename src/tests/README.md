@@ -19,6 +19,7 @@ They are built with CMake and run with CTest.
 | `backend.recording.<clip>` | `backend` | Decodes one recording and compares everything with its expectations, see below | yes |
 | `backend.coherent.<clip>` | `backend` | The same with the coherent demodulation (`WELLE_TEST_DEMODULATOR=coherent`) | yes |
 | `backend.sensitivity` | `backend` | `odr_dabmod` through a radio channel (`common/channel_model.h`: echo, Doppler and noise) with both demodulations: FIB and audio frame errors below limits | yes |
+| `backend.scan` | `backend` | Decision of the channel scan: finds `odr_dabmod` also after 150 ms of an 18 dB stronger signal (the previous channel after a retune with rtl_tcp), decides within 0.7 s on noise | yes |
 | `cli.options` | `cli` | welle-cli command line: help, version, invalid options, missing IQ file | no |
 | `cli.recording.<clip>` | `cli` | welle-cli plays one recording with its web server; ensemble and service list of `mux.json` | yes |
 | `cli.webServer` | `cli` | `-D -w`: audio format, DLS and slide of every service in `mux.json`, MP3 streams, playlist, FIC, measurements, slides, error codes | yes |

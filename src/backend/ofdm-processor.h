@@ -109,7 +109,8 @@ class OFDMProcessor
         int prsMismatches = 0;
 
         bool scanMode = false;
-        int attempts = 0;
+        // Samples read since the start, for the scan decision
+        int64_t scanSamples = 0;
 
         int32_t bufferContent = 0;
 

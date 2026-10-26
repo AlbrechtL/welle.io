@@ -108,6 +108,12 @@ target_link_libraries(tst_sensitivity PRIVATE welle_test_common Qt6::Test)
 add_test(NAME backend.sensitivity COMMAND tst_sensitivity)
 set_tests_properties(backend.sensitivity PROPERTIES LABELS backend)
 
+# backend.scan: decision of the channel scan, also after a level jump
+add_executable(tst_scan backend/tst_scan.cpp)
+target_link_libraries(tst_scan PRIVATE welle_test_common Qt6::Test)
+add_test(NAME backend.scan COMMAND tst_scan)
+set_tests_properties(backend.scan PROPERTIES LABELS backend)
+
 find_package(Qt6 COMPONENTS Gui REQUIRED)
 add_executable(tst_spi_recordings backend/tst_spi_recordings.cpp)
 target_link_libraries(tst_spi_recordings PRIVATE welle_test_common Qt6::Test Qt6::Gui)
