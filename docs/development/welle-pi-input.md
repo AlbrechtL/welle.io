@@ -1,9 +1,12 @@
 # welle-pi input sources
 
 welle-pi is controlled by input sources: each turns a device (terminal,
-buttons, …) into the actions `UP`, `DOWN`, `LEFT`, `RIGHT`, `ENTER`, `MENU`
-and `QUIT`. Which sources run is set in a configuration file, new ones can
-be added as plugins (shared objects) without rebuilding welle-pi.
+buttons, …) into the actions `UP`, `DOWN`, `LEFT`, `RIGHT`, `ENTER`, `MENU`,
+`QUIT`, `VOLUME_UP`, `VOLUME_DOWN`, `MUTE` and `HOME`; home returns to the
+radio screen from wherever the user is, the volume and mute actions turn
+the mixer of the sound card. Which sources run is set in a configuration
+file, new ones can be added as plugins (shared objects) without rebuilding
+welle-pi.
 
 ## Configuration file
 
@@ -42,7 +45,7 @@ after each scan.
 
 | `type` | Device | Notes |
 |---|---|---|
-| `stdin` | Terminal | Arrow keys or `u` `d` `l` `r`; `e` or Enter: `ENTER`; `m` or Esc: `MENU`; `q` or `.`: `QUIT`. Only started when stdin is a terminal (not under systemd). |
+| `stdin` | Terminal | Arrow keys or `u` `d` `l` `r`; `e` or Enter: `ENTER`; `m` or Esc: `MENU`; `q` or `.`: `QUIT`; `+` or `=`: `VOLUME_UP`, `-`: `VOLUME_DOWN`, `h`: `HOME`. Only started when stdin is a terminal (not under systemd). |
 
 ## How the sources run
 
@@ -118,7 +121,10 @@ int welle_pi_input_run(const struct welle_pi_input_host* host, const char* confi
   plugins can parse it with nlohmann/json (`src/libs/json.hpp`).
 * `push()` accepts the values of `enum welle_pi_action`; other values are
   ignored. Its values are those of `InputAction` (a `static_assert` in
-  `input_sources.cpp` checks that) and are never renumbered.
+  `input_sources.cpp` checks that) and are never renumbered: new actions
+  are appended in front of `WELLE_PI_ACTION_COUNT`, which is not an action
+  but the upper bound `push()` checks against. `VOLUME_UP`, `VOLUME_DOWN`,
+  `MUTE` and `HOME` were the last to be added.
 
 Build it, for example:
 
