@@ -30,6 +30,7 @@
  *
  */
 
+#include <algorithm>
 #include <iostream>
 #include <sys/time.h>
 
@@ -89,6 +90,7 @@ CRTL_TCP_Client::~CRTL_TCP_Client(void)
 void CRTL_TCP_Client::setFrequency(int newFrequency)
 {
     frequency = newFrequency;
+    discardBytes = size_t(settleMs) * INPUT_RATE * 2 / 1000;
     sendVFO(newFrequency);
     agc.reset();
 }
@@ -314,7 +316,12 @@ void CRTL_TCP_Client::receiveData(void)
         }
     }
 
-    sampleNetworkBuffer.putDataIntoBuffer(buffer.data(), buffer.size());
+    // After a retune the server still sends up to about 150 ms of the old
+    // frequency. A much stronger previous channel would hide a weak one in
+    // the channel scan.
+    const size_t skip = std::min(discardBytes.load(), buffer.size());
+    discardBytes -= skip;
+    sampleNetworkBuffer.putDataIntoBuffer(buffer.data() + skip, buffer.size() - skip);
 
     // First fill the complete buffer to avoid sound outtages if the stream data rate is not stable e.g. over WIFI
     if(!firstFilledNetworkBuffer) {

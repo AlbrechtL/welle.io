@@ -99,9 +99,12 @@ private:
 
     std::atomic<float> currentGain{0};
     std::atomic<int> currentGainCount{0};
-    // The gain changes reach the samples later because of the buffers of
-    // server and network
-    SoftwareAgc agc{500};
+    // Gain and frequency changes reach the samples later because of the
+    // buffers of tuner, server and network
+    static constexpr int settleMs = 500;
+    SoftwareAgc agc{settleMs};
+    // Received bytes that are dropped (samples of the old frequency)
+    std::atomic<size_t> discardBytes{0};
     std::atomic<bool> isAGC{true};
     bool isHwAGC = false;
     int frequency = kHz(220000);

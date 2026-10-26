@@ -58,6 +58,11 @@ add_executable(tst_software_agc unit/tst_software_agc.cpp)
 target_link_libraries(tst_software_agc PRIVATE welle_test_common Qt6::Test)
 add_test(NAME unit.software_agc COMMAND tst_software_agc)
 
+add_executable(tst_rtl_tcp unit/tst_rtl_tcp.cpp)
+target_include_directories(tst_rtl_tcp PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_link_libraries(tst_rtl_tcp PRIVATE welle_test_common Qt6::Test)
+add_test(NAME unit.rtl_tcp COMMAND tst_rtl_tcp)
+
 add_executable(tst_rational_resampler unit/tst_rational_resampler.cpp)
 target_link_libraries(tst_rational_resampler PRIVATE welle_test_common Qt6::Test)
 add_test(NAME unit.rational_resampler COMMAND tst_rational_resampler)
@@ -92,7 +97,7 @@ add_executable(rstest ${CMAKE_SOURCE_DIR}/src/libs/fec/test/rstest.c)
 target_link_libraries(rstest PRIVATE welle)
 add_test(NAME unit.reed_solomon COMMAND rstest)
 
-set_tests_properties(unit.rawfile unit.dabconstants unit.fib unit.mp2_scf_crc unit.spi unit.software_agc unit.rational_resampler unit.coarse_frequency unit.coherent_demod unit.reed_solomon PROPERTIES LABELS unit)
+set_tests_properties(unit.rawfile unit.dabconstants unit.fib unit.mp2_scf_crc unit.spi unit.software_agc unit.rtl_tcp unit.rational_resampler unit.coarse_frequency unit.coherent_demod unit.reed_solomon PROPERTIES LABELS unit)
 
 # Recordings of the welle.io-test-data repository. Every clip of its
 # manifest becomes one test, backend.recording.<clip id>, which runs

@@ -13,6 +13,7 @@ They are built with CMake and run with CTest.
 | `unit.reed_solomon` | `unit` | Reed-Solomon codec used for DAB+ | no |
 | `unit.mp2_scf_crc` | `unit` | Scale Factor CRC of MP2 frames: Scale Factors with errors are muted | no |
 | `unit.software_agc` | `unit` | Software AGC of the RTL-SDR, rtl_tcp and Airspy inputs with a simulated tuner (also the measured gain steps of a real R820T): finds the gain without clipping and keeps it | no |
+| `unit.rtl_tcp` | `unit` | rtl_tcp client against a minimal rtl_tcp server on localhost: after a retune, the samples the server still sends from the old frequency are dropped | no |
 | `unit.coarse_frequency` | `unit` | Coarse frequency offset from the phase reference symbol with timing offset, echo and noise; no estimate for noise or a null symbol with TII carriers | no |
 | `unit.coherent_demod` | `unit` | Coherent demodulation with synthetic frames: right bits with echo, FFT window and phase changes, frequency offset and clock error; more information per soft bit than the differential demodulation at 2 dB SNR; new channel restarts the estimate | no |
 | `unit.rational_resampler` | `unit` | Resampling of the Airspy input from its native rates (3, 2.5 MS/s; 4.096 MS/s) to 2.048 MS/s: DAB block unchanged, adjacent blocks suppressed by more than 65 dB | no |
