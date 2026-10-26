@@ -39,11 +39,21 @@ struct Frame {
     void set(int row, const std::string& text) {
         if (row >= 0 && row < rows) lines[row] = text;
     }
+    /* Ask the display to draw this row inverted, for the focused item.
+     * Returns false when the display cannot do that: the screen marks the
+     * item in the text instead. */
+    bool mark(int row) {
+        if (!highlights || row < 0 || row >= rows) return false;
+        highlight = row;
+        return true;
+    }
 
     int cols;
     int rows;
     uint64_t now;                   // now_ms() of this tick; screens animate from it
     std::vector<std::string> lines; // UTF-8
+    bool highlights = false;        // UIManager: the display draws mark() itself
+    int highlight = -1;             // the row a screen marked, -1 none
 };
 
 class IDisplay {
@@ -53,6 +63,9 @@ public:
     virtual int rows() const = 0;
     // Called every UI tick, mostly with the same frame: skip what is unchanged.
     virtual void present(const Frame& frame) = 0;
+    // Whether present() draws Frame::highlight inverted instead of the
+    // screens wrapping the focused item in > and <.
+    virtual bool canHighlight() const { return false; }
     virtual void backlightOn() {}
     virtual void backlightOff() {}
 };
@@ -73,6 +86,13 @@ public:
     }
     void present(const Frame& frame) override {
         for (auto& d : m_displays) d->present(frame);
+    }
+    // Only when every display can: the mixed pair keeps the text markers, so
+    // that both show the same thing.
+    bool canHighlight() const override {
+        bool all = true;
+        for (const auto& d : m_displays) all = all && d->canHighlight();
+        return all;
     }
     void backlightOn() override {
         for (auto& d : m_displays) d->backlightOn();

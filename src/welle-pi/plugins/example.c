@@ -54,7 +54,7 @@ int welle_pi_input_run(const struct welle_pi_input_host* host, const char* confi
 }
 
 /* config e.g. {"plugin":"example","file":"/tmp/frames.txt"}: 16 x 2 */
-void* welle_pi_display_open(const char* config, int* cols, int* rows)
+void* welle_pi_display_open(const char* config, int* cols, int* rows, unsigned* features)
 {
     const char* key = strstr(config, "\"file\":\"");
     if (!key) {
@@ -70,13 +70,16 @@ void* welle_pi_display_open(const char* config, int* cols, int* rows)
     if (!out) return NULL;
     *cols = 16;
     *rows = 2;
+    *features = 0;      // plain text: the screens keep the > < markers
     return out;
 }
 
-void welle_pi_display_present(void* handle, const char* const* lines, int cols, int rows)
+void welle_pi_display_present(void* handle, const char* const* lines, int cols, int rows, int highlight)
 {
     FILE* out = handle;
-    fprintf(out, "frame %d x %d\n", cols, rows);
+    fprintf(out, "frame %d x %d", cols, rows);
+    if (highlight >= 0) fprintf(out, ", highlighted row %d", highlight);
+    fprintf(out, "\n");
     for (int i = 0; i < rows; i++) fprintf(out, "%s\n", lines[i]);
     fflush(out);
 }

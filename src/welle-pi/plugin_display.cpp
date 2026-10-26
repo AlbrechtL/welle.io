@@ -29,7 +29,7 @@
 std::unique_ptr<PluginDisplay> PluginDisplay::open(const std::string& name, const std::string& config) {
     void* lib = loadPlugin("display", name, WELLE_PI_DISPLAY_ABI);
     if (!lib) return nullptr;
-    using OpenFn = void* (*)(const char*, int*, int*);
+    using OpenFn = void* (*)(const char*, int*, int*, unsigned*);
     auto openFn = reinterpret_cast<OpenFn>(dlsym(lib, "welle_pi_display_open"));
     auto present = reinterpret_cast<PresentFn>(dlsym(lib, "welle_pi_display_present"));
     auto close = reinterpret_cast<CloseFn>(dlsym(lib, "welle_pi_display_close"));
@@ -38,14 +38,16 @@ std::unique_ptr<PluginDisplay> PluginDisplay::open(const std::string& name, cons
         return nullptr;
     }
     int cols = 0, rows = 0;
-    void* handle = openFn(config.c_str(), &cols, &rows);
+    unsigned features = 0;
+    void* handle = openFn(config.c_str(), &cols, &rows, &features);
     if (!handle) return nullptr;
     if (cols <= 0 || rows <= 0) {
         std::cerr << "Display plugin " << name << ": size " << cols << " x " << rows << std::endl;
         close(handle);
         return nullptr;
     }
-    return std::unique_ptr<PluginDisplay>(new PluginDisplay(handle, present, close, cols, rows));
+    return std::unique_ptr<PluginDisplay>(new PluginDisplay(
+        handle, present, close, cols, rows, (features & WELLE_PI_DISPLAY_HIGHLIGHT) != 0));
 }
 
 PluginDisplay::~PluginDisplay() {
@@ -53,9 +55,11 @@ PluginDisplay::~PluginDisplay() {
 }
 
 void PluginDisplay::present(const Frame& frame) {
-    if (frame.lines == m_shown) return;
+    // the same text on another row is a new frame too: only the row is inverted
+    if (frame.lines == m_shown && frame.highlight == m_highlight) return;
     m_shown = frame.lines;
+    m_highlight = frame.highlight;
     std::vector<const char*> lines;
     for (const auto& line : frame.lines) lines.push_back(line.c_str());
-    m_present(m_handle, lines.data(), frame.cols, int(lines.size()));
+    m_present(m_handle, lines.data(), frame.cols, int(lines.size()), frame.highlight);
 }
