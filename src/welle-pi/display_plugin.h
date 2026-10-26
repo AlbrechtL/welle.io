@@ -39,15 +39,21 @@ extern "C" {
 /* Plugin defines: const int welle_pi_display_abi = WELLE_PI_DISPLAY_ABI; */
 extern const int welle_pi_display_abi;
 
-/* config: the plugin's JSON object. Sets the size in characters (> 0) and
- * returns a handle passed to the other calls, NULL if the display is not
- * usable (logged by the plugin). */
-void* welle_pi_display_open(const char* config, int* cols, int* rows);
+/* welle_pi_display_open() sets bits of this: */
+#define WELLE_PI_DISPLAY_HIGHLIGHT 1   /* present() draws the focused row inverted */
+
+/* config: the plugin's JSON object. Sets the size in characters (> 0), the
+ * features above, and returns a handle passed to the other calls, NULL if
+ * the display is not usable (logged by the plugin). */
+void* welle_pi_display_open(const char* config, int* cols, int* rows, unsigned* features);
 
 /* rows lines of UTF-8, each exactly cols code points. cols and rows can be
  * smaller than the display's own size when mirrored next to a smaller
- * display. Only called when the text changed. */
-void welle_pi_display_present(void* handle, const char* const* lines, int cols, int rows);
+ * display. highlight: the row to draw inverted (WELLE_PI_DISPLAY_HIGHLIGHT),
+ * -1 for none; the screens also put > and < around the item when the
+ * display does not have that feature. Only called when the text or the
+ * highlighted row changed. */
+void welle_pi_display_present(void* handle, const char* const* lines, int cols, int rows, int highlight);
 
 /* Last call; the plugin is never unloaded. */
 void welle_pi_display_close(void* handle);

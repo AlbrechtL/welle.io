@@ -35,6 +35,7 @@ int main()
         auto display = PluginDisplay::open("example", "{\"plugin\":\"example\",\"file\":\"" + file + "\"}");
         assert(display);
         assert(display->cols() == 16 && display->rows() == 2);
+        assert(!display->canHighlight());   // the example draws plain text
 
         Frame frame(16, 2, 0);
         frame.set(0, "Radio Example   ");
@@ -42,6 +43,11 @@ int main()
         display->present(frame);
         display->present(frame);  // unchanged: not passed on
         frame.set(1, "Now playing     ");
+        display->present(frame);
+        // a row marked without new text is a new frame too
+        frame.highlight = 1;
+        display->present(frame);
+        frame.highlight = 0;
         display->present(frame);
     }
     std::ifstream in(file);
@@ -51,6 +57,8 @@ int main()
     assert(text.str() ==
            "frame 16 x 2\nRadio Example   \n11D             \n"
            "frame 16 x 2\nRadio Example   \nNow playing     \n"
+           "frame 16 x 2, highlighted row 1\nRadio Example   \nNow playing     \n"
+           "frame 16 x 2, highlighted row 0\nRadio Example   \nNow playing     \n"
            "closed\n");
 
     assert(!PluginDisplay::open("nonexistent", "{}"));

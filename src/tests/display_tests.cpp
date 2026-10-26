@@ -37,6 +37,16 @@ static std::vector<std::string> render(UIScreen& screen, int cols, int rows, uin
     return frame.lines;
 }
 
+// the same on a display that draws the focused row itself (framebuffer, tty)
+static std::vector<std::string> renderMarked(UIScreen& screen, int cols, int rows, uint64_t now,
+                                             int& highlight) {
+    Frame frame(cols, rows, now);
+    frame.highlights = true;
+    screen.render(frame);
+    highlight = frame.highlight;
+    return frame.lines;
+}
+
 static void testUtf8() {
     assert(utf8Length("Österreich") == 10);
     assert(utf8Substr("aÖbc", 1, 2) == "Öb");
@@ -108,14 +118,26 @@ static void testStationList() {
     assert(lines[1] == "Radio SRF 1 BE FR VS");      // unique: name only, the display cuts
     assert(lines[2] == ">VM1         5C<");          // twice: channel right-aligned
     assert(lines[3] == "VM1           8A");
+    // the display marks the row: no > <, the two columns come back
+    int hl = -1;
+    auto marked = renderMarked(list, 16, 4, 0, hl);
+    assert(hl == 2);
+    assert(marked[2] == "VM1" + std::string(10, ' ') + " 5C");
+    assert(marked[1] == lines[1] && marked[3] == lines[3]);
     // focused and too long: start, end, start, channel stays
     list.setIndex(3);
     assert(render(list, 16, 2, 0)[1] == ">*Musiksend 10B<");
     assert(render(list, 16, 2, SWITCH)[1] == ">sender*GÖD 10B<");
     assert(render(list, 16, 2, 2 * SWITCH)[1] == ">*Musiksend 10B<");
     assert(render(list, 12, 2, SWITCH)[1] == ">Musik   10B");   // narrow: short label, ">" only
+    marked = renderMarked(list, 12, 2, SWITCH, hl);
+    assert(hl == 1);
+    assert(marked[1] == "Musik" + std::string(4, ' ') + "10B");
     list.setIndex(5);
     assert(render(list, 16, 2, SWITCH)[1] == ">SRF 1 BE FR VS<");
+    // 2 more columns in the window: the switched name shows more of its end
+    assert(renderMarked(list, 16, 2, SWITCH, hl)[1] == "o SRF 1 BE FR VS");
+    assert(hl == 1);
 }
 
 static void testMenu() {
@@ -128,6 +150,11 @@ static void testMenu() {
     menu.handleInput(InputAction::DOWN);
     assert(render(menu, 20, 4, 0)[2] == ">Back to Radio     <");
     assert(render(menu, 12, 2, 0)[1] == ">Back to Radio");   // narrow: no padding, display cuts
+    // marked by the display instead: no > <, no padding
+    int hl = -1;
+    auto marked = renderMarked(menu, 20, 4, 0, hl);
+    assert(hl == 2);
+    assert(marked[2] == "Back to Radio");
     // 7 lines, 3 items: each once around the focus
     const std::vector<std::string> tall = {"Settings Menu", "", "", "Manual Rescan", ">Back to Radio     <", "Exit", "", ""};
     assert(render(menu, 20, 8, 0) == tall);
@@ -139,6 +166,7 @@ static void testTty() {
     std::FILE* out = open_memstream(&buf, &size);
     {
         TtyDisplay tty(4, 2, out);
+        assert(!tty.canHighlight());    // no reverse video on a plain file
         Frame frame(4, 2, 0);
         frame.lines = {"ab  ", "Öx  "};
         tty.present(frame);
@@ -151,11 +179,14 @@ static void testTty() {
 
 class RecordingDisplay : public IDisplay {
 public:
+    explicit RecordingDisplay(bool canHighlight = false) : m_canHighlight(canHighlight) {}
     int cols() const override { return 10; }
     int rows() const override { return 2; }
+    bool canHighlight() const override { return m_canHighlight; }
     void present(const Frame& frame) override {
         std::lock_guard<std::mutex> lock(mutex);
         last = frame.lines;
+        highlight = frame.highlight;
     }
     std::vector<std::string> get() {
         std::lock_guard<std::mutex> lock(mutex);
@@ -163,6 +194,9 @@ public:
     }
     std::mutex mutex;
     std::vector<std::string> last;
+    int highlight = -1;
+private:
+    bool m_canHighlight;
 };
 
 static void testMirror() {
@@ -176,6 +210,7 @@ static void testMirror() {
         displays.push_back(std::make_unique<TtyDisplay>(40, 4, out));
         MultiDisplay multi(std::move(displays));
         assert(multi.cols() == 10 && multi.rows() == 2);   // smallest wins
+        assert(!multi.canHighlight());   // the terminal is no tty, the other one cannot
         Frame frame(10, 2, 0);
         frame.lines = {"0123456789", "abcdefghij"};
         multi.present(frame);
@@ -201,6 +236,27 @@ static void testUIManager() {
     assert(display->get()[1] == ">Back to R");
 }
 
+// a display that draws the focused row itself: no markers, the row index
+static void testUIManagerHighlight() {
+    auto owned = std::make_unique<RecordingDisplay>(true);
+    RecordingDisplay* display = owned.get();
+    UIManager ui(std::move(owned));
+    auto list = std::make_shared<StationListScreen>(
+        std::vector<ConfigManager::Station>{{"5C", "VM1", "", 1}, {"8A", "VM1", "", 1}}, nullptr);
+    ui.resetToRoot(list);
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    assert(display->get() == (std::vector<std::string>{
+        "1/2" + std::string(7, ' '), "VM1" + std::string(5, ' ') + "5C"}));
+    assert(display->highlight == 1);
+
+    // the volume level takes that line: nothing there to invert any more
+    ui.showVolume(45, false);
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    assert(display->highlight == -1);
+    assert(display->get()[1] == volumeLine(10, 45, false));
+    assert(display->get()[0] == "1/2" + std::string(7, ' '));
+}
+
 int main() {
     testUtf8();
     testRadioMarquee();
@@ -210,6 +266,7 @@ int main() {
     testTty();
     testMirror();
     testUIManager();
+    testUIManagerHighlight();
     std::cout << "display_tests: OK" << std::endl;
     return 0;
 }

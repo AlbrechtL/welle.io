@@ -82,7 +82,9 @@ static void renderList(Frame& frame,
         const size_t item_index = (((int)selectedIndex + offset) % count + count) % count;
 
         std::string option = getItemString(item_index, offset == 0, width);
-        if (offset == 0) {
+        // displays that draw the row inverted get the whole width, the
+        // others need the two markers
+        if (offset == 0 && !frame.mark(1 + line)) {
             option = width < 16 ? ">" + option : ">" + utf8Fit(option, width - 2) + "<";
         }
         frame.set(1 + line, option);
@@ -238,7 +240,8 @@ void StationListScreen::render(Frame& frame) {
     renderList(frame, header, m_stations.size(), index, [&](size_t idx, bool isFocused, int w) {
         const auto& station = m_stations[idx];
         std::string name = isFocused && w < 16 && !station.short_program.empty() ? station.short_program : station.program;
-        const size_t room = !isFocused ? w : w >= 16 ? w - 2 : w - 1;   // focused: ">name<" or ">name"
+        // focused: ">name<" or ">name", unless the display marks the row itself
+        const size_t room = isFocused && !frame.highlights ? (w >= 16 ? w - 2 : w - 1) : w;
         // name listed more than once, whatever the SIDs: channel right-aligned
         const std::string channel = m_showChannel[idx] ? " " + station.channel : "";
         if (room <= channel.size()) return name;

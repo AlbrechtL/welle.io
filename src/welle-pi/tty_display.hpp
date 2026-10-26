@@ -34,6 +34,8 @@ public:
 
     int cols() const override { return m_cols; }
     int rows() const override { return m_rows; }
+    // a terminal has reverse video; a redirected output has no attributes
+    bool canHighlight() const override { return m_ansi; }
     void present(const Frame& frame) override;
 
 private:
@@ -41,6 +43,7 @@ private:
     int m_rows;
     std::FILE* m_out;
     bool m_ansi;
+    int m_highlight = -1;
     std::vector<std::string> m_shown;
 };
 

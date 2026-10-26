@@ -32,20 +32,24 @@ public:
 
     int cols() const override { return m_cols; }
     int rows() const override { return m_rows; }
+    bool canHighlight() const override { return m_highlights; }
     void present(const Frame& frame) override;
 
 private:
-    using PresentFn = void (*)(void*, const char* const*, int, int);
+    using PresentFn = void (*)(void*, const char* const*, int, int, int);
     using CloseFn = void (*)(void*);
 
-    PluginDisplay(void* handle, PresentFn present, CloseFn close, int cols, int rows)
-        : m_handle(handle), m_present(present), m_close(close), m_cols(cols), m_rows(rows) {}
+    PluginDisplay(void* handle, PresentFn present, CloseFn close, int cols, int rows, bool highlights)
+        : m_handle(handle), m_present(present), m_close(close), m_cols(cols), m_rows(rows),
+          m_highlights(highlights), m_highlight(-1) {}
 
     void* m_handle;
     PresentFn m_present;
     CloseFn m_close;
     int m_cols;
     int m_rows;
+    bool m_highlights;
+    int m_highlight;
     std::vector<std::string> m_shown;
 };
 

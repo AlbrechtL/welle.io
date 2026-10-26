@@ -194,11 +194,15 @@ void UIManager::run() {
         }
         if (screen) {
             Frame frame(m_display->cols(), m_display->rows(), now_ms());
+            frame.highlights = m_display->canHighlight();
             screen->render(frame);
             /* the volume level takes the last line of whatever is on top */
             if (frame.now < m_volumeUntil) {
                 frame.set(frame.rows - 1,
                           volumeLine(frame.cols, m_volumePercent, m_volumeMuted));
+                if (frame.highlight == frame.rows - 1) {
+                    frame.highlight = -1;   // the line shows the level now
+                }
             }
             for (auto& line : frame.lines) {
                 line = utf8Fit(line, frame.cols);
