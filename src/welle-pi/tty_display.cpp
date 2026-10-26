@@ -27,15 +27,19 @@ TtyDisplay::TtyDisplay(int cols, int rows, std::FILE* out)
     : m_cols(cols), m_rows(rows), m_out(out), m_ansi(out && isatty(fileno(out))) {}
 
 void TtyDisplay::present(const Frame& frame) {
-    if (!m_out || frame.lines == m_shown) return;
+    if (!m_out || (frame.lines == m_shown && frame.highlight == m_highlight)) return;
     m_shown = frame.lines;
+    m_highlight = frame.highlight;
 
     // frame size, not ours: mirrored next to a smaller LCD
     const std::string border = "+" + std::string(frame.cols, '-') + "+\n";
     std::string out = m_ansi ? "\033[H\033[2J" : "";
     out += border;
-    for (const auto& line : frame.lines) {
-        out += "|" + line + "|\n";
+    for (size_t row = 0; row < frame.lines.size(); ++row) {
+        // reverse video for the focused row; the line is exactly cols wide
+        const bool inverse = m_ansi && (int)row == frame.highlight;
+        out += "|" + std::string(inverse ? "\033[7m" : "") + frame.lines[row] +
+               (inverse ? "\033[27m" : "") + "|\n";
     }
     out += border;
     std::fputs(out.c_str(), m_out);
