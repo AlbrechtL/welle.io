@@ -124,6 +124,13 @@ void UIManager::resetToRoot() {
 }
 
 void UIManager::processInput(InputAction action) {
+    /* HOME is the one action the screens do not see: it returns to the root
+     * screen (the radio) from wherever the user is. */
+    if (action == InputAction::HOME) {
+        resetToRoot();
+        return;
+    }
+
     std::shared_ptr<UIScreen> screen;
     {
         std::lock_guard<std::mutex> lock(m_mutex);

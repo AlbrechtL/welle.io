@@ -92,6 +92,12 @@ void runStdinReader(InputQueue& queue, const StopPredicate& stop_requested) {
             queue.push(InputAction::ENTER);
         } else if (c == 'm') {
             queue.push(InputAction::MENU);
+        } else if (c == '+' || c == '=') {
+            queue.push(InputAction::VOLUME_UP);
+        } else if (c == '-') {
+            queue.push(InputAction::VOLUME_DOWN);
+        } else if (c == 'h') {
+            queue.push(InputAction::HOME);
         }
     }
 

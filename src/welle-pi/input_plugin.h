@@ -38,7 +38,11 @@ extern "C" {
 /* Same values as InputAction. Never renumber, only append. */
 enum welle_pi_action {
     WELLE_PI_UP, WELLE_PI_DOWN, WELLE_PI_LEFT, WELLE_PI_RIGHT,
-    WELLE_PI_ENTER, WELLE_PI_MENU, WELLE_PI_QUIT
+    WELLE_PI_ENTER, WELLE_PI_MENU, WELLE_PI_QUIT,
+    WELLE_PI_VOLUME_UP, WELLE_PI_VOLUME_DOWN, WELLE_PI_MUTE, WELLE_PI_HOME,
+    /* not an action: one more than the last, so that push() does not have to
+     * be touched when one is appended */
+    WELLE_PI_ACTION_COUNT
 };
 
 struct welle_pi_input_host {

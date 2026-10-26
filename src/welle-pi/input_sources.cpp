@@ -30,7 +30,13 @@
 static_assert(int(InputAction::UP) == WELLE_PI_UP && int(InputAction::DOWN) == WELLE_PI_DOWN &&
               int(InputAction::LEFT) == WELLE_PI_LEFT && int(InputAction::RIGHT) == WELLE_PI_RIGHT &&
               int(InputAction::ENTER) == WELLE_PI_ENTER && int(InputAction::MENU) == WELLE_PI_MENU &&
-              int(InputAction::QUIT) == WELLE_PI_QUIT, "input_plugin.h out of sync with InputAction");
+              int(InputAction::QUIT) == WELLE_PI_QUIT &&
+              int(InputAction::VOLUME_UP) == WELLE_PI_VOLUME_UP &&
+              int(InputAction::VOLUME_DOWN) == WELLE_PI_VOLUME_DOWN &&
+              int(InputAction::MUTE) == WELLE_PI_MUTE &&
+              int(InputAction::HOME) == WELLE_PI_HOME &&
+              int(InputAction::NONE) == WELLE_PI_ACTION_COUNT,
+              "input_plugin.h out of sync with InputAction");
 
 namespace {
 
@@ -43,7 +49,7 @@ struct PluginCtx {
 
 void pluginPush(void* ctx, welle_pi_action action) {
     // plugin is foreign code: drop out-of-range values
-    if (action >= WELLE_PI_UP && action <= WELLE_PI_QUIT)
+    if (action >= WELLE_PI_UP && action < WELLE_PI_ACTION_COUNT)
         static_cast<PluginCtx*>(ctx)->queue.push(InputAction(action));
 }
 
