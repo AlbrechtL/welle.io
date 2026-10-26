@@ -50,8 +50,20 @@ the file, the defaults apply.
 * The element is unmuted while changing it: a muted card would otherwise
   stay silent whatever the level says.
 * The new level goes to stderr (`Volume: 45 %`), like the mute state
-  (`Muted`, `Unmuted`), and with it to the journal; the screens do not show
-  it yet.
+  (`Muted`, `Unmuted`), and with it to the journal. Instead of the DLS, the
+  last line of the screen is the level while the keys are used and for a
+  second after the last one: the whole line is a bar of U+2588 blocks,
+  e.g. at 45 % on 16 columns (the rest stays empty):
+
+      ███████
+
+  (a level above zero keeps one block, so that the line never looks like a
+  screen without the level). `volumeLine()` in `ui_manager.cpp` builds it,
+  `UIManager::showVolume()` gets it from the main loop, so the input and
+  display plugins do not have to know about each other. While muted the
+  line is `Muted`. The framebuffer plugin and the terminal have U+2588; the
+  character LCD has no block in its ROM, so the LCD plugin defines one as a
+  user defined character (CGRAM) and the bar is made of those.
 * A level changed with `alsamixer` or `amixer` between presses is picked up
   before the next step.
 * A device the mixer cannot attach to is reported once (`volume: cannot
