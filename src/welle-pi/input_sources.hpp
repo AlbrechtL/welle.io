@@ -42,4 +42,9 @@ void runStdinReader(InputQueue& queue, const StopPredicate& stop_requested);
 std::vector<std::thread> startInputSources(const nlohmann::json& inputs, InputQueue& queue,
                                            const StopPredicate& stop_requested, bool interactive);
 
+/* True when startInputSources() would start at least one source: a plugin, or
+ * the terminal when welle-pi has one. Used to tell whether anybody can pick a
+ * programme when "-p" is missing. */
+bool hasInputSources(const nlohmann::json& inputs, bool interactive);
+
 #endif // INPUT_SOURCES_HPP

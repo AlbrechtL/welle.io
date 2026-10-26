@@ -96,3 +96,20 @@ std::vector<std::thread> startInputSources(const nlohmann::json& inputs, InputQu
     }
     return threads;
 }
+
+bool hasInputSources(const nlohmann::json& inputs, bool interactive)
+{
+    if (inputs.is_null())
+        return interactive;      // the default source is the terminal
+    if (!inputs.is_array())
+        return false;
+    for (const auto& entry : inputs) {
+        if (!entry.is_object())
+            continue;
+        if (!entry.value("plugin", "").empty())
+            return true;
+        if (entry.value("type", "") == "stdin" && interactive)
+            return true;
+    }
+    return false;
+}

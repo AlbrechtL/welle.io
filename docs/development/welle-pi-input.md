@@ -34,6 +34,9 @@ after each scan.
 * An entry that fails (unknown `type`, plugin not found, wrong ABI) is
   logged on stderr and skipped. welle-pi keeps playing, it is a radio.
 * An empty array `[]` starts no input source at all.
+* An input source is also what lets welle-pi run in daemon mode without
+  `-p`: no terminal, no source and no `-p` means nobody could pick a
+  programme, and welle-pi exits saying so.
 
 ## Built-in source
 

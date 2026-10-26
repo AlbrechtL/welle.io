@@ -881,12 +881,17 @@ int main(int argc, char **argv)
 
     version();
 
-    if (not interactive and options.programme.empty()) {
-        cerr << "No programme given and no terminal to ask for one" << endl;
+    const nlohmann::json settings = loadSettings();
+
+    /* A programme can only be named by "-p", by the terminal or by an input
+     * source such as the remote control plugin; with none of them welle-pi
+     * would play what it finds with nobody able to change it. */
+    if (not interactive and options.programme.empty() and
+        not hasInputSources(settings.value("input", nlohmann::json()), interactive)) {
+        cerr << "No programme given, no terminal and no input source to ask for one" << endl;
         return 1;
     }
 
-    const nlohmann::json settings = loadSettings();
     UIManager uiManager(makeDisplay(settings.value("display", nlohmann::json())));
     auto radioScreen = make_shared<RadioScreen>();
     uiManager.resetToRoot(radioScreen);
