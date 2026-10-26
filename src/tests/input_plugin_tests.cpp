@@ -35,7 +35,7 @@ int main()
     // found by name in welle-pi-plugins/ next to this executable; gets its own
     // JSON object; unknown entries and plugins are skipped
     nlohmann::json inputs = nlohmann::json::array({
-        {{"plugin", "example"}, {"keys", "de"}},
+        {{"plugin", "example"}, {"keys", "d+hme"}},
         {{"plugin", "nonexistent"}},
         {{"plugin", "/nonexistent/plugin.so"}},
         {{"type", "bogus"}},
@@ -44,6 +44,9 @@ int main()
     auto threads = startInputSources(inputs, queue, stop_requested, false);
     assert(threads.size() == 1);
     assert(queue.pop(2000) == InputAction::DOWN);
+    assert(queue.pop(2000) == InputAction::VOLUME_UP);   // appended actions
+    assert(queue.pop(2000) == InputAction::HOME);
+    assert(queue.pop(2000) == InputAction::MUTE);
     assert(queue.pop(2000) == InputAction::ENTER);
     stop = true;
     for (auto& t : threads) t.join();

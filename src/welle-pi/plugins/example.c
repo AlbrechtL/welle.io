@@ -34,7 +34,8 @@ const char welle_pi_plugin_description[] = "keys from the config, frames to a fi
 const int welle_pi_input_abi = WELLE_PI_INPUT_ABI;
 const int welle_pi_display_abi = WELLE_PI_DISPLAY_ABI;
 
-/* config e.g. {"plugin":"example","keys":"de"}: d = DOWN, e = ENTER */
+/* config e.g. {"plugin":"example","keys":"d+hme"}: d = DOWN, e = ENTER,
+ * + = VOLUME_UP, h = HOME, m = MUTE */
 int welle_pi_input_run(const struct welle_pi_input_host* host, const char* config)
 {
     const char* keys = strstr(config, "\"keys\":\"");
@@ -42,6 +43,9 @@ int welle_pi_input_run(const struct welle_pi_input_host* host, const char* confi
         for (keys += 8; *keys && *keys != '"'; keys++) {
             if (*keys == 'd') host->push(host->ctx, WELLE_PI_DOWN);
             else if (*keys == 'e') host->push(host->ctx, WELLE_PI_ENTER);
+            else if (*keys == '+') host->push(host->ctx, WELLE_PI_VOLUME_UP);
+            else if (*keys == 'h') host->push(host->ctx, WELLE_PI_HOME);
+            else if (*keys == 'm') host->push(host->ctx, WELLE_PI_MUTE);
         }
     }
     while (!host->stop_requested(host->ctx))

@@ -29,7 +29,7 @@
 #include <mutex>
 #include <condition_variable>
 
-enum class InputAction { UP, DOWN, LEFT, RIGHT, ENTER, MENU, QUIT, NONE };
+enum class InputAction { UP, DOWN, LEFT, RIGHT, ENTER, MENU, QUIT, VOLUME_UP, VOLUME_DOWN, MUTE, HOME, NONE };
 
 class InputQueue {
 public:
