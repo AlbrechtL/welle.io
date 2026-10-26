@@ -4,9 +4,9 @@ welle-pi is controlled by input sources: each turns a device (terminal,
 buttons, …) into the actions `UP`, `DOWN`, `LEFT`, `RIGHT`, `ENTER`, `MENU`,
 `QUIT`, `VOLUME_UP`, `VOLUME_DOWN`, `MUTE` and `HOME`; home returns to the
 radio screen from wherever the user is, the volume and mute actions turn
-the mixer of the sound card. Which sources run is set in a configuration
-file, new ones can be added as plugins (shared objects) without rebuilding
-welle-pi.
+the mixer of the sound card ([welle-pi volume](welle-pi-volume.md)). Which
+sources run is set in a configuration file, new ones can be added as
+plugins (shared objects) without rebuilding welle-pi.
 
 ## Configuration file
 

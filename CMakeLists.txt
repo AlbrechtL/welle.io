@@ -339,6 +339,7 @@ set(welle_pi_sources
     src/welle-pi/tty_display.cpp
     src/welle-pi/plugin_loader.cpp
     src/welle-pi/plugin_display.cpp
+    src/welle-pi/volume.cpp
     src/welle-cli/alsa-output.cpp
 )
 
@@ -695,6 +696,16 @@ if (BUILD_WELLE_PI)
         add_dependencies(display_plugin_tests welle-pi-example)
         add_test(NAME unit.display_plugin COMMAND display_plugin_tests)
         set_tests_properties(unit.display_plugin PROPERTIES LABELS unit)
+
+        add_executable(volume_tests
+            src/tests/volume_tests.cpp
+            src/welle-pi/volume.cpp
+        )
+        target_include_directories(volume_tests PRIVATE src/welle-pi)
+        target_compile_options(volume_tests PRIVATE -UNDEBUG)
+        target_link_libraries(volume_tests ${ALSA_LIBRARIES})
+        add_test(NAME unit.volume COMMAND volume_tests)
+        set_tests_properties(unit.volume PROPERTIES LABELS unit)
     endif()
     if(UNIX AND NOT APPLE OR NOT WITH_APP_BUNDLE)
         INSTALL (TARGETS ${piExecutableName} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
