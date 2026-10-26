@@ -86,6 +86,35 @@ public:
     }
 };
 
+// Display that keeps the last frame, for the volume line
+class RecordingDisplay : public IDisplay {
+public:
+    int cols() const override { return 16; }
+    int rows() const override { return 2; }
+    void present(const Frame& frame) override {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        m_lines = frame.lines;
+    }
+    std::string line(size_t row) {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        return row < m_lines.size() ? m_lines[row] : std::string();
+    }
+
+private:
+    std::mutex m_mutex;
+    std::vector<std::string> m_lines;
+};
+
+// Screen with a program line and a DLS line, like the radio screen
+class TextScreen : public UIScreen {
+public:
+    void render(Frame& frame) override {
+        frame.set(0, "radio");
+        frame.set(1, "DLS text");
+    }
+    void handleInput(InputAction) override {}
+};
+
 int main() {
     std::vector<std::string> log;
 
@@ -189,6 +218,48 @@ int main() {
     assert(log.size() >= 2);
     assert(log[0] == "Child1:onPop");
     assert(log[1] == "NewRoot:onResume");
+
+    std::cout << "Test 8: Volume level on the last line" << std::endl;
+    // the whole line is the bar: U+2588 FULL BLOCK for the filled part,
+    // spaces for the rest
+    const std::string full = "\xe2\x96\x88";
+    auto repeat = [](const std::string& s, size_t n) {
+        std::string r;
+        for (size_t i = 0; i < n; ++i) r += s;
+        return r;
+    };
+    assert(volumeLine(16, 0, false) == std::string(16, ' '));
+    assert(volumeLine(16, 45, false) == repeat(full, 7) + std::string(9, ' '));
+    assert(volumeLine(16, 100, false) == repeat(full, 16));
+    assert(volumeLine(16, 150, false) == volumeLine(16, 100, false));
+    assert(volumeLine(16, -5, false) == volumeLine(16, 0, false));
+    // a level above zero keeps a cell, so that the line is not mistaken for
+    // a line without the level
+    assert(volumeLine(16, 1, false) == full + std::string(15, ' '));
+    assert(volumeLine(16, 45, true) == "Muted" + std::string(11, ' '));
+    assert(volumeLine(4, 50, false) == repeat(full, 2) + std::string(2, ' '));
+    assert(volumeLine(0, 50, false).empty());
+    assert(utf8Length(volumeLine(5, 100, false)) == 5);
+
+    // it takes the last line of the screen for a second and then gives it back
+    auto recording = std::unique_ptr<RecordingDisplay>(new RecordingDisplay());
+    RecordingDisplay* shown = recording.get();
+    UIManager volumeUi(std::move(recording));
+    volumeUi.setScreen(std::make_shared<TextScreen>());
+    auto waitLine = [&](size_t row, const std::string& want) {
+        for (int i = 0; i < 40; ++i) {
+            if (shown->line(row) == want) return true;
+            std::this_thread::sleep_for(std::chrono::milliseconds(25));
+        }
+        return false;
+    };
+    assert(waitLine(1, "DLS text        "));
+    volumeUi.showVolume(45, false);
+    assert(waitLine(1, volumeLine(16, 45, false)));
+    std::this_thread::sleep_for(std::chrono::milliseconds(1100));
+    assert(waitLine(1, "DLS text        "));
+    volumeUi.showVolume(45, true);
+    assert(waitLine(1, volumeLine(16, 45, true)));
 
     std::cout << "All Navigation Stack Tests PASSED successfully!" << std::endl;
     return 0;

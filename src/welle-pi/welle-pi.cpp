@@ -1195,6 +1195,7 @@ int main(int argc, char **argv)
             const int level = action == InputAction::VOLUME_UP ? volume.up() : volume.down();
             if (level >= 0) {
                 cerr << "Volume: " << level << " %" << endl;
+                uiManager.showVolume(level, false);
             } else if (!volume_error_reported) {
                 /* the key arrived, the mixer did not: the start of this log
                  * says which device and element were taken */
@@ -1207,6 +1208,7 @@ int main(int argc, char **argv)
             const int muted = volume.toggleMute();
             if (muted >= 0) {
                 cerr << (muted ? "Muted" : "Unmuted") << endl;
+                uiManager.showVolume(volume.percent(), muted != 0);
             }
             continue;
         }

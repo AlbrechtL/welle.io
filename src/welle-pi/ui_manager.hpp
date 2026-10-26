@@ -30,6 +30,7 @@
 #include <memory>
 #include <mutex>
 #include <condition_variable>
+#include <string>
 #include <thread>
 #include <atomic>
 #include <vector>
@@ -54,6 +55,10 @@ public:
 
     void processInput(InputAction action);
 
+    // The volume keys: the last line shows the level for a moment (a second
+    // after the last key), then the screen has its line back
+    void showVolume(int percent, bool muted);
+
 private:
     void run();
     void watchdogRun();
@@ -63,10 +68,19 @@ private:
     std::atomic<bool> m_exit;
     std::atomic<bool> m_screenChanged;  // render now, not at the next tick
     std::atomic<uint64_t> m_lastInputTime;
+    // The volume keys: the level on the last line until this time
+    std::atomic<int> m_volumePercent{-1};
+    std::atomic<bool> m_volumeMuted{false};
+    std::atomic<uint64_t> m_volumeUntil{0};
     std::mutex m_mutex;
     std::condition_variable m_cond;
     std::thread m_thread;
     std::thread m_watchdogThread;
 };
+
+/* The line the volume keys put over the last line of the screen: a bar of
+ * block characters as wide as the screen, or "Muted"; exactly cols code
+ * points. */
+std::string volumeLine(int cols, int percent, bool muted);
 
 #endif // UI_MANAGER_HPP

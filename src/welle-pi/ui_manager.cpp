@@ -25,9 +25,39 @@
 #include "ui_manager.hpp"
 #include "utils.hpp"
 
+#include <algorithm>
+
 /* Screens animate (DLS marquee) from Frame::now: the tick only has to be
  * finer than their steps. */
 static const auto TICK = std::chrono::milliseconds(50);
+
+/* The volume level stays on the last line for a second after the last key, so
+ * that it is there while the key repeats and goes away after */
+static const uint64_t VOLUME_MS = 1000;
+
+/* U+2588 FULL BLOCK: the filled part of the volume bar, the rest is empty */
+static const char* const BAR_FULL = "\xe2\x96\x88";
+
+std::string volumeLine(int cols, int percent, bool muted)
+{
+    if (cols <= 0) {
+        return std::string();
+    }
+    if (muted) {
+        return utf8Fit("Muted", (size_t)cols);
+    }
+    percent = std::max(0, std::min(100, percent));
+    /* the whole line is the bar; a level above zero keeps its cell */
+    size_t full = ((size_t)cols * (size_t)percent + 50) / 100;
+    if (percent > 0 && full == 0) {
+        full = 1;
+    }
+    std::string line;
+    for (size_t i = 0; i < (size_t)cols; ++i) {
+        line += i < full ? BAR_FULL : " ";
+    }
+    return line;
+}
 
 UIManager::UIManager(std::unique_ptr<IDisplay> display)
     : m_display(std::move(display)), m_exit(false), m_screenChanged(false), m_lastInputTime(now_ms())
@@ -144,6 +174,14 @@ void UIManager::processInput(InputAction action) {
     }
 }
 
+void UIManager::showVolume(int percent, bool muted) {
+    m_volumePercent = percent;
+    m_volumeMuted = muted;
+    m_volumeUntil = now_ms() + VOLUME_MS;
+    m_screenChanged = true;
+    m_cond.notify_one();
+}
+
 void UIManager::run() {
     while (!m_exit) {
         std::shared_ptr<UIScreen> screen;
@@ -157,6 +195,11 @@ void UIManager::run() {
         if (screen) {
             Frame frame(m_display->cols(), m_display->rows(), now_ms());
             screen->render(frame);
+            /* the volume level takes the last line of whatever is on top */
+            if (frame.now < m_volumeUntil) {
+                frame.set(frame.rows - 1,
+                          volumeLine(frame.cols, m_volumePercent, m_volumeMuted));
+            }
             for (auto& line : frame.lines) {
                 line = utf8Fit(line, frame.cols);
             }
