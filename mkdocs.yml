@@ -138,6 +138,7 @@ nav:
           - Coherent demodulation: development/coherent-demodulation.md
           - welle-pi input sources: development/welle-pi-input.md
           - welle-pi displays: development/welle-pi-display.md
+          - welle-pi volume: development/welle-pi-volume.md
   - About:
       - About welle.io: info.md
       - Contact: contact.md

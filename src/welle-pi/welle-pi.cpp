@@ -74,6 +74,7 @@
 #include "ui_manager.hpp"
 #include "tty_display.hpp"
 #include "plugin_display.hpp"
+#include "volume.hpp"
 #include "utils.hpp"
 
 #ifdef GITDESCRIBE
@@ -172,6 +173,28 @@ static unique_ptr<IDisplay> makeDisplay(const nlohmann::json& cfg)
     const bool tty = isatty(STDOUT_FILENO);
     cerr << (tty ? "Showing the display on the terminal" : "No display") << endl;
     return make_unique<TtyDisplay>(TTY_COLS, TTY_ROWS, tty ? stdout : nullptr);
+}
+
+/* "volume" of welle-pi.json: {"element": "<mixer element>", "step": <percent
+ * per key press>} - both optional: the first element of the device that has a
+ * playback volume, and VolumeControl::STEP percent. */
+struct VolumeSettings {
+    string element;
+    int step = VolumeControl::STEP;
+};
+
+static VolumeSettings readVolumeSettings(const nlohmann::json& cfg)
+{
+    VolumeSettings volume;
+    if (cfg.is_object()) {
+        try {
+            volume.element = cfg.value("element", string());
+            volume.step = cfg.value("step", VolumeControl::STEP);
+        } catch (const nlohmann::json::exception& e) {
+            cerr << "welle-pi.json: volume: " << e.what() << endl;
+        }
+    }
+    return volume;
 }
 
 class AlsaProgrammeHandler: public ProgrammeHandlerInterface {
@@ -986,6 +1009,10 @@ int main(int argc, char **argv)
 
     // before rx: destroyed after it, its decoder thread still delivers audio
     AlsaProgrammeHandler ph(&radio, options.pcm);
+    const VolumeSettings volume_settings =
+            readVolumeSettings(settings.value("volume", nlohmann::json()));
+    VolumeControl volume(options.pcm, volume_settings.element, volume_settings.step);
+    bool volume_error_reported = false;
     RadioReceiver rx(ri, *in, options.rro);
 
     int current_station_idx = -1;
@@ -1163,6 +1190,25 @@ int main(int argc, char **argv)
         if (action == InputAction::QUIT) {
             quit_requested = 1;
             break;
+        }
+        if (action == InputAction::VOLUME_UP or action == InputAction::VOLUME_DOWN) {
+            const int level = action == InputAction::VOLUME_UP ? volume.up() : volume.down();
+            if (level >= 0) {
+                cerr << "Volume: " << level << " %" << endl;
+            } else if (!volume_error_reported) {
+                /* the key arrived, the mixer did not: the start of this log
+                 * says which device and element were taken */
+                cerr << "volume: the mixer did not change, see the start of this log" << endl;
+                volume_error_reported = true;
+            }
+            continue;
+        }
+        if (action == InputAction::MUTE) {
+            const int muted = volume.toggleMute();
+            if (muted >= 0) {
+                cerr << (muted ? "Muted" : "Unmuted") << endl;
+            }
+            continue;
         }
         if (action != InputAction::NONE) {
             uiManager.processInput(action);
