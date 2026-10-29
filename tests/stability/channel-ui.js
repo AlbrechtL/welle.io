@@ -21,7 +21,7 @@ for (const selectable of [false, true]) {
    }
   };
  }
- const c=vm.createContext({window:{},document:{getElementById:element,getElementsByClassName:id=>[element(id)],createElement:()=>({})},XMLHttpRequest:XHR,setInterval:()=>1});
+ const c=vm.createContext({window:{addEventListener(){}},document:{getElementById:element,getElementsByClassName:id=>[element(id)],createElement:()=>({})},XMLHttpRequest:XHR,setInterval:()=>1});
  vm.runInContext(source,c);c.window.onload();
  assert.equal(requests.filter(r=>r.method==='POST').length,0);
  if (selectable) {

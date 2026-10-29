@@ -9,7 +9,7 @@ function element(id) {
     return elements.get(id);
 }
 const context = vm.createContext({
-    window: {},
+    window: {addEventListener() {}},
     document: {getElementById: element, getElementsByClassName: id => [element(id)]},
     setInterval() { return 1; },
 });
