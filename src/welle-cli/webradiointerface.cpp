@@ -25,6 +25,7 @@
 
 #include "welle-cli/webradiointerface.h"
 #include <algorithm>
+#include <cctype>
 #include <cmath>
 #include <complex>
 #include <cstdio>
@@ -91,7 +92,6 @@ static const char* http_400 = "HTTP/1.0 400 Bad Request\r\n";
 static const char* http_404 = "HTTP/1.0 404 Not Found\r\n";
 static const char* http_405 = "HTTP/1.0 405 Method Not Allowed\r\n";
 static const char* http_500 = "HTTP/1.0 500 Internal Server Error\r\n";
-static const char* http_503 = "HTTP/1.0 503 Service Unavailable\r\n";
 static const char* http_contenttype_mp3 = "Content-Type: audio/mpeg\r\n";
 static const char* http_contenttype_flac = "Content-Type: audio/flac\r\n";
 static const char* http_contenttype_m3u = "Content-Type: application/mpegurl\r\n";
@@ -129,7 +129,7 @@ static bool send_http_response(Socket& s, const string& statuscode,
     headers += http_nocache;
     headers += "\r\n";
     headers += data;
-    ssize_t ret = s.send(headers.data(), headers.size(), MSG_NOSIGNAL);
+    ssize_t ret = s.sendAll(headers.data(), headers.size(), MSG_NOSIGNAL);
     if (ret == -1) {
         cerr << "Failed to send response " << statuscode << " " << data << endl;
     }
@@ -139,12 +139,14 @@ static bool send_http_response(Socket& s, const string& statuscode,
 WebRadioInterface::WebRadioInterface(CVirtualInput& in,
         int port,
         DecodeSettings ds,
-        RadioReceiverOptions rro) :
+        RadioReceiverOptions rro,
+        bool show_channel_selector) :
     dabparams(1),
     input(in),
     spectrum_fft_handler(dabparams.T_u),
     rro(rro),
-    decode_settings(ds)
+    decode_settings(ds),
+    show_channel_selector(show_channel_selector)
 {
     {
         // Ensure that rx always exists when rx_mut is free!
@@ -205,12 +207,12 @@ void WebRadioInterface::check_decoders_required()
                 const bool require =
                     rx->serviceHasAudioComponent(s) and
                     (decode_settings.strategy == DecodeStrategy::All or
-                     phs.at(sid).needsToBeDecoded() or
+                     phs.at(sid)->needsToBeDecoded() or
                      is_active);
                 const bool is_decoded = programmes_being_decoded[sid];
 
                 if (require and not is_decoded) {
-                    bool success = rx->addServiceToDecode(phs.at(sid), "", s);
+                    bool success = rx->addServiceToDecode(*phs.at(sid), "", s);
 
                     if (success) {
                         programmes_being_decoded[sid] = success;
@@ -239,6 +241,7 @@ void WebRadioInterface::check_decoders_required()
         }
     }
     catch (const TuneFailed&) {
+        for (auto& entry : phs) entry.second->cancelAll();
         rx->restart_decoder();
         phs.clear();
         programmes_being_decoded.clear();
@@ -311,55 +314,36 @@ void WebRadioInterface::retune(const string& channel)
     }
 }
 
-static string recv_line(Socket& s) {
-    string line;
-    bool cr_seen = false;
-
-    while (true) {
-        char c = 0;
-        ssize_t ret = s.recv(&c, 1, 0);
-        if (ret == 0) {
-            return "";
-        }
-        else if (ret == -1) {
-            string errstr = strerror(errno);
-            cerr << "recv error " << errstr << endl;
-            return "";
-        }
-
-        line += c;
-
-        if (c == '\r') {
-            cr_seen = true;
-        }
-        else if (cr_seen and c == '\n') {
-            return line;
-        }
-    }
+static int remaining_ms(chrono::steady_clock::time_point deadline)
+{
+    return static_cast<int>(max<int64_t>(0, chrono::duration_cast<chrono::milliseconds>(deadline - chrono::steady_clock::now()).count()));
 }
 
-static vector<char> recv_exactly(Socket& s, size_t num_bytes)
+static string recv_line(Socket& s, chrono::steady_clock::time_point deadline)
+{
+    string line;
+    while (line.size() < 8192) {
+        const int remaining = remaining_ms(deadline);
+        if (!remaining || !s.waitReadable(remaining)) return "";
+        char c;
+        if (s.recv(&c, 1, 0) != 1) return "";
+        line += c;
+        if (line.size() >= 2 && line.compare(line.size() - 2, 2, "\r\n") == 0) return line;
+    }
+    return "";
+}
+
+static vector<char> recv_exactly(Socket& s, size_t num_bytes, chrono::steady_clock::time_point deadline)
 {
     vector<char> buf(num_bytes);
     size_t rx = 0;
-
     while (rx < num_bytes) {
-        const size_t remain = num_bytes - rx;
-        ssize_t ret = s.recv(buf.data() + rx, remain, 0);
-
-        if (ret == 0) {
-            break;
-        }
-        else if (ret == -1) {
-            string errstr = strerror(errno);
-            cerr << "recv error " << errstr << endl;
-            return {};
-        }
-        else {
-            rx += ret;
-        }
+        const int remaining = remaining_ms(deadline);
+        if (!remaining || !s.waitReadable(remaining)) return {};
+        const auto n = s.recv(buf.data() + rx, num_bytes - rx, 0);
+        if (n <= 0) return {};
+        rx += n;
     }
-
     return buf;
 }
 
@@ -389,66 +373,77 @@ struct http_request_t {
 
 static http_request_t parse_http_headers(Socket& s) {
     http_request_t r;
-
-    const auto first_line = recv_line(s);
+    const auto deadline = chrono::steady_clock::now() + chrono::seconds(5);
+    const auto first_line = recv_line(s, deadline);
     const auto request_type = split(first_line);
-
-    if (request_type.size() != 3) {
-        cerr << "Malformed request: " << first_line << endl;
-        return r;
+    if (request_type.size() != 3) return r;
+    r.is_get = request_type[0] == "GET";
+    r.is_post = request_type[0] == "POST";
+    if (!r.is_get && !r.is_post) return r;
+    // Dispatch on the path only. In particular, the SLS cachebreak query
+    // is not part of the service identifier checked by parse_service_id.
+    r.url = request_type[1].substr(0, request_type[1].find('?'));
+    size_t total = first_line.size();
+    for (size_t count = 0; ; ++count) {
+        if (count >= 100) return r;
+        const string line = recv_line(s, deadline);
+        total += line.size();
+        if (line.empty() || total > 32768) return r;
+        if (line == "\r\n") break;
+        const auto colon = line.find(':');
+        if (colon == string::npos || colon == 0) return r;
+        string key = line.substr(0, colon);
+        transform(key.begin(), key.end(), key.begin(), [](unsigned char c) { return tolower(c); });
+        string value = line.substr(colon + 1, line.size() - colon - 3);
+        const auto first = value.find_first_not_of(" \t");
+        value = first == string::npos ? "" : value.substr(first, value.find_last_not_of(" \t") - first + 1);
+        if (!r.headers.emplace(key, value).second) return r;
     }
-    else if (request_type[0] == "GET") {
-        r.is_get = true;
-    }
-    else if (request_type[0] == "POST") {
-        r.is_post = true;
-    }
-    else {
-        return r;
-    }
-
-    r.url = request_type[1];
-
-    while (true) {
-        string header_line = recv_line(s);
-
-        if (header_line == "\r\n") {
-            break;
-        }
-
-        const auto header = split(header_line, ':');
-
-        if (header.size() == 2) {
-            r.headers.emplace(header[0], header[1]);
-        }
-    }
-
+    // Chunked request bodies are not supported by this server.
+    if (r.headers.count("transfer-encoding")) return r;
     if (r.is_post) {
-        constexpr auto CL = "Content-Length";
-        if (r.headers.count(CL) == 1) {
-            try {
-                const int content_length = stoi(r.headers[CL]);
-                if (content_length > 1024 * 1024) {
-                    cerr << "Unreasonable POST Content-Length: " << content_length << endl;
-                    return r;
-                }
-
-                const auto buf = recv_exactly(s, content_length);
-                r.post_data = string(buf.begin(), buf.end());
-            }
-            catch (const invalid_argument&) {
-                cerr << "Cannot parse POST Content-Length: " << r.headers[CL] << endl;
-                return r;
-            }
-            catch (const out_of_range&) {
-                cerr << "Cannot represent POST Content-Length: " << r.headers[CL] << endl;
-                return r;
-            }
+        const auto it = r.headers.find("content-length");
+        if (it == r.headers.end() || it->second.empty()) return r;
+        size_t length = 0;
+        for (unsigned char c : it->second) {
+            if (c < '0' || c > '9') return r;
+            const size_t digit = c - '0';
+            if (length > (1024 * 1024 - digit) / 10) return r;
+            length = length * 10 + digit;
         }
+        const auto buf = recv_exactly(s, length, deadline);
+        if (buf.size() != length) return r;
+        r.post_data.assign(buf.begin(), buf.end());
     }
-
     r.valid = true;
     return r;
+}
+
+// Generated URLs use four-digit hex. Explicit 0x/0d prefixes remove
+// ambiguity; longer all-digit legacy identifiers remain decimal.
+static bool parse_service_id(const string& value, uint32_t& sid)
+{
+    if (value.empty() || value.size() > 12) return false;
+    string digits = value;
+    int base = 10;
+    if (digits.compare(0, 2, "0x") == 0 || digits.compare(0, 2, "0X") == 0) {
+        base = 16; digits.erase(0, 2);
+    }
+    else if (digits.size() == 4) base = 16;
+    else if (digits.compare(0, 2, "0d") == 0) digits.erase(0, 2);
+    else if (digits.find_first_of("abcdefABCDEF") != string::npos) base = 16;
+    if (digits.empty()) return false;
+    uint64_t n = 0;
+    for (unsigned char c : digits) {
+        int digit = c >= '0' && c <= '9' ? c - '0' :
+            c >= 'a' && c <= 'f' ? c - 'a' + 10 :
+            c >= 'A' && c <= 'F' ? c - 'A' + 10 : 99;
+        if (digit >= base) return false;
+        n = n * base + digit;
+        if (n > UINT32_MAX) return false;
+    }
+    sid = static_cast<uint32_t>(n);
+    return true;
 }
 
 bool WebRadioInterface::dispatch_client(Socket&& client)
@@ -470,7 +465,15 @@ bool WebRadioInterface::dispatch_client(Socket&& client)
     else {
         if (req.is_get) {
             if (req.url == "/") {
-                success = send_file(s, index_html, index_html_len, http_contenttype_html);
+                string html(reinterpret_cast<const char*>(index_html), index_html_len);
+                const string marker = "<!-- channel-control -->";
+                const auto position = html.find(marker);
+                if (position == string::npos) throw logic_error("Missing channel control placeholder");
+                html.replace(position, marker.size(), show_channel_selector ?
+                        "<select id=\"channelselector\" name=\"channel\"></select>" :
+                        "<span id=\"channelvalue\"></span>");
+                success = send_file(s, reinterpret_cast<const unsigned char*>(html.data()),
+                        html.size(), http_contenttype_html);
             }
             else if (req.url == "/index.js") {
                 success = send_file(s, index_js, index_js_len, http_contenttype_js);
@@ -585,7 +588,7 @@ bool WebRadioInterface::send_file(Socket& s,
     }
 
     ssize_t ret = 0;
-    ret = s.send((void*)file, file_length, MSG_NOSIGNAL);
+    ret = s.sendAll((void*)file, file_length, MSG_NOSIGNAL);
     if (ret == -1) {
         cerr << "Failed to send file data" << endl;
         return false;
@@ -709,7 +712,7 @@ bool WebRadioInterface::send_mux_json(Socket& s)
             }
 
             try {
-                const auto& wph = phs.at(s.serviceId);
+                const auto& wph = *phs.at(s.serviceId);
                 const auto al = wph.getAudioLevels();
                 service.audiolevel_present = true;
                 service.audiolevel_time = chrono::system_clock::to_time_t(al.time);
@@ -717,8 +720,9 @@ bool WebRadioInterface::send_mux_json(Socket& s)
                 service.audiolevel_right = al.last_audioLevel_R;
 
                 service.channels = 2;
-                service.samplerate = wph.rate;
-                service.mode = wph.mode;
+                const auto format = wph.getAudioFormat();
+                service.samplerate = format.first;
+                service.mode = format.second;
 
                 auto mot = wph.getMOT();
                 service.mot_time = chrono::system_clock::to_time_t(mot.time);
@@ -811,7 +815,7 @@ bool WebRadioInterface::send_mux_json(Socket& s)
 
     const auto json_str = build_mux_json(mux_json);
 
-    ssize_t ret = s.send(json_str.c_str(), json_str.size(), MSG_NOSIGNAL);
+    ssize_t ret = s.sendAll(json_str.c_str(), json_str.size(), MSG_NOSIGNAL);
     if (ret == -1) {
         cerr << "Failed to send mux.json data" << endl;
         return false;
@@ -858,7 +862,7 @@ bool WebRadioInterface::send_mux_playlist(Socket& s)
     }
 
     const auto m3u_str = m3u.str();
-    ssize_t ret = s.send(m3u_str.c_str(), m3u_str.size(), MSG_NOSIGNAL);
+    ssize_t ret = s.sendAll(m3u_str.c_str(), m3u_str.size(), MSG_NOSIGNAL);
     if (ret == -1) {
         cerr << "Failed to send mux.m3u data" << endl;
         return false;
@@ -868,68 +872,52 @@ bool WebRadioInterface::send_mux_playlist(Socket& s)
 
 bool WebRadioInterface::send_stream(Socket& s, const string& stream)
 {
-    unique_lock<mutex> lock(rx_mut);
-    ASSERT_RX;
-
-    for (const auto& srv : rx->getServiceList()) {
-        if (rx->serviceHasAudioComponent(srv) and
-                (to_hex(srv.serviceId, 4) == stream or
-                (uint32_t)stoul(stream) == srv.serviceId)) {
-            try {
-                auto& ph = phs.at(srv.serviceId);
-
-                lock.unlock();
-
-                string http_contenttype;
-
-                switch (decode_settings.outputCodec)
-                {
-                case OutputCodec::FLAC:
-                    http_contenttype = http_contenttype_flac;
-                    break;
-                case OutputCodec::MP3:
-                    http_contenttype = http_contenttype_mp3;
-                    break;
-                default:
-                    break;
-                }
-
-                if (not send_http_response(s, http_ok, "", http_contenttype)) {
-                    cerr << "Failed to send mp3 headers" << endl;
-                    return false;
-                }
-
-                ProgrammeSender sender(move(s));
-
-                cerr << "Registering mp3 sender" << endl;
-                ph.registerSender(&sender);
-                check_decoders_required();
-                sender.wait_for_termination();
-
-                cerr << "Removing mp3 sender" << endl;
-                ph.removeSender(&sender);
-                check_decoders_required();
-
-                return true;
-            }
-            catch (const out_of_range& e) {
-                cerr << "Could not setup mp3 sender for " <<
-                    srv.serviceId << ": " << e.what() << endl;
-
-                send_http_response(s, http_503, e.what());
-                return false;
-            }
+    uint32_t sid;
+    if (!parse_service_id(stream, sid)) return send_http_response(s, http_400, "Invalid service identifier");
+    shared_ptr<WebProgrammeHandler> ph;
+    {
+        unique_lock<mutex> lock(rx_mut);
+        ASSERT_RX;
+        const auto service = rx->getService(sid);
+        const auto it = phs.find(sid);
+        if (it == phs.end() || !rx->serviceHasAudioComponent(service)) {
+            lock.unlock();
+            return send_http_response(s, http_404, "Service unavailable");
         }
+        ph = it->second;
     }
-    return false;
+    const auto content_type = decode_settings.outputCodec == OutputCodec::FLAC ? http_contenttype_flac : http_contenttype_mp3;
+    if (!send_http_response(s, http_ok, "", content_type)) return false;
+    ProgrammeSender sender(move(s));
+    {
+        lock_guard<mutex> lock(rx_mut);
+        // Retune/recovery may have replaced the handler while headers were sent.
+        const auto it = phs.find(sid);
+        if (serverStopping || !running || it == phs.end() || it->second != ph) return false;
+        ph->registerSender(&sender);
+    }
+    try {
+        check_decoders_required();
+        sender.wait_for_termination();
+    }
+    catch (...) {
+        ph->removeSender(&sender);
+        throw;
+    }
+    ph->removeSender(&sender);
+    if (!serverStopping) check_decoders_required();
+    return true;
 }
 
 bool WebRadioInterface::send_slide(Socket& s, const string& stream)
 {
+    uint32_t sid;
+    if (!parse_service_id(stream, sid)) return send_http_response(s, http_400, "Invalid service identifier");
+    unique_lock<mutex> lock(rx_mut);
     for (const auto& wph : phs) {
-        if (to_hex(wph.first, 4) == stream or
-                (uint32_t)stoul(stream) == wph.first) {
-            const auto mot = wph.second.getMOT();
+        if (wph.first == sid) {
+            const auto mot = wph.second->getMOT();
+            lock.unlock();
 
             if (mot.data.empty()) {
                 send_http_response(s, http_404, "404 Not Found\r\nSlide not available.\r\n");
@@ -962,9 +950,9 @@ bool WebRadioInterface::send_slide(Socket& s, const string& stream)
 
             headers << "\r\n";
             const auto headers_str = headers.str();
-            int ret = s.send(headers_str.data(), headers_str.size(), MSG_NOSIGNAL);
+            int ret = s.sendAll(headers_str.data(), headers_str.size(), MSG_NOSIGNAL);
             if (ret == (ssize_t)headers_str.size()) {
-                ret = s.send(mot.data.data(), mot.data.size(), MSG_NOSIGNAL);
+                ret = s.sendAll(mot.data.data(), mot.data.size(), MSG_NOSIGNAL);
             }
 
             if (ret == -1) {
@@ -984,19 +972,19 @@ bool WebRadioInterface::send_fic(Socket& s)
         return false;
     }
 
-    while (true) {
-        unique_lock<mutex> lock(fib_mut);
-        while (fib_blocks.empty()) {
-            new_fib_block_available.wait_for(lock, chrono::seconds(1));
+    while (!serverStopping && !s.peerClosed()) {
+        vector<uint8_t> block;
+        {
+            unique_lock<mutex> lock(fib_mut);
+            new_fib_block_available.wait_for(lock, chrono::milliseconds(200), [&] {
+                return serverStopping || !fib_blocks.empty();
+            });
+            if (serverStopping) break;
+            if (fib_blocks.empty()) continue;
+            block = move(fib_blocks.front());
+            fib_blocks.pop_front();
         }
-        ssize_t ret = s.send(fib_blocks.front().data(),
-                fib_blocks.front().size(), MSG_NOSIGNAL);
-        if (ret == -1) {
-            cerr << "Failed to send FIC data" << endl;
-            return false;
-        }
-
-        fib_blocks.pop_front();
+        if (s.sendAll(block.data(), block.size(), MSG_NOSIGNAL) < 0) return false;
     }
     return true;
 }
@@ -1014,7 +1002,7 @@ bool WebRadioInterface::send_impulseresponse(Socket& s)
             [](float y) { return 10.0f * log10(y); });
 
     size_t lengthBytes = cir_db.size() * sizeof(float);
-    ssize_t ret = s.send(cir_db.data(), lengthBytes, MSG_NOSIGNAL);
+    ssize_t ret = s.sendAll(cir_db.data(), lengthBytes, MSG_NOSIGNAL);
     if (ret == -1) {
         cerr << "Failed to send CIR data" << endl;
         return false;
@@ -1042,7 +1030,7 @@ static bool send_fft_data(Socket& s, DSPCOMPLEX *spectrumBuffer, size_t T_u)
     }
 
     size_t lengthBytes = spectrum.size() * sizeof(float);
-    ssize_t ret = s.send(spectrum.data(), lengthBytes, MSG_NOSIGNAL);
+    ssize_t ret = s.sendAll(spectrum.data(), lengthBytes, MSG_NOSIGNAL);
     if (ret == -1) {
         cerr << "Failed to send spectrum data" << endl;
         return false;
@@ -1111,7 +1099,7 @@ bool WebRadioInterface::send_constellation(Socket& s)
         }
 
         size_t lengthBytes = phases.size() * sizeof(float);
-        ssize_t ret = s.send(phases.data(), lengthBytes, MSG_NOSIGNAL);
+        ssize_t ret = s.sendAll(phases.data(), lengthBytes, MSG_NOSIGNAL);
         if (ret == -1) {
             cerr << "Failed to send constellation data" << endl;
             return false;
@@ -1135,7 +1123,7 @@ bool WebRadioInterface::send_channel(Socket& s)
         response += http_nocache;
         response += "\r\n";
         response += chan;
-        ssize_t ret = s.send(response.data(), response.size(), MSG_NOSIGNAL);
+        ssize_t ret = s.sendAll(response.data(), response.size(), MSG_NOSIGNAL);
         if (ret == -1) {
             cerr << "Failed to send frequency" << endl;
             return false;
@@ -1148,7 +1136,7 @@ bool WebRadioInterface::send_channel(Socket& s)
         response += "\r\n";
         response += "Error: ";
         response += e.what();
-        ssize_t ret = s.send(response.data(), response.size(), MSG_NOSIGNAL);
+        ssize_t ret = s.sendAll(response.data(), response.size(), MSG_NOSIGNAL);
         if (ret == -1) {
             cerr << "Failed to send frequency 500" << endl;
             return false;
@@ -1176,7 +1164,7 @@ bool WebRadioInterface::handle_fft_window_placement_post(Socket& s, const string
         response += http_nocache;
         response += "\r\n";
         response += "Invalid FFT Window Placement requested.";
-        ssize_t ret = s.send(response.data(), response.size(), MSG_NOSIGNAL);
+        ssize_t ret = s.sendAll(response.data(), response.size(), MSG_NOSIGNAL);
         if (ret == -1) {
             cerr << "Failed to send frequency" << endl;
             return false;
@@ -1195,7 +1183,7 @@ bool WebRadioInterface::handle_fft_window_placement_post(Socket& s, const string
     response += http_nocache;
     response += "\r\n";
     response += "Switched FFT Window Placement.";
-    ssize_t ret = s.send(response.data(), response.size(), MSG_NOSIGNAL);
+    ssize_t ret = s.sendAll(response.data(), response.size(), MSG_NOSIGNAL);
     if (ret == -1) {
         cerr << "Failed to send frequency" << endl;
         return false;
@@ -1219,7 +1207,7 @@ bool WebRadioInterface::handle_coarse_corrector_post(Socket& s, const string& co
         response += http_nocache;
         response += "\r\n";
         response += "Invalid coarse corrector selected";
-        ssize_t ret = s.send(response.data(), response.size(), MSG_NOSIGNAL);
+        ssize_t ret = s.sendAll(response.data(), response.size(), MSG_NOSIGNAL);
         if (ret == -1) {
             cerr << "Failed to set response" << endl;
             return false;
@@ -1238,7 +1226,7 @@ bool WebRadioInterface::handle_coarse_corrector_post(Socket& s, const string& co
     response += http_nocache;
     response += "\r\n";
     response += "Switched Coarse corrector.";
-    ssize_t ret = s.send(response.data(), response.size(), MSG_NOSIGNAL);
+    ssize_t ret = s.sendAll(response.data(), response.size(), MSG_NOSIGNAL);
     if (ret == -1) {
         cerr << "Failed to send coarse switch confirmation" << endl;
         return false;
@@ -1257,7 +1245,7 @@ bool WebRadioInterface::handle_channel_post(Socket& s, const string& channel)
     response += http_nocache;
     response += "\r\n";
     response += "Retuning...";
-    ssize_t ret = s.send(response.data(), response.size(), MSG_NOSIGNAL);
+    ssize_t ret = s.sendAll(response.data(), response.size(), MSG_NOSIGNAL);
     if (ret == -1) {
         cerr << "Failed to send frequency" << endl;
         return false;
@@ -1289,8 +1277,7 @@ void WebRadioInterface::handle_phs()
             }
 
             if (phs.count(s.serviceId) == 0) {
-                WebProgrammeHandler ph(s.serviceId, decode_settings.outputCodec);
-                phs.emplace(make_pair(s.serviceId, move(ph)));
+                phs.emplace(s.serviceId, make_shared<WebProgrammeHandler>(s.serviceId, decode_settings.outputCodec));
             }
         }
 
@@ -1342,8 +1329,8 @@ void WebRadioInterface::handle_phs()
                         // Switch to next programme once both DLS and Slideshow
                         // got decoded, but at most after 80 seconds
                         const auto now = system_clock::now();
-                        const auto mot = current_it->second.getMOT();
-                        const auto dls = current_it->second.getDLS();
+                        const auto mot = current_it->second->getMOT();
+                        const auto dls = current_it->second->getDLS();
                         // Slide and DLS received in the last 60 seconds?
                         const bool switchBecausePAD = (
                                 now - mot.time < seconds(60) and
@@ -1381,7 +1368,7 @@ void WebRadioInterface::handle_phs()
     {
         lock_guard<mutex> lock(rx_mut);
         for (auto& ph : phs) {
-            ph.second.cancelAll();
+            ph.second->cancelAll();
 
             const auto srv = rx->getService(ph.first);
             if (srv.serviceId != 0) {
@@ -1407,7 +1394,7 @@ static void handler(int /*signum*/)
 const int sig_caught = 0;
 #endif
 
-void WebRadioInterface::serve()
+int WebRadioInterface::serve()
 {
     deque<future<bool> > running_connections;
 
@@ -1415,58 +1402,49 @@ void WebRadioInterface::serve()
     struct sigaction sa = {};
     sa.sa_handler = handler;
     sigemptyset(&sa.sa_mask);
+    sigaction(SIGTERM, &sa, NULL);
     if (sigaction(SIGINT, &sa, NULL) == -1) {
         cerr << "Failed to set up signal handler" << endl;
     }
 #endif
 
-    while (sig_caught == 0) {
+    if (!serverSocket.setNonBlocking()) throw runtime_error("Cannot configure HTTP listener");
+    const auto reap = [&] {
+        for (auto it = running_connections.begin(); it != running_connections.end();) {
+            if (it->wait_for(chrono::milliseconds(0)) == future_status::ready) {
+                try { it->get(); }
+                catch (const exception& e) { cerr << "HTTP worker failed: " << e.what() << endl; }
+                catch (...) { cerr << "HTTP worker failed" << endl; }
+                it = running_connections.erase(it);
+            }
+            else ++it;
+        }
+    };
+    while (sig_caught == 0 && !serverStopping) {
+        reap();
+        if (!serverSocket.waitReadable(100)) continue;
         auto client = serverSocket.accept();
-
-        running_connections.push_back(async(launch::async,
-                    &WebRadioInterface::dispatch_client, this, move(client)));
-
-        deque<future<bool> > still_running_connections;
-        for (auto& fut : running_connections) {
-            if (fut.valid()) {
-                switch (fut.wait_for(chrono::milliseconds(1))) {
-                    case future_status::deferred:
-                    case future_status::timeout:
-                        still_running_connections.push_back(move(fut));
-                        break;
-                    case future_status::ready:
-                        fut.get();
-                        break;
-                }
-            }
+        if (!client.valid() || !client.setNonBlocking()) continue;
+        if (running_connections.size() >= 64) continue;
+        try {
+            running_connections.push_back(async(launch::async,
+                [this](Socket client) {
+                    try { return dispatch_client(move(client)); }
+                    catch (const exception& e) { cerr << "HTTP request failed: " << e.what() << endl; }
+                    catch (...) { cerr << "HTTP request failed" << endl; }
+                    return false;
+                }, move(client)));
         }
-        running_connections = move(still_running_connections);
+        catch (const exception& e) { cerr << "HTTP admission failed: " << e.what() << endl; }
     }
-
-    cerr << "SERVE No more connections running" << endl;
-
+    serverStopping = true;
+    serverSocket.close();
     running = false;
-    if (programme_handler_thread.joinable()) {
-        programme_handler_thread.join();
-    }
-
-    cerr << "SERVE Wait for all futures to clear" << endl;
-    while (running_connections.size() > 0) {
-        deque<future<bool> > still_running_connections;
-        for (auto& fut : running_connections) {
-            if (fut.valid()) {
-                switch (fut.wait_for(chrono::milliseconds(1))) {
-                    case future_status::deferred:
-                    case future_status::timeout:
-                        still_running_connections.push_back(move(fut));
-                        break;
-                    case future_status::ready:
-                        fut.get();
-                        break;
-                }
-            }
-        }
-        running_connections = move(still_running_connections);
+    new_fib_block_available.notify_all();
+    if (programme_handler_thread.joinable()) programme_handler_thread.join();
+    while (!running_connections.empty()) {
+        reap();
+        this_thread::sleep_for(chrono::milliseconds(10));
     }
 
     cerr << "SERVE clear remaining data structures" << endl;
@@ -1474,6 +1452,7 @@ void WebRadioInterface::serve()
     programmes_being_decoded.clear();
     carousel_services_available.clear();
     carousel_services_active.clear();
+    return inputFailed ? 1 : 0;
 }
 
 void WebRadioInterface::onSNR(float snr)
@@ -1586,7 +1565,9 @@ void WebRadioInterface::onTIIMeasurement(tii_measurement_t&& m)
 
 void WebRadioInterface::onInputFailure()
 {
-    exit(1);
+    cerr << "Input failed; stopping receiver cleanly" << endl;
+    inputFailed = true;
+    serverStopping = true;
 }
 
 list<tii_measurement_t> WebRadioInterface::getTiiStats()

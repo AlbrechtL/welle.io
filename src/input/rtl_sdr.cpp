@@ -376,16 +376,13 @@ void CRTL_SDR::rtlsdr_read_callback(uint8_t* buf, uint32_t len, void* ctx)
         rtlsdr->putIntoRecordBuffer(*buf, len);
 
         // Check if device is overloaded
-        rtlsdr->minAmplitude = 255;
-        rtlsdr->maxAmplitude = 0;
-
-        for (uint32_t i=0;i<len;i++) {
-            if (rtlsdr->minAmplitude > buf[i])
-                rtlsdr->minAmplitude = buf[i];
-
-            if (rtlsdr->maxAmplitude < buf[i])
-                rtlsdr->maxAmplitude = buf[i];
+        uint8_t minAmplitude = 255, maxAmplitude = 0;
+        for (uint32_t i = 0; i < len; ++i) {
+            minAmplitude = std::min(minAmplitude, buf[i]);
+            maxAmplitude = std::max(maxAmplitude, buf[i]);
         }
+        rtlsdr->minAmplitude = minAmplitude;
+        rtlsdr->maxAmplitude = maxAmplitude;
     }
     else {
         std::clog << "RTL_SDR: " << "ERROR no ctx in RTLSDR callback" << std::endl;

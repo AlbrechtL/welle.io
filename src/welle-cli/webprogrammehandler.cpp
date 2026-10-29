@@ -159,59 +159,63 @@ ProgrammeSender::ProgrammeSender(Socket&& s) :
 {
 }
 
-ProgrammeSender::ProgrammeSender(ProgrammeSender&& other) :
-    s(move(other.s))
+bool ProgrammeSender::send_stream(const vector<uint8_t>& headerdata, const vector<uint8_t>& audio)
 {
-}
-
-ProgrammeSender& ProgrammeSender::operator=(ProgrammeSender&& other)
-{
-    s = move(other.s);
-    other.running = false;
-    return *this;
-}
-
-bool ProgrammeSender::send_stream(const std::vector<uint8_t>& headerdata, const std::vector<uint8_t>& mp3Data)
-{
-    if (not s.valid()) {
-        return false;
-    }
-
-    const int flags = MSG_NOSIGNAL;
-    ssize_t ret = 0;
-
-    if (!headerSent)
-    {
-        ret = s.send(headerdata.data(), headerdata.size(), flags);
-        headerSent = true;
-    }
-
-    ret = s.send(mp3Data.data(), mp3Data.size(), flags);
-
-    if (ret == -1) {
-        s.close();
-        std::unique_lock<std::mutex> lock(mutex);
+    unique_lock<std::mutex> lock(mutex);
+    if (!running) return false;
+    constexpr size_t maxQueuedBytes = 1024 * 1024;
+    const auto now = chrono::steady_clock::now();
+    const size_t headerBytes = headerSent ? 0 : headerdata.size();
+    if (headerBytes > maxQueuedBytes || audio.size() > maxQueuedBytes - headerBytes ||
+            pendingBytes > maxQueuedBytes - headerBytes - audio.size() ||
+            (!pending.empty() && now - pending.front().queued > chrono::seconds(5))) {
         running = false;
-        lock.unlock();
         cv.notify_all();
         return false;
     }
-
+    PendingAudio item;
+    item.queued = now;
+    item.bytes.reserve(headerBytes + audio.size());
+    if (!headerSent) item.bytes.insert(item.bytes.end(), headerdata.begin(), headerdata.end());
+    item.bytes.insert(item.bytes.end(), audio.begin(), audio.end());
+    if (item.bytes.empty()) return true;
+    pendingBytes += item.bytes.size();
+    pending.push_back(move(item));
+    headerSent = true;
+    lock.unlock();
+    cv.notify_one();
     return true;
 }
 
-void ProgrammeSender::wait_for_termination() const
+void ProgrammeSender::wait_for_termination()
 {
-    std::unique_lock<std::mutex> lock(mutex);
     while (running) {
-        cv.wait_for(lock, chrono::seconds(2));
+        if (s.peerClosed()) break;
+        PendingAudio item;
+        {
+            unique_lock<std::mutex> lock(mutex);
+            cv.wait_for(lock, chrono::milliseconds(100), [&] { return !running || !pending.empty(); });
+            if (!running) break;
+            if (pending.empty()) continue;
+            item = move(pending.front());
+            pending.pop_front();
+            pendingBytes -= item.bytes.size();
+        }
+        if (chrono::steady_clock::now() - item.queued > chrono::seconds(5) ||
+                s.sendAll(item.bytes.data(), item.bytes.size(), MSG_NOSIGNAL, 1000) < 0) break;
     }
+    cancel();
 }
 
 void ProgrammeSender::cancel()
 {
-    s.close();
-    running = false;
+    {
+        lock_guard<std::mutex> lock(mutex);
+        running = false;
+        pending.clear();
+        pendingBytes = 0;
+    }
+    cv.notify_all();
 }
 
 WebProgrammeHandler::WebProgrammeHandler(uint32_t serviceId, OutputCodec codecID) :
@@ -241,7 +245,8 @@ WebProgrammeHandler::WebProgrammeHandler(WebProgrammeHandler&& other) :
 
 WebProgrammeHandler::~WebProgrammeHandler()
 {
-
+    // FLAC finish can call the output callback; destroy it while locks exist.
+    encoder.reset();
 }
 
 void WebProgrammeHandler::registerSender(ProgrammeSender *sender)
@@ -329,8 +334,11 @@ void WebProgrammeHandler::onFrameErrors(int frameErrors)
 void WebProgrammeHandler::onNewAudio(std::vector<int16_t>&& audioData,
                 int sampleRate, const string& m)
 {
-    rate = sampleRate;
-    mode = m;
+    {
+        unique_lock<std::mutex> lock(stats_mutex);
+        rate = sampleRate;
+        mode = m;
+    }
 
     if (audioData.empty()) {
         return;
@@ -447,3 +455,9 @@ void WebProgrammeHandler::onPADLengthError(size_t announced_xpad_len, size_t xpa
     xpad_error.xpad_len = xpad_len;
 }
 
+
+std::pair<int, std::string> WebProgrammeHandler::getAudioFormat() const
+{
+    std::unique_lock<std::mutex> lock(stats_mutex);
+    return {rate, mode};
+}

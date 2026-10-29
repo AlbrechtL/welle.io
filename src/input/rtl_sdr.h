@@ -79,8 +79,8 @@ private:
     RadioControllerInterface& radioController;
     int frequency = kHz(174928);
     int frequencyOffset = 0;
-    int currentGain = 0;
-    bool isAGC = false;
+    std::atomic<int> currentGain{0};
+    std::atomic<bool> isAGC{false};
     bool isHwAGC = false;
     std::thread rtlsdrThread;
     void rtlsdr_read_async_wrapper(void);
@@ -88,9 +88,9 @@ private:
     std::atomic<bool> rtlsdrUnplugged = ATOMIC_VAR_INIT(false);
 
     std::vector<int> gains;
-    int currentGainIndex = 0;
-    uint8_t minAmplitude = 255;
-    uint8_t maxAmplitude = 0;
+    std::atomic<int> currentGainIndex{0};
+    std::atomic<uint8_t> minAmplitude{255};
+    std::atomic<uint8_t> maxAmplitude{0};
 
     void agc_timer_thread(void);
 

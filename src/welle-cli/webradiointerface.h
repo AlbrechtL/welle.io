@@ -76,12 +76,13 @@ class WebRadioInterface : public RadioControllerInterface {
                 CVirtualInput& in,
                 int port,
                 DecodeSettings cs,
-                RadioReceiverOptions rro);
+                RadioReceiverOptions rro,
+                bool show_channel_selector = true);
         virtual ~WebRadioInterface();
         WebRadioInterface(const WebRadioInterface&) = delete;
         WebRadioInterface& operator=(const WebRadioInterface&) = delete;
 
-        void serve();
+        int serve();
 
         virtual void onSNR(float snr) override;
         virtual void onFrequencyCorrectorChange(int fine, int coarse) override;
@@ -117,13 +118,13 @@ class WebRadioInterface : public RadioControllerInterface {
         bool send_mux_playlist(Socket& s);
 
         // Send a stream containing the selected programme.
-        // stream is a service id, either in hex with 0x prefix or
-        // in decimal
+        // Four-digit identifiers are canonical hex. Other all-digit identifiers
+        // are decimal; explicit 0x hex / 0d decimal prefixes are supported.
         bool send_stream(Socket& s, const std::string& stream);
 
         // Send the slide for the selected programme.
-        // stream is a service id, either in hex with 0x prefix or
-        // in decimal
+        // Four-digit identifiers are canonical hex. Other all-digit identifiers
+        // are decimal; explicit 0x hex / 0d decimal prefixes are supported.
         bool send_slide(Socket& s, const std::string& stream);
 
         // Send the Fast Information Channel as a stream.
@@ -157,6 +158,8 @@ class WebRadioInterface : public RadioControllerInterface {
 
         std::thread programme_handler_thread;
         std::atomic<bool> running = ATOMIC_VAR_INIT(true);
+        std::atomic<bool> serverStopping = ATOMIC_VAR_INIT(false);
+        std::atomic<bool> inputFailed{false};
 
         Channels channels;
         DABParams dabparams;
@@ -165,9 +168,10 @@ class WebRadioInterface : public RadioControllerInterface {
 
         RadioReceiverOptions rro;
         DecodeSettings decode_settings;
+        const bool show_channel_selector;
 
         mutable std::mutex data_mut;
-        bool synced = 0;
+        std::atomic<bool> synced{false};
         int last_snr = 0;
         int last_fine_correction = 0;
         int last_coarse_correction = 0;
@@ -203,7 +207,7 @@ class WebRadioInterface : public RadioControllerInterface {
         std::unique_ptr<RadioReceiver> rx;
 
         using SId_t = uint32_t;
-        std::map<SId_t, WebProgrammeHandler> phs;
+        std::map<SId_t, std::shared_ptr<WebProgrammeHandler>> phs;
         std::map<SId_t, bool> programmes_being_decoded;
         std::condition_variable phs_changed;
 

@@ -84,7 +84,11 @@ DabAudio::DabAudio(
 
 DabAudio::~DabAudio()
 {
-    running = false;
+    {
+        std::lock_guard<std::mutex> lock(ourMutex);
+        running = false;
+    }
+    mscSpaceAvailable.notify_all();
 
     if (ourThread.joinable()) {
         mscDataAvailable.notify_all();
@@ -94,19 +98,15 @@ DabAudio::~DabAudio()
 
 int32_t DabAudio::process(const softbit_t *v, int16_t cnt)
 {
-    int32_t fr;
-
-    if (mscBuffer.GetRingBufferWriteAvailable () < cnt)
-        fprintf (stderr, "dab-concurrent: buffer full\n");
-
-    while ((fr = mscBuffer.GetRingBufferWriteAvailable ()) <= cnt) {
-        if (!running)
-            return 0;
-        std::this_thread::sleep_for(std::chrono::microseconds(1));
-    }
-
+    std::unique_lock<std::mutex> lock(ourMutex);
+    mscSpaceAvailable.wait(lock, [&] {
+        return !running || mscBuffer.GetRingBufferWriteAvailable() >= cnt;
+    });
+    if (!running) return 0;
+    const int32_t fr = mscBuffer.GetRingBufferWriteAvailable();
     mscBuffer.putDataIntoBuffer(v, cnt);
-    mscDataAvailable.notify_all();
+    lock.unlock();
+    mscDataAvailable.notify_one();
     return fr;
 }
 
@@ -122,17 +122,16 @@ void DabAudio::run()
 
     while (running) {
         std::unique_lock<std::mutex> lock(ourMutex);
-        while (running && mscBuffer.GetRingBufferReadAvailable() <= fragmentSize) {
+        while (running && mscBuffer.GetRingBufferReadAvailable() < fragmentSize) {
             mscDataAvailable.wait(lock);
         }
         if (!running)
             break;
 
-        // mscBuffer is threadsafe to access, no need to keep the lock
-        lock.unlock();
-
         PROFILE(DAGetMSCData);
         mscBuffer.getDataFromBuffer(data.data(), fragmentSize);
+        lock.unlock();
+        mscSpaceAvailable.notify_one();
 
         PROFILE(DADeinterleave);
         for (i = 0; i < fragmentSize; i ++) {

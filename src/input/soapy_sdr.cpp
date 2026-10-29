@@ -158,6 +158,9 @@ bool CSoapySdr::restart()
         return true;
     }
 
+    // Join a finished worker and release its device before replacing either.
+    stop();
+    m_gains.clear();
     m_sampleBuffer.FlushRingBuffer();
     m_spectrumSampleBuffer.FlushRingBuffer();
 
@@ -173,73 +176,81 @@ bool CSoapySdr::restart()
                     "Could not load SoapySDR with provided device arguments."));
         return false;
     }
-    stringstream ss;
-    ss << "SoapySDR driver=" << m_device->getDriverKey();
-    ss << " hardware=" << m_device->getHardwareKey();
-    for (const auto &it : m_device->getHardwareInfo())
-    {
-        ss << "  " << it.first << "=" << it.second;
-    }
-    std::clog << ss.str().c_str() << std::endl;
-
-    m_device->setMasterClockRate(INPUT_RATE*16);
-    std::clog << "SoapySDR master clock rate set to " <<
-        m_device->getMasterClockRate()/1000.0 << " kHz" << std::endl;
-
-    m_device->setSampleRate(SOAPY_SDR_RX, 0, INPUT_RATE);
-    std::clog << "SoapySDR:Actual RX rate: " <<
-        m_device->getSampleRate(SOAPY_SDR_RX, 0) / 1000.0 <<
-        " ksps." << std::endl;
-
-
-    clog << "Supported antenna: ";
-    for (const auto& ant : m_device->listAntennas(SOAPY_SDR_RX, 0)) {
-        clog << " " << ant;
-    }
-    clog << endl;
-
-    if (!m_antenna.empty()) {
-        clog << "Select antenna " << m_antenna << endl;
-        try {
-            m_device->setAntenna(SOAPY_SDR_RX, 0, m_antenna);
+    try {
+        if (!m_device) throw runtime_error("SoapySDR returned no device");
+        stringstream ss;
+        ss << "SoapySDR driver=" << m_device->getDriverKey();
+        ss << " hardware=" << m_device->getHardwareKey();
+        for (const auto &it : m_device->getHardwareInfo())
+        {
+            ss << "  " << it.first << "=" << it.second;
         }
-        catch (const runtime_error& e) {
-            clog << "ERROR! could not select antenna:" << e.what() << endl;
+        std::clog << ss.str().c_str() << std::endl;
+
+        m_device->setMasterClockRate(INPUT_RATE*16);
+        std::clog << "SoapySDR master clock rate set to " <<
+            m_device->getMasterClockRate()/1000.0 << " kHz" << std::endl;
+
+        m_device->setSampleRate(SOAPY_SDR_RX, 0, INPUT_RATE);
+        std::clog << "SoapySDR:Actual RX rate: " <<
+            m_device->getSampleRate(SOAPY_SDR_RX, 0) / 1000.0 <<
+            " ksps." << std::endl;
+
+
+        clog << "Supported antenna: ";
+        for (const auto& ant : m_device->listAntennas(SOAPY_SDR_RX, 0)) {
+            clog << " " << ant;
         }
-    }
-    else {
-        clog << "Not selecting antenna" << endl;
-    }
+        clog << endl;
 
-    if (!m_clock_source.empty()) {
-        m_device->setClockSource(m_clock_source);
+        if (!m_antenna.empty()) {
+            clog << "Select antenna " << m_antenna << endl;
+            try {
+                m_device->setAntenna(SOAPY_SDR_RX, 0, m_antenna);
+            }
+            catch (const runtime_error& e) {
+                clog << "ERROR! could not select antenna:" << e.what() << endl;
+            }
+        }
+        else {
+            clog << "Not selecting antenna" << endl;
+        }
+
+        if (!m_clock_source.empty()) {
+            m_device->setClockSource(m_clock_source);
+        }
+
+        if (m_freq > 0) {
+            setFrequency(m_freq);
+        }
+
+        auto range = m_device->getGainRange(SOAPY_SDR_RX, 0);
+        // Preserve existing manual gain indices; AGC uses range.step() below.
+        m_gains.clear();
+        for (double g = range.minimum(); g < range.maximum(); g++) {
+            m_gains.push_back(g);
+        }
+
+        const bool automatic = false;
+        m_device->setGainMode(SOAPY_SDR_RX, 0, automatic);
+
+        if (m_device->hasDCOffsetMode(SOAPY_SDR_RX, 0)) {
+            m_device->setDCOffsetMode(SOAPY_SDR_RX, 0, true);
+        }
+        else {
+            clog << "DC offset compensation not supported" << endl;
+        }
+
+        m_running = true;
+        m_thread = std::thread(&CSoapySdr::workerthread, this);
+
+        return true;
     }
-
-    if (m_freq > 0) {
-        setFrequency(m_freq);
+    catch (const std::exception& e) {
+        std::clog << "SoapySDR configuration failed: " << e.what() << std::endl;
+        stop();
+        return false;
     }
-
-    auto range = m_device->getGainRange(SOAPY_SDR_RX, 0);
-    // Preserve existing manual gain indices; AGC uses range.step() below.
-    m_gains.clear();
-    for (double g = range.minimum(); g < range.maximum(); g++) {
-        m_gains.push_back(g);
-    }
-
-    const bool automatic = false;
-    m_device->setGainMode(SOAPY_SDR_RX, 0, automatic);
-
-    if (m_device->hasDCOffsetMode(SOAPY_SDR_RX, 0)) {
-        m_device->setDCOffsetMode(SOAPY_SDR_RX, 0, true);
-    }
-    else {
-        clog << "DC offset compensation not supported" << endl;
-    }
-
-    m_running = true;
-    m_thread = std::thread(&CSoapySdr::workerthread, this);
-
-    return true;
 }
 
 bool CSoapySdr::is_ok()
@@ -255,8 +266,10 @@ void CSoapySdr::stop()
     }
 
     if (m_device != nullptr) {
-        SoapySDR::Device::unmake(m_device);
+        auto* device = m_device;
         m_device = nullptr;
+        try { SoapySDR::Device::unmake(device); }
+        catch (...) { std::clog << "SoapySDR device cleanup failed" << std::endl; }
     }
 }
 
@@ -419,22 +432,30 @@ bool CSoapySdr::setDeviceParam(DeviceParam param, const std::string& value)
 
 void CSoapySdr::workerthread()
 {
-    std::vector<size_t> channels;
-    channels.push_back(0);
-    std::clog << " *************** Setup soapy stream" << std::endl;
-    auto args = SoapySDR::KwargsFromString(m_driver_args);
-    auto stream = m_device->setupStream(SOAPY_SDR_RX, "CF32", channels, args);
-
-    m_device->activateStream(stream);
+    SoapySDR::Stream* stream = nullptr;
+    bool active = false;
     try {
+        const auto args = SoapySDR::KwargsFromString(m_driver_args);
+        stream = m_device->setupStream(SOAPY_SDR_RX, "CF32", {0}, args);
+        if (!stream) throw runtime_error("setupStream returned no stream");
+        const int result = m_device->activateStream(stream);
+        if (result != 0) throw runtime_error(SoapySDR::errToStr(result));
+        active = true;
         process(stream);
     }
-    catch (std::exception& e) {
-        std::clog << " *************** Exception caught in soapy: " << e.what() << std::endl;
+    catch (const std::exception& e) {
+        std::clog << "SoapySDR worker failed: " << e.what() << std::endl;
     }
-
-    std::clog << " *************** Close soapy stream" << std::endl;
-    m_device->closeStream(stream);
+    catch (...) { std::clog << "SoapySDR worker failed" << std::endl; }
+    // Cleanup must not let driver exceptions escape a std::thread.
+    if (active) {
+        try { m_device->deactivateStream(stream); }
+        catch (...) { std::clog << "SoapySDR deactivate failed" << std::endl; }
+    }
+    if (stream) {
+        try { m_device->closeStream(stream); }
+        catch (...) { std::clog << "SoapySDR close failed" << std::endl; }
+    }
     m_running = false;
 }
 
@@ -470,13 +491,14 @@ void CSoapySdr::process(SoapySDR::Stream *stream)
         m_device->setGain(SOAPY_SDR_RX, 0, std::stod(fixed));
         std::clog << "IQ_DIAG fixed_gain=" << m_device->getGain(SOAPY_SDR_RX, 0) << std::endl;
     }
+    const size_t mtu = m_device->getStreamMTU(stream);
+    if (mtu == 0 || mtu > 16 * 1024 * 1024) throw runtime_error("Invalid stream MTU");
+    std::vector<DSPCOMPLEX> buf(mtu);
     while (m_running) {
 
         // Stream MTU is in samples, not bytes.
-        const size_t mtu = m_device->getStreamMTU(stream);
-
-        const size_t samps_to_read = mtu; // Always read MTU samples
-        std::vector<DSPCOMPLEX> buf(samps_to_read);
+        const size_t samps_to_read = mtu;
+        buf.resize(mtu);
 
         void *buffs[1];
         buffs[0] = buf.data();
@@ -526,6 +548,7 @@ void CSoapySdr::process(SoapySDR::Stream *stream)
             m_running = false;
         }
         else {
+            if (static_cast<size_t>(ret) > mtu) throw runtime_error("Invalid stream sample count");
             buf.resize(ret);
 
             if (m_sw_agc.load() && !agcFault) {

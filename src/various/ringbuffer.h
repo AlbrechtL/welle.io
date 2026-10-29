@@ -69,6 +69,8 @@
 #ifndef RING_BUFFER_H
 #define RING_BUFFER_H
 
+#include <atomic>
+#include <mutex>
 #include    <stdlib.h>
 #include    <vector>
 #include    <stdio.h>
@@ -77,8 +79,8 @@
 #include    <iostream>
 
 /*
- *  a simple ringbuffer, lockfree, however only for a
- *  single reader and a single writer.
+ *  A ringbuffer with serialized data copies/reset and atomic status indices.
+ *  Region/advance helpers are internal to the high-level operations.
  *  Mostly used for getting samples from or to the soundcard
  */
 #if defined(__APPLE__)
@@ -134,8 +136,9 @@ class RingBuffer
 {
     private:
         uint32_t    bufferSize;
-        volatile    uint32_t    writeIndex;
-        volatile    uint32_t    readIndex;
+        std::atomic<uint32_t> writeIndex;
+        std::mutex accessMutex;
+        std::atomic<uint32_t> readIndex;
         uint32_t    bigMask;
         uint32_t    smallMask;
         std::vector<char> buffer;
@@ -184,6 +187,7 @@ class RingBuffer
         }
 
         void    FlushRingBuffer () {
+            std::lock_guard<std::mutex> lock(accessMutex);
             writeIndex  = 0;
             readIndex   = 0;
         }
@@ -281,6 +285,7 @@ class RingBuffer
         }
 
         int32_t putDataIntoBuffer (const void *data, int32_t elementCount) {
+            std::lock_guard<std::mutex> lock(accessMutex);
             int32_t size1, size2, numWritten;
             void    *data1;
             void    *data2;
@@ -306,6 +311,7 @@ class RingBuffer
         }
 
         int32_t getDataFromBuffer (void *data, int32_t elementCount ) {
+            std::lock_guard<std::mutex> lock(accessMutex);
             int32_t size1, size2, numRead;
             void    *data1;
             void    *data2;
@@ -326,6 +332,7 @@ class RingBuffer
         }
 
         int32_t skipDataInBuffer (int32_t n_values) {
+            std::lock_guard<std::mutex> lock(accessMutex);
             //  ensure that we have the correct read and write indices
             PaUtil_FullMemoryBarrier ();
             if (n_values > GetRingBufferReadAvailable ())

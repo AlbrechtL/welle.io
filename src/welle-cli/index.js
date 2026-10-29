@@ -101,19 +101,21 @@ window.onload = function() {
 
     var ch = document.getElementById("channelselector");
 
-    for (i in channels) {
-        var opt = document.createElement("option");
-        opt.text = channels[i];
-        ch.options.add(opt, -1);
-    }
+    if (ch) {
+        for (i in channels) {
+            var opt = document.createElement("option");
+            opt.text = channels[i];
+            ch.options.add(opt, -1);
+        }
 
-    ch.onchange = function() {
-        var channel = document.getElementById("channelselector").value;
-        var xhr = new XMLHttpRequest();
-        xhr.open("POST", '/channel', true);
-        xhr.setRequestHeader("Content-type", "text/plain");
-        xhr.send(channel);
-    };
+        ch.onchange = function() {
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", '/channel', true);
+            xhr.setRequestHeader("Content-type", "text/plain");
+            xhr.send(ch.value);
+        };
+    }
+    refreshChannel();
 
     var fftw = document.getElementById("fftwindowselector");
 
@@ -149,7 +151,10 @@ function refreshChannel() {
     var r = new XMLHttpRequest();
     r.onreadystatechange = function () {
         if (r.readyState != 4 || r.status != 200) return;
-        document.getElementById("channelselector").value = r.responseText;
+        var selector = document.getElementById("channelselector");
+        var value = document.getElementById("channelvalue");
+        if (selector) selector.value = r.responseText;
+        if (value) value.textContent = r.responseText;
     };
     r.open("GET", "/channel", true);
     r.send()
@@ -428,8 +433,14 @@ function playerLoad() {
     document.getElementById("player").play();
 }
 
+function serviceIdForUrl(sid) {
+    // Inline handlers receive hexadecimal literals as JavaScript numbers.
+    // Preserve their meaning when passing the ID back to the HTTP parser.
+    return typeof sid === "number" ? "0x" + sid.toString(16) : sid;
+}
+
 function setPlayerSource(sid) {
-    document.getElementById("player").src = "/stream/" + sid;
+    document.getElementById("player").src = "/stream/" + serviceIdForUrl(sid);
     playerLoad();
 }
 
@@ -443,7 +454,7 @@ var slideimg = document.getElementById("slideimg");
 var slidecaption = document.getElementById("slidecaption");
 
 function showSlide(sid, last_update_time) {
-    slideimg.src = "slide/" + sid + "?cachebreak=" + last_update_time;
+    slideimg.src = "slide/" + serviceIdForUrl(sid) + "?cachebreak=" + last_update_time;
     var last_update = new Date(last_update_time * 1000);
     slidecaption.innerHTML = last_update;
     slide_modal.style.display = "block";
@@ -802,5 +813,3 @@ function populateConstellation() {
     r.responseType = "arraybuffer";
     r.send(null);
 }
-
-

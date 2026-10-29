@@ -137,12 +137,13 @@ bool MOTObject::ParseCheckHeader(MOT_FILE& target_file) {
 			break;
 		}
 
-		if(offset + data_len - 1 >= data.size())
+		if(offset > data.size() || data_len > data.size() - offset)
 			return false;
 
 		// process parameter
 		switch(param_id) {
         case 0x04:	// ExpireTime
+            if (data_len < 1) return false;
             file.expire_time = data[offset]; // TODO not tested
             break;
 		case 0x05:	// TriggerTime
@@ -161,6 +162,7 @@ bool MOTObject::ParseCheckHeader(MOT_FILE& target_file) {
 //			fprintf(stderr, "ContentName: '%s'\n", file.content_name.c_str());
 			break;
         case 0x25:  // Category/SlideID
+            if (data_len < 2) return false;
             file.category = data[offset];
             file.slide_id = data[offset+1];
             break;

@@ -34,6 +34,7 @@
 #include <chrono>
 #include <string>
 #include <atomic>
+#include <deque>
 
 class ProgrammeSender {
     private:
@@ -43,13 +44,19 @@ class ProgrammeSender {
         mutable std::condition_variable cv;
         mutable std::mutex mutex;
         bool headerSent = false;
+        struct PendingAudio {
+            std::vector<uint8_t> bytes;
+            std::chrono::steady_clock::time_point queued;
+        };
+        std::deque<PendingAudio> pending;
+        size_t pendingBytes = 0;
 
     public:
         ProgrammeSender(Socket&& s);
-        ProgrammeSender(ProgrammeSender&& other);
-        ProgrammeSender& operator=(ProgrammeSender&& other);
+        ProgrammeSender(ProgrammeSender&&) = delete;
+        ProgrammeSender& operator=(ProgrammeSender&&) = delete;
         bool send_stream(const std::vector<uint8_t>& headerdata, const std::vector<uint8_t>& mp3data);
-        void wait_for_termination() const;
+        void wait_for_termination();
         void cancel();
 };
 
@@ -109,9 +116,12 @@ class WebProgrammeHandler : public ProgrammeHandlerInterface {
         audiolevels_t audiolevels;
 
     public:
+    private:
         int rate = 0;
         std::string mode;
 
+    public:
+        std::pair<int, std::string> getAudioFormat() const;
         WebProgrammeHandler(uint32_t serviceId, OutputCodec codec);
         WebProgrammeHandler(WebProgrammeHandler&& other);
         virtual ~WebProgrammeHandler();

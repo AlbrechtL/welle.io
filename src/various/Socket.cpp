@@ -33,6 +33,7 @@
 #include <stdexcept>
 #include <iostream>
 #include <cstring>
+#include <chrono>
 #include "various/Socket.h"
 
 #if defined(_WIN32)
@@ -77,6 +78,7 @@ Socket::Socket(Socket&& other)
 Socket& Socket::operator=(Socket&& other)
 {
     if (&other != this) {
+        close();
         sock = other.sock;
         other.sock = INVALID_SOCKET;
     }
@@ -85,6 +87,7 @@ Socket& Socket::operator=(Socket&& other)
 
 void Socket::close()
 {
+    if (!valid()) return;
 #if defined(_WIN32)
     closesocket(sock);
 #else
@@ -153,7 +156,7 @@ bool Socket::bind(int port)
 
 bool Socket::listen()
 {
-    const int listen_ret = ::listen(sock, 1);
+    const int listen_ret = ::listen(sock, 64);
     if (listen_ret == -1) {
         perror("Could not listen");
         return false;
@@ -297,4 +300,79 @@ out:
     freeaddrinfo(result);           /* No longer needed */
 
     return ret;
+}
+
+// HTTP callers set nonblocking mode before using bounded output.
+bool Socket::setNonBlocking()
+{
+#ifdef _WIN32
+    unsigned long mode = 1;
+    return ioctlsocket(sock, FIONBIO, &mode) == 0;
+#else
+    int flags = fcntl(sock, F_GETFL, 0);
+    return flags >= 0 && fcntl(sock, F_SETFL, flags | O_NONBLOCK) == 0;
+#endif
+}
+
+bool Socket::waitReadable(int timeout_ms) const
+{
+    if (!valid()) return false;
+#ifndef _WIN32
+    if (sock >= FD_SETSIZE) return false;
+#endif
+    fd_set fds;
+    FD_ZERO(&fds);
+    FD_SET(sock, &fds);
+    timeval tv{timeout_ms / 1000, (timeout_ms % 1000) * 1000};
+    return select(sock + 1, &fds, nullptr, nullptr, &tv) > 0;
+}
+
+bool Socket::peerClosed() const
+{
+    if (!valid()) return true;
+    if (!waitReadable(0)) return false;
+    char byte;
+    const auto n = ::recv(sock, &byte, 1, MSG_PEEK);
+    if (n == 0) return true;
+#ifdef _WIN32
+    return n < 0 && WSAGetLastError() != WSAEWOULDBLOCK;
+#else
+    return n < 0 && errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR;
+#endif
+}
+
+ssize_t Socket::sendAll(const void *buffer, size_t length, int flags, int timeout_ms)
+{
+    using namespace std::chrono;
+    const auto deadline = steady_clock::now() + milliseconds(timeout_ms);
+    size_t sent = 0;
+    while (sent < length) {
+        const auto remaining = duration_cast<milliseconds>(deadline - steady_clock::now()).count();
+        if (!valid() || remaining <= 0) return -1;
+#ifndef _WIN32
+        if (sock >= FD_SETSIZE) return -1;
+#endif
+        fd_set fds;
+        FD_ZERO(&fds);
+        FD_SET(sock, &fds);
+        timeval tv{static_cast<long>(remaining / 1000), static_cast<long>((remaining % 1000) * 1000)};
+        const int ready = select(sock + 1, nullptr, &fds, nullptr, &tv);
+        if (ready == 0) return -1;
+        if (ready < 0) {
+            if (errno == EINTR) continue;
+            return -1;
+        }
+        const auto n = send(static_cast<const char*>(buffer) + sent, length - sent, flags);
+        if (n > 0) sent += n;
+        else if (n == 0) return -1;
+        else {
+#ifdef _WIN32
+            if (WSAGetLastError() == WSAEWOULDBLOCK) continue;
+#else
+            if (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK) continue;
+#endif
+            return -1;
+        }
+    }
+    return static_cast<ssize_t>(sent);
 }

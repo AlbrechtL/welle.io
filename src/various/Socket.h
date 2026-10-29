@@ -78,6 +78,11 @@ class Socket {
         ssize_t recv(void *buffer, size_t length, int flags);
         ssize_t send(const void *buffer, size_t length, int flags);
 
+        bool setNonBlocking();
+        bool waitReadable(int timeout_ms) const;
+        bool peerClosed() const;
+        ssize_t sendAll(const void *buffer, size_t length, int flags, int timeout_ms = 2000);
+
     private:
         int sock = INVALID_SOCKET;
 };

@@ -69,6 +69,7 @@ class DabAudio : public DabVirtual
         EnergyDispersal energyDispersal;
 
         std::condition_variable  mscDataAvailable;
+        std::condition_variable  mscSpaceAvailable;
         std::mutex               ourMutex;
         std::thread              ourThread;
 
