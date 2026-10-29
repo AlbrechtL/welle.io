@@ -32,6 +32,7 @@
 #include "ringbuffer.h"
 #include <SoapySDR/Version.hpp>
 #include <SoapySDR/Modules.hpp>
+#include "iq_stream_counter.h"
 #include <SoapySDR/Registry.hpp>
 #include <SoapySDR/Device.hpp>
 
@@ -47,6 +48,7 @@ public:
 
     virtual void setFrequency(int Frequency);
     virtual int getFrequency(void) const;
+    IQStreamStats getIQStreamStats() const override { return m_iqCounter.snapshot(); }
     virtual bool restart(void);
     virtual bool is_ok(void);
     virtual void stop(void);
@@ -69,6 +71,7 @@ private:
     void decreaseGain();
     void increaseGain();
 
+    IQStreamCounter m_iqCounter;
     RadioControllerInterface& radioController;
     int m_freq = 0;
     std::string m_driver_args;

@@ -190,7 +190,7 @@ function createIQRateMeter() {
         var seconds = sample.monotonic_seconds - history[0].monotonic_seconds;
         if (seconds < 5) return {state: 'warming'};
         var bytesPerSecond = (sample.bytes_received - history[0].bytes_received) / seconds;
-        return {state: 'ready', seconds: seconds,
+        return {state: 'ready', seconds: seconds, bytesPerSample: sample.bytes_per_sample,
             mbits: bytesPerSecond * 8 / 1e6,
             msamples: bytesPerSecond / sample.bytes_per_sample / 1e6};
     };
@@ -200,8 +200,13 @@ function iqRateHTML(rate) {
     if (rate.state === 'unavailable') return '&mdash;';
     if (rate.state === 'stale') return 'Kein IQ-Empfang';
     if (rate.state !== 'ready') return 'Messung l&auml;uft&hellip;';
-    return '<span title="IQ-Nutzdaten, Mittelwert &uuml;ber ' + rate.seconds.toFixed(0) +
-        ' s; ohne TCP/IP-Overhead. Keine kalibrierte Messung des SDR-Takts.">' +
+    // Both input backends use this page: distinguish internal CF32 traffic
+    // from the two-byte RTL-TCP payload without implying a USB wire rate.
+    var format = rate.bytesPerSample === 8
+        ? 'Soapy CF32, interne IQ-Daten (8 Byte/Paar); keine USB-Bitrate. '
+        : 'RTL-TCP IQ-Nutzdaten (2 Byte/Paar); ohne TCP/IP-Overhead. ';
+    return '<span title="' + format + 'Mittelwert &uuml;ber ' + rate.seconds.toFixed(0) +
+        ' s. Keine kalibrierte Messung des SDR-Takts.">' +
         rate.mbits.toFixed(4) + ' Mbit/s<br><small>' +
         rate.msamples.toFixed(5) + ' MS/s</small></span>';
 }

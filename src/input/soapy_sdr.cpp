@@ -440,6 +440,7 @@ void CSoapySdr::workerthread()
 
 void CSoapySdr::process(SoapySDR::Stream *stream)
 {
+    m_iqCounter.begin();
     // CF32 normally uses +/-1. The legacy SoapyOsmo miri adapter divides
     // signed 16-bit samples by 4096 instead, so its component full scale is
     // 8. Restrict this compatibility case to the verified legacy gain API;
@@ -487,6 +488,10 @@ void CSoapySdr::process(SoapySDR::Stream *stream)
         maxWorkMs = std::max(maxWorkMs, std::chrono::duration<double, std::milli>(beginRead-lastReadEnd).count());
         int ret = m_device->readStream(
                 stream, buffs, samps_to_read, flags, timeNs);
+        // Count delivered complex samples before any Welle queue drops.
+        // CF32 is eight bytes per I/Q pair here, not the USB transport format.
+        if (ret > 0 && static_cast<size_t>(ret) <= samps_to_read)
+            m_iqCounter.record(static_cast<size_t>(ret));
         lastReadEnd = clock::now();
         maxReadMs = std::max(maxReadMs, std::chrono::duration<double, std::milli>(lastReadEnd-beginRead).count());
         if (ret > 0) received += ret;
