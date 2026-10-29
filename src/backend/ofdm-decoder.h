@@ -56,15 +56,23 @@ class OfdmDecoder
         RadioControllerInterface& radioInterface;
         FicHandler& ficHandler;
         MscHandler& mscHandler;
-        std::atomic<bool> running = ATOMIC_VAR_INIT(false);
+        // Set before starting the worker. The worker must never undo a stop request.
+        std::atomic<bool> running = ATOMIC_VAR_INIT(true);
 
         std::condition_variable pending_symbols_cv;
         std::mutex mutex;
         int num_pending_symbols = 0;
+        // All handoff state and counters below are protected by mutex.
+        uint64_t generation = 0;
+        uint64_t submitted_frames = 0;
+        uint64_t processed_frames = 0;
+        uint64_t producer_waits = 0;
+        uint64_t cancelled_frames = 0;
         std::vector<std::vector<DSPCOMPLEX> > pending_symbols;
 
         std::thread thread;
         void workerthread(void);
+        void stopWorker();
         void processPRS();
         void decodeDataSymbol(int32_t n);
 

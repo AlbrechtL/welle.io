@@ -67,7 +67,19 @@ OfdmDecoder::OfdmDecoder(
 
 OfdmDecoder::~OfdmDecoder()
 {
+    stopWorker();
+}
+
+void OfdmDecoder::stopWorker()
+{
+    // Stop between symbols, even while the worker owns the frame mutex.
     running = false;
+    {
+        // Pair the notification with the wait predicates. Without this barrier
+        // a waiter could check the flag, miss notify_all(), then sleep forever.
+        std::lock_guard<std::mutex> lock(mutex);
+        ++generation;
+    }
     pending_symbols_cv.notify_all();
     if (thread.joinable()) {
         thread.join();
@@ -76,66 +88,88 @@ OfdmDecoder::~OfdmDecoder()
 
 void OfdmDecoder::reset()
 {
-    running = false;
-    pending_symbols_cv.notify_all();
-    if (thread.joinable()) {
-        thread.join();
+    // Lifecycle calls are serialized by the owner. An old blocked submission
+    // must not cross into this new decoder generation.
+    stopWorker();
+    {
+        std::lock_guard<std::mutex> lock(mutex);
+        if (num_pending_symbols > 0) {
+            ++cancelled_frames;
+        }
+        num_pending_symbols = 0;
+        pending_symbols.clear();
+        constellationPoints.clear();
+        running = true;
     }
-
     thread = std::thread(&OfdmDecoder::workerthread, this);
 }
 
-/**
- * The code in the thread executes a simple loop,
- * waiting for the next symbols and executing the interpretation
- * operation for that symbols.
- */
 void OfdmDecoder::workerthread()
 {
-    int currentSym = 0;
-
-    running = true;
-
     while (running) {
         std::unique_lock<std::mutex> lock(mutex);
-        pending_symbols_cv.wait_for(lock, std::chrono::milliseconds(100));
-
-        if (currentSym == 0) {
-            constellationPoints.clear();
-            constellationPoints.reserve(
-                    (params.L-1) * params.K / constellationDecimation);
+        // A notification is only a hint. Work may already have arrived before
+        // this thread started waiting, or the wakeup may be spurious.
+        pending_symbols_cv.wait(lock, [this] {
+            return !running || num_pending_symbols > 0;
+        });
+        if (!running) {
+            break;
         }
 
+        constellationPoints.clear();
+        constellationPoints.reserve(
+                (params.L-1) * params.K / constellationDecimation);
+        int currentSym = 0;
         while (num_pending_symbols > 0 && running) {
-
             if (currentSym == 0)
                 processPRS();
             else
                 decodeDataSymbol(currentSym);
-
-            currentSym = (currentSym + 1) % (params.L);
-            num_pending_symbols -= 1;
-
-            if (currentSym == 0) {
-                radioInterface.onConstellationPoints(
-                        std::move(constellationPoints));
-                constellationPoints.clear();
-                constellationPoints.reserve(
-                        (params.L-1) * params.K / constellationDecimation);
+            ++currentSym;
+            --num_pending_symbols;
+        }
+        if (num_pending_symbols == 0) {
+            radioInterface.onConstellationPoints(std::move(constellationPoints));
+            ++processed_frames;
+            // Roughly once per minute in DAB mode I. These counters describe
+            // this handoff only, not RF quality or USB sample continuity.
+            if (processed_frames % 600 == 0) {
+                std::clog << "OFDM_HANDOFF submitted=" << submitted_frames
+                          << " processed=" << processed_frames
+                          << " producer_waits=" << producer_waits
+                          << " cancelled=" << cancelled_frames << std::endl;
             }
         }
+        // Keep frame storage protected throughout decoding; release the single
+        // handoff slot only after its last symbol has been consumed.
+        lock.unlock();
+        pending_symbols_cv.notify_all();
     }
-
-    std::clog << "OFDM-decoder:" <<  "closing down now" << std::endl;
+    std::clog << "OFDM-decoder:closing down now" << std::endl;
 }
 
 void OfdmDecoder::pushAllSymbols(std::vector<std::vector<DSPCOMPLEX> >&& syms)
 {
     std::unique_lock<std::mutex> lock(mutex);
-
+    const auto submission_generation = generation;
+    if (running && num_pending_symbols > 0) {
+        ++producer_waits;
+    }
+    // Never replace a frame the consumer has not read. Waiting also releases
+    // the mutex, so the consumer can drain the slot even under scheduling delay.
+    pending_symbols_cv.wait(lock, [this, submission_generation] {
+        return !running || generation != submission_generation ||
+               num_pending_symbols == 0;
+    });
+    if (!running || generation != submission_generation) {
+        return;
+    }
     pending_symbols = std::move(syms);
     num_pending_symbols = pending_symbols.size();
-    pending_symbols_cv.notify_one();
+    ++submitted_frames;
+    lock.unlock();
+    pending_symbols_cv.notify_all();
 }
 
 /**
