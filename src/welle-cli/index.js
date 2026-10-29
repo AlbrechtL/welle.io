@@ -191,6 +191,107 @@ function iqRateHTML(rate) {
         rate.msamples.toFixed(5) + ' MS/s</small></span>';
 }
 
+// Bounded browser-only history. Missing readings create gaps, never zeroes.
+function createIQRateHistory() {
+    var points = [];
+    function trim(now) {
+        while (points.length && points[0].t < now - 900) points.shift();
+        if (points.length > 1000) points = points.slice(-1000);
+    }
+    return {
+        add: function (now, rate) {
+            if (!Number.isFinite(now)) return;
+            if (points.length && now <= points[points.length - 1].t) return;
+            var value = rate.state === 'ready' && Number.isFinite(rate.msamples) ? rate.msamples * 1000 : null;
+            points.push({t: now, value: value});
+            trim(now);
+        },
+        view: function (now) {
+            trim(now);
+            var deviation = 0;
+            points.forEach(function (p) {
+                if (p.value !== null) deviation = Math.max(deviation, Math.abs(p.value - 2048));
+            });
+            // Symmetric scaling keeps 2048 exactly in the vertical centre.
+            var raw = Math.max(1, deviation * 1.1);
+            var power = Math.pow(10, Math.floor(Math.log10(raw)));
+            var unit = raw / power;
+            var span = (unit <= 1 ? 1 : unit <= 2 ? 2 : unit <= 5 ? 5 : 10) * power;
+            return {points: points.slice(), centre: 2048, span: span,
+                start: points.length ? Math.min(now - 60, points[0].t) : now - 60, end: now};
+        }
+    };
+}
+
+var iqRateHistory = createIQRateHistory();
+var latestIQPlotRate = {state: 'warming'};
+
+function drawIQRateHistory() {
+    var canvas = document.getElementById('iq-rate-plot');
+    if (!canvas) return;
+    var width = Math.max(240, Math.floor(canvas.getBoundingClientRect().width));
+    var height = 250, ratio = window.devicePixelRatio || 1;
+    if (canvas.width !== Math.round(width * ratio) || canvas.height !== Math.round(height * ratio)) {
+        canvas.width = Math.round(width * ratio); canvas.height = Math.round(height * ratio);
+    }
+    var ctx = canvas.getContext('2d');
+    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+    ctx.clearRect(0, 0, width, height);
+    ctx.fillStyle = '#fffaf4'; ctx.fillRect(0, 0, width, height);
+    var now = performance.now() / 1000, view = iqRateHistory.view(now);
+    var left = 84, right = width - 12, top = 26, bottom = height - 38;
+    function x(t) { return left + (t - view.start) / (view.end - view.start) * (right - left); }
+    function y(v) { return top + (view.centre + view.span - v) / (2 * view.span) * (bottom - top); }
+    function timeLabel(t) {
+        return new Date(Date.now() - (now - t) * 1000).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit', second: '2-digit'});
+    }
+    ctx.font = '12px Verdana, sans-serif'; ctx.textBaseline = 'middle';
+    [-1, -0.5, 0, 0.5, 1].forEach(function (fraction) {
+        var value = view.centre + fraction * view.span, py = y(value);
+        ctx.strokeStyle = fraction === 0 ? '#a95100' : '#ded7cf';
+        ctx.lineWidth = fraction === 0 ? 2 : 1;
+        ctx.setLineDash(fraction === 0 ? [6, 4] : []);
+        ctx.beginPath(); ctx.moveTo(left, py); ctx.lineTo(right, py); ctx.stroke();
+        ctx.fillStyle = fraction === 0 ? '#854000' : '#444'; ctx.textAlign = 'right';
+        ctx.fillText(value.toFixed(view.span < 10 ? 3 : 0), left - 8, py);
+    });
+    ctx.setLineDash([]); ctx.fillStyle = '#444'; ctx.textAlign = 'left'; ctx.fillText('kS/s', 8, 12);
+    [0, 0.5, 1].forEach(function (fraction) {
+        var t = view.start + fraction * (view.end - view.start);
+        ctx.textAlign = fraction === 0 ? 'left' : fraction === 1 ? 'right' : 'center';
+        ctx.fillText(timeLabel(t), x(t), bottom + 22);
+    });
+    ctx.strokeStyle = '#166b9d'; ctx.fillStyle = '#166b9d'; ctx.lineWidth = 2;
+    ctx.beginPath(); var previous = null, lastValid = null;
+    view.points.forEach(function (point) {
+        if (point.value === null) { previous = null; return; }
+        if (previous && point.t - previous.t <= 5) ctx.lineTo(x(point.t), y(point.value));
+        else ctx.moveTo(x(point.t), y(point.value));
+        previous = point; lastValid = point;
+    });
+    ctx.stroke();
+    if (lastValid) { ctx.beginPath(); ctx.arc(x(lastValid.t), y(lastValid.value), 3, 0, 2 * Math.PI); ctx.fill(); }
+    var rate = latestIQPlotRate;
+    var summary = rate.state === 'ready' ? (rate.msamples * 1000).toFixed(3) +
+        ' kS/s · Abweichung ' + (rate.msamples * 1000 >= 2048 ? '+' : '') +
+        (rate.msamples * 1000 - 2048).toFixed(3) + ' kS/s · Mittelwert ' + rate.seconds.toFixed(0) + ' s' :
+        rate.state === 'stale' ? 'Kein IQ-Empfang – Lücke im Verlauf' :
+        rate.state === 'http-stale' ? 'Status veraltet – Lücke im Verlauf' :
+        rate.state === 'unavailable' ? 'Für diesen Eingang ist keine IQ-Messung verfügbar' : 'Messung läuft…';
+    document.getElementById('iq-rate-plot-summary').textContent = summary;
+    canvas.setAttribute('aria-label', 'IQ-Samplerate, Mittellinie 2048 kS/s. ' + summary);
+    canvas.onmousemove = function (event) {
+        var rect = canvas.getBoundingClientRect();
+        var t = view.start + (event.clientX - rect.left - left) / (right - left) * (view.end - view.start);
+        var closest = null;
+        view.points.forEach(function (p) {
+            if (p.value !== null && (!closest || Math.abs(p.t - t) < Math.abs(closest.t - t))) closest = p;
+        });
+        canvas.title = closest && Math.abs(closest.t - t) <= 5 ? timeLabel(closest.t) + ': ' + closest.value.toFixed(3) + ' kS/s' : '';
+    };
+}
+window.addEventListener('resize', drawIQRateHistory);
+
 var measureIQRate = createIQRateMeter();
 var lastIQStatusAt = 0;
 // A dead HTTP connection must not leave a seemingly live rate on screen.
@@ -198,9 +299,12 @@ setInterval(function () {
     if (lastIQStatusAt && performance.now() - lastIQStatusAt > 5000) {
         var cell = document.getElementById('iq-rate');
         if (cell) cell.textContent = 'Status veraltet';
+        latestIQPlotRate = {state: 'http-stale'};
+        iqRateHistory.add(performance.now() / 1000, latestIQPlotRate);
         measureIQRate = createIQRateMeter();
         lastIQStatusAt = 0;
     }
+    drawIQRateHistory();
 }, 1000);
 
 function ensembleInfoTemplate() {
@@ -480,7 +584,9 @@ function populateEnsembleinfo() {
         ens["sw_name"] = data.receiver.software.name;
         ens["SNR"] = data.demodulator.snr.toFixed(1);
         ens["FrequencyCorrection"] = data.demodulator.frequencycorrection;
-        ens["IQRate"] = iqRateHTML(measureIQRate(data.receiver.hardware.iq_stream));
+        latestIQPlotRate = measureIQRate(data.receiver.hardware.iq_stream);
+        ens["IQRate"] = iqRateHTML(latestIQPlotRate);
+        iqRateHistory.add(performance.now() / 1000, latestIQPlotRate);
         ens["services"] = servicehtml;
         ens["ficcrcerrors"] = data.demodulator.fic.numcrcerrors;
         var lcc = new Date(data.receiver.software.lastchannelchange);
