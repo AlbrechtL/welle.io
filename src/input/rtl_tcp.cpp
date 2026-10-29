@@ -249,6 +249,16 @@ void CRTL_TCP_Client::receiveData(void)
 #endif
         }
         else {
+            // Count bytes actually received, even for a partial socket read.
+            // Exclude the 12-byte RTL0 header, including a split header read.
+            const size_t headerBytes = firstData && read < sizeof(dongle_info_t) ?
+                std::min(static_cast<size_t>(ret), sizeof(dongle_info_t) - read) : 0;
+            const size_t iqBytes = static_cast<size_t>(ret) - headerBytes;
+            if (iqBytes > 0) {
+                iqBytesReceived.fetch_add(iqBytes);
+                lastIQDataNs.store(std::chrono::duration_cast<std::chrono::nanoseconds>(
+                    std::chrono::steady_clock::now().time_since_epoch()).count());
+            }
             read += ret;
         }
 
@@ -484,6 +494,22 @@ void CRTL_TCP_Client::receiveAndReconnect()
             receiveData();
         }
     }
+}
+
+IQStreamStats CRTL_TCP_Client::getIQStreamStats() const
+{
+    IQStreamStats stats;
+    const auto last = lastIQDataNs.load();
+    const auto bytes = iqBytesReceived.load();
+    const auto now = std::chrono::steady_clock::now().time_since_epoch();
+    stats.available = last > 0;
+    stats.bytes = bytes;
+    stats.generation = bufferResets.load();
+    stats.monotonicSeconds = std::chrono::duration<double>(now).count();
+    stats.secondsSinceData = stats.available ?
+        stats.monotonicSeconds - last / 1e9 : 0;
+    stats.bytesPerSample = 2; // RTL-TCP sends unsigned 8-bit I plus 8-bit Q.
+    return stats;
 }
 
 #define NETWORK_BUFFER_READ_SAMPLES 32768

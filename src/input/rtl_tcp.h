@@ -72,6 +72,7 @@ public:
     void setAgc(bool AGC);
     std::string getDescription(void);
     CDeviceID getID(void);
+    IQStreamStats getIQStreamStats() const override;
 
     // Specific methods
     void setServerAddress(const std::string& serverAddress);
@@ -89,6 +90,8 @@ private:
 
     // Lifetime totals: observe loss without changing the existing buffering policy.
     IQWriteStats networkWrites, decoderWrites;
+    std::atomic<int64_t> lastIQDataNs{0};
+    std::atomic<uint64_t> iqBytesReceived{0};
     std::atomic<uint64_t> shortReads{0}, bufferResets{0};
     std::mutex bufferTransferMutex; // Serialize reconnect resets with capacity checks/transfers.
     std::mutex mutex;

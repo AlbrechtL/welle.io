@@ -65,6 +65,16 @@ static void to_json(nlohmann::json& j, const HardwareJson& h) {
         {"name", h.name},
         {"gain", h.gain}
     };
+    j["iq_stream"] = nullptr;
+    if (h.iq.available) {
+        j["iq_stream"] = {
+            {"bytes_received", h.iq.bytes},
+            {"generation", h.iq.generation},
+            {"monotonic_seconds", h.iq.monotonicSeconds},
+            {"seconds_since_data", h.iq.secondsSinceData},
+            {"bytes_per_sample", h.iq.bytesPerSample}
+        };
+    }
 }
 
 static void to_json(nlohmann::json& j, const ReceiverJson& r) {

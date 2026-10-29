@@ -34,6 +34,7 @@
 #include <fstream>
 #include <iostream>
 
+#include "iq_stream_stats.h"
 #include "dab-constants.h"
 #include "radio-controller.h"
 #include "ringbuffer.h"
@@ -45,6 +46,8 @@ class CVirtualInput : public InputInterface {
 public:
     virtual ~CVirtualInput() {}
     virtual CDeviceID getID(void) = 0;
+    // Inputs without measured byte counters must not report a configured rate.
+    virtual IQStreamStats getIQStreamStats() const { return {}; }
 
     void writeRecordBufferToFile(std::string &fileanme) {
         if(!recordBuffer)

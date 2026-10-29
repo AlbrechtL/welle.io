@@ -30,6 +30,7 @@
 #include <vector>
 #include <memory>
 #include <ctime>
+#include "input/iq_stream_stats.h"
 #include "dab-constants.h"
 #include "backend/radio-controller.h"
 
@@ -43,6 +44,7 @@ struct SoftwareJson {
 };
 
 struct HardwareJson {
+    IQStreamStats iq;
     std::string name;
     float gain = 0.0f;
 };

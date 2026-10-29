@@ -640,6 +640,7 @@ bool WebRadioInterface::send_mux_json(Socket& s)
     mux_json.receiver.software.lastchannelchange = time_rx_created;
     mux_json.receiver.hardware.name = input.getDescription();
     mux_json.receiver.hardware.gain = input.getGain();
+    mux_json.receiver.hardware.iq = input.getIQStreamStats();
 
     {
         lock_guard<mutex> lock(fib_mut);

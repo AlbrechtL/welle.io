@@ -144,6 +144,65 @@ var channelRefreshTimer = setInterval(refreshChannel, 2000);
 
 var ensembleInfoTimer = setInterval(populateEnsembleinfo, 1000);
 
+// Measure received payload, not the configured sample rate or decoder pacing.
+// Receiver-side monotonic timestamps exclude HTTP delay from the denominator.
+function createIQRateMeter() {
+    var history = [];
+    return function (sample) {
+        if (!sample || !Number.isSafeInteger(sample.bytes_received) ||
+            sample.bytes_received < 0 || !Number.isFinite(sample.monotonic_seconds) ||
+            !Number.isFinite(sample.seconds_since_data) || sample.seconds_since_data < 0 ||
+            !Number.isSafeInteger(sample.generation) ||
+            !Number.isFinite(sample.bytes_per_sample) || sample.bytes_per_sample <= 0) {
+            history = [];
+            return {state: 'unavailable'};
+        }
+        if (sample.seconds_since_data > 3) {
+            history = [];
+            return {state: 'stale'};
+        }
+        var last = history[history.length - 1];
+        // Reconnect, receiver restart, out-of-order reply or browser suspension:
+        // begin a fresh measurement rather than mixing unrelated intervals.
+        if (last && (sample.generation !== last.generation ||
+            sample.bytes_per_sample !== last.bytes_per_sample ||
+            sample.bytes_received < last.bytes_received ||
+            sample.monotonic_seconds <= last.monotonic_seconds ||
+            sample.monotonic_seconds - last.monotonic_seconds > 5)) history = [];
+        history.push(sample);
+        while (history.length > 1 &&
+            sample.monotonic_seconds - history[0].monotonic_seconds > 60) history.shift();
+        var seconds = sample.monotonic_seconds - history[0].monotonic_seconds;
+        if (seconds < 5) return {state: 'warming'};
+        var bytesPerSecond = (sample.bytes_received - history[0].bytes_received) / seconds;
+        return {state: 'ready', seconds: seconds,
+            mbits: bytesPerSecond * 8 / 1e6,
+            msamples: bytesPerSecond / sample.bytes_per_sample / 1e6};
+    };
+}
+
+function iqRateHTML(rate) {
+    if (rate.state === 'unavailable') return '&mdash;';
+    if (rate.state === 'stale') return 'Kein IQ-Empfang';
+    if (rate.state !== 'ready') return 'Messung l&auml;uft&hellip;';
+    return '<span title="IQ-Nutzdaten, Mittelwert &uuml;ber ' + rate.seconds.toFixed(0) +
+        ' s; ohne TCP/IP-Overhead. Keine kalibrierte Messung des SDR-Takts.">' +
+        rate.mbits.toFixed(4) + ' Mbit/s<br><small>' +
+        rate.msamples.toFixed(5) + ' MS/s</small></span>';
+}
+
+var measureIQRate = createIQRateMeter();
+var lastIQStatusAt = 0;
+// A dead HTTP connection must not leave a seemingly live rate on screen.
+setInterval(function () {
+    if (lastIQStatusAt && performance.now() - lastIQStatusAt > 5000) {
+        var cell = document.getElementById('iq-rate');
+        if (cell) cell.textContent = 'Status veraltet';
+        measureIQRate = createIQRateMeter();
+        lastIQStatusAt = 0;
+    }
+}, 1000);
+
 function ensembleInfoTemplate() {
     var html = '';
     html += ' <h1><abbr title="Ensemble long and short labels defined in FIG1">${label} (${shortlabel})</abbr></h1>';
@@ -155,6 +214,7 @@ function ensembleInfoTemplate() {
     html += ' <th>SNR </th>';
     html += ' <th>RX gain </th>';
     html += ' <th>Freq corr</th>';
+    html += ' <th>IQ RX</th>';
     html += ' <th>Date</th></th>';
     html += ' <th><abbr title="Local Time Offset">LTO</abbr></th></th>';
     html += ' <th>FIC CRC Errors</th>';
@@ -166,6 +226,7 @@ function ensembleInfoTemplate() {
     html += ' <td>${SNR}</td>';
     html += ' <td>${gain}</td>';
     html += ' <td>${FrequencyCorrection}</td>';
+    html += ' <td id="iq-rate">${IQRate}</td>';
     html += ' <td>${year}-${month}-${day} ${hour}:${minutes} UTC</td>';
     html += ' <td>${lto}</td>';
     html += ' <td>${ficcrcerrors}</td>';
@@ -419,6 +480,7 @@ function populateEnsembleinfo() {
         ens["sw_name"] = data.receiver.software.name;
         ens["SNR"] = data.demodulator.snr.toFixed(1);
         ens["FrequencyCorrection"] = data.demodulator.frequencycorrection;
+        ens["IQRate"] = iqRateHTML(measureIQRate(data.receiver.hardware.iq_stream));
         ens["services"] = servicehtml;
         ens["ficcrcerrors"] = data.demodulator.fic.numcrcerrors;
         var lcc = new Date(data.receiver.software.lastchannelchange);
@@ -428,6 +490,7 @@ function populateEnsembleinfo() {
 
         var ei = document.getElementById('ensembleinfo');
         ei.innerHTML = parseTemplate(ensembleInfoTemplate(), ens);
+        lastIQStatusAt = performance.now();
 
         tiihtml = "<ul>";
         for (key in data.tii) {
