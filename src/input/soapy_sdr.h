@@ -76,7 +76,7 @@ private:
     std::string m_clock_source;
     SoapySDR::Device *m_device = nullptr;
     std::atomic<bool> m_running = ATOMIC_VAR_INIT(false);
-    bool m_sw_agc = false;
+    std::atomic<bool> m_sw_agc{false};
 
     RingBuffer<DSPCOMPLEX> m_sampleBuffer;
     RingBuffer<DSPCOMPLEX> m_spectrumSampleBuffer;
