@@ -172,7 +172,9 @@ static int32_t read_convert_from_buffer(
 
 int32_t CRTL_TCP_Client::getSamples(DSPCOMPLEX *v, int32_t size)
 {
-    return read_convert_from_buffer(sampleBuffer, v, size);
+    const int32_t got = read_convert_from_buffer(sampleBuffer, v, size);
+    if (got < size) shortReads.fetch_add(1, std::memory_order_relaxed);
+    return got;
 }
 
 std::vector<DSPCOMPLEX> CRTL_TCP_Client::getSpectrumSamples(int size)
@@ -192,6 +194,7 @@ int32_t CRTL_TCP_Client::getSamplesToRead(void)
 
 void CRTL_TCP_Client::reset(void)
 {
+    bufferResets.fetch_add(1, std::memory_order_relaxed);
     sampleBuffer.FlushRingBuffer();
     sampleNetworkBuffer.FlushRingBuffer();
     spectrumSampleBuffer.FlushRingBuffer();
@@ -295,7 +298,7 @@ void CRTL_TCP_Client::receiveData(void)
         }
     }
 
-    sampleNetworkBuffer.putDataIntoBuffer(buffer.data(), buffer.size());
+    networkWrites.write(sampleNetworkBuffer, buffer.data(), buffer.size());
 
     // First fill the complete buffer to avoid sound outtages if the stream data rate is not stable e.g. over WIFI
     if(!firstFilledNetworkBuffer) {
@@ -485,8 +488,34 @@ void CRTL_TCP_Client::receiveAndReconnect()
 void CRTL_TCP_Client::networkBufferCopy()
 {
     std::vector<uint8_t> tempBuffer(NETWORK_BUFFER_READ_SAMPLES * 2);
+    using Clock = std::chrono::steady_clock;
+    auto lastCopy = Clock::now(), lastReport = lastCopy;
+    int64_t maxGapUs = 0;
+    uint64_t emptyNetwork = 0;
 
     while (rtlsdrRunning) {
+        const auto now = Clock::now();
+        const auto gap = std::chrono::duration_cast<std::chrono::microseconds>(now-lastCopy).count();
+        if (gap > maxGapUs) maxGapUs = gap;
+        lastCopy = now;
+        // One bounded line per second; cumulative counts survive a missed report.
+        // Gap includes normal sleeps and startup filling, not just CPU starvation.
+        if (now-lastReport >= std::chrono::seconds(1)) {
+            std::clog << "RTL_IQ_DIAG epoch_us=" << getMyTime()
+                << " net_offered=" << networkWrites.offered.load()
+                << " net_accepted=" << networkWrites.accepted.load()
+                << " net_drop=" << networkWrites.dropped.load()
+                << " decoder_offered=" << decoderWrites.offered.load()
+                << " decoder_accepted=" << decoderWrites.accepted.load()
+                << " decoder_drop=" << decoderWrites.dropped.load()
+                << " net_fill=" << sampleNetworkBuffer.GetRingBufferReadAvailable()
+                << " decoder_fill=" << sampleBuffer.GetRingBufferReadAvailable()
+                << " short_reads=" << shortReads.load()
+                << " net_empty=" << emptyNetwork
+                << " resets=" << bufferResets.load()
+                << " copy_gap_max_us=" << maxGapUs << std::endl;
+            lastReport = now; maxGapUs = 0;
+        }
         if(!firstFilledNetworkBuffer) {
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
             nextStop_us = getMyTime();
@@ -501,6 +530,7 @@ void CRTL_TCP_Client::networkBufferCopy()
             samples = samplesInBuffer;
 
         if(samples == 0) {
+            ++emptyNetwork;
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
             nextStop_us = getMyTime();
             continue;
@@ -510,7 +540,7 @@ void CRTL_TCP_Client::networkBufferCopy()
         int32_t amount = sampleNetworkBuffer.getDataFromBuffer(tempBuffer.data(), 2 * samples);
 
         // Write data to standard buffers
-        sampleBuffer.putDataIntoBuffer(tempBuffer.data(), amount);
+        decoderWrites.write(sampleBuffer, tempBuffer.data(), amount);
         spectrumSampleBuffer.putDataIntoBuffer(tempBuffer.data(), amount);
 
         if(getMyTime() - oldTime_us > 500e3) { // 500 ms

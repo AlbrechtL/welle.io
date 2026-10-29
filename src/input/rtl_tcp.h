@@ -34,6 +34,7 @@
 #define __RTL_TCP_CLIENT
 
 #include <array>
+#include "iq_write_stats.h"
 #include <string>
 #include <thread>
 #include <mutex>
@@ -85,6 +86,9 @@ private:
     void networkBufferCopy(void);
     void handleDisconnect(void);
 
+    // Lifetime totals: observe loss without changing the existing buffering policy.
+    IQWriteStats networkWrites, decoderWrites;
+    std::atomic<uint64_t> shortReads{0}, bufferResets{0};
     std::mutex mutex;
     Socket sock;
     std::thread receiveThread;
