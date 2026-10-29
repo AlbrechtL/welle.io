@@ -116,7 +116,6 @@ private:
     bool firstData = true;
     std::atomic<bool> firstFilledNetworkBuffer{false};
     int64_t oldTime_us = 0;
-    int64_t nextStop_us = 0;
     dongle_info_t dongleInfo;
 
     // Gain values for the different tuners

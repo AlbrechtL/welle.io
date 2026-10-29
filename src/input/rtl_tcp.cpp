@@ -34,6 +34,7 @@
 #include <sys/time.h>
 
 #include "rtl_tcp.h"
+#include "iq_buffer_pacer.h"
 
 // For Qt translation if Qt is existing
 #ifdef QT_CORE_LIB
@@ -493,6 +494,9 @@ void CRTL_TCP_Client::networkBufferCopy()
     auto lastCopy = Clock::now(), lastReport = lastCopy;
     int64_t maxGapUs = 0;
     uint64_t emptyNetwork = 0, capacityWaits = 0;
+    IQBufferPacer pacer(2.0 * INPUT_RATE, sampleNetworkBuffer.GetBufferSize());
+    auto nextCopy = Clock::now();
+    int queuedBytes = 0;
 
     while (rtlsdrRunning) {
         const auto now = Clock::now();
@@ -515,12 +519,13 @@ void CRTL_TCP_Client::networkBufferCopy()
                 << " net_empty=" << emptyNetwork
                 << " resets=" << bufferResets.load()
                 << " capacity_waits=" << capacityWaits
+                << " pace_bytes_s=" << static_cast<uint64_t>(pacer.bytesPerSecond(sampleNetworkBuffer.GetRingBufferReadAvailable()))
                 << " copy_gap_max_us=" << maxGapUs << std::endl;
             lastReport = now; maxGapUs = 0;
         }
         if(!firstFilledNetworkBuffer) {
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            nextStop_us = getMyTime();
+            nextCopy = Clock::now();
             continue;
         }
 
@@ -532,6 +537,7 @@ void CRTL_TCP_Client::networkBufferCopy()
             upstreamEmpty = sampleNetworkBuffer.GetRingBufferReadAvailable() < 2;
             amount = transferIQ(sampleNetworkBuffer, sampleBuffer, decoderWrites,
                                 tempBuffer.data(), tempBuffer.size());
+            queuedBytes = sampleNetworkBuffer.GetRingBufferReadAvailable();
             if (amount > 0)
                 spectrumSampleBuffer.putDataIntoBuffer(tempBuffer.data(), amount);
         }
@@ -539,7 +545,7 @@ void CRTL_TCP_Client::networkBufferCopy()
             if (upstreamEmpty) {
                 ++emptyNetwork;
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
-                nextStop_us = getMyTime();
+                nextCopy = Clock::now();
             } else {
                 ++capacityWaits;
                 // Bounded wait, outside the reset mutex. Stop is checked each turn.
@@ -547,23 +553,12 @@ void CRTL_TCP_Client::networkBufferCopy()
             }
             continue;
         }
-        const int32_t samples = amount / 2;
-
-        if(getMyTime() - oldTime_us > 500e3) { // 500 ms
-
-            // float bufferFill = (float) sampleNetworkBuffer.GetRingBufferReadAvailable() / sampleNetworkBuffer.GetBufferSize() * 100;
-            //std::clog << "RTL_TCP_CLIENT: Network buffer fill level " << bufferFill << "%" << std::endl;
-
-            oldTime_us = getMyTime();
-        }
-
-
-        uint32_t period_us = samples / ((float) INPUT_RATE / 1e6);
-        nextStop_us += period_us;
-        int64_t timeToWait_us = nextStop_us - getMyTime();
-
-        // Send thread to sleep
-        std::this_thread::sleep_for(std::chrono::microseconds(timeToWait_us));
+        // Monotonic deadlines cannot jump with NTP/wall-clock corrections.
+        // The fill feedback follows a slightly faster/slower SDR clock while
+        // retaining the original network jitter reserve and capacity protection.
+        nextCopy += std::chrono::duration_cast<Clock::duration>(
+            std::chrono::duration<double>(pacer.secondsFor(amount, queuedBytes)));
+        std::this_thread::sleep_until(nextCopy);
     }
 }
 
