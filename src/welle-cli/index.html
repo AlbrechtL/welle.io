@@ -133,14 +133,20 @@ canvas {
                 <div class="data" style="display: none" id="tiiinfo"></div>
             </div>   
 
-            <section id="iq-rate-history" style="max-width: 1100px; margin: 24px 0;">
-                <h2>IQ-Samplerate</h2>
+            <section id="iq-rate-history" class="block_graph" style="max-width: 1100px; margin: 24px 0;">
+                <div class="title" role="button" tabindex="0" aria-expanded="false" aria-controls="iq-rate-history-data" style="cursor: pointer;">
+                    <div class="chevron"></div><h2>IQ-Samplerate</h2>
+                </div>
+                <div class="data" id="iq-rate-history-data" style="display: none;">
                 <p>Mittellinie: 2048 kS/s. Gemessener Mittelwert &uuml;ber bis zu 60 Sekunden.
                 Verlauf: bis zu 15 Minuten seit &Ouml;ffnen dieser Seite; L&uuml;cken bleiben sichtbar.</p>
+                <p><span style="color: #166b9d;">Blau: Messwerte</span> &middot;
+                    <span style="color: #7b3fa2;">Violett: Mittel aller Kurvenwerte im jeweiligen Verlauf (bis 15 Minuten)</span></p>
                 <canvas id="iq-rate-plot" width="900" height="250" role="img"
                     aria-label="Verlauf der gemessenen IQ-Samplerate um 2048 kS/s"
                     style="display: block; width: 100%; height: 250px; box-sizing: border-box;"></canvas>
                 <p id="iq-rate-plot-summary">Warte auf Messwerte&hellip;</p>
+                </div>
             </section>
         </div>
         <div>
