@@ -194,6 +194,7 @@ int32_t CRTL_TCP_Client::getSamplesToRead(void)
 
 void CRTL_TCP_Client::reset(void)
 {
+    std::lock_guard<std::mutex> transferLock(bufferTransferMutex);
     bufferResets.fetch_add(1, std::memory_order_relaxed);
     sampleBuffer.FlushRingBuffer();
     sampleNetworkBuffer.FlushRingBuffer();
@@ -491,7 +492,7 @@ void CRTL_TCP_Client::networkBufferCopy()
     using Clock = std::chrono::steady_clock;
     auto lastCopy = Clock::now(), lastReport = lastCopy;
     int64_t maxGapUs = 0;
-    uint64_t emptyNetwork = 0;
+    uint64_t emptyNetwork = 0, capacityWaits = 0;
 
     while (rtlsdrRunning) {
         const auto now = Clock::now();
@@ -513,6 +514,7 @@ void CRTL_TCP_Client::networkBufferCopy()
                 << " short_reads=" << shortReads.load()
                 << " net_empty=" << emptyNetwork
                 << " resets=" << bufferResets.load()
+                << " capacity_waits=" << capacityWaits
                 << " copy_gap_max_us=" << maxGapUs << std::endl;
             lastReport = now; maxGapUs = 0;
         }
@@ -522,26 +524,30 @@ void CRTL_TCP_Client::networkBufferCopy()
             continue;
         }
 
-        int32_t samples = NETWORK_BUFFER_READ_SAMPLES;
-
-        // Figure out the max samples to read from network buffer
-        int32_t samplesInBuffer = sampleNetworkBuffer.GetRingBufferReadAvailable() / 2;
-        if(samplesInBuffer < samples)
-            samples = samplesInBuffer;
-
-        if(samples == 0) {
-            ++emptyNetwork;
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            nextStop_us = getMyTime();
+        int32_t amount = 0;
+        bool upstreamEmpty = false;
+        {
+            std::lock_guard<std::mutex> transferLock(bufferTransferMutex);
+            if (!firstFilledNetworkBuffer) continue; // Reconnect reset won the lock.
+            upstreamEmpty = sampleNetworkBuffer.GetRingBufferReadAvailable() < 2;
+            amount = transferIQ(sampleNetworkBuffer, sampleBuffer, decoderWrites,
+                                tempBuffer.data(), tempBuffer.size());
+            if (amount > 0)
+                spectrumSampleBuffer.putDataIntoBuffer(tempBuffer.data(), amount);
+        }
+        if (amount == 0) {
+            if (upstreamEmpty) {
+                ++emptyNetwork;
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                nextStop_us = getMyTime();
+            } else {
+                ++capacityWaits;
+                // Bounded wait, outside the reset mutex. Stop is checked each turn.
+                std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            }
             continue;
         }
-
-        // Read data
-        int32_t amount = sampleNetworkBuffer.getDataFromBuffer(tempBuffer.data(), 2 * samples);
-
-        // Write data to standard buffers
-        decoderWrites.write(sampleBuffer, tempBuffer.data(), amount);
-        spectrumSampleBuffer.putDataIntoBuffer(tempBuffer.data(), amount);
+        const int32_t samples = amount / 2;
 
         if(getMyTime() - oldTime_us > 500e3) { // 500 ms
 
