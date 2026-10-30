@@ -17,6 +17,7 @@ set(CMAKE_CXX_STANDARD 14)
 
 option(BUILD_WELLE_IO    "Build Welle.io"                        ON  )
 option(BUILD_WELLE_CLI   "Build welle-cli"                       ON  )
+option(BUILD_WELLE_PI    "Build welle-pi"                        OFF )
 option(LIBWELLE_STATIC   "Build the welle library as static"     ON  )
 option(WITH_APP_BUNDLE   "Enable Application Bundle for macOS"   ON  )
 option(KISS_FFT          "KISS FFT instead of FFTW"              OFF )
@@ -85,6 +86,11 @@ if(BUILD_WELLE_CLI AND NOT ANDROID)
     find_package(FLACPP REQUIRED) # test if FLAC is installed on the system
     add_definitions(-DHAVE_FLAC)
     endif()
+endif()
+
+if (BUILD_WELLE_PI)
+    find_package(ALSA REQUIRED)
+    add_definitions(-DHAVE_ALSA)
 endif()
 
 find_package(Threads REQUIRED)
@@ -320,6 +326,21 @@ set(welle_cli_sources
     src/welle-cli/jsonconvert.cpp
     src/welle-cli/webprogrammehandler.cpp
     src/welle-cli/tests.cpp
+)
+
+set(welle_pi_sources
+    src/welle-pi/welle-pi.cpp
+    src/welle-pi/config_manager.cpp
+    src/welle-pi/input_queue.cpp
+    src/welle-pi/input_stdin.cpp
+    src/welle-pi/input_sources.cpp
+    src/welle-pi/screens.cpp
+    src/welle-pi/ui_manager.cpp
+    src/welle-pi/tty_display.cpp
+    src/welle-pi/plugin_loader.cpp
+    src/welle-pi/plugin_display.cpp
+    src/welle-pi/volume.cpp
+    src/welle-cli/alsa-output.cpp
 )
 
 set(input_sources
@@ -596,6 +617,101 @@ if(BUILD_WELLE_CLI AND NOT ANDROID)
     if(UNIX AND NOT APPLE OR NOT WITH_APP_BUNDLE)
         INSTALL (TARGETS ${cliExecutableName} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
         INSTALL (FILES src/welle-cli/doc/man/welle-cli.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1/)
+    endif()
+endif()
+
+if (BUILD_WELLE_PI)
+    set(piExecutableName welle-pi)
+    add_executable (${piExecutableName} ${welle_pi_sources})
+    if(CMAKE_BUILD_TYPE MATCHES Debug)
+      SET_TARGET_PROPERTIES(${piExecutableName} PROPERTIES COMPILE_FLAGS "-O2 -fno-omit-frame-pointer -fsanitize=address")
+      SET_TARGET_PROPERTIES(${piExecutableName} PROPERTIES LINK_FLAGS "-fno-omit-frame-pointer -fsanitize=address")
+    endif(CMAKE_BUILD_TYPE MATCHES Debug)
+
+    target_link_libraries (${piExecutableName}
+        welle
+        ${ALSA_LIBRARIES}
+        ${CMAKE_DL_LIBS}
+        Threads::Threads
+    )
+
+    # Plugins: welle-pi-<name>.so, found first in welle-pi-plugins/ next
+    # to the executable (runs from the build tree), then here
+    set(WELLE_PI_PLUGIN_DIR "${CMAKE_INSTALL_FULL_LIBDIR}/welle-pi")
+    set(WELLE_PI_PLUGIN_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/welle-pi-plugins")
+    set_source_files_properties(src/welle-pi/plugin_loader.cpp PROPERTIES
+        COMPILE_DEFINITIONS WELLE_PI_PLUGIN_DIR="${WELLE_PI_PLUGIN_DIR}")
+    add_subdirectory(src/welle-pi/plugins)
+
+    if(BUILD_TESTS)
+        add_executable(navigation_tests
+            src/tests/navigation_tests.cpp
+            src/welle-pi/ui_manager.cpp
+        )
+        target_include_directories(navigation_tests PRIVATE
+            src/welle-pi
+        )
+        # checks are assert(); keep them in Release
+        target_compile_options(navigation_tests PRIVATE -UNDEBUG)
+        target_link_libraries(navigation_tests
+            Threads::Threads
+        )
+        add_test(NAME unit.navigation COMMAND navigation_tests)
+        set_tests_properties(unit.navigation PROPERTIES LABELS unit)
+
+        add_executable(display_tests
+            src/tests/display_tests.cpp
+            src/welle-pi/screens.cpp
+            src/welle-pi/tty_display.cpp
+            src/welle-pi/ui_manager.cpp
+        )
+        target_include_directories(display_tests PRIVATE src/welle-pi)
+        target_compile_options(display_tests PRIVATE -UNDEBUG)
+        target_link_libraries(display_tests Threads::Threads)
+        add_test(NAME unit.display COMMAND display_tests)
+        set_tests_properties(unit.display PROPERTIES LABELS unit)
+
+        add_executable(input_plugin_tests
+            src/tests/input_plugin_tests.cpp
+            src/welle-pi/input_sources.cpp
+            src/welle-pi/input_stdin.cpp
+            src/welle-pi/input_queue.cpp
+            src/welle-pi/plugin_loader.cpp
+        )
+        target_include_directories(input_plugin_tests PRIVATE src/welle-pi)
+        target_compile_options(input_plugin_tests PRIVATE -UNDEBUG)
+        target_link_libraries(input_plugin_tests ${CMAKE_DL_LIBS} Threads::Threads)
+        add_dependencies(input_plugin_tests welle-pi-example)
+        add_test(NAME unit.input_plugin COMMAND input_plugin_tests)
+        set_tests_properties(unit.input_plugin PROPERTIES LABELS unit)
+
+        add_executable(display_plugin_tests
+            src/tests/display_plugin_tests.cpp
+            src/welle-pi/plugin_display.cpp
+            src/welle-pi/plugin_loader.cpp
+        )
+        target_include_directories(display_plugin_tests PRIVATE src/welle-pi)
+        target_compile_options(display_plugin_tests PRIVATE -UNDEBUG)
+        target_link_libraries(display_plugin_tests ${CMAKE_DL_LIBS})
+        add_dependencies(display_plugin_tests welle-pi-example)
+        add_test(NAME unit.display_plugin COMMAND display_plugin_tests)
+        set_tests_properties(unit.display_plugin PROPERTIES LABELS unit)
+
+        add_executable(volume_tests
+            src/tests/volume_tests.cpp
+            src/welle-pi/volume.cpp
+        )
+        target_include_directories(volume_tests PRIVATE src/welle-pi)
+        target_compile_options(volume_tests PRIVATE -UNDEBUG)
+        target_link_libraries(volume_tests ${ALSA_LIBRARIES})
+        add_test(NAME unit.volume COMMAND volume_tests)
+        set_tests_properties(unit.volume PROPERTIES LABELS unit)
+    endif()
+    if(UNIX AND NOT APPLE OR NOT WITH_APP_BUNDLE)
+        INSTALL (TARGETS ${piExecutableName} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+        # for plugins built elsewhere
+        INSTALL (FILES src/welle-pi/plugin.h src/welle-pi/input_plugin.h src/welle-pi/display_plugin.h
+                 DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/welle-pi)
     endif()
 endif()
 
