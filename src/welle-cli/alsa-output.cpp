@@ -102,7 +102,9 @@ AlsaOutput::AlsaOutput(const char* device, int chans, unsigned int rate) :
 
 AlsaOutput::~AlsaOutput() {
     if (pcm_handle) {
-        snd_pcm_drain(pcm_handle);
+        /* Not drain(): the PipeWire ALSA plugin can wait forever for the
+         * device to play the rest out, which blocks the shutdown. */
+        snd_pcm_drop(pcm_handle);
         snd_pcm_close(pcm_handle);
     }
 }
