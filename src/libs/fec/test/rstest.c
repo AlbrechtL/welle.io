@@ -35,6 +35,7 @@ int exercise_char(struct etab *e);
 
 int main(){
   int i;
+  int failed = 0;
 
   srandom(time(NULL));
 
@@ -44,9 +45,10 @@ int main(){
     nn = (1<<Tab[i].symsize) - 1;
     kk = nn - Tab[i].nroots;
     printf("Testing (%d,%d) code...\n",nn,kk);
-		exercise_char(&Tab[i]);
+		if(exercise_char(&Tab[i]) != 0)
+		  failed = 1;
   }
-  exit(0);
+  exit(failed);
 }
 
 int exercise_char(struct etab *e){
@@ -127,5 +129,5 @@ int exercise_char(struct etab *e){
   }
 
   free_rs_char(rs);
-  return 0;
+  return decoder_errors;
 }
