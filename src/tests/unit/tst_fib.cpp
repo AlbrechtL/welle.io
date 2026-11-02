@@ -75,10 +75,11 @@ const uint32_t SID_TDC = 0xE0D01008;
 
 // FIG 0/0 with the lower part of the CIF count and, if changeFlags is
 // not 0, the CIF count of an announced reconfiguration
-BitWriter ensembleInformation(int cifCountLow, int changeFlags, int occurrenceChange)
+BitWriter ensembleInformation(int cifCountLow, int changeFlags, int occurrenceChange,
+        uint16_t eId = 0xCE15)
 {
     BitWriter w;
-    w.put(0xCE15, 16);              // EId
+    w.put(eId, 16);
     w.put(changeFlags, 2);
     w.put(0, 1);                    // AL flag
     w.put(0, 5);                    // CIF count, high part
@@ -111,6 +112,7 @@ private slots:
     void packetModeComponents();
     void reconfiguration();
     void reconfigurationWithoutCifCount();
+    void ensembleChange();
 };
 
 void FibTests::packetModeComponents()
@@ -331,6 +333,56 @@ void FibTests::reconfigurationWithoutCifCount()
     process(fig0(0, false, ensembleInformation(30, 0, 0)), 1);
     fibProcessor.processCifEnd(1);
     QCOMPARE(changes, std::vector<int>{1});
+}
+
+// After a retune, samples of the old channel are decoded first. A service
+// both ensembles carry must get the subchannel of the new one.
+void FibTests::ensembleChange()
+{
+    NullRadioController controller;
+    FIBProcessor fibProcessor(controller);
+
+    auto process = [&](const std::vector<uint8_t>& fig) {
+        auto bits = fib(fig);
+        fibProcessor.processFIB(bits.data(), 0);
+    };
+
+    auto audioService = [](int subChId) {
+        BitWriter w;
+        w.put(0x4D00, 16);
+        w.put(0, 1);                // local flag
+        w.put(0, 3);                // CAId
+        w.put(1, 4);                // number of components
+        w.put(0, 2);                // TMId: MSC stream audio
+        w.put(63, 6);               // ASCTy: DAB+
+        w.put(subChId, 6);
+        w.put(1, 1);                // primary
+        w.put(0, 1);                // CA flag
+        return w;
+    };
+
+    auto subChId = [&]() {
+        const auto comps = fibProcessor.getComponents(fibProcessor.getService(0x4D00));
+        return comps.size() == 1 ? int(comps.front().subchannelId) : -1;
+    };
+
+    // Old ensemble: subchannel 12
+    process(fig0(0, false, ensembleInformation(0, 0, 0, 0x4441)));
+    process(fig0(1, false, subchannelOrganisation(12, 0, 48)));
+    process(fig0(2, false, audioService(12)));
+    process(fig0(2, false, audioService(12)));
+    QCOMPARE(subChId(), 12);
+
+    // New ensemble: subchannel 3
+    process(fig0(0, false, ensembleInformation(1, 0, 0, 0x4442)));
+    QVERIFY(fibProcessor.getServiceList().empty());
+    ServiceComponent old;
+    old.subchannelId = 12;
+    QVERIFY(not fibProcessor.getSubchannel(old).valid());
+    process(fig0(1, false, subchannelOrganisation(3, 100, 48)));
+    process(fig0(2, false, audioService(3)));
+    process(fig0(2, false, audioService(3)));
+    QCOMPARE(subChId(), 3);
 }
 
 QTEST_GUILESS_MAIN(FibTests)

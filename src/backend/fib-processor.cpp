@@ -123,6 +123,12 @@ void FIBProcessor::FIG0Extension0 (uint8_t *d)
     uint16_t eId  = getBits(d, 16, 16);
 
     if (ensembleId != eId) {
+        // Samples of the previous channel are still decoded after a retune:
+        // drop what they signalled, else the SIds both ensembles carry keep
+        // the subchannels of the old one.
+        if (ensembleId != 0) {
+            clearEnsembleLocked();
+        }
         ensembleId = eId;
         myRadioInterface.onNewEnsemble(ensembleId);
     }
@@ -1376,8 +1382,13 @@ void FIBProcessor::setReconfigurationCallback(ReconfigurationCallback callback)
 void FIBProcessor::clearEnsemble()
 {
     std::lock_guard<std::mutex> lock(mutex);
+    clearEnsembleLocked();
+}
+
+void FIBProcessor::clearEnsembleLocked()
+{
     components.clear();
-    subChannels.resize(64);
+    subChannels.assign(64, Subchannel());
     nextSubChannels.assign(64, Subchannel());
     cifCountLow = -1;
     changeOccurrence = -1;

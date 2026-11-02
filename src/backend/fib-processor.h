@@ -100,6 +100,7 @@ class FIBProcessor {
                 int16_t CAflag);
 
         void dropService(uint32_t SId);
+        void clearEnsembleLocked();
 
         void process_FIG0(uint8_t *);
         void process_FIG1(uint8_t *);
