@@ -822,6 +822,7 @@ static void runAutoScanner(RadioReceiver& rx, CVirtualInput* in, RadioInterface&
 
         auto freq = channels.getFrequency(channel);
         in->setFrequency(freq);
+        in->resetForScan(); // seconds of the old channel are still buffered
         rx.restart(true); // scanMode = true in ofdm-processor
         ri.resetSyncWatchdog();
         ri.synced = false;
@@ -1035,6 +1036,7 @@ int main(int argc, char **argv)
 
         auto freq = channels.getFrequency(st.channel);
         in->setFrequency(freq);
+        in->reset(); // seconds of the old channel are still buffered
         rx.restart(false);
         ri.resetSyncWatchdog();
         ri.synced = false;

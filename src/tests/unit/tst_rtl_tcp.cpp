@@ -148,12 +148,22 @@ class RtlTcpTests : public QObject
 
 private slots:
     void initTestCase() { hideDebugOutput(); }
+    void dropsSamplesOfOldFrequency_data();
     void dropsSamplesOfOldFrequency();
     void reportsGainOfAgc();
 };
 
+void RtlTcpTests::dropsSamplesOfOldFrequency_data()
+{
+    QTest::addColumn<bool>("scan");
+    QTest::newRow("reset") << false;
+    QTest::newRow("resetForScan") << true;
+}
+
 void RtlTcpTests::dropsSamplesOfOldFrequency()
 {
+    QFETCH(bool, scan);
+
     FakeRtlTcpServer server;
     QVERIFY2(server.start(), "No free port for the rtl_tcp server");
 
@@ -180,8 +190,13 @@ void RtlTcpTests::dropsSamplesOfOldFrequency()
 
     // Retune like CRadioController::setChannel()
     input.setFrequency(newFrequency);
-    input.reset();
+    if (scan)
+        input.resetForScan();
+    else
+        input.reset();
 
+    const auto retuned = Clock::now();
+    auto firstNew = Clock::time_point();
     int64_t oldSamples = 0;
     int64_t newSamples = 0;
     for (auto t = Clock::now(); newSamples < INPUT_RATE / 2 &&
@@ -191,6 +206,8 @@ void RtlTcpTests::dropsSamplesOfOldFrequency()
             oldSamples += buffer[i].real() == oldSample;
             newSamples += buffer[i].real() == newSample;
         }
+        if (newSamples > 0 && firstNew == Clock::time_point())
+            firstNew = Clock::now();
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 
@@ -198,6 +215,13 @@ void RtlTcpTests::dropsSamplesOfOldFrequency()
     QVERIFY2(oldSamples == 0,
              qPrintable(QString("%1 ms of the old frequency after the retune")
                         .arg(1000.0 * oldSamples / INPUT_RATE)));
+
+    // 500 ms are discarded after the retune; reset() then waits about 1 s
+    // more for the network buffer, resetForScan() must not
+    const auto delay = std::chrono::duration_cast<std::chrono::milliseconds>(
+            firstNew - retuned).count();
+    if (scan)
+        QVERIFY2(delay < 1000, qPrintable(QString("First new sample after %1 ms").arg(delay)));
 }
 
 void RtlTcpTests::reportsGainOfAgc()
