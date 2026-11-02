@@ -42,6 +42,10 @@ static const uint64_t ENSEMBLE_TIMEOUT_MS = 15000;
  * considered complete when no new service appeared for that long. */
 static const uint64_t ENSEMBLE_STABLE_MS = 2000;
 
+/* Noise passes the time synchronisation now and then: no ensemble if no
+ * service appeared for that long. */
+static const uint64_t NO_SERVICE_MS = 5000;
+
 static uint64_t now_ms()
 {
     return chrono::duration_cast<chrono::milliseconds>(
@@ -61,7 +65,8 @@ void wait_for_complete_ensemble(RadioReceiver& rx,
 {
     const auto stop = [&]() { return stop_requested and stop_requested(); };
 
-    const uint64_t deadline = now_ms() + ENSEMBLE_TIMEOUT_MS;
+    const uint64_t start = now_ms();
+    const uint64_t deadline = start + ENSEMBLE_TIMEOUT_MS;
     size_t seen = 0;
     uint64_t last_new_service = now_ms();
 
@@ -72,6 +77,11 @@ void wait_for_complete_ensemble(RadioReceiver& rx,
         const auto services = rx.getServiceList();
         const size_t labelled = count_if(services.begin(), services.end(),
                 has_label);
+
+        if (services.empty() and now_ms() - start > NO_SERVICE_MS) {
+            cerr << "No ensemble" << endl;
+            return;
+        }
 
         if (services.size() != seen) {
             seen = services.size();
