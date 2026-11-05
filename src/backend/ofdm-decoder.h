@@ -149,21 +149,26 @@ class OfdmDecoder
         // Takes effect with the next frame
         void    setDemodulationMethod(DemodulationMethod method);
     private:
+        friend class OfdmDecoderTestAccess;
         int16_t get_snr(DSPCOMPLEX *, uint8_t method);
 
         const DABParams& params;
         RadioControllerInterface& radioInterface;
         FicHandler& ficHandler;
         MscHandler& mscHandler;
-        std::atomic<bool> running = ATOMIC_VAR_INIT(false);
+        // Set before starting the worker. The worker must never undo a stop request.
+        std::atomic<bool> running = ATOMIC_VAR_INIT(true);
 
         std::condition_variable pending_symbols_cv;
         std::mutex mutex;
         int num_pending_symbols = 0;
+        // Invalidates submissions waiting across a reset; protected by mutex.
+        uint64_t generation = 0;
         std::vector<std::vector<DSPCOMPLEX> > pending_symbols;
 
         std::thread thread;
         void workerthread(void);
+        void stopWorker();
         void processPRS();
         void decodeDataSymbol(int32_t n);
         void decodeDifferential();
