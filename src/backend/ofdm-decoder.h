@@ -162,13 +162,16 @@ class OfdmDecoder
         std::condition_variable pending_symbols_cv;
         std::mutex mutex;
         int num_pending_symbols = 0;
-        // Invalidates submissions waiting across a reset; protected by mutex.
+        // Defensive barrier for reset(), currently not called by receiver restart.
+        // Invalidates waiting submissions; protected by mutex.
         uint64_t generation = 0;
         std::vector<std::vector<DSPCOMPLEX> > pending_symbols;
 
         std::thread thread;
         void workerthread(void);
         void stopWorker();
+        // Injectable thread construction keeps the failure path testable.
+        void resetWorker(std::thread (*start)(OfdmDecoder&));
         void processPRS();
         void decodeDataSymbol(int32_t n);
         void decodeDifferential();

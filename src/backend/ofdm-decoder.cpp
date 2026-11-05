@@ -80,7 +80,9 @@ OfdmDecoder::~OfdmDecoder()
 
 void OfdmDecoder::stopWorker()
 {
-    // Stop between symbols, even while the worker owns the frame mutex.
+    // Request stop without waiting for the frame mutex: the worker checks this
+    // atomic flag between symbols. Joining still waits for the current symbol
+    // and any in-progress callback; this is not an immediate cancellation.
     running = false;
     {
         // Pair the notification with the wait predicates. Without this barrier
@@ -96,6 +98,13 @@ void OfdmDecoder::stopWorker()
 
 void OfdmDecoder::reset()
 {
+    resetWorker([](OfdmDecoder& decoder) {
+        return std::thread(&OfdmDecoder::workerthread, &decoder);
+    });
+}
+
+void OfdmDecoder::resetWorker(std::thread (*start)(OfdmDecoder&))
+{
     // Lifecycle calls are serialized by the owner. A submission waiting on
     // pending_symbols_cv must not cross into this new decoder generation.
     stopWorker();
@@ -107,7 +116,15 @@ void OfdmDecoder::reset()
         running = true;
     }
     coherent.reset();
-    thread = std::thread(&OfdmDecoder::workerthread, this);
+    try {
+        thread = start(*this);
+    }
+    catch (...) {
+        // A failed start must not leave producers waiting for a missing worker.
+        // Invalidate this generation and wake any submissions already waiting.
+        stopWorker();
+        throw;
+    }
 }
 
 void OfdmDecoder::setDemodulationMethod(DemodulationMethod method)

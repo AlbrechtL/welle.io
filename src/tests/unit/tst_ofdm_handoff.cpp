@@ -1,6 +1,7 @@
 /*
  * OFDM frame handoff and lifecycle regression tests.
- * This file is part of welle.io and was developed with an AI assistant.
+ * This file was generated with the help of an AI assistant
+ * (OpenAi Codex 6 Astra).
  *
  * welle.io is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,10 +19,14 @@
  */
 
 #include <QtTest>
+#include <QProcess>
+#include <QProcessEnvironment>
 #include <chrono>
 #include <future>
+#include <functional>
 #include <mutex>
 #include <thread>
+#include <system_error>
 #include "ofdm-decoder.h"
 #include "null_radio_controller.h"
 
@@ -40,6 +45,18 @@ public:
     static void start(OfdmDecoder& d) {
         d.thread = std::thread(&OfdmDecoder::workerthread, &d);
     }
+    static void startAfter(OfdmDecoder& d, std::shared_future<void> gate) {
+        d.thread = std::thread([&d, gate] {
+            gate.wait();
+            d.workerthread();
+        });
+    }
+    static void failResetThreadCreation(OfdmDecoder& d) {
+        d.resetWorker([](OfdmDecoder&) -> std::thread {
+            throw std::system_error(
+                    std::make_error_code(std::errc::resource_unavailable_try_again));
+        });
+    }
     static void publishNewGeneration(OfdmDecoder& d) {
         // Model the boundary where reset has already restarted the receiver
         // before an old producer gets its mutex back. Do not start a consumer.
@@ -49,6 +66,7 @@ public:
         d.num_pending_symbols = 0;
         d.pending_symbols_cv.notify_all();
     }
+    static void nextPrsReportsSnr(OfdmDecoder& d) { d.snrCount = 10; }
     static void notify(OfdmDecoder& d) { d.pending_symbols_cv.notify_all(); }
     static int pending(OfdmDecoder& d) {
         std::lock_guard<std::mutex> lock(d.mutex);
@@ -61,6 +79,8 @@ class FrameObserver : public NullRadioController {
 public:
     std::mutex mutex;
     std::vector<std::vector<DSPCOMPLEX>> frames;
+    std::function<void()> snrCallback;
+    void onSNR(float) override { if (snrCallback) snrCallback(); }
     void onConstellationPoints(std::vector<DSPCOMPLEX>&& points) override {
         std::lock_guard<std::mutex> lock(mutex);
         frames.push_back(std::move(points));
@@ -72,12 +92,16 @@ public:
 };
 
 struct DecoderFixture {
-    DABParams params{2};
+    DABParams params;
     FrameObserver observer;
     FicHandler fic{observer};
     MscHandler msc{params, false};
     OfdmDecoder decoder{params, observer, fic, msc};
-    explicit DecoderFixture(int mode = 2) : params(mode) { fic.setBitsperBlock(2 * params.K); }
+    explicit DecoderFixture(int mode = 2) : params(mode) {
+        // Synthetic frames also exercise modes II/IV. FicHandler defaults to
+        // mode I, so its per-symbol soft-bit count must match the selected K.
+        fic.setBitsperBlock(2 * params.K);
+    }
 
     // Impulses have a flat FFT. Consecutive data symbols rotate by phase,
     // making every differential constellation point identify its input frame.
@@ -146,12 +170,40 @@ private slots:
     }
 
     void stopBeforeWorkerEntryStaysStopped() {
+        if (!qEnvironmentVariableIsSet("WELLE_TEST_STOP_CHILD")) {
+            // A future's destructor can itself block after a failed assertion.
+            // Isolate this deliberate hang regression so the parent can report
+            // the named case and terminate the child, not wait for CTest's limit.
+            QProcess child;
+            auto env = QProcessEnvironment::systemEnvironment();
+            env.insert("WELLE_TEST_STOP_CHILD", "1");
+            child.setProcessEnvironment(env);
+            child.start(QCoreApplication::applicationFilePath(),
+                        {QStringLiteral("stopBeforeWorkerEntryStaysStopped")});
+            QVERIFY(child.waitForStarted(2000));
+            const bool finished = child.waitForFinished(3000);
+            if (!finished) {
+                child.kill();
+                child.waitForFinished(2000);
+            }
+            QVERIFY2(finished, "Worker failed to stop after entering with running=false");
+            QCOMPARE(child.exitStatus(), QProcess::NormalExit);
+            const auto output = child.readAllStandardOutput() + child.readAllStandardError();
+            QVERIFY2(child.exitCode() == 0, output.constData());
+            return;
+        }
+
         DecoderFixture f;
-        OfdmDecoderTestAccess::stop(f.decoder);
-        // Schedule the real worker after the stop flag is already set. It must
-        // not restore running=true and wait forever (CTest also has a timeout).
-        OfdmDecoderTestAccess::start(f.decoder);
-        OfdmDecoderTestAccess::stop(f.decoder);
+        OfdmDecoderTestAccess::prepareDelayedWorker(f.decoder);
+        std::promise<void> enter;
+        OfdmDecoderTestAccess::startAfter(f.decoder, enter.get_future().share());
+        auto stopped = std::async(std::launch::async, [&] {
+            OfdmDecoderTestAccess::stop(f.decoder);
+        });
+        QTRY_VERIFY_WITH_TIMEOUT(!OfdmDecoderTestAccess::running(f.decoder), 1000);
+        // The real worker now enters strictly after the stop flag was set.
+        enter.set_value();
+        stopped.get(); // The parent process bounds a regression here.
         QVERIFY(!OfdmDecoderTestAccess::running(f.decoder));
     }
 
@@ -192,6 +244,88 @@ private slots:
         second.get();
         QCOMPARE(oldFrame.size(), size_t(f.params.L));
         QCOMPARE(OfdmDecoderTestAccess::pending(f.decoder), 0);
+    }
+
+    void stopDuringPrsSkipsRemainingSymbols() {
+        DecoderFixture f;
+        OfdmDecoderTestAccess::prepareDelayedWorker(f.decoder);
+        OfdmDecoderTestAccess::nextPrsReportsSnr(f.decoder);
+        std::promise<void> entered, resume;
+        auto enteredFuture = entered.get_future();
+        auto resumeFuture = resume.get_future();
+        f.observer.snrCallback = [&] {
+            entered.set_value();
+            resumeFuture.wait(); // Real PRS callback still owns the frame mutex.
+        };
+        f.decoder.pushAllSymbols(f.frame(0.1f));
+        OfdmDecoderTestAccess::start(f.decoder);
+        const auto callbackReady = enteredFuture.wait_for(2s);
+        auto stopped = std::async(std::launch::async, [&] {
+            OfdmDecoderTestAccess::stop(f.decoder);
+        });
+        const auto deadline = std::chrono::steady_clock::now() + 2s;
+        while (OfdmDecoderTestAccess::running(f.decoder) &&
+               std::chrono::steady_clock::now() < deadline)
+            std::this_thread::yield();
+        const bool stopRequested = !OfdmDecoderTestAccess::running(f.decoder);
+        const auto waiting = stopped.wait_for(20ms);
+        resume.set_value(); // Always release the callback before assertions.
+        stopped.get();
+        QVERIFY(callbackReady == std::future_status::ready);
+        QVERIFY(stopRequested);
+        QVERIFY(waiting == std::future_status::timeout);
+        QCOMPARE(f.observer.count(), size_t(0));
+        QCOMPARE(OfdmDecoderTestAccess::pending(f.decoder), f.params.L - 1);
+    }
+
+    void resetRejectsBlockedProducer() {
+        DecoderFixture f;
+        OfdmDecoderTestAccess::prepareDelayedWorker(f.decoder);
+        f.decoder.pushAllSymbols(f.frame(0.1f));
+        auto oldFrame = f.frame(0.4f);
+        std::promise<void> started;
+        auto producer = std::async(std::launch::async, [&] {
+            started.set_value();
+            f.decoder.pushAllSymbols(std::move(oldFrame));
+        });
+        started.get_future().wait();
+        const auto waiting = producer.wait_for(50ms);
+        f.decoder.reset(); // Exercise the real stop/clear/restart path.
+        const auto finished = producer.wait_for(3s);
+        if (finished != std::future_status::ready)
+            OfdmDecoderTestAccess::stop(f.decoder); // Release before assertions.
+        producer.get();
+        QVERIFY(waiting == std::future_status::timeout);
+        QVERIFY(finished == std::future_status::ready);
+        QCOMPARE(oldFrame.size(), size_t(f.params.L));
+        f.decoder.pushAllSymbols(f.frame(0.7f));
+        QTRY_COMPARE_WITH_TIMEOUT(f.observer.count(), size_t(1), 3000);
+        OfdmDecoderTestAccess::stop(f.decoder);
+        for (const auto point : f.observer.frames[0])
+            QVERIFY(std::abs(point - std::polar(1.0f, 0.7f)) < 0.001f);
+    }
+
+    void failedResetStaysStoppedAndCanRecover() {
+        DecoderFixture f;
+        bool threw = false;
+        try {
+            OfdmDecoderTestAccess::failResetThreadCreation(f.decoder);
+        }
+        catch (const std::system_error& error) {
+            threw = true;
+            QVERIFY(error.code() == std::errc::resource_unavailable_try_again);
+        }
+        QVERIFY(threw);
+        QVERIFY(!OfdmDecoderTestAccess::running(f.decoder));
+        auto rejected = f.frame(0.1f);
+        f.decoder.pushAllSymbols(std::move(rejected));
+        QCOMPARE(rejected.size(), size_t(f.params.L));
+        QCOMPARE(OfdmDecoderTestAccess::pending(f.decoder), 0);
+        // A failed attempt does not poison a later successful reset.
+        f.decoder.reset();
+        f.decoder.pushAllSymbols(f.frame(0.7f));
+        QTRY_COMPARE_WITH_TIMEOUT(f.observer.count(), size_t(1), 3000);
+        OfdmDecoderTestAccess::stop(f.decoder);
     }
 
     void resetDiscardsPendingFrame() {
