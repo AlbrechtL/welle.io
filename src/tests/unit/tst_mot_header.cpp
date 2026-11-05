@@ -1,7 +1,7 @@
 /*
  * MOT header extension bounds regression tests.
- * This file is part of welle.io and was generated with the help of an AI
- * assistant (OpenAI Codex).
+ * This file was generated with the help of an AI assistant
+ * (OpenAi Codex 6 Astra).
  *
  * welle.io is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -77,9 +77,13 @@ private slots:
         QTest::newRow("mime") << QByteArray::fromHex("10");
         QTest::newRow("category-title") << QByteArray::fromHex("26");
         QTest::newRow("click-through") << QByteArray::fromHex("27");
-        QTest::newRow("name-ebu") << QByteArray::fromHex("4c00");
-        QTest::newRow("name-ucs2") << QByteArray::fromHex("4c60");
-        QTest::newRow("name-utf8") << QByteArray::fromHex("4cf0");
+        // Following CAInfo (0x23) and TriggerTime (0x85, four zero bytes)
+        // provide a nonzero sentinel and an in-bounds terminator for all three
+        // charsets. The old zero-length C-string conversion must consume the
+        // next field, rather than accidentally finding zero beyond the buffer.
+        QTest::newRow("name-ebu") << QByteArray::fromHex("4c00238500000000");
+        QTest::newRow("name-ucs2") << QByteArray::fromHex("4c60238500000000");
+        QTest::newRow("name-utf8") << QByteArray::fromHex("4cf0238500000000");
     }
 
     void emptyStrings() {
@@ -89,7 +93,12 @@ private slots:
         std::string name = "old";
         QVERIFY(parse(bytes, file, name));
         switch (uint8_t(bytes[0]) & 0x3f) {
-        case 0x0c: QVERIFY(file.content_name.empty()); QVERIFY(name.empty()); break;
+        case 0x0c:
+            QVERIFY(file.content_name.empty());
+            QVERIFY(name.empty());
+            QVERIFY(file.ca_info);
+            QVERIFY(file.trigger_time_now);
+            break;
         case 0x10: QVERIFY(file.mime_type.empty()); break;
         case 0x26: QVERIFY(file.category_title.empty()); break;
         case 0x27: QVERIFY(file.click_through_url.empty()); break;
