@@ -157,12 +157,14 @@ bool ParseMOTHeaderExtension(const uint8_t* ext_data, size_t ext_len, MOT_FILE& 
 			break;
 		}
 
-		if(offset + data_len - 1 >= data.size())
+		if(offset > data.size() || data_len > data.size() - offset)
 			return false;
 
 		// process parameter
 		switch(param_id) {
         case 0x04:	// ExpireTime
+            if(data_len < 1)
+                return false;
             file.expire_time = data[offset]; // TODO not tested
             break;
 		case 0x05:	// TriggerTime
@@ -176,12 +178,16 @@ bool ParseMOTHeaderExtension(const uint8_t* ext_data, size_t ext_len, MOT_FILE& 
 			if(data_len == 0)
 				return false;
 			//file.content_name = CharsetTools::ConvertTextToUTF8(&data[offset + 1], data_len - 1, data[offset] >> 4, true, &file.content_name_charset);
-            file.content_name = toUtf8StringUsingCharset ( (const char *)&data[offset + 1], (CharacterSet) (data[offset] >> 4), data_len - 1);
+            // A zero length means null-terminated input to the charset helper.
+            // Handle a charset-only (empty) name without reading past the field.
+            file.content_name = data_len == 1 ? std::string() :
+                toUtf8StringUsingCharset(data.data() + offset + 1,
+                    (CharacterSet) (data[offset] >> 4), data_len - 1);
 			new_content_name = file.content_name;
 //			fprintf(stderr, "ContentName: '%s'\n", file.content_name.c_str());
 			break;
 		case 0x10:	// MimeType
-			file.mime_type = std::string((char*) &data[offset], data_len);
+			file.mime_type = std::string((const char*) (data.data() + offset), data_len);
 			break;
 		case 0x11:	// CompressionType
 			if(data_len >= 1)
@@ -204,10 +210,10 @@ bool ParseMOTHeaderExtension(const uint8_t* ext_data, size_t ext_len, MOT_FILE& 
             file.slide_id = data[offset+1];
             break;
 		case 0x26:	// CategoryTitle
-            file.category_title = std::string((char*) &data[offset], data_len);	// already UTF-8
+            file.category_title = std::string((const char*) (data.data() + offset), data_len);	// already UTF-8
 			break;
 		case 0x27:	// ClickThroughURL
-			file.click_through_url = std::string((char*) &data[offset], data_len);	// already UTF-8
+			file.click_through_url = std::string((const char*) (data.data() + offset), data_len);	// already UTF-8
 //			fprintf(stderr, "ClickThroughURL: '%s'\n", file.click_through_url.c_str());
 			break;
 		}
