@@ -25,10 +25,13 @@
  */
 
 #include <cmath>
+#include <algorithm>
 #include <vector>
 #include <sstream>
 #include <iostream>
 #include <cassert>
+#include <limits>
+#include <stdexcept>
 #include <SoapySDR/Errors.hpp>
 #include "soapy_sdr.h"
 #include "dab-constants.h"
@@ -157,11 +160,7 @@ bool CSoapySdr::restart()
         setFrequency(m_freq);
     }
 
-    auto range = m_device->getGainRange(SOAPY_SDR_RX, 0);
-    // Ignore step size, as it could be 0. 1dB steps are ok
-    for (double g = range.minimum(); g < range.maximum(); g++) {
-        m_gains.push_back(g);
-    }
+    updateGains();
 
     const bool automatic = false;
     m_device->setGainMode(SOAPY_SDR_RX, 0, automatic);
@@ -177,6 +176,34 @@ bool CSoapySdr::restart()
     m_thread = std::thread(&CSoapySdr::workerthread, this);
 
     return true;
+}
+
+void CSoapySdr::updateGains()
+{
+    m_gains.clear();
+    const auto range = m_device->getGainRange(SOAPY_SDR_RX, 0);
+    const double minimum = range.minimum();
+    const double maximum = range.maximum();
+    const double step = range.step() == 0.0 ? 1.0 : range.step();
+    if (!std::isfinite(minimum) || !std::isfinite(maximum) ||
+        !std::isfinite(step) || step <= 0.0 || minimum > maximum) {
+        throw std::runtime_error("Invalid SoapySDR gain range");
+    }
+
+    // A zero step denotes an unspecified step size: retain the 1 dB policy.
+    // Calculate from the minimum to avoid accumulating rounding error, and
+    // include the driver's upper endpoint without issuing an out-of-range gain.
+    const double tolerance = 8 * std::numeric_limits<double>::epsilon() *
+        std::max(1.0, std::max(std::abs(minimum), std::abs(maximum)));
+    for (size_t i = 0; ; ++i) {
+        const double gain = std::fma(static_cast<double>(i), step, minimum);
+        if (gain >= maximum || (i > 0 && maximum - gain <= tolerance))
+            break;
+        if (!m_gains.empty() && gain <= m_gains.back())
+            throw std::runtime_error("SoapySDR gain step is too small");
+        m_gains.push_back(gain);
+    }
+    m_gains.push_back(maximum);
 }
 
 bool CSoapySdr::is_ok()
@@ -306,8 +333,8 @@ void CSoapySdr::setClockSource(const std::string& clock_source)
 void CSoapySdr::increaseGain()
 {
     if (m_device != nullptr) {
-        float current_gain = m_device->getGain(SOAPY_SDR_RX, 0);
-        for (const float g : m_gains) {
+        const double current_gain = m_device->getGain(SOAPY_SDR_RX, 0);
+        for (const double g : m_gains) {
             if (g > current_gain) {
                 m_device->setGain(SOAPY_SDR_RX, 0, g);
                 break;
@@ -319,7 +346,7 @@ void CSoapySdr::increaseGain()
 void CSoapySdr::decreaseGain()
 {
     if (m_device != nullptr) {
-        float current_gain = m_device->getGain(SOAPY_SDR_RX, 0);
+        const double current_gain = m_device->getGain(SOAPY_SDR_RX, 0);
         for (auto it = m_gains.rbegin(); it != m_gains.rend(); ++it) {
             if (*it < current_gain) {
                 m_device->setGain(SOAPY_SDR_RX, 0, *it);

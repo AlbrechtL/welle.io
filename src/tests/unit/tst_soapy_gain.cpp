@@ -22,6 +22,7 @@
 #include <QTemporaryDir>
 #include <memory>
 #include <stdexcept>
+#include <limits>
 #include "input/soapy_sdr.h"
 #include "null_radio_controller.h"
 
@@ -32,6 +33,11 @@ class GainDevice : public SoapySDR::Device {
 public:
     double gain = 0;
     int writes = 0;
+    SoapySDR::Range range{0, 30, 10};
+
+    SoapySDR::Range getGainRange(const int, const size_t) const override {
+        return range;
+    }
 
     double getGain(const int direction, const size_t channel) const override {
         if (direction != SOAPY_SDR_RX || channel != 0)
@@ -94,6 +100,9 @@ private slots:
         const std::vector<double> fractional = {-4.0, -1.5, 0.0, 2.5};
         QTest::newRow("decrease-fractional-negative") << fractional << -1.5 << true << -4.0 << 1;
         QTest::newRow("increase-fractional") << fractional << 0.0 << false << 2.5 << 1;
+        QTest::newRow("increase-decimal-maximum") << std::vector<double>{0.0, 1.3} << 1.3 << false << 1.3 << 0;
+        QTest::newRow("decrease-decimal-maximum") << std::vector<double>{0.0, 1.3} << 1.3 << true << 0.0 << 1;
+        QTest::newRow("increase-decimal-endpoint") << std::vector<double>{0.0, 1.3} << 0.0 << false << 1.3 << 1;
         QTest::newRow("decrease-empty") << std::vector<double>{} << 10.0 << true << 10.0 << 0;
         QTest::newRow("increase-empty") << std::vector<double>{} << 10.0 << false << 10.0 << 0;
         QTest::newRow("decrease-single") << std::vector<double>{10} << 10.0 << true << 10.0 << 0;
@@ -127,6 +136,92 @@ private slots:
         input.decreaseGain();
         input.increaseGain();
         QVERIFY(input.m_device == nullptr);
+    }
+
+    void range_data() {
+        QTest::addColumn<double>("minimum");
+        QTest::addColumn<double>("maximum");
+        QTest::addColumn<double>("step");
+        QTest::addColumn<std::vector<double>>("expected");
+        QTest::newRow("integer") << 0.0 << 6.0 << 2.0 << std::vector<double>{0, 2, 4, 6};
+        QTest::newRow("fractional-negative") << -1.5 << 1.5 << 0.5 << std::vector<double>{-1.5, -1, -.5, 0, .5, 1, 1.5};
+        QTest::newRow("unspecified-step") << 0.0 << 2.5 << 0.0 << std::vector<double>{0, 1, 2, 2.5};
+        QTest::newRow("unaligned-maximum") << 1.0 << 6.0 << 2.0 << std::vector<double>{1, 3, 5, 6};
+        QTest::newRow("large-step") << 1.0 << 2.0 << 10.0 << std::vector<double>{1, 2};
+        QTest::newRow("single") << 2.5 << 2.5 << 0.0 << std::vector<double>{2.5};
+        QTest::newRow("decimal-endpoint") << 0.0 << 0.9 << 0.3 << std::vector<double>{0, .3, .6, .9};
+        QTest::newRow("fractional-endpoint") << 0.0 << 1.3 << 0.5 << std::vector<double>{0, .5, 1, 1.3};
+        std::vector<double> miriGains;
+        for (int gain = 0; gain <= 102; ++gain) miriGains.push_back(gain);
+        QTest::newRow("miri-vhf-range") << 0.0 << 102.0 << 1.0 << miriGains;
+    }
+
+    void range() {
+        QFETCH(double, minimum);
+        QFETCH(double, maximum);
+        QFETCH(double, step);
+        QFETCH(std::vector<double>, expected);
+        NullRadioController controller;
+        CSoapySdr input(controller);
+        input.m_device = SoapySDR::Device::make("driver=welle_test_gain");
+        auto* device = dynamic_cast<GainDevice*>(input.m_device);
+        QVERIFY(device != nullptr);
+        device->range = SoapySDR::Range(minimum, maximum, step);
+        input.m_gains = {-100, 100}; // Previous device/restart must not leak gains.
+        input.updateGains();
+        QCOMPARE(input.m_gains.size(), expected.size());
+        for (size_t i = 0; i < expected.size(); ++i) {
+            QVERIFY(std::abs(input.m_gains[i] - expected[i]) < 1e-12);
+            QVERIFY(input.m_gains[i] >= minimum && input.m_gains[i] <= maximum);
+        }
+        QCOMPARE(input.m_gains.back(), maximum);
+        const auto first = input.m_gains;
+        input.updateGains();
+        QVERIFY(input.m_gains == first);
+
+        device->gain = minimum;
+        for (size_t i = 1; i < first.size(); ++i) {
+            input.increaseGain();
+            QCOMPARE(device->gain, first[i]);
+        }
+        const int writesAtMaximum = device->writes;
+        input.increaseGain();
+        QCOMPARE(device->gain, maximum);
+        QCOMPARE(device->writes, writesAtMaximum);
+        for (size_t i = first.size() - 1; i > 0; --i) {
+            input.decreaseGain(); // Overload still reduces gain from the maximum.
+            QCOMPARE(device->gain, first[i-1]);
+        }
+        const int writesAtMinimum = device->writes;
+        input.decreaseGain();
+        QCOMPARE(device->gain, minimum);
+        QCOMPARE(device->writes, writesAtMinimum);
+    }
+
+    void invalidRange_data() {
+        QTest::addColumn<double>("minimum");
+        QTest::addColumn<double>("maximum");
+        QTest::addColumn<double>("step");
+        QTest::newRow("reversed") << 2.0 << 1.0 << 1.0;
+        QTest::newRow("negative-step") << 0.0 << 1.0 << -1.0;
+        QTest::newRow("nan-minimum") << std::numeric_limits<double>::quiet_NaN() << 1.0 << 1.0;
+        QTest::newRow("infinite-maximum") << 0.0 << std::numeric_limits<double>::infinity() << 1.0;
+        QTest::newRow("infinite-step") << 0.0 << 1.0 << std::numeric_limits<double>::infinity();
+    }
+
+    void invalidRange() {
+        QFETCH(double, minimum);
+        QFETCH(double, maximum);
+        QFETCH(double, step);
+        NullRadioController controller;
+        CSoapySdr input(controller);
+        input.m_device = SoapySDR::Device::make("driver=welle_test_gain");
+        auto* device = dynamic_cast<GainDevice*>(input.m_device);
+        device->range = SoapySDR::Range(minimum, maximum, step);
+        input.m_gains = {42};
+        QVERIFY_EXCEPTION_THROWN(input.updateGains(), std::runtime_error);
+        QVERIFY(input.m_gains.empty());
+        QCOMPARE(device->writes, 0);
     }
 };
 

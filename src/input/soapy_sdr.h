@@ -71,6 +71,7 @@ private:
     void setClockSource(const std::string& clock_source);
     void decreaseGain();
     void increaseGain();
+    void updateGains();
 
     RadioControllerInterface& radioController;
     int m_freq = 0;
