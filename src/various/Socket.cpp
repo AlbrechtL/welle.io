@@ -77,6 +77,9 @@ Socket::Socket(Socket&& other)
 Socket& Socket::operator=(Socket&& other)
 {
     if (&other != this) {
+        if (valid()) {
+            close();
+        }
         sock = other.sock;
         other.sock = INVALID_SOCKET;
     }
