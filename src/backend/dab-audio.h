@@ -62,6 +62,9 @@ class DabAudio : public DabVirtual
         int32_t process(const softbit_t *v, int16_t cnt);
 
     private:
+        friend class DabAudioTestAccess;
+        // Owner-serialized lifecycle; finish process() calls before destruction.
+        void stopWorker();
         void    run(void);
         std::atomic<bool> running;
         int16_t fragmentSize;
@@ -71,6 +74,7 @@ class DabAudio : public DabVirtual
         EnergyDispersal energyDispersal;
 
         std::condition_variable  mscDataAvailable;
+        std::condition_variable  mscSpaceAvailable;
         std::mutex               ourMutex;
         std::thread              ourThread;
 
