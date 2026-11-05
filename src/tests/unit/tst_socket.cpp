@@ -1,7 +1,7 @@
 /*
  * Socket ownership transfer regression tests.
  * This file is part of welle.io and was generated with the help of an AI
- * assistant (OpenAI Codex).
+ * assistant (OpenAi Codex 6 Astra).
  *
  * welle.io is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,9 +23,29 @@
 #include <QTcpSocket>
 #include <memory>
 #include <utility>
+#ifdef Q_OS_LINUX
+#include <dirent.h>
+#include <cerrno>
+#endif
 #include "various/Socket.h"
 
 namespace {
+#ifdef Q_OS_LINUX
+int descriptorCount()
+{
+    DIR* directory = opendir("/proc/self/fd");
+    if (!directory) return -1;
+    int count = 0;
+    errno = 0;
+    while (const auto* entry = readdir(directory)) {
+        if (entry->d_name[0] != '.') ++count;
+    }
+    const bool complete = errno == 0;
+    closedir(directory);
+    return complete ? count : -1;
+}
+#endif
+
 struct Connection {
     QTcpServer server;
     Socket socket;
@@ -106,6 +126,34 @@ private slots:
         QTest::addColumn<bool>("connected");
         QTest::newRow("empty") << false;
         QTest::newRow("connected") << true;
+    }
+
+    void moveAssignmentReleasesDescriptor_data() {
+        QTest::addColumn<bool>("sourceValid");
+        QTest::newRow("empty-to-connected") << false;
+        QTest::newRow("connected-to-connected") << true;
+    }
+
+    void moveAssignmentReleasesDescriptor() {
+#ifdef Q_OS_LINUX
+        QFETCH(bool, sourceValid);
+        if (descriptorCount() < 0) QSKIP("/proc/self/fd is unavailable");
+        Connection source, target;
+        if (sourceValid) QVERIFY(source.open());
+        QVERIFY(target.open());
+        const int before = descriptorCount();
+        QVERIFY(before >= 0);
+        target.socket = std::move(source.socket);
+        // Measure before processing Qt events: the old peer still owns its
+        // descriptor. shutdown() disconnects it but leaks the replaced fd.
+        const int after = descriptorCount();
+        QVERIFY(after >= 0);
+        QCOMPARE(after, before - 1);
+        QVERIFY(disconnected(*target.peer));
+        if (sourceValid) QVERIFY(sendsData(target.socket, *source.peer));
+#else
+        QSKIP("Descriptor counting requires Linux procfs");
+#endif
     }
 
     void selfMove() {
