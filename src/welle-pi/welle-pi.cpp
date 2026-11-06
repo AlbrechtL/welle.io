@@ -79,7 +79,7 @@
 #ifdef GITDESCRIBE
 #define VERSION GITDESCRIBE
 #else
-#define VERSION "unknown"
+#define VERSION CURRENT_VERSION
 #endif
 
 using namespace std;
@@ -675,7 +675,7 @@ static void copyright()
     "License GPL-2.0-or-later: GNU General Public License v2.0 or later" << endl <<
     "<https://www.gnu.org/licenses/old-licenses/gpl-2.0-standalone.html>" << endl <<
     endl <<
-    "Written by: Albrecht Lohofener & Matthias P. Braendli." << endl <<
+    "Written by: Fridrich Strba, Albrecht Lohofener & Matthias P. Braendli." << endl <<
     "Other contributors: <https://github.com/AlbrechtL/welle.io/blob/master/AUTHORS>" << endl;
 }
 
