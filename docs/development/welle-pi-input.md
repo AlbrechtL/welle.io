@@ -16,11 +16,17 @@ welle-pi reads its settings from the first file found of
    if `XDG_CONFIG_HOME` is not set
 2. `/etc/welle-pi/welle-pi.json`
 
-The systemd service (`scripts/welle-pi.service`) has no `User=`, and
-systemd sets `HOME` only together with `User=`: use
-`/etc/welle-pi/welle-pi.json` there. The file is only read, never written. It is not `stations.json`:
-that one is a cache in `$XDG_CACHE_HOME/welle-pi/` that welle-pi rewrites
-after each scan.
+The systemd service (`scripts/welle-pi.service`) runs as root without `User=`,
+and systemd sets `HOME` only together with `User=`: use
+`/etc/welle-pi/welle-pi.json` there. The unit carries a commented
+`User=welle-pi` variant for administrators who prefer an unprivileged
+service. The file is only read, never written. It is not `stations.json`:
+that one is a cache that welle-pi rewrites after each scan, in
+`$CACHE_DIRECTORY` (the unit sets `CacheDirectory=welle-pi`, that is
+`/var/cache/welle-pi`), else `$XDG_CACHE_HOME/welle-pi/`, else
+`~/.cache/welle-pi/`, else `/var/cache/welle-pi/`. welle-pi creates only
+directories that end up owned by its own user, and refuses to write the
+cache through a symlink.
 
 ```json
 {
