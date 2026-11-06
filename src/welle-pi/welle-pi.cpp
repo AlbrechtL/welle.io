@@ -75,12 +75,7 @@
 #include "plugin_display.hpp"
 #include "volume.hpp"
 #include "utils.hpp"
-
-#ifdef GITDESCRIBE
-#define VERSION GITDESCRIBE
-#else
-#define VERSION CURRENT_VERSION
-#endif
+#include "options.hpp"
 
 using namespace std;
 
@@ -454,23 +449,6 @@ class RadioInterface : public RadioControllerInterface {
         int reported_correction = 0;
 };
 
-struct options_t {
-    string soapySDRDriverArgs = "";
-    string antenna = "";
-    int gain = -1;
-    string channel = "";
-    string iqsource = "";
-    string programme = "";
-    string frontend = "auto";
-    string frontend_args = "";
-    string pcm = PCM_DEVICE;
-    bool daemon = false;
-    string logfile = "";
-    string pidfile = "";
-
-    RadioReceiverOptions rro;
-};
-
 static void handle_signal(int signum)
 {
     (void)signum;
@@ -598,163 +576,6 @@ class PidFile {
     private:
         string m_path;
 };
-
-static void usage()
-{
-    cerr <<
-    "Usage: welle-pi [OPTION]" << endl <<
-    "   or: welle-pi -b [OPTION]" << endl <<
-    endl <<
-    "welle-pi is welle.io's interface for Raspberry PI." << endl <<
-    endl <<
-    "Options:" << endl <<
-    endl <<
-    "Tuning:" << endl <<
-    "    -c channel    Tune to <channel> (eg. 10B, 5A, 12C...)." << endl <<
-    "    -p programme  Play <programme> with ALSA. The <programme> can be either" << endl <<
-    "                  * a station's label (eg. GRIFF) - or a part of it - or" << endl <<
-    "                  * a station's Service Id (eg. 0x4f57 or 20311)." << endl <<
-    endl <<
-    "Backend and input options:" << endl <<
-    "    -f file       Read an IQ file <file> and play with ALSA." << endl <<
-    "                  IQ file format is u8, unless the file ends with 'FORMAT.iq'." << endl <<
-    "    -u            Disable coarse corrector, for receivers who have a low " << endl <<
-    "                  frequency offset." << endl <<
-    "    -g gain       Set input gain to <gain> or -1 for auto gain." << endl <<
-    "    -F driver     Set input driver and arguments." << endl <<
-    "                  Please note that some input drivers are available only if" << endl <<
-    "                  they were enabled at build time." << endl <<
-    "                  Possible values are: auto (default), airspy, rtl_sdr," << endl <<
-    "                  android_rtl_sdr, rtl_tcp, soapysdr." << endl <<
-    "                  With \"rtl_tcp\", host IP and port can be specified as " << endl <<
-    "                  \"rtl_tcp,<HOST_IP>:<PORT>\"." << endl <<
-    "    -s args       SoapySDR Driver arguments." << endl <<
-    "    -A antenna    Set input antenna to ANT (for SoapySDR input only)." << endl <<
-    endl <<
-    "Output options:" << endl <<
-    "    -o device     Specify alsa PCM device by name." << endl <<
-    endl <<
-    "Daemon options:" << endl <<
-    "    -b            Detach from the terminal and run in the background." << endl <<
-    "                  In that mode welle-pi does not read commands from" << endl <<
-    "                  standard input any more, it keeps playing the selected" << endl <<
-    "                  programme until it receives SIGINT, SIGTERM or SIGHUP." << endl <<
-    "    -l logfile    Append standard output and standard error to <logfile>." << endl <<
-    "                  Without this option they are sent to /dev/null when" << endl <<
-    "                  running as a daemon." << endl <<
-    "    -k pidfile    Write the process id to <pidfile> and remove that file" << endl <<
-    "                  again on exit." << endl <<
-    endl <<
-    "Other options:" << endl <<
-    "    -h            Display this help and exit." << endl <<
-    "    -v            Output version information and exit." << endl <<
-    endl <<
-    "Examples:" << endl <<
-    endl <<
-    "welle-pi -c 10B -p GRRIF" << endl <<
-    "    Receive 'GRRIF' on channel '10B' using 'auto' driver, and play with ALSA." << endl <<
-    endl <<
-    "welle-pi -f ./ofdm.iq -p GRRIF" << endl <<
-    "    Read IQ file './ofdm.iq' (in u8 format) and play programme 'GRIFF' with ALSA." << endl <<
-    endl <<
-    "welle-pi -c 10B -p GRRIF -F rtl_tcp,localhost:1234" << endl <<
-    "    Receive 'GRRIF' on channel '10B' using 'rtl_tcp' driver on localhost:1234," << endl <<
-    "    and play with ALSA." << endl <<
-    endl <<
-    "welle-pi -b -l /var/log/welle-pi.log -k /run/welle-pi.pid -c 10B -p GRRIF" << endl <<
-    "    Same as above, but in the background, logging to a file." << endl <<
-    endl <<
-    "Report bugs to: <https://github.com/AlbrechtL/welle.io/issues>" << endl;
-}
-
-static void copyright()
-{
-    cerr <<
-    "Copyright (C) 2018 Matthias P. Braendli." << endl <<
-    "Copyright (C) 2017 Albrecht Lohofener." << endl <<
-    "License GPL-2.0-or-later: GNU General Public License v2.0 or later" << endl <<
-    "<https://www.gnu.org/licenses/old-licenses/gpl-2.0-standalone.html>" << endl <<
-    endl <<
-    "Written by: Fridrich Strba, Albrecht Lohofener & Matthias P. Braendli." << endl <<
-    "Other contributors: <https://github.com/AlbrechtL/welle.io/blob/master/AUTHORS>" << endl;
-}
-
-static void version()
-{
-    cerr << "welle-pi " << VERSION << endl;
-}
-
-options_t parse_cmdline(int argc, char **argv)
-{
-    options_t options;
-    string fe_opt = "";
-    options.rro.decodeTII = false;
-
-    int opt;
-    while ((opt = getopt(argc, argv, "A:bc:f:F:g:hk:l:o:p:s:uv")) != -1) {
-        switch (opt) {
-            case 'A':
-                options.antenna = optarg;
-                break;
-            case 'b':
-                options.daemon = true;
-                break;
-            case 'c':
-                options.channel = optarg;
-                break;
-            case 'f':
-                options.iqsource = optarg;
-                break;
-            case 'F':
-                fe_opt = optarg;
-                break;
-            case 'g':
-                options.gain = atoi(optarg);
-                break;
-            case 'k':
-                options.pidfile = optarg;
-                break;
-            case 'l':
-                options.logfile = optarg;
-                break;
-            case 'o':
-                options.pcm = optarg;
-                break;
-            case 'p':
-                options.programme = optarg;
-                break;
-            case 'h':
-                usage();
-                exit(1);
-            case 's':
-                options.soapySDRDriverArgs = optarg;
-                break;
-            case 'v':
-                version();
-                cerr << endl;
-                copyright();
-                exit(0);
-            case 'u':
-                options.rro.disableCoarseCorrector = true;
-                break;
-            default:
-                cerr << "Unknown option. Use -h for help" << endl;
-                exit(1);
-        }
-    }
-
-    if (!fe_opt.empty()) {
-        size_t comma = fe_opt.find(',');
-        if (comma != string::npos) {
-            options.frontend      = fe_opt.substr(0,comma);
-            options.frontend_args = fe_opt.substr(comma+1);
-        } else {
-            options.frontend = fe_opt;
-        }
-    }
-
-    return options;
-}
 
 /* Returns true if we are playing the requested service. */
 static bool tune_to_service(RadioReceiver& rx, AlsaProgrammeHandler& ph,
@@ -886,7 +707,18 @@ static void runAutoScanner(RadioReceiver& rx, CVirtualInput* in, RadioInterface&
 
 int main(int argc, char **argv)
 {
-    auto options = parse_cmdline(argc, argv);
+    nlohmann::json settings;
+    std::string settings_path;
+    options_t options;
+    try {
+        /* The settings file first: the command line overrides it. */
+        settings = loadSettings(&settings_path);
+        options = parse_cmdline(argc, argv, settings);
+    }
+    catch (const std::exception& e) {
+        cerr << "welle-pi.json: " << e.what() << endl;
+        return 1;
+    }
 
     if (options.daemon) {
         if (not daemonise(options.logfile)) {
@@ -901,6 +733,10 @@ int main(int argc, char **argv)
         }
     }
 
+    if (not settings_path.empty()) {
+        cerr << "Settings: " << settings_path << endl;
+    }
+
     install_signal_handlers();
 
     /* Without a terminal there is nobody who could enter a programme name,
@@ -910,8 +746,6 @@ int main(int argc, char **argv)
     PidFile pidfile(options.pidfile);
 
     version();
-
-    const nlohmann::json settings = loadSettings();
 
     /* A programme can only be named by "-p", by the terminal or by an input
      * source such as the remote control plugin; with none of them welle-pi
@@ -1212,6 +1046,8 @@ int main(int argc, char **argv)
     vector<thread> inputThreads = startInputSources(settings.value("input", nlohmann::json()),
                                                     inputQueue, stop_requested, interactive);
 
+    bool menu_exit = false;
+
     while (!stop_requested()) {
         InputAction action = inputQueue.pop();
 
@@ -1226,6 +1062,7 @@ int main(int argc, char **argv)
 
         if (action == InputAction::QUIT) {
             quit_requested = 1;
+            menu_exit = true;
             break;
         }
         if (action == InputAction::VOLUME_UP or action == InputAction::VOLUME_DOWN) {
@@ -1260,5 +1097,18 @@ int main(int argc, char **argv)
 
     cerr << "Shutting down" << endl;
 
-    return input_failure ? 1 : 0;
+    if (input_failure) {
+        return 1;
+    }
+
+    /* "exit_command" of welle-pi.json: only when the menu quits welle-pi,
+     * not after a signal or a failed input. */
+    if (menu_exit and not options.exit_command.empty()) {
+        cerr << "Running exit command: " << options.exit_command << endl;
+        if (system(options.exit_command.c_str()) != 0) {
+            cerr << "Exit command failed" << endl;
+        }
+    }
+
+    return 0;
 }

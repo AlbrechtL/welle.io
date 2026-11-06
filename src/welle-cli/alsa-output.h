@@ -22,6 +22,9 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
+#ifndef __ALSAOUTPUT_H__
+#define __ALSAOUTPUT_H__
+
 #if defined(HAVE_ALSA)
 #include <cstddef>
 #include <vector>
@@ -51,3 +54,4 @@ class AlsaOutput {
 };
 
 #endif // defined(HAVE_ALSA)
+#endif // __ALSAOUTPUT_H__

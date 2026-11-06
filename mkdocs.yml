@@ -139,6 +139,7 @@ nav:
           - welle-pi input sources: development/welle-pi-input.md
           - welle-pi displays: development/welle-pi-display.md
           - welle-pi volume: development/welle-pi-volume.md
+          - welle-pi options in welle-pi.json: development/welle-pi-options.md
   - About:
       - About welle.io: info.md
       - Contact: contact.md

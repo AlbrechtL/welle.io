@@ -117,7 +117,7 @@ static bool write_file(const std::string& path, const std::string& data) {
     return true;
 }
 
-nlohmann::json loadSettings() {
+nlohmann::json loadSettings(std::string* path) {
     std::vector<std::string> paths;
     const char* xdg_config = std::getenv("XDG_CONFIG_HOME");
     const char* home_env = std::getenv("HOME");
@@ -128,15 +128,17 @@ nlohmann::json loadSettings() {
     }
     paths.push_back("/etc/welle-pi/welle-pi.json");
 
-    for (const auto& path : paths) {
-        std::ifstream f(path);
+    for (const auto& candidate : paths) {
+        std::ifstream f(candidate);
         if (!f.is_open()) continue;
         try {
             nlohmann::json j = nlohmann::json::parse(f);
-            std::cerr << "Settings: " << path << std::endl;
+            if (path != nullptr) {
+                *path = candidate;
+            }
             return j.is_object() ? j : nlohmann::json::object();
         } catch (const std::exception& e) {
-            std::cerr << "Error parsing " << path << ": " << e.what() << std::endl;
+            std::cerr << "Error parsing " << candidate << ": " << e.what() << std::endl;
             return nlohmann::json::object();
         }
     }

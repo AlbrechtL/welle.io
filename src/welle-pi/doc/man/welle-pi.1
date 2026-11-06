@@ -10,6 +10,9 @@ welle-pi \- welle.io interface for the Raspberry Pi
 \fI\,-b \/\fR[\fI\,OPTION\/\fR]
 .SH DESCRIPTION
 welle\-pi is welle.io's interface for Raspberry PI.
+.PP
+Most options can also be set in welle\-pi.json (except \-b, \-c, and \-p).
+An option given on the command line overrides the settings file.
 .SH OPTIONS
 .SS "Tuning:"
 .TP
@@ -26,9 +29,9 @@ Play <programme> with ALSA. The <programme> can be either
 Read an IQ file <file> and play with ALSA.
 IQ file format is u8, unless the file ends with 'FORMAT.iq'.
 .TP
-\fB\-u\fR
-Disable coarse corrector, for receivers who have a low
-frequency offset.
+\fB\-u\fR [\fI\,bool\/\fR]
+Disable coarse corrector (1/true, default) or enable it (0/false),
+for receivers who have a low frequency offset.
 .TP
 \fB\-g\fR gain
 Set input gain to <gain> or \fB\-1\fR for auto gain.
@@ -53,8 +56,9 @@ Set input antenna to ANT (for SoapySDR input only).
 Specify alsa PCM device by name.
 .SS "Daemon options:"
 .TP
-\fB\-b\fR
-Detach from the terminal and run in the background.
+\fB\-b\fR [\fI\,bool\/\fR]
+Detach from the terminal and run in the background (1/true, default)
+or stay in the foreground (0/false).
 In that mode welle\-pi does not read commands from
 standard input any more, it keeps playing the selected
 programme until it receives SIGINT, SIGTERM or SIGHUP.
