@@ -706,6 +706,15 @@ if (BUILD_WELLE_PI)
         target_link_libraries(volume_tests ${ALSA_LIBRARIES})
         add_test(NAME unit.volume COMMAND volume_tests)
         set_tests_properties(unit.volume PROPERTIES LABELS unit)
+
+        add_executable(config_tests
+            src/tests/config_tests.cpp
+            src/welle-pi/config_manager.cpp
+        )
+        target_include_directories(config_tests PRIVATE src/welle-pi)
+        target_compile_options(config_tests PRIVATE -UNDEBUG)
+        add_test(NAME unit.config COMMAND config_tests)
+        set_tests_properties(unit.config PROPERTIES LABELS unit)
     endif()
     if(UNIX AND NOT APPLE OR NOT WITH_APP_BUNDLE)
         INSTALL (TARGETS ${piExecutableName} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

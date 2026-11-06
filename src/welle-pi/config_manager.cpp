@@ -24,26 +24,97 @@
  */
 #include "config_manager.hpp"
 #include "libs/json.hpp"
+#include <cerrno>
+#include <cstdlib>
+#include <cstring>
+#include <fcntl.h>
 #include <fstream>
 #include <iostream>
-#include <cstdlib>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
 
-static void create_directories(const std::string& dir_path) {
-    std::string current_path = "";
-    for (size_t i = 0; i < dir_path.size(); ++i) {
-        current_path += dir_path[i];
-        if (dir_path[i] == '/') {
-            if (!current_path.empty()) {
-                mkdir(current_path.c_str(), 0755);
-            }
+/* True when path is a directory owned by us that no other user can write to.
+ * Checked after lstat, so a symlink in the way is refused as well. */
+static bool is_own_directory(const std::string& path) {
+    struct stat st;
+    if (lstat(path.c_str(), &st) != 0) {
+        return false;
+    }
+    return S_ISDIR(st.st_mode) && st.st_uid == geteuid() &&
+           (st.st_mode & (S_IWGRP | S_IWOTH)) == 0;
+}
+
+/* Create path with 0700, then verify it. A path that exists as a symlink or
+ * as somebody else's directory is refused instead of used. */
+static bool make_own_directory(const std::string& path) {
+    struct stat st;
+    if (lstat(path.c_str(), &st) != 0 && mkdir(path.c_str(), 0700) != 0) {
+        return false;
+    }
+    return is_own_directory(path);
+}
+
+/* The cache directory itself, or $HOME/.cache below it when a fresh account
+ * has no ~/.cache yet. Never walks further up: a missing HOME must not make
+ * welle-pi create directories on the way. */
+static bool ensure_cache_directory(const std::string& dir) {
+    if (make_own_directory(dir)) {
+        return true;
+    }
+    const auto slash = dir.find_last_of('/');
+    if (slash == std::string::npos || slash == 0) {
+        return false;
+    }
+    return make_own_directory(dir.substr(0, slash)) && make_own_directory(dir);
+}
+
+static bool home_is_usable(const std::string& home) {
+    struct stat st;
+    return stat(home.c_str(), &st) == 0 && S_ISDIR(st.st_mode) &&
+           access(home.c_str(), W_OK | X_OK) == 0;
+}
+
+/* O_NOFOLLOW: never write the cache through a symlink planted in a shared
+ * directory. shortcut: mkdir followed by lstat is racy against an attacker
+ * with write access to the parent, use openat(O_DIRECTORY) chains if the
+ * cache ever has to live in such a directory. */
+
+/* Write next to the target and rename it over it, so a crash or a full disk
+ * leaves either the old file or the new one, never a truncated one. */
+static bool write_file(const std::string& path, const std::string& data) {
+    const std::string tmp = path + ".tmp";
+    const int fd = ::open(tmp.c_str(),
+                          O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC | O_NOFOLLOW,
+                          0600);
+    if (fd < 0) {
+        return false;
+    }
+    int err = 0;
+    size_t done = 0;
+    while (done < data.size()) {
+        const ssize_t n = ::write(fd, data.data() + done, data.size() - done);
+        if (n < 0 && errno == EINTR) {
+            continue;
         }
+        if (n <= 0) {
+            err = n < 0 ? errno : EIO;
+            break;
+        }
+        done += size_t(n);
     }
-    if (!current_path.empty() && current_path.back() != '/') {
-        mkdir(current_path.c_str(), 0755);
+    if (::close(fd) != 0 && err == 0) {
+        err = errno;
     }
+    if (err == 0 && ::rename(tmp.c_str(), path.c_str()) != 0) {
+        err = errno;
+    }
+    if (err != 0) {
+        ::unlink(tmp.c_str());
+        errno = err;
+        return false;
+    }
+    return true;
 }
 
 nlohmann::json loadSettings() {
@@ -74,33 +145,42 @@ nlohmann::json loadSettings() {
 
 ConfigManager::ConfigManager(const std::string& filename) {
     if (filename != "stations.json") {
+        /* Explicit file, no cache directory to pick or create. */
         m_filename = filename;
-    } else {
-        std::string cache_dir = "";
-        const char* xdg_cache = std::getenv("XDG_CACHE_HOME");
-        if (xdg_cache != nullptr && xdg_cache[0] != '\0') {
-            cache_dir = xdg_cache;
-        } else {
-            const char* home_env = std::getenv("HOME");
-            if (home_env != nullptr && home_env[0] != '\0') {
-                cache_dir = std::string(home_env) + "/.cache";
-            } else {
-                cache_dir = "/var/cache";
-            }
-        }
-        m_filename = cache_dir + "/welle-pi/stations.json";
+        return;
     }
+
+    const char* systemd_cache = std::getenv("CACHE_DIRECTORY");
+    const char* xdg_cache = std::getenv("XDG_CACHE_HOME");
+    const char* home_env = std::getenv("HOME");
+
+    if (systemd_cache != nullptr && systemd_cache[0] != '\0') {
+        /* CacheDirectory= of the systemd unit: already the finished directory,
+         * created for the service user by systemd. */
+        m_cache_dir = systemd_cache;
+    }
+    else if (xdg_cache != nullptr && xdg_cache[0] != '\0') {
+        m_cache_dir = std::string(xdg_cache) + "/welle-pi";
+    }
+    else if (home_env != nullptr && home_env[0] != '\0' && home_is_usable(home_env)) {
+        m_cache_dir = std::string(home_env) + "/.cache/welle-pi";
+    }
+    else {
+        /* No usable home: the system service and system accounts land here,
+         * so the cache does not end up in the working directory. */
+        m_cache_dir = "/var/cache/welle-pi";
+    }
+
+    m_filename = m_cache_dir + "/stations.json";
+}
+
+const std::string& ConfigManager::filename() const {
+    return m_filename;
 }
 
 bool ConfigManager::loadConfig() {
     std::ifstream f(m_filename);
     if (!f.is_open()) {
-        // Fallback check: if the main resolved path doesn't exist, try local stations.json
-        std::ifstream local_f("stations.json");
-        if (local_f.is_open()) {
-            m_filename = "stations.json";
-            return loadConfig();
-        }
         return false;
     }
     try {
@@ -142,14 +222,6 @@ bool ConfigManager::loadConfig() {
 }
 
 void ConfigManager::saveConfig() {
-    if (m_filename != "stations.json") {
-        size_t last_slash = m_filename.find_last_of('/');
-        if (last_slash != std::string::npos) {
-            std::string parent_dir = m_filename.substr(0, last_slash);
-            create_directories(parent_dir);
-        }
-    }
-
     try {
         nlohmann::json j;
         j["last_played"] = {
@@ -167,16 +239,12 @@ void ConfigManager::saveConfig() {
         }
         j["stations"] = stations_json;
 
-        std::ofstream f(m_filename);
-        if (f.is_open()) {
-            f << j.dump(2);
-        } else {
-            std::cerr << "Failed to open " << m_filename << " for writing. Falling back to local stations.json" << std::endl;
-            m_filename = "stations.json";
-            std::ofstream local_f(m_filename);
-            if (local_f.is_open()) {
-                local_f << j.dump(2);
-            }
+        if (!m_cache_dir.empty() && !ensure_cache_directory(m_cache_dir)) {
+            std::cerr << "Cannot use the cache directory " << m_cache_dir << std::endl;
+            return;
+        }
+        if (!write_file(m_filename, j.dump(2))) {
+            std::cerr << "Cannot write " << m_filename << ": " << std::strerror(errno) << std::endl;
         }
     } catch (const std::exception& e) {
         std::cerr << "Error saving config file: " << e.what() << std::endl;

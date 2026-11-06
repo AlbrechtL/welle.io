@@ -32,7 +32,9 @@
 
 /* User settings, read-only: $XDG_CONFIG_HOME (or ~/.config)/welle-pi/welle-pi.json,
  * else /etc/welle-pi/welle-pi.json. Empty object if none. Unlike
- * stations.json, which is a cache welle-pi rewrites. */
+ * stations.json, which is a cache welle-pi rewrites: $CACHE_DIRECTORY
+ * (systemd CacheDirectory=), else $XDG_CACHE_HOME/welle-pi,
+ * else ~/.cache/welle-pi, else /var/cache/welle-pi. */
 nlohmann::json loadSettings();
 
 class ConfigManager {
@@ -45,6 +47,9 @@ public:
     };
 
     ConfigManager(const std::string& filename = "stations.json");
+
+    /* Where the station cache is written; the tests check the choice. */
+    const std::string& filename() const;
 
     bool loadConfig();
     void saveConfig();
@@ -60,6 +65,8 @@ public:
 
 private:
     std::string m_filename;
+    /* Empty when an explicit file name was given: then nothing is created. */
+    std::string m_cache_dir;
     std::string m_lastPlayedChannel;
     uint32_t m_lastPlayedServiceId = 0;
     std::vector<Station> m_stations;
