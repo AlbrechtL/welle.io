@@ -30,6 +30,7 @@
 #include <thread>
 #include "virtual_input.h"
 #include "ringbuffer.h"
+#include "software_agc.h"
 #include <SoapySDR/Version.hpp>
 #include <SoapySDR/Modules.hpp>
 #include <SoapySDR/Registry.hpp>
@@ -80,7 +81,8 @@ private:
     std::string m_clock_source;
     SoapySDR::Device *m_device = nullptr;
     std::atomic<bool> m_running = ATOMIC_VAR_INIT(false);
-    bool m_sw_agc = false;
+    std::atomic<bool> m_sw_agc{false};
+    SoftwareAgc m_agc{250};
 
     RingBuffer<DSPCOMPLEX> m_sampleBuffer;
     RingBuffer<DSPCOMPLEX> m_spectrumSampleBuffer;

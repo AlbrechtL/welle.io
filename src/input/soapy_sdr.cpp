@@ -78,6 +78,7 @@ CSoapySdr::~CSoapySdr()
 
 void CSoapySdr::setFrequency(int Frequency)
 {
+    m_agc.reset();
     m_freq = Frequency;
     if (m_device != nullptr) {
         m_device->setFrequency(SOAPY_SDR_RX, 0, Frequency);
@@ -174,6 +175,7 @@ bool CSoapySdr::restart()
         clog << "DC offset compensation not supported" << endl;
     }
 
+    m_agc.reset();
     m_running = true;
     m_thread = std::thread(&CSoapySdr::workerthread, this);
 
@@ -284,6 +286,7 @@ float CSoapySdr::setGain(int32_t gainIndex)
         try {
             m_device->setGain(SOAPY_SDR_RX, 0, m_gains.at(gainIndex));
             m_requestedGain = gainIndex;
+            m_agc.gainChanged();
         }
         catch (const out_of_range&) {
             std::clog << "Soapy gain " << gainIndex << " is out of range" << std::endl;
@@ -368,7 +371,8 @@ int32_t CSoapySdr::getGainCount()
 
 void CSoapySdr::setAgc(bool AGC)
 {
-    m_sw_agc = AGC;
+    if (m_sw_agc.exchange(AGC) != AGC)
+        m_agc.reset();
 }
 
 //void CSoapySdr::setHwAgc(bool hwAGC)
@@ -428,9 +432,12 @@ void CSoapySdr::workerthread()
 
 void CSoapySdr::process(SoapySDR::Stream *stream)
 {
-    size_t frames = 0;
+    // Use the same windowed, hysteretic controller as the other SDR inputs.
+    // Floats describe the nominal step sizes only; commands use m_gains' exact
+    // double values so a fractional endpoint is never rounded out of range.
+    const std::vector<float> gainsDb(m_gains.begin(), m_gains.end());
+    bool agcFault = false;
     while (m_running) {
-        frames++;
 
         // Stream MTU is in samples, not bytes.
         const size_t mtu = m_device->getStreamMTU(stream);
@@ -465,21 +472,36 @@ void CSoapySdr::process(SoapySDR::Stream *stream)
         else {
             buf.resize(ret);
 
-            if (m_sw_agc and (frames % 200) == 0) {
-                float maxnorm = 0;
-                for (const DSPCOMPLEX& z : buf) {
-                    if (norm(z) > maxnorm) {
-                        maxnorm = norm(z);
+            if (!m_sw_agc) {
+                agcFault = false;
+            }
+            else if (!agcFault && !buf.empty()) {
+                // Invalid or disconnected input must not drive gain to its
+                // maximum. CF32 samples have component full scale 1.
+                const bool valid = std::all_of(buf.begin(), buf.end(), [](const DSPCOMPLEX& z) {
+                    return std::isfinite(z.real()) && std::isfinite(z.imag());
+                });
+                const bool signal = std::any_of(buf.begin(), buf.end(), [](const DSPCOMPLEX& z) {
+                    return z.real() != 0 || z.imag() != 0;
+                });
+                if (!valid || !signal) {
+                    m_agc.reset();
+                }
+                else {
+                    m_agc.process(buf.data(), buf.size());
+                    try {
+                        const int current = getGainIndex();
+                        const int next = m_agc.nextGainIndex(gainsDb, current);
+                        if (next != current && next >= 0) {
+                            m_device->setGain(SOAPY_SDR_RX, 0, m_gains.at(next));
+                            m_agc.gainChanged();
+                        }
                     }
-                }
-
-                const float maxampl = sqrt(maxnorm);
-
-                if (maxampl > 0.5f) {
-                    decreaseGain();
-                }
-                else if (maxampl < 0.1f) {
-                    increaseGain();
+                    catch (const std::exception& error) {
+                        std::clog << "Soapy AGC disabled after gain error: " << error.what()
+                                  << "; restart or toggle AGC to retry" << std::endl;
+                        agcFault = true;
+                    }
                 }
             }
 

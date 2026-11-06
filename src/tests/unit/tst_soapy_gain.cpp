@@ -23,6 +23,7 @@
 #include <memory>
 #include <stdexcept>
 #include <limits>
+#include <functional>
 #include <SoapySDR/Errors.hpp>
 #include "input/soapy_sdr.h"
 #include "null_radio_controller.h"
@@ -37,6 +38,11 @@ public:
     SoapySDR::Range range{0, 30, 10};
     std::atomic<bool> activated{false};
     double gainAtActivation = -1;
+    size_t mtu = 4096;
+    std::function<int(void*, size_t)> feed;
+    std::vector<double> commands;
+    bool failGain = false;
+    int failedWrites = 0;
 
     void setMasterClockRate(double) override {}
     void setSampleRate(int, size_t, double) override {}
@@ -46,14 +52,15 @@ public:
         const std::vector<size_t>&, const SoapySDR::Kwargs&) override {
         return reinterpret_cast<SoapySDR::Stream*>(this);
     }
-    size_t getStreamMTU(SoapySDR::Stream*) const override { return 16; }
+    size_t getStreamMTU(SoapySDR::Stream*) const override { return mtu; }
     int activateStream(SoapySDR::Stream*, int, long long, size_t) override {
         gainAtActivation = gain;
         activated = true;
         return 0;
     }
-    int readStream(SoapySDR::Stream*, void* const*, size_t, int&,
+    int readStream(SoapySDR::Stream*, void* const* buffers, size_t count, int&,
         long long&, long) override {
+        if (feed) return feed(buffers[0], count);
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
         return SOAPY_SDR_TIMEOUT;
     }
@@ -72,8 +79,10 @@ public:
     void setGain(const int direction, const size_t channel, const double value) override {
         if (direction != SOAPY_SDR_RX || channel != 0)
             throw std::runtime_error("Unexpected gain channel");
+        if (failGain) { ++failedWrites; throw std::runtime_error("Test gain failure"); }
         gain = value;
         ++writes;
+        commands.push_back(value);
     }
 };
 
@@ -198,6 +207,79 @@ private slots:
             input.stop();
             if (run == 0) QVERIFY(input.restart());
         }
+    }
+
+    void streamingAgc_data() {
+        QTest::addColumn<QString>("mode");
+        QTest::addColumn<double>("start");
+        QTest::addColumn<double>("maximum");
+        QTest::addColumn<int>("mtu");
+        for (const char* mode : {"weak", "overload", "impulses", "manual",
+                                 "zero", "nan", "infinity", "gain-error"})
+            QTest::newRow(mode) << QString(mode) << (QString(mode)=="overload" ? 102.0 : 59.0) << 102.0 << 4096;
+        QTest::newRow("large-block") << QString("weak") << 59.0 << 102.0 << 18432;
+        QTest::newRow("rtl-range") << QString("weak") << 0.0 << 49.6 << 8192;
+        QTest::newRow("ceiling") << QString("ceiling") << 59.0 << 102.0 << 4096;
+    }
+
+    void streamingAgc() {
+        QFETCH(QString, mode);
+        QFETCH(double, start);
+        QFETCH(double, maximum);
+        QFETCH(int, mtu);
+        NullRadioController controller;
+        CSoapySdr input(controller);
+        input.m_device = SoapySDR::Device::make("driver=welle_test_gain");
+        auto* device = dynamic_cast<GainDevice*>(input.m_device);
+        device->range = SoapySDR::Range(0, maximum, 1);
+        device->mtu = mtu;
+        device->gain = start;
+        device->failGain = mode == "gain-error";
+        input.updateGains();
+        input.setAgc(mode != "manual");
+        uint64_t remaining = uint64_t(INPUT_RATE) * 8;
+        uint32_t noise = 123456789;
+        device->feed = [&](void* buffer, size_t capacity) {
+            if (!remaining) { input.m_running = false; return 0; }
+            const size_t count = std::min<uint64_t>(capacity, remaining);
+            auto* samples = static_cast<DSPCOMPLEX*>(buffer);
+            const double reference = maximum > 50 ? 59 : 0;
+            const float amplitude = (mode == "ceiling" ? 1e-7 : .02) *
+                std::pow(10.0, (device->gain - reference) / 20.0);
+            auto component = [&]() {
+                noise = noise * 1664525u + 1013904223u;
+                const float value = (int(noise >> 16) - 32768) / 32768.0f;
+                return std::clamp(value * 1.73205f * amplitude, -1.0f, 1.0f);
+            };
+            for (size_t i = 0; i < count; ++i) samples[i] = {component(), component()};
+            if (mode == "zero") std::fill(samples, samples + count, DSPCOMPLEX{});
+            if (mode == "nan") samples[0] = {std::numeric_limits<float>::quiet_NaN(), 0};
+            if (mode == "infinity") samples[0] = {std::numeric_limits<float>::infinity(), 0};
+            if (mode == "impulses") samples[0] = {1, 1};
+            remaining -= count;
+            return int(count);
+        };
+        input.m_running = true;
+        // Exercise the actual streaming loop and its gain commands, not a
+        // second implementation of the controller in the test.
+        input.process(reinterpret_cast<SoapySDR::Stream*>(device));
+        QCOMPARE(remaining, uint64_t(0));
+        for (double command : device->commands) {
+            QVERIFY(command >= 0 && command <= maximum);
+            QVERIFY(std::find(input.m_gains.begin(), input.m_gains.end(), command) != input.m_gains.end());
+        }
+        if (mode == "weak" || mode == "impulses") {
+            QVERIFY(device->gain > start);
+            QVERIFY(input.m_agc.lastLevelDb() > -18 && input.m_agc.lastLevelDb() <= -11);
+            QVERIFY(device->writes < 20);
+        }
+        else if (mode == "overload") QVERIFY(device->gain < start);
+        else if (mode == "ceiling") QCOMPARE(device->gain, maximum);
+        else {
+            QCOMPARE(device->gain, start);
+            QCOMPARE(device->writes, 0);
+        }
+        if (mode == "gain-error") QCOMPARE(device->failedWrites, 1);
     }
 
     void range_data() {
