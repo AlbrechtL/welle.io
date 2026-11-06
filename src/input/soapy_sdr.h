@@ -86,6 +86,7 @@ private:
     RingBuffer<DSPCOMPLEX> m_spectrumSampleBuffer;
 
     std::vector<double> m_gains;
+    int32_t m_requestedGain = -1;
 
     std::thread m_thread;
     void workerthread(void);

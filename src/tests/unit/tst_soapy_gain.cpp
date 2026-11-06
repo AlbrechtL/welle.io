@@ -23,17 +23,41 @@
 #include <memory>
 #include <stdexcept>
 #include <limits>
+#include <SoapySDR/Errors.hpp>
 #include "input/soapy_sdr.h"
 #include "null_radio_controller.h"
 
 namespace {
 // A test device records the commands from the actual CSoapySdr methods.
-// No streaming thread or physical device is started.
+// Stream startup tests use a timeout-only stream; no physical device is opened.
 class GainDevice : public SoapySDR::Device {
 public:
     double gain = 0;
     int writes = 0;
     SoapySDR::Range range{0, 30, 10};
+    std::atomic<bool> activated{false};
+    double gainAtActivation = -1;
+
+    void setMasterClockRate(double) override {}
+    void setSampleRate(int, size_t, double) override {}
+    double getSampleRate(int, size_t) const override { return 2048000; }
+    void setGainMode(int, size_t, bool) override {}
+    SoapySDR::Stream* setupStream(int, const std::string&,
+        const std::vector<size_t>&, const SoapySDR::Kwargs&) override {
+        return reinterpret_cast<SoapySDR::Stream*>(this);
+    }
+    size_t getStreamMTU(SoapySDR::Stream*) const override { return 16; }
+    int activateStream(SoapySDR::Stream*, int, long long, size_t) override {
+        gainAtActivation = gain;
+        activated = true;
+        return 0;
+    }
+    int readStream(SoapySDR::Stream*, void* const*, size_t, int&,
+        long long&, long) override {
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        return SOAPY_SDR_TIMEOUT;
+    }
+    void closeStream(SoapySDR::Stream*) override {}
 
     SoapySDR::Range getGainRange(const int, const size_t) const override {
         return range;
@@ -136,6 +160,44 @@ private slots:
         input.decreaseGain();
         input.increaseGain();
         QVERIFY(input.m_device == nullptr);
+    }
+
+    void gainBeforeOpen_data() {
+        QTest::addColumn<bool>("explicitArgs");
+        QTest::addColumn<int>("index");
+        QTest::addColumn<bool>("automatic");
+        QTest::addColumn<double>("expected");
+        for (bool args : {false, true}) {
+            const QByteArray prefix = args ? "explicit-" : "default-";
+            QTest::newRow((prefix+"middle").constData()) << args << 2 << false << 20.0;
+            QTest::newRow((prefix+"maximum").constData()) << args << 3 << false << 30.0;
+            QTest::newRow((prefix+"minimum").constData()) << args << 0 << false << 0.0;
+            QTest::newRow((prefix+"invalid").constData()) << args << 99 << false << 0.0;
+            QTest::newRow((prefix+"automatic").constData()) << args << 2 << true << 0.0;
+        }
+    }
+
+    void gainBeforeOpen() {
+        QFETCH(bool, explicitArgs);
+        QFETCH(int, index);
+        QFETCH(bool, automatic);
+        QFETCH(double, expected);
+        NullRadioController controller;
+        CSoapySdr input(controller);
+        input.setGain(index); // Same ordering as the real CLI.
+        input.setAgc(automatic);
+        if (explicitArgs)
+            input.setDeviceParam(DeviceParam::SoapySDRDriverArgs, "driver=welle_test_gain");
+        else
+            QVERIFY(input.restart());
+        for (int run = 0; run < 2; ++run) {
+            auto* device = dynamic_cast<GainDevice*>(input.m_device);
+            QVERIFY(device != nullptr);
+            QTRY_VERIFY_WITH_TIMEOUT(device->activated.load(), 2000);
+            QCOMPARE(device->gainAtActivation, expected);
+            input.stop();
+            if (run == 0) QVERIFY(input.restart());
+        }
     }
 
     void range_data() {

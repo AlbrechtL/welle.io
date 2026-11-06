@@ -164,6 +164,8 @@ bool CSoapySdr::restart()
 
     const bool automatic = false;
     m_device->setGainMode(SOAPY_SDR_RX, 0, automatic);
+    if (m_requestedGain >= 0 && !m_sw_agc)
+        setGain(m_requestedGain);
 
     if (m_device->hasDCOffsetMode(SOAPY_SDR_RX, 0)) {
         m_device->setDCOffsetMode(SOAPY_SDR_RX, 0, true);
@@ -281,6 +283,7 @@ float CSoapySdr::setGain(int32_t gainIndex)
     if (m_device != nullptr) {
         try {
             m_device->setGain(SOAPY_SDR_RX, 0, m_gains.at(gainIndex));
+            m_requestedGain = gainIndex;
         }
         catch (const out_of_range&) {
             std::clog << "Soapy gain " << gainIndex << " is out of range" << std::endl;
@@ -289,6 +292,8 @@ float CSoapySdr::setGain(int32_t gainIndex)
         std::clog << "Soapy gain is " << g << std::endl;
         return g;
     }
+    if (gainIndex >= 0)
+        m_requestedGain = gainIndex;
     return 0;
 }
 
