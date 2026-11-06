@@ -34,8 +34,9 @@
  * else /etc/welle-pi/welle-pi.json. Empty object if none. Unlike
  * stations.json, which is a cache welle-pi rewrites: $CACHE_DIRECTORY
  * (systemd CacheDirectory=), else $XDG_CACHE_HOME/welle-pi,
- * else ~/.cache/welle-pi, else /var/cache/welle-pi. */
-nlohmann::json loadSettings();
+ * else ~/.cache/welle-pi, else /var/cache/welle-pi. If <path> is given it
+ * receives the file that was read, empty if none. */
+nlohmann::json loadSettings(std::string* path = nullptr);
 
 class ConfigManager {
 public:

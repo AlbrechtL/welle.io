@@ -26,7 +26,8 @@ that one is a cache that welle-pi rewrites after each scan, in
 `/var/cache/welle-pi`), else `$XDG_CACHE_HOME/welle-pi/`, else
 `~/.cache/welle-pi/`, else `/var/cache/welle-pi/`. welle-pi creates only
 directories that end up owned by its own user, and refuses to write the
-cache through a symlink.
+cache through a symlink. The command line options can also be set in this
+file, see [welle-pi options in welle-pi.json](welle-pi-options.md).
 
 ```json
 {
