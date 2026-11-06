@@ -1,5 +1,5 @@
 /*
- * RTL-TCP byte conservation, reset and backpressure tests.
+ * RTL-TCP byte conservation, reset and bounded clock tracking tests.
  * This file is part of welle.io and was generated with the help of an AI
  * assistant (OpenAi Codex 6 Astra).
  *
@@ -27,6 +27,7 @@
 #include <thread>
 #include "input/rtl_tcp.h"
 #include "input/iq_transfer.h"
+#include "input/iq_buffer_pacer.h"
 #include "null_radio_controller.h"
 #include "expectations.h"
 
@@ -47,10 +48,10 @@ public:
     std::thread thread;
     uint16_t port = 0;
     ~Source() { running = false; if (thread.joinable()) thread.join(); }
-    void start(uint64_t byteLimit = 0, bool withHeader = true) {
+    void start(uint64_t byteLimit = 0, bool withHeader = true, double ppm = 0) {
         std::promise<uint16_t> ready;
         auto result = ready.get_future();
-        thread = std::thread([this, byteLimit, withHeader, ready = std::move(ready)]() mutable {
+        thread = std::thread([this, byteLimit, withHeader, ppm, ready = std::move(ready)]() mutable {
             QTcpServer listener;
             if (!listener.listen(QHostAddress::LocalHost, 0)) {
                 ready.set_value(0); return;
@@ -70,7 +71,7 @@ public:
             }
             uint64_t sent = 0;
             const auto start = Clock::now();
-            const double rate = 2.0 * INPUT_RATE;
+            const double rate = 2.0 * INPUT_RATE * (1 + ppm / 1e6);
             QByteArray bytes(8192, 0);
             while (running && socket->state() == QAbstractSocket::ConnectedState) {
                 if (byteLimit && sent >= byteLimit) {
@@ -217,6 +218,92 @@ private slots:
         }
         QVERIFY(consumed > 2 * INPUT_RATE);
         QVERIFY(!server.failed);
+    }
+    void clockSimulation_data() {
+        QTest::addColumn<double>("ppm");
+        for (double ppm : {-5000., -500., -47.569, 0., 47.569, 500., 5000.})
+            QTest::newRow(qPrintable(QString::number(ppm))) << ppm;
+    }
+    void clockSimulation() {
+        QFETCH(double, ppm);
+        const double capacity = 8388608, nominal = 4096000;
+        IQBufferPacer pacer(nominal, capacity);
+        double queue = capacity / 2, elapsed = 0, low = queue, high = queue;
+        for (uint64_t step = 0; elapsed < 86400; ++step) {
+            queue -= 65536;
+            double dt = pacer.secondsFor(65536, size_t(queue));
+            // A 100 ms scheduling delay followed by catch-up over ten ticks.
+            if (step % 1000 == 0) dt += .1;
+            if (step % 1000 >= 1 && step % 1000 <= 10) dt -= .01;
+            queue += nominal * (1 + ppm / 1e6) * dt;
+            low = std::min(low, queue); high = std::max(high, queue);
+            elapsed += dt;
+        }
+        QVERIFY2(low > 3000000 && high < 5500000,
+                 qPrintable(QString("reservoir %1 .. %2").arg(low).arg(high)));
+    }
+
+    void correctionIsBounded() {
+        IQBufferPacer pacer(4096000, 8388608);
+        QCOMPARE(pacer.bytesPerSecond(0), 4096000 * .99);
+        QCOMPARE(pacer.bytesPerSecond(8388608), 4096000 * 1.01);
+        QCOMPARE(pacer.bytesPerSecond(4194304), 4096000.0);
+        QVERIFY(pacer.secondsFor(2, 4194304) > 0);
+    }
+
+    void clockDrift_data() {
+        QTest::addColumn<double>("ppm");
+        QTest::newRow("slow-source") << -5000.0;
+        QTest::newRow("fast-source") << 5000.0;
+    }
+    void clockDrift() {
+        QFETCH(double, ppm);
+        Source server; server.start(0, true, ppm);
+        QVERIFY(server.port != 0);
+        NullRadioController controller;
+        CRTL_TCP_Client input(controller);
+        input.setServerAddress("127.0.0.1"); input.setPort(server.port);
+        input.setAgc(false);
+        QVERIFY(input.restart());
+        uint64_t consumed = 0;
+        std::vector<DSPCOMPLEX> samples(32768);
+        const auto until = Clock::now() + std::chrono::seconds(40);
+        int minFill = 8388608, maxFill = 0;
+        double totalFill = 0;
+        int observations = 0;
+        const auto measuring = Clock::now() + std::chrono::seconds(30);
+        while (Clock::now() < until) {
+            const int count = input.getSamples(samples.data(), samples.size());
+            for (int i = 0; i < count; ++i) {
+                const float re = (float(sampleByte(consumed)) - 128) / 128;
+                const float im = (float(sampleByte(consumed + 1)) - 128) / 128;
+                if (samples[i].real() != re || samples[i].imag() != im)
+                    QFAIL(qPrintable(QString("IQ mismatch at byte %1").arg(consumed)));
+                consumed += 2;
+            }
+            if (Clock::now() >= measuring) {
+                std::lock_guard<std::mutex> lock(input.bufferTransferMutex);
+                const int fill = input.sampleNetworkBuffer.GetRingBufferReadAvailable();
+                minFill = std::min(minFill, fill); maxFill = std::max(maxFill, fill);
+                totalFill += fill; ++observations;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        }
+        QVERIFY(consumed > 2 * INPUT_RATE);
+        QVERIFY(!server.failed);
+        {
+            QVERIFY(observations > 0);
+            const double mean = totalFill / observations;
+            // TCP delivery and thread scheduling are bursty. Check clock
+            // tracking over the final ten seconds, with separate bounds for
+            // transient fill rather than treating each burst as clock drift.
+            QVERIFY2(mean > 3800000 && mean < 4600000 &&
+                     minFill > 3000000 && maxFill < 5500000,
+                     qPrintable(QString("reservoir %1 .. %2, mean %3")
+                                .arg(minFill).arg(maxFill).arg(mean)));
+            qInfo("Reservoir: min=%d max=%d mean=%.0f; checked %llu bytes",
+                  minFill, maxFill, mean, static_cast<unsigned long long>(consumed));
+        }
     }
 };
 QTEST_GUILESS_MAIN(RtlTcpFlowTests)

@@ -33,10 +33,10 @@
 #include <algorithm>
 #include <iostream>
 #include <chrono>
-#include <sys/time.h>
 
 #include "rtl_tcp.h"
 #include "iq_transfer.h"
+#include "iq_buffer_pacer.h"
 
 // For Qt translation if Qt is existing
 #ifdef QT_CORE_LIB
@@ -64,15 +64,6 @@ enum rtlsdr_tuner {
 };
 
 #define ONE_BYTE 8
-
-// Retain the existing nominal pacing here; adaptive monotonic pacing is a
-// separate change.
-static inline int64_t getMyTime(void)
-{
-    struct timeval tv;
-    gettimeofday(&tv, NULL);
-    return ((int64_t)tv.tv_sec * 1000000 + (int64_t)tv.tv_usec);
-}
 
 CRTL_TCP_Client::CRTL_TCP_Client(RadioControllerInterface& radioController) :
     radioController(radioController),
@@ -559,7 +550,9 @@ void CRTL_TCP_Client::receiveAndReconnect()
 void CRTL_TCP_Client::networkBufferCopy()
 {
     std::vector<uint8_t> tempBuffer(NETWORK_BUFFER_READ_SAMPLES * 2);
-    int64_t nextCopy_us = getMyTime();
+    using Clock = std::chrono::steady_clock;
+    IQBufferPacer pacer(2.0 * INPUT_RATE, sampleNetworkBuffer.GetBufferSize());
+    auto nextCopy = Clock::now();
 
     while (rtlsdrRunning) {
         int amount = 0;
@@ -580,19 +573,19 @@ void CRTL_TCP_Client::networkBufferCopy()
         }
         if (!ready || (amount == 0 && queuedBytes < 2)) {
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            nextCopy_us = getMyTime();
+            nextCopy = Clock::now();
             continue;
         }
         if (amount == 0) {
             // Decoder full: leave the bytes upstream and recheck stop/reset.
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
             // Do not accumulate an unbounded catch-up burst during a stall.
-            nextCopy_us = getMyTime();
+            nextCopy = Clock::now();
             continue;
         }
-        const uint32_t period_us = (amount / 2) / ((float) INPUT_RATE / 1e6);
-        nextCopy_us += period_us;
-        std::this_thread::sleep_for(std::chrono::microseconds(nextCopy_us - getMyTime()));
+        nextCopy += std::chrono::duration_cast<Clock::duration>(
+            std::chrono::duration<double>(pacer.secondsFor(amount, queuedBytes)));
+        std::this_thread::sleep_until(nextCopy);
     }
 }
 
