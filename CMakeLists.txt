@@ -709,6 +709,7 @@ if (BUILD_WELLE_PI)
     endif()
     if(UNIX AND NOT APPLE OR NOT WITH_APP_BUNDLE)
         INSTALL (TARGETS ${piExecutableName} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+        INSTALL (FILES src/welle-pi/doc/man/welle-pi.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1/)
         # for plugins built elsewhere
         INSTALL (FILES src/welle-pi/plugin.h src/welle-pi/input_plugin.h src/welle-pi/display_plugin.h
                  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/welle-pi)
