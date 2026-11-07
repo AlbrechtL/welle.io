@@ -82,9 +82,36 @@ struct Fixture {
 class TestDabAudio : public QObject {
     Q_OBJECT
 private slots:
+    void invalidFragment_data() {
+        QTest::addColumn<int>("fragment");
+        QTest::newRow("zero") << 0;
+        QTest::newRow("negative") << -1;
+        QTest::newRow("beyond-CIF") << (864 * 64 + 1);
+    }
+    void invalidFragment() {
+        QFETCH(int, fragment);
+        std::atomic<int> frames{0};
+        QVERIFY_EXCEPTION_THROWN(DabAudio(fragment, 8, ProtectionSettings{},
+            std::make_unique<CountFrames>(frames)), std::invalid_argument);
+    }
+    void largeLegalFragment() {
+        // 576 CUs / EEP-A level 1 is 384 kbit/s, within a CIF (864 CUs).
+        // 576 * 64 cannot be represented by the old int16_t fragment size.
+        constexpr int fragment = 576 * 64;
+        ProtectionSettings settings;
+        settings.eepLevel = EEPProtectionLevel::EEP_1;
+        std::atomic<int> frames{0};
+        DabAudio audio(fragment, 384, settings, std::make_unique<CountFrames>(frames));
+        const std::vector<softbit_t> bits(fragment, 32);
+        for (int i = 0; i < 17; ++i) QCOMPARE(audio.process(bits.data(), fragment), fragment);
+        QTRY_COMPARE_WITH_TIMEOUT(frames.load(), 1, 5000);
+        DabAudioTestAccess::stop(audio);
+        QCOMPARE(DabAudioTestAccess::pending(audio), 0);
+    }
     void invalidSubmission_data() {
         QTest::addColumn<int>("count");
         QTest::addColumn<bool>("nullPointer");
+        QTest::newRow("oversized-count") << (864 * 64 + 1) << false;
         QTest::newRow("negative-count") << -1 << false;
         QTest::newRow("minimum-count") << -32768 << false;
         QTest::newRow("null-data") << 1 << true;
@@ -95,7 +122,7 @@ private slots:
         QFETCH(bool, nullPointer);
         Fixture f;
         DabAudioTestAccess::prepareDelayedWorker(f.audio);
-        QCOMPARE(f.audio.process(nullPointer ? nullptr : f.bits.data(), int16_t(count)), 0);
+        QCOMPARE(f.audio.process(nullPointer ? nullptr : f.bits.data(), int32_t(count)), 0);
         QCOMPARE(DabAudioTestAccess::pending(f.audio), 0);
         // A rejected submission must not corrupt subsequent valid input.
         QCOMPARE(f.audio.process(f.bits.data(), 1), 1);

@@ -23,6 +23,7 @@
  */
 
 #include <iostream>
+#include <stdexcept>
 #include <vector>
 #include "dab-constants.h"
 #include "dab-audio.h"
@@ -45,7 +46,7 @@
 //  fragmentsize == Length * CUSize
 DabAudio::DabAudio(
         AudioServiceComponentType dabModus,
-        int16_t fragmentSize,
+        int32_t fragmentSize,
         int16_t bitRate,
         ProtectionSettings protection,
         ProgrammeHandlerInterface& phi,
@@ -56,13 +57,17 @@ DabAudio::DabAudio(
 }
 
 DabAudio::DabAudio(
-        int16_t fragmentSize,
+        int32_t fragmentSize,
         int16_t bitRate,
         ProtectionSettings protection,
         std::unique_ptr<DabProcessor> processor) :
     our_dabProcessor(std::move(processor)),
     mscBuffer(64 * 32768)
 {
+    // One CIF contains 864 capacity units of 64 soft bits. Keep the full
+    // width: valid long-form subchannels can exceed INT16_MAX soft bits.
+    if (fragmentSize <= 0 || fragmentSize > 864 * CUSize)
+        throw std::invalid_argument("DabAudio fragment exceeds CIF bounds");
     this->fragmentSize     = fragmentSize;
     this->bitRate          = bitRate;
 
@@ -106,11 +111,11 @@ void DabAudio::stopWorker()
     }
 }
 
-int32_t DabAudio::process(const softbit_t *v, int16_t cnt)
+int32_t DabAudio::process(const softbit_t *v, int32_t cnt)
 {
     // RingBuffer converts the count to unsigned internally. Reject invalid
     // submissions before that conversion or any pointer access.
-    if (cnt <= 0 || v == nullptr) return 0;
+    if (cnt <= 0 || cnt > 864 * CUSize || v == nullptr) return 0;
     std::unique_lock<std::mutex> lock(ourMutex);
     mscSpaceAvailable.wait(lock, [&] {
         return !running || mscBuffer.GetRingBufferWriteAvailable() >= cnt;
@@ -126,7 +131,7 @@ const int16_t interleaveMap[] = {0,8,4,12,2,10,6,14,1,9,5,13,3,11,7,15};
 
 void DabAudio::run()
 {
-    int16_t i;
+    int32_t i;
     int16_t countforInterleaver = 0;
     int16_t interleaverIndex    = 0;
     std::vector<softbit_t> data(fragmentSize);
