@@ -23,6 +23,7 @@
 #include <QTcpSocket>
 #include <memory>
 #include <utility>
+#include <vector>
 #ifdef Q_OS_LINUX
 #include <dirent.h>
 #include <cerrno>
@@ -94,6 +95,59 @@ bool sendsData(Socket& socket, QTcpSocket& peer)
 class TestSocket : public QObject {
     Q_OBJECT
 private slots:
+    void refusedConnectionDoesNotLeak() {
+#ifdef Q_OS_LINUX
+        QTcpServer reserved;
+        QVERIFY(reserved.listen(QHostAddress::LocalHost, 0));
+        const auto port = reserved.serverPort();
+        reserved.close();
+        const int before = descriptorCount();
+        QVERIFY(before >= 0);
+        for (int i = 0; i < 16; ++i) {
+            Socket connection;
+            QVERIFY(!connection.connect("127.0.0.1", port, 1));
+            QVERIFY(!connection.valid());
+        }
+        QCOMPARE(descriptorCount(), before);
+#else
+        QSKIP("Descriptor counting requires Linux procfs");
+#endif
+    }
+
+    void connectingTwicePreservesOriginal() {
+        Connection connection;
+        QVERIFY(connection.open());
+        QTcpServer other;
+        QVERIFY(other.listen(QHostAddress::LocalHost, 0));
+        QVERIFY(!connection.socket.connect("127.0.0.1", other.serverPort(), 1));
+        QVERIFY(sendsData(connection.socket, *connection.peer));
+    }
+
+    void highDescriptorConnects() {
+#ifdef Q_OS_LINUX
+        QTcpServer server;
+        QVERIFY(server.listen(QHostAddress::LocalHost, 0));
+        struct Descriptors {
+            std::vector<int> values;
+            ~Descriptors() { for (int fd : values) ::close(fd); }
+        } held;
+        int fd;
+        do {
+            fd = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
+            if (fd == -1) QSKIP("Descriptor limit too small for FD_SETSIZE test");
+            held.values.push_back(fd);
+        } while (fd < FD_SETSIZE + 4);
+        Socket connection;
+        QVERIFY(connection.connect("127.0.0.1", server.serverPort(), 1));
+        if (!server.hasPendingConnections()) QVERIFY(server.waitForNewConnection(1000));
+        std::unique_ptr<QTcpSocket> peer(server.nextPendingConnection());
+        QVERIFY(peer != nullptr);
+        QVERIFY(sendsData(connection, *peer));
+#else
+        QSKIP("POSIX descriptor range test");
+#endif
+    }
+
     void moveAssignment_data() {
         QTest::addColumn<bool>("sourceValid");
         QTest::addColumn<bool>("targetValid");
