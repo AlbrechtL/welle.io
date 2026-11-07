@@ -184,6 +184,42 @@ private slots:
         QVERIFY(!server.failed);
     }
 
+    void incompleteHeaderDisconnect_data() {
+        QTest::addColumn<int>("length");
+        for (int length : {0, 1, 3, 5, 11})
+            QTest::newRow(qPrintable(QString::number(length))) << length;
+    }
+    void incompleteHeaderDisconnect() {
+        QFETCH(int, length);
+        QTcpServer server;
+        QVERIFY(server.listen(QHostAddress::LocalHost, 0));
+        NullRadioController controller;
+        CRTL_TCP_Client input(controller);
+        input.connected = input.sock.connect("127.0.0.1", server.serverPort(), 2);
+        QVERIFY(input.connected);
+        QVERIFY(server.waitForNewConnection(2000));
+        std::unique_ptr<QTcpSocket> peer(server.nextPendingConnection());
+        QVERIFY(peer != nullptr);
+        const QByteArray header = QByteArray::fromHex("52544c30000000050000001d");
+        if (length) {
+            QCOMPARE(peer->write(header.constData(), length), qint64(length));
+            QVERIFY(peer->waitForBytesWritten(2000));
+        }
+        peer->disconnectFromHost();
+        input.rtlsdrRunning = true;
+        std::atomic<bool> finished{false}, failed{false};
+        input.receiveThread = std::thread([&] {
+            try { input.receiveData(); } catch (...) { failed = true; }
+            finished = true;
+        });
+        QTRY_VERIFY_WITH_TIMEOUT(finished.load(), 2000);
+        input.stop();
+        QVERIFY(!failed);
+        QVERIFY(!input.connected);
+        QCOMPARE(input.sampleNetworkBuffer.GetRingBufferReadAvailable(), 0);
+        QCOMPARE(input.sampleBuffer.GetRingBufferReadAvailable(), 0);
+    }
+
     void pausedDecoderPreservesBytes_data() {
         QTest::addColumn<bool>("withHeader");
         QTest::newRow("rtl0-header") << true;
@@ -216,6 +252,89 @@ private slots:
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
         QVERIFY(consumed > 2 * INPUT_RATE);
+        QVERIFY(!server.failed);
+    }
+    void initialTuneDiscardsSettlingSamples() {
+        Source server; server.start();
+        QVERIFY(server.port != 0);
+        NullRadioController controller;
+        CRTL_TCP_Client input(controller);
+        input.setServerAddress("127.0.0.1"); input.setPort(server.port);
+        input.setAgc(false); input.setFrequency(174928000);
+        const size_t discarded = size_t(input.settleMs) * INPUT_RATE * 2 / 1000;
+        QVERIFY(input.restart());
+        QTRY_VERIFY_WITH_TIMEOUT(input.getSamplesToRead() >= 1024, 4000);
+        std::vector<DSPCOMPLEX> samples(1024);
+        QCOMPARE(input.getSamples(samples.data(), samples.size()), int(samples.size()));
+        for (size_t i=0; i<samples.size(); ++i) {
+            QCOMPARE(samples[i].real(), (float(sampleByte(discarded+2*i))-128)/128);
+            QCOMPARE(samples[i].imag(), (float(sampleByte(discarded+2*i+1))-128)/128);
+        }
+        QVERIFY(!server.failed);
+    }
+    void connectedRetune_data() {
+        QTest::addColumn<bool>("blocked");
+        QTest::newRow("active") << false;
+        QTest::newRow("decoder-blocked") << true;
+    }
+    void connectedRetune() {
+        QFETCH(bool, blocked);
+        Source server; server.start();
+        QVERIFY(server.port != 0);
+        std::atomic<bool> finished{false}, failed{false};
+        NullRadioController controller;
+        CRTL_TCP_Client input(controller);
+        input.setAgc(false);
+        input.connected = input.sock.connect("127.0.0.1", server.port, 2);
+        QVERIFY(input.connected);
+        input.rtlsdrRunning = true;
+        if (blocked) {
+            std::vector<uint8_t> full(input.sampleNetworkBuffer.GetBufferSize(), 0x7e);
+            QCOMPARE(input.sampleNetworkBuffer.putDataIntoBuffer(full.data(), full.size()), int(full.size()));
+        }
+        input.receiveThread = std::thread([&] {
+            try { input.receiveData(); } catch (...) { failed = true; }
+            finished = true;
+        });
+        QTRY_VERIFY_WITH_TIMEOUT(server.commandsSeen.load(), 2000);
+        if (blocked) QVERIFY(!finished);
+        else {
+            QTRY_VERIFY_WITH_TIMEOUT(finished.load(), 2000);
+            QCOMPARE(input.sampleNetworkBuffer.GetRingBufferReadAvailable(), 8192-12);
+        }
+        input.setFrequency(229072000); input.reset();
+        QTRY_VERIFY_WITH_TIMEOUT(finished.load(), 2000);
+        input.receiveThread.join();
+        QVERIFY(!failed);
+        QCOMPARE(input.sampleNetworkBuffer.GetRingBufferReadAvailable(), 0);
+        const size_t discarded = size_t(input.settleMs) * INPUT_RATE * 2 / 1000;
+        QCOMPARE(input.discardBytes.load(), discarded);
+        finished = false;
+        input.receiveThread = std::thread([&] {
+            try {
+                while (input.rtlsdrRunning) {
+                    input.receiveData();
+                    std::lock_guard<std::mutex> lock(input.bufferTransferMutex);
+                    if (input.sampleNetworkBuffer.GetRingBufferReadAvailable() > 0) break;
+                }
+            } catch (...) { failed = true; }
+            finished = true;
+        });
+        QTRY_VERIFY_WITH_TIMEOUT(finished.load(), 3000);
+        input.receiveThread.join();
+        QVERIFY(!failed);
+        QCOMPARE(input.discardBytes.load(), size_t(0));
+        uint8_t scratch[8192];
+        const int bytes = transferIQ(input.sampleNetworkBuffer, input.sampleBuffer, scratch, sizeof(scratch));
+        QVERIFY(bytes > 0);
+        std::vector<DSPCOMPLEX> samples(bytes/2);
+        QCOMPARE(input.getSamples(samples.data(), samples.size()), int(samples.size()));
+        // One block was consumed before the reset, including its 12-byte header.
+        const size_t first = 8192-12+discarded;
+        for (size_t i=0; i<samples.size(); ++i) {
+            QCOMPARE(samples[i].real(), (float(sampleByte(first+2*i))-128)/128);
+            QCOMPARE(samples[i].imag(), (float(sampleByte(first+2*i+1))-128)/128);
+        }
         QVERIFY(!server.failed);
     }
 };
