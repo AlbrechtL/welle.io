@@ -1024,8 +1024,10 @@ int main(int argc, char **argv)
 
     int current_station_idx = -1;
 
-    auto tuneToStationIndex = [&](int idx) {
-        if (idx < 0 || idx >= (int)stations.size()) return false;
+    enum class TuneResult { Success, NoSignal, DriverError };
+
+    auto tuneToStationIndex = [&](int idx) -> TuneResult {
+        if (idx < 0 || idx >= (int)stations.size()) return TuneResult::NoSignal;
         current_station_idx = idx;
         const auto& st = stations[current_station_idx];
 
@@ -1043,20 +1045,32 @@ int main(int argc, char **argv)
 
         int sync_wait = 30;
         while (!ri.synced && sync_wait > 0 && !stop_requested()) {
+            if (!in->is_ok()) {
+                break;
+            }
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
             sync_wait--;
+        }
+
+        if (input_failure || !in->is_ok()) {
+            return TuneResult::DriverError;
         }
 
         if (ri.synced) {
             wait_for_complete_ensemble(rx, stop_requested);
         }
 
+        if (input_failure || !in->is_ok()) {
+            return TuneResult::DriverError;
+        }
+
         bool tuned = tune_to_service(rx, ph, *radioScreen, st.program, st.service_id);
         if (tuned) {
             config.setLastPlayed(st.channel, st.service_id);
             config.saveConfig();
+            return TuneResult::Success;
         }
-        return tuned;
+        return (input_failure || !in->is_ok()) ? TuneResult::DriverError : TuneResult::NoSignal;
     };
 
     auto menuScreen = make_shared<MenuScreen>(&uiManager);
@@ -1116,6 +1130,7 @@ int main(int argc, char **argv)
 
     if (!stations.empty()) {
         bool startup_tuned = false;
+        TuneResult last_tune_result = TuneResult::NoSignal;
 
         // 1. Try custom -c and -p override if both are specified (even if not in scanned list)
         if (!options.channel.empty() && !options.programme.empty()) {
@@ -1141,7 +1156,8 @@ int main(int argc, char **argv)
             }
 
             uiManager.resetToRoot(radioScreen);
-            startup_tuned = tuneToStationIndex(custom_idx);
+            last_tune_result = tuneToStationIndex(custom_idx);
+            startup_tuned = (last_tune_result == TuneResult::Success);
 
             if (startup_tuned) {
                 // Successfully tuned custom override! Resolve actual service_id to save in config
@@ -1164,7 +1180,7 @@ int main(int argc, char **argv)
         }
 
         // 2. Try last_played fallback
-        if (!startup_tuned) {
+        if (!startup_tuned && last_tune_result != TuneResult::DriverError) {
             std::string last_ch = config.getLastPlayedChannel();
             uint32_t last_id = config.getLastPlayedServiceId();
             if (!last_ch.empty() && last_id != 0) {
@@ -1177,15 +1193,16 @@ int main(int argc, char **argv)
                 }
                 if (lp_idx != -1) {
                     uiManager.resetToRoot(radioScreen);
-                    startup_tuned = tuneToStationIndex(lp_idx);
+                    last_tune_result = tuneToStationIndex(lp_idx);
+                    startup_tuned = (last_tune_result == TuneResult::Success);
                 }
             }
         }
 
-        // 3. Fallback to alphabetically-first station
-        if (!startup_tuned) {
+        // 3. Fallback to alphabetically-first station only if driver answered
+        if (!startup_tuned && last_tune_result == TuneResult::NoSignal) {
             uiManager.resetToRoot(radioScreen);
-            startup_tuned = tuneToStationIndex(0);
+            tuneToStationIndex(0);
         }
     } else {
         cerr << "No stations found after scan." << endl;
