@@ -19,6 +19,7 @@
  */
 
 #include <QtTest>
+#include <cstring>
 #include "mot_manager.h"
 
 namespace {
@@ -32,6 +33,48 @@ bool parse(const QByteArray& bytes, MOT_FILE& file, std::string& name)
 class TestMotHeader : public QObject {
     Q_OBJECT
 private slots:
+    void emptyAndDuplicateSegments() {
+        const uint8_t empty = 0;
+        MOTEntity entity;
+        entity.AddSeg(0, false, &empty, 0);
+        const uint8_t payload[] = {1, 2, 3};
+        entity.AddSeg(1, true, payload, sizeof(payload));
+        entity.AddSeg(1, true, payload, sizeof(payload));
+        QVERIFY(entity.IsFinished());
+        QCOMPARE(entity.GetSize(), size_t(3));
+        QCOMPARE(entity.GetData(), std::vector<uint8_t>({1,2,3}));
+        entity.Reset();
+        entity.AddSeg(0, true, &empty, 0);
+        QVERIFY(entity.IsFinished());
+        QVERIFY(entity.GetData().empty());
+    }
+
+    void ucs2ContentName_data() {
+        QTest::addColumn<QByteArray>("payload");
+        QTest::addColumn<bool>("accepted");
+        QTest::newRow("incomplete-code-unit") << QByteArray(1, char(0x41)) << false;
+        for (const auto& row : std::vector<std::pair<const char*, char16_t>>{
+                 {"unaligned-ascii", u'A'}, {"unpaired-low-surrogate", 0xdc00},
+                 {"unpaired-high-surrogate", 0xd800}}) {
+            QByteArray payload(sizeof(char16_t), char(0));
+            std::memcpy(payload.data(), &row.second, sizeof(char16_t));
+            QTest::newRow(row.first) << payload << (row.second == u'A');
+        }
+    }
+    void ucs2ContentName() {
+        QFETCH(QByteArray, payload);
+        QFETCH(bool, accepted);
+        QByteArray bytes;
+        bytes.append(char(0xcc));
+        bytes.append(char(payload.size() + 1));
+        bytes.append(char(0x60));
+        bytes.append(payload);
+        MOT_FILE file;
+        std::string name;
+        QCOMPARE(parse(bytes, file, name), accepted);
+        if (accepted) QCOMPARE(name, std::string("A"));
+    }
+
     void parameterBounds_data() {
         QTest::addColumn<QByteArray>("bytes");
         QTest::addColumn<bool>("accepted");

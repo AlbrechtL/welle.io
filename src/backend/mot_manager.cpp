@@ -18,6 +18,7 @@
 
 #include <string>
 #include <iostream>
+#include <stdexcept>
 #include "mot_manager.h"
 
 
@@ -31,7 +32,8 @@ void MOTEntity::AddSeg(int seg_number, bool last_seg, const uint8_t* data, size_
 
 	// copy data
 	segs[seg_number] = seg_t(len);
-	memcpy(&segs[seg_number][0], data, len);
+	if (len != 0)
+        memcpy(segs[seg_number].data(), data, len);
 	size += len;
 }
 
@@ -53,7 +55,8 @@ std::vector<uint8_t> MOTEntity::GetData() {
 	// concatenate all segments
 	for(int i = 0; i <= last_seg_number; i++) {
 		seg_t& seg = segs[i];
-		memcpy(&result[offset], &seg[0], seg.size());
+		if (!seg.empty())
+            memcpy(result.data() + offset, seg.data(), seg.size());
 		offset += seg.size();
 	}
 
@@ -103,7 +106,7 @@ bool MOTObject::ParseCheckHeader(MOT_FILE& target_file) {
 	std::string old_content_name = file.content_name;
 	std::string new_content_name;
 
-	if(!ParseMOTHeaderExtension(&data[7], data.size() - 7, file, new_content_name))
+	if(!ParseMOTHeaderExtension(data.data() + 7, data.size() - 7, file, new_content_name))
 		return false;
 
 	if(!header_update) {
@@ -180,9 +183,29 @@ bool ParseMOTHeaderExtension(const uint8_t* ext_data, size_t ext_len, MOT_FILE& 
 			//file.content_name = CharsetTools::ConvertTextToUTF8(&data[offset + 1], data_len - 1, data[offset] >> 4, true, &file.content_name_charset);
             // A zero length means null-terminated input to the charset helper.
             // Handle a charset-only (empty) name without reading past the field.
-            file.content_name = data_len == 1 ? std::string() :
-                toUtf8StringUsingCharset(data.data() + offset + 1,
-                    (CharacterSet) (data[offset] >> 4), data_len - 1);
+            // The shared helper also serves legacy labels. Keep stricter
+            // malformed-MOT rejection here rather than changing their policy.
+            if ((CharacterSet)(data[offset] >> 4) == CharacterSet::UnicodeUcs2) {
+                if ((data_len - 1) % sizeof(char16_t) != 0)
+                    return false;
+                if (data_len > 1) {
+                    char16_t last;
+                    memcpy(&last, data.data() + offset + data_len - sizeof(last), sizeof(last));
+                    // codecvt may silently stop before a trailing high surrogate.
+                    if (last >= 0xd800 && last <= 0xdbff)
+                        return false;
+                }
+            }
+            try {
+                file.content_name = data_len == 1 ? std::string() :
+                    toUtf8StringUsingCharset(data.data() + offset + 1,
+                        (CharacterSet) (data[offset] >> 4), data_len - 1);
+            }
+            catch (const std::range_error&) {
+                // Invalid or incomplete character sequences are malformed
+                // input, not an exception that may escape the sample worker.
+                return false;
+            }
 			new_content_name = file.content_name;
 //			fprintf(stderr, "ContentName: '%s'\n", file.content_name.c_str());
 			break;
