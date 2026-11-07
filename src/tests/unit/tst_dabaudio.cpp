@@ -82,6 +82,14 @@ struct Fixture {
 class TestDabAudio : public QObject {
     Q_OBJECT
 private slots:
+    void returnsAcceptedCount() {
+        Fixture f;
+        DabAudioTestAccess::prepareDelayedWorker(f.audio);
+        QCOMPARE(f.audio.process(f.bits.data(), 1), 1);
+        QCOMPARE(f.audio.process(f.bits.data(), 0), 0);
+        QCOMPARE(DabAudioTestAccess::pending(f.audio), 1);
+    }
+
     void exactFragmentIsConsumed() {
         Fixture f;
         f.push(17); // Existing interleaver warm-up is 16 fragments.
@@ -153,7 +161,7 @@ private slots:
         const int result = producer.get();
         QVERIFY(waiting == std::future_status::timeout);
         QVERIFY(finished == std::future_status::ready);
-        QVERIFY(result >= Fixture::fragment);
+        QCOMPARE(result, Fixture::fragment);
     }
 
     void stopReleasesProducerAndRejectsNewData() {

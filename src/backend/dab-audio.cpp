@@ -113,11 +113,10 @@ int32_t DabAudio::process(const softbit_t *v, int16_t cnt)
         return !running || mscBuffer.GetRingBufferWriteAvailable() >= cnt;
     });
     if (!running) return 0;
-    const int32_t fr = mscBuffer.GetRingBufferWriteAvailable();
     mscBuffer.putDataIntoBuffer(v, cnt);
     lock.unlock();
     mscDataAvailable.notify_one();
-    return fr;
+    return cnt; // Number of samples accepted by this call.
 }
 
 const int16_t interleaveMap[] = {0,8,4,12,2,10,6,14,1,9,5,13,3,11,7,15};
