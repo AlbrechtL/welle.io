@@ -108,6 +108,9 @@ void DabAudio::stopWorker()
 
 int32_t DabAudio::process(const softbit_t *v, int16_t cnt)
 {
+    // RingBuffer converts the count to unsigned internally. Reject invalid
+    // submissions before that conversion or any pointer access.
+    if (cnt <= 0 || v == nullptr) return 0;
     std::unique_lock<std::mutex> lock(ourMutex);
     mscSpaceAvailable.wait(lock, [&] {
         return !running || mscBuffer.GetRingBufferWriteAvailable() >= cnt;

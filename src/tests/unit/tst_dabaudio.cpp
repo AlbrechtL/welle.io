@@ -82,6 +82,26 @@ struct Fixture {
 class TestDabAudio : public QObject {
     Q_OBJECT
 private slots:
+    void invalidSubmission_data() {
+        QTest::addColumn<int>("count");
+        QTest::addColumn<bool>("nullPointer");
+        QTest::newRow("negative-count") << -1 << false;
+        QTest::newRow("minimum-count") << -32768 << false;
+        QTest::newRow("null-data") << 1 << true;
+        QTest::newRow("empty-null-data") << 0 << true;
+    }
+    void invalidSubmission() {
+        QFETCH(int, count);
+        QFETCH(bool, nullPointer);
+        Fixture f;
+        DabAudioTestAccess::prepareDelayedWorker(f.audio);
+        QCOMPARE(f.audio.process(nullPointer ? nullptr : f.bits.data(), int16_t(count)), 0);
+        QCOMPARE(DabAudioTestAccess::pending(f.audio), 0);
+        // A rejected submission must not corrupt subsequent valid input.
+        QCOMPARE(f.audio.process(f.bits.data(), 1), 1);
+        QCOMPARE(DabAudioTestAccess::pending(f.audio), 1);
+    }
+
     void returnsAcceptedCount() {
         Fixture f;
         DabAudioTestAccess::prepareDelayedWorker(f.audio);
