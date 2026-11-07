@@ -29,13 +29,32 @@
 #include "null_radio_controller.h"
 
 namespace {
+SoapySDR::Range nextRange{0, 30, 10};
+bool failRangeQuery = false;
+int liveDevices = 0;
+std::string driverFault;
+std::atomic<int> streamActivations{0};
+
+class MessageController : public NullRadioController {
+public:
+    int errors = 0;
+    std::string message;
+    void onMessage(message_level_t level, const std::string& text,
+                   const std::string& = std::string()) override {
+        if (level == message_level_t::Error) ++errors;
+        message = text;
+    }
+};
+
 // A test device records the commands from the actual CSoapySdr methods.
 // Stream startup tests use a timeout-only stream; no physical device is opened.
 class GainDevice : public SoapySDR::Device {
 public:
+    GainDevice() { ++liveDevices; }
+    ~GainDevice() override { --liveDevices; }
     double gain = 0;
     int writes = 0;
-    SoapySDR::Range range{0, 30, 10};
+    SoapySDR::Range range = nextRange;
     std::atomic<bool> activated{false};
     double gainAtActivation = -1;
     size_t mtu = 4096;
@@ -43,17 +62,24 @@ public:
     std::vector<double> commands;
     bool failGain = false;
     int failedWrites = 0;
+    std::function<void(double)> onGain;
+    double frequency = 0;
+    void setFrequency(int, size_t, double value, const SoapySDR::Kwargs&) override { frequency = value; }
+    double getFrequency(int, size_t) const override { return frequency; }
 
     void setMasterClockRate(double) override {}
     void setSampleRate(int, size_t, double) override {}
     double getSampleRate(int, size_t) const override { return 2048000; }
-    void setGainMode(int, size_t, bool) override {}
+    void setGainMode(int, size_t, bool) override {
+        if (driverFault == "mode") throw std::runtime_error("Test gain-mode failure");
+    }
     SoapySDR::Stream* setupStream(int, const std::string&,
         const std::vector<size_t>&, const SoapySDR::Kwargs&) override {
         return reinterpret_cast<SoapySDR::Stream*>(this);
     }
     size_t getStreamMTU(SoapySDR::Stream*) const override { return mtu; }
     int activateStream(SoapySDR::Stream*, int, long long, size_t) override {
+        ++streamActivations;
         gainAtActivation = gain;
         activated = true;
         return 0;
@@ -67,12 +93,14 @@ public:
     void closeStream(SoapySDR::Stream*) override {}
 
     SoapySDR::Range getGainRange(const int, const size_t) const override {
+        if (failRangeQuery) throw std::runtime_error("Test driver range failure");
         return range;
     }
 
     double getGain(const int direction, const size_t channel) const override {
         if (direction != SOAPY_SDR_RX || channel != 0)
             throw std::runtime_error("Unexpected gain channel");
+        if (driverFault == "read") throw std::runtime_error("Test gain read failure");
         return gain;
     }
 
@@ -80,6 +108,9 @@ public:
         if (direction != SOAPY_SDR_RX || channel != 0)
             throw std::runtime_error("Unexpected gain channel");
         if (failGain) { ++failedWrites; throw std::runtime_error("Test gain failure"); }
+        if (driverFault == "write") throw std::runtime_error("Test gain write failure");
+        if (driverFault == "write-out-of-range") throw std::out_of_range("Test driver range failure");
+        if (onGain) onGain(value);
         gain = value;
         ++writes;
         commands.push_back(value);
@@ -113,62 +144,12 @@ private slots:
                                             makeDevice, SOAPY_SDR_ABI_VERSION));
     }
 
-    void gainStep_data() {
-        QTest::addColumn<std::vector<double>>("gains");
-        QTest::addColumn<double>("current");
-        QTest::addColumn<bool>("decrease");
-        QTest::addColumn<double>("expected");
-        QTest::addColumn<int>("writes");
-        const std::vector<double> gains = {0, 10, 20, 30};
-        QTest::newRow("decrease-middle") << gains << 20.0 << true << 10.0 << 1;
-        QTest::newRow("decrease-maximum") << gains << 30.0 << true << 20.0 << 1;
-        QTest::newRow("decrease-minimum") << gains << 0.0 << true << 0.0 << 0;
-        QTest::newRow("decrease-between-steps") << gains << 25.0 << true << 20.0 << 1;
-        QTest::newRow("decrease-above-table") << gains << 35.0 << true << 30.0 << 1;
-        QTest::newRow("decrease-below-table") << gains << -5.0 << true << -5.0 << 0;
-        QTest::newRow("increase-middle") << gains << 10.0 << false << 20.0 << 1;
-        QTest::newRow("increase-minimum") << gains << 0.0 << false << 10.0 << 1;
-        QTest::newRow("increase-maximum") << gains << 30.0 << false << 30.0 << 0;
-        QTest::newRow("increase-between-steps") << gains << 15.0 << false << 20.0 << 1;
-        const std::vector<double> fractional = {-4.0, -1.5, 0.0, 2.5};
-        QTest::newRow("decrease-fractional-negative") << fractional << -1.5 << true << -4.0 << 1;
-        QTest::newRow("increase-fractional") << fractional << 0.0 << false << 2.5 << 1;
-        QTest::newRow("increase-decimal-maximum") << std::vector<double>{0.0, 1.3} << 1.3 << false << 1.3 << 0;
-        QTest::newRow("decrease-decimal-maximum") << std::vector<double>{0.0, 1.3} << 1.3 << true << 0.0 << 1;
-        QTest::newRow("increase-decimal-endpoint") << std::vector<double>{0.0, 1.3} << 0.0 << false << 1.3 << 1;
-        QTest::newRow("decrease-empty") << std::vector<double>{} << 10.0 << true << 10.0 << 0;
-        QTest::newRow("increase-empty") << std::vector<double>{} << 10.0 << false << 10.0 << 0;
-        QTest::newRow("decrease-single") << std::vector<double>{10} << 10.0 << true << 10.0 << 0;
-        QTest::newRow("increase-single") << std::vector<double>{10} << 10.0 << false << 10.0 << 0;
-    }
-
-    void gainStep() {
-        QFETCH(std::vector<double>, gains);
-        QFETCH(double, current);
-        QFETCH(bool, decrease);
-        QFETCH(double, expected);
-        QFETCH(int, writes);
-        NullRadioController controller;
-        CSoapySdr input(controller);
-        input.m_device = SoapySDR::Device::make("driver=welle_test_gain");
-        auto* device = dynamic_cast<GainDevice*>(input.m_device);
-        QVERIFY(device != nullptr);
-        device->gain = current;
-        input.m_gains = gains;
-        if (decrease) input.decreaseGain();
-        else input.increaseGain();
-        QCOMPARE(device->gain, expected);
-        QCOMPARE(device->writes, writes);
-        // input's destructor returns the fake device through Device::unmake.
-    }
-
-    void noDevice() {
-        NullRadioController controller;
-        CSoapySdr input(controller);
-        QVERIFY(input.m_device == nullptr);
-        input.decreaseGain();
-        input.increaseGain();
-        QVERIFY(input.m_device == nullptr);
+    void cleanup() {
+        nextRange = SoapySDR::Range(0, 30, 10);
+        failRangeQuery = false;
+        driverFault.clear();
+        streamActivations = 0;
+        QCOMPARE(liveDevices, 0);
     }
 
     void gainBeforeOpen_data() {
@@ -214,12 +195,15 @@ private slots:
         QTest::addColumn<double>("start");
         QTest::addColumn<double>("maximum");
         QTest::addColumn<int>("mtu");
+        QTest::addColumn<double>("step");
         for (const char* mode : {"weak", "overload", "impulses", "manual",
                                  "zero", "nan", "infinity", "gain-error"})
-            QTest::newRow(mode) << QString(mode) << (QString(mode)=="overload" ? 102.0 : 59.0) << 102.0 << 4096;
-        QTest::newRow("large-block") << QString("weak") << 59.0 << 102.0 << 18432;
-        QTest::newRow("rtl-range") << QString("weak") << 0.0 << 49.6 << 8192;
-        QTest::newRow("ceiling") << QString("ceiling") << 59.0 << 102.0 << 4096;
+            QTest::newRow(mode) << QString(mode) << (QString(mode)=="overload" ? 102.0 : 59.0) << 102.0 << 4096 << 1.0;
+        QTest::newRow("large-block") << QString("weak") << 59.0 << 102.0 << 18432 << 1.0;
+        QTest::newRow("rtl-range") << QString("weak") << 0.0 << 49.6 << 8192 << 1.0;
+        QTest::newRow("ceiling") << QString("ceiling") << 59.0 << 102.0 << 4096 << 1.0;
+        QTest::newRow("fractional-step") << QString("weak") << 0.0 << 49.6 << 4096 << 0.4;
+        QTest::newRow("fractional-endpoint") << QString("ceiling") << 0.0 << 1.3 << 4096 << 0.5;
     }
 
     void streamingAgc() {
@@ -227,11 +211,12 @@ private slots:
         QFETCH(double, start);
         QFETCH(double, maximum);
         QFETCH(int, mtu);
+        QFETCH(double, step);
         NullRadioController controller;
         CSoapySdr input(controller);
         input.m_device = SoapySDR::Device::make("driver=welle_test_gain");
         auto* device = dynamic_cast<GainDevice*>(input.m_device);
-        device->range = SoapySDR::Range(0, maximum, 1);
+        device->range = SoapySDR::Range(0, maximum, step);
         device->mtu = mtu;
         device->gain = start;
         device->failGain = mode == "gain-error";
@@ -282,6 +267,107 @@ private slots:
         if (mode == "gain-error") QCOMPARE(device->failedWrites, 1);
     }
 
+    void delayedGainSamples_data() {
+        QTest::addColumn<bool>("overload");
+        QTest::addColumn<bool>("retune");
+        QTest::newRow("weak") << false << false;
+        QTest::newRow("overload") << true << false;
+        QTest::newRow("retune") << false << true;
+    }
+
+    void delayedGainSamples() {
+        QFETCH(bool, overload);
+        QFETCH(bool, retune);
+        NullRadioController controller;
+        CSoapySdr input(controller);
+        input.m_device = SoapySDR::Device::make("driver=welle_test_gain");
+        auto* device = dynamic_cast<GainDevice*>(input.m_device);
+        QVERIFY(device != nullptr);
+        device->range = SoapySDR::Range(0, 102, 1);
+        device->gain = overload ? 102 : 0;
+        input.updateGains();
+        input.setAgc(true);
+        const uint64_t settleSamples = uint64_t(INPUT_RATE) * 250 / 1000;
+        const uint64_t minimumSpacing = settleSamples +
+            uint64_t(INPUT_RATE) * SoftwareAgc::windowMs / 1000;
+        uint64_t delivered = 0, applyAt = 0, retunedAt = 0;
+        double effectiveGain = device->gain, pendingGain = effectiveGain;
+        std::vector<uint64_t> commandsAt;
+        device->onGain = [&](double gain) {
+            commandsAt.push_back(delivered);
+            // Emulate a tuner/driver queue: the next 250 ms still use the old gain.
+            pendingGain = gain;
+            applyAt = delivered + settleSamples;
+        };
+        device->feed = [&](void* buffer, size_t capacity) {
+            if (delivered >= uint64_t(INPUT_RATE) * 4) {
+                input.m_running = false;
+                return 0;
+            }
+            if (retune && !retunedAt && delivered >= uint64_t(INPUT_RATE) * 2) {
+                input.setFrequency(229072000);
+                retunedAt = delivered;
+            }
+            auto* samples = static_cast<DSPCOMPLEX*>(buffer);
+            for (size_t i = 0; i < capacity; ++i) {
+                if (applyAt && delivered + i >= applyAt) effectiveGain = pendingGain;
+                const float amplitude = std::min(1.0, (retunedAt ? .01 : .0001) * std::pow(10.0, effectiveGain / 20));
+                samples[i] = (i & 1) ? DSPCOMPLEX(amplitude, -amplitude)
+                                     : DSPCOMPLEX(-amplitude, amplitude);
+            }
+            delivered += capacity;
+            return int(capacity);
+        };
+        input.m_running = true;
+        input.process(reinterpret_cast<SoapySDR::Stream*>(device));
+        QVERIFY(!commandsAt.empty());
+        for (size_t i = 1; i < commandsAt.size(); ++i) {
+            QVERIFY2(commandsAt[i] - commandsAt[i-1] >= minimumSpacing,
+                     "AGC acted on pre-change samples before settling plus a new window");
+        }
+        if (retune) {
+            const auto next = std::find_if(commandsAt.begin(), commandsAt.end(),
+                                          [&](uint64_t at) { return at > retunedAt; });
+            QVERIFY(next != commandsAt.end());
+            QVERIFY2(*next - retunedAt >= minimumSpacing,
+                     "Retune must discard the old AGC measurement and settle first");
+        }
+        QVERIFY(overload ? device->gain < 102 : device->gain > 0);
+    }
+
+    void quickToggleRetriesGainFailure() {
+        NullRadioController controller;
+        CSoapySdr input(controller);
+        input.m_device = SoapySDR::Device::make("driver=welle_test_gain");
+        auto* device = dynamic_cast<GainDevice*>(input.m_device);
+        QVERIFY(device != nullptr);
+        input.updateGains();
+        input.setAgc(true);
+        device->failGain = true;
+        uint64_t delivered = 0;
+        bool toggled = false;
+        device->feed = [&](void* buffer, size_t capacity) {
+            if (delivered >= uint64_t(INPUT_RATE) * 3) { input.m_running = false; return 0; }
+            if (device->failedWrites && !toggled) {
+                device->failGain = false;
+                // Both GUI changes can happen before the sample thread reads the flag.
+                input.setAgc(false);
+                input.setAgc(true);
+                toggled = true;
+            }
+            auto* samples = static_cast<DSPCOMPLEX*>(buffer);
+            for (size_t i = 0; i < capacity; ++i)
+                samples[i] = (i & 1) ? DSPCOMPLEX(.01f, -.01f) : DSPCOMPLEX(-.01f, .01f);
+            delivered += capacity;
+            return int(capacity);
+        };
+        input.m_running = true;
+        input.process(reinterpret_cast<SoapySDR::Stream*>(device));
+        QVERIFY(toggled);
+        QCOMPARE(device->failedWrites, 1);
+        QVERIFY2(device->writes > 0, "Off/on must retry even between two input blocks");
+    }
+
     void range_data() {
         QTest::addColumn<double>("minimum");
         QTest::addColumn<double>("maximum");
@@ -298,6 +384,11 @@ private slots:
         std::vector<double> miriGains;
         for (int gain = 0; gain <= 102; ++gain) miriGains.push_back(gain);
         QTest::newRow("miri-vhf-range") << 0.0 << 102.0 << 1.0 << miriGains;
+        std::vector<double> limitGains;
+        for (int gain = 0; gain < 4096; ++gain) limitGains.push_back(gain);
+        QTest::newRow("entry-limit") << 0.0 << 4095.0 << 1.0 << limitGains;
+        limitGains.back() = 4094.5;
+        QTest::newRow("entry-limit-off-grid") << 0.0 << 4094.5 << 1.0 << limitGains;
     }
 
     void range() {
@@ -323,23 +414,7 @@ private slots:
         input.updateGains();
         QVERIFY(input.m_gains == first);
 
-        device->gain = minimum;
-        for (size_t i = 1; i < first.size(); ++i) {
-            input.increaseGain();
-            QCOMPARE(device->gain, first[i]);
-        }
-        const int writesAtMaximum = device->writes;
-        input.increaseGain();
-        QCOMPARE(device->gain, maximum);
-        QCOMPARE(device->writes, writesAtMaximum);
-        for (size_t i = first.size() - 1; i > 0; --i) {
-            input.decreaseGain(); // Overload still reduces gain from the maximum.
-            QCOMPARE(device->gain, first[i-1]);
-        }
-        const int writesAtMinimum = device->writes;
-        input.decreaseGain();
-        QCOMPARE(device->gain, minimum);
-        QCOMPARE(device->writes, writesAtMinimum);
+
     }
 
     void invalidRange_data() {
@@ -351,6 +426,12 @@ private slots:
         QTest::newRow("nan-minimum") << std::numeric_limits<double>::quiet_NaN() << 1.0 << 1.0;
         QTest::newRow("infinite-maximum") << 0.0 << std::numeric_limits<double>::infinity() << 1.0;
         QTest::newRow("infinite-step") << 0.0 << 1.0 << std::numeric_limits<double>::infinity();
+        QTest::newRow("nan-step") << 0.0 << 1.0 << std::numeric_limits<double>::quiet_NaN();
+        QTest::newRow("tiny-step") << 0.0 << 70.0 << 1e-6;
+        QTest::newRow("tinier-step") << 0.0 << 70.0 << 1e-9;
+        QTest::newRow("over-entry-limit") << 0.0 << 4096.0 << 1.0;
+        QTest::newRow("off-grid-over-limit") << 0.0 << 4095.5 << 1.0;
+        QTest::newRow("overflowing-span") << -1e308 << 1e308 << 1e300;
     }
 
     void invalidRange() {
@@ -367,6 +448,128 @@ private slots:
         QVERIFY(input.m_gains.empty());
         QCOMPARE(device->writes, 0);
     }
+
+    void restartRejectsRange_data() { invalidRange_data(); }
+
+    void restartRejectsRange() {
+        QFETCH(double, minimum);
+        QFETCH(double, maximum);
+        QFETCH(double, step);
+        nextRange = SoapySDR::Range(minimum, maximum, step);
+        MessageController controller;
+        CSoapySdr input(controller);
+        input.m_driver_args = "driver=welle_test_gain";
+        // Exercise the real restart boundary, including a second failed attempt.
+        for (int attempt = 1; attempt <= 2; ++attempt) {
+            input.m_gains = {42};
+            QVERIFY(!input.restart());
+            QVERIFY(!input.is_ok());
+            QVERIFY(input.m_device == nullptr);
+            QVERIFY(!input.m_thread.joinable());
+            QVERIFY(input.m_gains.empty());
+            QCOMPARE(liveDevices, 0);
+            QCOMPARE(controller.errors, attempt);
+            QCOMPARE(controller.message,
+                     std::string("The SoapySDR device reported an invalid gain range."));
+        }
+    }
+
+    void restartRejectsDriverException() {
+        failRangeQuery = true;
+        MessageController controller;
+        CSoapySdr input(controller);
+        input.m_driver_args = "driver=welle_test_gain";
+        input.m_gains = {42};
+        QVERIFY(!input.restart());
+        QVERIFY(!input.is_ok());
+        QVERIFY(input.m_device == nullptr);
+        QVERIFY(!input.m_thread.joinable());
+        QVERIFY(input.m_gains.empty());
+        QCOMPARE(liveDevices, 0);
+        QCOMPARE(controller.errors, 1);
+    }
+
+    void gainAfterOpen() {
+        NullRadioController controller;
+        CSoapySdr input(controller);
+        input.setGain(1); // An older request must not overwrite the runtime change.
+        QVERIFY(input.restart());
+        auto* device = dynamic_cast<GainDevice*>(input.m_device);
+        QVERIFY(device != nullptr);
+        QTRY_VERIFY_WITH_TIMEOUT(device->activated.load(), 2000);
+        QCOMPARE(device->gainAtActivation, 10.0);
+        QCOMPARE(input.setGain(2), 20.0f);
+        for (int run = 0; run < 2; ++run) {
+            input.stop();
+            QVERIFY(input.restart());
+            // unmake() destroyed the old object; reacquire the new device.
+            device = dynamic_cast<GainDevice*>(input.m_device);
+            QVERIFY(device != nullptr);
+            QTRY_VERIFY_WITH_TIMEOUT(device->activated.load(), 2000);
+            QCOMPARE(device->gainAtActivation, 20.0);
+        }
+    }
+
+    void startupGainFailure_data() {
+        QTest::addColumn<QString>("fault");
+        for (const char* fault : {"mode", "write", "write-out-of-range", "read"})
+            QTest::newRow(fault) << QString(fault);
+    }
+    void startupGainFailure() {
+        QFETCH(QString, fault);
+        MessageController controller;
+        CSoapySdr input(controller);
+        input.setGain(2);
+        driverFault = fault.toStdString();
+        QVERIFY(!input.restart());
+        QVERIFY(!input.is_ok());
+        QVERIFY(input.m_device == nullptr);
+        QVERIFY(!input.m_thread.joinable());
+        QVERIFY(input.m_gains.empty());
+        QCOMPARE(liveDevices, 0);
+        QCOMPARE(streamActivations.load(), 0);
+        QCOMPARE(controller.errors, 1);
+        QCOMPARE(controller.message,
+                 std::string("The SoapySDR device could not apply its gain settings."));
+        // A transient device error must not prevent a later successful retry.
+        driverFault.clear();
+        QVERIFY(input.restart());
+        auto* device = dynamic_cast<GainDevice*>(input.m_device);
+        QVERIFY(device != nullptr);
+        QTRY_VERIFY_WITH_TIMEOUT(device->activated.load(), 2000);
+        QCOMPARE(device->gainAtActivation, 20.0);
+        QCOMPARE(streamActivations.load(), 1);
+        input.stop();
+        QCOMPARE(liveDevices, 0);
+    }
+
+    void shorterGainTableClearsRequest() {
+        NullRadioController controller;
+        CSoapySdr input(controller);
+        input.setGain(3);
+        QVERIFY(input.restart());
+        auto* device = dynamic_cast<GainDevice*>(input.m_device);
+        QVERIFY(device != nullptr);
+        QTRY_VERIFY_WITH_TIMEOUT(device->activated.load(), 2000);
+        QCOMPARE(device->gainAtActivation, 30.0);
+        input.stop();
+        nextRange = SoapySDR::Range(0, 10, 10);
+        QVERIFY(input.restart());
+        device = dynamic_cast<GainDevice*>(input.m_device);
+        QVERIFY(device != nullptr);
+        QTRY_VERIFY_WITH_TIMEOUT(device->activated.load(), 2000);
+        QCOMPARE(device->writes, 0);
+        QCOMPARE(input.m_requestedGain, -1);
+        input.stop();
+        nextRange = SoapySDR::Range(0, 30, 10);
+        QVERIFY(input.restart());
+        device = dynamic_cast<GainDevice*>(input.m_device);
+        QVERIFY(device != nullptr);
+        QTRY_VERIFY_WITH_TIMEOUT(device->activated.load(), 2000);
+        QCOMPARE(device->gainAtActivation, 0.0);
+        QCOMPARE(device->writes, 0);
+    }
+
 };
 
 QTEST_GUILESS_MAIN(TestSoapyGain)

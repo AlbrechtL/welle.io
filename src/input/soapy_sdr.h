@@ -70,8 +70,6 @@ private:
     void setDriverArgs(const std::string& args);
     void setAntenna(const std::string& antenna);
     void setClockSource(const std::string& clock_source);
-    void decreaseGain();
-    void increaseGain();
     void updateGains();
 
     RadioControllerInterface& radioController;
@@ -82,6 +80,7 @@ private:
     SoapySDR::Device *m_device = nullptr;
     std::atomic<bool> m_running = ATOMIC_VAR_INIT(false);
     std::atomic<bool> m_sw_agc{false};
+    std::atomic<bool> m_agcRetryRequested{false};
     SoftwareAgc m_agc{250};
 
     RingBuffer<DSPCOMPLEX> m_sampleBuffer;
