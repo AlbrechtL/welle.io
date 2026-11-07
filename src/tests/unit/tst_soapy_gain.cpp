@@ -67,18 +67,32 @@ public:
     void setFrequency(int, size_t, double value, const SoapySDR::Kwargs&) override { frequency = value; }
     double getFrequency(int, size_t) const override { return frequency; }
 
-    void setMasterClockRate(double) override {}
-    void setSampleRate(int, size_t, double) override {}
+    void setMasterClockRate(double) override {
+        if (driverFault == "master-clock") throw std::runtime_error("Test master clock failure");
+    }
+    void setSampleRate(int, size_t, double) override {
+        if (driverFault == "sample-rate") throw std::runtime_error("Test sample rate failure");
+    }
+    bool hasDCOffsetMode(int, size_t) const override { return driverFault == "dc-offset"; }
+    void setDCOffsetMode(int, size_t, bool) override { throw std::runtime_error("Test DC offset failure"); }
     double getSampleRate(int, size_t) const override { return 2048000; }
     void setGainMode(int, size_t, bool) override {
         if (driverFault == "mode") throw std::runtime_error("Test gain-mode failure");
     }
     SoapySDR::Stream* setupStream(int, const std::string&,
         const std::vector<size_t>&, const SoapySDR::Kwargs&) override {
+        if (driverFault == "setup-stream") throw std::runtime_error("Test setup failure");
+        if (driverFault == "null-stream") return nullptr;
         return reinterpret_cast<SoapySDR::Stream*>(this);
     }
-    size_t getStreamMTU(SoapySDR::Stream*) const override { return mtu; }
+    size_t getStreamMTU(SoapySDR::Stream*) const override {
+        if (driverFault == "zero-mtu") return 0;
+        if (driverFault == "oversized-mtu") return std::numeric_limits<size_t>::max();
+        return mtu;
+    }
     int activateStream(SoapySDR::Stream*, int, long long, size_t) override {
+        if (driverFault == "activate-throw") throw std::runtime_error("Test activate failure");
+        if (driverFault == "activate-error") return SOAPY_SDR_STREAM_ERROR;
         ++streamActivations;
         gainAtActivation = gain;
         activated = true;
@@ -86,11 +100,15 @@ public:
     }
     int readStream(SoapySDR::Stream*, void* const* buffers, size_t count, int&,
         long long&, long) override {
+        if (driverFault == "stream-error" || driverFault == "close-stream") return SOAPY_SDR_STREAM_ERROR;
+        if (driverFault == "read-throw") throw std::runtime_error("Test read failure");
         if (feed) return feed(buffers[0], count);
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
         return SOAPY_SDR_TIMEOUT;
     }
-    void closeStream(SoapySDR::Stream*) override {}
+    void closeStream(SoapySDR::Stream*) override {
+        if (driverFault == "close-stream") throw std::runtime_error("Test close failure");
+    }
 
     SoapySDR::Range getGainRange(const int, const size_t) const override {
         if (failRangeQuery) throw std::runtime_error("Test driver range failure");
@@ -150,6 +168,140 @@ private slots:
         driverFault.clear();
         streamActivations = 0;
         QCOMPARE(liveDevices, 0);
+    }
+
+    void deviceSetupFailure_data() {
+        QTest::addColumn<QString>("fault");
+        for (const char* fault : {"master-clock", "sample-rate", "dc-offset"})
+            QTest::newRow(fault) << QString(fault);
+    }
+    void deviceSetupFailure() {
+        QFETCH(QString, fault);
+        MessageController controller;
+        CSoapySdr input(controller);
+        driverFault = fault.toStdString();
+        QVERIFY(!input.restart());
+        QVERIFY(input.m_device == nullptr);
+        QVERIFY(!input.m_thread.joinable());
+        QVERIFY(!input.is_ok());
+        QCOMPARE(liveDevices, 0);
+        QCOMPARE(controller.errors, 1);
+        driverFault.clear();
+        QVERIFY(input.restart());
+        auto* device = dynamic_cast<GainDevice*>(input.m_device);
+        QTRY_VERIFY_WITH_TIMEOUT(device->activated.load(), 2000);
+        input.stop();
+        QCOMPARE(liveDevices, 0);
+    }
+
+    void restartAfterStreamFailure_data() {
+        QTest::addColumn<QString>("fault");
+        for (const char* fault : {"stream-error", "setup-stream", "null-stream", "activate-throw", "activate-error",
+                                  "read-throw", "zero-mtu", "oversized-mtu", "close-stream"})
+            QTest::newRow(fault) << QString(fault);
+    }
+    void restartAfterStreamFailure() {
+        QFETCH(QString, fault);
+        NullRadioController controller;
+        CSoapySdr input(controller);
+        driverFault = fault.toStdString();
+        QVERIFY(input.restart());
+        QTRY_VERIFY_WITH_TIMEOUT(!input.is_ok(), 2000);
+        // The worker has ended, but its std::thread still needs joining.
+        QVERIFY(input.m_thread.joinable());
+        driverFault.clear();
+        QVERIFY(input.restart());
+        auto* device = dynamic_cast<GainDevice*>(input.m_device);
+        QVERIFY(device != nullptr);
+        QTRY_VERIFY_WITH_TIMEOUT(device->activated.load(), 2000);
+        QCOMPARE(liveDevices, 1);
+        input.stop();
+        QCOMPARE(liveDevices, 0);
+    }
+    void resetRejectsPendingRead() {
+        NullRadioController controller;
+        CSoapySdr input(controller);
+        input.m_device = SoapySDR::Device::make("driver=welle_test_gain");
+        auto* device = dynamic_cast<GainDevice*>(input.m_device);
+        input.updateGains();
+        int reads = 0;
+        device->feed = [&](void* buffer, size_t count) {
+            ++reads;
+            if (reads == 3) { input.m_running = false; return SOAPY_SDR_TIMEOUT; }
+            auto* samples = static_cast<DSPCOMPLEX*>(buffer);
+            std::fill(samples, samples+count, DSPCOMPLEX(float(reads), 0));
+            if (reads == 1) input.reset(); // retune completed while driver read was pending
+            return int(count);
+        };
+        input.m_running = true;
+        input.process(reinterpret_cast<SoapySDR::Stream*>(device));
+        QCOMPARE(input.getSamplesToRead(), int(device->mtu));
+        std::vector<DSPCOMPLEX> samples(device->mtu);
+        QCOMPARE(input.getSamples(samples.data(), samples.size()), int(samples.size()));
+        for (auto value : samples) QCOMPARE(value, DSPCOMPLEX(2,0));
+        const auto spectrum = input.getSpectrumSamples(8192);
+        QCOMPARE(spectrum.size(), device->mtu);
+        for (auto value : spectrum) QCOMPARE(value, DSPCOMPLEX(2,0));
+        // A subsequent reset also clears already queued spectrum samples.
+        const DSPCOMPLEX queued(.3f, .2f);
+        input.m_sampleBuffer.putDataIntoBuffer(&queued, 1);
+        input.m_spectrumSampleBuffer.putDataIntoBuffer(&queued, 1);
+        input.reset();
+        QCOMPARE(input.getSamplesToRead(), 0);
+        QVERIFY(input.getSpectrumSamples(8192).empty());
+    }
+    void stoppedReadIsNotPublished() {
+        NullRadioController controller;
+        CSoapySdr input(controller);
+        input.m_device = SoapySDR::Device::make("driver=welle_test_gain");
+        auto* device = dynamic_cast<GainDevice*>(input.m_device);
+        input.updateGains();
+        device->feed = [&](void* buffer, size_t count) {
+            std::fill_n(static_cast<DSPCOMPLEX*>(buffer), count, DSPCOMPLEX(.1f, .1f));
+            input.m_running = false;
+            return int(count);
+        };
+        input.m_running = true;
+        input.process(reinterpret_cast<SoapySDR::Stream*>(device));
+        QCOMPARE(input.getSamplesToRead(), 0);
+        QVERIFY(input.getSpectrumSamples(8192).empty());
+    }
+    void largeMtuUsesBoundedRead() {
+        NullRadioController controller;
+        CSoapySdr input(controller);
+        input.m_device = SoapySDR::Device::make("driver=welle_test_gain");
+        auto* device = dynamic_cast<GainDevice*>(input.m_device);
+        input.updateGains();
+        const auto capacity = size_t(input.m_sampleBuffer.GetBufferSize());
+        device->mtu = capacity * 2;
+        size_t requested = 0;
+        device->feed = [&](void*, size_t count) {
+            requested = count;
+            input.m_running = false;
+            return SOAPY_SDR_TIMEOUT;
+        };
+        input.m_running = true;
+        input.process(reinterpret_cast<SoapySDR::Stream*>(device));
+        QCOMPARE(requested, capacity);
+        QCOMPARE(input.getSamplesToRead(), 0);
+    }
+
+    void oversizedReadIsRejected() {
+        NullRadioController controller;
+        CSoapySdr input(controller);
+        input.m_device = SoapySDR::Device::make("driver=welle_test_gain");
+        auto* device = dynamic_cast<GainDevice*>(input.m_device);
+        input.updateGains();
+        int reads = 0;
+        device->feed = [&](void*, size_t count) {
+            if (++reads == 2) { input.m_running = false; return SOAPY_SDR_TIMEOUT; }
+            return int(count)+1;
+        };
+        input.m_running = true;
+        // The driver reports more samples than it was asked to write.
+        // No zero-padded synthetic samples may enter the decoder or recorder.
+        QVERIFY_EXCEPTION_THROWN(input.process(reinterpret_cast<SoapySDR::Stream*>(device)), std::runtime_error);
+        QCOMPARE(input.getSamplesToRead(), 0);
     }
 
     void gainBeforeOpen_data() {

@@ -28,6 +28,8 @@
 
 #include <atomic>
 #include <thread>
+#include <mutex>
+#include <cstdint>
 #include "virtual_input.h"
 #include "ringbuffer.h"
 #include "software_agc.h"
@@ -71,6 +73,7 @@ private:
     void setAntenna(const std::string& antenna);
     void setClockSource(const std::string& clock_source);
     void updateGains();
+    bool configureAndStart();
 
     RadioControllerInterface& radioController;
     int m_freq = 0;
@@ -83,6 +86,9 @@ private:
     std::atomic<bool> m_agcRetryRequested{false};
     SoftwareAgc m_agc{250};
 
+    // reset() is a third participant alongside the reader and writer.
+    std::mutex m_sampleMutex;
+    uint64_t m_sampleGeneration = 0;
     RingBuffer<DSPCOMPLEX> m_sampleBuffer;
     RingBuffer<DSPCOMPLEX> m_spectrumSampleBuffer;
 

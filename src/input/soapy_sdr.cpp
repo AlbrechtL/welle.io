@@ -100,11 +100,14 @@ bool CSoapySdr::restart()
         return true;
     }
 
-    m_sampleBuffer.FlushRingBuffer();
-    m_spectrumSampleBuffer.FlushRingBuffer();
+    // An ended worker remains joinable, and still owns its device.
+    stop();
+    reset();
 
     try {
         m_device = SoapySDR::Device::make(m_driver_args);
+        if (m_device == nullptr)
+            throw std::runtime_error("SoapySDR returned no device");
     }
     catch (std::exception& e) {
         std::clog << "Exception caught in SoapySDR::Device::make with \"" << m_driver_args << "\" :\n" <<
@@ -115,6 +118,22 @@ bool CSoapySdr::restart()
                     "Could not load SoapySDR with provided device arguments."));
         return false;
     }
+    try {
+        return configureAndStart();
+    }
+    catch (const std::exception& e) {
+        std::clog << "SoapySDR device initialization failed: " << e.what() << std::endl;
+        stop();
+        m_gains.clear();
+        radioController.onMessage(message_level_t::Error,
+                QT_TRANSLATE_NOOP("CRadioController",
+                    "Could not load SoapySDR with provided device arguments."));
+        return false;
+    }
+}
+
+bool CSoapySdr::configureAndStart()
+{
     stringstream ss;
     ss << "SoapySDR driver=" << m_device->getDriverKey();
     ss << " hardware=" << m_device->getHardwareKey();
@@ -209,7 +228,14 @@ bool CSoapySdr::restart()
 
     m_agc.reset();
     m_running = true;
-    m_thread = std::thread(&CSoapySdr::workerthread, this);
+    try {
+        m_thread = std::thread(&CSoapySdr::workerthread, this);
+    }
+    catch (const std::exception& e) {
+        std::clog << "SoapySDR worker startup failed: " << e.what() << std::endl;
+        stop();
+        return false;
+    }
 
     return true;
 }
@@ -258,7 +284,11 @@ bool CSoapySdr::is_ok()
 
 void CSoapySdr::stop()
 {
-    m_running = false;
+    {
+        std::lock_guard<std::mutex> lock(m_sampleMutex);
+        m_running = false;
+        ++m_sampleGeneration;
+    }
     if (m_thread.joinable()) {
         m_thread.join();
     }
@@ -271,11 +301,15 @@ void CSoapySdr::stop()
 
 void CSoapySdr::reset()
 {
+    std::lock_guard<std::mutex> lock(m_sampleMutex);
+    ++m_sampleGeneration;
     m_sampleBuffer.FlushRingBuffer();
+    m_spectrumSampleBuffer.FlushRingBuffer();
 }
 
 int32_t CSoapySdr::getSamples(DSPCOMPLEX *Buffer, int32_t Size)
 {
+    std::lock_guard<std::mutex> lock(m_sampleMutex);
     int32_t amount = m_sampleBuffer.getDataFromBuffer(Buffer, Size);
     return amount;
 }
@@ -283,6 +317,7 @@ int32_t CSoapySdr::getSamples(DSPCOMPLEX *Buffer, int32_t Size)
 std::vector<DSPCOMPLEX> CSoapySdr::getSpectrumSamples(int size)
 {
     std::vector<DSPCOMPLEX> sampleBuffer(size);
+    std::lock_guard<std::mutex> lock(m_sampleMutex);
     int32_t amount = m_spectrumSampleBuffer.getDataFromBuffer(sampleBuffer.data(), size);
     if (amount < size) {
         sampleBuffer.resize(amount);
@@ -292,6 +327,7 @@ std::vector<DSPCOMPLEX> CSoapySdr::getSpectrumSamples(int size)
 
 int32_t CSoapySdr::getSamplesToRead()
 {
+    std::lock_guard<std::mutex> lock(m_sampleMutex);
     return m_sampleBuffer.GetRingBufferReadAvailable();
 }
 
@@ -429,22 +465,30 @@ bool CSoapySdr::setDeviceParam(DeviceParam param, const std::string& value)
 
 void CSoapySdr::workerthread()
 {
-    std::vector<size_t> channels;
-    channels.push_back(0);
-    std::clog << " *************** Setup soapy stream" << std::endl;
-    auto args = SoapySDR::KwargsFromString(m_driver_args);
-    auto stream = m_device->setupStream(SOAPY_SDR_RX, "CF32", channels, args);
-
-    m_device->activateStream(stream);
+    SoapySDR::Stream* stream = nullptr;
     try {
+        const std::vector<size_t> channels{0};
+        const auto args = SoapySDR::KwargsFromString(m_driver_args);
+        stream = m_device->setupStream(SOAPY_SDR_RX, "CF32", channels, args);
+        if (stream == nullptr)
+            throw std::runtime_error("SoapySDR returned no stream");
+        const int result = m_device->activateStream(stream);
+        if (result != 0)
+            throw std::runtime_error(std::string("SoapySDR activate: ") + SoapySDR::errToStr(result));
         process(stream);
     }
-    catch (std::exception& e) {
-        std::clog << " *************** Exception caught in soapy: " << e.what() << std::endl;
+    catch (const std::exception& e) {
+        std::clog << "SoapySDR stream failed: " << e.what() << std::endl;
     }
 
-    std::clog << " *************** Close soapy stream" << std::endl;
-    m_device->closeStream(stream);
+    if (stream != nullptr) {
+        try {
+            m_device->closeStream(stream);
+        }
+        catch (const std::exception& e) {
+            std::clog << "SoapySDR stream cleanup failed: " << e.what() << std::endl;
+        }
+    }
     m_running = false;
 }
 
@@ -457,10 +501,21 @@ void CSoapySdr::process(SoapySDR::Stream *stream)
     bool agcFault = false;
     while (m_running) {
 
+        uint64_t generation;
+        {
+            std::lock_guard<std::mutex> lock(m_sampleMutex);
+            generation = m_sampleGeneration;
+        }
+
         // Stream MTU is in samples, not bytes.
         const size_t mtu = m_device->getStreamMTU(stream);
+        if (mtu == 0 || mtu > static_cast<size_t>(std::numeric_limits<int>::max()))
+            throw std::runtime_error("Invalid SoapySDR stream MTU");
 
-        const size_t samps_to_read = mtu; // Always read MTU samples
+        // MTU is the driver's preferred maximum, not a required allocation.
+        // A single read must fit the bounded decoder queue.
+        const size_t samps_to_read = std::min(mtu,
+                static_cast<size_t>(m_sampleBuffer.GetBufferSize()));
         std::vector<DSPCOMPLEX> buf(samps_to_read);
 
         void *buffs[1];
@@ -488,6 +543,12 @@ void CSoapySdr::process(SoapySDR::Stream *stream)
             m_running = false;
         }
         else {
+            if (static_cast<size_t>(ret) > samps_to_read)
+                throw std::runtime_error("SoapySDR returned more samples than requested");
+            {
+                std::lock_guard<std::mutex> lock(m_sampleMutex);
+                if (!m_running || generation != m_sampleGeneration) continue;
+            }
             buf.resize(ret);
 
             if (m_agcRetryRequested.exchange(false)) agcFault = false;
@@ -524,6 +585,10 @@ void CSoapySdr::process(SoapySDR::Stream *stream)
                 }
             }
 
+            // A read can complete after reset() or stop(). Publish both queues
+            // under the reset lock, and never reintroduce the previous channel.
+            std::lock_guard<std::mutex> lock(m_sampleMutex);
+            if (!m_running || generation != m_sampleGeneration) continue;
             m_sampleBuffer.putDataIntoBuffer(buf.data(), ret);
             m_spectrumSampleBuffer.putDataIntoBuffer(buf.data(), ret);
             putIntoRecordBuffer(buf.data(), ret);
