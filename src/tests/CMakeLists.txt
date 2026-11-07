@@ -66,7 +66,7 @@ add_test(NAME unit.rtl_tcp COMMAND tst_rtl_tcp)
 add_executable(tst_rtl_tcp_flow unit/tst_rtl_tcp_flow.cpp)
 target_link_libraries(tst_rtl_tcp_flow PRIVATE welle_test_common Qt6::Test Qt6::Network)
 add_test(NAME unit.rtl_tcp_flow COMMAND tst_rtl_tcp_flow)
-set_tests_properties(unit.rtl_tcp_flow PROPERTIES LABELS unit TIMEOUT 240)
+set_tests_properties(unit.rtl_tcp_flow PROPERTIES LABELS "unit;slow" TIMEOUT 240)
 
 
 add_executable(tst_rational_resampler unit/tst_rational_resampler.cpp)

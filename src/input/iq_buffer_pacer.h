@@ -23,6 +23,8 @@
 #include <cstddef>
 // Keep the existing half-full network reservoir, but follow the real source
 // clock. A fixed nominal output rate slowly overflows with even tiny drift.
+// A sustained source outside +/-1% reaches a buffer boundary; the caller must
+// handle full/empty buffers. This controller does not recover missing samples.
 class IQBufferPacer {
 public:
     IQBufferPacer(double nominalBytesPerSecond, std::size_t bufferCapacity)

@@ -276,7 +276,14 @@ void CRTL_TCP_Client::receiveData(void)
     }
 
     if (!connected || !rtlsdrRunning) return;
+    // The blocking loop accumulates split reads; disconnect/stop return above.
+    // This resize is defensive, not a promise that short blocks are published.
     buffer.resize(read);
+    if (firstData && buffer.size() < sizeof(dongle_info_t)) {
+        // Fail closed if a future receive-loop change allows an incomplete header.
+        handleDisconnect();
+        return;
+    }
 
     if (firstData) {
         firstData = false;
