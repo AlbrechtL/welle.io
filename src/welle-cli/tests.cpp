@@ -74,6 +74,8 @@ class ChannelSimulator : public CVirtualInput
             { return parentInput->restart(); }
         virtual bool is_ok(void)
             { return parentInput->is_ok(); }
+        virtual bool isConnected(void) const
+            { return parentInput->isConnected(); }
         virtual void stop(void)
             { return parentInput->stop(); }
         virtual void reset(void)

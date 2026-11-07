@@ -227,6 +227,7 @@ void CRTL_TCP_Client::receiveData(void)
 
         if (ret == 0) {
             handleDisconnect();
+            return;
         }
         else if (ret == -1) {
 #if defined(_WIN32)
@@ -237,6 +238,7 @@ void CRTL_TCP_Client::receiveData(void)
             }
             else if (WSAGetLastError() == WSAECONNRESET || WSAGetLastError() == WSAEBADF) {
                 handleDisconnect();
+            return;
             }
             else {
                 std::wstring s;
@@ -252,6 +254,7 @@ void CRTL_TCP_Client::receiveData(void)
             }
             else if (errno == ECONNRESET || errno == EBADF) {
                 handleDisconnect();
+            return;
             }
             else {
                 std::string errstr = strerror(errno);
@@ -487,14 +490,35 @@ void CRTL_TCP_Client::receiveAndReconnect()
         }
 
         if (!connected) {
-            std::clog << "RTL_TCP_CLIENT: Try to connect to server " <<
-                serverAddress << ":" << serverPort << std::endl;
+            int attempt = 0;
+            const int maxAttempts = 5;
+            while (!connected && rtlsdrRunning && attempt < maxAttempts) {
+                attempt++;
+                std::clog << "RTL_TCP_CLIENT: Try to connect to server " <<
+                    serverAddress << ":" << serverPort;
+                if (maxAttempts > 1) {
+                    std::clog << " (attempt " << attempt << "/" << maxAttempts << ")";
+                }
+                std::clog << std::endl;
 
-            try {
-                connected = sock.connect(serverAddress, serverPort, 2);
-            }
-            catch(const std::runtime_error& e) {
-                std::clog << "RTL_TCP_CLIENT: " << e.what() << std::endl;
+                try {
+                    connected = sock.connect(serverAddress, serverPort, 2);
+                }
+                catch(const std::runtime_error& e) {
+                    std::clog << "RTL_TCP_CLIENT: " << e.what() << std::endl;
+                }
+
+                if (connected) {
+                    break;
+                }
+
+                if (attempt < maxAttempts && rtlsdrRunning) {
+                    lock.unlock();
+                    for (int s = 0; s < 10 && rtlsdrRunning; ++s) {
+                        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                    }
+                    lock.lock();
+                }
             }
 
             if (connected) {

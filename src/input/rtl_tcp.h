@@ -63,6 +63,7 @@ public:
     int getFrequency(void) const;
     bool restart(void);
     bool is_ok(void);
+    bool isConnected(void) const override { return connected; }
     int32_t getSamples(DSPCOMPLEX* V, int32_t size);
     std::vector<DSPCOMPLEX> getSpectrumSamples(int size);
     int32_t getSamplesToRead(void);
