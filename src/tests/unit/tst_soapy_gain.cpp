@@ -27,15 +27,38 @@
 #include "null_radio_controller.h"
 
 namespace {
+SoapySDR::Range nextRange{0, 30, 10};
+bool failRangeQuery = false;
+int liveDevices = 0;
+
+class MessageController : public NullRadioController {
+public:
+    int errors = 0;
+    std::string message;
+    void onMessage(message_level_t level, const std::string& text,
+                   const std::string& = std::string()) override {
+        if (level == message_level_t::Error) ++errors;
+        message = text;
+    }
+};
+
 // A test device records the commands from the actual CSoapySdr methods.
 // No streaming thread or physical device is started.
 class GainDevice : public SoapySDR::Device {
 public:
+    GainDevice() { ++liveDevices; }
+    ~GainDevice() override { --liveDevices; }
+    void setMasterClockRate(double) override {}
+    double getMasterClockRate() const override { return INPUT_RATE * 16; }
+    void setSampleRate(int, size_t, double) override {}
+    double getSampleRate(int, size_t) const override { return INPUT_RATE; }
+
     double gain = 0;
     int writes = 0;
-    SoapySDR::Range range{0, 30, 10};
+    SoapySDR::Range range = nextRange;
 
     SoapySDR::Range getGainRange(const int, const size_t) const override {
+        if (failRangeQuery) throw std::runtime_error("Test driver range failure");
         return range;
     }
 
@@ -78,6 +101,12 @@ private slots:
         QVERIFY(SoapySDR::listModules().empty());
         registry.reset(new SoapySDR::Registry("welle_test_gain", findDevice,
                                             makeDevice, SOAPY_SDR_ABI_VERSION));
+    }
+
+    void cleanup() {
+        nextRange = SoapySDR::Range(0, 30, 10);
+        failRangeQuery = false;
+        QCOMPARE(liveDevices, 0);
     }
 
     void gainStep_data() {
@@ -154,6 +183,11 @@ private slots:
         std::vector<double> miriGains;
         for (int gain = 0; gain <= 102; ++gain) miriGains.push_back(gain);
         QTest::newRow("miri-vhf-range") << 0.0 << 102.0 << 1.0 << miriGains;
+        std::vector<double> limitGains;
+        for (int gain = 0; gain < 4096; ++gain) limitGains.push_back(gain);
+        QTest::newRow("entry-limit") << 0.0 << 4095.0 << 1.0 << limitGains;
+        limitGains.back() = 4094.5;
+        QTest::newRow("entry-limit-off-grid") << 0.0 << 4094.5 << 1.0 << limitGains;
     }
 
     void range() {
@@ -207,6 +241,12 @@ private slots:
         QTest::newRow("nan-minimum") << std::numeric_limits<double>::quiet_NaN() << 1.0 << 1.0;
         QTest::newRow("infinite-maximum") << 0.0 << std::numeric_limits<double>::infinity() << 1.0;
         QTest::newRow("infinite-step") << 0.0 << 1.0 << std::numeric_limits<double>::infinity();
+        QTest::newRow("nan-step") << 0.0 << 1.0 << std::numeric_limits<double>::quiet_NaN();
+        QTest::newRow("tiny-step") << 0.0 << 70.0 << 1e-6;
+        QTest::newRow("tinier-step") << 0.0 << 70.0 << 1e-9;
+        QTest::newRow("over-entry-limit") << 0.0 << 4096.0 << 1.0;
+        QTest::newRow("off-grid-over-limit") << 0.0 << 4095.5 << 1.0;
+        QTest::newRow("overflowing-span") << -1e308 << 1e308 << 1e300;
     }
 
     void invalidRange() {
@@ -223,6 +263,47 @@ private slots:
         QVERIFY(input.m_gains.empty());
         QCOMPARE(device->writes, 0);
     }
+
+    void restartRejectsRange_data() { invalidRange_data(); }
+
+    void restartRejectsRange() {
+        QFETCH(double, minimum);
+        QFETCH(double, maximum);
+        QFETCH(double, step);
+        nextRange = SoapySDR::Range(minimum, maximum, step);
+        MessageController controller;
+        CSoapySdr input(controller);
+        input.m_driver_args = "driver=welle_test_gain";
+        // Exercise the real restart boundary, including a second failed attempt.
+        for (int attempt = 1; attempt <= 2; ++attempt) {
+            input.m_gains = {42};
+            QVERIFY(!input.restart());
+            QVERIFY(!input.is_ok());
+            QVERIFY(input.m_device == nullptr);
+            QVERIFY(!input.m_thread.joinable());
+            QVERIFY(input.m_gains.empty());
+            QCOMPARE(liveDevices, 0);
+            QCOMPARE(controller.errors, attempt);
+            QCOMPARE(controller.message,
+                     std::string("The SoapySDR device reported an invalid gain range."));
+        }
+    }
+
+    void restartRejectsDriverException() {
+        failRangeQuery = true;
+        MessageController controller;
+        CSoapySdr input(controller);
+        input.m_driver_args = "driver=welle_test_gain";
+        input.m_gains = {42};
+        QVERIFY(!input.restart());
+        QVERIFY(!input.is_ok());
+        QVERIFY(input.m_device == nullptr);
+        QVERIFY(!input.m_thread.joinable());
+        QVERIFY(input.m_gains.empty());
+        QCOMPARE(liveDevices, 0);
+        QCOMPARE(controller.errors, 1);
+    }
+
 };
 
 QTEST_GUILESS_MAIN(TestSoapyGain)

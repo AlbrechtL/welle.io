@@ -160,7 +160,17 @@ bool CSoapySdr::restart()
         setFrequency(m_freq);
     }
 
-    updateGains();
+    try {
+        updateGains();
+    }
+    catch (const std::exception& e) {
+        std::clog << "SoapySDR gain range rejected: " << e.what() << std::endl;
+        stop();
+        radioController.onMessage(message_level_t::Error,
+                QT_TRANSLATE_NOOP("CRadioController",
+                    "The SoapySDR device reported an invalid gain range."));
+        return false;
+    }
 
     const bool automatic = false;
     m_device->setGainMode(SOAPY_SDR_RX, 0, automatic);
@@ -190,6 +200,11 @@ void CSoapySdr::updateGains()
         throw std::runtime_error("Invalid SoapySDR gain range");
     }
 
+    // Bound memory and work even for a tiny but representable driver step.
+    // Build privately so a rejected range leaves no partial gain table.
+    constexpr size_t maxGainEntries = 4096;
+    std::vector<double> gains;
+
     // A zero step denotes an unspecified step size: retain the 1 dB policy.
     // Calculate from the minimum to avoid accumulating rounding error, and
     // include the driver's upper endpoint without issuing an out-of-range gain.
@@ -199,11 +214,15 @@ void CSoapySdr::updateGains()
         const double gain = std::fma(static_cast<double>(i), step, minimum);
         if (gain >= maximum || (i > 0 && maximum - gain <= tolerance))
             break;
-        if (!m_gains.empty() && gain <= m_gains.back())
+        // Reserve one entry for the maximum, including off-grid endpoints.
+        if (gains.size() >= maxGainEntries - 1)
+            throw std::runtime_error("SoapySDR gain table is too large");
+        if (!gains.empty() && gain <= gains.back())
             throw std::runtime_error("SoapySDR gain step is too small");
-        m_gains.push_back(gain);
+        gains.push_back(gain);
     }
-    m_gains.push_back(maximum);
+    gains.push_back(maximum);
+    m_gains.swap(gains);
 }
 
 bool CSoapySdr::is_ok()
