@@ -454,6 +454,16 @@
         <translation>SoapySDR konnte mit den angegebenen Geräteargumenten nicht geladen werden.</translation>
     </message>
     <message>
+        <location filename="../../input/soapy_sdr.cpp" line="170"/>
+        <source>The SoapySDR device reported an invalid gain range.</source>
+        <translation>Das SoapySDR-Gerät hat einen ungültigen Verstärkungsbereich gemeldet.</translation>
+    </message>
+    <message>
+        <location filename="../../input/soapy_sdr.cpp" line="190"/>
+        <source>The SoapySDR device could not apply its gain settings.</source>
+        <translation>Das SoapySDR-Gerät konnte seine Verstärkungseinstellungen nicht anwenden.</translation>
+    </message>
+    <message>
         <location filename="../../input/v4l2_sdr.cpp" line="785"/>
         <source>Error while opening the Linux SDR device. See log for details.</source>
         <translation>Fehler beim Öffnen des Linux-SDR-Geräts. Details stehen im Log.</translation>
