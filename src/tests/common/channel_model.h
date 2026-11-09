@@ -57,6 +57,7 @@ public:
     void setFrequency(int frequency) override { input.setFrequency(frequency); }
     int getFrequency() const override { return input.getFrequency(); }
     bool is_ok() override { return input.is_ok(); }
+    bool isConnected() const override { return input.isConnected(); }
     bool restart() override { return input.restart(); }
     void stop() override { input.stop(); }
     void reset() override { input.reset(); }
