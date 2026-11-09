@@ -63,17 +63,27 @@ static void testStationNameOrder() {
 
 static void testScanning() {
     ScanningScreen scan;
-    scan.setScanningStatus("11D", 42, "Deutschland");
+    scan.setScanningStatus("11D", 42);
     auto lines = render(scan, 20, 2, 0);
     assert(lines[0] == "Tuning: 11D...");
     assert(lines[1] == "Found: 42");
+    lines = render(scan, 20, 4, 0);
+    assert(lines[2].empty() && lines[3].empty());   // nothing decoded yet
+    scan.setScanningStatus("11D", 42, "Deutschland", 0x10E5);
     lines = render(scan, 20, 3, 0);
+    assert(lines[2] == "Deutschland");              // no row for the EId
+    lines = render(scan, 20, 4, 0);
     assert(lines[2] == "Deutschland");
-    // nothing found yet: the extra row stays empty
-    scan.setScanningStatus("5C", 0);
-    lines = render(scan, 20, 3, 0);
-    assert(lines[1] == "Found: 0");
-    assert(lines[2].empty());
+    assert(lines[3] == "EId: 0x10E5");
+    // the next channel shows nothing of the previous one
+    scan.setScanningStatus("12A", 44);
+    lines = render(scan, 20, 4, 0);
+    assert(lines[0] == "Tuning: 12A...");
+    assert(lines[1] == "Found: 44");
+    assert(lines[2].empty() && lines[3].empty());
+    // a channel with a signal but no FIC keeps the rows empty too
+    scan.setScanningStatus("12A", 44, "", 0);
+    assert(render(scan, 20, 4, 0)[2].empty());
 }
 
 static void testRadioMarquee() {
