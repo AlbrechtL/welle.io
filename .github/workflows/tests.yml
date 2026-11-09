@@ -36,7 +36,7 @@ jobs:
           sudo apt-get update
           sudo apt-get -y install ninja-build xxd zstd \
             libfftw3-dev libfaad-dev libmpg123-dev libmp3lame-dev libasound2-dev \
-            librtlsdr-dev libairspy-dev \
+            librtlsdr-dev libairspy-dev libsoapysdr-dev \
             libgl1-mesa-dev libegl1 libxkbcommon0
 
       # The recordings are in a private repository because they contain
@@ -66,6 +66,7 @@ jobs:
           -DCMAKE_BUILD_TYPE=RelWithDebInfo
           -DCMAKE_PREFIX_PATH="$QT_ROOT_DIR"
           -DBUILD_TESTS=ON
+          -DSOAPYSDR=ON
 
       - name: Build
         run: cmake --build build --parallel
