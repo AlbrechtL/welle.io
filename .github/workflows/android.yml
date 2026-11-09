@@ -294,6 +294,56 @@ jobs:
       - name: Display environment variables
         run: env | sort
 
+      # A release APK is not signed by gradle, so androiddeployqt has to sign it
+      # (it is called with --sign through QT_ANDROID_SIGN_APK below). Without
+      # this the build silently produces *-release-unsigned.apk, which Android
+      # refuses to install. See issue #814.
+      # If the repository provides a release keystore through its secrets it is
+      # used, otherwise a throw-away key is generated so that nightly builds and
+      # builds from forks stay installable.
+      - name: Prepare signing keystore
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_ALIAS: ${{ secrets.ANDROID_KEYSTORE_ALIAS }}
+          ANDROID_KEYSTORE_STORE_PASS: ${{ secrets.ANDROID_KEYSTORE_STORE_PASS }}
+          ANDROID_KEYSTORE_KEY_PASS: ${{ secrets.ANDROID_KEYSTORE_KEY_PASS }}
+        run: |
+            # Never use "set -x" here, it would leak the passwords into the log
+            set -eu
+            KEYSTORE_PATH="${HOME}/welle-io-release.keystore"
+
+            if [ -n "${ANDROID_KEYSTORE_BASE64:-}" ]; then
+                echo "Signing with the release keystore from the repository secrets"
+                echo "${ANDROID_KEYSTORE_BASE64}" | base64 -d > "${KEYSTORE_PATH}"
+                KEYSTORE_ALIAS="${ANDROID_KEYSTORE_ALIAS}"
+                KEYSTORE_STORE_PASS="${ANDROID_KEYSTORE_STORE_PASS}"
+                KEYSTORE_KEY_PASS="${ANDROID_KEYSTORE_KEY_PASS:-${ANDROID_KEYSTORE_STORE_PASS}}"
+            else
+                echo "No ANDROID_KEYSTORE_BASE64 secret is set, generating a throw-away key."
+                echo "The APK will be installable, but it cannot be used to upgrade an"
+                echo "installation that was signed with the official welle.io key."
+                KEYSTORE_ALIAS="welle-io"
+                KEYSTORE_STORE_PASS="$(openssl rand -hex 16)"
+                KEYSTORE_KEY_PASS="${KEYSTORE_STORE_PASS}"
+                echo "::add-mask::${KEYSTORE_STORE_PASS}"
+                keytool -genkeypair \
+                  -keystore "${KEYSTORE_PATH}" \
+                  -alias "${KEYSTORE_ALIAS}" \
+                  -keyalg RSA -keysize 2048 -validity 10000 \
+                  -storepass "${KEYSTORE_STORE_PASS}" \
+                  -keypass "${KEYSTORE_KEY_PASS}" \
+                  -dname "CN=welle.io, O=welle.io, C=DE"
+            fi
+
+            echo "::add-mask::${KEYSTORE_STORE_PASS}"
+            echo "::add-mask::${KEYSTORE_KEY_PASS}"
+
+            # Read by androiddeployqt when it is invoked with --sign
+            echo "QT_ANDROID_KEYSTORE_PATH=${KEYSTORE_PATH}" >> $GITHUB_ENV
+            echo "QT_ANDROID_KEYSTORE_ALIAS=${KEYSTORE_ALIAS}" >> $GITHUB_ENV
+            echo "QT_ANDROID_KEYSTORE_STORE_PASS=${KEYSTORE_STORE_PASS}" >> $GITHUB_ENV
+            echo "QT_ANDROID_KEYSTORE_KEY_PASS=${KEYSTORE_KEY_PASS}" >> $GITHUB_ENV
+
       - name: Configure welle.io project
         run: |
             set -x
@@ -309,6 +359,7 @@ jobs:
             ${QT_INSTALL_BINDIR}/qt-cmake \
               -DQT_ANDROID_BUILD_ALL_ABIS=TRUE \
               -DQT_ANDROID_DEPLOY_RELEASE=TRUE \
+              -DQT_ANDROID_SIGN_APK=ON \
               -DQT_PATH_ANDROID_ABI_armeabi-v7a="${{ env.QT_PATH_ANDROID_ABI_armeabi-v7a }}" \
               -DQT_PATH_ANDROID_ABI_arm64-v8a="${{ env.QT_PATH_ANDROID_ABI_arm64-v8a }}" \
               -DQT_PATH_ANDROID_ABI_x86="${{ env.QT_PATH_ANDROID_ABI_x86 }}" \
@@ -331,9 +382,24 @@ jobs:
             cmake --build "build" --parallel
             ls -al build/android-build/build/outputs/apk/*/*.apk
 
+            # An unsigned APK cannot be installed on Android and that stayed
+            # unnoticed for a long time (issue #814), so refuse to publish one.
+            APKSIGNER="${MY_ANDROID_SDK_ROOT}/build-tools/${ANDROID_BUILD_TOOLS_VER}/apksigner"
+            SIGNED_APK=""
+            for apk in build/android-build/build/outputs/apk/*/*.apk; do
+                if "${APKSIGNER}" verify --verbose "${apk}"; then
+                    SIGNED_APK="${apk}"
+                    break
+                fi
+            done
+            if [ -z "${SIGNED_APK}" ]; then
+                echo "::error::No signed APK was produced, the package would not be installable."
+                exit 1
+            fi
+
             # prepare the publish
             mkdir publish
-            cp build/android-build/build/outputs/apk/*/*.apk publish/${DATE}_${LAST_COMMIT_HASH}_Android_welle-io.apk
+            cp "${SIGNED_APK}" publish/${DATE}_${LAST_COMMIT_HASH}_Android_welle-io.apk
             find publish/
 
       - name: Upload to nightly server
