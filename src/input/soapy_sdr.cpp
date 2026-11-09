@@ -25,10 +25,13 @@
  */
 
 #include <cmath>
+#include <algorithm>
 #include <vector>
 #include <sstream>
 #include <iostream>
 #include <cassert>
+#include <limits>
+#include <stdexcept>
 #include <SoapySDR/Errors.hpp>
 #include "soapy_sdr.h"
 #include "dab-constants.h"
@@ -157,14 +160,44 @@ bool CSoapySdr::restart()
         setFrequency(m_freq);
     }
 
-    auto range = m_device->getGainRange(SOAPY_SDR_RX, 0);
-    // Ignore step size, as it could be 0. 1dB steps are ok
-    for (double g = range.minimum(); g < range.maximum(); g++) {
-        m_gains.push_back(g);
+    try {
+        updateGains();
+    }
+    catch (const std::exception& e) {
+        std::clog << "SoapySDR gain range rejected: " << e.what() << std::endl;
+        stop();
+        radioController.onMessage(message_level_t::Error,
+                QT_TRANSLATE_NOOP("CRadioController",
+                    "The SoapySDR device reported an invalid gain range."));
+        return false;
     }
 
-    const bool automatic = false;
-    m_device->setGainMode(SOAPY_SDR_RX, 0, automatic);
+    try {
+        const bool automatic = false;
+        m_device->setGainMode(SOAPY_SDR_RX, 0, automatic);
+        if (m_requestedGain >= 0 && !m_sw_agc) {
+            // Validate the stored index before calling the driver. Its own
+            // out_of_range exception must be treated as a startup failure.
+            if (static_cast<size_t>(m_requestedGain) < m_gains.size()) {
+                m_device->setGain(SOAPY_SDR_RX, 0, m_gains.at(m_requestedGain));
+                std::clog << "Soapy gain is " <<
+                    m_device->getGain(SOAPY_SDR_RX, 0) << std::endl;
+            }
+            else {
+                std::clog << "Soapy gain " << m_requestedGain << " is out of range" << std::endl;
+                m_requestedGain = -1;
+            }
+        }
+    }
+    catch (const std::exception& e) {
+        std::clog << "SoapySDR gain setup failed: " << e.what() << std::endl;
+        stop();
+        m_gains.clear();
+        radioController.onMessage(message_level_t::Error,
+                QT_TRANSLATE_NOOP("CRadioController",
+                    "The SoapySDR device could not apply its gain settings."));
+        return false;
+    }
 
     if (m_device->hasDCOffsetMode(SOAPY_SDR_RX, 0)) {
         m_device->setDCOffsetMode(SOAPY_SDR_RX, 0, true);
@@ -177,6 +210,43 @@ bool CSoapySdr::restart()
     m_thread = std::thread(&CSoapySdr::workerthread, this);
 
     return true;
+}
+
+void CSoapySdr::updateGains()
+{
+    m_gains.clear();
+    const auto range = m_device->getGainRange(SOAPY_SDR_RX, 0);
+    const double minimum = range.minimum();
+    const double maximum = range.maximum();
+    const double step = range.step() == 0.0 ? 1.0 : range.step();
+    if (!std::isfinite(minimum) || !std::isfinite(maximum) ||
+        !std::isfinite(step) || step <= 0.0 || minimum > maximum) {
+        throw std::runtime_error("Invalid SoapySDR gain range");
+    }
+
+    // Bound memory and work even for a tiny but representable driver step.
+    // Build privately so a rejected range leaves no partial gain table.
+    constexpr size_t maxGainEntries = 4096;
+    std::vector<double> gains;
+
+    // A zero step denotes an unspecified step size: retain the 1 dB policy.
+    // Calculate from the minimum to avoid accumulating rounding error, and
+    // include the driver's upper endpoint without issuing an out-of-range gain.
+    const double tolerance = 8 * std::numeric_limits<double>::epsilon() *
+        std::max(1.0, std::max(std::abs(minimum), std::abs(maximum)));
+    for (size_t i = 0; ; ++i) {
+        const double gain = std::fma(static_cast<double>(i), step, minimum);
+        if (gain >= maximum || (i > 0 && maximum - gain <= tolerance))
+            break;
+        // Reserve one entry for the maximum, including off-grid endpoints.
+        if (gains.size() >= maxGainEntries - 1)
+            throw std::runtime_error("SoapySDR gain table is too large");
+        if (!gains.empty() && gain <= gains.back())
+            throw std::runtime_error("SoapySDR gain step is too small");
+        gains.push_back(gain);
+    }
+    gains.push_back(maximum);
+    m_gains.swap(gains);
 }
 
 bool CSoapySdr::is_ok()
@@ -254,6 +324,7 @@ float CSoapySdr::setGain(int32_t gainIndex)
     if (m_device != nullptr) {
         try {
             m_device->setGain(SOAPY_SDR_RX, 0, m_gains.at(gainIndex));
+            m_requestedGain = gainIndex;
         }
         catch (const out_of_range&) {
             std::clog << "Soapy gain " << gainIndex << " is out of range" << std::endl;
@@ -262,6 +333,8 @@ float CSoapySdr::setGain(int32_t gainIndex)
         std::clog << "Soapy gain is " << g << std::endl;
         return g;
     }
+    if (gainIndex >= 0)
+        m_requestedGain = gainIndex;
     return 0;
 }
 
@@ -306,8 +379,8 @@ void CSoapySdr::setClockSource(const std::string& clock_source)
 void CSoapySdr::increaseGain()
 {
     if (m_device != nullptr) {
-        float current_gain = m_device->getGain(SOAPY_SDR_RX, 0);
-        for (const float g : m_gains) {
+        const double current_gain = m_device->getGain(SOAPY_SDR_RX, 0);
+        for (const double g : m_gains) {
             if (g > current_gain) {
                 m_device->setGain(SOAPY_SDR_RX, 0, g);
                 break;
@@ -319,9 +392,9 @@ void CSoapySdr::increaseGain()
 void CSoapySdr::decreaseGain()
 {
     if (m_device != nullptr) {
-        float current_gain = m_device->getGain(SOAPY_SDR_RX, 0);
+        const double current_gain = m_device->getGain(SOAPY_SDR_RX, 0);
         for (auto it = m_gains.rbegin(); it != m_gains.rend(); ++it) {
-            if (*it > current_gain) {
+            if (*it < current_gain) {
                 m_device->setGain(SOAPY_SDR_RX, 0, *it);
                 break;
             }

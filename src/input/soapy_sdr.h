@@ -65,11 +65,13 @@ public:
     virtual bool setDeviceParam(DeviceParam param, const std::string& value);
 
 private:
+    friend class TestSoapyGain;
     void setDriverArgs(const std::string& args);
     void setAntenna(const std::string& antenna);
     void setClockSource(const std::string& clock_source);
     void decreaseGain();
     void increaseGain();
+    void updateGains();
 
     RadioControllerInterface& radioController;
     int m_freq = 0;
@@ -84,6 +86,7 @@ private:
     RingBuffer<DSPCOMPLEX> m_spectrumSampleBuffer;
 
     std::vector<double> m_gains;
+    int32_t m_requestedGain = -1;
 
     std::thread m_thread;
     void workerthread(void);
