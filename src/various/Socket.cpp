@@ -33,6 +33,11 @@
 #include <stdexcept>
 #include <iostream>
 #include <cstring>
+#include <limits>
+#include <utility>
+#ifndef _WIN32
+#include <poll.h>
+#endif
 #include "various/Socket.h"
 
 #if defined(_WIN32)
@@ -77,6 +82,9 @@ Socket::Socket(Socket&& other)
 Socket& Socket::operator=(Socket&& other)
 {
     if (&other != this) {
+        if (valid()) {
+            close();
+        }
         sock = other.sock;
         other.sock = INVALID_SOCKET;
     }
@@ -190,13 +198,10 @@ Socket Socket::accept()
 
 bool Socket::connect(const std::string& address, int port, int timeout)
 {
-#if defined(_WIN32)
-    TIMEVAL Timeout;
-#else
-    struct timeval Timeout;
-#endif
-    Timeout.tv_sec = timeout;
-    Timeout.tv_usec = 0;
+    // Preserve an existing connection, as bind() already does. The caller
+    // must close it explicitly before connecting again.
+    if (valid() || timeout < 0 || timeout > std::numeric_limits<int>::max() / 1000)
+        return false;
 
     bool ret = false;
     struct addrinfo hints;
@@ -232,19 +237,24 @@ bool Socket::connect(const std::string& address, int port, int timeout)
         if (sfd == -1)
             continue;
 
+        // Own each attempt immediately, including fcntl/getsockopt errors.
+        Socket candidate;
+        candidate.sock = sfd;
+
         // set the socket in non-blocking mode
 #ifdef _WIN32
         unsigned long mode = 1;
         int iResult = ioctlsocket(sfd, FIONBIO, &mode);
 #else
         int oldflags = fcntl(sfd, F_GETFL, 0);
-        if (oldflags == -1) goto out;
+        if (oldflags == -1) continue;
         int flags = oldflags | O_NONBLOCK;
         int iResult = fcntl(sfd, F_SETFL, flags);
 #endif
         if (iResult != 0)
         {
             std::clog << "Socket: Failed to put socket into non-blocking mode with error: " << iResult << std::endl;
+            continue;
         }
 
         struct sockaddr_in *sa = (struct sockaddr_in *) rp->ai_addr;
@@ -261,38 +271,46 @@ bool Socket::connect(const std::string& address, int port, int timeout)
         if (iResult != 0)
         {
              std::clog << "Socket: Failed to put socket into blocking mode with error: " << iResult << std::endl;
+             continue;
         }
 
+#ifdef _WIN32
+        TIMEVAL Timeout{timeout, 0};
         fd_set Write;
         FD_ZERO(&Write);
         FD_SET(sfd, &Write);
 
         // check if the socket is ready
         int sel_value = ::select(sfd+1, nullptr, &Write, nullptr, &Timeout);
-        if(FD_ISSET(sfd, &Write) && sel_value > 0)
+        if(sel_value > 0 && FD_ISSET(sfd, &Write))
+#else
+        // select()/FD_SET has a fixed FD_SETSIZE and corrupts memory for
+        // a higher descriptor. poll() has no numeric descriptor ceiling.
+        pollfd writable{sfd, POLLOUT, 0};
+        const int sel_value = ::poll(&writable, 1, timeout * 1000);
+        if (sel_value > 0 && (writable.revents & (POLLOUT | POLLERR | POLLHUP)))
+#endif
         {
             int error=0; socklen_t size=sizeof(error);
             iResult = 0;
 
-#ifndef _WIN32
+#ifdef _WIN32
+            iResult = ::getsockopt(sfd, SOL_SOCKET, SO_ERROR,
+                    reinterpret_cast<char*>(&error), &size);
+#else
             iResult = ::getsockopt(sfd, SOL_SOCKET, SO_ERROR, &error, &size);
 #endif
-            if(error > 0 && iResult == 0)
+            if(error != 0 || iResult != 0)
             {
                 std::clog << "Socket: Connection failed: \"" << strerror(error) << "\"" << std::endl;
             }
             else
             {
-                sock = sfd;
+                *this = std::move(candidate);
                 break; /* Success */
             }
         }
 
-#if defined(_WIN32)
-        closesocket(sfd);
-#else
-        ::close(sfd);
-#endif
     }
 
     if (rp == NULL) {               /* No address succeeded */

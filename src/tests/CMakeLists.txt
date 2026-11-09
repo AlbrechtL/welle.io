@@ -1,6 +1,6 @@
 # This file was generated with an AI assistant (Claude Code).
 
-find_package(Qt6 COMPONENTS Core Test REQUIRED)
+find_package(Qt6 COMPONENTS Core Test Network REQUIRED)
 
 set(CMAKE_AUTOMOC ON)
 
@@ -34,6 +34,11 @@ target_link_libraries(demod_compare PRIVATE welle_test_common)
 # "ctest -L unit" and "ctest -R rawfile" both work.
 
 # Unit tests, no test data needed
+add_executable(tst_socket unit/tst_socket.cpp)
+target_link_libraries(tst_socket PRIVATE welle Qt6::Test Qt6::Network)
+add_test(NAME unit.socket COMMAND tst_socket)
+set_tests_properties(unit.socket PROPERTIES LABELS unit TIMEOUT 30)
+
 add_executable(tst_rawfile unit/tst_rawfile.cpp)
 target_link_libraries(tst_rawfile PRIVATE welle_test_common Qt6::Test)
 add_test(NAME unit.rawfile COMMAND tst_rawfile)
