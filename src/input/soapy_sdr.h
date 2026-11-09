@@ -28,8 +28,11 @@
 
 #include <atomic>
 #include <thread>
+#include <mutex>
+#include <cstdint>
 #include "virtual_input.h"
 #include "ringbuffer.h"
+#include "software_agc.h"
 #include <SoapySDR/Version.hpp>
 #include <SoapySDR/Modules.hpp>
 #include <SoapySDR/Registry.hpp>
@@ -65,11 +68,12 @@ public:
     virtual bool setDeviceParam(DeviceParam param, const std::string& value);
 
 private:
+    friend class TestSoapyGain;
     void setDriverArgs(const std::string& args);
     void setAntenna(const std::string& antenna);
     void setClockSource(const std::string& clock_source);
-    void decreaseGain();
-    void increaseGain();
+    void updateGains();
+    bool configureAndStart();
 
     RadioControllerInterface& radioController;
     int m_freq = 0;
@@ -78,12 +82,18 @@ private:
     std::string m_clock_source;
     SoapySDR::Device *m_device = nullptr;
     std::atomic<bool> m_running = ATOMIC_VAR_INIT(false);
-    bool m_sw_agc = false;
+    std::atomic<bool> m_sw_agc{false};
+    std::atomic<bool> m_agcRetryRequested{false};
+    SoftwareAgc m_agc{250};
 
+    // reset() is a third participant alongside the reader and writer.
+    std::mutex m_sampleMutex;
+    uint64_t m_sampleGeneration = 0;
     RingBuffer<DSPCOMPLEX> m_sampleBuffer;
     RingBuffer<DSPCOMPLEX> m_spectrumSampleBuffer;
 
     std::vector<double> m_gains;
+    int32_t m_requestedGain = -1;
 
     std::thread m_thread;
     void workerthread(void);
