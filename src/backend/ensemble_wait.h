@@ -34,6 +34,9 @@ class RadioReceiver;
  * delay is long enough. Gives up after a few seconds and returns with
  * whatever the ensemble gave us so far.
  *
- * stop_requested, when set, aborts the wait as soon as it returns true. */
+ * stop_requested, when set, aborts the wait as soon as it returns true.
+ * progress, when set, is called on every poll so a caller can show what has
+ * arrived so far. */
 void wait_for_complete_ensemble(RadioReceiver& rx,
-        const std::function<bool()>& stop_requested = nullptr);
+        const std::function<bool()>& stop_requested = nullptr,
+        const std::function<void()>& progress = nullptr);
