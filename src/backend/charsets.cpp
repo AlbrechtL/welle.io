@@ -23,6 +23,7 @@
  */
 #include "charsets.h"
 #include <cstdint>
+#include <cstring>
 #include <locale>
 #include <codecvt>
 /**
@@ -109,16 +110,26 @@ std::string toUtf8StringUsingCharset(const void* buffer,
             {
                 std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> utf8conv;
 
+                // MOT/DLS fields need not start on a char16_t boundary.
+                // Copy bytes into aligned storage before conversion, retaining
+                // the existing code-unit byte order.
+                std::u16string units;
                 if (num_bytes == 0) {
-                    std::u16string buffer_char16(reinterpret_cast<const char16_t*>(buffer));
-                    return utf8conv.to_bytes(buffer_char16);
+                    const auto* bytes = static_cast<const uint8_t*>(buffer);
+                    char16_t unit;
+                    for (;;) {
+                        std::memcpy(&unit, bytes, sizeof(unit));
+                        if (unit == 0) break;
+                        units.push_back(unit);
+                        bytes += sizeof(unit);
+                    }
                 }
                 else {
-                    const char16_t* start = reinterpret_cast<const char16_t*>(buffer);
-                    const char16_t* end = start + num_bytes/2;
-                    std::u16string buffer_char16(start, end);
-                    return utf8conv.to_bytes(buffer_char16);
+                    units.resize(num_bytes / sizeof(char16_t));
+                    if (!units.empty())
+                        std::memcpy(&units[0], buffer, units.size() * sizeof(char16_t));
                 }
+                return utf8conv.to_bytes(units);
             }
             break;
 

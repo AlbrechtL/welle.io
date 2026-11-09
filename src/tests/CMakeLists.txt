@@ -54,6 +54,11 @@ add_executable(tst_spi unit/tst_spi.cpp)
 target_link_libraries(tst_spi PRIVATE welle_test_common Qt6::Test)
 add_test(NAME unit.spi COMMAND tst_spi)
 
+add_executable(tst_mot_header unit/tst_mot_header.cpp)
+target_link_libraries(tst_mot_header PRIVATE welle_test_common Qt6::Test)
+add_test(NAME unit.mot_header COMMAND tst_mot_header)
+set_tests_properties(unit.mot_header PROPERTIES LABELS unit TIMEOUT 30)
+
 add_executable(tst_software_agc unit/tst_software_agc.cpp)
 target_link_libraries(tst_software_agc PRIVATE welle_test_common Qt6::Test)
 add_test(NAME unit.software_agc COMMAND tst_software_agc)

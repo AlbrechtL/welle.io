@@ -18,6 +18,7 @@
 
 #include <string>
 #include <iostream>
+#include <stdexcept>
 #include "mot_manager.h"
 
 
@@ -31,7 +32,8 @@ void MOTEntity::AddSeg(int seg_number, bool last_seg, const uint8_t* data, size_
 
 	// copy data
 	segs[seg_number] = seg_t(len);
-	memcpy(&segs[seg_number][0], data, len);
+	if (len != 0)
+        memcpy(segs[seg_number].data(), data, len);
 	size += len;
 }
 
@@ -53,7 +55,8 @@ std::vector<uint8_t> MOTEntity::GetData() {
 	// concatenate all segments
 	for(int i = 0; i <= last_seg_number; i++) {
 		seg_t& seg = segs[i];
-		memcpy(&result[offset], &seg[0], seg.size());
+		if (!seg.empty())
+            memcpy(result.data() + offset, seg.data(), seg.size());
 		offset += seg.size();
 	}
 
@@ -103,7 +106,7 @@ bool MOTObject::ParseCheckHeader(MOT_FILE& target_file) {
 	std::string old_content_name = file.content_name;
 	std::string new_content_name;
 
-	if(!ParseMOTHeaderExtension(&data[7], data.size() - 7, file, new_content_name))
+	if(!ParseMOTHeaderExtension(data.data() + 7, data.size() - 7, file, new_content_name))
 		return false;
 
 	if(!header_update) {
@@ -157,12 +160,14 @@ bool ParseMOTHeaderExtension(const uint8_t* ext_data, size_t ext_len, MOT_FILE& 
 			break;
 		}
 
-		if(offset + data_len - 1 >= data.size())
+		if(offset > data.size() || data_len > data.size() - offset)
 			return false;
 
 		// process parameter
 		switch(param_id) {
         case 0x04:	// ExpireTime
+            if(data_len < 1)
+                return false;
             file.expire_time = data[offset]; // TODO not tested
             break;
 		case 0x05:	// TriggerTime
@@ -176,12 +181,36 @@ bool ParseMOTHeaderExtension(const uint8_t* ext_data, size_t ext_len, MOT_FILE& 
 			if(data_len == 0)
 				return false;
 			//file.content_name = CharsetTools::ConvertTextToUTF8(&data[offset + 1], data_len - 1, data[offset] >> 4, true, &file.content_name_charset);
-            file.content_name = toUtf8StringUsingCharset ( (const char *)&data[offset + 1], (CharacterSet) (data[offset] >> 4), data_len - 1);
+            // A zero length means null-terminated input to the charset helper.
+            // Handle a charset-only (empty) name without reading past the field.
+            // The shared helper also serves legacy labels. Keep stricter
+            // malformed-MOT rejection here rather than changing their policy.
+            if ((CharacterSet)(data[offset] >> 4) == CharacterSet::UnicodeUcs2) {
+                if ((data_len - 1) % sizeof(char16_t) != 0)
+                    return false;
+                if (data_len > 1) {
+                    char16_t last;
+                    memcpy(&last, data.data() + offset + data_len - sizeof(last), sizeof(last));
+                    // codecvt may silently stop before a trailing high surrogate.
+                    if (last >= 0xd800 && last <= 0xdbff)
+                        return false;
+                }
+            }
+            try {
+                file.content_name = data_len == 1 ? std::string() :
+                    toUtf8StringUsingCharset(data.data() + offset + 1,
+                        (CharacterSet) (data[offset] >> 4), data_len - 1);
+            }
+            catch (const std::range_error&) {
+                // Invalid or incomplete character sequences are malformed
+                // input, not an exception that may escape the sample worker.
+                return false;
+            }
 			new_content_name = file.content_name;
 //			fprintf(stderr, "ContentName: '%s'\n", file.content_name.c_str());
 			break;
 		case 0x10:	// MimeType
-			file.mime_type = std::string((char*) &data[offset], data_len);
+			file.mime_type = std::string((const char*) (data.data() + offset), data_len);
 			break;
 		case 0x11:	// CompressionType
 			if(data_len >= 1)
@@ -204,10 +233,10 @@ bool ParseMOTHeaderExtension(const uint8_t* ext_data, size_t ext_len, MOT_FILE& 
             file.slide_id = data[offset+1];
             break;
 		case 0x26:	// CategoryTitle
-            file.category_title = std::string((char*) &data[offset], data_len);	// already UTF-8
+            file.category_title = std::string((const char*) (data.data() + offset), data_len);	// already UTF-8
 			break;
 		case 0x27:	// ClickThroughURL
-			file.click_through_url = std::string((char*) &data[offset], data_len);	// already UTF-8
+			file.click_through_url = std::string((const char*) (data.data() + offset), data_len);	// already UTF-8
 //			fprintf(stderr, "ClickThroughURL: '%s'\n", file.click_through_url.c_str());
 			break;
 		}
