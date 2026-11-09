@@ -30,7 +30,7 @@
 class DabVirtual {
     public:
         virtual ~DabVirtual() {}
-        virtual int32_t process(const softbit_t *v, int16_t cnt) = 0;
+        virtual int32_t process(const softbit_t *v, int32_t cnt) = 0;
 };
 #endif
 

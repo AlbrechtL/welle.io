@@ -44,14 +44,14 @@ class DabAudio : public DabVirtual
 {
     public:
         DabAudio(AudioServiceComponentType dabModus,
-                  int16_t fragmentSize,
+                  int32_t fragmentSize,
                   int16_t bitRate,
                   ProtectionSettings protection,
                   ProgrammeHandlerInterface& phi,
                   const std::string& dumpFileName);
         // Only the channel decoding: the decoded logical frames are given
         // to processor, e.g. to the SPI decoder of a packet mode subchannel
-        DabAudio(int16_t fragmentSize,
+        DabAudio(int32_t fragmentSize,
                   int16_t bitRate,
                   ProtectionSettings protection,
                   std::unique_ptr<DabProcessor> processor);
@@ -59,18 +59,22 @@ class DabAudio : public DabVirtual
         DabAudio(const DabAudio&) = delete;
         DabAudio& operator=(const DabAudio&) = delete;
 
-        int32_t process(const softbit_t *v, int16_t cnt);
+        int32_t process(const softbit_t *v, int32_t cnt);
 
     private:
+        friend class DabAudioTestAccess;
+        // Owner-serialized lifecycle; finish process() calls before destruction.
+        void stopWorker();
         void    run(void);
         std::atomic<bool> running;
-        int16_t fragmentSize;
+        int32_t fragmentSize;
         int16_t bitRate;
         std::vector<uint8_t> outV;
         std::vector<softbit_t> interleaveData[16];
         EnergyDispersal energyDispersal;
 
         std::condition_variable  mscDataAvailable;
+        std::condition_variable  mscSpaceAvailable;
         std::mutex               ourMutex;
         std::thread              ourThread;
 

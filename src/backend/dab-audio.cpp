@@ -23,6 +23,7 @@
  */
 
 #include <iostream>
+#include <stdexcept>
 #include <vector>
 #include "dab-constants.h"
 #include "dab-audio.h"
@@ -45,7 +46,7 @@
 //  fragmentsize == Length * CUSize
 DabAudio::DabAudio(
         AudioServiceComponentType dabModus,
-        int16_t fragmentSize,
+        int32_t fragmentSize,
         int16_t bitRate,
         ProtectionSettings protection,
         ProgrammeHandlerInterface& phi,
@@ -56,13 +57,17 @@ DabAudio::DabAudio(
 }
 
 DabAudio::DabAudio(
-        int16_t fragmentSize,
+        int32_t fragmentSize,
         int16_t bitRate,
         ProtectionSettings protection,
         std::unique_ptr<DabProcessor> processor) :
     our_dabProcessor(std::move(processor)),
     mscBuffer(64 * 32768)
 {
+    // One CIF contains 864 capacity units of 64 soft bits. Keep the full
+    // width: valid long-form subchannels can exceed INT16_MAX soft bits.
+    if (fragmentSize <= 0 || fragmentSize > 864 * CUSize)
+        throw std::invalid_argument("DabAudio fragment exceeds CIF bounds");
     this->fragmentSize     = fragmentSize;
     this->bitRate          = bitRate;
 
@@ -89,7 +94,16 @@ DabAudio::DabAudio(
 
 DabAudio::~DabAudio()
 {
-    running = false;
+    stopWorker();
+}
+
+void DabAudio::stopWorker()
+{
+    {
+        std::lock_guard<std::mutex> lock(ourMutex);
+        running = false;
+    }
+    mscSpaceAvailable.notify_all();
 
     if (ourThread.joinable()) {
         mscDataAvailable.notify_all();
@@ -97,29 +111,27 @@ DabAudio::~DabAudio()
     }
 }
 
-int32_t DabAudio::process(const softbit_t *v, int16_t cnt)
+int32_t DabAudio::process(const softbit_t *v, int32_t cnt)
 {
-    int32_t fr;
-
-    if (mscBuffer.GetRingBufferWriteAvailable () < cnt)
-        fprintf (stderr, "dab-concurrent: buffer full\n");
-
-    while ((fr = mscBuffer.GetRingBufferWriteAvailable ()) <= cnt) {
-        if (!running)
-            return 0;
-        std::this_thread::sleep_for(std::chrono::microseconds(1));
-    }
-
+    // RingBuffer converts the count to unsigned internally. Reject invalid
+    // submissions before that conversion or any pointer access.
+    if (cnt <= 0 || cnt > 864 * CUSize || v == nullptr) return 0;
+    std::unique_lock<std::mutex> lock(ourMutex);
+    mscSpaceAvailable.wait(lock, [&] {
+        return !running || mscBuffer.GetRingBufferWriteAvailable() >= cnt;
+    });
+    if (!running) return 0;
     mscBuffer.putDataIntoBuffer(v, cnt);
-    mscDataAvailable.notify_all();
-    return fr;
+    lock.unlock();
+    mscDataAvailable.notify_one();
+    return cnt; // Number of samples accepted by this call.
 }
 
 const int16_t interleaveMap[] = {0,8,4,12,2,10,6,14,1,9,5,13,3,11,7,15};
 
 void DabAudio::run()
 {
-    int16_t i;
+    int32_t i;
     int16_t countforInterleaver = 0;
     int16_t interleaverIndex    = 0;
     std::vector<softbit_t> data(fragmentSize);
@@ -127,17 +139,16 @@ void DabAudio::run()
 
     while (running) {
         std::unique_lock<std::mutex> lock(ourMutex);
-        while (running && mscBuffer.GetRingBufferReadAvailable() <= fragmentSize) {
+        while (running && mscBuffer.GetRingBufferReadAvailable() < fragmentSize) {
             mscDataAvailable.wait(lock);
         }
         if (!running)
             break;
 
-        // mscBuffer is threadsafe to access, no need to keep the lock
-        lock.unlock();
-
         PROFILE(DAGetMSCData);
         mscBuffer.getDataFromBuffer(data.data(), fragmentSize);
+        lock.unlock();
+        mscSpaceAvailable.notify_one();
 
         PROFILE(DADeinterleave);
         for (i = 0; i < fragmentSize; i ++) {
