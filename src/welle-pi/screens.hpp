@@ -36,13 +36,15 @@
 
 class ScanningScreen : public UIScreen {
 public:
-    void setScanningStatus(const std::string& channel, int foundCount);
+    void setScanningStatus(const std::string& channel, int foundCount,
+                           const std::string& ensemble = std::string());
     void render(Frame& frame) override;
     void handleInput(InputAction action) override;
 
 private:
     std::mutex m_mutex;
     std::string m_channel;
+    std::string m_ensemble;
     int m_found = 0;
 };
 
