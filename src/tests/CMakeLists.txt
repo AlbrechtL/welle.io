@@ -34,6 +34,11 @@ target_link_libraries(demod_compare PRIVATE welle_test_common)
 # "ctest -L unit" and "ctest -R rawfile" both work.
 
 # Unit tests, no test data needed
+add_executable(tst_ofdm_handoff unit/tst_ofdm_handoff.cpp)
+target_link_libraries(tst_ofdm_handoff PRIVATE welle_test_common Qt6::Test)
+add_test(NAME unit.ofdm_handoff COMMAND tst_ofdm_handoff)
+set_tests_properties(unit.ofdm_handoff PROPERTIES LABELS unit TIMEOUT 30)
+
 add_executable(tst_rawfile unit/tst_rawfile.cpp)
 target_link_libraries(tst_rawfile PRIVATE welle_test_common Qt6::Test)
 add_test(NAME unit.rawfile COMMAND tst_rawfile)

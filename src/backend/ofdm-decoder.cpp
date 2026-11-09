@@ -75,7 +75,21 @@ OfdmDecoder::OfdmDecoder(
 
 OfdmDecoder::~OfdmDecoder()
 {
+    stopWorker();
+}
+
+void OfdmDecoder::stopWorker()
+{
+    // Request stop without waiting for the frame mutex: the worker checks this
+    // atomic flag between symbols. Joining still waits for the current symbol
+    // and any in-progress callback; this is not an immediate cancellation.
     running = false;
+    {
+        // Pair the notification with the wait predicates. Without this barrier
+        // a waiter could check the flag, miss notify_all(), then sleep forever.
+        std::lock_guard<std::mutex> lock(mutex);
+        ++generation;
+    }
     pending_symbols_cv.notify_all();
     if (thread.joinable()) {
         thread.join();
@@ -84,14 +98,33 @@ OfdmDecoder::~OfdmDecoder()
 
 void OfdmDecoder::reset()
 {
-    running = false;
-    pending_symbols_cv.notify_all();
-    if (thread.joinable()) {
-        thread.join();
-    }
+    resetWorker([](OfdmDecoder& decoder) {
+        return std::thread(&OfdmDecoder::workerthread, &decoder);
+    });
+}
 
+void OfdmDecoder::resetWorker(std::thread (*start)(OfdmDecoder&))
+{
+    // Lifecycle calls are serialized by the owner. A submission waiting on
+    // pending_symbols_cv must not cross into this new decoder generation.
+    stopWorker();
+    {
+        std::lock_guard<std::mutex> lock(mutex);
+        num_pending_symbols = 0;
+        pending_symbols.clear();
+        constellationPoints.clear();
+        running = true;
+    }
     coherent.reset();
-    thread = std::thread(&OfdmDecoder::workerthread, this);
+    try {
+        thread = start(*this);
+    }
+    catch (...) {
+        // A failed start must not leave producers waiting for a missing worker.
+        // Invalidate this generation and wake any submissions already waiting.
+        stopWorker();
+        throw;
+    }
 }
 
 void OfdmDecoder::setDemodulationMethod(DemodulationMethod method)
@@ -108,13 +141,16 @@ void OfdmDecoder::workerthread()
 {
     int currentSym = 0;
 
-    running = true;
-
     while (running) {
         std::unique_lock<std::mutex> lock(mutex);
-        // The predicate catches symbols that were pushed before we started waiting
-        pending_symbols_cv.wait_for(lock, std::chrono::milliseconds(100),
-                [this]{ return num_pending_symbols > 0 or not running; });
+        // A notification is only a hint. Work may already have arrived before
+        // this thread started waiting, or the wakeup may be spurious.
+        pending_symbols_cv.wait(lock, [this] {
+            return !running || num_pending_symbols > 0;
+        });
+        if (!running) {
+            break;
+        }
 
         if (currentSym == 0) {
             constellationPoints.clear();
@@ -123,7 +159,6 @@ void OfdmDecoder::workerthread()
         }
 
         while (num_pending_symbols > 0 && running) {
-
             if (currentSym == 0)
                 processPRS();
             else
@@ -141,23 +176,31 @@ void OfdmDecoder::workerthread()
             }
         }
 
-        // Wake up pushAllSymbols() if it waits for us to finish
+        // Keep frame storage protected throughout decoding; release the single
+        // handoff slot only after its last symbol has been consumed.
+        lock.unlock();
         pending_symbols_cv.notify_all();
     }
 
-    std::clog << "OFDM-decoder:" <<  "closing down now" << std::endl;
+    std::clog << "OFDM-decoder:" << "closing down now" << std::endl;
 }
 
 void OfdmDecoder::pushAllSymbols(std::vector<std::vector<DSPCOMPLEX> >&& syms)
 {
     std::unique_lock<std::mutex> lock(mutex);
-
-    // Don't overwrite symbols the worker thread has not decoded yet
-    pending_symbols_cv.wait(lock,
-            [this]{ return num_pending_symbols == 0 or not running; });
-
+    const auto submission_generation = generation;
+    // Never replace a frame the consumer has not read. Waiting also releases
+    // the mutex, so the consumer can drain the slot even under scheduling delay.
+    pending_symbols_cv.wait(lock, [this, submission_generation] {
+        return !running || generation != submission_generation ||
+               num_pending_symbols == 0;
+    });
+    if (!running || generation != submission_generation) {
+        return;
+    }
     pending_symbols = std::move(syms);
     num_pending_symbols = pending_symbols.size();
+    lock.unlock();
     pending_symbols_cv.notify_all();
 }
 
