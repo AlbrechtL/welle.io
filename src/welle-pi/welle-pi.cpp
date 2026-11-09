@@ -706,6 +706,8 @@ static void runAutoScanner(RadioReceiver& rx, CVirtualInput* in, RadioInterface&
                     publishScan();
                 }
             }
+            scanningScreen->setScanningStatus(channel, (int)config.getStations().size(),
+                                              rx.getEnsembleLabel().utf8_label());
         }
     }
 

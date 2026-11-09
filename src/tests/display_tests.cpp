@@ -61,6 +61,21 @@ static void testStationNameOrder() {
     assert(!stationNameLess("rts", "RTS"));
 }
 
+static void testScanning() {
+    ScanningScreen scan;
+    scan.setScanningStatus("11D", 42, "Deutschland");
+    auto lines = render(scan, 20, 2, 0);
+    assert(lines[0] == "Tuning: 11D...");
+    assert(lines[1] == "Found: 42");
+    lines = render(scan, 20, 3, 0);
+    assert(lines[2] == "Deutschland");
+    // nothing found yet: the extra row stays empty
+    scan.setScanningStatus("5C", 0);
+    lines = render(scan, 20, 3, 0);
+    assert(lines[1] == "Found: 0");
+    assert(lines[2].empty());
+}
+
 static void testRadioMarquee() {
     const uint64_t T = 10000, STEP = RadioScreen::DLS_STEP_MS, REST = RadioScreen::DLS_REST_MS;
     RadioScreen radio;
@@ -288,6 +303,7 @@ static void testUIManagerHighlight() {
 int main() {
     testUtf8();
     testStationNameOrder();
+    testScanning();
     testRadioMarquee();
     testRadioWrap();
     testStationList();

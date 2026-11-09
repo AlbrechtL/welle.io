@@ -94,16 +94,22 @@ static void renderList(Frame& frame,
 }
 
 // ScanningScreen implementation
-void ScanningScreen::setScanningStatus(const std::string& channel, int foundCount) {
+void ScanningScreen::setScanningStatus(const std::string& channel, int foundCount,
+                                       const std::string& ensemble) {
     std::lock_guard<std::mutex> lock(m_mutex);
     m_channel = channel;
     m_found = foundCount;
+    m_ensemble = ensemble;
 }
 
 void ScanningScreen::render(Frame& frame) {
     std::lock_guard<std::mutex> lock(m_mutex);
     frame.set(0, "Tuning: " + m_channel + "...");
     frame.set(1, "Found: " + std::to_string(m_found));
+    // taller displays also show the ensemble the channel carries, if any
+    if (frame.rows > 2 && !m_ensemble.empty()) {
+        frame.set(2, m_ensemble);
+    }
 }
 
 void ScanningScreen::handleInput(InputAction action) {
