@@ -838,7 +838,7 @@ int main(int argc, char **argv)
     auto load_and_sort_stations = [&]() {
         stations = config.getStations();
         std::sort(stations.begin(), stations.end(), [](const ConfigManager::Station& a, const ConfigManager::Station& b) {
-            return a.program < b.program;
+            return stationNameLess(a.program, b.program);
         });
     };
     load_and_sort_stations();

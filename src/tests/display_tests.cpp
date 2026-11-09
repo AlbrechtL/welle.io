@@ -54,6 +54,13 @@ static void testUtf8() {
     assert(utf8Fit("Ö123456", 3) == "Ö12");
 }
 
+static void testStationNameOrder() {
+    assert(stationNameLess("Rete", "RTS"));
+    assert(!stationNameLess("RTS", "Rete"));
+    assert(stationNameLess("RTS", "rts"));
+    assert(!stationNameLess("rts", "RTS"));
+}
+
 static void testRadioMarquee() {
     const uint64_t T = 10000, STEP = RadioScreen::DLS_STEP_MS, REST = RadioScreen::DLS_REST_MS;
     RadioScreen radio;
@@ -280,6 +287,7 @@ static void testUIManagerHighlight() {
 
 int main() {
     testUtf8();
+    testStationNameOrder();
     testRadioMarquee();
     testRadioWrap();
     testStationList();
