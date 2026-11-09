@@ -639,6 +639,12 @@ static void runAutoScanner(RadioReceiver& rx, CVirtualInput* in, RadioInterface&
         if (stop_requested()) break;
 
         int foundCount = (int)scanned.size();
+        // the label of the channel being scanned, empty until its FIC decodes
+        const auto updateScanningStatus = [&]() {
+            scanningScreen->setScanningStatus(channel, (int)scanned.size(),
+                                              rx.getEnsembleLabel().utf8_label(),
+                                              rx.getEnsembleId());
+        };
         scanningScreen->setScanningStatus(channel, foundCount);
 
         auto freq = channels.getFrequency(channel);
@@ -681,7 +687,7 @@ static void runAutoScanner(RadioReceiver& rx, CVirtualInput* in, RadioInterface&
         }
 
         if (ri.synced) {
-            wait_for_complete_ensemble(rx, stop_requested);
+            wait_for_complete_ensemble(rx, stop_requested, updateScanningStatus);
             if (!rx.getServiceList().empty() && !stop_requested()) {
                 bool added = false;
                 for (const auto& s : rx.getServiceList()) {
@@ -706,8 +712,7 @@ static void runAutoScanner(RadioReceiver& rx, CVirtualInput* in, RadioInterface&
                     publishScan();
                 }
             }
-            scanningScreen->setScanningStatus(channel, (int)config.getStations().size(),
-                                              rx.getEnsembleLabel().utf8_label());
+            updateScanningStatus();
         }
     }
 
