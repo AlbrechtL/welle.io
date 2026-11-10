@@ -95,7 +95,12 @@ class AlsaProgrammeHandler: public ProgrammeHandlerInterface {
                 ao = make_unique<AlsaOutput>(pcm_device.c_str(), 2, rate);
             }
 
-            ao->playPCM(move(audioData));
+            if (!ao->playPCM(move(audioData))) {
+                /* The device did not take the audio: recreate it on the next
+                 * frame, which also retries a failed open. */
+                cerr << "Audio output failed, recreating it" << endl;
+                ao.reset();
+            }
         }
 
         virtual void onRsErrors(bool uncorrectedErrors, int numCorrectedErrors) override {

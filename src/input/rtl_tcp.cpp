@@ -208,10 +208,16 @@ int32_t CRTL_TCP_Client::getSamplesToRead(void)
 
 void CRTL_TCP_Client::reset(void)
 {
+    resetForScan();
+    // Refill half the network buffer (about 1 s) before passing samples on
+    firstFilledNetworkBuffer = false;
+}
+
+void CRTL_TCP_Client::resetForScan(void)
+{
     sampleBuffer.FlushRingBuffer();
     sampleNetworkBuffer.FlushRingBuffer();
     spectrumSampleBuffer.FlushRingBuffer();
-    firstFilledNetworkBuffer = false;
 }
 
 void CRTL_TCP_Client::receiveData(void)

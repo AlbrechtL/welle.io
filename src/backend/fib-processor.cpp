@@ -35,7 +35,7 @@
 FIBProcessor::FIBProcessor(RadioControllerInterface& mr) :
     myRadioInterface(mr)
 {
-    clearEnsemble();
+    clearEnsembleLocked();
 }
 
 //  FIB's are segments of 256 bits. When here, we already
@@ -1383,6 +1383,9 @@ void FIBProcessor::clearEnsemble()
 {
     std::lock_guard<std::mutex> lock(mutex);
     clearEnsembleLocked();
+    // Consumers show the label they got from us: tell them it is gone, so a
+    // retune does not leave the previous ensemble's name on the screen.
+    myRadioInterface.onSetEnsembleLabel(ensembleLabel);
 }
 
 void FIBProcessor::clearEnsembleLocked()
@@ -1394,6 +1397,9 @@ void FIBProcessor::clearEnsembleLocked()
     changeOccurrence = -1;
     services.clear();
     announcedServiceCount = 0;
+    // after a retune the label of the previous ensemble must not be shown
+    ensembleId = 0;
+    ensembleLabel = DabLabel();
     serviceRepeatCount.clear();
     timeLastServiceDecrement = std::chrono::steady_clock::now();
     timeLastFCT0Frame = std::chrono::system_clock::now();

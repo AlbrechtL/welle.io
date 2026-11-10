@@ -22,6 +22,9 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
+#ifndef __ALSAOUTPUT_H__
+#define __ALSAOUTPUT_H__
+
 #if defined(HAVE_ALSA)
 #include <cstddef>
 #include <vector>
@@ -37,7 +40,10 @@ class AlsaOutput {
         AlsaOutput(const AlsaOutput& other) = delete;
         AlsaOutput& operator=(const AlsaOutput& other) = delete;
 
-        void playPCM(std::vector<int16_t>&& pcm);
+        /* False if the device did not take the samples; the caller may
+         * recreate the output. An instance without a device discards the
+         * audio and reports success. */
+        bool playPCM(std::vector<int16_t>&& pcm);
 
         /* False if the PCM device could not be opened. Such an instance
          * discards the audio it is given. */
@@ -51,3 +57,4 @@ class AlsaOutput {
 };
 
 #endif // defined(HAVE_ALSA)
+#endif // __ALSAOUTPUT_H__
