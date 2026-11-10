@@ -245,7 +245,11 @@ class AlsaProgrammeHandler: public ProgrammeHandlerInterface {
                 ao_failed = false;
             }
 
-            ao->playPCM(move(audioData));
+            if (!ao->playPCM(move(audioData))) {
+                /* The device did not take the audio: recreate it on a later
+                 * frame, the retry throttle above decides when. */
+                ao.reset();
+            }
         }
 
         virtual void onRsErrors(bool uncorrectedErrors, int numCorrectedErrors) override
