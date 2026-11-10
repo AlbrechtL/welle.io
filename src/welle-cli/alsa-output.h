@@ -40,7 +40,10 @@ class AlsaOutput {
         AlsaOutput(const AlsaOutput& other) = delete;
         AlsaOutput& operator=(const AlsaOutput& other) = delete;
 
-        void playPCM(std::vector<int16_t>&& pcm);
+        /* False if the device did not take the samples; the caller may
+         * recreate the output. An instance without a device discards the
+         * audio and reports success. */
+        bool playPCM(std::vector<int16_t>&& pcm);
 
         /* False if the PCM device could not be opened. Such an instance
          * discards the audio it is given. */
