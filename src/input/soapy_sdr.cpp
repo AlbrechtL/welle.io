@@ -321,7 +321,7 @@ void CSoapySdr::decreaseGain()
     if (m_device != nullptr) {
         float current_gain = m_device->getGain(SOAPY_SDR_RX, 0);
         for (auto it = m_gains.rbegin(); it != m_gains.rend(); ++it) {
-            if (*it > current_gain) {
+            if (*it < current_gain) {
                 m_device->setGain(SOAPY_SDR_RX, 0, *it);
                 break;
             }

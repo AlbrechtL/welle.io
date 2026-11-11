@@ -58,6 +58,13 @@ add_executable(tst_software_agc unit/tst_software_agc.cpp)
 target_link_libraries(tst_software_agc PRIVATE welle_test_common Qt6::Test)
 add_test(NAME unit.software_agc COMMAND tst_software_agc)
 
+if(SoapySDR_FOUND)
+    add_executable(tst_soapy_gain unit/tst_soapy_gain.cpp)
+    target_link_libraries(tst_soapy_gain PRIVATE welle_test_common Qt6::Test)
+    add_test(NAME unit.soapy_gain COMMAND tst_soapy_gain)
+    set_tests_properties(unit.soapy_gain PROPERTIES LABELS unit TIMEOUT 30)
+endif()
+
 add_executable(tst_rtl_tcp unit/tst_rtl_tcp.cpp)
 target_include_directories(tst_rtl_tcp PRIVATE ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(tst_rtl_tcp PRIVATE welle_test_common Qt6::Test)
