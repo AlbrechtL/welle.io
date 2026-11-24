@@ -28,6 +28,7 @@ import QtQuick.Layouts
 import QtQuick.Controls
 import QtQuick.Controls.Material
 import QtQuick.Controls.impl
+import QtQuick.Controls.Material.impl
 
 import "../controls"
 import "../models"
@@ -189,12 +190,17 @@ ItemDelegate {
 
             Accessible.name: qsTr("Choose ensemble")
 
+            // Only one ensemble can be chosen: radio buttons, not check boxes
+            ButtonGroup { id: ensembleGroup }
+
             AutoSizeMenu {
                 id: ensembleMenu
 
                 Instantiator {
                     model: root.availableChannels
                     delegate: MenuItem {
+                        id: ensembleItem
+                        objectName: "ensembleMenuItem"
                         required property string modelData
                         text: {
                             var name = root.stations ? root.stations.ensembleName(modelData) : ""
@@ -202,7 +208,17 @@ ItemDelegate {
                         }
                         checkable: true
                         checked: modelData === root.channelNameText
+                        ButtonGroup.group: ensembleGroup
                         onTriggered: root.setDefaultChannel(modelData)
+
+                        Accessible.role: Accessible.RadioButton
+
+                        indicator: RadioIndicator {
+                            objectName: "ensembleRadioIndicator"
+                            x: ensembleItem.text ? (ensembleItem.mirrored ? ensembleItem.width - width - ensembleItem.rightPadding : ensembleItem.leftPadding) : ensembleItem.leftPadding + (ensembleItem.availableWidth - width) / 2
+                            y: ensembleItem.topPadding + (ensembleItem.availableHeight - height) / 2
+                            control: ensembleItem
+                        }
                     }
 
                     onObjectAdded: (index, object) => ensembleMenu.insertItem(index, object)

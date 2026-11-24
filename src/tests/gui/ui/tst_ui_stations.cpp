@@ -20,7 +20,8 @@
 
 // gui.ui.stations: the station list. Empty state, scan from the menu,
 // station logos, favorites, the lists after a restart, clearing the list,
-// and a long list of the real recording with the most services.
+// a long list of the real recording with the most services and the ensemble
+// choice of a station received in two ensembles.
 
 #include <QBuffer>
 #include <QImage>
@@ -46,6 +47,7 @@ private slots:
     void keepsListsAfterRestart();
     void clearsList();
     void longList();
+    void choosesEnsembleWithRadioButtons();
 
 private:
     // Opens the menu of the station list and clicks an entry
@@ -261,6 +263,66 @@ void UiStationsTests::longList()
 
     qInfo().noquote() << QString("%1 stations of %2 listed, played the last one: %3")
                              .arg(stations.size()).arg(app.clip()["id"].toString(), lastName);
+}
+
+void UiStationsTests::choosesEnsembleWithRadioButtons()
+{
+    // Stations of the RAW file have the channel "File" and no ensemble
+    // choice: a station received on 11D and 5C, as by two scans. The last
+    // test, because choosing an ensemble switches the channel.
+    QVERIFY(showList("all"));
+    const quint32 sid = 0xF123;
+    const QString channel = "11D";
+    QObject* all = app.find("stationList");
+    for (const QString& ch : {channel, QString("5C")})
+        QVERIFY(QMetaObject::invokeMethod(all, "addStation", Q_ARG(QVariant, QString("Test station")),
+                                          Q_ARG(QVariant, sid), Q_ARG(QVariant, ch), Q_ARG(QVariant, false)));
+    QTRY_VERIFY(stationRow(sid));
+    QTRY_COMPARE(stationRow(sid)->property("availableChannels").toStringList().size(), 2);
+
+    // The row can be created again when the model changes
+    auto ensembleButton = [&]() -> QQuickItem* {
+        QQuickItem* row = stationRow(sid);
+        return row ? row->findChild<QQuickItem*>("ensembleSwitchButton") : nullptr;
+    };
+    QVERIFY(ensembleButton());
+    QVERIFY(app.click(ensembleButton()));
+    QTRY_COMPARE(app.visibleItems("ensembleMenuItem").size(), 2);
+    app.settle();
+    app.screenshot("stations-ensemble-choice");
+
+    // Radio buttons, exactly one chosen: the current ensemble
+    QQuickItem* current = nullptr;
+    for (QQuickItem* item : app.visibleItems("ensembleMenuItem")) {
+        QQuickItem* indicator = item->property("indicator").value<QQuickItem*>();
+        QVERIFY(indicator);
+        QCOMPARE(indicator->objectName(), QString("ensembleRadioIndicator"));
+        QVERIFY(indicator->isVisible());
+        if (item->property("checked").toBool()) {
+            QVERIFY2(!current, "More than one ensemble is chosen");
+            current = item;
+        }
+    }
+    QVERIFY(current);
+    QVERIFY(current->property("text").toString().contains(channel));
+
+    // Choosing the chosen ensemble again keeps it chosen (a check box
+    // would be unchecked)
+    QVERIFY(app.click(current));
+    QTRY_VERIFY(!app.isVisible("ensembleMenuItem"));
+    app.settle();
+    QVERIFY(ensembleButton());
+    QVERIFY(app.click(ensembleButton()));
+    QTRY_COMPARE(app.visibleItems("ensembleMenuItem").size(), 2);
+    app.settle();
+    int checked = 0;
+    for (QQuickItem* item : app.visibleItems("ensembleMenuItem"))
+        checked += item->property("checked").toBool() ? 1 : 0;
+    QCOMPARE(checked, 1);
+    app.key(Qt::Key_Escape);
+    QTRY_VERIFY(!app.isVisible("ensembleMenuItem"));
+
+    qInfo() << "A station in two ensembles offers the ensembles as radio buttons";
 }
 
 WELLE_GUI_TEST_MAIN(UiStationsTests)
