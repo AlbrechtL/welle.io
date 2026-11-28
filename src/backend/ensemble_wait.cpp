@@ -56,7 +56,8 @@ static bool has_label(const Service& s)
 }
 
 void wait_for_complete_ensemble(RadioReceiver& rx,
-        const std::function<bool()>& stop_requested)
+        const std::function<bool()>& stop_requested,
+        const std::function<void()>& progress)
 {
     const auto stop = [&]() { return stop_requested and stop_requested(); };
 
@@ -65,6 +66,9 @@ void wait_for_complete_ensemble(RadioReceiver& rx,
     uint64_t last_new_service = now_ms();
 
     while (not stop() and now_ms() < deadline) {
+        if (progress) {
+            progress();
+        }
         const auto services = rx.getServiceList();
         const size_t labelled = count_if(services.begin(), services.end(),
                 has_label);
