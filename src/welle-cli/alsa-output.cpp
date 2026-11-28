@@ -25,10 +25,15 @@
 
 #if defined(HAVE_ALSA)
 
+#include <cerrno>
 #include <thread>
 #include "welle-cli/alsa-output.h"
 
 using namespace std;
+
+/* How long a full device may hold the audio callback before its frame is
+ * dropped. snd_pcm_wait() returns early as soon as there is room again. */
+static const int WAIT_TIMEOUT_MS = 1000;
 
 AlsaOutput::AlsaOutput(int chans, unsigned int rate) :
     AlsaOutput(PCM_DEVICE, chans, rate) {}
@@ -36,7 +41,10 @@ AlsaOutput::AlsaOutput(int chans, unsigned int rate) :
 AlsaOutput::AlsaOutput(const char* device, int chans, unsigned int rate) :
     channels(chans)
 {
-    int err = snd_pcm_open(&pcm_handle, device, SND_PCM_STREAM_PLAYBACK, 0);
+    /* Non-blocking: a stalled device must not block the thread that decodes
+     * the audio, playPCM() waits with a timeout instead. */
+    int err = snd_pcm_open(&pcm_handle, device, SND_PCM_STREAM_PLAYBACK,
+                           SND_PCM_NONBLOCK);
     if (err < 0) {
         fprintf(stderr, "ERROR: Can't open \"%s\" PCM device. %s\n",
                 device, snd_strerror(err));
@@ -109,15 +117,16 @@ AlsaOutput::~AlsaOutput() {
     }
 }
 
-void AlsaOutput::playPCM(std::vector<int16_t>&& pcm)
+bool AlsaOutput::playPCM(std::vector<int16_t>&& pcm)
 {
     if (pcm.empty())
-        return;
+        return true;
 
     /* Without a device, or without a period size to send the samples in,
-     * there is nothing we can do with the audio. */
+     * there is nothing we can do with the audio. Not a failure: the open
+     * already reported itself and the caller cannot repair it here. */
     if (pcm_handle == nullptr or period_size == 0)
-        return;
+        return true;
 
     const int16_t *data = pcm.data();
 
@@ -129,13 +138,23 @@ void AlsaOutput::playPCM(std::vector<int16_t>&& pcm)
 
         snd_pcm_sframes_t ret = snd_pcm_writei(pcm_handle, data, frames_to_send);
 
+        if (ret == -EAGAIN) {
+            /* The device is full, and the caller must not block: wait at most
+             * that long for room, then drop the rest of this frame. */
+            if (snd_pcm_wait(pcm_handle, WAIT_TIMEOUT_MS) <= 0) {
+                fprintf(stderr, "ERROR: PCM device not ready, dropping %zu frames\n",
+                        remaining);
+                return false;
+            }
+            continue;
+        }
         if (ret < 0) {
             ret = snd_pcm_recover(pcm_handle, ret, 0);
         }
         if (ret < 0) {
             fprintf(stderr, "ERROR: Can't write to PCM device. %s\n",
                     snd_strerror(ret));
-            break;
+            return false;
         }
         else {
             size_t samples_read = ret * channels;
@@ -143,6 +162,7 @@ void AlsaOutput::playPCM(std::vector<int16_t>&& pcm)
             data += samples_read;
         }
     }
+    return true;
 }
 
 #endif // defined(HAVE_ALSA)
