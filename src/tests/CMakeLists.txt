@@ -1,6 +1,6 @@
 # This file was generated with an AI assistant (Claude Code).
 
-find_package(Qt6 COMPONENTS Core Test REQUIRED)
+find_package(Qt6 COMPONENTS Core Test Network REQUIRED)
 
 set(CMAKE_AUTOMOC ON)
 
@@ -62,6 +62,12 @@ add_executable(tst_rtl_tcp unit/tst_rtl_tcp.cpp)
 target_include_directories(tst_rtl_tcp PRIVATE ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(tst_rtl_tcp PRIVATE welle_test_common Qt6::Test)
 add_test(NAME unit.rtl_tcp COMMAND tst_rtl_tcp)
+
+add_executable(tst_rtl_tcp_flow unit/tst_rtl_tcp_flow.cpp)
+target_link_libraries(tst_rtl_tcp_flow PRIVATE welle_test_common Qt6::Test Qt6::Network)
+add_test(NAME unit.rtl_tcp_flow COMMAND tst_rtl_tcp_flow)
+set_tests_properties(unit.rtl_tcp_flow PROPERTIES LABELS unit TIMEOUT 45)
+
 
 add_executable(tst_rational_resampler unit/tst_rational_resampler.cpp)
 target_link_libraries(tst_rational_resampler PRIVATE welle_test_common Qt6::Test)

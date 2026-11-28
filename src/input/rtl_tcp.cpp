@@ -32,9 +32,11 @@
 
 #include <algorithm>
 #include <iostream>
+#include <chrono>
 #include <sys/time.h>
 
 #include "rtl_tcp.h"
+#include "iq_transfer.h"
 
 // For Qt translation if Qt is existing
 #ifdef QT_CORE_LIB
@@ -63,10 +65,11 @@ enum rtlsdr_tuner {
 
 #define ONE_BYTE 8
 
+// Retain the existing nominal pacing here; adaptive monotonic pacing is a
+// separate change.
 static inline int64_t getMyTime(void)
 {
     struct timeval tv;
-
     gettimeofday(&tv, NULL);
     return ((int64_t)tv.tv_sec * 1000000 + (int64_t)tv.tv_usec);
 }
@@ -90,7 +93,10 @@ CRTL_TCP_Client::~CRTL_TCP_Client(void)
 void CRTL_TCP_Client::setFrequency(int newFrequency)
 {
     frequency = newFrequency;
-    discardBytes = size_t(settleMs) * INPUT_RATE * 2 / 1000;
+    {
+        std::lock_guard<std::mutex> lock(bufferTransferMutex);
+        discardBytes = size_t(settleMs) * INPUT_RATE * 2 / 1000;
+    }
     sendVFO(newFrequency);
     agc.reset();
 }
@@ -188,11 +194,13 @@ static int32_t read_convert_from_buffer(
 
 int32_t CRTL_TCP_Client::getSamples(DSPCOMPLEX *v, int32_t size)
 {
+    std::lock_guard<std::mutex> lock(bufferTransferMutex);
     return read_convert_from_buffer(sampleBuffer, v, size);
 }
 
 std::vector<DSPCOMPLEX> CRTL_TCP_Client::getSpectrumSamples(int size)
 {
+    std::lock_guard<std::mutex> lock(bufferTransferMutex);
     std::vector<DSPCOMPLEX> buffer(size);
     int sizeRead = read_convert_from_buffer(spectrumSampleBuffer, buffer.data(), size);
     if (sizeRead < size) {
@@ -203,11 +211,14 @@ std::vector<DSPCOMPLEX> CRTL_TCP_Client::getSpectrumSamples(int size)
 
 int32_t CRTL_TCP_Client::getSamplesToRead(void)
 {
+    std::lock_guard<std::mutex> lock(bufferTransferMutex);
     return sampleBuffer.GetRingBufferReadAvailable() / 2;
 }
 
 void CRTL_TCP_Client::reset(void)
 {
+    std::lock_guard<std::mutex> lock(bufferTransferMutex);
+    ++bufferGeneration;
     sampleBuffer.FlushRingBuffer();
     sampleNetworkBuffer.FlushRingBuffer();
     spectrumSampleBuffer.FlushRingBuffer();
@@ -218,6 +229,11 @@ void CRTL_TCP_Client::receiveData(void)
 {
     std::vector<uint8_t> buffer(8192);
 
+    uint64_t generation;
+    {
+        std::lock_guard<std::mutex> lock(bufferTransferMutex);
+        generation = bufferGeneration;
+    }
     size_t read = 0;
 
     while (sock.valid() && read < buffer.size()) {
@@ -271,6 +287,16 @@ void CRTL_TCP_Client::receiveData(void)
         }
     }
 
+    if (!connected || !rtlsdrRunning) return;
+    // The blocking loop accumulates split reads; disconnect/stop return above.
+    // This resize is defensive, not a promise that short blocks are published.
+    buffer.resize(read);
+    if (firstData && buffer.size() < sizeof(dongle_info_t)) {
+        // Fail closed if a future receive-loop change allows an incomplete header.
+        handleDisconnect();
+        return;
+    }
+
     if (firstData) {
         firstData = false;
 
@@ -311,7 +337,9 @@ void CRTL_TCP_Client::receiveData(void)
             setGain(isAGC ? getGainCount() / 2 : currentGainCount.load());
             agc.reset();
             sendRate(INPUT_RATE);
-            sendVFO(frequency);  
+            sendVFO(frequency);
+            // The recognized dongle header is metadata, not six I/Q samples.
+            buffer.erase(buffer.begin(), buffer.begin() + sizeof(dongle_info_t));
         }
         else {
             std::clog << "RTL_TCP_CLIENT: Didn't find the \"RTL0\" magic key." <<
@@ -319,30 +347,29 @@ void CRTL_TCP_Client::receiveData(void)
         }
     }
 
-    // After a retune the server still sends up to about 150 ms of the old
-    // frequency. A much stronger previous channel would hide a weak one in
-    // the channel scan.
-    const size_t skip = std::min(discardBytes.load(), buffer.size());
-    discardBytes -= skip;
-    sampleNetworkBuffer.putDataIntoBuffer(buffer.data() + skip, buffer.size() - skip);
-
-    // First fill the complete buffer to avoid sound outtages if the stream data rate is not stable e.g. over WIFI
-    if(!firstFilledNetworkBuffer) {
-        float bufferFill = (float) sampleNetworkBuffer.GetRingBufferReadAvailable() / sampleNetworkBuffer.GetBufferSize() * 100;
-
-        // Wait for 50% filled buffer
-        if(bufferFill >= 50)
-            firstFilledNetworkBuffer = true;
-
-        if((getMyTime() - oldTime_us > 100e3) || firstFilledNetworkBuffer) {
-            //std::clog << "RTL_TCP_CLIENT: Fill network buffer " << bufferFill << "%" << std::endl;
-            oldTime_us = getMyTime();
+    // Keep received data pending while the network reservoir is full. TCP
+    // backpressure is bounded by the sender's own buffers; a reset cancels
+    // this old-generation block instead of injecting it after the retune.
+    while (rtlsdrRunning && connected) {
+        {
+            std::lock_guard<std::mutex> lock(bufferTransferMutex);
+            if (generation != bufferGeneration) return;
+            if (sampleNetworkBuffer.GetRingBufferWriteAvailable() >= int(buffer.size())) {
+                // Preserve next's intentional discard of old-frequency samples.
+                const size_t skip = std::min(discardBytes.load(), buffer.size());
+                discardBytes -= skip;
+                sampleNetworkBuffer.putDataIntoBuffer(buffer.data() + skip, buffer.size() - skip);
+                if (sampleNetworkBuffer.GetRingBufferReadAvailable() >=
+                        sampleNetworkBuffer.GetBufferSize() / 2)
+                    firstFilledNetworkBuffer = true;
+                break;
+            }
         }
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 
-
-    // Level measurement of the software AGC
-    agc.process(buffer.data(), buffer.size());
+    // Keep the upstream software AGC and retune behaviour.
+    if (rtlsdrRunning && connected) agc.process(buffer.data(), buffer.size());
 }
 
 void CRTL_TCP_Client::handleDisconnect()
@@ -563,50 +590,40 @@ void CRTL_TCP_Client::receiveAndReconnect()
 void CRTL_TCP_Client::networkBufferCopy()
 {
     std::vector<uint8_t> tempBuffer(NETWORK_BUFFER_READ_SAMPLES * 2);
+    int64_t nextCopy_us = getMyTime();
 
     while (rtlsdrRunning) {
-        if(!firstFilledNetworkBuffer) {
+        int amount = 0;
+        int queuedBytes = 0;
+        bool ready = false;
+        {
+            std::lock_guard<std::mutex> lock(bufferTransferMutex);
+            ready = firstFilledNetworkBuffer;
+            if (ready) {
+                amount = transferIQ(sampleNetworkBuffer, sampleBuffer,
+                                    tempBuffer.data(), tempBuffer.size());
+                queuedBytes = sampleNetworkBuffer.GetRingBufferReadAvailable();
+                if (amount > 0) {
+                    spectrumSampleBuffer.putDataIntoBuffer(tempBuffer.data(), amount);
+                    putIntoRecordBuffer(*tempBuffer.data(), amount);
+                }
+            }
+        }
+        if (!ready || (amount == 0 && queuedBytes < 2)) {
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            nextStop_us = getMyTime();
+            nextCopy_us = getMyTime();
             continue;
         }
-
-        int32_t samples = NETWORK_BUFFER_READ_SAMPLES;
-
-        // Figure out the max samples to read from network buffer
-        int32_t samplesInBuffer = sampleNetworkBuffer.GetRingBufferReadAvailable() / 2;
-        if(samplesInBuffer < samples)
-            samples = samplesInBuffer;
-
-        if(samples == 0) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            nextStop_us = getMyTime();
+        if (amount == 0) {
+            // Decoder full: leave the bytes upstream and recheck stop/reset.
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            // Do not accumulate an unbounded catch-up burst during a stall.
+            nextCopy_us = getMyTime();
             continue;
         }
-
-        // Read data
-        int32_t amount = sampleNetworkBuffer.getDataFromBuffer(tempBuffer.data(), 2 * samples);
-
-        // Write data to standard buffers
-        sampleBuffer.putDataIntoBuffer(tempBuffer.data(), amount);
-        spectrumSampleBuffer.putDataIntoBuffer(tempBuffer.data(), amount);
-        putIntoRecordBuffer(*tempBuffer.data(), amount);
-
-        if(getMyTime() - oldTime_us > 500e3) { // 500 ms
-
-            // float bufferFill = (float) sampleNetworkBuffer.GetRingBufferReadAvailable() / sampleNetworkBuffer.GetBufferSize() * 100;
-            //std::clog << "RTL_TCP_CLIENT: Network buffer fill level " << bufferFill << "%" << std::endl;
-
-            oldTime_us = getMyTime();
-        }
-
-
-        uint32_t period_us = samples / ((float) INPUT_RATE / 1e6);
-        nextStop_us += period_us;
-        int64_t timeToWait_us = nextStop_us - getMyTime();
-
-        // Send thread to sleep
-        std::this_thread::sleep_for(std::chrono::microseconds(timeToWait_us));
+        const uint32_t period_us = (amount / 2) / ((float) INPUT_RATE / 1e6);
+        nextCopy_us += period_us;
+        std::this_thread::sleep_for(std::chrono::microseconds(nextCopy_us - getMyTime()));
     }
 }
 
