@@ -218,6 +218,8 @@ public:
     virtual bool restart(void) = 0;
     virtual void stop(void) = 0;
     virtual void reset(void) = 0;
+    // reset() without refilling a jitter buffer first: the scan plays no audio
+    virtual void resetForScan(void) { reset(); }
     virtual int32_t getSamples(DSPCOMPLEX* buffer, int32_t size) = 0;
     virtual std::vector<DSPCOMPLEX> getSpectrumSamples(int size) = 0;
     virtual int32_t getSamplesToRead(void) = 0;
