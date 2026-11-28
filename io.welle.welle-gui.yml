@@ -93,6 +93,18 @@ modules:
         url: 'https://github.com/pothosware/SoapyRemote.git'
         commit: 40c3ef9053b63885b7444ce7e9ef00d2c7964c9d
 
+  - name: mirisdr
+    buildsystem: cmake-ninja
+    config-opts:
+      - '-DENABLE_SOAPY=ON'
+      - '-DSOAPY_PROBE_SERIAL=ON'
+      # This resets the receiver on close/disconnect, making it coexist with the API
+      - '-DSOAPY_ROM_ON_CLOSE=ON'
+    sources:
+      - type: git
+        url: https://github.com/BertoldVdb/libmirisdr-6.git
+        commit: 1d57ab26026520326cd4adb93386b1090074bb5a
+
   - name: welle.io
     buildsystem: cmake-ninja
     config-opts:
